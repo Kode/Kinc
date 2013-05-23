@@ -1,0 +1,522 @@
+#include "pch.h"
+#include <Kore/Math/Core.h>
+#include "Direct3D9.h"
+#include <Kore/Application.h>
+#include <Kore/Graphics/Shader.h>
+#undef CreateWindow
+#include <Kore/System.h>
+
+using namespace Kore;
+
+#ifdef SYS_XBOX360
+#define USE_SHADER
+#endif
+
+LPDIRECT3D9 d3d;
+LPDIRECT3DDEVICE9 device;
+
+namespace {
+	void affirm(HRESULT) { }
+
+	HWND hWnd;
+	unsigned hz;
+	bool vsync;
+
+	void swapBuffers() {
+		device->Present(0, 0, 0, 0);
+	}
+
+	Shader* pixelShader = nullptr;
+	Shader* vertexShader = nullptr;
+	IDirect3DSurface9* backBuffer = nullptr;
+	IDirect3DSurface9* depthBuffer = nullptr;
+
+	void initDeviceStates() {
+		D3DCAPS9 caps;
+		device->GetDeviceCaps(&caps);
+
+		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	//	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	#ifndef USE_SHADER
+		device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	#endif
+		device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+		device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	#ifndef USE_SHADER
+		device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+		device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
+		affirm(device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+		affirm(device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+	#endif
+		//if (d3dpp.Windowed != TRUE) Cursor->Hide();
+	
+		device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		for (int i = 0; i < 16; ++i) {
+			device->SetSamplerState(i, D3DSAMP_MAGFILTER, D3DTEXF_ANISOTROPIC);
+			device->SetSamplerState(i, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+			device->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(i, D3DSAMP_MAXANISOTROPY, caps.MaxAnisotropy);
+		}
+
+		device->SetSamplerState(D3DVERTEXTEXTURESAMPLER0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+		device->SetSamplerState(D3DVERTEXTEXTURESAMPLER0, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+
+		device->Clear(0, 0, D3DCLEAR_TARGET, 0, 0, 0);
+	}
+}
+
+void Graphics::destroy() {
+
+}
+
+void Graphics::changeResolution(int width, int height) {
+	/*D3DPRESENT_PARAMETERS d3dpp; 
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferCount = 2;
+	d3dpp.BackBufferWidth = width;
+	d3dpp.BackBufferHeight = height;
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.EnableAutoDepthStencil = TRUE;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE; //D3DPRESENT_INTERVAL_IMMEDIATE;
+	if (antialiasing()) {
+		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_4_SAMPLES, nullptr)))
+			d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
+		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_8_SAMPLES, nullptr)))
+			d3dpp.MultiSampleType = D3DMULTISAMPLE_8_SAMPLES;
+	}
+	else {
+		d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	}
+
+	device->Reset(&d3dpp);
+
+	initDeviceStates();*/
+}
+
+void Graphics::init() {
+	if (!hasWindow()) return;
+
+	hWnd = (HWND)System::createWindow();
+
+	d3d = Direct3DCreate9(D3D_SDK_VERSION);
+	//if (!d3d) throw Exception("Could not initialize Direct3D9");
+
+#ifdef SYS_WINDOWS
+	D3DPRESENT_PARAMETERS d3dpp; 
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferCount = 2;
+	d3dpp.BackBufferWidth = Application::the()->width();
+	d3dpp.BackBufferHeight = Application::the()->height();
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.EnableAutoDepthStencil = TRUE;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE; //D3DPRESENT_INTERVAL_IMMEDIATE;
+	if (antialiasing()) {
+		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_4_SAMPLES, nullptr)))
+			d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
+		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_8_SAMPLES, nullptr)))
+			d3dpp.MultiSampleType = D3DMULTISAMPLE_8_SAMPLES;
+	}
+	else {
+		d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	}
+#endif
+
+#ifdef SYS_XBOX360
+	D3DPRESENT_PARAMETERS d3dpp; 
+	ZeroMemory( &d3dpp, sizeof(d3dpp) );
+	XVIDEO_MODE VideoMode;
+	XGetVideoMode( &VideoMode );
+	//g_bWidescreen = VideoMode.fIsWideScreen;
+	d3dpp.BackBufferWidth        = min(VideoMode.dwDisplayWidth, 1280);
+	d3dpp.BackBufferHeight       = min(VideoMode.dwDisplayHeight, 720);
+	d3dpp.BackBufferFormat       = D3DFMT_X8R8G8B8;
+	d3dpp.BackBufferCount        = 1;
+	d3dpp.EnableAutoDepthStencil = TRUE;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+	d3dpp.SwapEffect             = D3DSWAPEFFECT_DISCARD;
+	d3dpp.PresentationInterval   = D3DPRESENT_INTERVAL_ONE;
+#endif
+	
+#ifdef SYS_XBOX360
+	d3d->CreateDevice(0, D3DDEVTYPE_HAL, nullptr, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device);
+#else
+	if (!SUCCEEDED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device)))
+		d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
+	//d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
+#endif
+
+#ifdef SYS_WINDOWS
+	if (Application::the()->showWindow()) {
+		ShowWindow(hWnd, SW_SHOWDEFAULT);
+		UpdateWindow(hWnd);
+	}
+#endif
+
+	initDeviceStates();
+
+#ifdef SYS_WINDOWS
+	if (fullscreen) {
+		//hz = d3dpp.FullScreen_RefreshRateInHz;
+		D3DDISPLAYMODE mode;
+		device->GetDisplayMode(0, &mode);
+		hz = mode.RefreshRate;
+	}
+	if (!fullscreen || hz == 0) {
+		DEVMODE devMode;
+		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
+		hz = devMode.dmDisplayFrequency;
+	}
+#endif
+#ifdef SYS_XBOX360
+	hz = 60;
+#endif
+	vsync = d3dpp.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE;
+
+#ifdef USE_SHADER
+	vertexShader = new Shader("standard", SHADER_VERTEX);
+	pixelShader = new Shader("standard", SHADER_FRAGMENT);
+
+	vertexShader->set();
+	pixelShader->set();
+
+	setFragmentBool(L"lighting", false);
+#endif
+}
+
+namespace {
+	DWORD convertFilter(TextureFilter filter) {
+		switch (filter) {
+		case PointFilter:
+			return D3DTEXF_POINT;
+		case LinearFilter:
+			return D3DTEXF_LINEAR;
+		case AnisotropicFilter:
+			return D3DTEXF_ANISOTROPIC;
+		default:
+			return D3DTEXF_POINT;
+		}
+	}
+
+	DWORD convertMipFilter(MipmapFilter filter) {
+		switch (filter) {
+		case NoMipFilter:
+			return D3DTEXF_NONE;
+		case PointMipFilter:
+			return D3DTEXF_POINT;
+		case LinearMipFilter:
+			return D3DTEXF_LINEAR;
+		default:
+			return D3DTEXF_NONE;
+		}
+	}
+
+	_D3DTEXTUREOP convert(TextureOperation operation) {
+		switch (operation) {
+		case ModulateOperation:
+			return D3DTOP_MODULATE;
+		case SelectFirstOperation:
+			return D3DTOP_SELECTARG1;
+		case SelectSecondOperation:
+			return D3DTOP_SELECTARG2;
+		default:
+		//	throw Exception("Unknown texture operation.");
+			return D3DTOP_MODULATE;
+		}
+	}
+
+	int convert(TextureArgument arg) {
+		switch (arg) {
+		case CurrentColorArgument:
+			return D3DTA_CURRENT;
+		case TextureColorArgument:
+			return D3DTA_TEXTURE;
+		default:
+		//	throw Exception("Unknown texture argument.");
+			return D3DTA_CURRENT;
+		}
+	}
+}
+
+void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
+	device->SetTextureStageState(0, D3DTSS_COLOROP, convert(operation));
+	device->SetTextureStageState(0, D3DTSS_COLORARG1, convert(arg1));
+	device->SetTextureStageState(0, D3DTSS_COLORARG2, convert(arg2));
+}
+
+void Graphics::setTextureMagnificationFilter(int texunit, TextureFilter filter) {
+	device->SetSamplerState(texunit, D3DSAMP_MAGFILTER, convertFilter(filter));
+}
+
+void Graphics::setTextureMinificationFilter(int texunit, TextureFilter filter) {
+	device->SetSamplerState(texunit, D3DSAMP_MINFILTER, convertFilter(filter));
+}
+
+void Graphics::setTextureMipmapFilter(int texunit, MipmapFilter filter) {
+	device->SetSamplerState(texunit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
+}
+
+void* Graphics::getControl() {
+	return hWnd;
+}
+
+void Graphics::setRenderTarget(RenderTarget* target, int num) {
+	//if (backBuffer != nullptr) backBuffer->Release();
+	if (num == 0) {
+		device->GetRenderTarget(0, &backBuffer);
+		device->GetDepthStencilSurface(&depthBuffer);
+		affirm(device->SetDepthStencilSurface(target->depthSurface));
+	}
+	affirm(device->SetRenderTarget(num, target->colorSurface));
+}
+
+//void Graphics::setDepthStencilTarget(Texture* texture) {
+//	//if (depthBuffer != nullptr) depthBuffer->Release();
+//	device->GetDepthStencilSurface(&depthBuffer);
+//	affirm(device->SetDepthStencilSurface(dcast<D3D9Texture*>(texture)->getSurface()));
+//}
+
+void Graphics::restoreRenderTarget() {
+	device->SetRenderTarget(0, backBuffer);
+	device->SetRenderTarget(1, nullptr);
+	backBuffer->Release();
+	backBuffer = nullptr;
+	if (depthBuffer != nullptr) {
+		device->SetDepthStencilSurface(depthBuffer);
+		depthBuffer->Release();
+		depthBuffer = nullptr;
+	}
+}
+
+void Graphics::drawIndexedVertices() {
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), 0, IndexBuffer::_current->count() / 3);
+}
+
+void Graphics::drawIndexedVertices(int start, int count) {
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3);
+}
+
+void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+	DWORD value = 0;
+	switch (addressing) {
+	case Repeat:
+		value = D3DTADDRESS_WRAP;
+		break;
+	case Mirror:
+		value = D3DTADDRESS_MIRROR;
+		break;
+	case Clamp:
+		value = D3DTADDRESS_CLAMP;
+		break;
+	case Border:
+		value = D3DTADDRESS_BORDER;
+		break;
+	}
+	device->SetSamplerState(unit.unit, dir == U ? D3DSAMP_ADDRESSU : D3DSAMP_ADDRESSV, value);
+}
+
+namespace {
+	void tod3dmatrix(mat4& matrix, D3DMATRIX& d3dm) {
+		d3dm._11 = matrix.get(0, 0);
+		d3dm._12 = matrix.get(0, 1);
+		d3dm._13 = matrix.get(0, 2);
+		d3dm._14 = matrix.get(0, 3);
+
+		d3dm._21 = matrix.get(1, 0);
+		d3dm._22 = matrix.get(1, 1);
+		d3dm._23 = matrix.get(1, 2);
+		d3dm._24 = matrix.get(1, 3);
+
+		d3dm._31 = matrix.get(2, 0);
+		d3dm._32 = matrix.get(2, 1);
+		d3dm._33 = matrix.get(2, 2);
+		d3dm._34 = matrix.get(2, 3);
+
+		d3dm._41 = matrix.get(3, 0);
+		d3dm._42 = matrix.get(3, 1);
+		d3dm._43 = matrix.get(3, 2);
+		d3dm._44 = matrix.get(3, 3);
+	}
+}
+
+void Graphics::clear(unsigned color) {
+	device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
+}
+
+void Graphics::clearZ(float z) {
+	device->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, z, 0);
+}
+
+void Graphics::begin() {
+	device->BeginScene();
+}
+
+void Graphics::end() {
+	/*if (backBuffer != nullptr) {
+		backBuffer->Release();
+		backBuffer = nullptr;
+	}*/
+	device->EndScene();
+}
+
+bool Graphics::isVSynced() {
+	return vsync;
+}
+
+unsigned Graphics::getHz() {
+	return hz;
+}
+
+void Graphics::swapBuffers() {
+	::swapBuffers();
+}
+
+namespace {
+	_D3DBLEND convert(BlendingOperation operation) {
+		switch (operation) {
+		case BlendOne:
+			return D3DBLEND_ONE;
+		case BlendZero:
+			return D3DBLEND_ZERO;
+		case SourceAlpha:
+			return D3DBLEND_SRCALPHA;
+		case DestinationAlpha:
+			return D3DBLEND_DESTALPHA;
+		case InverseSourceAlpha:
+			return D3DBLEND_INVSRCALPHA;
+		case InverseDestinationAlpha:
+			return D3DBLEND_INVDESTALPHA;
+		default:
+		//	throw Exception("Unknown blending operation.");
+			return D3DBLEND_SRCALPHA;
+		}
+	}
+}
+
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+	device->SetRenderState(D3DRS_SRCBLEND, convert(source));
+	device->SetRenderState(D3DRS_DESTBLEND, convert(destination));
+}
+
+void Graphics::setRenderState(RenderState state, bool on) {
+	switch (state) {
+	case BlendingState:
+		device->SetRenderState(D3DRS_ALPHABLENDENABLE, on ? TRUE : FALSE);
+		break;
+	case DepthWrite:
+		device->SetRenderState(D3DRS_ZWRITEENABLE, on ? TRUE : FALSE);
+		break;
+	case DepthTest:
+		device->SetRenderState(D3DRS_ZENABLE, on ? TRUE : FALSE);
+		break;
+	case Normalize:
+		device->SetRenderState(D3DRS_NORMALIZENORMALS, on ? TRUE : FALSE);
+		break;
+	case BackfaceCulling:
+		if (on) device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+		else device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+		break;
+	case ScissorTestState:
+		device->SetRenderState(D3DRS_SCISSORTESTENABLE, on ? TRUE : FALSE);
+		break;
+	case AlphaTestState:
+		device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
+		device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+		break;
+	//default:
+	//	throw Exception();
+	}
+}
+
+void Graphics::setRenderState(RenderState state, int v) {
+	switch (state) {
+	case DepthTestCompare:
+		switch (v) {
+		// TODO: Cmp-Konstanten systemabhängig abgleichen
+		default:
+		case ZCmp_Always      : v = D3DCMP_ALWAYS; break;
+		case ZCmp_Never       : v = D3DCMP_NEVER; break;
+		case ZCmp_Equal       : v = D3DCMP_EQUAL; break;
+		case ZCmp_NotEqual    : v = D3DCMP_NOTEQUAL; break;
+		case ZCmp_Less        : v = D3DCMP_LESS; break;
+		case ZCmp_LessEqual   : v = D3DCMP_LESSEQUAL; break;
+		case ZCmp_Greater     : v = D3DCMP_GREATER; break;
+		case ZCmp_GreaterEqual: v = D3DCMP_GREATEREQUAL; break;
+		}
+		device->SetRenderState(D3DRS_ZFUNC, v);
+		break;
+	case AlphaReferenceState:
+		device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
+		break;
+	}                
+}
+
+void Graphics::setRenderState(RenderState state, float value) {
+	
+}
+
+void Graphics::setInt(ConstantLocation position, int value) {
+	if (position.shaderType == -1) return;
+	int ints[4];
+	ints[0] = value;
+	ints[1] = value;
+	ints[2] = value;
+	ints[3] = value;
+	if (position.shaderType == 0) device->SetVertexShaderConstantI(position.reg.regindex, &ints[0], 1);
+	else device->SetPixelShaderConstantI(position.reg.regindex, &ints[0], 1);
+}
+
+void Graphics::setFloat(ConstantLocation position, float value) {
+	if (position.shaderType == -1) return;
+	float floats[4];
+	floats[0] = value;
+	floats[1] = value;
+	floats[2] = value;
+	floats[3] = value;
+	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+}
+
+void Graphics::setFloat2(ConstantLocation position, float value1, float value2) {
+	if (position.shaderType == -1) return;
+	float floats[4];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value1;
+	floats[3] = value2;
+	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+}
+
+void Graphics::setFloat3(ConstantLocation position, float value1, float value2, float value3) {
+	if (position.shaderType == -1) return;
+	float floats[4];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+	floats[3] = value1;
+	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+}
+
+void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
+	if (location.shaderType == -1) return;
+	float floats[16];
+	for (int y = 0; y < 4; ++y) {
+		for (int x = 0; x < 4; ++x) {
+			floats[y * 4 + x] = value.get(y, x);
+		}
+	}
+	if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, floats, 4);
+	else device->SetPixelShaderConstantF(location.reg.regindex, floats, 4);
+}
