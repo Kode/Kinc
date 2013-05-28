@@ -20,7 +20,7 @@ namespace {
 	const int samplesPerSecond = 44100;
 	const int bitsPerSample = 16;
 	
-	s16* mixbuffer;
+	float* mixbuffer;
 	const int bufferSize = samplesPerSecond * 3000;
 	int bufferPosition = 0;
 
@@ -54,7 +54,7 @@ void Audio::init() {
  
 	affirm(dsound->CreateSoundBuffer(&bufferDesc, &dbuffer, nullptr));
 
-	mixbuffer = new s16[bufferSize];
+	mixbuffer = new float[bufferSize];
 	for (int i = 0; i < bufferSize; ++i) mixbuffer[i] = 0;
 	
 	DWORD size1;
@@ -69,20 +69,16 @@ void Audio::init() {
 void Audio::play(s16* data, int size) {
 	int position = bufferPosition;
 	for (int i = 0; i < size; ++i) {
-		mixbuffer[position++] = data[i];//(float)data[i] / (float)32767;
+		mixbuffer[position++] = (float)data[i] / (float)32767;
 	}
 }
 
 namespace {
 	void copySample(u8* buffer, DWORD& index) {
-		//float value = ::buffer[bufferPosition++];
-		//s16 sample = static_cast<s16>(value * 32767);
+		float value = mixbuffer[bufferPosition++];
+		s16 sample = static_cast<s16>(value * 32767);
 		s16* hmm = (s16*)&buffer[index];
-		*hmm = mixbuffer[bufferPosition++];
-		if (*hmm != 0) {
-			int a = 3;
-			++a;
-		}
+		*hmm = sample;
 		index += 2;
 	}
 }
@@ -110,19 +106,14 @@ void Audio::update() {
 	u8 *buffer1, *buffer2;
 	affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, (void**)&buffer2, &size2, 0));
 	
-	/*for (DWORD i = 0; i < size1 - (bitsPerSample / 8 - 1); ) {
-		copySample(buffer1, i);
-		
-	}*/
-	memcpy(buffer1, &mixbuffer[bufferPosition], size1);
-	bufferPosition += size1 / 2;
+	for (DWORD i = 0; i < size1 - (bitsPerSample / 8 - 1); ) {
+		copySample(buffer1, i);	
+	}
 	writePos += size1;
 	if (buffer2 != nullptr) {
-		/*for (DWORD i = 0; i < size2 - (bitsPerSample / 8 - 1); ) {
+		for (DWORD i = 0; i < size2 - (bitsPerSample / 8 - 1); ) {
 			copySample(buffer2, i);
-		}*/
-		memcpy(buffer2, &mixbuffer[bufferPosition], size2);
-		bufferPosition += size2 / 2;
+		}
 		writePos = size2;
 	}
 
