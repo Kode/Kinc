@@ -213,7 +213,7 @@ bool DiskFile::open(const char* filename, FileMode mode) {
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
 #ifdef SYS_LINUX
-    strcpy(filepath, filename);
+	strcpy(filepath, filename);
 #endif
 
 #if defined SYS_WINDOWS && !defined SYS_WINDOWS8

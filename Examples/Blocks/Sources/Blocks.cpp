@@ -6,7 +6,8 @@
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/KeyEvent.h>
-#include <Kore/Sound/Sound.h>
+#include <Kore/Audio/Audio.h>
+#include <Kore/Audio/Sound.h>
 #include <Kore/Math/Random.h>
 #include <Kore/System.h>
 
@@ -159,9 +160,9 @@ namespace {
 		}
 	};
 
-	Sound::SoundHandle* rotateSound;
-	Sound::SoundHandle* lineSound;
-	Sound::SoundHandle* klackSound;
+	Sound* rotateSound;
+	Sound* lineSound;
+	Sound* klackSound;
 
 	class BigBlock {
 	public:
@@ -396,6 +397,7 @@ namespace {
 	}
 
 	void update() {
+		Audio::update();
 		if (state == InGameState) {
 			lastleft = left;
 			lastright = right;
@@ -528,12 +530,14 @@ namespace {
 
 int kore(int argc, char** argv) {
 	Application app(argc, argv, 1024, 768, false, "Blocks From Heaven");
-	Sound::init();
+	//Sound::init();
+	Audio::init();
+
 	app.setCallback(update);
 
-	rotateSound = new Sound::SoundHandle("Sound/rotate.wav", false);
-	lineSound = new Sound::SoundHandle("Sound/line.wav", false);
-	klackSound = new Sound::SoundHandle("Sound/klack.wav", false);
+	rotateSound = new Sound("Sound/rotate.wav");
+	lineSound = new Sound("Sound/line.wav");
+	klackSound = new Sound("Sound/klack.wav");
 
 	structure.add("pos", Float3VertexData);
 	structure.add("tex", Float2VertexData);

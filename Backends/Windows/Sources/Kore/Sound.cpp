@@ -28,7 +28,7 @@ namespace {
 		unsigned long dataSize;
 	};
 
-	IDirectSoundBuffer* primaryBuffer = nullptr;
+	//IDirectSoundBuffer* primaryBuffer = nullptr;
 }
 
 IDirectSound8* dsound = nullptr;
@@ -40,7 +40,7 @@ void Kore::Sound::init() {
 	result = dsound->SetCooperativeLevel((HWND)System::windowHandle(), DSSCL_PRIORITY);
 	affirm(result == DS_OK);
 
-	DSBUFFERDESC bufferDesc;
+	/*DSBUFFERDESC bufferDesc;
 	bufferDesc.dwSize = sizeof(DSBUFFERDESC);
 	bufferDesc.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME;
 	bufferDesc.dwBufferBytes = 0;
@@ -61,14 +61,14 @@ void Kore::Sound::init() {
 	waveFormat.cbSize = 0;
  
 	result = primaryBuffer->SetFormat(&waveFormat);
-	affirm(result == DS_OK);
+	affirm(result == DS_OK);*/
 }
 
 void Kore::Sound::shutdown() {
-	if (primaryBuffer != nullptr) {
+	/*if (primaryBuffer != nullptr) {
 		primaryBuffer->Release();
 		primaryBuffer = nullptr;
-	}
+	}*/
 	if (dsound != nullptr) {
 		dsound->Release();
 		dsound = nullptr;
