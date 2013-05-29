@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Audio.h"
+
 namespace Kore {
-	class Sound {
+	struct Sound {
 	public:
 		Sound(const char* filename);
-		void play();
-	private:
+		Audio::BufferFormat format;
 		u8* data;
 		int size;
 	};

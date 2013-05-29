@@ -59,10 +59,9 @@ Sound::Sound(const char* filename) {
 	
 	file.close();
 
+	format.bitsPerSample = 16;
+	format.channels = 2;
+	format.samplesPerSecond = 44100;
 	data = waveData;
 	size = waveFileHeader.dataSize;
-}
-
-void Sound::play() {
-	Audio::play((s16*)data, size / 2);
 }

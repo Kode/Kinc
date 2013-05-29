@@ -6,6 +6,9 @@
 
 using namespace Kore;
 
+void (*Audio::audioCallback)(int samples);
+Audio::Buffer Audio::buffer;
+
 #ifdef SYS_OSX
 
 #include <CoreServices/CoreServices.h>
@@ -147,6 +150,11 @@ namespace {
 }
 
 void Audio::init() {
+	buffer.readLocation = 0;
+	buffer.writeLocation = 0;
+	buffer.dataSize = 128 * 1024;
+	buffer.data = new u8[buffer.dataSize];
+
 	affirm(DirectSoundCreate8(nullptr, &dsound, nullptr));
 	affirm(dsound->SetCooperativeLevel((HWND)System::windowHandle(), DSSCL_PRIORITY));
 
@@ -181,19 +189,25 @@ void Audio::init() {
 	affirm(dbuffer->Play(0, 0, DSBPLAY_LOOPING));
 }
 
-void Audio::play(s16* data, int size) {
+/*void Audio::play(s16* data, int size) {
 	int position = bufferPosition;
 	for (int i = 0; i < size; ++i) {
 		mixbuffer[position++] = (float)data[i] / (float)32767;
 	}
-}
+}*/
 
 namespace {
 	void copySample(u8* buffer, DWORD& index) {
-		float value = mixbuffer[bufferPosition++];
+		/*float value = mixbuffer[bufferPosition++];
 		s16 sample = static_cast<s16>(value * 32767);
 		s16* hmm = (s16*)&buffer[index];
 		*hmm = sample;
+		index += 2;*/
+
+		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
+		Audio::buffer.readLocation += 4;
+		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		*(s16*)&buffer[index] = static_cast<s16>(value * 32767);
 		index += 2;
 	}
 }
@@ -216,6 +230,8 @@ void Audio::update() {
 		if (playPosition >= writePos && playPosition <= writePos + gap) return;
 		if (writePosition >= writePos && writePosition <= writePos + gap) return;
 	}
+
+	audioCallback(gap / 2);
 
 	DWORD size1, size2;
 	u8 *buffer1, *buffer2;

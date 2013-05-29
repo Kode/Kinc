@@ -7,6 +7,7 @@
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/KeyEvent.h>
 #include <Kore/Audio/Audio.h>
+#include <Kore/Audio/Mixer.h>
 #include <Kore/Audio/Sound.h>
 #include <Kore/Math/Random.h>
 #include <Kore/System.h>
@@ -236,7 +237,7 @@ namespace {
 		}
 	
 		virtual void rotate() {
-			rotateSound->play();
+			Mixer::play(rotateSound);
 			int i = 0;
 			while (i < 4) {
 				if (!blocks[i]->rotate(center)) goto retreat;
@@ -373,8 +374,8 @@ namespace {
 				++y;
 			}
 		}
-		if (lineDeleted) lineSound->play();
-		else klackSound->play();
+		if (lineDeleted) Mixer::play(lineSound);
+		else Mixer::play(klackSound);
 	}
 
 	BigBlock* createRandomBlock();
@@ -531,6 +532,7 @@ namespace {
 int kore(int argc, char** argv) {
 	Application app(argc, argv, 1024, 768, false, "Blocks From Heaven");
 	//Sound::init();
+	Mixer::init();
 	Audio::init();
 
 	app.setCallback(update);

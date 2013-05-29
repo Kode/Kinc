@@ -6,6 +6,22 @@ namespace Kore {
 		void update();
 		void shutdown();
 
-		void play(s16* data, int size);
+		extern void (*audioCallback)(int samples);
+
+		struct BufferFormat {
+			int channels;
+			int samplesPerSecond;
+			int bitsPerSample;
+		};
+
+		struct Buffer {
+			BufferFormat format;
+			u8* data;
+			int dataSize;
+			int readLocation;
+			int writeLocation;
+		};
+
+		extern Buffer buffer;
 	}
 }
