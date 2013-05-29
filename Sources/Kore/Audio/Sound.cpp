@@ -11,19 +11,19 @@ namespace {
 	void affirm(bool, const char*) { }
 
 	struct WaveHeaderType {
-		char chunkId[4];
-		unsigned long chunkSize;
-		char format[4];
-		char subChunkId[4];
-		unsigned long subChunkSize;
-		unsigned short audioFormat;
-		unsigned short numChannels;
-		unsigned long sampleRate;
-		unsigned long bytesPerSecond;
-		unsigned short blockAlign;
-		unsigned short bitsPerSample;
-		char dataChunkId[4];
-		unsigned long dataSize;
+		s8 chunkId[4];
+		u32 chunkSize;
+		s8 format[4];
+		s8 subChunkId[4];
+		u32 subChunkSize;
+		u16 audioFormat;
+		u16 numChannels;
+		u32 sampleRate;
+		u32 bytesPerSecond;
+		u16 blockAlign;
+		u16 bitsPerSample;
+		s8 dataChunkId[4];
+		u32 dataSize;
 	};
 }
 
