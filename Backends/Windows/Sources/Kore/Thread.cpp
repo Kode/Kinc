@@ -1,6 +1,6 @@
 #include "pch.h"
-#include <Kore/Threading/Thread.h>
-#include <Kore/Threading/Mutex.h>
+#include <Kore/Threads/Thread.h>
+#include <Kore/Threads/Mutex.h>
 #include <stdio.h>
 
 #include <Windows.h>
