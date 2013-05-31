@@ -93,8 +93,7 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobje
 		}
 	}
 	else {
-		Kore::Application* app = Kore::Application::the();
-		app->callback();
+		Kore::Application::the()->callback();
 	}
 }
 

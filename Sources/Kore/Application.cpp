@@ -32,8 +32,8 @@ Application::~Application() {
 
 void Application::start() {
 	running = true;
-	if (Graphics::hasWindow()) Graphics::swapBuffers();
 #ifndef SYS_ANDROID
+	if (Graphics::hasWindow()) Graphics::swapBuffers();
 	while (running) {
 		callback();
 		System::handleMessages();

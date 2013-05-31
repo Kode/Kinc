@@ -454,9 +454,6 @@ namespace {
 
 		Graphics::end();
 		Graphics::swapBuffers();
-
-		Application* app = Application::the();
-		void* blapp = app;
 	}
 
 	BigBlock* createRandomBlock() {
@@ -542,12 +539,12 @@ namespace {
 }
 
 int kore(int argc, char** argv) {
-	Application app(argc, argv, 1024, 768, false, "Blocks From Heaven");
+	Application* app = new Application(argc, argv, 1024, 768, false, "Blocks From Heaven");
 	//Sound::init();
 	Mixer::init();
 	Audio::init();
 
-	app.setCallback(update);
+	app->setCallback(update);
 
 	rotateSound = new Sound("Sound/rotate.wav");
 	lineSound = new Sound("Sound/line.wav");
@@ -583,10 +580,10 @@ int kore(int argc, char** argv) {
 	blockImages[Yellow] = new Texture("Graphics/block_yellow.png");
 
 	back.tex = titleImage;
-	back.x = -titleImage->width / (float)app.width();
-	back.y = -titleImage->height / (float)app.height();
-	back.w = 2.0f * titleImage->width / (float)app.width();
-	back.h = 2.0f * titleImage->height / (float)app.height();
+	back.x = -titleImage->width / (float)app->width();
+	back.y = -titleImage->height / (float)app->height();
+	back.w = 2.0f * titleImage->width / (float)app->width();
+	back.h = 2.0f * titleImage->height / (float)app->height();
 	back.init();
 	
 	indices = new IndexBuffer(6);
@@ -600,7 +597,7 @@ int kore(int argc, char** argv) {
 	Mouse::the()->ReleaseLeft = mouseUp;
 
 	lastDownTime = System::getTimestamp();
-	app.start();
+	app->start();
 
 	return 0;
 }
