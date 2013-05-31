@@ -14,6 +14,9 @@ namespace Kore {
 		int myStride;
 		uint arrayId;
 		uint bufferId;
+#ifdef SYS_ANDROID
+		VertexStructure structure;
+#endif
 	public:
 		static VertexBuffer* current;
 	};

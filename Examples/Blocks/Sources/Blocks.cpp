@@ -454,6 +454,9 @@ namespace {
 
 		Graphics::end();
 		Graphics::swapBuffers();
+
+		Application* app = Application::the();
+		void* blapp = app;
 	}
 
 	BigBlock* createRandomBlock() {

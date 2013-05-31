@@ -31,7 +31,9 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 			break;
 		}
 	}
-#ifdef SYS_IOS
+#ifdef SYS_ANDROID
+	this->structure = structure;
+#elif defined SYS_IOS
 	glGenVertexArraysOES(1, &arrayId);
 	glBindVertexArrayOES(arrayId);
 #else
@@ -96,7 +98,9 @@ float* VertexBuffer::lock(int start, int count) {
 }
 
 void VertexBuffer::unlock() {
-#ifdef SYS_IOS
+#ifdef SYS_ANDROID
+
+#elif defined SYS_IOS
 	glBindVertexArrayOES(arrayId);
 #else
 	glBindVertexArray(arrayId);
@@ -106,7 +110,48 @@ void VertexBuffer::unlock() {
 }
 
 void VertexBuffer::set() {
-#ifdef SYS_IOS
+#ifdef SYS_ANDROID
+	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+
+	int offset = 0;
+	int index = 0;
+	for (; index < structure.size; ++index) {
+		VertexElement element = structure.elements[index];
+		glEnableVertexAttribArray(index);
+		int size;
+		switch (element.data) {
+		case ColorVertexData:
+			size = 1;
+			break;
+		case Float2VertexData:
+			size = 2;
+			break;
+		case Float3VertexData:
+			size = 3;
+			break;
+		case Float4VertexData:
+			size = 4;
+			break;
+		}
+		glVertexAttribPointer(index, size, GL_FLOAT, false, myStride, (void*)offset);
+		switch (element.data) {
+		case ColorVertexData:
+			offset += 4 * 1;
+			break;
+		case Float2VertexData:
+			offset += 4 * 2;
+			break;
+		case Float3VertexData:
+			offset += 4 * 3;
+			break;
+		case Float4VertexData:
+			offset += 4 * 4;
+			break;
+		}
+	}
+	for (; index < 10; ++index) glDisableVertexAttribArray(index);
+
+#elif defined SYS_IOS
 	glBindVertexArrayOES(arrayId);
 #else
 	glBindVertexArray(arrayId);

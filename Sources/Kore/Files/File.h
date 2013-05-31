@@ -1,6 +1,24 @@
 #pragma once
 
 namespace Kore {
+	class FileInputStreamData {
+
+	};
+
+	class InputStream {
+	public:
+		int read(void** data, int size);
+		void* readAll();
+		int size() const;
+		int pos() const;
+		void seek(int pos);
+	};
+
+	class FileInputStream : public InputStream {
+	public:
+		FileInputStreamData data;
+	};
+
 	class GenFile {
 	protected:
 		uint size;

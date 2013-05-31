@@ -17,7 +17,7 @@ namespace Kore {
 		void setFullscreen(bool fullscreen);
 		void setCallback(void (*callback)());
 		static Application* the();
-	private:
+
 		void (*callback)();
 		bool running;
 	};

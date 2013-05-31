@@ -1,4 +1,4 @@
-package com.ktxsoftware.kt;
+package com.ktxsoftware.kore;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -6,10 +6,10 @@ import javax.microedition.khronos.opengles.GL10;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 
-public class KtRenderer implements GLSurfaceView.Renderer {
+public class KoreRenderer implements GLSurfaceView.Renderer {
 	private Context context;
 	
-	public KtRenderer(Context context) {
+	public KoreRenderer(Context context) {
 		this.context = context;
 	}
 	
@@ -18,10 +18,10 @@ public class KtRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onDrawFrame(GL10 gl) {
-		KtLib.step();
+		KoreLib.step();
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		KtLib.init(width, height, context.getApplicationInfo().sourceDir);
+		KoreLib.init(width, height, context.getApplicationInfo().sourceDir);
 	}
 }

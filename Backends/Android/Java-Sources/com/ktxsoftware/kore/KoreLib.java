@@ -1,8 +1,8 @@
-package com.ktxsoftware.kt;
+package com.ktxsoftware.kore;
 
-public class KtLib {
+public class KoreLib {
     static {
-        System.loadLibrary("Kt");
+        System.loadLibrary("Kore");
     }
 
     public static native void init(int width, int height, String apkPath);

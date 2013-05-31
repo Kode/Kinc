@@ -1,1 +1,0 @@
-#include <Kt/stdafx.h>

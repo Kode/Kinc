@@ -70,11 +70,11 @@ elseif platform == Platform.iOS then
 	project:addLib("AudioToolbox")
 elseif platform == Platform.Android then
 	addBackend("Android")
-	addBackend("OpenGL")
+	addBackend("OpenGL2")
 	project:addDefine("OPENGL")
 elseif platform == Platform.HTML5 then
 	addBackend("HTML5");
-	addBackend("OpenGL");
+	addBackend("OpenGL2");
 	project:addDefine("OPENGL")
 elseif platform == Platform.Linux then
 	addBackend("Linux")

@@ -33,10 +33,12 @@ Application::~Application() {
 void Application::start() {
 	running = true;
 	if (Graphics::hasWindow()) Graphics::swapBuffers();
+#ifndef SYS_ANDROID
 	while (running) {
 		callback();
 		System::handleMessages();
 	}
+#endif
 }
 
 void Application::stop() {

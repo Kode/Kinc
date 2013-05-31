@@ -1,41 +1,41 @@
-#include "stdafx.h"
-#include <Kt/System.h>
-#include <Kt/Scheduler.h>
+#include "pch.h"
+#include <Kore/System.h>
+#include <Kore/Application.h>
+#include <Kore/Files/File.h>
+#include <Kore/Files/miniz.h>
 #include <jni.h>
-#include <GLES/gl.h>
+#include <GLES2/gl2.h>
 #include <cstring>
-#include <Kt/Files/File.h>
-#include <Kt/Files/miniz.h>
 
-void* Kt::System::CreateWindow() {
+void* Kore::System::createWindow() {
 	return nullptr;
 }
 
-void Kt::System::SwitchBuffers() {
+void Kore::System::swapBuffers() {
 
 }
 
-void Kt::System::DestroyWindow() {
+void Kore::System::destroyWindow() {
 
 }
 
-void Kt::System::ChangeResolution(int, int, bool) {
+void Kore::System::changeResolution(int, int, bool) {
 
 }
 
-void Kt::System::showKeyboard() {
+void Kore::System::showKeyboard() {
 
 }
 
-void Kt::System::hideKeyboard() {
+void Kore::System::hideKeyboard() {
 
 }
 
-void Kt::System::setTitle(const char*) {
+void Kore::System::setTitle(const char*) {
 
 }
 
-void Kt::System::showWindow() {
+void Kore::System::showWindow() {
     
 }
 
@@ -47,7 +47,7 @@ namespace {
 	//To debug startup behavior set the debuggingDelay to about 200.
 	bool initialized = false;
 	int debuggingDelayCount = 0;
-	const int debuggingDelay = 0;
+	const int debuggingDelay = 500;
 }
 
 char* getApkPath() {
@@ -58,14 +58,14 @@ mz_zip_archive* getApk() {
 	return &apk;
 }
 
-extern int ktmain(const Kt::List<Kt::Text>& arguments);
+extern int kore(int argc, char** argv);
 
 extern "C" {
-    JNIEXPORT void JNICALL Java_com_ktxsoftware_kt_KtLib_init(JNIEnv* env, jobject obj,  jint width, jint height, jstring apkPath);
-    JNIEXPORT void JNICALL Java_com_ktxsoftware_kt_KtLib_step(JNIEnv* env, jobject obj);
+    JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath);
+    JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobject obj);
 };
 
-JNIEXPORT void JNICALL Java_com_ktxsoftware_kt_KtLib_init(JNIEnv* env, jobject obj,  jint width, jint height, jstring apkPath) {
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath) {
 	const char* path = env->GetStringUTFChars(apkPath, nullptr);
 	std::strcpy(theApkPath, path);
 	env->ReleaseStringUTFChars(apkPath, path);
@@ -74,13 +74,12 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kt_KtLib_init(JNIEnv* env, jobject o
 
 namespace {
 	void init() {
-		Kt::List<Kt::Text> arguments;
-		ktmain(arguments);
+		kore(0, nullptr);
 		initialized = true;
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_ktxsoftware_kt_KtLib_step(JNIEnv* env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobject obj) {
 	if (!initialized) {
 		++debuggingDelayCount;
 		if (debuggingDelayCount > debuggingDelay) {
@@ -90,10 +89,30 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kt_KtLib_step(JNIEnv* env, jobject o
 				return;
 			}
 			init();
-			Kt::Scheduler::executeFrame();
+			Kore::Application::the()->callback();
 		}
 	}
-	else Kt::Scheduler::executeFrame();
+	else {
+		Kore::Application* app = Kore::Application::the();
+		app->callback();
+	}
+}
+
+bool Kore::System::handleMessages() {
+	return true;
+}
+
+#include <sys/time.h>
+#include <time.h>
+
+Kore::System::ticks Kore::System::getFrequency() {
+	return 1000000;
+}
+
+Kore::System::ticks Kore::System::getTimestamp() {
+	timeval now;
+	gettimeofday(&now, NULL);
+	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
 }
 
 /*

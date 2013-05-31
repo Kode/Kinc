@@ -158,12 +158,13 @@ DiskFile::DiskFile() {
 }
 
 #ifdef SYS_ANDROID
-bool DiskFile::open(const Kt::Text& filename, FileMode mode) {
+bool DiskFile::open(const char* filename, FileMode mode) {
 	this->mode  = mode;
-	this->flags = flags;
 	pos = 0;
-	Kt::Text file = Kt::Text("assets/") + filename;
-	obj = mz_zip_reader_extract_file_to_heap(getApk(), file.c_str(), &size, 0);
+	char file[1001];
+	strcpy(file, "assets/");
+	strcat(file, filename);
+	obj = mz_zip_reader_extract_file_to_heap(getApk(), file, &size, 0);
 	if (obj == nullptr) {
 		mz_zip_reader_end(getApk());
 		return false;
@@ -261,7 +262,7 @@ uint DiskFile::read(void* data, uint psize) {
 	return psize_;
 #elif defined SYS_ANDROID
 	//return AAsset_read((AAsset*)obj, data, psize);
-	Kt::uint psize_ = Kt::min(psize, size - pos);
+	Kore::uint psize_ = Kore::min(psize, size - pos);
 	memcpy(data, (u8*)obj + pos, psize_);
 	pos += psize_;
 	return psize_;
@@ -298,7 +299,7 @@ void DiskFile::flush() {
 #ifndef SYS_ANDROID
 		fflush((FILE*)obj);
 #else
-		return true;
+
 #endif
 	}
 }
