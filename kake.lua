@@ -39,7 +39,7 @@ if platform == Platform.Windows then
 		end
 	end
 elseif platform == Platform.Windows8 then
-	addBackend("Windows8")
+	addBackend("WindowsRT")
 	addBackend("Direct3D11")
 elseif platform == Platform.Xbox360 then
 	addBackend("Xbox360")
@@ -48,7 +48,7 @@ elseif platform == Platform.Xbox360 then
 elseif platform == Platform.PlayStation3 then
 	addBackend("PlayStation3")
 elseif platform == Platform.OSX then
-	addBackend("MacOSX")
+	addBackend("OSX")
 	addBackend("OpenGL2")
 	project:addDefine("OPENGL")
 elseif platform == Platform.iOS then

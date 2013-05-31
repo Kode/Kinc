@@ -6,6 +6,7 @@
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/KeyEvent.h>
+#include <Kore/Input/Mouse.h>
 #include <Kore/Audio/Audio.h>
 #include <Kore/Audio/Mixer.h>
 #include <Kore/Audio/Sound.h>
@@ -527,6 +528,14 @@ namespace {
 			}
 		}
 	}
+	
+	void mouseUp(MouseEvent event) {
+		switch (state) {
+			case TitleState:
+				startGame();
+				break;
+		}
+	}
 }
 
 int kore(int argc, char** argv) {
@@ -585,6 +594,7 @@ int kore(int argc, char** argv) {
 
 	Keyboard::the()->KeyDown = keyDown;
 	Keyboard::the()->KeyUp = keyUp;
+	Mouse::the()->ReleaseLeft = mouseUp;
 
 	lastDownTime = System::getTimestamp();
 	app.start();

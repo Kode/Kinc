@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <pthread.h>
-#include <Kore/Threading/Mutex.h>
+#include <Kore/Threads/Mutex.h>
 
 using namespace Kore;
 
