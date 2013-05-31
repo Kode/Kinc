@@ -2,9 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <Kore/Threading/Thread.h>
-#include <Kore/Threading/Mutex.h>
-//#include <Kt/Memory/FixedAllocator.h>
+#include <Kore/Threads/Thread.h>
+#include <Kore/Threads/Mutex.h>
 #include <pthread.h>
 #include <Foundation/Foundation.h>
 #include <stdio.h>
