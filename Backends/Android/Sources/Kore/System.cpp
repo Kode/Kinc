@@ -3,6 +3,7 @@
 #include <Kore/Application.h>
 #include <Kore/Files/File.h>
 #include <Kore/Files/miniz.h>
+#include <Kore/Input/Mouse.h>
 #include <jni.h>
 #include <GLES2/gl2.h>
 #include <cstring>
@@ -47,7 +48,7 @@ namespace {
 	//To debug startup behavior set the debuggingDelay to about 200.
 	bool initialized = false;
 	int debuggingDelayCount = 0;
-	const int debuggingDelay = 500;
+	const int debuggingDelay = 0;
 }
 
 char* getApkPath() {
@@ -61,8 +62,11 @@ mz_zip_archive* getApk() {
 extern int kore(int argc, char** argv);
 
 extern "C" {
-    JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath);
-    JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchDown(JNIEnv* env, jobject obj, jint x, jint y);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jobject obj, jint x, jint y);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y);
 };
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath) {
@@ -95,6 +99,18 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobje
 	else {
 		Kore::Application::the()->callback();
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchDown(JNIEnv* env, jobject obj, jint x, jint y) {
+	Kore::Mouse::the()->_move(Kore::MouseEvent(x, y));
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jobject obj, jint x, jint y) {
+	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(x, y));
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y) {
+	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(x, y));
 }
 
 bool Kore::System::handleMessages() {
