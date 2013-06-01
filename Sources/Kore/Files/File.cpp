@@ -213,11 +213,31 @@ bool DiskFile::open(const char* filename, FileMode mode) {
 	for (size_t i = 0; i < filepathlength; ++i)
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
+#ifdef SYS_WINDOWSRT
+	const wchar_t* location = Windows::ApplicationModel::Package::Current->InstalledLocation->Path->Data();
+	int i;
+	for (i = 0; location[i] != 0; ++i) {
+		filepath[i] = (char)location[i];
+	}
+	int len = (int)strlen(filename);
+	int index;
+	for (index = len; index > 0; --index) {
+		if (filename[index] == '/' || filename[index] == '\\') {
+			++index;
+			break;
+		}
+	}
+	filepath[i++] = '\\';
+	while (index < len) {
+		filepath[i++] = filename[index++];
+	}
+	filepath[i] = 0;
+#endif
 #ifdef SYS_LINUX
 	strcpy(filepath, filename);
 #endif
 
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	if (mode == DiskFile::ReadMode) {
 		//printf("%s\n", filepath.c_str());
 		file = CreateFileA(filepath, mode == DiskFile::ReadMode ? GENERIC_READ : GENERIC_WRITE, 0, nullptr, mode == DiskFile::ReadMode ? OPEN_EXISTING : OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -242,7 +262,7 @@ bool DiskFile::open(const char* filename, FileMode mode) {
 	fseek((FILE*)obj, 0, SEEK_END);
 	size = static_cast<uint>(ftell((FILE*)obj));
 	fseek((FILE*)obj, 0, SEEK_SET);
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	}
 #endif
 	return true;
@@ -255,7 +275,7 @@ uint DiskFile::write(const void* data, uint psize) {
 }
 
 uint DiskFile::read(void* data, uint psize) {
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	uint psize_ = Kore::min(psize, size - pos);
 	memcpy(data, (u8*)obj + pos, psize_);
 	pos += psize_;
@@ -272,7 +292,7 @@ uint DiskFile::read(void* data, uint psize) {
 }
 
 void* DiskFile::readAll() {
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	return obj;
 #elif defined SYS_ANDROID
 	//return (void*)AAsset_getBuffer((AAsset*)obj);
@@ -286,7 +306,7 @@ void* DiskFile::readAll() {
 }
 
 void DiskFile::flush() {
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	if (mode == DiskFile::WriteMode) {
 		fflush((FILE*)obj);
 	}
@@ -305,7 +325,7 @@ void DiskFile::flush() {
 }
 
 void DiskFile::seek(uint ppos) {
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	if (mode == DiskFile::ReadMode) pos = ppos;
 	else
 #endif
@@ -319,7 +339,7 @@ void DiskFile::seek(uint ppos) {
 
 void DiskFile::close() {
 	if (obj == nullptr) return;
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	if (mode == DiskFile::ReadMode) {
 		UnmapViewOfFile(obj);
 		CloseHandle(mappedFile);
@@ -344,7 +364,7 @@ DiskFile::~DiskFile() {
 }
 
 uint DiskFile::getPos() {
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	if (mode == DiskFile::ReadMode) {
 		return pos;
 	}
@@ -359,7 +379,7 @@ uint DiskFile::getPos() {
 }
 
 u64 DiskFile::getLastWriteTimeStamp64() const {
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#ifdef SYS_WINDOWS
 	BY_HANDLE_FILE_INFORMATION info;
 	GetFileInformationByHandle(file, &info);
 	return (u64)info.ftLastWriteTime.dwLowDateTime + ((u64)info.ftLastWriteTime.dwHighDateTime << 32);

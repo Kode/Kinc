@@ -64,7 +64,9 @@ void Graphics::init() {
 #endif
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
-		//D3D_FEATURE_LEVEL_11_1,
+#ifdef SYS_WINDOWSRT
+		D3D_FEATURE_LEVEL_11_1,
+#endif
 		D3D_FEATURE_LEVEL_11_0,
 		D3D_FEATURE_LEVEL_10_1,
 		D3D_FEATURE_LEVEL_10_0,
@@ -122,8 +124,9 @@ void Graphics::init() {
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
 		swapChainDesc.Flags = 0;
 
-		IDXGIDevice1* dxgiDevice = dynamic_cast<IDXGIDevice1*>(device);
-		
+		IDXGIDevice1* dxgiDevice;
+		affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
+
 		IDXGIAdapter* dxgiAdapter;
 		affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
