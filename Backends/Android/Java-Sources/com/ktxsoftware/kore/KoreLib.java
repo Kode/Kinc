@@ -10,4 +10,5 @@ public class KoreLib {
     public static native void touchDown(int x, int y);
     public static native void touchUp(int x, int y);
     public static native void touchMove(int x, int y);
+    public static native void writeAudio(byte[] buffer, int size);
 }

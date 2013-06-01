@@ -4,5 +4,5 @@
 
 using namespace Kore;
 
-void (*Audio::audioCallback)(int samples);
+void (*Audio::audioCallback)(int samples) = nullptr;
 Audio::Buffer Audio::buffer;

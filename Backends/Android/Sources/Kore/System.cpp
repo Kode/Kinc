@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <Kore/System.h>
 #include <Kore/Application.h>
+#include <Kore/Audio/Audio.h>
 #include <Kore/Files/File.h>
 #include <Kore/Files/miniz.h>
 #include <Kore/Input/Mouse.h>
@@ -67,6 +68,7 @@ extern "C" {
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchDown(JNIEnv* env, jobject obj, jint x, jint y);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jobject obj, jint x, jint y);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_writeAudio(JNIEnv* env, jobject obj, jbyteArray buffer, jint size);
 };
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath) {
@@ -111,6 +113,28 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jo
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y) {
 	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(x, y));
+}
+
+namespace {
+	using namespace Kore;
+
+	void copySample(void* buffer) {
+		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
+		Audio::buffer.readLocation += 4;
+		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		*(s16*)buffer = static_cast<s16>(value * 32767);
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_writeAudio(JNIEnv* env, jobject obj, jbyteArray buffer, jint size) {
+	if (Kore::Audio::audioCallback != nullptr) {
+		Kore::Audio::audioCallback(size / 2);
+		jbyte* arr = env->GetByteArrayElements(buffer, 0);
+		for (int i = 0; i < size; i += 2) {
+			copySample(&arr[i]);
+		}
+		env->ReleaseByteArrayElements(buffer, arr, 0);
+	}
 }
 
 bool Kore::System::handleMessages() {
