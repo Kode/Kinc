@@ -1,14 +1,10 @@
-#include "stdafx.h"
-#include <Kt/System.h>
-#include <Kt/Application.h>
-#include <Kt/Input/KeyEvent.h>
-#include <Kt/Scene.h>
-#include <Kt/Scheduler.h>
-#include <Kt/Input/Keyboard.h>
-#include <Kt/Input/Mouse.h>
-#include <Kt/Exception.h>
-#include <Kt/WinException.h>
-#include <Kt/Direct3D11.h>
+#include "pch.h"
+#include <Kore/System.h>
+#include <Kore/Application.h>
+#include <Kore/Input/KeyEvent.h>
+#include <Kore/Input/Keyboard.h>
+#include <Kore/Input/Mouse.h>
+#include <Kore/Direct3D11.h>
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -42,24 +38,24 @@ public:
 	virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
 };
 
-using namespace Kt;
+using namespace Kore;
 
 namespace {
 	int mouseX, mouseY;
 	bool keyPressed[256];
-	Kt::KeyCode keyTranslated[256]; //http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
+	Kore::KeyCode keyTranslated[256]; //http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
 
 	void initKeyTranslation() {
-		for (int i = 0; i < 256; ++i) keyTranslated[i] = Kt::Key_unknown;
-		keyTranslated[VK_BACK] = Kt::Key_Backspace;
-		keyTranslated[VK_TAB] = Kt::Key_Tab;
+		for (int i = 0; i < 256; ++i) keyTranslated[i] = Kore::Key_unknown;
+		keyTranslated[VK_BACK] = Kore::Key_Backspace;
+		keyTranslated[VK_TAB] = Kore::Key_Tab;
 		//keyTranslated[VK_CLEAR]
-		keyTranslated[VK_RETURN] = Kt::Key_Return;
-		keyTranslated[VK_SHIFT] = Kt::Key_Shift;
-		keyTranslated[VK_CONTROL] = Kt::Key_Control;
-		keyTranslated[VK_MENU] = Kt::Key_Alt;
-		keyTranslated[VK_PAUSE] = Kt::Key_Pause;
-		keyTranslated[VK_CAPITAL] = Kt::Key_CapsLock;
+		keyTranslated[VK_RETURN] = Kore::Key_Return;
+		keyTranslated[VK_SHIFT] = Kore::Key_Shift;
+		keyTranslated[VK_CONTROL] = Kore::Key_Control;
+		keyTranslated[VK_MENU] = Kore::Key_Alt;
+		keyTranslated[VK_PAUSE] = Kore::Key_Pause;
+		keyTranslated[VK_CAPITAL] = Kore::Key_CapsLock;
 		//keyTranslated[VK_KANA]
 		//keyTranslated[VK_HANGUEL]
 		//keyTransltaed[VK_HANGUL]
@@ -67,63 +63,63 @@ namespace {
 		//keyTranslated[VK_FINAL]
 		//keyTranslated[VK_HANJA]
 		//keyTranslated[VK_KANJI]
-		keyTranslated[VK_ESCAPE] = Kt::Key_Escape;
+		keyTranslated[VK_ESCAPE] = Kore::Key_Escape;
 		//keyTranslated[VK_CONVERT]
 		//keyTranslated[VK_NONCONVERT
 		//keyTranslated[VK_ACCEPT
 		//keyTranslated[VK_MODECHANGE
-		keyTranslated[VK_SPACE] = Kt::Key_Space;
-		keyTranslated[VK_PRIOR] = Kt::Key_PageUp;
-		keyTranslated[VK_NEXT] = Kt::Key_PageDown;
-		keyTranslated[VK_END] = Kt::Key_End;
-		keyTranslated[VK_HOME] = Kt::Key_Home;
-		keyTranslated[VK_LEFT] = Kt::Key_Left;
-		keyTranslated[VK_UP] = Kt::Key_Up;
-		keyTranslated[VK_RIGHT] = Kt::Key_Right;
-		keyTranslated[VK_DOWN] = Kt::Key_Down;
+		keyTranslated[VK_SPACE] = Kore::Key_Space;
+		keyTranslated[VK_PRIOR] = Kore::Key_PageUp;
+		keyTranslated[VK_NEXT] = Kore::Key_PageDown;
+		keyTranslated[VK_END] = Kore::Key_End;
+		keyTranslated[VK_HOME] = Kore::Key_Home;
+		keyTranslated[VK_LEFT] = Kore::Key_Left;
+		keyTranslated[VK_UP] = Kore::Key_Up;
+		keyTranslated[VK_RIGHT] = Kore::Key_Right;
+		keyTranslated[VK_DOWN] = Kore::Key_Down;
 		//keyTranslated[VK_SELECT
-		keyTranslated[VK_PRINT] = Kt::Key_Print;
+		keyTranslated[VK_PRINT] = Kore::Key_Print;
 		//keyTranslated[VK_EXECUTE
 		//keyTranslated[VK_SNAPSHOT
-		keyTranslated[VK_INSERT] = Kt::Key_Insert;
-		keyTranslated[VK_DELETE] = Kt::Key_Delete;
-		keyTranslated[VK_HELP] = Kt::Key_Help;
-		keyTranslated[0x30] = Kt::Key_0;
-		keyTranslated[0x31] = Kt::Key_1;
-		keyTranslated[0x32] = Kt::Key_2;
-		keyTranslated[0x33] = Kt::Key_3;
-		keyTranslated[0x34] = Kt::Key_4;
-		keyTranslated[0x35] = Kt::Key_5;
-		keyTranslated[0x36] = Kt::Key_6;
-		keyTranslated[0x37] = Kt::Key_7;
-		keyTranslated[0x38] = Kt::Key_8;
-		keyTranslated[0x39] = Kt::Key_9;
-		keyTranslated[0x41] = Kt::Key_A;
-		keyTranslated[0x42] = Kt::Key_B;
-		keyTranslated[0x43] = Kt::Key_C;
-		keyTranslated[0x44] = Kt::Key_D;
-		keyTranslated[0x45] = Kt::Key_E;
-		keyTranslated[0x46] = Kt::Key_F;
-		keyTranslated[0x47] = Kt::Key_G;
-		keyTranslated[0x48] = Kt::Key_H;
-		keyTranslated[0x49] = Kt::Key_I;
-		keyTranslated[0x4A] = Kt::Key_J;
-		keyTranslated[0x4B] = Kt::Key_K;
-		keyTranslated[0x4C] = Kt::Key_L;
-		keyTranslated[0x4D] = Kt::Key_M;
-		keyTranslated[0x4E] = Kt::Key_N;
-		keyTranslated[0x4F] = Kt::Key_O;
-		keyTranslated[0x50] = Kt::Key_P;
-		keyTranslated[0x51] = Kt::Key_Q;
-		keyTranslated[0x52] = Kt::Key_R;
-		keyTranslated[0x53] = Kt::Key_S;
-		keyTranslated[0x54] = Kt::Key_T;
-		keyTranslated[0x55] = Kt::Key_U;
-		keyTranslated[0x56] = Kt::Key_V;
-		keyTranslated[0x57] = Kt::Key_W;
-		keyTranslated[0x58] = Kt::Key_X;
-		keyTranslated[0x59] = Kt::Key_Y;
-		keyTranslated[0x5A] = Kt::Key_Z;
+		keyTranslated[VK_INSERT] = Kore::Key_Insert;
+		keyTranslated[VK_DELETE] = Kore::Key_Delete;
+		keyTranslated[VK_HELP] = Kore::Key_Help;
+		keyTranslated[0x30] = Kore::Key_0;
+		keyTranslated[0x31] = Kore::Key_1;
+		keyTranslated[0x32] = Kore::Key_2;
+		keyTranslated[0x33] = Kore::Key_3;
+		keyTranslated[0x34] = Kore::Key_4;
+		keyTranslated[0x35] = Kore::Key_5;
+		keyTranslated[0x36] = Kore::Key_6;
+		keyTranslated[0x37] = Kore::Key_7;
+		keyTranslated[0x38] = Kore::Key_8;
+		keyTranslated[0x39] = Kore::Key_9;
+		keyTranslated[0x41] = Kore::Key_A;
+		keyTranslated[0x42] = Kore::Key_B;
+		keyTranslated[0x43] = Kore::Key_C;
+		keyTranslated[0x44] = Kore::Key_D;
+		keyTranslated[0x45] = Kore::Key_E;
+		keyTranslated[0x46] = Kore::Key_F;
+		keyTranslated[0x47] = Kore::Key_G;
+		keyTranslated[0x48] = Kore::Key_H;
+		keyTranslated[0x49] = Kore::Key_I;
+		keyTranslated[0x4A] = Kore::Key_J;
+		keyTranslated[0x4B] = Kore::Key_K;
+		keyTranslated[0x4C] = Kore::Key_L;
+		keyTranslated[0x4D] = Kore::Key_M;
+		keyTranslated[0x4E] = Kore::Key_N;
+		keyTranslated[0x4F] = Kore::Key_O;
+		keyTranslated[0x50] = Kore::Key_P;
+		keyTranslated[0x51] = Kore::Key_Q;
+		keyTranslated[0x52] = Kore::Key_R;
+		keyTranslated[0x53] = Kore::Key_S;
+		keyTranslated[0x54] = Kore::Key_T;
+		keyTranslated[0x55] = Kore::Key_U;
+		keyTranslated[0x56] = Kore::Key_V;
+		keyTranslated[0x57] = Kore::Key_W;
+		keyTranslated[0x58] = Kore::Key_X;
+		keyTranslated[0x59] = Kore::Key_Y;
+		keyTranslated[0x5A] = Kore::Key_Z;
 		//keyTranslated[VK_LWIN
 		//keyTranslated[VK_RWIN
 		//keyTranslated[VK_APPS
@@ -138,24 +134,24 @@ namespace {
 		//keyTranslated[VK_NUMPAD7
 		//keyTranslated[VK_NUMPAD8
 		//keyTranslated[VK_NUMPAD9
-		keyTranslated[VK_MULTIPLY] = Kt::Key_multiply;
+		keyTranslated[VK_MULTIPLY] = Kore::Key_multiply;
 		//keyTranslated[VK_ADD]
 		//keyTranslated[VK_SEPARATOR
 		//keyTranslated[VK_SUBTRACT
 		//keyTranslated[VK_DECIMAL
 		//keyTranslated[VK_DIVIDE
-		keyTranslated[VK_F1] = Kt::Key_F1;
-		keyTranslated[VK_F2] = Kt::Key_F2;
-		keyTranslated[VK_F3] = Kt::Key_F3;
-		keyTranslated[VK_F4] = Kt::Key_F4;
-		keyTranslated[VK_F5] = Kt::Key_F5;
-		keyTranslated[VK_F6] = Kt::Key_F6;
-		keyTranslated[VK_F7] = Kt::Key_F7;
-		keyTranslated[VK_F8] = Kt::Key_F8;
-		keyTranslated[VK_F9] = Kt::Key_F9;
-		keyTranslated[VK_F10] = Kt::Key_F10;
-		keyTranslated[VK_F11] = Kt::Key_F11;
-		keyTranslated[VK_F12] = Kt::Key_F12;
+		keyTranslated[VK_F1] = Kore::Key_F1;
+		keyTranslated[VK_F2] = Kore::Key_F2;
+		keyTranslated[VK_F3] = Kore::Key_F3;
+		keyTranslated[VK_F4] = Kore::Key_F4;
+		keyTranslated[VK_F5] = Kore::Key_F5;
+		keyTranslated[VK_F6] = Kore::Key_F6;
+		keyTranslated[VK_F7] = Kore::Key_F7;
+		keyTranslated[VK_F8] = Kore::Key_F8;
+		keyTranslated[VK_F9] = Kore::Key_F9;
+		keyTranslated[VK_F10] = Kore::Key_F10;
+		keyTranslated[VK_F11] = Kore::Key_F11;
+		keyTranslated[VK_F12] = Kore::Key_F12;
 		//keyTranslated[VK_F13
 		//keyTranslated[VK_F14
 		//keyTranslated[VK_F15
@@ -168,8 +164,8 @@ namespace {
 		//keyTranslated[VK_F22
 		//keyTranslated[VK_F23
 		//keyTranslated[VK_F24
-		keyTranslated[VK_NUMLOCK] = Kt::Key_NumLock;
-		keyTranslated[VK_SCROLL] = Kt::Key_ScrollLock;
+		keyTranslated[VK_NUMLOCK] = Kore::Key_NumLock;
+		keyTranslated[VK_SCROLL] = Kore::Key_ScrollLock;
 		//0x92-96 //OEM specific
 		//keyTranslated[VK_LSHIFT]
 		//keyTranslated[VK_RSHIFT
@@ -196,10 +192,10 @@ namespace {
 		//keyTranslated[VK_LAUNCH_APP1
 		//keyTranslated[VK_LAUNCH_APP2
 		//keyTranslated[VK_OEM_1 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ';:' key
-		keyTranslated[VK_OEM_PLUS] = Kt::Key_Plus;
-		keyTranslated[VK_OEM_COMMA] = Kt::Key_Comma;
-		keyTranslated[VK_OEM_MINUS] = Kt::Key_Minus;
-		keyTranslated[VK_OEM_PERIOD] = Kt::Key_Period;
+		keyTranslated[VK_OEM_PLUS] = Kore::Key_Plus;
+		keyTranslated[VK_OEM_COMMA] = Kore::Key_Comma;
+		keyTranslated[VK_OEM_MINUS] = Kore::Key_Minus;
+		keyTranslated[VK_OEM_PERIOD] = Kore::Key_Period;
 		//keyTranslated[VK_OEM_2 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '/?' key
 		//keyTranslated[VK_OEM_3 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key
 		//keyTranslated[VK_OEM_4 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '[{' key
@@ -235,47 +231,42 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
-namespace Kt {
-	extern void switchDevMode();
-}
-
-void Kt::System::HandleMessages() {
+bool Kore::System::handleMessages() {
 	CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+	return true;
 }
 
-Kt::Vector2i Kt::System::mousePos() {
-	return Vector2i(mouseX, mouseY);
+Kore::vec2i Kore::System::mousePos() {
+	return vec2i(mouseX, mouseY);
 }
 
-void Kt::System::SwitchBuffers() {
+void Kore::System::swapBuffers() {
 	
 }
 
 #undef CreateWindow
 
-void* Kt::System::CreateWindow() {
-	Scheduler::addFrameTask(HandleMessages, 1001);
-
+void* Kore::System::createWindow() {
 	return nullptr;
 }
 
-void* Kt::System::windowHandle() {
+void* Kore::System::windowHandle() {
 	return nullptr;
 }
 
-void Kt::System::DestroyWindow() {
+void Kore::System::destroyWindow() {
 	
 }
 
-void Kt::System::ChangeResolution(int width, int height, bool fullscreen) {
+void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 
 }
 
-void Kt::System::setTitle(const char*) {
+void Kore::System::setTitle(const char*) {
 
 }
 
-void Kt::System::showWindow() {
+void Kore::System::showWindow() {
 
 }
 
@@ -283,19 +274,19 @@ namespace {
 	bool keyboardshown = false;
 }
 
-void Kt::System::showKeyboard() {
+void Kore::System::showKeyboard() {
 	keyboardshown = true;
 }
 
-void Kt::System::hideKeyboard() {
+void Kore::System::hideKeyboard() {
 	keyboardshown = false;
 }
 
-bool Kt::System::showsKeyboard() {
+bool Kore::System::showsKeyboard() {
 	return keyboardshown;
 }
 
-int ktmain(const Kt::List<Kt::Text>& params);
+int kore(int argc, char** argv);
 
 Win8Application::Win8Application() : closed(false) {
 
@@ -323,8 +314,7 @@ void Win8Application::Load(Platform::String^ entryPoint) {
 
 void Win8Application::Run() {
 	//BasicTimer^ timer = ref new BasicTimer();
-	Kt::List<Kt::Text> params;
-	ktmain(params);
+	kore(0, nullptr);
 	//while (!closed) {
 		//timer->Update();
 		
@@ -360,19 +350,31 @@ void Win8Application::OnResuming(Platform::Object^ sender, Platform::Object^ arg
 }
 
 void Win8Application::OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
-	Mouse::the()->MouseDown(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
+	Mouse::the()->_pressLeft(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
 }
 
 void Win8Application::OnPointerReleased(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
-	Mouse::the()->MouseUp(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
+	Mouse::the()->_releaseLeft(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
 }
 
 void Win8Application::OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
-	Mouse::the()->MouseMove(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
+	Mouse::the()->_move(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
 }
 
 IFrameworkView^ Win8ApplicationSource::CreateView() {
 	return ref new Win8Application;
+}
+
+Kore::System::ticks Kore::System::getFrequency() {
+	ticks rate;
+	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&rate));
+	return rate;
+}
+
+Kore::System::ticks Kore::System::getTimestamp() {
+	ticks stamp;
+	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&stamp));
+	return stamp;
 }
 
 [Platform::MTAThread]

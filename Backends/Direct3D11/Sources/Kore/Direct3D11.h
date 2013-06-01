@@ -11,7 +11,6 @@
 
 extern ID3D11Device* device;
 extern ID3D11DeviceContext* context;
-extern IDXGISwapChain* swapChain;
 extern ID3D11RenderTargetView* renderTargetView;
 extern ID3D11DepthStencilView* depthStencilView;
 extern Kore::u8 vertexConstants[1024 * 4];

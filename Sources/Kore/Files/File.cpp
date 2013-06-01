@@ -27,7 +27,7 @@ extern mz_zip_archive* getApk();
 #endif
 
 float GenFile::readFloatFromLittleEndian(u8* data) {
-#ifdef LITTLE_ENDIAN //speed optimization
+#ifdef SYS_LITTLE_ENDIAN //speed optimization
 	return *(float*)data;
 #else //works on all architectures
 	int i = (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
@@ -36,7 +36,7 @@ float GenFile::readFloatFromLittleEndian(u8* data) {
 }
 
 u32 GenFile::readU32FromLittleEndian(u8* data) {
-#ifdef LITTLE_ENDIAN
+#ifdef SYS_LITTLE_ENDIAN
 	return *(u32*)data;
 #else
 	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
@@ -44,7 +44,7 @@ u32 GenFile::readU32FromLittleEndian(u8* data) {
 }
 
 s32 GenFile::readS32FromLittleEndian(u8* data) {
-#ifdef LITTLE_ENDIAN
+#ifdef SYS_LITTLE_ENDIAN
 	return *(s32*)data;
 #else
 	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
@@ -59,7 +59,7 @@ void GenFile::writeString8(const char *c) {
 float GenFile::readFloat() {
 	u8 data[4];
 	read(data, 4);
-#ifdef LITTLE_ENDIAN
+#ifdef SYS_LITTLE_ENDIAN
 	return *(float*)data;
 #else
 	int i = (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
@@ -70,7 +70,7 @@ float GenFile::readFloat() {
 u32 GenFile::readU32() {
 	u8 data[4];
 	read(data, 4);
-#ifdef LITTLE_ENDIAN
+#ifdef SYS_LITTLE_ENDIAN
 	return *(u32*)data;
 #else
 	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
@@ -80,7 +80,7 @@ u32 GenFile::readU32() {
 s32 GenFile::readS32() {
 	u8 data[4];
 	read(data, 4);
-#ifdef LITTLE_ENDIAN
+#ifdef SYS_LITTLE_ENDIAN
 	return *(s32*)data;
 #else
 	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
@@ -90,7 +90,7 @@ s32 GenFile::readS32() {
 s32 GenFile::readS32BE() {
 	u8 data[4];
 	read(data, 4);
-#ifdef BIG_ENDIAN
+#ifdef SYS_BIG_ENDIAN
 	return *(s32*)data;
 #else
 	return (data[3] << 0) | (data[2] << 8) | (data[1] << 16) | (data[0] << 24);
@@ -100,7 +100,7 @@ s32 GenFile::readS32BE() {
 u16 GenFile::readU16() {
 	u8 data[2];
 	read(data, 2);
-#ifdef LITTLE_ENDIAN
+#ifdef SYS_LITTLE_ENDIAN
 	return *(u16*)data;
 #else
 	return (data[0] << 0) | (data[1] << 8);
@@ -110,7 +110,7 @@ u16 GenFile::readU16() {
 s16 GenFile::readS16() {
 	u8 data[2];
 	read(data, 2);
-#ifdef LITTLE_ENDIAN
+#ifdef SYS_LITTLE_ENDIAN
 	return *(s16*)data;
 #else
 	return (data[0] << 0) | (data[1] << 8);
@@ -470,7 +470,7 @@ uint MemWriteFile::getPos() {
 	return pos;
 }
 
-#if defined SYS_WINDOWS && !defined SYS_WINDOWS8
+#if defined SYS_WINDOWS
 
 #include <Windows.h>
 

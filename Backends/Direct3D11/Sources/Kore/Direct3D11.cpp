@@ -8,10 +8,13 @@
 #undef CreateWindow
 #include <Kore/System.h>
 #include <Kore/Files/File.h>
+#ifdef SYS_WINDOWSRT
+#include <d3d11_1.h>
+#include <wrl.h>
+#endif
 
 ID3D11Device* device;
 ID3D11DeviceContext* context;
-IDXGISwapChain* swapChain;
 ID3D11RenderTargetView* renderTargetView;
 ID3D11DepthStencilView* depthStencilView;
 
@@ -23,6 +26,12 @@ Kore::u8 fragmentConstants[1024 * 4];
 
 using namespace Kore;
 
+#ifdef SYS_WINDOWSRT
+using namespace Microsoft::WRL;
+using namespace Windows::UI::Core;
+using namespace Windows::Foundation;
+#endif
+
 namespace {
 	void affirm(HRESULT) { }
 
@@ -32,6 +41,11 @@ namespace {
 	D3D_FEATURE_LEVEL featureLevel;
 	ID3D11DepthStencilState* depthTestState = nullptr;
 	ID3D11DepthStencilState* noDepthTestState = nullptr;
+#ifdef SYS_WINDOWSRT
+	IDXGISwapChain1* swapChain;
+#else
+	IDXGISwapChain* swapChain;
+#endif
 }
 
 void Graphics::destroy() {
@@ -61,7 +75,7 @@ void Graphics::init() {
 
 	//ID3D11Device* device0;
 	//ID3D11DeviceContext* context0;
-#ifdef SYS_WINDOWS8
+#ifdef SYS_WINDOWSRT
 	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &featureLevel, &context));
 #endif
 	//affirm(device0.As(&device));
@@ -73,6 +87,7 @@ void Graphics::init() {
 		affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
 	else {
+#ifdef SYS_WINDOWS
 		DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
@@ -91,18 +106,31 @@ void Graphics::init() {
 		swapChainDesc.Flags = 0;
 		swapChainDesc.OutputWindow = (HWND)System::windowHandle();
 		swapChainDesc.Windowed = true;
+#endif
 
-#ifdef SYS_WINDOWS8
-		//ComPtr<IDXGIDevice1> dxgiDevice;
-		//affirm(device.As(&dxgiDevice));
+#ifdef SYS_WINDOWSRT
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+		swapChainDesc.Width = 0;                                     // use automatic sizing
+		swapChainDesc.Height = 0;
+		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // this is the most common swapchain format
+		swapChainDesc.Stereo = false; 
+		swapChainDesc.SampleDesc.Count = 1;                          // don't use multi-sampling
+		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.BufferCount = 2;                               // use two buffers to enable flip effect
+		swapChainDesc.Scaling = DXGI_SCALING_NONE;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
+		swapChainDesc.Flags = 0;
 
+		IDXGIDevice1* dxgiDevice = dynamic_cast<IDXGIDevice1*>(device);
+		
 		IDXGIAdapter* dxgiAdapter;
-		affirm(device->GetAdapter(&dxgiAdapter));
+		affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
-		IDXGIFactory* dxgiFactory;
-		affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), &dxgiFactory));
-
-		affirm(dxgiFactory->CreateSwapChainForCoreWindow(device.Get(), rcast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr, &swapChain));
+		IDXGIFactory2* dxgiFactory;
+		affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
+		
+		affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr, &swapChain));
 		affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #else
 		affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &device, nullptr, &context));
@@ -176,7 +204,11 @@ void Graphics::init() {
 	rtbd.SrcBlendAlpha			 = D3D11_BLEND_ONE;
 	rtbd.DestBlendAlpha			 = D3D11_BLEND_ZERO;
 	rtbd.BlendOpAlpha			 = D3D11_BLEND_OP_ADD;
+#ifdef SYS_WINDOWSRT
+	rtbd.RenderTargetWriteMask	 = D3D11_COLOR_WRITE_ENABLE_ALL;
+#else
 	rtbd.RenderTargetWriteMask	 = D3D10_COLOR_WRITE_ENABLE_ALL;
+#endif
 
 	blendDesc.AlphaToCoverageEnable = false;
 	blendDesc.RenderTarget[0] = rtbd;
@@ -187,10 +219,12 @@ void Graphics::init() {
 	affirm(device->CreateBlendState(&blendDesc, &blending));
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 
+#ifdef SYS_WINDOWS
 	if (Application::the()->showWindow()) {
 		ShowWindow(hwnd, SW_SHOWDEFAULT);
 		UpdateWindow(hwnd);
 	}
+#endif
 }
 
 void Graphics::changeResolution(int width, int height) {

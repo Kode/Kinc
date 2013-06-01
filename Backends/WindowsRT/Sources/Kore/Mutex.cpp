@@ -1,8 +1,8 @@
-#include "stdafx.h"
-#include <Kt/Mutex.h>
+#include "pch.h"
+#include <Kore/Threads/Mutex.h>
 #include <Windows.h>
 
-using namespace Kt;
+using namespace Kore;
 
 void Mutex::Create() {
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)

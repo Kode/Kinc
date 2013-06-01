@@ -36,15 +36,13 @@ namespace Kore {
 }
 
 #if defined SYS_XBOX360 || defined SYS_PS3
-#define BIG_ENDIAN
+#define SYS_BIG_ENDIAN
 #else
-#ifndef LITTLE_ENDIAN
-#define LITTLE_ENDIAN
-#endif
+#define SYS_LITTLE_ENDIAN
 #endif
 
 //pseudo C++11
-#ifndef SYS_WINDOWS
+#if !defined SYS_WINDOWS && !defined SYS_WINDOWSRT
 #define nullptr 0
 #define override
 #endif

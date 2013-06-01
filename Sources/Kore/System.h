@@ -21,6 +21,8 @@ namespace Kore {
 
 #ifdef SYS_WINDOWS
 		typedef __int64 ticks;
+#elif defined SYS_WINDOWSRT
+		typedef __int64 ticks;
 #elif defined SYS_LINUX
 		typedef unsigned long long ticks;
 #elif defined SYS_OSX

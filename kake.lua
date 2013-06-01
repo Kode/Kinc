@@ -38,7 +38,7 @@ if platform == Platform.Windows then
 			project:addLibFor("x64", "Backends/Windows/Libraries/directx/Lib/x64/d3d9")
 		end
 	end
-elseif platform == Platform.Windows8 then
+elseif platform == Platform.WindowsRT then
 	addBackend("WindowsRT")
 	addBackend("Direct3D11")
 elseif platform == Platform.Xbox360 then
