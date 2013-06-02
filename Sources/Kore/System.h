@@ -31,6 +31,8 @@ namespace Kore {
 		typedef unsigned long long ticks;
 #elif defined SYS_ANDROID
 		typedef unsigned long long ticks;
+#elif defined SYS_HTML5
+		typedef unsigned long long ticks;
 #else
 		typedef uint64_t ticks;
 #endif

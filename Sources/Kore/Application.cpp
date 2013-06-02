@@ -33,11 +33,13 @@ Application::~Application() {
 void Application::start() {
 	running = true;
 #ifndef SYS_ANDROID
+#ifndef SYS_HTML5
 	if (Graphics::hasWindow()) Graphics::swapBuffers();
 	while (running) {
 		callback();
 		System::handleMessages();
 	}
+#endif
 #endif
 }
 

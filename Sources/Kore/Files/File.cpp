@@ -236,7 +236,9 @@ bool DiskFile::open(const char* filename, FileMode mode) {
 #ifdef SYS_LINUX
 	strcpy(filepath, filename);
 #endif
-
+#ifdef SYS_HTML5
+	strcpy(filepath, filename);
+#endif
 #ifdef SYS_WINDOWS
 	if (mode == DiskFile::ReadMode) {
 		//printf("%s\n", filepath.c_str());

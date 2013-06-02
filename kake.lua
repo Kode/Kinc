@@ -73,8 +73,9 @@ elseif platform == Platform.Android then
 	addBackend("OpenGL2")
 	project:addDefine("OPENGL")
 elseif platform == Platform.HTML5 then
-	addBackend("HTML5");
-	addBackend("OpenGL2");
+	addBackend("HTML5")
+	addBackend("OpenGL2")
+	project:addExclude("Backends/OpenGL2/Sources/GL/**")
 	project:addDefine("OPENGL")
 elseif platform == Platform.Linux then
 	addBackend("Linux")
