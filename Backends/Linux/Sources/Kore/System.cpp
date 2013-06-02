@@ -191,8 +191,6 @@ void Kore::System::showWindow() {
 
 }
 
-#ifdef SYS_LINUX
-
 #include <sys/time.h>
 #include <time.h>
 
@@ -205,8 +203,6 @@ Kore::System::ticks Kore::System::getTimestamp() {
 	gettimeofday(&now, NULL);
 	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
 }
-
-#endif
 
 extern int kore(int argc, char** argv);
 
