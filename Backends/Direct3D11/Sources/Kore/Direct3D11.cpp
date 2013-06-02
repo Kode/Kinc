@@ -284,11 +284,17 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 }
 
 void Graphics::clear(uint color) {
+#ifdef SYS_WINDOWSRT
+	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+#endif
 	const float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f };
 	context->ClearRenderTargetView(renderTargetView, clearColor);
 }
 
 void Graphics::clearZ(float z) {
+#ifdef SYS_WINDOWSRT
+	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+#endif
 	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, z, 0);
 }
 
