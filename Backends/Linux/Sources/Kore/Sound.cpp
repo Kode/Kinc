@@ -15,7 +15,7 @@ namespace {
     pthread_t threadid;
     bool audioRunning = false;
     snd_pcm_t* playback_handle;
-	short buf[4096];
+	short buf[4096 * 4];
 
 	void copySample(void* buffer) {
 		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
@@ -32,11 +32,18 @@ namespace {
 		int err = 0;
 		if (Kore::Audio::audioCallback != nullptr) {
             Kore::Audio::audioCallback(nframes);
-            for (int i = 0; i < nframes; ++i) {
-                copySample(&buf[i]);
-            }
-            if ((err = snd_pcm_writei(playback_handle, buf, nframes)) < 0) {
-                fprintf (stderr, "write failed (%s)\n", snd_strerror (err));
+            int ni = 0;
+            while (ni < nframes) {
+                int i = 0;
+                for (; ni < nframes && i < 4096 * 2; ++i, ++ni) {
+                    copySample(&buf[i * 2]);
+                    copySample(&buf[i * 2 + 1]);
+                }
+                int err2;
+                if ((err2 = snd_pcm_writei(playback_handle, buf, i)) < 0) {
+                    fprintf (stderr, "write failed (%s)\n", snd_strerror (err2));
+                }
+                err += err2;
             }
         }
 		return err;
@@ -167,7 +174,7 @@ namespace {
                 }
             }
 
-            frames_to_deliver = frames_to_deliver > 4096 ? 4096 : frames_to_deliver;
+            //frames_to_deliver = frames_to_deliver > 4096 ? 4096 : frames_to_deliver;
 
             /* deliver the data */
 
