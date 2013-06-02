@@ -30,8 +30,8 @@ namespace {
 }
 
 int kore(int argc, char** argv) {
-	Application app(argc, argv, 1024, 768, false, "ShaderTest");
-	app.setCallback(update);
+	Application* app = new Application(argc, argv, 1024, 768, false, "ShaderTest");
+	app->setCallback(update);
 
 	DiskFile vs; vs.open("shader.vert", DiskFile::ReadMode);
 	DiskFile fs; fs.open("shader.frag", DiskFile::ReadMode);
@@ -56,7 +56,7 @@ int kore(int argc, char** argv) {
 	i[0] = 0; i[1] = 1; i[2] = 2;
 	indices->unlock();
 
-	app.start();
+	app->start();
 
 	return 0;
 }
