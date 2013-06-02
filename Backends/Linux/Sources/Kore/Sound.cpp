@@ -31,7 +31,7 @@ namespace {
 	int playback_callback(snd_pcm_sframes_t nframes) {
 		int err = 0;
 		if (Kore::Audio::audioCallback != nullptr) {
-            Kore::Audio::audioCallback(nframes);
+            Kore::Audio::audioCallback(nframes * 2);
             int ni = 0;
             while (ni < nframes) {
                 int i = 0;
