@@ -12,6 +12,7 @@
 #include <Kore/Audio/Sound.h>
 #include <Kore/Math/Random.h>
 #include <Kore/System.h>
+#include <stdio.h>
 
 using namespace Kore;
 
@@ -341,7 +342,7 @@ namespace {
 	BigBlock* current = nullptr;
 	BigBlock* next = nullptr;
 	int xcount = 0;
-	System::ticks lastDownTime = 0;
+	double lastDownTime = 0;
 
 	bool isBlocked(int x, int y) {
 		return blocked[y * Block::xsize + x] != nullptr;
@@ -423,9 +424,10 @@ namespace {
 			}
 			if (down_) down();
 			else {
-				System::ticks time = System::getTimestamp();
-				if (time - lastDownTime > System::getFrequency()) {
-					lastDownTime += System::getFrequency();
+				double time = System::getTime();
+				//printf("now %f last %f\n", time, lastDownTime);
+				if (time - lastDownTime > 1.0) {
+					lastDownTime += 1.0;
 					down();
 				}
 			}
@@ -482,6 +484,7 @@ namespace {
 		current->hop();
 		next = createRandomBlock();
 
+		lastDownTime = System::getTime();
 		state = InGameState;
 	}
 
@@ -596,8 +599,9 @@ int kore(int argc, char** argv) {
 	Keyboard::the()->KeyUp = keyUp;
 	Mouse::the()->ReleaseLeft = mouseUp;
 
-	lastDownTime = System::getTimestamp();
+	lastDownTime = System::getTime();
 	app->start();
 
 	return 0;
 }
+

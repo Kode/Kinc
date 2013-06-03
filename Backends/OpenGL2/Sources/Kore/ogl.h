@@ -26,7 +26,6 @@
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 #include <GL/gl.h>
-#include <GL/glut.h>
 #define OPENGLES
 #endif
 

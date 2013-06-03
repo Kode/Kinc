@@ -39,5 +39,6 @@ namespace Kore {
 
 		ticks getFrequency();
 		ticks getTimestamp();
+		double getTime();
 	}
 }

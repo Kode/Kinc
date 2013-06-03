@@ -14,10 +14,11 @@ namespace Kore {
 		int myStride;
 		uint arrayId;
 		uint bufferId;
-#ifdef SYS_ANDROID
+#if defined SYS_ANDROID || defined SYS_HTML5
 		VertexStructure structure;
 #endif
 	public:
 		static VertexBuffer* current;
 	};
 }
+
