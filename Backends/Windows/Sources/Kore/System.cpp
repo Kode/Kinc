@@ -492,10 +492,6 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 		ret = kore(argc, argv);
 #ifndef _DEBUG
 	}
-	catch (Kt::Exception& ex) {
-		ret = 1;
-		MessageBoxA(0, ex.what(), "Exception", MB_OK);
-	}
 	catch (std::exception& ex) {
 		ret = 1;
 		MessageBoxA(0, ex.what(), "Exception", MB_OK);
