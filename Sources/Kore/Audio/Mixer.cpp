@@ -14,8 +14,14 @@ namespace {
 		int position;
 	};
 
+	struct StreamChannel {
+		SoundStream* stream;
+		int position;
+	};
+
 	const int channelCount = 16;
 	Channel channels[channelCount];
+	StreamChannel streams[channelCount];
 
 	void mix(int samples) {
 		for (int i = 0; i < samples; ++i) {
@@ -50,6 +56,11 @@ namespace {
 					if (channels[i].position >= channels[i].sound->size) channels[i].sound = nullptr;
 				}
 			}
+			for (int i = 0; i < channelCount; ++i) {
+				if (streams[i].stream != nullptr) {
+					value += streams[i].stream->nextSample();
+				}
+			}
 #endif
 			*(float*)&Audio::buffer.data[Audio::buffer.writeLocation] = value;
 			Audio::buffer.writeLocation += 4;
@@ -67,6 +78,16 @@ void Mixer::play(Sound* sound) {
 		if (channels[i].sound == nullptr) {
 			channels[i].sound = sound;
 			channels[i].position = 0;
+			break;
+		}
+	}
+}
+
+void Mixer::play(SoundStream* stream) {
+	for (int i = 0; i < channelCount; ++i) {
+		if (streams[i].stream == nullptr) {
+			streams[i].stream = stream;
+			streams[i].position = 0;
 			break;
 		}
 	}

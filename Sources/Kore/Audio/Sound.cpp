@@ -59,9 +59,9 @@ Sound::Sound(const char* filename) {
 	
 	file.close();
 
-	format.bitsPerSample = 16;
-	format.channels = 2;
-	format.samplesPerSecond = 44100;
+	format.bitsPerSample = waveFileHeader.bitsPerSample;
+	format.channels = waveFileHeader.numChannels;
+	format.samplesPerSecond = waveFileHeader.sampleRate;
 	data = waveData;
 	size = waveFileHeader.dataSize;
 }
