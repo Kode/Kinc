@@ -78,10 +78,8 @@ void Program::set() {
 ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	char d3dname[101];
-	d3dname[0] = '_';
-	d3dname[1] = 0;
-	size_t nameLength = strlen(name);
-	for (size_t i = 0; i < nameLength; ++i) d3dname[i + 2] = name[i];
+	strcpy(d3dname, "_");
+	strcat(d3dname, name);
 
 	if (fragmentShader->constants.find(d3dname) != fragmentShader->constants.end()) {
 		location.reg = fragmentShader->constants[d3dname];
