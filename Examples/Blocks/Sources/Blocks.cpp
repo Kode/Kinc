@@ -10,6 +10,7 @@
 #include <Kore/Audio/Audio.h>
 #include <Kore/Audio/Mixer.h>
 #include <Kore/Audio/Sound.h>
+#include <Kore/Audio/SoundStream.h>
 #include <Kore/Math/Random.h>
 #include <Kore/System.h>
 #include <stdio.h>
@@ -25,6 +26,8 @@ namespace {
 	Texture* titleImage;
 	Texture* boardImage;
 	Texture* scoreImage;
+	
+	SoundStream* music;
 	
 	enum BlockColor {
 		Blue, Green, Orange, Purple, Red, Violet, Yellow
@@ -549,6 +552,7 @@ int kore(int argc, char** argv) {
 
 	app->setCallback(update);
 
+	music = new SoundStream("Sound/blocks.ogg", true);
 	rotateSound = new Sound("Sound/rotate.wav");
 	lineSound = new Sound("Sound/line.wav");
 	klackSound = new Sound("Sound/klack.wav");
@@ -599,9 +603,10 @@ int kore(int argc, char** argv) {
 	Keyboard::the()->KeyUp = keyUp;
 	Mouse::the()->ReleaseLeft = mouseUp;
 
+	Mixer::play(music);
+	
 	lastDownTime = System::getTime();
 	app->start();
 
 	return 0;
 }
-
