@@ -12,6 +12,10 @@
 
 using namespace Kore;
 
+#ifndef KORE_DEBUGDIR
+#define KORE_DEBUGDIR "Deployment"
+#endif
+
 #ifdef SYS_IOS
 const char* iphonegetresourcepath();
 #endif
@@ -192,12 +196,16 @@ bool DiskFile::open(const char* filename, FileMode mode) {
 	char filepath[1001];
 #ifdef SYS_IOS
 	strcpy(filepath, iphonegetresourcepath());
-	strcat(filepath, "/Deployment/");
+	strcat(filepath, "/");
+	strcat(filepath, KORE_DEBUGDIR);
+	strcat(filepath, "/");
 	strcat(filepath, filename);
 #endif
 #ifdef SYS_OSX
 	strcpy(filepath, macgetresourcepath());
-	strcat(filepath, "/Deployment/");
+	strcat(filepath, "/");
+	strcat(filepath, KORE_DEBUGDIR);
+	strcat(filepath, "/");
 	strcat(filepath, filename);
 #endif
 #ifdef SYS_XBOX360
