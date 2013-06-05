@@ -19,10 +19,6 @@ namespace {
 	const int samplesPerSecond = 44100;
 	const int bitsPerSample = 16;
 	
-	float* mixbuffer;
-	const int bufferSize = samplesPerSecond * 3000;
-	int bufferPosition = 0;
-
 	DWORD lastPlayPosition = 0;
 	bool secondHalfFilled = false;
 
@@ -57,9 +53,6 @@ void Audio::init() {
 	bufferDesc.guid3DAlgorithm = GUID_NULL;
  
 	affirm(dsound->CreateSoundBuffer(&bufferDesc, &dbuffer, nullptr));
-
-	mixbuffer = new float[bufferSize];
-	for (int i = 0; i < bufferSize; ++i) mixbuffer[i] = 0;
 	
 	DWORD size1;
 	u8* buffer1;
