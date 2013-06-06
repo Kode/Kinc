@@ -349,12 +349,8 @@ namespace {
 	}
 }
 
-void Graphics::clear(unsigned color) {
-	device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
-}
-
-void Graphics::clearZ(float z) {
-	device->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, z, 0);
+void Graphics::clear(int flags, uint color, float z, int stencil) {
+	device->Clear(0, nullptr, flags, color, z, stencil);
 }
 
 void Graphics::begin() {
