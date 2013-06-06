@@ -13,6 +13,8 @@ namespace Kore {
 		Texture(int width, int height, Format format);
 		Texture(const char* filename);
 		void set(TextureUnit unit);
+		u8* lock();
+		void unlock();
 		int texWidth;
 		int texHeight;
 	};

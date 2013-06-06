@@ -73,3 +73,13 @@ void TextureImpl::unset() {
 		setTextures[stage] = nullptr;
 	}
 }
+
+u8* Texture::lock() {
+	D3DLOCKED_RECT rect;
+	affirm(texture->LockRect(0, &rect, 0, 0));
+	return (u8*)rect.pBits;
+}
+
+void Texture::unlock() {
+	affirm(texture->UnlockRect(0));
+}
