@@ -1,13 +1,11 @@
 #include "pch.h"
 #include "TextureImpl.h"
+#include <Kore/WinError.h>
 #include "Direct3D9.h"
 
 using namespace Kore;
 
 namespace {
-	void affirm(HRESULT) { }
-	void affirm(HRESULT, const char*) { }
-
 	Texture* setTextures[16] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 									nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 

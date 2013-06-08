@@ -2,11 +2,10 @@
 #include "ProgramImpl.h"
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Application.h>
+#include <Kore/WinError.h>
 #include "Direct3D9.h"
 
 using namespace Kore;
-
-static void affirm(HRESULT) { }
 
 Program::Program() {
 	vertexShader = nullptr;

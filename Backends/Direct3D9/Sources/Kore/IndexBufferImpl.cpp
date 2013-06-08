@@ -1,12 +1,11 @@
 #include "pch.h"
 
 #include <Kore/Graphics/Graphics.h>
+#include <Kore/WinError.h>
 #include "Direct3D9.h"
 #include "IndexBufferImpl.h"
 
 using namespace Kore;
-
-static void affirm(HRESULT) { }
 
 IndexBuffer* IndexBufferImpl::_current = nullptr;
 

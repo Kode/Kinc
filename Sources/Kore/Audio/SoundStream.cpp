@@ -1,19 +1,18 @@
 #include "pch.h"
 #include "SoundStream.h"
 #include "stb_vorbis.h"
-#include <Kore/Files/File.h>
+#include <Kore/IO/FileReader.h>
 
 using namespace Kore;
 
 SoundStream::SoundStream(const char* filename, bool looping) : decoded(false), looping(looping) {
-	DiskFile file;
-	file.open(filename, DiskFile::ReadMode);
-	buffer = new u8[file.getSize()];
+	FileReader file(filename);
+	buffer = new u8[file.size()];
 	u8* filecontent = (u8*)file.readAll();
-	for (uint i = 0; i < file.getSize(); ++i) {
+	for (int i = 0; i < file.size(); ++i) {
 		buffer[i] = filecontent[i];
 	}
-	vorbis = stb_vorbis_open_memory(buffer, file.getSize(), nullptr, nullptr);
+	vorbis = stb_vorbis_open_memory(buffer, file.size(), nullptr, nullptr);
 }
 
 float SoundStream::nextSample() {

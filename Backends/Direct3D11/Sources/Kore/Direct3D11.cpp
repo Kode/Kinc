@@ -7,7 +7,7 @@
 #include <Kore/Graphics/Shader.h>
 #undef CreateWindow
 #include <Kore/System.h>
-#include <Kore/Files/File.h>
+#include <Kore/WinError.h>
 #ifdef SYS_WINDOWSRT
 #include <d3d11_1.h>
 #include <wrl.h>
@@ -33,8 +33,6 @@ using namespace Windows::Foundation;
 #endif
 
 namespace {
-	void affirm(HRESULT) { }
-
 	unsigned hz;
 	bool vsync;
 
@@ -283,22 +281,23 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 	sampler->Release();
 }
 
-void Graphics::clear(uint color) {
-#ifdef SYS_WINDOWSRT
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
-#endif
-	const float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f };
-	context->ClearRenderTargetView(renderTargetView, clearColor);
-}
-
-void Graphics::clearZ(float z) {
-#ifdef SYS_WINDOWSRT
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
-#endif
-	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, z, 0);
+void Graphics::clear(uint flags, uint color, float depth, int stencil) {
+	if (flags & ClearColorFlag) {
+		const float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f };
+		context->ClearRenderTargetView(renderTargetView, clearColor);
+	}
+	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
+		uint d3dflags = 
+			  (flags & ClearDepthFlag) ? D3D11_CLEAR_DEPTH : 0
+			| (flags & ClearStencilFlag) ? D3D11_CLEAR_STENCIL : 0;
+		context->ClearDepthStencilView(depthStencilView, d3dflags, depth, stencil);
+	}
 }
 
 void Graphics::begin() {
+#ifdef SYS_WINDOWSRT
+	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+#endif
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 

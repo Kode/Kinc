@@ -1,12 +1,10 @@
 #include "pch.h"
 #include <Kore/Graphics/Shader.h>
-#include <Kore/Files/File.h>
 #include <Kore/Math/Core.h>
+#include <Kore/WinError.h>
 #include "Direct3D11.h"
 
 using namespace Kore;
-
-static void affirm(HRESULT) { }
 
 ShaderImpl::ShaderImpl() {
 

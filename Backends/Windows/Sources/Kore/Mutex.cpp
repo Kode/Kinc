@@ -1,10 +1,9 @@
 #include "pch.h"
 #include <Kore/Threads/Mutex.h>
+#include <Kore/Error.h>
 #include <Windows.h>
 
 using namespace Kore;
-
-static void affirm(bool) { }
 
 void Mutex::Create() {
 	InitializeCriticalSection((CRITICAL_SECTION*)&criticalSection);

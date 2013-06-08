@@ -1,13 +1,12 @@
 #include "pch.h"
 #include "ProgramImpl.h"
 #include <Kore/Graphics/Shader.h>
+#include <Kore/WinError.h>
 #include "Direct3D11.h"
 
 using namespace Kore;
 
 namespace {
-	void affirm(HRESULT) { }
-
 	ProgramImpl* current = nullptr;
 }
 

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Image.h"
-#include <Kore/Files/File.h>
+#include <Kore/IO/FileReader.h>
 #include <Kore/Graphics/Graphics.h>
 #include "stb_image.h"
 #include <stdio.h>
@@ -23,8 +23,8 @@ Image::Image(int width, int height, Format format) : width(width), height(height
 
 Image::Image(const char* filename) : format(RGBA32) {
 	printf("Image %s\n", filename);
-	DiskFile file; file.open(filename, DiskFile::ReadMode);
-	uint size = file.getSize();
+	FileReader file(filename);
+	int size = file.size();
 	int comp;
 	data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
 }

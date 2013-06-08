@@ -1,12 +1,11 @@
 #include "pch.h"
 #include "Direct3D11.h"
 #include "TextureImpl.h"
+#include <Kore/WinError.h>
 
 using namespace Kore;
 
 namespace {
-	void affirm(HRESULT) { }
-	
 	Texture* setTextures[16] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 									nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 }
@@ -66,4 +65,12 @@ void TextureImpl::unset() {
 		
 		setTextures[stage] = nullptr;
 	}
+}
+
+u8* Texture::lock() {
+	return nullptr;
+}
+
+void Texture::unlock() {
+
 }

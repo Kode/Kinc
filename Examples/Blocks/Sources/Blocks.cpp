@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Application.h>
-#include <Kore/Files/File.h>
+#include <Kore/IO/FileReader.h>
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Input/Keyboard.h>
@@ -437,7 +437,7 @@ namespace {
 		}
 
 		Graphics::begin();
-		Graphics::clear(0);
+		Graphics::clear(Graphics::ClearColorFlag, 0);
 	
 		program->set();
 		indices->set();
@@ -560,10 +560,10 @@ int kore(int argc, char** argv) {
 	structure.add("pos", Float3VertexData);
 	structure.add("tex", Float2VertexData);
 	
-	DiskFile vs; vs.open("shader.vert", DiskFile::ReadMode);
-	DiskFile fs; fs.open("shader.frag", DiskFile::ReadMode);
-	vertexShader = new Shader(vs.readAll(), vs.getSize(), VertexShader);
-	fragmentShader = new Shader(fs.readAll(), fs.getSize(), FragmentShader);
+	FileReader vs("shader.vert");
+	FileReader fs("shader.frag");
+	vertexShader = new Shader(vs.readAll(), vs.size(), VertexShader);
+	fragmentShader = new Shader(fs.readAll(), fs.size(), FragmentShader);
 
 	program = new Program;
 	program->setVertexShader(vertexShader);

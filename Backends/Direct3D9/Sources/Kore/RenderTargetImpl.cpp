@@ -1,10 +1,9 @@
 #include "pch.h"
 #include "RenderTargetImpl.h"
+#include <Kore/WinError.h>
 #include "Direct3D9.h"
 
 using namespace Kore;
-
-static void affirm(HRESULT) { }
 
 RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) {
 	this->antialiasing = antialiasing;

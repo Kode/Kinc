@@ -1,18 +1,12 @@
 #include "pch.h"
 #include <Kore/Audio/Audio.h>
 #include <Kore/System.h>
+#include <Kore/WinError.h>
+#include <dsound.h>
 
 using namespace Kore;
 
-#include <dsound.h>
-
 namespace {
-	void affirm(HRESULT result) {
-		if (result != DS_OK) {
-			//throw std::runtime_error("arr");
-		}
-	}
-
 	IDirectSound8* dsound = nullptr;
 	IDirectSoundBuffer* dbuffer = nullptr;
 	const DWORD dsize = 50 * 1024;

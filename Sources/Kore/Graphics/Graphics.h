@@ -146,11 +146,11 @@ namespace Kore {
 		bool isVSynced();
 		unsigned getHz();
 
-		const int ClearColorFlag = 1;
-		const int ClearZFlag = 2;
-		const int ClearStencilFlag = 4;
+		const uint ClearColorFlag   = 1;
+		const uint ClearDepthFlag   = 2;
+		const uint ClearStencilFlag = 4;
 
-		void clear(int flags, uint color, float z = 1.0f, int stencil = 0);
+		void clear(uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
 
 		void init();
 		void destroy();

@@ -2,12 +2,11 @@
 #include <Kore/Graphics/Graphics.h>
 #include "Direct3D11.h"
 #include "IndexBufferImpl.h"
+#include <Kore/WinError.h>
 #include <Windows.h>
 #include <d3d11.h>
 
 using namespace Kore;
-
-static void affirm(HRESULT) { }
 
 IndexBuffer* IndexBufferImpl::_current = nullptr;
 

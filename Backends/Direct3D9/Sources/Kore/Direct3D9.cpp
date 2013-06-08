@@ -5,6 +5,7 @@
 #include <Kore/Graphics/Shader.h>
 #undef CreateWindow
 #include <Kore/System.h>
+#include <Kore/WinError.h>
 
 using namespace Kore;
 
@@ -16,8 +17,6 @@ LPDIRECT3D9 d3d;
 LPDIRECT3DDEVICE9 device;
 
 namespace {
-	void affirm(HRESULT) { }
-
 	HWND hWnd;
 	unsigned hz;
 	bool vsync;
@@ -349,7 +348,7 @@ namespace {
 	}
 }
 
-void Graphics::clear(int flags, uint color, float z, int stencil) {
+void Graphics::clear(uint flags, uint color, float z, int stencil) {
 	device->Clear(0, nullptr, flags, color, z, stencil);
 }
 

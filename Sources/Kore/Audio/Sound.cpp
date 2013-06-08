@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Sound.h"
 #include "Audio.h"
-#include <Kore/Files/File.h>
+#include <Kore/IO/FileReader.h>
 #include <string.h>
 
 using namespace Kore;
@@ -30,12 +30,7 @@ namespace {
 Sound::Sound(const char* filename) {
 	size_t filenameLength = strlen(filename);
 	if (filename[filenameLength - 4] != '.' || filename[filenameLength - 3] != 'w' || filename[filenameLength - 2] != 'a' || filename[filenameLength - 1] != 'v') return;
-	DiskFile file;
-	file.open(filename, DiskFile::ReadMode);
-	char errormsg[100];
-	strcpy(errormsg, "Could not load file ");
-	strcat(errormsg, filename);
-	affirm(file.isOpened(), errormsg);
+	FileReader file(filename);
  
 	WaveHeaderType waveFileHeader;
 	uint read = file.read(&waveFileHeader, sizeof(waveFileHeader));

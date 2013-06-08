@@ -196,18 +196,19 @@ void Graphics::end() {
 	}
 }
 
-void Graphics::clear(unsigned color) {
+void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void Graphics::clearZ(float z) {
 #ifdef OPENGLES
-	glClearDepthf(z);
+	glClearDepthf(depth);
 #else
-	glClearDepth(z);
+	glClearDepth(depth);
 #endif
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClearStencil(stencil);
+	GLbitfield oglflags =
+		  (flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0
+		| (flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT: 0
+		| (flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT: 0;
+	glClear(oglflags);
 }
 
 void Graphics::setRenderState(RenderState state, bool on) {

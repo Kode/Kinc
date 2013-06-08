@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Application.h>
-#include <Kore/Files/File.h>
+#include <Kore/IO/FileReader.h>
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Graphics/Shader.h>
 #include <limits>
@@ -33,10 +33,10 @@ int kore(int argc, char** argv) {
 	Application* app = new Application(argc, argv, 1024, 768, false, "ShaderTest");
 	app->setCallback(update);
 
-	DiskFile vs; vs.open("shader.vert", DiskFile::ReadMode);
-	DiskFile fs; fs.open("shader.frag", DiskFile::ReadMode);
-	vertexShader = new Shader(vs.readAll(), vs.getSize(), VertexShader);
-	fragmentShader = new Shader(fs.readAll(), fs.getSize(), FragmentShader);
+	FileReader vs("shader.vert");
+	FileReader fs("shader.frag");
+	vertexShader = new Shader(vs.readAll(), vs.size(), VertexShader);
+	fragmentShader = new Shader(fs.readAll(), fs.size(), FragmentShader);
 	VertexStructure structure;
 	structure.add("pos", Float3VertexData);
 	program = new Program;
