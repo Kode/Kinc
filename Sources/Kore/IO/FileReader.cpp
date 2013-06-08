@@ -139,9 +139,9 @@ bool FileReader::open(const char* filename) {
 		printf("Could not open %s\n", filepath);
 		return false;
 	}
-	fseek(data.file, 0, SEEK_END);
-	data.size = static_cast<int>(ftell(data.file));
-	fseek(data.file, 0, SEEK_SET);
+	fseek((FILE*)data.file, 0, SEEK_END);
+	data.size = static_cast<int>(ftell((FILE*)data.file));
+	fseek((FILE*)data.file, 0, SEEK_SET);
 	return true;
 }
 #endif
@@ -153,7 +153,7 @@ int FileReader::read(void* data, int size) {
 	this->data.pos += memsize;
 	return memsize;
 #else
-	return static_cast<int>(fread(data, 1, size, this->data.file));
+	return static_cast<int>(fread(data, 1, size, (FILE*)this->data.file));
 #endif
 }
 
@@ -172,7 +172,7 @@ void FileReader::seek(int pos) {
 #ifdef SYS_ANDROID
 	data.pos = pos;
 #else
-	fseek(data.file, pos, SEEK_SET);
+	fseek((FILE*)data.file, pos, SEEK_SET);
 #endif
 }
 
@@ -182,7 +182,7 @@ void FileReader::close() {
 	data.all = nullptr;
 #else
 	if (data.file == nullptr) return;
-	fclose(data.file);
+	fclose((FILE*)data.file);
 	data.file = nullptr;
 #endif
 }
@@ -195,7 +195,7 @@ int FileReader::pos() const {
 #ifdef SYS_ANDROID
 	return data.pos;
 #else
-	return static_cast<int>(ftell(data.file));
+	return static_cast<int>(ftell((FILE*)data.file));
 #endif
 }
 

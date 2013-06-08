@@ -2,10 +2,6 @@
 
 #include "Reader.h"
 
-#if defined SYS_WINDOWS || defined SYS_WINDOWSRT
-typedef struct _iobuf FILE;
-#endif
-
 namespace Kore {
 #ifdef SYS_ANDROID
 	struct FileReaderData {
@@ -15,7 +11,7 @@ namespace Kore {
 	};
 #else
 	struct FileReaderData {
-		FILE* file;
+		void* file;
 		int size;
 	};
 #endif

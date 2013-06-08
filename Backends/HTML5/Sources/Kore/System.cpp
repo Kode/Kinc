@@ -1,7 +1,6 @@
 #include "pch.h"
 #include <Kore/System.h>
 #include <cstring>
-#include <Kore/Files/File.h>
 #include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/KeyEvent.h>
