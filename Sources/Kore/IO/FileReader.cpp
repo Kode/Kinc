@@ -35,13 +35,25 @@ extern mz_zip_archive* getApk();
 using namespace Kore;
 
 FileReader::FileReader() {
+#ifdef SYS_ANDROID
+	data.all = nullptr;
+	data.size = 0;
+	data.pos = 0;
+#else
 	data.file = nullptr;
 	data.size = 0;
+#endif
 }
 
 FileReader::FileReader(const char* filename) {
+#ifdef SYS_ANDROID
+	data.all = nullptr;
+	data.size = 0;
+	data.pos = 0;
+#else
 	data.file = nullptr;
 	data.size = 0;
+#endif
 	if (!open(filename)) {
 		char message[101];
 		sprintf(message, "Could not open file %s.", filename);
@@ -51,12 +63,14 @@ FileReader::FileReader(const char* filename) {
 
 #ifdef SYS_ANDROID
 bool FileReader::open(const char* filename) {
-	pos = 0;
+	data.pos = 0;
 	char file[1001];
 	strcpy(file, "assets/");
 	strcat(file, filename);
-	obj = mz_zip_reader_extract_file_to_heap(getApk(), file, &size, 0);
-	if (obj == nullptr) {
+	size_t size;
+	data.all = mz_zip_reader_extract_file_to_heap(getApk(), file, &size, 0);
+	data.size = static_cast<int>(size);
+	if (data.all == nullptr) {
 		mz_zip_reader_end(getApk());
 		return false;
 	}
@@ -134,10 +148,10 @@ bool FileReader::open(const char* filename) {
 
 int FileReader::read(void* data, int size) {
 #ifdef SYS_ANDROID
-	Kore::uint memsize = Kore::min(size, data.size - pos);
-	memcpy(data, (u8*)obj + pos, memsize);
-	pos += psize_;
-	return psize_;
+	int memsize = Kore::min(size, this->data.size - this->data.pos);
+	memcpy(data, (u8*)this->data.all + this->data.pos, memsize);
+	this->data.pos += memsize;
+	return memsize;
 #else
 	return static_cast<int>(fread(data, 1, size, this->data.file));
 #endif
@@ -145,7 +159,7 @@ int FileReader::read(void* data, int size) {
 
 void* FileReader::readAll() {
 #ifdef SYS_ANDROID
-	return obj;
+	return data.all;
 #else
 	seek(0);
 	void* data = new Kore::u8[this->data.size];
@@ -164,8 +178,8 @@ void FileReader::seek(int pos) {
 
 void FileReader::close() {
 #ifdef SYS_ANDROID
-	free(obj);
-	obj = nullptr;
+	free(data.all);
+	data.all = nullptr;
 #else
 	if (data.file == nullptr) return;
 	fclose(data.file);
@@ -179,15 +193,15 @@ FileReader::~FileReader() {
 
 int FileReader::pos() const {
 #ifdef SYS_ANDROID
-	return pos;
+	return data.pos;
 #else
 	return static_cast<int>(ftell(data.file));
 #endif
 }
 
 int FileReader::size() const {
-	#ifdef SYS_ANDROID
-	return pos;
+#ifdef SYS_ANDROID
+	return data.size;
 #else
 	return data.size;
 #endif

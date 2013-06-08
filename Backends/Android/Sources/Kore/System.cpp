@@ -2,8 +2,8 @@
 #include <Kore/System.h>
 #include <Kore/Application.h>
 #include <Kore/Audio/Audio.h>
-#include <Kore/Files/File.h>
-#include <Kore/Files/miniz.h>
+#include <Kore/IO/FileReader.h>
+#include <Kore/IO/miniz.h>
 #include <Kore/Input/Mouse.h>
 #include <jni.h>
 #include <GLES2/gl2.h>
