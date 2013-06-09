@@ -418,13 +418,13 @@ void Kore::System::showWindow() {
 	UpdateWindow(hwnd);
 }
 
-Kore::System::ticks Kore::System::getFrequency() {
+double Kore::System::frequency() {
 	ticks rate;
 	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&rate));
-	return rate;
+	return (double)rate;
 }
 
-Kore::System::ticks Kore::System::getTimestamp() {
+Kore::System::ticks Kore::System::timestamp() {
 	ticks stamp;
 	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&stamp));
 	return stamp;

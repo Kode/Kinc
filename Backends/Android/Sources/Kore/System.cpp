@@ -144,11 +144,11 @@ bool Kore::System::handleMessages() {
 #include <sys/time.h>
 #include <time.h>
 
-Kore::System::ticks Kore::System::getFrequency() {
-	return 1000000;
+double Kore::System::frequency() {
+	return 1000000.0;
 }
 
-Kore::System::ticks Kore::System::getTimestamp() {
+Kore::System::ticks Kore::System::timestamp() {
 	timeval now;
 	gettimeofday(&now, NULL);
 	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
