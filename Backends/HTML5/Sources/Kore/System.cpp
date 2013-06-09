@@ -150,15 +150,15 @@ void Kore::System::showWindow() {
 
 }
 
-Kore::System::ticks Kore::System::getFrequency() {
-	return 1000;
+double Kore::System::frequency() {
+	return 1000.0;
 }
 
-Kore::System::ticks Kore::System::getTimestamp() {
+Kore::System::ticks Kore::System::timestamp() {
 	return static_cast<Kore::System::ticks>(glfwGetTime() * 1000.0);
 }
 
-double Kore::System::getTime() {
+double Kore::System::time() {
 	//printf("Time: %f\n", glfwGetTime());
 	return glfwGetTime();
 }
