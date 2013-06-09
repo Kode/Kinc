@@ -21,20 +21,52 @@ namespace {
 	bool soundPlaying;
 	AudioStreamBasicDescription deviceFormat;
 	AudioComponentInstance audioUnit;
+	bool isFloat = false;
+	bool isInterleaved = true;
 	
 	void copySample(void* buffer) {
 		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
 		Audio::buffer.readLocation += 4;
 		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
-		*(s16*)buffer = static_cast<s16>(value * 32767);
+		if (isFloat) *(float*)buffer = value;
+		else *(s16*)buffer = static_cast<s16>(value * 32767);
 	}
 	
 	OSStatus renderInput(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList* outOutputData) {
 		Audio::audioCallback(inNumberFrames * 2);
-		s16* out = (s16*)outOutputData->mBuffers[0].mData;
-		for (int i = 0; i < inNumberFrames; ++i) {
-			copySample(out++); //left
-			copySample(out++); //right
+		if (isInterleaved) {
+			if (isFloat) {
+				float* out = (float*)outOutputData->mBuffers[0].mData;
+				for (int i = 0; i < inNumberFrames; ++i) {
+					copySample(out++); //left
+					copySample(out++); //right
+				}
+			}
+			else {
+				s16* out = (s16*)outOutputData->mBuffers[0].mData;
+				for (int i = 0; i < inNumberFrames; ++i) {
+					copySample(out++); //left
+					copySample(out++); //right
+				}
+			}
+		}
+		else {
+			if (isFloat) {
+				float* out1 = (float*)outOutputData->mBuffers[0].mData;
+				float* out2 = (float*)outOutputData->mBuffers[1].mData;
+				for (int i = 0; i < inNumberFrames; ++i) {
+					copySample(out1++); //left
+					copySample(out2++); //right
+				}
+			}
+			else {
+				s16* out1 = (s16*)outOutputData->mBuffers[0].mData;
+				s16* out2 = (s16*)outOutputData->mBuffers[1].mData;
+				for (int i = 0; i < inNumberFrames; ++i) {
+					copySample(out1++); //left
+					copySample(out2++); //right
+				}
+			}
 		}
 		return noErr;
 	}
@@ -70,9 +102,12 @@ void Audio::init() {
 		return;
 	}
 
-	if (!(deviceFormat.mFormatFlags & kLinearPCMFormatFlagIsSignedInteger)) {
-		fprintf(stderr, "Only works with signed integer format.\n");
-		return;
+	if (deviceFormat.mFormatFlags & kLinearPCMFormatFlagIsFloat) {
+		isFloat = true;
+	}
+	
+	if (deviceFormat.mFormatFlags & kAudioFormatFlagIsNonInterleaved) {
+		isInterleaved = false;
 	}
 
 	initialized = true;
