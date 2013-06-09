@@ -427,7 +427,7 @@ namespace {
 			}
 			if (down_) down();
 			else {
-				double time = System::getTime();
+				double time = System::time();
 				//printf("now %f last %f\n", time, lastDownTime);
 				if (time - lastDownTime > 1.0) {
 					lastDownTime += 1.0;
@@ -487,7 +487,7 @@ namespace {
 		current->hop();
 		next = createRandomBlock();
 
-		lastDownTime = System::getTime();
+		lastDownTime = System::time();
 		state = InGameState;
 	}
 
@@ -605,7 +605,7 @@ int kore(int argc, char** argv) {
 
 	Mixer::play(music);
 	
-	lastDownTime = System::getTime();
+	lastDownTime = System::time();
 	app->start();
 
 	return 0;

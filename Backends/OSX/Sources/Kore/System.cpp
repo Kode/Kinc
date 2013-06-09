@@ -38,12 +38,12 @@ void System::setTitle(const char* title) {
 
 #include <mach/mach_time.h>
 
-System::ticks System::getFrequency() {
+double System::frequency() {
 	mach_timebase_info_data_t info;
 	mach_timebase_info(&info);
-	return /*(double)*/ info.denom / /*(double)*/ info.numer / 1e-9;
+	return (double)info.denom / (double)info.numer / 1e-9;
 }
 
-System::ticks System::getTimestamp() {
+System::ticks System::timestamp() {
 	return mach_absolute_time();
 }

@@ -3,7 +3,7 @@
 #include <Kore/Application.h>
 #include <Kore/Input/KeyEvent.h>
 #import <UIKit/UIKit.h>
-#import "KtAppDelegate.h"
+#import "KoreAppDelegate.h"
 
 using namespace Kore;
 
@@ -93,14 +93,15 @@ int System::screenHeight() {
 
 #include <mach/mach_time.h>
 
-System::ticks System::getFrequency() {
+double System::frequency() {
 	mach_timebase_info_data_t info;
 	mach_timebase_info(&info);
-	return /*(double)*/ info.denom / /*(double)*/ info.numer / 1e-9;
+	return (double)info.denom / (double)info.numer / 1e-9;
 }
 
-System::ticks System::getTimestamp() {
-	return mach_absolute_time();
+System::ticks System::timestamp() {
+	System::ticks time = mach_absolute_time();
+	return time;
 }
 
 int main(int argc, char *argv[]) {
@@ -111,9 +112,9 @@ int main(int argc, char *argv[]) {
 	screenScale = 1.0f; // Temporary hack
 	theScreenWidth = static_cast<int>(screenBounds.size.width * screenScale);
 	theScreenHeight = static_cast<int>(screenBounds.size.height * screenScale);
-	[KtAppDelegate description]; //otherwise removed by the linker
+	[KoreAppDelegate description]; //otherwise removed by the linker
 	[UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationLandscapeRight;
-	int retVal = UIApplicationMain(argc, argv, nil, @"KtAppDelegate");
+	int retVal = UIApplicationMain(argc, argv, nil, @"KoreAppDelegate");
 	
 	[pool drain];
 	

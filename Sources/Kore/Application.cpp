@@ -22,7 +22,7 @@ Application::Application(int argc, char** argv, int width, int height, bool full
 	::name = name;
 	::showWindow = showWindow;
 	instance = this;
-	Random::init(static_cast<int>(System::getTimestamp() % std::numeric_limits<int>::max()));
+	Random::init(static_cast<int>(System::timestamp() % std::numeric_limits<int>::max()));
 	Graphics::init();
 }
 

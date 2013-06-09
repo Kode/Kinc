@@ -1,9 +1,9 @@
-#import "KtAppDelegate.h"
+#import "KoreAppDelegate.h"
 #import "GLView.h"
 #include "pch.h"
 #include <wchar.h>
 
-@implementation KtAppDelegate
+@implementation KoreAppDelegate
 
 static UIWindow* window;
 static GLView* glView;
