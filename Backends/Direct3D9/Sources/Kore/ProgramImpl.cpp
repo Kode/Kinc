@@ -58,7 +58,7 @@ void Program::link(const VertexStructure& structure) {
 	vertexDecleration = nullptr;
 	affirm(device->CreateVertexDeclaration(elements, &vertexDecleration));
 
-	halfPixelLocation = vertexShader->constants["dx_HalfPixelSize"].regindex;
+	halfPixelLocation = vertexShader->constants["dx_ViewAdjust"].regindex;
 }
 
 void Program::set() {
