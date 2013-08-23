@@ -20,6 +20,9 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 		case ColorVertexData:
 			myStride += 1 * 4;
 			break;
+		case Float1VertexData:
+			myStride += 1 * 4;
+			break;
 		case Float2VertexData:
 			myStride += 2 * 4;
 			break;
@@ -54,6 +57,9 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 		case ColorVertexData:
 			size = 1;
 			break;
+		case Float1VertexData:
+			size = 1;
+			break;
 		case Float2VertexData:
 			size = 2;
 			break;
@@ -69,6 +75,8 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 		case ColorVertexData:
 			offset += 4 * 1;
 			break;
+		case Float1VertexData:
+			offset += 4 * 1;
 		case Float2VertexData:
 			offset += 4 * 2;
 			break;
@@ -123,6 +131,9 @@ void VertexBuffer::set() {
 		case ColorVertexData:
 			size = 1;
 			break;
+		case Float1VertexData:
+			size = 1;
+			break;
 		case Float2VertexData:
 			size = 2;
 			break;
@@ -136,6 +147,9 @@ void VertexBuffer::set() {
 		glVertexAttribPointer(index, size, GL_FLOAT, false, myStride, (void*)offset);
 		switch (element.data) {
 		case ColorVertexData:
+			offset += 4 * 1;
+			break;
+		case Float1VertexData:
 			offset += 4 * 1;
 			break;
 		case Float2VertexData:

@@ -3,6 +3,7 @@
 namespace Kore {
 	enum VertexData {
 		NoVertexData,
+		Float1VertexData,
 		Float2VertexData,
 		Float3VertexData,
 		Float4VertexData,
