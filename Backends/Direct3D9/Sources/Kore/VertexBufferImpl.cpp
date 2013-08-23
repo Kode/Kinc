@@ -20,6 +20,9 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure) : Vertex
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		switch (structure.elements[i].data) {
+		case Float1VertexData:
+			myStride += 4 * 1;
+			break;
 		case Float2VertexData:
 			myStride += 4 * 2;
 			break;

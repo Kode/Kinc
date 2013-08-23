@@ -27,6 +27,10 @@ void Program::link(const VertexStructure& structure) {
 		elements[i].Stream = 0;
 		elements[i].Offset = stride;
 		switch (structure.elements[i].data) {
+		case Float1VertexData:
+			elements[i].Type = D3DDECLTYPE_FLOAT1;
+			stride += 4 * 1;
+			break;
 		case Float2VertexData:
 			elements[i].Type = D3DDECLTYPE_FLOAT2;
 			stride += 4 * 2;

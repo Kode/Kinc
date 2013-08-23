@@ -108,6 +108,9 @@ void Program::link(const VertexStructure& structure) {
 		vertexDesc[i].InstanceDataStepRate = 0;
 
 		switch (structure.elements[i].data) {
+		case Float1VertexData:
+			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
+			break;
 		case Float2VertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 			break;

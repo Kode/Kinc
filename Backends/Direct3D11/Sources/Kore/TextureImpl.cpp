@@ -41,6 +41,24 @@ Texture::Texture(const char* filename) : Image(filename) {
 Texture::Texture(int width, int height, Format format) : Image(width, height, format) {
 	stage = 0;
 	mipmap = true;
+	texWidth = width;
+	texHeight = height;
+
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = desc.ArraySize = 1;
+	desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;//D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+
+	texture = nullptr;
+	affirm(device->CreateTexture2D(&desc, nullptr, &texture));
+	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 }
 
 TextureImpl::~TextureImpl() {
@@ -68,9 +86,9 @@ void TextureImpl::unset() {
 }
 
 u8* Texture::lock() {
-	return nullptr;
+	return (u8*)data;
 }
 
 void Texture::unlock() {
-
+	context->UpdateSubresource(texture, 0, nullptr, data, 0, 0);
 }
