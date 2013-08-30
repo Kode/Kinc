@@ -64,15 +64,15 @@ namespace Kore {
 		InverseDestinationAlpha
 	};
 
-	enum ZCompare {
-		ZCmp_Always      ,
-		ZCmp_Never       ,
-		ZCmp_Equal       ,
-		ZCmp_NotEqual    ,
-		ZCmp_Less        ,
-		ZCmp_LessEqual   ,
-		ZCmp_Greater     ,
-		ZCmp_GreaterEqual
+	enum ZCompareMode {
+		ZCompareAlways,
+		ZCompareNever,
+		ZCompareEqual,
+		ZCompareNotEqual,
+		ZCompareLess,
+		ZCompareLessEqual,
+		ZCompareGreater,
+		ZCompareGreaterEqual
 	};
 
 	enum TexDir {
@@ -143,8 +143,8 @@ namespace Kore {
 		void setBlendingMode(BlendingOperation source, BlendingOperation destination);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
 
-		bool isVSynced();
-		unsigned getHz();
+		bool vsynced();
+		unsigned refreshRate();
 
 		const uint ClearColorFlag   = 1;
 		const uint ClearDepthFlag   = 2;

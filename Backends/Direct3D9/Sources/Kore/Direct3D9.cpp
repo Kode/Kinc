@@ -180,7 +180,10 @@ void Graphics::init() {
 #ifdef SYS_XBOX360
 	hz = 60;
 #endif
-	vsync = d3dpp.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE;
+	//vsync = d3dpp.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE;
+
+	System::ticks test1 = Kore::System::timestamp();
+	for (int i = 0; i < 3; ++i) swapBuffers();	System::ticks test2 = Kore::System::timestamp();	if (test2 - test1 < (1.0 / 100.0) * System::frequency()) {		vsync = false;	}	else vsync = true;
 
 #ifdef USE_SHADER
 	vertexShader = new Shader("standard", SHADER_VERTEX);
@@ -364,11 +367,11 @@ void Graphics::end() {
 	device->EndScene();
 }
 
-bool Graphics::isVSynced() {
+bool Graphics::vsynced() {
 	return vsync;
 }
 
-unsigned Graphics::getHz() {
+unsigned Graphics::refreshRate() {
 	return hz;
 }
 
@@ -439,14 +442,14 @@ void Graphics::setRenderState(RenderState state, int v) {
 		switch (v) {
 		// TODO: Cmp-Konstanten systemabhängig abgleichen
 		default:
-		case ZCmp_Always      : v = D3DCMP_ALWAYS; break;
-		case ZCmp_Never       : v = D3DCMP_NEVER; break;
-		case ZCmp_Equal       : v = D3DCMP_EQUAL; break;
-		case ZCmp_NotEqual    : v = D3DCMP_NOTEQUAL; break;
-		case ZCmp_Less        : v = D3DCMP_LESS; break;
-		case ZCmp_LessEqual   : v = D3DCMP_LESSEQUAL; break;
-		case ZCmp_Greater     : v = D3DCMP_GREATER; break;
-		case ZCmp_GreaterEqual: v = D3DCMP_GREATEREQUAL; break;
+		case ZCompareAlways      : v = D3DCMP_ALWAYS; break;
+		case ZCompareNever       : v = D3DCMP_NEVER; break;
+		case ZCompareEqual       : v = D3DCMP_EQUAL; break;
+		case ZCompareNotEqual    : v = D3DCMP_NOTEQUAL; break;
+		case ZCompareLess        : v = D3DCMP_LESS; break;
+		case ZCompareLessEqual   : v = D3DCMP_LESSEQUAL; break;
+		case ZCompareGreater     : v = D3DCMP_GREATER; break;
+		case ZCompareGreaterEqual: v = D3DCMP_GREATEREQUAL; break;
 		}
 		device->SetRenderState(D3DRS_ZFUNC, v);
 		break;
