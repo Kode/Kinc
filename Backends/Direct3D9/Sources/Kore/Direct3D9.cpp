@@ -119,7 +119,8 @@ void Graphics::init() {
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
-	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE; //D3DPRESENT_INTERVAL_IMMEDIATE;
+	//d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	if (antialiasing()) {
 		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_4_SAMPLES, nullptr)))
 			d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
@@ -183,8 +184,13 @@ void Graphics::init() {
 	//vsync = d3dpp.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	System::ticks test1 = Kore::System::timestamp();
-	for (int i = 0; i < 3; ++i) swapBuffers();	System::ticks test2 = Kore::System::timestamp();	if (test2 - test1 < (1.0 / 100.0) * System::frequency()) {		vsync = false;	}	else vsync = true;
-
+	for (int i = 0; i < 3; ++i) swapBuffers();
+	System::ticks test2 = Kore::System::timestamp();
+	if (test2 - test1 < (1.0 / hz) * System::frequency()) {
+		vsync = false;
+	}
+	else vsync = true;
+	
 #ifdef USE_SHADER
 	vertexShader = new Shader("standard", SHADER_VERTEX);
 	pixelShader = new Shader("standard", SHADER_FRAGMENT);
