@@ -119,8 +119,8 @@ void Graphics::init() {
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
-	//d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+	//d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	if (antialiasing()) {
 		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_4_SAMPLES, nullptr)))
 			d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
