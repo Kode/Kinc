@@ -122,8 +122,12 @@ void Graphics::init() {
 #endif
 }
 
-unsigned Graphics::getHz() {
+unsigned Graphics::refreshRate() {
 	return 60;
+}
+
+bool Graphics::vsynced() {
+	return true;
 }
 
 void* Graphics::getControl() {
@@ -267,14 +271,14 @@ void Graphics::setRenderState(RenderState state, int v) {
 		case DepthTestCompare:
 			switch (v) {
 				default:
-				case ZCmp_Always      : v = GL_ALWAYS; break;
-				case ZCmp_Never       : v = GL_NEVER; break;
-				case ZCmp_Equal       : v = GL_EQUAL; break;
-				case ZCmp_NotEqual    : v = GL_NOTEQUAL; break;
-				case ZCmp_Less        : v = GL_LESS; break;
-				case ZCmp_LessEqual   : v = GL_LEQUAL; break;
-				case ZCmp_Greater     : v = GL_GREATER; break;
-				case ZCmp_GreaterEqual: v = GL_GEQUAL; break;
+				case ZCompareAlways      : v = GL_ALWAYS; break;
+				case ZCompareNever       : v = GL_NEVER; break;
+				case ZCompareEqual       : v = GL_EQUAL; break;
+				case ZCompareNotEqual    : v = GL_NOTEQUAL; break;
+				case ZCompareLess        : v = GL_LESS; break;
+				case ZCompareLessEqual   : v = GL_LEQUAL; break;
+				case ZCompareGreater     : v = GL_GREATER; break;
+				case ZCompareGreaterEqual: v = GL_GEQUAL; break;
 			}
 			glDepthFunc(v);
 			break;
