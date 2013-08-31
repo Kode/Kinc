@@ -337,17 +337,17 @@ void* Kore::System::createWindow() {
 	::SetCursor(LoadCursor(0, IDC_ARROW));
 
 	if (!Application::the()->fullscreen()) {
+		uint xres = GetSystemMetrics(SM_CXSCREEN);
 		uint yres = GetSystemMetrics(SM_CYSCREEN);
-
-		// Fenster rechts von Textkonsole positionieren
+		uint w = Application::the()->width();
+		uint h = Application::the()->height();
 		RECT r;
-		r.left   = 8 * 80 + 44;
-		r.top    = 0;
-		r.right  = r.left + Application::the()->width() - 1;
-		r.bottom = r.top + Application::the()->height() - 1;
-		uint h = r.bottom - r.top + 1;
-		AdjustWindowRect(&r, dwStyle, FALSE); // Rahmen usw. miteinberechnen
-		MoveWindow(hwnd, r.left, (yres - h) >> 1, r.right - r.left + 1, r.bottom - r.top + 1, TRUE);
+		r.left   = (xres - w) >> 1;
+		r.top    = (yres - h) >> 1;
+		r.right  = r.left + w - 1;
+		r.bottom = r.top  + h - 1;
+		AdjustWindowRect(&r, dwStyle, FALSE);
+		MoveWindow(hwnd, r.left, r.top, r.right - r.left + 1, r.bottom - r.top + 1, TRUE);
 	}
 
 	return hwnd;
