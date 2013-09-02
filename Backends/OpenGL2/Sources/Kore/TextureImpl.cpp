@@ -81,6 +81,12 @@ Texture::Texture(int width, int height, Image::Format format) : Image(width, hei
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
 	conversionBuffer = new u8[texWidth * texHeight * 4];
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 TextureImpl::~TextureImpl() {
@@ -100,5 +106,5 @@ u8* Texture::lock() {
 void Texture::unlock() {
 	convertImage(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, conversionBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_RED, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA : GL_RED, GL_UNSIGNED_BYTE, conversionBuffer);
 }
