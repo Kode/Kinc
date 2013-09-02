@@ -22,9 +22,9 @@ namespace {
     static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, None};
     static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_DOUBLEBUFFER, None};
 
-    Display   *dpy;
-    Window     win;
-    GLboolean  doubleBuffer = GL_TRUE;
+    Display* dpy;
+    Window win;
+    GLboolean doubleBuffer = GL_TRUE;
 
     void fatalError(const char* message) {
         printf("main: %s\n", message);
@@ -88,7 +88,7 @@ void* System::createWindow() {
 	// (7) request the X window to be displayed on the screen
 
 	XMapWindow(dpy, win);
-
+    XMoveWindow(dpy, win, DisplayWidth(dpy, vi->screen) / 2 - Application::the()->width() / 2, DisplayHeight(dpy, vi->screen) / 2 - Application::the()->height() / 2);
 	//Scheduler::addFrameTask(HandleMessages, 1001);
 
 	return nullptr;
@@ -106,17 +106,23 @@ bool System::handleMessages() {
 			XLookupString(key, buffer, 1, &keysym, NULL);
 			switch (keysym) {
 			case XK_Right:
+			case XK_d:
 				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Right));
 				break;
 			case XK_Left:
+			case XK_a:
 				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Left));
 				break;
 			case XK_Up:
+			case XK_w:
 				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Up));
 				break;
 			case XK_Down:
 				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Down));
 				break;
+            case XK_space:
+                Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Space));
+                break;
 			case XK_Escape:
 				Application::the()->stop();
 				break;
@@ -130,28 +136,48 @@ bool System::handleMessages() {
 			XLookupString(key, buffer, 1, &keysym, NULL);
 			switch (keysym) {
 			case XK_Right:
+			case XK_d:
 				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Right));
 				break;
 			case XK_Left:
+			case XK_a:
 				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Left));
 				break;
 			case XK_Up:
+			case XK_w:
 				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Up));
 				break;
 			case XK_Down:
 				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Down));
 				break;
+            case XK_space:
+                Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Space));
+                break;
 			}
 			break;
 		}
 		case ButtonPress: {
 			XButtonEvent* button = (XButtonEvent*)&event;
-			Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(button->x, button->y));
+			switch (button->button) {
+			case Button1:
+                Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(button->x, button->y));
+                break;
+            case Button3:
+                Kore::Mouse::the()->_pressRight(Kore::MouseEvent(button->x, button->y));
+                break;
+			}
 			break;
 		}
 		case ButtonRelease: {
 			XButtonEvent* button = (XButtonEvent*)&event;
-			Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(button->x, button->y));
+			switch (button->button) {
+			case Button1:
+                Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(button->x, button->y));
+                break;
+            case Button3:
+                Kore::Mouse::the()->_releaseRight(Kore::MouseEvent(button->x, button->y));
+                break;
+			}
 			break;
 		}
 		case MotionNotify: {
