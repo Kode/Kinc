@@ -39,7 +39,7 @@ namespace {
 }
 
 bool System::handleMessages() {
-	NSEvent *event = [myapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]; //distantPast: non-blocking
+	NSEvent* event = [myapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]; //distantPast: non-blocking
 	if (event != nil) {
 		[myapp sendEvent:event];
 		[myapp updateWindows];
@@ -53,19 +53,15 @@ void System::swapBuffers() {
 
 void* System::createWindow() {
 	view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, Kore::Application::the()->width(), Kore::Application::the()->height()) ];
-	window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, Kore::Application::the()->width(), Kore::Application::the()->height())
-												   styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
-													 backing:NSBackingStoreBuffered
-													   defer:TRUE];
+	window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, Kore::Application::the()->width(), Kore::Application::the()->height()) styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask backing:NSBackingStoreBuffered defer:TRUE];
 	delegate = [MyAppDelegate alloc];
 	[window setDelegate: delegate];
 	[window setTitle:[NSString stringWithCString: Kore::Application::the()->name() encoding: 1]];
 	[window setAcceptsMouseMovedEvents:YES];
 	[[window contentView] addSubview:view];
+	[window center];
 	[window makeKeyAndOrderFront: nil];
-	
-	//Scheduler::addFrameTask(HandleMessages, 1001);
-	
+		
 	return nullptr;
 }
 
