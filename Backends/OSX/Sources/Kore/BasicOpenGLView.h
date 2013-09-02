@@ -20,6 +20,9 @@
 - (void) mouseUp:(NSEvent*)theEvent;
 - (void) mouseMoved:(NSEvent*)theEvent;
 - (void) mouseDragged:(NSEvent*)theEvent;
+- (void) rightMouseDown:(NSEvent*)theEvent;
+- (void) rightMouseUp:(NSEvent*)theEvent;
+- (void) rightMouseDragged:(NSEvent*)theEvent;
 
 - (void) prepareOpenGL;
 - (void) update;		// moved or resized

@@ -26,7 +26,22 @@
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
-		if (ch >= L'a' && ch <= L'z') Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch + L'A' - L'a'));
+		if (ch >= L'a' && ch <= L'z') {
+			switch (ch) {
+			case L'a':
+				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Left));
+				break;
+			case L'w':
+				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Up));
+				break;
+			case L'd':
+				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Right));
+				break;
+			default:
+				Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch + L'A' - L'a'));
+				break;
+			}
+		}
 		else {
 			switch (ch) {
 			case NSRightArrowFunctionKey:
@@ -53,7 +68,22 @@
 	NSString* characters = [theEvent characters];
     if ([characters length]) {
         unichar ch = [characters characterAtIndex:0];
-		if (ch >= L'a' && ch <= L'z') Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch + L'A' - L'a'));
+		if (ch >= L'a' && ch <= L'z') {
+			switch (ch) {
+			case L'a':
+				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Left));
+				break;
+			case L'w':
+				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Up));
+				break;
+			case L'd':
+				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Right));
+				break;
+			default:
+				Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch + L'A' - L'a'));
+				break;
+			}
+		}
 		else {
 			switch (ch) {
 			case NSRightArrowFunctionKey:
@@ -101,6 +131,19 @@ namespace {
 - (void)mouseDragged:(NSEvent*)theEvent {
 	Kore::Mouse::the()->_move(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
 }
+
+- (void)rightMouseDown:(NSEvent*)theEvent {
+	Kore::Mouse::the()->_pressRight(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+}
+
+- (void)rightMouseUp:(NSEvent*)theEvent {
+	Kore::Mouse::the()->_releaseRight(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+}
+
+- (void)rightMouseDragged:(NSEvent*)theEvent {
+	Kore::Mouse::the()->_move(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+}
+
 
 - (void) prepareOpenGL {
     const GLint swapInt = 1;
