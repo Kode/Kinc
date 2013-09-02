@@ -114,14 +114,29 @@ namespace {
 	int getMouseY(NSEvent* event) {
 		return static_cast<int>(Kore::Application::the()->height() - [event locationInWindow].y);
 	}
+	
+	bool controlKeyMouseButton = false;
 }
 
 - (void)mouseDown:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	if ([theEvent modifierFlags] & NSControlKeyMask) {
+		controlKeyMouseButton = true;
+		Kore::Mouse::the()->_pressRight(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	}
+	else {
+		controlKeyMouseButton = false;
+		Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	}
 }
 
 - (void)mouseUp:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	if (controlKeyMouseButton) {
+		Kore::Mouse::the()->_releaseRight(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	}
+	else {
+		Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	}
+	controlKeyMouseButton = false;
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent {
