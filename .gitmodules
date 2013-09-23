@@ -1,0 +1,8 @@
+[submodule "Tools/kake"]
+	path = Tools/kake
+	url = ../kake
+	branch = master
+[submodule "Tools/kfx"]
+	path = Tools/kfx
+	url = ../kfx
+	branch = master

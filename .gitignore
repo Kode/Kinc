@@ -1,6 +1,4 @@
 /Examples/Shader/build
-/Tools/kake
-/Tools/kfx
 /Examples/Shader/Deployment/shader.frag
 /Examples/Shader/Deployment/shader.vert
 /Examples/Blocks/build
