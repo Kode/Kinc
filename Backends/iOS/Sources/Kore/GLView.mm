@@ -89,7 +89,7 @@ static void adjustxy(float& x, float& y) {
 #ifdef ROTATE90
 	float oldx = x;
 	x = y;
-	y = Kt::System::screenHeight() - 1 - oldx;
+	y = Kore::System::screenHeight() - 1 - oldx;
 #endif
 	x = x / Kore::System::screenWidth() * Kore::Application::the()->width();
 	y = y / Kore::System::screenHeight() * Kore::Application::the()->height();
