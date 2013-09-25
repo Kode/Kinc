@@ -117,13 +117,13 @@ namespace Kore {
 			return m;
 		}
 
-		Matrix<Y, X, T> Transpose() {
+		Matrix<Y, X, T> Transpose() const {
 			Matrix<Y, X, T> transpose;
 			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) transpose[y][x] = matrix[x][y];
 			return transpose;
 		}
 		
-		Matrix<Y, X, T> Transpose3x3() {
+		Matrix<Y, X, T> Transpose3x3() const {
 			//StaticAssert(X >= 3 && Y >= 3);
 			Matrix<Y, X, T> transpose;
 			for (unsigned x = 0; x < 3; ++x) for (unsigned y = 0; y < 3; ++y) transpose[y][x] = matrix[x][y];
@@ -131,7 +131,7 @@ namespace Kore {
 			return transpose;
 		}
 		
-		T Trace() {
+		T Trace() const {
 			//StaticAssert(X == Y);
 			T t = 0;
 			for (unsigned y = 0; y < Y; ++y) t += matrix[y][y];

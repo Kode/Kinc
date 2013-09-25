@@ -155,7 +155,8 @@ void Graphics::setFloat3(ConstantLocation location, float value1, float value2, 
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
-	glUniformMatrix4fv(location.location, 1, GL_TRUE, &value.matrix[0][0]);
+	mat4 m = value.Transpose();
+	glUniformMatrix4fv(location.location, 1, GL_FALSE, &m.matrix[0][0]);
 }
 
 void Graphics::drawIndexedVertices() {
