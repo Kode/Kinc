@@ -86,6 +86,7 @@
 }
 
 static void adjustxy(float& x, float& y) {
+	/*
 #ifdef ROTATE90
 	float oldx = x;
 	x = y;
@@ -93,33 +94,37 @@ static void adjustxy(float& x, float& y) {
 #endif
 	x = x / Kore::System::screenWidth() * Kore::Application::the()->width();
 	y = y / Kore::System::screenHeight() * Kore::Application::the()->height();
+	*/
+	CGFloat scale = [[UIScreen mainScreen] scale];
+	x *= scale;
+	y *= scale;
 }
 
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	//adjustxy(point.x, point.y);
+	adjustxy(point.x, point.y);
 	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(point.x, point.y));
 }
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	//adjustxy(point.x, point.y);
+	adjustxy(point.x, point.y);
 	Kore::Mouse::the()->_move(Kore::MouseEvent(point.x, point.y));
 }
 
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	//adjustxy(point.x, point.y);
+	adjustxy(point.x, point.y);
 	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x, point.y));
 }
 
 - (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	//adjustxy(point.x, point.y);
+	adjustxy(point.x, point.y);
 	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x, point.y));
 }
 
