@@ -43,3 +43,10 @@ void MouseEvent::translate(int xdif, int ydif) {
 	currentX += xdif;
 	currentY += ydif;
 }
+
+void MouseEvent::multiply(float x, float y) {
+	myGlobalX *= x;
+	myGlobalY *= y;
+	currentX *= x;
+	currentY *= y;
+}
