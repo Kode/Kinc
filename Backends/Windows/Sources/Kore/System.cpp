@@ -418,6 +418,14 @@ void Kore::System::showWindow() {
 	UpdateWindow(hwnd);
 }
 
+int Kore::System::screenWidth() {
+	return Application::the()->width();
+}
+
+int Kore::System::screenHeight() {
+	return Application::the()->height();
+}
+
 double Kore::System::frequency() {
 	ticks rate;
 	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&rate));
