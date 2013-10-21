@@ -106,5 +106,8 @@ u8* Texture::lock() {
 void Texture::unlock() {
 	convertImage(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 	glBindTexture(GL_TEXTURE_2D, texture);
+#ifndef GL_LUMINANCE
+#define GL_LUMINANCE GL_RED
+#endif
 	glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
 }
