@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Audio.h"
+#include <Kore/Audio/Audio.h>
 #import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 #include <stdio.h>
@@ -13,7 +13,7 @@ namespace {
 	
 	void affirm(OSStatus err) {
 		if (err) {
-		//	fprintf(stderr, "Error: %i\n", err);
+			fprintf(stderr, "Error: %i\n", (int)err);
 		}
 	}
 	
