@@ -69,6 +69,14 @@ void System::destroyWindow() {
 	
 }
 
+int System::screenWidth() {
+	return Application::the()->width();
+}
+
+int System::screenHeight() {
+	return Application::the()->height();
+}
+
 int main(int argc, char** argv) {
 	@autoreleasepool {
 		myapp = [MyApplication sharedApplication];
