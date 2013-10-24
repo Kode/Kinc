@@ -216,6 +216,22 @@ void Kore::System::showWindow() {
 
 }
 
+void Kore::System::showKeyboard() {
+
+}
+
+void Kore::System::hideKeyboard() {
+
+}
+
+int Kore::System::screenWidth() {
+    return Application::the()->width();
+}
+
+int Kore::System::screenHeight() {
+    return Application::the()->height();
+}
+
 #include <sys/time.h>
 #include <time.h>
 
