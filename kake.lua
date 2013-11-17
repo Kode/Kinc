@@ -81,4 +81,9 @@ elseif platform == Platform.Linux then
 	addBackend("Linux")
 	addBackend("OpenGL2")
 	project:addDefine("OPENGL")
+elseif platform == Platform.Tizen then
+	addBackend("Tizen")
+	addBackend("OpenGL2")
+	project:addExclude("Backends/OpenGL2/Sources/GL/**")
+	project:addDefine("OPENGL")
 end

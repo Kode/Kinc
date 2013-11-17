@@ -34,7 +34,7 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 			break;
 		}
 	}
-#if defined SYS_ANDROID || defined SYS_HTML5
+#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 	this->structure = structure;
 #elif defined SYS_IOS
 	glGenVertexArraysOES(1, &arrayId);
@@ -106,7 +106,7 @@ float* VertexBuffer::lock(int start, int count) {
 }
 
 void VertexBuffer::unlock() {
-#if defined SYS_ANDROID || defined SYS_HTML5
+#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 
 #elif defined SYS_IOS
 	glBindVertexArrayOES(arrayId);
@@ -118,7 +118,7 @@ void VertexBuffer::unlock() {
 }
 
 void VertexBuffer::set() {
-#if defined SYS_ANDROID || defined SYS_HTML5
+#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 
 	int offset = 0;

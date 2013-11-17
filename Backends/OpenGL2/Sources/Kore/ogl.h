@@ -37,3 +37,8 @@
 #include <GL/glx.h>
 #include <GL/glext.h>
 #endif
+
+#ifdef SYS_TIZEN
+#include <gl2.h>
+#define OPENGLES
+#endif

@@ -14,7 +14,7 @@ namespace Kore {
 		int myStride;
 		uint arrayId;
 		uint bufferId;
-#if defined SYS_ANDROID || defined SYS_HTML5
+#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 		VertexStructure structure;
 #endif
 	public:
