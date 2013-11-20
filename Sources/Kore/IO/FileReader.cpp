@@ -32,6 +32,10 @@ extern mz_zip_archive* getApk();
 #include <Windows.h>
 #endif
 
+#ifdef SYS_TIZEN
+#include <FApp.h>
+#endif
+
 using namespace Kore;
 
 FileReader::FileReader() {
@@ -133,6 +137,16 @@ bool FileReader::open(const char* filename) {
 #endif
 #ifdef SYS_HTML5
 	strcpy(filepath, filename);
+#endif
+#ifdef SYS_TIZEN
+	for (int i = 0; i < Tizen::App::App::GetInstance()->GetAppDataPath().GetLength(); ++i) {
+		wchar_t c;
+		Tizen::App::App::GetInstance()->GetAppDataPath().GetCharAt(i, c);
+		filepath[i] = (char)c;
+	}
+	filepath[Tizen::App::App::GetInstance()->GetAppDataPath().GetLength()] = 0;
+	strcat(filepath, "/");
+	strcat(filepath, filename);
 #endif
 	data.file = fopen(filepath, "rb");
 	if (data.file == nullptr) {
