@@ -8,6 +8,7 @@
 
 #include "OGLTemplate.h"
 #include "OGLTemplateFrame.h"
+#include <Kore/Input/Mouse.h>
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -61,6 +62,7 @@ OGLTemplateApp::OnAppInitialized(void)
 	AddFrame(*pOGLTemplateFrame);
 
 	pOGLTemplateFrame->AddKeyEventListener(*this);
+	pOGLTemplateFrame->AddTouchEventListener(*this);
 
 	{
 		__player = new Tizen::Graphics::Opengl::GlPlayer;
@@ -173,4 +175,22 @@ void
 OGLTemplateApp::OnKeyLongPressed(const Control& source, KeyCode keyCode)
 {
 	// TODO:
+}
+
+void
+OGLTemplateApp::OnTouchMoved(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo)
+{
+	Kore::Mouse::the()->_move(Kore::MouseEvent(currentPosition.x, currentPosition.y));
+}
+
+void
+OGLTemplateApp::OnTouchPressed(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo)
+{
+	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(currentPosition.x, currentPosition.y));
+}
+
+void
+OGLTemplateApp::OnTouchReleased(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo)
+{
+	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(currentPosition.x, currentPosition.y));
 }

@@ -11,6 +11,7 @@
 #include <FGrpGlPlayer.h>
 
 #include "GlRendererTemplate.h"
+#include "OGLTemplateFrame.h"
 
 /**
  * [OGLTemplateApp] UiApp must inherit from UiApp class
@@ -20,6 +21,7 @@ class OGLTemplateApp
 	: public Tizen::App::UiApp
 	, public Tizen::System::IScreenEventListener
 	, public Tizen::Ui::IKeyEventListener
+	, public Tizen::Ui::ITouchEventListener
 {
 public:
 	/**
@@ -70,6 +72,19 @@ public:
 
 	// Called when a key is pressed and held down for some time.
 	virtual void OnKeyLongPressed(const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode);
+
+	// Touch events
+	virtual void OnTouchMoved(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
+
+	virtual void OnTouchPressed(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
+
+	virtual void OnTouchReleased(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
+
+	virtual void OnTouchCanceled(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
+
+	virtual void OnTouchFocusIn(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
+
+	virtual void OnTouchFocusOut(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
 
 private:
 	Tizen::Graphics::Opengl::GlPlayer* __player;
