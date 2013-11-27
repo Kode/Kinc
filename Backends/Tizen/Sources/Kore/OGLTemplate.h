@@ -9,9 +9,12 @@
 #include <FGraphics.h>
 #include <gl.h>
 #include <FGrpGlPlayer.h>
+#include <FMedia.h>
 
 #include "GlRendererTemplate.h"
-#include "OGLTemplateFrame.h"
+
+using namespace Tizen::Media;
+using namespace Tizen::Base;
 
 /**
  * [OGLTemplateApp] UiApp must inherit from UiApp class
@@ -22,6 +25,7 @@ class OGLTemplateApp
 	, public Tizen::System::IScreenEventListener
 	, public Tizen::Ui::IKeyEventListener
 	, public Tizen::Ui::ITouchEventListener
+	, public Tizen::Media::IAudioOutEventListener
 {
 public:
 	/**
@@ -86,9 +90,25 @@ public:
 
 	virtual void OnTouchFocusOut(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
 
+	virtual void OnAudioOutBufferEndReached(Tizen::Media::AudioOut& src);
+	virtual void OnAudioOutErrorOccurred(Tizen::Media::AudioOut& src, result r) {}
+	virtual void OnAudioOutInterrupted(Tizen::Media::AudioOut& src) {}
+	virtual void OnAudioOutReleased(Tizen::Media::AudioOut& src) {}
+	virtual void OnAudioOutAudioFocusChanged(Tizen::Media::AudioOut& src) {}
+
 private:
 	Tizen::Graphics::Opengl::GlPlayer* __player;
 	Tizen::Graphics::Opengl::IGlRenderer* __renderer;
+
+	result 	StartAudio(void);
+	void 	StopAudio(void);
+
+	void 	copySample();
+	void 	writeAudio();
+
+	AudioOut 	__audioOut;
+	ByteBuffer 	__buffer;
+	int 		__numSamples;
 };
 
 #endif // _OGLTEMPLATE_H_
