@@ -8,5 +8,6 @@ namespace Kore {
 		void init();
 		void play(Sound* sound);
 		void play(SoundStream* stream);
+		void stop(SoundStream* stream);
 	}
 }

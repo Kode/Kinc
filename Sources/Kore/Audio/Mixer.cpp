@@ -92,3 +92,13 @@ void Mixer::play(SoundStream* stream) {
 		}
 	}
 }
+
+void Mixer::stop(SoundStream* stream) {
+	for (int i = 0; i < channelCount; ++i) {
+		if (streams[i].stream == stream) {
+			streams[i].stream = nullptr;
+			streams[i].position = 0;
+			break;
+		}
+	}
+}
