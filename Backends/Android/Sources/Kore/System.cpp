@@ -41,6 +41,14 @@ void Kore::System::showWindow() {
     
 }
 
+int Kore::System::screenWidth() {
+    return Kore::Application::the()->width();
+}
+
+int Kore::System::screenHeight() {
+    return Kore::Application::the()->height();
+}
+
 namespace {
 	mz_zip_archive apk;
 	char theApkPath[500];
