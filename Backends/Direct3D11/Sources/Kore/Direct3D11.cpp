@@ -305,11 +305,11 @@ void Graphics::end() {
 	
 }
 
-bool Graphics::isVSynced() {
+bool Graphics::vsynced() {
 	return vsync;
 }
 
-unsigned Graphics::getHz() {
+unsigned Graphics::refreshRate() {
 	return hz;
 }
 
@@ -403,4 +403,20 @@ void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 			floats[x + y * 4] = value.get(y, x);
 		}
 	}
+}
+
+void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+
+}
+
+void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+
+}
+
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+
+}
+
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+
 }
