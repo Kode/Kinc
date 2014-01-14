@@ -30,6 +30,8 @@ namespace {
 	HGLRC glContext = 0;
 #endif
 	//bool fullscreen;
+	TextureFilter minFilters[32];
+	MipmapFilter mipFilters[32];
 }
 
 void Graphics::destroy() {
@@ -116,6 +118,11 @@ void Graphics::init() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	setRenderState(DepthTest, false);
 	glViewport(0, 0, Application::the()->width(), Application::the()->height());
+
+	for (int i = 0; i < 32; ++i) {
+		minFilters[i] = LinearFilter;
+		mipFilters[i] = NoMipFilter;
+	}
 
 #ifdef SYS_WINDOWS
 	if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(1);
@@ -226,25 +233,16 @@ void Graphics::setRenderState(RenderState state, bool on) {
 		if (on) glEnable(GL_DEPTH_TEST);
 		else glDisable(GL_DEPTH_TEST);
 		break;
+	case BlendingState:
+		if (on) glEnable(GL_BLEND);
+		else glDisable(GL_BLEND);
+		break;
+	case BackfaceCulling:
+		if (on) glCullFace(GL_BACK);
+		else glCullFace(GL_NONE);
 	}
 
 	/*switch (state) {
-		case BlendingState:
-			device->SetRenderState(D3DRS_ALPHABLENDENABLE, on ? TRUE : FALSE);
-		case Lighting:
-#ifndef USE_SHADER
-			device->SetRenderState(D3DRS_LIGHTING, on ? TRUE : FALSE);
-#endif
-#ifdef USE_SHADER
-			setFragmentBool(L"lighting", on);
-#endif
-			break;
-		case DepthWrite:
-			device->SetRenderState(D3DRS_ZWRITEENABLE, on ? TRUE : FALSE);
-			break;
-		case DepthTest:
-			device->SetRenderState(D3DRS_ZENABLE, on ? TRUE : FALSE);
-			break;
 		case Normalize:
 			device->SetRenderState(D3DRS_NORMALIZENORMALS, on ? TRUE : FALSE);
 			break;
@@ -343,17 +341,72 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 	}
 }
 
+void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	glActiveTexture(GL_TEXTURE0 + texunit.unit);
+	switch (filter) {
+	case PointFilter:
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	case LinearFilter:
+	case AnisotropicFilter:
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+}
+
 namespace {
-	GLenum convert(TextureOperation operation) {
-		return 0;
+	void setMinMipFilters(int unit) {
+		glActiveTexture(GL_TEXTURE0 + unit);
+		switch (minFilters[unit]) {
+		case PointFilter:
+			switch (mipFilters[unit]) {
+			case NoMipFilter:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			case PointMipFilter:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+			case LinearMipFilter:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+			}
+		case LinearFilter:
+		case AnisotropicFilter:
+			switch (mipFilters[unit]) {
+			case NoMipFilter:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			case PointMipFilter:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+			case LinearMipFilter:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			}
+		}
 	}
+}
 
-	GLenum convert(TextureArgument arg) {
-		return 0;
-	}
+void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+	minFilters[texunit.unit] = filter;
+	setMinMipFilters(texunit.unit);
+}
 
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+	mipFilters[texunit.unit] = filter;
+	setMinMipFilters(texunit.unit);
+}
+
+namespace {
 	GLenum convert(BlendingOperation operation) {
-		return 0;
+		switch (operation) {
+		case BlendZero:
+			return GL_ZERO;
+		case BlendOne:
+			return GL_ONE;
+		case SourceAlpha:
+			return GL_SRC_ALPHA;
+		case DestinationAlpha:
+			return GL_DST_ALPHA;
+		case InverseSourceAlpha:
+			return GL_ONE_MINUS_SRC_ALPHA;
+		case InverseDestinationAlpha:
+			return GL_ONE_MINUS_DST_ALPHA;
+		default:
+			return GL_ONE;
+		}
 	}
 }
 
@@ -362,5 +415,5 @@ void Graphics::setTextureOperation(TextureOperation operation, TextureArgument a
 }
 
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(convert(source), convert(destination));
 }
