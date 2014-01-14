@@ -137,9 +137,9 @@ namespace Kore {
 		void setRenderState(RenderState state, int v);
 		void setRenderState(RenderState state, float value);
 		void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
-		void setTextureMagnificationFilter(int texunit, TextureFilter filter);
-		void setTextureMinificationFilter(int texunit, TextureFilter filter);
-		void setTextureMipmapFilter(int texunit, MipmapFilter filter);
+		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
+		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
+		void setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		void setBlendingMode(BlendingOperation source, BlendingOperation destination);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
 

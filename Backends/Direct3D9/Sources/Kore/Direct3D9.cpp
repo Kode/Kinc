@@ -262,16 +262,16 @@ void Graphics::setTextureOperation(TextureOperation operation, TextureArgument a
 	device->SetTextureStageState(0, D3DTSS_COLORARG2, convert(arg2));
 }
 
-void Graphics::setTextureMagnificationFilter(int texunit, TextureFilter filter) {
-	device->SetSamplerState(texunit, D3DSAMP_MAGFILTER, convertFilter(filter));
+void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	device->SetSamplerState(texunit.unit, D3DSAMP_MAGFILTER, convertFilter(filter));
 }
 
-void Graphics::setTextureMinificationFilter(int texunit, TextureFilter filter) {
-	device->SetSamplerState(texunit, D3DSAMP_MINFILTER, convertFilter(filter));
+void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+	device->SetSamplerState(texunit.unit, D3DSAMP_MINFILTER, convertFilter(filter));
 }
 
-void Graphics::setTextureMipmapFilter(int texunit, MipmapFilter filter) {
-	device->SetSamplerState(texunit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+	device->SetSamplerState(texunit.unit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
 }
 
 void* Graphics::getControl() {
