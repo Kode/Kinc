@@ -27,7 +27,7 @@ Texture::Texture(const char* filename) : Image(filename) {
 	texWidth = width;
 	texHeight = height;
 	usage = D3DUSAGE_DYNAMIC;
-	affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "%s", "Texture creation failed.");
+	affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
 	D3DLOCKED_RECT rect;
 	affirm(texture->LockRect(0, &rect, 0, 0));
 	u8* from = (u8*)data;
@@ -51,7 +51,7 @@ Texture::Texture(int width, int height, Format format) : Image(width, height, fo
 	texWidth = width;
 	texHeight = height;
 	usage = D3DUSAGE_DYNAMIC;
-	affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "%s", "Texture creation failed.");
+	affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
 }
 
 TextureImpl::~TextureImpl() {
