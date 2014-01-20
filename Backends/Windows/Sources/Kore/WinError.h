@@ -6,5 +6,5 @@ typedef long HRESULT;
 
 namespace Kore {
 	void affirm(HRESULT result);
-	void affirm(HRESULT result, const char* message);
+	void affirm(HRESULT result, const char* format, ...);
 }

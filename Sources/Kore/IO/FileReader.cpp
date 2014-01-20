@@ -59,9 +59,7 @@ FileReader::FileReader(const char* filename) {
 	data.size = 0;
 #endif
 	if (!open(filename)) {
-		char message[101];
-		sprintf(message, "Could not open file %s.", filename);
-		error(message);
+		error("Could not open file %s.", filename);
 	}
 }
 
