@@ -5,6 +5,9 @@
 #ifdef SYS_WINDOWS
 #include <Windows.h>
 #endif
+#ifdef SYS_ANDROID
+#include <android/log.h>
+#endif
 
 using namespace Kore;
 
@@ -23,5 +26,18 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 	vsprintf(buffer, format, args);
 	strcat(buffer, "\r\n");
 	OutputDebugStringA(buffer);
+#endif
+#ifdef SYS_ANDROID
+	switch (level) {
+	case Info:
+		__android_log_vprint(ANDROID_LOG_INFO, "kore", format, args);
+		break;
+	case Warning:
+		__android_log_vprint(ANDROID_LOG_WARN, "kore", format, args);
+		break;
+	case Error:
+		__android_log_vprint(ANDROID_LOG_ERROR, "kore", format, args);
+		break;
+	}
 #endif
 }
