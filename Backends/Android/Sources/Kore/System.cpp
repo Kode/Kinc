@@ -162,6 +162,12 @@ Kore::System::ticks Kore::System::timestamp() {
 	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
 }
 
+double Kore::System::time() {
+    timeval now;
+    gettimeofday(&now, NULL);
+    return (double)now.tv_sec + (double)(now.tv_usec / 1000000.0);
+}
+
 /*
 #include <errno.h>
 #include <EGL/egl.h>
