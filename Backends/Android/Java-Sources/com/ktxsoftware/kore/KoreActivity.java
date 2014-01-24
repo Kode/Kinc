@@ -1,6 +1,7 @@
 package com.ktxsoftware.kore;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -31,5 +32,10 @@ public class KoreActivity extends Activity {
 			}
 		};
 		new Thread(audioThread).start();
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
 	}
 }

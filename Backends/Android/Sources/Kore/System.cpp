@@ -112,7 +112,7 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobje
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchDown(JNIEnv* env, jobject obj, jint x, jint y) {
-	Kore::Mouse::the()->_move(Kore::MouseEvent(x, y));
+	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(x, y));
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jobject obj, jint x, jint y) {
@@ -120,7 +120,7 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jo
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y) {
-	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(x, y));
+	Kore::Mouse::the()->_move(Kore::MouseEvent(x, y));
 }
 
 namespace {
