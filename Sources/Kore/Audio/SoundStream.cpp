@@ -44,6 +44,9 @@ float SoundStream::position() {
 
 void SoundStream::reset() {
 	stb_vorbis_seek_start(vorbis);
+	end = false;
+	rateDecodedHack = false;
+	decoded = false;
 }
 
 float SoundStream::nextSample() {
