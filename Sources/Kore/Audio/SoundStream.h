@@ -13,6 +13,7 @@ namespace Kore {
 		bool ended();
 		float length();
 		float position();
+		void reset();
 	private:
 		stb_vorbis* vorbis;
 		int chans;

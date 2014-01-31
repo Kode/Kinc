@@ -42,6 +42,10 @@ float SoundStream::position() {
 	return stb_vorbis_get_sample_offset(vorbis) / stb_vorbis_stream_length_in_samples(vorbis) * length();
 }
 
+void SoundStream::reset() {
+	stb_vorbis_seek_start(vorbis);
+}
+
 float SoundStream::nextSample() {
 	if (rate == 22050) {
 		if (rateDecodedHack) {
