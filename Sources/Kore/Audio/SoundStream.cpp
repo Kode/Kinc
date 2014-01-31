@@ -5,7 +5,7 @@
 
 using namespace Kore;
 
-SoundStream::SoundStream(const char* filename, bool looping) : decoded(false), looping(looping) {
+SoundStream::SoundStream(const char* filename, bool looping) : decoded(false), looping(looping), rateDecodedHack(false) {
 	FileReader file(filename);
 	buffer = new u8[file.size()];
 	u8* filecontent = (u8*)file.readAll();
@@ -13,23 +13,53 @@ SoundStream::SoundStream(const char* filename, bool looping) : decoded(false), l
 		buffer[i] = filecontent[i];
 	}
 	vorbis = stb_vorbis_open_memory(buffer, file.size(), nullptr, nullptr);
+	stb_vorbis_info info = stb_vorbis_get_info(vorbis);
+	chans = info.channels;
+	rate = info.sample_rate;
+}
+
+int SoundStream::channels() {
+	return chans;
+}
+
+int SoundStream::sampleRate() {
+	return rate;
 }
 
 float SoundStream::nextSample() {
+	if (rate == 22050) {
+		if (rateDecodedHack) {
+			if (decoded) {
+				decoded = false;
+				return samples[0];
+			}
+			else {
+				rateDecodedHack = false;
+				decoded = true;
+				return samples[1];
+			}
+		}
+	}
 	if (decoded) {
-		decoded = false;
-		return samples[1];
+		decoded = false; 
+		if (chans == 1) {
+			return samples[0];
+		}
+		else {
+			return samples[1];
+		}
 	}
 	else {
-		int read = stb_vorbis_get_samples_float_interleaved(vorbis, 2, &samples[0], 2);
+		int read = stb_vorbis_get_samples_float_interleaved(vorbis, chans, &samples[0], chans);
 		if (read == 0) {
 			if (looping) {
 				stb_vorbis_seek_start(vorbis);
-				stb_vorbis_get_samples_float_interleaved(vorbis, 2, &samples[0], 2);
+				stb_vorbis_get_samples_float_interleaved(vorbis, chans, &samples[0], chans);
 			}
 			else return 0.0f;
 		}
 		decoded = true;
+		rateDecodedHack = true;
 		return samples[0];
 	}
 }
