@@ -11,6 +11,8 @@ namespace Kore {
 		int sampleRate();
 		void setLooping(bool loop);
 		bool ended();
+		float length();
+		float position();
 	private:
 		stb_vorbis* vorbis;
 		int chans;
