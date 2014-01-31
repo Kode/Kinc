@@ -59,6 +59,7 @@ namespace {
 			for (int i = 0; i < channelCount; ++i) {
 				if (streams[i].stream != nullptr) {
 					value += streams[i].stream->nextSample();
+					if (streams[i].stream->ended()) streams[i].stream = nullptr;
 				}
 			}
 #endif

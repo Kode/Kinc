@@ -9,6 +9,8 @@ namespace Kore {
 		float nextSample();
 		int channels();
 		int sampleRate();
+		void setLooping(bool loop);
+		bool ended();
 	private:
 		stb_vorbis* vorbis;
 		int chans;
@@ -16,6 +18,7 @@ namespace Kore {
 		bool looping;
 		bool decoded;
 		bool rateDecodedHack;
+		bool end;
 		float samples[2];
 		u8* buffer;
 	};

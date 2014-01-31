@@ -5,7 +5,7 @@
 
 using namespace Kore;
 
-SoundStream::SoundStream(const char* filename, bool looping) : decoded(false), looping(looping), rateDecodedHack(false) {
+SoundStream::SoundStream(const char* filename, bool looping) : decoded(false), looping(looping), rateDecodedHack(false), end(false) {
 	FileReader file(filename);
 	buffer = new u8[file.size()];
 	u8* filecontent = (u8*)file.readAll();
@@ -24,6 +24,14 @@ int SoundStream::channels() {
 
 int SoundStream::sampleRate() {
 	return rate;
+}
+
+void SoundStream::setLooping(bool loop) {
+	looping = loop;
+}
+
+bool SoundStream::ended() {
+	return end;
 }
 
 float SoundStream::nextSample() {
@@ -56,7 +64,10 @@ float SoundStream::nextSample() {
 				stb_vorbis_seek_start(vorbis);
 				stb_vorbis_get_samples_float_interleaved(vorbis, chans, &samples[0], chans);
 			}
-			else return 0.0f;
+			else {
+				end = true;
+				return 0.0f;
+			}
 		}
 		decoded = true;
 		rateDecodedHack = true;
