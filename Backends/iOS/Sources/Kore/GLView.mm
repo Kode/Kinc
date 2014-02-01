@@ -19,7 +19,7 @@
 	
 	eaglLayer.opaque = YES;
 	eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
-	[eaglLayer setAffineTransform:CGAffineTransformConcat(CGAffineTransformMakeRotation(M_PI / 2), CGAffineTransformMakeTranslation(-128, 128))];
+	[eaglLayer setAffineTransform:CGAffineTransformConcat(CGAffineTransformMakeRotation(M_PI * 1.5f), CGAffineTransformMakeTranslation(-128, 128))];
 
 	context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 	
