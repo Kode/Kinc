@@ -417,3 +417,11 @@ void Graphics::setTextureOperation(TextureOperation operation, TextureArgument a
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
 	glBlendFunc(convert(source), convert(destination));
 }
+
+void Graphics::setRenderTarget(RenderTarget* texture, int num) {
+	glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
+}
+
+void Graphics::restoreRenderTarget() {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}

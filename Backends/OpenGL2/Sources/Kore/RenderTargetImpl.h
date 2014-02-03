@@ -6,6 +6,7 @@ struct IDirect3DTexture9;
 namespace Kore {
 	class RenderTargetImpl {
 	public:
-		int myWidth, myHeight;
+		unsigned _framebuffer;
+		unsigned _texture;
 	};
 }
