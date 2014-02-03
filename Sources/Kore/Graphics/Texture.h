@@ -10,8 +10,8 @@ namespace Kore {
 
 	class Texture : public Image, public TextureImpl {
 	public:
-		Texture(int width, int height, Format format);
-		Texture(const char* filename);
+		Texture(int width, int height, Format format, bool readable);
+		Texture(const char* filename, bool readable);
 		void set(TextureUnit unit);
 		u8* lock();
 		void unlock();

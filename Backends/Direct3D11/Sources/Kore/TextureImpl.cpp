@@ -10,7 +10,7 @@ namespace {
 									nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 }
 
-Texture::Texture(const char* filename) : Image(filename) {
+Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
 	stage = 0;
 	mipmap = true;
 	texWidth = width;
@@ -36,9 +36,14 @@ Texture::Texture(const char* filename) : Image(filename) {
 	texture = nullptr;
 	affirm(device->CreateTexture2D(&desc, &data, &texture));
 	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+
+	if (!readable) {
+		delete[] this->data;
+		this->data = nullptr;
+	}
 }
 
-Texture::Texture(int width, int height, Format format) : Image(width, height, format) {
+Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
 	stage = 0;
 	mipmap = true;
 	texWidth = width;

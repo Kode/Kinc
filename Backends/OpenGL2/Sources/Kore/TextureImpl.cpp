@@ -54,7 +54,7 @@ namespace {
 	}
 }
 
-Texture::Texture(const char* filename) : Image(filename) {
+Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
 
@@ -75,9 +75,14 @@ Texture::Texture(const char* filename) : Image(filename) {
 	
 	delete[] conversionBuffer;
 	conversionBuffer = nullptr;
+
+	if (!readable) {
+		delete[] data;
+		data = nullptr;
+	}
 }
 
-Texture::Texture(int width, int height, Image::Format format) : Image(width, height, format) {
+Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
 	conversionBuffer = new u8[texWidth * texHeight * 4];
@@ -87,6 +92,11 @@ Texture::Texture(int width, int height, Image::Format format) : Image(width, hei
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	/*if (!readable) {
+		delete[] data;
+		data = nullptr;
+	}*/
 }
 
 TextureImpl::~TextureImpl() {

@@ -20,7 +20,7 @@ namespace {
 	}
 }
 
-Texture::Texture(const char* filename) : Image(filename) {
+Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
 	stage = 0;
 	mipmap = true;
 	DWORD usage = 0;
@@ -42,9 +42,13 @@ Texture::Texture(const char* filename) : Image(filename) {
 		}
 	}
 	affirm(texture->UnlockRect(0));
+	if (!readable) {
+		delete[] data;
+		data = nullptr;
+	}
 }
 
-Texture::Texture(int width, int height, Format format) : Image(width, height, format) {
+Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
 	stage = 0;
 	mipmap = true;
 	DWORD usage = 0;
@@ -52,6 +56,10 @@ Texture::Texture(int width, int height, Format format) : Image(width, height, fo
 	texHeight = height;
 	usage = D3DUSAGE_DYNAMIC;
 	affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
+	if (!readable) {
+		delete[] data;
+		data = nullptr;
+	}
 }
 
 TextureImpl::~TextureImpl() {

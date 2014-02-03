@@ -17,11 +17,11 @@ int Image::sizeOf(Image::Format format) {
 	return -1;
 }
 
-Image::Image(int width, int height, Format format) : width(width), height(height), format(format) {
+Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), format(format), readable(readable) {
 	data = new u8[width * height * sizeOf(format)];
 }
 
-Image::Image(const char* filename) : format(RGBA32) {
+Image::Image(const char* filename, bool readable) : format(RGBA32), readable(readable) {
 	printf("Image %s\n", filename);
 	FileReader file(filename);
 	int size = file.size();
@@ -30,5 +30,9 @@ Image::Image(const char* filename) : format(RGBA32) {
 }
 
 Image::~Image() {
-	delete data;
+	delete[] data;
+}
+
+int Image::at(int x, int y) {
+	return *(int*)&((u8*)data)[width * sizeOf(format) * y + x * sizeOf(format)];
 }
