@@ -5,10 +5,8 @@
 
 using namespace Kore;
 
-RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) {
+RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) : width(width), height(height), texWidth(width), texHeight(height) {
 	this->antialiasing = antialiasing;
-	myWidth = width;
-	myHeight = height;
 	D3DFORMAT d3dformat;
 	switch (format) {
 	case Target32Bit:
@@ -36,14 +34,14 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	}
 }
 
-void RenderTarget::useColorAsTexture(int texunit) {
+void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (antialiasing) {
 		IDirect3DSurface9* surface;
 		colorTexture->GetSurfaceLevel(0, &surface);
 		affirm(device->StretchRect(colorSurface, nullptr, surface, nullptr, D3DTEXF_NONE));
 		surface->Release();
 	}
-	device->SetTexture(texunit, colorTexture);
+	device->SetTexture(unit.unit, colorTexture);
 }
 
 /*void RenderTarget::useDepthAsTexture(int texunit) {
@@ -55,11 +53,3 @@ void RenderTarget::useColorAsTexture(int texunit) {
 	}
 	device->SetTexture(texunit, depthTexture);
 }*/
-
-int RenderTarget::width() {
-	return myWidth;
-}
-
-int RenderTarget::height() {
-	return myHeight;
-}

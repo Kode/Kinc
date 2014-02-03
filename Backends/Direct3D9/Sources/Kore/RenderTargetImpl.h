@@ -10,7 +10,6 @@ namespace Kore {
 		IDirect3DSurface9* depthSurface;
 		IDirect3DTexture9* colorTexture;
 		IDirect3DTexture9* depthTexture;
-		int myWidth, myHeight;
 		bool antialiasing;
 	};
 }

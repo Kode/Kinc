@@ -103,9 +103,11 @@ namespace Kore {
 	class RenderTarget : public RenderTargetImpl {
 	public:
 		RenderTarget(int width, int height, bool depthBuffer, bool antialiasing = false, RenderTargetFormat format = Target32Bit);
-		int width();
-		int height();
-		void useColorAsTexture(int texunit);
+		int width;
+		int height;
+		int texWidth;
+		int texHeight;
+		void useColorAsTexture(TextureUnit unit);
 		//void useDepthAsTexture(int texunit);
 	};
 
