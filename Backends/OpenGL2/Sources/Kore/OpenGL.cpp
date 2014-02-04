@@ -32,6 +32,7 @@ namespace {
 	//bool fullscreen;
 	TextureFilter minFilters[32];
 	MipmapFilter mipFilters[32];
+	int originalFramebuffer;
 }
 
 void Graphics::destroy() {
@@ -118,6 +119,7 @@ void Graphics::init() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	setRenderState(DepthTest, false);
 	glViewport(0, 0, Application::the()->width(), Application::the()->height());
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &originalFramebuffer);
 
 	for (int i = 0; i < 32; ++i) {
 		minFilters[i] = LinearFilter;
@@ -423,5 +425,5 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 }
 
 void Graphics::restoreRenderTarget() {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer);
 }
