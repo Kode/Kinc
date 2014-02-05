@@ -41,23 +41,25 @@ void Kore::System::showWindow() {
     
 }
 
-int Kore::System::screenWidth() {
-    return Kore::Application::the()->width();
-}
-
-int Kore::System::screenHeight() {
-    return Kore::Application::the()->height();
-}
-
 namespace {
 	mz_zip_archive apk;
 	char theApkPath[500];
+	int width;
+	int height;
 
 	//Android GDB does not attach immediately after a native lib is loaded.
 	//To debug startup behavior set the debuggingDelay to about 200.
 	bool initialized = false;
 	int debuggingDelayCount = 0;
 	const int debuggingDelay = 0;
+}
+
+int Kore::System::screenWidth() {
+    return width;
+}
+
+int Kore::System::screenHeight() {
+    return height;
 }
 
 char* getApkPath() {
@@ -84,6 +86,8 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobje
 	std::strcpy(theApkPath, path);
 	env->ReleaseStringUTFChars(apkPath, path);
 	glViewport(0, 0, width, height);
+	::width = width;
+	::height = height;
 }
 
 namespace {
