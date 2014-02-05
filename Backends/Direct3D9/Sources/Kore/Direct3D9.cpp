@@ -524,3 +524,7 @@ void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, floats, 4);
 	else device->SetPixelShaderConstantF(location.reg.regindex, floats, 4);
 }
+
+bool Graphics::renderTargetsInvertedY() {
+	return false;
+}

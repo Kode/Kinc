@@ -118,7 +118,7 @@ void Graphics::init() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	setRenderState(DepthTest, false);
-	glViewport(0, 0, Application::the()->width(), Application::the()->height());
+	glViewport(0, 0, System::screenWidth(), System::screenHeight());
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &originalFramebuffer);
 
 	for (int i = 0; i < 32; ++i) {
@@ -422,8 +422,14 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 
 void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 	glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
+	glViewport(0, 0, texture->texWidth, texture->texHeight);
 }
 
 void Graphics::restoreRenderTarget() {
 	glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer);
+	glViewport(0, 0, System::screenWidth(), System::screenHeight());
+}
+
+bool Graphics::renderTargetsInvertedY() {
+	return true;
 }

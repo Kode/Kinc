@@ -126,7 +126,8 @@ namespace Kore {
 		void setWindow(bool);
 		bool antialiasing();
 		void setAntialiasing(bool);
-		
+
+		bool renderTargetsInvertedY();
 		void setRenderTarget(RenderTarget* texture, int num = 0);
 		void restoreRenderTarget();
 
