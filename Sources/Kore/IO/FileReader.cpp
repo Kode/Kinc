@@ -3,6 +3,7 @@
 #include <Kore/Error.h>
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
+#include <Kore/System.h>
 #include "miniz.h"
 #include <cstdlib>
 #include <cstring>
@@ -106,7 +107,13 @@ bool FileReader::open(const char* filename, FileType type) {
 	filepath = Kt::Text(SYS_APP_HOME) + "/" + filepath;
 #endif
 #ifdef SYS_WINDOWS
-	strcpy(filepath, filename);
+	if (type == Save) {
+		strcpy(filepath, System::savePath());
+		strcat(filepath, filename);
+	}
+	else {
+		strcpy(filepath, filename);
+	}
 	size_t filepathlength = strlen(filepath);
 	for (size_t i = 0; i < filepathlength; ++i)
 		if (filepath[i] == '/') filepath[i] = '\\';
