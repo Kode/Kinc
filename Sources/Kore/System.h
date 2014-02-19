@@ -16,6 +16,7 @@ namespace Kore {
 		int screenWidth();
 		int screenHeight();
 		void setTitle(const char* title);
+		const char* savePath();
 		void showWindow();
 		void swapBuffers();
 

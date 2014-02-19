@@ -8,6 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
+#include <shlobj.h>
 #include <exception>
 
 using namespace Kore;
@@ -424,6 +425,37 @@ int Kore::System::screenWidth() {
 
 int Kore::System::screenHeight() {
 	return Application::the()->height();
+}
+
+namespace {
+	char* savePath = nullptr;
+
+	void getSavePath() {
+		//CoInitialize(NULL);
+		IKnownFolderManager* folders = nullptr;
+		CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&folders));
+		IKnownFolder* folder = nullptr;
+		folders->GetFolder(FOLDERID_SavedGames, &folder);
+
+		LPWSTR path;
+		folder->GetPath(0, &path);
+
+		size_t length = wcslen(path);
+		savePath = new char[length];
+		for (size_t i = 0; i < length; ++i) {
+			savePath[i] = static_cast<char>(path[i]);
+		}
+
+		CoTaskMemFree(path);
+		folder->Release();
+		folders->Release();
+		//CoUninitialize();
+	}
+}
+
+const char* Kore::System::savePath() {
+	if (::savePath == nullptr) getSavePath();
+	return ::savePath;
 }
 
 double Kore::System::frequency() {

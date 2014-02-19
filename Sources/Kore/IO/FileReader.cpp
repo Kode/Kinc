@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "FileReader.h"
 #include <Kore/Error.h>
+#include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include "miniz.h"
 #include <cstdlib>
@@ -49,7 +50,7 @@ FileReader::FileReader() {
 #endif
 }
 
-FileReader::FileReader(const char* filename) {
+FileReader::FileReader(const char* filename, FileType type) {
 #ifdef SYS_ANDROID
 	data.all = nullptr;
 	data.size = 0;
@@ -81,7 +82,7 @@ bool FileReader::open(const char* filename) {
 #endif
 
 #ifndef SYS_ANDROID
-bool FileReader::open(const char* filename) {
+bool FileReader::open(const char* filename, FileType type) {
 	char filepath[1001];
 #ifdef SYS_IOS
 	strcpy(filepath, iphonegetresourcepath());
@@ -148,7 +149,7 @@ bool FileReader::open(const char* filename) {
 #endif
 	data.file = fopen(filepath, "rb");
 	if (data.file == nullptr) {
-		printf("Could not open %s\n", filepath);
+		log(Warning, "Could not open file %s.", filepath);
 		return false;
 	}
 	fseek((FILE*)data.file, 0, SEEK_END);
