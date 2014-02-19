@@ -469,6 +469,17 @@ void Graphics::setRenderState(RenderState state, float value) {
 	
 }
 
+void Graphics::setBool(ConstantLocation position, bool value) {
+	if (position.shaderType == -1) return;
+	BOOL bools[4];
+	bools[0] = value ? 1 : 0;
+	bools[1] = bools[0];
+	bools[2] = bools[0];
+	bools[3] = bools[0];
+	if (position.shaderType == 0) device->SetVertexShaderConstantB(position.reg.regindex, &bools[0], 1);
+	else device->SetPixelShaderConstantB(position.reg.regindex, &bools[0], 1);
+}
+
 void Graphics::setInt(ConstantLocation position, int value) {
 	if (position.shaderType == -1) return;
 	int ints[4];
@@ -511,6 +522,23 @@ void Graphics::setFloat3(ConstantLocation position, float value1, float value2, 
 	floats[3] = value1;
 	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
 	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+}
+
+void Graphics::setFloat4(ConstantLocation position, float value1, float value2, float value3, float value4) {
+	if (position.shaderType == -1) return;
+	float floats[4];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+	floats[3] = value4;
+	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+}
+
+void Graphics::setFloats(ConstantLocation location, float* values, int count) {
+	if (location.shaderType == -1) return;
+	if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, values, count / 4);
+	else device->SetPixelShaderConstantF(location.reg.regindex, values, count / 4);
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {

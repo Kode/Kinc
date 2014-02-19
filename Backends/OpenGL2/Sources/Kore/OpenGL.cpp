@@ -146,7 +146,11 @@ void* Graphics::getControl() {
 	return nullptr;
 #endif
 }
-	
+
+void Graphics::setBool(ConstantLocation location, bool value) {
+	glUniform1i(location.location, value ? 1 : 0);
+}
+
 void Graphics::setInt(ConstantLocation location, int value) {
 	glUniform1i(location.location, value);
 }
@@ -161,6 +165,14 @@ void Graphics::setFloat2(ConstantLocation location, float value1, float value2) 
 
 void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
 	glUniform3f(location.location, value1, value2, value3);
+}
+
+void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
+	glUniform4f(location.location, value1, value2, value3, value4);
+}
+
+void Graphics::setFloats(ConstantLocation location, float* values, int count) {
+	glUniform1fv(location.location, count, values);
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
