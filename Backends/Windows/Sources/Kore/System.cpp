@@ -441,10 +441,19 @@ namespace {
 		folder->GetPath(0, &path);
 
 		size_t length = wcslen(path);
-		savePath = new char[length];
+		size_t length2 = strlen(Application::the()->name());
+		savePath = new char[length + length2 + 3];
 		for (size_t i = 0; i < length; ++i) {
 			savePath[i] = static_cast<char>(path[i]);
 		}
+		savePath[length] = '\\';
+		for (size_t i = 0; i < length2; ++i) {
+			savePath[length + 1 + i] = Application::the()->name()[i];
+		}
+		savePath[length + 1 + length2] = '\\';
+		savePath[length + 1 + length2 + 1] = 0;
+
+		SHCreateDirectoryExA(nullptr, savePath, nullptr);
 
 		CoTaskMemFree(path);
 		folder->Release();
