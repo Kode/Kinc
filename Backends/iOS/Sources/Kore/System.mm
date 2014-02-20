@@ -91,6 +91,29 @@ int System::screenHeight() {
 #endif
 }
 
+namespace {
+	const char* savePath = nullptr;
+	
+	void getSavePath() {
+		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+		NSString* resolvedPath = [paths objectAtIndex:0];
+		NSString* appName = [NSString stringWithUTF8String:Application::the()->name()];
+		resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
+		
+		NSFileManager* fileMgr = [[NSFileManager alloc] init];
+		
+		NSError *error;
+		[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
+		
+		savePath = [resolvedPath cStringUsingEncoding:1];
+	}
+}
+
+const char* System::savePath() {
+	if (::savePath == nullptr) getSavePath();
+	return ::savePath;
+}
+
 #include <mach/mach_time.h>
 
 double System::frequency() {

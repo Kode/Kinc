@@ -60,7 +60,7 @@ FileReader::FileReader(const char* filename, FileType type) {
 	data.file = nullptr;
 	data.size = 0;
 #endif
-	if (!open(filename)) {
+	if (!open(filename, type)) {
 		error("Could not open file %s.", filename);
 	}
 }
@@ -86,14 +86,14 @@ bool FileReader::open(const char* filename) {
 bool FileReader::open(const char* filename, FileType type) {
 	char filepath[1001];
 #ifdef SYS_IOS
-	strcpy(filepath, iphonegetresourcepath());
+	strcpy(filepath, type == Save ? System::savePath() : iphonegetresourcepath());
 	strcat(filepath, "/");
 	strcat(filepath, KORE_DEBUGDIR);
 	strcat(filepath, "/");
 	strcat(filepath, filename);
 #endif
 #ifdef SYS_OSX
-	strcpy(filepath, macgetresourcepath());
+	strcpy(filepath, type == Save ? System::savePath() : macgetresourcepath());
 	strcat(filepath, "/");
 	strcat(filepath, KORE_DEBUGDIR);
 	strcat(filepath, "/");
