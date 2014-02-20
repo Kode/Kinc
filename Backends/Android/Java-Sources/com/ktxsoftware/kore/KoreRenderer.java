@@ -22,6 +22,6 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		KoreLib.init(width, height, context.getApplicationInfo().sourceDir);
+		KoreLib.init(width, height, context.getApplicationInfo().sourceDir, context.getFilesDir().toString());
 	}
 }

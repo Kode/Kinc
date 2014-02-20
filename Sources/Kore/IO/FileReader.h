@@ -8,6 +8,7 @@ namespace Kore {
 		void* all;
 		int pos;
 		int size;
+		bool file;
 	};
 #else
 	struct FileReaderData {

@@ -5,6 +5,7 @@
 #include <Kore/IO/FileReader.h>
 #include <Kore/IO/miniz.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Log.h>
 #include <jni.h>
 #include <GLES2/gl2.h>
 #include <cstring>
@@ -43,7 +44,8 @@ void Kore::System::showWindow() {
 
 namespace {
 	mz_zip_archive apk;
-	char theApkPath[500];
+	char theApkPath[1001];
+	char filesDir[1001];
 	int width;
 	int height;
 
@@ -70,10 +72,14 @@ mz_zip_archive* getApk() {
 	return &apk;
 }
 
+const char* Kore::System::savePath() {
+	return filesDir;
+}
+
 extern int kore(int argc, char** argv);
 
 extern "C" {
-	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath, jstring filesDir);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobject obj);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchDown(JNIEnv* env, jobject obj, jint x, jint y);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jobject obj, jint x, jint y);
@@ -81,10 +87,18 @@ extern "C" {
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_writeAudio(JNIEnv* env, jobject obj, jbyteArray buffer, jint size);
 };
 
-JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath) {
-	const char* path = env->GetStringUTFChars(apkPath, nullptr);
-	std::strcpy(theApkPath, path);
-	env->ReleaseStringUTFChars(apkPath, path);
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath, jstring filesDir) {
+	{
+		const char* path = env->GetStringUTFChars(apkPath, nullptr);
+		std::strcpy(theApkPath, path);
+		env->ReleaseStringUTFChars(apkPath, path);
+	}
+	{
+		const char* path = env->GetStringUTFChars(filesDir, nullptr);
+		std::strcpy(::filesDir, path);
+		std::strcat(::filesDir, "/");
+		env->ReleaseStringUTFChars(filesDir, path);
+	}
 	glViewport(0, 0, width, height);
 	::width = width;
 	::height = height;
