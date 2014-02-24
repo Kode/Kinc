@@ -7,6 +7,10 @@
 
 @implementation BasicOpenGLView
 
+namespace {
+    bool shift = false;
+}
+
 + (NSOpenGLPixelFormat*) basicPixelFormat {
 	NSOpenGLPixelFormatAttribute attributes[] = {
 		//NSOpenGLPFAWindow,
@@ -28,18 +32,16 @@
 		unichar ch = [characters characterAtIndex:0];
 		if (ch >= L'a' && ch <= L'z') {
 			switch (ch) {
-			case L'a':
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Left));
-				break;
-			case L'w':
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Up));
-				break;
-			case L'd':
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Right));
-				break;
 			default:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch + L'A' - L'a'));
-				break;
+                if ([theEvent modifierFlags] & NSShiftKeyMask) {
+                    Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch + L'A' - L'a'));
+                    shift = true;
+                }
+                else {
+                    Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch));
+                    shift = false;
+				}
+                break;
 			}
 		}
 		else {
@@ -56,6 +58,9 @@
 			case NSDownArrowFunctionKey:
 				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Down));
 				break;
+            case 0x7f:
+                Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Backspace));
+                break;
 			default:
 				Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch));
 				break;	
@@ -70,18 +75,14 @@
         unichar ch = [characters characterAtIndex:0];
 		if (ch >= L'a' && ch <= L'z') {
 			switch (ch) {
-			case L'a':
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Left));
-				break;
-			case L'w':
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Up));
-				break;
-			case L'd':
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Right));
-				break;
 			default:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch + L'A' - L'a'));
-				break;
+                if (shift) {
+                    Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch + L'A' - L'a'));
+                }
+                else {
+                    Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch));
+                }
+                break;
 			}
 		}
 		else {
@@ -98,6 +99,9 @@
 			case NSDownArrowFunctionKey:
 				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Down));
 				break;
+            case 0x7f:
+                Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Backspace));
+                break;
 			default:
 				Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch));
 				break;	
