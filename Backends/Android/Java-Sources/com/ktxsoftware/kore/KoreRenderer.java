@@ -8,6 +8,9 @@ import android.opengl.GLSurfaceView;
 
 public class KoreRenderer implements GLSurfaceView.Renderer {
 	private Context context;
+	private int lastMouseX;
+	private int lastMouseY;
+	private boolean lastMouseButton;
 	
 	public KoreRenderer(Context context) {
 		this.context = context;
@@ -18,6 +21,28 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onDrawFrame(GL10 gl) {
+		int mouseX;
+		int mouseY;
+		boolean mouseButton;
+		
+		synchronized(KoreView.inputLock) {
+			mouseX = KoreView.mouseX;
+			mouseY = KoreView.mouseY;
+			mouseButton = KoreView.mouseButton;
+		}
+		
+		if (mouseButton != lastMouseButton) {
+			if (mouseButton) KoreLib.touchDown(mouseX, mouseY);
+			else KoreLib.touchUp(mouseX, mouseY);
+		}
+		else if (mouseX != lastMouseX || mouseY != lastMouseY) {
+			KoreLib.touchMove(mouseX, mouseY);
+		}		
+
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+		lastMouseButton = mouseButton;
+		
 		KoreLib.step();
 	}
 

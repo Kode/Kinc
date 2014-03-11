@@ -6,6 +6,13 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class KoreView extends GLSurfaceView implements View.OnTouchListener {
+	public static int mouseX;
+	public static int mouseY;
+	public static boolean mouseButton;
+	public static Object inputLock = new Object();
+	
+	private boolean lastMouseButton;
+	
 	//unused
 	public KoreView(Context context) {
 		super(context);
@@ -20,17 +27,25 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
+		int mouseX = (int)event.getX();
+		int mouseY = (int)event.getY();
+		boolean mouseButton = lastMouseButton;
 		switch (event.getActionMasked()) {
-		case MotionEvent.ACTION_MOVE:
-			KoreLib.touchMove((int)event.getX(), (int)event.getY());
-			break;
 		case MotionEvent.ACTION_UP:
-			KoreLib.touchUp((int)event.getX(), (int)event.getY());
+			mouseButton = false;
 			break;
 		case MotionEvent.ACTION_DOWN:
-			KoreLib.touchDown((int)event.getX(), (int)event.getY());
+			mouseButton = true;
 			break;
 		}
+		lastMouseButton = mouseButton;
+		
+		synchronized(inputLock) {
+			KoreView.mouseX = mouseX;
+			KoreView.mouseY = mouseY;
+			KoreView.mouseButton = mouseButton;
+		}
+		
 		return true;
 	}
 }
