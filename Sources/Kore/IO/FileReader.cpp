@@ -45,6 +45,7 @@ FileReader::FileReader() {
 	data.all = nullptr;
 	data.size = 0;
 	data.pos = 0;
+	data.isfile = false;
 #else
 	data.file = nullptr;
 	data.size = 0;
@@ -56,7 +57,7 @@ FileReader::FileReader(const char* filename, FileType type) {
 	data.all = nullptr;
 	data.size = 0;
 	data.pos = 0;
-	data.file = type == Save;
+	data.isfile = type == Save;
 #else
 	data.file = nullptr;
 	data.size = 0;
@@ -70,7 +71,7 @@ FileReader::FileReader(const char* filename, FileType type) {
 bool FileReader::open(const char* filename, FileType type) {
 	data.pos = 0;
 	if (type == Save) {
-		data.file = true;
+		data.isfile = true;
 
 		char filepath[1001];
 
@@ -82,13 +83,13 @@ bool FileReader::open(const char* filename, FileType type) {
 			log(Warning, "Could not open file %s.", filepath);
 			return false;
 		}
-		fseek((FILE*)data.file, 0, SEEK_END);
-		data.size = static_cast<int>(ftell((FILE*)data.file));
-		fseek((FILE*)data.file, 0, SEEK_SET);
+		fseek((FILE*)data.all, 0, SEEK_END);
+		data.size = static_cast<int>(ftell((FILE*)data.all));
+		fseek((FILE*)data.all, 0, SEEK_SET);
 		return true;
 	}
 	else {
-		data.file = false;
+		data.isfile = false;
 
 		char file[1001];
 		strcpy(file, "assets/");
@@ -191,7 +192,7 @@ bool FileReader::open(const char* filename, FileType type) {
 
 int FileReader::read(void* data, int size) {
 #ifdef SYS_ANDROID
-	if (this->data.file) return static_cast<int>(fread(data, 1, size, (FILE*)this->data.all));
+	if (this->data.isfile) return static_cast<int>(fread(data, 1, size, (FILE*)this->data.all));
 	int memsize = Kore::min(size, this->data.size - this->data.pos);
 	memcpy(data, (u8*)this->data.all + this->data.pos, memsize);
 	this->data.pos += memsize;
@@ -203,7 +204,7 @@ int FileReader::read(void* data, int size) {
 
 void* FileReader::readAll() {
 #ifdef SYS_ANDROID
-	if (this->data.file) {
+	if (this->data.isfile) {
 		seek(0);
 		void* data = new Kore::u8[this->data.size];
 		read(data, this->data.size);
@@ -222,7 +223,7 @@ void* FileReader::readAll() {
 
 void FileReader::seek(int pos) {
 #ifdef SYS_ANDROID
-	if (data.file) fseek((FILE*)data.file, pos, SEEK_SET);
+	if (data.isfile) fseek((FILE*)data.all, pos, SEEK_SET);
 	else data.pos = pos;
 #else
 	fseek((FILE*)data.file, pos, SEEK_SET);
@@ -231,7 +232,7 @@ void FileReader::seek(int pos) {
 
 void FileReader::close() {
 #ifdef SYS_ANDROID
-	if (data.file) {
+	if (data.isfile) {
 		if (data.all == nullptr) return;
 		fclose((FILE*)data.all);
 		data.all = nullptr;
@@ -253,7 +254,7 @@ FileReader::~FileReader() {
 
 int FileReader::pos() const {
 #ifdef SYS_ANDROID
-	if (data.file) return static_cast<int>(ftell((FILE*)data.all));
+	if (data.isfile) return static_cast<int>(ftell((FILE*)data.all));
 	else return data.pos;
 #else
 	return static_cast<int>(ftell((FILE*)data.file));
