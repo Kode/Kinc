@@ -2,6 +2,7 @@
 #include "Mixer.h"
 #include "Audio.h"
 #include <Kore/Math/Core.h>
+#include <Kore/Threads/Mutex.h>
 #if 0
 #include <xmmintrin.h>
 #endif
@@ -9,6 +10,8 @@
 using namespace Kore;
 
 namespace {
+	Mutex mutex;
+
 	struct Channel {
 		Sound* sound;
 		int position;
@@ -48,6 +51,7 @@ namespace {
 			value = c.m128_f32[0] + c.m128_f32[1] + c.m128_f32[2] + c.m128_f32[3];
 			value = max(min(value, 1.0f), -1.0f);
 #else
+			mutex.Lock();
 			for (int i = 0; i < channelCount; ++i) {
 				if (channels[i].sound != nullptr) {
 					value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f;
@@ -62,6 +66,7 @@ namespace {
 					if (streams[i].stream->ended()) streams[i].stream = nullptr;
 				}
 			}
+			mutex.Unlock();
 #endif
 			*(float*)&Audio::buffer.data[Audio::buffer.writeLocation] = value;
 			Audio::buffer.writeLocation += 4;
@@ -71,10 +76,12 @@ namespace {
 }
 
 void Mixer::init() {
+	mutex.Create();
 	Audio::audioCallback = mix;
 }
 
 void Mixer::play(Sound* sound) {
+	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == nullptr) {
 			channels[i].sound = sound;
@@ -82,9 +89,11 @@ void Mixer::play(Sound* sound) {
 			break;
 		}
 	}
+	mutex.Unlock();
 }
 
 void Mixer::play(SoundStream* stream) {
+	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (streams[i].stream == nullptr) {
 			streams[i].stream = stream;
@@ -92,9 +101,11 @@ void Mixer::play(SoundStream* stream) {
 			break;
 		}
 	}
+	mutex.Unlock();
 }
 
 void Mixer::stop(SoundStream* stream) {
+	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (streams[i].stream == stream) {
 			streams[i].stream = nullptr;
@@ -102,4 +113,5 @@ void Mixer::stop(SoundStream* stream) {
 			break;
 		}
 	}
+	mutex.Unlock();
 }
