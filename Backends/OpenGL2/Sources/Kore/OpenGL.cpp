@@ -204,6 +204,10 @@ void Graphics::begin() {
 #ifdef SYS_IOS
 	beginGL();
 #endif
+#ifdef SYS_ANDROID
+	// if rendered to a texture, strange things happen if the backbuffer is not cleared
+	glClear(GL_COLOR_BUFFER_BIT);
+#endif
 }
 
 void Graphics::end() {
@@ -299,7 +303,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 	/*switch (state) {
 		case DepthTestCompare:
 			switch (v) {
-					// TODO: Cmp-Konstanten systemabh‰ngig abgleichen
+					// TODO: Cmp-Konstanten systemabhaengig abgleichen
 				default:
 				case ZCmp_Always      : v = D3DCMP_ALWAYS; break;
 				case ZCmp_Never       : v = D3DCMP_NEVER; break;
