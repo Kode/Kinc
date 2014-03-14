@@ -76,6 +76,14 @@ namespace {
 }
 
 void Mixer::init() {
+	for (int i = 0; i < channelCount; ++i) {
+		channels[i].sound = nullptr;
+		channels[i].position = 0;
+	}
+	for (int i = 0; i < channelCount; ++i) {
+		streams[i].stream = nullptr;
+		streams[i].position = 0;
+	}
 	mutex.Create();
 	Audio::audioCallback = mix;
 }
