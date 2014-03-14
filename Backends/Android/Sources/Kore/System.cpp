@@ -4,6 +4,8 @@
 #include <Kore/Audio/Audio.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/IO/miniz.h>
+#include <Kore/Input/Keyboard.h>
+#include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Log.h>
 #include <jni.h>
@@ -26,14 +28,6 @@ void Kore::System::changeResolution(int, int, bool) {
 
 }
 
-void Kore::System::showKeyboard() {
-
-}
-
-void Kore::System::hideKeyboard() {
-
-}
-
 void Kore::System::setTitle(const char*) {
 
 }
@@ -48,12 +42,21 @@ namespace {
 	char filesDir[1001];
 	int width;
 	int height;
+	bool keyboardShown = false;
 
 	//Android GDB does not attach immediately after a native lib is loaded.
 	//To debug startup behavior set the debuggingDelay to about 200.
 	bool initialized = false;
 	int debuggingDelayCount = 0;
 	const int debuggingDelay = 0;
+}
+
+void Kore::System::showKeyboard() {
+	keyboardShown = true;
+}
+
+void Kore::System::hideKeyboard() {
+	keyboardShown = false;
 }
 
 int Kore::System::screenWidth() {
@@ -85,6 +88,9 @@ extern "C" {
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jobject obj, jint x, jint y);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_writeAudio(JNIEnv* env, jobject obj, jbyteArray buffer, jint size);
+	JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobject obj, jint code);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyDown(JNIEnv* env, jobject obj, jint code);
 };
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath, jstring filesDir) {
@@ -139,6 +145,18 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jo
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y) {
 	Kore::Mouse::the()->_move(Kore::MouseEvent(x, y));
+}
+
+JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj) {
+	return keyboardShown;
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobject obj, jint code) {
+	Kore::Keyboard::the()->keyup(Kore::KeyEvent(code));
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyDown(JNIEnv* env, jobject obj, jint code) {
+	Kore::Keyboard::the()->keydown(Kore::KeyEvent(code));
 }
 
 namespace {

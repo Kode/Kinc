@@ -14,10 +14,16 @@ public class KoreActivity extends Activity {
 	private AudioTrack audio;
 	private Thread audioThread;
 	private int bufferSize;
+	private static KoreActivity instance;
+	
+	public static KoreActivity getInstance() {
+		return instance;
+	}
 	
 	@Override
 	protected void onCreate(Bundle state) {
 		super.onCreate(state);
+		instance = this;
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(new KoreView(this));
