@@ -12,6 +12,8 @@ import android.view.WindowManager;
 public class KoreActivity extends Activity {
 	public volatile static boolean paused = true;
 	private AudioTrack audio;
+	private Thread audioThread;
+	private int bufferSize;
 	
 	@Override
 	protected void onCreate(Bundle state) {
@@ -19,7 +21,7 @@ public class KoreActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(new KoreView(this));
-		int bufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+		bufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT) * 2;
 		audio = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
 	}
 	
@@ -34,20 +36,32 @@ public class KoreActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (audioThread != null) {
+			try {
+				audioThread.join();
+			}
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		paused = false;
 		audio.play();
 		Runnable audioRunnable = new Runnable() {
 			public void run() {
 				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-				byte[] audioBuffer = new byte[1000];
+				byte[] audioBuffer = new byte[bufferSize / 2];
 				for (;;) {
 					if (paused) return;
 					KoreLib.writeAudio(audioBuffer, audioBuffer.length);
-					audio.write(audioBuffer, 0, audioBuffer.length);
+					int written = 0;
+					while (written < audioBuffer.length) {
+						written += audio.write(audioBuffer, written, audioBuffer.length);
+					}
 				}
 			}
 		};
-		new Thread(audioRunnable).start();
+		audioThread = new Thread(audioRunnable);
+		audioThread.start();
 	}
 	
 	@Override
