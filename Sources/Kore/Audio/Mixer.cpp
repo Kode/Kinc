@@ -63,6 +63,7 @@ namespace {
 			for (int i = 0; i < channelCount; ++i) {
 				if (streams[i].stream != nullptr) {
 					value += streams[i].stream->nextSample();
+					value = max(min(value, 1.0f), -1.0f);
 					if (streams[i].stream->ended()) streams[i].stream = nullptr;
 				}
 			}
