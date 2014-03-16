@@ -7,6 +7,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.text.method.MetaKeyKeyListener;
 import android.view.KeyCharacterMap;
 
 public class KoreRenderer implements GLSurfaceView.Renderer {
@@ -17,6 +18,7 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	private boolean keyboardShown = false;
 	private ArrayList<KoreKeyEvent> keyEvents;
 	private KeyCharacterMap keyMap;
+	private boolean shift = false;
 	
 	public KoreRenderer(Context context) {
 		this.context = context;
@@ -50,8 +52,23 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 		}
 		
 		for (int i = 0; i < keyEvents.size(); ++i) {
-			int code = keyMap.get(keyEvents.get(i).code, 0);
-			System.out.println("Key: " + code);
+			int original = keyEvents.get(i).code;
+			if (original == 59) {
+				shift = keyEvents.get(i).down;
+				continue;
+			}
+			if (original == 67) { //backspace
+				if (keyEvents.get(i).down) KoreLib.keyDown(0x00000103);
+				else KoreLib.keyUp(0x00000103);
+				continue;
+			}
+			if (original == 66) { //return
+				if (keyEvents.get(i).down) KoreLib.keyDown(0x00000104);
+				else KoreLib.keyUp(0x00000104);
+				continue;
+			}
+			int code = keyMap.get(original, shift ? MetaKeyKeyListener.META_SHIFT_ON : 0);
+			//System.out.println("Key: " + code + " from " + original);
 			if (keyEvents.get(i).down) KoreLib.keyDown(code);
 			else KoreLib.keyUp(code);
 		}
