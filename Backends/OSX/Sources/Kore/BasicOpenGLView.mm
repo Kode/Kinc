@@ -30,14 +30,17 @@ namespace {
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
-		if (ch >= L'a' && ch <= L'z') {
+		if (ch >= L'a' && ch <= L'z') ch = ch - L'a' + L'A';
+		if (ch >= L'A' && ch <= L'Z') {
 			switch (ch) {
 			default:
                 if ([theEvent modifierFlags] & NSShiftKeyMask) {
-                    Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch + L'A' - L'a'));
+					if (!shift) Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Shift));
+                    Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch));
                     shift = true;
                 }
                 else {
+					if (shift) Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Shift));
                     Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch));
                     shift = false;
 				}
@@ -73,15 +76,11 @@ namespace {
 	NSString* characters = [theEvent characters];
     if ([characters length]) {
         unichar ch = [characters characterAtIndex:0];
-		if (ch >= L'a' && ch <= L'z') {
+		if (ch >= L'a' && ch <= L'z') ch = ch - L'a' + L'A';
+		if (ch >= L'A' && ch <= L'Z') {
 			switch (ch) {
 			default:
-                if (shift) {
-                    Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch + L'A' - L'a'));
-                }
-                else {
-                    Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch));
-                }
+				Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch));
                 break;
 			}
 		}
