@@ -7,6 +7,7 @@
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Input/Sensor.h>
 #include <Kore/Log.h>
 #include <jni.h>
 #include <GLES2/gl2.h>
@@ -33,7 +34,7 @@ void Kore::System::setTitle(const char*) {
 }
 
 void Kore::System::showWindow() {
-    
+
 }
 
 namespace {
@@ -91,6 +92,8 @@ extern "C" {
 	JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobject obj, jint code);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyDown(JNIEnv* env, jobject obj, jint code);
+    JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_accelerometerChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z);
+    JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gyroChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z);
 };
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath, jstring filesDir) {
@@ -157,6 +160,14 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobj
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyDown(JNIEnv* env, jobject obj, jint code) {
 	Kore::Keyboard::the()->keydown(Kore::KeyEvent(code));
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_accelerometerChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z) {
+    Kore::Sensor::_changed(Kore::SensorAccelerometer, x, y, z);
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gyroChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z) {
+    Kore::Sensor::_changed(Kore::SensorGyroscope, x, y, z);
 }
 
 namespace {

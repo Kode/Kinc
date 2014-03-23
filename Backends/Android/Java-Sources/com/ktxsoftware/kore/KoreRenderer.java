@@ -19,6 +19,8 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	private ArrayList<KoreKeyEvent> keyEvents;
 	private KeyCharacterMap keyMap;
 	//private boolean shift = false;
+	private float lastAccelerometerX, lastAccelerometerY, lastAccelerometerZ;
+	private float lastGyroX, lastGyroY, lastGyroZ;
 	
 	public KoreRenderer(Context context) {
 		this.context = context;
@@ -78,6 +80,29 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;
 		lastMouseButton = mouseButton;
+		
+		float accelerometerX, accelerometerY, accelerometerZ;
+		float gyroX, gyroY, gyroZ;
+		synchronized(KoreActivity.sensorLock) {
+			accelerometerX = KoreActivity.accelerometerX;
+			accelerometerY = KoreActivity.accelerometerY;
+			accelerometerZ = KoreActivity.accelerometerZ;
+			gyroX = KoreActivity.gyroX;
+			gyroY = KoreActivity.gyroY;
+			gyroZ = KoreActivity.gyroZ;
+		}
+		if (accelerometerX != lastAccelerometerX || accelerometerY != lastAccelerometerY || accelerometerZ != lastAccelerometerZ) {
+			KoreLib.accelerometerChanged(accelerometerX, accelerometerY, accelerometerZ);
+			lastAccelerometerX = accelerometerX;
+			lastAccelerometerY = accelerometerY;
+			lastAccelerometerZ = accelerometerZ;
+		}
+		if (gyroX != lastGyroX || gyroY != lastGyroY || gyroZ != lastGyroZ) {
+			KoreLib.gyroChanged(gyroX, gyroY, gyroZ);
+			lastGyroX = gyroX;
+			lastGyroY = gyroY;
+			lastGyroZ = gyroZ;
+		}
 		
 		KoreLib.step();
 		
