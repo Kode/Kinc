@@ -232,6 +232,21 @@ int Kore::System::screenHeight() {
     return Application::the()->height();
 }
 
+namespace {
+    char save[2000];
+    bool saveInitialized = false;
+}
+
+const char* Kore::System::savePath() {
+    if (!saveInitialized) {
+        strcpy(save, "Ķ~/.");
+        strcat(save, Application::the()->name());
+        strcat(save, "/");
+        saveInitialized = true;
+    }
+	return save;
+}
+
 #include <sys/time.h>
 #include <time.h>
 
