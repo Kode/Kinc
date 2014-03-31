@@ -9,12 +9,15 @@ static UIWindow* window;
 static GLView* glView;
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
-	CGRect rect = [[UIScreen mainScreen] applicationFrame];
+	//CGRect rect = [[UIScreen mainScreen] applicationFrame];
 	
 	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	[window setBackgroundColor:[UIColor blackColor]];
 	
-	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, 1024, 768/*rect.origin.x, rect.origin.y, rect.size.width, rect.size.height*/)];
+	CGRect screenBounds = [[UIScreen mainScreen] bounds];
+	CGFloat screenScale = [[UIScreen mainScreen] scale];
+	
+	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)];//0, 0, screenBounds.size.height * screenScale, screenBounds.size.width * screenScale)];
 
 	[window addSubview:glView];
 	[window makeKeyAndVisible];

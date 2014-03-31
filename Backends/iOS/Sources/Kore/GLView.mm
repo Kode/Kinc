@@ -95,15 +95,15 @@ static void adjustxy(float& x, float& y) {
 	x = x / Kore::System::screenWidth() * Kore::Application::the()->width();
 	y = y / Kore::System::screenHeight() * Kore::Application::the()->height();
 	*/
-	CGFloat scale = [[UIScreen mainScreen] scale];
-	x *= scale;
-	y *= scale;
+	//CGFloat scale = [[UIScreen mainScreen] scale];
+	//x *= scale;
+	//y *= scale;
 }
 
 static void adjustxy(double& x, double& y) {
-	CGFloat scale = [[UIScreen mainScreen] scale];
-	x *= scale;
-	y *= scale;
+	//CGFloat scale = [[UIScreen mainScreen] scale];
+	//x *= scale;
+	//y *= scale;
 }
 
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
