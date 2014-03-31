@@ -100,6 +100,12 @@ static void adjustxy(float& x, float& y) {
 	y *= scale;
 }
 
+static void adjustxy(double& x, double& y) {
+	CGFloat scale = [[UIScreen mainScreen] scale];
+	x *= scale;
+	y *= scale;
+}
+
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];

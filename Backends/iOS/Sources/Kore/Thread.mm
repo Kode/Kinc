@@ -75,7 +75,7 @@ Again:;
 	int ret = pthread_join(t->pthread, NULL);
 	if (ret != 0) goto Again;
 	mutex.Unlock();
-	uint ti = ((uint)t - (uint)&tt[0]) / sizeof(IOS_Thread);
+	//uint ti = ((uint)t - (uint)&tt[0]) / sizeof(IOS_Thread);
 	//ia.DeallocateIndex(ti);
 }
 
