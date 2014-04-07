@@ -262,6 +262,7 @@ void Graphics::setRenderState(RenderState state, bool on) {
 	case BackfaceCulling:
 		if (on) glCullFace(GL_BACK);
 		else glCullFace(GL_NONE);
+		break;
 	}
 
 	/*switch (state) {
@@ -368,9 +369,11 @@ void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter 
 	switch (filter) {
 	case PointFilter:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		break;
 	case LinearFilter:
 	case AnisotropicFilter:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		break;
 	}
 }
 
@@ -382,21 +385,29 @@ namespace {
 			switch (mipFilters[unit]) {
 			case NoMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				break;
 			case PointMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+				break;
 			case LinearMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+				break;
 			}
+			break;
 		case LinearFilter:
 		case AnisotropicFilter:
 			switch (mipFilters[unit]) {
 			case NoMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				break;
 			case PointMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+				break;
 			case LinearMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				break;
 			}
+			break;
 		}
 	}
 }
