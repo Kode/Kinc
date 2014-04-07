@@ -185,7 +185,11 @@ void Graphics::drawIndexedVertices() {
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
+#ifdef SYS_ANDROID
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
+#else
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+#endif
 }
 
 void Graphics::swapBuffers() {
