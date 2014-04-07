@@ -77,6 +77,7 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 			break;
 		case Float1VertexData:
 			offset += 4 * 1;
+			break;
 		case Float2VertexData:
 			offset += 4 * 2;
 			break;
