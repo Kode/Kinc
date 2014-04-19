@@ -19,7 +19,6 @@
 	
 	eaglLayer.opaque = YES;
 	eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
-	[eaglLayer setAffineTransform:CGAffineTransformConcat(CGAffineTransformMakeRotation(M_PI * 1.5f), CGAffineTransformMakeTranslation(-128, 128))];
 
 	context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 	
@@ -85,52 +84,27 @@
 	[super dealloc];
 }
 
-static void adjustxy(float& x, float& y) {
-	/*
-#ifdef ROTATE90
-	float oldx = x;
-	x = y;
-	y = Kore::System::screenHeight() - 1 - oldx;
-#endif
-	x = x / Kore::System::screenWidth() * Kore::Application::the()->width();
-	y = y / Kore::System::screenHeight() * Kore::Application::the()->height();
-	*/
-	//CGFloat scale = [[UIScreen mainScreen] scale];
-	//x *= scale;
-	//y *= scale;
-}
-
-static void adjustxy(double& x, double& y) {
-	//CGFloat scale = [[UIScreen mainScreen] scale];
-	//x *= scale;
-	//y *= scale;
-}
-
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	adjustxy(point.x, point.y);
 	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(point.x, point.y));
 }
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	adjustxy(point.x, point.y);
 	Kore::Mouse::the()->_move(Kore::MouseEvent(point.x, point.y));
 }
 
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	adjustxy(point.x, point.y);
 	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x, point.y));
 }
 
 - (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	adjustxy(point.x, point.y);
 	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x, point.y));
 }
 

@@ -17,7 +17,7 @@ static GLView* glView;
 	CGRect screenBounds = [[UIScreen mainScreen] bounds];
 	CGFloat screenScale = [[UIScreen mainScreen] scale];
 	
-	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)];//0, 0, screenBounds.size.height * screenScale, screenBounds.size.width * screenScale)];
+	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, screenBounds.size.width * screenScale, screenBounds.size.height * screenScale)];
 
 	[window addSubview:glView];
 	[window makeKeyAndVisible];
