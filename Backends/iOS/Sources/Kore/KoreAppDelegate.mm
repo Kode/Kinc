@@ -15,9 +15,8 @@ static GLView* glView;
 	[window setBackgroundColor:[UIColor blackColor]];
 	
 	CGRect screenBounds = [[UIScreen mainScreen] bounds];
-	CGFloat screenScale = [[UIScreen mainScreen] scale];
 	
-	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, screenBounds.size.width * screenScale, screenBounds.size.height * screenScale)];
+	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height)];
 
 	[window addSubview:glView];
 	[window makeKeyAndVisible];
