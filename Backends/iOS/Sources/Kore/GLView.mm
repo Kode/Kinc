@@ -14,6 +14,7 @@
 
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
+	self.contentScaleFactor = [UIScreen mainScreen].scale;
 	
 	CAEAGLLayer* eaglLayer = (CAEAGLLayer*)self.layer;
 	
