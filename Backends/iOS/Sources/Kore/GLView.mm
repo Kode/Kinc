@@ -88,25 +88,29 @@
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(point.x, point.y));
+	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
+													point.y * self.contentScaleFactor));
 }
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_move(Kore::MouseEvent(point.x, point.y));
+	Kore::Mouse::the()->_move(Kore::MouseEvent(point.x * self.contentScaleFactor,
+											   point.y * self.contentScaleFactor));
 }
 
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x, point.y));
+	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
+													  point.y * self.contentScaleFactor));
 }
 
 - (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x, point.y));
+	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
+													  point.y * self.contentScaleFactor));
 }
 
 namespace {
