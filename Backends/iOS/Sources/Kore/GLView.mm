@@ -4,6 +4,7 @@
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Input/Sensor.h>
 #include <Kore/System.h>
 
 @implementation GLView
@@ -37,7 +38,17 @@
 	glGenRenderbuffersOES(1, &depthRenderbuffer);
     glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
     glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
-	
+
+    // Start acceletometer
+	hasAccelerometer = false;
+
+	motionManager = [[CMMotionManager alloc]init];
+	if ([motionManager isAccelerometerAvailable]) {
+		motionManager.accelerometerUpdateInterval = 0.033;
+		[motionManager startAccelerometerUpdates];
+		hasAccelerometer = true;
+	}
+
 	return self;
 }
 
@@ -45,6 +56,21 @@
 	[EAGLContext setCurrentContext:context];
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
     glViewport(0, 0, backingWidth, backingHeight);
+
+    // Accelerometer updates
+    if (hasAccelerometer) {
+
+    	CMAcceleration acc = motionManager.accelerometerData.acceleration;
+
+    	if (acc.x != lastAccelerometerX || acc.y != lastAccelerometerY || acc.z != lastAccelerometerZ) {
+ 			
+    		Kore::Sensor::_changed(Kore::SensorAccelerometer, acc.x, acc.y, acc.z);
+
+ 			lastAccelerometerX = acc.x;
+ 			lastAccelerometerY = acc.y;
+ 			lastAccelerometerZ = acc.z;
+ 		}
+    }
 }
 
 - (void)end {
