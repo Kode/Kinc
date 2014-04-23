@@ -68,6 +68,7 @@ elseif platform == Platform.iOS then
 	project:addLib("OpenGLES")
 	project:addLib("CoreAudio")
 	project:addLib("AudioToolbox")
+	project:addLib("CoreMotion")
 elseif platform == Platform.Android then
 	addBackend("Android")
 	addBackend("OpenGL2")
