@@ -31,6 +31,12 @@ void Mouse::_pressRight(MouseEvent event) {
 	}
 }
 
+void Mouse::_pressMiddle(MouseEvent event) {
+	if (PressMiddle != nullptr) {
+		PressMiddle(event);
+	}
+}
+
 void Mouse::_releaseLeft(MouseEvent event) {
 	if (ReleaseLeft != nullptr) {
 		ReleaseLeft(event);
@@ -40,5 +46,11 @@ void Mouse::_releaseLeft(MouseEvent event) {
 void Mouse::_releaseRight(MouseEvent event) {
 	if (ReleaseRight != nullptr) {
 		ReleaseRight(event);
+	}
+}
+
+void Mouse::_releaseMiddle(MouseEvent event) {
+	if (ReleaseMiddle != nullptr) {
+		ReleaseMiddle(event);
 	}
 }
