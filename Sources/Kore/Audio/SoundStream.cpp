@@ -13,9 +13,15 @@ SoundStream::SoundStream(const char* filename, bool looping) : decoded(false), l
 		buffer[i] = filecontent[i];
 	}
 	vorbis = stb_vorbis_open_memory(buffer, file.size(), nullptr, nullptr);
-	stb_vorbis_info info = stb_vorbis_get_info(vorbis);
-	chans = info.channels;
-	rate = info.sample_rate;
+    if (vorbis != nullptr) {
+        stb_vorbis_info info = stb_vorbis_get_info(vorbis);
+        chans = info.channels;
+        rate = info.sample_rate;
+    }
+    else {
+        chans = 2;
+        rate = 22050;
+    }
 }
 
 int SoundStream::channels() {
@@ -35,21 +41,24 @@ bool SoundStream::ended() {
 }
 
 float SoundStream::length() {
+    if (vorbis == nullptr) return 0;
 	return stb_vorbis_stream_length_in_seconds(vorbis);
 }
 
 float SoundStream::position() {
+    if (vorbis == nullptr) return 0;
 	return stb_vorbis_get_sample_offset(vorbis) / stb_vorbis_stream_length_in_samples(vorbis) * length();
 }
 
 void SoundStream::reset() {
-	stb_vorbis_seek_start(vorbis);
+    if (vorbis != nullptr) stb_vorbis_seek_start(vorbis);
 	end = false;
 	rateDecodedHack = false;
 	decoded = false;
 }
 
 float SoundStream::nextSample() {
+    if (vorbis == nullptr) return 0;
 	if (rate == 22050) {
 		if (rateDecodedHack) {
 			if (decoded) {
