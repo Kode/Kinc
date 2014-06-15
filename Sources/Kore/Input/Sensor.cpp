@@ -14,6 +14,8 @@ Sensor* Sensor::the(SensorType type) {
 		return &accelerometer;
 	case SensorGyroscope:
 		return &gyroscope;
+	default:
+		return nullptr;
 	}
 }
 
