@@ -27,8 +27,8 @@ if platform == Platform.Windows then
 		project:addDefine("DIRECT3D")
 	end
 
-	project:addLibsFor("Win32", "Backends/Windows/Libraries/directx/Lib/x86/dxguid", "Backends/Windows/Libraries/directx/Lib/x86/DxErr", "Backends/Windows/Libraries/directx/Lib/x86/dsound", "Backends/Windows/Libraries/directx/Lib/x86/dinput8")
-	project:addLibsFor("x64", "Backends/Windows/Libraries/directx/Lib/x64/dxguid", "Backends/Windows/Libraries/directx/Lib/x64/DxErr", "Backends/Windows/Libraries/directx/Lib/x64/dsound")
+	project:addLibsFor("Win32", "Backends/Windows/Libraries/directx/Lib/x86/dxguid", "Backends/Windows/Libraries/directx/Lib/x86/DxErr", "Backends/Windows/Libraries/directx/Lib/x86/dsound", "Backends/Windows/Libraries/directx/Lib/x86/XInput", "Backends/Windows/Libraries/directx/Lib/x86/dinput8")
+	project:addLibsFor("x64", "Backends/Windows/Libraries/directx/Lib/x64/dxguid", "Backends/Windows/Libraries/directx/Lib/x64/DxErr", "Backends/Windows/Libraries/directx/Lib/x64/dsound", "Backends/Windows/Libraries/directx/Lib/x64/XInput")
 	if gfx ~= Graphics.OpenGL then
 		if gfx == Graphics.Direct3D11 then
 			project:addLibFor("Win32", "Backends/Windows/Libraries/directx/Lib/x86/d3d11")

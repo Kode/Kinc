@@ -4,12 +4,14 @@
 #include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Input/Gamepad.h>
 #include <Kore/Graphics/Graphics.h>
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
 #include <shlobj.h>
 #include <exception>
+#include <XInput.h>
 
 using namespace Kore;
 
@@ -289,9 +291,59 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	return DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
+namespace {
+	float axes[12 * 4];
+	float buttons[12 * 16];
+}
+
 bool Kore::System::handleMessages() {
 	static MSG message;
 	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) DispatchMessageA(&message);
+
+	DWORD dwResult;
+	for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
+		XINPUT_STATE state;
+		ZeroMemory(&state, sizeof(XINPUT_STATE));
+		dwResult = XInputGetState(i, &state);
+
+		if (dwResult == ERROR_SUCCESS) {
+			float newaxes[4];
+			newaxes[0] = state.Gamepad.sThumbLX / 32768.0f;
+			newaxes[1] = state.Gamepad.sThumbLY / 32768.0f;
+			newaxes[2] = state.Gamepad.sThumbRX / 32768.0f;
+			newaxes[3] = state.Gamepad.sThumbRY / 32768.0f;
+			for (int i2 = 0; i2 < 4; ++i2) {
+				if (axes[i * 4 + i2] != newaxes[i2]) {
+					Kore::Gamepad::get(i)->Axis(i2, newaxes[i2]);
+					axes[i * 4 + i2] = newaxes[i2];
+				}
+			}
+			float newbuttons[16];
+			newbuttons[0] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_A) ? 1.0f : 0.0f;
+			newbuttons[1] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_B) ? 1.0f : 0.0f;
+			newbuttons[2] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_X) ? 1.0f : 0.0f;
+			newbuttons[3] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) ? 1.0f : 0.0f;
+			newbuttons[4] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) ? 1.0f : 0.0f;
+			newbuttons[5] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) ? 1.0f : 0.0f;
+			newbuttons[6] = 0.0f;
+			newbuttons[7] = 0.0f;
+			newbuttons[8] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) ? 1.0f : 0.0f;
+			newbuttons[9] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_START) ? 1.0f : 0.0f;
+			newbuttons[10] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) ? 1.0f : 0.0f;
+			newbuttons[11] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) ? 1.0f : 0.0f;
+			newbuttons[12] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) ? 1.0f : 0.0f;
+			newbuttons[13] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) ? 1.0f : 0.0f;
+			newbuttons[14] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) ? 1.0f : 0.0f;
+			newbuttons[15] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? 1.0f : 0.0f;
+			for (int i2 = 0; i2 < 16; ++i2) {
+				if (buttons[i * 16 + i2] != newbuttons[i2]) {
+					Kore::Gamepad::get(i)->Button(i2, newbuttons[i2]);
+					buttons[i * 16 + i2] = newbuttons[i2];
+				}
+			}
+		}
+	}
+
 	return true;
 }
 
