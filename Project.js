@@ -1,14 +1,13 @@
 var Files = require('./Files.js');
 var Path = require('./Path.js');
+var Paths = require('./Paths.js');
 var uuid = require('./uuid.js');
-
-var koreDir = new Path('.');
 
 function Project(name) {
 	this.name = name;
 	this.debugDir = '';
 	this.basedir = require('./Solution').scriptdir;
-	if (name == 'Kore') koreDir = basedir;
+	if (name == 'Kore') Project.koreDir = basedir;
 	this.uuid = uuid.v4();
 
 	this.files = [];
@@ -20,6 +19,8 @@ function Project(name) {
 	this.includes = [];
 	this.excludes = [];
 }
+
+Project.koreDir = new Path('.');
 
 Project.prototype.flatten = function () {
 	for (sub in this.subProjects) this.subProjects[sub].flatten();
@@ -67,13 +68,13 @@ Project.prototype.getUuid = function () {
 
 Project.prototype.matches = function (text, pattern) {
 	var regexstring = pattern.replace('.', "\\.").replace("**", ".?").replace('*', "[^/]*").replace('?', '*');
-	//var regex = new regex(regexstring);
-	return false; //regex_match(text.begin(), text.end(), regex);
+	var regex = new RegExp(regexstring, 'ig');
+	return regex.exec(text) !== null;
 }
 
 Project.prototype.matchesAllSubdirs = function (dir, pattern) {
-	if (endsWith(pattern, "/**")) {
-		return matches(stringify(dir), pattern.substr(0, pattern.length() - 3));
+	if (pattern.endsWith("/**")) {
+		return this.matches(this.stringify(dir), pattern.substr(0, pattern.length - 3));
 	}
 	else return false;
 };
@@ -103,7 +104,7 @@ Project.prototype.searchFiles = function (current) {
 
 	var files = Files.newDirectoryStream(current);
 	nextfile: for (f in files) {
-		var file = new Path(files[f]);
+		var file = Paths.get(current, files[f]);
 		if (Files.isDirectory(file)) continue;
 		//if (!current.isAbsolute())
 		file = this.basedir.relativize(file);
@@ -124,14 +125,14 @@ Project.prototype.searchFiles = function (current) {
 	}
 	var dirs = Files.newDirectoryStream(current);
 	nextdir: for (d in dirs) {
-		var dir = dirs[d];
+		var dir = Paths.get(current, dirs[d]);
 		if (!Files.isDirectory(dir)) continue;
 		for (exclude in this.excludes) {
-			if (matchesAllSubdirs(basedir.relativize(dir), excludes[exclude])) {
+			if (this.matchesAllSubdirs(this.basedir.relativize(dir), this.excludes[exclude])) {
 				continue nextdir;
 			}
 		}
-		searchFiles(dir);
+		this.searchFiles(dir);
 	}
 };
 

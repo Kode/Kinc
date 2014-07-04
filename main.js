@@ -4,12 +4,11 @@ var Files = require('./Files.js');
 var GraphicsApi = require('./GraphicsApi.js');
 var Path = require('./Path.js');
 var Paths = require('./Paths.js');
+var Project = require('./Project.js');
 var Platform = require('./Platform.js');
 var Solution = require('./Solution.js');
 var ExporterVisualStudio = require('./ExporterVisualStudio.js');
 	
-var koreDir = new Path('');
-
 if (!String.prototype.startsWith) {
 	Object.defineProperty(String.prototype, 'startsWith', {
 		enumerable: false,
@@ -20,6 +19,26 @@ if (!String.prototype.startsWith) {
 			return this.indexOf(searchString, position) === position;
 		}
 	});
+}
+
+if (!String.prototype.endsWith) {
+	Object.defineProperty(String.prototype, 'endsWith', {
+		enumerable: false,
+		configurable: false,
+		writable: false,
+		value: function (searchString, position) {
+			position = position || this.length;
+			position = position - searchString.length;
+			var lastIndex = this.lastIndexOf(searchString);
+			return lastIndex !== -1 && lastIndex === position;
+		}
+	});
+}
+
+if (!String.prototype.contains) {
+	String.prototype.contains = function () {
+		return String.prototype.indexOf.apply(this, arguments) !== -1;
+	};
 }
 
 function fromPlatform(platform) {
@@ -87,15 +106,15 @@ function shaderLang(platform) {
 }
 
 function compileShader(type, from, to, temp) {
-	if (koreDir.path !== '') {
+	if (Project.koreDir.path !== '') {
 		if (os.platform() === "linux") {
-			var path = koreDir.resolve(Paths.get("Tools", "kfx", "kfx-linux"));
+			var path = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx-linux"));
 		}
 		else if (os.platform() === "win32") {
-			var path = koreDir.resolve(Paths.get("Tools", "kfx", "kfx.exe"));
+			var path = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx.exe"));
 		}
 		else {
-			var path = koreDir.resolve(Paths.get("Tools", "kfx", "kfx-osx"));
+			var path = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx-osx"));
 		}
 		child_process.spawn(path.toString(), [type, from, to, temp]);
 	}
