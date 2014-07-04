@@ -67,8 +67,8 @@ Project.prototype.getUuid = function () {
 };
 
 Project.prototype.matches = function (text, pattern) {
-	var regexstring = pattern.replace('.', "\\.").replace("**", ".?").replace('*', "[^/]*").replace('?', '*');
-	var regex = new RegExp(regexstring, 'ig');
+	var regexstring = pattern.replace(/\./g, "\\.").replace(/\*\*/g, ".?").replace(/\*/g, "[^/]*").replace(/\?/g, '*');
+	var regex = new RegExp(regexstring, 'g');
 	return regex.exec(text) !== null;
 }
 
@@ -80,7 +80,7 @@ Project.prototype.matchesAllSubdirs = function (dir, pattern) {
 };
 
 Project.prototype.stringify = function (path) {
-	return path.toString().replace('\\', '/');
+	return path.toString().replace(/\\/g, '/');
 };
 
 function isAbsolute(path) {
