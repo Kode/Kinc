@@ -6,3 +6,7 @@
 	path = Tools/kfx
 	url = ../kfx
 	branch = master
+[submodule "Tools/koremake"]
+	path = Tools/koremake
+	url = ../koremake
+	branch = master
