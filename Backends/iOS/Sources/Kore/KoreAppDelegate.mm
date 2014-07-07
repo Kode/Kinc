@@ -1,30 +1,13 @@
 #import "KoreAppDelegate.h"
 #import "GLView.h"
 #include "pch.h"
+#include <Kore/Application.h>
 #include <wchar.h>
 
 @implementation KoreAppDelegate
 
 static UIWindow* window;
 static GLView* glView;
-
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
-	//CGRect rect = [[UIScreen mainScreen] applicationFrame];
-	
-	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-	[window setBackgroundColor:[UIColor blackColor]];
-	
-	CGRect screenBounds = [[UIScreen mainScreen] bounds];
-	
-	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height)];
-
-	[window addSubview:glView];
-	[window makeKeyAndVisible];
-	
-	[self performSelectorOnMainThread:@selector(mainLoop) withObject:nil waitUntilDone:NO];
-	
-    return YES;
-}
 
 void beginGL() {
 	[glView begin];
@@ -58,16 +41,42 @@ int kore(int argc, char** argv);
 	[pool drain];
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application {
-    
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
+	//CGRect rect = [[UIScreen mainScreen] applicationFrame];
+	
+	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+	[window setBackgroundColor:[UIColor blackColor]];
+	
+	CGRect screenBounds = [[UIScreen mainScreen] bounds];
+	
+	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height)];
+	
+	[window addSubview:glView];
+	[window makeKeyAndVisible];
+	
+	[self performSelectorOnMainThread:@selector(mainLoop) withObject:nil waitUntilDone:NO];
+	
+    return YES;
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    
+- (void)applicationWillEnterForeground:(UIApplication*)application {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->foregroundCallback != nullptr) Kore::Application::the()->foregroundCallback();
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application {
-    
+- (void)applicationDidBecomeActive:(UIApplication*)application {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->resumeCallback != nullptr) Kore::Application::the()->resumeCallback();
+}
+
+- (void)applicationWillResignActive:(UIApplication*)application {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->pauseCallback != nullptr) Kore::Application::the()->pauseCallback();
+}
+
+- (void)applicationDidEnterBackground:(UIApplication*)application {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->backgroundCallback != nullptr) Kore::Application::the()->backgroundCallback();
+}
+
+- (void)applicationWillTerminate:(UIApplication*)application {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->shutdownCallback != nullptr) Kore::Application::the()->shutdownCallback();
 }
 
 - (void)dealloc {

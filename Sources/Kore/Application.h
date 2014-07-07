@@ -19,6 +19,12 @@ namespace Kore {
 		static Application* the();
 
 		void (*callback)();
+		void (*foregroundCallback)();
+		void (*resumeCallback)();
+		void (*pauseCallback)();
+		void (*backgroundCallback)();
+		void (*shutdownCallback)();
+		
 		bool running;
 	};
 }

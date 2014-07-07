@@ -74,22 +74,22 @@
 }
 
 - (void)end {
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
-    [context presentRenderbuffer:GL_RENDERBUFFER_OES];
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
+	[context presentRenderbuffer:GL_RENDERBUFFER_OES]; //crash at end
 }
 
 - (void)layoutSubviews {
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
-    [context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
-    glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
-    glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
+	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
+	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
+	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
 	
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
-    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight);
+	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight);
 	
-    if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
-        NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
-    }
+	if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
+		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
+	}
 }
 
 - (void)dealloc {
