@@ -1,26 +1,16 @@
 #pragma once
 
-#include "MouseEvent.h"
-
 namespace Kore {
 	class Mouse {
 	public:
 		static Mouse* the();
-		void (*Move)(MouseEvent);
-		void (*PressLeft)(MouseEvent);
-		void (*PressMiddle)(MouseEvent);
-		void (*PressRight)(MouseEvent);
-		void (*ReleaseLeft)(MouseEvent);
-		void (*ReleaseMiddle)(MouseEvent);
-		void (*ReleaseRight)(MouseEvent);
+		void (*Move)(int x, int y);
+		void (*Press)(int button, int x, int y);
+		void (*Release)(int button, int x, int y);
 		
 		//for backend
-		void _move(MouseEvent);
-		void _pressLeft(MouseEvent);
-		void _pressMiddle(MouseEvent);
-		void _pressRight(MouseEvent);
-		void _releaseLeft(MouseEvent);
-		void _releaseMiddle(MouseEvent);
-		void _releaseRight(MouseEvent);
+		void _move(int x, int y);
+		void _press(int button, int x, int y);
+		void _release(int button, int x, int y);
 	};
 }

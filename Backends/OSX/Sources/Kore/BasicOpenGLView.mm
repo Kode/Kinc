@@ -124,44 +124,43 @@ namespace {
 - (void)mouseDown:(NSEvent*)theEvent {
 	if ([theEvent modifierFlags] & NSControlKeyMask) {
 		controlKeyMouseButton = true;
-		Kore::Mouse::the()->_pressRight(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+		Kore::Mouse::the()->_press(1, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	else {
 		controlKeyMouseButton = false;
-		Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+		Kore::Mouse::the()->_press(0, getMouseX(theEvent), getMouseY(theEvent));
 	}
 }
 
 - (void)mouseUp:(NSEvent*)theEvent {
 	if (controlKeyMouseButton) {
-		Kore::Mouse::the()->_releaseRight(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+		Kore::Mouse::the()->_release(1, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	else {
-		Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+		Kore::Mouse::the()->_release(0, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	controlKeyMouseButton = false;
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_move(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	Kore::Mouse::the()->_move(getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)mouseDragged:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_move(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	Kore::Mouse::the()->_move(getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDown:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_pressRight(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	Kore::Mouse::the()->_press(1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseUp:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_releaseRight(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	Kore::Mouse::the()->_release(1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDragged:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_move(Kore::MouseEvent(getMouseX(theEvent), getMouseY(theEvent)));
+	Kore::Mouse::the()->_move(getMouseX(theEvent), getMouseY(theEvent));
 }
-
 
 - (void) prepareOpenGL {
     const GLint swapInt = 1;

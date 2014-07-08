@@ -5,9 +5,48 @@
 #include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Sensor.h>
+#include <Kore/Input/Surface.h>
 #include <Kore/System.h>
 
 @implementation GLView
+
+namespace {
+	const int touchmaxcount = 20;
+	void* touches[touchmaxcount];
+	
+	void initTouches() {
+		for (int i = 0; i < touchmaxcount; ++i) {
+			touches[i] = nullptr;
+		}
+	}
+	
+	int getTouchIndex(void* touch) {
+		for (int i = 0; i < touchmaxcount; ++i) {
+			if (touches[i] == touch) return i;
+		}
+		return -1;
+	}
+	
+	int addTouch(void* touch) {
+		for (int i = 0; i < touchmaxcount; ++i) {
+			if (touches[i] == nullptr) {
+				touches[i] = touch;
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	int removeTouch(void* touch) {
+		for (int i = 0; i < touchmaxcount; ++i) {
+			if (touches[i] == touch) {
+				touches[i] = nullptr;
+				return i;
+			}
+		}
+		return -1;
+	}
+}
 
 + (Class)layerClass {
     return [CAEAGLLayer class];
@@ -16,6 +55,8 @@
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
+	
+	initTouches();
 	
 	CAEAGLLayer* eaglLayer = (CAEAGLLayer*)self.layer;
 	
@@ -110,7 +151,7 @@
 	
 	[super dealloc];
 }
-
+/*
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	CGPoint point = [touch locationInView:self];
@@ -137,6 +178,67 @@
 	CGPoint point = [touch locationInView:self];
 	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
 													  point.y * self.contentScaleFactor));
+}
+*/
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
+	for (UITouch* touch in touches) {
+		int index = getTouchIndex(touch);
+		if (index == -1) index = addTouch(touch);
+		if (index >= 0) {
+			CGPoint point = [touch locationInView: self];
+			float x = point.x * self.contentScaleFactor;
+			float y = point.y * self.contentScaleFactor;
+			if (index == 0) {
+				Kore::Mouse::the()->_press(0, x, y);
+			}
+			Kore::Surface::the()->_touchStart(index, x, y);
+		}
+	}
+}
+
+- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {
+	for (UITouch* touch in touches) {
+		int index = getTouchIndex(touch);
+		if (index >= 0) {
+			CGPoint point = [touch locationInView: self];
+			float x = point.x * self.contentScaleFactor;
+			float y = point.y * self.contentScaleFactor;
+			if (index == 0) {
+				Kore::Mouse::the()->_move(x, y);
+			}
+			Kore::Surface::the()->_move(index, x, y);
+		}
+	}
+}
+
+- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event {
+	for (UITouch* touch in touches) {
+		int index = removeTouch(touch);
+		if (index >= 0) {
+			CGPoint point = [touch locationInView: self];
+			float x = point.x * self.contentScaleFactor;
+			float y = point.y * self.contentScaleFactor;
+			if (index == 0) {
+				Kore::Mouse::the()->_release(0, x, y);
+			}
+			Kore::Surface::the()->_touchEnd(index, x, y);
+		}
+	}
+}
+
+- (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event {
+	for (UITouch* touch in touches) {
+		int index = removeTouch(touch);
+		if (index >= 0) {
+			CGPoint point = [touch locationInView: self];
+			float x = point.x * self.contentScaleFactor;
+			float y = point.y * self.contentScaleFactor;
+			if (index == 0) {
+				Kore::Mouse::the()->_release(0, x, y);
+			}
+			Kore::Surface::the()->_touchEnd(index, x, y);
+		}
+	}
 }
 
 namespace {
