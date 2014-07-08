@@ -220,37 +220,37 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_MOUSEMOVE:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_move(MouseEvent(LOWORD(lParam), HIWORD(lParam)));
+		Mouse::the()->_move(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_LBUTTONDOWN:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_pressLeft(MouseEvent(LOWORD(lParam), HIWORD(lParam)));
+		Mouse::the()->_press(0, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_LBUTTONUP:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_releaseLeft(MouseEvent(LOWORD(lParam), HIWORD(lParam)));
+		Mouse::the()->_release(0, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONDOWN:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_pressRight(MouseEvent(LOWORD(lParam), HIWORD(lParam)));
+		Mouse::the()->_press(1, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONUP:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_releaseRight(MouseEvent(LOWORD(lParam), HIWORD(lParam)));
+		Mouse::the()->_release(1, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_MBUTTONDOWN:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_pressMiddle(MouseEvent(LOWORD(lParam), HIWORD(lParam)));
+		Mouse::the()->_press(2, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_MBUTTONUP:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_releaseMiddle(MouseEvent(LOWORD(lParam), HIWORD(lParam)));
+		Mouse::the()->_release(2, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
