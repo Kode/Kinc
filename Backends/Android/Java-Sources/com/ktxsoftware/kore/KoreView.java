@@ -11,13 +11,9 @@ import android.view.inputmethod.InputMethodManager;
 
 public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	private static KoreView instance;
-	public static int mouseX;
-	public static int mouseY;
-	public static boolean mouseButton;
+	public static ArrayList<KoreTouchEvent> touchEvents;
 	public static ArrayList<KoreKeyEvent> keyEvents;
 	public static Object inputLock = new Object();
-	
-	private boolean lastMouseButton;
 	
 	private InputMethodManager inputManager;
 	
@@ -52,40 +48,34 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
-		int mouseX = (int)event.getX();
-		int mouseY = (int)event.getY();
-		boolean mouseButton = lastMouseButton;
-		switch (event.getActionMasked()) {
-		case MotionEvent.ACTION_UP:
-			mouseButton = false;
-			break;
-		case MotionEvent.ACTION_DOWN:
-			mouseButton = true;
-			break;
-		}
-		lastMouseButton = mouseButton;
-		
+		int index = event.getActionIndex();
+		int maskedAction = event.getActionMasked();
+		int action = -1;
+		action = (maskedAction == MotionEvent.ACTION_DOWN || maskedAction == MotionEvent.ACTION_POINTER_DOWN) ? KoreTouchEvent.ACTION_DOWN : -1;
+		action = (action == -1 && maskedAction == MotionEvent.ACTION_MOVE) ? KoreTouchEvent.ACTION_MOVE : action;
+		action = (action == -1 && (maskedAction == MotionEvent.ACTION_UP || maskedAction == MotionEvent.ACTION_POINTER_UP || maskedAction == MotionEvent.ACTION_CANCEL))
+				? KoreTouchEvent.ACTION_UP : action;
+		KoreTouchEvent e = new KoreTouchEvent(event.getPointerId(index), Math.round(event.getX(index)), Math.round(event.getY(index)), action);
 		synchronized(inputLock) {
-			KoreView.mouseX = mouseX;
-			KoreView.mouseY = mouseY;
-			KoreView.mouseButton = mouseButton;
+			touchEvents.add(e);
 		}
-		
 		return true;
 	}
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		KoreKeyEvent e = new KoreKeyEvent(keyCode, true);
 		synchronized(inputLock) {
-			keyEvents.add(new KoreKeyEvent(keyCode, true));
+			keyEvents.add(e);
 		}
 		return true;
 	}
 	
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		KoreKeyEvent e = new KoreKeyEvent(keyCode, false);
 		synchronized(inputLock) {
-			keyEvents.add(new KoreKeyEvent(keyCode, false));
+			keyEvents.add(e);
 		}
 	    return true;
 	}
