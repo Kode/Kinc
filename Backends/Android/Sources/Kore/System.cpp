@@ -8,6 +8,7 @@
 #include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Sensor.h>
+#include <Kore/Input/Surface.h>
 #include <Kore/Log.h>
 #include <jni.h>
 #include <GLES2/gl2.h>
@@ -49,7 +50,7 @@ namespace {
 	//To debug startup behavior set the debuggingDelay to about 200.
 	bool initialized = false;
 	int debuggingDelayCount = 0;
-	const int debuggingDelay = 0;
+	const int debuggingDelay = 300;
 }
 
 void Kore::System::showKeyboard() {
@@ -85,9 +86,7 @@ extern int kore(int argc, char** argv);
 extern "C" {
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath, jstring filesDir);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobject obj);
-	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchDown(JNIEnv* env, jobject obj, jint x, jint y);
-	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jobject obj, jint x, jint y);
-	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touch(JNIEnv* env, jobject obj, jint index, jint x, jint y, jint action);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_writeAudio(JNIEnv* env, jobject obj, jbyteArray buffer, jint size);
 	JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobject obj, jint code);
@@ -138,16 +137,28 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobje
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchDown(JNIEnv* env, jobject obj, jint x, jint y) {
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touch(JNIEnv* env, jobject obj, jint index, jint x, jint y, jint action) {
+	switch (action) {
+	case 0: //DOWN
+		if (index == 0) {
+			Kore::Mouse::the()->_press(0, x, y);
+		}
+		Kore::Surface::the()->_touchStart(index, x, y);
+		break;
+	case 1: //MOVE
+		if (index == 0) {
+			Kore::Mouse::the()->_move(x, y);
+		}
+		Kore::Surface::the()->_move(index, x, y);
+		break;
+	case 2: //UP
+		if (index == 0) {
+			Kore::Mouse::the()->_release(0, x, y);
+		}
+		Kore::Surface::the()->_touchEnd(index, x, y);
+		break;
+	}
 	Kore::Mouse::the()->_press(0, x, y);
-}
-
-JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchUp(JNIEnv* env, jobject obj, jint x, jint y) {
-	Kore::Mouse::the()->_release(0, x, y);
-}
-
-JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touchMove(JNIEnv* env, jobject obj, jint x, jint y) {
-	Kore::Mouse::the()->_move(x, y);
 }
 
 JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj) {
