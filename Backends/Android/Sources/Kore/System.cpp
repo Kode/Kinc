@@ -158,7 +158,6 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touch(JNIEnv* env, jobj
 		Kore::Surface::the()->_touchEnd(index, x, y);
 		break;
 	}
-	Kore::Mouse::the()->_press(0, x, y);
 }
 
 JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj) {
