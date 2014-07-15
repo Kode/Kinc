@@ -22,6 +22,7 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	
 	public KoreRenderer(Context context) {
 		this.context = context;
+		touchEvents = new ArrayList<KoreTouchEvent>();
 		keyEvents = new ArrayList<KoreKeyEvent>();
 		keyMap = KeyCharacterMap.load(-1);
 	}

@@ -31,6 +31,7 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 		instance = this;
 		setFocusable(true);
 		setFocusableInTouchMode(true);
+		touchEvents = new ArrayList<KoreTouchEvent>();
 		keyEvents = new ArrayList<KoreKeyEvent>();
 		setEGLContextClientVersion(2);
    		setRenderer(new KoreRenderer(activity.getApplicationContext()));
