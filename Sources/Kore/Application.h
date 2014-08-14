@@ -1,6 +1,13 @@
 #pragma once
 
 namespace Kore {
+	enum Orientation {
+		OrientationLandscapeLeft,
+		OrientationLandscapeRight,
+		OrientationPortrait,
+		OrientationPortraitUpsideDown
+	};
+	
 	class Application {
 	public:
 		Application(int argc, char** argv, int width = 800, int height = 600, bool fullscreen = false, const char* name = "Kore", bool showWindow = true);
@@ -19,6 +26,7 @@ namespace Kore {
 		static Application* the();
 
 		void (*callback)();
+		void (*orientationCallback)(Orientation);
 		void (*foregroundCallback)();
 		void (*resumeCallback)();
 		void (*pauseCallback)();

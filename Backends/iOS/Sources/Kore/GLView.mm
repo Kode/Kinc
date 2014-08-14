@@ -248,7 +248,7 @@ namespace {
 }
 
 - (void)showKeyboard {
-	[UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationLandscapeRight;
+	//[UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationLandscapeRight;
 	keyboardstring = [NSString string];
 	myTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
 	[myTextField setDelegate:self];

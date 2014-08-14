@@ -59,16 +59,37 @@ int kore(int argc, char** argv);
     return YES;
 }
 
+static Kore::Orientation convertOrientation(UIInterfaceOrientation orientation) {
+	switch (orientation) {
+		case UIInterfaceOrientationLandscapeLeft:
+			return Kore::OrientationLandscapeLeft;
+		case UIInterfaceOrientationLandscapeRight:
+			return Kore::OrientationLandscapeRight;
+		case UIInterfaceOrientationPortrait:
+			return Kore::OrientationPortrait;
+		case UIInterfaceOrientationPortraitUpsideDown:
+		default:
+			return Kore::OrientationPortraitUpsideDown;
+	}
+}
+
+- (void)didRotate:(NSNotification*)notification {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->orientationCallback != nullptr) Kore::Application::the()->orientationCallback(convertOrientation([UIApplication sharedApplication].statusBarOrientation));
+}
+
 - (void)applicationWillEnterForeground:(UIApplication*)application {
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->foregroundCallback != nullptr) Kore::Application::the()->foregroundCallback();
 }
 
 - (void)applicationDidBecomeActive:(UIApplication*)application {
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->resumeCallback != nullptr) Kore::Application::the()->resumeCallback();
+	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didRotate:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)applicationWillResignActive:(UIApplication*)application {
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->pauseCallback != nullptr) Kore::Application::the()->pauseCallback();
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application {
