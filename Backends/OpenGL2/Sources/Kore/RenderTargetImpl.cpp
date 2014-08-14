@@ -27,13 +27,24 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 	glGenFramebuffers(1, &_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	if (zBuffer) {
+		GLuint depthBuffer;
+		glGenRenderbuffers(1, &depthBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texWidth, texHeight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+	}
 
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
+	//GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	//glDrawBuffers(1, drawBuffers);
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 

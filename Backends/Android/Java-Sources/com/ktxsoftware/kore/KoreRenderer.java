@@ -12,10 +12,8 @@ import android.view.KeyCharacterMap;
 
 public class KoreRenderer implements GLSurfaceView.Renderer {
 	private Context context;
-	private int lastMouseX;
-	private int lastMouseY;
-	private boolean lastMouseButton;
 	private boolean keyboardShown = false;
+	private ArrayList<KoreTouchEvent> touchEvents;
 	private ArrayList<KoreKeyEvent> keyEvents;
 	private KeyCharacterMap keyMap;
 	//private boolean shift = false;
@@ -24,6 +22,7 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	
 	public KoreRenderer(Context context) {
 		this.context = context;
+		touchEvents = new ArrayList<KoreTouchEvent>();
 		keyEvents = new ArrayList<KoreKeyEvent>();
 		keyMap = KeyCharacterMap.load(-1);
 	}
@@ -33,53 +32,43 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onDrawFrame(GL10 gl) {
-		int mouseX;
-		int mouseY;
-		boolean mouseButton;
-		
 		synchronized(KoreView.inputLock) {
-			mouseX = KoreView.mouseX;
-			mouseY = KoreView.mouseY;
-			mouseButton = KoreView.mouseButton;
+			touchEvents.addAll(KoreView.touchEvents);
+			KoreView.touchEvents.clear();
 			keyEvents.addAll(KoreView.keyEvents);
 			KoreView.keyEvents.clear();
 		}
-		
-		if (mouseButton != lastMouseButton) {
-			if (mouseButton) KoreLib.touchDown(mouseX, mouseY);
-			else KoreLib.touchUp(mouseX, mouseY);
+				
+		for (int i = 0; i < touchEvents.size(); ++i) {
+			KoreTouchEvent e = touchEvents.get(i);
+			KoreLib.touch(e.index, e.x, e.y, e.action);
 		}
-		else if (mouseX != lastMouseX || mouseY != lastMouseY) {
-			KoreLib.touchMove(mouseX, mouseY);
-		}
+		touchEvents.clear();
 		
 		for (int i = 0; i < keyEvents.size(); ++i) {
-			int original = keyEvents.get(i).code;
+			KoreKeyEvent e = keyEvents.get(i);
+			int original = e.code;
 			if (original == 59) { // shift
-				if (keyEvents.get(i).down) KoreLib.keyDown(0x00000120);
+				if (e.down) KoreLib.keyDown(0x00000120);
 				else KoreLib.keyUp(0x00000120);
 				continue;
 			}
 			if (original == 67) { // backspace
-				if (keyEvents.get(i).down) KoreLib.keyDown(0x00000103);
+				if (e.down) KoreLib.keyDown(0x00000103);
 				else KoreLib.keyUp(0x00000103);
 				continue;
 			}
 			if (original == 66) { // return
-				if (keyEvents.get(i).down) KoreLib.keyDown(0x00000104);
+				if (e.down) KoreLib.keyDown(0x00000104);
 				else KoreLib.keyUp(0x00000104);
 				continue;
 			}
 			int code = keyMap.get(original, MetaKeyKeyListener.META_SHIFT_ON);
 			//System.out.println("Key: " + code + " from " + original);
-			if (keyEvents.get(i).down) KoreLib.keyDown(code);
+			if (e.down) KoreLib.keyDown(code);
 			else KoreLib.keyUp(code);
 		}
 		keyEvents.clear();
-
-		lastMouseX = mouseX;
-		lastMouseY = mouseY;
-		lastMouseButton = mouseButton;
 		
 		float accelerometerX, accelerometerY, accelerometerZ;
 		float gyroX, gyroY, gyroZ;

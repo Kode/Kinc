@@ -160,10 +160,10 @@ bool System::handleMessages() {
 			XButtonEvent* button = (XButtonEvent*)&event;
 			switch (button->button) {
 			case Button1:
-                Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(button->x, button->y));
+                Kore::Mouse::the()->_press(0, button->x, button->y);
                 break;
             case Button3:
-                Kore::Mouse::the()->_pressRight(Kore::MouseEvent(button->x, button->y));
+                Kore::Mouse::the()->_press(1, button->x, button->y);
                 break;
 			}
 			break;
@@ -172,17 +172,17 @@ bool System::handleMessages() {
 			XButtonEvent* button = (XButtonEvent*)&event;
 			switch (button->button) {
 			case Button1:
-                Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(button->x, button->y));
+                Kore::Mouse::the()->_release(0, button->x, button->y);
                 break;
             case Button3:
-                Kore::Mouse::the()->_releaseRight(Kore::MouseEvent(button->x, button->y));
+                Kore::Mouse::the()->_release(1, button->x, button->y);
                 break;
 			}
 			break;
 		}
 		case MotionNotify: {
 			XMotionEvent* motion = (XMotionEvent*)&event;
-			Kore::Mouse::the()->_move(Kore::MouseEvent(motion->x, motion->y));
+			Kore::Mouse::the()->_move(motion->x, motion->y);
 			break;
 		}
 		case ConfigureNotify:
