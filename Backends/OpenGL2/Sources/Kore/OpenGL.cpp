@@ -464,3 +464,7 @@ void Graphics::restoreRenderTarget() {
 bool Graphics::renderTargetsInvertedY() {
 	return true;
 }
+
+bool Graphics::nonPow2TexturesSupported() {
+	return false;
+}

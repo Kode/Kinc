@@ -556,3 +556,7 @@ void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 bool Graphics::renderTargetsInvertedY() {
 	return false;
 }
+
+bool Graphics::nonPow2TexturesSupported() {
+	return true;
+}

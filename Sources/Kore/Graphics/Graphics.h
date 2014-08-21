@@ -151,6 +151,7 @@ namespace Kore {
 
 		bool vsynced();
 		unsigned refreshRate();
+		bool nonPow2TexturesSupported();
 
 		const uint ClearColorFlag   = 1;
 		const uint ClearDepthFlag   = 2;
