@@ -465,11 +465,11 @@ Solution.prototype.isCmd = function () {
 };
 
 Solution.prototype.setRotated = function () {
-	rotated = true;
+	this.rotated = true;
 };
 
 Solution.prototype.setCmd = function () {
-	cmd = true;
+	this.cmd = true;
 };
 
 module.exports = Solution;
