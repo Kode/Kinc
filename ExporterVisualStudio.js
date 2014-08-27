@@ -674,7 +674,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 				this.p("</Link>", 2);
 			}
 			this.p("</ItemDefinitionGroup>", 1);
-			this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|" + system + "'\">", 1);
+			this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|" + this.getSystems(platform)[system] + "'\">", 1);
 			this.p("<ClCompile>", 2);
 			if (Options.precompiledHeaders) this.p("<PrecompiledHeader>Use</PrecompiledHeader>", 3);
 			this.p("<AdditionalIncludeDirectories>" + incstring + "</AdditionalIncludeDirectories>", 3);
