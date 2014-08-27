@@ -1,4 +1,5 @@
 var Exporter = require('./Exporter.js');
+var Icon = require('./Icon.js');
 var Platform = require('./Platform.js');
 var Project = require('./Project.js');
 var Options = require('./Options.js');
@@ -149,14 +150,14 @@ ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, pl
 		this.exportUserFile(from, to, project, platform);
 		if (platform == Platform.WindowsRT) {
 			this.exportManifest(to, project);
-			//Ball.exportTo(to.resolve("Logo.png"), 150, 150, white, from);
-			//Ball.exportTo(to.resolve("SmallLogo.png"), 30, 30, white, from);
-			//Ball.exportTo(to.resolve("SplashScreen.png"), 620, 300, white, from);
-			//Ball.exportTo(to.resolve("StoreLogo.png"), 50, 50, white, from);
+			Icon.exportPng(to.resolve("Logo.png"), 150, 150, white, from);
+			Icon.exportPng(to.resolve("SmallLogo.png"), 30, 30, white, from);
+			Icon.exportPng(to.resolve("SplashScreen.png"), 620, 300, white, from);
+			Icon.exportPng(to.resolve("StoreLogo.png"), 50, 50, white, from);
 		}
 		else if (platform == Platform.Windows) {
 			this.exportResourceScript(to);
-			//Ball.exportToWindowsIcon(to.resolve("icon.ico"), from);
+			Icon.exportIco(to.resolve('icon.ico'), from);
 		}
 	}
 }

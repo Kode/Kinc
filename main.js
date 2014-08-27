@@ -193,12 +193,12 @@ exports.main = function () {
 		var arg = args[i];
 
 		if (arg == "pch") Options.setPrecompiledHeaders(true);
-		else if (startsWith(arg, "intermediate=")) Options.setIntermediateDrive(arg.substr(13));
-		else if (startsWith(arg, "gfx=")) Options.setGraphicsApi(arg.substr(4));
-		else if (startsWith(arg, "vs=")) Options.setVisualStudioVersion(arg.substr(3));
+		else if (arg.startsWith("intermediate=")) Options.setIntermediateDrive(arg.substr(13));
+		else if (arg.startsWith("gfx=")) Options.setGraphicsApi(arg.substr(4));
+		else if (arg.startsWith("vs=")) Options.setVisualStudioVersion(arg.substr(3));
 
-		else if (startsWith(arg, "from=")) from = arg.substr(5);
-		else if (startsWith(arg, "to=")) to = arg.substr(3);
+		else if (arg.startsWith("from=")) from = arg.substr(5);
+		else if (arg.startsWith("to=")) to = arg.substr(3);
 
 		else {
 			for (p in Platform) {
