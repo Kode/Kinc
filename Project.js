@@ -68,8 +68,8 @@ Project.prototype.getUuid = function () {
 
 Project.prototype.matches = function (text, pattern) {
 	var regexstring = pattern.replace(/\./g, "\\.").replace(/\*\*/g, ".?").replace(/\*/g, "[^/]*").replace(/\?/g, '*');
-	var regex = new RegExp(regexstring, 'g');
-	return regex.exec(text) !== null;
+	var regex = new RegExp('^' + regexstring + '$', 'g');
+	return regex.test(text);
 }
 
 Project.prototype.matchesAllSubdirs = function (dir, pattern) {
