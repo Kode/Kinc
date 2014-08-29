@@ -15,7 +15,7 @@ ExporterTizen.prototype.exportSolution = function (solution, from, to, platform)
 	
 	if (project.getDebugDir() !== '') this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve("data"));
 
-	var dotcproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".cproject")).toString());
+	var dotcproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".cproject")).toString(), { encoding: 'utf8' });
 	dotcproject = dotcproject.replace("{ProjectName}", solution.getName());
 	var includes = '';
 	for (var i in project.getIncludeDirs()) {
@@ -31,18 +31,18 @@ ExporterTizen.prototype.exportSolution = function (solution, from, to, platform)
 	dotcproject = dotcproject.replace("{defines}", defines);
 	fs.writeFileSync(to.resolve('.cproject').toString(), dotcproject);
 
-	var dotproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".project")).toString());
+	var dotproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".project")).toString(), { encoding: 'utf8' });
 	dotproject = dotproject.replace("{ProjectName}", solution.getName());
 	fs.writeFileSync(to.resolve('.project').toString(), dotproject);
 
-	var manifest = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", "manifest.xml")).toString());
+	var manifest = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", "manifest.xml")).toString(), { encoding: 'utf8' });
 	manifest = manifest.replace("{ProjectName}", solution.getName());
 	fs.writeFileSync(to.resolve('manifest.xml').toString(), manifest);
 
 	for (var f in project.getFiles()) {
 		var file = project.getFiles()[f];
 		var target = to.resolve("CopiedSources").resolve(file);
-		this.createDirectory(Paths.get(target.path.substr(0, lastIndexOf(target.path, '/'))));
+		this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
 		Files.copy(from.resolve(file), target, true);
 	}
 };
