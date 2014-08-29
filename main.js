@@ -9,6 +9,7 @@ var Platform = require('./Platform.js');
 var Solution = require('./Solution.js');
 var ExporterAndroid = require('./ExporterAndroid.js');
 var ExporterCodeBlocks = require('./ExporterCodeBlocks.js');
+var ExporterEmscripten = require('./ExporterEmscripten.js');
 var ExporterTizen = require('./ExporterTizen.js');
 var ExporterVisualStudio = require('./ExporterVisualStudio.js');
 	
