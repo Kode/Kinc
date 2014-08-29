@@ -12,6 +12,7 @@ var ExporterCodeBlocks = require('./ExporterCodeBlocks.js');
 var ExporterEmscripten = require('./ExporterEmscripten.js');
 var ExporterTizen = require('./ExporterTizen.js');
 var ExporterVisualStudio = require('./ExporterVisualStudio.js');
+var ExporterXCode = require('./ExporterXCode.js');
 	
 if (!String.prototype.startsWith) {
 	Object.defineProperty(String.prototype, 'startsWith', {

@@ -37,3 +37,11 @@ function findIcon(from) {
 exports.exportIco = function (to, from) {
 	run(findIcon(from.toString()), to.toString(), 0, 0, 'ico', function () { });
 };
+
+exports.exportIcns = function (to, from) {
+	run(findIcon(from.toString()), to.toString(), 0, 0, 'icon', function () { });
+};
+
+exports.exportPng = function (to, width, height, background, from) {
+	run(findIcon(from.toString()), to.toString(), width, height, 'png', function () { });
+};
