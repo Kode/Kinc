@@ -22,7 +22,7 @@ Path.prototype.relativize = function (other) {
 
 Path.prototype.resolve = function (subpath) {
 	if (typeof (subpath) !== 'string') subpath = subpath.path;
-	return new Path(path.resolve(this.path, subpath));
+	return new Path(path.join(this.path, subpath));
 };
 
 Path.prototype.parent = function () {
