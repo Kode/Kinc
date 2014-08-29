@@ -1,0 +1,50 @@
+var Exporter = require('./Exporter.js');
+var Files = require('./Files.js');
+var Paths = require('./Paths.js');
+var fs = require('fs');
+
+function ExporterTizen() {
+
+}
+
+ExporterTizen.prototype = Object.create(Exporter.prototype);
+ExporterTizen.constructor = ExporterTizen;
+
+ExporterTizen.prototype.exportSolution = function (solution, from, to, platform) {
+	var project = solution.getProjects()[0];
+	
+	if (project.getDebugDir() !== '') this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve("data"));
+
+	var dotcproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".cproject")).toString());
+	dotcproject = dotcproject.replace("{ProjectName}", solution.getName());
+	var includes = '';
+	for (var i in project.getIncludeDirs()) {
+		var include = project.getIncludeDirs()[i];
+		includes += "<listOptionValue builtIn=\"false\" value=\"&quot;${workspace_loc:/${ProjName}/CopiedSources/" + include + "}&quot;\"/>";
+	}
+	dotcproject = dotcproject.replace("{includes}", includes);
+	var defines = '';
+	for (var d in project.getDefines()) {
+		var define = project.getDefines()[d];
+		defines += "<listOptionValue builtIn=\"false\" value=\"" + define + "\"/>";
+	}
+	dotcproject = dotcproject.replace("{defines}", defines);
+	fs.writeFileSync(to.resolve('.cproject').toString(), dotcproject);
+
+	var dotproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".project")).toString());
+	dotproject = dotproject.replace("{ProjectName}", solution.getName());
+	fs.writeFileSync(to.resolve('.project').toString(), dotproject);
+
+	var manifest = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", "manifest.xml")).toString());
+	manifest = manifest.replace("{ProjectName}", solution.getName());
+	fs.writeFileSync(to.resolve('manifest.xml').toString(), manifest);
+
+	for (var f in project.getFiles()) {
+		var file = project.getFiles()[f];
+		var target = to.resolve("CopiedSources").resolve(file);
+		this.createDirectory(Paths.get(target.path.substr(0, lastIndexOf(target.path, '/'))));
+		Files.copy(from.resolve(file), target, true);
+	}
+};
+
+module.exports = ExporterTizen;

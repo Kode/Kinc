@@ -7,6 +7,7 @@ var Paths = require('./Paths.js');
 var Project = require('./Project.js');
 var Platform = require('./Platform.js');
 var Solution = require('./Solution.js');
+var ExporterTizen = require('./ExporterTizen.js');
 var ExporterVisualStudio = require('./ExporterVisualStudio.js');
 	
 if (!String.prototype.startsWith) {
