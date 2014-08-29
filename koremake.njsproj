@@ -18,9 +18,15 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="Exporter.js" />
+    <Compile Include="ExporterAndroid.js" />
+    <Compile Include="ExporterCodeBlocks.js" />
+    <Compile Include="ExporterEmscripten.js" />
+    <Compile Include="ExporterTizen.js" />
     <Compile Include="ExporterVisualStudio.js" />
+    <Compile Include="ExporterXCode.js" />
     <Compile Include="Files.js" />
     <Compile Include="GraphicsApi.js" />
+    <Compile Include="Icon.js" />
     <Compile Include="koremake.js" />
     <Compile Include="main.js" />
     <Compile Include="Options.js" />
