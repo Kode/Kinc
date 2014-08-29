@@ -36,5 +36,5 @@ exports.newDirectoryStream = function (path) {
 };
 
 exports.removeDirectory = function (path) {
-	fs.rmdirSync(path.path);
+	if (fs.existsSync(path.path)) fs.rmdirSync(path.path);
 };
