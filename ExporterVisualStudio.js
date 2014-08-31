@@ -31,13 +31,13 @@ ExporterVisualStudio.prototype.exportUserFile = function (from, to, project, pla
 	this.p("<Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
 	this.p("<PropertyGroup>", 1);
 	if (platform === Platform.Windows) {
-		this.p("<LocalDebuggerWorkingDirectory>" + from.resolve(Paths.get(project.getDebugDir())).toAbsolutePath().toString().replace('/', '\\') + "</LocalDebuggerWorkingDirectory>", 2);
+		this.p("<LocalDebuggerWorkingDirectory>" + from.resolve(Paths.get(project.getDebugDir())).toAbsolutePath().toString().replaceAll('/', '\\') + "</LocalDebuggerWorkingDirectory>", 2);
 		this.p("<DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>", 2);
 		//java.io.File baseDir = new File(project.getBasedir());
 		//p("<LocalDebuggerCommandArguments>\"SOURCEDIR=" + baseDir.getAbsolutePath() + "\" \"KTSOURCEDIR=" + baseDir.getAbsolutePath() + "\\Kt\"</LocalDebuggerCommandArguments>", 2);
 	}
 	else if (platform == Platform.PlayStation3) {
-		this.p("<LocalDebuggerFileServingDirectory>" + from.resolve(Paths.get(project.getDebugDir())).toAbsolutePath().toString().replace('/', '\\') + "</LocalDebuggerFileServingDirectory>", 2);
+		this.p("<LocalDebuggerFileServingDirectory>" + from.resolve(Paths.get(project.getDebugDir())).toAbsolutePath().toString().replaceAll('/', '\\') + "</LocalDebuggerFileServingDirectory>", 2);
 		this.p("<DebuggerFlavor>PS3Debugger</DebuggerFlavor>", 2);
 	}
 	this.p("</PropertyGroup>", 1);
@@ -254,7 +254,7 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 
 	this.p("<ItemGroup>", 1);
 	for (dir in dirs) {
-		this.p("<Filter Include=\"" + dirs[dir].replace('/', '\\') + "\">", 2);
+		this.p("<Filter Include=\"" + dirs[dir].replaceAll('/', '\\') + "\">", 2);
 		this.p("<UniqueIdentifier>{" + uuid.v4().toString().toUpperCase() + "}</UniqueIdentifier>", 3);
 		this.p("</Filter>", 2);
 	}
@@ -297,7 +297,7 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 			if (dir != lastdir) lastdir = dir;
 			if (file.endsWith(".h")) {
 				this.p("<ClInclude Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
-				this.p("<Filter>" + dir.replace('/', '\\') + "</Filter>", 3);
+				this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 				this.p("</ClInclude>", 2);
 			}
 		}
@@ -313,7 +313,7 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 			if (dir != lastdir) lastdir = dir;
 			if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
 				this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
-				this.p("<Filter>" + dir.replace('/', '\\') + "</Filter>", 3);
+				this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 				this.p("</ClCompile>", 2);
 			}
 		}
@@ -329,7 +329,7 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 			if (dir != lastdir) lastdir = dir;
 			if (file.endsWith(".cg") || file.endsWith(".hlsl")) {
 				this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
-				this.p("<Filter>" + dir.replace('/', '\\') + "</Filter>", 3);
+				this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 				this.p("</CustomBuild>", 2);
 			}
 		}
@@ -345,7 +345,7 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 			if (dir != lastdir) lastdir = dir;
 			if (file.endsWith(".asm")) {
 				this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
-				this.p("<Filter>" + dir.replace('/', '\\') + "</Filter>", 3);
+				this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 				this.p("</CustomBuild>", 2);
 			}
 		}
@@ -361,7 +361,7 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 				var dir = file.substr(0, file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				this.p("<None Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
-				this.p("<Filter>" + dir.replace('/', '\\') + "</Filter>", 3);
+				this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 				this.p("</None>", 2);
 			}
 		}

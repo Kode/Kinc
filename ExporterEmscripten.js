@@ -50,7 +50,7 @@ ExporterEmscripten.prototype.exportSolution = function (solution, from, to, plat
 		if (!filename.endsWith(".cpp") && !filename.endsWith(".c")) continue;
 		var lastpoint = filename.lastIndexOf('.');
 		var oname = filename.substr(0, lastpoint) + ".o";
-		oname = oname.replace("../", "");
+		oname = oname.replaceAll("../", "");
 		oline += " " + oname;
 	}
 	var assetline = '';
@@ -76,7 +76,7 @@ ExporterEmscripten.prototype.exportSolution = function (solution, from, to, plat
 		}
 		var lastpoint = filename.lastIndexOf('.');
 		var oname = filename.substr(0, lastpoint) + ".o";
-		oname = oname.replace("../", "");
+		oname = oname.replaceAll("../", "");
 		this.p(oname + ": ../" + filename);
 			this.p("$(CC) -c ../" + filename + " " + includes + " " + defines + " -o " + oname, 1);
 	}

@@ -23,24 +23,24 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 
 	if (nvpack) {
 		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", ".project")).toString(), { encoding: 'utf8' });
-		file = file.replace("{ProjectName}", solution.getName());
+		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.project').toString());
 	}
 	else {
 		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", ".project")).toString(), { encoding: 'utf8' });
-		file = file.replace("{ProjectName}", solution.getName());
-		if (Project.koreDir.toString() != "") file = file.replace("{Java-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Java-Sources")).toAbsolutePath().toString());
+		file = file.replaceAll("{ProjectName}", solution.getName());
+		if (Project.koreDir.toString() != "") file = file.replaceAll("{Java-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Java-Sources")).toAbsolutePath().toString());
 		fs.writeFileSync(to.resolve('.project').toString(), file);
 	}
 
 	if (nvpack) {
 		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", ".cproject")).toString(), { encoding: 'utf8' });
-		file = file.replace("{ProjectName}", solution.getName());
+		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.cproject').toString(), file);
 	}
 	else {
 		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", ".cproject")).toString(), { encoding: 'utf8' });
-		file = file.replace("{ProjectName}", solution.getName());
+		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.cproject').toString(), file);
 	}
 
@@ -62,7 +62,7 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 	this.createDirectory(to.resolve("res"));
 	this.createDirectory(to.resolve(Paths.get("res", "values")));
 	var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "strings.xml")).toString(), { encoding: 'utf8' });
-	file = file.replace("{ProjectName}", solution.getName());
+	file = file.replaceAll("{ProjectName}", solution.getName());
 	fs.writeFileSync(to.resolve(Paths.get("res", "values", "strings.xml")).toString(), file);
 
 	this.createDirectory(to.resolve("jni"));
@@ -110,7 +110,7 @@ $(call import-module,nv_thread)
 	}
 	this.p("LOCAL_SRC_FILES := " + files);
 	var defines = "";
-	for (var def in project.getDefines()) defines += "-D" + project.getDefines()[def].replace('\"', "\\\"") + " ";
+	for (var def in project.getDefines()) defines += "-D" + project.getDefines()[def].replaceAll('\"', "\\\"") + " ";
 	this.p("LOCAL_CFLAGS := " + defines);
 	var includes = "";
 	for (var inc in project.getIncludeDirs()) includes += "$(LOCAL_PATH)/" + project.getIncludeDirs()[inc] + " ";

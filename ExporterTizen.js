@@ -16,27 +16,27 @@ ExporterTizen.prototype.exportSolution = function (solution, from, to, platform)
 	if (project.getDebugDir() !== '') this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve("data"));
 
 	var dotcproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".cproject")).toString(), { encoding: 'utf8' });
-	dotcproject = dotcproject.replace("{ProjectName}", solution.getName());
+	dotcproject = dotcproject.replaceAll("{ProjectName}", solution.getName());
 	var includes = '';
 	for (var i in project.getIncludeDirs()) {
 		var include = project.getIncludeDirs()[i];
 		includes += "<listOptionValue builtIn=\"false\" value=\"&quot;${workspace_loc:/${ProjName}/CopiedSources/" + include + "}&quot;\"/>";
 	}
-	dotcproject = dotcproject.replace("{includes}", includes);
+	dotcproject = dotcproject.replaceAll("{includes}", includes);
 	var defines = '';
 	for (var d in project.getDefines()) {
 		var define = project.getDefines()[d];
 		defines += "<listOptionValue builtIn=\"false\" value=\"" + define + "\"/>";
 	}
-	dotcproject = dotcproject.replace("{defines}", defines);
+	dotcproject = dotcproject.replaceAll("{defines}", defines);
 	fs.writeFileSync(to.resolve('.cproject').toString(), dotcproject);
 
 	var dotproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".project")).toString(), { encoding: 'utf8' });
-	dotproject = dotproject.replace("{ProjectName}", solution.getName());
+	dotproject = dotproject.replaceAll("{ProjectName}", solution.getName());
 	fs.writeFileSync(to.resolve('.project').toString(), dotproject);
 
 	var manifest = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", "manifest.xml")).toString(), { encoding: 'utf8' });
-	manifest = manifest.replace("{ProjectName}", solution.getName());
+	manifest = manifest.replaceAll("{ProjectName}", solution.getName());
 	fs.writeFileSync(to.resolve('manifest.xml').toString(), manifest);
 
 	for (var f in project.getFiles()) {

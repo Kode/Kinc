@@ -50,7 +50,7 @@ ExporterCodeBlocks.prototype.exportSolution = function (solution, from, to, plat
 				this.p("<Add option=\"-Wall\" />", 3);
 				for (var d in project.getDefines()) {
 					var def = project.getDefines()[d];
-					this.p("<Add option=\"-D" + def.replace("\"", "\\\"") + "\" />", 3);
+					this.p("<Add option=\"-D" + def.replaceAll("\"", "\\\"") + "\" />", 3);
 				}
 				for (var i in project.getIncludeDirs()) {
 					var inc = project.getIncludeDirs()[i];

@@ -41,6 +41,14 @@ if (!String.prototype.endsWith) {
 	});
 }
 
+function escapeRegExp(string) {
+	return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+String.prototype.replaceAll = function (find, replace) {
+	return this.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+};
+
 if (!String.prototype.contains) {
 	String.prototype.contains = function () {
 		return String.prototype.indexOf.apply(this, arguments) !== -1;
