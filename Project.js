@@ -7,7 +7,7 @@ function Project(name) {
 	this.name = name;
 	this.debugDir = '';
 	this.basedir = require('./Solution').scriptdir;
-	if (name == 'Kore') Project.koreDir = basedir;
+	if (name == 'Kore') Project.koreDir = require('./Solution.js').scriptdir;
 	this.uuid = uuid.v4();
 
 	this.files = [];
@@ -18,6 +18,13 @@ function Project(name) {
 	this.systemDependendLibraries = {};
 	this.includes = [];
 	this.excludes = [];
+}
+
+function contains(array, value) {
+	for (var index in array) {
+		if (array[index] === value) return true;
+	}
+	return false;
 }
 
 Project.koreDir = new Path('.');
@@ -33,16 +40,16 @@ Project.prototype.flatten = function () {
 		//if (subbasedir.startsWith(basedir)) subbasedir = subbasedir.substring(basedir.length());
 		if (subbasedir.startsWith(basedir)) subbasedir = basedir.relativize(subbasedir);
 
-		for (d in sub.defines) if (!contains(defines, sub.defines[d])) defines.push(sub.defines[d]);
-		for (file in sub.files) files.push(stringify(subbasedir.resolve(sub.files[file])));
-		for (i in sub.includeDirs) if (!contains(includeDirs, stringify(subbasedir.resolve(sub.includeDirs[i])))) includeDirs.push(stringify(subbasedir.resolve(sub.includeDirs[i])));
+		for (d in sub.defines) if (!contains(this.defines, sub.defines[d])) this.defines.push(sub.defines[d]);
+		for (file in sub.files) this.files.push(subbasedir.resolve(sub.files[file]).toString());
+		for (i in sub.includeDirs) if (!contains(this.includeDirs, subbasedir.resolve(sub.includeDirs[i]).toString())) this.includeDirs.push(subbasedir.resolve(sub.includeDirs[i]).toString());
 		for (l in sub.libs) {
 			var l = sub.libs[l];
 			if (!contains(lib, '/') && !contains(lib, '\\')) {
-				if (!contains(libs, lib)) libs.push_back(lib);
+				if (!contains(this.libs, lib)) this.libs.push_back(lib);
 			}
 			else {
-				if (!contains(libs, stringify(subbasedir.resolve(lib)))) libs.push(stringify(subbasedir.resolve(lib)));
+				if (!contains(this.libs, subbasedir.resolve(lib).toString())) this.libs.push(subbasedir.resolve(lib).toString());
 			}
 		}
 		for (system in sub.systemDependendLibraries) {
@@ -140,8 +147,20 @@ Project.prototype.addFile = function (file) {
 	this.includes.push(file);
 };
 
+Project.prototype.addFiles = function () {
+	for (var i = 0; i < arguments.length; ++i) {
+		this.addFile(arguments[i]);
+	}
+};
+
 Project.prototype.addExclude = function (exclude) {
 	this.excludes.push(exclude);
+};
+
+Project.prototype.addExcludes = function () {
+	for (var i = 0; i < arguments.length; ++i) {
+		this.addExclude(arguments[i]);
+	}
 };
 
 function contains(array, element) {
@@ -156,9 +175,21 @@ Project.prototype.addDefine = function (define) {
 	this.defines.push(define);
 };
 
+Project.prototype.addDefines = function () {
+	for (var i = 0; i < arguments.length; ++i) {
+		this.addDefine(arguments[i]);
+	}
+};
+
 Project.prototype.addIncludeDir = function (include) {
 	if (contains(this.includeDirs, include)) return;
 	this.includeDirs.push(include);
+};
+
+Project.prototype.addIncludeDirs = function () {
+	for (var i = 0; i < arguments.length; ++i) {
+		this.addIncludeDir(arguments[i]);
+	}
 };
 
 Project.prototype.addSubProject = function (project) {
@@ -169,9 +200,22 @@ Project.prototype.addLib = function (lib) {
 	this.libs.push(lib);
 };
 
+Project.prototype.addLibs = function () {
+	for (var i = 0; i < arguments.length; ++i) {
+		this.addLib(arguments[i]);
+	}
+};
+
 Project.prototype.addLibFor = function (system, lib) {
 	if (this.systemDependendLibraries[system] === undefined) this.systemDependendLibraries[system] = [];
 	this.systemDependendLibraries[system].push(lib);
+};
+
+Project.prototype.addLibsFor = function () {
+	if (this.systemDependendLibraries[arguments[0]] === undefined) this.systemDependendLibraries[arguments[0]] = [];
+	for (var i = 1; i < arguments.length; ++i) {
+		this.systemDependendLibraries[arguments[0]].push(arguments[i]);
+	}
 };
 
 Project.prototype.getFiles = function () {

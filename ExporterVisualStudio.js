@@ -1,5 +1,7 @@
 var Exporter = require('./Exporter.js');
+var Files = require('./Files.js');
 var Icon = require('./Icon.js');
+var Paths = require('./Paths.js');
 var Platform = require('./Platform.js');
 var Project = require('./Project.js');
 var Options = require('./Options.js');

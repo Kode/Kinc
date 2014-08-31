@@ -1,4 +1,6 @@
 var fs = require('fs');
+var GraphicsApi = require('./GraphicsApi.js');
+var Options = require('./Options.js');
 var Path = require('./Path.js');
 var Paths = require('./Paths.js');
 var Platform = require('./Platform.js');
@@ -79,7 +81,7 @@ Solution.createProject = function (filename) {
 	var file = fs.readFileSync(Solution.scriptdir.resolve(Paths.get(filename, 'korefile.js')).toString(), { encoding: 'utf8' });
 	var oldscriptdir = Solution.scriptdir;
 	Solution.scriptdir = Solution.scriptdir.resolve(filename);
-	var project = new Function(['Project'], file)(Project);
+	var project = new Function(['Project', 'Platform', 'platform', 'GraphicsApi', 'graphics'], file)(Project, Platform, Solution.platform, GraphicsApi, Options.graphicsApi);
 	Solution.scriptdir = oldscriptdir;
 	return project;
 };
@@ -88,7 +90,7 @@ Solution.createSolution = function (filename, platform) {
 	var file = fs.readFileSync(Solution.scriptdir.resolve(Paths.get(filename, 'korefile.js')).toString(), {encoding: 'utf8'});
 	var oldscriptdir = Solution.scriptdir;
 	Solution.scriptdir = Solution.scriptdir.resolve(filename);
-	var solution = new Function(['Solution', 'Project'], file)(Solution, Project);
+	var solution = new Function(['Solution', 'Project', 'Platform', 'platform', 'GraphicsApi', 'graphics'], file)(Solution, Project, Platform, platform, GraphicsApi, Options.graphicsApi);
 	Solution.scriptdir = oldscriptdir;
 	return solution;
 };
@@ -448,6 +450,7 @@ Solution.evalSolutionScript = function (script, platform) {
 
 Solution.create = function (directory, platform) {
 	Solution.scriptdir = directory;
+	Solution.platform = platform;
 	var solution = Solution.createSolution('.', platform);
 	var defines = getDefines(platform, solution.isRotated());
 	for (p in solution.projects) {
