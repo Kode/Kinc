@@ -30,14 +30,21 @@ ExporterVisualStudio.prototype.exportUserFile = function (from, to, project, pla
 	this.p("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 	this.p("<Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
 	this.p("<PropertyGroup>", 1);
+	var debugDir = project.getDebugDir();
+	if (Paths.get(debugDir).isAbsolute()) {
+		debugDir = debugDir.replaceAll('/', '\\');
+	}
+	else {
+		debugDir = from.resolve(debugDir).toAbsolutePath().toString().replaceAll('/', '\\');
+	}
 	if (platform === Platform.Windows) {
-		this.p("<LocalDebuggerWorkingDirectory>" + from.resolve(Paths.get(project.getDebugDir())).toAbsolutePath().toString().replaceAll('/', '\\') + "</LocalDebuggerWorkingDirectory>", 2);
+		this.p("<LocalDebuggerWorkingDirectory>" + debugDir + "</LocalDebuggerWorkingDirectory>", 2);
 		this.p("<DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>", 2);
 		//java.io.File baseDir = new File(project.getBasedir());
 		//p("<LocalDebuggerCommandArguments>\"SOURCEDIR=" + baseDir.getAbsolutePath() + "\" \"KTSOURCEDIR=" + baseDir.getAbsolutePath() + "\\Kt\"</LocalDebuggerCommandArguments>", 2);
 	}
 	else if (platform == Platform.PlayStation3) {
-		this.p("<LocalDebuggerFileServingDirectory>" + from.resolve(Paths.get(project.getDebugDir())).toAbsolutePath().toString().replaceAll('/', '\\') + "</LocalDebuggerFileServingDirectory>", 2);
+		this.p("<LocalDebuggerFileServingDirectory>" + debugDir + "</LocalDebuggerFileServingDirectory>", 2);
 		this.p("<DebuggerFlavor>PS3Debugger</DebuggerFlavor>", 2);
 	}
 	this.p("</PropertyGroup>", 1);
@@ -236,6 +243,7 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 	var dirs = [];
 	for (f in project.getFiles()) {
 		var file = project.getFiles()[f];
+		file = file.replaceAll('\\', '/');
 		if (file.contains('/')) {
 			var dir = file.substr(0, file.lastIndexOf('/'));
 			if (dir != lastdir) {

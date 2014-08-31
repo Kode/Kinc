@@ -7,7 +7,7 @@ function Project(name) {
 	this.name = name;
 	this.debugDir = '';
 	this.basedir = require('./Solution').scriptdir;
-	if (name == 'Kore') Project.koreDir = require('./Solution.js').scriptdir;
+	if (name == 'Kore') Project.koreDir = this.basedir;
 	this.uuid = uuid.v4();
 
 	this.files = [];
