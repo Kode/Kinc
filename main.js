@@ -178,7 +178,7 @@ function exportProject(from, to, platform) {
 	}
 }
 
-exports.main = function () {
+exports.run = function (callback) {
 	var args = process.argv;
 
 	var from = '.';
@@ -214,4 +214,5 @@ exports.main = function () {
 		}
 	}
 	exportProject(Paths.get(from), Paths.get(to), platform);
+	callback();
 };
