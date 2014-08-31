@@ -243,7 +243,6 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 	var dirs = [];
 	for (f in project.getFiles()) {
 		var file = project.getFiles()[f];
-		file = file.replaceAll('\\', '/');
 		if (file.contains('/')) {
 			var dir = file.substr(0, file.lastIndexOf('/'));
 			if (dir != lastdir) {
@@ -594,7 +593,15 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 	for (define in project.getDefines()) defines += project.getDefines()[define] + ";";
 
 	var incstring = "";
-	for (inc in project.getIncludeDirs()) incstring += from.resolve(project.getIncludeDirs()[inc]).toAbsolutePath().toString() + ";";
+	for (inc in project.getIncludeDirs()) {
+		var include = project.getIncludeDirs()[inc];
+		if (Paths.get(include).isAbsolute()) {
+			incstring += include + ';';
+		}
+		else {
+			incstring += from.resolve(include).toAbsolutePath().toString() + ";";
+		}
+	}
 	if (incstring.length > 0) incstring = incstring.substr(0, incstring.length - 1);
 
 	var debuglibs = "";
@@ -631,8 +638,9 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 			this.p("</ItemDefinitionGroup>", 1);
 	}
 	else {
-		for (system in this.getSystems(platform)) {
-			this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|" + this.getSystems(platform)[system] + "'\">", 1);
+		for (var s in this.getSystems(platform)) {
+			var system = this.getSystems(platform)[s];
+			this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|" + system + "'\">", 1);
 			this.p("<ClCompile>", 2);
 
 			if (Options.precompiledHeaders) p("<PrecompiledHeader>Use</PrecompiledHeader>", 3);
@@ -684,7 +692,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 				this.p("</Link>", 2);
 			}
 			this.p("</ItemDefinitionGroup>", 1);
-			this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|" + this.getSystems(platform)[system] + "'\">", 1);
+			this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|" + system + "'\">", 1);
 			this.p("<ClCompile>", 2);
 			if (Options.precompiledHeaders) this.p("<PrecompiledHeader>Use</PrecompiledHeader>", 3);
 			this.p("<AdditionalIncludeDirectories>" + incstring + "</AdditionalIncludeDirectories>", 3);

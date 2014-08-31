@@ -135,7 +135,7 @@ function compileShader(type, from, to, temp) {
 }
 
 function exportKakeProject(from, to, platform) {
-	log.info("kakefile.js found, generating build files.");
+	log.info("kakefile found, generating build files.");
 	log.info("Generating " + fromPlatform(platform) + " solution");
 
 	var solution = Solution.create(from, platform);

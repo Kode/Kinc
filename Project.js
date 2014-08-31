@@ -30,8 +30,8 @@ function contains(array, value) {
 Project.koreDir = new Path('.');
 
 Project.prototype.flatten = function () {
-	for (sub in this.subProjects) this.subProjects[sub].flatten();
-	for (p in this.subProjects) {
+	for (var sub in this.subProjects) this.subProjects[sub].flatten();
+	for (var p in this.subProjects) {
 		var sub = this.subProjects[p];
 		var basedir = this.basedir;
 		//if (basedir.startsWith("./")) basedir = basedir.substring(2);
@@ -40,10 +40,10 @@ Project.prototype.flatten = function () {
 		//if (subbasedir.startsWith(basedir)) subbasedir = subbasedir.substring(basedir.length());
 		if (subbasedir.startsWith(basedir)) subbasedir = basedir.relativize(subbasedir);
 
-		for (d in sub.defines) if (!contains(this.defines, sub.defines[d])) this.defines.push(sub.defines[d]);
-		for (file in sub.files) this.files.push(subbasedir.resolve(sub.files[file]).toString());
-		for (i in sub.includeDirs) if (!contains(this.includeDirs, subbasedir.resolve(sub.includeDirs[i]).toString())) this.includeDirs.push(subbasedir.resolve(sub.includeDirs[i]).toString());
-		for (l in sub.libs) {
+		for (var d in sub.defines) if (!contains(this.defines, sub.defines[d])) this.defines.push(sub.defines[d]);
+		for (var file in sub.files) this.files.push(subbasedir.resolve(sub.files[file]).toString().replace(/\\/g, '/'));
+		for (var i in sub.includeDirs) if (!contains(this.includeDirs, subbasedir.resolve(sub.includeDirs[i]).toString())) this.includeDirs.push(subbasedir.resolve(sub.includeDirs[i]).toString());
+		for (var l in sub.libs) {
 			var l = sub.libs[l];
 			if (!contains(lib, '/') && !contains(lib, '\\')) {
 				if (!contains(this.libs, lib)) this.libs.push_back(lib);
@@ -52,12 +52,14 @@ Project.prototype.flatten = function () {
 				if (!contains(this.libs, subbasedir.resolve(lib).toString())) this.libs.push(subbasedir.resolve(lib).toString());
 			}
 		}
-		for (system in sub.systemDependendLibraries) {
-			for (lib in system.second) {
-				if (systemDependendLibraries.find(system.first) == systemDependendLibraries.end()) systemDependendLibraries[system.first] = [];
-				if (!contains(systemDependendLibraries[system.first], stringify(subbasedir.resolve(lib)))) {
-					if (!contains(lib, '/') && !contains(lib, '\\')) systemDependendLibraries[system.first].push_back(lib);
-					else systemDependendLibraries[system.first].push_back(stringify(subbasedir.resolve(lib)));
+		for (var system in sub.systemDependendLibraries) {
+			var libs = sub.systemDependendLibraries[system];
+			for (var l in libs) {
+				var lib = libs[l];
+				if (this.systemDependendLibraries[system] === undefined) this.systemDependendLibraries[system] = [];
+				if (!contains(this.systemDependendLibraries[system], this.stringify(subbasedir.resolve(lib)))) {
+					if (!contains(lib, '/') && !contains(lib, '\\')) this.systemDependendLibraries[system].push(lib);
+					else this.systemDependendLibraries[system].push(this.stringify(subbasedir.resolve(lib)));
 				}
 			}
 		}
