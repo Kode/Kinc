@@ -1,5 +1,6 @@
 var child_process = require('child_process');
 var os = require('os');
+var log = require('./log.js');
 var Files = require('./Files.js');
 var GraphicsApi = require('./GraphicsApi.js');
 var Path = require('./Path.js');
@@ -126,15 +127,15 @@ function compileShader(type, from, to, temp) {
 }
 
 function exportKakeProject(from, to, platform) {
-	console.log("kakefile.js found, generating build files.");
-	console.log("Generating " + fromPlatform(platform) + " solution");
+	log.info("kakefile.js found, generating build files.");
+	log.info("Generating " + fromPlatform(platform) + " solution");
 
 	var solution = Solution.create(from, platform);
-	console.log(".");
+	log.info(".");
 	solution.searchFiles();
-	console.log(".");
+	log.info(".");
 	solution.flatten();
-	console.log(".");
+	log.info(".");
 
 	if (!Files.exists(to)) Files.createDirectories(to);
 
@@ -160,7 +161,7 @@ function exportKakeProject(from, to, platform) {
 	else exporter = new ExporterVisualStudio();
 	exporter.exportSolution(solution, from, to, platform);
 
-	console.log(".done.");
+	log.info(".done.");
 	return solution.getName();
 }
 
@@ -173,12 +174,14 @@ function exportProject(from, to, platform) {
 		return exportKakeProject(from, to, platform);
 	}
 	else {
-		console.log("korefile.js not found.");
+		log.error("korefile.js not found.");
 		return "";
 	}
 }
 
-exports.run = function (callback) {
+exports.run = function (loglog, callback) {
+	log.set(loglog);
+
 	var args = process.argv;
 
 	var from = '.';

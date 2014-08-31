@@ -1,1 +1,4 @@
-require('./main.js').run(function () { });
+require('./main.js').run({
+	info: console.log,
+	error: console.log
+},, function () { });

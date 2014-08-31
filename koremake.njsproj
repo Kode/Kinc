@@ -28,6 +28,7 @@
     <Compile Include="GraphicsApi.js" />
     <Compile Include="Icon.js" />
     <Compile Include="koremake.js" />
+    <Compile Include="log.js" />
     <Compile Include="main.js" />
     <Compile Include="Options.js" />
     <Compile Include="Path.js" />
