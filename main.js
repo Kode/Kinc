@@ -8,6 +8,7 @@ var Paths = require('./Paths.js');
 var Project = require('./Project.js');
 var Platform = require('./Platform.js');
 var Solution = require('./Solution.js');
+var VisualStudioVersion = require('./VisualStudioVersion.js');
 var ExporterAndroid = require('./ExporterAndroid.js');
 var ExporterCodeBlocks = require('./ExporterCodeBlocks.js');
 var ExporterEmscripten = require('./ExporterEmscripten.js');
@@ -189,7 +190,14 @@ function exportProject(from, to, platform) {
 
 exports.run = function (options, loglog, callback) {
 	log.set(loglog);
-
+	
+	if (options.graphicsApi !== undefined) {
+		Options.graphicsApi = options.graphicsApi;
+	}
+	
+	if (options.visualStudioVersion !== undefined) {
+		Options.visualStudioVersion = options.visualStudioVersion;
+	}
 	
 	exportProject(Paths.get(options.from), Paths.get(options.to), options.platform);
 	callback();

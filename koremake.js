@@ -1,5 +1,7 @@
 var os = require('os');
 var Platform = require('./Platform.js');
+var GraphicsApi = require('./GraphicsApi.js');
+var VisualStudioVersion = require('./VisualStudioVersion.js');
 
 if (!String.prototype.startsWith) {
 	Object.defineProperty(String.prototype, 'startsWith', {
@@ -31,6 +33,8 @@ var args = process.argv;
 
 var from = '.';
 var to = 'build';
+var gfx = GraphicsApi.Direct3D9;
+var vs = VisualStudioVersion.VS2013;
 
 if (os.platform() === "linux") {
 	var platform = Platform.Linux;
@@ -47,8 +51,8 @@ for (var i = 2; i < args.length; ++i) {
 	
 	if (arg == "pch") Options.setPrecompiledHeaders(true);
 	else if (arg.startsWith("intermediate=")) Options.setIntermediateDrive(arg.substr(13));
-	else if (arg.startsWith("gfx=")) Options.setGraphicsApi(arg.substr(4));
-	else if (arg.startsWith("vs=")) Options.setVisualStudioVersion(arg.substr(3));
+	else if (arg.startsWith("gfx=")) gfx = arg.substr(4);
+	else if (arg.startsWith("vs=")) vs = arg.substr(3);
 
 	else if (arg.startsWith("from=")) from = arg.substr(5);
 	else if (arg.startsWith("to=")) to = arg.substr(3);
@@ -66,7 +70,9 @@ require('./main.js').run(
 {
 	from: from,
 	to: to,
-	platform: platform
+	platform: platform,
+	graphicsApi: gfx,
+	visualStudioVersion: vs
 },
 {
 	info: console.log,
