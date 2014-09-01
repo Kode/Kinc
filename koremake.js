@@ -1,4 +1,5 @@
 var os = require('os');
+var Options = require('./Options.js');
 var Platform = require('./Platform.js');
 var GraphicsApi = require('./GraphicsApi.js');
 var VisualStudioVersion = require('./VisualStudioVersion.js');

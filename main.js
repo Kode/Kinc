@@ -3,6 +3,7 @@ var os = require('os');
 var log = require('./log.js');
 var Files = require('./Files.js');
 var GraphicsApi = require('./GraphicsApi.js');
+var Options = require('./Options.js');
 var Path = require('./Path.js');
 var Paths = require('./Paths.js');
 var Project = require('./Project.js');
