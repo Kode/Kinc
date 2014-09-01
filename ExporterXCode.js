@@ -153,15 +153,14 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	iosIconNames.push("Default-Landscape@2x~ipad.png");
 
 	if (platform === Platform.iOS) {
-		var transparent = 0x0;
 		var black = 0xff;
-		Icon.exportPng(to.resolve("iPhone.png"                   ),   57,   57, transparent, from);
-		Icon.exportPng(to.resolve("iPhoneRetina.png"             ),  114,  114, transparent, from);
+		Icon.exportPng(to.resolve("iPhone.png"                   ),   57,   57, undefined, from);
+		Icon.exportPng(to.resolve("iPhoneRetina.png"             ),  114,  114, undefined, from);
 		Icon.exportPng(to.resolve("Default.png"                  ),  320,  480, black,       from);
 		Icon.exportPng(to.resolve("Default@2x.png"               ),  640,  960, black,       from);
 		Icon.exportPng(to.resolve("Default-568h@2x.png"          ),  640, 1136, black,       from);
-		Icon.exportPng(to.resolve("iPad.png"                     ),   72,   72, transparent, from);
-		Icon.exportPng(to.resolve("iPadRetina.png"               ),  144,  144, transparent, from);
+		Icon.exportPng(to.resolve("iPad.png"                     ),   72,   72, undefined, from);
+		Icon.exportPng(to.resolve("iPadRetina.png"               ),  144,  144, undefined, from);
 		Icon.exportPng(to.resolve("Default-Portrait~ipad.png"    ),  768, 1024, black,       from);
 		Icon.exportPng(to.resolve("Default-Portrait@2x~ipad.png" ), 1536, 2048, black,       from);
 		Icon.exportPng(to.resolve("Default-Landscape~ipad.png"   ), 1024,  768, black,       from);
