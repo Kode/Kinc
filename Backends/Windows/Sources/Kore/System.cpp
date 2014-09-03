@@ -314,7 +314,7 @@ bool Kore::System::handleMessages() {
 			newaxes[3] = state.Gamepad.sThumbRY / 32768.0f;
 			for (int i2 = 0; i2 < 4; ++i2) {
 				if (axes[i * 4 + i2] != newaxes[i2]) {
-					Kore::Gamepad::get(i)->Axis(i2, newaxes[i2]);
+					if (Kore::Gamepad::get(i)->Axis != nullptr) Kore::Gamepad::get(i)->Axis(i2, newaxes[i2]);
 					axes[i * 4 + i2] = newaxes[i2];
 				}
 			}
@@ -337,7 +337,7 @@ bool Kore::System::handleMessages() {
 			newbuttons[15] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? 1.0f : 0.0f;
 			for (int i2 = 0; i2 < 16; ++i2) {
 				if (buttons[i * 16 + i2] != newbuttons[i2]) {
-					Kore::Gamepad::get(i)->Button(i2, newbuttons[i2]);
+					if (Kore::Gamepad::get(i)->Button != nullptr) Kore::Gamepad::get(i)->Button(i2, newbuttons[i2]);
 					buttons[i * 16 + i2] = newbuttons[i2];
 				}
 			}
