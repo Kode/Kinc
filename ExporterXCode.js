@@ -488,7 +488,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 				this.p("\"DEBUG=1\",", 5);
 				for (var d in project.getDefines()) {
 					var define = project.getDefines()[d];
-					if (contains(define, '=')) p("\"" + define.replaceAll('\"', "\\\\\\\"") + "\",", 5);
+					if (contains(define, '=')) this.p("\"" + define.replaceAll('\"', "\\\\\\\"") + "\",", 5);
 					else this.p(define + ",", 5);
 				}
 				this.p("\"$(inherited)\",", 5);
@@ -592,7 +592,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 				this.p("\"GCC_PREPROCESSOR_DEFINITIONS[arch=*]\" = (", 4);
 					for (var d in project.getDefines()) {
 						var define = project.getDefines()[d];
-						if (contains(define, '=')) this.p("\"" + replace(define, '\"', "\\\"") + "\",", 5);
+						if (contains(define, '=')) this.p("\"" + define.replaceAll('\"', "\\\"") + "\",", 5);
 						else this.p(define + ",", 5);
 					}
 					this.p("\"$(inherited)\",", 5);

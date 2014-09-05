@@ -46,7 +46,7 @@ Project.prototype.flatten = function () {
 		for (var l in sub.libs) {
 			var l = sub.libs[l];
 			if (!contains(lib, '/') && !contains(lib, '\\')) {
-				if (!contains(this.libs, lib)) this.libs.push_back(lib);
+				if (!contains(this.libs, lib)) this.libs.push(lib);
 			}
 			else {
 				if (!contains(this.libs, subbasedir.resolve(lib).toString())) this.libs.push(subbasedir.resolve(lib).toString());
