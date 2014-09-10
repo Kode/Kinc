@@ -1,5 +1,6 @@
 var Exporter = require('./Exporter.js');
 var Files = require('./Files.js');
+var GraphicsApi = require('./GraphicsApi.js');
 var Icon = require('./Icon.js');
 var Paths = require('./Paths.js');
 var Platform = require('./Platform.js');
@@ -851,8 +852,8 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 			if (file.endsWith(".cg")) {
 				this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 				this.p("<FileType>Document</FileType>", 2);
-				this.p("<Command>..\\" + "Kt\\Tools\\ShaderCompiler.exe " + ((Options.graphicsApi == GraphicsApi.OpenGL || Options.graphicsApi == GraphicsApi.OpenGL2) ? "glsl" : "d3d9") + " \"%(FullPath)\" " + replace(from.resolve(project.getDebugDir()).toAbsolutePath().toString(), '/', '\\') + "\\Shaders\\%(Filename)</Command>", 2);
-				this.p("<Outputs>" + replace(from.resolve(project.getDebugDir()).toAbsolutePath().toString(), '/', '\\') + "\\Shaders\\%(Filename)" + ((Options.getGraphicsApi() == OpenGL || Options.getGraphicsApi() == OpenGL2) ? ".glsl" : ".d3d9") + ";%(Outputs)</Outputs>", 2);
+				this.p("<Command>..\\" + "Kt\\Tools\\ShaderCompiler.exe " + ((Options.graphicsApi == GraphicsApi.OpenGL || Options.graphicsApi == GraphicsApi.OpenGL2) ? "glsl" : "d3d9") + " \"%(FullPath)\" " + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Shaders\\%(Filename)</Command>", 2);
+				this.p("<Outputs>" + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Shaders\\%(Filename)" + ((Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) ? ".glsl" : ".d3d9") + ";%(Outputs)</Outputs>", 2);
 				this.p("</CustomBuild>", 2);
 			}
 		}
@@ -863,8 +864,8 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 			if (Project.koreDir.toString() != "" && file.endsWith(".glsl")) {
 				this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 				this.p("<FileType>Document</FileType>", 2);
-				this.p("<Command>" + replace(from.resolve(Project.koreDir).toAbsolutePath().toString(), '/', '\\') + "\\Tools\\kfx\\kfx.exe " + ((Options.getGraphicsApi() == OpenGL || Options.getGraphicsApi() == OpenGL2) ? "glsl" : (Options.getGraphicsApi() == Direct3D11 ? "d3d11" : "d3d9")) + " \"%(FullPath)\" ..\\" + replace(project.getDebugDir(), '/', '\\') + "\\%(Filename) ..\\build</Command>", 2);
-				this.p("<Outputs>" + replace(from.resolve(project.getDebugDir()).toAbsolutePath().toString(), '/', '\\') + "\\%(Filename);%(Outputs)</Outputs>", 2);
+				this.p("<Command>" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\kfx\\kfx.exe " + ((Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) ? "glsl" : (Options.graphicsApi === GraphicsApi.Direct3D11 ? "d3d11" : "d3d9")) + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build</Command>", 2);
+				this.p("<Outputs>" + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\%(Filename);%(Outputs)</Outputs>", 2);
 				this.p("<Message>Compiling %(FullPath)</Message>", 2);
 				this.p("</CustomBuild>", 2);
 			}
@@ -876,7 +877,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 			if (Project.koreDir.toString() != "" && file.endsWith(".asm")) {
 				this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 				this.p("<FileType>Document</FileType>", 2);
-				this.p("<Command>" + replace(from.resolve(Project.koreDir).toAbsolutePath().toString(), '/', '\\') + "\\Tools\\yasm-1.2.0-win32.exe -Xvc -f Win32 -g cv8 -o $(OutDir)\\%(Filename).obj -I ..\\Kt\\WebM\\src -I ..\\Kt\\WebM\\build -rnasm -pnasm \"%(FullPath)\"</Command>", 2);
+				this.p("<Command>" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\yasm-1.2.0-win32.exe -Xvc -f Win32 -g cv8 -o $(OutDir)\\%(Filename).obj -I ..\\Kt\\WebM\\src -I ..\\Kt\\WebM\\build -rnasm -pnasm \"%(FullPath)\"</Command>", 2);
 				this.p("<Outputs>$(OutDir)\\%(Filename).obj</Outputs>", 2);
 				this.p("<Message>Compiling %(FullPath)</Message>", 2);
 				this.p("</CustomBuild>", 2);

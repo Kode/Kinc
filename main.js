@@ -87,7 +87,7 @@ function fromPlatform(platform) {
 function shaderLang(platform) {
 	switch (platform) {
 		case Platform.Windows:
-			switch (Options.getGraphicsApi()) {
+			switch (Options.graphicsApi) {
 				case GraphicsApi.OpenGL:
 				case GraphicsApi.OpenGL2:
 					return "glsl";
@@ -151,13 +151,13 @@ function exportKakeProject(from, to, platform) {
 
 	var project = solution.getProjects()[0];
 	var files = project.getFiles();
-	for (f in files) {
+	for (var f in files) {
 		var file = files[f];
 		if (file.endsWith(".glsl")) {
 			var outfile = file;
 			var index = outfile.lastIndexOf('/');
 			if (index > 0) outfile = outfile.substr(index);
-			outfile = outfile.substr(0, outfile.size() - 5);
+			outfile = outfile.substr(0, outfile.length - 5);
 			compileShader(shaderLang(platform), file, project.getDebugDir() + "/" + outfile, "build");
 		}
 	}
