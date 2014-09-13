@@ -189,6 +189,8 @@ function exportProject(from, to, platform) {
 	}
 }
 
+exports.api = 1;
+
 exports.run = function (options, loglog, callback) {
 	log.set(loglog);
 	
