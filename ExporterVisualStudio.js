@@ -100,19 +100,25 @@ ExporterVisualStudio.prototype.writeProjectBuilds = function (project, platform)
 };
 
 ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, platform) {
+	standardconfs = [];
 	standardconfs.push("Debug");
 	standardconfs.push("Release");
+	xboxconfs = [];
 	xboxconfs.push("CodeAnalysis");
 	xboxconfs.push("Debug");
 	xboxconfs.push("Profile_FastCap");
 	xboxconfs.push("Profile");
 	xboxconfs.push("Release_LTCG");
 	xboxconfs.push("Release");
+	windows8systems = [];
 	windows8systems.push("ARM");
 	windows8systems.push("Win32");
 	windows8systems.push("x64");
+	xboxsystems = [];
 	xboxsystems.push("Xbox 360");
+	ps3systems = [];
 	ps3systems.push("PS3");
+	windowssystems = [];
 	windowssystems.push("Win32");
 	windowssystems.push("x64");
 
