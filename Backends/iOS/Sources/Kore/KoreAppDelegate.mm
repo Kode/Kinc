@@ -59,22 +59,22 @@ int kore(int argc, char** argv);
     return YES;
 }
 
-static Kore::Orientation convertOrientation(UIInterfaceOrientation orientation) {
+static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
 	switch (orientation) {
-		case UIInterfaceOrientationLandscapeLeft:
+		case UIDeviceOrientationLandscapeLeft:
 			return Kore::OrientationLandscapeLeft;
-		case UIInterfaceOrientationLandscapeRight:
+		case UIDeviceOrientationLandscapeRight:
 			return Kore::OrientationLandscapeRight;
-		case UIInterfaceOrientationPortrait:
+		case UIDeviceOrientationPortrait:
 			return Kore::OrientationPortrait;
-		case UIInterfaceOrientationPortraitUpsideDown:
+		case UIDeviceOrientationPortraitUpsideDown:
 		default:
 			return Kore::OrientationPortraitUpsideDown;
 	}
 }
 
 - (void)didRotate:(NSNotification*)notification {
-	if (Kore::Application::the() != nullptr && Kore::Application::the()->orientationCallback != nullptr) Kore::Application::the()->orientationCallback(convertOrientation([UIApplication sharedApplication].statusBarOrientation));
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->orientationCallback != nullptr) Kore::Application::the()->orientationCallback(convertOrientation([[UIDevice currentDevice] orientation]));
 }
 
 - (void)applicationWillEnterForeground:(UIApplication*)application {
