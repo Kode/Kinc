@@ -62,9 +62,9 @@ int kore(int argc, char** argv);
 static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
 	switch (orientation) {
 		case UIDeviceOrientationLandscapeLeft:
-			return Kore::OrientationLandscapeLeft;
-		case UIDeviceOrientationLandscapeRight:
 			return Kore::OrientationLandscapeRight;
+		case UIDeviceOrientationLandscapeRight:
+			return Kore::OrientationLandscapeLeft;
 		case UIDeviceOrientationPortrait:
 			return Kore::OrientationPortrait;
 		case UIDeviceOrientationPortraitUpsideDown:
