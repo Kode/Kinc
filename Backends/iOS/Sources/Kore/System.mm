@@ -69,6 +69,16 @@ void System::hideKeyboard() {
     ::hideKeyboard();
 }
 
+void KoreUpdateKeyboard() {
+    if (keyboardshown) {
+        ::hideKeyboard();
+        ::showKeyboard();
+    }
+    else {
+        ::hideKeyboard();
+    }
+}
+
 void endGL();
 
 void System::swapBuffers() {
