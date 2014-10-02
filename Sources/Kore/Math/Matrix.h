@@ -71,6 +71,22 @@ namespace Kore {
 			return proj;*/
 		}
 
+		static myType Perspective(float fov, float aspect, float near, float far) {
+			myType m;
+			float top = near * tan(((pi / 180) * fov) / 2.0);
+			float bottom = -top;
+			float right = top * aspect;
+			float left = -right;
+			m.Set(0, 0, (2 * near) / (right - left));
+			m.Set(0, 2, (right + left) / (right - left));
+			m.Set(1, 1, (2 * near) / (top - bottom));
+			m.Set(2, 1, (top + bottom) / (top - bottom));
+			m.Set(2, 2, -((far + near) / (far - near)));
+			m.Set(3, 2, -((2 * far*near) / (far - near)));
+			m.Set(2, 3, -1);
+			return m;
+		}
+
 		static myType lookAt(vec3 eye, vec3 at, vec3 up) {
 			vec3 zaxis = at - eye;
 			zaxis.normalize();
