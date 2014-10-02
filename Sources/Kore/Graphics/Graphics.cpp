@@ -26,3 +26,15 @@ void Graphics::setWindow(bool value) {
 }
 
 bool Kore::Graphics::fullscreen = false;
+
+void Graphics::setFloat2(ConstantLocation position, vec2 value) {
+	setFloat2(position, value.x(), value.y());
+}
+
+void Graphics::setFloat3(ConstantLocation position, vec3 value) {
+	setFloat3(position, value.x(), value.y(), value.z());
+}
+
+void Graphics::setFloat4(ConstantLocation position, vec4 value) {
+	setFloat4(position, value.x(), value.y(), value.z(), value.w());
+}

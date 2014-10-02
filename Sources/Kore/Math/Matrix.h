@@ -37,6 +37,44 @@ namespace Kore {
 			return matrix[x][y];
 		}
 
+		static myType orthogonalProjection(float left, float right, float bottom, float top, float zn, float zf) {
+			float tx = -(right + left) / (right - left);
+			float ty = -(top + bottom) / (top - bottom);
+			float tz = -(zf + zn) / (zf - zn);
+			
+			myType m = Identity();
+			m.Set(0, 0, 2 / (right - left)); m.Set(1, 0, 0); m.Set(2, 0, 0); m.Set(3, 0, 0);
+			m.Set(0, 1, 0); m.Set(1, 1, 2 / (top - bottom)); m.Set(2, 1, 0); m.Set(3, 1, 0);
+			m.Set(0, 2, 0); m.Set(1, 2, 0); m.Set(2, 2, -2 / (zf - zn)); m.Set(3, 2, 0);
+			m.Set(0, 3, tx); m.Set(1, 3, ty); m.Set(2, 3, tz); m.Set(3, 3, 1);
+			return m;
+		}
+
+		static myType perspectiveProjection(float fovY, float aspect, float zn, float zf) {
+			float f = Kore::cos(2 / fovY);
+			myType m = Identity();
+			m.Set(0, 0, -f / aspect); m.Set(1, 0, 0); m.Set(2, 0, 0); m.Set(3, 0, 0);
+			m.Set(0, 1, 0); m.Set(1, 1, f); m.Set(2, 1, 0); m.Set(3, 1, 0);
+			m.Set(0, 2, 0); m.Set(1, 2, 0); m.Set(2, 2, (zf + zn) / (zn - zf)); m.Set(3, 2, -1);
+			m.Set(0, 3, 0); m.Set(1, 3, 0); m.Set(2, 3, 2 * zf * zn / (zn - zf)); m.Set(3, 3, 0);
+			return m;
+		}
+
+		static myType lookAt(vec3 eye, vec3 at, vec3 up) {
+			vec3 zaxis = at - eye;
+			zaxis.normalize();
+			vec3 xaxis = zaxis.cross(up);
+			xaxis.normalize();
+			vec3 yaxis = xaxis.cross(zaxis);
+
+			myType view = Identity();
+			view.Set(0, 0, xaxis.x()); view.Set(1, 0, yaxis.y()); view.Set(2, 0, -zaxis.z()); view.Set(3, 0, 0);
+			view.Set(0, 1, xaxis.x()); view.Set(1, 1, yaxis.y()); view.Set(2, 1, -zaxis.z()); view.Set(3, 1, 0);
+			view.Set(0, 2, xaxis.x()); view.Set(1, 2, yaxis.y()); view.Set(2, 2, -zaxis.z()); view.Set(3, 2, 0);
+			view.Set(0, 3, 0); view.Set(1, 3, 0); view.Set(2, 3, 0); view.Set(3, 3, 1);
+			return view * Translation(-eye.x(), -eye.y(), -eye.z());
+		}
+
 		static myType Translation(float x, float y, float z) {
 			//StaticAssert(X == 4 && Y == 4);
 			myType m = Identity();
