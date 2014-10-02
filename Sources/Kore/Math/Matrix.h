@@ -57,7 +57,18 @@ namespace Kore {
 			m.Set(0, 1, 0); m.Set(1, 1, f); m.Set(2, 1, 0); m.Set(3, 1, 0);
 			m.Set(0, 2, 0); m.Set(1, 2, 0); m.Set(2, 2, (zf + zn) / (zn - zf)); m.Set(3, 2, -1);
 			m.Set(0, 3, 0); m.Set(1, 3, 0); m.Set(2, 3, 2 * zf * zn / (zn - zf)); m.Set(3, 3, 0);
-			return m;
+			//return m;
+			return Identity();
+
+			/*float yScale = cot(fovY / 2);
+			float xScale = yScale / aspect;
+
+			mat4 proj;
+			proj.Set(0, 0, xScale); proj.Set(1, 0, 0);      proj.Set(2, 0, 0);          proj.Set(3, 0, 0);
+			proj.Set(0, 1, 0);      proj.Set(1, 1, yScale); proj.Set(2, 1, 0);          proj.Set(3, 1, 0);
+			proj.Set(0, 2, 0);      proj.Set(1, 2, 0);      proj.Set(2, 2, zf / (zf - zn)); proj.Set(3, 2, -zn * zf / (zf - zn));
+			proj.Set(0, 3, 0);      proj.Set(1, 3, 0);      proj.Set(2, 3, 1);          proj.Set(3, 3, 0);
+			return proj;*/
 		}
 
 		static myType lookAt(vec3 eye, vec3 at, vec3 up) {
@@ -72,7 +83,21 @@ namespace Kore {
 			view.Set(0, 1, xaxis.x()); view.Set(1, 1, yaxis.y()); view.Set(2, 1, -zaxis.z()); view.Set(3, 1, 0);
 			view.Set(0, 2, xaxis.x()); view.Set(1, 2, yaxis.y()); view.Set(2, 2, -zaxis.z()); view.Set(3, 2, 0);
 			view.Set(0, 3, 0); view.Set(1, 3, 0); view.Set(2, 3, 0); view.Set(3, 3, 1);
-			return view * Translation(-eye.x(), -eye.y(), -eye.z());
+			//return view * Translation(-eye.x(), -eye.y(), -eye.z());
+			return Identity();
+
+			/*vec3 zaxis = at - eye;
+			zaxis.normalize();
+			vec3 xaxis = up % zaxis;
+			xaxis.normalize();
+			vec3 yaxis = zaxis % xaxis;
+
+			mat4 view;
+			view.Set(0, 0, xaxis.x()); view.Set(1, 0, xaxis.y()); view.Set(2, 0, xaxis.z()); view.Set(3, 0, -xaxis.dot(eye));
+			view.Set(0, 1, yaxis.x()); view.Set(1, 1, yaxis.y()); view.Set(2, 1, yaxis.z()); view.Set(3, 1, -yaxis.dot(eye));
+			view.Set(0, 2, zaxis.x()); view.Set(1, 2, zaxis.y()); view.Set(2, 2, zaxis.z()); view.Set(3, 2, -zaxis.dot(eye));
+			view.Set(0, 3, 0);         view.Set(1, 3, 0);         view.Set(2, 3, 0);         view.Set(3, 3, 1);
+			return view;*/
 		}
 
 		static myType Translation(float x, float y, float z) {
