@@ -297,10 +297,12 @@ void Graphics::setRenderTarget(RenderTarget* target, int num) {
 //}
 
 void Graphics::restoreRenderTarget() {
-	device->SetRenderTarget(0, backBuffer);
-	device->SetRenderTarget(1, nullptr);
-	backBuffer->Release();
-	backBuffer = nullptr;
+	if (backBuffer != nullptr) {
+		device->SetRenderTarget(0, backBuffer);
+		device->SetRenderTarget(1, nullptr);
+		backBuffer->Release();
+		backBuffer = nullptr;
+	}
 	if (depthBuffer != nullptr) {
 		device->SetDepthStencilSurface(depthBuffer);
 		depthBuffer->Release();
