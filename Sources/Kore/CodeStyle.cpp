@@ -7,7 +7,7 @@ public: //public on top
 	}
 
 	void doIt() { //lower camel case method and function names
-		int i;
+		int i = 1;
 		switch (i) {
 		case 1: //case in same column as switch
 			playSfx(2);

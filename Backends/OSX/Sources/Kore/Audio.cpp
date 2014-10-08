@@ -2,16 +2,17 @@
 #include <Kore/Audio/Audio.h>
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/AudioHardware.h>
+#include <Kore/Log.h>
 #include <stdio.h>
 
 using namespace Kore;
 
 namespace {
-	const int samplesPerSecond = 44100;
+	//const int samplesPerSecond = 44100;
 	
 	void affirm(OSStatus err) {
 		if (err != kAudioHardwareNoError) {
-			fprintf(stderr, "Error: %i\n", err);
+			log(Error, "Error: %i\n", err);
 		}
 	}
 	
@@ -61,7 +62,7 @@ void Audio::init() {
 	address.mScope = kAudioDevicePropertyScopeOutput;
 	affirm(AudioObjectGetPropertyData(device, &address, 0, nullptr, &size, &deviceBufferSize));
 	
-	fprintf(stderr, "deviceBufferSize = %i\n", deviceBufferSize);
+	log(Info, "deviceBufferSize = %i\n", deviceBufferSize);
 
 	size = sizeof(AudioStreamBasicDescription);
 	address.mSelector = kAudioDevicePropertyStreamFormat;
@@ -70,24 +71,24 @@ void Audio::init() {
 	affirm(AudioObjectGetPropertyData(device, &address, 0, nullptr, &size, &deviceFormat));
 
 	if (deviceFormat.mFormatID != kAudioFormatLinearPCM) {
-		fprintf(stderr, "mFormatID !=  kAudioFormatLinearPCM\n");
+		log(Error, "mFormatID !=  kAudioFormatLinearPCM\n");
 		return;
 	}
 
 	if (!(deviceFormat.mFormatFlags & kLinearPCMFormatFlagIsFloat)) {
-		fprintf(stderr, "Only works with float format.\n");
+		log(Error, "Only works with float format.\n");
 		return;
 	}
 
 	initialized = true;
 
-	fprintf(stderr, "mSampleRate = %g\n", deviceFormat.mSampleRate);
-	fprintf(stderr, "mFormatFlags = %08X\n", (unsigned int)deviceFormat.mFormatFlags);
-	fprintf(stderr, "mBytesPerPacket = %d\n", (unsigned int)deviceFormat.mBytesPerPacket);
-	fprintf(stderr, "mFramesPerPacket = %d\n", (unsigned int)deviceFormat.mFramesPerPacket);
-	fprintf(stderr, "mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
-	fprintf(stderr, "mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
-	fprintf(stderr, "mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
+	log(Info, "mSampleRate = %g\n", deviceFormat.mSampleRate);
+	log(Info, "mFormatFlags = %08X\n", (unsigned int)deviceFormat.mFormatFlags);
+	log(Info, "mBytesPerPacket = %d\n", (unsigned int)deviceFormat.mBytesPerPacket);
+	log(Info, "mFramesPerPacket = %d\n", (unsigned int)deviceFormat.mFramesPerPacket);
+	log(Info, "mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
+	log(Info, "mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
+	log(Info, "mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
 	
 	if (soundPlaying) return;
 

@@ -263,6 +263,8 @@ void Graphics::setRenderState(RenderState state, bool on) {
 		if (on) glCullFace(GL_BACK);
 		else glCullFace(GL_NONE);
 		break;
+	default:
+		break;
 	}
 
 	/*switch (state) {
@@ -290,20 +292,22 @@ void Graphics::setRenderState(RenderState state, bool on) {
 
 void Graphics::setRenderState(RenderState state, int v) {
 	switch (state) {
-		case DepthTestCompare:
-			switch (v) {
-				default:
-				case ZCompareAlways      : v = GL_ALWAYS; break;
-				case ZCompareNever       : v = GL_NEVER; break;
-				case ZCompareEqual       : v = GL_EQUAL; break;
-				case ZCompareNotEqual    : v = GL_NOTEQUAL; break;
-				case ZCompareLess        : v = GL_LESS; break;
-				case ZCompareLessEqual   : v = GL_LEQUAL; break;
-				case ZCompareGreater     : v = GL_GREATER; break;
-				case ZCompareGreaterEqual: v = GL_GEQUAL; break;
-			}
-			glDepthFunc(v);
-			break;
+	case DepthTestCompare:
+		switch (v) {
+			default:
+			case ZCompareAlways      : v = GL_ALWAYS; break;
+			case ZCompareNever       : v = GL_NEVER; break;
+			case ZCompareEqual       : v = GL_EQUAL; break;
+			case ZCompareNotEqual    : v = GL_NOTEQUAL; break;
+			case ZCompareLess        : v = GL_LESS; break;
+			case ZCompareLessEqual   : v = GL_LEQUAL; break;
+			case ZCompareGreater     : v = GL_GREATER; break;
+			case ZCompareGreaterEqual: v = GL_GEQUAL; break;
+		}
+		glDepthFunc(v);
+		break;
+	default:
+		break;
 	}
 	/*switch (state) {
 		case DepthTestCompare:
