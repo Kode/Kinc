@@ -32,6 +32,10 @@ void Kore::System::hideKeyboard() {
 
 }
 
+void Kore::System::loadURL(const char* url) {
+    
+}
+
 void Kore::System::setTitle(const char*) {
 
 }

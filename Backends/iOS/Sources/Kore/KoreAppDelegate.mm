@@ -25,6 +25,10 @@ void hideKeyboard() {
     [glView hideKeyboard];
 }
 
+void loadURL(const char* url) {
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
+}
+
 int kore(int argc, char** argv);
 
 - (void)mainLoop {

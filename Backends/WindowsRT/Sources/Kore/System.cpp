@@ -286,6 +286,10 @@ bool Kore::System::showsKeyboard() {
 	return keyboardshown;
 }
 
+void Kore::System::loadURL(const char* url) {
+    
+}
+
 int kore(int argc, char** argv);
 
 Win8Application::Win8Application() : closed(false) {

@@ -13,6 +13,7 @@ namespace Kore {
 		void showKeyboard();
 		void hideKeyboard();
 		bool showsKeyboard();
+		void loadURL(const char* title);
 		int screenWidth();
 		int screenHeight();
 		void setTitle(const char* title);

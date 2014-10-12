@@ -69,6 +69,12 @@ void System::hideKeyboard() {
     ::hideKeyboard();
 }
 
+void loadURL(const char* url);
+
+void System::loadURL(const char* url) {
+	::loadURL(url);
+}
+
 void KoreUpdateKeyboard() {
     if (keyboardshown) {
         ::hideKeyboard();
