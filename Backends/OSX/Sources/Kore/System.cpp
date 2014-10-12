@@ -28,6 +28,10 @@ bool System::showsKeyboard() {
 	return keyboardShown;
 }
 
+void System::loadURL(const char* url) {
+	
+}
+
 void System::showWindow() {
 	
 }

@@ -61,6 +61,10 @@ void Kore::System::hideKeyboard() {
 	keyboardShown = false;
 }
 
+void Kore::System::loadURL(const char* url) {
+    
+}
+
 int Kore::System::screenWidth() {
     return width;
 }

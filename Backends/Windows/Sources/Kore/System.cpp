@@ -478,6 +478,10 @@ bool Kore::System::showsKeyboard() {
 	return keyboardshown;
 }
 
+void Kore::System::loadURL(const char* url) {
+    
+}
+
 void Kore::System::setTitle(const char* title) {
 	SetWindowTextA(hwnd, title);
 }

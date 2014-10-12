@@ -224,6 +224,10 @@ void Kore::System::hideKeyboard() {
 
 }
 
+void Kore::System::loadURL(const char* url) {
+    
+}
+
 int Kore::System::screenWidth() {
     return Application::the()->width();
 }
