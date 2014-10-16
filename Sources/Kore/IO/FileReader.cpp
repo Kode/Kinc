@@ -111,16 +111,21 @@ bool FileReader::open(const char* filename, FileType type) {
 	char filepath[1001];
 #ifdef SYS_IOS
 	strcpy(filepath, type == Save ? System::savePath() : iphonegetresourcepath());
-	strcat(filepath, "/");
-	strcat(filepath, KORE_DEBUGDIR);
-	strcat(filepath, "/");
+	if (type != Save) {
+		strcat(filepath, "/");
+		strcat(filepath, KORE_DEBUGDIR);
+		strcat(filepath, "/");
+	}
+
 	strcat(filepath, filename);
 #endif
 #ifdef SYS_OSX
 	strcpy(filepath, type == Save ? System::savePath() : macgetresourcepath());
-	strcat(filepath, "/");
-	strcat(filepath, KORE_DEBUGDIR);
-	strcat(filepath, "/");
+	if (type != Save) {
+		strcat(filepath, "/");
+		strcat(filepath, KORE_DEBUGDIR);
+		strcat(filepath, "/");
+	}
 	strcat(filepath, filename);
 #endif
 #ifdef SYS_XBOX360

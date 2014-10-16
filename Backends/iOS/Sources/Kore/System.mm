@@ -113,6 +113,7 @@ namespace {
 		NSError *error;
 		[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
 		
+		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
 		savePath = [resolvedPath cStringUsingEncoding:1];
 	}
 }
