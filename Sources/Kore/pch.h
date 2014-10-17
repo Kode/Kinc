@@ -4,6 +4,13 @@ namespace Kore {
 	typedef unsigned char      u8;  // 1 Byte
 	typedef unsigned short     u16; // 2 Byte
 	typedef unsigned int       u32; // 4 Byte
+
+#ifdef SYS_LINUX
+#if defined(__LP64__) || defined(_LP64)
+#define SYS_64
+#endif
+#endif
+
 #ifdef SYS_WINDOWS
 	typedef unsigned __int64   u64; // 8 Byte
 #else
