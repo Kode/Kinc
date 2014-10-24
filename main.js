@@ -137,7 +137,7 @@ function compileShader(type, from, to, temp) {
 	}
 }
 
-function exportKakeProject(from, to, platform) {
+function exportKakeProject(from, to, platform, options) {
 	log.info("korefile found, generating build files.");
 	log.info("Generating " + fromPlatform(platform) + " solution");
 
@@ -167,7 +167,10 @@ function exportKakeProject(from, to, platform) {
 	if (platform == Platform.iOS || platform == Platform.OSX) exporter = new ExporterXCode();
 	else if (platform == Platform.Android) exporter = new ExporterAndroid();
 	else if (platform == Platform.HTML5) exporter = new ExporterEmscripten();
-	else if (platform == Platform.Linux) exporter = new ExporterMakefile(); // ExporterCodeBlocks();
+	else if (platform == Platform.Linux) {
+		if (options.compile) exporter = new ExporterMakefile();
+		else exporter = new ExporterCodeBlocks();
+	}
 	else if (platform == Platform.Tizen) exporter = new ExporterTizen();
 	else exporter = new ExporterVisualStudio();
 	exporter.exportSolution(solution, from, to, platform);
@@ -180,9 +183,9 @@ function isKakeProject(directory) {
 	return Files.exists(directory.resolve("korefile.js"));
 }
 
-function exportProject(from, to, platform) {
+function exportProject(from, to, platform, options) {
 	if (isKakeProject(from)) {
-		return exportKakeProject(from, to, platform);
+		return exportKakeProject(from, to, platform, options);
 	}
 	else {
 		log.error("korefile.js not found.");
@@ -203,6 +206,24 @@ exports.run = function (options, loglog, callback) {
 		Options.visualStudioVersion = options.visualStudioVersion;
 	}
 	
-	exportProject(Paths.get(options.from), Paths.get(options.to), options.platform);
-	callback();
+	exportProject(Paths.get(options.from), Paths.get(options.to), options.platform, options);
+
+	if (options.platform === Platform.Linux && options.compile) {
+		log.info('Compiling...');
+		var make = child_process.spawn('make', [], { cwd: options.to });
+
+		make.stdout.on('data', function (data) {
+			log.info(data.toString());
+		});
+
+		make.stderr.on('data', function (data) {
+			log.error(data.toString());
+		});
+
+		make.on('close', function (code) {
+			callback();
+		});
+	}
+	else callback();
 };
+

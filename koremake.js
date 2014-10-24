@@ -36,6 +36,8 @@ var from = '.';
 var to = 'build';
 var gfx = GraphicsApi.Direct3D9;
 var vs = VisualStudioVersion.VS2013;
+var compile = false;
+var run = false;
 
 if (os.platform() === "linux") {
 	var platform = Platform.Linux;
@@ -50,7 +52,12 @@ else {
 for (var i = 2; i < args.length; ++i) {
 	var arg = args[i];
 	
-	if (arg == "pch") Options.setPrecompiledHeaders(true);
+	if (arg === "pch") Options.setPrecompiledHeaders(true);
+	else if (arg === 'compile') compile = true;
+	else if (arg === 'run') {
+		compile = true;
+		run = true;
+	}
 	else if (arg.startsWith("intermediate=")) Options.setIntermediateDrive(arg.substr(13));
 	else if (arg.startsWith("gfx=")) gfx = arg.substr(4);
 	else if (arg.startsWith("vs=")) vs = arg.substr(3);
@@ -73,7 +80,9 @@ require('./main.js').run(
 	to: to,
 	platform: platform,
 	graphicsApi: gfx,
-	visualStudioVersion: vs
+	visualStudioVersion: vs,
+	compile: compile,
+	run: run
 },
 {
 	info: console.log,

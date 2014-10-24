@@ -6,4 +6,6 @@ module.exports = {
 	intermediateDrive: '',
 	graphicsApi: GraphicsApi.Direct3D9,
 	visualStudioVersion: VisualStudioVersion.VS2013,
+	compile: false,
+	run: false
 };

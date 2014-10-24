@@ -45,11 +45,12 @@ ExporterCodeBlocks.prototype.exportSolution = function (solution, from, to, plat
 	var incline = '';
 	for (var i in project.getIncludeDirs()) {
 		var inc = project.getIncludeDirs()[i];
+		inc = to.relativize(from.resolve(inc));
 		incline += '-I' + inc + ' ';
 	}
 	this.p('INC=' + incline);
 	
-	var libsline = '-pthread -LGL -LX11 -Lasound -Ldl';
+	var libsline = '-pthread -lGL -lX11 -lasound -ldl';
 	this.p('LIB=' + libsline);
 	
 	var defline = '';
@@ -61,15 +62,16 @@ ExporterCodeBlocks.prototype.exportSolution = function (solution, from, to, plat
 	this.p();
 
 	this.p(project.getName() + ': ' + ofilelist);
-	this.p('\tg++ $(LIB) ' + ofilelist + ' -o ' + project.getName());
+	this.p('\tg++ ' + ofilelist + ' -o ' + project.getName() + ' $(LIB)');
 
 	for (var f in project.getFiles()) {
 		var file = project.getFiles()[f];
 		if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {
 			this.p();
 			var name = ofiles[file];
-			this.p(name + '.o: ' + file);
-			this.p('g++ $(INC) $(DEF) -c ' + file);
+			var realfile = to.relativize(from.resolve(file));
+			this.p(name + '.o: ' + realfile);
+			this.p('\tg++ $(INC) $(DEF) -c ' + realfile + ' -o ' + name + '.o $(LIB)');
 		}
 	}
 
