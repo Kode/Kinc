@@ -12,6 +12,7 @@ var Solution = require('./Solution.js');
 var VisualStudioVersion = require('./VisualStudioVersion.js');
 var ExporterAndroid = require('./ExporterAndroid.js');
 var ExporterCodeBlocks = require('./ExporterCodeBlocks.js');
+var ExporterMakefile = require('./ExporterMakefile.js');
 var ExporterEmscripten = require('./ExporterEmscripten.js');
 var ExporterTizen = require('./ExporterTizen.js');
 var ExporterVisualStudio = require('./ExporterVisualStudio.js');
@@ -166,7 +167,7 @@ function exportKakeProject(from, to, platform) {
 	if (platform == Platform.iOS || platform == Platform.OSX) exporter = new ExporterXCode();
 	else if (platform == Platform.Android) exporter = new ExporterAndroid();
 	else if (platform == Platform.HTML5) exporter = new ExporterEmscripten();
-	else if (platform == Platform.Linux) exporter = new ExporterCodeBlocks();
+	else if (platform == Platform.Linux) exporter = new ExporterMakefile(); // ExporterCodeBlocks();
 	else if (platform == Platform.Tizen) exporter = new ExporterTizen();
 	else exporter = new ExporterVisualStudio();
 	exporter.exportSolution(solution, from, to, platform);

@@ -795,7 +795,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 	this.p("<ItemGroup>", 1);
 	var objects = {};
 	var stdafx = '';
-	for (f in project.getFiles()) {
+	for (var f in project.getFiles()) {
 		var file = project.getFiles()[f];
 		if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
 			if (Options.precompiledHeaders && (file.endsWith("stdafx.cpp") || file.endsWith("pch.cpp"))) {
