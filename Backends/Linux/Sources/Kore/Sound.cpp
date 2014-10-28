@@ -102,7 +102,7 @@ namespace {
         }
 
         snd_pcm_uframes_t bufferSize = rate / 8;
-        if ((err = snd_pcm_hw_params_set_buffer_size(playback_handle, hw_params, bufferSize)) < 0) {
+        if (((err = snd_pcm_hw_params_set_buffer_size(playback_handle, hw_params, bufferSize)) < 0 && (snd_pcm_hw_params_set_buffer_size_near(playback_handle, hw_params, &bufferSize)) < 0)) {
             fprintf (stderr, "cannot set buffer size (%s)\n",
                  snd_strerror (err));
             exit (1);
