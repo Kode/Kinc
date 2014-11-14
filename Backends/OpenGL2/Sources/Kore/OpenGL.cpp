@@ -239,9 +239,9 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 #endif
 	glClearStencil(stencil);
 	GLbitfield oglflags =
-		  (flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0
-		| (flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT: 0
-		| (flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT: 0;
+		  ((flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0)
+		| ((flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT : 0)
+		| ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT: 0);
 	glClear(oglflags);
 }
 
