@@ -100,11 +100,13 @@ VertexBuffer::~VertexBuffer() {
 float* VertexBuffer::lock() {
 	return data;
 }
-
+/*
+// TODO: FIXME!
 float* VertexBuffer::lock(int start, int count) {
 	myCount = count;
 	return nullptr;//&buffer[start * 9];
 }
+*/
 
 void VertexBuffer::unlock() {
 #if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
