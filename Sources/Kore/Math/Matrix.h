@@ -7,35 +7,44 @@ namespace Kore {
 	template<unsigned X, unsigned Y, class T> class Matrix {
 		typedef Matrix<X, Y, T> myType;
 	public:
-		T matrix[X][Y];
-	
-		void Set(unsigned x, unsigned y, T t) { matrix[x][y] = t; }
-	
 		const static unsigned Width = X;
 		const static unsigned Height = Y;
 
-		class Setter {
-			Matrix<X, Y, T>* m;
-			unsigned x, y;
-		public:
-			Setter(Matrix<X, Y, T>* m, unsigned x, unsigned y) : m(m), x(x), y(y) {}
-			T operator =(T t) { m->Set(x, y, t); return t; }
-			operator T() { return m->matrix[x][y]; }
+		union {
+			T matrix[X][Y];
+			T data[X*Y];
 		};
 
+		inline float get(int row, int col) const {
+			return matrix[col][row];
+		}
+		inline void Set(unsigned row, unsigned col, T t) { matrix[col][row] = t; }
+
+		class RowGetter {
+			const Matrix<X, Y, T> *m;
+			unsigned row;
+		public:
+			RowGetter(Matrix<X, Y, T> const * m, unsigned row) : m(m), row(row) {}
+			inline T operator[](unsigned col) const { return m->matrix[col][row]; }
+		};
 		class RowSetter {
 			Matrix<X, Y, T>* m;
-			unsigned x;
+			unsigned row;
 		public:
-			RowSetter(Matrix<X, Y, T>* m, unsigned x) : m(m), x(x) {}
-			Setter operator [](unsigned i) { return Setter(m, x, i); }
+			RowSetter(Matrix<X, Y, T>* m, unsigned row) : m(m), row(row) {}
+			void operator =(Vector<T, X> const & v) { 
+				for (unsigned x = 0; x < X; ++x) m->Set(row, x, v[x]);
+			}
+			inline T& operator[](unsigned col) { return m->matrix[col][row]; }
+			inline T operator[](unsigned col) const { return m->matrix[col][row]; }
 		};
-		friend class Matrix::Setter;
+
+		friend class Matrix::RowGetter;
 		friend class Matrix::RowSetter;
 
-		float get(int x, int y) const {
-			return matrix[x][y];
-		}
+		inline RowGetter operator[](unsigned row) const { return RowGetter(this, row); }
+		inline RowSetter operator[](unsigned row) { return RowSetter(this, row); }
+
 
 		static myType orthogonalProjection(float left, float right, float bottom, float top, float zn, float zf) {
 			float tx = -(right + left) / (right - left);
@@ -50,78 +59,51 @@ namespace Kore {
 			return m;
 		}
 
-		static myType perspectiveProjection(float fovY, float aspect, float zn, float zf) {
-			float f = Kore::cos(2 / fovY);
-			myType m = Identity();
-			m.Set(0, 0, -f / aspect); m.Set(1, 0, 0); m.Set(2, 0, 0); m.Set(3, 0, 0);
-			m.Set(0, 1, 0); m.Set(1, 1, f); m.Set(2, 1, 0); m.Set(3, 1, 0);
-			m.Set(0, 2, 0); m.Set(1, 2, 0); m.Set(2, 2, (zf + zn) / (zn - zf)); m.Set(3, 2, -1);
-			m.Set(0, 3, 0); m.Set(1, 3, 0); m.Set(2, 3, 2 * zf * zn / (zn - zf)); m.Set(3, 3, 0);
-			//return m;
-			return Identity();
-
-			/*float yScale = cot(fovY / 2);
-			float xScale = yScale / aspect;
-
-			mat4 proj;
-			proj.Set(0, 0, xScale); proj.Set(1, 0, 0);      proj.Set(2, 0, 0);          proj.Set(3, 0, 0);
-			proj.Set(0, 1, 0);      proj.Set(1, 1, yScale); proj.Set(2, 1, 0);          proj.Set(3, 1, 0);
-			proj.Set(0, 2, 0);      proj.Set(1, 2, 0);      proj.Set(2, 2, zf / (zf - zn)); proj.Set(3, 2, -zn * zf / (zf - zn));
-			proj.Set(0, 3, 0);      proj.Set(1, 3, 0);      proj.Set(2, 3, 1);          proj.Set(3, 3, 0);
-			return proj;*/
-		}
-
-		static myType Perspective(float fov, float aspect, float near, float far) {
+		static myType Perspective(float left, float right, float top, float bottom, float near, float far) {
 			myType m;
-			float top = near * tan(((pi / 180) * fov) / 2.0);
-			float bottom = -top;
-			float right = top * aspect;
-			float left = -right;
 			m.Set(0, 0, (2 * near) / (right - left));
 			m.Set(0, 2, (right + left) / (right - left));
 			m.Set(1, 1, (2 * near) / (top - bottom));
 			m.Set(2, 1, (top + bottom) / (top - bottom));
 			m.Set(2, 2, -((far + near) / (far - near)));
-			m.Set(3, 2, -((2 * far*near) / (far - near)));
-			m.Set(2, 3, -1);
+			m.Set(2, 3, -((2 * far*near) / (far - near)));
+			m.Set(3, 2, -1);
+			return m;
+		}
+		// fov in deg
+		static myType Perspective(float fov, float aspect, float near, float far) {
+			myType m;
+			float uh = cot((pi / 360) * fov);
+			float uw = uh / aspect;
+			m.Set(0, 0, uw);
+			m.Set(1, 1, uh);
+			m.Set(2, 2, ((far + near) / (far - near)));
+			m.Set(2, 3, -((2 * far*near) / (far - near)));
+			m.Set(3, 2, 1);
 			return m;
 		}
 
 		static myType lookAt(vec3 eye, vec3 at, vec3 up) {
 			vec3 zaxis = at - eye;
 			zaxis.normalize();
-			vec3 xaxis = zaxis.cross(up);
-			xaxis.normalize();
-			vec3 yaxis = xaxis.cross(zaxis);
-
-			myType view = Identity();
-			view.Set(0, 0, xaxis.x()); view.Set(1, 0, yaxis.y()); view.Set(2, 0, -zaxis.z()); view.Set(3, 0, 0);
-			view.Set(0, 1, xaxis.x()); view.Set(1, 1, yaxis.y()); view.Set(2, 1, -zaxis.z()); view.Set(3, 1, 0);
-			view.Set(0, 2, xaxis.x()); view.Set(1, 2, yaxis.y()); view.Set(2, 2, -zaxis.z()); view.Set(3, 2, 0);
-			view.Set(0, 3, 0); view.Set(1, 3, 0); view.Set(2, 3, 0); view.Set(3, 3, 1);
-			//return view * Translation(-eye.x(), -eye.y(), -eye.z());
-			return Identity();
-
-			/*vec3 zaxis = at - eye;
-			zaxis.normalize();
 			vec3 xaxis = up % zaxis;
 			xaxis.normalize();
 			vec3 yaxis = zaxis % xaxis;
 
 			mat4 view;
-			view.Set(0, 0, xaxis.x()); view.Set(1, 0, xaxis.y()); view.Set(2, 0, xaxis.z()); view.Set(3, 0, -xaxis.dot(eye));
-			view.Set(0, 1, yaxis.x()); view.Set(1, 1, yaxis.y()); view.Set(2, 1, yaxis.z()); view.Set(3, 1, -yaxis.dot(eye));
-			view.Set(0, 2, zaxis.x()); view.Set(1, 2, zaxis.y()); view.Set(2, 2, zaxis.z()); view.Set(3, 2, -zaxis.dot(eye));
-			view.Set(0, 3, 0);         view.Set(1, 3, 0);         view.Set(2, 3, 0);         view.Set(3, 3, 1);
-			return view;*/
+			view.Set(0, 0, xaxis.x()); view.Set(0, 1, xaxis.y()); view.Set(0, 2, xaxis.z()); view.Set(0, 3, -xaxis.dot(eye));
+			view.Set(1, 0, yaxis.x()); view.Set(1, 1, yaxis.y()); view.Set(1, 2, yaxis.z()); view.Set(1, 3, -yaxis.dot(eye));
+			view.Set(2, 0, zaxis.x()); view.Set(2, 1, zaxis.y()); view.Set(2, 2, zaxis.z()); view.Set(2, 3, -zaxis.dot(eye));
+			view.Set(3, 0, 0);         view.Set(3, 1, 0);         view.Set(3, 2, 0);         view.Set(3, 3, 1);
+			return view;
 		}
 
 		static myType Translation(float x, float y, float z) {
 			//StaticAssert(X == 4 && Y == 4);
 			myType m = Identity();
-			m.Set(3, 0, x);
-			m.Set(3, 1, y);
-			m.Set(3, 2, z);
+			m.Set(0, 3, x);
+			m.Set(1, 3, y);
+			m.Set(2, 3, z);
 			return m;
 		}
 
@@ -148,45 +130,79 @@ namespace Kore {
 		static myType RotationX(float alpha) {
 			//StaticAssert(X >= 3 && Y >= 3);
 			myType m = Identity();
-			m.Set(1, 1, cos(alpha));
-			m.Set(2, 1, -sin(alpha));
-			m.Set(1, 2, sin(alpha));
-			m.Set(2, 2, cos(alpha));
+			const float ca = cos(alpha);
+			const float sa = sin(alpha);
+			m.Set(1, 1,  ca);
+			m.Set(1, 2, -sa);
+			m.Set(2, 1,  sa);
+			m.Set(2, 2,  ca);
 			return m;
 		}
 
 		static myType RotationY(float alpha) {
 			//StaticAssert(X >= 3 && Y >= 3);
 			myType m = Identity();
-			m.Set(0, 0, cos(alpha));
-			m.Set(2, 0, sin(alpha));
-			m.Set(0, 2, -sin(alpha));
-			m.Set(2, 2, cos(alpha));
+			const float ca = cos(alpha);
+			const float sa = sin(alpha);
+			m.Set(0, 0,  ca);
+			m.Set(0, 2,  sa);
+			m.Set(2, 0, -sa);
+			m.Set(2, 2,  ca);
 			return m;
 		}
 
 		static myType RotationZ(float alpha) {
 			//StaticAssert(X >= 3 && Y >= 3);
 			myType m = Identity();
-			m.Set(0, 0, cos(alpha));
-			m.Set(1, 0, -sin(alpha));
-			m.Set(0, 1, sin(alpha));
-			m.Set(1, 1, cos(alpha));
+			const float ca = cos(alpha);
+			const float sa = sin(alpha);
+			m.Set(0, 0,  ca);
+			m.Set(0, 1, -sa);
+			m.Set(1, 0,  sa);
+			m.Set(1, 1,  ca);
+			return m;
+		}
+
+		static myType Rotation(float yaw, float pitch, float roll) {
+			myType m = Identity();
+			float sy = sin(yaw);
+			float cy = cos(yaw);
+			float sx = sin(pitch);
+			float cx = cos(pitch);
+			float sz = sin(roll);
+			float cz = cos(roll);
+			m.Set(0, 0, cx*cy);    m.Set(0, 1, cx*sy*sz - sx*cz);    m.Set(0, 2, cx*sy*cz + sx*sz);
+			m.Set(1, 0, sx*cy);    m.Set(1, 1, sx*sy*sz + cx*cz);    m.Set(1, 2, sx*sy*cz - cx*sz);
+			m.Set(2, 0, -sy);      m.Set(2, 1, cy*sz);               m.Set(2, 2, cy*cz);
 			return m;
 		}
 
 		Matrix() {
 			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) matrix[x][y] = 0;
 		}
-		RowSetter operator [](unsigned i) { return RowSetter(this, i); }
+		Matrix(myType const &other) {
+			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) matrix[x][y] = other.matrix[x][y];
+		}
+		explicit Matrix(Matrix<X + 1, Y + 1, T> const &other) {
+			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) matrix[x][y] = other.matrix[x][y];
+		}
+		explicit Matrix(Matrix<X - 1, Y - 1, T> const &other) {
+			for (unsigned x = 0; x < X - 1; ++x) {
+				for (unsigned y = 0; y < Y - 1; ++y) matrix[x][y] = other.matrix[x][y];
+				matrix[x][Y - 1] = 0;
+			}
+			for (unsigned y = 0; y < Y - 1; ++y) matrix[X - 1][y] = 0;
+			matrix[X - 1][Y - 1] = 1;
+		}
+
 		myType operator +(myType aMatrix) {
 			myType m;
-			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) m[x][y] = matrix[x][y] + aMatrix[x][y];
+			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) m[x][y] = matrix[x][y] + aMatrix.matrix[x][y];
 			return m;
 		}
 		myType operator -(myType aMatrix) {
 			myType m;
-			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) m[x][y] = matrix[x][y] - aMatrix[x][y];
+			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) m[x][y] = matrix[x][y] - aMatrix.matrix[x][y];
 			return m;
 		}
 		
@@ -198,15 +214,16 @@ namespace Kore {
 
 		Matrix<Y, X, T> Transpose() const {
 			Matrix<Y, X, T> transpose;
-			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) transpose[y][x] = matrix[x][y];
+			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) transpose.matrix[y][x] = matrix[x][y];
 			return transpose;
 		}
 		
 		Matrix<Y, X, T> Transpose3x3() const {
 			//StaticAssert(X >= 3 && Y >= 3);
 			Matrix<Y, X, T> transpose;
-			for (unsigned x = 0; x < 3; ++x) for (unsigned y = 0; y < 3; ++y) transpose[y][x] = matrix[x][y];
-			for (unsigned x = 3; x < X; ++x) for (unsigned y = 3; y < Y; ++y) transpose[x][y] = matrix[x][y];
+			for (unsigned x = 0; x < 3; ++x) for (unsigned y = 0; y < 3; ++y) transpose.matrix[y][x] = matrix[x][y];
+			for (unsigned x = 3; x < X; ++x) transpose.matrix[Y][x] = matrix[x][Y];
+			for (unsigned y = 3; y < Y - 1; ++y) transpose.matrix[y][X] = matrix[X][y];
 			return transpose;
 		}
 		
@@ -217,29 +234,55 @@ namespace Kore {
 			return t;
 		}
 
-		template<class M> Matrix<M::Width, Y, T> operator*(M m) const {
-			//StaticAssert(X == M::Height);
-			Matrix<M::Width, Y, T> product;
-			for (unsigned x = 0; x < M::Width; ++x) for (unsigned y = 0; y < Y; ++y) {
-				T t = 0;
-				for (unsigned i = 0; i < X; ++i) t += matrix[i][y] * m[x][i];
-				product[x][y] = t;
+		template<unsigned X2> Matrix<X2, Y, T> operator*(const Matrix<X2, X, T>& m) const {
+			Matrix<X2, Y, T> product;
+			for (unsigned x = 0; x < X2; ++x) for (unsigned y = 0; y < Y; ++y) {
+				T t = matrix[0][y] * m.matrix[x][0];
+				for (unsigned i = 1; i < X; ++i) t += matrix[i][y] * m.matrix[x][i];
+				product.matrix[x][y] = t;
 			}
 			return product;
+		}
+
+		template <unsigned S>
+		Matrix<S, S, T>& operator*=(const Matrix<S, S, T>& m) {
+			return *this = *this * m;
+		}
+		template <>
+		Matrix<3, 3, T>& operator*=(const Matrix<3, 3, T>& m) {
+			for (unsigned y = 0; y < Y; ++y) {
+				float a0 = matrix[0][y];
+				float a1 = matrix[1][y];
+				float a2 = matrix[2][y];
+				matrix[0][y] = a0 * m.matrix[0][0] + a1 * m.matrix[0][1] + a2 * m.matrix[0][2];
+				matrix[1][y] = a0 * m.matrix[1][0] + a1 * m.matrix[1][1] + a2 * m.matrix[1][2];
+				matrix[2][y] = a0 * m.matrix[2][0] + a1 * m.matrix[2][1] + a2 * m.matrix[2][2];
+			}
+			return *this;
+		}
+		template <>
+		Matrix<4, 4, T>& operator*=(const Matrix<4, 4, T>& m) {
+			for (unsigned y = 0; y < Y; ++y) {
+				float a0 = matrix[0][y];
+				float a1 = matrix[1][y];
+				float a2 = matrix[2][y];
+				float a3 = matrix[3][y];
+				matrix[0][y] = a0 * m.matrix[0][0] + a1 * m.matrix[0][1] + a2 * m.matrix[0][2] + a3 * m.matrix[0][3];
+				matrix[1][y] = a0 * m.matrix[1][0] + a1 * m.matrix[1][1] + a2 * m.matrix[1][2] + a3 * m.matrix[1][3];
+				matrix[2][y] = a0 * m.matrix[2][0] + a1 * m.matrix[2][1] + a2 * m.matrix[2][2] + a3 * m.matrix[2][3];
+				matrix[3][y] = a0 * m.matrix[3][0] + a1 * m.matrix[3][1] + a2 * m.matrix[3][2] + a3 * m.matrix[3][3];
+			}
+			return *this;
 		}
 
 		Vector<T, X> operator*(const Vector<T, X>& vec) const {
 			Vector<T, X> product;
 			for (unsigned y = 0; y < Y; ++y) {
 				T t = 0;
-				for (unsigned i = 0; i < X; ++i) t += matrix[i][y] * vec[i];
+				for (unsigned x = 0; x < X; ++x) t += matrix[x][y] * vec[x];
 				product[y] = t;
 			}
 			return product;
-		}
-
-		void operator*=(Matrix<X, Y, T> m) {
-			*this = *this * m;
 		}
 
 		T Determinant() {
@@ -282,7 +325,7 @@ namespace Kore {
 			Matrix<Y, X, T> result;
 			for (unsigned x = 0; x < X; ++x)
 				for (unsigned y = 0; y < Y; ++y)
-					result.data[x][y] = a.data[x][y] * (1 - prop) + b.data[x][y] * prop;
+					result.matrix[x][y] = a.matrix[x][y] * (1 - prop) + b.matrix[x][y] * prop;
 			return result;
 		}
 
@@ -319,10 +362,9 @@ namespace Kore {
 			//if (Determinant() == 0) throw Exception(L"No Inverse");
 			// m: Matrix, nz: Anzahl der Zeilen
 			T q;
-			myType I;
+			myType I = myType::Identity();
 
-			for (unsigned i = 0; i < X; ++i) I[i][i] = 1;
-			for (unsigned j = 0; j < X; j++) {
+			for (unsigned j = 0; j < X; ++j) {
 				// Diagonalenfeld normalisieren
 				q = matrix[j][j];
 				if (q == 0) {
@@ -333,7 +375,7 @@ namespace Kore {
 						if (matrix[j][i] != 0) {
 							for (unsigned k = 0; k < X; ++k) {
 								matrix[k][j] = matrix[k][j] + matrix[k][i];
-								I[k][j] = I[k][j] + I[k][i];
+								I.matrix[k][j] = I.matrix[k][j] + I.matrix[k][i];
 							}
 							q = matrix[j][j];
 							break;
@@ -344,7 +386,7 @@ namespace Kore {
 					// Diagonalen auf 1 bringen
 					for (unsigned k = 0; k < X; ++k) {
 						matrix[k][j] = matrix[k][j] / q;
-						I[k][j] = I[k][j] / q;
+						I.matrix[k][j] = I.matrix[k][j] / q;
 					}
 				}
 				// Spalten außerhalb der Diagonalen auf 0 bringen
@@ -352,7 +394,7 @@ namespace Kore {
 					if (i != j) {
 						q = matrix[j][i];
 						for (unsigned k = 0; k < X; ++k) {
-							I[k][i] = I[k][i] - q * I[k][j];
+							I.matrix[k][i] = I.matrix[k][i] - q * I.matrix[k][j];
 							matrix[k][i] = matrix[k][i] - q * matrix[k][j];
 						}
 					}
@@ -390,4 +432,22 @@ namespace Kore {
 	typedef Matrix<4, 2, double> dmat4x2;
 	typedef Matrix<4, 3, double> dmat4x3;
 	typedef Matrix<4, 4, double> dmat4x4;
+
+#ifndef _NO_CPP11_ // TODO: leave old c++ behind?
+	static_assert(sizeof(mat3) == sizeof(float[3][3]), "Matrix4x4 does not match float[3][3] in size!");
+	static_assert(sizeof(mat4) == sizeof(float[4][4]), "Matrix4x4 does not match float[4][4] in size!");
+#else
+// _STATIC_ASSERT from malloc.h
+#ifndef _STATIC_ASSERT
+#define _STATIC_ASSERT(expr) typedef char __static_assert_t[ (expr) ]
+#define DO_STATIC_ASSERT_UNDEF_
+#endif
+
+	_STATIC_ASSERT(sizeof(mat4) == sizeof(float[4][4]));
+	_STATIC_ASSERT(sizeof(int) == sizeof(Color));
+
+#ifdef DO_STATIC_ASSERT_UNDEF_
+#undef _STATIC_ASSERT
+#endif
+#endif
 }
