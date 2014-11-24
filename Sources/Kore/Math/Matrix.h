@@ -91,7 +91,7 @@ namespace Kore {
 			xaxis.normalize();
 			vec3 yaxis = zaxis % xaxis;
 
-			mat4 view;
+			Matrix<4, 4, float> view;
 			view.Set(0, 0, xaxis.x()); view.Set(0, 1, xaxis.y()); view.Set(0, 2, xaxis.z()); view.Set(0, 3, -xaxis.dot(eye));
 			view.Set(1, 0, yaxis.x()); view.Set(1, 1, yaxis.y()); view.Set(1, 2, yaxis.z()); view.Set(1, 3, -yaxis.dot(eye));
 			view.Set(2, 0, zaxis.x()); view.Set(2, 1, zaxis.y()); view.Set(2, 2, zaxis.z()); view.Set(2, 3, -zaxis.dot(eye));
@@ -106,7 +106,7 @@ namespace Kore {
 			xaxis.normalize();
 			vec3 yaxis = zaxis % xaxis;
 
-			mat4 view;
+			Matrix<4, 4, float> view;
 			view.Set(0, 0, xaxis.x()); view.Set(0, 1, xaxis.y()); view.Set(0, 2, xaxis.z()); view.Set(0, 3, -xaxis.dot(eye));
 			view.Set(1, 0, yaxis.x()); view.Set(1, 1, yaxis.y()); view.Set(1, 2, yaxis.z()); view.Set(1, 3, -yaxis.dot(eye));
 			view.Set(2, 0, zaxis.x()); view.Set(2, 1, zaxis.y()); view.Set(2, 2, zaxis.z()); view.Set(2, 3, -zaxis.dot(eye));
@@ -264,7 +264,7 @@ namespace Kore {
 		Matrix<S, S, T>& operator*=(const Matrix<S, S, T>& m) {
 			return *this = *this * m;
 		}
-		template <>
+		
 		Matrix<3, 3, T>& operator*=(const Matrix<3, 3, T>& m) {
 			for (unsigned y = 0; y < Y; ++y) {
 				float a0 = matrix[0][y];
@@ -276,7 +276,7 @@ namespace Kore {
 			}
 			return *this;
 		}
-		template <>
+		
 		Matrix<4, 4, T>& operator*=(const Matrix<4, 4, T>& m) {
 			for (unsigned y = 0; y < Y; ++y) {
 				float a0 = matrix[0][y];
@@ -449,7 +449,8 @@ namespace Kore {
 	typedef Matrix<4, 3, double> dmat4x3;
 	typedef Matrix<4, 4, double> dmat4x4;
 
-#ifndef _NO_CPP11_ // TODO: leave old c++ behind?
+	/*
+#ifndef _NO_CPP11_ // TODO: leave old c++ behind? In ten years maybe.
 	static_assert(sizeof(mat3) == sizeof(float[3][3]), "Matrix4x4 does not match float[3][3] in size!");
 	static_assert(sizeof(mat4) == sizeof(float[4][4]), "Matrix4x4 does not match float[4][4] in size!");
 #else
@@ -466,4 +467,5 @@ namespace Kore {
 #undef _STATIC_ASSERT
 #endif
 #endif
+	 */
 }
