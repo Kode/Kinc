@@ -23,21 +23,26 @@ namespace Kore {
 		Vector(Type x, Type y, Type z, Type w) {
 			set(x, y, z, w);
 		}
+
 		Vector(const Vector<Type, count - 1> other, Type w) {
 			for (unsigned i = 0; i < count - 1; ++i) values[i] = other[i];
 			values[count - 1] = w;
 		}
-		/* construct new vector omitting last value */
-		explicit Vector(const Vector<Type, count + 1>& other) {
+		
+		// construct new vector omitting last value
+		Vector(const Vector<Type, count + 1>& other) {
 			for (unsigned i = 0; i < count; ++i) values[i] = other[i];
 		}
-		explicit inline operator Vector<Type, count - 1>&() {
+		
+		/*explicit inline operator Vector<Type, count - 1>&() {
 			return (Vector<Type, count - 1>&)*this;
 		}
+		
 		explicit inline operator const Vector<Type, count - 1>&() const {
 			return (const Vector<Type, count - 1>&)*this;
-		}
-		/* Constructs cartesian vector from a homogeneous one. */
+		}*/
+		
+		// Constructs cartesian vector from a homogeneous one
 		Vector<Type, count - 1> toCartesian() {
 			Vector<Type, count - 1> ret;
 			float wInv = values[count - 1];
