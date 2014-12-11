@@ -5,10 +5,8 @@ namespace Kore {
 	typedef unsigned short     u16; // 2 Byte
 	typedef unsigned int       u32; // 4 Byte
 
-#ifdef SYS_LINUX
 #if defined(__LP64__) || defined(_LP64)
 #define SYS_64
-#endif
 #endif
 
 #ifdef SYS_WINDOWS
@@ -25,20 +23,15 @@ namespace Kore {
 	typedef long long          s64;
 #endif
 
-	typedef u32                uint; // 4 Byte
-	typedef s32                sint; // 4 Byte
+typedef u32                uint; // 4 Byte
+typedef s32                sint; // 4 Byte
 
-#ifdef SYS_OSX
+#ifdef SYS_64
 	typedef s64 spint;
 	typedef u64 upint;
 #else
-	#ifdef SYS_64
-		typedef s64 spint;
-		typedef u64 upint;
-	#else
-		typedef s32 spint;
-		typedef u32 upint;
-	#endif
+	typedef s32 spint;
+	typedef u32 upint;
 #endif
 }
 
