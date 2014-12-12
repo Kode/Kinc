@@ -17,5 +17,6 @@ namespace Kore {
 		int stage;
 		bool mipmap;
 		u8 pixfmt;
+		int pitch;
 	};
 }

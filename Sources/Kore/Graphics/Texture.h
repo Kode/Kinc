@@ -15,6 +15,7 @@ namespace Kore {
 		void set(TextureUnit unit);
 		u8* lock();
 		void unlock();
+		int stride();
 		int texWidth;
 		int texHeight;
 	};
