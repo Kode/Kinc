@@ -79,6 +79,40 @@ Quaternion Quaternion::operator+(const Quaternion& q) const {
 	return Quaternion(x + q.x, y + q.y, z + q.z, w + q.w);
 }
 
+Quaternion Quaternion::operator+(const vec3& v) const {
+	Quaternion result(x, y, z, w); 
+	Quaternion q1(0,
+                v.x(),
+                v.y(), 
+                v.z());
+            q1 = q1 * result;
+			result.x += q1.x * 0.5f;
+			result.y += q1.y * 0.5f;
+			result.z += q1.z * 0.5f;
+			result.w += q1.w * 0.5f;
+			return result;
+}
+
+void Quaternion::operator+=(const vec3& v) {
+	Quaternion q(0, v.x(), v.y(), v.z());
+	rotate(q);
+	x += q.x * 0.5f;
+	y += q.y * 0.5f;
+	z += q.z * 0.5f;
+	w += q.w * 0.5f;
+}
+
+Quaternion Quaternion::operator*(const Quaternion& r) const {
+	Quaternion q;
+	q.x = x * r.x - y * r.y - z * r.z - w * r.w;
+	q.y = x * r.y + y * r.x - z * r.w + w * r.z;
+	q.z = x * r.z - y * r.w + z * r.x - w * r.y;
+	q.w = x * r.w + y * r.z - z * r.y + w * r.x;
+	return q;
+}
+
+
+
 bool Quaternion::operator==(const Quaternion& q) const {
 	return x == q.x && y == q.y && z == q.z && w == q.w;
 }
@@ -100,6 +134,6 @@ void Quaternion::rotate(const Quaternion& q2) {
 	q.y = q1.w * q2.y + q1.y * q2.w + q1.z * q2.x - q1.x * q2.z;
 	q.z = q1.w * q2.z + q1.z * q2.w + q1.x * q2.y - q1.y * q2.x;
 
-	q.normalize();
+	// q.normalize();
 	*this = q;
 }

@@ -14,11 +14,17 @@ namespace Kore {
 		float dot(const Quaternion& q) const;
 		mat4 matrix() const;
 		Quaternion operator+(const Quaternion& q) const;
+		Quaternion operator+(const vec3& v) const;
+		void operator+=(const vec3& v);
+		Quaternion operator*(const Quaternion& r) const;
 		Quaternion operator-(const Quaternion& q) const;
 		bool operator==(const Quaternion& q) const;
 		bool operator!=(const Quaternion& q) const;
 		void normalize();
 		void rotate(const Quaternion& q2);
+
+		
+
 	private:
 		float x, y, z, w;
 	};
