@@ -109,6 +109,10 @@ void Texture::set(TextureUnit unit) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 }
 
+int Texture::stride() {
+	return width * 4;
+}
+
 u8* Texture::lock() {
 	return (u8*)data;
 }
