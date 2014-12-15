@@ -243,25 +243,28 @@ namespace {
 
 namespace {
 	NSString* keyboardstring;
-    UITextField* myTextField;
+    UITextField* myTextField = nullptr;
 	bool shiftDown = false;
 }
 
 - (void)showKeyboard {
 	//[UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationLandscapeRight;
 	keyboardstring = [NSString string];
-	myTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-	[myTextField setDelegate:self];
-	[myTextField setBorderStyle:UITextBorderStyleRoundedRect];
-	[myTextField setBackgroundColor:[UIColor whiteColor]];
-	[myTextField setTextColor:[UIColor blackColor]];
-	[myTextField setClearButtonMode:UITextFieldViewModeAlways];
-	[myTextField setFont:[UIFont fontWithName:@"Arial" size:18.0f]];
-	[myTextField setPlaceholder:@"Tap here to edit"];
-	//[myTextField setTextAlignment:UITextAlignmentCenter];
-	[myTextField setReturnKeyType:UIReturnKeyDone];
+	if (myTextField == nullptr) {
+		myTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+		[myTextField setDelegate:self];
+		[myTextField setBorderStyle:UITextBorderStyleRoundedRect];
+		[myTextField setBackgroundColor:[UIColor whiteColor]];
+		[myTextField setTextColor:[UIColor blackColor]];
+		[myTextField setClearButtonMode:UITextFieldViewModeAlways];
+		[myTextField setFont:[UIFont fontWithName:@"Arial" size:18.0f]];
+		[myTextField setPlaceholder:@"Tap here to edit"];
+		//[myTextField setTextAlignment:UITextAlignmentCenter];
+		[myTextField setReturnKeyType:UIReturnKeyDone];
+	}
 	[self addSubview:myTextField];
 	[myTextField becomeFirstResponder];
+	
 }
 
 - (void)hideKeyboard {
@@ -281,7 +284,7 @@ namespace {
 	return YES;
 }
 
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+- (BOOL)textField:(UITextField*)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString*)string {
 	if ([string length] == 1) {
 		char ch = [string characterAtIndex: [string length] - 1];
 		if (ch >= L'a' && ch <= L'z') {
@@ -301,6 +304,7 @@ namespace {
 	}
 	else if ([string length] == 0 && range.length == 1) {
 		Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Backspace));
+		return NO;
 	}
 	return YES;
 }
