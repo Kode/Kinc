@@ -122,6 +122,7 @@ namespace Kore {
 		void setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4);
 		void setFloat4(ConstantLocation location, vec4 value);
 		void setFloats(ConstantLocation location, float* values, int count);
+		void setMatrix(ConstantLocation location, const mat3& value);
 		void setMatrix(ConstantLocation location, const mat4& value);
 	
 		void drawIndexedVertices();

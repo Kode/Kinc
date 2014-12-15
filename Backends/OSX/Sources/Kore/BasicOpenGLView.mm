@@ -27,6 +27,7 @@ namespace {
 }
 
 - (void)keyDown:(NSEvent*)theEvent {
+	if ([theEvent isARepeat]) return;
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
@@ -162,7 +163,7 @@ namespace {
 	Kore::Mouse::the()->_move(getMouseX(theEvent), getMouseY(theEvent));
 }
 
-- (void) prepareOpenGL {
+- (void)prepareOpenGL {
     const GLint swapInt = 1;
 
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval]; // set to vbl sync
@@ -172,11 +173,11 @@ namespace {
 	glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
 }
 
-- (void) update { // window resizes, moves and display changes (resize, depth and display config change)
+- (void)update { // window resizes, moves and display changes (resize, depth and display config change)
 	[super update];
 }
 
-- (id) initWithFrame: (NSRect) frameRect {
+- (id)initWithFrame: (NSRect) frameRect {
 	NSOpenGLPixelFormat * pf = [BasicOpenGLView basicPixelFormat];
 	self = [super initWithFrame: frameRect pixelFormat: pf];
 	

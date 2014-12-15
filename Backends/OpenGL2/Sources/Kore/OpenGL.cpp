@@ -176,8 +176,11 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
-	mat4 m = value.Transpose();
-	glUniformMatrix4fv(location.location, 1, GL_FALSE, &m.matrix[0][0]);
+	glUniformMatrix4fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
+}
+
+void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
+	glUniformMatrix3fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
 }
 
 void Graphics::drawIndexedVertices() {
@@ -239,9 +242,9 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 #endif
 	glClearStencil(stencil);
 	GLbitfield oglflags =
-		  (flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0
-		| (flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT: 0
-		| (flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT: 0;
+		  ((flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0)
+		| ((flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT : 0)
+		| ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT: 0);
 	glClear(oglflags);
 }
 

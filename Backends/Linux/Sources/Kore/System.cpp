@@ -104,57 +104,87 @@ bool System::handleMessages() {
 			KeySym keysym;
 			char buffer[1];
 			XLookupString(key, buffer, 1, &keysym, NULL);
+			#define KEY(xkey, korekey) case xkey: Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::korekey)); break;
 			switch (keysym) {
-			case XK_Right:
-			case XK_d:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Right));
-				break;
-			case XK_Left:
-			case XK_a:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Left));
-				break;
-			case XK_Up:
-			case XK_w:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Up));
-				break;
-			case XK_Down:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Down));
-				break;
-            case XK_space:
-                Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Space));
-                break;
+			KEY(XK_Right, Key_Right)
+			KEY(XK_Left, Key_Left)
+			KEY(XK_Up, Key_Up)
+			KEY(XK_Down, Key_Down)
+			KEY(XK_space, Key_Space)
+			KEY(XK_a, Key_A)
+			KEY(XK_b, Key_B)
+			KEY(XK_c, Key_C)
+			KEY(XK_d, Key_D)
+			KEY(XK_e, Key_E)
+			KEY(XK_f, Key_F)
+			KEY(XK_g, Key_G)
+			KEY(XK_h, Key_H)
+			KEY(XK_i, Key_I)
+			KEY(XK_j, Key_J)
+			KEY(XK_k, Key_K)
+			KEY(XK_l, Key_L)
+			KEY(XK_m, Key_M)
+			KEY(XK_n, Key_N)
+			KEY(XK_o, Key_O)
+			KEY(XK_p, Key_P)
+			KEY(XK_q, Key_Q)
+			KEY(XK_r, Key_R)
+			KEY(XK_s, Key_S)
+			KEY(XK_t, Key_T)
+			KEY(XK_u, Key_U)
+			KEY(XK_v, Key_V)
+			KEY(XK_w, Key_W)
+			KEY(XK_x, Key_X)
+			KEY(XK_y, Key_Y)
+			KEY(XK_z, Key_Z)
 			case XK_Escape:
 				Application::the()->stop();
 				break;
 			}
 			break;
+			#undef KEY
 		}
 		case KeyRelease: {
 			XKeyEvent* key = (XKeyEvent*)&event;
 			KeySym keysym;
 			char buffer[1];
 			XLookupString(key, buffer, 1, &keysym, NULL);
+			#define KEY(xkey, korekey) case xkey: Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::korekey)); break;
 			switch (keysym) {
-			case XK_Right:
-			case XK_d:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Right));
-				break;
-			case XK_Left:
-			case XK_a:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Left));
-				break;
-			case XK_Up:
-			case XK_w:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Up));
-				break;
-			case XK_Down:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Down));
-				break;
-            case XK_space:
-                Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Space));
-                break;
+			KEY(XK_Right, Key_Right)
+			KEY(XK_Left, Key_Left)
+			KEY(XK_Up, Key_Up)
+			KEY(XK_Down, Key_Down)
+			KEY(XK_space, Key_Space)
+			KEY(XK_a, Key_A)
+			KEY(XK_b, Key_B)
+			KEY(XK_c, Key_C)
+			KEY(XK_d, Key_D)
+			KEY(XK_e, Key_E)
+			KEY(XK_f, Key_F)
+			KEY(XK_g, Key_G)
+			KEY(XK_h, Key_H)
+			KEY(XK_i, Key_I)
+			KEY(XK_j, Key_J)
+			KEY(XK_k, Key_K)
+			KEY(XK_l, Key_L)
+			KEY(XK_m, Key_M)
+			KEY(XK_n, Key_N)
+			KEY(XK_o, Key_O)
+			KEY(XK_p, Key_P)
+			KEY(XK_q, Key_Q)
+			KEY(XK_r, Key_R)
+			KEY(XK_s, Key_S)
+			KEY(XK_t, Key_T)
+			KEY(XK_u, Key_U)
+			KEY(XK_v, Key_V)
+			KEY(XK_w, Key_W)
+			KEY(XK_x, Key_X)
+			KEY(XK_y, Key_Y)
+			KEY(XK_z, Key_Z)
 			}
 			break;
+			#undef KEY
 		}
 		case ButtonPress: {
 			XButtonEvent* button = (XButtonEvent*)&event;
@@ -225,7 +255,7 @@ void Kore::System::hideKeyboard() {
 }
 
 void Kore::System::loadURL(const char* url) {
-    
+
 }
 
 int Kore::System::screenWidth() {
