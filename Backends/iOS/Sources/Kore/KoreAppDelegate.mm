@@ -48,11 +48,10 @@ int kore(int argc, char** argv);
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
 	//CGRect rect = [[UIScreen mainScreen] applicationFrame];
-	
-	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-	[window setBackgroundColor:[UIColor blackColor]];
-	
 	CGRect screenBounds = [[UIScreen mainScreen] bounds];
+	
+	window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, Kore::min(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
+	[window setBackgroundColor:[UIColor blackColor]];
 	
 	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::min(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
 	
