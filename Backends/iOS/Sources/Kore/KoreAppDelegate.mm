@@ -2,6 +2,7 @@
 #import "GLView.h"
 #include "pch.h"
 #include <Kore/Application.h>
+#include <Kore/Math/Core.h>
 #include <wchar.h>
 
 @implementation KoreAppDelegate
@@ -47,13 +48,12 @@ int kore(int argc, char** argv);
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
 	//CGRect rect = [[UIScreen mainScreen] applicationFrame];
-	
-	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-	[window setBackgroundColor:[UIColor blackColor]];
-	
 	CGRect screenBounds = [[UIScreen mainScreen] bounds];
 	
-	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height)];
+	window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, Kore::min(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
+	[window setBackgroundColor:[UIColor blackColor]];
+	
+	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::min(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
 	
 	[window addSubview:glView];
 	[window makeKeyAndVisible];

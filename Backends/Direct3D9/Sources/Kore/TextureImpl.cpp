@@ -30,6 +30,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
 	D3DLOCKED_RECT rect;
 	affirm(texture->LockRect(0, &rect, 0, 0));
+	pitch = rect.Pitch;
 	u8* from = (u8*)data;
 	u8* to = (u8*)rect.pBits;
 	//memcpy(to, from, width * height * sizeOf(format));
@@ -83,9 +84,14 @@ void TextureImpl::unset() {
 u8* Texture::lock() {
 	D3DLOCKED_RECT rect;
 	affirm(texture->LockRect(0, &rect, 0, 0));
+	pitch = rect.Pitch;
 	return (u8*)rect.pBits;
 }
 
 void Texture::unlock() {
 	affirm(texture->UnlockRect(0));
+}
+
+int Texture::stride() {
+	return pitch;
 }
