@@ -18,6 +18,6 @@ namespace Kore {
 		int width, height;
 		Format format;
 		bool readable;
-		void* data;
+		u8* data;
 	};
 }

@@ -52,6 +52,41 @@ namespace {
 			break;
 		}
 	}
+	
+	void convertImage2(Image::Format format, u8* from, int fw, int fh, u8* to, int tw, int th) {
+		switch (format) {
+			case Image::RGBA32:
+				for (int y = 0; y < th; ++y) {
+					for (int x = 0; x < tw; ++x) {
+						to[tw * 4 * y + x * 4 + 0] = 0;
+						to[tw * 4 * y + x * 4 + 1] = 0;
+						to[tw * 4 * y + x * 4 + 2] = 0;
+						to[tw * 4 * y + x * 4 + 3] = 0;
+					}
+				}
+				for (int y = 0; y < fh; ++y) {
+					for (int x = 0; x < fw; ++x) {
+						to[tw * 4 * y + x * 4 + 2] = from[y * fw * 4 + x * 4 + 0]; // blue
+						to[tw * 4 * y + x * 4 + 1] = from[y * fw * 4 + x * 4 + 1]; // green
+						to[tw * 4 * y + x * 4 + 0] = from[y * fw * 4 + x * 4 + 2]; // red
+						to[tw * 4 * y + x * 4 + 3] = from[y * fw * 4 + x * 4 + 3]; // alpha
+					}
+				}
+				break;
+			case Image::Grey8:
+				for (int y = 0; y < th; ++y) {
+					for (int x = 0; x < tw; ++x) {
+						to[tw * y + x] = 0;
+					}
+				}
+				for (int y = 0; y < fh; ++y) {
+					for (int x = 0; x < fw; ++x) {
+						to[tw * y + x] = from[y * fw + x];
+					}
+				}
+				break;
+		}
+	}
 }
 
 Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
@@ -114,10 +149,12 @@ u8* Texture::lock() {
 }
 
 void Texture::unlock() {
-	convertImage(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	if (conversionBuffer != nullptr) {
+		convertImage2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		glBindTexture(GL_TEXTURE_2D, texture);
 #ifndef GL_LUMINANCE
 #define GL_LUMINANCE GL_RED
 #endif
-	glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
+	}
 }
