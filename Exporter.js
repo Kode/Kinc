@@ -33,7 +33,7 @@ Exporter.prototype.copyDirectory = function (from, to) {
 	for (var f in files) {
 		var file = Paths.get(from, files[f]);
 		if (Files.isDirectory(file)) this.copyDirectory(file, to.resolve(file));
-		else this.copyFile(file, to.resolve(file));
+		else this.copyFile(file, to.resolve(files[f]));
 	}
 };
 
