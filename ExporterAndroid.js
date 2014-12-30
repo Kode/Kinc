@@ -29,7 +29,7 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 	else {
 		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", ".project")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
-		if (Project.koreDir.toString() != "") file = file.replaceAll("{Java-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Java-Sources")).toAbsolutePath().toString());
+		if (Project.koreDir.toString() != "") file = file.replaceAll("{Java-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Java-Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
 		fs.writeFileSync(to.resolve('.project').toString(), file);
 	}
 
