@@ -50,7 +50,7 @@ namespace {
 	//To debug startup behavior set the debuggingDelay to about 200.
 	bool initialized = false;
 	int debuggingDelayCount = 0;
-	const int debuggingDelay = 300;
+	const int debuggingDelay = 0;
 }
 
 void Kore::System::showKeyboard() {
