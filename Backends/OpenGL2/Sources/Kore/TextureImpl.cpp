@@ -117,7 +117,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	}
 	else {
 		u8* data2 = new u8[texWidth * texHeight * sizeOf(format)];
-		convertImage(format, (u8*)data, width, height, data2, texWidth, texHeight);
+		convertImage2(format, (u8*)data, width, height, data2, texWidth, texHeight);
 		delete[] data;
 		data = data2;
 	}
