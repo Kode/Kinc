@@ -72,12 +72,13 @@ static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
 		case UIDeviceOrientationPortrait:
 			return Kore::OrientationPortrait;
 		case UIDeviceOrientationPortraitUpsideDown:
-		default:
 			return Kore::OrientationPortraitUpsideDown;
+		default:
+			return Kore::OrientationUnknown;
 	}
 }
 
-static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orientation) {
+static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orientation, UIInterfaceOrientation lastOrientation) {
     switch (orientation) {
 		case UIDeviceOrientationLandscapeLeft:
 			return UIInterfaceOrientationLandscapeRight;
@@ -86,8 +87,9 @@ static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orient
 		case UIDeviceOrientationPortrait:
 			return UIInterfaceOrientationPortrait;
 		case UIDeviceOrientationPortraitUpsideDown:
-		default:
 			return UIInterfaceOrientationPortraitUpsideDown;
+		default:
+			return lastOrientation;
 	}
 }
 
@@ -95,7 +97,7 @@ void KoreUpdateKeyboard();
 
 - (void)didRotate:(NSNotification*)notification {
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->orientationCallback != nullptr) Kore::Application::the()->orientationCallback(convertOrientation([[UIDevice currentDevice] orientation]));
-    [UIApplication sharedApplication].statusBarOrientation = convertAppleOrientation([[UIDevice currentDevice] orientation]);
+    [UIApplication sharedApplication].statusBarOrientation = convertAppleOrientation([[UIDevice currentDevice] orientation], [UIApplication sharedApplication].statusBarOrientation);
     KoreUpdateKeyboard();
 }
 

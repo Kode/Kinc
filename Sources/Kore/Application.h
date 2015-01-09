@@ -5,7 +5,8 @@ namespace Kore {
 		OrientationLandscapeLeft,
 		OrientationLandscapeRight,
 		OrientationPortrait,
-		OrientationPortraitUpsideDown
+		OrientationPortraitUpsideDown,
+		OrientationUnknown
 	};
 	
 	class Application {
