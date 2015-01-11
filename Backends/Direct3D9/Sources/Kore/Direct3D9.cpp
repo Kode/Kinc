@@ -430,10 +430,6 @@ void Graphics::setRenderState(RenderState state, bool on) {
 	case Normalize:
 		device->SetRenderState(D3DRS_NORMALIZENORMALS, on ? TRUE : FALSE);
 		break;
-	case BackfaceCulling:
-		if (on) device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-		else device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-		break;
 	case ScissorTestState:
 		device->SetRenderState(D3DRS_SCISSORTESTENABLE, on ? TRUE : FALSE);
 		break;
@@ -463,10 +459,24 @@ void Graphics::setRenderState(RenderState state, int v) {
 		}
 		device->SetRenderState(D3DRS_ZFUNC, v);
 		break;
+	case Culling:
+		switch (v) {
+		case Clockwise:
+			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+			break;
+		case CounterClockwise:
+			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+			break;
+		case None:
+			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+			break;
+		default:
+			break;
+		}
 	case AlphaReferenceState:
 		device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
 		break;
-	}                
+	}
 }
 
 void Graphics::setRenderState(RenderState state, float value) {

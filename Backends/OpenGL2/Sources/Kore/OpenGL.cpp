@@ -262,10 +262,6 @@ void Graphics::setRenderState(RenderState state, bool on) {
 		if (on) glEnable(GL_BLEND);
 		else glDisable(GL_BLEND);
 		break;
-	case BackfaceCulling:
-		if (on) glCullFace(GL_BACK);
-		else glCullFace(GL_NONE);
-		break;
 	default:
 		break;
 	}
@@ -297,7 +293,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 	switch (state) {
 	case DepthTestCompare:
 		switch (v) {
-			default:
+		default:
 			case ZCompareAlways      : v = GL_ALWAYS; break;
 			case ZCompareNever       : v = GL_NEVER; break;
 			case ZCompareEqual       : v = GL_EQUAL; break;
@@ -308,6 +304,23 @@ void Graphics::setRenderState(RenderState state, int v) {
 			case ZCompareGreaterEqual: v = GL_GEQUAL; break;
 		}
 		glDepthFunc(v);
+		break;
+	case Culling:
+		switch (v) {
+		case Clockwise:
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+			break;
+		case CounterClockwise:
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			break;
+		case None:
+			glDisable(GL_CULL_FACE);
+			break;
+		default:
+			break;
+		}
 		break;
 	default:
 		break;
