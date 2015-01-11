@@ -305,7 +305,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 		}
 		glDepthFunc(v);
 		break;
-	case Culling:
+	case BackfaceCulling:
 		switch (v) {
 		case Clockwise:
 			glEnable(GL_CULL_FACE);

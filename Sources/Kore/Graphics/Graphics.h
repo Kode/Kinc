@@ -51,7 +51,7 @@ namespace Kore {
 	};
 
 	enum RenderState {
-		BlendingState, DepthTest, DepthTestCompare, /*Lighting,*/ DepthWrite, Normalize, Culling, /*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
+		BlendingState, DepthTest, DepthTestCompare, /*Lighting,*/ DepthWrite, Normalize, BackfaceCulling, /*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
 		AlphaTestState, AlphaReferenceState
 	};
 

@@ -459,7 +459,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 		}
 		device->SetRenderState(D3DRS_ZFUNC, v);
 		break;
-	case Culling:
+	case BackfaceCulling:
 		switch (v) {
 		case Clockwise:
 			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
