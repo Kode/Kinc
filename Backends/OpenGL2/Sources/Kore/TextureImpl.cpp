@@ -53,6 +53,19 @@ namespace {
 		}
 	}
 	
+	void convertCompressedImage(u8* from, int fw, int fh, u8* to, int tw, int th) {
+		for (int y = 0; y < th; ++y) {
+			for (int x = 0; x < tw / 2; ++x) {
+				to[tw / 2 * y + x] = 0;
+			}
+		}
+		for (int y = 0; y < fh; ++y) {
+			for (int x = 0; x < fw / 2; ++x) {
+				to[tw / 2 * y + x] = from[tw / 2 * y + x];
+			}
+		}
+	}
+	
 	void convertImage2(Image::Format format, u8* from, int fw, int fh, u8* to, int tw, int th) {
 		switch (format) {
 			case Image::RGBA32:
@@ -92,14 +105,34 @@ namespace {
 Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
+	
+	if (compressed) {
+		texWidth = Kore::max(texWidth, texHeight);
+		texHeight = Kore::max(texWidth, texHeight);
+		if (texWidth < 8) texWidth = 8;
+		if (texHeight < 8) texHeight = 8;
+	}
 
-	conversionBuffer = new u8[texWidth * texHeight * sizeOf(format)];
-	convertImage(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
-
+	if (!compressed) {
+		conversionBuffer = new u8[texWidth * texHeight * sizeOf(format)];
+		convertImage(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+	}
+	else {
+		conversionBuffer = new u8[texWidth * texHeight / 2];
+		convertCompressedImage((u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+	}
+	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, conversionBuffer);
+	if (compressed) {
+#ifdef SYS_IOS
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, conversionBuffer);
+#endif
+	}
+	else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, conversionBuffer);
+	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
@@ -110,7 +143,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	
 	delete[] conversionBuffer;
 	conversionBuffer = nullptr;
-
+	
 	if (!readable) {
 		delete[] data;
 		data = nullptr;

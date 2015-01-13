@@ -40,7 +40,7 @@ extern mz_zip_archive* getApk();
 
 using namespace Kore;
 
-FileReader::FileReader() {
+FileReader::FileReader() : readdata(nullptr) {
 #ifdef SYS_ANDROID
 	data.all = nullptr;
 	data.size = 0;
@@ -52,7 +52,7 @@ FileReader::FileReader() {
 #endif
 }
 
-FileReader::FileReader(const char* filename, FileType type) {
+FileReader::FileReader(const char* filename, FileType type) : readdata(nullptr) {
 #ifdef SYS_ANDROID
 	data.all = nullptr;
 	data.size = 0;
@@ -220,9 +220,10 @@ void* FileReader::readAll() {
 	}
 #else
 	seek(0);
-	void* data = new Kore::u8[this->data.size];
-	read(data, this->data.size);
-	return data;
+	delete[] readdata;
+	readdata = new Kore::u8[this->data.size];
+	read(readdata, this->data.size);
+	return readdata;
 #endif
 }
 
@@ -251,6 +252,7 @@ void FileReader::close() {
 	fclose((FILE*)data.file);
 	data.file = nullptr;
 #endif
+	delete[] readdata;
 }
 
 FileReader::~FileReader() {

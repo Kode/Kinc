@@ -4,8 +4,19 @@
 #include <Kore/Graphics/Graphics.h>
 #include "stb_image.h"
 #include <stdio.h>
+#include <string.h>
 
 using namespace Kore;
+
+namespace {
+	bool endsWith(const char* str, const char* suffix) {
+		if (!str || !suffix) return 0;
+		size_t lenstr = strlen(str);
+		size_t lensuffix = strlen(suffix);
+		if (lensuffix > lenstr) return 0;
+		return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+	}
+}
 
 int Image::sizeOf(Image::Format format) {
 	switch (format) {
@@ -18,15 +29,43 @@ int Image::sizeOf(Image::Format format) {
 }
 
 Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), format(format), readable(readable) {
+	compressed = false;
 	data = new u8[width * height * sizeOf(format)];
 }
 
 Image::Image(const char* filename, bool readable) : format(RGBA32), readable(readable) {
 	printf("Image %s\n", filename);
 	FileReader file(filename);
-	int size = file.size();
-	int comp;
-	data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+	if (endsWith(filename, ".pvr")) {
+		u32 version = file.readU32LE();
+		u32 flags = file.readU32LE();
+		u64 pixelFormat1 = file.readU64LE();
+		u32 colourSpace = file.readU32LE();
+		u32 channelType = file.readU32LE();
+		u32 height = file.readU32LE();
+		u32 width = file.readU32LE();
+		u32 depth = file.readU32LE();
+		u32 numSurfaces = file.readU32LE();
+		u32 numFaces = file.readU32LE();
+		u32 mipMapCount = file.readU32LE();
+		u32 metaDataSize = file.readU32LE();
+		
+		this->width = width;
+		this->height = height;
+		compressed = true;
+		
+		u8* all = (u8*)file.readAll();
+		data = new u8[width * height / 2];
+		for (int i = 0; i < width * height / 2; ++i) {
+			data[i] = all[52 + metaDataSize + i];
+		}
+	}
+	else {
+		int size = file.size();
+		int comp;
+		compressed = false;
+		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+	}
 }
 
 Image::~Image() {

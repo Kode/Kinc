@@ -12,6 +12,10 @@ namespace Kore {
 
 		float readF32LE();
 		float readF32BE();
+		u64 readU64LE();
+		u64 readU64BE();
+		s64 readS64LE();
+		s64 readS64BE();
 		u32 readU32LE();
 		u32 readU32BE();
 		s32 readS32LE();
@@ -25,6 +29,10 @@ namespace Kore {
 
 		static float readF32LE(u8* data);
 		static float readF32BE(u8* data);
+		static u64 readU64LE(u8* data);
+		static u64 readU64BE(u8* data);
+		static s64 readS64LE(u8* data);
+		static s64 readS64BE(u8* data);
 		static u32 readU32LE(u8* data);
 		static u32 readU32BE(u8* data);
 		static s32 readS32LE(u8* data);

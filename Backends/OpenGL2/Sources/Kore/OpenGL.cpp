@@ -222,6 +222,9 @@ void Graphics::end() {
 	while (code != GL_NO_ERROR) {
 		//std::printf("GLError: %s\n", gluErrorString(code));
 		switch (code) {
+		case 1281:
+			std::printf("OpenGL: Invalid value\n");
+			break;
 		case 1282:
 			std::printf("OpenGL: Invalid operation\n");
 			break;

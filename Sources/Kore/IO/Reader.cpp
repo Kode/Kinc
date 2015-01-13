@@ -25,6 +25,38 @@ float Reader::readF32BE(u8* data) {
 #endif
 }
 
+u64 Reader::readU64LE(u8* data) {
+#ifdef SYS_LITTLE_ENDIAN
+	return *(u64*)data;
+#else
+	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24) | (data[4] << 32) | (data[5] << 40) | (data[6] << 48) | (data[7] << 56);
+#endif
+}
+
+u64 Reader::readU64BE(u8* data) {
+#ifdef SYS_BIG_ENDIAN
+	return *(u64*)data;
+#else
+	return (data[7] << 0) | (data[6] << 8) | (data[5] << 16) | (data[4] << 24) | (data[3] << 32) | (data[2] << 40) | (data[1] << 48) | (data[0] << 56);
+#endif
+}
+
+s64 Reader::readS64LE(u8* data) {
+#ifdef SYS_LITTLE_ENDIAN
+	return *(s64*)data;
+#else
+	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24) | (data[4] << 32) | (data[5] << 40) | (data[6] << 48) | (data[7] << 56);
+#endif
+}
+
+s64 Reader::readS64BE(u8* data) {
+#ifdef SYS_BIG_ENDIAN
+	return *(s64*)data;
+#else
+	return (data[7] << 0) | (data[6] << 8) | (data[5] << 16) | (data[4] << 24) | (data[3] << 32) | (data[2] << 40) | (data[1] << 48) | (data[0] << 56);
+#endif
+}
+
 u32 Reader::readU32LE(u8* data) {
 #ifdef SYS_LITTLE_ENDIAN
 	return *(u32*)data;
@@ -99,6 +131,30 @@ float Reader::readF32BE() {
 	u8 data[4];
 	read(data, 4);
 	return readF32BE(&data[0]);
+}
+
+u64 Reader::readU64LE() {
+	u8 data[8];
+	read(data, 8);
+	return readU64LE(&data[0]);
+}
+
+u64 Reader::readU64BE() {
+	u8 data[8];
+	read(data, 8);
+	return readU64BE(&data[0]);
+}
+
+s64 Reader::readS64LE() {
+	u8 data[8];
+	read(data, 8);
+	return readS64LE(&data[0]);
+}
+
+s64 Reader::readS64BE() {
+	u8 data[8];
+	read(data, 8);
+	return readS64BE(&data[0]);
 }
 
 u32 Reader::readU32LE() {
