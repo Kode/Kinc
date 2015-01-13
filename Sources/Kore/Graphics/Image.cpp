@@ -50,8 +50,26 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
 		u32 mipMapCount = file.readU32LE();
 		u32 metaDataSize = file.readU32LE();
 		
-		this->width = width;
-		this->height = height;
+		u32 meta1fourcc = file.readU32LE();
+		u32 meta1key = file.readU32LE();
+		u32 meta1size = file.readU32LE();
+		u32 meta1data = file.readU32LE();
+		
+		u32 meta2fourcc = file.readU32LE();
+		u32 meta2key = file.readU32LE();
+		u32 meta2size = file.readU32LE();
+		u32 meta2data = file.readU32LE();
+		
+		int w = 0;
+		int h = 0;
+		
+		if (meta1fourcc == 0) w = meta1data;
+		if (meta1fourcc == 1) h = meta1data;
+		if (meta2fourcc == 0) w = meta2data;
+		if (meta2fourcc == 1) h = meta2data;
+		
+		this->width = w;
+		this->height = h;
 		compressed = true;
 		
 		u8* all = (u8*)file.readAll();

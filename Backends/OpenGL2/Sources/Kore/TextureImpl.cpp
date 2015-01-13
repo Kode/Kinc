@@ -61,7 +61,7 @@ namespace {
 		}
 		for (int y = 0; y < fh; ++y) {
 			for (int x = 0; x < fw / 2; ++x) {
-				to[tw / 2 * y + x] = from[tw / 2 * y + x];
+				to[tw / 2 * y + x] = from[fw / 2 * y + x];
 			}
 		}
 	}
@@ -119,7 +119,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	}
 	else {
 		conversionBuffer = new u8[texWidth * texHeight / 2];
-		convertCompressedImage((u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		convertCompressedImage((u8*)data, getPower2(width), getPower2(height), conversionBuffer, texWidth, texHeight);
 	}
 	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
