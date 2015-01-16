@@ -78,7 +78,7 @@ namespace Kore {
 	enum CullMode {
 		Clockwise,
 		CounterClockwise,
-		None
+		NoCulling
 	};
 
 	enum TexDir {

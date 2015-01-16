@@ -318,7 +318,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 			break;
-		case None:
+		case NoCulling:
 			glDisable(GL_CULL_FACE);
 			break;
 		default:

@@ -467,7 +467,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 		case CounterClockwise:
 			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 			break;
-		case None:
+		case NoCulling:
 			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 			break;
 		default:
