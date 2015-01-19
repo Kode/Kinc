@@ -2,6 +2,7 @@
 #include "TextureImpl.h"
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Graphics/Image.h>
+#include <Kore/Log.h>
 #include "ogl.h"
 
 using namespace Kore;
@@ -50,19 +51,6 @@ namespace {
 				}
 			}
 			break;
-		}
-	}
-	
-	void convertCompressedImage(u8* from, int fw, int fh, u8* to, int tw, int th) {
-		for (int y = 0; y < th; ++y) {
-			for (int x = 0; x < tw / 2; ++x) {
-				to[tw / 2 * y + x] = 0;
-			}
-		}
-		for (int y = 0; y < fh; ++y) {
-			for (int x = 0; x < fw / 2; ++x) {
-				to[tw / 2 * y + x] = from[fw / 2 * y + x];
-			}
 		}
 	}
 	
@@ -118,8 +106,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 		convertImage(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 	}
 	else {
-		conversionBuffer = new u8[texWidth * texHeight / 2];
-		convertCompressedImage((u8*)data, getPower2(width), getPower2(height), conversionBuffer, texWidth, texHeight);
+		conversionBuffer = nullptr;
 	}
 	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -127,7 +114,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	glBindTexture(GL_TEXTURE_2D, texture);
 	if (compressed) {
 #ifdef SYS_IOS
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, conversionBuffer);
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
 #endif
 	}
 	else {
@@ -149,10 +136,15 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 		data = nullptr;
 	}
 	else {
-		u8* data2 = new u8[texWidth * texHeight * sizeOf(format)];
-		convertImage2(format, (u8*)data, width, height, data2, texWidth, texHeight);
-		delete[] data;
-		data = data2;
+		if (compressed) {
+			log(Kore::Warning, "Compressed images can not be readable.");
+		}
+		else {
+			u8* data2 = new u8[texWidth * texHeight * sizeOf(format)];
+			convertImage2(format, (u8*)data, width, height, data2, texWidth, texHeight);
+			delete[] data;
+			data = data2;
+		}
 	}
 }
 
