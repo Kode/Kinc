@@ -5,18 +5,10 @@
 using namespace Kore;
 
 RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) {
-	myWidth = width;
-	myHeight = height;
+	this->texWidth = this->width = width;
+	this->texHeight = this->height = height;
 }
 
-void RenderTarget::useColorAsTexture(int texunit) {
+void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	
-}
-
-int RenderTarget::width() {
-	return myWidth;
-}
-
-int RenderTarget::height() {
-	return myHeight;
 }
