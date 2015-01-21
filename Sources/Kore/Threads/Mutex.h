@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef SYS_WINDOWS
+#include <pthread.h>
+#endif
+
 namespace Kore {
 	class Mutex {
 	public:
@@ -18,7 +22,7 @@ namespace Kore {
 			unsigned long __w64 SpinCount;
 		} criticalSection;
 	#else
-		u32 pthread_mutex[11];
+		pthread_mutex_t pthread_mutex;
 	#endif
 	};
 
