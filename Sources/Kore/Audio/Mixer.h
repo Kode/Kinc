@@ -11,6 +11,7 @@ namespace Kore {
 	namespace Mixer {
 		void init();
 		void play(Sound* sound);
+		void stop(Sound* sound);
 		void play(SoundStream* stream);
 		void stop(SoundStream* stream);
 #ifdef KOREVIDEO

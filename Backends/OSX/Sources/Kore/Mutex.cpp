@@ -6,24 +6,19 @@
 using namespace Kore;
 
 void Mutex::Create() {
-    //Kt::affirmD(sizeof(pthread_mutex) == sizeof(pthread_mutex_t));
-	pthread_mutex_t *const ptm = (pthread_mutex_t*)&pthread_mutex[0];
-	pthread_mutex_t temp = PTHREAD_MUTEX_INITIALIZER;
-	*ptm = temp;
+	pthread_mutex_init(&pthread_mutex, nullptr);
 }
 
 void Mutex::Free() {
-	pthread_mutex_destroy((pthread_mutex_t*)&pthread_mutex[0]);
+	pthread_mutex_destroy(&pthread_mutex);
 }
 
 void Mutex::Lock() {
-	int ret = pthread_mutex_lock((pthread_mutex_t*)&pthread_mutex[0]);
-    //Kt::affirmD(ret == 0);
+	pthread_mutex_lock(&pthread_mutex);
 }
 
 void Mutex::Unlock() {
-	int ret = pthread_mutex_unlock((pthread_mutex_t*)&pthread_mutex[0]);
-    //Kt::affirmD(ret == 0);
+	pthread_mutex_unlock(&pthread_mutex);
 }
 
 bool UberMutex::Create(const wchar_t *name) {

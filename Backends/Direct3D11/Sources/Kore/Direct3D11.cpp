@@ -394,6 +394,16 @@ void Graphics::setFloat3(ConstantLocation location, float value1, float value2, 
 	floats[2] = value3;
 }
 
+void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
+	if (location.size == 0) return;
+	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
+	float* floats = reinterpret_cast<float*>(&constants[location.offset]);
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+	floats[3] = value4;
+}
+
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	if (location.size == 0) return;
 	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
