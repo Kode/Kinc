@@ -42,6 +42,9 @@ if (platform === Platform.Windows) {
 			project.addLibFor('x64', 'Backends/Windows/Libraries/directx/Lib/x64/d3d9');
 		}
 	}
+
+	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
+	project.addLib('ws2_32');
 }
 else if (platform === Platform.WindowsRT) {
 	addBackend('WindowsRT');
