@@ -81,7 +81,7 @@ void Socket::send(unsigned addr1, unsigned addr2, unsigned addr3, unsigned addr4
 	addr.sin_addr.s_addr = htonl(address);
 	addr.sin_port = htons(port);
 
-	int sent = sendto(handle, (const char*)data, size, 0, (sockaddr*)&address, sizeof(sockaddr_in));
+	int sent = sendto(handle, (const char*)data, size, 0, (sockaddr*)&addr, sizeof(sockaddr_in));
 	if (sent != size) {
 		log(Kore::Error, "Could not send packet.");
 		return;
@@ -89,16 +89,14 @@ void Socket::send(unsigned addr1, unsigned addr2, unsigned addr3, unsigned addr4
 }
 
 int Socket::receive(unsigned char* data, int maxSize, unsigned& fromAddress, unsigned& fromPort) {
-	while (true) {
 #ifdef SYS_WINDOWS
-		typedef int socklen_t;
+	typedef int socklen_t;
 #endif
-		sockaddr_in from;
-		socklen_t fromLength = sizeof(from);
-		int bytes = recvfrom(handle, (char*)data, maxSize, 0, (sockaddr*)&from, &fromLength);
-		if (bytes <= 0) return bytes;
-		fromAddress = ntohl(from.sin_addr.s_addr);
-		fromAddress = ntohs(from.sin_port);
-		return bytes;
-	}
+	sockaddr_in from;
+	socklen_t fromLength = sizeof(from);
+	int bytes = recvfrom(handle, (char*)data, maxSize, 0, (sockaddr*)&from, &fromLength);
+	if (bytes <= 0) return bytes;
+	fromAddress = ntohl(from.sin_addr.s_addr);
+	fromAddress = ntohs(from.sin_port);
+	return bytes;
 }
