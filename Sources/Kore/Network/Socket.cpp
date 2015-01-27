@@ -98,6 +98,6 @@ int Socket::receive(unsigned char* data, int maxSize, unsigned& fromAddress, uns
 	int bytes = recvfrom(handle, (char*)data, maxSize, 0, (sockaddr*)&from, &fromLength);
 	if (bytes <= 0) return bytes;
 	fromAddress = ntohl(from.sin_addr.s_addr);
-	fromAddress = ntohs(from.sin_port);
+	fromPort = ntohs(from.sin_port);
 	return bytes;
 }
