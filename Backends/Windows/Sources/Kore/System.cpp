@@ -1,7 +1,6 @@
 #include "pch.h"
 #include <Kore/System.h>
 #include <Kore/Application.h>
-#include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Gamepad.h>
@@ -202,6 +201,14 @@ namespace {
 	}
 
 	uint r = 0;
+
+	wchar_t toUnicode(WPARAM wParam, LPARAM lParam) {
+		wchar_t buffer[11];
+		BYTE state[256];
+		GetKeyboardState(state);
+		ToUnicode(wParam, (lParam >> 8) & 0xFFFFFF00, state, buffer, 10, 0);
+		return buffer[0];
+	}
 }
 
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -256,13 +263,13 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_SYSKEYDOWN:
 		if (!keyPressed[wParam]) {
 			keyPressed[wParam] = true;
-			Keyboard::the()->keydown(KeyEvent(keyTranslated[wParam]));
+			Keyboard::the()->_keydown(keyTranslated[wParam], toUnicode(wParam, lParam));
 		}
 		break;
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		keyPressed[wParam] = false;
-		Keyboard::the()->keyup(KeyEvent(keyTranslated[wParam]));
+		Keyboard::the()->_keyup(keyTranslated[wParam], toUnicode(wParam, lParam));
 		break;
 	case WM_SYSCOMMAND:
 		//printf("WS_SYSCOMMAND %5d %5d %5d\n", msg, wParam, lParam);
@@ -298,7 +305,10 @@ namespace {
 
 bool Kore::System::handleMessages() {
 	static MSG message;
-	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) DispatchMessageA(&message);
+	while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
+		//TranslateMessage(&message);
+		DispatchMessage(&message);
+	}
 
 	DWORD dwResult;
 	for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {

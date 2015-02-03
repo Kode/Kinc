@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Keyboard.h"
-#include "KeyEvent.h"
 
 using namespace Kore;
 
@@ -17,10 +16,10 @@ void Keyboard::clear() {
 	KeyUp = nullptr;
 }
 
-void Keyboard::keydown(KeyEvent e) {
-	if (KeyDown != nullptr) KeyDown(&e);
+void Keyboard::_keydown(KeyCode code, wchar_t character) {
+	if (KeyDown != nullptr) KeyDown(code, character);
 }
 
-void Keyboard::keyup(KeyEvent e) {
-	if (KeyUp != nullptr) KeyUp(&e);
+void Keyboard::_keyup(KeyCode code, wchar_t character) {
+	if (KeyUp != nullptr) KeyUp(code, character);
 }
