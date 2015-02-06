@@ -2,7 +2,6 @@
 #include <Kore/pch.h>
 #include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
-#include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
 
 @implementation BasicOpenGLView
@@ -31,18 +30,19 @@ namespace {
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
-		if (ch >= L'a' && ch <= L'z') ch = ch - L'a' + L'A';
+		int keycode = ch;
+		if (ch >= L'a' && ch <= L'z') keycode = keycode - L'a' + L'A';
 		if (ch >= L'A' && ch <= L'Z') {
 			switch (ch) {
 			default:
                 if ([theEvent modifierFlags] & NSShiftKeyMask) {
-					if (!shift) Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Shift));
-                    Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch));
+					if (!shift) Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
+					Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
                     shift = true;
                 }
                 else {
-					if (shift) Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Shift));
-                    Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch));
+					if (shift) Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
+					Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
                     shift = false;
 				}
                 break;
@@ -51,22 +51,22 @@ namespace {
 		else {
 			switch (ch) {
 			case NSRightArrowFunctionKey:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Right));
+				Kore::Keyboard::the()->_keydown(Kore::Key_Right, 0);
 				break;
 			case NSLeftArrowFunctionKey:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Left));
+				Kore::Keyboard::the()->_keydown(Kore::Key_Left, 0);
 				break;
 			case NSUpArrowFunctionKey:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Up));
+				Kore::Keyboard::the()->_keydown(Kore::Key_Up, 0);
 				break;
 			case NSDownArrowFunctionKey:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Down));
+				Kore::Keyboard::the()->_keydown(Kore::Key_Down, 0);
 				break;
             case 0x7f:
-                Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Backspace));
+                Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
                 break;
 			default:
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch));
+				Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
 				break;	
 			}
 		}
@@ -77,35 +77,27 @@ namespace {
 	NSString* characters = [theEvent characters];
     if ([characters length]) {
         unichar ch = [characters characterAtIndex:0];
-		if (ch >= L'a' && ch <= L'z') ch = ch - L'a' + L'A';
-		if (ch >= L'A' && ch <= L'Z') {
-			switch (ch) {
-			default:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch));
-                break;
-			}
-		}
-		else {
-			switch (ch) {
-			case NSRightArrowFunctionKey:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Right));
-				break;
-			case NSLeftArrowFunctionKey:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Left));
-				break;
-			case NSUpArrowFunctionKey:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Up));
-				break;
-			case NSDownArrowFunctionKey:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Down));
-				break;
-            case 0x7f:
-                Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Backspace));
-                break;
-			default:
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(ch));
-				break;	
-			}
+		int keycode = ch;
+		if (ch >= L'a' && ch <= L'z') keycode = keycode - L'a' + L'A';
+		switch (ch) {
+		case NSRightArrowFunctionKey:
+			Kore::Keyboard::the()->_keyup(Kore::Key_Right, 0);
+			break;
+		case NSLeftArrowFunctionKey:
+			Kore::Keyboard::the()->_keyup(Kore::Key_Left, 0);
+			break;
+		case NSUpArrowFunctionKey:
+			Kore::Keyboard::the()->_keyup(Kore::Key_Up, 0);
+			break;
+		case NSDownArrowFunctionKey:
+			Kore::Keyboard::the()->_keyup(Kore::Key_Down, 0);
+			break;
+		case 0x7f:
+			Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
+			break;
+		default:
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)keycode, ch);
+			break;
 		}
 	}
 }

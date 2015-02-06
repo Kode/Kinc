@@ -1,7 +1,6 @@
 #include "pch.h"
 #include <Kore/System.h>
 #include <Kore/Application.h>
-#include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Keyboard.h>
 #import <Cocoa/Cocoa.h>
 #import "BasicOpenGLView.h"

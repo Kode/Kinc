@@ -2,7 +2,6 @@
 #include "pch.h"
 #include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
-#include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Sensor.h>
 #include <Kore/Input/Surface.h>
@@ -286,24 +285,24 @@ namespace {
 
 - (BOOL)textField:(UITextField*)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString*)string {
 	if ([string length] == 1) {
-		char ch = [string characterAtIndex: [string length] - 1];
+		unichar ch = [string characterAtIndex: [string length] - 1];
 		if (ch >= L'a' && ch <= L'z') {
 			if (shiftDown) {
-				Kore::Keyboard::the()->keyup(Kore::KeyEvent(Kore::Key_Shift));
+				Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
 				shiftDown = false;
 			}
-			Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch + L'A' - L'a'));
+			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch + L'A' - L'a'), ch);
 		}
 		else {
 			if (!shiftDown) {
-				Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Shift));
+				Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
 				shiftDown = true;
 			}
-			Kore::Keyboard::the()->keydown(Kore::KeyEvent(ch));
+			Kore::Keyboard::the()->_keydown((Kore::KeyCode)ch, ch);
 		}
 	}
 	else if ([string length] == 0 && range.length == 1) {
-		Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Backspace));
+		Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
 		return NO;
 	}
 	return YES;
