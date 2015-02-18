@@ -8,6 +8,34 @@
 using namespace Kore;
 
 namespace {
+	int convert(Image::Format format) {
+#ifndef GL_LUMINANCE
+#define GL_LUMINANCE GL_RED
+#endif
+		switch (format) {
+			case Image::RGBA32:
+				return GL_RGBA;
+			case Image::RGB24:
+				return GL_RGB;
+			case Image::Grey8:
+				return GL_LUMINANCE;
+		}
+	}
+	
+	int convertInternal(Image::Format format) {
+#ifndef GL_LUMINANCE
+#define GL_LUMINANCE GL_RED
+#endif
+		switch (format) {
+			case Image::RGBA32:
+				return GL_BGRA;
+			case Image::RGB24:
+				return GL_RGB;
+			case Image::Grey8:
+				return GL_LUMINANCE;
+		}
+	}
+	
 	int pow(int pow) {
 		int ret = 1;
 		for (int i = 0; i < pow; ++i) ret *= 2;
@@ -158,6 +186,8 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, convert(format), texWidth, texHeight, 0, convertInternal(format), GL_UNSIGNED_BYTE, data);
 
 	/*if (!readable) {
 		delete[] data;
@@ -183,7 +213,7 @@ u8* Texture::lock() {
 	return (u8*)data;
 }
 
-void Texture::unlock() {
+/*void Texture::unlock() {
 	if (conversionBuffer != nullptr) {
 		convertImage2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -192,4 +222,20 @@ void Texture::unlock() {
 #endif
 		glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
 	}
+}*/
+
+void Texture::unlock() {
+	if (conversionBuffer != nullptr) {
+		//convertImage2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		//glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertInternal(format), GL_UNSIGNED_BYTE, data);
+	}
 }
+
+#ifdef SYS_IOS
+void Texture::upload(u8* data) {
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertInternal(format), GL_UNSIGNED_BYTE, data);
+}
+#endif

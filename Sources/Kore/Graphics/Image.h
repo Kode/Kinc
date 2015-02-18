@@ -5,7 +5,8 @@ namespace Kore {
 	public:
 		enum Format {
 			RGBA32,
-			Grey8
+			Grey8,
+			RGB24
 		};
 		
 		static int sizeOf(Image::Format format);

@@ -1,0 +1,191 @@
+#include "pch.h"
+#include "Video.h"
+#include <Kore/IO/FileReader.h>
+#include <Kore/Graphics/Texture.h>
+#include <Kore/System.h>
+#include <Kore/VideoSoundStream.h>
+#include <Kore/Audio/Mixer.h>
+#include <Kore/Log.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#import <AVFoundation/AVFoundation.h>
+
+using namespace Kore;
+
+extern const char* iphonegetresourcepath();
+
+namespace {
+	int maxSamples = 0;
+}
+
+VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100 * 250), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
+	buffer = new float[bufferSize];
+}
+
+void VideoSoundStream::insertData(float* data, int nSamples) {
+	//printf("Samples: %i\n", nSamples);
+	if (nSamples > maxSamples) {
+		printf("Samples: %i\n", nSamples);
+		maxSamples = nSamples;
+	}
+	written += nSamples;
+	for (int i = 0; i < nSamples; ++i) {
+		float value = data[i];// / 32767.0;
+		buffer[bufferWritePosition++] = value;
+		if (bufferWritePosition >= bufferSize) {
+			bufferWritePosition = 0;
+			printf("buffer write back\n");
+		}
+	}
+}
+
+float VideoSoundStream::nextSample() {
+	++read;
+	if (written <= read) {
+		printf("Out of audio\n");
+		return 0;
+	}
+	if (bufferReadPosition >= bufferSize) {
+		bufferReadPosition = 0;
+		printf("buffer read back - %i\n", (int)(written - read));
+	}
+	return buffer[bufferReadPosition++];
+}
+
+bool VideoSoundStream::ended() {
+	return false;
+}
+
+Video::Video(const char* filename) : playing(false) {
+	char name[2048];
+	strcpy(name, iphonegetresourcepath());
+	strcat(name, "/");
+	strcat(name, KORE_DEBUGDIR);
+	strcat(name, "/");
+	strcat(name, "Videos/ue1.mp4");
+	NSURL* url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
+	//NSURL* url = [[NSBundle mainBundle] URLForResource: [NSString stringWithUTF8String:filename] withExtension:@"mov"];
+	AVURLAsset* asset = [[AVURLAsset alloc] initWithURL:url options:nil];
+	
+	AVAssetTrack* videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+	NSDictionary* videoOutputSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
+	AVAssetReaderTrackOutput* videoOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoOutputSettings];
+	
+	AVAssetTrack* audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
+	NSDictionary* audioOutputSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+										 [NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey,
+										 [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
+										 [NSNumber numberWithInt:32], AVLinearPCMBitDepthKey,
+										 [NSNumber numberWithBool:NO], AVLinearPCMIsNonInterleaved,
+										 [NSNumber numberWithBool:YES], AVLinearPCMIsFloatKey,
+										 [NSNumber numberWithBool:NO], AVLinearPCMIsBigEndianKey,
+										 nil];
+	AVAssetReaderAudioMixOutput* audioOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[audioTrack] audioSettings:audioOutputSettings];
+	
+	AVAssetReader* reader = [AVAssetReader assetReaderWithAsset:asset error:nil];
+	[reader addOutput:videoOutput];
+	[reader addOutput:audioOutput];
+	
+	assetReader = reader;
+	videoTrackOutput = videoOutput;
+	audioTrackOutput = audioOutput;
+	
+	myWidth = [videoTrack naturalSize].width;
+	myHeight = [videoTrack naturalSize].height;
+	image = new Texture(width(), height(), Image::RGBA32, false);
+	next = 0;
+	audioTime = 0;
+}
+
+void Video::play() {
+	AVAssetReader* reader = (AVAssetReader*)assetReader;
+	[reader startReading];
+	
+	sound = new VideoSoundStream(2, 44100);
+	Mixer::play(sound);
+	
+	playing = true;
+	start = System::time();
+}
+
+void Video::pause() {
+	playing = false;
+}
+
+void Video::updateImage() {
+	{
+		AVAssetReaderTrackOutput* videoOutput = (AVAssetReaderTrackOutput*)videoTrackOutput;
+		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
+		next = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
+		
+		CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(buffer);
+		if (pixelBuffer != NULL) {
+			CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+			//int width = CVPixelBufferGetWidth(pixelBuffer);
+			//int height = CVPixelBufferGetHeight(pixelBuffer);
+			//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, CVPixelBufferGetBaseAddress(pixelBuffer));
+			image->upload((u8*)CVPixelBufferGetBaseAddress(pixelBuffer));
+			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+		}
+		CFRelease(buffer);
+	}
+	
+	{
+		AVAssetReaderAudioMixOutput* audioOutput = (AVAssetReaderAudioMixOutput*)audioTrackOutput;
+		do {
+			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
+			//audioNext = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
+			if (!buffer) return;
+			CMItemCount numSamplesInBuffer = CMSampleBufferGetNumSamples(buffer);
+			
+			audioTime += numSamplesInBuffer / 44100.0;
+			/*AudioTimeStamp ts;
+			 memset(&ts, 0, sizeof(AudioTimeStamp));
+			 ts.mSampleTime = currentSampleTime;
+			 ts.mFlags |= kAudioTimeStampSampleTimeValid;*/
+			
+			AudioBufferList audioBufferList;
+			/*
+			 audioBufferList.mNumberBuffers = 1;
+			 audioBufferList.mBuffers[0].mNumberChannels = 2;
+			 audioBufferList.mBuffers[0].mData = malloc(numSamplesInBuffer * sizeof(SInt16) * 2);
+			 audioBufferList.mBuffers[0].mDataByteSize = numSamplesInBuffer * sizeof(SInt16) * 2;
+			 */
+			size_t bufferListSizeNeededOut;
+			CMBlockBufferRef blockBufferOut = nil;
+			CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(buffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &blockBufferOut);
+			//CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(buffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &buffer);
+			//Kore::log(Kore::Info, "Audio buffers: %i", audioBufferList.mNumberBuffers);
+			for (int bufferCount = 0; bufferCount < audioBufferList.mNumberBuffers; ++bufferCount) {
+				float* samples = (float*)audioBufferList.mBuffers[bufferCount].mData;
+				sound->insertData(samples, (int)numSamplesInBuffer * 2);
+				//sound->insertData(samples, (int)numSamplesInBuffer);
+				//for (int i = 0; i < numSamplesInBuffer; ++i) {
+				// amplitude for the sample is samples[i], assuming you have linear pcm to start with
+				//}
+			}
+			CFRelease(buffer);
+		}
+		while (audioTime < next);
+	}
+}
+
+void Video::update(double time) {
+	if (playing && time >= start + next) {
+		updateImage();
+	}
+}
+
+int Video::width() {
+	return myWidth;
+}
+
+int Video::height() {
+	return myHeight;
+}
+
+Texture* Video::currentImage() {
+	update(System::time());
+	return image;
+}

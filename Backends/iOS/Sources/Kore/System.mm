@@ -99,6 +99,19 @@ int System::screenHeight() {
 }
 
 namespace {
+	char sysid[512];
+}
+
+const char* System::systemId() {
+	const char* name = [[[UIDevice currentDevice] name] UTF8String];
+	const char* vendorId = [[[[UIDevice currentDevice] identifierForVendor] UUIDString] UTF8String];
+	strcpy(sysid, name);
+	strcat(sysid, "-");
+	strcat(sysid, vendorId);
+	return sysid;
+}
+
+namespace {
 	const char* savePath = nullptr;
 	
 	void getSavePath() {

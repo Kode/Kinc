@@ -81,6 +81,10 @@ else if (platform === Platform.iOS) {
 	project.addLib('CoreAudio');
 	project.addLib('AudioToolbox');
 	project.addLib('CoreMotion');
+	project.addLib('AVFoundation');
+	project.addLib('CoreFoundation');
+	project.addLib('CoreVideo');
+	project.addLib('CoreMedia');
 }
 else if (platform === Platform.Android) {
 	addBackend('Android');
