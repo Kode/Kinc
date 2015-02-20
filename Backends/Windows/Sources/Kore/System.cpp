@@ -509,6 +509,10 @@ int Kore::System::screenHeight() {
 	return Application::the()->height();
 }
 
+const char* Kore::System::systemId() {
+	return "Windows";
+}
+
 namespace {
 	char* savePath = nullptr;
 
