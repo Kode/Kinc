@@ -549,6 +549,10 @@ const char* Kore::System::savePath() {
 	return ::savePath;
 }
 
+const char* Kore::System::systemId() {
+	return "Windows";
+}
+
 double Kore::System::frequency() {
 	ticks rate;
 	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&rate));

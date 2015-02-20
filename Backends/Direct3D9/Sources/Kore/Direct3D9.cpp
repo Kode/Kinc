@@ -283,8 +283,10 @@ void* Graphics::getControl() {
 void Graphics::setRenderTarget(RenderTarget* target, int num) {
 	//if (backBuffer != nullptr) backBuffer->Release();
 	if (num == 0) {
-		device->GetRenderTarget(0, &backBuffer);
-		device->GetDepthStencilSurface(&depthBuffer);
+		if (backBuffer == nullptr) {
+			device->GetRenderTarget(0, &backBuffer);
+			device->GetDepthStencilSurface(&depthBuffer);
+		}
 		affirm(device->SetDepthStencilSurface(target->depthSurface));
 	}
 	affirm(device->SetRenderTarget(num, target->colorSurface));
@@ -302,8 +304,6 @@ void Graphics::restoreRenderTarget() {
 		device->SetRenderTarget(1, nullptr);
 		backBuffer->Release();
 		backBuffer = nullptr;
-	}
-	if (depthBuffer != nullptr) {
 		device->SetDepthStencilSurface(depthBuffer);
 		depthBuffer->Release();
 		depthBuffer = nullptr;
