@@ -57,13 +57,13 @@ bool VideoSoundStream::ended() {
 	return false;
 }
 
-Video::Video(const char* filename) : playing(false) {
+Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	char name[2048];
 	strcpy(name, iphonegetresourcepath());
 	strcat(name, "/");
 	strcat(name, KORE_DEBUGDIR);
 	strcat(name, "/");
-	strcat(name, "Videos/ue1.mp4");
+	strcat(name, filename);
 	NSURL* url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
 	//NSURL* url = [[NSBundle mainBundle] URLForResource: [NSString stringWithUTF8String:filename] withExtension:@"mov"];
 	AVURLAsset* asset = [[AVURLAsset alloc] initWithURL:url options:nil];
@@ -98,6 +98,10 @@ Video::Video(const char* filename) : playing(false) {
 	audioTime = 0;
 }
 
+Video::~Video() {
+	stop();
+}
+
 void Video::play() {
 	AVAssetReader* reader = (AVAssetReader*)assetReader;
 	[reader startReading];
@@ -111,9 +115,20 @@ void Video::play() {
 
 void Video::pause() {
 	playing = false;
+	if (sound != nullptr) {
+		Mixer::stop(sound);
+		delete sound;
+		sound = nullptr;
+	}
+}
+
+void Video::stop() {
+	pause();
 }
 
 void Video::updateImage() {
+	if (!playing) return;
+	
 	{
 		AVAssetReaderTrackOutput* videoOutput = (AVAssetReaderTrackOutput*)videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
