@@ -32,6 +32,10 @@ void System::loadURL(const char* url) {
 	
 }
 
+const char* System::systemId() {
+	return "OSX";
+}
+
 void System::showWindow() {
 	
 }
