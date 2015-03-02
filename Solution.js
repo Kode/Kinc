@@ -90,7 +90,23 @@ Solution.createSolution = function (filename, platform) {
 	var file = fs.readFileSync(Solution.scriptdir.resolve(Paths.get(filename, 'korefile.js')).toString(), {encoding: 'utf8'});
 	var oldscriptdir = Solution.scriptdir;
 	Solution.scriptdir = Solution.scriptdir.resolve(filename);
-	var solution = new Function(['Solution', 'Project', 'Platform', 'platform', 'GraphicsApi', 'graphics'], file)(Solution, Project, Platform, platform, GraphicsApi, Options.graphicsApi);
+	var solution = new Function([
+		'Solution',
+		'Project',
+		'Platform',
+		'platform',
+		'GraphicsApi',
+		'graphics',
+		'fs',
+		'path'], file)
+		(Solution,
+			Project,
+			Platform,
+			platform,
+			GraphicsApi,
+			Options.graphicsApi,
+			require('fs'),
+			require('path'));
 	Solution.scriptdir = oldscriptdir;
 	return solution;
 };
