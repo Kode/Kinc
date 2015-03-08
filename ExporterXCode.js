@@ -386,8 +386,13 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	this.p(projectId + " /* Project object */ = {", 2);
 		this.p("isa = PBXProject;", 3);
 		this.p("attributes = {", 3);
-			this.p("LastUpgradeCheck = 0430;", 4);
+			this.p("LastUpgradeCheck = 0610;", 4);
 			this.p("ORGANIZATIONNAME = \"KTX Software Development\";", 4);
+			this.p("TargetAttributes = {", 4);
+				this.p(targetId + " = {", 5);
+					this.p("CreatedOnToolsVersion = 6.1.1;", 6);
+				this.p("};", 5);
+			this.p("};", 4);
 		this.p("};", 3);
 		this.p("buildConfigurationList = " + projectBuildConfigListId + " /* Build configuration list for PBXProject \"" + solution.getName() + "\" */;", 3);
 		this.p("compatibilityVersion = \"Xcode 3.2\";", 3);
@@ -395,6 +400,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		this.p("hasScannedForEncodings = 0;", 3);
 		this.p("knownRegions = (", 3);
 			this.p("en,", 4);
+			this.p("Base,", 4);
 		this.p(");", 3);
 		this.p("mainGroup = " + mainGroupId + ";", 3);
 		this.p("productRefGroup = " + productsGroupId + " /* Products */;", 3);
@@ -469,22 +475,32 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	this.p(debugId + " /* Debug */ = {", 2);
 		this.p("isa = XCBuildConfiguration;", 3);
 		this.p("buildSettings = {", 3);
-			this.p("ALWAYS_SEARCH_USER_PATHS = NO;", 4);
+			this.p('ALWAYS_SEARCH_USER_PATHS = NO;', 4);
+			this.p('CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";', 4);
+			this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
+			this.p('CLANG_ENABLE_MODULES = YES;', 4);
+			this.p('CLANG_ENABLE_OBJC_ARC = YES;', 4);
+			this.p('CLANG_WARN_BOOL_CONVERSION = YES;', 4);
+			this.p('CLANG_WARN_CONSTANT_CONVERSION = YES;', 4);
+			this.p('CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;', 4);
+			this.p('CLANG_WARN_EMPTY_BODY = YES;', 4);
+			this.p('CLANG_WARN_ENUM_CONVERSION = YES;', 4);
+			this.p('CLANG_WARN_INT_CONVERSION = YES;', 4);
+			this.p('CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;', 4);
+			this.p('CLANG_WARN_UNREACHABLE_CODE = YES;', 4);
+			this.p('CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;', 4);
 			if (platform === Platform.iOS) {
-				this.p("CLANG_CXX_LANGUAGE_STANDARD = \"gnu++0x\";", 4);
-				this.p("CLANG_CXX_LIBRARY = \"libc++\";", 4);
-				this.p("CLANG_WARN_EMPTY_BODY = YES;", 4);
-				this.p("CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;", 4);
+				this.p('"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";', 4);
 			}
-			else this.p("ARCHS = \"$(ARCHS_STANDARD_64_BIT)\";", 4);
-			//p("CLANG_ENABLE_OBJC_ARC = YES;", 4); //default, but incompatible with MacOS < 10.6 and iOS < 4.0
-			if (platform === Platform.iOS) this.p("\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"iPhone Developer\";", 4);
-			this.p("COPY_PHASE_STRIP = NO;", 4);
-			this.p("GCC_C_LANGUAGE_STANDARD = gnu99;", 4);
-			this.p("GCC_DYNAMIC_NO_PIC = NO;", 4);
-			if (platform === Platform.OSX) this.p("GCC_ENABLE_OBJC_EXCEPTIONS = YES;", 4);
-			this.p("GCC_OPTIMIZATION_LEVEL = 0;", 4);
-			this.p("GCC_PREPROCESSOR_DEFINITIONS = (", 4);
+			else {
+				this.p('CODE_SIGN_IDENTITY = "-";', 4);
+			}
+			this.p('COPY_PHASE_STRIP = NO;', 4);
+			this.p('ENABLE_STRICT_OBJC_MSGSEND = YES;', 4);
+			this.p('GCC_C_LANGUAGE_STANDARD = gnu99;', 4);
+			this.p('GCC_DYNAMIC_NO_PIC = NO;', 4);
+			this.p('GCC_OPTIMIZATION_LEVEL = 0;', 4);
+			this.p('GCC_PREPROCESSOR_DEFINITIONS = (', 4);
 				this.p("\"DEBUG=1\",", 5);
 				for (var d in project.getDefines()) {
 					var define = project.getDefines()[d];
@@ -492,23 +508,28 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 					else this.p(define + ",", 5);
 				}
 				this.p("\"$(inherited)\",", 5);
-			this.p(");", 4);
-			this.p("GCC_SYMBOLS_PRIVATE_EXTERN = NO;", 4);
-			this.p("GCC_VERSION = com.apple.compilers.llvm.clang.1_0;", 4);
-			if (platform === Platform.OSX) this.p("GCC_WARN_64_TO_32_BIT_CONVERSION = YES;", 4);
-			this.p("GCC_WARN_ABOUT_RETURN_TYPE = YES;", 4);
-			this.p("GCC_WARN_UNINITIALIZED_AUTOS = YES;", 4);
-			this.p("GCC_WARN_UNUSED_VARIABLE = YES;", 4);
+			this.p(');', 4);
+			this.p('GCC_SYMBOLS_PRIVATE_EXTERN = NO;', 4);
+			this.p('GCC_WARN_64_TO_32_BIT_CONVERSION = YES;', 4);
+			this.p('GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;', 4);
+			this.p('GCC_WARN_UNDECLARED_SELECTOR = YES;', 4);
+			this.p('GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;', 4);
+			this.p('GCC_WARN_UNUSED_FUNCTION = YES;', 4);
+			this.p('GCC_WARN_UNUSED_VARIABLE = YES;', 4);
 			if (platform === Platform.iOS) {
-				this.p("IPHONEOS_DEPLOYMENT_TARGET = 5.0;", 4);
-				this.p("ONLY_ACTIVE_ARCH = YES;", 4);
-				this.p("SDKROOT = iphoneos;", 4);
-				this.p("TARGETED_DEVICE_FAMILY = \"1,2\";", 4);
+				this.p('IPHONEOS_DEPLOYMENT_TARGET = 8.1;', 4);
 			}
 			else {
-				this.p("MACOSX_DEPLOYMENT_TARGET = 10.5;", 4);
-				this.p("ONLY_ACTIVE_ARCH = YES;", 4);
-				this.p("SDKROOT = macosx;", 4);
+				this.p('MACOSX_DEPLOYMENT_TARGET = 10.10;', 4);
+			}
+			this.p('MTL_ENABLE_DEBUG_INFO = YES;', 4);
+			this.p('ONLY_ACTIVE_ARCH = YES;', 4);
+			if (platform === Platform.iOS) {
+				this.p('SDKROOT = iphoneos;', 4);
+				this.p('TARGETED_DEVICE_FAMILY = "1,2";', 4);
+			}
+			else {
+				this.p('SDKROOT = macosx;', 4);
 			}
 		this.p("};", 3);
 		this.p("name = Debug;", 3);
@@ -516,20 +537,33 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	this.p(releaseId + " /* Release */ = {", 2);
 		this.p("isa = XCBuildConfiguration;", 3);
 		this.p("buildSettings = {", 3);
-			this.p("ALWAYS_SEARCH_USER_PATHS = NO;", 4);
+			this.p('ALWAYS_SEARCH_USER_PATHS = NO;', 4);
+			this.p('CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";', 4);
+			this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
+			this.p('CLANG_ENABLE_MODULES = YES;', 4);
+			this.p('CLANG_ENABLE_OBJC_ARC = YES;', 4);
+			this.p('CLANG_WARN_BOOL_CONVERSION = YES;', 4);
+			this.p('CLANG_WARN_CONSTANT_CONVERSION = YES;', 4);
+			this.p('CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;', 4);
+			this.p('CLANG_WARN_EMPTY_BODY = YES;', 4);
+			this.p('CLANG_WARN_ENUM_CONVERSION = YES;', 4);
+			this.p('CLANG_WARN_INT_CONVERSION = YES;', 4);
+			this.p('CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;', 4);
+			this.p('CLANG_WARN_UNREACHABLE_CODE = YES;', 4);
+			this.p('CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;', 4);
 			if (platform === Platform.iOS) {
-				this.p("CLANG_CXX_LANGUAGE_STANDARD = \"gnu++0x\";", 4);
-				this.p("CLANG_CXX_LIBRARY = \"libc++\";", 4);
-				this.p("CLANG_WARN_EMPTY_BODY = YES;", 4);
-				this.p("CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;", 4);
+				this.p('"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";', 4);
 			}
-			else this.p("ARCHS = \"$(ARCHS_STANDARD_64_BIT)\";", 4);
-			//p("CLANG_ENABLE_OBJC_ARC = YES;", 4); //default, but incompatible with MacOS < 10.6 and iOS < 4.0
-			if (platform === Platform.iOS) this.p("\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"iPhone Developer\";", 4);
-			this.p("COPY_PHASE_STRIP = YES;", 4);
-			if (platform === Platform.OSX) this.p("DEBUG_INFORMATION_FORMAT = \"dwarf-with-dsym\";", 4);
-			this.p("GCC_C_LANGUAGE_STANDARD = gnu99;", 4);
-			if (platform === Platform.OSX) this.p("GCC_ENABLE_OBJC_EXCEPTIONS = YES;", 4);
+			else {
+				this.p('CODE_SIGN_IDENTITY = "-";', 4);
+			}
+			this.p('COPY_PHASE_STRIP = YES;', 4);
+			if (platform === Platform.OSX) {
+				this.p('DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";', 4);
+			}
+			this.p('ENABLE_NS_ASSERTIONS = NO;', 4);
+			this.p('ENABLE_STRICT_OBJC_MSGSEND = YES;', 4);
+			this.p('GCC_C_LANGUAGE_STANDARD = gnu99;', 4);
 			this.p("GCC_PREPROCESSOR_DEFINITIONS = (", 4);
 			for (var d in project.getDefines()) {
 				var define = project.getDefines()[d];
@@ -538,76 +572,61 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 			}
 			this.p("\"$(inherited)\",", 5);
 			this.p(");", 4);
-			this.p("GCC_VERSION = com.apple.compilers.llvm.clang.1_0;", 4);
-			if (platform === Platform.OSX) this.p("GCC_WARN_64_TO_32_BIT_CONVERSION = YES;", 4);
-			this.p("GCC_WARN_ABOUT_RETURN_TYPE = YES;", 4);
-			this.p("GCC_WARN_UNINITIALIZED_AUTOS = YES;", 4);
-			this.p("GCC_WARN_UNUSED_VARIABLE = YES;", 4);
+			this.p('GCC_WARN_64_TO_32_BIT_CONVERSION = YES;', 4);
+			this.p('GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;', 4);
+			this.p('GCC_WARN_UNDECLARED_SELECTOR = YES;', 4);
+			this.p('GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;', 4);
+			this.p('GCC_WARN_UNUSED_FUNCTION = YES;', 4);
+			this.p('GCC_WARN_UNUSED_VARIABLE = YES;', 4);
 			if (platform === Platform.iOS) {
-				this.p("IPHONEOS_DEPLOYMENT_TARGET = 5.0;", 4);
-				this.p("OTHER_CFLAGS = \"-DNS_BLOCK_ASSERTIONS=1\";", 4);
-				this.p("SDKROOT = iphoneos;", 4);
-				this.p("TARGETED_DEVICE_FAMILY = \"1,2\";", 4);
-				this.p("VALIDATE_PRODUCT = YES;", 4);
+				this.p('IPHONEOS_DEPLOYMENT_TARGET = 8.1;', 4);
 			}
 			else {
-				this.p("MACOSX_DEPLOYMENT_TARGET = 10.5;", 4);
-				this.p("SDKROOT = macosx;", 4);
+				this.p('MACOSX_DEPLOYMENT_TARGET = 10.10;', 4);
+			}
+			this.p('MTL_ENABLE_DEBUG_INFO = NO;', 4);
+			if (platform == Platform.iOS) {
+				this.p('SDKROOT = iphoneos;', 4);
+				this.p('TARGETED_DEVICE_FAMILY = "1,2";', 4);
+				this.p('VALIDATE_PRODUCT = YES;', 4);
+			}
+			else {
+				this.p('SDKROOT = macosx;', 4);
 			}
 		this.p("};", 3);
 		this.p("name = Release;", 3);
 	this.p("};", 2);
-	this.p(nativeDebugId + " /* Debug */ = {", 2);
-		this.p("isa = XCBuildConfiguration;", 3);
-		this.p("buildSettings = {", 3);
-			//p("GCC_PRECOMPILE_PREFIX_HEADER = YES;", 4);
-			//p("GCC_PREFIX_HEADER = \"Test/Test-Prefix.pch\";", 4);
-			if (platform === Platform.iOS) {
-				this.p("\"GCC_PREPROCESSOR_DEFINITIONS[arch=*]\" = (", 4);
-					this.p("\"DEBUG=1\",", 5);
-					for (var d in project.getDefines()) {
-						var define = project.getDefines()[d];
-						if (contains(define, '=')) this.p("\"" + define.replaceAll('\"', "\\\"") + "\",", 5);
-						else this.p(define + ",", 5);
-					}
-					this.p("\"$(inherited)\",", 5);
-				this.p(");", 4);
-				this.p("\"GCC_THUMB_SUPPORT[arch=armv6]\" = \"\";", 4);
-			}
+
+	this.p(nativeDebugId + ' /* Debug */ = {', 2);
+		this.p('isa = XCBuildConfiguration;', 3);
+		this.p('buildSettings = {', 3);
+			this.p('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;', 4);
 			this.p("HEADER_SEARCH_PATHS = (", 4);
+				this.p('"$(inherited)",', 5);
+				this.p('/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,', 5);
 				for (var path in project.getIncludeDirs()) this.p(from.resolve(project.getIncludeDirs()[path]).toAbsolutePath().toString() + ",", 5);
 			this.p(");", 4);
 			this.p("INFOPLIST_FILE = \"" + from.resolve(plistname).toAbsolutePath().toString() + "\";", 4);
-			this.p("PRODUCT_NAME = \"$(TARGET_NAME)\";", 4);
-			this.p("WRAPPER_EXTENSION = app;", 4);
-		this.p("};", 3);
-		this.p("name = Debug;", 3);
-	this.p("};", 2);
-	this.p(nativeReleaseId + " /* Release */ = {", 2);
-		this.p("isa = XCBuildConfiguration;", 3);
-		this.p("buildSettings = {", 3);
-			//p("GCC_PRECOMPILE_PREFIX_HEADER = YES;", 4);
-			//p("GCC_PREFIX_HEADER = \"Test/Test-Prefix.pch\";", 4);
-			if (platform === Platform.iOS) {
-				this.p("\"GCC_PREPROCESSOR_DEFINITIONS[arch=*]\" = (", 4);
-					for (var d in project.getDefines()) {
-						var define = project.getDefines()[d];
-						if (contains(define, '=')) this.p("\"" + define.replaceAll('\"', "\\\"") + "\",", 5);
-						else this.p(define + ",", 5);
-					}
-					this.p("\"$(inherited)\",", 5);
-				this.p(");", 4);
-				this.p("\"GCC_THUMB_SUPPORT[arch=armv6]\" = \"\";", 4);
-			}
+			this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
+			this.p('PRODUCT_NAME = "$(TARGET_NAME)";', 4);
+		this.p('};', 3);
+		this.p('name = Debug;', 3);
+	this.p('};', 2);
+	this.p(nativeReleaseId + ' /* Release */ = {', 2);
+		this.p('isa = XCBuildConfiguration;', 3);
+		this.p('buildSettings = {', 3);
+			this.p('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;', 4);
 			this.p("HEADER_SEARCH_PATHS = (", 4);
+				this.p('"$(inherited)",', 5);
+				this.p('/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,', 5);
 				for (var path in project.getIncludeDirs()) this.p(from.resolve(project.getIncludeDirs()[path]).toAbsolutePath().toString() + ",", 5);
 			this.p(");", 4);
 			this.p("INFOPLIST_FILE = \"" + from.resolve(plistname).toAbsolutePath().toString() + "\";", 4);
-			this.p("PRODUCT_NAME = \"$(TARGET_NAME)\";", 4);
-			this.p("WRAPPER_EXTENSION = app;", 4);
-		this.p("};", 3);
-		this.p("name = Release;", 3);
-	this.p("};", 2);
+			this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
+			this.p('PRODUCT_NAME = "$(TARGET_NAME)";', 4);
+		this.p('};', 3);
+		this.p('name = Release;', 3);
+	this.p('};', 2);
 	this.p("/* End XCBuildConfiguration section */");
 	this.p();
 	this.p("/* Begin XCConfigurationList section */");
