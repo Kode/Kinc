@@ -152,19 +152,66 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	iosIconNames.push("Default-Landscape~ipad.png");
 	iosIconNames.push("Default-Landscape@2x~ipad.png");
 
+	var icons = [];
+	var IconImage = function (idiom, size, scale) {
+		this.idiom = idiom;
+		this.size = size;
+		this.scale = scale;
+	};
+	icons.push(new IconImage('iphone', 29, 2));
+	icons.push(new IconImage('iphone', 29, 3));
+	icons.push(new IconImage('iphone', 40, 2));
+	icons.push(new IconImage('iphone', 40, 3));
+	icons.push(new IconImage('iphone', 60, 2));
+	icons.push(new IconImage('iphone', 60, 3));
+	icons.push(new IconImage('ipad', 29, 1));
+	icons.push(new IconImage('ipad', 29, 2));
+	icons.push(new IconImage('ipad', 40, 1));
+	icons.push(new IconImage('ipad', 40, 2));
+	icons.push(new IconImage('ipad', 76, 1));
+	icons.push(new IconImage('ipad', 76, 2));
+
 	if (platform === Platform.iOS) {
+		var iconsdir = to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset'));
+		if (!Files.exists(iconsdir)) Files.createDirectories(iconsdir);
+		
+		this.writeFile(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', 'Contents.json')));
+		this.p('{');
+			this.p('"images" : [', 1);
+			for (var i = 0; i < icons.length; ++i) {
+				var icon = icons[i];
+				this.p('{', 2);
+					this.p('"idiom" : "' + icon.idiom + '",', 3);
+					this.p('"size" : "' + icon.size + 'x' + icon.size + '",', 3);
+					this.p('"filename" : "' + icon.idiom + icon.scale + 'x' + icon.size + '.png",', 3);
+					this.p('"scale" : "' + icon.scale + 'x"', 3);
+				if (i == icons.length - 1) this.p('}', 2);
+				else this.p('},', 2);
+			}
+			this.p('],', 1);
+			this.p('"info" : {', 1);
+				this.p('"version" : 1,', 2);
+				this.p('"author" : "xcode"', 2);
+			this.p('}', 1);
+		this.p('}');
+		this.closeFile();
+
 		var black = 0xff;
-		Icon.exportPng(to.resolve("iPhone.png"                   ),   57,   57, undefined, from);
-		Icon.exportPng(to.resolve("iPhoneRetina.png"             ),  114,  114, undefined, from);
-		Icon.exportPng(to.resolve("Default.png"                  ),  320,  480, black,       from);
-		Icon.exportPng(to.resolve("Default@2x.png"               ),  640,  960, black,       from);
-		Icon.exportPng(to.resolve("Default-568h@2x.png"          ),  640, 1136, black,       from);
-		Icon.exportPng(to.resolve("iPad.png"                     ),   72,   72, undefined, from);
-		Icon.exportPng(to.resolve("iPadRetina.png"               ),  144,  144, undefined, from);
-		Icon.exportPng(to.resolve("Default-Portrait~ipad.png"    ),  768, 1024, black,       from);
-		Icon.exportPng(to.resolve("Default-Portrait@2x~ipad.png" ), 1536, 2048, black,       from);
-		Icon.exportPng(to.resolve("Default-Landscape~ipad.png"   ), 1024,  768, black,       from);
-		Icon.exportPng(to.resolve("Default-Landscape@2x~ipad.png"), 2048, 1536, black,       from);
+		for (var i = 0; i < icons.length; ++i) {
+			var icon = icons[i];
+			Icon.exportPng(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', icon.idiom + icon.scale + 'x' + icon.size + '.png')), icon.size * icon.scale, icon.size * icon.scale, black, from);
+		}
+		//Icon.exportPng(to.resolve("iPhone.png"                   ),   57,   57, undefined, from);
+		//Icon.exportPng(to.resolve("iPhoneRetina.png"             ),  114,  114, undefined, from);
+		//Icon.exportPng(to.resolve("Default.png"                  ),  320,  480, black,       from);
+		//Icon.exportPng(to.resolve("Default@2x.png"               ),  640,  960, black,       from);
+		//Icon.exportPng(to.resolve("Default-568h@2x.png"          ),  640, 1136, black,       from);
+		//Icon.exportPng(to.resolve("iPad.png"                     ),   72,   72, undefined, from);
+		//Icon.exportPng(to.resolve("iPadRetina.png"               ),  144,  144, undefined, from);
+		//Icon.exportPng(to.resolve("Default-Portrait~ipad.png"    ),  768, 1024, black,       from);
+		//Icon.exportPng(to.resolve("Default-Portrait@2x~ipad.png" ), 1536, 2048, black,       from);
+		//Icon.exportPng(to.resolve("Default-Landscape~ipad.png"   ), 1024,  768, black,       from);
+		//Icon.exportPng(to.resolve("Default-Landscape@2x~ipad.png"), 2048, 1536, black,       from);
 	}
 	else {
 		Icon.exportIcns(to.resolve("icon.icns"), from);
