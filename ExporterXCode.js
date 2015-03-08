@@ -212,12 +212,12 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	var resourcesBuildId = newId();
 	var iconFileId = newId();
 	var iconBuildId = newId();
-	var iosIconFileIds = [];
-	var iosIconBuildIds = [];
-	for (var i = 0; i < iosIconNames.length; ++i) {
-		iosIconFileIds.push(newId());
-		iosIconBuildIds.push(newId());
-	}
+	//var iosIconFileIds = [];
+	//var iosIconBuildIds = [];
+	//for (var i = 0; i < iosIconNames.length; ++i) {
+	//	iosIconFileIds.push(newId());
+	//	iosIconBuildIds.push(newId());
+	//}
 
 	this.writeFile(to.resolve(Paths.get(solution.getName() + ".xcodeproj", "project.pbxproj")));
 
@@ -244,9 +244,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	if (platform === Platform.OSX)
 		this.p(iconBuildId + " /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = " + iconFileId + " /* icon.icns */; };", 2);
 	else {
-		for (var i = 0; i < iosIconNames.length; ++i) {
-			this.p(iosIconBuildIds[i] + " /* " + iosIconNames[i] + " in Resources */ = {isa = PBXBuildFile; fileRef = " + iosIconFileIds[i] + " /* " + iosIconNames[i] + " */; };", 2);
-		}
+		this.p(iconBuildId + ' /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ' + iconFileId + ' /* Images.xcassets */; };', 2);
 	}
 	this.p("/* End PBXBuildFile section */");
 	this.p();
@@ -274,9 +272,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	if (platform === Platform.OSX)
 		this.p(iconFileId + " /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = \"<group>\"; };", 2);
 	else {
-		for (var i = 0; i < iosIconNames.length; ++i) {
-			this.p(iosIconFileIds[i] + " /* " + iosIconNames[i] + " */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = \"" + iosIconNames[i] + "\"; sourceTree = \"<group>\"; };", 2);
-		}
+		this.p(iconFileId + ' /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };', 2);
 	}
 	this.p("/* End PBXFileReference section */");
 	this.p();
@@ -300,9 +296,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		this.p("children = (", 3);
 			if (platform === Platform.OSX) this.p(iconFileId + " /* icon.icns */,", 4);
 			else {
-				for (var i = 0; i < iosIconNames.length; ++i) {
-					this.p(iosIconFileIds[i] + " /* " + iosIconNames[i] + " */,", 4);
-				}
+				this.p(iconFileId + " /* Images.xcassets */,", 4);
 			}
 			this.p(debugDirFileId + " /* Deployment */,", 4);
 			//p(solutionGroupId + " /* " + solution.getName() + " */,", 4);
@@ -420,9 +414,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 			this.p(debugDirBuildId + " /* Deployment in Resources */,", 4);
 			if (platform === Platform.OSX) this.p(iconBuildId + " /* icon.icns in Resources */,", 4);
 			else {
-				for (var i = 0; i < iosIconNames.length; ++i) {
-					this.p(iosIconBuildIds[i] + " /* " + iosIconNames[i] + " in Resources */,", 4);
-				}
+				this.p(iconBuildId + ' /* Images.xcassets in Resources */,', 4);
 			}
 		this.p(");", 3);
 		this.p("runOnlyForDeploymentPostprocessing = 0;", 3);
