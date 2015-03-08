@@ -87,9 +87,9 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	[reader addOutput:videoOutput];
 	[reader addOutput:audioOutput];
 	
-	assetReader = reader;
-	videoTrackOutput = videoOutput;
-	audioTrackOutput = audioOutput;
+	//**assetReader = reader;
+	//**videoTrackOutput = videoOutput;
+	//**audioTrackOutput = audioOutput;
 	
 	myWidth = [videoTrack naturalSize].width;
 	myHeight = [videoTrack naturalSize].height;
@@ -103,8 +103,8 @@ Video::~Video() {
 }
 
 void Video::play() {
-	AVAssetReader* reader = (AVAssetReader*)assetReader;
-	[reader startReading];
+	//**AVAssetReader* reader = (AVAssetReader*)assetReader;
+	//**[reader startReading];
 	
 	sound = new VideoSoundStream(2, 44100);
 	Mixer::play(sound);
@@ -128,7 +128,7 @@ void Video::stop() {
 
 void Video::updateImage() {
 	if (!playing) return;
-	
+	/*
 	{
 		AVAssetReaderTrackOutput* videoOutput = (AVAssetReaderTrackOutput*)videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
@@ -155,18 +155,18 @@ void Video::updateImage() {
 			CMItemCount numSamplesInBuffer = CMSampleBufferGetNumSamples(buffer);
 			
 			audioTime += numSamplesInBuffer / 44100.0;
-			/*AudioTimeStamp ts;
-			 memset(&ts, 0, sizeof(AudioTimeStamp));
-			 ts.mSampleTime = currentSampleTime;
-			 ts.mFlags |= kAudioTimeStampSampleTimeValid;*/
+			//AudioTimeStamp ts;
+			//memset(&ts, 0, sizeof(AudioTimeStamp));
+			//ts.mSampleTime = currentSampleTime;
+			//ts.mFlags |= kAudioTimeStampSampleTimeValid;
 			
 			AudioBufferList audioBufferList;
-			/*
-			 audioBufferList.mNumberBuffers = 1;
-			 audioBufferList.mBuffers[0].mNumberChannels = 2;
-			 audioBufferList.mBuffers[0].mData = malloc(numSamplesInBuffer * sizeof(SInt16) * 2);
-			 audioBufferList.mBuffers[0].mDataByteSize = numSamplesInBuffer * sizeof(SInt16) * 2;
-			 */
+	
+			//audioBufferList.mNumberBuffers = 1;
+			//audioBufferList.mBuffers[0].mNumberChannels = 2;
+			//audioBufferList.mBuffers[0].mData = malloc(numSamplesInBuffer * sizeof(SInt16) * 2);
+			//audioBufferList.mBuffers[0].mDataByteSize = numSamplesInBuffer * sizeof(SInt16) * 2;
+			
 			size_t bufferListSizeNeededOut;
 			CMBlockBufferRef blockBufferOut = nil;
 			CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(buffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &blockBufferOut);
@@ -184,6 +184,7 @@ void Video::updateImage() {
 		}
 		while (audioTime < next);
 	}
+	*/
 }
 
 void Video::update(double time) {

@@ -7,12 +7,10 @@
 #include <Kore/Input/Surface.h>
 #include <Kore/System.h>
 
-@implementation GLView
-
 namespace {
 	const int touchmaxcount = 20;
 	void* touches[touchmaxcount];
-	
+
 	void initTouches() {
 		for (int i = 0; i < touchmaxcount; ++i) {
 			touches[i] = nullptr;
@@ -47,6 +45,8 @@ namespace {
 	}
 }
 
+@implementation GLView
+
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
@@ -65,7 +65,7 @@ namespace {
 	context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 	
 	if (!context || ![EAGLContext setCurrentContext:context]) {
-		[self release];
+		//[self release];
 		return nil;
 	}
 	
@@ -145,10 +145,10 @@ namespace {
 	
 	if ([EAGLContext currentContext] == context) [EAGLContext setCurrentContext:nil];
 	
-	[context release];
+	//[context release];
 	context = nil;
 	
-	[super dealloc];
+	//[super dealloc];
 }
 /*
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
@@ -181,8 +181,8 @@ namespace {
 */
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
-		int index = getTouchIndex(touch);
-		if (index == -1) index = addTouch(touch);
+		int index = getTouchIndex((__bridge void*)touch);
+		if (index == -1) index = addTouch((__bridge void*)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView: self];
 			float x = point.x * self.contentScaleFactor;
@@ -197,7 +197,7 @@ namespace {
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
-		int index = getTouchIndex(touch);
+		int index = getTouchIndex((__bridge void*)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView: self];
 			float x = point.x * self.contentScaleFactor;
@@ -212,7 +212,7 @@ namespace {
 
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
-		int index = removeTouch(touch);
+		int index = removeTouch((__bridge void*)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView: self];
 			float x = point.x * self.contentScaleFactor;
@@ -227,7 +227,7 @@ namespace {
 
 - (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
-		int index = removeTouch(touch);
+		int index = removeTouch((__bridge void*)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView: self];
 			float x = point.x * self.contentScaleFactor;

@@ -33,17 +33,19 @@ void loadURL(const char* url) {
 int kore(int argc, char** argv);
 
 - (void)mainLoop {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	//NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 		
 	//try {
+	@autoreleasepool {
 		kore(0, nullptr);
+	}
 	//}
 	//catch (Kt::Exception& ex) {
 	//	printf("Exception\n");
 	//	printf("%s", ex.what());
 	//}
 	
-	[pool drain];
+	//[pool drain];
 }
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
@@ -124,10 +126,10 @@ void KoreUpdateKeyboard();
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->shutdownCallback != nullptr) Kore::Application::the()->shutdownCallback();
 }
 
-- (void)dealloc {
-    [window release];
-    [glView release];
-    [super dealloc];
-}
+//- (void)dealloc {
+//    [window release];
+//    [glView release];
+//    [super dealloc];
+//}
 
 @end

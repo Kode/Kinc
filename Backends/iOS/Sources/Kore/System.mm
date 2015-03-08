@@ -149,17 +149,15 @@ System::ticks System::timestamp() {
 }
 
 int main(int argc, char *argv[]) {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-	CGRect screenBounds = [[UIScreen mainScreen] bounds];
-	CGFloat screenScale = [[UIScreen mainScreen] scale];
-	theScreenWidth = static_cast<int>(screenBounds.size.width * screenScale);
-	theScreenHeight = static_cast<int>(screenBounds.size.height * screenScale);
-	[KoreAppDelegate description]; //otherwise removed by the linker
-	[UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationLandscapeLeft;
-	int retVal = UIApplicationMain(argc, argv, nil, @"KoreAppDelegate");
-	
-	[pool drain];
-	
+	int retVal = 0;
+	@autoreleasepool {
+		CGRect screenBounds = [[UIScreen mainScreen] bounds];
+		CGFloat screenScale = [[UIScreen mainScreen] scale];
+		theScreenWidth = static_cast<int>(screenBounds.size.width * screenScale);
+		theScreenHeight = static_cast<int>(screenBounds.size.height * screenScale);
+		[KoreAppDelegate description]; //otherwise removed by the linker
+		[UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationLandscapeLeft;
+		retVal = UIApplicationMain(argc, argv, nil, @"KoreAppDelegate");
+	}
 	return retVal;
 }

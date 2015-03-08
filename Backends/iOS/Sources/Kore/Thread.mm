@@ -24,13 +24,11 @@ namespace {
 	uint threadIndex = 0;
 
 	void* threadProc(void* arg) {
-		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	
-		IOS_Thread* t = (IOS_Thread*)arg;
-		t->thread(t->param);
-		pthread_exit(NULL);
-
-		[pool drain];
+		@autoreleasepool {
+			IOS_Thread* t = (IOS_Thread*)arg;
+			t->thread(t->param);
+			pthread_exit(NULL);
+		}
 	}
 }
 
