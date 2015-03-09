@@ -199,7 +199,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		var black = 0xff;
 		for (var i = 0; i < icons.length; ++i) {
 			var icon = icons[i];
-			Icon.exportPng(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', icon.idiom + icon.scale + 'x' + icon.size + '.png')), icon.size * icon.scale, icon.size * icon.scale, black, from);
+			Icon.exportPng(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', icon.idiom + icon.scale + 'x' + icon.size + '.png')), icon.size * icon.scale, icon.size * icon.scale, undefined, from);
 		}
 		//Icon.exportPng(to.resolve("iPhone.png"                   ),   57,   57, undefined, from);
 		//Icon.exportPng(to.resolve("iPhoneRetina.png"             ),  114,  114, undefined, from);
