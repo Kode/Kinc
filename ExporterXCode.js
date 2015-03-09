@@ -537,10 +537,10 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 			this.p('GCC_WARN_UNUSED_FUNCTION = YES;', 4);
 			this.p('GCC_WARN_UNUSED_VARIABLE = YES;', 4);
 			if (platform === Platform.iOS) {
-				this.p('IPHONEOS_DEPLOYMENT_TARGET = 8.1;', 4);
+				this.p('IPHONEOS_DEPLOYMENT_TARGET = 6.0;', 4);
 			}
 			else {
-				this.p('MACOSX_DEPLOYMENT_TARGET = 10.10;', 4);
+				this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
 			}
 			this.p('MTL_ENABLE_DEBUG_INFO = YES;', 4);
 			this.p('ONLY_ACTIVE_ARCH = YES;', 4);
@@ -609,10 +609,10 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 			this.p('GCC_WARN_UNUSED_FUNCTION = YES;', 4);
 			this.p('GCC_WARN_UNUSED_VARIABLE = YES;', 4);
 			if (platform === Platform.iOS) {
-				this.p('IPHONEOS_DEPLOYMENT_TARGET = 8.1;', 4);
+				this.p('IPHONEOS_DEPLOYMENT_TARGET = 6.0;', 4);
 			}
 			else {
-				this.p('MACOSX_DEPLOYMENT_TARGET = 10.10;', 4);
+				this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
 			}
 			this.p('MTL_ENABLE_DEBUG_INFO = NO;', 4);
 			if (platform == Platform.iOS) {
