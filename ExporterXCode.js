@@ -139,82 +139,67 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 
 	this.exportWorkspace(to, solution);
 
-	var iosIconNames = [];
-	iosIconNames.push("iPhone.png");
-	iosIconNames.push("iPhoneRetina.png");
-	iosIconNames.push("Default.png");
-	iosIconNames.push("Default@2x.png");
-	iosIconNames.push("Default-568h@2x.png");
-	iosIconNames.push("iPad.png");
-	iosIconNames.push("iPadRetina.png");
-	iosIconNames.push("Default-Portrait~ipad.png");
-	iosIconNames.push("Default-Portrait@2x~ipad.png");
-	iosIconNames.push("Default-Landscape~ipad.png");
-	iosIconNames.push("Default-Landscape@2x~ipad.png");
-
 	var icons = [];
 	var IconImage = function (idiom, size, scale) {
 		this.idiom = idiom;
 		this.size = size;
 		this.scale = scale;
 	};
-	icons.push(new IconImage('iphone', 29, 2));
-	icons.push(new IconImage('iphone', 29, 3));
-	icons.push(new IconImage('iphone', 40, 2));
-	icons.push(new IconImage('iphone', 40, 3));
-	icons.push(new IconImage('iphone', 60, 2));
-	icons.push(new IconImage('iphone', 60, 3));
-	icons.push(new IconImage('ipad', 29, 1));
-	icons.push(new IconImage('ipad', 29, 2));
-	icons.push(new IconImage('ipad', 40, 1));
-	icons.push(new IconImage('ipad', 40, 2));
-	icons.push(new IconImage('ipad', 76, 1));
-	icons.push(new IconImage('ipad', 76, 2));
-
 	if (platform === Platform.iOS) {
-		var iconsdir = to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset'));
-		if (!Files.exists(iconsdir)) Files.createDirectories(iconsdir);
-		
-		this.writeFile(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', 'Contents.json')));
-		this.p('{');
-			this.p('"images" : [', 1);
-			for (var i = 0; i < icons.length; ++i) {
-				var icon = icons[i];
-				this.p('{', 2);
-					this.p('"idiom" : "' + icon.idiom + '",', 3);
-					this.p('"size" : "' + icon.size + 'x' + icon.size + '",', 3);
-					this.p('"filename" : "' + icon.idiom + icon.scale + 'x' + icon.size + '.png",', 3);
-					this.p('"scale" : "' + icon.scale + 'x"', 3);
-				if (i == icons.length - 1) this.p('}', 2);
-				else this.p('},', 2);
-			}
-			this.p('],', 1);
-			this.p('"info" : {', 1);
-				this.p('"version" : 1,', 2);
-				this.p('"author" : "xcode"', 2);
-			this.p('}', 1);
-		this.p('}');
-		this.closeFile();
-
-		var black = 0xff;
-		for (var i = 0; i < icons.length; ++i) {
-			var icon = icons[i];
-			Icon.exportPng(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', icon.idiom + icon.scale + 'x' + icon.size + '.png')), icon.size * icon.scale, icon.size * icon.scale, undefined, from);
-		}
-		//Icon.exportPng(to.resolve("iPhone.png"                   ),   57,   57, undefined, from);
-		//Icon.exportPng(to.resolve("iPhoneRetina.png"             ),  114,  114, undefined, from);
-		//Icon.exportPng(to.resolve("Default.png"                  ),  320,  480, black,       from);
-		//Icon.exportPng(to.resolve("Default@2x.png"               ),  640,  960, black,       from);
-		//Icon.exportPng(to.resolve("Default-568h@2x.png"          ),  640, 1136, black,       from);
-		//Icon.exportPng(to.resolve("iPad.png"                     ),   72,   72, undefined, from);
-		//Icon.exportPng(to.resolve("iPadRetina.png"               ),  144,  144, undefined, from);
-		//Icon.exportPng(to.resolve("Default-Portrait~ipad.png"    ),  768, 1024, black,       from);
-		//Icon.exportPng(to.resolve("Default-Portrait@2x~ipad.png" ), 1536, 2048, black,       from);
-		//Icon.exportPng(to.resolve("Default-Landscape~ipad.png"   ), 1024,  768, black,       from);
-		//Icon.exportPng(to.resolve("Default-Landscape@2x~ipad.png"), 2048, 1536, black,       from);
+		icons.push(new IconImage('iphone', 29, 2));
+		icons.push(new IconImage('iphone', 29, 3));
+		icons.push(new IconImage('iphone', 40, 2));
+		icons.push(new IconImage('iphone', 40, 3));
+		icons.push(new IconImage('iphone', 60, 2));
+		icons.push(new IconImage('iphone', 60, 3));
+		icons.push(new IconImage('ipad', 29, 1));
+		icons.push(new IconImage('ipad', 29, 2));
+		icons.push(new IconImage('ipad', 40, 1));
+		icons.push(new IconImage('ipad', 40, 2));
+		icons.push(new IconImage('ipad', 76, 1));
+		icons.push(new IconImage('ipad', 76, 2));
 	}
 	else {
-		Icon.exportIcns(to.resolve("icon.icns"), from);
+		icons.push(new IconImage('mac', 16, 1));
+		icons.push(new IconImage('mac', 16, 2));
+		icons.push(new IconImage('mac', 32, 1));
+		icons.push(new IconImage('mac', 32, 2));
+		icons.push(new IconImage('mac', 128, 1));
+		icons.push(new IconImage('mac', 128, 2));
+		icons.push(new IconImage('mac', 256, 1));
+		icons.push(new IconImage('mac', 256, 2));
+		icons.push(new IconImage('mac', 512, 1));
+		icons.push(new IconImage('mac', 512, 2));
+	}
+
+	var iconsdir = to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset'));
+	if (!Files.exists(iconsdir)) Files.createDirectories(iconsdir);
+	
+	this.writeFile(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', 'Contents.json')));
+	this.p('{');
+		this.p('"images" : [', 1);
+		for (var i = 0; i < icons.length; ++i) {
+			var icon = icons[i];
+			this.p('{', 2);
+				this.p('"idiom" : "' + icon.idiom + '",', 3);
+				this.p('"size" : "' + icon.size + 'x' + icon.size + '",', 3);
+				this.p('"filename" : "' + icon.idiom + icon.scale + 'x' + icon.size + '.png",', 3);
+				this.p('"scale" : "' + icon.scale + 'x"', 3);
+			if (i == icons.length - 1) this.p('}', 2);
+			else this.p('},', 2);
+		}
+		this.p('],', 1);
+		this.p('"info" : {', 1);
+			this.p('"version" : 1,', 2);
+			this.p('"author" : "xcode"', 2);
+		this.p('}', 1);
+	this.p('}');
+	this.closeFile();
+
+	var black = 0xff;
+	for (var i = 0; i < icons.length; ++i) {
+		var icon = icons[i];
+		Icon.exportPng(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', icon.idiom + icon.scale + 'x' + icon.size + '.png')), icon.size * icon.scale, icon.size * icon.scale, undefined, from);
 	}
 
 	var project = solution.getProjects()[0];
@@ -288,11 +273,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 			this.p(file.getBuildId() + " /* " + file.toString() + " in Sources */ = {isa = PBXBuildFile; fileRef = " + file.getFileId() + " /* " + file.toString() + " */; };", 2);
 		}
 	}
-	if (platform === Platform.OSX)
-		this.p(iconBuildId + " /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = " + iconFileId + " /* icon.icns */; };", 2);
-	else {
-		this.p(iconBuildId + ' /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ' + iconFileId + ' /* Images.xcassets */; };', 2);
-	}
+	this.p(iconBuildId + ' /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ' + iconFileId + ' /* Images.xcassets */; };', 2);
 	this.p("/* End PBXBuildFile section */");
 	this.p();
 	this.p("/* Begin PBXFileReference section */");
@@ -316,11 +297,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		if (file.getName().endsWith(".s")) filetype = "sourcecode.asm";
 		this.p(file.getFileId() + " /* " + file.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = " + filetype + "; name = \"" + file.getLastName() + "\"; path = \"" + from.resolve(file.toString()).toAbsolutePath().toString() + "\"; sourceTree = \"<group>\"; };", 2);
 	}
-	if (platform === Platform.OSX)
-		this.p(iconFileId + " /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = \"<group>\"; };", 2);
-	else {
-		this.p(iconFileId + ' /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };', 2);
-	}
+	this.p(iconFileId + ' /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };', 2);
 	this.p("/* End PBXFileReference section */");
 	this.p();
 	this.p("/* Begin PBXFrameworksBuildPhase section */");
@@ -341,10 +318,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	this.p(mainGroupId + " = {", 2);
 		this.p("isa = PBXGroup;", 3);
 		this.p("children = (", 3);
-			if (platform === Platform.OSX) this.p(iconFileId + " /* icon.icns */,", 4);
-			else {
-				this.p(iconFileId + " /* Images.xcassets */,", 4);
-			}
+			this.p(iconFileId + " /* Images.xcassets */,", 4);
 			this.p(debugDirFileId + " /* Deployment */,", 4);
 			//p(solutionGroupId + " /* " + solution.getName() + " */,", 4);
 			for (var d in directories) {
@@ -459,10 +433,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		this.p("buildActionMask = 2147483647;", 3);
 		this.p("files = (", 3);
 			this.p(debugDirBuildId + " /* Deployment in Resources */,", 4);
-			if (platform === Platform.OSX) this.p(iconBuildId + " /* icon.icns in Resources */,", 4);
-			else {
-				this.p(iconBuildId + ' /* Images.xcassets in Resources */,', 4);
-			}
+			this.p(iconBuildId + ' /* Images.xcassets in Resources */,', 4);
 		this.p(");", 3);
 		this.p("runOnlyForDeploymentPostprocessing = 0;", 3);
 	this.p("};", 2);
@@ -640,13 +611,21 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		this.p('isa = XCBuildConfiguration;', 3);
 		this.p('buildSettings = {', 3);
 			this.p('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;', 4);
+			if (platform === Platform.OSX) {
+				this.p('COMBINE_HIDPI_IMAGES = YES;', 4);
+			}
 			this.p("HEADER_SEARCH_PATHS = (", 4);
 				this.p('"$(inherited)",', 5);
 				this.p('/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,', 5);
 				for (var path in project.getIncludeDirs()) this.p(from.resolve(project.getIncludeDirs()[path]).toAbsolutePath().toString() + ",", 5);
 			this.p(");", 4);
 			this.p("INFOPLIST_FILE = \"" + from.resolve(plistname).toAbsolutePath().toString() + "\";", 4);
-			this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
+			if (platform === Platform.iOS) {
+				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
+			}
+			else {
+				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";', 4);
+			}
 			this.p('PRODUCT_NAME = "$(TARGET_NAME)";', 4);
 		this.p('};', 3);
 		this.p('name = Debug;', 3);
@@ -655,13 +634,21 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		this.p('isa = XCBuildConfiguration;', 3);
 		this.p('buildSettings = {', 3);
 			this.p('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;', 4);
+			if (platform === Platform.OSX) {
+				this.p('COMBINE_HIDPI_IMAGES = YES;', 4);
+			}
 			this.p("HEADER_SEARCH_PATHS = (", 4);
 				this.p('"$(inherited)",', 5);
 				this.p('/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,', 5);
 				for (var path in project.getIncludeDirs()) this.p(from.resolve(project.getIncludeDirs()[path]).toAbsolutePath().toString() + ",", 5);
 			this.p(");", 4);
 			this.p("INFOPLIST_FILE = \"" + from.resolve(plistname).toAbsolutePath().toString() + "\";", 4);
-			this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
+			if (platform === Platform.iOS) {
+				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
+			}
+			else {
+				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";', 4);
+			}
 			this.p('PRODUCT_NAME = "$(TARGET_NAME)";', 4);
 		this.p('};', 3);
 		this.p('name = Release;', 3);
