@@ -487,9 +487,19 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		this.p("buildSettings = {", 3);
 			this.p('ALWAYS_SEARCH_USER_PATHS = NO;', 4);
 			this.p('CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";', 4);
-			this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
+			if (platform === Platform.iOS) {
+				this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
+			}
+			else {
+				this.p('CLANG_CXX_LIBRARY = "libstdc++";', 4);
+			}
 			this.p('CLANG_ENABLE_MODULES = YES;', 4);
-			this.p('CLANG_ENABLE_OBJC_ARC = YES;', 4);
+			if (platform === Platform.iOS) {
+				this.p('CLANG_ENABLE_OBJC_ARC = YES;', 4);
+			}
+			else {
+				this.p('CLANG_ENABLE_OBJC_ARC = NO;', 4);
+			}
 			this.p('CLANG_WARN_BOOL_CONVERSION = YES;', 4);
 			this.p('CLANG_WARN_CONSTANT_CONVERSION = YES;', 4);
 			this.p('CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;', 4);
@@ -549,9 +559,19 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		this.p("buildSettings = {", 3);
 			this.p('ALWAYS_SEARCH_USER_PATHS = NO;', 4);
 			this.p('CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";', 4);
-			this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
+			if (platform === Platform.iOS) {
+				this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
+			}
+			else {
+				this.p('CLANG_CXX_LIBRARY = "libstdc++";', 4);
+			}
 			this.p('CLANG_ENABLE_MODULES = YES;', 4);
-			this.p('CLANG_ENABLE_OBJC_ARC = YES;', 4);
+			if (platform === Platform.iOS) {
+				this.p('CLANG_ENABLE_OBJC_ARC = YES;', 4);
+			}
+			else {
+				this.p('CLANG_ENABLE_OBJC_ARC = NO;', 4);
+			}
 			this.p('CLANG_WARN_BOOL_CONVERSION = YES;', 4);
 			this.p('CLANG_WARN_CONSTANT_CONVERSION = YES;', 4);
 			this.p('CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;', 4);
@@ -624,7 +644,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
 			}
 			else {
-				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";', 4);
+				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited)";', 4);
 			}
 			this.p('PRODUCT_NAME = "$(TARGET_NAME)";', 4);
 		this.p('};', 3);
@@ -647,7 +667,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
 			}
 			else {
-				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";', 4);
+				this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited)";', 4);
 			}
 			this.p('PRODUCT_NAME = "$(TARGET_NAME)";', 4);
 		this.p('};', 3);
