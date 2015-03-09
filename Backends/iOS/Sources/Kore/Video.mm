@@ -87,9 +87,9 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	[reader addOutput:videoOutput];
 	[reader addOutput:audioOutput];
 	
-	//**assetReader = reader;
-	//**videoTrackOutput = videoOutput;
-	//**audioTrackOutput = audioOutput;
+	assetReader = (__bridge void*)reader;
+	videoTrackOutput = (__bridge void*)videoOutput;
+	audioTrackOutput = (__bridge void*)audioOutput;
 	
 	myWidth = [videoTrack naturalSize].width;
 	myHeight = [videoTrack naturalSize].height;
@@ -103,8 +103,8 @@ Video::~Video() {
 }
 
 void Video::play() {
-	//**AVAssetReader* reader = (AVAssetReader*)assetReader;
-	//**[reader startReading];
+	AVAssetReader* reader = (__bridge AVAssetReader*)assetReader;
+	[reader startReading];
 	
 	sound = new VideoSoundStream(2, 44100);
 	Mixer::play(sound);
@@ -128,9 +128,8 @@ void Video::stop() {
 
 void Video::updateImage() {
 	if (!playing) return;
-	/*
 	{
-		AVAssetReaderTrackOutput* videoOutput = (AVAssetReaderTrackOutput*)videoTrackOutput;
+		AVAssetReaderTrackOutput* videoOutput = (__bridge AVAssetReaderTrackOutput*)videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
 		next = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
 		
@@ -147,7 +146,7 @@ void Video::updateImage() {
 	}
 	
 	{
-		AVAssetReaderAudioMixOutput* audioOutput = (AVAssetReaderAudioMixOutput*)audioTrackOutput;
+		AVAssetReaderAudioMixOutput* audioOutput = (__bridge AVAssetReaderAudioMixOutput*)audioTrackOutput;
 		do {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
 			//audioNext = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
@@ -184,7 +183,6 @@ void Video::updateImage() {
 		}
 		while (audioTime < next);
 	}
-	*/
 }
 
 void Video::update(double time) {
