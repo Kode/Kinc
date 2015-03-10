@@ -93,7 +93,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	
 	myWidth = [videoTrack naturalSize].width;
 	myHeight = [videoTrack naturalSize].height;
-	image = new Texture(width(), height(), Image::RGBA32, false);
+	image = nullptr;
 	next = 0;
 	audioTime = 0;
 }
@@ -134,6 +134,14 @@ void Video::updateImage() {
 		next = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
 		
 		CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(buffer);
+		
+		if (image == nullptr) {
+			CGSize size = CVImageBufferGetDisplaySize(pixelBuffer);
+			myWidth = size.width;
+			myHeight = size.height;
+			image = new Texture(width(), height(), Image::RGBA32, false);
+		}
+		
 		if (pixelBuffer != NULL) {
 			CVPixelBufferLockBaseAddress(pixelBuffer, 0);
 			//int width = CVPixelBufferGetWidth(pixelBuffer);
