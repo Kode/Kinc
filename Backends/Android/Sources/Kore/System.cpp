@@ -5,7 +5,6 @@
 #include <Kore/IO/FileReader.h>
 #include <Kore/IO/miniz.h>
 #include <Kore/Input/Keyboard.h>
-#include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Sensor.h>
 #include <Kore/Input/Surface.h>
@@ -83,6 +82,10 @@ mz_zip_archive* getApk() {
 
 const char* Kore::System::savePath() {
 	return filesDir;
+}
+
+const char* Kore::System::systemId() {
+	return "Android";
 }
 
 extern int kore(int argc, char** argv);
@@ -169,11 +172,11 @@ JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* e
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobject obj, jint code) {
-	Kore::Keyboard::the()->keyup(Kore::KeyEvent(code));
+	//Kore::Keyboard::the()->keyup(Kore::KeyEvent(code));
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyDown(JNIEnv* env, jobject obj, jint code) {
-	Kore::Keyboard::the()->keydown(Kore::KeyEvent(code));
+	//Kore::Keyboard::the()->keydown(Kore::KeyEvent(code));
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_accelerometerChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z) {
