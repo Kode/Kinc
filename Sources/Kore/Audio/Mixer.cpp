@@ -137,6 +137,15 @@ void Mixer::stop(Sound* sound) {
 
 void Mixer::play(SoundStream* stream) {
 	mutex.Lock();
+
+	for (int i = 0; i < channelCount; ++i) {
+		if (streams[i].stream == stream) {
+			streams[i].stream = nullptr;
+			streams[i].position = 0;
+			break;
+		}
+	}
+
 	for (int i = 0; i < channelCount; ++i) {
 		if (streams[i].stream == nullptr) {
 			streams[i].stream = stream;
@@ -144,6 +153,7 @@ void Mixer::play(SoundStream* stream) {
 			break;
 		}
 	}
+
 	mutex.Unlock();
 }
 
