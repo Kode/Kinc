@@ -106,7 +106,7 @@ $(call import-module,nv_thread)
 	var files = "";
 	for (var f in project.getFiles()) {
 		var filename = project.getFiles()[f];
-		if (filename.endsWith(".c") || filename.endsWith(".cpp") || filename.endsWith(".cc") || filename.endsWith(".s")) files += filename + " ";
+		if (filename.endsWith(".c") || filename.endsWith(".cpp") || filename.endsWith(".cc") || filename.endsWith(".s")) files += from.resolve(filename) + " ";
 	}
 	this.p("LOCAL_SRC_FILES := " + files);
 	var defines = "";
@@ -135,13 +135,6 @@ $(call import-module,nv_thread)
 	closeFile();
 	*/
 	Files.copy(Paths.executableDir().resolve(Paths.get("Data", "android", "Application.mk")), to.resolve(Paths.get("jni", "Application.mk")), true);
-
-	for (var f in project.getFiles()) {
-		var file = project.getFiles()[f];
-		var target = to.resolve("jni").resolve(file);
-		this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
-		Files.copy(from.resolve(file), target, true);
-	}
 };
 
 module.exports = ExporterAndroid;
