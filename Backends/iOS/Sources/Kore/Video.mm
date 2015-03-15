@@ -131,6 +131,10 @@ void Video::updateImage() {
 	{
 		AVAssetReaderTrackOutput* videoOutput = (__bridge AVAssetReaderTrackOutput*)videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
+		if (!buffer) {
+			stop();
+			return;
+		}
 		next = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
 		
 		CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(buffer);
