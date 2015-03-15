@@ -13,6 +13,9 @@
 #include <GLES2/gl2.h>
 #include <cstring>
 
+// TODO: FM: Inconsistent namespaces
+#include <Kore/Vr/VrInterface.h>
+
 void* Kore::System::createWindow() {
 	return nullptr;
 }
@@ -117,6 +120,11 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobje
 	glViewport(0, 0, width, height);
 	::width = width;
 	::height = height;
+
+	// Save the JVM for the Vr system
+	JavaVM* cachedJVM;
+	env->GetJavaVM(&cachedJVM);
+	Kore::VrInterface::SetJVM(cachedJVM);
 }
 
 namespace {

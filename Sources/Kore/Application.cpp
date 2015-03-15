@@ -35,7 +35,7 @@ void Application::start() {
 #ifndef SYS_ANDROID
 #ifndef SYS_HTML5
 #ifndef SYS_TIZEN
-	if (Graphics::hasWindow()) Graphics::swapBuffers();
+	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 	while (running) {
 		callback();
 		System::handleMessages();
