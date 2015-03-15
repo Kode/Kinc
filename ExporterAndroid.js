@@ -126,7 +126,7 @@ $(call import-module,nv_thread)
 	this.closeFile();
 	
 	// Check if the file is different from the old one
-	Files.copyIfDifferent(to.resolve(Paths.get("jni", "Android.mk")), to.resolve(Paths.get("jni", "Android_temp.mk")), true);
+	Files.copyIfDifferent(to.resolve(Paths.get("jni", "Android_temp.mk")), to.resolve(Paths.get("jni", "Android.mk")), true);
 
 	/*
 	writeFile(to.resolve(Paths::get("jni", "Application.mk")));

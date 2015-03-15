@@ -4,6 +4,10 @@ var pa = require('path');
 var execSync = require('child_process').execSync;
 
 function filesDiffer(file1, file2) {
+  // Treat them as different if one of them does not exist.
+  if (!fs.existsSync(file1)) return true;
+  if (!fs.existsSync(file2)) return true;
+
   var isDifferent = true;
   var output;
   try {
@@ -56,7 +60,7 @@ exports.createDirectories(to.parent());
         fs.writeFileSync(to.path, fs.readFileSync(from.path));
           console.log("Copying differing file: " + from.path);
         } else {
-         // console.log("Skipped file: " + from.path);
+          //console.log("Skipped file: " + from.path);
         }
     
     }
