@@ -1,6 +1,22 @@
 ﻿var fs = require('fs');
 var pa = require('path');
 
+var execSync = require('child_process').execSync;
+
+function filesDiffer(file1, file2) {
+  var isDifferent = true;
+  var output;
+  try {
+   output = execSync("fc " + file1 + " " + file2, { encoding: 'utf8' });
+   } catch (error) {
+    output = "";
+   }
+  if(output.indexOf("no differences encountered") > -1) {
+    isDifferent = false;
+  }
+  return isDifferent;
+}
+
 exports.exists = function (path) {
 	return fs.existsSync(path.path);
 };
@@ -28,8 +44,25 @@ exports.isDirectory = function (path) {
 
 exports.copy = function (from, to, replace) {
 	exports.createDirectories(to.parent());
-	if (replace || !fs.existsSync(to.path)) fs.writeFileSync(to.path, fs.readFileSync(from.path));
+	if (replace || !fs.existsSync(to.path)) {
+        fs.writeFileSync(to.path, fs.readFileSync(from.path));
+    }
 };
+
+exports.copyIfDifferent = function (from, to, replace) {
+exports.createDirectories(to.parent());
+	if (replace || !fs.existsSync(to.path)) {
+      if (filesDiffer(to.path, from.path)) {
+        fs.writeFileSync(to.path, fs.readFileSync(from.path));
+          console.log("Copying differing file: " + from.path);
+        } else {
+         // console.log("Skipped file: " + from.path);
+        }
+    
+    }
+};
+
+
 
 exports.newDirectoryStream = function (path) {
 	return fs.readdirSync(path.path);
