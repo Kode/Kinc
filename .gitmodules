@@ -1,6 +1,6 @@
 [submodule "Tools/kfx"]
 	path = Tools/kfx
-	url = ../kfx
+	url = http://github.com/KTXSoftware/kfx
 	branch = master
 [submodule "Tools/koremake"]
 	path = Tools/koremake
@@ -8,5 +8,5 @@
 	branch = master
 [submodule "Tools/kraffiti"]
 	path = Tools/kraffiti
-	url = ../kraffiti
+	url = http://github.com/KTXSoftware/kraffiti
 	branch = master
