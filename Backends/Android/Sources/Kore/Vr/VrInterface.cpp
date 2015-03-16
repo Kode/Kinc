@@ -218,6 +218,7 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		}
 		result.Pose = GetPoseState(image->Pose.mPtr);
 		result.TexCoordsFromTanAngles = GetMatrix(image->TexCoordsFromTanAngles.mPtr);
+		result.TexCoordsFromTanAngles = TanAngleMatrixFromProjection(result.TexCoordsFromTanAngles);
 
 		return result;
 	}
@@ -255,6 +256,7 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		} else {
 			Kore::log(Kore::Info, "Matrices are identical");
 		}
+
 
 
 		ovr_WarpSwap(ovr, nativeParms);
