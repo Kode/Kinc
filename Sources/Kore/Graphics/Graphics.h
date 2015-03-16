@@ -173,5 +173,7 @@ namespace Kore {
 		void destroy();
 
 		extern bool fullscreen;
+
+		void flush();
 	};
 }

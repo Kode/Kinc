@@ -491,3 +491,7 @@ bool Graphics::renderTargetsInvertedY() {
 bool Graphics::nonPow2TexturesSupported() {
 	return false;
 }
+
+void Graphics::flush() {
+	glFlush();
+}

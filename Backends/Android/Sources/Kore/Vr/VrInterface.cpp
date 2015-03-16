@@ -11,7 +11,11 @@
 
 
 #include <VrApi/VrApi.h>
+#include <GlTexture.h>
 
+#include <LibOvr/Src/Kernel/OVR_Math.h>
+
+#include <Kore/log.h>
 
 
 
@@ -69,7 +73,6 @@ void WarpSwapBlack() {
 void WarpSwapLoadingIcon() {
 	ovr_WarpSwapLoadingIcon(ovr);
 }
-
 
 
 template<typename T> T* CreateEmpty() {
@@ -219,7 +222,20 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		return result;
 	}
 
+
+	bool AreDifferent(ovrMatrix4f& lhs, ovrMatrix4f& rhs) {
+		for (int x = 0; x < 4; x++) {
+			for (int y = 0; y < 4; y++) {
+
+				if (Kore::abs(lhs.M[x][y] - rhs.M[x][y]) > 0.1f) return true;
+			}
+		}
+		return false;
+	}
+
 	void WarpSwap(kha::vr::TimeWarpParms_obj* parms) {
+
+
 		TimeWarpParms* nativeParms = new TimeWarpParms();
 
 
@@ -227,10 +243,18 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		TimeWarpImage rightImage = GetTimeWarpImage(parms->RightImage.mPtr);
 
 
+		nativeParms->WarpProgram = WP_SIMPLE;
 
 		nativeParms->Images[0][0] = leftImage;
 		nativeParms->Images[1][0] = rightImage;
 
+		ovrMatrix4f comparison = OVR::Matrix4f::Translation(1.0f, 2.0f, 3.0f);
+
+		if (AreDifferent(comparison, nativeParms->Images[0][0].TexCoordsFromTanAngles)) {
+			Kore::log(Kore::Info, "Matrices are different!");
+		} else {
+			Kore::log(Kore::Info, "Matrices are identical");
+		}
 
 
 		ovr_WarpSwap(ovr, nativeParms);
