@@ -242,20 +242,24 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 
 		TimeWarpImage leftImage = GetTimeWarpImage(parms->LeftImage.mPtr);
 		TimeWarpImage rightImage = GetTimeWarpImage(parms->RightImage.mPtr);
+		TimeWarpImage leftOverlay = GetTimeWarpImage(parms->LeftOverlay.mPtr);
+		TimeWarpImage rightOverlay = GetTimeWarpImage(parms->RightOverlay.mPtr);
 
 
 		nativeParms->WarpProgram = WP_SIMPLE;
 
 		nativeParms->Images[0][0] = leftImage;
+		nativeParms->Images[0][1] = leftOverlay;
 		nativeParms->Images[1][0] = rightImage;
+		nativeParms->Images[1][1] = rightOverlay;
 
-		ovrMatrix4f comparison = OVR::Matrix4f::Translation(1.0f, 2.0f, 3.0f);
+		/*ovrMatrix4f comparison = OVR::Matrix4f::Translation(1.0f, 2.0f, 3.0f);
 
 		if (AreDifferent(comparison, nativeParms->Images[0][0].TexCoordsFromTanAngles)) {
 			Kore::log(Kore::Info, "Matrices are different!");
 		} else {
 			Kore::log(Kore::Info, "Matrices are identical");
-		}
+		} */
 
 
 
