@@ -252,6 +252,8 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		nativeParms->Images[0][1] = leftOverlay;
 		nativeParms->Images[1][0] = rightImage;
 		nativeParms->Images[1][1] = rightOverlay;
+		
+		nativeParms->WarpProgram = WP_OVERLAY_PLANE;
 
 		/*ovrMatrix4f comparison = OVR::Matrix4f::Translation(1.0f, 2.0f, 3.0f);
 
