@@ -19,7 +19,7 @@ namespace {
 	int maxSamples = 0;
 }
 
-VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100 * 250), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
+VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100 * 100), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
 	buffer = new float[bufferSize];
 }
 
@@ -43,7 +43,7 @@ void VideoSoundStream::insertData(float* data, int nSamples) {
 float VideoSoundStream::nextSample() {
 	++read;
 	if (written <= read) {
-		printf("Out of audio\n");
+		//printf("Out of audio\n");
 		return 0;
 	}
 	if (bufferReadPosition >= bufferSize) {
@@ -93,6 +93,8 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	
 	myWidth = [videoTrack naturalSize].width;
 	myHeight = [videoTrack naturalSize].height;
+	int framerate = [videoTrack nominalFrameRate];
+	printf("Framerate: %i\n", framerate);
 	image = nullptr;
 	next = 0;
 	audioTime = 0;
@@ -191,6 +193,7 @@ void Video::updateImage() {
 				// amplitude for the sample is samples[i], assuming you have linear pcm to start with
 				//}
 			}
+			CFRelease(blockBufferOut);
 			CFRelease(buffer);
 		}
 		while (audioTime < next);
