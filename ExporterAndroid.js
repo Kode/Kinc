@@ -120,6 +120,7 @@ $(call import-module,nv_thread)
 	for (var inc in project.getIncludeDirs()) includes += "$(LOCAL_PATH)/../../../" + project.getIncludeDirs()[inc].replaceAll('\\', '/') + " ";
 	this.p("LOCAL_C_INCLUDES += " + includes);
 	this.p("LOCAL_LDLIBS    += -llog -lGLESv2");
+	this.p("LOCAL_SHORT_COMMANDS := true");
 	this.p();
 	this.p("include $(BUILD_SHARED_LIBRARY)");
 	this.p();
