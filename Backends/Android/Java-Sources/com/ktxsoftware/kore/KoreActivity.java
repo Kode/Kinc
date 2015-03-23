@@ -1,6 +1,7 @@
 package com.ktxsoftware.kore;
 
 import android.app.Activity;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.hardware.Sensor;
@@ -14,7 +15,11 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class KoreActivity extends Activity implements SensorEventListener {
+import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
+import com.google.vrtoolkit.cardboard.sensors.NfcSensor;
+
+
+public class KoreActivity extends Activity implements SensorEventListener, OnCardboardTriggerListener,  OnCardboardNfcListener {
 	public volatile static boolean paused = true;
 	private AudioTrack audio;
 	private Thread audioThread;
@@ -27,6 +32,10 @@ public class KoreActivity extends Activity implements SensorEventListener {
 	public static float gyroX, gyroY, gyroZ;
 	
 	private static KoreActivity instance;
+	
+	private MagnetSensor mMagnetSensor;
+	private NfcSensor mNfcSensor;
+	
 	
 	public static KoreActivity getInstance() {
 		return instance;
@@ -45,6 +54,13 @@ public class KoreActivity extends Activity implements SensorEventListener {
 		sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		
+		// Cardboard setup
+		mMagnetSensor = new MagnetSensor(this);
+		mMagnetSensor.setOnCardboardTriggerListener(this);
+
+		mNfcSensor = NfcSensor.getInstance(this);
+		mNfcSensor.addOnCardboardNfcListener(this);
 	}
 	
 	@Override
@@ -136,4 +152,19 @@ public class KoreActivity extends Activity implements SensorEventListener {
 			}
 		}
 	}
+	@Override
+	public void onInsertedIntoCardboard(CardboardDeviceParams paramCardboardDeviceParams) {
+		
+	}
+
+	@Override
+	public void onRemovedFromCardboard() {
+		
+	}
+	
+	@Override
+	public void onCardboardTrigger() {
+		
+	}
+	
 }

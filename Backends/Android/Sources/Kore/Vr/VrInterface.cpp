@@ -211,6 +211,11 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 
 	TimeWarpImage GetTimeWarpImage(kha::vr::TimeWarpImage_obj* image) {
 		TimeWarpImage result;
+
+		if (image == 0) {
+			result.TexId = 0;
+			return result;
+		}
 		if (image->Image->renderTarget != 0) {
 			result.TexId = image->Image->renderTarget->_texture;
 		} else {
@@ -249,11 +254,11 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		nativeParms->WarpProgram = WP_SIMPLE;
 
 		nativeParms->Images[0][0] = leftImage;
-		nativeParms->Images[0][1] = leftOverlay;
+		//nativeParms->Images[0][1] = leftOverlay;
 		nativeParms->Images[1][0] = rightImage;
-		nativeParms->Images[1][1] = rightOverlay;
+		//nativeParms->Images[1][1] = rightOverlay;
 		
-		nativeParms->WarpProgram = WP_OVERLAY_PLANE;
+		// nativeParms->WarpProgram = WP_OVERLAY_PLANE;
 
 		/*ovrMatrix4f comparison = OVR::Matrix4f::Translation(1.0f, 2.0f, 3.0f);
 
