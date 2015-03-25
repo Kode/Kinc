@@ -7,6 +7,12 @@
 #include <kha/vr/SensorState.h>
 #include <kha/vr/TimeWarpParms.h>
 
+#include <kha/Image.h>
+
+#include <kha/math/Quaternion.h>
+
+
+
 namespace Kore {
 
 	namespace VrInterface {
@@ -17,6 +23,23 @@ namespace Kore {
 	void SetJVM(JavaVM* jvm);
 #endif
 
+
+#ifdef VR_CARDBOARD
+	void DistortionBefore();
+
+	void DistortionAfter();
+
+	void DistortTexture(kha::Image_obj* image);
+
+	void updateGaze(float x, float y, float z, float w);
+
+
+	kha::math::Quaternion_obj* getGaze();
+
+#endif
+
+
+/*
 	// Calls ovr_enterVrMode
 	void Initialize();
 
@@ -34,8 +57,7 @@ namespace Kore {
 	void WarpSwap(kha::vr::TimeWarpParms_obj* parms);
 	
 	
+	*/
 		
-		
-	};
+	}
 }
-
