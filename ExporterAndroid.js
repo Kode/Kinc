@@ -11,15 +11,20 @@ function ExporterAndroid() {
 ExporterAndroid.prototype = Object.create(Exporter.prototype);
 ExporterAndroid.constructor = ExporterAndroid;
 
-ExporterAndroid.prototype.exportSolution = function (solution, from, to, platform) {
+ExporterAndroid.prototype.exportSolution = function (solution, from, to, platform, vr) {
+	
 	var project = solution.getProjects()[0];
 	//String libname = solution.getName().toLowerCase().replace(' ', '-');
 
 	var nvpack = false; //Configuration.getAndroidDevkit() == AndroidDevkit.nVidia;
 
 	if (project.getDebugDir().length > 0) this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve("assets"));
-
-	Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", ".classpath")), to.resolve(".classpath"), true);
+  if (vr == "cardboard") {
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", ".classpath.Cardboard")), to.resolve(".classpath"), true);
+  } else {
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", ".classpath")), to.resolve(".classpath"), true);
+  }
+	
 
 	if (nvpack) {
 		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", ".project")).toString(), { encoding: 'utf8' });
@@ -44,9 +49,16 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 		fs.writeFileSync(to.resolve('.cproject').toString(), file);
 	}
 
-	Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "AndroidManifest.xml")), to.resolve("AndroidManifest.xml"), true);
-	Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "project.properties")), to.resolve("project.properties"), true);
-
+	if (vr == "gearvr") {
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "AndroidManifest.GearVr.xml")), to.resolve("AndroidManifest.xml"), true);
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "project.GearVr.properties")), to.resolve("project.properties"), true);
+  } else if (vr == "cardboard") {
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "AndroidManifest.Cardboard.xml")), to.resolve("AndroidManifest.xml"), true);
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "project.Cardboard.properties")), to.resolve("project.properties"), true);
+  } else {
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "AndroidManifest.xml")), to.resolve("AndroidManifest.xml"), true);
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "project.properties")), to.resolve("project.properties"), true);
+  }
 	this.createDirectory(to.resolve(".settings"));
 	if (nvpack) {
 		Files.copy(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", "org.eclipse.jdt.core.prefs")), to.resolve(Paths.get(".settings", "org.eclipse.jdt.core.prefs")), true);
@@ -102,8 +114,8 @@ $(call import-module,nv_thread)
 	this.p();
 	this.p("include $(CLEAR_VARS)");
 	this.p();
-  this.p("include ../../../VRLib/import_vrlib.mk		# import VRLib for this module.  Do NOT call $(CLEAR_VARS) until after building your module.");
-  this.p("# use += instead of := when defining the following variables: LOCAL_LDLIBS, LOCAL_CFLAGS, LOCAL_C_INCLUDES, LOCAL_STATIC_LIBRARIES");
+  if (vr == "gearvr") this.p("include ../../../VRLib/import_vrlib.mk		# import VRLib for this module.  Do NOT call $(CLEAR_VARS) until after building your module.");
+  if (vr == "gearvr") this.p("# use += instead of := when defining the following variables: LOCAL_LDLIBS, LOCAL_CFLAGS, LOCAL_C_INCLUDES, LOCAL_STATIC_LIBRARIES");
 
 	
 	this.p("LOCAL_MODULE    := Kore");
@@ -115,11 +127,20 @@ $(call import-module,nv_thread)
 	this.p("LOCAL_SRC_FILES := " + files);
 	var defines = "";
 	for (var def in project.getDefines()) defines += "-D" + project.getDefines()[def].replaceAll('\"', "\\\"") + " ";
-	this.p("LOCAL_CFLAGS += " + defines);
+	if (vr == "gearvr") {
+    this.p("LOCAL_CFLAGS += " + defines);
+  } else {
+    this.p("LOCAL_CFLAGS := " + defines);
+  }
 	var includes = "";
 	for (var inc in project.getIncludeDirs()) includes += "$(LOCAL_PATH)/../../../" + project.getIncludeDirs()[inc].replaceAll('\\', '/') + " ";
-	this.p("LOCAL_C_INCLUDES += " + includes);
-	this.p("LOCAL_LDLIBS    += -llog -lGLESv2");
+	if (vr == "gearvr") {
+    this.p("LOCAL_C_INCLUDES += " + includes);
+    this.p("LOCAL_LDLIBS    += -llog -lGLESv2");
+  } else {
+     this.p("LOCAL_C_INCLUDES := " + includes);
+     this.p("LOCAL_LDLIBS    := -llog -lGLESv2");
+  }
 	this.p("LOCAL_SHORT_COMMANDS := true");
 	this.p();
 	this.p("include $(BUILD_SHARED_LIBRARY)");

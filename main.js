@@ -173,7 +173,7 @@ function exportKakeProject(from, to, platform, options) {
 	}
 	else if (platform == Platform.Tizen) exporter = new ExporterTizen();
 	else exporter = new ExporterVisualStudio();
-	exporter.exportSolution(solution, from, to, platform);
+	exporter.exportSolution(solution, from, to, platform, options.vrApi);
 
 	log.info(".done.");
 	return solution.getName();
@@ -204,6 +204,10 @@ exports.run = function (options, loglog, callback) {
 	
 	if (options.visualStudioVersion !== undefined) {
 		Options.visualStudioVersion = options.visualStudioVersion;
+	}
+	
+	if (options.vrApi !== undefined) {
+    Options.vrApi = options.vrApi;
 	}
 	
 	exportProject(Paths.get(options.from), Paths.get(options.to), options.platform, options);

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.ktxsoftware.kore"
+android:versionCode="1"
+android:versionName="1.0">
+
+	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="19"/>
+	
+	<!--  Needed for getting camera preview images  -->
+  	<uses-permission android:name="android.permission.CAMERA" />
+  	
+    <!-- Needed to write trace files for PVRTrace -->    	
+  	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  	
+    <!-- Needed to record audio for VoIP -->    	
+  	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+  	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+  	
+  	<!-- Needed for PVRTune to communicate, and to stream files -->    	
+  	<uses-permission android:name="android.permission.INTERNET" />
+  	
+  	<uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.usb.host" />
+	
+	<!-- Tell the system this app requires OpenGL ES 3.0. -->
+	<uses-feature android:glEsVersion="0x00030000" android:required="true" />
+
+	<application android:label="@string/app_name">
+	
+    <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>
+    
+		<activity android:name="KoreActivity"
+			android:label="@string/app_name"
+			android:configChanges="orientation|keyboardHidden|keyboard"
+			android:screenOrientation="landscape"
+			android:launchMode="singleTask"
+			android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+			>
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		
+		<activity
+            android:name="com.oculusvr.vrlib.PlatformActivity"
+			android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+			android:launchMode="singleTask"
+			android:screenOrientation="landscape"
+			android:configChanges="orientation|keyboardHidden|keyboard"> 
+        </activity>
+        
+	</application>
+</manifest>
