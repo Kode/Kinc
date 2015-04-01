@@ -19,7 +19,7 @@ namespace {
 	int maxSamples = 0;
 }
 
-VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100 * 100), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
+VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100 * 10), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
 	buffer = new float[bufferSize];
 }
 
@@ -159,15 +159,17 @@ void Video::updateImage() {
 		CFRelease(buffer);
 	}
 	
+	//printf("Next %f\n", next);
+	
 	{
 		AVAssetReaderAudioMixOutput* audioOutput = (__bridge AVAssetReaderAudioMixOutput*)audioTrackOutput;
-		do {
+		while (audioTime / 44100.0 < next + 1) {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
 			//audioNext = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
 			if (!buffer) return;
 			CMItemCount numSamplesInBuffer = CMSampleBufferGetNumSamples(buffer);
 			
-			audioTime += numSamplesInBuffer / 44100.0;
+			//audioTime += numSamplesInBuffer * 2;// / 44100.0;
 			//AudioTimeStamp ts;
 			//memset(&ts, 0, sizeof(AudioTimeStamp));
 			//ts.mSampleTime = currentSampleTime;
@@ -180,14 +182,16 @@ void Video::updateImage() {
 			//audioBufferList.mBuffers[0].mData = malloc(numSamplesInBuffer * sizeof(SInt16) * 2);
 			//audioBufferList.mBuffers[0].mDataByteSize = numSamplesInBuffer * sizeof(SInt16) * 2;
 			
-			size_t bufferListSizeNeededOut;
+			//size_t bufferListSizeNeededOut;
 			CMBlockBufferRef blockBufferOut = nil;
 			CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(buffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &blockBufferOut);
 			//CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(buffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &buffer);
 			//Kore::log(Kore::Info, "Audio buffers: %i", audioBufferList.mNumberBuffers);
+			//audioTime += audioBufferList.mNumberBuffers;
 			for (int bufferCount = 0; bufferCount < audioBufferList.mNumberBuffers; ++bufferCount) {
 				float* samples = (float*)audioBufferList.mBuffers[bufferCount].mData;
 				sound->insertData(samples, (int)numSamplesInBuffer * 2);
+				audioTime += numSamplesInBuffer;
 				//sound->insertData(samples, (int)numSamplesInBuffer);
 				//for (int i = 0; i < numSamplesInBuffer; ++i) {
 				// amplitude for the sample is samples[i], assuming you have linear pcm to start with
@@ -196,7 +200,6 @@ void Video::updateImage() {
 			CFRelease(blockBufferOut);
 			CFRelease(buffer);
 		}
-		while (audioTime < next);
 	}
 }
 

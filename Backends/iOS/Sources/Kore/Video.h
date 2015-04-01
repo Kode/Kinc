@@ -12,7 +12,8 @@ namespace Kore {
 		void updateImage();
 		double start;
 		double next;
-		double audioTime;
+		//double audioTime;
+		unsigned long long audioTime;
 		bool playing;
 		VideoSoundStream* sound;
 	public:
