@@ -12,6 +12,8 @@
 #include <jni.h>
 #include <GLES2/gl2.h>
 #include <cstring>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
 void* Kore::System::createWindow() {
 	return nullptr;
@@ -50,6 +52,16 @@ namespace {
 	bool initialized = false;
 	int debuggingDelayCount = 0;
 	const int debuggingDelay = 0;
+    AAssetManager* assets;
+    JNIEnv* env;
+}
+
+JNIEnv* getEnv() {
+    return env;
+}
+
+AAssetManager* getAssetManager() {
+    return assets;
 }
 
 void Kore::System::showKeyboard() {
@@ -91,7 +103,7 @@ const char* Kore::System::systemId() {
 extern int kore(int argc, char** argv);
 
 extern "C" {
-	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath, jstring filesDir);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jobject assetManager, jstring apkPath, jstring filesDir);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobject obj);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touch(JNIEnv* env, jobject obj, jint index, jint x, jint y, jint action);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_writeAudio(JNIEnv* env, jobject obj, jbyteArray buffer, jint size);
@@ -102,7 +114,7 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gyroChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z);
 };
 
-JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jstring apkPath, jstring filesDir) {
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jobject assetManager, jstring apkPath, jstring filesDir) {
 	{
 		const char* path = env->GetStringUTFChars(apkPath, nullptr);
 		std::strcpy(theApkPath, path);
@@ -114,6 +126,10 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobje
 		std::strcat(::filesDir, "/");
 		env->ReleaseStringUTFChars(filesDir, path);
 	}
+
+    //(*env)->NewGlobalRef(env, foo);
+    assets = AAssetManager_fromJava(env, assetManager);
+
 	glViewport(0, 0, width, height);
 	::width = width;
 	::height = height;
@@ -127,6 +143,7 @@ namespace {
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobject obj) {
+    ::env = env;
 	if (!initialized) {
 		++debuggingDelayCount;
 		if (debuggingDelayCount > debuggingDelay) {
@@ -145,6 +162,7 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobje
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touch(JNIEnv* env, jobject obj, jint index, jint x, jint y, jint action) {
+    ::env = env;
 	switch (action) {
 	case 0: //DOWN
 		if (index == 0) {
@@ -168,22 +186,27 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touch(JNIEnv* env, jobj
 }
 
 JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj) {
+    ::env = env;
 	return keyboardShown;
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobject obj, jint code) {
+    ::env = env;
 	//Kore::Keyboard::the()->keyup(Kore::KeyEvent(code));
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyDown(JNIEnv* env, jobject obj, jint code) {
+    ::env = env;
 	//Kore::Keyboard::the()->keydown(Kore::KeyEvent(code));
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_accelerometerChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z) {
+    ::env = env;
     Kore::Sensor::_changed(Kore::SensorAccelerometer, x, y, z);
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gyroChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z) {
+    ::env = env;
     Kore::Sensor::_changed(Kore::SensorGyroscope, x, y, z);
 }
 
@@ -199,6 +222,7 @@ namespace {
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_writeAudio(JNIEnv* env, jobject obj, jbyteArray buffer, jint size) {
+    //::env = env;
 	if (Kore::Audio::audioCallback != nullptr) {
 		Kore::Audio::audioCallback(size / 2);
 		jbyte* arr = env->GetByteArrayElements(buffer, 0);

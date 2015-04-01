@@ -1,11 +1,13 @@
 package com.ktxsoftware.kore;
 
+import android.content.res.AssetManager;
+
 public class KoreLib {
 	static {
 		System.loadLibrary("Kore");
 	}
 
-	public static native void init(int width, int height, String apkPath, String filesDir);
+	public static native void init(int width, int height, AssetManager assetManager, String apkPath, String filesDir);
 	public static native void step();
 	public static native void touch(int index, int x, int y, int action);
 	public static native boolean keyboardShown();

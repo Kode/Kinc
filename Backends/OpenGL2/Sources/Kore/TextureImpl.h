@@ -15,6 +15,9 @@ namespace Kore {
 		//static TreeMap<Image, Texture*> images;
 	public:
 		unsigned int texture;
+#ifdef SYS_ANDROID
+		bool external_oes;
+#endif
 
 		u8 pixfmt;
 
