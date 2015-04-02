@@ -123,14 +123,14 @@ void Graphics::init() {
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 	//d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-	if (antialiasing()) {
-		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_4_SAMPLES, nullptr)))
-			d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
-		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_8_SAMPLES, nullptr)))
-			d3dpp.MultiSampleType = D3DMULTISAMPLE_8_SAMPLES;
-	}
-	else {
-		d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	if (antialiasingSamples() > 1) {
+		for (int samples = min(antialiasingSamples(), 16); samples > 1; --samples) {
+			if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, (D3DMULTISAMPLE_TYPE)samples, nullptr))) {
+				d3dpp.MultiSampleType = (D3DMULTISAMPLE_TYPE)samples;
+				break;
+			}
+		}
 	}
 #endif
 

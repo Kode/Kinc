@@ -5,16 +5,16 @@
 using namespace Kore;
 
 namespace {
-	bool antialiasing = false;
+	int samples = 1;
 	bool window = true;
 }
 
-bool Graphics::antialiasing() {
-	return ::antialiasing;
+int Graphics::antialiasingSamples() {
+	return ::samples;
 }
 
-void Graphics::setAntialiasing(bool antialiasing) {
-	::antialiasing = antialiasing;
+void Graphics::setAntialiasingSamples(int samples) {
+	::samples = samples;
 }
 
 bool Graphics::hasWindow() {
