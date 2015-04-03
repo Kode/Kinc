@@ -456,9 +456,9 @@ bool Graphics::nonPow2TexturesSupported() {
 }
 
 void Graphics::restoreRenderTarget() {
-
+	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int) {
-
+	context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
 }
