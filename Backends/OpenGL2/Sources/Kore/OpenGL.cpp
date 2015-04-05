@@ -61,6 +61,7 @@ void Graphics::init() {
 #ifdef SYS_WINDOWS
 	windowHandle = (HWND)System::createWindow();
 
+#ifndef VR_RIFT
 	PIXELFORMATDESCRIPTOR pfd =					// pfd Tells Windows How We Want Things To Be
 	{
 		sizeof(PIXELFORMATDESCRIPTOR),					// Size Of This Pixel Format Descriptor
@@ -111,10 +112,18 @@ void Graphics::init() {
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
 	SetFocus(windowHandle); // Sets Keyboard Focus To The Window
+#else 
+	deviceContext = GetDC(windowHandle);
+	glContext = wglGetCurrentContext();
+	glewInit();
+	
+
+#endif
 #else
 	System::createWindow();
 #endif
 	
+#ifndef VR_RIFT
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	setRenderState(DepthTest, false);
@@ -125,6 +134,7 @@ void Graphics::init() {
 		minFilters[i] = LinearFilter;
 		mipFilters[i] = NoMipFilter;
 	}
+#endif
 
 #ifdef SYS_WINDOWS
 	if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(1);

@@ -5,12 +5,19 @@
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Graphics/Graphics.h>
+
+#ifdef VR_RIFT 
+#include "Vr/VrInterface.h"
+#endif
+
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
 #include <shlobj.h>
 #include <exception>
 #include <XInput.h>
+
+
 
 using namespace Kore;
 
@@ -376,7 +383,13 @@ namespace {
 
 void* Kore::System::createWindow() {
 	HINSTANCE inst = GetModuleHandleA(nullptr);
+	#ifdef VR_RIFT 
+		hwnd = (HWND) VrInterface::Init(inst);
+	#else 
+
+	
 	registerWindowClass(inst);
+
 
 	DWORD dwExStyle;
 	DWORD dwStyle;
@@ -429,6 +442,8 @@ void* Kore::System::createWindow() {
 		MoveWindow(hwnd, r.left, r.top, r.right - r.left + 1, r.bottom - r.top + 1, TRUE);
 	}
 
+	
+#endif
 	return hwnd;
 }
 
