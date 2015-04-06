@@ -376,7 +376,7 @@ namespace {
 	const char* windowClassName = "KoreWindow";
 
 	void registerWindowClass(HINSTANCE hInstance) {
-		WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_CLASSDC, MsgProc, 0L, 0L, hInstance, LoadIcon(hInstance, MAKEINTRESOURCE(107)), nullptr /*LoadCursor(0, IDC_ARROW)*/, 0, 0, windowClassName, 0 };
+		WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_CLASSDC, MsgProc, 0L, 0L, hInstance, LoadIcon(hInstance, MAKEINTRESOURCE(107)), nullptr /*LoadCursor(0, IDC_ARROW)*/, 0, 0, "ORT", 0 };
 		RegisterClassExA(&wc);
 	}
 }
@@ -384,7 +384,8 @@ namespace {
 void* Kore::System::createWindow() {
 	HINSTANCE inst = GetModuleHandleA(nullptr);
 	#ifdef VR_RIFT 
-		hwnd = (HWND) VrInterface::Init(inst);
+		::registerWindowClass(inst);
+		::hwnd = (HWND) VrInterface::Init(inst);
 	#else 
 
 	

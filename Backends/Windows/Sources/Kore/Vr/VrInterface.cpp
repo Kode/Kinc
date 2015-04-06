@@ -51,11 +51,11 @@ namespace VrInterface {
 		bool InitWindowAndDevice(HINSTANCE hInst, OVR::Recti vp, bool windowed, char * deviceName)
 		{
 			WglContext = 0;
-			WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, DefWindowProc, 0L, 0L,
+			/* WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, DefWindowProc, 0L, 0L,
 				GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"ORT", NULL };
-			RegisterClassEx(&wc);
+			RegisterClassEx(&wc); */
 
-			Window = CreateWindow(L"ORT", L"ORT(OpenGL)", WS_POPUP, vp.x, vp.y, vp.w, vp.h,
+			Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, vp.x, vp.y, vp.w, vp.h,
 				GetDesktopWindow(), NULL, hInst, NULL);
 
 			hDC = GetDC(Window);
