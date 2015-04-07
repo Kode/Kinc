@@ -30,7 +30,8 @@ namespace Kore {
 		bool finished;
 		bool paused;
 		void update(double time);
-		
+		void* androidVideo;
+		int id;		
 	private:
 		Texture* image;
 		double lastTime;

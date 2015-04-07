@@ -22,42 +22,16 @@ using namespace Kore;
 
 AAssetManager* getAssetManager();
 
-namespace {
-	int maxSamples = 0;
-}
+VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
 
-VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100 * 10), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
-	buffer = new float[bufferSize];
 }
 
 void VideoSoundStream::insertData(float* data, int nSamples) {
-	//printf("Samples: %i\n", nSamples);
-	if (nSamples > maxSamples) {
-		printf("Samples: %i\n", nSamples);
-		maxSamples = nSamples;
-	}
-	written += nSamples;
-	for (int i = 0; i < nSamples; ++i) {
-		float value = data[i];// / 32767.0;
-		buffer[bufferWritePosition++] = value;
-		if (bufferWritePosition >= bufferSize) {
-			bufferWritePosition = 0;
-			printf("buffer write back\n");
-		}
-	}
+	
 }
 
 float VideoSoundStream::nextSample() {
-	++read;
-	if (written <= read) {
-		//printf("Out of audio\n");
-		return 0;
-	}
-	if (bufferReadPosition >= bufferSize) {
-		bufferReadPosition = 0;
-		printf("buffer read back - %i\n", (int)(written - read));
-	}
-	return buffer[bufferReadPosition++];
+	return 0;
 }
 
 bool VideoSoundStream::ended() {
@@ -65,32 +39,59 @@ bool VideoSoundStream::ended() {
 }
 
 namespace {
-	XAObjectItf engineObject = NULL;
-	XAEngineItf engineEngine = NULL;
-	XAObjectItf outputMixObject = NULL;
-	const char* path;
-	//FILE* file = NULL;
-	AAsset* file = NULL;
+	Video* videos[] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	
 	#define NB_MAXAL_INTERFACES 3 // XAAndroidBufferQueueItf, XAStreamInformationItf and XAPlayItf
 	#define NB_BUFFERS 8
-	XAObjectItf             playerObj = NULL;
-	XAPlayItf               playerPlayItf = NULL;
-	XAAndroidBufferQueueItf playerBQItf = NULL;
-	XAStreamInformationItf  playerStreamInfoItf = NULL;
-	XAVolumeItf             playerVolItf = NULL;
 	#define MPEG2_TS_PACKET_SIZE 188
 	#define PACKETS_PER_BUFFER 10
 	#define BUFFER_SIZE (PACKETS_PER_BUFFER*MPEG2_TS_PACKET_SIZE)
-	char dataCache[BUFFER_SIZE * NB_BUFFERS];
-	void* theNativeWindow = NULL;
-	jboolean reachedEof = JNI_FALSE;
 	const int kEosBufferCntxt = 1980; // a magic value we can compare against
-	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-	pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-	bool discontinuity = false;
+	
+	class AndroidVideo {
+	public:
+		AndroidVideo();
+		bool enqueueInitialBuffers(bool discontinuity);
+		bool init(const char* filename);
+		void shutdown();
+	public:
+		XAObjectItf engineObject;
+		XAEngineItf engineEngine;
+		XAObjectItf outputMixObject;
+		const char* path;
+		//FILE* file = NULL;
+		AAsset* file;
+		XAObjectItf             playerObj;
+		XAPlayItf               playerPlayItf;
+		XAAndroidBufferQueueItf playerBQItf;
+		XAStreamInformationItf  playerStreamInfoItf;
+		XAVolumeItf             playerVolItf;
+		char dataCache[BUFFER_SIZE * NB_BUFFERS];
+		ANativeWindow* theNativeWindow;
+		jboolean reachedEof;
+		pthread_mutex_t mutex;
+		pthread_cond_t cond;
+		bool discontinuity;
+	};
+	
+	AndroidVideo::AndroidVideo() {
+		engineObject = NULL;
+		engineEngine = NULL;
+		outputMixObject = NULL;
+		file = NULL;
+		playerObj = NULL;
+		playerPlayItf = NULL;
+		playerBQItf = NULL;
+		playerStreamInfoItf = NULL;
+		playerVolItf = NULL;
+		theNativeWindow = NULL;
+		reachedEof = JNI_FALSE;
+		mutex = PTHREAD_MUTEX_INITIALIZER;
+		cond = PTHREAD_COND_INITIALIZER;
+		discontinuity = false;
+	}
 
-	bool enqueueInitialBuffers(bool discontinuity) {
-
+	bool AndroidVideo::enqueueInitialBuffers(bool discontinuity) {
 	    /* Fill our cache.
 	     * We want to read whole packets (integral multiples of MPEG2_TS_PACKET_SIZE).
 	     * fread returns units of "elements" not bytes, so we ask for 1-byte elements
@@ -152,33 +153,34 @@ namespace {
         XAuint32 dataUsed,             /* input */
         const XAAndroidBufferItem *pItems,/* input */
         XAuint32 itemsLength           /* input */) {
+        AndroidVideo* self = (AndroidVideo*)pCallbackContext;
 		XAresult res;
 	    int ok;
 
 	    // pCallbackContext was specified as NULL at RegisterCallback and is unused here
-	    assert(NULL == pCallbackContext);
+	    //assert(NULL == pCallbackContext);
 
 	    // note there is never any contention on this mutex unless a discontinuity request is active
-	    ok = pthread_mutex_lock(&mutex);
+	    ok = pthread_mutex_lock(&self->mutex);
 	    assert(0 == ok);
 
 	    // was a discontinuity requested?
-	    if (discontinuity) {
+	    if (self->discontinuity) {
 	        // Note: can't rewind after EOS, which we send when reaching EOF
 	        // (don't send EOS if you plan to play more content through the same player)
-	        if (!reachedEof) {
+	        if (!self->reachedEof) {
 	            // clear the buffer queue
-	            res = (*playerBQItf)->Clear(playerBQItf);
+	            res = (*self->playerBQItf)->Clear(self->playerBQItf);
 	            assert(XA_RESULT_SUCCESS == res);
 	            // rewind the data source so we are guaranteed to be at an appropriate point
 	            //rewind(file);
-	            AAsset_seek(file, 0, SEEK_SET);
+	            AAsset_seek(self->file, 0, SEEK_SET);
 	            // Enqueue the initial buffers, with a discontinuity indicator on first buffer
-	            (void) enqueueInitialBuffers(JNI_TRUE);
+	            (void) self->enqueueInitialBuffers(JNI_TRUE);
 	        }
 	        // acknowledge the discontinuity request
-	        discontinuity = JNI_FALSE;
-	        ok = pthread_cond_signal(&cond);
+	        self->discontinuity = JNI_FALSE;
+	        ok = pthread_cond_signal(&self->cond);
 	        assert(0 == ok);
 	        goto exit;
 	    }
@@ -195,12 +197,12 @@ namespace {
 
 	    // pBufferData is a pointer to a buffer that we previously Enqueued
 	    assert((dataSize > 0) && ((dataSize % MPEG2_TS_PACKET_SIZE) == 0));
-	    assert(dataCache <= (char *) pBufferData && (char *) pBufferData <
-	            &dataCache[BUFFER_SIZE * NB_BUFFERS]);
-	    assert(0 == (((char *) pBufferData - dataCache) % BUFFER_SIZE));
+	    assert(self->dataCache <= (char *) pBufferData && (char *) pBufferData <
+	            &self->dataCache[BUFFER_SIZE * NB_BUFFERS]);
+	    assert(0 == (((char *) pBufferData - self->dataCache) % BUFFER_SIZE));
 
 	    // don't bother trying to read more data once we've hit EOF
-	    if (reachedEof) {
+	    if (self->reachedEof) {
 	        goto exit;
 	    }
 
@@ -208,7 +210,7 @@ namespace {
 	    // note we do call fread from multiple threads, but never concurrently
 	    size_t bytesRead;
 	    //bytesRead = fread(pBufferData, 1, BUFFER_SIZE, file);
-	    bytesRead = AAsset_read(file, pBufferData, BUFFER_SIZE);
+	    bytesRead = AAsset_read(self->file, pBufferData, BUFFER_SIZE);
 	    if (bytesRead > 0) {
 	        if ((bytesRead % MPEG2_TS_PACKET_SIZE) != 0) {
 	            Kore::log(Kore::Info, "Dropping last packet because it is not whole");
@@ -233,11 +235,11 @@ namespace {
 	                msgEos /*pMsg*/,
 	                sizeof(XAuint32)*2 /*msgLength*/);
 	        assert(XA_RESULT_SUCCESS == res);
-	        reachedEof = JNI_TRUE;
+	        self->reachedEof = JNI_TRUE;
 	    }
 
 	exit:
-	    ok = pthread_mutex_unlock(&mutex);
+	    ok = pthread_mutex_unlock(&self->mutex);
 	    assert(0 == ok);
 	    return XA_RESULT_SUCCESS;
 	}
@@ -248,8 +250,9 @@ namespace {
         void* pEventData,
         void* pContext) {
 		Kore::log(Kore::Info, "StreamChangeCallback called for stream %u", streamIndex);
+		AndroidVideo* self = (AndroidVideo*)pContext;
 	    // pContext was specified as NULL at RegisterStreamChangeCallback and is unused here
-	    assert(NULL == pContext);
+	    //assert(NULL == pContext);
 	    switch (eventId) {
 	      case XA_STREAMCBEVENT_PROPERTYCHANGE: {
 	        /** From spec 1.0.1:
@@ -282,7 +285,7 @@ namespace {
 	    }
 	}
 
-	bool init(const char* filename) {
+	bool AndroidVideo::init(const char* filename) {
 		XAresult res;
 
 		// create engine
@@ -372,12 +375,12 @@ namespace {
 	    assert(XA_RESULT_SUCCESS == res);
 
 	    // register the callback from which OpenMAX AL can retrieve the data to play
-	    res = (*playerBQItf)->RegisterCallback(playerBQItf, AndroidBufferQueueCallback, NULL);
+	    res = (*playerBQItf)->RegisterCallback(playerBQItf, AndroidBufferQueueCallback, this);
 	    assert(XA_RESULT_SUCCESS == res);
 
 	    // we want to be notified of the video size once it's found, so we register a callback for that
 	    res = (*playerStreamInfoItf)->RegisterStreamChangeCallback(playerStreamInfoItf,
-	            StreamChangeCallback, NULL);
+	            StreamChangeCallback, this);
 	    assert(XA_RESULT_SUCCESS == res);
 
 	    // enqueue the initial buffers
@@ -402,12 +405,57 @@ namespace {
 
 		return true;
 	}
+
+
+	void AndroidVideo::shutdown() {
+	    // destroy streaming media player object, and invalidate all associated interfaces
+	    if (playerObj != NULL) {
+	        (*playerObj)->Destroy(playerObj);
+	        playerObj = NULL;
+	        playerPlayItf = NULL;
+	        playerBQItf = NULL;
+	        playerStreamInfoItf = NULL;
+	        playerVolItf = NULL;
+	    }
+
+	    // destroy output mix object, and invalidate all associated interfaces
+	    if (outputMixObject != NULL) {
+	        (*outputMixObject)->Destroy(outputMixObject);
+	        outputMixObject = NULL;
+	    }
+
+	    // destroy engine object, and invalidate all associated interfaces
+	    if (engineObject != NULL) {
+	        (*engineObject)->Destroy(engineObject);
+	        engineObject = NULL;
+	        engineEngine = NULL;
+	    }
+
+	    // close the file
+	    if (file != NULL) {
+	        AAsset_close(file);
+	        file = NULL;
+	    }
+
+	    // make sure we don't leak native windows
+	    if (theNativeWindow != NULL) {
+	        ANativeWindow_release(theNativeWindow);
+	        theNativeWindow = NULL;
+	    }
+	}
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nativeCreate(JNIEnv *env, jobject jobj, jstring jpath, jobject surface) {
+extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nativeCreate(JNIEnv *env, jobject jobj, jstring jpath, jobject surface, jint id) {
 	const char* path = env->GetStringUTFChars(jpath, NULL);
-	theNativeWindow = ANativeWindow_fromSurface(env, surface);
-	init(path);
+	AndroidVideo* av = new AndroidVideo;
+	av->theNativeWindow = ANativeWindow_fromSurface(env, surface);
+	av->init(path);
+	for (int i = 0; i < 10; ++i) {
+		if (videos[i] != nullptr && videos[i]->id == id) {
+			videos[i]->androidVideo = av;
+			break;
+		}
+	}
 	env->ReleaseStringUTFChars(jpath, path);
 }
 
@@ -425,6 +473,19 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	jmethodID constructor = getEnv()->GetMethodID(cls, "<init>", "(Ljava/lang/String;)V");
 	jobject object = getEnv()->NewObject(cls, constructor, getEnv()->NewStringUTF(filename));
 
+	jmethodID getId = getEnv()->GetMethodID(cls, "getId", "()I");
+	id = getEnv()->CallIntMethod(object, getId);
+
+	for (int i = 0; i < 10; ++i) {
+		if (videos[i] == nullptr) {
+			videos[i] = this;
+			break;
+		}
+	}
+
+	jmethodID jinit = getEnv()->GetMethodID(cls, "init", "()V");
+	getEnv()->CallVoidMethod(object, jinit);
+
 	jmethodID getTextureId = getEnv()->GetMethodID(cls, "getTextureId", "()I");
 	int texid = getEnv()->CallIntMethod(object, getTextureId);
 
@@ -433,6 +494,14 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 
 Video::~Video() {
 	stop();
+	AndroidVideo* av = (AndroidVideo*)androidVideo;
+	av->shutdown();
+	for (int i = 0; i < 10; ++i) {
+		if (videos[i] == this) {
+			videos[i] = nullptr;
+			break;
+		}
+	}
 }
 
 void Video::play() {

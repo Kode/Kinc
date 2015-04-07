@@ -1,21 +1,26 @@
 package com.ktxsoftware.kore;
 
+import java.util.List;
+
 import android.view.Surface;
 
 public class KoreMoviePlayer {
-	private static KoreMoviePlayer instance;
+	public static List<KoreMoviePlayer> players = new java.util.ArrayList<KoreMoviePlayer>();
 	private KoreMovieTexture movieTexture;
+	private int id;
+	private String path;
 
 	public KoreMoviePlayer(String path) {
-		movieTexture = new KoreMovieTexture();
-		Surface surface = new Surface(movieTexture.surfaceTexture);
-		nativeCreate(path, surface);
-		surface.release();
-		instance = this;
+		this.path = path;
+		id = players.size();
+		players.add(this);
 	}
 	
-	public static KoreMoviePlayer getInstance() {
-		return instance;
+	public void init() {
+		movieTexture = new KoreMovieTexture();
+		Surface surface = new Surface(movieTexture.surfaceTexture);
+		nativeCreate(path, surface, id);
+		surface.release();
 	}
 
 	public KoreMovieTexture getMovieTexture() {
@@ -29,6 +34,14 @@ public class KoreMoviePlayer {
 	public int getTextureId() {
 		return movieTexture.textureId;
 	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public static void remove(int id) {
+		players.set(id, null);
+	}
 
-	private native void nativeCreate(String path, Surface surface);
+	private native void nativeCreate(String path, Surface surface, int id);
 }
