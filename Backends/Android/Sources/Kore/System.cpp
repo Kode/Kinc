@@ -186,18 +186,56 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_touch(JNIEnv* env, jobj
 }
 
 JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj) {
-    ::env = env;
+	::env = env;
 	return keyboardShown;
 }
 
+namespace {
+	bool shift = false;
+}
+
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobject obj, jint code) {
-    ::env = env;
-	//Kore::Keyboard::the()->keyup(Kore::KeyEvent(code));
+	::env = env;
+	switch (code) {
+	case 0x00000120:
+		shift = false;
+		Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
+		break;
+	case 0x00000103:
+		Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
+		break;
+	case 0x00000104:
+		Kore::Keyboard::the()->_keyup(Kore::Key_Return, 0);
+		break;
+	default:
+		if (shift)
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)code, code);
+		else
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + 'a' - 'A'), code + 'a' - 'A');
+		break;
+	}
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyDown(JNIEnv* env, jobject obj, jint code) {
-    ::env = env;
-	//Kore::Keyboard::the()->keydown(Kore::KeyEvent(code));
+	::env = env;
+	switch (code) {
+	case 0x00000120:
+		shift = true;
+		Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
+		break;
+	case 0x00000103:
+		Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
+		break;
+	case 0x00000104:
+		Kore::Keyboard::the()->_keydown(Kore::Key_Return, 0);
+		break;
+	default:
+		if (shift)
+			Kore::Keyboard::the()->_keydown((Kore::KeyCode)code, code);
+		else
+			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + 'a' - 'A'), code + 'a' - 'A');
+		break;
+	}
 }
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_accelerometerChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z) {
