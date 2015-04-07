@@ -32,6 +32,10 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onDrawFrame(GL10 gl) {
+		if (KoreMoviePlayer.getInstance() != null) {
+			KoreMoviePlayer.getInstance().update();
+		}
+		
 		synchronized(KoreView.inputLock) {
 			touchEvents.addAll(KoreView.touchEvents);
 			KoreView.touchEvents.clear();

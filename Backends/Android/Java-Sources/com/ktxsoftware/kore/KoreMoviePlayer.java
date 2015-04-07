@@ -1,16 +1,21 @@
 package com.ktxsoftware.kore;
 
-import android.graphics.SurfaceTexture.OnFrameAvailableListener;
 import android.view.Surface;
 
 public class KoreMoviePlayer {
+	private static KoreMoviePlayer instance;
 	private KoreMovieTexture movieTexture;
 
-	public KoreMoviePlayer(String path/*, OnFrameAvailableListener onFrameAvailableListener*/) {
-		movieTexture = new KoreMovieTexture(/*onFrameAvailableListener*/);
+	public KoreMoviePlayer(String path) {
+		movieTexture = new KoreMovieTexture();
 		Surface surface = new Surface(movieTexture.surfaceTexture);
 		nativeCreate(path, surface);
 		surface.release();
+		instance = this;
+	}
+	
+	public static KoreMoviePlayer getInstance() {
+		return instance;
 	}
 
 	public KoreMovieTexture getMovieTexture() {

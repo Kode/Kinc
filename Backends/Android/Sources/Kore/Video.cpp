@@ -245,8 +245,8 @@ namespace {
 	void StreamChangeCallback(XAStreamInformationItf caller,
         XAuint32 eventId,
         XAuint32 streamIndex,
-        void * pEventData,
-        void * pContext) {
+        void* pEventData,
+        void* pContext) {
 		Kore::log(Kore::Info, "StreamChangeCallback called for stream %u", streamIndex);
 	    // pContext was specified as NULL at RegisterStreamChangeCallback and is unused here
 	    assert(NULL == pContext);
@@ -282,7 +282,7 @@ namespace {
 	    }
 	}
 
-	bool init() {
+	bool init(const char* filename) {
 		XAresult res;
 
 		// create engine
@@ -305,19 +305,8 @@ namespace {
 		res = (*outputMixObject)->Realize(outputMixObject, XA_BOOLEAN_FALSE);
 		assert(XA_RESULT_SUCCESS == res);
 
-
-
-
-
-		//XAresult res;
-
-	    // convert Java string to UTF-8
-	    //const char *utf8 = (*env)->GetStringUTFChars(env, filename, NULL);
-	    //assert(NULL != utf8);
-		const char* utf8 = "NativeMedia.ts";
 	    // open the file to play
-	    //file = fopen(utf8, "rb");
-	    file = AAssetManager_open(getAssetManager(), utf8, 0);
+	    file = AAssetManager_open(getAssetManager(), filename, AASSET_MODE_STREAMING);
 	    if (file == NULL) {
 	    	Kore::log(Kore::Info, "Could not find video file.");
 	        return false;
@@ -357,9 +346,6 @@ namespace {
 	            iidArray /*const XAInterfaceID *pInterfaceIds*/,
 	            required /*const XAboolean *pInterfaceRequired*/);
 	    assert(XA_RESULT_SUCCESS == res);
-
-	    // release the Java string and UTF-8
-	    //(*env)->ReleaseStringUTFChars(env, filename, utf8);
 
 	    // realize the player
 	    res = (*playerObj)->Realize(playerObj, XA_BOOLEAN_FALSE);
@@ -418,31 +404,26 @@ namespace {
 	}
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nativeCreate(JNIEnv *env, jobject jobj, jstring jpath, jobject surface)
-{
-    path = env->GetStringUTFChars(jpath, NULL);
-    theNativeWindow = ANativeWindow_fromSurface(env, surface);
-    init();
-    //env->ReleaseStringUTFChars(jpath, path);
+extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nativeCreate(JNIEnv *env, jobject jobj, jstring jpath, jobject surface) {
+	const char* path = env->GetStringUTFChars(jpath, NULL);
+	theNativeWindow = ANativeWindow_fromSurface(env, surface);
+	init(path);
+	env->ReleaseStringUTFChars(jpath, path);
 }
 
 JNIEnv* getEnv();
 
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
-	char name[2048];
-	strcpy(name, "android"); //iphonegetresourcepath());
-	strcat(name, "/");
-	strcat(name, filename);
+	Kore::log(Kore::Info, "Opening video %s.", filename);
+	myWidth = 1023;
+	myHeight = 684;
 
-	//init();	
-
-	image = nullptr;
 	next = 0;
 	audioTime = 0;
 
 	jclass cls = getEnv()->FindClass("com/ktxsoftware/kore/KoreMoviePlayer");
 	jmethodID constructor = getEnv()->GetMethodID(cls, "<init>", "(Ljava/lang/String;)V");
-	jobject object = getEnv()->NewObject(cls, constructor, getEnv()->NewStringUTF("NativeMedia.ts"));
+	jobject object = getEnv()->NewObject(cls, constructor, getEnv()->NewStringUTF(filename));
 
 	jmethodID getTextureId = getEnv()->GetMethodID(cls, "getTextureId", "()I");
 	int texid = getEnv()->CallIntMethod(object, getTextureId);
@@ -455,21 +436,12 @@ Video::~Video() {
 }
 
 void Video::play() {
-	
-	sound = new VideoSoundStream(2, 44100);
-	Mixer::play(sound);
-	
 	playing = true;
 	start = System::time();
 }
 
 void Video::pause() {
 	playing = false;
-	if (sound != nullptr) {
-		Mixer::stop(sound);
-		delete sound;
-		sound = nullptr;
-	}
 }
 
 void Video::stop() {
@@ -477,22 +449,11 @@ void Video::stop() {
 }
 
 void Video::updateImage() {
-	if (!playing) return;
-	{
-		
-	}
 	
-	//printf("Next %f\n", next);
-	
-	{
-		
-	}
 }
 
 void Video::update(double time) {
-	if (playing && time >= start + next) {
-		updateImage();
-	}
+	
 }
 
 int Video::width() {
@@ -504,6 +465,5 @@ int Video::height() {
 }
 
 Texture* Video::currentImage() {
-	update(System::time());
 	return image;
 }
