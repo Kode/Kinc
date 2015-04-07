@@ -27,7 +27,7 @@ namespace {
 	};
 }
 
-Sound::Sound(const char* filename) {
+Sound::Sound(const char* filename) : myVolume(1) {
 	size_t filenameLength = strlen(filename);
 	if (filename[filenameLength - 4] != '.' || filename[filenameLength - 3] != 'w' || filename[filenameLength - 2] != 'a' || filename[filenameLength - 1] != 'v') return;
 	FileReader file(filename);
@@ -59,4 +59,12 @@ Sound::Sound(const char* filename) {
 	format.samplesPerSecond = waveFileHeader.sampleRate;
 	data = waveData;
 	size = waveFileHeader.dataSize;
+}
+
+float Sound::volume() {
+	return myVolume;
+}
+
+void Sound::setVolume(float value) {
+	myVolume = value;
 }

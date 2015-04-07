@@ -97,3 +97,7 @@ u8* Texture::lock() {
 void Texture::unlock() {
 	context->UpdateSubresource(texture, 0, nullptr, data, 0, 0);
 }
+
+int Texture::stride() {
+	return 1;
+}

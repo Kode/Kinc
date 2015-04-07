@@ -66,8 +66,6 @@ void VertexBuffer::unlock() {
 void VertexBuffer::set() {
 	UINT stride = myStride;
 	UINT offset = 0;
-	//if (normals) context->IASetInputLayout(normalInputLayout);
-	//else context->IASetInputLayout(noNormalInputLayout);
 	context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
 }
 
