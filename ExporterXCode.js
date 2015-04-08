@@ -75,7 +75,8 @@ var Framework = function (name) {
 };
 
 Framework.prototype.toString = function () {
-	return this.name + ".framework";
+	if (this.name.indexOf('.') < 0) return this.name + ".framework";
+	else return this.name;
 };
 
 Framework.prototype.getBuildId = function () {
