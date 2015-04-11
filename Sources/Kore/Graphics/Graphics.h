@@ -137,8 +137,8 @@ namespace Kore {
 		void changeResolution(int width, int height);
 		bool hasWindow();
 		void setWindow(bool);
-		bool antialiasing();
-		void setAntialiasing(bool);
+		int antialiasingSamples();
+		void setAntialiasingSamples(int samples);
 
 		bool renderTargetsInvertedY();
 		void setRenderTarget(RenderTarget* texture, int num = 0);

@@ -176,6 +176,10 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onDrawFrame(GL10 gl) {
+		for (KoreMoviePlayer player : KoreMoviePlayer.players) {
+			player.update();
+		}
+		
 		synchronized(KoreView.inputLock) {
 			touchEvents.addAll(KoreView.touchEvents);
 			KoreView.touchEvents.clear();
@@ -266,6 +270,6 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		KoreLib.init(width, height, context.getApplicationInfo().sourceDir, context.getFilesDir().toString());
+		KoreLib.init(width, height, context.getResources().getAssets(), context.getApplicationInfo().sourceDir, context.getFilesDir().toString());
 	}
 }

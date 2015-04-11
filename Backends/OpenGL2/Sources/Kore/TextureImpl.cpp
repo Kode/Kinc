@@ -140,6 +140,10 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	else {
 		conversionBuffer = nullptr;
 	}
+
+#ifdef SYS_ANDROID
+	external_oes = false;
+#endif
 	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &texture);
@@ -181,9 +185,13 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 }
 
 Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
-	texWidth = getPower2(width);
-	texHeight = getPower2(height);
+    texWidth = getPower2(width);
+    texHeight = getPower2(height);
 	conversionBuffer = new u8[texWidth * texHeight * 4];
+
+#ifdef SYS_ANDROID
+	external_oes = false;
+#endif
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &texture);
@@ -199,6 +207,15 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	}*/
 }
 
+#ifdef SYS_ANDROID
+Texture::Texture(unsigned texid) : Image(1023, 684, Image::RGBA32, false) {
+	texture = texid;
+	external_oes = true;
+	texWidth = 1023;
+	texHeight = 684;
+}
+#endif
+
 TextureImpl::~TextureImpl() {
 	glDeleteTextures(1, &texture);
 	delete[] conversionBuffer;
@@ -206,7 +223,16 @@ TextureImpl::~TextureImpl() {
 
 void Texture::set(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
+#ifdef SYS_ANDROID
+	if (external_oes) {
+		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
+	}
+	else {
+		glBindTexture(GL_TEXTURE_2D, texture);
+	}
+#else
 	glBindTexture(GL_TEXTURE_2D, texture);
+#endif
 }
 
 int Texture::stride() {

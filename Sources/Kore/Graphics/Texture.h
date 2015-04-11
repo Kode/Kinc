@@ -12,6 +12,9 @@ namespace Kore {
 	public:
 		Texture(int width, int height, Format format, bool readable);
 		Texture(const char* filename, bool readable = false);
+#ifdef SYS_ANDROID
+		Texture(unsigned texid);
+#endif
 		void set(TextureUnit unit);
 		u8* lock();
 		void unlock();

@@ -404,6 +404,22 @@ void Graphics::setFloat4(ConstantLocation location, float value1, float value2, 
 	floats[3] = value4;
 }
 
+void Graphics::setFloats(ConstantLocation location, float* values, int count) {
+	if (location.size == 0) return;
+	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
+	float* floats = reinterpret_cast<float*>(&constants[location.offset]);
+	for (int i = 0; i < count; ++i) {
+		floats[i] = values[i];
+	}
+}
+
+void Graphics::setBool(ConstantLocation location, bool value) {
+	if (location.size == 0) return;
+	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
+	int* ints = reinterpret_cast<int*>(&constants[location.offset]);
+	ints[0] = value ? 1 : 0;
+}
+
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	if (location.size == 0) return;
 	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
@@ -429,4 +445,20 @@ void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) 
 
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
 
+}
+
+bool Graphics::renderTargetsInvertedY() {
+	return false;
+}
+
+bool Graphics::nonPow2TexturesSupported() {
+	return true;
+}
+
+void Graphics::restoreRenderTarget() {
+	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+}
+
+void Graphics::setRenderTarget(RenderTarget* target, int) {
+	context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
 }

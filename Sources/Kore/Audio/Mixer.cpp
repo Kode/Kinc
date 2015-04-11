@@ -67,7 +67,7 @@ namespace {
 			mutex.Lock();
 			for (int i = 0; i < channelCount; ++i) {
 				if (channels[i].sound != nullptr) {
-					value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f;
+					value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f * channels[i].sound->volume();
 					value = max(min(value, 1.0f), -1.0f);
 					channels[i].position += 2;
 					if (channels[i].position >= channels[i].sound->size) channels[i].sound = nullptr;
@@ -75,7 +75,7 @@ namespace {
 			}
 			for (int i = 0; i < channelCount; ++i) {
 				if (streams[i].stream != nullptr) {
-					value += streams[i].stream->nextSample();
+					value += streams[i].stream->nextSample() * streams[i].stream->volume();
 					value = max(min(value, 1.0f), -1.0f);
 					if (streams[i].stream->ended()) streams[i].stream = nullptr;
 				}
