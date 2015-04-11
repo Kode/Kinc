@@ -228,6 +228,8 @@ namespace VrInterface {
 		ovrHmd_ConfigureTracking(HMD, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection |
 			ovrTrackingCap_Position, 0);
 
+		// Dismiss the health and safety warning
+		ovrHmd_DismissHSWDisplay(HMD);
 
 		return Platform.Window;
 	}
@@ -291,8 +293,10 @@ namespace VrInterface {
 		
 		ovrGLTexture eyeTex[2];
 
+		// TODO: Should be set from the ideal size given by OVR
 		ovrSizei size;
-		size.w = size.h = 1024;
+		size.w = 1182;
+		size.h = 1464;
 
 		for (int i = 0; i < 2; i++) {
 			eyeTex[i].OGL.Header.API = ovrRenderAPI_OpenGL;
@@ -300,6 +304,7 @@ namespace VrInterface {
 			eyeTex[i].OGL.Header.RenderViewport = OVR::Recti(OVR::Vector2i(0, 0), size);
 		}
 
+		
 		eyeTex[0].OGL.TexId = leftImage;
 		eyeTex[1].OGL.TexId = rightImage;
 	

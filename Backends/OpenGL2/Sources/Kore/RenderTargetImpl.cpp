@@ -19,8 +19,14 @@ namespace {
 }
 
 RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) : width(width), height(height) {
+#ifndef VR_RIFT
+	// TODO: For the DK 2 we need a NPOT texture
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
+#else 
+	texWidth = width;
+	texHeight = height;
+#endif
 	
 	glGenTextures(1, &_texture);
 	glBindTexture(GL_TEXTURE_2D, _texture);
