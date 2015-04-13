@@ -185,8 +185,13 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 }
 
 Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
+#ifdef SYS_IOS
+	texWidth = width;
+	texHeight = height;
+#else
     texWidth = getPower2(width);
     texHeight = getPower2(height);
+#endif
 	conversionBuffer = new u8[texWidth * texHeight * 4];
 
 #ifdef SYS_ANDROID
