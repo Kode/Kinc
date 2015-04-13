@@ -4,7 +4,7 @@
 #import <OpenGLES/ES1/glext.h>
 #import <CoreMotion/CMMotionManager.h>
 
-@interface GLView : UIView <UITextFieldDelegate> {    
+@interface GLView : UIView <UIKeyInput> {
 @private
 	EAGLContext *context;
 	GLint backingWidth, backingHeight;

@@ -150,35 +150,7 @@ namespace {
 	
 	//[super dealloc];
 }
-/*
-- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													point.y * self.contentScaleFactor));
-}
 
-- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_move(Kore::MouseEvent(point.x * self.contentScaleFactor,
-											   point.y * self.contentScaleFactor));
-}
-
-- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													  point.y * self.contentScaleFactor));
-}
-
-- (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													  point.y * self.contentScaleFactor));
-}
-*/
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
 		int index = getTouchIndex((__bridge void*)touch);
@@ -247,51 +219,31 @@ namespace {
 }
 
 - (void)showKeyboard {
-	//[UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationLandscapeRight;
-	keyboardstring = [NSString string];
-	if (myTextField == nullptr) {
-		myTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-		[myTextField setDelegate:self];
-		[myTextField setBorderStyle:UITextBorderStyleRoundedRect];
-		[myTextField setBackgroundColor:[UIColor whiteColor]];
-		[myTextField setTextColor:[UIColor blackColor]];
-		[myTextField setClearButtonMode:UITextFieldViewModeAlways];
-		[myTextField setFont:[UIFont fontWithName:@"Arial" size:18.0f]];
-		[myTextField setPlaceholder:@"Tap here to edit"];
-		//[myTextField setTextAlignment:UITextAlignmentCenter];
-		[myTextField setReturnKeyType:UIReturnKeyDone];
-	}
-	[self addSubview:myTextField];
-	[myTextField becomeFirstResponder];
-	
+	[self becomeFirstResponder];
 }
 
 - (void)hideKeyboard {
-    [myTextField endEditing:YES];
-    [myTextField removeFromSuperview];
+	[self resignFirstResponder];
 }
 
-- (void)textFieldDidEndEditing:(UITextField*)textField {
-	//NSLog([textField text]);
-	[textField endEditing:YES];
-	[textField removeFromSuperview];
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField*)texField {
-	// end editing
-	[texField resignFirstResponder];
+- (BOOL)hasText {
 	return YES;
 }
 
-- (BOOL)textField:(UITextField*)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString*)string {
-	if ([string length] == 1) {
-		unichar ch = [string characterAtIndex: [string length] - 1];
+- (void)insertText:(NSString*)text {
+	if ([text length] == 1) {
+		unichar ch = [text characterAtIndex: [text length] - 1];
+		if (ch == L'\n') {
+			Kore::Keyboard::the()->_keydown(Kore::Key_Return, '\n');
+			Kore::Keyboard::the()->_keyup(Kore::Key_Return, '\n');
+		}
 		if (ch >= L'a' && ch <= L'z') {
 			if (shiftDown) {
 				Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
 				shiftDown = false;
 			}
 			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch + L'A' - L'a'), ch);
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch + L'A' - L'a'), ch);
 		}
 		else {
 			if (!shiftDown) {
@@ -299,12 +251,17 @@ namespace {
 				shiftDown = true;
 			}
 			Kore::Keyboard::the()->_keydown((Kore::KeyCode)ch, ch);
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)ch, ch);
 		}
 	}
-	else if ([string length] == 0 && range.length == 1) {
-		Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
-		return NO;
-	}
+}
+
+- (void)deleteBackward {
+	Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
+	Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
+}
+
+- (BOOL)canBecomeFirstResponder {
 	return YES;
 }
 
