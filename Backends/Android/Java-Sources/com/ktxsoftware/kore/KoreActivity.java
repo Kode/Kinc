@@ -50,6 +50,7 @@ public class KoreActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		KoreView.getInstance().onPause();
 		sensorManager.unregisterListener(this);
 		paused = true;
 		audio.pause();
@@ -59,7 +60,7 @@ public class KoreActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+		KoreView.getInstance().onResume();
 		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(this, gyro, SensorManager.SENSOR_DELAY_NORMAL);
 		
@@ -112,6 +113,16 @@ public class KoreActivity extends Activity implements SensorEventListener {
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
+		
+		/*switch (newConfig.orientation) {
+		case Configuration.ORIENTATION_LANDSCAPE:
+			
+			break;
+		case Configuration.ORIENTATION_PORTRAIT:
+			
+			break;
+			
+		}*/
 	}
 
 	@Override

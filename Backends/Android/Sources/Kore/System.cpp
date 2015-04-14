@@ -54,6 +54,7 @@ namespace {
 	const int debuggingDelay = 0;
     AAssetManager* assets;
     JNIEnv* env;
+    bool firstinit = true;
 }
 
 JNIEnv* getEnv() {
@@ -115,20 +116,25 @@ extern "C" {
 };
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jobject assetManager, jstring apkPath, jstring filesDir) {
+	if (firstinit)
 	{
-		const char* path = env->GetStringUTFChars(apkPath, nullptr);
-		std::strcpy(theApkPath, path);
-		env->ReleaseStringUTFChars(apkPath, path);
-	}
-	{
-		const char* path = env->GetStringUTFChars(filesDir, nullptr);
-		std::strcpy(::filesDir, path);
-		std::strcat(::filesDir, "/");
-		env->ReleaseStringUTFChars(filesDir, path);
-	}
+		{
+			const char* path = env->GetStringUTFChars(apkPath, nullptr);
+			std::strcpy(theApkPath, path);
+			env->ReleaseStringUTFChars(apkPath, path);
+		}
+		{
+			const char* path = env->GetStringUTFChars(filesDir, nullptr);
+			std::strcpy(::filesDir, path);
+			std::strcat(::filesDir, "/");
+			env->ReleaseStringUTFChars(filesDir, path);
+		}
 
-    //(*env)->NewGlobalRef(env, foo);
-    assets = AAssetManager_fromJava(env, assetManager);
+    	//(*env)->NewGlobalRef(env, foo);
+    	assets = AAssetManager_fromJava(env, assetManager);
+
+		firstinit = false;
+	}
 
 	glViewport(0, 0, width, height);
 	::width = width;

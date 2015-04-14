@@ -31,6 +31,7 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 		instance = this;
 		setFocusable(true);
 		setFocusableInTouchMode(true);
+		setPreserveEGLContextOnPause(true);
 		touchEvents = new ArrayList<KoreTouchEvent>();
 		keyEvents = new ArrayList<KoreKeyEvent>();
 		setEGLContextClientVersion(2);
@@ -65,6 +66,12 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch (event.getKeyCode()) {
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+		case KeyEvent.KEYCODE_VOLUME_MUTE:
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			return false;
+		}
 		KoreKeyEvent e = new KoreKeyEvent(keyCode, true);
 		synchronized(inputLock) {
 			keyEvents.add(e);
@@ -74,6 +81,12 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		switch (event.getKeyCode()) {
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+		case KeyEvent.KEYCODE_VOLUME_MUTE:
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			return false;
+		}
 		KoreKeyEvent e = new KoreKeyEvent(keyCode, false);
 		synchronized(inputLock) {
 			keyEvents.add(e);
