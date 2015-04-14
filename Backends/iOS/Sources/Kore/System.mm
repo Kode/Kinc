@@ -74,6 +74,7 @@ void System::loadURL(const char* url) {
 	::loadURL(url);
 }
 
+// called on rotation event
 void KoreUpdateKeyboard() {
     if (keyboardshown) {
         ::hideKeyboard();

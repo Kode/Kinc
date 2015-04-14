@@ -88,6 +88,8 @@ namespace {
 		[motionManager startAccelerometerUpdates];
 		hasAccelerometer = true;
 	}
+	
+	[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(onKeyboardHide:) name:UIKeyboardWillHideNotification object:nil];
 
 	return self;
 }
@@ -263,6 +265,10 @@ namespace {
 
 - (BOOL)canBecomeFirstResponder {
 	return YES;
+}
+
+- (void)onKeyboardHide:(NSNotification*)notification {
+	Kore::System::hideKeyboard();
 }
 
 @end
