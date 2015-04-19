@@ -47,10 +47,39 @@ namespace {
 
 @implementation GLView
 
+#ifdef SYS_METAL
++ (Class)layerClass {
+	return [CAMetalLayer class];
+}
+#else
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
+#endif
 
+#ifdef SYS_METAL
+- (id)initWithFrame:(CGRect)frame {
+	self = [super initWithFrame:(CGRect)frame];
+	self.contentScaleFactor = [UIScreen mainScreen].scale;
+	
+	initTouches();
+	
+	device = MTLCreateSystemDefaultDevice();
+	//commandQueue = [device newCommandQueue];
+	library = [device newDefaultLibrary];
+	
+	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+	
+	metalLayer.device = device;
+	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	metalLayer.framebufferOnly = YES;
+	
+	metalLayer.opaque = YES;
+	metalLayer.backgroundColor = nil;
+	
+	return self;
+}
+#else
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
@@ -93,7 +122,13 @@ namespace {
 
 	return self;
 }
+#endif
 
+#ifdef SYS_METAL
+- (void)begin {
+	
+}
+#else
 - (void)begin {
 	[EAGLContext setCurrentContext:context];
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
@@ -114,12 +149,41 @@ namespace {
  		}
     }
 }
+#endif
 
+#ifdef SYS_METAL
+- (void)end {
+	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+	
+	id<CAMetalDrawable> drawable = [metalLayer nextDrawable];
+	id<MTLTexture> texture = drawable.texture;
+	
+	MTLRenderPassDescriptor* passDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+	passDescriptor.colorAttachments[0].texture = texture;
+	passDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+	passDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+	passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 0.0, 0.0, 1.0);
+	
+	id<MTLCommandQueue> commandQueue = [device newCommandQueue];
+	id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+	id <MTLRenderCommandEncoder> commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:passDescriptor];
+	[commandEncoder endEncoding];
+	
+	[commandBuffer presentDrawable:drawable];
+	[commandBuffer commit];
+}
+#else
 - (void)end {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	[context presentRenderbuffer:GL_RENDERBUFFER_OES]; //crash at end
 }
+#endif
 
+#ifdef SYS_METAL
+-(void)layoutSubviews {
+	
+}
+#else
 - (void)layoutSubviews {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
@@ -133,7 +197,13 @@ namespace {
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 	}
 }
+#endif
 
+#ifdef SYS_METAL
+- (void)dealloc {
+	
+}
+#else
 - (void)dealloc {
 	if (defaultFramebuffer) {
 		glDeleteFramebuffersOES(1, &defaultFramebuffer);
@@ -152,6 +222,7 @@ namespace {
 	
 	//[super dealloc];
 }
+#endif
 
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
