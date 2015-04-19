@@ -6,9 +6,7 @@
 #if 0
 #include <xmmintrin.h>
 #endif
-#ifdef KOREVIDEO
 #include <Kore/VideoSoundStream.h>
-#endif
 
 using namespace Kore;
 
@@ -25,19 +23,15 @@ namespace {
 		int position;
 	};
 
-#ifdef KOREVIDEO
 	struct VideoChannel {
 		VideoSoundStream* stream;
 		int position;
 	};
-#endif
 
 	const int channelCount = 16;
 	Channel channels[channelCount];
 	StreamChannel streams[channelCount];
-#ifdef KOREVIDEO
 	VideoChannel videos[channelCount];
-#endif
 
 	void mix(int samples) {
 		for (int i = 0; i < samples; ++i) {
@@ -80,7 +74,6 @@ namespace {
 					if (streams[i].stream->ended()) streams[i].stream = nullptr;
 				}
 			}
-#ifdef KOREVIDEO
 			for (int i = 0; i < channelCount; ++i) {
 				if (videos[i].stream != nullptr) {
 					value += videos[i].stream->nextSample();
@@ -88,7 +81,6 @@ namespace {
 					if (videos[i].stream->ended()) videos[i].stream = nullptr;
 				}
 			}
-#endif
 			mutex.Unlock();
 #endif
 			*(float*)&Audio::buffer.data[Audio::buffer.writeLocation] = value;
@@ -169,8 +161,6 @@ void Mixer::stop(SoundStream* stream) {
 	mutex.Unlock();
 }
 
-#ifdef KOREVIDEO
-
 void Mixer::play(VideoSoundStream* stream) {
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
@@ -194,5 +184,3 @@ void Mixer::stop(VideoSoundStream* stream) {
 	}
 	mutex.Unlock();
 }
-
-#endif
