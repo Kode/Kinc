@@ -65,14 +65,15 @@ namespace {
 	initTouches();
 	
 	device = MTLCreateSystemDefaultDevice();
-	//commandQueue = [device newCommandQueue];
-	library = [device newDefaultLibrary];
+	commandQueue = [device newCommandQueue];
+	//library = [device newDefaultLibrary];
 	
 	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
 	
 	metalLayer.device = device;
 	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 	metalLayer.framebufferOnly = YES;
+	//metalLayer.presentsWithTransaction = YES;
 	
 	metalLayer.opaque = YES;
 	metalLayer.backgroundColor = nil;
@@ -152,25 +153,42 @@ namespace {
 #endif
 
 #ifdef SYS_METAL
+static float red = 0.0f;
+
 - (void)end {
-	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+	@autoreleasepool {
+		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
 	
-	id<CAMetalDrawable> drawable = [metalLayer nextDrawable];
-	id<MTLTexture> texture = drawable.texture;
+		id<CAMetalDrawable> drawable = [metalLayer nextDrawable];
+		//printf("It's %i\n", drawable == nil ? 0 : 1);
+		//if (drawable == nil) return;
+		id<MTLTexture> texture = drawable.texture;
 	
-	MTLRenderPassDescriptor* passDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-	passDescriptor.colorAttachments[0].texture = texture;
-	passDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-	passDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-	passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 0.0, 0.0, 1.0);
+		if (renderPassDescriptor == nil) {
+			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+		}
+		renderPassDescriptor.colorAttachments[0].texture = texture;
+		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+		red += 0.01f;
+		if (red > 1) red = 0;
+		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(red, 0.0, 0.0, 1.0);
 	
-	id<MTLCommandQueue> commandQueue = [device newCommandQueue];
-	id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
-	id <MTLRenderCommandEncoder> commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:passDescriptor];
-	[commandEncoder endEncoding];
+		//id <MTLCommandQueue> commandQueue = [device newCommandQueue];
+		id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+		if (drawable != nil) {
+			id <MTLRenderCommandEncoder> commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+			[commandEncoder endEncoding];
+		}
 	
-	[commandBuffer presentDrawable:drawable];
-	[commandBuffer commit];
+		[commandBuffer presentDrawable:drawable];
+		[commandBuffer commit];
+	
+		//if (drawable != nil) {
+		//	[commandBuffer waitUntilScheduled];
+		//	[drawable present];
+		//}
+	}
 }
 #else
 - (void)end {

@@ -13,8 +13,9 @@
 @private
 #ifdef SYS_METAL
 	id <MTLDevice> device;
-	//id <MTLCommandQueue> commandQueue;
+	id <MTLCommandQueue> commandQueue;
 	id <MTLLibrary> library;
+	MTLRenderPassDescriptor* renderPassDescriptor;
 #else
 	EAGLContext* context;
 	GLint backingWidth, backingHeight;
