@@ -43,6 +43,16 @@ namespace {
 		}
 		return -1;
 	}
+	
+	GLint backingWidth, backingHeight;
+}
+
+int Kore::System::screenWidth() {
+	return backingWidth;
+}
+
+int Kore::System::screenHeight() {
+	return backingHeight;
 }
 
 @implementation GLView
@@ -121,8 +131,11 @@ namespace {
 - (void)layoutSubviews {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
+	
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+	
+	printf("backingWitdh/Height: %i, %i\n", backingWidth, backingHeight);
 	
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
 	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight);
@@ -150,35 +163,7 @@ namespace {
 	
 	//[super dealloc];
 }
-/*
-- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													point.y * self.contentScaleFactor));
-}
 
-- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_move(Kore::MouseEvent(point.x * self.contentScaleFactor,
-											   point.y * self.contentScaleFactor));
-}
-
-- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													  point.y * self.contentScaleFactor));
-}
-
-- (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													  point.y * self.contentScaleFactor));
-}
-*/
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
 		int index = getTouchIndex((__bridge void*)touch);

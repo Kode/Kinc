@@ -7,7 +7,6 @@
 @interface GLView : UIView <UITextFieldDelegate> {    
 @private
 	EAGLContext *context;
-	GLint backingWidth, backingHeight;
 	GLuint defaultFramebuffer, colorRenderbuffer, depthRenderbuffer;
 
 	CMMotionManager *motionManager;

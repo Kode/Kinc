@@ -1,5 +1,6 @@
 #import "KoreAppDelegate.h"
 #import "GLView.h"
+#import "GLViewController.h"
 #include "pch.h"
 #include <Kore/Application.h>
 #include <Kore/Math/Core.h>
@@ -8,23 +9,6 @@
 @implementation KoreAppDelegate
 
 static UIWindow* window;
-static GLView* glView;
-
-void beginGL() {
-	[glView begin];
-}
-
-void endGL() {
-	[glView end];
-}
-
-void showKeyboard() {
-	[glView showKeyboard];
-}
-
-void hideKeyboard() {
-    [glView hideKeyboard];
-}
 
 void loadURL(const char* url) {
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
@@ -52,12 +36,17 @@ int kore(int argc, char** argv);
 	//CGRect rect = [[UIScreen mainScreen] applicationFrame];
 	CGRect screenBounds = [[UIScreen mainScreen] bounds];
 	
-	window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, Kore::min(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
+	//window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, Kore::max(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
+	CGRect bounds = [[UIScreen mainScreen] bounds];
+	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	[window setBackgroundColor:[UIColor blackColor]];
 	
-	glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::min(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
-	
-	[window addSubview:glView];
+	//glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::max(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
+	GLViewController* glViewController = [[GLViewController alloc] init];
+	//glViewController.view = glView;
+	//[glViewController ]
+	//[window addSubview:glView];
+	[window setRootViewController:glViewController];
 	[window makeKeyAndVisible];
 	
 	[self performSelectorOnMainThread:@selector(mainLoop) withObject:nil waitUntilDone:NO];
@@ -96,26 +85,26 @@ static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orient
 }
 
 void KoreUpdateKeyboard();
-
+/*
 - (void)didRotate:(NSNotification*)notification {
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->orientationCallback != nullptr) Kore::Application::the()->orientationCallback(convertOrientation([[UIDevice currentDevice] orientation]));
     [UIApplication sharedApplication].statusBarOrientation = convertAppleOrientation([[UIDevice currentDevice] orientation], [UIApplication sharedApplication].statusBarOrientation);
     KoreUpdateKeyboard();
 }
-
+*/
 - (void)applicationWillEnterForeground:(UIApplication*)application {
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->foregroundCallback != nullptr) Kore::Application::the()->foregroundCallback();
 }
 
 - (void)applicationDidBecomeActive:(UIApplication*)application {
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->resumeCallback != nullptr) Kore::Application::the()->resumeCallback();
-	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didRotate:) name:UIDeviceOrientationDidChangeNotification object:nil];
+	//[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didRotate:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)applicationWillResignActive:(UIApplication*)application {
 	if (Kore::Application::the() != nullptr && Kore::Application::the()->pauseCallback != nullptr) Kore::Application::the()->pauseCallback();
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+	//[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application {
