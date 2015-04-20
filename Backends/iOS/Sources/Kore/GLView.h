@@ -18,7 +18,6 @@
 	MTLRenderPassDescriptor* renderPassDescriptor;
 #else
 	EAGLContext* context;
-	GLint backingWidth, backingHeight;
 	GLuint defaultFramebuffer, colorRenderbuffer, depthRenderbuffer;
 #endif
 	

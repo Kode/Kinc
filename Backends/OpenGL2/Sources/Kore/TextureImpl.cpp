@@ -189,8 +189,8 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	texWidth = width;
 	texHeight = height;
 #else
-    texWidth = getPower2(width);
-    texHeight = getPower2(height);
+	texWidth = getPower2(width);
+	texHeight = getPower2(height);
 #endif
 	conversionBuffer = new u8[texWidth * texHeight * 4];
 

@@ -43,6 +43,16 @@ namespace {
 		}
 		return -1;
 	}
+	
+	GLint backingWidth, backingHeight;
+}
+
+int Kore::System::screenWidth() {
+	return backingWidth;
+}
+
+int Kore::System::screenHeight() {
+	return backingHeight;
 }
 
 @implementation GLView
@@ -205,8 +215,11 @@ static float red = 0.0f;
 - (void)layoutSubviews {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
+	
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+	
+	printf("backingWitdh/Height: %i, %i\n", backingWidth, backingHeight);
 	
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
 	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight);
