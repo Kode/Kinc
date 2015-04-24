@@ -12,5 +12,8 @@ namespace Kore {
 	class TextureImpl {
 	public:
 		~TextureImpl();
+		void* tex;
+	protected:
+		void create(int width, int height);
 	};
 }
