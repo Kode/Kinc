@@ -9,9 +9,9 @@ namespace Kore {
 	protected:
 		VertexBufferImpl(int count);
 		void unset();
-		float* data;
 		int myCount;
 		int myStride;
+		void* mtlBuffer;
 	public:
 		static VertexBuffer* current;
 	};

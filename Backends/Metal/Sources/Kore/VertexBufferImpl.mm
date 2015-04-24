@@ -2,8 +2,11 @@
 #include "VertexBufferImpl.h"
 #include <Kore/Graphics/Graphics.h>
 #include "ShaderImpl.h"
+#import <Metal/Metal.h>
 
 using namespace Kore;
+
+void* getMetalDevice();
 
 VertexBuffer* VertexBufferImpl::current = nullptr;
 
@@ -31,19 +34,23 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 		case Float4VertexData:
 			myStride += 4 * 4;
 			break;
+		case NoVertexData:
+			break;
 		}
 	}
-	data = new float[vertexCount * myStride / 4];
 	
+	id <MTLDevice> device = (__bridge_transfer id <MTLDevice>)getMetalDevice();
+	mtlBuffer = (__bridge_retained void*)[device newBufferWithLength:sizeof(float) * vertexCount * myStride / 4 options:MTLResourceOptionCPUCacheModeDefault];
 }
 
 VertexBuffer::~VertexBuffer() {
 	unset();
-	delete[] data;
+	
 }
 
 float* VertexBuffer::lock() {
-	return data;
+	id <MTLBuffer> buffer = (__bridge_transfer id <MTLBuffer>)mtlBuffer;
+	return (float*)[buffer contents];
 }
 
 void VertexBuffer::unlock() {
@@ -51,7 +58,7 @@ void VertexBuffer::unlock() {
 }
 
 void VertexBuffer::set() {
-
+	current = this;
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->set();
 }
 

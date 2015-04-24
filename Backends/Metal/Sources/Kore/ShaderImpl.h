@@ -7,8 +7,7 @@ namespace Kore {
 	class ShaderImpl {
 	public:
 		ShaderImpl(void* source, int length);
-		u8* source;
-		int length;
+		void* mtlFunction;
 		friend class Program;
 		friend class ProgramImpl;
 	};

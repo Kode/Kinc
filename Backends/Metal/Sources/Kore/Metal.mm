@@ -5,14 +5,15 @@
 #include <Kore/System.h>
 #include <Kore/Math/Core.h>
 #include <cstdio>
+#import <Metal/Metal.h>
 
 using namespace Kore;
 
 namespace {
 	//bool fullscreen;
-	TextureFilter minFilters[32];
-	MipmapFilter mipFilters[32];
-	int originalFramebuffer;
+	//TextureFilter minFilters[32];
+	//MipmapFilter mipFilters[32];
+	//int originalFramebuffer;
 }
 
 void Graphics::destroy() {
@@ -75,12 +76,15 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 
 }
 
+void* getMetalDevice();
+
 void Graphics::drawIndexedVertices() {
 	drawIndexedVertices(0, IndexBufferImpl::current->count());
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-
+	id <MTLDevice> device = (__bridge_transfer id <MTLDevice>)getMetalDevice();
+	
 }
 
 void Graphics::swapBuffers() {

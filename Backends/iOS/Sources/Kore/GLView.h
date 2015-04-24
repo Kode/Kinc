@@ -30,5 +30,10 @@
 - (void)end;
 - (void)showKeyboard;
 - (void)hideKeyboard;
+#ifdef SYS_METAL
+- (id <MTLDevice>)metalDevice;
+- (id <MTLLibrary>)metalLibrary;
+- (id <MTLCommandQueue>)metalCommandQueue;
+#endif
 
 @end

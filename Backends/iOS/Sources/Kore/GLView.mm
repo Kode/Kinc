@@ -76,7 +76,7 @@ int Kore::System::screenHeight() {
 	
 	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
-	//library = [device newDefaultLibrary];
+	library = [device newDefaultLibrary];
 	
 	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
 	
@@ -372,5 +372,19 @@ namespace {
 - (void)onKeyboardHide:(NSNotification*)notification {
 	Kore::System::hideKeyboard();
 }
+
+#ifdef SYS_METAL
+- (id <MTLDevice>)metalDevice {
+	return device;
+}
+
+- (id <MTLLibrary>)metalLibrary {
+	return library;
+}
+
+- (id <MTLCommandQueue>)metalCommandQueue {
+	return commandQueue;
+}
+#endif
 
 @end

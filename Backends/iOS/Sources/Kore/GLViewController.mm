@@ -22,6 +22,30 @@ void hideKeyboard() {
 	[glView hideKeyboard];
 }
 
+void* getMetalDevice() {
+#ifdef SYS_METAL
+	return (__bridge_retained void*)[glView metalDevice];
+#else
+	return nullptr;
+#endif
+}
+
+void* getMetalLibrary() {
+#ifdef SYS_METAL
+	return (__bridge_retained void*)[glView metalLibrary];
+#else
+	return nullptr;
+#endif
+}
+
+void* getMetalCommandQueue() {
+#ifdef SYS_METAL
+	return (__bridge_retained void*)[glView metalCommandQueue];
+#else
+	return nullptr;
+#endif
+}
+
 @implementation GLViewController
 
 - (void)loadView {

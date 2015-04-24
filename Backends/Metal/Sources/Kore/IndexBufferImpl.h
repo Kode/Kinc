@@ -9,7 +9,7 @@ namespace Kore {
 		IndexBufferImpl(int count);
 		void unset();
 	
-		int* data;
+		void* mtlBuffer;
 		int myCount;
 	public:
 		static IndexBuffer* current;
