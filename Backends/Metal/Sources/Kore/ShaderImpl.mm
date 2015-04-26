@@ -3,21 +3,22 @@
 #include <Kore/Math/Core.h>
 #include <Kore/Graphics/Graphics.h>
 #include <Metal/Metal.h>
+#include <objc/runtime.h>
 
 using namespace Kore;
 
-void* getMetalLibrary();
+id getMetalLibrary();
 
 ShaderImpl::ShaderImpl(void* source, int length) {
 
 }
 
 Shader::Shader(void* source, int length, ShaderType type) : ShaderImpl(source, length) {
-	id <MTLLibrary> library = (__bridge_transfer id <MTLLibrary>)getMetalLibrary();
+	id <MTLLibrary> library = getMetalLibrary();
 	id <MTLFunction> program;
 	if (type == VertexShader)
 		program = [library newFunctionWithName:@"kore_vertex"];
 	else
 		program = [library newFunctionWithName:@"kore_fragment"];
-	mtlFunction = (__bridge_retained void*)program;
+	mtlFunction = program;
 }

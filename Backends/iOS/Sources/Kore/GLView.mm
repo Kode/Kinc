@@ -137,7 +137,31 @@ int Kore::System::screenHeight() {
 
 #ifdef SYS_METAL
 - (void)begin {
+	@autoreleasepool {
+		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
 	
+		drawable = [metalLayer nextDrawable];
+		//printf("It's %i\n", drawable == nil ? 0 : 1);
+		//if (drawable == nil) return;
+		id<MTLTexture> texture = drawable.texture;
+	
+		if (renderPassDescriptor == nil) {
+			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+		}
+		renderPassDescriptor.colorAttachments[0].texture = texture;
+		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+		red += 0.01f;
+		if (red > 1) red = 0;
+		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(red, 0.0, 0.0, 1.0);
+	
+		//id <MTLCommandQueue> commandQueue = [device newCommandQueue];
+		commandBuffer = [commandQueue commandBuffer];
+		//if (drawable != nil) {
+		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+		//}
+		
+	}
 }
 #else
 - (void)begin {
@@ -167,32 +191,10 @@ static float red = 0.0f;
 
 - (void)end {
 	@autoreleasepool {
-		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
-	
-		id<CAMetalDrawable> drawable = [metalLayer nextDrawable];
-		//printf("It's %i\n", drawable == nil ? 0 : 1);
-		//if (drawable == nil) return;
-		id<MTLTexture> texture = drawable.texture;
-	
-		if (renderPassDescriptor == nil) {
-			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-		}
-		renderPassDescriptor.colorAttachments[0].texture = texture;
-		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-		red += 0.01f;
-		if (red > 1) red = 0;
-		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(red, 0.0, 0.0, 1.0);
-	
-		//id <MTLCommandQueue> commandQueue = [device newCommandQueue];
-		id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
-		if (drawable != nil) {
-			id <MTLRenderCommandEncoder> commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-			[commandEncoder endEncoding];
-		}
-	
+		[commandEncoder endEncoding];
 		[commandBuffer presentDrawable:drawable];
 		[commandBuffer commit];
+		commandBuffer = nil;
 	
 		//if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
@@ -382,8 +384,8 @@ namespace {
 	return library;
 }
 
-- (id <MTLCommandQueue>)metalCommandQueue {
-	return commandQueue;
+- (id <MTLRenderCommandEncoder>)metalEncoder {
+	return commandEncoder;
 }
 #endif
 

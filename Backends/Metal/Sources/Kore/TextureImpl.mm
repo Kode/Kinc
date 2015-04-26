@@ -7,7 +7,7 @@
 
 using namespace Kore;
 
-void* getMetalDevice();
+id getMetalDevice();
 
 Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
 	texWidth = width;
@@ -29,7 +29,7 @@ TextureImpl::~TextureImpl() {
 }
 
 void TextureImpl::create(int width, int height) {
-	id <MTLDevice> device = (__bridge_transfer id <MTLDevice>)getMetalDevice();
+	id <MTLDevice> device = getMetalDevice();
 	
 	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 	descriptor.textureType = MTLTextureType2D;
@@ -40,12 +40,29 @@ void TextureImpl::create(int width, int height) {
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 	
-	id <MTLTexture> texture = [device newTextureWithDescriptor:descriptor];
-	tex = (__bridge_retained void*)texture;
+	tex = [device newTextureWithDescriptor:descriptor];
 }
 
-void Texture::set(TextureUnit unit) {
+id getMetalDevice();
+id getMetalEncoder();
 
+void Texture::set(TextureUnit unit) {
+	id <MTLDevice> device = getMetalDevice();
+	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
+	desc.minFilter = MTLSamplerMinMagFilterLinear;
+	desc.magFilter = MTLSamplerMinMagFilterLinear;
+	desc.sAddressMode = MTLSamplerAddressModeRepeat;
+	desc.tAddressMode = MTLSamplerAddressModeRepeat;
+	desc.mipFilter = MTLSamplerMipFilterNotMipmapped;
+	desc.maxAnisotropy = 1U;
+	desc.normalizedCoordinates = YES;
+	desc.lodMinClamp = 0.0f;
+	desc.lodMaxClamp = FLT_MAX;
+	id <MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:desc];
+	
+	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	[encoder setFragmentSamplerState:sampler atIndex:0];
+	[encoder setFragmentTexture:tex atIndex:0];
 }
 
 int Texture::stride() {
@@ -57,7 +74,7 @@ u8* Texture::lock() {
 }
 
 void Texture::unlock() {
-	id <MTLTexture> texture = (__bridge_transfer id <MTLTexture>)tex;
+	id <MTLTexture> texture = tex;
 	[texture replaceRegion:MTLRegionMake2D(0, 0, width, height) mipmapLevel:0 slice:0 withBytes:data bytesPerRow:stride() bytesPerImage:stride() * height];
 }
 

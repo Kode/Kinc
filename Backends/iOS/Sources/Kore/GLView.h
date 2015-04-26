@@ -14,6 +14,9 @@
 #ifdef SYS_METAL
 	id <MTLDevice> device;
 	id <MTLCommandQueue> commandQueue;
+	id <MTLCommandBuffer> commandBuffer;
+	id <MTLRenderCommandEncoder> commandEncoder;
+	id <CAMetalDrawable> drawable;
 	id <MTLLibrary> library;
 	MTLRenderPassDescriptor* renderPassDescriptor;
 #else
@@ -33,7 +36,7 @@
 #ifdef SYS_METAL
 - (id <MTLDevice>)metalDevice;
 - (id <MTLLibrary>)metalLibrary;
-- (id <MTLCommandQueue>)metalCommandQueue;
+- (id <MTLRenderCommandEncoder>)metalEncoder;
 #endif
 
 @end

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Kore/Graphics/VertexStructure.h>
+#include <objc/runtime.h>
 
 namespace Kore {
 	class VertexBuffer;
@@ -11,7 +12,7 @@ namespace Kore {
 		void unset();
 		int myCount;
 		int myStride;
-		void* mtlBuffer;
+		id mtlBuffer;
 	public:
 		static VertexBuffer* current;
 	};

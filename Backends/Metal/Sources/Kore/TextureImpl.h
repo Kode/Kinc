@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Kore/Graphics/Image.h>
+#include <objc/runtime.h>
 
 namespace Kore {
 	class Texture;
@@ -12,7 +13,7 @@ namespace Kore {
 	class TextureImpl {
 	public:
 		~TextureImpl();
-		void* tex;
+		id tex;
 	protected:
 		void create(int width, int height);
 	};

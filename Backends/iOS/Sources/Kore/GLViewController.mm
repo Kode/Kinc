@@ -3,6 +3,7 @@
 #include "pch.h"
 #import <Foundation/Foundation.h>
 #include <Kore/Math/Core.h>
+#include <objc/runtime.h>
 
 static GLView* glView;
 
@@ -22,27 +23,27 @@ void hideKeyboard() {
 	[glView hideKeyboard];
 }
 
-void* getMetalDevice() {
+id getMetalDevice() {
 #ifdef SYS_METAL
-	return (__bridge_retained void*)[glView metalDevice];
+	return [glView metalDevice];
 #else
-	return nullptr;
+	return nil;
 #endif
 }
 
-void* getMetalLibrary() {
+id getMetalLibrary() {
 #ifdef SYS_METAL
-	return (__bridge_retained void*)[glView metalLibrary];
+	return [glView metalLibrary];
 #else
-	return nullptr;
+	return nil;
 #endif
 }
 
-void* getMetalCommandQueue() {
+id getMetalEncoder() {
 #ifdef SYS_METAL
-	return (__bridge_retained void*)[glView metalCommandQueue];
+	return [glView metalEncoder];
 #else
-	return nullptr;
+	return nil;
 #endif
 }
 

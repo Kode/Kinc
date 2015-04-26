@@ -1,5 +1,7 @@
 #pragma once
 
+#include <objc/runtime.h>
+
 namespace Kore {
 	class IndexBuffer;
 
@@ -9,7 +11,7 @@ namespace Kore {
 		IndexBufferImpl(int count);
 		void unset();
 	
-		void* mtlBuffer;
+		id mtlBuffer;
 		int myCount;
 	public:
 		static IndexBuffer* current;

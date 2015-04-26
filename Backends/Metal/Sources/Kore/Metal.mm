@@ -76,15 +76,19 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 
 }
 
-void* getMetalDevice();
+id getMetalEncoder();
 
 void Graphics::drawIndexedVertices() {
 	drawIndexedVertices(0, IndexBufferImpl::current->count());
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-	id <MTLDevice> device = (__bridge_transfer id <MTLDevice>)getMetalDevice();
+	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	
+	//[encoder setDepthStencilState:_depthState];
+	//[encoder setRenderPipelineState:_pipelineState];
+	//[renderEncoder setVertexBuffer:_dynamicConstantBuffer offset:(sizeof(uniforms_t) * _constantDataBufferIndex) atIndex:1 ];
+	[encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:start vertexCount:count instanceCount:1];
 }
 
 void Graphics::swapBuffers() {
@@ -95,10 +99,12 @@ void beginGL();
 
 void Graphics::begin() {
 	beginGL();
+	
+	
 }
 
 void Graphics::end() {
-
+	
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {

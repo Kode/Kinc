@@ -6,7 +6,8 @@
 
 using namespace Kore;
 
-void* getMetalDevice();
+id getMetalDevice();
+id getMetalEncoder();
 
 VertexBuffer* VertexBufferImpl::current = nullptr;
 
@@ -39,8 +40,8 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 		}
 	}
 	
-	id <MTLDevice> device = (__bridge_transfer id <MTLDevice>)getMetalDevice();
-	mtlBuffer = (__bridge_retained void*)[device newBufferWithLength:sizeof(float) * vertexCount * myStride / 4 options:MTLResourceOptionCPUCacheModeDefault];
+	id <MTLDevice> device = getMetalDevice();
+	mtlBuffer = [device newBufferWithLength:sizeof(float) * vertexCount * myStride / 4 options:MTLResourceOptionCPUCacheModeDefault];
 }
 
 VertexBuffer::~VertexBuffer() {
@@ -49,7 +50,7 @@ VertexBuffer::~VertexBuffer() {
 }
 
 float* VertexBuffer::lock() {
-	id <MTLBuffer> buffer = (__bridge_transfer id <MTLBuffer>)mtlBuffer;
+	id <MTLBuffer> buffer = mtlBuffer;
 	return (float*)[buffer contents];
 }
 
@@ -60,6 +61,9 @@ void VertexBuffer::unlock() {
 void VertexBuffer::set() {
 	current = this;
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->set();
+	
+	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	[encoder setVertexBuffer:mtlBuffer offset:0 atIndex:0];
 }
 
 void VertexBufferImpl::unset() {

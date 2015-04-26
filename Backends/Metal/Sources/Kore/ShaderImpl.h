@@ -1,5 +1,7 @@
 #pragma once
 
+#include <objc/runtime.h>
+
 namespace Kore {
 	class Program;
 	class ProgramImpl;
@@ -7,7 +9,7 @@ namespace Kore {
 	class ShaderImpl {
 	public:
 		ShaderImpl(void* source, int length);
-		void* mtlFunction;
+		id mtlFunction;
 		friend class Program;
 		friend class ProgramImpl;
 	};
