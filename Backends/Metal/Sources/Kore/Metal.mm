@@ -86,9 +86,8 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	
 	//[encoder setDepthStencilState:_depthState];
-	//[encoder setRenderPipelineState:_pipelineState];
 	//[renderEncoder setVertexBuffer:_dynamicConstantBuffer offset:(sizeof(uniforms_t) * _constantDataBufferIndex) atIndex:1 ];
-	[encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:start vertexCount:count instanceCount:1];
+	 [encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:IndexBufferImpl::current->mtlBuffer indexBufferOffset:start];
 }
 
 void Graphics::swapBuffers() {
