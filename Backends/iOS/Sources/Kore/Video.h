@@ -19,7 +19,7 @@ namespace Kore {
 		bool playing;
 		VideoSoundStream* sound;
 		id url;
-		void load();
+		void load(double startTime);
 	public:
 		Video(const char* filename);
 		~Video();

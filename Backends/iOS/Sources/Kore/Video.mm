@@ -68,10 +68,10 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	image = nullptr;
 	myWidth = -1;
 	myHeight = -1;
-	load();
+	load(0);
 }
 
-void Video::load() {
+void Video::load(double startTime) {
 	AVURLAsset* asset = [[AVURLAsset alloc] initWithURL:url options:nil];
 	videoAsset = asset;
 	
@@ -91,6 +91,12 @@ void Video::load() {
 	AVAssetReaderAudioMixOutput* audioOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[audioTrack] audioSettings:audioOutputSettings];
 	
 	AVAssetReader* reader = [AVAssetReader assetReaderWithAsset:asset error:nil];
+	
+	if (startTime > 0) {
+		CMTimeRange timeRange = CMTimeRangeMake(CMTimeMake(startTime * 1000, 1000), kCMTimePositiveInfinity);
+		reader.timeRange = timeRange;
+	}
+	
 	[reader addOutput:videoOutput];
 	[reader addOutput:audioOutput];
 	
@@ -146,8 +152,10 @@ void Video::updateImage() {
 			}
 			else {
 				pause();
-				load();
+				double startTime = next;
+				load(startTime);
 				play();
+				start -= startTime;
 			}
 			return;
 		}
