@@ -64,9 +64,16 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	strcat(name, KORE_DEBUGDIR);
 	strcat(name, "/");
 	strcat(name, filename);
-	NSURL* url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
-	//NSURL* url = [[NSBundle mainBundle] URLForResource: [NSString stringWithUTF8String:filename] withExtension:@"mov"];
+	url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
+	image = nullptr;
+	myWidth = -1;
+	myHeight = -1;
+	load();
+}
+
+void Video::load() {
 	AVURLAsset* asset = [[AVURLAsset alloc] initWithURL:url options:nil];
+	videoAsset = asset;
 	
 	AVAssetTrack* videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
 	NSDictionary* videoOutputSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
@@ -87,15 +94,14 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	[reader addOutput:videoOutput];
 	[reader addOutput:audioOutput];
 	
-	assetReader = (__bridge void*)reader;
-	videoTrackOutput = (__bridge void*)videoOutput;
-	audioTrackOutput = (__bridge void*)audioOutput;
+	assetReader = reader;
+	videoTrackOutput = videoOutput;
+	audioTrackOutput = audioOutput;
 	
-	myWidth = [videoTrack naturalSize].width;
-	myHeight = [videoTrack naturalSize].height;
+	if (myWidth < 0) myWidth = [videoTrack naturalSize].width;
+	if (myHeight < 0) myHeight = [videoTrack naturalSize].height;
 	int framerate = [videoTrack nominalFrameRate];
 	printf("Framerate: %i\n", framerate);
-	image = nullptr;
 	next = 0;
 	audioTime = 0;
 }
@@ -105,7 +111,7 @@ Video::~Video() {
 }
 
 void Video::play() {
-	AVAssetReader* reader = (__bridge AVAssetReader*)assetReader;
+	AVAssetReader* reader = assetReader;
 	[reader startReading];
 	
 	sound = new VideoSoundStream(2, 44100);
@@ -131,10 +137,18 @@ void Video::stop() {
 void Video::updateImage() {
 	if (!playing) return;
 	{
-		AVAssetReaderTrackOutput* videoOutput = (__bridge AVAssetReaderTrackOutput*)videoTrackOutput;
+		AVAssetReaderTrackOutput* videoOutput = videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
 		if (!buffer) {
-			stop();
+			AVAssetReader* reader = assetReader;
+			if ([reader status] == AVAssetReaderStatusCompleted) {
+				stop();
+			}
+			else {
+				pause();
+				load();
+				play();
+			}
 			return;
 		}
 		next = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
@@ -162,7 +176,7 @@ void Video::updateImage() {
 	//printf("Next %f\n", next);
 	
 	{
-		AVAssetReaderAudioMixOutput* audioOutput = (__bridge AVAssetReaderAudioMixOutput*)audioTrackOutput;
+		AVAssetReaderAudioMixOutput* audioOutput = audioTrackOutput;
 		while (audioTime / 44100.0 < next + 1) {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
 			//audioNext = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));

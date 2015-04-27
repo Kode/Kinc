@@ -1,14 +1,16 @@
 #include <Kore/Graphics/Texture.h>
 #include <Kore/IO/FileReader.h>
+#include <objc/runtime.h>
 
 namespace Kore {
 	class VideoSoundStream;
 	
 	class Video {
 	private:
-		void* assetReader;
-		void* videoTrackOutput;
-		void* audioTrackOutput;
+		id videoAsset;
+		id assetReader;
+		id videoTrackOutput;
+		id audioTrackOutput;
 		void updateImage();
 		double start;
 		double next;
@@ -16,6 +18,8 @@ namespace Kore {
 		unsigned long long audioTime;
 		bool playing;
 		VideoSoundStream* sound;
+		id url;
+		void load();
 	public:
 		Video(const char* filename);
 		~Video();
