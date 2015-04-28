@@ -15,35 +15,29 @@ using namespace Kore;
 
 extern const char* iphonegetresourcepath();
 
-namespace {
-	int maxSamples = 0;
-}
-
-VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100 * 10), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
+VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
 	buffer = new float[bufferSize];
 }
 
 void VideoSoundStream::insertData(float* data, int nSamples) {
-	//printf("Samples: %i\n", nSamples);
-	if (nSamples > maxSamples) {
-		printf("Samples: %i\n", nSamples);
-		maxSamples = nSamples;
-	}
-	written += nSamples;
 	for (int i = 0; i < nSamples; ++i) {
 		float value = data[i];// / 32767.0;
 		buffer[bufferWritePosition++] = value;
+		++written;
 		if (bufferWritePosition >= bufferSize) {
 			bufferWritePosition = 0;
-			printf("buffer write back\n");
 		}
+		//if (written > read + 10000) {
+		//	printf("Ignoring %i samples.\n", nSamples - i);
+		//	return;
+		//}
 	}
 }
 
 float VideoSoundStream::nextSample() {
 	++read;
 	if (written <= read) {
-		//printf("Out of audio\n");
+		printf("Out of audio\n");
 		return 0;
 	}
 	if (bufferReadPosition >= bufferSize) {
@@ -72,6 +66,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 }
 
 void Video::load(double startTime) {
+	videoStart = startTime;
 	AVURLAsset* asset = [[AVURLAsset alloc] initWithURL:url options:nil];
 	videoAsset = asset;
 	
@@ -108,8 +103,8 @@ void Video::load(double startTime) {
 	if (myHeight < 0) myHeight = [videoTrack naturalSize].height;
 	int framerate = [videoTrack nominalFrameRate];
 	printf("Framerate: %i\n", framerate);
-	next = 0;
-	audioTime = 0;
+	next = videoStart;
+	audioTime = videoStart * 44100;
 }
 
 Video::~Video() {
@@ -124,7 +119,7 @@ void Video::play() {
 	Mixer::play(sound);
 	
 	playing = true;
-	start = System::time();
+	start = System::time() - videoStart;
 }
 
 void Video::pause() {
@@ -152,10 +147,8 @@ void Video::updateImage() {
 			}
 			else {
 				pause();
-				double startTime = next;
-				load(startTime);
+				load(next);
 				play();
-				start -= startTime;
 			}
 			return;
 		}
@@ -185,7 +178,7 @@ void Video::updateImage() {
 	
 	{
 		AVAssetReaderAudioMixOutput* audioOutput = audioTrackOutput;
-		while (audioTime / 44100.0 < next + 1) {
+		while (audioTime / 44100.0 < next + 0.1) {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
 			//audioNext = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
 			if (!buffer) return;
@@ -212,7 +205,13 @@ void Video::updateImage() {
 			//audioTime += audioBufferList.mNumberBuffers;
 			for (int bufferCount = 0; bufferCount < audioBufferList.mNumberBuffers; ++bufferCount) {
 				float* samples = (float*)audioBufferList.mBuffers[bufferCount].mData;
-				sound->insertData(samples, (int)numSamplesInBuffer * 2);
+				if (audioTime / 44100.0 > next - 0.1) {
+					sound->insertData(samples, (int)numSamplesInBuffer * 2);
+				}
+				else {
+					// Send some data anyway because the buffers are huge
+					sound->insertData(samples, (int)numSamplesInBuffer);
+				}
 				audioTime += numSamplesInBuffer;
 				//sound->insertData(samples, (int)numSamplesInBuffer);
 				//for (int i = 0; i < numSamplesInBuffer; ++i) {

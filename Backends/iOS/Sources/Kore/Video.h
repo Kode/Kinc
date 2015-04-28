@@ -13,6 +13,7 @@ namespace Kore {
 		id audioTrackOutput;
 		void updateImage();
 		double start;
+		double videoStart;
 		double next;
 		//double audioTime;
 		unsigned long long audioTime;
