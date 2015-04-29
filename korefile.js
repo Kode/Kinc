@@ -71,13 +71,20 @@ else if (platform === Platform.OSX) {
 }
 else if (platform === Platform.iOS) {
 	addBackend('iOS');
-	addBackend('OpenGL2');
-	project.addDefine('OPENGL');
+	if (graphics === GraphicsApi.Metal) {
+		addBackend('Metal');
+		project.addDefine('SYS_METAL');
+		project.addLib('Metal');
+	}
+	else {
+		addBackend('OpenGL2');
+		project.addDefine('OPENGL');
+		project.addLib('OpenGLES');
+	}
 	project.addLib('UIKit');
 	project.addLib('Foundation');
 	project.addLib('CoreGraphics');
 	project.addLib('QuartzCore');
-	project.addLib('OpenGLES');
 	project.addLib('CoreAudio');
 	project.addLib('AudioToolbox');
 	project.addLib('CoreMotion');

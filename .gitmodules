@@ -1,12 +1,16 @@
-[submodule "Tools/kfx"]
-	path = Tools/kfx
-	url = ../kfx
-	branch = master
 [submodule "Tools/koremake"]
 	path = Tools/koremake
 	url = ../koremake
 	branch = master
 [submodule "Tools/kraffiti"]
 	path = Tools/kraffiti
-	url = ../kraffiti
+	url = ../kraffiti_bin
+	branch = master
+[submodule "Tools/kfx"]
+	path = Tools/kfx
+	url = ../kfx_bin
+	branch = master
+[submodule "Tools/krafix"]
+	path = Tools/krafix
+	url = ../krafix_bin
 	branch = master
