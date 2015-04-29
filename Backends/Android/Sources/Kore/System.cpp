@@ -111,8 +111,15 @@ extern "C" {
 	JNIEXPORT bool JNICALL Java_com_ktxsoftware_kore_KoreLib_keyboardShown(JNIEnv* env, jobject obj);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyUp(JNIEnv* env, jobject obj, jint code);
 	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_keyDown(JNIEnv* env, jobject obj, jint code);
-    JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_accelerometerChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z);
-    JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gyroChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_accelerometerChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gyroChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onCreate(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onStart(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onPause(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onResume(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onStop(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onRestart(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onDestroy(JNIEnv* env, jobject obj);
 };
 
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jobject assetManager, jstring apkPath, jstring filesDir) {
@@ -279,6 +286,34 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_writeAudio(JNIEnv* env,
 
 bool Kore::System::handleMessages() {
 	return true;
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onCreate(JNIEnv* env, jobject obj) {
+
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onStart(JNIEnv* env, jobject obj) {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->foregroundCallback != nullptr) Kore::Application::the()->foregroundCallback();
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onPause(JNIEnv* env, jobject obj) {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->pauseCallback != nullptr) Kore::Application::the()->pauseCallback();
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onResume(JNIEnv* env, jobject obj) {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->resumeCallback != nullptr) Kore::Application::the()->resumeCallback();
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onStop(JNIEnv* env, jobject obj) {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->backgroundCallback != nullptr) Kore::Application::the()->backgroundCallback();
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onRestart(JNIEnv* env, jobject obj) {
+
+}
+
+JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_onDestroy(JNIEnv* env, jobject obj) {
+	if (Kore::Application::the() != nullptr && Kore::Application::the()->shutdownCallback != nullptr) Kore::Application::the()->shutdownCallback();
 }
 
 #include <sys/time.h>

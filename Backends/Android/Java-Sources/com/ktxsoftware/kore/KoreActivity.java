@@ -19,12 +19,11 @@ public class KoreActivity extends Activity implements SensorEventListener {
 	private AudioTrack audio;
 	private Thread audioThread;
 	private int bufferSize;
+	private KoreView view;
 	
 	public static Object sensorLock = new Object();
 	private SensorManager sensorManager;
 	private Sensor accelerometer, gyro;
-	public static float accelerometerX, accelerometerY, accelerometerZ;
-	public static float gyroX, gyroY, gyroZ;
 	
 	private static KoreActivity instance;
 	
@@ -38,29 +37,55 @@ public class KoreActivity extends Activity implements SensorEventListener {
 		instance = this;
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(new KoreView(this));
+		setContentView(view = new KoreView(this));
 		bufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT) * 2;
 		audio = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
 		
 		sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onCreate();
+			}
+		});
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onStart();
+			}
+		});
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		KoreView.getInstance().onPause();
+		view.onPause();
 		sensorManager.unregisterListener(this);
 		paused = true;
 		audio.pause();
 		audio.flush();
+		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onPause();
+			}
+		});
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		KoreView.getInstance().onResume();
+		view.onResume();
 		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(this, gyro, SensorManager.SENSOR_DELAY_NORMAL);
 		
@@ -90,24 +115,49 @@ public class KoreActivity extends Activity implements SensorEventListener {
 		};
 		audioThread = new Thread(audioRunnable);
 		audioThread.start();
+		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onResume();
+			}
+		});
 	}
 	
 	@Override
 	protected void onStop() {
 		super.onStop();
 		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onStop();
+			}
+		});
 	}
 	
 	@Override
 	protected void onRestart() {
 		super.onRestart();
 		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onRestart();
+			}
+		});
 	}
 	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onDestroy();
+			}
+		});
 	}
 	
 	@Override
@@ -133,18 +183,10 @@ public class KoreActivity extends Activity implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent e) {
 		if (e.sensor == accelerometer) {
-			synchronized(sensorLock) {
-				accelerometerX = e.values[0];
-				accelerometerY = e.values[1];
-				accelerometerZ = e.values[2];
-			}
+			view.accelerometer(e.values[0], e.values[1], e.values[2]);
 		}
 		else if (e.sensor == gyro) {
-			synchronized(sensorLock) {
-				gyroX = e.values[0];
-				gyroY = e.values[1];
-				gyroZ = e.values[2];
-			}
+			view.gyro(e.values[0], e.values[1], e.values[2]);
 		}
 	}
 }
