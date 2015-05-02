@@ -62,12 +62,11 @@ Shader::Shader(void* _data, int length, ShaderType type) {
 	case GeometryShader:
 		affirm(device->CreateGeometryShader(this->data, this->length, nullptr, (ID3D11GeometryShader**)&shader));
 		break;
-	case TesselationEvaluationShader:
+	case TesselationControlShader:
 		affirm(device->CreateHullShader(this->data, this->length, nullptr, (ID3D11HullShader**)&shader));
 		break;
-	case TesselationControlShader:
+	case TesselationEvaluationShader:
 		affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader**)&shader));
 		break;
-	}
-	
+	}	
 }

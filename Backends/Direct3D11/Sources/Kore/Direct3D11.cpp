@@ -24,8 +24,8 @@ int renderTargetHeight;
 Kore::u8 vertexConstants[1024 * 4];
 Kore::u8 fragmentConstants[1024 * 4];
 Kore::u8 geometryConstants[1024 * 4];
-Kore::u8 tessEvalConstants[1024 * 4];
 Kore::u8 tessControlConstants[1024 * 4];
+Kore::u8 tessEvalConstants[1024 * 4];
 
 using namespace Kore;
 

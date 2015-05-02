@@ -9,8 +9,8 @@ namespace Kore {
 		Shader* vertexShader;
 		Shader* fragmentShader;
 		Shader* geometryShader;
-		Shader* tesselationEvaluationShader;
 		Shader* tesselationControlShader;
+		Shader* tesselationEvaluationShader;
 
 		ProgramImpl();
 		int findTexture(const char* name);

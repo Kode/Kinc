@@ -23,14 +23,15 @@ void ProgramImpl::setConstants() {
 		context->UpdateSubresource(currentProgram->geometryConstantBuffer, 0, nullptr, geometryConstants, 0, 0);
 		context->GSSetConstantBuffers(0, 1, &currentProgram->geometryConstantBuffer);
 	}
-	if (currentProgram->tessEvalShader != nullptr && currentProgram->tessEvalShader->constantsSize > 0) {
-		context->UpdateSubresource(currentProgram->tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
-		context->HSSetConstantBuffers(0, 1, &currentProgram->tessEvalConstantBuffer);
-	}
 	if (currentProgram->tessControlShader != nullptr && currentProgram->tessControlShader->constantsSize > 0) {
 		context->UpdateSubresource(currentProgram->tessControlConstantBuffer, 0, nullptr, tessControlConstants, 0, 0);
-		context->DSSetConstantBuffers(0, 1, &currentProgram->tessControlConstantBuffer);
+		context->HSSetConstantBuffers(0, 1, &currentProgram->tessControlConstantBuffer);
 	}
+	if (currentProgram->tessEvalShader != nullptr && currentProgram->tessEvalShader->constantsSize > 0) {
+		context->UpdateSubresource(currentProgram->tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
+		context->DSSetConstantBuffers(0, 1, &currentProgram->tessEvalConstantBuffer);
+	}
+	
 }
 
 ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
@@ -47,8 +48,8 @@ void Program::set() {
 	context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
 
 	if (geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)geometryShader->shader, nullptr, 0);
-	if (tessEvalShader != nullptr) context->HSSetShader((ID3D11HullShader*)tessEvalShader->shader, nullptr, 0);
-	if (tessControlShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessControlShader->shader, nullptr, 0);
+	if (tessControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)tessControlShader->shader, nullptr, 0);
+	if (tessEvalShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessEvalShader->shader, nullptr, 0);	
 
 	context->IASetInputLayout(inputLayout);
 }
@@ -89,16 +90,6 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 		location.geometrySize = constant.size;
 	}
 
-	if (tessEvalShader->constants.find(d3dname) == tessEvalShader->constants.end()) {
-		location.tessEvalOffset = 0;
-		location.tessEvalSize = 0;
-	}
-	else {
-		ShaderConstant constant = tessEvalShader->constants[d3dname];
-		location.tessEvalOffset = constant.offset;
-		location.tessEvalSize = constant.size;
-	}
-
 	if (tessControlShader->constants.find(d3dname) == tessControlShader->constants.end()) {
 		location.tessControlOffset = 0;
 		location.tessControlSize = 0;
@@ -107,6 +98,16 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 		ShaderConstant constant = tessControlShader->constants[d3dname];
 		location.tessControlOffset = constant.offset;
 		location.tessControlSize = constant.size;
+	}
+
+	if (tessEvalShader->constants.find(d3dname) == tessEvalShader->constants.end()) {
+		location.tessEvalOffset = 0;
+		location.tessEvalSize = 0;
+	}
+	else {
+		ShaderConstant constant = tessEvalShader->constants[d3dname];
+		location.tessEvalOffset = constant.offset;
+		location.tessEvalSize = constant.size;
 	}
 
 	return location;
@@ -143,12 +144,12 @@ void Program::setGeometryShader(Shader* shader) {
 	geometryShader = shader;
 }
 
-void Program::setTesselationEvaluationShader(Shader* shader) {
-	tessEvalShader = shader;
-}
-
 void Program::setTesselationControlShader(Shader* shader) {
 	tessControlShader = shader;
+}
+
+void Program::setTesselationEvaluationShader(Shader* shader) {
+	tessEvalShader = shader;
 }
 
 namespace {
@@ -163,8 +164,8 @@ void Program::link(const VertexStructure& structure) {
 	if (vertexShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &fragmentConstantBuffer));
 	if (geometryShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &geometryConstantBuffer));
-	if (tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
 	if (tessControlShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessControlConstantBuffer));
+	if (tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
 
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[10];
 	for (int i = 0; i < structure.size; ++i) {

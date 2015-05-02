@@ -16,5 +16,5 @@ extern ID3D11DepthStencilView* depthStencilView;
 extern Kore::u8 vertexConstants[1024 * 4];
 extern Kore::u8 fragmentConstants[1024 * 4];
 extern Kore::u8 geometryConstants[1024 * 4];
-extern Kore::u8 tessEvalConstants[1024 * 4];
 extern Kore::u8 tessControlConstants[1024 * 4];
+extern Kore::u8 tessEvalConstants[1024 * 4];

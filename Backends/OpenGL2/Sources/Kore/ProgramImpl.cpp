@@ -32,12 +32,12 @@ void Program::setGeometryShader(Shader* shader) {
 	geometryShader = shader;
 }
 
-void Program::setTesselationEvaluationShader(Shader* shader) {
-	tesselationEvaluationShader = shader;
-}
-
 void Program::setTesselationControlShader(Shader* shader) {
 	tesselationControlShader = shader;
+}
+
+void Program::setTesselationEvaluationShader(Shader* shader) {
+	tesselationEvaluationShader = shader;
 }
 
 namespace {
@@ -50,10 +50,10 @@ namespace {
 			return GL_FRAGMENT_SHADER;
 		case GeometryShader:
 			return GL_GEOMETRY_SHADER;
-		case TesselationEvaluationShader:
-			return GL_TESS_EVALUATION_SHADER;
 		case TesselationControlShader:
 			return GL_TESS_CONTROL_SHADER;
+		case TesselationEvaluationShader:
+			return GL_TESS_EVALUATION_SHADER;
 		}
 	}
 
@@ -84,15 +84,15 @@ void Program::link(const VertexStructure& structure) {
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
 #if !defined SYS_IOS
 	if (geometryShader != nullptr) compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
-	if (tesselationEvaluationShader != nullptr) compileShader(tesselationEvaluationShader->id, tesselationEvaluationShader->source, tesselationEvaluationShader->length, TesselationEvaluationShader);
 	if (tesselationControlShader != nullptr) compileShader(tesselationControlShader->id, tesselationControlShader->source, tesselationControlShader->length, TesselationControlShader);
+	if (tesselationEvaluationShader != nullptr) compileShader(tesselationEvaluationShader->id, tesselationEvaluationShader->source, tesselationEvaluationShader->length, TesselationEvaluationShader);
 #endif
 	glAttachShader(programId, vertexShader->id);
 	glAttachShader(programId, fragmentShader->id);
 #if !defined SYS_IOS
 	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->id);
-	if (tesselationEvaluationShader != nullptr) glAttachShader(programId, tesselationEvaluationShader->id);
 	if (tesselationControlShader != nullptr) glAttachShader(programId, tesselationControlShader->id);
+	if (tesselationEvaluationShader != nullptr) glAttachShader(programId, tesselationEvaluationShader->id);
 #endif
 		
 	int index = 0;
