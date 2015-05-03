@@ -14,6 +14,7 @@ namespace {
 #endif
 		switch (format) {
 			case Image::RGBA32:
+			default:
 				return GL_RGBA;
 			case Image::RGB24:
 				return GL_RGB;
@@ -28,6 +29,7 @@ namespace {
 #endif
 		switch (format) {
 			case Image::RGBA32:
+			default:
 			#ifdef GL_BGRA
 				return GL_BGRA;
 			#else

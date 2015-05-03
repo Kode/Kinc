@@ -16,4 +16,12 @@ public class KoreLib {
 	public static native void accelerometerChanged(float x, float y, float z);
 	public static native void gyroChanged(float x, float y, float z);
 	public static native void writeAudio(byte[] buffer, int size);
+	
+	public static native void onCreate();
+	public static native void onStart();
+	public static native void onPause();
+	public static native void onResume();
+	public static native void onStop();
+	public static native void onRestart();
+	public static native void onDestroy();
 }

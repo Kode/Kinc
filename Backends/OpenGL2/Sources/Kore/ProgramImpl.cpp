@@ -7,7 +7,11 @@
 
 using namespace Kore;
 
-ProgramImpl::ProgramImpl() : textureCount(0) {
+namespace Kore {
+	bool programUsesTesselation = false;
+}
+
+ProgramImpl::ProgramImpl() : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tesselationEvaluationShader(nullptr), tesselationControlShader(nullptr) {
 	textures = new const char*[16];
 	textureValues = new int[16];
 }
@@ -16,21 +20,49 @@ Program::Program() {
 	programId = glCreateProgram();
 }
 	
-void Program::setVertexShader(Shader* vertexShader) {
-	this->vertexShader = vertexShader;
+void Program::setVertexShader(Shader* shader) {
+	vertexShader = shader;
 }
 	
-void Program::setFragmentShader(Shader* fragmentShader) {
-	this->fragmentShader = fragmentShader;
+void Program::setFragmentShader(Shader* shader) {
+	fragmentShader = shader;
+}
+
+void Program::setGeometryShader(Shader* shader) {
+	geometryShader = shader;
+}
+
+void Program::setTesselationControlShader(Shader* shader) {
+	tesselationControlShader = shader;
+}
+
+void Program::setTesselationEvaluationShader(Shader* shader) {
+	tesselationEvaluationShader = shader;
 }
 
 namespace {
+	int toGlShader(ShaderType type) {
+		switch (type) {
+		case VertexShader:
+		default:
+			return GL_VERTEX_SHADER;
+		case FragmentShader:
+			return GL_FRAGMENT_SHADER;
+		case GeometryShader:
+			return GL_GEOMETRY_SHADER;
+		case TesselationControlShader:
+			return GL_TESS_CONTROL_SHADER;
+		case TesselationEvaluationShader:
+			return GL_TESS_EVALUATION_SHADER;
+		}
+	}
+
 	void compileShader(uint& id, u8* source, int length, ShaderType type) {
 		char* shaderSource = new char[length + 1];
 		for (int i = 0; i < length; ++i) shaderSource[i] = reinterpret_cast<char*>(source)[i];
 		shaderSource[length] = 0;
 		const char* cShaderSource = shaderSource;
-		id = glCreateShader(type == VertexShader ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
+		id = glCreateShader(toGlShader(type));
 		glShaderSource(id, 1, &cShaderSource, 0);
 		glCompileShader(id);
 
@@ -50,8 +82,18 @@ namespace {
 void Program::link(const VertexStructure& structure) {
 	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
+#if !defined SYS_IOS
+	if (geometryShader != nullptr) compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
+	if (tesselationControlShader != nullptr) compileShader(tesselationControlShader->id, tesselationControlShader->source, tesselationControlShader->length, TesselationControlShader);
+	if (tesselationEvaluationShader != nullptr) compileShader(tesselationEvaluationShader->id, tesselationEvaluationShader->source, tesselationEvaluationShader->length, TesselationEvaluationShader);
+#endif
 	glAttachShader(programId, vertexShader->id);
 	glAttachShader(programId, fragmentShader->id);
+#if !defined SYS_IOS
+	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->id);
+	if (tesselationControlShader != nullptr) glAttachShader(programId, tesselationControlShader->id);
+	if (tesselationEvaluationShader != nullptr) glAttachShader(programId, tesselationEvaluationShader->id);
+#endif
 		
 	int index = 0;
 	for (int i = 0; i < structure.size; ++i) {
@@ -72,9 +114,16 @@ void Program::link(const VertexStructure& structure) {
 		printf("GLSL linker error: %s\n", errormessage);
 		delete[] errormessage;
 	}
+
+#if !defined SYS_IOS
+	if (tesselationControlShader != nullptr) {
+		glPatchParameteri(GL_PATCH_VERTICES, 3);
+	}
+#endif
 }
 	
 void Program::set() {
+	programUsesTesselation = tesselationControlShader != nullptr;
 	glUseProgram(programId);
 	for (int index = 0; index < textureCount; ++index) glUniform1i(textureValues[index], index);
 }
@@ -82,6 +131,9 @@ void Program::set() {
 ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.location = glGetUniformLocation(programId, name);
+	if (location.location < 0) {
+		printf("Uniform %s not found.\n", name);
+	}
 	return location;
 }
 

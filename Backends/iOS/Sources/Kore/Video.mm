@@ -15,27 +15,17 @@ using namespace Kore;
 
 extern const char* iphonegetresourcepath();
 
-namespace {
-	int maxSamples = 0;
-}
-
-VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100 * 10), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
+VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
 	buffer = new float[bufferSize];
 }
 
 void VideoSoundStream::insertData(float* data, int nSamples) {
-	//printf("Samples: %i\n", nSamples);
-	if (nSamples > maxSamples) {
-		printf("Samples: %i\n", nSamples);
-		maxSamples = nSamples;
-	}
-	written += nSamples;
 	for (int i = 0; i < nSamples; ++i) {
 		float value = data[i];// / 32767.0;
 		buffer[bufferWritePosition++] = value;
+		++written;
 		if (bufferWritePosition >= bufferSize) {
 			bufferWritePosition = 0;
-			printf("buffer write back\n");
 		}
 	}
 }
@@ -43,7 +33,7 @@ void VideoSoundStream::insertData(float* data, int nSamples) {
 float VideoSoundStream::nextSample() {
 	++read;
 	if (written <= read) {
-		//printf("Out of audio\n");
+		printf("Out of audio\n");
 		return 0;
 	}
 	if (bufferReadPosition >= bufferSize) {
@@ -64,9 +54,17 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	strcat(name, KORE_DEBUGDIR);
 	strcat(name, "/");
 	strcat(name, filename);
-	NSURL* url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
-	//NSURL* url = [[NSBundle mainBundle] URLForResource: [NSString stringWithUTF8String:filename] withExtension:@"mov"];
+	url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
+	image = nullptr;
+	myWidth = -1;
+	myHeight = -1;
+	load(0);
+}
+
+void Video::load(double startTime) {
+	videoStart = startTime;
 	AVURLAsset* asset = [[AVURLAsset alloc] initWithURL:url options:nil];
+	videoAsset = asset;
 	
 	AVAssetTrack* videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
 	NSDictionary* videoOutputSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
@@ -84,20 +82,25 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	AVAssetReaderAudioMixOutput* audioOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[audioTrack] audioSettings:audioOutputSettings];
 	
 	AVAssetReader* reader = [AVAssetReader assetReaderWithAsset:asset error:nil];
+	
+	if (startTime > 0) {
+		CMTimeRange timeRange = CMTimeRangeMake(CMTimeMake(startTime * 1000, 1000), kCMTimePositiveInfinity);
+		reader.timeRange = timeRange;
+	}
+	
 	[reader addOutput:videoOutput];
 	[reader addOutput:audioOutput];
 	
-	assetReader = (__bridge void*)reader;
-	videoTrackOutput = (__bridge void*)videoOutput;
-	audioTrackOutput = (__bridge void*)audioOutput;
+	assetReader = reader;
+	videoTrackOutput = videoOutput;
+	audioTrackOutput = audioOutput;
 	
-	myWidth = [videoTrack naturalSize].width;
-	myHeight = [videoTrack naturalSize].height;
+	if (myWidth < 0) myWidth = [videoTrack naturalSize].width;
+	if (myHeight < 0) myHeight = [videoTrack naturalSize].height;
 	int framerate = [videoTrack nominalFrameRate];
 	printf("Framerate: %i\n", framerate);
-	image = nullptr;
-	next = 0;
-	audioTime = 0;
+	next = videoStart;
+	audioTime = videoStart * 44100;
 }
 
 Video::~Video() {
@@ -105,14 +108,14 @@ Video::~Video() {
 }
 
 void Video::play() {
-	AVAssetReader* reader = (__bridge AVAssetReader*)assetReader;
+	AVAssetReader* reader = assetReader;
 	[reader startReading];
 	
 	sound = new VideoSoundStream(2, 44100);
 	Mixer::play(sound);
 	
 	playing = true;
-	start = System::time();
+	start = System::time() - videoStart;
 }
 
 void Video::pause() {
@@ -131,10 +134,18 @@ void Video::stop() {
 void Video::updateImage() {
 	if (!playing) return;
 	{
-		AVAssetReaderTrackOutput* videoOutput = (__bridge AVAssetReaderTrackOutput*)videoTrackOutput;
+		AVAssetReaderTrackOutput* videoOutput = videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
 		if (!buffer) {
-			stop();
+			AVAssetReader* reader = assetReader;
+			if ([reader status] == AVAssetReaderStatusCompleted) {
+				stop();
+			}
+			else {
+				pause();
+				load(next);
+				play();
+			}
 			return;
 		}
 		next = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
@@ -150,52 +161,31 @@ void Video::updateImage() {
 		
 		if (pixelBuffer != NULL) {
 			CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-			//int width = CVPixelBufferGetWidth(pixelBuffer);
-			//int height = CVPixelBufferGetHeight(pixelBuffer);
-			//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, CVPixelBufferGetBaseAddress(pixelBuffer));
 			image->upload((u8*)CVPixelBufferGetBaseAddress(pixelBuffer));
 			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 		}
 		CFRelease(buffer);
 	}
 	
-	//printf("Next %f\n", next);
-	
 	{
-		AVAssetReaderAudioMixOutput* audioOutput = (__bridge AVAssetReaderAudioMixOutput*)audioTrackOutput;
-		while (audioTime / 44100.0 < next + 1) {
+		AVAssetReaderAudioMixOutput* audioOutput = audioTrackOutput;
+		while (audioTime / 44100.0 < next + 0.1) {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
-			//audioNext = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
 			if (!buffer) return;
 			CMItemCount numSamplesInBuffer = CMSampleBufferGetNumSamples(buffer);
-			
-			//audioTime += numSamplesInBuffer * 2;// / 44100.0;
-			//AudioTimeStamp ts;
-			//memset(&ts, 0, sizeof(AudioTimeStamp));
-			//ts.mSampleTime = currentSampleTime;
-			//ts.mFlags |= kAudioTimeStampSampleTimeValid;
-			
 			AudioBufferList audioBufferList;
-	
-			//audioBufferList.mNumberBuffers = 1;
-			//audioBufferList.mBuffers[0].mNumberChannels = 2;
-			//audioBufferList.mBuffers[0].mData = malloc(numSamplesInBuffer * sizeof(SInt16) * 2);
-			//audioBufferList.mBuffers[0].mDataByteSize = numSamplesInBuffer * sizeof(SInt16) * 2;
-			
-			//size_t bufferListSizeNeededOut;
 			CMBlockBufferRef blockBufferOut = nil;
 			CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(buffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &blockBufferOut);
-			//CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(buffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &buffer);
-			//Kore::log(Kore::Info, "Audio buffers: %i", audioBufferList.mNumberBuffers);
-			//audioTime += audioBufferList.mNumberBuffers;
 			for (int bufferCount = 0; bufferCount < audioBufferList.mNumberBuffers; ++bufferCount) {
 				float* samples = (float*)audioBufferList.mBuffers[bufferCount].mData;
-				sound->insertData(samples, (int)numSamplesInBuffer * 2);
+				if (audioTime / 44100.0 > next - 0.1) {
+					sound->insertData(samples, (int)numSamplesInBuffer * 2);
+				}
+				else {
+					// Send some data anyway because the buffers are huge
+					sound->insertData(samples, (int)numSamplesInBuffer);
+				}
 				audioTime += numSamplesInBuffer;
-				//sound->insertData(samples, (int)numSamplesInBuffer);
-				//for (int i = 0; i < numSamplesInBuffer; ++i) {
-				// amplitude for the sample is samples[i], assuming you have linear pcm to start with
-				//}
 			}
 			CFRelease(blockBufferOut);
 			CFRelease(buffer);

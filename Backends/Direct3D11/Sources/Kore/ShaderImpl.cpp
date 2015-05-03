@@ -52,8 +52,21 @@ Shader::Shader(void* _data, int length, ShaderType type) {
 	this->data = &data[index];
 	this->length = length - index;
 
-	if (type == VertexShader)
+	switch (type) {
+	case VertexShader:
 		affirm(device->CreateVertexShader(this->data, this->length, nullptr, (ID3D11VertexShader**)&shader));
-	else
+		break;
+	case FragmentShader:
 		affirm(device->CreatePixelShader(this->data, this->length, nullptr, (ID3D11PixelShader**)&shader));
+		break;
+	case GeometryShader:
+		affirm(device->CreateGeometryShader(this->data, this->length, nullptr, (ID3D11GeometryShader**)&shader));
+		break;
+	case TesselationControlShader:
+		affirm(device->CreateHullShader(this->data, this->length, nullptr, (ID3D11HullShader**)&shader));
+		break;
+	case TesselationEvaluationShader:
+		affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader**)&shader));
+		break;
+	}	
 }

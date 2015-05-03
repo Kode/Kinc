@@ -22,6 +22,10 @@
 
 using namespace Kore;
 
+namespace Kore {
+	extern bool programUsesTesselation;
+}
+
 namespace {
 #ifdef SYS_WINDOWS
 	HINSTANCE instance = 0;
@@ -93,7 +97,7 @@ void Graphics::init() {
 
 	if (wglewIsSupported("WGL_ARB_create_context") == 1) {
 		int attributes[] = {
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
 			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
 			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
 			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
@@ -189,9 +193,21 @@ void Graphics::drawIndexedVertices() {
 
 void Graphics::drawIndexedVertices(int start, int count) {
 #ifdef SYS_ANDROID
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
-#else
+	if (programUsesTesselation) {
+		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_SHORT, 0);
+	}
+	else {
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
+	}
+#elif defined SYS_IOS
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+#else
+	if (programUsesTesselation) {
+		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, 0);
+	}
+	else {
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+	}	
 #endif
 }
 
