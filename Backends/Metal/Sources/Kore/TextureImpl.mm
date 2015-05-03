@@ -33,8 +33,8 @@ void TextureImpl::create(int width, int height) {
 	
 	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 	descriptor.textureType = MTLTextureType2D;
-	descriptor.height = width;
-	descriptor.width = height;
+	descriptor.width = width;
+	descriptor.height = height;
 	descriptor.depth = 1;
 	descriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
 	descriptor.arrayLength = 1;

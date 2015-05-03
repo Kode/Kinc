@@ -14,7 +14,11 @@ namespace {
 	//TextureFilter minFilters[32];
 	//MipmapFilter mipFilters[32];
 	//int originalFramebuffer;
+	id <MTLBuffer> uniformsBuffer;
 }
+
+id getMetalDevice();
+id getMetalEncoder();
 
 void Graphics::destroy() {
 
@@ -25,7 +29,8 @@ void Graphics::destroy() {
 
 void Graphics::init() {
 	System::createWindow();
-
+	id <MTLDevice> device = getMetalDevice();
+	uniformsBuffer = [device newBufferWithLength:1024 options:MTLResourceOptionCPUCacheModeDefault];
 }
 
 unsigned Graphics::refreshRate() {
@@ -76,8 +81,6 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 
 }
 
-id getMetalEncoder();
-
 void Graphics::drawIndexedVertices() {
 	drawIndexedVertices(0, IndexBufferImpl::current->count());
 }
@@ -87,7 +90,8 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	
 	//[encoder setDepthStencilState:_depthState];
 	//[renderEncoder setVertexBuffer:_dynamicConstantBuffer offset:(sizeof(uniforms_t) * _constantDataBufferIndex) atIndex:1 ];
-	 [encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:IndexBufferImpl::current->mtlBuffer indexBufferOffset:start];
+	[encoder setVertexBuffer:uniformsBuffer offset:0 atIndex:1];
+	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:IndexBufferImpl::current->mtlBuffer indexBufferOffset:start];
 }
 
 void Graphics::swapBuffers() {
@@ -98,7 +102,6 @@ void beginGL();
 
 void Graphics::begin() {
 	beginGL();
-	
 	
 }
 

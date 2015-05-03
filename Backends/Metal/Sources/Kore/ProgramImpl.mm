@@ -34,7 +34,7 @@ void Program::set() {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
 	renderPipelineDesc.fragmentFunction = fragmentShader->mtlFunction;
-	renderPipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA8Unorm;
+	renderPipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
  
 	NSError* errors = nil;
 	id <MTLDevice> device = getMetalDevice();
