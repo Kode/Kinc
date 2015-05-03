@@ -28,6 +28,10 @@ vertex fragment_in kore_vertex(device vertex_in* vertices [[buffer(0)]],
 							   unsigned int vid [[vertex_id]]) {
 	fragment_in out;
 	out.position = uniforms.projectionMatrix * float4(float3(vertices[vid].vertexPosition), 1.0);
+	//float3 pos = float3(vertices[vid].vertexPosition);
+	//out.position.x = pos.x / 1000.0;
+	//out.position.y = pos.y / 1000.0;
+	out.position.z = 0.5f;
 	out.texCoord = vertices[vid].texPosition;
 	out.color = vertices[vid].vertexColor;
 	return out;
@@ -38,4 +42,5 @@ fragment float4 kore_fragment(fragment_in in [[stage_in]], texture2d<float> tex 
 	//half4 texcolor = half4(1, 0, 0, 1); //texture2D(tex, texCoord) * color;
 	texcolor.rgb *= in.color.a;
 	return texcolor;
+	//return float4(1.0, 0.0, 0.0, 1.0);
 }

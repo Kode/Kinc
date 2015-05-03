@@ -74,7 +74,10 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
-
+	float* data = (float*)[uniformsBuffer contents];
+	for (int i = 0; i < 16; ++i) {
+		data[i] = value.data[i];
+	}
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat3& value) {

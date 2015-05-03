@@ -141,19 +141,21 @@ int Kore::System::screenHeight() {
 		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
 	
 		drawable = [metalLayer nextDrawable];
+		
 		//printf("It's %i\n", drawable == nil ? 0 : 1);
 		//if (drawable == nil) return;
 		id<MTLTexture> texture = drawable.texture;
-	
+		
+		backingWidth = (int)[texture width];
+		backingHeight = (int)[texture height];
+		
 		if (renderPassDescriptor == nil) {
 			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		}
 		renderPassDescriptor.colorAttachments[0].texture = texture;
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-		red += 0.01f;
-		if (red > 1) red = 0;
-		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(red, 0.0, 0.0, 1.0);
+		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
 	
 		//id <MTLCommandQueue> commandQueue = [device newCommandQueue];
 		commandBuffer = [commandQueue commandBuffer];
