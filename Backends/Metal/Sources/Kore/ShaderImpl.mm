@@ -10,15 +10,16 @@ using namespace Kore;
 id getMetalLibrary();
 
 ShaderImpl::ShaderImpl(void* source, int length) {
-
+	u8* data = (u8*)source;
+	for (int i = 0; i < length; ++i) {
+		name[i] = data[i];
+	}
+	name[length] = 0;
 }
 
 Shader::Shader(void* source, int length, ShaderType type) : ShaderImpl(source, length) {
 	id <MTLLibrary> library = getMetalLibrary();
 	id <MTLFunction> program;
-	if (type == VertexShader)
-		program = [library newFunctionWithName:@"kore_vertex"];
-	else
-		program = [library newFunctionWithName:@"kore_fragment"];
+	program = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
 	mtlFunction = program;
 }
