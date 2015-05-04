@@ -48,12 +48,14 @@ namespace {
 			return GL_VERTEX_SHADER;
 		case FragmentShader:
 			return GL_FRAGMENT_SHADER;
+#if !defined(SYS_IOS) && !defined(SYS_ANDROID)
 		case GeometryShader:
 			return GL_GEOMETRY_SHADER;
 		case TesselationControlShader:
 			return GL_TESS_CONTROL_SHADER;
 		case TesselationEvaluationShader:
 			return GL_TESS_EVALUATION_SHADER;
+#endif
 		}
 	}
 
