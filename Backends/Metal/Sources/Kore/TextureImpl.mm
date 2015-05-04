@@ -61,8 +61,8 @@ void Texture::set(TextureUnit unit) {
 	id <MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:desc];
 	
 	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setFragmentSamplerState:sampler atIndex:0];
-	[encoder setFragmentTexture:tex atIndex:0];
+	[encoder setFragmentSamplerState:sampler atIndex:unit.index];
+	[encoder setFragmentTexture:tex atIndex:unit.index];
 }
 
 int Texture::stride() {

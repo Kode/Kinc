@@ -37,7 +37,7 @@ vertex fragment_in kore_vertex(device vertex_in* vertices [[buffer(0)]],
 	return out;
 }
 
-fragment float4 kore_fragment(fragment_in in [[stage_in]], texture2d<float> tex [[texture(0)]], sampler texSampler [[sampler(0)]]) {
+fragment float4 kore_fragment(constant uniforms_fragment& uniforms [[buffer(0)]], fragment_in in [[stage_in]], texture2d<float> tex [[texture(0)]], sampler texSampler [[sampler(0)]]) {
 	float4 texcolor = tex.sample(texSampler, in.texCoord);
 	//half4 texcolor = half4(1, 0, 0, 1); //texture2D(tex, texCoord) * color;
 	texcolor.rgb *= in.color.a;

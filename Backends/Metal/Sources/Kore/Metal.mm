@@ -14,7 +14,21 @@ namespace {
 	//TextureFilter minFilters[32];
 	//MipmapFilter mipFilters[32];
 	//int originalFramebuffer;
-	id <MTLBuffer> uniformsBuffer;
+	id <MTLBuffer> vertexUniforms;
+	id <MTLBuffer> fragmentUniforms;
+	const int uniformsSize = 4096;
+	const int more = 5;
+	int uniformsIndex = 0;
+	
+	void* vertexData(int offset) {
+		u8* bytes = (u8*)[vertexUniforms contents];
+		return &bytes[uniformsIndex * uniformsSize + offset];
+	}
+	
+	void* fragmentData(int offset) {
+		u8* bytes = (u8*)[fragmentUniforms contents];
+		return &bytes[uniformsIndex * uniformsSize + offset];
+	}
 }
 
 id getMetalDevice();
@@ -30,7 +44,8 @@ void Graphics::destroy() {
 void Graphics::init() {
 	System::createWindow();
 	id <MTLDevice> device = getMetalDevice();
-	uniformsBuffer = [device newBufferWithLength:1024 options:MTLResourceOptionCPUCacheModeDefault];
+	vertexUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
+	fragmentUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
 }
 
 unsigned Graphics::refreshRate() {
@@ -46,42 +61,126 @@ void* Graphics::getControl() {
 }
 
 void Graphics::setBool(ConstantLocation location, bool value) {
-
+	if (location.vertexOffset >= 0) {
+		int* ints = (int*)vertexData(location.vertexOffset);
+		ints[0] = value ? 1 : 0;
+	}
+	if (location.fragmentOffset >= 0) {
+		int* ints = (int*)fragmentData(location.vertexOffset);
+		ints[0] = value ? 1 : 0;
+	}
 }
 
 void Graphics::setInt(ConstantLocation location, int value) {
-
+	if (location.vertexOffset >= 0) {
+		int* ints = (int*)vertexData(location.vertexOffset);
+		ints[0] = value;
+	}
+	if (location.fragmentOffset >= 0) {
+		int* ints = (int*)fragmentData(location.vertexOffset);
+		ints[0] = value;
+	}
 }
 
 void Graphics::setFloat(ConstantLocation location, float value) {
-
+	if (location.vertexOffset >= 0) {
+		float* floats = (float*)vertexData(location.vertexOffset);
+		floats[0] = value;
+	}
+	if (location.fragmentOffset >= 0) {
+		float* floats = (float*)fragmentData(location.vertexOffset);
+		floats[0] = value;
+	}
 }
 
 void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
-
+	if (location.vertexOffset >= 0) {
+		float* floats = (float*)vertexData(location.vertexOffset);
+		floats[0] = value1;
+		floats[1] = value2;
+	}
+	if (location.fragmentOffset >= 0) {
+		float* floats = (float*)fragmentData(location.vertexOffset);
+		floats[0] = value1;
+		floats[1] = value2;
+	}
 }
 
 void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-
+	if (location.vertexOffset >= 0) {
+		float* floats = (float*)vertexData(location.vertexOffset);
+		floats[0] = value1;
+		floats[1] = value2;
+		floats[2] = value3;
+	}
+	if (location.fragmentOffset >= 0) {
+		float* floats = (float*)fragmentData(location.vertexOffset);
+		floats[0] = value1;
+		floats[1] = value2;
+		floats[2] = value3;
+	}
 }
 
 void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-
+	if (location.vertexOffset >= 0) {
+		float* floats = (float*)vertexData(location.vertexOffset);
+		floats[0] = value1;
+		floats[1] = value2;
+		floats[2] = value3;
+		floats[3] = value4;
+	}
+	if (location.fragmentOffset >= 0) {
+		float* floats = (float*)fragmentData(location.vertexOffset);
+		floats[0] = value1;
+		floats[1] = value2;
+		floats[2] = value3;
+		floats[3] = value4;
+	}
 }
 
 void Graphics::setFloats(ConstantLocation location, float* values, int count) {
-
+	if (location.vertexOffset >= 0) {
+		float* floats = (float*)vertexData(location.vertexOffset);
+		for (int i = 0; i < count; ++i) {
+			floats[i] = values[i];
+		}
+	}
+	if (location.fragmentOffset >= 0) {
+		float* floats = (float*)fragmentData(location.vertexOffset);
+		for (int i = 0; i < count; ++i) {
+			floats[i] = values[i];
+		}
+	}
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
-	float* data = (float*)[uniformsBuffer contents];
-	for (int i = 0; i < 16; ++i) {
-		data[i] = value.data[i];
+	if (location.vertexOffset >= 0) {
+		float* floats = (float*)vertexData(location.vertexOffset);
+		for (int i = 0; i < 16; ++i) {
+			floats[i] = value.data[i];
+		}
+	}
+	if (location.fragmentOffset >= 0) {
+		float* floats = (float*)fragmentData(location.vertexOffset);
+		for (int i = 0; i < 16; ++i) {
+			floats[i] = value.data[i];
+		}
 	}
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
-
+	if (location.vertexOffset >= 0) {
+		float* floats = (float*)vertexData(location.vertexOffset);
+		for (int i = 0; i < 9; ++i) {
+			floats[i] = value.data[i];
+		}
+	}
+	if (location.fragmentOffset >= 0) {
+		float* floats = (float*)fragmentData(location.vertexOffset);
+		for (int i = 0; i < 9; ++i) {
+			floats[i] = value.data[i];
+		}
+	}
 }
 
 void Graphics::drawIndexedVertices() {
@@ -92,8 +191,8 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	
 	//[encoder setDepthStencilState:_depthState];
-	//[renderEncoder setVertexBuffer:_dynamicConstantBuffer offset:(sizeof(uniforms_t) * _constantDataBufferIndex) atIndex:1 ];
-	[encoder setVertexBuffer:uniformsBuffer offset:0 atIndex:1];
+	[encoder setVertexBuffer:vertexUniforms offset:uniformsIndex * uniformsSize atIndex:1];
+	[encoder setFragmentBuffer:fragmentUniforms offset:uniformsIndex * uniformsSize atIndex:0];
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:IndexBufferImpl::current->mtlBuffer indexBufferOffset:start + IndexBufferImpl::current->offset()];
 }
 
@@ -109,7 +208,10 @@ void Graphics::begin() {
 }
 
 void Graphics::end() {
-	
+	++uniformsIndex;
+	if (uniformsIndex >= more) {
+		uniformsIndex = 0;
+	}
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
