@@ -10,9 +10,10 @@ namespace Kore {
 	public:
 		IndexBufferImpl(int count);
 		void unset();
-	
+		int offset();
 		id mtlBuffer;
 		int myCount;
+		int index;
 	public:
 		static IndexBuffer* current;
 	};

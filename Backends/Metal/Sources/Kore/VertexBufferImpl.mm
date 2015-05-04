@@ -10,6 +10,7 @@ id getMetalDevice();
 id getMetalEncoder();
 
 VertexBuffer* VertexBufferImpl::current = nullptr;
+const int more = 10;
 
 VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {
 
@@ -41,7 +42,8 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 	}
 	
 	id <MTLDevice> device = getMetalDevice();
-	mtlBuffer = [device newBufferWithLength:sizeof(float) * vertexCount * myStride / 4 options:MTLResourceOptionCPUCacheModeDefault];
+	mtlBuffer = [device newBufferWithLength:vertexCount * myStride * more options:MTLResourceOptionCPUCacheModeDefault];
+	index = -1;
 }
 
 VertexBuffer::~VertexBuffer() {
@@ -50,12 +52,17 @@ VertexBuffer::~VertexBuffer() {
 }
 
 float* VertexBuffer::lock() {
+	++index;
+	if (index >= more) index = 0;
+
 	id <MTLBuffer> buffer = mtlBuffer;
-	return (float*)[buffer contents];
+	float* floats = (float*)[buffer contents];
+	return &floats[index * myStride * myCount / sizeof(float)];
+	//return (float*)[buffer contents];
 }
 
 void VertexBuffer::unlock() {
-
+	
 }
 
 void VertexBuffer::set() {
@@ -63,11 +70,15 @@ void VertexBuffer::set() {
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->set();
 	
 	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setVertexBuffer:mtlBuffer offset:0 atIndex:0];
+	[encoder setVertexBuffer:mtlBuffer offset:offset() atIndex:0];
 }
 
 void VertexBufferImpl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
+}
+
+int VertexBufferImpl::offset() {
+	return index * myCount * myStride;
 }
 
 int VertexBuffer::count() {

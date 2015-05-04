@@ -94,7 +94,7 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	//[encoder setDepthStencilState:_depthState];
 	//[renderEncoder setVertexBuffer:_dynamicConstantBuffer offset:(sizeof(uniforms_t) * _constantDataBufferIndex) atIndex:1 ];
 	[encoder setVertexBuffer:uniformsBuffer offset:0 atIndex:1];
-	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:IndexBufferImpl::current->mtlBuffer indexBufferOffset:start];
+	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:IndexBufferImpl::current->mtlBuffer indexBufferOffset:start + IndexBufferImpl::current->offset()];
 }
 
 void Graphics::swapBuffers() {
