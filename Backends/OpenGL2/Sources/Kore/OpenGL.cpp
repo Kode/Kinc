@@ -192,14 +192,7 @@ void Graphics::drawIndexedVertices() {
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-#ifdef SYS_ANDROID
-	if (programUsesTesselation) {
-		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_SHORT, 0);
-	}
-	else {
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
-	}
-#elif defined SYS_IOS
+#if defined(SYS_ANDROID) || defined (SYS_IOS)
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
 #else
 	if (programUsesTesselation) {

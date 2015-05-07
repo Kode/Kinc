@@ -117,7 +117,7 @@ void Program::link(const VertexStructure& structure) {
 		delete[] errormessage;
 	}
 
-#if !defined SYS_IOS
+#if !defined(SYS_IOS) && !defined(SYS_ANDROID)
 	if (tesselationControlShader != nullptr) {
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 	}
