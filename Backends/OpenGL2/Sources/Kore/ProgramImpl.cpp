@@ -84,14 +84,14 @@ namespace {
 void Program::link(const VertexStructure& structure) {
 	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
-#if !defined SYS_IOS
+#if !defined(SYS_IOS) || !defined(SYS_ANDROID)
 	if (geometryShader != nullptr) compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
 	if (tesselationControlShader != nullptr) compileShader(tesselationControlShader->id, tesselationControlShader->source, tesselationControlShader->length, TesselationControlShader);
 	if (tesselationEvaluationShader != nullptr) compileShader(tesselationEvaluationShader->id, tesselationEvaluationShader->source, tesselationEvaluationShader->length, TesselationEvaluationShader);
 #endif
 	glAttachShader(programId, vertexShader->id);
 	glAttachShader(programId, fragmentShader->id);
-#if !defined SYS_IOS
+#if !defined SYS_IOS || !defined(SYS_ANDROID)
 	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->id);
 	if (tesselationControlShader != nullptr) glAttachShader(programId, tesselationControlShader->id);
 	if (tesselationEvaluationShader != nullptr) glAttachShader(programId, tesselationEvaluationShader->id);
@@ -117,7 +117,7 @@ void Program::link(const VertexStructure& structure) {
 		delete[] errormessage;
 	}
 
-#if !defined SYS_IOS
+#if !defined(SYS_IOS) && !defined(SYS_ANDROID)
 	if (tesselationControlShader != nullptr) {
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 	}
