@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "VrInterface.h"
 
+#ifdef VR_RIFT
+
 #include <GL/CAPI_GLE.h>
 #include <OVR_CAPI_GL.h>
 
@@ -317,3 +319,5 @@ namespace VrInterface {
 }
 
 }
+
+#endif

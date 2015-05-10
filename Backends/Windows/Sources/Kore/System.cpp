@@ -373,10 +373,14 @@ vec2i Kore::System::mousePos() {
 namespace {
 	HWND hwnd = nullptr;
 
+#ifdef VR_RIFT
+	const char* windowClassName = "ORT";
+#else
 	const char* windowClassName = "KoreWindow";
+#endif
 
 	void registerWindowClass(HINSTANCE hInstance) {
-		WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_CLASSDC, MsgProc, 0L, 0L, hInstance, LoadIcon(hInstance, MAKEINTRESOURCE(107)), nullptr /*LoadCursor(0, IDC_ARROW)*/, 0, 0, "ORT", 0 };
+		WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_CLASSDC, MsgProc, 0L, 0L, hInstance, LoadIcon(hInstance, MAKEINTRESOURCE(107)), nullptr /*LoadCursor(0, IDC_ARROW)*/, 0, 0, windowClassName, 0 };
 		RegisterClassExA(&wc);
 	}
 }
@@ -389,7 +393,8 @@ void* Kore::System::createWindow() {
 	#else 
 
 	
-	registerWindowClass(inst);
+	::registerWindowClass(inst);
+	
 
 
 	DWORD dwExStyle;
@@ -425,6 +430,10 @@ void* Kore::System::createWindow() {
 	}
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
 	hwnd = CreateWindowExA(dwExStyle, windowClassName, Kore::Application::the()->name(), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, 100, 100, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
+	
+	
+
+
 	if (Application::the()->fullscreen()) SetWindowPos(hwnd, nullptr, 0, 0, Application::the()->width(), Application::the()->height(), 0);
 	GetFocus();
 	::SetCursor(LoadCursor(0, IDC_ARROW));
