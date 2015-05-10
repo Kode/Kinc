@@ -126,6 +126,12 @@ ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, pl
 
 	this.writeFile(to.resolve(solution.getName() + '.sln'));
 
+	if ((platform == Platform.WindowsApp || platform == Platform.Windows) && Options.visualStudioVersion == VisualStudioVersion.VS2015) {
+		this.p("Microsoft Visual Studio Solution File, Format Version 12.00");
+		this.p("# Visual Studio 2015");
+		this.p("VisualStudioVersion = 14.0.22823.1");
+		this.p("MinimumVisualStudioVersion = 10.0.40219.1");
+	}
 	if ((platform == Platform.WindowsApp || platform == Platform.Windows) && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
 		this.p("Microsoft Visual Studio Solution File, Format Version 12.00");
 		this.p("# Visual Studio 2013");
@@ -470,7 +476,8 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 	this.writeFile(to.resolve(project.getName() + ".vcxproj"));
 
 	this.p("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-	if (Options.visualStudioVersion == VisualStudioVersion.VS2013) this.p("<Project DefaultTargets=\"Build\" ToolsVersion=\"12.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
+	if (Options.visualStudioVersion == VisualStudioVersion.VS2015) this.p("<Project DefaultTargets=\"Build\" ToolsVersion=\"14.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
+	else if (Options.visualStudioVersion == VisualStudioVersion.VS2013) this.p("<Project DefaultTargets=\"Build\" ToolsVersion=\"12.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
 	else this.p("<Project DefaultTargets=\"Build\" ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
 	this.p("<ItemGroup Label=\"ProjectConfigurations\">", 1);
 	for (sys in this.getSystems(platform)) {
@@ -515,7 +522,10 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.p("<PropertyGroup Condition=\"'$(Configuration)'=='Debug'\" Label=\"Configuration\">", 1);
 		this.p("<ConfigurationType>Application</ConfigurationType>", 2);
 		this.p("<UseDebugLibraries>true</UseDebugLibraries>", 2);
-		if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
+		if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2015) {
+			this.p("<PlatformToolset>v140</PlatformToolset>", 2);
+		}
+		else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
 			this.p("<PlatformToolset>v120</PlatformToolset>", 2);
 		}
 		else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2012) {
@@ -532,10 +542,13 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.p("<PropertyGroup Condition=\"'$(Configuration)'=='Release'\" Label=\"Configuration\">", 1);
 		this.p("<ConfigurationType>Application</ConfigurationType>", 2);
 		this.p("<UseDebugLibraries>false</UseDebugLibraries>", 2);
-		if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
+		if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2015) {
+			this.p("<PlatformToolset>v140</PlatformToolset>", 2);
+		}
+		else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
 			this.p("<PlatformToolset>v120</PlatformToolset>", 2);
 		}
-		if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2012) {
+		else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2012) {
 			this.p("<PlatformToolset>v110</PlatformToolset>", 2);
 		}
 		if (platform == Platform.Windows) {
