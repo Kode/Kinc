@@ -8,7 +8,7 @@
 #undef CreateWindow
 #include <Kore/System.h>
 #include <Kore/WinError.h>
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 #include <d3d11_1.h>
 #include <wrl.h>
 #endif
@@ -29,7 +29,7 @@ Kore::u8 tessEvalConstants[1024 * 4];
 
 using namespace Kore;
 
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -46,7 +46,7 @@ namespace {
 	D3D_FEATURE_LEVEL featureLevel;
 	ID3D11DepthStencilState* depthTestState = nullptr;
 	ID3D11DepthStencilState* noDepthTestState = nullptr;
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	IDXGISwapChain1* swapChain;
 #else
 	IDXGISwapChain* swapChain;
@@ -69,7 +69,7 @@ void Graphics::init() {
 #endif
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 		D3D_FEATURE_LEVEL_11_1,
 #endif
 		D3D_FEATURE_LEVEL_11_0,
@@ -82,7 +82,7 @@ void Graphics::init() {
 
 	//ID3D11Device* device0;
 	//ID3D11DeviceContext* context0;
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &featureLevel, &context));
 #endif
 	//affirm(device0.As(&device));
@@ -115,7 +115,7 @@ void Graphics::init() {
 		swapChainDesc.Windowed = true;
 #endif
 
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
 		swapChainDesc.Width = 0;                                     // use automatic sizing
 		swapChainDesc.Height = 0;
@@ -212,7 +212,7 @@ void Graphics::init() {
 	rtbd.SrcBlendAlpha			 = D3D11_BLEND_ONE;
 	rtbd.DestBlendAlpha			 = D3D11_BLEND_ZERO;
 	rtbd.BlendOpAlpha			 = D3D11_BLEND_OP_ADD;
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	rtbd.RenderTargetWriteMask	 = D3D11_COLOR_WRITE_ENABLE_ALL;
 #else
 	rtbd.RenderTargetWriteMask	 = D3D10_COLOR_WRITE_ENABLE_ALL;
@@ -308,7 +308,7 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 }
 
 void Graphics::begin() {
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 }

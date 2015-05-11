@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef SYS_WINDOWS
+#if !defined(SYS_WINDOWS) && !defined(SYS_WINDOWSAPP)
 #include <pthread.h>
 #endif
 
@@ -12,7 +12,7 @@ namespace Kore {
 		void Lock();
 		void Unlock();
 	private:
-	#ifdef SYS_WINDOWS
+	#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 		struct CriticalSection {
 			void* DebugInfo;
 			long LockCount;
@@ -28,7 +28,7 @@ namespace Kore {
 
 	class UberMutex {
 	public:
-		#if defined SYS_WINDOWS
+		#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 		void *id;
 		#elif defined SYS_IPH
 		#elif defined SYS_NDS
