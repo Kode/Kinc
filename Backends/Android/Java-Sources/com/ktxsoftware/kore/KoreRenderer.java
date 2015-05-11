@@ -27,7 +27,7 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	
 	
 	// Orientation for cardboard
-	private HeadTransform mHeadTransform;
+	/* private HeadTransform mHeadTransform;
 	private float[] mQuaternion;
 	private float[] matrix;
 	
@@ -40,16 +40,17 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 		mQuaternion = new float[4];
 		matrix = new float[16];
 		mHeadTransform = new HeadTransform();
-	}
+	} */
 	
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
 	}
 	
+	/*
 	private void updateViewAngles() {
 		KoreActivity.getInstance().mHeadTracker.getLastHeadView(matrix, 0);
 		getQuaternion(matrix, mQuaternion);
-	}
+	} */
 	
 	
 	public void getEulerAngles(float[] m, float[] angles) {
@@ -187,9 +188,9 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 			KoreView.keyEvents.clear();
 		}
 		
-		updateViewAngles();
+		//updateViewAngles();
 		
-		KoreLib.gaze(mQuaternion[0], mQuaternion[1], mQuaternion[2], mQuaternion[3]);
+		//KoreLib.gaze(mQuaternion[0], mQuaternion[1], mQuaternion[2], mQuaternion[3]);
 				
 		for (int i = 0; i < touchEvents.size(); ++i) {
 			KoreTouchEvent e = touchEvents.get(i);

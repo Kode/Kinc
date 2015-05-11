@@ -39,7 +39,7 @@ namespace Kore {
 #endif
 
 
-/*
+#ifdef VR_GEAR_VR
 	// Calls ovr_enterVrMode
 	void Initialize();
 
@@ -57,7 +57,7 @@ namespace Kore {
 	void WarpSwap(kha::vr::TimeWarpParms_obj* parms);
 	
 	
-	*/
+#endif
 		
 	}
 }

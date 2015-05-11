@@ -257,9 +257,13 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gyroChanged(JNIEnv* env
     Kore::Sensor::_changed(Kore::SensorGyroscope, x, y, z);
 }
 
+#ifdef VR_CARDBOARD
+
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gaze(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z, jfloat w) {
     Kore::VrInterface::updateGaze(x, y, z, w);
 }
+
+#endif
 
 namespace {
 	using namespace Kore;
