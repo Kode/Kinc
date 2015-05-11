@@ -291,6 +291,11 @@ void Kore::System::loadURL(const char* url) {
 
 int kore(int argc, char** argv);
 
+namespace {
+	int screenWidth = 640;
+	int screenHeight = 480;
+}
+
 Win8Application::Win8Application() : closed(false) {
 
 }
@@ -303,6 +308,8 @@ void Win8Application::Initialize(CoreApplicationView^ applicationView) {
 }
 
 void Win8Application::SetWindow(CoreWindow^ window) {
+	::screenWidth = window->Bounds.Width;
+	::screenHeight = window->Bounds.Height;
 	window->SizeChanged += ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &Win8Application::OnWindowSizeChanged);
 	window->Closed += ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Win8Application::OnWindowClosed);
 	window->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Win8Application::OnPointerPressed);
@@ -333,6 +340,8 @@ void Win8Application::Uninitialize() {
 
 void Win8Application::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args) {
 	//m_renderer->UpdateForWindowSizeChange();
+	screenWidth = (int)args->Size.Width;
+	screenHeight = (int)args->Size.Height;
 }
 
 void Win8Application::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args) {
@@ -377,11 +386,11 @@ const char* Kore::System::systemId() {
 }
 
 int Kore::System::screenWidth() {
-	return 100;
+	return ::screenWidth;
 }
 
 int Kore::System::screenHeight() {
-	return 100;
+	return ::screenHeight;
 }
 
 double Kore::System::frequency() {
