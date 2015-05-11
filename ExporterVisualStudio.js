@@ -126,19 +126,19 @@ ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, pl
 
 	this.writeFile(to.resolve(solution.getName() + '.sln'));
 
-	if ((platform == Platform.WindowsApp || platform == Platform.Windows) && Options.visualStudioVersion == VisualStudioVersion.VS2015) {
+	if (platform == Platform.WindowsApp || Options.visualStudioVersion == VisualStudioVersion.VS2015) {
 		this.p("Microsoft Visual Studio Solution File, Format Version 12.00");
 		this.p("# Visual Studio 2015");
 		this.p("VisualStudioVersion = 14.0.22823.1");
 		this.p("MinimumVisualStudioVersion = 10.0.40219.1");
 	}
-	if ((platform == Platform.WindowsApp || platform == Platform.Windows) && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
+	else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
 		this.p("Microsoft Visual Studio Solution File, Format Version 12.00");
 		this.p("# Visual Studio 2013");
 		this.p("VisualStudioVersion = 12.0.21005.1");
 		this.p("MinimumVisualStudioVersion = 10.0.40219.1");
 	}
-	else if (platform == Platform.WindowsApp || (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2012)) {
+	else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2012) {
 		this.p("Microsoft Visual Studio Solution File, Format Version 12.00");
 		this.p("# Visual Studio 2012");
 	}
@@ -175,10 +175,11 @@ ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, pl
 		if (platform == Platform.WindowsApp) {
 			this.exportManifest(to, project);
 			var white = 0xffffffff;
-			Icon.exportPng(to.resolve("Logo.png"), 150, 150, white, from);
-			Icon.exportPng(to.resolve("SmallLogo.png"), 30, 30, white, from);
-			Icon.exportPng(to.resolve("SplashScreen.png"), 620, 300, white, from);
-			Icon.exportPng(to.resolve("StoreLogo.png"), 50, 50, white, from);
+			Icon.exportPng(to.resolve('Logo.scale-100.png'), 150, 150, white, from);
+			Icon.exportPng(to.resolve('SmallLogo.scale-100.png'), 30, 30, white, from);
+			Icon.exportPng(to.resolve('StoreLogo.scale-100.png'), 50, 50, white, from);
+			Icon.exportPng(to.resolve('SplashScreen.scale-100.png'), 620, 300, white, from);
+			Icon.exportPng(to.resolve('WideLogo.scale-100.png'), 310, 150, white, from);
 		}
 		else if (platform == Platform.Windows) {
 			this.exportResourceScript(to);
@@ -190,34 +191,32 @@ ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, pl
 ExporterVisualStudio.prototype.exportManifest = function (to, project) {
 	this.writeFile(to.resolve("Package.appxmanifest"));
 
-	this.p("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-	this.p("<Package xmlns=\"http://schemas.microsoft.com/appx/2010/manifest\">");
-		this.p("<Identity Name=\"d01da498-a1da-4cd7-9092-65483ca1e410\" Publisher=\"CN=Robert\" Version=\"1.0.0.0\" />", 1);
-		this.p("<Properties>", 1);
-			this.p("<DisplayName>" + project.getName() + "</DisplayName>", 2);
-			this.p("<PublisherDisplayName>KTX Software Development</PublisherDisplayName>", 2);
-			this.p("<Logo>StoreLogo.png</Logo>", 2);
-			this.p("<Description>" + project.getName() + "</Description>", 2);
-		this.p("</Properties>", 1);
-		this.p("<Prerequisites>", 1);
-			this.p("<OSMinVersion>6.2</OSMinVersion>", 2);
-			this.p("<OSMaxVersionTested>6.2</OSMaxVersionTested>", 2);
-		this.p("</Prerequisites>", 1);
-		this.p("<Resources>", 1);
-			this.p("<Resource Language=\"x-generate\"/>", 2);
-		this.p("</Resources>", 1);
-		this.p("<Applications>", 1);
-			this.p("<Application Id=\"App\" Executable=\"$targetnametoken$.exe\" EntryPoint=\"" + project.getName() + ".App\">", 2);
-				this.p("<VisualElements DisplayName=\"" + project.getName() + "\" Logo=\"Logo.png\" SmallLogo=\"SmallLogo.png\" Description=\"" + project.getName() + "\" ForegroundText=\"dark\" BackgroundColor=\"#FFFFFF\">", 3);
-					this.p("<DefaultTile ShowName=\"allLogos\" />", 4);
-					this.p("<SplashScreen Image=\"SplashScreen.png\" />", 4);
-				this.p("</VisualElements>", 3);
-			this.p("</Application>", 2);
-		this.p("</Applications>", 1);
-		this.p("<Capabilities>", 1);
-			this.p("<Capability Name=\"internetClient\" />", 2);
-		this.p("</Capabilities>", 1);
-	this.p("</Package>");
+	this.p('<?xml version="1.0" encoding="utf-8"?>');
+	this.p('<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">');
+		this.p('<Identity Name="b2714d6a-f52b-4943-b735-9b5777019bc9" Publisher="CN=Robert" Version="1.0.0.0" />', 1);
+		this.p('<mp:PhoneIdentity PhoneProductId="b2714d6a-f52b-4943-b735-9b5777019bc9" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>', 1);
+		this.p('<Properties>', 1);
+			this.p('<DisplayName>' + project.getName() + '</DisplayName>', 2);
+			this.p('<PublisherDisplayName>Robert</PublisherDisplayName>', 2);
+			this.p('<Logo>StoreLogo.png</Logo>', 2);
+		this.p('</Properties>', 1);
+		this.p('<Dependencies>', 1);
+			this.p('<TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10069.0" MaxVersionTested="10.0.10069.0" />', 2);
+		this.p('</Dependencies>', 1);
+		this.p('<Resources>', 1);
+			this.p('<Resource Language="x-generate"/>', 2);
+		this.p('</Resources>', 1);
+		this.p('<Applications>', 1);
+			this.p('<Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="' + project.getName() + '.App">', 2);
+				this.p('<uap:VisualElements DisplayName="' + project.getName() + '" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="App2" BackgroundColor="#464646">', 3);
+					this.p('<uap:SplashScreen Image="SplashScreen.png" />', 4);
+				this.p('</uap:VisualElements>', 3);
+			this.p('</Application>', 2);
+		this.p('</Applications>', 1);
+		this.p('<Capabilities>', 1);
+			this.p('<Capability Name="internetClient" />', 2);
+		this.p('</Capabilities>', 1);
+	this.p('</Package>');
 
 	this.closeFile();
 };
@@ -295,20 +294,15 @@ ExporterVisualStudio.prototype.exportFilters = function (from, to, project, plat
 		this.p("</AppxManifest>", 2);
 		this.p("</ItemGroup>", 1);
 
-		this.p("<ItemGroup>", 1);
-		this.p("<Image Include=\"Logo.png\">", 2);
-		this.p("<Filter>Package</Filter>", 3);
-		this.p("</Image>", 2);
-		this.p("<Image Include=\"SmallLogo.png\">", 2);
-		this.p("<Filter>Package</Filter>", 3);
-		this.p("</Image>", 2);
-		this.p("<Image Include=\"StoreLogo.png\">", 2);
-		this.p("<Filter>Package</Filter>", 3);
-		this.p("</Image>", 2);
-		this.p("<Image Include=\"SplashScreen.png\">", 2);
-		this.p("<Filter>Package</Filter>", 3);
-		this.p("</Image>", 2);
-		this.p("</ItemGroup>", 1);
+		var images = ['Logo.scale-100.png', 'SmallLogo.scale-100.png', 'StoreLogo.scale-100.png', 'SplashScreen.scale-100.png', 'WideLogo.scale-100.png'];
+		for (var img in images) {
+			var image = images[img];
+			this.p('<ItemGroup>', 1)
+				this.p('<Image Include="' + image + '">', 2);
+					this.p('<Filter>Package</Filter>', 3);
+				this.p('</Image>', 2);
+			this.p('</ItemGroup>', 1);
+		}
 	}
 
 	lastdir = "";
@@ -425,7 +419,7 @@ ExporterVisualStudio.prototype.addWin8PropertyGroup = function (debug, platform)
 	this.p("<ConfigurationType>Application</ConfigurationType>", 2);
 	this.p("<UseDebugLibraries>" + (debug ? "true" : "false") + "</UseDebugLibraries>", 2);
 	if (!debug) this.p("<WholeProgramOptimization>true</WholeProgramOptimization>", 2);
-	this.p("<PlatformToolset>v110</PlatformToolset>", 2);
+	this.p("<PlatformToolset>v140</PlatformToolset>", 2);
 	this.p("</PropertyGroup>", 1);
 };
 
@@ -497,8 +491,10 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 	//p("<RootNamespace>" + project.Name + "</RootNamespace>", 2);
 	if (platform == Platform.WindowsApp) {
 		this.p("<DefaultLanguage>en-US</DefaultLanguage>", 2);
-		this.p("<MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>", 2);
+		this.p("<MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>", 2);
 		this.p("<AppContainerApplication>true</AppContainerApplication>", 2);
+		this.p('<ApplicationType>Windows Store</ApplicationType>', 2);
+		this.p('<ApplicationTypeRevision>8.2</ApplicationTypeRevision>', 2);
 	}
 	this.p("</PropertyGroup>", 1);
 	this.p("<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />", 1);
@@ -651,13 +647,44 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.addItemDefinitionGroup(incstring, defines, "Release_LTCG", 3, false, true, true, true, true, true, false, false, false, true, true, false, true, true, platform);
 	}
 	else if (platform == Platform.WindowsApp) {
-		this.p("<ItemDefinitionGroup>", 1);
+		/*this.p("<ItemDefinitionGroup>", 1);
 			this.p("<Link>", 2);
 				this.p("<AdditionalDependencies>MMDevAPI.lib;MFuuid.lib;MFReadWrite.lib;MFplat.lib;d2d1.lib;d3d11.lib;dxgi.lib;ole32.lib;windowscodecs.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>", 3);
 			this.p("</Link>", 2);
 			var compile = new ClCompile(this.out, 2, Platform.WindowsApp, Configuration.Debug, incstring.split(';'), defines.split(';'));
 			compile.print();
-			this.p("</ItemDefinitionGroup>", 1);
+		this.p("</ItemDefinitionGroup>", 1);*/
+
+		var configs = [
+			{ config: 'Debug', system: 'ARM', libdir: '\\arm' }, { config: 'Release', system: 'ARM', libdir: '\\arm' },
+			{ config: 'Debug', system: 'Win32', libdir: '' }, { config: 'Release', system: 'Win32', libdir: '' },
+			{ config: 'Debug', system: 'x64', libdir: '\\amd64' }, { config: 'Release', system: 'x64', libdir: '\\amd64' }
+		];
+
+		for (var c in configs) {
+			var config = configs[c];
+			
+			var libdir = '';
+			if (config.system == 'ARM') libdir = '\\arm';
+			else if (config.system == 'x64') libdir = '\\amd64';
+
+			var moredefines = config.config === 'Debug' ? '_DEBUG;' : 'NDEBUG;';
+			if (config.system === 'x64') moredefines += 'SYS_64;'
+
+			this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='" + config.config + "|" + config.system + "'\">", 1);
+				this.p('<Link>', 2);
+					this.p('<AdditionalDependencies>d3d11.lib; dxgi.lib; windowscodecs.lib; %(AdditionalDependencies)</AdditionalDependencies>', 3);
+					this.p('<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\\lib\\store\\' + libdir + '; $(VCInstallDir)\\lib\\' + libdir + '</AdditionalLibraryDirectories>', 3);
+				this.p('</Link>', 2);
+				this.p('<ClCompile>', 2);
+					this.p('<PrecompiledHeader>NotUsing</PrecompiledHeader>', 3);
+					this.p('<AdditionalIncludeDirectories>' + incstring + ';%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>', 3);
+					this.p('<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>', 3);
+					this.p('<DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>', 3);
+					this.p('<PreprocessorDefinitions>' + defines + moredefines + '%(PreprocessorDefinitions)</PreprocessorDefinitions>', 3);
+				this.p('</ClCompile>', 2);
+			this.p('</ItemDefinitionGroup>', 1);
+		}
 	}
 	else {
 		for (var s in this.getSystems(platform)) {
@@ -793,10 +820,13 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.p("</ItemDefinitionGroup>", 1);
 
 		this.p("<ItemGroup>", 1);
-		this.p("<Image Include=\"Logo.png\" />", 2);
-		this.p("<Image Include=\"SmallLogo.png\" />", 2);
-		this.p("<Image Include=\"StoreLogo.png\" />", 2);
-		this.p("<Image Include=\"SplashScreen.png\" />", 2);
+
+		var images = ['Logo.scale-100.png', 'SmallLogo.scale-100.png', 'StoreLogo.scale-100.png', 'SplashScreen.scale-100.png', 'WideLogo.scale-100.png'];
+		for (var img in images) {
+			var image = images[img];
+			this.p('<Image Include="' + image + '" />', 2);
+		}
+
 		this.p("</ItemGroup>", 1);
 		this.p("<ItemGroup>", 1);
 		this.p("<AppxManifest Include=\"Package.appxmanifest\" />", 2);
@@ -821,7 +851,14 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 			if (name.contains('/')) name = name.substr(name.lastIndexOf('/') + 1);
 			name = name.substr(0, name.lastIndexOf('.'));
 			if (!objects[name]) {
-				this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\" />", 2);
+				if (platform === Platform.WindowsApp && file.endsWith(".c")) {
+					this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+						this.p('<CompileAsWinRT>false</CompileAsWinRT>', 3);
+					this.p('</ClCompile>', 2);
+				}
+				else {
+					this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\" />", 2);
+				}
 				objects[name] = true;
 			}
 			else {
@@ -830,6 +867,9 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 				}
 				this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 				this.p("<ObjectFileName>$(IntDir)\\" + name + ".obj</ObjectFileName>", 3);
+				if (platform === Platform.WindowsApp && file.endsWith(".c")) {
+					this.p('<CompileAsWinRT>false</CompileAsWinRT>', 3);
+				}
 				this.p("</ClCompile>", 2);
 				objects[name] = true;
 			}
@@ -931,7 +971,7 @@ ExporterVisualStudio.prototype.exportAssetPath = function (assetPath) {
 			this.exportAssetPath(path);
 		}
 		else {
-			this.p("<None Include=\"../" + path.toString() + "\">", 2);
+			this.p("<None Include=\"../windowsapp/" + path.toString() + "\">", 2);
 				this.p("<DeploymentContent>true</DeploymentContent>", 3);
 			this.p("</None>", 2);
 		}
