@@ -208,7 +208,7 @@ ExporterVisualStudio.prototype.exportManifest = function (to, project) {
 		this.p('</Resources>', 1);
 		this.p('<Applications>', 1);
 			this.p('<Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="' + project.getName() + '.App">', 2);
-				this.p('<uap:VisualElements DisplayName="' + project.getName() + '" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="App2" BackgroundColor="#464646">', 3);
+				this.p('<uap:VisualElements DisplayName="' + project.getName() + '" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="' + project.getName() + '" BackgroundColor="#464646">', 3);
 					this.p('<uap:SplashScreen Image="SplashScreen.png" />', 4);
 				this.p('</uap:VisualElements>', 3);
 			this.p('</Application>', 2);
@@ -673,7 +673,15 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 
 			this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='" + config.config + "|" + config.system + "'\">", 1);
 				this.p('<Link>', 2);
-					this.p('<AdditionalDependencies>d3d11.lib; dxgi.lib; windowscodecs.lib; %(AdditionalDependencies)</AdditionalDependencies>', 3);
+					
+					if (config.config === 'Debug') {
+						this.p('<AdditionalDependencies>d3d11.lib; dxgi.lib; windowscodecs.lib; vccorlibd.lib; msvcrtd.lib; %(AdditionalDependencies)</AdditionalDependencies>', 3);
+						this.p('<IgnoreSpecificDefaultLibraries>vccorlibd; msvcrtd</IgnoreSpecificDefaultLibraries>', 3);
+					}
+					else {
+						this.p('<AdditionalDependencies>d3d11.lib; dxgi.lib; windowscodecs.lib; vccorlib.lib msvcrt.lib; %(AdditionalDependencies)</AdditionalDependencies>', 3);
+						this.p('<IgnoreSpecificDefaultLibraries>vccorlib; msvcrt</IgnoreSpecificDefaultLibraries>', 3);
+					}
 					this.p('<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\\lib\\store\\' + libdir + '; $(VCInstallDir)\\lib\\' + libdir + '</AdditionalLibraryDirectories>', 3);
 				this.p('</Link>', 2);
 				this.p('<ClCompile>', 2);
@@ -807,18 +815,6 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 	this.p("</ItemGroup>", 1);
 
 	if (platform == Platform.WindowsApp) {
-		this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)'=='Release'\">", 1);
-			this.p("<ClCompile>", 2);
-				this.p("<PreprocessorDefinitions>" + defines + "NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>", 3);
-			this.p("</ClCompile>", 2);
-		this.p("</ItemDefinitionGroup>", 1);
-
-		this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)'=='Debug'\">", 1);
-			this.p("<ClCompile>", 2);
-				this.p("<PreprocessorDefinitions>" + defines + "_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>", 3);
-			this.p("</ClCompile>", 2);
-		this.p("</ItemDefinitionGroup>", 1);
-
 		this.p("<ItemGroup>", 1);
 
 		var images = ['Logo.scale-100.png', 'SmallLogo.scale-100.png', 'StoreLogo.scale-100.png', 'SplashScreen.scale-100.png', 'WideLogo.scale-100.png'];
@@ -851,7 +847,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 			if (name.contains('/')) name = name.substr(name.lastIndexOf('/') + 1);
 			name = name.substr(0, name.lastIndexOf('.'));
 			if (!objects[name]) {
-				if (platform === Platform.WindowsApp && file.endsWith(".c")) {
+				if (platform === Platform.WindowsApp && !file.endsWith(".winrt.cpp")) {
 					this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 						this.p('<CompileAsWinRT>false</CompileAsWinRT>', 3);
 					this.p('</ClCompile>', 2);
@@ -867,7 +863,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 				}
 				this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 				this.p("<ObjectFileName>$(IntDir)\\" + name + ".obj</ObjectFileName>", 3);
-				if (platform === Platform.WindowsApp && file.endsWith(".c")) {
+				if (platform === Platform.WindowsApp && !file.endsWith(".winrt.cpp")) {
 					this.p('<CompileAsWinRT>false</CompileAsWinRT>', 3);
 				}
 				this.p("</ClCompile>", 2);
