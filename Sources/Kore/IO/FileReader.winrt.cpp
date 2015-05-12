@@ -147,7 +147,7 @@ bool FileReader::open(const char* filename, FileType type) {
 	for (size_t i = 0; i < filepathlength; ++i)
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	const wchar_t* location = Windows::ApplicationModel::Package::Current->InstalledLocation->Path->Data();
 	int i;
 	for (i = 0; location[i] != 0; ++i) {

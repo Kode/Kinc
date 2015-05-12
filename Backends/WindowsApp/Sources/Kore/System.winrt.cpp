@@ -1,7 +1,6 @@
 #include "pch.h"
 #include <Kore/System.h>
 #include <Kore/Application.h>
-#include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Direct3D11.h>
@@ -292,6 +291,11 @@ void Kore::System::loadURL(const char* url) {
 
 int kore(int argc, char** argv);
 
+namespace {
+	int screenWidth = 640;
+	int screenHeight = 480;
+}
+
 Win8Application::Win8Application() : closed(false) {
 
 }
@@ -304,6 +308,8 @@ void Win8Application::Initialize(CoreApplicationView^ applicationView) {
 }
 
 void Win8Application::SetWindow(CoreWindow^ window) {
+	::screenWidth = window->Bounds.Width;
+	::screenHeight = window->Bounds.Height;
 	window->SizeChanged += ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &Win8Application::OnWindowSizeChanged);
 	window->Closed += ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Win8Application::OnWindowClosed);
 	window->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Win8Application::OnPointerPressed);
@@ -334,6 +340,8 @@ void Win8Application::Uninitialize() {
 
 void Win8Application::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args) {
 	//m_renderer->UpdateForWindowSizeChange();
+	screenWidth = (int)args->Size.Width;
+	screenHeight = (int)args->Size.Height;
 }
 
 void Win8Application::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args) {
@@ -354,19 +362,35 @@ void Win8Application::OnResuming(Platform::Object^ sender, Platform::Object^ arg
 }
 
 void Win8Application::OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
-	Mouse::the()->_pressLeft(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
+	Mouse::the()->_press(0, static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y));
 }
 
 void Win8Application::OnPointerReleased(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
-	Mouse::the()->_releaseLeft(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
+	Mouse::the()->_release(0, static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y));
 }
 
 void Win8Application::OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
-	Mouse::the()->_move(MouseEvent(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y)));
+	Mouse::the()->_move(static_cast<int>(args->CurrentPoint->Position.X), static_cast<int>(args->CurrentPoint->Position.Y));
 }
 
 IFrameworkView^ Win8ApplicationSource::CreateView() {
 	return ref new Win8Application;
+}
+
+const char* Kore::System::savePath() {
+	return "\\";
+}
+
+const char* Kore::System::systemId() {
+	return "WindowsApp";
+}
+
+int Kore::System::screenWidth() {
+	return ::screenWidth;
+}
+
+int Kore::System::screenHeight() {
+	return ::screenHeight;
 }
 
 double Kore::System::frequency() {

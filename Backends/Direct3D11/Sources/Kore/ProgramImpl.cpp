@@ -80,7 +80,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 		location.fragmentSize = constant.size;
 	}
 
-	if (geometryShader->constants.find(d3dname) == geometryShader->constants.end()) {
+	if (geometryShader == nullptr || geometryShader->constants.find(d3dname) == geometryShader->constants.end()) {
 		location.geometryOffset = 0;
 		location.geometrySize = 0;
 	}
@@ -90,7 +90,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 		location.geometrySize = constant.size;
 	}
 
-	if (tessControlShader->constants.find(d3dname) == tessControlShader->constants.end()) {
+	if (tessControlShader == nullptr || tessControlShader->constants.find(d3dname) == tessControlShader->constants.end()) {
 		location.tessControlOffset = 0;
 		location.tessControlSize = 0;
 	}
@@ -100,7 +100,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 		location.tessControlSize = constant.size;
 	}
 
-	if (tessEvalShader->constants.find(d3dname) == tessEvalShader->constants.end()) {
+	if (tessEvalShader == nullptr || tessEvalShader->constants.find(d3dname) == tessEvalShader->constants.end()) {
 		location.tessEvalOffset = 0;
 		location.tessEvalSize = 0;
 	}
@@ -163,9 +163,9 @@ namespace {
 void Program::link(const VertexStructure& structure) {
 	if (vertexShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &fragmentConstantBuffer));
-	if (geometryShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &geometryConstantBuffer));
-	if (tessControlShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessControlConstantBuffer));
-	if (tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
+	if (geometryShader != nullptr && geometryShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &geometryConstantBuffer));
+	if (tessControlShader != nullptr && tessControlShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessControlConstantBuffer));
+	if (tessEvalShader != nullptr && tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
 
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[10];
 	for (int i = 0; i < structure.size; ++i) {
