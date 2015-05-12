@@ -13,6 +13,7 @@
 
 
 #include <VrApi/VrApi.h>
+#include <VrApi/VrApi_Helpers.h>
 #include <GlTexture.h>
 
 #include <LibOvr/Src/Kernel/OVR_Math.h>
@@ -119,6 +120,7 @@ void Initialize() {
 	parms.AllowPowerSave = true;
 	parms.DistortionFileName = 0;
 	parms.EnableImageServer = false;
+	parms.SkipWindowFullscreenReset = true;
 
 
 	// Grab the activity object
@@ -149,11 +151,12 @@ void Initialize() {
 }
 
 void WarpSwapBlack() {
-	ovr_WarpSwapBlack(ovr);
+	// TODO: Not in the API anymore :-(
+	//ovr_WarpSwapBlack(ovr);
 }
 
 void WarpSwapLoadingIcon() {
-	ovr_WarpSwapLoadingIcon(ovr);
+	//ovr_WarpSwapLoadingIcon(ovr);
 }
 
 
@@ -244,7 +247,7 @@ kha::vr::PoseState_obj* GetPoseState(const ovrPoseStatef& nativeState) {
 kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 	kha::vr::SensorState_obj* state = dynamic_cast<kha::vr::SensorState_obj*>(kha::vr::SensorState_obj::__CreateEmpty().mPtr);
 
-	ovrSensorState nativeState = ovrHmd_GetSensorState(OvrHmd, time, true );
+	ovrSensorState nativeState = ovr_GetPredictedSensorState(ovr, time);
 
 	state->Temperature = nativeState.Temperature;
 	state->Status = nativeState.Status;
@@ -291,8 +294,8 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		return result;
 	}
 
-	TimeWarpImage GetTimeWarpImage(kha::vr::TimeWarpImage_obj* image) {
-		TimeWarpImage result;
+	ovrTimeWarpImage GetTimeWarpImage(kha::vr::TimeWarpImage_obj* image) {
+		ovrTimeWarpImage result;
 
 		if (image == 0) {
 			result.TexId = 0;
@@ -305,7 +308,8 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		}
 		result.Pose = GetPoseState(image->Pose.mPtr);
 		result.TexCoordsFromTanAngles = GetMatrix(image->TexCoordsFromTanAngles.mPtr);
-		result.TexCoordsFromTanAngles = TanAngleMatrixFromProjection(result.TexCoordsFromTanAngles);
+		result.TexCoordsFromTanAngles = //TanAngleMatrixFromProjection(&result.TexCoordsFromTanAngles);
+			TanAngleMatrixFromFov(90);
 
 		return result;
 	}
@@ -324,21 +328,21 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 	void WarpSwap(kha::vr::TimeWarpParms_obj* parms) {
 
 
-		TimeWarpParms* nativeParms = new TimeWarpParms();
+		ovrTimeWarpParms* nativeParms = new ovrTimeWarpParms();
 
 
-		TimeWarpImage leftImage = GetTimeWarpImage(parms->LeftImage.mPtr);
-		TimeWarpImage rightImage = GetTimeWarpImage(parms->RightImage.mPtr);
-		TimeWarpImage leftOverlay = GetTimeWarpImage(parms->LeftOverlay.mPtr);
-		TimeWarpImage rightOverlay = GetTimeWarpImage(parms->RightOverlay.mPtr);
+		ovrTimeWarpImage leftImage = GetTimeWarpImage(parms->LeftImage.mPtr);
+		ovrTimeWarpImage rightImage = GetTimeWarpImage(parms->RightImage.mPtr);
+		ovrTimeWarpImage leftOverlay = GetTimeWarpImage(parms->LeftOverlay.mPtr);
+		ovrTimeWarpImage rightOverlay = GetTimeWarpImage(parms->RightOverlay.mPtr);
 
 
 		nativeParms->WarpProgram = WP_SIMPLE;
 
 		nativeParms->Images[0][0] = leftImage;
-		//nativeParms->Images[0][1] = leftOverlay;
+		nativeParms->Images[0][1] = leftOverlay;
 		nativeParms->Images[1][0] = rightImage;
-		//nativeParms->Images[1][1] = rightOverlay;
+		nativeParms->Images[1][1] = rightOverlay;
 
 		// nativeParms->WarpProgram = WP_OVERLAY_PLANE;
 

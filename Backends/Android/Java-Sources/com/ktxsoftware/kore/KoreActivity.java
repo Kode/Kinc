@@ -18,7 +18,7 @@ import android.view.Display;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
+/* import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
 import com.google.vrtoolkit.cardboard.sensors.MagnetSensor.OnCardboardTriggerListener;
 import com.google.vrtoolkit.cardboard.sensors.NfcSensor;
 import com.google.vrtoolkit.cardboard.sensors.NfcSensor.OnCardboardNfcListener;
@@ -28,11 +28,11 @@ import com.google.vrtoolkit.cardboard.DistortionRenderer;
 import com.google.vrtoolkit.cardboard.HeadMountedDisplay;
 import com.google.vrtoolkit.cardboard.HeadMountedDisplayManager;
 import com.google.vrtoolkit.cardboard.FieldOfView;
-import com.google.vrtoolkit.cardboard.ScreenParams;
+import com.google.vrtoolkit.cardboard.ScreenParams; */
 import com.ktxsoftware.kore.KoreTouchEvent;
 
 
-public class KoreActivity extends Activity implements SensorEventListener, OnCardboardTriggerListener,  OnCardboardNfcListener {
+public class KoreActivity extends Activity implements SensorEventListener {//, OnCardboardTriggerListener,  OnCardboardNfcListener {
 	public volatile static boolean paused = true;
 	private AudioTrack audio;
 	private Thread audioThread;
@@ -46,7 +46,7 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 	
 	private static KoreActivity instance;
 	
-	private MagnetSensor mMagnetSensor;
+/*	private MagnetSensor mMagnetSensor;
 	private NfcSensor mNfcSensor;
 	private DistortionRenderer mDistortion;
 	private HeadMountedDisplay mHmd;
@@ -57,7 +57,7 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 	
 	private HeadMountedDisplayManager hmdManager;
 	
-	public HeadTracker mHeadTracker;
+	public HeadTracker mHeadTracker; */
 	
 	
 	
@@ -79,6 +79,7 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 		
+		/*
 		// Cardboard setup
 		mMagnetSensor = new MagnetSensor(this);
 		mMagnetSensor.setOnCardboardTriggerListener(this);
@@ -116,14 +117,7 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 		
 		Log.d("FM", mHmd.getCardboardDeviceParams().getDistortion().toString());
 
-		/*float fov = (float) (90.0f * Math.PI / 180.0f);
-		float front = 1.0f;
-		float back = 100.0f;
-		float aspect = 1;
-
-	    float tangent = (float) Math.tan(fov / 2.0f);               // tangent of half vertical fov
-	    float height = front * tangent;                 // half height of near plane
-	    float width = height * aspect;                  // half width of near plane */
+		
 
 		mFov = new FieldOfView();
 		float angle = 45.0f;
@@ -141,10 +135,10 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 		mHeadTracker = HeadTracker.createFromContext(this);
 		mHeadTracker.startTracking();
 		
-		
+		*/
 	}
 	
-	
+	/*
 	public void DistortionBeforeFrame() {
 		mDistortion.beforeDrawFrame();
 	}
@@ -156,6 +150,7 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 	public void DistortTexture(int texId) {
 		mDistortion.undistortTexture(texId);
 	}
+	*/
 	
 	@Override
 	protected void onPause() {
@@ -200,8 +195,8 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 		audioThread = new Thread(audioRunnable);
 		audioThread.start();
 		
-		mMagnetSensor.start();
-	    mNfcSensor.onResume(this);
+		//mMagnetSensor.start();
+	   // mNfcSensor.onResume(this);
 	    
 	    // TOD: Set all the events correctly.
 	}
@@ -210,16 +205,16 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 	protected void onStop() {
 		super.onStop();
 		
-		mMagnetSensor.stop();
-		mNfcSensor.onPause(this);
+		//mMagnetSensor.stop();
+		//mNfcSensor.onPause(this);
 	}
 	
 	@Override
 	protected void onRestart() {
 		super.onRestart();
 		
-		mMagnetSensor.start();
-		mNfcSensor.onResume(this);
+		//mMagnetSensor.start();
+		//mNfcSensor.onResume(this);
 		
 	}
 	
@@ -256,6 +251,8 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 			}
 		}
 	}
+	
+	/*
 	@Override
 	public void onInsertedIntoCardboard(CardboardDeviceParams paramCardboardDeviceParams) {
 		// TODO: Update the params
@@ -286,5 +283,7 @@ public class KoreActivity extends Activity implements SensorEventListener, OnCar
 		}
 
 	}
+	
+	*/
 	
 }

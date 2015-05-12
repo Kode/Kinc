@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.view.SurfaceView;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -81,3 +82,5 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	    return true;
 	}
 }
+
+

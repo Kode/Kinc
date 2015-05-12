@@ -12,7 +12,7 @@ import android.util.FloatMath;
 import android.util.Log;
 import android.view.KeyCharacterMap;
 
-import com.google.vrtoolkit.cardboard.HeadTransform;
+// import com.google.vrtoolkit.cardboard.HeadTransform;
 
 
 public class KoreRenderer implements GLSurfaceView.Renderer {
@@ -31,16 +31,17 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	private float[] mQuaternion;
 	private float[] matrix;
 	
+	*/
 	public KoreRenderer(Context context) {
 		this.context = context;
 		touchEvents = new ArrayList<KoreTouchEvent>();
 		keyEvents = new ArrayList<KoreKeyEvent>();
 		keyMap = KeyCharacterMap.load(-1);
 		
-		mQuaternion = new float[4];
-		matrix = new float[16];
-		mHeadTransform = new HeadTransform();
-	} */
+		//mQuaternion = new float[4];
+		//matrix = new float[16];
+		//mHeadTransform = new HeadTransform();
+	} 
 	
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
