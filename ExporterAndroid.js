@@ -137,13 +137,13 @@ $(call import-module,nv_thread)
 	if (vr == "gearvr") {
     this.p("LOCAL_C_INCLUDES += " + includes);
     this.p("LOCAL_LDLIBS    += -llog -lGLESv2");
-    this.p("LOCAL_CPPFLAGS := -DVR_GEAR_VR=1");
+    this.p("LOCAL_CPPFLAGS := -DVR_GEAR_VR");
   } else {
      this.p("LOCAL_C_INCLUDES := " + includes);
      this.p("LOCAL_LDLIBS    := -llog -lGLESv2");
   }
   if (vr == "cardboard") {
-    this.p("LOCAL_CPPFLAGS := -DVR_CARDBOARD=1");
+    this.p("LOCAL_CPPFLAGS := -DVR_CARDBOARD");
   }
 	this.p("LOCAL_SHORT_COMMANDS := true");
 	this.p();
