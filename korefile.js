@@ -28,6 +28,7 @@ if (platform === Platform.Windows) {
 	else if (graphics === GraphicsApi.Direct3D12) {
 		addBackend('Direct3D12');
 		project.addDefine('DIRECT3D');
+		project.addLib('dxgi');
 	}
 	else {
 		addBackend('Direct3D9');
