@@ -105,6 +105,7 @@ else if (platform === Platform.Android) {
 	addBackend('Android');
 	addBackend('OpenGL2');
 	project.addDefine('OPENGL');
+	project.addDefine('SYS_ANDROID_API=15');
 }
 else if (platform === Platform.HTML5) {
 	addBackend('HTML5');
