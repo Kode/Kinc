@@ -109,14 +109,14 @@ $(call import-module,nv_thread)
 	var files = "";
 	for (var f in project.getFiles()) {
 		var filename = project.getFiles()[f];
-		if (filename.endsWith(".c") || filename.endsWith(".cpp") || filename.endsWith(".cc") || filename.endsWith(".s")) files += '../../../' + from.resolve(filename).toString().replaceAll('\\', '/') + " ";
+		if (filename.endsWith(".c") || filename.endsWith(".cpp") || filename.endsWith(".cc") || filename.endsWith(".s")) files += to.resolve('jni').relativize(from.resolve(filename)).toString().replaceAll('\\', '/') + " ";
 	}
 	this.p("LOCAL_SRC_FILES := " + files);
 	var defines = "";
 	for (var def in project.getDefines()) defines += "-D" + project.getDefines()[def].replaceAll('\"', "\\\"") + " ";
 	this.p("LOCAL_CFLAGS := " + defines);
 	var includes = "";
-	for (var inc in project.getIncludeDirs()) includes += "$(LOCAL_PATH)/../../../" + project.getIncludeDirs()[inc].replaceAll('\\', '/') + " ";
+	for (var inc in project.getIncludeDirs()) includes += "$(LOCAL_PATH)/" + to.resolve('jni').relativize(from.resolve(project.getIncludeDirs()[inc])).toString().replaceAll('\\', '/') + " ";
 	this.p("LOCAL_C_INCLUDES := " + includes);
 	this.p("LOCAL_LDLIBS    := -llog -lGLESv2 -lOpenMAXAL -landroid");
 	this.p();
