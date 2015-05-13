@@ -19,27 +19,27 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 
 	if (project.getDebugDir().length > 0) this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve("assets"));
 
-	Files.copy(Paths.executableDir().resolve(Paths.get("Data", "android", ".classpath")), to.resolve(".classpath"), true);
+	Files.copy(Paths.executableDir().resolve(Paths.get("Data", "android", "classpath")), to.resolve(".classpath"), true);
 
 	if (nvpack) {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", ".project")).toString(), { encoding: 'utf8' });
+		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", "project")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.project').toString());
 	}
 	else {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", ".project")).toString(), { encoding: 'utf8' });
+		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "project")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
 		if (Project.koreDir.toString() != "") file = file.replaceAll("{Java-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Java-Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
 		fs.writeFileSync(to.resolve('.project').toString(), file);
 	}
 
 	if (nvpack) {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", ".cproject")).toString(), { encoding: 'utf8' });
+		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", "cproject")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.cproject').toString(), file);
 	}
 	else {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", ".cproject")).toString(), { encoding: 'utf8' });
+		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "cproject")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.cproject').toString(), file);
 	}
