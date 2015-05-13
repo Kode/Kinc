@@ -23,7 +23,9 @@
 using namespace Kore;
 
 namespace Kore {
+#if !defined(SYS_IOS) && !defined(SYS_ANDROID)
 	extern bool programUsesTesselation;
+#endif
 }
 
 namespace {
@@ -192,7 +194,7 @@ void Graphics::drawIndexedVertices() {
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-#if defined(SYS_ANDROID) || defined (SYS_IOS)
+#ifdef OPENGLES
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
 #else
 	if (programUsesTesselation) {
@@ -222,11 +224,14 @@ void Graphics::begin() {
 #endif
 #ifdef SYS_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared
+	glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 #endif
 }
 
 void Graphics::end() {
+	//glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT);
 	GLenum code = glGetError();
 	while (code != GL_NO_ERROR) {
 		//std::printf("GLError: %s\n", gluErrorString(code));
