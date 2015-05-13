@@ -309,7 +309,7 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 		result.Pose = GetPoseState(image->Pose.mPtr);
 		result.TexCoordsFromTanAngles = GetMatrix(image->TexCoordsFromTanAngles.mPtr);
 		result.TexCoordsFromTanAngles = //TanAngleMatrixFromProjection(&result.TexCoordsFromTanAngles);
-			TanAngleMatrixFromFov(90);
+			TanAngleMatrixFromFov(90.0f);
 
 		return result;
 	}
@@ -328,21 +328,26 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 	void WarpSwap(kha::vr::TimeWarpParms_obj* parms) {
 
 
-		ovrTimeWarpParms* nativeParms = new ovrTimeWarpParms();
+		ovrTimeWarpParms nativeParms = InitTimeWarpParms();
 
+		const double predictedTime = ovr_GetPredictedDisplayTime( ovr, 1, 1 );
+		const ovrSensorState state = ovr_GetPredictedSensorState( ovr, predictedTime );
 
 		ovrTimeWarpImage leftImage = GetTimeWarpImage(parms->LeftImage.mPtr);
 		ovrTimeWarpImage rightImage = GetTimeWarpImage(parms->RightImage.mPtr);
 		ovrTimeWarpImage leftOverlay = GetTimeWarpImage(parms->LeftOverlay.mPtr);
 		ovrTimeWarpImage rightOverlay = GetTimeWarpImage(parms->RightOverlay.mPtr);
+		leftImage.Pose = state.Predicted;
+		leftOverlay.TexId = 0;
+		rightOverlay.TexId = 0;
 
 
-		nativeParms->WarpProgram = WP_SIMPLE;
+		//nativeParms->WarpProgram = WP_SIMPLE;
 
-		nativeParms->Images[0][0] = leftImage;
-		nativeParms->Images[0][1] = leftOverlay;
-		nativeParms->Images[1][0] = rightImage;
-		nativeParms->Images[1][1] = rightOverlay;
+		nativeParms.Images[0][0] = leftImage;
+		nativeParms.Images[0][1] = leftOverlay;
+		nativeParms.Images[1][0] = rightImage;
+		nativeParms.Images[1][1] = rightOverlay;
 
 		// nativeParms->WarpProgram = WP_OVERLAY_PLANE;
 
@@ -356,7 +361,11 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 
 
 
-		ovr_WarpSwap(ovr, nativeParms);
+
+		//ovrTimeWarpParms testParms = InitTimeWarpParms( WARP_INIT_LOADING_ICON);
+
+
+		ovr_WarpSwap(ovr, &nativeParms);
 
 
 		// TODO: What about memory - who deletes What?
