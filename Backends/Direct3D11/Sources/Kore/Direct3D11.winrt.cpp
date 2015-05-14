@@ -569,7 +569,7 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 	rtbd.SrcBlendAlpha = convert(source);
 	rtbd.DestBlendAlpha = convert(destination);
 	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
+	rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	blendDesc.AlphaToCoverageEnable = false;
 	blendDesc.RenderTarget[0] = rtbd;
