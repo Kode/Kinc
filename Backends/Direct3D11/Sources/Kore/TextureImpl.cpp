@@ -58,7 +58,7 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = 0;//D3D11_CPU_ACCESS_WRITE;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
 
 	texture = nullptr;
@@ -95,9 +95,9 @@ u8* Texture::lock() {
 }
 
 void Texture::unlock() {
-	context->UpdateSubresource(texture, 0, nullptr, data, 0, 0);
+	context->UpdateSubresource(texture, 0, nullptr, data, stride(), 0);
 }
 
 int Texture::stride() {
-	return 1;
+	return format == Image::RGBA32 ? width * 4 : width;
 }

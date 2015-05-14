@@ -576,7 +576,7 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 
 	device->CreateBlendState(&blendDesc, &blendState);
 	
-	float blendFactor[] = { 1, 1, 1, 1 };
+	float blendFactor[] = { 0, 0, 0, 0 };
 	UINT sampleMask = 0xffffffff;
 	context->OMSetBlendState(blendState, blendFactor, sampleMask);
 }
