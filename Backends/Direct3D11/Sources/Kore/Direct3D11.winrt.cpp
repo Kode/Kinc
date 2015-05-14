@@ -591,8 +591,12 @@ bool Graphics::nonPow2TexturesSupported() {
 
 void Graphics::restoreRenderTarget() {
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(renderTargetWidth), static_cast<float>(renderTargetHeight));
+	context->RSSetViewports(1, &viewPort);
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int) {
 	context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(target->width), static_cast<float>(target->height));
+	context->RSSetViewports(1, &viewPort);
 }
