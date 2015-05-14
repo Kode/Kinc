@@ -531,8 +531,54 @@ void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) 
 
 }
 
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+namespace {
+	D3D11_BLEND convert(BlendingOperation operation) {
+		switch (operation) {
+		case BlendOne:
+			return D3D11_BLEND_ONE;
+		case BlendZero:
+			return D3D11_BLEND_ZERO;
+		case SourceAlpha:
+			return D3D11_BLEND_SRC_ALPHA;
+		case DestinationAlpha:
+			return D3D11_BLEND_DEST_ALPHA;
+		case InverseSourceAlpha:
+			return D3D11_BLEND_INV_SRC_ALPHA;
+		case InverseDestinationAlpha:
+			return D3D11_BLEND_INV_DEST_ALPHA;
+		default:
+			//	throw Exception("Unknown blending operation.");
+			return D3D11_BLEND_SRC_ALPHA;
+		}
+	}
+}
 
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+	ID3D11BlendState* blendState = nullptr;
+	
+	D3D11_BLEND_DESC blendDesc;
+	ZeroMemory(&blendDesc, sizeof(blendDesc));
+
+	D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+	ZeroMemory(&rtbd, sizeof(rtbd));
+
+	rtbd.BlendEnable = source != BlendOne || destination != BlendZero;
+	rtbd.SrcBlend = convert(source);
+	rtbd.DestBlend = convert(destination);
+	rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+	rtbd.SrcBlendAlpha = convert(source);
+	rtbd.DestBlendAlpha = convert(destination);
+	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.RenderTarget[0] = rtbd;
+
+	device->CreateBlendState(&blendDesc, &blendState);
+	
+	float blendFactor[] = { 0, 0, 0, 0 };
+	UINT sampleMask = 0xffffffff;
+	context->OMSetBlendState(blendState, blendFactor, sampleMask);
 }
 
 bool Graphics::renderTargetsInvertedY() {
@@ -545,8 +591,12 @@ bool Graphics::nonPow2TexturesSupported() {
 
 void Graphics::restoreRenderTarget() {
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(renderTargetWidth), static_cast<float>(renderTargetHeight));
+	context->RSSetViewports(1, &viewPort);
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int) {
 	context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(target->width), static_cast<float>(target->height));
+	context->RSSetViewports(1, &viewPort);
 }

@@ -12,8 +12,10 @@
 #include <jni.h>
 #include <GLES2/gl2.h>
 #include <cstring>
+#if SYS_ANDROID_API >= 15
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
+#endif
 
 void* Kore::System::createWindow() {
 	return nullptr;
@@ -52,18 +54,22 @@ namespace {
 	bool initialized = false;
 	int debuggingDelayCount = 0;
 	const int debuggingDelay = 0;
-    AAssetManager* assets;
-    JNIEnv* env;
-    bool firstinit = true;
+#if SYS_ANDROID_API >= 15
+	AAssetManager* assets;
+#endif
+	JNIEnv* env;
+	bool firstinit = true;
 }
 
 JNIEnv* getEnv() {
-    return env;
+	return env;
 }
 
+#if SYS_ANDROID_API >= 15
 AAssetManager* getAssetManager() {
-    return assets;
+	return assets;
 }
+#endif
 
 void Kore::System::showKeyboard() {
 	keyboardShown = true;
@@ -137,8 +143,10 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobje
 			env->ReleaseStringUTFChars(filesDir, path);
 		}
 
+#if SYS_ANDROID_API >= 15
     	//(*env)->NewGlobalRef(env, foo);
     	assets = AAssetManager_fromJava(env, assetManager);
+#endif
 
 		firstinit = false;
 	}

@@ -9,18 +9,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if SYS_ANDROID_API >= 15
 #include <OMXAL/OpenMAXAL.h>
 #include <OMXAL/OpenMAXAL_Android.h>
+#endif
 #include <jni.h>
-#include <android/native_window_jni.h>
 #include <pthread.h>
 #include <assert.h>
+#if SYS_ANDROID_API >= 15
+#include <android/native_window_jni.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
+#endif
 
 using namespace Kore;
-
-AAssetManager* getAssetManager();
 
 VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
 
@@ -37,6 +39,10 @@ float VideoSoundStream::nextSample() {
 bool VideoSoundStream::ended() {
 	return false;
 }
+
+#if SYS_ANDROID_API >= 15
+
+AAssetManager* getAssetManager();
 
 namespace {
 	Video* videos[] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -445,7 +451,10 @@ namespace {
 	}
 }
 
+#endif
+
 extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nativeCreate(JNIEnv *env, jobject jobj, jstring jpath, jobject surface, jint id) {
+#if SYS_ANDROID_API >= 15
 	const char* path = env->GetStringUTFChars(jpath, NULL);
 	AndroidVideo* av = new AndroidVideo;
 	av->theNativeWindow = ANativeWindow_fromSurface(env, surface);
@@ -457,11 +466,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nati
 		}
 	}
 	env->ReleaseStringUTFChars(jpath, path);
+#endif
 }
 
 JNIEnv* getEnv();
 
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
+#if SYS_ANDROID_API >= 15
 	Kore::log(Kore::Info, "Opening video %s.", filename);
 	myWidth = 1023;
 	myHeight = 684;
@@ -490,9 +501,11 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	int texid = getEnv()->CallIntMethod(object, getTextureId);
 
 	image = new Texture(texid);
+#endif
 }
 
 Video::~Video() {
+#if SYS_ANDROID_API >= 15
 	stop();
 	AndroidVideo* av = (AndroidVideo*)androidVideo;
 	av->shutdown();
@@ -502,19 +515,26 @@ Video::~Video() {
 			break;
 		}
 	}
+#endif
 }
 
 void Video::play() {
+#if SYS_ANDROID_API >= 15
 	playing = true;
 	start = System::time();
+#endif
 }
 
 void Video::pause() {
+#if SYS_ANDROID_API >= 15
 	playing = false;
+#endif
 }
 
 void Video::stop() {
+#if SYS_ANDROID_API >= 15
 	pause();
+#endif
 }
 
 void Video::updateImage() {
@@ -526,13 +546,25 @@ void Video::update(double time) {
 }
 
 int Video::width() {
+#if SYS_ANDROID_API >= 15
 	return myWidth;
+#else
+	return 512;
+#endif
 }
 
 int Video::height() {
+#if SYS_ANDROID_API >= 15
 	return myHeight;
+#else
+	return 512;
+#endif
 }
 
 Texture* Video::currentImage() {
+#if SYS_ANDROID_API >= 15
 	return image;
+#else
+	return nullptr;
+#endif
 }

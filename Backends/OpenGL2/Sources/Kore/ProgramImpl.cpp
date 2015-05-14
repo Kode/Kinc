@@ -8,7 +8,9 @@
 using namespace Kore;
 
 namespace Kore {
+#ifndef OPENGLES
 	bool programUsesTesselation = false;
+#endif
 }
 
 ProgramImpl::ProgramImpl() : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tesselationEvaluationShader(nullptr), tesselationControlShader(nullptr) {
@@ -29,15 +31,21 @@ void Program::setFragmentShader(Shader* shader) {
 }
 
 void Program::setGeometryShader(Shader* shader) {
+#ifndef OPENGLES
 	geometryShader = shader;
+#endif
 }
 
 void Program::setTesselationControlShader(Shader* shader) {
+#ifndef OPENGLES
 	tesselationControlShader = shader;
+#endif
 }
 
 void Program::setTesselationEvaluationShader(Shader* shader) {
+#ifndef OPENGLES
 	tesselationEvaluationShader = shader;
+#endif
 }
 
 namespace {
@@ -48,7 +56,7 @@ namespace {
 			return GL_VERTEX_SHADER;
 		case FragmentShader:
 			return GL_FRAGMENT_SHADER;
-#if !defined(SYS_IOS) && !defined(SYS_ANDROID)
+#ifndef OPENGLES
 		case GeometryShader:
 			return GL_GEOMETRY_SHADER;
 		case TesselationControlShader:
@@ -84,14 +92,14 @@ namespace {
 void Program::link(const VertexStructure& structure) {
 	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
-#if !defined(SYS_IOS) || !defined(SYS_ANDROID)
+#ifndef OPENGLES
 	if (geometryShader != nullptr) compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
 	if (tesselationControlShader != nullptr) compileShader(tesselationControlShader->id, tesselationControlShader->source, tesselationControlShader->length, TesselationControlShader);
 	if (tesselationEvaluationShader != nullptr) compileShader(tesselationEvaluationShader->id, tesselationEvaluationShader->source, tesselationEvaluationShader->length, TesselationEvaluationShader);
 #endif
 	glAttachShader(programId, vertexShader->id);
 	glAttachShader(programId, fragmentShader->id);
-#if !defined SYS_IOS || !defined(SYS_ANDROID)
+#ifndef OPENGLES
 	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->id);
 	if (tesselationControlShader != nullptr) glAttachShader(programId, tesselationControlShader->id);
 	if (tesselationEvaluationShader != nullptr) glAttachShader(programId, tesselationEvaluationShader->id);
@@ -117,7 +125,7 @@ void Program::link(const VertexStructure& structure) {
 		delete[] errormessage;
 	}
 
-#if !defined(SYS_IOS) && !defined(SYS_ANDROID)
+#ifndef OPENGLES
 	if (tesselationControlShader != nullptr) {
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 	}
@@ -125,7 +133,9 @@ void Program::link(const VertexStructure& structure) {
 }
 	
 void Program::set() {
+#ifndef OPENGLES
 	programUsesTesselation = tesselationControlShader != nullptr;
+#endif
 	glUseProgram(programId);
 	for (int index = 0; index < textureCount; ++index) glUniform1i(textureValues[index], index);
 }
