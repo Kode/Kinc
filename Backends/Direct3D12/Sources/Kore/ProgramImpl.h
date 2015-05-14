@@ -1,11 +1,16 @@
 #pragma once
 
+struct ID3D12PipelineState;
+struct ID3D12GraphicsCommandList;
+
 namespace Kore {
 	class Shader;
 
 	class ProgramImpl {
 	public:
 		ProgramImpl();
+		ID3D12PipelineState* pipelineState;
+		ID3D12GraphicsCommandList* commandList;
 		//ID3D11InputLayout* inputLayout;
 		//ID3D11Buffer* fragmentConstantBuffer;
 		//ID3D11Buffer* vertexConstantBuffer;
@@ -18,6 +23,7 @@ namespace Kore {
 		Shader* tessEvalShader;
 		Shader* tessControlShader;
 		static void setConstants();
+		static ProgramImpl* _current;
 	};
 
 	class ConstantLocationImpl {

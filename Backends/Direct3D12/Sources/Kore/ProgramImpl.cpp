@@ -3,12 +3,11 @@
 #include <Kore/Graphics/Shader.h>
 #include <Kore/WinError.h>
 #include "Direct3D12.h"
+#include "d3dx12.h"
 
 using namespace Kore;
 
-namespace Kore {
-	ProgramImpl* currentProgram = nullptr;
-}
+ProgramImpl* ProgramImpl::_current = nullptr;
 
 void ProgramImpl::setConstants() {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
@@ -43,7 +42,7 @@ Program::Program() {
 }
 
 void Program::set() {
-	currentProgram = this;
+	_current = this;
 	//context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
 	//context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
 
@@ -161,20 +160,13 @@ namespace {
 }
 
 void Program::link(const VertexStructure& structure) {
-	/*
-	if (vertexShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &vertexConstantBuffer));
-	if (fragmentShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &fragmentConstantBuffer));
-	if (geometryShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &geometryConstantBuffer));
-	if (tessControlShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessControlConstantBuffer));
-	if (tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
-
-	D3D11_INPUT_ELEMENT_DESC vertexDesc[10];
+	D3D12_INPUT_ELEMENT_DESC vertexDesc[10];
 	for (int i = 0; i < structure.size; ++i) {
 		vertexDesc[i].SemanticName = "TEXCOORD";
 		vertexDesc[i].SemanticIndex = vertexShader->attributes[structure.elements[i].name];
 		vertexDesc[i].InputSlot = 0;
-		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
-		vertexDesc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
+		vertexDesc[i].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 		vertexDesc[i].InstanceDataStepRate = 0;
 
 		switch (structure.elements[i].data) {
@@ -196,6 +188,22 @@ void Program::link(const VertexStructure& structure) {
 		}
 	}
 
-	affirm(device->CreateInputLayout(vertexDesc, structure.size, vertexShader->data, vertexShader->length, &inputLayout));
-	*/
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC state = {};
+	state.InputLayout = { vertexDesc, (UINT)structure.size };
+	state.pRootSignature = rootSignature;
+	state.VS = { vertexShader->data, (SIZE_T)vertexShader->length };
+	state.PS = { fragmentShader->data, (SIZE_T)fragmentShader->length };
+	state.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	state.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	state.DepthStencilState.DepthEnable = FALSE;
+	state.DepthStencilState.StencilEnable = FALSE;
+	state.SampleMask = UINT_MAX;
+	state.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	state.NumRenderTargets = 1;
+	state.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	state.SampleDesc.Count = 1;
+
+	affirm(device->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&pipelineState)));
+
+	affirm(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[currentFrame], pipelineState, IID_PPV_ARGS(&commandList)));
 }

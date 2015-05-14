@@ -8,7 +8,7 @@
 
 using namespace Kore;
 
-IndexBuffer* IndexBufferImpl::_current = nullptr;
+IndexBufferImpl* IndexBufferImpl::_current = nullptr;
 
 IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {
 	

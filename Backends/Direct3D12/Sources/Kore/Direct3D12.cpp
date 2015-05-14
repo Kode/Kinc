@@ -5,6 +5,7 @@
 #include <Kore/Application.h>
 #include "IndexBufferImpl.h"
 #include "VertexBufferImpl.h"
+#include "ProgramImpl.h"
 #include <Kore/Graphics/Shader.h>
 #undef CreateWindow
 #include <Kore/System.h>
@@ -12,7 +13,6 @@
 #include <wrl.h>
 #include "d3dx12.h"
 
-const int frameCount = 3;
 IDXGIFactory4* dxgiFactory;
 ID3D12Device* device;
 ID3D12GraphicsCommandList* commandList;
@@ -27,6 +27,9 @@ ID3D12DescriptorHeap* rtvHeap;
 unsigned rtvDescriptorSize;
 ID3D12CommandAllocator* bundleAllocator;
 ID3D12RootSignature* rootSignature;
+D3D12_VIEWPORT screenViewport;
+D3D12_RECT scissorRect;
+ID3D12DescriptorHeap* cbvHeap;
 //ID3D12DeviceContext* context;
 //ID3D12RenderTargetView* renderTargetView;
 //ID3D12DepthStencilView* depthStencilView;
@@ -170,6 +173,9 @@ void Graphics::init() {
 		}
 	}
 
+	screenViewport = { 0.0f, 0.0f, (float)renderTargetWidth, (float)renderTargetHeight, 0.0f, 1.0f };
+	scissorRect = { 0, 0, renderTargetWidth, renderTargetHeight };
+
 #ifdef SYS_WINDOWS
 	if (Application::the()->showWindow()) {
 		ShowWindow(hwnd, SW_SHOWDEFAULT);
@@ -199,6 +205,31 @@ void Graphics::init() {
 	ID3DBlob* pError;
 	affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &pSignature, &pError));
 	affirm(device->CreateRootSignature(0, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
+
+	/*
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = 1;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	affirm(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&cbvHeap)));
+
+	affirm(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(m_constantBufferData)),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&m_constantBuffer)));
+
+	constantBuffer->SetName(L"Constant Buffer");
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
+	desc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
+	desc.SizeInBytes = (sizeof(ModelViewProjectionConstantBuffer) + 255) & ~255;
+	device->CreateConstantBufferView(&desc, cbvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	affirm(m_constantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&m_mappedConstantBuffer)));
+	memcpy(m_mappedConstantBuffer, &m_constantBufferData, sizeof(m_constantBufferData));
+	*/
 }
 
 void Graphics::changeResolution(int width, int height) {
@@ -212,6 +243,8 @@ void* Graphics::getControl() {
 void Graphics::drawIndexedVertices() {
 	//Program::setConstants();
 	//context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
+	
+	drawIndexedVertices(0, IndexBuffer::_current->myCount);
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
@@ -223,6 +256,46 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	//}
 	//Program::setConstants();
 	//context->DrawIndexed(count, start, 0);
+
+	affirm(commandAllocators[currentFrame]->Reset());
+
+	affirm(ProgramImpl::_current->commandList->Reset(commandAllocators[currentFrame], ProgramImpl::_current->pipelineState));
+
+	ProgramImpl::_current->commandList->SetGraphicsRootSignature(rootSignature);
+	ID3D12DescriptorHeap* ppHeaps[] = { cbvHeap };
+	ProgramImpl::_current->commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+	ProgramImpl::_current->commandList->RSSetViewports(1, &screenViewport);
+	ProgramImpl::_current->commandList->RSSetScissorRects(1, &scissorRect);
+
+	ProgramImpl::_current->commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[currentFrame], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	//m_commandList->ClearRenderTargetView(m_deviceResources->GetRenderTargetView(), DirectX::Colors::CornflowerBlue, 0, nullptr);
+	//m_commandList->OMSetRenderTargets(1, &m_deviceResources->GetRenderTargetView(), false, nullptr);
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	vertexBufferView.BufferLocation = VertexBuffer::_current->vb->GetGPUVirtualAddress();
+	vertexBufferView.StrideInBytes = VertexBuffer::_current->myStride;
+	vertexBufferView.SizeInBytes = VertexBuffer::_current->myStride * VertexBuffer::_current->myCount;
+
+	D3D12_INDEX_BUFFER_VIEW indexBufferView;
+	indexBufferView.BufferLocation = IndexBuffer::_current->ib->GetGPUVirtualAddress();
+	indexBufferView.SizeInBytes = IndexBuffer::_current->myCount * 4;
+	indexBufferView.Format = DXGI_FORMAT_R32_SINT;
+
+	ProgramImpl::_current->commandList->SetDescriptorHeaps(1, &cbvHeap);
+	ProgramImpl::_current->commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
+	ProgramImpl::_current->commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	ProgramImpl::_current->commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+	ProgramImpl::_current->commandList->IASetIndexBuffer(&indexBufferView);
+	ProgramImpl::_current->commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
+
+	ProgramImpl::_current->commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[currentFrame], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+	affirm(ProgramImpl::_current->commandList->Close());
+
+	ID3D12CommandList* ppCommandLists[] = { ProgramImpl::_current->commandList };
+	commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 }
 
 void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {

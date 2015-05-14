@@ -7,6 +7,8 @@
 
 using namespace Kore;
 
+VertexBufferImpl* VertexBufferImpl::_current = nullptr;
+
 VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {
 	
 }
@@ -81,11 +83,10 @@ void VertexBuffer::unlock() {
 }
 
 void VertexBuffer::set() {
-	UINT stride = myStride;
-	UINT offset = 0;
+	//UINT stride = myStride;
+	//UINT offset = 0;
 	//context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
-
-
+	_current = this;
 }
 
 int VertexBuffer::count() {
