@@ -531,8 +531,54 @@ void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) 
 
 }
 
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+namespace {
+	D3D11_BLEND convert(BlendingOperation operation) {
+		switch (operation) {
+		case BlendOne:
+			return D3D11_BLEND_ONE;
+		case BlendZero:
+			return D3D11_BLEND_ZERO;
+		case SourceAlpha:
+			return D3D11_BLEND_SRC_ALPHA;
+		case DestinationAlpha:
+			return D3D11_BLEND_DEST_ALPHA;
+		case InverseSourceAlpha:
+			return D3D11_BLEND_INV_SRC_ALPHA;
+		case InverseDestinationAlpha:
+			return D3D11_BLEND_INV_DEST_ALPHA;
+		default:
+			//	throw Exception("Unknown blending operation.");
+			return D3D11_BLEND_SRC_ALPHA;
+		}
+	}
+}
 
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+	ID3D11BlendState* blendState = nullptr;
+	
+	D3D11_BLEND_DESC blendDesc;
+	ZeroMemory(&blendDesc, sizeof(blendDesc));
+
+	D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+	ZeroMemory(&rtbd, sizeof(rtbd));
+
+	rtbd.BlendEnable = source != BlendOne || destination != BlendZero;
+	rtbd.SrcBlend = convert(source);
+	rtbd.DestBlend = convert(destination);
+	rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+	rtbd.SrcBlendAlpha = convert(source);
+	rtbd.DestBlendAlpha = convert(destination);
+	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.RenderTarget[0] = rtbd;
+
+	device->CreateBlendState(&blendDesc, &blendState);
+	
+	float blendFactor[] = { 1, 1, 1, 1 };
+	UINT sampleMask = 0xffffffff;
+	context->OMSetBlendState(blendState, blendFactor, sampleMask);
 }
 
 bool Graphics::renderTargetsInvertedY() {
