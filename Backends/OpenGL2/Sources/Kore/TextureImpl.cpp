@@ -41,6 +41,58 @@ namespace {
 				return GL_LUMINANCE;
 		}
 	}
+
+	int astcFormat(u8 blockX, u8 blockY) {
+		switch (blockX) {
+		case 4:
+			switch (blockY) {
+			case 4:
+				return COMPRESSED_RGBA_ASTC_4x4_KHR;
+			}
+		case 5:
+			switch (blockY) {
+			case 4:
+				return COMPRESSED_RGBA_ASTC_5x4_KHR;
+			case 5:
+				return COMPRESSED_RGBA_ASTC_5x5_KHR;
+			}
+		case 6:
+			switch (blockY) {
+			case 5:
+				return COMPRESSED_RGBA_ASTC_6x5_KHR;
+			case 6:
+				return COMPRESSED_RGBA_ASTC_6x6_KHR;
+			}
+		case 8:
+			switch (blockY) {
+			case 5:
+				return COMPRESSED_RGBA_ASTC_8x5_KHR;
+			case 6:
+				return COMPRESSED_RGBA_ASTC_8x6_KHR;
+			case 8:
+				return COMPRESSED_RGBA_ASTC_8x8_KHR;
+			}
+		case 10:
+			switch (blockY) {
+			case 5:
+				return COMPRESSED_RGBA_ASTC_10x5_KHR;
+			case 6:
+				return COMPRESSED_RGBA_ASTC_10x6_KHR;
+			case 8:
+				return COMPRESSED_RGBA_ASTC_10x8_KHR;
+			case 10:
+				return COMPRESSED_RGBA_ASTC_10x10_KHR;
+			}
+		case 12:
+			switch (blockY) {
+			case 10:
+				return COMPRESSED_RGBA_ASTC_12x10_KHR;
+			case 12:
+				return COMPRESSED_RGBA_ASTC_12x12_KHR;
+			}
+		}
+		return 0;
+	}
 	
 	int pow(int pow) {
 		int ret = 1;
@@ -129,10 +181,15 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	texHeight = getPower2(height);
 	
 	if (compressed) {
+#if defined(SYS_IOS)
 		texWidth = Kore::max(texWidth, texHeight);
 		texHeight = Kore::max(texWidth, texHeight);
 		if (texWidth < 8) texWidth = 8;
 		if (texHeight < 8) texHeight = 8;
+#elif defined(SYS_ANDROID)
+		texWidth = width;
+		texHeight = height;
+#endif
 	}
 
 	if (!compressed) {
@@ -151,8 +208,12 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	if (compressed) {
-#ifdef SYS_IOS
+#if defined(SYS_IOS)
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
+#elif defined(SYS_ANDROID)
+		u8 blockX = internalFormat >> 8;
+		u8 blockY = internalFormat & 0xff;
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
 #endif
 	}
 	else {

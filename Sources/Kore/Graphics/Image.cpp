@@ -71,18 +71,51 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
 		this->width = w;
 		this->height = h;
 		compressed = true;
+		internalFormat = 0;
 		
 		u8* all = (u8*)file.readAll();
-		data = new u8[width * height / 2];
-		for (unsigned i = 0; i < width * height / 2; ++i) {
+		dataSize = width * height / 2;
+		data = new u8[dataSize];
+		for (unsigned i = 0; i < dataSize; ++i) {
 			data[i] = all[52 + metaDataSize + i];
+		}
+	}
+	else if (endsWith(filename, ".astc")) {
+		u32 magic = file.readU32LE();
+    	u8 blockdim_x = file.readU8();
+    	u8 blockdim_y = file.readU8();
+    	u8 blockdim_z = file.readU8();
+    	internalFormat = (blockdim_x << 8) + blockdim_y;
+    	u8 xsize[4];
+    	xsize[0] = file.readU8();
+    	xsize[1] = file.readU8();
+    	xsize[2] = file.readU8();
+    	xsize[3] = 0;
+    	this->width = *(unsigned*)&xsize[0];
+    	u8 ysize[4];
+    	ysize[0] = file.readU8();
+    	ysize[1] = file.readU8();
+    	ysize[2] = file.readU8();
+    	ysize[3] = 0;
+    	this->height = *(unsigned*)&ysize[0];
+    	u8 zsize[3];
+    	zsize[0] = file.readU8();
+    	zsize[1] = file.readU8();
+    	zsize[2] = file.readU8();
+    	u8* all = (u8*)file.readAll();
+		dataSize = file.size() - 16;
+		data = new u8[dataSize];
+		for (unsigned i = 0; i < dataSize; ++i) {
+			data[i] = all[16 + i];
 		}
 	}
 	else {
 		int size = file.size();
 		int comp;
 		compressed = false;
+		internalFormat = 0;
 		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		dataSize = width * height * 4;
 	}
 }
 
