@@ -219,6 +219,7 @@ Texture::Texture(unsigned texid) : Image(1023, 684, Image::RGBA32, false) {
 TextureImpl::~TextureImpl() {
 	glDeleteTextures(1, &texture);
 	delete[] conversionBuffer;
+	glFlush();
 }
 
 void Texture::set(TextureUnit unit) {
