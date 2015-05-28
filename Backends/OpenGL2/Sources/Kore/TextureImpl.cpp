@@ -42,6 +42,7 @@ namespace {
 		}
 	}
 
+#if 0
 	int astcFormat(u8 blockX, u8 blockY) {
 		switch (blockX) {
 		case 4:
@@ -93,7 +94,8 @@ namespace {
 		}
 		return 0;
 	}
-	
+#endif
+
 	int pow(int pow) {
 		int ret = 1;
 		for (int i = 0; i < pow; ++i) ret *= 2;
@@ -210,10 +212,10 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	if (compressed) {
 #if defined(SYS_IOS)
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
-#elif defined(SYS_ANDROID)
-		u8 blockX = internalFormat >> 8;
-		u8 blockY = internalFormat & 0xff;
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
+//#elif defined(SYS_ANDROID)
+//		u8 blockX = internalFormat >> 8;
+//		u8 blockY = internalFormat & 0xff;
+//		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
 #endif
 	}
 	else {
