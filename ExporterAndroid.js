@@ -22,29 +22,32 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
   if (vr == "cardboard") {
     Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", ".classpath.Cardboard")), to.resolve(".classpath"), true);
   } else {
-    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", ".classpath")), to.resolve(".classpath"), true);
+    Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", ".classpath")), to.resolve("classpath"), true);
   }
 	
 
 	if (nvpack) {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", ".project")).toString(), { encoding: 'utf8' });
+		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", "project")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.project').toString());
 	}
 	else {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", ".project")).toString(), { encoding: 'utf8' });
+		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "project")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
 		if (Project.koreDir.toString() != "") file = file.replaceAll("{Java-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Java-Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
+		if (Project.koreDir.toString() != "") file = file.replaceAll("{Android-Backend-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
+		if (Project.koreDir.toString() != "") file = file.replaceAll("{OpenGL-Backend-Sources}", Project.koreDir.resolve(Paths.get("Backends", "OpenGL2", "Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
+		if (Project.koreDir.toString() != "") file = file.replaceAll("{Kore-Sources}", Project.koreDir.resolve(Paths.get("Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
 		fs.writeFileSync(to.resolve('.project').toString(), file);
 	}
 
 	if (nvpack) {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", ".cproject")).toString(), { encoding: 'utf8' });
+		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", "cproject")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.cproject').toString(), file);
 	}
 	else {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", ".cproject")).toString(), { encoding: 'utf8' });
+		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "cproject")).toString(), { encoding: 'utf8' });
 		file = file.replaceAll("{ProjectName}", solution.getName());
 		fs.writeFileSync(to.resolve('.cproject').toString(), file);
 	}
@@ -122,7 +125,7 @@ $(call import-module,nv_thread)
 	var files = "";
 	for (var f in project.getFiles()) {
 		var filename = project.getFiles()[f];
-		if (filename.endsWith(".c") || filename.endsWith(".cpp") || filename.endsWith(".cc") || filename.endsWith(".s")) files += '../../../' + from.resolve(filename).toString().replaceAll('\\', '/') + " ";
+		if (filename.endsWith(".c") || filename.endsWith(".cpp") || filename.endsWith(".cc") || filename.endsWith(".s")) files += to.resolve('jni').relativize(from.resolve(filename)).toString().replaceAll('\\', '/') + " ";
 	}
 	this.p("LOCAL_SRC_FILES := " + files);
 	var defines = "";
@@ -133,14 +136,14 @@ $(call import-module,nv_thread)
     this.p("LOCAL_CFLAGS := " + defines);
   }
 	var includes = "";
-	for (var inc in project.getIncludeDirs()) includes += "$(LOCAL_PATH)/../../../" + project.getIncludeDirs()[inc].replaceAll('\\', '/') + " ";
+	for (var inc in project.getIncludeDirs()) includes += "$(LOCAL_PATH)/" + to.resolve('jni').relativize(from.resolve(project.getIncludeDirs()[inc])).toString().replaceAll('\\', '/') + " ";
 	if (vr == "gearvr") {
     this.p("LOCAL_C_INCLUDES += " + includes);
-    this.p("LOCAL_LDLIBS    += -llog -lGLESv2");
+    this.p("LOCAL_LDLIBS    += -llog -lGLESv2 -lOpenMAXAL -landroid");
     this.p("LOCAL_CPPFLAGS := -DVR_GEAR_VR");
   } else {
      this.p("LOCAL_C_INCLUDES := " + includes);
-     this.p("LOCAL_LDLIBS    := -llog -lGLESv2");
+     this.p("LOCAL_LDLIBS    := -llog -lGLESv2 -lOpenMAXAL -landroid");
   }
   if (vr == "cardboard") {
     this.p("LOCAL_CPPFLAGS := -DVR_CARDBOARD");

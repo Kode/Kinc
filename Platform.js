@@ -1,6 +1,6 @@
 module.exports = {
 	Windows: 'windows',
-	WindowsRT: 'windowsrt',
+	WindowsApp: 'windowsapp',
 	PlayStation3: 'ps3',
 	iOS: 'ios',
 	OSX: 'osx',

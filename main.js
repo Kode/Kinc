@@ -62,8 +62,8 @@ function fromPlatform(platform) {
 	switch (platform) {
 		case Platform.Windows:
 			return "Windows";
-		case Platform.WindowsRT:
-			return "WindowsRT";
+		case Platform.WindowsApp:
+			return "Windows App";
 		case Platform.PlayStation3:
 			return "PlayStation 3";
 		case Platform.iOS:
@@ -96,10 +96,12 @@ function shaderLang(platform) {
 					return "d3d9";
 				case GraphicsApi.Direct3D11:
 					return "d3d11";
+				case GraphicsApi.Direct3D12:
+					return 'd3d12';
 				default:
 					return "d3d9";
 			}
-		case Platform.WindowsRT:
+		case Platform.WindowsApp:
 			return "d3d11";
 		case Platform.PlayStation3:
 			return "d3d9";

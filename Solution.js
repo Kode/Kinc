@@ -13,9 +13,9 @@ function getDefines(platform, rotated) {
 			defines.push("_CRT_SECURE_NO_WARNINGS");
 			defines.push("SYS_WINDOWS");
 			break;
-		case Platform.WindowsRT:
+		case Platform.WindowsApp:
 			defines.push("_CRT_SECURE_NO_WARNINGS");
-			defines.push("SYS_WINDOWSRT");
+			defines.push("SYS_WINDOWSAPP");
 			break;
 		case Platform.PlayStation3:
 			defines.push("SYS_PS3");

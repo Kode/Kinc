@@ -48,7 +48,7 @@ File.prototype.getFileId = function () {
 };
 
 File.prototype.isBuildFile = function () {
-	return this.filename.endsWith(".c") || this.filename.endsWith(".cpp") || this.filename.endsWith(".m") || this.filename.endsWith(".mm") || this.filename.endsWith(".cc") || this.filename.endsWith(".s");
+	return this.filename.endsWith(".c") || this.filename.endsWith(".cpp") || this.filename.endsWith(".m") || this.filename.endsWith(".mm") || this.filename.endsWith(".cc") || this.filename.endsWith(".s") || this.filename.endsWith('.metal');
 };
 
 File.prototype.getName = function () {
@@ -75,7 +75,8 @@ var Framework = function (name) {
 };
 
 Framework.prototype.toString = function () {
-	return this.name + ".framework";
+	if (this.name.indexOf('.') < 0) return this.name + ".framework";
+	else return this.name;
 };
 
 Framework.prototype.getBuildId = function () {
@@ -281,12 +282,15 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 
 	for (var f in frameworks) {
 		var framework = frameworks[f];
-		this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = System/Library/Frameworks/" + framework.toString() + "; sourceTree = SDKROOT; };", 2);
+		if (framework.toString().endsWith('.framework')) this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = System/Library/Frameworks/" + framework.toString() + "; sourceTree = SDKROOT; };", 2);
+		else if (framework.toString().endsWith('.dylib')) this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = compiled.mach-o.dylib; name = " + framework.toString() + "; path = usr/lib/" + framework.toString() + "; sourceTree = SDKROOT; };", 2);
+		else this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = ../" + from.resolve(framework.toString()).toAbsolutePath().toString() + "; sourceTree = SDKROOT; };", 2);
 	}
 	this.p(debugDirFileId + " /* Deployment */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Deployment; path = \"" + from.resolve(project.getDebugDir()).toAbsolutePath().toString() + "\"; sourceTree = \"<group>\"; };", 2);
 	for (var f in files) {
 		var file = files[f];
 		var filetype = "unknown";
+		var fileencoding = '';
 		if (file.getName().endsWith(".plist")) filetype = "text.plist.xml";
 		if (file.getName().endsWith(".h")) filetype = "sourcecode.c.h";
 		if (file.getName().endsWith(".m")) filetype = "sourcecode.c.objc";
@@ -295,7 +299,11 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		if (file.getName().endsWith(".cc")) filetype = "sourcecode.c.cpp";
 		if (file.getName().endsWith(".mm")) filetype = "sourcecode.c.objcpp";
 		if (file.getName().endsWith(".s")) filetype = "sourcecode.asm";
-		this.p(file.getFileId() + " /* " + file.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = " + filetype + "; name = \"" + file.getLastName() + "\"; path = \"" + from.resolve(file.toString()).toAbsolutePath().toString() + "\"; sourceTree = \"<group>\"; };", 2);
+		if (file.getName().endsWith('.metal')) {
+			filetype = 'sourcecode.metal';
+			fileencoding = 'fileEncoding = 4; ';
+		}
+		this.p(file.getFileId() + " /* " + file.toString() + " */ = {isa = PBXFileReference; " + fileencoding + "lastKnownFileType = " + filetype + "; name = \"" + file.getLastName() + "\"; path = \"" + from.resolve(file.toString()).toAbsolutePath().toString() + "\"; sourceTree = \"<group>\"; };", 2);
 	}
 	this.p(iconFileId + ' /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };', 2);
 	this.p("/* End PBXFileReference section */");

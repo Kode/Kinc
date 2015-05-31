@@ -96,6 +96,21 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>Kore-Sources</name>
+			<type>2</type>
+			<location>{Kore-Sources}</location>
+		</link>
+		<link>
+			<name>Android-Backend-Sources</name>
+			<type>2</type>
+			<location>{Android-Backend-Sources}</location>
+		</link>
+		<link>
+			<name>OpenGL-Backend-Sources</name>
+			<type>2</type>
+			<location>{OpenGL-Backend-Sources}</location>
+		</link>
+		<link>
 			<name>Java-Sources</name>
 			<type>2</type>
 			<location>{Java-Sources}</location>
