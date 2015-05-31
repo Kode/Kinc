@@ -15,7 +15,7 @@ namespace {
 	bool showWindow;
 }
 
-Application::Application(int argc, char** argv, int width, int height, bool fullscreen, const char* name, bool showWindow) : callback(nullptr), foregroundCallback(nullptr), resumeCallback(nullptr), pauseCallback(nullptr), backgroundCallback(nullptr), shutdownCallback(nullptr), running(false) {
+Application::Application(int argc, char** argv, int width, int height, bool fullscreen, const char* name, bool showWindow) : callback(nullptr), orientationCallback(nullptr), foregroundCallback(nullptr), resumeCallback(nullptr), pauseCallback(nullptr), backgroundCallback(nullptr), shutdownCallback(nullptr), running(false) {
 	::width = width;
 	::height = height;
 	::full = fullscreen;

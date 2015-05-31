@@ -37,12 +37,11 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 	private AudioTrack audio;
 	private Thread audioThread;
 	private int bufferSize;
+	private KoreView view;
 	
 	public static Object sensorLock = new Object();
 	private SensorManager sensorManager;
 	private Sensor accelerometer, gyro;
-	public static float accelerometerX, accelerometerY, accelerometerZ;
-	public static float gyroX, gyroY, gyroZ;
 	
 	private static KoreActivity instance;
 	
@@ -71,7 +70,7 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 		instance = this;
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(new KoreView(this));
+		setContentView(view = new KoreView(this));
 		bufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT) * 2;
 		audio = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
 		
@@ -136,6 +135,13 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 		mHeadTracker.startTracking();
 		
 		*/
+		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onCreate();
+			}
+		});
 	}
 	
 	/*
@@ -153,18 +159,38 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 	*/
 	
 	@Override
+	protected void onStart() {
+		super.onStart();
+		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onStart();
+			}
+		});
+	}
+	
+	@Override
 	protected void onPause() {
 		super.onPause();
+		view.onPause();
 		sensorManager.unregisterListener(this);
 		paused = true;
 		audio.pause();
 		audio.flush();
+		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onPause();
+			}
+		});
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+		view.onResume();
 		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(this, gyro, SensorManager.SENSOR_DELAY_NORMAL);
 		
@@ -199,6 +225,13 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 	   // mNfcSensor.onResume(this);
 	    
 	    // TOD: Set all the events correctly.
+		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onResume();
+			}
+		});
 	}
 	
 	@Override
@@ -207,6 +240,12 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 		
 		//mMagnetSensor.stop();
 		//mNfcSensor.onPause(this);
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onStop();
+			}
+		});
 	}
 	
 	@Override
@@ -216,17 +255,39 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 		//mMagnetSensor.start();
 		//mNfcSensor.onResume(this);
 		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onRestart();
+			}
+		});
 	}
 	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		
+		view.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				KoreLib.onDestroy();
+			}
+		});
 	}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
+		
+		/*switch (newConfig.orientation) {
+		case Configuration.ORIENTATION_LANDSCAPE:
+			
+			break;
+		case Configuration.ORIENTATION_PORTRAIT:
+			
+			break;
+			
+		}*/
 	}
 
 	@Override
@@ -237,18 +298,10 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 	@Override
 	public void onSensorChanged(SensorEvent e) {
 		if (e.sensor == accelerometer) {
-			synchronized(sensorLock) {
-				accelerometerX = e.values[0];
-				accelerometerY = e.values[1];
-				accelerometerZ = e.values[2];
-			}
+			view.accelerometer(e.values[0], e.values[1], e.values[2]);
 		}
 		else if (e.sensor == gyro) {
-			synchronized(sensorLock) {
-				gyroX = e.values[0];
-				gyroY = e.values[1];
-				gyroZ = e.values[2];
-			}
+			view.gyro(e.values[0], e.values[1], e.values[2]);
 		}
 	}
 	

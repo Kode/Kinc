@@ -1,7 +1,5 @@
 package com.ktxsoftware.kore;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.view.SurfaceView;
@@ -11,16 +9,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 public class KoreView extends GLSurfaceView implements View.OnTouchListener {
-	private static KoreView instance;
-	public static ArrayList<KoreTouchEvent> touchEvents;
-	public static ArrayList<KoreKeyEvent> keyEvents;
-	public static Object inputLock = new Object();
-	
+	private KoreRenderer renderer;
 	private InputMethodManager inputManager;
-	
-	public static KoreView getInstance() {
-		return instance;
-	}
 	
 	//unused
 	public KoreView(Context context) {
@@ -29,13 +19,11 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	
 	public KoreView(KoreActivity activity) {
 		super(activity);
-		instance = this;
 		setFocusable(true);
 		setFocusableInTouchMode(true);
-		touchEvents = new ArrayList<KoreTouchEvent>();
-		keyEvents = new ArrayList<KoreKeyEvent>();
+		setPreserveEGLContextOnPause(true);
 		setEGLContextClientVersion(2);
-   		setRenderer(new KoreRenderer(activity.getApplicationContext()));
+   		setRenderer(renderer = new KoreRenderer(activity.getApplicationContext(), this));
    		setOnTouchListener(this);
    		inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 	}
@@ -49,37 +37,79 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	}
 	
 	@Override
-	public boolean onTouch(View view, MotionEvent event) {
-		int index = event.getActionIndex();
+	public boolean onTouch(View view, final MotionEvent event) {
+		final int index = event.getActionIndex();
 		int maskedAction = event.getActionMasked();
+		final int ACTION_DOWN = 0;
+		final int ACTION_MOVE = 1;
+		final int ACTION_UP = 2;
 		int action = -1;
-		action = (maskedAction == MotionEvent.ACTION_DOWN || maskedAction == MotionEvent.ACTION_POINTER_DOWN) ? KoreTouchEvent.ACTION_DOWN : -1;
-		action = (action == -1 && maskedAction == MotionEvent.ACTION_MOVE) ? KoreTouchEvent.ACTION_MOVE : action;
+		action = (maskedAction == MotionEvent.ACTION_DOWN || maskedAction == MotionEvent.ACTION_POINTER_DOWN) ? ACTION_DOWN : -1;
+		action = (action == -1 && maskedAction == MotionEvent.ACTION_MOVE) ? ACTION_MOVE : action;
 		action = (action == -1 && (maskedAction == MotionEvent.ACTION_UP || maskedAction == MotionEvent.ACTION_POINTER_UP || maskedAction == MotionEvent.ACTION_CANCEL))
-				? KoreTouchEvent.ACTION_UP : action;
-		KoreTouchEvent e = new KoreTouchEvent(event.getPointerId(index), Math.round(event.getX(index)), Math.round(event.getY(index)), action);
-		synchronized(inputLock) {
-			touchEvents.add(e);
-		}
+				? ACTION_UP : action;
+		final int finalAction = action;
+		queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				renderer.touch(event.getPointerId(index), Math.round(event.getX(index)), Math.round(event.getY(index)), finalAction);
+			}
+		});
 		return true;
 	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		KoreKeyEvent e = new KoreKeyEvent(keyCode, true);
-		synchronized(inputLock) {
-			keyEvents.add(e);
+	public boolean onKeyDown(final int keyCode, KeyEvent event) {
+		switch (event.getKeyCode()) {
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+		case KeyEvent.KEYCODE_VOLUME_MUTE:
+		case KeyEvent.KEYCODE_VOLUME_UP:
+		case KeyEvent.KEYCODE_BACK:
+			return false;
 		}
+		this.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				renderer.key(keyCode, true);
+			}
+		});
 		return true;
 	}
 	
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		KoreKeyEvent e = new KoreKeyEvent(keyCode, false);
-		synchronized(inputLock) {
-			keyEvents.add(e);
+	public boolean onKeyUp(final int keyCode, KeyEvent event) {
+		switch (event.getKeyCode()) {
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+		case KeyEvent.KEYCODE_VOLUME_MUTE:
+		case KeyEvent.KEYCODE_VOLUME_UP:
+		case KeyEvent.KEYCODE_BACK:
+			return false;
 		}
+		this.queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				renderer.key(keyCode, false);
+			}
+		});
 	    return true;
+	}
+	
+	public void accelerometer(final float x, final float y, final float z) {
+		queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				renderer.accelerometer(x, y, z);
+			}
+		});
+	}
+	
+	public void gyro(final float x, final float y, final float z) {
+		queueEvent(new Runnable() {
+			@Override
+			public void run() {
+				renderer.gyro(x, y, z);
+			}
+		});
 	}
 }
 

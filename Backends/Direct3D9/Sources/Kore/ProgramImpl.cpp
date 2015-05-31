@@ -2,6 +2,7 @@
 #include "ProgramImpl.h"
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Application.h>
+#include <Kore/Log.h>
 #include <Kore/WinError.h>
 #include "Direct3D9.h"
 
@@ -18,6 +19,18 @@ void Program::setVertexShader(Shader* shader) {
 
 void Program::setFragmentShader(Shader* shader) {
 	fragmentShader = shader;
+}
+
+void Program::setGeometryShader(Shader* shader) {
+	log(Error, "Direct3D 9 does not support geometry shaders.");
+}
+
+void Program::setTesselationControlShader(Shader* shader) {
+	log(Error, "Direct3D 9 does not support tesselation shaders.");
+}
+
+void Program::setTesselationEvaluationShader(Shader* shader) {
+	log(Error, "Direct3D 9 does not support tesselation shaders.");
 }
 
 void Program::link(const VertexStructure& structure) {

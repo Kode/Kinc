@@ -8,7 +8,7 @@
 #undef CreateWindow
 #include <Kore/System.h>
 #include <Kore/WinError.h>
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 #include <d3d11_1.h>
 #include <wrl.h>
 #endif
@@ -23,14 +23,21 @@ int renderTargetHeight;
 
 Kore::u8 vertexConstants[1024 * 4];
 Kore::u8 fragmentConstants[1024 * 4];
+Kore::u8 geometryConstants[1024 * 4];
+Kore::u8 tessControlConstants[1024 * 4];
+Kore::u8 tessEvalConstants[1024 * 4];
 
 using namespace Kore;
 
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
 #endif
+
+namespace Kore {
+	extern ProgramImpl* currentProgram;
+}
 
 namespace {
 	unsigned hz;
@@ -39,7 +46,7 @@ namespace {
 	D3D_FEATURE_LEVEL featureLevel;
 	ID3D11DepthStencilState* depthTestState = nullptr;
 	ID3D11DepthStencilState* noDepthTestState = nullptr;
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	IDXGISwapChain1* swapChain;
 #else
 	IDXGISwapChain* swapChain;
@@ -62,7 +69,7 @@ void Graphics::init() {
 #endif
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 		D3D_FEATURE_LEVEL_11_1,
 #endif
 		D3D_FEATURE_LEVEL_11_0,
@@ -75,7 +82,7 @@ void Graphics::init() {
 
 	//ID3D11Device* device0;
 	//ID3D11DeviceContext* context0;
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &featureLevel, &context));
 #endif
 	//affirm(device0.As(&device));
@@ -108,7 +115,7 @@ void Graphics::init() {
 		swapChainDesc.Windowed = true;
 #endif
 
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
 		swapChainDesc.Width = 0;                                     // use automatic sizing
 		swapChainDesc.Height = 0;
@@ -205,7 +212,7 @@ void Graphics::init() {
 	rtbd.SrcBlendAlpha			 = D3D11_BLEND_ONE;
 	rtbd.DestBlendAlpha			 = D3D11_BLEND_ZERO;
 	rtbd.BlendOpAlpha			 = D3D11_BLEND_OP_ADD;
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	rtbd.RenderTargetWriteMask	 = D3D11_COLOR_WRITE_ENABLE_ALL;
 #else
 	rtbd.RenderTargetWriteMask	 = D3D10_COLOR_WRITE_ENABLE_ALL;
@@ -242,6 +249,12 @@ void Graphics::drawIndexedVertices() {
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
+	if (currentProgram->tessControlShader != nullptr) {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	}
+	else {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
 	Program::setConstants();
 	context->DrawIndexed(count, start, 0);
 }
@@ -295,10 +308,9 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 }
 
 void Graphics::begin() {
-#ifdef SYS_WINDOWSRT
+#ifdef SYS_WINDOWSAPP
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Graphics::end() {
@@ -363,72 +375,148 @@ void Graphics::setTextureOperation(TextureOperation operation, TextureArgument a
 
 }
 
+namespace {
+	void setInt(u8* constants, u8 offset, u8 size, int value) {
+		if (size == 0) return;
+		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		ints[0] = value;
+	}
+
+	void setFloat(u8* constants, u8 offset, u8 size, float value) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		floats[0] = value;
+	}
+
+	void setFloat2(u8* constants, u8 offset, u8 size, float value1, float value2) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		floats[0] = value1;
+		floats[1] = value2;
+	}
+
+	void setFloat3(u8* constants, u8 offset, u8 size, float value1, float value2, float value3) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		floats[0] = value1;
+		floats[1] = value2;
+		floats[2] = value3;
+	}
+
+	void setFloat4(u8* constants, u8 offset, u8 size, float value1, float value2, float value3, float value4) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		floats[0] = value1;
+		floats[1] = value2;
+		floats[2] = value3;
+		floats[3] = value4;
+	}
+
+	void setFloats(u8* constants, u8 offset, u8 size, float* values, int count) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		for (int i = 0; i < count; ++i) {
+			floats[i] = values[i];
+		}
+	}
+
+	void setBool(u8* constants, u8 offset, u8 size, bool value) {
+		if (size == 0) return;
+		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		ints[0] = value ? 1 : 0;
+	}
+
+	void setMatrix(u8* constants, u8 offset, u8 size, const mat4& value) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		for (int y = 0; y < 4; ++y) {
+			for (int x = 0; x < 4; ++x) {
+				floats[x + y * 4] = value.get(y, x);
+			}
+		}
+	}
+
+	void setMatrix(u8* constants, u8 offset, u8 size, const mat3& value) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		for (int y = 0; y < 3; ++y) {
+			for (int x = 0; x < 3; ++x) {
+				floats[x + y * 3] = value.get(y, x);
+			}
+		}
+	}
+}
+
 void Graphics::setInt(ConstantLocation location, int value) {
-	if (location.size == 0) return;
-	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
-	int* ints = reinterpret_cast<int*>(&constants[location.offset]);
-	ints[0] = value;
+	::setInt(vertexConstants, location.vertexOffset, location.vertexSize, value);
+	::setInt(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
+	::setInt(geometryConstants, location.geometryOffset, location.geometrySize, value);
+	::setInt(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
+	::setInt(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
 void Graphics::setFloat(ConstantLocation location, float value) {
-	if (location.size == 0) return;
-	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
-	float* floats = reinterpret_cast<float*>(&constants[location.offset]);
-	floats[0] = value;
+	::setFloat(vertexConstants, location.vertexOffset, location.vertexSize, value);
+	::setFloat(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
+	::setFloat(geometryConstants, location.geometryOffset, location.geometrySize, value);
+	::setFloat(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
+	::setFloat(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
 void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
-	if (location.size == 0) return;
-	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
-	float* floats = reinterpret_cast<float*>(&constants[location.offset]);
-	floats[0] = value1;
-	floats[1] = value2;
+	::setFloat2(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2);
+	::setFloat2(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2);
+	::setFloat2(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2);
+	::setFloat2(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2);
+	::setFloat2(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2);
 }
 
 void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	if (location.size == 0) return;
-	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
-	float* floats = reinterpret_cast<float*>(&constants[location.offset]);
-	floats[0] = value1;
-	floats[1] = value2;
-	floats[2] = value3;
+	::setFloat3(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3);
+	::setFloat3(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3);
+	::setFloat3(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3);
+	::setFloat3(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2, value3);
+	::setFloat3(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3);
 }
 
 void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	if (location.size == 0) return;
-	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
-	float* floats = reinterpret_cast<float*>(&constants[location.offset]);
-	floats[0] = value1;
-	floats[1] = value2;
-	floats[2] = value3;
-	floats[3] = value4;
+	::setFloat4(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3, value4);
+	::setFloat4(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3, value4);
+	::setFloat4(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3, value4);
+	::setFloat4(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2, value3, value4);
+	::setFloat4(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3, value4);
 }
 
 void Graphics::setFloats(ConstantLocation location, float* values, int count) {
-	if (location.size == 0) return;
-	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
-	float* floats = reinterpret_cast<float*>(&constants[location.offset]);
-	for (int i = 0; i < count; ++i) {
-		floats[i] = values[i];
-	}
+	::setFloats(vertexConstants, location.vertexOffset, location.vertexSize, values, count);
+	::setFloats(fragmentConstants, location.fragmentOffset, location.fragmentSize, values, count);
+	::setFloats(geometryConstants, location.geometryOffset, location.geometrySize, values, count);
+	::setFloats(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, values, count);
+	::setFloats(tessControlConstants, location.tessControlOffset, location.tessControlSize, values, count);
 }
 
 void Graphics::setBool(ConstantLocation location, bool value) {
-	if (location.size == 0) return;
-	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
-	int* ints = reinterpret_cast<int*>(&constants[location.offset]);
-	ints[0] = value ? 1 : 0;
+	::setBool(vertexConstants, location.vertexOffset, location.vertexSize, value);
+	::setBool(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
+	::setBool(geometryConstants, location.geometryOffset, location.geometrySize, value);
+	::setBool(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
+	::setBool(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
-	if (location.size == 0) return;
-	u8* constants = location.vertex ? vertexConstants : fragmentConstants;
-	float* floats = reinterpret_cast<float*>(&constants[location.offset]);
-	for (int y = 0; y < 4; ++y) {
-		for (int x = 0; x < 4; ++x) {
-			floats[x + y * 4] = value.get(y, x);
-		}
-	}
+	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
+	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
+	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
+	::setMatrix(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
+	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
+}
+
+void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
+	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
+	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
+	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
+	::setMatrix(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
+	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
 void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
@@ -443,8 +531,54 @@ void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) 
 
 }
 
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+namespace {
+	D3D11_BLEND convert(BlendingOperation operation) {
+		switch (operation) {
+		case BlendOne:
+			return D3D11_BLEND_ONE;
+		case BlendZero:
+			return D3D11_BLEND_ZERO;
+		case SourceAlpha:
+			return D3D11_BLEND_SRC_ALPHA;
+		case DestinationAlpha:
+			return D3D11_BLEND_DEST_ALPHA;
+		case InverseSourceAlpha:
+			return D3D11_BLEND_INV_SRC_ALPHA;
+		case InverseDestinationAlpha:
+			return D3D11_BLEND_INV_DEST_ALPHA;
+		default:
+			//	throw Exception("Unknown blending operation.");
+			return D3D11_BLEND_SRC_ALPHA;
+		}
+	}
+}
 
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+	ID3D11BlendState* blendState = nullptr;
+	
+	D3D11_BLEND_DESC blendDesc;
+	ZeroMemory(&blendDesc, sizeof(blendDesc));
+
+	D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+	ZeroMemory(&rtbd, sizeof(rtbd));
+
+	rtbd.BlendEnable = source != BlendOne || destination != BlendZero;
+	rtbd.SrcBlend = convert(source);
+	rtbd.DestBlend = convert(destination);
+	rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+	rtbd.SrcBlendAlpha = convert(source);
+	rtbd.DestBlendAlpha = convert(destination);
+	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.RenderTarget[0] = rtbd;
+
+	device->CreateBlendState(&blendDesc, &blendState);
+	
+	float blendFactor[] = { 0, 0, 0, 0 };
+	UINT sampleMask = 0xffffffff;
+	context->OMSetBlendState(blendState, blendFactor, sampleMask);
 }
 
 bool Graphics::renderTargetsInvertedY() {
@@ -457,8 +591,12 @@ bool Graphics::nonPow2TexturesSupported() {
 
 void Graphics::restoreRenderTarget() {
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(renderTargetWidth), static_cast<float>(renderTargetHeight));
+	context->RSSetViewports(1, &viewPort);
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int) {
 	context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(target->width), static_cast<float>(target->height));
+	context->RSSetViewports(1, &viewPort);
 }

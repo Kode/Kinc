@@ -25,6 +25,11 @@ if (platform === Platform.Windows) {
 		addBackend('Direct3D11');
 		project.addDefine('DIRECT3D');
 	}
+	else if (graphics === GraphicsApi.Direct3D12) {
+		addBackend('Direct3D12');
+		project.addDefine('DIRECT3D');
+		project.addLib('dxgi');
+	}
 	else {
 		addBackend('Direct3D9');
 		project.addDefine('DIRECT3D');
@@ -33,7 +38,10 @@ if (platform === Platform.Windows) {
 	project.addLibsFor('Win32', 'Backends/Windows/Libraries/directx/Lib/x86/dxguid', 'Backends/Windows/Libraries/directx/Lib/x86/DxErr', 'Backends/Windows/Libraries/directx/Lib/x86/dsound', 'Backends/Windows/Libraries/directx/Lib/x86/XInput', 'Backends/Windows/Libraries/directx/Lib/x86/dinput8');
 	project.addLibsFor('x64', 'Backends/Windows/Libraries/directx/Lib/x64/dxguid', 'Backends/Windows/Libraries/directx/Lib/x64/DxErr', 'Backends/Windows/Libraries/directx/Lib/x64/dsound', 'Backends/Windows/Libraries/directx/Lib/x64/XInput');
 	if (graphics !== GraphicsApi.OpenGL) {
-		if (graphics === GraphicsApi.Direct3D11) {
+		if (graphics === GraphicsApi.Direct3D12) {
+			project.addLib('d3d12');
+		}
+		else if (graphics === GraphicsApi.Direct3D11) {
 			project.addLibFor('Win32', 'Backends/Windows/Libraries/directx/Lib/x86/d3d11');
 			project.addLibFor('x64', 'Backends/Windows/Libraries/directx/Lib/x64/d3d11');
 		}
@@ -46,8 +54,8 @@ if (platform === Platform.Windows) {
 	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
 	project.addLib('ws2_32');
 }
-else if (platform === Platform.WindowsRT) {
-	addBackend('WindowsRT');
+else if (platform === Platform.WindowsApp) {
+	addBackend('WindowsApp');
 	addBackend('Direct3D11');
 }
 else if (platform === Platform.Xbox360) {
@@ -71,13 +79,20 @@ else if (platform === Platform.OSX) {
 }
 else if (platform === Platform.iOS) {
 	addBackend('iOS');
-	addBackend('OpenGL2');
-	project.addDefine('OPENGL');
+	if (graphics === GraphicsApi.Metal) {
+		addBackend('Metal');
+		project.addDefine('SYS_METAL');
+		project.addLib('Metal');
+	}
+	else {
+		addBackend('OpenGL2');
+		project.addDefine('OPENGL');
+		project.addLib('OpenGLES');
+	}
 	project.addLib('UIKit');
 	project.addLib('Foundation');
 	project.addLib('CoreGraphics');
 	project.addLib('QuartzCore');
-	project.addLib('OpenGLES');
 	project.addLib('CoreAudio');
 	project.addLib('AudioToolbox');
 	project.addLib('CoreMotion');
@@ -90,6 +105,7 @@ else if (platform === Platform.Android) {
 	addBackend('Android');
 	addBackend('OpenGL2');
 	project.addDefine('OPENGL');
+	project.addDefine('SYS_ANDROID_API=15');
 }
 else if (platform === Platform.HTML5) {
 	addBackend('HTML5');

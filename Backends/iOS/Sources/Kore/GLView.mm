@@ -43,14 +43,54 @@ namespace {
 		}
 		return -1;
 	}
+	
+	GLint backingWidth, backingHeight;
+}
+
+int Kore::System::screenWidth() {
+	return backingWidth;
+}
+
+int Kore::System::screenHeight() {
+	return backingHeight;
 }
 
 @implementation GLView
 
+#ifdef SYS_METAL
++ (Class)layerClass {
+	return [CAMetalLayer class];
+}
+#else
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
+#endif
 
+#ifdef SYS_METAL
+- (id)initWithFrame:(CGRect)frame {
+	self = [super initWithFrame:(CGRect)frame];
+	self.contentScaleFactor = [UIScreen mainScreen].scale;
+	
+	initTouches();
+	
+	device = MTLCreateSystemDefaultDevice();
+	commandQueue = [device newCommandQueue];
+	library = [device newDefaultLibrary];
+	
+	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+	
+	metalLayer.device = device;
+	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	metalLayer.framebufferOnly = YES;
+	//metalLayer.presentsWithTransaction = YES;
+	
+	metalLayer.opaque = YES;
+	metalLayer.backgroundColor = nil;
+	
+	return self;
+}
+#else
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
@@ -88,10 +128,44 @@ namespace {
 		[motionManager startAccelerometerUpdates];
 		hasAccelerometer = true;
 	}
+	
+	[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(onKeyboardHide:) name:UIKeyboardWillHideNotification object:nil];
 
 	return self;
 }
+#endif
 
+#ifdef SYS_METAL
+- (void)begin {
+	@autoreleasepool {
+		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+	
+		drawable = [metalLayer nextDrawable];
+		
+		//printf("It's %i\n", drawable == nil ? 0 : 1);
+		//if (drawable == nil) return;
+		id<MTLTexture> texture = drawable.texture;
+		
+		backingWidth = (int)[texture width];
+		backingHeight = (int)[texture height];
+		
+		if (renderPassDescriptor == nil) {
+			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+		}
+		renderPassDescriptor.colorAttachments[0].texture = texture;
+		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+	
+		//id <MTLCommandQueue> commandQueue = [device newCommandQueue];
+		commandBuffer = [commandQueue commandBuffer];
+		//if (drawable != nil) {
+		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+		//}
+		
+	}
+}
+#else
 - (void)begin {
 	[EAGLContext setCurrentContext:context];
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
@@ -112,17 +186,44 @@ namespace {
  		}
     }
 }
+#endif
 
+#ifdef SYS_METAL
+static float red = 0.0f;
+
+- (void)end {
+	@autoreleasepool {
+		[commandEncoder endEncoding];
+		[commandBuffer presentDrawable:drawable];
+		[commandBuffer commit];
+		commandBuffer = nil;
+	
+		//if (drawable != nil) {
+		//	[commandBuffer waitUntilScheduled];
+		//	[drawable present];
+		//}
+	}
+}
+#else
 - (void)end {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	[context presentRenderbuffer:GL_RENDERBUFFER_OES]; //crash at end
 }
+#endif
 
+#ifdef SYS_METAL
+-(void)layoutSubviews {
+	
+}
+#else
 - (void)layoutSubviews {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
+	
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+	
+	printf("backingWitdh/Height: %i, %i\n", backingWidth, backingHeight);
 	
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
 	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight);
@@ -131,7 +232,13 @@ namespace {
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 	}
 }
+#endif
 
+#ifdef SYS_METAL
+- (void)dealloc {
+	
+}
+#else
 - (void)dealloc {
 	if (defaultFramebuffer) {
 		glDeleteFramebuffersOES(1, &defaultFramebuffer);
@@ -150,35 +257,8 @@ namespace {
 	
 	//[super dealloc];
 }
-/*
-- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													point.y * self.contentScaleFactor));
-}
+#endif
 
-- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_move(Kore::MouseEvent(point.x * self.contentScaleFactor,
-											   point.y * self.contentScaleFactor));
-}
-
-- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													  point.y * self.contentScaleFactor));
-}
-
-- (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	CGPoint point = [touch locationInView:self];
-	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(point.x * self.contentScaleFactor,
-													  point.y * self.contentScaleFactor));
-}
-*/
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
 		int index = getTouchIndex((__bridge void*)touch);
@@ -247,51 +327,31 @@ namespace {
 }
 
 - (void)showKeyboard {
-	//[UIApplication sharedApplication].statusBarOrientation = UIInterfaceOrientationLandscapeRight;
-	keyboardstring = [NSString string];
-	if (myTextField == nullptr) {
-		myTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-		[myTextField setDelegate:self];
-		[myTextField setBorderStyle:UITextBorderStyleRoundedRect];
-		[myTextField setBackgroundColor:[UIColor whiteColor]];
-		[myTextField setTextColor:[UIColor blackColor]];
-		[myTextField setClearButtonMode:UITextFieldViewModeAlways];
-		[myTextField setFont:[UIFont fontWithName:@"Arial" size:18.0f]];
-		[myTextField setPlaceholder:@"Tap here to edit"];
-		//[myTextField setTextAlignment:UITextAlignmentCenter];
-		[myTextField setReturnKeyType:UIReturnKeyDone];
-	}
-	[self addSubview:myTextField];
-	[myTextField becomeFirstResponder];
-	
+	[self becomeFirstResponder];
 }
 
 - (void)hideKeyboard {
-    [myTextField endEditing:YES];
-    [myTextField removeFromSuperview];
+	[self resignFirstResponder];
 }
 
-- (void)textFieldDidEndEditing:(UITextField*)textField {
-	//NSLog([textField text]);
-	[textField endEditing:YES];
-	[textField removeFromSuperview];
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField*)texField {
-	// end editing
-	[texField resignFirstResponder];
+- (BOOL)hasText {
 	return YES;
 }
 
-- (BOOL)textField:(UITextField*)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString*)string {
-	if ([string length] == 1) {
-		unichar ch = [string characterAtIndex: [string length] - 1];
+- (void)insertText:(NSString*)text {
+	if ([text length] == 1) {
+		unichar ch = [text characterAtIndex: [text length] - 1];
+		if (ch == L'\n') {
+			Kore::Keyboard::the()->_keydown(Kore::Key_Return, '\n');
+			Kore::Keyboard::the()->_keyup(Kore::Key_Return, '\n');
+		}
 		if (ch >= L'a' && ch <= L'z') {
 			if (shiftDown) {
 				Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
 				shiftDown = false;
 			}
 			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch + L'A' - L'a'), ch);
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch + L'A' - L'a'), ch);
 		}
 		else {
 			if (!shiftDown) {
@@ -299,13 +359,36 @@ namespace {
 				shiftDown = true;
 			}
 			Kore::Keyboard::the()->_keydown((Kore::KeyCode)ch, ch);
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)ch, ch);
 		}
 	}
-	else if ([string length] == 0 && range.length == 1) {
-		Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
-		return NO;
-	}
+}
+
+- (void)deleteBackward {
+	Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
+	Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
+}
+
+- (BOOL)canBecomeFirstResponder {
 	return YES;
 }
+
+- (void)onKeyboardHide:(NSNotification*)notification {
+	Kore::System::hideKeyboard();
+}
+
+#ifdef SYS_METAL
+- (id <MTLDevice>)metalDevice {
+	return device;
+}
+
+- (id <MTLLibrary>)metalLibrary {
+	return library;
+}
+
+- (id <MTLRenderCommandEncoder>)metalEncoder {
+	return commandEncoder;
+}
+#endif
 
 @end
