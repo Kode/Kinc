@@ -711,7 +711,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 				this.p("<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>", 3);
 				this.p("<MultiProcessorCompilation>true</MultiProcessorCompilation>", 3);
 				this.p("<MinimalRebuild>false</MinimalRebuild>", 3);
-				if (Options.visualStudioVersion == VisualStudioVersion.VS2013) this.p("<SDLCheck>true</SDLCheck>", 3);
+				//if (Options.visualStudioVersion == VisualStudioVersion.VS2013) this.p("<SDLCheck>true</SDLCheck>", 3);
 			}
 			else if (platform == Platform.PlayStation3) {
 				this.p("<UserPreprocessorDefinitions>" + defines + "_DEBUG;__CELL_ASSERT__;%(UserPreprocessorDefinitions);</UserPreprocessorDefinitions>", 3);
@@ -763,7 +763,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 				this.p("<RuntimeLibrary>MultiThreaded</RuntimeLibrary>", 3);
 				this.p("<MultiProcessorCompilation>true</MultiProcessorCompilation>", 3);
 				this.p("<MinimalRebuild>false</MinimalRebuild>", 3);
-				if (Options.visualStudioVersion == VisualStudioVersion.VS2013) this.p("<SDLCheck>true</SDLCheck>", 3);
+				//if (Options.visualStudioVersion == VisualStudioVersion.VS2013) this.p("<SDLCheck>true</SDLCheck>", 3);
 			}
 			else if (platform == Platform.PlayStation3) {
 				this.p("<UserPreprocessorDefinitions>" + defines + "NDEBUG;%(UserPreprocessorDefinitions);</UserPreprocessorDefinitions>", 3);
