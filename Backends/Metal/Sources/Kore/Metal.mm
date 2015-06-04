@@ -48,6 +48,10 @@ void Graphics::init() {
 	fragmentUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
 }
 
+void Graphics::flush() {
+	
+}
+
 unsigned Graphics::refreshRate() {
 	return 60;
 }

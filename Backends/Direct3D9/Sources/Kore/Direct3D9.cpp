@@ -204,6 +204,10 @@ void Graphics::init() {
 #endif
 }
 
+void Graphics::flush() {
+
+}
+
 namespace {
 	DWORD convertFilter(TextureFilter filter) {
 		switch (filter) {

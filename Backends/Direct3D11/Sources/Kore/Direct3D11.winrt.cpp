@@ -235,6 +235,10 @@ void Graphics::init() {
 #endif
 }
 
+void Graphics::flush() {
+
+}
+
 void Graphics::changeResolution(int width, int height) {
 
 }
