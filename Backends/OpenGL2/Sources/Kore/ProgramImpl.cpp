@@ -21,11 +21,11 @@ ProgramImpl::ProgramImpl() : textureCount(0), vertexShader(nullptr), fragmentSha
 Program::Program() {
 	programId = glCreateProgram();
 }
-	
+
 void Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
-	
+
 void Program::setFragmentShader(Shader* shader) {
 	fragmentShader = shader;
 }
@@ -104,16 +104,16 @@ void Program::link(const VertexStructure& structure) {
 	if (tesselationControlShader != nullptr) glAttachShader(programId, tesselationControlShader->id);
 	if (tesselationEvaluationShader != nullptr) glAttachShader(programId, tesselationEvaluationShader->id);
 #endif
-		
+
 	int index = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
 		glBindAttribLocation(programId, index, element.name);
 		++index;
 	}
-		
+
 	glLinkProgram(programId);
-	
+
 	int result;
 	glGetProgramiv(programId, GL_LINK_STATUS, &result);
 	if (result != GL_TRUE) {
@@ -126,12 +126,14 @@ void Program::link(const VertexStructure& structure) {
 	}
 
 #ifndef OPENGLES
+#ifndef SYS_LINUX
 	if (tesselationControlShader != nullptr) {
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 	}
 #endif
+#endif
 }
-	
+
 void Program::set() {
 #ifndef OPENGLES
 	programUsesTesselation = tesselationControlShader != nullptr;
