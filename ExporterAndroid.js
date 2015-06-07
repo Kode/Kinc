@@ -23,7 +23,7 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 		Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "classpath.Cardboard")), to.resolve(".classpath"), true);
 	}
 	else {
-		Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "classpath")), to.resolve("classpath"), true);
+		Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "classpath")), to.resolve(".classpath"), true);
 	}
 
 	if (nvpack) {
