@@ -4,21 +4,22 @@ var pa = require('path');
 var execSync = require('child_process').execSync;
 
 function filesDiffer(file1, file2) {
-  // Treat them as different if one of them does not exist.
-  if (!fs.existsSync(file1)) return true;
-  if (!fs.existsSync(file2)) return true;
+	// Treat them as different if one of them does not exist.
+	if (!fs.existsSync(file1)) return true;
+	if (!fs.existsSync(file2)) return true;
 
-  var isDifferent = true;
-  var output;
-  try {
-   output = execSync("fc " + file1 + " " + file2, { encoding: 'utf8' });
-   } catch (error) {
-    output = "";
-   }
-  if(output.indexOf("no differences encountered") > -1) {
-    isDifferent = false;
-  }
-  return isDifferent;
+	var isDifferent = true;
+	var output;
+	try {
+		output = execSync("fc " + file1 + " " + file2, { encoding: 'utf8' });
+	}
+	catch (error) {
+		output = "";
+	}
+	if(output.indexOf("no differences encountered") > -1) {
+		isDifferent = false;
+	}
+	return isDifferent;
 }
 
 exports.exists = function (path) {
@@ -54,19 +55,17 @@ exports.copy = function (from, to, replace) {
 };
 
 exports.copyIfDifferent = function (from, to, replace) {
-exports.createDirectories(to.parent());
+	exports.createDirectories(to.parent());
 	if (replace || !fs.existsSync(to.path)) {
-      if (filesDiffer(to.path, from.path)) {
-        fs.writeFileSync(to.path, fs.readFileSync(from.path));
-          console.log("Copying differing file: " + from.path);
-        } else {
-          //console.log("Skipped file: " + from.path);
-        }
-    
-    }
+		if (filesDiffer(to.path, from.path)) {
+			fs.writeFileSync(to.path, fs.readFileSync(from.path));
+			//console.log("Copying differing file: " + from.path);
+		}
+		else {
+			//console.log("Skipped file: " + from.path);
+		}
+	}
 };
-
-
 
 exports.newDirectoryStream = function (path) {
 	return fs.readdirSync(path.path);
