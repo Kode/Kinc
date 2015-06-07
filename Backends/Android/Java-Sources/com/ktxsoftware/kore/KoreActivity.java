@@ -29,8 +29,6 @@ import com.google.vrtoolkit.cardboard.HeadMountedDisplay;
 import com.google.vrtoolkit.cardboard.HeadMountedDisplayManager;
 import com.google.vrtoolkit.cardboard.FieldOfView;
 import com.google.vrtoolkit.cardboard.ScreenParams; */
-import com.ktxsoftware.kore.KoreTouchEvent;
-
 
 public class KoreActivity extends Activity implements SensorEventListener {//, OnCardboardTriggerListener,  OnCardboardNfcListener {
 	public volatile static boolean paused = true;
