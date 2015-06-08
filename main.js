@@ -209,26 +209,49 @@ exports.run = function (options, loglog, callback) {
 	}
 	
 	if (options.vrApi !== undefined) {
-    Options.vrApi = options.vrApi;
+    	Options.vrApi = options.vrApi;
 	}
 	
-	exportProject(Paths.get(options.from), Paths.get(options.to), options.platform, options);
+	var solutionName = exportProject(Paths.get(options.from), Paths.get(options.to), options.platform, options);
 
-	if (options.platform === Platform.Linux && options.compile) {
+	if (options.compile && solutionName != "") {
 		log.info('Compiling...');
-		var make = child_process.spawn('make', [], { cwd: options.to });
 
-		make.stdout.on('data', function (data) {
-			log.info(data.toString());
-		});
+		var make = null;
 
-		make.stderr.on('data', function (data) {
-			log.error(data.toString());
-		});
+		if (options.platform === Platform.Linux) {
+			make = child_process.spawn('make', [], { cwd: options.to });
+		}
+		else if (options.platform == Platform.OSX) {
+			make = child_process.spawn('xcodebuild', ['-project', solutionName + '.xcodeproj'], { cwd: options.to });
+		}
 
-		make.on('close', function (code) {
+		if (make != null) {
+			make.stdout.on('data', function (data) {
+				log.info(data.toString());
+			});
+
+			make.stderr.on('data', function (data) {
+				log.error(data.toString());
+			});
+
+			make.on('close', function (code) {
+				if (options.run) {
+					if (options.platform == Platform.OSX) {
+						child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], { cwd: options.to });
+					}
+					else {
+						log.info('--run not yet implemented for this platform');
+					}
+				}
+
+				callback();
+			});
+		}
+		else {
+			log.info('--compile not yet implemented for this platform');
 			callback();
-		});
+		}
 	}
 	else callback();
 };
