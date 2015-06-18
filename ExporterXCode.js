@@ -278,7 +278,7 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 	this.p("/* End PBXBuildFile section */");
 	this.p();
 	this.p("/* Begin PBXFileReference section */");
-	this.p(appFileId + " /* " + solution.getName() + ".app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = " + solution.getName() + ".app; sourceTree = BUILT_PRODUCTS_DIR; };", 2);
+	this.p(appFileId + " /* " + solution.getName() + ".app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = \"" + solution.getName() + ".app\"; sourceTree = BUILT_PRODUCTS_DIR; };", 2);
 
 	for (var f in frameworks) {
 		var framework = frameworks[f];
@@ -377,9 +377,9 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 			this.p(");", 3);
 			if (!contains(dir.getName(), '/')) {
 				this.p("path = ../;", 3);
-				this.p("name = " + dir.getLastName() + ";", 3);
+				this.p("name = \"" + dir.getLastName() + "\";", 3);
 			}
-			else this.p("name = " + dir.getLastName() + ";", 3);
+			else this.p("name = \"" + dir.getLastName() + "\";", 3);
 			this.p("sourceTree = \"<group>\";", 3);
 		this.p("};", 2);
 	}
@@ -398,8 +398,8 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 		this.p(");", 3);
 		this.p("dependencies = (", 3);
 		this.p(");", 3);
-		this.p("name = " + solution.getName() + ";", 3);
-		this.p("productName = " + solution.getName() + ";", 3);
+		this.p("name = \"" + solution.getName() + "\";", 3);
+		this.p("productName = \"" + solution.getName() + "\";", 3);
 		this.p("productReference = " + appFileId + " /* " + solution.getName() + ".app */;", 3);
 		this.p("productType = \"com.apple.product-type." + (solution.isCmd() ? "tool" : "application") + "\";", 3);
 	this.p("};", 2);
