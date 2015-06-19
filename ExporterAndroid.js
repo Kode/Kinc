@@ -151,7 +151,7 @@ $(call import-module,nv_thread)
 	if (vr == "cardboard") {
 		this.p("LOCAL_CPPFLAGS := -DVR_CARDBOARD");
 	}
-	this.p("LOCAL_SHORT_COMMANDS := true");
+	this.p("#LOCAL_SHORT_COMMANDS := true");
 	this.p();
 	this.p("include $(BUILD_SHARED_LIBRARY)");
 	this.p();
