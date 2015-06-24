@@ -18,7 +18,7 @@ function run(from, to, width, height, format, background, callback) {
 	var child = cp.spawn(path.join(__dirname, '..', 'kraffiti', exe), params);
 	
 	child.stdout.on('data', function (data) {
-		log.info('kraffiti stdout: ' + data);
+		//log.info('kraffiti stdout: ' + data);
 	});
 	
 	child.stderr.on('data', function (data) {
