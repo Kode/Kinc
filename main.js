@@ -1,4 +1,5 @@
 var child_process = require('child_process');
+var fs = require('fs');
 var os = require('os');
 var path = require('path');
 var log = require('./log.js');
@@ -169,7 +170,28 @@ function exportKakeProject(from, to, platform, options) {
 		else exporter = new ExporterCodeBlocks();
 	}
 	else if (platform == Platform.Tizen) exporter = new ExporterTizen();
-	else exporter = new ExporterVisualStudio();
+	else {
+		var found = false;
+		for (var p in Platform) {
+			if (platform === Platform[p]) {
+				found = true;
+				break;
+			}
+		}
+		if (found) {
+			exporter = new ExporterVisualStudio();
+		}
+		else {
+			var libfiles = fs.readdirSync(path.join(from, 'Libraries'));
+			for (var lf in libfiles) {
+				var libfile = libfiles[lf];
+				if (libfile.startsWith('Exporter') && libfile.endsWith('.js')) {
+					exporter = new require(path.join(from, 'Libraries', libfile));
+					break;
+				}
+			}
+		}
+	}
 	exporter.exportSolution(solution, from, to, platform, options.vrApi);
 
 	log.info(".done.");
