@@ -66,11 +66,7 @@ for (var i = 2; i < args.length; ++i) {
 	else if (arg.startsWith("to=")) to = arg.substr(3);
 
 	else {
-		for (p in Platform) {
-			if (arg === Platform[p]) {
-				platform = Platform[p];
-			}
-		}
+		platform = arg;
 	}
 }
 

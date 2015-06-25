@@ -140,7 +140,7 @@ function compileShader(type, from, to, temp) {
 
 function exportKakeProject(from, to, platform, options) {
 	log.info("korefile found, generating build files.");
-	log.info("Generating " + fromPlatform(platform) + " solution");
+	log.info("Generating " + fromPlatform(platform) + " solution.");
 
 	var solution = Solution.create(from, platform);
 	solution.searchFiles();
@@ -182,19 +182,25 @@ function exportKakeProject(from, to, platform, options) {
 			exporter = new ExporterVisualStudio();
 		}
 		else {
-			var libfiles = fs.readdirSync(path.join(from, 'Libraries'));
-			for (var lf in libfiles) {
-				var libfile = libfiles[lf];
-				if (libfile.startsWith('Exporter') && libfile.endsWith('.js')) {
-					exporter = new require(path.join(from, 'Libraries', libfile));
-					break;
+			var libdirs = fs.readdirSync(path.join(from.toString(), 'Libraries'));
+			for (var ld in libdirs) {
+				var libdir = libdirs[ld];
+				if (fs.statSync(path.join(from.toString(), 'Libraries', libdir)).isDirectory()) {
+					var libfiles = fs.readdirSync(path.join(from.toString(), 'Libraries', libdir));
+					for (var lf in libfiles) {
+						var libfile = libfiles[lf];
+						if (libfile.startsWith('Exporter') && libfile.endsWith('.js')) {
+							var Exporter = require(path.relative(__dirname, path.join(from.toString(), 'Libraries', libdir, libfile)));
+							exporter = new Exporter();
+							break;
+						}
+					}
 				}
 			}
 		}
 	}
 	exporter.exportSolution(solution, from, to, platform, options.vrApi);
 
-	log.info(".done.");
 	return solution.getName();
 }
 

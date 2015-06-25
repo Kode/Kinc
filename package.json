@@ -1,0 +1,25 @@
+{
+  "name": "koremake",
+  "version": "1.0.0",
+  "description": "Kore build tool",
+  "main": "koremake.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ktxsoftware/koremake.git"
+  },
+  "keywords": [
+    "kore"
+  ],
+  "author": "Robert Konrad",
+  "license": "Zlib",
+  "bugs": {
+    "url": "https://github.com/ktxsoftware/koremake/issues"
+  },
+  "homepage": "https://github.com/ktxsoftware/koremake#readme",
+  "dependencies": {
+    "fs-extra": "^0.20.1"
+  }
+}
