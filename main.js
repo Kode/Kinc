@@ -1,14 +1,15 @@
 var child_process = require('child_process');
 var os = require('os');
+var path = require('path');
 var log = require('./log.js');
 var Files = require('./Files.js');
 var GraphicsApi = require('./GraphicsApi.js');
 var Options = require('./Options.js');
-var Path = require('./Path.js');
 var Paths = require('./Paths.js');
 var Project = require('./Project.js');
 var Platform = require('./Platform.js');
 var Solution = require('./Solution.js');
+var exec = require('./exec.js');
 var VisualStudioVersion = require('./VisualStudioVersion.js');
 var ExporterAndroid = require('./ExporterAndroid.js');
 var ExporterCodeBlocks = require('./ExporterCodeBlocks.js');
@@ -17,7 +18,7 @@ var ExporterEmscripten = require('./ExporterEmscripten.js');
 var ExporterTizen = require('./ExporterTizen.js');
 var ExporterVisualStudio = require('./ExporterVisualStudio.js');
 var ExporterXCode = require('./ExporterXCode.js');
-	
+
 if (!String.prototype.startsWith) {
 	Object.defineProperty(String.prototype, 'startsWith', {
 		enumerable: false,
@@ -106,7 +107,12 @@ function shaderLang(platform) {
 		case Platform.PlayStation3:
 			return "d3d9";
 		case Platform.iOS:
-			return "essl";
+			switch (Options.graphicsApi) {
+				case GraphicsApi.Metal:
+					return 'metal';
+				default:
+					return 'essl';
+			}
 		case Platform.OSX:
 			return "glsl";
 		case Platform.Android:
@@ -126,16 +132,8 @@ function shaderLang(platform) {
 
 function compileShader(type, from, to, temp) {
 	if (Project.koreDir.path !== '') {
-		if (os.platform() === "linux") {
-			var path = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx-linux"));
-		}
-		else if (os.platform() === "win32") {
-			var path = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx.exe"));
-		}
-		else {
-			var path = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx-osx"));
-		}
-		child_process.spawn(path.toString(), [type, from, to, temp]);
+		var path = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys()));
+		child_process.spawnSync(path.toString(), [type, from, to, temp]);
 	}
 }
 
@@ -144,11 +142,8 @@ function exportKakeProject(from, to, platform, options) {
 	log.info("Generating " + fromPlatform(platform) + " solution");
 
 	var solution = Solution.create(from, platform);
-	log.info(".");
 	solution.searchFiles();
-	log.info(".");
 	solution.flatten();
-	log.info(".");
 
 	if (!Files.exists(to)) Files.createDirectories(to);
 
@@ -161,7 +156,7 @@ function exportKakeProject(from, to, platform, options) {
 			var index = outfile.lastIndexOf('/');
 			if (index > 0) outfile = outfile.substr(index);
 			outfile = outfile.substr(0, outfile.length - 5);
-			compileShader(shaderLang(platform), file, project.getDebugDir() + "/" + outfile, "build");
+			compileShader(shaderLang(platform), file, path.join(project.getDebugDir(), outfile), "build");
 		}
 	}
 
