@@ -1,6 +1,6 @@
 #pragma once
 
-#if !defined(SYS_WINDOWS) && !defined(SYS_WINDOWSAPP)
+#if !defined(SYS_WINDOWS) && !defined(SYS_WINDOWSAPP) && defined(SYS_UNIXOID)
 #include <pthread.h>
 #endif
 
@@ -21,7 +21,7 @@ namespace Kore {
 			void* LockSemaphore;
 			unsigned long __w64 SpinCount;
 		} criticalSection;
-	#else
+	#elif defined(SYS_UNIXOID)
 		pthread_mutex_t pthread_mutex;
 	#endif
 	};
@@ -30,8 +30,6 @@ namespace Kore {
 	public:
 		#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 		void *id;
-		#elif defined SYS_IPH
-		#elif defined SYS_NDS
 		#endif
 
 		bool Create(const wchar_t *name);

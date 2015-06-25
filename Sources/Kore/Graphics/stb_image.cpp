@@ -74,7 +74,9 @@
 #include <stdio.h>
 #endif
 #include <stdlib.h>
+#ifndef SYS_CONSOLE
 #include <memory.h>
+#endif
 #include <assert.h>
 #include <stdarg.h>
 

@@ -76,6 +76,7 @@ else if (platform === Platform.OSX) {
 	project.addLib('CoreData');
 	project.addLib('Foundation');
 	project.addLib('OpenGL');
+	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.iOS) {
 	addBackend('iOS');
@@ -100,12 +101,14 @@ else if (platform === Platform.iOS) {
 	project.addLib('CoreFoundation');
 	project.addLib('CoreVideo');
 	project.addLib('CoreMedia');
+	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.Android) {
 	addBackend('Android');
 	addBackend('OpenGL2');
 	project.addDefine('OPENGL');
 	project.addDefine('SYS_ANDROID_API=15');
+	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.HTML5) {
 	addBackend('HTML5');
@@ -117,12 +120,18 @@ else if (platform === Platform.Linux) {
 	addBackend('Linux');
 	addBackend('OpenGL2');
 	project.addDefine('OPENGL');
+	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.Tizen) {
 	addBackend('Tizen');
 	addBackend('OpenGL2');
 	project.addExclude('Backends/OpenGL2/Sources/GL/**');
 	project.addDefine('OPENGL');
+	project.addDefine('SYS_UNIXOID');
+}
+
+if (platform !== Platform.Android) {
+	project.addExclude('Sources/Kore/IO/miniz.cpp')
 }
 
 return project;
