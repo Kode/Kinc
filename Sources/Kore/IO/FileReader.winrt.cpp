@@ -135,6 +135,12 @@ bool FileReader::open(const char* filename, FileType type) {
 #ifdef SYS_PS3
 	filepath = Kt::Text(SYS_APP_HOME) + "/" + filepath;
 #endif
+#ifdef SYS_WIIU
+	strcpy(filepath, "content/kore/");
+	strcat(filepath, KORE_PROJECTNAME);
+	strcat(filepath, "/");
+	strcat(filepath, filename);
+#endif
 #ifdef SYS_WINDOWS
 	if (type == Save) {
 		strcpy(filepath, System::savePath());
