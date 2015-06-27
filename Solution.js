@@ -111,13 +111,15 @@ Solution.createSolution = function (filename, platform) {
 			require('path'));
 	Solution.scriptdir = oldscriptdir;
 
-	var libdirs = fs.readdirSync(path.join(Solution.scriptdir.toString(), 'Libraries'));
-	for (var ld in libdirs) {
-		var libdir = path.join(Solution.scriptdir.toString().toString(), 'Libraries', libdirs[ld]);
-		if (fs.statSync(libdir).isDirectory()) {
-			var korefile = path.join(libdir, 'korefile.js');
-			if (fs.existsSync(korefile)) {
-				solution.projects[0].addSubProject(Solution.createProject(libdir));
+	if (fs.existsSync(path.join(Solution.scriptdir.toString(), 'Libraries'))) {
+		var libdirs = fs.readdirSync(path.join(Solution.scriptdir.toString(), 'Libraries'));
+		for (var ld in libdirs) {
+			var libdir = path.join(Solution.scriptdir.toString().toString(), 'Libraries', libdirs[ld]);
+			if (fs.statSync(libdir).isDirectory()) {
+				var korefile = path.join(libdir, 'korefile.js');
+				if (fs.existsSync(korefile)) {
+					solution.projects[0].addSubProject(Solution.createProject(libdir));
+				}
 			}
 		}
 	}
