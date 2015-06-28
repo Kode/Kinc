@@ -10,6 +10,11 @@ namespace Kore {
 		int size;
 		bool isfile;
 	};
+#elif defined(SYS_WIIU)
+	struct FileReaderData {
+		int file;
+		int pos;
+	};
 #else
 	struct FileReaderData {
 		void* file;

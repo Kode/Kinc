@@ -13,6 +13,8 @@
 #include <memory.h>
 #endif
 
+#ifndef SYS_CONSOLE
+
 #ifndef KORE_DEBUGDIR
 #define KORE_DEBUGDIR "Deployment"
 #endif
@@ -134,12 +136,6 @@ bool FileReader::open(const char* filename, FileType type) {
 #endif
 #ifdef SYS_PS3
 	filepath = Kt::Text(SYS_APP_HOME) + "/" + filepath;
-#endif
-#ifdef SYS_WIIU
-	strcpy(filepath, "content/kore/");
-	strcat(filepath, KORE_PROJECTNAME);
-	strcat(filepath, "/");
-	strcat(filepath, filename);
 #endif
 #ifdef SYS_WINDOWS
 	if (type == Save) {
@@ -277,3 +273,5 @@ int FileReader::pos() const {
 int FileReader::size() const {
 	return data.size;
 }
+
+#endif
