@@ -22,6 +22,7 @@ Path.prototype.relativize = function (other) {
 
 Path.prototype.resolve = function (subpath) {
 	if (typeof (subpath) !== 'string') subpath = subpath.path;
+	if (path.isAbsolute(subpath)) return new Path(subpath);
 	return new Path(path.join(this.path, subpath));
 };
 
