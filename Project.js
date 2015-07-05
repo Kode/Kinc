@@ -98,7 +98,7 @@ function isAbsolute(path) {
 
 Project.prototype.searchFiles = function (current) {
 	if (current === undefined) {
-		for (sub in this.subProjects) this.subProjects[sub].searchFiles();
+		for (var sub in this.subProjects) this.subProjects[sub].searchFiles();
 		this.searchFiles(this.basedir);
 		//std::set<std::string> starts;
 		//for (std::string include : includes) {
@@ -112,15 +112,15 @@ Project.prototype.searchFiles = function (current) {
 	}
 
 	var files = Files.newDirectoryStream(current);
-	nextfile: for (f in files) {
+	nextfile: for (var f in files) {
 		var file = Paths.get(current, files[f]);
 		if (Files.isDirectory(file)) continue;
 		//if (!current.isAbsolute())
 		file = this.basedir.relativize(file);
-		for (exclude in this.excludes) {
+		for (var exclude in this.excludes) {
 			if (this.matches(this.stringify(file), this.excludes[exclude])) continue nextfile;
 		}
-		for (i in this.includes) {
+		for (var i in this.includes) {
 			var include = this.includes[i];
 			if (isAbsolute(include)) {
 				var inc = Paths.get(include);
@@ -133,7 +133,7 @@ Project.prototype.searchFiles = function (current) {
 		}
 	}
 	var dirs = Files.newDirectoryStream(current);
-	nextdir: for (d in dirs) {
+	nextdir: for (var d in dirs) {
 		var dir = Paths.get(current, dirs[d]);
 		if (!Files.isDirectory(dir)) continue;
 		for (exclude in this.excludes) {
@@ -164,13 +164,6 @@ Project.prototype.addExcludes = function () {
 		this.addExclude(arguments[i]);
 	}
 };
-
-function contains(array, element) {
-	for (index in array) {
-		if (array[index] === element) return true;
-	}
-	return false;
-}
 
 Project.prototype.addDefine = function (define) {
 	if (contains(this.defines, define)) return;
