@@ -72,6 +72,7 @@ var Framework = function (name) {
 	this.name = name;
 	this.buildid = newId();
 	this.fileid = newId();
+	this.localPath = null;
 };
 
 Framework.prototype.toString = function () {
@@ -282,7 +283,17 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 
 	for (var f in frameworks) {
 		var framework = frameworks[f];
-		if (framework.toString().endsWith('.framework')) this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = System/Library/Frameworks/" + framework.toString() + "; sourceTree = SDKROOT; };", 2);
+		if (framework.toString().endsWith('.framework')) {
+			// Local framework - a directory is specified
+			if (contains(framework.toString(), '/')) {
+				framework.localPath = from.resolve(framework.toString()).toAbsolutePath().toString();
+				this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = " + framework.localPath + "; sourceTree = \"<absolute>\"; };", 2);
+			}
+			// XCode framework
+			else {
+				this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = System/Library/Frameworks/" + framework.toString() + "; sourceTree = SDKROOT; };", 2);
+			}
+		}
 		else if (framework.toString().endsWith('.dylib')) this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = compiled.mach-o.dylib; name = " + framework.toString() + "; path = usr/lib/" + framework.toString() + "; sourceTree = SDKROOT; };", 2);
 		else this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = ../" + from.resolve(framework.toString()).toAbsolutePath().toString() + "; sourceTree = SDKROOT; };", 2);
 	}
@@ -642,6 +653,14 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 			if (platform === Platform.OSX) {
 				this.p('COMBINE_HIDPI_IMAGES = YES;', 4);
 			}
+			this.p("FRAMEWORK_SEARCH_PATHS = (", 4);
+				this.p('"$(inherited)",', 5);
+				// Search paths to local frameworks
+				for (var f in frameworks) {
+					var framework = frameworks[f];
+					if (framework.localPath != null) this.p(framework.localPath.substr(0, framework.localPath.lastIndexOf('/')) + ",", 5);
+				}
+			this.p(");", 4);
 			this.p("HEADER_SEARCH_PATHS = (", 4);
 				this.p('"$(inherited)",', 5);
 				this.p('/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,', 5);
@@ -665,6 +684,14 @@ ExporterXCode.prototype.exportSolution = function (solution, from, to, platform)
 			if (platform === Platform.OSX) {
 				this.p('COMBINE_HIDPI_IMAGES = YES;', 4);
 			}
+			this.p("FRAMEWORK_SEARCH_PATHS = (", 4);
+				this.p('"$(inherited)",', 5);
+				// Search paths to local frameworks
+				for (var f in frameworks) {
+					var framework = frameworks[f];
+					if (framework.localPath != null) this.p(framework.localPath.substr(0, framework.localPath.lastIndexOf('/')) + ",", 5);
+				}
+			this.p(");", 4);
 			this.p("HEADER_SEARCH_PATHS = (", 4);
 				this.p('"$(inherited)",', 5);
 				this.p('/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,', 5);
