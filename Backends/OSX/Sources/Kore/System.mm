@@ -76,6 +76,22 @@ int System::screenHeight() {
 	return Application::the()->height();
 }
 
+int System::desktopWidth() {
+	NSArray* screenArray = [NSScreen screens];
+	//unsigned screenCount = [screenArray count];
+	NSScreen* screen = [screenArray objectAtIndex: 0];
+	NSRect screenRect = [screen visibleFrame];
+	return screenRect.size.width;
+}
+
+int System::desktopHeight() {
+	NSArray* screenArray = [NSScreen screens];
+	//unsigned screenCount = [screenArray count];
+	NSScreen* screen = [screenArray objectAtIndex: 0];
+	NSRect screenRect = [screen visibleFrame];
+	return screenRect.size.height;
+}
+
 namespace {
 	const char* savePath = nullptr;
 
