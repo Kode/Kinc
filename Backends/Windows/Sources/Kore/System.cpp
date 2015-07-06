@@ -534,6 +534,20 @@ int Kore::System::screenHeight() {
 	return Application::the()->height();
 }
 
+int Kore::System::desktopWidth() {
+	RECT size;
+	const HWND desktop = GetDesktopWindow();
+	GetWindowRect(desktop, &size);
+	return size.right;
+}
+
+int Kore::System::desktopHeight() {
+	RECT size;
+	const HWND desktop = GetDesktopWindow();
+	GetWindowRect(desktop, &size);
+	return size.bottom;
+}
+
 const char* Kore::System::systemId() {
 	return "Windows";
 }

@@ -16,6 +16,8 @@ namespace Kore {
 		void loadURL(const char* title);
 		int screenWidth();
 		int screenHeight();
+		int desktopWidth();
+		int desktopHeight();
 		const char* systemId();
 		void setTitle(const char* title);
 		const char* savePath();

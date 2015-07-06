@@ -8,3 +8,15 @@ double Kore::System::time() {
 }
 #endif
 #endif
+
+#if !defined(SYS_WINDOWS) && !defined(SYS_OSX) && !defined(SYS_LINUX) && !defined(SYS_HTML5)
+
+int Kore::System::desktopWidth() {
+	return screenWidth();
+}
+
+int Kore::System::desktopHeight() {
+	return screenHeight();
+}
+
+#endif // !ined(SYS_WINDOWS) && !defined(SYS_OSX) && !defined(SYS_LINUX) && !defined(SYS_HTML5)
