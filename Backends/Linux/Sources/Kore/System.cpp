@@ -269,6 +269,14 @@ int Kore::System::screenHeight() {
     return Application::the()->height();
 }
 
+int Kore::System::desktopWidth() {
+    return XWidthOfScreen(XDefaultScreenOfDisplay(dpy));
+}
+
+int Kore::System::desktopHeight() {
+    return XHeightOfScreen(XDefaultScreenOfDisplay(dpy));
+}
+
 namespace {
     char save[2000];
     bool saveInitialized = false;
