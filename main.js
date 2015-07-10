@@ -131,10 +131,10 @@ function shaderLang(platform) {
 	}
 }
 
-function compileShader(type, from, to, temp) {
+function compileShader(type, from, to, temp, platform) {
 	if (Project.koreDir.path !== '') {
 		var path = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys()));
-		child_process.spawnSync(path.toString(), [type, from, to, temp]);
+		child_process.spawnSync(path.toString(), [type, from, to, temp, platform]);
 	}
 }
 
@@ -157,7 +157,7 @@ function exportKakeProject(from, to, platform, options) {
 			var index = outfile.lastIndexOf('/');
 			if (index > 0) outfile = outfile.substr(index);
 			outfile = outfile.substr(0, outfile.length - 5);
-			compileShader(shaderLang(platform), file, path.join(project.getDebugDir(), outfile), "build");
+			compileShader(shaderLang(platform), file, path.join(project.getDebugDir(), outfile), "build", platform);
 		}
 	}
 
