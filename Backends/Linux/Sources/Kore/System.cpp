@@ -270,11 +270,11 @@ int Kore::System::screenHeight() {
 }
 
 int Kore::System::desktopWidth() {
-    return XWidthOfScreen(XDefaultScreenOfDisplay(dpy));
+    return XWidthOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
 }
 
 int Kore::System::desktopHeight() {
-    return XHeightOfScreen(XDefaultScreenOfDisplay(dpy));
+    return XHeightOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
 }
 
 namespace {
