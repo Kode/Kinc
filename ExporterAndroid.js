@@ -33,13 +33,13 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 
 	fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
 
-	var defines = '';
-	for (var def in project.getDefines()) defines += '-D' + project.getDefines()[def] + ' ';
 	var flags = '\n';
 	flags += '        cppFlags += "-fexceptions"\n';
 	flags += '        cppFlags += "-frtti"\n';
-	flags += '        cppFlags += "' + defines + '"\n';
-	flags += '        CFlags += "' + defines + '"\n';
+	for (var def in project.getDefines()) {
+		flags += '        cppFlags += "-D' + project.getDefines()[def] + '"\n';
+		flags += '        CFlags += "-D' + project.getDefines()[def] + '"\n';	
+	}
 	for (var inc in project.getIncludeDirs()) {
 		flags += '        cppFlags += "-I${file("src/main/jni/' + project.getIncludeDirs()[inc].replaceAll('\\', '/') + '")}".toString()\n'
 		flags += '        CFlags += "-I${file("src/main/jni/' + project.getIncludeDirs()[inc].replaceAll('\\', '/') + '")}".toString()\n'
