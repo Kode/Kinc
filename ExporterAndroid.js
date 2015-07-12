@@ -35,9 +35,15 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 
 	var defines = '';
 	for (var def in project.getDefines()) defines += '-D' + project.getDefines()[def] + ' ';
-	var includes = '';
-	for (var inc in project.getIncludeDirs()) includes += '-I' + path.relative(path.join(outdir, 'app', 'src', 'main', 'jni'), from.resolve(project.getIncludeDirs()[inc]).toString()).replaceAll('\\', '/') + " ";
-	var flags = defines + includes;
+	var flags = '\n';
+	flags += '        cppFlags += "-fexceptions"\n';
+	flags += '        cppFlags += "-frtti"\n';
+	flags += '        cppFlags += "' + defines + '"\n';
+	flags += '        CFlags += "' + defines + '"\n';
+	for (var inc in project.getIncludeDirs()) {
+		flags += '        cppFlags += "-I${file("src/main/jni/' + project.getIncludeDirs()[inc].replaceAll('\\', '/') + '")}".toString()\n'
+		flags += '        CFlags += "-I${file("src/main/jni/' + project.getIncludeDirs()[inc].replaceAll('\\', '/') + '")}".toString()\n'
+	}
 
 	var gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), { encoding: 'utf8' });
 	gradle = gradle.replaceAll('{name}', safename);

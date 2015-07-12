@@ -15,9 +15,9 @@ model {
     }
     android.ndk {
         moduleName = "kore"
-        CFlags += "{flags}"
-        cppFlags += "{flags}"
+        {flags}
         ldLibs += ["log", "GLESv2", "OpenMAXAL", "android"]
+        stl = "gnustl_static"
     }
     android.buildTypes {
         release {
