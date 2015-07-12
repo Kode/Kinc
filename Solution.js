@@ -111,10 +111,10 @@ Solution.createSolution = function (filename, platform) {
 			require('path'));
 	Solution.scriptdir = oldscriptdir;
 
-	if (fs.existsSync(path.join(Solution.scriptdir.toString(), 'Libraries'))) {
-		var libdirs = fs.readdirSync(path.join(Solution.scriptdir.toString(), 'Libraries'));
+	if (fs.existsSync(path.join(Solution.scriptdir.toString(), 'Backends'))) {
+		var libdirs = fs.readdirSync(path.join(Solution.scriptdir.toString(), 'Backends'));
 		for (var ld in libdirs) {
-			var libdir = path.join(Solution.scriptdir.toString().toString(), 'Libraries', libdirs[ld]);
+			var libdir = path.join(Solution.scriptdir.toString().toString(), 'Backends', libdirs[ld]);
 			if (fs.statSync(libdir).isDirectory()) {
 				var korefile = path.join(libdir, 'korefile.js');
 				if (fs.existsSync(korefile)) {
