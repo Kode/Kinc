@@ -2,7 +2,9 @@ var Exporter = require('./Exporter.js');
 var Files = require('./Files.js');
 var Paths = require('./Paths.js');
 var Project = require('./Project.js');
-var fs = require('fs');
+var Icon = require('./Icon.js');
+var fs = require('fs-extra');
+var path = require('path');
 
 function ExporterAndroid() {
 
@@ -12,11 +14,93 @@ ExporterAndroid.prototype = Object.create(Exporter.prototype);
 ExporterAndroid.constructor = ExporterAndroid;
 
 ExporterAndroid.prototype.exportSolution = function (solution, from, to, platform, vr) {
-	
+	var project = solution.getProjects()[0];
+	var safename = solution.getName().replaceAll(' ', '-');
+	this.safename = safename;
+
+	var indir = path.join(__dirname, 'Data', 'android');
+	var outdir = path.join(to.toString(), safename);
+
+	fs.copySync(path.join(indir, 'build.gradle'), path.join(outdir, 'build.gradle'));
+	fs.copySync(path.join(indir, 'gradle.properties'), path.join(outdir, 'gradle.properties'));
+	fs.copySync(path.join(indir, 'gradlew'), path.join(outdir, 'gradlew'));
+	fs.copySync(path.join(indir, 'gradlew.bat'), path.join(outdir, 'gradlew.bat'));
+	fs.copySync(path.join(indir, 'settings.gradle'), path.join(outdir, 'settings.gradle'));
+
+	var nameiml = fs.readFileSync(path.join(indir, 'name.iml'), { encoding: 'utf8' });
+	nameiml = nameiml.replaceAll('{name}', safename);
+	fs.writeFileSync(path.join(outdir, safename + '.iml'), nameiml, { encoding: 'utf8' });
+
+	fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
+
+	var defines = '';
+	for (var def in project.getDefines()) defines += '-D' + project.getDefines()[def] + ' ';
+	var includes = '';
+	for (var inc in project.getIncludeDirs()) includes += '-I' + path.relative(path.join(outdir, 'app', 'src', 'main', 'jni'), from.resolve(project.getIncludeDirs()[inc]).toString()).replaceAll('\\', '/') + " ";
+	var flags = defines + includes;
+
+	var gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), { encoding: 'utf8' });
+	gradle = gradle.replaceAll('{name}', safename);
+	gradle = gradle.replaceAll('{flags}', flags);
+	gradle = gradle.replaceAll('{javasources}', path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replaceAll('\\', '/'));
+	//gradle = gradle.replaceAll('{cppsources}', ''); // Currently at the default position
+	fs.writeFileSync(path.join(outdir, 'app', 'build.gradle'), gradle, { encoding: 'utf8' });
+
+	var appiml = fs.readFileSync(path.join(indir, 'app', 'app.iml'), { encoding: 'utf8' });
+	appiml = appiml.replaceAll('{name}', safename);
+	fs.writeFileSync(path.join(outdir, 'app', 'app.iml'), appiml, { encoding: 'utf8' });
+
+	fs.ensureDirSync(path.join(outdir, 'app', 'src'));
+	//fs.emptyDirSync(path.join(outdir, 'app', 'src'));
+
+	fs.copySync(path.join(indir, 'main', 'AndroidManifest.xml'), path.join(outdir, 'app', 'src', 'main', 'AndroidManifest.xml'));
+	fs.copySync(path.join(indir, 'main', 'res', 'values', 'styles.xml'), path.join(outdir, 'app', 'src', 'main', 'res', 'values', 'styles.xml'));
+
+	var strings = fs.readFileSync(path.join(indir, 'main', 'res', 'values', 'strings.xml'), { encoding: 'utf8' });
+	strings = strings.replaceAll('{name}', solution.getName());
+	fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'res', 'values', 'strings.xml'), strings, { encoding: 'utf8' });
+
+	fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'mipmap-hdpi'));
+	Icon.exportPng(to.resolve(Paths.get(safename, 'app', 'src', 'main', 'res', 'mipmap-hdpi', "ic_launcher.png")), 72, 72, undefined, from);
+	fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'mipmap-mdpi'));
+	Icon.exportPng(to.resolve(Paths.get(safename, 'app', 'src', 'main', 'res', 'mipmap-mdpi', "ic_launcher.png")), 48, 48, undefined, from);
+	fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'mipmap-xhdpi'));
+	Icon.exportPng(to.resolve(Paths.get(safename, 'app', 'src', 'main', 'res', 'mipmap-xhdpi', "ic_launcher.png")), 96, 96, undefined, from);
+	fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'mipmap-xxhdpi'));
+	Icon.exportPng(to.resolve(Paths.get(safename, 'app', 'src', 'main', 'res', 'mipmap-xxhdpi', "ic_launcher.png")), 144, 144, undefined, from);
+
+	fs.copySync(path.join(indir, 'gradle', 'wrapper', 'gradle-wrapper.jar'), path.join(outdir, 'gradle', 'wrapper', 'gradle-wrapper.jar'));
+	fs.copySync(path.join(indir, 'gradle', 'wrapper', 'gradle-wrapper.properties'), path.join(outdir, 'gradle', 'wrapper', 'gradle-wrapper.properties'));
+
+	fs.copySync(path.join(indir, 'idea', 'compiler.xml'), path.join(outdir, '.idea', 'compiler.xml'));
+	fs.copySync(path.join(indir, 'idea', 'encodings.xml'), path.join(outdir, '.idea', 'encodings.xml'));
+	fs.copySync(path.join(indir, 'idea', 'gradle.xml'), path.join(outdir, '.idea', 'gradle.xml'));
+	fs.copySync(path.join(indir, 'idea', 'misc.xml'), path.join(outdir, '.idea', 'misc.xml'));
+	fs.copySync(path.join(indir, 'idea', 'runConfigurations.xml'), path.join(outdir, '.idea', 'runConfigurations.xml'));
+	fs.copySync(path.join(indir, 'idea', 'vcs.xml'), path.join(outdir, '.idea', 'vcs.xml'));
+	fs.copySync(path.join(indir, 'idea', 'copyright', 'profiles_settings.xml'), path.join(outdir, '.idea', 'copyright', 'profiles_settings.xml'));
+
+	var namename = fs.readFileSync(path.join(indir, 'idea', 'name'), { encoding: 'utf8' });
+	namename = namename.replaceAll('{name}', solution.getName());
+	fs.writeFileSync(path.join(outdir, '.idea', '.name'), namename, { encoding: 'utf8' });
+
+	var modules = fs.readFileSync(path.join(indir, 'idea', 'modules.xml'), { encoding: 'utf8' });
+	modules = modules.replaceAll('{name}', safename);
+	fs.writeFileSync(path.join(outdir, '.idea', 'modules.xml'), modules, { encoding: 'utf8' });
+
+	if (project.getDebugDir().length > 0) this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve(Paths.get(safename, 'app', 'src', 'main', 'assets')));
+
+	for (var f in project.getFiles()) {
+		var file = project.getFiles()[f];
+		var target = to.resolve(Paths.get(safename, 'app', 'src', 'main', 'jni')).resolve(file);
+		this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
+		Files.copyIfDifferent(from.resolve(file), target, true);
+	}
+};
+
+ExporterAndroid.prototype.exportSolutionEclipse = function (solution, from, to, platform, vr) {
 	var project = solution.getProjects()[0];
 	//String libname = solution.getName().toLowerCase().replace(' ', '-');
-
-	var nvpack = false; //Configuration.getAndroidDevkit() == AndroidDevkit.nVidia;
 
 	if (project.getDebugDir().length > 0) this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve("assets"));
 	if (vr === 'cardboard') {
@@ -26,31 +110,17 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 		Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "classpath")), to.resolve(".classpath"), true);
 	}
 
-	if (nvpack) {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", "project")).toString(), { encoding: 'utf8' });
-		file = file.replaceAll("{ProjectName}", solution.getName());
-		fs.writeFileSync(to.resolve('.project').toString());
-	}
-	else {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "project")).toString(), { encoding: 'utf8' });
-		file = file.replaceAll("{ProjectName}", solution.getName());
-		if (Project.koreDir.toString() != "") file = file.replaceAll("{Java-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Java-Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
-		if (Project.koreDir.toString() != "") file = file.replaceAll("{Android-Backend-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
-		if (Project.koreDir.toString() != "") file = file.replaceAll("{OpenGL-Backend-Sources}", Project.koreDir.resolve(Paths.get("Backends", "OpenGL2", "Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
-		if (Project.koreDir.toString() != "") file = file.replaceAll("{Kore-Sources}", Project.koreDir.resolve(Paths.get("Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
-		fs.writeFileSync(to.resolve('.project').toString(), file);
-	}
+	var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "project")).toString(), { encoding: 'utf8' });
+	file = file.replaceAll("{ProjectName}", solution.getName());
+	if (Project.koreDir.toString() != "") file = file.replaceAll("{Java-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Java-Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
+	if (Project.koreDir.toString() != "") file = file.replaceAll("{Android-Backend-Sources}", Project.koreDir.resolve(Paths.get("Backends", "Android", "Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
+	if (Project.koreDir.toString() != "") file = file.replaceAll("{OpenGL-Backend-Sources}", Project.koreDir.resolve(Paths.get("Backends", "OpenGL2", "Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
+	if (Project.koreDir.toString() != "") file = file.replaceAll("{Kore-Sources}", Project.koreDir.resolve(Paths.get("Sources")).toAbsolutePath().toString().replaceAll('\\', '/'));
+	fs.writeFileSync(to.resolve('.project').toString(), file);
 
-	if (nvpack) {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "nvidia", "cproject")).toString(), { encoding: 'utf8' });
-		file = file.replaceAll("{ProjectName}", solution.getName());
-		fs.writeFileSync(to.resolve('.cproject').toString(), file);
-	}
-	else {
-		var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "cproject")).toString(), { encoding: 'utf8' });
-		file = file.replaceAll("{ProjectName}", solution.getName());
-		fs.writeFileSync(to.resolve('.cproject').toString(), file);
-	}
+	var file = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "android", "cproject")).toString(), { encoding: 'utf8' });
+	file = file.replaceAll("{ProjectName}", solution.getName());
+	fs.writeFileSync(to.resolve('.cproject').toString(), file);
 
 	if (vr === 'gearvr') {
 		Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "AndroidManifest.GearVr.xml")), to.resolve("AndroidManifest.xml"), true);
@@ -84,36 +154,6 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 
 	this.createDirectory(to.resolve("jni"));
 
-	if (nvpack) {
-/*
-LOCAL_PATH := $(subst //,/,$(call my-dir))
-include $(CLEAR_VARS)
-LOCAL_MODULE := native_basic
-
-LOCAL_SRC_FILES := $(wildcard *.cpp)
-LOCAL_SRC_FILES += $(wildcard *.c)
-
-LOCAL_ARM_MODE   := arm
-
-LOCAL_LDLIBS :=  -lstdc++ -lc -lm -llog -landroid -ldl -lGLESv2 -lEGL
-LOCAL_STATIC_LIBRARIES := nv_and_util nv_egl_util nv_bitfont nv_math nv_glesutil nv_hhdds nv_log nv_shader nv_file nv_thread
-
-include $(BUILD_SHARED_LIBRARY)
-
-$(call import-add-path, ../../../libs/jni)
-
-$(call import-module,nv_and_util)
-$(call import-module,nv_egl_util)
-$(call import-module,nv_bitfont)
-$(call import-module,nv_math)
-$(call import-module,nv_glesutil)
-$(call import-module,nv_hhdds)
-$(call import-module,nv_log)
-$(call import-module,nv_shader)
-$(call import-module,nv_file)
-$(call import-module,nv_thread)
-*/
-	}
 	this.writeFile(to.resolve(Paths.get("jni", "Android_temp.mk")));
 	this.p("LOCAL_PATH := $(call my-dir)");
 	this.p();
@@ -160,27 +200,22 @@ $(call import-module,nv_thread)
 	// Check if the file is different from the old one
 	Files.copyIfDifferent(to.resolve(Paths.get("jni", "Android_temp.mk")), to.resolve(Paths.get("jni", "Android.mk")), true);
 
-	/*
-	writeFile(to.resolve(Paths::get("jni", "Application.mk")));
-	p("APP_CPPFLAGS += -fexceptions -frtti");
-	p("APP_STL := gnustl_static");
-	//p("APP_ABI := all");
-	p("APP_ABI := armeabi-v7a");
-	//p("LOCAL_ARM_NEON := true");
-	if (nvpack) {
-		//APP_ABI := armeabi-v7a
-		//APP_PLATFORM := android-10
-	}
-	closeFile();
-	*/
+	//writeFile(to.resolve(Paths::get("jni", "Application.mk")));
+	//p("APP_CPPFLAGS += -fexceptions -frtti");
+	//p("APP_STL := gnustl_static");
+	////p("APP_ABI := all");
+	//p("APP_ABI := armeabi-v7a");
+	////p("LOCAL_ARM_NEON := true");
+	//closeFile();
+
 	Files.copyIfDifferent(Paths.executableDir().resolve(Paths.get("Data", "android", "Application.mk")), to.resolve(Paths.get("jni", "Application.mk")), true);
 
-	/*for (var f in project.getFiles()) {
-		var file = project.getFiles()[f];
-		var target = to.resolve("jni").resolve(file);
-		this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
-		Files.copyIfDifferent(from.resolve(file), target, true);
-	}*/
+	//for (var f in project.getFiles()) {
+	//	var file = project.getFiles()[f];
+	//	var target = to.resolve("jni").resolve(file);
+	//	this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
+	//	Files.copyIfDifferent(from.resolve(file), target, true);
+	//}
 };
 
 module.exports = ExporterAndroid;
