@@ -46,4 +46,9 @@ model {
         }
         create("all")
     }
+    android.buildTypes {
+        debug {
+            isJniDebuggable = true
+        }
+    }
 }
