@@ -4,7 +4,7 @@ import android.content.res.AssetManager;
 
 public class KoreLib {
 	static {
-		System.loadLibrary("Kore");
+		System.loadLibrary("kore");
 	}
 
 	public static native void init(int width, int height, AssetManager assetManager, String apkPath, String filesDir);
