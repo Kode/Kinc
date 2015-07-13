@@ -60,7 +60,6 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 	//fs.emptyDirSync(path.join(outdir, 'app', 'src'));
 
 	fs.copySync(path.join(indir, 'main', 'AndroidManifest.xml'), path.join(outdir, 'app', 'src', 'main', 'AndroidManifest.xml'));
-	fs.copySync(path.join(indir, 'main', 'res', 'values', 'styles.xml'), path.join(outdir, 'app', 'src', 'main', 'res', 'values', 'styles.xml'));
 
 	var strings = fs.readFileSync(path.join(indir, 'main', 'res', 'values', 'strings.xml'), { encoding: 'utf8' });
 	strings = strings.replaceAll('{name}', solution.getName());
