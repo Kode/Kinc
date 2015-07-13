@@ -63,6 +63,7 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 
 	var strings = fs.readFileSync(path.join(indir, 'main', 'res', 'values', 'strings.xml'), { encoding: 'utf8' });
 	strings = strings.replaceAll('{name}', solution.getName());
+	fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'values'));
 	fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'res', 'values', 'strings.xml'), strings, { encoding: 'utf8' });
 
 	fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'mipmap-hdpi'));
