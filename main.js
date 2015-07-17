@@ -182,15 +182,15 @@ function exportKakeProject(from, to, platform, options) {
 			exporter = new ExporterVisualStudio();
 		}
 		else {
-			var libdirs = fs.readdirSync(path.join(from.toString(), 'Libraries'));
+			var libdirs = fs.readdirSync(path.join(from.toString(), 'Backends'));
 			for (var ld in libdirs) {
 				var libdir = libdirs[ld];
-				if (fs.statSync(path.join(from.toString(), 'Libraries', libdir)).isDirectory()) {
-					var libfiles = fs.readdirSync(path.join(from.toString(), 'Libraries', libdir));
+				if (fs.statSync(path.join(from.toString(), 'Backends', libdir)).isDirectory()) {
+					var libfiles = fs.readdirSync(path.join(from.toString(), 'Backends', libdir));
 					for (var lf in libfiles) {
 						var libfile = libfiles[lf];
 						if (libfile.startsWith('Exporter') && libfile.endsWith('.js')) {
-							var Exporter = require(path.relative(__dirname, path.join(from.toString(), 'Libraries', libdir, libfile)));
+							var Exporter = require(path.relative(__dirname, path.join(from.toString(), 'Backends', libdir, libfile)));
 							exporter = new Exporter();
 							break;
 						}
