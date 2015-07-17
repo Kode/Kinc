@@ -35,7 +35,7 @@ typedef s32                sint; // 4 Byte
 #endif
 }
 
-#if defined SYS_XBOX360 || defined SYS_PS3
+#if defined(SYS_PPC)
 #define SYS_BIG_ENDIAN
 #else
 #define SYS_LITTLE_ENDIAN
