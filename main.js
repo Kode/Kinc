@@ -127,14 +127,32 @@ function shaderLang(platform) {
 		case Platform.Tizen:
 			return "essl";
 		default:
-			return "unknown";
+			return platform;
 	}
 }
 
-function compileShader(type, from, to, temp, platform) {
+function compileShader(projectDir, type, from, to, temp, platform) {
+	var compiler = '';
+	
 	if (Project.koreDir.path !== '') {
-		var path = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys()));
-		child_process.spawnSync(path.toString(), [type, from, to, temp, platform]);
+		compiler = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys())).toString();
+	}
+
+	if (fs.existsSync(path.join(projectDir.toString(), 'Backends'))) {
+		var libdirs = fs.readdirSync(path.join(projectDir.toString(), 'Backends'));
+		for (var ld in libdirs) {
+			var libdir = path.join(projectDir.toString(), 'Backends', libdirs[ld]);
+			if (fs.statSync(libdir).isDirectory()) {
+				var exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
+				if (fs.existsSync(exe)) {
+					compiler = exe;
+				}
+			}
+		}
+	}
+
+	if (compiler !== '') {
+		child_process.spawnSync(compiler, [type, from, to, temp, platform]);
 	}
 }
 
@@ -157,7 +175,7 @@ function exportKakeProject(from, to, platform, options) {
 			var index = outfile.lastIndexOf('/');
 			if (index > 0) outfile = outfile.substr(index);
 			outfile = outfile.substr(0, outfile.length - 5);
-			compileShader(shaderLang(platform), file, path.join(project.getDebugDir(), outfile), "build", platform);
+			compileShader(from, shaderLang(platform), file, path.join(project.getDebugDir(), outfile), "build", platform);
 		}
 	}
 
