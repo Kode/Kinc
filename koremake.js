@@ -35,7 +35,7 @@ var args = process.argv;
 var from = '.';
 var to = 'build';
 var gfx = GraphicsApi.Direct3D9;
-var vs = VisualStudioVersion.VS2013;
+var vs = VisualStudioVersion.VS2015;
 var compile = false;
 var run = false;
 

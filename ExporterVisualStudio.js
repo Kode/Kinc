@@ -128,8 +128,8 @@ ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, pl
 
 	if (platform == Platform.WindowsApp || Options.visualStudioVersion == VisualStudioVersion.VS2015) {
 		this.p("Microsoft Visual Studio Solution File, Format Version 12.00");
-		this.p("# Visual Studio 2015");
-		this.p("VisualStudioVersion = 14.0.22823.1");
+		this.p("# Visual Studio 14");
+		this.p("VisualStudioVersion = 14.0.23107.0");
 		this.p("MinimumVisualStudioVersion = 10.0.40219.1");
 	}
 	else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
