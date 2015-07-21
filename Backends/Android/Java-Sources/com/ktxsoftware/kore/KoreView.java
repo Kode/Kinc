@@ -49,10 +49,13 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 		action = (action == -1 && (maskedAction == MotionEvent.ACTION_UP || maskedAction == MotionEvent.ACTION_POINTER_UP || maskedAction == MotionEvent.ACTION_CANCEL))
 				? ACTION_UP : action;
 		final int finalAction = action;
+		final int id = event.getPointerId(index);
+		final float x = event.getX(index);
+		final float y = event.getY(index);
 		queueEvent(new Runnable() {
 			@Override
 			public void run() {
-				renderer.touch(event.getPointerId(index), Math.round(event.getX(index)), Math.round(event.getY(index)), finalAction);
+				renderer.touch(id, Math.round(x), Math.round(y), finalAction);
 			}
 		});
 		return true;
