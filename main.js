@@ -156,7 +156,7 @@ function compileShader(projectDir, type, from, to, temp, platform) {
 	}
 }
 
-function exportKakeProject(from, to, platform, options) {
+function exportKoremakeProject(from, to, platform, options) {
 	log.info("korefile found, generating build files.");
 	log.info("Generating " + fromPlatform(platform) + " solution.");
 
@@ -222,13 +222,13 @@ function exportKakeProject(from, to, platform, options) {
 	return solution.getName();
 }
 
-function isKakeProject(directory) {
+function isKoremakeProject(directory) {
 	return Files.exists(directory.resolve("korefile.js"));
 }
 
 function exportProject(from, to, platform, options) {
-	if (isKakeProject(from)) {
-		return exportKakeProject(from, to, platform, options);
+	if (isKoremakeProject(from)) {
+		return exportKoremakeProject(from, to, platform, options);
 	}
 	else {
 		log.error("korefile.js not found.");
