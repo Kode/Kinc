@@ -277,13 +277,19 @@ exports.run = function (options, loglog, callback) {
 			});
 
 			make.on('close', function (code) {
-				if (options.run) {
-					if (options.platform == Platform.OSX) {
-						child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], { cwd: options.to });
+				if (code === 0) {
+					if (options.run) {
+						if (options.platform == Platform.OSX) {
+							child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], {cwd: options.to});
+						}
+						else {
+							log.info('--run not yet implemented for this platform');
+						}
 					}
-					else {
-						log.info('--run not yet implemented for this platform');
-					}
+				}
+				else {
+					log.error('Compilation failed.');
+					process.exit(code);
 				}
 
 				callback();
