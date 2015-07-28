@@ -5,6 +5,7 @@
 @interface Connection : NSObject<NSURLConnectionDelegate> {
 	NSMutableData* responseData;
 	Kore::HttpCallback callback;
+	void* data;
 	int statusCode;
 }
 
@@ -12,9 +13,10 @@
 
 @implementation Connection
 
-- (id)initWithCallback:(Kore::HttpCallback)aCallback {
+- (id)initWithCallback:(Kore::HttpCallback)aCallback andData:(void*)someData {
 	if (self = [super init]) {
 		callback = aCallback;
+		data = someData;
 		statusCode = 0;
 		return self;
 	}
@@ -39,18 +41,18 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection*)connection {
-	callback(0, statusCode, (const char*)[responseData bytes]);
+	callback(0, statusCode, (const char*)[responseData bytes], data);
 }
 
 - (void)connection:(NSURLConnection*)connection didFailWithError:(NSError*)error {
-	callback(1, statusCode, 0);
+	callback(1, statusCode, 0, data);
 }
 
 @end
 
 using namespace Kore;
 
-void Kore::httpRequest(const char* url, const char* path, const char* data, int port, bool secure, HttpMethod method, HttpCallback callback) {
+void Kore::httpRequest(const char* url, const char* path, const char* data, int port, bool secure, HttpMethod method, HttpCallback callback, void* callbackdata) {
 	NSString* urlstring = secure ? @"https://" : @"http://";
 	urlstring = [urlstring stringByAppendingString:[NSString stringWithUTF8String:url]];
 	urlstring = [urlstring stringByAppendingString:@":"];
@@ -81,6 +83,6 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 		[request setHTTPBody:[datastring dataUsingEncoding:NSUTF8StringEncoding]];
 	}
 	
-	Connection* connection = [[Connection alloc] initWithCallback:callback];
+	Connection* connection = [[Connection alloc] initWithCallback:callback andData:callbackdata];
 	[[NSURLConnection alloc] initWithRequest:request delegate:connection];
 }
