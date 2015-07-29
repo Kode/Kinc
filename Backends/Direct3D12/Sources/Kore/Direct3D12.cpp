@@ -345,6 +345,10 @@ void Graphics::swapBuffers() {
 	//}
 }
 
+void Graphics::flush() {
+
+}
+
 void Graphics::setRenderState(RenderState state, bool on) {
 	
 }
