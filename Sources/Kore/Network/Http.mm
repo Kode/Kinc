@@ -33,7 +33,6 @@
 
 - (void)connection:(NSURLConnection*)connection didReceiveData:(NSData*)data {
 	[responseData appendData:data];
-	[responseData appendBytes:"\0" length:1];
 }
 
 - (NSCachedURLResponse *)connection:(NSURLConnection*)connection willCacheResponse:(NSCachedURLResponse*)cachedResponse {
@@ -41,10 +40,13 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection*)connection {
+	[responseData appendBytes:"\0" length:1];
+	printf("Got %s\n\n", (const char*)[responseData bytes]);
 	callback(0, statusCode, (const char*)[responseData bytes], data);
 }
 
 - (void)connection:(NSURLConnection*)connection didFailWithError:(NSError*)error {
+	[responseData appendBytes:"\0" length:1];
 	callback(1, statusCode, 0, data);
 }
 
@@ -81,6 +83,7 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 	}
 	
 	if (data != 0) {
+		printf("Sending %s\n\n", data);
 		NSString* datastring = [NSString stringWithUTF8String:data];
 		[request setHTTPBody:[datastring dataUsingEncoding:NSUTF8StringEncoding]];
 	}
