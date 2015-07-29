@@ -57,11 +57,13 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 	urlstring = [urlstring stringByAppendingString:[NSString stringWithUTF8String:url]];
 	urlstring = [urlstring stringByAppendingString:@":"];
 	urlstring = [urlstring stringByAppendingString:[[NSNumber numberWithInt:port] stringValue]];
+	urlstring = [urlstring stringByAppendingString:@"/"];
 	urlstring = [urlstring stringByAppendingString:[NSString stringWithUTF8String:path]];
 	
 	NSURL* aUrl = [NSURL URLWithString:urlstring];
 	NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:aUrl
 														   cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
+	[request addValue:@"application/json" forHTTPHeaderField:@"Content-type"];
 	
 	switch (method) {
 		case GET:
