@@ -101,7 +101,7 @@ void Graphics::init() {
 
 	affirm(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue)));
 
-	for (int i = 0; i < 3; i) {
+	for (int i = 0; i < 3; ++i) {
 		affirm(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocators[i])));
 	}
 
@@ -139,7 +139,7 @@ void Graphics::init() {
 		swapChainDesc.SampleDesc.Quality = 0;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = frameCount;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.Flags = 0;
 		swapChainDesc.Scaling = DXGI_SCALING_NONE;
 		swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
@@ -273,21 +273,11 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	//m_commandList->ClearRenderTargetView(m_deviceResources->GetRenderTargetView(), DirectX::Colors::CornflowerBlue, 0, nullptr);
 	//m_commandList->OMSetRenderTargets(1, &m_deviceResources->GetRenderTargetView(), false, nullptr);
 
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-	vertexBufferView.BufferLocation = VertexBuffer::_current->vb->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = VertexBuffer::_current->myStride;
-	vertexBufferView.SizeInBytes = VertexBuffer::_current->myStride * VertexBuffer::_current->myCount;
-
-	D3D12_INDEX_BUFFER_VIEW indexBufferView;
-	indexBufferView.BufferLocation = IndexBuffer::_current->ib->GetGPUVirtualAddress();
-	indexBufferView.SizeInBytes = IndexBuffer::_current->myCount * 4;
-	indexBufferView.Format = DXGI_FORMAT_R32_SINT;
-
 	ProgramImpl::_current->commandList->SetDescriptorHeaps(1, &cbvHeap);
 	ProgramImpl::_current->commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
 	ProgramImpl::_current->commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	ProgramImpl::_current->commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
-	ProgramImpl::_current->commandList->IASetIndexBuffer(&indexBufferView);
+	ProgramImpl::_current->commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
+	ProgramImpl::_current->commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
 	ProgramImpl::_current->commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
 
 	ProgramImpl::_current->commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[currentFrame], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
