@@ -117,9 +117,9 @@ namespace Kore {
 		static myType Translation(float x, float y, float z) {
 			//StaticAssert(X == 4 && Y == 4);
 			myType m = Identity();
-			m.Set(0, 3, x);
-			m.Set(1, 3, y);
-			m.Set(2, 3, z);
+			m.Set(0, 2, x);
+			m.Set(1, 2, y);
+			m.Set(2, 2, z);
 			return m;
 		}
 
