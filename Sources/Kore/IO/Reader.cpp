@@ -121,6 +121,14 @@ s16 Reader::readS16BE(u8* data) {
 #endif
 }
 
+u8 Reader::readU8(u8* data) {
+	return *data;
+}
+
+s8 Reader::readS8(u8* data) {
+	return *(s8*)data;
+}
+
 float Reader::readF32LE() {
 	u8 data[4];
 	read(data, 4);

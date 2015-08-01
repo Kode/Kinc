@@ -41,5 +41,7 @@ namespace Kore {
 		static u16 readU16BE(u8* data);
 		static s16 readS16LE(u8* data);
 		static s16 readS16BE(u8* data);
+		static u8 readU8(u8* data);
+		static s8 readS8(u8* data);
 	};
 }

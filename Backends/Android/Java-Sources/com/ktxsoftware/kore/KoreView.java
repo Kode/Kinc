@@ -9,6 +9,11 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 public class KoreView extends GLSurfaceView implements View.OnTouchListener {
+
+	final int ACTION_DOWN = 0;
+	final int ACTION_MOVE = 1;
+	final int ACTION_UP = 2;
+
 	private KoreRenderer renderer;
 	private InputMethodManager inputManager;
 	
@@ -35,26 +40,64 @@ public class KoreView extends GLSurfaceView implements View.OnTouchListener {
 	public void hideKeyboard() {
 		inputManager.hideSoftInputFromWindow(getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 	}
-	
+
 	@Override
 	public boolean onTouch(View view, final MotionEvent event) {
+
 		final int index = event.getActionIndex();
 		int maskedAction = event.getActionMasked();
-		final int ACTION_DOWN = 0;
-		final int ACTION_MOVE = 1;
-		final int ACTION_UP = 2;
-		int action = -1;
-		action = (maskedAction == MotionEvent.ACTION_DOWN || maskedAction == MotionEvent.ACTION_POINTER_DOWN) ? ACTION_DOWN : -1;
-		action = (action == -1 && maskedAction == MotionEvent.ACTION_MOVE) ? ACTION_MOVE : action;
-		action = (action == -1 && (maskedAction == MotionEvent.ACTION_UP || maskedAction == MotionEvent.ACTION_POINTER_UP || maskedAction == MotionEvent.ACTION_CANCEL))
-				? ACTION_UP : action;
-		final int finalAction = action;
-		queueEvent(new Runnable() {
-			@Override
-			public void run() {
-				renderer.touch(event.getPointerId(index), Math.round(event.getX(index)), Math.round(event.getY(index)), finalAction);
-			}
-		});
+		
+		final int id = event.getPointerId(index);
+
+		switch (maskedAction) {
+			case MotionEvent.ACTION_DOWN:
+			case MotionEvent.ACTION_POINTER_DOWN:
+
+				final float fx = event.getX(index);
+				final float fy = event.getY(index);
+
+				queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						renderer.touch(id, Math.round(fx), Math.round(fy), ACTION_DOWN);
+					}
+				});
+				break;
+			case MotionEvent.ACTION_MOVE:
+				int pointerCount = event.getPointerCount();
+				for(int i = 0; i < pointerCount; ++i)
+				{
+					final float fxm = event.getX(i);
+					final float fym = event.getY(i);
+
+					final int idx = event.getPointerId(i);
+
+					queueEvent(new Runnable() {
+						@Override
+						public void run() {
+							renderer.touch(idx, Math.round(fxm), Math.round(fym), ACTION_MOVE);
+						}
+					});
+				}
+
+				break;
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_POINTER_UP:
+			case MotionEvent.ACTION_CANCEL:
+
+				final float fxu = event.getX(index);
+				final float fyu = event.getY(index);
+
+				queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						renderer.touch(id, Math.round(fxu), Math.round(fyu), ACTION_UP);
+					}
+				});
+
+				break;
+		}
+
 		return true;
 	}
 	
