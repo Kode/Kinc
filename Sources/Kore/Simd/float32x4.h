@@ -1,8 +1,8 @@
 #pragma once
 
-#include <xmmintrin.h>
-
 #if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1
+
+#include <xmmintrin.h>
 
 namespace Kore {
 	typedef __m128 float32x4;
