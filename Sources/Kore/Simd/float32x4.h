@@ -6,7 +6,7 @@ namespace Kore {
 	typedef __m128 float32x4;
 
 	inline float32x4 load(float a, float b, float c, float d) {
-		return _mm_set_ps(a, b, c, d);
+		return _mm_set_ps(d, c, b, a);
 	}
 
 	inline float32x4 loadAll(float t) {
