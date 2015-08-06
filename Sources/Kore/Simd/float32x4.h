@@ -14,7 +14,12 @@ namespace Kore {
 	}
 
 	inline float get(float32x4 t, int index) {
-		return t.m128_f32[index];
+		union {
+			__m128 value;
+			float elements[4];
+		} converter;
+		converter.value = t;
+		return converter.elements[index];
 	}
 
 	inline float32x4 abs(float32x4 t) {
