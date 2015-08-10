@@ -131,11 +131,15 @@ function shaderLang(platform) {
 	}
 }
 
-function compileShader(projectDir, type, from, to, temp, platform) {
+function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 	var compiler = '';
 	
 	if (Project.koreDir.path !== '') {
-		compiler = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys())).toString();
+		if(nokrafix) {
+			compiler = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx" + exec.sys())).toString();
+		} else {
+			compiler = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys())).toString();
+		}
 	}
 
 	if (fs.existsSync(path.join(projectDir.toString(), 'Backends'))) {
@@ -175,7 +179,7 @@ function exportKoremakeProject(from, to, platform, options) {
 			var index = outfile.lastIndexOf('/');
 			if (index > 0) outfile = outfile.substr(index);
 			outfile = outfile.substr(0, outfile.length - 5);
-			compileShader(from, shaderLang(platform), file, path.join(project.getDebugDir(), outfile), "build", platform);
+			compileShader(from, shaderLang(platform), file, path.join(project.getDebugDir(), outfile), "build", platform, options.nokrafix);
 		}
 	}
 
