@@ -131,11 +131,14 @@ function shaderLang(platform) {
 	}
 }
 
-function compileShader(projectDir, type, from, to, temp, platform) {
+function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 	var compiler = '';
 	
 	if (Project.koreDir.path !== '') {
-		compiler = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys())).toString();
+		if(nokrafix)
+			compiler = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys())).toString();
+		else
+			compiler = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx" + exec.sys())).toString();
 	}
 
 	if (fs.existsSync(path.join(projectDir.toString(), 'Backends'))) {

@@ -38,6 +38,7 @@ var gfx = GraphicsApi.Direct3D9;
 var vs = VisualStudioVersion.VS2015;
 var compile = false;
 var run = false;
+var nokrafix = false;
 
 if (os.platform() === "linux") {
 	var platform = Platform.Linux;
@@ -64,6 +65,7 @@ for (var i = 2; i < args.length; ++i) {
 
 	else if (arg.startsWith("from=")) from = arg.substr(5);
 	else if (arg.startsWith("to=")) to = arg.substr(3);
+	else if (arg.startsWith("--nokrafix")) nokrafix = true;
 
 	else {
 		platform = arg;
@@ -78,7 +80,8 @@ require('./main.js').run(
 	graphicsApi: gfx,
 	visualStudioVersion: vs,
 	compile: compile,
-	run: run
+	run: run,
+	nokrafix: nokrafix
 },
 {
 	info: console.log,
