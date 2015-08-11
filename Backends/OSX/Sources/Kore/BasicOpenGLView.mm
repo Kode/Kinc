@@ -62,6 +62,14 @@ namespace {
 			case NSDownArrowFunctionKey:
 				Kore::Keyboard::the()->_keydown(Kore::Key_Down, 0);
 				break;
+            case 27:
+                Kore::Keyboard::the()->_keydown(Kore::Key_Escape, 0);
+                break;
+            case NSEnterCharacter:
+            case NSNewlineCharacter:
+            case NSCarriageReturnCharacter:
+				Kore::Keyboard::the()->_keydown(Kore::Key_Enter, 0);
+				break;
             case 0x7f:
                 Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
                 break;
@@ -92,6 +100,14 @@ namespace {
 		case NSDownArrowFunctionKey:
 			Kore::Keyboard::the()->_keyup(Kore::Key_Down, 0);
 			break;
+        case 27:
+            Kore::Keyboard::the()->_keyup(Kore::Key_Escape, 0);
+            break;
+        case NSEnterCharacter:
+        case NSNewlineCharacter:
+        case NSCarriageReturnCharacter:
+            Kore::Keyboard::the()->_keyup(Kore::Key_Enter, 0);
+            break;
 		case 0x7f:
 			Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
 			break;
