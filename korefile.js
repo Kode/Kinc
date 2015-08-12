@@ -70,6 +70,7 @@ else if (platform === Platform.OSX) {
 	addBackend('OSX');
 	addBackend('OpenGL2');
 	project.addDefine('OPENGL');
+	project.addLib('IOKit');
 	project.addLib('Cocoa');
 	project.addLib('AppKit');
 	project.addLib('CoreAudio');
