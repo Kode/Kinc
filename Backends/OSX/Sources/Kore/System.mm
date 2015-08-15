@@ -2,6 +2,8 @@
 #include <Kore/System.h>
 #include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
+#include <Kore/Gamepad/MacHIDManager.h>
+#include <Kore/Log.h>
 #import <Cocoa/Cocoa.h>
 #import "BasicOpenGLView.h"
 
@@ -35,6 +37,7 @@ namespace {
 	NSWindow* window;
 	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
+	MacHIDManager* im;
 }
 
 bool System::handleMessages() {
@@ -43,6 +46,8 @@ bool System::handleMessages() {
 		[myapp sendEvent:event];
 		[myapp updateWindows];
 	}
+	if(im != nullptr)
+		im->update();
 	return true;
 }
 
@@ -124,12 +129,19 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+void loadGamepadInfo()
+{
+	im = new MacHIDManager();
+	im->initialize();
+}
+
 @implementation MyApplication
 
 - (void)run {
 	@autoreleasepool {
 		[self finishLaunching];
 		//try {
+			loadGamepadInfo();
 			kore(0, nullptr);
 		//}
 		//catch (Kt::Exception& ex) {
@@ -140,6 +152,8 @@ int main(int argc, char** argv) {
 
 - (void)terminate:(id)sender {
 	Application::the()->stop();
+	delete im;
+	im = nullptr;
 }
 
 @end
@@ -148,6 +162,8 @@ int main(int argc, char** argv) {
 
 - (void)windowWillClose:(NSNotification *)notification {
 	Application::the()->stop();
+	delete im;
+	im = nullptr;
 }
 
 @end

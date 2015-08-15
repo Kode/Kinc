@@ -604,6 +604,46 @@ Kore::System::ticks Kore::System::timestamp() {
 	return stamp;
 }
 
+// Load information about the connected joysticks
+int _gamepads = 0;
+BOOL CALLBACK _DIEnumDevCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
+{
+	// Register only game devices (keyboard and mouse are managed differently).
+	if (GET_DIDEVICE_TYPE(lpddi->dwDevType) == DI8DEVTYPE_JOYSTICK ||
+		GET_DIDEVICE_TYPE(lpddi->dwDevType) == DI8DEVTYPE_GAMEPAD ||
+		GET_DIDEVICE_TYPE(lpddi->dwDevType) == DI8DEVTYPE_1STPERSON ||
+		GET_DIDEVICE_TYPE(lpddi->dwDevType) == DI8DEVTYPE_DRIVING ||
+		GET_DIDEVICE_TYPE(lpddi->dwDevType) == DI8DEVTYPE_FLIGHT ||
+		GET_DIDEVICE_TYPE(lpddi->dwDevType) == DI8DEVTYPE_SUPPLEMENTAL)
+	{
+		GamepadInfo* info = &Gamepad::get(_gamepads)->info;
+		info->vendor = new wchar_t[wcslen(lpddi->tszInstanceName) + 1]();
+		wcsncpy(info->vendor, (wchar_t*)lpddi->tszInstanceName, wcslen(lpddi->tszInstanceName) + 1);
+
+		info->producName = new wchar_t[wcslen(lpddi->tszProductName) + 1]();
+		wcsncpy(info->producName, (wchar_t*)lpddi->tszProductName, wcslen(lpddi->tszProductName) + 1);
+
+		info->devId = _gamepads++;
+	}
+
+	return DIENUM_CONTINUE;
+}
+
+void loadGamepadInfo()
+{
+	HINSTANCE hInst = GetModuleHandle(0);
+	HRESULT hr;
+
+	//Create the device
+	IDirectInput8* mDirectInput;
+	hr = DirectInput8Create(hInst, DIRECTINPUT_VERSION, IID_IDirectInput8, (VOID**)&mDirectInput, NULL);
+
+	if (SUCCEEDED(hr)) {
+		//Enumerate all attached devices
+		mDirectInput->EnumDevices(NULL, _DIEnumDevCallback, 0, DIEDFL_ATTACHEDONLY);
+	}
+}
+
 int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nCmdShow*/) {
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
@@ -663,6 +703,9 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	try {
 #endif
 		for (int i = 0; i < 256; ++i) keyPressed[i] = false;
+
+		loadGamepadInfo();
+
 		ret = kore(argc, argv);
 #ifndef _DEBUG
 	}
