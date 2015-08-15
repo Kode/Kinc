@@ -16,8 +16,7 @@
 #include <shlobj.h>
 #include <exception>
 #include <XInput.h>
-
-
+#include <dinput.h>
 
 using namespace Kore;
 
