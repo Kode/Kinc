@@ -306,6 +306,23 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 namespace {
 	float axes[12 * 4];
 	float buttons[12 * 16];
+
+	typedef DWORD (WINAPI *XInputGetStateType)(DWORD dwUserIndex, XINPUT_STATE* pState);
+	XInputGetStateType InputGetState = nullptr;
+
+	void loadXInput() {
+		HMODULE lib = LoadLibraryA("xinput1_4.dll");
+		if (lib == nullptr) {
+			lib = LoadLibraryA("xinput1_3.dll");
+		}
+		if (lib == nullptr) {
+			lib = LoadLibraryA("xinput9_1_0.dll");
+		}
+		
+		if (lib != nullptr) {
+			InputGetState = (XInputGetStateType)GetProcAddress(lib, "XInputGetState");
+		}
+	}
 }
 
 bool Kore::System::handleMessages() {
@@ -315,54 +332,56 @@ bool Kore::System::handleMessages() {
 		DispatchMessage(&message);
 	}
 
-	DWORD dwResult;
-	for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
-		XINPUT_STATE state;
-		ZeroMemory(&state, sizeof(XINPUT_STATE));
-		dwResult = XInputGetState(i, &state);
+	if (InputGetState != nullptr) {
+		DWORD dwResult;
+		for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
+			XINPUT_STATE state;
+			ZeroMemory(&state, sizeof(XINPUT_STATE));
+			dwResult = InputGetState(i, &state);
 
-		if (dwResult == ERROR_SUCCESS) {
-			Kore::Gamepad::get(i)->vendor = "Microsoft";
-			Kore::Gamepad::get(i)->productName = "Xbox 360 Controller";
+			if (dwResult == ERROR_SUCCESS) {
+				Kore::Gamepad::get(i)->vendor = "Microsoft";
+				Kore::Gamepad::get(i)->productName = "Xbox 360 Controller";
 
-			float newaxes[4];
-			newaxes[0] = state.Gamepad.sThumbLX / 32768.0f;
-			newaxes[1] = state.Gamepad.sThumbLY / 32768.0f;
-			newaxes[2] = state.Gamepad.sThumbRX / 32768.0f;
-			newaxes[3] = state.Gamepad.sThumbRY / 32768.0f;
-			for (int i2 = 0; i2 < 4; ++i2) {
-				if (axes[i * 4 + i2] != newaxes[i2]) {
-					if (Kore::Gamepad::get(i)->Axis != nullptr) Kore::Gamepad::get(i)->Axis(i2, newaxes[i2]);
-					axes[i * 4 + i2] = newaxes[i2];
+				float newaxes[4];
+				newaxes[0] = state.Gamepad.sThumbLX / 32768.0f;
+				newaxes[1] = state.Gamepad.sThumbLY / 32768.0f;
+				newaxes[2] = state.Gamepad.sThumbRX / 32768.0f;
+				newaxes[3] = state.Gamepad.sThumbRY / 32768.0f;
+				for (int i2 = 0; i2 < 4; ++i2) {
+					if (axes[i * 4 + i2] != newaxes[i2]) {
+						if (Kore::Gamepad::get(i)->Axis != nullptr) Kore::Gamepad::get(i)->Axis(i2, newaxes[i2]);
+						axes[i * 4 + i2] = newaxes[i2];
+					}
+				}
+				float newbuttons[16];
+				newbuttons[0] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_A) ? 1.0f : 0.0f;
+				newbuttons[1] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_B) ? 1.0f : 0.0f;
+				newbuttons[2] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_X) ? 1.0f : 0.0f;
+				newbuttons[3] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) ? 1.0f : 0.0f;
+				newbuttons[4] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) ? 1.0f : 0.0f;
+				newbuttons[5] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) ? 1.0f : 0.0f;
+				newbuttons[6] = 0.0f;
+				newbuttons[7] = 0.0f;
+				newbuttons[8] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) ? 1.0f : 0.0f;
+				newbuttons[9] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_START) ? 1.0f : 0.0f;
+				newbuttons[10] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) ? 1.0f : 0.0f;
+				newbuttons[11] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) ? 1.0f : 0.0f;
+				newbuttons[12] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) ? 1.0f : 0.0f;
+				newbuttons[13] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) ? 1.0f : 0.0f;
+				newbuttons[14] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) ? 1.0f : 0.0f;
+				newbuttons[15] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? 1.0f : 0.0f;
+				for (int i2 = 0; i2 < 16; ++i2) {
+					if (buttons[i * 16 + i2] != newbuttons[i2]) {
+						if (Kore::Gamepad::get(i)->Button != nullptr) Kore::Gamepad::get(i)->Button(i2, newbuttons[i2]);
+						buttons[i * 16 + i2] = newbuttons[i2];
+					}
 				}
 			}
-			float newbuttons[16];
-			newbuttons[0] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_A) ? 1.0f : 0.0f;
-			newbuttons[1] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_B) ? 1.0f : 0.0f;
-			newbuttons[2] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_X) ? 1.0f : 0.0f;
-			newbuttons[3] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) ? 1.0f : 0.0f;
-			newbuttons[4] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) ? 1.0f : 0.0f;
-			newbuttons[5] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) ? 1.0f : 0.0f;
-			newbuttons[6] = 0.0f;
-			newbuttons[7] = 0.0f;
-			newbuttons[8] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) ? 1.0f : 0.0f;
-			newbuttons[9] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_START) ? 1.0f : 0.0f;
-			newbuttons[10] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) ? 1.0f : 0.0f;
-			newbuttons[11] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) ? 1.0f : 0.0f;
-			newbuttons[12] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) ? 1.0f : 0.0f;
-			newbuttons[13] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) ? 1.0f : 0.0f;
-			newbuttons[14] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) ? 1.0f : 0.0f;
-			newbuttons[15] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? 1.0f : 0.0f;
-			for (int i2 = 0; i2 < 16; ++i2) {
-				if (buttons[i * 16 + i2] != newbuttons[i2]) {
-					if (Kore::Gamepad::get(i)->Button != nullptr) Kore::Gamepad::get(i)->Button(i2, newbuttons[i2]);
-					buttons[i * 16 + i2] = newbuttons[i2];
-				}
+			else {
+				Kore::Gamepad::get(i)->vendor = nullptr;
+				Kore::Gamepad::get(i)->productName = nullptr;
 			}
-		}
-		else {
-			Kore::Gamepad::get(i)->vendor = nullptr;
-			Kore::Gamepad::get(i)->productName = nullptr;
 		}
 	}
 
@@ -396,12 +415,9 @@ void* Kore::System::createWindow() {
 		::registerWindowClass(inst);
 		::hwnd = (HWND) VrInterface::Init(inst);
 	#else 
-
 	
 	::registerWindowClass(inst);
 	
-
-
 	DWORD dwExStyle;
 	DWORD dwStyle;
 
@@ -436,12 +452,11 @@ void* Kore::System::createWindow() {
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
 	hwnd = CreateWindowExA(dwExStyle, windowClassName, Kore::Application::the()->name(), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, 100, 100, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
 	
-	
-
-
 	if (Application::the()->fullscreen()) SetWindowPos(hwnd, nullptr, 0, 0, Application::the()->width(), Application::the()->height(), 0);
 	GetFocus();
 	::SetCursor(LoadCursor(0, IDC_ARROW));
+
+	loadXInput();
 
 	if (!Application::the()->fullscreen()) {
 		uint xres = GetSystemMetrics(SM_CXSCREEN);
@@ -456,8 +471,6 @@ void* Kore::System::createWindow() {
 		AdjustWindowRect(&r, dwStyle, FALSE);
 		MoveWindow(hwnd, r.left, r.top, r.right - r.left + 1, r.bottom - r.top + 1, TRUE);
 	}
-
-	
 #endif
 	return hwnd;
 }
