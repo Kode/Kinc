@@ -1,10 +1,22 @@
+var child_process = require('child_process');
 var Exporter = require('./Exporter.js');
 var Files = require('./Files.js');
 var Paths = require('./Paths.js');
+var os = require('os');
 var fs = require('fs');
 
-function ExporterEmscripten() {
+var emmccPath = '';
 
+function ExporterEmscripten(emcc) {
+	if (os.platform() === "linux") {
+		emmccPath = emcc;
+	} else
+	if (os.platform() === "win32") {
+		emmccPath = '"' + emcc + '"';
+	}
+	else {
+		emmccPath = emcc;
+	}
 }
 
 ExporterEmscripten.prototype = Object.create(Exporter.prototype);
@@ -12,21 +24,66 @@ ExporterEmscripten.constructor = ExporterEmscripten;
 
 var defines = '';
 var includes = '';
+var definesArray = [];
+var includesArray = [];
 
 function compile(inFilename, outFilename) {
-	if (Files.exists(Paths.get(outFilename))) return;
-	//if (!new File(outFilename).getParentFile().exists()) new File(outFilename).getParentFile().mkdirs();
-	var exe = "/Users/robert/Projekte/emscripten/emcc " + inFilename + " " + includes + " " + defines + " -c -o " + outFilename;
-	//std::cout << "Compiling " << inFilename << std::endl;
-	execute(exe);
+	if (Files.exists(Paths.get(outFilename)))
+		return;
+	
+	//console.log("Compiling " + inFilename + " to " + outFilename);
+	//console.log(emmccPath + " " + inFilename+ " " +includes+ " " +defines+ " " +"-c -o"+ " " +outFilename);
+
+	//console.log(emmccPath + " " + inFilename+ " " +  includes+ " " +  defines+ " " + "-c -o"+ " " + outFilename);
+
+	var params = [];
+	params.push(inFilename);
+
+	for(var i = 0; i < includesArray.length; i++) {
+		params.push(includesArray[i]);
+	}
+
+	for(var i = 0; i < definesArray.length; i++) {
+		params.push(definesArray[i]);
+	}
+
+	params.push("-c");
+	params.push("-o");
+	params.push(outFilename);
+
+	//console.log(params);
+
+	var res = child_process.spawnSync(emmccPath, params, { stdio: 'inherit', stderr: 'inherit' });	
+	if (res != null) {
+		if (res.stdout != null && res.stdout != '')
+			console.log("stdout: " + res.stdout);
+		if (res.stderr != null && res.stderr != '')
+			console.log("stderr: " + res.stderr);
+		if (res.error != null)
+			console.log(res.error);
+	}
 }
 
 function link(files, output) {
-	var exe = "/Users/robert/Projekte/emscripten/emcc ";//-O2 ";
-	for (var file in files) exe += files[file] + " ";
-	exe += "-o " + output.toString();
-	//std::cout << "Linking " << output.toString() << std::endl;
-	execute(exe);
+	var params = [];//-O2 ";
+	for (var file in files) {
+		//console.log(files[file]);
+		params.push(files[file]);
+	}
+	params.push("-o");
+	params.push(output);
+
+	console.log("Linking " + output);
+
+	var res = child_process.spawnSync(emmccPath, params);
+	if (res != null) {
+		if (res.stdout != null && res.stdout != '')
+			console.log("stdout: " + res.stdout);
+		if (res.stderr != null && res.stderr != '')
+			console.log("stderr: " + res.stderr);
+		if (res.error != null)
+			console.log(res.error);
+	}
 }
 
 ExporterEmscripten.prototype.exportSolution = function (solution, from, to, platform) {
@@ -36,13 +93,21 @@ ExporterEmscripten.prototype.exportSolution = function (solution, from, to, plat
 	this.copyDirectory(from.resolve(project.getDebugDir()), to, assets);
 
 	defines = "";
-	for (var def in project.getDefines()) defines += "-D" + project.getDefines()[def] + " ";
+	definesArray = [];
+	for (var def in project.getDefines()) {
+		defines += "-D" + project.getDefines()[def] + " ";
+		definesArray.push("-D" + project.getDefines()[def]);
+	}
+
 	includes = "";
-	for (var inc in project.getIncludeDirs()) includes += "-I../" + from.resolve(project.getIncludeDirs()[inc]).toString() + " ";
+	includesArray = [];
+	for (var inc in project.getIncludeDirs()) {
+		includes += "-I../" + from.resolve(project.getIncludeDirs()[inc]).toString() + " ";
+		includesArray.push("-I../" + from.resolve(project.getIncludeDirs()[inc]).toString());
+	}
 
 	this.writeFile(to.resolve("makefile"));
 
-	//p("CC = ~/Projekte/emscripten/emcc");
 	this.p();
 	var oline = '';
 	for (var f in project.getFiles()) {
@@ -78,7 +143,7 @@ ExporterEmscripten.prototype.exportSolution = function (solution, from, to, plat
 		var oname = filename.substr(0, lastpoint) + ".o";
 		oname = oname.replaceAll("../", "");
 		this.p(oname + ": ../" + filename);
-			this.p("$(CC) -c ../" + filename + " " + includes + " " + defines + " -o " + oname, 1);
+		this.p("$(CC) -c ../" + filename + " " + includes + " " + defines + " -o " + oname, 1);
 	}
 
 	this.closeFile();
@@ -90,7 +155,22 @@ ExporterEmscripten.prototype.exportSolution = function (solution, from, to, plat
 		compile(directory.resolve(filename).toString(), directory.resolve(Paths::get("build", filename + ".o")).toString());
 		objectFiles.push_back(directory.resolve(Paths::get("build", filename + ".o")).toString());
 	}
-	link(objectFiles, directory.resolve(Paths::get("build", "Kt.js")));*/
+	link(objectFiles, directory.resolve(Paths::get("build", "Kt.js")));
+	*/
+
+
+	console.log("Compiling files...");
+	var objectFiles = [];
+	var files = project.getFiles();
+	for (var f in files) {
+		var file = files[f];
+		if (file.endsWith(".c") || file.endsWith(".cpp")) {
+			//files += "../../" + filename + " ";
+			compile(from.resolve(file).toString(), to.resolve(file + ".o").toString());
+			objectFiles.push(to.resolve(file + ".o").toString());
+		}
+	}
+	link(objectFiles, to.resolve(Paths.get("build", "Kt.js").toString()));
 };
 
 module.exports = ExporterEmscripten;

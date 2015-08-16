@@ -101,7 +101,7 @@ ExporterVisualStudio.prototype.writeProjectBuilds = function (project, platform)
 	for (proj in project.getSubProjects()) writeProjectBuilds(project.getSubProjects()[proj], platform);
 };
 
-ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, platform) {
+ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, platform, vrApi, nokrafix) {
 	standardconfs = [];
 	standardconfs.push("Debug");
 	standardconfs.push("Release");
@@ -169,7 +169,7 @@ ExporterVisualStudio.prototype.exportSolution = function (solution, from, to, pl
 
 	for (p in solution.getProjects()) {
 		var project = solution.getProjects()[p];
-		this.exportProject(from, to, project, platform, solution.isCmd());
+		this.exportProject(from, to, project, platform, solution.isCmd(), nokrafix);
 		this.exportFilters(from, to, project, platform);
 		this.exportUserFile(from, to, project, platform);
 		if (platform == Platform.WindowsApp) {
@@ -464,8 +464,8 @@ ExporterVisualStudio.prototype.addItemDefinitionGroup = function (incstring, def
 //	p("</Reference>", 2);
 //}
 
-ExporterVisualStudio.prototype.exportProject = function (from, to, project, platform, cmd) {
-	for (proj in project.getSubProjects()) exportProject(from, to, project.getSubProjects()[proj], platform, cmd);
+ExporterVisualStudio.prototype.exportProject = function (from, to, project, platform, cmd, nokrafix) {
+	for (proj in project.getSubProjects()) exportProject(from, to, project.getSubProjects()[proj], platform, cmd, nokrafix);
 
 	this.writeFile(to.resolve(project.getName() + ".vcxproj"));
 
@@ -921,7 +921,10 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 			if (Project.koreDir.toString() != "" && file.endsWith(".glsl")) {
 				this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 				this.p("<FileType>Document</FileType>", 2);
-				this.p("<Command>\"" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\kfx\\kfx.exe\" " + ((Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) ? "glsl" : (Options.graphicsApi === GraphicsApi.Direct3D11 ? "d3d11" : "d3d9")) + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build</Command>", 2);
+				if(nokrafix)
+					this.p("<Command>\"" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\kfx\\kfx.exe\" " + ((Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) ? "glsl" : (Options.graphicsApi === GraphicsApi.Direct3D11 ? "d3d11" : "d3d9")) + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build</Command>", 2);
+				else
+					this.p("<Command>\"" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\krafix\\krafix.exe\" " + ((Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) ? "glsl" : (Options.graphicsApi === GraphicsApi.Direct3D11 ? "d3d11" : "d3d9")) + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build " + platform + "</Command>", 2);
 				this.p("<Outputs>" + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\%(Filename);%(Outputs)</Outputs>", 2);
 				this.p("<Message>Compiling %(FullPath)</Message>", 2);
 				this.p("</CustomBuild>", 2);
