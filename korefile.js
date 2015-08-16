@@ -35,8 +35,8 @@ if (platform === Platform.Windows) {
 		project.addDefine('DIRECT3D');
 	}
 
-	project.addLibsFor('Win32', 'Backends/Windows/Libraries/directx/Lib/x86/dxguid', 'Backends/Windows/Libraries/directx/Lib/x86/DxErr', 'Backends/Windows/Libraries/directx/Lib/x86/dsound', 'Backends/Windows/Libraries/directx/Lib/x86/XInput', 'Backends/Windows/Libraries/directx/Lib/x86/dinput8');
-	project.addLibsFor('x64', 'Backends/Windows/Libraries/directx/Lib/x64/dxguid', 'Backends/Windows/Libraries/directx/Lib/x64/DxErr', 'Backends/Windows/Libraries/directx/Lib/x64/dsound', 'Backends/Windows/Libraries/directx/Lib/x64/XInput');
+	project.addLibsFor('Win32', 'Backends/Windows/Libraries/directx/Lib/x86/dxguid', 'Backends/Windows/Libraries/directx/Lib/x86/DxErr', 'Backends/Windows/Libraries/directx/Lib/x86/dsound', 'Backends/Windows/Libraries/directx/Lib/x86/dinput8');
+	project.addLibsFor('x64', 'Backends/Windows/Libraries/directx/Lib/x64/dxguid', 'Backends/Windows/Libraries/directx/Lib/x64/DxErr', 'Backends/Windows/Libraries/directx/Lib/x64/dsound');
 	if (graphics !== GraphicsApi.OpenGL) {
 		if (graphics === GraphicsApi.Direct3D12) {
 			project.addLib('d3d12');
