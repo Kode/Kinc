@@ -4,6 +4,8 @@
 #include <Kore/Log.h>
 
 #include <iostream>
+#include <string>
+
 using namespace std;
 
 using namespace Kore;
@@ -117,11 +119,10 @@ void MacHIDManager::initialize()
 			joystick->_initialize();
 			
 			// Get the vendor info
-			GamepadInfo* info = &Gamepad::get(joystickCount)->info;
+            Gamepad* gamepad = Gamepad::get(joystickCount);
 			size_t size = joystick->mVendor->size();
-			info->vendor = new wchar_t[size]();
-			mbstowcs(info->vendor, joystick->mVendor->c_str(), size);
-			info->devId = joystickCount++;
+			gamepad->vendor = new char[size]();
+            strcpy((char*)gamepad->vendor, joystick->mVendor->c_str());
 			
 			// Add the joystick to the list
 			Kore::log(Kore::LogLevel::Info, "Added new joystick '%s'", (char*)joystick->mVendor->c_str());
