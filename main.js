@@ -221,7 +221,7 @@ function exportKoremakeProject(from, to, platform, options) {
 			}
 		}
 	}
-	exporter.exportSolution(solution, from, to, platform, options.vrApi);
+	exporter.exportSolution(solution, from, to, platform, options.vrApi, options.nokrafix);
 
 	return solution.getName();
 }
