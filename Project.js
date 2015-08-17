@@ -44,6 +44,7 @@ Project.prototype.flatten = function () {
 		for (var d in sub.defines) if (!contains(this.defines, sub.defines[d])) this.defines.push(sub.defines[d]);
 		for (var file in sub.files) this.files.push(subbasedir.resolve(sub.files[file]).toString().replace(/\\/g, '/'));
 		for (var i in sub.includeDirs) if (!contains(this.includeDirs, subbasedir.resolve(sub.includeDirs[i]).toString())) this.includeDirs.push(subbasedir.resolve(sub.includeDirs[i]).toString());
+		for (var j in sub.javadirs) if (!contains(this.javadirs, subbasedir.resolve(sub.javadirs[j]).toString())) this.javadirs.push(subbasedir.resolve(sub.javadirs[j]).toString());
 		for (var l in sub.libs) {
 			var lib = sub.libs[l];
 			if (!contains(lib, '/') && !contains(lib, '\\')) {
