@@ -11,6 +11,7 @@ function Project(name) {
 	this.uuid = uuid.v4();
 
 	this.files = [];
+	this.javadirs = [];
 	this.subProjects = [];
 	this.includeDirs = [];
 	this.defines = [];
@@ -155,6 +156,16 @@ Project.prototype.addFiles = function () {
 	}
 };
 
+Project.prototype.addJavaDir = function (dir) {
+	this.javadirs.push(dir);
+};
+
+Project.prototype.addJavaDirs = function () {
+	for (var i = 0; i < arguments.length; ++i) {
+		this.addJavaDir(arguments[i]);
+	}
+};
+
 Project.prototype.addExclude = function (exclude) {
 	this.excludes.push(exclude);
 };
@@ -215,6 +226,10 @@ Project.prototype.addLibsFor = function () {
 
 Project.prototype.getFiles = function () {
 	return this.files;
+};
+
+Project.prototype.getJavaDirs = function () {
+	return this.javadirs;
 };
 
 Project.prototype.getBasedir = function () {

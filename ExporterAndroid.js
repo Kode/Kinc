@@ -48,7 +48,15 @@ ExporterAndroid.prototype.exportSolution = function (solution, from, to, platfor
 	var gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), { encoding: 'utf8' });
 	gradle = gradle.replaceAll('{name}', safename);
 	gradle = gradle.replaceAll('{flags}', flags);
-	gradle = gradle.replaceAll('{javasources}', path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replaceAll('\\', '/'));
+
+	var javasources = '';
+	for (var d in project.getJavaDirs()) {
+		var dir = project.getJavaDirs()[d];
+		javasources += "                    srcDir '" + path.relative(path.join(outdir, 'app'), from.resolve(dir).toString()).replaceAll('\\', '/') + "'\n";
+	}
+	javasources += "                    srcDir '" + path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replaceAll('\\', '/') + "'\n";
+	gradle = gradle.replaceAll('{javasources}', javasources);
+
 	//gradle = gradle.replaceAll('{cppsources}', ''); // Currently at the default position
 	fs.writeFileSync(path.join(outdir, 'app', 'build.gradle'), gradle, { encoding: 'utf8' });
 
