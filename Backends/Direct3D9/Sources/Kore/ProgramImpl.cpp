@@ -13,6 +13,11 @@ Program::Program() {
 	fragmentShader = nullptr;
 }
 
+ProgramImpl::~ProgramImpl() {
+	delete vertexShader;
+	delete fragmentShader;
+}
+
 void Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
@@ -74,6 +79,7 @@ void Program::link(const VertexStructure& structure) {
 
 	vertexDecleration = nullptr;
 	affirm(device->CreateVertexDeclaration(elements, &vertexDecleration));
+	delete elements;
 
 	if (vertexShader->constants.find("dx_ViewAdjust") != vertexShader->constants.end()) halfPixelLocation = vertexShader->constants["dx_ViewAdjust"].regindex;
 	else halfPixelLocation = vertexShader->constants["dx_HalfPixelSize"].regindex;

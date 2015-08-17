@@ -7,6 +7,7 @@ namespace Kore {
 
 	class ProgramImpl {
 	public:
+		~ProgramImpl();
 		Shader* vertexShader;
 		Shader* fragmentShader;
 		IDirect3DVertexDeclaration9* vertexDecleration;
