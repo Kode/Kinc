@@ -11,14 +11,30 @@ namespace {
 }
 
 + (NSOpenGLPixelFormat*) basicPixelFormat {
-	NSOpenGLPixelFormatAttribute attributes[] = {
-		//NSOpenGLPFAWindow,
-		NSOpenGLPFADoubleBuffer,	// double buffered
-		NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-		NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
-		(NSOpenGLPixelFormatAttribute)nil
-	};
-	return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
+	int aa = Kore::Application::the()->antialiasing();
+	if (aa > 0) {
+		NSOpenGLPixelFormatAttribute attributes[] = {
+			//NSOpenGLPFAWindow,
+			NSOpenGLPFADoubleBuffer,	// double buffered
+			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+			
+			NSOpenGLPFASupersample,
+			NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
+			NSOpenGLPFASamples, (NSOpenGLPixelFormatAttribute)aa,
+			(NSOpenGLPixelFormatAttribute)nil
+		};
+		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
+	}
+	else {
+		NSOpenGLPixelFormatAttribute attributes[] = {
+			NSOpenGLPFADoubleBuffer,
+			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24,
+			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+			(NSOpenGLPixelFormatAttribute)nil
+		};
+		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
+	}
 }
 
 - (void)switchBuffers {

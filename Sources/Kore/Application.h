@@ -11,13 +11,14 @@ namespace Kore {
 	
 	class Application {
 	public:
-		Application(int argc, char** argv, int width = 800, int height = 600, bool fullscreen = false, const char* name = "Kore", bool showWindow = true);
+		Application(int argc, char** argv, int width = 800, int height = 600, int antialiasing = 0, bool fullscreen = false, const char* name = "Kore", bool showWindow = true);
 		~Application();
 		void start();
 		void stop();
 		const char* name();
 		int width();
 		int height();
+		int antialiasing();
 		bool fullscreen();
 		bool showWindow();
 		void setWidth(int width);

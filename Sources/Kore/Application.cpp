@@ -10,14 +10,16 @@ using namespace Kore;
 namespace {
 	Application* instance = nullptr;
 	int width, height;
+	int antialiasing;
 	bool full;
 	const char* name;
 	bool showWindow;
 }
 
-Application::Application(int argc, char** argv, int width, int height, bool fullscreen, const char* name, bool showWindow) : callback(nullptr), orientationCallback(nullptr), foregroundCallback(nullptr), resumeCallback(nullptr), pauseCallback(nullptr), backgroundCallback(nullptr), shutdownCallback(nullptr), running(false) {
+Application::Application(int argc, char** argv, int width, int height, int antialiasing, bool fullscreen, const char* name, bool showWindow) : callback(nullptr), orientationCallback(nullptr), foregroundCallback(nullptr), resumeCallback(nullptr), pauseCallback(nullptr), backgroundCallback(nullptr), shutdownCallback(nullptr), running(false) {
 	::width = width;
 	::height = height;
+	::antialiasing = antialiasing;
 	::full = fullscreen;
 	::name = name;
 	::showWindow = showWindow;
@@ -59,6 +61,10 @@ int Application::width() {
 
 int Application::height() {
 	return ::height;
+}
+
+int Application::antialiasing() {
+	return ::antialiasing;
 }
 
 bool Application::fullscreen() {
