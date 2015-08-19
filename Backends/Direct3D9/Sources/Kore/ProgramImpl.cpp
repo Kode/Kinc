@@ -108,6 +108,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	}
 	else {
 		location.shaderType = -1;
+		log(Warning, "Could not find uniform %s.", name);
 	}
 	return location;
 }
@@ -126,6 +127,7 @@ TextureUnit Program::getTextureUnit(const char* name) {
 	}
 	else {
 		unit.unit = -1;
+		log(Warning, "Could not find texture %s.", name);
 	}
 	return unit;
 }
