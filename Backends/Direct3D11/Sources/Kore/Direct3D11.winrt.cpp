@@ -18,8 +18,8 @@ ID3D11DeviceContext* context;
 ID3D11RenderTargetView* renderTargetView;
 ID3D11DepthStencilView* depthStencilView;
 
-int renderTargetWidth;
-int renderTargetHeight;
+int renderTargetWidth = 4096;
+int renderTargetHeight = 4096;
 
 Kore::u8 vertexConstants[1024 * 4];
 Kore::u8 fragmentConstants[1024 * 4];
