@@ -269,11 +269,30 @@ exports.run = function (options, loglog, callback) {
 		if (options.platform === Platform.Linux) {
 			make = child_process.spawn('make', [], { cwd: options.to });
 		}
-		else if (options.platform == Platform.OSX) {
+		else if (options.platform === Platform.OSX) {
 			make = child_process.spawn('xcodebuild', ['-project', solutionName + '.xcodeproj'], { cwd: options.to });
 		}
+		else if (options.platform === Platform.Windows) {
+			var vsvars = null;
+			if (process.env.VS140COMNTOOLS) {
+				vsvars = process.env.VS140COMNTOOLS + '\\vsvars32.bat';
+			}
+			else if (process.env.VS120COMNTOOLS) {
+				vsvars = process.env.VS120COMNTOOLS + '\\vsvars32.bat';
+			}
+			else if (process.env.VS110COMNTOOLS) {
+				vsvars = process.env.VS110COMNTOOLS + '\\vsvars32.bat';
+			}
+			if (vsvars !== null) {
+				fs.writeFileSync(path.join(options.to, '@build.bat'), 'call "' + vsvars + '"\n' + '@MSBuild.exe ' + solutionName + '.vcxproj /m /p:Configuration=Debug,Platform=Win32');
+				make = child_process.spawn('build.bat', {cwd: options.to});
+			}
+			else {
+				log.error('Visual Studio not found.');
+			}
+		}
 
-		if (make != null) {
+		if (make !== null) {
 			make.stdout.on('data', function (data) {
 				log.info(data.toString());
 			});
@@ -287,11 +306,14 @@ exports.run = function (options, loglog, callback) {
 					if (options.platform === Platform.Linux) {
 						fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName));
 					}
+					else if (options.platform === Platform.Windows) {
+						fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'));
+					}
 					if (options.run) {
-						if (options.platform == Platform.OSX) {
+						if (options.platform === Platform.OSX) {
 							child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], {cwd: options.to});
 						}
-						else if (options.platform == Platform.Linux) {
+						else if (options.platform === Platform.Linux || options.platform === Platform.Windows) {
 							child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], {cwd: path.join(options.from.toString(), project.getDebugDir())});
 						}
 						else {
