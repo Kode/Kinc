@@ -1,5 +1,5 @@
 var child_process = require('child_process');
-var fs = require('fs');
+var fs = require('fs-extra');
 var os = require('os');
 var path = require('path');
 var log = require('./log.js');
@@ -223,7 +223,7 @@ function exportKoremakeProject(from, to, platform, options) {
 	}
 	exporter.exportSolution(solution, from, to, platform, options.vrApi, options.nokrafix);
 
-	return solution.getName();
+	return solution;
 }
 
 function isKoremakeProject(directory) {
@@ -236,7 +236,7 @@ function exportProject(from, to, platform, options) {
 	}
 	else {
 		log.error("korefile.js not found.");
-		return "";
+		return null;
 	}
 }
 
@@ -254,11 +254,13 @@ exports.run = function (options, loglog, callback) {
 	}
 	
 	if (options.vrApi !== undefined) {
-    	Options.vrApi = options.vrApi;
+		Options.vrApi = options.vrApi;
 	}
 	
-	var solutionName = exportProject(Paths.get(options.from), Paths.get(options.to), options.platform, options);
-
+	var solution = exportProject(Paths.get(options.from), Paths.get(options.to), options.platform, options);
+	var project = solution.getProjects()[0];
+	var solutionName = solution.getName();
+	
 	if (options.compile && solutionName != "") {
 		log.info('Compiling...');
 
@@ -282,9 +284,15 @@ exports.run = function (options, loglog, callback) {
 
 			make.on('close', function (code) {
 				if (code === 0) {
+					if (options.platform === Platform.Linux) {
+						fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName));
+					}
 					if (options.run) {
 						if (options.platform == Platform.OSX) {
 							child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], {cwd: options.to});
+						}
+						else if (options.platform == Platform.Linux) {
+							child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], {cwd: path.join(options.from.toString(), project.getDebugDir())});
 						}
 						else {
 							log.info('--run not yet implemented for this platform');
