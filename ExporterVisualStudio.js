@@ -201,7 +201,7 @@ ExporterVisualStudio.prototype.exportManifest = function (to, project) {
 			this.p('<Logo>StoreLogo.png</Logo>', 2);
 		this.p('</Properties>', 1);
 		this.p('<Dependencies>', 1);
-			this.p('<TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10069.0" MaxVersionTested="10.0.10069.0" />', 2);
+			this.p('<TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />', 2);
 		this.p('</Dependencies>', 1);
 		this.p('<Resources>', 1);
 			this.p('<Resource Language="x-generate"/>', 2);
@@ -420,6 +420,7 @@ ExporterVisualStudio.prototype.addWin8PropertyGroup = function (debug, platform)
 	this.p("<UseDebugLibraries>" + (debug ? "true" : "false") + "</UseDebugLibraries>", 2);
 	if (!debug) this.p("<WholeProgramOptimization>true</WholeProgramOptimization>", 2);
 	this.p("<PlatformToolset>v140</PlatformToolset>", 2);
+	if (!debug) this.p('<UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>', 2);
 	this.p("</PropertyGroup>", 1);
 };
 
@@ -495,6 +496,10 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.p("<AppContainerApplication>true</AppContainerApplication>", 2);
 		this.p('<ApplicationType>Windows Store</ApplicationType>', 2);
 		this.p('<ApplicationTypeRevision>8.2</ApplicationTypeRevision>', 2);
+		this.p('<WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>', 2);
+		this.p('<WindowsTargetPlatformMinVersion>10.0.10240.0</WindowsTargetPlatformMinVersion>', 2);
+		this.p('<ApplicationTypeRevision>10.0</ApplicationTypeRevision>', 2);
+		this.p('<EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>', 2);
 	}
 	this.p("</PropertyGroup>", 1);
 	this.p("<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />", 1);
