@@ -62,7 +62,7 @@ ExporterCodeBlocks.prototype.exportSolution = function (solution, from, to, plat
 	this.p();
 
 	this.p(project.getName() + ': ' + ofilelist);
-	this.p('\tg++ ' + ofilelist + ' -o ' + project.getName() + ' $(LIB)');
+	this.p('\tg++ ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
 
 	for (var f in project.getFiles()) {
 		var file = project.getFiles()[f];
