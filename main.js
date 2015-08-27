@@ -135,9 +135,10 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 	var compiler = '';
 	
 	if (Project.koreDir.path !== '') {
-		if(nokrafix) {
+		if (nokrafix) {
 			compiler = Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx" + exec.sys())).toString();
-		} else {
+		}
+		else {
 			compiler = Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys())).toString();
 		}
 	}
@@ -162,7 +163,7 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 
 function exportKoremakeProject(from, to, platform, options) {
 	log.info("korefile found, generating build files.");
-	log.info("Generating " + fromPlatform(platform) + " solution.");
+	log.info("Creating " + fromPlatform(platform) + " solution.");
 
 	var solution = Solution.create(from, platform);
 	solution.searchFiles();
@@ -245,19 +246,19 @@ exports.api = 1;
 exports.run = function (options, loglog, callback) {
 	log.set(loglog);
 	
-	if (options.graphicsApi !== undefined) {
-		Options.graphicsApi = options.graphicsApi;
+	if (options.graphics !== undefined) {
+		Options.graphicsApi = options.graphics;
 	}
 	
-	if (options.visualStudioVersion !== undefined) {
-		Options.visualStudioVersion = options.visualStudioVersion;
+	if (options.visualstudio !== undefined) {
+		Options.visualStudioVersion = options.visualstudio;	
 	}
 	
-	if (options.vrApi !== undefined) {
-		Options.vrApi = options.vrApi;
+	if (options.vr != undefined) {
+		Options.vrApi = options.vr;
 	}
 	
-	var solution = exportProject(Paths.get(options.from), Paths.get(options.to), options.platform, options);
+	var solution = exportProject(Paths.get(options.from), Paths.get(options.to), options.target, options);
 	var project = solution.getProjects()[0];
 	var solutionName = solution.getName();
 	
@@ -266,13 +267,13 @@ exports.run = function (options, loglog, callback) {
 
 		var make = null;
 
-		if (options.platform === Platform.Linux) {
+		if (options.target === Platform.Linux) {
 			make = child_process.spawn('make', [], { cwd: options.to });
 		}
-		else if (options.platform === Platform.OSX) {
+		else if (options.target === Platform.OSX) {
 			make = child_process.spawn('xcodebuild', ['-project', solutionName + '.xcodeproj'], { cwd: options.to });
 		}
-		else if (options.platform === Platform.Windows) {
+		else if (options.target === Platform.Windows) {
 			var vsvars = null;
 			if (process.env.VS140COMNTOOLS) {
 				vsvars = process.env.VS140COMNTOOLS + '\\vsvars32.bat';
@@ -336,4 +337,3 @@ exports.run = function (options, loglog, callback) {
 	}
 	else callback();
 };
-

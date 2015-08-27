@@ -1,8 +1,9 @@
-var os = require('os');
-var Options = require('./Options.js');
-var Platform = require('./Platform.js');
-var GraphicsApi = require('./GraphicsApi.js');
-var VisualStudioVersion = require('./VisualStudioVersion.js');
+var version = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
+
+if (version < 0.12) {
+	console.log('Sorry, this requires at least node version 0.12.');
+	process.exit(1);
+}
 
 if (!String.prototype.startsWith) {
 	Object.defineProperty(String.prototype, 'startsWith', {
@@ -30,6 +31,20 @@ if (!String.prototype.endsWith) {
 	});
 }
 
+function escapeRegExp(string) {
+	return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+String.prototype.replaceAll = function (find, replace) {
+	return this.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+};
+
+var os = require('os');
+var Options = require('./Options.js');
+var Platform = require('./Platform.js');
+var GraphicsApi = require('./GraphicsApi.js');
+var VisualStudioVersion = require('./VisualStudioVersion.js');
+var VrApi = require('./VrApi.js');
 
 var defaultTarget;
 if (os.platform() === "linux") {
@@ -57,6 +72,19 @@ var options = [
 		default: 'build'
 	},
 	{
+		full: 'target',
+		short: 't',
+		value: true,
+		description: 'Target platform',
+		default: defaultTarget
+	},
+	{
+		full: 'vr',
+		value: true,
+		description: 'Target VR device',
+		default: VrApi.None
+	},
+	{
 		full: 'emcc',
 		value: true,
 		description: 'Location of emscripten shader compiler',
@@ -74,8 +102,15 @@ var options = [
 		hidden: true
 	},
 	{
+		full: 'graphics',
+		short: 'g',
+		description: 'Graphics api to use',
+		value: true,
+		default: GraphicsApi.Direct3D9
+	},
+	{
 		full: 'visualstudio',
-		short: 'vs',
+		short: 'v',
 		description: 'Version of Visual Studio to use',
 		value: true,
 		default: VisualStudioVersion.VS2015
@@ -99,23 +134,7 @@ var options = [
 		full: 'update',
 		description: 'Update Kore and it\'s submodules',
 		value: false
-	},
-	{
-		full: 'platform',
-		short: 'p',
-		value: true,
-		description: 'Target platform',
-		default: defaultTarget,
-		values: Platform
-	},
-	{
-		full: 'graphicsApi',
-		short: 'gfx',
-		description: 'Graphics api to use',
-		value: true,
-		default: GraphicsApi.Direct3D9,
-		values: GraphicsApi
-	},
+	}
 ];
 
 var parsedOptions = {
@@ -123,51 +142,14 @@ var parsedOptions = {
 };
 
 function printHelp() {
-	console.log("Usage: ");
-	console.log("node Kore/make.js <platform> [args]");
-	console.log("")
-	console.log("The possible options are:")
-
+	console.log('khamake options:\n');
 	for (var o in options) {
 		var option = options[o];
-		if (option.hidden) {
-			continue;
-		}
-
-		var str = '';
-		if (option.short) {
-			str += '-' + option.short + ' '
-		}
-		str += '--' + option.full;
-
-		// Add tabs to allow show in a fancy way
-		if(str.length <= 6) {
-			str += '\t\t\t';
-		} else
-		if(str.length <= 15) {
-			str += '\t\t';
-		} else {
-			str += '\t';
-		}
-
-		str += option.description
-
-		// Add the possible values
-		if(option.default) {
-			str += ", default '";
-			str += option.default;
-			str += "'";
-		}
-
-		// Add the possible values
-		if(option.values) {
-			str += ", options: \n";
-			for (v in option.values) {
-				str += " * " + option.values[v] + "\n";
-			}
-		}
-
-		console.log(str);
+		if (option.hidden) continue;
+		if (option.short) console.log('-' + option.short + ' ' + '--' + option.full);
+		else console.log('--' + option.full);
+		console.log(option.description);
+		console.log();
 	}
 }
 
@@ -181,9 +163,7 @@ for (var o in options) {
 	}
 }
 
-
 var args = process.argv;
-
 for (var i = 2; i < args.length; ++i) {
 	var arg = args[i];
 
@@ -203,13 +183,6 @@ for (var i = 2; i < args.length; ++i) {
 					else {
 						parsedOptions[option.full] = true;
 					}
-				} else
-				if(arg.substr(2).startsWith(option.full + '=')) {
-					if (option.value) {
-						parsedOptions[option.full] = arg.substr(option.full.length + 3); // + 3 because we have two -- and 1 =
-					} else {
-						parsedOptions[option.full] = true;
-					}
 				}
 			}
 		}
@@ -220,19 +193,12 @@ for (var i = 2; i < args.length; ++i) {
 			}
 			for (var o in options) {
 				var option = options[o];
-
-				if (option.short && arg.substr(1) === option.short) {
+				if (option.short && arg[1] === option.short) {
 					if (option.value) {
 						++i;
 						parsedOptions[option.full] = args[i];
-					} else {
-						parsedOptions[option.full] = true;
 					}
-				} else
-				if(option.short && arg.substr(1).startsWith(option.short + '=')) {
-					if (option.value) {
-						parsedOptions[option.full] = arg.substr(option.short.length + 2); // + 2 because we have one - and 1 =
-					} else {
+					else {
 						parsedOptions[option.full] = true;
 					}
 				}
@@ -240,24 +206,24 @@ for (var i = 2; i < args.length; ++i) {
 		}
 	}
 	else {
-		parsedOptions.platform = arg;
+		parsedOptions.target = arg;
 	}
 }
 
-if (parsedOptions.graphicsApi === GraphicsApi.OpenGL) {
-	parsedOptions.graphicsApi = GraphicsApi.OpenGL2;
+if (parsedOptions.graphics === GraphicsApi.OpenGL) {
+	parsedOptions.graphics = GraphicsApi.OpenGL2;
 }
 
 if (parsedOptions.run) {
 	parsedOptions.compile = true;
 }
 
-if(!parsedOptions.emcc && parsedOptions.platform == Platform.HTML5) {
-	console.error("For HTML5 platforms you need to set the emcc path");
+if (!parsedOptions.emcc && parsedOptions.target === Platform.HTML5) {
+	console.error("Please set the emcc path.");
 	process.exit(0);
 }
 
-if(parsedOptions.update) {
+if (parsedOptions.update) {
 	console.log("Updating everything...");
 	require('child_process').spawnSync('git', ['submodule', 'foreach', '--recursive', 'git', 'pull', 'origin', 'master'], { stdio: 'inherit', stderr: 'inherit' });	
 	process.exit(0);
