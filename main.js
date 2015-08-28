@@ -99,7 +99,7 @@ function shaderLang(platform) {
 				case GraphicsApi.Direct3D11:
 					return "d3d11";
 				case GraphicsApi.Direct3D12:
-					return 'd3d12';
+					return 'd3d11';
 				default:
 					return "d3d9";
 			}
