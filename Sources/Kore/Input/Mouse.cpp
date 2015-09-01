@@ -30,3 +30,9 @@ void Mouse::_release(int button, int x, int y) {
 		Release(button, x, y);
 	}
 }
+
+void Mouse::_scroll(int delta) {
+	if (Scroll != nullptr) {
+		Scroll(delta);
+	}
+}

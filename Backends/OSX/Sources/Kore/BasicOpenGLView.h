@@ -23,6 +23,7 @@
 - (void) rightMouseDown:(NSEvent*)theEvent;
 - (void) rightMouseUp:(NSEvent*)theEvent;
 - (void) rightMouseDragged:(NSEvent*)theEvent;
+- (void) scrollWheel:(NSEvent*)theEvent;
 
 - (void) prepareOpenGL;
 - (void) update;		// moved or resized
