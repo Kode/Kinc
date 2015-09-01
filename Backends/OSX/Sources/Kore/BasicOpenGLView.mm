@@ -187,6 +187,11 @@ namespace {
 	Kore::Mouse::the()->_move(getMouseX(theEvent), getMouseY(theEvent));
 }
 
+- (void)scrollWheel:(NSEvent*)theEvent {
+	int delta = [theEvent deltaY];
+	Kore::Mouse::the()->_scroll(delta);
+}
+
 - (void)prepareOpenGL {
     const GLint swapInt = 1;
 
