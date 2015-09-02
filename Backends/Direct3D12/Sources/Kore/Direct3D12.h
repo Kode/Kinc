@@ -15,6 +15,9 @@ extern unsigned currentFrame;*/
 extern ID3D12Device* device_;
 extern ID3D12RootSignature* rootSignature_;
 extern ID3D12GraphicsCommandList* commandList;
+extern ID3D12Resource* image_;
+extern ID3D12Resource* uploadImage_;
+extern ID3D12DescriptorHeap* srvDescriptorHeap_;
 
 //extern ID3D12DeviceContext* context;
 //extern ID3D12RenderTargetView* renderTargetView;

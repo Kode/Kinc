@@ -37,6 +37,9 @@ ID3D12DescriptorHeap* cbvHeap;*/
 ID3D12Device* device_;
 ID3D12RootSignature* rootSignature_;
 ID3D12GraphicsCommandList* commandList;
+ID3D12Resource* image_;
+ID3D12Resource* uploadImage_;
+ID3D12DescriptorHeap* srvDescriptorHeap_;
 
 int renderTargetWidth;
 int renderTargetHeight;
@@ -67,7 +70,6 @@ namespace {
 	ID3D12Fence* uploadFence_;
 	ID3D12GraphicsCommandList* initCommandList_;
 	ID3D12CommandAllocator* initCommandAllocator_;
-	ID3D12DescriptorHeap* srvDescriptorHeap_;
 	ID3D12Resource* constantBuffers_[QUEUE_SLOT_COUNT];
 
 	struct RenderEnvironment {

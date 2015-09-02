@@ -79,7 +79,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 		location.fragmentSize = constant.size;
 	}
 
-	if (geometryShader->constants.find(d3dname) == geometryShader->constants.end()) {
+	if (geometryShader == nullptr || geometryShader->constants.find(d3dname) == geometryShader->constants.end()) {
 		location.geometryOffset = 0;
 		location.geometrySize = 0;
 	}
@@ -89,7 +89,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 		location.geometrySize = constant.size;
 	}
 
-	if (tessControlShader->constants.find(d3dname) == tessControlShader->constants.end()) {
+	if (tessControlShader == nullptr || tessControlShader->constants.find(d3dname) == tessControlShader->constants.end()) {
 		location.tessControlOffset = 0;
 		location.tessControlSize = 0;
 	}
@@ -99,7 +99,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 		location.tessControlSize = constant.size;
 	}
 
-	if (tessEvalShader->constants.find(d3dname) == tessEvalShader->constants.end()) {
+	if (tessEvalShader == nullptr || tessEvalShader->constants.find(d3dname) == tessEvalShader->constants.end()) {
 		location.tessEvalOffset = 0;
 		location.tessEvalSize = 0;
 	}
