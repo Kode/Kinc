@@ -13,8 +13,10 @@ namespace Kore {
 	protected:
 		VertexBufferImpl(int count);
 	public:
-		ID3D12Resource* vb;
-		D3D12VertexBufferView view;
+		ID3D12Resource* vertexBuffer_;
+		D3D12VertexBufferView vertexBufferView_;
+		ID3D12Resource* uploadBuffer_;
+
 		int myCount;
 		int myStride;
 		//float* vertices;

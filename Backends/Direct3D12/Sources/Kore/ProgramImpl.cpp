@@ -188,22 +188,32 @@ void Program::link(const VertexStructure& structure) {
 		}
 	}
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC state = {};
-	state.InputLayout = { vertexDesc, (UINT)structure.size };
-	state.pRootSignature = rootSignature;
-	state.VS = { vertexShader->data, (SIZE_T)vertexShader->length };
-	state.PS = { fragmentShader->data, (SIZE_T)fragmentShader->length };
-	state.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	state.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	state.DepthStencilState.DepthEnable = FALSE;
-	state.DepthStencilState.StencilEnable = FALSE;
-	state.SampleMask = UINT_MAX;
-	state.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	state.NumRenderTargets = 1;
-	state.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	state.SampleDesc.Count = 1;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+	psoDesc.VS.BytecodeLength = vertexShader->length;
+	psoDesc.VS.pShaderBytecode = vertexShader->data;
+	psoDesc.PS.BytecodeLength = fragmentShader->length;
+	psoDesc.PS.pShaderBytecode = fragmentShader->data;
+	psoDesc.pRootSignature = rootSignature_;
+	psoDesc.NumRenderTargets = 1;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+	psoDesc.InputLayout.NumElements = structure.size;
+	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
+	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
+	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	psoDesc.SampleDesc.Count = 1;
+	psoDesc.DepthStencilState.DepthEnable = false;
+	psoDesc.DepthStencilState.StencilEnable = false;
+	psoDesc.SampleMask = 0xFFFFFFFF;
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	affirm(device->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&pipelineState)));
-
-	affirm(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[currentFrame], pipelineState, IID_PPV_ARGS(&commandList)));
+	device_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso_));
 }

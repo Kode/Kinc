@@ -9,8 +9,7 @@ namespace Kore {
 	class ProgramImpl {
 	public:
 		ProgramImpl();
-		ID3D12PipelineState* pipelineState;
-		ID3D12GraphicsCommandList* commandList;
+		ID3D12PipelineState* pso_;
 		//ID3D11InputLayout* inputLayout;
 		//ID3D11Buffer* fragmentConstantBuffer;
 		//ID3D11Buffer* vertexConstantBuffer;
