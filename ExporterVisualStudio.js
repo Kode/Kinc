@@ -490,7 +490,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 	this.p("<ProjectGuid>{" + project.getUuid().toString().toUpperCase() + "}</ProjectGuid>", 2);
 	//p("<Keyword>Win32Proj</Keyword>", 2);
 	//p("<RootNamespace>" + project.Name + "</RootNamespace>", 2);
-	if (platform == Platform.WindowsApp) {
+	if (platform === Platform.WindowsApp) {
 		this.p("<DefaultLanguage>en-US</DefaultLanguage>", 2);
 		this.p("<MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>", 2);
 		this.p("<AppContainerApplication>true</AppContainerApplication>", 2);
@@ -501,9 +501,12 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.p('<ApplicationTypeRevision>10.0</ApplicationTypeRevision>', 2);
 		this.p('<EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>', 2);
 	}
+	else if (Options.graphicsApi === GraphicsApi.Direct3D12) {
+		this.p('<WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>', 2);
+	}
 	this.p("</PropertyGroup>", 1);
 	this.p("<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />", 1);
-	if (platform == Platform.Xbox360) {
+	if (platform === Platform.Xbox360) {
 		this.addPropertyGroup("CodeAnalysis", platform);
 		this.addPropertyGroup("Debug", platform);
 		this.addPropertyGroup("Profile", platform);
@@ -511,7 +514,7 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.addPropertyGroup("Release", platform);
 		this.addPropertyGroup("Release_LTCG", true, platform);
 	}
-	else if (platform == Platform.WindowsApp) {
+	else if (platform === Platform.WindowsApp) {
 		this.addWin8PropertyGroup(true, "Win32");
 		this.addWin8PropertyGroup(true, "ARM");
 		this.addWin8PropertyGroup(true, "x64");
@@ -523,19 +526,19 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.p("<PropertyGroup Condition=\"'$(Configuration)'=='Debug'\" Label=\"Configuration\">", 1);
 		this.p("<ConfigurationType>Application</ConfigurationType>", 2);
 		this.p("<UseDebugLibraries>true</UseDebugLibraries>", 2);
-		if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2015) {
+		if (platform === Platform.Windows && Options.visualStudioVersion === VisualStudioVersion.VS2015) {
 			this.p("<PlatformToolset>v140</PlatformToolset>", 2);
 		}
-		else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
+		else if (platform === Platform.Windows && Options.visualStudioVersion === VisualStudioVersion.VS2013) {
 			this.p("<PlatformToolset>v120</PlatformToolset>", 2);
 		}
-		else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2012) {
+		else if (platform === Platform.Windows && Options.visualStudioVersion === VisualStudioVersion.VS2012) {
 			this.p("<PlatformToolset>v110</PlatformToolset>", 2);
 		}
-		if (platform == Platform.Windows) {
+		if (platform === Platform.Windows) {
 			this.p("<CharacterSet>Unicode</CharacterSet>", 2);
 		}
-		else if (platform == Platform.PlayStation3) {
+		else if (platform === Platform.PlayStation3) {
 			this.p("<PlatformToolset>SNC</PlatformToolset>", 2);
 			this.p("<ExceptionsAndRtti>WithExceptsWithRtti</ExceptionsAndRtti>", 2);
 		}
@@ -543,20 +546,20 @@ ExporterVisualStudio.prototype.exportProject = function (from, to, project, plat
 		this.p("<PropertyGroup Condition=\"'$(Configuration)'=='Release'\" Label=\"Configuration\">", 1);
 		this.p("<ConfigurationType>Application</ConfigurationType>", 2);
 		this.p("<UseDebugLibraries>false</UseDebugLibraries>", 2);
-		if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2015) {
+		if (platform === Platform.Windows && Options.visualStudioVersion === VisualStudioVersion.VS2015) {
 			this.p("<PlatformToolset>v140</PlatformToolset>", 2);
 		}
-		else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2013) {
+		else if (platform === Platform.Windows && Options.visualStudioVersion === VisualStudioVersion.VS2013) {
 			this.p("<PlatformToolset>v120</PlatformToolset>", 2);
 		}
-		else if (platform == Platform.Windows && Options.visualStudioVersion == VisualStudioVersion.VS2012) {
+		else if (platform === Platform.Windows && Options.visualStudioVersion === VisualStudioVersion.VS2012) {
 			this.p("<PlatformToolset>v110</PlatformToolset>", 2);
 		}
-		if (platform == Platform.Windows) {
+		if (platform === Platform.Windows) {
 			this.p("<WholeProgramOptimization>true</WholeProgramOptimization>", 2);
 			this.p("<CharacterSet>Unicode</CharacterSet>", 2);
 		}
-		else if (platform == Platform.PlayStation3) {
+		else if (platform === Platform.PlayStation3) {
 			this.p("<PlatformToolset>SNC</PlatformToolset>", 2);
 			this.p("<ExceptionsAndRtti>WithExceptsWithRtti</ExceptionsAndRtti>", 2);
 		}
