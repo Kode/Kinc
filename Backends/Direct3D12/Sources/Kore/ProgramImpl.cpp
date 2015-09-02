@@ -197,11 +197,24 @@ void Program::link(const VertexStructure& structure) {
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+	
 	psoDesc.InputLayout.NumElements = structure.size;
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+
+	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+	psoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+	psoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+	psoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+	psoDesc.RasterizerState.DepthClipEnable = TRUE;
+	psoDesc.RasterizerState.MultisampleEnable = FALSE;
+	psoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+	psoDesc.RasterizerState.ForcedSampleCount = 0;
+	psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
+	psoDesc.BlendState.RenderTarget[0].BlendEnable = false;
 	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 	psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
