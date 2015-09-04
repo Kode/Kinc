@@ -1,4 +1,6 @@
-var Configuration = {
+"use strict";
+
+let Configuration = {
 	Debug: 'Debug',
 	CodeAnalysis: 'CodeAnalysis',
 	Profile: 'Profile',

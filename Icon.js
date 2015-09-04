@@ -1,11 +1,13 @@
-var cp = require('child_process');
-var fs = require('fs');
-var os = require('os');
-var path = require('path');
-var log = require('./log.js');
+"use strict";
+
+const cp = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const log = require('./log.js');
 
 function run(from, to, width, height, format, background, callback) {
-	var exe = "kraffiti-osx";
+	let exe = "kraffiti-osx";
 	if (os.platform() === "linux") {
 		exe = "kraffiti-linux";
 	}
@@ -13,23 +15,23 @@ function run(from, to, width, height, format, background, callback) {
 		exe = "kraffiti.exe";
 	}
 	
-	var params = ['from=' + from, 'to=' + to, 'width=' + width, 'height=' + height, 'format=' + format, 'keepaspect'];
+	let params = ['from=' + from, 'to=' + to, 'width=' + width, 'height=' + height, 'format=' + format, 'keepaspect'];
 	if (background !== undefined) params.push('background=' + background.toString(16));
-	var child = cp.spawn(path.join(__dirname, '..', 'kraffiti', exe), params);
+	let child = cp.spawn(path.join(__dirname, '..', 'kraffiti', exe), params);
 	
-	child.stdout.on('data', function (data) {
+	child.stdout.on('data', (data) => {
 		//log.info('kraffiti stdout: ' + data);
 	});
 	
-	child.stderr.on('data', function (data) {
+	child.stderr.on('data', (data) => {
 		log.error('kraffiti stderr: ' + data);
 	});
 	
-	child.on('error', function (err) {
+	child.on('error', (err) => {
 		log.error('kraffiti error: ' + err);
 	});
 	
-	child.on('close', function (code) {
+	child.on('close', (code) => {
 		if (code !== 0) log.error('kraffiti exited with code ' + code);
 		callback();
 	});

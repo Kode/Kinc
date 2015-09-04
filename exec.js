@@ -1,4 +1,6 @@
-var os = require('os');
+"use strict";
+
+const os = require('os');
 
 exports.sys = function () {
 	if (os.platform() === 'linux') {
@@ -11,4 +13,4 @@ exports.sys = function () {
 	else {
 		return '-osx';
 	}
-}
+};

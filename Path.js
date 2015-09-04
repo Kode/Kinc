@@ -1,58 +1,62 @@
-﻿var path = require('path');
+﻿"use strict";
 
-var Path = function (path) {
-	this.path = path;
-};
+const pathlib = require('path');
 
-Path.prototype.startsWith = function (other) {
-	var me = this.path;
-	var he = other.path;
-	if (he == '.') return true;
-	if (me[0] == '.' && me[1] == '/') me = me.substr(2);
-	if (he[0] == '.' && he[1] == '/') he = he.substr(2);
-	for (var i = 0; i < he.length; ++i) {
-		if (me[i] != he[i]) return false;
+class Path {
+	constructor(path) {
+		this.path = path;
 	}
-	return true;
-};
 
-Path.prototype.relativize = function (other) {
-	return new Path(path.relative(this.path, other.path));
-};
+	startsWith(other) {
+		let me = this.path;
+		let he = other.path;
+		if (he == '.') return true;
+		if (me[0] == '.' && me[1] == '/') me = me.substr(2);
+		if (he[0] == '.' && he[1] == '/') he = he.substr(2);
+		for (let i = 0; i < he.length; ++i) {
+			if (me[i] != he[i]) return false;
+		}
+		return true;
+	}
 
-Path.prototype.resolve = function (subpath) {
-	if (typeof (subpath) !== 'string') subpath = subpath.path;
-	if (path.isAbsolute(subpath)) return new Path(subpath);
-	return new Path(path.join(this.path, subpath));
-};
+	relativize(other) {
+		return new Path(pathlib.relative(this.path, other.path));
+	}
 
-Path.prototype.parent = function () {
-	if (this.path == ".") return this.toAbsolutePath().parent();
-	else {
-		for (var i = this.path.length - 1; i >= 0; --i) {
-			if (this.path[i] == '/' || this.path[i] == '\\') {
-				return require('./Paths.js').get(this.path.substr(0, i));
+	resolve(subpath) {
+		if (typeof (subpath) !== 'string') subpath = subpath.path;
+		if (pathlib.isAbsolute(subpath)) return new Path(subpath);
+		return new Path(pathlib.join(this.path, subpath));
+	}
+
+	parent() {
+		if (this.path == ".") return this.toAbsolutePath().parent();
+		else {
+			for (var i = this.path.length - 1; i >= 0; --i) {
+				if (this.path[i] == '/' || this.path[i] == '\\') {
+					return require('./Paths.js').get(this.path.substr(0, i));
+				}
 			}
 		}
+		return this;
 	}
-	return this;
-};
 
-Path.prototype.getFileName = function () {
-	return path.basename(this.path);
-};
+	getFileName() {
+		return pathlib.basename(this.path);
+	}
 
-Path.prototype.toString = function () {
-	return path.normalize(this.path);
-};
+	toString() {
+		return pathlib.normalize(this.path);
+	}
 
-Path.prototype.isAbsolute = function () {
-	return (this.path.length > 0 && this.path[0] == '/') || (this.path.length > 1 && this.path[1] == ':');
-};
+	isAbsolute() {
+		return (this.path.length > 0 && this.path[0] == '/') || (this.path.length > 1 && this.path[1] == ':');
+	}
 
-Path.prototype.toAbsolutePath = function () {
-	if (this.isAbsolute()) return this;
-	return new Path(path.resolve(process.cwd(), this.path));
-};
+	toAbsolutePath() {
+		if (this.isAbsolute()) return this;
+		return new Path(pathlib.resolve(process.cwd(), this.path));
+	}
+}
 
 module.exports = Path;

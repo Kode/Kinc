@@ -1,269 +1,269 @@
-var Files = require('./Files.js');
-var Path = require('./Path.js');
-var Paths = require('./Paths.js');
-var uuid = require('./uuid.js');
+"use strict";
 
-function Project(name) {
-	this.name = name;
-	this.debugDir = '';
-	this.basedir = require('./Solution').scriptdir;
-	if (name == 'Kore') Project.koreDir = this.basedir;
-	this.uuid = uuid.v4();
-
-	this.files = [];
-	this.javadirs = [];
-	this.subProjects = [];
-	this.includeDirs = [];
-	this.defines = [];
-	this.libs = [];
-	this.systemDependendLibraries = {};
-	this.includes = [];
-	this.excludes = [];
-}
+const Files = require('./Files.js');
+const Path = require('./Path.js');
+const Paths = require('./Paths.js');
+const uuid = require('./uuid.js');
 
 function contains(array, value) {
-	for (var index in array) {
-		if (array[index] === value) return true;
+	for (let element of array) {
+		if (element === value) return true;
 	}
 	return false;
 }
-
-Project.koreDir = new Path('.');
-
-Project.prototype.flatten = function () {
-	for (var sub in this.subProjects) this.subProjects[sub].flatten();
-	for (var p in this.subProjects) {
-		var sub = this.subProjects[p];
-		var basedir = this.basedir;
-		//if (basedir.startsWith("./")) basedir = basedir.substring(2);
-		var subbasedir = sub.basedir;
-		//if (subbasedir.startsWith("./")) subbasedir = subbasedir.substring(2);
-		//if (subbasedir.startsWith(basedir)) subbasedir = subbasedir.substring(basedir.length());
-		if (subbasedir.startsWith(basedir)) subbasedir = basedir.relativize(subbasedir);
-
-		for (var d in sub.defines) if (!contains(this.defines, sub.defines[d])) this.defines.push(sub.defines[d]);
-		for (var file in sub.files) this.files.push(subbasedir.resolve(sub.files[file]).toString().replace(/\\/g, '/'));
-		for (var i in sub.includeDirs) if (!contains(this.includeDirs, subbasedir.resolve(sub.includeDirs[i]).toString())) this.includeDirs.push(subbasedir.resolve(sub.includeDirs[i]).toString());
-		for (var j in sub.javadirs) if (!contains(this.javadirs, subbasedir.resolve(sub.javadirs[j]).toString())) this.javadirs.push(subbasedir.resolve(sub.javadirs[j]).toString());
-		for (var l in sub.libs) {
-			var lib = sub.libs[l];
-			if (!contains(lib, '/') && !contains(lib, '\\')) {
-				if (!contains(this.libs, lib)) this.libs.push(lib);
-			}
-			else {
-				if (!contains(this.libs, subbasedir.resolve(lib).toString())) this.libs.push(subbasedir.resolve(lib).toString());
-			}
-		}
-		for (var system in sub.systemDependendLibraries) {
-			var libs = sub.systemDependendLibraries[system];
-			for (var l in libs) {
-				var lib = libs[l];
-				if (this.systemDependendLibraries[system] === undefined) this.systemDependendLibraries[system] = [];
-				if (!contains(this.systemDependendLibraries[system], this.stringify(subbasedir.resolve(lib)))) {
-					if (!contains(lib, '/') && !contains(lib, '\\')) this.systemDependendLibraries[system].push(lib);
-					else this.systemDependendLibraries[system].push(this.stringify(subbasedir.resolve(lib)));
-				}
-			}
-		}
-	}
-	this.subProjects = [];
-};
-
-Project.prototype.getName = function () {
-	return this.name;
-};
-
-Project.prototype.getUuid = function () {
-	return this.uuid;
-};
-
-Project.prototype.matches = function (text, pattern) {
-	var regexstring = pattern.replace(/\./g, "\\.").replace(/\*\*/g, ".?").replace(/\*/g, "[^/]*").replace(/\?/g, '*');
-	var regex = new RegExp('^' + regexstring + '$', 'g');
-	return regex.test(text);
-};
-
-Project.prototype.matchesAllSubdirs = function (dir, pattern) {
-	if (pattern.endsWith("/**")) {
-		return this.matches(this.stringify(dir), pattern.substr(0, pattern.length - 3));
-	}
-	else return false;
-};
-
-Project.prototype.stringify = function (path) {
-	return path.toString().replace(/\\/g, '/');
-};
 
 function isAbsolute(path) {
 	return (path.length > 0 && path[0] == '/') || (path.length > 1 && path[1] == ':');
 }
 
-Project.prototype.searchFiles = function (current) {
-	if (current === undefined) {
-		for (var sub in this.subProjects) this.subProjects[sub].searchFiles();
-		this.searchFiles(this.basedir);
-		//std::set<std::string> starts;
-		//for (std::string include : includes) {
-		//	if (!isAbsolute(include)) continue;
-		//	std::string start = include.substr(0, firstIndexOf(include, '*'));
-		//	if (starts.count(start) > 0) continue;
-		//	starts.insert(start);
-		//	searchFiles(Paths::get(start));
-		//}
-		return;
+let koreDir = new Path('.');
+
+class Project {
+	constructor(name) {
+		this.name = name;
+		this.debugDir = '';
+		this.basedir = require('./Solution').scriptdir;
+		if (name == 'Kore') Project.koreDir = this.basedir;
+		this.uuid = uuid.v4();
+
+		this.files = [];
+		this.javadirs = [];
+		this.subProjects = [];
+		this.includeDirs = [];
+		this.defines = [];
+		this.libs = [];
+		this.systemDependendLibraries = {};
+		this.includes = [];
+		this.excludes = [];
 	}
 
-	var files = Files.newDirectoryStream(current);
-	nextfile: for (var f in files) {
-		var file = Paths.get(current, files[f]);
-		if (Files.isDirectory(file)) continue;
-		//if (!current.isAbsolute())
-		file = this.basedir.relativize(file);
-		for (var exclude in this.excludes) {
-			if (this.matches(this.stringify(file), this.excludes[exclude])) continue nextfile;
-		}
-		for (var i in this.includes) {
-			var include = this.includes[i];
-			if (isAbsolute(include)) {
-				var inc = Paths.get(include);
-				inc = this.basedir.relativize(inc);
-				include = inc.path;
+	flatten() {
+		for (let sub of this.subProjects) sub.flatten();
+		for (let sub of this.subProjects) {
+			let basedir = this.basedir;
+			//if (basedir.startsWith("./")) basedir = basedir.substring(2);
+			let subbasedir = sub.basedir;
+			//if (subbasedir.startsWith("./")) subbasedir = subbasedir.substring(2);
+			//if (subbasedir.startsWith(basedir)) subbasedir = subbasedir.substring(basedir.length());
+			if (subbasedir.startsWith(basedir)) subbasedir = basedir.relativize(subbasedir);
+
+			for (let d of sub.defines) if (!contains(this.defines, d)) this.defines.push(d);
+			for (let file of sub.files) this.files.push(subbasedir.resolve(file).toString().replace(/\\/g, '/'));
+			for (let i of sub.includeDirs) if (!contains(this.includeDirs, subbasedir.resolve(i).toString())) this.includeDirs.push(subbasedir.resolve(i).toString());
+			for (let j of sub.javadirs) if (!contains(this.javadirs, subbasedir.resolve(j).toString())) this.javadirs.push(subbasedir.resolve(j).toString());
+			for (let lib of sub.libs) {
+				if (!contains(lib, '/') && !contains(lib, '\\')) {
+					if (!contains(this.libs, lib)) this.libs.push(lib);
+				}
+				else {
+					if (!contains(this.libs, subbasedir.resolve(lib).toString())) this.libs.push(subbasedir.resolve(lib).toString());
+				}
 			}
-			if (this.matches(this.stringify(file), include)) {
-				this.files.push(this.stringify(file));
+			for (let system in sub.systemDependendLibraries) {
+				let libs = sub.systemDependendLibraries[system];
+				for (let lib of libs) {
+					if (this.systemDependendLibraries[system] === undefined) this.systemDependendLibraries[system] = [];
+					if (!contains(this.systemDependendLibraries[system], this.stringify(subbasedir.resolve(lib)))) {
+						if (!contains(lib, '/') && !contains(lib, '\\')) this.systemDependendLibraries[system].push(lib);
+						else this.systemDependendLibraries[system].push(this.stringify(subbasedir.resolve(lib)));
+					}
+				}
 			}
 		}
+		this.subProjects = [];
 	}
-	var dirs = Files.newDirectoryStream(current);
-	nextdir: for (var d in dirs) {
-		var dir = Paths.get(current, dirs[d]);
-		if (!Files.isDirectory(dir)) continue;
-		for (exclude in this.excludes) {
-			if (this.matchesAllSubdirs(this.basedir.relativize(dir), this.excludes[exclude])) {
-				continue nextdir;
+
+	getName() {
+		return this.name;
+	}
+
+	getUuid() {
+		return this.uuid;
+	}
+
+	matches(text, pattern) {
+		const regexstring = pattern.replace(/\./g, "\\.").replace(/\*\*/g, ".?").replace(/\*/g, "[^/]*").replace(/\?/g, '*');
+		const regex = new RegExp('^' + regexstring + '$', 'g');
+		return regex.test(text);
+	}
+
+	matchesAllSubdirs(dir, pattern) {
+		if (pattern.endsWith("/**")) {
+			return this.matches(this.stringify(dir), pattern.substr(0, pattern.length - 3));
+		}
+		else return false;
+	}
+
+	stringify(path) {
+		return path.toString().replace(/\\/g, '/');
+	}
+
+	searchFiles(current) {
+		if (current === undefined) {
+			for (let sub of this.subProjects) sub.searchFiles();
+			this.searchFiles(this.basedir);
+			//std::set<std::string> starts;
+			//for (std::string include : includes) {
+			//	if (!isAbsolute(include)) continue;
+			//	std::string start = include.substr(0, firstIndexOf(include, '*'));
+			//	if (starts.count(start) > 0) continue;
+			//	starts.insert(start);
+			//	searchFiles(Paths::get(start));
+			//}
+			return;
+		}
+
+		let files = Files.newDirectoryStream(current);
+		nextfile: for (let f in files) {
+			var file = Paths.get(current, files[f]);
+			if (Files.isDirectory(file)) continue;
+			//if (!current.isAbsolute())
+			file = this.basedir.relativize(file);
+			for (let exclude of this.excludes) {
+				if (this.matches(this.stringify(file), exclude)) continue nextfile;
+			}
+			for (let include of this.includes) {
+				if (isAbsolute(include)) {
+					let inc = Paths.get(include);
+					inc = this.basedir.relativize(inc);
+					include = inc.path;
+				}
+				if (this.matches(this.stringify(file), include)) {
+					this.files.push(this.stringify(file));
+				}
 			}
 		}
-		this.searchFiles(dir);
+		let dirs = Files.newDirectoryStream(current);
+		nextdir: for (let d in dirs) {
+			var dir = Paths.get(current, dirs[d]);
+			if (!Files.isDirectory(dir)) continue;
+			for (let exclude of this.excludes) {
+				if (this.matchesAllSubdirs(this.basedir.relativize(dir), exclude)) {
+					continue nextdir;
+				}
+			}
+			this.searchFiles(dir);
+		}
 	}
-};
 
-Project.prototype.addFile = function (file) {
-	this.includes.push(file);
-};
-
-Project.prototype.addFiles = function () {
-	for (var i = 0; i < arguments.length; ++i) {
-		this.addFile(arguments[i]);
+	addFile(file) {
+		this.includes.push(file);
 	}
-};
 
-Project.prototype.addJavaDir = function (dir) {
-	this.javadirs.push(dir);
-};
-
-Project.prototype.addJavaDirs = function () {
-	for (var i = 0; i < arguments.length; ++i) {
-		this.addJavaDir(arguments[i]);
+	addFiles() {
+		for (let i = 0; i < arguments.length; ++i) {
+			this.addFile(arguments[i]);
+		}
 	}
-};
 
-Project.prototype.addExclude = function (exclude) {
-	this.excludes.push(exclude);
-};
-
-Project.prototype.addExcludes = function () {
-	for (var i = 0; i < arguments.length; ++i) {
-		this.addExclude(arguments[i]);
+	addJavaDir(dir) {
+		this.javadirs.push(dir);
 	}
-};
 
-Project.prototype.addDefine = function (define) {
-	if (contains(this.defines, define)) return;
-	this.defines.push(define);
-};
-
-Project.prototype.addDefines = function () {
-	for (var i = 0; i < arguments.length; ++i) {
-		this.addDefine(arguments[i]);
+	addJavaDirs() {
+		for (let i = 0; i < arguments.length; ++i) {
+			this.addJavaDir(arguments[i]);
+		}
 	}
-};
 
-Project.prototype.addIncludeDir = function (include) {
-	if (contains(this.includeDirs, include)) return;
-	this.includeDirs.push(include);
-};
-
-Project.prototype.addIncludeDirs = function () {
-	for (var i = 0; i < arguments.length; ++i) {
-		this.addIncludeDir(arguments[i]);
+	addExclude(exclude) {
+		this.excludes.push(exclude);
 	}
-};
 
-Project.prototype.addSubProject = function (project) {
-	this.subProjects.push(project);
-};
-
-Project.prototype.addLib = function (lib) {
-	this.libs.push(lib);
-};
-
-Project.prototype.addLibs = function () {
-	for (var i = 0; i < arguments.length; ++i) {
-		this.addLib(arguments[i]);
+	addExcludes() {
+		for (let i = 0; i < arguments.length; ++i) {
+			this.addExclude(arguments[i]);
+		}
 	}
-};
 
-Project.prototype.addLibFor = function (system, lib) {
-	if (this.systemDependendLibraries[system] === undefined) this.systemDependendLibraries[system] = [];
-	this.systemDependendLibraries[system].push(lib);
-};
-
-Project.prototype.addLibsFor = function () {
-	if (this.systemDependendLibraries[arguments[0]] === undefined) this.systemDependendLibraries[arguments[0]] = [];
-	for (var i = 1; i < arguments.length; ++i) {
-		this.systemDependendLibraries[arguments[0]].push(arguments[i]);
+	addDefine(define) {
+		if (contains(this.defines, define)) return;
+		this.defines.push(define);
 	}
-};
 
-Project.prototype.getFiles = function () {
-	return this.files;
-};
+	addDefines() {
+		for (let i = 0; i < arguments.length; ++i) {
+			this.addDefine(arguments[i]);
+		}
+	}
 
-Project.prototype.getJavaDirs = function () {
-	return this.javadirs;
-};
+	addIncludeDir(include) {
+		if (contains(this.includeDirs, include)) return;
+		this.includeDirs.push(include);
+	}
 
-Project.prototype.getBasedir = function () {
-	return this.basedir;
-};
+	addIncludeDirs() {
+		for (let i = 0; i < arguments.length; ++i) {
+			this.addIncludeDir(arguments[i]);
+		}
+	}
 
-Project.prototype.getSubProjects = function () {
-	return this.subProjects;
-};
+	addSubProject(project) {
+		this.subProjects.push(project);
+	}
 
-Project.prototype.getIncludeDirs = function () {
-	return this.includeDirs;
-};
+	addLib(lib) {
+		this.libs.push(lib);
+	}
 
-Project.prototype.getDefines = function () {
-	return this.defines;
-};
+	addLibs = function () {
+		for (let i = 0; i < arguments.length; ++i) {
+			this.addLib(arguments[i]);
+		}
+	}
 
-Project.prototype.getLibs = function () {
-	return this.libs;
-};
+	addLibFor(system, lib) {
+		if (this.systemDependendLibraries[system] === undefined) this.systemDependendLibraries[system] = [];
+		this.systemDependendLibraries[system].push(lib);
+	}
 
-Project.prototype.getLibsFor = function (system) {
-	if (this.systemDependendLibraries[system] === undefined) return [];
-	return this.systemDependendLibraries[system];
-};
+	addLibsFor() {
+		if (this.systemDependendLibraries[arguments[0]] === undefined) this.systemDependendLibraries[arguments[0]] = [];
+		for (let i = 1; i < arguments.length; ++i) {
+			this.systemDependendLibraries[arguments[0]].push(arguments[i]);
+		}
+	}
 
-Project.prototype.getDebugDir = function () {
-	return this.debugDir;
-};
+	getFiles() {
+		return this.files;
+	}
 
-Project.prototype.setDebugDir = function (debugDir) {
-	this.debugDir = debugDir;
-};
+	getJavaDirs() {
+		return this.javadirs;
+	}
+
+	getBasedir() {
+		return this.basedir;
+	}
+
+	getSubProjects() {
+		return this.subProjects;
+	}
+
+	getIncludeDirs() {
+		return this.includeDirs;
+	}
+
+	getDefines() {
+		return this.defines;
+	}
+
+	getLibs() {
+		return this.libs;
+	}
+
+	getLibsFor(system) {
+		if (this.systemDependendLibraries[system] === undefined) return [];
+		return this.systemDependendLibraries[system];
+	}
+
+	getDebugDir() {
+		return this.debugDir;
+	}
+
+	setDebugDir(debugDir) {
+		this.debugDir = debugDir;
+	}
+}
 
 module.exports = Project;

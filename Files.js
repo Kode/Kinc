@@ -1,15 +1,16 @@
-﻿var fs = require('fs');
-var pa = require('path');
+﻿"use strict";
 
-var execSync = require('child_process').execSync;
+const fs = require('fs');
+const pa = require('path');
+const execSync = require('child_process').execSync;
 
 function filesDiffer(file1, file2) {
 	// Treat them as different if one of them does not exist.
 	if (!fs.existsSync(file1)) return true;
 	if (!fs.existsSync(file2)) return true;
 
-	var isDifferent = true;
-	var output;
+	let isDifferent = true;
+	let output;
 	try {
 		output = execSync("fc " + file1 + " " + file2, { encoding: 'utf8' });
 	}
@@ -27,12 +28,12 @@ exports.exists = function (path) {
 };
 
 exports.createDirectories = function (path) {
-	var dirs = path.path.split(pa.sep);
-	var root = "";
+	let dirs = path.path.split(pa.sep);
+	let root = '';
 
 	while (dirs.length > 0) {
-		var dir = dirs.shift();
-		if (dir === "") { // If directory starts with a /, the first path will be an empty string.
+		let dir = dirs.shift();
+		if (dir === '') { // If directory starts with a /, the first path will be an empty string.
 			root = pa.sep;
 		}
 		if (!fs.existsSync(root + dir)) {
@@ -72,10 +73,10 @@ exports.newDirectoryStream = function (path) {
 };
 
 var rmdir = function (dir) {
-	var list = fs.readdirSync(dir);
-	for (var i = 0; i < list.length; ++i) {
-		var filename = pa.join(dir, list[i]);
-		var stat = fs.statSync(filename);
+	let list = fs.readdirSync(dir);
+	for (let i = 0; i < list.length; ++i) {
+		let filename = pa.join(dir, list[i]);
+		let stat = fs.statSync(filename);
 		if (filename == "." || filename == "..") {
 
 		}

@@ -1,34 +1,8 @@
 var version = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
 
-if (version < 0.12) {
-	console.log('Sorry, this requires at least node version 0.12.');
+if (version < 4.0) {
+	console.log('Sorry, this requires at least node version 4.0.');
 	process.exit(1);
-}
-
-if (!String.prototype.startsWith) {
-	Object.defineProperty(String.prototype, 'startsWith', {
-		enumerable: false,
-		configurable: false,
-		writable: false,
-		value: function (searchString, position) {
-			position = position || 0;
-			return this.indexOf(searchString, position) === position;
-		}
-	});
-}
-
-if (!String.prototype.endsWith) {
-	Object.defineProperty(String.prototype, 'endsWith', {
-		enumerable: false,
-		configurable: false,
-		writable: false,
-		value: function (searchString, position) {
-			position = position || this.length;
-			position = position - searchString.length;
-			var lastIndex = this.lastIndexOf(searchString);
-			return lastIndex !== -1 && lastIndex === position;
-		}
-	});
 }
 
 function escapeRegExp(string) {
@@ -39,14 +13,14 @@ String.prototype.replaceAll = function (find, replace) {
 	return this.replace(new RegExp(escapeRegExp(find), 'g'), replace);
 };
 
-var os = require('os');
-var Options = require('./Options.js');
-var Platform = require('./Platform.js');
-var GraphicsApi = require('./GraphicsApi.js');
-var VisualStudioVersion = require('./VisualStudioVersion.js');
-var VrApi = require('./VrApi.js');
+const os = require('os');
+const Options = require('./Options.js');
+const Platform = require('./Platform.js');
+const GraphicsApi = require('./GraphicsApi.js');
+const VisualStudioVersion = require('./VisualStudioVersion.js');
+const VrApi = require('./VrApi.js');
 
-var defaultTarget;
+let defaultTarget;
 if (os.platform() === "linux") {
 	defaultTarget = Platform.Linux;
 }
@@ -57,7 +31,7 @@ else {
 	defaultTarget = Platform.OSX;
 }
 
-var options = [
+const options = [
 	{
 		full: 'from',
 		value: true,
@@ -143,8 +117,7 @@ var parsedOptions = {
 
 function printHelp() {
 	console.log('khamake options:\n');
-	for (var o in options) {
-		var option = options[o];
+	for (let option of options) {
 		if (option.hidden) continue;
 		if (option.short) console.log('-' + option.short + ' ' + '--' + option.full);
 		else console.log('--' + option.full);
@@ -153,8 +126,7 @@ function printHelp() {
 	}
 }
 
-for (var o in options) {
-	var option = options[o];
+for (let option of options) {
 	if (option.value) {
 		parsedOptions[option.full] = option.default;
 	}
@@ -163,9 +135,9 @@ for (var o in options) {
 	}
 }
 
-var args = process.argv;
-for (var i = 2; i < args.length; ++i) {
-	var arg = args[i];
+let args = process.argv;
+for (let i = 2; i < args.length; ++i) {
+	let arg = args[i];
 
 	if (arg[0] == '-') {
 		if (arg[1] == '-') {
@@ -173,8 +145,7 @@ for (var i = 2; i < args.length; ++i) {
 				printHelp();
 				process.exit(0);
 			}
-			for (var o in options) {
-				var option = options[o];
+			for (let option of options) {
 				if (arg.substr(2) === option.full) {
 					if (option.value) {
 						++i;
@@ -191,8 +162,7 @@ for (var i = 2; i < args.length; ++i) {
 				printHelp();
 				process.exit(0);
 			}
-			for (var o in options) {
-				var option = options[o];
+			for (let option of options) {
 				if (option.short && arg[1] === option.short) {
 					if (option.value) {
 						++i;

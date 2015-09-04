@@ -1,8 +1,10 @@
-var myInfo = function (text) {
+"use strict";
+
+let myInfo = function (text) {
 	console.log(text);
 };
 
-var myError = function (text) {
+let myError = function (text) {
 	console.log(text);
 };
 

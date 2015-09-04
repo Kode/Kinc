@@ -1,5 +1,7 @@
-var GraphicsApi = require('./GraphicsApi.js');
-var VisualStudioVersion = require('./VisualStudioVersion.js');
+"use strict";
+
+const GraphicsApi = require('./GraphicsApi.js');
+const VisualStudioVersion = require('./VisualStudioVersion.js');
 
 module.exports = {
 	precompiledHeaders: false,

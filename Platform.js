@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = {
 	Windows: 'windows',
 	WindowsApp: 'windowsapp',

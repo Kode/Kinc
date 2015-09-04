@@ -1,14 +1,16 @@
-var fs = require('fs');
-var path = require('path');
-var GraphicsApi = require('./GraphicsApi.js');
-var Options = require('./Options.js');
-var Path = require('./Path.js');
-var Paths = require('./Paths.js');
-var Platform = require('./Platform.js');
-var Project = require('./Project.js');
+"use strict";
+
+const fs = require('fs');
+const path = require('path');
+const GraphicsApi = require('./GraphicsApi.js');
+const Options = require('./Options.js');
+const Path = require('./Path.js');
+const Paths = require('./Paths.js');
+const Platform = require('./Platform.js');
+const Project = require('./Project.js');
 
 function getDefines(platform, rotated) {
-	var defines = [];
+	let defines = [];
 	switch (platform) {
 		case Platform.Windows:
 			defines.push("_CRT_SECURE_NO_WARNINGS");
@@ -50,57 +52,58 @@ function getDefines(platform, rotated) {
 	return defines;
 }
 
-function Solution(name) {
-	this.name = name;
-	this.rotated = false;
-	this.cmd = false;
-	this.projects = [];
-}
+let scriptdir = new Path('.');
 
-Solution.scriptdir = new Path('.');
+class Solution {
+	constructor(name) {
+		this.name = name;
+		this.rotated = false;
+		this.cmd = false;
+		this.projects = [];
+	}
 
-Solution.prototype.getName = function () {
-	return this.name;
-};
-	
-Solution.prototype.getProjects = function () {
-	return this.projects;
-};
+	getName() {
+		return this.name;
+	}
 
-Solution.prototype.addProject = function (project) {
-	this.projects.push(project);
-};
+	getProjects() {
+		return this.projects;
+	}
 
-Solution.prototype.searchFiles = function () {
-	for (var p in this.projects) this.projects[p].searchFiles();
-};
+	addProject(project) {
+		this.projects.push(project);
+	}
 
-Solution.prototype.flatten = function () {
-	for (var p in this.projects) this.projects[p].flatten();
-};
+	searchFiles() {
+		for (let p of this.projects) p.searchFiles();
+	}
 
-Solution.createProject = function (filename) {
-	var file = fs.readFileSync(Solution.scriptdir.resolve(Paths.get(filename, 'korefile.js')).toString(), { encoding: 'utf8' });
-	var oldscriptdir = Solution.scriptdir;
-	Solution.scriptdir = Solution.scriptdir.resolve(filename);
-	var project = new Function(['Project', 'Platform', 'platform', 'GraphicsApi', 'graphics'], file)(Project, Platform, Solution.platform, GraphicsApi, Options.graphicsApi);
-	Solution.scriptdir = oldscriptdir;
-	return project;
-};
+	flatten() {
+		for (let p of this.projects) p.flatten();
+	};
 
-Solution.createSolution = function (filename, platform) {
-	var file = fs.readFileSync(Solution.scriptdir.resolve(Paths.get(filename, 'korefile.js')).toString(), {encoding: 'utf8'});
-	var oldscriptdir = Solution.scriptdir;
-	Solution.scriptdir = Solution.scriptdir.resolve(filename);
-	var solution = new Function([
-		'Solution',
-		'Project',
-		'Platform',
-		'platform',
-		'GraphicsApi',
-		'graphics',
-		'fs',
-		'path'], file)
+	static createProject(filename) {
+		let file = fs.readFileSync(Solution.scriptdir.resolve(Paths.get(filename, 'korefile.js')).toString(), {encoding: 'utf8'});
+		let oldscriptdir = Solution.scriptdir;
+		Solution.scriptdir = Solution.scriptdir.resolve(filename);
+		let project = new Function(['Project', 'Platform', 'platform', 'GraphicsApi', 'graphics'], file)(Project, Platform, Solution.platform, GraphicsApi, Options.graphicsApi);
+		Solution.scriptdir = oldscriptdir;
+		return project;
+	}
+
+	static createSolution(filename, platform) {
+		let file = fs.readFileSync(Solution.scriptdir.resolve(Paths.get(filename, 'korefile.js')).toString(), {encoding: 'utf8'});
+		let oldscriptdir = Solution.scriptdir;
+		Solution.scriptdir = Solution.scriptdir.resolve(filename);
+		let solution = new Function([
+			'Solution',
+			'Project',
+			'Platform',
+			'platform',
+			'GraphicsApi',
+			'graphics',
+			'fs',
+			'path'], file)
 		(Solution,
 			Project,
 			Platform,
@@ -109,57 +112,58 @@ Solution.createSolution = function (filename, platform) {
 			Options.graphicsApi,
 			require('fs'),
 			require('path'));
-	Solution.scriptdir = oldscriptdir;
+		Solution.scriptdir = oldscriptdir;
 
-	if (fs.existsSync(path.join(Solution.scriptdir.toString(), 'Backends'))) {
-		var libdirs = fs.readdirSync(path.join(Solution.scriptdir.toString(), 'Backends'));
-		for (var ld in libdirs) {
-			var libdir = path.join(Solution.scriptdir.toString().toString(), 'Backends', libdirs[ld]);
-			if (fs.statSync(libdir).isDirectory()) {
-				var korefile = path.join(libdir, 'korefile.js');
-				if (fs.existsSync(korefile)) {
-					solution.projects[0].addSubProject(Solution.createProject(libdir));
+		if (fs.existsSync(path.join(Solution.scriptdir.toString(), 'Backends'))) {
+			var libdirs = fs.readdirSync(path.join(Solution.scriptdir.toString(), 'Backends'));
+			for (var ld in libdirs) {
+				var libdir = path.join(Solution.scriptdir.toString().toString(), 'Backends', libdirs[ld]);
+				if (fs.statSync(libdir).isDirectory()) {
+					var korefile = path.join(libdir, 'korefile.js');
+					if (fs.existsSync(korefile)) {
+						solution.projects[0].addSubProject(Solution.createProject(libdir));
+					}
 				}
 			}
 		}
+
+		return solution;
 	}
 
-	return solution;
-};
+	static evalProjectScript(script) {
 
-Solution.evalProjectScript = function (script) {
-
-};
-
-Solution.evalSolutionScript = function (script, platform) {
-	this.platform = platform;
-};
-
-Solution.create = function (directory, platform) {
-	Solution.scriptdir = directory;
-	Solution.platform = platform;
-	var solution = Solution.createSolution('.', platform);
-	var defines = getDefines(platform, solution.isRotated());
-	for (var p in solution.projects) {
-		for (var d in defines) solution.projects[p].addDefine(defines[d]);
 	}
-	return solution;
-};
 
-Solution.prototype.isRotated = function () {
-	return this.rotated;
-};
+	static evalSolutionScript(script, platform) {
+		this.platform = platform;
+	}
 
-Solution.prototype.isCmd = function () {
-	return this.cmd;
-};
+	static create(directory, platform) {
+		Solution.scriptdir = directory;
+		Solution.platform = platform;
+		var solution = Solution.createSolution('.', platform);
+		var defines = getDefines(platform, solution.isRotated());
+		for (var p in solution.projects) {
+			for (var d in defines) solution.projects[p].addDefine(defines[d]);
+		}
+		return solution;
+	}
 
-Solution.prototype.setRotated = function () {
-	this.rotated = true;
-};
+	isRotated() {
+		return this.rotated;
+	}
 
-Solution.prototype.setCmd = function () {
-	this.cmd = true;
-};
+	isCmd() {
+		return this.cmd;
+	}
+
+	setRotated() {
+		this.rotated = true;
+	}
+
+	setCmd() {
+		this.cmd = true;
+	}
+}
 
 module.exports = Solution;
