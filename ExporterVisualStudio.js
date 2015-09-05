@@ -260,11 +260,11 @@ class ExporterVisualStudio extends Exporter {
 		let lastdir = "";
 		let dirs = [];
 		for (let file of project.getFiles()) {
-			if (file.contains('/')) {
+			if (file.indexOf('/') >= 0) {
 				let dir = file.substr(0, file.lastIndexOf('/'));
 				if (dir != lastdir) {
 					let subdir = dir;
-					while (subdir.contains("/")) {
+					while (subdir.indexOf('/') >= 0) {
 						subdir = subdir.substr(0, subdir.lastIndexOf('/'));
 						if (!contains(dirs, subdir)) dirs.push(subdir);
 					}
@@ -324,7 +324,7 @@ class ExporterVisualStudio extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.contains('/')) {
+			if (file.indexOf('/') >= 0) {
 				let dir = file.substr(0, file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
@@ -354,7 +354,7 @@ class ExporterVisualStudio extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.contains("/")) {
+			if (file.indexOf('/') >= 0) {
 				let dir = file.substr(0, file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				if (file.endsWith(".asm")) {
@@ -370,7 +370,7 @@ class ExporterVisualStudio extends Exporter {
 			lastdir = "";
 			this.p("<ItemGroup>", 1);
 			for (let file of assets) {
-				if (file.contains("/")) {
+				if (file.indexOf('/') >= 0) {
 					let dir = file.substr(0, file.lastIndexOf('/'));
 					if (dir != lastdir) lastdir = dir;
 					this.p("<None Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
@@ -817,7 +817,7 @@ class ExporterVisualStudio extends Exporter {
 					continue;
 				}
 				let name = file.toLowerCase();
-				if (name.contains('/')) name = name.substr(name.lastIndexOf('/') + 1);
+				if (name.indexOf('/') >= 0) name = name.substr(name.lastIndexOf('/') + 1);
 				name = name.substr(0, name.lastIndexOf('.'));
 				if (!objects[name]) {
 					if (platform === Platform.WindowsApp && !file.endsWith(".winrt.cpp")) {

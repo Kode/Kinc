@@ -18,7 +18,7 @@ class ExporterMakefile extends Exporter {
 		for (let file of project.getFiles()) {
 			if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
 				let name = file.toLowerCase();
-				if (name.contains('/')) name = name.substr(name.lastIndexOf('/') + 1);
+				if (name.indexOf('/') >= 0) name = name.substr(name.lastIndexOf('/') + 1);
 				name = name.substr(0, name.lastIndexOf('.'));
 				if (!objects[name]) {
 					objects[name] = true;

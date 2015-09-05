@@ -206,7 +206,7 @@ class Project {
 		this.libs.push(lib);
 	}
 
-	addLibs = function () {
+	addLibs() {
 		for (let i = 0; i < arguments.length; ++i) {
 			this.addLib(arguments[i]);
 		}

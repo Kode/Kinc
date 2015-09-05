@@ -86,7 +86,7 @@ class ExporterEmscripten extends Exporter {
 		}
 	}
 
-	exportSolution = function (solution, from, to, platform) {
+	exportSolution(solution, from, to, platform) {
 		var project = solution.getProjects()[0];
 
 		var assets = [];

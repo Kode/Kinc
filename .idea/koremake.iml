@@ -7,5 +7,6 @@
     <orderEntry type="library" name="koremake node_modules" level="project" />
     <orderEntry type="library" name="Node.js v2.3.0 Core Modules" level="application" />
     <orderEntry type="library" name="Node.js v3.3.0 Core Modules" level="application" />
+    <orderEntry type="library" name="Node.js v4.0.0-rc.1 Core Modules" level="application" />
   </component>
 </module>

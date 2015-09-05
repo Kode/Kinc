@@ -132,8 +132,8 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 }
 
 function exportKoremakeProject(from, to, platform, options) {
-	log.info("korefile found, generating build files.");
-	log.info("Creating " + fromPlatform(platform) + " solution.");
+	log.info('korefile found.');
+	log.info('Creating ' + fromPlatform(platform) + ' project files.');
 
 	let solution = Solution.create(from, platform);
 	solution.searchFiles();
