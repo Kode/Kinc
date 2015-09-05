@@ -41,10 +41,8 @@ void ProgramImpl::setConstants() {
 	commandList->SetPipelineState(_current->pso_);
 	commandList->SetGraphicsRootSignature(rootSignature_);
 
-	ID3D12DescriptorHeap* heaps[] = { srvDescriptorHeap_ };
-	commandList->SetDescriptorHeaps(1, heaps);
+	TextureImpl::setTextures();
 
-	commandList->SetGraphicsRootDescriptorTable(0, srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
 	commandList->SetGraphicsRootConstantBufferView(1, constantBuffers_[currentBackBuffer_]->GetGPUVirtualAddress());
 }
 

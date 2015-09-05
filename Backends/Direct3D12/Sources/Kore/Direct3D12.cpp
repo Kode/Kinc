@@ -40,7 +40,6 @@ ID3D12RootSignature* rootSignature_;
 ID3D12GraphicsCommandList* commandList;
 ID3D12Resource* image_;
 ID3D12Resource* uploadImage_;
-ID3D12DescriptorHeap* srvDescriptorHeap_;
 ID3D12Resource* constantBuffers_[QUEUE_SLOT_COUNT];
 
 int renderTargetWidth;
@@ -178,15 +177,6 @@ namespace {
 	}
 
 	void CreateRootSignature() {
-		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
-		descriptorHeapDesc.NumDescriptors = 1;
-
-		descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		descriptorHeapDesc.NodeMask = 0;
-		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-
-		device_->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap_));
-
 		ID3DBlob* rootBlob;
 		ID3DBlob* errorBlob;
 

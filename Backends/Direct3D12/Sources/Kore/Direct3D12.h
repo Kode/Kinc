@@ -19,7 +19,6 @@ extern ID3D12RootSignature* rootSignature_;
 extern ID3D12GraphicsCommandList* commandList;
 extern ID3D12Resource* image_;
 extern ID3D12Resource* uploadImage_;
-extern ID3D12DescriptorHeap* srvDescriptorHeap_;
 extern ID3D12Resource* constantBuffers_[QUEUE_SLOT_COUNT];
 
 //extern ID3D12DeviceContext* context;

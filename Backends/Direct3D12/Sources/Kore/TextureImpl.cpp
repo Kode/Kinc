@@ -8,8 +8,16 @@
 using namespace Kore;
 
 namespace {
-	Texture* setTextures[16] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	Texture* currentTextures[16] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 									nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+}
+
+void TextureImpl::setTextures() {
+	if (currentTextures[0] != nullptr) {
+		ID3D12DescriptorHeap* heaps[] = { currentTextures[0]->srvDescriptorHeap };
+		commandList->SetDescriptorHeaps(1, heaps);
+		commandList->SetGraphicsRootDescriptorTable(0, currentTextures[0]->srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	}
 }
 
 Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
@@ -33,6 +41,15 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	UpdateSubresources(commandList, image_, uploadImage_, 0, 0, 1, &srcData);
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image_, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
+	descriptorHeapDesc.NumDescriptors = 1;
+
+	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	descriptorHeapDesc.NodeMask = 0;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+	device_->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
+
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -41,7 +58,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	device_->CreateShaderResourceView(image_, &shaderResourceViewDesc, srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart());
+	device_->CreateShaderResourceView(image_, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	
 	if (!readable) {
 		delete[] this->data;
@@ -71,13 +88,13 @@ void Texture::set(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	//context->PSSetShaderResources(unit.unit, 1, &view);
 	this->stage = unit.unit;
-	setTextures[stage] = this;
+	currentTextures[stage] = this;
 }
 
 void TextureImpl::unset() {
-	if (setTextures[stage] == this) {
+	if (currentTextures[stage] == this) {
 		
-		setTextures[stage] = nullptr;
+		currentTextures[stage] = nullptr;
 	}
 }
 
