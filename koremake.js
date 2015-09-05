@@ -1,3 +1,5 @@
+"use strict";
+
 var version = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
 
 if (version < 4.0) {
