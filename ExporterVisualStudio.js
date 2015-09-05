@@ -711,7 +711,7 @@ class ExporterVisualStudio extends Exporter {
 						if (Files.exists(from.resolve(lib + ".lib"))) libs += from.resolve(lib).toAbsolutePath().toString() + ".lib;";
 						else libs += lib + ".lib;";
 					}
-					for (let lib in project.getLibsFor(system)) {
+					for (let lib of project.getLibsFor(system)) {
 						if (Files.exists(from.resolve(lib + ".lib"))) libs += from.resolve(lib).toAbsolutePath().toString() + ".lib;";
 						else libs += lib + ".lib;";
 					}
