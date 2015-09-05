@@ -8,13 +8,17 @@
 using namespace Kore;
 
 namespace {
-	Texture* currentTextures[16] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	const int textureCount = 16;
+	Texture* currentTextures[textureCount] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 									nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 }
 
 void TextureImpl::setTextures() {
 	if (currentTextures[0] != nullptr) {
-		ID3D12DescriptorHeap* heaps[] = { currentTextures[0]->srvDescriptorHeap };
+		ID3D12DescriptorHeap* heaps[textureCount];
+		for (int i = 0; i < textureCount; ++i) {
+			heaps[i] = currentTextures[i] == nullptr ? nullptr : currentTextures[i]->srvDescriptorHeap;
+		}
 		commandList->SetDescriptorHeaps(1, heaps);
 		commandList->SetGraphicsRootDescriptorTable(0, currentTextures[0]->srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	}

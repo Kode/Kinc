@@ -177,23 +177,26 @@ namespace {
 	}
 
 	void CreateRootSignature() {
+		const int textureCount = 16;
+
 		ID3DBlob* rootBlob;
 		ID3DBlob* errorBlob;
 
 		CD3DX12_ROOT_PARAMETER parameters[2];
 
-		CD3DX12_DESCRIPTOR_RANGE range{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 };
+		CD3DX12_DESCRIPTOR_RANGE range{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0 };
 		parameters[0].InitAsDescriptorTable(1, &range);
 
-		parameters[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		parameters[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
 
-		CD3DX12_STATIC_SAMPLER_DESC samplers[1];
-		samplers[0].Init(0, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+		CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount];
+		for (int i = 0; i < textureCount; ++i) {
+			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+		}
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
-
-		descRootSignature.Init(2, parameters, 1, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-		D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob);
+		descRootSignature.Init(2, parameters, textureCount, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 		device_->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
 	}
 
