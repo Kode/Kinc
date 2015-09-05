@@ -31,6 +31,21 @@ void ProgramImpl::setConstants() {
 		context->DSSetConstantBuffers(0, 1, &currentProgram->tessEvalConstantBuffer);
 	}
 	*/
+
+	u8* data;
+	constantBuffers_[currentBackBuffer_]->Map(0, nullptr, (void**)&data);
+	memcpy(data, vertexConstants, sizeof(vertexConstants));
+	memcpy(data + sizeof(vertexConstants), fragmentConstants, sizeof(fragmentConstants));
+	constantBuffers_[currentBackBuffer_]->Unmap(0, nullptr);
+
+	commandList->SetPipelineState(_current->pso_);
+	commandList->SetGraphicsRootSignature(rootSignature_);
+
+	ID3D12DescriptorHeap* heaps[] = { srvDescriptorHeap_ };
+	commandList->SetDescriptorHeaps(1, heaps);
+
+	commandList->SetGraphicsRootDescriptorTable(0, srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
+	commandList->SetGraphicsRootConstantBufferView(1, constantBuffers_[currentBackBuffer_]->GetGPUVirtualAddress());
 }
 
 ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {

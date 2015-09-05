@@ -34,12 +34,14 @@ ID3D12DescriptorHeap* cbvHeap;*/
 //ID3D12RenderTargetView* renderTargetView;
 //ID3D12DepthStencilView* depthStencilView;
 
+int currentBackBuffer_ = 0;
 ID3D12Device* device_;
 ID3D12RootSignature* rootSignature_;
 ID3D12GraphicsCommandList* commandList;
 ID3D12Resource* image_;
 ID3D12Resource* uploadImage_;
 ID3D12DescriptorHeap* srvDescriptorHeap_;
+ID3D12Resource* constantBuffers_[QUEUE_SLOT_COUNT];
 
 int renderTargetWidth;
 int renderTargetHeight;
@@ -53,8 +55,6 @@ Kore::u8 tessEvalConstants[1024 * 4];
 using namespace Kore;
 
 namespace {
-	static const int QUEUE_SLOT_COUNT = 3;
-	int currentBackBuffer_ = 0;
 	ID3D12CommandAllocator* commandAllocators_[QUEUE_SLOT_COUNT];
 	ID3D12GraphicsCommandList* commandLists_[QUEUE_SLOT_COUNT];
 	D3D12_VIEWPORT viewport_;
@@ -69,8 +69,7 @@ namespace {
 	IDXGISwapChain* swapChain_;
 	ID3D12Fence* uploadFence_;
 	ID3D12GraphicsCommandList* initCommandList_;
-	ID3D12CommandAllocator* initCommandAllocator_;
-	ID3D12Resource* constantBuffers_[QUEUE_SLOT_COUNT];
+	ID3D12CommandAllocator* initCommandAllocator_;	
 
 	struct RenderEnvironment {
 		ID3D12Device* device;
@@ -209,19 +208,13 @@ namespace {
 	}
 
 	void CreateConstantBuffer() {
-		struct ConstantBuffer {
-			float x, y, z, w;
-		};
-
-		static const ConstantBuffer cb = { 0, 0, 0, 0 };
-
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(sizeof(ConstantBuffer)),
+			device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) + sizeof(fragmentConstants)),
 				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constantBuffers_[i]));
 
 			void* p;
 			constantBuffers_[i]->Map(0, nullptr, &p);
-			::memcpy(p, &cb, sizeof(cb));
+			ZeroMemory(p, sizeof(vertexConstants) + sizeof(fragmentConstants));
 			constantBuffers_[i]->Unmap(0, nullptr);
 		}
 	}
@@ -335,15 +328,7 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
 	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);*/
 
-	commandList->SetPipelineState(ProgramImpl::_current->pso_);
-	commandList->SetGraphicsRootSignature(rootSignature_);
-
-	ID3D12DescriptorHeap* heaps[] = { srvDescriptorHeap_ };
-	commandList->SetDescriptorHeaps(1, heaps);
-
-	commandList->SetGraphicsRootDescriptorTable(0, srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
-
-	commandList->SetGraphicsRootConstantBufferView(1, constantBuffers_[currentBackBuffer_]->GetGPUVirtualAddress());
+	Program::setConstants();
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->vertexBufferView_);
