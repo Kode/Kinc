@@ -13,12 +13,13 @@ namespace Kore {
 	protected:
 		VertexBufferImpl(int count);
 	public:
-		ID3D12Resource* vertexBuffer_;
-		D3D12VertexBufferView vertexBufferView_;
-		ID3D12Resource* uploadBuffer_;
+		//ID3D12Resource* vertexBuffer;
+		ID3D12Resource* uploadBuffer;
+		D3D12VertexBufferView view;
 
 		int myCount;
 		int myStride;
+		int currentIndex;
 		//float* vertices;
 		static VertexBufferImpl* _current;
 	};

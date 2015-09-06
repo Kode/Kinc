@@ -7,9 +7,13 @@
 
 using namespace Kore;
 
+namespace {
+	const int multiple = 10;
+}
+
 VertexBufferImpl* VertexBufferImpl::_current = nullptr;
 
-VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {
+VertexBufferImpl::VertexBufferImpl(int count) : myCount(count), currentIndex(0) {
 	
 }
 
@@ -39,15 +43,15 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure) : Vertex
 
 	static const int uploadBufferSize = myStride * myCount;
 
-	device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer_));
+	device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize * multiple),
+		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer));
 
-	device_->CreateCommittedResource (&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&vertexBuffer_));
+	//device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
+	//	D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&vertexBuffer));
 
-	vertexBufferView_.BufferLocation = vertexBuffer_->GetGPUVirtualAddress();
-	vertexBufferView_.SizeInBytes = uploadBufferSize;
-	vertexBufferView_.StrideInBytes = myStride;
+	view.BufferLocation = uploadBuffer->GetGPUVirtualAddress();
+	view.SizeInBytes = uploadBufferSize;
+	view.StrideInBytes = myStride;
 }
 
 VertexBuffer::~VertexBuffer() {
@@ -61,18 +65,29 @@ float* VertexBuffer::lock() {
 
 float* VertexBuffer::lock(int start, int count) {
 	void* p;
-	uploadBuffer_->Map(0, nullptr, &p);
+	D3D12_RANGE range;
+	range.Begin = currentIndex * myCount * myStride;
+	range.End = range.Begin + myCount * myStride;
+	uploadBuffer->Map(0, &range, &p);
 	return (float*)p;
 }
 
 void VertexBuffer::unlock() {
-	uploadBuffer_->Unmap(0, nullptr);
+	D3D12_RANGE range;
+	range.Begin = currentIndex * myCount * myStride;
+	range.End = range.Begin + myCount * myStride;
+	uploadBuffer->Unmap(0, &range);
 
-	commandList->CopyBufferRegion(vertexBuffer_, 0, uploadBuffer_, 0, count() * stride());
-
-	CD3DX12_RESOURCE_BARRIER barriers[1] = { CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer_, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER) };
-
-	commandList->ResourceBarrier(1, barriers);
+	view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + currentIndex * myCount * myStride;
+	
+	++currentIndex;
+	if (currentIndex >= multiple) {
+		currentIndex = 0;
+	}
+	
+	//commandList->CopyBufferRegion(vertexBuffer, 0, uploadBuffer, 0, count() * stride());
+	//CD3DX12_RESOURCE_BARRIER barriers[1] = { CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER) };
+	//commandList->ResourceBarrier(1, barriers);
 }
 
 void VertexBuffer::set() {

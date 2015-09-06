@@ -324,7 +324,7 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	Program::setConstants();
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->vertexBufferView_);
+	commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
 	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->indexBufferView_);
 	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
 }
