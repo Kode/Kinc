@@ -151,6 +151,15 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	return location;
 }
 
+AttributeLocation Program::getAttributeLocation(const char* name) {
+	AttributeLocation location;
+	location.location = glGetAttribLocation(programId, name);
+	if (location.location < 0) {
+		printf("Attribute %s not found.\n", name);
+	}
+	return location;
+}
+
 int ProgramImpl::findTexture(const char* name) {
 	for (int index = 0; index < textureCount; ++index) {
 		if (strcmp(textures[index], name) == 0) return index;

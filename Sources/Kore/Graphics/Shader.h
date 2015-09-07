@@ -20,6 +20,10 @@ namespace Kore {
 
 	};
 
+	class AttributeLocation : public AttributeLocationImpl {
+
+	};
+
 	class Program : public ProgramImpl {
 	public:
 		Program();
@@ -30,6 +34,7 @@ namespace Kore {
 		void setTesselationEvaluationShader(Shader* shader);
 		void link(const VertexStructure& structure);
 		ConstantLocation getConstantLocation(const char* name);
+		AttributeLocation getAttributeLocation(const char* name);
 		TextureUnit getTextureUnit(const char* name);
 		void set();
 	};
