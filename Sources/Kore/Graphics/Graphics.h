@@ -143,6 +143,8 @@ namespace Kore {
 	
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
+		void drawIndexedVerticesInstanced(int instanceCount);
+		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
 
 		void changeResolution(int width, int height);
 		bool hasWindow();

@@ -25,14 +25,14 @@ float* ArrayBuffer::lock() {
 }
 
 void ArrayBuffer::unlock() {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mySize * 4, data, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+	glBufferData(GL_ARRAY_BUFFER, mySize * 4, data, GL_STATIC_DRAW);
 }
 
 void ArrayBuffer::set(AttributeLocation location, int divisor) {
 	current = this;
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
+	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	for (int i = 0; i < structureCount; i++) {
 		glEnableVertexAttribArray(location.location + i);
 		glVertexAttribPointer(location.location + i, structureSize, GL_FLOAT, false, 4 * structureSize * structureCount, (void*)(i * 4 * structureSize));

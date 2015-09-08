@@ -212,12 +212,25 @@ void Graphics::drawIndexedVertices(int start, int count) {
 #endif
 #else
 	if (programUsesTesselation) {
-		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 	}
 	else {
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 	}	
 #endif
+}
+
+void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+	drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
+}
+
+void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+	if (programUsesTesselation) {
+		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
+	}
+	else {
+		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
+	}
 }
 
 void Graphics::swapBuffers() {
