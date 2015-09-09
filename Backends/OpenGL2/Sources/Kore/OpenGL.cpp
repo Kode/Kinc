@@ -206,9 +206,9 @@ void Graphics::drawIndexedVertices() {
 void Graphics::drawIndexedVertices(int start, int count) {
 #ifdef OPENGLES
 #ifdef SYS_ANDROID
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void*)(start * sizeof(GL_UNSIGNED_SHORT)));
 #else
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 #endif
 #else
 	if (programUsesTesselation) {
@@ -261,7 +261,7 @@ void Graphics::end() {
 	//glClear(GL_COLOR_BUFFER_BIT);
 	GLenum code = glGetError();
 	while (code != GL_NO_ERROR) {
-		//std::printf("GLError: %s\n", gluErrorString(code));
+		//std::printf("GLError: %s\n", glewGetErrorString(code));
 		switch (code) {
 		case 1281:
 			std::printf("OpenGL: Invalid value\n");
