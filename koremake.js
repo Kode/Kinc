@@ -15,14 +15,14 @@ String.prototype.replaceAll = function (find, replace) {
 	return this.replace(new RegExp(escapeRegExp(find), 'g'), replace);
 };
 
-const os = require('os');
-const Options = require('./Options.js');
-const Platform = require('./Platform.js');
-const GraphicsApi = require('./GraphicsApi.js');
-const VisualStudioVersion = require('./VisualStudioVersion.js');
-const VrApi = require('./VrApi.js');
+var os = require('os');
+var Options = require('./Options.js');
+var Platform = require('./Platform.js');
+var GraphicsApi = require('./GraphicsApi.js');
+var VisualStudioVersion = require('./VisualStudioVersion.js');
+var VrApi = require('./VrApi.js');
 
-let defaultTarget;
+var defaultTarget;
 if (os.platform() === "linux") {
 	defaultTarget = Platform.Linux;
 }
@@ -33,7 +33,7 @@ else {
 	defaultTarget = Platform.OSX;
 }
 
-const options = [
+var options = [
 	{
 		full: 'from',
 		value: true,
@@ -119,7 +119,8 @@ var parsedOptions = {
 
 function printHelp() {
 	console.log('khamake options:\n');
-	for (let option of options) {
+	for (var o in options) {
+		var option = options[o];
 		if (option.hidden) continue;
 		if (option.short) console.log('-' + option.short + ' ' + '--' + option.full);
 		else console.log('--' + option.full);
@@ -128,7 +129,8 @@ function printHelp() {
 	}
 }
 
-for (let option of options) {
+for (var o in options) {
+	var option = options[o];
 	if (option.value) {
 		parsedOptions[option.full] = option.default;
 	}
@@ -137,9 +139,9 @@ for (let option of options) {
 	}
 }
 
-let args = process.argv;
-for (let i = 2; i < args.length; ++i) {
-	let arg = args[i];
+var args = process.argv;
+for (var i = 2; i < args.length; ++i) {
+	var arg = args[i];
 
 	if (arg[0] == '-') {
 		if (arg[1] == '-') {
@@ -147,7 +149,8 @@ for (let i = 2; i < args.length; ++i) {
 				printHelp();
 				process.exit(0);
 			}
-			for (let option of options) {
+			for (var o in options) {
+				var option = options[o];
 				if (arg.substr(2) === option.full) {
 					if (option.value) {
 						++i;
@@ -164,7 +167,8 @@ for (let i = 2; i < args.length; ++i) {
 				printHelp();
 				process.exit(0);
 			}
-			for (let option of options) {
+			for (var o in options) {
+				var option = options[o];
 				if (option.short && arg[1] === option.short) {
 					if (option.value) {
 						++i;
