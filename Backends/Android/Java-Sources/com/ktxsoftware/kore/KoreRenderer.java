@@ -6,7 +6,6 @@ import javax.microedition.khronos.opengles.GL10;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.text.method.MetaKeyKeyListener;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.KeyCharacterMap;
 
@@ -48,22 +47,20 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	
 	public void getEulerAngles(float[] m, float[] angles) {
 		float pitch = (float)Math.asin(m[6]);
-	    float roll;
-	    float yaw;
-	    
-	    if (FloatMath.sqrt(1.0F - m[6] * m[6]) >= 0.01F)
-	    {
-	      yaw = (float)Math.atan2(-m[2], m[10]);
-	      roll = (float)Math.atan2(m[4], m[5]);
-	    }
-	    else
-	    {
-	      yaw = 0.0F;
-	      roll = (float)Math.atan2(m[1], m[0]);
-	    }
-	    angles[0] = (-pitch);
-	    angles[1] = (-yaw);
-	    angles[2] = (-roll);
+		float roll;
+		float yaw;
+
+		if ((float)Math.sqrt(1.0F - m[6] * m[6]) >= 0.01F) {
+			yaw = (float)Math.atan2(-m[2], m[10]);
+			roll = (float)Math.atan2(m[4], m[5]);
+		}
+		else {
+			yaw = 0.0F;
+			roll = (float)Math.atan2(m[1], m[0]);
+		}
+		angles[0] = -pitch;
+		angles[1] = -yaw;
+		angles[2] = -roll;
 	}
 	
 	public void quatMult(float[]a, float[] b, float[] result) {
@@ -74,7 +71,6 @@ public class KoreRenderer implements GLSurfaceView.Renderer {
 	}
 	
 	public void fromAxisAngle(float[] axis, float radians, float[] result) {
-		
 		result[3] = (float) Math.cos(radians / 2.0);
 		result[0] = result[1] = result[2] = (float) Math.sin(radians / 2.0);
 		result[0] *= axis[0];
