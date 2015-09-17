@@ -31,10 +31,8 @@ import com.google.vrtoolkit.cardboard.FieldOfView;
 import com.google.vrtoolkit.cardboard.ScreenParams; */
 
 public class KoreActivity extends Activity implements SensorEventListener {//, OnCardboardTriggerListener,  OnCardboardNfcListener {
-	public volatile static boolean paused = true;
 	private AudioTrack audio;
-	private Thread audioThread;
-	private int bufferSize;
+	private KoreAudioRunnable audioRunnable;
 	private KoreView view;
 	
 	public static Object sensorLock = new Object();
@@ -69,8 +67,12 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(view = new KoreView(this));
-		bufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT) * 2;
-		audio = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
+		
+		int bufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+		audio = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, bufferSize * 2, AudioTrack.MODE_STREAM);
+		audioRunnable = new KoreAudioRunnable(audio, bufferSize);
+		Thread audioThread = new Thread(audioRunnable);
+		audioThread.start();
 		
 		sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -173,7 +175,7 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 		super.onPause();
 		view.onPause();
 		sensorManager.unregisterListener(this);
-		paused = true;
+		audioRunnable.onPause();
 		audio.pause();
 		audio.flush();
 		
@@ -192,35 +194,11 @@ public class KoreActivity extends Activity implements SensorEventListener {//, O
 		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(this, gyro, SensorManager.SENSOR_DELAY_NORMAL);
 		
-		if (audioThread != null) {
-			try {
-				audioThread.join();
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		paused = false;
+		audioRunnable.onResume();
 		audio.play();
-		Runnable audioRunnable = new Runnable() {
-			public void run() {
-				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-				byte[] audioBuffer = new byte[bufferSize / 2];
-				for (;;) {
-					if (paused) return;
-					KoreLib.writeAudio(audioBuffer, audioBuffer.length);
-					int written = 0;
-					while (written < audioBuffer.length) {
-						written += audio.write(audioBuffer, written, audioBuffer.length);
-					}
-				}
-			}
-		};
-		audioThread = new Thread(audioRunnable);
-		audioThread.start();
 		
-		//mMagnetSensor.start();
-	   // mNfcSensor.onResume(this);
+		// mMagnetSensor.start();
+	    // mNfcSensor.onResume(this);
 	    
 	    // TOD: Set all the events correctly.
 		
