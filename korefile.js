@@ -109,7 +109,7 @@ else if (platform === Platform.Android) {
 	addBackend('OpenGL2');
 	project.addDefine('OPENGL');
 	project.addDefine('SYS_ANDROID_API=15');
-	project.addDefine('DHXCPP_ANDROID_PLATFORM=23');
+	project.addDefine('HXCPP_ANDROID_PLATFORM=23');
 	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.HTML5) {
