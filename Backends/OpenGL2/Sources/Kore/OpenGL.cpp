@@ -243,6 +243,10 @@ void Graphics::begin() {
 #endif
 }
 
+void Graphics::viewport(int x, int y, int width, int height) {
+	glViewport(x,y,width,height);
+}
+
 void Graphics::end() {
 	//glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT);

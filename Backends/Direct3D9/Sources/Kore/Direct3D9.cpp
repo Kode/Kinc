@@ -373,6 +373,17 @@ void Graphics::begin() {
 	device->BeginScene();
 }
 
+
+void Graphics::viewport(int x, int y, int width, int height) {
+	D3DVIEWPORT9 vp;
+	vp.X = x;
+	vp.Y = y;
+	vp.Width = width;
+	vp.Height = height;
+	device->SetViewport(&vp);
+}
+
+
 void Graphics::end() {
 	/*if (backBuffer != nullptr) {
 		backBuffer->Release();

@@ -149,6 +149,8 @@ namespace Kore {
 		void begin();
 		void end();
 
+		void viewport(int x, int y, int width, int height);
+
 		void setRenderState(RenderState state, bool on);
 		void setRenderState(RenderState state, int v);
 		void setRenderState(RenderState state, float value);
