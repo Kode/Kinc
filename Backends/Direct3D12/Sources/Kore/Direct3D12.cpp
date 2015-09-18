@@ -372,6 +372,10 @@ void Graphics::begin() {
 	commandList = commandLists_[currentBackBuffer_];
 }
 
+void Graphics::viewport(int x, int y, int width, int height) {
+	//TODO
+}
+
 void Graphics::end() {
 	D3D12_RESOURCE_BARRIER barrier;
 	barrier.Transition.pResource = renderTarget_;
