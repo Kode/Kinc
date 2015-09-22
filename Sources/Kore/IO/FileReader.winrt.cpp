@@ -28,7 +28,7 @@ const char* macgetresourcepath();
 #endif
 
 #ifdef SYS_ANDROID
-extern mz_zip_archive* getApk();
+#include <android/asset_manager.h>
 #endif
 
 #ifdef SYS_WINDOWS
@@ -42,12 +42,23 @@ extern mz_zip_archive* getApk();
 
 using namespace Kore;
 
+namespace {
+	AAssetManager* assets = nullptr;
+}
+
+#ifdef SYS_ANDROID
+void initAndroidFileReader(AAssetManager* assets) {
+	::assets = assets;
+}
+#endif
+
 FileReader::FileReader() : readdata(nullptr) {
 #ifdef SYS_ANDROID
 	data.all = nullptr;
 	data.size = 0;
 	data.pos = 0;
 	data.isfile = false;
+	data.asset = nullptr;
 #else
 	data.file = nullptr;
 	data.size = 0;
@@ -60,6 +71,7 @@ FileReader::FileReader(const char* filename, FileType type) : readdata(nullptr) 
 	data.size = 0;
 	data.pos = 0;
 	data.isfile = type == Save;
+	data.asset = nullptr;
 #else
 	data.file = nullptr;
 	data.size = 0;
@@ -93,16 +105,10 @@ bool FileReader::open(const char* filename, FileType type) {
 	else {
 		data.isfile = false;
 
-		char file[1001];
-		strcpy(file, "assets/");
-		strcat(file, filename);
-		size_t size;
-		data.all = mz_zip_reader_extract_file_to_heap(getApk(), file, &size, 0);
-		data.size = static_cast<int>(size);
-		if (data.all == nullptr) {
-			mz_zip_reader_end(getApk());
-			return false;
-		}
+		data.asset = AAssetManager_open(assets, filename, AASSET_MODE_RANDOM);
+		if (data.asset == nullptr) return false;
+		data.size = AAsset_getLength64(data.asset);
+		data.pos = 0;
 		return true;
 	}
 }
@@ -200,39 +206,28 @@ bool FileReader::open(const char* filename, FileType type) {
 int FileReader::read(void* data, int size) {
 #ifdef SYS_ANDROID
 	if (this->data.isfile) return static_cast<int>(fread(data, 1, size, (FILE*)this->data.all));
-	int memsize = Kore::min(size, this->data.size - this->data.pos);
-	memcpy(data, (u8*)this->data.all + this->data.pos, memsize);
-	this->data.pos += memsize;
-	return memsize;
+	else {
+		int read = AAsset_read(this->data.asset, data, size);
+		this->data.pos += read;
+		return read;
+	}
 #else
 	return static_cast<int>(fread(data, 1, size, (FILE*)this->data.file));
 #endif
 }
 
 void* FileReader::readAll() {
-#ifdef SYS_ANDROID
-	if (this->data.isfile) {
-		seek(0);
-		void* data = new Kore::u8[this->data.size];
-		read(data, this->data.size);
-		return data;
-	}
-	else {
-		return data.all;
-	}
-#else
 	seek(0);
 	delete[] readdata;
 	readdata = new Kore::u8[this->data.size];
 	read(readdata, this->data.size);
 	return readdata;
-#endif
 }
 
 void FileReader::seek(int pos) {
 #ifdef SYS_ANDROID
 	if (data.isfile) fseek((FILE*)data.all, pos, SEEK_SET);
-	else data.pos = pos;
+	else AAsset_seek(data.asset, pos, SEEK_SET);
 #else
 	fseek((FILE*)data.file, pos, SEEK_SET);
 #endif
@@ -246,8 +241,8 @@ void FileReader::close() {
 		data.all = nullptr;
 	}
 	else {
-		free(data.all);
-		data.all = nullptr;
+		AAsset_close(data.asset);
+		data.asset = nullptr;
 	}
 #else
 	if (data.file == nullptr) return;

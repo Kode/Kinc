@@ -45,7 +45,6 @@ void Kore::System::showWindow() {
 }
 
 namespace {
-	mz_zip_archive apk;
 	char theApkPath[1001];
 	char filesDir[1001];
 	int width;
@@ -56,7 +55,7 @@ namespace {
 	//To debug startup behavior set the debuggingDelay to about 200.
 	bool initialized = false;
 	int debuggingDelayCount = 0;
-	const int debuggingDelay = 0;
+	const int debuggingDelay = 500;
 #if SYS_ANDROID_API >= 15
 	AAssetManager* assets;
 #endif
@@ -94,14 +93,6 @@ int Kore::System::screenHeight() {
     return height;
 }
 
-char* getApkPath() {
-	return theApkPath;
-}
-
-mz_zip_archive* getApk() {
-	return &apk;
-}
-
 const char* Kore::System::savePath() {
 	return filesDir;
 }
@@ -132,14 +123,10 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_gaze(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z, jfloat w);
 };
 
+void initAndroidFileReader(AAssetManager* assets);
+
 JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobject obj, jint width, jint height, jobject assetManager, jstring apkPath, jstring filesDir) {
-	if (firstinit)
-	{
-		{
-			const char* path = env->GetStringUTFChars(apkPath, nullptr);
-			std::strcpy(theApkPath, path);
-			env->ReleaseStringUTFChars(apkPath, path);
-		}
+	if (firstinit) {
 		{
 			const char* path = env->GetStringUTFChars(filesDir, nullptr);
 			std::strcpy(::filesDir, path);
@@ -147,10 +134,9 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_init(JNIEnv* env, jobje
 			env->ReleaseStringUTFChars(filesDir, path);
 		}
 
-#if SYS_ANDROID_API >= 15
     	//(*env)->NewGlobalRef(env, foo);
     	assets = AAssetManager_fromJava(env, assetManager);
-#endif
+		initAndroidFileReader(assets);
 
 		firstinit = false;
 	}
@@ -177,11 +163,6 @@ JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreLib_step(JNIEnv* env, jobje
 	if (!initialized) {
 		++debuggingDelayCount;
 		if (debuggingDelayCount > debuggingDelay) {
-			memset(&apk, 0, sizeof(apk));
-			mz_bool status = mz_zip_reader_init_file(&apk, theApkPath, 0);
-			if (!status) {
-				return;
-			}
 			init();
 			Kore::Application::the()->callback();
 		}
@@ -359,7 +340,6 @@ double Kore::System::time() {
     gettimeofday(&now, NULL);
     return (double)now.tv_sec + (double)(now.tv_usec / 1000000.0);
 }
-
 /*
 #include <errno.h>
 #include <EGL/egl.h>
@@ -640,4 +620,5 @@ extern "C" void android_main(struct android_app* state) {
     
     while (!windowshown) Kt::System::HandleMessages();
 	//ktmain(0, nullptr);
-}*/
+}
+*/

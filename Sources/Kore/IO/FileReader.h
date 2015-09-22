@@ -2,6 +2,10 @@
 
 #include "Reader.h"
 
+#ifdef SYS_ANDROID
+struct AAsset;
+#endif
+
 namespace Kore {
 #ifdef SYS_ANDROID
 	struct FileReaderData {
@@ -9,6 +13,7 @@ namespace Kore {
 		int pos;
 		int size;
 		bool isfile;
+		AAsset* asset;
 	};
 #elif defined(SYS_WIIU)
 	struct FileReaderData {
