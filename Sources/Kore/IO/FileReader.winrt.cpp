@@ -241,7 +241,7 @@ void FileReader::close() {
 		data.all = nullptr;
 	}
 	else {
-		AAsset_close(data.asset);
+		if (data.asset != nullptr) AAsset_close(data.asset);
 		data.asset = nullptr;
 	}
 #else
