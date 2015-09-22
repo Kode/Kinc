@@ -42,11 +42,11 @@ const char* macgetresourcepath();
 
 using namespace Kore;
 
+#ifdef SYS_ANDROID
 namespace {
 	AAssetManager* assets = nullptr;
 }
 
-#ifdef SYS_ANDROID
 void initAndroidFileReader(AAssetManager* assets) {
 	::assets = assets;
 }
