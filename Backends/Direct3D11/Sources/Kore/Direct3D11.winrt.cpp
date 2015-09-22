@@ -317,6 +317,10 @@ void Graphics::begin() {
 #endif
 }
 
+void Graphics::viewport(int x, int y, int width, int height) {
+	//TODO
+}
+
 void Graphics::end() {
 	
 }

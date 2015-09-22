@@ -211,6 +211,17 @@ void Graphics::begin() {
 	
 }
 
+void Graphics::viewport(int x, int y, int width, int height) {
+	//TODO
+	// id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	// MTLViewport viewport;
+	// viewport.originX=x;
+	// viewport.originY=y;
+	// viewport.width=width;
+	// viewport.height=height;
+	// encoder.setViewport(viewport);
+}
+
 void Graphics::end() {
 	++uniformsIndex;
 	if (uniformsIndex >= more) {
