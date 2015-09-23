@@ -2,9 +2,11 @@
 
 const Exporter = require('./Exporter.js');
 const Files = require('./Files.js');
+const GraphicsApi = require('./GraphicsApi.js');
 const Icon = require('./Icon.js');
 const Paths = require('./Paths.js');
 const Platform = require('./Platform.js');
+const Options = require('./Options.js');
 const fs = require('fs');
 const uuid = require('./uuid.js');
 
@@ -555,7 +557,12 @@ class ExporterXCode extends Exporter {
 			this.p('IPHONEOS_DEPLOYMENT_TARGET = 6.0;', 4);
 		}
 		else {
-			this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
+			if (Options.graphicsApi === GraphicsApi.Metal) {
+				this.p('MACOSX_DEPLOYMENT_TARGET = 10.11;', 4);
+			}
+			else {
+				this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
+			}
 		}
 		this.p('MTL_ENABLE_DEBUG_INFO = YES;', 4);
 		this.p('ONLY_ACTIVE_ARCH = YES;', 4);
@@ -626,7 +633,12 @@ class ExporterXCode extends Exporter {
 			this.p('IPHONEOS_DEPLOYMENT_TARGET = 6.0;', 4);
 		}
 		else {
-			this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
+			if (Options.graphicsApi === GraphicsApi.Metal) {
+				this.p('MACOSX_DEPLOYMENT_TARGET = 10.11;', 4);
+			}
+			else {
+				this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
+			}
 		}
 		this.p('MTL_ENABLE_DEBUG_INFO = NO;', 4);
 		if (platform == Platform.iOS) {
