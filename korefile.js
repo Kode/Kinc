@@ -68,15 +68,22 @@ else if (platform === Platform.PlayStation3) {
 }
 else if (platform === Platform.OSX) {
 	addBackend('OSX');
-	addBackend('OpenGL2');
-	project.addDefine('OPENGL');
+	if (graphics === GraphicsApi.Metal) {
+		addBackend('Metal');
+		project.addDefine('SYS_METAL');
+		project.addLib('Metal');
+	}
+	else {
+		addBackend('OpenGL2');
+		project.addDefine('OPENGL');
+		project.addLib('OpenGL');
+	}
 	project.addLib('IOKit');
 	project.addLib('Cocoa');
 	project.addLib('AppKit');
 	project.addLib('CoreAudio');
 	project.addLib('CoreData');
 	project.addLib('Foundation');
-	project.addLib('OpenGL');
 	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.iOS) {
