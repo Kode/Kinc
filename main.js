@@ -272,17 +272,17 @@ exports.run = function (options, loglog, callback) {
 
 			make.on('close', function (code) {
 				if (code === 0) {
-					if (options.platform === Platform.Linux) {
+					if (options.target === Platform.Linux) {
 						fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName));
 					}
-					else if (options.platform === Platform.Windows) {
+					else if (options.target === Platform.Windows) {
 						fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'));
 					}
 					if (options.run) {
-						if (options.platform === Platform.OSX) {
+						if (options.target === Platform.OSX) {
 							child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], {cwd: options.to});
 						}
-						else if (options.platform === Platform.Linux || options.platform === Platform.Windows) {
+						else if (options.target === Platform.Linux || options.target === Platform.Windows) {
 							child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], {cwd: path.join(options.from.toString(), project.getDebugDir())});
 						}
 						else {
