@@ -888,7 +888,7 @@ class ExporterVisualStudio extends Exporter {
 			this.p("</ItemGroup>", 1);
 			this.p("<ItemGroup>", 1);
 			for (let file of project.getFiles()) {
-				if (Project.koreDir.toString() != "" && file.endsWith(".glsl")) {
+				if (Project.koreDir && Project.koreDir.toString() != "" && file.endsWith(".glsl")) {
 					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<FileType>Document</FileType>", 2);
 					if (nokrafix)
@@ -903,7 +903,7 @@ class ExporterVisualStudio extends Exporter {
 			this.p("</ItemGroup>", 1);
 			this.p("<ItemGroup>", 1);
 			for (let file of project.getFiles()) {
-				if (Project.koreDir.toString() != "" && file.endsWith(".asm")) {
+				if (Project.koreDir && Project.koreDir.toString() != "" && file.endsWith(".asm")) {
 					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<FileType>Document</FileType>", 2);
 					this.p("<Command>" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\yasm-1.2.0-win32.exe -Xvc -f Win32 -g cv8 -o $(OutDir)\\%(Filename).obj -I ..\\Kt\\WebM\\src -I ..\\Kt\\WebM\\build -rnasm -pnasm \"%(FullPath)\"</Command>", 2);
