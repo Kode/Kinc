@@ -4,15 +4,16 @@
 
 #ifdef SYS_ANDROID
 struct AAsset;
+struct __sFILE;
+typedef __sFILE FILE;
 #endif
 
 namespace Kore {
 #ifdef SYS_ANDROID
 	struct FileReaderData {
-		void* all;
 		int pos;
 		int size;
-		bool isfile;
+		FILE* file;
 		AAsset* asset;
 	};
 #elif defined(SYS_WIIU)

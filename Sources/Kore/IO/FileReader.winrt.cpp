@@ -54,10 +54,9 @@ void initAndroidFileReader(AAssetManager* assets) {
 
 FileReader::FileReader() : readdata(nullptr) {
 #ifdef SYS_ANDROID
-	data.all = nullptr;
 	data.size = 0;
 	data.pos = 0;
-	data.isfile = false;
+	data.file = nullptr;
 	data.asset = nullptr;
 #else
 	data.file = nullptr;
@@ -67,10 +66,9 @@ FileReader::FileReader() : readdata(nullptr) {
 
 FileReader::FileReader(const char* filename, FileType type) : readdata(nullptr) {
 #ifdef SYS_ANDROID
-	data.all = nullptr;
 	data.size = 0;
 	data.pos = 0;
-	data.isfile = type == Save;
+	data.file = nullptr;
 	data.asset = nullptr;
 #else
 	data.file = nullptr;
@@ -85,30 +83,25 @@ FileReader::FileReader(const char* filename, FileType type) : readdata(nullptr) 
 bool FileReader::open(const char* filename, FileType type) {
 	data.pos = 0;
 	if (type == Save) {
-		data.isfile = true;
-
 		char filepath[1001];
 
 		strcpy(filepath, System::savePath());
 		strcat(filepath, filename);
 
-		data.all = fopen(filepath, "rb");
-		if (data.all == nullptr) {
+		data.file = fopen(filepath, "rb");
+		if (data.file == nullptr) {
 			log(Warning, "Could not open file %s.", filepath);
 			return false;
 		}
-		fseek((FILE*)data.all, 0, SEEK_END);
-		data.size = static_cast<int>(ftell((FILE*)data.all));
-		fseek((FILE*)data.all, 0, SEEK_SET);
+		fseek(data.file, 0, SEEK_END);
+		data.size = static_cast<int>(ftell(data.file));
+		fseek(data.file, 0, SEEK_SET);
 		return true;
 	}
 	else {
-		data.isfile = false;
-
 		data.asset = AAssetManager_open(assets, filename, AASSET_MODE_RANDOM);
 		if (data.asset == nullptr) return false;
-		data.size = AAsset_getLength64(data.asset);
-		data.pos = 0;
+		data.size = AAsset_getLength(data.asset);
 		return true;
 	}
 }
@@ -205,7 +198,9 @@ bool FileReader::open(const char* filename, FileType type) {
 
 int FileReader::read(void* data, int size) {
 #ifdef SYS_ANDROID
-	if (this->data.isfile) return static_cast<int>(fread(data, 1, size, (FILE*)this->data.all));
+	if (this->data.file != nullptr) {
+		return static_cast<int>(fread(data, 1, size, this->data.file));
+	}
 	else {
 		int read = AAsset_read(this->data.asset, data, size);
 		this->data.pos += read;
@@ -226,8 +221,13 @@ void* FileReader::readAll() {
 
 void FileReader::seek(int pos) {
 #ifdef SYS_ANDROID
-	if (data.isfile) fseek((FILE*)data.all, pos, SEEK_SET);
-	else AAsset_seek(data.asset, pos, SEEK_SET);
+	if (data.file != nullptr) {
+		fseek(data.file, pos, SEEK_SET);
+	}
+	else {
+		AAsset_seek(data.asset, pos, SEEK_SET);
+		data.pos = pos;
+	}
 #else
 	fseek((FILE*)data.file, pos, SEEK_SET);
 #endif
@@ -235,13 +235,12 @@ void FileReader::seek(int pos) {
 
 void FileReader::close() {
 #ifdef SYS_ANDROID
-	if (data.isfile) {
-		if (data.all == nullptr) return;
-		fclose((FILE*)data.all);
-		data.all = nullptr;
+	if (data.file != nullptr) {
+		fclose(data.file);
+		data.file = nullptr;
 	}
-	else {
-		if (data.asset != nullptr) AAsset_close(data.asset);
+	if (data.asset != nullptr) {
+		AAsset_close(data.asset);
 		data.asset = nullptr;
 	}
 #else
@@ -250,6 +249,7 @@ void FileReader::close() {
 	data.file = nullptr;
 #endif
 	delete[] readdata;
+	readdata = nullptr;
 }
 
 FileReader::~FileReader() {
@@ -258,7 +258,7 @@ FileReader::~FileReader() {
 
 int FileReader::pos() const {
 #ifdef SYS_ANDROID
-	if (data.isfile) return static_cast<int>(ftell((FILE*)data.all));
+	if (data.file != nullptr) return static_cast<int>(ftell(data.file));
 	else return data.pos;
 #else
 	return static_cast<int>(ftell((FILE*)data.file));

@@ -55,7 +55,7 @@ namespace {
 	//To debug startup behavior set the debuggingDelay to about 200.
 	bool initialized = false;
 	int debuggingDelayCount = 0;
-	const int debuggingDelay = 500;
+	const int debuggingDelay = 0;
 #if SYS_ANDROID_API >= 15
 	AAssetManager* assets;
 #endif
