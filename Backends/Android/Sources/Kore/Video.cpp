@@ -473,7 +473,7 @@ JNIEnv* getEnv();
 
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
 #if SYS_ANDROID_API >= 15
-	Kore::log(Kore::Info, "Opening video %s.", filename);
+	/*Kore::log(Kore::Info, "Opening video %s.", filename);
 	myWidth = 1023;
 	myHeight = 684;
 
@@ -500,7 +500,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	jmethodID getTextureId = getEnv()->GetMethodID(cls, "getTextureId", "()I");
 	int texid = getEnv()->CallIntMethod(object, getTextureId);
 
-	image = new Texture(texid);
+	image = new Texture(texid);*/
 #endif
 }
 
