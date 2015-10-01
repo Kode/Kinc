@@ -349,6 +349,8 @@ double Kore::System::time() {
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
 
+extern int kore(int argc, char** argv);
+
 namespace {
 	android_app* app;
 	AAssetManager* assets;
@@ -362,11 +364,13 @@ namespace {
 	int32_t width;
 	int32_t height;
 
+	bool started = false;
 	bool paused = true;
 
 	void* initDisplay() {
-		const EGLint attribs[] = {
+		const EGLint attributes[] = {
 				EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+				EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
 				EGL_BLUE_SIZE, 8,
 				EGL_GREEN_SIZE, 8,
 				EGL_RED_SIZE, 8,
@@ -378,16 +382,22 @@ namespace {
 
 		display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-		eglInitialize(display, 0, 0);
+		int version1, version2;
+		eglInitialize(display, &version1, &version2);
 
-		eglChooseConfig(display, attribs, &config, 1, &numConfigs);
+		eglChooseConfig(display, attributes, &config, 1, &numConfigs);
 
 		eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
 
 		ANativeWindow_setBuffersGeometry(app->window, 0, 0, format);
 
 		surface = eglCreateWindowSurface(display, config, app->window, NULL);
-		context = eglCreateContext(display, config, NULL, NULL);
+
+		EGLint attributesList[] = {
+			EGL_CONTEXT_CLIENT_VERSION, 2,
+			EGL_NONE
+		};
+		context = eglCreateContext(display, config, NULL, attributesList);
 
 		if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
 			return nullptr;
@@ -433,6 +443,9 @@ namespace {
 			case APP_CMD_INIT_WINDOW:
 				if (app->window != NULL) {
 					initDisplay();
+					if (!started) {
+						started = true;
+					}
 					Kore::System::swapBuffers();
 				}
 				break;
@@ -562,23 +575,17 @@ bool Kore::System::handleMessages() {
 			return true;
 		}
 	}
-
-	/*if (!paused) {
-		engine.state.angle += .01f;
-		if (engine.state.angle > 1) {
-			engine.state.angle = 0;
-		}
-		engine_draw_frame(&engine);
-	}*/
+	return true;
 }
 
-extern int kore(int argc, char** argv);
+void initAndroidFileReader(AAssetManager* assets);
 
 extern "C" void android_main(android_app* app) {
 	app_dummy();
 
 	::app = app;
 	assets = app->activity->assetManager;
+	initAndroidFileReader(assets);
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
 
@@ -586,5 +593,8 @@ extern "C" void android_main(android_app* app) {
 	accelerometerSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_ACCELEROMETER);
 	sensorEventQueue = ASensorManager_createEventQueue(sensorManager, app->looper, LOOPER_ID_USER, NULL, NULL);
 
+	while (!started) {
+		Kore::System::handleMessages();
+	}
 	kore(0, nullptr);
 }

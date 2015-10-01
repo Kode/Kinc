@@ -34,16 +34,12 @@ Application::~Application() {
 
 void Application::start() {
 	running = true;
-#ifndef SYS_ANDROID
-#ifndef SYS_HTML5
-#ifndef SYS_TIZEN
+#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 	while (running) {
 		callback();
 		System::handleMessages();
 	}
-#endif
-#endif
 #endif
 }
 
