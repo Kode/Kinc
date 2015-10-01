@@ -5,7 +5,7 @@
 			android:screenOrientation="sensorLandscape"
 			android:launchMode="singleTask"
 			android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
-			<meta-data android:name="android.app.kore" android:value="native-activity" />
+			<meta-data android:name="android.app.lib_name" android:value="kore" />
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
