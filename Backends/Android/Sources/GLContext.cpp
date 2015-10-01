@@ -130,10 +130,6 @@ bool GLContext::InitEGLSurface()
         return false;
     }
 
-    surface_ = eglCreateWindowSurface( display_, config_, window_, NULL );
-    eglQuerySurface( display_, surface_, EGL_WIDTH, &screen_width_ );
-    eglQuerySurface( display_, surface_, EGL_HEIGHT, &screen_height_ );
-
     /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
      * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
      * As soon as we picked a EGLConfig, we can safely reconfigure the
@@ -141,6 +137,10 @@ bool GLContext::InitEGLSurface()
     EGLint format;
     eglGetConfigAttrib( display_, config_, EGL_NATIVE_VISUAL_ID, &format );
     ANativeWindow_setBuffersGeometry( window_, 0, 0, format );
+
+    surface_ = eglCreateWindowSurface( display_, config_, window_, NULL );
+    eglQuerySurface( display_, surface_, EGL_WIDTH, &screen_width_ );
+    eglQuerySurface( display_, surface_, EGL_HEIGHT, &screen_height_ );
 
     return true;
 }

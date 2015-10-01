@@ -343,6 +343,7 @@ double Kore::System::time() {
 */
 
 #include <Kore/System.h>
+#include <Kore/Log.h>
 #include <errno.h>
 #include <EGL/egl.h>
 #include <GLES/gl.h>
@@ -363,18 +364,10 @@ namespace {
 	
 	bool started = false;
 	bool paused = true;
-	bool initialized = false;
 
 	void initDisplay() {
-		if (!initialized) {
-			glContext->Init(app->window);
-			initialized = true;
-		}
-		else {
-			if (glContext->Resume(app->window) != EGL_SUCCESS) {
-				//UnloadResources();
-				//LoadResources();
-			}
+		if (glContext->Resume(app->window) != EGL_SUCCESS) {
+			Kore::log(Kore::Warning, "GL context lost.");
 		}
 	}
 
@@ -435,8 +428,7 @@ void* Kore::System::createWindow() {
 
 void Kore::System::swapBuffers() {
 	if (glContext->Swap() != EGL_SUCCESS) {
-		//UnloadResources();
-		//LoadResources();
+		Kore::log(Kore::Warning, "GL context lost.");
 	}
 }
 
