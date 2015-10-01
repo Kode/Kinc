@@ -344,6 +344,8 @@ double Kore::System::time() {
 
 #include <Kore/System.h>
 #include <Kore/Log.h>
+#include <Kore/Input/Mouse.h>
+#include <Kore/Input/Surface.h>
 #include <errno.h>
 #include <EGL/egl.h>
 #include <GLES/gl.h>
@@ -377,8 +379,36 @@ namespace {
 
 	int32_t input(android_app* app, AInputEvent* event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-			//engine->state.x = AMotionEvent_getX(event, 0);
-			//engine->state.y = AMotionEvent_getY(event, 0);
+			size_t count = AMotionEvent_getPointerCount(event);
+			for (size_t i = 0; i < count; ++i) {
+				int id = AMotionEvent_getPointerId(event, i);
+				int action = AMotionEvent_getAction(event);
+				float x = AMotionEvent_getX(event, i);
+				float y = AMotionEvent_getY(event, i);
+
+				switch (action & AMOTION_EVENT_ACTION_MASK) {
+					case AMOTION_EVENT_ACTION_DOWN: //DOWN
+						if (id == 0) {
+							Kore::Mouse::the()->_press(0, x, y);
+						}
+						Kore::Surface::the()->_touchStart(id, x, y);
+						break;
+					case AMOTION_EVENT_ACTION_MOVE: //MOVE
+						if (id == 0) {
+							Kore::Mouse::the()->_move(x, y);
+						}
+						Kore::Surface::the()->_move(id, x, y);
+						break;
+					case AMOTION_EVENT_ACTION_UP: //UP
+					case AMOTION_EVENT_ACTION_CANCEL:
+						if (id == 0) {
+							Kore::Mouse::the()->_release(0, x, y);
+						}
+						Kore::Surface::the()->_touchEnd(id, x, y);
+						break;
+				}
+			}
+
 			return 1;
 		}
 		return 0;
