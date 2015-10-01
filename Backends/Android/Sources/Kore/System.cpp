@@ -348,6 +348,7 @@ double Kore::System::time() {
 #include <GLES/gl.h>
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
+#include <GLContext.h>
 
 extern int kore(int argc, char** argv);
 
@@ -358,73 +359,27 @@ namespace {
 	const ASensor* accelerometerSensor;
 	ASensorEventQueue* sensorEventQueue;
 
-	EGLDisplay display;
-	EGLSurface surface;
-	EGLContext context;
-	int32_t width;
-	int32_t height;
-
+	ndk_helper::GLContext* glContext;
+	
 	bool started = false;
 	bool paused = true;
+	bool initialized = false;
 
-	void* initDisplay() {
-		const EGLint attributes[] = {
-				EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-				EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-				EGL_BLUE_SIZE, 8,
-				EGL_GREEN_SIZE, 8,
-				EGL_RED_SIZE, 8,
-				EGL_NONE
-		};
-		EGLint dummy, format;
-		EGLint numConfigs;
-		EGLConfig config;
-
-		display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-
-		int version1, version2;
-		eglInitialize(display, &version1, &version2);
-
-		eglChooseConfig(display, attributes, &config, 1, &numConfigs);
-
-		eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-
-		ANativeWindow_setBuffersGeometry(app->window, 0, 0, format);
-
-		surface = eglCreateWindowSurface(display, config, app->window, NULL);
-
-		EGLint attributesList[] = {
-			EGL_CONTEXT_CLIENT_VERSION, 2,
-			EGL_NONE
-		};
-		context = eglCreateContext(display, config, NULL, attributesList);
-
-		if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-			return nullptr;
+	void initDisplay() {
+		if (!initialized) {
+			glContext->Init(app->window);
+			initialized = true;
 		}
-
-		eglQuerySurface(display, surface, EGL_WIDTH, &width);
-		eglQuerySurface(display, surface, EGL_HEIGHT, &height);
-
-		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-
-		return nullptr;
+		else {
+			if (glContext->Resume(app->window) != EGL_SUCCESS) {
+				//UnloadResources();
+				//LoadResources();
+			}
+		}
 	}
 
 	void termDisplay() {
-		if (display != EGL_NO_DISPLAY) {
-			eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-			if (context != EGL_NO_CONTEXT) {
-				eglDestroyContext(display, context);
-			}
-			if (surface != EGL_NO_SURFACE) {
-				eglDestroySurface(display, surface);
-			}
-			eglTerminate(display);
-		}
-		display = EGL_NO_DISPLAY;
-		context = EGL_NO_CONTEXT;
-		surface = EGL_NO_SURFACE;
+		glContext->Suspend();
 	}
 
 	int32_t input(android_app* app, AInputEvent* event) {
@@ -479,10 +434,10 @@ void* Kore::System::createWindow() {
 }
 
 void Kore::System::swapBuffers() {
-	if (display == NULL) {
-		return;
+	if (glContext->Swap() != EGL_SUCCESS) {
+		//UnloadResources();
+		//LoadResources();
 	}
-	eglSwapBuffers(display, surface);
 }
 
 void Kore::System::destroyWindow() {
@@ -502,11 +457,11 @@ void Kore::System::loadURL(const char* url) {
 }
 
 int Kore::System::screenWidth() {
-	return width;
+	return glContext->GetScreenWidth();
 }
 
 int Kore::System::screenHeight() {
-	return height;
+	return glContext->GetScreenHeight();
 }
 
 const char* Kore::System::savePath() {
@@ -545,7 +500,7 @@ Kore::System::ticks Kore::System::timestamp() {
 double Kore::System::time() {
 	timeval now;
 	gettimeofday(&now, NULL);
-	return (double)now.tv_sec + (double)(now.tv_usec / 1000000.0);
+	return (double)now.tv_sec + (now.tv_usec / 1000000.0);
 }
 
 bool Kore::System::handleMessages() {
@@ -553,9 +508,6 @@ bool Kore::System::handleMessages() {
 	int events;
 	android_poll_source* source;
 
-	// If not animating, we will block forever waiting for events.
-	// If animating, we loop until all events are read, then continue
-	// to draw the next frame of animation.
 	while ((ident = ALooper_pollAll(paused ? -1 : 0, NULL, &events, (void**)&source)) >= 0) {
 		if (source != NULL) {
 			source->process(app, source);
@@ -589,6 +541,7 @@ extern "C" void android_main(android_app* app) {
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
 
+	glContext = ndk_helper::GLContext::GetInstance();
 	sensorManager = ASensorManager_getInstance();
 	accelerometerSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_ACCELEROMETER);
 	sensorEventQueue = ASensorManager_createEventQueue(sensorManager, app->looper, LOOPER_ID_USER, NULL, NULL);
