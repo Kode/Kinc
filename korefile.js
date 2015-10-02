@@ -10,7 +10,13 @@ function addBackend(name) {
 
 if (platform === Platform.Windows) {
 	addBackend('Windows');
+	project.addLib('dxguid');
+	project.addLib('dsound');
+	project.addLib('dinput8');
 	
+	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
+	project.addLib('ws2_32');
+
 	if (graphics === GraphicsApi.OpenGL) {
 		addBackend('OpenGL');
 		project.addDefine('OPENGL');
@@ -29,29 +35,21 @@ if (platform === Platform.Windows) {
 		project.addLib('dxgi');
 	}
 	else {
-		project.addIncludeDir('Backends/Windows/Libraries/directx/Include');
 		addBackend('Direct3D9');
 		project.addDefine('DIRECT3D');
 	}
 
-	project.addLibsFor('Win32', 'Backends/Windows/Libraries/directx/Lib/x86/dxguid', 'Backends/Windows/Libraries/directx/Lib/x86/DxErr', 'Backends/Windows/Libraries/directx/Lib/x86/dsound', 'Backends/Windows/Libraries/directx/Lib/x86/dinput8');
-	project.addLibsFor('x64', 'Backends/Windows/Libraries/directx/Lib/x64/dxguid', 'Backends/Windows/Libraries/directx/Lib/x64/DxErr', 'Backends/Windows/Libraries/directx/Lib/x64/dsound');
 	if (graphics !== GraphicsApi.OpenGL) {
 		if (graphics === GraphicsApi.Direct3D12) {
 			project.addLib('d3d12');
 		}
 		else if (graphics === GraphicsApi.Direct3D11) {
-			project.addLibFor('Win32', 'Backends/Windows/Libraries/directx/Lib/x86/d3d11');
-			project.addLibFor('x64', 'Backends/Windows/Libraries/directx/Lib/x64/d3d11');
+			project.addLib('d3d11');
 		}
 		else {
-			project.addLibFor('Win32', 'Backends/Windows/Libraries/directx/Lib/x86/d3d9');
-			project.addLibFor('x64', 'Backends/Windows/Libraries/directx/Lib/x64/d3d9');
+			project.addLib('d3d9');
 		}
 	}
-
-	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
-	project.addLib('ws2_32');
 }
 else if (platform === Platform.WindowsApp) {
 	addBackend('WindowsApp');
@@ -136,10 +134,6 @@ else if (platform === Platform.Tizen) {
 	project.addExclude('Backends/OpenGL2/Sources/GL/**');
 	project.addDefine('OPENGL');
 	project.addDefine('SYS_UNIXOID');
-}
-
-if (platform !== Platform.Android) {
-	project.addExclude('Sources/Kore/IO/miniz.cpp')
 }
 
 return project;

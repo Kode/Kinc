@@ -4,7 +4,6 @@
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
-#include "miniz.h"
 #include <cstdlib>
 #include <cstring>
 #include <stdio.h>
