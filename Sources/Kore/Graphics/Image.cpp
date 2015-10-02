@@ -76,7 +76,7 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
 		u8* all = (u8*)file.readAll();
 		dataSize = width * height / 2;
 		data = new u8[dataSize];
-		for (unsigned i = 0; i < dataSize; ++i) {
+		for (int i = 0; i < dataSize; ++i) {
 			data[i] = all[52 + metaDataSize + i];
 		}
 	}
@@ -105,7 +105,7 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
     	u8* all = (u8*)file.readAll();
 		dataSize = file.size() - 16;
 		data = new u8[dataSize];
-		for (unsigned i = 0; i < dataSize; ++i) {
+		for (int i = 0; i < dataSize; ++i) {
 			data[i] = all[16 + i];
 		}
 	}

@@ -11,8 +11,6 @@ function addBackend(name) {
 if (platform === Platform.Windows) {
 	addBackend('Windows');
 	
-	project.addIncludeDir('Backends/Windows/Libraries/directx/Include');
-
 	if (graphics === GraphicsApi.OpenGL) {
 		addBackend('OpenGL');
 		project.addDefine('OPENGL');
@@ -31,6 +29,7 @@ if (platform === Platform.Windows) {
 		project.addLib('dxgi');
 	}
 	else {
+		project.addIncludeDir('Backends/Windows/Libraries/directx/Include');
 		addBackend('Direct3D9');
 		project.addDefine('DIRECT3D');
 	}
