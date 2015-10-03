@@ -7,13 +7,22 @@
 
 using namespace Kore;
 
-namespace {
-	const int textureCount = 16;
-	Texture* currentTextures[textureCount] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-									nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-}
+static const int textureCount = 16;
+
+RenderTarget* currentRenderTargets[textureCount] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+Texture* currentTextures[textureCount] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
 void TextureImpl::setTextures() {
+	if (currentRenderTargets[0] != nullptr) {
+		ID3D12DescriptorHeap* heaps[textureCount];
+		for (int i = 0; i < textureCount; ++i) {
+			heaps[i] = currentRenderTargets[i] == nullptr ? nullptr : currentRenderTargets[i]->srvDescriptorHeap;
+		}
+		commandList->SetDescriptorHeaps(1, heaps);
+		commandList->SetGraphicsRootDescriptorTable(0, currentRenderTargets[0]->srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	}
 	if (currentTextures[0] != nullptr) {
 		ID3D12DescriptorHeap* heaps[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
@@ -93,6 +102,7 @@ void Texture::set(TextureUnit unit) {
 	//context->PSSetShaderResources(unit.unit, 1, &view);
 	this->stage = unit.unit;
 	currentTextures[stage] = this;
+	currentRenderTargets[stage] = nullptr;
 }
 
 void TextureImpl::unset() {

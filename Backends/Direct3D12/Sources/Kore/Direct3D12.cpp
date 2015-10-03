@@ -601,9 +601,13 @@ bool Graphics::nonPow2TexturesSupported() {
 }
 
 void Graphics::restoreRenderTarget() {
-	//context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->RSSetViewports(1, &viewport_);
+	commandList->RSSetScissorRects(1, &rectScissor_);
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int) {
-	//context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
+	commandList->OMSetRenderTargets(1, &target->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&target->viewport);
+	commandList->RSSetScissorRects(1, (D3D12_RECT*)&target->scissor);
 }
