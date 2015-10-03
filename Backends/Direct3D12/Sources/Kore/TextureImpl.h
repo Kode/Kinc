@@ -1,5 +1,6 @@
 #pragma once
 
+struct ID3D12Resource;
 struct ID3D12DescriptorHeap;
 
 namespace Kore {
@@ -16,8 +17,9 @@ namespace Kore {
 	
 		bool mipmap;
 		int stage;
-		//ID3D11Texture2D* texture;
-		//ID3D11ShaderResourceView* view;
+
+		ID3D12Resource* image;
+		ID3D12Resource* uploadImage;
 		ID3D12DescriptorHeap* srvDescriptorHeap;
 		static void setTextures();
 	};

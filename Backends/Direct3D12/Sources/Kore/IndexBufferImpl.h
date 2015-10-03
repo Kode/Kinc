@@ -13,9 +13,9 @@ namespace Kore {
 	protected:
 		IndexBufferImpl(int count);
 	public:
-		ID3D12Resource* indexBuffer_;
-		D3D12IindexBufferView indexBufferView_;
-		ID3D12Resource* uploadBuffer_;
+		ID3D12Resource* indexBuffer;
+		D3D12IindexBufferView indexBufferView;
+		ID3D12Resource* uploadBuffer;
 		int myCount;
 		static IndexBufferImpl* _current;
 	};

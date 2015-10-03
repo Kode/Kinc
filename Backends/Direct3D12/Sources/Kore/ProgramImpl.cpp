@@ -33,17 +33,17 @@ void ProgramImpl::setConstants() {
 	*/
 
 	u8* data;
-	constantBuffers_[currentBackBuffer_]->Map(0, nullptr, (void**)&data);
+	constantBuffers[currentBackBuffer]->Map(0, nullptr, (void**)&data);
 	memcpy(data, vertexConstants, sizeof(vertexConstants));
 	memcpy(data + sizeof(vertexConstants), fragmentConstants, sizeof(fragmentConstants));
-	constantBuffers_[currentBackBuffer_]->Unmap(0, nullptr);
+	constantBuffers[currentBackBuffer]->Unmap(0, nullptr);
 
-	commandList->SetPipelineState(_current->pso_);
-	commandList->SetGraphicsRootSignature(rootSignature_);
+	commandList->SetPipelineState(_current->pso);
+	commandList->SetGraphicsRootSignature(rootSignature);
 
 	TextureImpl::setTextures();
 
-	commandList->SetGraphicsRootConstantBufferView(1, constantBuffers_[currentBackBuffer_]->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(1, constantBuffers[currentBackBuffer]->GetGPUVirtualAddress());
 }
 
 ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
@@ -206,7 +206,7 @@ void Program::link(const VertexStructure& structure) {
 	psoDesc.VS.pShaderBytecode = vertexShader->data;
 	psoDesc.PS.BytecodeLength = fragmentShader->length;
 	psoDesc.PS.pShaderBytecode = fragmentShader->data;
-	psoDesc.pRootSignature = rootSignature_;
+	psoDesc.pRootSignature = rootSignature;
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
@@ -227,12 +227,12 @@ void Program::link(const VertexStructure& structure) {
 	psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = false;
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
+	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
 	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 	psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 	psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
 	psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	psoDesc.SampleDesc.Count = 1;
@@ -241,5 +241,5 @@ void Program::link(const VertexStructure& structure) {
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	device_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso_));
+	device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
 }

@@ -34,13 +34,11 @@ ID3D12DescriptorHeap* cbvHeap;*/
 //ID3D12RenderTargetView* renderTargetView;
 //ID3D12DepthStencilView* depthStencilView;
 
-int currentBackBuffer_ = 0;
-ID3D12Device* device_;
-ID3D12RootSignature* rootSignature_;
+int currentBackBuffer = 0;
+ID3D12Device* device;
+ID3D12RootSignature* rootSignature;
 ID3D12GraphicsCommandList* commandList;
-ID3D12Resource* image_;
-ID3D12Resource* uploadImage_;
-ID3D12Resource* constantBuffers_[QUEUE_SLOT_COUNT];
+ID3D12Resource* constantBuffers[QUEUE_SLOT_COUNT];
 
 int renderTargetWidth;
 int renderTargetHeight;
@@ -54,21 +52,21 @@ Kore::u8 tessEvalConstants[1024 * 4];
 using namespace Kore;
 
 namespace {
-	ID3D12CommandAllocator* commandAllocators_[QUEUE_SLOT_COUNT];
-	ID3D12GraphicsCommandList* commandLists_[QUEUE_SLOT_COUNT];
-	D3D12_VIEWPORT viewport_;
-	D3D12_RECT rectScissor_;
-	ID3D12Resource* renderTarget_;
-	ID3D12DescriptorHeap* renderTargetDescriptorHeap_;
-	ID3D12CommandQueue* commandQueue_;
-	UINT64 currentFenceValue_;
-	UINT64 fenceValues_[QUEUE_SLOT_COUNT];
-	HANDLE frameFenceEvents_[QUEUE_SLOT_COUNT];
-	ID3D12Fence* frameFences_[QUEUE_SLOT_COUNT];
-	IDXGISwapChain* swapChain_;
-	ID3D12Fence* uploadFence_;
-	ID3D12GraphicsCommandList* initCommandList_;
-	ID3D12CommandAllocator* initCommandAllocator_;	
+	ID3D12CommandAllocator* commandAllocators[QUEUE_SLOT_COUNT];
+	ID3D12GraphicsCommandList* commandLists[QUEUE_SLOT_COUNT];
+	D3D12_VIEWPORT viewport;
+	D3D12_RECT rectScissor;
+	ID3D12Resource* renderTarget;
+	ID3D12DescriptorHeap* renderTargetDescriptorHeap;
+	ID3D12CommandQueue* commandQueue;
+	UINT64 currentFenceValue;
+	UINT64 fenceValues[QUEUE_SLOT_COUNT];
+	HANDLE frameFenceEvents[QUEUE_SLOT_COUNT];
+	ID3D12Fence* frameFences[QUEUE_SLOT_COUNT];
+	IDXGISwapChain* swapChain;
+	ID3D12Fence* uploadFence;
+	ID3D12GraphicsCommandList* initCommandList;
+	ID3D12CommandAllocator* initCommandAllocator;	
 
 	struct RenderEnvironment {
 		ID3D12Device* device;
@@ -76,7 +74,7 @@ namespace {
 		IDXGISwapChain* swapChain;
 	};
 
-	RenderEnvironment CreateDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
+	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
 		RenderEnvironment result;
 
 		affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
@@ -96,15 +94,15 @@ namespace {
 		return result;
 	}
 
-	void WaitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
+	void waitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
 		if (fence->GetCompletedValue() < completionValue) {
 			fence->SetEventOnCompletion(completionValue, waitEvent);
 			WaitForSingleObject(waitEvent, INFINITE);
 		}
 	}
 
-	void CreateRenderTargetView() {
-		const D3D12_RESOURCE_DESC resourceDesc = renderTarget_->GetDesc();
+	void createRenderTargetView() {
+		const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
 
 		D3D12_RENDER_TARGET_VIEW_DESC viewDesc;
 		viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -112,29 +110,29 @@ namespace {
 		viewDesc.Texture2D.MipSlice = 0;
 		viewDesc.Texture2D.PlaneSlice = 0;
 
-		device_->CreateRenderTargetView(renderTarget_, &viewDesc, renderTargetDescriptorHeap_->GetCPUDescriptorHandleForHeapStart());
+		device->CreateRenderTargetView(renderTarget, &viewDesc, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
-	void SetupSwapChain() {
+	void setupSwapChain() {
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 		heapDesc.NumDescriptors = 1;
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device_->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap_));
+		device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap));
 
-		currentFenceValue_ = 0;
+		currentFenceValue = 0;
 
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			frameFenceEvents_[i] = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			fenceValues_[i] = 0;
-			device_->CreateFence(currentFenceValue_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&frameFences_[i]));
+			frameFenceEvents[i] = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			fenceValues[i] = 0;
+			device->CreateFence(currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&frameFences[i]));
 		}
 
-		swapChain_->GetBuffer(currentBackBuffer_, IID_PPV_ARGS(&renderTarget_));
-		CreateRenderTargetView();
+		swapChain->GetBuffer(currentBackBuffer, IID_PPV_ARGS(&renderTarget));
+		createRenderTargetView();
 	}
 
-	void CreateDeviceAndSwapChain(int width, int height, HWND window) {
+	void createDeviceAndSwapChain(int width, int height, HWND window) {
 #ifdef _DEBUG
 		ID3D12Debug* debugController;
 		D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
@@ -154,29 +152,29 @@ namespace {
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.Windowed = true;
 
-		auto renderEnv = CreateDeviceAndSwapChainHelper(nullptr, D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
+		auto renderEnv = createDeviceAndSwapChainHelper(nullptr, D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
 
-		device_ = renderEnv.device;
-		commandQueue_ = renderEnv.queue;
-		swapChain_ = renderEnv.swapChain;
+		device = renderEnv.device;
+		commandQueue = renderEnv.queue;
+		swapChain = renderEnv.swapChain;
 
-		SetupSwapChain();
+		setupSwapChain();
 	}
 
-	void CreateAllocatorsAndCommandLists() {
+	void createAllocatorsAndCommandLists() {
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocators_[i]));
-			device_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators_[i], nullptr, IID_PPV_ARGS(&commandLists_[i]));
-			commandLists_[i]->Close();
+			device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocators[i]));
+			device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[i], nullptr, IID_PPV_ARGS(&commandLists[i]));
+			commandLists[i]->Close();
 		}
 	}
 
-	void CreateViewportScissor(int width, int height) {
-		rectScissor_ = { 0, 0, width, height };
-		viewport_ = { 0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f };
+	void createViewportScissor(int width, int height) {
+		rectScissor = { 0, 0, width, height };
+		viewport = { 0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f };
 	}
 
-	void CreateRootSignature() {
+	void createRootSignature() {
 		const int textureCount = 16;
 
 		ID3DBlob* rootBlob;
@@ -197,63 +195,57 @@ namespace {
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(2, parameters, textureCount, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 		affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-		device_->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
+		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	}
 
-	void CreateConstantBuffer() {
+	void createConstantBuffer() {
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) + sizeof(fragmentConstants)),
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constantBuffers_[i]));
+			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) + sizeof(fragmentConstants)),
+				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constantBuffers[i]));
 
 			void* p;
-			constantBuffers_[i]->Map(0, nullptr, &p);
+			constantBuffers[i]->Map(0, nullptr, &p);
 			ZeroMemory(p, sizeof(vertexConstants) + sizeof(fragmentConstants));
-			constantBuffers_[i]->Unmap(0, nullptr);
+			constantBuffers[i]->Unmap(0, nullptr);
 		}
 	}
 
-	void Initialize(int width, int height, HWND window) {
-		//window_.reset(new Window("Anteru's D3D12 sample", 512, 512));
+	void initialize(int width, int height, HWND window) {
+		createDeviceAndSwapChain(width, height, window);
+		createAllocatorsAndCommandLists();
+		createViewportScissor(width, height);
+		createRootSignature();
 
-		CreateDeviceAndSwapChain(width, height, window);
-		CreateAllocatorsAndCommandLists();
-		CreateViewportScissor(width, height);
-		CreateRootSignature();
+		createConstantBuffer();
 
-		//CreatePipelineStateObject();
-		CreateConstantBuffer();
+		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&uploadFence));
 
-		device_->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&uploadFence_));
+		device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&initCommandAllocator));
+		device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, nullptr, IID_PPV_ARGS(&initCommandList));
 
-		device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&initCommandAllocator_));
-		device_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator_, nullptr, IID_PPV_ARGS(&initCommandList_));
+		initCommandList->Close();
 
-		//CreateMeshBuffers();
-		//CreateTexture();
-
-		initCommandList_->Close();
-
-		ID3D12CommandList* commandLists[] = { initCommandList_ };
-		commandQueue_->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
-		commandQueue_->Signal(uploadFence_, 1);
+		ID3D12CommandList* commandLists[] = { initCommandList };
+		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+		commandQueue->Signal(uploadFence, 1);
 
 		HANDLE waitEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		WaitForFence(uploadFence_, 1, waitEvent);
+		waitForFence(uploadFence, 1, waitEvent);
 
-		initCommandAllocator_->Reset();
-		initCommandList_->Release(); // check me
-		initCommandAllocator_->Release(); // check me
+		initCommandAllocator->Reset();
+		initCommandList->Release(); // check me
+		initCommandAllocator->Release(); // check me
 
 		CloseHandle(waitEvent);
 	}
 
-	void Shutdown() {
+	void shutdown() {
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			WaitForFence(frameFences_[i], fenceValues_[i], frameFenceEvents_[i]);
+			waitForFence(frameFences[i], fenceValues[i], frameFenceEvents[i]);
 		}
 
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			CloseHandle(frameFenceEvents_[i]);
+			CloseHandle(frameFenceEvents[i]);
 		}
 	}
 }
@@ -291,7 +283,7 @@ void Graphics::init() {
 	HWND hwnd = (HWND)System::createWindow();
 	renderTargetWidth = Application::the()->width();
 	renderTargetHeight = Application::the()->height();
-	Initialize(renderTargetWidth, renderTargetHeight, hwnd);
+	initialize(renderTargetWidth, renderTargetHeight, hwnd);
 
 #ifdef SYS_WINDOWS
 	if (Application::the()->showWindow()) {
@@ -325,7 +317,7 @@ void Graphics::drawIndexedVertices(int start, int count) {
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
-	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->indexBufferView_);
+	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->indexBufferView);
 	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
 }
 
@@ -342,18 +334,18 @@ void Graphics::begin() {
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 
-	WaitForFence(frameFences_[currentBackBuffer_], fenceValues_[currentBackBuffer_], frameFenceEvents_[currentBackBuffer_]);
+	waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
 
-	commandAllocators_[currentBackBuffer_]->Reset();
+	commandAllocators[currentBackBuffer]->Reset();
 
-	commandList = commandLists_[currentBackBuffer_];
-	commandList->Reset(commandAllocators_[currentBackBuffer_], nullptr);
-	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-	commandList->RSSetViewports(1, &viewport_);
-	commandList->RSSetScissorRects(1, &rectScissor_);
+	commandList = commandLists[currentBackBuffer];
+	commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
+	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->RSSetViewports(1, &::viewport);
+	commandList->RSSetScissorRects(1, &rectScissor);
 
 	D3D12_RESOURCE_BARRIER barrier;
-	barrier.Transition.pResource = renderTarget_;
+	barrier.Transition.pResource = renderTarget;
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
@@ -364,12 +356,12 @@ void Graphics::begin() {
 
 	static const float clearColor[] = { 0.042f, 0.042f, 0.042f, 1 };
 
-	commandList->ClearRenderTargetView(renderTargetDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
 
 	static int frameNumber = 0;
 	frameNumber++;
 
-	commandList = commandLists_[currentBackBuffer_];
+	commandList = commandLists[currentBackBuffer];
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
@@ -378,39 +370,39 @@ void Graphics::viewport(int x, int y, int width, int height) {
 
 void Graphics::end() {
 	D3D12_RESOURCE_BARRIER barrier;
-	barrier.Transition.pResource = renderTarget_;
+	barrier.Transition.pResource = renderTarget;
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	ID3D12GraphicsCommandList* commandList = commandLists_[currentBackBuffer_];
+	ID3D12GraphicsCommandList* commandList = commandLists[currentBackBuffer];
 	commandList->ResourceBarrier(1, &barrier);
 
 	commandList->Close();
 
 	ID3D12CommandList* commandLists[] = { commandList };
-	commandQueue_->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 }
 
 void graphicsFlushAndWait() {
 	commandList->Close();
 
 	ID3D12CommandList* commandLists[] = { commandList };
-	commandQueue_->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 
-	const UINT64 fenceValue = currentFenceValue_;
-	commandQueue_->Signal(frameFences_[currentBackBuffer_], fenceValue);
-	fenceValues_[currentBackBuffer_] = fenceValue;
-	++currentFenceValue_;
+	const UINT64 fenceValue = currentFenceValue;
+	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
+	fenceValues[currentBackBuffer] = fenceValue;
+	++currentFenceValue;
 
-	WaitForFence(frameFences_[currentBackBuffer_], fenceValues_[currentBackBuffer_], frameFenceEvents_[currentBackBuffer_]);
+	waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
 
-	commandList->Reset(commandAllocators_[currentBackBuffer_], nullptr);
-	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-	commandList->RSSetViewports(1, &viewport_);
-	commandList->RSSetScissorRects(1, &rectScissor_);
+	commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
+	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->RSSetViewports(1, &viewport);
+	commandList->RSSetScissorRects(1, &rectScissor);
 }
 
 bool Graphics::vsynced() {
@@ -422,17 +414,17 @@ unsigned Graphics::refreshRate() {
 }
 
 void Graphics::swapBuffers() {
-	swapChain_->Present(1, 0);
+	swapChain->Present(1, 0);
 
-	currentBackBuffer_ = (currentBackBuffer_ + 1) % QUEUE_SLOT_COUNT;
-	swapChain_->GetBuffer(currentBackBuffer_, IID_PPV_ARGS(&renderTarget_));
+	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
+	swapChain->GetBuffer(currentBackBuffer, IID_PPV_ARGS(&renderTarget));
 
-	CreateRenderTargetView(); // TOCHECK
+	createRenderTargetView();
 
-	const UINT64 fenceValue = currentFenceValue_;
-	commandQueue_->Signal(frameFences_[currentBackBuffer_], fenceValue);
-	fenceValues_[currentBackBuffer_] = fenceValue;
-	++currentFenceValue_;
+	const UINT64 fenceValue = currentFenceValue;
+	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
+	fenceValues[currentBackBuffer] = fenceValue;
+	++currentFenceValue;
 }
 
 void Graphics::flush() {
@@ -620,9 +612,9 @@ bool Graphics::nonPow2TexturesSupported() {
 }
 
 void Graphics::restoreRenderTarget() {
-	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-	commandList->RSSetViewports(1, &viewport_);
-	commandList->RSSetScissorRects(1, &rectScissor_);
+	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->RSSetViewports(1, &::viewport);
+	commandList->RSSetScissorRects(1, &rectScissor);
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int) {

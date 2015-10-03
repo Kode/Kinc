@@ -18,15 +18,15 @@ IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	static_assert(sizeof(D3D12IindexBufferView) == sizeof(D3D12_INDEX_BUFFER_VIEW), "Something is wrong with D3D12IindexBufferView");
 	static const int uploadBufferSize = sizeof(int) * count;
 
-	device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer_));
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
+		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer));
 
-	device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&indexBuffer_));
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
+		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&indexBuffer));
 
-	indexBufferView_.BufferLocation = indexBuffer_->GetGPUVirtualAddress();
-	indexBufferView_.SizeInBytes = uploadBufferSize;
-	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+	indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
+	indexBufferView.SizeInBytes = uploadBufferSize;
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 }
 
 IndexBuffer::~IndexBuffer() {
@@ -36,16 +36,16 @@ IndexBuffer::~IndexBuffer() {
 
 int* IndexBuffer::lock() {
 	void* p;
-	uploadBuffer_->Map(0, nullptr, &p);
+	uploadBuffer->Map(0, nullptr, &p);
 	return (int*)p;
 }
 
 void IndexBuffer::unlock() {
-	uploadBuffer_->Unmap(0, nullptr);
+	uploadBuffer->Unmap(0, nullptr);
 
-	commandList->CopyBufferRegion(indexBuffer_, 0, uploadBuffer_, 0, sizeof(int) * count());
+	commandList->CopyBufferRegion(indexBuffer, 0, uploadBuffer, 0, sizeof(int) * count());
 
-	CD3DX12_RESOURCE_BARRIER barriers[1] = { CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer_, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER) };
+	CD3DX12_RESOURCE_BARRIER barriers[1] = { CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER) };
 
 	commandList->ResourceBarrier(1, barriers);
 }

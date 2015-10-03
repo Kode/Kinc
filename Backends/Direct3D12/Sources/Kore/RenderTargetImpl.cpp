@@ -26,7 +26,7 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 
-	device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
 		D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&renderTarget));
 
 	D3D12_RENDER_TARGET_VIEW_DESC view;
@@ -40,9 +40,9 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device_->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap));
+	device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap));
 
-	device_->CreateRenderTargetView(renderTarget, &view, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->CreateRenderTargetView(renderTarget, &view, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -51,7 +51,7 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	device_->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -61,7 +61,7 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	device_->CreateShaderResourceView(renderTarget, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->CreateShaderResourceView(renderTarget, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	scissor = { 0, 0, width, height };
 	viewport = { 0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f };
