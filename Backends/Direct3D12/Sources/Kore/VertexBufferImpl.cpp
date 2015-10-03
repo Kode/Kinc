@@ -8,7 +8,7 @@
 using namespace Kore;
 
 namespace {
-	const int multiple = 10;
+	const int multiple = 100;
 }
 
 VertexBufferImpl* VertexBufferImpl::_current = nullptr;
@@ -69,7 +69,9 @@ float* VertexBuffer::lock(int start, int count) {
 	range.Begin = currentIndex * myCount * myStride;
 	range.End = range.Begin + myCount * myStride;
 	uploadBuffer->Map(0, &range, &p);
-	return (float*)p;
+	byte* bytes = (byte*)p;
+	bytes += currentIndex * myCount * myStride;
+	return (float*)bytes;
 }
 
 void VertexBuffer::unlock() {
