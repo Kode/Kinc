@@ -394,6 +394,25 @@ void Graphics::end() {
 	commandQueue_->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 }
 
+void graphicsFlushAndWait() {
+	commandList->Close();
+
+	ID3D12CommandList* commandLists[] = { commandList };
+	commandQueue_->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+
+	const UINT64 fenceValue = currentFenceValue_;
+	commandQueue_->Signal(frameFences_[currentBackBuffer_], fenceValue);
+	fenceValues_[currentBackBuffer_] = fenceValue;
+	++currentFenceValue_;
+
+	WaitForFence(frameFences_[currentBackBuffer_], fenceValues_[currentBackBuffer_], frameFenceEvents_[currentBackBuffer_]);
+
+	commandList->Reset(commandAllocators_[currentBackBuffer_], nullptr);
+	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->RSSetViewports(1, &viewport_);
+	commandList->RSSetScissorRects(1, &rectScissor_);
+}
+
 bool Graphics::vsynced() {
 	return vsync;
 }
@@ -408,7 +427,7 @@ void Graphics::swapBuffers() {
 	currentBackBuffer_ = (currentBackBuffer_ + 1) % QUEUE_SLOT_COUNT;
 	swapChain_->GetBuffer(currentBackBuffer_, IID_PPV_ARGS(&renderTarget_));
 
-	CreateRenderTargetView();
+	CreateRenderTargetView(); // TOCHECK
 
 	const UINT64 fenceValue = currentFenceValue_;
 	commandQueue_->Signal(frameFences_[currentBackBuffer_], fenceValue);

@@ -11,6 +11,17 @@ static const int textureCount = 16;
 extern Texture* currentTextures[textureCount];
 extern RenderTarget* currentRenderTargets[textureCount];
 
+namespace {
+	ID3D12Fence* renderFence;
+
+	void WaitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
+		if (fence->GetCompletedValue() < completionValue) {
+			fence->SetEventOnCompletion(completionValue, waitEvent);
+			WaitForSingleObject(waitEvent, INFINITE);
+		}
+	}
+}
+
 RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
@@ -56,8 +67,11 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	viewport = { 0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f };
 }
 
+extern void graphicsFlushAndWait();
+
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
+	graphicsFlushAndWait();
 	this->stage = unit.unit;
 	currentRenderTargets[stage] = this;
 	currentTextures[stage] = nullptr;
