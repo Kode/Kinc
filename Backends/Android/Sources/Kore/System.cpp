@@ -357,7 +357,7 @@ extern int kore(int argc, char** argv);
 
 namespace {
 	android_app* app;
-	AAssetManager* assets;
+	ANativeActivity* activity;
 	ASensorManager* sensorManager;
 	const ASensor* accelerometerSensor;
 	ASensorEventQueue* sensorEventQueue;
@@ -448,8 +448,12 @@ namespace {
 	}
 }
 
+ANativeActivity* getActivity() {
+	return activity;
+}
+
 AAssetManager* getAssetManager() {
-	return assets;
+	return activity->assetManager;
 }
 
 void* Kore::System::createWindow() {
@@ -558,8 +562,8 @@ extern "C" void android_main(android_app* app) {
 	app_dummy();
 
 	::app = app;
-	assets = app->activity->assetManager;
-	initAndroidFileReader(assets);
+	activity = app->activity;
+	initAndroidFileReader(getAssetManager());
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
 

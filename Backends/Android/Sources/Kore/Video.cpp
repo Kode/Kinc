@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <android_native_app_glue.h>
 #if SYS_ANDROID_API >= 15
 #include <OMXAL/OpenMAXAL.h>
 #include <OMXAL/OpenMAXAL_Android.h>
@@ -469,23 +470,26 @@ extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nati
 #endif
 }
 
-JNIEnv* getEnv();
+extern ANativeActivity* getActivity();
 
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
 #if SYS_ANDROID_API >= 15
-	/*Kore::log(Kore::Info, "Opening video %s.", filename);
+	Kore::log(Kore::Info, "Opening video %s.", filename);
 	myWidth = 1023;
 	myHeight = 684;
 
 	next = 0;
 	audioTime = 0;
 
-	jclass cls = getEnv()->FindClass("com/ktxsoftware/kore/KoreMoviePlayer");
-	jmethodID constructor = getEnv()->GetMethodID(cls, "<init>", "(Ljava/lang/String;)V");
-	jobject object = getEnv()->NewObject(cls, constructor, getEnv()->NewStringUTF(filename));
+	JNIEnv* env;
+	getActivity()->vm->AttachCurrentThread(&env, NULL);
 
-	jmethodID getId = getEnv()->GetMethodID(cls, "getId", "()I");
-	id = getEnv()->CallIntMethod(object, getId);
+	jclass cls = env->FindClass("com/ktxsoftware/kore/KoreMoviePlayer");
+	jmethodID constructor = env->GetMethodID(cls, "<init>", "(Ljava/lang/String;)V");
+	jobject object = env->NewObject(cls, constructor, env->NewStringUTF(filename));
+
+	jmethodID getId = env->GetMethodID(cls, "getId", "()I");
+	id = env->CallIntMethod(object, getId);
 
 	for (int i = 0; i < 10; ++i) {
 		if (videos[i] == nullptr) {
@@ -494,13 +498,13 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 		}
 	}
 
-	jmethodID jinit = getEnv()->GetMethodID(cls, "init", "()V");
-	getEnv()->CallVoidMethod(object, jinit);
+	jmethodID jinit = env->GetMethodID(cls, "init", "()V");
+	env->CallVoidMethod(object, jinit);
 
-	jmethodID getTextureId = getEnv()->GetMethodID(cls, "getTextureId", "()I");
-	int texid = getEnv()->CallIntMethod(object, getTextureId);
+	jmethodID getTextureId = env->GetMethodID(cls, "getTextureId", "()I");
+	int texid = env->CallIntMethod(object, getTextureId);
 
-	image = new Texture(texid);*/
+	image = new Texture(texid);
 #endif
 }
 
