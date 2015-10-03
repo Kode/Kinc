@@ -13,7 +13,7 @@ namespace {
 	SLObjectItf bqPlayerObject;
 	SLPlayItf bqPlayerPlay;
 	SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
-	const int bufferSize = 5 * 1024;
+	const int bufferSize = 1 * 1024;
 	s16 tempBuffer[bufferSize];
 
 	void copySample(void* buffer) {
