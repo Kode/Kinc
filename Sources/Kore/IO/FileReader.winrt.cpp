@@ -4,6 +4,7 @@
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
+#include <Kore/Android.h>
 #include <cstdlib>
 #include <cstring>
 #include <stdio.h>
@@ -44,12 +45,10 @@ using namespace Kore;
 
 #ifdef SYS_ANDROID
 namespace {
-	AAssetManager* assets = nullptr;
 	char* externalFilesDir;
 }
 
-void initAndroidFileReader(AAssetManager* assets) {
-	::assets = assets;
+void initAndroidFileReader() {
 	std::string dir = ndk_helper::JNIHelper::GetInstance()->GetExternalFilesDir();
 	externalFilesDir = new char[dir.size() + 1];
 	strcpy(externalFilesDir, dir.c_str());
@@ -116,7 +115,7 @@ bool FileReader::open(const char* filename, FileType type) {
 			return true;
 		}
 		else {
-			data.asset = AAssetManager_open(assets, filename, AASSET_MODE_RANDOM);
+			data.asset = AAssetManager_open(KoreAndroid::getAssetManager(), filename, AASSET_MODE_RANDOM);
 			if (data.asset == nullptr) return false;
 			data.size = AAsset_getLength(data.asset);
 			return true;

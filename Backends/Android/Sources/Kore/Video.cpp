@@ -14,6 +14,7 @@
 #include <OMXAL/OpenMAXAL.h>
 #include <OMXAL/OpenMAXAL_Android.h>
 #endif
+#include <Kore/Android.h>
 #include <jni.h>
 #include <pthread.h>
 #include <assert.h>
@@ -42,8 +43,6 @@ bool VideoSoundStream::ended() {
 }
 
 #if SYS_ANDROID_API >= 15
-
-AAssetManager* getAssetManager();
 
 namespace {
 	Video* videos[] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -316,7 +315,7 @@ namespace {
 		assert(XA_RESULT_SUCCESS == res);
 
 	    // open the file to play
-	    file = AAssetManager_open(getAssetManager(), filename, AASSET_MODE_STREAMING);
+	    file = AAssetManager_open(KoreAndroid::getAssetManager(), filename, AASSET_MODE_STREAMING);
 	    if (file == NULL) {
 	    	Kore::log(Kore::Info, "Could not find video file.");
 	        return false;
@@ -470,9 +469,6 @@ extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nati
 #endif
 }
 
-extern ANativeActivity* getActivity();
-extern jclass koreMoviePlayerClass;
-
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
 #if SYS_ANDROID_API >= 15
 	Kore::log(Kore::Info, "Opening video %s.", filename);
@@ -483,8 +479,8 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	audioTime = 0;
 
 	JNIEnv* env;
-	getActivity()->vm->AttachCurrentThread(&env, NULL);
-
+	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, NULL);
+	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
 	jmethodID constructor = env->GetMethodID(koreMoviePlayerClass, "<init>", "(Ljava/lang/String;)V");
 	jobject object = env->NewObject(koreMoviePlayerClass, constructor, env->NewStringUTF(filename));
 
@@ -504,7 +500,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	jmethodID getTextureId = env->GetMethodID(koreMoviePlayerClass, "getTextureId", "()I");
 	int texid = env->CallIntMethod(object, getTextureId);
 
-	getActivity()->vm->DetachCurrentThread();
+	KoreAndroid::getActivity()->vm->DetachCurrentThread();
 
 	image = new Texture(texid);
 #endif

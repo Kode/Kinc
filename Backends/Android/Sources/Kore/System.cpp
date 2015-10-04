@@ -342,6 +342,7 @@ double Kore::System::time() {
 }
 */
 
+#include <Kore/Android.h>
 #include <Kore/System.h>
 #include <Kore/Application.h>
 #include <Kore/Log.h>
@@ -360,13 +361,6 @@ extern int kore(int argc, char** argv);
 
 void pauseAudio();
 void resumeAudio();
-
-jclass koreActivityClass = nullptr;
-jclass koreMoviePlayerClass = nullptr;
-jmethodID koreActivityGetRotation = nullptr;
-
-// name in usual Java syntax (points, no slashes)
-jclass findClass(JNIEnv* env, const char* name);
 
 namespace {
 	android_app* app;
@@ -602,7 +596,7 @@ namespace {
 			case APP_CMD_CONFIG_CHANGED: {
 				JNIEnv* env;
 				activity->vm->AttachCurrentThread(&env, nullptr);
-				jclass koreActivityClass = findClass(env, "com.ktxsoftware.kore.KoreActivity");
+				jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
 				jmethodID koreActivityGetRotation = env->GetStaticMethodID(koreActivityClass, "getRotation", "()I");
 				int rotation = env->CallStaticIntMethod(koreActivityClass, koreActivityGetRotation);
 				activity->vm->DetachCurrentThread();
@@ -612,15 +606,15 @@ namespace {
 	}
 }
 
-ANativeActivity* getActivity() {
+ANativeActivity* KoreAndroid::getActivity() {
 	return activity;
 }
 
-AAssetManager* getAssetManager() {
+AAssetManager* KoreAndroid::getAssetManager() {
 	return activity->assetManager;
 }
 
-jclass findClass(JNIEnv* env, const char* name) {
+jclass KoreAndroid::findClass(JNIEnv* env, const char* name) {
 	jobject nativeActivity = activity->clazz;
 	jclass acl = env->GetObjectClass(nativeActivity);
 	jmethodID getClassLoader = env->GetMethodID(acl, "getClassLoader", "()Ljava/lang/ClassLoader;");
@@ -672,7 +666,7 @@ int Kore::System::screenHeight() {
 }
 
 const char* Kore::System::savePath() {
-	return getActivity()->internalDataPath;
+	return KoreAndroid::getActivity()->internalDataPath;
 }
 
 const char* Kore::System::systemId() {
@@ -743,7 +737,7 @@ bool Kore::System::handleMessages() {
 	return true;
 }
 
-void initAndroidFileReader(AAssetManager* assets);
+void initAndroidFileReader();
 
 /*jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	JNIEnv* env;
@@ -759,7 +753,7 @@ extern "C" void android_main(android_app* app) {
 
 	::app = app;
 	activity = app->activity;
-	initAndroidFileReader(getAssetManager());
+	initAndroidFileReader();
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
 
