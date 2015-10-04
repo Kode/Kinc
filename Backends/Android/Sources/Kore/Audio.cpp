@@ -78,6 +78,14 @@ void Kore::Audio::init() {
 	result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, bufferSize * 2);
 }
 
+void pauseAudio() {
+	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);
+}
+
+void resumeAudio() {
+	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+}
+
 void Kore::Audio::update() {
 
 }

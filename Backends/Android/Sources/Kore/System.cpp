@@ -343,18 +343,20 @@ double Kore::System::time() {
 */
 
 #include <Kore/System.h>
+#include <Kore/Application.h>
 #include <Kore/Log.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Surface.h>
-#include <errno.h>
 #include <EGL/egl.h>
-#include <GLES/gl.h>
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
 #include <GLContext.h>
 
 extern int kore(int argc, char** argv);
+
+void pauseAudio();
+void resumeAudio();
 
 namespace {
 	android_app* app;
@@ -411,7 +413,6 @@ namespace {
 						break;
 				}
 			}
-
 			return 1;
 		}
 		else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY) {
@@ -423,19 +424,19 @@ namespace {
 				case AKEYCODE_SHIFT_RIGHT:
 					shift = true;
 					Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
-					break;
+					return 1;
 				case 0x00000103:
 					Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
-					break;
+					return 1;
 				case AKEYCODE_ENTER:
 					Kore::Keyboard::the()->_keydown(Kore::Key_Return, 0);
-					break;
+					return 1;
 				default:
 					if (shift)
 						Kore::Keyboard::the()->_keydown((Kore::KeyCode)code, code);
 					else
 						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + 'a' - 'A'), code + 'a' - 'A');
-					break;
+					return 1;
 			}
 			else if (AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_UP) {
 				switch (code) {
@@ -443,19 +444,19 @@ namespace {
 					case AKEYCODE_SHIFT_RIGHT:
 						shift = false;
 						Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
-						break;
+						return 1;
 					case 0x00000103:
 						Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
-						break;
+						return 1;
 					case AKEYCODE_ENTER:
 						Kore::Keyboard::the()->_keyup(Kore::Key_Return, 0);
-						break;
+						return 1;
 					default:
 						if (shift)
 							Kore::Keyboard::the()->_keyup((Kore::KeyCode)code, code);
 						else
 							Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + 'a' - 'A'), code + 'a' - 'A');
-						break;
+						return 1;
 				}
 			}
 		}
@@ -483,14 +484,30 @@ namespace {
 					ASensorEventQueue_enableSensor(sensorEventQueue, accelerometerSensor);
 					ASensorEventQueue_setEventRate(sensorEventQueue, accelerometerSensor, (1000L / 60) * 1000);
 				}
-				paused = false;
 				break;
 			case APP_CMD_LOST_FOCUS:
 				if (accelerometerSensor != NULL) {
 					ASensorEventQueue_disableSensor(sensorEventQueue, accelerometerSensor);
 				}
+				break;
+			case APP_CMD_START:
+				if (Kore::Application::the() != nullptr && Kore::Application::the()->foregroundCallback != nullptr) Kore::Application::the()->foregroundCallback();
+				break;
+			case APP_CMD_RESUME:
+				if (Kore::Application::the() != nullptr && Kore::Application::the()->resumeCallback != nullptr) Kore::Application::the()->resumeCallback();
+				pauseAudio();
+				paused = false;
+				break;
+			case APP_CMD_PAUSE:
+				if (Kore::Application::the() != nullptr && Kore::Application::the()->pauseCallback != nullptr) Kore::Application::the()->pauseCallback();
+				resumeAudio();
 				paused = true;
-				Kore::System::swapBuffers();
+				break;
+			case APP_CMD_STOP:
+				if (Kore::Application::the() != nullptr && Kore::Application::the()->backgroundCallback != nullptr) Kore::Application::the()->backgroundCallback();
+				break;
+			case APP_CMD_DESTROY:
+				if (Kore::Application::the() != nullptr && Kore::Application::the()->shutdownCallback != nullptr) Kore::Application::the()->shutdownCallback();
 				break;
 		}
 	}
@@ -543,7 +560,7 @@ int Kore::System::screenHeight() {
 }
 
 const char* Kore::System::savePath() {
-	return ""; //filesDir;
+	return getActivity()->internalDataPath;
 }
 
 const char* Kore::System::systemId() {
