@@ -28,6 +28,7 @@ const char* macgetresourcepath();
 
 #ifdef SYS_ANDROID
 #include <android/asset_manager.h>
+#include <JNIHelper.h>
 #endif
 
 #ifdef SYS_WINDOWS
@@ -44,10 +45,14 @@ using namespace Kore;
 #ifdef SYS_ANDROID
 namespace {
 	AAssetManager* assets = nullptr;
+	char* externalFilesDir;
 }
 
 void initAndroidFileReader(AAssetManager* assets) {
 	::assets = assets;
+	std::string dir = ndk_helper::JNIHelper::GetInstance()->GetExternalFilesDir();
+	externalFilesDir = new char[dir.size() + 1];
+	strcpy(externalFilesDir, dir.c_str());
 }
 #endif
 
@@ -98,10 +103,24 @@ bool FileReader::open(const char* filename, FileType type) {
 		return true;
 	}
 	else {
-		data.asset = AAssetManager_open(assets, filename, AASSET_MODE_RANDOM);
-		if (data.asset == nullptr) return false;
-		data.size = AAsset_getLength(data.asset);
-		return true;
+		char filepath[1001];
+		strcpy(filepath, externalFilesDir);
+		strcat(filepath, "/");
+		strcat(filepath, filename);
+
+		data.file = fopen(filepath, "rb");
+		if (data.file != nullptr) {
+			fseek(data.file, 0, SEEK_END);
+			data.size = static_cast<int>(ftell(data.file));
+			fseek(data.file, 0, SEEK_SET);
+			return true;
+		}
+		else {
+			data.asset = AAssetManager_open(assets, filename, AASSET_MODE_RANDOM);
+			if (data.asset == nullptr) return false;
+			data.size = AAsset_getLength(data.asset);
+			return true;
+		}
 	}
 }
 #endif

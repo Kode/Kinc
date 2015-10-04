@@ -504,6 +504,8 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	jmethodID getTextureId = env->GetMethodID(cls, "getTextureId", "()I");
 	int texid = env->CallIntMethod(object, getTextureId);
 
+	getActivity()->vm->DetachCurrentThread();
+
 	image = new Texture(texid);
 #endif
 }
