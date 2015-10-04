@@ -344,6 +344,7 @@ double Kore::System::time() {
 
 #include <Kore/System.h>
 #include <Kore/Log.h>
+#include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Surface.h>
 #include <errno.h>
@@ -361,6 +362,8 @@ namespace {
 	ASensorManager* sensorManager;
 	const ASensor* accelerometerSensor;
 	ASensorEventQueue* sensorEventQueue;
+	bool keyboardShown = false;
+	bool shift = false;
 
 	ndk_helper::GLContext* glContext;
 	
@@ -410,6 +413,51 @@ namespace {
 			}
 
 			return 1;
+		}
+		else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY) {
+			int32_t code = AKeyEvent_getKeyCode(event);
+
+			if (AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_DOWN)
+			switch (code) {
+				case AKEYCODE_SHIFT_LEFT:
+				case AKEYCODE_SHIFT_RIGHT:
+					shift = true;
+					Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
+					break;
+				case 0x00000103:
+					Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
+					break;
+				case AKEYCODE_ENTER:
+					Kore::Keyboard::the()->_keydown(Kore::Key_Return, 0);
+					break;
+				default:
+					if (shift)
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode)code, code);
+					else
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + 'a' - 'A'), code + 'a' - 'A');
+					break;
+			}
+			else if (AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_UP) {
+				switch (code) {
+					case AKEYCODE_SHIFT_LEFT:
+					case AKEYCODE_SHIFT_RIGHT:
+						shift = false;
+						Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
+						break;
+					case 0x00000103:
+						Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
+						break;
+					case AKEYCODE_ENTER:
+						Kore::Keyboard::the()->_keyup(Kore::Key_Return, 0);
+						break;
+					default:
+						if (shift)
+							Kore::Keyboard::the()->_keyup((Kore::KeyCode)code, code);
+						else
+							Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + 'a' - 'A'), code + 'a' - 'A');
+						break;
+				}
+			}
 		}
 		return 0;
 	}
@@ -471,11 +519,15 @@ void Kore::System::destroyWindow() {
 }
 
 void Kore::System::showKeyboard() {
-	//keyboardShown = true;
+	keyboardShown = true;
+	ANativeActivity_showSoftInput(activity, ANATIVEACTIVITY_SHOW_SOFT_INPUT_FORCED);
 }
 
 void Kore::System::hideKeyboard() {
-	//keyboardShown = false;
+	if (keyboardShown) {
+		keyboardShown = false;
+		ANativeActivity_hideSoftInput(activity, ANATIVEACTIVITY_SHOW_SOFT_INPUT_FORCED);
+	}
 }
 
 void Kore::System::loadURL(const char* url) {
