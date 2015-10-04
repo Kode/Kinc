@@ -468,11 +468,13 @@ namespace {
 					Kore::Gamepad::get(0)->_button(3, 1);
 					return 1;
 				default:
-					if (shift)
-						Kore::Keyboard::the()->_keydown((Kore::KeyCode)code, code);
-					else
-						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + 'a' - 'A'), code + 'a' - 'A');
-					return 1;
+					if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
+						if (shift)
+							Kore::Keyboard::the()->_keydown((Kore::KeyCode) code, code);
+						else
+							Kore::Keyboard::the()->_keydown((Kore::KeyCode) (code + 'a' - 'A'), code + 'a' - 'A');
+						return 1;
+					}
 			}
 			else if (AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_UP) {
 				switch (code) {
@@ -521,11 +523,13 @@ namespace {
 						Kore::Gamepad::get(0)->_button(3, 0);
 						return 1;
 					default:
-						if (shift)
-							Kore::Keyboard::the()->_keyup((Kore::KeyCode)code, code);
-						else
-							Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + 'a' - 'A'), code + 'a' - 'A');
-						return 1;
+						if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
+							if (shift)
+								Kore::Keyboard::the()->_keyup((Kore::KeyCode) code, code);
+							else
+								Kore::Keyboard::the()->_keyup((Kore::KeyCode) (code + 'a' - 'A'), code + 'a' - 'A');
+							return 1;
+						}
 				}
 			}
 		}
