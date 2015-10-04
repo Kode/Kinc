@@ -11,7 +11,7 @@ namespace {
 	SLEngineItf engineEngine;
 	SLObjectItf outputMixObject;
 	SLObjectItf bqPlayerObject;
-	SLPlayItf bqPlayerPlay;
+	SLPlayItf bqPlayerPlay = NULL;
 	SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
 	const int bufferSize = 1 * 1024;
 	s16 tempBuffer[bufferSize];
@@ -79,10 +79,12 @@ void Kore::Audio::init() {
 }
 
 void pauseAudio() {
+	if (bqPlayerPlay == NULL) return;
 	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);
 }
 
 void resumeAudio() {
+	if (bqPlayerPlay == NULL) return;
 	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
 }
 
