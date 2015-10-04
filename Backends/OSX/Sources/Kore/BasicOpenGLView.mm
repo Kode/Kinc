@@ -14,9 +14,7 @@ namespace {
 	int aa = Kore::Application::the()->antialiasing();
 	if (aa > 0) {
 		NSOpenGLPixelFormatAttribute attributes[] = {
-			//NSOpenGLPFAWindow,
-			NSOpenGLPFADoubleBuffer,	// double buffered
-			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+			NSOpenGLPFADoubleBuffer,
 			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
 			
 			NSOpenGLPFASupersample,
@@ -29,7 +27,6 @@ namespace {
 	else {
 		NSOpenGLPixelFormatAttribute attributes[] = {
 			NSOpenGLPFADoubleBuffer,
-			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24,
 			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
 			(NSOpenGLPixelFormatAttribute)nil
 		};
@@ -193,38 +190,33 @@ namespace {
 }
 
 - (void)prepareOpenGL {
-    const GLint swapInt = 1;
-
-    [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval]; // set to vbl sync
-
-	glEnable(GL_DEPTH_TEST);
-	glPolygonOffset (1.0f, 1.0f);	
-	glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
+	const GLint swapInt = 1;
+	[[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
 }
 
 - (void)update { // window resizes, moves and display changes (resize, depth and display config change)
 	[super update];
 }
 
-- (id)initWithFrame: (NSRect) frameRect {
-	NSOpenGLPixelFormat * pf = [BasicOpenGLView basicPixelFormat];
+- (id)initWithFrame:(NSRect)frameRect {
+	NSOpenGLPixelFormat* pf = [BasicOpenGLView basicPixelFormat];
 	self = [super initWithFrame: frameRect pixelFormat: pf];
 	
 	[self prepareOpenGL];
 	
-    return self;
+	return self;
 }
 
 - (BOOL)acceptsFirstResponder {
-  return YES;
+	return YES;
 }
 
 - (BOOL)becomeFirstResponder {
-  return  YES;
+	return  YES;
 }
 
 - (BOOL)resignFirstResponder {
-  return YES;
+	return YES;
 }
 
 @end
