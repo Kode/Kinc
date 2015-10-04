@@ -32,7 +32,7 @@
 - (BOOL) becomeFirstResponder;
 - (BOOL) resignFirstResponder;
 
-- (id) initWithFrame: (NSRect) frameRect;
+- (id) initWithFrame: (NSRect)frameRect;
 - (void) switchBuffers;
 
 @end
