@@ -347,6 +347,7 @@ double Kore::System::time() {
 #include <Kore/Log.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Input/Sensor.h>
 #include <Kore/Input/Surface.h>
 #include <EGL/egl.h>
 #include <android/sensor.h>
@@ -363,6 +364,7 @@ namespace {
 	ANativeActivity* activity;
 	ASensorManager* sensorManager;
 	const ASensor* accelerometerSensor;
+	const ASensor* gyroSensor;
 	ASensorEventQueue* sensorEventQueue;
 	bool keyboardShown = false;
 	bool shift = false;
@@ -484,10 +486,17 @@ namespace {
 					ASensorEventQueue_enableSensor(sensorEventQueue, accelerometerSensor);
 					ASensorEventQueue_setEventRate(sensorEventQueue, accelerometerSensor, (1000L / 60) * 1000);
 				}
+				if (gyroSensor != NULL) {
+					ASensorEventQueue_enableSensor(sensorEventQueue, gyroSensor);
+					ASensorEventQueue_setEventRate(sensorEventQueue, gyroSensor, (1000L / 60) * 1000);
+				}
 				break;
 			case APP_CMD_LOST_FOCUS:
 				if (accelerometerSensor != NULL) {
 					ASensorEventQueue_disableSensor(sensorEventQueue, accelerometerSensor);
+				}
+				if (gyroSensor != NULL) {
+					ASensorEventQueue_disableSensor(sensorEventQueue, gyroSensor);
 				}
 				break;
 			case APP_CMD_START:
@@ -495,12 +504,12 @@ namespace {
 				break;
 			case APP_CMD_RESUME:
 				if (Kore::Application::the() != nullptr && Kore::Application::the()->resumeCallback != nullptr) Kore::Application::the()->resumeCallback();
-				pauseAudio();
+				resumeAudio();
 				paused = false;
 				break;
 			case APP_CMD_PAUSE:
 				if (Kore::Application::the() != nullptr && Kore::Application::the()->pauseCallback != nullptr) Kore::Application::the()->pauseCallback();
-				resumeAudio();
+				pauseAudio();
 				paused = true;
 				break;
 			case APP_CMD_STOP:
@@ -612,7 +621,12 @@ bool Kore::System::handleMessages() {
 			if (accelerometerSensor != NULL) {
 				ASensorEvent event;
 				while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0) {
-					//LOGI("accelerometer: x=%f y=%f z=%f", event.acceleration.x, event.acceleration.y, event.acceleration.z);
+					if(event.type == ASENSOR_TYPE_ACCELEROMETER) {
+						Kore::Sensor::_changed(Kore::SensorAccelerometer, event.acceleration.x, event.acceleration.y, event.acceleration.z);
+					}
+					else if (event.type == ASENSOR_TYPE_GYROSCOPE) {
+						Kore::Sensor::_changed(Kore::SensorGyroscope, event.vector.x, event.vector.x, event.vector.z);
+					}
 				}
 			}
 		}
@@ -639,6 +653,7 @@ extern "C" void android_main(android_app* app) {
 	glContext = ndk_helper::GLContext::GetInstance();
 	sensorManager = ASensorManager_getInstance();
 	accelerometerSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_ACCELEROMETER);
+	gyroSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_GYROSCOPE);
 	sensorEventQueue = ASensorManager_createEventQueue(sensorManager, app->looper, LOOPER_ID_USER, NULL, NULL);
 
 	while (!started) {
