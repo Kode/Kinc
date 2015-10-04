@@ -457,7 +457,8 @@ namespace {
 						return 1;
 					}
 					else {
-						return 0;
+						Kore::Keyboard::the()->_keyup(Kore::Key_Back, 1);
+						return 1;
 					}
 				case AKEYCODE_BUTTON_A:
 					Kore::Gamepad::get(0)->_button(1, 1);
@@ -512,7 +513,8 @@ namespace {
 							return 1;
 						}
 						else {
-							return 0;
+							Kore::Keyboard::the()->_keyup(Kore::Key_Back, 0);
+							return 1;
 						}
 					case AKEYCODE_BUTTON_A:
 						Kore::Gamepad::get(0)->_button(1, 0);
