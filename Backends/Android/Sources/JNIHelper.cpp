@@ -54,12 +54,14 @@ JNIHelper::~JNIHelper()
     pthread_mutex_lock( &mutex_ );
 
     JNIEnv *env;
-    activity_->vm->AttachCurrentThread( &env, NULL );
 
-    env->DeleteGlobalRef( jni_helper_java_ref_ );
-    env->DeleteGlobalRef( jni_helper_java_class_ );
+    if (activity_ != NULL) {
+        activity_->vm->AttachCurrentThread(&env, NULL);
+        env->DeleteGlobalRef(jni_helper_java_ref_);
+        env->DeleteGlobalRef(jni_helper_java_class_);
 
-    activity_->vm->DetachCurrentThread();
+        activity_->vm->DetachCurrentThread();
+    }
 
     pthread_mutex_destroy( &mutex_ );
 }

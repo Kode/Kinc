@@ -354,6 +354,7 @@ double Kore::System::time() {
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
 #include <GLContext.h>
+#include <stdlib.h>
 
 extern int kore(int argc, char** argv);
 
@@ -708,6 +709,7 @@ bool Kore::System::handleMessages() {
 
 		if (app->destroyRequested != 0) {
 			termDisplay();
+			Kore::Application::the()->stop();
 			return true;
 		}
 	}
@@ -736,4 +738,5 @@ extern "C" void android_main(android_app* app) {
 		Kore::System::handleMessages();
 	}
 	kore(0, nullptr);
+	exit(0);
 }
