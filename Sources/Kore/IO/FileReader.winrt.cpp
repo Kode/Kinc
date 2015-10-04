@@ -4,7 +4,9 @@
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
+#ifdef SYS_ANDROID
 #include <Kore/Android.h>
+#endif
 #include <cstdlib>
 #include <cstring>
 #include <stdio.h>
