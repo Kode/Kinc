@@ -361,6 +361,13 @@ extern int kore(int argc, char** argv);
 void pauseAudio();
 void resumeAudio();
 
+jclass koreActivityClass = nullptr;
+jclass koreMoviePlayerClass = nullptr;
+jmethodID koreActivityGetRotation = nullptr;
+
+// name in usual Java syntax (points, no slashes)
+jclass findClass(JNIEnv* env, const char* name);
+
 namespace {
 	android_app* app;
 	ANativeActivity* activity;
@@ -592,11 +599,16 @@ namespace {
 			case APP_CMD_DESTROY:
 				if (Kore::Application::the() != nullptr && Kore::Application::the()->shutdownCallback != nullptr) Kore::Application::the()->shutdownCallback();
 				break;
+			case APP_CMD_CONFIG_CHANGED: {
+				JNIEnv* env;
+				activity->vm->AttachCurrentThread(&env, nullptr);
+				jclass koreActivityClass = findClass(env, "com.ktxsoftware.kore.KoreActivity");
+				jmethodID koreActivityGetRotation = env->GetStaticMethodID(koreActivityClass, "getRotation", "()I");
+				int rotation = env->CallStaticIntMethod(koreActivityClass, koreActivityGetRotation);
+				activity->vm->DetachCurrentThread();
+				break;
+			}
 		}
-	}
-
-	void config(ANativeActivity* ac) {
-
 	}
 }
 
@@ -606,6 +618,19 @@ ANativeActivity* getActivity() {
 
 AAssetManager* getAssetManager() {
 	return activity->assetManager;
+}
+
+jclass findClass(JNIEnv* env, const char* name) {
+	jobject nativeActivity = activity->clazz;
+	jclass acl = env->GetObjectClass(nativeActivity);
+	jmethodID getClassLoader = env->GetMethodID(acl, "getClassLoader", "()Ljava/lang/ClassLoader;");
+	jobject cls = env->CallObjectMethod(nativeActivity, getClassLoader);
+	jclass classLoader = env->FindClass("java/lang/ClassLoader");
+	jmethodID findClass = env->GetMethodID(classLoader, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
+	jstring strClassName = env->NewStringUTF(name);
+	jclass clazz = (jclass) (env->CallObjectMethod(cls, findClass, strClassName));
+	env->DeleteLocalRef(strClassName);
+	return clazz;
 }
 
 void* Kore::System::createWindow() {
@@ -720,6 +745,15 @@ bool Kore::System::handleMessages() {
 
 void initAndroidFileReader(AAssetManager* assets);
 
+/*jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+	JNIEnv* env;
+	vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+	koreActivityClass = env->FindClass("com/ktxsoftware/kore/KoreActivity");
+	koreActivityGetRotation = env->GetStaticMethodID(koreActivityClass, "getRotation", "()I");
+	koreMoviePlayerClass = env->FindClass("com/ktxsoftware/kore/KoreMoviePlayer");
+	return JNI_VERSION_1_6;
+}*/
+
 extern "C" void android_main(android_app* app) {
 	app_dummy();
 
@@ -728,7 +762,6 @@ extern "C" void android_main(android_app* app) {
 	initAndroidFileReader(getAssetManager());
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
-	activity->callbacks->onConfigurationChanged = config;
 
 	glContext = ndk_helper::GLContext::GetInstance();
 	sensorManager = ASensorManager_getInstance();

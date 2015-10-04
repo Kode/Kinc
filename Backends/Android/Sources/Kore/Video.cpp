@@ -471,6 +471,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nati
 }
 
 extern ANativeActivity* getActivity();
+extern jclass koreMoviePlayerClass;
 
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
 #if SYS_ANDROID_API >= 15
@@ -484,11 +485,10 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	JNIEnv* env;
 	getActivity()->vm->AttachCurrentThread(&env, NULL);
 
-	jclass cls = env->FindClass("com/ktxsoftware/kore/KoreMoviePlayer");
-	jmethodID constructor = env->GetMethodID(cls, "<init>", "(Ljava/lang/String;)V");
-	jobject object = env->NewObject(cls, constructor, env->NewStringUTF(filename));
+	jmethodID constructor = env->GetMethodID(koreMoviePlayerClass, "<init>", "(Ljava/lang/String;)V");
+	jobject object = env->NewObject(koreMoviePlayerClass, constructor, env->NewStringUTF(filename));
 
-	jmethodID getId = env->GetMethodID(cls, "getId", "()I");
+	jmethodID getId = env->GetMethodID(koreMoviePlayerClass, "getId", "()I");
 	id = env->CallIntMethod(object, getId);
 
 	for (int i = 0; i < 10; ++i) {
@@ -498,10 +498,10 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 		}
 	}
 
-	jmethodID jinit = env->GetMethodID(cls, "init", "()V");
+	jmethodID jinit = env->GetMethodID(koreMoviePlayerClass, "init", "()V");
 	env->CallVoidMethod(object, jinit);
 
-	jmethodID getTextureId = env->GetMethodID(cls, "getTextureId", "()I");
+	jmethodID getTextureId = env->GetMethodID(koreMoviePlayerClass, "getTextureId", "()I");
 	int texid = env->CallIntMethod(object, getTextureId);
 
 	getActivity()->vm->DetachCurrentThread();
