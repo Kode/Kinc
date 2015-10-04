@@ -261,7 +261,7 @@ void Graphics::end() {
 			std::printf("OpenGL: Invalid operation\n");
 			break;
 		default:
-			std::printf("OpenGL: Unknown error\n");
+			std::printf("OpenGL: Error code %i\n", code);
 			break;
 		}
 		code = glGetError();
