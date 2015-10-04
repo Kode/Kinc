@@ -5,15 +5,10 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const log = require('./log.js');
+const exec = require('./exec.js');
 
 function run(from, to, width, height, format, background, callback) {
-	let exe = "kraffiti-osx";
-	if (os.platform() === "linux") {
-		exe = "kraffiti-linux";
-	}
-	else if (os.platform() === "win32") {
-		exe = "kraffiti.exe";
-	}
+	const exe = 'kraffiti' + exec.sys();
 	
 	let params = ['from=' + from, 'to=' + to, 'width=' + width, 'height=' + height, 'format=' + format, 'keepaspect'];
 	if (background !== undefined) params.push('background=' + background.toString(16));
