@@ -345,6 +345,7 @@ double Kore::System::time() {
 #include <Kore/System.h>
 #include <Kore/Application.h>
 #include <Kore/Log.h>
+#include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Sensor.h>
@@ -433,6 +434,39 @@ namespace {
 				case AKEYCODE_ENTER:
 					Kore::Keyboard::the()->_keydown(Kore::Key_Return, 0);
 					return 1;
+				case AKEYCODE_DPAD_LEFT:
+					Kore::Gamepad::get(0)->_axis(0, -1);
+					return 1;
+				case AKEYCODE_DPAD_RIGHT:
+					Kore::Gamepad::get(0)->_axis(0, 1);
+					return 1;
+				case AKEYCODE_DPAD_UP:
+					Kore::Gamepad::get(0)->_axis(1, -1);
+					return 1;
+				case AKEYCODE_DPAD_DOWN:
+					Kore::Gamepad::get(0)->_axis(1, 1);
+					return 1;
+				case AKEYCODE_DPAD_CENTER:
+				case AKEYCODE_BUTTON_B:
+					Kore::Gamepad::get(0)->_button(0, 1);
+					return 1;
+				case AKEYCODE_BACK:
+					if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
+						Kore::Gamepad::get(0)->_button(1, 1);
+						return 1;
+					}
+					else {
+						return 0;
+					}
+				case AKEYCODE_BUTTON_A:
+					Kore::Gamepad::get(0)->_button(1, 1);
+					return 1;
+				case AKEYCODE_BUTTON_X:
+					Kore::Gamepad::get(0)->_button(2, 1);
+					return 1;
+				case AKEYCODE_BUTTON_Y:
+					Kore::Gamepad::get(0)->_button(3, 1);
+					return 1;
 				default:
 					if (shift)
 						Kore::Keyboard::the()->_keydown((Kore::KeyCode)code, code);
@@ -452,6 +486,39 @@ namespace {
 						return 1;
 					case AKEYCODE_ENTER:
 						Kore::Keyboard::the()->_keyup(Kore::Key_Return, 0);
+						return 1;
+					case AKEYCODE_DPAD_LEFT:
+						Kore::Gamepad::get(0)->_axis(0, 0);
+						return 1;
+					case AKEYCODE_DPAD_RIGHT:
+						Kore::Gamepad::get(0)->_axis(0, 0);
+						return 1;
+					case AKEYCODE_DPAD_UP:
+						Kore::Gamepad::get(0)->_axis(1, 0);
+						return 1;
+					case AKEYCODE_DPAD_DOWN:
+						Kore::Gamepad::get(0)->_axis(1, 0);
+						return 1;
+					case AKEYCODE_DPAD_CENTER:
+					case AKEYCODE_BUTTON_B:
+						Kore::Gamepad::get(0)->_button(0, 0);
+						return 1;
+					case AKEYCODE_BACK:
+						if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
+							Kore::Gamepad::get(0)->_button(1, 0);
+							return 1;
+						}
+						else {
+							return 0;
+						}
+					case AKEYCODE_BUTTON_A:
+						Kore::Gamepad::get(0)->_button(1, 0);
+						return 1;
+					case AKEYCODE_BUTTON_X:
+						Kore::Gamepad::get(0)->_button(2, 0);
+						return 1;
+					case AKEYCODE_BUTTON_Y:
+						Kore::Gamepad::get(0)->_button(3, 0);
 						return 1;
 					default:
 						if (shift)
@@ -519,6 +586,10 @@ namespace {
 				if (Kore::Application::the() != nullptr && Kore::Application::the()->shutdownCallback != nullptr) Kore::Application::the()->shutdownCallback();
 				break;
 		}
+	}
+
+	void config(ANativeActivity* ac) {
+
 	}
 }
 
@@ -649,6 +720,7 @@ extern "C" void android_main(android_app* app) {
 	initAndroidFileReader(getAssetManager());
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
+	activity->callbacks->onConfigurationChanged = config;
 
 	glContext = ndk_helper::GLContext::GetInstance();
 	sensorManager = ASensorManager_getInstance();
