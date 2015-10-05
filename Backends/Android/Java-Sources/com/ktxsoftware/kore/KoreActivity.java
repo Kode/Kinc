@@ -3,14 +3,13 @@ package com.ktxsoftware.kore;
 import android.app.NativeActivity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 public class KoreActivity extends NativeActivity {
-	//static {
-	//	System.loadLibrary("kore");
-	//}
-
 	private static KoreActivity instance;
+	private InputMethodManager inputManager;
 
 	public static KoreActivity getInstance() {
 		return instance;
@@ -20,6 +19,15 @@ public class KoreActivity extends NativeActivity {
 	protected void onCreate(Bundle state) {
 		super.onCreate(state);
 		instance = this;
+		inputManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+	}
+
+	public static void showKeyboard() {
+		getInstance().inputManager.showSoftInput(getInstance().getWindow().getDecorView(), 0);
+	}
+
+	public static void hideKeyboard() {
+		getInstance().inputManager.hideSoftInputFromWindow(getInstance().getWindow().getDecorView().getWindowToken(), 0);
 	}
 
 	public static int getRotation() {

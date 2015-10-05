@@ -369,7 +369,6 @@ namespace {
 	const ASensor* accelerometerSensor;
 	const ASensor* gyroSensor;
 	ASensorEventQueue* sensorEventQueue;
-	bool keyboardShown = false;
 	bool shift = false;
 	//int screenRotation = 0;
 
@@ -424,61 +423,125 @@ namespace {
 		else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY) {
 			int32_t code = AKeyEvent_getKeyCode(event);
 
-			if (AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_DOWN)
-			switch (code) {
-				case AKEYCODE_SHIFT_LEFT:
-				case AKEYCODE_SHIFT_RIGHT:
-					shift = true;
-					Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
-					return 1;
-				case 0x00000103:
-					Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
-					return 1;
-				case AKEYCODE_ENTER:
-					Kore::Keyboard::the()->_keydown(Kore::Key_Return, 0);
-					return 1;
-				case AKEYCODE_DPAD_LEFT:
-					Kore::Gamepad::get(0)->_axis(0, -1);
-					return 1;
-				case AKEYCODE_DPAD_RIGHT:
-					Kore::Gamepad::get(0)->_axis(0, 1);
-					return 1;
-				case AKEYCODE_DPAD_UP:
-					Kore::Gamepad::get(0)->_axis(1, -1);
-					return 1;
-				case AKEYCODE_DPAD_DOWN:
-					Kore::Gamepad::get(0)->_axis(1, 1);
-					return 1;
-				case AKEYCODE_DPAD_CENTER:
-				case AKEYCODE_BUTTON_B:
-					Kore::Gamepad::get(0)->_button(0, 1);
-					return 1;
-				case AKEYCODE_BACK:
-					if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
+			if (AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_DOWN) {
+				switch (code) {
+					case AKEYCODE_SHIFT_LEFT:
+					case AKEYCODE_SHIFT_RIGHT:
+						shift = true;
+						Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
+						return 1;
+					case AKEYCODE_DEL:
+						Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
+						return 1;
+					case AKEYCODE_ENTER:
+					case AKEYCODE_NUMPAD_ENTER:
+						Kore::Keyboard::the()->_keydown(Kore::Key_Return, 0);
+						return 1;
+					case AKEYCODE_DPAD_LEFT:
+						Kore::Gamepad::get(0)->_axis(0, -1);
+						return 1;
+					case AKEYCODE_DPAD_RIGHT:
+						Kore::Gamepad::get(0)->_axis(0, 1);
+						return 1;
+					case AKEYCODE_DPAD_UP:
+						Kore::Gamepad::get(0)->_axis(1, -1);
+						return 1;
+					case AKEYCODE_DPAD_DOWN:
+						Kore::Gamepad::get(0)->_axis(1, 1);
+						return 1;
+					case AKEYCODE_DPAD_CENTER:
+					case AKEYCODE_BUTTON_B:
+						Kore::Gamepad::get(0)->_button(0, 1);
+						return 1;
+					case AKEYCODE_BACK:
+						if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
+							Kore::Gamepad::get(0)->_button(1, 1);
+							return 1;
+						}
+						else {
+							Kore::Keyboard::the()->_keyup(Kore::Key_Back, 1);
+							return 1;
+						}
+					case AKEYCODE_BUTTON_A:
 						Kore::Gamepad::get(0)->_button(1, 1);
 						return 1;
-					}
-					else {
-						Kore::Keyboard::the()->_keyup(Kore::Key_Back, 1);
+					case AKEYCODE_BUTTON_X:
+						Kore::Gamepad::get(0)->_button(2, 1);
 						return 1;
-					}
-				case AKEYCODE_BUTTON_A:
-					Kore::Gamepad::get(0)->_button(1, 1);
-					return 1;
-				case AKEYCODE_BUTTON_X:
-					Kore::Gamepad::get(0)->_button(2, 1);
-					return 1;
-				case AKEYCODE_BUTTON_Y:
-					Kore::Gamepad::get(0)->_button(3, 1);
-					return 1;
-				default:
-					if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
-						if (shift)
-							Kore::Keyboard::the()->_keydown((Kore::KeyCode) code, code);
-						else
-							Kore::Keyboard::the()->_keydown((Kore::KeyCode) (code + 'a' - 'A'), code + 'a' - 'A');
+					case AKEYCODE_BUTTON_Y:
+						Kore::Gamepad::get(0)->_button(3, 1);
 						return 1;
-					}
+					case AKEYCODE_STAR:
+					case AKEYCODE_NUMPAD_MULTIPLY:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '*', '*');
+						return 1;
+					case AKEYCODE_POUND:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '&', '&');
+						return 1;
+					case AKEYCODE_COMMA:
+					case AKEYCODE_NUMPAD_COMMA:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) ',', ',');
+						return 1;
+					case AKEYCODE_PERIOD:
+					case AKEYCODE_NUMPAD_DOT:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '.', '.');
+						return 1;
+					case AKEYCODE_SPACE:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) ' ', ' ');
+						return 1;
+					case AKEYCODE_MINUS:
+					case AKEYCODE_NUMPAD_SUBTRACT:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '-', '-');
+						return 1;
+					case AKEYCODE_EQUALS:
+					case AKEYCODE_NUMPAD_EQUALS:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '=', '=');
+						return 1;
+					case AKEYCODE_LEFT_BRACKET:
+					case AKEYCODE_NUMPAD_LEFT_PAREN:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '(', '(');
+						return 1;
+					case AKEYCODE_RIGHT_BRACKET:
+					case AKEYCODE_NUMPAD_RIGHT_PAREN:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) ')', ')');
+						return 1;
+					case AKEYCODE_BACKSLASH:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '\\', '\\');
+						return 1;
+					case AKEYCODE_SEMICOLON:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) ';', ';');
+						return 1;
+					case AKEYCODE_APOSTROPHE:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '\'', '\'');
+						return 1;
+					case AKEYCODE_SLASH:
+					case AKEYCODE_NUMPAD_DIVIDE:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '/', '/');
+						return 1;
+					case AKEYCODE_AT:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '@', '@');
+						return 1;
+					case AKEYCODE_PLUS:
+					case AKEYCODE_NUMPAD_ADD:
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '+', '+');
+						return 1;
+					default:
+						if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
+							Kore::Keyboard::the()->_keydown((Kore::KeyCode) (code + '0' - AKEYCODE_NUMPAD_0), code + '0' - AKEYCODE_NUMPAD_0);
+							return 1;
+						}
+						else if (code >= AKEYCODE_0 && code <= AKEYCODE_9) {
+							Kore::Keyboard::the()->_keydown((Kore::KeyCode) (code + '0' - AKEYCODE_0), code + '0' - AKEYCODE_0);
+							return 1;
+						}
+						else if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
+							if (shift)
+								Kore::Keyboard::the()->_keydown((Kore::KeyCode) (code + 'A' - AKEYCODE_A), code + 'A' - AKEYCODE_A);
+							else
+								Kore::Keyboard::the()->_keydown((Kore::KeyCode) (code + 'a' - AKEYCODE_A), code + 'a' - AKEYCODE_A);
+							return 1;
+						}
+				}
 			}
 			else if (AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_UP) {
 				switch (code) {
@@ -487,7 +550,7 @@ namespace {
 						shift = false;
 						Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
 						return 1;
-					case 0x00000103:
+					case AKEYCODE_DEL:
 						Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
 						return 1;
 					case AKEYCODE_ENTER:
@@ -527,12 +590,74 @@ namespace {
 					case AKEYCODE_BUTTON_Y:
 						Kore::Gamepad::get(0)->_button(3, 0);
 						return 1;
+					case AKEYCODE_STAR:
+					case AKEYCODE_NUMPAD_MULTIPLY:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '*', '*');
+						return 1;
+					case AKEYCODE_POUND:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '&', '&');
+						return 1;
+					case AKEYCODE_COMMA:
+					case AKEYCODE_NUMPAD_COMMA:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) ',', ',');
+						return 1;
+					case AKEYCODE_PERIOD:
+					case AKEYCODE_NUMPAD_DOT:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '.', '.');
+						return 1;
+					case AKEYCODE_SPACE:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) ' ', ' ');
+						return 1;
+					case AKEYCODE_MINUS:
+					case AKEYCODE_NUMPAD_SUBTRACT:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '-', '-');
+						return 1;
+					case AKEYCODE_EQUALS:
+					case AKEYCODE_NUMPAD_EQUALS:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '=', '=');
+						return 1;
+					case AKEYCODE_LEFT_BRACKET:
+					case AKEYCODE_NUMPAD_LEFT_PAREN:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '(', '(');
+						return 1;
+					case AKEYCODE_RIGHT_BRACKET:
+					case AKEYCODE_NUMPAD_RIGHT_PAREN:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) ')', ')');
+						return 1;
+					case AKEYCODE_BACKSLASH:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '\\', '\\');
+						return 1;
+					case AKEYCODE_SEMICOLON:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) ';', ';');
+						return 1;
+					case AKEYCODE_APOSTROPHE:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '\'', '\'');
+						return 1;
+					case AKEYCODE_SLASH:
+					case AKEYCODE_NUMPAD_DIVIDE:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '/', '/');
+						return 1;
+					case AKEYCODE_AT:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '@', '@');
+						return 1;
+					case AKEYCODE_PLUS:
+					case AKEYCODE_NUMPAD_ADD:
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '+', '+');
+						return 1;
 					default:
-						if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
+						if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
+							Kore::Keyboard::the()->_keyup((Kore::KeyCode) (code + '0' - AKEYCODE_NUMPAD_0), code + '0' - AKEYCODE_NUMPAD_0);
+							return 1;
+						}
+						else if (code >= AKEYCODE_0 && code <= AKEYCODE_9) {
+							Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + '0' - AKEYCODE_0), code + '0' - AKEYCODE_0);
+							return 1;
+						}
+						else if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
 							if (shift)
-								Kore::Keyboard::the()->_keyup((Kore::KeyCode) code, code);
+								Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + 'A' - AKEYCODE_A), code + 'A' - AKEYCODE_A);
 							else
-								Kore::Keyboard::the()->_keyup((Kore::KeyCode) (code + 'a' - 'A'), code + 'a' - 'A');
+								Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + 'a' - AKEYCODE_A), code + 'a' - AKEYCODE_A);
 							return 1;
 						}
 				}
@@ -638,15 +763,19 @@ void Kore::System::destroyWindow() {
 }
 
 void Kore::System::showKeyboard() {
-	keyboardShown = true;
-	ANativeActivity_showSoftInput(activity, ANATIVEACTIVITY_SHOW_SOFT_INPUT_FORCED);
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "showKeyboard", "()V"));
+	activity->vm->DetachCurrentThread();
 }
 
 void Kore::System::hideKeyboard() {
-	if (keyboardShown) {
-		keyboardShown = false;
-		ANativeActivity_hideSoftInput(activity, ANATIVEACTIVITY_SHOW_SOFT_INPUT_FORCED);
-	}
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "hideKeyboard", "()V"));
+	activity->vm->DetachCurrentThread();
 }
 
 void Kore::System::loadURL(const char* url) {
@@ -747,15 +876,6 @@ bool Kore::System::handleMessages() {
 }
 
 void initAndroidFileReader();
-
-/*jint JNI_OnLoad(JavaVM* vm, void* reserved) {
-	JNIEnv* env;
-	vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-	koreActivityClass = env->FindClass("com/ktxsoftware/kore/KoreActivity");
-	koreActivityGetRotation = env->GetStaticMethodID(koreActivityClass, "getRotation", "()I");
-	koreMoviePlayerClass = env->FindClass("com/ktxsoftware/kore/KoreMoviePlayer");
-	return JNI_VERSION_1_6;
-}*/
 
 extern "C" void android_main(android_app* app) {
 	app_dummy();
