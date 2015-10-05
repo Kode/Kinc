@@ -96,6 +96,8 @@ public:
     void Suspend();
     EGLint Resume( ANativeWindow* window );
 
+    void UpdateSize();
+
     int32_t GetScreenWidth()
     {
         return screen_width_;

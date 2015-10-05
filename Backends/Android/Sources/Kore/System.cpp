@@ -371,7 +371,7 @@ namespace {
 	ASensorEventQueue* sensorEventQueue;
 	bool keyboardShown = false;
 	bool shift = false;
-	int screenRotation = 0;
+	//int screenRotation = 0;
 
 	ndk_helper::GLContext* glContext;
 	
@@ -654,21 +654,13 @@ void Kore::System::loadURL(const char* url) {
 }
 
 int Kore::System::screenWidth() {
-	if (screenRotation == 0 || screenRotation == 2) {
-		return glContext->GetScreenWidth();
-	}
-	else {
-		return glContext->GetScreenHeight();
-	}
+	glContext->UpdateSize();
+	return glContext->GetScreenWidth();
 }
 
 int Kore::System::screenHeight() {
-	if (screenRotation == 0 || screenRotation == 2) {
-		return glContext->GetScreenHeight();
-	}
-	else {
-		return glContext->GetScreenWidth();
-	}
+	glContext->UpdateSize();
+	return glContext->GetScreenHeight();
 }
 
 const char* Kore::System::savePath() {
@@ -741,12 +733,15 @@ bool Kore::System::handleMessages() {
 		}
 	}
 
+	// Get screen rotation
+	/*
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
 	jmethodID koreActivityGetRotation = env->GetStaticMethodID(koreActivityClass, "getRotation", "()I");
 	screenRotation = env->CallStaticIntMethod(koreActivityClass, koreActivityGetRotation);
 	activity->vm->DetachCurrentThread();
+	*/
 
 	return true;
 }

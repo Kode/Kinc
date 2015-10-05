@@ -209,6 +209,12 @@ void GLContext::Terminate()
 
 }
 
+void GLContext::UpdateSize()
+{
+    eglQuerySurface( display_, surface_, EGL_WIDTH, &screen_width_ );
+    eglQuerySurface( display_, surface_, EGL_HEIGHT, &screen_height_ );
+}
+
 EGLint GLContext::Resume( ANativeWindow* window )
 {
     if( egl_context_initialized_ == false )
