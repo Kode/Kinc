@@ -88,6 +88,7 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 			offset += 4 * 4;
 			break;
 		}
+		glVertexAttribDivisor(index, 0);
 	}
 	for (; index < 10; ++index) glDisableVertexAttribArray(index);
 }

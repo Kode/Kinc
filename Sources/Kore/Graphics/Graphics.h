@@ -31,6 +31,16 @@ namespace Kore {
 		void set();
 	};
 
+	class ArrayBuffer : public ArrayBufferImpl {
+	public:
+		ArrayBuffer(int indexCount, int structureSize, int structureCount);
+		virtual ~ArrayBuffer();
+		float* lock();
+		void unlock();
+		void set(AttributeLocation location, int divisor);
+		int count();
+	};
+
 	enum TextureAddressing {
 		Repeat,
 		Mirror,
@@ -133,6 +143,8 @@ namespace Kore {
 	
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
+		void drawIndexedVerticesInstanced(int instanceCount);
+		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
 
 		void changeResolution(int width, int height);
 		bool hasWindow();

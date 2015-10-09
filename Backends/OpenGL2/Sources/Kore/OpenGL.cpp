@@ -206,18 +206,31 @@ void Graphics::drawIndexedVertices() {
 void Graphics::drawIndexedVertices(int start, int count) {
 #ifdef OPENGLES
 #ifdef SYS_ANDROID
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void*)(start * sizeof(GL_UNSIGNED_SHORT)));
 #else
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 #endif
 #else
 	if (programUsesTesselation) {
-		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 	}
 	else {
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 	}	
 #endif
+}
+
+void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+	drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
+}
+
+void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+	if (programUsesTesselation) {
+		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
+	}
+	else {
+		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
+	}
 }
 
 void Graphics::swapBuffers() {
@@ -252,7 +265,7 @@ void Graphics::end() {
 	//glClear(GL_COLOR_BUFFER_BIT);
 	GLenum code = glGetError();
 	while (code != GL_NO_ERROR) {
-		//std::printf("GLError: %s\n", gluErrorString(code));
+		//std::printf("GLError: %s\n", glewGetErrorString(code));
 		switch (code) {
 		case 1281:
 			std::printf("OpenGL: Invalid value\n");
