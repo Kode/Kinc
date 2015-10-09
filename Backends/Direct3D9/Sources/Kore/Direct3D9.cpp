@@ -322,6 +322,14 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3);
 }
 
+void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+
+}
+
+void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+
+}
+
 void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	DWORD value = 0;
 	switch (addressing) {

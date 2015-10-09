@@ -144,6 +144,10 @@ TextureUnit Program::getTextureUnit(const char* name) {
 	return unit;
 }
 
+AttributeLocation Program::getAttributeLocation(const char* name) {
+	return AttributeLocation();
+}
+
 void Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }

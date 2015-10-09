@@ -16,6 +16,10 @@ namespace Kore {
 		int shaderType; //0: Vertex, 1: Fragment
 	};
 
+	class AttributeLocationImpl {
+
+	};
+
 	class ShaderImpl {
 	public:
 		std::map<std::string, ShaderRegister> constants;

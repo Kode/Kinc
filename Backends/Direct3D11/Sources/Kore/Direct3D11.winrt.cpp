@@ -263,6 +263,14 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	context->DrawIndexed(count, start, 0);
 }
 
+void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+
+}
+
+void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+
+}
+
 namespace {
 	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(TextureAddressing addressing) {
 		switch (addressing) {
