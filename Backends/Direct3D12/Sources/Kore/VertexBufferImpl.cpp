@@ -17,7 +17,7 @@ VertexBufferImpl::VertexBufferImpl(int count) : myCount(count), currentIndex(0) 
 	
 }
 
-VertexBuffer::VertexBuffer(int count, const VertexStructure& structure) : VertexBufferImpl(count) {
+VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
 	static_assert(sizeof(D3D12VertexBufferView) == sizeof(D3D12_VERTEX_BUFFER_VIEW), "Something is wrong with D3D12IVertexBufferView");
 
 	myStride = 0;
@@ -92,11 +92,12 @@ void VertexBuffer::unlock() {
 	//commandList->ResourceBarrier(1, barriers);
 }
 
-void VertexBuffer::set() {
+int VertexBuffer::set(int offset) {
 	//UINT stride = myStride;
 	//UINT offset = 0;
 	//context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
 	_current = this;
+	return 0;
 }
 
 int VertexBuffer::count() {

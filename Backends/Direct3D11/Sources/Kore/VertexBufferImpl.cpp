@@ -10,7 +10,7 @@ VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {
 	
 }
 
-VertexBuffer::VertexBuffer(int count, const VertexStructure& structure) : VertexBufferImpl(count) {
+VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		switch (structure.elements[i].data) {
@@ -63,10 +63,11 @@ void VertexBuffer::unlock() {
 	context->UpdateSubresource(vb, 0, nullptr, vertices, 0, 0);
 }
 
-void VertexBuffer::set() {
+int VertexBuffer::set(int offset) {
 	UINT stride = myStride;
-	UINT offset = 0;
-	context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+	UINT internaloffset = 0;
+	context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
+	return 0;
 }
 
 int VertexBuffer::count() {

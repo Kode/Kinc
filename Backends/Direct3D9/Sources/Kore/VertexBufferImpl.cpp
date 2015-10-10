@@ -12,7 +12,7 @@ VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {
 
 }
 
-VertexBuffer::VertexBuffer(int count, const VertexStructure& structure) : VertexBufferImpl(count) {
+VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
 	DWORD usage = D3DUSAGE_WRITEONLY;
 #ifdef SYS_WINDOWS
 	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
@@ -64,9 +64,10 @@ void VertexBuffer::unlock() {
 	affirm(vb->Unlock());
 }
 
-void VertexBuffer::set() {
+int VertexBuffer::set(int offset) {
 	_current = this;
 	affirm(device->SetStreamSource(0, vb, 0, stride()));
+	return 0;
 }
 
 void VertexBufferImpl::unset() {

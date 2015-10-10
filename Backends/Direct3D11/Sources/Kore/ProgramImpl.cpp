@@ -132,10 +132,6 @@ TextureUnit Program::getTextureUnit(const char* name) {
 	return unit;
 }
 
-AttributeLocation Program::getAttributeLocation(const char* name) {
-	return AttributeLocation();
-}
-
 void Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
@@ -164,7 +160,7 @@ namespace {
 	}
 }
 
-void Program::link(const VertexStructure& structure) {
+void Program::link(VertexStructure** structures, int count) {
 	if (vertexShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &fragmentConstantBuffer));
 	if (geometryShader != nullptr && geometryShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &geometryConstantBuffer));
@@ -172,15 +168,15 @@ void Program::link(const VertexStructure& structure) {
 	if (tessEvalShader != nullptr && tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
 
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[10];
-	for (int i = 0; i < structure.size; ++i) {
+	for (int i = 0; i < structures[0]->size; ++i) {
 		vertexDesc[i].SemanticName = "TEXCOORD";
-		vertexDesc[i].SemanticIndex = vertexShader->attributes[structure.elements[i].name];
+		vertexDesc[i].SemanticIndex = vertexShader->attributes[structures[0]->elements[i].name];
 		vertexDesc[i].InputSlot = 0;
 		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
 		vertexDesc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 		vertexDesc[i].InstanceDataStepRate = 0;
 
-		switch (structure.elements[i].data) {
+		switch (structures[0]->elements[i].data) {
 		case Float1VertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 			break;
@@ -199,5 +195,5 @@ void Program::link(const VertexStructure& structure) {
 		}
 	}
 
-	affirm(device->CreateInputLayout(vertexDesc, structure.size, vertexShader->data, vertexShader->length, &inputLayout));
+	affirm(device->CreateInputLayout(vertexDesc, structures[0]->size, vertexShader->data, vertexShader->length, &inputLayout));
 }

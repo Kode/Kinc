@@ -33,13 +33,13 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 	log(Error, "Direct3D 9 does not support tesselation shaders.");
 }
 
-void Program::link(const VertexStructure& structure) {
+void Program::link(VertexStructure** structures, int count) {
 	int stride = 0;
-	D3DVERTEXELEMENT9* elements = (D3DVERTEXELEMENT9*)alloca(sizeof(D3DVERTEXELEMENT9) * (structure.size + 1));
-	for (int i = 0; i < structure.size; ++i) {
+	D3DVERTEXELEMENT9* elements = (D3DVERTEXELEMENT9*)alloca(sizeof(D3DVERTEXELEMENT9) * (structures[0]->size + 1));
+	for (int i = 0; i < structures[0]->size; ++i) {
 		elements[i].Stream = 0;
 		elements[i].Offset = stride;
-		switch (structure.elements[i].data) {
+		switch (structures[0]->elements[i].data) {
 		case Float1VertexData:
 			elements[i].Type = D3DDECLTYPE_FLOAT1;
 			stride += 4 * 1;
@@ -63,14 +63,14 @@ void Program::link(const VertexStructure& structure) {
 		}
 		elements[i].Method = D3DDECLMETHOD_DEFAULT;
 		elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
-		elements[i].UsageIndex = vertexShader->attributes[structure.elements[i].name];
+		elements[i].UsageIndex = vertexShader->attributes[structures[0]->elements[i].name];
 	}
-	elements[structure.size].Stream = 0xff;
-	elements[structure.size].Offset = 0;
-	elements[structure.size].Type = D3DDECLTYPE_UNUSED;
-	elements[structure.size].Method = 0;
-	elements[structure.size].Usage = 0;
-	elements[structure.size].UsageIndex = 0;
+	elements[structures[0]->size].Stream = 0xff;
+	elements[structures[0]->size].Offset = 0;
+	elements[structures[0]->size].Type = D3DDECLTYPE_UNUSED;
+	elements[structures[0]->size].Method = 0;
+	elements[structures[0]->size].Usage = 0;
+	elements[structures[0]->size].UsageIndex = 0;
 
 	vertexDecleration = nullptr;
 	affirm(device->CreateVertexDeclaration(elements, &vertexDecleration));
@@ -130,8 +130,4 @@ TextureUnit Program::getTextureUnit(const char* name) {
 		log(Warning, "Could not find texture %s.", name);
 	}
 	return unit;
-}
-
-AttributeLocation Program::getAttributeLocation(const char* name) {
-	return AttributeLocation();
 }
