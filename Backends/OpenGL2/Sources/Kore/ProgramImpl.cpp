@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
 #include "ogl.h"
 #include <stdlib.h>
@@ -21,6 +22,7 @@ ProgramImpl::ProgramImpl() : textureCount(0), vertexShader(nullptr), fragmentSha
 
 Program::Program() {
 	programId = glCreateProgram();
+	glCheckErrors();
 }
 
 void Program::setVertexShader(Shader* shader) {
@@ -74,6 +76,7 @@ namespace {
 		shaderSource[length] = 0;
 		const char* cShaderSource = shaderSource;
 		id = glCreateShader(toGlShader(type));
+		glCheckErrors();
 		glShaderSource(id, 1, &cShaderSource, 0);
 		glCompileShader(id);
 
@@ -105,12 +108,14 @@ void Program::link(VertexStructure** structures, int count) {
 	if (tesselationControlShader != nullptr) glAttachShader(programId, tesselationControlShader->id);
 	if (tesselationEvaluationShader != nullptr) glAttachShader(programId, tesselationEvaluationShader->id);
 #endif
+	glCheckErrors();
 
 	int index = 0;
 	for (int i1 = 0; i1 < count; ++i1) {
 		for (int i2 = 0; i2 < structures[i1]->size; ++i2) {
 			VertexElement element = structures[i1]->elements[i2];
 			glBindAttribLocation(programId, index, element.name);
+			glCheckErrors();
 			++index;
 		}
 	}
@@ -132,6 +137,7 @@ void Program::link(VertexStructure** structures, int count) {
 #ifndef SYS_LINUX
 	if (tesselationControlShader != nullptr) {
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
+		glCheckErrors();
 	}
 #endif
 #endif
@@ -142,12 +148,17 @@ void Program::set() {
 	programUsesTesselation = tesselationControlShader != nullptr;
 #endif
 	glUseProgram(programId);
-	for (int index = 0; index < textureCount; ++index) glUniform1i(textureValues[index], index);
+	glCheckErrors();
+	for (int index = 0; index < textureCount; ++index) {
+		glUniform1i(textureValues[index], index);
+		glCheckErrors();
+	}
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.location = glGetUniformLocation(programId, name);
+	glCheckErrors();
 	if (location.location < 0) {
 		log(Warning, "Uniform %s not found.", name);
 	}
@@ -165,6 +176,7 @@ TextureUnit Program::getTextureUnit(const char* name) {
 	int index = findTexture(name);
 	if (index < 0) {
 		int location = glGetUniformLocation(programId, name);
+		glCheckErrors();
 		index = textureCount;
 		textureValues[index] = location;
 		textures[index] = name;

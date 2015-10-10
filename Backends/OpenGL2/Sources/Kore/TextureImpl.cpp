@@ -9,9 +9,6 @@ using namespace Kore;
 
 namespace {
 	int convert(Image::Format format) {
-#ifndef GL_LUMINANCE
-#define GL_LUMINANCE GL_RED
-#endif
 		switch (format) {
 			case Image::RGBA32:
 			default:
@@ -19,14 +16,11 @@ namespace {
 			case Image::RGB24:
 				return GL_RGB;
 			case Image::Grey8:
-				return GL_LUMINANCE;
+				return GL_RED;
 		}
 	}
 	
 	int convertInternal(Image::Format format) {
-#ifndef GL_LUMINANCE
-#define GL_LUMINANCE GL_RED
-#endif
 		switch (format) {
 			case Image::RGBA32:
 			default:
@@ -38,7 +32,7 @@ namespace {
 			case Image::RGB24:
 				return GL_RGB;
 			case Image::Grey8:
-				return GL_LUMINANCE;
+				return GL_RED;
 		}
 	}
 
@@ -207,8 +201,11 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 #endif
 	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glCheckErrors();
 	glGenTextures(1, &texture);
+	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glCheckErrors();
 	if (compressed) {
 #if defined(SYS_IOS)
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
@@ -220,9 +217,12 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	}
 	else {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, conversionBuffer);
+		glCheckErrors();
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glCheckErrors();
 	
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -264,12 +264,18 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 #endif
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glCheckErrors();
 	glGenTextures(1, &texture);
+	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glCheckErrors();
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, convert(format), texWidth, texHeight, 0, convertInternal(format), GL_UNSIGNED_BYTE, data);
+	glCheckErrors();
 
 	/*if (!readable) {
 		delete[] data;
@@ -294,15 +300,19 @@ TextureImpl::~TextureImpl() {
 
 void Texture::set(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glCheckErrors();
 #ifdef SYS_ANDROID
 	if (external_oes) {
 		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
+		glCheckErrors();
 	}
 	else {
 		glBindTexture(GL_TEXTURE_2D, texture);
+		glCheckErrors();
 	}
 #else
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glCheckErrors();
 #endif
 }
 
@@ -329,14 +339,18 @@ void Texture::unlock() {
 	if (conversionBuffer != nullptr) {
 		//convertImage2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 		glBindTexture(GL_TEXTURE_2D, texture);
+		glCheckErrors();
 		//glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertInternal(format), GL_UNSIGNED_BYTE, data);
+		glCheckErrors();
 	}
 }
 
 #ifdef SYS_IOS
 void Texture::upload(u8* data) {
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glCheckErrors();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertInternal(format), GL_UNSIGNED_BYTE, data);
+	glCheckErrors();
 }
 #endif

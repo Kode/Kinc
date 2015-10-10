@@ -43,3 +43,5 @@
 #include <gl2.h>
 #define OPENGLES
 #endif
+
+void glCheckErrors();

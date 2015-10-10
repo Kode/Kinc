@@ -29,35 +29,53 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 #endif
 	
 	glGenTextures(1, &_texture);
+	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, _texture);
-	
+	glCheckErrors();
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glCheckErrors();
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glCheckErrors();
 
 	glGenFramebuffers(1, &_framebuffer);
+	glCheckErrors();
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glCheckErrors();
 	
 	if (zBuffer) {
 		GLuint depthBuffer;
 		glGenRenderbuffers(1, &depthBuffer);
+		glCheckErrors();
 		glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+		glCheckErrors();
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texWidth, texHeight);
+		glCheckErrors();
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+		glCheckErrors();
 	}
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
+	glCheckErrors();
 	//GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
 	//glDrawBuffers(1, drawBuffers);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glCheckErrors();
 }
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, _texture);
+	glCheckErrors();
 }

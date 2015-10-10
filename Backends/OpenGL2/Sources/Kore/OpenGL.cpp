@@ -166,38 +166,47 @@ void* Graphics::getControl() {
 
 void Graphics::setBool(ConstantLocation location, bool value) {
 	glUniform1i(location.location, value ? 1 : 0);
+	glCheckErrors();
 }
 
 void Graphics::setInt(ConstantLocation location, int value) {
 	glUniform1i(location.location, value);
+	glCheckErrors();
 }
 
 void Graphics::setFloat(ConstantLocation location, float value) {
 	glUniform1f(location.location, value);
+	glCheckErrors();
 }
 
 void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
 	glUniform2f(location.location, value1, value2);
+	glCheckErrors();
 }
 
 void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
 	glUniform3f(location.location, value1, value2, value3);
+	glCheckErrors();
 }
 
 void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
 	glUniform4f(location.location, value1, value2, value3, value4);
+	glCheckErrors();
 }
 
 void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	glUniform1fv(location.location, count, values);
+	glCheckErrors();
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	glUniformMatrix4fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
+	glCheckErrors();
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 	glUniformMatrix3fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
+	glCheckErrors();
 }
 
 void Graphics::drawIndexedVertices() {
@@ -214,9 +223,11 @@ void Graphics::drawIndexedVertices(int start, int count) {
 #else
 	if (programUsesTesselation) {
 		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
+		glCheckErrors();
 	}
 	else {
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
+		glCheckErrors();
 	}	
 #endif
 }
@@ -229,9 +240,11 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 	int indices[3] = { 0, 1, 2 };
 	if (programUsesTesselation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
+		glCheckErrors();
 	}
 	else {
 		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
+		glCheckErrors();
 	}
 }
 
@@ -262,25 +275,31 @@ void Graphics::viewport(int x, int y, int width, int height) {
 	glViewport(x,y,width,height);
 }
 
-void Graphics::end() {
-	//glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT);
+void glCheckErrors() {
+#ifdef _DEBUG
 	GLenum code = glGetError();
 	while (code != GL_NO_ERROR) {
 		//std::printf("GLError: %s\n", glewGetErrorString(code));
 		switch (code) {
 		case 1281:
-			log(Warning, "OpenGL: Invalid value\n");
+			log(Warning, "OpenGL: Invalid value");
 			break;
 		case 1282:
-			log(Warning, "OpenGL: Invalid operation\n");
+			log(Warning, "OpenGL: Invalid operation");
 			break;
 		default:
-			log(Warning, "OpenGL: Error code %i\n", code);
+			log(Warning, "OpenGL: Error code %i", code);
 			break;
 		}
 		code = glGetError();
 	}
+#endif
+}
+
+void Graphics::end() {
+	//glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT);
+	glCheckErrors();
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
@@ -360,13 +379,16 @@ void Graphics::setRenderState(RenderState state, int v) {
 		case Clockwise:
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT);
+			glCheckErrors();
 			break;
 		case CounterClockwise:
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
+			glCheckErrors();
 			break;
 		case NoCulling:
 			glDisable(GL_CULL_FACE);
+			glCheckErrors();
 			break;
 		default:
 			break;
