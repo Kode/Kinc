@@ -4,6 +4,7 @@
 #include <Kore/Application.h>
 #include <Kore/System.h>
 #include <Kore/Math/Core.h>
+#include <Kore/Log.h>
 #include "ogl.h"
 #include <cstdio>
 
@@ -225,6 +226,7 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+	int indices[3] = { 0, 1, 2 };
 	if (programUsesTesselation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
 	}
@@ -268,13 +270,13 @@ void Graphics::end() {
 		//std::printf("GLError: %s\n", glewGetErrorString(code));
 		switch (code) {
 		case 1281:
-			std::printf("OpenGL: Invalid value\n");
+			log(Warning, "OpenGL: Invalid value\n");
 			break;
 		case 1282:
-			std::printf("OpenGL: Invalid operation\n");
+			log(Warning, "OpenGL: Invalid operation\n");
 			break;
 		default:
-			std::printf("OpenGL: Error code %i\n", code);
+			log(Warning, "OpenGL: Error code %i\n", code);
 			break;
 		}
 		code = glGetError();

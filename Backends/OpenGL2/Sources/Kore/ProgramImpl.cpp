@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <Kore/Graphics/Shader.h>
+#include <Kore/Log.h>
 #include "ogl.h"
 #include <stdlib.h>
 #include <string.h>
@@ -89,7 +90,7 @@ namespace {
 	}
 }
 
-void Program::link(const VertexStructure& structure) {
+void Program::link(VertexStructure** structures, int count) {
 	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
 #ifndef OPENGLES
@@ -106,10 +107,12 @@ void Program::link(const VertexStructure& structure) {
 #endif
 
 	int index = 0;
-	for (int i = 0; i < structure.size; ++i) {
-		VertexElement element = structure.elements[i];
-		glBindAttribLocation(programId, index, element.name);
-		++index;
+	for (int i1 = 0; i1 < count; ++i1) {
+		for (int i2 = 0; i2 < structures[i1]->size; ++i2) {
+			VertexElement element = structures[i1]->elements[i2];
+			glBindAttribLocation(programId, index, element.name);
+			++index;
+		}
 	}
 
 	glLinkProgram(programId);
@@ -146,16 +149,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.location = glGetUniformLocation(programId, name);
 	if (location.location < 0) {
-		printf("Uniform %s not found.\n", name);
-	}
-	return location;
-}
-
-AttributeLocation Program::getAttributeLocation(const char* name) {
-	AttributeLocation location;
-	location.location = glGetAttribLocation(programId, name);
-	if (location.location < 0) {
-		printf("Attribute %s not found.\n", name);
+		log(Warning, "Uniform %s not found.", name);
 	}
 	return location;
 }

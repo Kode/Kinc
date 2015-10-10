@@ -11,14 +11,14 @@
 namespace Kore {
 	class VertexBuffer : public VertexBufferImpl {
 	public:
-		VertexBuffer(int count, const VertexStructure& structure);
+		VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate);
 		virtual ~VertexBuffer();
 		float* lock();
 		float* lock(int start, int count);
 		void unlock();
 		int count();
 		int stride();
-		void set();
+		int set(int offset = 0);
 	};
 
 	class IndexBuffer : public IndexBufferImpl {
@@ -29,16 +29,6 @@ namespace Kore {
 		void unlock();
 		int count();
 		void set();
-	};
-
-	class ArrayBuffer : public ArrayBufferImpl {
-	public:
-		ArrayBuffer(int indexCount, int structureSize, int structureCount);
-		virtual ~ArrayBuffer();
-		float* lock();
-		void unlock();
-		void set(AttributeLocation location, int divisor);
-		int count();
 	};
 
 	enum TextureAddressing {

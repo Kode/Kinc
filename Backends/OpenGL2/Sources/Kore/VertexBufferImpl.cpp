@@ -8,11 +8,11 @@ using namespace Kore;
 
 VertexBuffer* VertexBufferImpl::current = nullptr;
 
-VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {
+VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {
 
 }
 
-VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : VertexBufferImpl(vertexCount) {
+VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate = 0) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
@@ -34,15 +34,15 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure) : 
 			break;
 		}
 	}
-#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
+//#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 	this->structure = structure;
-#elif defined SYS_IOS
-	glGenVertexArraysOES(1, &arrayId);
-	glBindVertexArrayOES(arrayId);
-#else
-	glGenVertexArrays(1, &arrayId);
-	glBindVertexArray(arrayId);
-#endif
+//#elif defined SYS_IOS
+//	glGenVertexArraysOES(1, &arrayId);
+//	glBindVertexArrayOES(arrayId);
+//#else
+//	glGenVertexArrays(1, &arrayId);
+//	glBindVertexArray(arrayId);
+//#endif
 	glGenBuffers(1, &bufferId);
 	data = new float[vertexCount * myStride / 4];
 
@@ -110,6 +110,7 @@ float* VertexBuffer::lock(int start, int count) {
 */
 
 void VertexBuffer::unlock() {
+/*
 #if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 
 #elif defined SYS_IOS
@@ -117,19 +118,20 @@ void VertexBuffer::unlock() {
 #else
 	glBindVertexArray(arrayId);
 #endif
+*/
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glBufferData(GL_ARRAY_BUFFER, myStride * myCount, data, GL_STATIC_DRAW);
 }
 
-void VertexBuffer::set() {
-#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
+int VertexBuffer::set(int offset) {
+//#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 
-	int offset = 0;
+	int internaloffset = 0;
 	int index = 0;
 	for (; index < structure.size; ++index) {
 		VertexElement element = structure.elements[index];
-		glEnableVertexAttribArray(index);
+		glEnableVertexAttribArray(index + offset);
 		int size;
 		switch (element.data) {
 		case ColorVertexData:
@@ -148,33 +150,36 @@ void VertexBuffer::set() {
 			size = 4;
 			break;
 		}
-		glVertexAttribPointer(index, size, GL_FLOAT, false, myStride, (void*)offset);
+		glVertexAttribPointer(index + offset, size, GL_FLOAT, false, myStride, (void*)internaloffset);
 		switch (element.data) {
 		case ColorVertexData:
-			offset += 4 * 1;
+			internaloffset += 4 * 1;
 			break;
 		case Float1VertexData:
-			offset += 4 * 1;
+			internaloffset += 4 * 1;
 			break;
 		case Float2VertexData:
-			offset += 4 * 2;
+			internaloffset += 4 * 2;
 			break;
 		case Float3VertexData:
-			offset += 4 * 3;
+			internaloffset += 4 * 3;
 			break;
 		case Float4VertexData:
-			offset += 4 * 4;
+			internaloffset += 4 * 4;
 			break;
 		}
+		glVertexAttribDivisor(index + offset, instanceDataStepRate);
 	}
-	for (; index < 10; ++index) glDisableVertexAttribArray(index);
+	for (; index < 10; ++index) glDisableVertexAttribArray(index + offset);
 
-#elif defined SYS_IOS
-	glBindVertexArrayOES(arrayId);
-#else
-	glBindVertexArray(arrayId);
-#endif
+//#elif defined SYS_IOS
+//	glBindVertexArrayOES(arrayId);
+//#else
+//	glBindVertexArray(arrayId);
+//#endif
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->set();
+
+	return structure.size;
 }
 
 void VertexBufferImpl::unset() {

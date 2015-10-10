@@ -23,9 +23,4 @@ namespace Kore {
 	public:
 		int location;
 	};
-
-	class AttributeLocationImpl {
-	public:
-		int location;
-	};
 }
