@@ -3,6 +3,7 @@
 #include <Kore/Application.h>
 #include <Kore/System.h>
 
+
 using namespace Kore;
 
 namespace {
@@ -13,9 +14,38 @@ Mouse* Mouse::the() {
 	return &mouse;
 }
 
+Mouse::Mouse() 
+: lastX(0)
+, lastY(0)
+, lockX(0)
+, lockY(0)
+, centerX(0)
+, centerY(0)
+, locked(false)
+, moved(false)
+{}
+
 void Mouse::_move(int x, int y) {
-	if (Move != nullptr) {
-		Move(x, y);
+	int movementX = 0;
+	int movementY = 0;
+	if (isLocked()){
+		movementX = x - centerX;
+		movementY = y - centerY;
+		if (movementX != 0 || movementY != 0){
+			setPosition(centerX, centerY);
+			x = centerX;
+			y = centerY;
+		}
+	}else if (moved){
+		movementX = x - lastX;
+		movementY = y - lastY;
+	}
+	moved = true;
+	
+	lastX = x;
+	lastY = y;
+	if (Move != nullptr && (movementX != 0 || movementY != 0)) {
+		Move(x, y, movementX, movementY);
 	}
 }
 
@@ -35,4 +65,38 @@ void Mouse::_scroll(int delta) {
 	if (Scroll != nullptr) {
 		Scroll(delta);
 	}
+}
+
+void Mouse::_activated(bool truth){
+	if (isLocked()){
+		_lock(truth);
+	}
+}
+
+
+
+bool Mouse::isLocked(){
+	return locked;
+}
+
+void Mouse::lock(){
+	if (!canLock()){
+		return;
+	}
+	locked = true;
+	_lock(true);
+	getPosition(lockX, lockY);
+	centerX = Application::the()->width() / 2; 
+	centerY = Application::the()->height() / 2;
+	setPosition(centerX, centerY);
+}
+
+void Mouse::unlock(){
+	if (!canLock()){
+		return;
+	}
+	moved = false;
+	locked = false;
+	_lock(false);
+	setPosition(lockX, lockY); 
 }
