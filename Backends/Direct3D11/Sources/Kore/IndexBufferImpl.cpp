@@ -41,7 +41,7 @@ void IndexBuffer::unlock() {
 	context->UpdateSubresource(ib, 0, nullptr, indices, 0, 0);
 }
 
-void IndexBuffer::set() {
+void IndexBuffer::_set() {
 	_current = this;
 	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 }

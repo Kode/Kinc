@@ -68,7 +68,7 @@ TextureImpl::~TextureImpl() {
 	texture->Release();
 }
 
-void Texture::set(TextureUnit unit) {
+void Texture::_set(TextureUnit unit) {
 	affirm(device->SetTexture(unit.unit, texture));
 	this->stage = unit.unit;
 	setTextures[stage] = this;

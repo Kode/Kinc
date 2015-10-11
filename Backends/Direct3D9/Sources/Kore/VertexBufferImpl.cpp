@@ -64,7 +64,7 @@ void VertexBuffer::unlock() {
 	affirm(vb->Unlock());
 }
 
-int VertexBuffer::set(int offset) {
+int VertexBuffer::_set(int offset) {
 	_current = this;
 	affirm(device->SetStreamSource(0, vb, 0, stride()));
 	return 0;

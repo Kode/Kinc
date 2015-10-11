@@ -43,7 +43,7 @@ void IndexBuffer::unlock() {
 	affirm(ib->Unlock());
 }
 
-void IndexBuffer::set() {
+void IndexBuffer::_set() {
 	_current = this;
 	affirm(device->SetIndices(ib));
 }

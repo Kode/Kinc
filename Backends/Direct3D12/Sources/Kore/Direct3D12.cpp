@@ -630,3 +630,15 @@ void Graphics::setRenderTarget(RenderTarget* target, int) {
 	commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&target->viewport);
 	commandList->RSSetScissorRects(1, (D3D12_RECT*)&target->scissor);
 }
+
+void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
+	buffers[0]->_set(0);
+}
+
+void Graphics::setIndexBuffer(IndexBuffer& buffer) {
+	buffer._set();
+}
+
+void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+	texture->_set(unit);
+}

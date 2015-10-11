@@ -619,3 +619,15 @@ bool Graphics::renderTargetsInvertedY() {
 bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
+
+void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
+	buffers[0]->_set(0);
+}
+
+void Graphics::setIndexBuffer(IndexBuffer& buffer) {
+	buffer._set();
+}
+
+void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+	texture->_set(unit);
+}

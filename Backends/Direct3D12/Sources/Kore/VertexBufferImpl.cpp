@@ -92,7 +92,7 @@ void VertexBuffer::unlock() {
 	//commandList->ResourceBarrier(1, barriers);
 }
 
-int VertexBuffer::set(int offset) {
+int VertexBuffer::_set(int offset) {
 	//UINT stride = myStride;
 	//UINT offset = 0;
 	//context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);

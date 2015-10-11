@@ -50,7 +50,7 @@ void IndexBuffer::unlock() {
 	commandList->ResourceBarrier(1, barriers);
 }
 
-void IndexBuffer::set() {
+void IndexBuffer::_set() {
 	_current = this;
 }
 

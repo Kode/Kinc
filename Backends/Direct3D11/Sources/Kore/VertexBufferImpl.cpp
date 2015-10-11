@@ -63,7 +63,7 @@ void VertexBuffer::unlock() {
 	context->UpdateSubresource(vb, 0, nullptr, vertices, 0, 0);
 }
 
-int VertexBuffer::set(int offset) {
+int VertexBuffer::_set(int offset) {
 	UINT stride = myStride;
 	UINT internaloffset = 0;
 	context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);

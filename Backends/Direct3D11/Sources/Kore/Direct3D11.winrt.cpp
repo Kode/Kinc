@@ -616,3 +616,15 @@ void Graphics::setRenderTarget(RenderTarget* target, int) {
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(target->width), static_cast<float>(target->height));
 	context->RSSetViewports(1, &viewPort);
 }
+
+void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
+	buffers[0]->_set(0);
+}
+
+void Graphics::setIndexBuffer(IndexBuffer& buffer) {
+	buffer._set();
+}
+
+void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+	texture->_set(unit);
+}
