@@ -40,6 +40,7 @@ namespace {
 	TextureFilter minFilters[32];
 	MipmapFilter mipFilters[32];
 	int originalFramebuffer;
+	uint arrayId;
 }
 
 void Graphics::destroy() {
@@ -113,7 +114,7 @@ void Graphics::init() {
 		wglMakeCurrent(deviceContext, glContext);
 	}
 	else {
-		glContext = tempGlContext; // If we didn't have support for OpenGL 3.x and up, use the OpenGL 2.1 context  
+		glContext = tempGlContext;
 	}
 
 	ShowWindow(windowHandle, SW_SHOW);
@@ -145,6 +146,14 @@ void Graphics::init() {
 
 #ifdef SYS_WINDOWS
 	if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(1);
+#endif
+
+#if defined(SYS_IOS)
+	glGenVertexArraysOES(1, &arrayId);
+	glCheckErrors();
+#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+	glGenVertexArrays(1, &arrayId);
+	glCheckErrors();
 #endif
 }
 
@@ -425,6 +434,29 @@ void Graphics::setRenderState(RenderState state, int v) {
 		default:
 			throw Exception();
 	}*/
+}
+
+void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
+#if defined(SYS_IOS)
+	glBindVertexArrayOES(arrayId);
+	glCheckErrors();
+#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+	glBindVertexArray(arrayId);
+	glCheckErrors();
+#endif
+
+	int offset = 0;
+	for (int i = 0; i < count; ++i) {
+		offset += vertexBuffers[i]->_set(offset);
+	}
+}
+
+void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
+	indexBuffer._set();
+}
+
+void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+	texture->_set(unit);
 }
 
 void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {

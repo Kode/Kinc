@@ -12,12 +12,12 @@ namespace Kore {
 		float* data;
 		int myCount;
 		int myStride;
-		uint arrayId;
 		uint bufferId;
 //#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 		VertexStructure structure;
 //#endif
 		int instanceDataStepRate;
+		void setVertexAttributes(int offset);
 	public:
 		static VertexBuffer* current;
 	};

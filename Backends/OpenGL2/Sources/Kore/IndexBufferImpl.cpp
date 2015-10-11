@@ -43,7 +43,7 @@ void IndexBuffer::unlock() {
 #endif
 }
 
-void IndexBuffer::set() {
+void IndexBuffer::_set() {
 	current = this;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
 	glCheckErrors();

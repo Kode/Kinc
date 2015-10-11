@@ -298,7 +298,7 @@ TextureImpl::~TextureImpl() {
 	glFlush();
 }
 
-void Texture::set(TextureUnit unit) {
+void Texture::_set(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 #ifdef SYS_ANDROID

@@ -15,7 +15,7 @@ namespace Kore {
 #ifdef SYS_ANDROID
 		Texture(unsigned texid);
 #endif
-		void set(TextureUnit unit);
+		void _set(TextureUnit unit);
 		u8* lock();
 		void unlock();
 #ifdef SYS_IOS
