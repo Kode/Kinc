@@ -27,7 +27,7 @@ void Kore::affirmArgs(bool b, const char* format, va_list args) {
 }
 
 void Kore::error() {
-	error("%s", "Unknown error");
+	error("Unknown error");
 }
 
 void Kore::error(const char* format, ...) {
