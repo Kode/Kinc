@@ -229,6 +229,12 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return 0;
 	case WM_ERASEBKGND:
 		return 1;
+	case WM_ACTIVATE:
+		if (LOWORD(wParam) == WA_ACTIVE)
+			Mouse::the()->_activated(true);
+		else
+			Mouse::the()->_activated(false);
+		break;
 	case WM_MOUSEMOVE:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
