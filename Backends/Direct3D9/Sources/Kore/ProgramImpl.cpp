@@ -34,43 +34,56 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 }
 
 void Program::link(VertexStructure** structures, int count) {
-	int stride = 0;
-	D3DVERTEXELEMENT9* elements = (D3DVERTEXELEMENT9*)alloca(sizeof(D3DVERTEXELEMENT9) * (structures[0]->size + 1));
-	for (int i = 0; i < structures[0]->size; ++i) {
-		elements[i].Stream = 0;
-		elements[i].Offset = stride;
-		switch (structures[0]->elements[i].data) {
-		case Float1VertexData:
-			elements[i].Type = D3DDECLTYPE_FLOAT1;
-			stride += 4 * 1;
-			break;
-		case Float2VertexData:
-			elements[i].Type = D3DDECLTYPE_FLOAT2;
-			stride += 4 * 2;
-			break;
-		case Float3VertexData:
-			elements[i].Type = D3DDECLTYPE_FLOAT3;
-			stride += 4 * 3;
-			break;
-		case Float4VertexData:
-			elements[i].Type = D3DDECLTYPE_FLOAT4;
-			stride += 4 * 4;
-			break;
-		case ColorVertexData:
-			elements[i].Type = D3DDECLTYPE_D3DCOLOR;
-			stride += 4;
-			break;
-		}
-		elements[i].Method = D3DDECLMETHOD_DEFAULT;
-		elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
-		elements[i].UsageIndex = vertexShader->attributes[structures[0]->elements[i].name];
+	if (count > 1) {
+		int a = 3;
+		++a;
 	}
-	elements[structures[0]->size].Stream = 0xff;
-	elements[structures[0]->size].Offset = 0;
-	elements[structures[0]->size].Type = D3DDECLTYPE_UNUSED;
-	elements[structures[0]->size].Method = 0;
-	elements[structures[0]->size].Usage = 0;
-	elements[structures[0]->size].UsageIndex = 0;
+	int all = 0;
+	for (int stream = 0; stream < count; ++stream) {
+		all += structures[stream]->size;
+	}
+	
+	D3DVERTEXELEMENT9* elements = (D3DVERTEXELEMENT9*)alloca(sizeof(D3DVERTEXELEMENT9) * (all + 1));
+	int i = 0;
+	for (int stream = 0; stream < count; ++stream) {
+		int stride = 0;
+		for (int index = 0; index < structures[stream]->size; ++index) {
+			elements[i].Stream = stream;
+			elements[i].Offset = stride;
+			switch (structures[stream]->elements[index].data) {
+			case Float1VertexData:
+				elements[i].Type = D3DDECLTYPE_FLOAT1;
+				stride += 4 * 1;
+				break;
+			case Float2VertexData:
+				elements[i].Type = D3DDECLTYPE_FLOAT2;
+				stride += 4 * 2;
+				break;
+			case Float3VertexData:
+				elements[i].Type = D3DDECLTYPE_FLOAT3;
+				stride += 4 * 3;
+				break;
+			case Float4VertexData:
+				elements[i].Type = D3DDECLTYPE_FLOAT4;
+				stride += 4 * 4;
+				break;
+			case ColorVertexData:
+				elements[i].Type = D3DDECLTYPE_D3DCOLOR;
+				stride += 4;
+				break;
+			}
+			elements[i].Method = D3DDECLMETHOD_DEFAULT;
+			elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
+			elements[i].UsageIndex = vertexShader->attributes[structures[stream]->elements[index].name];
+			++i;
+		}
+	}
+	elements[all].Stream = 0xff;
+	elements[all].Offset = 0;
+	elements[all].Type = D3DDECLTYPE_UNUSED;
+	elements[all].Method = 0;
+	elements[all].Usage = 0;
+	elements[all].UsageIndex = 0;
 
 	vertexDecleration = nullptr;
 	affirm(device->CreateVertexDeclaration(elements, &vertexDecleration));

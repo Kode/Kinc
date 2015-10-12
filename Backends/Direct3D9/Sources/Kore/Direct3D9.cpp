@@ -323,11 +323,11 @@ void Graphics::drawIndexedVertices(int start, int count) {
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
-
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), 0, IndexBuffer::_current->count() / 3 * instanceCount);
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3 * instanceCount);
 }
 
 void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
@@ -621,7 +621,9 @@ bool Graphics::nonPow2TexturesSupported() {
 }
 
 void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
-	buffers[0]->_set(0);
+	for (int i = 0; i < count; ++i) {
+		buffers[0]->_set(i);
+	}
 }
 
 void Graphics::setIndexBuffer(IndexBuffer& buffer) {
