@@ -30,6 +30,11 @@ public class KoreActivity extends NativeActivity {
 		getInstance().inputManager.hideSoftInputFromWindow(getInstance().getWindow().getDecorView().getWindowToken(), 0);
 	}
 
+	public static void loadURL(String url) {
+		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+		instance.startActivity(i);
+	}
+
 	public static int getRotation() {
 		Context context = getInstance().getApplicationContext();
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
