@@ -669,8 +669,8 @@ class ExporterXCode extends Exporter {
 		this.p(");", 4);
 		this.p("HEADER_SEARCH_PATHS = (", 4);
 		this.p('"$(inherited)",', 5);
-		this.p('/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,', 5);
-		for (let path of project.getIncludeDirs()) this.p(from.resolve(path).toAbsolutePath().toString() + ",", 5);
+		this.p('"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",', 5);
+		for (let path of project.getIncludeDirs()) this.p('"' + from.resolve(path).toAbsolutePath().toEscapedString() + '",', 5);
 		this.p(");", 4);
 		this.p("INFOPLIST_FILE = \"" + from.resolve(plistname).toAbsolutePath().toString() + "\";", 4);
 		if (platform === Platform.iOS) {
@@ -699,8 +699,8 @@ class ExporterXCode extends Exporter {
 		this.p(");", 4);
 		this.p("HEADER_SEARCH_PATHS = (", 4);
 		this.p('"$(inherited)",', 5);
-		this.p('/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,', 5);
-		for (let path of project.getIncludeDirs()) this.p(from.resolve(path).toAbsolutePath().toString() + ",", 5);
+		this.p('"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",', 5);
+		for (let path of project.getIncludeDirs()) this.p('"' + from.resolve(path).toAbsolutePath().toEscapedString() + '",', 5);
 		this.p(");", 4);
 		this.p("INFOPLIST_FILE = \"" + from.resolve(plistname).toAbsolutePath().toString() + "\";", 4);
 		if (platform === Platform.iOS) {
