@@ -49,6 +49,10 @@ class Path {
 		return pathlib.normalize(this.path);
 	}
 
+	toEscapedString() {
+		return this.toString().replace(/ /g,"\\\\ ");
+	}
+
 	isAbsolute() {
 		return (this.path.length > 0 && this.path[0] == '/') || (this.path.length > 1 && this.path[1] == ':');
 	}
