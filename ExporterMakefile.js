@@ -62,7 +62,7 @@ class ExporterMakefile extends Exporter {
 		if (!options.debug) optimization = '-O3';
 
 		this.p(project.getName() + ': ' + ofilelist);
-		this.p('\tg++ ' optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
+		this.p('\tg++ ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
 
 		for (let file of project.getFiles()) {
 			if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {
