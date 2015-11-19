@@ -190,7 +190,7 @@ function exportKoremakeProject(from, to, platform, options) {
 			}
 		}
 	}
-	exporter.exportSolution(solution, from, to, platform, options.vrApi, options.nokrafix);
+	exporter.exportSolution(solution, from, to, platform, options.vrApi, options.nokrafix, options);
 
 	return solution;
 }

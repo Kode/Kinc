@@ -110,6 +110,11 @@ var options = [
 		full: 'update',
 		description: 'Update Kore and it\'s submodules',
 		value: false
+	},
+	{
+		full: 'debug',
+		description: 'Compile in debug mode',
+		value: false
 	}
 ];
 
