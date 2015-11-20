@@ -129,7 +129,9 @@ void VertexBufferImpl::setVertexAttributes(int offset) {
 			internaloffset += 4 * 4;
 			break;
 		}
+#ifndef OPENGLES
 		glVertexAttribDivisor(index + offset, instanceDataStepRate);
+#endif
 		glCheckErrors();
 	}
 	for (; index < 10; ++index) {

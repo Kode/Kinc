@@ -875,6 +875,23 @@ bool Kore::System::handleMessages() {
 	return true;
 }
 
+bool Kore::Mouse::canLock() {
+	return false;
+}
+
+void Kore::Mouse::setPosition(int, int) {
+
+}
+
+void Kore::Mouse::_lock(bool) {
+
+}
+
+void Kore::Mouse::getPosition(int& x, int& y) {
+	x = 0;
+	y = 0;
+}
+
 void initAndroidFileReader();
 
 extern "C" void android_main(android_app* app) {

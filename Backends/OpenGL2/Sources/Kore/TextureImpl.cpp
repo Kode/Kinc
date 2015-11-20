@@ -16,7 +16,11 @@ namespace {
 			case Image::RGB24:
 				return GL_RGB;
 			case Image::Grey8:
+#ifdef OPENGLES
+				return GL_LUMINANCE;
+#else
 				return GL_RED;
+#endif
 		}
 	}
 	
@@ -32,7 +36,11 @@ namespace {
 			case Image::RGB24:
 				return GL_RGB;
 			case Image::Grey8:
+#ifdef OPENGLES
+				return GL_LUMINANCE;
+#else
 				return GL_RED;
+#endif
 		}
 	}
 

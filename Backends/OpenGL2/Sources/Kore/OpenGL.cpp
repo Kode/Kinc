@@ -246,6 +246,7 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+#ifndef OPENGLES
 	int indices[3] = { 0, 1, 2 };
 	if (programUsesTesselation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
@@ -255,6 +256,7 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
 		glCheckErrors();
 	}
+#endif
 }
 
 void Graphics::swapBuffers() {
