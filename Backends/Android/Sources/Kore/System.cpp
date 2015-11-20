@@ -779,7 +779,12 @@ void Kore::System::hideKeyboard() {
 }
 
 void Kore::System::loadURL(const char* url) {
-
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jstring jurl = env->NewStringUTF(url);
+	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "loadURL", "(Ljava/lang/String;)V"), jurl);
+	activity->vm->DetachCurrentThread();
 }
 
 int Kore::System::screenWidth() {
