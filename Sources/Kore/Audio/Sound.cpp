@@ -2,93 +2,85 @@
 #include "Sound.h"
 #include "Audio.h"
 #include <Kore/IO/FileReader.h>
+#include <Kore/Error.h>
 #include <string.h>
 
 using namespace Kore;
 
 namespace {
-	void affirm(bool) { }
-	void affirm(bool, const char*) { }
-
-	struct WaveHeaderType {
-		s8 chunkId[4];
-		u32 chunkSize;
-		s8 format[4];
-		s8 subChunkId[4];
-		u32 subChunkSize;
+	struct WaveData {
 		u16 audioFormat;
 		u16 numChannels;
 		u32 sampleRate;
 		u32 bytesPerSecond;
-		u16 blockAlign;
 		u16 bitsPerSample;
-		s8 dataChunkId[4];
 		u32 dataSize;
+		u8* data;
 	};
+
+	void checkFOURCC(u8*& data, const char* fourcc) {
+		for (int i = 0; i < 4; ++i) {
+			Kore::affirm(*data == fourcc[i]);
+			++data;
+		}
+	}
+
+	void readFOURCC(u8*& data, char* fourcc) {
+		for (int i = 0; i < 4; ++i) {
+			fourcc[i] = *data;
+			++data;
+		}
+		fourcc[4] = 0;
+	}
+
+	void readChunk(u8*& data, WaveData& wave) {
+		char fourcc[5];
+		readFOURCC(data, fourcc);
+		u32 chunksize = Reader::readU32LE(data); data += 4;
+		if (strcmp(fourcc, "fmt ") == 0) {
+			wave.audioFormat = Reader::readU16LE(data + 0);
+			wave.numChannels = Reader::readU16LE(data + 2);
+			wave.sampleRate = Reader::readU32LE(data + 4);
+			wave.bytesPerSecond = Reader::readU32LE(data + 8);
+			wave.bitsPerSample = Reader::readU16LE(data + 14);
+			data += chunksize;
+		}
+		else if (strcmp(fourcc, "data") == 0) {
+			wave.dataSize = chunksize;
+			wave.data = new u8[chunksize];
+			affirm(wave.data != nullptr);
+			memcpy(wave.data, data, chunksize);
+			data += chunksize;
+		}
+		else {
+			data += chunksize;
+		}
+	}
 }
 
 Sound::Sound(const char* filename) : myVolume(1) {
 	size_t filenameLength = strlen(filename);
-	if (filename[filenameLength - 4] != '.' || filename[filenameLength - 3] != 'w' || filename[filenameLength - 2] != 'a' || filename[filenameLength - 1] != 'v') return;
+	if (strncmp(&filename[filenameLength - 4], ".wav", 4) != 0) return;
+
 	FileReader file(filename);
 	u8* filedata = (u8*)file.readAll();
- 
-	WaveHeaderType waveFileHeader;
-	memcpy(&waveFileHeader, filedata, sizeof(waveFileHeader));
-	for (int i = 0; i < 4; ++i) {
-		waveFileHeader.chunkId[i] = Reader::readS8(filedata);
-		filedata += 1;
-	}
-	waveFileHeader.chunkSize = Reader::readU32LE(filedata);
-	filedata += 4;
-	for (int i = 0; i < 4; ++i) {
-		waveFileHeader.format[i] = Reader::readS8(filedata);
-		filedata += 1;
-	}
-	for (int i = 0; i < 4; ++i) {
-		waveFileHeader.subChunkId[i] = Reader::readS8(filedata);
-		filedata += 1;
-	}
-	waveFileHeader.subChunkSize = Reader::readU32LE(filedata);
-	filedata += 4;
-	waveFileHeader.audioFormat = Reader::readU16LE(filedata);
-	filedata += 2;
-	waveFileHeader.numChannels = Reader::readU16LE(filedata);
-	filedata += 2;
-	waveFileHeader.sampleRate = Reader::readU32LE(filedata);
-	filedata += 4;
-	waveFileHeader.bytesPerSecond = Reader::readU32LE(filedata);
-	filedata += 4;
-	waveFileHeader.blockAlign = Reader::readU16LE(filedata);
-	filedata += 2;
-	waveFileHeader.bitsPerSample = Reader::readU16LE(filedata);
-	filedata += 2;
-	for (int i = 0; i < 4; ++i) {
-		waveFileHeader.dataChunkId[i] = Reader::readS8(filedata);
-		filedata += 1;
-	}
-	waveFileHeader.dataSize = Reader::readU32LE(filedata);
-	filedata += 4;
- 
-	affirm(waveFileHeader.chunkId[0] == 'R' && waveFileHeader.chunkId[1] == 'I' && waveFileHeader.chunkId[2] == 'F' && waveFileHeader.chunkId[3] == 'F');
-	affirm(waveFileHeader.format[0] == 'W' && waveFileHeader.format[1] == 'A' && waveFileHeader.format[2] == 'V' && waveFileHeader.format[3] == 'E');
-	affirm(waveFileHeader.subChunkId[0] == 'f' && waveFileHeader.subChunkId[1] == 'm' && waveFileHeader.subChunkId[2] == 't' && waveFileHeader.subChunkId[3] == ' ');
- 
-	//affirm(waveFileHeader.audioFormat == WAVE_FORMAT_PCM); 
- 
-	affirm(waveFileHeader.dataChunkId[0] == 'd' && waveFileHeader.dataChunkId[1] == 'a' && waveFileHeader.dataChunkId[2] == 't' && waveFileHeader.dataChunkId[3] == 'a');
+	u8* data = filedata;
 
-	u8* waveData = new u8[waveFileHeader.dataSize];
-	affirm(waveData != nullptr);
-	memcpy(waveData, filedata, waveFileHeader.dataSize);
+	checkFOURCC(data, "RIFF");
+	u32 filesize = Reader::readU32LE(data); data += 4;
+	checkFOURCC(data, "WAVE");
+	WaveData wave = { 0 };
+	while (data + 8 - filedata < (spint)filesize) {
+		readChunk(data, wave);
+	}
  
 	file.close();
 
-	format.bitsPerSample = waveFileHeader.bitsPerSample;
-	format.channels = waveFileHeader.numChannels;
-	format.samplesPerSecond = waveFileHeader.sampleRate;
-	data = waveData;
-	size = waveFileHeader.dataSize;
+	format.bitsPerSample = wave.bitsPerSample;
+	format.channels = wave.numChannels;
+	format.samplesPerSecond = wave.sampleRate;
+	data = wave.data;
+	size = wave.dataSize;
 }
 
 float Sound::volume() {
