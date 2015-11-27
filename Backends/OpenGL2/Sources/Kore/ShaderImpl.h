@@ -7,6 +7,7 @@ namespace Kore {
 	class ShaderImpl {
 	public:
 		ShaderImpl(void* source, int length);
+		virtual ~ShaderImpl();
 		uint id;
 		u8* source;
 		int length;

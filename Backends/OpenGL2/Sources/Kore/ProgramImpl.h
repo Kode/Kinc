@@ -13,6 +13,7 @@ namespace Kore {
 		Shader* tesselationEvaluationShader;
 
 		ProgramImpl();
+		virtual ~ProgramImpl();
 		int findTexture(const char* name);
 		const char** textures;
 		int* textureValues;

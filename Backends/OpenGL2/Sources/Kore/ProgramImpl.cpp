@@ -25,6 +25,10 @@ Program::Program() {
 	glCheckErrors();
 }
 
+ProgramImpl::~ProgramImpl() {
+	glDeleteProgram(programId);
+}
+
 void Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
@@ -79,6 +83,7 @@ namespace {
 		glCheckErrors();
 		glShaderSource(id, 1, &cShaderSource, 0);
 		glCompileShader(id);
+		delete[] shaderSource;
 
 		int result;
 		glGetShaderiv(id, GL_COMPILE_STATUS, &result);
