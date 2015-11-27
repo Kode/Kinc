@@ -58,29 +58,36 @@ namespace {
 	}
 }
 
-Sound::Sound(const char* filename) : myVolume(1) {
+Sound::Sound(const char* filename) : myVolume(1), size(0), data(0) {
 	size_t filenameLength = strlen(filename);
 	if (strncmp(&filename[filenameLength - 4], ".wav", 4) != 0) return;
 
-	FileReader file(filename);
-	u8* filedata = (u8*)file.readAll();
-	u8* data = filedata;
-
-	checkFOURCC(data, "RIFF");
-	u32 filesize = Reader::readU32LE(data); data += 4;
-	checkFOURCC(data, "WAVE");
 	WaveData wave = { 0 };
-	while (data + 8 - filedata < (spint)filesize) {
-		readChunk(data, wave);
+	{
+		FileReader file(filename);
+		u8* filedata = (u8*)file.readAll();
+		u8* data = filedata;
+
+		checkFOURCC(data, "RIFF");
+		u32 filesize = Reader::readU32LE(data); data += 4;
+		checkFOURCC(data, "WAVE");
+		while (data + 8 - filedata < (spint)filesize) {
+			readChunk(data, wave);
+		}
+
+		file.close();
 	}
- 
-	file.close();
 
 	format.bitsPerSample = wave.bitsPerSample;
 	format.channels = wave.numChannels;
 	format.samplesPerSecond = wave.sampleRate;
 	data = wave.data;
 	size = wave.dataSize;
+}
+
+Sound::~Sound() {
+	delete[] data;
+	data = nullptr;
 }
 
 float Sound::volume() {
