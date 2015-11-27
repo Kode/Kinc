@@ -9,7 +9,7 @@ namespace Kore {
 		ShaderImpl(void* source, int length);
 		virtual ~ShaderImpl();
 		uint id;
-		u8* source;
+		char* source;
 		int length;
 		friend class Program;
 		friend class ProgramImpl;

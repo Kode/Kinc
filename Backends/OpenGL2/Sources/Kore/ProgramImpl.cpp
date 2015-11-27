@@ -74,16 +74,11 @@ namespace {
 		}
 	}
 
-	void compileShader(uint& id, u8* source, int length, ShaderType type) {
-		char* shaderSource = new char[length + 1];
-		for (int i = 0; i < length; ++i) shaderSource[i] = reinterpret_cast<char*>(source)[i];
-		shaderSource[length] = 0;
-		const char* cShaderSource = shaderSource;
+	void compileShader(uint& id, char* source, int length, ShaderType type) {
 		id = glCreateShader(toGlShader(type));
 		glCheckErrors();
-		glShaderSource(id, 1, &cShaderSource, 0);
+		glShaderSource(id, 1, (const GLchar**)&source, 0);
 		glCompileShader(id);
-		delete[] shaderSource;
 
 		int result;
 		glGetShaderiv(id, GL_COMPILE_STATUS, &result);
