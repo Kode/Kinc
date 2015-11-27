@@ -121,8 +121,10 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
 
 Image::~Image() {
 	delete[] data;
+	data = nullptr;
 }
 
 int Image::at(int x, int y) {
-	return *(int*)&((u8*)data)[width * sizeOf(format) * y + x * sizeOf(format)];
+	if (data == nullptr) return 0;
+	else return *(int*)&((u8*)data)[width * sizeOf(format) * y + x * sizeOf(format)];
 }
