@@ -805,6 +805,14 @@ const char* Kore::System::systemId() {
 	return "Android";
 }
 
+namespace {
+	const char* videoFormats[] = { "ts", nullptr };
+}
+
+const char** Kore::System::videoFormats() {
+	return ::videoFormats;
+}
+
 void Kore::System::changeResolution(int, int, bool) {
 
 }

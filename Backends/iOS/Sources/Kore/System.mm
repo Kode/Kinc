@@ -126,6 +126,14 @@ const char* System::savePath() {
 	return ::savePath;
 }
 
+namespace {
+	const char* videoFormats[] = { "mp4", nullptr };
+}
+
+const char** Kore::System::videoFormats() {
+	return ::videoFormats;
+}
+
 #include <mach/mach_time.h>
 
 double System::frequency() {

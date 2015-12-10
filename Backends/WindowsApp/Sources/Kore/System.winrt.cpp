@@ -245,6 +245,14 @@ const char* Kore::System::systemId() {
 	return "WindowsApp";
 }
 
+namespace {
+	const char* videoFormats[] = { "ogv", nullptr };
+}
+
+const char** Kore::System::videoFormats() {
+	return ::videoFormats;
+}
+
 int Kore::System::screenWidth() {
 	return renderTargetWidth;
 }

@@ -292,6 +292,14 @@ const char* Kore::System::savePath() {
 	return save;
 }
 
+namespace {
+	const char* videoFormats[] = { "ogv", nullptr };
+}
+
+const char** Kore::System::videoFormats() {
+	return ::videoFormats;
+}
+
 #include <sys/time.h>
 #include <time.h>
 

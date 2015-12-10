@@ -616,6 +616,14 @@ const char* Kore::System::savePath() {
 	return ::savePath;
 }
 
+namespace {
+	const char* videoFormats[] = { "ogv", nullptr };
+}
+
+const char** Kore::System::videoFormats() {
+	return ::videoFormats;
+}
+
 double Kore::System::frequency() {
 	ticks rate;
 	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&rate));

@@ -21,6 +21,7 @@ namespace Kore {
 		const char* systemId();
 		void setTitle(const char* title);
 		const char* savePath();
+		const char** videoFormats();
 		void showWindow();
 		void swapBuffers();
 

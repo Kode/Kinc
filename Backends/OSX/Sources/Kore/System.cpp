@@ -36,6 +36,14 @@ const char* System::systemId() {
 	return "OSX";
 }
 
+namespace {
+	const char* videoFormats[] = { "ogv", nullptr };
+}
+
+const char** Kore::System::videoFormats() {
+	return ::videoFormats;
+}
+
 void System::showWindow() {
 	
 }
