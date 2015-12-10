@@ -48,7 +48,7 @@ class ExporterMakefile extends Exporter {
 		}
 		this.p('INC=' + incline);
 
-		let libsline = '-pthread -lGL -lX11 -lasound -ldl';
+		let libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl';
 		this.p('LIB=' + libsline);
 
 		let defline = '';
@@ -62,7 +62,7 @@ class ExporterMakefile extends Exporter {
 		if (!options.debug) optimization = '-O3';
 
 		this.p(project.getName() + ': ' + ofilelist);
-		this.p('\tg++ ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
+		this.p('\tg++ -std=c++11 ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
 
 		for (let file of project.getFiles()) {
 			if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {

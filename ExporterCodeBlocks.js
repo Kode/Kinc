@@ -29,6 +29,7 @@ class ExporterCodeBlocks extends Exporter {
 		this.p("<Option type=\"1\" />", 4);
 		this.p("<Option compiler=\"gcc\" />", 4);
 		this.p("<Compiler>", 4);
+		this.p("<Add option=\"-std=c++11\" />", 5);
 		this.p("<Add option=\"-g\" />", 5);
 		this.p("</Compiler>", 4);
 		this.p("</Target>", 3);
@@ -39,6 +40,7 @@ class ExporterCodeBlocks extends Exporter {
 		this.p("<Option type=\"0\" />", 4);
 		this.p("<Option compiler=\"gcc\" />", 4);
 		this.p("<Compiler>", 4);
+		this.p("<Add option=\"-std=c++11\" />", 5);
 		this.p("<Add option=\"-O2\" />", 5);
 		this.p("</Compiler>", 4);
 		this.p("<Linker>", 4);
@@ -47,6 +49,7 @@ class ExporterCodeBlocks extends Exporter {
 		this.p("</Target>", 3);
 		this.p("</Build>", 2);
 		this.p("<Compiler>", 2);
+		this.p("<Add option=\"-std=c++11\" />", 3);
 		this.p("<Add option=\"-Wall\" />", 3);
 		for (let def of project.getDefines()) {
 			this.p("<Add option=\"-D" + def.replaceAll("\"", "\\\"") + "\" />", 3);
@@ -57,6 +60,8 @@ class ExporterCodeBlocks extends Exporter {
 		this.p("</Compiler>", 2);
 		this.p("<Linker>", 2);
 		this.p("<Add option=\"-pthread\" />", 3);
+		this.p("<Add option=\"-static-libgcc\" />", 3);
+		this.p("<Add option=\"-static-libstdc++\" />", 3);
 		this.p("<Add library=\"GL\" />", 3);
 		this.p("<Add library=\"X11\" />", 3);
 		this.p("<Add library=\"asound\" />", 3);
