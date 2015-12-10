@@ -41,8 +41,10 @@ class ExporterAndroid extends Exporter {
 			flags += '        CFlags += "-D' + def + '"\n';
 		}
 		for (let inc of project.getIncludeDirs()) {
-			flags += '        cppFlags += "-I${file("src/main/jni/' + inc.replaceAll('\\', '/') + '")}".toString()\n';
-			flags += '        CFlags += "-I${file("src/main/jni/' + inc.replaceAll('\\', '/') + '")}".toString()\n';
+			inc = inc.replaceAll('\\', '/');
+			while (inc.startsWith('../')) inc = inc.substr(3);
+			flags += '        cppFlags += "-I${file("src/main/jni/' + inc + '")}".toString()\n';
+			flags += '        CFlags += "-I${file("src/main/jni/' + inc + '")}".toString()\n';
 		}
 
 		let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), {encoding: 'utf8'});
@@ -104,7 +106,9 @@ class ExporterAndroid extends Exporter {
 		if (project.getDebugDir().length > 0) this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve(Paths.get(safename, 'app', 'src', 'main', 'assets')));
 
 		for (let file of project.getFiles()) {
-			var target = to.resolve(Paths.get(safename, 'app', 'src', 'main', 'jni')).resolve(file);
+			let localFile = file;
+			while (localFile.startsWith('../')) localFile = localFile.substr(3);
+			let target = to.resolve(Paths.get(safename, 'app', 'src', 'main', 'jni')).resolve(localFile);
 			this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
 			Files.copyIfDifferent(from.resolve(file), target, true);
 		}
