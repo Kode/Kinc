@@ -62,7 +62,7 @@ class ExporterMakefile extends Exporter {
 		if (!options.debug) optimization = '-O3';
 
 		this.p(project.getName() + ': ' + ofilelist);
-		this.p('\tg++ -std=c++11 ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
+		this.p('\tg++ -std=c++0x ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
 
 		for (let file of project.getFiles()) {
 			if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {
@@ -70,7 +70,7 @@ class ExporterMakefile extends Exporter {
 				let name = ofiles[file];
 				let realfile = to.relativize(from.resolve(file));
 				this.p(name + '.o: ' + realfile);
-				this.p('\tg++ -std=c++11 ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + name + '.o $(LIB)');
+				this.p('\tg++ -std=c++0x ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + name + '.o $(LIB)');
 			}
 		}
 
