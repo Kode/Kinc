@@ -41,7 +41,7 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection*)connection {
 	[responseData appendBytes:"\0" length:1];
-	printf("Got %s\n\n", (const char*)[responseData bytes]);
+	//printf("Got %s\n\n", (const char*)[responseData bytes]);
 	callback(0, statusCode, (const char*)[responseData bytes], data);
 }
 
@@ -83,7 +83,7 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 	}
 	
 	if (data != 0) {
-		printf("Sending %s\n\n", data);
+		//printf("Sending %s\n\n", data);
 		NSString* datastring = [NSString stringWithUTF8String:data];
 		[request setHTTPBody:[datastring dataUsingEncoding:NSUTF8StringEncoding]];
 	}
