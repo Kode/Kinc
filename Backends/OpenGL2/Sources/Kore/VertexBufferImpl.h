@@ -17,7 +17,7 @@ namespace Kore {
 		VertexStructure structure;
 //#endif
 		int instanceDataStepRate;
-		void setVertexAttributes(int offset);
+		int setVertexAttributes(int offset);
 	public:
 		static VertexBuffer* current;
 	};

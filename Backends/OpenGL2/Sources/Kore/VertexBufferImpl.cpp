@@ -32,6 +32,9 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 		case Float4VertexData:
 			myStride += 4 * 4;
 			break;
+		case Float4x4VertexData:
+			myStride += 4 * 4 * 4;
+			break;
 		}
 	}
 	this->structure = structure;
@@ -65,9 +68,9 @@ void VertexBuffer::unlock() {
 }
 
 int VertexBuffer::_set(int offset) {
-	setVertexAttributes(offset);
+	int offsetoffset = setVertexAttributes(offset);
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
-	return structure.size;
+	return offsetoffset;
 }
 
 void VertexBufferImpl::unset() {
@@ -82,16 +85,14 @@ int VertexBuffer::stride() {
 	return myStride;
 }
 
-void VertexBufferImpl::setVertexAttributes(int offset) {
+int VertexBufferImpl::setVertexAttributes(int offset) {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
 
 	int internaloffset = 0;
-	int index = 0;
-	for (; index < structure.size; ++index) {
+	int actualIndex = 0;
+	for (int index = 0; index < structure.size; ++index) {
 		VertexElement element = structure.elements[index];
-		glEnableVertexAttribArray(index + offset);
-		glCheckErrors();
 		int size;
 		switch (element.data) {
 		case ColorVertexData:
@@ -109,9 +110,38 @@ void VertexBufferImpl::setVertexAttributes(int offset) {
 		case Float4VertexData:
 			size = 4;
 			break;
+		case Float4x4VertexData:
+			size = 16;
+			break;
 		}
-		glVertexAttribPointer(index + offset, size, GL_FLOAT, false, myStride, (void*)internaloffset);
-		glCheckErrors();
+		if (size > 4) {
+			int subsize = size;
+			int addonOffset = 0;
+			while (subsize >= 0) {
+				glEnableVertexAttribArray(offset + actualIndex);
+				glCheckErrors();
+				glVertexAttribPointer(offset + actualIndex, 4, GL_FLOAT, false, myStride, (void*)(internaloffset + addonOffset));
+				glCheckErrors();
+#ifndef OPENGLES
+				glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
+				glCheckErrors();
+#endif
+				subsize -= 4;
+				addonOffset += 4 * 4;
+				++actualIndex;
+			}
+		}
+		else {
+			glEnableVertexAttribArray(offset + actualIndex);
+			glCheckErrors();
+			glVertexAttribPointer(offset + actualIndex, size, GL_FLOAT, false, myStride, (void*)internaloffset);
+			glCheckErrors();
+#ifndef OPENGLES
+			glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
+			glCheckErrors();
+#endif
+			++actualIndex;
+		}
 		switch (element.data) {
 		case ColorVertexData:
 			internaloffset += 4 * 1;
@@ -128,14 +158,14 @@ void VertexBufferImpl::setVertexAttributes(int offset) {
 		case Float4VertexData:
 			internaloffset += 4 * 4;
 			break;
+		case Float4x4VertexData:
+			internaloffset += 4 * 4 * 4;
+			break;
 		}
-#ifndef OPENGLES
-		glVertexAttribDivisor(index + offset, instanceDataStepRate);
-#endif
+	}
+	for (int index = actualIndex; index < 16; ++index) {
+		glDisableVertexAttribArray(offset + index);
 		glCheckErrors();
 	}
-	for (; index < 10; ++index) {
-		glDisableVertexAttribArray(index + offset);
-		glCheckErrors();
-	}
+	return actualIndex;
 }

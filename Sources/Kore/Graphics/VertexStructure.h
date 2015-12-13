@@ -7,6 +7,7 @@ namespace Kore {
 		Float2VertexData,
 		Float3VertexData,
 		Float4VertexData,
+		Float4x4VertexData,
 		ColorVertexData
 	};
 

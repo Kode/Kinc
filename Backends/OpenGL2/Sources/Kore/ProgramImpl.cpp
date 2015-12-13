@@ -116,7 +116,12 @@ void Program::link(VertexStructure** structures, int count) {
 			VertexElement element = structures[i1]->elements[i2];
 			glBindAttribLocation(programId, index, element.name);
 			glCheckErrors();
-			++index;
+			if (element.data == Float4x4VertexData) {
+				index += 4;
+			}
+			else {
+				++index;
+			}
 		}
 	}
 
