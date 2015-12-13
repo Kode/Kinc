@@ -15,8 +15,8 @@ namespace {
 	if (aa > 0) {
 		NSOpenGLPixelFormatAttribute attributes[] = {
 			NSOpenGLPFADoubleBuffer,
+			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
 			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
-			
 			NSOpenGLPFASupersample,
 			NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
 			NSOpenGLPFASamples, (NSOpenGLPixelFormatAttribute)aa,
@@ -27,6 +27,7 @@ namespace {
 	else {
 		NSOpenGLPixelFormatAttribute attributes[] = {
 			NSOpenGLPFADoubleBuffer,
+			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
 			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
 			(NSOpenGLPixelFormatAttribute)nil
 		};
