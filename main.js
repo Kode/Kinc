@@ -156,7 +156,7 @@ function exportKoremakeProject(from, to, platform, options) {
 	let exporter = null;
 	if (platform == Platform.iOS || platform == Platform.OSX) exporter = new ExporterXCode();
 	else if (platform == Platform.Android) exporter = new ExporterAndroid();
-	else if (platform == Platform.HTML5) exporter = new ExporterEmscripten(options.emcc);
+	else if (platform == Platform.HTML5) exporter = new ExporterEmscripten();
 	else if (platform == Platform.Linux) {
 		if (options.compile) exporter = new ExporterMakefile();
 		else exporter = new ExporterCodeBlocks();

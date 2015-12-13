@@ -7,7 +7,7 @@ const Paths = require('./Paths.js');
 const os = require('os');
 const fs = require('fs');
 
-let emmccPath = '';
+let emmccPath = 'emcc';
 let defines = '';
 let includes = '';
 let definesArray = [];
@@ -36,17 +36,8 @@ function link(files, output) {
 }
 
 class ExporterEmscripten extends Exporter {
-	constructor(emcc) {
+	constructor() {
 		super();
-		if (os.platform() === "linux") {
-			emmccPath = emcc;
-		}
-		else if (os.platform() === "win32") {
-			emmccPath = '"' + emcc + '"';
-		}
-		else {
-			emmccPath = emcc;
-		}
 	}
 
 	compile(inFilename, outFilename) {
@@ -122,7 +113,7 @@ class ExporterEmscripten extends Exporter {
 			assetline += " --preload-file " + asset;
 		}
 		this.p("kore.html:" + oline);
-		this.p("$(CC) " + oline + " -o kore.html" + assetline, 1);
+		this.p("emcc " + oline + " -o kore.html" + assetline, 1);
 		this.p();
 
 		for (let filename of project.getFiles()) {
@@ -141,7 +132,7 @@ class ExporterEmscripten extends Exporter {
 			let oname = filename.substr(0, lastpoint) + ".o";
 			oname = oname.replaceAll("../", "");
 			this.p(oname + ": ../" + filename);
-			this.p("$(CC) -c ../" + filename + " " + includes + " " + defines + " -o " + oname, 1);
+			this.p("emcc -c ../" + filename + " " + includes + " " + defines + " -o " + oname, 1);
 		}
 
 		this.closeFile();
@@ -157,7 +148,7 @@ class ExporterEmscripten extends Exporter {
 		 */
 
 
-		console.log("Compiling files...");
+		/*console.log("Compiling files...");
 		var objectFiles = [];
 		var files = project.getFiles();
 		for (let file of files) {
@@ -167,7 +158,7 @@ class ExporterEmscripten extends Exporter {
 				objectFiles.push(to.resolve(file + ".o").toString());
 			}
 		}
-		link(objectFiles, to.resolve(Paths.get("build", "Kt.js").toString()));
+		link(objectFiles, to.resolve(Paths.get("build", "Kt.js").toString()));*/
 	}
 }
 

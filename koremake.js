@@ -61,11 +61,6 @@ var options = [
 		default: VrApi.None
 	},
 	{
-		full: 'emcc',
-		value: true,
-		description: 'Location of emscripten shader compiler',
-	},
-	{
 		full: 'pch',
 		description: 'Use precompiled headers for C++ targets',
 		value: false
@@ -197,11 +192,6 @@ if (parsedOptions.graphics === GraphicsApi.OpenGL) {
 
 if (parsedOptions.run) {
 	parsedOptions.compile = true;
-}
-
-if (!parsedOptions.emcc && parsedOptions.target === Platform.HTML5) {
-	console.error("Please set the emcc path.");
-	process.exit(0);
 }
 
 if (parsedOptions.update) {
