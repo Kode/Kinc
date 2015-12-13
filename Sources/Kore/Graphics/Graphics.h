@@ -11,7 +11,7 @@
 namespace Kore {
 	class VertexBuffer : public VertexBufferImpl {
 	public:
-		VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate);
+		VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
 		virtual ~VertexBuffer();
 		float* lock();
 		float* lock(int start, int count);

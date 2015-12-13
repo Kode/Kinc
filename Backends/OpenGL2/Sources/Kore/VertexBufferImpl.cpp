@@ -12,7 +12,7 @@ VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCoun
 
 }
 
-VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate = 0) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
+VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
