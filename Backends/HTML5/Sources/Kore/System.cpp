@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
 	::argc = argc;
 	::argv = argv;
 	kore(argc, argv);
-	System::createWindow();
+	//System::createWindow();
 	//glutMainLoop();
 	emscripten_set_main_loop(drawfunc, 0, 1);
 }
