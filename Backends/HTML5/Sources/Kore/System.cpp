@@ -44,32 +44,32 @@ namespace {
 	void onKeyPressed(int key, int action) {
 		if (action == GLFW_PRESS) {
 			switch (key) {
-			case GLFW_KEY_RIGHT:
+			case 262:
 				Kore::Keyboard::the()->_keydown(Kore::Key_Right, ' ');
 				break;
-			case GLFW_KEY_LEFT:
+			case 263:
 				Kore::Keyboard::the()->_keydown(Kore::Key_Left, ' ');
 				break;
-			case GLFW_KEY_UP:
+			case 265:
 				Kore::Keyboard::the()->_keydown(Kore::Key_Up, ' ');
 				break;
-			case GLFW_KEY_DOWN:
+			case 264:
 				Kore::Keyboard::the()->_keydown(Kore::Key_Down, ' ');
 				break;
 			}
 		}
 		else {
 			switch (key) {
-			case GLFW_KEY_RIGHT:
+			case 262:
 				Kore::Keyboard::the()->_keyup(Kore::Key_Right, ' ');
 				break;
-			case GLFW_KEY_LEFT:
+			case 263:
 				Kore::Keyboard::the()->_keyup(Kore::Key_Left, ' ');
 				break;
-			case GLFW_KEY_UP:
+			case 265:
 				Kore::Keyboard::the()->_keyup(Kore::Key_Up, ' ');
 				break;
-			case GLFW_KEY_DOWN:
+			case 264:
 				Kore::Keyboard::the()->_keyup(Kore::Key_Down, ' ');
 				break;
 			}
