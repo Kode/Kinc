@@ -191,7 +191,9 @@ bool FileReader::open(const char* filename, FileType type) {
 	strcpy(filepath, filename);
 #endif
 #ifdef SYS_HTML5
-	strcpy(filepath, filename);
+	strcpy(filepath, KORE_DEBUGDIR);
+	strcat(filepath, "/");
+	strcat(filepath, filename);
 #endif
 #ifdef SYS_TIZEN
 	for (int i = 0; i < Tizen::App::App::GetInstance()->GetAppDataPath().GetLength(); ++i) {
