@@ -5,7 +5,7 @@ const Exporter = require('./Exporter.js');
 const Files = require('./Files.js');
 const Paths = require('./Paths.js');
 const os = require('os');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 let emmccPath = 'emcc';
 let defines = '';
@@ -78,21 +78,27 @@ class ExporterEmscripten extends Exporter {
 	}
 
 	exportSolution(solution, from, to, platform) {
-		var project = solution.getProjects()[0];
+		let project = solution.getProjects()[0];
 
-		var assets = [];
-		this.copyDirectory(from.resolve(project.getDebugDir()), to, assets);
-
+		let debugDirName = project.getDebugDir();
+		debugDirName = debugDirName.replace(/\\/g, '/');
+		if (debugDirName.endsWith('/')) debugDirName = debugDirName.substr(0, debugDirName.length - 1);
+		if (debugDirName.lastIndexOf('/') >= 0) debugDirName = debugDirName.substr(debugDirName.lastIndexOf('/') + 1);
+		
+		fs.copySync(from.resolve(debugDirName).toString(), to.resolve(debugDirName).toString(), { clobber: true });
+		
 		defines = "";
 		definesArray = [];
-		for (var def in project.getDefines()) {
+		for (let def in project.getDefines()) {
 			defines += "-D" + project.getDefines()[def] + " ";
 			definesArray.push("-D" + project.getDefines()[def]);
 		}
+		defines += '-D KORE_DEBUGDIR="\\"' + debugDirName + '\\""' + ' ';
+		definesArray.push('-D KORE_DEBUGDIR="\\"' + debugDirName + '\\""');
 
 		includes = "";
 		includesArray = [];
-		for (var inc in project.getIncludeDirs()) {
+		for (let inc in project.getIncludeDirs()) {
 			includes += "-I../" + from.resolve(project.getIncludeDirs()[inc]).toString() + " ";
 			includesArray.push("-I../" + from.resolve(project.getIncludeDirs()[inc]).toString());
 		}
@@ -108,12 +114,9 @@ class ExporterEmscripten extends Exporter {
 			oname = oname.replaceAll("../", "");
 			oline += " " + oname;
 		}
-		var assetline = '';
-		for (let asset of assets) {
-			assetline += " --preload-file " + asset;
-		}
-		this.p("kore.html:" + oline);
-		this.p("emcc " + oline + " -o kore.html" + assetline, 1);
+		
+		this.p('kore.html:' + oline);
+		this.p('emcc ' + oline + ' -o kore.html --preload-file ' + debugDirName, 1);
 		this.p();
 
 		for (let filename of project.getFiles()) {
