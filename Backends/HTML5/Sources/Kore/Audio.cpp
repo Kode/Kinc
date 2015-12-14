@@ -12,18 +12,14 @@ using namespace Kore;
 namespace {
 	ALCdevice* device = NULL;
 	ALCcontext* context = NULL;
-	u8* data = NULL;
 	unsigned int channels = 0;
 	unsigned int bits = 0;
 	ALenum format = 0;
 	ALuint source = 0;
 
-	//pthread_t threadid;
 	bool audioRunning = false;
-	//snd_pcm_t* playback_handle;
-	const int bufsize = 4096 * 4;
+	const int bufsize = 4096;
 	short buf[bufsize];
-	#define BUFFER_SIZE 4096 * 4
 	#define NUM_BUFFERS 3
 
 	void copySample(void* buffer) {
