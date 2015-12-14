@@ -2,6 +2,7 @@
 #include <Kore/System.h>
 #include <cstring>
 #include <Kore/Application.h>
+#include <Kore/Audio/Audio.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/ogl.h>
@@ -20,6 +21,7 @@ namespace {
 
 	void drawfunc() {
 		Kore::Application::the()->callback();
+		Kore::Audio::update();
 		//glutSwapBuffers();
 		glfwSwapBuffers();
 	}

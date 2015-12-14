@@ -1,22 +1,120 @@
 #include "pch.h"
 #include <Kore/Audio/Audio.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <emscripten.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 
 using namespace Kore;
 
+namespace {
+	ALCdevice* device = NULL;
+	ALCcontext* context = NULL;
+	u8* data = NULL;
+	unsigned int channels = 0;
+	unsigned int bits = 0;
+	ALenum format = 0;
+	ALuint source = 0;
+
+	//pthread_t threadid;
+	bool audioRunning = false;
+	//snd_pcm_t* playback_handle;
+	const int bufsize = 4096 * 4;
+	short buf[bufsize];
+	#define BUFFER_SIZE 4096 * 4
+	#define NUM_BUFFERS 3
+
+	void copySample(void* buffer) {
+		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
+		Audio::buffer.readLocation += 4;
+		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		*(s16*)buffer = static_cast<s16>(value * 32767);
+	}
+
+	int playback_callback(int samples) {
+		int err = 0;
+		/*if (Kore::Audio::audioCallback != nullptr) {
+			Kore::Audio::audioCallback(nframes * 2);
+			int ni = 0;
+			while (ni < nframes) {
+				int i = 0;
+				for (; ni < nframes && i < 4096 * 2; ++i, ++ni) {
+					copySample(&buf[i * 2]);
+					copySample(&buf[i * 2 + 1]);
+				}
+				int err2;
+				if ((err2 = snd_pcm_writei(playback_handle, buf, i)) < 0) {
+					fprintf (stderr, "write failed (%s)\n", snd_strerror (err2));
+				}
+				err += err2;
+			}
+		}*/
+		return err;
+	}
+
+	void streamBuffer(ALuint buffer) {
+		if (Kore::Audio::audioCallback != nullptr) {
+			Kore::Audio::audioCallback(bufsize * 2);
+			for (int i = 0; i < bufsize; ++i) {
+				copySample(&buf[i]);
+			}
+		}
+
+		alBufferData(buffer, format, buf, bufsize, 44100);
+		//alBufferData( BufferID, Format, buffers[CurrentBuffer].data(), buffers[CurrentBuffer].size(), SamplesPerSec );
+	}
+
+	void iter() {
+		ALint processed;
+		alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
+
+		if (processed <= 0) return;
+		while (processed--) {
+			ALuint buffer;
+			alSourceUnqueueBuffers(source, 1, &buffer);
+            streamBuffer(buffer);
+            alSourceQueueBuffers(source, 1, &buffer);
+        }
+		alGetSourcei(source, AL_SOURCE_STATE, &processed);
+		if (processed != AL_PLAYING) alSourcePlay(source);
+	}
+}
+
 void Audio::init() {
+	srand(1);
+
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
 	buffer.data = new u8[buffer.dataSize];
 
+	audioRunning = true;
+	//pthread_create(&threadid, nullptr, &doAudio, nullptr);
+	
+	device = alcOpenDevice(NULL);
+	context = alcCreateContext(device, NULL);
+	alcMakeContextCurrent(context);
+	format = AL_FORMAT_STEREO16;
 
+	ALuint buffers[NUM_BUFFERS];
+	alGenBuffers(NUM_BUFFERS, buffers);
+	alGenSources(1, &source);
+
+	streamBuffer(buffers[0]);
+	streamBuffer(buffers[1]);
+	streamBuffer(buffers[2]);
+
+	alSourceQueueBuffers(source, NUM_BUFFERS, buffers);
+
+	alSourcePlay(source);
 }
 
 void Audio::update() {
-
+	iter();
 }
 
 void Audio::shutdown() {
-
+	audioRunning = false;
 }
-
