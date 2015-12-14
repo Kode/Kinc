@@ -33,40 +33,20 @@ namespace {
 		*(s16*)buffer = static_cast<s16>(value * 32767);
 	}
 
-	int playback_callback(int samples) {
-		int err = 0;
-		/*if (Kore::Audio::audioCallback != nullptr) {
-			Kore::Audio::audioCallback(nframes * 2);
-			int ni = 0;
-			while (ni < nframes) {
-				int i = 0;
-				for (; ni < nframes && i < 4096 * 2; ++i, ++ni) {
-					copySample(&buf[i * 2]);
-					copySample(&buf[i * 2 + 1]);
-				}
-				int err2;
-				if ((err2 = snd_pcm_writei(playback_handle, buf, i)) < 0) {
-					fprintf (stderr, "write failed (%s)\n", snd_strerror (err2));
-				}
-				err += err2;
-			}
-		}*/
-		return err;
-	}
-
 	void streamBuffer(ALuint buffer) {
 		if (Kore::Audio::audioCallback != nullptr) {
-			Kore::Audio::audioCallback(bufsize * 2);
+			Kore::Audio::audioCallback(bufsize);
 			for (int i = 0; i < bufsize; ++i) {
 				copySample(&buf[i]);
 			}
 		}
 
-		alBufferData(buffer, format, buf, bufsize, 44100);
-		//alBufferData( BufferID, Format, buffers[CurrentBuffer].data(), buffers[CurrentBuffer].size(), SamplesPerSec );
+		alBufferData(buffer, format, buf, bufsize * 2, 44100);
 	}
 
 	void iter() {
+		if (!audioRunning) return;
+
 		ALint processed;
 		alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 
@@ -77,21 +57,20 @@ namespace {
             streamBuffer(buffer);
             alSourceQueueBuffers(source, 1, &buffer);
         }
-		alGetSourcei(source, AL_SOURCE_STATE, &processed);
-		if (processed != AL_PLAYING) alSourcePlay(source);
+
+        ALint playing;
+		alGetSourcei(source, AL_SOURCE_STATE, &playing);
+		if (playing != AL_PLAYING) alSourcePlay(source);
 	}
 }
 
 void Audio::init() {
-	srand(1);
-
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
 	buffer.data = new u8[buffer.dataSize];
 
 	audioRunning = true;
-	//pthread_create(&threadid, nullptr, &doAudio, nullptr);
 	
 	device = alcOpenDevice(NULL);
 	context = alcCreateContext(device, NULL);
