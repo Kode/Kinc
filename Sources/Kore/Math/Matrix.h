@@ -32,7 +32,7 @@ namespace Kore {
 			unsigned row;
 		public:
 			RowSetter(Matrix<X, Y, T>* m, unsigned row) : m(m), row(row) {}
-			void operator =(Vector<T, X> const & v) { 
+			void operator =(Vector<T, X> const & v) {
 				for (unsigned x = 0; x < X; ++x) m->Set(row, x, v[x]);
 			}
 			inline T& operator[](unsigned col) { return m->matrix[col][row]; }
@@ -50,7 +50,7 @@ namespace Kore {
 			float tx = -(right + left) / (right - left);
 			float ty = -(top + bottom) / (top - bottom);
 			float tz = -(zf + zn) / (zf - zn);
-			
+
 			myType m = Identity();
 			m.Set(0, 0, 2 / (right - left)); m.Set(1, 0, 0); m.Set(2, 0, 0); m.Set(3, 0, 0);
 			m.Set(0, 1, 0); m.Set(1, 1, 2 / (top - bottom)); m.Set(2, 1, 0); m.Set(3, 1, 0);
@@ -221,7 +221,7 @@ namespace Kore {
 			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) m[x][y] = matrix[x][y] - aMatrix.matrix[x][y];
 			return m;
 		}
-		
+
 		myType operator *(T t) {
 			myType m;
 			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) m[x][y] = matrix[x][y] * t;
@@ -233,16 +233,16 @@ namespace Kore {
 			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) transpose.matrix[y][x] = matrix[x][y];
 			return transpose;
 		}
-		
+
 		Matrix<Y, X, T> Transpose3x3() const {
 			//StaticAssert(X >= 3 && Y >= 3);
 			Matrix<Y, X, T> transpose;
 			for (unsigned x = 0; x < 3; ++x) for (unsigned y = 0; y < 3; ++y) transpose.matrix[y][x] = matrix[x][y];
-			for (unsigned x = 3; x < X; ++x) transpose.matrix[Y][x] = matrix[x][Y];
-			for (unsigned y = 3; y < Y - 1; ++y) transpose.matrix[y][X] = matrix[X][y];
+			for (unsigned x = 3; x < X; ++x) transpose.matrix[Y - 1][x] = matrix[x][Y - 1];
+			for (unsigned y = 3; y < Y - 1; ++y) transpose.matrix[y][X - 1] = matrix[X - 1][y];
 			return transpose;
 		}
-		
+
 		T Trace() const {
 			//StaticAssert(X == Y);
 			T t = 0;
@@ -264,7 +264,7 @@ namespace Kore {
 		Matrix<S, S, T>& operator*=(const Matrix<S, S, T>& m) {
 			return *this = *this * m;
 		}
-		
+
 		Matrix<3, 3, T>& operator*=(const Matrix<3, 3, T>& m) {
 			for (unsigned y = 0; y < Y; ++y) {
 				float a0 = matrix[0][y];
@@ -276,7 +276,7 @@ namespace Kore {
 			}
 			return *this;
 		}
-		
+
 		Matrix<4, 4, T>& operator*=(const Matrix<4, 4, T>& m) {
 			for (unsigned y = 0; y < Y; ++y) {
 				float a0 = matrix[0][y];
