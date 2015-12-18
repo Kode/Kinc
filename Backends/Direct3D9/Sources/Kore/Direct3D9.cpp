@@ -576,6 +576,12 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	if (location.shaderType == -1) return;
 	if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, values, count / 4);
 	else device->SetPixelShaderConstantF(location.reg.regindex, values, count / 4);
+
+	int registerCount = (count + 3) / 4;
+	if (registerCount > count / 4) {
+		if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex + count / 4, &values[count / 4 * 4], 1);
+		else device->SetPixelShaderConstantF(location.reg.regindex + count / 4, &values[count / 4 * 4], 1);
+	}
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
