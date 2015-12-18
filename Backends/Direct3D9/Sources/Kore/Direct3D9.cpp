@@ -618,7 +618,7 @@ bool Graphics::nonPow2TexturesSupported() {
 
 void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
 	for (int i = 0; i < count; ++i) {
-		buffers[0]->_set(i);
+		buffers[i]->_set(i);
 	}
 }
 
