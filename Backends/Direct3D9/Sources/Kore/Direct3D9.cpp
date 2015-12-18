@@ -323,10 +323,12 @@ void Graphics::drawIndexedVertices(int start, int count) {
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+	affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), 0, IndexBuffer::_current->count() / 3 * instanceCount);
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+	affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3 * instanceCount);
 }
 

@@ -65,9 +65,10 @@ void VertexBuffer::unlock() {
 }
 
 int VertexBuffer::_set(int offset) {
-	if (offset == 0) _current = this;
+	_offset = offset;
 	if (instanceDataStepRate == 0) {
-		affirm(device->SetStreamSourceFreq(offset, (D3DSTREAMSOURCE_INDEXEDDATA | 3)));
+		_current = this;
+		affirm(device->SetStreamSourceFreq(offset, (D3DSTREAMSOURCE_INDEXEDDATA)));
 	}
 	else {
 		affirm(device->SetStreamSourceFreq(offset, (D3DSTREAMSOURCE_INSTANCEDATA | instanceDataStepRate)));

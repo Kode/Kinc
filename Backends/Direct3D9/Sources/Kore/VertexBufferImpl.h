@@ -27,5 +27,6 @@ namespace Kore {
 		void unset();
 	public:
 		static VertexBuffer* _current;
+		int _offset;
 	};
 }
