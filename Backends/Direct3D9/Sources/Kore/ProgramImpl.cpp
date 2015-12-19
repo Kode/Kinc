@@ -40,7 +40,14 @@ void Program::link(VertexStructure** structures, int count) {
 	}
 	int all = 0;
 	for (int stream = 0; stream < count; ++stream) {
-		all += structures[stream]->size;
+		for (int index = 0; index < structures[stream]->size; ++index) {
+			if (structures[stream]->elements[index].data == Float4x4VertexData) {
+				all += 4;
+			}
+			else {
+				all += 1;
+			}
+		}
 	}
 	
 	D3DVERTEXELEMENT9* elements = (D3DVERTEXELEMENT9*)alloca(sizeof(D3DVERTEXELEMENT9) * (all + 1));
@@ -48,8 +55,10 @@ void Program::link(VertexStructure** structures, int count) {
 	for (int stream = 0; stream < count; ++stream) {
 		int stride = 0;
 		for (int index = 0; index < structures[stream]->size; ++index) {
-			elements[i].Stream = stream;
-			elements[i].Offset = stride;
+			if (structures[stream]->elements[index].data != Float4x4VertexData) {
+				elements[i].Stream = stream;
+				elements[i].Offset = stride;
+			}
 			switch (structures[stream]->elements[index].data) {
 			case Float1VertexData:
 				elements[i].Type = D3DDECLTYPE_FLOAT1;
@@ -71,11 +80,31 @@ void Program::link(VertexStructure** structures, int count) {
 				elements[i].Type = D3DDECLTYPE_D3DCOLOR;
 				stride += 4;
 				break;
+			case Float4x4VertexData:
+				for (int i2 = 0; i2 < 4; ++i2) {
+					elements[i].Stream = stream;
+					elements[i].Offset = stride;
+					elements[i].Type = D3DDECLTYPE_FLOAT4;
+					elements[i].Method = D3DDECLMETHOD_DEFAULT;
+					elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
+					char name[101];
+					strcpy(name, structures[stream]->elements[index].name);
+					strcat(name, "_");
+					size_t length = strlen(name);
+					_itoa(i2, &name[length], 10);
+					name[length + 1] = 0;
+					elements[i].UsageIndex = vertexShader->attributes[name];
+					stride += 4 * 4;
+					++i;
+				}
+				break;
 			}
-			elements[i].Method = D3DDECLMETHOD_DEFAULT;
-			elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
-			elements[i].UsageIndex = vertexShader->attributes[structures[stream]->elements[index].name];
-			++i;
+			if (structures[stream]->elements[index].data != Float4x4VertexData) {
+				elements[i].Method = D3DDECLMETHOD_DEFAULT;
+				elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
+				elements[i].UsageIndex = vertexShader->attributes[structures[stream]->elements[index].name];
+				++i;
+			}
 		}
 	}
 	elements[all].Stream = 0xff;
