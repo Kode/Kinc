@@ -6,10 +6,6 @@
 	path = Tools/kraffiti
 	url = ../kraffiti_bin
 	branch = master
-[submodule "Tools/kfx"]
-	path = Tools/kfx
-	url = ../kfx_bin
-	branch = master
 [submodule "Tools/krafix"]
 	path = Tools/krafix
 	url = ../krafix_bin
