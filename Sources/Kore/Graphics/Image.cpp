@@ -109,6 +109,28 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
 			data[i] = all[16 + i];
 		}
 	}
+	else if (endsWith(filename, ".png")) {
+		int size = file.size();
+		int comp;
+		compressed = false;
+		internalFormat = 0;
+		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		for (int y = 0; y < height; ++y) {
+			for (int x = 0; x < width; ++x) {
+				float r = data[y * width * 4 + x * 4 + 0] / 255.0f;
+				float g = data[y * width * 4 + x * 4 + 1] / 255.0f;
+				float b = data[y * width * 4 + x * 4 + 2] / 255.0f;
+				float a = data[y * width * 4 + x * 4 + 3] / 255.0f;
+				r *= a;
+				g *= a;
+				b *= a;
+				data[y * width * 4 + x * 4 + 0] = (u8)round(r * 255.0f);
+				data[y * width * 4 + x * 4 + 1] = (u8)round(g * 255.0f);
+				data[y * width * 4 + x * 4 + 2] = (u8)round(b * 255.0f);
+			}
+		}
+		dataSize = width * height * 4;
+	}
 	else {
 		int size = file.size();
 		int comp;
