@@ -341,11 +341,12 @@ namespace {
 - (void)insertText:(NSString*)text {
 	if ([text length] == 1) {
 		unichar ch = [text characterAtIndex: [text length] - 1];
+		if (ch == 8212) ch = '_';
 		if (ch == L'\n') {
 			Kore::Keyboard::the()->_keydown(Kore::Key_Return, '\n');
 			Kore::Keyboard::the()->_keyup(Kore::Key_Return, '\n');
 		}
-		if (ch >= L'a' && ch <= L'z') {
+		else if (ch >= L'a' && ch <= L'z') {
 			if (shiftDown) {
 				Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
 				shiftDown = false;
