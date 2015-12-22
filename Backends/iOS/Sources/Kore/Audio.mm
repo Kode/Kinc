@@ -1,5 +1,7 @@
 #include "pch.h"
 #include <Kore/Audio/Audio.h>
+#include <Kore/Math/Core.h>
+#include "VideoSoundStream.h"
 #import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 #include <stdio.h>
@@ -7,6 +9,14 @@
 using namespace Kore;
 
 #define kOutputBus 0
+
+namespace {
+	VideoSoundStream* video = nullptr;
+}
+
+void iosPlayVideoSoundStream(VideoSoundStream* video) {
+	::video = video;
+}
 
 namespace {
 	const int samplesPerSecond = 44100;
@@ -28,6 +38,13 @@ namespace {
 		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
 		Audio::buffer.readLocation += 4;
 		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		
+		if (video != nullptr) {
+			value += video->nextSample();
+			value = Kore::max(Kore::min(value, 1.0f), -1.0f);
+			if (video->ended()) video = nullptr;
+		}
+		
 		if (isFloat) *(float*)buffer = value;
 		else *(s16*)buffer = static_cast<s16>(value * 32767);
 	}
