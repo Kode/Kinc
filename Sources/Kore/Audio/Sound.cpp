@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Sound.h"
 #include "Audio.h"
+#include "stb_vorbis.h"
 #include <Kore/IO/FileReader.h>
 #include <Kore/Error.h>
 #include <string.h>
@@ -60,29 +61,37 @@ namespace {
 
 Sound::Sound(const char* filename) : myVolume(1), size(0), data(0) {
 	size_t filenameLength = strlen(filename);
-	if (strncmp(&filename[filenameLength - 4], ".wav", 4) != 0) return;
-
-	WaveData wave = { 0 };
-	{
+	
+	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
 		FileReader file(filename);
 		u8* filedata = (u8*)file.readAll();
-		u8* data = filedata;
+		size = 4 * stb_vorbis_decode_memory(filedata, file.size(), &format.channels, (short**)&data);
+		format.bitsPerSample = 16;
+		format.samplesPerSecond = 44100;
+	}
+	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
+		WaveData wave = { 0 };
+		{
+			FileReader file(filename);
+			u8* filedata = (u8*)file.readAll();
+			u8* data = filedata;
 
-		checkFOURCC(data, "RIFF");
-		u32 filesize = Reader::readU32LE(data); data += 4;
-		checkFOURCC(data, "WAVE");
-		while (data + 8 - filedata < (spint)filesize) {
-			readChunk(data, wave);
+			checkFOURCC(data, "RIFF");
+			u32 filesize = Reader::readU32LE(data); data += 4;
+			checkFOURCC(data, "WAVE");
+			while (data + 8 - filedata < (spint)filesize) {
+				readChunk(data, wave);
+			}
+
+			file.close();
 		}
 
-		file.close();
+		format.bitsPerSample = wave.bitsPerSample;
+		format.channels = wave.numChannels;
+		format.samplesPerSecond = wave.sampleRate;
+		data = wave.data;
+		size = wave.dataSize;
 	}
-
-	format.bitsPerSample = wave.bitsPerSample;
-	format.channels = wave.numChannels;
-	format.samplesPerSecond = wave.sampleRate;
-	data = wave.data;
-	size = wave.dataSize;
 }
 
 Sound::~Sound() {
