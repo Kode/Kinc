@@ -18,6 +18,10 @@ void iosPlayVideoSoundStream(VideoSoundStream* video) {
 	::video = video;
 }
 
+void iosStopVideoSoundStream() {
+    video = nullptr;
+}
+
 namespace {
 	const int samplesPerSecond = 44100;
 	
