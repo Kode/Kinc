@@ -9,8 +9,9 @@ const exec = require('./exec.js');
 
 function run(from, to, width, height, format, background, callback) {
 	const exe = 'kraffiti' + exec.sys();
-	
-	let params = ['from=' + from, 'to=' + to, 'width=' + width, 'height=' + height, 'format=' + format, 'keepaspect'];
+	let params = ['from=' + from, 'to=' + to, 'format=' + format, 'keepaspect'];
+	if (width > 0) params.push('width=' + width);
+	if (height > 0) params.push('height=' + height);
 	if (background !== undefined) params.push('background=' + background.toString(16));
 	let child = cp.spawn(path.join(__dirname, '..', 'kraffiti', exe), params);
 	
