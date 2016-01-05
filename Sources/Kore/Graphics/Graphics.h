@@ -92,7 +92,8 @@ namespace Kore {
 	enum RenderTargetFormat {
 		Target32Bit,
 		Target64BitFloat,
-		Target32BitRedFloat
+		Target32BitRedFloat,
+		Target32BitFloat
 	};
 
 	enum TextureOperation {

@@ -42,7 +42,15 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glCheckErrors();
 	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	switch (format) {
+	case Target32BitFloat:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
+		break;
+	case Target32Bit:
+	default:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	}
+	
 	glCheckErrors();
 
 	glGenFramebuffers(1, &_framebuffer);
