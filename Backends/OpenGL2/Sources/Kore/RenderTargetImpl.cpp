@@ -43,7 +43,7 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	glCheckErrors();
 	
 	switch (format) {
-	case Target32BitFloat:
+	case Target128BitFloat:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 		break;
 	case Target32Bit:

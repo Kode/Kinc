@@ -93,7 +93,7 @@ namespace Kore {
 		Target32Bit,
 		Target64BitFloat,
 		Target32BitRedFloat,
-		Target32BitFloat
+		Target128BitFloat
 	};
 
 	enum TextureOperation {
