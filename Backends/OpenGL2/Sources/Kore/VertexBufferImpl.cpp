@@ -117,7 +117,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		if (size > 4) {
 			int subsize = size;
 			int addonOffset = 0;
-			while (subsize >= 0) {
+			while (subsize > 0) {
 				glEnableVertexAttribArray(offset + actualIndex);
 				glCheckErrors();
 				glVertexAttribPointer(offset + actualIndex, 4, GL_FLOAT, false, myStride, (void*)(internaloffset + addonOffset));
