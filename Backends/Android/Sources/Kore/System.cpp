@@ -389,34 +389,43 @@ namespace {
 
 	int32_t input(android_app* app, AInputEvent* event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-			size_t count = AMotionEvent_getPointerCount(event);
-			for (size_t i = 0; i < count; ++i) {
-				int id = AMotionEvent_getPointerId(event, i);
-				int action = AMotionEvent_getAction(event);
-				float x = AMotionEvent_getX(event, i);
-				float y = AMotionEvent_getY(event, i);
-
-				switch (action & AMOTION_EVENT_ACTION_MASK) {
-					case AMOTION_EVENT_ACTION_DOWN: //DOWN
-						if (id == 0) {
-							Kore::Mouse::the()->_press(0, x, y);
+			int action = AMotionEvent_getAction(event);
+			int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+			int id = AMotionEvent_getPointerId(event, index);
+			float x = AMotionEvent_getX(event, index);
+			float y = AMotionEvent_getY(event, index);
+			switch (action & AMOTION_EVENT_ACTION_MASK) {
+				case AMOTION_EVENT_ACTION_DOWN:
+				case AMOTION_EVENT_ACTION_POINTER_DOWN:
+					if (id == 0) {
+						Kore::Mouse::the()->_press(0, x, y);
+					}
+					Kore::Surface::the()->_touchStart(id, x, y);
+					// __android_log_print(ANDROID_LOG_INFO, "GAME", "#DOWN %d %d %d %f %f", action, index, id, x, y);
+					break;
+				case AMOTION_EVENT_ACTION_MOVE: {
+						size_t count = AMotionEvent_getPointerCount(event);
+						for(int i = 0; i < count; ++i) {
+							id = AMotionEvent_getPointerId(event, i);
+							x = AMotionEvent_getX(event, i);
+							y = AMotionEvent_getY(event, i);
+							if (id == 0) {
+								Kore::Mouse::the()->_move(x, y);
+							}
+							Kore::Surface::the()->_move(id, x, y);
+							// __android_log_print(ANDROID_LOG_INFO, "GAME", "#MOVE %d %d %d %f %f", action, index, id, x, y);
 						}
-						Kore::Surface::the()->_touchStart(id, x, y);
-						break;
-					case AMOTION_EVENT_ACTION_MOVE: //MOVE
-						if (id == 0) {
-							Kore::Mouse::the()->_move(x, y);
-						}
-						Kore::Surface::the()->_move(id, x, y);
-						break;
-					case AMOTION_EVENT_ACTION_UP: //UP
-					case AMOTION_EVENT_ACTION_CANCEL:
-						if (id == 0) {
-							Kore::Mouse::the()->_release(0, x, y);
-						}
-						Kore::Surface::the()->_touchEnd(id, x, y);
-						break;
-				}
+					}
+					break;
+				case AMOTION_EVENT_ACTION_UP:
+				case AMOTION_EVENT_ACTION_CANCEL:
+				case AMOTION_EVENT_ACTION_POINTER_UP:
+					if (id == 0) {
+						Kore::Mouse::the()->_release(0, x, y);
+					}
+					Kore::Surface::the()->_touchEnd(id, x, y);
+					// __android_log_print(ANDROID_LOG_INFO, "GAME", "#UP %d %d %d %f %f", action, index, id, x, y);
+					break;
 			}
 			return 1;
 		}
