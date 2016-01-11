@@ -11,7 +11,6 @@
 #include <GL/glx.h>
 #include <GL/gl.h>
 
-#include <X11/X.h>
 #include <X11/keysym.h>
 
 //apt-get install mesa-common-dev
@@ -227,6 +226,10 @@ bool System::handleMessages() {
 
 const char* Kore::System::systemId() {
     return "Linux";
+}
+
+Window Kore::System::getWindow() {
+    return win;
 }
 
 void Kore::System::swapBuffers() {

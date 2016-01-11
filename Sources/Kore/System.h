@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Kore/Math/Vector.h>
+#include <X11/X.h>
 
 namespace Kore {
 	namespace System {
@@ -24,6 +25,7 @@ namespace Kore {
 		const char** videoFormats();
 		void showWindow();
 		void swapBuffers();
+        Window getWindow();
 
 		typedef unsigned long long ticks;
 

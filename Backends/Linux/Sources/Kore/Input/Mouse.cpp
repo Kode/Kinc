@@ -1,6 +1,7 @@
 #include "../pch.h"
 #include <Kore/Input/Mouse.h>
 #include <Kore/Log.h>
+#include <Kore/System.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,39 +31,32 @@ void Mouse::show(bool truth){
 
 void Mouse::setPosition(int x, int y){
 
-    log(Info, "setPosition");
-    /*
 	Display *dpy;
-    Window root_window;
-
+    Window win;
+    /* Open a connection with X11 server and get the root window */
     dpy = XOpenDisplay(0);
-    root_window = XRootWindow(dpy, 0);
-    XSelectInput(dpy, root_window, KeyReleaseMask);
-    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, 100, 100);
-    XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position. Thanks to Achernar.*/
+    win = System::getWindow();
+    /* Set the pointer position */
+    XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
+    XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position.
 }
 
 void Mouse::getPosition(int& x, int& y){
 	Display *dpy;
+    Window win; /* Window used by the application */
     Window inwin;      /* root window the pointer is in */
     Window inchildwin; /* child win the pointer is in */
     int rootx, rooty; /* relative to the "root" window; */
     Atom atom_type_prop;
-    int actual_format;   /* should be 32 after the call */
-    unsigned int mask;   /* status of the buttons */
-    unsigned long n_items, bytes_after_ret;
-    Window *props;
+    unsigned int mask;
 
-    /* default DISPLAY */
+    /* Open a connection with X11 server and get the root window */
     dpy = XOpenDisplay(NULL);
+    win = System::getWindow();
 
-    (void)XGetWindowProperty(dpy, DefaultRootWindow(dpy),
-               XInternAtom(dpy, "_NET_ACTIVE_WINDOW", True),
-               0, 1, False, AnyPropertyType,
-               &atom_type_prop, &actual_format,
-               &n_items, &bytes_after_ret, (unsigned char**)&props);
-
-    XQueryPointer(dpy, props[0], &inwin,  &inchildwin,
+    XQueryPointer(dpy, win, &inwin,  &inchildwin,
         &rootx, &rooty, &x, &y, &mask);
-    int i = 0;
+
+    // Close the opened connection
+    XCloseDisplay(dpy);
 }
