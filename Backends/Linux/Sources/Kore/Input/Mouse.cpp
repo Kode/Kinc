@@ -15,12 +15,41 @@
 using namespace Kore;
 
 void Mouse::_lock(bool truth){
-	//TODO
+    show(!truth);
+    if (truth) {
+        int width = System::screenWidth(),
+            height = System::screenHeight(),
+            x,y, newX, newY;
+        getPosition(x, y);
+
+        // Guess the new position of X and Y
+        newX = x;
+        newY = y;
+
+        // Correct the position of the X coordinate
+        // if the mouse is out the window
+        if (x < 0) {
+            newX -= x;
+        } else if (x > width) {
+            newX -= x - width;
+        }
+
+        // Correct the position of the Y coordinate
+        // if the mouse is out the window
+        if (y < 0) {
+            newY -= y;
+        } else if (y > height){
+            newY -= y - height;
+        }
+
+        // Force the mouse to stay inside the window
+        setPosition(newX, newY);
+    }
 }
 
 
 bool Mouse::canLock(){
-	return true; //FOR NOW
+	return true;
 }
 
 
@@ -33,12 +62,15 @@ void Mouse::setPosition(int x, int y){
 
 	Display *dpy;
     Window win;
+
     /* Open a connection with X11 server and get the root window */
     dpy = XOpenDisplay(0);
     win = System::getWindow();
     /* Set the pointer position */
     XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
     XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position.
+    // Close the opened connection
+    XCloseDisplay(dpy);
 }
 
 void Mouse::getPosition(int& x, int& y){

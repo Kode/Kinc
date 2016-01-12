@@ -81,12 +81,11 @@ bool Mouse::isLocked(){
 }
 
 void Mouse::lock(){
-	/*if (!canLock()){
+	if (!canLock()){
 		return;
 	}
 	locked = true;
 	_lock(true);
-*/ // comment just for dev
 	getPosition(lockX, lockY);
 	centerX = Application::the()->width() / 2;
 	centerY = Application::the()->height() / 2;
