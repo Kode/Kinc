@@ -2,7 +2,7 @@
 #include "Mouse.h"
 #include <Kore/Application.h>
 #include <Kore/System.h>
-
+#include <Kore/Log.h>
 
 using namespace Kore;
 
@@ -14,7 +14,7 @@ Mouse* Mouse::the() {
 	return &mouse;
 }
 
-Mouse::Mouse() 
+Mouse::Mouse()
 : lastX(0)
 , lastY(0)
 , lockX(0)
@@ -41,7 +41,7 @@ void Mouse::_move(int x, int y) {
 		movementY = y - lastY;
 	}
 	moved = true;
-	
+
 	lastX = x;
 	lastY = y;
 	if (Move != nullptr && (movementX != 0 || movementY != 0)) {
@@ -76,6 +76,7 @@ void Mouse::_activated(bool truth){
 
 
 bool Mouse::isLocked(){
+    log(Info, "mouse locked");
 	return locked;
 }
 
@@ -86,7 +87,7 @@ void Mouse::lock(){
 	locked = true;
 	_lock(true);
 	getPosition(lockX, lockY);
-	centerX = Application::the()->width() / 2; 
+	centerX = Application::the()->width() / 2;
 	centerY = Application::the()->height() / 2;
 	setPosition(centerX, centerY);
 }
@@ -98,5 +99,5 @@ void Mouse::unlock(){
 	moved = false;
 	locked = false;
 	_lock(false);
-	setPosition(lockX, lockY); 
+	setPosition(lockX, lockY);
 }
