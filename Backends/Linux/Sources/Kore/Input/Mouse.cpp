@@ -55,7 +55,6 @@ bool Mouse::canLock(){
 
 void Mouse::show(bool truth){
 	//TODO
-    log(Info, "show called");
 }
 
 void Mouse::setPosition(int x, int y){
@@ -79,7 +78,6 @@ void Mouse::getPosition(int& x, int& y){
     Window inwin;      /* root window the pointer is in */
     Window inchildwin; /* child win the pointer is in */
     int rootx, rooty; /* relative to the "root" window; */
-    Atom atom_type_prop;
     unsigned int mask;
 
     /* Open a connection with X11 server and get the root window */
