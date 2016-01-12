@@ -3,9 +3,6 @@
 #include <Kore/Log.h>
 #include <Kore/System.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <GL/glx.h>
 #include <GL/gl.h>
 
