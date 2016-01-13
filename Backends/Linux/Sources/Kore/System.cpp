@@ -228,8 +228,8 @@ const char* Kore::System::systemId() {
     return "Linux";
 }
 
-Window Kore::System::getWindow() {
-    return win;
+void* Kore::System::windowHandle() {
+    return (void*)win;
 }
 
 void Kore::System::swapBuffers() {
