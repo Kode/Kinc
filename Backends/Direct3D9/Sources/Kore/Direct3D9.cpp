@@ -576,13 +576,16 @@ void Graphics::setFloat4(ConstantLocation position, float value1, float value2, 
 
 void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	if (location.shaderType == -1) return;
-	if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, values, count / 4);
-	else device->SetPixelShaderConstantF(location.reg.regindex, values, count / 4);
-
-	int registerCount = (count + 3) / 4;
-	if (registerCount > count / 4) {
-		if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex + count / 4, &values[count / 4 * 4], 1);
-		else device->SetPixelShaderConstantF(location.reg.regindex + count / 4, &values[count / 4 * 4], 1);
+	int registerCount = (count + 3) / 4; // round up
+	if (registerCount == count / 4) { // round down
+		if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, values, registerCount);
+		else device->SetPixelShaderConstantF(location.reg.regindex, values, registerCount);
+	}
+	else {
+		float* data = (float*)alloca(registerCount * 4 * sizeof(float));
+		memcpy(data, values, count * sizeof(float));
+		if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, data, registerCount);
+		else device->SetPixelShaderConstantF(location.reg.regindex, data, registerCount);
 	}
 }
 
