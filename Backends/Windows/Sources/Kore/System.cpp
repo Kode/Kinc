@@ -310,7 +310,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 namespace {
-	float axes[12 * 4];
+	float axes[12 * 6];
 	float buttons[12 * 16];
 
 	typedef DWORD (WINAPI *XInputGetStateType)(DWORD dwUserIndex, XINPUT_STATE* pState);
@@ -349,15 +349,17 @@ bool Kore::System::handleMessages() {
 				Kore::Gamepad::get(i)->vendor = "Microsoft";
 				Kore::Gamepad::get(i)->productName = "Xbox 360 Controller";
 
-				float newaxes[4];
+				float newaxes[6];
 				newaxes[0] = state.Gamepad.sThumbLX / 32768.0f;
 				newaxes[1] = state.Gamepad.sThumbLY / 32768.0f;
 				newaxes[2] = state.Gamepad.sThumbRX / 32768.0f;
 				newaxes[3] = state.Gamepad.sThumbRY / 32768.0f;
-				for (int i2 = 0; i2 < 4; ++i2) {
-					if (axes[i * 4 + i2] != newaxes[i2]) {
+				newaxes[4] = state.Gamepad.bLeftTrigger / 255.0f;
+				newaxes[5] = state.Gamepad.bRightTrigger / 255.0f;
+				for (int i2 = 0; i2 < 6; ++i2) {
+					if (axes[i * 6 + i2] != newaxes[i2]) {
 						if (Kore::Gamepad::get(i)->Axis != nullptr) Kore::Gamepad::get(i)->Axis(i2, newaxes[i2]);
-						axes[i * 4 + i2] = newaxes[i2];
+						axes[i * 6 + i2] = newaxes[i2];
 					}
 				}
 				float newbuttons[16];
