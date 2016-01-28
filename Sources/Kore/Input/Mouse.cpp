@@ -76,7 +76,6 @@ void Mouse::_activated(bool truth){
 
 
 bool Mouse::isLocked(){
-    log(Info, "mouse locked");
 	return locked;
 }
 
