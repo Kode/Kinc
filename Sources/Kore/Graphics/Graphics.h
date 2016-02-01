@@ -158,6 +158,8 @@ namespace Kore {
 		void end();
 
 		void viewport(int x, int y, int width, int height);
+		void scissor(int x, int y, int width, int height);
+		void disableScissor();
 
 		void setRenderState(RenderState state, bool on);
 		void setRenderState(RenderState state, int v);
