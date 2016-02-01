@@ -286,6 +286,15 @@ void Graphics::viewport(int x, int y, int width, int height) {
 	glViewport(x,y,width,height);
 }
 
+void Graphics::scissor(int x, int y, int width, int height) {
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(x, y, width, height);
+}
+
+void Graphics::disableScissor() {
+	glDisable(GL_SCISSOR_TEST);
+}
+
 void glCheckErrors() {
 #ifdef _DEBUG
 	GLenum code = glGetError();
