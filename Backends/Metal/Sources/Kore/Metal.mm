@@ -222,6 +222,14 @@ void Graphics::viewport(int x, int y, int width, int height) {
 	// encoder.setViewport(viewport);
 }
 
+void Graphics::scissor(int x, int y, int width, int height) {
+	//TODO
+}
+
+void Graphics::disableScissor(int x, int y, int width, int height) {
+	//TODO
+}
+
 void Graphics::end() {
 	++uniformsIndex;
 	if (uniformsIndex >= more) {

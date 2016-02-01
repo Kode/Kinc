@@ -329,6 +329,14 @@ void Graphics::viewport(int x, int y, int width, int height) {
 	//TODO
 }
 
+void Graphics::scissor(int x, int y, int width, int height) {
+	//TODO
+}
+
+void Graphics::disableScissor() {
+	//TODO
+}
+
 void Graphics::end() {
 	
 }
