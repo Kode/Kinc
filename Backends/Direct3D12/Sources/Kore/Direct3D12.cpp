@@ -384,6 +384,10 @@ void Graphics::disableScissor() {
 	//TODO
 }
 
+void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
+	//TODO
+}
+
 void Graphics::end() {
 	D3D12_RESOURCE_BARRIER barrier;
 	barrier.Transition.pResource = renderTarget;
