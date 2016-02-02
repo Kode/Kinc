@@ -337,6 +337,10 @@ void Graphics::disableScissor() {
 	//TODO
 }
 
+void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
+	//TODO
+}
+
 void Graphics::end() {
 	
 }

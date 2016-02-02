@@ -85,7 +85,7 @@ void Graphics::init() {
 		0,								// No Accumulation Buffer
 		0, 0, 0, 0,							// Accumulation Bits Ignored
 		16,								// 16Bit Z-Buffer (Depth Buffer)
-		0,								// No Stencil Buffer
+		8,								// 8Bit Stencil Buffer
 		0,								// No Auxiliary Buffer
 		PFD_MAIN_PLANE,							// Main Drawing Layer
 		0,								// Reserved
@@ -295,6 +295,69 @@ void Graphics::disableScissor() {
 	glDisable(GL_SCISSOR_TEST);
 }
 
+namespace {
+	GLenum convert(StencilAction action) {
+		switch (action) {
+		case Decrement:
+			return GL_DECR;
+		case DecrementWrap:
+			return GL_DECR_WRAP;
+		case Increment:
+			return GL_INCR;
+		case IncrementWrap:
+			return GL_INCR_WRAP;
+		case Invert:
+			return GL_INVERT;
+		case Keep:
+			return GL_KEEP;
+		case Replace:
+			return GL_REPLACE;
+		case Zero:
+			return GL_ZERO;
+		}
+	}
+}
+
+void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
+	if (compareMode == ZCompareAlways && bothPass == Keep
+	&& depthFail == Keep && stencilFail == Keep) {
+		glDisable(GL_STENCIL_TEST);
+	}
+	else {
+		glEnable(GL_STENCIL_TEST);
+		int stencilFunc = 0;
+		switch (compareMode) {
+		case ZCompareAlways:
+			stencilFunc = GL_ALWAYS;
+			break;
+		case ZCompareEqual:
+			stencilFunc = GL_EQUAL;
+			break;
+		case ZCompareGreater:
+			stencilFunc = GL_GREATER;
+			break;
+		case ZCompareGreaterEqual:
+			stencilFunc = GL_GEQUAL;
+			break;
+		case ZCompareLess:
+			stencilFunc = GL_LESS;
+			break;
+		case ZCompareLessEqual:
+			stencilFunc = GL_LEQUAL;
+			break;
+		case ZCompareNever:
+			stencilFunc = GL_NEVER;
+			break;
+		case ZCompareNotEqual:
+			stencilFunc = GL_NOTEQUAL;
+			break;
+		}
+		glStencilMask(writeMask);
+		glStencilOp(convert(stencilFail), convert(depthFail), convert(bothPass));
+		glStencilFunc(stencilFunc, referenceValue, readMask);
+	}
+}
+
 void glCheckErrors() {
 #ifdef _DEBUG
 	GLenum code = glGetError();
@@ -329,6 +392,7 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 #else
 	glClearDepth(depth);
 #endif
+	glStencilMask(0xff);
 	glClearStencil(stencil);
 	GLbitfield oglflags =
 		  ((flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0)

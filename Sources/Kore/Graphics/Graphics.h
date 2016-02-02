@@ -96,6 +96,17 @@ namespace Kore {
 		Target128BitFloat
 	};
 
+	enum StencilAction {
+		Keep,
+		Zero,
+		Replace,
+		Increment,
+		IncrementWrap,
+		Decrement,
+		DecrementWrap,
+		Invert
+	};
+
 	enum TextureOperation {
 		ModulateOperation,
 		SelectFirstOperation,
@@ -160,6 +171,7 @@ namespace Kore {
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();
+		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask = 0, int writeMask = 0);
 
 		void setRenderState(RenderState state, bool on);
 		void setRenderState(RenderState state, int v);
