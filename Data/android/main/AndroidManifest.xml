@@ -1,7 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.ktxsoftware.kore">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="{package}">
 	<application android:allowBackup="true" android:label="@string/app_name" android:icon="@mipmap/ic_launcher">
 		<activity android:name="com.ktxsoftware.kore.KoreActivity" android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|keyboard|screenSize"
-			android:screenOrientation="sensor"
+			android:screenOrientation="{screenOrientation}"
 			android:launchMode="singleTask"
 			android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
 			<meta-data android:name="android.app.lib_name" android:value="kore" />

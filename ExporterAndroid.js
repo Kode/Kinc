@@ -17,6 +17,15 @@ class ExporterAndroid extends Exporter {
 		let project = solution.getProjects()[0];
 		let safename = solution.getName().replaceAll(' ', '-');
 		this.safename = safename;
+		let targetOptions = {
+			package: 'com.ktxsoftware.kha',
+			screenOrientation: 'sensor'
+		};
+		if (project.targetOptions != null && project.targetOptions.android != null) {
+			let userOptions = project.targetOptions.android;
+			if (userOptions.package != null) targetOptions.package = userOptions.package;
+			if (userOptions.screenOrientation != null) targetOptions.screenOrientation = userOptions.screenOrientation;
+		}
 
 		const indir = path.join(__dirname, 'Data', 'android');
 		const outdir = path.join(to.toString(), safename);
@@ -68,7 +77,13 @@ class ExporterAndroid extends Exporter {
 		fs.ensureDirSync(path.join(outdir, 'app', 'src'));
 		//fs.emptyDirSync(path.join(outdir, 'app', 'src'));
 
-		fs.copySync(path.join(indir, 'main', 'AndroidManifest.xml'), path.join(outdir, 'app', 'src', 'main', 'AndroidManifest.xml'));
+		fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main'));
+
+		let manifest = fs.readFileSync(path.join(indir, 'main', 'AndroidManifest.xml'), {encoding: 'utf8'});
+		manifest = manifest.replaceAll('{package}', targetOptions.package);
+		manifest = manifest.replaceAll('{screenOrientation}', targetOptions.screenOrientation);
+		fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main'));
+		fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'AndroidManifest.xml'), manifest, {encoding: 'utf8'});
 
 		let strings = fs.readFileSync(path.join(indir, 'main', 'res', 'values', 'strings.xml'), {encoding: 'utf8'});
 		strings = strings.replaceAll('{name}', solution.getName());
