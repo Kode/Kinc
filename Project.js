@@ -35,6 +35,9 @@ class Project {
 		this.systemDependendLibraries = {};
 		this.includes = [];
 		this.excludes = [];
+		this.targetOptions = {
+			android: {}
+		}
 	}
 
 	flatten() {
