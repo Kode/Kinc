@@ -3,6 +3,7 @@
 #include "RenderTargetImpl.h"
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/WinError.h>
+#include <Kore/Log.h>
 #include "d3dx12.h"
 
 using namespace Kore;
@@ -22,12 +23,17 @@ namespace {
 	}
 }
 
-RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
 		D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&renderTarget));
+
+#if defined(_DEBUG)
+	log(Info, "depthBufferBits not implemented yet, using target defaults");
+	log(Info, "stencilBufferBits not implemented yet, using target defaults");
+#endif
 
 	D3D12_RENDER_TARGET_VIEW_DESC view;
 	const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
