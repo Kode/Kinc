@@ -17,7 +17,7 @@ namespace {
 	}
 }
 
-RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) : width(width), height(height) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) : width(width), height(height) {
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
 	

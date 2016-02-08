@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RenderTargetImpl.h"
 #include <Kore/Graphics/Graphics.h>
+#include <Kore/Log.h>
 #include "ogl.h"
 
 using namespace Kore;
@@ -18,7 +19,7 @@ namespace {
 	}
 }
 
-RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasing, RenderTargetFormat format) : width(width), height(height) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) : width(width), height(height) {
 #ifndef VR_RIFT
 	// TODO: For the DK 2 we need a NPOT texture
 	texWidth = getPower2(width);
@@ -58,7 +59,49 @@ RenderTarget::RenderTarget(int width, int height, bool zBuffer, bool antialiasin
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glCheckErrors();
 	
-	if (zBuffer) {
+	if (depthBufferBits > 0 && stencilBufferBits > 0) {
+		GLenum internalFormat;
+
+		switch (depthBufferBits) {
+			default:
+#ifdef _DEBUG
+				log(Info, "RenderTarget: depthBufferBits not set, defaulting to 24");
+#endif
+			// break; // fall through
+			case 24: {
+				switch (stencilBufferBits) {
+					default:
+#ifdef _DEBUG
+						log(Info, "RenderTarget: stencilBufferBits not set, defaulting to 8");
+#endif
+					// break; // fall through
+					case 8: internalFormat = GL_DEPTH24_STENCIL8;
+						break;
+				}
+			} break;
+			case 32: {
+				switch (stencilBufferBits) {
+					default:
+#ifdef _DEBUG
+						log(Info, "RenderTarget: stencilBufferBits not set, defaulting to 8");
+#endif
+					// break; // fall through
+					case 8: internalFormat = GL_DEPTH32F_STENCIL8;
+						break;
+				}
+			} break;
+		}
+
+		GLuint dsBuffer;
+		glGenRenderbuffers(1, &dsBuffer);
+		glCheckErrors();
+		glBindRenderbuffer(GL_RENDERBUFFER, dsBuffer);
+		glCheckErrors();
+		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, texWidth, texHeight);
+		glCheckErrors();
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dsBuffer);
+		glCheckErrors();
+	} else if (depthBufferBits > 0) {
 		GLuint depthBuffer;
 		glGenRenderbuffers(1, &depthBuffer);
 		glCheckErrors();

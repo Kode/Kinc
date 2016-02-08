@@ -120,7 +120,7 @@ namespace Kore {
 
 	class RenderTarget : public RenderTargetImpl {
 	public:
-		RenderTarget(int width, int height, bool depthBuffer, bool antialiasing = false, RenderTargetFormat format = Target32Bit);
+		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1);
 		int width;
 		int height;
 		int texWidth;
