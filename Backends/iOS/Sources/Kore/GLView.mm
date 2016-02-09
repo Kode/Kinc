@@ -115,9 +115,10 @@ int Kore::System::screenHeight() {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, colorRenderbuffer);
 	
-	glGenRenderbuffersOES(1, &depthRenderbuffer);
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
-    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+	glGenRenderbuffersOES(1, &depthStencilRenderbuffer);
+    glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
+    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
+    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
 
     // Start acceletometer
 	hasAccelerometer = false;
@@ -225,8 +226,8 @@ static float red = 0.0f;
 	
 	printf("backingWitdh/Height: %i, %i\n", backingWidth, backingHeight);
 	
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
-	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight);
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
+	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH24_STENCIL8_OES, backingWidth, backingHeight);
 	
 	if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
@@ -249,6 +250,11 @@ static float red = 0.0f;
 		glDeleteRenderbuffersOES(1, &colorRenderbuffer);
 		colorRenderbuffer = 0;
 	}
+    
+    if (depthStencilRenderbuffer) {
+        glDeleteRenderbuffersOES(1, &depthStencilRenderbuffer);
+        depthStencilRenderbuffer = 0;
+    }
 	
 	if ([EAGLContext currentContext] == context) [EAGLContext setCurrentContext:nil];
 	
