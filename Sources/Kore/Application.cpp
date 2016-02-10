@@ -10,19 +10,22 @@ using namespace Kore;
 namespace {
 	Application* instance = nullptr;
 	int width, height;
+	int x, y;
 	int antialiasing;
-	bool full;
+	int windowMode, initialWindowMode;
 	const char* name;
 	bool showWindow;
 }
 
-Application::Application(int argc, char** argv, int width, int height, int antialiasing, bool fullscreen, const char* name, bool showWindow) : callback(nullptr), orientationCallback(nullptr), foregroundCallback(nullptr), resumeCallback(nullptr), pauseCallback(nullptr), backgroundCallback(nullptr), shutdownCallback(nullptr), running(false) {
+Application::Application(int argc, char** argv, int width, int height, int antialiasing, int windowMode, const char* name, bool showWindow, int x, int y) : callback(nullptr), orientationCallback(nullptr), foregroundCallback(nullptr), resumeCallback(nullptr), pauseCallback(nullptr), backgroundCallback(nullptr), shutdownCallback(nullptr), running(false) {
 	::width = width;
 	::height = height;
 	::antialiasing = antialiasing;
-	::full = fullscreen;
+	::windowMode = ::initialWindowMode = windowMode;
 	::name = name;
 	::showWindow = showWindow;
+	::x = x;
+	::y = y;
 	instance = this;
 	Random::init(static_cast<int>(System::timestamp() % std::numeric_limits<int>::max()));
 	Graphics::init();
@@ -51,6 +54,14 @@ const char* Application::name() {
 	return ::name;
 }
 
+int Application::x() {
+	return ::x;
+}
+
+int Application::y() {
+	return ::y;
+}
+
 int Application::width() {
 	return ::width;
 }
@@ -63,8 +74,12 @@ int Application::antialiasing() {
 	return ::antialiasing;
 }
 
+int Application::windowMode() {
+	return ::windowMode;
+}
+
 bool Application::fullscreen() {
-	return ::full;
+	return ::windowMode == 2;
 }
 
 bool Application::showWindow() {
@@ -80,7 +95,7 @@ void Application::setHeight(int height) {
 }
 
 void Application::setFullscreen(bool fullscreen) {
-	::full = fullscreen;
+	::windowMode = fullscreen ? 2 : ::initialWindowMode;
 }
 
 void Application::setCallback(void (*callback)()) {

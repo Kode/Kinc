@@ -435,7 +435,19 @@ void* Kore::System::createWindow() {
 	WindowRect.top = 0;
 	WindowRect.bottom = Application::the()->height();
 	
-	if (Application::the()->fullscreen()) {
+	switch (Application::the()->windowMode()) {
+	// windowed
+	case 0: {
+		dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+		dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+	} break;
+	// borderless
+	case 1: {
+		dwStyle = WS_POPUP;
+		dwExStyle = WS_EX_APPWINDOW;
+	} break;
+	// fullscreen
+	case 2: {
 		DEVMODEA dmScreenSettings;					// Device Mode
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));		// Makes Sure Memory's Cleared
 		dmScreenSettings.dmSize = sizeof(dmScreenSettings);		// Size Of The Devmode Structure
@@ -452,13 +464,37 @@ void* Kore::System::createWindow() {
 		dwExStyle = WS_EX_APPWINDOW;					// Window Extended Style
 		dwStyle = WS_POPUP;						// Windows Style
 		ShowCursor(FALSE);
+	} break;
 	}
-	else {
-		dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-		dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-	}
+
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
-	hwnd = CreateWindowExA(dwExStyle, windowClassName, Kore::Application::the()->name(), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, 100, 100, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
+
+	int x;
+	int y;
+	uint xres = GetSystemMetrics(SM_CXSCREEN);
+	uint yres = GetSystemMetrics(SM_CYSCREEN);
+	uint w = Application::the()->width();
+	uint h = Application::the()->height();
+
+	switch (Application::the()->windowMode()) {
+	// (DK) windowed
+	// (DK) borderless
+	case 0:
+	case 1: {
+		x = Application::the()->x();
+		y = Application::the()->y();
+		x = x < 0 ? (xres - w) >> 1 : x;
+		y = y < 0 ? (yres - h) >> 1 : y;
+	} break;
+	default:
+	// (DK) fullscreen
+	case 2: {
+		x = 0;
+		y = 0;
+	} break;
+	}
+
+	hwnd = CreateWindowExA(dwExStyle, windowClassName, Kore::Application::the()->name(), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, x, y, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
 	
 	if (Application::the()->fullscreen()) SetWindowPos(hwnd, nullptr, 0, 0, Application::the()->width(), Application::the()->height(), 0);
 	GetFocus();
@@ -466,19 +502,22 @@ void* Kore::System::createWindow() {
 
 	loadXInput();
 
-	if (!Application::the()->fullscreen()) {
+/*	if (!Application::the()->fullscreen()) {
 		uint xres = GetSystemMetrics(SM_CXSCREEN);
 		uint yres = GetSystemMetrics(SM_CYSCREEN);
+		int x = Application::the()->x();
+		int y = Application::the()->y();
 		uint w = Application::the()->width();
 		uint h = Application::the()->height();
 		RECT r;
-		r.left   = (xres - w) >> 1;
-		r.top    = (yres - h) >> 1;
+		r.left   = x < 0 ? (xres - w) >> 1 : x;
+		r.top    = y < 0 ? (yres - h) >> 1 : y;
 		r.right  = r.left + w - 1;
 		r.bottom = r.top  + h - 1;
+
 		AdjustWindowRect(&r, dwStyle, FALSE);
 		MoveWindow(hwnd, r.left, r.top, r.right - r.left + 1, r.bottom - r.top + 1, TRUE);
-	}
+	}*/
 #endif
 	return hwnd;
 }
