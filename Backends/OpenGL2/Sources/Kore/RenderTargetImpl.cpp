@@ -4,6 +4,12 @@
 #include <Kore/Log.h>
 #include "ogl.h"
 
+#if defined(SYS_IOS) || defined(SYS_ANDROID)
+    #define USE_GLES_DS_BUFFERS
+#else
+    #define USE_GL2_DS_BUFFERS
+#endif
+
 using namespace Kore;
 
 namespace {
@@ -18,7 +24,7 @@ namespace {
 			if (pow(power) >= i) return pow(power);
 	}
     
-#if defined(SYS_IOS)
+#if defined(USE_GLES_DS_BUFFERS)
     void setup_gles_buffers( int depthBufferBits, int stencilBufferBits, int width, int height ) {
         if (depthBufferBits > 0 && stencilBufferBits > 0) {
             GLuint depthStencilBuffer;
@@ -46,7 +52,7 @@ namespace {
     
 #endif
     
-#if !defined(SYS_IOS)
+#if defined(USE_GL2_DS_BUFFERS)
     void setup_gl2_buffers( int depthBufferBits, int stencilBufferBits, int width, int height ) {
         if (depthBufferBits > 0 && stencilBufferBits > 0) {
             GLenum internalFormat;
@@ -147,9 +153,11 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glCheckErrors();
 
-#if defined(SYS_IOS)
+#if defined(USE_GLES_DS_BUFFERS)
     setup_gles_buffers(depthBufferBits, stencilBufferBits, texWidth, texHeight);
-#else
+#endif
+    
+#if defined(USE_GL2_DS_BUFFERS)
     setup_gl2_buffers(depthBufferBits, stencilBufferBits, texWidth, texHeight);
 #endif
 
