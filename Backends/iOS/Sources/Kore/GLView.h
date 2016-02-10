@@ -21,7 +21,7 @@
 	MTLRenderPassDescriptor* renderPassDescriptor;
 #else
 	EAGLContext* context;
-	GLuint defaultFramebuffer, colorRenderbuffer, depthRenderbuffer;
+	GLuint defaultFramebuffer, colorRenderbuffer, depthStencilRenderbuffer;
 #endif
 	
 	CMMotionManager* motionManager;
