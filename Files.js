@@ -3,8 +3,9 @@
 const fs = require('fs');
 const pa = require('path');
 const execSync = require('child_process').execSync;
+const os = require('os');
 
-function filesDiffer(file1, file2) {
+function filesDifferWin(file1, file2) {
 	// Treat them as different if one of them does not exist.
 	if (!fs.existsSync(file1)) return true;
 	if (!fs.existsSync(file2)) return true;
@@ -19,6 +20,25 @@ function filesDiffer(file1, file2) {
 	}
 	if(output.indexOf("no differences encountered") > -1) {
 		isDifferent = false;
+	}
+	return isDifferent;
+}
+
+function filesDifferUnix(file1, file2) {
+	// Treat them as different if one of them does not exist.
+	if (!fs.existsSync(file1)) return true;
+	if (!fs.existsSync(file2)) return true;
+
+	let isDifferent = false;
+	let output = "";
+	try {
+		output = execSync("diff " + file1 + " " + file2, { encoding: 'utf8' });
+	}
+	catch (error) {
+		return true;
+	}
+	if(output != "") {
+		isDifferent = true;
 	}
 	return isDifferent;
 }
@@ -58,9 +78,13 @@ exports.copy = function (from, to, replace) {
 exports.copyIfDifferent = function (from, to, replace) {
 	exports.createDirectories(to.parent());
 	if (replace || !fs.existsSync(to.path)) {
-		if (filesDiffer(to.path, from.path)) {
+		if (os.platform() == 'win32' && filesDifferWin(to.path, from.path)) {
 			fs.writeFileSync(to.path, fs.readFileSync(from.path));
 			//console.log("Copying differing file: " + from.path);
+		}
+		else if (os.platform != 'win32' && filesDifferUnix(to.path, from.path)) {
+			fs.writeFileSync(to.path, fs.readFileSync(from.path));
+			console.log("Copying differing file: " + from.path);
 		}
 		else {
 			//console.log("Skipped file: " + from.path);
