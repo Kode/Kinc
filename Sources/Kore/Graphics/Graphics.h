@@ -163,10 +163,10 @@ namespace Kore {
 		void setRenderTarget(RenderTarget* texture, int num = 0);
 		void restoreRenderTarget();
 
-		void swapBuffers();
-		void* getControl();
-		void begin();
-		void end();
+		void swapBuffers(int windowId);
+		void* getControl(int windowId);
+		void begin(int windowId);
+		void end(int windowId);
 
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
@@ -193,8 +193,8 @@ namespace Kore {
 
 		void clear(uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
 
-		void init();
-		void destroy();
+		void init(int windowId);
+		void destroy(int windowId);
 
 		extern bool fullscreen;
 

@@ -5,6 +5,7 @@
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Graphics/Graphics.h>
+#include <Kore/Log.h>
 
 #ifdef VR_RIFT 
 #include "Vr/VrInterface.h"
@@ -16,6 +17,65 @@
 #include <shlobj.h>
 #include <exception>
 #include <XInput.h>
+
+LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+namespace {
+	struct W32Window {
+		HWND hwnd;
+		int x, y;
+		int width, height;
+
+		W32Window( HWND hwnd, int x, int y, int width, int height ) {
+			this->hwnd = hwnd;
+			this->x = x;
+			this->y = y;
+			this->width = width;
+			this->height = height;
+		}
+	};
+
+	W32Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	int windowCounter = -1;
+
+#ifdef VR_RIFT
+	const char* windowClassName = "ORT";
+#else
+	//const char* windowClassName = "KoreWindow";
+#endif
+
+	void registerWindowClass(HINSTANCE hInstance, const char * className) {
+		WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_OWNDC/*CS_CLASSDC*/, MsgProc, 0L, 0L, hInstance, LoadIcon(hInstance, MAKEINTRESOURCE(107)), nullptr /*LoadCursor(0, IDC_ARROW)*/, 0, 0, className/*windowClassName*/, 0 };
+		RegisterClassExA(&wc);
+	}
+}
+
+namespace Kore { namespace System {
+	int currentDeviceId = -1;
+
+	// (DK) only valid during begin() => end() calls
+	int currentDevice() {
+		if (currentDeviceId == -1) {
+			log(Warning, "no current device is active");
+		}
+
+		return currentDeviceId;
+	}
+
+	void setCurrentDevice(int id) {
+		currentDeviceId = id;
+	}
+
+	int windowWidth(int id) {
+		return windows[id]->width;
+	}
+
+	int windowHeight(int id) {
+		return windows[id]->height;
+	}
+
+}
+}
 
 using namespace Kore;
 
@@ -402,105 +462,107 @@ vec2i Kore::System::mousePos() {
 
 #undef CreateWindow
 
-namespace {
-	HWND hwnd = nullptr;
+int Kore::System::createWindow( int x, int y, int width, int height, int windowMode ) {
+	++windowCounter;
 
-#ifdef VR_RIFT
-	const char* windowClassName = "ORT";
-#else
-	const char* windowClassName = "KoreWindow";
-#endif
-
-	void registerWindowClass(HINSTANCE hInstance) {
-		WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_CLASSDC, MsgProc, 0L, 0L, hInstance, LoadIcon(hInstance, MAKEINTRESOURCE(107)), nullptr /*LoadCursor(0, IDC_ARROW)*/, 0, 0, windowClassName, 0 };
-		RegisterClassExA(&wc);
-	}
-}
-
-void* Kore::System::createWindow() {
 	HINSTANCE inst = GetModuleHandleA(nullptr);
-	#ifdef VR_RIFT 
+#ifdef VR_RIFT 
 		::registerWindowClass(inst);
-		::hwnd = (HWND) VrInterface::Init(inst);
-	#else 
-	
-	::registerWindowClass(inst);
+		::windows[0] = new W32Window((HWND) VrInterface::Init(inst));
+#else /* #ifdef VR_RIFT  */
+
+	const char * windowClassName;
+
+	// TODO (DK) just testing
+	switch (windowCounter) {
+	case 0: windowClassName = "KoreWindow0"; break;
+	case 1: windowClassName = "KoreWindow1"; break;
+	case 2: windowClassName = "KoreWindow2"; break;
+	}
+
+	::registerWindowClass(inst, windowClassName);
 	
 	DWORD dwExStyle;
 	DWORD dwStyle;
 
 	RECT WindowRect;
 	WindowRect.left = 0;
-	WindowRect.right = Application::the()->width();
+	WindowRect.right = width;//Application::the()->width();
 	WindowRect.top = 0;
-	WindowRect.bottom = Application::the()->height();
+	WindowRect.bottom = height;//Application::the()->height();
 	
-	switch (Application::the()->windowMode()) {
-	// windowed
-	case 0: {
-		dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-		dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-	} break;
-	// borderless
-	case 1: {
-		dwStyle = WS_POPUP;
-		dwExStyle = WS_EX_APPWINDOW;
-	} break;
-	// fullscreen
-	case 2: {
-		DEVMODEA dmScreenSettings;					// Device Mode
-		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));		// Makes Sure Memory's Cleared
-		dmScreenSettings.dmSize = sizeof(dmScreenSettings);		// Size Of The Devmode Structure
-		dmScreenSettings.dmPelsWidth	= Application::the()->width();			// Selected Screen Width
-		dmScreenSettings.dmPelsHeight	= Application::the()->height();			// Selected Screen Height
-		dmScreenSettings.dmBitsPerPel	= 32;				// Selected Bits Per Pixel
-		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+	switch (windowMode) {
+		// windowed
+		case 0: {
+			dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+			dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+		} break;
 
-		// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
-		if (ChangeDisplaySettingsA(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
-			//return FALSE;
-		}
+		// borderless
+		case 1: {
+			dwStyle = WS_POPUP;
+			dwExStyle = WS_EX_APPWINDOW;
+		} break;
+
+		// fullscreen
+		case 2: {
+			DEVMODEA dmScreenSettings;					// Device Mode
+			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));		// Makes Sure Memory's Cleared
+			dmScreenSettings.dmSize = sizeof(dmScreenSettings);		// Size Of The Devmode Structure
+			dmScreenSettings.dmPelsWidth	= width;			// Selected Screen Width
+			dmScreenSettings.dmPelsHeight	= height;			// Selected Screen Height
+			dmScreenSettings.dmBitsPerPel	= 32;				// Selected Bits Per Pixel
+			dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+			// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
+			if (ChangeDisplaySettingsA(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+				//return FALSE;
+			}
 		
-		dwExStyle = WS_EX_APPWINDOW;					// Window Extended Style
-		dwStyle = WS_POPUP;						// Windows Style
-		ShowCursor(FALSE);
-	} break;
+			dwExStyle = WS_EX_APPWINDOW;					// Window Extended Style
+			dwStyle = WS_POPUP;						// Windows Style
+			ShowCursor(FALSE);
+		} break;
 	}
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
 
-	int x;
-	int y;
+	int dstx;
+	int dsty;
 	uint xres = GetSystemMetrics(SM_CXSCREEN);
 	uint yres = GetSystemMetrics(SM_CYSCREEN);
-	uint w = Application::the()->width();
-	uint h = Application::the()->height();
+	uint w = width;
+	uint h = height;
 
 	switch (Application::the()->windowMode()) {
-	// (DK) windowed
-	// (DK) borderless
-	case 0:
-	case 1: {
-		x = Application::the()->x();
-		y = Application::the()->y();
-		x = x < 0 ? (xres - w) >> 1 : x;
-		y = y < 0 ? (yres - h) >> 1 : y;
-	} break;
-	default:
-	// (DK) fullscreen
-	case 2: {
-		x = 0;
-		y = 0;
-	} break;
+		// (DK) windowed
+		// (DK) borderless
+		case 0: // fall through
+		case 1: {
+			dstx = x < 0 ? (xres - w) >> 1 : x;
+			dsty = y < 0 ? (yres - h) >> 1 : y;
+		} break;
+
+		// (DK) fullscreen
+		default: // fall through
+		case 2: {
+			dstx = 0;
+			dsty = 0;
+		} break;
 	}
 
-	hwnd = CreateWindowExA(dwExStyle, windowClassName, Kore::Application::the()->name(), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, x, y, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
+	HWND hwnd = CreateWindowExA(dwExStyle, windowClassName, Kore::Application::the()->name(), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
 	
-	if (Application::the()->fullscreen()) SetWindowPos(hwnd, nullptr, 0, 0, Application::the()->width(), Application::the()->height(), 0);
-	GetFocus();
+	if (windowCounter == 0) {
+		if (Application::the()->fullscreen()) SetWindowPos(hwnd, nullptr, dstx, dsty, width/*Application::the()->width()*/, height/*Application::the()->height()*/, 0);
+	}
+
+	GetFocus(); // TODO (DK) that seems like a useless call, as the return value isn't saved anywhere?
 	::SetCursor(LoadCursor(0, IDC_ARROW));
 
-	loadXInput();
+	if (windowCounter == 0) {
+		loadXInput();
+	}
 
 /*	if (!Application::the()->fullscreen()) {
 		uint xres = GetSystemMetrics(SM_CXSCREEN);
@@ -518,23 +580,33 @@ void* Kore::System::createWindow() {
 		AdjustWindowRect(&r, dwStyle, FALSE);
 		MoveWindow(hwnd, r.left, r.top, r.right - r.left + 1, r.bottom - r.top + 1, TRUE);
 	}*/
-#endif
-	return hwnd;
+#endif /* #ifdef VR_RIFT */
+
+	windows[windowCounter] = new W32Window(hwnd, dstx, dsty, width, height);
+	return windowCounter;
 }
 
-void* Kore::System::windowHandle() {
-	return hwnd;
+void* Kore::System::windowHandle(int windowId) {
+	return windows[windowId]->hwnd;//hwnd;
 }
 
-void Kore::System::destroyWindow() {
+void Kore::System::destroyWindow( int index ) {
+	HWND hwnd = windows[index]->hwnd;
+
+	// TODO (DK) shouldn't 'hwnd = nullptr' moved out of here?
 	if (hwnd && !DestroyWindow(hwnd)) {
 		//MessageBox(NULL,"Could Not Release hWnd.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		hwnd = nullptr;
 	}
-	if (!UnregisterClassA(windowClassName, GetModuleHandleA(nullptr))) {
-		//MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
-		//hInstance=NULL;
-	}
+
+	windows[index] = nullptr;
+	
+	// TODO (DK) uncomment again, and only unregister after the last window is destroyed
+
+	//if (!UnregisterClassA(windowClassName, GetModuleHandleA(nullptr))) {
+	//	//MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
+	//	//hInstance=NULL;
+	//}
 }
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {
@@ -578,25 +650,24 @@ bool Kore::System::showsKeyboard() {
 	return keyboardshown;
 }
 
-void Kore::System::loadURL(const char* url) {
-    
+void Kore::System::loadURL(const char* url) {    
 }
 
 void Kore::System::setTitle(const char* title) {
-	SetWindowTextA(hwnd, title);
+	SetWindowTextA(windows[currentDevice()]->hwnd, title);
 }
 
 void Kore::System::showWindow() {
-	ShowWindow(hwnd, SW_SHOWDEFAULT);
-	UpdateWindow(hwnd);
+	ShowWindow(windows[currentDevice()]->hwnd, SW_SHOWDEFAULT);
+	UpdateWindow(windows[currentDevice()]->hwnd);
 }
 
 int Kore::System::screenWidth() {
-	return Application::the()->width();
+	return windows[currentDevice()]->width;
 }
 
 int Kore::System::screenHeight() {
-	return Application::the()->height();
+	return windows[currentDevice()]->height;
 }
 
 int Kore::System::desktopWidth() {

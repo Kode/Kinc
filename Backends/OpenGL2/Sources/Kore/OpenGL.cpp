@@ -9,16 +9,14 @@
 #include <cstdio>
 
 #ifdef SYS_WINDOWS
+	#include <GL/wglew.h>
 
-#include <GL/wglew.h>
+	#define WIN32_LEAN_AND_MEAN
+	#define NOMINMAX
+	#include <Windows.h>
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-
-#pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "glu32.lib")
-
+	#pragma comment(lib, "opengl32.lib")
+	#pragma comment(lib, "glu32.lib")
 #endif
 
 using namespace Kore;
@@ -32,44 +30,49 @@ namespace Kore {
 namespace {
 #ifdef SYS_WINDOWS
 	HINSTANCE instance = 0;
-	HWND windowHandle = 0;
-	HDC deviceContext = 0;
-	HGLRC glContext = 0;
+	HDC deviceContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	HGLRC glContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 #endif
-	//bool fullscreen;
-	TextureFilter minFilters[32];
-	MipmapFilter mipFilters[32];
-	int originalFramebuffer;
-	uint arrayId;
+
+	TextureFilter minFilters[10][32];
+	MipmapFilter mipFilters[10][32];
+	int originalFramebuffer[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+	uint arrayId[10];
 }
 
-void Graphics::destroy() {
+void Graphics::destroy(int windowId) {
 #ifdef SYS_WINDOWS
-	if (glContext) {
+	if (glContexts[windowId]) {
 		if (!wglMakeCurrent(nullptr, nullptr)) {
 			//MessageBox(NULL,"Release Of DC And RC Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		}
-		if (!wglDeleteContext(glContext)) {
+		if (!wglDeleteContext(glContexts[windowId])) {
 			//MessageBox(NULL,"Release Rendering Context Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		}
-		glContext = nullptr;
+		glContexts[windowId] = nullptr;
 	}
 
-	if (deviceContext && !ReleaseDC(windowHandle, deviceContext)) {
+	HWND windowHandle = (HWND)System::windowHandle(windowId);
+
+	// TODO (DK) shouldn't 'deviceContexts[windowId] = nullptr;' be moved out of here?
+	if (deviceContexts[windowId] && !ReleaseDC(windowHandle, deviceContexts[windowId])) {
 		//MessageBox(NULL,"Release Device Context Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
-		deviceContext = nullptr;
+		deviceContexts[windowId] = nullptr;
 	}
 #endif
-	System::destroyWindow();
+
+	System::destroyWindow(windowId);
 }
 
 #undef CreateWindow
 
-void Graphics::init() {
+void Graphics::init(int windowId) {
 #ifdef SYS_WINDOWS
-	windowHandle = (HWND)System::createWindow();
+	HWND windowHandle = (HWND)System::windowHandle(windowId);
 
 #ifndef VR_RIFT
+	// TODO (DK) use provided settings for depth/stencil buffer
+
 	PIXELFORMATDESCRIPTOR pfd =					// pfd Tells Windows How We Want Things To Be
 	{
 		sizeof(PIXELFORMATDESCRIPTOR),					// Size Of This Pixel Format Descriptor
@@ -92,13 +95,16 @@ void Graphics::init() {
 		0, 0, 0								// Layer Masks Ignored
 	};
 
-	deviceContext = GetDC(windowHandle);
-	GLuint pixelFormat = ChoosePixelFormat(deviceContext, &pfd);
-	SetPixelFormat(deviceContext, pixelFormat, &pfd);
-	HGLRC tempGlContext = wglCreateContext(deviceContext);
-	wglMakeCurrent(deviceContext, tempGlContext);
+	deviceContexts[windowId] = GetDC(windowHandle);
+	GLuint pixelFormat = ChoosePixelFormat(deviceContexts[windowId], &pfd);
+	SetPixelFormat(deviceContexts[windowId], pixelFormat, &pfd);
+	HGLRC tempGlContext = wglCreateContext(deviceContexts[windowId]);
+	wglMakeCurrent(deviceContexts[windowId], tempGlContext);
+	System::setCurrentDevice(windowId);
 
-	glewInit();
+	if (windowId == 0) {
+		glewInit();
+	}
 
 	if (wglewIsSupported("WGL_ARB_create_context") == 1) {
 		int attributes[] = {
@@ -108,66 +114,81 @@ void Graphics::init() {
 			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
 			0
 		};
-		glContext = wglCreateContextAttribsARB(deviceContext, nullptr, attributes);
+
+		// TODO (DK) investigate context sharing
+		glContexts[windowId] = wglCreateContextAttribsARB(deviceContexts[windowId], nullptr/*windowId == 1 ? glContexts[0] : nullptr*/, attributes);
+		glCheckErrors();
 		wglMakeCurrent(nullptr, nullptr);
+		//glCheckErrors();
 		wglDeleteContext(tempGlContext);
-		wglMakeCurrent(deviceContext, glContext);
+		//glCheckErrors();
+		wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
+		glCheckErrors();
 	}
 	else {
-		glContext = tempGlContext;
+		glContexts[windowId] = tempGlContext;
 	}
 
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
 	SetFocus(windowHandle); // Sets Keyboard Focus To The Window
-#else 
-	deviceContext = GetDC(windowHandle);
-	glContext = wglGetCurrentContext();
-	glewInit();
-	
+#else /* #ifndef VR_RIFT */
+	deviceContexts[windowId] = GetDC(windowHandle);
+	glContexts[windowId] = wglGetCurrentContext();
+	glewInit();	
+#endif /* #ifndef VR_RIFT */
 
-#endif
-#else
+#else /* #ifdef SYS_WINDOWS */
+	// TODO (DK) windowHandle = (HWND)System::windowHandle(windowId)//(HWND)System::createWindow();
+	(DK) CRAP TO PRODUCE COMPILE ERRORS HERE
 	System::createWindow();
-#endif
+#endif /* #ifdef SYS_WINDOWS */
 	
 #ifndef VR_RIFT
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	setRenderState(DepthTest, false);
 	glViewport(0, 0, System::screenWidth(), System::screenHeight());
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &originalFramebuffer);
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &originalFramebuffer[windowId]);
 
 	for (int i = 0; i < 32; ++i) {
-		minFilters[i] = LinearFilter;
-		mipFilters[i] = NoMipFilter;
+		minFilters[windowId][i] = LinearFilter;
+		mipFilters[windowId][i] = NoMipFilter;
 	}
 #endif
 
 #ifdef SYS_WINDOWS
-	if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(1);
+	if (windowId == 0) {
+		// TODO (DK) check if we actually want vsync
+		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(1);
+	}
 #endif
 
 #if defined(SYS_IOS)
 	glGenVertexArraysOES(1, &arrayId);
 	glCheckErrors();
 #elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-	glGenVertexArrays(1, &arrayId);
+	glGenVertexArrays(1, &arrayId[windowId]);
 	glCheckErrors();
 #endif
+
+	//currentDeviceIndex = -1; // (DK)
+	//wglMakeCurrent(nullptr, nullptr); // (DK)
 }
 
+// TODO (DK) should return displays refreshrate?
 unsigned Graphics::refreshRate() {
 	return 60;
 }
 
+// TODO (DK) should check the extension and return wheter it's enabled (wglSwapIntervalEXT(1)) or not?
 bool Graphics::vsynced() {
 	return true;
 }
 
-void* Graphics::getControl() {
+void* Graphics::getControl(int windowId) {
 #ifdef SYS_WINDOWS
-	return windowHandle;
+	return (HWND)System::windowHandle(windowId);
 #else
 	return nullptr;
 #endif
@@ -259,11 +280,18 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 #endif
 }
 
-void Graphics::swapBuffers() {
+void Graphics::swapBuffers(int windowId) {
+	log(Info, "Graphics::swapBuffers[%i]", windowId);
+
 #ifdef SYS_WINDOWS
-	::SwapBuffers(deviceContext);
+	::SwapBuffers(deviceContexts[windowId]);
+
+	//// TODO (DK) test if this is really needed here
+	//System::setCurrentDevice(-1);
+	//wglMakeCurrent(nullptr, nullptr);
 #else
-	System::swapBuffers();
+	// TODO (DK) pass windowId?
+	System::swapBuffers(windowId);
 #endif
 }
 
@@ -271,7 +299,24 @@ void Graphics::swapBuffers() {
 void beginGL();
 #endif
 
-void Graphics::begin() {
+void Graphics::begin(int windowId) {
+	if (System::currentDevice() != -1) {
+		if (System::currentDevice() != windowId) {
+			log(Warning, "begin: wrong glContext is active");
+		} else {
+			log(Warning, "begin: a glContext is still active");
+		}
+
+		//return; // TODO (DK) return here?
+	}
+
+#if defined(_DEBUG)
+	log(Info, "Graphics::begin[%i]", windowId);
+#endif
+
+	System::setCurrentDevice(windowId);
+	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
+
 #ifdef SYS_IOS
 	beginGL();
 #endif
@@ -359,15 +404,20 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 }
 
 void glCheckErrors() {
+	if (System::currentDevice() == -1) {
+		log(Warning, "no OpenGL device context is set");
+		return;
+	}
+
 #ifdef _DEBUG
 	GLenum code = glGetError();
 	while (code != GL_NO_ERROR) {
 		//std::printf("GLError: %s\n", glewGetErrorString(code));
 		switch (code) {
-		case 1281:
+		case GL_INVALID_VALUE:
 			log(Warning, "OpenGL: Invalid value");
 			break;
-		case 1282:
+		case GL_INVALID_OPERATION:
 			log(Warning, "OpenGL: Invalid operation");
 			break;
 		default:
@@ -379,13 +429,31 @@ void glCheckErrors() {
 #endif
 }
 
-void Graphics::end() {
+// TODO (DK) this never gets called, needs investigation?
+void Graphics::end(int windowId) {
 	//glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT);
 	glCheckErrors();
+
+	if (System::currentDevice() == -1) {
+		log(Warning, "end: a glContext wasn't active");
+	}
+
+	if (System::currentDevice() != windowId) {
+		log(Warning, "end: wrong glContext is active");
+	}
+
+#if defined(_DEBUG)
+	log(Info, "Graphics::end[%i]", windowId);
+#endif
+
+	System::setCurrentDevice(-1);
+	wglMakeCurrent(nullptr, nullptr);
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
+	log(Info, "Graphics::clear");
+
 	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, (color & 0xff000000) / 255.0f);
 #ifdef OPENGLES
 	glClearDepthf(depth);
@@ -418,6 +486,8 @@ void Graphics::setRenderState(RenderState state, bool on) {
 	default:
 		break;
 	}
+
+	//glCheckErrors();
 
 	/*switch (state) {
 		case Normalize:
@@ -516,7 +586,7 @@ void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 	glBindVertexArrayOES(arrayId);
 	glCheckErrors();
 #elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-	glBindVertexArray(arrayId);
+	glBindVertexArray(arrayId[System::currentDevice()]);
 	glCheckErrors();
 #endif
 
@@ -579,9 +649,9 @@ void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter 
 namespace {
 	void setMinMipFilters(int unit) {
 		glActiveTexture(GL_TEXTURE0 + unit);
-		switch (minFilters[unit]) {
+		switch (minFilters[System::currentDevice()][unit]) {
 		case PointFilter:
-			switch (mipFilters[unit]) {
+			switch (mipFilters[System::currentDevice()][unit]) {
 			case NoMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				break;
@@ -595,7 +665,7 @@ namespace {
 			break;
 		case LinearFilter:
 		case AnisotropicFilter:
-			switch (mipFilters[unit]) {
+			switch (mipFilters[System::currentDevice()][unit]) {
 			case NoMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				break;
@@ -612,12 +682,12 @@ namespace {
 }
 
 void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	minFilters[texunit.unit] = filter;
+	minFilters[System::currentDevice()][texunit.unit] = filter;
 	setMinMipFilters(texunit.unit);
 }
 
 void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	mipFilters[texunit.unit] = filter;
+	mipFilters[System::currentDevice()][texunit.unit] = filter;
 	setMinMipFilters(texunit.unit);
 }
 
@@ -656,8 +726,8 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 }
 
 void Graphics::restoreRenderTarget() {
-	glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer);
-	glViewport(0, 0, System::screenWidth(), System::screenHeight());
+	glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer[System::currentDevice()]);
+	glViewport(0, 0, System::windowWidth(System::currentDevice()), System::windowHeight(System::currentDevice()));
 }
 
 bool Graphics::renderTargetsInvertedY() {

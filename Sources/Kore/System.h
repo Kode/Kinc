@@ -1,13 +1,19 @@
 #pragma once
 
 #include <Kore/Math/Vector.h>
+#include <Kore/Window.h>
 
 namespace Kore {
 	namespace System {
-		void* createWindow();
-		void destroyWindow();
-		void* windowHandle();
-		void changeResolution(int width, int height, bool fullscreen);
+		int currentDevice();
+		void setCurrentDevice(int id);
+		int windowWidth(int id);
+		int windowHeight(int id);
+
+		int createWindow( int x, int y, int width, int height, int windowMode );
+		void destroyWindow(int id);
+		void* windowHandle(int windowId);
+		void changeResolution(/*Window* window,*/ int width, int height, bool fullscreen);
 		bool handleMessages();
 		vec2i mousePos();
 		void showKeyboard();

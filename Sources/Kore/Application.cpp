@@ -15,9 +15,24 @@ namespace {
 	int windowMode, initialWindowMode;
 	const char* name;
 	bool showWindow;
+
+	int windowIds[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+	int windowIdCounter = -1;
 }
 
-Application::Application(int argc, char** argv, int width, int height, int antialiasing, int windowMode, const char* name, bool showWindow, int x, int y) : callback(nullptr), orientationCallback(nullptr), foregroundCallback(nullptr), resumeCallback(nullptr), pauseCallback(nullptr), backgroundCallback(nullptr), shutdownCallback(nullptr), running(false) {
+Application::Application() : callback(nullptr), orientationCallback(nullptr), foregroundCallback(nullptr), resumeCallback(nullptr), pauseCallback(nullptr), backgroundCallback(nullptr), shutdownCallback(nullptr), running(false) {
+}
+
+Application::~Application() {
+	for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
+		Graphics::destroy(windowIndex);
+	}
+
+	//Graphics::destroy();
+}
+
+Application *
+Application::initDefault( int argc, char** argv, int width, int height, int antialiasing, int windowMode, const char* name, bool showWindow, int x, int y ) {
 	::width = width;
 	::height = height;
 	::antialiasing = antialiasing;
@@ -26,13 +41,40 @@ Application::Application(int argc, char** argv, int width, int height, int antia
 	::showWindow = showWindow;
 	::x = x;
 	::y = y;
-	instance = this;
+	instance = new Application();
 	Random::init(static_cast<int>(System::timestamp() % std::numeric_limits<int>::max()));
-	Graphics::init();
+
+	++windowIdCounter;
+	windowIds[windowIdCounter] = System::createWindow(x, y, width, height, windowMode);
+	Graphics::init(windowIds[windowIdCounter]);//x, y, width, height, windowMode);
+
+	return instance;
 }
 
-Application::~Application() {
-	Graphics::destroy();
+Application *
+Application::initEx() {
+	//::width = width;
+	//::height = height;
+	//::antialiasing = antialiasing;
+	//::windowMode = ::initialWindowMode = windowMode;
+	//::name = name;
+	//::showWindow = showWindow;
+	//::x = x;
+	//::y = y;
+	instance = new Application();
+	Random::init(static_cast<int>(System::timestamp() % std::numeric_limits<int>::max()));
+
+	//Graphics::init();
+
+	return instance;
+}
+
+int
+Application::initWindow( WindowOptions options ) {
+	++windowIdCounter;
+	windowIds[windowIdCounter] = Kore::System::createWindow(options.x, options.y, options.width, options.height, options.mode);
+	Kore::Graphics::init(windowIds[windowIdCounter]);
+	return windowIdCounter;
 }
 
 void Application::start() {

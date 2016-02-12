@@ -8,7 +8,8 @@ using namespace Kore;
 void Mouse::_lock(bool truth){
 	show(!truth);
 	if (truth){
-		auto hwnd = (HWND)Kore::Graphics::getControl();
+		// TODO (DK) correct window id
+		auto hwnd = (HWND)Kore::Graphics::getControl(0);
 		SetCapture(hwnd);
 		RECT rect;
 		GetWindowRect(hwnd, &rect);
@@ -31,7 +32,8 @@ void Mouse::show(bool truth){
 }
 
 void Mouse::setPosition(int x, int y){
-	auto hwnd = (HWND)Kore::Graphics::getControl();
+	// TODO (DK) correct window id
+	auto hwnd = (HWND)Kore::Graphics::getControl(0);
 	POINT point;
 	point.x = x;
 	point.y = y;
@@ -42,7 +44,8 @@ void Mouse::setPosition(int x, int y){
 void Mouse::getPosition(int& x, int& y){
 	POINT point;
 	GetCursorPos(&point);
-	auto hwnd = (HWND)Kore::Graphics::getControl();
+	// TODO (DK) correct window id
+	auto hwnd = (HWND)Kore::Graphics::getControl(0);
 	ScreenToClient(hwnd, &point);
 	x = point.x;
 	y = point.y;

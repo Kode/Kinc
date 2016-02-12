@@ -27,7 +27,8 @@ void Audio::init() {
 	buffer.data = new u8[buffer.dataSize];
 
 	affirm(DirectSoundCreate8(nullptr, &dsound, nullptr));
-	affirm(dsound->SetCooperativeLevel((HWND)System::windowHandle(), DSSCL_PRIORITY));
+	// TODO (DK) only for the main window?
+	affirm(dsound->SetCooperativeLevel((HWND)System::windowHandle(0), DSSCL_PRIORITY));
 
 	WAVEFORMATEX waveFormat;
 	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
