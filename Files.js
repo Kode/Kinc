@@ -84,7 +84,7 @@ exports.copyIfDifferent = function (from, to, replace) {
 		}
 		else if (os.platform != 'win32' && filesDifferUnix(to.path, from.path)) {
 			fs.writeFileSync(to.path, fs.readFileSync(from.path));
-			console.log("Copying differing file: " + from.path);
+			//console.log("Copying differing file: " + from.path);
 		}
 		else {
 			//console.log("Skipped file: " + from.path);
