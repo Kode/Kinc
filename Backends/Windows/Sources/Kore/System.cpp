@@ -669,7 +669,7 @@ int Kore::System::initWindow( WindowOptions options ) {
 	strcat(buffer, " | ");
 	strcat(buffer, options.title);
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode);
-	Graphics::init(windowId);
+	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return windowId;
 }
 

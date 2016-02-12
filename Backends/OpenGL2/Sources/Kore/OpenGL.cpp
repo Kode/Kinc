@@ -66,33 +66,33 @@ void Graphics::destroy(int windowId) {
 
 #undef CreateWindow
 
-void Graphics::init(int windowId) {
+void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifdef SYS_WINDOWS
 	HWND windowHandle = (HWND)System::windowHandle(windowId);
 
 #ifndef VR_RIFT
 	// TODO (DK) use provided settings for depth/stencil buffer
 
-	PIXELFORMATDESCRIPTOR pfd =					// pfd Tells Windows How We Want Things To Be
+	PIXELFORMATDESCRIPTOR pfd =			// pfd Tells Windows How We Want Things To Be
 	{
-		sizeof(PIXELFORMATDESCRIPTOR),					// Size Of This Pixel Format Descriptor
+		sizeof(PIXELFORMATDESCRIPTOR),	// Size Of This Pixel Format Descriptor
 		1,								// Version Number
-		PFD_DRAW_TO_WINDOW |						// Format Must Support Window
-		PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
-		PFD_DOUBLEBUFFER,						// Must Support Double Buffering
-		PFD_TYPE_RGBA,							// Request An RGBA Format
+		PFD_DRAW_TO_WINDOW |			// Format Must Support Window
+		PFD_SUPPORT_OPENGL |			// Format Must Support OpenGL
+		PFD_DOUBLEBUFFER,				// Must Support Double Buffering
+		PFD_TYPE_RGBA,					// Request An RGBA Format
 		32,								// Select Our Color Depth
-		0, 0, 0, 0, 0, 0,						// Color Bits Ignored
+		0, 0, 0, 0, 0, 0,				// Color Bits Ignored
 		0,								// No Alpha Buffer
 		0,								// Shift Bit Ignored
 		0,								// No Accumulation Buffer
-		0, 0, 0, 0,							// Accumulation Bits Ignored
-		16,								// 16Bit Z-Buffer (Depth Buffer)
-		8,								// 8Bit Stencil Buffer
+		0, 0, 0, 0,						// Accumulation Bits Ignored
+		depthBufferBits,				// 16Bit Z-Buffer (Depth Buffer)
+		stencilBufferBits,				// 8Bit Stencil Buffer
 		0,								// No Auxiliary Buffer
-		PFD_MAIN_PLANE,							// Main Drawing Layer
+		PFD_MAIN_PLANE,					// Main Drawing Layer
 		0,								// Reserved
-		0, 0, 0								// Layer Masks Ignored
+		0, 0, 0							// Layer Masks Ignored
 	};
 
 	deviceContexts[windowId] = GetDC(windowHandle);
