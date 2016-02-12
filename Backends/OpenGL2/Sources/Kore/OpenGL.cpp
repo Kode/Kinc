@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "OpenGL.h"
 #include "VertexBufferImpl.h"
-#include <Kore/Application.h>
+//#include <Kore/Application.h>
 #include <Kore/System.h>
 #include <Kore/Math/Core.h>
 #include <Kore/Log.h>
@@ -116,7 +116,9 @@ void Graphics::init(int windowId) {
 		};
 
 		// TODO (DK) investigate context sharing
-		glContexts[windowId] = wglCreateContextAttribsARB(deviceContexts[windowId], nullptr/*windowId == 1 ? glContexts[0] : nullptr*/, attributes);
+		//	-default is null, so main (0) isn't shared
+		//	-then main gets set and is shared to all others?
+		glContexts[windowId] = wglCreateContextAttribsARB(deviceContexts[windowId], glContexts[0], attributes);
 		glCheckErrors();
 		wglMakeCurrent(nullptr, nullptr);
 		//glCheckErrors();
@@ -148,7 +150,7 @@ void Graphics::init(int windowId) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	setRenderState(DepthTest, false);
-	glViewport(0, 0, System::screenWidth(), System::screenHeight());
+	glViewport(0, 0, System::windowWidth(System::currentDevice()), System::windowHeight(System::currentDevice()));
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &originalFramebuffer[windowId]);
 
 	for (int i = 0; i < 32; ++i) {

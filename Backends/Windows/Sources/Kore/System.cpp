@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <Kore/System.h>
-#include <Kore/Application.h>
+//#include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Gamepad.h>
@@ -19,6 +19,78 @@
 #include <XInput.h>
 
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+int kore(int argc, char** argv);
+
+namespace appimpl {
+	bool running = false;
+	const char * name = "";
+
+	void (*callback)();
+	void (*foregroundCallback)();
+	void (*backgroundCallback)();
+	void (*pauseCallback)();
+	void (*resumeCallback)();
+	void (*shutdownCallback)();
+	void (*orientationCallback)(Kore::Orientation);
+}
+
+namespace Kore { namespace System {
+	void stop() {
+		appimpl::running = false;
+
+	//for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
+	//	Graphics::destroy(windowIndex);
+	//}
+
+	}
+
+	void start() {
+		appimpl::running = true;
+
+#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+		// if (Graphics::hasWindow()) Graphics::swapBuffers();
+		while (appimpl::running) {
+			auto cb = appimpl::callback;
+			cb();
+			handleMessages();
+		}
+#endif
+	}
+
+	bool isFullscreen() {
+		// TODO (DK)
+		return false;
+	}
+
+	void setCallback( void (*value)() ) {
+		appimpl::callback = value;
+	}
+
+	void setForegroundCallback( void (*value)() ) {
+		appimpl::foregroundCallback = value;
+	}
+
+	void setResumeCallback( void (*value)() ) {
+		appimpl::resumeCallback = value;
+	}
+
+	void setPauseCallback( void (*value)() ) {
+		appimpl::pauseCallback = value;
+	}
+
+	void setBackgroundCallback( void (*value)() ) {
+		appimpl::backgroundCallback = value;
+	}
+
+	void setShutdownCallback( void (*value)() ) {
+		appimpl::shutdownCallback = value;
+	}
+
+	void setOrientationCallback( void (*value)(Orientation) ) {
+		appimpl::orientationCallback = value;
+	}
+}}
 
 namespace {
 	struct W32Window {
@@ -285,7 +357,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		//Scheduler::breakTime();
 		break;
 	case WM_DESTROY:
-		Application::the()->stop();
+		Kore::System::stop();
 		return 0;
 	case WM_ERASEBKGND:
 		return 1;
@@ -462,7 +534,7 @@ vec2i Kore::System::mousePos() {
 
 #undef CreateWindow
 
-int Kore::System::createWindow( int x, int y, int width, int height, int windowMode ) {
+int Kore::System::createWindow( const char * title, int x, int y, int width, int height, int windowMode ) {
 	++windowCounter;
 
 	HINSTANCE inst = GetModuleHandleA(nullptr);
@@ -534,7 +606,7 @@ int Kore::System::createWindow( int x, int y, int width, int height, int windowM
 	uint w = width;
 	uint h = height;
 
-	switch (Application::the()->windowMode()) {
+	switch (windowMode) {
 		// (DK) windowed
 		// (DK) borderless
 		case 0: // fall through
@@ -551,10 +623,12 @@ int Kore::System::createWindow( int x, int y, int width, int height, int windowM
 		} break;
 	}
 
-	HWND hwnd = CreateWindowExA(dwExStyle, windowClassName, Kore::Application::the()->name(), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
+	HWND hwnd = CreateWindowExA(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
 	
 	if (windowCounter == 0) {
-		if (Application::the()->fullscreen()) SetWindowPos(hwnd, nullptr, dstx, dsty, width/*Application::the()->width()*/, height/*Application::the()->height()*/, 0);
+		if (isFullscreen()) {
+			SetWindowPos(hwnd, nullptr, dstx, dsty, width, height, 0);
+		}
 	}
 
 	GetFocus(); // TODO (DK) that seems like a useless call, as the return value isn't saved anywhere?
@@ -563,24 +637,7 @@ int Kore::System::createWindow( int x, int y, int width, int height, int windowM
 	if (windowCounter == 0) {
 		loadXInput();
 	}
-
-/*	if (!Application::the()->fullscreen()) {
-		uint xres = GetSystemMetrics(SM_CXSCREEN);
-		uint yres = GetSystemMetrics(SM_CYSCREEN);
-		int x = Application::the()->x();
-		int y = Application::the()->y();
-		uint w = Application::the()->width();
-		uint h = Application::the()->height();
-		RECT r;
-		r.left   = x < 0 ? (xres - w) >> 1 : x;
-		r.top    = y < 0 ? (yres - h) >> 1 : y;
-		r.right  = r.left + w - 1;
-		r.bottom = r.top  + h - 1;
-
-		AdjustWindowRect(&r, dwStyle, FALSE);
-		MoveWindow(hwnd, r.left, r.top, r.right - r.left + 1, r.bottom - r.top + 1, TRUE);
-	}*/
-#endif /* #ifdef VR_RIFT */
+#endif /*#else // #ifdef VR_RIFT  */
 
 	windows[windowCounter] = new W32Window(hwnd, dstx, dsty, width, height);
 	return windowCounter;
@@ -607,6 +664,12 @@ void Kore::System::destroyWindow( int index ) {
 	//	//MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 	//	//hInstance=NULL;
 	//}
+}
+
+int Kore::System::initWindow( WindowOptions options ) {
+	int windowId = createWindow(options.title, options.x, options.y, options.width, options.height, options.mode);
+	Graphics::init(windowId);
+	return windowId;
 }
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {
@@ -702,14 +765,14 @@ namespace {
 		folder->GetPath(0, &path);
 
 		size_t length = wcslen(path);
-		size_t length2 = strlen(Application::the()->name());
+		size_t length2 = strlen(appimpl::name);
 		savePath = new char[length + length2 + 3];
 		for (size_t i = 0; i < length; ++i) {
 			savePath[i] = static_cast<char>(path[i]);
 		}
 		savePath[length] = '\\';
 		for (size_t i = 0; i < length2; ++i) {
-			savePath[length + 1 + i] = Application::the()->name()[i];
+			savePath[length + 1 + i] = appimpl::name[i];
 		}
 		savePath[length + 1 + length2] = '\\';
 		savePath[length + 1 + length2 + 1] = 0;

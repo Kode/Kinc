@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Mouse.h"
-#include <Kore/Application.h>
+//#include <Kore/Application.h>
 #include <Kore/System.h>
 #include <Kore/Log.h>
 
@@ -86,8 +86,9 @@ void Mouse::lock(){
 	locked = true;
 	_lock(true);
 	getPosition(lockX, lockY);
-	centerX = Application::the()->width() / 2;
-	centerY = Application::the()->height() / 2;
+	// TODO (DK) correct window?
+	centerX = Kore::System::screenWidth() / 2;
+	centerY = Kore::System::screenHeight() / 2;
 	setPosition(centerX, centerY);
 }
 

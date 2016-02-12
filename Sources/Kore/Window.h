@@ -5,7 +5,6 @@ namespace Kore {
 		int width;
 		int height;
 		int textureFormat;
-		//int depthStencilFormat;
 		int depthBufferBits;
 		int stencilBufferBits;
 		int antialiasing;

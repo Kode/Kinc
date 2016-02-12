@@ -4,15 +4,25 @@
 #include <Kore/Window.h>
 
 namespace Kore {
+	enum Orientation {
+		OrientationLandscapeLeft,
+		OrientationLandscapeRight,
+		OrientationPortrait,
+		OrientationPortraitUpsideDown,
+		OrientationUnknown
+	};
+
 	namespace System {
 		int currentDevice();
 		void setCurrentDevice(int id);
 		int windowWidth(int id);
 		int windowHeight(int id);
-
-		int createWindow( int x, int y, int width, int height, int windowMode );
+		
+		int initWindow( WindowOptions options );
+		int createWindow( const char * title, int x, int y, int width, int height, int windowMode );
 		void destroyWindow(int id);
 		void* windowHandle(int windowId);
+
 		void changeResolution(/*Window* window,*/ int width, int height, bool fullscreen);
 		bool handleMessages();
 		vec2i mousePos();
@@ -20,8 +30,8 @@ namespace Kore {
 		void hideKeyboard();
 		bool showsKeyboard();
 		void loadURL(const char* title);
-		int screenWidth();
-		int screenHeight();
+		int screenWidth(); // main window
+		int screenHeight(); // main window
 		int desktopWidth();
 		int desktopHeight();
 		const char* systemId();
@@ -36,5 +46,18 @@ namespace Kore {
 		double frequency();
 		ticks timestamp();
 		double time();
+
+		// (DK) old application interface
+		void start();
+		void stop();
+		bool isFullscreen();
+
+		void setCallback( void (*value)() );
+		void setForegroundCallback( void (*value)() );
+		void setResumeCallback( void (*value)() );
+		void setPauseCallback( void (*value)() );
+		void setBackgroundCallback( void (*value)() );
+		void setShutdownCallback( void (*value)() );
+		void setOrientationCallback( void (*value)(Orientation) );
 	}
 }
