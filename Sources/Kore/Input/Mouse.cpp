@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Mouse.h"
-//#include <Kore/Application.h>
 #include <Kore/System.h>
 #include <Kore/Log.h>
 
@@ -73,8 +72,6 @@ void Mouse::_activated(bool truth){
 	}
 }
 
-
-
 bool Mouse::isLocked(){
 	return locked;
 }
@@ -86,7 +83,7 @@ void Mouse::lock(){
 	locked = true;
 	_lock(true);
 	getPosition(lockX, lockY);
-	// TODO (DK) correct window?
+	// TODO (DK) use correct window or only main one?
 	centerX = Kore::System::screenWidth() / 2;
 	centerY = Kore::System::screenHeight() / 2;
 	setPosition(centerX, centerY);

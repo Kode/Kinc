@@ -1,6 +1,5 @@
 #include "pch.h"
 #include <Kore/System.h>
-//#include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Gamepad.h>
@@ -24,7 +23,7 @@ int kore(int argc, char** argv);
 
 namespace appimpl {
 	bool running = false;
-	const char * name = "";
+	const char * name = "KoreApplication";
 
 	void (*callback)();
 	void (*foregroundCallback)();
@@ -36,13 +35,18 @@ namespace appimpl {
 }
 
 namespace Kore { namespace System {
+	void setName( const char * name ) {
+		appimpl::name = name;
+	}
+
 	void stop() {
 		appimpl::running = false;
 
-	//for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
-	//	Graphics::destroy(windowIndex);
-	//}
+		// TODO (DK) destroy graphics, but afaik Application::~Application() was never called, so it's the same behavior now as well
 
+		//for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
+		//	Graphics::destroy(windowIndex);
+		//}
 	}
 
 	void start() {
@@ -51,8 +55,7 @@ namespace Kore { namespace System {
 #if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
 		// if (Graphics::hasWindow()) Graphics::swapBuffers();
 		while (appimpl::running) {
-			auto cb = appimpl::callback;
-			cb();
+			appimpl::callback();
 			handleMessages();
 		}
 #endif
@@ -109,11 +112,12 @@ namespace {
 
 	W32Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	int windowCounter = -1;
+	int currentDeviceId = -1;
 
 #ifdef VR_RIFT
 	const char* windowClassName = "ORT";
 #else
-	//const char* windowClassName = "KoreWindow";
+	const char* windowClassName = "KoreWindow";
 #endif
 
 	void registerWindowClass(HINSTANCE hInstance, const char * className) {
@@ -122,9 +126,8 @@ namespace {
 	}
 }
 
+// TODO (DK) move to Graphics?
 namespace Kore { namespace System {
-	int currentDeviceId = -1;
-
 	// (DK) only valid during begin() => end() calls
 	int currentDevice() {
 		if (currentDeviceId == -1) {
@@ -138,6 +141,10 @@ namespace Kore { namespace System {
 		currentDeviceId = id;
 	}
 
+	int windowCount() {
+		return windowCounter + 1;
+	}
+
 	int windowWidth(int id) {
 		return windows[id]->width;
 	}
@@ -145,9 +152,7 @@ namespace Kore { namespace System {
 	int windowHeight(int id) {
 		return windows[id]->height;
 	}
-
-}
-}
+}}
 
 using namespace Kore;
 
@@ -543,25 +548,18 @@ int Kore::System::createWindow( const char * title, int x, int y, int width, int
 		::windows[0] = new W32Window((HWND) VrInterface::Init(inst));
 #else /* #ifdef VR_RIFT  */
 
-	const char * windowClassName;
-
-	// TODO (DK) just testing
-	switch (windowCounter) {
-	case 0: windowClassName = "KoreWindow0"; break;
-	case 1: windowClassName = "KoreWindow1"; break;
-	case 2: windowClassName = "KoreWindow2"; break;
+	if (windowCounter == 0) {
+		::registerWindowClass(inst, windowClassName);
 	}
-
-	::registerWindowClass(inst, windowClassName);
 	
 	DWORD dwExStyle;
 	DWORD dwStyle;
 
 	RECT WindowRect;
 	WindowRect.left = 0;
-	WindowRect.right = width;//Application::the()->width();
+	WindowRect.right = width;
 	WindowRect.top = 0;
-	WindowRect.bottom = height;//Application::the()->height();
+	WindowRect.bottom = height;
 	
 	switch (windowMode) {
 		// windowed
@@ -578,12 +576,12 @@ int Kore::System::createWindow( const char * title, int x, int y, int width, int
 
 		// fullscreen
 		case 2: {
-			DEVMODEA dmScreenSettings;					// Device Mode
+			DEVMODEA dmScreenSettings;									// Device Mode
 			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));		// Makes Sure Memory's Cleared
-			dmScreenSettings.dmSize = sizeof(dmScreenSettings);		// Size Of The Devmode Structure
-			dmScreenSettings.dmPelsWidth	= width;			// Selected Screen Width
-			dmScreenSettings.dmPelsHeight	= height;			// Selected Screen Height
-			dmScreenSettings.dmBitsPerPel	= 32;				// Selected Bits Per Pixel
+			dmScreenSettings.dmSize = sizeof(dmScreenSettings);			// Size Of The Devmode Structure
+			dmScreenSettings.dmPelsWidth	= width;					// Selected Screen Width
+			dmScreenSettings.dmPelsHeight	= height;					// Selected Screen Height
+			dmScreenSettings.dmBitsPerPel	= 32;						// Selected Bits Per Pixel
 			dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 			// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
@@ -591,8 +589,8 @@ int Kore::System::createWindow( const char * title, int x, int y, int width, int
 				//return FALSE;
 			}
 		
-			dwExStyle = WS_EX_APPWINDOW;					// Window Extended Style
-			dwStyle = WS_POPUP;						// Windows Style
+			dwExStyle = WS_EX_APPWINDOW;
+			dwStyle = WS_POPUP;
 			ShowCursor(FALSE);
 		} break;
 	}
@@ -644,7 +642,7 @@ int Kore::System::createWindow( const char * title, int x, int y, int width, int
 }
 
 void* Kore::System::windowHandle(int windowId) {
-	return windows[windowId]->hwnd;//hwnd;
+	return windows[windowId]->hwnd;
 }
 
 void Kore::System::destroyWindow( int index ) {
@@ -658,22 +656,26 @@ void Kore::System::destroyWindow( int index ) {
 
 	windows[index] = nullptr;
 	
-	// TODO (DK) uncomment again, and only unregister after the last window is destroyed
-
-	//if (!UnregisterClassA(windowClassName, GetModuleHandleA(nullptr))) {
-	//	//MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
-	//	//hInstance=NULL;
-	//}
+	// TODO (DK) only unregister after the last window is destroyed?
+	if (!UnregisterClassA(windowClassName, GetModuleHandleA(nullptr))) {
+		//MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
+		//hInstance=NULL;
+	}
 }
 
 int Kore::System::initWindow( WindowOptions options ) {
-	int windowId = createWindow(options.title, options.x, options.y, options.width, options.height, options.mode);
+	char buffer[1024] = {0};
+	strcat(buffer, appimpl::name);
+	strcat(buffer, " | ");
+	strcat(buffer, options.title);
+	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode);
 	Graphics::init(windowId);
 	return windowId;
 }
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 #ifndef OPENGL
+	// TODO (DK) update me
 	Application::the()->setWidth(width);
 	Application::the()->setHeight(height);
 	Application::the()->setFullscreen(fullscreen);

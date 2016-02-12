@@ -12,18 +12,22 @@ namespace Kore {
 		OrientationUnknown
 	};
 
+	// TODO (DK) remove windowing stuff from here and put into Kore::Window?
 	namespace System {
 		int currentDevice();
 		void setCurrentDevice(int id);
 		int windowWidth(int id);
 		int windowHeight(int id);
+		int windowCount();
 		
+		void setName( const char * name );
+
 		int initWindow( WindowOptions options );
 		int createWindow( const char * title, int x, int y, int width, int height, int windowMode );
 		void destroyWindow(int id);
 		void* windowHandle(int windowId);
 
-		void changeResolution(/*Window* window,*/ int width, int height, bool fullscreen);
+		void changeResolution(int width, int height, bool fullscreen);
 		bool handleMessages();
 		vec2i mousePos();
 		void showKeyboard();
