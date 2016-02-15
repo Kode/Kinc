@@ -545,7 +545,7 @@ vec2i Kore::System::mousePos() {
 
 #undef CreateWindow
 
-int Kore::System::createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay ) {
+int createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay ) {
 	++windowCounter;
 
 	HINSTANCE inst = GetModuleHandleA(nullptr);
@@ -603,9 +603,9 @@ int Kore::System::createWindow( const char * title, int x, int y, int width, int
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
 
-	const Monitor::Screen * screen = targetDisplay < 0
-		? Monitor::primaryScreen()
-		: Monitor::screenById(targetDisplay)
+	const Kore::System::Monitor::Screen * screen = targetDisplay < 0
+		? Kore::System::Monitor::primaryScreen()
+		: Kore::System::Monitor::screenById(targetDisplay)
 		;
 
 	int dstx = screen->x;
@@ -637,7 +637,7 @@ int Kore::System::createWindow( const char * title, int x, int y, int width, int
 	HWND hwnd = CreateWindowExA(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
 	
 	if (windowCounter == 0) {
-		if (isFullscreen()) {
+		if (windowMode == 2) {
 			SetWindowPos(hwnd, nullptr, dstx, dsty, width, height, 0);
 		}
 	}
