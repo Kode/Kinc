@@ -25,6 +25,7 @@ Application::Application(int argc, char** argv, int width, int height, int antia
 	::showWindow = showWindow;
 	instance = this;
 	Random::init(static_cast<int>(System::timestamp() % std::numeric_limits<int>::max()));
+	Graphics::setAntialiasingSamples(antialiasing);
 	Graphics::init();
 }
 
