@@ -6,6 +6,8 @@
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
 
+#include "System_Screens.h"
+
 #ifdef VR_RIFT 
 #include "Vr/VrInterface.h"
 #endif
@@ -35,6 +37,10 @@ namespace appimpl {
 }
 
 namespace Kore { namespace System {
+	void setup() {
+		Monitor::enumerate();
+	}
+
 	void setName( const char * name ) {
 		appimpl::name = name;
 	}
@@ -539,7 +545,7 @@ vec2i Kore::System::mousePos() {
 
 #undef CreateWindow
 
-int Kore::System::createWindow( const char * title, int x, int y, int width, int height, int windowMode ) {
+int Kore::System::createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay ) {
 	++windowCounter;
 
 	HINSTANCE inst = GetModuleHandleA(nullptr);
@@ -597,8 +603,13 @@ int Kore::System::createWindow( const char * title, int x, int y, int width, int
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
 
-	int dstx;
-	int dsty;
+	const Monitor::Screen * screen = targetDisplay < 0
+		? Monitor::primaryScreen()
+		: Monitor::screenById(targetDisplay)
+		;
+
+	int dstx = screen->x;
+	int dsty = screen->y;
 	uint xres = GetSystemMetrics(SM_CXSCREEN);
 	uint yres = GetSystemMetrics(SM_CYSCREEN);
 	uint w = width;
@@ -609,15 +620,17 @@ int Kore::System::createWindow( const char * title, int x, int y, int width, int
 		// (DK) borderless
 		case 0: // fall through
 		case 1: {
-			dstx = x < 0 ? (xres - w) >> 1 : x;
-			dsty = y < 0 ? (yres - h) >> 1 : y;
+			//dstx = x < 0 ? (xres - w) >> 1 : x;
+			//dsty = y < 0 ? (yres - h) >> 1 : y;
+			dstx += x < 0 ? (screen->width - w) >> 1 : x;
+			dsty += y < 0 ? (screen->height - h) >> 1 : y;
 		} break;
 
 		// (DK) fullscreen
 		default: // fall through
 		case 2: {
-			dstx = 0;
-			dsty = 0;
+			//dstx = 0;
+			//dsty = 0;
 		} break;
 	}
 
@@ -668,7 +681,7 @@ int Kore::System::initWindow( WindowOptions options ) {
 	strcat(buffer, appimpl::name);
 	strcat(buffer, " | ");
 	strcat(buffer, options.title);
-	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode);
+	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
 	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return windowId;
 }

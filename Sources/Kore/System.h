@@ -14,6 +14,8 @@ namespace Kore {
 
 	// TODO (DK) remove windowing stuff from here and put into Kore::Window?
 	namespace System {
+		void setup();
+
 		int currentDevice();
 		void setCurrentDevice(int id);
 		int windowWidth(int id);
@@ -23,7 +25,7 @@ namespace Kore {
 		void setName( const char * name );
 
 		int initWindow( WindowOptions options );
-		int createWindow( const char * title, int x, int y, int width, int height, int windowMode );
+		int createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay );
 		void destroyWindow(int id);
 		void* windowHandle(int windowId);
 
