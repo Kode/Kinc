@@ -123,6 +123,8 @@ namespace Kore { namespace System {
 	}
 }}
 
+int createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits );
+
 namespace Kore { namespace System {
     int windowCount() {
         return windowimpl::windowCounter + 1;

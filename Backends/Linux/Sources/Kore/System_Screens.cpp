@@ -9,6 +9,43 @@
 #include <cstdio>
 #include <cstdlib>
 
+/*
+    TODO (DK) libXinerama version (someone said it's obsolete, use libXrandr)
+
+#include <cstdlib>
+#include <iostream>
+
+#include <X11/extensions/Xinerama.h>
+
+using std::cout;
+using std::endl;
+
+int main(int argc, char *argv[]) {
+	bool success=false;
+	Display *d=XOpenDisplay(NULL);
+	if (d) {
+		int dummy1, dummy2;
+		if (XineramaQueryExtension(d, &dummy1, &dummy2)) {
+			if (XineramaIsActive(d)) {
+				int heads=0;
+				XineramaScreenInfo *p=XineramaQueryScreens(d, &heads);
+				if (heads>0) {
+					for (int x=0; x<heads; ++x)
+						cout << "Head " << x+1 << " of " << heads << ": " <<
+							p[x].width << "x" << p[x].height << " at " <<
+							p[x].x_org << "," << p[x].y_org << endl;
+					success=true;
+				} else cout << "XineramaQueryScreens says there aren't any" << endl;
+				XFree(p);
+			} else cout << "Xinerama not active" << endl;
+		} else cout << "No Xinerama extension" << endl;
+		XCloseDisplay(d);
+	} else cout << "Can't open display" << endl;
+
+	return (success ? EXIT_SUCCESS : EXIT_FAILURE);
+}
+*/
+
 namespace { namespace impl {
     Display * dpy;
 }}
