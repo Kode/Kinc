@@ -57,7 +57,8 @@ void Mouse::show(bool truth){
 
 void Mouse::setPosition(int x, int y){
 	Display* dpy = XOpenDisplay(0);
-    Window win = (XID)System::windowHandle();
+	// TODO (DK)
+    ::Window win = (XID)System::windowHandle(0);
 
     XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
     XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position.
@@ -67,10 +68,11 @@ void Mouse::setPosition(int x, int y){
 
 void Mouse::getPosition(int& x, int& y){
     Display* dpy = XOpenDisplay(NULL);
-    Window win = (XID)System::windowHandle();
+    // TODO (DK) only primary?
+    ::Window win = (XID)System::windowHandle(0);
 
-    Window inwin;
-    Window inchildwin;
+    ::Window inwin;
+    ::Window inchildwin;
     int rootx, rooty;
     unsigned int mask;
 

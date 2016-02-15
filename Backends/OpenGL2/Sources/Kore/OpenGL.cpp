@@ -137,15 +137,15 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #else /* #ifndef VR_RIFT */
 	deviceContexts[windowId] = GetDC(windowHandle);
 	glContexts[windowId] = wglGetCurrentContext();
-	glewInit();	
+	glewInit();
 #endif /* #ifndef VR_RIFT */
 
 #else /* #ifdef SYS_WINDOWS */
 	// TODO (DK) windowHandle = (HWND)System::windowHandle(windowId)//(HWND)System::createWindow();
-	(DK) CRAP TO PRODUCE COMPILE ERRORS HERE
-	System::createWindow();
+	//(DK) CRAP TO PRODUCE COMPILE ERRORS HERE
+	//System::createWindow();
 #endif /* #ifdef SYS_WINDOWS */
-	
+
 #ifndef VR_RIFT
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -260,7 +260,7 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	else {
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 		glCheckErrors();
-	}	
+	}
 #endif
 }
 
@@ -317,7 +317,15 @@ void Graphics::begin(int windowId) {
 #endif
 
 	System::setCurrentDevice(windowId);
+
+#if defined (SYS_WINDOWS)
 	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
+#endif
+
+#if defined (SYS_LINUX)
+    // TODO (DK)
+    //glXMakeCurrent(???, ???, ???);
+#endif
 
 #ifdef SYS_IOS
 	beginGL();
@@ -450,7 +458,14 @@ void Graphics::end(int windowId) {
 #endif
 
 	System::setCurrentDevice(-1);
+#if defined (SYS_WINDOWS)
 	wglMakeCurrent(nullptr, nullptr);
+#endif
+
+#if defined (SYS_LINUX)
+    // TODO (DK)
+    //glXMakeCurrent(???, ???, ???);
+#endif
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {

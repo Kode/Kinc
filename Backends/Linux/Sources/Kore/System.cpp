@@ -1,9 +1,9 @@
 #include "pch.h"
 #include <Kore/System.h>
 #include <cstring>
-#include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include "System_Screens.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,8 +17,8 @@
 //apt-get install libgl-dev
 
 namespace {
-    static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, None};
-    static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_DOUBLEBUFFER, None};
+    //static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, None};
+    //static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_DOUBLEBUFFER, None};
 
     Display* dpy;
     Window win;
@@ -30,9 +30,140 @@ namespace {
     }
 }
 
-using namespace Kore;
+namespace appimpl {
+	bool running = false;
+	const char * name = "KoreApplication";
 
-void* System::createWindow() {
+	void (*callback)();
+	void (*foregroundCallback)();
+	void (*backgroundCallback)();
+	void (*pauseCallback)();
+	void (*resumeCallback)();
+	void (*shutdownCallback)();
+	void (*orientationCallback)(Kore::Orientation);
+}
+
+namespace windowimpl {
+    struct OsWindow {
+        Window handle;
+        int x, y;
+        int width, height;
+
+        OsWindow( Window handle, int x, int y, int width, int height ) {
+            this->handle = handle;
+            this->x = x;
+            this->y = y;
+            this->width = width;
+            this->height = height;
+        }
+    };
+
+    OsWindow* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+    int windowCounter = -1;
+}
+
+namespace Kore { namespace System {
+	void setup() {
+		Monitor::enumerate();
+	}
+
+	void start() {
+		appimpl::running = true;
+
+#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+		// if (Graphics::hasWindow()) Graphics::swapBuffers();
+		while (appimpl::running) {
+			appimpl::callback();
+			handleMessages();
+		}
+#endif
+	}
+
+	void stop() {
+		appimpl::running = false;
+
+		// TODO (DK) destroy graphics, but afaik Application::~Application() was never called, so it's the same behavior now as well
+
+		//for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
+		//	Graphics::destroy(windowIndex);
+		//}
+	}
+
+	bool isFullscreen() {
+		// TODO (DK)
+		return false;
+	}
+
+	void setCallback( void (*value)() ) {
+		appimpl::callback = value;
+	}
+
+	void setForegroundCallback( void (*value)() ) {
+		appimpl::foregroundCallback = value;
+	}
+
+	void setResumeCallback( void (*value)() ) {
+		appimpl::resumeCallback = value;
+	}
+
+	void setPauseCallback( void (*value)() ) {
+		appimpl::pauseCallback = value;
+	}
+
+	void setBackgroundCallback( void (*value)() ) {
+		appimpl::backgroundCallback = value;
+	}
+
+	void setShutdownCallback( void (*value)() ) {
+		appimpl::shutdownCallback = value;
+	}
+
+	void setOrientationCallback( void (*value)(Orientation) ) {
+		appimpl::orientationCallback = value;
+	}
+}}
+
+namespace Kore { namespace System {
+    int windowCount() {
+        return windowimpl::windowCounter + 1;
+    }
+
+    int windowWidth( int id ) {
+        return windowimpl::windows[id]->width;
+    }
+
+    int windowHeight( int id ) {
+        return windowimpl::windows[id]->height;
+    }
+
+    int initWindow( WindowOptions options ) {
+        return createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+    }
+
+    void* windowHandle( int id ) {
+        // TODO (DK) throw new std::exception("implement me");
+        return nullptr;
+    }
+}}
+
+namespace Kore { namespace System {
+    int currentDevice() {
+        // TODO (DK)    throw new std::exception("implement me");
+        return -1;
+    }
+
+    void setCurrentDevice( int id ) {
+        // TODO (DK) throw new std::exception("implement me");
+    }
+}}
+
+void
+Kore::System::setName( const char* name ) {
+    appimpl::name = name; // TODO (DK) strcpy?
+}
+
+int
+createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits ) {
 	XVisualInfo*         vi;
 	Colormap             cmap;
 	XSetWindowAttributes swa;
@@ -54,10 +185,18 @@ void* System::createWindow() {
 	// (3) find an appropriate visual
 
 	// find an OpenGL-capable RGB visual with depth buffer
+    int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, None};
+    int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
+
 	vi = glXChooseVisual(dpy, DefaultScreen(dpy), dblBuf);
+
 	if (vi == NULL) {
 		vi = glXChooseVisual(dpy, DefaultScreen(dpy), snglBuf);
-		if (vi == NULL) fatalError("no RGB visual with depth buffer");
+
+		if (vi == NULL) {
+            fatalError("no RGB visual with valid depth/stencil buffer");
+		}
+
 		doubleBuffer = GL_FALSE;
 	}
 	//if(vi->class != TrueColor)
@@ -67,7 +206,10 @@ void* System::createWindow() {
 
 	// create an OpenGL rendering context
 	cx = glXCreateContext(dpy, vi, /* no shared dlists */ None, /* direct rendering if possible */ GL_TRUE);
-	if (cx == NULL) fatalError("could not create rendering context");
+
+	if (cx == NULL) {
+        fatalError("could not create rendering context");
+	}
 
 	// (5) create an X window with the selected visual
 
@@ -76,7 +218,7 @@ void* System::createWindow() {
 	swa.colormap = cmap;
 	swa.border_pixel = 0;
 	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
-	win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, Application::the()->width(), Application::the()->height(), 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
+	win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
 	XSetStandardProperties(dpy, win, "main", "main", None, NULL, 0, NULL);
 
 	// (6) bind the rendering context to the window
@@ -86,13 +228,13 @@ void* System::createWindow() {
 	// (7) request the X window to be displayed on the screen
 
 	XMapWindow(dpy, win);
-    XMoveWindow(dpy, win, DisplayWidth(dpy, vi->screen) / 2 - Application::the()->width() / 2, DisplayHeight(dpy, vi->screen) / 2 - Application::the()->height() / 2);
+    XMoveWindow(dpy, win, DisplayWidth(dpy, vi->screen) / 2 - width / 2, DisplayHeight(dpy, vi->screen) / 2 - height / 2);
 	//Scheduler::addFrameTask(HandleMessages, 1001);
 
 	return nullptr;
 }
 
-bool System::handleMessages() {
+bool Kore::System::handleMessages() {
 	while (XPending(dpy) > 0) {
 		XEvent event;
 		XNextEvent(dpy, &event);
@@ -136,7 +278,7 @@ bool System::handleMessages() {
 			KEY(XK_y, Key_Y, 'y')
 			KEY(XK_z, Key_Z, 'z')
 			case XK_Escape:
-				Application::the()->stop();
+                System::stop();
 				break;
 			}
 			break;
@@ -228,16 +370,17 @@ const char* Kore::System::systemId() {
     return "Linux";
 }
 
-void* Kore::System::windowHandle() {
+/*void* Kore::System::windowHandle() {
     return (void*)win;
-}
+}*/
 
-void Kore::System::swapBuffers() {
+void Kore::System::swapBuffers( int contextId ) {
+    // TODO (DK) correct contexts
     glXSwapBuffers(dpy, win);
 }
 
-void Kore::System::destroyWindow() {
-
+void Kore::System::destroyWindow( int id ) {
+    // TODO (DK) implement me
 }
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {
@@ -265,11 +408,13 @@ void Kore::System::loadURL(const char* url) {
 }
 
 int Kore::System::screenWidth() {
-    return Application::the()->width();
+    // TODO (DK) 0 instead of currentDevice()?
+    return windowimpl::windows[currentDevice()]->width;
 }
 
 int Kore::System::screenHeight() {
-    return Application::the()->height();
+    // TODO (DK) 0 instead of currentDevice()?
+    return windowimpl::windows[currentDevice()]->height;
 }
 
 int Kore::System::desktopWidth() {
@@ -288,7 +433,7 @@ namespace {
 const char* Kore::System::savePath() {
     if (!saveInitialized) {
         strcpy(save, "Ķ~/.");
-        strcat(save, Application::the()->name());
+        strcat(save, appimpl::name);
         strcat(save, "/");
         saveInitialized = true;
     }

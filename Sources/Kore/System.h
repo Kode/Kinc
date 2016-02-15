@@ -45,7 +45,7 @@ namespace Kore {
 		const char* savePath();
 		const char** videoFormats();
 		void showWindow();
-		void swapBuffers();
+		void swapBuffers( int contextId );
 
 		typedef unsigned long long ticks;
 
