@@ -2,8 +2,8 @@
 
 namespace Kore {
 	struct RendererOptions {
-		int width;
-		int height;
+		//int width;
+		//int height;
 		int textureFormat;
 		int depthBufferBits;
 		int stencilBufferBits;
