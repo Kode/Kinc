@@ -70,6 +70,8 @@ function shaderLang(platform) {
 					return "d3d11";
 				case GraphicsApi.Direct3D12:
 					return 'd3d11';
+				case GraphicsApi.Vulkan:
+					return 'spirv';
 				default:
 					return "d3d9";
 			}
@@ -87,11 +89,21 @@ function shaderLang(platform) {
 		case Platform.OSX:
 			return "glsl";
 		case Platform.Android:
-			return "essl";
+			switch (Options.graphicsApi) {
+				case GraphicsApi.Vulkan:
+					return 'spirv';
+				default:
+					return 'essl';
+			}
 		case Platform.Xbox360:
 			return "d3d9";
 		case Platform.Linux:
-			return "glsl";
+			switch (Options.graphicsApi) {
+				case GraphicsApi.Vulkan:
+					return 'spirv';
+				default:
+					return 'glsl';
+			}
 		case Platform.HTML5:
 			return "essl";
 		case Platform.Tizen:
