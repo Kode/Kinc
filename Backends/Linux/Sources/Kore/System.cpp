@@ -243,22 +243,10 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 	// (6) bind the rendering context to the window
 	glXMakeCurrent(dpy, win, cx);
 
-    // TODO (DK) implement me correctly instead of tmp crap
-    Kore::System::Monitor::KoreScreen tmpscreen;
-    tmpscreen.id = win;
-    tmpscreen.x = 0;
-    tmpscreen.y = 0;
-    tmpscreen.width = 1920;
-    tmpscreen.y = 1080;
-    tmpscreen.isPrimary = true;
-    tmpscreen.isAvailable = true;
-    strcpy(tmpscreen.name, "\\\\.\\DISPLAY1");
-
-    const Kore::System::Monitor::KoreScreen * screen = &tmpscreen;
-//	const Kore::System::Monitor::KoreScreen * screen = targetDisplay < 0
-//		? Kore::System::Monitor::primaryScreen()
-//		: Kore::System::Monitor::screenById(targetDisplay)
-//		;
+	const Kore::System::Monitor::KoreScreen * screen = targetDisplay < 0
+		? Kore::System::Monitor::primaryScreen()
+		: Kore::System::Monitor::screenById(targetDisplay)
+		;
 
 	int dstx = screen->x;
 	int dsty = screen->y;
@@ -268,8 +256,10 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 		// (DK) borderless
 		case 0: // fall through
 		case 1: {
-			dstx += x < 0 ? (DisplayWidth(dpy, vi->screen) - width) / 2 : x;
-			dsty += y < 0 ? (DisplayHeight(dpy, vi->screen) - height) / 2 : y;
+		    int dw = screen->width;//DisplayWidth(dpy, vi->screen);
+		    int dh = screen->height;//DisplayHeight(dpy, vi->screen);
+			dstx += x < 0 ? (dw - width) / 2 : x;
+			dsty += y < 0 ? (dh - height) / 2 : y;
 		} break;
 
 		// (DK) fullscreen

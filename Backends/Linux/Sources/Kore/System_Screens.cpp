@@ -44,26 +44,33 @@ namespace Kore { namespace System { namespace Monitor {
 			}
 		}
 
-		log(Warning, "No primary screen defined");
-		return nullptr;
+        if (!screens[0].isAvailable) {
+            log(Warning, "No screen defined");
+            // TODO (DK) throw exception?
+            return nullptr;
+        }
+
+		log(Warning, "No primary screen defined, returning first screen");
+		return &screens[0];
 	}
 
 	const KoreScreen *
 	screenById( int id ) {
-        /*
-		char displayId[32];
-		sprintf_s(displayId, "\\\\.\\DISPLAY%i", id);
-
 		for (int screenIndex = 0; screenIndex < MAXIMUM_SCREEN_COUNT; ++screenIndex) {
-			const Screen & screen = screens[screenIndex];
+			const KoreScreen & screen = screens[screenIndex];
 
-			if (strcmp(screen.name, displayId) == 0) {
+			if (screen.number == id) {
 				return &screen;
 			}
 		}
-        */
-        log(Warning, "implement me");
-		log(Warning, "No screen with id \"%i\" found", id);
-		return nullptr;
+
+        if (!screens[0].isAvailable) {
+            log(Warning, "No screen available");
+            // TODO (DK) throw exception?
+            return nullptr;
+        }
+
+		log(Warning, "No screen with id \"%i\" found, returning first screen", id);
+		return &screens[0];
 	}
 }}}

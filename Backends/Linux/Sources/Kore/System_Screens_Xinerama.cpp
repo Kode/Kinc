@@ -15,7 +15,7 @@ void enumDisplayMonitors( KoreScreen screens[], int & screenCounter ) {
     Display * dpy = XOpenDisplay(NULL);
 
     if (dpy == NULL) {
-        fatalError("could not open display");
+        fatalError("Could not open display");
     }
 
     int eventBase;
@@ -24,19 +24,37 @@ void enumDisplayMonitors( KoreScreen screens[], int & screenCounter ) {
     if (XineramaQueryExtension(dpy, &eventBase, &errorBase)) {
         if (XineramaIsActive(dpy)) {
             int heads = 0;
-            XineramaScreenInfo * screens = XineramaQueryScreens(dpy, &heads);
+            XineramaScreenInfo * queried = XineramaQueryScreens(dpy, &heads);
 
             for (int head = 0; head < heads; ++head) {
-                XineramaScreenInfo & screen = screens[head];
-                log(Info, "head %i: %ix%i @ %i; %i", head + 1, screen.width, screen.height, screen.x_org, screen.y_org);
+                ++screenCounter;
+                XineramaScreenInfo & info = queried[head];
+                log(Info, "Head %i: %ix%i @%i;%i", head + 1, info.width, info.height, info.x_org, info.y_org);
+                KoreScreen & screen = screens[screenCounter];
+                screen.isAvailable = true;
+                screen.x = info.x_org;
+                screen.y = info.y_org;
+                screen.width = info.width;
+                screen.height = info.height;
+
+                // TODO (DK)
+                //      -is this always correct? if i switch screens on deb8/jessie with gnome it works ok
+                //      -what about other *nix or window managers?
+                screen.isPrimary = screenCounter == 0;
+
+                // TODO (DK)
+                //      -this doesn't work yet, whatever is configured as primary is the first screen returned,
+                //      not what shows up in the config tool as [1], [2], ...
+                //      -and info.screen_number just seems to be useless (0 for first returned, 1 for next, ...)
+                screen.number = info.screen_number + 1;
             }
 
-            XFree(screens);
+            XFree(queried);
         } else {
-            log(Warning, "Xinerama not active");
+            log(Warning, "Xinerama is not active");
         }
     } else {
-        log(Warning, "Xinerama extension not installed");
+        log(Warning, "Xinerama extension is not installed");
     }
 }
 

@@ -4,7 +4,7 @@
 
 namespace Kore { namespace System { namespace Monitor {
 	struct KoreScreen {
-		XID id; // TODO (DK) is XID correct?
+		int number;
 		bool isAvailable;
 		char name[32];
 		int x;
@@ -14,7 +14,7 @@ namespace Kore { namespace System { namespace Monitor {
 		bool isPrimary;
 
 		KoreScreen() {
-			id = nullptr;
+			number = -1;
 			name[0] = 0;
 			isAvailable = false;
 			isPrimary = false;
