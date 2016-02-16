@@ -28,27 +28,22 @@ if (platform === Platform.Windows) {
 	else if (graphics === GraphicsApi.Direct3D11) {
 		addBackend('Direct3D11');
 		project.addDefine('DIRECT3D');
+		project.addLib('d3d11');
 	}
 	else if (graphics === GraphicsApi.Direct3D12) {
 		addBackend('Direct3D12');
 		project.addDefine('DIRECT3D');
 		project.addLib('dxgi');
+		project.addLib('d3d12');
+	}
+	else if (graphics === GraphicsApi.Vulkan) {
+		addBackend('Vulkan');
+		project.addDefine('SYS_VULKAN');
 	}
 	else {
 		addBackend('Direct3D9');
 		project.addDefine('DIRECT3D');
-	}
-
-	if (graphics !== GraphicsApi.OpenGL) {
-		if (graphics === GraphicsApi.Direct3D12) {
-			project.addLib('d3d12');
-		}
-		else if (graphics === GraphicsApi.Direct3D11) {
-			project.addLib('d3d11');
-		}
-		else {
-			project.addLib('d3d9');
-		}
+		project.addLib('d3d9');
 	}
 }
 else if (platform === Platform.WindowsApp) {
@@ -110,8 +105,14 @@ else if (platform === Platform.iOS) {
 }
 else if (platform === Platform.Android) {
 	addBackend('Android');
-	addBackend('OpenGL2');
-	project.addDefine('OPENGL');
+	if (graphics === GraphicsApi.Vulkan) {
+		addBackend('Vulkan');
+		project.addDefine('SYS_VULKAN');
+	}
+	else {
+		addBackend('OpenGL2');
+		project.addDefine('OPENGL');
+	}
 	project.addDefine('SYS_ANDROID_API=15');
 	project.addDefine('HXCPP_ANDROID_PLATFORM=23');
 	project.addDefine('SYS_UNIXOID');
@@ -124,8 +125,14 @@ else if (platform === Platform.HTML5) {
 }
 else if (platform === Platform.Linux) {
 	addBackend('Linux');
-	addBackend('OpenGL2');
-	project.addDefine('OPENGL');
+	if (graphics === GraphicsApi.Vulkan) {
+		addBackend('Vulkan');
+		project.addDefine('SYS_VULKAN');
+	}
+	else {
+		addBackend('OpenGL2');
+		project.addDefine('OPENGL');
+	}
 	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.Tizen) {
