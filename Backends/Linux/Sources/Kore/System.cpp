@@ -1,9 +1,12 @@
 #include "pch.h"
-#include <Kore/System.h>
-#include <cstring>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Log.h>
+#include <Kore/System.h>
+
 #include "System_Screens.h"
+
+#include <cstring>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +24,7 @@ namespace {
     //static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_DOUBLEBUFFER, None};
 
     Display* dpy;
-    Window win;
+
     GLboolean doubleBuffer = GL_TRUE;
 
     void fatalError(const char* message) {
@@ -46,11 +49,13 @@ namespace appimpl {
 namespace windowimpl {
     struct KoreWindow {
         Window handle;
+        GLXContext context;
         int x, y;
         int width, height;
 
-        KoreWindow( Window handle, int x, int y, int width, int height ) {
+        KoreWindow( Window handle, GLXContext context, int x, int y, int width, int height ) {
             this->handle = handle;
+            this->context = context;
             this->x = x;
             this->y = y;
             this->width = width;
@@ -149,13 +154,18 @@ namespace Kore { namespace System {
 }}
 
 namespace Kore { namespace System {
+    int currentDeviceId = -1;
+
     int currentDevice() {
-        // TODO (DK)    throw new std::exception("implement me");
-        return -1;
+		if (currentDeviceId == -1) {
+			log(Warning, "no current device is active");
+		}
+
+        return currentDeviceId;
     }
 
     void setCurrentDevice( int id ) {
-        // TODO (DK) throw new std::exception("implement me");
+        currentDeviceId = id;
     }
 }}
 
@@ -166,6 +176,8 @@ Kore::System::setName( const char* name ) {
 
 int
 createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits ) {
+    int wcounter = windowimpl::windowCounter + 1;
+
 	XVisualInfo*         vi;
 	Colormap             cmap;
 	XSetWindowAttributes swa;
@@ -177,15 +189,20 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 
 	// (1) open a connection to the X server
 
-	dpy = XOpenDisplay(NULL);
-	if (dpy == NULL) fatalError("could not open display");
+    if (dpy == nullptr) {
+        dpy = XOpenDisplay(NULL);
+    }
+
+	if (dpy == NULL) {
+        fatalError("could not open display");
+    }
 
 	// (2) make sure OpenGL's GLX extension supported
-
-	if (!glXQueryExtension(dpy, &dummy, &dummy)) fatalError("X server has no OpenGL GLX extension");
+	if (!glXQueryExtension(dpy, &dummy, &dummy)) {
+        fatalError("X server has no OpenGL GLX extension");
+    }
 
 	// (3) find an appropriate visual
-
 	// find an OpenGL-capable RGB visual with depth buffer
     int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, None};
     int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
@@ -207,7 +224,7 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 	// (4) create an OpenGL rendering context
 
 	// create an OpenGL rendering context
-	cx = glXCreateContext(dpy, vi, /* no shared dlists */ None, /* direct rendering if possible */ GL_TRUE);
+	cx = glXCreateContext(dpy, vi, wcounter == 0 ? None : windowimpl::windows[0]->context, /* direct rendering if possible */ GL_TRUE);
 
 	if (cx == NULL) {
         fatalError("could not create rendering context");
@@ -220,20 +237,58 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 	swa.colormap = cmap;
 	swa.border_pixel = 0;
 	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
-	win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
-	XSetStandardProperties(dpy, win, "main", "main", None, NULL, 0, NULL);
+	Window win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
+	XSetStandardProperties(dpy, win, title, "main", None, NULL, 0, NULL);
 
 	// (6) bind the rendering context to the window
-
 	glXMakeCurrent(dpy, win, cx);
 
-	// (7) request the X window to be displayed on the screen
+    // TODO (DK) implement me correctly instead of tmp crap
+    Kore::System::Monitor::KoreScreen tmpscreen;
+    tmpscreen.id = win;
+    tmpscreen.x = 0;
+    tmpscreen.y = 0;
+    tmpscreen.width = 1920;
+    tmpscreen.y = 1080;
+    tmpscreen.isPrimary = true;
+    tmpscreen.isAvailable = true;
+    strcpy(tmpscreen.name, "\\\\.\\DISPLAY1");
 
+    const Kore::System::Monitor::KoreScreen * screen = &tmpscreen;
+//	const Kore::System::Monitor::KoreScreen * screen = targetDisplay < 0
+//		? Kore::System::Monitor::primaryScreen()
+//		: Kore::System::Monitor::screenById(targetDisplay)
+//		;
+
+	int dstx = screen->x;
+	int dsty = screen->y;
+
+	switch (windowMode) {
+		// (DK) windowed
+		// (DK) borderless
+		case 0: // fall through
+		case 1: {
+			dstx += x < 0 ? (DisplayWidth(dpy, vi->screen) - width) / 2 : x;
+			dsty += y < 0 ? (DisplayHeight(dpy, vi->screen) - height) / 2 : y;
+		} break;
+
+		// (DK) fullscreen
+		default: // fall through
+		case 2: {
+			//dstx = 0;
+			//dsty = 0;
+		} break;
+	}
+
+	// (7) request the X window to be displayed on the screen
 	XMapWindow(dpy, win);
-    XMoveWindow(dpy, win, DisplayWidth(dpy, vi->screen) / 2 - width / 2, DisplayHeight(dpy, vi->screen) / 2 - height / 2);
+    XMoveWindow(dpy, win, dstx, dsty);
 	//Scheduler::addFrameTask(HandleMessages, 1001);
 
-	return nullptr;
+    Kore::System::setCurrentDevice(wcounter);
+
+    windowimpl::windows[wcounter] = new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
+	return windowimpl::windowCounter = wcounter;
 }
 
 bool Kore::System::handleMessages() {
@@ -376,9 +431,13 @@ const char* Kore::System::systemId() {
     return (void*)win;
 }*/
 
+void Kore::System::makeCurrent( int contextId ) {
+	glXMakeCurrent(dpy, windowimpl::windows[contextId]->handle, windowimpl::windows[contextId]->context);
+
+}
+
 void Kore::System::swapBuffers( int contextId ) {
-    // TODO (DK) correct contexts
-    glXSwapBuffers(dpy, win);
+    glXSwapBuffers(dpy, windowimpl::windows[contextId]->handle);
 }
 
 void Kore::System::destroyWindow( int id ) {

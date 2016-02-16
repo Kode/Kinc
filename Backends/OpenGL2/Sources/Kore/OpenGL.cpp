@@ -323,6 +323,7 @@ void Graphics::begin(int windowId) {
 #endif
 
 #if defined (SYS_LINUX)
+    System::makeCurrent(windowId);
     // TODO (DK)
     //glXMakeCurrent(???, ???, ???);
 #endif
@@ -330,6 +331,7 @@ void Graphics::begin(int windowId) {
 #ifdef SYS_IOS
 	beginGL();
 #endif
+
 #ifdef SYS_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

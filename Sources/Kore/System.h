@@ -21,7 +21,7 @@ namespace Kore {
 		int windowWidth(int id);
 		int windowHeight(int id);
 		int windowCount();
-		
+
 		void setName( const char * name );
 
 		int initWindow( WindowOptions options );
@@ -46,6 +46,7 @@ namespace Kore {
 		const char** videoFormats();
 		void showWindow();
 		void swapBuffers( int contextId );
+		void makeCurrent( int contextId );
 
 		typedef unsigned long long ticks;
 
