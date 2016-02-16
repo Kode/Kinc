@@ -4,9 +4,9 @@
 	branch = master
 [submodule "Tools/kraffiti"]
 	path = Tools/kraffiti
-	url = https://github.com/KTXSoftware/kraffiti_bin
+	url = ../kraffiti_bin
 	branch = master
 [submodule "Tools/krafix"]
 	path = Tools/krafix
-	url = https://github.com/KTXSoftware/krafix_bin
+	url = ../krafix_bin
 	branch = master
