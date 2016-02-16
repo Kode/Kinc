@@ -3,7 +3,7 @@
 #include <X11/X.h>
 
 namespace Kore { namespace System { namespace Monitor {
-	struct Screen {
+	struct KoreScreen {
 		XID id; // TODO (DK) is XID correct?
 		bool isAvailable;
 		char name[32];
@@ -13,7 +13,7 @@ namespace Kore { namespace System { namespace Monitor {
         int height;
 		bool isPrimary;
 
-		Screen() {
+		KoreScreen() {
 			id = nullptr;
 			name[0] = 0;
 			isAvailable = false;
@@ -25,6 +25,6 @@ namespace Kore { namespace System { namespace Monitor {
 
 	int count();
 
-	const Screen* primaryScreen();
-	const Screen* screenById( int id );
+	const KoreScreen* primaryScreen();
+	const KoreScreen* screenById( int id );
 }}}

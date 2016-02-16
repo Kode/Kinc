@@ -44,12 +44,12 @@ namespace appimpl {
 }
 
 namespace windowimpl {
-    struct OsWindow {
+    struct KoreWindow {
         Window handle;
         int x, y;
         int width, height;
 
-        OsWindow( Window handle, int x, int y, int width, int height ) {
+        KoreWindow( Window handle, int x, int y, int width, int height ) {
             this->handle = handle;
             this->x = x;
             this->y = y;
@@ -58,7 +58,7 @@ namespace windowimpl {
         }
     };
 
-    OsWindow* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+    KoreWindow * windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
     int windowCounter = -1;
 }
 
