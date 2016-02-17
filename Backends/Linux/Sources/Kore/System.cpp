@@ -222,8 +222,10 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 	//  fatalError("TrueColor visual required for this program");
 
 	// (4) create an OpenGL rendering context
-
-	// create an OpenGL rendering context
+	// TODO (DK)
+	//  -context sharing doesn't seem to work in virtual box?
+	//      -main screen flickers
+	//      -sprite in subscreens is black
 	cx = glXCreateContext(dpy, vi, wcounter == 0 ? None : windowimpl::windows[0]->context, /* direct rendering if possible */ GL_TRUE);
 
 	if (cx == NULL) {
