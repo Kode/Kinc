@@ -66,7 +66,6 @@ class ExporterCodeBlocks extends Exporter {
 		this.p("<Add library=\"X11\" />", 3);
 		this.p("<Add library=\"asound\" />", 3);
 		this.p("<Add library=\"dl\" />", 3);
-		this.p("<Add library=\"Xrandr\" />", 3);
 		this.p("</Linker>", 2);
 		for (let file of project.getFiles()) {
 			if (file.endsWith(".c") || file.endsWith(".cpp")) {
