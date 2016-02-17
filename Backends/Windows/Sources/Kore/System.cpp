@@ -499,7 +499,7 @@ void Kore::System::destroyWindow() {
 }
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {
-#ifndef OPENGL
+#if !defined(OPENGL) && !defined(SYS_VULKAN)
 	Application::the()->setWidth(width);
 	Application::the()->setHeight(height);
 	Application::the()->setFullscreen(fullscreen);
