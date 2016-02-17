@@ -25,6 +25,7 @@ int kore(int argc, char** argv);
 
 namespace appimpl {
 	bool running = false;
+	bool showWindowFlag = true;
 	const char * name = "KoreApplication";
 
 	void (*callback)();
@@ -70,6 +71,14 @@ namespace Kore { namespace System {
 	bool isFullscreen() {
 		// TODO (DK)
 		return false;
+	}
+
+	bool hasShowWindowFlag() {
+		return appimpl::showWindowFlag;
+	}
+
+	void setShowWindowFlag( bool value ) {
+		appimpl::showWindowFlag = value;
 	}
 
 	void setCallback( void (*value)() ) {
@@ -679,16 +688,20 @@ void Kore::System::destroyWindow( int index ) {
 int Kore::System::initWindow( WindowOptions options ) {
 	char buffer[1024] = {0};
 	strcat(buffer, appimpl::name);
-	strcat(buffer, " | ");
+	if (strlen(options.title) > 0) {
+		strcat(buffer, " | ");
+	}
 	strcat(buffer, options.title);
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
+	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
 	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return windowId;
 }
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 #ifndef OPENGL
-	// TODO (DK) update me
+#pragma message ("TODO (DK) implement changeResolution(w,h,fs) for d3dX")
+	/* TODO (DK) implement me again
 	Application::the()->setWidth(width);
 	Application::the()->setHeight(height);
 	Application::the()->setFullscreen(fullscreen);
@@ -709,6 +722,7 @@ void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 
 		Graphics::changeResolution(width, height);
 	}
+	*/
 #endif
 }
 

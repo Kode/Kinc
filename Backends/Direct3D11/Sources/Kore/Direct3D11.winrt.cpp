@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <Kore/Math/Core.h>
 #include "Direct3D11.h"
-#include <Kore/Application.h>
+//#include <Kore/Application.h>
 #include "IndexBufferImpl.h"
 #include "VertexBufferImpl.h"
 #include <Kore/Graphics/Shader.h>
@@ -53,15 +53,15 @@ namespace {
 #endif
 }
 
-void Graphics::destroy() {
+void Graphics::destroy(int windowId) {
 
 }
 
-void Graphics::init() {
+void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
-	HWND hwnd = (HWND)System::createWindow();
+	HWND hwnd = (HWND)System::windowHandle(windowId);
 
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
@@ -99,8 +99,8 @@ void Graphics::init() {
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60; 
-		swapChainDesc.BufferDesc.Width = Application::the()->width();                                     // use automatic sizing
-		swapChainDesc.BufferDesc.Height = Application::the()->height();
+		swapChainDesc.BufferDesc.Width = System::windowWidth(windowId);                                     // use automatic sizing
+		swapChainDesc.BufferDesc.Height = System::windowHeight(windowId);
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // this is the most common swapchain format
 		//swapChainDesc.Stereo = false; 
 		swapChainDesc.SampleDesc.Count = 1;                          // don't use multi-sampling
@@ -111,7 +111,7 @@ void Graphics::init() {
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;//DXGI_SCALING_NONE;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; //DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
 		swapChainDesc.Flags = 0;
-		swapChainDesc.OutputWindow = (HWND)System::windowHandle();
+		swapChainDesc.OutputWindow = (HWND)System::windowHandle(windowId);
 		swapChainDesc.Windowed = true;
 #endif
 
@@ -155,6 +155,7 @@ void Graphics::init() {
 	renderTargetWidth  = backBufferDesc.Width;
 	renderTargetHeight = backBufferDesc.Height;
 
+	// TODO (DK) map depth/stencilBufferBits arguments
 	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
 
 	ID3D11Texture2D* depthStencil;
@@ -228,11 +229,13 @@ void Graphics::init() {
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 
 #ifdef SYS_WINDOWS
-	if (Application::the()->showWindow()) {
+	if (System::hasShowWindowFlag()) {
 		ShowWindow(hwnd, SW_SHOWDEFAULT);
 		UpdateWindow(hwnd);
 	}
 #endif
+
+	System::setCurrentDevice(windowId);
 }
 
 void Graphics::flush() {
@@ -243,7 +246,7 @@ void Graphics::changeResolution(int width, int height) {
 
 }
 
-void* Graphics::getControl() {
+void* Graphics::getControl(int windowId) {
 	return nullptr;
 }
 
@@ -319,8 +322,9 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	}
 }
 
-void Graphics::begin() {
+void Graphics::begin(int windowId) {	
 #ifdef SYS_WINDOWSAPP
+	// TODO (DK) do i need to do something here?
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 }
@@ -341,7 +345,7 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 	//TODO
 }
 
-void Graphics::end() {
+void Graphics::end(int windowId) {
 	
 }
 
@@ -353,7 +357,7 @@ unsigned Graphics::refreshRate() {
 	return hz;
 }
 
-void Graphics::swapBuffers() {
+void Graphics::swapBuffers(int windowId) {
 	HRESULT hr = swapChain->Present(1, 0);
 
 	//if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {

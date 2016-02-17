@@ -12,7 +12,7 @@ namespace Kore {
 		OrientationUnknown
 	};
 
-	// TODO (DK) remove windowing stuff from here and put into Kore::Window?
+	// TODO (DK) remove windowing stuff from here and put into Kore::Windowing or something?
 	namespace System {
 		void setup();
 
@@ -21,6 +21,8 @@ namespace Kore {
 		int windowWidth(int id);
 		int windowHeight(int id);
 		int windowCount();
+		bool hasShowWindowFlag(); // TODO (DK) window specific?
+		void setShowWindowFlag( bool value ); // TODO (DK) window specific?
 
 		void setName( const char * name );
 
@@ -36,8 +38,8 @@ namespace Kore {
 		void hideKeyboard();
 		bool showsKeyboard();
 		void loadURL(const char* title);
-		int screenWidth(); // main window
-		int screenHeight(); // main window
+		int screenWidth(); // (DK) main window, better use windowWidth/Height( windowId )
+		int screenHeight(); // (DK) main window, better use windowWidth/Height( windowId )
 		int desktopWidth();
 		int desktopHeight();
 		const char* systemId();

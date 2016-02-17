@@ -18,7 +18,12 @@ namespace Kore {
         int y;
         int targetDisplay;
         int mode;
+		bool showWindow;
 		RendererOptions rendererOptions;
+
+		WindowOptions() {
+			showWindow = true;
+		}
     };
 
     struct Window {

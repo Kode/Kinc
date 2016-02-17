@@ -4,6 +4,12 @@
 #include <Kore/Log.h>
 #include "ogl.h"
 
+#if defined(SYS_IOS) || defined(SYS_ANDROID)
+    #define USE_GLES_DS_BUFFERS
+#else
+    #define USE_GL2_DS_BUFFERS
+#endif
+
 using namespace Kore;
 
 namespace {
@@ -17,6 +23,94 @@ namespace {
 		for (int power = 0; ; ++power)
 			if (pow(power) >= i) return pow(power);
 	}
+    
+#if defined(USE_GLES_DS_BUFFERS)
+    void setup_gles_buffers( int depthBufferBits, int stencilBufferBits, int width, int height ) {
+        if (depthBufferBits > 0 && stencilBufferBits > 0) {
+            GLuint depthStencilBuffer;
+            glGenRenderbuffers(1, &depthStencilBuffer);
+            glCheckErrors();
+            glBindRenderbuffer(GL_RENDERBUFFER, depthStencilBuffer);
+            glCheckErrors();
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, width, height);
+            glCheckErrors();
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthStencilBuffer);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencilBuffer);
+            glCheckErrors();
+        } else if (depthBufferBits > 0) {
+            GLuint depthBuffer;
+            glGenRenderbuffers(1, &depthBuffer);
+            glCheckErrors();
+            glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+            glCheckErrors();
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+            glCheckErrors();
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+            glCheckErrors();
+        }
+    }
+    
+#endif
+    
+#if defined(USE_GL2_DS_BUFFERS)
+    void setup_gl2_buffers( int depthBufferBits, int stencilBufferBits, int width, int height ) {
+        if (depthBufferBits > 0 && stencilBufferBits > 0) {
+            GLenum internalFormat;
+            
+            switch (depthBufferBits) {
+                default:
+#if defined(_DEBUG)
+                    log(Info, "RenderTarget: depthBufferBits not set, defaulting to 24");
+#endif
+                    // break; // fall through
+                    case 24: {
+                        switch (stencilBufferBits) {
+                            default:
+#if defined(_DEBUG)
+                                log(Info, "RenderTarget: stencilBufferBits not set, defaulting to 8");
+#endif
+                                // break; // fall through
+                                case 8: internalFormat = GL_DEPTH24_STENCIL8;
+                                break;
+                        }
+                    } break;
+                    case 32: {
+                        switch (stencilBufferBits) {
+                            default:
+#if defined(_DEBUG)
+                                log(Info, "RenderTarget: stencilBufferBits not set, defaulting to 8");
+#endif
+                                // break; // fall through
+                                case 8: internalFormat = GL_DEPTH32F_STENCIL8;
+                                break;
+                        }
+                    } break;
+            }
+            
+            GLuint dsBuffer;
+            glGenRenderbuffers(1, &dsBuffer);
+            glCheckErrors();
+            glBindRenderbuffer(GL_RENDERBUFFER, dsBuffer);
+            glCheckErrors();
+            glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, width, height);
+            glCheckErrors();
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dsBuffer);
+            glCheckErrors();
+        } else if (depthBufferBits > 0) {
+            GLuint depthBuffer;
+            glGenRenderbuffers(1, &depthBuffer);
+            glCheckErrors();
+            glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+            glCheckErrors();
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+            glCheckErrors();
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+            glCheckErrors();
+        }
+    }
+    
+#endif
+    
 }
 
 RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) : width(width), height(height) {
@@ -58,60 +152,14 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glCheckErrors();
-	
-	if (depthBufferBits > 0 && stencilBufferBits > 0) {
-		GLenum internalFormat;
 
-		switch (depthBufferBits) {
-			default:
-#ifdef _DEBUG
-				log(Info, "RenderTarget: depthBufferBits not set, defaulting to 24");
+#if defined(USE_GLES_DS_BUFFERS)
+    setup_gles_buffers(depthBufferBits, stencilBufferBits, texWidth, texHeight);
 #endif
-			// break; // fall through
-			case 24: {
-				switch (stencilBufferBits) {
-					default:
-#ifdef _DEBUG
-						log(Info, "RenderTarget: stencilBufferBits not set, defaulting to 8");
+    
+#if defined(USE_GL2_DS_BUFFERS)
+    setup_gl2_buffers(depthBufferBits, stencilBufferBits, texWidth, texHeight);
 #endif
-					// break; // fall through
-					case 8: internalFormat = GL_DEPTH24_STENCIL8;
-						break;
-				}
-			} break;
-			case 32: {
-				switch (stencilBufferBits) {
-					default:
-#ifdef _DEBUG
-						log(Info, "RenderTarget: stencilBufferBits not set, defaulting to 8");
-#endif
-					// break; // fall through
-					case 8: internalFormat = GL_DEPTH32F_STENCIL8;
-						break;
-				}
-			} break;
-		}
-
-		GLuint dsBuffer;
-		glGenRenderbuffers(1, &dsBuffer);
-		glCheckErrors();
-		glBindRenderbuffer(GL_RENDERBUFFER, dsBuffer);
-		glCheckErrors();
-		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, texWidth, texHeight);
-		glCheckErrors();
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dsBuffer);
-		glCheckErrors();
-	} else if (depthBufferBits > 0) {
-		GLuint depthBuffer;
-		glGenRenderbuffers(1, &depthBuffer);
-		glCheckErrors();
-		glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-		glCheckErrors();
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texWidth, texHeight);
-		glCheckErrors();
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-		glCheckErrors();
-	}
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
 	glCheckErrors();

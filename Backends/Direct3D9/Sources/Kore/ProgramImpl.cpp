@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "ProgramImpl.h"
 #include <Kore/Graphics/Shader.h>
-#include <Kore/Application.h>
 #include <Kore/Log.h>
+#include <Kore/System.h>
 #include <Kore/WinError.h>
 #include "Direct3D9.h"
 
@@ -126,9 +126,10 @@ void Program::set() {
 	affirm(device->SetPixelShader((IDirect3DPixelShader9*)fragmentShader->shader));
 	affirm(device->SetVertexDeclaration(vertexDecleration));
 	
+	// TODO (DK) System::screenWidth/Height are only main-window dimensions, what about other windows?
 	float floats[4];
-	floats[0] = 1.0f / Application::the()->width();
-	floats[1] = 1.0f / Application::the()->height();
+	floats[0] = 1.0f / System::screenWidth(); //Application::the()->width();
+	floats[1] = 1.0f / System::screenHeight(); //Application::the()->height();
 	floats[2] = floats[0];
 	floats[3] = floats[1];
 	affirm(device->SetVertexShaderConstantF(halfPixelLocation, floats, 1));
