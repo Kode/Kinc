@@ -164,9 +164,10 @@ namespace Kore {
 		void restoreRenderTarget();
 
 		void swapBuffers(int windowId);
-		void* getControl(int windowId);
+		//void* getControl(int windowId);
 		void begin(int windowId);
 		void end(int windowId);
+		void makeCurrent(int windowId);
 
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);

@@ -188,14 +188,6 @@ bool Graphics::vsynced() {
 	return true;
 }
 
-void* Graphics::getControl(int windowId) {
-#ifdef SYS_WINDOWS
-	return (HWND)System::windowHandle(windowId);
-#else
-	return nullptr;
-#endif
-}
-
 void Graphics::setBool(ConstantLocation location, bool value) {
 	glUniform1i(location.location, value ? 1 : 0);
 	glCheckErrors();
@@ -301,6 +293,18 @@ void Graphics::swapBuffers(int windowId) {
 void beginGL();
 #endif
 
+#if defined(SYS_WINDOWS)
+void Graphics::makeCurrent(int windowId) {
+	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
+}
+#endif
+
+#if defined(SYS_LINUX)
+void Graphics::makeCurrent(int windowId) {
+	System::makeCurrent(windowId);
+}
+#endif
+
 void Graphics::begin(int windowId) {
 	if (System::currentDevice() != -1) {
 		if (System::currentDevice() != windowId) {
@@ -312,22 +316,8 @@ void Graphics::begin(int windowId) {
 		//return; // TODO (DK) return here?
 	}
 
-#if defined(_DEBUG)
-	//log(Info, "Graphics::begin[%i]", windowId);
-#endif
-
 	System::setCurrentDevice(windowId);
-    System::makeCurrent(windowId);
-    
-//#if defined (SYS_WINDOWS)
-//	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
-//#endif
-
-//#if defined (SYS_LINUX)
-//    System::makeCurrent(windowId);
-    // TODO (DK)
-    //glXMakeCurrent(???, ???, ???);
-//#endif
+    makeCurrent(windowId);
     
 #ifdef SYS_IOS
 	beginGL();
