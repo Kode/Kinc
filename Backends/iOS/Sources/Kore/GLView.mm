@@ -1,6 +1,5 @@
 #import "GLView.h"
 #include "pch.h"
-#include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Sensor.h>
@@ -274,7 +273,7 @@ static float red = 0.0f;
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				Kore::Mouse::the()->_press(0, x, y);
+				Kore::Mouse::the()->_press(0, 0, x, y);
 			}
 			Kore::Surface::the()->_touchStart(index, x, y);
 		}
@@ -289,7 +288,7 @@ static float red = 0.0f;
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				Kore::Mouse::the()->_move(x, y);
+				Kore::Mouse::the()->_move(0, x, y);
 			}
 			Kore::Surface::the()->_move(index, x, y);
 		}
@@ -304,7 +303,7 @@ static float red = 0.0f;
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				Kore::Mouse::the()->_release(0, x, y);
+				Kore::Mouse::the()->_release(0, 0, x, y);
 			}
 			Kore::Surface::the()->_touchEnd(index, x, y);
 		}
@@ -319,7 +318,7 @@ static float red = 0.0f;
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				Kore::Mouse::the()->_release(0, x, y);
+				Kore::Mouse::the()->_release(0, 0, x, y);
 			}
 			Kore::Surface::the()->_touchEnd(index, x, y);
 		}

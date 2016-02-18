@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <Kore/System.h>
-#include <Kore/Application.h>
+#include <Kore/Graphics/Graphics.h>
 #import <UIKit/UIKit.h>
 #import "KoreAppDelegate.h"
 
@@ -28,12 +28,7 @@ vec2i System::mousePos() {
 	return vec2i(mouseX, mouseY);
 }
 
-void* System::createWindow() {
-	//Scheduler::addFrameTask(handleMessages, 1001);
-	return nullptr;
-}
-
-void System::destroyWindow() {
+void System::destroyWindow(int windowId) {
 	
 }
 
@@ -83,11 +78,65 @@ void KoreUpdateKeyboard() {
     }
 }
 
+int Kore::System::initWindow(Kore::WindowOptions) {
+    return -1;
+}
+
+int Kore::System::windowCount() {
+    return 1;
+}
+
+bool Kore::System::isFullscreen() {
+    return true;
+}
+
+namespace { namespace appstate {
+    bool running = false;
+}}
+
+void Kore::System::setup() {
+}
+
+void Kore::System::start() {
+    appstate::running = true;
+    
+#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+    while (appstate::running) {
+        callback();
+        handleMessages();
+    }
+#endif
+}
+
+void Kore::System::stop() {
+    appstate::running = false;
+}
+
+int Kore::System::windowWidth(int id) {
+    return screenWidth();
+}
+
+int Kore::System::windowHeight(int id) {
+    return screenHeight();
+}
+
+void Graphics::makeCurrent(int contextId) {
+}
+
+void Kore::System::setCurrentDevice(int id) {
+    
+}
+
+int Kore::System::currentDevice() {
+    return 0;
+}
+
 void endGL();
 
-void System::swapBuffers() {
+void System::swapBuffers(int) {
 	endGL();
 }
+
 
 namespace {
 	char sysid[512];
@@ -108,7 +157,7 @@ namespace {
 	void getSavePath() {
 		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSString* resolvedPath = [paths objectAtIndex:0];
-		NSString* appName = [NSString stringWithUTF8String:Application::the()->name()];
+        NSString* appName = [NSString stringWithUTF8String:Kore::System::name()];
 		resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
 		
 		NSFileManager* fileMgr = [[NSFileManager alloc] init];

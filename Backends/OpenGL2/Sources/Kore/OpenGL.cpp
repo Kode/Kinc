@@ -1,12 +1,15 @@
 #include "pch.h"
 #include "OpenGL.h"
 #include "VertexBufferImpl.h"
-//#include <Kore/Application.h>
 #include <Kore/System.h>
 #include <Kore/Math/Core.h>
 #include <Kore/Log.h>
 #include "ogl.h"
 #include <cstdio>
+
+#if defined(SYS_IOS)
+#include <OpenGLES/ES2/glext.h>
+#endif
 
 #ifdef SYS_WINDOWS
 	#include <GL/wglew.h>
@@ -167,7 +170,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #endif
 
 #if defined(SYS_IOS)
-	glGenVertexArraysOES(1, &arrayId);
+	glGenVertexArraysOES(1, &arrayId[0]);
 	glCheckErrors();
 #elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
 	glGenVertexArrays(1, &arrayId[windowId]);
@@ -275,16 +278,9 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 }
 
 void Graphics::swapBuffers(int windowId) {
-	//log(Info, "Graphics::swapBuffers[%i]", windowId);
-
 #ifdef SYS_WINDOWS
 	::SwapBuffers(deviceContexts[windowId]);
-
-	//// TODO (DK) test if this is really needed here
-	//System::setCurrentDevice(-1);
-	//wglMakeCurrent(nullptr, nullptr);
 #else
-	// TODO (DK) pass windowId?
 	System::swapBuffers(windowId);
 #endif
 }
@@ -299,7 +295,7 @@ void Graphics::makeCurrent(int windowId) {
 }
 #endif
 
-#if defined(SYS_LINUX)
+#if defined(SYS_LINUX) || defined(SYS_OSX)
 void Graphics::makeCurrent(int windowId) {
 	System::makeCurrent(windowId);
 }
@@ -593,7 +589,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 
 void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 #if defined(SYS_IOS)
-	glBindVertexArrayOES(arrayId);
+	glBindVertexArrayOES(arrayId[0]);
 	glCheckErrors();
 #elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
 	glBindVertexArray(arrayId[System::currentDevice()]);
