@@ -12,13 +12,17 @@
 #endif
 
 namespace Kore {
+	struct VertexInfo {
+		VkPipelineVertexInputStateCreateInfo vi;
+		VkVertexInputBindingDescription vi_bindings[1];
+		VkVertexInputAttributeDescription vi_attrs[2];
+	};
+
 	struct Vertices {
 		VkBuffer buf;
 		VkDeviceMemory mem;
 
-		VkPipelineVertexInputStateCreateInfo vi;
-		VkVertexInputBindingDescription vi_bindings[1];
-		VkVertexInputAttributeDescription vi_attrs[2];
+		VertexInfo info;
 	};
 
 	class VertexBuffer;

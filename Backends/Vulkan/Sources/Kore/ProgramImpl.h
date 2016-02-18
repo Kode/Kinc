@@ -1,5 +1,15 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
 namespace Kore {
 	class Shader;
 
@@ -18,6 +28,12 @@ namespace Kore {
 		const char** textures;
 		int* textureValues;
 		int textureCount;
+
+		VkPipelineLayout pipeline_layout;
+		VkPipeline pipeline;
+		VkPipelineCache pipelineCache;
+		VkShaderModule vert_shader_module;
+		VkShaderModule frag_shader_module;
 	};
 
 	class ConstantLocationImpl {

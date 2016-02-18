@@ -33,6 +33,9 @@ using namespace Kore;
 #define APP_NAME_STR_LEN 80
 
 VkDevice device;
+VkFormat format;
+VkFormat depth_format;
+VkRenderPass render_pass;
 
 namespace {
 	HWND windowHandle;
@@ -66,7 +69,6 @@ namespace {
 	char *device_validation_layers[64];
 
 	int width, height;
-	VkFormat format;
 	VkColorSpaceKHR color_space;
 
 	PFN_vkGetPhysicalDeviceSurfaceSupportKHR
@@ -89,8 +91,6 @@ namespace {
 	VkCommandPool cmd_pool;
 
 	struct {
-		VkFormat format;
-
 		VkImage image;
 		VkDeviceMemory mem;
 		VkImageView view;
@@ -100,14 +100,7 @@ namespace {
 
 	VkCommandBuffer setup_cmd; // Command Buffer for initialization commands
 	VkCommandBuffer draw_cmd;  // Command Buffer for drawing commands
-	VkPipelineLayout pipeline_layout;
 	VkDescriptorSetLayout desc_layout;
-	VkPipelineCache pipelineCache;
-	VkRenderPass render_pass;
-	VkPipeline pipeline;
-
-	VkShaderModule vert_shader_module;
-	VkShaderModule frag_shader_module;
 
 	VkDescriptorPool desc_pool;
 	VkDescriptorSet desc_set;
@@ -898,7 +891,7 @@ void Graphics::init() {
 	VkMemoryRequirements mem_reqs;
 	bool pass;
 
-	depth.format = depth_format;
+	::depth_format = depth_format;
 
 	/* create image */
 	err = vkCreateImage(device, &image, NULL, &depth.image);
@@ -926,6 +919,84 @@ void Graphics::init() {
 	view.image = depth.image;
 	err = vkCreateImageView(device, &view, NULL, &depth.view);
 	assert(!err);
+
+	VkAttachmentDescription attachments[2];
+	attachments[0].format = format;
+	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	attachments[1].format = depth_format;
+	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference color_reference;
+	color_reference.attachment = 0;
+	color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depth_reference;
+	depth_reference.attachment = 1;
+	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass;
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.flags = 0;
+	subpass.inputAttachmentCount = 0;
+	subpass.pInputAttachments = NULL;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &color_reference;
+	subpass.pResolveAttachments = NULL;
+	subpass.pDepthStencilAttachment = &depth_reference;
+	subpass.preserveAttachmentCount = 0;
+	subpass.pPreserveAttachments = NULL;
+
+	VkRenderPassCreateInfo rp_info;
+	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	rp_info.pNext = NULL;
+	rp_info.attachmentCount = 2;
+	rp_info.pAttachments = attachments;
+	rp_info.subpassCount = 1;
+	rp_info.pSubpasses = &subpass;
+	rp_info.dependencyCount = 0;
+	rp_info.pDependencies = NULL;
+
+	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
+	assert(!err);
+
+	{
+		VkImageView attachments[2];
+		attachments[1] = depth.view;
+
+		VkFramebufferCreateInfo fb_info;
+		fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		fb_info.pNext = NULL;
+		fb_info.renderPass = render_pass;
+		fb_info.attachmentCount = 2;
+		fb_info.pAttachments = attachments;
+		fb_info.width = width;
+		fb_info.height = height;
+		fb_info.layers = 1;
+
+		uint32_t i;
+
+		framebuffers = (VkFramebuffer*)malloc(swapchainImageCount * sizeof(VkFramebuffer));
+		assert(framebuffers);
+
+		for (i = 0; i < swapchainImageCount; i++) {
+			attachments[0] = buffers[i].view;
+			err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
+			assert(!err);
+		}
+	}
 }
 
 unsigned Graphics::refreshRate() {
