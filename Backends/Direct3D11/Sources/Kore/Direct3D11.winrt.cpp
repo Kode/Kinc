@@ -141,7 +141,11 @@ void Graphics::init() {
 		affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr, &swapChain));
 		affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #else
-		affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &device, nullptr, &context));
+		UINT flags = 0;
+#ifdef _DEBUG
+		flags = D3D11_CREATE_DEVICE_DEBUG;
+#endif
+		affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &device, nullptr, &context));
 #endif	
 	}
 
