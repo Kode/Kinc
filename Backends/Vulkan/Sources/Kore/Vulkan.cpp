@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 #include <Windows.h>
 
@@ -33,7 +32,11 @@ using namespace Kore;
 
 #define APP_NAME_STR_LEN 80
 
+VkDevice device;
+
 namespace {
+	HWND windowHandle;
+
 	struct SwapchainBuffers {
 		VkImage image;
 		VkCommandBuffer cmd;
@@ -52,7 +55,6 @@ namespace {
 
 	VkInstance inst;
 	VkPhysicalDevice gpu;
-	VkDevice device;
 	VkQueue queue;
 	VkPhysicalDeviceProperties gpu_props;
 	VkQueueFamilyProperties *queue_props;
@@ -95,15 +97,6 @@ namespace {
 	} depth;
 
 	//struct texture_object textures[DEMO_TEXTURE_COUNT];
-
-	struct {
-		VkBuffer buf;
-		VkDeviceMemory mem;
-
-		VkPipelineVertexInputStateCreateInfo vi;
-		VkVertexInputBindingDescription vi_bindings[1];
-		VkVertexInputAttributeDescription vi_attrs[2];
-	} vertices;
 
 	VkCommandBuffer setup_cmd; // Command Buffer for initialization commands
 	VkCommandBuffer draw_cmd;  // Command Buffer for drawing commands
@@ -213,6 +206,101 @@ namespace {
 		free(pMemory);
 #endif
 	}
+
+	void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
+		VkResult err;
+
+		if (setup_cmd == VK_NULL_HANDLE) {
+			VkCommandBufferAllocateInfo cmd;
+			cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			cmd.pNext = NULL;
+			cmd.commandPool = cmd_pool;
+			cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			cmd.commandBufferCount = 1;
+		
+			err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
+			assert(!err);
+
+			VkCommandBufferInheritanceInfo cmd_buf_hinfo;
+			cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+			cmd_buf_hinfo.pNext = NULL;
+			cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
+			cmd_buf_hinfo.subpass = 0;
+			cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
+			cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
+			cmd_buf_hinfo.queryFlags = 0;
+			cmd_buf_hinfo.pipelineStatistics = 0;
+			
+			VkCommandBufferBeginInfo cmd_buf_info;
+			cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			cmd_buf_info.pNext = NULL;
+			cmd_buf_info.flags = 0;
+			cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+
+			err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
+			assert(!err);
+		}
+
+		VkImageMemoryBarrier image_memory_barrier;
+		image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		image_memory_barrier.pNext = NULL;
+		image_memory_barrier.srcAccessMask = 0;
+		image_memory_barrier.dstAccessMask = 0;
+		image_memory_barrier.oldLayout = old_image_layout;
+		image_memory_barrier.newLayout = new_image_layout;
+		image_memory_barrier.image = image;
+		image_memory_barrier.subresourceRange.aspectMask = aspectMask;
+		image_memory_barrier.subresourceRange.baseMipLevel = 0;
+		image_memory_barrier.subresourceRange.levelCount = 1;
+		image_memory_barrier.subresourceRange.baseArrayLayer = 0;
+		image_memory_barrier.subresourceRange.layerCount = 1;
+	
+
+		if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+			/* Make sure anything that was copying from this image has completed */
+			image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		}
+
+		if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+			image_memory_barrier.dstAccessMask =
+				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		}
+
+		if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+			image_memory_barrier.dstAccessMask =
+				VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		}
+
+		if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+			/* Make sure any Copy or CPU writes to image are flushed */
+			image_memory_barrier.dstAccessMask =
+				VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+		}
+
+		VkImageMemoryBarrier *pmemory_barrier = &image_memory_barrier;
+
+		VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+		vkCmdPipelineBarrier(setup_cmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+	}
+}
+
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
+	// Search memtypes to find first index with those properties
+	for (uint32_t i = 0; i < 32; i++) {
+		if ((typeBits & 1) == 1) {
+			// Type is available, does it match user properties?
+			if ((memory_properties.memoryTypes[i].propertyFlags &
+				requirements_mask) == requirements_mask) {
+				*typeIndex = i;
+				return true;
+			}
+		}
+		typeBits >>= 1;
+	}
+	// No memory types matched, return failure
+	return false;
 }
 
 void Graphics::destroy() {
@@ -238,7 +326,7 @@ void Graphics::init() {
 	VkBool32 validation_found = 0;
 	VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
 	assert(!err);
-	
+
 	if (instance_layer_count > 0) {
 		VkLayerProperties* instance_layers = (VkLayerProperties*)malloc(sizeof(VkLayerProperties) * instance_layer_count);
 		err = vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers);
@@ -323,12 +411,12 @@ void Graphics::init() {
 	VkApplicationInfo app;
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	app.pNext = NULL,
-	app.pApplicationName = Application::the()->name();
+		app.pApplicationName = Application::the()->name();
 	app.applicationVersion = 0;
 	app.pEngineName = "Kore";
 	app.engineVersion = 0;
 	app.apiVersion = VK_API_VERSION;
-	
+
 	VkInstanceCreateInfo info;
 	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	info.pNext = NULL;
@@ -497,6 +585,347 @@ void Graphics::init() {
 	queue_props = (VkQueueFamilyProperties*)malloc(queue_count * sizeof(VkQueueFamilyProperties));
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
+
+	width = 300;
+	height = 300;
+	depthStencil = 1.0;
+	depthIncrement = -0.01f;
+
+	windowHandle = (HWND)System::createWindow();
+
+	{
+		VkResult err;
+		uint32_t i;
+
+		VkWin32SurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		createInfo.pNext = NULL;
+		createInfo.flags = 0;
+		createInfo.hinstance = connection;
+		createInfo.hwnd = windowHandle;
+
+		err = vkCreateWin32SurfaceKHR(inst, &createInfo, NULL, &surface);
+
+		// Iterate over each queue to learn whether it supports presenting:
+		VkBool32 *supportsPresent =
+			(VkBool32 *)malloc(queue_count * sizeof(VkBool32));
+		for (i = 0; i < queue_count; i++) {
+			fpGetPhysicalDeviceSurfaceSupportKHR(gpu, i, surface, &supportsPresent[i]);
+		}
+
+		// Search for a graphics and a present queue in the array of queue
+		// families, try to find one that supports both
+		uint32_t graphicsQueueNodeIndex = UINT32_MAX;
+		uint32_t presentQueueNodeIndex = UINT32_MAX;
+		for (i = 0; i < queue_count; i++) {
+			if ((queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) {
+				if (graphicsQueueNodeIndex == UINT32_MAX) {
+					graphicsQueueNodeIndex = i;
+				}
+
+				if (supportsPresent[i] == VK_TRUE) {
+					graphicsQueueNodeIndex = i;
+					presentQueueNodeIndex = i;
+					break;
+				}
+			}
+		}
+		if (presentQueueNodeIndex == UINT32_MAX) {
+			// If didn't find a queue that supports both graphics and present, then
+			// find a separate present queue.
+			for (uint32_t i = 0; i < queue_count; ++i) {
+				if (supportsPresent[i] == VK_TRUE) {
+					presentQueueNodeIndex = i;
+					break;
+				}
+			}
+		}
+		free(supportsPresent);
+
+		// Generate error if could not find both a graphics and a present queue
+		if (graphicsQueueNodeIndex == UINT32_MAX ||
+			presentQueueNodeIndex == UINT32_MAX) {
+			ERR_EXIT("Could not find a graphics and a present queue\n",
+				"Swapchain Initialization Failure");
+		}
+
+		// TODO: Add support for separate queues, including presentation,
+		//       synchronization, and appropriate tracking for QueueSubmit.
+		// NOTE: While it is possible for an application to use a separate graphics
+		//       and a present queues, this demo program assumes it is only using
+		//       one:
+		if (graphicsQueueNodeIndex != presentQueueNodeIndex) {
+			ERR_EXIT("Could not find a common graphics and a present queue\n",
+				"Swapchain Initialization Failure");
+		}
+
+		graphics_queue_node_index = graphicsQueueNodeIndex;
+
+		{
+			float queue_priorities[1] = { 0.0 };
+			VkDeviceQueueCreateInfo queue;
+			queue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queue.pNext = NULL;
+			queue.queueFamilyIndex = graphics_queue_node_index;
+			queue.queueCount = 1;
+			queue.pQueuePriorities = queue_priorities;
+
+			VkDeviceCreateInfo deviceinfo;
+			deviceinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+			deviceinfo.pNext = NULL;
+			deviceinfo.queueCreateInfoCount = 1;
+			deviceinfo.pQueueCreateInfos = &queue;
+			deviceinfo.enabledLayerCount = enabled_layer_count;
+			deviceinfo.ppEnabledLayerNames = (const char *const *)((validate) ? device_validation_layers : NULL);
+			deviceinfo.enabledExtensionCount = enabled_extension_count;
+			deviceinfo.ppEnabledExtensionNames = (const char *const *)extension_names;
+
+			err = vkCreateDevice(gpu, &deviceinfo, NULL, &device);
+			assert(!err);
+		}
+
+		vkGetDeviceQueue(device, graphics_queue_node_index, 0, &queue);
+
+		// Get the list of VkFormat's that are supported:
+		uint32_t formatCount;
+		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, NULL);
+		assert(!err);
+		VkSurfaceFormatKHR* surfFormats = (VkSurfaceFormatKHR*)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
+		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, surfFormats);
+		assert(!err);
+		// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
+		// the surface has no preferred format.  Otherwise, at least one
+		// supported format will be returned.
+		if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
+			format = VK_FORMAT_B8G8R8A8_UNORM;
+		}
+		else {
+			assert(formatCount >= 1);
+			format = surfFormats[0].format;
+		}
+		color_space = surfFormats[0].colorSpace;
+
+		// Get Memory information and properties
+		vkGetPhysicalDeviceMemoryProperties(gpu, &memory_properties);
+	}
+
+	VkCommandPoolCreateInfo cmd_pool_info;
+	cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	cmd_pool_info.pNext = NULL;
+	cmd_pool_info.queueFamilyIndex = graphics_queue_node_index;
+	cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	
+	err = vkCreateCommandPool(device, &cmd_pool_info, NULL, &cmd_pool);
+	assert(!err);
+
+	VkCommandBufferAllocateInfo cmd;
+	cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	cmd.pNext = NULL;
+	cmd.commandPool = cmd_pool;
+	cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	cmd.commandBufferCount = 1;
+	
+	err = vkAllocateCommandBuffers(device, &cmd, &draw_cmd);
+	assert(!err);
+
+	VkSwapchainKHR oldSwapchain = swapchain;
+
+	// Check the surface capabilities and formats
+	VkSurfaceCapabilitiesKHR surfCapabilities;
+	err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surfCapabilities);
+	assert(!err);
+
+	uint32_t presentModeCount;
+	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, NULL);
+	assert(!err);
+	VkPresentModeKHR* presentModes = (VkPresentModeKHR*)malloc(presentModeCount * sizeof(VkPresentModeKHR));
+	assert(presentModes);
+	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, presentModes);
+	assert(!err);
+
+	VkExtent2D swapchainExtent;
+	// width and height are either both -1, or both not -1.
+	if (surfCapabilities.currentExtent.width == (uint32_t)-1) {
+		// If the surface size is undefined, the size is set to
+		// the size of the images requested.
+		swapchainExtent.width = width;
+		swapchainExtent.height = height;
+	}
+	else {
+		// If the surface size is defined, the swap chain size must match
+		swapchainExtent = surfCapabilities.currentExtent;
+		width = surfCapabilities.currentExtent.width;
+		height = surfCapabilities.currentExtent.height;
+	}
+
+	VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+	// Determine the number of VkImage's to use in the swap chain (we desire to
+	// own only 1 image at a time, besides the images being displayed and
+	// queued for display):
+	uint32_t desiredNumberOfSwapchainImages = surfCapabilities.minImageCount + 1;
+	if ((surfCapabilities.maxImageCount > 0) &&
+		(desiredNumberOfSwapchainImages > surfCapabilities.maxImageCount)) {
+		// Application must settle for fewer images than desired:
+		desiredNumberOfSwapchainImages = surfCapabilities.maxImageCount;
+	}
+
+	VkSurfaceTransformFlagBitsKHR preTransform;
+	if (surfCapabilities.supportedTransforms &
+		VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
+		preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	}
+	else {
+		preTransform = surfCapabilities.currentTransform;
+	}
+
+	VkSwapchainCreateInfoKHR swapchain_info;
+	swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	swapchain_info.pNext = NULL;
+	swapchain_info.surface = surface;
+	swapchain_info.minImageCount = desiredNumberOfSwapchainImages;
+	swapchain_info.imageFormat = format;
+	swapchain_info.imageColorSpace = color_space;
+	swapchain_info.imageExtent.width = swapchainExtent.width;
+	swapchain_info.imageExtent.height = swapchainExtent.height;
+	swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	swapchain_info.preTransform = preTransform;
+	swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	swapchain_info.imageArrayLayers = 1;
+	swapchain_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	swapchain_info.queueFamilyIndexCount = 0;
+	swapchain_info.pQueueFamilyIndices = NULL;
+	swapchain_info.presentMode = swapchainPresentMode;
+	swapchain_info.oldSwapchain = oldSwapchain;
+	swapchain_info.clipped = true;
+	
+	uint32_t i;
+
+	err = fpCreateSwapchainKHR(device, &swapchain_info, NULL, &swapchain);
+	assert(!err);
+
+	// If we just re-created an existing swapchain, we should destroy the old
+	// swapchain at this point.
+	// Note: destroying the swapchain also cleans up all its associated
+	// presentable images once the platform is done with them.
+	if (oldSwapchain != VK_NULL_HANDLE) {
+		fpDestroySwapchainKHR(device, oldSwapchain, NULL);
+	}
+
+	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, NULL);
+	assert(!err);
+
+	VkImage* swapchainImages = (VkImage*)malloc(swapchainImageCount * sizeof(VkImage));
+	assert(swapchainImages);
+	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
+	assert(!err);
+
+	buffers = (SwapchainBuffers *)malloc(sizeof(SwapchainBuffers) * swapchainImageCount);
+	assert(buffers);
+
+	for (i = 0; i < swapchainImageCount; i++) {
+		VkImageViewCreateInfo color_attachment_view;
+		color_attachment_view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		color_attachment_view.pNext = NULL;
+		color_attachment_view.format = format;
+		color_attachment_view.components.r = VK_COMPONENT_SWIZZLE_R;
+		color_attachment_view.components.g = VK_COMPONENT_SWIZZLE_G;
+		color_attachment_view.components.b = VK_COMPONENT_SWIZZLE_B;
+		color_attachment_view.components.a = VK_COMPONENT_SWIZZLE_A;
+		color_attachment_view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		color_attachment_view.subresourceRange.baseMipLevel = 0;
+		color_attachment_view.subresourceRange.levelCount = 1;
+		color_attachment_view.subresourceRange.baseArrayLayer = 0;
+		color_attachment_view.subresourceRange.layerCount = 1;
+		color_attachment_view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		color_attachment_view.flags = 0;
+
+		buffers[i].image = swapchainImages[i];
+
+		// Render loop will expect image to have been used before and in
+		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
+		// to that state
+		demo_set_image_layout(buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+		color_attachment_view.image = buffers[i].image;
+
+		err = vkCreateImageView(device, &color_attachment_view, NULL, &buffers[i].view);
+		assert(!err);
+	}
+
+	current_buffer = 0;
+
+	if (NULL != presentModes) {
+		free(presentModes);
+	}
+
+	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
+	VkImageCreateInfo image;
+	image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	image.pNext = NULL;
+	image.imageType = VK_IMAGE_TYPE_2D;
+	image.format = depth_format;
+	image.extent.width = width;
+	image.extent.height = height;
+	image.extent.depth = 1;
+	image.mipLevels = 1;
+	image.arrayLayers = 1;
+	image.samples = VK_SAMPLE_COUNT_1_BIT;
+	image.tiling = VK_IMAGE_TILING_OPTIMAL;
+	image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	image.flags = 0;
+	
+	VkMemoryAllocateInfo mem_alloc;
+	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	mem_alloc.pNext = NULL;
+	mem_alloc.allocationSize = 0;
+	mem_alloc.memoryTypeIndex = 0;
+	
+	VkImageViewCreateInfo view;
+	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	view.pNext = NULL;
+	view.image = VK_NULL_HANDLE;
+	view.format = depth_format;
+	view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+	view.subresourceRange.baseMipLevel = 0;
+	view.subresourceRange.levelCount = 1;
+	view.subresourceRange.baseArrayLayer = 0;
+	view.subresourceRange.layerCount = 1;
+	view.flags = 0;
+	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+
+	VkMemoryRequirements mem_reqs;
+	bool pass;
+
+	depth.format = depth_format;
+
+	/* create image */
+	err = vkCreateImage(device, &image, NULL, &depth.image);
+	assert(!err);
+
+	/* get memory requirements for this object */
+	vkGetImageMemoryRequirements(device, depth.image, &mem_reqs);
+
+	/* select memory size and type */
+	mem_alloc.allocationSize = mem_reqs.size;
+	pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, /* No requirements */ &mem_alloc.memoryTypeIndex);
+	assert(pass);
+
+	/* allocate memory */
+	err = vkAllocateMemory(device, &mem_alloc, NULL, &depth.mem);
+	assert(!err);
+
+	/* bind memory */
+	err = vkBindImageMemory(device, depth.image, depth.mem, 0);
+	assert(!err);
+
+	demo_set_image_layout(depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+	/* create image view */
+	view.image = depth.image;
+	err = vkCreateImageView(device, &view, NULL, &depth.view);
+	assert(!err);
 }
 
 unsigned Graphics::refreshRate() {

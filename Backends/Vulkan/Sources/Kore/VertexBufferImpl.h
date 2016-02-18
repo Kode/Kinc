@@ -1,8 +1,26 @@
 #pragma once
 
 #include <Kore/Graphics/VertexStructure.h>
+#include <vulkan/vulkan.h>
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
 
 namespace Kore {
+	struct Vertices {
+		VkBuffer buf;
+		VkDeviceMemory mem;
+
+		VkPipelineVertexInputStateCreateInfo vi;
+		VkVertexInputBindingDescription vi_bindings[1];
+		VkVertexInputAttributeDescription vi_attrs[2];
+	};
+
 	class VertexBuffer;
 	
 	class VertexBufferImpl {
@@ -16,6 +34,9 @@ namespace Kore {
 //#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 		VertexStructure structure;
 //#endif
+
+		Vertices vertices;
+
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);
 	public:

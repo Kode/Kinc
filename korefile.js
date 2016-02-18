@@ -39,6 +39,7 @@ if (platform === Platform.Windows) {
 	else if (graphics === GraphicsApi.Vulkan) {
 		addBackend('Vulkan');
 		project.addDefine('SYS_VULKAN');
+		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
 		project.addLibFor('Win32', 'Backends/Vulkan/Libraries/win32/vulkan-1');
 		project.addLibFor('x64', 'Backends/Vulkan/Libraries/win64/vulkan-1');
 	}
