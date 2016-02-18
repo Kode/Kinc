@@ -317,17 +317,18 @@ void Graphics::begin(int windowId) {
 #endif
 
 	System::setCurrentDevice(windowId);
-
-#if defined (SYS_WINDOWS)
-	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
-#endif
-
-#if defined (SYS_LINUX)
     System::makeCurrent(windowId);
+    
+//#if defined (SYS_WINDOWS)
+//	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
+//#endif
+
+//#if defined (SYS_LINUX)
+//    System::makeCurrent(windowId);
     // TODO (DK)
     //glXMakeCurrent(???, ???, ???);
-#endif
-
+//#endif
+    
 #ifdef SYS_IOS
 	beginGL();
 #endif

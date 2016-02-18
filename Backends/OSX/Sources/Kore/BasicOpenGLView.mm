@@ -10,8 +10,9 @@ namespace {
     bool shift = false;
 }
 
-+ (NSOpenGLPixelFormat*) basicPixelFormat:(int)aa {
-	//int aa = Kore::Application::the()->antialiasing();
++ (NSOpenGLPixelFormat*) basicPixelFormat {
+    // TODO (DK) pass via argument in
+    int aa = 0; //Kore::Application::the()->antialiasing();
 	if (aa > 0) {
 		NSOpenGLPixelFormatAttribute attributes[] = {
 			NSOpenGLPFADoubleBuffer,
@@ -150,47 +151,47 @@ namespace {
 - (void)mouseDown:(NSEvent*)theEvent {
 	if ([theEvent modifierFlags] & NSControlKeyMask) {
 		controlKeyMouseButton = true;
-		Kore::Mouse::the()->_press(1, getMouseX(theEvent), getMouseY(theEvent));
+		Kore::Mouse::the()->_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	else {
 		controlKeyMouseButton = false;
-		Kore::Mouse::the()->_press(0, getMouseX(theEvent), getMouseY(theEvent));
+		Kore::Mouse::the()->_press(0, 0, getMouseX(theEvent), getMouseY(theEvent));
 	}
 }
 
 - (void)mouseUp:(NSEvent*)theEvent {
 	if (controlKeyMouseButton) {
-		Kore::Mouse::the()->_release(1, getMouseX(theEvent), getMouseY(theEvent));
+		Kore::Mouse::the()->_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	else {
-		Kore::Mouse::the()->_release(0, getMouseX(theEvent), getMouseY(theEvent));
+		Kore::Mouse::the()->_release(0, 0, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	controlKeyMouseButton = false;
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_move(getMouseX(theEvent), getMouseY(theEvent));
+	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)mouseDragged:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_move(getMouseX(theEvent), getMouseY(theEvent));
+	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDown:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_press(1, getMouseX(theEvent), getMouseY(theEvent));
+	Kore::Mouse::the()->_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseUp:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_release(1, getMouseX(theEvent), getMouseY(theEvent));
+	Kore::Mouse::the()->_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDragged:(NSEvent*)theEvent {
-	Kore::Mouse::the()->_move(getMouseX(theEvent), getMouseY(theEvent));
+	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)scrollWheel:(NSEvent*)theEvent {
 	int delta = [theEvent deltaY];
-	Kore::Mouse::the()->_scroll(delta);
+	Kore::Mouse::the()->_scroll(0, delta);
 }
 
 - (void)prepareOpenGL {
@@ -207,7 +208,7 @@ namespace {
 	self = [super initWithFrame: frameRect pixelFormat: pf];
 	
 	[self prepareOpenGL];
-	
+    [[self openGLContext] makeCurrentContext];
 	return self;
 }
 

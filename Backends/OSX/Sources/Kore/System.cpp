@@ -63,3 +63,50 @@ double System::frequency() {
 System::ticks System::timestamp() {
 	return mach_absolute_time();
 }
+
+namespace { namespace appstate {
+    bool running = false;
+}}
+
+void Kore::System::setup() {    
+}
+
+void Kore::System::start() {
+    appstate::running = true;
+
+#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+    while (appstate::running) {
+        Kore::System::callback();
+        handleMessages();
+    }
+#endif
+}
+
+void Kore::System::stop() {
+    appstate::running = false;
+}
+
+bool Kore::System::isFullscreen() {
+    return false; // TODO (DK)
+}
+
+int Kore::System::currentDevice() {
+    // TODO (DK)
+    return 0;
+}
+
+int Kore::System::windowCount() {
+    return 1;
+}
+
+int Kore::System::windowWidth(int id) {
+    return screenWidth();
+}
+
+int Kore::System::windowHeight(int id) {
+    return screenHeight();
+}
+
+void Kore::System::setCurrentDevice(int id) {
+    // TODO (DK)
+}

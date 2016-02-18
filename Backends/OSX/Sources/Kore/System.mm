@@ -32,21 +32,15 @@ const char* macgetresourcepath() {
 
 namespace {
 	NSApplication* myapp;
-	NSWindow* window;
+//	NSWindow* window;
 	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
     
-    struct KoreWindow {
+    struct KoreWindow : public KoreWindowBase {
         NSWindow * handle;
-        int x, y;
-        int width, height;
         
-        KoreWindow( NSWindow * handle, int x, int y, int width, int height ) {
+        KoreWindow( NSWindow * handle, int x, int y, int width, int height ) : KoreWindowBase(x, y, width, height) {
             this->handle = handle;
-            this->x = x;
-            this->y = y;
-            this->width = width;
-            this->height = height;
         }
     };
     
@@ -69,7 +63,7 @@ void System::swapBuffers(int windowId) {
 
 int createWindow(const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay) {
 	view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height) ];
-	window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask backing:NSBackingStoreBuffered defer:TRUE];
+	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask backing:NSBackingStoreBuffered defer:TRUE];
 	delegate = [MyAppDelegate alloc];
 	[window setDelegate: delegate];
     [window setTitle:[NSString stringWithCString: title encoding: 1]];
@@ -78,13 +72,22 @@ int createWindow(const char * title, int x, int y, int width, int height, int wi
 	[window center];
 	[window makeKeyAndOrderFront: nil];
 		
-	return nullptr;
+    ++windowCounter;
+    windows[windowCounter] = new KoreWindow(window, x, y, width, height);
+	return windowCounter;
 }
 
 void System::destroyWindow(int windowId) {
 	
 }
 
+int Kore::System::initWindow(Kore::WindowOptions options) {
+    return createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
+}
+
+void System::makeCurrent(int contextId) {
+    [[view openGLContext] makeCurrentContext];
+}
 int System::screenWidth() {
 	return windows[currentDevice()]->width;
 }
@@ -141,6 +144,8 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+void kore(int, char **);
+
 @implementation MyApplication
 
 - (void)run {
@@ -156,7 +161,7 @@ int main(int argc, char** argv) {
 }
 
 - (void)terminate:(id)sender {
-	Application::the()->stop();
+    Kore::System::stop();
 }
 
 @end
@@ -164,7 +169,7 @@ int main(int argc, char** argv) {
 @implementation MyAppDelegate
 
 - (void)windowWillClose:(NSNotification *)notification {
-	Application::the()->stop();
+    Kore::System::stop();
 }
 
 @end
