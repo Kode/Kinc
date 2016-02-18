@@ -1,6 +1,5 @@
 #include "pch.h"
 #include <Kore/System.h>
-#include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Log.h>
 #import <Cocoa/Cocoa.h>
@@ -36,6 +35,23 @@ namespace {
 	NSWindow* window;
 	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
+    
+    struct KoreWindow {
+        NSWindow * handle;
+        int x, y;
+        int width, height;
+        
+        KoreWindow( NSWindow * handle, int x, int y, int width, int height ) {
+            this->handle = handle;
+            this->x = x;
+            this->y = y;
+            this->width = width;
+            this->height = height;
+        }
+    };
+    
+    KoreWindow* windows[10] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
+    int windowCounter = -1;
 }
 
 bool System::handleMessages() {
@@ -47,16 +63,16 @@ bool System::handleMessages() {
 	return true;
 }
 
-void System::swapBuffers() {
+void System::swapBuffers(int windowId) {
 	[view switchBuffers];
 }
 
-void* System::createWindow() {
-	view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, Kore::Application::the()->width(), Kore::Application::the()->height()) ];
-	window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, Kore::Application::the()->width(), Kore::Application::the()->height()) styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask backing:NSBackingStoreBuffered defer:TRUE];
+int createWindow(const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay) {
+	view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height) ];
+	window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask backing:NSBackingStoreBuffered defer:TRUE];
 	delegate = [MyAppDelegate alloc];
 	[window setDelegate: delegate];
-	[window setTitle:[NSString stringWithCString: Kore::Application::the()->name() encoding: 1]];
+    [window setTitle:[NSString stringWithCString: title encoding: 1]];
 	[window setAcceptsMouseMovedEvents:YES];
 	[[window contentView] addSubview:view];
 	[window center];
@@ -65,16 +81,16 @@ void* System::createWindow() {
 	return nullptr;
 }
 
-void System::destroyWindow() {
+void System::destroyWindow(int windowId) {
 	
 }
 
 int System::screenWidth() {
-	return Application::the()->width();
+	return windows[currentDevice()]->width;
 }
 
 int System::screenHeight() {
-	return Application::the()->height();
+	return windows[currentDevice()]->height;
 }
 
 int System::desktopWidth() {
@@ -99,7 +115,7 @@ namespace {
 	void getSavePath() {
 		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSString* resolvedPath = [paths objectAtIndex:0];
-		NSString* appName = [NSString stringWithUTF8String:Application::the()->name()];
+        NSString* appName = [NSString stringWithUTF8String:Kore::System::name()];
 		resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
 		
 		NSFileManager* fileMgr = [[NSFileManager alloc] init];

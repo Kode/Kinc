@@ -1,6 +1,6 @@
 #import "BasicOpenGLView.h"
 #include <Kore/pch.h>
-#include <Kore/Application.h>
+#include <Kore/System.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 
@@ -10,8 +10,8 @@ namespace {
     bool shift = false;
 }
 
-+ (NSOpenGLPixelFormat*) basicPixelFormat {
-	int aa = Kore::Application::the()->antialiasing();
++ (NSOpenGLPixelFormat*) basicPixelFormat:(int)aa {
+	//int aa = Kore::Application::the()->antialiasing();
 	if (aa > 0) {
 		NSOpenGLPixelFormatAttribute attributes[] = {
 			NSOpenGLPFADoubleBuffer,
@@ -140,7 +140,8 @@ namespace {
 	}
 	
 	int getMouseY(NSEvent* event) {
-		return static_cast<int>(Kore::Application::the()->height() - [event locationInWindow].y);
+        // TODO (DK) window selection
+        return static_cast<int>(Kore::System::screenHeight() - [event locationInWindow].y);
 	}
 	
 	bool controlKeyMouseButton = false;
