@@ -39,6 +39,8 @@ if (platform === Platform.Windows) {
 	else if (graphics === GraphicsApi.Vulkan) {
 		addBackend('Vulkan');
 		project.addDefine('SYS_VULKAN');
+		project.addLibFor('Win32', 'Backends/Vulkan/Libraries/win32/vulkan-1');
+		project.addLibFor('x64', 'Backends/Vulkan/Libraries/win64/vulkan-1');
 	}
 	else {
 		addBackend('Direct3D9');
