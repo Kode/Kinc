@@ -26,13 +26,13 @@ namespace Kore {
 		}
     };
 
-    struct Window {
-		int id;
-		int width;
-		int height;
+    struct KoreWindowBase {
+		int x, y;
+		int width, height;
 
-		Window( int id, int width, int height ) {
-			this->id = id;
+		KoreWindowBase( int x, int y, int width, int height ) {
+			this->x = x;
+			this->y = y;
 			this->width = width;
 			this->height = height;
 		}

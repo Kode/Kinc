@@ -283,7 +283,7 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 }
 
 void Graphics::swapBuffers(int windowId) {
-	log(Info, "Graphics::swapBuffers[%i]", windowId);
+	//log(Info, "Graphics::swapBuffers[%i]", windowId);
 
 #ifdef SYS_WINDOWS
 	::SwapBuffers(deviceContexts[windowId]);
@@ -313,7 +313,7 @@ void Graphics::begin(int windowId) {
 	}
 
 #if defined(_DEBUG)
-	log(Info, "Graphics::begin[%i]", windowId);
+	//log(Info, "Graphics::begin[%i]", windowId);
 #endif
 
 	System::setCurrentDevice(windowId);
@@ -456,7 +456,7 @@ void Graphics::end(int windowId) {
 	}
 
 #if defined(_DEBUG)
-	log(Info, "Graphics::end[%i]", windowId);
+	//log(Info, "Graphics::end[%i]", windowId);
 #endif
 
 	System::setCurrentDevice(-1);
@@ -471,7 +471,7 @@ void Graphics::end(int windowId) {
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
-	log(Info, "Graphics::clear");
+	//log(Info, "Graphics::clear");
 
 	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, (color & 0xff000000) / 255.0f);
 #ifdef OPENGLES

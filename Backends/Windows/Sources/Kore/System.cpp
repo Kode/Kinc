@@ -23,111 +23,34 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int kore(int argc, char** argv);
 
-namespace appimpl {
+namespace { namespace appstate {
 	bool running = false;
-	bool showWindowFlag = true;
-	const char * name = "KoreApplication";
-
-	void (*callback)();
-	void (*foregroundCallback)();
-	void (*backgroundCallback)();
-	void (*pauseCallback)();
-	void (*resumeCallback)();
-	void (*shutdownCallback)();
-	void (*orientationCallback)(Kore::Orientation);
-}
-
-namespace Kore { namespace System {
-	void setup() {
-		Monitor::enumerate();
-	}
-
-	void setName( const char * name ) {
-		appimpl::name = name;
-	}
-
-	void stop() {
-		appimpl::running = false;
-
-		// TODO (DK) destroy graphics, but afaik Application::~Application() was never called, so it's the same behavior now as well
-
-		//for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
-		//	Graphics::destroy(windowIndex);
-		//}
-	}
-
-	void start() {
-		appimpl::running = true;
-
-#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-		// if (Graphics::hasWindow()) Graphics::swapBuffers();
-		while (appimpl::running) {
-			appimpl::callback();
-			handleMessages();
-		}
-#endif
-	}
-
-	bool isFullscreen() {
-		// TODO (DK)
-		return false;
-	}
-
-	bool hasShowWindowFlag() {
-		return appimpl::showWindowFlag;
-	}
-
-	void setShowWindowFlag( bool value ) {
-		appimpl::showWindowFlag = value;
-	}
-
-	void setCallback( void (*value)() ) {
-		appimpl::callback = value;
-	}
-
-	void setForegroundCallback( void (*value)() ) {
-		appimpl::foregroundCallback = value;
-	}
-
-	void setResumeCallback( void (*value)() ) {
-		appimpl::resumeCallback = value;
-	}
-
-	void setPauseCallback( void (*value)() ) {
-		appimpl::pauseCallback = value;
-	}
-
-	void setBackgroundCallback( void (*value)() ) {
-		appimpl::backgroundCallback = value;
-	}
-
-	void setShutdownCallback( void (*value)() ) {
-		appimpl::shutdownCallback = value;
-	}
-
-	void setOrientationCallback( void (*value)(Orientation) ) {
-		appimpl::orientationCallback = value;
-	}
 }}
 
 namespace {
-	struct W32Window {
+	struct W32KoreWindow : public Kore::KoreWindowBase {
 		HWND hwnd;
-		int x, y;
-		int width, height;
 
-		W32Window( HWND hwnd, int x, int y, int width, int height ) {
+		W32KoreWindow( HWND hwnd, int x, int y, int width, int height ) : KoreWindowBase(x, y, width, height) {
 			this->hwnd = hwnd;
-			this->x = x;
-			this->y = y;
-			this->width = width;
-			this->height = height;
 		}
 	};
 
-	W32Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	W32KoreWindow* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	int windowCounter = -1;
 	int currentDeviceId = -1;
+
+	int idFromHWND( HWND hwnd ) {
+		for (int windowIndex = 0; windowIndex < 10; ++windowIndex) {
+			W32KoreWindow * window = windows[windowIndex];
+
+			if (window != nullptr && window->hwnd == hwnd) {
+				return windowIndex;
+			}
+		}
+
+		return -1;
+	}
 
 #ifdef VR_RIFT
 	const char* windowClassName = "ORT";
@@ -145,9 +68,9 @@ namespace {
 namespace Kore { namespace System {
 	// (DK) only valid during begin() => end() calls
 	int currentDevice() {
-		if (currentDeviceId == -1) {
-			log(Warning, "no current device is active");
-		}
+		//if (currentDeviceId == -1) {
+		//	log(Warning, "no current device is active");
+		//}
 
 		return currentDeviceId;
 	}
@@ -383,44 +306,44 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return 1;
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_ACTIVE)
-			Mouse::the()->_activated(true);
+			Mouse::the()->_activated(idFromHWND(hWnd), true);
 		else
-			Mouse::the()->_activated(false);
+			Mouse::the()->_activated(idFromHWND(hWnd), false);
 		break;
 	case WM_MOUSEMOVE:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_move(LOWORD(lParam), HIWORD(lParam));
+		Mouse::the()->_move(idFromHWND(hWnd), LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_LBUTTONDOWN:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(0, LOWORD(lParam), HIWORD(lParam));
+		Mouse::the()->_press(idFromHWND(hWnd), 0, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_LBUTTONUP:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(0, LOWORD(lParam), HIWORD(lParam));
+		Mouse::the()->_release(idFromHWND(hWnd), 0, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONDOWN:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(1, LOWORD(lParam), HIWORD(lParam));
+		Mouse::the()->_press(idFromHWND(hWnd), 1, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONUP:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(1, LOWORD(lParam), HIWORD(lParam));
+		Mouse::the()->_release(idFromHWND(hWnd), 1, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_MBUTTONDOWN:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(2, LOWORD(lParam), HIWORD(lParam));
+		Mouse::the()->_press(idFromHWND(hWnd), 2, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_MBUTTONUP:
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(2, LOWORD(lParam), HIWORD(lParam));
+		Mouse::the()->_release(idFromHWND(hWnd), 2, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
@@ -560,7 +483,7 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 	HINSTANCE inst = GetModuleHandleA(nullptr);
 #ifdef VR_RIFT 
 		::registerWindowClass(inst);
-		::windows[0] = new W32Window((HWND) VrInterface::Init(inst));
+		::windows[0] = new W32KoreWindow((HWND) VrInterface::Init(inst));
 #else /* #ifdef VR_RIFT  */
 
 	if (windowCounter == 0) {
@@ -659,7 +582,7 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 	}
 #endif /*#else // #ifdef VR_RIFT  */
 
-	windows[windowCounter] = new W32Window(hwnd, dstx, dsty, width, height);
+	windows[windowCounter] = new W32KoreWindow(hwnd, dstx, dsty, width, height);
 	return windowCounter;
 }
 
@@ -687,7 +610,7 @@ void Kore::System::destroyWindow( int index ) {
 
 int Kore::System::initWindow( WindowOptions options ) {
 	char buffer[1024] = {0};
-	strcat(buffer, appimpl::name);
+	strcat(buffer, name());
 	if (strlen(options.title) > 0) {
 		strcat(buffer, " | ");
 	}
@@ -724,6 +647,37 @@ void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 	}
 	*/
 #endif
+}
+
+void Kore::System::setup() {
+    Monitor::enumerate();
+}
+
+void Kore::System::stop() {
+    appstate::running = false;
+
+    // TODO (DK) destroy graphics, but afaik Application::~Application() was never called, so it's the same behavior now as well
+
+    //for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
+    //	Graphics::destroy(windowIndex);
+    //}
+}
+
+void Kore::System::start() {
+    appstate::running = true;
+
+#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+    // if (Graphics::hasWindow()) Graphics::swapBuffers();
+    while (appstate::running) {
+        Kore::System::callback();
+        handleMessages();
+    }
+#endif
+}
+
+bool Kore::System::isFullscreen() {
+    // TODO (DK)
+    return false;
 }
 
 namespace {
@@ -794,14 +748,14 @@ namespace {
 		folder->GetPath(0, &path);
 
 		size_t length = wcslen(path);
-		size_t length2 = strlen(appimpl::name);
+		size_t length2 = strlen(Kore::System::name());
 		savePath = new char[length + length2 + 3];
 		for (size_t i = 0; i < length; ++i) {
 			savePath[i] = static_cast<char>(path[i]);
 		}
 		savePath[length] = '\\';
 		for (size_t i = 0; i < length2; ++i) {
-			savePath[length + 1 + i] = appimpl::name[i];
+			savePath[length + 1 + i] = Kore::System::name()[i];
 		}
 		savePath[length + 1 + length2] = '\\';
 		savePath[length + 1 + length2 + 1] = 0;

@@ -12,7 +12,9 @@ namespace Kore {
 		OrientationUnknown
 	};
 
-	// TODO (DK) remove windowing stuff from here and put into Kore::Windowing or something?
+	// TODO (DK)
+	//	remove windowing stuff from here and put into Kore::Windowing or something?
+	//	better separation between windows + rendering contexts ie. Graphics?
 	namespace System {
 		void setup();
 
@@ -25,6 +27,7 @@ namespace Kore {
 		void setShowWindowFlag( bool value ); // TODO (DK) window specific?
 
 		void setName( const char * name );
+		const char * name();
 
 		int initWindow( WindowOptions options );
 		//int createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay );
@@ -68,5 +71,13 @@ namespace Kore {
 		void setBackgroundCallback( void (*value)() );
 		void setShutdownCallback( void (*value)() );
 		void setOrientationCallback( void (*value)(Orientation) );
+        
+        void callback();
+        void foregroundCallback();
+        void resumeCallback();
+        void pauseCallback();
+        void backgroundCallback();
+        void shutdownCallback();
+        void orientationCallback( Orientation );
 	}
 }

@@ -1,15 +1,16 @@
 #include "../pch.h"
+
 #include <Kore/Input/Mouse.h>
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/System.h>
+
 #include <Windows.h>
 
 using namespace Kore;
 
-void Mouse::_lock(bool truth){
+void Mouse::_lock(int windowId, bool truth){
 	show(!truth);
 	if (truth){
-		// TODO (DK) correct window id
-		auto hwnd = (HWND)Kore::Graphics::getControl(0);
+		HWND hwnd = (HWND)Kore::System::windowHandle(windowId);
 		SetCapture(hwnd);
 		RECT rect;
 		GetWindowRect(hwnd, &rect);
@@ -22,7 +23,7 @@ void Mouse::_lock(bool truth){
 }
 
 
-bool Mouse::canLock(){
+bool Mouse::canLock(int windowId){
 	return true;
 }
 
@@ -31,9 +32,8 @@ void Mouse::show(bool truth){
 	ShowCursor(truth);
 }
 
-void Mouse::setPosition(int x, int y){
-	// TODO (DK) correct window id
-	auto hwnd = (HWND)Kore::Graphics::getControl(0);
+void Mouse::setPosition(int windowId, int x, int y){
+	HWND hwnd = (HWND)Kore::System::windowHandle(windowId);
 	POINT point;
 	point.x = x;
 	point.y = y;
@@ -41,11 +41,10 @@ void Mouse::setPosition(int x, int y){
 	SetCursorPos(point.x, point.y);
 }
 
-void Mouse::getPosition(int& x, int& y){
+void Mouse::getPosition(int windowId, int& x, int& y){
 	POINT point;
 	GetCursorPos(&point);
-	// TODO (DK) correct window id
-	auto hwnd = (HWND)Kore::Graphics::getControl(0);
+	HWND hwnd = (HWND)Kore::System::windowHandle(windowId);
 	ScreenToClient(hwnd, &point);
 	x = point.x;
 	y = point.y;

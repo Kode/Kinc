@@ -24,14 +24,14 @@ Mouse::Mouse()
 , moved(false)
 {}
 
-void Mouse::_move(int x, int y) {
+void Mouse::_move(int windowId, int x, int y) {
 	int movementX = 0;
 	int movementY = 0;
-	if (isLocked()){
+	if (isLocked(windowId)){
 		movementX = x - centerX;
 		movementY = y - centerY;
 		if (movementX != 0 || movementY != 0){
-			setPosition(centerX, centerY);
+			setPosition(windowId, centerX, centerY);
 			x = centerX;
 			y = centerY;
 		}
@@ -44,57 +44,56 @@ void Mouse::_move(int x, int y) {
 	lastX = x;
 	lastY = y;
 	if (Move != nullptr && (movementX != 0 || movementY != 0)) {
-		Move(x, y, movementX, movementY);
+		Move(windowId, x, y, movementX, movementY);
 	}
 }
 
-void Mouse::_press(int button, int x, int y) {
+void Mouse::_press(int windowId, int button, int x, int y) {
 	if (Press != nullptr) {
-		Press(button, x, y);
+		Press(windowId, button, x, y);
 	}
 }
 
-void Mouse::_release(int button, int x, int y) {
+void Mouse::_release(int windowId, int button, int x, int y) {
 	if (Release != nullptr) {
-		Release(button, x, y);
+		Release(windowId, button, x, y);
 	}
 }
 
-void Mouse::_scroll(int delta) {
+void Mouse::_scroll(int windowId, int delta) {
 	if (Scroll != nullptr) {
-		Scroll(delta);
+		Scroll(windowId, delta);
 	}
 }
 
-void Mouse::_activated(bool truth){
-	if (isLocked()){
-		_lock(truth);
+void Mouse::_activated(int windowId, bool truth){
+	if (isLocked(windowId)){
+		_lock(windowId, truth);
 	}
 }
 
-bool Mouse::isLocked(){
+bool Mouse::isLocked(int windowId){
 	return locked;
 }
 
-void Mouse::lock(){
-	if (!canLock()){
+void Mouse::lock(int windowId){
+	if (!canLock(windowId)){
 		return;
 	}
 	locked = true;
-	_lock(true);
-	getPosition(lockX, lockY);
-	// TODO (DK) use correct window or only main one?
-	centerX = Kore::System::screenWidth() / 2;
-	centerY = Kore::System::screenHeight() / 2;
-	setPosition(centerX, centerY);
+	_lock(windowId, true);
+	getPosition(windowId, lockX, lockY);
+	centerX = Kore::System::windowHeight(windowId) / 2;
+	centerY = Kore::System::windowHeight(windowId) / 2;
+	setPosition(windowId, centerX, centerY);
 }
 
-void Mouse::unlock(){
-	if (!canLock()){
+void Mouse::unlock(int windowId){
+	if (!canLock(windowId)){
 		return;
 	}
 	moved = false;
 	locked = false;
-	_lock(false);
-	setPosition(lockX, lockY);
+	_lock(windowId, false);
+	setPosition(windowId, lockX, lockY);
 }

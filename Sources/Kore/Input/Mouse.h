@@ -5,31 +5,32 @@ namespace Kore {
 	public:
 		Mouse();
 		static Mouse* the();
-		void (*Move)(int x, int y, int movementX, int movementY);
-		void (*Press)(int button, int x, int y);
-		void (*Release)(int button, int x, int y);
-		void (*Scroll)(int delta);
+		void (*Move)(int windowId, int x, int y, int movementX, int movementY);
+		void (*Press)(int windowId, int button, int x, int y);
+		void (*Release)(int windowId, int button, int x, int y);
+		void (*Scroll)(int windowId, int delta);
 		
-		bool canLock();
-		bool isLocked();
-		void lock();
-		void unlock();
+		bool canLock(int windowId);
+		bool isLocked(int windowId);
+		void lock(int windowId);
+		void unlock(int windowId);
 		
 		void show(bool truth);
-		void setPosition(int x, int y);
-		void getPosition(int& x, int& y);
+		void setPosition(int windowId, int x, int y);
+		void getPosition(int windowId, int& x, int& y);
 
 		//for backend
-		void _move(int x, int y);
-		void _press(int button, int x, int y);
-		void _release(int button, int x, int y);
-		void _scroll(int delta);
-		void _activated(bool truth);
+		void _move(int windowId, int x, int y);
+		void _press(int windowId, int button, int x, int y);
+		void _release(int windowId, int button, int x, int y);
+		void _scroll(int windowId, int delta);
+		void _activated(int windowId, bool truth);
 
 	private:
-		void _lock(bool truth);
+		void _lock(int windowId, bool truth);
 
 	private:
+		// TODO (DK) states must be saved for every window?
 		int lastX;
 		int lastY;
 		int lockX;

@@ -344,7 +344,6 @@ double Kore::System::time() {
 
 #include <Kore/Android.h>
 #include <Kore/System.h>
-#include <Kore/Application.h>
 #include <Kore/Log.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>
@@ -685,7 +684,7 @@ namespace {
 					if (!started) {
 						started = true;
 					}
-					Kore::System::swapBuffers();
+					Kore::System::swapBuffers(0);
 				}
 				break;
 			case APP_CMD_TERM_WINDOW:
@@ -710,23 +709,23 @@ namespace {
 				}
 				break;
 			case APP_CMD_START:
-				if (Kore::Application::the() != nullptr && Kore::Application::the()->foregroundCallback != nullptr) Kore::Application::the()->foregroundCallback();
+				Kore::System::foregroundCallback();
 				break;
 			case APP_CMD_RESUME:
-				if (Kore::Application::the() != nullptr && Kore::Application::the()->resumeCallback != nullptr) Kore::Application::the()->resumeCallback();
+                Kore::System::resumeCallback();
 				resumeAudio();
 				paused = false;
 				break;
 			case APP_CMD_PAUSE:
-				if (Kore::Application::the() != nullptr && Kore::Application::the()->pauseCallback != nullptr) Kore::Application::the()->pauseCallback();
+                Kore::System::pauseCallback();
 				pauseAudio();
 				paused = true;
 				break;
 			case APP_CMD_STOP:
-				if (Kore::Application::the() != nullptr && Kore::Application::the()->backgroundCallback != nullptr) Kore::Application::the()->backgroundCallback();
+                Kore::System::backgroundCallback();
 				break;
 			case APP_CMD_DESTROY:
-				if (Kore::Application::the() != nullptr && Kore::Application::the()->shutdownCallback != nullptr) Kore::Application::the()->shutdownCallback();
+                Kore::System::shutdownCallback();
 				break;
 			case APP_CMD_CONFIG_CHANGED: {
 
@@ -757,17 +756,13 @@ jclass KoreAndroid::findClass(JNIEnv* env, const char* name) {
 	return clazz;
 }
 
-void* Kore::System::createWindow() {
-	return nullptr;
-}
-
-void Kore::System::swapBuffers() {
+void Kore::System::swapBuffers(int) {
 	if (glContext->Swap() != EGL_SUCCESS) {
 		Kore::log(Kore::Warning, "GL context lost.");
 	}
 }
 
-void Kore::System::destroyWindow() {
+void Kore::System::destroyWindow(int) {
 
 }
 
@@ -831,7 +826,18 @@ void Kore::System::setTitle(const char*) {
 }
 
 void Kore::System::showWindow() {
+}
 
+int Kore::System::windowCount() {
+    return 1;
+}
+
+int Kore::System::windowWidth( int ) {
+    return screenWidth();
+}
+
+int Kore::System::windowHeight( int ) {
+    return screenHeight();
 }
 
 #include <sys/time.h>
@@ -879,7 +885,7 @@ bool Kore::System::handleMessages() {
 
 		if (app->destroyRequested != 0) {
 			termDisplay();
-			Kore::Application::the()->stop();
+            Kore::System::stop();
 			return true;
 		}
 	}

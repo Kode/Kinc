@@ -33,33 +33,18 @@ namespace {
     }
 }
 
-namespace appimpl {
+namespace { namespace appstate {
 	bool running = false;
-	const char * name = "KoreApplication";
-
-	void (*callback)();
-	void (*foregroundCallback)();
-	void (*backgroundCallback)();
-	void (*pauseCallback)();
-	void (*resumeCallback)();
-	void (*shutdownCallback)();
-	void (*orientationCallback)(Kore::Orientation);
-}
+}}
 
 namespace windowimpl {
-    struct KoreWindow {
+    struct KoreWindow : public Kore::KoreWindowBase {
         Window handle;
         GLXContext context;
-        int x, y;
-        int width, height;
 
-        KoreWindow( Window handle, GLXContext context, int x, int y, int width, int height ) {
+        KoreWindow( Window handle, GLXContext context, int x, int y, int width, int height ) : KoreWindowBase(x, y, width, height) {
             this->handle = handle;
             this->context = context;
-            this->x = x;
-            this->y = y;
-            this->width = width;
-            this->height = height;
         }
     };
 
@@ -67,111 +52,36 @@ namespace windowimpl {
     int windowCounter = -1;
 }
 
-namespace Kore { namespace System {
-	void setup() {
-		Monitor::enumerate();
-	}
 
-	void start() {
-		appimpl::running = true;
+void Kore::System::setup() {
+    Monitor::enumerate();
+}
+
+void Kore::System::start() {
+    appstate::running = true;
 
 #if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-		// if (Graphics::hasWindow()) Graphics::swapBuffers();
-		while (appimpl::running) {
-			appimpl::callback();
-			handleMessages();
-		}
+    // if (Graphics::hasWindow()) Graphics::swapBuffers();
+    while (appstate::running) {
+        callback();
+        handleMessages();
+    }
 #endif
-	}
+}
 
-	void stop() {
-		appimpl::running = false;
+void Kore::System::stop() {
+    appstate::running = false;
 
-		// TODO (DK) destroy graphics, but afaik Application::~Application() was never called, so it's the same behavior now as well
+    // TODO (DK) destroy graphics, but afaik Application::~Application() was never called, so it's the same behavior now as well
 
-		//for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
-		//	Graphics::destroy(windowIndex);
-		//}
-	}
+    //for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
+    //	Graphics::destroy(windowIndex);
+    //}
+}
 
-	bool isFullscreen() {
-		// TODO (DK)
-		return false;
-	}
-
-	void setCallback( void (*value)() ) {
-		appimpl::callback = value;
-	}
-
-	void setForegroundCallback( void (*value)() ) {
-		appimpl::foregroundCallback = value;
-	}
-
-	void setResumeCallback( void (*value)() ) {
-		appimpl::resumeCallback = value;
-	}
-
-	void setPauseCallback( void (*value)() ) {
-		appimpl::pauseCallback = value;
-	}
-
-	void setBackgroundCallback( void (*value)() ) {
-		appimpl::backgroundCallback = value;
-	}
-
-	void setShutdownCallback( void (*value)() ) {
-		appimpl::shutdownCallback = value;
-	}
-
-	void setOrientationCallback( void (*value)(Orientation) ) {
-		appimpl::orientationCallback = value;
-	}
-}}
-
-int createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits );
-
-namespace Kore { namespace System {
-    int windowCount() {
-        return windowimpl::windowCounter + 1;
-    }
-
-    int windowWidth( int id ) {
-        return windowimpl::windows[id]->width;
-    }
-
-    int windowHeight( int id ) {
-        return windowimpl::windows[id]->height;
-    }
-
-    int initWindow( WindowOptions options ) {
-        return createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-    }
-
-    void* windowHandle( int id ) {
-        // TODO (DK) throw new std::exception("implement me");
-        return nullptr;
-    }
-}}
-
-namespace Kore { namespace System {
-    int currentDeviceId = -1;
-
-    int currentDevice() {
-		if (currentDeviceId == -1) {
-			log(Warning, "no current device is active");
-		}
-
-        return currentDeviceId;
-    }
-
-    void setCurrentDevice( int id ) {
-        currentDeviceId = id;
-    }
-}}
-
-void
-Kore::System::setName( const char* name ) {
-    appimpl::name = name; // TODO (DK) strcpy?
+bool Kore::System::isFullscreen() {
+    // TODO (DK)
+    return false;
 }
 
 int
@@ -282,6 +192,45 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
     windowimpl::windows[wcounter] = new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
 	return windowimpl::windowCounter = wcounter;
 }
+
+namespace Kore { namespace System {
+    int windowCount() {
+        return windowimpl::windowCounter + 1;
+    }
+
+    int windowWidth( int id ) {
+        return windowimpl::windows[id]->width;
+    }
+
+    int windowHeight( int id ) {
+        return windowimpl::windows[id]->height;
+    }
+
+    int initWindow( WindowOptions options ) {
+        return createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+    }
+
+    void* windowHandle( int id ) {
+        // TODO (DK) throw new std::exception("implement me");
+        return nullptr;
+    }
+}}
+
+namespace Kore { namespace System {
+    int currentDeviceId = -1;
+
+    int currentDevice() {
+		if (currentDeviceId == -1) {
+			log(Warning, "no current device is active");
+		}
+
+        return currentDeviceId;
+    }
+
+    void setCurrentDevice( int id ) {
+        currentDeviceId = id;
+    }
+}}
 
 bool Kore::System::handleMessages() {
 	while (XPending(dpy) > 0) {
