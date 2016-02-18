@@ -100,7 +100,6 @@ namespace {
 
 	VkCommandBuffer setup_cmd; // Command Buffer for initialization commands
 	VkCommandBuffer draw_cmd;  // Command Buffer for drawing commands
-	VkDescriptorSetLayout desc_layout;
 
 	VkDescriptorPool desc_pool;
 	VkDescriptorSet desc_set;
@@ -401,7 +400,7 @@ void Graphics::init() {
 			"vkCreateInstance Failure");
 
 	}
-	VkApplicationInfo app;
+	VkApplicationInfo app = {};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	app.pNext = NULL,
 		app.pApplicationName = Application::the()->name();
@@ -410,7 +409,7 @@ void Graphics::init() {
 	app.engineVersion = 0;
 	app.apiVersion = VK_API_VERSION;
 
-	VkInstanceCreateInfo info;
+	VkInstanceCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	info.pNext = NULL;
 	info.pApplicationInfo = &app;
@@ -538,7 +537,7 @@ void Graphics::init() {
 		if (!CreateDebugReportCallback) {
 			ERR_EXIT("GetProcAddr: Unable to find vkCreateDebugReportCallbackEXT\n", "vkGetProcAddr Failure");
 		}
-		VkDebugReportCallbackCreateInfoEXT dbgCreateInfo;
+		VkDebugReportCallbackCreateInfoEXT dbgCreateInfo = {};
 		dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
 		dbgCreateInfo.flags =
 			VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
@@ -585,12 +584,17 @@ void Graphics::init() {
 	depthIncrement = -0.01f;
 
 	windowHandle = (HWND)System::createWindow();
+#ifdef SYS_WINDOWS
+	ShowWindow(windowHandle, SW_SHOW);
+	SetForegroundWindow(windowHandle); // Slightly Higher Priority
+	SetFocus(windowHandle); // Sets Keyboard Focus To The Window
+#endif
 
 	{
 		VkResult err;
 		uint32_t i;
 
-		VkWin32SurfaceCreateInfoKHR createInfo;
+		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.pNext = NULL;
 		createInfo.flags = 0;
@@ -656,14 +660,14 @@ void Graphics::init() {
 
 		{
 			float queue_priorities[1] = { 0.0 };
-			VkDeviceQueueCreateInfo queue;
+			VkDeviceQueueCreateInfo queue = {};
 			queue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queue.pNext = NULL;
 			queue.queueFamilyIndex = graphics_queue_node_index;
 			queue.queueCount = 1;
 			queue.pQueuePriorities = queue_priorities;
 
-			VkDeviceCreateInfo deviceinfo;
+			VkDeviceCreateInfo deviceinfo = {};
 			deviceinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 			deviceinfo.pNext = NULL;
 			deviceinfo.queueCreateInfoCount = 1;
@@ -702,7 +706,7 @@ void Graphics::init() {
 		vkGetPhysicalDeviceMemoryProperties(gpu, &memory_properties);
 	}
 
-	VkCommandPoolCreateInfo cmd_pool_info;
+	VkCommandPoolCreateInfo cmd_pool_info = {};
 	cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	cmd_pool_info.pNext = NULL;
 	cmd_pool_info.queueFamilyIndex = graphics_queue_node_index;
@@ -711,7 +715,7 @@ void Graphics::init() {
 	err = vkCreateCommandPool(device, &cmd_pool_info, NULL, &cmd_pool);
 	assert(!err);
 
-	VkCommandBufferAllocateInfo cmd;
+	VkCommandBufferAllocateInfo cmd = {};
 	cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	cmd.pNext = NULL;
 	cmd.commandPool = cmd_pool;
@@ -724,7 +728,7 @@ void Graphics::init() {
 	VkSwapchainKHR oldSwapchain = swapchain;
 
 	// Check the surface capabilities and formats
-	VkSurfaceCapabilitiesKHR surfCapabilities;
+	VkSurfaceCapabilitiesKHR surfCapabilities = {};
 	err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surfCapabilities);
 	assert(!err);
 
@@ -763,7 +767,7 @@ void Graphics::init() {
 		desiredNumberOfSwapchainImages = surfCapabilities.maxImageCount;
 	}
 
-	VkSurfaceTransformFlagBitsKHR preTransform;
+	VkSurfaceTransformFlagBitsKHR preTransform = {};
 	if (surfCapabilities.supportedTransforms &
 		VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
 		preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
@@ -772,7 +776,7 @@ void Graphics::init() {
 		preTransform = surfCapabilities.currentTransform;
 	}
 
-	VkSwapchainCreateInfoKHR swapchain_info;
+	VkSwapchainCreateInfoKHR swapchain_info = {};
 	swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swapchain_info.pNext = NULL;
 	swapchain_info.surface = surface;
@@ -817,7 +821,7 @@ void Graphics::init() {
 	assert(buffers);
 
 	for (i = 0; i < swapchainImageCount; i++) {
-		VkImageViewCreateInfo color_attachment_view;
+		VkImageViewCreateInfo color_attachment_view = {};
 		color_attachment_view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		color_attachment_view.pNext = NULL;
 		color_attachment_view.format = format;
@@ -854,7 +858,7 @@ void Graphics::init() {
 	}
 
 	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
-	VkImageCreateInfo image;
+	VkImageCreateInfo image = {};
 	image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	image.pNext = NULL;
 	image.imageType = VK_IMAGE_TYPE_2D;
@@ -869,13 +873,13 @@ void Graphics::init() {
 	image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 	image.flags = 0;
 	
-	VkMemoryAllocateInfo mem_alloc;
+	VkMemoryAllocateInfo mem_alloc = {};
 	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	mem_alloc.pNext = NULL;
 	mem_alloc.allocationSize = 0;
 	mem_alloc.memoryTypeIndex = 0;
 	
-	VkImageViewCreateInfo view;
+	VkImageViewCreateInfo view = {};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
 	view.image = VK_NULL_HANDLE;
@@ -888,7 +892,7 @@ void Graphics::init() {
 	view.flags = 0;
 	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 
-	VkMemoryRequirements mem_reqs;
+	VkMemoryRequirements mem_reqs = {};
 	bool pass;
 
 	::depth_format = depth_format;
@@ -939,15 +943,15 @@ void Graphics::init() {
 	attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-	VkAttachmentReference color_reference;
+	VkAttachmentReference color_reference = {};
 	color_reference.attachment = 0;
 	color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-	VkAttachmentReference depth_reference;
+	VkAttachmentReference depth_reference = {};
 	depth_reference.attachment = 1;
 	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-	VkSubpassDescription subpass;
+	VkSubpassDescription subpass = {};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.flags = 0;
 	subpass.inputAttachmentCount = 0;
@@ -959,7 +963,7 @@ void Graphics::init() {
 	subpass.preserveAttachmentCount = 0;
 	subpass.pPreserveAttachments = NULL;
 
-	VkRenderPassCreateInfo rp_info;
+	VkRenderPassCreateInfo rp_info = {};
 	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	rp_info.pNext = NULL;
 	rp_info.attachmentCount = 2;
@@ -976,7 +980,7 @@ void Graphics::init() {
 		VkImageView attachments[2];
 		attachments[1] = depth.view;
 
-		VkFramebufferCreateInfo fb_info;
+		VkFramebufferCreateInfo fb_info = {};
 		fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		fb_info.pNext = NULL;
 		fb_info.renderPass = render_pass;

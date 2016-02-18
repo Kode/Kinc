@@ -84,20 +84,47 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 }
 
 void Program::link(VertexStructure** structures, int count) {
-	VkGraphicsPipelineCreateInfo pipeline_info;
-	VkPipelineCacheCreateInfo pipelineCache_info;
-
-	VkPipelineVertexInputStateCreateInfo vi;
-	VkPipelineInputAssemblyStateCreateInfo ia;
-	VkPipelineRasterizationStateCreateInfo rs;
-	VkPipelineColorBlendStateCreateInfo cb;
-	VkPipelineDepthStencilStateCreateInfo ds;
-	VkPipelineViewportStateCreateInfo vp;
-	VkPipelineMultisampleStateCreateInfo ms;
-	VkDynamicState dynamicStateEnables[VK_DYNAMIC_STATE_RANGE_SIZE];
-	VkPipelineDynamicStateCreateInfo dynamicState;
-
+	VkDescriptorSetLayoutBinding layout_binding = {};
+	layout_binding.binding = 0;
+	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	layout_binding.descriptorCount = 0; // DEMO_TEXTURE_COUNT;
+	layout_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	layout_binding.pImmutableSamplers = NULL;
+	
+	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
+	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descriptor_layout.pNext = NULL;
+	descriptor_layout.bindingCount = 1;
+	descriptor_layout.pBindings = &layout_binding;
+	
 	VkResult err;
+
+	err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
+	assert(!err);
+
+	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
+	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pPipelineLayoutCreateInfo.pNext = NULL;
+	pPipelineLayoutCreateInfo.setLayoutCount = 1;
+	pPipelineLayoutCreateInfo.pSetLayouts = &desc_layout;
+
+	err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline_layout);
+	assert(!err);
+
+	//
+
+	VkGraphicsPipelineCreateInfo pipeline_info = {};
+	VkPipelineCacheCreateInfo pipelineCache_info = {};
+
+	VkPipelineVertexInputStateCreateInfo vi = {};
+	VkPipelineInputAssemblyStateCreateInfo ia = {};
+	VkPipelineRasterizationStateCreateInfo rs = {};
+	VkPipelineColorBlendStateCreateInfo cb = {};
+	VkPipelineDepthStencilStateCreateInfo ds = {};
+	VkPipelineViewportStateCreateInfo vp = {};
+	VkPipelineMultisampleStateCreateInfo ms = {};
+	VkDynamicState dynamicStateEnables[VK_DYNAMIC_STATE_RANGE_SIZE];
+	VkPipelineDynamicStateCreateInfo dynamicState = {};
 
 	memset(dynamicStateEnables, 0, sizeof dynamicStateEnables);
 	memset(&dynamicState, 0, sizeof dynamicState);
@@ -108,7 +135,7 @@ void Program::link(VertexStructure** structures, int count) {
 	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipeline_info.layout = pipeline_layout;
 
-	VertexInfo info;
+	VertexInfo info = {};
 	createVertexInfo(*structures[0], info);
 	vi = info.vi;
 

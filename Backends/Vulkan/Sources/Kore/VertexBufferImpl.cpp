@@ -106,20 +106,20 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 		{ 0.0f,  1.0f,  1.0f,      0.5f, 1.0f },
 	};
 	
-	VkBufferCreateInfo buf_info;
+	VkBufferCreateInfo buf_info = {};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
 	buf_info.size = sizeof(vb);
 	buf_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	buf_info.flags = 0;
 	
-	VkMemoryAllocateInfo mem_alloc;
+	VkMemoryAllocateInfo mem_alloc = {};
 	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	mem_alloc.pNext = NULL;
 	mem_alloc.allocationSize = 0;
 	mem_alloc.memoryTypeIndex = 0;
 
-	VkMemoryRequirements mem_reqs;
+	VkMemoryRequirements mem_reqs = {};
 	VkResult err;
 	bool pass;
 	void *data;

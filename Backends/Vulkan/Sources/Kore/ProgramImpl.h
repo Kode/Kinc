@@ -29,6 +29,7 @@ namespace Kore {
 		int* textureValues;
 		int textureCount;
 
+		VkDescriptorSetLayout desc_layout;
 		VkPipelineLayout pipeline_layout;
 		VkPipeline pipeline;
 		VkPipelineCache pipelineCache;
