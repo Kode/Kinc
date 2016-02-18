@@ -123,12 +123,16 @@ int Kore::System::windowHeight(int id) {
 void Graphics::makeCurrent(int contextId) {
 }
 
+namespace { namespace windowimpl {
+    int currentDeviceId = -1;
+}}
+
 void Kore::System::setCurrentDevice(int id) {
-    
+    windowimpl::currentDeviceId = id;
 }
 
 int Kore::System::currentDevice() {
-    return 0;
+    return windowimpl::currentDeviceId;
 }
 
 void endGL();

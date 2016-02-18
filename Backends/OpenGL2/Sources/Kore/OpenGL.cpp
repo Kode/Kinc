@@ -142,11 +142,6 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	glContexts[windowId] = wglGetCurrentContext();
 	glewInit();
 #endif /* #ifndef VR_RIFT */
-
-#else /* #ifdef SYS_WINDOWS */
-	// TODO (DK) windowHandle = (HWND)System::windowHandle(windowId)//(HWND)System::createWindow();
-	//(DK) CRAP TO PRODUCE COMPILE ERRORS HERE
-	//System::createWindow();
 #endif /* #ifdef SYS_WINDOWS */
 
 #ifndef VR_RIFT
@@ -170,15 +165,12 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #endif
 
 #if defined(SYS_IOS)
-	glGenVertexArraysOES(1, &arrayId[0]);
+	glGenVertexArraysOES(1, &arrayId[windowId]);
 	glCheckErrors();
 #elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
 	glGenVertexArrays(1, &arrayId[windowId]);
 	glCheckErrors();
 #endif
-
-	//currentDeviceIndex = -1; // (DK)
-	//wglMakeCurrent(nullptr, nullptr); // (DK)
 }
 
 // TODO (DK) should return displays refreshrate?
@@ -442,11 +434,8 @@ void Graphics::end(int windowId) {
 		log(Warning, "end: wrong glContext is active");
 	}
 
-#if defined(_DEBUG)
-	//log(Info, "Graphics::end[%i]", windowId);
-#endif
-
 	System::setCurrentDevice(-1);
+    
 #if defined (SYS_WINDOWS)
 	wglMakeCurrent(nullptr, nullptr);
 #endif
@@ -458,8 +447,6 @@ void Graphics::end(int windowId) {
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
-	//log(Info, "Graphics::clear");
-
 	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, (color & 0xff000000) / 255.0f);
 #ifdef OPENGLES
 	glClearDepthf(depth);
