@@ -397,7 +397,7 @@ namespace {
 				case AMOTION_EVENT_ACTION_DOWN:
 				case AMOTION_EVENT_ACTION_POINTER_DOWN:
 					if (id == 0) {
-						Kore::Mouse::the()->_press(0, x, y);
+						Kore::Mouse::the()->_press(0, 0, x, y);
 					}
 					Kore::Surface::the()->_touchStart(id, x, y);
 					// __android_log_print(ANDROID_LOG_INFO, "GAME", "#DOWN %d %d %d %f %f", action, index, id, x, y);
@@ -409,7 +409,7 @@ namespace {
 							x = AMotionEvent_getX(event, i);
 							y = AMotionEvent_getY(event, i);
 							if (id == 0) {
-								Kore::Mouse::the()->_move(x, y);
+								Kore::Mouse::the()->_move(0, x, y);
 							}
 							Kore::Surface::the()->_move(id, x, y);
 							// __android_log_print(ANDROID_LOG_INFO, "GAME", "#MOVE %d %d %d %f %f", action, index, id, x, y);
@@ -420,7 +420,7 @@ namespace {
 				case AMOTION_EVENT_ACTION_CANCEL:
 				case AMOTION_EVENT_ACTION_POINTER_UP:
 					if (id == 0) {
-						Kore::Mouse::the()->_release(0, x, y);
+						Kore::Mouse::the()->_release(0, 0, x, y);
 					}
 					Kore::Surface::the()->_touchEnd(id, x, y);
 					// __android_log_print(ANDROID_LOG_INFO, "GAME", "#UP %d %d %d %f %f", action, index, id, x, y);
@@ -903,19 +903,19 @@ bool Kore::System::handleMessages() {
 	return true;
 }
 
-bool Kore::Mouse::canLock() {
+bool Kore::Mouse::canLock(int windowId) {
 	return false;
 }
 
-void Kore::Mouse::setPosition(int, int) {
+void Kore::Mouse::setPosition(int windowId, int, int) {
 
 }
 
-void Kore::Mouse::_lock(bool) {
+void Kore::Mouse::_lock(int windowId, bool) {
 
 }
 
-void Kore::Mouse::getPosition(int& x, int& y) {
+void Kore::Mouse::getPosition(int windowId, int& x, int& y) {
 	x = 0;
 	y = 0;
 }
@@ -942,4 +942,41 @@ extern "C" void android_main(android_app* app) {
 	}
 	kore(0, nullptr);
 	exit(0);
+}
+
+void Kore::System::setup() {
+}
+
+int Kore::System::initWindow( Kore::WindowOptions ) {
+}
+
+namespace { namespace appstate {
+    bool running = false;
+}}
+
+void Kore::System::start() {
+    appstate::running = true;
+
+#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+    // if (Graphics::hasWindow()) Graphics::swapBuffers();
+    while (appstate::running) {
+        Kore::System::callback();
+        handleMessages();
+    }
+#endif
+}
+
+void Kore::System::stop() {
+    appstate::running = false;
+}
+
+bool Kore::System::isFullscreen() {
+    return true;
+}
+
+int Kore::System::currentDevice() {
+    return 0;
+}
+
+void Kore::System::setCurrentDevice( int ) {
 }
