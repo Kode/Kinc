@@ -50,6 +50,16 @@ namespace windowimpl {
 
     KoreWindow * windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
     int windowCounter = -1;
+
+    int idFromWindow( Window window ) {
+        for (int windowIndex = 0; windowIndex < sizeof(windows) / sizeof(windows[0]); ++windowIndex) {
+            if (windows[windowIndex]->handle == window) {
+                return windowIndex;
+            }
+        }
+
+        return -1;
+    }
 }
 
 
@@ -211,8 +221,7 @@ namespace Kore { namespace System {
     }
 
     void* windowHandle( int id ) {
-        // TODO (DK) throw new std::exception("implement me");
-        return nullptr;
+        return (void *)windowimpl::windows[id]->handle;
     }
 }}
 
@@ -236,6 +245,7 @@ bool Kore::System::handleMessages() {
 	while (XPending(dpy) > 0) {
 		XEvent event;
 		XNextEvent(dpy, &event);
+
 		switch (event.type) {
 		case KeyPress: {
 			XKeyEvent* key = (XKeyEvent*)&event;
@@ -326,31 +336,36 @@ bool Kore::System::handleMessages() {
 		}
 		case ButtonPress: {
 			XButtonEvent* button = (XButtonEvent*)&event;
+			int windowId = windowimpl::idFromWindow(button->window);
+
 			switch (button->button) {
 			case Button1:
-                Kore::Mouse::the()->_press(0, button->x, button->y);
+                Kore::Mouse::the()->_press(windowId, 0, button->x, button->y);
                 break;
             case Button3:
-                Kore::Mouse::the()->_press(1, button->x, button->y);
+                Kore::Mouse::the()->_press(windowId, 1, button->x, button->y);
                 break;
 			}
 			break;
 		}
 		case ButtonRelease: {
 			XButtonEvent* button = (XButtonEvent*)&event;
+			int windowId = windowimpl::idFromWindow(button->window);
+
 			switch (button->button) {
 			case Button1:
-                Kore::Mouse::the()->_release(0, button->x, button->y);
+                Kore::Mouse::the()->_release(windowId, 0, button->x, button->y);
                 break;
             case Button3:
-                Kore::Mouse::the()->_release(1, button->x, button->y);
+                Kore::Mouse::the()->_release(windowId, 1, button->x, button->y);
                 break;
 			}
 			break;
 		}
 		case MotionNotify: {
 			XMotionEvent* motion = (XMotionEvent*)&event;
-			Kore::Mouse::the()->_move(motion->x, motion->y);
+			int windowId = windowimpl::idFromWindow(motion->window);
+			Kore::Mouse::the()->_move(windowId, motion->x, motion->y);
 			break;
 		}
 		case ConfigureNotify:
@@ -435,7 +450,7 @@ namespace {
 const char* Kore::System::savePath() {
     if (!saveInitialized) {
         strcpy(save, "Ķ~/.");
-        strcat(save, appimpl::name);
+        strcat(save, name());
         strcat(save, "/");
         saveInitialized = true;
     }
