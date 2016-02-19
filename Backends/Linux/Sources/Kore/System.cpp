@@ -33,10 +33,6 @@ namespace {
     }
 }
 
-namespace { namespace appstate {
-	bool running = false;
-}}
-
 namespace windowimpl {
     struct KoreWindow : public Kore::KoreWindowBase {
         Window handle;
@@ -67,33 +63,13 @@ void Kore::System::setup() {
     Monitor::enumerate();
 }
 
-void Kore::System::start() {
-    appstate::running = true;
-
-#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-    // if (Graphics::hasWindow()) Graphics::swapBuffers();
-    while (appstate::running) {
-        callback();
-        handleMessages();
-    }
-#endif
-}
-
-void Kore::System::stop() {
-    appstate::running = false;
-
-    // TODO (DK) destroy graphics, but afaik Application::~Application() was never called, so it's the same behavior now as well
-
-    //for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
-    //	Graphics::destroy(windowIndex);
-    //}
-}
-
 bool Kore::System::isFullscreen() {
     // TODO (DK)
     return false;
 }
 
+// TODO (DK) the whole glx stuff should go into Graphics/OpenGL?
+//  -then there would be a better separation between window + context setup
 int
 createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits ) {
     int wcounter = windowimpl::windowCounter + 1;
@@ -382,10 +358,6 @@ bool Kore::System::handleMessages() {
 const char* Kore::System::systemId() {
     return "Linux";
 }
-
-/*void* Kore::System::windowHandle() {
-    return (void*)win;
-}*/
 
 void Kore::System::makeCurrent( int contextId ) {
 	glXMakeCurrent(dpy, windowimpl::windows[contextId]->handle, windowimpl::windows[contextId]->context);

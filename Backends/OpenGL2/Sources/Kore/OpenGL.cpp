@@ -302,7 +302,7 @@ void Graphics::begin(int windowId) {
 
 	System::setCurrentDevice(windowId);
     makeCurrent(windowId);
-    
+
 #ifdef SYS_IOS
 	beginGL();
 #endif
@@ -419,6 +419,9 @@ void glCheckErrors() {
 #if defined(SYS_WINDOWS)
 void Graphics::clearCurrent() {
 	wglMakeCurrent(nullptr, nullptr);
+}
+#else
+void Graphics::clearCurrent() {
 }
 #endif
 
