@@ -120,11 +120,12 @@ namespace Kore {
 
 	class RenderTarget : public RenderTargetImpl {
 	public:
-		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1);
+		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1, int contextId = 0);
 		int width;
 		int height;
 		int texWidth;
 		int texHeight;
+		int contextId;
 		void useColorAsTexture(TextureUnit unit);
 		//void useDepthAsTexture(int texunit);
 	};

@@ -19,7 +19,7 @@ namespace Kore {
 		enum { MAXIMUM_WINDOW_COUNT = 10 };
 
 		int currentDevice();
-		void setCurrentDevice(int id);
+		//void setCurrentDevice(int id);
 
 		int initWindow( WindowOptions options );
 		void destroyWindow(int id);
@@ -35,8 +35,8 @@ namespace Kore {
 		void hideKeyboard();
 		bool showsKeyboard();
 		void loadURL(const char* title);
-		int screenWidth(); // (DK) main window, better use windowWidth/Height( windowId )
-		int screenHeight(); // (DK) main window, better use windowWidth/Height( windowId )
+		//int screenWidth(); // (DK) main window, better use windowWidth/Height( windowId )
+		//int screenHeight(); // (DK) main window, better use windowWidth/Height( windowId )
 		int desktopWidth();
 		int desktopHeight();
 		const char* systemId();
@@ -46,6 +46,7 @@ namespace Kore {
 		void showWindow();
 		void swapBuffers( int contextId );
 		void makeCurrent( int contextId );
+		void clearCurrent();
 
 		typedef unsigned long long ticks;
 

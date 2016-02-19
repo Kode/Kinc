@@ -5,5 +5,6 @@ namespace Kore {
 	public:
 		unsigned _framebuffer;
 		unsigned _texture;
+		int contextId;
 	};
 }

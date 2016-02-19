@@ -23,10 +23,6 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int kore(int argc, char** argv);
 
-namespace { namespace appstate {
-	bool running = false;
-}}
-
 namespace {
 	struct KoreWindow : public Kore::KoreWindowBase {
 		HWND hwnd;
@@ -38,7 +34,6 @@ namespace {
 
 	KoreWindow* windows[Kore::System::MAXIMUM_WINDOW_COUNT] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	int windowCounter = -1;
-	int currentDeviceId = -1;
 
 	int idFromHWND( HWND hwnd ) {
 		for (int windowIndex = 0; windowIndex < Kore::System::MAXIMUM_WINDOW_COUNT; ++windowIndex) {
@@ -66,6 +61,8 @@ namespace {
 
 // TODO (DK) split to Graphics / Windowing?
 namespace Kore { namespace System {
+	int currentDeviceId = -1;
+
 	// (DK) only valid during begin() => end() calls
 	int currentDevice() {
 		//if (currentDeviceId == -1) {
@@ -75,9 +72,9 @@ namespace Kore { namespace System {
 		return currentDeviceId;
 	}
 
-	void setCurrentDevice(int id) {
-		currentDeviceId = id;
-	}
+	//void setCurrentDevice(int id) {
+	//	currentDeviceId = id;
+	//}
 
 	int windowCount() {
 		return windowCounter + 1;
@@ -608,6 +605,28 @@ void Kore::System::destroyWindow( int index ) {
 	}
 }
 
+void Kore::System::makeCurrent(int contextId) {
+	if (currentDeviceId == contextId) {
+		return;
+	}
+
+#if defined(_DEBUG)
+	log(Info, "Kore/System | context switch from %i to %i", currentDeviceId, contextId);
+#endif
+
+	currentDeviceId = contextId;
+	Graphics::makeCurrent(contextId);
+}
+
+void Kore::System::clearCurrent() {
+#if defined(_DEBUG)
+	log(Info, "Kore/System | context clear");
+#endif
+
+	currentDeviceId = -1;
+	Graphics::clearCurrent();
+}
+
 int Kore::System::initWindow( WindowOptions options ) {
 	char buffer[1024] = {0};
 	strcat(buffer, name());
@@ -680,20 +699,21 @@ void Kore::System::setTitle(const char* title) {
 	SetWindowTextA(windows[currentDevice()]->hwnd, title);
 }
 
+// TODO (DK) windowId
 void Kore::System::showWindow() {
-	ShowWindow(windows[currentDevice()]->hwnd, SW_SHOWDEFAULT);
-	UpdateWindow(windows[currentDevice()]->hwnd);
+	ShowWindow(windows[0]->hwnd, SW_SHOWDEFAULT);
+	UpdateWindow(windows[0]->hwnd);
 }
 
-// TODO (DK) use currentDevice() or 0?
-int Kore::System::screenWidth() {
-	return windows[currentDevice()]->width;
-}
-
-// TODO (DK) use currentDevice() or 0?
-int Kore::System::screenHeight() {
-	return windows[currentDevice()]->height;
-}
+//// TODO (DK) use currentDevice() or 0?
+//int Kore::System::screenWidth() {
+//	return windows[0]->width;
+//}
+//
+//// TODO (DK) use currentDevice() or 0?
+//int Kore::System::screenHeight() {
+//	return windows[0]->height;
+//}
 
 int Kore::System::desktopWidth() {
 	RECT size;

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "RenderTargetImpl.h"
+#include <Kore/System.h>
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
 #include "ogl.h"
@@ -113,7 +114,7 @@ namespace {
     
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) : width(width), height(height) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
 #ifndef VR_RIFT
 	// TODO: For the DK 2 we need a NPOT texture
 	texWidth = getPower2(width);
@@ -123,6 +124,10 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	texHeight = height;
 #endif
 	
+	this->contextId = contextId;
+
+	Kore::System::makeCurrent(contextId);
+
 	glGenTextures(1, &_texture);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, _texture);
@@ -170,6 +175,9 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glCheckErrors();
+
+	//Kore::Graphics::makeCurrent(oldContext);
+	//Kore::System::setCurrentDevice(oldContext);
 }
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {

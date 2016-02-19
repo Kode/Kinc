@@ -69,6 +69,12 @@ void Graphics::destroy(int windowId) {
 
 #undef CreateWindow
 
+#if defined(SYS_WINDOWS)
+namespace Kore { namespace System {
+	extern int currentDeviceId;
+}}
+#endif
+
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifdef SYS_WINDOWS
 	HWND windowHandle = (HWND)System::windowHandle(windowId);
@@ -103,8 +109,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	SetPixelFormat(deviceContexts[windowId], pixelFormat, &pfd);
 	HGLRC tempGlContext = wglCreateContext(deviceContexts[windowId]);
 	wglMakeCurrent(deviceContexts[windowId], tempGlContext);
-	System::setCurrentDevice(windowId);
-
+	Kore::System::currentDeviceId = windowId;
+	
 	// TODO (DK) make a Graphics::setup() (called from System::setup()) and call it there only once?
 	if (windowId == 0) {
 		glewInit();
@@ -265,11 +271,11 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 #endif
 }
 
-void Graphics::swapBuffers(int windowId) {
+void Graphics::swapBuffers(int contextId) {
 #ifdef SYS_WINDOWS
-	::SwapBuffers(deviceContexts[windowId]);
+	::SwapBuffers(deviceContexts[contextId]);
 #else
-	System::swapBuffers(windowId);
+	System::swapBuffers(contextId);
 #endif
 }
 
@@ -278,14 +284,14 @@ void beginGL();
 #endif
 
 #if defined(SYS_WINDOWS)
-void Graphics::makeCurrent(int windowId) {
-	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
+void Graphics::makeCurrent(int contextId) {
+	wglMakeCurrent(deviceContexts[contextId], glContexts[contextId]);
 }
 #endif
 
 #if defined(SYS_LINUX) || defined(SYS_OSX)
-void Graphics::makeCurrent(int windowId) {
-	System::makeCurrent(windowId);
+void Graphics::makeCurrent(int contextId) {
+	System::makeCurrent(contextId);
 }
 #endif
 
@@ -294,9 +300,9 @@ void Graphics::makeCurrent(int contextId) {
 }
 #endif
 
-void Graphics::begin(int windowId) {
+void Graphics::begin(int contextId) {
 	if (System::currentDevice() != -1) {
-		if (System::currentDevice() != windowId) {
+		if (System::currentDevice() != contextId) {
 			log(Warning, "begin: wrong glContext is active");
 		} else {
 			log(Warning, "begin: a glContext is still active");
@@ -305,8 +311,8 @@ void Graphics::begin(int windowId) {
 		//return; // TODO (DK) return here?
 	}
 
-	System::setCurrentDevice(windowId);
-    makeCurrent(windowId);
+	//System::setCurrentDevice(contextId);
+    System::makeCurrent(contextId);
 
 #ifdef SYS_IOS
 	beginGL();
@@ -444,8 +450,9 @@ void Graphics::end(int windowId) {
 		log(Warning, "end: wrong glContext is active");
 	}
 
-	System::setCurrentDevice(-1);
-	clearCurrent();
+	System::clearCurrent();
+	//System::setCurrentDevice(-1);
+	//clearCurrent();
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
@@ -716,13 +723,20 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 }
 
 void Graphics::setRenderTarget(RenderTarget* texture, int num) {
+	//makeCurrent(texture->contextId);
+	System::makeCurrent(texture->contextId);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
+	glCheckErrors();
 	glViewport(0, 0, texture->texWidth, texture->texHeight);
+	glCheckErrors();
 }
 
 void Graphics::restoreRenderTarget() {
 	glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer[System::currentDevice()]);
+	glCheckErrors();
 	glViewport(0, 0, System::windowWidth(System::currentDevice()), System::windowHeight(System::currentDevice()));
+	glCheckErrors();
 }
 
 bool Graphics::renderTargetsInvertedY() {
