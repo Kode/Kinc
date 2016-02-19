@@ -6,7 +6,7 @@
 
 #include <cstdio>
 
-// TODO (DK) use the windows defines version instead of ascii functionA (GetMonitorInfoA -> GetMonitorInfo)?
+// TODO (DK) use the windows defines versions instead of ascii functionA (GetMonitorInfoA -> GetMonitorInfo)?
 namespace Kore { namespace System { namespace Monitor {
 	enum { MAXIMUM_SCREEN_COUNT = 10 };
 
@@ -73,7 +73,7 @@ namespace Kore { namespace System { namespace Monitor {
 	}
 
 	const Screen *
-	primaryScreen() {
+	primary() {
 		for (int screenIndex = 0; screenIndex < MAXIMUM_SCREEN_COUNT; ++screenIndex) {
 			const Screen & screen = screens[screenIndex];
 
@@ -87,12 +87,8 @@ namespace Kore { namespace System { namespace Monitor {
 	}
 
 	const Screen *
-	screenById( int id ) {
-		//if (id < 0 || id > MAXIMUM_SCREEN_COUNT) {
-		//	log(Error, "Invalid monitor id \"%i\"", id);
-		//	return nullptr;
-		//}
-
+	byId( int id ) {
+		// TODO (DK) find a better way to identify than strcmp
 		char displayId[32];
 		sprintf_s(displayId, "\\\\.\\DISPLAY%i", id);
 

@@ -16,23 +16,17 @@ namespace Kore {
 	//	remove windowing stuff from here and put into Kore::Windowing or something?
 	//	better separation between windows + rendering contexts ie. Graphics?
 	namespace System {
-		void setup();
+		enum { MAXIMUM_WINDOW_COUNT = 10 };
 
 		int currentDevice();
 		void setCurrentDevice(int id);
+
+		int initWindow( WindowOptions options );
+		void destroyWindow(int id);
+		void* windowHandle(int windowId);
 		int windowWidth(int id);
 		int windowHeight(int id);
 		int windowCount();
-		bool hasShowWindowFlag(); // TODO (DK) window specific?
-		void setShowWindowFlag( bool value ); // TODO (DK) window specific?
-
-		void setName( const char * name );
-		const char * name();
-
-		int initWindow( WindowOptions options );
-		//int createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay );
-		void destroyWindow(int id);
-		void* windowHandle(int windowId);
 
 		void changeResolution(int width, int height, bool fullscreen);
 		bool handleMessages();
@@ -60,6 +54,13 @@ namespace Kore {
 		double time();
 
 		// (DK) old application interface
+		void setName( const char * name );
+		const char * name();
+
+		bool hasShowWindowFlag(); // TODO (DK) window specific?
+		void setShowWindowFlag( bool value ); // TODO (DK) window specific?
+
+		void setup();
 		void start();
 		void stop();
 		bool isFullscreen();

@@ -102,6 +102,7 @@ void Kore::System::orientationCallback( Orientation orientation ) {
 }
 
 namespace { namespace appstate {
+	bool running = false;
 	bool showWindowFlag = true;
 	const char * name = "KoreApplication";
 }}
@@ -120,4 +121,27 @@ void Kore::System::setName( const char * value ) {
 
 const char * Kore::System::name() {
 	return appstate::name;
+}
+
+void Kore::System::stop() {
+    appstate::running = false;
+
+    // TODO (DK) destroy graphics + windows, but afaik Application::~Application() was never called, so it's the same behavior now as well
+
+    //for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
+    //	Graphics::destroy(windowIndex);
+    //}
+}
+
+void Kore::System::start() {
+    appstate::running = true;
+
+#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+    // if (Graphics::hasWindow()) Graphics::swapBuffers();
+
+    while (appstate::running) {
+        callback();
+        handleMessages();
+    }
+#endif
 }

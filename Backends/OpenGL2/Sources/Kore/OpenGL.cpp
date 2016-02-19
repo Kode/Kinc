@@ -105,6 +105,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	wglMakeCurrent(deviceContexts[windowId], tempGlContext);
 	System::setCurrentDevice(windowId);
 
+	// TODO (DK) make a Graphics::setup() (called from System::setup()) and call it there only once?
 	if (windowId == 0) {
 		glewInit();
 	}
@@ -118,15 +119,10 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 			0
 		};
 
-		// TODO (DK) investigate context sharing
-		//	-default is null, so main (0) isn't shared
-		//	-then main gets set and is shared to all others?
 		glContexts[windowId] = wglCreateContextAttribsARB(deviceContexts[windowId], glContexts[0], attributes);
 		glCheckErrors();
 		wglMakeCurrent(nullptr, nullptr);
-		//glCheckErrors();
 		wglDeleteContext(tempGlContext);
-		//glCheckErrors();
 		wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
 		glCheckErrors();
 	}
@@ -148,7 +144,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	setRenderState(DepthTest, false);
-	glViewport(0, 0, System::windowWidth(System::currentDevice()), System::windowHeight(System::currentDevice()));
+	glViewport(0, 0, System::windowWidth(windowId), System::windowHeight(windowId));
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &originalFramebuffer[windowId]);
 
 	for (int i = 0; i < 32; ++i) {
@@ -420,7 +416,13 @@ void glCheckErrors() {
 #endif
 }
 
-// TODO (DK) this never gets called, needs investigation?
+#if defined(SYS_WINDOWS)
+void Graphics::clearCurrent() {
+	wglMakeCurrent(nullptr, nullptr);
+}
+#endif
+
+// TODO (DK) this never gets called on some targets, needs investigation?
 void Graphics::end(int windowId) {
 	//glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT);
@@ -435,15 +437,7 @@ void Graphics::end(int windowId) {
 	}
 
 	System::setCurrentDevice(-1);
-    
-#if defined (SYS_WINDOWS)
-	wglMakeCurrent(nullptr, nullptr);
-#endif
-
-#if defined (SYS_LINUX)
-    // TODO (DK)
-    //glXMakeCurrent(???, ???, ???);
-#endif
+	clearCurrent();
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {

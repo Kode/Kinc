@@ -28,21 +28,21 @@ namespace { namespace appstate {
 }}
 
 namespace {
-	struct W32KoreWindow : public Kore::KoreWindowBase {
+	struct KoreWindow : public Kore::KoreWindowBase {
 		HWND hwnd;
 
-		W32KoreWindow( HWND hwnd, int x, int y, int width, int height ) : KoreWindowBase(x, y, width, height) {
+		KoreWindow( HWND hwnd, int x, int y, int width, int height ) : KoreWindowBase(x, y, width, height) {
 			this->hwnd = hwnd;
 		}
 	};
 
-	W32KoreWindow* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	KoreWindow* windows[Kore::System::MAXIMUM_WINDOW_COUNT] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	int windowCounter = -1;
 	int currentDeviceId = -1;
 
 	int idFromHWND( HWND hwnd ) {
-		for (int windowIndex = 0; windowIndex < 10; ++windowIndex) {
-			W32KoreWindow * window = windows[windowIndex];
+		for (int windowIndex = 0; windowIndex < Kore::System::MAXIMUM_WINDOW_COUNT; ++windowIndex) {
+			KoreWindow * window = windows[windowIndex];
 
 			if (window != nullptr && window->hwnd == hwnd) {
 				return windowIndex;
@@ -64,7 +64,7 @@ namespace {
 	}
 }
 
-// TODO (DK) move to Graphics?
+// TODO (DK) split to Graphics / Windowing?
 namespace Kore { namespace System {
 	// (DK) only valid during begin() => end() calls
 	int currentDevice() {
@@ -536,8 +536,8 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
 
 	const Kore::System::Monitor::Screen * screen = targetDisplay < 0
-		? Kore::System::Monitor::primaryScreen()
-		: Kore::System::Monitor::screenById(targetDisplay)
+		? Kore::System::Monitor::primary()
+		: Kore::System::Monitor::byId(targetDisplay)
 		;
 
 	int dstx = screen->x;
@@ -582,7 +582,7 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 	}
 #endif /*#else // #ifdef VR_RIFT  */
 
-	windows[windowCounter] = new W32KoreWindow(hwnd, dstx, dsty, width, height);
+	windows[windowCounter] = new KoreWindow(hwnd, dstx, dsty, width, height);
 	return windowCounter;
 }
 
@@ -652,28 +652,6 @@ void Kore::System::setup() {
     Monitor::enumerate();
 }
 
-void Kore::System::stop() {
-    appstate::running = false;
-
-    // TODO (DK) destroy graphics, but afaik Application::~Application() was never called, so it's the same behavior now as well
-
-    //for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
-    //	Graphics::destroy(windowIndex);
-    //}
-}
-
-void Kore::System::start() {
-    appstate::running = true;
-
-#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-    // if (Graphics::hasWindow()) Graphics::swapBuffers();
-    while (appstate::running) {
-        Kore::System::callback();
-        handleMessages();
-    }
-#endif
-}
-
 bool Kore::System::isFullscreen() {
     // TODO (DK)
     return false;
@@ -707,10 +685,12 @@ void Kore::System::showWindow() {
 	UpdateWindow(windows[currentDevice()]->hwnd);
 }
 
+// TODO (DK) use currentDevice() or 0?
 int Kore::System::screenWidth() {
 	return windows[currentDevice()]->width;
 }
 
+// TODO (DK) use currentDevice() or 0?
 int Kore::System::screenHeight() {
 	return windows[currentDevice()]->height;
 }

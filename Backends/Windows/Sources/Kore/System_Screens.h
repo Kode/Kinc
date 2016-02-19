@@ -24,9 +24,8 @@ namespace Kore { namespace System { namespace Monitor {
 	};
 
 	void enumerate();
-
 	int count();
 
-	const Screen* primaryScreen();
-	const Screen* screenById( int id );
+	const Screen* primary();
+	const Screen* byId( int id );
 }}}
