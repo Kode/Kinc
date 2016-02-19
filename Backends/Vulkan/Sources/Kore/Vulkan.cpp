@@ -4,6 +4,7 @@
 #include <Kore/System.h>
 #include <Kore/Math/Core.h>
 #include <Kore/Log.h>
+#include <Kore/Error.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -119,6 +120,8 @@ namespace {
 	bool quit;
 	uint32_t current_buffer;
 	uint32_t queue_count;
+
+	VkSemaphore presentCompleteSemaphore;
 
 	VkBool32 demo_check_layers(uint32_t check_count, char **check_names,
 		uint32_t layer_count,
@@ -275,6 +278,37 @@ namespace {
 		VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
 		vkCmdPipelineBarrier(setup_cmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+	}
+
+	void demo_flush_init_cmd() {
+		VkResult err;
+
+		if (setup_cmd == VK_NULL_HANDLE) return;
+
+		err = vkEndCommandBuffer(setup_cmd);
+		assert(!err);
+
+		const VkCommandBuffer cmd_bufs[] = { setup_cmd };
+		VkFence nullFence = { VK_NULL_HANDLE };
+		VkSubmitInfo submit_info = {};
+		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submit_info.pNext = NULL;
+		submit_info.waitSemaphoreCount = 0;
+		submit_info.pWaitSemaphores = NULL;
+		submit_info.pWaitDstStageMask = NULL;
+		submit_info.commandBufferCount = 1;
+		submit_info.pCommandBuffers = cmd_bufs;
+		submit_info.signalSemaphoreCount = 0;
+		submit_info.pSignalSemaphores = NULL;
+
+		err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+		assert(!err);
+
+		err = vkQueueWaitIdle(queue);
+		assert(!err);
+
+		vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
+		setup_cmd = VK_NULL_HANDLE;
 	}
 }
 
@@ -1072,7 +1106,95 @@ void Graphics::swapBuffers() {
 }
 
 void Graphics::begin() {
+	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {};
+	presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	presentCompleteSemaphoreCreateInfo.pNext = NULL;
+	presentCompleteSemaphoreCreateInfo.flags = 0;
 
+	VkResult err = vkCreateSemaphore(device, &presentCompleteSemaphoreCreateInfo, NULL, &presentCompleteSemaphore);
+	assert(!err);
+
+	// Get the index of the next available swapchain image:
+	err = fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
+		&current_buffer);
+	if (err == VK_ERROR_OUT_OF_DATE_KHR) {
+		// demo->swapchain is out of date (e.g. the window was resized) and
+		// must be recreated:
+		//demo_resize(demo);
+		//demo_draw(demo);
+		error("VK_ERROR_OUT_OF_DATE_KHR");
+		vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
+		return;
+	}
+	else if (err == VK_SUBOPTIMAL_KHR) {
+		// demo->swapchain is not as optimal as it could be, but the platform's
+		// presentation engine will still present the image correctly.
+	}
+	else {
+		assert(!err);
+	}
+
+	// Assume the command buffer has been run on current_buffer before so
+	// we need to set the image layout back to COLOR_ATTACHMENT_OPTIMAL
+	demo_set_image_layout(buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	demo_flush_init_cmd();
+
+	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
+	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+	cmd_buf_hinfo.pNext = NULL;
+	cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
+	cmd_buf_hinfo.subpass = 0;
+	cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
+	cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
+	cmd_buf_hinfo.queryFlags = 0;
+	cmd_buf_hinfo.pipelineStatistics = 0;
+	
+	VkCommandBufferBeginInfo cmd_buf_info = {};
+	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	cmd_buf_info.pNext = NULL;
+	cmd_buf_info.flags = 0;
+	cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+	
+	VkClearValue clear_values[2];
+	memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	clear_values[0].color.float32[0] = 0.2f;
+	clear_values[0].color.float32[1] = 0.2f;
+	clear_values[0].color.float32[2] = 0.2f;
+	clear_values[0].color.float32[3] = 0.2f;
+	clear_values[1].depthStencil.depth = depthStencil;
+	clear_values[1].depthStencil.stencil = 0;
+	
+	VkRenderPassBeginInfo rp_begin = {};
+	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rp_begin.pNext = NULL;
+	rp_begin.renderPass = render_pass;
+	rp_begin.framebuffer = framebuffers[current_buffer];
+	rp_begin.renderArea.offset.x = 0;
+	rp_begin.renderArea.offset.y = 0;
+	rp_begin.renderArea.extent.width = width;
+	rp_begin.renderArea.extent.height = height;
+	rp_begin.clearValueCount = 2;
+	rp_begin.pClearValues = clear_values;
+
+	err = vkBeginCommandBuffer(draw_cmd, &cmd_buf_info);
+	assert(!err);
+	vkCmdBeginRenderPass(draw_cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+
+	VkViewport viewport;
+	memset(&viewport, 0, sizeof(viewport));
+	viewport.height = (float)height;
+	viewport.width = (float)width;
+	viewport.minDepth = (float)0.0f;
+	viewport.maxDepth = (float)1.0f;
+	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
+
+	VkRect2D scissor;
+	memset(&scissor, 0, sizeof(scissor));
+	scissor.extent.width = width;
+	scissor.extent.height = height;
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
@@ -1091,8 +1213,96 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 
 }
 
-void Graphics::end() {
+/*
+static void demo_draw_build_cmd(struct demo *demo) {
 
+
+vkCmdBindPipeline(demo->draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
+demo->pipeline);
+vkCmdBindDescriptorSets(demo->draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
+demo->pipeline_layout, 0, 1, &demo->desc_set, 0,
+NULL);
+
+
+
+VkDeviceSize offsets[1] = {0};
+vkCmdBindVertexBuffers(demo->draw_cmd, VERTEX_BUFFER_BIND_ID, 1,
+&demo->vertices.buf, offsets);
+
+vkCmdDraw(demo->draw_cmd, 3, 1, 0, 0);
+
+}
+*/
+
+void Graphics::end() {
+	vkCmdEndRenderPass(draw_cmd);
+
+	VkImageMemoryBarrier prePresentBarrier = {};
+	prePresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	prePresentBarrier.pNext = NULL;
+	prePresentBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	prePresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	prePresentBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	prePresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+
+	prePresentBarrier.image = buffers[current_buffer].image;
+	VkImageMemoryBarrier *pmemory_barrier = &prePresentBarrier;
+	vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+
+	VkResult err = vkEndCommandBuffer(draw_cmd);
+	assert(!err);
+
+	VkFence nullFence = VK_NULL_HANDLE;
+	VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	VkSubmitInfo submit_info = {};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.pNext = NULL;
+	submit_info.waitSemaphoreCount = 1;
+	submit_info.pWaitSemaphores = &presentCompleteSemaphore;
+	submit_info.pWaitDstStageMask = &pipe_stage_flags;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &draw_cmd;
+	submit_info.signalSemaphoreCount = 0;
+	submit_info.pSignalSemaphores = NULL;
+
+	err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+	assert(!err);
+
+	VkPresentInfoKHR present = {};
+	present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	present.pNext = NULL;
+	present.swapchainCount = 1;
+	present.pSwapchains = &swapchain;
+	present.pImageIndices = &current_buffer;
+
+	// TBD/TODO: SHOULD THE "present" PARAMETER BE "const" IN THE HEADER?
+	err = fpQueuePresentKHR(queue, &present);
+	if (err == VK_ERROR_OUT_OF_DATE_KHR) {
+		// demo->swapchain is out of date (e.g. the window was resized) and
+		// must be recreated:
+		//demo_resize(demo);
+		error("VK_ERROR_OUT_OF_DATE_KHR");
+	}
+	else if (err == VK_SUBOPTIMAL_KHR) {
+		// demo->swapchain is not as optimal as it could be, but the platform's
+		// presentation engine will still present the image correctly.
+	}
+	else {
+		assert(!err);
+	}
+
+	err = vkQueueWaitIdle(queue);
+	assert(err == VK_SUCCESS);
+
+	vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
+
+	if (depthStencil > 0.99f) depthIncrement = -0.001f;
+	if (depthStencil < 0.8f) depthIncrement = 0.001f;
+
+	depthStencil += depthIncrement;
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
