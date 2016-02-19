@@ -611,10 +611,9 @@ void Kore::System::destroyWindow( int index ) {
 int Kore::System::initWindow( WindowOptions options ) {
 	char buffer[1024] = {0};
 	strcat(buffer, name());
-	if (strlen(options.title) > 0) {
-		strcat(buffer, " | ");
+	if (options.title != nullptr) {
+		strcat(buffer, options.title);
 	}
-	strcat(buffer, options.title);
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
 	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
 	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
