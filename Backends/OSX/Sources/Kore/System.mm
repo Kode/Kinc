@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <Kore/Graphics/Graphics.h>
 #include <Kore/System.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Log.h>
@@ -33,14 +34,16 @@ const char* macgetresourcepath() {
 namespace {
 	NSApplication* myapp;
 //	NSWindow* window;
-	BasicOpenGLView* view;
+//	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
     
     struct KoreWindow : public KoreWindowBase {
         NSWindow * handle;
+        BasicOpenGLView* view;
         
-        KoreWindow( NSWindow * handle, int x, int y, int width, int height ) : KoreWindowBase(x, y, width, height) {
+        KoreWindow( NSWindow * handle, BasicOpenGLView * view, int x, int y, int width, int height ) : KoreWindowBase(x, y, width, height) {
             this->handle = handle;
+            this->view = view;
         }
     };
     
@@ -58,11 +61,11 @@ bool System::handleMessages() {
 }
 
 void System::swapBuffers(int windowId) {
-	[view switchBuffers];
+	[windows[windowId]->view switchBuffers];
 }
 
 int createWindow(const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay) {
-	view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height) ];
+	BasicOpenGLView* view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height) ];
 	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask backing:NSBackingStoreBuffered defer:TRUE];
 	delegate = [MyAppDelegate alloc];
 	[window setDelegate: delegate];
@@ -73,7 +76,8 @@ int createWindow(const char * title, int x, int y, int width, int height, int wi
 	[window makeKeyAndOrderFront: nil];
 		
     ++windowCounter;
-    windows[windowCounter] = new KoreWindow(window, x, y, width, height);
+    Kore::System::setCurrentDevice(windowCounter);
+    windows[windowCounter] = new KoreWindow(window, view, x, y, width, height);
 	return windowCounter;
 }
 
@@ -82,18 +86,29 @@ void System::destroyWindow(int windowId) {
 }
 
 int Kore::System::initWindow(Kore::WindowOptions options) {
-    return createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
+    int id = createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
+    Graphics::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+    return id;
 }
 
 void System::makeCurrent(int contextId) {
-    [[view openGLContext] makeCurrentContext];
+    [[windows[contextId]->view openGLContext] makeCurrentContext];
 }
+
 int System::screenWidth() {
-	return windows[currentDevice()]->width;
+	return windows[0]->width;
 }
 
 int System::screenHeight() {
-	return windows[currentDevice()]->height;
+	return windows[0]->height;
+}
+
+int Kore::System::windowWidth(int id) {
+    return windows[id]->width;
+}
+
+int Kore::System::windowHeight(int id) {
+    return windows[id]->height;
 }
 
 int System::desktopWidth() {

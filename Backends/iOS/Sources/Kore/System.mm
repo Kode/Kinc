@@ -78,8 +78,9 @@ void KoreUpdateKeyboard() {
     }
 }
 
-int Kore::System::initWindow(Kore::WindowOptions) {
-    return -1;
+int Kore::System::initWindow(Kore::WindowOptions options) {
+    Graphics::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+    return 0;
 }
 
 int Kore::System::windowCount() {
@@ -90,26 +91,7 @@ bool Kore::System::isFullscreen() {
     return true;
 }
 
-namespace { namespace appstate {
-    bool running = false;
-}}
-
 void Kore::System::setup() {
-}
-
-void Kore::System::start() {
-    appstate::running = true;
-    
-#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-    while (appstate::running) {
-        callback();
-        handleMessages();
-    }
-#endif
-}
-
-void Kore::System::stop() {
-    appstate::running = false;
 }
 
 int Kore::System::windowWidth(int id) {

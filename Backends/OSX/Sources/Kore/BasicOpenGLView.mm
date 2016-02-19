@@ -12,7 +12,7 @@ namespace {
 
 + (NSOpenGLPixelFormat*) basicPixelFormat {
     // TODO (DK) pass via argument in
-    int aa = 0; //Kore::Application::the()->antialiasing();
+    int aa = 1; //Kore::Application::the()->antialiasing();
 	if (aa > 0) {
 		NSOpenGLPixelFormatAttribute attributes[] = {
 			NSOpenGLPFADoubleBuffer,
@@ -137,11 +137,12 @@ namespace {
 
 namespace {
 	int getMouseX(NSEvent* event) {
+        // TODO (DK) map [theEvent window] to window id instead of 0
 		return static_cast<int>([event locationInWindow].x);
 	}
 	
 	int getMouseY(NSEvent* event) {
-        // TODO (DK) window selection
+        // TODO (DK) map [theEvent window] to window id instead of 0
         return static_cast<int>(Kore::System::screenHeight() - [event locationInWindow].y);
 	}
 	
@@ -149,6 +150,7 @@ namespace {
 }
 
 - (void)mouseDown:(NSEvent*)theEvent {
+    // TODO (DK) map [theEvent window] to window id instead of 0
 	if ([theEvent modifierFlags] & NSControlKeyMask) {
 		controlKeyMouseButton = true;
 		Kore::Mouse::the()->_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
@@ -160,6 +162,7 @@ namespace {
 }
 
 - (void)mouseUp:(NSEvent*)theEvent {
+    // TODO (DK) map [theEvent window] to window id instead of 0
 	if (controlKeyMouseButton) {
 		Kore::Mouse::the()->_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 	}
@@ -170,26 +173,32 @@ namespace {
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent {
+    // TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)mouseDragged:(NSEvent*)theEvent {
+    // TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDown:(NSEvent*)theEvent {
+    // TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseUp:(NSEvent*)theEvent {
+    // TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDragged:(NSEvent*)theEvent {
+    // TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)scrollWheel:(NSEvent*)theEvent {
+    // TODO (DK) map [theEvent window] to window id instead of 0
 	int delta = [theEvent deltaY];
 	Kore::Mouse::the()->_scroll(0, delta);
 }
@@ -208,7 +217,7 @@ namespace {
 	self = [super initWithFrame: frameRect pixelFormat: pf];
 	
 	[self prepareOpenGL];
-    [[self openGLContext] makeCurrentContext];
+    //[[self openGLContext] makeCurrentContext];
 	return self;
 }
 

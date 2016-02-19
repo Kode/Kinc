@@ -65,25 +65,10 @@ System::ticks System::timestamp() {
 }
 
 namespace { namespace appstate {
-    bool running = false;
+    int currentDeviceId = -1;
 }}
 
 void Kore::System::setup() {    
-}
-
-void Kore::System::start() {
-    appstate::running = true;
-
-#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-    while (appstate::running) {
-        Kore::System::callback();
-        handleMessages();
-    }
-#endif
-}
-
-void Kore::System::stop() {
-    appstate::running = false;
 }
 
 bool Kore::System::isFullscreen() {
@@ -91,22 +76,13 @@ bool Kore::System::isFullscreen() {
 }
 
 int Kore::System::currentDevice() {
-    // TODO (DK)
-    return 0;
+    return appstate::currentDeviceId;
 }
 
 int Kore::System::windowCount() {
     return 1;
 }
 
-int Kore::System::windowWidth(int id) {
-    return screenWidth();
-}
-
-int Kore::System::windowHeight(int id) {
-    return screenHeight();
-}
-
 void Kore::System::setCurrentDevice(int id) {
-    // TODO (DK)
+    appstate::currentDeviceId = id;
 }
