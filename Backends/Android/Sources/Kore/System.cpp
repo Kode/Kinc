@@ -344,6 +344,7 @@ double Kore::System::time() {
 
 #include <Kore/Android.h>
 #include <Kore/System.h>
+#include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>
@@ -947,36 +948,23 @@ extern "C" void android_main(android_app* app) {
 void Kore::System::setup() {
 }
 
-int Kore::System::initWindow( Kore::WindowOptions ) {
+int Kore::System::initWindow( Kore::WindowOptions options ) {
+    Graphics::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+    return 0;
 }
 
 namespace { namespace appstate {
-    bool running = false;
+    int currentDeviceId = -1;
 }}
-
-void Kore::System::start() {
-    appstate::running = true;
-
-#if !defined(SYS_HTML5) && !defined(SYS_TIZEN)
-    // if (Graphics::hasWindow()) Graphics::swapBuffers();
-    while (appstate::running) {
-        Kore::System::callback();
-        handleMessages();
-    }
-#endif
-}
-
-void Kore::System::stop() {
-    appstate::running = false;
-}
 
 bool Kore::System::isFullscreen() {
     return true;
 }
 
 int Kore::System::currentDevice() {
-    return 0;
+    return appstate::currentDeviceId;
 }
 
-void Kore::System::setCurrentDevice( int ) {
+void Kore::System::setCurrentDevice( int id ) {
+    appstate::currentDeviceId = id;
 }

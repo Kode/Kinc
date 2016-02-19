@@ -289,6 +289,11 @@ void Graphics::makeCurrent(int windowId) {
 }
 #endif
 
+#if defined(SYS_ANDROID)
+void Graphics::makeCurrent(int contextId) {
+}
+#endif
+
 void Graphics::begin(int windowId) {
 	if (System::currentDevice() != -1) {
 		if (System::currentDevice() != windowId) {
