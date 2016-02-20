@@ -1,5 +1,15 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
 namespace Kore {
 	class IndexBuffer;
 
@@ -12,6 +22,10 @@ namespace Kore {
 		int* data;
 		int myCount;
 		uint bufferId;
+
+		VkBuffer buf;
+		VkDeviceMemory mem;
+		VkMemoryAllocateInfo mem_alloc;
 	public:
 		static IndexBuffer* current;
 	};

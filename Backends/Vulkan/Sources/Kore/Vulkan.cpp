@@ -1090,8 +1090,7 @@ void Graphics::drawIndexedVertices() {
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-	//vkCmdDrawIndexed(draw_cmd, count, 1, 0, 0, 0);
-	vkCmdDraw(draw_cmd, 3, 1, 0, 0);
+	vkCmdDrawIndexed(draw_cmd, count, 1, 0, 0, 0);
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {

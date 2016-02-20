@@ -97,8 +97,6 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 	}
 	this->structure = structure;
 	
-	data = new float[vertexCount * myStride / 4];
-
 	VkBufferCreateInfo buf_info = {};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
@@ -139,7 +137,6 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 
 VertexBuffer::~VertexBuffer() {
 	unset();
-	delete[] data;
 }
 
 float* VertexBuffer::lock() {
