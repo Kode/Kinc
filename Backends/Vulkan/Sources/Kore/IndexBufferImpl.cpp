@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <Kore/Graphics/Graphics.h>
+#include <vulkan/vulkan.h>
 
 using namespace Kore;
 
@@ -30,6 +31,7 @@ void IndexBuffer::unlock() {
 void IndexBuffer::_set() {
 	current = this;
 
+	//vkCmdBindIndexBuffer(draw_cmd, buffer, 0, VK_INDEX_TYPE_UINT32);
 }
 
 void IndexBufferImpl::unset() {

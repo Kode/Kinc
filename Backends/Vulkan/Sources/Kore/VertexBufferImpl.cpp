@@ -97,24 +97,16 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 	}
 	this->structure = structure;
 	
-
 	data = new float[vertexCount * myStride / 4];
 
-	const float vb[3][5] = {
-		/*      position             texcoord */
-		{ -1.0f, -1.0f,  0.25f,     0.0f, 0.0f },
-		{ 1.0f, -1.0f,  0.25f,     1.0f, 0.0f },
-		{ 0.0f,  1.0f,  1.0f,      0.5f, 1.0f },
-	};
-	
 	VkBufferCreateInfo buf_info = {};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
-	buf_info.size = sizeof(vb);
+	buf_info.size = vertexCount * myStride;
 	buf_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	buf_info.flags = 0;
 	
-	VkMemoryAllocateInfo mem_alloc = {};
+	memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	mem_alloc.pNext = NULL;
 	mem_alloc.allocationSize = 0;
@@ -123,8 +115,7 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 	VkMemoryRequirements mem_reqs = {};
 	VkResult err;
 	bool pass;
-	void *data;
-
+	
 	memset(&vertices, 0, sizeof(vertices));
 
 	err = vkCreateBuffer(device, &buf_info, NULL, &vertices.buf);
@@ -139,14 +130,7 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 
 	err = vkAllocateMemory(device, &mem_alloc, NULL, &vertices.mem);
 	assert(!err);
-
-	err = vkMapMemory(device, vertices.mem, 0, mem_alloc.allocationSize, 0, &data);
-	assert(!err);
-
-	memcpy(data, vb, sizeof(vb));
-
-	vkUnmapMemory(device, vertices.mem);
-
+	
 	err = vkBindBufferMemory(device, vertices.buf, vertices.mem, 0);
 	assert(!err);
 
@@ -159,11 +143,13 @@ VertexBuffer::~VertexBuffer() {
 }
 
 float* VertexBuffer::lock() {
+	VkResult err = vkMapMemory(device, vertices.mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
+	assert(!err);
 	return data;
 }
 
 void VertexBuffer::unlock() {
-	
+	vkUnmapMemory(device, vertices.mem);
 }
 
 int VertexBuffer::_set(int offset) {

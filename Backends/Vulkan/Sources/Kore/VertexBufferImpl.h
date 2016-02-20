@@ -40,6 +40,7 @@ namespace Kore {
 //#endif
 
 		Vertices vertices;
+		VkMemoryAllocateInfo mem_alloc;
 
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);
