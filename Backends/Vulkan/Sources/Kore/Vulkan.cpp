@@ -1157,10 +1157,10 @@ void Graphics::begin() {
 	
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);
-	clear_values[0].color.float32[0] = 0.2f;
-	clear_values[0].color.float32[1] = 0.2f;
-	clear_values[0].color.float32[2] = 0.2f;
-	clear_values[0].color.float32[3] = 0.2f;
+	clear_values[0].color.float32[0] = 0.0f;
+	clear_values[0].color.float32[1] = 0.0f;
+	clear_values[0].color.float32[2] = 0.0f;
+	clear_values[0].color.float32[3] = 1.0f;
 	clear_values[1].depthStencil.depth = depthStencil;
 	clear_values[1].depthStencil.stencil = 0;
 	
@@ -1285,7 +1285,18 @@ void Graphics::end() {
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
-
+	/*VkClearColorValue clearColor = {};
+	clearColor.float32[0] = 1.0f;
+	clearColor.float32[1] = 0.0f;
+	clearColor.float32[2] = 0.0f;
+	clearColor.float32[3] = 1.0f;
+	VkImageSubresourceRange range = {};
+	range.levelCount = 1;
+	range.layerCount = 1;
+	range.aspectMask = 0;
+	range.baseArrayLayer = 0;
+	range.baseMipLevel = 0;
+	vkCmdClearColorImage(draw_cmd, buffers[current_buffer].image, VK_IMAGE_LAYOUT_GENERAL, &clearColor, 1, &range);*/
 }
 
 void Graphics::setRenderState(RenderState state, bool on) {
