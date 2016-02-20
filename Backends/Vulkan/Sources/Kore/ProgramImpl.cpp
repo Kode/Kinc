@@ -236,12 +236,12 @@ void Program::set() {
 
 ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
-
+	location.location = 0;
 	return location;
 }
 
 TextureUnit Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
-	
+	unit.unit = 0;
 	return unit;
 }

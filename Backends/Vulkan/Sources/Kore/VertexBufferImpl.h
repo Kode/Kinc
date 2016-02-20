@@ -11,6 +11,10 @@
 #undef max
 #endif
 
+#ifdef RegisterClass
+#undef RegisterClass
+#endif
+
 namespace Kore {
 	struct VertexInfo {
 		VkPipelineVertexInputStateCreateInfo vi;

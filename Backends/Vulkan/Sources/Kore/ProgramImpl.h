@@ -10,6 +10,10 @@
 #undef max
 #endif
 
+#ifdef RegisterClass
+#undef RegisterClass
+#endif
+
 namespace Kore {
 	class Shader;
 
