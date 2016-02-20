@@ -10,6 +10,7 @@
 using namespace Kore;
 
 extern VkDevice device;
+extern VkCommandBuffer draw_cmd;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
@@ -168,6 +169,11 @@ void VertexBuffer::unlock() {
 int VertexBuffer::_set(int offset) {
 	int offsetoffset = setVertexAttributes(offset);
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
+
+
+	VkDeviceSize offsets[1] = { 0 };
+	vkCmdBindVertexBuffers(draw_cmd, VERTEX_BUFFER_BIND_ID, 1, &vertices.buf, offsets);
+
 	return offsetoffset;
 }
 

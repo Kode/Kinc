@@ -37,6 +37,8 @@ VkDevice device;
 VkFormat format;
 VkFormat depth_format;
 VkRenderPass render_pass;
+VkCommandBuffer draw_cmd;
+VkDescriptorSet desc_set;
 
 namespace {
 	HWND windowHandle;
@@ -100,10 +102,8 @@ namespace {
 	//struct texture_object textures[DEMO_TEXTURE_COUNT];
 
 	VkCommandBuffer setup_cmd; // Command Buffer for initialization commands
-	VkCommandBuffer draw_cmd;  // Command Buffer for drawing commands
 
 	VkDescriptorPool desc_pool;
-	VkDescriptorSet desc_set;
 
 	VkFramebuffer *framebuffers;
 
@@ -1086,11 +1086,12 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 }
 
 void Graphics::drawIndexedVertices() {
-	//drawIndexedVertices(0, IndexBufferImpl::current->count());
+	drawIndexedVertices(0, IndexBufferImpl::current->count());
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-
+	//vkCmdDrawIndexed(draw_cmd, count, 1, 0, 0, 0);
+	vkCmdDraw(draw_cmd, 3, 1, 0, 0);
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
@@ -1213,27 +1214,6 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 
 }
 
-/*
-static void demo_draw_build_cmd(struct demo *demo) {
-
-
-vkCmdBindPipeline(demo->draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-demo->pipeline);
-vkCmdBindDescriptorSets(demo->draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-demo->pipeline_layout, 0, 1, &demo->desc_set, 0,
-NULL);
-
-
-
-VkDeviceSize offsets[1] = {0};
-vkCmdBindVertexBuffers(demo->draw_cmd, VERTEX_BUFFER_BIND_ID, 1,
-&demo->vertices.buf, offsets);
-
-vkCmdDraw(demo->draw_cmd, 3, 1, 0, 0);
-
-}
-*/
-
 void Graphics::end() {
 	vkCmdEndRenderPass(draw_cmd);
 
@@ -1318,11 +1298,11 @@ void Graphics::setRenderState(RenderState state, int v) {
 }
 
 void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
-
+	vertexBuffers[0]->_set();
 }
 
 void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
-
+	indexBuffer._set();
 }
 
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {

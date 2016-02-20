@@ -14,6 +14,8 @@ extern VkDevice device;
 extern VkFormat format;
 extern VkFormat depth_format;
 extern VkRenderPass render_pass;
+extern VkCommandBuffer draw_cmd;
+extern VkDescriptorSet desc_set;
 
 void createVertexInfo(const VertexStructure& structure, VertexInfo& info);
 
@@ -228,7 +230,8 @@ void Program::link(VertexStructure** structures, int count) {
 }
 
 void Program::set() {
-
+	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	//vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
