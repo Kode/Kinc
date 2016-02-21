@@ -39,6 +39,11 @@ VkFormat depth_format;
 VkRenderPass render_pass;
 VkCommandBuffer draw_cmd;
 VkDescriptorSet desc_set;
+VkPhysicalDevice gpu;
+VkCommandBuffer setup_cmd; // Command Buffer for initialization commands
+VkCommandPool cmd_pool;
+VkQueue queue;
+bool use_staging_buffer;
 
 namespace {
 	HWND windowHandle;
@@ -55,13 +60,10 @@ namespace {
 
 	VkSurfaceKHR surface;
 	bool prepared;
-	bool use_staging_buffer;
 
 	VkAllocationCallbacks allocator;
 
 	VkInstance inst;
-	VkPhysicalDevice gpu;
-	VkQueue queue;
 	VkPhysicalDeviceProperties gpu_props;
 	VkQueueFamilyProperties *queue_props;
 	uint32_t graphics_queue_node_index;
@@ -91,17 +93,11 @@ namespace {
 	VkSwapchainKHR swapchain;
 	SwapchainBuffers *buffers;
 
-	VkCommandPool cmd_pool;
-
 	struct {
 		VkImage image;
 		VkDeviceMemory mem;
 		VkImageView view;
 	} depth;
-
-	//struct texture_object textures[DEMO_TEXTURE_COUNT];
-
-	VkCommandBuffer setup_cmd; // Command Buffer for initialization commands
 
 	VkDescriptorPool desc_pool;
 
