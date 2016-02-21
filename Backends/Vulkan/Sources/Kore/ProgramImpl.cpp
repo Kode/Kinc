@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <malloc.h>
 
 using namespace Kore;
 
@@ -16,8 +17,6 @@ extern VkFormat depth_format;
 extern VkRenderPass render_pass;
 extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
-
-void createVertexInfo(const VertexStructure& structure, VertexInfo& info);
 
 namespace {
 	VkShaderModule demo_prepare_shader_module(const void *code, size_t size) {
@@ -118,7 +117,6 @@ void Program::link(VertexStructure** structures, int count) {
 	VkGraphicsPipelineCreateInfo pipeline_info = {};
 	VkPipelineCacheCreateInfo pipelineCache_info = {};
 
-	VkPipelineVertexInputStateCreateInfo vi = {};
 	VkPipelineInputAssemblyStateCreateInfo ia = {};
 	VkPipelineRasterizationStateCreateInfo rs = {};
 	VkPipelineColorBlendStateCreateInfo cb = {};
@@ -137,9 +135,94 @@ void Program::link(VertexStructure** structures, int count) {
 	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipeline_info.layout = pipeline_layout;
 
-	VertexInfo info = {};
-	createVertexInfo(*structures[0], info);
-	vi = info.vi;
+	uint32_t stride = 0;
+	for (int i = 0; i < structures[0]->size; ++i) {
+		VertexElement element = structures[0]->elements[i];
+		switch (element.data) {
+		case ColorVertexData:
+			stride += 1 * 4;
+			break;
+		case Float1VertexData:
+			stride += 1 * 4;
+			break;
+		case Float2VertexData:
+			stride += 2 * 4;
+			break;
+		case Float3VertexData:
+			stride += 3 * 4;
+			break;
+		case Float4VertexData:
+			stride += 4 * 4;
+			break;
+		case Float4x4VertexData:
+			stride += 4 * 4 * 4;
+			break;
+		}
+	}
+
+	VkVertexInputBindingDescription vi_bindings[1];
+	VkVertexInputAttributeDescription* vi_attrs = (VkVertexInputAttributeDescription*)alloca(sizeof(VkVertexInputAttributeDescription) * structures[0]->size);
+
+	VkPipelineVertexInputStateCreateInfo vi = {};
+	vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vi.pNext = NULL;
+	vi.vertexBindingDescriptionCount = 1;
+	vi.pVertexBindingDescriptions = vi_bindings;
+	vi.vertexAttributeDescriptionCount = structures[0]->size;
+	vi.pVertexAttributeDescriptions = vi_attrs;
+
+	vi_bindings[0].binding = 0;
+	vi_bindings[0].stride = stride;
+	vi_bindings[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	uint32_t offset = 0;
+	for (int i = 0; i < structures[0]->size; ++i) {
+		VertexElement element = structures[0]->elements[i];
+		switch (element.data) {
+		case ColorVertexData:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = i;
+			vi_attrs[i].format = VK_FORMAT_R32_UINT;
+			vi_attrs[i].offset = offset;
+			offset += 1 * 4;
+			break;
+		case Float1VertexData:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = i;
+			vi_attrs[i].format = VK_FORMAT_R32_SFLOAT;
+			vi_attrs[i].offset = offset;
+			offset += 1 * 4;
+			break;
+		case Float2VertexData:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = i;
+			vi_attrs[i].format = VK_FORMAT_R32G32_SFLOAT;
+			vi_attrs[i].offset = offset;
+			offset += 2 * 4;
+			break;
+		case Float3VertexData:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = i;
+			vi_attrs[i].format = VK_FORMAT_R32G32B32_SFLOAT;
+			vi_attrs[i].offset = offset;
+			offset += 3 * 4;
+			break;
+		case Float4VertexData:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = i;
+			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+			vi_attrs[i].offset = offset;
+			offset += 4 * 4;
+			break;
+		case Float4x4VertexData:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = i;
+			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT; // TODO
+			vi_attrs[i].offset = offset;
+			offset += 4 * 4 * 4;
+			break;
+		}
+	}
 
 	memset(&ia, 0, sizeof(ia));
 	ia.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -148,7 +231,7 @@ void Program::link(VertexStructure** structures, int count) {
 	memset(&rs, 0, sizeof(rs));
 	rs.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rs.polygonMode = VK_POLYGON_MODE_FILL;
-	rs.cullMode = VK_CULL_MODE_BACK_BIT;
+	rs.cullMode = VK_CULL_MODE_NONE;
 	rs.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rs.depthClampEnable = VK_FALSE;
 	rs.rasterizerDiscardEnable = VK_FALSE;

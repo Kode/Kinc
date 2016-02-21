@@ -14,57 +14,7 @@ extern VkCommandBuffer draw_cmd;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
-#define VERTEX_BUFFER_BIND_ID 0
-
 VertexBuffer* VertexBufferImpl::current = nullptr;
-
-void createVertexInfo(const VertexStructure& structure, VertexInfo& info) {
-	uint32_t stride = 0;
-	for (int i = 0; i < structure.size; ++i) {
-		VertexElement element = structure.elements[i];
-		switch (element.data) {
-		case ColorVertexData:
-			stride += 1 * 4;
-			break;
-		case Float1VertexData:
-			stride += 1 * 4;
-			break;
-		case Float2VertexData:
-			stride += 2 * 4;
-			break;
-		case Float3VertexData:
-			stride += 3 * 4;
-			break;
-		case Float4VertexData:
-			stride += 4 * 4;
-			break;
-		case Float4x4VertexData:
-			stride += 4 * 4 * 4;
-			break;
-		}
-	}
-
-	info.vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	info.vi.pNext = NULL;
-	info.vi.vertexBindingDescriptionCount = 1;
-	info.vi.pVertexBindingDescriptions = info.vi_bindings;
-	info.vi.vertexAttributeDescriptionCount = 2;
-	info.vi.pVertexAttributeDescriptions = info.vi_attrs;
-
-	info.vi_bindings[0].binding = VERTEX_BUFFER_BIND_ID;
-	info.vi_bindings[0].stride = stride;
-	info.vi_bindings[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-	info.vi_attrs[0].binding = VERTEX_BUFFER_BIND_ID;
-	info.vi_attrs[0].location = 0;
-	info.vi_attrs[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-	info.vi_attrs[0].offset = 0;
-
-	info.vi_attrs[1].binding = VERTEX_BUFFER_BIND_ID;
-	info.vi_attrs[1].location = 1;
-	info.vi_attrs[1].format = VK_FORMAT_R32G32_SFLOAT;
-	info.vi_attrs[1].offset = sizeof(float) * 3;
-}
 
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {
 
@@ -132,7 +82,7 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 	err = vkBindBufferMemory(device, vertices.buf, vertices.mem, 0);
 	assert(!err);
 
-	createVertexInfo(structure, vertices.info);
+	//createVertexInfo(structure, vertices.info);
 }
 
 VertexBuffer::~VertexBuffer() {
@@ -155,7 +105,7 @@ int VertexBuffer::_set(int offset) {
 
 
 	VkDeviceSize offsets[1] = { 0 };
-	vkCmdBindVertexBuffers(draw_cmd, VERTEX_BUFFER_BIND_ID, 1, &vertices.buf, offsets);
+	vkCmdBindVertexBuffers(draw_cmd, 0, 1, &vertices.buf, offsets);
 
 	return offsetoffset;
 }
