@@ -19,6 +19,53 @@ extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
 
 namespace {
+	void parseShader(Shader* shader, std::map<std::string, u32>& locations) {
+		u32* spirv = (u32*)shader->source;
+		int spirvsize = shader->length / 4;
+		int index = 0;
+
+		unsigned magicNumber = spirv[index++];
+		unsigned version = spirv[index++];
+		unsigned generator = spirv[index++];
+		unsigned bound = spirv[index++];
+		index++;
+
+		std::map<u32, std::string> names;
+		std::map<u32, u32> locs;
+
+		while (index < spirvsize) {
+			int wordCount = spirv[index] >> 16;
+			u32 opcode = spirv[index] & 0xffff;
+
+			u32* operands = wordCount > 1 ? &spirv[index + 1] : nullptr;
+			u32 length = wordCount - 1;
+			
+			switch (opcode) {
+			case 5: { // OpName
+				u32 id = operands[0];
+				char* string = (char*)&operands[1];
+				names[id] = string;
+				break;
+			}
+			case 71: { // OpDecorate
+				u32 id = operands[0];
+				u32 decoration = operands[1];
+				if (decoration == 30) { // location
+					u32 location = operands[2];
+					locs[id] = location;
+				}
+				break;
+			}
+			}
+
+			index += wordCount;
+		}
+
+		for (std::map<u32, u32>::iterator it = locs.begin(); it != locs.end(); ++it) {
+			locations[names[it->first]] = it->second;
+		}
+	}
+
 	VkShaderModule demo_prepare_shader_module(const void *code, size_t size) {
 		VkShaderModuleCreateInfo moduleCreateInfo;
 		VkShaderModule module;
@@ -85,6 +132,8 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 }
 
 void Program::link(VertexStructure** structures, int count) {
+	parseShader(vertexShader, vertexLocations);
+
 	VkDescriptorSetLayoutBinding layout_binding = {};
 	layout_binding.binding = 0;
 	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -181,42 +230,42 @@ void Program::link(VertexStructure** structures, int count) {
 		switch (element.data) {
 		case ColorVertexData:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = i;
+			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32_UINT;
 			vi_attrs[i].offset = offset;
 			offset += 1 * 4;
 			break;
 		case Float1VertexData:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = i;
+			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 1 * 4;
 			break;
 		case Float2VertexData:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = i;
+			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32G32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 2 * 4;
 			break;
 		case Float3VertexData:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = i;
+			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32G32B32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 3 * 4;
 			break;
 		case Float4VertexData:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = i;
+			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4;
 			break;
 		case Float4x4VertexData:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = i;
+			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT; // TODO
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4 * 4;

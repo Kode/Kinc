@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+#include <string>
 #include <vulkan/vulkan.h>
 
 #ifdef min
@@ -39,6 +41,8 @@ namespace Kore {
 		VkPipelineCache pipelineCache;
 		VkShaderModule vert_shader_module;
 		VkShaderModule frag_shader_module;
+
+		std::map<std::string, u32> vertexLocations;
 	};
 
 	class ConstantLocationImpl {
