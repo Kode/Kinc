@@ -235,7 +235,15 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	}
 #endif
 
-	System::setCurrentDevice(windowId);
+	System::makeCurrent(windowId);
+}
+
+void Graphics::makeCurrent( int contextId ) {
+	// TODO (DK) implement me
+}
+
+void Graphics::clearCurrent() {
+	// TODO (DK) implement me
 }
 
 void Graphics::flush() {
@@ -244,10 +252,6 @@ void Graphics::flush() {
 
 void Graphics::changeResolution(int width, int height) {
 
-}
-
-void* Graphics::getControl(int windowId) {
-	return nullptr;
 }
 
 void Graphics::drawIndexedVertices() {

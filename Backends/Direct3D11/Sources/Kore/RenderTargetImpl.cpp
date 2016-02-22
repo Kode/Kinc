@@ -7,9 +7,10 @@
 
 using namespace Kore;
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
+	this->contextId = contextId;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
