@@ -14,6 +14,10 @@ namespace Kore { namespace Display {
 	int screenCounter = -1;
 	bool initialized = false;
 
+	void ensureInitialized() {
+		enumerate();
+	}
+
 	bool queryInformation( HMONITOR monitor ) {
 		MONITORINFOEXA info;
 		memset(&info, 0, sizeof(MONITORINFOEXA));
@@ -69,6 +73,7 @@ namespace Kore { namespace Display {
 	}
 
 	int count() {
+		ensureInitialized();
 		return screenCounter + 1;
 	}
 
@@ -105,10 +110,12 @@ namespace Kore { namespace Display {
 	}
 
 	int width( int index ) {
+		ensureInitialized();
 		return displays[index].width;
 	}
 
 	int height( int index ) {
+		ensureInitialized();
 		return displays[index].height;
 	}
 }}
