@@ -6,13 +6,14 @@
 #include "Display.h"
 #include <Kore/Log.h>
 
+#include <X11/X.h>
 #include <X11/extensions/Xinerama.h>
 
 namespace Kore { namespace Display {
 void fatalError(const char* message);
 
 void enumDisplayMonitors( DeviceInfo displays[], int & displayCounter ) {
-    Display * dpy = XOpenDisplay(NULL);
+    ::Display * dpy = XOpenDisplay(NULL);
 
     if (dpy == NULL) {
         fatalError("Could not open display");

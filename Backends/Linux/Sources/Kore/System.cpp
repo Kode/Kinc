@@ -5,7 +5,7 @@
 #include <Kore/System.h>
 #include <Kore/Graphics/Graphics.h>
 
-#include "System_Screens.h"
+#include "Display.h"
 
 #include <cstring>
 
@@ -61,7 +61,7 @@ namespace windowimpl {
 
 
 void Kore::System::setup() {
-    Monitor::enumerate();
+    Display::enumerate();
 }
 
 bool Kore::System::isFullscreen() {
@@ -142,30 +142,25 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 	// (6) bind the rendering context to the window
 	glXMakeCurrent(dpy, win, cx);
 
-	const Kore::System::Monitor::KoreScreen * screen = targetDisplay < 0
-		? Kore::System::Monitor::primaryScreen()
-		: Kore::System::Monitor::screenById(targetDisplay)
+	const Kore::Display::DeviceInfo * deviceInfo = targetDisplay < 0
+		? Kore::Display::primaryScreen()
+		: Kore::Display::screenById(targetDisplay)
 		;
 
-	int dstx = screen->x;
-	int dsty = screen->y;
+	int dstx = deviceInfo->x;
+	int dsty = deviceInfo->y;
 
 	switch (windowMode) {
 		// (DK) windowed
 		// (DK) borderless
+		// (DK) fullscreen
 		case 0: // fall through
-		case 1: {
-		    int dw = screen->width;//DisplayWidth(dpy, vi->screen);
-		    int dh = screen->height;//DisplayHeight(dpy, vi->screen);
+		case 1:
+        case 2: {
+		    int dw = deviceInfo->width;
+		    int dh = deviceInfo->height;
 			dstx += x < 0 ? (dw - width) / 2 : x;
 			dsty += y < 0 ? (dh - height) / 2 : y;
-		} break;
-
-		// (DK) fullscreen
-		default: // fall through
-		case 2: {
-			//dstx = 0;
-			//dsty = 0;
 		} break;
 	}
 

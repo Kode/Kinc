@@ -4,8 +4,6 @@
 
 #include "Display.h"
 
-#include <X11.h>
-
 #include <cstdio>
 #include <cstdlib>
 
@@ -39,11 +37,11 @@ namespace Kore { namespace Display {
     int width( int index ) {
         return displays[index].width;
     }
-    
+
     int height( int index ) {
         return displays[index].height;
     }
-    
+
 	const DeviceInfo *
 	primaryScreen() {
 		for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {
