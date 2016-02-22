@@ -474,7 +474,7 @@ vec2i Kore::System::mousePos() {
 
 #undef CreateWindow
 
-int createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay ) {
+int createWindow( const char * title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay ) {
 	++windowCounter;
 
 	HINSTANCE inst = GetModuleHandleA(nullptr);
@@ -497,20 +497,18 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 	WindowRect.bottom = height;
 	
 	switch (windowMode) {
-		// windowed
-		case 0: {
+		default: // fall through
+		case WindowMode::Window: {
 			dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 			dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 		} break;
 
-		// borderless
-		case 1: {
+		case WindowMode::Borderless: {
 			dwStyle = WS_POPUP;
 			dwExStyle = WS_EX_APPWINDOW;
 		} break;
 
-		// fullscreen
-		case 2: {
+		case WindowMode::Fullscreen: {
 			DEVMODEA dmScreenSettings;									// Device Mode
 			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));		// Makes Sure Memory's Cleared
 			dmScreenSettings.dmSize = sizeof(dmScreenSettings);			// Size Of The Devmode Structure
@@ -545,19 +543,14 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 	uint h = height;
 
 	switch (windowMode) {
-		// (DK) windowed
-		// (DK) borderless
-		case 0: // fall through
-		case 1: {
-			//dstx = x < 0 ? (xres - w) >> 1 : x;
-			//dsty = y < 0 ? (yres - h) >> 1 : y;
+		default: // fall through
+		case WindowMode::Window: // fall through
+		case WindowMode::Borderless: {
 			dstx += x < 0 ? (displayDevice->width - w) >> 1 : x;
 			dsty += y < 0 ? (displayDevice->height - h) >> 1 : y;
 		} break;
 
-		// (DK) fullscreen
-		default: // fall through
-		case 2: {
+		case WindowMode::Fullscreen: {
 			//dstx = 0;
 			//dsty = 0;
 		} break;
@@ -566,7 +559,7 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 	HWND hwnd = CreateWindowExA(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
 	
 	if (windowCounter == 0) {
-		if (windowMode == 2) {
+		if (windowMode == WindowMode::Fullscreen) {
 			SetWindowPos(hwnd, nullptr, dstx, dsty, width, height, 0);
 		}
 	}
@@ -630,9 +623,11 @@ void Kore::System::clearCurrent() {
 int Kore::System::initWindow( WindowOptions options ) {
 	char buffer[1024] = {0};
 	strcat(buffer, name());
+	
 	if (options.title != nullptr) {
 		strcat(buffer, options.title);
 	}
+
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
 	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
 	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);

@@ -2,12 +2,16 @@
 
 namespace Kore {
 	struct RendererOptions {
-		//int width;
-		//int height;
 		int textureFormat;
 		int depthBufferBits;
 		int stencilBufferBits;
 		int antialiasing;
+	};
+
+	enum class WindowMode {
+		Window = 0,
+		Borderless = 1,
+		Fullscreen = 2,
 	};
 
     struct WindowOptions {
@@ -16,13 +20,17 @@ namespace Kore {
         int height;
         int x;
         int y;
-        int targetDisplay;
-        int mode;
+		int targetDisplay;
+		WindowMode mode;
 		bool showWindow;
 		RendererOptions rendererOptions;
 
 		WindowOptions() {
 			showWindow = true;
+			title = "KoreWindow";
+			targetDisplay = -1;
+			mode = WindowMode::Window;
+			rendererOptions.antialiasing = 0;
 		}
     };
 

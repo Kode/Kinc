@@ -61,7 +61,7 @@ namespace Kore {
 		bool hasShowWindowFlag(); // TODO (DK) window specific?
 		void setShowWindowFlag( bool value ); // TODO (DK) window specific?
 
-		void simpleSetup( int argc, char * argv[], int width, int height, int antialiasing = 0, int mode = 0, const char * title = "Kore", bool showWindow = true );
+		void simpleSetup( int argc, char * argv[], int width, int height, int antialiasing = 0, WindowMode mode = WindowMode::Window, const char * title = "Kore", bool showWindow = true );
 		void setup();
 		void start();
 		void stop();

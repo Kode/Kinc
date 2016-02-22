@@ -146,7 +146,7 @@ void Kore::System::start() {
 #endif
 }
 
-void Kore::System::simpleSetup( int argc, char * argv[], int width, int height, int antialiasing, int mode, const char * title, bool showWindow ) {
+void Kore::System::simpleSetup( int argc, char * argv[], int width, int height, int antialiasing, WindowMode mode, const char * title, bool showWindow ) {
 	System::setup();
 
 	WindowOptions windowOptions;
