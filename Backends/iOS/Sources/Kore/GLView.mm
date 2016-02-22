@@ -46,12 +46,12 @@ namespace {
 	GLint backingWidth, backingHeight;
 }
 
-int Kore::System::screenWidth() {
-	return backingWidth;
+int Kore::System::windowWidth(int id) {
+    return backingWidth;
 }
 
-int Kore::System::screenHeight() {
-	return backingHeight;
+int Kore::System::windowHeight(int id) {
+    return backingHeight;
 }
 
 @implementation GLView

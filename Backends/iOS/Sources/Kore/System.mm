@@ -94,14 +94,6 @@ bool Kore::System::isFullscreen() {
 void Kore::System::setup() {
 }
 
-int Kore::System::windowWidth(int id) {
-    return screenWidth();
-}
-
-int Kore::System::windowHeight(int id) {
-    return screenHeight();
-}
-
 void Graphics::makeCurrent(int contextId) {
 }
 
@@ -109,12 +101,15 @@ namespace { namespace windowimpl {
     int currentDeviceId = -1;
 }}
 
-void Kore::System::setCurrentDevice(int id) {
+void Kore::System::makeCurrent(int id) {
     windowimpl::currentDeviceId = id;
 }
 
 int Kore::System::currentDevice() {
     return windowimpl::currentDeviceId;
+}
+
+void Kore::System::clearCurrent() {
 }
 
 void endGL();
