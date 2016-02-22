@@ -110,7 +110,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	HGLRC tempGlContext = wglCreateContext(deviceContexts[windowId]);
 	wglMakeCurrent(deviceContexts[windowId], tempGlContext);
 	Kore::System::currentDeviceId = windowId;
-	
+
 	// TODO (DK) make a Graphics::setup() (called from System::setup()) and call it there only once?
 	if (windowId == 0) {
 		glewInit();
@@ -451,8 +451,6 @@ void Graphics::end(int windowId) {
 	}
 
 	System::clearCurrent();
-	//System::setCurrentDevice(-1);
-	//clearCurrent();
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
@@ -723,8 +721,8 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 }
 
 void Graphics::setRenderTarget(RenderTarget* texture, int num) {
-	//makeCurrent(texture->contextId);
-	System::makeCurrent(texture->contextId);
+    // TODO (DK) uneccessary?
+	//System::makeCurrent(texture->contextId);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
 	glCheckErrors();

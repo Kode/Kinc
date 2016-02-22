@@ -195,7 +195,15 @@ namespace Kore { namespace System {
     }
 
     int initWindow( WindowOptions options ) {
-        return createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+        char buffer[1024] = {0};
+        strcat(buffer, name());
+        if (options.title != nullptr) {
+            strcat(buffer, options.title);
+        }
+
+        int id = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+        Graphics::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+        return id;
     }
 
     void* windowHandle( int id ) {
@@ -207,10 +215,6 @@ namespace Kore { namespace System {
     int currentDeviceId = -1;
 
     int currentDevice() {
-		if (currentDeviceId == -1) {
-			log(Warning, "no current device is active");
-		}
-
         return currentDeviceId;
     }
 
@@ -362,12 +366,24 @@ const char* Kore::System::systemId() {
 }
 
 void Kore::System::makeCurrent( int contextId ) {
+	if (currentDeviceId == contextId) {
+		return;
+	}
+
+#if !defined(NDEBUG)
+	log(Info, "Kore/System | context switch from %i to %i", currentDeviceId, contextId);
+#endif
+
     currentDeviceId = contextId;
 	glXMakeCurrent(dpy, windowimpl::windows[contextId]->handle, windowimpl::windows[contextId]->context);
 
 }
 
 void Kore::System::clearCurrent() {
+#if !defined(NDEBUG)
+	log(Info, "Kore/System | context clear");
+#endif
+
     currentDeviceId = -1;
     Graphics::clearCurrent();
 }

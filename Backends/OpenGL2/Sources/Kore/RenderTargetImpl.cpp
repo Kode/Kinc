@@ -19,12 +19,12 @@ namespace {
 		for (int i = 0; i < pow; ++i) ret *= 2;
 		return ret;
 	}
-	
+
 	int getPower2(int i) {
 		for (int power = 0; ; ++power)
 			if (pow(power) >= i) return pow(power);
 	}
-    
+
 #if defined(USE_GLES_DS_BUFFERS)
     void setup_gles_buffers( int depthBufferBits, int stencilBufferBits, int width, int height ) {
         if (depthBufferBits > 0 && stencilBufferBits > 0) {
@@ -50,14 +50,14 @@ namespace {
             glCheckErrors();
         }
     }
-    
+
 #endif
-    
+
 #if defined(USE_GL2_DS_BUFFERS)
     void setup_gl2_buffers( int depthBufferBits, int stencilBufferBits, int width, int height ) {
         if (depthBufferBits > 0 && stencilBufferBits > 0) {
             GLenum internalFormat;
-            
+
             switch (depthBufferBits) {
                 default:
 #if defined(_DEBUG)
@@ -87,7 +87,7 @@ namespace {
                         }
                     } break;
             }
-            
+
             GLuint dsBuffer;
             glGenRenderbuffers(1, &dsBuffer);
             glCheckErrors();
@@ -109,9 +109,9 @@ namespace {
             glCheckErrors();
         }
     }
-    
+
 #endif
-    
+
 }
 
 RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
@@ -119,14 +119,15 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	// TODO: For the DK 2 we need a NPOT texture
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
-#else 
+#else
 	texWidth = width;
 	texHeight = height;
 #endif
-	
+
 	this->contextId = contextId;
 
-	Kore::System::makeCurrent(contextId);
+    // TODO (DK) neccessary?
+	//Kore::System::makeCurrent(contextId);
 
 	glGenTextures(1, &_texture);
 	glCheckErrors();
@@ -141,7 +142,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glCheckErrors();
-	
+
 	switch (format) {
 	case Target128BitFloat:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
@@ -150,7 +151,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	default:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	}
-	
+
 	glCheckErrors();
 
 	glGenFramebuffers(1, &_framebuffer);
@@ -161,7 +162,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 #if defined(USE_GLES_DS_BUFFERS)
     setup_gles_buffers(depthBufferBits, stencilBufferBits, texWidth, texHeight);
 #endif
-    
+
 #if defined(USE_GL2_DS_BUFFERS)
     setup_gl2_buffers(depthBufferBits, stencilBufferBits, texWidth, texHeight);
 #endif
@@ -170,14 +171,14 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 	//GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
 	//glDrawBuffers(1, drawBuffers);
-	
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glCheckErrors();
 
-	//Kore::Graphics::makeCurrent(oldContext);
-	//Kore::System::setCurrentDevice(oldContext);
+    // TODO (DK) neccessary?
+    //Kore::System::clearCurrent();
 }
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
