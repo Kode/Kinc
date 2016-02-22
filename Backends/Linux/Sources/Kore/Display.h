@@ -1,12 +1,5 @@
 #pragma once
 
-// kha.Display callbacks
-namespace Kore { namespace Display {
-	int count();
-    int width( int index );
-    int height( int index );    
-}}
-
 namespace Kore { namespace Display {
 	struct DeviceInfo {
 		int number;
