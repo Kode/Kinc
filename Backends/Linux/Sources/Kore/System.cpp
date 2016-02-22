@@ -16,6 +16,8 @@
 #include <GL/gl.h>
 
 #include <X11/keysym.h>
+#include <Xm/MwmUtil.h>
+//#include <X11/Xlib.h>
 
 //apt-get install mesa-common-dev
 //apt-get install libgl-dev
@@ -72,7 +74,7 @@ bool Kore::System::isFullscreen() {
 // TODO (DK) the whole glx stuff should go into Graphics/OpenGL?
 //  -then there would be a better separation between window + context setup
 int
-createWindow( const char * title, int x, int y, int width, int height, int windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits ) {
+createWindow( const char * title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits ) {
     int wcounter = windowimpl::windowCounter + 1;
 
 	XVisualInfo*         vi;
@@ -136,8 +138,21 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 	swa.colormap = cmap;
 	swa.border_pixel = 0;
 	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
+
 	Window win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWColormap | CWEventMask, &swa);
 	XSetStandardProperties(dpy, win, title, "main", None, NULL, 0, NULL);
+
+	switch (windowMode) {
+        case Kore::WindowMode::Fullscreen: // fall through
+        case Kore::WindowMode::Borderless: {
+            Atom awmHints = XInternAtom(dpy, "_MOTIF_WM_HINTS", 0);
+            MwmHints hints;
+            hints.flags = MWM_HINTS_DECORATIONS;
+            hints.decorations = 0;
+
+            XChangeProperty(dpy, win, awmHints, awmHints, 32, PropModeReplace, (unsigned char *)&hints, 5);
+        }
+    }
 
 	// (6) bind the rendering context to the window
 	glXMakeCurrent(dpy, win, cx);
@@ -151,12 +166,10 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
 	int dsty = deviceInfo->y;
 
 	switch (windowMode) {
-		// (DK) windowed
-		// (DK) borderless
-		// (DK) fullscreen
-		case 0: // fall through
-		case 1:
-        case 2: {
+	    default: // fall through
+		case Kore::WindowMode::Window: // fall through
+		case Kore::WindowMode::Borderless: // fall through
+        case Kore::WindowMode::Fullscreen: {
 		    int dw = deviceInfo->width;
 		    int dh = deviceInfo->height;
 			dstx += x < 0 ? (dw - width) / 2 : x;
