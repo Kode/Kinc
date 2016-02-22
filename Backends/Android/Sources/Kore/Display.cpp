@@ -10,12 +10,12 @@ namespace Kore { namespace Display {
     }
 
     int width( int index ) {
-        log(Info, "TODO (DK) Kore::Display::width(int) implement me");
+        log(Warning, "TODO (DK) Kore::Display::width(int) implement me");
         return -1;
     }
 
     int height( int index ) {
-        log(Info, "TODO (DK) Kore::Display::width(int) implement me");
+        log(Warning, "TODO (DK) Kore::Display::width(int) implement me");
         return -1;
     }
 }}

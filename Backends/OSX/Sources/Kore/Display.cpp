@@ -2,20 +2,19 @@
 
 #include <Kore/Log.h>
 
-#include <stdexcept>
-
 namespace Kore { namespace Display {
     int count() {
+        log(Warning, "TODO (DK) implement me");
         return 1;
     }
-
+    
     int width( int index ) {
-        log(Warning, "TODO (DK) Kore::Display::width(int) implement me");
+        log(Warning, "TODO (DK) implement me");
         return -1;
     }
-
+    
     int height( int index ) {
-        log(Warning, "TODO (DK) Kore::Display::width(int) implement me");
+        log(Warning, "TODO (DK) implement me");
         return -1;
     }
 }}
