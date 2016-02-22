@@ -145,3 +145,17 @@ void Kore::System::start() {
     }
 #endif
 }
+
+void Kore::System::simpleSetup( int argc, char * argv[], int width, int height, int antialiasing, int mode, const char * title, bool showWindow ) {
+	System::setup();
+
+	WindowOptions windowOptions;
+	windowOptions.title = title;
+	windowOptions.mode = mode;
+	windowOptions.width = width;
+	windowOptions.height = height;
+	windowOptions.rendererOptions.antialiasing = antialiasing;
+	
+	System::setShowWindowFlag(showWindow);
+	System::initWindow(windowOptions);
+}
