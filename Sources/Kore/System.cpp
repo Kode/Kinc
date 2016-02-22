@@ -149,7 +149,7 @@ void Kore::System::start() {
 #endif
 }
 
-void Kore::System::simpleSetup( int argc, char * argv[], int width, int height, int antialiasing, WindowMode mode, const char * title, bool showWindow ) {
+int Kore::System::simpleSetup( int argc, char * argv[], int width, int height, int antialiasing, WindowMode mode, const char * title, bool showWindow ) {
 	System::setup();
 
 	WindowOptions windowOptions;
@@ -162,5 +162,5 @@ void Kore::System::simpleSetup( int argc, char * argv[], int width, int height, 
 	Kore::Random::init(static_cast<int>(Kore::System::timestamp() % std::numeric_limits<int>::max()));
 	System::setName(title);
 	System::setShowWindowFlag(showWindow);
-	System::initWindow(windowOptions);
+	return System::initWindow(windowOptions);
 }
