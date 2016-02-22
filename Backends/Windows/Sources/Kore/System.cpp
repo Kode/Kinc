@@ -6,7 +6,7 @@
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
 
-#include "System_Screens.h"
+#include "Display.h"
 
 #ifdef VR_RIFT 
 #include "Vr/VrInterface.h"
@@ -532,13 +532,13 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
 
-	const Kore::System::Monitor::Screen * screen = targetDisplay < 0
-		? Kore::System::Monitor::primary()
-		: Kore::System::Monitor::byId(targetDisplay)
+	const Kore::Display::DeviceInfo * displayDevice = targetDisplay < 0
+		? Kore::Display::primary()
+		: Kore::Display::byId(targetDisplay)
 		;
 
-	int dstx = screen->x;
-	int dsty = screen->y;
+	int dstx = displayDevice->x;
+	int dsty = displayDevice->y;
 	uint xres = GetSystemMetrics(SM_CXSCREEN);
 	uint yres = GetSystemMetrics(SM_CYSCREEN);
 	uint w = width;
@@ -551,8 +551,8 @@ int createWindow( const char * title, int x, int y, int width, int height, int w
 		case 1: {
 			//dstx = x < 0 ? (xres - w) >> 1 : x;
 			//dsty = y < 0 ? (yres - h) >> 1 : y;
-			dstx += x < 0 ? (screen->width - w) >> 1 : x;
-			dsty += y < 0 ? (screen->height - h) >> 1 : y;
+			dstx += x < 0 ? (displayDevice->width - w) >> 1 : x;
+			dsty += y < 0 ? (displayDevice->height - h) >> 1 : y;
 		} break;
 
 		// (DK) fullscreen
@@ -668,7 +668,7 @@ void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 }
 
 void Kore::System::setup() {
-    Monitor::enumerate();
+    Display::enumerate();
 }
 
 bool Kore::System::isFullscreen() {

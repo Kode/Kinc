@@ -4,8 +4,16 @@
 #define NOMINMAX
 #include <Windows.h>
 
-namespace Kore { namespace System { namespace Monitor {
-	struct Screen {
+#undef RegisterClass
+
+namespace Kore { namespace Display {
+	int count();
+    int width( int index );
+    int height( int index );
+}}
+
+namespace Kore { namespace Display {
+	struct DeviceInfo {
 		HMONITOR id;
 		bool isAvailable;
 		char name[32];
@@ -15,7 +23,7 @@ namespace Kore { namespace System { namespace Monitor {
         int height;
 		bool isPrimary;
 
-		Screen() {
+		DeviceInfo () {
 			id = NULL;
 			name[0] = 0;
 			isAvailable = false;
@@ -24,8 +32,6 @@ namespace Kore { namespace System { namespace Monitor {
 	};
 
 	void enumerate();
-	int count();
-
-	const Screen* primary();
-	const Screen* byId( int id );
-}}}
+	const DeviceInfo * primary();
+	const DeviceInfo * byId( int id );    
+}}
