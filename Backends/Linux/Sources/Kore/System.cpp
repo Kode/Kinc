@@ -3,6 +3,7 @@
 #include <Kore/Input/Mouse.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
+#include <Kore/Graphics/Graphics.h>
 
 #include "System_Screens.h"
 
@@ -173,9 +174,10 @@ createWindow( const char * title, int x, int y, int width, int height, int windo
     XMoveWindow(dpy, win, dstx, dsty);
 	//Scheduler::addFrameTask(HandleMessages, 1001);
 
-    Kore::System::setCurrentDevice(wcounter);
-
     windowimpl::windows[wcounter] = new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
+
+    Kore::System::makeCurrent(wcounter);
+
 	return windowimpl::windowCounter = wcounter;
 }
 
@@ -360,8 +362,14 @@ const char* Kore::System::systemId() {
 }
 
 void Kore::System::makeCurrent( int contextId ) {
+    currentDeviceId = contextId;
 	glXMakeCurrent(dpy, windowimpl::windows[contextId]->handle, windowimpl::windows[contextId]->context);
 
+}
+
+void Kore::System::clearCurrent() {
+    currentDeviceId = -1;
+    Graphics::clearCurrent();
 }
 
 void Kore::System::swapBuffers( int contextId ) {
@@ -394,16 +402,6 @@ void Kore::System::hideKeyboard() {
 
 void Kore::System::loadURL(const char* url) {
 
-}
-
-int Kore::System::screenWidth() {
-    // TODO (DK) 0 instead of currentDevice()?
-    return windowimpl::windows[currentDevice()]->width;
-}
-
-int Kore::System::screenHeight() {
-    // TODO (DK) 0 instead of currentDevice()?
-    return windowimpl::windows[currentDevice()]->height;
 }
 
 int Kore::System::desktopWidth() {
