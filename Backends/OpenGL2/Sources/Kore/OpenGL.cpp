@@ -420,9 +420,6 @@ void glCheckErrors() {
 void Graphics::clearCurrent() {
 	wglMakeCurrent(nullptr, nullptr);
 }
-#elif !defined(SYS_OSX)
-void Graphics::clearCurrent() {
-}
 #endif
 
 // TODO (DK) this never gets called on some targets, needs investigation?

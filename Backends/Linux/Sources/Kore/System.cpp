@@ -379,6 +379,9 @@ void Kore::System::makeCurrent( int contextId ) {
 
 }
 
+void Kore::Graphics::clearCurrent() {
+}
+
 void Kore::System::clearCurrent() {
 #if !defined(NDEBUG)
 	log(Info, "Kore/System | context clear");
