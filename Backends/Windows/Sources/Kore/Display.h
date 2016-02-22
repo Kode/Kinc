@@ -7,12 +7,6 @@
 #undef RegisterClass
 
 namespace Kore { namespace Display {
-	int count();
-    int width( int index );
-    int height( int index );
-}}
-
-namespace Kore { namespace Display {
 	struct DeviceInfo {
 		HMONITOR id;
 		bool isAvailable;
