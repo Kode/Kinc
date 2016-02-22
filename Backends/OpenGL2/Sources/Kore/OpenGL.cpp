@@ -289,17 +289,6 @@ void Graphics::makeCurrent(int contextId) {
 }
 #endif
 
-#if defined(SYS_LINUX) || defined(SYS_OSX)
-void Graphics::makeCurrent(int contextId) {
-	System::makeCurrent(contextId);
-}
-#endif
-
-#if defined(SYS_ANDROID)
-void Graphics::makeCurrent(int contextId) {
-}
-#endif
-
 void Graphics::begin(int contextId) {
 	if (System::currentDevice() != -1) {
 		if (System::currentDevice() != contextId) {
@@ -431,7 +420,7 @@ void glCheckErrors() {
 void Graphics::clearCurrent() {
 	wglMakeCurrent(nullptr, nullptr);
 }
-#else
+#elif !defined(SYS_OSX)
 void Graphics::clearCurrent() {
 }
 #endif

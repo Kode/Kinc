@@ -143,7 +143,7 @@ namespace {
 	
 	int getMouseY(NSEvent* event) {
         // TODO (DK) map [theEvent window] to window id instead of 0
-        return static_cast<int>(Kore::System::screenHeight() - [event locationInWindow].y);
+        return static_cast<int>(Kore::System::windowHeight(0) - [event locationInWindow].y);
 	}
 	
 	bool controlKeyMouseButton = false;

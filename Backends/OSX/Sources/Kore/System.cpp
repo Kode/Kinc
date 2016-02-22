@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <Kore/System.h>
+#include <Kore/Graphics/Graphics.h>
 
 using namespace Kore;
 
@@ -64,9 +65,9 @@ System::ticks System::timestamp() {
 	return mach_absolute_time();
 }
 
-namespace { namespace appstate {
+namespace appstate {
     int currentDeviceId = -1;
-}}
+}
 
 void Kore::System::setup() {    
 }
@@ -83,6 +84,7 @@ int Kore::System::windowCount() {
     return 1;
 }
 
-void Kore::System::setCurrentDevice(int id) {
-    appstate::currentDeviceId = id;
+void Kore::System::makeCurrent(int contextId) {
+    appstate::currentDeviceId = contextId;
+    Graphics::makeCurrent(contextId);
 }

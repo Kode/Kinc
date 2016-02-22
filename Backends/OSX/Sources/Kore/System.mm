@@ -76,8 +76,8 @@ int createWindow(const char * title, int x, int y, int width, int height, int wi
 	[window makeKeyAndOrderFront: nil];
 		
     ++windowCounter;
-    Kore::System::setCurrentDevice(windowCounter);
     windows[windowCounter] = new KoreWindow(window, view, x, y, width, height);
+    Kore::System::makeCurrent(windowCounter);
 	return windowCounter;
 }
 
@@ -91,16 +91,11 @@ int Kore::System::initWindow(Kore::WindowOptions options) {
     return id;
 }
 
-void System::makeCurrent(int contextId) {
+void Graphics::makeCurrent(int contextId) {
     [[windows[contextId]->view openGLContext] makeCurrentContext];
 }
 
-int System::screenWidth() {
-	return windows[0]->width;
-}
-
-int System::screenHeight() {
-	return windows[0]->height;
+void System::clearCurrent() {
 }
 
 int Kore::System::windowWidth(int id) {
