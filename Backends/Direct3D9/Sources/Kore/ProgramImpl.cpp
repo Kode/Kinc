@@ -128,8 +128,8 @@ void Program::set() {
 	
 	// TODO (DK) System::screenWidth/Height are only main-window dimensions, what about other windows?
 	float floats[4];
-	floats[0] = 1.0f / System::screenWidth(); //Application::the()->width();
-	floats[1] = 1.0f / System::screenHeight(); //Application::the()->height();
+	floats[0] = 1.0f / System::windowWidth(0);
+	floats[1] = 1.0f / System::windowHeight(0);
 	floats[2] = floats[0];
 	floats[3] = floats[1];
 	affirm(device->SetVertexShaderConstantF(halfPixelLocation, floats, 1));

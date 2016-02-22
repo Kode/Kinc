@@ -204,7 +204,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	setFragmentBool(L"lighting", false);
 #endif
 
-	System::setCurrentDevice(windowId);
+	System::makeCurrent(windowId);
 }
 
 void Graphics::flush() {
@@ -283,12 +283,18 @@ void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) 
 	device->SetSamplerState(texunit.unit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
 }
 
-void* Graphics::getControl(int windowId) {
-	return System::windowHandle(windowId);//hWnd;
+void Graphics::makeCurrent( int contextId ) {
+	// TODO (DK) implement me
+}
+
+void Graphics::clearCurrent() {
+	// TODO (DK) implement me
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int num) {
 	//if (backBuffer != nullptr) backBuffer->Release();
+	System::makeCurrent(target->contextId);
+
 	if (num == 0) {
 		if (backBuffer == nullptr) {
 			device->GetRenderTarget(0, &backBuffer);

@@ -6,8 +6,9 @@
 
 using namespace Kore;
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) : width(width), height(height), texWidth(width), texHeight(height) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height), texWidth(width), texHeight(height) {
 	this->antialiasing = antialiasing;
+	this->contextId = contextId;
 	D3DFORMAT d3dformat;
 	switch (format) {
 	case Target32Bit:
