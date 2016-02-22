@@ -792,12 +792,12 @@ void Kore::System::loadURL(const char* url) {
 	activity->vm->DetachCurrentThread();
 }
 
-int Kore::System::screenWidth() {
+int Kore::System::windowWidth(int windowId) {
 	glContext->UpdateSize();
 	return glContext->GetScreenWidth();
 }
 
-int Kore::System::screenHeight() {
+int Kore::System::windowHeight(int windowId) {
 	glContext->UpdateSize();
 	return glContext->GetScreenHeight();
 }
@@ -831,14 +831,6 @@ void Kore::System::showWindow() {
 
 int Kore::System::windowCount() {
     return 1;
-}
-
-int Kore::System::windowWidth( int ) {
-    return screenWidth();
-}
-
-int Kore::System::windowHeight( int ) {
-    return screenHeight();
 }
 
 #include <sys/time.h>
@@ -953,9 +945,9 @@ int Kore::System::initWindow( Kore::WindowOptions options ) {
     return 0;
 }
 
-namespace { namespace appstate {
+namespace appstate {
     int currentDeviceId = -1;
-}}
+}
 
 bool Kore::System::isFullscreen() {
     return true;
@@ -965,6 +957,9 @@ int Kore::System::currentDevice() {
     return appstate::currentDeviceId;
 }
 
-void Kore::System::setCurrentDevice( int id ) {
+void Kore::System::makeCurrent( int id ) {
     appstate::currentDeviceId = id;
+}
+
+void Kore::System::clearCurrent() {
 }
