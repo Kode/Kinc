@@ -6,6 +6,13 @@ namespace Kore {
 		int depthBufferBits;
 		int stencilBufferBits;
 		int antialiasing;
+
+		RendererOptions() {
+			textureFormat = 0;
+			depthBufferBits = 16;
+			stencilBufferBits = 8;
+			antialiasing = 0;
+		}
 	};
 
 	enum class WindowMode {
@@ -31,6 +38,10 @@ namespace Kore {
 			targetDisplay = -1;
 			mode = WindowMode::Window;
 			rendererOptions.antialiasing = 0;
+			x = y = -1;
+			width = 800;
+			height = 600;
+			showWindow = true;
 		}
     };
 
