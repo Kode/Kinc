@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "System.h"
+#include <Kore/Math/Random.h>
+
+#include <limits>
 
 #ifndef SYS_HTML5
 #ifndef SYS_ANDROID
@@ -150,12 +153,14 @@ void Kore::System::simpleSetup( int argc, char * argv[], int width, int height, 
 	System::setup();
 
 	WindowOptions windowOptions;
-	windowOptions.title = title;
+	windowOptions.title = "";
 	windowOptions.mode = mode;
 	windowOptions.width = width;
 	windowOptions.height = height;
 	windowOptions.rendererOptions.antialiasing = antialiasing;
 	
+	Kore::Random::init(static_cast<int>(Kore::System::timestamp() % std::numeric_limits<int>::max()));
+	System::setName(title);
 	System::setShowWindowFlag(showWindow);
 	System::initWindow(windowOptions);
 }
