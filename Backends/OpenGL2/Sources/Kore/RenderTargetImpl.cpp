@@ -126,8 +126,8 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 
 	this->contextId = contextId;
 
-    // TODO (DK) neccessary?
-	//Kore::System::makeCurrent(contextId);
+	// (DK) required on windows/gl
+	Kore::System::makeCurrent(contextId);
 
 	glGenTextures(1, &_texture);
 	glCheckErrors();
@@ -176,9 +176,6 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glCheckErrors();
-
-    // TODO (DK) neccessary?
-    //Kore::System::clearCurrent();
 }
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
