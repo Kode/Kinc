@@ -43,6 +43,7 @@ class ExporterAndroid extends Exporter {
 		fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
 
 		let flags = '\n';
+        flags += '        cppFlags += "-std=c++11"'; // (DK) for scoped enums i.e. (enum class WindowMode { ..}')
 		flags += '        cppFlags += "-fexceptions"\n';
 		flags += '        cppFlags += "-frtti"\n';
 		for (let def of project.getDefines()) {
