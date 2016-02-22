@@ -42,6 +42,11 @@ namespace Kore {
 		VkShaderModule vert_shader_module;
 		VkShaderModule frag_shader_module;
 
+		VkBuffer buf;
+		VkMemoryAllocateInfo mem_alloc;
+		VkDeviceMemory mem;
+		VkDescriptorBufferInfo buffer_info;
+
 		std::map<std::string, u32> vertexLocations;
 	};
 

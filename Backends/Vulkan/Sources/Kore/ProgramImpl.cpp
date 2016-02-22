@@ -17,6 +17,9 @@ extern VkFormat depth_format;
 extern VkRenderPass render_pass;
 extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
+extern VkDescriptorPool desc_pool;
+
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
 namespace {
 	void parseShader(Shader* shader, std::map<std::string, u32>& locations) {
@@ -92,6 +95,51 @@ namespace {
 		frag_shader_module = demo_prepare_shader_module(fragmentShader->source, fragmentShader->length);
 		return frag_shader_module;
 	}
+
+	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info) {
+		float data[1] = { 0.0f };
+
+		VkMemoryRequirements mem_reqs;
+		uint8_t *pData;
+		int i;
+		VkResult err;
+		bool pass;
+		
+		VkBufferCreateInfo buf_info;
+		memset(&buf_info, 0, sizeof(buf_info));
+		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+		buf_info.size = sizeof(float);
+		err = vkCreateBuffer(device, &buf_info, NULL, &buf);
+		assert(!err);
+
+		vkGetBufferMemoryRequirements(device, buf, &mem_reqs);
+
+		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		mem_alloc.pNext = NULL;
+		mem_alloc.allocationSize = mem_reqs.size;
+		mem_alloc.memoryTypeIndex = 0;
+
+		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
+		assert(pass);
+
+		err = vkAllocateMemory(device, &mem_alloc, NULL, &mem);
+		assert(!err);
+
+		err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&pData);
+		assert(!err);
+
+		memcpy(pData, &data, sizeof(data));
+
+		vkUnmapMemory(device, mem);
+
+		err = vkBindBufferMemory(device, buf, mem, 0);
+		assert(!err);
+
+		buffer_info.buffer = buf;
+		buffer_info.offset = 0;
+		buffer_info.range = sizeof(data);
+	}
 }
 
 namespace Kore {
@@ -135,22 +183,79 @@ void Program::link(VertexStructure** structures, int count) {
 	parseShader(vertexShader, vertexLocations);
 
 	VkDescriptorSetLayoutBinding layout_binding = {};
-	layout_binding.binding = 0;
+	/*layout_binding.binding = 0;
 	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	layout_binding.descriptorCount = 0; // DEMO_TEXTURE_COUNT;
 	layout_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	layout_binding.pImmutableSamplers = NULL;
+	layout_binding.pImmutableSamplers = NULL;*/
+	layout_binding.binding = 0;
+	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	layout_binding.descriptorCount = 0;
+	layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	layout_binding.pImmutableSamplers = nullptr;
 	
 	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
 	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descriptor_layout.pNext = NULL;
 	descriptor_layout.bindingCount = 1;
 	descriptor_layout.pBindings = &layout_binding;
-	
-	VkResult err;
 
-	err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
+	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
+	
+	VkDescriptorPoolSize type_count = {};
+	type_count.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+	type_count.descriptorCount = 1;
+	
+	VkDescriptorPoolCreateInfo descriptor_pool = {};
+	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descriptor_pool.pNext = NULL;
+	descriptor_pool.maxSets = 1;
+	descriptor_pool.poolSizeCount = 1;
+	descriptor_pool.pPoolSizes = &type_count;
+	
+	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
+	assert(!err);
+
+	//VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
+	VkDescriptorBufferInfo buffer_descs[1];
+	
+	VkDescriptorSetAllocateInfo alloc_info = {};
+	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	alloc_info.pNext = NULL;
+	alloc_info.descriptorPool = desc_pool;
+	alloc_info.descriptorSetCount = 1;
+	alloc_info.pSetLayouts = &desc_layout;
+	err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
+	assert(!err);
+
+	createUniformBuffer(buf, mem_alloc, mem, buffer_info);
+
+	/*memset(&tex_descs, 0, sizeof(tex_descs));
+	for (i = 0; i < 1; i++) {
+		tex_descs[i].sampler = demo->textures[i].sampler;
+		tex_descs[i].imageView = demo->textures[i].view;
+		tex_descs[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+	}*/
+	memset(&buffer_descs, 0, sizeof(buffer_descs));
+	for (uint32_t i = 0; i < 1; ++i) {
+		buffer_descs[i].buffer = buf;
+		buffer_descs[i].offset = 0;
+		buffer_descs[i].range = 16 * sizeof(float);
+	}
+
+	VkWriteDescriptorSet write;
+	memset(&write, 0, sizeof(write));
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.dstSet = desc_set;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	//write.pImageInfo = tex_descs;
+	write.pBufferInfo = buffer_descs;
+
+	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
+
+	//
 
 	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
 	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

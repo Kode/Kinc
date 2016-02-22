@@ -44,6 +44,7 @@ VkCommandBuffer setup_cmd; // Command Buffer for initialization commands
 VkCommandPool cmd_pool;
 VkQueue queue;
 bool use_staging_buffer;
+VkDescriptorPool desc_pool;
 
 namespace {
 	HWND windowHandle;
@@ -98,8 +99,6 @@ namespace {
 		VkDeviceMemory mem;
 		VkImageView view;
 	} depth;
-
-	VkDescriptorPool desc_pool;
 
 	VkFramebuffer *framebuffers;
 
