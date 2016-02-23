@@ -37,6 +37,13 @@ function valueOf(string) {
 	throw "Unknown configuration";
 }
 
+function getShaderLang() {
+	if (Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) return 'glsl';
+	if (Options.graphicsApi === GraphicsApi.Direct3D11 || Options.graphicsApi === GraphicsApi.Direct3D12) return 'd3d11'
+	if (Options.graphicsApi === GraphicsApi.Vulkan) return 'spirv';
+	return 'd3d9';
+}
+
 class ExporterVisualStudio extends Exporter {
 	constructor() {
 		super();
@@ -880,8 +887,8 @@ class ExporterVisualStudio extends Exporter {
 				if (file.endsWith(".cg")) {
 					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<FileType>Document</FileType>", 2);
-					this.p("<Command>..\\" + "Kt\\Tools\\ShaderCompiler.exe " + ((Options.graphicsApi == GraphicsApi.OpenGL || Options.graphicsApi == GraphicsApi.OpenGL2) ? "glsl" : "d3d9") + " \"%(FullPath)\" " + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Shaders\\%(Filename)</Command>", 2);
-					this.p("<Outputs>" + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Shaders\\%(Filename)" + ((Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) ? ".glsl" : ".d3d9") + ";%(Outputs)</Outputs>", 2);
+					this.p("<Command>..\\" + "Kt\\Tools\\ShaderCompiler.exe " + getShaderLang() + " \"%(FullPath)\" " + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Shaders\\%(Filename)</Command>", 2);
+					this.p("<Outputs>" + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Shaders\\%(Filename)" + getShaderLang() + ";%(Outputs)</Outputs>", 2);
 					this.p("</CustomBuild>", 2);
 				}
 			}
@@ -892,9 +899,9 @@ class ExporterVisualStudio extends Exporter {
 					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<FileType>Document</FileType>", 2);
 					if (nokrafix)
-						this.p("<Command>\"" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\kfx\\kfx.exe\" " + ((Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) ? "glsl" : (Options.graphicsApi === GraphicsApi.Direct3D11 || Options.graphicsApi === GraphicsApi.Direct3D12 ? "d3d11" : "d3d9")) + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build</Command>", 2);
+						this.p("<Command>\"" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\kfx\\kfx.exe\" " + getShaderLang() + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build</Command>", 2);
 					else
-						this.p("<Command>\"" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\krafix\\krafix.exe\" " + ((Options.graphicsApi === GraphicsApi.OpenGL || Options.graphicsApi === GraphicsApi.OpenGL2) ? "glsl" : (Options.graphicsApi === GraphicsApi.Direct3D11 || Options.graphicsApi === GraphicsApi.Direct3D12 ? "d3d11" : "d3d9")) + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build " + platform + "</Command>", 2);
+						this.p("<Command>\"" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\krafix\\krafix.exe\" " + getShaderLang() + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build " + platform + "</Command>", 2);
 					this.p("<Outputs>" + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\%(Filename);%(Outputs)</Outputs>", 2);
 					this.p("<Message>Compiling %(FullPath)</Message>", 2);
 					this.p("</CustomBuild>", 2);
