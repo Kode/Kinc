@@ -80,10 +80,6 @@ int Kore::System::currentDevice() {
     return appstate::currentDeviceId;
 }
 
-int Kore::System::windowCount() {
-    return 1;
-}
-
 void Kore::System::makeCurrent(int contextId) {
     appstate::currentDeviceId = contextId;
     Graphics::makeCurrent(contextId);

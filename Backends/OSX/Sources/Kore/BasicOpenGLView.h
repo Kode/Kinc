@@ -7,6 +7,11 @@
 #import <OpenGL/OpenGL.h>
 #import <OpenGL/CGLContext.h>
 
+// (DK) context sharing
+// www.cocoabuilder.com/archive/cocoa/29573-sharing-opengl-context.html
+// basically:
+//  -don't use NSOpenGLView, but implement all that by hand
+//  -use -initWithFormat:shareContext: (NSOpenGLContext) to setup the shared contexts
 @interface BasicOpenGLView : NSOpenGLView {
 	
 }

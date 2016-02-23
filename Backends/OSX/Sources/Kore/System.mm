@@ -64,6 +64,10 @@ void System::swapBuffers(int windowId) {
 	[windows[windowId]->view switchBuffers];
 }
 
+int Kore::System::windowCount() {
+    return windowCounter + 1;
+}
+
 int createWindow(const char * title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
 	BasicOpenGLView* view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height) ];
 	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask backing:NSBackingStoreBuffered defer:TRUE];
