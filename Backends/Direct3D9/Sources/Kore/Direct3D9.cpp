@@ -101,17 +101,25 @@ void Graphics::changeResolution(int width, int height) {
 	initDeviceStates();*/
 }
 
+void Graphics::setup() {
+	d3d = Direct3DCreate9(D3D_SDK_VERSION);
+	//if (!d3d) throw Exception("Could not initialize Direct3D9");
+}
+
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	if (!hasWindow()) return;
 
 	HWND hWnd = (HWND)System::windowHandle(windowId);
 
-	d3d = Direct3DCreate9(D3D_SDK_VERSION);
-	//if (!d3d) throw Exception("Could not initialize Direct3D9");
-
-	// TODO (DK) convert depthBufferBits + stencilBufferBits to: d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
+	// TODO (DK) just setup the primary window for now and ignore secondaries
+	//	-this should probably be implemented via swap chain for real at a later time
+	//  -http://www.mvps.org/directx/articles/rendering_to_multiple_windows.htm
+	if (windowId > 0) {
+		return;
+	}
 
 #ifdef SYS_WINDOWS
+	// TODO (DK) convert depthBufferBits + stencilBufferBits to: d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 	D3DPRESENT_PARAMETERS d3dpp; 
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
@@ -293,6 +301,7 @@ void Graphics::clearCurrent() {
 
 void Graphics::setRenderTarget(RenderTarget* target, int num) {
 	//if (backBuffer != nullptr) backBuffer->Release();
+	
 	System::makeCurrent(target->contextId);
 
 	if (num == 0) {
@@ -389,6 +398,11 @@ void Graphics::clear(uint flags, uint color, float z, int stencil) {
 }
 
 void Graphics::begin(int windowId) {
+	// TODO (DK) ignore secondary windows for now
+	if (windowId > 0) {
+		return;
+	}
+
 	device->BeginScene();
 }
 
@@ -415,6 +429,11 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 }
 
 void Graphics::end(int windowId) {
+	// TODO (DK) ignore secondary windows for now
+	if (windowId > 0) {
+		return;
+	}
+
 	/*if (backBuffer != nullptr) {
 		backBuffer->Release();
 		backBuffer = nullptr;
@@ -431,6 +450,11 @@ unsigned Graphics::refreshRate() {
 }
 
 void Graphics::swapBuffers(int windowId) {
+	// TODO (DK) ignore secondary windows for now
+	if (windowId > 0) {
+		return;
+	}
+
 	::swapBuffers();
 }
 

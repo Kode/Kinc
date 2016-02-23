@@ -165,6 +165,7 @@ namespace Kore {
 		void restoreRenderTarget();
 
 		// TODO (DK) windowId should be renamed contextId?
+		void setup();
 		void swapBuffers(int windowId);
 		void begin(int windowId);
 		void end(int windowId);

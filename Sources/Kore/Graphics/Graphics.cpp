@@ -9,6 +9,11 @@ namespace {
 	bool window = true;
 }
 
+#if !defined(SYS_WINDOWS)
+void Graphics::setup() {
+}
+#endif
+
 int Graphics::antialiasingSamples() {
 	return ::samples;
 }

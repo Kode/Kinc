@@ -664,6 +664,7 @@ void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 
 void Kore::System::setup() {
     Display::enumerate();
+	Graphics::setup();
 }
 
 bool Kore::System::isFullscreen() {
