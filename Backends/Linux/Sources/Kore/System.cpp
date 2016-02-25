@@ -16,7 +16,7 @@
 #include <GL/gl.h>
 
 #include <X11/keysym.h>
-#include <Xm/MwmUtil.h>
+#include <Xm/MwmUtil.h> // libmotif-dev
 //#include <X11/Xlib.h>
 
 //apt-get install mesa-common-dev
