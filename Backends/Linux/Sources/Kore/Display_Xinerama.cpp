@@ -7,7 +7,9 @@
 #include <Kore/Log.h>
 
 #include <X11/X.h>
-#include <X11/extensions/Xinerama.h> // libxinerama-dev
+#include <X11/extensions/Xinerama.h>
+
+//apt-get install libxinerama-dev
 
 namespace Kore { namespace Display {
 void fatalError(const char* message);

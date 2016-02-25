@@ -16,7 +16,6 @@
 #include <GL/gl.h>
 
 #include <X11/keysym.h>
-#include <Xm/MwmUtil.h> // libmotif-dev
 //#include <X11/Xlib.h>
 
 //apt-get install mesa-common-dev
@@ -25,6 +24,17 @@
 namespace {
     //static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, None};
     //static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, GLX_DOUBLEBUFFER, None};
+
+    struct MwmHints {
+        // These correspond to XmRInt resources. (VendorSE.c)
+        int	         flags;
+        int		 functions;
+        int		 decorations;
+        int		 input_mode;
+        int		 status;
+    };
+
+    #define MWM_HINTS_DECORATIONS	(1L << 1)
 
     Display* dpy;
 
