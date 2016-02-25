@@ -48,7 +48,7 @@ class ExporterMakefile extends Exporter {
 		}
 		this.p('INC=' + incline);
 
-		let libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl';
+		let libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl -lXinerama';
 		this.p('LIB=' + libsline);
 
 		let defline = '';
