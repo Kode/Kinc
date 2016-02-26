@@ -17,6 +17,7 @@
 #endif
 
 namespace Kore {
+	class Program;
 	class Shader;
 
 	class ProgramImpl {
@@ -48,6 +49,9 @@ namespace Kore {
 		VkDescriptorBufferInfo buffer_info;
 
 		std::map<std::string, u32> vertexLocations;
+	public:
+		float uniformData[256];
+		static Program* current;
 	};
 
 	class ConstantLocationImpl {

@@ -1045,39 +1045,53 @@ void* Graphics::getControl() {
 }
 
 void Graphics::setBool(ConstantLocation location, bool value) {
-
+	ProgramImpl::current->uniformData[location.location] = *reinterpret_cast<float*>(&value);
 }
 
 void Graphics::setInt(ConstantLocation location, int value) {
-
+	ProgramImpl::current->uniformData[location.location] = *reinterpret_cast<float*>(&value);
 }
 
 void Graphics::setFloat(ConstantLocation location, float value) {
-
+	ProgramImpl::current->uniformData[location.location] = value;
 }
 
 void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
-
+	ProgramImpl::current->uniformData[location.location + 0] = value1;
+	ProgramImpl::current->uniformData[location.location + 1] = value2;
 }
 
 void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-
+	ProgramImpl::current->uniformData[location.location + 0] = value1;
+	ProgramImpl::current->uniformData[location.location + 1] = value2;
+	ProgramImpl::current->uniformData[location.location + 2] = value3;
 }
 
 void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-
+	ProgramImpl::current->uniformData[location.location + 0] = value1;
+	ProgramImpl::current->uniformData[location.location + 1] = value2;
+	ProgramImpl::current->uniformData[location.location + 2] = value3;
+	ProgramImpl::current->uniformData[location.location + 3] = value4;
 }
 
 void Graphics::setFloats(ConstantLocation location, float* values, int count) {
-
+	for (int i = 0; i < count; ++i) {
+		ProgramImpl::current->uniformData[location.location + i] = values[i];
+	}
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
-
+	for (int i = 0; i < 16; ++i) {
+		ProgramImpl::current->uniformData[location.location + i] = value.data[i];
+	}
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
-
+	for (int y = 0; y < 3; ++y) {
+		for (int x = 0; x < 3; ++x) {
+			ProgramImpl::current->uniformData[location.location + y * 4 + x] = value.data[y * 3 + x];
+		}
+	}
 }
 
 void Graphics::drawIndexedVertices() {

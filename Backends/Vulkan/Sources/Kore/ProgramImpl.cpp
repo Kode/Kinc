@@ -21,6 +21,8 @@ extern VkDescriptorPool desc_pool;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
+Program* ProgramImpl::current;
+
 namespace {
 	void parseShader(Shader* shader, std::map<std::string, u32>& locations) {
 		u32* spirv = (u32*)shader->source;
@@ -97,20 +99,15 @@ namespace {
 	}
 
 	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info) {
-		float data[1] = { 0.0f };
-
 		VkMemoryRequirements mem_reqs;
-		uint8_t *pData;
-		int i;
-		VkResult err;
 		bool pass;
 		
 		VkBufferCreateInfo buf_info;
 		memset(&buf_info, 0, sizeof(buf_info));
 		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		buf_info.size = sizeof(float);
-		err = vkCreateBuffer(device, &buf_info, NULL, &buf);
+		buf_info.size = sizeof(float) * 256;
+		VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buf);
 		assert(!err);
 
 		vkGetBufferMemoryRequirements(device, buf, &mem_reqs);
@@ -126,19 +123,12 @@ namespace {
 		err = vkAllocateMemory(device, &mem_alloc, NULL, &mem);
 		assert(!err);
 
-		err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&pData);
-		assert(!err);
-
-		memcpy(pData, &data, sizeof(data));
-
-		vkUnmapMemory(device, mem);
-
 		err = vkBindBufferMemory(device, buf, mem, 0);
 		assert(!err);
 
 		buffer_info.buffer = buf;
 		buffer_info.offset = 0;
-		buffer_info.range = sizeof(data);
+		buffer_info.range = sizeof(float) * 256;
 	}
 }
 
@@ -467,8 +457,16 @@ void Program::link(VertexStructure** structures, int count) {
 }
 
 void Program::set() {
+	current = this;
+	
+	uint8_t* data;
+	VkResult err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
+	assert(!err);
+	memcpy(data, &uniformData, sizeof(uniformData));
+	vkUnmapMemory(device, mem);
+
 	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-	//vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
+	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
