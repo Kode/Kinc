@@ -190,7 +190,7 @@ void Program::link(VertexStructure** structures, int count) {
 	layout_binding.pImmutableSamplers = NULL;*/
 	layout_binding.binding = 0;
 	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	layout_binding.descriptorCount = 0;
+	layout_binding.descriptorCount = 1;
 	layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	layout_binding.pImmutableSamplers = nullptr;
 	
@@ -241,7 +241,7 @@ void Program::link(VertexStructure** structures, int count) {
 	for (uint32_t i = 0; i < 1; ++i) {
 		buffer_descs[i].buffer = buf;
 		buffer_descs[i].offset = 0;
-		buffer_descs[i].range = 16 * sizeof(float);
+		buffer_descs[i].range = 1 * sizeof(float);
 	}
 
 	VkWriteDescriptorSet write;
