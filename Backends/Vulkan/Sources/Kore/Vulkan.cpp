@@ -1325,7 +1325,24 @@ void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
 }
 
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+	VkDescriptorImageInfo tex_desc;
+	memset(&tex_desc, 0, sizeof(tex_desc));
 
+	tex_desc.sampler = texture->texture.sampler;
+	tex_desc.imageView = texture->texture.view;
+	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+	VkWriteDescriptorSet write;
+	memset(&write, 0, sizeof(write));
+
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.dstSet = desc_set;
+	write.dstBinding = 1;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	write.pImageInfo = &tex_desc;
+
+	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
 }
 
 void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {

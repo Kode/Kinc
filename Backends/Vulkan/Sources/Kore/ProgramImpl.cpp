@@ -172,37 +172,45 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 void Program::link(VertexStructure** structures, int count) {
 	parseShader(vertexShader, vertexLocations);
 
-	VkDescriptorSetLayoutBinding layout_binding = {};
-	/*layout_binding.binding = 0;
-	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	layout_binding.descriptorCount = 0; // DEMO_TEXTURE_COUNT;
-	layout_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	layout_binding.pImmutableSamplers = NULL;*/
-	layout_binding.binding = 0;
-	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	layout_binding.descriptorCount = 1;
-	layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	layout_binding.pImmutableSamplers = nullptr;
+	VkDescriptorSetLayoutBinding layoutBindings[2];
+	memset(layoutBindings, 0, sizeof(layoutBindings));
+
+	layoutBindings[0].binding = 0;
+	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	layoutBindings[0].descriptorCount = 1;
+	layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	layoutBindings[0].pImmutableSamplers = nullptr;
+
+	layoutBindings[1].binding = 1;
+	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	layoutBindings[1].descriptorCount = 1;
+	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	layoutBindings[1].pImmutableSamplers = nullptr;
 	
 	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
 	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descriptor_layout.pNext = NULL;
-	descriptor_layout.bindingCount = 1;
-	descriptor_layout.pBindings = &layout_binding;
+	descriptor_layout.bindingCount = 2;
+	descriptor_layout.pBindings = layoutBindings;
 
 	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
 	
-	VkDescriptorPoolSize type_count = {};
-	type_count.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-	type_count.descriptorCount = 1;
-	
+	VkDescriptorPoolSize typeCounts[2];
+	memset(typeCounts, 0, sizeof(typeCounts));
+
+	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	typeCounts[0].descriptorCount = 1;
+
+	typeCounts[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	typeCounts[1].descriptorCount = 1;
+
 	VkDescriptorPoolCreateInfo descriptor_pool = {};
 	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptor_pool.pNext = NULL;
 	descriptor_pool.maxSets = 1;
-	descriptor_pool.poolSizeCount = 1;
-	descriptor_pool.pPoolSizes = &type_count;
+	descriptor_pool.poolSizeCount = 2;
+	descriptor_pool.pPoolSizes = typeCounts;
 	
 	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
 	assert(!err);
@@ -221,29 +229,37 @@ void Program::link(VertexStructure** structures, int count) {
 
 	createUniformBuffer(buf, mem_alloc, mem, buffer_info);
 
-	/*memset(&tex_descs, 0, sizeof(tex_descs));
-	for (i = 0; i < 1; i++) {
-		tex_descs[i].sampler = demo->textures[i].sampler;
-		tex_descs[i].imageView = demo->textures[i].view;
-		tex_descs[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-	}*/
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 	for (uint32_t i = 0; i < 1; ++i) {
 		buffer_descs[i].buffer = buf;
 		buffer_descs[i].offset = 0;
-		buffer_descs[i].range = 1 * sizeof(float);
+		buffer_descs[i].range = 256 * sizeof(float);
 	}
 
-	VkWriteDescriptorSet write;
-	memset(&write, 0, sizeof(write));
-	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	write.dstSet = desc_set;
-	write.descriptorCount = 1;
-	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	//write.pImageInfo = tex_descs;
-	write.pBufferInfo = buffer_descs;
+	VkDescriptorImageInfo tex_desc;
+	memset(&tex_desc, 0, sizeof(tex_desc));
+	
+	//tex_desc.sampler = demo->textures[i].sampler;
+	//tex_desc.imageView = demo->textures[i].view;
+	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+	
+	VkWriteDescriptorSet writes[2];
+	memset(writes, 0, sizeof(writes));
 
-	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
+	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writes[0].dstSet = desc_set;
+	writes[0].descriptorCount = 1;
+	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	writes[0].pBufferInfo = buffer_descs;
+
+	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writes[1].dstSet = desc_set;
+	writes[1].dstBinding = 1;
+	writes[1].descriptorCount = 1;
+	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	writes[1].pImageInfo = &tex_desc;
+
+	vkUpdateDescriptorSets(device, 1, writes, 0, NULL);
 
 	//
 
