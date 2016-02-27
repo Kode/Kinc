@@ -1045,60 +1045,128 @@ void* Graphics::getControl() {
 }
 
 void Graphics::setBool(ConstantLocation location, bool value) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	data[location.location] = *reinterpret_cast<float*>(&value);
+	if (location.vertexOffset >= 0) {
+		int* data = (int*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		data[0] = value;
+	}
+	if (location.fragmentOffset >= 0) {
+		int* data = (int*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		data[0] = value;
+	}
 }
 
 void Graphics::setInt(ConstantLocation location, int value) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	data[location.location] = *reinterpret_cast<float*>(&value);
+	if (location.vertexOffset >= 0) {
+		int* data = (int*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		data[0] = value;
+	}
+	if (location.fragmentOffset >= 0) {
+		int* data = (int*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		data[0] = value;
+	}
 }
 
 void Graphics::setFloat(ConstantLocation location, float value) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	data[location.location] = value;
+	if (location.vertexOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		data[0] = value;
+	}
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		data[0] = value;
+	}
 }
 
 void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	data[location.location + 0] = value1;
-	data[location.location + 1] = value2;
+	if (location.vertexOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		data[0] = value1;
+		data[1] = value2;
+	}
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		data[0] = value1;
+		data[1] = value2;
+	}
 }
 
 void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	data[location.location + 0] = value1;
-	data[location.location + 1] = value2;
-	data[location.location + 2] = value3;
+	if (location.vertexOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		data[0] = value1;
+		data[1] = value2;
+		data[2] = value3;
+	}
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		data[0] = value1;
+		data[1] = value2;
+		data[2] = value3;
+	}
 }
 
 void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	data[location.location + 0] = value1;
-	data[location.location + 1] = value2;
-	data[location.location + 2] = value3;
-	data[location.location + 3] = value4;
+	if (location.vertexOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		data[0] = value1;
+		data[1] = value2;
+		data[2] = value3;
+		data[3] = value4;
+	}
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		data[0] = value1;
+		data[1] = value2;
+		data[2] = value3;
+		data[3] = value4;
+	}
 }
 
 void Graphics::setFloats(ConstantLocation location, float* values, int count) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	for (int i = 0; i < count; ++i) {
-		data[location.location + i] = values[i];
+	if (location.vertexOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		for (int i = 0; i < count; ++i) {
+			data[i] = values[i];
+		}
+	}
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		for (int i = 0; i < count; ++i) {
+			data[i] = values[i];
+		}
 	}
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	for (int i = 0; i < 16; ++i) {
-		data[location.location + i] = value.data[i];
+	if (location.vertexOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		for (int i = 0; i < 16; ++i) {
+			data[i] = value.data[i];
+		}
+	}
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		for (int i = 0; i < 16; ++i) {
+			data[i] = value.data[i];
+		}
 	}
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
-	float* data = location.vertex ? ProgramImpl::current->uniformDataVertex : ProgramImpl::current->uniformDataFragment;
-	for (int y = 0; y < 3; ++y) {
-		for (int x = 0; x < 3; ++x) {
-			data[location.location + y * 4 + x] = value.data[y * 3 + x];
+	if (location.vertexOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		for (int y = 0; y < 3; ++y) {
+			for (int x = 0; x < 3; ++x) {
+				data[y * 4 + x] = value.data[y * 3 + x];
+			}
+		}
+	}
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		for (int y = 0; y < 3; ++y) {
+			for (int x = 0; x < 3; ++x) {
+				data[y * 4 + x] = value.data[y * 3 + x];
+			}
 		}
 	}
 }

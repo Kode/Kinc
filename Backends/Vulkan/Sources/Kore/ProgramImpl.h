@@ -56,6 +56,8 @@ namespace Kore {
 		std::map<std::string, u32> vertexLocations;
 		std::map<std::string, u32> fragmentLocations;
 		std::map<std::string, u32> textureBindings;
+		std::map<std::string, u32> vertexOffsets;
+		std::map<std::string, u32> fragmentOffsets;
 	public:
 		float uniformDataVertex[256];
 		float uniformDataFragment[256];
@@ -64,7 +66,7 @@ namespace Kore {
 
 	class ConstantLocationImpl {
 	public:
-		int location;
-		bool vertex;
+		int vertexOffset;
+		int fragmentOffset;
 	};
 }

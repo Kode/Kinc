@@ -24,7 +24,7 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 Program* ProgramImpl::current;
 
 namespace {
-	void parseShader(Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings) {
+	void parseShader(Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings, std::map<std::string, u32>& uniformOffsets) {
 		u32* spirv = (u32*)shader->source;
 		int spirvsize = shader->length / 4;
 		int index = 0;
@@ -34,10 +34,12 @@ namespace {
 		unsigned generator = spirv[index++];
 		unsigned bound = spirv[index++];
 		index++;
-
+		
 		std::map<u32, std::string> names;
+		std::map<u32, std::string> memberNames;
 		std::map<u32, u32> locs;
 		std::map<u32, u32> bindings;
+		std::map<u32, u32> offsets;
 
 		while (index < spirvsize) {
 			int wordCount = spirv[index] >> 16;
@@ -53,6 +55,15 @@ namespace {
 				names[id] = string;
 				break;
 			}
+			case 6: { // OpMemberName
+				u32 type = operands[0];
+				if (names[type] == "_k_global_uniform_buffer_type") {
+					u32 member = operands[1];
+					char* string = (char*)&operands[2];
+					memberNames[member] = string;
+				}
+				break;
+			}
 			case 71: { // OpDecorate
 				u32 id = operands[0];
 				u32 decoration = operands[1];
@@ -66,6 +77,17 @@ namespace {
 				}
 				break;
 			}
+			case 72: { // OpMemberDecorate
+				u32 type = operands[0];
+				if (names[type] == "_k_global_uniform_buffer_type") {
+					u32 member = operands[1];
+					u32 decoration = operands[2];
+					if (decoration == 35) { // offset
+						u32 offset = operands[3];
+						offsets[member] = offset;
+					}
+				}
+			}
 			}
 
 			index += wordCount;
@@ -77,6 +99,10 @@ namespace {
 
 		for (std::map<u32, u32>::iterator it = bindings.begin(); it != bindings.end(); ++it) {
 			textureBindings[names[it->first]] = it->second;
+		}
+
+		for (std::map<u32, u32>::iterator it = offsets.begin(); it != offsets.end(); ++it) {
+			uniformOffsets[memberNames[it->first]] = it->second;
 		}
 	}
 
@@ -177,8 +203,8 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 }
 
 void Program::link(VertexStructure** structures, int count) {
-	parseShader(vertexShader, vertexLocations, textureBindings);
-	parseShader(fragmentShader, fragmentLocations, textureBindings);
+	parseShader(vertexShader, vertexLocations, textureBindings, vertexOffsets);
+	parseShader(fragmentShader, fragmentLocations, textureBindings, fragmentOffsets);
 
 	VkDescriptorSetLayoutBinding layoutBindings[8];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
@@ -532,8 +558,14 @@ void Program::set() {
 
 ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
-	location.location = 0;
-	location.vertex = true;
+	location.vertexOffset = -1;
+	location.fragmentOffset = -1;
+	if (vertexOffsets.find(name) != vertexOffsets.end()) {
+		location.vertexOffset = vertexOffsets[name];
+	}
+	if (fragmentOffsets.find(name) != fragmentOffsets.end()) {
+		location.fragmentOffset = fragmentOffsets[name];
+	}
 	return location;
 }
 
