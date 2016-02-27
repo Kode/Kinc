@@ -119,10 +119,9 @@ namespace {
 		vkCmdPipelineBarrier(setup_cmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
 	}
 
-	void demo_prepare_texture_image(const uint32_t *tex_colors, texture_object *tex_obj, VkImageTiling tiling, VkImageUsageFlags usage, VkFlags required_props) {
+	void demo_prepare_texture_image(u8* tex_colors, uint32_t tex_width, uint32_t tex_height, texture_object *tex_obj, VkImageTiling tiling, VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize& deviceSize) {
 		const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
-		const int32_t tex_width = 2;
-		const int32_t tex_height = 2;
+
 		VkResult err;
 		bool pass;
 
@@ -155,7 +154,7 @@ namespace {
 
 		vkGetImageMemoryRequirements(device, tex_obj->image, &mem_reqs);
 
-		mem_alloc.allocationSize = mem_reqs.size;
+		deviceSize = mem_alloc.allocationSize = mem_reqs.size;
 		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, required_props, &mem_alloc.memoryTypeIndex);
 		assert(pass);
 
@@ -174,18 +173,22 @@ namespace {
 			subres.arrayLayer = 0;
 
 			VkSubresourceLayout layout;
-			void *data;
-			int32_t x, y;
-
+			u8* data;
+			
 			vkGetImageSubresourceLayout(device, tex_obj->image, &subres, &layout);
 
-			err = vkMapMemory(device, tex_obj->mem, 0, mem_alloc.allocationSize, 0, &data);
+			err = vkMapMemory(device, tex_obj->mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
 			assert(!err);
 
-			for (y = 0; y < tex_height; y++) {
-				uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);
-				for (x = 0; x < tex_width; x++)
-					row[x] = tex_colors[(x & 1) ^ (y & 1)];
+			for (uint32_t y = 0; y < tex_height; y++) {
+				//uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);
+				for (uint32_t x = 0; x < tex_width; x++) {
+					data[y * layout.rowPitch + x * 4 + 0] = tex_colors[y * tex_width * 4 + x * 4 + 2];
+					data[y * layout.rowPitch + x * 4 + 1] = tex_colors[y * tex_width * 4 + x * 4 + 1];
+					data[y * layout.rowPitch + x * 4 + 2] = tex_colors[y * tex_width * 4 + x * 4 + 0];
+					data[y * layout.rowPitch + x * 4 + 3] = tex_colors[y * tex_width * 4 + x * 4 + 3];
+					//row[x] = tex_colors[(x & 1) ^ (y & 1)];
+				}
 			}
 
 			vkUnmapMemory(device, tex_obj->mem);
@@ -206,24 +209,21 @@ namespace {
 Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
 	const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
 	VkFormatProperties props;
-	const uint32_t tex_colors[1][2] = {
-		{ 0xffff0000, 0xff00ff00 },
-	};
 	VkResult err;
 
 	vkGetPhysicalDeviceFormatProperties(gpu, tex_format, &props);
 
 	if ((props.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) && !use_staging_buffer) {
 		// Device can texture using linear textures
-		demo_prepare_texture_image(tex_colors[0], &texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+		demo_prepare_texture_image(data, (uint32_t)width, (uint32_t)height, &texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, deviceSize);
 	}
 	else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
 		// Must use staging buffer to copy linear texture to optimized
 		texture_object staging_texture;
 
 		memset(&staging_texture, 0, sizeof(staging_texture));
-		demo_prepare_texture_image(tex_colors[0], &staging_texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-		demo_prepare_texture_image(tex_colors[0], &texture, VK_IMAGE_TILING_OPTIMAL, (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		demo_prepare_texture_image(data, (uint32_t)width, (uint32_t)height, &staging_texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, deviceSize);
+		demo_prepare_texture_image(data, (uint32_t)width, (uint32_t)height, &texture, VK_IMAGE_TILING_OPTIMAL, (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, deviceSize);
 		demo_set_image_layout(staging_texture.image, VK_IMAGE_ASPECT_COLOR_BIT, staging_texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		demo_set_image_layout(texture.image, VK_IMAGE_ASPECT_COLOR_BIT, texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
@@ -250,8 +250,8 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	VkSamplerCreateInfo sampler = {};
 	sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	sampler.pNext = NULL;
-	sampler.magFilter = VK_FILTER_NEAREST;
-	sampler.minFilter = VK_FILTER_NEAREST;
+	sampler.magFilter = VK_FILTER_LINEAR;
+	sampler.minFilter = VK_FILTER_LINEAR;
 	sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
 	sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	sampler.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -302,9 +302,21 @@ int Texture::stride() {
 }
 
 u8* Texture::lock() {
+	VkImageSubresource subres = {};
+	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	subres.mipLevel = 0;
+	subres.arrayLayer = 0;
+
+	VkSubresourceLayout layout;
+	void *data;
+
+	vkGetImageSubresourceLayout(device, texture.image, &subres, &layout);
+
+	VkResult err = vkMapMemory(device, texture.mem, 0,deviceSize, 0, &data);
+	assert(!err);
 	return (u8*)data;
 }
 
 void Texture::unlock() {
-
+	vkUnmapMemory(device, texture.mem);
 }
