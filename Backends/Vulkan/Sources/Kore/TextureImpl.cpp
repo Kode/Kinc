@@ -207,6 +207,9 @@ namespace {
 }
 
 Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
+	texWidth = width;
+	texHeight = height;
+
 	const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
 	VkFormatProperties props;
 	VkResult err;
