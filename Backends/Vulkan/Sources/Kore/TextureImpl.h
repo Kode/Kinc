@@ -31,7 +31,7 @@ namespace Kore {
 
 	class TextureUnitImpl {
 	public:
-		int unit;
+		int binding;
 	};
 	
 	class TextureImpl {

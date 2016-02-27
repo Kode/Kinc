@@ -43,19 +43,28 @@ namespace Kore {
 		VkShaderModule vert_shader_module;
 		VkShaderModule frag_shader_module;
 
-		VkBuffer buf;
-		VkMemoryAllocateInfo mem_alloc;
-		VkDeviceMemory mem;
-		VkDescriptorBufferInfo buffer_info;
+		VkBuffer bufVertex;
+		VkMemoryAllocateInfo mem_allocVertex;
+		VkDeviceMemory memVertex;
+		VkDescriptorBufferInfo buffer_infoVertex;
+
+		VkBuffer bufFragment;
+		VkMemoryAllocateInfo mem_allocFragment;
+		VkDeviceMemory memFragment;
+		VkDescriptorBufferInfo buffer_infoFragment;
 
 		std::map<std::string, u32> vertexLocations;
+		std::map<std::string, u32> fragmentLocations;
+		std::map<std::string, u32> textureBindings;
 	public:
-		float uniformData[256];
+		float uniformDataVertex[256];
+		float uniformDataFragment[256];
 		static Program* current;
 	};
 
 	class ConstantLocationImpl {
 	public:
 		int location;
+		bool vertex;
 	};
 }

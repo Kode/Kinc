@@ -24,7 +24,7 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 Program* ProgramImpl::current;
 
 namespace {
-	void parseShader(Shader* shader, std::map<std::string, u32>& locations) {
+	void parseShader(Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings) {
 		u32* spirv = (u32*)shader->source;
 		int spirvsize = shader->length / 4;
 		int index = 0;
@@ -37,6 +37,7 @@ namespace {
 
 		std::map<u32, std::string> names;
 		std::map<u32, u32> locs;
+		std::map<u32, u32> bindings;
 
 		while (index < spirvsize) {
 			int wordCount = spirv[index] >> 16;
@@ -59,6 +60,10 @@ namespace {
 					u32 location = operands[2];
 					locs[id] = location;
 				}
+				if (decoration == 33) { // binding
+					u32 binding = operands[2];
+					bindings[id] = binding;
+				}
 				break;
 			}
 			}
@@ -68,6 +73,10 @@ namespace {
 
 		for (std::map<u32, u32>::iterator it = locs.begin(); it != locs.end(); ++it) {
 			locations[names[it->first]] = it->second;
+		}
+
+		for (std::map<u32, u32>::iterator it = bindings.begin(); it != bindings.end(); ++it) {
+			textureBindings[names[it->first]] = it->second;
 		}
 	}
 
@@ -99,9 +108,6 @@ namespace {
 	}
 
 	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info) {
-		VkMemoryRequirements mem_reqs;
-		bool pass;
-		
 		VkBufferCreateInfo buf_info;
 		memset(&buf_info, 0, sizeof(buf_info));
 		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -110,6 +116,7 @@ namespace {
 		VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buf);
 		assert(!err);
 
+		VkMemoryRequirements mem_reqs;
 		vkGetBufferMemoryRequirements(device, buf, &mem_reqs);
 
 		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -117,7 +124,7 @@ namespace {
 		mem_alloc.allocationSize = mem_reqs.size;
 		mem_alloc.memoryTypeIndex = 0;
 
-		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
+		bool pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
 		assert(pass);
 
 		err = vkAllocateMemory(device, &mem_alloc, NULL, &mem);
@@ -170,9 +177,10 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 }
 
 void Program::link(VertexStructure** structures, int count) {
-	parseShader(vertexShader, vertexLocations);
+	parseShader(vertexShader, vertexLocations, textureBindings);
+	parseShader(fragmentShader, fragmentLocations, textureBindings);
 
-	VkDescriptorSetLayoutBinding layoutBindings[2];
+	VkDescriptorSetLayoutBinding layoutBindings[8];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 
 	layoutBindings[0].binding = 0;
@@ -182,41 +190,54 @@ void Program::link(VertexStructure** structures, int count) {
 	layoutBindings[0].pImmutableSamplers = nullptr;
 
 	layoutBindings[1].binding = 1;
-	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	layoutBindings[1].descriptorCount = 1;
 	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	layoutBindings[1].pImmutableSamplers = nullptr;
 	
+	for (int i = 2; i < 8; ++i) {
+		layoutBindings[i].binding = i;
+		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		layoutBindings[i].descriptorCount = 1;
+		layoutBindings[i].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		layoutBindings[i].pImmutableSamplers = nullptr;
+	}
+	
 	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
 	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descriptor_layout.pNext = NULL;
-	descriptor_layout.bindingCount = 2;
+	descriptor_layout.bindingCount = 8;
 	descriptor_layout.pBindings = layoutBindings;
 
 	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
 	
-	VkDescriptorPoolSize typeCounts[2];
+	VkDescriptorPoolSize typeCounts[8];
 	memset(typeCounts, 0, sizeof(typeCounts));
 
 	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	typeCounts[0].descriptorCount = 1;
 
-	typeCounts[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	typeCounts[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	typeCounts[1].descriptorCount = 1;
+
+	for (int i = 2; i < 8; ++i) {
+		typeCounts[i].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		typeCounts[i].descriptorCount = 1;
+	}
 
 	VkDescriptorPoolCreateInfo descriptor_pool = {};
 	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptor_pool.pNext = NULL;
 	descriptor_pool.maxSets = 1;
-	descriptor_pool.poolSizeCount = 2;
+	descriptor_pool.poolSizeCount = 8;
 	descriptor_pool.pPoolSizes = typeCounts;
 	
 	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
 	assert(!err);
 
 	//VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
-	VkDescriptorBufferInfo buffer_descs[1];
+	VkDescriptorBufferInfo buffer_descs[2];
 	
 	VkDescriptorSetAllocateInfo alloc_info = {};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -227,14 +248,18 @@ void Program::link(VertexStructure** structures, int count) {
 	err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
-	createUniformBuffer(buf, mem_alloc, mem, buffer_info);
+	createUniformBuffer(bufVertex, mem_allocVertex, memVertex, buffer_infoVertex);
+	createUniformBuffer(bufFragment, mem_allocFragment, memFragment, buffer_infoFragment);
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
-	for (uint32_t i = 0; i < 1; ++i) {
-		buffer_descs[i].buffer = buf;
-		buffer_descs[i].offset = 0;
-		buffer_descs[i].range = 256 * sizeof(float);
-	}
+
+	buffer_descs[0].buffer = bufVertex;
+	buffer_descs[0].offset = 0;
+	buffer_descs[0].range = 256 * sizeof(float);
+
+	buffer_descs[1].buffer = bufFragment;
+	buffer_descs[1].offset = 0;
+	buffer_descs[1].range = 256 * sizeof(float);
 
 	VkDescriptorImageInfo tex_desc;
 	memset(&tex_desc, 0, sizeof(tex_desc));
@@ -243,23 +268,33 @@ void Program::link(VertexStructure** structures, int count) {
 	//tex_desc.imageView = demo->textures[i].view;
 	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 	
-	VkWriteDescriptorSet writes[2];
+	VkWriteDescriptorSet writes[8];
 	memset(writes, 0, sizeof(writes));
 
 	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	writes[0].dstSet = desc_set;
+	writes[0].dstBinding = 0;
 	writes[0].descriptorCount = 1;
 	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	writes[0].pBufferInfo = buffer_descs;
+	writes[0].pBufferInfo = &buffer_descs[0];
 
 	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	writes[1].dstSet = desc_set;
 	writes[1].dstBinding = 1;
 	writes[1].descriptorCount = 1;
-	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	writes[1].pImageInfo = &tex_desc;
+	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	writes[1].pBufferInfo = &buffer_descs[1];
 
-	vkUpdateDescriptorSets(device, 1, writes, 0, NULL);
+	for (int i = 2; i < 8; ++i) {
+		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		writes[i].dstSet = desc_set;
+		writes[i].dstBinding = i;
+		writes[i].descriptorCount = 1;
+		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		writes[i].pImageInfo = &tex_desc;
+	}
+
+	vkUpdateDescriptorSets(device, 2, writes, 0, NULL); // Don't write image descriptors here
 
 	//
 
@@ -475,11 +510,21 @@ void Program::link(VertexStructure** structures, int count) {
 void Program::set() {
 	current = this;
 	
-	uint8_t* data;
-	VkResult err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
-	assert(!err);
-	memcpy(data, &uniformData, sizeof(uniformData));
-	vkUnmapMemory(device, mem);
+	{
+		uint8_t* data;
+		VkResult err = vkMapMemory(device, memVertex, 0, mem_allocVertex.allocationSize, 0, (void**)&data);
+		assert(!err);
+		memcpy(data, &uniformDataVertex, sizeof(uniformDataVertex));
+		vkUnmapMemory(device, memVertex);
+	}
+
+	{
+		uint8_t* data;
+		VkResult err = vkMapMemory(device, memFragment, 0, mem_allocFragment.allocationSize, 0, (void**)&data);
+		assert(!err);
+		memcpy(data, &uniformDataFragment, sizeof(uniformDataFragment));
+		vkUnmapMemory(device, memFragment);
+	}
 
 	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
@@ -488,11 +533,12 @@ void Program::set() {
 ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.location = 0;
+	location.vertex = true;
 	return location;
 }
 
 TextureUnit Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
-	unit.unit = 0;
+	unit.binding = textureBindings[name];
 	return unit;
 }
