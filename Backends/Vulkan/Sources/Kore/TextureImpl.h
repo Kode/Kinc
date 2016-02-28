@@ -43,6 +43,8 @@ namespace Kore {
 		texture_object texture;
 		VkDeviceSize deviceSize;
 
+		VkDescriptorSet desc_set;
+
 		~TextureImpl();
 		u8* conversionBuffer; // Fuer wenn Textur aus Image erstellt wird
 	};

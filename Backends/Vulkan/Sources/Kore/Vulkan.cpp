@@ -46,6 +46,8 @@ VkQueue queue;
 bool use_staging_buffer;
 VkDescriptorPool desc_pool;
 
+Texture* vulkanTextures[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+
 namespace {
 	HWND windowHandle;
 
@@ -1402,6 +1404,7 @@ void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
 }
 
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+	/*
 	VkDescriptorImageInfo tex_desc;
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
@@ -1420,6 +1423,14 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	write.pImageInfo = &tex_desc;
 
 	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
+	*/
+	//vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
+
+	//VkDescriptorSet sets[] = { desc_set, texture->desc_set };
+	//vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 2, sets, 0, NULL);
+
+	vulkanTextures[unit.binding - 2] = texture;
+	if (ProgramImpl::current != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
 void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {

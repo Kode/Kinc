@@ -18,12 +18,26 @@ extern VkRenderPass render_pass;
 extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
 extern VkDescriptorPool desc_pool;
+extern Texture** vulkanTextures;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
-Program* ProgramImpl::current;
+Program* ProgramImpl::current = nullptr;
 
 namespace {
+	bool descLayoutInitialized = false;
+	VkDescriptorSetLayout desc_layout;
+
+	VkBuffer bufVertex;
+	VkMemoryAllocateInfo mem_allocVertex;
+	VkDeviceMemory memVertex;
+	VkDescriptorBufferInfo buffer_infoVertex;
+
+	VkBuffer bufFragment;
+	VkMemoryAllocateInfo mem_allocFragment;
+	VkDeviceMemory memFragment;
+	VkDescriptorBufferInfo buffer_infoFragment;
+
 	void parseShader(Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings, std::map<std::string, u32>& uniformOffsets) {
 		u32* spirv = (u32*)shader->source;
 		int spirvsize = shader->length / 4;
@@ -202,10 +216,7 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 	tesselationEvaluationShader = shader;
 }
 
-void Program::link(VertexStructure** structures, int count) {
-	parseShader(vertexShader, vertexLocations, textureBindings, vertexOffsets);
-	parseShader(fragmentShader, fragmentLocations, textureBindings, fragmentOffsets);
-
+void createDescriptorLayout() {
 	VkDescriptorSetLayoutBinding layoutBindings[8];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 
@@ -220,7 +231,7 @@ void Program::link(VertexStructure** structures, int count) {
 	layoutBindings[1].descriptorCount = 1;
 	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	layoutBindings[1].pImmutableSamplers = nullptr;
-	
+
 	for (int i = 2; i < 8; ++i) {
 		layoutBindings[i].binding = i;
 		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -228,7 +239,7 @@ void Program::link(VertexStructure** structures, int count) {
 		layoutBindings[i].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		layoutBindings[i].pImmutableSamplers = nullptr;
 	}
-	
+
 	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
 	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descriptor_layout.pNext = NULL;
@@ -237,7 +248,7 @@ void Program::link(VertexStructure** structures, int count) {
 
 	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
-	
+
 	VkDescriptorPoolSize typeCounts[8];
 	memset(typeCounts, 0, sizeof(typeCounts));
 
@@ -255,23 +266,25 @@ void Program::link(VertexStructure** structures, int count) {
 	VkDescriptorPoolCreateInfo descriptor_pool = {};
 	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptor_pool.pNext = NULL;
-	descriptor_pool.maxSets = 1;
+	descriptor_pool.maxSets = 128;
 	descriptor_pool.poolSizeCount = 8;
 	descriptor_pool.pPoolSizes = typeCounts;
-	
+
 	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
 	assert(!err);
+}
 
+void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set) {
 	//VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
 	VkDescriptorBufferInfo buffer_descs[2];
-	
+
 	VkDescriptorSetAllocateInfo alloc_info = {};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.pNext = NULL;
 	alloc_info.descriptorPool = desc_pool;
 	alloc_info.descriptorSetCount = 1;
 	alloc_info.pSetLayouts = &desc_layout;
-	err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
+	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
 	createUniformBuffer(bufVertex, mem_allocVertex, memVertex, buffer_infoVertex);
@@ -289,11 +302,13 @@ void Program::link(VertexStructure** structures, int count) {
 
 	VkDescriptorImageInfo tex_desc;
 	memset(&tex_desc, 0, sizeof(tex_desc));
-	
-	//tex_desc.sampler = demo->textures[i].sampler;
-	//tex_desc.imageView = demo->textures[i].view;
+
+	if (texture != nullptr) {
+		tex_desc.sampler = texture->texture.sampler;
+		tex_desc.imageView = texture->texture.view;
+	}
 	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-	
+
 	VkWriteDescriptorSet writes[8];
 	memset(writes, 0, sizeof(writes));
 
@@ -320,8 +335,24 @@ void Program::link(VertexStructure** structures, int count) {
 		writes[i].pImageInfo = &tex_desc;
 	}
 
-	vkUpdateDescriptorSets(device, 2, writes, 0, NULL); // Don't write image descriptors here
+	if (texture != nullptr) {
+		vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
+	}
+	else {
+		vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
+	}
+}
 
+void Program::link(VertexStructure** structures, int count) {
+	parseShader(vertexShader, vertexLocations, textureBindings, vertexOffsets);
+	parseShader(fragmentShader, fragmentLocations, textureBindings, fragmentOffsets);
+
+	if (!descLayoutInitialized) {
+		createDescriptorLayout();
+		createDescriptorSet(nullptr, desc_set);
+		descLayoutInitialized = true;
+	}
+	
 	//
 
 	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
@@ -330,7 +361,7 @@ void Program::link(VertexStructure** structures, int count) {
 	pPipelineLayoutCreateInfo.setLayoutCount = 1;
 	pPipelineLayoutCreateInfo.pSetLayouts = &desc_layout;
 
-	err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline_layout);
+	VkResult err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline_layout);
 	assert(!err);
 
 	//
@@ -553,7 +584,9 @@ void Program::set() {
 	}
 
 	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
+
+	//if (vulkanTextures[0] == nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
+	//else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, NULL);
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
