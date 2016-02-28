@@ -18,14 +18,13 @@ extern VkRenderPass render_pass;
 extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
 extern VkDescriptorPool desc_pool;
-extern Texture** vulkanTextures;
+extern Texture* vulkanTextures[8];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
 Program* ProgramImpl::current = nullptr;
 
 namespace {
-	bool descLayoutInitialized = false;
 	VkDescriptorSetLayout desc_layout;
 
 	VkBuffer bufVertex;
@@ -347,12 +346,6 @@ void Program::link(VertexStructure** structures, int count) {
 	parseShader(vertexShader, vertexLocations, textureBindings, vertexOffsets);
 	parseShader(fragmentShader, fragmentLocations, textureBindings, fragmentOffsets);
 
-	if (!descLayoutInitialized) {
-		createDescriptorLayout();
-		createDescriptorSet(nullptr, desc_set);
-		descLayoutInitialized = true;
-	}
-	
 	//
 
 	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
@@ -585,8 +578,8 @@ void Program::set() {
 
 	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-	//if (vulkanTextures[0] == nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
-	//else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, NULL);
+	if (vulkanTextures[0] == nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
+	else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, NULL);
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {

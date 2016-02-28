@@ -48,6 +48,9 @@ VkDescriptorPool desc_pool;
 
 Texture* vulkanTextures[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
+void createDescriptorLayout();
+void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set);
+
 namespace {
 	HWND windowHandle;
 
@@ -1032,6 +1035,9 @@ void Graphics::init() {
 			assert(!err);
 		}
 	}
+
+	createDescriptorLayout();
+	createDescriptorSet(nullptr, desc_set);
 }
 
 unsigned Graphics::refreshRate() {
@@ -1404,31 +1410,6 @@ void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
 }
 
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
-	/*
-	VkDescriptorImageInfo tex_desc;
-	memset(&tex_desc, 0, sizeof(tex_desc));
-
-	tex_desc.sampler = texture->texture.sampler;
-	tex_desc.imageView = texture->texture.view;
-	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-
-	VkWriteDescriptorSet write;
-	memset(&write, 0, sizeof(write));
-
-	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	write.dstSet = desc_set;
-	write.dstBinding = unit.binding;
-	write.descriptorCount = 1;
-	write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	write.pImageInfo = &tex_desc;
-
-	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
-	*/
-	//vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
-
-	//VkDescriptorSet sets[] = { desc_set, texture->desc_set };
-	//vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 2, sets, 0, NULL);
-
 	vulkanTextures[unit.binding - 2] = texture;
 	if (ProgramImpl::current != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
