@@ -40,6 +40,7 @@ namespace Kore {
 
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);
+		int index;
 	public:
 		static VertexBuffer* current;
 	};

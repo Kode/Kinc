@@ -16,11 +16,16 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 
 VertexBuffer* VertexBufferImpl::current = nullptr;
 
+namespace {
+	const int multiple = 10;
+}
+
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {
 
 }
 
 VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
+	index = 0;
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
@@ -50,7 +55,7 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 	VkBufferCreateInfo buf_info = {};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
-	buf_info.size = vertexCount * myStride;
+	buf_info.size = vertexCount * myStride * multiple;
 	buf_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	buf_info.flags = 0;
 	
@@ -90,7 +95,11 @@ VertexBuffer::~VertexBuffer() {
 }
 
 float* VertexBuffer::lock() {
-	VkResult err = vkMapMemory(device, vertices.mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
+	++index;
+	if (index >= multiple) {
+		index = 0;
+	}
+	VkResult err = vkMapMemory(device, vertices.mem, index * myCount * myStride, myCount * myStride, 0, (void**)&data);
 	assert(!err);
 	return data;
 }
@@ -104,7 +113,7 @@ int VertexBuffer::_set(int offset) {
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
 
 
-	VkDeviceSize offsets[1] = { 0 };
+	VkDeviceSize offsets[1] = { index * myCount * myStride };
 	vkCmdBindVertexBuffers(draw_cmd, 0, 1, &vertices.buf, offsets);
 
 	return offsetoffset;
