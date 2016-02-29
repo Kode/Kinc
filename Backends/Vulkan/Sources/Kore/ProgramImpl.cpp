@@ -286,8 +286,10 @@ void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set) {
 	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
-	createUniformBuffer(bufVertex, mem_allocVertex, memVertex, buffer_infoVertex);
-	createUniformBuffer(bufFragment, mem_allocFragment, memFragment, buffer_infoFragment);
+	if (texture == nullptr) {
+		createUniformBuffer(bufVertex, mem_allocVertex, memVertex, buffer_infoVertex);
+		createUniformBuffer(bufFragment, mem_allocFragment, memFragment, buffer_infoFragment);
+	}
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
@@ -502,8 +504,8 @@ void Program::link(VertexStructure** structures, int count) {
 
 	memset(&ds, 0, sizeof(ds));
 	ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	ds.depthTestEnable = VK_TRUE;
-	ds.depthWriteEnable = VK_TRUE;
+	ds.depthTestEnable = VK_FALSE;
+	ds.depthWriteEnable = VK_FALSE;
 	ds.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 	ds.depthBoundsTestEnable = VK_FALSE;
 	ds.back.failOp = VK_STENCIL_OP_KEEP;

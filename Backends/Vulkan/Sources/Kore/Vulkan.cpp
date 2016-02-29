@@ -612,8 +612,8 @@ void Graphics::init() {
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
-	width = 300;
-	height = 300;
+	width = Application::the()->width();
+	height = Application::the()->height();
 	depthStencil = 1.0;
 	depthIncrement = -0.01f;
 
@@ -1184,7 +1184,7 @@ void Graphics::drawIndexedVertices() {
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-	vkCmdDrawIndexed(draw_cmd, count, 1, 0, 0, 0);
+	vkCmdDrawIndexed(draw_cmd, count, 1, start, 0, 0);
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
