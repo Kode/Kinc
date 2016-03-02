@@ -45,6 +45,23 @@ VkCommandPool cmd_pool;
 VkQueue queue;
 bool use_staging_buffer;
 VkDescriptorPool desc_pool;
+uint32_t swapchainImageCount;
+
+struct SwapchainBuffers {
+	VkImage image;
+	VkCommandBuffer cmd;
+	VkImageView view;
+};
+
+SwapchainBuffers* buffers;
+
+struct DepthBuffer {
+	VkImage image;
+	VkDeviceMemory mem;
+	VkImageView view;
+};
+
+DepthBuffer depth;
 
 Texture* vulkanTextures[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
@@ -53,12 +70,6 @@ void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set);
 
 namespace {
 	HWND windowHandle;
-
-	struct SwapchainBuffers {
-		VkImage image;
-		VkCommandBuffer cmd;
-		VkImageView view;
-	};
 
 	HINSTANCE connection;        // hInstance - Windows Instance
 	char name[APP_NAME_STR_LEN]; // Name to put on the window/icon
@@ -95,15 +106,7 @@ namespace {
 	PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
 	PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 	PFN_vkQueuePresentKHR fpQueuePresentKHR;
-	uint32_t swapchainImageCount;
 	VkSwapchainKHR swapchain;
-	SwapchainBuffers *buffers;
-
-	struct {
-		VkImage image;
-		VkDeviceMemory mem;
-		VkImageView view;
-	} depth;
 
 	VkFramebuffer *framebuffers;
 
@@ -1439,11 +1442,89 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 }
 
 void Graphics::setRenderTarget(RenderTarget* texture, int num) {
+	vkCmdEndRenderPass(draw_cmd);
 
+	VkClearValue clear_values[2];
+	memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	clear_values[0].color.float32[0] = 0.0f;
+	clear_values[0].color.float32[1] = 0.0f;
+	clear_values[0].color.float32[2] = 0.0f;
+	clear_values[0].color.float32[3] = 1.0f;
+	clear_values[1].depthStencil.depth = depthStencil;
+	clear_values[1].depthStencil.stencil = 0;
+
+	VkRenderPassBeginInfo rp_begin = {};
+	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rp_begin.pNext = NULL;
+	rp_begin.renderPass = render_pass;
+	rp_begin.framebuffer = texture->framebuffers[current_buffer];
+	rp_begin.renderArea.offset.x = 0;
+	rp_begin.renderArea.offset.y = 0;
+	rp_begin.renderArea.extent.width = width;
+	rp_begin.renderArea.extent.height = height;
+	rp_begin.clearValueCount = 2;
+	rp_begin.pClearValues = clear_values;
+
+	vkCmdBeginRenderPass(draw_cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+
+	VkViewport viewport;
+	memset(&viewport, 0, sizeof(viewport));
+	viewport.height = (float)height;
+	viewport.width = (float)width;
+	viewport.minDepth = (float)0.0f;
+	viewport.maxDepth = (float)1.0f;
+	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
+
+	VkRect2D scissor;
+	memset(&scissor, 0, sizeof(scissor));
+	scissor.extent.width = width;
+	scissor.extent.height = height;
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }
 
 void Graphics::restoreRenderTarget() {
+	vkCmdEndRenderPass(draw_cmd);
 
+	VkClearValue clear_values[2];
+	memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	clear_values[0].color.float32[0] = 0.0f;
+	clear_values[0].color.float32[1] = 0.0f;
+	clear_values[0].color.float32[2] = 0.0f;
+	clear_values[0].color.float32[3] = 1.0f;
+	clear_values[1].depthStencil.depth = depthStencil;
+	clear_values[1].depthStencil.stencil = 0;
+
+	VkRenderPassBeginInfo rp_begin = {};
+	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rp_begin.pNext = NULL;
+	rp_begin.renderPass = render_pass;
+	rp_begin.framebuffer = framebuffers[current_buffer];
+	rp_begin.renderArea.offset.x = 0;
+	rp_begin.renderArea.offset.y = 0;
+	rp_begin.renderArea.extent.width = width;
+	rp_begin.renderArea.extent.height = height;
+	rp_begin.clearValueCount = 2;
+	rp_begin.pClearValues = clear_values;
+
+	vkCmdBeginRenderPass(draw_cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+
+	VkViewport viewport;
+	memset(&viewport, 0, sizeof(viewport));
+	viewport.height = (float)height;
+	viewport.width = (float)width;
+	viewport.minDepth = (float)0.0f;
+	viewport.maxDepth = (float)1.0f;
+	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
+
+	VkRect2D scissor;
+	memset(&scissor, 0, sizeof(scissor));
+	scissor.extent.width = width;
+	scissor.extent.height = height;
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }
 
 bool Graphics::renderTargetsInvertedY() {

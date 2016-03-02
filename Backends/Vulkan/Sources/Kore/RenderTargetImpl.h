@@ -1,9 +1,22 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
+#ifdef RegisterClass
+#undef RegisterClass
+#endif
+
 namespace Kore {
 	class RenderTargetImpl {
 	public:
-		unsigned _framebuffer;
-		unsigned _texture;
+		VkFramebuffer* framebuffers;
 	};
 }

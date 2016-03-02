@@ -17,7 +17,7 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 VertexBuffer* VertexBufferImpl::current = nullptr;
 
 namespace {
-	const int multiple = 10;
+	const int multiple = 100;
 }
 
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {
