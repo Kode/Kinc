@@ -75,6 +75,11 @@ namespace Kore { namespace System {
 }}
 #endif
 
+#if defined(SYS_WINDOWS)
+void Graphics::setup() {
+}
+#endif
+
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifdef SYS_WINDOWS
 	HWND windowHandle = (HWND)System::windowHandle(windowId);
