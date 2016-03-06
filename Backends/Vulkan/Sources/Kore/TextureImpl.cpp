@@ -16,7 +16,7 @@ extern VkQueue queue;
 extern bool use_staging_buffer;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
-void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set);
+void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
 namespace {
 	void demo_flush_init_cmd() {
@@ -288,7 +288,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	err = vkCreateImageView(device, &view, NULL, &texture.view);
 	assert(!err);
 
-	createDescriptorSet(this, desc_set);
+	createDescriptorSet(this, nullptr, desc_set);
 }
 
 Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {

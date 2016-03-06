@@ -64,9 +64,10 @@ struct DepthBuffer {
 DepthBuffer depth;
 
 Texture* vulkanTextures[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+RenderTarget* vulkanRenderTargets[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
 void createDescriptorLayout();
-void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set);
+void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
 namespace {
 	HWND windowHandle;
@@ -1040,7 +1041,7 @@ void Graphics::init() {
 	}
 
 	createDescriptorLayout();
-	createDescriptorSet(nullptr, desc_set);
+	createDescriptorSet(nullptr, nullptr, desc_set);
 }
 
 unsigned Graphics::refreshRate() {
@@ -1414,6 +1415,7 @@ void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
 
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	vulkanTextures[unit.binding - 2] = texture;
+	vulkanRenderTargets[unit.binding - 2] = nullptr;
 	if (ProgramImpl::current != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
@@ -1456,8 +1458,8 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = NULL;
-	rp_begin.renderPass = render_pass;
-	rp_begin.framebuffer = texture->framebuffers[current_buffer];
+	rp_begin.renderPass = texture->renderPass;
+	rp_begin.framebuffer = texture->framebuffer;
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
 	rp_begin.renderArea.extent.width = width;

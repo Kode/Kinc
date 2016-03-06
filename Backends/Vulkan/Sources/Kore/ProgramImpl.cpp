@@ -19,6 +19,7 @@ extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
 extern VkDescriptorPool desc_pool;
 extern Texture* vulkanTextures[8];
+extern RenderTarget* vulkanRenderTargets[8];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
@@ -273,7 +274,7 @@ void createDescriptorLayout() {
 	assert(!err);
 }
 
-void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set) {
+void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
 	//VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
 	VkDescriptorBufferInfo buffer_descs[2];
 
@@ -286,7 +287,7 @@ void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set) {
 	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
-	if (texture == nullptr) {
+	if (texture == nullptr && renderTarget == nullptr) {
 		createUniformBuffer(bufVertex, mem_allocVertex, memVertex, buffer_infoVertex);
 		createUniformBuffer(bufFragment, mem_allocFragment, memFragment, buffer_infoFragment);
 	}
@@ -307,6 +308,10 @@ void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set) {
 	if (texture != nullptr) {
 		tex_desc.sampler = texture->texture.sampler;
 		tex_desc.imageView = texture->texture.view;
+	}
+	if (renderTarget != nullptr) {
+		tex_desc.sampler = renderTarget->sampler;
+		tex_desc.imageView = renderTarget->view;
 	}
 	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
@@ -336,7 +341,7 @@ void createDescriptorSet(Texture* texture, VkDescriptorSet& desc_set) {
 		writes[i].pImageInfo = &tex_desc;
 	}
 
-	if (texture != nullptr) {
+	if (texture != nullptr || renderTarget != nullptr) {
 		vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
 	}
 	else {
@@ -580,8 +585,10 @@ void Program::set() {
 
 	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-	if (vulkanTextures[0] == nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
-	else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, NULL);
+	if (vulkanRenderTargets[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, NULL);
+	else if (vulkanTextures[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, NULL);
+	else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
+	
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
