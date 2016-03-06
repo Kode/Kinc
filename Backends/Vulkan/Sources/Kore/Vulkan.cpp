@@ -1443,8 +1443,125 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 
 }
 
+void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
+
+namespace {
+	RenderTarget* currentRenderTarget = nullptr;
+	
+	void endPass() {
+		vkCmdEndRenderPass(draw_cmd);
+
+		VkImageMemoryBarrier barrier = {};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.pNext = NULL;
+		barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		barrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		barrier.image = currentRenderTarget == nullptr ? buffers[current_buffer].image : currentRenderTarget->sourceImage;
+
+		vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+
+		if (currentRenderTarget != nullptr) {
+			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+			VkImageBlit imgBlit;
+
+			imgBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			imgBlit.srcSubresource.mipLevel = 0;
+			imgBlit.srcSubresource.baseArrayLayer = 0;
+			imgBlit.srcSubresource.layerCount = 1;
+
+			imgBlit.srcOffsets[0] = { 0, 0, 0 };
+			imgBlit.srcOffsets[1].x = currentRenderTarget->width;
+			imgBlit.srcOffsets[1].y = currentRenderTarget->height;
+			imgBlit.srcOffsets[1].z = 1;
+
+			imgBlit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			imgBlit.dstSubresource.mipLevel = 0;
+			imgBlit.dstSubresource.baseArrayLayer = 0;
+			imgBlit.dstSubresource.layerCount = 1;
+
+			imgBlit.dstOffsets[0] = { 0, 0, 0 };
+			imgBlit.dstOffsets[1].x = currentRenderTarget->width;
+			imgBlit.dstOffsets[1].y = currentRenderTarget->height;
+			imgBlit.dstOffsets[1].z = 1;
+
+			vkCmdBlitImage(draw_cmd, currentRenderTarget->sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTarget->destImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
+
+			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
+
+		/*VkResult err = vkEndCommandBuffer(draw_cmd);
+		assert(!err);
+
+		VkFence nullFence = VK_NULL_HANDLE;
+		VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		VkSubmitInfo submit_info = {};
+		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submit_info.pNext = NULL;
+		submit_info.waitSemaphoreCount = 1;
+		submit_info.pWaitSemaphores = &presentCompleteSemaphore;
+		submit_info.pWaitDstStageMask = &pipe_stage_flags;
+		submit_info.commandBufferCount = 1;
+		submit_info.pCommandBuffers = &draw_cmd;
+		submit_info.signalSemaphoreCount = 0;
+		submit_info.pSignalSemaphores = NULL;
+
+		err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+		assert(!err);
+
+		VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
+		cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+		cmd_buf_hinfo.pNext = NULL;
+		cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
+		cmd_buf_hinfo.subpass = 0;
+		cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
+		cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
+		cmd_buf_hinfo.queryFlags = 0;
+		cmd_buf_hinfo.pipelineStatistics = 0;
+
+		VkCommandBufferBeginInfo cmd_buf_info = {};
+		cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		cmd_buf_info.pNext = NULL;
+		cmd_buf_info.flags = 0;
+		cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+
+		VkClearValue clear_values[2];
+		memset(clear_values, 0, sizeof(VkClearValue) * 2);
+		clear_values[0].color.float32[0] = 0.0f;
+		clear_values[0].color.float32[1] = 0.0f;
+		clear_values[0].color.float32[2] = 0.0f;
+		clear_values[0].color.float32[3] = 1.0f;
+		clear_values[1].depthStencil.depth = depthStencil;
+		clear_values[1].depthStencil.stencil = 0;
+
+		VkRenderPassBeginInfo rp_begin = {};
+		rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		rp_begin.pNext = NULL;
+		rp_begin.renderPass = render_pass;
+		rp_begin.framebuffer = framebuffers[current_buffer];
+		rp_begin.renderArea.offset.x = 0;
+		rp_begin.renderArea.offset.y = 0;
+		rp_begin.renderArea.extent.width = width;
+		rp_begin.renderArea.extent.height = height;
+		rp_begin.clearValueCount = 2;
+		rp_begin.pClearValues = clear_values;
+
+		err = vkBeginCommandBuffer(draw_cmd, &cmd_buf_info);
+		assert(!err);*/
+	}
+}
+
 void Graphics::setRenderTarget(RenderTarget* texture, int num) {
-	vkCmdEndRenderPass(draw_cmd);
+	endPass();
+	
+	currentRenderTarget = texture;
 
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);
@@ -1487,7 +1604,9 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 }
 
 void Graphics::restoreRenderTarget() {
-	vkCmdEndRenderPass(draw_cmd);
+	endPass();
+
+	currentRenderTarget = nullptr;
 
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);

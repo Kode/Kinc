@@ -17,12 +17,17 @@
 namespace Kore {
 	class RenderTargetImpl {
 	public:
-		VkImage image;
-		VkDeviceMemory memory;
+		VkImage destImage;
+		VkDeviceMemory destMemory;
+		VkImageView destView;
+
+		VkImage sourceImage;
+		VkDeviceMemory sourceMemory;
+		VkImageView sourceView;
+
 		VkFramebuffer framebuffer;
 		VkDescriptorSet desc_set;
 		VkSampler sampler;
-		VkImageView view;
 		VkRenderPass renderPass;
 	};
 }

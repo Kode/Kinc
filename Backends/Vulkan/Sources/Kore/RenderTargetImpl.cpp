@@ -11,6 +11,7 @@ extern VkDevice device;
 extern VkRenderPass render_pass;
 extern VkCommandBuffer draw_cmd;
 extern uint32_t swapchainImageCount;
+extern VkPhysicalDevice gpu;
 
 struct SwapchainBuffers {
 	VkImage image;
@@ -33,7 +34,160 @@ extern RenderTarget* vulkanRenderTargets[8];
 void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
+void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
+	VkImageMemoryBarrier imageMemoryBarrier = {};
+	imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	imageMemoryBarrier.pNext = NULL;
+	imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	imageMemoryBarrier.oldLayout = oldImageLayout;
+	imageMemoryBarrier.newLayout = newImageLayout;
+	imageMemoryBarrier.image = image;
+	imageMemoryBarrier.subresourceRange.aspectMask = aspectMask;
+	imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+	imageMemoryBarrier.subresourceRange.levelCount = 1;
+	imageMemoryBarrier.subresourceRange.layerCount = 1;
+
+	if (oldImageLayout == VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+	if (oldImageLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	if (oldImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	if (oldImageLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	if (oldImageLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	if (newImageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	if (newImageLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+		imageMemoryBarrier.srcAccessMask = imageMemoryBarrier.srcAccessMask | VK_ACCESS_TRANSFER_READ_BIT;
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	}
+	if (newImageLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	}
+	if (newImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	if (newImageLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	}
+
+	VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+	vkCmdPipelineBarrier(draw_cmd, srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+}
+
 RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) : width(width), height(height) {
+	{
+		VkFormatProperties formatProperties;
+		VkResult err;
+
+		vkGetPhysicalDeviceFormatProperties(gpu, VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
+		assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT);
+
+		VkImageCreateInfo imageCreateInfo = {};
+		imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		imageCreateInfo.pNext = NULL;
+		imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+		imageCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+		imageCreateInfo.extent = { (uint32_t)width, (uint32_t)height, 1 };
+		imageCreateInfo.mipLevels = 1;
+		imageCreateInfo.arrayLayers = 1;
+		imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		imageCreateInfo.flags = 0;
+
+		err = vkCreateImage(device, &imageCreateInfo, nullptr, &destImage);
+		assert(!err);
+
+		VkMemoryRequirements memoryRequirements;
+		vkGetImageMemoryRequirements(device, destImage, &memoryRequirements);
+
+		VkMemoryAllocateInfo allocationInfo = {};
+		allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocationInfo.pNext = nullptr;
+		allocationInfo.memoryTypeIndex = 0;
+				
+		vkGetImageMemoryRequirements(device, destImage, &memoryRequirements);
+		allocationInfo.allocationSize = memoryRequirements.size;
+		bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
+		assert(pass);
+		err = vkAllocateMemory(device, &allocationInfo, nullptr, &destMemory);
+		assert(!err);
+		err = vkBindImageMemory(device, destImage, destMemory, 0);
+		assert(!err);
+
+		setImageLayout(destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+		VkImageViewCreateInfo view = {};
+		view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		view.pNext = nullptr;
+		view.image = VK_NULL_HANDLE;
+		view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		view.format = VK_FORMAT_R8G8B8A8_UNORM;
+		view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+		view.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		view.image = destImage;
+		err = vkCreateImageView(device, &view, nullptr, &destView);
+		assert(!err);
+	}
+
+	{
+		VkResult err;
+
+		VkImageCreateInfo image = {};
+		image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		image.pNext = nullptr;
+		image.imageType = VK_IMAGE_TYPE_2D;
+		image.format = VK_FORMAT_R8G8B8A8_UNORM;
+		image.extent.width = width;
+		image.extent.height = height;
+		image.mipLevels = 1;
+		image.arrayLayers = 1;
+		image.samples = VK_SAMPLE_COUNT_1_BIT;
+		image.tiling = VK_IMAGE_TILING_OPTIMAL;
+		image.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+		image.flags = 0;
+
+		VkImageViewCreateInfo colorImageView = {};
+		colorImageView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		colorImageView.pNext = nullptr;
+		colorImageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		colorImageView.format = VK_FORMAT_R8G8B8A8_UNORM;
+		colorImageView.flags = 0;
+		colorImageView.subresourceRange = {};
+		colorImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		colorImageView.subresourceRange.baseMipLevel = 0;
+		colorImageView.subresourceRange.levelCount = 1;
+		colorImageView.subresourceRange.baseArrayLayer = 0;
+		colorImageView.subresourceRange.layerCount = 1;
+
+		err = vkCreateImage(device, &image, nullptr, &sourceImage);
+		assert(!err);
+		
+		VkMemoryRequirements memoryRequirements;
+		vkGetImageMemoryRequirements(device, sourceImage, &memoryRequirements);
+
+		VkMemoryAllocateInfo allocationInfo = {};
+		allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocationInfo.pNext = nullptr;
+		allocationInfo.memoryTypeIndex = 0;
+
+		vkGetImageMemoryRequirements(device, sourceImage, &memoryRequirements);
+		allocationInfo.allocationSize = memoryRequirements.size;
+		bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
+		assert(pass);
+
+		err = vkAllocateMemory(device, &allocationInfo, nullptr, &sourceMemory);
+		assert(!err);
+
+		err = vkBindImageMemory(device, sourceImage, sourceMemory, 0);
+		assert(!err);
+		setImageLayout(sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+		colorImageView.image = sourceImage;
+		err = vkCreateImageView(device, &colorImageView, nullptr, &sourceView);
+		assert(!err);
+	}
+
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerInfo.pNext = nullptr;
@@ -45,7 +199,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.mipLodBias = 0.0f;
 	samplerInfo.anisotropyEnable = VK_FALSE;
-	samplerInfo.maxAnisotropy = 1;
+	samplerInfo.maxAnisotropy = 0;
 	samplerInfo.compareOp = VK_COMPARE_OP_NEVER;
 	samplerInfo.minLod = 0.0f;
 	samplerInfo.maxLod = 0.0f;
@@ -55,7 +209,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	VkResult err = vkCreateSampler(device, &samplerInfo, nullptr, &sampler);
 	assert(!err);
 
-	VkImageCreateInfo imageInfo = {};
+	/*VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	imageInfo.pNext = nullptr;
 	imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -65,7 +219,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	imageInfo.arrayLayers = 1;
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-	imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+	imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	imageInfo.flags = 0;
 
 	err = vkCreateImage(device, &imageInfo, NULL, &image);
@@ -107,7 +261,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	viewInfo.flags = 0;
 	
 	err = vkCreateImageView(device, &viewInfo, nullptr, &view);
-	assert(!err);
+	assert(!err);*/
 
 	VkAttachmentReference colorReference = {};
 	colorReference.attachment = 0;
@@ -148,17 +302,18 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	err = vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass);
 	assert(!err);
 	
-	VkFramebufferCreateInfo fb_info = {};
-	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	fb_info.pNext = nullptr;
-	fb_info.renderPass = renderPass;
-	fb_info.attachmentCount = 1;
-	fb_info.pAttachments = &view;
-	fb_info.width = width;
-	fb_info.height = height;
-	fb_info.layers = 1;
+	VkFramebufferCreateInfo fbufCreateInfo = {};
+	fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	fbufCreateInfo.pNext = nullptr;
+	fbufCreateInfo.renderPass = renderPass;
+	fbufCreateInfo.attachmentCount = 1;
+	fbufCreateInfo.pAttachments = &sourceView;
+	fbufCreateInfo.width = width;
+	fbufCreateInfo.height = height;
+	fbufCreateInfo.layers = 1;
 
-	vkCreateFramebuffer(device, &fb_info, nullptr, &framebuffer);
+	err = vkCreateFramebuffer(device, &fbufCreateInfo, nullptr, &framebuffer);
+	assert(!err);
 
 	createDescriptorSet(nullptr, this, desc_set);
 }

@@ -311,7 +311,7 @@ void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescrip
 	}
 	if (renderTarget != nullptr) {
 		tex_desc.sampler = renderTarget->sampler;
-		tex_desc.imageView = renderTarget->view;
+		tex_desc.imageView = renderTarget->destView;
 	}
 	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
