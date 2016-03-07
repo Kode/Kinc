@@ -84,3 +84,7 @@ void Kore::System::makeCurrent(int contextId) {
     appstate::currentDeviceId = contextId;
     Graphics::makeCurrent(contextId);
 }
+
+void Kore::System::clearCurrent() {
+    appstate::currentDeviceId = -1;
+}
