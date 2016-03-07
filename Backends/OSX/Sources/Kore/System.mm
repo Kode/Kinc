@@ -99,9 +99,6 @@ void Graphics::makeCurrent(int contextId) {
     [[windows[contextId]->view openGLContext] makeCurrentContext];
 }
 
-void System::clearCurrent() {
-}
-
 int Kore::System::windowWidth(int id) {
     return windows[id]->width;
 }
