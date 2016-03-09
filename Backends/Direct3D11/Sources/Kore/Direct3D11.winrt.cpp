@@ -317,6 +317,18 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 	sampler->Release();
 }
 
+// (DK) fancy macro's to generate a clickable warning message in visual studio, can be removed when setColorMask() is implemented
+#define Stringize( L )			#L
+#define MakeString( M, L )		M(L)
+#define $Line					\
+	MakeString( Stringize, __LINE__ )
+#define Warning				\
+	__FILE__ "(" $Line ") : warning: "
+
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+#pragma message(Warning "(DK) Robert, please implement d3d11's version of setColorMask() here")
+}
+
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	if (flags & ClearColorFlag) {
 		const float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f };

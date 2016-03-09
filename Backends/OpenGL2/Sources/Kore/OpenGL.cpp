@@ -460,6 +460,10 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	glClear(oglflags);
 }
 
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+	glColorMask(red, green, blue, alpha);
+}
+
 void Graphics::setRenderState(RenderState state, bool on) {
 	switch (state) {
 	case DepthWrite:
