@@ -273,6 +273,16 @@ namespace {
 	}
 }
 
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+	DWORD flags = 0;
+	if (red) flags |= D3DCOLORWRITEENABLE_RED;
+	if (green) flags |= D3DCOLORWRITEENABLE_GREEN;
+	if (blue) flags |= D3DCOLORWRITEENABLE_BLUE;
+	if (alpha) flags |= D3DCOLORWRITEENABLE_ALPHA;
+
+	device->SetRenderState(D3DRS_COLORWRITEENABLE, flags);
+}
+
 void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
 	device->SetTextureStageState(0, D3DTSS_COLOROP, convert(operation));
 	device->SetTextureStageState(0, D3DTSS_COLORARG1, convert(arg1));
