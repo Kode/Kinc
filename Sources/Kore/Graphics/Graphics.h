@@ -186,6 +186,7 @@ namespace Kore {
 		void setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		void setBlendingMode(BlendingOperation source, BlendingOperation destination);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
+		void setColorMask(bool red, bool green, bool blue, bool alpha);
 
 		bool vsynced();
 		unsigned refreshRate();
