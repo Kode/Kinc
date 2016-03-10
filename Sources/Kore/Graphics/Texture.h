@@ -21,6 +21,9 @@ namespace Kore {
 #ifdef SYS_IOS
 		void upload(u8* data);
 #endif
+		void generateMipmaps(int levels);
+		void setMipmap(Texture* mipmap, int level);
+		
 		int stride();
 		int texWidth;
 		int texHeight;

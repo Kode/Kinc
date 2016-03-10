@@ -156,3 +156,11 @@ void Texture::unlock() {
 int Texture::stride() {
 	return 1;
 }
+
+void Texture::generateMipmaps(int levels) {
+
+}
+
+void Texture::setMipmap(Texture* mipmap, int level) {
+
+}
