@@ -83,3 +83,11 @@ void Texture::upload(u8* data) {
 
 }
 #endif
+
+void Texture::generateMipmaps(int levels) {
+
+}
+
+void Texture::setMipmap(Texture* mipmap, int level) {
+
+}

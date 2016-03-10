@@ -362,3 +362,13 @@ void Texture::upload(u8* data) {
 	glCheckErrors();
 }
 #endif
+
+void Texture::generateMipmaps(int levels) {
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void Texture::setMipmap(Texture* mipmap, int level) {
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, level, convert(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertInternal(mipmap->format), GL_UNSIGNED_BYTE, mipmap->data);
+}

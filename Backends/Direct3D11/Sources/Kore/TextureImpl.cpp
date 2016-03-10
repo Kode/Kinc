@@ -101,3 +101,11 @@ void Texture::unlock() {
 int Texture::stride() {
 	return format == Image::RGBA32 ? width * 4 : width;
 }
+
+void Texture::generateMipmaps(int levels) {
+
+}
+
+void Texture::setMipmap(Texture* mipmap, int level) {
+
+}

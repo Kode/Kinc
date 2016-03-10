@@ -308,3 +308,11 @@ u8* Texture::lock() {
 void Texture::unlock() {
 
 }
+
+void Texture::generateMipmaps(int levels) {
+
+}
+
+void Texture::setMipmap(Texture* mipmap, int level) {
+
+}
