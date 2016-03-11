@@ -11,15 +11,15 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	this->contextId = contextId;
 	D3DFORMAT d3dformat;
 	switch (format) {
-	case Target32Bit:
-		d3dformat = D3DFMT_A8R8G8B8;
-		break;
 	case Target64BitFloat:
 		d3dformat = D3DFMT_A16B16G16R16F;
 		break;
 	case Target32BitRedFloat:
 		d3dformat = D3DFMT_R32F;
 		break;
+	case Target32Bit:
+	default:
+		d3dformat = D3DFMT_A8R8G8B8;
 	}
 
 #if defined(_DEBUG)
