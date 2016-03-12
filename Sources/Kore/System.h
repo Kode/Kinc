@@ -24,8 +24,8 @@ namespace Kore {
 		int initWindow( WindowOptions options );
 		void destroyWindow(int id);
 		void* windowHandle(int windowId);
-		int windowWidth(int id);
-		int windowHeight(int id);
+		int windowWidth(int id = 0);
+		int windowHeight(int id = 0);
 		int windowCount();
 
 		void changeResolution(int width, int height, bool fullscreen);
