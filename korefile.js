@@ -144,6 +144,7 @@ else if (platform === Platform.Pi) {
 	project.addDefine('OPENGL');
 	project.addDefine('SYS_UNIXOID');
 	project.addDefine('SYS_PI');
+	project.addIncludeDir('opt/vc/include');
 }
 else if (platform === Platform.Tizen) {
 	addBackend('Tizen');

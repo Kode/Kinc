@@ -174,7 +174,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #if defined(SYS_IOS)
 	glGenVertexArraysOES(1, &arrayId[windowId]);
 	glCheckErrors();
-#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN) && !defined(SYS_PI)
 	glGenVertexArrays(1, &arrayId[windowId]);
 	glCheckErrors();
 #endif
@@ -580,7 +580,7 @@ void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 #if defined(SYS_IOS)
 	glBindVertexArrayOES(arrayId[0]);
 	glCheckErrors();
-#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN)
+#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN) && !defined(SYS_PI)
 	glBindVertexArray(arrayId[System::currentDevice()]);
 	glCheckErrors();
 #endif

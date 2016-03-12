@@ -166,9 +166,9 @@ namespace Kore {
 
 		// TODO (DK) windowId should be renamed contextId?
 		void setup();
-		void swapBuffers(int windowId);
-		void begin(int windowId);
-		void end(int windowId);
+		void swapBuffers(int windowId = 0);
+		void begin(int windowId = 0);
+		void end(int windowId = 0);
 		void makeCurrent(int windowId);
 		void clearCurrent();
 
