@@ -141,10 +141,13 @@ else if (platform === Platform.Linux) {
 else if (platform === Platform.Pi) {
 	addBackend('Pi');
 	addBackend('OpenGL2');
+	project.addExclude('Backends/OpenGL2/Sources/GL/**');
 	project.addDefine('OPENGL');
 	project.addDefine('SYS_UNIXOID');
 	project.addDefine('SYS_PI');
-	project.addIncludeDir('opt/vc/include');
+	project.addIncludeDir('/opt/vc/include');
+	project.addIncludeDir('/opt/vc/include/interface/vcos/pthreads');
+	project.addIncludeDir('/opt/vc/include/interface/vmcs_host/linux');
 }
 else if (platform === Platform.Tizen) {
 	addBackend('Tizen');
