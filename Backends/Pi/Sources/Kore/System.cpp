@@ -59,6 +59,9 @@ int
 createWindow( const char * title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits ) {
     bcm_host_init();
 
+    //uint32_t screen_width = 640;
+    //uint32_t screen_height = 480;
+
     int32_t success = 0;
     EGLBoolean result;
     EGLint num_config;
@@ -124,9 +127,14 @@ createWindow( const char * title, int x, int y, int width, int height, Kore::Win
     dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
     dispman_update = vc_dispmanx_update_start( 0 );
 
+    VC_DISPMANX_ALPHA_T alpha = {};
+    alpha.flags = (DISPMANX_FLAGS_ALPHA_T)(DISPMANX_FLAGS_ALPHA_FROM_SOURCE | DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS);
+    alpha.opacity = 100; /*alpha 0->255*/
+    alpha.mask = 0;
+
     dispman_element = vc_dispmanx_element_add ( dispman_update, dispman_display,
       0/*layer*/, &dst_rect, 0/*src*/,
-      &src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
+      &src_rect, DISPMANX_PROTECTION_NONE, &alpha, 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
 
     nativewindow.element = dispman_element;
     nativewindow.width = screen_width;
@@ -224,6 +232,7 @@ void Kore::System::clearCurrent() {
 }
 
 void Kore::System::swapBuffers( int contextId ) {
+    printf("Switch buffers\n");
     eglSwapBuffers(display, surface);
 }
 

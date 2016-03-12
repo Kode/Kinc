@@ -38,7 +38,7 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 		}
 	}
 	this->structure = structure;
-	
+
 	glGenBuffers(1, &bufferId);
 	glCheckErrors();
 	data = new float[vertexCount * myStride / 4];
@@ -164,7 +164,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		}
 	}
 	for (int index = actualIndex; index < 16; ++index) {
-		glDisableVertexAttribArray(offset + index);
+		//glDisableVertexAttribArray(offset + index);
 		glCheckErrors();
 	}
 	return actualIndex;

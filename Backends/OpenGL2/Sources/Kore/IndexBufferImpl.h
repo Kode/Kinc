@@ -9,7 +9,7 @@ namespace Kore {
 		IndexBufferImpl(int count);
 		void unset();
 	
-#ifdef SYS_ANDROID
+#if defined(SYS_ANDROID) || defined(SYS_PI)
 		u16* shortData;
 #endif
 		int* data;

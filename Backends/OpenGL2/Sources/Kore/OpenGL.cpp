@@ -241,11 +241,12 @@ void Graphics::drawIndexedVertices() {
 
 void Graphics::drawIndexedVertices(int start, int count) {
 #ifdef OPENGLES
-#ifdef SYS_ANDROID
+#if defined(SYS_ANDROID) || defined(SYS_PI)
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void*)(start * sizeof(GL_UNSIGNED_SHORT)));
 #else
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 #endif
+    glCheckErrors();
 #else
 	if (programUsesTesselation) {
 		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
@@ -395,13 +396,13 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 	}
 }
 
-void glCheckErrors() {
+/*void glCheckErrors() {
 	if (System::currentDevice() == -1) {
 		log(Warning, "no OpenGL device context is set");
 		return;
 	}
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	GLenum code = glGetError();
 	while (code != GL_NO_ERROR) {
 		//std::printf("GLError: %s\n", glewGetErrorString(code));
@@ -418,8 +419,8 @@ void glCheckErrors() {
 		}
 		code = glGetError();
 	}
-#endif
-}
+//#endif
+}*/
 
 #if defined(SYS_WINDOWS)
 void Graphics::clearCurrent() {
@@ -446,18 +447,23 @@ void Graphics::end(int windowId) {
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, (color & 0xff000000) / 255.0f);
+	glCheckErrors();
 #ifdef OPENGLES
 	glClearDepthf(depth);
 #else
 	glClearDepth(depth);
 #endif
+    glCheckErrors();
 	glStencilMask(0xff);
+	glCheckErrors();
 	glClearStencil(stencil);
+	glCheckErrors();
 	GLbitfield oglflags =
 		  ((flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0)
 		| ((flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT : 0)
 		| ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT: 0);
 	glClear(oglflags);
+	glCheckErrors();
 }
 
 void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
@@ -482,7 +488,7 @@ void Graphics::setRenderState(RenderState state, bool on) {
 		break;
 	}
 
-	//glCheckErrors();
+	glCheckErrors();
 
 	/*switch (state) {
 		case Normalize:
@@ -522,6 +528,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 			case ZCompareGreaterEqual: v = GL_GEQUAL; break;
 		}
 		glDepthFunc(v);
+		glCheckErrors();
 		break;
 	case BackfaceCulling:
 		switch (v) {
@@ -626,10 +633,12 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 		glTexParameteri(GL_TEXTURE_2D, texDir, GL_REPEAT);
 		break;
 	}
+	glCheckErrors();
 }
 
 void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
 	glActiveTexture(GL_TEXTURE0 + texunit.unit);
+	glCheckErrors();
 	switch (filter) {
 	case PointFilter:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -639,11 +648,13 @@ void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		break;
 	}
+	glCheckErrors();
 }
 
 namespace {
 	void setMinMipFilters(int unit) {
 		glActiveTexture(GL_TEXTURE0 + unit);
+		glCheckErrors();
 		switch (minFilters[System::currentDevice()][unit]) {
 		case PointFilter:
 			switch (mipFilters[System::currentDevice()][unit]) {
@@ -673,6 +684,7 @@ namespace {
 			}
 			break;
 		}
+		glCheckErrors();
 	}
 }
 
@@ -713,6 +725,7 @@ void Graphics::setTextureOperation(TextureOperation operation, TextureArgument a
 
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
 	glBlendFunc(convert(source), convert(destination));
+	glCheckErrors();
 }
 
 void Graphics::setRenderTarget(RenderTarget* texture, int num) {
@@ -742,4 +755,5 @@ bool Graphics::nonPow2TexturesSupported() {
 
 void Graphics::flush() {
 	glFlush();
+	glCheckErrors();
 }

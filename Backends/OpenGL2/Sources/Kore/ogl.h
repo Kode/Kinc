@@ -52,4 +52,8 @@
 #define OPENGLES
 #endif
 
-void glCheckErrors();
+//void glCheckErrors();
+
+#include <stdio.h>
+
+#define glCheckErrors() { GLenum code = glGetError(); while (code != GL_NO_ERROR) { printf("GL Error %d %s %d\n", code, __FILE__, __LINE__); } }
