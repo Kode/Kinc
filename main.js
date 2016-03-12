@@ -52,6 +52,8 @@ function fromPlatform(platform) {
 			return "HTML5";
 		case Platform.Tizen:
 			return "Tizen";
+		case Platform.Pi:
+			return "Pi";
 		default:
 			return "unknown";
 	}
@@ -107,6 +109,8 @@ function shaderLang(platform) {
 		case Platform.HTML5:
 			return "essl";
 		case Platform.Tizen:
+			return "essl";
+		case Platform.Pi:
 			return "essl";
 		default:
 			return platform;
@@ -169,7 +173,7 @@ function exportKoremakeProject(from, to, platform, options) {
 	if (platform == Platform.iOS || platform == Platform.OSX) exporter = new ExporterXCode();
 	else if (platform == Platform.Android) exporter = new ExporterAndroid();
 	else if (platform == Platform.HTML5) exporter = new ExporterEmscripten();
-	else if (platform == Platform.Linux) {
+	else if (platform == Platform.Linux || platform === Platform.Pi) {
 		if (options.compile) exporter = new ExporterMakefile();
 		else exporter = new ExporterCodeBlocks();
 	}
