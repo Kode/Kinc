@@ -43,6 +43,10 @@ const char* macgetresourcepath();
 #include <FApp.h>
 #endif
 
+#ifdef SYS_PI
+#define SYS_LINUX
+#endif
+
 using namespace Kore;
 
 #ifdef SYS_ANDROID
