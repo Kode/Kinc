@@ -4,6 +4,7 @@ const Exporter = require('./Exporter.js');
 const Files = require('./Files.js');
 const Paths = require('./Paths.js');
 const fs = require('fs');
+const Platform = require('./Platform.js');
 
 class ExporterCodeBlocks extends Exporter {
 	constructor() {
@@ -62,11 +63,20 @@ class ExporterCodeBlocks extends Exporter {
 		this.p("<Add option=\"-pthread\" />", 3);
 		this.p("<Add option=\"-static-libgcc\" />", 3);
 		this.p("<Add option=\"-static-libstdc++\" />", 3);
-		this.p("<Add library=\"GL\" />", 3);
-		this.p("<Add library=\"X11\" />", 3);
-		this.p("<Add library=\"asound\" />", 3);
-		this.p("<Add library=\"dl\" />", 3);
-		this.p("<Add library=\"Xinerama\" />", 3);
+		if (platform === Platform.Pi) {
+			this.p("<Add library=\"dl\" />", 3);
+			this.p("<Add library=\"GLESv2\" />", 3);
+			this.p("<Add library=\"EGL\" />", 3);
+			this.p("<Add library=\"bcm_host\" />", 3);
+			this.p("<Add directory=\"/opt/vc/lib\" />", 3);
+		}
+		else {
+			this.p("<Add library=\"GL\" />", 3);
+			this.p("<Add library=\"X11\" />", 3); 
+			this.p("<Add library=\"asound\" />", 3);
+			this.p("<Add library=\"dl\" />", 3);
+			this.p("<Add library=\"Xinerama\" />", 3);
+		}
 		this.p("</Linker>", 2);
 		for (let file of project.getFiles()) {
 			if (file.endsWith(".c") || file.endsWith(".cpp")) {
