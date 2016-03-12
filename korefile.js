@@ -138,6 +138,13 @@ else if (platform === Platform.Linux) {
 	}
 	project.addDefine('SYS_UNIXOID');
 }
+else if (platform === Platform.Pi) {
+	addBackend('Pi');
+	addBackend('OpenGL2');
+	project.addDefine('OPENGL');
+	project.addDefine('SYS_UNIXOID');
+	project.addDefine('SYS_PI');
+}
 else if (platform === Platform.Tizen) {
 	addBackend('Tizen');
 	addBackend('OpenGL2');
