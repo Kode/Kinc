@@ -33,7 +33,7 @@
 #ifdef SYS_LINUX
 #include <X11/X.h>
 #include <X11/Xlib.h>
-#define GL_GLEXT_PROTOTYPES#define OPENGLES
+#define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
