@@ -151,6 +151,9 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	case Target128BitFloat:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 		break;
+    case Target16BitDepth:
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+        break;
 	case Target32Bit:
 	default:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -171,7 +174,18 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
     setup_gl2_buffers(depthBufferBits, stencilBufferBits, texWidth, texHeight);
 #endif
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
+#ifndef OPENGLES
+    if (format == Target16BitDepth) {
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _texture, 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    }
+    else {
+#endif
+	   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
+#ifndef OPENGLES
+    }
+#endif
 	glCheckErrors();
 	//GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
 	//glDrawBuffers(1, drawBuffers);
