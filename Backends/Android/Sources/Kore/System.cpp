@@ -363,16 +363,16 @@ void pauseAudio();
 void resumeAudio();
 
 namespace {
-	android_app* app;
-	ANativeActivity* activity;
-	ASensorManager* sensorManager;
-	const ASensor* accelerometerSensor;
-	const ASensor* gyroSensor;
-	ASensorEventQueue* sensorEventQueue;
+	android_app* app = nullptr;
+	ANativeActivity* activity = nullptr;
+	ASensorManager* sensorManager = nullptr;
+	const ASensor* accelerometerSensor = nullptr;
+	const ASensor* gyroSensor = nullptr;
+	ASensorEventQueue* sensorEventQueue = nullptr;
 	bool shift = false;
 	//int screenRotation = 0;
 
-	ndk_helper::GLContext* glContext;
+	ndk_helper::GLContext* glContext = nullptr;
 	
 	bool started = false;
 	bool paused = true;
@@ -914,6 +914,7 @@ void Kore::Mouse::getPosition(int windowId, int& x, int& y) {
 }
 
 void initAndroidFileReader();
+void KoreAndroidVideoInit();
 
 extern "C" void android_main(android_app* app) {
 	app_dummy();
@@ -921,6 +922,7 @@ extern "C" void android_main(android_app* app) {
 	::app = app;
 	activity = app->activity;
 	initAndroidFileReader();
+	KoreAndroidVideoInit();
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
 

@@ -45,7 +45,8 @@ bool VideoSoundStream::ended() {
 #if SYS_ANDROID_API >= 15
 
 namespace {
-	Video* videos[] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	const int videosCount = 10;
+	Video* videos[videosCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	
 	#define NB_MAXAL_INTERFACES 3 // XAAndroidBufferQueueItf, XAStreamInformationItf and XAPlayItf
 	#define NB_BUFFERS 8
@@ -469,6 +470,24 @@ extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nati
 #endif
 }
 
+void KoreAndroidVideoInit() {
+	JNIEnv* env;
+	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+
+	jclass clazz = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
+
+	// String path, Surface surface, int id
+	JNINativeMethod methodTable[] = {
+			{"nativeCreate", "(Ljava/lang/String;Landroid/view/Surface;I)V", (void*)Java_com_ktxsoftware_kore_KoreMoviePlayer_nativeCreate}
+	};
+
+	int methodTableSize = sizeof(methodTable) / sizeof(methodTable[0]);
+
+	env->RegisterNatives(clazz, methodTable, methodTableSize);
+
+	KoreAndroid::getActivity()->vm->DetachCurrentThread();
+}
+
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
 #if SYS_ANDROID_API >= 15
 	Kore::log(Kore::Info, "Opening video %s.", filename);
@@ -478,8 +497,8 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	next = 0;
 	audioTime = 0;
 
-	JNIEnv* env;
-	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, NULL);
+	JNIEnv* env = nullptr;
+	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
 	jmethodID constructor = env->GetMethodID(koreMoviePlayerClass, "<init>", "(Ljava/lang/String;)V");
 	jobject object = env->NewObject(koreMoviePlayerClass, constructor, env->NewStringUTF(filename));
@@ -487,7 +506,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	jmethodID getId = env->GetMethodID(koreMoviePlayerClass, "getId", "()I");
 	id = env->CallIntMethod(object, getId);
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < videosCount; ++i) {
 		if (videos[i] == nullptr) {
 			videos[i] = this;
 			break;
