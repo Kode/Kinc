@@ -855,9 +855,9 @@ double Kore::System::time() {
 bool Kore::System::handleMessages() {
 	int ident;
 	int events;
-	android_poll_source* source;
+	android_poll_source *source;
 
-	while ((ident = ALooper_pollAll(paused ? -1 : 0, NULL, &events, (void**)&source)) >= 0) {
+	while ((ident = ALooper_pollAll(paused ? -1 : 0, NULL, &events, (void **) &source)) >= 0) {
 		if (source != NULL) {
 			source->process(app, source);
 		}
@@ -866,11 +866,13 @@ bool Kore::System::handleMessages() {
 			if (accelerometerSensor != NULL) {
 				ASensorEvent event;
 				while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0) {
-					if(event.type == ASENSOR_TYPE_ACCELEROMETER) {
-						Kore::Sensor::_changed(Kore::SensorAccelerometer, event.acceleration.x, event.acceleration.y, event.acceleration.z);
+					if (event.type == ASENSOR_TYPE_ACCELEROMETER) {
+						Kore::Sensor::_changed(Kore::SensorAccelerometer, event.acceleration.x,
+											   event.acceleration.y, event.acceleration.z);
 					}
 					else if (event.type == ASENSOR_TYPE_GYROSCOPE) {
-						Kore::Sensor::_changed(Kore::SensorGyroscope, event.vector.x, event.vector.x, event.vector.z);
+						Kore::Sensor::_changed(Kore::SensorGyroscope, event.vector.x,
+											   event.vector.x, event.vector.z);
 					}
 				}
 			}
@@ -878,9 +880,20 @@ bool Kore::System::handleMessages() {
 
 		if (app->destroyRequested != 0) {
 			termDisplay();
-            Kore::System::stop();
+			Kore::System::stop();
 			return true;
 		}
+	}
+
+	{
+		JNIEnv* env = nullptr;
+		KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+		jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
+
+		jmethodID updateAll = env->GetStaticMethodID(koreMoviePlayerClass, "updateAll", "()V");
+		env->CallStaticVoidMethod(koreMoviePlayerClass, updateAll);
+
+		KoreAndroid::getActivity()->vm->DetachCurrentThread();
 	}
 
 	// Get screen rotation

@@ -299,8 +299,9 @@ void Graphics::begin(int contextId) {
 	if (System::currentDevice() != -1) {
 		if (System::currentDevice() != contextId) {
 			log(Warning, "begin: wrong glContext is active");
-		} else {
-			log(Warning, "begin: a glContext is still active");
+		}
+		else {
+			//**log(Warning, "begin: a glContext is still active");
 		}
 
 		//return; // TODO (DK) return here?

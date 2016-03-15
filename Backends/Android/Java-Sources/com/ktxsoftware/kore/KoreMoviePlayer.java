@@ -30,6 +30,12 @@ public class KoreMoviePlayer {
 	public boolean update() {
 		return movieTexture.update();
 	}
+
+	public static void updateAll() {
+		for (KoreMoviePlayer player : KoreMoviePlayer.players) {
+			player.update();
+		}
+	}
 	
 	public int getTextureId() {
 		return movieTexture.textureId;
