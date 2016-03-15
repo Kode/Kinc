@@ -34,6 +34,7 @@ class ExporterAndroid extends Exporter {
 		fs.copySync(path.join(indir, 'gradle.properties'), path.join(outdir, 'gradle.properties'));
 		fs.copySync(path.join(indir, 'gradlew'), path.join(outdir, 'gradlew'));
 		fs.copySync(path.join(indir, 'gradlew.bat'), path.join(outdir, 'gradlew.bat'));
+		fs.copySync(path.join(indir, 'local.properties'), path.join(outdir, 'local.properties'));
 		fs.copySync(path.join(indir, 'settings.gradle'), path.join(outdir, 'settings.gradle'));
 
 		let nameiml = fs.readFileSync(path.join(indir, 'name.iml'), {encoding: 'utf8'});
