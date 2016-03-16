@@ -43,6 +43,7 @@ int kore(int argc, char** argv);
 	
 	//glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::max(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
 	GLViewController* glViewController = [[GLViewController alloc] init];
+	glViewController.view.multipleTouchEnabled = YES;
 	//glViewController.view = glView;
 	//[glViewController ]
 	//[window addSubview:glView];
