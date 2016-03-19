@@ -113,7 +113,7 @@ namespace {
 
 	VkPhysicalDeviceMemoryProperties memory_properties;
 
-	bool validate;
+	const bool validate = true;
 	PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallback;
 	PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportCallback;
 	VkDebugReportCallbackEXT msg_callback;
@@ -127,12 +127,10 @@ namespace {
 
 	VkSemaphore presentCompleteSemaphore;
 
-	VkBool32 demo_check_layers(uint32_t check_count, char **check_names,
-		uint32_t layer_count,
-		VkLayerProperties *layers) {
-		for (uint32_t i = 0; i < check_count; i++) {
+	VkBool32 demo_check_layers(uint32_t check_count, char **check_names, uint32_t layer_count, VkLayerProperties *layers) {
+		for (uint32_t i = 0; i < check_count; ++i) {
 			VkBool32 found = 0;
-			for (uint32_t j = 0; j < layer_count; j++) {
+			for (uint32_t j = 0; j < layer_count; ++j) {
 				if (!strcmp(check_names[i], layers[j].layerName)) {
 					found = 1;
 					break;
@@ -345,13 +343,15 @@ void Graphics::init() {
 	//demo->enabled_layer_count = 0;
 
 	char *instance_validation_layers[] = {
-		"VK_LAYER_LUNARG_mem_tracker",
-		"VK_LAYER_GOOGLE_unique_objects",
+		//"VK_LAYER_LUNARG_mem_tracker",
+		//"VK_LAYER_GOOGLE_unique_objects",
+		"VK_LAYER_LUNARG_standard_validation"
 	};
 
-	device_validation_layers[0] = "VK_LAYER_LUNARG_mem_tracker";
-	device_validation_layers[1] = "VK_LAYER_GOOGLE_unique_objects";
-	device_validation_layer_count = 2;
+	//device_validation_layers[0] = "VK_LAYER_LUNARG_mem_tracker";
+	//device_validation_layers[1] = "VK_LAYER_GOOGLE_unique_objects";
+	device_validation_layers[0] = "VK_LAYER_LUNARG_standard_validation";
+	device_validation_layer_count = 1;
 
 	VkBool32 validation_found = 0;
 	VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
@@ -440,16 +440,16 @@ void Graphics::init() {
 	}
 	VkApplicationInfo app = {};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	app.pNext = NULL,
-		app.pApplicationName = Application::the()->name();
+	app.pNext = nullptr,
+	app.pApplicationName = Application::the()->name();
 	app.applicationVersion = 0;
 	app.pEngineName = "Kore";
 	app.engineVersion = 0;
-	app.apiVersion = VK_API_VERSION;
+	app.apiVersion = VK_MAKE_VERSION(1, 0, 3); //VK_API_VERSION;
 
 	VkInstanceCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	info.pNext = NULL;
+	info.pNext = nullptr;
 	info.pApplicationInfo = &app;
 	info.enabledLayerCount = enabled_layer_count;
 	info.ppEnabledLayerNames = (const char *const *)instance_validation_layers;
