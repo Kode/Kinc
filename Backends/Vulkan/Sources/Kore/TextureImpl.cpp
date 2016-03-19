@@ -141,6 +141,7 @@ namespace {
 		image_create_info.tiling = tiling;
 		image_create_info.usage = usage;
 		image_create_info.flags = 0;
+		image_create_info.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
 
 		VkMemoryAllocateInfo mem_alloc = {};
 		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;

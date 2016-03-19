@@ -94,14 +94,10 @@ namespace {
 	int width, height;
 	VkColorSpaceKHR color_space;
 
-	PFN_vkGetPhysicalDeviceSurfaceSupportKHR
-		fpGetPhysicalDeviceSurfaceSupportKHR;
-	PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
-		fpGetPhysicalDeviceSurfaceCapabilitiesKHR;
-	PFN_vkGetPhysicalDeviceSurfaceFormatsKHR
-		fpGetPhysicalDeviceSurfaceFormatsKHR;
-	PFN_vkGetPhysicalDeviceSurfacePresentModesKHR
-		fpGetPhysicalDeviceSurfacePresentModesKHR;
+	PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;
+	PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fpGetPhysicalDeviceSurfaceCapabilitiesKHR;
+	PFN_vkGetPhysicalDeviceSurfaceFormatsKHR fpGetPhysicalDeviceSurfaceFormatsKHR;
+	PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fpGetPhysicalDeviceSurfacePresentModesKHR;
 	PFN_vkCreateSwapchainKHR fpCreateSwapchainKHR;
 	PFN_vkDestroySwapchainKHR fpDestroySwapchainKHR;
 	PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
@@ -127,7 +123,7 @@ namespace {
 
 	VkSemaphore presentCompleteSemaphore;
 
-	VkBool32 demo_check_layers(uint32_t check_count, char **check_names, uint32_t layer_count, VkLayerProperties *layers) {
+	VkBool32 demo_check_layers(uint32_t check_count, char** check_names, uint32_t layer_count, VkLayerProperties* layers) {
 		for (uint32_t i = 0; i < check_count; ++i) {
 			VkBool32 found = 0;
 			for (uint32_t j = 0; j < layer_count; ++j) {
@@ -137,58 +133,28 @@ namespace {
 				}
 			}
 			if (!found) {
-				fprintf(stderr, "Cannot find layer: %s\n", check_names[i]);
+				Kore::log(Kore::Error, "Cannot find layer: %s\n", check_names[i]);
 				return 0;
 			}
 		}
 		return 1;
 	}
 
-
-	VKAPI_ATTR VkBool32 VKAPI_CALL
-		dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType,
-			uint64_t srcObject, size_t location, int32_t msgCode,
-			const char *pLayerPrefix, const char *pMsg, void *pUserData) {
-		char *message = (char *)malloc(strlen(pMsg) + 100);
-
-		assert(message);
-
+	VKAPI_ATTR VkBool32 VKAPI_CALL dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject, size_t location, int32_t msgCode, const char* pLayerPrefix, const char* pMsg, void* pUserData) {
 		if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
-			sprintf(message, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode,
-				pMsg);
+			Kore::log(Kore::Error, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
 		}
 		else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-			sprintf(message, "WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode,
-				pMsg);
+			Kore::log(Kore::Warning, "WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
 		}
-		else {
-			return false;
-		}
-
-		MessageBoxA(NULL, message, "Alert", MB_OK);
-
-		free(message);
-
-		/*
-		* false indicates that layer should not bail-out of an
-		* API call that had validation failures. This may mean that the
-		* app dies inside the driver due to invalid parameter(s).
-		* That's what would happen without validation layers, so we'll
-		* keep that behavior here.
-		*/
 		return false;
 	}
 
-
-	VKAPI_ATTR void *VKAPI_CALL myrealloc(void *pUserData, void *pOriginal,
-		size_t size, size_t alignment,
-		VkSystemAllocationScope allocationScope) {
+	VKAPI_ATTR void* VKAPI_CALL myrealloc(void* pUserData, void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
 		return realloc(pOriginal, size);
 	}
 
-	VKAPI_ATTR void *VKAPI_CALL myalloc(void *pUserData, size_t size,
-		size_t alignment,
-		VkSystemAllocationScope allocationScope) {
+	VKAPI_ATTR void* VKAPI_CALL myalloc(void *pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
 #ifdef _MSC_VER
 		return _aligned_malloc(size, alignment);
 #else
@@ -196,7 +162,7 @@ namespace {
 #endif
 	}
 
-	VKAPI_ATTR void VKAPI_CALL myfree(void *pUserData, void *pMemory) {
+	VKAPI_ATTR void VKAPI_CALL myfree(void* pUserData, void* pMemory) {
 #ifdef _MSC_VER
 		_aligned_free(pMemory);
 #else
@@ -208,9 +174,9 @@ namespace {
 		VkResult err;
 
 		if (setup_cmd == VK_NULL_HANDLE) {
-			VkCommandBufferAllocateInfo cmd;
+			VkCommandBufferAllocateInfo cmd = {};
 			cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			cmd.pNext = NULL;
+			cmd.pNext = nullptr;
 			cmd.commandPool = cmd_pool;
 			cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			cmd.commandBufferCount = 1;
@@ -218,9 +184,9 @@ namespace {
 			err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
 			assert(!err);
 
-			VkCommandBufferInheritanceInfo cmd_buf_hinfo;
+			VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
 			cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-			cmd_buf_hinfo.pNext = NULL;
+			cmd_buf_hinfo.pNext = nullptr;
 			cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
 			cmd_buf_hinfo.subpass = 0;
 			cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
@@ -228,9 +194,9 @@ namespace {
 			cmd_buf_hinfo.queryFlags = 0;
 			cmd_buf_hinfo.pipelineStatistics = 0;
 			
-			VkCommandBufferBeginInfo cmd_buf_info;
+			VkCommandBufferBeginInfo cmd_buf_info = {};
 			cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			cmd_buf_info.pNext = NULL;
+			cmd_buf_info.pNext = nullptr;
 			cmd_buf_info.flags = 0;
 			cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
 
@@ -238,9 +204,9 @@ namespace {
 			assert(!err);
 		}
 
-		VkImageMemoryBarrier image_memory_barrier;
+		VkImageMemoryBarrier image_memory_barrier = {};
 		image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		image_memory_barrier.pNext = NULL;
+		image_memory_barrier.pNext = nullptr;
 		image_memory_barrier.srcAccessMask = 0;
 		image_memory_barrier.dstAccessMask = 0;
 		image_memory_barrier.oldLayout = old_image_layout;
@@ -252,34 +218,25 @@ namespace {
 		image_memory_barrier.subresourceRange.baseArrayLayer = 0;
 		image_memory_barrier.subresourceRange.layerCount = 1;
 	
-
 		if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			/* Make sure anything that was copying from this image has completed */
+			// Make sure anything that was copying from this image has completed
 			image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 		}
 
 		if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-			image_memory_barrier.dstAccessMask =
-				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		}
 
 		if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-			image_memory_barrier.dstAccessMask =
-				VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			image_memory_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		}
 
 		if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-			/* Make sure any Copy or CPU writes to image are flushed */
-			image_memory_barrier.dstAccessMask =
-				VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+			// Make sure any Copy or CPU writes to image are flushed
+			image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
 		}
 
-		VkImageMemoryBarrier *pmemory_barrier = &image_memory_barrier;
-
-		VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-
-		vkCmdPipelineBarrier(setup_cmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+		vkCmdPipelineBarrier(setup_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
 	}
 
 	void demo_flush_init_cmd() {
