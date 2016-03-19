@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include "GLContext.h"
 #include "gl3stub.h"
+#include <Kore/Log.h>
 
 namespace ndk_helper
 {
@@ -169,12 +170,14 @@ EGLint GLContext::Swap()
         EGLint err = eglGetError();
         if( err == EGL_BAD_SURFACE )
         {
+            Kore::log(Kore::Warning, "Recreating surface.");
             //Recreate surface
             InitEGLSurface();
             return EGL_SUCCESS; //Still consider glContext is valid
         }
         else if( err == EGL_CONTEXT_LOST || err == EGL_BAD_CONTEXT )
         {
+            Kore::log(Kore::Error, "Context lost.");
             //Context has been lost!!
             context_valid_ = false;
             Terminate();

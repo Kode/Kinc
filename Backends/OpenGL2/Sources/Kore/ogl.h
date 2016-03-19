@@ -52,10 +52,10 @@
 #define OPENGLES
 #endif
 
-#include <stdio.h>
+#include <Kore/Log.h>
 
 #ifdef NDEBUG
 #define glCheckErrors() { }
 #else
-#define glCheckErrors() { GLenum code = glGetError(); while (code != GL_NO_ERROR) { printf("GL Error %d %s %d\n", code, __FILE__, __LINE__); } }
+#define glCheckErrors() { GLenum code = glGetError(); while (code != GL_NO_ERROR) { Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__); } }
 #endif
