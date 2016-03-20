@@ -47,6 +47,10 @@ bool use_staging_buffer;
 VkDescriptorPool desc_pool;
 uint32_t swapchainImageCount;
 
+#ifndef NDEBUG
+#define VALIDATE
+#endif
+
 struct SwapchainBuffers {
 	VkImage image;
 	VkCommandBuffer cmd;
@@ -78,6 +82,7 @@ namespace {
 
 	VkSurfaceKHR surface;
 	bool prepared;
+	bool began = false;
 
 	VkAllocationCallbacks allocator;
 
@@ -87,9 +92,13 @@ namespace {
 	uint32_t graphics_queue_node_index;
 
 	uint32_t enabled_extension_count;
+#ifdef VALIDATE
 	uint32_t enabled_layer_count;
-	char *extension_names[64];
-	char *device_validation_layers[64];
+#endif
+	char* extension_names[64];
+#ifdef VALIDATE
+	char* device_validation_layers[64];
+#endif
 
 	int width, height;
 	VkColorSpaceKHR color_space;
@@ -109,7 +118,6 @@ namespace {
 
 	VkPhysicalDeviceMemoryProperties memory_properties;
 
-	const bool validate = true;
 	PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallback;
 	PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportCallback;
 	VkDebugReportCallbackEXT msg_callback;
@@ -295,20 +303,26 @@ void Graphics::destroy() {
 void Graphics::init() {
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
+#ifdef VALIDATE
 	uint32_t device_validation_layer_count = 0;
+#endif
 	//demo->enabled_extension_count = 0;
 	//demo->enabled_layer_count = 0;
 
-	char *instance_validation_layers[] = {
+#ifdef VALIDATE
+	char* instance_validation_layers[] = {
 		//"VK_LAYER_LUNARG_mem_tracker",
 		//"VK_LAYER_GOOGLE_unique_objects",
 		"VK_LAYER_LUNARG_standard_validation"
 	};
+#endif
 
+#ifdef VALIDATE
 	//device_validation_layers[0] = "VK_LAYER_LUNARG_mem_tracker";
 	//device_validation_layers[1] = "VK_LAYER_GOOGLE_unique_objects";
 	device_validation_layers[0] = "VK_LAYER_LUNARG_standard_validation";
 	device_validation_layer_count = 1;
+#endif
 
 	VkBool32 validation_found = 0;
 	VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
@@ -319,37 +333,37 @@ void Graphics::init() {
 		err = vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers);
 		assert(!err);
 
-		if (validate) {
+#ifdef VALIDATE
 			validation_found = demo_check_layers(
 				ARRAY_SIZE(instance_validation_layers),
 				instance_validation_layers, instance_layer_count,
 				instance_layers);
 			enabled_layer_count = ARRAY_SIZE(instance_validation_layers);
-		}
-
+#endif
 		free(instance_layers);
 	}
 
-	if (validate && !validation_found) {
+#ifdef VALIDATE
+	if (!validation_found) {
 		ERR_EXIT("vkEnumerateInstanceLayerProperties failed to find"
 			"required validation layer.\n\n"
 			"Please look at the Getting Started guide for additional "
 			"information.\n",
 			"vkCreateInstance Failure");
 	}
+#endif
 
 	/* Look for instance extensions */
 	VkBool32 surfaceExtFound = 0;
 	VkBool32 platformSurfaceExtFound = 0;
 	memset(extension_names, 0, sizeof(extension_names));
 
-	err = vkEnumerateInstanceExtensionProperties(
-		NULL, &instance_extension_count, NULL);
+	err = vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr);
 	assert(!err);
 
 	if (instance_extension_count > 0) {
 		VkExtensionProperties* instance_extensions = (VkExtensionProperties*)malloc(sizeof(VkExtensionProperties) * instance_extension_count);
-		err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, instance_extensions);
+		err = vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions);
 		assert(!err);
 		for (uint32_t i = 0; i < instance_extension_count; i++) {
 			if (!strcmp(VK_KHR_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
@@ -365,10 +379,9 @@ void Graphics::init() {
 			}
 
 			if (!strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName)) {
-				if (validate) {
-					extension_names[enabled_extension_count++] =
-						VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-				}
+#ifdef VALIDATE
+					extension_names[enabled_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
+#endif
 			}
 			assert(enabled_extension_count < 64);
 		}
@@ -408,8 +421,13 @@ void Graphics::init() {
 	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	info.pNext = nullptr;
 	info.pApplicationInfo = &app;
+#ifdef VALIDATE
 	info.enabledLayerCount = enabled_layer_count;
 	info.ppEnabledLayerNames = (const char *const *)instance_validation_layers;
+#else
+	info.enabledLayerCount = 0;
+	info.ppEnabledLayerNames = nullptr;
+#endif
 	info.enabledExtensionCount = enabled_extension_count;
 	info.ppEnabledExtensionNames = (const char *const *)extension_names;
 
@@ -460,7 +478,9 @@ void Graphics::init() {
 
 	/* Look for validation layers */
 	validation_found = 0;
+#ifdef VALIDATE
 	enabled_layer_count = 0;
+#endif
 	uint32_t device_layer_count = 0;
 	err = vkEnumerateDeviceLayerProperties(gpu, &device_layer_count, NULL);
 	assert(!err);
@@ -470,24 +490,26 @@ void Graphics::init() {
 		err = vkEnumerateDeviceLayerProperties(gpu, &device_layer_count, device_layers);
 		assert(!err);
 
-		if (validate) {
+#ifdef VALIDATE
 			validation_found = demo_check_layers(device_validation_layer_count,
 				device_validation_layers,
 				device_layer_count,
 				device_layers);
 			enabled_layer_count = device_validation_layer_count;
-		}
+#endif
 
 		free(device_layers);
 	}
 
-	if (validate && !validation_found) {
+#ifdef VALIDATE
+	if (!validation_found) {
 		ERR_EXIT("vkEnumerateDeviceLayerProperties failed to find "
 			"a required validation layer.\n\n"
 			"Please look at the Getting Started guide for additional "
 			"information.\n",
 			"vkCreateDevice Failure");
 	}
+#endif
 
 	/* Loog for device extensions */
 	uint32_t device_extension_count = 0;
@@ -527,7 +549,7 @@ void Graphics::init() {
 			"vkCreateInstance Failure");
 	}
 
-	if (validate) {
+#ifdef VALIDATE
 		CreateDebugReportCallback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(inst, "vkCreateDebugReportCallbackEXT");
 		if (!CreateDebugReportCallback) {
 			ERR_EXIT("GetProcAddr: Unable to find vkCreateDebugReportCallbackEXT\n", "vkGetProcAddr Failure");
@@ -550,7 +572,7 @@ void Graphics::init() {
 			ERR_EXIT("CreateDebugReportCallback: unknown failure\n", "CreateDebugReportCallback Failure");
 			break;
 		}
-	}
+#endif
 
 	// Having these GIPA queries of device extension entry points both
 	// BEFORE and AFTER vkCreateDevice is a good test for the loader
@@ -657,22 +679,27 @@ void Graphics::init() {
 			float queue_priorities[1] = { 0.0 };
 			VkDeviceQueueCreateInfo queue = {};
 			queue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queue.pNext = NULL;
+			queue.pNext = nullptr;
 			queue.queueFamilyIndex = graphics_queue_node_index;
 			queue.queueCount = 1;
 			queue.pQueuePriorities = queue_priorities;
 
 			VkDeviceCreateInfo deviceinfo = {};
 			deviceinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-			deviceinfo.pNext = NULL;
+			deviceinfo.pNext = nullptr;
 			deviceinfo.queueCreateInfoCount = 1;
 			deviceinfo.pQueueCreateInfos = &queue;
+#ifdef VALIDATE
 			deviceinfo.enabledLayerCount = enabled_layer_count;
-			deviceinfo.ppEnabledLayerNames = (const char *const *)((validate) ? device_validation_layers : NULL);
+			deviceinfo.ppEnabledLayerNames = (const char *const *)device_validation_layers;
+#else
+			deviceinfo.enabledLayerCount = 0;
+			deviceinfo.ppEnabledLayerNames = nullptr;
+#endif
 			deviceinfo.enabledExtensionCount = enabled_extension_count;
 			deviceinfo.ppEnabledExtensionNames = (const char *const *)extension_names;
 
-			err = vkCreateDevice(gpu, &deviceinfo, NULL, &device);
+			err = vkCreateDevice(gpu, &deviceinfo, nullptr, &device);
 			assert(!err);
 		}
 
@@ -680,7 +707,7 @@ void Graphics::init() {
 
 		// Get the list of VkFormat's that are supported:
 		uint32_t formatCount;
-		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, NULL);
+		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, nullptr);
 		assert(!err);
 		VkSurfaceFormatKHR* surfFormats = (VkSurfaceFormatKHR*)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
 		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, surfFormats);
@@ -999,6 +1026,8 @@ void Graphics::init() {
 
 	createDescriptorLayout();
 	createDescriptorSet(nullptr, nullptr, desc_set);
+
+	begin();
 }
 
 unsigned Graphics::refreshRate() {
@@ -1161,6 +1190,8 @@ void Graphics::swapBuffers() {
 }
 
 void Graphics::begin() {
+	if (began) return;
+
 	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {};
 	presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 	presentCompleteSemaphoreCreateInfo.pNext = NULL;
@@ -1250,6 +1281,8 @@ void Graphics::begin() {
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
 	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
+
+	began = true;
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
@@ -1337,6 +1370,8 @@ void Graphics::end() {
 	if (depthStencil < 0.8f) depthIncrement = 0.001f;
 
 	depthStencil += depthIncrement;
+
+	began = false;
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
@@ -1408,21 +1443,22 @@ namespace {
 	void endPass() {
 		vkCmdEndRenderPass(draw_cmd);
 
-		VkImageMemoryBarrier barrier = {};
-		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.pNext = NULL;
-		barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-		barrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		barrier.image = currentRenderTarget == nullptr ? buffers[current_buffer].image : currentRenderTarget->sourceImage;
+		if (currentRenderTarget == nullptr) {
+			/*VkImageMemoryBarrier barrier = {};
+			barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			barrier.pNext = NULL;
+			barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+			barrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			barrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			barrier.image = buffers[current_buffer].image;
 
-		vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
-
-		if (currentRenderTarget != nullptr) {
+			vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
+		}
+		else {
 			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
@@ -1576,7 +1612,7 @@ void Graphics::restoreRenderTarget() {
 
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	rp_begin.pNext = NULL;
+	rp_begin.pNext = nullptr;
 	rp_begin.renderPass = render_pass;
 	rp_begin.framebuffer = framebuffers[current_buffer];
 	rp_begin.renderArea.offset.x = 0;
