@@ -1593,8 +1593,8 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.width = (float)getPower2(texture->width);// TODO: Driver bug?
-	viewport.height = (float)getPower2(texture->height);
+	viewport.width = (float)texture->width;
+	viewport.height = (float)texture->height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
@@ -1641,8 +1641,8 @@ void Graphics::restoreRenderTarget() {
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.width = (float)getPower2(width); // TODO: Driver bug?
-	viewport.height = (float)getPower2(height);
+	viewport.width = (float)width;
+	viewport.height = (float)height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
@@ -1661,7 +1661,7 @@ bool Graphics::renderTargetsInvertedY() {
 }
 
 bool Graphics::nonPow2TexturesSupported() {
-	return false;
+	return true;
 }
 
 void Graphics::flush() {
