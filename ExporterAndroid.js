@@ -59,7 +59,7 @@ class ExporterAndroid extends Exporter {
 		}
 
 		let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), {encoding: 'utf8'});
-		gradle = gradle.replaceAll('{name}', safename);
+		gradle = gradle.replaceAll('{package}', targetOptions.package);
 		gradle = gradle.replaceAll('{flags}', flags);
 
 		let javasources = '';
@@ -129,6 +129,10 @@ class ExporterAndroid extends Exporter {
 			this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
 			Files.copyIfDifferent(from.resolve(file), target, true);
 		}
+
+		// Reminder in case you forgot to change project details.
+		console.log("* Project name : " + solution.getName());
+		console.log("* Project package : " + targetOptions.package);
 	}
 
 	exportSolutionEclipse(solution, from, to, platform, vr) {

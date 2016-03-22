@@ -6,7 +6,7 @@ model {
         buildToolsVersion = "23.0.1"
 
         defaultConfig.with {
-            applicationId = "com.ktxsoftware.{name}"
+            applicationId = "{package}"
             minSdkVersion.apiLevel = 15
             targetSdkVersion.apiLevel = 23
             versionCode = 1
