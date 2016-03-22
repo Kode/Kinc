@@ -83,6 +83,7 @@ namespace {
 	VkSurfaceKHR surface;
 	bool prepared;
 	bool began = false;
+	bool onBackBuffer = false;
 
 	VkAllocationCallbacks allocator;
 
@@ -276,6 +277,17 @@ namespace {
 
 		vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
 		setup_cmd = VK_NULL_HANDLE;
+	}
+
+	int pow(int pow) {
+		int ret = 1;
+		for (int i = 0; i < pow; ++i) ret *= 2;
+		return ret;
+	}
+
+	int getPower2(int i) {
+		for (int power = 0; ; ++power)
+			if (pow(power) >= i) return pow(power);
 	}
 }
 
@@ -1268,8 +1280,8 @@ void Graphics::begin() {
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.height = (float)height;
 	viewport.width = (float)width;
+	viewport.height = (float)height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
@@ -1283,6 +1295,7 @@ void Graphics::begin() {
 	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 
 	began = true;
+	onBackBuffer = true;
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
@@ -1555,15 +1568,14 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 	endPass();
 	
 	currentRenderTarget = texture;
+	onBackBuffer = false;
 
-	VkClearValue clear_values[2];
-	memset(clear_values, 0, sizeof(VkClearValue) * 1);
+	VkClearValue clear_values[1];
+	memset(clear_values, 0, sizeof(VkClearValue));
 	clear_values[0].color.float32[0] = 0.0f;
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
 	clear_values[0].color.float32[3] = 1.0f;
-	clear_values[1].depthStencil.depth = depthStencil;
-	clear_values[1].depthStencil.stencil = 0;
 
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1574,15 +1586,15 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 	rp_begin.renderArea.offset.y = 0;
 	rp_begin.renderArea.extent.width = texture->width;
 	rp_begin.renderArea.extent.height = texture->height;
-	rp_begin.clearValueCount = 2;
+	rp_begin.clearValueCount = 1;
 	rp_begin.pClearValues = clear_values;
 
 	vkCmdBeginRenderPass(draw_cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.height = (float)texture->height;
-	viewport.width = (float)texture->width;
+	viewport.width = (float)getPower2(texture->width);// TODO: Driver bug?
+	viewport.height = (float)getPower2(texture->height);
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
@@ -1597,14 +1609,17 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 }
 
 void Graphics::restoreRenderTarget() {
+	if (onBackBuffer) return;
+
 	endPass();
 
 	currentRenderTarget = nullptr;
+	onBackBuffer = true;
 
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);
 	clear_values[0].color.float32[0] = 0.0f;
-	clear_values[0].color.float32[1] = 1.0f;
+	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
 	clear_values[0].color.float32[3] = 1.0f;
 	clear_values[1].depthStencil.depth = depthStencil;
@@ -1626,8 +1641,8 @@ void Graphics::restoreRenderTarget() {
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.height = (float)height;
-	viewport.width = (float)width;
+	viewport.width = (float)getPower2(width); // TODO: Driver bug?
+	viewport.height = (float)getPower2(height);
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
