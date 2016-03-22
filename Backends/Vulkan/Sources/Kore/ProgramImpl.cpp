@@ -501,11 +501,9 @@ void Program::link(VertexStructure** structures, int count) {
 	memset(&vp, 0, sizeof(vp));
 	vp.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	vp.viewportCount = 1;
-	dynamicStateEnables[dynamicState.dynamicStateCount++] =
-		VK_DYNAMIC_STATE_VIEWPORT;
+	dynamicStateEnables[dynamicState.dynamicStateCount++] = VK_DYNAMIC_STATE_VIEWPORT;
 	vp.scissorCount = 1;
-	dynamicStateEnables[dynamicState.dynamicStateCount++] =
-		VK_DYNAMIC_STATE_SCISSOR;
+	dynamicStateEnables[dynamicState.dynamicStateCount++] = VK_DYNAMIC_STATE_SCISSOR;
 
 	memset(&ds, 0, sizeof(ds));
 	ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -521,10 +519,9 @@ void Program::link(VertexStructure** structures, int count) {
 
 	memset(&ms, 0, sizeof(ms));
 	ms.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	ms.pSampleMask = NULL;
+	ms.pSampleMask = nullptr;
 	ms.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-	// Two stages: vs and fs
 	pipeline_info.stageCount = 2;
 	VkPipelineShaderStageCreateInfo shaderStages[2];
 	memset(&shaderStages, 0, 2 * sizeof(VkPipelineShaderStageCreateInfo));
@@ -553,15 +550,15 @@ void Program::link(VertexStructure** structures, int count) {
 	memset(&pipelineCache_info, 0, sizeof(pipelineCache_info));
 	pipelineCache_info.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-	err = vkCreatePipelineCache(device, &pipelineCache_info, NULL, &pipelineCache);
+	err = vkCreatePipelineCache(device, &pipelineCache_info, nullptr, &pipelineCache);
 	assert(!err);
-	err = vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipeline_info, NULL, &pipeline);
+	err = vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipeline_info, nullptr, &pipeline);
 	assert(!err);
 
-	vkDestroyPipelineCache(device, pipelineCache, NULL);
+	vkDestroyPipelineCache(device, pipelineCache, nullptr);
 
-	vkDestroyShaderModule(device, frag_shader_module, NULL);
-	vkDestroyShaderModule(device, vert_shader_module, NULL);
+	vkDestroyShaderModule(device, frag_shader_module, nullptr);
+	vkDestroyShaderModule(device, vert_shader_module, nullptr);
 }
 
 void Program::set() {
@@ -585,10 +582,9 @@ void Program::set() {
 
 	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-	if (vulkanRenderTargets[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, NULL);
-	else if (vulkanTextures[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, NULL);
-	else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
-	
+	if (vulkanRenderTargets[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, nullptr);
+	else if (vulkanTextures[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, nullptr);
+	else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
