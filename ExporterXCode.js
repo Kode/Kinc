@@ -243,7 +243,7 @@ class ExporterXCode extends Exporter {
 			// build: "1", // somehow the plist can't read the values for this
 			organizationName: "KTX Software Development",
 		};
-		if (project.targetOptions != null && project.targetOptions.android != null) {
+		if (project.targetOptions != null && project.targetOptions.ios != null) {
 			let userOptions = project.targetOptions.ios;
 			if (userOptions.bundle != null) targetOptions.bundle = userOptions.bundle;
 			// if (userOptions.version != null) targetOptions.version = userOptions.version;
