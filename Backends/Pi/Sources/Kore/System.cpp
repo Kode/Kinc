@@ -17,6 +17,14 @@
 
 #include <bcm_host.h>
 
+#include <inttypes.h>
+#include <fcntl.h>
+#include <linux/input.h>
+
+#include <inttypes.h>
+#include <fcntl.h>
+#include <linux/input.h>
+
 //apt-get install mesa-common-dev
 //apt-get install libgl-dev
 
@@ -36,6 +44,37 @@ namespace {
         printf("main: %s\n", message);
         exit(1);
     }
+
+    int getbit(uint32_t *bits, uint32_t bit) {
+        return (bits[bit/32] >> (bit%32)) & 1;
+    }
+
+    void enable_bit(uint32_t *bits, uint32_t bit)
+    {
+       bits[bit/32] |= 1u << (bit%32);
+    }
+
+    void disable_bit(uint32_t *bits, uint32_t bit)
+    {
+       bits[bit/32] &= ~(1u << (bit%32));
+    }
+
+    void set_bit(uint32_t *bits, uint32_t bit, int value)
+    {
+       if(value)
+          enable_bit(bits, bit);
+       else
+          disable_bit(bits, bit);
+    }
+
+    struct InputDevice {
+        int fd;
+        uint16_t keys;
+        uint32_t key_state[(KEY_MAX-1)/32+1];
+    };
+
+    const int inputDevicesCount = 16;
+    InputDevice inputDevices[inputDevicesCount];
 }
 
 namespace Kore { namespace Display {
@@ -151,6 +190,75 @@ createWindow( const char * title, int x, int y, int width, int height, Kore::Win
     assert(EGL_FALSE != result);
     glCheckErrors();
 
+    // input
+
+    char name[64];
+    for (int i = 0; i < inputDevicesCount; ++i) {
+      sprintf(name, "/dev/input/event%d", i);
+
+      //PIGU_device_info_t info;
+      //if(PIGU_detect_device(name, &info) < 0)
+
+
+       uint32_t events[(KEY_MAX-1)/32+1];
+
+       inputDevices[i].fd = open(name, O_RDONLY | O_NONBLOCK);
+
+       if (inputDevices[i].fd<0) continue;
+
+       char deviceName[128];
+       ioctl(inputDevices[i].fd, EVIOCGNAME(sizeof(deviceName)), deviceName);
+
+       printf("Found a device. %s\n", deviceName);
+
+       uint32_t types[EV_MAX];
+       memset(types, 0, sizeof(types));
+        ioctl(inputDevices[i].fd, EVIOCGBIT(0, EV_MAX), types);
+        int keycount = 0;
+
+        if(getbit(types, EV_KEY)) {
+          // count events
+          memset(events, 0, sizeof(events));
+          ioctl(inputDevices[i].fd, EVIOCGBIT(EV_KEY, KEY_MAX), events);
+          int j = 0;
+          for(;j<BTN_MISC;++j)
+         if(getbit(events, j))
+            keycount++;
+
+          /*j = BTN_MOUSE; // skip misc buttons
+
+          for(;j<BTN_JOYSTICK;++j)
+         if(PIGU_get_bit(events, j))
+         {
+            mouse_button_count++;
+            if(j-BTN_MOUSE>=16)
+               continue;
+            buttons.map[buttons.count] = j-BTN_MOUSE;
+            buttons.count++;
+         }
+
+          for(;j<BTN_GAMEPAD;++j)
+         if(PIGU_get_bit(events, j))
+         {
+            joystick_button_count++;
+            if(j-BTN_JOYSTICK>=16)
+               continue;
+            buttons.map[buttons.count] = j-BTN_JOYSTICK;
+            buttons.count++;
+         }
+
+          for(;j<BTN_DIGI;++j)
+         if(PIGU_get_bit(events, j))
+         {
+            gamepad_button_count++;
+            if(j-BTN_GAMEPAD>=16)
+               continue;
+            buttons.map[buttons.count] = j-BTN_GAMEPAD;
+            buttons.count++;
+         }*/
+        }
+    }
+
     return 0;
 }
 
@@ -197,6 +305,49 @@ namespace Kore { namespace System {
 }}
 
 bool Kore::System::handleMessages() {
+    for (int i = 0; i < inputDevicesCount; ++i) {
+
+        int eventcount = 0;
+
+        if(inputDevices[i].fd < 0) continue;
+
+        input_event event;
+        ssize_t readsize = read(inputDevices[i].fd, &event, sizeof(event));
+        while(readsize >= 0) {
+
+            set_bit(inputDevices[i].key_state, event.code, event.value);
+
+            if (event.code == 105) {
+                if (event.value == 1) {
+                    Kore::Keyboard::the()->_keydown(Key_Left, ' ');
+                }
+                else if (event.value == 0){
+                    Kore::Keyboard::the()->_keyup(Key_Left, ' ');
+                }
+            }
+            if (event.code == 106) {
+                if (event.value == 1)
+                    Kore::Keyboard::the()->_keydown(Key_Right, ' ');
+                else if (event.value == 0)
+                    Kore::Keyboard::the()->_keyup(Key_Right, ' ');
+            }
+            if (event.code == 108) {
+                if (event.value == 1)
+                    Kore::Keyboard::the()->_keydown(Key_Down, ' ');
+                else if (event.value == 0)
+                    Kore::Keyboard::the()->_keyup(Key_Down, ' ');
+            }
+            if (event.code == 103) {
+                if (event.value == 1)
+                    Kore::Keyboard::the()->_keydown(Key_Up, ' ');
+                else if (event.value == 0)
+                    Kore::Keyboard::the()->_keyup(Key_Up, ' ');
+            }
+
+            printf("Code %d Value %d\n", event.code, event.value);
+            readsize = read(inputDevices[i].fd, &event, sizeof(event));
+        }
+    }
 
 	return true;
 }
