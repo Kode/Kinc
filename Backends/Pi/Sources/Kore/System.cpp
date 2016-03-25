@@ -21,12 +21,9 @@
 #include <fcntl.h>
 #include <linux/input.h>
 
-#include <inttypes.h>
-#include <fcntl.h>
-#include <linux/input.h>
+#include <X11/Xlib.h>
 
-//apt-get install mesa-common-dev
-//apt-get install libgl-dev
+// apt-get install libx11-dev
 
 namespace {
     //static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, None};
@@ -41,6 +38,8 @@ namespace {
     EGLDisplay display;
     EGLSurface surface;
     EGLContext context;
+
+    DISPMANX_ELEMENT_HANDLE_T dispman_element;
 
     GLboolean doubleBuffer = GL_TRUE;
 
@@ -79,6 +78,39 @@ namespace {
 
     const int inputDevicesCount = 16;
     InputDevice inputDevices[inputDevicesCount];
+
+    Display* dpy;
+
+    void openXWindow(int x, int y, int width, int height) {
+        dpy = XOpenDisplay(NULL);
+        XSetWindowAttributes winAttr;
+        winAttr.event_mask = StructureNotifyMask;
+        Window w = XCreateWindow(dpy, DefaultRootWindow(dpy), 0, 0, width, height, 0, CopyFromParent, CopyFromParent, CopyFromParent, CWEventMask, &winAttr);
+        XMapWindow(dpy, w);
+        XFlush(dpy);
+
+        // TODO: Figure this out
+        /*Atom atom = XInternAtom(dpy, "_NET_FRAME_EXTENTS", True);
+        Atom atom2;
+        int f;
+        unsigned long n, b;
+        XEvent e;
+        unsigned char *data = 0;
+        while (XGetWindowProperty(dpy, w, atom,
+                   0, 4, False, AnyPropertyType,
+                   &atom2, &f,
+                   &n, &b, &data) != Success || n != 4 || b != 0) {
+            XNextEvent(dpy, &e);
+        }
+
+        long* extents = (long*) data;
+        //printf ("Got frame extents: left %ld right %ld top %ld bottom %ld\n",
+        //    extents[0], extents[1], extents[2], extents[3]);
+        */
+
+        XMoveWindow(dpy, w, x - 1, y - 30);//extents[2]);
+        XFlush(dpy);
+    }
 }
 
 namespace Kore { namespace Display {
@@ -114,7 +146,6 @@ createWindow( const char * title, int x, int y, int width, int height, Kore::Win
 
     static EGL_DISPMANX_WINDOW_T nativewindow;
 
-    DISPMANX_ELEMENT_HANDLE_T dispman_element;
     DISPMANX_DISPLAY_HANDLE_T dispman_display;
     DISPMANX_UPDATE_HANDLE_T dispman_update;
     VC_RECT_T dst_rect;
@@ -186,12 +217,7 @@ createWindow( const char * title, int x, int y, int width, int height, Kore::Win
 
     VC_DISPMANX_ALPHA_T alpha = {};
     alpha.flags = (DISPMANX_FLAGS_ALPHA_T)(DISPMANX_FLAGS_ALPHA_FROM_SOURCE | DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS);
-    if (windowMode == Kore::WindowMode::Fullscreen) {
-        alpha.opacity = 255;
-    }
-    else {
-        alpha.opacity = 100; //alpha 0->255
-    }
+    alpha.opacity = 255;
     alpha.mask = 0;
 
     dispman_element = vc_dispmanx_element_add ( dispman_update, dispman_display,
@@ -206,6 +232,7 @@ createWindow( const char * title, int x, int y, int width, int height, Kore::Win
     else {
         nativewindow.width = width;
         nativewindow.height = height;
+        openXWindow(x, y, width, height);
     }
     vc_dispmanx_update_submit_sync( dispman_update );
 
@@ -383,8 +410,34 @@ bool Kore::System::handleMessages() {
                     Kore::Keyboard::the()->_keyup(Key_Up, ' ');
             }
 
-            printf("Code %d Value %d\n", event.code, event.value);
+            //printf("Code %d Value %d\n", event.code, event.value);
             readsize = read(inputDevices[i].fd, &event, sizeof(event));
+        }
+    }
+
+    if (windowMode != Kore::WindowMode::Fullscreen) {
+        while (XPending(dpy) > 0) {
+            XEvent event;
+            XNextEvent(dpy, &event);
+            printf("Got an X event.\n");
+            switch (event.type) {
+            case ConfigureNotify:
+                DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
+
+                VC_RECT_T dst_rect;
+                VC_RECT_T src_rect;
+                dst_rect.x = event.xconfigure.x;
+                dst_rect.y = event.xconfigure.y;
+                dst_rect.width = width;
+                dst_rect.height = height;
+                src_rect.x = 0;
+                src_rect.y = 0;
+                src_rect.width = width << 16;
+                src_rect.height = height << 16;
+
+                vc_dispmanx_element_change_attributes(update, dispman_element, 0, 0, 255, &dst_rect, &src_rect, 0, (DISPMANX_TRANSFORM_T)0);
+                vc_dispmanx_update_submit_sync(update);
+            }
         }
     }
 
