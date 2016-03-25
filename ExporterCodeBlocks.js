@@ -68,6 +68,7 @@ class ExporterCodeBlocks extends Exporter {
 			this.p("<Add library=\"GLESv2\" />", 3);
 			this.p("<Add library=\"EGL\" />", 3);
 			this.p("<Add library=\"bcm_host\" />", 3);
+			this.p("<Add library=\"asound\" />", 3);
 			this.p("<Add directory=\"/opt/vc/lib\" />", 3);
 		}
 		else {
