@@ -34,6 +34,10 @@ namespace {
 
     uint32_t screen_width;
     uint32_t screen_height;
+    Kore::WindowMode windowMode;
+    uint32_t width;
+    uint32_t height;
+
     EGLDisplay display;
     EGLSurface surface;
     EGLContext context;
@@ -98,6 +102,9 @@ int
 createWindow( const char * title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits ) {
     bcm_host_init();
 
+    ::windowMode = windowMode;
+    ::width = width;
+    ::height = height;
     //uint32_t screen_width = 640;
     //uint32_t screen_height = 480;
 
@@ -153,22 +160,38 @@ createWindow( const char * title, int x, int y, int width, int height, Kore::Win
     success = graphics_get_display_size(0 /* LCD */, &screen_width, &screen_height);
     assert( success >= 0 );
 
-    dst_rect.x = 0;
-    dst_rect.y = 0;
-    dst_rect.width = screen_width;
-    dst_rect.height = screen_height;
-
-    src_rect.x = 0;
-    src_rect.y = 0;
-    src_rect.width = screen_width << 16;
-    src_rect.height = screen_height << 16;
+    if (windowMode == Kore::WindowMode::Fullscreen) {
+        dst_rect.x = 0;
+        dst_rect.y = 0;
+        dst_rect.width = screen_width;
+        dst_rect.height = screen_height;
+        src_rect.x = 0;
+        src_rect.y = 0;
+        src_rect.width = screen_width << 16;
+        src_rect.height = screen_height << 16;
+    }
+    else {
+        dst_rect.x = x;
+        dst_rect.y = y;
+        dst_rect.width = width;
+        dst_rect.height = height;
+        src_rect.x = 0;
+        src_rect.y = 0;
+        src_rect.width = width << 16;
+        src_rect.height = height << 16;
+    }
 
     dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
     dispman_update = vc_dispmanx_update_start( 0 );
 
     VC_DISPMANX_ALPHA_T alpha = {};
     alpha.flags = (DISPMANX_FLAGS_ALPHA_T)(DISPMANX_FLAGS_ALPHA_FROM_SOURCE | DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS);
-    alpha.opacity = 100; /*alpha 0->255*/
+    if (windowMode == Kore::WindowMode::Fullscreen) {
+        alpha.opacity = 255;
+    }
+    else {
+        alpha.opacity = 100; //alpha 0->255
+    }
     alpha.mask = 0;
 
     dispman_element = vc_dispmanx_element_add ( dispman_update, dispman_display,
@@ -176,8 +199,14 @@ createWindow( const char * title, int x, int y, int width, int height, Kore::Win
       &src_rect, DISPMANX_PROTECTION_NONE, &alpha, 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
 
     nativewindow.element = dispman_element;
-    nativewindow.width = screen_width;
-    nativewindow.height = screen_height;
+    if (windowMode == Kore::WindowMode::Fullscreen) {
+        nativewindow.width = screen_width;
+        nativewindow.height = screen_height;
+    }
+    else {
+        nativewindow.width = width;
+        nativewindow.height = height;
+    }
     vc_dispmanx_update_submit_sync( dispman_update );
 
     glCheckErrors();
@@ -268,11 +297,21 @@ namespace Kore { namespace System {
     }
 
     int windowWidth( int id ) {
-        return screen_width;
+        if (windowMode == Kore::WindowMode::Fullscreen) {
+            return screen_width;
+        }
+        else {
+            return width;
+        }
     }
 
     int windowHeight( int id ) {
-        return screen_height;
+        if (windowMode == Kore::WindowMode::Fullscreen) {
+            return screen_height;
+        }
+        else {
+            return height;
+        }
     }
 
     int initWindow( WindowOptions options ) {
