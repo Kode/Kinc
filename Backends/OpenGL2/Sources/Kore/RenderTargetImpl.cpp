@@ -27,7 +27,7 @@ namespace {
 
 #if defined(USE_GLES_DS_BUFFERS)
     void setup_gles_buffers( int depthBufferBits, int stencilBufferBits, int width, int height ) {
-    #ifndef SYS_PI
+#ifndef SYS_PI
         if (depthBufferBits > 0 && stencilBufferBits > 0) {
             GLuint depthStencilBuffer;
             glGenRenderbuffers(1, &depthStencilBuffer);
@@ -40,7 +40,6 @@ namespace {
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencilBuffer);
             glCheckErrors();
         } else if (depthBufferBits > 0) {
-    #endif
             GLuint depthBuffer;
             glGenRenderbuffers(1, &depthBuffer);
             glCheckErrors();
@@ -50,9 +49,8 @@ namespace {
             glCheckErrors();
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
             glCheckErrors();
-    #ifndef SYS_PI
         }
-    #endif
+#endif
     }
 
 #endif
