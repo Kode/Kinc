@@ -42,7 +42,7 @@ typedef s32                sint; // 4 Byte
 #endif
 
 //pseudo C++11
-#if !defined(SYS_WINDOWS) && !defined(SYS_WINDOWSAPP)
+#if !defined(SYS_WINDOWS) && !defined(SYS_WINDOWSAPP) && __cplusplus <= 199711L
 #define nullptr 0
 #define override
 #endif

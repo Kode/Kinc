@@ -17,6 +17,7 @@
 #endif
 
 namespace Kore {
+	class Program;
 	class Shader;
 
 	class ProgramImpl {
@@ -35,23 +36,26 @@ namespace Kore {
 		int* textureValues;
 		int textureCount;
 
-		VkDescriptorSetLayout desc_layout;
-		VkPipelineLayout pipeline_layout;
 		VkPipeline pipeline;
 		VkPipelineCache pipelineCache;
 		VkShaderModule vert_shader_module;
 		VkShaderModule frag_shader_module;
-
-		VkBuffer buf;
-		VkMemoryAllocateInfo mem_alloc;
-		VkDeviceMemory mem;
-		VkDescriptorBufferInfo buffer_info;
-
+		
 		std::map<std::string, u32> vertexLocations;
+		std::map<std::string, u32> fragmentLocations;
+		std::map<std::string, u32> textureBindings;
+		std::map<std::string, u32> vertexOffsets;
+		std::map<std::string, u32> fragmentOffsets;
+	public:
+		VkPipelineLayout pipeline_layout;
+		float uniformDataVertex[256];
+		float uniformDataFragment[256];
+		static Program* current;
 	};
 
 	class ConstantLocationImpl {
 	public:
-		int location;
+		int vertexOffset;
+		int fragmentOffset;
 	};
 }

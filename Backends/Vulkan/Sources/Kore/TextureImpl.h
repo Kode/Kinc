@@ -31,7 +31,7 @@ namespace Kore {
 
 	class TextureUnitImpl {
 	public:
-		int unit;
+		int binding;
 	};
 	
 	class TextureImpl {
@@ -41,6 +41,9 @@ namespace Kore {
 		u8 pixfmt;
 
 		texture_object texture;
+		VkDeviceSize deviceSize;
+
+		VkDescriptorSet desc_set;
 
 		~TextureImpl();
 		u8* conversionBuffer; // Fuer wenn Textur aus Image erstellt wird

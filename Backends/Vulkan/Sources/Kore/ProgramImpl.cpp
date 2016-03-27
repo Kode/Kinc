@@ -18,11 +18,27 @@ extern VkRenderPass render_pass;
 extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
 extern VkDescriptorPool desc_pool;
+extern Texture* vulkanTextures[8];
+extern RenderTarget* vulkanRenderTargets[8];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
+Program* ProgramImpl::current = nullptr;
+
 namespace {
-	void parseShader(Shader* shader, std::map<std::string, u32>& locations) {
+	VkDescriptorSetLayout desc_layout;
+
+	VkBuffer bufVertex;
+	VkMemoryAllocateInfo mem_allocVertex;
+	VkDeviceMemory memVertex;
+	VkDescriptorBufferInfo buffer_infoVertex;
+
+	VkBuffer bufFragment;
+	VkMemoryAllocateInfo mem_allocFragment;
+	VkDeviceMemory memFragment;
+	VkDescriptorBufferInfo buffer_infoFragment;
+
+	void parseShader(Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings, std::map<std::string, u32>& uniformOffsets) {
 		u32* spirv = (u32*)shader->source;
 		int spirvsize = shader->length / 4;
 		int index = 0;
@@ -32,9 +48,12 @@ namespace {
 		unsigned generator = spirv[index++];
 		unsigned bound = spirv[index++];
 		index++;
-
+		
 		std::map<u32, std::string> names;
+		std::map<u32, std::string> memberNames;
 		std::map<u32, u32> locs;
+		std::map<u32, u32> bindings;
+		std::map<u32, u32> offsets;
 
 		while (index < spirvsize) {
 			int wordCount = spirv[index] >> 16;
@@ -50,6 +69,15 @@ namespace {
 				names[id] = string;
 				break;
 			}
+			case 6: { // OpMemberName
+				u32 type = operands[0];
+				if (names[type] == "_k_global_uniform_buffer_type") {
+					u32 member = operands[1];
+					char* string = (char*)&operands[2];
+					memberNames[member] = string;
+				}
+				break;
+			}
 			case 71: { // OpDecorate
 				u32 id = operands[0];
 				u32 decoration = operands[1];
@@ -57,7 +85,22 @@ namespace {
 					u32 location = operands[2];
 					locs[id] = location;
 				}
+				if (decoration == 33) { // binding
+					u32 binding = operands[2];
+					bindings[id] = binding;
+				}
 				break;
+			}
+			case 72: { // OpMemberDecorate
+				u32 type = operands[0];
+				if (names[type] == "_k_global_uniform_buffer_type") {
+					u32 member = operands[1];
+					u32 decoration = operands[2];
+					if (decoration == 35) { // offset
+						u32 offset = operands[3];
+						offsets[member] = offset;
+					}
+				}
 			}
 			}
 
@@ -66,6 +109,14 @@ namespace {
 
 		for (std::map<u32, u32>::iterator it = locs.begin(); it != locs.end(); ++it) {
 			locations[names[it->first]] = it->second;
+		}
+
+		for (std::map<u32, u32>::iterator it = bindings.begin(); it != bindings.end(); ++it) {
+			textureBindings[names[it->first]] = it->second;
+		}
+
+		for (std::map<u32, u32>::iterator it = offsets.begin(); it != offsets.end(); ++it) {
+			uniformOffsets[memberNames[it->first]] = it->second;
 		}
 	}
 
@@ -97,22 +148,15 @@ namespace {
 	}
 
 	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info) {
-		float data[1] = { 0.0f };
-
-		VkMemoryRequirements mem_reqs;
-		uint8_t *pData;
-		int i;
-		VkResult err;
-		bool pass;
-		
 		VkBufferCreateInfo buf_info;
 		memset(&buf_info, 0, sizeof(buf_info));
 		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		buf_info.size = sizeof(float);
-		err = vkCreateBuffer(device, &buf_info, NULL, &buf);
+		buf_info.size = sizeof(float) * 256;
+		VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buf);
 		assert(!err);
 
+		VkMemoryRequirements mem_reqs;
 		vkGetBufferMemoryRequirements(device, buf, &mem_reqs);
 
 		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -120,25 +164,18 @@ namespace {
 		mem_alloc.allocationSize = mem_reqs.size;
 		mem_alloc.memoryTypeIndex = 0;
 
-		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
+		bool pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
 		assert(pass);
 
 		err = vkAllocateMemory(device, &mem_alloc, NULL, &mem);
 		assert(!err);
-
-		err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&pData);
-		assert(!err);
-
-		memcpy(pData, &data, sizeof(data));
-
-		vkUnmapMemory(device, mem);
 
 		err = vkBindBufferMemory(device, buf, mem, 0);
 		assert(!err);
 
 		buffer_info.buffer = buf;
 		buffer_info.offset = 0;
-		buffer_info.range = sizeof(data);
+		buffer_info.range = sizeof(float) * 256;
 	}
 }
 
@@ -179,81 +216,142 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 	tesselationEvaluationShader = shader;
 }
 
-void Program::link(VertexStructure** structures, int count) {
-	parseShader(vertexShader, vertexLocations);
+void createDescriptorLayout() {
+	VkDescriptorSetLayoutBinding layoutBindings[8];
+	memset(layoutBindings, 0, sizeof(layoutBindings));
 
-	VkDescriptorSetLayoutBinding layout_binding = {};
-	/*layout_binding.binding = 0;
-	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	layout_binding.descriptorCount = 0; // DEMO_TEXTURE_COUNT;
-	layout_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	layout_binding.pImmutableSamplers = NULL;*/
-	layout_binding.binding = 0;
-	layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	layout_binding.descriptorCount = 0;
-	layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	layout_binding.pImmutableSamplers = nullptr;
-	
+	layoutBindings[0].binding = 0;
+	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	layoutBindings[0].descriptorCount = 1;
+	layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	layoutBindings[0].pImmutableSamplers = nullptr;
+
+	layoutBindings[1].binding = 1;
+	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	layoutBindings[1].descriptorCount = 1;
+	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	layoutBindings[1].pImmutableSamplers = nullptr;
+
+	for (int i = 2; i < 8; ++i) {
+		layoutBindings[i].binding = i;
+		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		layoutBindings[i].descriptorCount = 1;
+		layoutBindings[i].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		layoutBindings[i].pImmutableSamplers = nullptr;
+	}
+
 	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
 	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descriptor_layout.pNext = NULL;
-	descriptor_layout.bindingCount = 1;
-	descriptor_layout.pBindings = &layout_binding;
+	descriptor_layout.bindingCount = 8;
+	descriptor_layout.pBindings = layoutBindings;
 
 	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
-	
-	VkDescriptorPoolSize type_count = {};
-	type_count.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-	type_count.descriptorCount = 1;
-	
+
+	VkDescriptorPoolSize typeCounts[8];
+	memset(typeCounts, 0, sizeof(typeCounts));
+
+	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	typeCounts[0].descriptorCount = 1;
+
+	typeCounts[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	typeCounts[1].descriptorCount = 1;
+
+	for (int i = 2; i < 8; ++i) {
+		typeCounts[i].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		typeCounts[i].descriptorCount = 1;
+	}
+
 	VkDescriptorPoolCreateInfo descriptor_pool = {};
 	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptor_pool.pNext = NULL;
-	descriptor_pool.maxSets = 1;
-	descriptor_pool.poolSizeCount = 1;
-	descriptor_pool.pPoolSizes = &type_count;
-	
+	descriptor_pool.maxSets = 128;
+	descriptor_pool.poolSizeCount = 8;
+	descriptor_pool.pPoolSizes = typeCounts;
+
 	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
 	assert(!err);
+}
 
+void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
 	//VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
-	VkDescriptorBufferInfo buffer_descs[1];
-	
+	VkDescriptorBufferInfo buffer_descs[2];
+
 	VkDescriptorSetAllocateInfo alloc_info = {};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.pNext = NULL;
 	alloc_info.descriptorPool = desc_pool;
 	alloc_info.descriptorSetCount = 1;
 	alloc_info.pSetLayouts = &desc_layout;
-	err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
+	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
-	createUniformBuffer(buf, mem_alloc, mem, buffer_info);
-
-	/*memset(&tex_descs, 0, sizeof(tex_descs));
-	for (i = 0; i < 1; i++) {
-		tex_descs[i].sampler = demo->textures[i].sampler;
-		tex_descs[i].imageView = demo->textures[i].view;
-		tex_descs[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-	}*/
-	memset(&buffer_descs, 0, sizeof(buffer_descs));
-	for (uint32_t i = 0; i < 1; ++i) {
-		buffer_descs[i].buffer = buf;
-		buffer_descs[i].offset = 0;
-		buffer_descs[i].range = 16 * sizeof(float);
+	if (texture == nullptr && renderTarget == nullptr) {
+		createUniformBuffer(bufVertex, mem_allocVertex, memVertex, buffer_infoVertex);
+		createUniformBuffer(bufFragment, mem_allocFragment, memFragment, buffer_infoFragment);
 	}
 
-	VkWriteDescriptorSet write;
-	memset(&write, 0, sizeof(write));
-	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	write.dstSet = desc_set;
-	write.descriptorCount = 1;
-	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	//write.pImageInfo = tex_descs;
-	write.pBufferInfo = buffer_descs;
+	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
-	vkUpdateDescriptorSets(device, 1, &write, 0, NULL);
+	buffer_descs[0].buffer = bufVertex;
+	buffer_descs[0].offset = 0;
+	buffer_descs[0].range = 256 * sizeof(float);
+
+	buffer_descs[1].buffer = bufFragment;
+	buffer_descs[1].offset = 0;
+	buffer_descs[1].range = 256 * sizeof(float);
+
+	VkDescriptorImageInfo tex_desc;
+	memset(&tex_desc, 0, sizeof(tex_desc));
+
+	if (texture != nullptr) {
+		tex_desc.sampler = texture->texture.sampler;
+		tex_desc.imageView = texture->texture.view;
+	}
+	if (renderTarget != nullptr) {
+		tex_desc.sampler = renderTarget->sampler;
+		tex_desc.imageView = renderTarget->destView;
+	}
+	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+	VkWriteDescriptorSet writes[8];
+	memset(writes, 0, sizeof(writes));
+
+	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writes[0].dstSet = desc_set;
+	writes[0].dstBinding = 0;
+	writes[0].descriptorCount = 1;
+	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	writes[0].pBufferInfo = &buffer_descs[0];
+
+	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writes[1].dstSet = desc_set;
+	writes[1].dstBinding = 1;
+	writes[1].descriptorCount = 1;
+	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	writes[1].pBufferInfo = &buffer_descs[1];
+
+	for (int i = 2; i < 8; ++i) {
+		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		writes[i].dstSet = desc_set;
+		writes[i].dstBinding = i;
+		writes[i].descriptorCount = 1;
+		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		writes[i].pImageInfo = &tex_desc;
+	}
+
+	if (texture != nullptr || renderTarget != nullptr) {
+		vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
+	}
+	else {
+		vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
+	}
+}
+
+void Program::link(VertexStructure** structures, int count) {
+	parseShader(vertexShader, vertexLocations, textureBindings, vertexOffsets);
+	parseShader(fragmentShader, fragmentLocations, textureBindings, fragmentOffsets);
 
 	//
 
@@ -263,7 +361,7 @@ void Program::link(VertexStructure** structures, int count) {
 	pPipelineLayoutCreateInfo.setLayoutCount = 1;
 	pPipelineLayoutCreateInfo.pSetLayouts = &desc_layout;
 
-	err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline_layout);
+	VkResult err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline_layout);
 	assert(!err);
 
 	//
@@ -411,8 +509,8 @@ void Program::link(VertexStructure** structures, int count) {
 
 	memset(&ds, 0, sizeof(ds));
 	ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	ds.depthTestEnable = VK_TRUE;
-	ds.depthWriteEnable = VK_TRUE;
+	ds.depthTestEnable = VK_FALSE;
+	ds.depthWriteEnable = VK_FALSE;
 	ds.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 	ds.depthBoundsTestEnable = VK_FALSE;
 	ds.back.failOp = VK_STENCIL_OP_KEEP;
@@ -467,18 +565,47 @@ void Program::link(VertexStructure** structures, int count) {
 }
 
 void Program::set() {
+	current = this;
+	
+	{
+		uint8_t* data;
+		VkResult err = vkMapMemory(device, memVertex, 0, mem_allocVertex.allocationSize, 0, (void**)&data);
+		assert(!err);
+		memcpy(data, &uniformDataVertex, sizeof(uniformDataVertex));
+		vkUnmapMemory(device, memVertex);
+	}
+
+	{
+		uint8_t* data;
+		VkResult err = vkMapMemory(device, memFragment, 0, mem_allocFragment.allocationSize, 0, (void**)&data);
+		assert(!err);
+		memcpy(data, &uniformDataFragment, sizeof(uniformDataFragment));
+		vkUnmapMemory(device, memFragment);
+	}
+
 	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-	//vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
+
+	if (vulkanRenderTargets[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, NULL);
+	else if (vulkanTextures[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, NULL);
+	else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, NULL);
+	
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
-	location.location = 0;
+	location.vertexOffset = -1;
+	location.fragmentOffset = -1;
+	if (vertexOffsets.find(name) != vertexOffsets.end()) {
+		location.vertexOffset = vertexOffsets[name];
+	}
+	if (fragmentOffsets.find(name) != fragmentOffsets.end()) {
+		location.fragmentOffset = fragmentOffsets[name];
+	}
 	return location;
 }
 
 TextureUnit Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
-	unit.unit = 0;
+	unit.binding = textureBindings[name];
 	return unit;
 }
