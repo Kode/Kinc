@@ -22,7 +22,7 @@ namespace {
 			NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
 			NSOpenGLPFASamples, (NSOpenGLPixelFormatAttribute)aa,
             NSOpenGLPFAStencilSize, (NSOpenGLPixelFormatAttribute)8,
-			(NSOpenGLPixelFormatAttribute)nil
+			(NSOpenGLPixelFormatAttribute)0
 		};
 		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
 	}
@@ -32,7 +32,7 @@ namespace {
 			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
 			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
             NSOpenGLPFAStencilSize, (NSOpenGLPixelFormatAttribute)8,
-			(NSOpenGLPixelFormatAttribute)nil
+			(NSOpenGLPixelFormatAttribute)0
 		};
 		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
 	}
