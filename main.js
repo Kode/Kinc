@@ -89,7 +89,12 @@ function shaderLang(platform) {
 					return 'essl';
 			}
 		case Platform.OSX:
-			return "glsl";
+			switch (Options.graphicsApi) {
+				case GraphicsApi.Metal:
+					return 'metal';
+				default:
+					return 'glsl';
+			}
 		case Platform.Android:
 			switch (Options.graphicsApi) {
 				case GraphicsApi.Vulkan:
