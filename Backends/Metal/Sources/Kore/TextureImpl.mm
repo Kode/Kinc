@@ -46,7 +46,7 @@ void TextureImpl::create(int width, int height) {
 id getMetalDevice();
 id getMetalEncoder();
 
-void Texture::set(TextureUnit unit) {
+void Texture::_set(TextureUnit unit) {
 	id <MTLDevice> device = getMetalDevice();
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterLinear;

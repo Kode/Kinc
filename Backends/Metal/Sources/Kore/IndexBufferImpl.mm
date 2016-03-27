@@ -38,7 +38,7 @@ void IndexBuffer::unlock() {
 	
 }
 
-void IndexBuffer::set() {
+void IndexBuffer::_set() {
 	current = this;
 }
 

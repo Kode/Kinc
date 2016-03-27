@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Metal.h"
 #include "VertexBufferImpl.h"
-#include <Kore/Application.h>
 #include <Kore/System.h>
 #include <Kore/Math/Core.h>
 #include <cstdio>
@@ -34,15 +33,15 @@ namespace {
 id getMetalDevice();
 id getMetalEncoder();
 
-void Graphics::destroy() {
+void Graphics::destroy(int windowId) {
 
-	System::destroyWindow();
+	System::destroyWindow(windowId);
 }
 
 #undef CreateWindow
 
-void Graphics::init() {
-	System::createWindow();
+void Graphics::init(int, int, int) {
+	//System::createWindow();
 	id <MTLDevice> device = getMetalDevice();
 	vertexUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
 	fragmentUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
@@ -60,9 +59,9 @@ bool Graphics::vsynced() {
 	return true;
 }
 
-void* Graphics::getControl() {
-	return nullptr;
-}
+//void* Graphics::getControl() {
+//	return nullptr;
+//}
 
 void Graphics::setBool(ConstantLocation location, bool value) {
 	if (location.vertexOffset >= 0) {
@@ -200,13 +199,13 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:IndexBufferImpl::current->mtlBuffer indexBufferOffset:start + IndexBufferImpl::current->offset()];
 }
 
-void Graphics::swapBuffers() {
-	System::swapBuffers();
+void Graphics::swapBuffers(int windowId) {
+	System::swapBuffers(windowId);
 }
 
 void beginGL();
 
-void Graphics::begin() {
+void Graphics::begin(int windowId) {
 	beginGL();
 	
 }
@@ -226,7 +225,7 @@ void Graphics::scissor(int x, int y, int width, int height) {
 	//TODO
 }
 
-void Graphics::disableScissor(int x, int y, int width, int height) {
+void Graphics::disableScissor() {
 	//TODO
 }
 
@@ -234,7 +233,7 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 	//TODO
 }
 
-void Graphics::end() {
+void Graphics::end(int windowId) {
 	++uniformsIndex;
 	if (uniformsIndex >= more) {
 		uniformsIndex = 0;
@@ -291,4 +290,12 @@ bool Graphics::renderTargetsInvertedY() {
 
 bool Graphics::nonPow2TexturesSupported() {
 	return true;
+}
+
+void Graphics::setIndexBuffer(Kore::IndexBuffer &ib) {
+	ib._set();
+}
+
+void Graphics::setVertexBuffers(Kore::VertexBuffer **vertexBuffers, int count) {
+	vertexBuffers[0]->_set(0);
 }
