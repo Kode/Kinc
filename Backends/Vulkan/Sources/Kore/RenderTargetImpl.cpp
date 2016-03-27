@@ -74,7 +74,7 @@ void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout 
 	vkCmdPipelineBarrier(draw_cmd, srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) : width(width), height(height) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
 	{
 		VkFormatProperties formatProperties;
 		VkResult err;

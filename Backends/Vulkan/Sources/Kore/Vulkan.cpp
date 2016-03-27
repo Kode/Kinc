@@ -1,6 +1,5 @@
 #include "pch.h"
 #include <Kore/Graphics/Graphics.h>
-#include <Kore/Application.h>
 #include <Kore/System.h>
 #include <Kore/Math/Core.h>
 #include <Kore/Log.h>
@@ -296,11 +295,32 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 	return false;
 }
 
-void Graphics::destroy() {
+void Graphics::destroy(int windowId) {
 
 }
 
-void Graphics::init() {
+#if defined(SYS_WINDOWS)
+void Graphics::setup() {
+}
+#endif
+
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+
+}
+
+#if defined(SYS_WINDOWS)
+void Graphics::clearCurrent() {
+	
+}
+#endif
+
+#if defined(SYS_WINDOWS)
+void Graphics::makeCurrent(int contextId) {
+	
+}
+#endif
+
+void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
 #ifdef VALIDATE
@@ -410,8 +430,8 @@ void Graphics::init() {
 	}
 	VkApplicationInfo app = {};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	app.pNext = nullptr,
-	app.pApplicationName = Application::the()->name();
+	app.pNext = nullptr;
+	app.pApplicationName = System::name();
 	app.applicationVersion = 0;
 	app.pEngineName = "Kore";
 	app.engineVersion = 0;
@@ -595,12 +615,12 @@ void Graphics::init() {
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
-	width = Application::the()->width();
-	height = Application::the()->height();
+	width = System::windowWidth(windowId);
+	height = System::windowHeight(windowId);
 	depthStencil = 1.0;
 	depthIncrement = -0.01f;
 
-	windowHandle = (HWND)System::createWindow();
+	windowHandle = (HWND)System::windowHandle(windowId);
 #ifdef SYS_WINDOWS
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
@@ -1035,12 +1055,12 @@ unsigned Graphics::refreshRate() {
 }
 
 bool Graphics::vsynced() {
-	return true;
+	return false;
 }
 
-void* Graphics::getControl() {
-	return nullptr;
-}
+//void* Graphics::getControl() {
+//	return nullptr;
+//}
 
 void Graphics::setBool(ConstantLocation location, bool value) {
 	if (location.vertexOffset >= 0) {
@@ -1185,11 +1205,11 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 
 }
 
-void Graphics::swapBuffers() {
+void Graphics::swapBuffers(int contextId) {
 
 }
 
-void Graphics::begin() {
+void Graphics::begin(int contextId) {
 	if (began) return;
 
 	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {};
@@ -1301,7 +1321,7 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 
 }
 
-void Graphics::end() {
+void Graphics::end(int windowId) {
 	vkCmdEndRenderPass(draw_cmd);
 
 	VkImageMemoryBarrier prePresentBarrier = {};
