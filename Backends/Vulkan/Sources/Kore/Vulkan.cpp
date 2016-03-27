@@ -82,6 +82,7 @@ namespace {
 	VkSurfaceKHR surface;
 	bool prepared;
 	bool began = false;
+	bool onBackBuffer = false;
 
 	VkAllocationCallbacks allocator;
 
@@ -275,6 +276,17 @@ namespace {
 
 		vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
 		setup_cmd = VK_NULL_HANDLE;
+	}
+
+	int pow(int pow) {
+		int ret = 1;
+		for (int i = 0; i < pow; ++i) ret *= 2;
+		return ret;
+	}
+
+	int getPower2(int i) {
+		for (int power = 0; ; ++power)
+			if (pow(power) >= i) return pow(power);
 	}
 }
 
@@ -997,23 +1009,23 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.flags = 0;
 	subpass.inputAttachmentCount = 0;
-	subpass.pInputAttachments = NULL;
+	subpass.pInputAttachments = nullptr;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &color_reference;
-	subpass.pResolveAttachments = NULL;
+	subpass.pResolveAttachments = nullptr;
 	subpass.pDepthStencilAttachment = &depth_reference;
 	subpass.preserveAttachmentCount = 0;
-	subpass.pPreserveAttachments = NULL;
+	subpass.pPreserveAttachments = nullptr;
 
 	VkRenderPassCreateInfo rp_info = {};
 	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	rp_info.pNext = NULL;
+	rp_info.pNext = nullptr;
 	rp_info.attachmentCount = 2;
 	rp_info.pAttachments = attachments;
 	rp_info.subpassCount = 1;
 	rp_info.pSubpasses = &subpass;
 	rp_info.dependencyCount = 0;
-	rp_info.pDependencies = NULL;
+	rp_info.pDependencies = nullptr;
 
 	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
 	assert(!err);
@@ -1288,8 +1300,8 @@ void Graphics::begin(int contextId) {
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.height = (float)height;
 	viewport.width = (float)width;
+	viewport.height = (float)height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
@@ -1303,6 +1315,7 @@ void Graphics::begin(int contextId) {
 	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 
 	began = true;
+	onBackBuffer = true;
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
@@ -1575,51 +1588,53 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 	endPass();
 	
 	currentRenderTarget = texture;
+	onBackBuffer = false;
 
-	VkClearValue clear_values[2];
-	memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	VkClearValue clear_values[1];
+	memset(clear_values, 0, sizeof(VkClearValue));
 	clear_values[0].color.float32[0] = 0.0f;
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
 	clear_values[0].color.float32[3] = 1.0f;
-	clear_values[1].depthStencil.depth = depthStencil;
-	clear_values[1].depthStencil.stencil = 0;
 
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	rp_begin.pNext = NULL;
+	rp_begin.pNext = nullptr;
 	rp_begin.renderPass = texture->renderPass;
 	rp_begin.framebuffer = texture->framebuffer;
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
-	rp_begin.renderArea.extent.width = width;
-	rp_begin.renderArea.extent.height = height;
-	rp_begin.clearValueCount = 2;
+	rp_begin.renderArea.extent.width = texture->width;
+	rp_begin.renderArea.extent.height = texture->height;
+	rp_begin.clearValueCount = 1;
 	rp_begin.pClearValues = clear_values;
 
 	vkCmdBeginRenderPass(draw_cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.height = (float)height;
-	viewport.width = (float)width;
+	viewport.width = (float)texture->width;
+	viewport.height = (float)texture->height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
 
 	VkRect2D scissor;
 	memset(&scissor, 0, sizeof(scissor));
-	scissor.extent.width = width;
-	scissor.extent.height = height;
+	scissor.extent.width = texture->width;
+	scissor.extent.height = texture->height;
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
 	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }
 
 void Graphics::restoreRenderTarget() {
+	if (onBackBuffer) return;
+
 	endPass();
 
 	currentRenderTarget = nullptr;
+	onBackBuffer = true;
 
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);
@@ -1646,8 +1661,8 @@ void Graphics::restoreRenderTarget() {
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.height = (float)height;
 	viewport.width = (float)width;
+	viewport.height = (float)height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
@@ -1666,7 +1681,7 @@ bool Graphics::renderTargetsInvertedY() {
 }
 
 bool Graphics::nonPow2TexturesSupported() {
-	return false;
+	return true;
 }
 
 void Graphics::flush() {

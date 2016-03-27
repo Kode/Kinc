@@ -75,6 +75,8 @@ void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout 
 }
 
 RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
+	texWidth = width;
+	texHeight = height;
 	{
 		VkFormatProperties formatProperties;
 		VkResult err;
@@ -94,6 +96,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 		imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 		imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		imageCreateInfo.flags = 0;
+		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
 
 		err = vkCreateImage(device, &imageCreateInfo, nullptr, &destImage);
 		assert(!err);
@@ -131,7 +134,11 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	}
 
 	{
+		VkFormatProperties formatProperties;
 		VkResult err;
+
+		vkGetPhysicalDeviceFormatProperties(gpu, VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
+		assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT);
 
 		VkImageCreateInfo image = {};
 		image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
