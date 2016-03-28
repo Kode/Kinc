@@ -5,6 +5,7 @@ const Files = require('./Files.js');
 const Paths = require('./Paths.js');
 const GraphicsApi = require('./GraphicsApi.js');
 const Options = require('./Options.js');
+const Platform = require('./Platform.js');
 const fs = require('fs');
 
 class ExporterMakefile extends Exporter {

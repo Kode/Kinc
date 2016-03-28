@@ -5,8 +5,8 @@ const Files = require('./Files.js');
 const Paths = require('./Paths.js');
 const GraphicsApi = require('./GraphicsApi.js');
 const Options = require('./Options.js');
-const fs = require('fs');
 const Platform = require('./Platform.js');
+const fs = require('fs');
 
 class ExporterCodeBlocks extends Exporter {
 	constructor() {
