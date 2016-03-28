@@ -3,6 +3,8 @@
 const Exporter = require('./Exporter.js');
 const Files = require('./Files.js');
 const Paths = require('./Paths.js');
+const GraphicsApi = require('./GraphicsApi.js');
+const Options = require('./Options.js');
 const fs = require('fs');
 
 class ExporterMakefile extends Exporter {
@@ -48,7 +50,14 @@ class ExporterMakefile extends Exporter {
 		}
 		this.p('INC=' + incline);
 
-		let libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl -lXinerama';
+		let libsline = '';
+		if (platform === Platform.Pi) {
+			libsline = '-static-libgcc -static-libstdc++ -pthread -lGLESv2 -lX11 -lasound -ldl -lbcm_host -lEGL';
+		}
+		else {
+			if (Options.graphicsApi === GraphicsApi.Vulkan) libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl -lXinerama -lxcb -lvulkan';
+			else libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl -lXinerama';
+		}
 		this.p('LIB=' + libsline);
 
 		let defline = '';

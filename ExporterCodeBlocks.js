@@ -3,6 +3,8 @@
 const Exporter = require('./Exporter.js');
 const Files = require('./Files.js');
 const Paths = require('./Paths.js');
+const GraphicsApi = require('./GraphicsApi.js');
+const Options = require('./Options.js');
 const fs = require('fs');
 const Platform = require('./Platform.js');
 
@@ -78,6 +80,10 @@ class ExporterCodeBlocks extends Exporter {
 			this.p("<Add library=\"asound\" />", 3);
 			this.p("<Add library=\"dl\" />", 3);
 			this.p("<Add library=\"Xinerama\" />", 3);
+			if (Options.graphicsApi === GraphicsApi.Vulkan) {
+				this.p("<Add library=\"xcb\" />", 3);
+				this.p("<Add library=\"vulkan\" />", 3);
+			}
 		}
 		this.p("</Linker>", 2);
 		for (let file of project.getFiles()) {
