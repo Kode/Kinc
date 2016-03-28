@@ -131,6 +131,7 @@ else if (platform === Platform.Linux) {
 	if (graphics === GraphicsApi.Vulkan) {
 		addBackend('Vulkan');
 		project.addDefine('SYS_VULKAN');
+		project.addDefine('VK_USE_PLATFORM_XCB_KHR');
 	}
 	else {
 		addBackend('OpenGL2');

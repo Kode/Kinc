@@ -7,16 +7,25 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include <vulkan/vulkan.h>
-#include <Windows.h>
 
 using namespace Kore;
 
+#ifdef SYS_WINDOWS
 #define ERR_EXIT(err_msg, err_class)                                           \
     do {                                                                       \
         MessageBoxA(NULL, err_msg, err_class, MB_OK);                          \
         exit(1);                                                               \
     } while (0)
+#else
+#define ERR_EXIT(err_msg, err_class)                                           \
+    do {                                                                       \
+        printf(err_msg);                                                       \
+        fflush(stdout);                                                        \
+        exit(1);                                                               \
+    } while (0)
+#endif
 
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                               \
     {                                                                          \
@@ -73,12 +82,18 @@ void createDescriptorLayout();
 void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
 namespace {
+#ifdef SYS_WINDOWS
 	HWND windowHandle;
 
 	HINSTANCE connection;        // hInstance - Windows Instance
 	char name[APP_NAME_STR_LEN]; // Name to put on the window/icon
 	HWND window;                 // hWnd - window handle
-
+#else
+    xcb_connection_t* connection;
+    xcb_screen_t* screen;
+    xcb_window_t window;
+    xcb_intern_atom_reply_t* atom_wm_delete_window;
+#endif
 	VkSurfaceKHR surface;
 	bool prepared;
 	bool began = false;
@@ -188,7 +203,7 @@ namespace {
 			cmd.commandPool = cmd_pool;
 			cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			cmd.commandBufferCount = 1;
-		
+
 			err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
 			assert(!err);
 
@@ -201,7 +216,7 @@ namespace {
 			cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
 			cmd_buf_hinfo.queryFlags = 0;
 			cmd_buf_hinfo.pipelineStatistics = 0;
-			
+
 			VkCommandBufferBeginInfo cmd_buf_info = {};
 			cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			cmd_buf_info.pNext = nullptr;
@@ -225,7 +240,7 @@ namespace {
 		image_memory_barrier.subresourceRange.levelCount = 1;
 		image_memory_barrier.subresourceRange.baseArrayLayer = 0;
 		image_memory_barrier.subresourceRange.layerCount = 1;
-	
+
 		if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
 			// Make sure anything that was copying from this image has completed
 			image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
@@ -322,17 +337,31 @@ void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
 
 #if defined(SYS_WINDOWS)
 void Graphics::clearCurrent() {
-	
+
 }
 #endif
 
 #if defined(SYS_WINDOWS)
 void Graphics::makeCurrent(int contextId) {
-	
+
 }
 #endif
 
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
+#ifndef SYS_WINDOWS
+    int scr;
+    connection = xcb_connect(nullptr, &scr);
+    if (connection == nullptr) {
+        printf("Cannot find a compatible Vulkan installable client driver (ICD).\nExiting ...\n");
+        fflush(stdout);
+        exit(1);
+    }
+    const xcb_setup_t* setup = xcb_get_setup(connection);
+    xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
+    while (scr-- > 0) xcb_screen_next(&iter);
+    screen = iter.data;
+#endif
+
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
 #ifdef VALIDATE
@@ -403,12 +432,18 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 				extension_names[enabled_extension_count++] =
 					VK_KHR_SURFACE_EXTENSION_NAME;
 			}
-
+#ifdef SYS_WINDOWS
 			if (!strcmp(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
 				platformSurfaceExtFound = 1;
 				extension_names[enabled_extension_count++] =
 					VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 			}
+#else
+			if (!strcmp(VK_KHR_XCB_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
+                platformSurfaceExtFound = 1;
+                extension_names[enabled_extension_count++] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
+            }
+#endif
 
 			if (!strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName)) {
 #ifdef VALIDATE
@@ -431,6 +466,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 			"vkCreateInstance Failure");
 	}
 	if (!platformSurfaceExtFound) {
+#ifdef SYS_WINDOWS
 		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
 			"the " VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 			" extension.\n\nDo you have a compatible "
@@ -438,7 +474,15 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 			"look at the Getting Started guide for additional "
 			"information.\n",
 			"vkCreateInstance Failure");
-
+#else
+        ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
+                 "the " VK_KHR_XCB_SURFACE_EXTENSION_NAME
+                 " extension.\n\nDo you have a compatible "
+                 "Vulkan installable client driver (ICD) installed?\nPlease "
+                 "look at the Getting Started guide for additional "
+                 "information.\n",
+                 "vkCreateInstance Failure");
+#endif
 	}
 	VkApplicationInfo app = {};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -632,8 +676,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	depthStencil = 1.0;
 	depthIncrement = -0.01f;
 
-	windowHandle = (HWND)System::windowHandle(windowId);
 #ifdef SYS_WINDOWS
+	windowHandle = (HWND)System::windowHandle(windowId);
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
 	SetFocus(windowHandle); // Sets Keyboard Focus To The Window
@@ -642,7 +686,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	{
 		VkResult err;
 		uint32_t i;
-
+#ifdef SYS_WINDOWS
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.pNext = NULL;
@@ -651,7 +695,15 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		createInfo.hwnd = windowHandle;
 
 		err = vkCreateWin32SurfaceKHR(inst, &createInfo, NULL, &surface);
-
+#else
+        VkXcbSurfaceCreateInfoKHR createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+        createInfo.pNext = nullptr;
+        createInfo.flags = 0;
+        createInfo.connection = connection;
+        createInfo.window = window;
+        err = vkCreateXcbSurfaceKHR(inst, &createInfo, nullptr, &surface);
+#endif
 		// Iterate over each queue to learn whether it supports presenting:
 		VkBool32 *supportsPresent =
 			(VkBool32 *)malloc(queue_count * sizeof(VkBool32));
@@ -765,7 +817,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	cmd_pool_info.pNext = NULL;
 	cmd_pool_info.queueFamilyIndex = graphics_queue_node_index;
 	cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	
+
 	err = vkCreateCommandPool(device, &cmd_pool_info, NULL, &cmd_pool);
 	assert(!err);
 
@@ -775,7 +827,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	cmd.commandPool = cmd_pool;
 	cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	cmd.commandBufferCount = 1;
-	
+
 	err = vkAllocateCommandBuffers(device, &cmd, &draw_cmd);
 	assert(!err);
 
@@ -849,7 +901,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	swapchain_info.presentMode = swapchainPresentMode;
 	swapchain_info.oldSwapchain = oldSwapchain;
 	swapchain_info.clipped = true;
-	
+
 	uint32_t i;
 
 	err = fpCreateSwapchainKHR(device, &swapchain_info, NULL, &swapchain);
@@ -926,13 +978,13 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	image.tiling = VK_IMAGE_TILING_OPTIMAL;
 	image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 	image.flags = 0;
-	
+
 	VkMemoryAllocateInfo mem_alloc = {};
 	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	mem_alloc.pNext = NULL;
 	mem_alloc.allocationSize = 0;
 	mem_alloc.memoryTypeIndex = 0;
-	
+
 	VkImageViewCreateInfo view = {};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
@@ -1266,13 +1318,13 @@ void Graphics::begin(int contextId) {
 	cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
 	cmd_buf_hinfo.queryFlags = 0;
 	cmd_buf_hinfo.pipelineStatistics = 0;
-	
+
 	VkCommandBufferBeginInfo cmd_buf_info = {};
 	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	cmd_buf_info.pNext = NULL;
 	cmd_buf_info.flags = 0;
 	cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
-	
+
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);
 	clear_values[0].color.float32[0] = 0.0f;
@@ -1281,7 +1333,7 @@ void Graphics::begin(int contextId) {
 	clear_values[0].color.float32[3] = 1.0f;
 	clear_values[1].depthStencil.depth = depthStencil;
 	clear_values[1].depthStencil.stencil = 0;
-	
+
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = NULL;
@@ -1404,6 +1456,10 @@ void Graphics::end(int windowId) {
 
 	depthStencil += depthIncrement;
 
+#ifndef SYS_WINDOWS
+	vkDeviceWaitIdle(device);
+#endif
+
 	began = false;
 }
 
@@ -1427,7 +1483,7 @@ void Graphics::setRenderState(RenderState state, bool on) {
 }
 
 void Graphics::setRenderState(RenderState state, int v) {
-	
+
 }
 
 void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
@@ -1472,7 +1528,7 @@ void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout 
 
 namespace {
 	RenderTarget* currentRenderTarget = nullptr;
-	
+
 	void endPass() {
 		vkCmdEndRenderPass(draw_cmd);
 
@@ -1586,7 +1642,7 @@ namespace {
 
 void Graphics::setRenderTarget(RenderTarget* texture, int num) {
 	endPass();
-	
+
 	currentRenderTarget = texture;
 	onBackBuffer = false;
 

@@ -2,6 +2,7 @@
 #include <Kore/Graphics/Graphics.h>
 #include <vulkan/vulkan.h>
 #include <assert.h>
+#include <string.h>
 
 using namespace Kore;
 

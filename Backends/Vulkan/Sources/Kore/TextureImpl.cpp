@@ -5,6 +5,7 @@
 #include <Kore/Log.h>
 #include <vulkan/vulkan.h>
 #include <assert.h>
+#include <string.h>
 
 using namespace Kore;
 
@@ -73,7 +74,7 @@ namespace {
 			cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
 			cmd_buf_hinfo.queryFlags = 0;
 			cmd_buf_hinfo.pipelineStatistics = 0;
-			
+
 			VkCommandBufferBeginInfo cmd_buf_info = {};
 			cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			cmd_buf_info.pNext = NULL;
@@ -176,7 +177,7 @@ namespace {
 
 			VkSubresourceLayout layout;
 			u8* data;
-			
+
 			vkGetImageSubresourceLayout(device, tex_obj->image, &subres, &layout);
 
 			err = vkMapMemory(device, tex_obj->mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
@@ -269,7 +270,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	sampler.maxLod = 0.0f;
 	sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 	sampler.unnormalizedCoordinates = VK_FALSE;
-	
+
 	VkImageViewCreateInfo view = {};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
