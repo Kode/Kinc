@@ -237,7 +237,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
 	uint32_t value_list[32];
 	value_list[0] = screen->black_pixel;
-	value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+	value_list[1] = XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
     xcb_create_window(connection, XCB_COPY_FROM_PARENT, window, screen->root, 0, 0, width, height, 0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, value_mask, value_list);
@@ -453,6 +453,56 @@ bool Kore::System::handleMessages() {
 			//needRedraw = GL_TRUE;
 			break;
 		}
+	}
+#else
+	xcb_generic_event_t* event = xcb_poll_for_event(connection);
+	while (event != nullptr) {
+		switch (event->response_type & 0x7f) {
+		case XCB_EXPOSE:
+			break;
+		case XCB_CLIENT_MESSAGE:
+			if ((*(xcb_client_message_event_t*)event).data.data32[0] == (*atom_wm_delete_window).atom) {
+				exit(0);
+			}
+			break;
+		case XCB_KEY_PRESS: {
+			const xcb_key_press_event_t* key = (const xcb_key_press_event_t*)event;
+			switch (key->detail) {
+			case 111: Kore::Keyboard::the()->_keydown(Kore::Key_Up, ' '); break;
+			case 116: Kore::Keyboard::the()->_keydown(Kore::Key_Down, ' '); break;
+			case 113: Kore::Keyboard::the()->_keydown(Kore::Key_Left, ' '); break;
+			case 114: Kore::Keyboard::the()->_keydown(Kore::Key_Right, ' '); break;
+			}
+			break;
+		}
+		case XCB_KEY_RELEASE: {
+			const xcb_key_release_event_t* key = (const xcb_key_release_event_t*)event;
+			if (key->detail == 0x9) exit(0);
+			switch (key->detail) {
+			case 111: Kore::Keyboard::the()->_keyup(Kore::Key_Up, ' '); break;
+			case 116: Kore::Keyboard::the()->_keyup(Kore::Key_Down, ' '); break;
+			case 113: Kore::Keyboard::the()->_keyup(Kore::Key_Left, ' '); break;
+			case 114: Kore::Keyboard::the()->_keyup(Kore::Key_Right, ' '); break;
+			}
+			break;
+		}
+		case XCB_DESTROY_NOTIFY:
+			exit(0);
+			break;
+		case XCB_CONFIGURE_NOTIFY: {
+			const xcb_configure_notify_event_t* cfg = (const xcb_configure_notify_event_t*)event;
+			//if ((demo->width != cfg->width) || (demo->height != cfg->height)) {
+			//	demo->width = cfg->width;
+			//	demo->height = cfg->height;
+			//	demo_resize(demo);
+			//}
+			break;
+		}
+		default:
+			break;
+		}
+		free(event);
+		event = xcb_poll_for_event(connection);
 	}
 #endif
 	return true;
