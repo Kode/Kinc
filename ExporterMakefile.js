@@ -56,7 +56,7 @@ class ExporterMakefile extends Exporter {
 			libsline = '-static-libgcc -static-libstdc++ -pthread -lGLESv2 -lX11 -lasound -ldl -lbcm_host -lEGL';
 		}
 		else {
-			if (Options.graphicsApi === GraphicsApi.Vulkan) libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl -lXinerama -lxcb -lvulkan';
+			if (Options.graphicsApi === GraphicsApi.Vulkan) libsline = '-static-libgcc -static-libstdc++ -pthread -lasound -ldl -lxcb -lvulkan';
 			else libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl -lXinerama';
 		}
 		this.p('LIB=' + libsline);

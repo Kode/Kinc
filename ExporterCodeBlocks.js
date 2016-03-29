@@ -75,14 +75,16 @@ class ExporterCodeBlocks extends Exporter {
 			this.p("<Add directory=\"/opt/vc/lib\" />", 3);
 		}
 		else {
-			this.p("<Add library=\"GL\" />", 3);
-			this.p("<Add library=\"X11\" />", 3); 
 			this.p("<Add library=\"asound\" />", 3);
 			this.p("<Add library=\"dl\" />", 3);
-			this.p("<Add library=\"Xinerama\" />", 3);
 			if (Options.graphicsApi === GraphicsApi.Vulkan) {
-				this.p("<Add library=\"xcb\" />", 3);
 				this.p("<Add library=\"vulkan\" />", 3);
+				this.p("<Add library=\"xcb\" />", 3);
+			}
+			else {
+				this.p("<Add library=\"GL\" />", 3);
+				this.p("<Add library=\"X11\" />", 3);
+				this.p("<Add library=\"Xinerama\" />", 3);
 			}
 		}
 		this.p("</Linker>", 2);
