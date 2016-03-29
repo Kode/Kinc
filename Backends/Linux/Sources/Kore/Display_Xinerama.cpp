@@ -6,11 +6,16 @@
 #include "Display.h"
 #include <Kore/Log.h>
 
+#ifdef OPENGL
 #include <X11/X.h>
 #include <X11/extensions/Xinerama.h>
+#else
+#include <vulkan/vulkan.h>
+#endif
 
 //apt-get install libxinerama-dev
 
+#ifdef OPENGL
 namespace Kore { namespace Display {
 void fatalError(const char* message);
 
@@ -63,5 +68,5 @@ void enumDisplayMonitors( DeviceInfo displays[], int & displayCounter ) {
 }
 
 }}
-
+#endif
 //#endif // #if defined(KORE_LINUX_DISPLAY_XINERAMA)

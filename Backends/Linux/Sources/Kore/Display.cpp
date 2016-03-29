@@ -18,16 +18,18 @@ namespace Kore { namespace Display {
 	DeviceInfo displays[MAXIMUM_DISPLAY_COUNT];
 	int displayCounter = -1;
 	bool initialized = false;
-
+#ifdef OPENGL
     void enumDisplayMonitors( DeviceInfo screens[], int & displayCounter );
-
+#endif
 	void enumerate() {
 		if (initialized) {
 			return;
 		}
 
 		initialized = true;
+#ifdef OPENGL
 		enumDisplayMonitors(displays, displayCounter);
+#endif
 	}
 
 	int count() {

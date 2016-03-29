@@ -12,11 +12,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef OPENGL
 #include <GL/glx.h>
 #include <GL/gl.h>
 
 #include <X11/keysym.h>
 //#include <X11/Xlib.h>
+#endif
 
 //apt-get install mesa-common-dev
 //apt-get install libgl-dev
@@ -24,7 +26,7 @@
 namespace {
     //static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, None};
     //static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, GLX_DOUBLEBUFFER, None};
-
+#ifdef OPENGL
     struct MwmHints {
         // These correspond to XmRInt resources. (VendorSE.c)
         int	         flags;
@@ -35,10 +37,9 @@ namespace {
     };
 
     #define MWM_HINTS_DECORATIONS	(1L << 1)
-
     Display* dpy;
-
     GLboolean doubleBuffer = GL_TRUE;
+#endif
 
     void fatalError(const char* message) {
         printf("main: %s\n", message);
@@ -46,6 +47,7 @@ namespace {
     }
 }
 
+#ifdef OPENGL
 namespace windowimpl {
     struct KoreWindow : public Kore::KoreWindowBase {
         Window handle;
@@ -70,7 +72,7 @@ namespace windowimpl {
         return -1;
     }
 }
-
+#endif
 
 void Kore::System::setup() {
     Display::enumerate();
@@ -81,10 +83,22 @@ bool Kore::System::isFullscreen() {
     return false;
 }
 
+#ifndef OPENGL
+xcb_connection_t* connection;
+xcb_screen_t* screen;
+xcb_window_t window;
+xcb_intern_atom_reply_t* atom_wm_delete_window;
+
+namespace {
+	int windowWidth;
+	int windowHeight;
+}
+#endif
+
 // TODO (DK) the whole glx stuff should go into Graphics/OpenGL?
 //  -then there would be a better separation between window + context setup
-int
-createWindow( const char * title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits ) {
+int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits, int stencilBufferBits) {
+#ifdef OPENGL
     int wcounter = windowimpl::windowCounter + 1;
 
 	XVisualInfo*         vi;
@@ -197,20 +211,87 @@ createWindow( const char * title, int x, int y, int width, int height, Kore::Win
     Kore::System::makeCurrent(wcounter);
 
 	return windowimpl::windowCounter = wcounter;
+#else
+	::windowWidth = width;
+	::windowHeight = height;
+
+	const xcb_setup_t* setup;
+    xcb_screen_iterator_t iter;
+    int scr;
+
+    connection = xcb_connect(NULL, &scr);
+    if (connection == nullptr) {
+        printf("Cannot find a compatible Vulkan installable client driver (ICD).\nExiting ...\n");
+        fflush(stdout);
+        exit(1);
+    }
+
+    setup = xcb_get_setup(connection);
+    iter = xcb_setup_roots_iterator(setup);
+	while (scr-- > 0) xcb_screen_next(&iter);
+
+    screen = iter.data;
+
+	window = xcb_generate_id(connection);
+
+	uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+	uint32_t value_list[32];
+	value_list[0] = screen->black_pixel;
+	value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+
+    xcb_create_window(connection, XCB_COPY_FROM_PARENT, window, screen->root, 0, 0, width, height, 0,
+                      XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, value_mask, value_list);
+
+    // Magic code that will send notification when window is destroyed
+    xcb_intern_atom_cookie_t cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
+    xcb_intern_atom_reply_t* reply = xcb_intern_atom_reply(connection, cookie, 0);
+
+    xcb_intern_atom_cookie_t cookie2 = xcb_intern_atom(connection, 0, 16, "WM_DELETE_WINDOW");
+    atom_wm_delete_window = xcb_intern_atom_reply(connection, cookie2, 0);
+
+    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*reply).atom, 4, 32, 1, &(*atom_wm_delete_window).atom);
+    free(reply);
+
+    xcb_map_window(connection, window);
+	xcb_flush(connection);
+    return 1;
+#endif
 }
 
 namespace Kore { namespace System {
+#ifdef OPENGL
     int windowCount() {
         return windowimpl::windowCounter + 1;
     }
 
-    int windowWidth( int id ) {
+    int windowWidth(int id) {
         return windowimpl::windows[id]->width;
     }
 
-    int windowHeight( int id ) {
+    int windowHeight(int id) {
         return windowimpl::windows[id]->height;
     }
+
+    void* windowHandle(int id) {
+        return (void*)windowimpl::windows[id]->handle;
+    }
+#else
+	int windowCount() {
+        return 1;
+    }
+
+    int windowWidth(int id) {
+        return ::windowWidth;
+    }
+
+    int windowHeight(int id) {
+        return ::windowHeight;
+    }
+
+    void* windowHandle(int id) {
+        return nullptr;
+    }
+#endif
 
     int initWindow( WindowOptions options ) {
         char buffer[1024] = {0};
@@ -222,10 +303,6 @@ namespace Kore { namespace System {
         int id = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
         Graphics::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
         return id;
-    }
-
-    void* windowHandle( int id ) {
-        return (void *)windowimpl::windows[id]->handle;
     }
 }}
 
@@ -242,6 +319,7 @@ namespace Kore { namespace System {
 }}
 
 bool Kore::System::handleMessages() {
+#ifdef OPENGL
 	while (XPending(dpy) > 0) {
 		XEvent event;
 		XNextEvent(dpy, &event);
@@ -376,6 +454,7 @@ bool Kore::System::handleMessages() {
 			break;
 		}
 	}
+#endif
 	return true;
 }
 
@@ -393,8 +472,9 @@ void Kore::System::makeCurrent( int contextId ) {
 #endif
 
     currentDeviceId = contextId;
+#ifdef OPENGL
 	glXMakeCurrent(dpy, windowimpl::windows[contextId]->handle, windowimpl::windows[contextId]->context);
-
+#endif
 }
 
 void Kore::Graphics::clearCurrent() {
@@ -410,7 +490,9 @@ void Kore::System::clearCurrent() {
 }
 
 void Kore::System::swapBuffers( int contextId ) {
+#ifdef OPENGL
     glXSwapBuffers(dpy, windowimpl::windows[contextId]->handle);
+#endif
 }
 
 void Kore::System::destroyWindow( int id ) {
@@ -442,11 +524,19 @@ void Kore::System::loadURL(const char* url) {
 }
 
 int Kore::System::desktopWidth() {
+#ifdef OPENGL
     return XWidthOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
+#else
+    return 1920;
+#endif
 }
 
 int Kore::System::desktopHeight() {
+#ifdef OPENGL
     return XHeightOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
+#else
+	return 1080;
+#endif
 }
 
 namespace {

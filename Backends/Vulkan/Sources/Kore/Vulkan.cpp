@@ -81,6 +81,13 @@ RenderTarget* vulkanRenderTargets[8] = { nullptr, nullptr, nullptr, nullptr, nul
 void createDescriptorLayout();
 void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
+#ifdef SYS_LINUX
+extern xcb_connection_t* connection;
+extern xcb_screen_t* screen;
+extern xcb_window_t window;
+extern xcb_intern_atom_reply_t* atom_wm_delete_window;
+#endif
+
 namespace {
 #ifdef SYS_WINDOWS
 	HWND windowHandle;
@@ -88,11 +95,6 @@ namespace {
 	HINSTANCE connection;        // hInstance - Windows Instance
 	char name[APP_NAME_STR_LEN]; // Name to put on the window/icon
 	HWND window;                 // hWnd - window handle
-#else
-    xcb_connection_t* connection;
-    xcb_screen_t* screen;
-    xcb_window_t window;
-    xcb_intern_atom_reply_t* atom_wm_delete_window;
 #endif
 	VkSurfaceKHR surface;
 	bool prepared;
@@ -348,20 +350,6 @@ void Graphics::makeCurrent(int contextId) {
 #endif
 
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
-#ifndef SYS_WINDOWS
-    int scr;
-    connection = xcb_connect(nullptr, &scr);
-    if (connection == nullptr) {
-        printf("Cannot find a compatible Vulkan installable client driver (ICD).\nExiting ...\n");
-        fflush(stdout);
-        exit(1);
-    }
-    const xcb_setup_t* setup = xcb_get_setup(connection);
-    xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
-    while (scr-- > 0) xcb_screen_next(&iter);
-    screen = iter.data;
-#endif
-
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
 #ifdef VALIDATE
@@ -693,8 +681,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		createInfo.flags = 0;
 		createInfo.hinstance = connection;
 		createInfo.hwnd = windowHandle;
-
 		err = vkCreateWin32SurfaceKHR(inst, &createInfo, NULL, &surface);
+		assert(!err);
 #else
         VkXcbSurfaceCreateInfoKHR createInfo;
         createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
@@ -703,6 +691,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
         createInfo.connection = connection;
         createInfo.window = window;
         err = vkCreateXcbSurfaceKHR(inst, &createInfo, nullptr, &surface);
+        assert(!err);
 #endif
 		// Iterate over each queue to learn whether it supports presenting:
 		VkBool32 *supportsPresent =

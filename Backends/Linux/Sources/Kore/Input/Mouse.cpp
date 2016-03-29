@@ -56,6 +56,7 @@ void Mouse::show(bool truth){
 }
 
 void Mouse::setPosition(int windowId, int x, int y){
+#ifdef OPENGL
 	Display* dpy = XOpenDisplay(0);
     ::Window win = (XID)System::windowHandle(windowId);
 
@@ -63,9 +64,11 @@ void Mouse::setPosition(int windowId, int x, int y){
     XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position.
 
     XCloseDisplay(dpy);
+#endif
 }
 
-void Mouse::getPosition(int windowId, int& x, int& y){
+void Mouse::getPosition(int windowId, int& x, int& y) {
+#ifdef OPENGL
     Display* dpy = XOpenDisplay(NULL);
     ::Window win = (XID)System::windowHandle(windowId);
 
@@ -78,4 +81,5 @@ void Mouse::getPosition(int windowId, int& x, int& y){
         &rootx, &rooty, &x, &y, &mask);
 
     XCloseDisplay(dpy);
+#endif
 }
