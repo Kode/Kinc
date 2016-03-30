@@ -42,21 +42,4 @@ public class KoreActivity extends NativeActivity {
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
 		return manager.getDefaultDisplay().getRotation();
 	}
-    
-    public static void setKeepScreenOn(boolean on) {
-        if(on)
-        {
-            getInstance().runOnUiThread(new Runnable(){
-                public void run() {
-                    getInstance().getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                }
-            });
-        }else{
-            getInstance().runOnUiThread(new Runnable(){
-                public void run() {
-                    getInstance().getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                }
-            });
-        }
-    }
 }
