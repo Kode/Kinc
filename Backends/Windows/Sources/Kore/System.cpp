@@ -8,6 +8,8 @@
 
 #include "Display.h"
 
+#include <dinput.h>
+
 #ifdef VR_RIFT 
 #include "Vr/VrInterface.h"
 #endif
@@ -401,6 +403,212 @@ namespace {
 			InputGetState = (XInputGetStateType)GetProcAddress(lib, "XInputGetState");
 		}
 	}
+
+	IDirectInput8 * di_instance = nullptr;
+	IDirectInputDevice8 * di_pads[XUSER_MAX_COUNT];
+	DIJOYSTATE di_padState[XUSER_MAX_COUNT];
+	DIJOYSTATE di_lastPadState[XUSER_MAX_COUNT];
+	DIDEVCAPS di_deviceCaps[XUSER_MAX_COUNT];
+	int padCount = 0;
+
+	void cleanupPad( int padIndex ) {
+		if (di_pads[padIndex] != nullptr) {
+			di_pads[padIndex]->Unacquire();
+			di_pads[padIndex]->Release();
+			di_pads[padIndex] = 0;
+		}
+	}
+
+	void cleanupDirectInput() {
+		for (int padIndex = 0; padIndex < XUSER_MAX_COUNT; ++padIndex) {
+			cleanupPad(padIndex);
+		}
+	}
+
+	BOOL CALLBACK enumerateJoystickAxesCallback( LPCDIDEVICEOBJECTINSTANCEW ddoi, LPVOID context ) {
+		HWND hwnd = (HWND)context;
+
+		DIPROPRANGE propertyRange; 
+		propertyRange.diph.dwSize = sizeof(DIPROPRANGE); 
+		propertyRange.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
+		propertyRange.diph.dwHow = DIPH_BYID; 
+		propertyRange.diph.dwObj = ddoi->dwType;
+		propertyRange.lMin = -32768; 
+		propertyRange.lMax = 32768; 
+    
+		HRESULT hr = di_pads[padCount]->SetProperty(DIPROP_RANGE, &propertyRange.diph);
+
+		if (FAILED(hr)) {
+			log(Warning, "DirectInput8 / Pad%i / SetProperty() failed (HRESULT=0x%x)", padCount, hr);
+
+			// TODO (DK) cleanup?
+			//cleanupPad(padCount);
+
+			return DIENUM_STOP;
+		}
+
+		return DIENUM_CONTINUE;
+	}
+
+	BOOL CALLBACK enumerateJoysticksCallback( LPCDIDEVICEINSTANCEW ddi, LPVOID context ) {
+		HRESULT hr = di_instance->CreateDevice(ddi->guidInstance, &di_pads[padCount], nullptr);
+
+		if (SUCCEEDED(hr)) {
+			hr = di_pads[padCount]->SetDataFormat(&c_dfDIJoystick);
+
+			// TODO (DK) required?
+			//hr = di_pads[padCount]->SetCooperativeLevel(NULL, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+
+			if (SUCCEEDED(hr)) {
+				di_deviceCaps[padCount].dwSize = sizeof(DIDEVCAPS);
+				hr = di_pads[padCount]->GetCapabilities(&di_deviceCaps[padCount]);
+
+				if (SUCCEEDED(hr)) {
+					hr = di_pads[padCount]->EnumObjects(enumerateJoystickAxesCallback, nullptr, DIDFT_AXIS);
+
+					if (SUCCEEDED(hr)) {
+						hr = di_pads[padCount]->Acquire();
+
+						if (SUCCEEDED(hr)) {
+							memset(&di_padState[padCount], 0, sizeof(DIJOYSTATE));
+							hr = di_pads[padCount]->GetDeviceState(sizeof(DIJOYSTATE), &di_padState[padCount]);
+
+							switch (hr) {
+								case S_OK: log(Info, "DirectInput8 / Pad%i / initialized", padCount); break;
+								default: {
+									log(Warning, "DirectInput8 / Pad%i / GetDeviceState() failed (HRESULT=0x%x)", padCount, hr);
+									//cleanupPad(padCount); // (DK) we try again in handleMessages()
+								} break;
+							}
+						} else {
+							log(Warning, "DirectInput8 / Pad%i / Acquire() failed (HRESULT=0x%x)", padCount, hr);
+							cleanupPad(padCount);
+						}
+					} else {
+						log(Warning, "DirectInput8 / Pad%i / EnumObjects(DIDFT_AXIS) failed (HRESULT=0x%x)", padCount, hr);
+						cleanupPad(padCount);
+					}
+				} else {
+					log(Warning, "DirectInput8 / Pad%i / GetCapabilities() failed (HRESULT=0x%x)", padCount, hr);
+					cleanupPad(padCount);
+				}
+			} else {				
+				log(Warning, "DirectInput8 / Pad%i / SetDataFormat() failed (HRESULT=0x%x)", padCount, hr);
+				cleanupPad(padCount);
+			}
+
+			++padCount;
+
+			if (padCount >= XUSER_MAX_COUNT) {
+				return DIENUM_STOP;
+			}
+		}
+
+		return DIENUM_CONTINUE;
+	}
+
+	void initializeDirectInput() {
+		HINSTANCE hinstance = GetModuleHandleA(nullptr);
+		
+		memset(&di_pads, 0, sizeof(IDirectInputDevice8) * XUSER_MAX_COUNT);
+		memset(&di_padState, 0, sizeof(DIJOYSTATE) * XUSER_MAX_COUNT);
+		memset(&di_lastPadState, 0, sizeof(DIJOYSTATE) * XUSER_MAX_COUNT);
+		memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * XUSER_MAX_COUNT);
+
+		HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&di_instance, nullptr);
+
+		if (SUCCEEDED(hr)) {
+			hr = di_instance->EnumDevices(DI8DEVCLASS_GAMECTRL, enumerateJoysticksCallback, nullptr, DIEDFL_ATTACHEDONLY);
+
+			if (SUCCEEDED(hr)) {
+			} else {
+				cleanupDirectInput();
+			}
+		} else {
+			log(Warning, "DirectInput8Create failed (HRESULT=0x%x)", hr);
+		}
+
+		int xxx = 666;
+	}
+
+	void handleDirectInputPad( int padIndex ) {
+		if (di_pads[padIndex] == nullptr) {
+			return;
+		}
+
+		// TODO (DK) why is it set every frame?
+		Kore::Gamepad::get(padIndex)->vendor = "DirectInput8"; // TODO (DK) figure out how to get it
+		Kore::Gamepad::get(padIndex)->productName = "Generic Gamepad"; // TODO (DK) figure out how to get it
+				
+		HRESULT hr = di_pads[padIndex]->GetDeviceState(sizeof(DIJOYSTATE), &di_padState[padIndex]);
+
+//typedef struct DIJOYSTATE {
+//    LONG    lX;                     /* x-axis position              */
+//    LONG    lY;                     /* y-axis position              */
+//    LONG    lZ;                     /* z-axis position              */
+//    LONG    lRx;                    /* x-axis rotation              */
+//    LONG    lRy;                    /* y-axis rotation              */
+//    LONG    lRz;                    /* z-axis rotation              */
+//    LONG    rglSlider[2];           /* extra axes positions         */
+//    DWORD   rgdwPOV[4];             /* POV directions               */
+//    BYTE    rgbButtons[32];         /* 32 buttons                   */
+//} DIJOYSTATE, *LPDIJOYSTATE;
+
+		switch (hr) {
+			case S_OK: {
+				if (Kore::Gamepad::get(padIndex)->Axis != nullptr) {
+					for (int axisIndex = 0; axisIndex < 2; ++axisIndex) {
+						LONG * now = nullptr;
+						LONG * last = nullptr;
+
+						switch (axisIndex) {
+							case 0: {
+								now = &di_padState[padIndex].lX;
+								last = &di_lastPadState[padIndex].lX;
+							} break;
+							case 1: {
+								now = &di_padState[padIndex].lY;
+								last = &di_lastPadState[padIndex].lY;
+							} break;
+							//case 2: {
+							//	now = &di_padState[padIndex].lRx;
+							//	last = &di_lastPadState[padIndex].lRx;
+							//} break;
+							//case 3: {
+							//	now = &di_padState[padIndex].lRy;
+							//	last = &di_lastPadState[padIndex].lRy;
+							//} break;
+						}
+
+						if (*now != *last) {
+							Kore::Gamepad::get(padIndex)->Axis(axisIndex, *now / 32768.0f);
+						}
+					}
+
+					if (Kore::Gamepad::get(padIndex)->Button != nullptr) {
+						for (int buttonIndex = 0; buttonIndex < 16 /* 32 */; ++buttonIndex) {
+							BYTE * now = &di_padState[padIndex].rgbButtons[buttonIndex];
+							BYTE * last = &di_lastPadState[padIndex].rgbButtons[buttonIndex];
+
+							if (*now != *last) {
+								Kore::Gamepad::get(padIndex)->Button(buttonIndex, *now / 255.0f);
+							}
+						}
+					}
+
+					if (padIndex == 0) {
+						//log(Info, "%i - x: %f, y: %f", padIndex, di_padState[padIndex].lX / 32768.0f, di_padState[padIndex].lY / 32768.0f);
+					}
+				}
+
+				memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE));
+			} break;
+			case DIERR_INPUTLOST: // fall through
+			case DIERR_NOTACQUIRED: {
+				hr = di_pads[padIndex]->Acquire();
+			} break;
+		}
+	}
 }
 
 bool Kore::System::handleMessages() {
@@ -458,10 +666,8 @@ bool Kore::System::handleMessages() {
 					}
 				}
 			}
-			else {
-				Kore::Gamepad::get(i)->vendor = nullptr;
-				Kore::Gamepad::get(i)->productName = nullptr;
-			}
+			
+			handleDirectInputPad(i);
 		}
 	}
 
@@ -569,6 +775,7 @@ int createWindow( const char * title, int x, int y, int width, int height, Windo
 
 	if (windowCounter == 0) {
 		loadXInput();
+		initializeDirectInput();
 	}
 #endif /*#else // #ifdef VR_RIFT  */
 
@@ -603,19 +810,11 @@ void Kore::System::makeCurrent(int contextId) {
 		return;
 	}
 
-#if defined(_DEBUG)
-	log(Info, "Kore/System | context switch from %i to %i", currentDeviceId, contextId);
-#endif
-
 	currentDeviceId = contextId;
 	Graphics::makeCurrent(contextId);
 }
 
 void Kore::System::clearCurrent() {
-#if defined(_DEBUG)
-	log(Info, "Kore/System | context clear");
-#endif
-
 	currentDeviceId = -1;
 	Graphics::clearCurrent();
 }
@@ -704,16 +903,6 @@ void Kore::System::showWindow() {
 	ShowWindow(windows[0]->hwnd, SW_SHOWDEFAULT);
 	UpdateWindow(windows[0]->hwnd);
 }
-
-//// TODO (DK) use currentDevice() or 0?
-//int Kore::System::screenWidth() {
-//	return windows[0]->width;
-//}
-//
-//// TODO (DK) use currentDevice() or 0?
-//int Kore::System::screenHeight() {
-//	return windows[0]->height;
-//}
 
 int Kore::System::desktopWidth() {
 	RECT size;
