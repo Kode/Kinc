@@ -469,7 +469,7 @@ namespace {
 							return 1;
 						}
 						else {
-							Kore::Keyboard::the()->_keyup(Kore::Key_Back, 1);
+							Kore::Keyboard::the()->_keydown(Kore::Key_Back, 1);
 							return 1;
 						}
 					case AKEYCODE_BUTTON_A:
