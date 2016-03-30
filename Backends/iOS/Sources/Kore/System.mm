@@ -44,6 +44,10 @@ void System::setTitle(const char* title) {
 	
 }
 
+void System::setKeepScreenOn( bool on ) {
+    
+}
+
 bool System::showsKeyboard() {
 	return keyboardshown;
 }

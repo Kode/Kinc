@@ -826,6 +826,14 @@ void Kore::System::setTitle(const char*) {
 
 }
 
+void Kore::System::setKeepScreenOn( bool on ) {
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "setKeepScreenOn", "(Z)V"), on);
+	activity->vm->DetachCurrentThread();
+}
+
 void Kore::System::showWindow() {
 }
 
