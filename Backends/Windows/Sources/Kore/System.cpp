@@ -695,6 +695,10 @@ void Kore::System::setTitle(const char* title) {
 	SetWindowTextA(windows[currentDevice()]->hwnd, title);
 }
 
+void Kore::System::setKeepScreenOn( bool on ) {
+    
+}
+
 // TODO (DK) windowId
 void Kore::System::showWindow() {
 	ShowWindow(windows[0]->hwnd, SW_SHOWDEFAULT);

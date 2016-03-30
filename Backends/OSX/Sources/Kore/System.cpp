@@ -53,6 +53,10 @@ void System::setTitle(const char* title) {
 	
 }
 
+void System::setKeepScreenOn( bool on ) {
+    
+}
+
 #include <mach/mach_time.h>
 
 double System::frequency() {

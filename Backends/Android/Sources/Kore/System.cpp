@@ -353,6 +353,7 @@ double Kore::System::time() {
 #include <Kore/Input/Surface.h>
 #include <EGL/egl.h>
 #include <android/sensor.h>
+#include <android/window.h>
 #include <android_native_app_glue.h>
 #include <GLContext.h>
 #include <stdlib.h>
@@ -824,6 +825,15 @@ void Kore::System::changeResolution(int, int, bool) {
 
 void Kore::System::setTitle(const char*) {
 
+}
+
+void Kore::System::setKeepScreenOn( bool on ) {
+    if(on)
+    {
+        ANativeActivity_setWindowFlags(activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
+    }else{
+        ANativeActivity_setWindowFlags(activity, 0, AWINDOW_FLAG_KEEP_SCREEN_ON);
+    }
 }
 
 void Kore::System::showWindow() {

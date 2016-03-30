@@ -40,6 +40,10 @@ void Kore::System::setTitle(const char*) {
 
 }
 
+void Kore::System::setKeepScreenOn( bool on ) {
+    
+}
+
 void Kore::System::showWindow() {
     
 }

@@ -557,6 +557,10 @@ void Kore::System::setTitle(const char* title) {
 
 }
 
+void Kore::System::setKeepScreenOn( bool on ) {
+    
+}
+
 void Kore::System::showWindow() {
 
 }

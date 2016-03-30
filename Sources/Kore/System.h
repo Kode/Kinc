@@ -74,6 +74,7 @@ namespace Kore {
 		void setBackgroundCallback( void (*value)() );
 		void setShutdownCallback( void (*value)() );
 		void setOrientationCallback( void (*value)(Orientation) );
+        void setKeepScreenOn( bool on );
         
         void callback();
         void foregroundCallback();
