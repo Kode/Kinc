@@ -517,7 +517,7 @@ void Kore::System::makeCurrent( int contextId ) {
 		return;
 	}
 
-#if !defined(NDEBUG)
+#if defined(NDEBUG)
 	log(Info, "Kore/System | context switch from %i to %i", currentDeviceId, contextId);
 #endif
 
@@ -531,7 +531,7 @@ void Kore::Graphics::clearCurrent() {
 }
 
 void Kore::System::clearCurrent() {
-#if !defined(NDEBUG)
+#if defined(NDEBUG)
 	log(Info, "Kore/System | context clear");
 #endif
 
