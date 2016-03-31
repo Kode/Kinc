@@ -527,8 +527,6 @@ namespace {
 		} else {
 			log(Warning, "DirectInput8Create failed (HRESULT=0x%x)", hr);
 		}
-
-		int xxx = 666;
 	}
 
 	void handleDirectInputPad( int padIndex ) {
@@ -537,22 +535,10 @@ namespace {
 		}
 
 		// TODO (DK) why is it set every frame?
-		Kore::Gamepad::get(padIndex)->vendor = "DirectInput8"; // TODO (DK) figure out how to get it
-		Kore::Gamepad::get(padIndex)->productName = "Generic Gamepad"; // TODO (DK) figure out how to get it
+		Kore::Gamepad::get(padIndex)->vendor = "DirectInput8"; // TODO (DK) figure out how to get vendor name
+		Kore::Gamepad::get(padIndex)->productName = "Generic Gamepad"; // TODO (DK) figure out how to get product name
 				
 		HRESULT hr = di_pads[padIndex]->GetDeviceState(sizeof(DIJOYSTATE), &di_padState[padIndex]);
-
-//typedef struct DIJOYSTATE {
-//    LONG    lX;                     /* x-axis position              */
-//    LONG    lY;                     /* y-axis position              */
-//    LONG    lZ;                     /* z-axis position              */
-//    LONG    lRx;                    /* x-axis rotation              */
-//    LONG    lRy;                    /* y-axis rotation              */
-//    LONG    lRz;                    /* z-axis rotation              */
-//    LONG    rglSlider[2];           /* extra axes positions         */
-//    DWORD   rgdwPOV[4];             /* POV directions               */
-//    BYTE    rgbButtons[32];         /* 32 buttons                   */
-//} DIJOYSTATE, *LPDIJOYSTATE;
 
 		switch (hr) {
 			case S_OK: {
@@ -594,10 +580,6 @@ namespace {
 								Kore::Gamepad::get(padIndex)->Button(buttonIndex, *now / 255.0f);
 							}
 						}
-					}
-
-					if (padIndex == 0) {
-						//log(Info, "%i - x: %f, y: %f", padIndex, di_padState[padIndex].lX / 32768.0f, di_padState[padIndex].lY / 32768.0f);
 					}
 				}
 
