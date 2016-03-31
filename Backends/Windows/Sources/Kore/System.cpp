@@ -406,8 +406,8 @@ namespace {
 
 	IDirectInput8 * di_instance = nullptr;
 	IDirectInputDevice8 * di_pads[XUSER_MAX_COUNT];
-	DIJOYSTATE di_padState[XUSER_MAX_COUNT];
-	DIJOYSTATE di_lastPadState[XUSER_MAX_COUNT];
+	DIJOYSTATE2 di_padState[XUSER_MAX_COUNT];
+	DIJOYSTATE2 di_lastPadState[XUSER_MAX_COUNT];
 	DIDEVCAPS di_deviceCaps[XUSER_MAX_COUNT];
 	int padCount = 0;
 
@@ -419,9 +419,15 @@ namespace {
 		}
 	}
 
+	// TODO (DK) this should probably be called from somewhere?
 	void cleanupDirectInput() {
 		for (int padIndex = 0; padIndex < XUSER_MAX_COUNT; ++padIndex) {
 			cleanupPad(padIndex);
+		}
+
+		if (di_instance != nullptr) {
+			di_instance->Release();
+			di_instance = nullptr;
 		}
 	}
 
@@ -454,7 +460,7 @@ namespace {
 		HRESULT hr = di_instance->CreateDevice(ddi->guidInstance, &di_pads[padCount], nullptr);
 
 		if (SUCCEEDED(hr)) {
-			hr = di_pads[padCount]->SetDataFormat(&c_dfDIJoystick);
+			hr = di_pads[padCount]->SetDataFormat(&c_dfDIJoystick2);
 
 			// TODO (DK) required?
 			//hr = di_pads[padCount]->SetCooperativeLevel(NULL, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
@@ -470,14 +476,14 @@ namespace {
 						hr = di_pads[padCount]->Acquire();
 
 						if (SUCCEEDED(hr)) {
-							memset(&di_padState[padCount], 0, sizeof(DIJOYSTATE));
-							hr = di_pads[padCount]->GetDeviceState(sizeof(DIJOYSTATE), &di_padState[padCount]);
+							memset(&di_padState[padCount], 0, sizeof(DIJOYSTATE2));
+							hr = di_pads[padCount]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[padCount]);
 
 							switch (hr) {
 								case S_OK: log(Info, "DirectInput8 / Pad%i / initialized", padCount); break;
 								default: {
 									log(Warning, "DirectInput8 / Pad%i / GetDeviceState() failed (HRESULT=0x%x)", padCount, hr);
-									//cleanupPad(padCount); // (DK) we try again in handleMessages()
+									//cleanupPad(padCount); // (DK) don't kill it, we try again in handleDirectInputPad()
 								} break;
 							}
 						} else {
@@ -511,8 +517,8 @@ namespace {
 		HINSTANCE hinstance = GetModuleHandleA(nullptr);
 		
 		memset(&di_pads, 0, sizeof(IDirectInputDevice8) * XUSER_MAX_COUNT);
-		memset(&di_padState, 0, sizeof(DIJOYSTATE) * XUSER_MAX_COUNT);
-		memset(&di_lastPadState, 0, sizeof(DIJOYSTATE) * XUSER_MAX_COUNT);
+		memset(&di_padState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
+		memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
 		memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * XUSER_MAX_COUNT);
 
 		HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&di_instance, nullptr);
@@ -534,15 +540,16 @@ namespace {
 			return;
 		}
 
-		// TODO (DK) why is it set every frame?
+		// TODO (DK) code is copied from xinput stuff, why is it set every frame?
 		Kore::Gamepad::get(padIndex)->vendor = "DirectInput8"; // TODO (DK) figure out how to get vendor name
 		Kore::Gamepad::get(padIndex)->productName = "Generic Gamepad"; // TODO (DK) figure out how to get product name
 				
-		HRESULT hr = di_pads[padIndex]->GetDeviceState(sizeof(DIJOYSTATE), &di_padState[padIndex]);
+		HRESULT hr = di_pads[padIndex]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[padIndex]);
 
 		switch (hr) {
 			case S_OK: {
 				if (Kore::Gamepad::get(padIndex)->Axis != nullptr) {
+					// TODO (DK) there is a lot more to handle
 					for (int axisIndex = 0; axisIndex < 2; ++axisIndex) {
 						LONG * now = nullptr;
 						LONG * last = nullptr;
@@ -556,14 +563,10 @@ namespace {
 								now = &di_padState[padIndex].lY;
 								last = &di_lastPadState[padIndex].lY;
 							} break;
-							//case 2: {
-							//	now = &di_padState[padIndex].lRx;
-							//	last = &di_lastPadState[padIndex].lRx;
-							//} break;
-							//case 3: {
-							//	now = &di_padState[padIndex].lRy;
-							//	last = &di_lastPadState[padIndex].lRy;
-							//} break;
+							case 2: {
+								now = &di_padState[padIndex].lZ;
+								last = &di_lastPadState[padIndex].lZ;
+							} break;
 						}
 
 						if (*now != *last) {
@@ -572,7 +575,7 @@ namespace {
 					}
 
 					if (Kore::Gamepad::get(padIndex)->Button != nullptr) {
-						for (int buttonIndex = 0; buttonIndex < 16 /* 32 */; ++buttonIndex) {
+						for (int buttonIndex = 0; buttonIndex < 128; ++buttonIndex) {
 							BYTE * now = &di_padState[padIndex].rgbButtons[buttonIndex];
 							BYTE * last = &di_lastPadState[padIndex].rgbButtons[buttonIndex];
 
@@ -583,7 +586,7 @@ namespace {
 					}
 				}
 
-				memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE));
+				memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE2));
 			} break;
 			case DIERR_INPUTLOST: // fall through
 			case DIERR_NOTACQUIRED: {
@@ -648,7 +651,7 @@ bool Kore::System::handleMessages() {
 					}
 				}
 			}
-			
+
 			handleDirectInputPad(i);
 		}
 	}
