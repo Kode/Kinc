@@ -1,6 +1,5 @@
 #include "pch.h"
 #include <Kore/System.h>
-#include <Kore/Application.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Direct3D11.h>
@@ -62,21 +61,38 @@ Kore::vec2i Kore::System::mousePos() {
 	return vec2i(mouseX, mouseY);
 }
 
-void Kore::System::swapBuffers() {
+void Kore::System::swapBuffers(int windowId) {
 	
 }
 
 #undef CreateWindow
 
-void* Kore::System::createWindow() {
+int Kore::System::initWindow(WindowOptions options) {
+	Graphics::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	return 0;
+}
+
+void Kore::System::setup() {
+
+}
+
+bool Kore::System::isFullscreen() {
+	return true;
+}
+
+int Kore::System::windowCount() {
+	return 1;
+}
+
+void Kore::System::makeCurrent(int windowId) {
+
+}
+
+void* Kore::System::windowHandle(int windowId) {
 	return nullptr;
 }
 
-void* Kore::System::windowHandle() {
-	return nullptr;
-}
-
-void Kore::System::destroyWindow() {
+void Kore::System::destroyWindow(int windowId) {
 	
 }
 
@@ -188,19 +204,19 @@ void Win8Application::OnResuming(Platform::Object^ sender, Platform::Object^ arg
 void Win8Application::OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
-	Mouse::the()->_press(0, mouseX, mouseY);
+	Mouse::the()->_press(0, 0, mouseX, mouseY);
 }
 
 void Win8Application::OnPointerReleased(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
-	Mouse::the()->_release(0, mouseX, mouseY);
+	Mouse::the()->_release(0, 0, mouseX, mouseY);
 }
 
 void Win8Application::OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
-	Mouse::the()->_move(mouseX, mouseY);
+	Mouse::the()->_move(0, mouseX, mouseY);
 }
 
 void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow ^sender, Windows::UI::Core::KeyEventArgs ^args) {
@@ -257,11 +273,11 @@ const char** Kore::System::videoFormats() {
 	return ::videoFormats;
 }
 
-int Kore::System::screenWidth() {
+int Kore::System::windowWidth(int windowId) {
 	return renderTargetWidth;
 }
 
-int Kore::System::screenHeight() {
+int Kore::System::windowHeight(int windowId) {
 	return renderTargetHeight;
 }
 
