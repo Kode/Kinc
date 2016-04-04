@@ -128,13 +128,20 @@ else if (platform === Platform.HTML5) {
 }
 else if (platform === Platform.Linux) {
 	addBackend('Linux');
+	this.p("<Add library=\"asound\" />", 3);
+	this.p("<Add library=\"dl\" />", 3);
 	if (graphics === GraphicsApi.Vulkan) {
 		addBackend('Vulkan');
+		project.addLib('vulkan');
+		project.addLib('xcb');
 		project.addDefine('SYS_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_XCB_KHR');
 	}
 	else {
 		addBackend('OpenGL2');
+		project.addLib('GL');
+		project.addLib('X11');
+		project.addLib('Xinerama');
 		project.addDefine('OPENGL');
 	}
 	project.addDefine('SYS_UNIXOID');
@@ -149,6 +156,12 @@ else if (platform === Platform.Pi) {
 	project.addIncludeDir('/opt/vc/include');
 	project.addIncludeDir('/opt/vc/include/interface/vcos/pthreads');
 	project.addIncludeDir('/opt/vc/include/interface/vmcs_host/linux');
+	project.addLib('dl');
+	project.addLib('GLESv2');
+	project.addLib('EGL');
+	project.addLib('bcm_host');
+	project.addLib('asound');
+	project.addLib('X11');		
 }
 else if (platform === Platform.Tizen) {
 	addBackend('Tizen');
