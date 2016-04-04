@@ -51,13 +51,9 @@ class ExporterMakefile extends Exporter {
 		}
 		this.p('INC=' + incline);
 
-		let libsline = '';
-		if (platform === Platform.Pi) {
-			libsline = '-static-libgcc -static-libstdc++ -pthread -lGLESv2 -lX11 -lasound -ldl -lbcm_host -lEGL';
-		}
-		else {
-			if (Options.graphicsApi === GraphicsApi.Vulkan) libsline = '-static-libgcc -static-libstdc++ -pthread -lasound -ldl -lxcb -lvulkan';
-			else libsline = '-static-libgcc -static-libstdc++ -pthread -lGL -lX11 -lasound -ldl -lXinerama';
+		let libsline = '-static-libgcc -static-libstdc++ -pthread';
+		for (let lib of project.getLibs()) {
+			libsline += ' -l' + lib;
 		}
 		this.p('LIB=' + libsline);
 
@@ -72,7 +68,13 @@ class ExporterMakefile extends Exporter {
 		if (!options.debug) optimization = '-O3';
 
 		this.p(project.getName() + ': ' + ofilelist);
-		this.p('\tg++ -std=c++0x ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
+        
+        let cpp = '';
+        if (project.cpp11) {
+            cpp = '-std=c++11'
+        }
+        
+		this.p('\tg++ ' + cpp + ' ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
 
 		for (let file of project.getFiles()) {
 			if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {
@@ -80,7 +82,7 @@ class ExporterMakefile extends Exporter {
 				let name = ofiles[file];
 				let realfile = to.relativize(from.resolve(file));
 				this.p(name + '.o: ' + realfile);
-				this.p('\tg++ -std=c++0x ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + name + '.o $(LIB)');
+				this.p('\tg++ ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + name + '.o $(LIB)');
 			}
 		}
 

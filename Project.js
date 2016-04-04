@@ -35,6 +35,7 @@ class Project {
 		this.systemDependendLibraries = {};
 		this.includes = [];
 		this.excludes = [];
+        this.cpp11 = false;
 		this.targetOptions = {
 			android: {}
 		}

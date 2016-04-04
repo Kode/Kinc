@@ -575,7 +575,8 @@ class ExporterXCode extends Exporter {
 				this.p('MACOSX_DEPLOYMENT_TARGET = 10.11;', 4);
 			}
 			else {
-				this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
+				if (project.cpp11) this.p('MACOSX_DEPLOYMENT_TARGET = 10.7;', 4);
+				else this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
 			}
 		}
 		this.p('MTL_ENABLE_DEBUG_INFO = YES;', 4);
@@ -594,8 +595,8 @@ class ExporterXCode extends Exporter {
 		this.p("isa = XCBuildConfiguration;", 3);
 		this.p("buildSettings = {", 3);
 		this.p('ALWAYS_SEARCH_USER_PATHS = NO;', 4);
-		this.p('CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";', 4);
-		if (platform === Platform.iOS) {
+		this.p('CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";', 4);
+		if (platform === Platform.iOS || project.cpp11) {
 			this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
 		}
 		else {
