@@ -82,7 +82,9 @@ class ExporterMakefile extends Exporter {
 				let name = ofiles[file];
 				let realfile = to.relativize(from.resolve(file));
 				this.p(name + '.o: ' + realfile);
-				this.p('\tg++ ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + name + '.o $(LIB)');
+				let compiler = 'g++';
+				if (file.endsWith('.c')) compiler = 'gcc';
+				this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + name + '.o $(LIB)');
 			}
 		}
 
