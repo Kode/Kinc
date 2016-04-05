@@ -20,6 +20,8 @@ namespace {
 
 int Image::sizeOf(Image::Format format) {
 	switch (format) {
+	case Image::RGBA128:
+		return 16;
 	case Image::RGBA32:
 		return 4;
 	case Image::Grey8:
@@ -130,6 +132,15 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
 			}
 		}
 		dataSize = width * height * 4;
+	}
+	else if (endsWith(filename, ".hdr")) {
+		int size = file.size();
+		int comp;
+		compressed = false;
+		internalFormat = 0;
+		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		dataSize = width * height * 16;
+		format = RGBA128;
 	}
 	else {
 		int size = file.size();
