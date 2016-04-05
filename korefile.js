@@ -128,8 +128,8 @@ else if (platform === Platform.HTML5) {
 }
 else if (platform === Platform.Linux) {
 	addBackend('Linux');
-	this.p("<Add library=\"asound\" />", 3);
-	this.p("<Add library=\"dl\" />", 3);
+	project.addLib('asound');
+	project.addLib('dl');
 	if (graphics === GraphicsApi.Vulkan) {
 		addBackend('Vulkan');
 		project.addLib('vulkan');
