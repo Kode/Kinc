@@ -162,7 +162,7 @@ namespace Kore {
 		void setAntialiasingSamples(int samples);
 
 		bool renderTargetsInvertedY();
-		void setRenderTarget(RenderTarget* texture, int num = 0);
+		void setRenderTarget(RenderTarget* texture, int num = 0, int additionalTargets = 0);
 		void restoreRenderTarget();
 
 		// TODO (DK) windowId should be renamed contextId?

@@ -276,7 +276,7 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 
 }
 
-void Graphics::setRenderTarget(RenderTarget* texture, int num) {
+void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
 
 }
 

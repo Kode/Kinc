@@ -647,7 +647,7 @@ void Graphics::restoreRenderTarget() {
 	context->RSSetViewports(1, &viewPort);
 }
 
-void Graphics::setRenderTarget(RenderTarget* target, int) {
+void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
 	context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(target->width), static_cast<float>(target->height));
 	context->RSSetViewports(1, &viewPort);

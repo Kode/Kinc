@@ -149,6 +149,9 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	case Target128BitFloat:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 		break;
+    case Target64BitFloat:
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
+        break;
     case Target16BitDepth:
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
         break;
