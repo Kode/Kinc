@@ -10,37 +10,49 @@ using namespace Kore;
 namespace {
 	int convert(Image::Format format) {
 		switch (format) {
-			case Image::RGBA32:
-			default:
-				return GL_RGBA;
-			case Image::RGB24:
-				return GL_RGB;
-			case Image::Grey8:
+		case Image::RGBA32:
+		case Image::RGBA128:
+		default:
+			return GL_RGBA;
+		case Image::RGB24:
+			return GL_RGB;
+		case Image::Grey8:
 #ifdef OPENGLES
-				return GL_LUMINANCE;
+			return GL_LUMINANCE;
 #else
-				return GL_RED;
+			return GL_RED;
 #endif
 		}
 	}
 	
 	int convertInternal(Image::Format format) {
 		switch (format) {
-			case Image::RGBA32:
-			default:
-			#ifdef GL_BGRA
-				return GL_BGRA;
-			#else
-				return GL_RGBA;
-			#endif
-			case Image::RGB24:
-				return GL_RGB;
-			case Image::Grey8:
-#ifdef OPENGLES
-				return GL_LUMINANCE;
+		case Image::RGBA32:
+		case Image::RGBA128:
+		default:
+#ifdef GL_BGRA
+			return GL_BGRA;
 #else
-				return GL_RED;
+			return GL_RGBA;
 #endif
+		case Image::RGB24:
+			return GL_RGB;
+		case Image::Grey8:
+#ifdef OPENGLES
+			return GL_LUMINANCE;
+#else
+			return GL_RED;
+#endif
+		}
+	}
+	
+	int convertType(Image::Format format) {
+		switch (format) {
+		case Image::RGBA128:
+			return GL_FLOAT;
+		case Image::RGBA32:
+		default:
+			return GL_UNSIGNED_BYTE;
 		}
 	}
 
@@ -224,7 +236,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 #endif
 	}
 	else {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, conversionBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, convertType(format), conversionBuffer);
 		glCheckErrors();
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
