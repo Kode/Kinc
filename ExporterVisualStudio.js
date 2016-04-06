@@ -840,7 +840,7 @@ class ExporterVisualStudio extends Exporter {
 					if (headerfile !== null) {
 						this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 							this.p('<PrecompiledHeader>Create</PrecompiledHeader>', 3);
-							this.p('<PrecompiledHeaderFile>' + headerfile + '</PrecompiledHeaderFile>');
+							this.p('<PrecompiledHeaderFile>' + headerfile + '</PrecompiledHeaderFile>', 3);
 						this.p('</ClCompile>', 2);
 					}
 					else if (platform === Platform.WindowsApp && !file.endsWith(".winrt.cpp")) {
@@ -852,7 +852,7 @@ class ExporterVisualStudio extends Exporter {
 						if (fileobject.options && fileobject.options.pch) {
 							this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 								this.p('<PrecompiledHeader>Use</PrecompiledHeader>', 3);
-								this.p('<PrecompiledHeaderFile>' + fileobject.options.pch + '</PrecompiledHeaderFile>');
+								this.p('<PrecompiledHeaderFile>' + fileobject.options.pch + '</PrecompiledHeaderFile>', 3);
 							this.p('</ClCompile>', 2);
 						}
 						else {
