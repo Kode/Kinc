@@ -165,12 +165,12 @@ function exportKoremakeProject(from, to, platform, options) {
 	let project = solution.getProjects()[0];
 	let files = project.getFiles();
 	for (let file of files) {
-		if (file.endsWith(".glsl")) {
-			let outfile = file;
+		if (file.file.endsWith(".glsl")) {
+			let outfile = file.file;
 			const index = outfile.lastIndexOf('/');
 			if (index > 0) outfile = outfile.substr(index);
 			outfile = outfile.substr(0, outfile.length - 5);
-			compileShader(from, shaderLang(platform), file, path.join(project.getDebugDir(), outfile), "build", platform, options.nokrafix);
+			compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), "build", platform, options.nokrafix);
 		}
 	}
 

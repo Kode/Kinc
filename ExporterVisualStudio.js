@@ -267,8 +267,8 @@ class ExporterVisualStudio extends Exporter {
 		let lastdir = "";
 		let dirs = [];
 		for (let file of project.getFiles()) {
-			if (file.indexOf('/') >= 0) {
-				let dir = file.substr(0, file.lastIndexOf('/'));
+			if (file.file.indexOf('/') >= 0) {
+				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) {
 					let subdir = dir;
 					while (subdir.indexOf('/') >= 0) {
@@ -316,11 +316,11 @@ class ExporterVisualStudio extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (contains(file, '/')) {
-				let dir = file.substr(0, file.lastIndexOf('/'));
+			if (contains(file.file, '/')) {
+				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
-				if (file.endsWith(".h")) {
-					this.p("<ClInclude Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+				if (file.file.endsWith(".h")) {
+					this.p("<ClInclude Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 					this.p("</ClInclude>", 2);
 				}
@@ -331,11 +331,11 @@ class ExporterVisualStudio extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.indexOf('/') >= 0) {
-				let dir = file.substr(0, file.lastIndexOf('/'));
+			if (file.file.indexOf('/') >= 0) {
+				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
-				if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
-					this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+				if (file.file.endsWith(".cpp") || file.file.endsWith(".c") || file.file.endsWith("cc")) {
+					this.p("<ClCompile Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 					this.p("</ClCompile>", 2);
 				}
@@ -346,11 +346,11 @@ class ExporterVisualStudio extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (contains(file, "/")) {
-				let dir = file.substr(0, file.lastIndexOf('/'));
+			if (contains(file.file, "/")) {
+				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
-				if (file.endsWith(".cg") || file.endsWith(".hlsl")) {
-					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+				if (file.file.endsWith(".cg") || file.file.endsWith(".hlsl")) {
+					this.p("<CustomBuild Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 					this.p("</CustomBuild>", 2);
 				}
@@ -361,11 +361,11 @@ class ExporterVisualStudio extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.indexOf('/') >= 0) {
-				let dir = file.substr(0, file.lastIndexOf('/'));
+			if (file.file.indexOf('/') >= 0) {
+				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
-				if (file.endsWith(".asm")) {
-					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+				if (file.file.endsWith(".asm")) {
+					this.p("<CustomBuild Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 					this.p("</CustomBuild>", 2);
 				}
@@ -377,10 +377,10 @@ class ExporterVisualStudio extends Exporter {
 			lastdir = "";
 			this.p("<ItemGroup>", 1);
 			for (let file of assets) {
-				if (file.indexOf('/') >= 0) {
-					let dir = file.substr(0, file.lastIndexOf('/'));
+				if (file.file.indexOf('/') >= 0) {
+					let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 					if (dir != lastdir) lastdir = dir;
-					this.p("<None Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+					this.p("<None Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 					this.p("</None>", 2);
 				}
@@ -792,7 +792,7 @@ class ExporterVisualStudio extends Exporter {
 
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.endsWith(".h")) this.p("<ClInclude Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\" />", 2);
+			if (file.file.endsWith(".h")) this.p("<ClInclude Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\" />", 2);
 		}
 		this.p("</ItemGroup>", 1);
 
@@ -817,7 +817,8 @@ class ExporterVisualStudio extends Exporter {
 		this.p("<ItemGroup>", 1);
 		let objects = {};
 		let stdafx = '';
-		for (let file of project.getFiles()) {
+		for (let fileobject of project.getFiles()) {
+			let file = fileobject.file;
 			if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
 				if (Options.precompiledHeaders && (file.endsWith("stdafx.cpp") || file.endsWith("pch.cpp"))) {
 					stdafx = file;
@@ -833,7 +834,15 @@ class ExporterVisualStudio extends Exporter {
 						this.p('</ClCompile>', 2);
 					}
 					else {
-						this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\" />", 2);
+						if (fileobject.options && fileobject.options.pch) {
+							this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+								this.p('<PrecompiledHeader>Use</PrecompiledHeader>', 3);
+								this.p('<PrecompiledHeaderFile>' + fileobject.options.pch + '</PrecompiledHeaderFile>');
+							this.p('</ClCompile>', 2);
+						}
+						else {
+							this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\" />", 2);
+						}
 					}
 					objects[name] = true;
 				}
@@ -884,8 +893,8 @@ class ExporterVisualStudio extends Exporter {
 		if (platform == Platform.Windows) {
 			this.p("<ItemGroup>", 1);
 			for (let file of project.getFiles()) {
-				if (file.endsWith(".cg")) {
-					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+				if (file.file.endsWith(".cg")) {
+					this.p("<CustomBuild Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<FileType>Document</FileType>", 2);
 					this.p("<Command>..\\" + "Kt\\Tools\\ShaderCompiler.exe " + getShaderLang() + " \"%(FullPath)\" " + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Shaders\\%(Filename)</Command>", 2);
 					this.p("<Outputs>" + from.resolve(project.getDebugDir()).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Shaders\\%(Filename)" + getShaderLang() + ";%(Outputs)</Outputs>", 2);
@@ -895,8 +904,8 @@ class ExporterVisualStudio extends Exporter {
 			this.p("</ItemGroup>", 1);
 			this.p("<ItemGroup>", 1);
 			for (let file of project.getFiles()) {
-				if (Project.koreDir && Project.koreDir.toString() != "" && file.endsWith(".glsl")) {
-					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+				if (Project.koreDir && Project.koreDir.toString() != "" && file.file.endsWith(".glsl")) {
+					this.p("<CustomBuild Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<FileType>Document</FileType>", 2);
 					if (nokrafix)
 						this.p("<Command>\"" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\kfx\\kfx.exe\" " + getShaderLang() + " \"%(FullPath)\" ..\\" + project.getDebugDir().replaceAll('/', '\\') + "\\%(Filename) ..\\build</Command>", 2);
@@ -910,8 +919,8 @@ class ExporterVisualStudio extends Exporter {
 			this.p("</ItemGroup>", 1);
 			this.p("<ItemGroup>", 1);
 			for (let file of project.getFiles()) {
-				if (Project.koreDir && Project.koreDir.toString() != "" && file.endsWith(".asm")) {
-					this.p("<CustomBuild Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+				if (Project.koreDir && Project.koreDir.toString() != "" && file.file.endsWith(".asm")) {
+					this.p("<CustomBuild Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<FileType>Document</FileType>", 2);
 					this.p("<Command>" + from.resolve(Project.koreDir).toAbsolutePath().toString().replaceAll('/', '\\') + "\\Tools\\yasm-1.2.0-win32.exe -Xvc -f Win32 -g cv8 -o $(OutDir)\\%(Filename).obj -I ..\\Kt\\WebM\\src -I ..\\Kt\\WebM\\build -rnasm -pnasm \"%(FullPath)\"</Command>", 2);
 					this.p("<Outputs>$(OutDir)\\%(Filename).obj</Outputs>", 2);
