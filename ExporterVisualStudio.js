@@ -816,19 +816,34 @@ class ExporterVisualStudio extends Exporter {
 
 		this.p("<ItemGroup>", 1);
 		let objects = {};
-		let stdafx = '';
+		let precompiledHeaders = [];
+		for (let fileobject of project.getFiles()) {
+			if (fileobject.options && fileobject.options.pch) {
+				precompiledHeaders.push(fileobject.options.pch);
+			}
+		}
 		for (let fileobject of project.getFiles()) {
 			let file = fileobject.file;
 			if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
-				if (Options.precompiledHeaders && (file.endsWith("stdafx.cpp") || file.endsWith("pch.cpp"))) {
-					stdafx = file;
-					continue;
-				}
 				let name = file.toLowerCase();
 				if (name.indexOf('/') >= 0) name = name.substr(name.lastIndexOf('/') + 1);
 				name = name.substr(0, name.lastIndexOf('.'));
 				if (!objects[name]) {
-					if (platform === Platform.WindowsApp && !file.endsWith(".winrt.cpp")) {
+					let headerfile = null;
+					for (let header of precompiledHeaders) {
+						if (file.endsWith(header.substr(0, header.length - 2) + '.cpp')) {
+							headerfile = header;
+							break;
+						}
+					}
+
+					if (headerfile !== null) {
+						this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+							this.p('<PrecompiledHeader>Create</PrecompiledHeader>', 3);
+							this.p('<PrecompiledHeaderFile>' + headerfile + '</PrecompiledHeaderFile>');
+						this.p('</ClCompile>', 2);
+					}
+					else if (platform === Platform.WindowsApp && !file.endsWith(".winrt.cpp")) {
 						this.p("<ClCompile Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 						this.p('<CompileAsWinRT>false</CompileAsWinRT>', 3);
 						this.p('</ClCompile>', 2);
@@ -859,13 +874,6 @@ class ExporterVisualStudio extends Exporter {
 					objects[name] = true;
 				}
 			}
-		}
-		if (Options.precompiledHeaders) {
-			if (stdafx.length == 0) throw "stdafx.cpp not found.";
-			this.p("<ClCompile Include=\"../" + stdafx + "\">", 2);
-			this.p("<PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">Create</PrecompiledHeader>", 3);
-			this.p("<PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">Create</PrecompiledHeader>", 3);
-			this.p("</ClCompile>", 2);
 		}
 		this.p("</ItemGroup>", 1);
 
