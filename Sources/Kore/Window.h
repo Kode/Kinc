@@ -15,10 +15,10 @@ namespace Kore {
 		}
 	};
 
-	enum class WindowMode {
-		Window = 0,
-		Borderless = 1,
-		Fullscreen = 2,
+	enum WindowMode {
+		WindowModeWindow = 0,
+		WindowModeBorderless = 1,
+		WindowModeFullscreen = 2,
 	};
 
     struct WindowOptions {
@@ -36,7 +36,7 @@ namespace Kore {
 			showWindow = true;
 			title = "KoreWindow";
 			targetDisplay = -1;
-			mode = WindowMode::Window;
+			mode = WindowModeWindow;
 			rendererOptions.antialiasing = 0;
 			x = y = -1;
 			width = 800;

@@ -689,17 +689,17 @@ int createWindow( const char * title, int x, int y, int width, int height, Windo
 	
 	switch (windowMode) {
 		default: // fall through
-		case WindowMode::Window: {
+		case WindowModeWindow: {
 			dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 			dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 		} break;
 
-		case WindowMode::Borderless: {
+		case WindowModeBorderless: {
 			dwStyle = WS_POPUP;
 			dwExStyle = WS_EX_APPWINDOW;
 		} break;
 
-		case WindowMode::Fullscreen: {
+		case WindowModeFullscreen: {
 			DEVMODEA dmScreenSettings;									// Device Mode
 			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));		// Makes Sure Memory's Cleared
 			dmScreenSettings.dmSize = sizeof(dmScreenSettings);			// Size Of The Devmode Structure
@@ -735,13 +735,13 @@ int createWindow( const char * title, int x, int y, int width, int height, Windo
 
 	switch (windowMode) {
 		default: // fall through
-		case WindowMode::Window: // fall through
-		case WindowMode::Borderless: {
+		case WindowModeWindow: // fall through
+		case WindowModeBorderless: {
 			dstx += x < 0 ? (displayDevice->width - w) >> 1 : x;
 			dsty += y < 0 ? (displayDevice->height - h) >> 1 : y;
 		} break;
 
-		case WindowMode::Fullscreen: {
+		case WindowModeFullscreen: {
 			//dstx = 0;
 			//dsty = 0;
 		} break;
@@ -750,7 +750,7 @@ int createWindow( const char * title, int x, int y, int width, int height, Windo
 	HWND hwnd = CreateWindowExA(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
 	
 	if (windowCounter == 0) {
-		if (windowMode == WindowMode::Fullscreen) {
+		if (windowMode == WindowModeFullscreen) {
 			SetWindowPos(hwnd, nullptr, dstx, dsty, width, height, 0);
 		}
 	}

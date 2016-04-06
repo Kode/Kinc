@@ -167,8 +167,8 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	XSetStandardProperties(dpy, win, title, "main", None, NULL, 0, NULL);
 
 	switch (windowMode) {
-        case Kore::WindowMode::Fullscreen: // fall through
-        case Kore::WindowMode::Borderless: {
+        case Kore::WindowModeFullscreen: // fall through
+        case Kore::WindowModeBorderless: {
             Atom awmHints = XInternAtom(dpy, "_MOTIF_WM_HINTS", 0);
             MwmHints hints;
             hints.flags = MWM_HINTS_DECORATIONS;
@@ -191,9 +191,9 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 	switch (windowMode) {
 	    default: // fall through
-		case Kore::WindowMode::Window: // fall through
-		case Kore::WindowMode::Borderless: // fall through
-        case Kore::WindowMode::Fullscreen: {
+		case Kore::WindowModeWindow: // fall through
+		case Kore::WindowModeBorderless: // fall through
+        case Kore::WindowModeFullscreen: {
 		    int dw = deviceInfo->width;
 		    int dh = deviceInfo->height;
 			dstx += x < 0 ? (dw - width) / 2 : x;
