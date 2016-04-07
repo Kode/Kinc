@@ -42,9 +42,21 @@ class ExporterMakefile extends Exporter {
 		
 		let precompiledHeaders = [];
 		for (let file of project.getFiles()) {
-			if (file.options && file.options.pch) {
+			if (file.options && file.options.pch && precompiledHeaders.indexOf(file.options.pch) < 0) {
 				precompiledHeaders.push(file.options.pch);
-				ofilelist += 'pch/' + file.options.pch + '.gch ';
+			}
+		}
+		for (let file of project.getFiles()) {
+			let precompiledHeader = null;
+			for (let header of precompiledHeaders) {
+				if (file.file.endsWith(header)) {
+					precompiledHeader = header;
+					break;
+				}
+			}
+			if (precompiledHeader !== null) {
+				let realfile = to.relativize(from.resolve(file.file));
+				ofilelist += realfile + '.gch ';
 			}
 		}
 		
@@ -52,10 +64,9 @@ class ExporterMakefile extends Exporter {
 			ofilelist += o + '.o ';
 		}
 		
-		fs.ensureDirSync(to.resolve('pch').toString());
 		this.writeFile(to.resolve('makefile'));
 
-		let incline = '-Ipch ';
+		let incline = '';
 		for (let inc of project.getIncludeDirs()) {
 			inc = to.relativize(from.resolve(inc));
 			incline += '-I' + inc + ' ';
@@ -97,9 +108,9 @@ class ExporterMakefile extends Exporter {
 			}
 			if (precompiledHeader !== null) {
 				let realfile = to.relativize(from.resolve(file.file));
-				this.p('pch/' + precompiledHeader + '.gch: ' + realfile);
+				this.p(realfile + '.gch: ' + realfile);
 				let compiler = 'g++';
-				this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o pch/' + precompiledHeader + '.gch $(LIB)');
+				this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + realfile + '.gch $(LIB)');
 			}
 		}
 
