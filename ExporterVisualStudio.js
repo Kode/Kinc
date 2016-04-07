@@ -818,7 +818,7 @@ class ExporterVisualStudio extends Exporter {
 		let objects = {};
 		let precompiledHeaders = [];
 		for (let fileobject of project.getFiles()) {
-			if (fileobject.options && fileobject.options.pch && precompiledHeaders.indexOf(file.options.pch) < 0) {
+			if (fileobject.options && fileobject.options.pch && precompiledHeaders.indexOf(fileobject.options.pch) < 0) {
 				precompiledHeaders.push(fileobject.options.pch);
 			}
 		}
