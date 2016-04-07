@@ -107,7 +107,8 @@ class ExporterEmscripten extends Exporter {
 
 		this.p();
 		let oline = '';
-		for (let filename of project.getFiles()) {
+		for (let fileobject of project.getFiles()) {
+			let filename = fileobject.file;
 			if (!filename.endsWith(".cpp") && !filename.endsWith(".c")) continue;
 			let lastpoint = filename.lastIndexOf('.');
 			let oname = filename.substr(0, lastpoint) + ".o";
@@ -119,7 +120,8 @@ class ExporterEmscripten extends Exporter {
 		this.p('emcc ' + oline + ' -o kore.html --preload-file ' + debugDirName, 1);
 		this.p();
 
-		for (let filename of project.getFiles()) {
+		for (let fileobject of project.getFiles()) {
+			let filename = fileobject.file;
 			if (!filename.endsWith(".cpp") && !filename.endsWith(".c")) continue;
 			let builddir = to;
 			let dirs = filename.split('/');

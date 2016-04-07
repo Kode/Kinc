@@ -40,7 +40,7 @@ class ExporterTizen extends Exporter {
 		fs.writeFileSync(to.resolve('manifest.xml').toString(), manifest);
 
 		for (var f in project.getFiles()) {
-			var file = project.getFiles()[f];
+			var file = project.getFiles()[f].file;
 			var target = to.resolve("CopiedSources").resolve(file);
 			this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
 			Files.copy(from.resolve(file), target, true);

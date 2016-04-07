@@ -123,11 +123,11 @@ class ExporterAndroid extends Exporter {
 		if (project.getDebugDir().length > 0) this.copyDirectory(from.resolve(project.getDebugDir()), to.resolve(Paths.get(safename, 'app', 'src', 'main', 'assets')));
 
 		for (let file of project.getFiles()) {
-			let localFile = file;
+			let localFile = file.file;
 			while (localFile.startsWith('../')) localFile = localFile.substr(3);
 			let target = to.resolve(Paths.get(safename, 'app', 'src', 'main', 'jni')).resolve(localFile);
 			this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
-			Files.copyIfDifferent(from.resolve(file), target, true);
+			Files.copyIfDifferent(from.resolve(file.file), target, true);
 		}
 
 		// Reminder in case you forgot to change project details.
@@ -202,7 +202,8 @@ class ExporterAndroid extends Exporter {
 
 		this.p("LOCAL_MODULE    := Kore");
 		let files = "";
-		for (let filename of project.getFiles()) {
+		for (let fileobject of project.getFiles()) {
+			let filename = fileobject.file; 
 			if (filename.endsWith(".c") || filename.endsWith(".cpp") || filename.endsWith(".cc") || filename.endsWith(".s")) files += to.resolve('jni').relativize(from.resolve(filename)).toString().replaceAll('\\', '/') + " ";
 		}
 		this.p("LOCAL_SRC_FILES := " + files);

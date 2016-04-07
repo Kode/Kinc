@@ -219,7 +219,8 @@ class ExporterXCode extends Exporter {
 		let plistname = '';
 		let files = [];
 		let directories = [];
-		for (let filename of project.getFiles()) {
+		for (let fileobject of project.getFiles()) {
+			let filename = fileobject.file;
 			if (filename.endsWith(".plist")) plistname = filename;
 
 			let dirname = '';
