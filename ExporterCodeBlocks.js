@@ -78,10 +78,31 @@ class ExporterCodeBlocks extends Exporter {
 			this.p("<Add directory=\"/opt/vc/lib\" />", 3);
 		}
 		this.p("</Linker>", 2);
+		
+		let precompiledHeaders = [];
 		for (let file of project.getFiles()) {
-			if (file.endsWith(".c") || file.endsWith(".cpp")) {
-				this.p("<Unit filename=\"" + from.resolve(Paths.get(file)).toAbsolutePath().toString() + "\">", 2);
+			
+		}
+		for (let file of project.getFiles()) {
+			let precompiledHeader = null;
+			for (let header of precompiledHeaders) {
+				if (file.file.endsWith(header)) {
+					precompiledHeader = header;
+					break;
+				}
+			}
+			
+			if (file.file.endsWith(".c") || file.file.endsWith(".cpp")) {
+				this.p("<Unit filename=\"" + from.resolve(Paths.get(file.file)).toAbsolutePath().toString() + "\">", 2);
 				this.p("<Option compilerVar=\"CC\" />", 3);
+				this.p("</Unit>", 2);
+			}
+			else if (file.file.endsWith('.h')) {
+				this.p("<Unit filename=\"" + from.resolve(Paths.get(file.file)).toAbsolutePath().toString() + "\">", 2);
+				if (precompiledHeader !== null) {
+					this.p('<Option compile="1" />', 3);
+					this.p('<Option weight="0" />', 3);
+				}
 				this.p("</Unit>", 2);
 			}
 		}
