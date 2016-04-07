@@ -6,7 +6,7 @@ const Paths = require('./Paths.js');
 const GraphicsApi = require('./GraphicsApi.js');
 const Options = require('./Options.js');
 const Platform = require('./Platform.js');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 class ExporterMakefile extends Exporter {
 	constructor() {
@@ -18,7 +18,8 @@ class ExporterMakefile extends Exporter {
 
 		let objects = {};
 		let ofiles = {};
-		for (let file of project.getFiles()) {
+		for (let fileobject of project.getFiles()) {
+			let file = fileobject.file;
 			if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
 				let name = file.toLowerCase();
 				if (name.indexOf('/') >= 0) name = name.substr(name.lastIndexOf('/') + 1);
@@ -36,15 +37,25 @@ class ExporterMakefile extends Exporter {
 				}
 			}
 		}
-
+		
 		var ofilelist = '';
+		
+		let precompiledHeaders = [];
+		for (let file of project.getFiles()) {
+			if (file.options && file.options.pch) {
+				precompiledHeaders.push(file.options.pch);
+				ofilelist += 'pch/' + file.options.pch + '.gch ';
+			}
+		}
+		
 		for (let o in objects) {
 			ofilelist += o + '.o ';
 		}
-
+		
+		fs.ensureDirSync(to.resolve('pch').toString());
 		this.writeFile(to.resolve('makefile'));
 
-		let incline = '';
+		let incline = '-Ipch ';
 		for (let inc of project.getIncludeDirs()) {
 			inc = to.relativize(from.resolve(inc));
 			incline += '-I' + inc + ' ';
@@ -75,8 +86,25 @@ class ExporterMakefile extends Exporter {
         }
         
 		this.p('\tg++ ' + cpp + ' ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
-
+		
 		for (let file of project.getFiles()) {
+			let precompiledHeader = null;
+			for (let header of precompiledHeaders) {
+				if (file.file.endsWith(header)) {
+					precompiledHeader = header;
+					break;
+				}
+			}
+			if (precompiledHeader !== null) {
+				let realfile = to.relativize(from.resolve(file.file));
+				this.p('pch/' + precompiledHeader + '.gch: ' + realfile);
+				let compiler = 'g++';
+				this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o pch/' + precompiledHeader + '.gch $(LIB)');
+			}
+		}
+
+		for (let fileobject of project.getFiles()) {
+			let file = fileobject.file;
 			if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {
 				this.p();
 				let name = ofiles[file];

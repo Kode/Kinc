@@ -81,7 +81,9 @@ class ExporterCodeBlocks extends Exporter {
 		
 		let precompiledHeaders = [];
 		for (let file of project.getFiles()) {
-			
+			if (file.options && file.options.pch) {
+				precompiledHeaders.push(file.options.pch);
+			}
 		}
 		for (let file of project.getFiles()) {
 			let precompiledHeader = null;
