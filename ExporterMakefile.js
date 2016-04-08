@@ -38,8 +38,7 @@ class ExporterMakefile extends Exporter {
 			}
 		}
 		
-		var ofilelist = '';
-		
+		let gchfilelist = '';
 		let precompiledHeaders = [];
 		for (let file of project.getFiles()) {
 			if (file.options && file.options.pch && precompiledHeaders.indexOf(file.options.pch) < 0) {
@@ -56,10 +55,11 @@ class ExporterMakefile extends Exporter {
 			}
 			if (precompiledHeader !== null) {
 				let realfile = to.relativize(from.resolve(file.file));
-				ofilelist += realfile + '.gch ';
+				gchfilelist += realfile + '.gch ';
 			}
 		}
 		
+		let ofilelist = '';
 		for (let o in objects) {
 			ofilelist += o + '.o ';
 		}
@@ -89,13 +89,13 @@ class ExporterMakefile extends Exporter {
 		let optimization = '';
 		if (!options.debug) optimization = '-O3';
 
-		this.p(project.getName() + ': ' + ofilelist);
-        
-        let cpp = '';
-        if (project.cpp11) {
-            cpp = '-std=c++11'
-        }
-        
+		this.p(project.getName() + ': ' + gchfilelist + ofilelist);
+		
+		let cpp = '';
+		if (project.cpp11) {
+			cpp = '-std=c++11'
+		}
+
 		this.p('\tg++ ' + cpp + ' ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
 		
 		for (let file of project.getFiles()) {
