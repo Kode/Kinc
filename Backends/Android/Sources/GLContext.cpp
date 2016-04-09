@@ -107,7 +107,7 @@ bool GLContext::InitEGLSurface()
     const EGLint attribs[] = { EGL_RENDERABLE_TYPE,
             EGL_OPENGL_ES2_BIT, //Request opengl ES2.0
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_BLUE_SIZE, 8, EGL_GREEN_SIZE, 8,
-            EGL_RED_SIZE, 8, EGL_DEPTH_SIZE, 24, EGL_NONE };
+            EGL_RED_SIZE, 8, EGL_DEPTH_SIZE, 24, EGL_STENCIL_SIZE, 8, EGL_NONE };
     color_size_ = 8;
     depth_size_ = 24;
 
@@ -120,7 +120,7 @@ bool GLContext::InitEGLSurface()
         const EGLint attribs[] = { EGL_RENDERABLE_TYPE,
                 EGL_OPENGL_ES2_BIT, //Request opengl ES2.0
                 EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_BLUE_SIZE, 8, EGL_GREEN_SIZE, 8,
-                EGL_RED_SIZE, 8, EGL_DEPTH_SIZE, 16, EGL_NONE };
+                EGL_RED_SIZE, 8, EGL_DEPTH_SIZE, 16, EGL_STENCIL_SIZE, 8, EGL_NONE };
         eglChooseConfig( display_, attribs, &config_, 1, &num_configs );
         depth_size_ = 16;
     }
