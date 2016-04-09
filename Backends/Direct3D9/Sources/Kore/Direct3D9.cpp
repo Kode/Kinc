@@ -309,7 +309,7 @@ void Graphics::clearCurrent() {
 	// TODO (DK) implement me
 }
 
-void Graphics::setRenderTarget(RenderTarget* target, int num) {
+void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
 	//if (backBuffer != nullptr) backBuffer->Release();
 	
 	System::makeCurrent(target->contextId);

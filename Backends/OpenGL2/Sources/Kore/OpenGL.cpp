@@ -729,14 +729,24 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 	glCheckErrors();
 }
 
-void Graphics::setRenderTarget(RenderTarget* texture, int num) {
-    // TODO (DK) uneccessary?
-	//System::makeCurrent(texture->contextId);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
-	glCheckErrors();
-	glViewport(0, 0, texture->texWidth, texture->texHeight);
-	glCheckErrors();
+void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
+	if (num == 0) {
+		// TODO (DK) uneccessary?
+		//System::makeCurrent(texture->contextId);
+		glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
+		glCheckErrors();
+		glViewport(0, 0, texture->texWidth, texture->texHeight);
+		glCheckErrors();
+	}
+	
+	if (additionalTargets > 0) {
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + num, GL_TEXTURE_2D, texture->_texture, 0);
+		if (num == additionalTargets) {
+			GLenum buffers[additionalTargets + 1];
+			for (int i = 0; i <= additionalTargets; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+			glDrawBuffers(additionalTargets + 1, buffers);
+		}
+	}
 }
 
 void Graphics::restoreRenderTarget() {

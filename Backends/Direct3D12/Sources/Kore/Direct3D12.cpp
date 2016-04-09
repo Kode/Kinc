@@ -649,7 +649,7 @@ void Graphics::restoreRenderTarget() {
 	commandList->RSSetScissorRects(1, &rectScissor);
 }
 
-void Graphics::setRenderTarget(RenderTarget* target, int) {
+void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
 	commandList->OMSetRenderTargets(1, &target->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
 	commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&target->viewport);
 	commandList->RSSetScissorRects(1, (D3D12_RECT*)&target->scissor);

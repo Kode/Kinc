@@ -1629,7 +1629,7 @@ namespace {
 	}
 }
 
-void Graphics::setRenderTarget(RenderTarget* texture, int num) {
+void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
 	endPass();
 
 	currentRenderTarget = texture;
