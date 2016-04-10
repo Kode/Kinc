@@ -23,6 +23,9 @@
 
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+#ifdef KOREC
+extern "C"
+#endif
 int kore(int argc, char** argv);
 
 namespace {
