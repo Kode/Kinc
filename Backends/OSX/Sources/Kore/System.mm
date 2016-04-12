@@ -155,6 +155,9 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+#ifdef KOREC
+extern "C"
+#endif
 void kore(int, char **);
 
 @implementation MyApplication
