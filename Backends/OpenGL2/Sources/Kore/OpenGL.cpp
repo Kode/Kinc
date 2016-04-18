@@ -742,7 +742,7 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 	if (additionalTargets > 0) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + num, GL_TEXTURE_2D, texture->_texture, 0);
 		if (num == additionalTargets) {
-			GLenum buffers[additionalTargets + 1];
+			GLenum buffers[16];
 			for (int i = 0; i <= additionalTargets; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
 			glDrawBuffers(additionalTargets + 1, buffers);
 		}
