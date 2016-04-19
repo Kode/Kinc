@@ -347,6 +347,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		mouseY = HIWORD(lParam);
 		Mouse::the()->_release(idFromHWND(hWnd), 2, LOWORD(lParam), HIWORD(lParam));
 		break;
+	case WM_MOUSEWHEEL:
+		Mouse::the()->_scroll(idFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
+		break;
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
 		if (!keyPressed[wParam]) {
@@ -362,7 +365,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_SYSCOMMAND:
 		//printf("WS_SYSCOMMAND %5d %5d %5d\n", msg, wParam, lParam);
 		switch (wParam) {
-		case SC_KEYMENU: // Ignorieren, wenn Alt für das WS_SYSMENU gedrückt wird.
+		case SC_KEYMENU: // Ignorieren, wenn Alt fï¿½r das WS_SYSMENU gedrï¿½ckt wird.
 			return 0;
 		case SC_SCREENSAVE:
 		case SC_MONITORPOWER:
