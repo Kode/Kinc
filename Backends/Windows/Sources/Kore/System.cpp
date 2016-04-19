@@ -347,6 +347,16 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		mouseY = HIWORD(lParam);
 		Mouse::the()->_release(idFromHWND(hWnd), 2, LOWORD(lParam), HIWORD(lParam));
 		break;
+	case WM_XBUTTONDOWN:
+		mouseX = LOWORD(lParam);
+		mouseY = HIWORD(lParam);
+		Mouse::the()->_press(idFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		break;	
+	case WM_XBUTTONUP:
+		mouseX = LOWORD(lParam);
+		mouseY = HIWORD(lParam);
+		Mouse::the()->_release(idFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		break;
 	case WM_MOUSEWHEEL:
 		Mouse::the()->_scroll(idFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
 		break;
