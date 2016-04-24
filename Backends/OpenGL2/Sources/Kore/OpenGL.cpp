@@ -744,7 +744,9 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 		if (num == additionalTargets) {
 			GLenum buffers[16];
 			for (int i = 0; i <= additionalTargets; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+#ifndef OPENGLES
 			glDrawBuffers(additionalTargets + 1, buffers);
+#endif
 		}
 	}
 }
