@@ -6,6 +6,8 @@
 #include <Kore/System.h>
 #include <Kore/WinError.h>
 
+#include <Kore/Log.h>
+
 using namespace Kore;
 
 #ifdef SYS_XBOX360
@@ -16,12 +18,26 @@ LPDIRECT3D9 d3d;
 LPDIRECT3DDEVICE9 device;
 
 namespace {
-	//HWND hWnd;
+	HWND hWnd;
+	
+	int _width;
+	int _height;
+	
 	unsigned hz;
 	bool vsync;
 
 	void swapBuffers() {
-		device->Present(0, 0, 0, 0);
+		RECT vRect;
+		GetClientRect(hWnd, &vRect);
+		
+		RECT r;
+		r.top = 0;
+		r.left = 0;
+		
+		r.right = vRect.right;
+		r.bottom = vRect.bottom;
+		
+		device->Present(&r, &vRect, 0, 0);
 	}
 
 	Shader* pixelShader = nullptr;
@@ -75,6 +91,9 @@ void Graphics::destroy(int windowId) {
 }
 
 void Graphics::changeResolution(int width, int height) {
+	_width = width;
+	_height = height;
+	viewport(0, 0, width, height);
 	/*D3DPRESENT_PARAMETERS d3dpp; 
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
@@ -109,7 +128,8 @@ void Graphics::setup() {
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	if (!hasWindow()) return;
 
-	HWND hWnd = (HWND)System::windowHandle(windowId);
+	hWnd = (HWND)System::windowHandle(windowId);
+
 
 	// TODO (DK) just setup the primary window for now and ignore secondaries
 	//	-this should probably be implemented via swap chain for real at a later time
@@ -123,10 +143,10 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	D3DPRESENT_PARAMETERS d3dpp; 
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dpp.BackBufferCount = 2;
-	d3dpp.BackBufferWidth = System::windowWidth(windowId); //Application::the()->width();
-	d3dpp.BackBufferHeight = System::windowHeight(windowId); //Application::the()->height();
+	d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;//D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferCount = 1;
+	d3dpp.BackBufferWidth = Kore::System::desktopWidth();//System::windowWidth(windowId);
+	d3dpp.BackBufferHeight = Kore::System::desktopHeight();//System::windowHeight(windowId);
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
@@ -211,7 +231,9 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 	setFragmentBool(L"lighting", false);
 #endif
-
+	
+	changeResolution(System::windowWidth(windowId), System::windowHeight(windowId));
+	
 	System::makeCurrent(windowId);
 }
 
@@ -412,7 +434,8 @@ void Graphics::begin(int windowId) {
 	if (windowId > 0) {
 		return;
 	}
-
+	
+	viewport(0, 0, _width, _height);
 	device->BeginScene();
 }
 
@@ -525,7 +548,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 	switch (state) {
 	case DepthTestCompare:
 		switch (v) {
-		// TODO: Cmp-Konstanten systemabhängig abgleichen
+		// TODO: Cmp-Konstanten systemabhï¿½ngig abgleichen
 		default:
 		case ZCompareAlways      : v = D3DCMP_ALWAYS; break;
 		case ZCompareNever       : v = D3DCMP_NEVER; break;

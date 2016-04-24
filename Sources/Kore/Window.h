@@ -28,6 +28,11 @@ namespace Kore {
         int x;
         int y;
 		int targetDisplay;
+		
+		bool resizable;
+		bool maximizable;
+		bool minimizable;
+		
 		WindowMode mode;
 		bool showWindow;
 		RendererOptions rendererOptions;
@@ -42,6 +47,10 @@ namespace Kore {
 			width = 800;
 			height = 600;
 			showWindow = true;
+			
+			resizable = false;
+			maximizable = false;
+			minimizable = true;
 		}
     };
 

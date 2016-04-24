@@ -27,5 +27,7 @@ namespace Kore { namespace Display {
 
 	void enumerate();
 	const DeviceInfo * primary();
-	const DeviceInfo * byId( int id );    
+	const DeviceInfo * byId( int id );   
+	int height( int index );
+	int width( int index ); 
 }}

@@ -86,11 +86,19 @@ namespace Kore { namespace System {
 	}
 
 	int windowWidth(int id) {
-		return windows[id]->width;
+		RECT vRect;
+		GetClientRect(windows[id]->hwnd, &vRect);
+		int i = vRect.right;
+		return i;
+		//return windows[id]->width;
 	}
 
 	int windowHeight(int id) {
-		return windows[id]->height;
+		RECT vRect;
+		GetClientRect(windows[id]->hwnd, &vRect);
+		int i = vRect.bottom;
+		return i;
+		//return windows[id]->height;
 	}
 }}
 
@@ -294,13 +302,20 @@ namespace {
 }
 
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	int windowWidth;
+	int windowHeight;
+	
 	switch (msg) {
 	case WM_MOVE:
 	case WM_MOVING:
-	case WM_SIZE:
 	case WM_SIZING:
 		//Scheduler::breakTime();
 		break;
+	case WM_SIZE:
+		windowWidth = LOWORD(lParam);
+		windowHeight = HIWORD(lParam);
+		Graphics::changeResolution(windowWidth, windowHeight);
+	break;
 	case WM_DESTROY:
 		Kore::System::stop();
 		return 0;
@@ -831,10 +846,29 @@ int Kore::System::initWindow( WindowOptions options ) {
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
 	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
 	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	
+	HWND hwnd = (HWND)windowHandle(windowId);
+	long style = GetWindowLong(hwnd, GWL_STYLE);
+	
+	if(options.resizable){
+		style |= WS_SIZEBOX;	
+	}
+	
+	if(options.maximizable){
+		style |= WS_MAXIMIZEBOX;
+	}
+	
+	if(!options.minimizable){
+		style ^= WS_MINIMIZEBOX;
+	}
+	
+	SetWindowLong(hwnd, GWL_STYLE, style);
+	
 	return windowId;
 }
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {
+	
 #pragma message ("TODO (DK) implement changeResolution(w,h,fs) for d3dX")
     
 #if !defined(OPENGL) && !defined(SYS_VULKAN)
