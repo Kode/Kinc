@@ -41,6 +41,9 @@ namespace {
 	MipmapFilter mipFilters[10][32];
 	int originalFramebuffer[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 	uint arrayId[10];
+	
+	int _width;
+	int _height;
 }
 
 void Graphics::destroy(int windowId) {
@@ -180,6 +183,11 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #endif
 }
 
+void Graphics::changeResolution(int width, int height){
+	_width = width;
+	_height = height;
+}
+
 // TODO (DK) should return displays refreshrate?
 unsigned Graphics::refreshRate() {
 	return 60;
@@ -310,6 +318,8 @@ void Graphics::begin(int contextId) {
 	//System::setCurrentDevice(contextId);
     System::makeCurrent(contextId);
 
+	viewport(0, 0, _width, _height);
+	
 #ifdef SYS_IOS
 	beginGL();
 #endif
