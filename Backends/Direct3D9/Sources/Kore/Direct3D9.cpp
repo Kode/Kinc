@@ -361,6 +361,8 @@ void Graphics::restoreRenderTarget() {
 		device->SetDepthStencilSurface(depthBuffer);
 		depthBuffer->Release();
 		depthBuffer = nullptr;
+		
+		viewport(0, 0, _width, _height);
 	}
 }
 
