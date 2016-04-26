@@ -844,14 +844,12 @@ int Kore::System::initWindow( WindowOptions options ) {
 	}
 
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
-	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
-	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	
 	HWND hwnd = (HWND)windowHandle(windowId);
 	long style = GetWindowLong(hwnd, GWL_STYLE);
 	
 	if(options.resizable){
-		style |= WS_SIZEBOX;	
+		style |= WS_SIZEBOX;
 	}
 	
 	if(options.maximizable){
@@ -863,6 +861,9 @@ int Kore::System::initWindow( WindowOptions options ) {
 	}
 	
 	SetWindowLong(hwnd, GWL_STYLE, style);
+	
+	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
+	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	
 	return windowId;
 }
