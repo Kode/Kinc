@@ -25,6 +25,8 @@ namespace {
 	
 	unsigned hz;
 	bool vsync;
+	
+	D3DVIEWPORT9 vp;
 
 	void swapBuffers() {
 		RECT vRect;
@@ -361,7 +363,6 @@ void Graphics::restoreRenderTarget() {
 		device->SetDepthStencilSurface(depthBuffer);
 		depthBuffer->Release();
 		depthBuffer = nullptr;
-		
 		viewport(0, 0, _width, _height);
 	}
 }
@@ -441,9 +442,7 @@ void Graphics::begin(int windowId) {
 	device->BeginScene();
 }
 
-
 void Graphics::viewport(int x, int y, int width, int height) {
-	D3DVIEWPORT9 vp;
 	vp.X = x;
 	vp.Y = y;
 	vp.Width = width;
