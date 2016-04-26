@@ -60,6 +60,7 @@ namespace {
 
 	void registerWindowClass(HINSTANCE hInstance, const char * className) {
 		WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_OWNDC/*CS_CLASSDC*/, MsgProc, 0L, 0L, hInstance, LoadIcon(hInstance, MAKEINTRESOURCE(107)), nullptr /*LoadCursor(0, IDC_ARROW)*/, 0, 0, className/*windowClassName*/, 0 };
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 		RegisterClassExA(&wc);
 	}
 }
