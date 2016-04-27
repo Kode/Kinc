@@ -25,19 +25,19 @@ namespace {
 	
 	unsigned hz;
 	bool vsync;
+		
+	bool resizable;
+	
+	D3DVIEWPORT9 vp;
 
 	void swapBuffers() {
-		RECT vRect;
-		GetClientRect(hWnd, &vRect);
-		
-		RECT r;
-		r.top = 0;
-		r.left = 0;
-		
-		r.right = vRect.right;
-		r.bottom = vRect.bottom;
-		
-		device->Present(&r, &vRect, 0, 0);
+		if( resizable ){
+			RECT vRect;
+			GetClientRect(hWnd, &vRect);
+			device->Present(&vRect, &vRect, 0, 0);
+		} else {
+			device->Present(0, 0, 0, 0);
+		}
 	}
 
 	Shader* pixelShader = nullptr;
@@ -91,6 +91,10 @@ void Graphics::destroy(int windowId) {
 }
 
 void Graphics::changeResolution(int width, int height) {
+	if(!resizable){
+		return;
+	}
+	
 	_width = width;
 	_height = height;
 	viewport(0, 0, width, height);
@@ -129,7 +133,17 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	if (!hasWindow()) return;
 
 	hWnd = (HWND)System::windowHandle(windowId);
-
+	long style = GetWindowLong(hWnd, GWL_STYLE);
+	
+	resizable = false;
+	
+	if((style & WS_SIZEBOX) != 0){
+		resizable = true;
+	}
+	
+	if((style & WS_MAXIMIZEBOX) != 0){
+		resizable = true;
+	}
 
 	// TODO (DK) just setup the primary window for now and ignore secondaries
 	//	-this should probably be implemented via swap chain for real at a later time
@@ -143,10 +157,19 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	D3DPRESENT_PARAMETERS d3dpp; 
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
-	d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;//D3DSWAPEFFECT_DISCARD;
-	d3dpp.BackBufferCount = 1;
-	d3dpp.BackBufferWidth = Kore::System::desktopWidth();//System::windowWidth(windowId);
-	d3dpp.BackBufferHeight = Kore::System::desktopHeight();//System::windowHeight(windowId);
+	
+	if(resizable) {
+		d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
+		d3dpp.BackBufferCount = 1;
+		d3dpp.BackBufferWidth = Kore::System::desktopWidth();
+		d3dpp.BackBufferHeight = Kore::System::desktopHeight();
+	}else{
+		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		d3dpp.BackBufferCount = 2;
+		d3dpp.BackBufferWidth = System::windowWidth(windowId);
+		d3dpp.BackBufferHeight = System::windowHeight(windowId);
+	}
+	
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
@@ -232,7 +255,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	setFragmentBool(L"lighting", false);
 #endif
 	
-	changeResolution(System::windowWidth(windowId), System::windowHeight(windowId));
+	_width = System::windowWidth(windowId);
+	_height =  System::windowHeight(windowId);
 	
 	System::makeCurrent(windowId);
 }
@@ -361,6 +385,7 @@ void Graphics::restoreRenderTarget() {
 		device->SetDepthStencilSurface(depthBuffer);
 		depthBuffer->Release();
 		depthBuffer = nullptr;
+		viewport(0, 0, _width, _height);
 	}
 }
 
@@ -439,9 +464,7 @@ void Graphics::begin(int windowId) {
 	device->BeginScene();
 }
 
-
 void Graphics::viewport(int x, int y, int width, int height) {
-	D3DVIEWPORT9 vp;
 	vp.X = x;
 	vp.Y = y;
 	vp.Width = width;

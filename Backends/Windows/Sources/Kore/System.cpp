@@ -60,6 +60,7 @@ namespace {
 
 	void registerWindowClass(HINSTANCE hInstance, const char * className) {
 		WNDCLASSEXA wc = { sizeof(WNDCLASSEXA), CS_OWNDC/*CS_CLASSDC*/, MsgProc, 0L, 0L, hInstance, LoadIcon(hInstance, MAKEINTRESOURCE(107)), nullptr /*LoadCursor(0, IDC_ARROW)*/, 0, 0, className/*windowClassName*/, 0 };
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 		RegisterClassExA(&wc);
 	}
 }
@@ -844,14 +845,12 @@ int Kore::System::initWindow( WindowOptions options ) {
 	}
 
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
-	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
-	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	
 	HWND hwnd = (HWND)windowHandle(windowId);
 	long style = GetWindowLong(hwnd, GWL_STYLE);
 	
 	if(options.resizable){
-		style |= WS_SIZEBOX;	
+		style |= WS_SIZEBOX;
 	}
 	
 	if(options.maximizable){
@@ -863,6 +862,9 @@ int Kore::System::initWindow( WindowOptions options ) {
 	}
 	
 	SetWindowLong(hwnd, GWL_STYLE, style);
+	
+	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
+	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	
 	return windowId;
 }
