@@ -104,6 +104,16 @@ class Project {
 		return path.toString().replace(/\\/g, '/');
 	}
 
+	addFileForReal(file, options) {
+		for (let index in this.files) {
+			if (this.files[index].file === file) {
+				this.files[index] = {file: file, options: options};
+				return;
+			}
+		}
+		this.files.push({file: file, options: options});
+	}
+
 	searchFiles(current) {
 		if (current === undefined) {
 			for (let sub of this.subProjects) sub.searchFiles();
@@ -136,7 +146,7 @@ class Project {
 					include = inc.path;
 				}
 				if (this.matches(this.stringify(file), include)) {
-					this.files.push({file: this.stringify(file), options: includeobject.options});
+					this.addFileForReal(this.stringify(file), includeobject.options);
 				}
 			}
 		}
