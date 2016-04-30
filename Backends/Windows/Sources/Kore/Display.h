@@ -30,4 +30,6 @@ namespace Kore { namespace Display {
 	const DeviceInfo * byId( int id );   
 	int height( int index );
 	int width( int index ); 
+	int widthPrimary();
+	int heightPrimary();
 }}
