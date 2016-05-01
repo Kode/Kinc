@@ -44,6 +44,16 @@ namespace Kore { namespace Display {
         return displays[index].height;
     }
 
+    int widthPrimary() {
+		log(Warning, "TODO (DK) Kore::Display::widthPrimary() implement me");
+        return -1;
+	}
+
+	int heightPrimary() {
+		log(Warning, "TODO (DK) Kore::Display::heightPrimary() implement me");
+        return -1;
+	}
+
 	const DeviceInfo *
 	primaryScreen() {
 		for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {

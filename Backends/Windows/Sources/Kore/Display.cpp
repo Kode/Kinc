@@ -118,4 +118,14 @@ namespace Kore { namespace Display {
 		ensureInitialized();
 		return displays[index].height;
 	}
+
+	int widthPrimary() {
+		ensureInitialized();
+		return primary()->width;
+	}
+
+	int heightPrimary() {
+		ensureInitialized();
+		return primary()->height;
+	}
 }}

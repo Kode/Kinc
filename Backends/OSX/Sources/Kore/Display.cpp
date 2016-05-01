@@ -17,4 +17,14 @@ namespace Kore { namespace Display {
         log(Warning, "TODO (DK) implement me");
         return -1;
     }
+
+    int widthPrimary() {
+        log(Warning, "TODO (DK) implement me");
+        return -1;
+    }
+    
+    int heightPrimary() {
+        log(Warning, "TODO (DK) implement me");
+        return -1;
+    }
 }}
