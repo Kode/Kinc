@@ -43,13 +43,13 @@ namespace Kore { namespace Display {
     }
 
     int widthPrimary() {
-		ensureInitialized();
-		return primaryScreen()->width;
+		log(Warning, "TODO (DK) Kore::Display::widthPrimary() implement me");
+        return -1;
 	}
 
 	int heightPrimary() {
-		ensureInitialized();
-		return primaryScreen()->height;
+		log(Warning, "TODO (DK) Kore::Display::heightPrimary() implement me");
+        return -1;
 	}
 
 	const DeviceInfo *
