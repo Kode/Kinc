@@ -319,7 +319,7 @@ class ExporterXCode extends Exporter {
 			else if (framework.toString().endsWith('.dylib')) this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = compiled.mach-o.dylib; name = " + framework.toString() + "; path = usr/lib/" + framework.toString() + "; sourceTree = SDKROOT; };", 2);
 			else this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = ../" + from.resolve(framework.toString()).toAbsolutePath().toString() + "; sourceTree = SDKROOT; };", 2);
 		}
-		this.p(debugDirFileId + " /* Deployment */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Deployment; path = \"" + from.resolve(project.getDebugDir()).toAbsolutePath().toString() + "\"; sourceTree = \"<group>\"; };", 2);
+		this.p(debugDirFileId + " /* Deployment */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Deployment; path = \"" + to.relativize(from.resolve(project.getDebugDir())).toString()+ "\"; sourceTree = \"<group>\"; };", 2);
 		for (let file of files) {
 			let filetype = "unknown";
 			let fileencoding = '';
@@ -335,7 +335,7 @@ class ExporterXCode extends Exporter {
 				filetype = 'sourcecode.metal';
 				fileencoding = 'fileEncoding = 4; ';
 			}
-			this.p(file.getFileId() + " /* " + file.toString() + " */ = {isa = PBXFileReference; " + fileencoding + "lastKnownFileType = " + filetype + "; name = \"" + file.getLastName() + "\"; path = \"" + from.resolve(file.toString()).toAbsolutePath().toString() + "\"; sourceTree = \"<group>\"; };", 2);
+			this.p(file.getFileId() + " /* " + file.toString() + " */ = {isa = PBXFileReference; " + fileencoding + "lastKnownFileType = " + filetype + "; name = \"" + file.getLastName() + "\"; path = \"" + from.resolve(file.toString()) + "\"; sourceTree = \"<group>\"; };", 2);
 		}
 		this.p(iconFileId + ' /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };', 2);
 		this.p("/* End PBXFileReference section */");
