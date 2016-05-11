@@ -2,6 +2,7 @@
 #include "Image.h"
 #include <Kore/IO/FileReader.h>
 #include <Kore/Graphics/Graphics.h>
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <stdio.h>
 #include <string.h>
@@ -138,7 +139,7 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
 		int comp;
 		compressed = false;
 		internalFormat = 0;
-		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		hdrData = stbi_loadf_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
 		dataSize = width * height * 16;
 		format = RGBA128;
 	}
