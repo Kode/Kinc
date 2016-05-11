@@ -773,7 +773,7 @@ bool Graphics::renderTargetsInvertedY() {
 }
 
 bool Graphics::nonPow2TexturesSupported() {
-	return false;
+	return true;
 }
 
 void Graphics::flush() {

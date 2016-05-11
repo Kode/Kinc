@@ -22,6 +22,6 @@ namespace Kore {
 		u8 pixfmt;
 
 		~TextureImpl();
-		u8* conversionBuffer; // Fuer wenn Textur aus Image erstellt wird
+		u8* conversionBuffer; // When conversion to pow2 is needed
 	};
 }
