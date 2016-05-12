@@ -154,8 +154,16 @@ Image::Image(const char* filename, bool readable) : format(RGBA32), readable(rea
 }
 
 Image::~Image() {
-	delete[] data;
-	data = nullptr;
+	if (readable) {
+		if (format == RGBA128) {
+			delete[] hdrData;
+			hdrData = nullptr;
+		}
+		else {
+			delete[] data;
+			data = nullptr;
+		}
+	}
 }
 
 int Image::at(int x, int y) {
