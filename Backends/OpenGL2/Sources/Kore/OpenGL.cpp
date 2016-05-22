@@ -181,6 +181,9 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	glGenVertexArrays(1, &arrayId[windowId]);
 	glCheckErrors();
 #endif
+	
+	_width = System::windowWidth(0);
+	_height = System::windowHeight(0);
 }
 
 void Graphics::changeResolution(int width, int height){
@@ -332,7 +335,7 @@ void Graphics::begin(int contextId) {
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
-	glViewport(x,y,width,height);
+	glViewport(x, y, width, height);
 }
 
 void Graphics::scissor(int x, int y, int width, int height) {
