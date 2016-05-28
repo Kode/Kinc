@@ -63,6 +63,73 @@ namespace Kore {
 	}
 }
 
+#elif defined(SYS_IOS)
+
+#include <arm_neon.h>
+
+namespace Kore {
+	typedef float32x4_t float32x4;
+	
+	inline float32x4 load(float a, float b, float c, float d) {
+		return { a, b, c, d };
+	}
+	
+	inline float32x4 loadAll(float t) {
+		return { t, t, t, t };
+	}
+	
+	inline float get(float32x4 t, int index) {
+		return t[index];
+	}
+	
+	inline float32x4 abs(float32x4 t) {
+		return vabsq_f32(t);
+	}
+	
+	inline float32x4 add(float32x4 a, float32x4 b) {
+		return vaddq_f32(a, b);
+	}
+	
+	inline float32x4 div(float32x4 a, float32x4 b) {
+#ifdef ARM64
+		return vdivq_f32(a, b);
+#else
+		float32x4 inv = vrecpeq_f32(b);
+		float32x4 restep = vrecpsq_f32(b, inv);
+		inv = vmulq_f32(restep, inv);
+		return vmulq_f32(a, inv);
+#endif
+	}
+	
+	inline float32x4 mul(float32x4 a, float32x4 b) {
+		return vmulq_f32(a, b);
+	}
+	
+	inline float32x4 neg(float32x4 t) {
+		return vnegq_f32(t);
+	}
+	
+	inline float32x4 reciprocalApproximation(float32x4 t) {
+		return vrecpeq_f32(t);
+	}
+	
+	inline float32x4 reciprocalSqrtApproximation(float32x4 t) {
+		return vrsqrteq_f32(t);
+	}
+	
+	inline float32x4 sub(float32x4 a, float32x4 b) {
+		return vsubq_f32(a, b);
+	}
+	
+	inline float32x4 sqrt(float32x4 t) {
+#ifdef ARM64
+		return vsqrtq_f32(t);
+#else
+		return vmulq_f32(t, vrsqrteq_f32(t));
+#endif
+	}
+}
+
 #else
 
 #include <Kore/Math/Core.h>
