@@ -536,11 +536,6 @@ void Kore::System::makeCurrent( int contextId ) {
 	if (currentDeviceId == contextId) {
 		return;
 	}
-
-#if !defined(NDEBUG)
-	log(Info, "Kore/System | context switch from %i to %i", currentDeviceId, contextId);
-#endif
-
     currentDeviceId = contextId;
 #ifdef OPENGL
 	glXMakeCurrent(dpy, windowimpl::windows[contextId]->handle, windowimpl::windows[contextId]->context);
@@ -551,10 +546,6 @@ void Kore::Graphics::clearCurrent() {
 }
 
 void Kore::System::clearCurrent() {
-#if !defined(NDEBUG)
-	log(Info, "Kore/System | context clear");
-#endif
-
     currentDeviceId = -1;
     Graphics::clearCurrent();
 }
