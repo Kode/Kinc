@@ -301,10 +301,10 @@ exports.run = function (options, loglog, callback) {
 					}
 					if (options.run) {
 						if (options.target === Platform.OSX) {
-							child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], {cwd: options.to});
+							child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], {stdio: 'inherit', cwd: options.to});
 						}
 						else if (options.target === Platform.Linux || options.target === Platform.Windows) {
-							child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], {cwd: path.join(options.from.toString(), project.getDebugDir())});
+							child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], {stdio: 'inherit', cwd: path.join(options.from.toString(), project.getDebugDir())});
 						}
 						else {
 							log.info('--run not yet implemented for this platform');
