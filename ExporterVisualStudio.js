@@ -377,10 +377,10 @@ class ExporterVisualStudio extends Exporter {
 			lastdir = "";
 			this.p("<ItemGroup>", 1);
 			for (let file of assets) {
-				if (file.file.indexOf('/') >= 0) {
-					let dir = file.file.substr(0, file.file.lastIndexOf('/'));
+				if (file.indexOf('/') >= 0) {
+					let dir = file.substr(0, file.lastIndexOf('/'));
 					if (dir != lastdir) lastdir = dir;
-					this.p("<None Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
+					this.p("<None Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
 					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 					this.p("</None>", 2);
 				}
