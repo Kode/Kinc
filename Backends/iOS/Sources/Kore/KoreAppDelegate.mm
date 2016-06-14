@@ -43,8 +43,10 @@ int kore(int argc, char** argv);
 	
 	//glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::max(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width, screenBounds.size.height))];
 	GLViewController* glViewController = [[GLViewController alloc] init];
+#ifndef SYS_TVOS
 	glViewController.view.multipleTouchEnabled = YES;
-	//glViewController.view = glView;
+#endif
+    //glViewController.view = glView;
 	//[glViewController ]
 	//[window addSubview:glView];
 	[window setRootViewController:glViewController];
@@ -55,6 +57,7 @@ int kore(int argc, char** argv);
     return YES;
 }
 
+#ifndef SYS_TVOS
 static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
 	switch (orientation) {
 		case UIDeviceOrientationLandscapeLeft:
@@ -84,6 +87,7 @@ static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orient
 			return lastOrientation;
 	}
 }
+#endif
 
 void KoreUpdateKeyboard();
 /*

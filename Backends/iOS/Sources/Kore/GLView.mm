@@ -121,15 +121,18 @@ int Kore::System::windowHeight(int id) {
 
     // Start acceletometer
 	hasAccelerometer = false;
-
+#ifndef SYS_TVOS
 	motionManager = [[CMMotionManager alloc]init];
 	if ([motionManager isAccelerometerAvailable]) {
 		motionManager.accelerometerUpdateInterval = 0.033;
 		[motionManager startAccelerometerUpdates];
 		hasAccelerometer = true;
 	}
-	
+#endif
+    
+#ifndef SYS_TVOS
 	[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(onKeyboardHide:) name:UIKeyboardWillHideNotification object:nil];
+#endif
 
 	return self;
 }
@@ -171,6 +174,7 @@ int Kore::System::windowHeight(int id) {
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
     glViewport(0, 0, backingWidth, backingHeight);
 
+#ifndef SYS_TVOS
     // Accelerometer updates
     if (hasAccelerometer) {
 
@@ -185,6 +189,7 @@ int Kore::System::windowHeight(int id) {
  			lastAccelerometerZ = acc.z;
  		}
     }
+#endif
 }
 #endif
 
