@@ -7,7 +7,19 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+
+#ifndef XINPUT
+	#ifdef SYS_WINDOWS
+		#define XINPUT 1
+	#endif
+
+	#ifdef SYS_WINDOWSAPP
+		#define XINPUT !(WINAPI_PARTITION_PHONE_APP)
+	#endif
+#endif
+#if XINPUT
 #include <Xinput.h>
+#endif
 
 ref class Win8Application sealed : public Windows::ApplicationModel::Core::IFrameworkView {
 public:
@@ -59,7 +71,8 @@ using namespace Windows::Graphics::Display;
 bool Kore::System::handleMessages() {
 	CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
-		DWORD dwResult;
+	#if XINPUT
+	DWORD dwResult;
 	for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
 		XINPUT_STATE state;
 		ZeroMemory(&state, sizeof(XINPUT_STATE));
@@ -111,6 +124,7 @@ bool Kore::System::handleMessages() {
 			Kore::Gamepad::get(i)->productName = nullptr;
 		}
 	}
+    #endif
 
 	return true;
 }
