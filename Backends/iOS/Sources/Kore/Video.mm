@@ -51,7 +51,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	char name[2048];
 	strcpy(name, iphonegetresourcepath());
 	strcat(name, "/");
-	strcat(name, KORE_DEBUGDIR);
+	strcat(name, "Deployment");
 	strcat(name, "/");
 	strcat(name, filename);
 	url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];

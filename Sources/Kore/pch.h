@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef SYS_TVOS
+#undef SYS_IOS
+#define SYS_IOS
+#endif
+
 namespace Kore {
 	typedef unsigned char      u8;  // 1 Byte
 	typedef unsigned short     u16; // 2 Byte
