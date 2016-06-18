@@ -664,3 +664,7 @@ void Graphics::setIndexBuffer(IndexBuffer& buffer) {
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
+
+void Graphics::setup() {
+
+}
