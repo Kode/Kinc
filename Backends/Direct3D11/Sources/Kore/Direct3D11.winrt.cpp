@@ -379,12 +379,16 @@ unsigned Graphics::refreshRate() {
 
 void Graphics::swapBuffers(int windowId) {
 	HRESULT hr = swapChain->Present(1, 0);
+	// TODO: if (hr == DXGI_STATUS_OCCLUDED)...
+	// http://www.pouet.net/topic.php?which=10454
+	// "Proper handling of DXGI_STATUS_OCCLUDED would be to pause the application,
+	// and periodically call Present with the TEST flag, and when it returns S_OK, resume rendering."
 
 	//if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 	//	Initialize(m_window);
 	//}
 	//else {
-		affirm(hr);
+		affirm(SUCCEEDED(hr));
 	//}
 }
 
