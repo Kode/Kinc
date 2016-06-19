@@ -259,6 +259,12 @@ void Graphics::changeResolution(int width, int height) {
 }
 
 void Graphics::drawIndexedVertices() {
+	if (currentProgram->tessControlShader != nullptr) {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	}
+	else {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
 	Program::setConstants();
 	context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
 }
