@@ -93,10 +93,12 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 	int actualIndex = 0;
 	for (int index = 0; index < structure.size; ++index) {
 		VertexElement element = structure.elements[index];
-		int size;
+		int    size = 0;
+		GLenum type = GL_FLOAT;
 		switch (element.data) {
 		case ColorVertexData:
-			size = 1;
+			size = 4;
+			type = GL_UNSIGNED_BYTE;
 			break;
 		case Float1VertexData:
 			size = 1;
@@ -120,7 +122,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			while (subsize > 0) {
 				glEnableVertexAttribArray(offset + actualIndex);
 				glCheckErrors();
-				glVertexAttribPointer(offset + actualIndex, 4, GL_FLOAT, false, myStride, (void*)(internaloffset + addonOffset));
+				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, (void*)(internaloffset + addonOffset));
 				glCheckErrors();
 #ifndef OPENGLES
 				glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
@@ -134,7 +136,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		else {
 			glEnableVertexAttribArray(offset + actualIndex);
 			glCheckErrors();
-			glVertexAttribPointer(offset + actualIndex, size, GL_FLOAT, false, myStride, (void*)internaloffset);
+			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, (void*)internaloffset);
 			glCheckErrors();
 #ifndef OPENGLES
 			glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
