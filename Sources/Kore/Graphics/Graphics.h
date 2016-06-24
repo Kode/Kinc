@@ -128,7 +128,8 @@ namespace Kore {
 		int texHeight;
 		int contextId;
 		void useColorAsTexture(TextureUnit unit);
-		//void useDepthAsTexture(int texunit);
+		void useDepthAsTexture(TextureUnit unit);
+		void setDepthStencilFrom(RenderTarget* source);
 	};
 
 	namespace Graphics {
