@@ -31,17 +31,17 @@ class ExporterAndroid extends Exporter {
 		const outdir = path.join(to.toString(), safename);
 
 		fs.copySync(path.join(indir, 'build.gradle'), path.join(outdir, 'build.gradle'));
-		fs.copySync(path.join(indir, 'gradle.properties'), path.join(outdir, 'gradle.properties'));
+		//fs.copySync(path.join(indir, 'gradle.properties'), path.join(outdir, 'gradle.properties'));
 		fs.copySync(path.join(indir, 'gradlew'), path.join(outdir, 'gradlew'));
 		fs.copySync(path.join(indir, 'gradlew.bat'), path.join(outdir, 'gradlew.bat'));
-		fs.copySync(path.join(indir, 'local.properties'), path.join(outdir, 'local.properties'));
+		//fs.copySync(path.join(indir, 'local.properties'), path.join(outdir, 'local.properties'));
 		fs.copySync(path.join(indir, 'settings.gradle'), path.join(outdir, 'settings.gradle'));
 
 		let nameiml = fs.readFileSync(path.join(indir, 'name.iml'), {encoding: 'utf8'});
 		nameiml = nameiml.replaceAll('{name}', safename);
 		fs.writeFileSync(path.join(outdir, safename + '.iml'), nameiml, {encoding: 'utf8'});
 
-		fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
+		//fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
 
 		let flags = '\n';
         flags += '        cppFlags += "-std=c++11"\n'; // (DK) for scoped enums i.e. (enum class WindowMode { ..}')
@@ -109,7 +109,7 @@ class ExporterAndroid extends Exporter {
 		fs.copySync(path.join(indir, 'idea', 'gradle.xml'), path.join(outdir, '.idea', 'gradle.xml'));
 		fs.copySync(path.join(indir, 'idea', 'misc.xml'), path.join(outdir, '.idea', 'misc.xml'));
 		fs.copySync(path.join(indir, 'idea', 'runConfigurations.xml'), path.join(outdir, '.idea', 'runConfigurations.xml'));
-		fs.copySync(path.join(indir, 'idea', 'vcs.xml'), path.join(outdir, '.idea', 'vcs.xml'));
+		//fs.copySync(path.join(indir, 'idea', 'vcs.xml'), path.join(outdir, '.idea', 'vcs.xml'));
 		fs.copySync(path.join(indir, 'idea', 'copyright', 'profiles_settings.xml'), path.join(outdir, '.idea', 'copyright', 'profiles_settings.xml'));
 
 		let namename = fs.readFileSync(path.join(indir, 'idea', 'name'), {encoding: 'utf8'});
