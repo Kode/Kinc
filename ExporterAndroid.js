@@ -45,18 +45,18 @@ class ExporterAndroid extends Exporter {
 		//fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
 
 		let flags = '\n';
-        flags += "        cppFlags.add('-std=c++11')\n";
-		flags += "        cppFlags.add('-fexceptions')\n";
-		flags += "        cppFlags.add('-frtti')\n";
+        flags += "            cppFlags.add('-std=c++11')\n";
+		flags += "            cppFlags.add('-fexceptions')\n";
+		flags += "            cppFlags.add('-frtti')\n";
 		for (let def of project.getDefines()) {
-			flags += "        cppFlags.add('-D" + def + "')\n";
-			flags += "        CFlags.add('-D" + def + "')\n";
+			flags += "            cppFlags.add('-D" + def + "')\n";
+			flags += "            CFlags.add('-D" + def + "')\n";
 		}
 		for (let inc of project.getIncludeDirs()) {
 			inc = inc.replaceAll('\\', '/');
 			while (inc.startsWith('../')) inc = inc.substr(3);
-			flags += '        cppFlags.add("-I${file("src/main/jni/' + inc + '")}".toString())\n';
-			flags += '        CFlags.add("-I${file("src/main/jni/' + inc + '")}".toString())\n';
+			flags += '            cppFlags.add("-I${file("src/main/jni/' + inc + '")}".toString())\n';
+			flags += '            CFlags.add("-I${file("src/main/jni/' + inc + '")}".toString())\n';
 		}
 
 		let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), {encoding: 'utf8'});
@@ -65,9 +65,9 @@ class ExporterAndroid extends Exporter {
 
 		let javasources = '';
 		for (let dir of project.getJavaDirs()) {
-			javasources += "                    srcDir '" + path.relative(path.join(outdir, 'app'), from.resolve(dir).toString()).replaceAll('\\', '/') + "'\n";
+			javasources += "                        srcDir '" + path.relative(path.join(outdir, 'app'), from.resolve(dir).toString()).replaceAll('\\', '/') + "'\n";
 		}
-		javasources += "                    srcDir '" + path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replaceAll('\\', '/') + "'\n";
+		javasources += "                        srcDir '" + path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replaceAll('\\', '/') + "'\n";
 		gradle = gradle.replaceAll('{javasources}', javasources);
 
 		//gradle = gradle.replaceAll('{cppsources}', ''); // Currently at the default position
