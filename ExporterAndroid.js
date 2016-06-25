@@ -41,21 +41,22 @@ class ExporterAndroid extends Exporter {
 		nameiml = nameiml.replaceAll('{name}', safename);
 		fs.writeFileSync(path.join(outdir, safename + '.iml'), nameiml, {encoding: 'utf8'});
 
+		fs.ensureDirSync(path.join(outdir, 'app'));
 		//fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
 
 		let flags = '\n';
-        flags += '        cppFlags += "-std=c++11"\n'; // (DK) for scoped enums i.e. (enum class WindowMode { ..}')
-		flags += '        cppFlags += "-fexceptions"\n';
-		flags += '        cppFlags += "-frtti"\n';
+        flags += "        cppFlags.add('-std=c++11')\n";
+		flags += "        cppFlags.add('-fexceptions')\n";
+		flags += "        cppFlags.add('-frtti')\n";
 		for (let def of project.getDefines()) {
-			flags += '        cppFlags += "-D' + def + '"\n';
-			flags += '        CFlags += "-D' + def + '"\n';
+			flags += "        cppFlags.add('-D" + def + "')\n";
+			flags += "        CFlags.add('-D" + def + "')\n";
 		}
 		for (let inc of project.getIncludeDirs()) {
 			inc = inc.replaceAll('\\', '/');
 			while (inc.startsWith('../')) inc = inc.substr(3);
-			flags += '        cppFlags += "-I${file("src/main/jni/' + inc + '")}".toString()\n';
-			flags += '        CFlags += "-I${file("src/main/jni/' + inc + '")}".toString()\n';
+			flags += "        cppFlags.add('-I${file(\"src/main/jni/" + inc + "\")}'.toString())\n";
+			flags += "        CFlags.add('-I${file(\"src/main/jni/" + inc + "\")}'.toString())\n";
 		}
 
 		let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), {encoding: 'utf8'});
@@ -129,10 +130,6 @@ class ExporterAndroid extends Exporter {
 			this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
 			Files.copyIfDifferent(from.resolve(file.file), target, true);
 		}
-
-		// Reminder in case you forgot to change project details.
-		console.log("* Project name : " + solution.getName());
-		console.log("* Project package : " + targetOptions.package);
 	}
 
 	exportSolutionEclipse(solution, from, to, platform, vr) {

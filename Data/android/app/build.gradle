@@ -12,10 +12,10 @@ model {
         }
         ndk {
             platformVersion = 15
-            moduleName ='kore'
+            moduleName = 'kore'
             toolchain = 'clang'
             stl = 'gnustl_static'
-            cppFlags.add('-std=c++11')
+            {flags}
             ldLibs.addAll(['log', 'android', 'EGL', 'GLESv2', 'OpenSLES', 'OpenMAXAL'])
         }
         sources {
@@ -23,11 +23,6 @@ model {
                 java {
                     source {
 {javasources}
-                    }
-                }
-                jni {
-                    dependencies {
-                        project ':kore' linkage 'static'
                     }
                 }
             }
