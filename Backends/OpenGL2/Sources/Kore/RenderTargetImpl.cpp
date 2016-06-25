@@ -7,6 +7,14 @@
 
 using namespace Kore;
 
+#ifndef GL_RGBA16F_EXT
+#define GL_RGBA16F_EXT 0x881A
+#endif
+
+#ifndef GL_RGBA32F_EXT
+#define GL_RGBA32F_EXT 0x8814
+#endif
+
 namespace {
 	int pow(int pow) {
 		int ret = 1;
