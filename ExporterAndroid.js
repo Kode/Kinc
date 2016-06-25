@@ -55,8 +55,8 @@ class ExporterAndroid extends Exporter {
 		for (let inc of project.getIncludeDirs()) {
 			inc = inc.replaceAll('\\', '/');
 			while (inc.startsWith('../')) inc = inc.substr(3);
-			flags += "        cppFlags.add('-I${file(\"src/main/jni/" + inc + "\")}'.toString())\n";
-			flags += "        CFlags.add('-I${file(\"src/main/jni/" + inc + "\")}'.toString())\n";
+			flags += '        cppFlags.add("-I${file("src/main/jni/' + inc + '")}".toString())\n';
+			flags += '        CFlags.add("-I${file("src/main/jni/' + inc + '")}".toString())\n';
 		}
 
 		let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), {encoding: 'utf8'});
