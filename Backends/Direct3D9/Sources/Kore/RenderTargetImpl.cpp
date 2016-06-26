@@ -52,6 +52,12 @@ void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	device->SetTexture(unit.unit, colorTexture);
 }
 
+
+void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+	//!TODO Implement
+}
+
+void RenderTarget::useDepthAsTexture(TextureUnit unit) {}
 /*void RenderTarget::useDepthAsTexture(int texunit) {
 	if (antialiasing) {
 		IDirect3DSurface9* surface;
