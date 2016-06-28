@@ -580,7 +580,7 @@ class ExporterXCode extends Exporter {
 			}
 			else {
 				if (project.cpp11) this.p('MACOSX_DEPLOYMENT_TARGET = 10.7;', 4);
-				else this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
+				else this.p('MACOSX_DEPLOYMENT_TARGET = 10.5;', 4);
 			}
 		}
 		this.p('MTL_ENABLE_DEBUG_INFO = YES;', 4);
@@ -657,7 +657,7 @@ class ExporterXCode extends Exporter {
 			}
 			else {
 				if (project.cpp11) this.p('MACOSX_DEPLOYMENT_TARGET = 10.7;', 4);
-				else this.p('MACOSX_DEPLOYMENT_TARGET = 10.4;', 4);
+				else this.p('MACOSX_DEPLOYMENT_TARGET = 10.5;', 4);
 			}
 		}
 		this.p('MTL_ENABLE_DEBUG_INFO = NO;', 4);
