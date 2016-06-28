@@ -48,6 +48,12 @@ class ExporterAndroid extends Exporter {
         flags += "            cppFlags.add('-std=c++11')\n";
 		flags += "            cppFlags.add('-fexceptions')\n";
 		flags += "            cppFlags.add('-frtti')\n";
+
+		// Because of https://tls.mbed.org/kb/development/arm-thumb-error-r7-cannot-be-used-in-asm-here
+		// TODO: Remove when clang works
+		flags += "            cppFlags.add('-fomit-frame-pointer')\n";
+		flags += "            CFlags.add('-fomit-frame-pointer')\n";
+
 		for (let def of project.getDefines()) {
 			flags += "            cppFlags.add('-D" + def + "')\n";
 			flags += "            CFlags.add('-D" + def + "')\n";
