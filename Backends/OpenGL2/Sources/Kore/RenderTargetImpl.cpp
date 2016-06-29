@@ -4,7 +4,9 @@
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
 #include "ogl.h"
-
+#ifdef SYS_ANDROID
+#include <GLContext.h>
+#endif
 using namespace Kore;
 
 #ifndef GL_RGBA16F_EXT
@@ -13,6 +15,10 @@ using namespace Kore;
 
 #ifndef GL_RGBA32F_EXT
 #define GL_RGBA32F_EXT 0x8814
+#endif
+
+#ifndef GL_HALF_FLOAT
+#define GL_HALF_FLOAT 0x140B
 #endif
 
 namespace {
@@ -25,6 +31,19 @@ namespace {
 	int getPower2(int i) {
 		for (int power = 0; ; ++power)
 			if (pow(power) >= i) return pow(power);
+	}
+	
+	bool nonPow2RenderTargetsSupported() {
+#ifdef OPENGLES
+	#ifdef SYS_ANDROID
+		if (ndk_helper::GLContext::GetInstance()->GetGLVersion() >= 3.0) return true;
+		else return false;
+	#else
+		return false;
+	#endif
+#else
+		return true;
+#endif
 	}
 }
 
@@ -103,13 +122,15 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 }
 
 RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
-#ifdef OPENGLES
-	texWidth = getPower2(width);
-	texHeight = getPower2(height);
-#else
-	texWidth = width;
-	texHeight = height;
-#endif
+
+	if (nonPow2RenderTargetsSupported()) {
+		texWidth = width;
+		texHeight = height;
+	}
+	else {
+		texWidth = getPower2(width);
+		texHeight = getPower2(height);
+	}
 
 	this->contextId = contextId;
 
@@ -140,17 +161,17 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 		break;
 	case Target64BitFloat:
 #ifdef OPENGLES
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT_OES, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #endif
 		break;
 	case Target16BitDepth:
 #ifdef OPENGLES
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
-#else // GL, GLES3
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #endif
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		break;
 	case Target32Bit:
 	default:
