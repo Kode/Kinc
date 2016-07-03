@@ -19,7 +19,9 @@
 
 #ifdef SYS_ANDROID
 #include <EGL/egl.h>
+#if SYS_ANDROID_API >= 18
 #include <GLES3/gl3.h>
+#endif
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #define OPENGLES
