@@ -373,6 +373,16 @@ bool Kore::System::handleMessages() {
 			KEY(XK_x, Key_X, 'x')
 			KEY(XK_y, Key_Y, 'y')
 			KEY(XK_z, Key_Z, 'z')
+			KEY(XK_1, Key_1, '1')
+			KEY(XK_2, Key_1, '2')
+			KEY(XK_3, Key_1, '3')
+			KEY(XK_4, Key_1, '4')
+			KEY(XK_5, Key_1, '5')
+			KEY(XK_6, Key_1, '6')
+			KEY(XK_7, Key_1, '7')
+			KEY(XK_8, Key_1, '8')
+			KEY(XK_9, Key_1, '9')
+			KEY(XK_0, Key_1, '0')
 			case XK_Escape:
                 System::stop();
 				break;
@@ -428,6 +438,16 @@ bool Kore::System::handleMessages() {
 			KEY(XK_x, Key_X, 'x')
 			KEY(XK_y, Key_Y, 'y')
 			KEY(XK_z, Key_Z, 'z')
+			KEY(XK_1, Key_1, '1')
+			KEY(XK_2, Key_1, '2')
+			KEY(XK_3, Key_1, '3')
+			KEY(XK_4, Key_1, '4')
+			KEY(XK_5, Key_1, '5')
+			KEY(XK_6, Key_1, '6')
+			KEY(XK_7, Key_1, '7')
+			KEY(XK_8, Key_1, '8')
+			KEY(XK_9, Key_1, '9')
+			KEY(XK_0, Key_1, '0')
 			}
 			break;
 			#undef KEY
@@ -569,7 +589,7 @@ void Kore::System::setTitle(const char* title) {
 }
 
 void Kore::System::setKeepScreenOn( bool on ) {
-    
+
 }
 
 void Kore::System::showWindow() {
