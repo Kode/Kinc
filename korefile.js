@@ -81,7 +81,7 @@ else if (platform === Platform.OSX) {
 	project.addLib('Foundation');
 	project.addDefine('SYS_UNIXOID');
 }
-else if (platform === Platform.iOS) {
+else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	addBackend('iOS');
 	if (graphics === GraphicsApi.Metal) {
 		addBackend('Metal');
