@@ -71,10 +71,9 @@ namespace Kore {
 			return m;
 		}
 
-		// fov in deg
 		static myType Perspective(float fov, float aspect, float near, float far) {
 			myType m;
-			float uh = cot((pi / 360) * fov);
+			float uh = cot(fov / 2.0f);
 			float uw = uh / aspect;
 			m.Set(0, 0, uw);
 			m.Set(1, 1, uh);
@@ -384,7 +383,7 @@ namespace Kore {
 				// Diagonalenfeld normalisieren
 				q = matrix[j][j];
 				if (q == 0) {
-					//Gewährleisten, daß keine 0 in der Diagonale steht
+					//Gewï¿½hrleisten, daï¿½ keine 0 in der Diagonale steht
 					for (unsigned i = j + 1; i < X; ++i)
 					{
 						// Suche Reihe mit Feld <> 0 und addiere dazu
@@ -405,7 +404,7 @@ namespace Kore {
 						I.matrix[k][j] = I.matrix[k][j] / q;
 					}
 				}
-				// Spalten außerhalb der Diagonalen auf 0 bringen
+				// Spalten auï¿½erhalb der Diagonalen auf 0 bringen
 				for (unsigned i = 0; i < X; ++i) {
 					if (i != j) {
 						q = matrix[j][i];
