@@ -11,5 +11,6 @@ module.exports = {
 	Linux: 'linux',
 	HTML5: 'html5',
 	Tizen: 'tizen',
-	Pi: 'pi'
+	Pi: 'pi',
+	tvOS: 'tvos'
 };

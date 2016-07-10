@@ -27,6 +27,9 @@ function getDefines(platform, rotated) {
 			if (rotated) defines.push("ROTATE90");
 			defines.push("SYS_IOS");
 			break;
+		case Platform.tvOS:
+			defines.push("SYS_TVOS");
+			break;
 		case Platform.OSX:
 			defines.push("SYS_OSX");
 			defines.push("SYS_64BIT");

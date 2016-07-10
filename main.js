@@ -54,6 +54,8 @@ function fromPlatform(platform) {
 			return "Tizen";
 		case Platform.Pi:
 			return "Pi";
+		case Platform.tvOS:
+			return "tvOS";
 		default:
 			return "unknown";
 	}
@@ -82,6 +84,7 @@ function shaderLang(platform) {
 		case Platform.PlayStation3:
 			return "d3d9";
 		case Platform.iOS:
+		case Platform.tvOS:
 			switch (Options.graphicsApi) {
 				case GraphicsApi.Metal:
 					return 'metal';
@@ -175,7 +178,7 @@ function exportKoremakeProject(from, to, platform, options) {
 	}
 
 	let exporter = null;
-	if (platform == Platform.iOS || platform == Platform.OSX) exporter = new ExporterXCode();
+	if (platform === Platform.iOS || platform === Platform.OSX || platform === Platform.tvOS) exporter = new ExporterXCode();
 	else if (platform == Platform.Android) exporter = new ExporterAndroid();
 	else if (platform == Platform.HTML5) exporter = new ExporterEmscripten();
 	else if (platform == Platform.Linux || platform === Platform.Pi) {
