@@ -556,12 +556,12 @@ void Graphics::setRenderState(RenderState state, int v) {
 		switch (v) {
 		case Clockwise:
 			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
+			glCullFace(GL_BACK);
 			glCheckErrors();
 			break;
 		case CounterClockwise:
 			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
+			glCullFace(GL_FRONT);
 			glCheckErrors();
 			break;
 		case NoCulling:
