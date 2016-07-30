@@ -128,9 +128,9 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 	if (fs.existsSync(path.join(projectDir.toString(), 'Backends'))) {
 		let libdirs = fs.readdirSync(path.join(projectDir.toString(), 'Backends'));
 		for (let ld in libdirs) {
-			var libdir = path.join(projectDir.toString(), 'Backends', libdirs[ld]);
+			let libdir = path.join(projectDir.toString(), 'Backends', libdirs[ld]);
 			if (fs.statSync(libdir).isDirectory()) {
-				var exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
+				let exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
 				if (fs.existsSync(exe)) {
 					compiler = exe;
 				}

@@ -1,13 +1,12 @@
 "use strict";
-const Exporter = require('./Exporter.js');
-const Files = require('./Files.js');
-const GraphicsApi = require('./GraphicsApi.js');
-const Icon = require('./Icon.js');
-const Paths = require('./Paths.js');
-const Platform = require('./Platform.js');
-const Options = require('./Options.js');
-const fs = require('fs');
-const uuid = require('./uuid.js');
+const Exporter_1 = require('./Exporter');
+const GraphicsApi_1 = require('./GraphicsApi');
+const Icon = require('./Icon');
+const Platform_1 = require('./Platform');
+const Options_1 = require('./Options');
+const fs = require('fs-extra');
+const path = require('path');
+const uuid = require('uuid');
 function contains(a, b) {
     return a.indexOf(b) !== -1;
 }
@@ -102,15 +101,14 @@ function addDirectory(dirname, directories) {
     }
     return dir;
 }
-class ExporterXCode extends Exporter {
+class ExporterXCode extends Exporter_1.Exporter {
     constructor() {
         super();
     }
     exportWorkspace(to, solution) {
-        const dir = to.resolve(Paths.get(solution.getName() + ".xcodeproj", "project.xcworkspace"));
-        if (!Files.exists(dir))
-            Files.createDirectories(dir);
-        this.writeFile(to.resolve(Paths.get(solution.getName() + ".xcodeproj", "project.xcworkspace", "contents.xcworkspacedata")));
+        const dir = path.resolve(to, solution.getName() + '.xcodeproj', 'project.xcworkspace');
+        fs.ensureDirSync(dir);
+        this.writeFile(path.resolve(to, solution.getName() + '.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'));
         this.p("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         this.p("<Workspace");
         this.p("version = \"1.0\">");
@@ -121,9 +119,8 @@ class ExporterXCode extends Exporter {
         this.closeFile();
     }
     exportSolution(solution, from, to, platform) {
-        const xdir = to.resolve(solution.getName() + ".xcodeproj");
-        if (!Files.exists(xdir))
-            Files.createDirectories(xdir);
+        const xdir = path.resolve(to, solution.getName() + '.xcodeproj');
+        fs.ensureDirSync(xdir);
         this.exportWorkspace(to, solution);
         let icons = [];
         class IconImage {
@@ -133,7 +130,7 @@ class ExporterXCode extends Exporter {
                 this.scale = scale;
             }
         }
-        if (platform === Platform.iOS) {
+        if (platform === Platform_1.Platform.iOS) {
             icons.push(new IconImage('iphone', 29, 2));
             icons.push(new IconImage('iphone', 29, 3));
             icons.push(new IconImage('iphone', 40, 2));
@@ -159,10 +156,9 @@ class ExporterXCode extends Exporter {
             icons.push(new IconImage('mac', 512, 1));
             icons.push(new IconImage('mac', 512, 2));
         }
-        const iconsdir = to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset'));
-        if (!Files.exists(iconsdir))
-            Files.createDirectories(iconsdir);
-        this.writeFile(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', 'Contents.json')));
+        const iconsdir = path.resolve(to, 'Images.xcassets', 'AppIcon.appiconset');
+        fs.ensureDirSync(iconsdir);
+        this.writeFile(path.resolve(to, 'Images.xcassets', 'AppIcon.appiconset', 'Contents.json'));
         this.p('{');
         this.p('"images" : [', 1);
         for (let i = 0; i < icons.length; ++i) {
@@ -187,7 +183,7 @@ class ExporterXCode extends Exporter {
         //const black = 0xff;
         for (let i = 0; i < icons.length; ++i) {
             const icon = icons[i];
-            Icon.exportPng(to.resolve(Paths.get('Images.xcassets', 'AppIcon.appiconset', icon.idiom + icon.scale + 'x' + icon.size + '.png')), icon.size * icon.scale, icon.size * icon.scale, undefined, from);
+            Icon.exportPng(path.resolve(to, 'Images.xcassets', 'AppIcon.appiconset', icon.idiom + icon.scale + 'x' + icon.size + '.png'), icon.size * icon.scale, icon.size * icon.scale, undefined, from);
         }
         let project = solution.getProjects()[0];
         let plistname = '';
@@ -252,7 +248,7 @@ class ExporterXCode extends Exporter {
         //	iosIconFileIds.push(newId());
         //	iosIconBuildIds.push(newId());
         //}
-        this.writeFile(to.resolve(Paths.get(solution.getName() + ".xcodeproj", "project.pbxproj")));
+        this.writeFile(path.resolve(to, solution.getName() + '.xcodeproj', 'project.pbxproj'));
         this.p("// !$*UTF8*$!");
         this.p("{");
         this.p("archiveVersion = 1;", 1);
@@ -280,7 +276,7 @@ class ExporterXCode extends Exporter {
             if (framework.toString().endsWith('.framework')) {
                 // Local framework - a directory is specified
                 if (contains(framework.toString(), '/')) {
-                    framework.localPath = from.resolve(framework.toString()).toAbsolutePath().toString();
+                    framework.localPath = path.resolve(from, framework);
                     this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = " + framework.localPath + "; sourceTree = \"<absolute>\"; };", 2);
                 }
                 else {
@@ -290,11 +286,11 @@ class ExporterXCode extends Exporter {
             else if (framework.toString().endsWith('.dylib'))
                 this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = compiled.mach-o.dylib; name = " + framework.toString() + "; path = usr/lib/" + framework.toString() + "; sourceTree = SDKROOT; };", 2);
             else {
-                framework.localPath = from.resolve(framework.toString()).toAbsolutePath().toString();
+                framework.localPath = path.resolve(from, framework);
                 this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = " + framework.toString() + "; path = " + framework.localPath + "; sourceTree = \"<group>\"; };", 2);
             }
         }
-        this.p(debugDirFileId + " /* Deployment */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Deployment; path = \"" + from.resolve(project.getDebugDir()).toAbsolutePath().toString() + "\"; sourceTree = \"<group>\"; };", 2);
+        this.p(debugDirFileId + " /* Deployment */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Deployment; path = \"" + path.resolve(from, project.getDebugDir()) + "\"; sourceTree = \"<group>\"; };", 2);
         for (let file of files) {
             let filetype = "unknown";
             let fileencoding = '';
@@ -318,7 +314,7 @@ class ExporterXCode extends Exporter {
                 filetype = 'sourcecode.metal';
                 fileencoding = 'fileEncoding = 4; ';
             }
-            this.p(file.getFileId() + " /* " + file.toString() + " */ = {isa = PBXFileReference; " + fileencoding + "lastKnownFileType = " + filetype + "; name = \"" + file.getLastName() + "\"; path = \"" + from.resolve(file.toString()).toAbsolutePath().toString() + "\"; sourceTree = \"<group>\"; };", 2);
+            this.p(file.getFileId() + " /* " + file.toString() + " */ = {isa = PBXFileReference; " + fileencoding + "lastKnownFileType = " + filetype + "; name = \"" + file.getLastName() + "\"; path = \"" + path.resolve(from, file.toString()) + "\"; sourceTree = \"<group>\"; };", 2);
         }
         this.p(iconFileId + ' /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };', 2);
         this.p("/* End PBXFileReference section */");
@@ -507,14 +503,14 @@ class ExporterXCode extends Exporter {
         this.p("buildSettings = {", 3);
         this.p('ALWAYS_SEARCH_USER_PATHS = NO;', 4);
         this.p('CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";', 4);
-        if (platform === Platform.iOS || project.cpp11) {
+        if (platform === Platform_1.Platform.iOS || project.cpp11) {
             this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
         }
         else {
             this.p('CLANG_CXX_LIBRARY = "libstdc++";', 4);
         }
         this.p('CLANG_ENABLE_MODULES = YES;', 4);
-        if (platform === Platform.iOS) {
+        if (platform === Platform_1.Platform.iOS) {
             this.p('CLANG_ENABLE_OBJC_ARC = YES;', 4);
         }
         else {
@@ -529,7 +525,7 @@ class ExporterXCode extends Exporter {
         this.p('CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;', 4);
         this.p('CLANG_WARN_UNREACHABLE_CODE = YES;', 4);
         this.p('CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;', 4);
-        if (platform === Platform.iOS) {
+        if (platform === Platform_1.Platform.iOS) {
             this.p('"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";', 4);
         }
         else {
@@ -544,7 +540,7 @@ class ExporterXCode extends Exporter {
         this.p("\"DEBUG=1\",", 5);
         for (let define of project.getDefines()) {
             if (contains(define, '='))
-                this.p("\"" + define.replaceAll('\"', "\\\\\\\"") + "\",", 5);
+                this.p("\"" + define.replace(/\"/g, "\\\\\\\"") + "\",", 5);
             else
                 this.p(define + ",", 5);
         }
@@ -557,11 +553,11 @@ class ExporterXCode extends Exporter {
         this.p('GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;', 4);
         this.p('GCC_WARN_UNUSED_FUNCTION = YES;', 4);
         this.p('GCC_WARN_UNUSED_VARIABLE = YES;', 4);
-        if (platform === Platform.iOS) {
+        if (platform === Platform_1.Platform.iOS) {
             this.p('IPHONEOS_DEPLOYMENT_TARGET = 6.0;', 4);
         }
         else {
-            if (Options.graphicsApi === GraphicsApi.Metal) {
+            if (Options_1.Options.graphicsApi === GraphicsApi_1.GraphicsApi.Metal) {
                 this.p('MACOSX_DEPLOYMENT_TARGET = 10.11;', 4);
             }
             else {
@@ -573,7 +569,7 @@ class ExporterXCode extends Exporter {
         }
         this.p('MTL_ENABLE_DEBUG_INFO = YES;', 4);
         this.p('ONLY_ACTIVE_ARCH = YES;', 4);
-        if (platform === Platform.iOS) {
+        if (platform === Platform_1.Platform.iOS) {
             this.p('SDKROOT = iphoneos;', 4);
             this.p('TARGETED_DEVICE_FAMILY = "1,2";', 4);
         }
@@ -588,14 +584,14 @@ class ExporterXCode extends Exporter {
         this.p("buildSettings = {", 3);
         this.p('ALWAYS_SEARCH_USER_PATHS = NO;', 4);
         this.p('CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";', 4);
-        if (platform === Platform.iOS || project.cpp11) {
+        if (platform === Platform_1.Platform.iOS || project.cpp11) {
             this.p('CLANG_CXX_LIBRARY = "libc++";', 4);
         }
         else {
             this.p('CLANG_CXX_LIBRARY = "libstdc++";', 4);
         }
         this.p('CLANG_ENABLE_MODULES = YES;', 4);
-        if (platform === Platform.iOS) {
+        if (platform === Platform_1.Platform.iOS) {
             this.p('CLANG_ENABLE_OBJC_ARC = YES;', 4);
         }
         else {
@@ -610,14 +606,14 @@ class ExporterXCode extends Exporter {
         this.p('CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;', 4);
         this.p('CLANG_WARN_UNREACHABLE_CODE = YES;', 4);
         this.p('CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;', 4);
-        if (platform === Platform.iOS) {
+        if (platform === Platform_1.Platform.iOS) {
             this.p('"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";', 4);
         }
         else {
             this.p('CODE_SIGN_IDENTITY = "-";', 4);
         }
         this.p('COPY_PHASE_STRIP = YES;', 4);
-        if (platform === Platform.OSX) {
+        if (platform === Platform_1.Platform.OSX) {
             this.p('DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";', 4);
         }
         this.p('ENABLE_NS_ASSERTIONS = NO;', 4);
@@ -626,7 +622,7 @@ class ExporterXCode extends Exporter {
         this.p("GCC_PREPROCESSOR_DEFINITIONS = (", 4);
         for (let define of project.getDefines()) {
             if (contains(define, '='))
-                this.p("\"" + define.replaceAll('\"', "\\\\\\\"") + "\",", 5);
+                this.p("\"" + define.replace(/\"/g, "\\\\\\\"") + "\",", 5);
             else
                 this.p(define + ",", 5);
         }
@@ -638,11 +634,11 @@ class ExporterXCode extends Exporter {
         this.p('GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;', 4);
         this.p('GCC_WARN_UNUSED_FUNCTION = YES;', 4);
         this.p('GCC_WARN_UNUSED_VARIABLE = YES;', 4);
-        if (platform === Platform.iOS) {
+        if (platform === Platform_1.Platform.iOS) {
             this.p('IPHONEOS_DEPLOYMENT_TARGET = 6.0;', 4);
         }
         else {
-            if (Options.graphicsApi === GraphicsApi.Metal) {
+            if (Options_1.Options.graphicsApi === GraphicsApi_1.GraphicsApi.Metal) {
                 this.p('MACOSX_DEPLOYMENT_TARGET = 10.11;', 4);
             }
             else {
@@ -653,7 +649,7 @@ class ExporterXCode extends Exporter {
             }
         }
         this.p('MTL_ENABLE_DEBUG_INFO = NO;', 4);
-        if (platform == Platform.iOS) {
+        if (platform == Platform_1.Platform.iOS) {
             this.p('SDKROOT = iphoneos;', 4);
             this.p('TARGETED_DEVICE_FAMILY = "1,2";', 4);
             this.p('VALIDATE_PRODUCT = YES;', 4);
@@ -668,7 +664,7 @@ class ExporterXCode extends Exporter {
         this.p('isa = XCBuildConfiguration;', 3);
         this.p('buildSettings = {', 3);
         this.p('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;', 4);
-        if (platform === Platform.OSX) {
+        if (platform === Platform_1.Platform.OSX) {
             this.p('COMBINE_HIDPI_IMAGES = YES;', 4);
         }
         this.p("FRAMEWORK_SEARCH_PATHS = (", 4);
@@ -682,11 +678,11 @@ class ExporterXCode extends Exporter {
         this.p("HEADER_SEARCH_PATHS = (", 4);
         this.p('"$(inherited)",', 5);
         this.p('"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",', 5);
-        for (let path of project.getIncludeDirs())
-            this.p('"' + from.resolve(path).toAbsolutePath().toEscapedString() + '",', 5);
+        for (let projectpath of project.getIncludeDirs())
+            this.p('"' + path.resolve(from, projectpath).replace(/ /g, "\\\\ ") + '",', 5);
         this.p(");", 4);
-        this.p("INFOPLIST_FILE = \"" + from.resolve(plistname).toAbsolutePath().toString() + "\";", 4);
-        if (platform === Platform.iOS) {
+        this.p("INFOPLIST_FILE = \"" + path.resolve(from, plistname) + "\";", 4);
+        if (platform === Platform_1.Platform.iOS) {
             this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
         }
         else {
@@ -703,7 +699,7 @@ class ExporterXCode extends Exporter {
         this.p('isa = XCBuildConfiguration;', 3);
         this.p('buildSettings = {', 3);
         this.p('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;', 4);
-        if (platform === Platform.OSX) {
+        if (platform === Platform_1.Platform.OSX) {
             this.p('COMBINE_HIDPI_IMAGES = YES;', 4);
         }
         this.p("FRAMEWORK_SEARCH_PATHS = (", 4);
@@ -717,11 +713,11 @@ class ExporterXCode extends Exporter {
         this.p("HEADER_SEARCH_PATHS = (", 4);
         this.p('"$(inherited)",', 5);
         this.p('"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",', 5);
-        for (let path of project.getIncludeDirs())
-            this.p('"' + from.resolve(path).toAbsolutePath().toEscapedString() + '",', 5);
+        for (let p of project.getIncludeDirs())
+            this.p('"' + path.resolve(from, p).replace(/ /g, "\\\\ ") + '",', 5);
         this.p(");", 4);
-        this.p("INFOPLIST_FILE = \"" + from.resolve(plistname).toAbsolutePath().toString() + "\";", 4);
-        if (platform === Platform.iOS) {
+        this.p("INFOPLIST_FILE = \"" + path.resolve(from, plistname) + "\";", 4);
+        if (platform === Platform_1.Platform.iOS) {
             this.p('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";', 4);
         }
         else {
@@ -761,5 +757,5 @@ class ExporterXCode extends Exporter {
         this.closeFile();
     }
 }
-module.exports = ExporterXCode;
+exports.ExporterXCode = ExporterXCode;
 //# sourceMappingURL=ExporterXCode.js.map

@@ -1,7 +1,8 @@
 "use strict";
 const fs = require('fs-extra');
 const path = require('path');
-const uuid = require('./uuid');
+const Solution_1 = require('./Solution');
+const uuid = require('uuid');
 function contains(array, value) {
     for (let element of array) {
         if (element === value)
@@ -17,7 +18,7 @@ class Project {
     constructor(name) {
         this.name = name;
         this.debugDir = '';
-        this.basedir = require('./Solution').scriptdir;
+        this.basedir = Solution_1.Solution.scriptdir;
         if (name == 'Kore')
             Project.koreDir = this.basedir;
         this.uuid = uuid.v4();
@@ -50,7 +51,7 @@ class Project {
                 if (!contains(this.defines, d))
                     this.defines.push(d);
             for (let file of sub.files) {
-                this.files.push({ file: path.resolve(subbasedir, file.file).replace(/\\/g, '/'), options: file.options });
+                this.files.push({ file: path.join(subbasedir, file.file).replace(/\\/g, '/'), options: file.options });
             }
             for (let i of sub.includeDirs)
                 if (!contains(this.includeDirs, path.resolve(subbasedir, i)))
@@ -131,8 +132,8 @@ class Project {
         }
         let files = fs.readdirSync(current);
         nextfile: for (let f in files) {
-            var file = Paths.get(current, files[f]);
-            if (fs.statSync(file).isDirectory)
+            var file = path.join(current, files[f]);
+            if (fs.statSync(file).isDirectory())
                 continue;
             //if (!current.isAbsolute())
             file = path.relative(this.basedir, file);
@@ -143,9 +144,9 @@ class Project {
             for (let includeobject of this.includes) {
                 let include = includeobject.file;
                 if (isAbsolute(include)) {
-                    let inc = Paths.get(include);
+                    let inc = include;
                     inc = path.relative(this.basedir, inc);
-                    include = inc.path;
+                    include = inc;
                 }
                 if (this.matches(this.stringify(file), include)) {
                     this.addFileForReal(this.stringify(file), includeobject.options);
@@ -153,8 +154,10 @@ class Project {
             }
         }
         let dirs = fs.readdirSync(current);
-        nextdir: for (let d in dirs) {
-            var dir = path.join(current, dirs[d]);
+        nextdir: for (let d of dirs) {
+            let dir = path.join(current, d);
+            if (d.startsWith('.'))
+                continue;
             if (!fs.statSync(dir).isDirectory())
                 continue;
             for (let exclude of this.excludes) {

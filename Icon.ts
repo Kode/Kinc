@@ -11,7 +11,7 @@ function run(from: string, to: string, width: number, height: number, format: st
 	if (width > 0) params.push('width=' + width);
 	if (height > 0) params.push('height=' + height);
 	if (background !== undefined) params.push('background=' + background.toString(16));
-	let child = cp.spawn(path.join(__dirname, '..', 'kraffiti', exe), params);
+	let child = cp.spawn(path.join(__dirname, '..', '..', 'kraffiti', exe), params);
 	
 	child.stdout.on('data', (data) => {
 		//log.info('kraffiti stdout: ' + data);
@@ -33,7 +33,7 @@ function run(from: string, to: string, width: number, height: number, format: st
 
 function findIcon(from: string) {
 	if (fs.existsSync(path.join(from, 'icon.png'))) return path.join(from, 'icon.png');
-	else return path.join(__dirname, '..', 'kraffiti', 'ball.png');
+	else return path.join(__dirname, '..', '..', 'kraffiti', 'ball.png');
 }
 
 export function exportIco(to: string, from: string) {

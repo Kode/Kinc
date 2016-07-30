@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-const uuid = require('./uuid');
+import {Solution} from './Solution';
+const uuid = require('uuid');
 
 function contains(array, value) {
 	for (let element of array) {
@@ -36,7 +37,7 @@ export class Project {
 	constructor(name: string) {
 		this.name = name;
 		this.debugDir = '';
-		this.basedir = require('./Solution').scriptdir;
+		this.basedir = Solution.scriptdir;
 		if (name == 'Kore') Project.koreDir = this.basedir;
 		this.uuid = uuid.v4();
 
@@ -67,7 +68,7 @@ export class Project {
 
 			for (let d of sub.defines) if (!contains(this.defines, d)) this.defines.push(d);
 			for (let file of sub.files) {
-				this.files.push({file: path.resolve(subbasedir, file.file).replace(/\\/g, '/'), options: file.options});
+				this.files.push({file: path.join(subbasedir, file.file).replace(/\\/g, '/'), options: file.options});
 			}
 			for (let i of sub.includeDirs) if (!contains(this.includeDirs, path.resolve(subbasedir, i))) this.includeDirs.push(path.resolve(subbasedir, i));
 			for (let j of sub.javadirs) if (!contains(this.javadirs, path.resolve(subbasedir, j))) this.javadirs.push(path.resolve(subbasedir, j));
@@ -146,7 +147,7 @@ export class Project {
 		let files = fs.readdirSync(current);
 		nextfile: for (let f in files) {
 			var file = path.join(current, files[f]);
-			if (fs.statSync(file).isDirectory) continue;
+			if (fs.statSync(file).isDirectory()) continue;
 			//if (!current.isAbsolute())
 			file = path.relative(this.basedir, file);
 			for (let exclude of this.excludes) {
@@ -166,8 +167,9 @@ export class Project {
 		}
 
 		let dirs = fs.readdirSync(current);
-		nextdir: for (let d in dirs) {
-			var dir = path.join(current, dirs[d]);
+		nextdir: for (let d of dirs) {
+			let dir = path.join(current, d);
+			if (d.startsWith('.')) continue;
 			if (!fs.statSync(dir).isDirectory()) continue;
 			for (let exclude of this.excludes) {
 				if (this.matchesAllSubdirs(path.relative(this.basedir, dir), exclude)) {

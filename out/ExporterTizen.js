@@ -1,6 +1,7 @@
 "use strict";
 const Exporter_1 = require('./Exporter');
 const fs = require('fs-extra');
+const path = require('path');
 class ExporterTizen extends Exporter_1.Exporter {
     constructor() {
         super();
@@ -8,33 +9,33 @@ class ExporterTizen extends Exporter_1.Exporter {
     exportSolution(solution, from, to, platform) {
         let project = solution.getProjects()[0];
         if (project.getDebugDir() !== '')
-            fs.copyDirectorySync(from.resolve(project.getDebugDir()), to.resolve("data"));
-        var dotcproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".cproject")).toString(), { encoding: 'utf8' });
-        dotcproject = dotcproject.replaceAll("{ProjectName}", solution.getName());
+            fs.copySync(path.resolve(from, project.getDebugDir()), path.resolve(to, 'data'));
+        var dotcproject = fs.readFileSync(path.resolve(__dirname, 'Data', 'tizen', '.cproject'), 'utf8');
+        dotcproject = dotcproject.replace(/{ProjectName}/g, solution.getName());
         var includes = '';
         for (var i in project.getIncludeDirs()) {
             var include = project.getIncludeDirs()[i];
             includes += "<listOptionValue builtIn=\"false\" value=\"&quot;${workspace_loc:/${ProjName}/CopiedSources/" + include + "}&quot;\"/>";
         }
-        dotcproject = dotcproject.replaceAll("{includes}", includes);
+        dotcproject = dotcproject.replace(/{includes}/g, includes);
         var defines = '';
         for (var d in project.getDefines()) {
             var define = project.getDefines()[d];
             defines += "<listOptionValue builtIn=\"false\" value=\"" + define + "\"/>";
         }
-        dotcproject = dotcproject.replaceAll("{defines}", defines);
-        fs.writeFileSync(to.resolve('.cproject').toString(), dotcproject);
-        var dotproject = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", ".project")).toString(), { encoding: 'utf8' });
-        dotproject = dotproject.replaceAll("{ProjectName}", solution.getName());
-        fs.writeFileSync(to.resolve('.project').toString(), dotproject);
-        var manifest = fs.readFileSync(Paths.executableDir().resolve(Paths.get("Data", "tizen", "manifest.xml")).toString(), { encoding: 'utf8' });
-        manifest = manifest.replaceAll("{ProjectName}", solution.getName());
-        fs.writeFileSync(to.resolve('manifest.xml').toString(), manifest);
+        dotcproject = dotcproject.replace(/{defines}/g, defines);
+        fs.writeFileSync(path.resolve(to, '.cproject'), dotcproject);
+        var dotproject = fs.readFileSync(path.resolve(__dirname, 'Data', 'tizen', '.project'), 'utf8');
+        dotproject = dotproject.replace(/{ProjectName}/g, solution.getName());
+        fs.writeFileSync(path.resolve(to, '.project'), dotproject);
+        var manifest = fs.readFileSync(path.resolve(__dirname, 'Data', 'tizen', 'manifest.xml'), 'utf8');
+        manifest = manifest.replace(/{ProjectName}/g, solution.getName());
+        fs.writeFileSync(path.resolve(to, 'manifest.xml'), manifest);
         for (var f in project.getFiles()) {
             var file = project.getFiles()[f].file;
-            var target = to.resolve("CopiedSources").resolve(file);
-            this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
-            Files.copy(from.resolve(file), target, true);
+            var target = path.resolve(to, 'CopiedSources', file);
+            fs.ensureDirSync(path.join(target.substr(0, target.lastIndexOf('/'))));
+            fs.copySync(path.resolve(from, file), target);
         }
     }
 }

@@ -254,17 +254,17 @@ export class ExporterVisualStudio extends Exporter {
 		}
 	}
 
-	exportFilters(from, to, project, platform) {
+	exportFilters(from: string, to: string, project: Project, platform: string) {
 		for (let proj of project.getSubProjects()) this.exportFilters(from, to, proj, platform);
 
-		this.writeFile(to.resolve(project.getName() + ".vcxproj.filters"));
+		this.writeFile(path.resolve(to, project.getName() + '.vcxproj.filters'));
 
 		this.p("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 		this.p("<Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
 
 		//sort(project.getFiles());
 		let lastdir = "";
-		let dirs = [];
+		let dirs: string[] = [];
 		for (let file of project.getFiles()) {
 			if (file.file.indexOf('/') >= 0) {
 				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
@@ -280,11 +280,11 @@ export class ExporterVisualStudio extends Exporter {
 			}
 		}
 		let assets = [];
-		if (platform == Platform.WindowsApp) this.exportAssetPathFilter(from.resolve(project.getDebugDir()), dirs, assets);
+		if (platform == Platform.WindowsApp) this.exportAssetPathFilter(path.resolve(from, project.getDebugDir()), dirs, assets);
 
 		this.p("<ItemGroup>", 1);
 		for (let dir of dirs) {
-			this.p("<Filter Include=\"" + dir.replaceAll('/', '\\') + "\">", 2);
+			this.p("<Filter Include=\"" + dir.replace(/\//g, '\\') + "\">", 2);
 			this.p("<UniqueIdentifier>{" + uuid.v4().toString().toUpperCase() + "}</UniqueIdentifier>", 3);
 			this.p("</Filter>", 2);
 		}
@@ -319,8 +319,8 @@ export class ExporterVisualStudio extends Exporter {
 				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				if (file.file.endsWith(".h")) {
-					this.p("<ClInclude Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
-					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
+					this.p("<ClInclude Include=\"" + path.resolve(from, file.file) + "\">", 2);
+					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
 					this.p("</ClInclude>", 2);
 				}
 			}
@@ -334,8 +334,8 @@ export class ExporterVisualStudio extends Exporter {
 				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				if (file.file.endsWith(".cpp") || file.file.endsWith(".c") || file.file.endsWith("cc")) {
-					this.p("<ClCompile Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
-					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
+					this.p("<ClCompile Include=\"" + path.resolve(from, file.file) + "\">", 2);
+					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
 					this.p("</ClCompile>", 2);
 				}
 			}
@@ -349,8 +349,8 @@ export class ExporterVisualStudio extends Exporter {
 				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				if (file.file.endsWith(".cg") || file.file.endsWith(".hlsl")) {
-					this.p("<CustomBuild Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
-					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
+					this.p("<CustomBuild Include=\"" + path.resolve(from, file.file) + "\">", 2);
+					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
 					this.p("</CustomBuild>", 2);
 				}
 			}
@@ -364,8 +364,8 @@ export class ExporterVisualStudio extends Exporter {
 				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				if (file.file.endsWith(".asm")) {
-					this.p("<CustomBuild Include=\"" + from.resolve(file.file).toAbsolutePath().toString() + "\">", 2);
-					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
+					this.p("<CustomBuild Include=\"" + path.resolve(from, file.file) + "\">", 2);
+					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
 					this.p("</CustomBuild>", 2);
 				}
 			}
@@ -379,7 +379,7 @@ export class ExporterVisualStudio extends Exporter {
 				if (file.indexOf('/') >= 0) {
 					let dir = file.substr(0, file.lastIndexOf('/'));
 					if (dir != lastdir) lastdir = dir;
-					this.p("<None Include=\"" + from.resolve(file).toAbsolutePath().toString() + "\">", 2);
+					this.p("<None Include=\"" + path.resolve(from, file) + "\">", 2);
 					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
 					this.p("</None>", 2);
 				}

@@ -9,6 +9,7 @@ const Project_1 = require('./Project');
 const Platform_1 = require('./Platform');
 const Solution_1 = require('./Solution');
 const exec = require('./exec');
+const ExporterAndroid_1 = require('./ExporterAndroid');
 const ExporterCodeBlocks_1 = require('./ExporterCodeBlocks');
 const ExporterMakefile_1 = require('./ExporterMakefile');
 const ExporterEmscripten_1 = require('./ExporterEmscripten');
@@ -110,20 +111,20 @@ function shaderLang(platform) {
 }
 function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
     let compiler = '';
-    if (Project_1.Project.koreDir.path !== '') {
+    if (Project_1.Project.koreDir !== '') {
         if (nokrafix) {
-            compiler = Project_1.Project.koreDir.resolve(Paths.get("Tools", "kfx", "kfx" + exec.sys())).toString();
+            compiler = path.resolve(Project_1.Project.koreDir, 'Tools', 'kfx', 'kfx' + exec.sys());
         }
         else {
-            compiler = Project_1.Project.koreDir.resolve(Paths.get("Tools", "krafix", "krafix" + exec.sys())).toString();
+            compiler = path.resolve(Project_1.Project.koreDir, 'Tools', 'krafix', 'krafix' + exec.sys());
         }
     }
     if (fs.existsSync(path.join(projectDir.toString(), 'Backends'))) {
         let libdirs = fs.readdirSync(path.join(projectDir.toString(), 'Backends'));
         for (let ld in libdirs) {
-            var libdir = path.join(projectDir.toString(), 'Backends', libdirs[ld]);
+            let libdir = path.join(projectDir.toString(), 'Backends', libdirs[ld]);
             if (fs.statSync(libdir).isDirectory()) {
-                var exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
+                let exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
                 if (fs.existsSync(exe)) {
                     compiler = exe;
                 }
@@ -140,8 +141,7 @@ function exportKoremakeProject(from, to, platform, options) {
     let solution = Solution_1.Solution.create(from, platform);
     solution.searchFiles();
     solution.flatten();
-    if (!Files.exists(to))
-        Files.createDirectories(to);
+    fs.ensureDirSync(to);
     let project = solution.getProjects()[0];
     let files = project.getFiles();
     for (let file of files) {
@@ -158,7 +158,7 @@ function exportKoremakeProject(from, to, platform, options) {
     if (platform === Platform_1.Platform.iOS || platform === Platform_1.Platform.OSX || platform === Platform_1.Platform.tvOS)
         exporter = new ExporterXCode_1.ExporterXCode();
     else if (platform == Platform_1.Platform.Android)
-        exporter = new ExporterAndroid();
+        exporter = new ExporterAndroid_1.ExporterAndroid();
     else if (platform == Platform_1.Platform.HTML5)
         exporter = new ExporterEmscripten_1.ExporterEmscripten();
     else if (platform == Platform_1.Platform.Linux || platform === Platform_1.Platform.Pi) {
@@ -201,7 +201,7 @@ function exportKoremakeProject(from, to, platform, options) {
     return solution;
 }
 function isKoremakeProject(directory) {
-    return Files.exists(directory.resolve("korefile.js"));
+    return fs.existsSync(path.resolve(directory, 'korefile.js'));
 }
 function exportProject(from, to, platform, options) {
     if (isKoremakeProject(from)) {
@@ -221,10 +221,10 @@ exports.run = function (options, loglog, callback) {
     if (options.visualstudio !== undefined) {
         Options_1.Options.visualStudioVersion = options.visualstudio;
     }
-    if (options.vr != undefined) {
-        Options_1.Options.vrApi = options.vr;
-    }
-    let solution = exportProject(Paths.get(options.from), Paths.get(options.to), options.target, options);
+    //if (options.vr != undefined) {
+    //	Options.vrApi = options.vr;
+    //}
+    let solution = exportProject(options.from, options.to, options.target, options);
     let project = solution.getProjects()[0];
     let solutionName = solution.getName();
     if (options.compile && solutionName != "") {
@@ -248,8 +248,8 @@ exports.run = function (options, loglog, callback) {
                 vsvars = process.env.VS110COMNTOOLS + '\\vsvars32.bat';
             }
             if (vsvars !== null) {
-                fs.writeFileSync(path.join(options.to, 'build.bat'), '@call "' + vsvars + '"\n' + '@MSBuild.exe ' + solutionName + '.vcxproj /m /p:Configuration=Debug,Platform=Win32');
-                make = child_process.spawn('build.bat', { cwd: options.to });
+                fs.writeFileSync(path.join(options.to, 'build.bat'), '@call "' + vsvars + '"\n' + '@MSBuild.exe "' + solutionName + '.vcxproj" /m /p:Configuration=Debug,Platform=Win32');
+                make = child_process.spawn('build.bat', [], { cwd: options.to });
             }
             else {
                 log.error('Visual Studio not found.');
