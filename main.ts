@@ -265,7 +265,7 @@ exports.run = function (options, loglog, callback) {
 				vsvars = process.env.VS110COMNTOOLS + '\\vsvars32.bat';
 			}
 			if (vsvars !== null) {
-				fs.writeFileSync(path.join(options.to, 'build.bat'), '@call "' + vsvars + '"\n' + '@MSBuild.exe ' + solutionName + '.vcxproj /m /p:Configuration=Debug,Platform=Win32');
+				fs.writeFileSync(path.join(options.to, 'build.bat'), '@call "' + vsvars + '"\n' + '@MSBuild.exe "' + solutionName + '.vcxproj" /m /p:Configuration=Debug,Platform=Win32');
 				make = child_process.spawn('build.bat', [], {cwd: options.to});
 			}
 			else {
