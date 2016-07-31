@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 const child_process = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
@@ -212,89 +220,97 @@ function exportProject(from, to, platform, options) {
         return null;
     }
 }
-exports.api = 1;
-exports.run = function (options, loglog, callback) {
-    log.set(loglog);
-    if (options.graphics !== undefined) {
-        Options_1.Options.graphicsApi = options.graphics;
-    }
-    if (options.visualstudio !== undefined) {
-        Options_1.Options.visualStudioVersion = options.visualstudio;
-    }
-    //if (options.vr != undefined) {
-    //	Options.vrApi = options.vr;
-    //}
-    let solution = exportProject(options.from, options.to, options.target, options);
-    let project = solution.getProjects()[0];
-    let solutionName = solution.getName();
-    if (options.compile && solutionName != "") {
-        log.info('Compiling...');
-        let make = null;
-        if (options.target === Platform_1.Platform.Linux) {
-            make = child_process.spawn('make', [], { cwd: options.to });
-        }
-        else if (options.target === Platform_1.Platform.OSX) {
-            make = child_process.spawn('xcodebuild', ['-project', solutionName + '.xcodeproj'], { cwd: options.to });
-        }
-        else if (options.target === Platform_1.Platform.Windows) {
-            let vsvars = null;
-            if (process.env.VS140COMNTOOLS) {
-                vsvars = process.env.VS140COMNTOOLS + '\\vsvars32.bat';
-            }
-            else if (process.env.VS120COMNTOOLS) {
-                vsvars = process.env.VS120COMNTOOLS + '\\vsvars32.bat';
-            }
-            else if (process.env.VS110COMNTOOLS) {
-                vsvars = process.env.VS110COMNTOOLS + '\\vsvars32.bat';
-            }
-            if (vsvars !== null) {
-                fs.writeFileSync(path.join(options.to, 'build.bat'), '@call "' + vsvars + '"\n' + '@MSBuild.exe "' + solutionName + '.vcxproj" /m /p:Configuration=Debug,Platform=Win32');
-                make = child_process.spawn('build.bat', [], { cwd: options.to });
+function compileProject(make, project, solutionName, options) {
+    return new Promise((resolve, reject) => {
+        make.stdout.on('data', function (data) {
+            log.info(data.toString());
+        });
+        make.stderr.on('data', function (data) {
+            log.error(data.toString());
+        });
+        make.on('close', function (code) {
+            if (code === 0) {
+                if (options.target === Platform_1.Platform.Linux) {
+                    fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName));
+                }
+                else if (options.target === Platform_1.Platform.Windows) {
+                    fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'));
+                }
+                if (options.run) {
+                    if (options.target === Platform_1.Platform.OSX) {
+                        child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], { stdio: 'inherit', cwd: options.to });
+                    }
+                    else if (options.target === Platform_1.Platform.Linux || options.target === Platform_1.Platform.Windows) {
+                        child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], { stdio: 'inherit', cwd: path.join(options.from.toString(), project.getDebugDir()) });
+                    }
+                    else {
+                        log.info('--run not yet implemented for this platform');
+                    }
+                }
             }
             else {
-                log.error('Visual Studio not found.');
+                log.error('Compilation failed.');
+                process.exit(code);
             }
+        });
+    });
+}
+exports.api = 2;
+function run(options, loglog) {
+    return __awaiter(this, void 0, Promise, function* () {
+        log.set(loglog);
+        if (options.graphics !== undefined) {
+            Options_1.Options.graphicsApi = options.graphics;
         }
-        if (make !== null) {
-            make.stdout.on('data', function (data) {
-                log.info(data.toString());
-            });
-            make.stderr.on('data', function (data) {
-                log.error(data.toString());
-            });
-            make.on('close', function (code) {
-                if (code === 0) {
-                    if (options.target === Platform_1.Platform.Linux) {
-                        fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName));
-                    }
-                    else if (options.target === Platform_1.Platform.Windows) {
-                        fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'));
-                    }
-                    if (options.run) {
-                        if (options.target === Platform_1.Platform.OSX) {
-                            child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], { stdio: 'inherit', cwd: options.to });
-                        }
-                        else if (options.target === Platform_1.Platform.Linux || options.target === Platform_1.Platform.Windows) {
-                            child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], { stdio: 'inherit', cwd: path.join(options.from.toString(), project.getDebugDir()) });
-                        }
-                        else {
-                            log.info('--run not yet implemented for this platform');
-                        }
-                    }
+        if (options.visualstudio !== undefined) {
+            Options_1.Options.visualStudioVersion = options.visualstudio;
+        }
+        //if (options.vr != undefined) {
+        //	Options.vrApi = options.vr;
+        //}
+        let solution = exportProject(options.from, options.to, options.target, options);
+        let project = solution.getProjects()[0];
+        let solutionName = solution.getName();
+        if (options.compile && solutionName != "") {
+            log.info('Compiling...');
+            let make = null;
+            if (options.target === Platform_1.Platform.Linux) {
+                make = child_process.spawn('make', [], { cwd: options.to });
+            }
+            else if (options.target === Platform_1.Platform.OSX) {
+                make = child_process.spawn('xcodebuild', ['-project', solutionName + '.xcodeproj'], { cwd: options.to });
+            }
+            else if (options.target === Platform_1.Platform.Windows) {
+                let vsvars = null;
+                if (process.env.VS140COMNTOOLS) {
+                    vsvars = process.env.VS140COMNTOOLS + '\\vsvars32.bat';
+                }
+                else if (process.env.VS120COMNTOOLS) {
+                    vsvars = process.env.VS120COMNTOOLS + '\\vsvars32.bat';
+                }
+                else if (process.env.VS110COMNTOOLS) {
+                    vsvars = process.env.VS110COMNTOOLS + '\\vsvars32.bat';
+                }
+                if (vsvars !== null) {
+                    fs.writeFileSync(path.join(options.to, 'build.bat'), '@call "' + vsvars + '"\n' + '@MSBuild.exe "' + solutionName + '.vcxproj" /m /p:Configuration=Debug,Platform=Win32');
+                    make = child_process.spawn('build.bat', [], { cwd: options.to });
                 }
                 else {
-                    log.error('Compilation failed.');
-                    process.exit(code);
+                    log.error('Visual Studio not found.');
                 }
-                callback();
-            });
+            }
+            if (make !== null) {
+                yield compileProject(make, project, solutionName, options);
+                return solutionName;
+            }
+            else {
+                log.info('--compile not yet implemented for this platform');
+                return solutionName;
+            }
         }
-        else {
-            log.info('--compile not yet implemented for this platform');
-            callback();
-        }
-    }
-    else
-        callback();
-};
+        return solutionName;
+    });
+}
+exports.run = run;
+;
 //# sourceMappingURL=main.js.map

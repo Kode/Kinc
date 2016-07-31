@@ -221,9 +221,47 @@ function exportProject(from: string, to: string, platform: string, options) {
 	}
 }
 
-exports.api = 1;
+function compileProject(make, project, solutionName: string, options): Promise<void> {
+	return new Promise<void>((resolve, reject) => {
+		make.stdout.on('data', function (data) {
+			log.info(data.toString());
+		});
 
-exports.run = function (options, loglog, callback) {
+		make.stderr.on('data', function (data) {
+			log.error(data.toString());
+		});
+
+		make.on('close', function (code) {
+			if (code === 0) {
+				if (options.target === Platform.Linux) {
+					fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName));
+				}
+				else if (options.target === Platform.Windows) {
+					fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'));
+				}
+				if (options.run) {
+					if (options.target === Platform.OSX) {
+						child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], {stdio: 'inherit', cwd: options.to});
+					}
+					else if (options.target === Platform.Linux || options.target === Platform.Windows) {
+						child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], {stdio: 'inherit', cwd: path.join(options.from.toString(), project.getDebugDir())});
+					}
+					else {
+						log.info('--run not yet implemented for this platform');
+					}
+				}
+			}
+			else {
+				log.error('Compilation failed.');
+				process.exit(code);
+			}
+		});
+	});
+}
+
+export let api = 2;
+
+export async function run(options, loglog): Promise<string> {
 	log.set(loglog);
 	
 	if (options.graphics !== undefined) {
@@ -274,46 +312,13 @@ exports.run = function (options, loglog, callback) {
 		}
 
 		if (make !== null) {
-			make.stdout.on('data', function (data) {
-				log.info(data.toString());
-			});
-
-			make.stderr.on('data', function (data) {
-				log.error(data.toString());
-			});
-
-			make.on('close', function (code) {
-				if (code === 0) {
-					if (options.target === Platform.Linux) {
-						fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName));
-					}
-					else if (options.target === Platform.Windows) {
-						fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'));
-					}
-					if (options.run) {
-						if (options.target === Platform.OSX) {
-							child_process.spawn('open', ['build/Release/' + solutionName + '.app/Contents/MacOS/' + solutionName], {stdio: 'inherit', cwd: options.to});
-						}
-						else if (options.target === Platform.Linux || options.target === Platform.Windows) {
-							child_process.spawn(path.resolve(path.join(options.from.toString(), project.getDebugDir(), solutionName)), [], {stdio: 'inherit', cwd: path.join(options.from.toString(), project.getDebugDir())});
-						}
-						else {
-							log.info('--run not yet implemented for this platform');
-						}
-					}
-				}
-				else {
-					log.error('Compilation failed.');
-					process.exit(code);
-				}
-
-				callback();
-			});
+			await compileProject(make, project, solutionName, options);
+			return solutionName;
 		}
 		else {
 			log.info('--compile not yet implemented for this platform');
-			callback();
+			return solutionName;
 		}
 	}
-	else callback();
+	return solutionName;
 };
