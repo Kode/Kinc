@@ -328,7 +328,7 @@ class ExporterVisualStudio extends Exporter_1.Exporter {
                 let dir = file.file.substr(0, file.file.lastIndexOf('/'));
                 if (dir != lastdir)
                     lastdir = dir;
-                if (file.file.endsWith(".cpp") || file.file.endsWith(".c") || file.file.endsWith("cc")) {
+                if (file.file.endsWith(".cpp") || file.file.endsWith(".c") || file.file.endsWith("cc") || file.file.endsWith(".cxx")) {
                     this.p("<ClCompile Include=\"" + path.resolve(from, file.file) + "\">", 2);
                     this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
                     this.p("</ClCompile>", 2);
@@ -830,7 +830,7 @@ class ExporterVisualStudio extends Exporter_1.Exporter {
         }
         for (let fileobject of project.getFiles()) {
             let file = fileobject.file;
-            if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
+            if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc") || file.endsWith("cxx")) {
                 let name = file.toLowerCase();
                 if (name.indexOf('/') >= 0)
                     name = name.substr(name.lastIndexOf('/') + 1);
