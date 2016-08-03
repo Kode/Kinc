@@ -231,10 +231,10 @@ function compileProject(make, project, solutionName, options) {
         make.on('close', function (code) {
             if (code === 0) {
                 if (options.target === Platform_1.Platform.Linux) {
-                    fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName));
+                    fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName), { clobber: true });
                 }
                 else if (options.target === Platform_1.Platform.Windows) {
-                    fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'));
+                    fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'), { clobber: true });
                 }
                 if (options.run) {
                     if (options.target === Platform_1.Platform.OSX) {
