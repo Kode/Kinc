@@ -57,6 +57,12 @@ function copyIfDifferent(from, to, replace) {
         }
     }
 }
+function sourceCopyLocation(somePath, from, to, safename) {
+    somePath = path.relative(from, somePath);
+    while (somePath.startsWith('../'))
+        somePath = somePath.substr(3);
+    return path.resolve(to, safename, 'app', 'src', 'main', 'jni', somePath);
+}
 class ExporterAndroid extends Exporter_1.Exporter {
     constructor() {
         super();
@@ -102,11 +108,11 @@ class ExporterAndroid extends Exporter_1.Exporter {
             flags += "            CFlags.add('-D" + def + "')\n";
         }
         for (let inc of project.getIncludeDirs()) {
+            inc = sourceCopyLocation(inc, from, to, safename);
+            inc = path.relative(path.resolve(to, safename, 'app'), inc);
             inc = inc.replace(/\\/g, '/');
-            while (inc.startsWith('../'))
-                inc = inc.substr(3);
-            flags += '            cppFlags.add("-I${file("src/main/jni/' + inc + '")}".toString())\n';
-            flags += '            CFlags.add("-I${file("src/main/jni/' + inc + '")}".toString())\n';
+            flags += '            cppFlags.add("-I${file("' + inc + '")}".toString())\n';
+            flags += '            CFlags.add("-I${file("' + inc + '")}".toString())\n';
         }
         let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), { encoding: 'utf8' });
         gradle = gradle.replace(/{package}/g, targetOptions.package);
@@ -160,10 +166,7 @@ class ExporterAndroid extends Exporter_1.Exporter {
         if (project.getDebugDir().length > 0)
             fs.copySync(path.resolve(from, project.getDebugDir()), path.resolve(to, safename, 'app', 'src', 'main', 'assets'));
         for (let file of project.getFiles()) {
-            let localFile = file.file;
-            while (localFile.startsWith('../'))
-                localFile = localFile.substr(3);
-            let target = path.resolve(to, safename, 'app', 'src', 'main', 'jni', localFile);
+            let target = sourceCopyLocation(file.file, from, to, safename);
             fs.ensureDirSync(path.join(target.substr(0, target.lastIndexOf('/'))));
             copyIfDifferent(path.resolve(from, file.file), target, true);
         }
