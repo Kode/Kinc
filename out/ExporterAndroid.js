@@ -7,59 +7,48 @@ const fs = require('fs-extra');
 const os = require('os');
 const path = require('path');
 function filesDifferWin(file1, file2) {
-    // Treat them as different if one of them does not exist.
     if (!fs.existsSync(file1))
         return true;
     if (!fs.existsSync(file2))
         return true;
-    let isDifferent = true;
-    let output;
     try {
-        output = child_process_1.execSync("fc " + file1 + " " + file2, { encoding: 'utf8' });
+        let output = child_process_1.execSync('fc ' + file1 + ' ' + file2, { encoding: 'utf8' });
+        return output.indexOf('no differences encountered') < 0;
     }
     catch (error) {
-        output = "";
+        return true;
     }
-    if (output.indexOf("no differences encountered") > -1) {
-        isDifferent = false;
-    }
-    return isDifferent;
 }
 function filesDifferUnix(file1, file2) {
-    // Treat them as different if one of them does not exist.
     if (!fs.existsSync(file1))
         return true;
     if (!fs.existsSync(file2))
         return true;
-    let isDifferent = false;
-    let output = "";
     try {
-        output = child_process_1.execSync("diff " + file1 + " " + file2, { encoding: 'utf8' });
+        return child_process_1.execSync('diff ' + file1 + ' ' + file2, { encoding: 'utf8' }) !== '';
     }
     catch (error) {
         return true;
     }
-    if (output != "") {
-        isDifferent = true;
-    }
-    return isDifferent;
 }
 function copyIfDifferent(from, to, replace) {
     fs.ensureDirSync(path.normalize(path.join(to, '..')));
     if (replace || !fs.existsSync(to)) {
-        if (os.platform() === 'win32' && filesDifferWin(to, from)) {
-            fs.writeFileSync(to, fs.readFileSync(from));
-        }
-        else if (os.platform() !== 'win32' && filesDifferUnix(to, from)) {
-            fs.writeFileSync(to, fs.readFileSync(from));
+        if (os.platform() === 'win32') {
+            if (filesDifferWin(to, from)) {
+                fs.writeFileSync(to, fs.readFileSync(from));
+            }
         }
         else {
+            if (filesDifferUnix(to, from)) {
+                fs.writeFileSync(to, fs.readFileSync(from));
+            }
         }
     }
 }
 function sourceCopyLocation(somePath, from, to, safename) {
     somePath = path.relative(from, somePath);
-    while (somePath.startsWith('../'))
+    while (somePath.startsWith('..' + path.sep))
         somePath = somePath.substr(3);
     return path.resolve(to, safename, 'app', 'src', 'main', 'jni', somePath);
 }
@@ -167,7 +156,6 @@ class ExporterAndroid extends Exporter_1.Exporter {
             fs.copySync(path.resolve(from, project.getDebugDir()), path.resolve(to, safename, 'app', 'src', 'main', 'assets'));
         for (let file of project.getFiles()) {
             let target = sourceCopyLocation(file.file, from, to, safename);
-            fs.ensureDirSync(path.join(target.substr(0, target.lastIndexOf('/'))));
             copyIfDifferent(path.resolve(from, file.file), target, true);
         }
     }
