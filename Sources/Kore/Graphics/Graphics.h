@@ -61,7 +61,11 @@ namespace Kore {
 		SourceAlpha,
 		DestinationAlpha,
 		InverseSourceAlpha,
-		InverseDestinationAlpha
+		InverseDestinationAlpha,
+		SourceColor,
+		DestinationColor,
+		InverseSourceColor,
+		InverseDestinationColor
 	};
 
 	enum ZCompareMode {

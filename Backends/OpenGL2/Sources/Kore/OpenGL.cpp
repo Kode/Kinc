@@ -735,6 +735,14 @@ namespace {
 			return GL_ONE_MINUS_SRC_ALPHA;
 		case InverseDestinationAlpha:
 			return GL_ONE_MINUS_DST_ALPHA;
+		case SourceColor:
+			return GL_SRC_COLOR;
+		case DestinationColor:
+			return GL_DST_COLOR;
+		case InverseSourceColor:
+			return GL_ONE_MINUS_SRC_COLOR;
+		case InverseDestinationColor:
+			return GL_ONE_MINUS_DST_COLOR;
 		default:
 			return GL_ONE;
 		}
