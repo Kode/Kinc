@@ -2,6 +2,7 @@
 #include "Image.h"
 #include <Kore/IO/FileReader.h>
 #include <Kore/Graphics/Graphics.h>
+#include "../IO/snappy/snappy.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <stdio.h>
@@ -39,7 +40,24 @@ Image::Image(int width, int height, Format format, bool readable) : width(width)
 Image::Image(const char* filename, bool readable) : format(RGBA32), readable(readable) {
 	printf("Image %s\n", filename);
 	FileReader file(filename);
-	if (endsWith(filename, ".pvr")) {
+	if (endsWith(filename, ".k")) {
+		u8* data = (u8*)file.readAll();
+		width = Reader::readS32LE(data + 0);
+		height = Reader::readS32LE(data + 4);
+		char fourcc[5];
+		fourcc[0] = Reader::readS8(data + 8);
+		fourcc[1] = Reader::readS8(data + 9);
+		fourcc[2] = Reader::readS8(data + 10);
+		fourcc[3] = Reader::readS8(data + 11);
+		fourcc[4] = 0;
+		if (strcmp(fourcc, "SNAP") == 0) {
+			size_t length;
+			snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
+			this->data = (u8*)malloc(length);
+			snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
+		}
+	}
+	else if (endsWith(filename, ".pvr")) {
 		u32 version = file.readU32LE();
 		u32 flags = file.readU32LE();
 		u64 pixelFormat1 = file.readU64LE();
