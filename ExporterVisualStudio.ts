@@ -318,7 +318,7 @@ export class ExporterVisualStudio extends Exporter {
 			if (contains(file.file, '/')) {
 				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
-				if (file.file.endsWith(".h")) {
+				if (file.file.endsWith('.h') || file.file.endsWith('.hpp')) {
 					this.p("<ClInclude Include=\"" + path.resolve(from, file.file) + "\">", 2);
 					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
 					this.p("</ClInclude>", 2);
@@ -791,7 +791,7 @@ export class ExporterVisualStudio extends Exporter {
 
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.file.endsWith(".h")) this.p("<ClInclude Include=\"" + path.resolve(from, file.file) + "\" />", 2);
+			if (file.file.endsWith('.h') || file.file.endsWith('.hpp')) this.p("<ClInclude Include=\"" + path.resolve(from, file.file) + "\" />", 2);
 		}
 		this.p("</ItemGroup>", 1);
 
