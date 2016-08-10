@@ -843,6 +843,16 @@ int Kore::System::windowCount() {
     return 1;
 }
 
+int Kore::System::screenDpi() {
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getScreenDpi", "()I");
+	int dpi = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
+	activity->vm->DetachCurrentThread();
+	return dpi;
+}
+
 #include <sys/time.h>
 #include <time.h>
 

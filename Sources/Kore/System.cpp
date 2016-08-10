@@ -24,6 +24,12 @@ int Kore::System::desktopHeight() {
 
 #endif // !ined(SYS_WINDOWS) && !defined(SYS_OSX) && !defined(SYS_LINUX) && !defined(SYS_HTML5)
 
+#if !defined(SYS_ANDROID) 
+int:: Kore::System::screenDpi() {
+  return 0;
+}
+#endif //!defined(SYS_ANDROID) 
+
 namespace { namespace callbacks {
 	void (*callback)();
 	void (*foregroundCallback)();

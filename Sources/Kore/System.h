@@ -27,6 +27,8 @@ namespace Kore {
 		int windowWidth(int id = 0);
 		int windowHeight(int id = 0);
 		int windowCount();
+		
+		int screenDpi();
 
 		void changeResolution(int width, int height, bool fullscreen);
 		bool handleMessages();
