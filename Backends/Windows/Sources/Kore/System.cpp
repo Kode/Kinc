@@ -101,6 +101,13 @@ namespace Kore { namespace System {
 		return i;
 		//return windows[id]->height;
 	}
+
+	int screenDpi() {
+		HDC hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
+		int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
+		DeleteDC(hdc);
+		return dpi;
+	}
 }}
 
 using namespace Kore;

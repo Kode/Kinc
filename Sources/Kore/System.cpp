@@ -24,7 +24,7 @@ int Kore::System::desktopHeight() {
 
 #endif // !ined(SYS_WINDOWS) && !defined(SYS_OSX) && !defined(SYS_LINUX) && !defined(SYS_HTML5)
 
-#if !defined(SYS_ANDROID) 
+#if !defined(SYS_ANDROID) && !defined(SYS_WINDOWS)
 int:: Kore::System::screenDpi() {
   return 0;
 }
