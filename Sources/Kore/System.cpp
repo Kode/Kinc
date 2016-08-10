@@ -26,7 +26,7 @@ int Kore::System::desktopHeight() {
 
 #if !defined(SYS_ANDROID) && !defined(SYS_WINDOWS)
 int:: Kore::System::screenDpi() {
-  return 0;
+	return 96;
 }
 #endif //!defined(SYS_ANDROID) 
 
