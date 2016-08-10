@@ -42,4 +42,12 @@ public class KoreActivity extends NativeActivity {
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
 		return manager.getDefaultDisplay().getRotation();
 	}
+
+	public static int getScreenDpi() {
+		Context context = getInstance().getApplicationContext();
+		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+		android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
+		manager.getDefaultDisplay().getMetrics(metrics);
+		return (int)(metrics.density * android.util.DisplayMetrics.DENSITY_DEFAULT);
+	}
 }
