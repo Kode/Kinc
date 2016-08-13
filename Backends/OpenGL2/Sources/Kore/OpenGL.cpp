@@ -44,6 +44,8 @@ namespace {
 	
 	int _width;
 	int _height;
+	int _renderTargetWidth;
+	int _renderTargetHeight;
 
 #if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
 	void* glesDrawBuffers;
@@ -329,7 +331,7 @@ void Graphics::begin(int contextId) {
 	//System::setCurrentDevice(contextId);
     System::makeCurrent(contextId);
 
-	viewport(0, 0, _width, _height);
+	glViewport(0, 0, _width, _height);
 	
 #ifdef SYS_IOS
 	beginGL();
@@ -343,12 +345,12 @@ void Graphics::begin(int contextId) {
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
-	glViewport(x, y, width, height);
+	glViewport(x, _renderTargetHeight - y - height, width, height);
 }
 
 void Graphics::scissor(int x, int y, int width, int height) {
 	glEnable(GL_SCISSOR_TEST);
-	glScissor(x, y, width, height);
+	glScissor(x, _renderTargetHeight - y - height, width, height);
 }
 
 void Graphics::disableScissor() {
@@ -765,6 +767,8 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 		glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
 		glCheckErrors();
 		glViewport(0, 0, texture->width, texture->height);
+		_renderTargetWidth = texture->width;
+		_renderTargetHeight = texture->height;
 		glCheckErrors();
 	}
 	
@@ -785,7 +789,11 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 void Graphics::restoreRenderTarget() {
 	glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer[System::currentDevice()]);
 	glCheckErrors();
-	glViewport(0, 0, System::windowWidth(System::currentDevice()), System::windowHeight(System::currentDevice()));
+	int w = System::windowWidth(System::currentDevice());
+	int h = System::windowHeight(System::currentDevice());
+	glViewport(0, 0, w, h);
+	_renderTargetWidth = w;
+	_renderTargetHeight = h;
 	glCheckErrors();
 }
 
