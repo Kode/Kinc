@@ -46,6 +46,7 @@ namespace {
 	int _height;
 	int _renderTargetWidth;
 	int _renderTargetHeight;
+	bool renderToBackbuffer;
 
 #if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
 	void* glesDrawBuffers;
@@ -190,15 +191,22 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	
 	_width = System::windowWidth(0);
 	_height = System::windowHeight(0);
+	_renderTargetWidth = _width;
+	_renderTargetHeight = _height;
+	renderToBackbuffer = true;
 
 #if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
 	glesDrawBuffers = (void*)eglGetProcAddress("glDrawBuffers");
 #endif
 }
 
-void Graphics::changeResolution(int width, int height){
+void Graphics::changeResolution(int width, int height) {
 	_width = width;
 	_height = height;
+	if (renderToBackbuffer) {
+		_renderTargetWidth = _width;
+		_renderTargetHeight = _height;
+	}
 }
 
 // TODO (DK) should return displays refreshrate?
@@ -769,6 +777,7 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 		glViewport(0, 0, texture->width, texture->height);
 		_renderTargetWidth = texture->width;
 		_renderTargetHeight = texture->height;
+		renderToBackbuffer = false;
 		glCheckErrors();
 	}
 	
@@ -794,6 +803,7 @@ void Graphics::restoreRenderTarget() {
 	glViewport(0, 0, w, h);
 	_renderTargetWidth = w;
 	_renderTargetHeight = h;
+	renderToBackbuffer = true;
 	glCheckErrors();
 }
 
