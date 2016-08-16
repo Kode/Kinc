@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "Socket.h"
+#include <stdio.h>
 #include <Kore/Log.h>
 
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 #include <winsock2.h>
+#include <Ws2tcpip.h>
 #elif defined(SYS_UNIXOID)
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -77,15 +79,25 @@ Socket::~Socket() {
 #endif
 }
 
-void Socket::send(unsigned addr1, unsigned addr2, unsigned addr3, unsigned addr4, unsigned short port, const unsigned char* data, int size) {
+void Socket::send(const char* url, int port, const unsigned char* data, int size) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
-	unsigned int address = (addr1 << 24) | (addr2 << 16) | (addr3 << 8) | addr4;
-	sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl(address);
-	addr.sin_port = htons(port);
+	struct addrinfo hints;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_protocol = IPPROTO_UDP;
 
-	int sent = sendto(handle, (const char*)data, size, 0, (sockaddr*)&addr, sizeof(sockaddr_in));
+	struct addrinfo *address = NULL;
+	char serv[5];
+	sprintf(serv, "%u", port);
+	
+	int res = getaddrinfo(url, serv, &hints, &address);
+	if (res != 0) {
+		log(Kore::Error, "Could not resolve address.");
+		return;
+	}
+	
+	int sent = sendto(handle, (const char*)data, size, 0, address->ai_addr, sizeof(sockaddr_in));
 	if (sent != size) {
 		log(Kore::Error, "Could not send packet.");
 		return;
