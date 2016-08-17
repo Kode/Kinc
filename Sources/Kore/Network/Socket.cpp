@@ -9,8 +9,9 @@
 #elif defined(SYS_UNIXOID)
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 #include <unistd.h>
+#include <netdb.h>
 #endif
 
 using namespace Kore;
@@ -81,13 +82,12 @@ Socket::~Socket() {
 
 void Socket::send(const char* url, int port, const unsigned char* data, int size) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
-	struct addrinfo hints;
-	ZeroMemory(&hints, sizeof(hints));
+	addrinfo hints = {};
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_protocol = IPPROTO_UDP;
 
-	struct addrinfo *address = NULL;
+	addrinfo* address = NULL;
 	char serv[5];
 	sprintf(serv, "%u", port);
 	
