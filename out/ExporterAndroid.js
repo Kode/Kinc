@@ -108,7 +108,7 @@ class ExporterAndroid extends Exporter_1.Exporter {
         gradle = gradle.replace(/{flags}/g, flags);
         let javasources = '';
         for (let dir of project.getJavaDirs()) {
-            javasources += "                        srcDir '" + path.relative(path.join(outdir, 'app'), path.resolve(from, dir).replace(/\\/g, '/') + "'\n");
+            javasources += "                        srcDir '" + path.relative(path.join(outdir, 'app'), path.resolve(from, dir)).replace(/\\/g, '/') + "'\n";
         }
         javasources += "                        srcDir '" + path.relative(path.join(outdir, 'app'), path.join(Project_1.Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replace(/\\/g, '/') + "'\n";
         gradle = gradle.replace(/{javasources}/g, javasources);
