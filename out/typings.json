@@ -1,0 +1,9 @@
+{
+  "name": "koremake",
+  "dependencies": {},
+  "globalDependencies": {
+    "fs-extra": "registry:dt/fs-extra#0.0.0+20160517121359",
+    "node": "registry:dt/node#6.0.0+20160728152422",
+    "uuid": "registry:dt/uuid#3.3.0+20160728152600"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/85ea13a9863bbe73e9f3c5d0313de822bfd1cc87/uuid/UUID.d.ts",
+    "raw": "registry:dt/uuid#3.3.0+20160728152600",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/85ea13a9863bbe73e9f3c5d0313de822bfd1cc87/uuid/UUID.d.ts"
+  }
+}
