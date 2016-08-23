@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as log from './log';
 import {Solution} from './Solution';
 const uuid = require('uuid');
 
@@ -60,11 +61,7 @@ export class Project {
 		for (let sub of this.subProjects) sub.flatten();
 		for (let sub of this.subProjects) {
 			let basedir = this.basedir;
-			//if (basedir.startsWith("./")) basedir = basedir.substring(2);
 			let subbasedir = sub.basedir;
-			//if (subbasedir.startsWith("./")) subbasedir = subbasedir.substring(2);
-			//if (subbasedir.startsWith(basedir)) subbasedir = subbasedir.substring(basedir.length());
-			if (subbasedir.startsWith(basedir)) subbasedir = path.relative(basedir, subbasedir);
 
 			for (let d of sub.defines) if (!contains(this.defines, d)) this.defines.push(d);
 			for (let file of sub.files) {
