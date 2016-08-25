@@ -29,6 +29,29 @@ namespace {
 #endif
 		}
 	}
+
+	int convertInternalFormat(Image::Format format) {
+		switch (format) {
+		case Image::RGBA128:
+			return GL_RGBA32F;
+		case Image::RGBA32:
+		case Image::RGBA64:
+		default:
+			// #ifdef GL_BGRA
+			// return GL_BGRA;
+			// #else
+			return GL_RGBA;
+			// #endif
+		case Image::RGB24:
+			return GL_RGB;
+		case Image::Grey8:
+#ifdef OPENGLES
+			return GL_LUMINANCE;
+#else
+			return GL_RED;
+#endif
+		}
+	}
 	
 	int convertType(Image::Format format) {
 		switch (format) {
@@ -257,7 +280,7 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	glCheckErrors();
 	
 	if (convertType(format) == GL_FLOAT) {
-		glTexImage2D(GL_TEXTURE_2D, 0, convertFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_FLOAT, hdrData);
+		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_FLOAT, hdrData);
 	}
 	else {
 		glTexImage2D(GL_TEXTURE_2D, 0, convertFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_UNSIGNED_BYTE, data);
