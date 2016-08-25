@@ -8,7 +8,7 @@
 
 namespace Kore {
 	enum ShaderType {
-		FragmentShader, VertexShader, GeometryShader, TesselationControlShader, TesselationEvaluationShader, ComputeShader
+		FragmentShader, VertexShader, GeometryShader, TesselationControlShader, TesselationEvaluationShader
 	};
 
 	class Shader : public ShaderImpl {
