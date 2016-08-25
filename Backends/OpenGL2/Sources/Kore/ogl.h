@@ -63,3 +63,5 @@
 #else
 #define glCheckErrors() { GLenum code = glGetError(); while (code != GL_NO_ERROR) { Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__); } }
 #endif
+
+#define glCheckErrors2() { GLenum code = glGetError(); while (code != GL_NO_ERROR) { Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__); } }
