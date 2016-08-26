@@ -50,3 +50,11 @@ void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &view);
 }
+
+void RenderTarget::useDepthAsTexture(TextureUnit unit) {
+
+}
+
+void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+
+}
