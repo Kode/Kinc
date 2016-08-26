@@ -3,7 +3,6 @@
 #include <Kore/Compute/Compute.h>
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Math/Core.h>
-#include <Kore/WinError.h>
 #include "ogl.h"
 #include <stdio.h>
 
