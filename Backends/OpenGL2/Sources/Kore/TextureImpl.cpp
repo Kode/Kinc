@@ -280,7 +280,7 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	glCheckErrors();
 	
 	if (convertType(format) == GL_FLOAT) {
-		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_FLOAT, hdrData);
+		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_FLOAT, nullptr);
 	}
 	else {
 		glTexImage2D(GL_TEXTURE_2D, 0, convertFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_UNSIGNED_BYTE, data);
