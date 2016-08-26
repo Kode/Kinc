@@ -15,6 +15,7 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 	}
 	_source[length] = 0;
 
+#if !defined(SYS_OSX) && !defined(SYS_IOS)
 	_id = glCreateShader(GL_COMPUTE_SHADER); glCheckErrors();
 	glShaderSource(_id, 1, &_source, nullptr);
 	glCompileShader(_id);
@@ -43,13 +44,16 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 		log(Error, "GLSL linker error: %s\n", errormessage);
 		delete[] errormessage;
 	}
+#endif
 }
 
 ComputeShaderImpl::~ComputeShaderImpl() {
 	delete[] _source;
 	_source = nullptr;
+#if !defined(SYS_OSX) && !defined(SYS_IOS)
 	glDeleteProgram(_programid);
 	glDeleteShader(_id);
+#endif
 }
 
 ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {
@@ -58,10 +62,12 @@ ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data,
 
 ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 	ComputeConstantLocation location;
+#if !defined(SYS_OSX) && !defined(SYS_IOS)
 	location.location = glGetUniformLocation(_programid, name); glCheckErrors2();
 	if (location.location < 0) {
 		log(Warning, "Uniform %s not found.", name);
 	}
+#endif
 	return location;
 }
 
