@@ -2,6 +2,7 @@
 
 struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
+struct ID3D11UnorderedAccessView;
 
 namespace Kore {
 	class TextureUnitImpl {
@@ -19,5 +20,6 @@ namespace Kore {
 		int stage;
 		ID3D11Texture2D* texture;
 		ID3D11ShaderResourceView* view;
+		ID3D11UnorderedAccessView* computeView;
 	};
 }

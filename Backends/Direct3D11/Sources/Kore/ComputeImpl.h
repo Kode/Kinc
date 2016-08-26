@@ -4,6 +4,14 @@
 #include <string>
 
 namespace Kore {
+	class ComputeConstantLocationImpl {
+
+	};
+
+	class ComputeTextureUnitImpl {
+
+	};
+
 	struct ComputeShaderConstant {
 		u8 offset;
 		u8 size;

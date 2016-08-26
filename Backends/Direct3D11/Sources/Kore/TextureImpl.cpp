@@ -53,17 +53,34 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	desc.Width = width;
 	desc.Height = height;
 	desc.MipLevels = desc.ArraySize = 1;
-	desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
 
+	if (format == Image::RGBA128) { // for compute
+		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = 0;
+	}
+	else {
+		desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	}
+	
 	texture = nullptr;
 	affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+
+	computeView = nullptr;
+	if (format == Image::RGBA128) {
+		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
+		du.Format = desc.Format;
+		du.Texture2D.MipSlice = 0;
+		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE2D;
+		affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
+	}
 }
 
 TextureImpl::~TextureImpl() {

@@ -56,10 +56,34 @@ ComputeShader::ComputeShader(void* _data, int length) {
 	affirm(device->CreateComputeShader(this->data, this->length, nullptr, (ID3D11ComputeShader**)&shader));
 }
 
+ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
+	ComputeConstantLocation location;
+	return location;
+}
+
+ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
+	ComputeTextureUnit unit;
+	return unit;
+}
+
+void Compute::setFloat(ComputeConstantLocation location, float value) {
+
+}
+
+void Compute::setTexture(ComputeTextureUnit unit, Texture* texture) {
+	ID3D11ShaderResourceView* nullView = nullptr;
+	context->PSSetShaderResources(0, 1, &nullView);
+
+	context->CSSetUnorderedAccessViews(0, 1, &texture->computeView, nullptr);
+}
+
 void Compute::setShader(ComputeShader* shader) {
 	context->CSSetShader((ID3D11ComputeShader*)shader->shader, nullptr, 0);
 }
 
 void Compute::compute(int x, int y, int z) {
 	context->Dispatch(x, y, z);
+	
+	ID3D11UnorderedAccessView* nullView = nullptr;
+	context->CSSetUnorderedAccessViews(0, 1, &nullView, nullptr);
 }
