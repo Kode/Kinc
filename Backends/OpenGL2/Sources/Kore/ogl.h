@@ -37,6 +37,7 @@
 #ifdef SYS_LINUX
 #include <X11/X.h>
 #include <X11/Xlib.h>
+#include <GL/glew.h>
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glx.h>

@@ -72,19 +72,27 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 }
 
 void Compute::setFloat(ComputeConstantLocation location, float value) {
+#if !defined(SYS_OSX) && !defined(SYS_IOS)
 	glUniform1f(location.location, value); glCheckErrors2();
+#endif
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Texture* texture) {
+#if !defined(SYS_OSX) && !defined(SYS_IOS)
 	glActiveTexture(GL_TEXTURE0 + unit.unit); glCheckErrors2();
 	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); glCheckErrors2();
+#endif
 }
 
 void Compute::setShader(ComputeShader* shader) {
+#if !defined(SYS_OSX) && !defined(SYS_IOS)
 	glUseProgram(shader->_programid); glCheckErrors2();
+#endif
 }
 
 void Compute::compute(int x, int y, int z) {
+#if !defined(SYS_OSX) && !defined(SYS_IOS)
 	glDispatchCompute(x, y, z); glCheckErrors2();
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT); glCheckErrors2();
+#endif
 }
