@@ -67,6 +67,7 @@ else if (platform === Platform.OSX) {
 		addBackend('Metal');
 		project.addDefine('SYS_METAL');
 		project.addLib('Metal');
+		project.addLib('MetalKit');
 	}
 	else {
 		addBackend('OpenGL2');

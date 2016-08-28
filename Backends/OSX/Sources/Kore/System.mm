@@ -34,22 +34,45 @@ const char* macgetresourcepath() {
 namespace {
 	NSApplication* myapp;
 //	NSWindow* window;
-//	BasicOpenGLView* view;
+	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
     
     struct KoreWindow : public KoreWindowBase {
-        NSWindow * handle;
+        NSWindow* handle;
         BasicOpenGLView* view;
         
-        KoreWindow( NSWindow * handle, BasicOpenGLView * view, int x, int y, int width, int height ) : KoreWindowBase(x, y, width, height) {
-            this->handle = handle;
-            this->view = view;
+        KoreWindow(NSWindow* handle, BasicOpenGLView* view, int x, int y, int width, int height) : KoreWindowBase(x, y, width, height), handle(handle), view(view) {
+			::view = view;
         }
     };
     
     KoreWindow* windows[10] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
     int windowCounter = -1;
 }
+
+#ifdef SYS_METAL
+
+id getMetalDevice() {
+	return [view metalDevice];
+}
+
+id getMetalLibrary() {
+	return [view metalLibrary];
+}
+
+id getMetalEncoder() {
+	return [view metalEncoder];
+}
+
+void beginGL() {
+	[view begin];
+}
+
+void endGL() {
+	[view end];
+}
+
+#endif
 
 bool System::handleMessages() {
 	NSEvent* event = [myapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]; //distantPast: non-blocking

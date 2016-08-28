@@ -10,6 +10,7 @@ namespace {
     bool shift = false;
 }
 
+#ifndef SYS_METAL
 + (NSOpenGLPixelFormat*) basicPixelFormat {
     // TODO (DK) pass via argument in
     int aa = 1; //Kore::Application::the()->antialiasing();
@@ -41,6 +42,7 @@ namespace {
 - (void)switchBuffers {
 	[[self openGLContext] flushBuffer];
 }
+#endif
 
 - (void)keyDown:(NSEvent*)theEvent {
 	if ([theEvent isARepeat]) return;
@@ -203,21 +205,32 @@ namespace {
 	Kore::Mouse::the()->_scroll(0, delta);
 }
 
+#ifndef SYS_METAL
 - (void)prepareOpenGL {
 	const GLint swapInt = 1;
 	[[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
 }
+#endif
 
 - (void)update { // window resizes, moves and display changes (resize, depth and display config change)
 	[super update];
 }
 
+#ifndef SYS_METAL
 - (id)initWithFrame:(NSRect)frameRect {
 	NSOpenGLPixelFormat* pf = [BasicOpenGLView basicPixelFormat];
 	self = [super initWithFrame: frameRect pixelFormat: pf];
 	
 	[self prepareOpenGL];
     //[[self openGLContext] makeCurrentContext];
+	return self;
+}
+#endif
+
+- (id)initWithFrame:(NSRect)frameRect {
+	self = [super initWithFrame: frameRect device: MTLCreateSystemDefaultDevice()];
+	commandQueue = [self.device newCommandQueue];
+	library = [self.device newDefaultLibrary];
 	return self;
 }
 
@@ -232,5 +245,63 @@ namespace {
 - (BOOL)resignFirstResponder {
 	return YES;
 }
+
+#ifdef SYS_METAL
+- (id <MTLDevice>)metalDevice {
+	return self.device;
+}
+
+- (id <MTLLibrary>)metalLibrary {
+	return library;
+}
+
+- (id <MTLRenderCommandEncoder>)metalEncoder {
+	return commandEncoder;
+}
+
+- (void)begin {
+	@autoreleasepool {
+		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+		
+		drawable = [metalLayer nextDrawable];
+		
+		//printf("It's %i\n", drawable == nil ? 0 : 1);
+		//if (drawable == nil) return;
+		id<MTLTexture> texture = drawable.texture;
+		
+		//backingWidth = (int)[texture width];
+		//backingHeight = (int)[texture height];
+		
+		if (renderPassDescriptor == nil) {
+			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+		}
+		renderPassDescriptor.colorAttachments[0].texture = texture;
+		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+		
+		//id <MTLCommandQueue> commandQueue = [device newCommandQueue];
+		commandBuffer = [commandQueue commandBuffer];
+		//if (drawable != nil) {
+		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+		//}
+		
+	}
+}
+
+- (void)end {
+	@autoreleasepool {
+		[commandEncoder endEncoding];
+		[commandBuffer presentDrawable:drawable];
+		[commandBuffer commit];
+		commandBuffer = nil;
+		
+		//if (drawable != nil) {
+		//	[commandBuffer waitUntilScheduled];
+		//	[drawable present];
+		//}
+	}
+}
+#endif
 
 @end

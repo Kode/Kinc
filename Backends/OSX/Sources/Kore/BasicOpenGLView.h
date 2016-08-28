@@ -1,3 +1,6 @@
+#ifdef SYS_METAL
+#import <MetalKit/MTKView.h>
+#else
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
 #import <OpenGL/glu.h>
@@ -6,6 +9,21 @@
 #import <OpenGL/glext.h>
 #import <OpenGL/OpenGL.h>
 #import <OpenGL/CGLContext.h>
+#endif
+
+#ifdef SYS_METAL
+
+@interface BasicOpenGLView : MTKView {
+@private
+	id <MTLCommandQueue> commandQueue;
+	id <MTLCommandBuffer> commandBuffer;
+	id <MTLRenderCommandEncoder> commandEncoder;
+	id <CAMetalDrawable> drawable;
+	id <MTLLibrary> library;
+	MTLRenderPassDescriptor* renderPassDescriptor;
+}
+
+#else
 
 // (DK) context sharing
 // www.cocoabuilder.com/archive/cocoa/29573-sharing-opengl-context.html
@@ -15,6 +33,17 @@
 @interface BasicOpenGLView : NSOpenGLView {
 	
 }
+
+#endif
+
+#ifdef SYS_METAL
+- (id <MTLDevice>)metalDevice;
+- (id <MTLLibrary>)metalLibrary;
+- (id <MTLRenderCommandEncoder>)metalEncoder;
+
+- (void)begin;
+- (void)end;
+#endif
 
 + (NSOpenGLPixelFormat*) basicPixelFormat;
 
