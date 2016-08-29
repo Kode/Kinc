@@ -225,14 +225,14 @@ namespace {
     //[[self openGLContext] makeCurrentContext];
 	return self;
 }
-#endif
-
+#else
 - (id)initWithFrame:(NSRect)frameRect {
 	self = [super initWithFrame: frameRect device: MTLCreateSystemDefaultDevice()];
 	commandQueue = [self.device newCommandQueue];
 	library = [self.device newDefaultLibrary];
 	return self;
 }
+#endif
 
 - (BOOL)acceptsFirstResponder {
 	return YES;
