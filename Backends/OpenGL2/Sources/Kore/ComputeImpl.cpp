@@ -8,6 +8,10 @@
 
 using namespace Kore;
 
+#if defined(SYS_WINDOWS) || (defined(SYS_LINUX) && defined(GL_VERSION_4_3)) || (defined(SYS_ANDROI) && defined(GL_ES_VERSION_3_1))
+#define HAS_COMPUTE
+#endif
+
 ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length) {
 	_source = new char[length + 1];
 	for (int i = 0; i < length; ++i) {
@@ -15,7 +19,7 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 	}
 	_source[length] = 0;
 
-#if !defined(SYS_OSX) && !defined(SYS_IOS)
+#ifdef HAS_COMPUTE
 	_id = glCreateShader(GL_COMPUTE_SHADER); glCheckErrors();
 	glShaderSource(_id, 1, &_source, nullptr);
 	glCompileShader(_id);
@@ -84,7 +88,7 @@ void Compute::setFloat(ComputeConstantLocation location, float value) {
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Texture* texture) {
-#if !defined(SYS_OSX) && !defined(SYS_IOS)
+#if HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit); glCheckErrors2();
 	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); glCheckErrors2();
 #endif
@@ -97,7 +101,7 @@ void Compute::setShader(ComputeShader* shader) {
 }
 
 void Compute::compute(int x, int y, int z) {
-#if !defined(SYS_OSX) && !defined(SYS_IOS)
+#ifdef HAS_COMPUTE
 	glDispatchCompute(x, y, z); glCheckErrors2();
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT); glCheckErrors2();
 #endif
