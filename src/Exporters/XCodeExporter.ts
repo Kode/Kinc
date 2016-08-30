@@ -8,7 +8,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 const uuid = require('uuid');
 
-function contains(a, b): boolean {
+function contains(a: any[], b: any): boolean {
 	return a.indexOf(b) !== -1;
 }
 
@@ -30,7 +30,7 @@ class Directory {
 	}
 
 	getLastName() {
-		if (!contains(this.dirname, '/')) return this.dirname;
+		if (this.dirname.indexOf('/') < 0) return this.dirname;
 		return this.dirname.substr(this.dirname.lastIndexOf('/') + 1);
 	}
 
@@ -41,11 +41,11 @@ class Directory {
 
 class File {
 	filename: string;
-	dir: string;
+	dir: Directory;
 	buildid: string;
 	fileid: string;
 
-	constructor(filename: string, dir: string) {
+	constructor(filename: string, dir: Directory) {
 		this.filename = filename;
 		this.dir = dir;
 		this.buildid = newId();
@@ -69,7 +69,7 @@ class File {
 	}
 
 	getLastName() {
-		if (!contains(this.filename, '/')) return this.filename;
+		if (this.filename.indexOf('/') < 0) return this.filename;
 		return this.filename.substr(this.filename.lastIndexOf('/') + 1);
 	}
 
@@ -88,7 +88,7 @@ class Framework {
 	fileid: string;
 	localPath: string;
 
-	constructor(name) {
+	constructor(name: string) {
 		this.name = name;
 		this.buildid = newId();
 		this.fileid = newId();
@@ -109,7 +109,7 @@ class Framework {
 	}
 }
 
-function findDirectory(dirname, directories) {
+function findDirectory(dirname: string, directories: Directory[]) {
 	for (let dir of directories) {
 		if (dir.getName() === dirname) {
 			return dir;
@@ -118,12 +118,12 @@ function findDirectory(dirname, directories) {
 	return null;
 }
 
-function addDirectory(dirname, directories) {
+function addDirectory(dirname: string, directories: Directory[]) {
 	let dir = findDirectory(dirname, directories);
 	if (dir === null) {
 		dir = new Directory(dirname);
 		directories.push(dir);
-		while (contains(dirname, '/')) {
+		while (dirname.indexOf('/') >= 0) {
 			dirname = dirname.substr(0, dirname.lastIndexOf('/'));
 			addDirectory(dirname, directories);
 		}
@@ -159,7 +159,7 @@ export class XCodeExporter extends Exporter {
 
 		this.exportWorkspace(to, solution);
 
-		let icons = [];
+		let icons: IconImage[] = [];
 
 		class IconImage {
 			idiom: string;
@@ -232,14 +232,14 @@ export class XCodeExporter extends Exporter {
 
 		let project = solution.getProjects()[0];
 		let plistname = '';
-		let files = [];
-		let directories = [];
+		let files: File[] = [];
+		let directories: Directory[] = [];
 		for (let fileobject of project.getFiles()) {
 			let filename = fileobject.file;
 			if (filename.endsWith(".plist")) plistname = filename;
 
 			let dirname = '';
-			if (contains(filename, '/')) dirname = solution.getName() + "/" + filename.substr(0, filename.lastIndexOf('/'));
+			if (filename.indexOf('/') >= 0) dirname = solution.getName() + "/" + filename.substr(0, filename.lastIndexOf('/'));
 			else dirname = solution.getName();
 			let dir = addDirectory(dirname, directories);
 
@@ -248,7 +248,7 @@ export class XCodeExporter extends Exporter {
 		}
 		if (plistname.length === 0) throw "no plist found";
 
-		let frameworks = [];
+		let frameworks: Framework[] = [];
 		for (let lib of project.getLibs()) {
 			frameworks.push(new Framework(lib));
 		}
@@ -322,7 +322,7 @@ export class XCodeExporter extends Exporter {
 		for (let framework of frameworks) {
 			if (framework.toString().endsWith('.framework')) {
 				// Local framework - a directory is specified
-				if (contains(framework.toString(), '/')) {
+				if (framework.toString().indexOf('/') >= 0) {
 					framework.localPath = path.resolve(from, framework);
 					this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = " + framework.localPath + "; sourceTree = \"<absolute>\"; };", 2);
 				}
@@ -379,7 +379,7 @@ export class XCodeExporter extends Exporter {
 		this.p(debugDirFileId + " /* Deployment */,", 4);
 		//p(solutionGroupId + " /* " + solution.getName() + " */,", 4);
 		for (let dir of directories) {
-			if (!contains(dir.getName(), '/')) this.p(dir.getId() + " /* " + dir.getName() + " */,", 4);
+			if (dir.getName().indexOf('/') < 0) this.p(dir.getId() + " /* " + dir.getName() + " */,", 4);
 		}
 		this.p(frameworksGroupId + " /* Frameworks */,", 4);
 		this.p(productsGroupId + " /* Products */,", 4);
@@ -411,7 +411,7 @@ export class XCodeExporter extends Exporter {
 			for (let dir2 of directories) {
 				if (dir2 == dir) continue;
 				if (dir2.getName().startsWith(dir.getName())) {
-					if (!contains(dir2.getName().substr(dir.getName().length + 1), '/'))
+					if (dir2.getName().substr(dir.getName().length + 1).indexOf('/') < 0)
 						this.p(dir2.getId() + " /* " + dir2.getName() + " */,", 4);
 				}
 			}
@@ -419,7 +419,7 @@ export class XCodeExporter extends Exporter {
 				if (file.getDir() === dir) this.p(file.getFileId() + " /* " + file.toString() + " */,", 4);
 			}
 			this.p(");", 3);
-			if (!contains(dir.getName(), '/')) {
+			if (dir.getName().indexOf('/') < 0) {
 				this.p("path = ../;", 3);
 				this.p("name = \"" + dir.getLastName() + "\";", 3);
 			}
@@ -574,7 +574,7 @@ export class XCodeExporter extends Exporter {
 		this.p('GCC_PREPROCESSOR_DEFINITIONS = (', 4);
 		this.p("\"DEBUG=1\",", 5);
 		for (let define of project.getDefines()) {
-			if (contains(define, '=')) this.p("\"" + define.replace(/\"/g, "\\\\\\\"") + "\",", 5);
+			if (define.indexOf('=') >= 0) this.p("\"" + define.replace(/\"/g, "\\\\\\\"") + "\",", 5);
 			else this.p(define + ",", 5);
 		}
 		this.p("\"$(inherited)\",", 5);
@@ -652,7 +652,7 @@ export class XCodeExporter extends Exporter {
 		this.p('GCC_C_LANGUAGE_STANDARD = gnu99;', 4);
 		this.p("GCC_PREPROCESSOR_DEFINITIONS = (", 4);
 		for (let define of project.getDefines()) {
-			if (contains(define, '=')) this.p("\"" + define.replace(/\"/g, "\\\\\\\"") + "\",", 5);
+			if (define.indexOf('=') >= 0) this.p("\"" + define.replace(/\"/g, "\\\\\\\"") + "\",", 5);
 			else this.p(define + ",", 5);
 		}
 		this.p("\"$(inherited)\",", 5);

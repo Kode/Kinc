@@ -77,14 +77,14 @@ export class CodeBlocksExporter extends Exporter {
 		}
 		this.p("</Linker>", 2);
 		
-		let precompiledHeaders = [];
+		let precompiledHeaders: string[] = [];
 		for (let file of project.getFiles()) {
 			if (file.options && file.options.pch && precompiledHeaders.indexOf(file.options.pch) < 0) {
 				precompiledHeaders.push(file.options.pch);
 			}
 		}
 		for (let file of project.getFiles()) {
-			let precompiledHeader = null;
+			let precompiledHeader: string = null;
 			for (let header of precompiledHeaders) {
 				if (file.file.endsWith(header)) {
 					precompiledHeader = header;

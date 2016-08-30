@@ -61,7 +61,7 @@ export class AndroidExporter extends Exporter {
 		super();
 	}
 
-	exportSolution(solution: Solution, from: string, to: string, platform: string, vr) {
+	exportSolution(solution: Solution, from: string, to: string, platform: string, vr: any) {
 		let project = solution.getProjects()[0];
 		let safename = solution.getName().replace(/ /g, '-');
 		this.safename = safename;
@@ -184,7 +184,7 @@ export class AndroidExporter extends Exporter {
 		}
 	}
 
-	exportSolutionEclipse(solution: Solution, from: string, to: string, platform: string, vr) {
+	exportSolutionEclipse(solution: Solution, from: string, to: string, platform: string, vr: any) {
 		const nvpack = false;
 		let project = solution.getProjects()[0];
 		//String libname = solution.getName().toLowerCase().replace(' ', '-');

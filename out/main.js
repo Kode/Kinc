@@ -127,10 +127,10 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
             compiler = path.resolve(Project_1.Project.koreDir, 'Tools', 'krafix', 'krafix' + exec.sys());
         }
     }
-    if (fs.existsSync(path.join(projectDir.toString(), 'Backends'))) {
-        let libdirs = fs.readdirSync(path.join(projectDir.toString(), 'Backends'));
+    if (fs.existsSync(path.join(projectDir, 'Backends'))) {
+        let libdirs = fs.readdirSync(path.join(projectDir, 'Backends'));
         for (let ld in libdirs) {
-            let libdir = path.join(projectDir.toString(), 'Backends', libdirs[ld]);
+            let libdir = path.join(projectDir, 'Backends', libdirs[ld]);
             if (fs.statSync(libdir).isDirectory()) {
                 let exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
                 if (fs.existsSync(exe)) {
@@ -179,7 +179,7 @@ function exportKoremakeProject(from, to, platform, options) {
         exporter = new TizenExporter_1.TizenExporter();
     else {
         let found = false;
-        for (var p in Platform_1.Platform) {
+        for (let p in Platform_1.Platform) {
             if (platform === Platform_1.Platform[p]) {
                 found = true;
                 break;
@@ -318,5 +318,4 @@ function run(options, loglog) {
     });
 }
 exports.run = run;
-;
 //# sourceMappingURL=main.js.map

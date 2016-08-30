@@ -10,6 +10,7 @@ import {Platform} from './Platform';
 import {Solution} from './Solution';
 import * as exec from './exec';
 import {VisualStudioVersion} from './VisualStudioVersion';
+import {Exporter} from './Exporters/Exporter';
 import {AndroidExporter} from './Exporters/AndroidExporter';
 import {CodeBlocksExporter} from './Exporters/CodeBlocksExporter';
 import {MakefileExporter} from './Exporters/MakefileExporter';
@@ -113,7 +114,7 @@ function shaderLang(platform: string): string {
 	}
 }
 
-function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
+function compileShader(projectDir: string, type: string, from: string, to: string, temp: string, platform: string, nokrafix: boolean) {
 	let compiler = '';
 	
 	if (Project.koreDir !== '') {
@@ -125,10 +126,10 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 		}
 	}
 
-	if (fs.existsSync(path.join(projectDir.toString(), 'Backends'))) {
-		let libdirs = fs.readdirSync(path.join(projectDir.toString(), 'Backends'));
+	if (fs.existsSync(path.join(projectDir, 'Backends'))) {
+		let libdirs = fs.readdirSync(path.join(projectDir, 'Backends'));
 		for (let ld in libdirs) {
-			let libdir = path.join(projectDir.toString(), 'Backends', libdirs[ld]);
+			let libdir = path.join(projectDir, 'Backends', libdirs[ld]);
 			if (fs.statSync(libdir).isDirectory()) {
 				let exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
 				if (fs.existsSync(exe)) {
@@ -143,7 +144,7 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 	}
 }
 
-function exportKoremakeProject(from: string, to: string, platform: string, options) {
+function exportKoremakeProject(from: string, to: string, platform: string, options: any) {
 	log.info('korefile found.');
 	log.info('Creating ' + fromPlatform(platform) + ' project files.');
 
@@ -165,7 +166,7 @@ function exportKoremakeProject(from: string, to: string, platform: string, optio
 		}
 	}
 
-	let exporter = null;
+	let exporter: Exporter = null;
 	if (platform === Platform.iOS || platform === Platform.OSX || platform === Platform.tvOS) exporter = new XCodeExporter();
 	else if (platform == Platform.Android) exporter = new AndroidExporter();
 	else if (platform == Platform.HTML5) exporter = new EmscriptenExporter();
@@ -176,7 +177,7 @@ function exportKoremakeProject(from: string, to: string, platform: string, optio
 	else if (platform == Platform.Tizen) exporter = new TizenExporter();
 	else {
 		let found = false;
-		for (var p in Platform) {
+		for (let p in Platform) {
 			if (platform === Platform[p]) {
 				found = true;
 				break;
@@ -219,7 +220,7 @@ function isKoremakeProject(directory: string): boolean {
 	return fs.existsSync(path.resolve(directory, 'korefile.js'));
 }
 
-function exportProject(from: string, to: string, platform: string, options) {
+function exportProject(from: string, to: string, platform: string, options: any) {
 	if (isKoremakeProject(from)) {
 		return exportKoremakeProject(from, to, platform, options);
 	}
@@ -229,17 +230,17 @@ function exportProject(from: string, to: string, platform: string, options) {
 	}
 }
 
-function compileProject(make, project, solutionName: string, options): Promise<void> {
+function compileProject(make: child_process.ChildProcess, project: Project, solutionName: string, options: any): Promise<void> {
 	return new Promise<void>((resolve, reject) => {
-		make.stdout.on('data', function (data) {
+		make.stdout.on('data', function (data: any) {
 			log.info(data.toString());
 		});
 
-		make.stderr.on('data', function (data) {
+		make.stderr.on('data', function (data: any) {
 			log.error(data.toString());
 		});
 
-		make.on('close', function (code) {
+		make.on('close', function (code: number) {
 			if (code === 0) {
 				if (options.target === Platform.Linux) {
 					fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName), { clobber: true });
@@ -269,7 +270,7 @@ function compileProject(make, project, solutionName: string, options): Promise<v
 
 export let api = 2;
 
-export async function run(options, loglog): Promise<string> {
+export async function run(options: any, loglog: any): Promise<string> {
 	log.set(loglog);
 	
 	if (options.graphics !== undefined) {
@@ -291,7 +292,7 @@ export async function run(options, loglog): Promise<string> {
 	if (options.compile && solutionName != "") {
 		log.info('Compiling...');
 
-		let make = null;
+		let make: child_process.ChildProcess = null;
 
 		if (options.target === Platform.Linux) {
 			make = child_process.spawn('make', [], { cwd: options.to });
@@ -300,7 +301,7 @@ export async function run(options, loglog): Promise<string> {
 			make = child_process.spawn('xcodebuild', ['-project', solutionName + '.xcodeproj'], { cwd: options.to });
 		}
 		else if (options.target === Platform.Windows) {
-			let vsvars = null;
+			let vsvars: string = null;
 			if (process.env.VS140COMNTOOLS) {
 				vsvars = process.env.VS140COMNTOOLS + '\\vsvars32.bat';
 			}
@@ -329,4 +330,4 @@ export async function run(options, loglog): Promise<string> {
 		}
 	}
 	return solutionName;
-};
+}

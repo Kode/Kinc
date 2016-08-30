@@ -10,12 +10,12 @@ export class MakefileExporter extends Exporter {
 	constructor() {
 		super();
 	}
-
-	exportSolution(solution: Solution, from: string, to: string, platform: string, vrApi, nokrafix, options) {
+	
+	exportSolution(solution: Solution, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean, options: any) {
 		let project = solution.getProjects()[0];
 
-		let objects = {};
-		let ofiles = {};
+		let objects: any = {};
+		let ofiles: any = {};
 		for (let fileobject of project.getFiles()) {
 			let file = fileobject.file;
 			if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
@@ -37,14 +37,14 @@ export class MakefileExporter extends Exporter {
 		}
 		
 		let gchfilelist = '';
-		let precompiledHeaders = [];
+		let precompiledHeaders: string[] = [];
 		for (let file of project.getFiles()) {
 			if (file.options && file.options.pch && precompiledHeaders.indexOf(file.options.pch) < 0) {
 				precompiledHeaders.push(file.options.pch);
 			}
 		}
 		for (let file of project.getFiles()) {
-			let precompiledHeader = null;
+			let precompiledHeader: string = null;
 			for (let header of precompiledHeaders) {
 				if (file.file.endsWith(header)) {
 					precompiledHeader = header;
@@ -97,7 +97,7 @@ export class MakefileExporter extends Exporter {
 		this.p('\tg++ ' + cpp + ' ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
 		
 		for (let file of project.getFiles()) {
-			let precompiledHeader = null;
+			let precompiledHeader: string = null;
 			for (let header of precompiledHeaders) {
 				if (file.file.endsWith(header)) {
 					precompiledHeader = header;

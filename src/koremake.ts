@@ -5,7 +5,7 @@ import {GraphicsApi} from './GraphicsApi';
 import {VisualStudioVersion} from './VisualStudioVersion';
 import {VrApi} from './VrApi';
 
-let defaultTarget;
+let defaultTarget: string;
 if (os.platform() === "linux") {
 	defaultTarget = Platform.Linux;
 }

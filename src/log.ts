@@ -6,7 +6,7 @@ let myError = function (text: string) {
 	console.log(text);
 };
 
-export function set(log) {
+export function set(log: any) {
 	myInfo = log.info;
 	myError = log.error;
 }

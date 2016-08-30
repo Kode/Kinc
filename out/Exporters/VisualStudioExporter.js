@@ -309,7 +309,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
         lastdir = "";
         this.p("<ItemGroup>", 1);
         for (let file of project.getFiles()) {
-            if (contains(file.file, '/')) {
+            if (file.file.indexOf('/') >= 0) {
                 let dir = file.file.substr(0, file.file.lastIndexOf('/'));
                 if (dir != lastdir)
                     lastdir = dir;
@@ -339,7 +339,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
         lastdir = "";
         this.p("<ItemGroup>", 1);
         for (let file of project.getFiles()) {
-            if (contains(file.file, "/")) {
+            if (file.file.indexOf('/') >= 0) {
                 let dir = file.file.substr(0, file.file.lastIndexOf('/'));
                 if (dir != lastdir)
                     lastdir = dir;
@@ -375,7 +375,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
                     if (dir != lastdir)
                         lastdir = dir;
                     this.p("<None Include=\"" + path.resolve(from, file) + "\">", 2);
-                    this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
+                    this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
                     this.p("</None>", 2);
                 }
             }

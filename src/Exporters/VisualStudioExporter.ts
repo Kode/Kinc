@@ -12,14 +12,14 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 const uuid = require('uuid');
 
-let standardconfs = []; // = new String[]{"Debug", "Release"};
-let xboxconfs = []; // = new String[]{"CodeAnalysis", "Debug", "Profile_FastCap", "Profile", "Release_LTCG", "Release"};
-let windows8systems = []; // = new String[]{"ARM", "Win32", "x64"};
-let xboxsystems = []; // = new String[]{"Xbox 360"};
-let ps3systems = []; // = new String[]{"PS3"};
-let windowssystems = []; // = new String[]{"Win32", "x64"};
+let standardconfs: string[] = []; // = new String[]{"Debug", "Release"};
+let xboxconfs: string[] = []; // = new String[]{"CodeAnalysis", "Debug", "Profile_FastCap", "Profile", "Release_LTCG", "Release"};
+let windows8systems: string[] = []; // = new String[]{"ARM", "Win32", "x64"};
+let xboxsystems: string[] = []; // = new String[]{"Xbox 360"};
+let ps3systems: string[] = []; // = new String[]{"PS3"};
+let windowssystems: string[] = []; // = new String[]{"Win32", "x64"};
 
-function contains(array, element) {
+function contains(array: any[], element: any) {
 	for (let arrayelement of array) {
 		if (arrayelement === element) return true;
 	}
@@ -121,7 +121,7 @@ export class VisualStudioExporter extends Exporter {
 		for (let proj of project.getSubProjects()) this.writeProjectBuilds(proj, platform);
 	}
 
-	exportSolution(solution: Solution, from: string, to: string, platform: string, vrApi, nokrafix: boolean) {
+	exportSolution(solution: Solution, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean) {
 		standardconfs = [];
 		standardconfs.push("Debug");
 		standardconfs.push("Release");
@@ -279,7 +279,7 @@ export class VisualStudioExporter extends Exporter {
 				}
 			}
 		}
-		let assets = [];
+		let assets: string[] = [];
 		if (platform == Platform.WindowsApp) this.exportAssetPathFilter(path.resolve(from, project.getDebugDir()), dirs, assets);
 
 		this.p("<ItemGroup>", 1);
@@ -315,7 +315,7 @@ export class VisualStudioExporter extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (contains(file.file, '/')) {
+			if (file.file.indexOf('/') >= 0) {
 				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				if (file.file.endsWith('.h') || file.file.endsWith('.hpp')) {
@@ -345,7 +345,7 @@ export class VisualStudioExporter extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (contains(file.file, "/")) {
+			if (file.file.indexOf('/') >= 0) {
 				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
 				if (dir != lastdir) lastdir = dir;
 				if (file.file.endsWith(".cg") || file.file.endsWith(".hlsl")) {
@@ -380,7 +380,7 @@ export class VisualStudioExporter extends Exporter {
 					let dir = file.substr(0, file.lastIndexOf('/'));
 					if (dir != lastdir) lastdir = dir;
 					this.p("<None Include=\"" + path.resolve(from, file) + "\">", 2);
-					this.p("<Filter>" + dir.replaceAll('/', '\\') + "</Filter>", 3);
+					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
 					this.p("</None>", 2);
 				}
 			}
@@ -404,7 +404,7 @@ export class VisualStudioExporter extends Exporter {
 		this.closeFile();
 	}
 
-	addPropertyGroup(buildType, wholeProgramOptimization, platform) {
+	addPropertyGroup(buildType: string, wholeProgramOptimization: boolean, platform: string) {
 		this.p("<PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='" + buildType + "|" + this.GetSys(platform) + "'\" Label=\"Configuration\">", 1);
 		this.p("<ConfigurationType>Application</ConfigurationType>", 2);
 		this.p("<WholeProgramOptimization>" + (wholeProgramOptimization ? "true" : "false") + "</WholeProgramOptimization>", 2);
@@ -412,7 +412,7 @@ export class VisualStudioExporter extends Exporter {
 		this.p("</PropertyGroup>", 1);
 	}
 
-	addWin8PropertyGroup(debug, platform) {
+	addWin8PropertyGroup(debug: boolean, platform: string) {
 		this.p("<PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='" + (debug ? "Debug" : "Release") + "|" + platform + "'\" Label=\"Configuration\">", 1);
 		this.p("<ConfigurationType>Application</ConfigurationType>", 2);
 		this.p("<UseDebugLibraries>" + (debug ? "true" : "false") + "</UseDebugLibraries>", 2);
@@ -422,9 +422,10 @@ export class VisualStudioExporter extends Exporter {
 		this.p("</PropertyGroup>", 1);
 	}
 
-	addItemDefinitionGroup(incstring, defines, buildType, warningLevel,
-							prefast, optimization, functionLevelLinking, stringPooling, favorSize, release,
-							profile, nocomdatfolding, ignoreXapilib, optimizeReferences, checksum, fastCap, comdatfolding, ltcg, platform) {
+	addItemDefinitionGroup(incstring: string, defines: string, buildType: string, warningLevel: number,
+							prefast: boolean, optimization: boolean, functionLevelLinking: boolean, stringPooling: boolean, favorSize: boolean, release: boolean,
+							profile: boolean, nocomdatfolding: boolean, ignoreXapilib: boolean, optimizeReferences: boolean, checksum: boolean, fastCap: boolean,
+							comdatfolding: boolean, ltcg: boolean, platform: string) {
 		this.p("<ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='" + buildType + "|" + this.GetSys(platform) + "'\">", 1);
 
 		let compile = new ClCompile(this.out, 2, Platform.Xbox360, valueOf(buildType), incstring.split(';'), defines.split(';'));
@@ -814,8 +815,8 @@ export class VisualStudioExporter extends Exporter {
 		}
 
 		this.p("<ItemGroup>", 1);
-		let objects = {};
-		let precompiledHeaders = [];
+		let objects: any = {};
+		let precompiledHeaders: string[] = [];
 		for (let fileobject of project.getFiles()) {
 			if (fileobject.options && fileobject.options.pch && precompiledHeaders.indexOf(fileobject.options.pch) < 0) {
 				precompiledHeaders.push(fileobject.options.pch);
@@ -828,7 +829,7 @@ export class VisualStudioExporter extends Exporter {
 				if (name.indexOf('/') >= 0) name = name.substr(name.lastIndexOf('/') + 1);
 				name = name.substr(0, name.lastIndexOf('.'));
 				if (!objects[name]) {
-					let headerfile = null;
+					let headerfile: string = null;
 					for (let header of precompiledHeaders) {
 						if (file.endsWith(header.substr(0, header.length - 2) + '.cpp')) {
 							headerfile = header;
@@ -954,7 +955,7 @@ export class VisualStudioExporter extends Exporter {
 		this.closeFile();
 	}
 
-	exportAssetPath(assetPath) {
+	exportAssetPath(assetPath: string) {
 		let paths = fs.readdirSync(assetPath);
 		for (let p of paths) {
 			if (fs.statSync(path.join(assetPath, p)).isDirectory()) {

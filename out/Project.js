@@ -55,7 +55,7 @@ class Project {
                 if (!contains(this.javadirs, path.resolve(subbasedir, j)))
                     this.javadirs.push(path.resolve(subbasedir, j));
             for (let lib of sub.libs) {
-                if (!contains(lib, '/') && !contains(lib, '\\')) {
+                if (lib.indexOf('/') < 0 && lib.indexOf('\\') < 0) {
                     if (!contains(this.libs, lib))
                         this.libs.push(lib);
                 }

@@ -7,8 +7,8 @@ import {Options} from './Options';
 import {Platform} from './Platform';
 import {Project} from './Project';
 
-function getDefines(platform, rotated) {
-	let defines = [];
+function getDefines(platform: string, rotated: boolean) {
+	let defines: string[] = [];
 	switch (platform) {
 		case Platform.Windows:
 			defines.push("_CRT_SECURE_NO_WARNINGS");
@@ -78,7 +78,7 @@ export class Solution {
 		return this.projects;
 	}
 
-	addProject(project) {
+	addProject(project: Project) {
 		this.projects.push(project);
 	}
 
@@ -99,7 +99,7 @@ export class Solution {
 		return project;
 	}
 
-	static createSolution(filename, platform) {
+	static createSolution(filename: string, platform: string) {
 		let file = fs.readFileSync(path.resolve(Solution.scriptdir, filename, 'korefile.js'), {encoding: 'utf8'});
 		let oldscriptdir = Solution.scriptdir;
 		Solution.scriptdir = path.resolve(Solution.scriptdir, filename);
@@ -138,11 +138,11 @@ export class Solution {
 		return solution;
 	}
 
-	static evalProjectScript(script) {
+	static evalProjectScript(script: string) {
 
 	}
 
-	static evalSolutionScript(script, platform) {
+	static evalSolutionScript(script: string, platform: string) {
 		this.platform = platform;
 	}
 

@@ -4,7 +4,7 @@ import * as log from './log';
 import {Solution} from './Solution';
 const uuid = require('uuid');
 
-function contains(array, value) {
+function contains(array: any[], value: any) {
 	for (let element of array) {
 		if (element === value) return true;
 	}
@@ -70,7 +70,7 @@ export class Project {
 			for (let i of sub.includeDirs) if (!contains(this.includeDirs, path.resolve(subbasedir, i))) this.includeDirs.push(path.resolve(subbasedir, i));
 			for (let j of sub.javadirs) if (!contains(this.javadirs, path.resolve(subbasedir, j))) this.javadirs.push(path.resolve(subbasedir, j));
 			for (let lib of sub.libs) {
-				if (!contains(lib, '/') && !contains(lib, '\\')) {
+				if (lib.indexOf('/') < 0 && lib.indexOf('\\') < 0) {
 					if (!contains(this.libs, lib)) this.libs.push(lib);
 				}
 				else {
@@ -99,7 +99,7 @@ export class Project {
 		return this.uuid;
 	}
 
-	matches(text, pattern) {
+	matches(text: string, pattern: string) {
 		const regexstring = pattern.replace(/\./g, "\\.").replace(/\*\*/g, ".?").replace(/\*/g, "[^/]*").replace(/\?/g, '*');
 		const regex = new RegExp('^' + regexstring + '$', 'g');
 		return regex.test(text);
@@ -116,7 +116,7 @@ export class Project {
 		return path.replace(/\\/g, '/');
 	}
 
-	addFileForReal(file, options) {
+	addFileForReal(file: string, options: any) {
 		for (let index in this.files) {
 			if (this.files[index].file === file) {
 				this.files[index] = {file: file, options: options};
@@ -182,7 +182,7 @@ export class Project {
 	}
 
 	addFiles() {
-		let options = undefined;
+		let options: any = undefined;
 		for (let i = 0; i < arguments.length; ++i) {
 			if (typeof arguments[i] !== 'string') {
 				options = arguments[i];
@@ -195,7 +195,7 @@ export class Project {
 		}
 	}
 
-	addJavaDir(dir) {
+	addJavaDir(dir: string) {
 		this.javadirs.push(dir);
 	}
 
@@ -205,7 +205,7 @@ export class Project {
 		}
 	}
 
-	addExclude(exclude) {
+	addExclude(exclude: string) {
 		this.excludes.push(exclude);
 	}
 
@@ -215,7 +215,7 @@ export class Project {
 		}
 	}
 
-	addDefine(define) {
+	addDefine(define: string) {
 		if (contains(this.defines, define)) return;
 		this.defines.push(define);
 	}
@@ -226,7 +226,7 @@ export class Project {
 		}
 	}
 
-	addIncludeDir(include) {
+	addIncludeDir(include: string) {
 		if (contains(this.includeDirs, include)) return;
 		this.includeDirs.push(include);
 	}
@@ -237,11 +237,11 @@ export class Project {
 		}
 	}
 
-	addSubProject(project) {
+	addSubProject(project: Project) {
 		this.subProjects.push(project);
 	}
 
-	addLib(lib) {
+	addLib(lib: string) {
 		this.libs.push(lib);
 	}
 
@@ -251,7 +251,7 @@ export class Project {
 		}
 	}
 
-	addLibFor(system, lib) {
+	addLibFor(system: string, lib: string) {
 		if (this.systemDependendLibraries[system] === undefined) this.systemDependendLibraries[system] = [];
 		this.systemDependendLibraries[system].push(lib);
 	}
@@ -291,7 +291,7 @@ export class Project {
 		return this.libs;
 	}
 
-	getLibsFor(system) {
+	getLibsFor(system: string) {
 		if (this.systemDependendLibraries[system] === undefined) return [];
 		return this.systemDependendLibraries[system];
 	}

@@ -1,6 +1,7 @@
+import {Solution} from '../Solution';
 import * as fs from 'fs-extra';
 
-export class Exporter {
+export abstract class Exporter {
 	out: number;
 
 	constructor() {
@@ -21,4 +22,6 @@ export class Exporter {
 		let data = new Buffer(tabs + line + '\n');
 		fs.writeSync(this.out, data, 0, data.length, null);
 	}
+
+	abstract exportSolution(solution: Solution, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean, options: any): void;
 }

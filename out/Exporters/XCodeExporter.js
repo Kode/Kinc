@@ -22,7 +22,7 @@ class Directory {
         return this.dirname;
     }
     getLastName() {
-        if (!contains(this.dirname, '/'))
+        if (this.dirname.indexOf('/') < 0)
             return this.dirname;
         return this.dirname.substr(this.dirname.lastIndexOf('/') + 1);
     }
@@ -50,7 +50,7 @@ class File {
         return this.filename;
     }
     getLastName() {
-        if (!contains(this.filename, '/'))
+        if (this.filename.indexOf('/') < 0)
             return this.filename;
         return this.filename.substr(this.filename.lastIndexOf('/') + 1);
     }
@@ -94,7 +94,7 @@ function addDirectory(dirname, directories) {
     if (dir === null) {
         dir = new Directory(dirname);
         directories.push(dir);
-        while (contains(dirname, '/')) {
+        while (dirname.indexOf('/') >= 0) {
             dirname = dirname.substr(0, dirname.lastIndexOf('/'));
             addDirectory(dirname, directories);
         }
@@ -194,7 +194,7 @@ class XCodeExporter extends Exporter_1.Exporter {
             if (filename.endsWith(".plist"))
                 plistname = filename;
             let dirname = '';
-            if (contains(filename, '/'))
+            if (filename.indexOf('/') >= 0)
                 dirname = solution.getName() + "/" + filename.substr(0, filename.lastIndexOf('/'));
             else
                 dirname = solution.getName();
@@ -275,7 +275,7 @@ class XCodeExporter extends Exporter_1.Exporter {
         for (let framework of frameworks) {
             if (framework.toString().endsWith('.framework')) {
                 // Local framework - a directory is specified
-                if (contains(framework.toString(), '/')) {
+                if (framework.toString().indexOf('/') >= 0) {
                     framework.localPath = path.resolve(from, framework);
                     this.p(framework.getFileId() + " /* " + framework.toString() + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + framework.toString() + "; path = " + framework.localPath + "; sourceTree = \"<absolute>\"; };", 2);
                 }
@@ -340,7 +340,7 @@ class XCodeExporter extends Exporter_1.Exporter {
         this.p(debugDirFileId + " /* Deployment */,", 4);
         //p(solutionGroupId + " /* " + solution.getName() + " */,", 4);
         for (let dir of directories) {
-            if (!contains(dir.getName(), '/'))
+            if (dir.getName().indexOf('/') < 0)
                 this.p(dir.getId() + " /* " + dir.getName() + " */,", 4);
         }
         this.p(frameworksGroupId + " /* Frameworks */,", 4);
@@ -374,7 +374,7 @@ class XCodeExporter extends Exporter_1.Exporter {
                 if (dir2 == dir)
                     continue;
                 if (dir2.getName().startsWith(dir.getName())) {
-                    if (!contains(dir2.getName().substr(dir.getName().length + 1), '/'))
+                    if (dir2.getName().substr(dir.getName().length + 1).indexOf('/') < 0)
                         this.p(dir2.getId() + " /* " + dir2.getName() + " */,", 4);
                 }
             }
@@ -383,7 +383,7 @@ class XCodeExporter extends Exporter_1.Exporter {
                     this.p(file.getFileId() + " /* " + file.toString() + " */,", 4);
             }
             this.p(");", 3);
-            if (!contains(dir.getName(), '/')) {
+            if (dir.getName().indexOf('/') < 0) {
                 this.p("path = ../;", 3);
                 this.p("name = \"" + dir.getLastName() + "\";", 3);
             }
@@ -539,7 +539,7 @@ class XCodeExporter extends Exporter_1.Exporter {
         this.p('GCC_PREPROCESSOR_DEFINITIONS = (', 4);
         this.p("\"DEBUG=1\",", 5);
         for (let define of project.getDefines()) {
-            if (contains(define, '='))
+            if (define.indexOf('=') >= 0)
                 this.p("\"" + define.replace(/\"/g, "\\\\\\\"") + "\",", 5);
             else
                 this.p(define + ",", 5);
@@ -621,7 +621,7 @@ class XCodeExporter extends Exporter_1.Exporter {
         this.p('GCC_C_LANGUAGE_STANDARD = gnu99;', 4);
         this.p("GCC_PREPROCESSOR_DEFINITIONS = (", 4);
         for (let define of project.getDefines()) {
-            if (contains(define, '='))
+            if (define.indexOf('=') >= 0)
                 this.p("\"" + define.replace(/\"/g, "\\\\\\\"") + "\",", 5);
             else
                 this.p(define + ",", 5);

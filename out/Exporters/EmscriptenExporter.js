@@ -2,6 +2,7 @@
 const Exporter_1 = require('./Exporter');
 const child_process = require('child_process');
 const fs = require('fs-extra');
+const path = require('path');
 let emmccPath = 'emcc';
 let defines = '';
 let includes = '';
@@ -66,7 +67,7 @@ class EmscriptenExporter extends Exporter_1.Exporter {
             debugDirName = debugDirName.substr(0, debugDirName.length - 1);
         if (debugDirName.lastIndexOf('/') >= 0)
             debugDirName = debugDirName.substr(debugDirName.lastIndexOf('/') + 1);
-        fs.copySync(from.resolve(debugDirName).toString(), to.resolve(debugDirName).toString(), { clobber: true });
+        fs.copySync(path.resolve(from, debugDirName), path.resolve(to, debugDirName), { clobber: true });
         defines = "";
         definesArray = [];
         for (let def in project.getDefines()) {
@@ -78,10 +79,10 @@ class EmscriptenExporter extends Exporter_1.Exporter {
         includes = "";
         includesArray = [];
         for (let inc in project.getIncludeDirs()) {
-            includes += "-I../" + from.resolve(project.getIncludeDirs()[inc]).toString() + " ";
-            includesArray.push("-I../" + from.resolve(project.getIncludeDirs()[inc]).toString());
+            includes += "-I../" + path.resolve(from, project.getIncludeDirs()[inc]) + " ";
+            includesArray.push("-I../" + path.resolve(from, project.getIncludeDirs()[inc]));
         }
-        this.writeFile(to.resolve("makefile"));
+        this.writeFile(path.resolve(to, 'makefile'));
         this.p();
         let oline = '';
         for (let fileobject of project.getFiles()) {
@@ -108,7 +109,7 @@ class EmscriptenExporter extends Exporter_1.Exporter {
                 if (s == "" || s == "..")
                     continue;
                 name += s + "/";
-                builddir = builddir.resolve(s);
+                builddir = path.resolve(builddir, s);
                 if (!fs.existsSync(builddir))
                     fs.ensureDirSync(builddir);
             }

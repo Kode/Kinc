@@ -1,4 +1,5 @@
 "use strict";
+;
 exports.Platform = {
     Windows: 'windows',
     WindowsApp: 'windowsapp',

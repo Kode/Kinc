@@ -2,7 +2,7 @@ import {Block} from './Block';
 import {Configuration} from './Configuration';
 import {Platform} from './Platform';
 
-function toLine(options) {
+function toLine(options: any) {
 	let line = '';
 	for (let option of options) {
 		line += option + ";";

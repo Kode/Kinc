@@ -1,16 +1,18 @@
 import {Exporter} from './Exporter';
+import {Solution} from '../Solution';
 import * as child_process from 'child_process';
 import * as fs from 'fs-extra';
 import * as os from 'os';
+import * as path from 'path';
 
 let emmccPath = 'emcc';
 let defines = '';
 let includes = '';
-let definesArray = [];
-let includesArray = [];
+let definesArray: string[] = [];
+let includesArray: string[] = [];
 
-function link(files, output) {
-	var params = [];//-O2 ";
+function link(files: string[], output: string) {
+	var params: string[] = [];//-O2 ";
 	for (let file of files) {
 		//console.log(files[file]);
 		params.push(file);
@@ -44,7 +46,7 @@ export class EmscriptenExporter extends Exporter {
 
 		//console.log(emmccPath + " " + inFilename+ " " +  includes+ " " +  defines+ " " + "-c -o"+ " " + outFilename);
 
-		let params = [];
+		let params: string[] = [];
 		params.push(inFilename);
 
 		for (let i = 0; i < includesArray.length; i++) {
@@ -72,7 +74,7 @@ export class EmscriptenExporter extends Exporter {
 		}
 	}
 
-	exportSolution(solution, from, to, platform) {
+	exportSolution(solution: Solution, from: string, to: string, platform: string) {
 		let project = solution.getProjects()[0];
 
 		let debugDirName = project.getDebugDir();
@@ -80,7 +82,7 @@ export class EmscriptenExporter extends Exporter {
 		if (debugDirName.endsWith('/')) debugDirName = debugDirName.substr(0, debugDirName.length - 1);
 		if (debugDirName.lastIndexOf('/') >= 0) debugDirName = debugDirName.substr(debugDirName.lastIndexOf('/') + 1);
 		
-		fs.copySync(from.resolve(debugDirName).toString(), to.resolve(debugDirName).toString(), { clobber: true });
+		fs.copySync(path.resolve(from, debugDirName), path.resolve(to, debugDirName), { clobber: true });
 		
 		defines = "";
 		definesArray = [];
@@ -94,11 +96,11 @@ export class EmscriptenExporter extends Exporter {
 		includes = "";
 		includesArray = [];
 		for (let inc in project.getIncludeDirs()) {
-			includes += "-I../" + from.resolve(project.getIncludeDirs()[inc]).toString() + " ";
-			includesArray.push("-I../" + from.resolve(project.getIncludeDirs()[inc]).toString());
+			includes += "-I../" + path.resolve(from, project.getIncludeDirs()[inc]) + " ";
+			includesArray.push("-I../" + path.resolve(from, project.getIncludeDirs()[inc]));
 		}
 
-		this.writeFile(to.resolve("makefile"));
+		this.writeFile(path.resolve(to, 'makefile'));
 
 		this.p();
 		let oline = '';
@@ -125,7 +127,7 @@ export class EmscriptenExporter extends Exporter {
 				let s = dirs[i];
 				if (s == "" || s == "..") continue;
 				name += s + "/";
-				builddir = builddir.resolve(s);
+				builddir = path.resolve(builddir, s);
 				if (!fs.existsSync(builddir)) fs.ensureDirSync(builddir);
 			}
 			let lastpoint = filename.lastIndexOf('.');
