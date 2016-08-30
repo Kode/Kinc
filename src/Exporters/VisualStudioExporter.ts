@@ -43,7 +43,7 @@ function getShaderLang() {
 	return 'd3d9';
 }
 
-export class ExporterVisualStudio extends Exporter {
+export class VisualStudioExporter extends Exporter {
 	constructor() {
 		super();
 	}

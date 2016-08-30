@@ -2,7 +2,7 @@
 const Exporter_1 = require('./Exporter');
 const Platform_1 = require('../Platform');
 const path = require('path');
-class ExporterCodeBlocks extends Exporter_1.Exporter {
+class CodeBlocksExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
@@ -109,5 +109,5 @@ class ExporterCodeBlocks extends Exporter_1.Exporter {
         this.closeFile();
     }
 }
-exports.ExporterCodeBlocks = ExporterCodeBlocks;
+exports.CodeBlocksExporter = CodeBlocksExporter;
 //# sourceMappingURL=CodeBlocksExporter.js.map

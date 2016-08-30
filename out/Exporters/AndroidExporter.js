@@ -52,7 +52,7 @@ function sourceCopyLocation(somePath, from, to, safename) {
         somePath = somePath.substr(3);
     return path.resolve(to, safename, 'app', 'src', 'main', 'jni', somePath);
 }
-class ExporterAndroid extends Exporter_1.Exporter {
+class AndroidExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
@@ -277,5 +277,5 @@ class ExporterAndroid extends Exporter_1.Exporter {
         //}
     }
 }
-exports.ExporterAndroid = ExporterAndroid;
+exports.AndroidExporter = AndroidExporter;
 //# sourceMappingURL=AndroidExporter.js.map

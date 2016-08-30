@@ -101,7 +101,7 @@ function addDirectory(dirname, directories) {
     }
     return dir;
 }
-class ExporterXCode extends Exporter_1.Exporter {
+class XCodeExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
@@ -757,5 +757,5 @@ class ExporterXCode extends Exporter_1.Exporter {
         this.closeFile();
     }
 }
-exports.ExporterXCode = ExporterXCode;
+exports.XCodeExporter = XCodeExporter;
 //# sourceMappingURL=XCodeExporter.js.map

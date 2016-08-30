@@ -3,7 +3,7 @@ import {Solution} from '../Solution';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-export class ExporterTizen extends Exporter {
+export class TizenExporter extends Exporter {
 	constructor() {
 		super();
 	}

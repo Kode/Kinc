@@ -48,7 +48,7 @@ function getShaderLang() {
         return 'spirv';
     return 'd3d9';
 }
-class ExporterVisualStudio extends Exporter_1.Exporter {
+class VisualStudioExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
@@ -971,5 +971,5 @@ class ExporterVisualStudio extends Exporter_1.Exporter {
         }
     }
 }
-exports.ExporterVisualStudio = ExporterVisualStudio;
+exports.VisualStudioExporter = VisualStudioExporter;
 //# sourceMappingURL=VisualStudioExporter.js.map

@@ -6,7 +6,7 @@ import {Solution} from '../Solution';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-export class ExporterMakefile extends Exporter {
+export class MakefileExporter extends Exporter {
 	constructor() {
 		super();
 	}

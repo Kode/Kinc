@@ -31,7 +31,7 @@ function link(files, output) {
 	}
 }
 
-export class ExporterEmscripten extends Exporter {
+export class EmscriptenExporter extends Exporter {
 	constructor() {
 		super();
 	}

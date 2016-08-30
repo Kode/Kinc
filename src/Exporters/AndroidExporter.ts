@@ -54,7 +54,7 @@ function sourceCopyLocation(somePath: string, from: string, to: string, safename
 	return path.resolve(to, safename, 'app', 'src', 'main', 'jni', somePath);
 }
 
-export class ExporterAndroid extends Exporter {
+export class AndroidExporter extends Exporter {
 	safename: string;
 
 	constructor() {

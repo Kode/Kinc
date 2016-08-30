@@ -10,13 +10,13 @@ import {Platform} from './Platform';
 import {Solution} from './Solution';
 import * as exec from './exec';
 import {VisualStudioVersion} from './VisualStudioVersion';
-import {ExporterAndroid} from './Exporters/AndroidExporter';
-import {ExporterCodeBlocks} from './Exporters/CodeBlocksExporter';
-import {ExporterMakefile} from './Exporters/MakefileExporter';
-import {ExporterEmscripten} from './Exporters/EmscriptenExporter';
-import {ExporterTizen} from './Exporters/TizenExporter';
-import {ExporterVisualStudio} from './Exporters/VisualStudioExporter';
-import {ExporterXCode} from './Exporters/XCodeExporter';
+import {AndroidExporter} from './Exporters/AndroidExporter';
+import {CodeBlocksExporter} from './Exporters/CodeBlocksExporter';
+import {MakefileExporter} from './Exporters/MakefileExporter';
+import {EmscriptenExporter} from './Exporters/EmscriptenExporter';
+import {TizenExporter} from './Exporters/TizenExporter';
+import {VisualStudioExporter} from './Exporters/VisualStudioExporter';
+import {XCodeExporter} from './Exporters/XCodeExporter';
 
 function fromPlatform(platform: string): string {
 	switch (platform) {
@@ -166,14 +166,14 @@ function exportKoremakeProject(from: string, to: string, platform: string, optio
 	}
 
 	let exporter = null;
-	if (platform === Platform.iOS || platform === Platform.OSX || platform === Platform.tvOS) exporter = new ExporterXCode();
-	else if (platform == Platform.Android) exporter = new ExporterAndroid();
-	else if (platform == Platform.HTML5) exporter = new ExporterEmscripten();
+	if (platform === Platform.iOS || platform === Platform.OSX || platform === Platform.tvOS) exporter = new XCodeExporter();
+	else if (platform == Platform.Android) exporter = new AndroidExporter();
+	else if (platform == Platform.HTML5) exporter = new EmscriptenExporter();
 	else if (platform == Platform.Linux || platform === Platform.Pi) {
-		if (options.compile) exporter = new ExporterMakefile();
-		else exporter = new ExporterCodeBlocks();
+		if (options.compile) exporter = new MakefileExporter();
+		else exporter = new CodeBlocksExporter();
 	}
-	else if (platform == Platform.Tizen) exporter = new ExporterTizen();
+	else if (platform == Platform.Tizen) exporter = new TizenExporter();
 	else {
 		let found = false;
 		for (var p in Platform) {
@@ -183,7 +183,7 @@ function exportKoremakeProject(from: string, to: string, platform: string, optio
 			}
 		}
 		if (found) {
-			exporter = new ExporterVisualStudio();
+			exporter = new VisualStudioExporter();
 		}
 		else {
 			let libsdir = path.join(from.toString(), 'Backends');

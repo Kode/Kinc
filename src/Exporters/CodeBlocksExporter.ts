@@ -6,7 +6,7 @@ import {Solution} from '../Solution';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export class ExporterCodeBlocks extends Exporter {
+export class CodeBlocksExporter extends Exporter {
 	constructor() {
 		super();
 	}

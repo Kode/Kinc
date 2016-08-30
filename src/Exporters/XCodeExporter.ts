@@ -131,7 +131,7 @@ function addDirectory(dirname, directories) {
 	return dir;
 }
 
-export class ExporterXCode extends Exporter {
+export class XCodeExporter extends Exporter {
 	constructor() {
 		super();
 	}

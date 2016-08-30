@@ -164,19 +164,19 @@ function exportKoremakeProject(from, to, platform, options) {
     }
     let exporter = null;
     if (platform === Platform_1.Platform.iOS || platform === Platform_1.Platform.OSX || platform === Platform_1.Platform.tvOS)
-        exporter = new XCodeExporter_1.ExporterXCode();
+        exporter = new XCodeExporter_1.XCodeExporter();
     else if (platform == Platform_1.Platform.Android)
-        exporter = new AndroidExporter_1.ExporterAndroid();
+        exporter = new AndroidExporter_1.AndroidExporter();
     else if (platform == Platform_1.Platform.HTML5)
-        exporter = new EmscriptenExporter_1.ExporterEmscripten();
+        exporter = new EmscriptenExporter_1.EmscriptenExporter();
     else if (platform == Platform_1.Platform.Linux || platform === Platform_1.Platform.Pi) {
         if (options.compile)
-            exporter = new MakefileExporter_1.ExporterMakefile();
+            exporter = new MakefileExporter_1.MakefileExporter();
         else
-            exporter = new CodeBlocksExporter_1.ExporterCodeBlocks();
+            exporter = new CodeBlocksExporter_1.CodeBlocksExporter();
     }
     else if (platform == Platform_1.Platform.Tizen)
-        exporter = new TizenExporter_1.ExporterTizen();
+        exporter = new TizenExporter_1.TizenExporter();
     else {
         let found = false;
         for (var p in Platform_1.Platform) {
@@ -186,7 +186,7 @@ function exportKoremakeProject(from, to, platform, options) {
             }
         }
         if (found) {
-            exporter = new VisualStudioExporter_1.ExporterVisualStudio();
+            exporter = new VisualStudioExporter_1.VisualStudioExporter();
         }
         else {
             let libsdir = path.join(from.toString(), 'Backends');

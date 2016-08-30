@@ -26,7 +26,7 @@ function link(files, output) {
             console.log(res.error);
     }
 }
-class ExporterEmscripten extends Exporter_1.Exporter {
+class EmscriptenExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
@@ -141,5 +141,5 @@ class ExporterEmscripten extends Exporter_1.Exporter {
         link(objectFiles, to.resolve(Paths.get("build", "Kt.js").toString()));*/
     }
 }
-exports.ExporterEmscripten = ExporterEmscripten;
+exports.EmscriptenExporter = EmscriptenExporter;
 //# sourceMappingURL=EmscriptenExporter.js.map

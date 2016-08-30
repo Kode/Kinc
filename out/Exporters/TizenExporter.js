@@ -2,7 +2,7 @@
 const Exporter_1 = require('./Exporter');
 const fs = require('fs-extra');
 const path = require('path');
-class ExporterTizen extends Exporter_1.Exporter {
+class TizenExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
@@ -39,5 +39,5 @@ class ExporterTizen extends Exporter_1.Exporter {
         }
     }
 }
-exports.ExporterTizen = ExporterTizen;
+exports.TizenExporter = TizenExporter;
 //# sourceMappingURL=TizenExporter.js.map

@@ -1,7 +1,7 @@
 "use strict";
 const Exporter_1 = require('./Exporter');
 const path = require('path');
-class ExporterMakefile extends Exporter_1.Exporter {
+class MakefileExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
@@ -113,5 +113,5 @@ class ExporterMakefile extends Exporter_1.Exporter {
         this.closeFile();
     }
 }
-exports.ExporterMakefile = ExporterMakefile;
+exports.MakefileExporter = MakefileExporter;
 //# sourceMappingURL=MakefileExporter.js.map
