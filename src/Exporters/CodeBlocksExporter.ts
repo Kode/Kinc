@@ -1,8 +1,8 @@
 import {Exporter} from './Exporter';
-import {GraphicsApi} from './GraphicsApi';
-import {Options} from './Options';
-import {Platform} from './Platform';
-import {Solution} from './Solution';
+import {GraphicsApi} from '../GraphicsApi';
+import {Options} from '../Options';
+import {Platform} from '../Platform';
+import {Solution} from '../Solution';
 import * as fs from 'fs';
 import * as path from 'path';
 

@@ -1,7 +1,7 @@
 import {Exporter} from './Exporter';
-import {Project} from './Project';
-import {Solution} from './Solution';
-import * as Icon from './Icon';
+import {Project} from '../Project';
+import {Solution} from '../Solution';
+import * as Icon from '../Icon';
 import {execSync} from 'child_process';
 import * as fs from 'fs-extra';
 import * as os from 'os';

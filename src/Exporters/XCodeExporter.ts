@@ -1,9 +1,9 @@
 import {Exporter} from './Exporter';
-import {GraphicsApi} from './GraphicsApi';
-import * as Icon from './Icon';
-import {Platform} from './Platform';
-import {Options} from './Options';
-import {Solution} from './Solution';
+import {GraphicsApi} from '../GraphicsApi';
+import * as Icon from '../Icon';
+import {Platform} from '../Platform';
+import {Options} from '../Options';
+import {Solution} from '../Solution';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 const uuid = require('uuid');

@@ -142,4 +142,4 @@ class ExporterEmscripten extends Exporter_1.Exporter {
     }
 }
 exports.ExporterEmscripten = ExporterEmscripten;
-//# sourceMappingURL=ExporterEmscripten.js.map
+//# sourceMappingURL=EmscriptenExporter.js.map

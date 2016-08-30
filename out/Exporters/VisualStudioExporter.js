@@ -1,13 +1,13 @@
 "use strict";
 const Exporter_1 = require('./Exporter');
-const GraphicsApi_1 = require('./GraphicsApi');
-const Icon = require('./Icon');
-const Platform_1 = require('./Platform');
-const Project_1 = require('./Project');
-const Options_1 = require('./Options');
-const VisualStudioVersion_1 = require('./VisualStudioVersion');
-const ClCompile_1 = require('./ClCompile');
-const Configuration_1 = require('./Configuration');
+const GraphicsApi_1 = require('../GraphicsApi');
+const Icon = require('../Icon');
+const Platform_1 = require('../Platform');
+const Project_1 = require('../Project');
+const Options_1 = require('../Options');
+const VisualStudioVersion_1 = require('../VisualStudioVersion');
+const ClCompile_1 = require('../ClCompile');
+const Configuration_1 = require('../Configuration');
 const fs = require('fs-extra');
 const path = require('path');
 const uuid = require('uuid');
@@ -972,4 +972,4 @@ class ExporterVisualStudio extends Exporter_1.Exporter {
     }
 }
 exports.ExporterVisualStudio = ExporterVisualStudio;
-//# sourceMappingURL=ExporterVisualStudio.js.map
+//# sourceMappingURL=VisualStudioExporter.js.map

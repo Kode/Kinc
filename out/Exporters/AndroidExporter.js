@@ -1,7 +1,7 @@
 "use strict";
 const Exporter_1 = require('./Exporter');
-const Project_1 = require('./Project');
-const Icon = require('./Icon');
+const Project_1 = require('../Project');
+const Icon = require('../Icon');
 const child_process_1 = require('child_process');
 const fs = require('fs-extra');
 const os = require('os');
@@ -278,4 +278,4 @@ class ExporterAndroid extends Exporter_1.Exporter {
     }
 }
 exports.ExporterAndroid = ExporterAndroid;
-//# sourceMappingURL=ExporterAndroid.js.map
+//# sourceMappingURL=AndroidExporter.js.map

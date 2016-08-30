@@ -40,4 +40,4 @@ class ExporterTizen extends Exporter_1.Exporter {
     }
 }
 exports.ExporterTizen = ExporterTizen;
-//# sourceMappingURL=ExporterTizen.js.map
+//# sourceMappingURL=TizenExporter.js.map

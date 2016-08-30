@@ -1,6 +1,6 @@
 "use strict";
 const Exporter_1 = require('./Exporter');
-const Platform_1 = require('./Platform');
+const Platform_1 = require('../Platform');
 const path = require('path');
 class ExporterCodeBlocks extends Exporter_1.Exporter {
     constructor() {
@@ -110,4 +110,4 @@ class ExporterCodeBlocks extends Exporter_1.Exporter {
     }
 }
 exports.ExporterCodeBlocks = ExporterCodeBlocks;
-//# sourceMappingURL=ExporterCodeBlocks.js.map
+//# sourceMappingURL=CodeBlocksExporter.js.map

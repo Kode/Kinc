@@ -1,5 +1,5 @@
 import {Exporter} from './Exporter';
-import {Solution} from './Solution';
+import {Solution} from '../Solution';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 

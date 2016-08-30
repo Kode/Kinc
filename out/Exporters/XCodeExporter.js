@@ -1,9 +1,9 @@
 "use strict";
 const Exporter_1 = require('./Exporter');
-const GraphicsApi_1 = require('./GraphicsApi');
-const Icon = require('./Icon');
-const Platform_1 = require('./Platform');
-const Options_1 = require('./Options');
+const GraphicsApi_1 = require('../GraphicsApi');
+const Icon = require('../Icon');
+const Platform_1 = require('../Platform');
+const Options_1 = require('../Options');
 const fs = require('fs-extra');
 const path = require('path');
 const uuid = require('uuid');
@@ -758,4 +758,4 @@ class ExporterXCode extends Exporter_1.Exporter {
     }
 }
 exports.ExporterXCode = ExporterXCode;
-//# sourceMappingURL=ExporterXCode.js.map
+//# sourceMappingURL=XCodeExporter.js.map

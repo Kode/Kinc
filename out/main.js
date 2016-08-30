@@ -17,13 +17,13 @@ const Project_1 = require('./Project');
 const Platform_1 = require('./Platform');
 const Solution_1 = require('./Solution');
 const exec = require('./exec');
-const ExporterAndroid_1 = require('./ExporterAndroid');
-const ExporterCodeBlocks_1 = require('./ExporterCodeBlocks');
-const ExporterMakefile_1 = require('./ExporterMakefile');
-const ExporterEmscripten_1 = require('./ExporterEmscripten');
-const ExporterTizen_1 = require('./ExporterTizen');
-const ExporterVisualStudio_1 = require('./ExporterVisualStudio');
-const ExporterXCode_1 = require('./ExporterXCode');
+const AndroidExporter_1 = require('./Exporters/AndroidExporter');
+const CodeBlocksExporter_1 = require('./Exporters/CodeBlocksExporter');
+const MakefileExporter_1 = require('./Exporters/MakefileExporter');
+const EmscriptenExporter_1 = require('./Exporters/EmscriptenExporter');
+const TizenExporter_1 = require('./Exporters/TizenExporter');
+const VisualStudioExporter_1 = require('./Exporters/VisualStudioExporter');
+const XCodeExporter_1 = require('./Exporters/XCodeExporter');
 function fromPlatform(platform) {
     switch (platform) {
         case Platform_1.Platform.Windows:
@@ -164,19 +164,19 @@ function exportKoremakeProject(from, to, platform, options) {
     }
     let exporter = null;
     if (platform === Platform_1.Platform.iOS || platform === Platform_1.Platform.OSX || platform === Platform_1.Platform.tvOS)
-        exporter = new ExporterXCode_1.ExporterXCode();
+        exporter = new XCodeExporter_1.ExporterXCode();
     else if (platform == Platform_1.Platform.Android)
-        exporter = new ExporterAndroid_1.ExporterAndroid();
+        exporter = new AndroidExporter_1.ExporterAndroid();
     else if (platform == Platform_1.Platform.HTML5)
-        exporter = new ExporterEmscripten_1.ExporterEmscripten();
+        exporter = new EmscriptenExporter_1.ExporterEmscripten();
     else if (platform == Platform_1.Platform.Linux || platform === Platform_1.Platform.Pi) {
         if (options.compile)
-            exporter = new ExporterMakefile_1.ExporterMakefile();
+            exporter = new MakefileExporter_1.ExporterMakefile();
         else
-            exporter = new ExporterCodeBlocks_1.ExporterCodeBlocks();
+            exporter = new CodeBlocksExporter_1.ExporterCodeBlocks();
     }
     else if (platform == Platform_1.Platform.Tizen)
-        exporter = new ExporterTizen_1.ExporterTizen();
+        exporter = new TizenExporter_1.ExporterTizen();
     else {
         let found = false;
         for (var p in Platform_1.Platform) {
@@ -186,7 +186,7 @@ function exportKoremakeProject(from, to, platform, options) {
             }
         }
         if (found) {
-            exporter = new ExporterVisualStudio_1.ExporterVisualStudio();
+            exporter = new VisualStudioExporter_1.ExporterVisualStudio();
         }
         else {
             let libsdir = path.join(from.toString(), 'Backends');

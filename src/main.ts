@@ -10,13 +10,13 @@ import {Platform} from './Platform';
 import {Solution} from './Solution';
 import * as exec from './exec';
 import {VisualStudioVersion} from './VisualStudioVersion';
-import {ExporterAndroid} from './ExporterAndroid';
-import {ExporterCodeBlocks} from './ExporterCodeBlocks';
-import {ExporterMakefile} from './ExporterMakefile';
-import {ExporterEmscripten} from './ExporterEmscripten';
-import {ExporterTizen} from './ExporterTizen';
-import {ExporterVisualStudio} from './ExporterVisualStudio';
-import {ExporterXCode} from './ExporterXCode';
+import {ExporterAndroid} from './Exporters/AndroidExporter';
+import {ExporterCodeBlocks} from './Exporters/CodeBlocksExporter';
+import {ExporterMakefile} from './Exporters/MakefileExporter';
+import {ExporterEmscripten} from './Exporters/EmscriptenExporter';
+import {ExporterTizen} from './Exporters/TizenExporter';
+import {ExporterVisualStudio} from './Exporters/VisualStudioExporter';
+import {ExporterXCode} from './Exporters/XCodeExporter';
 
 function fromPlatform(platform: string): string {
 	switch (platform) {
