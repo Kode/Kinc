@@ -90,7 +90,7 @@ class Solution {
         let file = fs.readFileSync(path.resolve(Solution.scriptdir, filename, 'korefile.js'), { encoding: 'utf8' });
         let oldscriptdir = Solution.scriptdir;
         Solution.scriptdir = path.resolve(Solution.scriptdir, filename);
-        let solution = new Function('Solution', 'Project', 'Platform', 'platform', 'GraphicsApi', 'graphics', 'fs', 'path', file)(Solution, Project_1.Project, Platform_1.Platform, platform, GraphicsApi_1.GraphicsApi, Options_1.Options.graphicsApi, require('fs'), require('path'));
+        let solution = new Function('Solution', 'Project', 'Platform', 'platform', 'GraphicsApi', 'graphics', 'require', file)(Solution, Project_1.Project, Platform_1.Platform, platform, GraphicsApi_1.GraphicsApi, Options_1.Options.graphicsApi, require);
         Solution.scriptdir = oldscriptdir;
         if (fs.existsSync(path.join(Solution.scriptdir.toString(), 'Backends'))) {
             var libdirs = fs.readdirSync(path.join(Solution.scriptdir.toString(), 'Backends'));

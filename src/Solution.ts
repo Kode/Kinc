@@ -110,16 +110,15 @@ export class Solution {
 			'platform',
 			'GraphicsApi',
 			'graphics',
-			'fs',
-			'path', file)
+			'require',
+			file)
 		(Solution,
 			Project,
 			Platform,
 			platform,
 			GraphicsApi,
 			Options.graphicsApi,
-			require('fs'),
-			require('path'));
+			require);
 		Solution.scriptdir = oldscriptdir;
 
 		if (fs.existsSync(path.join(Solution.scriptdir.toString(), 'Backends'))) {
