@@ -54,7 +54,7 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 ComputeShaderImpl::~ComputeShaderImpl() {
 	delete[] _source;
 	_source = nullptr;
-#if !defined(SYS_OSX) && !defined(SYS_IOS)
+#ifdef HAS_COMPUTE
 	glDeleteProgram(_programid);
 	glDeleteShader(_id);
 #endif
@@ -66,7 +66,7 @@ ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data,
 
 ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 	ComputeConstantLocation location;
-#if !defined(SYS_OSX) && !defined(SYS_IOS)
+#ifdef HAS_COMPUTE
 	location.location = glGetUniformLocation(_programid, name); glCheckErrors2();
 	if (location.location < 0) {
 		log(Warning, "Uniform %s not found.", name);
@@ -82,20 +82,20 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 }
 
 void Compute::setFloat(ComputeConstantLocation location, float value) {
-#if !defined(SYS_OSX) && !defined(SYS_IOS)
+#ifdef HAS_COMPUTE
 	glUniform1f(location.location, value); glCheckErrors2();
 #endif
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Texture* texture) {
-#if HAS_COMPUTE
+#ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit); glCheckErrors2();
 	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); glCheckErrors2();
 #endif
 }
 
 void Compute::setShader(ComputeShader* shader) {
-#if !defined(SYS_OSX) && !defined(SYS_IOS)
+#ifdef HAS_COMPUTE
 	glUseProgram(shader->_programid); glCheckErrors2();
 #endif
 }
