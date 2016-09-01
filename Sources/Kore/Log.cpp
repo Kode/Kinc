@@ -23,7 +23,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 	fprintf(level == Info ? stdout : stderr, "\n");
 #ifdef SYS_WINDOWS
 	char buffer[4096];
-	vsprintf(buffer, format, args);
+	vsnprintf(buffer, sizeof(buffer) - 2, format, args);
 	strcat(buffer, "\r\n");
 	OutputDebugStringA(buffer);
 #endif
