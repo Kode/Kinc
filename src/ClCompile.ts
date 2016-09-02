@@ -128,6 +128,7 @@ export class ClCompile extends Block {
 						this.stringPooling = true;
 						this.favorSize = true;
 						this.fastCap = false;
+						break;
 				}
 				break;
 			default:

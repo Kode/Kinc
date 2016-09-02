@@ -105,6 +105,7 @@ class ClCompile extends Block_1.Block {
                         this.stringPooling = true;
                         this.favorSize = true;
                         this.fastCap = false;
+                        break;
                 }
                 break;
             default:

@@ -4,7 +4,11 @@
 		"module": "commonjs",
 		"sourceMap": true,
 		"outDir": "out",
-		"noImplicitAny": true
+		"noImplicitAny": true,
+		"forceConsistentCasingInFileNames": true,
+		"newLine": "LF",
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true
 	},
 	"exclude": [
 		"Data",
