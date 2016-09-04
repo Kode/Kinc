@@ -359,7 +359,7 @@ export class Project {
 		this.debugDir = debugDir;
 	}
 
-	static createProject(filename: string, platform: string) {
+	static createProject(filename: string): Project {
 		let file = fs.readFileSync(path.resolve(Project.scriptdir, filename, 'korefile.js'), 'utf8');
 		let oldscriptdir = Project.scriptdir;
 		Project.scriptdir = path.resolve(Project.scriptdir, filename);
@@ -373,7 +373,7 @@ export class Project {
 			file)
 		(Project,
 			Platform,
-			platform,
+			Project.platform,
 			GraphicsApi,
 			Options.graphicsApi,
 			require);
@@ -386,7 +386,7 @@ export class Project {
 				if (fs.statSync(libdir).isDirectory()) {
 					var korefile = path.join(libdir, 'korefile.js');
 					if (fs.existsSync(korefile)) {
-						project.projects[0].addSubProject(Project.createProject(libdir, platform));
+						project.projects[0].addSubProject(Project.createProject(libdir));
 					}
 				}
 			}
@@ -395,21 +395,13 @@ export class Project {
 		return project;
 	}
 
-	static evalProjectScript(script: string) {
-
-	}
-
-	static evalSolutionScript(script: string, platform: string) {
-		this.platform = platform;
-	}
-
 	static create(directory: string, platform: string) {
 		Project.scriptdir = directory;
 		Project.platform = platform;
-		var project = Project.createProject('.', platform);
-		var defines = getDefines(platform, project.isRotated());
-		for (var p in project.projects) {
-			for (var d in defines) project.projects[p].addDefine(defines[d]);
+		let project = Project.createProject('.');
+		let defines = getDefines(platform, project.isRotated());
+		for (let define of defines) {
+			project.addDefine(define);
 		}
 		return project;
 	}

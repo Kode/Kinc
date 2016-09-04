@@ -148,7 +148,7 @@ function exportKoremakeProject(from: string, to: string, platform: string, optio
 	log.info('Creating ' + fromPlatform(platform) + ' project files.');
 
 	let project = Project.create(from, platform);
-	project.searchFiles();
+	project.searchFiles(undefined);
 	project.flatten();
 
 	fs.ensureDirSync(to);

@@ -322,11 +322,11 @@ class Project {
     setDebugDir(debugDir) {
         this.debugDir = debugDir;
     }
-    static createProject(filename, platform) {
+    static createProject(filename) {
         let file = fs.readFileSync(path.resolve(Project.scriptdir, filename, 'korefile.js'), 'utf8');
         let oldscriptdir = Project.scriptdir;
         Project.scriptdir = path.resolve(Project.scriptdir, filename);
-        let project = new Function('Project', 'Platform', 'platform', 'GraphicsApi', 'graphics', 'require', file)(Project, Platform_1.Platform, platform, GraphicsApi_1.GraphicsApi, Options_1.Options.graphicsApi, require);
+        let project = new Function('Project', 'Platform', 'platform', 'GraphicsApi', 'graphics', 'require', file)(Project, Platform_1.Platform, Project.platform, GraphicsApi_1.GraphicsApi, Options_1.Options.graphicsApi, require);
         Project.scriptdir = oldscriptdir;
         if (fs.existsSync(path.join(Project.scriptdir.toString(), 'Backends'))) {
             var libdirs = fs.readdirSync(path.join(Project.scriptdir.toString(), 'Backends'));
@@ -335,26 +335,20 @@ class Project {
                 if (fs.statSync(libdir).isDirectory()) {
                     var korefile = path.join(libdir, 'korefile.js');
                     if (fs.existsSync(korefile)) {
-                        project.projects[0].addSubProject(Project.createProject(libdir, platform));
+                        project.projects[0].addSubProject(Project.createProject(libdir));
                     }
                 }
             }
         }
         return project;
     }
-    static evalProjectScript(script) {
-    }
-    static evalSolutionScript(script, platform) {
-        this.platform = platform;
-    }
     static create(directory, platform) {
         Project.scriptdir = directory;
         Project.platform = platform;
-        var project = Project.createProject('.', platform);
-        var defines = getDefines(platform, project.isRotated());
-        for (var p in project.projects) {
-            for (var d in defines)
-                project.projects[p].addDefine(defines[d]);
+        let project = Project.createProject('.');
+        let defines = getDefines(platform, project.isRotated());
+        for (let define of defines) {
+            project.addDefine(define);
         }
         return project;
     }
