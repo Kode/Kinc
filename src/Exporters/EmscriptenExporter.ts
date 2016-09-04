@@ -1,5 +1,5 @@
 import {Exporter} from './Exporter';
-import {Solution} from '../Solution';
+import {Project} from '../Project';
 import * as child_process from 'child_process';
 import * as fs from 'fs-extra';
 import * as os from 'os';
@@ -74,9 +74,7 @@ export class EmscriptenExporter extends Exporter {
 		}
 	}
 
-	exportSolution(solution: Solution, from: string, to: string, platform: string) {
-		let project = solution.getProjects()[0];
-
+	exportSolution(project: Project, from: string, to: string, platform: string) {
 		let debugDirName = project.getDebugDir();
 		debugDirName = debugDirName.replace(/\\/g, '/');
 		if (debugDirName.endsWith('/')) debugDirName = debugDirName.substr(0, debugDirName.length - 1);

@@ -5,8 +5,7 @@ class MakefileExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
-    exportSolution(solution, from, to, platform, vrApi, nokrafix, options) {
-        let project = solution.getProjects()[0];
+    exportSolution(project, from, to, platform, vrApi, nokrafix, options) {
         let objects = {};
         let ofiles = {};
         for (let fileobject of project.getFiles()) {

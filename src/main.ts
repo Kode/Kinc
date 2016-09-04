@@ -7,7 +7,6 @@ import {GraphicsApi} from './GraphicsApi';
 import {Options} from './Options';
 import {Project} from './Project';
 import {Platform} from './Platform';
-import {Solution} from './Solution';
 import * as exec from './exec';
 import {VisualStudioVersion} from './VisualStudioVersion';
 import {Exporter} from './Exporters/Exporter';
@@ -148,13 +147,12 @@ function exportKoremakeProject(from: string, to: string, platform: string, optio
 	log.info('korefile found.');
 	log.info('Creating ' + fromPlatform(platform) + ' project files.');
 
-	let solution = Solution.create(from, platform);
-	solution.searchFiles();
-	solution.flatten();
+	let project = Project.create(from, platform);
+	project.searchFiles();
+	project.flatten();
 
 	fs.ensureDirSync(to);
 
-	let project = solution.getProjects()[0];
 	let files = project.getFiles();
 	for (let file of files) {
 		if (file.file.endsWith(".glsl")) {
@@ -211,9 +209,9 @@ function exportKoremakeProject(from: string, to: string, platform: string, optio
 		throw 'No exporter found for platform ' + platform + '.';
 	}
 
-	exporter.exportSolution(solution, from, to, platform, options.vrApi, options.nokrafix, options);
+	exporter.exportSolution(project, from, to, platform, options.vrApi, options.nokrafix, options);
 
-	return solution;
+	return project;
 }
 
 function isKoremakeProject(directory: string): boolean {

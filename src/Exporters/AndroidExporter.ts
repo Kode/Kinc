@@ -1,6 +1,5 @@
 import {Exporter} from './Exporter';
 import {Project} from '../Project';
-import {Solution} from '../Solution';
 import * as Icon from '../Icon';
 import {execSync} from 'child_process';
 import * as fs from 'fs-extra';
@@ -61,9 +60,8 @@ export class AndroidExporter extends Exporter {
 		super();
 	}
 
-	exportSolution(solution: Solution, from: string, to: string, platform: string, vr: any) {
-		let project = solution.getProjects()[0];
-		let safename = solution.getName().replace(/ /g, '-');
+	exportSolution(project: Project, from: string, to: string, platform: string, vr: any) {
+		let safename = project.getName().replace(/ /g, '-');
 		this.safename = safename;
 		let targetOptions = {
 			package: 'com.ktxsoftware.kha',
@@ -144,7 +142,7 @@ export class AndroidExporter extends Exporter {
 		fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'AndroidManifest.xml'), manifest, {encoding: 'utf8'});
 
 		let strings = fs.readFileSync(path.join(indir, 'main', 'res', 'values', 'strings.xml'), {encoding: 'utf8'});
-		strings = strings.replace(/{name}/g, solution.getName());
+		strings = strings.replace(/{name}/g, project.getName());
 		fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'values'));
 		fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'res', 'values', 'strings.xml'), strings, {encoding: 'utf8'});
 
@@ -169,7 +167,7 @@ export class AndroidExporter extends Exporter {
 		fs.copySync(path.join(indir, 'idea', 'copyright', 'profiles_settings.xml'), path.join(outdir, '.idea', 'copyright', 'profiles_settings.xml'));
 
 		let namename = fs.readFileSync(path.join(indir, 'idea', 'name'), {encoding: 'utf8'});
-		namename = namename.replace(/{name}/g, solution.getName());
+		namename = namename.replace(/{name}/g, project.getName());
 		fs.writeFileSync(path.join(outdir, '.idea', '.name'), namename, {encoding: 'utf8'});
 
 		let modules = fs.readFileSync(path.join(indir, 'idea', 'modules.xml'), {encoding: 'utf8'});
@@ -184,9 +182,8 @@ export class AndroidExporter extends Exporter {
 		}
 	}
 
-	exportSolutionEclipse(solution: Solution, from: string, to: string, platform: string, vr: any) {
+	exportSolutionEclipse(project: Project, from: string, to: string, platform: string, vr: any) {
 		const nvpack = false;
-		let project = solution.getProjects()[0];
 		//String libname = solution.getName().toLowerCase().replace(' ', '-');
 
 		if (project.getDebugDir().length > 0) fs.copySync(path.resolve(from, project.getDebugDir()), path.resolve(to, 'assets'));
@@ -198,7 +195,7 @@ export class AndroidExporter extends Exporter {
 		}
 
 		let file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'project'), 'utf8');
-		file = file.replace(/{ProjectName}/g, solution.getName());
+		file = file.replace(/{ProjectName}/g, project.getName());
 		if (Project.koreDir.toString() != "") file = file.replace(/{Java-Sources}/g, path.resolve(Project.koreDir, 'Backends', 'Android', 'Java-Sources').replace(/\\/g, '/'));
 		if (Project.koreDir.toString() != "") file = file.replace(/{Android-Backend-Sources}/g, path.resolve(Project.koreDir, 'Backends', 'Android', 'Sources').replace(/\\/g, '/'));
 		if (Project.koreDir.toString() != "") file = file.replace(/{OpenGL-Backend-Sources}/g, path.resolve(Project.koreDir, 'Backends', 'OpenGL2', 'Sources').replace(/\\/g, '/'));
@@ -206,7 +203,7 @@ export class AndroidExporter extends Exporter {
 		fs.writeFileSync(path.resolve(to, '.project'), file);
 
 		file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'cproject'), 'utf8');
-		file = file.replace(/{ProjectName}/g, solution.getName());
+		file = file.replace(/{ProjectName}/g, project.getName());
 		fs.writeFileSync(path.resolve(to, '.cproject'), file);
 
 		if (vr === 'gearvr') {
@@ -236,7 +233,7 @@ export class AndroidExporter extends Exporter {
 		fs.ensureDirSync(path.resolve(to, 'res'));
 		fs.ensureDirSync(path.resolve(to, 'res', 'values'));
 		file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'strings.xml'), 'utf8');
-		file = file.replace(/{ProjectName}/g, solution.getName());
+		file = file.replace(/{ProjectName}/g, project.getName());
 		fs.writeFileSync(path.resolve(to, 'res', 'values', 'strings.xml'), file);
 
 		fs.ensureDirSync(path.resolve(to, 'jni'));

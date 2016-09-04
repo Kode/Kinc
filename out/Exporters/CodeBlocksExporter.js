@@ -6,8 +6,7 @@ class CodeBlocksExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
-    exportSolution(solution, from, to, platform) {
-        let project = solution.getProjects()[0];
+    exportSolution(project, from, to, platform) {
         this.writeFile(path.resolve(to, project.getName() + '.cbp'));
         this.p("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>");
         this.p("<CodeBlocks_project_file>");

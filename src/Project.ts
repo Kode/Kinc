@@ -1,8 +1,56 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as log from './log';
-import {Solution} from './Solution';
+import {GraphicsApi} from './GraphicsApi';
+import {Options} from './Options';
+import {Platform} from './Platform';
 const uuid = require('uuid');
+
+function getDefines(platform: string, rotated: boolean) {
+	let defines: string[] = [];
+	switch (platform) {
+		case Platform.Windows:
+			defines.push("_CRT_SECURE_NO_WARNINGS");
+			defines.push("SYS_WINDOWS");
+			break;
+		case Platform.WindowsApp:
+			defines.push("_CRT_SECURE_NO_WARNINGS");
+			defines.push("SYS_WINDOWSAPP");
+			break;
+		case Platform.PlayStation3:
+			defines.push("SYS_PS3");
+			break;
+		case Platform.iOS:
+			if (rotated) defines.push("ROTATE90");
+			defines.push("SYS_IOS");
+			break;
+		case Platform.tvOS:
+			defines.push("SYS_TVOS");
+			break;
+		case Platform.OSX:
+			defines.push("SYS_OSX");
+			defines.push("SYS_64BIT");
+			break;
+		case Platform.Android:
+			if (rotated) defines.push("ROTATE90");
+			defines.push("SYS_ANDROID");
+			break;
+		case Platform.Xbox360:
+			defines.push("_CRT_SECURE_NO_WARNINGS");
+			defines.push("SYS_XBOX360");
+			break;
+		case Platform.HTML5:
+			defines.push("SYS_HTML5");
+			break;
+		case Platform.Linux:
+			defines.push("SYS_LINUX");
+			break;
+		case Platform.Tizen:
+			defines.push("SYS_TIZEN");
+			break;
+	}
+	return defines;
+}
 
 function contains(array: any[], value: any) {
 	for (let element of array) {
@@ -15,9 +63,12 @@ function isAbsolute(path: string) {
 	return (path.length > 0 && path[0] == '/') || (path.length > 1 && path[1] == ':');
 }
 
+let scriptdir = '.';
 let koreDir = '.';
 
 export class Project {
+	static scriptdir: string;
+	static platform: string;
 	static koreDir: string;
 	name: string;
 	debugDir: string;
@@ -34,11 +85,13 @@ export class Project {
 	excludes: string[];
 	cpp11: boolean;
 	targetOptions: any;
+	rotated: boolean;
+	cmd: boolean;
 
 	constructor(name: string) {
 		this.name = name;
 		this.debugDir = '';
-		this.basedir = Solution.scriptdir;
+		this.basedir = Project.scriptdir;
 		if (name == 'Kore') Project.koreDir = this.basedir;
 		this.uuid = uuid.v4();
 
@@ -55,6 +108,8 @@ export class Project {
 		this.targetOptions = {
 			android: {}
 		}
+		this.rotated = false;
+		this.cmd = false;
 	}
 
 	flatten() {
@@ -302,5 +357,76 @@ export class Project {
 
 	setDebugDir(debugDir: string) {
 		this.debugDir = debugDir;
+	}
+
+	static createProject(filename: string, platform: string) {
+		let file = fs.readFileSync(path.resolve(Project.scriptdir, filename, 'korefile.js'), 'utf8');
+		let oldscriptdir = Project.scriptdir;
+		Project.scriptdir = path.resolve(Project.scriptdir, filename);
+		let project = new Function(
+			'Project',
+			'Platform',
+			'platform',
+			'GraphicsApi',
+			'graphics',
+			'require',
+			file)
+		(Project,
+			Platform,
+			platform,
+			GraphicsApi,
+			Options.graphicsApi,
+			require);
+		Project.scriptdir = oldscriptdir;
+
+		if (fs.existsSync(path.join(Project.scriptdir.toString(), 'Backends'))) {
+			var libdirs = fs.readdirSync(path.join(Project.scriptdir.toString(), 'Backends'));
+			for (var ld in libdirs) {
+				var libdir = path.join(Project.scriptdir.toString().toString(), 'Backends', libdirs[ld]);
+				if (fs.statSync(libdir).isDirectory()) {
+					var korefile = path.join(libdir, 'korefile.js');
+					if (fs.existsSync(korefile)) {
+						project.projects[0].addSubProject(Project.createProject(libdir, platform));
+					}
+				}
+			}
+		}
+
+		return project;
+	}
+
+	static evalProjectScript(script: string) {
+
+	}
+
+	static evalSolutionScript(script: string, platform: string) {
+		this.platform = platform;
+	}
+
+	static create(directory: string, platform: string) {
+		Project.scriptdir = directory;
+		Project.platform = platform;
+		var project = Project.createProject('.', platform);
+		var defines = getDefines(platform, project.isRotated());
+		for (var p in project.projects) {
+			for (var d in defines) project.projects[p].addDefine(defines[d]);
+		}
+		return project;
+	}
+
+	isRotated() {
+		return this.rotated;
+	}
+
+	isCmd() {
+		return this.cmd;
+	}
+
+	setRotated() {
+		this.rotated = true;
+	}
+
+	setCmd() {
+		this.cmd = true;
 	}
 }

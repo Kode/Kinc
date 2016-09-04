@@ -15,7 +15,6 @@ const GraphicsApi_1 = require('./GraphicsApi');
 const Options_1 = require('./Options');
 const Project_1 = require('./Project');
 const Platform_1 = require('./Platform');
-const Solution_1 = require('./Solution');
 const exec = require('./exec');
 const AndroidExporter_1 = require('./Exporters/AndroidExporter');
 const CodeBlocksExporter_1 = require('./Exporters/CodeBlocksExporter');
@@ -146,11 +145,10 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
 function exportKoremakeProject(from, to, platform, options) {
     log.info('korefile found.');
     log.info('Creating ' + fromPlatform(platform) + ' project files.');
-    let solution = Solution_1.Solution.create(from, platform);
-    solution.searchFiles();
-    solution.flatten();
+    let project = Project_1.Project.create(from, platform);
+    project.searchFiles();
+    project.flatten();
     fs.ensureDirSync(to);
-    let project = solution.getProjects()[0];
     let files = project.getFiles();
     for (let file of files) {
         if (file.file.endsWith(".glsl")) {
@@ -211,8 +209,8 @@ function exportKoremakeProject(from, to, platform, options) {
     if (exporter === null) {
         throw 'No exporter found for platform ' + platform + '.';
     }
-    exporter.exportSolution(solution, from, to, platform, options.vrApi, options.nokrafix, options);
-    return solution;
+    exporter.exportSolution(project, from, to, platform, options.vrApi, options.nokrafix, options);
+    return project;
 }
 function isKoremakeProject(directory) {
     return fs.existsSync(path.resolve(directory, 'korefile.js'));

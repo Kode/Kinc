@@ -123,7 +123,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
         for (let proj of project.getSubProjects())
             this.writeProjectBuilds(proj, platform);
     }
-    exportSolution(solution, from, to, platform, vrApi, nokrafix) {
+    exportSolution(project, from, to, platform, vrApi, nokrafix) {
         standardconfs = [];
         standardconfs.push("Debug");
         standardconfs.push("Release");
@@ -145,7 +145,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
         windowssystems = [];
         windowssystems.push("Win32");
         windowssystems.push("x64");
-        this.writeFile(path.resolve(to, solution.getName() + '.sln'));
+        this.writeFile(path.resolve(to, project.getName() + '.sln'));
         if (platform == Platform_1.Platform.WindowsApp || Options_1.Options.visualStudioVersion == VisualStudioVersion_1.VisualStudioVersion.VS2015) {
             this.p("Microsoft Visual Studio Solution File, Format Version 12.00");
             this.p("# Visual Studio 14");
@@ -167,8 +167,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
             this.p("# Visual Studio 2010");
         }
         const solutionUuid = uuid.v4();
-        for (let project of solution.getProjects())
-            this.writeProjectDeclarations(project, solutionUuid);
+        this.writeProjectDeclarations(project, solutionUuid);
         this.p("Global");
         this.p("GlobalSection(SolutionConfigurationPlatforms) = preSolution", 1);
         for (let config of this.getConfigs(platform)) {
@@ -178,31 +177,28 @@ class VisualStudioExporter extends Exporter_1.Exporter {
         }
         this.p("EndGlobalSection", 1);
         this.p("GlobalSection(ProjectConfigurationPlatforms) = postSolution", 1);
-        for (let project of solution.getProjects())
-            this.writeProjectBuilds(project, platform);
+        this.writeProjectBuilds(project, platform);
         this.p("EndGlobalSection", 1);
         this.p("GlobalSection(SolutionProperties) = preSolution", 1);
         this.p("HideSolutionNode = FALSE", 2);
         this.p("EndGlobalSection", 1);
         this.p("EndGlobal");
         this.closeFile();
-        for (let project of solution.getProjects()) {
-            this.exportProject(from, to, project, platform, solution.isCmd(), nokrafix);
-            this.exportFilters(from, to, project, platform);
-            this.exportUserFile(from, to, project, platform);
-            if (platform == Platform_1.Platform.WindowsApp) {
-                this.exportManifest(to, project);
-                const white = 0xffffffff;
-                Icon.exportPng(path.resolve(to, 'Logo.scale-100.png'), 150, 150, white, from);
-                Icon.exportPng(path.resolve(to, 'SmallLogo.scale-100.png'), 30, 30, white, from);
-                Icon.exportPng(path.resolve(to, 'StoreLogo.scale-100.png'), 50, 50, white, from);
-                Icon.exportPng(path.resolve(to, 'SplashScreen.scale-100.png'), 620, 300, white, from);
-                Icon.exportPng(path.resolve(to, 'WideLogo.scale-100.png'), 310, 150, white, from);
-            }
-            else if (platform == Platform_1.Platform.Windows) {
-                this.exportResourceScript(to);
-                Icon.exportIco(path.resolve(to, 'icon.ico'), from);
-            }
+        this.exportProject(from, to, project, platform, project.isCmd(), nokrafix);
+        this.exportFilters(from, to, project, platform);
+        this.exportUserFile(from, to, project, platform);
+        if (platform == Platform_1.Platform.WindowsApp) {
+            this.exportManifest(to, project);
+            const white = 0xffffffff;
+            Icon.exportPng(path.resolve(to, 'Logo.scale-100.png'), 150, 150, white, from);
+            Icon.exportPng(path.resolve(to, 'SmallLogo.scale-100.png'), 30, 30, white, from);
+            Icon.exportPng(path.resolve(to, 'StoreLogo.scale-100.png'), 50, 50, white, from);
+            Icon.exportPng(path.resolve(to, 'SplashScreen.scale-100.png'), 620, 300, white, from);
+            Icon.exportPng(path.resolve(to, 'WideLogo.scale-100.png'), 310, 150, white, from);
+        }
+        else if (platform == Platform_1.Platform.Windows) {
+            this.exportResourceScript(to);
+            Icon.exportIco(path.resolve(to, 'icon.ico'), from);
         }
     }
     exportManifest(to, project) {

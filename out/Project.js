@@ -1,8 +1,57 @@
 "use strict";
 const fs = require('fs-extra');
 const path = require('path');
-const Solution_1 = require('./Solution');
+const GraphicsApi_1 = require('./GraphicsApi');
+const Options_1 = require('./Options');
+const Platform_1 = require('./Platform');
 const uuid = require('uuid');
+function getDefines(platform, rotated) {
+    let defines = [];
+    switch (platform) {
+        case Platform_1.Platform.Windows:
+            defines.push("_CRT_SECURE_NO_WARNINGS");
+            defines.push("SYS_WINDOWS");
+            break;
+        case Platform_1.Platform.WindowsApp:
+            defines.push("_CRT_SECURE_NO_WARNINGS");
+            defines.push("SYS_WINDOWSAPP");
+            break;
+        case Platform_1.Platform.PlayStation3:
+            defines.push("SYS_PS3");
+            break;
+        case Platform_1.Platform.iOS:
+            if (rotated)
+                defines.push("ROTATE90");
+            defines.push("SYS_IOS");
+            break;
+        case Platform_1.Platform.tvOS:
+            defines.push("SYS_TVOS");
+            break;
+        case Platform_1.Platform.OSX:
+            defines.push("SYS_OSX");
+            defines.push("SYS_64BIT");
+            break;
+        case Platform_1.Platform.Android:
+            if (rotated)
+                defines.push("ROTATE90");
+            defines.push("SYS_ANDROID");
+            break;
+        case Platform_1.Platform.Xbox360:
+            defines.push("_CRT_SECURE_NO_WARNINGS");
+            defines.push("SYS_XBOX360");
+            break;
+        case Platform_1.Platform.HTML5:
+            defines.push("SYS_HTML5");
+            break;
+        case Platform_1.Platform.Linux:
+            defines.push("SYS_LINUX");
+            break;
+        case Platform_1.Platform.Tizen:
+            defines.push("SYS_TIZEN");
+            break;
+    }
+    return defines;
+}
 function contains(array, value) {
     for (let element of array) {
         if (element === value)
@@ -13,12 +62,13 @@ function contains(array, value) {
 function isAbsolute(path) {
     return (path.length > 0 && path[0] == '/') || (path.length > 1 && path[1] == ':');
 }
+let scriptdir = '.';
 let koreDir = '.';
 class Project {
     constructor(name) {
         this.name = name;
         this.debugDir = '';
-        this.basedir = Solution_1.Solution.scriptdir;
+        this.basedir = Project.scriptdir;
         if (name == 'Kore')
             Project.koreDir = this.basedir;
         this.uuid = uuid.v4();
@@ -35,6 +85,8 @@ class Project {
         this.targetOptions = {
             android: {}
         };
+        this.rotated = false;
+        this.cmd = false;
     }
     flatten() {
         for (let sub of this.subProjects)
@@ -269,6 +321,54 @@ class Project {
     }
     setDebugDir(debugDir) {
         this.debugDir = debugDir;
+    }
+    static createProject(filename, platform) {
+        let file = fs.readFileSync(path.resolve(Project.scriptdir, filename, 'korefile.js'), 'utf8');
+        let oldscriptdir = Project.scriptdir;
+        Project.scriptdir = path.resolve(Project.scriptdir, filename);
+        let project = new Function('Project', 'Platform', 'platform', 'GraphicsApi', 'graphics', 'require', file)(Project, Platform_1.Platform, platform, GraphicsApi_1.GraphicsApi, Options_1.Options.graphicsApi, require);
+        Project.scriptdir = oldscriptdir;
+        if (fs.existsSync(path.join(Project.scriptdir.toString(), 'Backends'))) {
+            var libdirs = fs.readdirSync(path.join(Project.scriptdir.toString(), 'Backends'));
+            for (var ld in libdirs) {
+                var libdir = path.join(Project.scriptdir.toString().toString(), 'Backends', libdirs[ld]);
+                if (fs.statSync(libdir).isDirectory()) {
+                    var korefile = path.join(libdir, 'korefile.js');
+                    if (fs.existsSync(korefile)) {
+                        project.projects[0].addSubProject(Project.createProject(libdir, platform));
+                    }
+                }
+            }
+        }
+        return project;
+    }
+    static evalProjectScript(script) {
+    }
+    static evalSolutionScript(script, platform) {
+        this.platform = platform;
+    }
+    static create(directory, platform) {
+        Project.scriptdir = directory;
+        Project.platform = platform;
+        var project = Project.createProject('.', platform);
+        var defines = getDefines(platform, project.isRotated());
+        for (var p in project.projects) {
+            for (var d in defines)
+                project.projects[p].addDefine(defines[d]);
+        }
+        return project;
+    }
+    isRotated() {
+        return this.rotated;
+    }
+    isCmd() {
+        return this.cmd;
+    }
+    setRotated() {
+        this.rotated = true;
+    }
+    setCmd() {
+        this.cmd = true;
     }
 }
 exports.Project = Project;

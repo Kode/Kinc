@@ -7,7 +7,6 @@ import {Options} from '../Options';
 import {VisualStudioVersion} from '../VisualStudioVersion';
 import {ClCompile} from '../ClCompile';
 import {Configuration} from '../Configuration';
-import {Solution} from '../Solution';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 const uuid = require('uuid');
@@ -121,7 +120,7 @@ export class VisualStudioExporter extends Exporter {
 		for (let proj of project.getSubProjects()) this.writeProjectBuilds(proj, platform);
 	}
 
-	exportSolution(solution: Solution, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean) {
+	exportSolution(project: Project, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean) {
 		standardconfs = [];
 		standardconfs.push("Debug");
 		standardconfs.push("Release");
@@ -144,7 +143,7 @@ export class VisualStudioExporter extends Exporter {
 		windowssystems.push("Win32");
 		windowssystems.push("x64");
 
-		this.writeFile(path.resolve(to, solution.getName() + '.sln'));
+		this.writeFile(path.resolve(to, project.getName() + '.sln'));
 
 		if (platform == Platform.WindowsApp || Options.visualStudioVersion == VisualStudioVersion.VS2015) {
 			this.p("Microsoft Visual Studio Solution File, Format Version 12.00");
@@ -167,7 +166,7 @@ export class VisualStudioExporter extends Exporter {
 			this.p("# Visual Studio 2010");
 		}
 		const solutionUuid = uuid.v4();
-		for (let project of solution.getProjects()) this.writeProjectDeclarations(project, solutionUuid);
+		this.writeProjectDeclarations(project, solutionUuid);
 		this.p("Global");
 		this.p("GlobalSection(SolutionConfigurationPlatforms) = preSolution", 1);
 		for (let config of this.getConfigs(platform)) {
@@ -177,7 +176,7 @@ export class VisualStudioExporter extends Exporter {
 		}
 		this.p("EndGlobalSection", 1);
 		this.p("GlobalSection(ProjectConfigurationPlatforms) = postSolution", 1);
-		for (let project of solution.getProjects()) this.writeProjectBuilds(project, platform);
+		this.writeProjectBuilds(project, platform);
 		this.p("EndGlobalSection", 1);
 		this.p("GlobalSection(SolutionProperties) = preSolution", 1);
 		this.p("HideSolutionNode = FALSE", 2);
@@ -185,23 +184,21 @@ export class VisualStudioExporter extends Exporter {
 		this.p("EndGlobal");
 		this.closeFile();
 
-		for (let project of solution.getProjects()) {
-			this.exportProject(from, to, project, platform, solution.isCmd(), nokrafix);
-			this.exportFilters(from, to, project, platform);
-			this.exportUserFile(from, to, project, platform);
-			if (platform == Platform.WindowsApp) {
-				this.exportManifest(to, project);
-				const white = 0xffffffff;
-				Icon.exportPng(path.resolve(to, 'Logo.scale-100.png'), 150, 150, white, from);
-				Icon.exportPng(path.resolve(to, 'SmallLogo.scale-100.png'), 30, 30, white, from);
-				Icon.exportPng(path.resolve(to, 'StoreLogo.scale-100.png'), 50, 50, white, from);
-				Icon.exportPng(path.resolve(to, 'SplashScreen.scale-100.png'), 620, 300, white, from);
-				Icon.exportPng(path.resolve(to, 'WideLogo.scale-100.png'), 310, 150, white, from);
-			}
-			else if (platform == Platform.Windows) {
-				this.exportResourceScript(to);
-				Icon.exportIco(path.resolve(to, 'icon.ico'), from);
-			}
+		this.exportProject(from, to, project, platform, project.isCmd(), nokrafix);
+		this.exportFilters(from, to, project, platform);
+		this.exportUserFile(from, to, project, platform);
+		if (platform == Platform.WindowsApp) {
+			this.exportManifest(to, project);
+			const white = 0xffffffff;
+			Icon.exportPng(path.resolve(to, 'Logo.scale-100.png'), 150, 150, white, from);
+			Icon.exportPng(path.resolve(to, 'SmallLogo.scale-100.png'), 30, 30, white, from);
+			Icon.exportPng(path.resolve(to, 'StoreLogo.scale-100.png'), 50, 50, white, from);
+			Icon.exportPng(path.resolve(to, 'SplashScreen.scale-100.png'), 620, 300, white, from);
+			Icon.exportPng(path.resolve(to, 'WideLogo.scale-100.png'), 310, 150, white, from);
+		}
+		else if (platform == Platform.Windows) {
+			this.exportResourceScript(to);
+			Icon.exportIco(path.resolve(to, 'icon.ico'), from);
 		}
 	}
 

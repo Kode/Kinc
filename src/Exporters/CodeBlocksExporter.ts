@@ -2,7 +2,7 @@ import {Exporter} from './Exporter';
 import {GraphicsApi} from '../GraphicsApi';
 import {Options} from '../Options';
 import {Platform} from '../Platform';
-import {Solution} from '../Solution';
+import {Project} from '../Project';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -11,9 +11,7 @@ export class CodeBlocksExporter extends Exporter {
 		super();
 	}
 
-	exportSolution(solution: Solution, from: string, to: string, platform: string) {
-		let project = solution.getProjects()[0];
-
+	exportSolution(project: Project, from: string, to: string, platform: string) {
 		this.writeFile(path.resolve(to, project.getName() + '.cbp'));
 		this.p("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>");
 		this.p("<CodeBlocks_project_file>");

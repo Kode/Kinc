@@ -1,4 +1,4 @@
-import {Solution} from '../Solution';
+import {Project} from '../Project';
 import * as fs from 'fs-extra';
 
 export abstract class Exporter {
@@ -23,5 +23,5 @@ export abstract class Exporter {
 		fs.writeSync(this.out, data, 0, data.length, null);
 	}
 
-	abstract exportSolution(solution: Solution, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean, options: any): void;
+	abstract exportSolution(project: Project, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean, options: any): void;
 }

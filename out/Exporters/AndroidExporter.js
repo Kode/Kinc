@@ -56,9 +56,8 @@ class AndroidExporter extends Exporter_1.Exporter {
     constructor() {
         super();
     }
-    exportSolution(solution, from, to, platform, vr) {
-        let project = solution.getProjects()[0];
-        let safename = solution.getName().replace(/ /g, '-');
+    exportSolution(project, from, to, platform, vr) {
+        let safename = project.getName().replace(/ /g, '-');
         this.safename = safename;
         let targetOptions = {
             package: 'com.ktxsoftware.kha',
@@ -126,7 +125,7 @@ class AndroidExporter extends Exporter_1.Exporter {
         fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main'));
         fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'AndroidManifest.xml'), manifest, { encoding: 'utf8' });
         let strings = fs.readFileSync(path.join(indir, 'main', 'res', 'values', 'strings.xml'), { encoding: 'utf8' });
-        strings = strings.replace(/{name}/g, solution.getName());
+        strings = strings.replace(/{name}/g, project.getName());
         fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'values'));
         fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'res', 'values', 'strings.xml'), strings, { encoding: 'utf8' });
         fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'mipmap-hdpi'));
@@ -147,7 +146,7 @@ class AndroidExporter extends Exporter_1.Exporter {
         //fs.copySync(path.join(indir, 'idea', 'vcs.xml'), path.join(outdir, '.idea', 'vcs.xml'));
         fs.copySync(path.join(indir, 'idea', 'copyright', 'profiles_settings.xml'), path.join(outdir, '.idea', 'copyright', 'profiles_settings.xml'));
         let namename = fs.readFileSync(path.join(indir, 'idea', 'name'), { encoding: 'utf8' });
-        namename = namename.replace(/{name}/g, solution.getName());
+        namename = namename.replace(/{name}/g, project.getName());
         fs.writeFileSync(path.join(outdir, '.idea', '.name'), namename, { encoding: 'utf8' });
         let modules = fs.readFileSync(path.join(indir, 'idea', 'modules.xml'), { encoding: 'utf8' });
         modules = modules.replace(/{name}/g, safename);
@@ -159,9 +158,8 @@ class AndroidExporter extends Exporter_1.Exporter {
             copyIfDifferent(path.resolve(from, file.file), target, true);
         }
     }
-    exportSolutionEclipse(solution, from, to, platform, vr) {
+    exportSolutionEclipse(project, from, to, platform, vr) {
         const nvpack = false;
-        let project = solution.getProjects()[0];
         //String libname = solution.getName().toLowerCase().replace(' ', '-');
         if (project.getDebugDir().length > 0)
             fs.copySync(path.resolve(from, project.getDebugDir()), path.resolve(to, 'assets'));
@@ -172,7 +170,7 @@ class AndroidExporter extends Exporter_1.Exporter {
             copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'classpath'), path.resolve(to, '.classpath'), true);
         }
         let file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'project'), 'utf8');
-        file = file.replace(/{ProjectName}/g, solution.getName());
+        file = file.replace(/{ProjectName}/g, project.getName());
         if (Project_1.Project.koreDir.toString() != "")
             file = file.replace(/{Java-Sources}/g, path.resolve(Project_1.Project.koreDir, 'Backends', 'Android', 'Java-Sources').replace(/\\/g, '/'));
         if (Project_1.Project.koreDir.toString() != "")
@@ -183,7 +181,7 @@ class AndroidExporter extends Exporter_1.Exporter {
             file = file.replace(/{Kore-Sources}/g, path.resolve(Project_1.Project.koreDir, 'Sources').replace(/\\/g, '/'));
         fs.writeFileSync(path.resolve(to, '.project'), file);
         file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'cproject'), 'utf8');
-        file = file.replace(/{ProjectName}/g, solution.getName());
+        file = file.replace(/{ProjectName}/g, project.getName());
         fs.writeFileSync(path.resolve(to, '.cproject'), file);
         if (vr === 'gearvr') {
             copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'AndroidManifest.GearVr.xml'), path.resolve(to, 'AndroidManifest.xml'), true);
@@ -210,7 +208,7 @@ class AndroidExporter extends Exporter_1.Exporter {
         fs.ensureDirSync(path.resolve(to, 'res'));
         fs.ensureDirSync(path.resolve(to, 'res', 'values'));
         file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'strings.xml'), 'utf8');
-        file = file.replace(/{ProjectName}/g, solution.getName());
+        file = file.replace(/{ProjectName}/g, project.getName());
         fs.writeFileSync(path.resolve(to, 'res', 'values', 'strings.xml'), file);
         fs.ensureDirSync(path.resolve(to, 'jni'));
         this.writeFile(path.resolve(to, 'jni', 'Android_temp.mk'));
