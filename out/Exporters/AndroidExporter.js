@@ -70,7 +70,7 @@ class AndroidExporter extends Exporter_1.Exporter {
             if (userOptions.screenOrientation != null)
                 targetOptions.screenOrientation = userOptions.screenOrientation;
         }
-        const indir = path.join(__dirname, '..', 'Data', 'android');
+        const indir = path.join(__dirname, '..', '..', 'Data', 'android');
         const outdir = path.join(to.toString(), safename);
         fs.copySync(path.join(indir, 'build.gradle'), path.join(outdir, 'build.gradle'));
         //fs.copySync(path.join(indir, 'gradle.properties'), path.join(outdir, 'gradle.properties'));

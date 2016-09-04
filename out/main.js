@@ -272,9 +272,8 @@ function run(options, loglog) {
         //if (options.vr != undefined) {
         //	Options.vrApi = options.vr;
         //}
-        let solution = exportProject(options.from, options.to, options.target, options);
-        let project = solution.getProjects()[0];
-        let solutionName = solution.getName();
+        let project = exportProject(options.from, options.to, options.target, options);
+        let solutionName = project.getName();
         if (options.compile && solutionName != "") {
             log.info('Compiling...');
             let make = null;
