@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const fs = require('fs-extra');
 const path = require('path');
-const log = require('./log');
 const GraphicsApi_1 = require('./GraphicsApi');
 const Options_1 = require('./Options');
 const Platform_1 = require('./Platform');
@@ -334,35 +333,32 @@ class Project {
     static createProject(filename, scriptdir) {
         return __awaiter(this, void 0, Promise, function* () {
             return new Promise((resolve, reject) => {
+                let originalscriptdir = scriptdir;
                 scriptdir = path.resolve(scriptdir, filename);
                 let resolved = false;
                 let resolver = (project) => __awaiter(this, void 0, void 0, function* () {
-                    log.info('Resolving');
                     resolved = true;
-                    if (fs.existsSync(path.join(scriptdir, 'Backends'))) {
+                    //TODO: This accidentally finds Kha/Backends/KoreHL
+                    /*if (fs.existsSync(path.join(scriptdir, 'Backends'))) {
                         var libdirs = fs.readdirSync(path.join(scriptdir, 'Backends'));
                         for (var ld in libdirs) {
                             var libdir = path.join(scriptdir, 'Backends', libdirs[ld]);
                             if (fs.statSync(libdir).isDirectory()) {
                                 var korefile = path.join(libdir, 'korefile.js');
                                 if (fs.existsSync(korefile)) {
-                                    project.addSubProject(yield Project.createProject(libdir, scriptdir));
+                                    project.addSubProject(await Project.createProject(libdir, scriptdir));
                                 }
                             }
                         }
-                    }
+                    }*/
                     resolve(project);
                 });
                 process.on('exit', (code) => {
                     if (!resolved) {
-                        console.error('Error: korefile.js at ' + filename + ' did not call resolve, no project created.');
-                    }
-                    else {
-                        console.error('Error: korefile.js at ' + filename + ' called resolve.');
+                        console.error('Error: korefile.js did not call resolve, no project created.');
                     }
                 });
-                log.info('Reading ' + path.resolve(scriptdir, filename, 'korefile.js'));
-                let file = fs.readFileSync(path.resolve(scriptdir, filename, 'korefile.js'), 'utf8');
+                let file = fs.readFileSync(path.resolve(scriptdir, 'korefile.js'), 'utf8');
                 let project = new Function('Project', 'Platform', 'platform', 'GraphicsApi', 'graphics', 'require', 'resolve', 'reject', '__dirname', file)(Project, Platform_1.Platform, Project.platform, GraphicsApi_1.GraphicsApi, Options_1.Options.graphicsApi, require, resolver, reject, scriptdir);
             });
         });

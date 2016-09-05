@@ -360,14 +360,15 @@ export class Project {
 
 	static async createProject(filename: string, scriptdir: string): Promise<Project> {
 		return new Promise<Project>((resolve, reject) => {
+			let originalscriptdir = scriptdir;
 			scriptdir = path.resolve(scriptdir, filename);
 
 			let resolved = false;
 			let resolver = async (project: Project) => {
-				log.info('Resolving');
 				resolved = true;
 
-				if (fs.existsSync(path.join(scriptdir, 'Backends'))) {
+				//TODO: This accidentally finds Kha/Backends/KoreHL
+				/*if (fs.existsSync(path.join(scriptdir, 'Backends'))) {
 					var libdirs = fs.readdirSync(path.join(scriptdir, 'Backends'));
 					for (var ld in libdirs) {
 						var libdir = path.join(scriptdir, 'Backends', libdirs[ld]);
@@ -378,22 +379,18 @@ export class Project {
 							}
 						}
 					}
-				}
+				}*/
 
 				resolve(project);
 			};
 
 			process.on('exit', (code: number) => {
 				if (!resolved) {
-					console.error('Error: korefile.js at ' + filename + ' did not call resolve, no project created.');
-				}
-				else {
-					console.error('Error: korefile.js at ' + filename + ' called resolve.');
+					console.error('Error: korefile.js did not call resolve, no project created.');
 				}
 			});
 			
-			log.info('Reading ' + path.resolve(scriptdir, filename, 'korefile.js'));
-			let file = fs.readFileSync(path.resolve(scriptdir, filename, 'korefile.js'), 'utf8');
+			let file = fs.readFileSync(path.resolve(scriptdir, 'korefile.js'), 'utf8');
 			let project = new Function(
 				'Project',
 				'Platform',
