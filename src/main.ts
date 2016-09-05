@@ -143,11 +143,11 @@ function compileShader(projectDir: string, type: string, from: string, to: strin
 	}
 }
 
-function exportKoremakeProject(from: string, to: string, platform: string, options: any) {
+async function exportKoremakeProject(from: string, to: string, platform: string, options: any) {
 	log.info('korefile found.');
 	log.info('Creating ' + fromPlatform(platform) + ' project files.');
 
-	let project = Project.create(from, platform);
+	let project = await Project.create(from, platform);
 	project.searchFiles(undefined);
 	project.flatten();
 
@@ -218,13 +218,12 @@ function isKoremakeProject(directory: string): boolean {
 	return fs.existsSync(path.resolve(directory, 'korefile.js'));
 }
 
-function exportProject(from: string, to: string, platform: string, options: any) {
+async function exportProject(from: string, to: string, platform: string, options: any): Promise<Project> {
 	if (isKoremakeProject(from)) {
 		return exportKoremakeProject(from, to, platform, options);
 	}
 	else {
-		log.error("korefile.js not found.");
-		return null;
+		throw 'korefile.js not found.';
 	}
 }
 
@@ -283,7 +282,7 @@ export async function run(options: any, loglog: any): Promise<string> {
 	//	Options.vrApi = options.vr;
 	//}
 	
-	let project = exportProject(options.from, options.to, options.target, options);
+	let project = await exportProject(options.from, options.to, options.target, options);
 	let solutionName = project.getName();
 	
 	if (options.compile && solutionName != "") {

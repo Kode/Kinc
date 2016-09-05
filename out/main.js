@@ -143,86 +143,89 @@ function compileShader(projectDir, type, from, to, temp, platform, nokrafix) {
     }
 }
 function exportKoremakeProject(from, to, platform, options) {
-    log.info('korefile found.');
-    log.info('Creating ' + fromPlatform(platform) + ' project files.');
-    let project = Project_1.Project.create(from, platform);
-    project.searchFiles(undefined);
-    project.flatten();
-    fs.ensureDirSync(to);
-    let files = project.getFiles();
-    for (let file of files) {
-        if (file.file.endsWith(".glsl")) {
-            let outfile = file.file;
-            const index = outfile.lastIndexOf('/');
-            if (index > 0)
-                outfile = outfile.substr(index);
-            outfile = outfile.substr(0, outfile.length - 5);
-            compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), "build", platform, options.nokrafix);
-        }
-    }
-    let exporter = null;
-    if (platform === Platform_1.Platform.iOS || platform === Platform_1.Platform.OSX || platform === Platform_1.Platform.tvOS)
-        exporter = new XCodeExporter_1.XCodeExporter();
-    else if (platform == Platform_1.Platform.Android)
-        exporter = new AndroidExporter_1.AndroidExporter();
-    else if (platform == Platform_1.Platform.HTML5)
-        exporter = new EmscriptenExporter_1.EmscriptenExporter();
-    else if (platform == Platform_1.Platform.Linux || platform === Platform_1.Platform.Pi) {
-        if (options.compile)
-            exporter = new MakefileExporter_1.MakefileExporter();
-        else
-            exporter = new CodeBlocksExporter_1.CodeBlocksExporter();
-    }
-    else if (platform == Platform_1.Platform.Tizen)
-        exporter = new TizenExporter_1.TizenExporter();
-    else {
-        let found = false;
-        for (let p in Platform_1.Platform) {
-            if (platform === Platform_1.Platform[p]) {
-                found = true;
-                break;
+    return __awaiter(this, void 0, void 0, function* () {
+        log.info('korefile found.');
+        log.info('Creating ' + fromPlatform(platform) + ' project files.');
+        let project = yield Project_1.Project.create(from, platform);
+        project.searchFiles(undefined);
+        project.flatten();
+        fs.ensureDirSync(to);
+        let files = project.getFiles();
+        for (let file of files) {
+            if (file.file.endsWith(".glsl")) {
+                let outfile = file.file;
+                const index = outfile.lastIndexOf('/');
+                if (index > 0)
+                    outfile = outfile.substr(index);
+                outfile = outfile.substr(0, outfile.length - 5);
+                compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), "build", platform, options.nokrafix);
             }
         }
-        if (found) {
-            exporter = new VisualStudioExporter_1.VisualStudioExporter();
+        let exporter = null;
+        if (platform === Platform_1.Platform.iOS || platform === Platform_1.Platform.OSX || platform === Platform_1.Platform.tvOS)
+            exporter = new XCodeExporter_1.XCodeExporter();
+        else if (platform == Platform_1.Platform.Android)
+            exporter = new AndroidExporter_1.AndroidExporter();
+        else if (platform == Platform_1.Platform.HTML5)
+            exporter = new EmscriptenExporter_1.EmscriptenExporter();
+        else if (platform == Platform_1.Platform.Linux || platform === Platform_1.Platform.Pi) {
+            if (options.compile)
+                exporter = new MakefileExporter_1.MakefileExporter();
+            else
+                exporter = new CodeBlocksExporter_1.CodeBlocksExporter();
         }
+        else if (platform == Platform_1.Platform.Tizen)
+            exporter = new TizenExporter_1.TizenExporter();
         else {
-            let libsdir = path.join(from.toString(), 'Backends');
-            if (fs.existsSync(libsdir) && fs.statSync(libsdir).isDirectory()) {
-                let libdirs = fs.readdirSync(libsdir);
-                for (let libdir of libdirs) {
-                    if (fs.statSync(path.join(from.toString(), 'Backends', libdir)).isDirectory()) {
-                        var libfiles = fs.readdirSync(path.join(from.toString(), 'Backends', libdir));
-                        for (var lf in libfiles) {
-                            var libfile = libfiles[lf];
-                            if (libfile.startsWith('Exporter') && libfile.endsWith('.js')) {
-                                var Exporter = require(path.relative(__dirname, path.join(from.toString(), 'Backends', libdir, libfile)));
-                                exporter = new Exporter();
-                                break;
+            let found = false;
+            for (let p in Platform_1.Platform) {
+                if (platform === Platform_1.Platform[p]) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                exporter = new VisualStudioExporter_1.VisualStudioExporter();
+            }
+            else {
+                let libsdir = path.join(from.toString(), 'Backends');
+                if (fs.existsSync(libsdir) && fs.statSync(libsdir).isDirectory()) {
+                    let libdirs = fs.readdirSync(libsdir);
+                    for (let libdir of libdirs) {
+                        if (fs.statSync(path.join(from.toString(), 'Backends', libdir)).isDirectory()) {
+                            var libfiles = fs.readdirSync(path.join(from.toString(), 'Backends', libdir));
+                            for (var lf in libfiles) {
+                                var libfile = libfiles[lf];
+                                if (libfile.startsWith('Exporter') && libfile.endsWith('.js')) {
+                                    var Exporter = require(path.relative(__dirname, path.join(from.toString(), 'Backends', libdir, libfile)));
+                                    exporter = new Exporter();
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
-    if (exporter === null) {
-        throw 'No exporter found for platform ' + platform + '.';
-    }
-    exporter.exportSolution(project, from, to, platform, options.vrApi, options.nokrafix, options);
-    return project;
+        if (exporter === null) {
+            throw 'No exporter found for platform ' + platform + '.';
+        }
+        exporter.exportSolution(project, from, to, platform, options.vrApi, options.nokrafix, options);
+        return project;
+    });
 }
 function isKoremakeProject(directory) {
     return fs.existsSync(path.resolve(directory, 'korefile.js'));
 }
 function exportProject(from, to, platform, options) {
-    if (isKoremakeProject(from)) {
-        return exportKoremakeProject(from, to, platform, options);
-    }
-    else {
-        log.error("korefile.js not found.");
-        return null;
-    }
+    return __awaiter(this, void 0, Promise, function* () {
+        if (isKoremakeProject(from)) {
+            return exportKoremakeProject(from, to, platform, options);
+        }
+        else {
+            throw 'korefile.js not found.';
+        }
+    });
 }
 function compileProject(make, project, solutionName, options) {
     return new Promise((resolve, reject) => {
@@ -272,7 +275,7 @@ function run(options, loglog) {
         //if (options.vr != undefined) {
         //	Options.vrApi = options.vr;
         //}
-        let project = exportProject(options.from, options.to, options.target, options);
+        let project = yield exportProject(options.from, options.to, options.target, options);
         let solutionName = project.getName();
         if (options.compile && solutionName != "") {
             log.info('Compiling...');

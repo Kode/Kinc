@@ -67,7 +67,6 @@ let scriptdir = '.';
 let koreDir = '.';
 
 export class Project {
-	static scriptdir: string;
 	static platform: string;
 	static koreDir: string;
 	name: string;
@@ -88,10 +87,10 @@ export class Project {
 	rotated: boolean;
 	cmd: boolean;
 
-	constructor(name: string) {
+	constructor(name: string, basedir: string) {
 		this.name = name;
 		this.debugDir = '';
-		this.basedir = Project.scriptdir;
+		this.basedir = basedir;
 		if (name == 'Kore') Project.koreDir = this.basedir;
 		this.uuid = uuid.v4();
 
@@ -359,46 +358,68 @@ export class Project {
 		this.debugDir = debugDir;
 	}
 
-	static createProject(filename: string): Project {
-		let file = fs.readFileSync(path.resolve(Project.scriptdir, filename, 'korefile.js'), 'utf8');
-		let oldscriptdir = Project.scriptdir;
-		Project.scriptdir = path.resolve(Project.scriptdir, filename);
-		let project = new Function(
-			'Project',
-			'Platform',
-			'platform',
-			'GraphicsApi',
-			'graphics',
-			'require',
-			file)
-		(Project,
-			Platform,
-			Project.platform,
-			GraphicsApi,
-			Options.graphicsApi,
-			require);
-		Project.scriptdir = oldscriptdir;
+	static async createProject(filename: string, scriptdir: string): Promise<Project> {
+		return new Promise<Project>((resolve, reject) => {
+			scriptdir = path.resolve(scriptdir, filename);
 
-		if (fs.existsSync(path.join(Project.scriptdir.toString(), 'Backends'))) {
-			var libdirs = fs.readdirSync(path.join(Project.scriptdir.toString(), 'Backends'));
-			for (var ld in libdirs) {
-				var libdir = path.join(Project.scriptdir.toString().toString(), 'Backends', libdirs[ld]);
-				if (fs.statSync(libdir).isDirectory()) {
-					var korefile = path.join(libdir, 'korefile.js');
-					if (fs.existsSync(korefile)) {
-						project.projects[0].addSubProject(Project.createProject(libdir));
+			let resolved = false;
+			let resolver = async (project: Project) => {
+				log.info('Resolving');
+				resolved = true;
+
+				if (fs.existsSync(path.join(scriptdir, 'Backends'))) {
+					var libdirs = fs.readdirSync(path.join(scriptdir, 'Backends'));
+					for (var ld in libdirs) {
+						var libdir = path.join(scriptdir, 'Backends', libdirs[ld]);
+						if (fs.statSync(libdir).isDirectory()) {
+							var korefile = path.join(libdir, 'korefile.js');
+							if (fs.existsSync(korefile)) {
+								project.addSubProject(await Project.createProject(libdir, scriptdir));
+							}
+						}
 					}
 				}
-			}
-		}
 
-		return project;
+				resolve(project);
+			};
+
+			process.on('exit', (code: number) => {
+				if (!resolved) {
+					console.error('Error: korefile.js at ' + filename + ' did not call resolve, no project created.');
+				}
+				else {
+					console.error('Error: korefile.js at ' + filename + ' called resolve.');
+				}
+			});
+			
+			log.info('Reading ' + path.resolve(scriptdir, filename, 'korefile.js'));
+			let file = fs.readFileSync(path.resolve(scriptdir, filename, 'korefile.js'), 'utf8');
+			let project = new Function(
+				'Project',
+				'Platform',
+				'platform',
+				'GraphicsApi',
+				'graphics',
+				'require',
+				'resolve',
+				'reject',
+				'__dirname',
+				file)
+			(Project,
+				Platform,
+				Project.platform,
+				GraphicsApi,
+				Options.graphicsApi,
+				require,
+				resolver,
+				reject,
+				scriptdir);
+		});
 	}
 
-	static create(directory: string, platform: string) {
-		Project.scriptdir = directory;
+	static async create(directory: string, platform: string) {
 		Project.platform = platform;
-		let project = Project.createProject('.');
+		let project = await Project.createProject('.', directory);
 		let defines = getDefines(platform, project.isRotated());
 		for (let define of defines) {
 			project.addDefine(define);
