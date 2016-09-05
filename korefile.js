@@ -1,4 +1,4 @@
-var project = new Project('Kore');
+var project = new Project('Kore', __dirname);
 
 project.addFile('Sources/**');
 project.addIncludeDir('Sources');
@@ -172,4 +172,4 @@ else if (platform === Platform.Tizen) {
 	project.addDefine('SYS_UNIXOID');
 }
 
-return project;
+resolve(project);
