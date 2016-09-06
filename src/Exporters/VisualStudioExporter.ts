@@ -279,7 +279,6 @@ export class VisualStudioExporter extends Exporter {
 				let subdir = dir;
 				while (subdir.indexOf('/') >= 0) {
 					subdir = subdir.substr(0, subdir.lastIndexOf('/'));
-					log.info('subdir: ' + subdir);
 					if (!contains(dirs, subdir)) dirs.push(subdir);
 				}
 				dirs.push(dir);

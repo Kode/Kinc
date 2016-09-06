@@ -8,7 +8,6 @@ const Options_1 = require('../Options');
 const VisualStudioVersion_1 = require('../VisualStudioVersion');
 const ClCompile_1 = require('../ClCompile');
 const Configuration_1 = require('../Configuration');
-const log = require('../log');
 const fs = require('fs-extra');
 const path = require('path');
 const uuid = require('uuid');
@@ -273,7 +272,6 @@ class VisualStudioExporter extends Exporter_1.Exporter {
                 let subdir = dir;
                 while (subdir.indexOf('/') >= 0) {
                     subdir = subdir.substr(0, subdir.lastIndexOf('/'));
-                    log.info('subdir: ' + subdir);
                     if (!contains(dirs, subdir))
                         dirs.push(subdir);
                 }

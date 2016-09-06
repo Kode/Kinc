@@ -113,34 +113,81 @@ function shaderLang(platform: string): string {
 	}
 }
 
-function compileShader(projectDir: string, type: string, from: string, to: string, temp: string, platform: string, nokrafix: boolean) {
-	let compiler = '';
-	
-	if (Project.koreDir !== '') {
-		if (nokrafix) {
-			compiler = path.resolve(Project.koreDir, 'Tools', 'kfx', 'kfx' + exec.sys());
+async function compileShader(projectDir: string, type: string, from: string, to: string, temp: string, platform: string) {
+	return new Promise<void>((resolve, reject) => {
+		let compilerPath = '';
+		
+		if (Project.koreDir !== '') {
+			compilerPath = path.resolve(Project.koreDir, 'Tools', 'krafix', 'krafix' + exec.sys());
 		}
-		else {
-			compiler = path.resolve(Project.koreDir, 'Tools', 'krafix', 'krafix' + exec.sys());
-		}
-	}
 
-	if (fs.existsSync(path.join(projectDir, 'Backends'))) {
-		let libdirs = fs.readdirSync(path.join(projectDir, 'Backends'));
-		for (let ld in libdirs) {
-			let libdir = path.join(projectDir, 'Backends', libdirs[ld]);
-			if (fs.statSync(libdir).isDirectory()) {
-				let exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
-				if (fs.existsSync(exe)) {
-					compiler = exe;
+		if (fs.existsSync(path.join(projectDir, 'Backends'))) {
+			let libdirs = fs.readdirSync(path.join(projectDir, 'Backends'));
+			for (let ld in libdirs) {
+				let libdir = path.join(projectDir, 'Backends', libdirs[ld]);
+				if (fs.statSync(libdir).isDirectory()) {
+					let exe = path.join(libdir, 'krafix', 'krafix-' + platform + '.exe');
+					if (fs.existsSync(exe)) {
+						compilerPath = exe;
+					}
 				}
 			}
 		}
-	}
 
-	if (compiler !== '') {
-		child_process.spawnSync(compiler, [type, from, to, temp, platform]);
-	}
+		if (compilerPath !== '') {
+			let compiler = child_process.spawn(compilerPath, [type, from, to, temp, platform, '--glsl2', '--hlsl2']);
+			
+			compiler.stdout.on('data', (data: any) => {
+				log.info(data.toString());
+			});
+
+			let errorLine = '';
+			let newErrorLine = true;
+			let errorData = false;
+			
+			function parseData(data: string) {
+
+			}
+
+			compiler.stderr.on('data', (data: any) => {
+				let str: string = data.toString();
+				for (let char of str) {
+					if (char === '\n') {
+						if (errorData) {
+							parseData(errorLine.trim());
+						}
+						else {
+							log.error(errorLine.trim());
+						}
+						errorLine = '';
+						newErrorLine = true;
+						errorData = false;
+					}
+					else if (newErrorLine && char === '#') {
+						errorData = true;
+						newErrorLine = false;
+					}
+					else {
+						errorLine += char;
+						newErrorLine = false;
+					}
+				}
+			});
+
+			compiler.on('close', (code: number) => {
+				if (code === 0) {
+					resolve();
+				}
+				else {
+					//process.exitCode = 1;
+					reject('Shader compiler error.');
+				}
+			});
+		}
+		else {
+			throw 'Could not find shader compiler.'
+		}
+	});
 }
 
 async function exportKoremakeProject(from: string, to: string, platform: string, options: any) {
@@ -154,13 +201,22 @@ async function exportKoremakeProject(from: string, to: string, platform: string,
 	fs.ensureDirSync(to);
 
 	let files = project.getFiles();
+	let shaderCount = 0;
+	for (let file of files) {
+		if (file.file.endsWith(".glsl")) {
+			++shaderCount;
+		}
+	}
+	let shaderIndex = 0;
 	for (let file of files) {
 		if (file.file.endsWith(".glsl")) {
 			let outfile = file.file;
 			const index = outfile.lastIndexOf('/');
 			if (index > 0) outfile = outfile.substr(index);
 			outfile = outfile.substr(0, outfile.length - 5);
-			compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), "build", platform, options.nokrafix);
+			log.info('Compiling shader ' + (shaderIndex + 1) + ' of ' + shaderCount + ' (' + file.file + ').');
+			++shaderIndex;
+			await compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), "build", platform);
 		}
 	}
 
