@@ -100,13 +100,12 @@ class Project {
         for (let sub of this.subProjects)
             sub.flatten();
         for (let sub of this.subProjects) {
-            let basedir = this.basedir;
             let subbasedir = sub.basedir;
             for (let d of sub.defines)
                 if (!contains(this.defines, d))
                     this.defines.push(d);
             for (let file of sub.files) {
-                this.files.push({ file: path.join(subbasedir, file.file).replace(/\\/g, '/'), options: file.options });
+                this.files.push({ file: path.join(subbasedir, file.file).replace(/\\/g, '/'), options: file.options, projectDir: subbasedir, projectName: sub.name });
             }
             for (let i of sub.includeDirs)
                 if (!contains(this.includeDirs, path.resolve(subbasedir, i)))
@@ -164,11 +163,11 @@ class Project {
     addFileForReal(file, options) {
         for (let index in this.files) {
             if (this.files[index].file === file) {
-                this.files[index] = { file: file, options: options };
+                this.files[index] = { file: file, options: options, projectDir: this.basedir, projectName: this.name };
                 return;
             }
         }
-        this.files.push({ file: file, options: options });
+        this.files.push({ file: file, options: options, projectDir: this.basedir, projectName: this.name });
     }
     searchFiles(current) {
         if (current === undefined) {

@@ -2,11 +2,12 @@ import {Exporter} from './Exporter';
 import {GraphicsApi} from '../GraphicsApi';
 import * as Icon from '../Icon';
 import {Platform} from '../Platform';
-import {Project} from '../Project';
+import {File, Project} from '../Project';
 import {Options} from '../Options';
 import {VisualStudioVersion} from '../VisualStudioVersion';
 import {ClCompile} from '../ClCompile';
 import {Configuration} from '../Configuration';
+import * as log from '../log';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 const uuid = require('uuid');
@@ -17,6 +18,16 @@ let windows8systems: string[] = []; // = new String[]{"ARM", "Win32", "x64"};
 let xboxsystems: string[] = []; // = new String[]{"Xbox 360"};
 let ps3systems: string[] = []; // = new String[]{"PS3"};
 let windowssystems: string[] = []; // = new String[]{"Win32", "x64"};
+
+function getDir(file: File) {
+	if (file.file.indexOf('/') >= 0) {
+		let dir = file.file.substr(0, file.file.lastIndexOf('/'));
+		return path.join(file.projectName, path.relative(file.projectDir, dir)).replace(/\\/g, '/');
+	}
+	else {
+		return file.projectName;
+	}
+}
 
 function contains(array: any[], element: any) {
 	for (let arrayelement of array) {
@@ -263,21 +274,20 @@ export class VisualStudioExporter extends Exporter {
 		let lastdir = "";
 		let dirs: string[] = [];
 		for (let file of project.getFiles()) {
-			if (file.file.indexOf('/') >= 0) {
-				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
-				if (dir != lastdir) {
-					let subdir = dir;
-					while (subdir.indexOf('/') >= 0) {
-						subdir = subdir.substr(0, subdir.lastIndexOf('/'));
-						if (!contains(dirs, subdir)) dirs.push(subdir);
-					}
-					dirs.push(dir);
-					lastdir = dir;
+			let dir = getDir(file);
+			if (dir !== lastdir) {
+				let subdir = dir;
+				while (subdir.indexOf('/') >= 0) {
+					subdir = subdir.substr(0, subdir.lastIndexOf('/'));
+					log.info('subdir: ' + subdir);
+					if (!contains(dirs, subdir)) dirs.push(subdir);
 				}
+				dirs.push(dir);
+				lastdir = dir;
 			}
 		}
 		let assets: string[] = [];
-		if (platform == Platform.WindowsApp) this.exportAssetPathFilter(path.resolve(from, project.getDebugDir()), dirs, assets);
+		if (platform === Platform.WindowsApp) this.exportAssetPathFilter(path.resolve(from, project.getDebugDir()), dirs, assets);
 
 		this.p("<ItemGroup>", 1);
 		for (let dir of dirs) {
@@ -285,14 +295,14 @@ export class VisualStudioExporter extends Exporter {
 			this.p("<UniqueIdentifier>{" + uuid.v4().toString().toUpperCase() + "}</UniqueIdentifier>", 3);
 			this.p("</Filter>", 2);
 		}
-		if (platform == Platform.WindowsApp) {
+		if (platform === Platform.WindowsApp) {
 			this.p("<Filter Include=\"Package\">", 2);
 			this.p("<UniqueIdentifier>{" + uuid.v4().toString().toUpperCase() + "}</UniqueIdentifier>", 3);
 			this.p("</Filter>", 2);
 		}
 		this.p("</ItemGroup>", 1);
 
-		if (platform == Platform.WindowsApp) {
+		if (platform === Platform.WindowsApp) {
 			this.p("<ItemGroup>", 1);
 			this.p("<AppxManifest Include=\"Package.appxmanifest\">", 2);
 			this.p("<Filter>Package</Filter>", 3);
@@ -312,14 +322,12 @@ export class VisualStudioExporter extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.file.indexOf('/') >= 0) {
-				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
-				if (dir != lastdir) lastdir = dir;
-				if (file.file.endsWith('.h') || file.file.endsWith('.hpp')) {
-					this.p("<ClInclude Include=\"" + path.resolve(from, file.file) + "\">", 2);
-					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
-					this.p("</ClInclude>", 2);
-				}
+			let dir = getDir(file);
+			if (dir != lastdir) lastdir = dir;
+			if (file.file.endsWith('.h') || file.file.endsWith('.hpp')) {
+				this.p("<ClInclude Include=\"" + path.resolve(from, file.file) + "\">", 2);
+				this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
+				this.p("</ClInclude>", 2);
 			}
 		}
 		this.p("</ItemGroup>", 1);
@@ -327,14 +335,12 @@ export class VisualStudioExporter extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.file.indexOf('/') >= 0) {
-				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
-				if (dir != lastdir) lastdir = dir;
-				if (file.file.endsWith(".cpp") || file.file.endsWith(".c") || file.file.endsWith("cc") || file.file.endsWith(".cxx")) {
-					this.p("<ClCompile Include=\"" + path.resolve(from, file.file) + "\">", 2);
-					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
-					this.p("</ClCompile>", 2);
-				}
+			let dir = getDir(file);
+			if (dir != lastdir) lastdir = dir;
+			if (file.file.endsWith(".cpp") || file.file.endsWith(".c") || file.file.endsWith("cc") || file.file.endsWith(".cxx")) {
+				this.p("<ClCompile Include=\"" + path.resolve(from, file.file) + "\">", 2);
+				this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
+				this.p("</ClCompile>", 2);
 			}
 		}
 		this.p("</ItemGroup>", 1);
@@ -342,14 +348,12 @@ export class VisualStudioExporter extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.file.indexOf('/') >= 0) {
-				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
-				if (dir != lastdir) lastdir = dir;
-				if (file.file.endsWith(".cg") || file.file.endsWith(".hlsl")) {
-					this.p("<CustomBuild Include=\"" + path.resolve(from, file.file) + "\">", 2);
-					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
-					this.p("</CustomBuild>", 2);
-				}
+			let dir = getDir(file);
+			if (dir != lastdir) lastdir = dir;
+			if (file.file.endsWith(".cg") || file.file.endsWith(".hlsl")) {
+				this.p("<CustomBuild Include=\"" + path.resolve(from, file.file) + "\">", 2);
+				this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
+				this.p("</CustomBuild>", 2);
 			}
 		}
 		this.p("</ItemGroup>", 1);
@@ -357,19 +361,17 @@ export class VisualStudioExporter extends Exporter {
 		lastdir = "";
 		this.p("<ItemGroup>", 1);
 		for (let file of project.getFiles()) {
-			if (file.file.indexOf('/') >= 0) {
-				let dir = file.file.substr(0, file.file.lastIndexOf('/'));
-				if (dir != lastdir) lastdir = dir;
-				if (file.file.endsWith(".asm")) {
-					this.p("<CustomBuild Include=\"" + path.resolve(from, file.file) + "\">", 2);
-					this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
-					this.p("</CustomBuild>", 2);
-				}
+			let dir = getDir(file);
+			if (dir != lastdir) lastdir = dir;
+			if (file.file.endsWith(".asm")) {
+				this.p("<CustomBuild Include=\"" + path.resolve(from, file.file) + "\">", 2);
+				this.p("<Filter>" + dir.replace(/\//g, '\\') + "</Filter>", 3);
+				this.p("</CustomBuild>", 2);
 			}
 		}
 		this.p("</ItemGroup>", 1);
 
-		if (platform == Platform.WindowsApp) {
+		if (platform === Platform.WindowsApp) {
 			lastdir = "";
 			this.p("<ItemGroup>", 1);
 			for (let file of assets) {
@@ -384,7 +386,7 @@ export class VisualStudioExporter extends Exporter {
 			this.p("</ItemGroup>", 1);
 		}
 
-		if (platform == Platform.Windows) {
+		if (platform === Platform.Windows) {
 			this.p("<ItemGroup>", 1);
 			this.p("<None Include=\"icon.ico\">", 2);
 			this.p("<Filter>Ressourcendateien</Filter>", 3);
