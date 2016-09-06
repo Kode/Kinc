@@ -8,7 +8,7 @@
 
 using namespace Kore;
 
-#if defined(SYS_WINDOWS) || (defined(SYS_LINUX) && defined(GL_VERSION_4_3)) || (defined(SYS_ANDROI) && defined(GL_ES_VERSION_3_1))
+#if defined(SYS_WINDOWS) || (defined(SYS_LINUX) && defined(GL_VERSION_4_3)) || (defined(SYS_ANDROID) && defined(GL_ES_VERSION_3_1))
 #define HAS_COMPUTE
 #endif
 
