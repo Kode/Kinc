@@ -13,6 +13,15 @@ function contains(a, b) {
 function newId() {
     return uuid.v4().toUpperCase();
 }
+function getDir(file) {
+    if (file.file.indexOf('/') >= 0) {
+        let dir = file.file.substr(0, file.file.lastIndexOf('/'));
+        return path.join(file.projectName, path.relative(file.projectDir, dir)).replace(/\\/g, '/');
+    }
+    else {
+        return file.projectName;
+    }
+}
 class Directory {
     constructor(dirname) {
         this.dirname = dirname;
@@ -192,12 +201,7 @@ class XCodeExporter extends Exporter_1.Exporter {
             let filename = fileobject.file;
             if (filename.endsWith(".plist"))
                 plistname = filename;
-            let dirname = '';
-            if (filename.indexOf('/') >= 0)
-                dirname = project.getName() + "/" + filename.substr(0, filename.lastIndexOf('/'));
-            else
-                dirname = project.getName();
-            let dir = addDirectory(dirname, directories);
+            let dir = addDirectory(getDir(fileobject), directories);
             let file = new File(filename, dir);
             files.push(file);
         }

@@ -4,6 +4,7 @@ import * as Icon from '../Icon';
 import {Platform} from '../Platform';
 import {Options} from '../Options';
 import {Project} from '../Project';
+import * as Proj from '../Project';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 const uuid = require('uuid');
@@ -14,6 +15,16 @@ function contains(a: any[], b: any): boolean {
 
 function newId(): string {
 	return uuid.v4().toUpperCase();
+}
+
+function getDir(file: Proj.File) {
+	if (file.file.indexOf('/') >= 0) {
+		let dir = file.file.substr(0, file.file.lastIndexOf('/'));
+		return path.join(file.projectName, path.relative(file.projectDir, dir)).replace(/\\/g, '/');
+	}
+	else {
+		return file.projectName;
+	}
 }
 
 class Directory {
@@ -236,12 +247,7 @@ export class XCodeExporter extends Exporter {
 		for (let fileobject of project.getFiles()) {
 			let filename = fileobject.file;
 			if (filename.endsWith(".plist")) plistname = filename;
-
-			let dirname = '';
-			if (filename.indexOf('/') >= 0) dirname = project.getName() + "/" + filename.substr(0, filename.lastIndexOf('/'));
-			else dirname = project.getName();
-			let dir = addDirectory(dirname, directories);
-
+			let dir = addDirectory(getDir(fileobject), directories);
 			let file = new File(filename, dir);
 			files.push(file);
 		}
