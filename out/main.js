@@ -189,9 +189,16 @@ function exportKoremakeProject(from, to, platform, options) {
     return __awaiter(this, void 0, void 0, function* () {
         log.info('korefile found.');
         log.info('Creating ' + fromPlatform(platform) + ' project files.');
-        let project = yield Project_1.Project.create(from, platform);
-        project.searchFiles(undefined);
-        project.flatten();
+        let project;
+        try {
+            project = yield Project_1.Project.create(from, platform);
+            project.searchFiles(undefined);
+            project.flatten();
+        }
+        catch (error) {
+            log.error(error);
+            throw error;
+        }
         fs.ensureDirSync(to);
         let files = project.getFiles();
         let shaderCount = 0;

@@ -194,9 +194,16 @@ async function exportKoremakeProject(from: string, to: string, platform: string,
 	log.info('korefile found.');
 	log.info('Creating ' + fromPlatform(platform) + ' project files.');
 
-	let project = await Project.create(from, platform);
-	project.searchFiles(undefined);
-	project.flatten();
+	let project: Project;
+	try {
+		project = await Project.create(from, platform);
+		project.searchFiles(undefined);
+		project.flatten();
+	}
+	catch (error) {
+		log.error(error);
+		throw error;
+	}
 
 	fs.ensureDirSync(to);
 

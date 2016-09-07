@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const fs = require('fs-extra');
 const path = require('path');
+const log = require('./log');
 const GraphicsApi_1 = require('./GraphicsApi');
 const Options_1 = require('./Options');
 const Platform_1 = require('./Platform');
@@ -357,8 +358,14 @@ class Project {
                         console.error('Error: korefile.js did not call resolve, no project created.');
                     }
                 });
-                let file = fs.readFileSync(path.resolve(scriptdir, 'korefile.js'), 'utf8');
-                let project = new Function('Project', 'Platform', 'platform', 'GraphicsApi', 'graphics', 'require', 'resolve', 'reject', '__dirname', file)(Project, Platform_1.Platform, Project.platform, GraphicsApi_1.GraphicsApi, Options_1.Options.graphicsApi, require, resolver, reject, scriptdir);
+                try {
+                    let file = fs.readFileSync(path.resolve(scriptdir, 'korefile.js'), 'utf8');
+                    let project = new Function('Project', 'Platform', 'platform', 'GraphicsApi', 'graphics', 'require', 'resolve', 'reject', '__dirname', file)(Project, Platform_1.Platform, Project.platform, GraphicsApi_1.GraphicsApi, Options_1.Options.graphicsApi, require, resolver, reject, scriptdir);
+                }
+                catch (error) {
+                    log.error(error);
+                    throw error;
+                }
             });
         });
     }

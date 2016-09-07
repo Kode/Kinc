@@ -396,27 +396,33 @@ export class Project {
 				}
 			});
 			
-			let file = fs.readFileSync(path.resolve(scriptdir, 'korefile.js'), 'utf8');
-			let project = new Function(
-				'Project',
-				'Platform',
-				'platform',
-				'GraphicsApi',
-				'graphics',
-				'require',
-				'resolve',
-				'reject',
-				'__dirname',
-				file)
-			(Project,
-				Platform,
-				Project.platform,
-				GraphicsApi,
-				Options.graphicsApi,
-				require,
-				resolver,
-				reject,
-				scriptdir);
+			try {
+				let file = fs.readFileSync(path.resolve(scriptdir, 'korefile.js'), 'utf8');
+				let project = new Function(
+					'Project',
+					'Platform',
+					'platform',
+					'GraphicsApi',
+					'graphics',
+					'require',
+					'resolve',
+					'reject',
+					'__dirname',
+					file)
+				(Project,
+					Platform,
+					Project.platform,
+					GraphicsApi,
+					Options.graphicsApi,
+					require,
+					resolver,
+					reject,
+					scriptdir);
+				}
+			catch (error) {
+				log.error(error);
+				throw error;
+			}
 		});
 	}
 
