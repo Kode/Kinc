@@ -203,11 +203,11 @@ static inline char* EmitCopyLessThan64(char* op, size_t offset, int len) {
   if ((len < 12) && (offset < 2048)) {
     size_t len_minus_4 = len - 4;
     assert(len_minus_4 < 8);            // Must fit in 3 bits
-    *op++ = COPY_1_BYTE_OFFSET + ((len_minus_4) << 2) + ((offset >> 8) << 5);
+    *op++ = static_cast<char>(COPY_1_BYTE_OFFSET + ((len_minus_4) << 2) + ((offset >> 8) << 5));
     *op++ = offset & 0xff;
   } else {
     *op++ = COPY_2_BYTE_OFFSET + ((len-1) << 2);
-    LittleEndian::Store16(op, offset);
+    LittleEndian::Store16(op, static_cast<uint16>(offset));
     op += 2;
   }
   return op;
@@ -1245,7 +1245,7 @@ class SnappyScatteredWriter {
   inline bool AppendFromSelf(size_t offset, size_t len) {
     // See SnappyArrayWriter::AppendFromSelf for an explanation of
     // the "offset - 1u" trick.
-    if (offset - 1u < op_ptr_ - op_base_) {
+    if (offset - 1u < static_cast<size_t>(op_ptr_ - op_base_)) {
       const size_t space_left = op_limit_ - op_ptr_;
       if (space_left >= len + kMaxIncrementCopyOverflow) {
         // Fast path: src and dst in current block.
@@ -1336,7 +1336,7 @@ class SnappySinkAllocator {
   void Flush(size_t size) {
     size_t size_written = 0;
     size_t block_size;
-    for (int i = 0; i < blocks_.size(); ++i) {
+    for (size_t i = 0; i < blocks_.size(); ++i) {
       block_size = min<size_t>(blocks_[i].size, size - size_written);
       dest_->AppendAndTakeOwnership(blocks_[i].data, block_size,
                                     &SnappySinkAllocator::Deleter, NULL);

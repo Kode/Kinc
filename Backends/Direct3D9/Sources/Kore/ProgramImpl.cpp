@@ -34,10 +34,6 @@ void Program::setTesselationEvaluationShader(Shader* shader) {
 }
 
 void Program::link(VertexStructure** structures, int count) {
-	if (count > 1) {
-		int a = 3;
-		++a;
-	}
 	int all = 0;
 	for (int stream = 0; stream < count; ++stream) {
 		for (int index = 0; index < structures[stream]->size; ++index) {
