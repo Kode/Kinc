@@ -227,6 +227,12 @@ namespace Kore {
 			return m;
 		}
 
+		Matrix<Y, X, T> Clone() const {
+			Matrix<Y, X, T> clone;
+			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) clone.matrix[x][y] = matrix[x][y];
+			return clone;
+		}
+
 		Matrix<Y, X, T> Transpose() const {
 			Matrix<Y, X, T> transpose;
 			for (unsigned x = 0; x < X; ++x) for (unsigned y = 0; y < Y; ++y) transpose.matrix[y][x] = matrix[x][y];
@@ -372,51 +378,52 @@ namespace Kore {
 			return a;
 		}
 	public:
-		void Invert() {
+		Matrix<Y, X, T> Invert() {
 			//StaticAssert(X == Y);
 			//if (Determinant() == 0) throw Exception(L"No Inverse");
 			// m: Matrix, nz: Anzahl der Zeilen
 			T q;
 			myType I = myType::Identity();
+			myType clone = this->Clone();
 
 			for (unsigned j = 0; j < X; ++j) {
-				// Diagonalenfeld normalisieren
-				q = matrix[j][j];
+				// Normalized diagonals
+				q = clone.matrix[j][j];
 				if (q == 0) {
-					//Gew�hrleisten, da� keine 0 in der Diagonale steht
+					// Make sure that there is no 0 at the diagonals
 					for (unsigned i = j + 1; i < X; ++i)
 					{
-						// Suche Reihe mit Feld <> 0 und addiere dazu
-						if (matrix[j][i] != 0) {
+						// Find row with field <> 0 and add to it
+						if (clone.matrix[j][i] != 0) {
 							for (unsigned k = 0; k < X; ++k) {
-								matrix[k][j] = matrix[k][j] + matrix[k][i];
+								clone.matrix[k][j] = clone.matrix[k][j] + clone.matrix[k][i];
 								I.matrix[k][j] = I.matrix[k][j] + I.matrix[k][i];
 							}
-							q = matrix[j][j];
+							q = clone.matrix[j][j];
 							break;
 						}
 					}
 				}
 				if (q != 0) {
-					// Diagonalen auf 1 bringen
+					// Bring diagonals to 1
 					for (unsigned k = 0; k < X; ++k) {
-						matrix[k][j] = matrix[k][j] / q;
+						clone.matrix[k][j] = clone.matrix[k][j] / q;
 						I.matrix[k][j] = I.matrix[k][j] / q;
 					}
 				}
-				// Spalten au�erhalb der Diagonalen auf 0 bringen
+				// Bring columns other than the the diagonals to 0
 				for (unsigned i = 0; i < X; ++i) {
 					if (i != j) {
-						q = matrix[j][i];
+						q = clone.matrix[j][i];
 						for (unsigned k = 0; k < X; ++k) {
+							clone.matrix[k][i] = clone.matrix[k][i] - q * clone.matrix[k][j];
 							I.matrix[k][i] = I.matrix[k][i] - q * I.matrix[k][j];
-							matrix[k][i] = matrix[k][i] - q * matrix[k][j];
 						}
 					}
 				}
 			}
-			for (unsigned i = 0; i < X; ++i) for (unsigned j = 0; j < X; ++j) if (matrix[j][i] != ((i == j) ? 1 : 0));// throw Exception(L"Error");
-			*this = I;
+			//for (unsigned i = 0; i < X; ++i) for (unsigned j = 0; j < X; ++j) if (clone.matrix[j][i] != ((i == j) ? 1 : 0));// throw Exception(L"Error");
+			return I;
 		}
 	};
 
