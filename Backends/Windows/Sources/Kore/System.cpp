@@ -9,6 +9,9 @@
 #include "Display.h"
 
 #include <dinput.h>
+#include <wbemidl.h>
+#include <oleauto.h>
+#include <wmsstd.h>
 
 #ifdef VR_RIFT 
 #include "Vr/VrInterface.h"
@@ -443,8 +446,8 @@ namespace {
 		}
 	}
 
-	IDirectInput8 * di_instance = nullptr;
-	IDirectInputDevice8 * di_pads[XUSER_MAX_COUNT];
+	IDirectInput8* di_instance = nullptr;
+	IDirectInputDevice8* di_pads[XUSER_MAX_COUNT];
 	DIJOYSTATE2 di_padState[XUSER_MAX_COUNT];
 	DIJOYSTATE2 di_lastPadState[XUSER_MAX_COUNT];
 	DIDEVCAPS di_deviceCaps[XUSER_MAX_COUNT];
@@ -456,6 +459,128 @@ namespace {
 			di_pads[padIndex]->Release();
 			di_pads[padIndex] = 0;
 		}
+	}
+
+#ifndef SAFE_RELEASE
+#define SAFE_RELEASE(x) \
+   if(x != NULL)        \
+   {                    \
+      x->Release();     \
+      x = NULL;         \
+   }
+#endif
+
+	// From 
+	//-----------------------------------------------------------------------------
+	// Enum each PNP device using WMI and check each device ID to see if it contains 
+	// "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
+	// Unfortunately this information can not be found by just using DirectInput 
+	//-----------------------------------------------------------------------------
+	BOOL IsXInputDevice(const GUID* pGuidProductFromDirectInput)
+	{
+		IWbemLocator*           pIWbemLocator = NULL;
+		IEnumWbemClassObject*   pEnumDevices = NULL;
+		IWbemClassObject*       pDevices[20] = { 0 };
+		IWbemServices*          pIWbemServices = NULL;
+		BSTR                    bstrNamespace = NULL;
+		BSTR                    bstrDeviceID = NULL;
+		BSTR                    bstrClassName = NULL;
+		DWORD                   uReturned = 0;
+		bool                    bIsXinputDevice = false;
+		UINT                    iDevice = 0;
+		VARIANT                 var;
+		HRESULT                 hr;
+
+		// CoInit if needed
+		hr = CoInitialize(NULL);
+		bool bCleanupCOM = SUCCEEDED(hr);
+
+		// Create WMI
+		hr = CoCreateInstance(__uuidof(WbemLocator),
+			NULL,
+			CLSCTX_INPROC_SERVER,
+			__uuidof(IWbemLocator),
+			(LPVOID*)&pIWbemLocator);
+		if (FAILED(hr) || pIWbemLocator == NULL)
+			goto LCleanup;
+
+		bstrNamespace = SysAllocString(L"\\\\.\\root\\cimv2"); if (bstrNamespace == NULL) goto LCleanup;
+		bstrClassName = SysAllocString(L"Win32_PNPEntity");   if (bstrClassName == NULL) goto LCleanup;
+		bstrDeviceID = SysAllocString(L"DeviceID");          if (bstrDeviceID == NULL)  goto LCleanup;
+
+		// Connect to WMI 
+		hr = pIWbemLocator->ConnectServer(bstrNamespace, NULL, NULL, 0L,
+			0L, NULL, NULL, &pIWbemServices);
+		if (FAILED(hr) || pIWbemServices == NULL)
+			goto LCleanup;
+
+		// Switch security level to IMPERSONATE. 
+		CoSetProxyBlanket(pIWbemServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL,
+			RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+
+		hr = pIWbemServices->CreateInstanceEnum(bstrClassName, 0, NULL, &pEnumDevices);
+		if (FAILED(hr) || pEnumDevices == NULL)
+			goto LCleanup;
+
+		// Loop over all devices
+		for (;; )
+		{
+			// Get 20 at a time
+			hr = pEnumDevices->Next(10000, 20, pDevices, &uReturned);
+			if (FAILED(hr))
+				goto LCleanup;
+			if (uReturned == 0)
+				break;
+
+			for (iDevice = 0; iDevice<uReturned; iDevice++)
+			{
+				// For each device, get its device ID
+				hr = pDevices[iDevice]->Get(bstrDeviceID, 0L, &var, NULL, NULL);
+				if (SUCCEEDED(hr) && var.vt == VT_BSTR && var.bstrVal != NULL)
+				{
+					// Check if the device ID contains "IG_".  If it does, then it's an XInput device
+					// This information can not be found from DirectInput 
+					if (wcsstr(var.bstrVal, L"IG_"))
+					{
+						// If it does, then get the VID/PID from var.bstrVal
+						DWORD dwPid = 0, dwVid = 0;
+						WCHAR* strVid = wcsstr(var.bstrVal, L"VID_");
+						if (strVid && swscanf(strVid, L"VID_%4X", &dwVid) != 1)
+							dwVid = 0;
+						WCHAR* strPid = wcsstr(var.bstrVal, L"PID_");
+						if (strPid && swscanf(strPid, L"PID_%4X", &dwPid) != 1)
+							dwPid = 0;
+
+						// Compare the VID/PID to the DInput device
+						DWORD dwVidPid = MAKELONG(dwVid, dwPid);
+						if (dwVidPid == pGuidProductFromDirectInput->Data1)
+						{
+							bIsXinputDevice = true;
+							goto LCleanup;
+						}
+					}
+				}
+				SAFE_RELEASE(pDevices[iDevice]);
+			}
+		}
+
+	LCleanup:
+		if (bstrNamespace)
+			SysFreeString(bstrNamespace);
+		if (bstrDeviceID)
+			SysFreeString(bstrDeviceID);
+		if (bstrClassName)
+			SysFreeString(bstrClassName);
+		for (iDevice = 0; iDevice<20; iDevice++)
+			SAFE_RELEASE(pDevices[iDevice]);
+		SAFE_RELEASE(pEnumDevices);
+		SAFE_RELEASE(pIWbemLocator);
+		SAFE_RELEASE(pIWbemServices);
+
+		if (bCleanupCOM)
+			CoUninitialize();
+
+		return bIsXinputDevice;
 	}
 
 	// TODO (DK) this should probably be called from somewhere?
@@ -470,7 +595,7 @@ namespace {
 		}
 	}
 
-	BOOL CALLBACK enumerateJoystickAxesCallback( LPCDIDEVICEOBJECTINSTANCEW ddoi, LPVOID context ) {
+	BOOL CALLBACK enumerateJoystickAxesCallback(LPCDIDEVICEOBJECTINSTANCEW ddoi, LPVOID context) {
 		HWND hwnd = (HWND)context;
 
 		DIPROPRANGE propertyRange; 
@@ -495,7 +620,9 @@ namespace {
 		return DIENUM_CONTINUE;
 	}
 
-	BOOL CALLBACK enumerateJoysticksCallback( LPCDIDEVICEINSTANCEW ddi, LPVOID context ) {
+	BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID context) {
+		if (IsXInputDevice(&ddi->guidProduct)) return DIENUM_CONTINUE;
+
 		HRESULT hr = di_instance->CreateDevice(ddi->guidInstance, &di_pads[padCount], nullptr);
 
 		if (SUCCEEDED(hr)) {
@@ -560,21 +687,24 @@ namespace {
 		memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
 		memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * XUSER_MAX_COUNT);
 
-		HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&di_instance, nullptr);
+		HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&di_instance, nullptr);
 
 		if (SUCCEEDED(hr)) {
 			hr = di_instance->EnumDevices(DI8DEVCLASS_GAMECTRL, enumerateJoysticksCallback, nullptr, DIEDFL_ATTACHEDONLY);
 
 			if (SUCCEEDED(hr)) {
-			} else {
+
+			}
+			else {
 				cleanupDirectInput();
 			}
-		} else {
+		}
+		else {
 			log(Warning, "DirectInput8Create failed (HRESULT=0x%x)", hr);
 		}
 	}
 
-	void handleDirectInputPad( int padIndex ) {
+	void handleDirectInputPad(int padIndex) {
 		if (di_pads[padIndex] == nullptr) {
 			return;
 		}
@@ -626,11 +756,13 @@ namespace {
 				}
 
 				memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE2));
-			} break;
+				break;
+			}
 			case DIERR_INPUTLOST: // fall through
 			case DIERR_NOTACQUIRED: {
 				hr = di_pads[padIndex]->Acquire();
-			} break;
+				break;
+			}
 		}
 	}
 }
@@ -728,16 +860,14 @@ int createWindow( const char * title, int x, int y, int width, int height, Windo
 	
 	switch (windowMode) {
 		default: // fall through
-		case WindowModeWindow: {
+		case WindowModeWindow:
 			dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 			dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-		} break;
-
-		case WindowModeBorderless: {
+			break;
+		case WindowModeBorderless:
 			dwStyle = WS_POPUP;
 			dwExStyle = WS_EX_APPWINDOW;
-		} break;
-
+			break;
 		case WindowModeFullscreen: {
 			DEVMODEA dmScreenSettings;									// Device Mode
 			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));		// Makes Sure Memory's Cleared
@@ -755,15 +885,13 @@ int createWindow( const char * title, int x, int y, int width, int height, Windo
 			dwExStyle = WS_EX_APPWINDOW;
 			dwStyle = WS_POPUP;
 			ShowCursor(FALSE);
-		} break;
+			break;
+		}
 	}
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);		// Adjust Window To True Requested Size
 
-	const Kore::Display::DeviceInfo * displayDevice = targetDisplay < 0
-		? Kore::Display::primary()
-		: Kore::Display::byId(targetDisplay)
-		;
+	const Kore::Display::DeviceInfo* displayDevice = targetDisplay < 0 ? Kore::Display::primary() : Kore::Display::byId(targetDisplay);
 
 	int dstx = displayDevice->x;
 	int dsty = displayDevice->y;
@@ -843,7 +971,7 @@ void Kore::System::clearCurrent() {
 	Graphics::clearCurrent();
 }
 
-int Kore::System::initWindow( WindowOptions options ) {
+int Kore::System::initWindow(WindowOptions options) {
 	char buffer[1024] = {0};
 	strcat(buffer, name());
 	
@@ -856,15 +984,15 @@ int Kore::System::initWindow( WindowOptions options ) {
 	HWND hwnd = (HWND)windowHandle(windowId);
 	long style = GetWindowLong(hwnd, GWL_STYLE);
 	
-	if(options.resizable){
+	if (options.resizable) {
 		style |= WS_SIZEBOX;
 	}
 	
-	if(options.maximizable){
+	if (options.maximizable) {
 		style |= WS_MAXIMIZEBOX;
 	}
 	
-	if(!options.minimizable){
+	if (!options.minimizable) {
 		style ^= WS_MINIMIZEBOX;
 	}
 	
