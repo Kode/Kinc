@@ -11,7 +11,7 @@
 #include <dinput.h>
 #include <wbemidl.h>
 #include <oleauto.h>
-#include <wmsstd.h>
+#include <stdio.h>
 
 #ifdef VR_RIFT 
 #include "Vr/VrInterface.h"
