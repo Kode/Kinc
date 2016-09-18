@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/ktxsoftware/koremake#readme",
   "dependencies": {
+    "chokidar": "^1.6.0",
     "fs-extra": "^0.20.1",
     "uuid": "^2.0.2"
   }
