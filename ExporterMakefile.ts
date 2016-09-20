@@ -55,8 +55,8 @@ export class ExporterMakefile extends Exporter {
 				}
 			}
 			if (precompiledHeader !== null) {
-				let realfile = path.relative(outputPath, path.resolve(from, file.file));
-				gchfilelist += realfile + '.gch ';
+				//let realfile = path.relative(outputPath, path.resolve(from, file.file));
+				gchfilelist += path.basename(file.file) + '.gch ';
 			}
 		}
 		
@@ -67,7 +67,7 @@ export class ExporterMakefile extends Exporter {
 		
 		this.writeFile(path.resolve(outputPath, 'makefile'));
 
-		let incline = '';
+		let incline = '-I./ '; // local directory to pick up the precompiled header hxcpp.h.gch
 		for (let inc of project.getIncludeDirs()) {
 			inc = path.relative(outputPath, path.resolve(from, inc));
 			incline += '-I' + inc + ' ';
@@ -109,9 +109,9 @@ export class ExporterMakefile extends Exporter {
 			}
 			if (precompiledHeader !== null) {
 				let realfile = path.relative(outputPath, path.resolve(from, file.file));
-				this.p(realfile + '.gch: ' + realfile);
+				this.p(path.basename(realfile) + '.gch: ' + realfile);
 				let compiler = 'g++';
-				this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + realfile + '.gch $(LIB)');
+				this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + path.basename(file.file) + '.gch $(LIB)');
 			}
 		}
 
