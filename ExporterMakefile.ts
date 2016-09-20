@@ -13,9 +13,12 @@ export class ExporterMakefile extends Exporter {
 
 	exportSolution(solution: Solution, from: string, to: string, platform: string, vrApi, nokrafix, options) {
 		let project = solution.getProjects()[0];
-
+		let outputPath = path.resolve(to, options.buildPath);
 		let objects = {};
 		let ofiles = {};
+
+		fs.ensureDirSync(outputPath);
+
 		for (let fileobject of project.getFiles()) {
 			let file = fileobject.file;
 			if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
@@ -52,7 +55,7 @@ export class ExporterMakefile extends Exporter {
 				}
 			}
 			if (precompiledHeader !== null) {
-				let realfile = path.relative(to, path.resolve(from, file.file));
+				let realfile = path.relative(outputPath, path.resolve(from, file.file));
 				gchfilelist += realfile + '.gch ';
 			}
 		}
@@ -62,11 +65,11 @@ export class ExporterMakefile extends Exporter {
 			ofilelist += o + '.o ';
 		}
 		
-		this.writeFile(path.resolve(to, 'makefile'));
+		this.writeFile(path.resolve(outputPath, 'makefile'));
 
 		let incline = '';
 		for (let inc of project.getIncludeDirs()) {
-			inc = path.relative(to, path.resolve(from, inc));
+			inc = path.relative(outputPath, path.resolve(from, inc));
 			incline += '-I' + inc + ' ';
 		}
 		this.p('INC=' + incline);
@@ -105,7 +108,7 @@ export class ExporterMakefile extends Exporter {
 				}
 			}
 			if (precompiledHeader !== null) {
-				let realfile = path.relative(to, path.resolve(from, file.file));
+				let realfile = path.relative(outputPath, path.resolve(from, file.file));
 				this.p(realfile + '.gch: ' + realfile);
 				let compiler = 'g++';
 				this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + realfile + '.gch $(LIB)');
@@ -117,7 +120,7 @@ export class ExporterMakefile extends Exporter {
 			if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {
 				this.p();
 				let name = ofiles[file];
-				let realfile = path.relative(to, path.resolve(from, file));
+				let realfile = path.relative(outputPath, path.resolve(from, file));
 				this.p(name + '.o: ' + realfile);
 				let compiler = 'g++';
 				if (file.endsWith('.c')) compiler = 'gcc';

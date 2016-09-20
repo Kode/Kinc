@@ -237,7 +237,7 @@ function compileProject(make, project, solutionName, options) {
         make.on('close', function (code) {
             if (code === 0) {
                 if (options.target === Platform_1.Platform.Linux) {
-                    fs.copySync(path.join(options.to.toString(), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName), { clobber: true });
+                    fs.copySync(path.join(path.join(options.to.toString(), options.buildPath), solutionName), path.join(options.from.toString(), project.getDebugDir(), solutionName), { clobber: true });
                 }
                 else if (options.target === Platform_1.Platform.Windows) {
                     fs.copySync(path.join(options.to.toString(), 'Debug', solutionName + '.exe'), path.join(options.from.toString(), project.getDebugDir(), solutionName + '.exe'), { clobber: true });
@@ -274,6 +274,7 @@ function run(options, loglog) {
         //if (options.vr != undefined) {
         //	Options.vrApi = options.vr;
         //}
+        options.buildPath = options.debug ? 'Debug' : 'Release';
         let solution = exportProject(options.from, options.to, options.target, options);
         let project = solution.getProjects()[0];
         let solutionName = solution.getName();
@@ -281,7 +282,7 @@ function run(options, loglog) {
             log.info('Compiling...');
             let make = null;
             if (options.target === Platform_1.Platform.Linux) {
-                make = child_process.spawn('make', [], { cwd: options.to });
+                make = child_process.spawn('make', [], { cwd: path.join(options.to, options.buildPath) });
             }
             else if (options.target === Platform_1.Platform.OSX) {
                 make = child_process.spawn('xcodebuild', ['-project', solutionName + '.xcodeproj'], { cwd: options.to });

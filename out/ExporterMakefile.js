@@ -1,5 +1,6 @@
 "use strict";
 const Exporter_1 = require('./Exporter');
+const fs = require('fs-extra');
 const path = require('path');
 class ExporterMakefile extends Exporter_1.Exporter {
     constructor() {
@@ -7,8 +8,10 @@ class ExporterMakefile extends Exporter_1.Exporter {
     }
     exportSolution(solution, from, to, platform, vrApi, nokrafix, options) {
         let project = solution.getProjects()[0];
+        let outputPath = path.resolve(to, options.buildPath);
         let objects = {};
         let ofiles = {};
+        fs.ensureDirSync(outputPath);
         for (let fileobject of project.getFiles()) {
             let file = fileobject.file;
             if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
@@ -45,7 +48,7 @@ class ExporterMakefile extends Exporter_1.Exporter {
                 }
             }
             if (precompiledHeader !== null) {
-                let realfile = path.relative(to, path.resolve(from, file.file));
+                let realfile = path.relative(outputPath, path.resolve(from, file.file));
                 gchfilelist += realfile + '.gch ';
             }
         }
@@ -53,10 +56,10 @@ class ExporterMakefile extends Exporter_1.Exporter {
         for (let o in objects) {
             ofilelist += o + '.o ';
         }
-        this.writeFile(path.resolve(to, 'makefile'));
+        this.writeFile(path.resolve(outputPath, 'makefile'));
         let incline = '';
         for (let inc of project.getIncludeDirs()) {
-            inc = path.relative(to, path.resolve(from, inc));
+            inc = path.relative(outputPath, path.resolve(from, inc));
             incline += '-I' + inc + ' ';
         }
         this.p('INC=' + incline);
@@ -89,7 +92,7 @@ class ExporterMakefile extends Exporter_1.Exporter {
                 }
             }
             if (precompiledHeader !== null) {
-                let realfile = path.relative(to, path.resolve(from, file.file));
+                let realfile = path.relative(outputPath, path.resolve(from, file.file));
                 this.p(realfile + '.gch: ' + realfile);
                 let compiler = 'g++';
                 this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + realfile + '.gch $(LIB)');
@@ -100,7 +103,7 @@ class ExporterMakefile extends Exporter_1.Exporter {
             if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {
                 this.p();
                 let name = ofiles[file];
-                let realfile = path.relative(to, path.resolve(from, file));
+                let realfile = path.relative(outputPath, path.resolve(from, file));
                 this.p(name + '.o: ' + realfile);
                 let compiler = 'g++';
                 if (file.endsWith('.c'))
