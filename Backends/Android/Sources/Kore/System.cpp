@@ -535,6 +535,21 @@ namespace {
 					case AKEYCODE_NUMPAD_ADD:
 						Kore::Keyboard::the()->_keydown((Kore::KeyCode) '+', '+');
 						return 1;
+// (DK) Amazon FireTV remote/controller mappings
+// (DK) TODO handle multiple pads (up to 4 possible)
+					case AKEYCODE_MENU:
+						Kore::Gamepad::get(0)->_button(9, 1);
+						return 1;
+					case AKEYCODE_MEDIA_REWIND:
+						Kore::Gamepad::get(0)->_button(10, 1);
+						return 1;
+					case AKEYCODE_MEDIA_FAST_FORWARD:
+						Kore::Gamepad::get(0)->_button(11, 1);
+						return 1;
+					case AKEYCODE_MEDIA_PLAY_PAUSE:
+						Kore::Gamepad::get(0)->_button(12, 1);
+						return 1;
+// (DK) /Amazon FireTV remote/controller mappings
 					default:
 						if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
 							Kore::Keyboard::the()->_keydown((Kore::KeyCode) (code + '0' - AKEYCODE_NUMPAD_0), code + '0' - AKEYCODE_NUMPAD_0);
@@ -654,6 +669,21 @@ namespace {
 					case AKEYCODE_NUMPAD_ADD:
 						Kore::Keyboard::the()->_keyup((Kore::KeyCode) '+', '+');
 						return 1;
+// (DK) Amazon FireTV remote/controller mappings
+// (DK) TODO handle multiple pads (up to 4 possible)
+					case AKEYCODE_MENU:
+						Kore::Gamepad::get(0)->_button(9, 0);
+						return 1;
+					case AKEYCODE_MEDIA_REWIND:
+						Kore::Gamepad::get(0)->_button(10, 0);
+						return 1;
+					case AKEYCODE_MEDIA_FAST_FORWARD:
+						Kore::Gamepad::get(0)->_button(11, 0);
+						return 1;
+					case AKEYCODE_MEDIA_PLAY_PAUSE:
+						Kore::Gamepad::get(0)->_button(12, 0);
+						return 1;
+// (DK) /Amazon FireTV remote/controller mappings
 					default:
 						if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
 							Kore::Keyboard::the()->_keyup((Kore::KeyCode) (code + '0' - AKEYCODE_NUMPAD_0), code + '0' - AKEYCODE_NUMPAD_0);
