@@ -972,11 +972,11 @@ void Kore::System::clearCurrent() {
 }
 
 int Kore::System::initWindow(WindowOptions options) {
-	char buffer[1024] = {0};
-	strcat(buffer, name());
+	char buffer[1024];
+	strcpy(buffer, name());
 	
 	if (options.title != nullptr) {
-		strcat(buffer, options.title);
+		strcpy(buffer, options.title);
 	}
 
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
