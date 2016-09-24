@@ -152,6 +152,15 @@ namespace {
 		while (ret < value) ret += 16;
 		return ret;
 	}
+
+	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int index, int i, int stream) {
+		vertexDesc.SemanticName = "TEXCOORD";
+		vertexDesc.SemanticIndex = index;
+		vertexDesc.InputSlot = 0;
+		vertexDesc.AlignedByteOffset = (i == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
+		vertexDesc.InputSlotClass = stream == 0 ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA; // hack
+		vertexDesc.InstanceDataStepRate = stream == 0 ? 0 : 1; // hack
+	}
 }
 
 void Program::link(VertexStructure** structures, int count) {
@@ -161,33 +170,66 @@ void Program::link(VertexStructure** structures, int count) {
 	if (tessControlShader != nullptr && tessControlShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessControlConstantBuffer));
 	if (tessEvalShader != nullptr && tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
 
-	D3D11_INPUT_ELEMENT_DESC vertexDesc[10];
-	for (int i = 0; i < structures[0]->size; ++i) {
-		vertexDesc[i].SemanticName = "TEXCOORD";
-		vertexDesc[i].SemanticIndex = vertexShader->attributes[structures[0]->elements[i].name];
-		vertexDesc[i].InputSlot = 0;
-		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
-		vertexDesc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexDesc[i].InstanceDataStepRate = 0;
-
-		switch (structures[0]->elements[i].data) {
-		case Float1VertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
-			break;
-		case Float2VertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
-			break;
-		case Float3VertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-			break;
-		case Float4VertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			break;
-		case ColorVertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
-			break;
+	int all = 0;
+	for (int stream = 0; stream < count; ++stream) {
+		for (int index = 0; index < structures[stream]->size; ++index) {
+			if (structures[stream]->elements[index].data == Float4x4VertexData) {
+				all += 4;
+			}
+			else {
+				all += 1;
+			}
 		}
 	}
 
-	affirm(device->CreateInputLayout(vertexDesc, structures[0]->size, vertexShader->data, vertexShader->length, &inputLayout));
+	D3D11_INPUT_ELEMENT_DESC* vertexDesc = (D3D11_INPUT_ELEMENT_DESC*)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
+	int i = 0;
+	for (int stream = 0; stream < count; ++stream) {
+		for (int index = 0; index < structures[stream]->size; ++index) {
+			switch (structures[stream]->elements[index].data) {
+			case Float1VertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[i].name], i, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
+				++i;
+				break;
+			case Float2VertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[i].name], i, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
+				++i;
+				break;
+			case Float3VertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[i].name], i, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+				++i;
+				break;
+			case Float4VertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[i].name], i, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				++i;
+				break;
+			case ColorVertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[i].name], i, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
+				++i;
+				break;
+			case Float4x4VertexData:
+				for (int i2 = 0; i2 < 4; ++i2) {
+					char name[101];
+					strcpy(name, structures[stream]->elements[i].name);
+					strcat(name, "_");
+					size_t length = strlen(name);
+					_itoa(i2, &name[length], 10);
+					name[length + 1] = 0;
+
+					setVertexDesc(vertexDesc[i], vertexShader->attributes[name], i, stream);
+					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+					++i;
+				}
+				break;
+			}
+		}
+	}
+
+	affirm(device->CreateInputLayout(vertexDesc, all, vertexShader->data, vertexShader->length, &inputLayout));
 }

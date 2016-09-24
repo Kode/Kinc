@@ -281,11 +281,12 @@ void Graphics::drawIndexedVertices(int start, int count) {
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
-
+	drawIndexedVerticesInstanced(instanceCount, 0, IndexBuffer::_current->count());
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-
+	Program::setConstants();
+	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
 }
 
 namespace {
@@ -665,6 +666,23 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 
 void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
 	buffers[0]->_set(0);
+
+	ID3D11Buffer** d3dbuffers = (ID3D11Buffer**)alloca(count * sizeof(ID3D11Buffer*));
+	for (int i = 0; i < count; ++i) {
+		d3dbuffers[i] = buffers[i]->_vb;
+	}
+
+	UINT* strides = (UINT*)alloca(count * sizeof(UINT));
+	for (int i = 0; i < count; ++i) {
+		strides[i] = buffers[i]->myStride;
+	}
+
+	UINT* internaloffsets = (UINT*)alloca(count * sizeof(UINT));
+	for (int i = 0; i < count; ++i) {
+		internaloffsets[i] = 0;
+	}
+
+	context->IASetVertexBuffers(0, count, d3dbuffers, strides, internaloffsets);
 }
 
 void Graphics::setIndexBuffer(IndexBuffer& buffer) {
