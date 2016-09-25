@@ -285,6 +285,12 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+	if (currentProgram->tessControlShader != nullptr) {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	}
+	else {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
 	Program::setConstants();
 	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
 }

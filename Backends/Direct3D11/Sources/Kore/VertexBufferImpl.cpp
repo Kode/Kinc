@@ -29,6 +29,9 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 		case ColorVertexData:
 			myStride += 1 * 4;
 			break;
+		case Float4x4VertexData:
+			myStride += 4 * 4 * 4;
+			break;
 		}
 	}
 
