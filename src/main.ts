@@ -18,6 +18,8 @@ import {TizenExporter} from './Exporters/TizenExporter';
 import {VisualStudioExporter} from './Exporters/VisualStudioExporter';
 import {XCodeExporter} from './Exporters/XCodeExporter';
 
+let debug = false;
+
 function fromPlatform(platform: string): string {
 	switch (platform) {
 		case Platform.Windows:
@@ -135,7 +137,9 @@ async function compileShader(projectDir: string, type: string, from: string, to:
 		}
 
 		if (compilerPath !== '') {
-			let compiler = child_process.spawn(compilerPath, [type, from, to, temp, platform, '--glsl2', '--hlsl2']);
+			let params = [type, from, to, temp, platform];
+			if (debug) params.push('--debug');
+			let compiler = child_process.spawn(compilerPath, params);
 			
 			compiler.stdout.on('data', (data: any) => {
 				log.info(data.toString());
@@ -340,6 +344,8 @@ export async function run(options: any, loglog: any): Promise<string> {
 	if (options.visualstudio !== undefined) {
 		Options.visualStudioVersion = options.visualstudio;	
 	}
+
+	debug = options.debug;
 	
 	//if (options.vr != undefined) {
 	//	Options.vrApi = options.vr;

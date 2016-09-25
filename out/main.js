@@ -23,6 +23,7 @@ const EmscriptenExporter_1 = require('./Exporters/EmscriptenExporter');
 const TizenExporter_1 = require('./Exporters/TizenExporter');
 const VisualStudioExporter_1 = require('./Exporters/VisualStudioExporter');
 const XCodeExporter_1 = require('./Exporters/XCodeExporter');
+let debug = false;
 function fromPlatform(platform) {
     switch (platform) {
         case Platform_1.Platform.Windows:
@@ -136,7 +137,10 @@ function compileShader(projectDir, type, from, to, temp, platform) {
                 }
             }
             if (compilerPath !== '') {
-                let compiler = child_process.spawn(compilerPath, [type, from, to, temp, platform, '--glsl2', '--hlsl2']);
+                let params = [type, from, to, temp, platform];
+                if (debug)
+                    params.push('--debug');
+                let compiler = child_process.spawn(compilerPath, params);
                 compiler.stdout.on('data', (data) => {
                     log.info(data.toString());
                 });
@@ -331,6 +335,7 @@ function run(options, loglog) {
         if (options.visualstudio !== undefined) {
             Options_1.Options.visualStudioVersion = options.visualstudio;
         }
+        debug = options.debug;
         //if (options.vr != undefined) {
         //	Options.vrApi = options.vr;
         //}
