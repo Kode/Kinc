@@ -24,6 +24,11 @@
 #include <exception>
 #include <XInput.h>
 
+extern "C" {
+  __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+  __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 #ifdef KOREC
