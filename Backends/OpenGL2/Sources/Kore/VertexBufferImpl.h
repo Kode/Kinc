@@ -18,6 +18,9 @@ namespace Kore {
 //#endif
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);
+#ifndef NDEBUG
+		bool initialized;
+#endif
 	public:
 		static VertexBuffer* current;
 	};

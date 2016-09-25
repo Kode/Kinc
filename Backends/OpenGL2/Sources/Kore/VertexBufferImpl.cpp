@@ -3,13 +3,16 @@
 #include <Kore/Graphics/Graphics.h>
 #include "ShaderImpl.h"
 #include "ogl.h"
+#include <assert.h>
 
 using namespace Kore;
 
 VertexBuffer* VertexBufferImpl::current = nullptr;
 
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {
-
+#ifndef NDEBUG
+	initialized = false;
+#endif
 }
 
 VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
@@ -65,9 +68,13 @@ void VertexBuffer::unlock() {
 	glCheckErrors();
 	glBufferData(GL_ARRAY_BUFFER, myStride * myCount, data, GL_STATIC_DRAW);
 	glCheckErrors();
+#ifndef NDEBUG
+	initialized = true;
+#endif
 }
 
 int VertexBuffer::_set(int offset) {
+	assert(initialized); // Vertex Buffer is used before lock/unlock was called
 	int offsetoffset = setVertexAttributes(offset);
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
 	return offsetoffset;
