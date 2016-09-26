@@ -66,7 +66,7 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	else {
 		desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.CPUAccessFlags = 0;
 	}
 	
 	texture = nullptr;
