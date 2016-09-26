@@ -16,6 +16,8 @@ namespace {
 	struct Channel {
 		Sound* sound;
 		int position;
+		float fposition;
+		float pitch;
 	};
 
 	struct StreamChannel {
@@ -33,8 +35,18 @@ namespace {
 	StreamChannel streams[channelCount];
 	VideoChannel videos[channelCount];
 
+	float sample(s16* data, float position) {
+		int pos1 = (int)position;
+		int pos2 = (int)(position + 1);
+		float sample1 = data[pos1] / 32767.0f;
+		float sample2 = data[pos2] / 32767.0f;
+		float a = position - pos1;
+		return sample1 * (1 - a) + sample2 * a;
+	}
+
 	void mix(int samples) {
 		for (int i = 0; i < samples; ++i) {
+			bool left = (i % 2) == 0;
 			float value = 0;
 #if 0
 			__m128 sseSamples[4];
@@ -61,10 +73,13 @@ namespace {
 			mutex.Lock();
 			for (int i = 0; i < channelCount; ++i) {
 				if (channels[i].sound != nullptr) {
-					value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f * channels[i].sound->volume();
+					//value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f * channels[i].sound->volume();
+					if (left) value += sample((s16*)channels[i].sound->left, channels[i].fposition);
+					else value += sample((s16*)channels[i].sound->right, channels[i].fposition);
 					value = max(min(value, 1.0f), -1.0f);
 					channels[i].position += 2;
-					if (channels[i].position >= channels[i].sound->size) channels[i].sound = nullptr;
+					if (!left) channels[i].fposition += channels[i].pitch;
+					if (channels[i].position >= channels[i].sound->size - 2) channels[i].sound = nullptr;
 				}
 			}
 			for (int i = 0; i < channelCount; ++i) {
@@ -103,12 +118,14 @@ void Mixer::init() {
 	Audio::audioCallback = mix;
 }
 
-void Mixer::play(Sound* sound) {
+void Mixer::play(Sound* sound, float pitch) {
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == nullptr) {
 			channels[i].sound = sound;
 			channels[i].position = 0;
+			channels[i].fposition = 0;
+			channels[i].pitch = pitch;
 			break;
 		}
 	}
