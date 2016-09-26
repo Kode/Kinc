@@ -238,6 +238,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
+	lastDepthStencil = desc;
 
 	D3D11_RASTERIZER_DESC rasterDesc;
 	rasterDesc.FillMode	= D3D11_FILL_SOLID;
