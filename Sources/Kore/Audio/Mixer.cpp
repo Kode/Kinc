@@ -74,12 +74,12 @@ namespace {
 			for (int i = 0; i < channelCount; ++i) {
 				if (channels[i].sound != nullptr) {
 					//value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f * channels[i].sound->volume();
-					if (left) value += sample((s16*)channels[i].sound->left, channels[i].fposition);
-					else value += sample((s16*)channels[i].sound->right, channels[i].fposition);
+					if (left) value += sample((s16*)channels[i].sound->left, channels[i].fposition) * channels[i].sound->volume();
+					else value += sample((s16*)channels[i].sound->right, channels[i].fposition) * channels[i].sound->volume();
 					value = max(min(value, 1.0f), -1.0f);
 					channels[i].position += 2;
 					if (!left) channels[i].fposition += channels[i].pitch;
-					if (channels[i].position >= channels[i].sound->size - 12) channels[i].sound = nullptr;
+					if (channels[i].fposition >= channels[i].sound->size / 4 - 12) channels[i].sound = nullptr;
 				}
 			}
 			for (int i = 0; i < channelCount; ++i) {
