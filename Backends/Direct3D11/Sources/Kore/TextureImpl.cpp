@@ -2,6 +2,7 @@
 #include "Direct3D11.h"
 #include "TextureImpl.h"
 #include <Kore/WinError.h>
+#include <Kore/Math/Random.h>
 
 using namespace Kore;
 
@@ -66,7 +67,8 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	else {
 		desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		desc.CPUAccessFlags = 0;
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	}
 	
 	texture = nullptr;
@@ -108,15 +110,17 @@ void TextureImpl::unset() {
 }
 
 u8* Texture::lock() {
-	return (u8*)data;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	context->Map(texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	return (u8*)mappedResource.pData;
 }
 
 void Texture::unlock() {
-	context->UpdateSubresource(texture, 0, nullptr, data, stride(), 0);
+	context->Unmap(texture, 0);
 }
 
 int Texture::stride() {
-	return format == Image::RGBA32 ? width * 4 : width;
+	return format == Image::RGBA32 ? width * 4 : width; // TODO: Return mappedResource's stride
 }
 
 void Texture::generateMipmaps(int levels) {

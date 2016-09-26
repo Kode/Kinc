@@ -153,9 +153,9 @@ namespace {
 		return ret;
 	}
 
-	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int index, int i, int stream) {
+	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream) {
 		vertexDesc.SemanticName = "TEXCOORD";
-		vertexDesc.SemanticIndex = index;
+		vertexDesc.SemanticIndex = attributeIndex;
 		vertexDesc.InputSlot = stream;
 		vertexDesc.AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
 		vertexDesc.InputSlotClass = stream == 0 ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA; // hack
@@ -188,27 +188,27 @@ void Program::link(VertexStructure** structures, int count) {
 		for (int index = 0; index < structures[stream]->size; ++index) {
 			switch (structures[stream]->elements[index].data) {
 			case Float1VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], i, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 				++i;
 				break;
 			case Float2VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], i, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 				++i;
 				break;
 			case Float3VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], i, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				++i;
 				break;
 			case Float4VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], i, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
 			case ColorVertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], i, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 				++i;
 				break;
@@ -221,7 +221,7 @@ void Program::link(VertexStructure** structures, int count) {
 					_itoa(i2, &name[length], 10);
 					name[length + 1] = 0;
 
-					setVertexDesc(vertexDesc[i], vertexShader->attributes[name], i, stream);
+					setVertexDesc(vertexDesc[i], vertexShader->attributes[name], index + i2, stream);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 					++i;
