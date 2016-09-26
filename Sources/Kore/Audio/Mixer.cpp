@@ -79,7 +79,7 @@ namespace {
 					value = max(min(value, 1.0f), -1.0f);
 					channels[i].position += 2;
 					if (!left) channels[i].fposition += channels[i].pitch;
-					if (channels[i].position >= channels[i].sound->size - 2) channels[i].sound = nullptr;
+					if (channels[i].position >= channels[i].sound->size - 12) channels[i].sound = nullptr;
 				}
 			}
 			for (int i = 0; i < channelCount; ++i) {
