@@ -477,6 +477,13 @@ bool Kore::System::handleMessages() {
             case Button3:
                 Kore::Mouse::the()->_release(windowId, 1, button->x, button->y);
                 break;
+            // Button4 and Button5 provide mouse wheel events because why not
+            case Button4:
+                Kore::Mouse::the()->_scroll(windowId, -1);
+                break;
+            case Button5:
+                Kore::Mouse::the()->_scroll(windowId, 1);
+                break;
 			}
 			break;
 		}
