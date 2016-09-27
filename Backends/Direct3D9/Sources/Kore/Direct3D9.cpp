@@ -473,11 +473,18 @@ void Graphics::viewport(int x, int y, int width, int height) {
 }
 
 void Graphics::scissor(int x, int y, int width, int height) {
-	// TODO
+	setRenderState(Kore::RenderState::ScissorTestState, true);
+
+	RECT rc;
+	rc.left = x;
+	rc.top = y;
+	rc.right = x + width;
+	rc.bottom = y + height;
+	device->SetScissorRect(&rc);
 }
 
 void Graphics::disableScissor() {
-	// TODO
+	setRenderState(Kore::RenderState::ScissorTestState, false);
 }
 
 void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
