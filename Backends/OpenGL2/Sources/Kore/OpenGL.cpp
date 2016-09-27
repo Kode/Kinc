@@ -48,6 +48,9 @@ namespace {
 	int _renderTargetHeight;
 	bool renderToBackbuffer;
 
+	bool depthTest = false;
+	bool depthMask = false;
+
 #if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
 	void* glesDrawBuffers;
 #endif
@@ -480,6 +483,11 @@ void Graphics::end(int windowId) {
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, (color & 0xff000000) / 255.0f);
 	glCheckErrors();
+	if (flags & ClearDepthFlag) {
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		glCheckErrors();
+	}
 #ifdef OPENGLES
 	glClearDepthf(depth);
 #else
@@ -493,8 +501,22 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	GLbitfield oglflags =
 		  ((flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0)
 		| ((flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT : 0)
-		| ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT: 0);
+		| ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT : 0);
 	glClear(oglflags);
+	glCheckErrors();
+	if (depthTest) {
+		glEnable(GL_DEPTH_TEST);
+	}
+	else {
+		glDisable(GL_DEPTH_TEST);
+	}
+	glCheckErrors();
+	if (depthMask) {
+		glDepthMask(GL_TRUE);
+	}
+	else {
+		glDepthMask(GL_FALSE);
+	}
 	glCheckErrors();
 }
 
@@ -507,10 +529,12 @@ void Graphics::setRenderState(RenderState state, bool on) {
 	case DepthWrite:
 		if (on) glDepthMask(GL_TRUE);
 		else glDepthMask(GL_FALSE);
+		depthMask = on;
 		break;
 	case DepthTest:
 		if (on) glEnable(GL_DEPTH_TEST);
 		else glDisable(GL_DEPTH_TEST);
+		depthTest = on;
 		break;
 	case BlendingState:
 		if (on) glEnable(GL_BLEND);
