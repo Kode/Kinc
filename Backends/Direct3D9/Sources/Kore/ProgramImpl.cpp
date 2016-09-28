@@ -25,12 +25,12 @@ void Program::setGeometryShader(Shader* shader) {
 	log(Error, "Direct3D 9 does not support geometry shaders.");
 }
 
-void Program::setTesselationControlShader(Shader* shader) {
-	log(Error, "Direct3D 9 does not support tesselation shaders.");
+void Program::setTessellationControlShader(Shader* shader) {
+	log(Error, "Direct3D 9 does not support tessellation shaders.");
 }
 
-void Program::setTesselationEvaluationShader(Shader* shader) {
-	log(Error, "Direct3D 9 does not support tesselation shaders.");
+void Program::setTessellationEvaluationShader(Shader* shader) {
+	log(Error, "Direct3D 9 does not support tessellation shaders.");
 }
 
 void Program::link(VertexStructure** structures, int count) {
