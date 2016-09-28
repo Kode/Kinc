@@ -138,11 +138,11 @@ void Program::setGeometryShader(Shader* shader) {
 	geometryShader = shader;
 }
 
-void Program::setTesselationControlShader(Shader* shader) {
+void Program::setTessellationControlShader(Shader* shader) {
 	tessControlShader = shader;
 }
 
-void Program::setTesselationEvaluationShader(Shader* shader) {
+void Program::setTessellationEvaluationShader(Shader* shader) {
 	tessEvalShader = shader;
 }
 

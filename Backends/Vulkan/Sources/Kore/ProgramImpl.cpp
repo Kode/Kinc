@@ -180,10 +180,10 @@ namespace {
 }
 
 namespace Kore {
-	bool programUsesTesselation = false;
+	bool programUsesTessellation = false;
 }
 
-ProgramImpl::ProgramImpl() : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tesselationEvaluationShader(nullptr), tesselationControlShader(nullptr) {
+ProgramImpl::ProgramImpl() : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr), tessellationControlShader(nullptr) {
 	textures = new const char*[16];
 	textureValues = new int[16];
 }
@@ -208,12 +208,12 @@ void Program::setGeometryShader(Shader* shader) {
 	geometryShader = shader;
 }
 
-void Program::setTesselationControlShader(Shader* shader) {
-	tesselationControlShader = shader;
+void Program::setTessellationControlShader(Shader* shader) {
+	tessellationControlShader = shader;
 }
 
-void Program::setTesselationEvaluationShader(Shader* shader) {
-	tesselationEvaluationShader = shader;
+void Program::setTessellationEvaluationShader(Shader* shader) {
+	tessellationEvaluationShader = shader;
 }
 
 void createDescriptorLayout() {

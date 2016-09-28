@@ -26,7 +26,7 @@ using namespace Kore;
 
 namespace Kore {
 #if !defined(SYS_IOS) && !defined(SYS_ANDROID)
-	extern bool programUsesTesselation;
+	extern bool programUsesTessellation;
 #endif
 }
 
@@ -280,7 +280,7 @@ void Graphics::drawIndexedVertices(int start, int count) {
 #endif
     glCheckErrors();
 #else
-	if (programUsesTesselation) {
+	if (programUsesTessellation) {
 		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 		glCheckErrors();
 	}
@@ -298,7 +298,7 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
 #ifndef OPENGLES
 	int indices[3] = { 0, 1, 2 };
-	if (programUsesTesselation) {
+	if (programUsesTessellation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
 		glCheckErrors();
 	}
