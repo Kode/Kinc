@@ -10,43 +10,43 @@ function getDefines(platform: string, rotated: boolean) {
 	let defines: string[] = [];
 	switch (platform) {
 		case Platform.Windows:
-			defines.push("_CRT_SECURE_NO_WARNINGS");
-			defines.push("SYS_WINDOWS");
+			defines.push('_CRT_SECURE_NO_WARNINGS');
+			defines.push('SYS_WINDOWS');
 			break;
 		case Platform.WindowsApp:
-			defines.push("_CRT_SECURE_NO_WARNINGS");
-			defines.push("SYS_WINDOWSAPP");
+			defines.push('_CRT_SECURE_NO_WARNINGS');
+			defines.push('SYS_WINDOWSAPP');
 			break;
 		case Platform.PlayStation3:
-			defines.push("SYS_PS3");
+			defines.push('SYS_PS3');
 			break;
 		case Platform.iOS:
-			if (rotated) defines.push("ROTATE90");
-			defines.push("SYS_IOS");
+			if (rotated) defines.push('ROTATE90');
+			defines.push('SYS_IOS');
 			break;
 		case Platform.tvOS:
-			defines.push("SYS_TVOS");
+			defines.push('SYS_TVOS');
 			break;
 		case Platform.OSX:
-			defines.push("SYS_OSX");
-			defines.push("SYS_64BIT");
+			defines.push('SYS_OSX');
+			defines.push('SYS_64BIT');
 			break;
 		case Platform.Android:
-			if (rotated) defines.push("ROTATE90");
-			defines.push("SYS_ANDROID");
+			if (rotated) defines.push('ROTATE90');
+			defines.push('SYS_ANDROID');
 			break;
 		case Platform.Xbox360:
-			defines.push("_CRT_SECURE_NO_WARNINGS");
-			defines.push("SYS_XBOX360");
+			defines.push('_CRT_SECURE_NO_WARNINGS');
+			defines.push('SYS_XBOX360');
 			break;
 		case Platform.HTML5:
-			defines.push("SYS_HTML5");
+			defines.push('SYS_HTML5');
 			break;
 		case Platform.Linux:
-			defines.push("SYS_LINUX");
+			defines.push('SYS_LINUX');
 			break;
 		case Platform.Tizen:
-			defines.push("SYS_TIZEN");
+			defines.push('SYS_TIZEN');
 			break;
 	}
 	return defines;
@@ -60,7 +60,7 @@ function contains(array: any[], value: any) {
 }
 
 function isAbsolute(path: string) {
-	return (path.length > 0 && path[0] == '/') || (path.length > 1 && path[1] == ':');
+	return (path.length > 0 && path[0] === '/') || (path.length > 1 && path[1] === ':');
 }
 
 let scriptdir = '.';
@@ -98,7 +98,7 @@ export class Project {
 		this.name = name;
 		this.debugDir = '';
 		this.basedir = basedir;
-		if (name == 'Kore') Project.koreDir = this.basedir;
+		if (name === 'Kore') Project.koreDir = this.basedir;
 		this.uuid = uuid.v4();
 
 		this.files = [];
@@ -110,10 +110,10 @@ export class Project {
 		this.systemDependendLibraries = {};
 		this.includes = [];
 		this.excludes = [];
-        this.cpp11 = false;
+		this.cpp11 = false;
 		this.targetOptions = {
 			android: {}
-		}
+		};
 		this.rotated = false;
 		this.cmd = false;
 	}
@@ -160,13 +160,13 @@ export class Project {
 	}
 
 	matches(text: string, pattern: string) {
-		const regexstring = pattern.replace(/\./g, "\\.").replace(/\*\*/g, ".?").replace(/\*/g, "[^/]*").replace(/\?/g, '*');
+		const regexstring = pattern.replace(/\./g, '\\.').replace(/\*\*/g, '.?').replace(/\*/g, '[^/]*').replace(/\?/g, '*');
 		const regex = new RegExp('^' + regexstring + '$', 'g');
 		return regex.test(text);
 	}
 
 	matchesAllSubdirs(dir: string, pattern: string) {
-		if (pattern.endsWith("/**")) {
+		if (pattern.endsWith('/**')) {
 			return this.matches(this.stringify(dir), pattern.substr(0, pattern.length - 3));
 		}
 		else return false;
@@ -190,22 +190,22 @@ export class Project {
 		if (current === undefined) {
 			for (let sub of this.subProjects) sub.searchFiles(undefined);
 			this.searchFiles(this.basedir);
-			//std::set<std::string> starts;
-			//for (std::string include : includes) {
-			//	if (!isAbsolute(include)) continue;
-			//	std::string start = include.substr(0, firstIndexOf(include, '*'));
-			//	if (starts.count(start) > 0) continue;
-			//	starts.insert(start);
-			//	searchFiles(Paths::get(start));
-			//}
+			// std::set<std::string> starts;
+			// for (std::string include : includes) {
+			//     if (!isAbsolute(include)) continue;
+			//     std::string start = include.substr(0, firstIndexOf(include, '*'));
+			//     if (starts.count(start) > 0) continue;
+			//     starts.insert(start);
+			//     searchFiles(Paths::get(start));
+			// }
 			return;
 		}
 
 		let files = fs.readdirSync(current);
 		nextfile: for (let f in files) {
-			var file = path.join(current, files[f]);
+			let file = path.join(current, files[f]);
 			if (fs.statSync(file).isDirectory()) continue;
-			//if (!current.isAbsolute())
+			// if (!current.isAbsolute())
 			file = path.relative(this.basedir, file);
 			for (let exclude of this.excludes) {
 				if (this.matches(this.stringify(file), exclude)) continue nextfile;
@@ -373,7 +373,7 @@ export class Project {
 			let resolver = async (project: Project) => {
 				resolved = true;
 
-				//TODO: This accidentally finds Kha/Backends/KoreHL
+				// TODO: This accidentally finds Kha/Backends/KoreHL
 				/*if (fs.existsSync(path.join(scriptdir, 'Backends'))) {
 					var libdirs = fs.readdirSync(path.join(scriptdir, 'Backends'));
 					for (var ld in libdirs) {

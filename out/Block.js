@@ -12,15 +12,15 @@ class Block {
         --this.indentation;
     }
     tag(name, value) {
-        this.p("<" + name + ">" + value + "</" + name + ">");
+        this.p('<' + name + '>' + value + '</' + name + '>');
     }
     tagStart(name) {
-        this.p("<" + name + ">");
+        this.p('<' + name + '>');
         this.indent();
     }
     tagEnd(name) {
         this.unindent();
-        this.p("</" + name + ">");
+        this.p('</' + name + '>');
     }
     p(line) {
         if (line === undefined)

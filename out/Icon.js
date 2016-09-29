@@ -15,7 +15,7 @@ function run(from, to, width, height, format, background, callback) {
         params.push('background=' + background.toString(16));
     let child = cp.spawn(path.join(__dirname, '..', '..', 'kraffiti', exe), params);
     child.stdout.on('data', (data) => {
-        //log.info('kraffiti stdout: ' + data);
+        // log.info('kraffiti stdout: ' + data);
     });
     child.stderr.on('data', (data) => {
         log.error('kraffiti stderr: ' + data);

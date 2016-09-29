@@ -6,10 +6,10 @@ import {VisualStudioVersion} from './VisualStudioVersion';
 import {VrApi} from './VrApi';
 
 let defaultTarget: string;
-if (os.platform() === "linux") {
+if (os.platform() === 'linux') {
 	defaultTarget = Platform.Linux;
 }
-else if (os.platform() === "win32") {
+else if (os.platform() === 'win32') {
 	defaultTarget = Platform.Windows;
 }
 else {
@@ -125,8 +125,8 @@ let args = process.argv;
 for (let i = 2; i < args.length; ++i) {
 	let arg = args[i];
 
-	if (arg[0] == '-') {
-		if (arg[1] == '-') {
+	if (arg[0] === '-') {
+		if (arg[1] === '-') {
 			if (arg.substr(2) === 'help') {
 				printHelp();
 				process.exit(0);
@@ -177,7 +177,7 @@ if (parsedOptions.run) {
 }
 
 if (parsedOptions.update) {
-	console.log("Updating everything...");
+	console.log('Updating everything...');
 	require('child_process').spawnSync('git', ['submodule', 'foreach', '--recursive', 'git', 'pull', 'origin', 'master'], { stdio: 'inherit', stderr: 'inherit' });	
 	process.exit(0);
 }

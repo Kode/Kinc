@@ -14,7 +14,7 @@ function run(from: string, to: string, width: number, height: number, format: st
 	let child = cp.spawn(path.join(__dirname, '..', '..', 'kraffiti', exe), params);
 	
 	child.stdout.on('data', (data: any) => {
-		//log.info('kraffiti stdout: ' + data);
+		// log.info('kraffiti stdout: ' + data);
 	});
 	
 	child.stderr.on('data', (data: any) => {

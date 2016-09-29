@@ -18,17 +18,17 @@ export class Block {
 	}
 
 	tag(name: string, value: string) {
-		this.p("<" + name + ">" + value + "</" + name + ">");
+		this.p('<' + name + '>' + value + '</' + name + '>');
 	}
 
 	tagStart(name: string) {
-		this.p("<" + name + ">");
+		this.p('<' + name + '>');
 		this.indent();
 	}
 
 	tagEnd(name: string) {
 		this.unindent();
-		this.p("</" + name + ">");
+		this.p('</' + name + '>');
 	}
 
 	p(line: string) {

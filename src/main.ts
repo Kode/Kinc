@@ -23,31 +23,31 @@ let debug = false;
 function fromPlatform(platform: string): string {
 	switch (platform) {
 		case Platform.Windows:
-			return "Windows";
+			return 'Windows';
 		case Platform.WindowsApp:
-			return "Windows App";
+			return 'Windows App';
 		case Platform.PlayStation3:
-			return "PlayStation 3";
+			return 'PlayStation 3';
 		case Platform.iOS:
-			return "iOS";
+			return 'iOS';
 		case Platform.OSX:
-			return "OS X";
+			return 'OS X';
 		case Platform.Android:
-			return "Android";
+			return 'Android';
 		case Platform.Xbox360:
-			return "Xbox 360";
+			return 'Xbox 360';
 		case Platform.Linux:
-			return "Linux";
+			return 'Linux';
 		case Platform.HTML5:
-			return "HTML5";
+			return 'HTML5';
 		case Platform.Tizen:
-			return "Tizen";
+			return 'Tizen';
 		case Platform.Pi:
-			return "Pi";
+			return 'Pi';
 		case Platform.tvOS:
-			return "tvOS";
+			return 'tvOS';
 		default:
-			return "unknown";
+			return 'unknown';
 	}
 }
 
@@ -57,22 +57,22 @@ function shaderLang(platform: string): string {
 			switch (Options.graphicsApi) {
 				case GraphicsApi.OpenGL:
 				case GraphicsApi.OpenGL2:
-					return "glsl";
+					return 'glsl';
 				case GraphicsApi.Direct3D9:
-					return "d3d9";
+					return 'd3d9';
 				case GraphicsApi.Direct3D11:
-					return "d3d11";
+					return 'd3d11';
 				case GraphicsApi.Direct3D12:
 					return 'd3d11';
 				case GraphicsApi.Vulkan:
 					return 'spirv';
 				default:
-					return "d3d9";
+					return 'd3d9';
 			}
 		case Platform.WindowsApp:
-			return "d3d11";
+			return 'd3d11';
 		case Platform.PlayStation3:
-			return "d3d9";
+			return 'd3d9';
 		case Platform.iOS:
 		case Platform.tvOS:
 			switch (Options.graphicsApi) {
@@ -96,7 +96,7 @@ function shaderLang(platform: string): string {
 					return 'essl';
 			}
 		case Platform.Xbox360:
-			return "d3d9";
+			return 'd3d9';
 		case Platform.Linux:
 			switch (Options.graphicsApi) {
 				case GraphicsApi.Vulkan:
@@ -105,11 +105,11 @@ function shaderLang(platform: string): string {
 					return 'glsl';
 			}
 		case Platform.HTML5:
-			return "essl";
+			return 'essl';
 		case Platform.Tizen:
-			return "essl";
+			return 'essl';
 		case Platform.Pi:
-			return "essl";
+			return 'essl';
 		default:
 			return platform;
 	}
@@ -183,13 +183,13 @@ async function compileShader(projectDir: string, type: string, from: string, to:
 					resolve();
 				}
 				else {
-					//process.exitCode = 1;
+					// process.exitCode = 1;
 					reject('Shader compiler error.');
 				}
 			});
 		}
 		else {
-			throw 'Could not find shader compiler.'
+			throw 'Could not find shader compiler.';
 		}
 	});
 }
@@ -214,32 +214,32 @@ async function exportKoremakeProject(from: string, to: string, platform: string,
 	let files = project.getFiles();
 	let shaderCount = 0;
 	for (let file of files) {
-		if (file.file.endsWith(".glsl")) {
+		if (file.file.endsWith('.glsl')) {
 			++shaderCount;
 		}
 	}
 	let shaderIndex = 0;
 	for (let file of files) {
-		if (file.file.endsWith(".glsl")) {
+		if (file.file.endsWith('.glsl')) {
 			let outfile = file.file;
 			const index = outfile.lastIndexOf('/');
 			if (index > 0) outfile = outfile.substr(index);
 			outfile = outfile.substr(0, outfile.length - 5);
 			log.info('Compiling shader ' + (shaderIndex + 1) + ' of ' + shaderCount + ' (' + file.file + ').');
 			++shaderIndex;
-			await compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), "build", platform);
+			await compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), 'build', platform);
 		}
 	}
 
 	let exporter: Exporter = null;
 	if (platform === Platform.iOS || platform === Platform.OSX || platform === Platform.tvOS) exporter = new XCodeExporter();
-	else if (platform == Platform.Android) exporter = new AndroidExporter();
-	else if (platform == Platform.HTML5) exporter = new EmscriptenExporter();
-	else if (platform == Platform.Linux || platform === Platform.Pi) {
+	else if (platform === Platform.Android) exporter = new AndroidExporter();
+	else if (platform === Platform.HTML5) exporter = new EmscriptenExporter();
+	else if (platform === Platform.Linux || platform === Platform.Pi) {
 		if (options.compile) exporter = new MakefileExporter();
 		else exporter = new CodeBlocksExporter();
 	}
-	else if (platform == Platform.Tizen) exporter = new TizenExporter();
+	else if (platform === Platform.Tizen) exporter = new TizenExporter();
 	else {
 		let found = false;
 		for (let p in Platform) {
@@ -257,11 +257,10 @@ async function exportKoremakeProject(from: string, to: string, platform: string,
 				let libdirs = fs.readdirSync(libsdir);
 				for (let libdir of libdirs) {
 					if (fs.statSync(path.join(from.toString(), 'Backends', libdir)).isDirectory()) {
-						var libfiles = fs.readdirSync(path.join(from.toString(), 'Backends', libdir));
-						for (var lf in libfiles) {
-							var libfile = libfiles[lf];
+						let libfiles = fs.readdirSync(path.join(from.toString(), 'Backends', libdir));
+						for (let libfile of libfiles) {
 							if (libfile.startsWith('Exporter') && libfile.endsWith('.js')) {
-								var Exporter = require(path.relative(__dirname, path.join(from.toString(), 'Backends', libdir, libfile)));
+								let Exporter = require(path.relative(__dirname, path.join(from.toString(), 'Backends', libdir, libfile)));
 								exporter = new Exporter();
 								break;
 							}
@@ -347,14 +346,14 @@ export async function run(options: any, loglog: any): Promise<string> {
 
 	debug = options.debug;
 	
-	//if (options.vr != undefined) {
-	//	Options.vrApi = options.vr;
-	//}
+	// if (options.vr != undefined) {
+	//     Options.vrApi = options.vr;
+	// }
 	
 	let project = await exportProject(options.from, options.to, options.target, options);
 	let solutionName = project.getName();
 	
-	if (options.compile && solutionName != "") {
+	if (options.compile && solutionName !== '') {
 		log.info('Compiling...');
 
 		let make: child_process.ChildProcess = null;
