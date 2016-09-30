@@ -83,7 +83,7 @@ export class MakefileExporter extends Exporter {
 		this.p();
 
 		let optimization = '';
-		if (!options.debug) optimization = '-O3';
+		if (!options.debug) optimization = '-O2';
 
 		this.p(project.getName() + ': ' + gchfilelist + ofilelist);
 		
