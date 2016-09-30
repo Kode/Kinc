@@ -16,7 +16,7 @@ export class MakefileExporter extends Exporter {
 		let ofiles: any = {};
 		for (let fileobject of project.getFiles()) {
 			let file = fileobject.file;
-			if (file.endsWith(".cpp") || file.endsWith(".c") || file.endsWith("cc")) {
+			if (file.endsWith('.cpp') || file.endsWith('.c') || file.endsWith('.cc')) {
 				let name = file.toLowerCase();
 				if (name.indexOf('/') >= 0) name = name.substr(name.lastIndexOf('/') + 1);
 				name = name.substr(0, name.lastIndexOf('.'));
@@ -26,7 +26,7 @@ export class MakefileExporter extends Exporter {
 				}
 				else {
 					while (objects[name]) {
-						name = name + "_";
+						name = name + '_';
 					}
 					objects[name] = true;
 					ofiles[file] = name;
@@ -89,7 +89,7 @@ export class MakefileExporter extends Exporter {
 		
 		let cpp = '';
 		if (project.cpp11) {
-			cpp = '-std=c++11'
+			cpp = '-std=c++11';
 		}
 
 		this.p('\tg++ ' + cpp + ' ' + optimization + ' ' + ofilelist + ' -o "' + project.getName() + '" $(LIB)');
@@ -123,8 +123,8 @@ export class MakefileExporter extends Exporter {
 			}
 		}
 
-		//project.getDefines()
-		//project.getIncludeDirs()
+		// project.getDefines()
+		// project.getIncludeDirs()
 
 		this.closeFile();
 	}
