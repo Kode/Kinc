@@ -94,10 +94,9 @@ export class AndroidExporter extends Exporter {
 		}
 		cmake = cmake.replace(/{files}/g, files);
 
-		let libs = ['log', 'android', 'EGL', 'GLESv2', 'OpenSLES', 'OpenMAXAL'];
 		let libraries1 = '';
 		let libraries2 = '';
-		for (let lib of libs) {
+		for (let lib of project.getLibs()) {
 			libraries1 += 'find_library(' + lib + '-lib ' + lib + ')\n';
 			libraries2 += '  ${' + lib + '-lib}\n';
 		}
