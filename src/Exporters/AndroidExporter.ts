@@ -6,53 +6,6 @@ import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
 
-function filesDifferWin(file1: string, file2: string): boolean {
-	if (!fs.existsSync(file1)) return true;
-	if (!fs.existsSync(file2)) return true;
-
-	try {
-		let output = execSync('fc ' + file1 + ' ' + file2, { encoding: 'utf8' });
-		return output.indexOf('no differences encountered') < 0;
-	}
-	catch (error) {
-		return true;
-	}
-}
-
-function filesDifferUnix(file1: string, file2: string): boolean {
-	if (!fs.existsSync(file1)) return true;
-	if (!fs.existsSync(file2)) return true;
-
-	try {
-		return execSync('diff ' + file1 + ' ' + file2, { encoding: 'utf8' }) !== '';
-	}
-	catch (error) {
-		return true;
-	}
-}
-
-function copyIfDifferent(from: string, to: string, replace: boolean): void {
-	fs.ensureDirSync(path.normalize(path.join(to, '..')));
-	if (replace || !fs.existsSync(to)) {
-		if (os.platform() === 'win32') {
-			if (filesDifferWin(to, from)) {
-				fs.writeFileSync(to, fs.readFileSync(from));
-			}
-		}
-		else {
-			if (filesDifferUnix(to, from)) {
-				fs.writeFileSync(to, fs.readFileSync(from));
-			}
-		}
-	}
-}
-
-function sourceCopyLocation(somePath: string, from: string, to: string, safename: string): string {
-	somePath = path.relative(from, somePath);
-	while (somePath.startsWith('..' + path.sep)) somePath = somePath.substr(3);
-	return path.resolve(to, safename, 'app', 'src', 'main', 'jni', somePath);
-}
-
 export class AndroidExporter extends Exporter {
 	safename: string;
 
@@ -64,7 +17,7 @@ export class AndroidExporter extends Exporter {
 		let safename = project.getName().replace(/ /g, '-');
 		this.safename = safename;
 		let targetOptions = {
-			package: 'com.ktxsoftware.kha',
+			package: 'com.ktxsoftware.kore',
 			screenOrientation: 'sensor'
 		};
 		if (project.targetOptions != null && project.targetOptions.android != null) {
@@ -76,21 +29,16 @@ export class AndroidExporter extends Exporter {
 		const indir = path.join(__dirname, '..', '..', 'Data', 'android');
 		const outdir = path.join(to.toString(), safename);
 
+		fs.copySync(path.join(indir, 'gitignore'), path.join(outdir, '.gitignore'));
 		fs.copySync(path.join(indir, 'build.gradle'), path.join(outdir, 'build.gradle'));
-		// fs.copySync(path.join(indir, 'gradle.properties'), path.join(outdir, 'gradle.properties'));
+		fs.copySync(path.join(indir, 'gradle.properties'), path.join(outdir, 'gradle.properties'));
 		fs.copySync(path.join(indir, 'gradlew'), path.join(outdir, 'gradlew'));
 		fs.copySync(path.join(indir, 'gradlew.bat'), path.join(outdir, 'gradlew.bat'));
-		// fs.copySync(path.join(indir, 'local.properties'), path.join(outdir, 'local.properties'));
 		fs.copySync(path.join(indir, 'settings.gradle'), path.join(outdir, 'settings.gradle'));
 
-		let nameiml = fs.readFileSync(path.join(indir, 'name.iml'), {encoding: 'utf8'});
-		nameiml = nameiml.replace(/{Name}/g, safename);
-		fs.writeFileSync(path.join(outdir, safename + '.iml'), nameiml, {encoding: 'utf8'});
-
 		fs.ensureDirSync(path.join(outdir, 'app'));
-		// fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
 
-		let flags = '\n';
+		/*let flags = '\n';
 		flags += '            cppFlags.add(\'-std=c++11\')\n';
 		flags += '            cppFlags.add(\'-fexceptions\')\n';
 		flags += '            cppFlags.add(\'-frtti\')\n';
@@ -110,11 +58,11 @@ export class AndroidExporter extends Exporter {
 			inc = inc.replace(/\\/g, '/');
 			flags += '            cppFlags.add("-I${file("' + inc + '")}".toString())\n';
 			flags += '            CFlags.add("-I${file("' + inc + '")}".toString())\n';
-		}
+		}*/
 
 		let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), {encoding: 'utf8'});
 		gradle = gradle.replace(/{package}/g, targetOptions.package);
-		gradle = gradle.replace(/{flags}/g, flags);
+		//gradle = gradle.replace(/{flags}/g, flags);
 
 		let javasources = '';
 		for (let dir of project.getJavaDirs()) {
@@ -122,13 +70,10 @@ export class AndroidExporter extends Exporter {
 		}
 		javasources += '                        srcDir \'' + path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replace(/\\/g, '/') + '\'\n';
 		gradle = gradle.replace(/{javasources}/g, javasources);
-
-		// gradle = gradle.replaceAll('{cppsources}', ''); // Currently at the default position
 		fs.writeFileSync(path.join(outdir, 'app', 'build.gradle'), gradle, {encoding: 'utf8'});
 
-		let appiml = fs.readFileSync(path.join(indir, 'app', 'app.iml'), {encoding: 'utf8'});
-		appiml = appiml.replace(/{name}/g, safename);
-		fs.writeFileSync(path.join(outdir, 'app', 'app.iml'), appiml, {encoding: 'utf8'});
+		fs.copySync(path.join(indir, 'app', 'CMakeLists.txt'), path.join(outdir, 'app', 'CMakeLists.txt'));
+		fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
 
 		fs.ensureDirSync(path.join(outdir, 'app', 'src'));
 		// fs.emptyDirSync(path.join(outdir, 'app', 'src'));
@@ -154,151 +99,21 @@ export class AndroidExporter extends Exporter {
 		Icon.exportPng(path.resolve(to, safename, 'app', 'src', 'main', 'res', 'mipmap-xhdpi', 'ic_launcher.png'), 96, 96, undefined, from);
 		fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'mipmap-xxhdpi'));
 		Icon.exportPng(path.resolve(to, safename, 'app', 'src', 'main', 'res', 'mipmap-xxhdpi', 'ic_launcher.png'), 144, 144, undefined, from);
+		fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main', 'res', 'mipmap-xxhdpi'));
+		Icon.exportPng(path.resolve(to, safename, 'app', 'src', 'main', 'res', 'mipmap-xxxhdpi', 'ic_launcher.png'), 192, 192, undefined, from);
 
 		fs.copySync(path.join(indir, 'gradle', 'wrapper', 'gradle-wrapper.jar'), path.join(outdir, 'gradle', 'wrapper', 'gradle-wrapper.jar'));
 		fs.copySync(path.join(indir, 'gradle', 'wrapper', 'gradle-wrapper.properties'), path.join(outdir, 'gradle', 'wrapper', 'gradle-wrapper.properties'));
 
 		fs.copySync(path.join(indir, 'idea', 'compiler.xml'), path.join(outdir, '.idea', 'compiler.xml'));
-		fs.copySync(path.join(indir, 'idea', 'encodings.xml'), path.join(outdir, '.idea', 'encodings.xml'));
 		fs.copySync(path.join(indir, 'idea', 'gradle.xml'), path.join(outdir, '.idea', 'gradle.xml'));
 		fs.copySync(path.join(indir, 'idea', 'misc.xml'), path.join(outdir, '.idea', 'misc.xml'));
-		fs.copySync(path.join(indir, 'idea', 'runConfigurations.xml'), path.join(outdir, '.idea', 'runConfigurations.xml'));
-		// fs.copySync(path.join(indir, 'idea', 'vcs.xml'), path.join(outdir, '.idea', 'vcs.xml'));
-		fs.copySync(path.join(indir, 'idea', 'copyright', 'profiles_settings.xml'), path.join(outdir, '.idea', 'copyright', 'profiles_settings.xml'));
-
-		let namename = fs.readFileSync(path.join(indir, 'idea', 'name'), {encoding: 'utf8'});
-		namename = namename.replace(/{name}/g, project.getName());
-		fs.writeFileSync(path.join(outdir, '.idea', '.name'), namename, {encoding: 'utf8'});
-
 		let modules = fs.readFileSync(path.join(indir, 'idea', 'modules.xml'), {encoding: 'utf8'});
 		modules = modules.replace(/{name}/g, safename);
 		fs.writeFileSync(path.join(outdir, '.idea', 'modules.xml'), modules, {encoding: 'utf8'});
+		fs.copySync(path.join(indir, 'idea', 'runConfigurations.xml'), path.join(outdir, '.idea', 'runConfigurations.xml'));
+		fs.copySync(path.join(indir, 'idea', 'copyright', 'profiles_settings.xml'), path.join(outdir, '.idea', 'copyright', 'profiles_settings.xml'));
 
 		if (project.getDebugDir().length > 0) fs.copySync(path.resolve(from, project.getDebugDir()), path.resolve(to, safename, 'app', 'src', 'main', 'assets'));
-
-		for (let file of project.getFiles()) {
-			let target = sourceCopyLocation(file.file, from, to, safename);
-			copyIfDifferent(path.resolve(from, file.file), target, true);
-		}
-	}
-
-	exportSolutionEclipse(project: Project, from: string, to: string, platform: string, vr: any) {
-		const nvpack = false;
-		// String libname = solution.getName().toLowerCase().replace(' ', '-');
-
-		if (project.getDebugDir().length > 0) fs.copySync(path.resolve(from, project.getDebugDir()), path.resolve(to, 'assets'));
-		if (vr === 'cardboard') {
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'classpath.Cardboard'), path.resolve(to, '.classpath'), true);
-		}
-		else {
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'classpath'), path.resolve(to, '.classpath'), true);
-		}
-
-		let file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'project'), 'utf8');
-		file = file.replace(/{ProjectName}/g, project.getName());
-		if (Project.koreDir.toString() !== '') file = file.replace(/{Java-Sources}/g, path.resolve(Project.koreDir, 'Backends', 'Android', 'Java-Sources').replace(/\\/g, '/'));
-		if (Project.koreDir.toString() !== '') file = file.replace(/{Android-Backend-Sources}/g, path.resolve(Project.koreDir, 'Backends', 'Android', 'Sources').replace(/\\/g, '/'));
-		if (Project.koreDir.toString() !== '') file = file.replace(/{OpenGL-Backend-Sources}/g, path.resolve(Project.koreDir, 'Backends', 'OpenGL2', 'Sources').replace(/\\/g, '/'));
-		if (Project.koreDir.toString() !== '') file = file.replace(/{Kore-Sources}/g, path.resolve(Project.koreDir, 'Sources').replace(/\\/g, '/'));
-		fs.writeFileSync(path.resolve(to, '.project'), file);
-
-		file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'cproject'), 'utf8');
-		file = file.replace(/{ProjectName}/g, project.getName());
-		fs.writeFileSync(path.resolve(to, '.cproject'), file);
-
-		if (vr === 'gearvr') {
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'AndroidManifest.GearVr.xml'), path.resolve(to, 'AndroidManifest.xml'), true);
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'project.GearVr.properties'), path.resolve(to, 'project.properties'), true);
-		}
-		else if (vr === 'cardboard') {
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'AndroidManifest.Cardboard.xml'), path.resolve(to, 'AndroidManifest.xml'), true);
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'project.Cardboard.properties'), path.resolve(to, 'project.properties'), true);
-		}
-		else {
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'AndroidManifest.xml'), path.resolve(to, 'AndroidManifest.xml'), true);
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'project.properties'), path.resolve(to, 'project.properties'), true);
-		}
-		fs.ensureDirSync(path.resolve(to, '.settings'));
-		if (nvpack) {
-			fs.copySync(path.resolve(__dirname, 'Data', 'android', 'nvidia', 'org.eclipse.jdt.core.prefs'), path.resolve(to, '.settings', 'org.eclipse.jdt.core.prefs'), true);
-		}
-		else {
-			copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'org.eclipse.jdt.core.prefs'), path.resolve(to, '.settings', 'org.eclipse.jdt.core.prefs'), true);
-		}
-
-		if (nvpack) {
-			fs.copySync(path.resolve(__dirname, 'Data', 'android', 'nvidia', 'build.xml'), path.resolve(to, 'build.xml'));
-		}
-
-		fs.ensureDirSync(path.resolve(to, 'res'));
-		fs.ensureDirSync(path.resolve(to, 'res', 'values'));
-		file = fs.readFileSync(path.resolve(__dirname, 'Data', 'android', 'strings.xml'), 'utf8');
-		file = file.replace(/{ProjectName}/g, project.getName());
-		fs.writeFileSync(path.resolve(to, 'res', 'values', 'strings.xml'), file);
-
-		fs.ensureDirSync(path.resolve(to, 'jni'));
-
-		this.writeFile(path.resolve(to, 'jni', 'Android_temp.mk'));
-		this.p('LOCAL_PATH := $(call my-dir)');
-		this.p();
-		this.p('include $(CLEAR_VARS)');
-		this.p();
-		if (vr === 'gearvr') this.p('include ../../../VRLib/import_vrlib.mk		# import VRLib for this module.  Do NOT call $(CLEAR_VARS) until after building your module.');
-		if (vr === 'gearvr') this.p('# use += instead of := when defining the following variables: LOCAL_LDLIBS, LOCAL_CFLAGS, LOCAL_C_INCLUDES, LOCAL_STATIC_LIBRARIES');
-
-		this.p('LOCAL_MODULE    := Kore');
-		let files = '';
-		for (let fileobject of project.getFiles()) {
-			let filename = fileobject.file; 
-			if (filename.endsWith('.c') || filename.endsWith('.cpp') || filename.endsWith('.cc') || filename.endsWith('.s')) files += path.relative(path.resolve(to, 'jni'), path.resolve(from, filename)).replace(/\\/g, '/') + ' ';
-		}
-		this.p('LOCAL_SRC_FILES := ' + files);
-		let defines = '';
-		for (let def of project.getDefines()) defines += '-D' + def.replace(/\"/g, '\\"') + ' ';
-		if (vr === 'gearvr') {
-			this.p('LOCAL_CFLAGS += ' + defines);
-		}
-		else {
-			this.p('LOCAL_CFLAGS := ' + defines);
-		}
-		let includes = '';
-		for (let inc of project.getIncludeDirs()) includes += '$(LOCAL_PATH)/' + path.relative(path.resolve(to, 'jni'), path.resolve(from, inc)).replace(/\\/g, '/') + ' ';
-		if (vr === 'gearvr') {
-			this.p('LOCAL_C_INCLUDES += ' + includes);
-			this.p('LOCAL_LDLIBS    += -llog -lGLESv2 -lOpenMAXAL -landroid');
-			this.p('LOCAL_CPPFLAGS := -DVR_GEAR_VR');
-		}
-		else {
-			this.p('LOCAL_C_INCLUDES := ' + includes);
-			this.p('LOCAL_LDLIBS    := -llog -lGLESv2 -lOpenMAXAL -landroid');
-		}
-		if (vr === 'cardboard') {
-			this.p('LOCAL_CPPFLAGS := -DVR_CARDBOARD');
-		}
-		this.p('#LOCAL_SHORT_COMMANDS := true');
-		this.p();
-		this.p('include $(BUILD_SHARED_LIBRARY)');
-		this.p();
-		this.closeFile();
-
-		// Check if the file is different from the old one
-		copyIfDifferent(path.resolve(to, 'jni', 'Android_temp.mk'), path.resolve(to, 'jni', 'Android.mk'), true);
-
-		// writeFile(to.resolve(Paths::get("jni", "Application.mk")));
-		// p("APP_CPPFLAGS += -fexceptions -frtti");
-		// p("APP_STL := gnustl_static");
-		// //p("APP_ABI := all");
-		// p("APP_ABI := armeabi-v7a");
-		// //p("LOCAL_ARM_NEON := true");
-		// closeFile();
-
-		copyIfDifferent(path.resolve(__dirname, 'Data', 'android', 'Application.mk'), path.resolve(to, 'jni', 'Application.mk'), true);
-
-		// for (var f in project.getFiles()) {
-		//     var file = project.getFiles()[f];
-		//     var target = to.resolve("jni").resolve(file);
-		//     this.createDirectory(Paths.get(target.path.substr(0, target.path.lastIndexOf('/'))));
-		//     Files.copyIfDifferent(from.resolve(file), target, true);
-		// }
 	}
 }
