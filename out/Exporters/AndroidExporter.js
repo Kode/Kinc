@@ -63,6 +63,16 @@ class AndroidExporter extends Exporter_1.Exporter {
         gradle = gradle.replace(/{javasources}/g, javasources);
         fs.writeFileSync(path.join(outdir, 'app', 'build.gradle'), gradle, { encoding: 'utf8' });
         let cmake = fs.readFileSync(path.join(indir, 'app', 'CMakeLists.txt'), { encoding: 'utf8' });
+        let defines = '';
+        for (let def of project.getDefines()) {
+            defines += '  -D' + def + '\n';
+        }
+        cmake = cmake.replace(/{defines}/g, defines);
+        let includes = '';
+        for (let inc of project.getIncludeDirs()) {
+            includes += '  "' + path.resolve(inc).replace(/\\/g, '/') + '"\n';
+        }
+        cmake = cmake.replace(/{includes}/g, includes);
         let files = '';
         for (let file of project.getFiles()) {
             if (file.file.endsWith('.c') || file.file.endsWith('.cc') || file.file.endsWith('.cpp') || file.file.endsWith('.h')) {
@@ -70,6 +80,14 @@ class AndroidExporter extends Exporter_1.Exporter {
             }
         }
         cmake = cmake.replace(/{files}/g, files);
+        let libs = ['log', 'android', 'EGL', 'GLESv2', 'OpenSLES', 'OpenMAXAL'];
+        let libraries1 = '';
+        let libraries2 = '';
+        for (let lib of libs) {
+            libraries1 += 'find_library(' + lib + '-lib ' + lib + ')\n';
+            libraries2 += '  ${' + lib + '-lib}\n';
+        }
+        cmake = cmake.replace(/{libraries1}/g, libraries1).replace(/{libraries2}/g, libraries2);
         fs.writeFileSync(path.join(outdir, 'app', 'CMakeLists.txt'), cmake, { encoding: 'utf8' });
         fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
         fs.ensureDirSync(path.join(outdir, 'app', 'src'));
