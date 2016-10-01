@@ -338,7 +338,14 @@ function run(options, loglog) {
         // if (options.vr != undefined) {
         //     Options.vrApi = options.vr;
         // }
-        let project = yield exportProject(options.from, options.to, options.target, options);
+        let project = null;
+        try {
+            project = yield exportProject(options.from, options.to, options.target, options);
+        }
+        catch (error) {
+            log.error(error);
+            return '';
+        }
         let solutionName = project.getName();
         if (options.compile && solutionName !== '') {
             log.info('Compiling...');

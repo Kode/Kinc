@@ -350,7 +350,14 @@ export async function run(options: any, loglog: any): Promise<string> {
 	//     Options.vrApi = options.vr;
 	// }
 	
-	let project = await exportProject(options.from, options.to, options.target, options);
+	let project: Project = null;
+	try {
+		project = await exportProject(options.from, options.to, options.target, options);
+	}
+	catch (error) {
+		log.error(error);
+		return '';
+	}
 	let solutionName = project.getName();
 	
 	if (options.compile && solutionName !== '') {

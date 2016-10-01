@@ -66,13 +66,22 @@ export class AndroidExporter extends Exporter {
 
 		let javasources = '';
 		for (let dir of project.getJavaDirs()) {
-			javasources += '                        srcDir \'' + path.relative(path.join(outdir, 'app'), path.resolve(from, dir)).replace(/\\/g, '/') + '\'\n';
+			javasources += '\'' + path.relative(path.join(outdir, 'app'), path.resolve(from, dir)).replace(/\\/g, '/') + '\', ';
 		}
-		javasources += '                        srcDir \'' + path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replace(/\\/g, '/') + '\'\n';
+		javasources += '\'' + path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replace(/\\/g, '/') + '\'';
 		gradle = gradle.replace(/{javasources}/g, javasources);
 		fs.writeFileSync(path.join(outdir, 'app', 'build.gradle'), gradle, {encoding: 'utf8'});
 
-		fs.copySync(path.join(indir, 'app', 'CMakeLists.txt'), path.join(outdir, 'app', 'CMakeLists.txt'));
+		let cmake = fs.readFileSync(path.join(indir, 'app', 'CMakeLists.txt'), {encoding: 'utf8'});
+		let files = '';
+		for (let file of project.getFiles()) {
+			if (file.file.endsWith('.c') || file.file.endsWith('.cc') || file.file.endsWith('.cpp') || file.file.endsWith('.h')) {
+				files += '  "' + path.resolve(file.file).replace(/\\/g, '/') + '"\n';
+			}
+		}
+		cmake = cmake.replace(/{files}/g, files);
+		fs.writeFileSync(path.join(outdir, 'app', 'CMakeLists.txt'), cmake, {encoding: 'utf8'});
+
 		fs.copySync(path.join(indir, 'app', 'proguard-rules.pro'), path.join(outdir, 'app', 'proguard-rules.pro'));
 
 		fs.ensureDirSync(path.join(outdir, 'app', 'src'));
