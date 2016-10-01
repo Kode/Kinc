@@ -1,3 +1,4 @@
+#if 0
 #include "pch.h"
 #include "VrInterface.h"
 
@@ -384,3 +385,4 @@ kha::vr::SensorState_obj* GetPredictedSensorState(const float time) {
 }
 //
 }
+#endif
