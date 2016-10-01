@@ -798,7 +798,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
         this.p('<ItemGroup>', 1);
         for (let file of project.getFiles()) {
             if (file.file.endsWith('.h') || file.file.endsWith('.hpp'))
-                this.p('<ClInclude Include="' + path.resolve(from, file.file) + '\ />', 2);
+                this.p('<ClInclude Include="' + path.resolve(from, file.file) + '" />', 2);
         }
         this.p('</ItemGroup>', 1);
         if (platform === Platform_1.Platform.WindowsApp) {

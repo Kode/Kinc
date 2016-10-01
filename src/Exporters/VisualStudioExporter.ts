@@ -790,7 +790,7 @@ export class VisualStudioExporter extends Exporter {
 
 		this.p('<ItemGroup>', 1);
 		for (let file of project.getFiles()) {
-			if (file.file.endsWith('.h') || file.file.endsWith('.hpp')) this.p('<ClInclude Include="' + path.resolve(from, file.file) + '\ />', 2);
+			if (file.file.endsWith('.h') || file.file.endsWith('.hpp')) this.p('<ClInclude Include="' + path.resolve(from, file.file) + '" />', 2);
 		}
 		this.p('</ItemGroup>', 1);
 
