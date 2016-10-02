@@ -31,30 +31,13 @@ class AndroidExporter extends Exporter_1.Exporter {
         fs.copySync(path.join(indir, 'gradlew.bat'), path.join(outdir, 'gradlew.bat'));
         fs.copySync(path.join(indir, 'settings.gradle'), path.join(outdir, 'settings.gradle'));
         fs.ensureDirSync(path.join(outdir, 'app'));
-        /*let flags = '\n';
-        flags += '            cppFlags.add(\'-std=c++11\')\n';
-        flags += '            cppFlags.add(\'-fexceptions\')\n';
-        flags += '            cppFlags.add(\'-frtti\')\n';
-
-        // Because of https://tls.mbed.org/kb/development/arm-thumb-error-r7-cannot-be-used-in-asm-here
-        // TODO: Remove when clang works
-        flags += '            cppFlags.add(\'-fomit-frame-pointer\')\n';
-        flags += '            CFlags.add(\'-fomit-frame-pointer\')\n';
-
-        for (let def of project.getDefines()) {
-            flags += '            cppFlags.add(\'-D' + def + '\')\n';
-            flags += '            CFlags.add(\'-D' + def + '\')\n';
-        }
-        for (let inc of project.getIncludeDirs()) {
-            inc = sourceCopyLocation(inc, from, to, safename);
-            inc = path.relative(path.resolve(to, safename, 'app'), inc);
-            inc = inc.replace(/\\/g, '/');
-            flags += '            cppFlags.add("-I${file("' + inc + '")}".toString())\n';
-            flags += '            CFlags.add("-I${file("' + inc + '")}".toString())\n';
-        }*/
         let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), { encoding: 'utf8' });
         gradle = gradle.replace(/{package}/g, targetOptions.package);
-        //gradle = gradle.replace(/{flags}/g, flags);
+        let cppflags = '-frtti -fexceptions';
+        if (project.cpp11) {
+            cppflags = '-std=c++11 ' + cppflags;
+        }
+        gradle = gradle.replace(/{cppflags}/g, cppflags);
         let javasources = '';
         for (let dir of project.getJavaDirs()) {
             javasources += '\'' + path.relative(path.join(outdir, 'app'), path.resolve(from, dir)).replace(/\\/g, '/') + '\', ';

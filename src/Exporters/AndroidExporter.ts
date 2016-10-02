@@ -41,12 +41,19 @@ export class AndroidExporter extends Exporter {
 		let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), {encoding: 'utf8'});
 		gradle = gradle.replace(/{package}/g, targetOptions.package);
 
+		let cppflags = '-frtti -fexceptions';
+		if (project.cpp11) {
+			cppflags = '-std=c++11 ' + cppflags;
+		}
+		gradle = gradle.replace(/{cppflags}/g, cppflags);
+
 		let javasources = '';
 		for (let dir of project.getJavaDirs()) {
 			javasources += '\'' + path.relative(path.join(outdir, 'app'), path.resolve(from, dir)).replace(/\\/g, '/') + '\', ';
 		}
 		javasources += '\'' + path.relative(path.join(outdir, 'app'), path.join(Project.koreDir.toString(), 'Backends', 'Android', 'Java-Sources')).replace(/\\/g, '/') + '\'';
 		gradle = gradle.replace(/{javasources}/g, javasources);
+
 		fs.writeFileSync(path.join(outdir, 'app', 'build.gradle'), gradle, {encoding: 'utf8'});
 
 		let cmake = fs.readFileSync(path.join(indir, 'app', 'CMakeLists.txt'), {encoding: 'utf8'});
