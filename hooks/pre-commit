@@ -1,0 +1,2 @@
+#!/bin/sh
+tslint -c tslint.json src/*.ts src/Exporters/*.ts
