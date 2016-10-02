@@ -30,7 +30,7 @@ class AndroidExporter extends Exporter_1.Exporter {
         fs.copySync(path.join(indir, 'gradlew'), path.join(outdir, 'gradlew'));
         fs.copySync(path.join(indir, 'gradlew.bat'), path.join(outdir, 'gradlew.bat'));
         fs.copySync(path.join(indir, 'settings.gradle'), path.join(outdir, 'settings.gradle'));
-        fs.ensureDirSync(path.join(outdir, 'app'));
+        fs.copySync(path.join(indir, 'app', 'gitignore'), path.join(outdir, 'app', '.gitignore'));
         let gradle = fs.readFileSync(path.join(indir, 'app', 'build.gradle'), { encoding: 'utf8' });
         gradle = gradle.replace(/{package}/g, targetOptions.package);
         let cppflags = '-frtti -fexceptions';
