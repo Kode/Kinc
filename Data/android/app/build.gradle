@@ -28,6 +28,20 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        releaseArm7 {
+            initWith release
+            ndk {
+                abiFilters 'armeabi-v7a'
+            }
+        }
+
+        debugArm7 {
+            initWith debug
+            ndk {
+                abiFilters 'armeabi-v7a'
+            }
+        }
     }
     externalNativeBuild {
         cmake {
