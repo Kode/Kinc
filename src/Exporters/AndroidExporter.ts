@@ -19,13 +19,15 @@ export class AndroidExporter extends Exporter {
 		let targetOptions = {
 			package: 'com.ktxsoftware.kore',
 			screenOrientation: 'sensor',
-			permissions: new Array<string>()
+			permissions: new Array<string>(),
+			disableStickyImmersiveMode: false
 		};
 		if (project.targetOptions != null && project.targetOptions.android != null) {
 			let userOptions = project.targetOptions.android;
 			if (userOptions.package != null) targetOptions.package = userOptions.package;
 			if (userOptions.screenOrientation != null) targetOptions.screenOrientation = userOptions.screenOrientation;
 			if (userOptions.permissions != null) targetOptions.permissions = userOptions.permissions;
+			if (userOptions.disableStickyImmersiveMode != null) targetOptions.disableStickyImmersiveMode = userOptions.disableStickyImmersiveMode;
 		}
 
 		const indir = path.join(__dirname, '..', '..', 'Data', 'android');
@@ -101,6 +103,7 @@ export class AndroidExporter extends Exporter {
 		manifest = manifest.replace(/{package}/g, targetOptions.package);
 		manifest = manifest.replace(/{screenOrientation}/g, targetOptions.screenOrientation);
 		manifest = manifest.replace(/{permissions}/g, targetOptions.permissions.map(function(p) {return '\n\t<uses-permission android:name="' + p + '"/>'}).join(''));
+		manifest = manifest.replace(/{metadata}/g, targetOptions.disableStickyImmersiveMode ? '\n\t\t<meta-data android:name="disableStickyImmersiveMode" android:value="true"/>' : "");
 		fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main'));
 		fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'AndroidManifest.xml'), manifest, {encoding: 'utf8'});
 
