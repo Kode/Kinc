@@ -15,7 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 public class KoreActivity extends NativeActivity {
 	private static KoreActivity instance;
 	private InputMethodManager inputManager;
-    private boolean isDisabledStickyImmersiveMode;
+	private boolean isDisabledStickyImmersiveMode;
 
 	public static KoreActivity getInstance() {
 		return instance;
