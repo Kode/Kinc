@@ -13,7 +13,8 @@ class AndroidExporter extends Exporter_1.Exporter {
         this.safename = safename;
         let targetOptions = {
             package: 'com.ktxsoftware.kore',
-            screenOrientation: 'sensor'
+            screenOrientation: 'sensor',
+            permissions: new Array()
         };
         if (project.targetOptions != null && project.targetOptions.android != null) {
             let userOptions = project.targetOptions.android;
@@ -21,6 +22,8 @@ class AndroidExporter extends Exporter_1.Exporter {
                 targetOptions.package = userOptions.package;
             if (userOptions.screenOrientation != null)
                 targetOptions.screenOrientation = userOptions.screenOrientation;
+            if (userOptions.permissions != null)
+                targetOptions.permissions = userOptions.permissions;
         }
         const indir = path.join(__dirname, '..', '..', 'Data', 'android');
         const outdir = path.join(to.toString(), safename);
@@ -78,6 +81,7 @@ class AndroidExporter extends Exporter_1.Exporter {
         let manifest = fs.readFileSync(path.join(indir, 'main', 'AndroidManifest.xml'), { encoding: 'utf8' });
         manifest = manifest.replace(/{package}/g, targetOptions.package);
         manifest = manifest.replace(/{screenOrientation}/g, targetOptions.screenOrientation);
+        manifest = manifest.replace(/{permissions}/g, targetOptions.permissions.map(function (p) { return '\n\t<uses-permission android:name="' + p + '"/>'; }).join(''));
         fs.ensureDirSync(path.join(outdir, 'app', 'src', 'main'));
         fs.writeFileSync(path.join(outdir, 'app', 'src', 'main', 'AndroidManifest.xml'), manifest, { encoding: 'utf8' });
         let strings = fs.readFileSync(path.join(indir, 'main', 'res', 'values', 'strings.xml'), { encoding: 'utf8' });
