@@ -8,7 +8,7 @@ varying vec2 texCoord;
 varying vec4 color;
 
 void kore() {
-	gl_Position = projectionMatrix * vec4(vertexPosition, 1.0);
+	gl_Position = projectionMatrix * vec4(vertexPosition.x, vertexPosition.y, 0.5, 1.0);
 	texCoord = texPosition;
 	color = vertexColor;
 }

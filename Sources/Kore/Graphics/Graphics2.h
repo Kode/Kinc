@@ -10,6 +10,7 @@ namespace Kore {
     class ImageShaderPainter {
     private:
         mat4 projectionMatrix;
+        
         PipelineState* shaderPipeline;
         VertexStructure structure;
         ConstantLocation projectionLocation;
@@ -26,8 +27,6 @@ namespace Kore {
         
         bool bilinear;
         bool bilinearMipmaps;
-        
-        Graphics2* g2;
 
         PipelineState* myPipeline;
         
@@ -43,7 +42,7 @@ namespace Kore {
         void drawBuffer();
         
     public:
-        ImageShaderPainter(Graphics2* g2);
+        ImageShaderPainter();
         
         PipelineState* get_pipeline() const;
         void set_pipeline(PipelineState* pipe);
@@ -81,8 +80,6 @@ namespace Kore {
         float* triangleVertices;
         IndexBuffer* triangleIndexBuffer;
         
-        Graphics2* g2;
-        
         PipelineState* myPipeline;
         
         BlendingOperation sourceBlend;      // = Undefined;
@@ -97,7 +94,7 @@ namespace Kore {
         void drawTriBuffer(bool rectsDone);
 
     public:
-        ColoredShaderPainter(Graphics2* g2);
+        ColoredShaderPainter();
         
         PipelineState* get_pipeline() const;
         void set_pipeline(PipelineState* pipe);
@@ -137,8 +134,6 @@ namespace Kore {
         
         Texture* lastTexture;
         
-        Graphics2* g2;
-        
         PipelineState* myPipeline;
         
         bool bilinear;
@@ -163,7 +158,7 @@ namespace Kore {
         int findIndex(int charcode, int* fontGlyphs);
         
     public:
-        TextShaderPainter(Graphics2* g2);
+        TextShaderPainter();
         
         int fontSize;
         
@@ -189,8 +184,8 @@ namespace Kore {
     
     class Graphics2 {
     private:
-        int mWidth;
-        int mHeight;
+        int screenWidth;
+        int screenHeight;
         
         Color color;
 

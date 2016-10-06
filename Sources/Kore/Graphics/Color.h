@@ -4,7 +4,7 @@ namespace Kore {
     class Color {
         
     private:
-        void getColorFromValue(uint color, float& red, float& green, float& blue, float& alpha);
+        void getColorFromHex(uint color, float& red, float& green, float& blue, float& alpha);
         
     public:
         Color(uint color);

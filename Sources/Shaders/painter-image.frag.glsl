@@ -9,7 +9,7 @@ varying vec2 texCoord;
 varying vec4 color;
 
 void kore() {
-	vec4 texcolor = texture2D(tex, texCoord) * color;
-	texcolor.rgb *= color.a;
+	vec4 texcolor = texture2D(tex, texCoord) /** color*/;
+	//texcolor.rgb *= color.a;
 	gl_FragColor = texcolor;
 }

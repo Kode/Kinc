@@ -10,20 +10,18 @@ using namespace Kore;
 //==========
 // ImageShaderPainter
 //==========
-ImageShaderPainter::ImageShaderPainter(Graphics2* g2) : g2(g2) {
+ImageShaderPainter::ImageShaderPainter() {
     bufferSize = 1500;
     bufferIndex = 0;
     vertexSize = 9;
     
     bilinear = false;
     bilinearMipmaps = false;
-
+    
     projectionMatrix = mat4::Identity();
     
     initShaders();
     initBuffers();
-    projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
-    textureLocation = shaderPipeline->getTextureUnit("tex");
 }
 
 PipelineState* ImageShaderPainter::get_pipeline() const {
@@ -48,27 +46,30 @@ void ImageShaderPainter::setProjection(mat4 projectionMatrix) {
 void ImageShaderPainter::initShaders() {
     if (shaderPipeline != nullptr) return;
     
+    structure.add("vertexPosition", Float3VertexData);
+    structure.add("texPosition", Float2VertexData);
+    structure.add("vertexColor", Float4VertexData);
+    
     FileReader fs("painter-image.frag");
     FileReader vs("painter-image.vert");
     Shader* fragmentShader = new Shader(fs.readAll(), fs.size(), FragmentShader);
     Shader* vertexShader = new Shader(vs.readAll(), vs.size(), VertexShader);
     
-    shaderPipeline = new PipelineState();
+    shaderPipeline = new PipelineState;
     shaderPipeline->setFragmentShader(fragmentShader);
     shaderPipeline->setVertexShader(vertexShader);
-    
-    structure.add("vertexPosition", Float3VertexData);
-    structure.add("texPosition", Float2VertexData);
-    structure.add("vertexColor", Float4VertexData);
-//    shaderPipeline->inputLayout[0] = &structure;
-    shaderPipeline->link(structure);
     
     shaderPipeline->blendSource = BlendOne;
     shaderPipeline->blendDestination = InverseSourceAlpha;
     shaderPipeline->alphaBlendSource = SourceAlpha;
     shaderPipeline->alphaBlendDestination = InverseSourceAlpha;
     
-    shaderPipeline->compile();
+//    shaderPipeline->inputLayout[0] = { &structure };
+//    shaderPipeline->compile();
+    shaderPipeline->link(structure);
+    
+    projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
+    textureLocation = shaderPipeline->getTextureUnit("tex");
 }
 
 void ImageShaderPainter::initBuffers() {
@@ -92,19 +93,19 @@ void ImageShaderPainter::setRectVertices(float bottomleftx, float bottomlefty, f
     int baseIndex = bufferIndex * vertexSize * 4;
     rectVertices[baseIndex +  0] = bottomleftx;
     rectVertices[baseIndex +  1] = bottomlefty;
-    rectVertices[baseIndex +  2] = -5.0f; // TODO: should be 0?
+    rectVertices[baseIndex +  2] = -5.f; // TODO: should be 0?
     
     rectVertices[baseIndex +  9] = topleftx;
-    rectVertices[baseIndex + 10] = toplefty;
-    rectVertices[baseIndex + 11] = -5.0;
+    rectVertices[baseIndex +  10] =toplefty;
+    rectVertices[baseIndex +  11] = -5.f;
     
     rectVertices[baseIndex + 18] = toprightx;
     rectVertices[baseIndex + 19] = toprighty;
-    rectVertices[baseIndex + 20] = -5.0;
+    rectVertices[baseIndex + 20] = -5.f;
     
     rectVertices[baseIndex + 27] = bottomrightx;
     rectVertices[baseIndex + 28] = bottomrighty;
-    rectVertices[baseIndex + 29] = -5.0;
+    rectVertices[baseIndex + 29] = -5.f;
 }
 
 void ImageShaderPainter::setRectTexCoords(float left, float top, float right, float bottom) {
@@ -143,21 +144,20 @@ void ImageShaderPainter::setRectColor(float r, float g, float b, float a) {
     rectVertices[baseIndex + 33] = g;
     rectVertices[baseIndex + 34] = b;
     rectVertices[baseIndex + 35] = a;
-    
 }
 
 void ImageShaderPainter::drawBuffer() {
     rectVertexBuffer->unlock();
     Graphics::setVertexBuffer(*rectVertexBuffer);
     Graphics::setIndexBuffer(*indexBuffer);
-    g2->setPipeline(myPipeline == nullptr ? shaderPipeline : myPipeline);
     Graphics::setTexture(textureLocation, lastTexture);
-//    Graphics::setTextureParameters(textureLocation, TextureAddressing.Clamp, TextureAddressing.Clamp, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+    //Graphics::setTextureParameters(textureLocation, TextureAddressing.Clamp, TextureAddressing.Clamp, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
-    
     Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
-    Graphics::setTexture(textureLocation, nullptr);
     
+    shaderPipeline->set();
+    
+    //Graphics::setTexture(textureLocation, nullptr);
     bufferIndex = 0;
     rectVertices = rectVertexBuffer->lock();
 }
@@ -183,7 +183,6 @@ inline void ImageShaderPainter::drawImage(Kore::Texture* img, float bottomleftx,
     ++bufferIndex;
     lastTexture = tex;
 }
-
 
 inline void ImageShaderPainter::drawImage2(Kore::Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, Color color) {
     Texture* tex = img;
@@ -222,7 +221,7 @@ void ImageShaderPainter::end() {
 // ColoredShaderPainter
 //==========
 
-ColoredShaderPainter::ColoredShaderPainter(Graphics2* g2) : g2(g2) {
+ColoredShaderPainter::ColoredShaderPainter() {
     bufferSize = 100;
     bufferIndex = 0;
     triangleBufferSize = 100;
@@ -230,7 +229,6 @@ ColoredShaderPainter::ColoredShaderPainter(Graphics2* g2) : g2(g2) {
     
     initShaders();
     initBuffers();
-    projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 }
 
 PipelineState* ColoredShaderPainter::get_pipeline() const {
@@ -253,6 +251,9 @@ void ColoredShaderPainter::setProjection(mat4 projectionMatrix) {
 void ColoredShaderPainter::initShaders() {
     if (shaderPipeline != nullptr) return;
     
+    structure.add("vertexPosition", Float3VertexData);
+    structure.add("vertexColor", Float4VertexData);
+    
     FileReader fs("painter-colored.frag");
     FileReader vs("painter-colored.vert");
     Shader* fragmentShader = new Shader(fs.readAll(), fs.size(), FragmentShader);
@@ -262,17 +263,16 @@ void ColoredShaderPainter::initShaders() {
     shaderPipeline->setFragmentShader(fragmentShader);
     shaderPipeline->setVertexShader(vertexShader);
     
-    structure.add("vertexPosition", Float3VertexData);
-    structure.add("vertexColor", Float4VertexData);
-    //shaderPipeline->inputLayout[0] = &structure;
-    shaderPipeline->link(structure);
-    
     shaderPipeline->blendSource = BlendOne;
     shaderPipeline->blendDestination = InverseSourceAlpha;
     shaderPipeline->alphaBlendSource = SourceAlpha;
     shaderPipeline->alphaBlendDestination = InverseSourceAlpha;
     
-    shaderPipeline->compile();
+//  shaderPipeline->inputLayout[0] = { &structure };
+//  shaderPipeline->compile();
+    shaderPipeline->link(structure);
+    
+    projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 }
 
 void ColoredShaderPainter::initBuffers() {
@@ -308,7 +308,7 @@ void ColoredShaderPainter::setRectVertices(float bottomleftx, float bottomlefty,
     int baseIndex = bufferIndex * 7 * 4;
     rectVertices[baseIndex +  0] = bottomleftx;
     rectVertices[baseIndex +  1] = bottomlefty;
-    rectVertices[baseIndex +  2] = -5.0;
+    rectVertices[baseIndex +  2] = -5.0; // TODO: should be 0?
     
     rectVertices[baseIndex +  7] = topleftx;
     rectVertices[baseIndex +  8] = toplefty;
@@ -356,7 +356,7 @@ void ColoredShaderPainter::setTriVertices(float x1, float y1, float x2, float y2
     int baseIndex = triangleBufferIndex * 7 * 3;
     triangleVertices[baseIndex +  0] = x1;
     triangleVertices[baseIndex +  1] = y1;
-    triangleVertices[baseIndex +  2] = -5.0;
+    triangleVertices[baseIndex +  2] = -5.0; // TODO: should be 0?
     
     triangleVertices[baseIndex +  7] = x2;
     triangleVertices[baseIndex +  8] = y2;
@@ -396,10 +396,11 @@ void ColoredShaderPainter::drawBuffer(bool trisDone) {
     rectVertexBuffer->unlock();
     Graphics::setVertexBuffer(*rectVertexBuffer);
     Graphics::setIndexBuffer(*indexBuffer);
-    g2->setPipeline(myPipeline == nullptr ? shaderPipeline : myPipeline);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
     
     Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
+    
+    shaderPipeline->set();
     
     bufferIndex = 0;
     rectVertices = rectVertexBuffer->lock();
@@ -411,7 +412,6 @@ void ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
     triangleVertexBuffer->unlock();
     Graphics::setVertexBuffer(*triangleVertexBuffer);
     Graphics::setIndexBuffer(*triangleIndexBuffer);
-    g2->setPipeline(myPipeline == nullptr ? shaderPipeline : myPipeline);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
     
     Graphics::drawIndexedVertices(0, triangleBufferIndex * 3);
@@ -458,7 +458,7 @@ void ColoredShaderPainter::end() {
 //==========
 // TextShaderPainter
 //==========
-TextShaderPainter::TextShaderPainter(Graphics2* g2) : g2(g2) {
+TextShaderPainter::TextShaderPainter() {
     bufferSize = 100;
     bufferIndex = 0;
     
@@ -466,8 +466,6 @@ TextShaderPainter::TextShaderPainter(Graphics2* g2) : g2(g2) {
     
     initShaders();
     initBuffers();
-    projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
-    textureLocation = shaderPipeline->getTextureUnit("tex");
 }
 
 PipelineState* TextShaderPainter::get_pipeline() const {
@@ -492,6 +490,10 @@ void TextShaderPainter::setProjection(mat4 projectionMatrix) {
 void TextShaderPainter::initShaders() {
     if (shaderPipeline != nullptr) return;
     
+    structure.add("vertexPosition", Float3VertexData);
+    structure.add("texPosition", Float2VertexData);
+    structure.add("vertexColor", Float4VertexData);
+    
     FileReader fs("painter-text.frag");
     FileReader vs("painter-text.vert");
     Shader* fragmentShader = new Shader(fs.readAll(), fs.size(), FragmentShader);
@@ -501,18 +503,17 @@ void TextShaderPainter::initShaders() {
     shaderPipeline->setFragmentShader(fragmentShader);
     shaderPipeline->setVertexShader(vertexShader);
     
-    structure.add("vertexPosition", Float3VertexData);
-    structure.add("texPosition", Float2VertexData);
-    structure.add("vertexColor", Float4VertexData);
-    //shaderPipeline->inputLayout[0] = &structure;
-    shaderPipeline->link(structure);
-    
     shaderPipeline->blendSource = BlendOne;
     shaderPipeline->blendDestination = InverseSourceAlpha;
     shaderPipeline->alphaBlendSource = SourceAlpha;
     shaderPipeline->alphaBlendDestination = InverseSourceAlpha;
     
-    shaderPipeline->compile();
+    //shaderPipeline->inputLayout[0] = { &structure };
+    //shaderPipeline->compile();
+    shaderPipeline->link(structure);
+    
+    projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
+    textureLocation = shaderPipeline->getTextureUnit("tex");
 }
 
 void TextShaderPainter::initBuffers() {
@@ -566,6 +567,7 @@ void TextShaderPainter::setRectTexCoords(float left, float top, float right, flo
     rectVertices[baseIndex + 30] = right;
     rectVertices[baseIndex + 31] = bottom;
 }
+
 void TextShaderPainter::setRectColors(float opacity, Color color) {
     float r = color.R;
     float g = color.G;
@@ -593,18 +595,20 @@ void TextShaderPainter::setRectColors(float opacity, Color color) {
     rectVertices[baseIndex + 34] = b;
     rectVertices[baseIndex + 35] = a;
 }
+
 void TextShaderPainter::drawBuffer() {
     rectVertexBuffer->unlock();
     Graphics::setVertexBuffer(*rectVertexBuffer);
     Graphics::setIndexBuffer(*indexBuffer);
-    g2->setPipeline(myPipeline == nullptr ? shaderPipeline : myPipeline);
     Graphics::setTexture(textureLocation, lastTexture);
 //    Graphics::setTextureParameters(textureLocation, TextureAddressing.Clamp, TextureAddressing.Clamp, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
     
     Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
-    Graphics::setTexture(textureLocation, nullptr);
     
+    shaderPipeline->set();
+    
+//    Graphics::setTexture(textureLocation, nullptr);
     bufferIndex = 0;
     rectVertices = rectVertexBuffer->lock();
 }
@@ -637,7 +641,6 @@ void TextShaderPainter::drawString(char *text, float opacity, Color color, float
     
 }
 
-
 void TextShaderPainter::end() {
     if (bufferIndex > 0) drawBuffer();
     lastTexture = nullptr;
@@ -653,13 +656,13 @@ void TextShaderPainter::end() {
 // Graphics2
 //==========
 
-Graphics2::Graphics2(int width, int height) : color(0), mWidth(width), mHeight(height) {
+Graphics2::Graphics2(int width, int height) : color(0xffffffff), screenWidth(width), screenHeight(height) {
     transformation = mat3::Identity(); // TODO
     opacity = 1.f;
     
-    imagePainter = new ImageShaderPainter(this);
-    coloredPainter = new ColoredShaderPainter(this);
-    textPainter = new TextShaderPainter(this);
+    imagePainter = new ImageShaderPainter();
+    coloredPainter = new ColoredShaderPainter();
+    textPainter = new TextShaderPainter();
     
     //textPainter.fontSize = fontSize;
     
@@ -669,8 +672,12 @@ Graphics2::Graphics2(int width, int height) : color(0), mWidth(width), mHeight(h
 }
 
 void Graphics2::initShaders() {
-
     if (videoPipeline != nullptr) return;
+    
+    VertexStructure structure;
+    structure.add("vertexPosition", Float3VertexData);
+    structure.add("texPosition", Float2VertexData);
+    structure.add("vertexColor", Float4VertexData);
     
     FileReader fs("painter-video.frag");
     FileReader vs("painter-video.vert");
@@ -681,14 +688,10 @@ void Graphics2::initShaders() {
     videoPipeline->setFragmentShader(fragmentShader);
     videoPipeline->setVertexShader(vertexShader);
     
-    VertexStructure structure;
-    structure.add("vertexPosition", Float3VertexData);
-    structure.add("texPosition", Float2VertexData);
-    structure.add("vertexColor", Float4VertexData);
-    //videoPipeline->inputLayout[0] = &structure;
-    videoPipeline->link(structure);
+    //videoPipeline->inputLayout[0] = { &structure };
     
-    videoPipeline->compile();
+    //videoPipeline->compile();
+    videoPipeline->link(structure);
 }
 
 int Graphics2::upperPowerOfTwo(int v) {
@@ -704,27 +707,15 @@ int Graphics2::upperPowerOfTwo(int v) {
 };
 
 void Graphics2::setProjection() {
-    /*if (Std.is(canvas, Framebuffer)) {
-     projectionMatrix = FastMatrix4.orthogonalProjection(0, width, height, 0, 0.1, 1000);
-     } else {
-     if (!Image.nonPow2Supported) {
-     width = upperPowerOfTwo(width);
-     height = upperPowerOfTwo(height);
-     }
-     if (g.renderTargetsInvertedY()) {
-     projectionMatrix = FastMatrix4.orthogonalProjection(0, width, 0, height, 0.1, 1000);
-     } else {
-     projectionMatrix = FastMatrix4.orthogonalProjection(0, width, height, 0, 0.1, 1000);
-     }
-     }*/
+    if (!Graphics::nonPow2TexturesSupported()) {
+        screenWidth = upperPowerOfTwo(screenWidth);
+        screenHeight = upperPowerOfTwo(screenHeight);
+    }
     
-    int width = upperPowerOfTwo(mWidth);
-    int height = upperPowerOfTwo(mHeight);
-    
-    if (Graphics::renderTargetsInvertedY()) {
-        projectionMatrix = mat4::orthogonalProjection(0, width, 0, height, 0.1f, 1000);
+    if (!Graphics::renderTargetsInvertedY()) {
+        projectionMatrix = mat4::orthogonalProjection(0, screenWidth, 0, screenHeight, 0.1f, -1000);
     } else {
-        projectionMatrix = mat4::orthogonalProjection(0, width, height, 0, 0.1f, 1000);
+        projectionMatrix = mat4::orthogonalProjection(0, screenWidth, screenHeight, 0, 0.1f, -1000);
     }
     
     imagePainter->setProjection(projectionMatrix);
@@ -913,7 +904,7 @@ void Graphics2::drawVideoInternal(/*Video video,*/ float x, float y, float width
 }
 
 void Graphics2::drawVideo(/*Video video,*/ float x, float y, float width, float height) {
-    setPipeline(videoPipeline);
+//    setPipeline(videoPipeline);
     drawVideoInternal(/*video,*/ x, y, width, height);
-    setPipeline(nullptr);
+//    setPipeline(nullptr);
 }
