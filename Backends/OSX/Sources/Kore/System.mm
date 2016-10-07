@@ -140,6 +140,9 @@ namespace {
 		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
 		savePath = [resolvedPath cStringUsingEncoding:1];
 	}
+	
+	int argc = 0;
+	char** argv = nullptr;
 }
 
 const char* System::savePath() {
@@ -148,6 +151,8 @@ const char* System::savePath() {
 }
 
 int main(int argc, char** argv) {
+	::argc = argc;
+	::argv = argv;
 	@autoreleasepool {
 		myapp = [MyApplication sharedApplication];
 		[myapp performSelectorOnMainThread:@selector(run) withObject:nil waitUntilDone:YES];
@@ -166,7 +171,7 @@ void kore(int, char **);
 	@autoreleasepool {
 		[self finishLaunching];
 		//try {
-			kore(0, nullptr);
+			kore(argc, argv);
 		//}
 		//catch (Kt::Exception& ex) {
 		//	printf("Exception caught");
