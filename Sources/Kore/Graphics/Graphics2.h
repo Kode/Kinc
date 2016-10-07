@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PipelineState.h"
+#include "Kravur.h"
 #include "Color.h"
 #include <Kore/Math/Matrix.h>
 
@@ -52,9 +53,9 @@ namespace Kore {
         void setBilinearFilter(bool bilinear);
         void setBilinearMipmapFilter(bool bilinear);
         
-        inline void drawImage(Texture* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, Color color);
-        inline void drawImage2(Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, Color color);
-        inline void drawImageScale(Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom, float opacity, Color color);
+        inline void drawImage(Texture* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
+        inline void drawImage2(Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
+        inline void drawImageScale(Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom, float opacity, uint color);
         
         void end();
     };
@@ -69,6 +70,7 @@ namespace Kore {
         ConstantLocation projectionLocation;
         
         int bufferSize;
+        int vertexSize;
         int bufferIndex;
         VertexBuffer* rectVertexBuffer;
         float* rectVertices;
@@ -89,7 +91,7 @@ namespace Kore {
         void initBuffers();
         
         void setTriVertices(float x1, float y1, float x2, float y2, float x3, float y3);
-        void setTriColors(float opacity, Color color);
+        void setTriColors(float opacity, uint color);
         void drawBuffer(bool trisDone);
         void drawTriBuffer(bool rectsDone);
 
@@ -102,10 +104,10 @@ namespace Kore {
         void setProjection(mat4 projectionMatrix);
         
         void setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty);
-        void setRectColors(float opacity, Color color);
+        void setRectColors(float opacity, uint color);
         
-        void fillRect(float opacity, Color color, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty);
-        void fillTriangle(float opacity, Color color, float x1, float y1, float x2, float y2, float x3, float y3);
+        void fillRect(float opacity, uint color, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty);
+        void fillTriangle(float opacity, uint color, float x1, float y1, float x2, float y2, float x3, float y3);
         
         inline void endTris(bool rectsDone);
         inline void endRects(bool trisDone);
@@ -126,11 +128,12 @@ namespace Kore {
         
         int bufferSize;
         int bufferIndex;
+        int vertexSize;
         VertexBuffer* rectVertexBuffer;
         float* rectVertices;
         IndexBuffer* indexBuffer;
         
-        //Kravur font;
+        Kravur* font;
         
         Texture* lastTexture;
         
@@ -146,16 +149,13 @@ namespace Kore {
         
         void setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty);
         void setRectTexCoords(float left, float top, float right, float bottom);
-        void setRectColors(float opacity, Color color);
+        void setRectColors(float opacity, uint color);
         void drawBuffer();
         
         char* text;
-        void startString(const char* text);
         int charCodeAt(int position);
-        int stringLength();
-        void endString();
         
-        int findIndex(int charcode, int* fontGlyphs);
+        int findIndex(int charcode, int* fontGlyphs, int glyphCount);
         
     public:
         TextShaderPainter();
@@ -169,9 +169,9 @@ namespace Kore {
         
         void setBilinearFilter(bool bilinear);
         
-        //void setFont(Font font);
+        void setFont(Kravur* font);
         
-        void drawString(char* text, float opacity, Color color, float x, float y, mat3 transformation, int* fontGlyphs);
+        void drawString(const char* text, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs);
         
         void end();
     };
@@ -187,14 +187,13 @@ namespace Kore {
         int screenWidth;
         int screenHeight;
         
-        Color color;
+        uint color;
 
         float opacity;
         
-        //Font myFont;
-        //Font get_font() const;
-        //void set_font(Font font);
-        //int set_fontSize(int value);
+        Kravur* font;
+        int fontSize;
+        uint fontColor;
         
         mat4 projectionMatrix;
         
@@ -242,14 +241,26 @@ namespace Kore {
         void scissor(int x, int y, int width, int height);
         void disableScissor();
         
-        void begin(bool clear = true, uint clearColor = 0);
-        void clear(uint color = 0);
+        void begin(bool clear = true, uint clearColor = Color::Black);
+        void clear(uint color = Color::Black);
         void flush();
         void end();
         
         void drawVideoInternal(/*Video video,*/ float x, float y, float width, float height);
         void drawVideo(/*Video video,*/ float x, float y, float width, float height);
         
+        uint getColor() const;
+        void setColor(uint color);
+        
+        float getOpacity() const;
+        void setOpacity(float opacity);
+        
+        Kravur* getFont() const;
+        void setFont(Kravur* font);
+        int getFontSize() const;
+        void setFontSize(int value);
+        uint getFontColor() const;
+        void setFontColor(uint color);
     };
 
     

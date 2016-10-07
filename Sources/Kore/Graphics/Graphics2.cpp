@@ -1,7 +1,6 @@
 #include "pch.h"
 
 #include "Graphics2.h"
-
 #include "Kore/Simd/float32x4.h"
 #include <Kore/IO/FileReader.h>
 
@@ -10,16 +9,7 @@ using namespace Kore;
 //==========
 // ImageShaderPainter
 //==========
-ImageShaderPainter::ImageShaderPainter() {
-    bufferSize = 1500;
-    bufferIndex = 0;
-    vertexSize = 9;
-    
-    bilinear = false;
-    bilinearMipmaps = false;
-    
-    projectionMatrix = mat4::Identity();
-    
+ImageShaderPainter::ImageShaderPainter() : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false) {
     initShaders();
     initBuffers();
 }
@@ -96,8 +86,8 @@ void ImageShaderPainter::setRectVertices(float bottomleftx, float bottomlefty, f
     rectVertices[baseIndex +  2] = -5.f; // TODO: should be 0?
     
     rectVertices[baseIndex +  9] = topleftx;
-    rectVertices[baseIndex +  10] =toplefty;
-    rectVertices[baseIndex +  11] = -5.f;
+    rectVertices[baseIndex + 10] = toplefty;
+    rectVertices[baseIndex + 11] = -5.f;
     
     rectVertices[baseIndex + 18] = toprightx;
     rectVertices[baseIndex + 19] = toprighty;
@@ -151,8 +141,13 @@ void ImageShaderPainter::drawBuffer() {
     Graphics::setVertexBuffer(*rectVertexBuffer);
     Graphics::setIndexBuffer(*indexBuffer);
     Graphics::setTexture(textureLocation, lastTexture);
-    //Graphics::setTextureParameters(textureLocation, TextureAddressing.Clamp, TextureAddressing.Clamp, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+    Graphics::setTextureAddressing(textureLocation, U, Clamp);
+    Graphics::setTextureAddressing(textureLocation, V, Clamp);
+    Graphics::setTextureMinificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
+    Graphics::setTextureMagnificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
+    Graphics::setTextureMipmapFilter(textureLocation, NoMipFilter);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
+    
     Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
     
     shaderPipeline->set();
@@ -172,11 +167,12 @@ void ImageShaderPainter::setBilinearMipmapFilter(bool bilinear) {
     this->bilinearMipmaps = bilinear;
 }
 
-inline void ImageShaderPainter::drawImage(Kore::Texture* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, Color color) {
+inline void ImageShaderPainter::drawImage(Kore::Texture* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color) {
     Texture* tex = img;
     if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture)) drawBuffer();
     
-    setRectColor(color.R, color.G, color.B, color.A * opacity);
+    Color c = Color(color);
+    setRectColor(c.R, c.G, c.B, c.A * opacity);
     setRectTexCoords(0, 0, tex->width / (float)tex->texWidth, tex->height / (float)tex->texHeight);
     setRectVertices(bottomleftx, bottomlefty, topleftx, toplefty, toprightx, toprighty, bottomrightx, bottomrighty);
     
@@ -184,11 +180,12 @@ inline void ImageShaderPainter::drawImage(Kore::Texture* img, float bottomleftx,
     lastTexture = tex;
 }
 
-inline void ImageShaderPainter::drawImage2(Kore::Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, Color color) {
+inline void ImageShaderPainter::drawImage2(Kore::Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color) {
     Texture* tex = img;
     if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture)) drawBuffer();
     
-    setRectColor(color.R, color.G, color.B, color.A * opacity);
+    Color c = Color(color);
+    setRectColor(c.R, c.G, c.B, c.A * opacity);
     setRectTexCoords(sx / (float)tex->texWidth, sy / (float)tex->texHeight, (sx + sw) / (float)tex->texWidth, (sy + sh) / (float)tex->texHeight);
     setRectVertices(bottomleftx, bottomlefty, topleftx, toplefty, toprightx, toprighty, bottomrightx, bottomrighty);
     
@@ -196,11 +193,12 @@ inline void ImageShaderPainter::drawImage2(Kore::Texture* img, float sx, float s
     lastTexture = tex;
 }
 
-inline void ImageShaderPainter::drawImageScale(Kore::Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom, float opacity, Color color) {
+inline void ImageShaderPainter::drawImageScale(Kore::Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom, float opacity, uint color) {
     Texture* tex = img;
     if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture)) drawBuffer();
     
-    setRectColor(color.R, color.G, color.B, opacity);
+    Color c = Color(color);
+    setRectColor(c.R, c.G, c.B, opacity);
     setRectTexCoords(sx / (float)tex->texWidth, sy / (float)tex->texHeight, (sx + sw) / (float)tex->texWidth, (sy + sh) / (float)tex->texHeight);
     setRectVertices(left, bottom, left, top, right, top, right, bottom);
     
@@ -221,12 +219,7 @@ void ImageShaderPainter::end() {
 // ColoredShaderPainter
 //==========
 
-ColoredShaderPainter::ColoredShaderPainter() {
-    bufferSize = 100;
-    bufferIndex = 0;
-    triangleBufferSize = 100;
-    triangleBufferIndex = 0;
-    
+ColoredShaderPainter::ColoredShaderPainter() : bufferSize(100), bufferIndex(0), vertexSize(7), triangleBufferSize(100), triangleBufferIndex(0) {
     initShaders();
     initBuffers();
 }
@@ -305,7 +298,7 @@ void ColoredShaderPainter::initBuffers() {
 }
 
 void ColoredShaderPainter::setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty) {
-    int baseIndex = bufferIndex * 7 * 4;
+    int baseIndex = bufferIndex * vertexSize * 4;
     rectVertices[baseIndex +  0] = bottomleftx;
     rectVertices[baseIndex +  1] = bottomlefty;
     rectVertices[baseIndex +  2] = -5.0; // TODO: should be 0?
@@ -323,14 +316,15 @@ void ColoredShaderPainter::setRectVertices(float bottomleftx, float bottomlefty,
     rectVertices[baseIndex + 23] = -5.0;
 }
 
-void ColoredShaderPainter::setRectColors(float opacity, Color color) {
+void ColoredShaderPainter::setRectColors(float opacity, uint color) {
     // TODO: i am not sure if this is correct
-    float r = color.R;
-    float g = color.G;
-    float b = color.B;
-    float a = color.A * opacity;
+    Color c = Color(color);
+    float r = c.R;
+    float g = c.G;
+    float b = c.B;
+    float a = c.A * opacity;
     
-    int baseIndex = bufferIndex * 7 * 4;
+    int baseIndex = bufferIndex * vertexSize * 4;
     rectVertices[baseIndex +  3] = r;
     rectVertices[baseIndex +  4] = g;
     rectVertices[baseIndex +  5] = b;
@@ -367,11 +361,12 @@ void ColoredShaderPainter::setTriVertices(float x1, float y1, float x2, float y2
     triangleVertices[baseIndex + 16] = -5.0;
 }
 
-void ColoredShaderPainter::setTriColors(float opacity, Color color) {
-    float r = color.R;
-    float g = color.G;
-    float b = color.B;
-    float a = color.A * opacity;
+void ColoredShaderPainter::setTriColors(float opacity, uint color) {
+    Color c = Color(color);
+    float r = c.R;
+    float g = c.G;
+    float b = c.B;
+    float a = c.A * opacity;
     
     int baseIndex = triangleBufferIndex * 7 * 3;
     triangleVertices[baseIndex +  3] = r;
@@ -416,11 +411,13 @@ void ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
     
     Graphics::drawIndexedVertices(0, triangleBufferIndex * 3);
     
+    shaderPipeline->set();
+    
     triangleBufferIndex = 0;
     triangleVertices = triangleVertexBuffer->lock();
 }
 
-void ColoredShaderPainter::fillRect(float opacity, Color color, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty) {
+void ColoredShaderPainter::fillRect(float opacity, uint color, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty) {
     if (triangleBufferIndex > 0) drawTriBuffer(true); // Flush other buffer for right render order
     
     if (bufferIndex + 1 >= bufferSize) drawBuffer(false);
@@ -430,7 +427,7 @@ void ColoredShaderPainter::fillRect(float opacity, Color color, float bottomleft
     ++bufferIndex;
 }
 
-void ColoredShaderPainter::fillTriangle(float opacity, Color color, float x1, float y1, float x2, float y2, float x3, float y3) {
+void ColoredShaderPainter::fillTriangle(float opacity, uint color, float x1, float y1, float x2, float y2, float x3, float y3) {
     if (bufferIndex > 0) drawBuffer(true); // Flush other buffer for right render order
     
     if (triangleBufferIndex + 1 >= triangleBufferSize) drawTriBuffer(false);
@@ -458,12 +455,7 @@ void ColoredShaderPainter::end() {
 //==========
 // TextShaderPainter
 //==========
-TextShaderPainter::TextShaderPainter() {
-    bufferSize = 100;
-    bufferIndex = 0;
-    
-    bilinear = false;
-    
+TextShaderPainter::TextShaderPainter() : bufferSize(100), bufferIndex(0), vertexSize(9), bilinear(false), lastTexture(nullptr) {
     initShaders();
     initBuffers();
 }
@@ -535,7 +527,7 @@ void TextShaderPainter::initBuffers() {
 }
 
 void TextShaderPainter::setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty) {
-    int baseIndex = bufferIndex * 9 * 4;
+    int baseIndex = bufferIndex * vertexSize * 4;
     rectVertices[baseIndex +  0] = bottomleftx;
     rectVertices[baseIndex +  1] = bottomlefty;
     rectVertices[baseIndex +  2] = -5.0f; // TODO: should be 0?
@@ -554,7 +546,7 @@ void TextShaderPainter::setRectVertices(float bottomleftx, float bottomlefty, fl
 }
 
 void TextShaderPainter::setRectTexCoords(float left, float top, float right, float bottom) {
-    int baseIndex = bufferIndex * 9 * 4;
+    int baseIndex = bufferIndex * vertexSize * 4;
     rectVertices[baseIndex +  3] = left;
     rectVertices[baseIndex +  4] = bottom;
     
@@ -568,13 +560,14 @@ void TextShaderPainter::setRectTexCoords(float left, float top, float right, flo
     rectVertices[baseIndex + 31] = bottom;
 }
 
-void TextShaderPainter::setRectColors(float opacity, Color color) {
-    float r = color.R;
-    float g = color.G;
-    float b = color.B;
-    float a = color.A * opacity;
+void TextShaderPainter::setRectColors(float opacity, uint color) {
+    Color c = Color(color);
+    float r = c.R;
+    float g = c.G;
+    float b = c.B;
+    float a = c.A * opacity;
     
-    int baseIndex = bufferIndex * 9 * 4;
+    int baseIndex = bufferIndex * vertexSize * 4;
     rectVertices[baseIndex +  5] = r;
     rectVertices[baseIndex +  6] = g;
     rectVertices[baseIndex +  7] = b;
@@ -601,14 +594,17 @@ void TextShaderPainter::drawBuffer() {
     Graphics::setVertexBuffer(*rectVertexBuffer);
     Graphics::setIndexBuffer(*indexBuffer);
     Graphics::setTexture(textureLocation, lastTexture);
-//    Graphics::setTextureParameters(textureLocation, TextureAddressing.Clamp, TextureAddressing.Clamp, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, bilinear ? TextureFilter.LinearFilter : TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
+    Graphics::setTextureAddressing(textureLocation, U, Clamp);
+    Graphics::setTextureAddressing(textureLocation, V, Clamp);
+    Graphics::setTextureMinificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
+    Graphics::setTextureMagnificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
+    Graphics::setTextureMipmapFilter(textureLocation, NoMipFilter);
     
     Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
     
     shaderPipeline->set();
     
-//    Graphics::setTexture(textureLocation, nullptr);
     bufferIndex = 0;
     rectVertices = rectVertexBuffer->lock();
 }
@@ -618,27 +614,44 @@ void TextShaderPainter::setBilinearFilter(bool bilinear) {
     this->bilinear = bilinear;
 }
 
-void TextShaderPainter::startString(const char* new_text) {
-    *text = *new_text;
+void TextShaderPainter::setFont(Kravur* font) {
+    this->font = font;
 }
 
 //int TextShaderPainter::charCodeAt(int position) {}
-//int TextShaderPainter::stringLength() {}
 
-void TextShaderPainter::endString() {
-    text = nullptr;
-}
 
 //TODO: Make this fast
-int TextShaderPainter::findIndex(int charcode, int* fontGlyphs) {
-    for (int index = 0; index < sizeof(fontGlyphs); ++index) {
+int TextShaderPainter::findIndex(int charcode, int* fontGlyphs, int glyphCount) {
+    for (int index = 0; index < glyphCount; ++index) {
         if (fontGlyphs[index] == charcode) return index;
     }
     return -1;
 }
 
-void TextShaderPainter::drawString(char *text, float opacity, Color color, float x, float y, mat3 transformation, int *fontGlyphs) {
+void TextShaderPainter::drawString(const char* text, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs) {
+    Texture* tex = font->getTexture();
+    if (lastTexture != nullptr && tex != lastTexture) drawBuffer();
+    lastTexture = tex;
     
+    float xpos = x;
+    float ypos = y;
+    unsigned length = strlen(text);
+    for (unsigned i = 0; i < length; ++i) {
+        AlignedQuad q = font->getBakedQuad(text[i] - 32, xpos, ypos);
+        if (q.x0 >= 0) {
+            if (bufferIndex + 1 >= bufferSize) drawBuffer();
+            setRectColors(1.0f, color);
+            setRectTexCoords(q.s0 * tex->width / tex->texWidth, q.t0 * tex->height / tex->texHeight, q.s1 * tex->width / tex->texWidth, q.t1 * tex->height / tex->texHeight);
+            vec3 p0 = transformation * vec3(q.x0, q.y1, 1.0f); //bottom-left
+            vec3 p1 = transformation * vec3(q.x0, q.y0, 1.0f); //top-left
+            vec3 p2 = transformation * vec3(q.x1, q.y0, 1.0f); //top-right
+            vec3 p3 = transformation * vec3(q.x1, q.y1, 1.0f); //bottom-right
+            setRectVertices(p0.x(), p0.y(), p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y());
+            xpos += q.xadvance;
+            ++bufferIndex;
+        }
+    }
 }
 
 void TextShaderPainter::end() {
@@ -656,15 +669,14 @@ void TextShaderPainter::end() {
 // Graphics2
 //==========
 
-Graphics2::Graphics2(int width, int height) : color(0xffffffff), screenWidth(width), screenHeight(height) {
+Graphics2::Graphics2(int width, int height) : color(Color::White), fontColor(Color::Black), screenWidth(width), screenHeight(height), fontSize(14) {
     transformation = mat3::Identity(); // TODO
     opacity = 1.f;
     
     imagePainter = new ImageShaderPainter();
     coloredPainter = new ColoredShaderPainter();
     textPainter = new TextShaderPainter();
-    
-    //textPainter.fontSize = fontSize;
+    textPainter->fontSize = fontSize;
     
     setProjection();
     
@@ -713,10 +725,11 @@ void Graphics2::setProjection() {
     }
     
     if (!Graphics::renderTargetsInvertedY()) {
-        projectionMatrix = mat4::orthogonalProjection(0, screenWidth, 0, screenHeight, 0.1f, -1000);
+        projectionMatrix = mat4::orthogonalProjection(0, screenWidth, 0, screenHeight, 0.1f, 1000);
     } else {
-        projectionMatrix = mat4::orthogonalProjection(0, screenWidth, screenHeight, 0, 0.1f, -1000);
+        projectionMatrix = mat4::orthogonalProjection(0, screenWidth, screenHeight, 0, 0.1f, 1000);
     }
+    projectionMatrix.Set(2, 3, 0);
     
     imagePainter->setProjection(projectionMatrix);
     coloredPainter->setProjection(projectionMatrix);
@@ -805,7 +818,7 @@ void Graphics2::drawString(char *text, float x, float y) {
     imagePainter->end();
     coloredPainter->end();
     
-    textPainter->drawString(text, opacity, color, x, y, transformation, fontGlyphs);
+    textPainter->drawString(text, opacity, fontColor, x, y, transformation, fontGlyphs);
 }
 
 void Graphics2::drawLine(float x1, float y1, float x2, float y2, float strength) {
@@ -856,7 +869,7 @@ ImageScaleQuality Graphics2::get_mipmapScaleQuality() const {
 
 void Graphics2::set_mipmapScaleQuality(Kore::ImageScaleQuality value) {
     imagePainter->setBilinearMipmapFilter(value == High);
-    //textPainter.setBilinearMipmapFilter(value == High); // TODO (DK) implement for fonts as well?
+    //textPainter->setBilinearMipmapFilter(value == High); // TODO (DK) implement for fonts as well?
     myMipmapScaleQuality = value;
 }
 
@@ -907,4 +920,45 @@ void Graphics2::drawVideo(/*Video video,*/ float x, float y, float width, float 
 //    setPipeline(videoPipeline);
     drawVideoInternal(/*video,*/ x, y, width, height);
 //    setPipeline(nullptr);
+}
+
+uint Graphics2::getColor() const {
+    return color;
+}
+
+void Graphics2::setColor(uint color) {
+    this->color = color;
+}
+
+float Graphics2::getOpacity() const {
+    return opacity;
+}
+
+void Graphics2::setOpacity(float opacity) {
+    this->opacity = opacity;
+}
+
+Kravur* Graphics2::getFont() const {
+    return font;
+}
+
+void Graphics2::setFont(Kravur* font) {
+    textPainter->setFont(font);
+    this->font = font;
+}
+
+int Graphics2::getFontSize() const {
+    return fontSize;
+}
+
+void Graphics2::setFontSize(int value) {
+    this->fontSize = value;
+}
+
+uint Graphics2::getFontColor() const {
+    return fontColor;
+}
+
+void Graphics2::setFontColor(uint color) {
+    this->fontColor = color;
 }
