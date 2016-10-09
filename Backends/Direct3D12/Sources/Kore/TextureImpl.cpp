@@ -114,6 +114,10 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	device->CreateShaderResourceView(image, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
+Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+
+}
+
 TextureImpl::~TextureImpl() {
 	unset();
 	
