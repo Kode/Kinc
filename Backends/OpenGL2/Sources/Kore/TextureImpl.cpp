@@ -304,13 +304,13 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 }
 
 Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
-    glGenTextures(1, &texture);
-    glCheckErrors();
-    glBindTexture(GL_TEXTURE_3D, texture);
-    glCheckErrors();
+	glGenTextures(1, &texture);
+	glCheckErrors();
+	glBindTexture(GL_TEXTURE_3D, texture);
+	glCheckErrors();
 
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glCheckErrors();
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCheckErrors();
 
