@@ -263,8 +263,14 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	texWidth = width;
 	texHeight = height;
 #else
-	texWidth = getPower2(width);
-	texHeight = getPower2(height);
+	if (Graphics::nonPow2TexturesSupported()) {
+		texWidth = width;
+		texHeight = height;
+	}
+	else {
+		texWidth = getPower2(width);
+		texHeight = getPower2(height);
+	}
 #endif
 	// conversionBuffer = new u8[texWidth * texHeight * 4];
 
@@ -297,6 +303,21 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	}*/
 }
 
+Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+	glGenTextures(1, &texture);
+	glCheckErrors();
+	glBindTexture(GL_TEXTURE_3D, texture);
+	glCheckErrors();
+
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glCheckErrors();
+
+	glTexImage3D(GL_TEXTURE_3D, 0, convertFormat(format), width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glCheckErrors();
+}
+
 #ifdef SYS_ANDROID
 Texture::Texture(unsigned texid) : Image(1023, 684, Image::RGBA32, false) {
 	texture = texid;
@@ -312,6 +333,7 @@ TextureImpl::~TextureImpl() {
 }
 
 void Texture::_set(TextureUnit unit) {
+	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 #ifdef SYS_ANDROID
@@ -320,11 +342,11 @@ void Texture::_set(TextureUnit unit) {
 		glCheckErrors();
 	}
 	else {
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(target, texture);
 		glCheckErrors();
 	}
 #else
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(target, texture);
 	glCheckErrors();
 #endif
 }
@@ -375,18 +397,25 @@ void Texture::upload(u8* data) {
 #endif
 
 void Texture::generateMipmaps(int levels) {
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	glBindTexture(target, texture);
+	glCheckErrors();
+	glGenerateMipmap(target);
+	glCheckErrors();
 }
 
 void Texture::setMipmap(Texture* mipmap, int level) {
 	int convertedType = convertType(mipmap->format);
 	bool isHdr = convertedType == GL_FLOAT;
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	glBindTexture(target, texture);
+	glCheckErrors();
 	if (isHdr) {
-		glTexImage2D(GL_TEXTURE_2D, level, convertFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType, mipmap->hdrData);
+		glTexImage2D(target, level, convertFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType, mipmap->hdrData);
+		glCheckErrors();
 	}
 	else {
-		glTexImage2D(GL_TEXTURE_2D, level, convertFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType, mipmap->data);
+		glTexImage2D(target, level, convertFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType, mipmap->data);
+		glCheckErrors();
 	}
 }
