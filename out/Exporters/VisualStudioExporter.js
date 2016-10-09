@@ -132,7 +132,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
         for (let proj of project.getSubProjects())
             this.writeProjectBuilds(proj, platform);
     }
-    exportSolution(project, from, to, platform, vrApi, nokrafix) {
+    exportSolution(project, from, to, platform, vrApi, nokrafix, options) {
         standardconfs = [];
         standardconfs.push('Debug');
         standardconfs.push('Release');
@@ -193,7 +193,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
         this.p('EndGlobalSection', 1);
         this.p('EndGlobal');
         this.closeFile();
-        this.exportProject(from, to, project, platform, project.isCmd(), nokrafix);
+        this.exportProject(from, to, project, platform, project.isCmd(), nokrafix, options.noshaders);
         this.exportFilters(from, to, project, platform);
         this.exportUserFile(from, to, project, platform);
         if (platform === Platform_1.Platform.WindowsApp) {
@@ -442,9 +442,9 @@ class VisualStudioExporter extends Exporter_1.Exporter {
     //     p("<IsWinMDFile>true</IsWinMDFile>", 3);
     //     p("</Reference>", 2);
     // }
-    exportProject(from, to, project, platform, cmd, nokrafix) {
+    exportProject(from, to, project, platform, cmd, nokrafix, noshaders) {
         for (let proj of project.getSubProjects())
-            this.exportProject(from, to, proj, platform, cmd, nokrafix);
+            this.exportProject(from, to, proj, platform, cmd, nokrafix, noshaders);
         this.writeFile(path.resolve(to, project.getName() + '.vcxproj'));
         this.p('<?xml version="1.0" encoding="utf-8"?>');
         if (Options_1.Options.visualStudioVersion === VisualStudioVersion_1.VisualStudioVersion.VS2015)
@@ -911,7 +911,7 @@ class VisualStudioExporter extends Exporter_1.Exporter {
             this.p('</ItemGroup>', 1);
             this.p('<ItemGroup>', 1);
             for (let file of project.getFiles()) {
-                if (Project_1.Project.koreDir && Project_1.Project.koreDir.toString() !== '' && file.file.endsWith('.glsl')) {
+                if (Project_1.Project.koreDir && Project_1.Project.koreDir.toString() !== '' && !noshaders && file.file.endsWith('.glsl')) {
                     this.p('<CustomBuild Include="' + path.resolve(from, file.file) + '">', 2);
                     this.p('<FileType>Document</FileType>', 2);
                     if (nokrafix)

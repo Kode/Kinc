@@ -212,22 +212,24 @@ async function exportKoremakeProject(from: string, to: string, platform: string,
 	fs.ensureDirSync(to);
 
 	let files = project.getFiles();
-	let shaderCount = 0;
-	for (let file of files) {
-		if (file.file.endsWith('.glsl')) {
-			++shaderCount;
+	if (!options.noshaders) {
+		let shaderCount = 0;
+		for (let file of files) {
+			if (file.file.endsWith('.glsl')) {
+				++shaderCount;
+			}
 		}
-	}
-	let shaderIndex = 0;
-	for (let file of files) {
-		if (file.file.endsWith('.glsl')) {
-			let outfile = file.file;
-			const index = outfile.lastIndexOf('/');
-			if (index > 0) outfile = outfile.substr(index);
-			outfile = outfile.substr(0, outfile.length - 5);
-			log.info('Compiling shader ' + (shaderIndex + 1) + ' of ' + shaderCount + ' (' + file.file + ').');
-			++shaderIndex;
-			await compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), 'build', platform);
+		let shaderIndex = 0;
+		for (let file of files) {
+			if (file.file.endsWith('.glsl')) {
+				let outfile = file.file;
+				const index = outfile.lastIndexOf('/');
+				if (index > 0) outfile = outfile.substr(index);
+				outfile = outfile.substr(0, outfile.length - 5);
+				log.info('Compiling shader ' + (shaderIndex + 1) + ' of ' + shaderCount + ' (' + file.file + ').');
+				++shaderIndex;
+				await compileShader(from, shaderLang(platform), file.file, path.join(project.getDebugDir(), outfile), 'build', platform);
+			}
 		}
 	}
 
