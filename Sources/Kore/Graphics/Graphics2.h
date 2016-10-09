@@ -207,11 +207,11 @@ namespace Kore {
         
         PipelineState* videoPipeline;
         
-        ImageScaleQuality myImageScaleQuality = High;
+        ImageScaleQuality myImageScaleQuality;
         ImageScaleQuality get_imageScaleQuality() const;
         void set_imageScaleQuality(ImageScaleQuality value);
         
-        ImageScaleQuality myMipmapScaleQuality = High;
+        ImageScaleQuality myMipmapScaleQuality;
         ImageScaleQuality get_mipmapScaleQuality() const;
         void set_mipmapScaleQuality(ImageScaleQuality value);
         

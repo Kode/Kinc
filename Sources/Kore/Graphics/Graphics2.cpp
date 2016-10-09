@@ -3,6 +3,7 @@
 #include "Graphics2.h"
 #include "Kore/Simd/float32x4.h"
 #include <Kore/IO/FileReader.h>
+#include <string.h>
 
 using namespace Kore;
 
@@ -672,6 +673,9 @@ void TextShaderPainter::end() {
 Graphics2::Graphics2(int width, int height) : color(Color::White), fontColor(Color::Black), screenWidth(width), screenHeight(height), fontSize(14) {
     transformation = mat3::Identity(); // TODO
     opacity = 1.f;
+
+	myImageScaleQuality = High;
+	myMipmapScaleQuality = High;
     
     imagePainter = new ImageShaderPainter();
     coloredPainter = new ColoredShaderPainter();
