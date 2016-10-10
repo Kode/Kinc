@@ -11,7 +11,7 @@ PipelineState::PipelineState() : Program() {
 
 
 void PipelineState::compile() {
-    link(inputLayout, 0);
+    link(PipelineStateBase::inputLayout, 0);
 }
 
 

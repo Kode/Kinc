@@ -10,7 +10,7 @@ using namespace Kore;
 //==========
 // ImageShaderPainter
 //==========
-ImageShaderPainter::ImageShaderPainter() : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false) {
+ImageShaderPainter::ImageShaderPainter() : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false), shaderPipeline(nullptr) {
     initShaders();
     initBuffers();
 }
@@ -148,10 +148,11 @@ void ImageShaderPainter::drawBuffer() {
     Graphics::setTextureMagnificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
     Graphics::setTextureMipmapFilter(textureLocation, NoMipFilter);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
-    
+
+	Graphics::setRenderState(DepthTest, false);
+	shaderPipeline->set();
+
     Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
-    
-    shaderPipeline->set();
     
     //Graphics::setTexture(textureLocation, nullptr);
     bufferIndex = 0;
@@ -220,7 +221,7 @@ void ImageShaderPainter::end() {
 // ColoredShaderPainter
 //==========
 
-ColoredShaderPainter::ColoredShaderPainter() : bufferSize(100), bufferIndex(0), vertexSize(7), triangleBufferSize(100), triangleBufferIndex(0) {
+ColoredShaderPainter::ColoredShaderPainter() : bufferSize(100), bufferIndex(0), vertexSize(7), triangleBufferSize(100), triangleBufferIndex(0), shaderPipeline(nullptr) {
     initShaders();
     initBuffers();
 }
@@ -393,10 +394,11 @@ void ColoredShaderPainter::drawBuffer(bool trisDone) {
     Graphics::setVertexBuffer(*rectVertexBuffer);
     Graphics::setIndexBuffer(*indexBuffer);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
-    
+
+	Graphics::setRenderState(DepthTest, false);
+	shaderPipeline->set();
+
     Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
-    
-    shaderPipeline->set();
     
     bufferIndex = 0;
     rectVertices = rectVertexBuffer->lock();
@@ -410,9 +412,10 @@ void ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
     Graphics::setIndexBuffer(*triangleIndexBuffer);
     Graphics::setMatrix(projectionLocation, projectionMatrix);
     
+	Graphics::setRenderState(DepthTest, false);
+	shaderPipeline->set();
+
     Graphics::drawIndexedVertices(0, triangleBufferIndex * 3);
-    
-    shaderPipeline->set();
     
     triangleBufferIndex = 0;
     triangleVertices = triangleVertexBuffer->lock();
@@ -456,7 +459,7 @@ void ColoredShaderPainter::end() {
 //==========
 // TextShaderPainter
 //==========
-TextShaderPainter::TextShaderPainter() : bufferSize(100), bufferIndex(0), vertexSize(9), bilinear(false), lastTexture(nullptr) {
+TextShaderPainter::TextShaderPainter() : bufferSize(100), bufferIndex(0), vertexSize(9), bilinear(false), lastTexture(nullptr), shaderPipeline(nullptr) {
     initShaders();
     initBuffers();
 }
@@ -601,11 +604,12 @@ void TextShaderPainter::drawBuffer() {
     Graphics::setTextureMinificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
     Graphics::setTextureMagnificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
     Graphics::setTextureMipmapFilter(textureLocation, NoMipFilter);
-    
+
+	Graphics::setRenderState(DepthTest, false);
+	shaderPipeline->set();
+
     Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
-    
-    shaderPipeline->set();
-    
+        
     bufferIndex = 0;
     rectVertices = rectVertexBuffer->lock();
 }
@@ -723,17 +727,17 @@ int Graphics2::upperPowerOfTwo(int v) {
 };
 
 void Graphics2::setProjection() {
-    if (!Graphics::nonPow2TexturesSupported()) {
-        screenWidth = upperPowerOfTwo(screenWidth);
-        screenHeight = upperPowerOfTwo(screenHeight);
-    }
+    //if (!Graphics::nonPow2TexturesSupported()) {
+    //    screenWidth = upperPowerOfTwo(screenWidth);
+    //    screenHeight = upperPowerOfTwo(screenHeight);
+    //}
     
-    if (!Graphics::renderTargetsInvertedY()) {
+    if (Graphics::renderTargetsInvertedY()) {
         projectionMatrix = mat4::orthogonalProjection(0, screenWidth, 0, screenHeight, 0.1f, 1000);
     } else {
         projectionMatrix = mat4::orthogonalProjection(0, screenWidth, screenHeight, 0, 0.1f, 1000);
     }
-    projectionMatrix.Set(2, 3, 0);
+    //projectionMatrix.Set(2, 3, 0);
     
     imagePainter->setProjection(projectionMatrix);
     coloredPainter->setProjection(projectionMatrix);
