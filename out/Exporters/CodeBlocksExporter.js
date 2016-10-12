@@ -64,6 +64,7 @@ class CodeBlocksExporter extends Exporter_1.Exporter {
         this.p('<Add option="-pthread" />', 3);
         this.p('<Add option="-static-libgcc" />', 3);
         this.p('<Add option="-static-libstdc++" />', 3);
+        this.p('<Add option="-Wl,-rpath,." />', 3);
         for (let lib of project.getLibs()) {
             this.p('<Add library="' + lib + '" />', 3);
         }
