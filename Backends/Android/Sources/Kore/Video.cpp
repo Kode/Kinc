@@ -93,8 +93,8 @@ namespace {
 		playerVolItf = NULL;
 		theNativeWindow = NULL;
 		reachedEof = JNI_FALSE;
-		mutex = PTHREAD_MUTEX_INITIALIZER;
-		cond = PTHREAD_COND_INITIALIZER;
+		memset(&mutex, 0, sizeof(mutex)); // mutex = PTHREAD_MUTEX_INITIALIZER; // simple assign stopped working in Android Studio 2.2
+		memset(&cond, 0, sizeof(cond)); // cond = PTHREAD_COND_INITIALIZER; // simple assign stopped working in Android Studio 2.2
 		discontinuity = false;
 	}
 

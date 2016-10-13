@@ -55,57 +55,54 @@ void Program::set() {
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
-	char d3dname[101];
-	strcpy(d3dname, "_");
-	strcat(d3dname, name);
 	ConstantLocation location;
 
-	if (vertexShader->constants.find(d3dname) == vertexShader->constants.end()) {
+	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
 		location.vertexOffset = 0;
 		location.vertexSize = 0;
 	}
 	else {
-		ShaderConstant constant = vertexShader->constants[d3dname];
+		ShaderConstant constant = vertexShader->constants[name];
 		location.vertexOffset = constant.offset;
 		location.vertexSize = constant.size;
 	}
 
-	if (fragmentShader->constants.find(d3dname) == fragmentShader->constants.end()) {
+	if (fragmentShader->constants.find(name) == fragmentShader->constants.end()) {
 		location.fragmentOffset = 0;
 		location.fragmentSize = 0;
 	}
 	else {
-		ShaderConstant constant = fragmentShader->constants[d3dname];
+		ShaderConstant constant = fragmentShader->constants[name];
 		location.fragmentOffset = constant.offset;
 		location.fragmentSize = constant.size;
 	}
 
-	if (geometryShader == nullptr || geometryShader->constants.find(d3dname) == geometryShader->constants.end()) {
+	if (geometryShader == nullptr || geometryShader->constants.find(name) == geometryShader->constants.end()) {
 		location.geometryOffset = 0;
 		location.geometrySize = 0;
 	}
 	else {
-		ShaderConstant constant = geometryShader->constants[d3dname];
+		ShaderConstant constant = geometryShader->constants[name];
 		location.geometryOffset = constant.offset;
 		location.geometrySize = constant.size;
 	}
 
-	if (tessControlShader == nullptr || tessControlShader->constants.find(d3dname) == tessControlShader->constants.end()) {
+	if (tessControlShader == nullptr || tessControlShader->constants.find(name) == tessControlShader->constants.end()) {
 		location.tessControlOffset = 0;
 		location.tessControlSize = 0;
 	}
 	else {
-		ShaderConstant constant = tessControlShader->constants[d3dname];
+		ShaderConstant constant = tessControlShader->constants[name];
 		location.tessControlOffset = constant.offset;
 		location.tessControlSize = constant.size;
 	}
 
-	if (tessEvalShader == nullptr || tessEvalShader->constants.find(d3dname) == tessEvalShader->constants.end()) {
+	if (tessEvalShader == nullptr || tessEvalShader->constants.find(name) == tessEvalShader->constants.end()) {
 		location.tessEvalOffset = 0;
 		location.tessEvalSize = 0;
 	}
 	else {
-		ShaderConstant constant = tessEvalShader->constants[d3dname];
+		ShaderConstant constant = tessEvalShader->constants[name];
 		location.tessEvalOffset = constant.offset;
 		location.tessEvalSize = constant.size;
 	}
@@ -114,20 +111,17 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 }
 
 TextureUnit Program::getTextureUnit(const char* name) {
-	char d3dname[101];
-	strcpy(d3dname, "_");
-	strcat(d3dname, name);
 	TextureUnit unit;
-	if (vertexShader->textures.find(d3dname) == vertexShader->textures.end()) {
-		if (fragmentShader->textures.find(d3dname) == fragmentShader->textures.end()) {
+	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
+		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
 			unit.unit = -1;
 		}
 		else {
-			unit.unit = fragmentShader->textures[d3dname];
+			unit.unit = fragmentShader->textures[name];
 		}
 	}
 	else {
-		unit.unit = vertexShader->textures[d3dname];
+		unit.unit = vertexShader->textures[name];
 	}
 	return unit;
 }
@@ -144,11 +138,11 @@ void Program::setGeometryShader(Shader* shader) {
 	geometryShader = shader;
 }
 
-void Program::setTesselationControlShader(Shader* shader) {
+void Program::setTessellationControlShader(Shader* shader) {
 	tessControlShader = shader;
 }
 
-void Program::setTesselationEvaluationShader(Shader* shader) {
+void Program::setTessellationEvaluationShader(Shader* shader) {
 	tessEvalShader = shader;
 }
 
@@ -157,6 +151,15 @@ namespace {
 		int ret = 16;
 		while (ret < value) ret += 16;
 		return ret;
+	}
+
+	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream) {
+		vertexDesc.SemanticName = "TEXCOORD";
+		vertexDesc.SemanticIndex = attributeIndex;
+		vertexDesc.InputSlot = stream;
+		vertexDesc.AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
+		vertexDesc.InputSlotClass = stream == 0 ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA; // hack
+		vertexDesc.InstanceDataStepRate = stream == 0 ? 0 : 1; // hack
 	}
 }
 
@@ -167,33 +170,66 @@ void Program::link(VertexStructure** structures, int count) {
 	if (tessControlShader != nullptr && tessControlShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessControlConstantBuffer));
 	if (tessEvalShader != nullptr && tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
 
-	D3D11_INPUT_ELEMENT_DESC vertexDesc[10];
-	for (int i = 0; i < structures[0]->size; ++i) {
-		vertexDesc[i].SemanticName = "TEXCOORD";
-		vertexDesc[i].SemanticIndex = vertexShader->attributes[structures[0]->elements[i].name];
-		vertexDesc[i].InputSlot = 0;
-		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
-		vertexDesc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexDesc[i].InstanceDataStepRate = 0;
-
-		switch (structures[0]->elements[i].data) {
-		case Float1VertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
-			break;
-		case Float2VertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
-			break;
-		case Float3VertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-			break;
-		case Float4VertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			break;
-		case ColorVertexData:
-			vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
-			break;
+	int all = 0;
+	for (int stream = 0; stream < count; ++stream) {
+		for (int index = 0; index < structures[stream]->size; ++index) {
+			if (structures[stream]->elements[index].data == Float4x4VertexData) {
+				all += 4;
+			}
+			else {
+				all += 1;
+			}
 		}
 	}
 
-	affirm(device->CreateInputLayout(vertexDesc, structures[0]->size, vertexShader->data, vertexShader->length, &inputLayout));
+	D3D11_INPUT_ELEMENT_DESC* vertexDesc = (D3D11_INPUT_ELEMENT_DESC*)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
+	int i = 0;
+	for (int stream = 0; stream < count; ++stream) {
+		for (int index = 0; index < structures[stream]->size; ++index) {
+			switch (structures[stream]->elements[index].data) {
+			case Float1VertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
+				++i;
+				break;
+			case Float2VertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
+				++i;
+				break;
+			case Float3VertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+				++i;
+				break;
+			case Float4VertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				++i;
+				break;
+			case ColorVertexData:
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[structures[stream]->elements[index].name], index, stream);
+				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
+				++i;
+				break;
+			case Float4x4VertexData:
+				for (int i2 = 0; i2 < 4; ++i2) {
+					char name[101];
+					strcpy(name, structures[stream]->elements[index].name);
+					strcat(name, "_");
+					size_t length = strlen(name);
+					_itoa(i2, &name[length], 10);
+					name[length + 1] = 0;
+
+					setVertexDesc(vertexDesc[i], vertexShader->attributes[name], index + i2, stream);
+					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+					++i;
+				}
+				break;
+			}
+		}
+	}
+
+	affirm(device->CreateInputLayout(vertexDesc, all, vertexShader->data, vertexShader->length, &inputLayout));
 }

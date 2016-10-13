@@ -12,6 +12,7 @@
 #include <d3d11_1.h>
 #include <wrl.h>
 #endif
+#include <vector>
 
 ID3D11Device* device;
 ID3D11DeviceContext* context;
@@ -44,13 +45,65 @@ namespace {
 	bool vsync;
 
 	D3D_FEATURE_LEVEL featureLevel;
-	ID3D11DepthStencilState* depthTestState = nullptr;
-	ID3D11DepthStencilState* noDepthTestState = nullptr;
 #ifdef SYS_WINDOWSAPP
 	IDXGISwapChain1* swapChain;
 #else
 	IDXGISwapChain* swapChain;
 #endif
+	int lastStencilReferenceValue = 0;
+	D3D11_DEPTH_STENCIL_DESC lastDepthStencil;
+
+	struct DepthStencil {
+		D3D11_DEPTH_STENCIL_DESC desc;
+		ID3D11DepthStencilState* state;
+	};
+
+	std::vector<DepthStencil> depthStencils;
+
+	ID3D11DepthStencilState* getDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& desc) {
+		for (unsigned i = 0; i < depthStencils.size(); ++i) {
+			D3D11_DEPTH_STENCIL_DESC& d = depthStencils[i].desc;
+			if (desc.DepthEnable == d.DepthEnable && desc.DepthWriteMask == d.DepthWriteMask && desc.DepthFunc == d.DepthFunc
+				&& desc.StencilEnable == d.StencilEnable && desc.StencilReadMask == d.StencilReadMask && desc.StencilWriteMask == d.StencilWriteMask
+				&& desc.FrontFace.StencilFunc == d.FrontFace.StencilFunc && desc.BackFace.StencilFunc == d.BackFace.StencilFunc
+				&& desc.FrontFace.StencilDepthFailOp == d.FrontFace.StencilDepthFailOp && desc.BackFace.StencilDepthFailOp == d.BackFace.StencilDepthFailOp
+				&& desc.FrontFace.StencilPassOp == d.FrontFace.StencilPassOp && desc.BackFace.StencilPassOp == d.BackFace.StencilPassOp
+				&& desc.FrontFace.StencilFailOp == d.FrontFace.StencilFailOp && desc.BackFace.StencilFailOp == d.BackFace.StencilFailOp) {
+				return depthStencils[i].state;
+			}
+		}
+		DepthStencil ds;
+		ds.desc = desc;
+		device->CreateDepthStencilState(&ds.desc, &ds.state);
+		depthStencils.push_back(ds);
+		return ds.state;
+	}
+
+	D3D11_COMPARISON_FUNC getComparison(ZCompareMode compare) {
+		switch (compare) {
+		case ZCompareAlways: return D3D11_COMPARISON_ALWAYS;
+		case ZCompareNever: return D3D11_COMPARISON_NEVER;
+		case ZCompareEqual: return D3D11_COMPARISON_EQUAL;
+		case ZCompareNotEqual: return D3D11_COMPARISON_NOT_EQUAL;
+		case ZCompareLess: return D3D11_COMPARISON_LESS;
+		case ZCompareLessEqual: return D3D11_COMPARISON_LESS_EQUAL;
+		case ZCompareGreater: return D3D11_COMPARISON_GREATER;
+		case ZCompareGreaterEqual: return D3D11_COMPARISON_GREATER_EQUAL;
+		}
+	}
+
+	D3D11_STENCIL_OP getStencilAction(StencilAction action) {
+		switch (action) {
+		case Keep: return D3D11_STENCIL_OP_KEEP;
+		case Zero: return D3D11_STENCIL_OP_ZERO;
+		case Replace: return D3D11_STENCIL_OP_REPLACE;
+		case Increment: return D3D11_STENCIL_OP_INCR;
+		case IncrementWrap: return D3D11_STENCIL_OP_INCR_SAT;
+		case Decrement: return D3D11_STENCIL_OP_DECR;
+		case DecrementWrap: return D3D11_STENCIL_OP_DECR_SAT;
+		case Invert: return D3D11_STENCIL_OP_INVERT;
+		}
+	}
 }
 
 void Graphics::destroy(int windowId) {
@@ -184,10 +237,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	desc.FrontFace.StencilDepthFailOp = desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	device->CreateDepthStencilState(&desc, &depthTestState);
-	desc.DepthEnable = FALSE;
-	device->CreateDepthStencilState(&desc, &noDepthTestState);
-	context->OMSetDepthStencilState(noDepthTestState, 1);
+	context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
+	lastDepthStencil = desc;
 
 	D3D11_RASTERIZER_DESC rasterDesc;
 	rasterDesc.FillMode	= D3D11_FILL_SOLID;
@@ -281,11 +332,18 @@ void Graphics::drawIndexedVertices(int start, int count) {
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
-
+	drawIndexedVerticesInstanced(instanceCount, 0, IndexBuffer::_current->count());
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-
+	if (currentProgram->tessControlShader != nullptr) {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	}
+	else {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
+	Program::setConstants();
+	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
 }
 
 namespace {
@@ -342,8 +400,8 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	}
 	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
 		uint d3dflags = 
-			  (flags & ClearDepthFlag) ? D3D11_CLEAR_DEPTH : 0
-			| (flags & ClearStencilFlag) ? D3D11_CLEAR_STENCIL : 0;
+			  ((flags & ClearDepthFlag) ? D3D11_CLEAR_DEPTH : 0)
+			| ((flags & ClearStencilFlag) ? D3D11_CLEAR_STENCIL : 0);
 		context->ClearDepthStencilView(depthStencilView, d3dflags, depth, stencil);
 	}
 }
@@ -368,7 +426,23 @@ void Graphics::disableScissor() {
 }
 
 void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
-	//TODO
+	D3D11_DEPTH_STENCIL_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.DepthEnable = lastDepthStencil.DepthEnable;
+	desc.DepthWriteMask = lastDepthStencil.DepthWriteMask;
+	desc.DepthFunc = lastDepthStencil.DepthFunc;
+	desc.StencilEnable = TRUE;
+	desc.StencilReadMask = readMask;
+	desc.StencilWriteMask = writeMask;
+	desc.FrontFace.StencilFunc = desc.BackFace.StencilFunc = getComparison(compareMode);
+	desc.FrontFace.StencilDepthFailOp = desc.BackFace.StencilDepthFailOp = getStencilAction(depthFail);
+	desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = getStencilAction(bothPass);
+	desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = getStencilAction(stencilFail);
+
+	lastDepthStencil = desc;
+	lastStencilReferenceValue = referenceValue;
+
+	context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
 }
 
 void Graphics::end(int windowId) {
@@ -406,31 +480,92 @@ namespace {
 
 void Graphics::setRenderState(RenderState state, bool on) {
 	switch (state) {
-		case DepthTest:
-			if (on) {
-				context->OMSetDepthStencilState(depthTestState, 1);
-			}
-			else {
-				context->OMSetDepthStencilState(noDepthTestState, 1);
-			}
-			break;
-		case BackfaceCulling: {
-			/*ID3D11RasterizerState* state;
-			D3D11_RASTERIZER_DESC desc;
+	case DepthTest: {
+		D3D11_DEPTH_STENCIL_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.DepthEnable = on;
+		desc.DepthWriteMask = lastDepthStencil.DepthWriteMask;
+		desc.DepthFunc = lastDepthStencil.DepthFunc;
+		desc.StencilEnable = lastDepthStencil.StencilEnable;
+		desc.StencilReadMask = lastDepthStencil.StencilReadMask;
+		desc.StencilWriteMask = lastDepthStencil.StencilWriteMask;
+		desc.FrontFace.StencilFunc = lastDepthStencil.FrontFace.StencilFunc;
+		desc.BackFace.StencilFunc = lastDepthStencil.BackFace.StencilFunc;
+		desc.FrontFace.StencilDepthFailOp = lastDepthStencil.FrontFace.StencilDepthFailOp;
+		desc.BackFace.StencilDepthFailOp = lastDepthStencil.BackFace.StencilDepthFailOp;
+		desc.FrontFace.StencilPassOp = lastDepthStencil.FrontFace.StencilPassOp;
+		desc.BackFace.StencilPassOp = lastDepthStencil.BackFace.StencilPassOp;
+		desc.FrontFace.StencilFailOp = lastDepthStencil.FrontFace.StencilFailOp;
+		desc.BackFace.StencilFailOp = lastDepthStencil.BackFace.StencilFailOp;
 
-			context->RSGetState(&state);
-			//state->GetDesc(&desc);
+		lastDepthStencil = desc;
 
-			desc.CullMode = on ? D3D11_CULL_BACK : D3D11_CULL_NONE;
-			device->CreateRasterizerState(&desc, &state);
-			context->RSSetState(state);*/
-			break;
-		}
+		context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
+		break;
+	}
+	case DepthWrite: {
+		D3D11_DEPTH_STENCIL_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.DepthEnable = lastDepthStencil.DepthEnable;
+		desc.DepthWriteMask = on ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+		desc.DepthFunc = lastDepthStencil.DepthFunc;
+		desc.StencilEnable = lastDepthStencil.StencilEnable;
+		desc.StencilReadMask = lastDepthStencil.StencilReadMask;
+		desc.StencilWriteMask = lastDepthStencil.StencilWriteMask;
+		desc.FrontFace.StencilFunc = lastDepthStencil.FrontFace.StencilFunc;
+		desc.BackFace.StencilFunc = lastDepthStencil.BackFace.StencilFunc;
+		desc.FrontFace.StencilDepthFailOp = lastDepthStencil.FrontFace.StencilDepthFailOp;
+		desc.BackFace.StencilDepthFailOp = lastDepthStencil.BackFace.StencilDepthFailOp;
+		desc.FrontFace.StencilPassOp = lastDepthStencil.FrontFace.StencilPassOp;
+		desc.BackFace.StencilPassOp = lastDepthStencil.BackFace.StencilPassOp;
+		desc.FrontFace.StencilFailOp = lastDepthStencil.FrontFace.StencilFailOp;
+		desc.BackFace.StencilFailOp = lastDepthStencil.BackFace.StencilFailOp;
+
+		lastDepthStencil = desc;
+
+		context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
+		break;
+	}
+	case BackfaceCulling: {
+		/*ID3D11RasterizerState* state;
+		D3D11_RASTERIZER_DESC desc;
+
+		context->RSGetState(&state);
+		//state->GetDesc(&desc);
+
+		desc.CullMode = on ? D3D11_CULL_BACK : D3D11_CULL_NONE;
+		device->CreateRasterizerState(&desc, &state);
+		context->RSSetState(state);*/
+		break;
+	}
 	}
 }
 
 void Graphics::setRenderState(RenderState state, int v) {
+	switch (state) {
+	case DepthTestCompare:
+		D3D11_DEPTH_STENCIL_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.DepthEnable = lastDepthStencil.DepthEnable;
+		desc.DepthWriteMask = lastDepthStencil.DepthWriteMask;
+		desc.DepthFunc = getComparison((ZCompareMode)v);
+		desc.StencilEnable = lastDepthStencil.StencilEnable;
+		desc.StencilReadMask = lastDepthStencil.StencilReadMask;
+		desc.StencilWriteMask = lastDepthStencil.StencilWriteMask;
+		desc.FrontFace.StencilFunc = lastDepthStencil.FrontFace.StencilFunc;
+		desc.BackFace.StencilFunc = lastDepthStencil.BackFace.StencilFunc;
+		desc.FrontFace.StencilDepthFailOp = lastDepthStencil.FrontFace.StencilDepthFailOp;
+		desc.BackFace.StencilDepthFailOp = lastDepthStencil.BackFace.StencilDepthFailOp;
+		desc.FrontFace.StencilPassOp = lastDepthStencil.FrontFace.StencilPassOp;
+		desc.BackFace.StencilPassOp = lastDepthStencil.BackFace.StencilPassOp;
+		desc.FrontFace.StencilFailOp = lastDepthStencil.FrontFace.StencilFailOp;
+		desc.BackFace.StencilFailOp = lastDepthStencil.BackFace.StencilFailOp;
 
+		lastDepthStencil = desc;
+
+		context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
+		break;
+	}
 }
 
 void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
@@ -665,6 +800,23 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 
 void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
 	buffers[0]->_set(0);
+
+	ID3D11Buffer** d3dbuffers = (ID3D11Buffer**)alloca(count * sizeof(ID3D11Buffer*));
+	for (int i = 0; i < count; ++i) {
+		d3dbuffers[i] = buffers[i]->_vb;
+	}
+
+	UINT* strides = (UINT*)alloca(count * sizeof(UINT));
+	for (int i = 0; i < count; ++i) {
+		strides[i] = buffers[i]->myStride;
+	}
+
+	UINT* internaloffsets = (UINT*)alloca(count * sizeof(UINT));
+	for (int i = 0; i < count; ++i) {
+		internaloffsets[i] = 0;
+	}
+
+	context->IASetVertexBuffers(0, count, d3dbuffers, strides, internaloffsets);
 }
 
 void Graphics::setIndexBuffer(IndexBuffer& buffer) {

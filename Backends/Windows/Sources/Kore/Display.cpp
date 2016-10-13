@@ -91,22 +91,24 @@ namespace Kore { namespace Display {
 		return nullptr;
 	}
 
-	const DeviceInfo *
-	byId( int id ) {
+	const DeviceInfo* byId(int id) {
 		// TODO (DK) find a better way to identify than strcmp
 		char displayId[32];
 		sprintf_s(displayId, "\\\\.\\DISPLAY%i", id);
 
+		DeviceInfo* last = nullptr;
 		for (int screenIndex = 0; screenIndex < MAXIMUM_DISPLAY_COUNT; ++screenIndex) {
-			const DeviceInfo & info = displays[screenIndex];
+			last = &displays[screenIndex];
 
-			if (strcmp(info.name, displayId) == 0) {
-				return &info;
+			if (strcmp(last->name, displayId) == 0) {
+				return last;
 			}
 		}
 
-		log(Warning, "No display with id \"%i\" found", id);
-		return nullptr;
+		if (id != 0 || last == nullptr) {
+			log(Warning, "No display with id \"%i\" found", id);
+		}
+		return last;
 	}
 
 	int width( int index ) {

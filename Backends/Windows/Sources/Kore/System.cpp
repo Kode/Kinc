@@ -11,7 +11,7 @@
 #include <dinput.h>
 #include <wbemidl.h>
 #include <oleauto.h>
-#include <wmsstd.h>
+#include <stdio.h>
 
 #ifdef VR_RIFT 
 #include "Vr/VrInterface.h"
@@ -23,6 +23,11 @@
 #include <shlobj.h>
 #include <exception>
 #include <XInput.h>
+
+extern "C" {
+  __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+  __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
 
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -972,11 +977,11 @@ void Kore::System::clearCurrent() {
 }
 
 int Kore::System::initWindow(WindowOptions options) {
-	char buffer[1024] = {0};
-	strcat(buffer, name());
+	char buffer[1024];
+	strcpy(buffer, name());
 	
 	if (options.title != nullptr) {
-		strcat(buffer, options.title);
+		strcpy(buffer, options.title);
 	}
 
 	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);

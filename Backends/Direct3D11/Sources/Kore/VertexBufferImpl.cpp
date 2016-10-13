@@ -29,6 +29,9 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 		case ColorVertexData:
 			myStride += 1 * 4;
 			break;
+		case Float4x4VertexData:
+			myStride += 4 * 4 * 4;
+			break;
 		}
 	}
 
@@ -42,11 +45,11 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 	bufferDesc.MiscFlags           = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	affirm(device->CreateBuffer(&bufferDesc, nullptr, &vb));
+	affirm(device->CreateBuffer(&bufferDesc, nullptr, &_vb));
 }
 
 VertexBuffer::~VertexBuffer() {
-	vb->Release();
+	_vb->Release();
 	delete[] vertices;
 }
 
@@ -60,13 +63,13 @@ float* VertexBuffer::lock(int start, int count) {
 
 void VertexBuffer::unlock() {
 
-	context->UpdateSubresource(vb, 0, nullptr, vertices, 0, 0);
+	context->UpdateSubresource(_vb, 0, nullptr, vertices, 0, 0);
 }
 
 int VertexBuffer::_set(int offset) {
-	UINT stride = myStride;
-	UINT internaloffset = 0;
-	context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
+	//UINT stride = myStride;
+	//UINT internaloffset = 0;
+	//context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
 	return 0;
 }
 

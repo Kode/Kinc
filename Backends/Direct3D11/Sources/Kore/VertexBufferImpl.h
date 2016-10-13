@@ -6,11 +6,12 @@ namespace Kore {
 	class VertexBuffer;
 
 	class VertexBufferImpl {
+	public:
+		ID3D11Buffer* _vb;
+		int myStride;
 	protected:
 		VertexBufferImpl(int count);
-		ID3D11Buffer* vb;
 		int myCount;
-		int myStride;
 		float* vertices;
 	};
 }

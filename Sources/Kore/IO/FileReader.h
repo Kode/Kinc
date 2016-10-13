@@ -48,4 +48,6 @@ namespace Kore {
 		FileReaderData data;
 		void* readdata;
 	};
+	
+	void setFilesLocation(char* dir);
 }

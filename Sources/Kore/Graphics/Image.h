@@ -14,11 +14,12 @@ namespace Kore {
 		static int sizeOf(Image::Format format);
 
 		Image(int width, int height, Format format, bool readable);
+		Image(int width, int height, int depth, Format format, bool readable);
 		Image(const char* filename, bool readable);
 		virtual ~Image();
 		int at(int x, int y);
 
-		int width, height;
+		int width, height, depth;
 		Format format;
 		bool readable;
 		bool compressed;
