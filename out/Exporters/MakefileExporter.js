@@ -1,5 +1,6 @@
 "use strict";
 const Exporter_1 = require('./Exporter');
+const fs = require('fs-extra');
 const path = require('path');
 class MakefileExporter extends Exporter_1.Exporter {
     constructor() {
@@ -8,6 +9,8 @@ class MakefileExporter extends Exporter_1.Exporter {
     exportSolution(project, from, to, platform, vrApi, nokrafix, options) {
         let objects = {};
         let ofiles = {};
+        let outputPath = path.resolve(to, options.buildPath);
+        fs.ensureDirSync(outputPath);
         for (let fileobject of project.getFiles()) {
             let file = fileobject.file;
             if (file.endsWith('.cpp') || file.endsWith('.c') || file.endsWith('.cc')) {
@@ -44,18 +47,18 @@ class MakefileExporter extends Exporter_1.Exporter {
                 }
             }
             if (precompiledHeader !== null) {
-                let realfile = path.relative(to, path.resolve(from, file.file));
-                gchfilelist += realfile + '.gch ';
+                // let realfile = path.relative(outputPath, path.resolve(from, file.file));
+                gchfilelist += path.basename(file.file) + '.gch ';
             }
         }
         let ofilelist = '';
         for (let o in objects) {
             ofilelist += o + '.o ';
         }
-        this.writeFile(path.resolve(to, 'makefile'));
-        let incline = '';
+        this.writeFile(path.resolve(outputPath, 'makefile'));
+        let incline = '-I./ '; // local directory to pick up the precompiled header hxcpp.h.gch
         for (let inc of project.getIncludeDirs()) {
-            inc = path.relative(to, path.resolve(from, inc));
+            inc = path.relative(outputPath, path.resolve(from, inc));
             incline += '-I' + inc + ' ';
         }
         this.p('INC=' + incline);
@@ -88,10 +91,10 @@ class MakefileExporter extends Exporter_1.Exporter {
                 }
             }
             if (precompiledHeader !== null) {
-                let realfile = path.relative(to, path.resolve(from, file.file));
-                this.p(realfile + '.gch: ' + realfile);
+                let realfile = path.relative(outputPath, path.resolve(from, file.file));
+                this.p(path.basename(realfile) + '.gch: ' + realfile);
                 let compiler = 'g++';
-                this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + realfile + '.gch $(LIB)');
+                this.p('\t' + compiler + ' ' + cpp + ' ' + optimization + ' $(INC) $(DEF) -c ' + realfile + ' -o ' + path.basename(file.file) + '.gch $(LIB)');
             }
         }
         for (let fileobject of project.getFiles()) {
@@ -99,7 +102,7 @@ class MakefileExporter extends Exporter_1.Exporter {
             if (file.endsWith('.c') || file.endsWith('.cpp') || file.endsWith('cc')) {
                 this.p();
                 let name = ofiles[file];
-                let realfile = path.relative(to, path.resolve(from, file));
+                let realfile = path.relative(outputPath, path.resolve(from, file));
                 this.p(name + '.o: ' + realfile);
                 let compiler = 'g++';
                 if (file.endsWith('.c'))
