@@ -131,7 +131,7 @@ export class VisualStudioExporter extends Exporter {
 		for (let proj of project.getSubProjects()) this.writeProjectBuilds(proj, platform);
 	}
 
-	exportSolution(project: Project, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean) {
+	exportSolution(project: Project, from: string, to: string, platform: string, vrApi: any, nokrafix: boolean, options: any) {
 		standardconfs = [];
 		standardconfs.push('Debug');
 		standardconfs.push('Release');
@@ -195,7 +195,7 @@ export class VisualStudioExporter extends Exporter {
 		this.p('EndGlobal');
 		this.closeFile();
 
-		this.exportProject(from, to, project, platform, project.isCmd(), nokrafix);
+		this.exportProject(from, to, project, platform, project.isCmd(), nokrafix, options.noshaders);
 		this.exportFilters(from, to, project, platform);
 		this.exportUserFile(from, to, project, platform);
 		if (platform === Platform.WindowsApp) {
@@ -452,8 +452,8 @@ export class VisualStudioExporter extends Exporter {
 //     p("</Reference>", 2);
 // }
 
-	exportProject(from: string, to: string, project: Project, platform: string, cmd: boolean, nokrafix: boolean) {
-		for (let proj of project.getSubProjects()) this.exportProject(from, to, proj, platform, cmd, nokrafix);
+	exportProject(from: string, to: string, project: Project, platform: string, cmd: boolean, nokrafix: boolean, noshaders: boolean) {
+		for (let proj of project.getSubProjects()) this.exportProject(from, to, proj, platform, cmd, nokrafix, noshaders);
 
 		this.writeFile(path.resolve(to, project.getName() + '.vcxproj'));
 
@@ -910,7 +910,7 @@ export class VisualStudioExporter extends Exporter {
 			this.p('</ItemGroup>', 1);
 			this.p('<ItemGroup>', 1);
 			for (let file of project.getFiles()) {
-				if (Project.koreDir && Project.koreDir.toString() !== '' && file.file.endsWith('.glsl')) {
+				if (Project.koreDir && Project.koreDir.toString() !== '' && !noshaders && file.file.endsWith('.glsl')) {
 					this.p('<CustomBuild Include="' + path.resolve(from, file.file) + '">', 2);
 					this.p('<FileType>Document</FileType>', 2);
 					if (nokrafix)

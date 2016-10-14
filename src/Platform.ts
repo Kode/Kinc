@@ -1,4 +1,4 @@
-interface PC {
+export interface PC {
 	Windows: string;
 	WindowsApp: string;
 	PlayStation3: string;

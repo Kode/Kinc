@@ -90,6 +90,11 @@ let options = [
         full: 'debug',
         description: 'Compile in debug mode',
         value: false
+    },
+    {
+        full: 'noshaders',
+        description: 'Do not compile shaders',
+        value: false
     }
 ];
 let parsedOptions = {};
