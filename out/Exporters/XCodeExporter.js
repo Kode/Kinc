@@ -279,7 +279,7 @@ class XCodeExporter extends Exporter_1.Exporter {
             if (framework.toString().endsWith('.framework')) {
                 // Local framework - a directory is specified
                 if (framework.toString().indexOf('/') >= 0) {
-                    framework.localPath = path.resolve(from, framework);
+                    framework.localPath = path.resolve(from, framework.toString());
                     this.p(framework.getFileId() + ' /* ' + framework.toString() + ' */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ' + framework.toString() + '; path = ' + framework.localPath + '; sourceTree = "<absolute>"; };', 2);
                 }
                 else {
@@ -289,7 +289,7 @@ class XCodeExporter extends Exporter_1.Exporter {
             else if (framework.toString().endsWith('.dylib'))
                 this.p(framework.getFileId() + ' /* ' + framework.toString() + ' */ = {isa = PBXFileReference; lastKnownFileType = compiled.mach-o.dylib; name = ' + framework.toString() + '; path = usr/lib/' + framework.toString() + '; sourceTree = SDKROOT; };', 2);
             else {
-                framework.localPath = path.resolve(from, framework);
+                framework.localPath = path.resolve(from, framework.toString());
                 this.p(framework.getFileId() + ' /* ' + framework.toString() + ' */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = ' + framework.toString() + '; path = ' + framework.localPath + '; sourceTree = "<group>"; };', 2);
             }
         }
