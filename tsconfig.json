@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"target": "es6",
+		"module": "commonjs",
+		"sourceMap": true,
+		"outDir": "out",
+		"noImplicitAny": true,
+		"forceConsistentCasingInFileNames": true,
+		"newLine": "LF",
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true
+	},
+	"exclude": [
+		"Data",
+		"node_modules",
+		"out"
+	],
+	"compileOnSave": true
+}
