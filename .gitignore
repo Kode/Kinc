@@ -1,0 +1,9 @@
+/obj
+/*.suo
+/.ntvs_analysis.dat
+/.idea/workspace.xml
+/out/*.map
+/out/Exporters/*.map
+/.vscode/.BROWSE.VC.DB
+/.vscode/.BROWSE.VC.DB-shm
+/.vscode/.BROWSE.VC.DB-wal
