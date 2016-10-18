@@ -7,6 +7,10 @@
 
 using namespace Kore;
 
+#ifndef GL_TEXTURE_3D
+#define GL_TEXTURE_3D 0x806F
+#endif
+
 namespace {
 	int convertFormat(Image::Format format) {
 		switch (format) {
@@ -304,6 +308,7 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 }
 
 Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+#ifndef OPENGLES
 	glGenTextures(1, &texture);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_3D, texture);
@@ -316,6 +321,7 @@ Texture::Texture(int width, int height, int depth, Image::Format format, bool re
 
 	glTexImage3D(GL_TEXTURE_3D, 0, convertFormat(format), width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glCheckErrors();
+#endif
 }
 
 #ifdef SYS_ANDROID
