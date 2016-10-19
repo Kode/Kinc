@@ -11,6 +11,8 @@ namespace Kore {
 		float volume();
 		void setVolume(float value);
 		u8* data;
+        s16* left;
+        s16* right;
 		int size;
 	private:
 		float myVolume;

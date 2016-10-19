@@ -35,6 +35,7 @@ namespace {
 
 	void mix(int samples) {
 		for (int i = 0; i < samples; ++i) {
+            bool left = (i % 2) == 0;
 			float value = 0;
 #if 0
 			__m128 sseSamples[4];
@@ -61,11 +62,12 @@ namespace {
 			mutex.Lock();
 			for (int i = 0; i < channelCount; ++i) {
 				if (channels[i].sound != nullptr) {
-					value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f * channels[i].sound->volume();
-					value = max(min(value, 1.0f), -1.0f);
-					channels[i].position += 2;
-					if (channels[i].position >= channels[i].sound->size) channels[i].sound = nullptr;
-				}
+                    //value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f * channels[i].sound->volume();
+                    if (left) value += channels[i].sound->left[channels[i].position] / 32767.0f * channels[i].sound->volume();
+                    else value += channels[i].sound->right[channels[i].position] / 32767.0f * channels[i].sound->volume();
+                    value = max(min(value, 1.0f), -1.0f);
+                    if (left) channels[i].position += 2;
+                    if (channels[i].position >= channels[i].sound->size / 2) channels[i].sound = nullptr;				}
 			}
 			for (int i = 0; i < channelCount; ++i) {
 				if (streams[i].stream != nullptr) {

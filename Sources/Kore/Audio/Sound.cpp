@@ -59,7 +59,7 @@ namespace {
 	}
 }
 
-Sound::Sound(const char* filename) : myVolume(1), size(0), data(0) {
+Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), right(0) {
 	size_t filenameLength = strlen(filename);
 	
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
@@ -91,12 +91,17 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), data(0) {
 		format.samplesPerSecond = wave.sampleRate;
 		data = wave.data;
 		size = wave.dataSize;
+        // Left and right channel are in s16 audio stream, alternating.
+        left = (s16*)data;
+        right = ((s16*)data) + 1;
 	}
 }
 
 Sound::~Sound() {
 	delete[] data;
 	data = nullptr;
+    left = nullptr;
+    right = nullptr;
 }
 
 float Sound::volume() {
