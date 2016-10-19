@@ -19,6 +19,7 @@ namespace Kore {
 	int abs(int value);
 	float asin(float value);
 	float acos(float value);
+	float atan(float value);
 	float atan2(float y, float x);
 	float floor(float value);
 
