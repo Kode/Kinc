@@ -15,7 +15,8 @@ namespace {
 
 	struct Channel {
 		Sound* sound;
-		int position;
+		float position;
+        float pitch;
 	};
 
 	struct StreamChannel {
@@ -32,6 +33,31 @@ namespace {
 	Channel channels[channelCount];
 	StreamChannel streams[channelCount];
 	VideoChannel videos[channelCount];
+    
+    float sampleLinear(s16* data, float position) {
+        int pos1 = (int)position;
+        int pos2 = (int)(position + 1);
+        float sample1 = data[pos1] / 32767.0f;
+        float sample2 = data[pos2] / 32767.0f;
+        float a = position - pos1;
+        return sample1 * (1 - a) + sample2 * a;
+    }
+    
+    float sampleHermite4pt3oX(s16* data, float position) {
+        float s0 = data[(int)(position - 1)] / 32767.0f;
+        float s1 = data[(int)(position + 0)] / 32767.0f;
+        float s2 = data[(int)(position + 1)] / 32767.0f;
+        float s3 = data[(int)(position + 2)] / 32767.0f;
+        
+        float x = position - (int)(position);
+        
+        // 4-point, 3rd-order Hermite (x-form)
+        float c0 = s1;
+        float c1 = 0.5f * (s2 - s0);
+        float c2 = s0 - 2.5f * s1 + 2 * s2 - 0.5f * s3;
+        float c3 = 0.5f * (s3 - s0) + 1.5f * (s1 - s2);
+        return ((c3 * x + c2) * x + c1) * x + c0;
+    }
 
 	void mix(int samples) {
 		for (int i = 0; i < samples; ++i) {
@@ -63,11 +89,13 @@ namespace {
 			for (int i = 0; i < channelCount; ++i) {
 				if (channels[i].sound != nullptr) {
                     //value += *(s16*)&channels[i].sound->data[channels[i].position] / 32767.0f * channels[i].sound->volume();
-                    if (left) value += channels[i].sound->left[channels[i].position] / 32767.0f * channels[i].sound->volume();
-                    else value += channels[i].sound->right[channels[i].position] / 32767.0f * channels[i].sound->volume();
+                    if (left) value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].sound->volume();
+                    else value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].sound->volume();
                     value = max(min(value, 1.0f), -1.0f);
-                    if (left) channels[i].position += 2;
-                    if (channels[i].position >= channels[i].sound->size / 2) channels[i].sound = nullptr;				}
+                    //if (left) channels[i].position += 2;
+                    if (left) channels[i].position += channels[i].pitch * 2.0f;
+                    if (channels[i].position >= channels[i].sound->size / 2) channels[i].sound = nullptr;
+                }
 			}
 			for (int i = 0; i < channelCount; ++i) {
 				if (streams[i].stream != nullptr) {
@@ -105,12 +133,13 @@ void Mixer::init() {
 	Audio::audioCallback = mix;
 }
 
-void Mixer::play(Sound* sound) {
+void Mixer::play(Sound* sound, float pitch) {
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == nullptr) {
 			channels[i].sound = sound;
 			channels[i].position = 0;
+            channels[i].pitch = pitch;
 			break;
 		}
 	}
