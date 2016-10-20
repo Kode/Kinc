@@ -187,6 +187,8 @@ namespace Kore {
         int screenWidth;
         int screenHeight;
         
+        bool renderTargets;
+        
         uint color;
 
         float opacity;
@@ -222,7 +224,7 @@ namespace Kore {
 
         
     public:
-        Graphics2(int width, int height);
+        Graphics2(int width, int height, bool rTargets = false);
         
         void drawImage(Texture* img, float x, float y);
         void drawScaledSubImage(Texture* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);

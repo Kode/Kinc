@@ -674,7 +674,7 @@ void TextShaderPainter::end() {
 // Graphics2
 //==========
 
-Graphics2::Graphics2(int width, int height) : color(Color::White), fontColor(Color::Black), screenWidth(width), screenHeight(height), fontSize(14) {
+Graphics2::Graphics2(int width, int height, bool rTargets) : screenWidth(width), screenHeight(height), renderTargets(rTargets), color(Color::White), fontColor(Color::Black), fontSize(14) {
     transformation = mat3::Identity(); // TODO
     opacity = 1.f;
 
@@ -727,17 +727,22 @@ int Graphics2::upperPowerOfTwo(int v) {
 };
 
 void Graphics2::setProjection() {
-    //if (!Graphics::nonPow2TexturesSupported()) {
-    //    screenWidth = upperPowerOfTwo(screenWidth);
-    //    screenHeight = upperPowerOfTwo(screenHeight);
-    //}
+    int width = screenWidth;
+    int height = screenHeight;
     
-    if (Graphics::renderTargetsInvertedY()) {
-        projectionMatrix = mat4::orthogonalProjection(0, screenWidth, 0, screenHeight, 0.1f, 1000);
+    if (!renderTargets) {
+        projectionMatrix = mat4::orthogonalProjection(0, width, height, 0, 0.1f, 1000);
     } else {
-        projectionMatrix = mat4::orthogonalProjection(0, screenWidth, screenHeight, 0, 0.1f, 1000);
+        if (!Graphics::nonPow2TexturesSupported()) {
+            width = upperPowerOfTwo(width);
+            height = upperPowerOfTwo(height);
+        }
+        if (Graphics::renderTargetsInvertedY()) {
+            projectionMatrix = mat4::orthogonalProjection(0, width, 0, height, 0.1f, 1000);
+        } else {
+            projectionMatrix = mat4::orthogonalProjection(0, width, height, 0, 0.1f, 1000);
+        }
     }
-    //projectionMatrix.Set(2, 3, 0);
     
     imagePainter->setProjection(projectionMatrix);
     coloredPainter->setProjection(projectionMatrix);
@@ -900,7 +905,7 @@ void Graphics2::disableScissor() {
 }
 
 void Graphics2::begin(bool clear, uint clearColor) {
-    Graphics::begin();
+//    Graphics::begin();
     if(clear) Graphics2::clear(clearColor);
     setProjection();
 }
@@ -917,7 +922,7 @@ void Graphics2::flush() {
 
 void Graphics2::end() {
     flush();
-    Graphics::end();
+//    Graphics::end();
 }
 
 void Graphics2::drawVideoInternal(/*Video video,*/ float x, float y, float width, float height) {
