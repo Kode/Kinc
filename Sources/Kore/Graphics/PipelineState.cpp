@@ -6,19 +6,14 @@ using namespace Kore;
 
 PipelineState::PipelineState() : Program() {
     // TODO
+    //program = new Program;
 }
 
 
 void PipelineState::compile() {
-    //compileShader(vertexShader);
-    //compileShader(fragmentShader);
-    
+    link(PipelineStateBase::inputLayout, 0);
 }
 
-void PipelineState::compileShader(Kore::Shader *shader) {
-    if (shader != nullptr) return;
-    // TODO
-}
 
 //ConstantLocation PipelineState::getConstantLocation(const char* name) {
 //    return new ConstantLocation(glGetUniformLocation(program, name));

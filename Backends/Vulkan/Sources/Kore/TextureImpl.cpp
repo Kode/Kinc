@@ -297,6 +297,10 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 
 }
 
+Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+
+}
+
 TextureImpl::~TextureImpl() {
 
 }

@@ -1,26 +1,25 @@
 #pragma once
 
 #include "PipelineStateBase.h"
-#include "Shader.h"
+//#include "Shader.h"
 
 namespace Kore {
     class PipelineState : public PipelineStateBase, public Program {
     
     private:
-        Program* program;
+        //Program* program;
         //const char** textures;
         //int* textureValues;
         
-        void compileShader(Shader* shader);
         //int findTexture(char* name);
     
     public:
         
         PipelineState();
+        //void delete();
         void compile();
-        
         //ConstantLocation getConstantLocation(const char* name);
-        //TextureUnit getTextureUnit(char** name);
+        //TextureUnit getTextureUnit(const char* name);
     
     };
 }

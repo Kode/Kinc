@@ -32,12 +32,17 @@ int Image::sizeOf(Image::Format format) {
 	return -1;
 }
 
-Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), format(format), readable(readable) {
+Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
 	compressed = false;
 	data = new u8[width * height * sizeOf(format)];
 }
 
-Image::Image(const char* filename, bool readable) : format(RGBA32), readable(readable) {
+Image::Image(int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
+	compressed = false;
+	data = new u8[width * height * depth * sizeOf(format)];
+}
+
+Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
 	printf("Image %s\n", filename);
 	FileReader file(filename);
 	if (endsWith(filename, ".k")) {

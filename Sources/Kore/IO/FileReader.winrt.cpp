@@ -49,6 +49,14 @@ const char* macgetresourcepath();
 
 using namespace Kore;
 
+namespace {
+	char* fileslocation = nullptr;
+}
+
+void Kore::setFilesLocation(char* dir) {
+	fileslocation = dir;
+}
+
 #ifdef SYS_ANDROID
 namespace {
 	char* externalFilesDir;
@@ -209,6 +217,13 @@ bool FileReader::open(const char* filename, FileType type) {
 	strcat(filepath, "/");
 	strcat(filepath, filename);
 #endif
+	
+	if (fileslocation != nullptr) {
+		strcpy(filepath, fileslocation);
+		strcat(filepath, "/");
+		strcat(filepath, filename);
+	}
+	
 	data.file = fopen(filepath, "rb");
 	if (data.file == nullptr) {
 		log(Warning, "Could not open file %s.", filepath);
