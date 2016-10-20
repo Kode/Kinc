@@ -793,6 +793,11 @@ void Graphics::restoreRenderTarget() {
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
+	if (target->lastBoundUnit >= 0) {
+		ID3D11ShaderResourceView* nullview[1];
+		nullview[0] = nullptr;
+		context->PSSetShaderResources(target->lastBoundUnit, 1, nullview);
+	}
 	context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(target->width), static_cast<float>(target->height));
 	context->RSSetViewports(1, &viewPort);

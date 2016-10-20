@@ -97,6 +97,10 @@ float Kore::acos(float value) {
 	return std::acos(value);
 }
 
+float Kore::atan(float value) {
+	return std::atan(value);
+}
+
 float Kore::atan2(float y, float x) {
 	return std::atan2(y, x);
 }

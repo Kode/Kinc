@@ -44,11 +44,14 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 	affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &view));
+
+	lastBoundUnit = -1;
 }
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &view);
+	lastBoundUnit = unit.unit;
 }
 
 void RenderTarget::useDepthAsTexture(TextureUnit unit) {
