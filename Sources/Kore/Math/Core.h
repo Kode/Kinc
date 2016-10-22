@@ -22,6 +22,7 @@ namespace Kore {
 	float atan(float value);
 	float atan2(float y, float x);
 	float floor(float value);
+	float mod(float numer, float denom);
 
 	template<class T> T min(T a, T b) { return (a < b) ? a : b; }
 	template<class T> T max(T a, T b) { return (a > b) ? a : b; }
