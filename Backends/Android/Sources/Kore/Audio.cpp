@@ -49,24 +49,27 @@ void Kore::Audio::init() {
 	result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
 	result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
 
-	const SLInterfaceID ids[] = { SL_IID_VOLUME };
-	const SLboolean req[] = { SL_BOOLEAN_FALSE };
+	const SLInterfaceID ids[] = {SL_IID_VOLUME};
+	const SLboolean req[] = {SL_BOOLEAN_FALSE};
 	result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, ids, req);
 	result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
 
-	SLDataLocator_AndroidSimpleBufferQueue loc_bufq = { SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2 };
-	SLDataFormat_PCM format_pcm = { SL_DATAFORMAT_PCM, 2, SL_SAMPLINGRATE_44_1, SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16, SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT, SL_BYTEORDER_LITTLEENDIAN };
-	SLDataSource audioSrc = { &loc_bufq, &format_pcm };
+	SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
+	SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM,           2,
+	                               SL_SAMPLINGRATE_44_1,        SL_PCMSAMPLEFORMAT_FIXED_16,
+	                               SL_PCMSAMPLEFORMAT_FIXED_16, SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT,
+	                               SL_BYTEORDER_LITTLEENDIAN};
+	SLDataSource audioSrc = {&loc_bufq, &format_pcm};
 
-	SLDataLocator_OutputMix loc_outmix = { SL_DATALOCATOR_OUTPUTMIX, outputMixObject };
-	SLDataSink audioSnk = { &loc_outmix, nullptr };
+	SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
+	SLDataSink audioSnk = {&loc_outmix, nullptr};
 
-	const SLInterfaceID ids1[] = { SL_IID_ANDROIDSIMPLEBUFFERQUEUE };
-	const SLboolean req1[] = { SL_BOOLEAN_TRUE };
+	const SLInterfaceID ids1[] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE};
+	const SLboolean req1[] = {SL_BOOLEAN_TRUE};
 	result = (*engineEngine)->CreateAudioPlayer(engineEngine, &(bqPlayerObject), &audioSrc, &audioSnk, 1, ids1, req1);
 	result = (*bqPlayerObject)->Realize(bqPlayerObject, SL_BOOLEAN_FALSE);
 
-	result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_PLAY,&(bqPlayerPlay));
+	result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_PLAY, &(bqPlayerPlay));
 
 	result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &(bqPlayerBufferQueue));
 
@@ -88,9 +91,7 @@ void resumeAudio() {
 	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
 }
 
-void Kore::Audio::update() {
-
-}
+void Kore::Audio::update() {}
 
 void Kore::Audio::shutdown() {
 	if (bqPlayerObject != nullptr) {
