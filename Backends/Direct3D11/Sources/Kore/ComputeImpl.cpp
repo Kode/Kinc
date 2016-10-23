@@ -1,15 +1,15 @@
 #include "pch.h"
+
 #include "ComputeImpl.h"
+#include "Direct3D11.h"
+
 #include <Kore/Compute/Compute.h>
 #include <Kore/Math/Core.h>
 #include <Kore/WinError.h>
-#include "Direct3D11.h"
 
 using namespace Kore;
 
-ComputeShaderImpl::ComputeShaderImpl() {
-
-}
+ComputeShaderImpl::ComputeShaderImpl() {}
 
 ComputeShader::ComputeShader(void* _data, int length) {
 	unsigned index = 0;
@@ -66,9 +66,7 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 	return unit;
 }
 
-void Compute::setFloat(ComputeConstantLocation location, float value) {
-
-}
+void Compute::setFloat(ComputeConstantLocation location, float value) {}
 
 void Compute::setTexture(ComputeTextureUnit unit, Texture* texture) {
 	ID3D11ShaderResourceView* nullView = nullptr;
@@ -83,7 +81,7 @@ void Compute::setShader(ComputeShader* shader) {
 
 void Compute::compute(int x, int y, int z) {
 	context->Dispatch(x, y, z);
-	
+
 	ID3D11UnorderedAccessView* nullView = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &nullView, nullptr);
 }

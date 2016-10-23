@@ -1,9 +1,10 @@
 #include "pch.h"
+
 #include "Direct3D11.h"
 #include "RenderTargetImpl.h"
 #include <Kore/Graphics/Graphics.h>
-#include <Kore/WinError.h>
 #include <Kore/Log.h>
+#include <Kore/WinError.h>
 
 using namespace Kore;
 
@@ -21,7 +22,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = 0;//D3D11_CPU_ACCESS_WRITE;
+	desc.CPUAccessFlags = 0; // D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
 
 #if defined(_DEBUG)
@@ -54,10 +55,6 @@ void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	lastBoundUnit = unit.unit;
 }
 
-void RenderTarget::useDepthAsTexture(TextureUnit unit) {
+void RenderTarget::useDepthAsTexture(TextureUnit unit) {}
 
-}
-
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
-
-}
+void RenderTarget::setDepthStencilFrom(RenderTarget* source) {}
