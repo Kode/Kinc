@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "WinError.h"
 
-#define S_OK    ((HRESULT)0L)
+#include "WinError.h"
+#define S_OK ((HRESULT)0L)
 
 void Kore::affirm(HRESULT result) {
 	affirm(result == S_OK);

@@ -1,6 +1,6 @@
 #include "pch.h"
-#include <Kore/Threads/Thread.h>
 #include <Kore/Threads/Mutex.h>
+#include <Kore/Threads/Thread.h>
 #include <stdio.h>
 #include <thread>
 #include <windows.h>
@@ -16,14 +16,14 @@ namespace {
 
 Kore::Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param) {
 	mutex.Lock();
-	
+
 	uint i = index++;
-	//ktassert_d(i != 0xFFFFFFFF);
+	// ktassert_d(i != 0xFFFFFFFF);
 	std::thread* t = &tt[i];
 	t->swap(std::thread(thread, param));
 
 	mutex.Unlock();
-	
+
 	return (Kore::Thread*)t;
 }
 
@@ -32,7 +32,7 @@ void Kore::waitForThreadStopThenFree(Kore::Thread* sr) {
 	t->join();
 	mutex.Lock();
 	uint ti = ((uint)t - (uint)&tt[0]) / sizeof(::Thread);
-	//ia.DeallocateIndex(ti);
+	// ia.DeallocateIndex(ti);
 	mutex.Unlock();
 }
 
@@ -41,17 +41,15 @@ bool Kore::isThreadStoppedThenFree(Kore::Thread* sr) {
 	return true;
 }
 
-#pragma warning(disable: 4996)
+#pragma warning(disable : 4996)
 void Kore::threadsInit() {
 	mutex.Create();
-	//ia.Create(1);//SR_MAX_THREADS32);
+	// ia.Create(1);//SR_MAX_THREADS32);
 }
 
 void Kore::threadsQuit() {
 	mutex.Free();
-	//ia.Free();
+	// ia.Free();
 }
 
-void ThreadYield() {
-
-}
+void ThreadYield() {}
