@@ -2,45 +2,58 @@
 #include "Connection.h"
 #include "Socket.h"
 
+#include <cassert>
 #include <cstring>
 
 using namespace Kore;
 
-Connection::Connection(const char* url, int sendPort, int receivePort) : url(url), sendPort(sendPort), receivePort(receivePort) {
+Connection::Connection(const char* url, int sendPort, int receivePort) : url(url), sndPort(sendPort), recPort(receivePort) {
 	socket = new Socket();
 	socket->open(receivePort);
 
-	bufferUsage = 0;
+	// TODO: (Dis-)connection handling, especially for the server
+	// TODO: Broadcasting and specific clients (discuss with RK)
 }
 
 Connection::~Connection() {
 	delete socket;
 }
 
-void Connection::send(const unsigned char* data, int size) {
-	socket->send(url, sendPort, data, size);
+void Connection::send(const unsigned char* data, int size, bool reliable) {
+	assert(size + headerSize <= sndBuffSize);
+
+	// TODO: Separate seq nrs for reliable and unreliable (only discarded on old)
+
+	// Identifier
+	*((unsigned int*)(sndBuff)) = magicID;
+	// Reliability via sequence numbers (wrap around)
+	*((unsigned int*)(sndBuff + 2)) = lastSndNr++;
+
+	memcpy(sndBuff + headerSize, data, size);
+
+	socket->send(url, sndPort, sndBuff, headerSize + size);
 }
 
 int Connection::receive(unsigned char* data) {
 	unsigned int recAddr;
 	unsigned int recPort;
-	int size = socket->receive(buffer + bufferUsage, connBuffSize - bufferUsage, recAddr, recPort);
+	
+	int size = socket->receive(recBuff, recBuffSize, recAddr, recPort);
+	assert(size < recBuffSize);
+
 	if (size >= 0) {
-		bufferUsage += size;
+		// Check for prefix (stray packets)
+		if (*((unsigned int*)(recBuff)) == magicID) {
+			// TODO: Handle missing packets
+			int recNr = *((unsigned int*)(recBuff + 2));
 
-		// TODO: Check for completeness etc.
-		bool complete = true;
-		if (complete) {
 			// Prepare output
-			int msgSize = bufferUsage;
-			memcpy(data, buffer, bufferUsage);
-
-			// Clear buffer
-			// TODO: There might be a part of the next message
-			bufferUsage = 0;
-
+			int msgSize = size - headerSize;
+			memcpy(data, recBuff + headerSize, msgSize);
+			
 			return msgSize;
 		}
 	}
+
 	return 0;
 }
