@@ -9,6 +9,7 @@ namespace Kore {
 		float nextSample();
 		bool ended();
 		void* audioTrackOutput;
+
 	private:
 		float* buffer;
 		const int bufferSize;

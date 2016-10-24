@@ -39,7 +39,5 @@ namespace Kore {
 		u8 tessControlSize;
 	};
 
-	class AttributeLocationImpl {
-
-	};
+	class AttributeLocationImpl {};
 }

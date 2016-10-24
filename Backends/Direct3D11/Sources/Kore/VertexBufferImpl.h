@@ -9,6 +9,7 @@ namespace Kore {
 	public:
 		ID3D11Buffer* _vb;
 		int myStride;
+
 	protected:
 		VertexBufferImpl(int count);
 		int myCount;

@@ -1,21 +1,20 @@
 #if 0
-#include "pch.h"
 #include "VrInterface.h"
+#include "pch.h"
 
 #ifdef VR_GEAR_VR
 
-#include <kha/math/Vector3.h>
+#include <kha/Image.h>
 #include <kha/math/Matrix4.h>
 #include <kha/math/Quaternion.h>
-#include <kha/vr/PoseState.h>
+#include <kha/math/Vector3.h>
 #include <kha/vr/Pose.h>
+#include <kha/vr/PoseState.h>
 #include <kha/vr/TimeWarpImage.h>
-#include <kha/Image.h>
 
-
+#include <GlTexture.h>
 #include <VrApi/VrApi.h>
 #include <VrApi/VrApi_Helpers.h>
-#include <GlTexture.h>
 
 #include <LibOvr/Src/Kernel/OVR_Math.h>
 
@@ -60,7 +59,6 @@ void SetJVM(JavaVM* jvm) {
 
 
 }
-
 
 #ifdef VR_CARDBOARD
 

@@ -1,14 +1,15 @@
 #include "pch.h"
+
 #include "Direct3D11.h"
 #include "TextureImpl.h"
-#include <Kore/WinError.h>
 #include <Kore/Math/Random.h>
+#include <Kore/WinError.h>
 
 using namespace Kore;
 
 namespace {
-	Texture* setTextures[16] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-									nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	                            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 }
 
 Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
@@ -26,7 +27,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = 0;//D3D11_CPU_ACCESS_WRITE;
+	desc.CPUAccessFlags = 0; // D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data;
@@ -70,7 +71,7 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	}
-	
+
 	texture = nullptr;
 	affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
@@ -85,18 +86,14 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	}
 }
 
-Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
-
-}
+Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
 TextureImpl::~TextureImpl() {
 	unset();
-	
 }
 
 void TextureImpl::unmipmap() {
 	mipmap = false;
-	
 }
 
 void Texture::_set(TextureUnit unit) {
@@ -108,7 +105,7 @@ void Texture::_set(TextureUnit unit) {
 
 void TextureImpl::unset() {
 	if (setTextures[stage] == this) {
-		
+
 		setTextures[stage] = nullptr;
 	}
 }
@@ -127,10 +124,6 @@ int Texture::stride() {
 	return format == Image::RGBA32 ? width * 4 : width; // TODO: Return mappedResource's stride
 }
 
-void Texture::generateMipmaps(int levels) {
+void Texture::generateMipmaps(int levels) {}
 
-}
-
-void Texture::setMipmap(Texture* mipmap, int level) {
-
-}
+void Texture::setMipmap(Texture* mipmap, int level) {}
