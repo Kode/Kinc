@@ -92,7 +92,7 @@ namespace {
                     if (left) value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].sound->volume();
                     else value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].sound->volume();
                     value = max(min(value, 1.0f), -1.0f);
-                    if (!left) channels[i].position += channels[i].pitch;
+                    if (!left) channels[i].position += channels[i].pitch / channels[i].sound->sampleRatePos;
                     //channels[i].position += 2;
                     if (channels[i].position >= channels[i].sound->size / 4) channels[i].sound = nullptr;
                 }

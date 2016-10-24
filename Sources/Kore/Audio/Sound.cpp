@@ -102,6 +102,7 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), rig
         left = new s16[size / 2];
         right = new s16[size / 2];
         split((s16*)data, size, left, right);
+        sampleRatePos = 44100 / (float)format.samplesPerSecond;
 	}
 }
 
