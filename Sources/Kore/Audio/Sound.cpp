@@ -5,7 +5,6 @@
 #include <Kore/IO/FileReader.h>
 #include <Kore/Error.h>
 #include <string.h>
-#include <Kore/Log.h>
 
 using namespace Kore;
 
