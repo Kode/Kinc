@@ -1,11 +1,11 @@
 #include "pch.h"
-#include <Kore/Audio/Audio.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <emscripten.h>
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <Kore/Audio/Audio.h>
+#include <assert.h>
+#include <emscripten.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace Kore;
 
@@ -20,7 +20,7 @@ namespace {
 	bool audioRunning = false;
 	const int bufsize = 4096;
 	short buf[bufsize];
-	#define NUM_BUFFERS 3
+#define NUM_BUFFERS 3
 
 	void copySample(void* buffer) {
 		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
@@ -50,11 +50,11 @@ namespace {
 		while (processed--) {
 			ALuint buffer;
 			alSourceUnqueueBuffers(source, 1, &buffer);
-            streamBuffer(buffer);
-            alSourceQueueBuffers(source, 1, &buffer);
-        }
+			streamBuffer(buffer);
+			alSourceQueueBuffers(source, 1, &buffer);
+		}
 
-        ALint playing;
+		ALint playing;
 		alGetSourcei(source, AL_SOURCE_STATE, &playing);
 		if (playing != AL_PLAYING) alSourcePlay(source);
 	}
@@ -67,7 +67,7 @@ void Audio::init() {
 	buffer.data = new u8[buffer.dataSize];
 
 	audioRunning = true;
-	
+
 	device = alcOpenDevice(NULL);
 	context = alcCreateContext(device, NULL);
 	alcMakeContextCurrent(context);

@@ -3,24 +3,22 @@
 
 using namespace Kore;
 
-void Mouse::_lock(bool truth){
-	//TODO
+void Mouse::_lock(bool truth) {
+	// TODO
 }
 
-
-bool Mouse::canLock(){
-	return false; //FOR NOW
+bool Mouse::canLock() {
+	return false; // FOR NOW
 }
 
-
-void Mouse::show(bool truth){
-	//TODO
+void Mouse::show(bool truth) {
+	// TODO
 }
 
-void Mouse::setPosition(int x, int y){
-	//TODO
+void Mouse::setPosition(int x, int y) {
+	// TODO
 }
 
-void Mouse::getPosition(int& x, int& y){
-	//TODO
+void Mouse::getPosition(int& x, int& y) {
+	// TODO
 }

@@ -1,48 +1,48 @@
 #include "pch.h"
-#include <Kore/System.h>
-#include <cstring>
+#include <GL/glfw.h>
 #include <Kore/Application.h>
 #include <Kore/Audio/Audio.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/System.h>
 #include <Kore/ogl.h>
-#include <stdlib.h>
-#include <GL/glfw.h>
-#include <stdio.h>
+#include <cstring>
 #include <emscripten/emscripten.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace {
 	int argc;
 	char** argv;
 
-	//void idlefunc() {
+	// void idlefunc() {
 	//	glutPostRedisplay();
 	//}
 
 	void drawfunc() {
 		Kore::Application::the()->callback();
 		Kore::Audio::update();
-		//glutSwapBuffers();
+		// glutSwapBuffers();
 		glfwSwapBuffers();
 	}
 
 	/*void specialfunc(int key, int x, int y) {
-		switch (key) {
-		case GLUT_KEY_LEFT:
-			Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Left));
-			break;
-		case GLUT_KEY_RIGHT:
-			Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Right));
-			break;
-		case GLUT_KEY_UP:
-			Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Up));
-			break;
-		case GLUT_KEY_DOWN:
-			Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Down));
-			break;
-		}
+	    switch (key) {
+	    case GLUT_KEY_LEFT:
+	        Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Left));
+	        break;
+	    case GLUT_KEY_RIGHT:
+	        Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Right));
+	        break;
+	    case GLUT_KEY_UP:
+	        Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Up));
+	        break;
+	    case GLUT_KEY_DOWN:
+	        Kore::Keyboard::the()->keydown(Kore::KeyEvent(Kore::Key_Down));
+	        break;
+	    }
 	}*/
-	
+
 	void onKeyPressed(int key, int action) {
 		if (action == GLFW_PRESS) {
 			switch (key) {
@@ -83,12 +83,16 @@ namespace {
 
 	void onMouseClick(int button, int action) {
 		if (action == GLFW_PRESS) {
-			if (button == 0) Kore::Mouse::the()->_press(0, mouseX, mouseY);
-			else if (button == 1) Kore::Mouse::the()->_press(1, mouseX, mouseY);
+			if (button == 0)
+				Kore::Mouse::the()->_press(0, mouseX, mouseY);
+			else if (button == 1)
+				Kore::Mouse::the()->_press(1, mouseX, mouseY);
 		}
 		else {
-			if (button == 0) Kore::Mouse::the()->_release(0, mouseX, mouseY);
-			else if (button == 1) Kore::Mouse::the()->_release(1, mouseX, mouseY);
+			if (button == 0)
+				Kore::Mouse::the()->_release(0, mouseX, mouseY);
+			else if (button == 1)
+				Kore::Mouse::the()->_release(1, mouseX, mouseY);
 		}
 	}
 
@@ -114,13 +118,13 @@ void* System::createWindow() {
 	glfwInit();
 	glfwOpenWindow(Kore::Application::the()->width(), Kore::Application::the()->height(), 8, 8, 8, 0, 0, 0, GLFW_WINDOW);
 	glfwSetWindowTitle(Kore::Application::the()->name());
- 
+
 	glfwSetKeyCallback(onKeyPressed);
-	//glfwSetCharCallback(onCharPressed);
-	//glfwSetWindowCloseCallback(onClose);
-	//glfwSetWindowSizeCallback(onResize);
-	//glfwSetWindowRefreshCallback(onRefresh);
-	//glfwSetMouseWheelCallback(onMouseWheel);
+	// glfwSetCharCallback(onCharPressed);
+	// glfwSetWindowCloseCallback(onClose);
+	// glfwSetWindowSizeCallback(onResize);
+	// glfwSetWindowRefreshCallback(onRefresh);
+	// glfwSetMouseWheelCallback(onMouseWheel);
 	glfwSetMousePosCallback(onMouseMove);
 	glfwSetMouseButtonCallback(onMouseClick);
 
@@ -131,48 +135,36 @@ bool System::handleMessages() {
 	return true;
 }
 
-void Kore::System::swapBuffers() {
+void Kore::System::swapBuffers() {}
 
-}
+void Kore::System::destroyWindow() {}
 
-void Kore::System::destroyWindow() {
+void Kore::System::changeResolution(int width, int height, bool fullscreen) {}
 
-}
+void Kore::System::setTitle(const char* title) {}
 
-void Kore::System::changeResolution(int width, int height, bool fullscreen) {
+void Kore::System::setKeepScreenOn(bool on) {}
 
-}
-
-void Kore::System::setTitle(const char* title) {
-
-}
-
-void Kore::System::setKeepScreenOn( bool on ) {
-    
-}
-
-void Kore::System::showWindow() {
-
-}
+void Kore::System::showWindow() {}
 
 double Kore::System::frequency() {
 	return 1000.0;
 }
 
 int Kore::System::screenWidth() {
-    return 800;
+	return 800;
 }
 
 int Kore::System::screenHeight() {
-    return 600;
+	return 600;
 }
 
 int Kore::System::desktopWidth() {
-    return 800;
+	return 800;
 }
 
 int Kore::System::desktopHeight() {
-    return 600;
+	return 600;
 }
 
 Kore::System::ticks Kore::System::timestamp() {
@@ -180,7 +172,7 @@ Kore::System::ticks Kore::System::timestamp() {
 }
 
 double Kore::System::time() {
-	//printf("Time: %f\n", glfwGetTime());
+	// printf("Time: %f\n", glfwGetTime());
 	return glfwGetTime();
 }
 
@@ -190,8 +182,7 @@ int main(int argc, char** argv) {
 	::argc = argc;
 	::argv = argv;
 	kore(argc, argv);
-	//System::createWindow();
-	//glutMainLoop();
+	// System::createWindow();
+	// glutMainLoop();
 	emscripten_set_main_loop(drawfunc, 0, 1);
 }
-
