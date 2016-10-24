@@ -1,14 +1,13 @@
 #include "pch.h"
+
+#include "Direct3D11.h"
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Math/Core.h>
 #include <Kore/WinError.h>
-#include "Direct3D11.h"
 
 using namespace Kore;
 
-ShaderImpl::ShaderImpl() {
-
-}
+ShaderImpl::ShaderImpl() {}
 
 Shader::Shader(void* _data, int length, ShaderType type) {
 	unsigned index = 0;
@@ -48,7 +47,7 @@ Shader::Shader(void* _data, int length, ShaderType type) {
 		constants[name] = constant;
 		constantsSize = constant.offset + constant.size;
 	}
-	
+
 	this->data = &data[index];
 	this->length = length - index;
 
@@ -68,5 +67,5 @@ Shader::Shader(void* _data, int length, ShaderType type) {
 	case TessellationEvaluationShader:
 		affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader**)&shader));
 		break;
-	}	
+	}
 }

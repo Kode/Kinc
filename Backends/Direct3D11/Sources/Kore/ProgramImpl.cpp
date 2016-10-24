@@ -1,8 +1,9 @@
 #include "pch.h"
+
+#include "Direct3D11.h"
 #include "ProgramImpl.h"
 #include <Kore/Graphics/Shader.h>
 #include <Kore/WinError.h>
-#include "Direct3D11.h"
 
 using namespace Kore;
 
@@ -31,16 +32,11 @@ void ProgramImpl::setConstants() {
 		context->UpdateSubresource(currentProgram->tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
 		context->DSSetConstantBuffers(0, 1, &currentProgram->tessEvalConstantBuffer);
 	}
-	
 }
 
-ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
+ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
 
-}
-
-Program::Program() {
-
-}
+Program::Program() {}
 
 void Program::set() {
 	currentProgram = this;
@@ -49,7 +45,7 @@ void Program::set() {
 
 	if (geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)geometryShader->shader, nullptr, 0);
 	if (tessControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)tessControlShader->shader, nullptr, 0);
-	if (tessEvalShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessEvalShader->shader, nullptr, 0);	
+	if (tessEvalShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessEvalShader->shader, nullptr, 0);
 
 	context->IASetInputLayout(inputLayout);
 }
@@ -159,16 +155,26 @@ namespace {
 		vertexDesc.InputSlot = stream;
 		vertexDesc.AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
 		vertexDesc.InputSlotClass = stream == 0 ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA; // hack
-		vertexDesc.InstanceDataStepRate = stream == 0 ? 0 : 1; // hack
+		vertexDesc.InstanceDataStepRate = stream == 0 ? 0 : 1;                                                 // hack
 	}
 }
 
 void Program::link(VertexStructure** structures, int count) {
-	if (vertexShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &vertexConstantBuffer));
-	if (fragmentShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &fragmentConstantBuffer));
-	if (geometryShader != nullptr && geometryShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &geometryConstantBuffer));
-	if (tessControlShader != nullptr && tessControlShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessControlConstantBuffer));
-	if (tessEvalShader != nullptr && tessEvalShader->constantsSize > 0) affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
+	if (vertexShader->constantsSize > 0)
+		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		                            &vertexConstantBuffer));
+	if (fragmentShader->constantsSize > 0)
+		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		                            &fragmentConstantBuffer));
+	if (geometryShader != nullptr && geometryShader->constantsSize > 0)
+		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		                            &geometryConstantBuffer));
+	if (tessControlShader != nullptr && tessControlShader->constantsSize > 0)
+		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		                            &tessControlConstantBuffer));
+	if (tessEvalShader != nullptr && tessEvalShader->constantsSize > 0)
+		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessEvalShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		                            &tessEvalConstantBuffer));
 
 	int all = 0;
 	for (int stream = 0; stream < count; ++stream) {

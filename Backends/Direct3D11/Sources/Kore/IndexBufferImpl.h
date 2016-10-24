@@ -11,6 +11,7 @@ namespace Kore {
 		ID3D11Buffer* ib;
 		int* indices;
 		int myCount;
+
 	public:
 		static IndexBuffer* _current;
 	};
