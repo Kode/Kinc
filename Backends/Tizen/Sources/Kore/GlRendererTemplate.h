@@ -3,16 +3,14 @@
 
 #include <FApp.h>
 #include <FBase.h>
+#include <FGraphics.h>
+#include <FGrpIGlRenderer.h>
 #include <FSystem.h>
 #include <FUi.h>
 #include <FUiIme.h>
-#include <FGraphics.h>
 #include <gl.h>
-#include <FGrpIGlRenderer.h>
 
-class GlRendererTemplate :
-	public Tizen::Graphics::Opengl::IGlRenderer
-{
+class GlRendererTemplate : public Tizen::Graphics::Opengl::IGlRenderer {
 public:
 	GlRendererTemplate(void);
 	~GlRendererTemplate(void);

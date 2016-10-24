@@ -5,11 +5,10 @@
  * Description :
  */
 
-
 #include "OGLTemplate.h"
 #include "OGLTemplateFrame.h"
-#include <Kore/Input/Mouse.h>
 #include <Kore/Audio/Audio.h>
+#include <Kore/Input/Mouse.h>
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -18,24 +17,16 @@ using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Kore;
 
-OGLTemplateApp::OGLTemplateApp(void)
-{
-}
+OGLTemplateApp::OGLTemplateApp(void) {}
 
-OGLTemplateApp::~OGLTemplateApp(void)
-{
-}
+OGLTemplateApp::~OGLTemplateApp(void) {}
 
-UiApp*
-OGLTemplateApp::CreateInstance(void)
-{
+UiApp* OGLTemplateApp::CreateInstance(void) {
 	// Create the instance through the constructor.
 	return new OGLTemplateApp();
 }
 
-bool
-OGLTemplateApp::OnAppInitializing(AppRegistry& appRegistry)
-{
+bool OGLTemplateApp::OnAppInitializing(AppRegistry& appRegistry) {
 	// TODO:
 	// Initialize Frame and App specific data.
 	// The App's permanent data and context can be obtained from the appRegistry.
@@ -44,25 +35,23 @@ OGLTemplateApp::OnAppInitializing(AppRegistry& appRegistry)
 	// If this method returns false, the App will be terminated.
 
 	// Uncomment the following statement to listen to the screen on/off events.
-	//PowerManager::SetScreenEventListener(*this);
+	// PowerManager::SetScreenEventListener(*this);
 
 	// TODO:
 	// Add your initialization code here
 	return true;
 }
 
-bool
-OGLTemplateApp::OnAppInitialized(void)
-{
+bool OGLTemplateApp::OnAppInitialized(void) {
 	// TODO:
-	// Add code to do after initialization here. 
+	// Add code to do after initialization here.
 
 	// Create a Frame
 	OGLTemplateFrame* pOGLTemplateFrame = new OGLTemplateFrame();
 	pOGLTemplateFrame->Construct();
 	pOGLTemplateFrame->SetName(L"OGLTemplate");
-	//pOGLTemplateFrame->SetOrientation(ORIENTATION_LANDSCAPE);	// To set orientation
-	//Tizen::Graphics::CoordinateSystem::GetPhysicalResolution().width; // To get resolution
+	// pOGLTemplateFrame->SetOrientation(ORIENTATION_LANDSCAPE);	// To set orientation
+	// Tizen::Graphics::CoordinateSystem::GetPhysicalResolution().width; // To get resolution
 	AddFrame(*pOGLTemplateFrame);
 
 	pOGLTemplateFrame->AddKeyEventListener(*this);
@@ -86,17 +75,13 @@ OGLTemplateApp::OnAppInitialized(void)
 	return true;
 }
 
-bool
-OGLTemplateApp::OnAppWillTerminate(void)
-{
+bool OGLTemplateApp::OnAppWillTerminate(void) {
 	// TODO:
-	// Add code to do somethiing before application termination. 
+	// Add code to do somethiing before application termination.
 	return true;
 }
 
-bool
-OGLTemplateApp::OnAppTerminating(AppRegistry& appRegistry, bool forcedTermination)
-{
+bool OGLTemplateApp::OnAppTerminating(AppRegistry& appRegistry, bool forcedTermination) {
 	// TODO:
 	// Deallocate resources allocated by this App for termination.
 	// The App's permanent data and context can be saved via appRegistry.
@@ -105,8 +90,7 @@ OGLTemplateApp::OnAppTerminating(AppRegistry& appRegistry, bool forcedTerminatio
 
 	__player->Stop();
 
-	if(__renderer != null)
-	{
+	if (__renderer != null) {
 		delete __renderer;
 	}
 	delete __player;
@@ -114,51 +98,39 @@ OGLTemplateApp::OnAppTerminating(AppRegistry& appRegistry, bool forcedTerminatio
 	return true;
 }
 
-void
-OGLTemplateApp::OnForeground(void)
-{
+void OGLTemplateApp::OnForeground(void) {
 	// TODO:
 	// Start or resume drawing when the application is moved to the foreground.
 
 	if (__audioOut.GetState() == AUDIOOUT_STATE_STOPPED) __audioOut.Start();
 }
 
-void
-OGLTemplateApp::OnBackground(void)
-{
+void OGLTemplateApp::OnBackground(void) {
 	// TODO:
 	// Stop drawing when the application is moved to the background.
 
 	if (__audioOut.GetState() == AUDIOOUT_STATE_PLAYING) __audioOut.Stop();
 }
 
-void
-OGLTemplateApp::OnLowMemory(void)
-{
+void OGLTemplateApp::OnLowMemory(void) {
 	// TODO:
 	// Free unused resources or close the application.
 }
 
-void
-OGLTemplateApp::OnBatteryLevelChanged(BatteryLevel batteryLevel)
-{
+void OGLTemplateApp::OnBatteryLevelChanged(BatteryLevel batteryLevel) {
 	// TODO:
 	// Handle any changes in battery level here.
 	// Stop using multimedia features(camera, mp3 etc.) if the battery level is CRITICAL.
 }
 
-void
-OGLTemplateApp::OnScreenOn(void)
-{
+void OGLTemplateApp::OnScreenOn(void) {
 	// TODO:
 	// Get the released resources or resume the operations that were paused or stopped in OnScreenOff().
 
 	if (__audioOut.GetState() == AUDIOOUT_STATE_STOPPED) __audioOut.Start();
 }
 
-void
-OGLTemplateApp::OnScreenOff(void)
-{
+void OGLTemplateApp::OnScreenOff(void) {
 	// TODO:
 	// Unless there is a strong reason to do otherwise, release resources (such as 3D, media, and sensors) to allow the device
 	// to enter the sleep mode to save the battery.
@@ -169,50 +141,37 @@ OGLTemplateApp::OnScreenOff(void)
 	if (__audioOut.GetState() == AUDIOOUT_STATE_PLAYING) __audioOut.Stop();
 }
 
-void
-OGLTemplateApp::OnKeyPressed(const Control& source, KeyCode keyCode)
-{
+void OGLTemplateApp::OnKeyPressed(const Control& source, KeyCode keyCode) {
 	// TODO:
 }
 
-void
-OGLTemplateApp::OnKeyReleased(const Control& source, KeyCode keyCode)
-{
+void OGLTemplateApp::OnKeyReleased(const Control& source, KeyCode keyCode) {
 	// TODO:
 
-	if (keyCode == Tizen::Ui::KEY_BACK || keyCode == Tizen::Ui::KEY_ESC)
-	{
+	if (keyCode == Tizen::Ui::KEY_BACK || keyCode == Tizen::Ui::KEY_ESC) {
 		Terminate();
 	}
 }
 
-void
-OGLTemplateApp::OnKeyLongPressed(const Control& source, KeyCode keyCode)
-{
+void OGLTemplateApp::OnKeyLongPressed(const Control& source, KeyCode keyCode) {
 	// TODO:
 }
 
-void
-OGLTemplateApp::OnTouchMoved(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo)
-{
+void OGLTemplateApp::OnTouchMoved(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo) {
 	Kore::Mouse::the()->_move(Kore::MouseEvent(currentPosition.x, currentPosition.y));
 }
 
-void
-OGLTemplateApp::OnTouchPressed(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo)
-{
+void OGLTemplateApp::OnTouchPressed(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition,
+                                    const Tizen::Ui::TouchEventInfo& touchInfo) {
 	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(currentPosition.x, currentPosition.y));
 }
 
-void
-OGLTemplateApp::OnTouchReleased(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo)
-{
+void OGLTemplateApp::OnTouchReleased(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition,
+                                     const Tizen::Ui::TouchEventInfo& touchInfo) {
 	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(currentPosition.x, currentPosition.y));
 }
 
-result
-OGLTemplateApp::StartAudio(void)
-{
+result OGLTemplateApp::StartAudio(void) {
 	result r;
 
 	// Constructs the AudioOut instance with a listener
@@ -236,39 +195,29 @@ OGLTemplateApp::StartAudio(void)
 	return E_SUCCESS;
 }
 
-void
-OGLTemplateApp::StopAudio(void)
-{
-    __audioOut.Stop();
-    __audioOut.Unprepare();
+void OGLTemplateApp::StopAudio(void) {
+	__audioOut.Stop();
+	__audioOut.Unprepare();
 }
 
-void
-OGLTemplateApp::OnAudioOutBufferEndReached(Tizen::Media::AudioOut& src)
-{
+void OGLTemplateApp::OnAudioOutBufferEndReached(Tizen::Media::AudioOut& src) {
 	writeAudio();
 	__audioOut.WriteBuffer(__buffer);
 }
 
-void
-OGLTemplateApp::copySample()
-{
+void OGLTemplateApp::copySample() {
 	float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
 	Audio::buffer.readLocation += 4;
 	if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
 	__buffer.SetShort(static_cast<s16>(value * 32767));
 }
 
-void
-OGLTemplateApp::writeAudio()
-{
-	if (Kore::Audio::audioCallback != nullptr)
-	{
+void OGLTemplateApp::writeAudio() {
+	if (Kore::Audio::audioCallback != nullptr) {
 		Kore::Audio::audioCallback(__numSamples * 2);
 
 		__buffer.Clear();
-		for (int i = 0; i < __numSamples; ++i)
-		{
+		for (int i = 0; i < __numSamples; ++i) {
 			copySample();
 			copySample();
 		}

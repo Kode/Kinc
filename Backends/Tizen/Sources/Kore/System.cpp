@@ -1,52 +1,34 @@
 #include "pch.h"
-#include <Kore/System.h>
 #include <Kore/Application.h>
 #include <Kore/Audio/Audio.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/IO/miniz.h>
 #include <Kore/Input/Mouse.h>
-#include <gl2.h>
+#include <Kore/System.h>
 #include <cstring>
+#include <gl2.h>
 
 void* Kore::System::createWindow() {
 	return nullptr;
 }
 
-void Kore::System::swapBuffers() {
+void Kore::System::swapBuffers() {}
 
-}
+void Kore::System::destroyWindow() {}
 
-void Kore::System::destroyWindow() {
+void Kore::System::changeResolution(int, int, bool) {}
 
-}
+void Kore::System::showKeyboard() {}
 
-void Kore::System::changeResolution(int, int, bool) {
+void Kore::System::hideKeyboard() {}
 
-}
+void Kore::System::loadURL(const char* url) {}
 
-void Kore::System::showKeyboard() {
+void Kore::System::setTitle(const char*) {}
 
-}
+void Kore::System::setKeepScreenOn(bool on) {}
 
-void Kore::System::hideKeyboard() {
-
-}
-
-void Kore::System::loadURL(const char* url) {
-    
-}
-
-void Kore::System::setTitle(const char*) {
-
-}
-
-void Kore::System::setKeepScreenOn( bool on ) {
-    
-}
-
-void Kore::System::showWindow() {
-    
-}
+void Kore::System::showWindow() {}
 
 extern int kore(int argc, char** argv);
 

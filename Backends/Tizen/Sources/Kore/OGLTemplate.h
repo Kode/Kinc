@@ -3,13 +3,13 @@
 
 #include <FApp.h>
 #include <FBase.h>
+#include <FGraphics.h>
+#include <FGrpGlPlayer.h>
+#include <FMedia.h>
 #include <FSystem.h>
 #include <FUi.h>
 #include <FUiIme.h>
-#include <FGraphics.h>
 #include <gl.h>
-#include <FGrpGlPlayer.h>
-#include <FMedia.h>
 
 #include "GlRendererTemplate.h"
 
@@ -20,13 +20,11 @@ using namespace Tizen::Base;
  * [OGLTemplateApp] UiApp must inherit from UiApp class
  * which provides basic features necessary to define an UiApp.
  */
-class OGLTemplateApp
-	: public Tizen::App::UiApp
-	, public Tizen::System::IScreenEventListener
-	, public Tizen::Ui::IKeyEventListener
-	, public Tizen::Ui::ITouchEventListener
-	, public Tizen::Media::IAudioOutEventListener
-{
+class OGLTemplateApp : public Tizen::App::UiApp,
+                       public Tizen::System::IScreenEventListener,
+                       public Tizen::Ui::IKeyEventListener,
+                       public Tizen::Ui::ITouchEventListener,
+                       public Tizen::Media::IAudioOutEventListener {
 public:
 	/**
 	 * [Test] UiApp must have a factory method that creates an instance of itself.
@@ -35,17 +33,17 @@ public:
 
 public:
 	OGLTemplateApp(void);
-	virtual~OGLTemplateApp(void);
+	virtual ~OGLTemplateApp(void);
 
 public:
 	// Called when the UiApp is initializing.
 	virtual bool OnAppInitializing(Tizen::App::AppRegistry& appRegistry);
 
-	// Called when the UiApp initializing is finished. 
-	virtual bool OnAppInitialized(void); 
+	// Called when the UiApp initializing is finished.
+	virtual bool OnAppInitialized(void);
 
-	// Called when the UiApp is requested to terminate. 
-	virtual bool OnAppWillTerminate(void); 
+	// Called when the UiApp is requested to terminate.
+	virtual bool OnAppWillTerminate(void);
 
 	// Called when the UiApp is terminating.
 	virtual bool OnAppTerminating(Tizen::App::AppRegistry& appRegistry, bool forcedTermination = false);
@@ -78,17 +76,17 @@ public:
 	virtual void OnKeyLongPressed(const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode);
 
 	// Touch events
-	virtual void OnTouchMoved(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
+	virtual void OnTouchMoved(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo);
 
-	virtual void OnTouchPressed(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
+	virtual void OnTouchPressed(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo);
 
-	virtual void OnTouchReleased(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
+	virtual void OnTouchReleased(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo);
 
-	virtual void OnTouchCanceled(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
+	virtual void OnTouchCanceled(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo) {}
 
-	virtual void OnTouchFocusIn(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
+	virtual void OnTouchFocusIn(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo) {}
 
-	virtual void OnTouchFocusOut(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
+	virtual void OnTouchFocusOut(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo) {}
 
 	virtual void OnAudioOutBufferEndReached(Tizen::Media::AudioOut& src);
 	virtual void OnAudioOutErrorOccurred(Tizen::Media::AudioOut& src, result r) {}
@@ -100,15 +98,15 @@ private:
 	Tizen::Graphics::Opengl::GlPlayer* __player;
 	Tizen::Graphics::Opengl::IGlRenderer* __renderer;
 
-	result 	StartAudio(void);
-	void 	StopAudio(void);
+	result StartAudio(void);
+	void StopAudio(void);
 
-	void 	copySample();
-	void 	writeAudio();
+	void copySample();
+	void writeAudio();
 
-	AudioOut 	__audioOut;
-	ByteBuffer 	__buffer;
-	int 		__numSamples;
+	AudioOut __audioOut;
+	ByteBuffer __buffer;
+	int __numSamples;
 };
 
 #endif // _OGLTEMPLATE_H_

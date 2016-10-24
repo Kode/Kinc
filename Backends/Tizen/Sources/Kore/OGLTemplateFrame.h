@@ -3,15 +3,13 @@
 
 #include <FApp.h>
 #include <FBase.h>
+#include <FGraphics.h>
 #include <FSystem.h>
 #include <FUi.h>
 #include <FUiIme.h>
-#include <FGraphics.h>
 #include <gl.h>
 
-class OGLTemplateFrame
-	: public Tizen::Ui::Controls::Frame
-{
+class OGLTemplateFrame : public Tizen::Ui::Controls::Frame {
 public:
 	OGLTemplateFrame(void);
 	virtual ~OGLTemplateFrame(void);
@@ -21,4 +19,4 @@ public:
 	virtual result OnTerminating(void);
 };
 
-#endif  //_OGLTEMPLATEFRAME_H_
+#endif //_OGLTEMPLATEFRAME_H_

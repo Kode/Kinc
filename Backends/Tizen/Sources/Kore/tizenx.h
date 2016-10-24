@@ -4,12 +4,12 @@
 
 #include <FApp.h>
 #include <FBase.h>
+#include <FGraphics.h>
+#include <FGrpGlPlayer.h>
+#include <FGrpIGlRenderer.h>
 #include <FSystem.h>
 #include <FUi.h>
 #include <FUiIme.h>
-#include <FGraphics.h>
 #include <gl.h>
-#include <FGrpIGlRenderer.h>
-#include <FGrpGlPlayer.h>
 
 #endif

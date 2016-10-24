@@ -10,10 +10,6 @@ void Kore::Audio::init() {
 	buffer.data = new u8[buffer.dataSize];
 }
 
-void Kore::Audio::update() {
+void Kore::Audio::update() {}
 
-}
-
-void Kore::Audio::shutdown() {
-
-}
+void Kore::Audio::shutdown() {}
