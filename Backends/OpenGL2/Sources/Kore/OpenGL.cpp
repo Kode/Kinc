@@ -839,6 +839,29 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
+void Graphics::initOcclusionQuery(uint occlusionQuery) {
+    glGenQueries(1, &occlusionQuery);
+}
+
+void Graphics::deallocOcclusionQuery(uint occlusionQuery) {
+    glDeleteQueries(1, &occlusionQuery);
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery) {
+    glBeginQuery(GL_SAMPLES_PASSED, occlusionQuery);
+    // TODO: Render solid cube box
+    
+    glEndQuery(GL_SAMPLES_PASSED);
+}
+
+void Graphics::getOcclusionResults(uint occlusionQuery, uint pixelCount) {
+    bool available = false;
+    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, (uint*)&available);
+    if (available) {
+        glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, &pixelCount);
+    }
+}
+
 void Graphics::flush() {
 	glFlush();
 	glCheckErrors();
