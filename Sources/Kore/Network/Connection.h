@@ -17,7 +17,7 @@ namespace Kore {
 		const int sndPort;
 		const int recPort;
 		const char* url;
-		Kore::Socket* socket;
+		Kore::Socket socket;
 
 		int buffSize;
 		u32 lastSndNr;
