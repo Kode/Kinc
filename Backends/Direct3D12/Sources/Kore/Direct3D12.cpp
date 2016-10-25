@@ -1,17 +1,18 @@
 #include "pch.h"
+
+#include "Direct3D12.h"
+#include "IndexBufferImpl.h"
+#include "ProgramImpl.h"
+#include "VertexBufferImpl.h"
+#include <Kore/Application.h>
+#include <Kore/Graphics/Shader.h>
 #include <Kore/Math/Core.h>
 #include <dxgi1_4.h>
-#include "Direct3D12.h"
-#include <Kore/Application.h>
-#include "IndexBufferImpl.h"
-#include "VertexBufferImpl.h"
-#include "ProgramImpl.h"
-#include <Kore/Graphics/Shader.h>
 #undef CreateWindow
+#include "d3dx12.h"
 #include <Kore/System.h>
 #include <Kore/WinError.h>
 #include <wrl.h>
-#include "d3dx12.h"
 
 /*IDXGIFactory4* dxgiFactory;
 ID3D12Device* device;
@@ -30,9 +31,9 @@ ID3D12RootSignature* rootSignature;
 D3D12_VIEWPORT screenViewport;
 D3D12_RECT scissorRect;
 ID3D12DescriptorHeap* cbvHeap;*/
-//ID3D12DeviceContext* context;
-//ID3D12RenderTargetView* renderTargetView;
-//ID3D12DepthStencilView* depthStencilView;
+// ID3D12DeviceContext* context;
+// ID3D12RenderTargetView* renderTargetView;
+// ID3D12DepthStencilView* depthStencilView;
 
 int currentBackBuffer = 0;
 ID3D12Device* device;
@@ -66,7 +67,7 @@ namespace {
 	IDXGISwapChain* swapChain;
 	ID3D12Fence* uploadFence;
 	ID3D12GraphicsCommandList* initCommandList;
-	ID3D12CommandAllocator* initCommandAllocator;	
+	ID3D12CommandAllocator* initCommandAllocator;
 
 	struct RenderEnvironment {
 		ID3D12Device* device;
@@ -87,7 +88,7 @@ namespace {
 
 		IDXGIFactory4* dxgiFactory;
 		affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
-		
+
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
 		affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
 
@@ -170,8 +171,8 @@ namespace {
 	}
 
 	void createViewportScissor(int width, int height) {
-		rectScissor = { 0, 0, width, height };
-		viewport = { 0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f };
+		rectScissor = {0, 0, width, height};
+		viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
 	}
 
 	void createRootSignature() {
@@ -182,7 +183,7 @@ namespace {
 
 		CD3DX12_ROOT_PARAMETER parameters[2];
 
-		CD3DX12_DESCRIPTOR_RANGE range{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0 };
+		CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
 		parameters[0].InitAsDescriptorTable(1, &range);
 
 		parameters[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
@@ -200,8 +201,9 @@ namespace {
 
 	void createConstantBuffer() {
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) + sizeof(fragmentConstants)),
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constantBuffers[i]));
+			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+			                                &CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) + sizeof(fragmentConstants)),
+			                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constantBuffers[i]));
 
 			void* p;
 			constantBuffers[i]->Map(0, nullptr, &p);
@@ -225,7 +227,7 @@ namespace {
 
 		initCommandList->Close();
 
-		ID3D12CommandList* commandLists[] = { initCommandList };
+		ID3D12CommandList* commandLists[] = {initCommandList};
 		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 		commandQueue->Signal(uploadFence, 1);
 
@@ -233,7 +235,7 @@ namespace {
 		waitForFence(uploadFence, 1, waitEvent);
 
 		initCommandAllocator->Reset();
-		initCommandList->Release(); // check me
+		initCommandList->Release();      // check me
 		initCommandAllocator->Release(); // check me
 
 		CloseHandle(waitEvent);
@@ -258,23 +260,21 @@ namespace {
 	unsigned hz;
 	bool vsync;
 
-	//D3D_FEATURE_LEVEL featureLevel;
-	//ID3D11DepthStencilState* depthTestState = nullptr;
-	//ID3D11DepthStencilState* noDepthTestState = nullptr;
+	// D3D_FEATURE_LEVEL featureLevel;
+	// ID3D11DepthStencilState* depthTestState = nullptr;
+	// ID3D11DepthStencilState* noDepthTestState = nullptr;
 
 	/*IDXGISwapChain1* swapChain;
 
 	void waitForGpu() {
-		affirm(commandQueue->Signal(fence, fenceValues[currentFrame]));
-		affirm(fence->SetEventOnCompletion(fenceValues[currentFrame], fenceEvent));
-		WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
-		fenceValues[currentFrame]++;
+	    affirm(commandQueue->Signal(fence, fenceValues[currentFrame]));
+	    affirm(fence->SetEventOnCompletion(fenceValues[currentFrame], fenceEvent));
+	    WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
+	    fenceValues[currentFrame]++;
 	}*/
 }
 
-void Graphics::destroy() {
-
-}
+void Graphics::destroy() {}
 
 void Graphics::init() {
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
@@ -293,18 +293,16 @@ void Graphics::init() {
 #endif
 }
 
-void Graphics::changeResolution(int width, int height) {
-
-}
+void Graphics::changeResolution(int width, int height) {}
 
 void* Graphics::getControl() {
 	return nullptr;
 }
 
 void Graphics::drawIndexedVertices() {
-	//Program::setConstants();
-	//context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
-	
+	// Program::setConstants();
+	// context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
+
 	drawIndexedVertices(0, IndexBuffer::_current->myCount);
 }
 
@@ -321,33 +319,23 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+void Graphics::drawIndexedVerticesInstanced(int instanceCount) {}
 
-}
+void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-
-}
-
-void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
-	
-}
+void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
 // (DK) fancy macro's to generate a clickable warning message in visual studio, can be removed when setColorMask() is implemented
-#define Stringize( L )			#L
-#define MakeString( M, L )		M(L)
-#define $Line					\
-	MakeString( Stringize, __LINE__ )
-#define Warning				\
-	__FILE__ "(" $Line ") : warning: "
+#define Stringize(L) #L
+#define MakeString(M, L) M(L)
+#define $Line MakeString(Stringize, __LINE__)
+#define Warning __FILE__ "(" $Line ") : warning: "
 
 void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
 #pragma message(Warning "(DK) Robert, please implement d3d12's version of setColorMask() here")
 }
 
-void Graphics::clear(uint flags, uint color, float depth, int stencil) {
-	
-}
+void Graphics::clear(uint flags, uint color, float depth, int stencil) {}
 
 void Graphics::begin() {
 #ifdef SYS_WINDOWSRT
@@ -374,7 +362,7 @@ void Graphics::begin() {
 
 	commandList->ResourceBarrier(1, &barrier);
 
-	static const float clearColor[] = { 0.042f, 0.042f, 0.042f, 1 };
+	static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
 	commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
 
@@ -385,19 +373,20 @@ void Graphics::begin() {
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
-	//TODO
+	// TODO
 }
 
 void Graphics::scissor(int x, int y, int width, int height) {
-	//TODO
+	// TODO
 }
 
 void Graphics::disableScissor() {
-	//TODO
+	// TODO
 }
 
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
-	//TODO
+void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+                                    int readMask, int writeMask) {
+	// TODO
 }
 
 void Graphics::end() {
@@ -414,14 +403,14 @@ void Graphics::end() {
 
 	commandList->Close();
 
-	ID3D12CommandList* commandLists[] = { commandList };
+	ID3D12CommandList* commandLists[] = {commandList};
 	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 }
 
 void graphicsFlushAndWait() {
 	commandList->Close();
 
-	ID3D12CommandList* commandLists[] = { commandList };
+	ID3D12CommandList* commandLists[] = {commandList};
 	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 
 	const UINT64 fenceValue = currentFenceValue;
@@ -459,21 +448,13 @@ void Graphics::swapBuffers() {
 	++currentFenceValue;
 }
 
-void Graphics::flush() {
+void Graphics::flush() {}
 
-}
+void Graphics::setRenderState(RenderState state, bool on) {}
 
-void Graphics::setRenderState(RenderState state, bool on) {
-	
-}
+void Graphics::setRenderState(RenderState state, int v) {}
 
-void Graphics::setRenderState(RenderState state, int v) {
-
-}
-
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
-
-}
+void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
 namespace {
 	void setInt(u8* constants, u8 offset, u8 size, int value) {
@@ -619,21 +600,13 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-}
+void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
-}
-
-void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-
-}
-
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-
-}
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
 bool Graphics::renderTargetsInvertedY() {
 	return false;

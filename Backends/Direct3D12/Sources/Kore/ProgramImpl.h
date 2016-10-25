@@ -10,12 +10,12 @@ namespace Kore {
 	public:
 		ProgramImpl();
 		ID3D12PipelineState* pso;
-		//ID3D11InputLayout* inputLayout;
-		//ID3D11Buffer* fragmentConstantBuffer;
-		//ID3D11Buffer* vertexConstantBuffer;
-		//ID3D11Buffer* geometryConstantBuffer;
-		//ID3D11Buffer* tessEvalConstantBuffer;
-		//ID3D11Buffer* tessControlConstantBuffer;
+		// ID3D11InputLayout* inputLayout;
+		// ID3D11Buffer* fragmentConstantBuffer;
+		// ID3D11Buffer* vertexConstantBuffer;
+		// ID3D11Buffer* geometryConstantBuffer;
+		// ID3D11Buffer* tessEvalConstantBuffer;
+		// ID3D11Buffer* tessControlConstantBuffer;
 		Shader* vertexShader;
 		Shader* fragmentShader;
 		Shader* geometryShader;
@@ -39,7 +39,5 @@ namespace Kore {
 		u8 tessControlSize;
 	};
 
-	class AttributeLocationImpl {
-
-	};
+	class AttributeLocationImpl {};
 }

@@ -1,9 +1,10 @@
 #include "pch.h"
+
 #include "ProgramImpl.h"
-#include <Kore/Graphics/Shader.h>
-#include <Kore/WinError.h>
 #include "Direct3D12.h"
 #include "d3dx12.h"
+#include <Kore/Graphics/Shader.h>
+#include <Kore/WinError.h>
 
 using namespace Kore;
 
@@ -11,24 +12,24 @@ ProgramImpl* ProgramImpl::_current = nullptr;
 
 void ProgramImpl::setConstants() {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
-		context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
-		context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
+	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
+	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
 	}
 	if (currentProgram->fragmentShader->constantsSize > 0) {
-		context->UpdateSubresource(currentProgram->fragmentConstantBuffer, 0, nullptr, fragmentConstants, 0, 0);
-		context->PSSetConstantBuffers(0, 1, &currentProgram->fragmentConstantBuffer);
+	    context->UpdateSubresource(currentProgram->fragmentConstantBuffer, 0, nullptr, fragmentConstants, 0, 0);
+	    context->PSSetConstantBuffers(0, 1, &currentProgram->fragmentConstantBuffer);
 	}
 	if (currentProgram->geometryShader != nullptr && currentProgram->geometryShader->constantsSize > 0) {
-		context->UpdateSubresource(currentProgram->geometryConstantBuffer, 0, nullptr, geometryConstants, 0, 0);
-		context->GSSetConstantBuffers(0, 1, &currentProgram->geometryConstantBuffer);
+	    context->UpdateSubresource(currentProgram->geometryConstantBuffer, 0, nullptr, geometryConstants, 0, 0);
+	    context->GSSetConstantBuffers(0, 1, &currentProgram->geometryConstantBuffer);
 	}
 	if (currentProgram->tessControlShader != nullptr && currentProgram->tessControlShader->constantsSize > 0) {
-		context->UpdateSubresource(currentProgram->tessControlConstantBuffer, 0, nullptr, tessControlConstants, 0, 0);
-		context->HSSetConstantBuffers(0, 1, &currentProgram->tessControlConstantBuffer);
+	    context->UpdateSubresource(currentProgram->tessControlConstantBuffer, 0, nullptr, tessControlConstants, 0, 0);
+	    context->HSSetConstantBuffers(0, 1, &currentProgram->tessControlConstantBuffer);
 	}
 	if (currentProgram->tessEvalShader != nullptr && currentProgram->tessEvalShader->constantsSize > 0) {
-		context->UpdateSubresource(currentProgram->tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
-		context->DSSetConstantBuffers(0, 1, &currentProgram->tessEvalConstantBuffer);
+	    context->UpdateSubresource(currentProgram->tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
+	    context->DSSetConstantBuffers(0, 1, &currentProgram->tessEvalConstantBuffer);
 	}
 	*/
 
@@ -46,24 +47,20 @@ void ProgramImpl::setConstants() {
 	commandList->SetGraphicsRootConstantBufferView(1, constantBuffers[currentBackBuffer]->GetGPUVirtualAddress());
 }
 
-ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
+ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
 
-}
-
-Program::Program() {
-
-}
+Program::Program() {}
 
 void Program::set() {
 	_current = this;
-	//context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
-	//context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
+	// context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
+	// context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
 
-	//if (geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)geometryShader->shader, nullptr, 0);
-	//if (tessControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)tessControlShader->shader, nullptr, 0);
-	//if (tessEvalShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessEvalShader->shader, nullptr, 0);	
+	// if (geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)geometryShader->shader, nullptr, 0);
+	// if (tessControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)tessControlShader->shader, nullptr, 0);
+	// if (tessEvalShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessEvalShader->shader, nullptr, 0);
 
-	//context->IASetInputLayout(inputLayout);
+	// context->IASetInputLayout(inputLayout);
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
@@ -210,7 +207,7 @@ void Program::link(VertexStructure** structures, int count) {
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
-	
+
 	psoDesc.InputLayout.NumElements = structures[0]->size;
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
 

@@ -8,5 +8,6 @@
 	"Backends/OpenGL2/Sources/GL/eglew.h",
 	"Backends/OpenGL2/Sources/GL/glew.h",
 	"Backends/OpenGL2/Sources/GL/glxew.h",
-	"Backends/OpenGL2/Sources/GL/wglew.h"
+	"Backends/OpenGL2/Sources/GL/wglew.h",
+	"Backends/Direct3D12/Sources/Kore/d3dx12.h"
 ]

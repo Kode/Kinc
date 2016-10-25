@@ -14,7 +14,7 @@ namespace Kore {
 		~TextureImpl();
 		void unmipmap();
 		void unset();
-	
+
 		bool mipmap;
 		int stage;
 

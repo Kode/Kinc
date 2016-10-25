@@ -1,10 +1,11 @@
 #include "pch.h"
-#include "Direct3D12.h"
+
 #include "RenderTargetImpl.h"
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/WinError.h>
-#include <Kore/Log.h>
+#include "Direct3D12.h"
 #include "d3dx12.h"
+#include <Kore/Graphics/Graphics.h>
+#include <Kore/Log.h>
+#include <Kore/WinError.h>
 
 using namespace Kore;
 
@@ -27,8 +28,10 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 
-	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-		D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&renderTarget));
+	device->CreateCommittedResource(
+	    &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+	    &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
+	    D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&renderTarget));
 
 #if defined(_DEBUG)
 	log(Info, "depthBufferBits not implemented yet, using target defaults");
@@ -69,8 +72,8 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 
 	device->CreateShaderResourceView(renderTarget, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-	scissor = { 0, 0, width, height };
-	viewport = { 0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f };
+	scissor = {0, 0, width, height};
+	viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
 }
 
 extern void graphicsFlushAndWait();
