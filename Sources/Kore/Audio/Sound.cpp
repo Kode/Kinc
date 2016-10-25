@@ -108,6 +108,8 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), rig
 
 Sound::~Sound() {
 	delete[] data;
+    delete[] left;
+    delete[] right;
 	data = nullptr;
     left = nullptr;
     right = nullptr;
