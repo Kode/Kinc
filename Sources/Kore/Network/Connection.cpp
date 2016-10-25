@@ -13,8 +13,7 @@ Connection::Connection(const char* url, int sendPort, int receivePort, int buffS
 
 	sndBuff = new u8[buffSize];
 	recBuff = new u8[buffSize];
-	// TODO: (Dis-)connection handling, especially for the server
-	// TODO: Broadcasting and specific clients (discuss with RK)
+	// TODO: (Dis-)connection handling, especially for the server (broadcasting, control messages - client hello / ping) -> maybe split into two classes
 }
 
 Connection::~Connection() {
