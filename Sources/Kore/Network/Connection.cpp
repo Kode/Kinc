@@ -7,10 +7,12 @@
 
 using namespace Kore;
 
-Connection::Connection(const char* url, int sendPort, int receivePort) : url(url), sndPort(sendPort), recPort(receivePort) {
+Connection::Connection(const char* url, int sendPort, int receivePort, int buffSize) : url(url), sndPort(sendPort), recPort(receivePort), buffSize(buffSize) {
 	socket = new Socket();
 	socket->open(receivePort);
 
+	sndBuff = new u8[buffSize];
+	recBuff = new u8[buffSize];
 	// TODO: (Dis-)connection handling, especially for the server
 	// TODO: Broadcasting and specific clients (discuss with RK)
 }
@@ -19,33 +21,33 @@ Connection::~Connection() {
 	delete socket;
 }
 
-void Connection::send(const unsigned char* data, int size, bool reliable) {
-	assert(size + headerSize <= sndBuffSize);
+void Connection::send(const u8* data, int size, bool reliable) {
+	assert(size + headerSize <= buffSize);
 
 	// TODO: Separate seq nrs for reliable and unreliable (only discarded on old)
 
 	// Identifier
-	*((unsigned int*)(sndBuff)) = magicID;
+	*((u32*)(sndBuff)) = magicID;
 	// Reliability via sequence numbers (wrap around)
-	*((unsigned int*)(sndBuff + 2)) = lastSndNr++;
+	*((u32*)(sndBuff + 4)) = lastSndNr++;
 
 	memcpy(sndBuff + headerSize, data, size);
 
 	socket->send(url, sndPort, sndBuff, headerSize + size);
 }
 
-int Connection::receive(unsigned char* data) {
+int Connection::receive(u8* data) {
 	unsigned int recAddr;
 	unsigned int recPort;
 	
-	int size = socket->receive(recBuff, recBuffSize, recAddr, recPort);
-	assert(size < recBuffSize);
+	int size = socket->receive(recBuff, buffSize, recAddr, recPort);
+	assert(size < buffSize);
 
 	if (size >= 0) {
 		// Check for prefix (stray packets)
-		if (*((unsigned int*)(recBuff)) == magicID) {
+		if (*((u32*)(recBuff)) == magicID) {
 			// TODO: Handle missing packets
-			int recNr = *((unsigned int*)(recBuff + 2));
+			int recNr = *((u32*)(recBuff + 4));
 
 			// Prepare output
 			int msgSize = size - headerSize;
