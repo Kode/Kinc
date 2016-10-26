@@ -12,16 +12,21 @@ namespace Kore {
 		};
 
 		State state;
+		double ping;
 
-		Connection(const char* url, int sendPort, int receivePort, double timeout = 10, int buffSize = 256);
+		Connection(const char* url, int sendPort, int receivePort, double timeout = 10, double pngInterv = 1, int buffSize = 256);
 		~Connection();
 		void send(const u8* data, int size, bool reliable = true);
 		int receive(u8* data);
 	private:
 		enum PaketType {
-			Control = 1,
-			Reliable = 2,
-			Unreliable = 3
+			Control = 0,
+			Reliable = 1,
+			Unreliable = 2
+		};
+		enum ControlType {
+			Ping = 0,
+			Pong = 1
 		};
 
 		static const u32 magicID = 1346655563;
@@ -38,7 +43,9 @@ namespace Kore {
 		u8* sndBuff;
 
 		double timeout;
-		double lastTime;
+		double pngInterv;
+		double lastRec;
+		double lastPng;
 
 		void send(const u8* data, int size, PaketType type);
 	};
