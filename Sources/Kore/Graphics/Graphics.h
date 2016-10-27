@@ -199,11 +199,11 @@ namespace Kore {
 		bool nonPow2TexturesSupported();
         
         // Occlusion Query
-        void initOcclusionQuery(uint occlusionQuery);
+        void initOcclusionQuery(uint* occlusionQuery);
         void deallocOcclusionQuery(uint occlusionQuery);
-        void renderOcclusionQuery(uint occlusionQuery);
+        void renderOcclusionQuery(uint occlusionQuery, Kore::ConstantLocation pLocation, float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
         void getOcclusionResults(uint occlusionQuery, uint pixelCount);
-        //void drawBoundingBox(Mesh* mesh);
+        void drawBoundingBox(Kore::ConstantLocation pLocation, float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
 
 		const uint ClearColorFlag   = 1;
 		const uint ClearDepthFlag   = 2;

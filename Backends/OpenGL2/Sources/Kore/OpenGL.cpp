@@ -839,18 +839,18 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics::initOcclusionQuery(uint occlusionQuery) {
-    glGenQueries(1, &occlusionQuery);
+void Graphics::initOcclusionQuery(uint* occlusionQuery) {
+    glGenQueries(1, occlusionQuery);
 }
 
 void Graphics::deallocOcclusionQuery(uint occlusionQuery) {
     glDeleteQueries(1, &occlusionQuery);
 }
 
-void Graphics::renderOcclusionQuery(uint occlusionQuery) {
+void Graphics::renderOcclusionQuery(uint occlusionQuery, Kore::ConstantLocation pLocation, float min_x, float max_x, float min_y, float max_y, float min_z, float max_z) {
     glBeginQuery(GL_SAMPLES_PASSED, occlusionQuery);
     // TODO: Render solid cube box
-    
+    drawBoundingBox(pLocation, min_x, max_x, min_y, max_y, min_z, max_z);
     glEndQuery(GL_SAMPLES_PASSED);
 }
 
@@ -860,6 +860,80 @@ void Graphics::getOcclusionResults(uint occlusionQuery, uint pixelCount) {
     if (available) {
         glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, &pixelCount);
     }
+}
+
+void Graphics::drawBoundingBox(Kore::ConstantLocation pLocation, float min_x, float max_x, float min_y, float max_y, float min_z, float max_z) {
+    // TODO: This needs to be done only once.
+    GLfloat g_vertex_buffer_data[] = {
+        1.0f,1.0f,1.0f, // triangle 1 : begin
+        1.0f,1.0f, 10.0f,
+        1.0f, 10.0f, 10.0f, // triangle 1 : end
+        10.0f, 10.0f,1.0f, // triangle 2 : begin
+        1.0f,1.0f,1.0f,
+        1.0f, 10.0f,1.0f, // triangle 2 : end
+        10.0f,1.0f, 10.0f,
+        1.0f,1.0f,1.0f,
+        10.0f,1.0f,1.0f,
+        10.0f, 10.0f,1.0f,
+        10.0f,1.0f,1.0f,
+        1.0f,1.0f,1.0f,
+        1.0f,1.0f,1.0f,
+        1.0f, 10.0f, 10.0f,
+        1.0f, 10.0f,1.0f,
+        10.0f,1.0f, 10.0f,
+        1.0f,-10.0f, 10.0f,
+        -10.0f,-10.0f,-10.0f,
+        -10.0f, 10.0f, 10.0f,
+        -10.0f,-10.0f, 10.0f,
+        10.0f,-10.0f, 10.0f,
+        10.0f, 10.0f, 10.0f,
+        10.0f,-10.0f,-10.0f,
+        10.0f, 10.0f,-10.0f,
+        10.0f,-10.0f,-10.0f,
+        10.0f, 10.0f, 10.0f,
+        10.0f,-10.0f, 10.0f,
+        10.0f, 10.0f, 10.0f,
+        10.0f, 10.0f,-10.0f,
+        -10.0f, 10.0f,-10.0f,
+        10.0f, 10.0f, 10.0f,
+        -10.0f, 10.0f,-10.0f,
+        -10.0f, 10.0f, 10.0f,
+        10.0f, 10.0f, 10.0f,
+        -10.0f, 10.0f, 10.0f,
+        10.0f,-10.0f, 10.0f
+    };
+    
+    GLuint vbo_vertices;
+    glGenBuffers(1, &vbo_vertices);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+    
+    
+    
+    // Do in each frame
+    vec3 size = vec3(max_x - min_x, max_y - min_y, max_z - min_z);
+    vec3 center = vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
+    mat4 transform = mat4::Scale(size.x(), size.y(), size.z()) * mat4::Translation(center.x(), center.y(), center.z());
+    
+    // TODO: Apply object's transformation matrix
+    //Graphics::setMatrix(pLocation, transform);
+    
+    int attribute_v_coord = 0;
+    glEnableVertexAttribArray(attribute_v_coord);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
+    glVertexAttribPointer(attribute_v_coord,    // attribute
+                          3,                    // number of elements per vertex, here (x,y,z)
+                          GL_FLOAT,             // the type of each element
+                          GL_FALSE,             // take our values as-is
+                          0,                    // no extra data between each position
+                          (void*)0              // offset of first element
+                          );
+    
+    // Draw the triangle !
+    glDrawArrays(GL_TRIANGLES, 0, 12 * 3); /// 12 * 3 indices starting at 0 -> 12 triangles -> 6 squares
+    glDisableVertexAttribArray(attribute_v_coord);
+    
+    glDeleteBuffers(1, &vbo_vertices);
 }
 
 void Graphics::flush() {
