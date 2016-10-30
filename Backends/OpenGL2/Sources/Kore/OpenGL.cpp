@@ -847,10 +847,9 @@ void Graphics::deallocOcclusionQuery(uint occlusionQuery) {
     glDeleteQueries(1, &occlusionQuery);
 }
 
-void Graphics::renderOcclusionQuery(uint occlusionQuery, Kore::ConstantLocation pLocation, float min_x, float max_x, float min_y, float max_y, float min_z, float max_z) {
+void Graphics::renderOcclusionQuery(uint occlusionQuery, float* boundingBox, int size) {
     glBeginQuery(GL_SAMPLES_PASSED, occlusionQuery);
-    // TODO: Render solid cube box
-    drawBoundingBox(pLocation, min_x, max_x, min_y, max_y, min_z, max_z);
+    drawBoundingBox(boundingBox, size);
     glEndQuery(GL_SAMPLES_PASSED);
 }
 
@@ -862,61 +861,13 @@ void Graphics::getOcclusionResults(uint occlusionQuery, uint pixelCount) {
     }
 }
 
-void Graphics::drawBoundingBox(Kore::ConstantLocation pLocation, float min_x, float max_x, float min_y, float max_y, float min_z, float max_z) {
-    // TODO: This needs to be done only once.
-    GLfloat g_vertex_buffer_data[] = {
-        1.0f,1.0f,1.0f, // triangle 1 : begin
-        1.0f,1.0f, 10.0f,
-        1.0f, 10.0f, 10.0f, // triangle 1 : end
-        10.0f, 10.0f,1.0f, // triangle 2 : begin
-        1.0f,1.0f,1.0f,
-        1.0f, 10.0f,1.0f, // triangle 2 : end
-        10.0f,1.0f, 10.0f,
-        1.0f,1.0f,1.0f,
-        10.0f,1.0f,1.0f,
-        10.0f, 10.0f,1.0f,
-        10.0f,1.0f,1.0f,
-        1.0f,1.0f,1.0f,
-        1.0f,1.0f,1.0f,
-        1.0f, 10.0f, 10.0f,
-        1.0f, 10.0f,1.0f,
-        10.0f,1.0f, 10.0f,
-        1.0f,-10.0f, 10.0f,
-        -10.0f,-10.0f,-10.0f,
-        -10.0f, 10.0f, 10.0f,
-        -10.0f,-10.0f, 10.0f,
-        10.0f,-10.0f, 10.0f,
-        10.0f, 10.0f, 10.0f,
-        10.0f,-10.0f,-10.0f,
-        10.0f, 10.0f,-10.0f,
-        10.0f,-10.0f,-10.0f,
-        10.0f, 10.0f, 10.0f,
-        10.0f,-10.0f, 10.0f,
-        10.0f, 10.0f, 10.0f,
-        10.0f, 10.0f,-10.0f,
-        -10.0f, 10.0f,-10.0f,
-        10.0f, 10.0f, 10.0f,
-        -10.0f, 10.0f,-10.0f,
-        -10.0f, 10.0f, 10.0f,
-        10.0f, 10.0f, 10.0f,
-        -10.0f, 10.0f, 10.0f,
-        10.0f,-10.0f, 10.0f
-    };
-    
+void Graphics::drawBoundingBox(float* boundingBox, int size) {
     GLuint vbo_vertices;
     glGenBuffers(1, &vbo_vertices);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, boundingBox, GL_STATIC_DRAW);
     
     
-    
-    // Do in each frame
-    vec3 size = vec3(max_x - min_x, max_y - min_y, max_z - min_z);
-    vec3 center = vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
-    mat4 transform = mat4::Scale(size.x(), size.y(), size.z()) * mat4::Translation(center.x(), center.y(), center.z());
-    
-    // TODO: Apply object's transformation matrix
-    //Graphics::setMatrix(pLocation, transform);
     
     int attribute_v_coord = 0;
     glEnableVertexAttribArray(attribute_v_coord);

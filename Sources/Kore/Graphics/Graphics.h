@@ -201,9 +201,9 @@ namespace Kore {
         // Occlusion Query
         void initOcclusionQuery(uint* occlusionQuery);
         void deallocOcclusionQuery(uint occlusionQuery);
-        void renderOcclusionQuery(uint occlusionQuery, Kore::ConstantLocation pLocation, float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
+        void renderOcclusionQuery(uint occlusionQuery, float* boundingBox, int size);
         void getOcclusionResults(uint occlusionQuery, uint pixelCount);
-        void drawBoundingBox(Kore::ConstantLocation pLocation, float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
+        void drawBoundingBox(float* boundingBox, int size);
 
 		const uint ClearColorFlag   = 1;
 		const uint ClearDepthFlag   = 2;
