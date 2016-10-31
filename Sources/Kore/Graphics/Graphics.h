@@ -200,9 +200,10 @@ namespace Kore {
         
         // Occlusion Query
         void initOcclusionQuery(uint* occlusionQuery);
-        void deallocOcclusionQuery(uint occlusionQuery);
+        void deleteOcclusionQuery(uint* occlusionQuery);
         void renderOcclusionQuery(uint occlusionQuery, float* boundingBox, int size);
-        void getOcclusionResults(uint occlusionQuery, uint pixelCount);
+        void queryResultsAvailable(uint occlusionQuery, bool* available);
+        void getQueryResults(uint occlusionQuery, uint* pixelCount);
         void drawBoundingBox(float* boundingBox, int size);
 
 		const uint ClearColorFlag   = 1;

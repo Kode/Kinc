@@ -843,8 +843,8 @@ void Graphics::initOcclusionQuery(uint* occlusionQuery) {
     glGenQueries(1, occlusionQuery);
 }
 
-void Graphics::deallocOcclusionQuery(uint occlusionQuery) {
-    glDeleteQueries(1, &occlusionQuery);
+void Graphics::deleteOcclusionQuery(uint* occlusionQuery) {
+    glDeleteQueries(1, occlusionQuery);
 }
 
 void Graphics::renderOcclusionQuery(uint occlusionQuery, float* boundingBox, int size) {
@@ -853,12 +853,12 @@ void Graphics::renderOcclusionQuery(uint occlusionQuery, float* boundingBox, int
     glEndQuery(GL_SAMPLES_PASSED);
 }
 
-void Graphics::getOcclusionResults(uint occlusionQuery, uint pixelCount) {
-    bool available = false;
-    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, (uint*)&available);
-    if (available) {
-        glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, &pixelCount);
-    }
+void Graphics::queryResultsAvailable(uint occlusionQuery, bool *available) {
+    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, (uint*)available);
+}
+
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, pixelCount);
 }
 
 void Graphics::drawBoundingBox(float* boundingBox, int size) {
@@ -866,8 +866,6 @@ void Graphics::drawBoundingBox(float* boundingBox, int size) {
     glGenBuffers(1, &vbo_vertices);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
     glBufferData(GL_ARRAY_BUFFER, size, boundingBox, GL_STATIC_DRAW);
-    
-    
     
     int attribute_v_coord = 0;
     glEnableVertexAttribArray(attribute_v_coord);
