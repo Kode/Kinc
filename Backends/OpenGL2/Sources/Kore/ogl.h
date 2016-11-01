@@ -3,7 +3,8 @@
 #ifdef SYS_WINDOWS
 #include <GL/glew.h>
 
-#include <GL/gl.h>#endif
+#include <GL/gl.h>
+#endif
 
 #ifdef SYS_OSX
 #include <OpenGL/gl3.h>
