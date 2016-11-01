@@ -5,22 +5,25 @@
 
 #include <X11/extensions/Xrandr.h>
 
-namespace Kore { namespace System { namespace Monitor {
+namespace Kore {
+	namespace System {
+		namespace Monitor {
 
-void enumDisplayMonitors( Screen screens[], int & screenCounter ) {
-    Display * dpy = XOpenDisplay(NULL);
+			void enumDisplayMonitors(Screen screens[], int& screenCounter) {
+				Display* dpy = XOpenDisplay(NULL);
 
-    if (dpy == NULL) {
-        fatalError("could not open display");
-    }
+				if (dpy == NULL) {
+					fatalError("could not open display");
+				}
 
-    int major;
-    int minor;
+				int major;
+				int minor;
 
-    if (XRRQueryVersion(dpy, major, minor())) {
-    }
+				if (XRRQueryVersion(dpy, major, minor())) {
+				}
+			}
+		}
+	}
 }
-
-}}}
 
 #endif #if defined(KORE_LINUX_SYSTEM_SCREENS_XRANDR)
