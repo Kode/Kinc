@@ -4,7 +4,7 @@
 
 namespace Kore {
 	class VertexBuffer;
-	
+
 	class VertexBufferImpl {
 	protected:
 		VertexBufferImpl(int count, int instanceDataStepRate);
@@ -13,9 +13,9 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		uint bufferId;
-//#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
+		//#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
 		VertexStructure structure;
-//#endif
+		//#endif
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);
 #ifndef NDEBUG

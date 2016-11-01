@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "OpenGL.h"
 #include "VertexBufferImpl.h"
-#include <Kore/System.h>
-#include <Kore/Math/Core.h>
-#include <Kore/Log.h>
 #include "ogl.h"
+
+#include <Kore/Log.h>
+#include <Kore/Math/Core.h>
+#include <Kore/System.h>
 #include <cstdio>
 
 #if defined(SYS_IOS)
@@ -12,14 +13,14 @@
 #endif
 
 #ifdef SYS_WINDOWS
-	#include <GL/wglew.h>
+#include <GL/wglew.h>
 
-	#define WIN32_LEAN_AND_MEAN
-	#define NOMINMAX
-	#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
 
-	#pragma comment(lib, "opengl32.lib")
-	#pragma comment(lib, "glu32.lib")
+#pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "glu32.lib")
 #endif
 
 using namespace Kore;
@@ -33,7 +34,7 @@ namespace Kore {
 namespace {
 #ifdef SYS_WINDOWS
 	HINSTANCE instance = 0;
-    HDC deviceContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	HDC deviceContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	HGLRC glContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 #endif
 
@@ -41,7 +42,7 @@ namespace {
 	MipmapFilter mipFilters[10][32];
 	int originalFramebuffer[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 	uint arrayId[10];
-	
+
 	int _width;
 	int _height;
 	int _renderTargetWidth;
@@ -60,10 +61,10 @@ void Graphics::destroy(int windowId) {
 #ifdef SYS_WINDOWS
 	if (glContexts[windowId]) {
 		if (!wglMakeCurrent(nullptr, nullptr)) {
-			//MessageBox(NULL,"Release Of DC And RC Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
+			// MessageBox(NULL,"Release Of DC And RC Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		}
 		if (!wglDeleteContext(glContexts[windowId])) {
-			//MessageBox(NULL,"Release Rendering Context Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
+			// MessageBox(NULL,"Release Rendering Context Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		}
 		glContexts[windowId] = nullptr;
 	}
@@ -72,7 +73,7 @@ void Graphics::destroy(int windowId) {
 
 	// TODO (DK) shouldn't 'deviceContexts[windowId] = nullptr;' be moved out of here?
 	if (deviceContexts[windowId] && !ReleaseDC(windowHandle, deviceContexts[windowId])) {
-		//MessageBox(NULL,"Release Device Context Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
+		// MessageBox(NULL,"Release Device Context Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		deviceContexts[windowId] = nullptr;
 	}
 #endif
@@ -83,14 +84,15 @@ void Graphics::destroy(int windowId) {
 #undef CreateWindow
 
 #if defined(SYS_WINDOWS)
-namespace Kore { namespace System {
-	extern int currentDeviceId;
-}}
+namespace Kore {
+	namespace System {
+		extern int currentDeviceId;
+	}
+}
 #endif
 
 #if defined(SYS_WINDOWS)
-void Graphics::setup() {
-}
+void Graphics::setup() {}
 #endif
 
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
@@ -100,27 +102,28 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifndef VR_RIFT
 	// TODO (DK) use provided settings for depth/stencil buffer
 
-	PIXELFORMATDESCRIPTOR pfd =			// pfd Tells Windows How We Want Things To Be
-	{
-		sizeof(PIXELFORMATDESCRIPTOR),	// Size Of This Pixel Format Descriptor
-		1,								// Version Number
-		PFD_DRAW_TO_WINDOW |			// Format Must Support Window
-		PFD_SUPPORT_OPENGL |			// Format Must Support OpenGL
-		PFD_DOUBLEBUFFER,				// Must Support Double Buffering
-		PFD_TYPE_RGBA,					// Request An RGBA Format
-		32,								// Select Our Color Depth
-		0, 0, 0, 0, 0, 0,				// Color Bits Ignored
-		0,								// No Alpha Buffer
-		0,								// Shift Bit Ignored
-		0,								// No Accumulation Buffer
-		0, 0, 0, 0,						// Accumulation Bits Ignored
-		depthBufferBits,				// 16Bit Z-Buffer (Depth Buffer)
-		stencilBufferBits,				// 8Bit Stencil Buffer
-		0,								// No Auxiliary Buffer
-		PFD_MAIN_PLANE,					// Main Drawing Layer
-		0,								// Reserved
-		0, 0, 0							// Layer Masks Ignored
-	};
+	PIXELFORMATDESCRIPTOR pfd = // pfd Tells Windows How We Want Things To Be
+	    {
+	        sizeof(PIXELFORMATDESCRIPTOR), // Size Of This Pixel Format Descriptor
+	        1,                             // Version Number
+	        PFD_DRAW_TO_WINDOW |           // Format Must Support Window
+	            PFD_SUPPORT_OPENGL |       // Format Must Support OpenGL
+	            PFD_DOUBLEBUFFER,          // Must Support Double Buffering
+	        PFD_TYPE_RGBA,                 // Request An RGBA Format
+	        32,                            // Select Our Color Depth
+	        0,
+	        0, 0, 0, 0, 0,     // Color Bits Ignored
+	        0,                 // No Alpha Buffer
+	        0,                 // Shift Bit Ignored
+	        0,                 // No Accumulation Buffer
+	        0, 0, 0, 0,        // Accumulation Bits Ignored
+	        depthBufferBits,   // 16Bit Z-Buffer (Depth Buffer)
+	        stencilBufferBits, // 8Bit Stencil Buffer
+	        0,                 // No Auxiliary Buffer
+	        PFD_MAIN_PLANE,    // Main Drawing Layer
+	        0,                 // Reserved
+	        0, 0, 0            // Layer Masks Ignored
+	    };
 
 	deviceContexts[windowId] = GetDC(windowHandle);
 	GLuint pixelFormat = ChoosePixelFormat(deviceContexts[windowId], &pfd);
@@ -135,13 +138,15 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	}
 
 	if (wglewIsSupported("WGL_ARB_create_context") == 1) {
-		int attributes[] = {
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			0
-		};
+		int attributes[] = {WGL_CONTEXT_MAJOR_VERSION_ARB,
+		                    4,
+		                    WGL_CONTEXT_MINOR_VERSION_ARB,
+		                    2,
+		                    WGL_CONTEXT_FLAGS_ARB,
+		                    WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+		                    WGL_CONTEXT_PROFILE_MASK_ARB,
+		                    WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+		                    0};
 
 		glContexts[windowId] = wglCreateContextAttribsARB(deviceContexts[windowId], glContexts[0], attributes);
 		glCheckErrors();
@@ -156,8 +161,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
-	SetFocus(windowHandle); // Sets Keyboard Focus To The Window
-#else /* #ifndef VR_RIFT */
+	SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
+#else  /* #ifndef VR_RIFT */
 	deviceContexts[windowId] = GetDC(windowHandle);
 	glContexts[windowId] = wglGetCurrentContext();
 	glewInit();
@@ -191,7 +196,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	glGenVertexArrays(1, &arrayId[windowId]);
 	glCheckErrors();
 #endif
-	
+
 	_width = System::windowWidth(0);
 	_height = System::windowHeight(0);
 	_renderTargetWidth = _width;
@@ -278,7 +283,7 @@ void Graphics::drawIndexedVertices(int start, int count) {
 #else
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 #endif
-    glCheckErrors();
+	glCheckErrors();
 #else
 	if (programUsesTessellation) {
 		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
@@ -297,7 +302,7 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
 #ifndef OPENGLES
-	int indices[3] = { 0, 1, 2 };
+	int indices[3] = {0, 1, 2};
 	if (programUsesTessellation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
 		glCheckErrors();
@@ -336,14 +341,14 @@ void Graphics::begin(int contextId) {
 			//**log(Warning, "begin: a glContext is still active");
 		}
 
-		//return; // TODO (DK) return here?
+		// return; // TODO (DK) return here?
 	}
 
-	//System::setCurrentDevice(contextId);
-    System::makeCurrent(contextId);
+	// System::setCurrentDevice(contextId);
+	System::makeCurrent(contextId);
 
 	glViewport(0, 0, _width, _height);
-	
+
 #ifdef SYS_IOS
 	beginGL();
 #endif
@@ -391,9 +396,9 @@ namespace {
 	}
 }
 
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
-	if (compareMode == ZCompareAlways && bothPass == Keep
-	&& depthFail == Keep && stencilFail == Keep) {
+void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+                                    int readMask, int writeMask) {
+	if (compareMode == ZCompareAlways && bothPass == Keep && depthFail == Keep && stencilFail == Keep) {
 		glDisable(GL_STENCIL_TEST);
 	}
 	else {
@@ -432,28 +437,28 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 }
 
 /*void glCheckErrors() {
-	if (System::currentDevice() == -1) {
-		log(Warning, "no OpenGL device context is set");
-		return;
-	}
+    if (System::currentDevice() == -1) {
+        log(Warning, "no OpenGL device context is set");
+        return;
+    }
 
 //#ifdef _DEBUG
-	GLenum code = glGetError();
-	while (code != GL_NO_ERROR) {
-		//std::printf("GLError: %s\n", glewGetErrorString(code));
-		switch (code) {
-		case GL_INVALID_VALUE:
-			log(Warning, "OpenGL: Invalid value");
-			break;
-		case GL_INVALID_OPERATION:
-			log(Warning, "OpenGL: Invalid operation");
-			break;
-		default:
-			log(Warning, "OpenGL: Error code %i", code);
-			break;
-		}
-		code = glGetError();
-	}
+    GLenum code = glGetError();
+    while (code != GL_NO_ERROR) {
+        //std::printf("GLError: %s\n", glewGetErrorString(code));
+        switch (code) {
+        case GL_INVALID_VALUE:
+            log(Warning, "OpenGL: Invalid value");
+            break;
+        case GL_INVALID_OPERATION:
+            log(Warning, "OpenGL: Invalid operation");
+            break;
+        default:
+            log(Warning, "OpenGL: Error code %i", code);
+            break;
+        }
+        code = glGetError();
+    }
 //#endif
 }*/
 
@@ -465,8 +470,8 @@ void Graphics::clearCurrent() {
 
 // TODO (DK) this never gets called on some targets, needs investigation?
 void Graphics::end(int windowId) {
-	//glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT);
+	// glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+	// glClear(GL_COLOR_BUFFER_BIT);
 	glCheckErrors();
 
 	if (System::currentDevice() == -1) {
@@ -493,15 +498,13 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 #else
 	glClearDepth(depth);
 #endif
-    glCheckErrors();
+	glCheckErrors();
 	glStencilMask(0xff);
 	glCheckErrors();
 	glClearStencil(stencil);
 	glCheckErrors();
-	GLbitfield oglflags =
-		  ((flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0)
-		| ((flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT : 0)
-		| ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT : 0);
+	GLbitfield oglflags = ((flags & ClearColorFlag) ? GL_COLOR_BUFFER_BIT : 0) | ((flags & ClearDepthFlag) ? GL_DEPTH_BUFFER_BIT : 0) |
+	                      ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT : 0);
 	glClear(oglflags);
 	glCheckErrors();
 	if (depthTest) {
@@ -527,18 +530,24 @@ void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
 void Graphics::setRenderState(RenderState state, bool on) {
 	switch (state) {
 	case DepthWrite:
-		if (on) glDepthMask(GL_TRUE);
-		else glDepthMask(GL_FALSE);
+		if (on)
+			glDepthMask(GL_TRUE);
+		else
+			glDepthMask(GL_FALSE);
 		depthMask = on;
 		break;
 	case DepthTest:
-		if (on) glEnable(GL_DEPTH_TEST);
-		else glDisable(GL_DEPTH_TEST);
+		if (on)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
 		depthTest = on;
 		break;
 	case BlendingState:
-		if (on) glEnable(GL_BLEND);
-		else glDisable(GL_BLEND);
+		if (on)
+			glEnable(GL_BLEND);
+		else
+			glDisable(GL_BLEND);
 		break;
 	default:
 		break;
@@ -547,25 +556,25 @@ void Graphics::setRenderState(RenderState state, bool on) {
 	glCheckErrors();
 
 	/*switch (state) {
-		case Normalize:
-			device->SetRenderState(D3DRS_NORMALIZENORMALS, on ? TRUE : FALSE);
-			break;
-		case BackfaceCulling:
-			if (on) device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-			else device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-			break;
-		case FogState:
-			device->SetRenderState(D3DRS_FOGENABLE, on ? TRUE : FALSE);
-			break;
-		case ScissorTestState:
-			device->SetRenderState(D3DRS_SCISSORTESTENABLE, on ? TRUE : FALSE);
-			break;
-		case AlphaTestState:
-			device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
-			device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
-			break;
-		default:
-			throw Exception();
+	    case Normalize:
+	        device->SetRenderState(D3DRS_NORMALIZENORMALS, on ? TRUE : FALSE);
+	        break;
+	    case BackfaceCulling:
+	        if (on) device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	        else device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	        break;
+	    case FogState:
+	        device->SetRenderState(D3DRS_FOGENABLE, on ? TRUE : FALSE);
+	        break;
+	    case ScissorTestState:
+	        device->SetRenderState(D3DRS_SCISSORTESTENABLE, on ? TRUE : FALSE);
+	        break;
+	    case AlphaTestState:
+	        device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
+	        device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+	        break;
+	    default:
+	        throw Exception();
 	}*/
 }
 
@@ -574,14 +583,30 @@ void Graphics::setRenderState(RenderState state, int v) {
 	case DepthTestCompare:
 		switch (v) {
 		default:
-			case ZCompareAlways      : v = GL_ALWAYS; break;
-			case ZCompareNever       : v = GL_NEVER; break;
-			case ZCompareEqual       : v = GL_EQUAL; break;
-			case ZCompareNotEqual    : v = GL_NOTEQUAL; break;
-			case ZCompareLess        : v = GL_LESS; break;
-			case ZCompareLessEqual   : v = GL_LEQUAL; break;
-			case ZCompareGreater     : v = GL_GREATER; break;
-			case ZCompareGreaterEqual: v = GL_GEQUAL; break;
+		case ZCompareAlways:
+			v = GL_ALWAYS;
+			break;
+		case ZCompareNever:
+			v = GL_NEVER;
+			break;
+		case ZCompareEqual:
+			v = GL_EQUAL;
+			break;
+		case ZCompareNotEqual:
+			v = GL_NOTEQUAL;
+			break;
+		case ZCompareLess:
+			v = GL_LESS;
+			break;
+		case ZCompareLessEqual:
+			v = GL_LEQUAL;
+			break;
+		case ZCompareGreater:
+			v = GL_GREATER;
+			break;
+		case ZCompareGreaterEqual:
+			v = GL_GEQUAL;
+			break;
 		}
 		glDepthFunc(v);
 		glCheckErrors();
@@ -610,32 +635,32 @@ void Graphics::setRenderState(RenderState state, int v) {
 		break;
 	}
 	/*switch (state) {
-		case DepthTestCompare:
-			switch (v) {
-					// TODO: Cmp-Konstanten systemabhaengig abgleichen
-				default:
-				case ZCmp_Always      : v = D3DCMP_ALWAYS; break;
-				case ZCmp_Never       : v = D3DCMP_NEVER; break;
-				case ZCmp_Equal       : v = D3DCMP_EQUAL; break;
-				case ZCmp_NotEqual    : v = D3DCMP_NOTEQUAL; break;
-				case ZCmp_Less        : v = D3DCMP_LESS; break;
-				case ZCmp_LessEqual   : v = D3DCMP_LESSEQUAL; break;
-				case ZCmp_Greater     : v = D3DCMP_GREATER; break;
-				case ZCmp_GreaterEqual: v = D3DCMP_GREATEREQUAL; break;
-			}
-			device->SetRenderState(D3DRS_ZFUNC, v);
-			break;
-		case FogTypeState:
-			switch (v) {
-				case LinearFog:
-					device->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR);
-			}
-			break;
-		case AlphaReferenceState:
-			device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
-			break;
-		default:
-			throw Exception();
+	    case DepthTestCompare:
+	        switch (v) {
+	                // TODO: Cmp-Konstanten systemabhaengig abgleichen
+	            default:
+	            case ZCmp_Always      : v = D3DCMP_ALWAYS; break;
+	            case ZCmp_Never       : v = D3DCMP_NEVER; break;
+	            case ZCmp_Equal       : v = D3DCMP_EQUAL; break;
+	            case ZCmp_NotEqual    : v = D3DCMP_NOTEQUAL; break;
+	            case ZCmp_Less        : v = D3DCMP_LESS; break;
+	            case ZCmp_LessEqual   : v = D3DCMP_LESSEQUAL; break;
+	            case ZCmp_Greater     : v = D3DCMP_GREATER; break;
+	            case ZCmp_GreaterEqual: v = D3DCMP_GREATEREQUAL; break;
+	        }
+	        device->SetRenderState(D3DRS_ZFUNC, v);
+	        break;
+	    case FogTypeState:
+	        switch (v) {
+	            case LinearFog:
+	                device->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR);
+	        }
+	        break;
+	    case AlphaReferenceState:
+	        device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
+	        break;
+	    default:
+	        throw Exception();
 	}*/
 }
 
@@ -681,11 +706,11 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 		glTexParameteri(GL_TEXTURE_2D, texDir, GL_REPEAT);
 		break;
 	case Border:
-		//unsupported
+		// unsupported
 		glTexParameteri(GL_TEXTURE_2D, texDir, GL_CLAMP_TO_EDGE);
 		break;
 	case Mirror:
-		//unsupported
+		// unsupported
 		glTexParameteri(GL_TEXTURE_2D, texDir, GL_REPEAT);
 		break;
 	}
@@ -784,7 +809,7 @@ namespace {
 }
 
 void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
-	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
@@ -795,7 +820,7 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
 	if (num == 0) {
 		// TODO (DK) uneccessary?
-		//System::makeCurrent(texture->contextId);
+		// System::makeCurrent(texture->contextId);
 		glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
 		glCheckErrors();
 		glViewport(0, 0, texture->width, texture->height);
@@ -804,14 +829,14 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 		renderToBackbuffer = false;
 		glCheckErrors();
 	}
-	
+
 	if (additionalTargets > 0) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + num, GL_TEXTURE_2D, texture->_texture, 0);
 		if (num == additionalTargets) {
 			GLenum buffers[16];
 			for (int i = 0; i <= additionalTargets; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
 #if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
-            ((void(*)(GLsizei, GLenum*))glesDrawBuffers)(additionalTargets + 1, buffers);
+			((void (*)(GLsizei, GLenum*))glesDrawBuffers)(additionalTargets + 1, buffers);
 #elif !defined(OPENGLES)
 			glDrawBuffers(additionalTargets + 1, buffers);
 #endif

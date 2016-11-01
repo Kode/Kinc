@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "VertexBufferImpl.h"
-#include <Kore/Graphics/Graphics.h>
 #include "ShaderImpl.h"
 #include "ogl.h"
+
+#include <Kore/Graphics/Graphics.h>
 #include <assert.h>
 
 using namespace Kore;
@@ -58,8 +59,8 @@ float* VertexBuffer::lock() {
 /*
 // TODO: FIXME!
 float* VertexBuffer::lock(int start, int count) {
-	myCount = count;
-	return nullptr;//&buffer[start * 9];
+    myCount = count;
+    return nullptr;//&buffer[start * 9];
 }
 */
 
@@ -100,7 +101,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 	int actualIndex = 0;
 	for (int index = 0; index < structure.size; ++index) {
 		VertexElement element = structure.elements[index];
-		int    size = 0;
+		int size = 0;
 		GLenum type = GL_FLOAT;
 		switch (element.data) {
 		case ColorVertexData:
@@ -173,7 +174,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		}
 	}
 	for (int index = actualIndex; index < 16; ++index) {
-		//glDisableVertexAttribArray(offset + index);
+		// glDisableVertexAttribArray(offset + index);
 		glCheckErrors();
 	}
 	return actualIndex;
