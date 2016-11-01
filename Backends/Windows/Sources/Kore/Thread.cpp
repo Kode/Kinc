@@ -1,10 +1,13 @@
 #include "pch.h"
+
 #include <Kore/Threads/Mutex.h>
 #include <Kore/Threads/Thread.h>
+
 #include <stdio.h>
 
-#include <WinUser.h>
 #include <Windows.h>
+
+#include <WinUser.h>
 
 using namespace Kore;
 

@@ -1,5 +1,9 @@
 #include "pch.h"
-#include "WinError.h"#include <Kore/ErrorArgs.h>
+
+#include "WinError.h"
+
+#include <Kore/ErrorArgs.h>
+
 #include <Windows.h>
 
 #define S_OK ((HRESULT)0L)
