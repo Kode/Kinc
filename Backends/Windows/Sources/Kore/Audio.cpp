@@ -12,7 +12,7 @@ namespace {
 	const DWORD dsize = 50 * 1024;
 	const int samplesPerSecond = 44100;
 	const int bitsPerSample = 16;
-	
+
 	DWORD lastPlayPosition = 0;
 	bool secondHalfFilled = false;
 
@@ -46,9 +46,9 @@ void Audio::init() {
 	bufferDesc.dwReserved = 0;
 	bufferDesc.lpwfxFormat = &waveFormat;
 	bufferDesc.guid3DAlgorithm = GUID_NULL;
- 
+
 	affirm(dsound->CreateSoundBuffer(&bufferDesc, &dbuffer, nullptr));
-	
+
 	DWORD size1;
 	u8* buffer1;
 	affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, nullptr, nullptr, 0));
@@ -74,8 +74,10 @@ void Audio::update() {
 	affirm(dbuffer->GetCurrentPosition(&playPosition, &writePosition));
 
 	int dif;
-	if (writePos >= writePosition) dif = writePos - writePosition;
-	else dif = dsize - writePosition + writePos;
+	if (writePos >= writePosition)
+		dif = writePos - writePosition;
+	else
+		dif = dsize - writePosition + writePos;
 
 	if (dif < gap) return;
 	if (writePos + gap >= dsize) {
@@ -92,13 +94,13 @@ void Audio::update() {
 	DWORD size1, size2;
 	u8 *buffer1, *buffer2;
 	affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, (void**)&buffer2, &size2, 0));
-	
-	for (DWORD i = 0; i < size1 - (bitsPerSample / 8 - 1); ) {
-		copySample(buffer1, i);	
+
+	for (DWORD i = 0; i < size1 - (bitsPerSample / 8 - 1);) {
+		copySample(buffer1, i);
 	}
 	writePos += size1;
 	if (buffer2 != nullptr) {
-		for (DWORD i = 0; i < size2 - (bitsPerSample / 8 - 1); ) {
+		for (DWORD i = 0; i < size2 - (bitsPerSample / 8 - 1);) {
 			copySample(buffer2, i);
 		}
 		writePos = size2;

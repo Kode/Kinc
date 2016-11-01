@@ -1,6 +1,6 @@
 #include "pch.h"
-#include <Kore/Threads/Mutex.h>
 #include <Kore/Error.h>
+#include <Kore/Threads/Mutex.h>
 #include <Windows.h>
 
 using namespace Kore;
@@ -23,8 +23,8 @@ void Mutex::Unlock() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool UberMutex::Create(const wchar_t *name) {
-	#ifdef SYS_WINDOWS
+bool UberMutex::Create(const wchar_t* name) {
+#ifdef SYS_WINDOWS
 	/* Create the mutex, with initial value signaled */
 	(HANDLE&)id = ::CreateMutex(NULL, FALSE, name);
 	if (HRESULT res = GetLastError()) {
@@ -35,36 +35,36 @@ bool UberMutex::Create(const wchar_t *name) {
 		}
 	}
 	return true;
-	#else
+#else
 	return false;
-	#endif
+#endif
 }
 
 void UberMutex::Free() {
-	#ifdef SYS_WINDOWS
+#ifdef SYS_WINDOWS
 	if (id) {
 		::CloseHandle((HANDLE)id);
 		id = NULL;
 	}
-	#else
-	#endif
+#else
+#endif
 }
 
 void UberMutex::Lock() {
-	#ifdef SYS_WINDOWS
-	bool succ = ( ::WaitForSingleObject((HANDLE)id, INFINITE) == WAIT_FAILED ) ? (false): (true);
+#ifdef SYS_WINDOWS
+	bool succ = (::WaitForSingleObject((HANDLE)id, INFINITE) == WAIT_FAILED) ? (false) : (true);
 	affirm(succ);
-	#else
+#else
 	affirm(false);
-	#endif
+#endif
 }
 
 /* Unlock the mutex */
 void UberMutex::Unlock() {
-	#ifdef SYS_WINDOWS
-	bool succ = ( ::ReleaseMutex((HANDLE)id) == FALSE ) ? (false): (true);
+#ifdef SYS_WINDOWS
+	bool succ = (::ReleaseMutex((HANDLE)id) == FALSE) ? (false) : (true);
 	affirm(succ);
-	#else
+#else
 	affirm(false);
-	#endif
+#endif
 }
