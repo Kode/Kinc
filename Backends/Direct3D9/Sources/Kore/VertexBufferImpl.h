@@ -25,6 +25,7 @@ namespace Kore {
 		int instanceDataStepRate;
 		VertexBufferImpl(int count, int instanceDataStepRate);
 		void unset();
+
 	public:
 		static VertexBuffer* _current;
 		int _offset;

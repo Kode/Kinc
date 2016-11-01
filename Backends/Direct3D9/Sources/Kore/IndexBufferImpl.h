@@ -22,6 +22,7 @@ namespace Kore {
 		D3DIndexBuffer* ib;
 #endif
 		int myCount;
+
 	public:
 		static IndexBuffer* _current;
 	};

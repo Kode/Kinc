@@ -1,7 +1,8 @@
 #include "pch.h"
-#include <Kore/Math/Core.h>
 #include "Direct3D9.h"
+
 #include <Kore/Graphics/Shader.h>
+#include <Kore/Math/Core.h>
 #undef CreateWindow
 #include <Kore/System.h>
 #include <Kore/WinError.h>
@@ -19,23 +20,24 @@ LPDIRECT3DDEVICE9 device;
 
 namespace {
 	HWND hWnd;
-	
+
 	int _width;
 	int _height;
-	
+
 	unsigned hz;
 	bool vsync;
-		
+
 	bool resizable;
-	
+
 	D3DVIEWPORT9 vp;
 
 	void swapBuffers() {
-		if( resizable ){
+		if (resizable) {
 			RECT vRect;
 			GetClientRect(hWnd, &vRect);
 			device->Present(&vRect, &vRect, 0, 0);
-		} else {
+		}
+		else {
 			device->Present(0, 0, 0, 0);
 		}
 	}
@@ -50,24 +52,24 @@ namespace {
 		device->GetDeviceCaps(&caps);
 
 		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	//	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-	#ifndef USE_SHADER
+//	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+#ifndef USE_SHADER
 		device->SetRenderState(D3DRS_LIGHTING, FALSE);
-	#endif
+#endif
 		device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 		device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-	#ifndef USE_SHADER
+#ifndef USE_SHADER
 		device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 		device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 		device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
 		affirm(device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
 		affirm(device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
-	#endif
-		//if (d3dpp.Windowed != TRUE) Cursor->Hide();
-	
+#endif
+		// if (d3dpp.Windowed != TRUE) Cursor->Hide();
+
 		device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 		device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 		for (int i = 0; i < 16; ++i) {
@@ -86,19 +88,17 @@ namespace {
 	}
 }
 
-void Graphics::destroy(int windowId) {
-
-}
+void Graphics::destroy(int windowId) {}
 
 void Graphics::changeResolution(int width, int height) {
-	if(!resizable){
+	if (!resizable) {
 		return;
 	}
-	
+
 	_width = width;
 	_height = height;
 	viewport(0, 0, width, height);
-	/*D3DPRESENT_PARAMETERS d3dpp; 
+	/*D3DPRESENT_PARAMETERS d3dpp;
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
@@ -110,13 +110,13 @@ void Graphics::changeResolution(int width, int height) {
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE; //D3DPRESENT_INTERVAL_IMMEDIATE;
 	if (antialiasing()) {
-		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_4_SAMPLES, nullptr)))
-			d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
-		if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_8_SAMPLES, nullptr)))
-			d3dpp.MultiSampleType = D3DMULTISAMPLE_8_SAMPLES;
+	    if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_4_SAMPLES, nullptr)))
+	        d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
+	    if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, D3DMULTISAMPLE_8_SAMPLES, nullptr)))
+	        d3dpp.MultiSampleType = D3DMULTISAMPLE_8_SAMPLES;
 	}
 	else {
-		d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	    d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
 	}
 
 	device->Reset(&d3dpp);
@@ -126,7 +126,7 @@ void Graphics::changeResolution(int width, int height) {
 
 void Graphics::setup() {
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);
-	//if (!d3d) throw Exception("Could not initialize Direct3D9");
+	// if (!d3d) throw Exception("Could not initialize Direct3D9");
 }
 
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
@@ -134,14 +134,14 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 	hWnd = (HWND)System::windowHandle(windowId);
 	long style = GetWindowLong(hWnd, GWL_STYLE);
-	
+
 	resizable = false;
-	
-	if((style & WS_SIZEBOX) != 0){
+
+	if ((style & WS_SIZEBOX) != 0) {
 		resizable = true;
 	}
-	
-	if((style & WS_MAXIMIZEBOX) != 0){
+
+	if ((style & WS_MAXIMIZEBOX) != 0) {
 		resizable = true;
 	}
 
@@ -154,27 +154,28 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 #ifdef SYS_WINDOWS
 	// TODO (DK) convert depthBufferBits + stencilBufferBits to: d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
-	D3DPRESENT_PARAMETERS d3dpp; 
+	D3DPRESENT_PARAMETERS d3dpp;
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
-	
-	if(resizable) {
+
+	if (resizable) {
 		d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
 		d3dpp.BackBufferCount = 1;
 		d3dpp.BackBufferWidth = Kore::System::desktopWidth();
 		d3dpp.BackBufferHeight = Kore::System::desktopHeight();
-	}else{
+	}
+	else {
 		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		d3dpp.BackBufferCount = 2;
 		d3dpp.BackBufferWidth = System::windowWidth(windowId);
 		d3dpp.BackBufferHeight = System::windowHeight(windowId);
 	}
-	
+
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-	//d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+	// d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
 	if (antialiasingSamples() > 1) {
 		for (int samples = min(antialiasingSamples(), 16); samples > 1; --samples) {
@@ -187,27 +188,27 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #endif
 
 #ifdef SYS_XBOX360
-	D3DPRESENT_PARAMETERS d3dpp; 
-	ZeroMemory( &d3dpp, sizeof(d3dpp) );
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	XVIDEO_MODE VideoMode;
-	XGetVideoMode( &VideoMode );
-	//g_bWidescreen = VideoMode.fIsWideScreen;
-	d3dpp.BackBufferWidth        = min(VideoMode.dwDisplayWidth, 1280);
-	d3dpp.BackBufferHeight       = min(VideoMode.dwDisplayHeight, 720);
-	d3dpp.BackBufferFormat       = D3DFMT_X8R8G8B8;
-	d3dpp.BackBufferCount        = 1;
+	XGetVideoMode(&VideoMode);
+	// g_bWidescreen = VideoMode.fIsWideScreen;
+	d3dpp.BackBufferWidth = min(VideoMode.dwDisplayWidth, 1280);
+	d3dpp.BackBufferHeight = min(VideoMode.dwDisplayHeight, 720);
+	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
+	d3dpp.BackBufferCount = 1;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
-	d3dpp.SwapEffect             = D3DSWAPEFFECT_DISCARD;
-	d3dpp.PresentationInterval   = D3DPRESENT_INTERVAL_ONE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 #endif
-	
+
 #ifdef SYS_XBOX360
 	d3d->CreateDevice(0, D3DDEVTYPE_HAL, nullptr, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device);
 #else
-	if (!SUCCEEDED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device)))
+	if (!SUCCEEDED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device)))
 		d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
-	//d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
+// d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
 #endif
 
 #ifdef SYS_WINDOWS
@@ -221,7 +222,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 #ifdef SYS_WINDOWS
 	if (fullscreen) {
-		//hz = d3dpp.FullScreen_RefreshRateInHz;
+		// hz = d3dpp.FullScreen_RefreshRateInHz;
 		D3DDISPLAYMODE mode;
 		device->GetDisplayMode(0, &mode);
 		hz = mode.RefreshRate;
@@ -235,7 +236,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifdef SYS_XBOX360
 	hz = 60;
 #endif
-	//vsync = d3dpp.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE;
+	// vsync = d3dpp.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	System::ticks test1 = Kore::System::timestamp();
 	for (int i = 0; i < 3; ++i) swapBuffers(windowId);
@@ -243,8 +244,9 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	if (test2 - test1 < (1.0 / hz) * System::frequency()) {
 		vsync = false;
 	}
-	else vsync = true;
-	
+	else
+		vsync = true;
+
 #ifdef USE_SHADER
 	vertexShader = new Shader("standard", SHADER_VERTEX);
 	pixelShader = new Shader("standard", SHADER_FRAGMENT);
@@ -254,16 +256,14 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 	setFragmentBool(L"lighting", false);
 #endif
-	
+
 	_width = System::windowWidth(windowId);
-	_height =  System::windowHeight(windowId);
-	
+	_height = System::windowHeight(windowId);
+
 	System::makeCurrent(windowId);
 }
 
-void Graphics::flush() {
-
-}
+void Graphics::flush() {}
 
 namespace {
 	DWORD convertFilter(TextureFilter filter) {
@@ -301,7 +301,7 @@ namespace {
 		case SelectSecondOperation:
 			return D3DTOP_SELECTARG2;
 		default:
-		//	throw Exception("Unknown texture operation.");
+			//	throw Exception("Unknown texture operation.");
 			return D3DTOP_MODULATE;
 		}
 	}
@@ -313,7 +313,7 @@ namespace {
 		case TextureColorArgument:
 			return D3DTA_TEXTURE;
 		default:
-		//	throw Exception("Unknown texture argument.");
+			//	throw Exception("Unknown texture argument.");
 			return D3DTA_CURRENT;
 		}
 	}
@@ -347,7 +347,7 @@ void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) 
 	device->SetSamplerState(texunit.unit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
 }
 
-void Graphics::makeCurrent( int contextId ) {
+void Graphics::makeCurrent(int contextId) {
 	// TODO (DK) implement me
 }
 
@@ -356,8 +356,8 @@ void Graphics::clearCurrent() {
 }
 
 void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
-	//if (backBuffer != nullptr) backBuffer->Release();
-	
+	// if (backBuffer != nullptr) backBuffer->Release();
+
 	System::makeCurrent(target->contextId);
 
 	if (num == 0) {
@@ -370,7 +370,7 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 	affirm(device->SetRenderTarget(num, target->colorSurface));
 }
 
-//void Graphics::setDepthStencilTarget(Texture* texture) {
+// void Graphics::setDepthStencilTarget(Texture* texture) {
 //	//if (depthBuffer != nullptr) depthBuffer->Release();
 //	device->GetDepthStencilSurface(&depthBuffer);
 //	affirm(device->SetDepthStencilSurface(dcast<D3D9Texture*>(texture)->getSurface()));
@@ -459,7 +459,7 @@ void Graphics::begin(int windowId) {
 	if (windowId > 0) {
 		return;
 	}
-	
+
 	viewport(0, 0, _width, _height);
 	device->BeginScene();
 }
@@ -487,7 +487,8 @@ void Graphics::disableScissor() {
 	setRenderState(Kore::RenderState::ScissorTestState, false);
 }
 
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
+void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+                                    int readMask, int writeMask) {
 	// TODO
 }
 
@@ -498,8 +499,8 @@ void Graphics::end(int windowId) {
 	}
 
 	/*if (backBuffer != nullptr) {
-		backBuffer->Release();
-		backBuffer = nullptr;
+	    backBuffer->Release();
+	    backBuffer = nullptr;
 	}*/
 	device->EndScene();
 }
@@ -537,7 +538,7 @@ namespace {
 		case InverseDestinationAlpha:
 			return D3DBLEND_INVDESTALPHA;
 		default:
-		//	throw Exception("Unknown blending operation.");
+			//	throw Exception("Unknown blending operation.");
 			return D3DBLEND_SRCALPHA;
 		}
 	}
@@ -569,8 +570,8 @@ void Graphics::setRenderState(RenderState state, bool on) {
 		device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
 		device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 		break;
-	//default:
-	//	throw Exception();
+		// default:
+		//	throw Exception();
 	}
 }
 
@@ -580,14 +581,30 @@ void Graphics::setRenderState(RenderState state, int v) {
 		switch (v) {
 		// TODO: Cmp-Konstanten systemabh�ngig abgleichen
 		default:
-		case ZCompareAlways      : v = D3DCMP_ALWAYS; break;
-		case ZCompareNever       : v = D3DCMP_NEVER; break;
-		case ZCompareEqual       : v = D3DCMP_EQUAL; break;
-		case ZCompareNotEqual    : v = D3DCMP_NOTEQUAL; break;
-		case ZCompareLess        : v = D3DCMP_LESS; break;
-		case ZCompareLessEqual   : v = D3DCMP_LESSEQUAL; break;
-		case ZCompareGreater     : v = D3DCMP_GREATER; break;
-		case ZCompareGreaterEqual: v = D3DCMP_GREATEREQUAL; break;
+		case ZCompareAlways:
+			v = D3DCMP_ALWAYS;
+			break;
+		case ZCompareNever:
+			v = D3DCMP_NEVER;
+			break;
+		case ZCompareEqual:
+			v = D3DCMP_EQUAL;
+			break;
+		case ZCompareNotEqual:
+			v = D3DCMP_NOTEQUAL;
+			break;
+		case ZCompareLess:
+			v = D3DCMP_LESS;
+			break;
+		case ZCompareLessEqual:
+			v = D3DCMP_LESSEQUAL;
+			break;
+		case ZCompareGreater:
+			v = D3DCMP_GREATER;
+			break;
+		case ZCompareGreaterEqual:
+			v = D3DCMP_GREATEREQUAL;
+			break;
 		}
 		device->SetRenderState(D3DRS_ZFUNC, v);
 		break;
@@ -611,9 +628,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 	}
 }
 
-void Graphics::setRenderState(RenderState state, float value) {
-	
-}
+void Graphics::setRenderState(RenderState state, float value) {}
 
 void Graphics::setBool(ConstantLocation position, bool value) {
 	if (position.shaderType == -1) return;
@@ -622,8 +637,10 @@ void Graphics::setBool(ConstantLocation position, bool value) {
 	bools[1] = bools[0];
 	bools[2] = bools[0];
 	bools[3] = bools[0];
-	if (position.shaderType == 0) device->SetVertexShaderConstantB(position.reg.regindex, &bools[0], 1);
-	else device->SetPixelShaderConstantB(position.reg.regindex, &bools[0], 1);
+	if (position.shaderType == 0)
+		device->SetVertexShaderConstantB(position.reg.regindex, &bools[0], 1);
+	else
+		device->SetPixelShaderConstantB(position.reg.regindex, &bools[0], 1);
 }
 
 void Graphics::setInt(ConstantLocation position, int value) {
@@ -633,8 +650,10 @@ void Graphics::setInt(ConstantLocation position, int value) {
 	ints[1] = value;
 	ints[2] = value;
 	ints[3] = value;
-	if (position.shaderType == 0) device->SetVertexShaderConstantI(position.reg.regindex, &ints[0], 1);
-	else device->SetPixelShaderConstantI(position.reg.regindex, &ints[0], 1);
+	if (position.shaderType == 0)
+		device->SetVertexShaderConstantI(position.reg.regindex, &ints[0], 1);
+	else
+		device->SetPixelShaderConstantI(position.reg.regindex, &ints[0], 1);
 }
 
 void Graphics::setFloat(ConstantLocation position, float value) {
@@ -644,8 +663,10 @@ void Graphics::setFloat(ConstantLocation position, float value) {
 	floats[1] = value;
 	floats[2] = value;
 	floats[3] = value;
-	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
-	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+	if (position.shaderType == 0)
+		device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	else
+		device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
 }
 
 void Graphics::setFloat2(ConstantLocation position, float value1, float value2) {
@@ -655,8 +676,10 @@ void Graphics::setFloat2(ConstantLocation position, float value1, float value2) 
 	floats[1] = value2;
 	floats[2] = value1;
 	floats[3] = value2;
-	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
-	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+	if (position.shaderType == 0)
+		device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	else
+		device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
 }
 
 void Graphics::setFloat3(ConstantLocation position, float value1, float value2, float value3) {
@@ -666,8 +689,10 @@ void Graphics::setFloat3(ConstantLocation position, float value1, float value2, 
 	floats[1] = value2;
 	floats[2] = value3;
 	floats[3] = value1;
-	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
-	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+	if (position.shaderType == 0)
+		device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	else
+		device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
 }
 
 void Graphics::setFloat4(ConstantLocation position, float value1, float value2, float value3, float value4) {
@@ -677,22 +702,28 @@ void Graphics::setFloat4(ConstantLocation position, float value1, float value2, 
 	floats[1] = value2;
 	floats[2] = value3;
 	floats[3] = value4;
-	if (position.shaderType == 0) device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
-	else device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+	if (position.shaderType == 0)
+		device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	else
+		device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
 }
 
 void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	if (location.shaderType == -1) return;
 	int registerCount = (count + 3) / 4; // round up
-	if (registerCount == count / 4) { // round down
-		if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, values, registerCount);
-		else device->SetPixelShaderConstantF(location.reg.regindex, values, registerCount);
+	if (registerCount == count / 4) {    // round down
+		if (location.shaderType == 0)
+			device->SetVertexShaderConstantF(location.reg.regindex, values, registerCount);
+		else
+			device->SetPixelShaderConstantF(location.reg.regindex, values, registerCount);
 	}
 	else {
 		float* data = (float*)alloca(registerCount * 4 * sizeof(float));
 		memcpy(data, values, count * sizeof(float));
-		if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, data, registerCount);
-		else device->SetPixelShaderConstantF(location.reg.regindex, data, registerCount);
+		if (location.shaderType == 0)
+			device->SetVertexShaderConstantF(location.reg.regindex, data, registerCount);
+		else
+			device->SetPixelShaderConstantF(location.reg.regindex, data, registerCount);
 	}
 }
 
@@ -704,8 +735,10 @@ void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 			floats[y * 4 + x] = value.get(y, x);
 		}
 	}
-	if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, floats, 4);
-	else device->SetPixelShaderConstantF(location.reg.regindex, floats, 4);
+	if (location.shaderType == 0)
+		device->SetVertexShaderConstantF(location.reg.regindex, floats, 4);
+	else
+		device->SetPixelShaderConstantF(location.reg.regindex, floats, 4);
 }
 
 void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
@@ -716,8 +749,10 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 			floats[y * 4 + x] = value.get(y, x);
 		}
 	}
-	if (location.shaderType == 0) device->SetVertexShaderConstantF(location.reg.regindex, floats, 3);
-	else device->SetPixelShaderConstantF(location.reg.regindex, floats, 3);
+	if (location.shaderType == 0)
+		device->SetVertexShaderConstantF(location.reg.regindex, floats, 3);
+	else
+		device->SetPixelShaderConstantF(location.reg.regindex, floats, 3);
 }
 
 bool Graphics::renderTargetsInvertedY() {

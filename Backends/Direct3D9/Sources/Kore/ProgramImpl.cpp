@@ -1,10 +1,12 @@
 #include "pch.h"
+
 #include "ProgramImpl.h"
+#include "Direct3D9.h"
+
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
 #include <Kore/WinError.h>
-#include "Direct3D9.h"
 
 using namespace Kore;
 
@@ -45,7 +47,7 @@ void Program::link(VertexStructure** structures, int count) {
 			}
 		}
 	}
-	
+
 	D3DVERTEXELEMENT9* elements = (D3DVERTEXELEMENT9*)alloca(sizeof(D3DVERTEXELEMENT9) * (all + 1));
 	int i = 0;
 	for (int stream = 0; stream < count; ++stream) {
@@ -120,7 +122,7 @@ void Program::set() {
 	affirm(device->SetVertexShader((IDirect3DVertexShader9*)vertexShader->shader));
 	affirm(device->SetPixelShader((IDirect3DPixelShader9*)fragmentShader->shader));
 	affirm(device->SetVertexDeclaration(vertexDecleration));
-	
+
 	// TODO (DK) System::screenWidth/Height are only main-window dimensions, what about other windows?
 	float floats[4];
 	floats[0] = 1.0f / System::windowWidth(0);
@@ -132,7 +134,7 @@ void Program::set() {
 
 ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
-	
+
 	if (fragmentShader->constants.find(name) != fragmentShader->constants.end()) {
 		location.reg = fragmentShader->constants[name];
 		location.shaderType = 1;
@@ -150,7 +152,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 
 TextureUnit Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
-	
+
 	if (fragmentShader->constants.find(name) != fragmentShader->constants.end()) {
 		unit.unit = fragmentShader->constants[name].regindex;
 	}

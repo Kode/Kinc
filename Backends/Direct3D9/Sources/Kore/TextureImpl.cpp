@@ -1,13 +1,15 @@
 #include "pch.h"
+
 #include "TextureImpl.h"
-#include <Kore/WinError.h>
 #include "Direct3D9.h"
+
+#include <Kore/WinError.h>
 
 using namespace Kore;
 
 namespace {
-	Texture* setTextures[16] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-									nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	                            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 	D3DFORMAT convert(Image::Format format) {
 		switch (format) {
@@ -33,13 +35,13 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	pitch = rect.Pitch;
 	u8* from = (u8*)data;
 	u8* to = (u8*)rect.pBits;
-	//memcpy(to, from, width * height * sizeOf(format));
+	// memcpy(to, from, width * height * sizeOf(format));
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
-			to[rect.Pitch * y + x * 4 + 0 /* blue*/] = (from[y * width * 4 + x * 4 + 2]);///255.0f;
-			to[rect.Pitch * y + x * 4 + 1 /*green*/] = (from[y * width * 4 + x * 4 + 1]);///255.0f;
-			to[rect.Pitch * y + x * 4 + 2 /*  red*/] = (from[y * width * 4 + x * 4 + 0]);///255.0f;
-			to[rect.Pitch * y + x * 4 + 3 /*alpha*/] = (from[y * width * 4 + x * 4 + 3]);///255.0f;
+			to[rect.Pitch * y + x * 4 + 0 /* blue*/] = (from[y * width * 4 + x * 4 + 2]); /// 255.0f;
+			to[rect.Pitch * y + x * 4 + 1 /*green*/] = (from[y * width * 4 + x * 4 + 1]); /// 255.0f;
+			to[rect.Pitch * y + x * 4 + 2 /*  red*/] = (from[y * width * 4 + x * 4 + 0]); /// 255.0f;
+			to[rect.Pitch * y + x * 4 + 3 /*alpha*/] = (from[y * width * 4 + x * 4 + 3]); /// 255.0f;
 		}
 	}
 	affirm(texture->UnlockRect(0));
@@ -63,9 +65,7 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	}
 }
 
-Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
-
-}
+Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
 TextureImpl::~TextureImpl() {
 	unset();
@@ -100,10 +100,6 @@ int Texture::stride() {
 	return pitch;
 }
 
-void Texture::generateMipmaps(int levels) {
+void Texture::generateMipmaps(int levels) {}
 
-}
-
-void Texture::setMipmap(Texture* mipmap, int level) {
-
-}
+void Texture::setMipmap(Texture* mipmap, int level) {}
