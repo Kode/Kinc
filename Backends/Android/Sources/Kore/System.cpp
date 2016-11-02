@@ -35,16 +35,32 @@ namespace {
 
 	bool started = false;
 	bool paused = true;
+    bool displayIsInitialized = false;
+    bool appIsForeground = false;
 
 	void initDisplay() {
 		if (glContext->Resume(app->window) != EGL_SUCCESS) {
 			Kore::log(Kore::Warning, "GL context lost.");
 		}
+        displayIsInitialized = true;
 	}
 
 	void termDisplay() {
 		glContext->Suspend();
+        displayIsInitialized = false;
 	}
+
+    void tryCallForegroundCallback() {
+        if(displayIsInitialized && appIsForeground) {
+            Kore::System::foregroundCallback();
+        }
+    }
+
+    void tryCallBackgroundCallback() {
+        if(!(displayIsInitialized && appIsForeground)) {
+            Kore::System::backgroundCallback();
+        }
+    }
 
 	int32_t input(android_app* app, AInputEvent* event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
@@ -374,10 +390,12 @@ namespace {
 					started = true;
 				}
 				Kore::System::swapBuffers(0);
-			}
+                tryCallForegroundCallback();
+            }
 			break;
 		case APP_CMD_TERM_WINDOW:
 			termDisplay();
+            tryCallBackgroundCallback();
 			break;
 		case APP_CMD_GAINED_FOCUS:
 			if (accelerometerSensor != NULL) {
@@ -398,7 +416,8 @@ namespace {
 			}
 			break;
 		case APP_CMD_START:
-			Kore::System::foregroundCallback();
+            appIsForeground = true;
+            tryCallForegroundCallback();
 			break;
 		case APP_CMD_RESUME:
 			Kore::System::resumeCallback();
@@ -411,7 +430,8 @@ namespace {
 			paused = true;
 			break;
 		case APP_CMD_STOP:
-			Kore::System::backgroundCallback();
+            appIsForeground = false;
+			tryCallBackgroundCallback();
 			break;
 		case APP_CMD_DESTROY:
 			Kore::System::shutdownCallback();
