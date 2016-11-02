@@ -50,17 +50,17 @@ namespace {
 		displayIsInitialized = false;
 	}
 
-    void tryCallForegroundCallback() {
-        if(displayIsInitialized && appIsForeground) {
-            Kore::System::foregroundCallback();
-        }
-    }
+	void tryCallForegroundCallback() {
+		if(displayIsInitialized && appIsForeground) {
+			Kore::System::foregroundCallback();
+		}
+	}
 
-    void tryCallBackgroundCallback() {
-        if(!(displayIsInitialized && appIsForeground)) {
-            Kore::System::backgroundCallback();
-        }
-    }
+	void tryCallBackgroundCallback() {
+		if(!(displayIsInitialized && appIsForeground)) {
+			Kore::System::backgroundCallback();
+		}
+	}
 
 	int32_t input(android_app* app, AInputEvent* event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
