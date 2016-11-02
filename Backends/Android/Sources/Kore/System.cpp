@@ -35,19 +35,19 @@ namespace {
 
 	bool started = false;
 	bool paused = true;
-    bool displayIsInitialized = false;
-    bool appIsForeground = false;
+	bool displayIsInitialized = false;
+	bool appIsForeground = false;
 
 	void initDisplay() {
 		if (glContext->Resume(app->window) != EGL_SUCCESS) {
 			Kore::log(Kore::Warning, "GL context lost.");
 		}
-        displayIsInitialized = true;
+		displayIsInitialized = true;
 	}
 
 	void termDisplay() {
 		glContext->Suspend();
-        displayIsInitialized = false;
+		displayIsInitialized = false;
 	}
 
     void tryCallForegroundCallback() {
@@ -390,12 +390,12 @@ namespace {
 					started = true;
 				}
 				Kore::System::swapBuffers(0);
-                tryCallForegroundCallback();
-            }
+				tryCallForegroundCallback();
+			}
 			break;
 		case APP_CMD_TERM_WINDOW:
 			termDisplay();
-            tryCallBackgroundCallback();
+			tryCallBackgroundCallback();
 			break;
 		case APP_CMD_GAINED_FOCUS:
 			if (accelerometerSensor != NULL) {
@@ -416,8 +416,8 @@ namespace {
 			}
 			break;
 		case APP_CMD_START:
-            appIsForeground = true;
-            tryCallForegroundCallback();
+			appIsForeground = true;
+			tryCallForegroundCallback();
 			break;
 		case APP_CMD_RESUME:
 			Kore::System::resumeCallback();
@@ -430,7 +430,7 @@ namespace {
 			paused = true;
 			break;
 		case APP_CMD_STOP:
-            appIsForeground = false;
+			appIsForeground = false;
 			tryCallBackgroundCallback();
 			break;
 		case APP_CMD_DESTROY:
