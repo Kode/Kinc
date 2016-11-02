@@ -828,3 +828,27 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 }
 
 void Graphics::setup() {}
+
+D3D11_QUERY_DESC queryDesc;
+ID3D11Query* pQuery;
+void Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	device->CreateQuery(&queryDesc, &pQuery);
+}
+
+
+void Graphics::deleteOcclusionQuery(uint* occlusionQuery) {
+	// TODO
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+	context->Begin(pQuery);
+	context->Draw(triangles, 0);
+	context->End(pQuery);
+}
+
+void Graphics::queryResultsAvailable(uint occlusionQuery, bool* available) {
+	*available = context->GetData(pQuery, 0, sizeof(UINT64), 0);
+}
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+	context->GetData(pQuery, pixelCount, sizeof(UINT64), 0);
+}
