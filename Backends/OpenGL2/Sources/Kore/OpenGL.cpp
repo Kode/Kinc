@@ -854,8 +854,10 @@ void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
     glEndQuery(GL_SAMPLES_PASSED);
 }
 
-void Graphics::queryResultsAvailable(uint occlusionQuery, bool *available) {
-    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, (uint*)available);
+bool Graphics::queryResultsAvailable(uint occlusionQuery) {
+	uint available;
+    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, &available);
+	return available != 0;
 }
 
 void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {

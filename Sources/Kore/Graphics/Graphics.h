@@ -202,7 +202,7 @@ namespace Kore {
         void initOcclusionQuery(uint* occlusionQuery);
         void deleteOcclusionQuery(uint* occlusionQuery);
         void renderOcclusionQuery(uint occlusionQuery, int triangles);
-        void queryResultsAvailable(uint occlusionQuery, bool* available);
+        bool queryResultsAvailable(uint occlusionQuery);
         void getQueryResults(uint occlusionQuery, uint* pixelCount);
 
 		const uint ClearColorFlag   = 1;

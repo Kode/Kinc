@@ -45,6 +45,9 @@ namespace {
 	unsigned hz;
 	bool vsync;
 
+	D3D11_QUERY_DESC queryDesc;
+	ID3D11Query* pQuery = nullptr;
+
 	D3D_FEATURE_LEVEL featureLevel;
 #ifdef SYS_WINDOWSAPP
 	IDXGISwapChain1* swapChain;
@@ -828,3 +831,24 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 }
 
 void Graphics::setup() {}
+
+void Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	device->CreateQuery(&queryDesc, &pQuery);
+}
+
+void Graphics::deleteOcclusionQuery(uint* occlusionQuery) {
+	pQuery = nullptr;
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+	context->Begin(pQuery);
+	context->Draw(triangles, 0);
+	context->End(pQuery);
+}
+
+bool Graphics::queryResultsAvailable(uint occlusionQuery) {
+	return  context->GetData(pQuery, 0, 0, 0);
+}
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+	context->GetData(pQuery, pixelCount, sizeof(uint), 0);
+}
