@@ -1,14 +1,13 @@
 #include "pch.h"
+
+#include "Direct3D11.h"
 #include "VertexBufferImpl.h"
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/WinError.h>
-#include "Direct3D11.h"
 
 using namespace Kore;
 
-VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {
-	
-}
+VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {}
 
 VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
 	myStride = 0;
@@ -38,11 +37,11 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 	vertices = new float[myStride / 4 * myCount];
 
 	D3D11_BUFFER_DESC bufferDesc;
-	bufferDesc.Usage               = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth           = myStride * myCount;
-	bufferDesc.BindFlags           = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.CPUAccessFlags      = 0;
-	bufferDesc.MiscFlags           = 0;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = myStride * myCount;
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
 	affirm(device->CreateBuffer(&bufferDesc, nullptr, &_vb));
@@ -67,9 +66,9 @@ void VertexBuffer::unlock() {
 }
 
 int VertexBuffer::_set(int offset) {
-	//UINT stride = myStride;
-	//UINT internaloffset = 0;
-	//context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
+	// UINT stride = myStride;
+	// UINT internaloffset = 0;
+	// context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
 	return 0;
 }
 

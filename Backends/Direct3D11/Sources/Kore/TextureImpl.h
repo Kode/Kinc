@@ -15,7 +15,7 @@ namespace Kore {
 		~TextureImpl();
 		void unmipmap();
 		void unset();
-	
+
 		bool mipmap;
 		int stage;
 		ID3D11Texture2D* texture;

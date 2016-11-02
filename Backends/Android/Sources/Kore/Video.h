@@ -3,7 +3,7 @@
 
 namespace Kore {
 	class VideoSoundStream;
-	
+
 	class Video {
 	private:
 		void* assetReader;
@@ -12,10 +12,11 @@ namespace Kore {
 		void updateImage();
 		double start;
 		double next;
-		//double audioTime;
+		// double audioTime;
 		unsigned long long audioTime;
 		bool playing;
 		VideoSoundStream* sound;
+
 	public:
 		Video(const char* filename);
 		~Video();
@@ -25,18 +26,20 @@ namespace Kore {
 		int width();
 		int height();
 		Texture* currentImage();
-		double duration; //milliseconds
-		double position; //milliseconds
+		double duration; // milliseconds
+		double position; // milliseconds
 		bool finished;
 		bool paused;
 		void update(double time);
 		void* androidVideo;
-		int id;		
+		int id;
+
 	private:
 		Texture* image;
 		double lastTime;
 		int myWidth;
 		int myHeight;
+
 	private:
 		void video_write();
 		Kore::Image* videoImage;

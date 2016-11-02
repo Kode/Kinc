@@ -57,6 +57,13 @@ namespace {
 			data += chunksize;
 		}
 	}
+    
+    void split(s16* data, int size, s16* left, s16* right) {
+        for (int i = 0; i < size / 4; ++i) {
+            left[i] = data[i * 2];
+            right[i] = data[i * 2 + 1];
+        }
+    }
 }
 
 Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), right(0) {
@@ -92,13 +99,17 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), rig
 		data = wave.data;
 		size = wave.dataSize;
         // Left and right channel are in s16 audio stream, alternating.
-        left = (s16*)data;
-        right = ((s16*)data) + 1;
+        left = new s16[size / 2];
+        right = new s16[size / 2];
+        split((s16*)data, size, left, right);
+        sampleRatePos = 44100 / (float)format.samplesPerSecond;
 	}
 }
 
 Sound::~Sound() {
 	delete[] data;
+    delete[] left;
+    delete[] right;
 	data = nullptr;
     left = nullptr;
     right = nullptr;

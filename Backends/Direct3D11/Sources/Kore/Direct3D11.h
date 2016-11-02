@@ -5,7 +5,7 @@
 #ifdef SYS_WINDOWS8
 #include <d3d11_1.h>
 #else
-#pragma warning(disable: 4005)
+#pragma warning(disable : 4005)
 #include <d3d11.h>
 #endif
 

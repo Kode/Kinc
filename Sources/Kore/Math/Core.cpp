@@ -41,6 +41,11 @@ float Kore::floor(float value) {
 	return std::floor(value);
 }
 
+float Kore::mod(float numer, float denom)
+{
+	return std::fmod(numer, denom);
+}
+
 unsigned Kore::pow(unsigned value, unsigned exponent) {
 	/*unsigned ret = 1;
 	for (unsigned i = 0; i < exponent; ++i) ret *= value;
