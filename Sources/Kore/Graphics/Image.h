@@ -1,7 +1,10 @@
 #pragma once
 
+#include <Kore/IO/Reader.h>
+
 namespace Kore {
 	class Image {
+		void initFromReader(Reader* reader, const char* fileExt, bool readable);
 	public:
 		enum Format { RGBA32, Grey8, RGB24, RGBA128, RGBA64 };
 
