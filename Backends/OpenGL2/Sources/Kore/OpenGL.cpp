@@ -843,48 +843,25 @@ void Graphics::initOcclusionQuery(uint* occlusionQuery) {
     glGenQueries(1, occlusionQuery);
 }
 
-void Graphics::deallocOcclusionQuery(uint occlusionQuery) {
-    glDeleteQueries(1, &occlusionQuery);
+void Graphics::deleteOcclusionQuery(uint* occlusionQuery) {
+    glDeleteQueries(1, occlusionQuery);
 }
 
-void Graphics::renderOcclusionQuery(uint occlusionQuery, float* boundingBox, int size) {
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
     glBeginQuery(GL_SAMPLES_PASSED, occlusionQuery);
-    drawBoundingBox(boundingBox, size);
+    glDrawArrays(GL_TRIANGLES, 0, triangles);
+    glCheckErrors();
     glEndQuery(GL_SAMPLES_PASSED);
 }
 
-void Graphics::getOcclusionResults(uint occlusionQuery, uint pixelCount) {
-    bool available = false;
-    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, (uint*)&available);
-    if (available) {
-        glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, &pixelCount);
-    }
+bool Graphics::queryResultsAvailable(uint occlusionQuery) {
+	uint available;
+    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, &available);
+	return available != 0;
 }
 
-void Graphics::drawBoundingBox(float* boundingBox, int size) {
-    GLuint vbo_vertices;
-    glGenBuffers(1, &vbo_vertices);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
-    glBufferData(GL_ARRAY_BUFFER, size, boundingBox, GL_STATIC_DRAW);
-    
-    
-    
-    int attribute_v_coord = 0;
-    glEnableVertexAttribArray(attribute_v_coord);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
-    glVertexAttribPointer(attribute_v_coord,    // attribute
-                          3,                    // number of elements per vertex, here (x,y,z)
-                          GL_FLOAT,             // the type of each element
-                          GL_FALSE,             // take our values as-is
-                          0,                    // no extra data between each position
-                          (void*)0              // offset of first element
-                          );
-    
-    // Draw the triangle !
-    glDrawArrays(GL_TRIANGLES, 0, 12 * 3); /// 12 * 3 indices starting at 0 -> 12 triangles -> 6 squares
-    glDisableVertexAttribArray(attribute_v_coord);
-    
-    glDeleteBuffers(1, &vbo_vertices);
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, pixelCount);
 }
 
 void Graphics::flush() {

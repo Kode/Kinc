@@ -45,6 +45,8 @@ namespace {
 	IDirect3DSurface9* backBuffer = nullptr;
 	IDirect3DSurface9* depthBuffer = nullptr;
 
+	IDirect3DQuery9* pOcclusionQuery = nullptr;
+
 	void initDeviceStates() {
 		D3DCAPS9 caps;
 		device->GetDeviceCaps(&caps);
@@ -741,3 +743,33 @@ void Graphics::setIndexBuffer(IndexBuffer& buffer) {
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
+
+
+void Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	device->CreateQuery(D3DQUERYTYPE_OCCLUSION, &pOcclusionQuery);
+}
+
+void Graphics::deleteOcclusionQuery(uint* occlusionQuery) {
+	pOcclusionQuery = nullptr;
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+	if (pOcclusionQuery != nullptr) {
+		pOcclusionQuery->Issue(D3DISSUE_BEGIN);
+		device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, triangles); // TODO
+		pOcclusionQuery->Issue(D3DISSUE_END);
+	}
+}
+
+bool Graphics::queryResultsAvailable(uint occlusionQuery) {
+	bool available = FALSE;
+	if (pOcclusionQuery != nullptr)
+		available = pOcclusionQuery->GetData(0, 0, D3DGETDATA_FLUSH);
+	return available;
+}
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+	if (pOcclusionQuery != nullptr)
+		pOcclusionQuery->GetData(pixelCount, sizeof(uint), D3DGETDATA_FLUSH);
+}
+
+
