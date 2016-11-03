@@ -21,18 +21,18 @@ namespace Kore {
 		WindowModeFullscreen = 2,
 	};
 
-    struct WindowOptions {
-        const char * title;
-        int width;
-        int height;
-        int x;
-        int y;
+	struct WindowOptions {
+		const char* title;
+		int width;
+		int height;
+		int x;
+		int y;
 		int targetDisplay;
-		
+
 		bool resizable;
 		bool maximizable;
 		bool minimizable;
-		
+
 		WindowMode mode;
 		bool showWindow;
 		RendererOptions rendererOptions;
@@ -47,22 +47,22 @@ namespace Kore {
 			width = 800;
 			height = 600;
 			showWindow = true;
-			
+
 			resizable = false;
 			maximizable = false;
 			minimizable = true;
 		}
-    };
+	};
 
-    struct KoreWindowBase {
+	struct KoreWindowBase {
 		int x, y;
 		int width, height;
 
-		KoreWindowBase( int x, int y, int width, int height ) {
+		KoreWindowBase(int x, int y, int width, int height) {
 			this->x = x;
 			this->y = y;
 			this->width = width;
 			this->height = height;
 		}
-    };
+	};
 }

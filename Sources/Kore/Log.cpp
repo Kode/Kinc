@@ -1,6 +1,8 @@
 #include "pch.h"
+
 #include "Log.h"
 #include "LogArgs.h"
+
 #include <stdio.h>
 #ifdef SYS_WINDOWS
 #include <Windows.h>

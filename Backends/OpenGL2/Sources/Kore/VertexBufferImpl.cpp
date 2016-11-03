@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "VertexBufferImpl.h"
 #include "ShaderImpl.h"
+#include "VertexBufferImpl.h"
 #include "ogl.h"
 
 #include <Kore/Graphics/Graphics.h>
