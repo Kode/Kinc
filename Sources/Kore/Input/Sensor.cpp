@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "Sensor.h"
 
 using namespace Kore;

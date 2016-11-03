@@ -1,12 +1,10 @@
 #pragma once
 
-#include <Kore/TextureImpl.h>
 #include <Kore/Graphics/Image.h>
+#include <Kore/TextureImpl.h>
 
 namespace Kore {
-	class TextureUnit : public TextureUnitImpl {
-
-	};
+	class TextureUnit : public TextureUnitImpl {};
 
 	class Texture : public Image, public TextureImpl {
 	public:
@@ -24,7 +22,7 @@ namespace Kore {
 #endif
 		void generateMipmaps(int levels);
 		void setMipmap(Texture* mipmap, int level);
-		
+
 		int stride();
 		int texWidth;
 		int texHeight;

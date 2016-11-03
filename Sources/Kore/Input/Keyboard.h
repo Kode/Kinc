@@ -7,7 +7,7 @@ namespace Kore {
 		Key_Backtab = 0x00000102,
 		Key_Backspace = 0x00000103,
 		Key_Return = 0x00000104,
-		Key_Enter = 0x00000105, //Typically located on the keypad.
+		Key_Enter = 0x00000105, // Typically located on the keypad.
 		Key_Insert = 0x00000106,
 		Key_Delete = 0x00000107,
 		Key_Pause = 0x00000108,
@@ -22,10 +22,10 @@ namespace Kore {
 		Key_Down = 0x00000115,
 		Key_PageUp = 0x00000116,
 		Key_PageDown = 0x00000117,
-		Key_AltGr = 0x0000011f,   //On Windows, when the KeyDown event for this key is sent, the Ctrl+Alt modifiers are also set.
+		Key_AltGr = 0x0000011f, // On Windows, when the KeyDown event for this key is sent, the Ctrl+Alt modifiers are also set.
 		Key_Shift = 0x00000120,
-		Key_Control = 0x00000121,   //On Mac OS X, this corresponds to the Command keys.
-		Key_Meta = 0x00000122,   //On Mac OS X, this corresponds to the Control keys. On Windows keyboards, this key is mapped to the Windows key.
+		Key_Control = 0x00000121, // On Mac OS X, this corresponds to the Command keys.
+		Key_Meta = 0x00000122,    // On Mac OS X, this corresponds to the Control keys. On Windows keyboards, this key is mapped to the Windows key.
 		Key_Alt = 0x00000123,
 		Key_CapsLock = 0x00000124,
 		Key_NumLock = 0x00000125,
@@ -423,7 +423,7 @@ namespace Kore {
 		void (*KeyUp)(KeyCode code, wchar_t character);
 		void clear();
 
-		//called by backend
+		// called by backend
 		void _keydown(KeyCode code, wchar_t character);
 		void _keyup(KeyCode code, wchar_t character);
 	};

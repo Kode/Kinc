@@ -17,6 +17,7 @@ namespace Kore {
 		void reset();
 		float volume();
 		void setVolume(float value);
+
 	private:
 		stb_vorbis* vorbis;
 		int chans;

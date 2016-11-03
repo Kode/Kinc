@@ -1,6 +1,9 @@
 #include "pch.h"
+
 #include "Reader.h"
+
 #include <Kore/Math/Core.h>
+
 #include <cstdlib>
 #include <cstring>
 #include <stdio.h>
@@ -8,18 +11,18 @@
 using namespace Kore;
 
 float Reader::readF32LE(u8* data) {
-#ifdef SYS_LITTLE_ENDIAN //speed optimization
+#ifdef SYS_LITTLE_ENDIAN // speed optimization
 	return *(float*)data;
-#else //works on all architectures
+#else // works on all architectures
 	int i = (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
 	return *(float*)&i;
 #endif
 }
 
 float Reader::readF32BE(u8* data) {
-#ifdef SYS_BIG_ENDIAN //speed optimization
+#ifdef SYS_BIG_ENDIAN // speed optimization
 	return *(float*)data;
-#else //works on all architectures
+#else // works on all architectures
 	int i = (data[3] << 0) | (data[2] << 8) | (data[1] << 16) | (data[0] << 24);
 	return *(float*)&i;
 #endif
@@ -29,7 +32,8 @@ u64 Reader::readU64LE(u8* data) {
 #ifdef SYS_LITTLE_ENDIAN
 	return *(u64*)data;
 #else
-	return ((u64)data[0] << 0) | ((u64)data[1] << 8) | ((u64)data[2] << 16) | ((u64)data[3] << 24) | ((u64)data[4] << 32) | ((u64)data[5] << 40) | ((u64)data[6] << 48) | ((u64)data[7] << 56);
+	return ((u64)data[0] << 0) | ((u64)data[1] << 8) | ((u64)data[2] << 16) | ((u64)data[3] << 24) | ((u64)data[4] << 32) | ((u64)data[5] << 40) |
+	       ((u64)data[6] << 48) | ((u64)data[7] << 56);
 #endif
 }
 
@@ -37,7 +41,8 @@ u64 Reader::readU64BE(u8* data) {
 #ifdef SYS_BIG_ENDIAN
 	return *(u64*)data;
 #else
-	return ((u64)data[7] << 0) | ((u64)data[6] << 8) | ((u64)data[5] << 16) | ((u64)data[4] << 24) | ((u64)data[3] << 32) | ((u64)data[2] << 40) | ((u64)data[1] << 48) | ((u64)data[0] << 56);
+	return ((u64)data[7] << 0) | ((u64)data[6] << 8) | ((u64)data[5] << 16) | ((u64)data[4] << 24) | ((u64)data[3] << 32) | ((u64)data[2] << 40) |
+	       ((u64)data[1] << 48) | ((u64)data[0] << 56);
 #endif
 }
 
@@ -45,7 +50,8 @@ s64 Reader::readS64LE(u8* data) {
 #ifdef SYS_LITTLE_ENDIAN
 	return *(s64*)data;
 #else
-	return ((s64)data[0] << 0) | ((s64)data[1] << 8) | ((s64)data[2] << 16) | ((s64)data[3] << 24) | ((s64)data[4] << 32) | ((s64)data[5] << 40) | ((s64)data[6] << 48) | ((s64)data[7] << 56);
+	return ((s64)data[0] << 0) | ((s64)data[1] << 8) | ((s64)data[2] << 16) | ((s64)data[3] << 24) | ((s64)data[4] << 32) | ((s64)data[5] << 40) |
+	       ((s64)data[6] << 48) | ((s64)data[7] << 56);
 #endif
 }
 
@@ -53,7 +59,8 @@ s64 Reader::readS64BE(u8* data) {
 #ifdef SYS_BIG_ENDIAN
 	return *(s64*)data;
 #else
-	return ((s64)data[7] << 0) | ((s64)data[6] << 8) | ((s64)data[5] << 16) | ((s64)data[4] << 24) | ((s64)data[3] << 32) | ((s64)data[2] << 40) | ((s64)data[1] << 48) | ((s64)data[0] << 56);
+	return ((s64)data[7] << 0) | ((s64)data[6] << 8) | ((s64)data[5] << 16) | ((s64)data[4] << 24) | ((s64)data[3] << 32) | ((s64)data[2] << 40) |
+	       ((s64)data[1] << 48) | ((s64)data[0] << 56);
 #endif
 }
 

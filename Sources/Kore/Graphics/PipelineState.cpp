@@ -5,16 +5,14 @@
 using namespace Kore;
 
 PipelineState::PipelineState() : Program() {
-    // TODO
-    //program = new Program;
+	// TODO
+	// program = new Program;
 }
-
 
 void PipelineState::compile() {
-    link(PipelineStateBase::inputLayout, 0);
+	link(PipelineStateBase::inputLayout, 0);
 }
 
-
-//ConstantLocation PipelineState::getConstantLocation(const char* name) {
+// ConstantLocation PipelineState::getConstantLocation(const char* name) {
 //    return new ConstantLocation(glGetUniformLocation(program, name));
 //}

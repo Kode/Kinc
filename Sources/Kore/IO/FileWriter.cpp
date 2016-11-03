@@ -1,5 +1,7 @@
 #include "pch.h"
+
 #include "FileWriter.h"
+
 #include <Kore/Error.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
@@ -8,9 +10,7 @@
 
 using namespace Kore;
 
-FileWriter::FileWriter() : file(nullptr) {
-	
-}
+FileWriter::FileWriter() : file(nullptr) {}
 
 FileWriter::FileWriter(const char* filepath) : file(nullptr) {
 	if (!open(filepath)) {

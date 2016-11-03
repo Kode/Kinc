@@ -36,7 +36,7 @@ namespace Kore {
 	inline float32x4 div(float32x4 a, float32x4 b) {
 		return _mm_div_ps(a, b);
 	}
-	
+
 	inline float32x4 mul(float32x4 a, float32x4 b) {
 		return _mm_mul_ps(a, b);
 	}
@@ -45,7 +45,7 @@ namespace Kore {
 		__m128 negative = _mm_set_ps1(-1.0f);
 		return _mm_mul_ps(t, negative);
 	}
-	
+
 	inline float32x4 reciprocalApproximation(float32x4 t) {
 		return _mm_rcp_ps(t);
 	}
@@ -69,27 +69,27 @@ namespace Kore {
 
 namespace Kore {
 	typedef float32x4_t float32x4;
-	
+
 	inline float32x4 load(float a, float b, float c, float d) {
-		return { a, b, c, d };
+		return {a, b, c, d};
 	}
-	
+
 	inline float32x4 loadAll(float t) {
-		return { t, t, t, t };
+		return {t, t, t, t};
 	}
-	
+
 	inline float get(float32x4 t, int index) {
 		return t[index];
 	}
-	
+
 	inline float32x4 abs(float32x4 t) {
 		return vabsq_f32(t);
 	}
-	
+
 	inline float32x4 add(float32x4 a, float32x4 b) {
 		return vaddq_f32(a, b);
 	}
-	
+
 	inline float32x4 div(float32x4 a, float32x4 b) {
 #ifdef ARM64
 		return vdivq_f32(a, b);
@@ -100,27 +100,27 @@ namespace Kore {
 		return vmulq_f32(a, inv);
 #endif
 	}
-	
+
 	inline float32x4 mul(float32x4 a, float32x4 b) {
 		return vmulq_f32(a, b);
 	}
-	
+
 	inline float32x4 neg(float32x4 t) {
 		return vnegq_f32(t);
 	}
-	
+
 	inline float32x4 reciprocalApproximation(float32x4 t) {
 		return vrecpeq_f32(t);
 	}
-	
+
 	inline float32x4 reciprocalSqrtApproximation(float32x4 t) {
 		return vrsqrteq_f32(t);
 	}
-	
+
 	inline float32x4 sub(float32x4 a, float32x4 b) {
 		return vsubq_f32(a, b);
 	}
-	
+
 	inline float32x4 sqrt(float32x4 t) {
 #ifdef ARM64
 		return vsqrtq_f32(t);

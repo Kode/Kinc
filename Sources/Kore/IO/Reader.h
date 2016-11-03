@@ -3,7 +3,7 @@
 namespace Kore {
 	class Reader {
 	public:
-		virtual ~Reader() { }
+		virtual ~Reader() {}
 		virtual int read(void* data, int size) = 0;
 		virtual void* readAll() = 0;
 		virtual int size() const = 0;

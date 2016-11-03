@@ -1,5 +1,7 @@
 #include "pch.h"
+
 #include "FileReader.h"
+
 #include <Kore/Error.h>
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
@@ -31,6 +33,7 @@ const char* macgetresourcepath();
 
 #ifdef SYS_ANDROID
 #include <android/asset_manager.h>
+
 #include <JNIHelper.h>
 #endif
 
@@ -217,13 +220,13 @@ bool FileReader::open(const char* filename, FileType type) {
 	strcat(filepath, "/");
 	strcat(filepath, filename);
 #endif
-	
+
 	if (fileslocation != nullptr) {
 		strcpy(filepath, fileslocation);
 		strcat(filepath, "/");
 		strcat(filepath, filename);
 	}
-	
+
 	data.file = fopen(filepath, "rb");
 	if (data.file == nullptr) {
 		log(Warning, "Could not open file %s.", filepath);
@@ -298,8 +301,10 @@ FileReader::~FileReader() {
 
 int FileReader::pos() const {
 #ifdef SYS_ANDROID
-	if (data.file != nullptr) return static_cast<int>(ftell(data.file));
-	else return data.pos;
+	if (data.file != nullptr)
+		return static_cast<int>(ftell(data.file));
+	else
+		return data.pos;
 #else
 	return static_cast<int>(ftell((FILE*)data.file));
 #endif
