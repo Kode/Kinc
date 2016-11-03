@@ -1,27 +1,26 @@
 #include "pch.h"
+
 #include <Kore/Graphics/Shader.h>
+
+#import <Metal/Metal.h>
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#import <Metal/Metal.h>
 
 using namespace Kore;
 
 id getMetalDevice();
 id getMetalEncoder();
 
-ProgramImpl::ProgramImpl() {
+ProgramImpl::ProgramImpl() {}
 
-}
+Program::Program() {}
 
-Program::Program() {
-	
-}
-	
 void Program::setVertexShader(Shader* vertexShader) {
 	this->vertexShader = vertexShader;
 }
-	
+
 void Program::setFragmentShader(Shader* fragmentShader) {
 	this->fragmentShader = fragmentShader;
 }
@@ -31,19 +30,17 @@ void Program::link(VertexStructure** structures, int count) {
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
 	renderPipelineDesc.fragmentFunction = fragmentShader->mtlFunction;
 	renderPipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
- 
+
 	NSError* errors = nil;
 	MTLRenderPipelineReflection* reflection = nil;
-	id <MTLDevice> device = getMetalDevice();
+	id<MTLDevice> device = getMetalDevice();
 	pipeline = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
 	assert(pipeline && !errors);
 	this->reflection = reflection;
-	
-	
 }
 
 void Program::set() {
-	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setRenderPipelineState:pipeline];
 }
 
@@ -51,7 +48,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.vertexOffset = -1;
 	location.fragmentOffset = -1;
-	
+
 	MTLRenderPipelineReflection* reflection = this->reflection;
 
 	for (MTLArgument* arg in reflection.vertexArguments) {
@@ -66,7 +63,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 			}
 		}
 	}
-	
+
 	for (MTLArgument* arg in reflection.fragmentArguments) {
 		if ([arg type] == MTLArgumentTypeBuffer && [[arg name] isEqualToString:@"uniforms"]) {
 			if ([arg bufferDataType] == MTLDataTypeStruct) {
@@ -79,20 +76,20 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 			}
 		}
 	}
-	
+
 	return location;
 }
 
 TextureUnit Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
 	unit.index = -1;
-	
+
 	MTLRenderPipelineReflection* reflection = this->reflection;
 	for (MTLArgument* arg in reflection.fragmentArguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
 			unit.index = (int)[arg index];
 		}
 	}
-	
+
 	return unit;
 }

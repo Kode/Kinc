@@ -23,7 +23,7 @@ function format(dir) {
 		}
 		else {
 			if (isExcluded(filepath)) continue;
-			if (file.endsWith('.cpp') || file.endsWith('.h')) {
+			if (file.endsWith('.cpp') || file.endsWith('.h') || file.endsWith('.m') || file.endsWith('.mm')) {
 				console.log('Format ' + filepath);
 				child_process.execFileSync('clang-format', ['-style=file', '-i', filepath]);
 			}

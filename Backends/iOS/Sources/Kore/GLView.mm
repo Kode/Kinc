@@ -15,14 +15,14 @@ namespace {
 			touches[i] = nullptr;
 		}
 	}
-	
+
 	int getTouchIndex(void* touch) {
 		for (int i = 0; i < touchmaxcount; ++i) {
 			if (touches[i] == touch) return i;
 		}
 		return -1;
 	}
-	
+
 	int addTouch(void* touch) {
 		for (int i = 0; i < touchmaxcount; ++i) {
 			if (touches[i] == nullptr) {
@@ -32,7 +32,7 @@ namespace {
 		}
 		return -1;
 	}
-	
+
 	int removeTouch(void* touch) {
 		for (int i = 0; i < touchmaxcount; ++i) {
 			if (touches[i] == touch) {
@@ -42,16 +42,16 @@ namespace {
 		}
 		return -1;
 	}
-	
+
 	GLint backingWidth, backingHeight;
 }
 
 int Kore::System::windowWidth(int id) {
-    return backingWidth;
+	return backingWidth;
 }
 
 int Kore::System::windowHeight(int id) {
-    return backingHeight;
+	return backingHeight;
 }
 
 @implementation GLView
@@ -62,7 +62,7 @@ int Kore::System::windowHeight(int id) {
 }
 #else
 + (Class)layerClass {
-    return [CAEAGLLayer class];
+	return [CAEAGLLayer class];
 }
 #endif
 
@@ -70,68 +70,69 @@ int Kore::System::windowHeight(int id) {
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
-	
+
 	initTouches();
-	
+
 	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
 	library = [device newDefaultLibrary];
-	
+
 	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
-	
+
 	metalLayer.device = device;
 	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 	metalLayer.framebufferOnly = YES;
-	//metalLayer.presentsWithTransaction = YES;
-	
+	// metalLayer.presentsWithTransaction = YES;
+
 	metalLayer.opaque = YES;
 	metalLayer.backgroundColor = nil;
-	
+
 	return self;
 }
 #else
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
-	
+
 	initTouches();
-	
+
 	CAEAGLLayer* eaglLayer = (CAEAGLLayer*)self.layer;
-	
+
 	eaglLayer.opaque = YES;
-	eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
+	eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking,
+	                                                                          kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
 
 	context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-	
+
 	if (!context || ![EAGLContext setCurrentContext:context]) {
 		//[self release];
 		return nil;
 	}
-	
+
 	glGenFramebuffersOES(1, &defaultFramebuffer);
 	glGenRenderbuffersOES(1, &colorRenderbuffer);
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, colorRenderbuffer);
-	
-	glGenRenderbuffersOES(1, &depthStencilRenderbuffer);
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
-    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
-    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
 
-    // Start acceletometer
+	glGenRenderbuffersOES(1, &depthStencilRenderbuffer);
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
+	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
+	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
+
+	// Start acceletometer
 	hasAccelerometer = false;
 #ifndef SYS_TVOS
-	motionManager = [[CMMotionManager alloc]init];
+	motionManager = [[CMMotionManager alloc] init];
 	if ([motionManager isAccelerometerAvailable]) {
 		motionManager.accelerometerUpdateInterval = 0.033;
 		[motionManager startAccelerometerUpdates];
 		hasAccelerometer = true;
 	}
 #endif
-    
+
 #ifndef SYS_TVOS
-	[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(onKeyboardHide:) name:UIKeyboardWillHideNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onKeyboardHide:) name:UIKeyboardWillHideNotification object:nil];
 #endif
 
 	return self;
@@ -142,16 +143,16 @@ int Kore::System::windowHeight(int id) {
 - (void)begin {
 	@autoreleasepool {
 		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
-	
+
 		drawable = [metalLayer nextDrawable];
-		
-		//printf("It's %i\n", drawable == nil ? 0 : 1);
-		//if (drawable == nil) return;
+
+		// printf("It's %i\n", drawable == nil ? 0 : 1);
+		// if (drawable == nil) return;
 		id<MTLTexture> texture = drawable.texture;
-		
+
 		backingWidth = (int)[texture width];
 		backingHeight = (int)[texture height];
-		
+
 		if (renderPassDescriptor == nil) {
 			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		}
@@ -159,36 +160,35 @@ int Kore::System::windowHeight(int id) {
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-	
-		//id <MTLCommandQueue> commandQueue = [device newCommandQueue];
+
+		// id <MTLCommandQueue> commandQueue = [device newCommandQueue];
 		commandBuffer = [commandQueue commandBuffer];
-		//if (drawable != nil) {
+		// if (drawable != nil) {
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 		//}
-		
 	}
 }
 #else
 - (void)begin {
 	[EAGLContext setCurrentContext:context];
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
-    glViewport(0, 0, backingWidth, backingHeight);
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
+	glViewport(0, 0, backingWidth, backingHeight);
 
 #ifndef SYS_TVOS
-    // Accelerometer updates
-    if (hasAccelerometer) {
+	// Accelerometer updates
+	if (hasAccelerometer) {
 
-    	CMAcceleration acc = motionManager.accelerometerData.acceleration;
+		CMAcceleration acc = motionManager.accelerometerData.acceleration;
 
-    	if (acc.x != lastAccelerometerX || acc.y != lastAccelerometerY || acc.z != lastAccelerometerZ) {
- 			
-    		Kore::Sensor::_changed(Kore::SensorAccelerometer, acc.x, acc.y, acc.z);
+		if (acc.x != lastAccelerometerX || acc.y != lastAccelerometerY || acc.z != lastAccelerometerZ) {
 
- 			lastAccelerometerX = acc.x;
- 			lastAccelerometerY = acc.y;
- 			lastAccelerometerZ = acc.z;
- 		}
-    }
+			Kore::Sensor::_changed(Kore::SensorAccelerometer, acc.x, acc.y, acc.z);
+
+			lastAccelerometerX = acc.x;
+			lastAccelerometerY = acc.y;
+			lastAccelerometerZ = acc.z;
+		}
+	}
 #endif
 }
 #endif
@@ -202,8 +202,8 @@ static float red = 0.0f;
 		[commandBuffer presentDrawable:drawable];
 		[commandBuffer commit];
 		commandBuffer = nil;
-	
-		//if (drawable != nil) {
+
+		// if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
 		//	[drawable present];
 		//}
@@ -212,27 +212,26 @@ static float red = 0.0f;
 #else
 - (void)end {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
-	[context presentRenderbuffer:GL_RENDERBUFFER_OES]; //crash at end
+	[context presentRenderbuffer:GL_RENDERBUFFER_OES]; // crash at end
 }
 #endif
 
 #ifdef SYS_METAL
--(void)layoutSubviews {
-	
+- (void)layoutSubviews {
 }
 #else
 - (void)layoutSubviews {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
-	
+
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
-	
+
 	printf("backingWitdh/Height: %i, %i\n", backingWidth, backingHeight);
-	
+
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthStencilRenderbuffer);
 	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH24_STENCIL8_OES, backingWidth, backingHeight);
-	
+
 	if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 	}
@@ -241,7 +240,6 @@ static float red = 0.0f;
 
 #ifdef SYS_METAL
 - (void)dealloc {
-	
 }
 #else
 - (void)dealloc {
@@ -249,22 +247,22 @@ static float red = 0.0f;
 		glDeleteFramebuffersOES(1, &defaultFramebuffer);
 		defaultFramebuffer = 0;
 	}
-	
+
 	if (colorRenderbuffer) {
 		glDeleteRenderbuffersOES(1, &colorRenderbuffer);
 		colorRenderbuffer = 0;
 	}
-    
-    if (depthStencilRenderbuffer) {
-        glDeleteRenderbuffersOES(1, &depthStencilRenderbuffer);
-        depthStencilRenderbuffer = 0;
-    }
-	
+
+	if (depthStencilRenderbuffer) {
+		glDeleteRenderbuffersOES(1, &depthStencilRenderbuffer);
+		depthStencilRenderbuffer = 0;
+	}
+
 	if ([EAGLContext currentContext] == context) [EAGLContext setCurrentContext:nil];
-	
+
 	//[context release];
 	context = nil;
-	
+
 	//[super dealloc];
 }
 #endif
@@ -274,7 +272,7 @@ static float red = 0.0f;
 		int index = getTouchIndex((__bridge void*)touch);
 		if (index == -1) index = addTouch((__bridge void*)touch);
 		if (index >= 0) {
-			CGPoint point = [touch locationInView: self];
+			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
@@ -289,7 +287,7 @@ static float red = 0.0f;
 	for (UITouch* touch in touches) {
 		int index = getTouchIndex((__bridge void*)touch);
 		if (index >= 0) {
-			CGPoint point = [touch locationInView: self];
+			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
@@ -304,7 +302,7 @@ static float red = 0.0f;
 	for (UITouch* touch in touches) {
 		int index = removeTouch((__bridge void*)touch);
 		if (index >= 0) {
-			CGPoint point = [touch locationInView: self];
+			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
@@ -319,7 +317,7 @@ static float red = 0.0f;
 	for (UITouch* touch in touches) {
 		int index = removeTouch((__bridge void*)touch);
 		if (index >= 0) {
-			CGPoint point = [touch locationInView: self];
+			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
@@ -332,7 +330,7 @@ static float red = 0.0f;
 
 namespace {
 	NSString* keyboardstring;
-    UITextField* myTextField = nullptr;
+	UITextField* myTextField = nullptr;
 	bool shiftDown = false;
 }
 
@@ -350,7 +348,7 @@ namespace {
 
 - (void)insertText:(NSString*)text {
 	if ([text length] == 1) {
-		unichar ch = [text characterAtIndex: [text length] - 1];
+		unichar ch = [text characterAtIndex:[text length] - 1];
 		if (ch == 8212) ch = '_';
 		if (ch == L'\n') {
 			Kore::Keyboard::the()->_keydown(Kore::Key_Return, '\n');
@@ -389,15 +387,15 @@ namespace {
 }
 
 #ifdef SYS_METAL
-- (id <MTLDevice>)metalDevice {
+- (id<MTLDevice>)metalDevice {
 	return device;
 }
 
-- (id <MTLLibrary>)metalLibrary {
+- (id<MTLLibrary>)metalLibrary {
 	return library;
 }
 
-- (id <MTLRenderCommandEncoder>)metalEncoder {
+- (id<MTLRenderCommandEncoder>)metalEncoder {
 	return commandEncoder;
 }
 #endif

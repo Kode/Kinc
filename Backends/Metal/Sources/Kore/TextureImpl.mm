@@ -1,8 +1,11 @@
 #include "pch.h"
+
 #include "TextureImpl.h"
+
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Graphics/Image.h>
 #include <Kore/Log.h>
+
 #import <Metal/Metal.h>
 
 using namespace Kore;
@@ -24,13 +27,11 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	create(width, height);
 }
 
-TextureImpl::~TextureImpl() {
-
-}
+TextureImpl::~TextureImpl() {}
 
 void TextureImpl::create(int width, int height) {
-	id <MTLDevice> device = getMetalDevice();
-	
+	id<MTLDevice> device = getMetalDevice();
+
 	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 	descriptor.textureType = MTLTextureType2D;
 	descriptor.width = width;
@@ -39,7 +40,7 @@ void TextureImpl::create(int width, int height) {
 	descriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
-	
+
 	tex = [device newTextureWithDescriptor:descriptor];
 }
 
@@ -47,7 +48,7 @@ id getMetalDevice();
 id getMetalEncoder();
 
 void Texture::_set(TextureUnit unit) {
-	id <MTLDevice> device = getMetalDevice();
+	id<MTLDevice> device = getMetalDevice();
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterLinear;
 	desc.magFilter = MTLSamplerMinMagFilterLinear;
@@ -58,9 +59,9 @@ void Texture::_set(TextureUnit unit) {
 	desc.normalizedCoordinates = YES;
 	desc.lodMinClamp = 0.0f;
 	desc.lodMaxClamp = FLT_MAX;
-	id <MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:desc];
-	
-	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:desc];
+
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setFragmentSamplerState:sampler atIndex:unit.index];
 	[encoder setFragmentTexture:tex atIndex:unit.index];
 }
@@ -74,20 +75,14 @@ u8* Texture::lock() {
 }
 
 void Texture::unlock() {
-	id <MTLTexture> texture = tex;
+	id<MTLTexture> texture = tex;
 	[texture replaceRegion:MTLRegionMake2D(0, 0, width, height) mipmapLevel:0 slice:0 withBytes:data bytesPerRow:stride() bytesPerImage:stride() * height];
 }
 
 #ifdef SYS_IOS
-void Texture::upload(u8* data) {
-
-}
+void Texture::upload(u8* data) {}
 #endif
 
-void Texture::generateMipmaps(int levels) {
+void Texture::generateMipmaps(int levels) {}
 
-}
-
-void Texture::setMipmap(Texture* mipmap, int level) {
-
-}
+void Texture::setMipmap(Texture* mipmap, int level) {}

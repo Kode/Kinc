@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include <Kore/Graphics/Graphics.h>
 #import <Metal/Metal.h>
 
@@ -9,34 +10,29 @@ id getMetalDevice();
 IndexBuffer* IndexBufferImpl::current = nullptr;
 const int more = 10;
 
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {
-
-}
+IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
 IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
-	id <MTLDevice> device = getMetalDevice();
+	id<MTLDevice> device = getMetalDevice();
 	mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount * more options:MTLResourceOptionCPUCacheModeDefault];
 	index = -1;
 }
 
 IndexBuffer::~IndexBuffer() {
 	unset();
-
 }
 
 int* IndexBuffer::lock() {
 	++index;
 	if (index >= more) index = 0;
 
-	id <MTLBuffer> buffer = mtlBuffer;
+	id<MTLBuffer> buffer = mtlBuffer;
 	int* ints = (int*)[buffer contents];
 	return &ints[index * myCount];
-	//return (int*)[buffer contents];
+	// return (int*)[buffer contents];
 }
 
-void IndexBuffer::unlock() {
-	
-}
+void IndexBuffer::unlock() {}
 
 void IndexBuffer::_set() {
 	current = this;
