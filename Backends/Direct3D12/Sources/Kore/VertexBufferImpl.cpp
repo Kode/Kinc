@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "VertexBufferImpl.h"
 #include "Direct3D12.h"
+#include "VertexBufferImpl.h"
 #include "d3dx12.h"
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/WinError.h>

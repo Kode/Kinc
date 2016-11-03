@@ -22,7 +22,7 @@ namespace Kore {
 	public:
 		IndexBufferImpl(int count);
 		void unset();
-	
+
 		int* data;
 		int myCount;
 		uint bufferId;
@@ -30,6 +30,7 @@ namespace Kore {
 		VkBuffer buf;
 		VkDeviceMemory mem;
 		VkMemoryAllocateInfo mem_alloc;
+
 	public:
 		static IndexBuffer* current;
 	};

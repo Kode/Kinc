@@ -33,10 +33,10 @@ namespace Kore {
 	public:
 		int binding;
 	};
-	
+
 	class TextureImpl {
 	protected:
-		//static TreeMap<Image, Texture*> images;
+		// static TreeMap<Image, Texture*> images;
 	public:
 		u8 pixfmt;
 

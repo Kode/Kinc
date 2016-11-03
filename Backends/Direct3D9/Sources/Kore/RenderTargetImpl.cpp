@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "RenderTargetImpl.h"
 #include "Direct3D9.h"
+#include "RenderTargetImpl.h"
 
 #include <Kore/Log.h>
 #include <Kore/WinError.h>

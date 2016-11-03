@@ -1,5 +1,5 @@
-#import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
+#import <UIKit/UIKit.h>
 #ifdef SYS_METAL
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
@@ -14,18 +14,18 @@
 @interface GLView : UIView <UIKeyInput> {
 @private
 #ifdef SYS_METAL
-	id <MTLDevice> device;
-	id <MTLCommandQueue> commandQueue;
-	id <MTLCommandBuffer> commandBuffer;
-	id <MTLRenderCommandEncoder> commandEncoder;
-	id <CAMetalDrawable> drawable;
-	id <MTLLibrary> library;
+	id<MTLDevice> device;
+	id<MTLCommandQueue> commandQueue;
+	id<MTLCommandBuffer> commandBuffer;
+	id<MTLRenderCommandEncoder> commandEncoder;
+	id<CAMetalDrawable> drawable;
+	id<MTLLibrary> library;
 	MTLRenderPassDescriptor* renderPassDescriptor;
 #else
 	EAGLContext* context;
 	GLuint defaultFramebuffer, colorRenderbuffer, depthStencilRenderbuffer;
 #endif
-	
+
 #ifndef SYS_TVOS
 	CMMotionManager* motionManager;
 #endif
@@ -38,9 +38,9 @@
 - (void)showKeyboard;
 - (void)hideKeyboard;
 #ifdef SYS_METAL
-- (id <MTLDevice>)metalDevice;
-- (id <MTLLibrary>)metalLibrary;
-- (id <MTLRenderCommandEncoder>)metalEncoder;
+- (id<MTLDevice>)metalDevice;
+- (id<MTLLibrary>)metalLibrary;
+- (id<MTLRenderCommandEncoder>)metalEncoder;
 #endif
 
 @end

@@ -11,11 +11,12 @@ namespace Kore {
 		double start;
 		double videoStart;
 		double next;
-		//double audioTime;
+		// double audioTime;
 		unsigned long long audioTime;
 		bool playing;
 		VideoSoundStream* sound;
 		void load(double startTime);
+
 	public:
 		Video(const char* filename);
 		~Video();
@@ -25,8 +26,8 @@ namespace Kore {
 		int width();
 		int height();
 		Texture* currentImage();
-		double duration; //milliseconds
-		double position; //milliseconds
+		double duration; // milliseconds
+		double position; // milliseconds
 		bool finished;
 		bool paused;
 		void update(double time);
@@ -36,12 +37,13 @@ namespace Kore {
 		double lastTime;
 		int myWidth;
 		int myHeight;
+
 	private:
 		void video_write();
 		Kore::Image* videoImage;
 		FileReader* infile;
 
-        struct Impl;
-        Impl * impl;
+		struct Impl;
+		Impl* impl;
 	};
 }

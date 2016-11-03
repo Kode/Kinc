@@ -51,13 +51,13 @@ namespace {
 	}
 
 	void tryCallForegroundCallback() {
-		if(displayIsInitialized && appIsForeground) {
+		if (displayIsInitialized && appIsForeground) {
 			Kore::System::foregroundCallback();
 		}
 	}
 
 	void tryCallBackgroundCallback() {
-		if(!(displayIsInitialized && appIsForeground)) {
+		if (!(displayIsInitialized && appIsForeground)) {
 			Kore::System::backgroundCallback();
 		}
 	}

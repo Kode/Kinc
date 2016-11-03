@@ -14,6 +14,7 @@ namespace Kore {
 		id mtlBuffer;
 		int myCount;
 		int index;
+
 	public:
 		static IndexBuffer* current;
 	};

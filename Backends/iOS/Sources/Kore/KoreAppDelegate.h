@@ -2,8 +2,7 @@
 
 @class GLView;
 
-@interface KoreAppDelegate : NSObject<UIApplicationDelegate> {
-
+@interface KoreAppDelegate : NSObject <UIApplicationDelegate> {
 }
 
 @end

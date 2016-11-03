@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "TextureImpl.h"
 #include "Direct3D9.h"
+#include "TextureImpl.h"
 
 #include <Kore/WinError.h>
 

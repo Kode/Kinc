@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "Direct3D9.h"
 
 #include <Kore/Graphics/Shader.h>

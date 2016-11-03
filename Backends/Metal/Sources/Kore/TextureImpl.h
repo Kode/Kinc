@@ -10,11 +10,12 @@ namespace Kore {
 	public:
 		int index;
 	};
-	
+
 	class TextureImpl {
 	public:
 		~TextureImpl();
 		id tex;
+
 	protected:
 		void create(int width, int height);
 	};

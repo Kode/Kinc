@@ -9,5 +9,7 @@
 	"Backends/OpenGL2/Sources/GL/glew.h",
 	"Backends/OpenGL2/Sources/GL/glxew.h",
 	"Backends/OpenGL2/Sources/GL/wglew.h",
-	"Backends/Direct3D12/Sources/Kore/d3dx12.h"
+	"Backends/Direct3D12/Sources/Kore/d3dx12.h",
+	"Backends/Vulkan/Sources/vulkan/vk_platform.h",
+	"Backends/Vulkan/Sources/vulkan/vulkan.h"
 ]

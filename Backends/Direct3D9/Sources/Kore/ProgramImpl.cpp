@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "ProgramImpl.h"
 #include "Direct3D9.h"
+#include "ProgramImpl.h"
 
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Log.h>

@@ -1,41 +1,42 @@
 #include "pch.h"
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/System.h>
-#include <Kore/Math/Core.h>
-#include <Kore/Log.h>
+
 #include <Kore/Error.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <Kore/Graphics/Graphics.h>
+#include <Kore/Log.h>
+#include <Kore/Math/Core.h>
+#include <Kore/System.h>
+
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
 #include <vulkan/vulkan.h>
 
 using namespace Kore;
 
 #ifdef SYS_WINDOWS
-#define ERR_EXIT(err_msg, err_class)                                           \
-    do {                                                                       \
-        MessageBoxA(NULL, err_msg, err_class, MB_OK);                          \
-        exit(1);                                                               \
-    } while (0)
+#define ERR_EXIT(err_msg, err_class)                                                                                                                           \
+	do {                                                                                                                                                       \
+		MessageBoxA(NULL, err_msg, err_class, MB_OK);                                                                                                          \
+		exit(1);                                                                                                                                               \
+	} while (0)
 #else
-#define ERR_EXIT(err_msg, err_class)                                           \
-    do {                                                                       \
-        printf(err_msg);                                                       \
-        fflush(stdout);                                                        \
-        exit(1);                                                               \
-    } while (0)
+#define ERR_EXIT(err_msg, err_class)                                                                                                                           \
+	do {                                                                                                                                                       \
+		printf(err_msg);                                                                                                                                       \
+		fflush(stdout);                                                                                                                                        \
+		exit(1);                                                                                                                                               \
+	} while (0)
 #endif
 
-#define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                               \
-    {                                                                          \
-        fp##entrypoint =                                                       \
-            (PFN_vk##entrypoint)vkGetInstanceProcAddr(inst, "vk" #entrypoint); \
-        if (fp##entrypoint == NULL) {                                          \
-            ERR_EXIT("vkGetInstanceProcAddr failed to find vk" #entrypoint,    \
-                     "vkGetInstanceProcAddr Failure");                         \
-        }                                                                      \
-    }
+#define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                                                               \
+	{                                                                                                                                                          \
+		fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(inst, "vk" #entrypoint);                                                                    \
+		if (fp##entrypoint == NULL) {                                                                                                                          \
+			ERR_EXIT("vkGetInstanceProcAddr failed to find vk" #entrypoint, "vkGetInstanceProcAddr Failure");                                                  \
+		}                                                                                                                                                      \
+	}
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
@@ -75,8 +76,8 @@ struct DepthBuffer {
 
 DepthBuffer depth;
 
-Texture* vulkanTextures[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-RenderTarget* vulkanRenderTargets[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+Texture* vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+RenderTarget* vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 void createDescriptorLayout();
 void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
@@ -105,7 +106,7 @@ namespace {
 
 	VkInstance inst;
 	VkPhysicalDeviceProperties gpu_props;
-	VkQueueFamilyProperties *queue_props;
+	VkQueueFamilyProperties* queue_props;
 	uint32_t graphics_queue_node_index;
 
 	uint32_t enabled_extension_count;
@@ -131,7 +132,7 @@ namespace {
 	PFN_vkQueuePresentKHR fpQueuePresentKHR;
 	VkSwapchainKHR swapchain;
 
-	VkFramebuffer *framebuffers;
+	VkFramebuffer* framebuffers;
 
 	VkPhysicalDeviceMemoryProperties memory_properties;
 
@@ -165,7 +166,8 @@ namespace {
 		return 1;
 	}
 
-	VKAPI_ATTR VkBool32 VKAPI_CALL dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject, size_t location, int32_t msgCode, const char* pLayerPrefix, const char* pMsg, void* pUserData) {
+	VKAPI_ATTR VkBool32 VKAPI_CALL dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject, size_t location, int32_t msgCode,
+	                                       const char* pLayerPrefix, const char* pMsg, void* pUserData) {
 		if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
 			Kore::log(Kore::Error, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
 		}
@@ -179,7 +181,7 @@ namespace {
 		return realloc(pOriginal, size);
 	}
 
-	VKAPI_ATTR void* VKAPI_CALL myalloc(void *pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
+	VKAPI_ATTR void* VKAPI_CALL myalloc(void* pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
 #ifdef _MSC_VER
 		return _aligned_malloc(size, alignment);
 #else
@@ -261,7 +263,8 @@ namespace {
 			image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
 		}
 
-		vkCmdPipelineBarrier(setup_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
+		vkCmdPipelineBarrier(setup_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1,
+		                     &image_memory_barrier);
 	}
 
 	void demo_flush_init_cmd() {
@@ -272,8 +275,8 @@ namespace {
 		err = vkEndCommandBuffer(setup_cmd);
 		assert(!err);
 
-		const VkCommandBuffer cmd_bufs[] = { setup_cmd };
-		VkFence nullFence = { VK_NULL_HANDLE };
+		const VkCommandBuffer cmd_bufs[] = {setup_cmd};
+		VkFence nullFence = {VK_NULL_HANDLE};
 		VkSubmitInfo submit_info = {};
 		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submit_info.pNext = NULL;
@@ -302,18 +305,17 @@ namespace {
 	}
 
 	int getPower2(int i) {
-		for (int power = 0; ; ++power)
+		for (int power = 0;; ++power)
 			if (pow(power) >= i) return pow(power);
 	}
 }
 
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex) {
 	// Search memtypes to find first index with those properties
 	for (uint32_t i = 0; i < 32; i++) {
 		if ((typeBits & 1) == 1) {
 			// Type is available, does it match user properties?
-			if ((memory_properties.memoryTypes[i].propertyFlags &
-				requirements_mask) == requirements_mask) {
+			if ((memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
 				*typeIndex = i;
 				return true;
 			}
@@ -324,29 +326,20 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 	return false;
 }
 
-void Graphics::destroy(int windowId) {
-
-}
+void Graphics::destroy(int windowId) {}
 
 #if defined(SYS_WINDOWS)
-void Graphics::setup() {
-}
+void Graphics::setup() {}
 #endif
 
-void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
-
-}
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {}
 
 #if defined(SYS_WINDOWS)
-void Graphics::clearCurrent() {
-
-}
+void Graphics::clearCurrent() {}
 #endif
 
 #if defined(SYS_WINDOWS)
-void Graphics::makeCurrent(int contextId) {
-
-}
+void Graphics::makeCurrent(int contextId) {}
 #endif
 
 void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
@@ -355,20 +348,18 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifdef VALIDATE
 	uint32_t device_validation_layer_count = 0;
 #endif
-	//demo->enabled_extension_count = 0;
-	//demo->enabled_layer_count = 0;
+// demo->enabled_extension_count = 0;
+// demo->enabled_layer_count = 0;
 
 #ifdef VALIDATE
-	char* instance_validation_layers[] = {
-		//"VK_LAYER_LUNARG_mem_tracker",
-		//"VK_LAYER_GOOGLE_unique_objects",
-		"VK_LAYER_LUNARG_standard_validation"
-	};
+	char* instance_validation_layers[] = {//"VK_LAYER_LUNARG_mem_tracker",
+	                                      //"VK_LAYER_GOOGLE_unique_objects",
+	                                      "VK_LAYER_LUNARG_standard_validation"};
 #endif
 
 #ifdef VALIDATE
-	//device_validation_layers[0] = "VK_LAYER_LUNARG_mem_tracker";
-	//device_validation_layers[1] = "VK_LAYER_GOOGLE_unique_objects";
+	// device_validation_layers[0] = "VK_LAYER_LUNARG_mem_tracker";
+	// device_validation_layers[1] = "VK_LAYER_GOOGLE_unique_objects";
 	device_validation_layers[0] = "VK_LAYER_LUNARG_standard_validation";
 	device_validation_layer_count = 1;
 #endif
@@ -383,11 +374,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		assert(!err);
 
 #ifdef VALIDATE
-			validation_found = demo_check_layers(
-				ARRAY_SIZE(instance_validation_layers),
-				instance_validation_layers, instance_layer_count,
-				instance_layers);
-			enabled_layer_count = ARRAY_SIZE(instance_validation_layers);
+		validation_found = demo_check_layers(ARRAY_SIZE(instance_validation_layers), instance_validation_layers, instance_layer_count, instance_layers);
+		enabled_layer_count = ARRAY_SIZE(instance_validation_layers);
 #endif
 		free(instance_layers);
 	}
@@ -395,10 +383,10 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifdef VALIDATE
 	if (!validation_found) {
 		ERR_EXIT("vkEnumerateInstanceLayerProperties failed to find"
-			"required validation layer.\n\n"
-			"Please look at the Getting Started guide for additional "
-			"information.\n",
-			"vkCreateInstance Failure");
+		         "required validation layer.\n\n"
+		         "Please look at the Getting Started guide for additional "
+		         "information.\n",
+		         "vkCreateInstance Failure");
 	}
 #endif
 
@@ -417,25 +405,23 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		for (uint32_t i = 0; i < instance_extension_count; i++) {
 			if (!strcmp(VK_KHR_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
 				surfaceExtFound = 1;
-				extension_names[enabled_extension_count++] =
-					VK_KHR_SURFACE_EXTENSION_NAME;
+				extension_names[enabled_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
 			}
 #ifdef SYS_WINDOWS
 			if (!strcmp(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
 				platformSurfaceExtFound = 1;
-				extension_names[enabled_extension_count++] =
-					VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
+				extension_names[enabled_extension_count++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 			}
 #else
 			if (!strcmp(VK_KHR_XCB_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
-                platformSurfaceExtFound = 1;
-                extension_names[enabled_extension_count++] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
-            }
+				platformSurfaceExtFound = 1;
+				extension_names[enabled_extension_count++] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
+			}
 #endif
 
 			if (!strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName)) {
 #ifdef VALIDATE
-					extension_names[enabled_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
+				extension_names[enabled_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
 #endif
 			}
 			assert(enabled_extension_count < 64);
@@ -446,30 +432,27 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 	if (!surfaceExtFound) {
 		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
-			"the " VK_KHR_SURFACE_EXTENSION_NAME
-			" extension.\n\nDo you have a compatible "
-			"Vulkan installable client driver (ICD) installed?\nPlease "
-			"look at the Getting Started guide for additional "
-			"information.\n",
-			"vkCreateInstance Failure");
+		         "the " VK_KHR_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
+		         "Vulkan installable client driver (ICD) installed?\nPlease "
+		         "look at the Getting Started guide for additional "
+		         "information.\n",
+		         "vkCreateInstance Failure");
 	}
 	if (!platformSurfaceExtFound) {
 #ifdef SYS_WINDOWS
 		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
-			"the " VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-			" extension.\n\nDo you have a compatible "
-			"Vulkan installable client driver (ICD) installed?\nPlease "
-			"look at the Getting Started guide for additional "
-			"information.\n",
-			"vkCreateInstance Failure");
+		         "the " VK_KHR_WIN32_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
+		         "Vulkan installable client driver (ICD) installed?\nPlease "
+		         "look at the Getting Started guide for additional "
+		         "information.\n",
+		         "vkCreateInstance Failure");
 #else
-        ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
-                 "the " VK_KHR_XCB_SURFACE_EXTENSION_NAME
-                 " extension.\n\nDo you have a compatible "
-                 "Vulkan installable client driver (ICD) installed?\nPlease "
-                 "look at the Getting Started guide for additional "
-                 "information.\n",
-                 "vkCreateInstance Failure");
+		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
+		         "the " VK_KHR_XCB_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
+		         "Vulkan installable client driver (ICD) installed?\nPlease "
+		         "look at the Getting Started guide for additional "
+		         "information.\n",
+		         "vkCreateInstance Failure");
 #endif
 	}
 	VkApplicationInfo app = {};
@@ -479,7 +462,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	app.applicationVersion = 0;
 	app.pEngineName = "Kore";
 	app.engineVersion = 0;
-	app.apiVersion = VK_MAKE_VERSION(1, 0, 3); //VK_API_VERSION;
+	app.apiVersion = VK_MAKE_VERSION(1, 0, 3); // VK_API_VERSION;
 
 	VkInstanceCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -487,13 +470,13 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	info.pApplicationInfo = &app;
 #ifdef VALIDATE
 	info.enabledLayerCount = enabled_layer_count;
-	info.ppEnabledLayerNames = (const char *const *)instance_validation_layers;
+	info.ppEnabledLayerNames = (const char* const*)instance_validation_layers;
 #else
 	info.enabledLayerCount = 0;
 	info.ppEnabledLayerNames = nullptr;
 #endif
 	info.enabledExtensionCount = enabled_extension_count;
-	info.ppEnabledExtensionNames = (const char *const *)extension_names;
+	info.ppEnabledExtensionNames = (const char* const*)extension_names;
 
 	uint32_t gpu_count;
 
@@ -504,20 +487,20 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	err = vkCreateInstance(&info, &allocator, &inst);
 	if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
 		ERR_EXIT("Cannot find a compatible Vulkan installable client driver "
-			"(ICD).\n\nPlease look at the Getting Started guide for "
-			"additional information.\n",
-			"vkCreateInstance Failure");
+		         "(ICD).\n\nPlease look at the Getting Started guide for "
+		         "additional information.\n",
+		         "vkCreateInstance Failure");
 	}
 	else if (err == VK_ERROR_EXTENSION_NOT_PRESENT) {
 		ERR_EXIT("Cannot find a specified extension library"
-			".\nMake sure your layers path is set appropriately\n",
-			"vkCreateInstance Failure");
+		         ".\nMake sure your layers path is set appropriately\n",
+		         "vkCreateInstance Failure");
 	}
 	else if (err) {
 		ERR_EXIT("vkCreateInstance failed.\n\nDo you have a compatible Vulkan "
-			"installable client driver (ICD) installed?\nPlease look at "
-			"the Getting Started guide for additional information.\n",
-			"vkCreateInstance Failure");
+		         "installable client driver (ICD) installed?\nPlease look at "
+		         "the Getting Started guide for additional information.\n",
+		         "vkCreateInstance Failure");
 	}
 
 	/* Make initial call to query gpu_count, then second call for gpu info*/
@@ -534,10 +517,10 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	}
 	else {
 		ERR_EXIT("vkEnumeratePhysicalDevices reported zero accessible devices."
-			"\n\nDo you have a compatible Vulkan installable client"
-			" driver (ICD) installed?\nPlease look at the Getting Started"
-			" guide for additional information.\n",
-			"vkEnumeratePhysicalDevices Failure");
+		         "\n\nDo you have a compatible Vulkan installable client"
+		         " driver (ICD) installed?\nPlease look at the Getting Started"
+		         " guide for additional information.\n",
+		         "vkEnumeratePhysicalDevices Failure");
 	}
 
 	/* Look for validation layers */
@@ -555,11 +538,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		assert(!err);
 
 #ifdef VALIDATE
-			validation_found = demo_check_layers(device_validation_layer_count,
-				device_validation_layers,
-				device_layer_count,
-				device_layers);
-			enabled_layer_count = device_validation_layer_count;
+		validation_found = demo_check_layers(device_validation_layer_count, device_validation_layers, device_layer_count, device_layers);
+		enabled_layer_count = device_validation_layer_count;
 #endif
 
 		free(device_layers);
@@ -568,10 +548,10 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifdef VALIDATE
 	if (!validation_found) {
 		ERR_EXIT("vkEnumerateDeviceLayerProperties failed to find "
-			"a required validation layer.\n\n"
-			"Please look at the Getting Started guide for additional "
-			"information.\n",
-			"vkCreateDevice Failure");
+		         "a required validation layer.\n\n"
+		         "Please look at the Getting Started guide for additional "
+		         "information.\n",
+		         "vkCreateDevice Failure");
 	}
 #endif
 
@@ -581,8 +561,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	enabled_extension_count = 0;
 	memset(extension_names, 0, sizeof(extension_names));
 
-	err = vkEnumerateDeviceExtensionProperties(gpu, NULL,
-		&device_extension_count, NULL);
+	err = vkEnumerateDeviceExtensionProperties(gpu, NULL, &device_extension_count, NULL);
 	assert(!err);
 
 	if (device_extension_count > 0) {
@@ -591,11 +570,9 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		assert(!err);
 
 		for (uint32_t i = 0; i < device_extension_count; i++) {
-			if (!strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-				device_extensions[i].extensionName)) {
+			if (!strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME, device_extensions[i].extensionName)) {
 				swapchainExtFound = 1;
-				extension_names[enabled_extension_count++] =
-					VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+				extension_names[enabled_extension_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 			}
 			assert(enabled_extension_count < 64);
 		}
@@ -605,37 +582,35 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 	if (!swapchainExtFound) {
 		ERR_EXIT("vkEnumerateDeviceExtensionProperties failed to find "
-			"the " VK_KHR_SWAPCHAIN_EXTENSION_NAME
-			" extension.\n\nDo you have a compatible "
-			"Vulkan installable client driver (ICD) installed?\nPlease "
-			"look at the Getting Started guide for additional "
-			"information.\n",
-			"vkCreateInstance Failure");
+		         "the " VK_KHR_SWAPCHAIN_EXTENSION_NAME " extension.\n\nDo you have a compatible "
+		         "Vulkan installable client driver (ICD) installed?\nPlease "
+		         "look at the Getting Started guide for additional "
+		         "information.\n",
+		         "vkCreateInstance Failure");
 	}
 
 #ifdef VALIDATE
-		CreateDebugReportCallback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(inst, "vkCreateDebugReportCallbackEXT");
-		if (!CreateDebugReportCallback) {
-			ERR_EXIT("GetProcAddr: Unable to find vkCreateDebugReportCallbackEXT\n", "vkGetProcAddr Failure");
-		}
-		VkDebugReportCallbackCreateInfoEXT dbgCreateInfo = {};
-		dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-		dbgCreateInfo.flags =
-			VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-		dbgCreateInfo.pfnCallback = dbgFunc;
-		dbgCreateInfo.pUserData = NULL;
-		dbgCreateInfo.pNext = NULL;
-		err = CreateDebugReportCallback(inst, &dbgCreateInfo, NULL, &msg_callback);
-		switch (err) {
-		case VK_SUCCESS:
-			break;
-		case VK_ERROR_OUT_OF_HOST_MEMORY:
-			ERR_EXIT("CreateDebugReportCallback: out of host memory\n", "CreateDebugReportCallback Failure");
-			break;
-		default:
-			ERR_EXIT("CreateDebugReportCallback: unknown failure\n", "CreateDebugReportCallback Failure");
-			break;
-		}
+	CreateDebugReportCallback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(inst, "vkCreateDebugReportCallbackEXT");
+	if (!CreateDebugReportCallback) {
+		ERR_EXIT("GetProcAddr: Unable to find vkCreateDebugReportCallbackEXT\n", "vkGetProcAddr Failure");
+	}
+	VkDebugReportCallbackCreateInfoEXT dbgCreateInfo = {};
+	dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+	dbgCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+	dbgCreateInfo.pfnCallback = dbgFunc;
+	dbgCreateInfo.pUserData = NULL;
+	dbgCreateInfo.pNext = NULL;
+	err = CreateDebugReportCallback(inst, &dbgCreateInfo, NULL, &msg_callback);
+	switch (err) {
+	case VK_SUCCESS:
+		break;
+	case VK_ERROR_OUT_OF_HOST_MEMORY:
+		ERR_EXIT("CreateDebugReportCallback: out of host memory\n", "CreateDebugReportCallback Failure");
+		break;
+	default:
+		ERR_EXIT("CreateDebugReportCallback: unknown failure\n", "CreateDebugReportCallback Failure");
+		break;
+	}
 #endif
 
 	// Having these GIPA queries of device extension entry points both
@@ -668,7 +643,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	windowHandle = (HWND)System::windowHandle(windowId);
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
-	SetFocus(windowHandle); // Sets Keyboard Focus To The Window
+	SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
 #endif
 
 	{
@@ -684,18 +659,17 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		err = vkCreateWin32SurfaceKHR(inst, &createInfo, NULL, &surface);
 		assert(!err);
 #else
-        VkXcbSurfaceCreateInfoKHR createInfo;
-        createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-        createInfo.pNext = nullptr;
-        createInfo.flags = 0;
-        createInfo.connection = connection;
-        createInfo.window = window;
-        err = vkCreateXcbSurfaceKHR(inst, &createInfo, nullptr, &surface);
-        assert(!err);
+		VkXcbSurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+		createInfo.pNext = nullptr;
+		createInfo.flags = 0;
+		createInfo.connection = connection;
+		createInfo.window = window;
+		err = vkCreateXcbSurfaceKHR(inst, &createInfo, nullptr, &surface);
+		assert(!err);
 #endif
 		// Iterate over each queue to learn whether it supports presenting:
-		VkBool32 *supportsPresent =
-			(VkBool32 *)malloc(queue_count * sizeof(VkBool32));
+		VkBool32* supportsPresent = (VkBool32*)malloc(queue_count * sizeof(VkBool32));
 		for (i = 0; i < queue_count; i++) {
 			fpGetPhysicalDeviceSurfaceSupportKHR(gpu, i, surface, &supportsPresent[i]);
 		}
@@ -730,10 +704,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		free(supportsPresent);
 
 		// Generate error if could not find both a graphics and a present queue
-		if (graphicsQueueNodeIndex == UINT32_MAX ||
-			presentQueueNodeIndex == UINT32_MAX) {
-			ERR_EXIT("Could not find a graphics and a present queue\n",
-				"Swapchain Initialization Failure");
+		if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX) {
+			ERR_EXIT("Could not find a graphics and a present queue\n", "Swapchain Initialization Failure");
 		}
 
 		// TODO: Add support for separate queues, including presentation,
@@ -742,14 +714,13 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		//       and a present queues, this demo program assumes it is only using
 		//       one:
 		if (graphicsQueueNodeIndex != presentQueueNodeIndex) {
-			ERR_EXIT("Could not find a common graphics and a present queue\n",
-				"Swapchain Initialization Failure");
+			ERR_EXIT("Could not find a common graphics and a present queue\n", "Swapchain Initialization Failure");
 		}
 
 		graphics_queue_node_index = graphicsQueueNodeIndex;
 
 		{
-			float queue_priorities[1] = { 0.0 };
+			float queue_priorities[1] = {0.0};
 			VkDeviceQueueCreateInfo queue = {};
 			queue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queue.pNext = nullptr;
@@ -764,13 +735,13 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 			deviceinfo.pQueueCreateInfos = &queue;
 #ifdef VALIDATE
 			deviceinfo.enabledLayerCount = enabled_layer_count;
-			deviceinfo.ppEnabledLayerNames = (const char *const *)device_validation_layers;
+			deviceinfo.ppEnabledLayerNames = (const char* const*)device_validation_layers;
 #else
 			deviceinfo.enabledLayerCount = 0;
 			deviceinfo.ppEnabledLayerNames = nullptr;
 #endif
 			deviceinfo.enabledExtensionCount = enabled_extension_count;
-			deviceinfo.ppEnabledExtensionNames = (const char *const *)extension_names;
+			deviceinfo.ppEnabledExtensionNames = (const char* const*)extension_names;
 
 			err = vkCreateDevice(gpu, &deviceinfo, nullptr, &device);
 			assert(!err);
@@ -856,15 +827,13 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	// own only 1 image at a time, besides the images being displayed and
 	// queued for display):
 	uint32_t desiredNumberOfSwapchainImages = surfCapabilities.minImageCount + 1;
-	if ((surfCapabilities.maxImageCount > 0) &&
-		(desiredNumberOfSwapchainImages > surfCapabilities.maxImageCount)) {
+	if ((surfCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfCapabilities.maxImageCount)) {
 		// Application must settle for fewer images than desired:
 		desiredNumberOfSwapchainImages = surfCapabilities.maxImageCount;
 	}
 
 	VkSurfaceTransformFlagBitsKHR preTransform = {};
-	if (surfCapabilities.supportedTransforms &
-		VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
+	if (surfCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
 		preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 	}
 	else {
@@ -912,7 +881,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
 	assert(!err);
 
-	buffers = (SwapchainBuffers *)malloc(sizeof(SwapchainBuffers) * swapchainImageCount);
+	buffers = (SwapchainBuffers*)malloc(sizeof(SwapchainBuffers) * swapchainImageCount);
 	assert(buffers);
 
 	for (i = 0; i < swapchainImageCount; i++) {
@@ -1111,7 +1080,7 @@ bool Graphics::vsynced() {
 	return false;
 }
 
-//void* Graphics::getControl() {
+// void* Graphics::getControl() {
 //	return nullptr;
 //}
 
@@ -1251,16 +1220,12 @@ void Graphics::drawIndexedVertices(int start, int count) {
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
-	//drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
+	// drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
 
-}
-
-void Graphics::swapBuffers(int contextId) {
-
-}
+void Graphics::swapBuffers(int contextId) {}
 
 void Graphics::begin(int contextId) {
 	if (began) return;
@@ -1275,12 +1240,12 @@ void Graphics::begin(int contextId) {
 
 	// Get the index of the next available swapchain image:
 	err = fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
-		&current_buffer);
+	                            &current_buffer);
 	if (err == VK_ERROR_OUT_OF_DATE_KHR) {
 		// demo->swapchain is out of date (e.g. the window was resized) and
 		// must be recreated:
-		//demo_resize(demo);
-		//demo_draw(demo);
+		// demo_resize(demo);
+		// demo_draw(demo);
 		error("VK_ERROR_OUT_OF_DATE_KHR");
 		vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
 		return;
@@ -1359,21 +1324,14 @@ void Graphics::begin(int contextId) {
 	onBackBuffer = true;
 }
 
-void Graphics::viewport(int x, int y, int width, int height) {
+void Graphics::viewport(int x, int y, int width, int height) {}
 
-}
+void Graphics::scissor(int x, int y, int width, int height) {}
 
-void Graphics::scissor(int x, int y, int width, int height) {
+void Graphics::disableScissor() {}
 
-}
-
-void Graphics::disableScissor() {
-
-}
-
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
-
-}
+void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+                                    int readMask, int writeMask) {}
 
 void Graphics::end(int windowId) {
 	vkCmdEndRenderPass(draw_cmd);
@@ -1387,10 +1345,10 @@ void Graphics::end(int windowId) {
 	prePresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 	prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	prePresentBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
 	prePresentBarrier.image = buffers[current_buffer].image;
-	VkImageMemoryBarrier *pmemory_barrier = &prePresentBarrier;
+	VkImageMemoryBarrier* pmemory_barrier = &prePresentBarrier;
 	vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
 
 	VkResult err = vkEndCommandBuffer(draw_cmd);
@@ -1424,7 +1382,7 @@ void Graphics::end(int windowId) {
 	if (err == VK_ERROR_OUT_OF_DATE_KHR) {
 		// demo->swapchain is out of date (e.g. the window was resized) and
 		// must be recreated:
-		//demo_resize(demo);
+		// demo_resize(demo);
 		error("VK_ERROR_OUT_OF_DATE_KHR");
 	}
 	else if (err == VK_SUBOPTIMAL_KHR) {
@@ -1467,13 +1425,9 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	vkCmdClearColorImage(draw_cmd, buffers[current_buffer].image, VK_IMAGE_LAYOUT_GENERAL, &clearColor, 1, &range);*/
 }
 
-void Graphics::setRenderState(RenderState state, bool on) {
+void Graphics::setRenderState(RenderState state, bool on) {}
 
-}
-
-void Graphics::setRenderState(RenderState state, int v) {
-
-}
+void Graphics::setRenderState(RenderState state, int v) {}
 
 void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 	vertexBuffers[0]->_set();
@@ -1486,32 +1440,21 @@ void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	vulkanTextures[unit.binding - 2] = texture;
 	vulkanRenderTargets[unit.binding - 2] = nullptr;
-	if (ProgramImpl::current != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
+	if (ProgramImpl::current != nullptr)
+		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
-void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
-}
+void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-}
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
-void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
-}
-
-void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-
-}
-
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
-
-}
-
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-
-}
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
 void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 
@@ -1537,8 +1480,10 @@ namespace {
 			vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
 		}
 		else {
-			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+			               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 			VkImageBlit imgBlit;
 
@@ -1547,7 +1492,7 @@ namespace {
 			imgBlit.srcSubresource.baseArrayLayer = 0;
 			imgBlit.srcSubresource.layerCount = 1;
 
-			imgBlit.srcOffsets[0] = { 0, 0, 0 };
+			imgBlit.srcOffsets[0] = {0, 0, 0};
 			imgBlit.srcOffsets[1].x = currentRenderTarget->width;
 			imgBlit.srcOffsets[1].y = currentRenderTarget->height;
 			imgBlit.srcOffsets[1].z = 1;
@@ -1557,15 +1502,18 @@ namespace {
 			imgBlit.dstSubresource.baseArrayLayer = 0;
 			imgBlit.dstSubresource.layerCount = 1;
 
-			imgBlit.dstOffsets[0] = { 0, 0, 0 };
+			imgBlit.dstOffsets[0] = {0, 0, 0};
 			imgBlit.dstOffsets[1].x = currentRenderTarget->width;
 			imgBlit.dstOffsets[1].y = currentRenderTarget->height;
 			imgBlit.dstOffsets[1].z = 1;
 
-			vkCmdBlitImage(draw_cmd, currentRenderTarget->sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTarget->destImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
+			vkCmdBlitImage(draw_cmd, currentRenderTarget->sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTarget->destImage,
+			               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
 
-			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 
 		/*VkResult err = vkEndCommandBuffer(draw_cmd);
@@ -1729,6 +1677,4 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics::flush() {
-
-}
+void Graphics::flush() {}
