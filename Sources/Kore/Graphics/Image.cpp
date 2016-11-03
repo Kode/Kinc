@@ -5,6 +5,8 @@
 
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/IO/FileReader.h>
+#include <Kore/IO/BufferReader.h>
+#include <Kore/IO/Reader.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <stdio.h>
@@ -13,6 +15,10 @@
 using namespace Kore;
 
 namespace {
+	void* nullfilenameData = nullptr;
+	int nullfilenameDataSize = 0;
+	char const* nullfilenameFilename = nullptr;
+
 	bool endsWith(const char* str, const char* suffix) {
 		if (!str || !suffix) return 0;
 		size_t lenstr = strlen(str);
@@ -45,8 +51,25 @@ Image::Image(int width, int height, int depth, Format format, bool readable) : w
 }
 
 Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
+
+	Reader* readerPtr;
+	
+	if (filename != nullptr) {
+		readerPtr = new FileReader(filename);
+	}
+	else {
+		if (nullfilenameData == nullptr) {
+			// TODO something instead of throw?
+			throw "Filename is null. setNullFilenameData()?";
+		}
+		filename = nullfilenameFilename;
+		readerPtr = new BufferReader(nullfilenameData, nullfilenameDataSize);
+		nullfilenameData = nullptr;
+		nullfilenameFilename = nullptr;
+	}
+
 	printf("Image %s\n", filename);
-	FileReader file(filename);
+	Reader &file = *readerPtr;
 	if (endsWith(filename, ".k")) {
 		u8* data = (u8*)file.readAll();
 		width = Reader::readS32LE(data + 0);
@@ -176,6 +199,8 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
 		dataSize = width * height * 4;
 	}
+
+	delete readerPtr;
 }
 
 Image::~Image() {
@@ -196,4 +221,14 @@ int Image::at(int x, int y) {
 		return 0;
 	else
 		return *(int*)&((u8*)data)[width * sizeOf(format) * y + x * sizeOf(format)];
+}
+
+void Image::setNullFilenameData(void* fileData, int fileSize, const char* filename) {
+	if (nullfilenameData != nullptr) {
+		// TODO something instead of throw?
+		throw "Already have nullfilenameData. Always call Image::Image(filename) with filename==null immidiately after call to setNullFilenameData."; 
+	}
+	nullfilenameData = fileData;
+	nullfilenameDataSize = fileSize;
+	nullfilenameFilename = filename;
 }

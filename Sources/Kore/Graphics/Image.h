@@ -21,5 +21,9 @@ namespace Kore {
 		float* hdrData;
 		int dataSize;
 		unsigned internalFormat;
+
+		//set data that will be used if Image(filename) constructor will be called with filename==null 
+		//this data will be used once and then forgotten. it should be used immidiately.
+		static void setNullFilenameData(void* fileData, int fileSize, const char* filename);
 	};
 }
