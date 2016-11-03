@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "Mixer.h"
 #include "Audio.h"
+#include "Mixer.h"
 
 #include <Kore/Math/Core.h>
 #include <Kore/Threads/Mutex.h>

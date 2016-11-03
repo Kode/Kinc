@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "Image.h"
 #include "../IO/snappy/snappy.h"
+#include "Image.h"
 
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/IO/FileReader.h>

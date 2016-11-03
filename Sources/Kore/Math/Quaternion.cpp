@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "Quaternion.h"
 #include "Core.h"
+#include "Quaternion.h"
 
 using namespace Kore;
 

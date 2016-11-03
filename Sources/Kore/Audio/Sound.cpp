@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "Sound.h"
 #include "Audio.h"
+#include "Sound.h"
 
 #include "stb_vorbis.h"
 #include <Kore/Error.h>

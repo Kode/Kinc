@@ -1,8 +1,9 @@
 #include "pch.h"
 
 #include "Graphics2.h"
-#include <Kore/Simd/float32x4.h>
+
 #include <Kore/IO/FileReader.h>
+#include <Kore/Simd/float32x4.h>
 #include <string.h>
 
 using namespace Kore;

@@ -11,5 +11,14 @@
 	"Backends/OpenGL2/Sources/GL/wglew.h",
 	"Backends/Direct3D12/Sources/Kore/d3dx12.h",
 	"Backends/Vulkan/Sources/vulkan/vk_platform.h",
-	"Backends/Vulkan/Sources/vulkan/vulkan.h"
+	"Backends/Vulkan/Sources/vulkan/vulkan.h",
+	"Sources/Kore/Audio/stb_vorbis.cpp",
+	"Sources/Kore/Audio/stb_vorbis.h",
+	"Sources/Kore/Graphics/stb_image.h",
+	"Sources/Kore/IO/snappy/snappy-c.h",
+	"Sources/Kore/IO/snappy/snappy-internal.h",
+	"Sources/Kore/IO/snappy/snappy-sinksource.h",
+	"Sources/Kore/IO/snappy/snappy-stubs-internal.h",
+	"Sources/Kore/IO/snappy/snappy-stubs-public.h",
+	"Sources/Kore/IO/snappy/snappy.h"
 ]
