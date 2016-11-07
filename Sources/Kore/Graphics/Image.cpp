@@ -59,7 +59,6 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 	}
 	else {
 		if (nullfilenameData == nullptr) {
-			// TODO something instead of throw?
 			throw "Filename is null. setNullFilenameData()?";
 		}
 		filename = nullfilenameFilename;
@@ -85,6 +84,9 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 			snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
 			this->data = (u8*)malloc(length);
 			snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
+		}
+		else {
+			throw "fourcc != \"SNAP\" in .k file";
 		}
 	}
 	else if (endsWith(filename, ".pvr")) {
@@ -166,6 +168,9 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		compressed = false;
 		internalFormat = 0;
 		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		if (data == nullptr) {
+			throw stbi_failure_reason();
+		}
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
 				float r = data[y * width * 4 + x * 4 + 0] / 255.0f;
@@ -188,6 +193,9 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		compressed = false;
 		internalFormat = 0;
 		hdrData = stbi_loadf_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		if (hdrData == nullptr) {
+			throw stbi_failure_reason();
+		}
 		dataSize = width * height * 16;
 		format = RGBA128;
 	}
@@ -197,6 +205,9 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		compressed = false;
 		internalFormat = 0;
 		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		if (data == nullptr) {
+			throw stbi_failure_reason();
+		}
 		dataSize = width * height * 4;
 	}
 
@@ -225,7 +236,6 @@ int Image::at(int x, int y) {
 
 void Image::setNullFilenameData(void* fileData, int fileSize, const char* filename) {
 	if (nullfilenameData != nullptr) {
-		// TODO something instead of throw?
 		throw "Already have nullfilenameData. Always call Image::Image(filename) with filename==null immidiately after call to setNullFilenameData."; 
 	}
 	nullfilenameData = fileData;
