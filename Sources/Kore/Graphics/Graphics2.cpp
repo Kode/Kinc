@@ -10,7 +10,7 @@ using namespace Kore;
 //==========
 // ImageShaderPainter
 //==========
-ImageShaderPainter::ImageShaderPainter() : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false), shaderPipeline(nullptr) {
+ImageShaderPainter::ImageShaderPainter() : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false), shaderPipeline(nullptr), lastTexture(nullptr) {
     initShaders();
     initBuffers();
 }
