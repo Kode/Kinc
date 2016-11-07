@@ -102,17 +102,17 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		u32 numFaces = file.readU32LE();
 		u32 mipMapCount = file.readU32LE();
 		u32 metaDataSize = file.readU32LE();
-		
+
 		u32 meta1fourcc = file.readU32LE();
 		u32 meta1key = file.readU32LE();
 		u32 meta1size = file.readU32LE();
 		u32 meta1data = file.readU32LE();
-		
+
 		u32 meta2fourcc = file.readU32LE();
 		u32 meta2key = file.readU32LE();
 		u32 meta2size = file.readU32LE();
 		u32 meta2data = file.readU32LE();
-		
+
 		int w = 0;
 		int h = 0;
 
@@ -125,7 +125,7 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		this->height = h;
 		compressed = true;
 		internalFormat = 0;
-		
+
 		u8* all = (u8*)file.readAll();
 		dataSize = width * height / 2;
 		data = new u8[dataSize];
@@ -135,27 +135,27 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 	}
 	else if (endsWith(filename, ".astc")) {
 		u32 magic = file.readU32LE();
-    	u8 blockdim_x = file.readU8();
-    	u8 blockdim_y = file.readU8();
-    	u8 blockdim_z = file.readU8();
-    	internalFormat = (blockdim_x << 8) + blockdim_y;
-    	u8 xsize[4];
-    	xsize[0] = file.readU8();
-    	xsize[1] = file.readU8();
-    	xsize[2] = file.readU8();
-    	xsize[3] = 0;
-    	this->width = *(unsigned*)&xsize[0];
-    	u8 ysize[4];
-    	ysize[0] = file.readU8();
-    	ysize[1] = file.readU8();
-    	ysize[2] = file.readU8();
-    	ysize[3] = 0;
-    	this->height = *(unsigned*)&ysize[0];
-    	u8 zsize[3];
-    	zsize[0] = file.readU8();
-    	zsize[1] = file.readU8();
-    	zsize[2] = file.readU8();
-    	u8* all = (u8*)file.readAll();
+		u8 blockdim_x = file.readU8();
+		u8 blockdim_y = file.readU8();
+		u8 blockdim_z = file.readU8();
+		internalFormat = (blockdim_x << 8) + blockdim_y;
+		u8 xsize[4];
+		xsize[0] = file.readU8();
+		xsize[1] = file.readU8();
+		xsize[2] = file.readU8();
+		xsize[3] = 0;
+		this->width = *(unsigned*)&xsize[0];
+		u8 ysize[4];
+		ysize[0] = file.readU8();
+		ysize[1] = file.readU8();
+		ysize[2] = file.readU8();
+		ysize[3] = 0;
+		this->height = *(unsigned*)&ysize[0];
+		u8 zsize[3];
+		zsize[0] = file.readU8();
+		zsize[1] = file.readU8();
+		zsize[2] = file.readU8();
+		u8* all = (u8*)file.readAll();
 		dataSize = file.size() - 16;
 		data = new u8[dataSize];
 		for (int i = 0; i < dataSize; ++i) {
