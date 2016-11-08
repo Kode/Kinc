@@ -8,7 +8,21 @@
 using namespace Kore;
 
 HIDManager::HIDManager() : managerRef(0x0) {
+    gamepadList = new HIDGamepad*[2]; // TODO:
     initHIDManager();
+}
+
+HIDManager::~HIDManager() {
+    
+    if (managerRef) {
+        IOHIDManagerClose(managerRef, kIOHIDOptionsTypeNone);
+        IOHIDManagerUnscheduleFromRunLoop(managerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        
+        // Unregister
+        //IOHIDManagerRegisterInputValueCallback(managerRef, NULL, this);
+        //IOHIDManagerRegisterDeviceMatchingCallback(managerRef, NULL, this);
+        //IOHIDManagerRegisterDeviceRemovalCallback(managerRef, NULL, this);
+    }
 }
 
 int HIDManager::initHIDManager() {
@@ -106,7 +120,11 @@ void HIDManager::deviceConnected(void *inContext, IOReturn inResult, void *inSen
     
     HIDGamepad* hidDevice = new HIDGamepad(inIOHIDDeviceRef);
     // TODO: create a list of all gamepads
-    
+    //addNewDevice(hidDevice);
+}
+
+void HIDManager::addNewDevice(HIDGamepad hidDevice) {
+    gamepadList[0] = &hidDevice;
 }
 
 // This will be called when a HID device is removed (unplugged)
@@ -114,15 +132,3 @@ void HIDManager::deviceRemoved(void *inContext, IOReturn inResult, void *inSende
     log(Info, "HID device removed");
 }
 
-HIDManager::~HIDManager() {
-    
-    if (managerRef) {
-        IOHIDManagerClose(managerRef, kIOHIDOptionsTypeNone);
-        IOHIDManagerUnscheduleFromRunLoop(managerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-        
-        // Unregister
-        //IOHIDManagerRegisterInputValueCallback(managerRef, NULL, this);
-        //IOHIDManagerRegisterDeviceMatchingCallback(managerRef, NULL, this);
-        //IOHIDManagerRegisterDeviceRemovalCallback(managerRef, NULL, this);
-    }
-}

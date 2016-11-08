@@ -2,6 +2,7 @@
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/System.h>
 #include <Kore/Input/Keyboard.h>
+#include <Kore/Input/HIDManager.h>
 #include <Kore/Log.h>
 #import <Cocoa/Cocoa.h>
 #import "BasicOpenGLView.h"
@@ -36,6 +37,7 @@ namespace {
 //	NSWindow* window;
 	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
+    HIDManager* hidManager;
     
     struct KoreWindow : public KoreWindowBase {
         NSWindow* handle;
@@ -193,6 +195,7 @@ void kore(int, char **);
 - (void)run {
 	@autoreleasepool {
 		[self finishLaunching];
+        hidManager = new HIDManager();
 		//try {
 			kore(argc, argv);
 		//}

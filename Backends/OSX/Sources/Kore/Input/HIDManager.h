@@ -3,7 +3,6 @@
 #include <IOKit/hid/IOHIDManager.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
-//#include <CoreFoundation/CoreFoundation.h>
 
 #include "HIDGamepad.h"
 
@@ -13,6 +12,8 @@ namespace Kore {
     private:
         
         IOHIDManagerRef managerRef;
+        
+        HIDGamepad** gamepadList;
         
         int initHIDManager();
         
@@ -27,6 +28,8 @@ namespace Kore {
                                   void *         inSender,        // the IOHIDManagerRef for the device being removed
                                   IOHIDDeviceRef inIOHIDDeviceRef // the removed HID device
         );
+        
+        void addNewDevice(HIDGamepad hidDevice);
         
         
     public:

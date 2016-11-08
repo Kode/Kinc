@@ -4,17 +4,28 @@
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
 
+#include <Kore/Input/Gamepad.h>
+
 namespace  Kore {
     class HIDGamepad {
     private:
         IOHIDDeviceRef deviceRef;
-        CFArrayRef elementCFArrayRef;
         IOHIDQueueRef inIOHIDQueueRef;
+        
+        Gamepad* gamepad;
+        int mDevID;
+        
+        int ID;
         
         static void inputValueCallback(void *          inContext,      // context from IOHIDDeviceRegisterInputValueCallback
                                        IOReturn        inResult,       // completion result for the input value operation
                                        void *          inSender,       // IOHIDDeviceRef of the device this element is from
                                        IOHIDValueRef   inIOHIDValueRef // the new element value
+        );
+        
+        static void valueAvailableCallback(void *   inContext, // context from IOHIDQueueRegisterValueAvailableCallback
+                                           IOReturn inResult,  // the inResult
+                                           void *   inSender  // IOHIDQueueRef of the queue
         );
         
         Boolean getLongProperty(IOHIDDeviceRef inDeviceRef,     // the HID device reference
@@ -31,10 +42,7 @@ namespace  Kore {
         void initHIDDevice();
         
         // Property functions
-        long getVendorID();
-        long getProductID();
-        
-        void getValue();
-    
+        char* getVendorID();
+        char* getProductID();
     };
 }
