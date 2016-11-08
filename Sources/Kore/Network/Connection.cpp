@@ -22,7 +22,8 @@ Connection::Connection(const char* url, int sendPort, int receivePort, double ti
 
 	sndBuff = new u8[buffSize];
 	recBuff = new u8[buffSize];
-	lastSndNr = 0;
+	lastSndNrRel = 0;
+	lastSndNrURel = 0;
 
 	state = Disconnected;
 	ping = -1;
@@ -43,12 +44,13 @@ void Connection::send(const u8* data, int size, bool reliable) {
 void Connection::send(const u8* data, int size, PaketType type) {
 	assert(size + headerSize <= buffSize);
 
-	// TODO: Separate seq nrs for reliable and unreliable (only discarded on old)
-
 	// Identifier
 	*((u32*)(sndBuff)) = (magicID & 0xFFFFFFF0) + type;
 	// Reliability via sequence numbers (wrap around)
-	*((u32*)(sndBuff + 4)) = lastSndNr++;
+	if (type == Unreliable)
+		*((u32*)(sndBuff + 4)) = lastSndNrURel++;
+	else
+		*((u32*)(sndBuff + 4)) = lastSndNrRel++;
 
 	memcpy(sndBuff + headerSize, data, size);
 
@@ -62,10 +64,11 @@ int Connection::receive(u8* data) {
 
 	// Regularily send a ping / keep-alive
 	if ((System::time() - lastPng) > pngInterv) {
-		u8 data[9];
+		u8 data[13];
 		data[0] = Ping;
 		*((double*)(data + 1)) = System::time();
-		send(data, 9, Control);
+		*((u32*)(data + 9)) = lastRecNrRel;
+		send(data, 13, Control);
 
 		lastPng = System::time();
 	}
@@ -80,34 +83,57 @@ int Connection::receive(u8* data) {
 			state = Connected;
 			lastRec = System::time();
 
+			int recNr = *((u32*)(recBuff + 4));
+
 			PaketType type = (PaketType)(header & 0x0000000F);
-			if (type == Control) {
-				
+			switch (type) {
+			case Control: {
+				// TODO: Handle missing packets (same as with reliable
 				ControlType controlType = (ControlType)recBuff[headerSize];
 				switch (controlType) {
-				case Ping:
+				case Ping: {
 					// Send back as pong
-					u8 data[9];
+					u8 data[13];
 					data[0] = Pong;
 					*((double*)(data + 1)) = *((double*)(recBuff + headerSize + 1));
-					send(data, 9, Control);
+					int recNr = *((u32*)(recBuff + headerSize + 9));
+					// TODO: Trigger resend if last paket is overdue (e.g. time > 1.5f * ping)
+					send(data, 13, Control);
 					break;
+				}
 				case Pong:
 					// Measure ping
 					ping = System::time() - *((double*)(recBuff + headerSize + 1));
 					break;
 				}
+				break;
 			}
-			else {
-				// TODO: Handle missing packets
-				int recNr = *((u32*)(recBuff + 4));
+			case Reliable:
+				// TODO: Store new packets, request resend on missing ones
+				if (recNr == lastRecNrURel + 1) {
+					lastRecNrURel = recNr;
 
-				// Prepare output
-				int msgSize = size - headerSize;
-				memcpy(data, recBuff + headerSize, msgSize);
+					// Prepare output
+					int msgSize = size - headerSize;
+					memcpy(data, recBuff + headerSize, msgSize);
 
-				// Leave loop and return to caller
-				return msgSize;
+					// Leave loop and return to caller
+					return msgSize;
+				}
+				break;
+			case Unreliable:
+				// Ignore old packets, no resend
+				if (recNr > lastRecNrURel) {
+					lastRecNrURel = recNr;
+
+					// Prepare output
+					int msgSize = size - headerSize;
+					memcpy(data, recBuff + headerSize, msgSize);
+
+					// Leave loop and return to caller
+					return msgSize;
+				}
+				break;
 			}
 		}
 	}

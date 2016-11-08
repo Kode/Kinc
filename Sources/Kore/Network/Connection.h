@@ -38,7 +38,10 @@ namespace Kore {
 		Kore::Socket socket;
 
 		int buffSize;
-		u32 lastSndNr;
+		u32 lastSndNrRel;
+		u32 lastSndNrURel;
+		u32 lastRecNrRel;
+		u32 lastRecNrURel;
 		u8* recBuff;
 		u8* sndBuff;
 
