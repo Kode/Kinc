@@ -2,9 +2,6 @@
 
 #include <Kore/Log.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
 using namespace Kore;
 
 namespace {
@@ -131,14 +128,17 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
             case kIOHIDElementTypeInput_Button: {
                 IOHIDElementCookie button = IOHIDElementGetCookie(elementRef);
                 
-                double rawValue = IOHIDValueGetIntegerValue(valueRef);
+                //double rawValue = IOHIDValueGetIntegerValue(valueRef);
+                double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
                 
-                // Buttons normalize to the range (0.0) - (1.0)
-                CFIndex min = IOHIDElementGetLogicalMin(elementRef);
-                CFIndex max = IOHIDElementGetLogicalMax(elementRef);
+                // Buttons normalize to the range [0.0, 1.0] (0.0 - relese, 1.0 - pressed)
+                double min = IOHIDElementGetLogicalMin(elementRef);
+                double max = IOHIDElementGetLogicalMax(elementRef);
                 double normalize = (rawValue - min) / (max - min);
                 
-                Gamepad::get(0)->_button((int)button, (float)normalize); // TODO: get the right pad ID
+                log(Info, "%f %f %f %f", rawValue, min, max, normalize);
+                
+                Gamepad::get(0)->_button((int)button, normalize); // TODO: get the right pad ID
                 
                 break;
             }
@@ -146,18 +146,20 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
             case kIOHIDElementTypeInput_Axis: {
                 IOHIDElementCookie axis = IOHIDElementGetCookie(elementRef);
                 
-                double rawValue = IOHIDValueGetIntegerValue(valueRef);
+                //double rawValue = IOHIDValueGetIntegerValue(valueRef);
+                double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
                 
-                // Axes normalize to the range (-1.0) - (1.0)
-                CFIndex min = IOHIDElementGetPhysicalMin(elementRef);
-                CFIndex max = IOHIDElementGetPhysicalMax(elementRef);
-                double normalize = (((rawValue - min) / (max - min)) * 2) - 1;
-                
+                // Axes normalize to the range [-1.0, 1.0] (-1.0 - left, 0.0 - release, 1.0 - right)
+                double min = IOHIDElementGetPhysicalMin(elementRef);
+                double max = IOHIDElementGetPhysicalMax(elementRef);
+                //double normalize = (((rawValue - min) / (max - min)) * 2) - 1;
+                double normalize = (rawValue - min) / (max - min);
                 if (axis % 2 == 1)
                     normalize = -normalize;
                 
-                log(Info, "Axis %d value %f %f\n", (int)axis, rawValue, normalize);
-                Gamepad::get(0)->_axis(axis, (float)normalize); // TODO: get the right pad ID
+                //log(Info, "%f %f %f %f", rawValue, min, max, normalize);
+                
+                Gamepad::get(0)->_axis(axis, normalize); // TODO: get the right pad ID
                 
                 
                 break;
@@ -172,8 +174,7 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
                 break;
         }
         
-        
-        CFRelease(valueRef);    // Don't forget to release our HID value reference
+        CFRelease(valueRef);
     } while (1) ;
     
 }
