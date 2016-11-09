@@ -12,30 +12,19 @@ namespace  Kore {
         IOHIDDeviceRef deviceRef;
         IOHIDQueueRef inIOHIDQueueRef;
         
-        Gamepad* gamepad;
-        int mDevID;
+        int padIndex;
         
-        int ID;
+        void initHIDDevice();
         
-        static void inputValueCallback(void *          inContext,      // context from IOHIDDeviceRegisterInputValueCallback
-                                       IOReturn        inResult,       // completion result for the input value operation
-                                       void *          inSender,       // IOHIDDeviceRef of the device this element is from
-                                       IOHIDValueRef   inIOHIDValueRef // the new element value
-        );
-        
-        static void valueAvailableCallback(void *   inContext, // context from IOHIDQueueRegisterValueAvailableCallback
-                                           IOReturn inResult,  // the inResult
-                                           void *   inSender  // IOHIDQueueRef of the queue
-        );
+        static void inputValueCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDValueRef inIOHIDValueRef);
+        static void valueAvailableCallback(void *inContext, IOReturn inResult, void *inSender);
         
         void initElementsFromArray(CFArrayRef elements);
         
     public:
         
-        HIDGamepad(IOHIDDeviceRef deviceRef);
+        HIDGamepad(IOHIDDeviceRef deviceRef, int ID);
         ~HIDGamepad();
-        
-        void initHIDDevice();
         
         // Property functions
         int getVendorID();

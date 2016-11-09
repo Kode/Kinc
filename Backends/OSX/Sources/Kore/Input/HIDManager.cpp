@@ -8,7 +8,7 @@
 using namespace Kore;
 
 HIDManager::HIDManager() : managerRef(0x0) {
-    gamepadList = new HIDGamepad*[2]; // TODO:
+    gamepadsCounter = 0;
     initHIDManager();
 }
 
@@ -62,7 +62,7 @@ int HIDManager::initHIDManager() {
         CFRelease(matchingCFArrayRef);
         
         // Open manager
-        /*IOReturn tIOReturn =*/ IOHIDManagerOpen(managerRef, kIOHIDOptionsTypeNone);
+        IOHIDManagerOpen(managerRef, kIOHIDOptionsTypeNone);
         
         // Register routines to be called when (matching) devices are connected or disconnected
         IOHIDManagerRegisterDeviceMatchingCallback(managerRef, deviceConnected, this);
@@ -74,7 +74,7 @@ int HIDManager::initHIDManager() {
         CFSetRef deviceSetRef = IOHIDManagerCopyDevices(managerRef);
         if (deviceSetRef) {
             CFIndex num_devices = CFSetGetCount(deviceSetRef);
-            log(Info, "%d gamepad(s) found\n",(int)num_devices);
+            log(Info, "%d gamepad(s) found.\n",(int)num_devices);
             CFRelease(deviceSetRef);
         }
 
@@ -119,19 +119,21 @@ CFMutableDictionaryRef HIDManager::createDeviceMatchingDictionary(u32 inUsagePag
 
 // This will be called when the HID Manager matches a new (hot plugged) HID device
 void HIDManager::deviceConnected(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
-    log(Info, "HID device plugged");
+    HIDManager* manager = (HIDManager*)inContext;
     
-    HIDGamepad* hidDevice = new HIDGamepad(inIOHIDDeviceRef);
-    // TODO: create a list of all gamepads
-    //addNewDevice(hidDevice);
-}
-
-void HIDManager::addNewDevice(HIDGamepad hidDevice) {
-    gamepadList[0] = &hidDevice;
+    HIDGamepad* hidDevice = new HIDGamepad(inIOHIDDeviceRef, manager->gamepadsCounter);
+    
+    manager->gamepadsCounter++;
+    
+    log(Info, "HID device plugged. %i gamepad(s) connected.\n", manager->gamepadsCounter);
 }
 
 // This will be called when a HID device is removed (unplugged)
 void HIDManager::deviceRemoved(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
-    log(Info, "HID device removed");
+    
+    HIDManager* manager = (HIDManager*)inContext;
+    manager->gamepadsCounter--;
+    
+    log(Info, "HID device removed. %i gamepad(s) connected.\n", manager->gamepadsCounter);
 }
 

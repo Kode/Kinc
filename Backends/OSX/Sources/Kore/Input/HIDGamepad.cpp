@@ -21,12 +21,11 @@ namespace {
     }
 }
 
-//TODO: set ID
-HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef) : deviceRef(deviceRef), mDevID(0) {
+HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(deviceRef), padIndex(padIndex) {
     initHIDDevice();
     
-    gamepad = new Gamepad();
-    //gamepad->vendor = getVendorID();
+    Gamepad* gamepad = Gamepad::get(padIndex);
+    gamepad->vendor = "";//getVendorID();
     gamepad->productName = getProductKey();
 }
 
@@ -34,7 +33,7 @@ HIDGamepad::~HIDGamepad() {
     if (deviceRef) {
         IOHIDDeviceClose(deviceRef, kIOHIDOptionsTypeSeizeDevice);
         IOHIDDeviceUnscheduleFromRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-        IOHIDDeviceRegisterRemovalCallback(deviceRef, nullptr, this);
+        IOHIDDeviceRegisterRemovalCallback(deviceRef, NULL, this);
     }
     
     if (inIOHIDQueueRef) {
@@ -46,18 +45,16 @@ HIDGamepad::~HIDGamepad() {
 
 void HIDGamepad::initHIDDevice() {
     if(deviceRef) {
-        
         // Get all elements for a specific device
         CFArrayRef elementCFArrayRef = IOHIDDeviceCopyMatchingElements(deviceRef, NULL, kIOHIDOptionsTypeNone);
         
         // Open device
-        IOReturn ret = IOHIDDeviceOpen(deviceRef, kIOHIDOptionsTypeSeizeDevice);
+        IOHIDDeviceOpen(deviceRef, kIOHIDOptionsTypeSeizeDevice);
         
         // Register routines
         IOHIDDeviceRegisterInputValueCallback(deviceRef, inputValueCallback, this);
         
         IOHIDDeviceScheduleWithRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-        
         
         // Create a queue to access the values
         inIOHIDQueueRef = IOHIDQueueCreate(kCFAllocatorDefault, deviceRef, 32, kIOHIDOptionsTypeNone);
@@ -68,7 +65,6 @@ void HIDGamepad::initHIDDevice() {
             IOHIDQueueRegisterValueAvailableCallback(inIOHIDQueueRef, valueAvailableCallback, this);
             IOHIDQueueScheduleWithRunLoop(inIOHIDQueueRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
         }
-        
     }
 }
 
@@ -112,6 +108,7 @@ void HIDGamepad::inputValueCallback(void *inContext, IOReturn inResult, void *in
 }
 
 void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void *inSender) {
+    HIDGamepad* pad = (HIDGamepad*)inContext;
     //log(Info, "%s(context: %p, result: %p, sender: %p).\n",
     //       __PRETTY_FUNCTION__, inContext, (void *) inResult, inSender);
     do {
@@ -131,14 +128,14 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
                 //double rawValue = IOHIDValueGetIntegerValue(valueRef);
                 double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
                 
-                // Buttons normalize to the range [0.0, 1.0] (0.0 - relese, 1.0 - pressed)
+                // Buttons normalize to the range [0.0, 1.0] (0 - release, 1 - pressed)
                 double min = IOHIDElementGetLogicalMin(elementRef);
                 double max = IOHIDElementGetLogicalMax(elementRef);
                 double normalize = (rawValue - min) / (max - min);
                 
-                log(Info, "%f %f %f %f", rawValue, min, max, normalize);
+                //log(Info, "%f %f %f %f", rawValue, min, max, normalize);
                 
-                Gamepad::get(0)->_button((int)button, normalize); // TODO: get the right pad ID
+                Gamepad::get(pad->padIndex)->_button((int)button, normalize);
                 
                 break;
             }
@@ -149,7 +146,7 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
                 //double rawValue = IOHIDValueGetIntegerValue(valueRef);
                 double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
                 
-                // Axes normalize to the range [-1.0, 1.0] (-1.0 - left, 0.0 - release, 1.0 - right)
+                // Axes normalize to the range [-1.0, 1.0] (-1 - left, 0 - release, 1 - right)
                 double min = IOHIDElementGetPhysicalMin(elementRef);
                 double max = IOHIDElementGetPhysicalMax(elementRef);
                 //double normalize = (((rawValue - min) / (max - min)) * 2) - 1;
@@ -159,8 +156,7 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
                 
                 //log(Info, "%f %f %f %f", rawValue, min, max, normalize);
                 
-                Gamepad::get(0)->_axis(axis, normalize); // TODO: get the right pad ID
-                
+                Gamepad::get(pad->padIndex)->_axis(axis, normalize);
                 
                 break;
             }
