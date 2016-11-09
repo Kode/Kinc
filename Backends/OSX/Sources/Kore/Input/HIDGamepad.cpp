@@ -1,5 +1,6 @@
 #include "HIDGamepad.h"
 
+#include <Kore/Input/Gamepad.h>
 #include <Kore/Log.h>
 
 using namespace Kore;
@@ -142,6 +143,9 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
             case kIOHIDElementTypeInput_Misc:
             case kIOHIDElementTypeInput_Axis: {
                 IOHIDElementCookie axis = IOHIDElementGetCookie(elementRef);
+                
+                if (axis < 20 || axis > 24) // TODO: this works only on joystick PS3
+                    break;
                 
                 //double rawValue = IOHIDValueGetIntegerValue(valueRef);
                 double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);

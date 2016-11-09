@@ -4,8 +4,6 @@
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
 
-#include <Kore/Input/Gamepad.h>
-
 namespace  Kore {
     class HIDGamepad {
     private:
