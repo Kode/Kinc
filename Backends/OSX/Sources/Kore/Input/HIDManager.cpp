@@ -71,9 +71,12 @@ int HIDManager::initHIDManager() {
         IOHIDManagerScheduleWithRunLoop(managerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
         
         // Check how many devices are connected
-        CFSetRef device_set = IOHIDManagerCopyDevices(managerRef);
-        CFIndex num_devices = CFSetGetCount(device_set);
-        log(Info, "%d device(s) found\n",(int)num_devices);
+        CFSetRef deviceSetRef = IOHIDManagerCopyDevices(managerRef);
+        if (deviceSetRef) {
+            CFIndex num_devices = CFSetGetCount(deviceSetRef);
+            log(Info, "%d gamepad(s) found\n",(int)num_devices);
+            CFRelease(deviceSetRef);
+        }
 
         return 0;
     }

@@ -28,10 +28,6 @@ namespace  Kore {
                                            void *   inSender  // IOHIDQueueRef of the queue
         );
         
-        Boolean getLongProperty(IOHIDDeviceRef inDeviceRef,     // the HID device reference
-                                CFStringRef inKey,              // the kIOHIDDevice key (as a CFString)
-                                long * outValue);               // address where to return the output value
-
         void initElementsFromArray(CFArrayRef elements);
         
     public:
@@ -42,7 +38,8 @@ namespace  Kore {
         void initHIDDevice();
         
         // Property functions
-        char* getVendorID();
-        char* getProductID();
+        int getVendorID();
+        int getProductID();
+        char* getProductKey();
     };
 }

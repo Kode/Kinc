@@ -2,15 +2,35 @@
 
 #include <Kore/Log.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
 using namespace Kore;
+
+namespace {
+    char* toString(CFStringRef string) {
+        if (string == NULL) {
+            return NULL;
+        }
+        
+        CFIndex length = CFStringGetLength(string);
+        CFIndex maxSize =
+        CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+        char *buffer = (char *)malloc(maxSize);
+        if (CFStringGetCString(string, buffer, maxSize, kCFStringEncodingUTF8)) {
+            return buffer;
+        }
+        return NULL;
+    }
+}
 
 //TODO: set ID
 HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef) : deviceRef(deviceRef), mDevID(0) {
     initHIDDevice();
     
     gamepad = new Gamepad();
-    gamepad->vendor = getVendorID();
-    gamepad->productName = getProductID();
+    //gamepad->vendor = getVendorID();
+    gamepad->productName = getProductKey();
 }
 
 HIDGamepad::~HIDGamepad() {
@@ -67,31 +87,26 @@ void HIDGamepad::initElementsFromArray(CFArrayRef elements) {
     }
 }
 
-// Function to get a long device property
-// Returns FALSE if the property isn't found or can't be converted to a long
-Boolean HIDGamepad::getLongProperty(IOHIDDeviceRef inDeviceRef, CFStringRef inKey, long *outValue) {
-    Boolean result = FALSE;
-    CFTypeRef tCFTypeRef = IOHIDDeviceGetProperty(inDeviceRef, inKey);
-    if (tCFTypeRef) {
-        if (CFNumberGetTypeID() == CFGetTypeID(tCFTypeRef)) {
-            result = CFNumberGetValue((CFNumberRef) tCFTypeRef, kCFNumberSInt32Type, outValue);
-        }
-    }
-    return result;
-}
-
 // Get a HID device's vendor ID (long)
-char* HIDGamepad::getVendorID() {
-    long result = 0;
-    (void) getLongProperty(deviceRef, CFSTR(kIOHIDVendorIDKey), &result);
-    return (char*)result;
+int HIDGamepad::getVendorID() {
+    int vendorID = 0;
+    CFNumberRef cfVendorID = (CFNumberRef)IOHIDDeviceGetProperty(deviceRef, CFSTR(kIOHIDVendorIDKey));
+    CFNumberGetValue(cfVendorID, kCFNumberIntType, &vendorID);
+    return vendorID;
 }
 
 // Get a HID device's product ID (long)
-char* HIDGamepad::getProductID() {
-    long result = 0;
-    (void) getLongProperty(deviceRef, CFSTR(kIOHIDProductIDKey), &result);
-    return (char*)result;
+int HIDGamepad::getProductID() {
+    int productID = 0;
+    CFNumberRef cfVendorID = (CFNumberRef)IOHIDDeviceGetProperty(deviceRef, CFSTR(kIOHIDProductIDKey));
+    CFNumberGetValue(cfVendorID, kCFNumberIntType, &productID);
+    return productID;
+}
+
+// Get a HID device's product key (string)
+char* HIDGamepad::getProductKey() {
+    CFStringRef productName = (CFStringRef)IOHIDDeviceGetProperty(deviceRef, CFSTR(kIOHIDProductKey));
+    return toString(productName);
 }
 
 void HIDGamepad::inputValueCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDValueRef inIOHIDValueRef) {
