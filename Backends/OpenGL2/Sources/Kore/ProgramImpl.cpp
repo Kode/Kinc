@@ -20,7 +20,12 @@ namespace Kore {
 ProgramImpl::ProgramImpl()
     : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
       tessellationControlShader(nullptr) {
-	textures = new const char*[16];
+	// TODO: Get rid of allocations
+	textures = new char*[16];
+	for (int i = 0; i < 16; ++i) {
+		textures[i] = new char[128];
+		textures[i][0] = 0;
+	}
 	textureValues = new int[16];
 }
 
@@ -30,6 +35,11 @@ Program::Program() {
 }
 
 ProgramImpl::~ProgramImpl() {
+	for (int i = 0; i < 16; ++i) {
+		delete[] textures[i];
+	}
+	delete[] textures;
+	delete[] textureValues;
 	glDeleteProgram(programId);
 }
 
@@ -191,7 +201,7 @@ TextureUnit Program::getTextureUnit(const char* name) {
 		glCheckErrors();
 		index = textureCount;
 		textureValues[index] = location;
-		textures[index] = name;
+		strcpy(textures[index], name);
 		++textureCount;
 	}
 	TextureUnit unit;

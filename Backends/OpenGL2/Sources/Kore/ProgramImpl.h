@@ -15,7 +15,7 @@ namespace Kore {
 		ProgramImpl();
 		virtual ~ProgramImpl();
 		int findTexture(const char* name);
-		const char** textures;
+		char** textures;
 		int* textureValues;
 		int textureCount;
 	};
