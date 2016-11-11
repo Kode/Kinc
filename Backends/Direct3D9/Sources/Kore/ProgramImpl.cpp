@@ -36,6 +36,13 @@ void Program::setTessellationEvaluationShader(Shader* shader) {
 }
 
 void Program::link(VertexStructure** structures, int count) {
+	int highestIndex = 0;
+	for (std::map<std::string, int>::iterator it = vertexShader->attributes.begin(); it != vertexShader->attributes.end(); ++it) {
+		if (it->second > highestIndex) {
+			highestIndex = it->second;
+		}
+	}
+
 	int all = 0;
 	for (int stream = 0; stream < count; ++stream) {
 		for (int index = 0; index < structures[stream]->size; ++index) {
@@ -91,7 +98,13 @@ void Program::link(VertexStructure** structures, int count) {
 					size_t length = strlen(name);
 					_itoa(i2, &name[length], 10);
 					name[length + 1] = 0;
-					elements[i].UsageIndex = vertexShader->attributes[name];
+					if (vertexShader->attributes.find(name) == vertexShader->attributes.end()) {
+						log(Error, "Could not find attribute %s.", name);
+						elements[i].UsageIndex = ++highestIndex;
+					}
+					else {
+						elements[i].UsageIndex = vertexShader->attributes[name];
+					}
 					stride += 4 * 4;
 					++i;
 				}
@@ -100,7 +113,13 @@ void Program::link(VertexStructure** structures, int count) {
 			if (structures[stream]->elements[index].data != Float4x4VertexData) {
 				elements[i].Method = D3DDECLMETHOD_DEFAULT;
 				elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
-				elements[i].UsageIndex = vertexShader->attributes[structures[stream]->elements[index].name];
+				if (vertexShader->attributes.find(structures[stream]->elements[index].name) == vertexShader->attributes.end()) {
+					log(Error, "Could not find attribute %s.", structures[stream]->elements[index].name);
+					elements[i].UsageIndex = ++highestIndex;
+				}
+				else {
+					elements[i].UsageIndex = vertexShader->attributes[structures[stream]->elements[index].name];
+				}
 				++i;
 			}
 		}
