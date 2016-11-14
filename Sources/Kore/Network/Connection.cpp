@@ -9,21 +9,26 @@
 
 using namespace Kore;
 
-Connection::Connection(const char* url, int sendPort, int receivePort, double timeout, double pngInterv, int buffSize) :
+Connection::Connection(const char* url, int sendPort, int receivePort, double timeout, double pngInterv, int buffSize, int cacheCount) :
 		url(url),
 		sndPort(sendPort),
 		recPort(receivePort),
 		timeout(timeout),
 		pngInterv(pngInterv),
-		buffSize(buffSize) {
+		buffSize(buffSize),
+		cacheCount(cacheCount) {
 
 	socket.init();
 	socket.open(receivePort);
 
 	sndBuff = new u8[buffSize];
+	sndCache = new u8[buffSize * cacheCount];
 	recBuff = new u8[buffSize];
+	recCache = new u8[buffSize * cacheCount];
 	lastSndNrRel = 0;
 	lastSndNrURel = 0;
+	lastRecNrRel = 0;
+	lastRecNrURel = 0;
 
 	state = Disconnected;
 	ping = -1;
@@ -38,21 +43,24 @@ Connection::~Connection() {
 }
 
 void Connection::send(const u8* data, int size, bool reliable) {
-	send(data, size, reliable ? Reliable : Unreliable);
+	send(data, size, reliable);
 }
 
-void Connection::send(const u8* data, int size, PaketType type) {
+void Connection::send(const u8* data, int size, bool reliable, bool control) {
 	assert(size + headerSize <= buffSize);
 
-	// Identifier
-	*((u32*)(sndBuff)) = (magicID & 0xFFFFFFF0) + type;
-	// Reliability via sequence numbers (wrap around)
-	if (type == Unreliable)
-		*((u32*)(sndBuff + 4)) = lastSndNrURel++;
-	else
-		*((u32*)(sndBuff + 4)) = lastSndNrRel++;
-
 	memcpy(sndBuff + headerSize, data, size);
+	// Identifier
+	*((u32*)(sndBuff)) = (magicID & 0xFFFFFFF0) + reliable + 2 * control;
+	// Reliability via sequence numbers (wrap around via overflow)
+	if (reliable) {
+		*((u32*)(sndBuff + 4)) = ++lastSndNrRel;
+		// Cache message for potential resend
+		memcpy(sndCache + (lastSndNrRel % cacheCount) * buffSize, sndBuff, headerSize + size);
+	}
+	else {
+		*((u32*)(sndBuff + 4)) = lastSndNrURel++;
+	}
 
 	socket.send(url, sndPort, sndBuff, headerSize + size);
 }
@@ -68,7 +76,7 @@ int Connection::receive(u8* data) {
 		data[0] = Ping;
 		*((double*)(data + 1)) = System::time();
 		*((u32*)(data + 9)) = lastRecNrRel;
-		send(data, 13, Control);
+		send(data, 13, false, true);
 
 		lastPng = System::time();
 	}
@@ -83,55 +91,39 @@ int Connection::receive(u8* data) {
 			state = Connected;
 			lastRec = System::time();
 
+			bool reliable = (header & 1);
+			bool control = (header & 2);
 			int recNr = *((u32*)(recBuff + 4));
-
-			PaketType type = (PaketType)(header & 0x0000000F);
-			switch (type) {
-			case Control: {
-				// TODO: Handle missing packets (same as with reliable
-				ControlType controlType = (ControlType)recBuff[headerSize];
-				switch (controlType) {
-				case Ping: {
-					// Send back as pong
-					u8 data[13];
-					data[0] = Pong;
-					*((double*)(data + 1)) = *((double*)(recBuff + headerSize + 1));
-					int recNr = *((u32*)(recBuff + headerSize + 9));
-					// TODO: Trigger resend if last paket is overdue (e.g. time > 1.5f * ping)
-					send(data, 13, Control);
-					break;
-				}
-				case Pong:
-					// Measure ping
-					ping = System::time() - *((double*)(recBuff + headerSize + 1));
-					break;
-				}
-				break;
-			}
-			case Reliable:
-				// TODO: Store new packets, request resend on missing ones
+			if (reliable) {
 				if (recNr == lastRecNrURel + 1) {
 					lastRecNrURel = recNr;
 
-					// Prepare output
-					int msgSize = size - headerSize;
-					memcpy(data, recBuff + headerSize, msgSize);
-
-					// Leave loop and return to caller
-					return msgSize;
+					// Process message
+					if (control) {
+						processControlMessage();
+					}
+					else {
+						// Leave loop and return to caller
+						return processMessage(size, data);
+					}
 				}
-				break;
-			case Unreliable:
+				else {
+					// TODO: Store new packets, request resend on missing ones, process pending if resend on old
+				}
+			}
+			else {
 				// Ignore old packets, no resend
 				if (recNr > lastRecNrURel) {
 					lastRecNrURel = recNr;
 
-					// Prepare output
-					int msgSize = size - headerSize;
-					memcpy(data, recBuff + headerSize, msgSize);
-
-					// Leave loop and return to caller
-					return msgSize;
+					// Process message
+					if (control) {
+						processControlMessage();
+					}
+					else {
+						// Leave loop and return to caller
+						return processMessage(size, data);
+					}
 				}
 				break;
 			}
@@ -145,4 +137,32 @@ int Connection::receive(u8* data) {
 	}
 
 	return 0;
+}
+
+void Connection::processControlMessage() {
+	ControlType controlType = (ControlType)recBuff[headerSize];
+	switch (controlType) {
+	case Ping: {
+		// Send back as pong
+		u8 data[13];
+		data[0] = Pong;
+		*((double*)(data + 1)) = *((double*)(recBuff + headerSize + 1));
+		int recNr = *((u32*)(recBuff + headerSize + 9));
+		// TODO: Trigger resend if last paket is overdue (e.g. time > 1.5f * ping)
+		send(data, 13, false, true);
+		break;
+	}
+	case Pong:
+		// Measure ping
+		ping = System::time() - *((double*)(recBuff + headerSize + 1));
+		break;
+	}
+}
+
+int Connection::processMessage(int size, u8* returnBuffer) {
+	// Prepare output
+	int msgSize = size - headerSize;
+	memcpy(returnBuffer, recBuff + headerSize, msgSize);
+
+	return msgSize;
 }
