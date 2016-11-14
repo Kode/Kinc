@@ -22,11 +22,12 @@ Connection::Connection(const char* url, int sendPort, int receivePort, double ti
 	socket.open(receivePort);
 
 	sndBuff = new u8[buffSize];
-	sndCache = new u8[buffSize * cacheCount];
+	sndCache = new u8[(buffSize + 12) * cacheCount];
 	recBuff = new u8[buffSize];
-	recCache = new u8[buffSize * cacheCount];
+	recCache = new u8[(buffSize + 12) * cacheCount];
 	lastSndNrRel = 0;
 	lastSndNrURel = 0;
+	lastAckNrRel = 0;
 	lastRecNrRel = 0;
 	lastRecNrURel = 0;
 
@@ -43,7 +44,7 @@ Connection::~Connection() {
 }
 
 void Connection::send(const u8* data, int size, bool reliable) {
-	send(data, size, reliable);
+	send(data, size, reliable, false);
 }
 
 void Connection::send(const u8* data, int size, bool reliable, bool control) {
@@ -56,12 +57,16 @@ void Connection::send(const u8* data, int size, bool reliable, bool control) {
 	if (reliable) {
 		*((u32*)(sndBuff + 4)) = ++lastSndNrRel;
 		// Cache message for potential resend
-		memcpy(sndCache + (lastSndNrRel % cacheCount) * buffSize, sndBuff, headerSize + size);
+		*((double*)(sndCache + (lastSndNrRel % cacheCount) * buffSize)) = System::time();
+		*((u32*)(sndCache + (lastSndNrRel % cacheCount) * buffSize + 8)) = headerSize + size;
+		memcpy(sndCache + (lastSndNrRel % cacheCount) * buffSize + 12, sndBuff, headerSize + size);
 	}
 	else {
 		*((u32*)(sndBuff + 4)) = lastSndNrURel++;
 	}
 
+	// DEBUG ONLY: Introduced random packet drop
+	// if (!reliable || lastSndNrRel % 2)
 	socket.send(url, sndPort, sndBuff, headerSize + size);
 }
 
@@ -95,8 +100,8 @@ int Connection::receive(u8* data) {
 			bool control = (header & 2);
 			int recNr = *((u32*)(recBuff + 4));
 			if (reliable) {
-				if (recNr == lastRecNrURel + 1) {
-					lastRecNrURel = recNr;
+				if (recNr == lastRecNrRel + 1) {
+					lastRecNrRel = recNr;
 
 					// Process message
 					if (control) {
@@ -108,7 +113,7 @@ int Connection::receive(u8* data) {
 					}
 				}
 				else {
-					// TODO: Store new packets, request resend on missing ones, process pending if resend on old
+					// TODO (Currently naive resend of everything): Store new packets, request resend on missing ones, process pending if resend on old
 				}
 			}
 			else {
@@ -125,7 +130,6 @@ int Connection::receive(u8* data) {
 						return processMessage(size, data);
 					}
 				}
-				break;
 			}
 		}
 	}
@@ -148,7 +152,19 @@ void Connection::processControlMessage() {
 		data[0] = Pong;
 		*((double*)(data + 1)) = *((double*)(recBuff + headerSize + 1));
 		int recNr = *((u32*)(recBuff + headerSize + 9));
-		// TODO: Trigger resend if last paket is overdue (e.g. time > 1.5f * ping)
+		if (recNr > lastAckNrRel) {
+			lastAckNrRel = recNr;
+		}
+		// Trigger resend if last paket is overdue
+		else if (lastSndNrRel != lastAckNrRel) {
+			double sndTime = *((double*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize));
+			if (System::time() - sndTime > ping * 1.1f) {
+				int size = *((u32*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 8));
+				memcpy(sndBuff, sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 12, size);
+				socket.send(url, sndPort, sndBuff, headerSize + size);
+			}
+		}
+
 		send(data, 13, false, true);
 		break;
 	}

@@ -36,6 +36,7 @@ namespace Kore {
 		int cacheCount;
 		u32 lastSndNrRel;
 		u32 lastSndNrURel;
+		u32 lastAckNrRel;
 		u32 lastRecNrRel;
 		u32 lastRecNrURel;
 		u8* recBuff;
