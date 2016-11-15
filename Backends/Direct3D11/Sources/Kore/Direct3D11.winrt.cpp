@@ -862,6 +862,7 @@ void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Program::setConstants();
 		context->Begin(pQuery);
 		context->Draw(triangles, 0);
 		context->End(pQuery);
@@ -871,8 +872,7 @@ void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
-		HRESULT available = context->GetData(pQuery, 0, 0, 0);
-		if (available == S_OK)
+		if (S_OK == context->GetData(pQuery, 0, 0, 0))
 			return true;
 	}
 	return false;
@@ -881,7 +881,12 @@ void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		UINT64 numberOfPixelsDrawn;
-		context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
-		*pixelCount = numberOfPixelsDrawn;
+		HRESULT result = context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
+		if (S_OK == result) {
+			*pixelCount = numberOfPixelsDrawn;
+		} else {
+			Kore::log(Kore::LogLevel::Info, "Check first if results are available");
+			*pixelCount = 0;
+		}
 	}
 }
