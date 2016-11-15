@@ -782,10 +782,9 @@ void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
-		//if (S_OK == pQuery->GetData(0, 0, 0))
-		//	return true;
-		//while (S_FALSE == pQuery->GetData(0, 0, D3DGETDATA_FLUSH));
-		return true;
+		if (S_OK == pQuery->GetData(0, 0, 0)) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -793,9 +792,13 @@ void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		DWORD numberOfPixelsDrawn;
-		//pQuery->GetData(&numberOfPixelsDrawn, sizeof(DWORD), 0);
-		while (S_FALSE == pQuery->GetData(&numberOfPixelsDrawn, sizeof(DWORD), D3DGETDATA_FLUSH));
-		*pixelCount = numberOfPixelsDrawn;
+		HRESULT result = pQuery->GetData(&numberOfPixelsDrawn, sizeof(DWORD), 0);
+		if (S_OK == result) {
+			*pixelCount = numberOfPixelsDrawn;
+		} else {
+			Kore::log(Kore::LogLevel::Warning, "Check first if results are available");
+			*pixelCount = 0;
+		}
 	}
 }
 
