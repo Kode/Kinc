@@ -8,6 +8,8 @@
 
 #include <Kore/Log.h>
 
+#include <vector>
+
 using namespace Kore;
 
 #ifdef SYS_XBOX360
@@ -44,8 +46,6 @@ namespace {
 	Shader* vertexShader = nullptr;
 	IDirect3DSurface9* backBuffer = nullptr;
 	IDirect3DSurface9* depthBuffer = nullptr;
-
-	IDirect3DQuery9* pOcclusionQuery = nullptr;
 
 	void initDeviceStates() {
 		D3DCAPS9 caps;
@@ -744,32 +744,59 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
 
+uint queryCount = 0;
+std::vector<IDirect3DQuery9*> queryPool;
 
-void Graphics::initOcclusionQuery(uint* occlusionQuery) {
-	device->CreateQuery(D3DQUERYTYPE_OCCLUSION, &pOcclusionQuery);
+bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	// check if the runtime supports queries
+	HRESULT result = device->CreateQuery(D3DQUERYTYPE_OCCLUSION, NULL);
+	if (FAILED(result)) {
+		Kore::log(Kore::LogLevel::Warning, "Internal query creation failed, result: 0x%X.", result);
+		return false;
+	}
+
+	IDirect3DQuery9* pQuery = nullptr;
+	device->CreateQuery(D3DQUERYTYPE_OCCLUSION, &pQuery);
+
+	queryPool.push_back(pQuery);
+	*occlusionQuery = queryCount;
+	++queryCount;
+
+	return true;
 }
 
-void Graphics::deleteOcclusionQuery(uint* occlusionQuery) {
-	pOcclusionQuery = nullptr;
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+	if (occlusionQuery < queryPool.size())
+		queryPool[occlusionQuery] = nullptr;
 }
 
 void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
-	if (pOcclusionQuery != nullptr) {
-		pOcclusionQuery->Issue(D3DISSUE_BEGIN);
-		device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, triangles); // TODO
-		pOcclusionQuery->Issue(D3DISSUE_END);
+	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		pQuery->Issue(D3DISSUE_BEGIN);
+		device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, triangles);
+		pQuery->Issue(D3DISSUE_END);
 	}
 }
 
-bool Graphics::queryResultsAvailable(uint occlusionQuery) {
-	bool available = FALSE;
-	if (pOcclusionQuery != nullptr)
-		available = pOcclusionQuery->GetData(0, 0, D3DGETDATA_FLUSH);
-	return available;
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		//if (S_OK == pQuery->GetData(0, 0, 0))
+		//	return true;
+		//while (S_FALSE == pQuery->GetData(0, 0, D3DGETDATA_FLUSH));
+		return true;
+	}
+	return false;
 }
 void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
-	if (pOcclusionQuery != nullptr)
-		pOcclusionQuery->GetData(pixelCount, sizeof(uint), D3DGETDATA_FLUSH);
+	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		DWORD numberOfPixelsDrawn;
+		//pQuery->GetData(&numberOfPixelsDrawn, sizeof(DWORD), 0);
+		while (S_FALSE == pQuery->GetData(&numberOfPixelsDrawn, sizeof(DWORD), D3DGETDATA_FLUSH));
+		*pixelCount = numberOfPixelsDrawn;
+	}
 }
 
 
