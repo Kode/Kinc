@@ -266,6 +266,32 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 
 void Graphics::restoreRenderTarget() {}
 
+}
+
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+
+}
+
+void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
+
+}
+
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+
+}
+
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+
+}
+
+void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
+
+}
+
+void Graphics::restoreRenderTarget() {
+
+}
+
 bool Graphics::renderTargetsInvertedY() {
 	return true;
 }
@@ -280,4 +306,28 @@ void Graphics::setIndexBuffer(Kore::IndexBuffer& ib) {
 
 void Graphics::setVertexBuffers(Kore::VertexBuffer** vertexBuffers, int count) {
 	vertexBuffers[0]->_set(0);
+}
+
+void Graphics::setTexture(Kore::TextureUnit unit, Kore::Texture *texture) {
+
+}
+
+bool Graphics::initOcclusionQuery(uint *occlusionQuery) {
+    return false;
+}
+
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+
+}
+
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+    return false;
+}
+
+void Graphics::getQueryResults(uint occlusionQuery, uint *pixelCount) {
+
 }

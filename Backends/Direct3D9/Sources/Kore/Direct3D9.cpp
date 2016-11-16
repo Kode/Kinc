@@ -10,6 +10,8 @@
 
 #include <Kore/Log.h>
 
+#include <vector>
+
 using namespace Kore;
 
 #ifdef SYS_XBOX360
@@ -777,3 +779,63 @@ void Graphics::setIndexBuffer(IndexBuffer& buffer) {
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
+
+uint queryCount = 0;
+std::vector<IDirect3DQuery9*> queryPool;
+
+bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	// check if the runtime supports queries
+	HRESULT result = device->CreateQuery(D3DQUERYTYPE_OCCLUSION, NULL);
+	if (FAILED(result)) {
+		Kore::log(Kore::LogLevel::Warning, "Internal query creation failed, result: 0x%X.", result);
+		return false;
+	}
+
+	IDirect3DQuery9* pQuery = nullptr;
+	device->CreateQuery(D3DQUERYTYPE_OCCLUSION, &pQuery);
+
+	queryPool.push_back(pQuery);
+	*occlusionQuery = queryCount;
+	++queryCount;
+
+	return true;
+}
+
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+	if (occlusionQuery < queryPool.size())
+		queryPool[occlusionQuery] = nullptr;
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		pQuery->Issue(D3DISSUE_BEGIN);
+		device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, triangles);
+		pQuery->Issue(D3DISSUE_END);
+	}
+}
+
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		if (S_OK == pQuery->GetData(0, 0, 0)) {
+			return true;
+		}
+	}
+	return false;
+}
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		DWORD numberOfPixelsDrawn;
+		HRESULT result = pQuery->GetData(&numberOfPixelsDrawn, sizeof(DWORD), 0);
+		if (S_OK == result) {
+			*pixelCount = numberOfPixelsDrawn;
+		} else {
+			Kore::log(Kore::LogLevel::Warning, "Check first if results are available");
+			*pixelCount = 0;
+		}
+	}
+}
+
+

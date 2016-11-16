@@ -865,6 +865,32 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
+bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+    glGenQueries(1, occlusionQuery);
+	return true;
+}
+
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+    glDeleteQueries(1, &occlusionQuery);
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+    glBeginQuery(GL_SAMPLES_PASSED, occlusionQuery);
+	glDrawArrays(GL_TRIANGLES, 0, triangles);
+    glCheckErrors();
+    glEndQuery(GL_SAMPLES_PASSED);
+}
+
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+	uint available;
+    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, &available);
+	return available != 0;
+}
+
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+    glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, pixelCount);
+}
+
 void Graphics::flush() {
 	glFlush();
 	glCheckErrors();

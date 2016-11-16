@@ -167,6 +167,13 @@ namespace Kore {
 		bool vsynced();
 		unsigned refreshRate();
 		bool nonPow2TexturesSupported();
+        
+        // Occlusion Query
+        bool initOcclusionQuery(uint* occlusionQuery);
+        void deleteOcclusionQuery(uint occlusionQuery);
+        void renderOcclusionQuery(uint occlusionQuery, int triangles);
+        bool isQueryResultsAvailable(uint occlusionQuery);
+        void getQueryResults(uint occlusionQuery, uint* pixelCount);
 
 		const uint ClearColorFlag = 1;
 		const uint ClearDepthFlag = 2;
