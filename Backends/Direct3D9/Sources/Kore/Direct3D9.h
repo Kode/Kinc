@@ -8,8 +8,8 @@
 #endif
 
 #ifdef SYS_XBOX360
-#include <xtl.h>
 #include <xboxmath.h>
+#include <xtl.h>
 #endif
 
 extern IDirect3D9* d3d;

@@ -3,14 +3,8 @@
 namespace Kore {
 	class Image {
 	public:
-		enum Format {
-			RGBA32,
-			Grey8,
-			RGB24,
-			RGBA128,
-			RGBA64
-		};
-		
+		enum Format { RGBA32, Grey8, RGB24, RGBA128, RGBA64 };
+
 		static int sizeOf(Image::Format format);
 
 		Image(int width, int height, Format format, bool readable);

@@ -1,7 +1,9 @@
 #include "pch.h"
-#include "VertexBufferImpl.h"
-#include <Kore/Graphics/Graphics.h>
+
 #include "ShaderImpl.h"
+#include "VertexBufferImpl.h"
+
+#include <Kore/Graphics/Graphics.h>
 #import <Metal/Metal.h>
 
 using namespace Kore;
@@ -12,9 +14,7 @@ id getMetalEncoder();
 VertexBuffer* VertexBufferImpl::current = nullptr;
 const int more = 10;
 
-VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {
-
-}
+VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {}
 
 VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
 	myStride = 0;
@@ -40,38 +40,35 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 			break;
 		}
 	}
-	
-	id <MTLDevice> device = getMetalDevice();
+
+	id<MTLDevice> device = getMetalDevice();
 	mtlBuffer = [device newBufferWithLength:count * myStride * more options:MTLResourceOptionCPUCacheModeDefault];
 	index = -1;
 }
 
 VertexBuffer::~VertexBuffer() {
 	unset();
-	
 }
 
 float* VertexBuffer::lock() {
 	++index;
 	if (index >= more) index = 0;
 
-	id <MTLBuffer> buffer = mtlBuffer;
+	id<MTLBuffer> buffer = mtlBuffer;
 	float* floats = (float*)[buffer contents];
 	return &floats[index * myStride * myCount / sizeof(float)];
-	//return (float*)[buffer contents];
+	// return (float*)[buffer contents];
 }
 
-void VertexBuffer::unlock() {
-	
-}
+void VertexBuffer::unlock() {}
 
 int VertexBuffer::_set(int offset_) {
 	current = this;
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
-	
-	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
+
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setVertexBuffer:mtlBuffer offset:offset() atIndex:0];
-	
+
 	return offset_;
 }
 

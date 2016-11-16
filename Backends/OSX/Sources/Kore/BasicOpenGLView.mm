@@ -1,40 +1,36 @@
-#import "BasicOpenGLView.h"
 #include <Kore/pch.h>
-#include <Kore/System.h>
+
+#import "BasicOpenGLView.h"
+
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/System.h>
 
 @implementation BasicOpenGLView
 
 namespace {
-    bool shift = false;
+	bool shift = false;
 }
 
 #ifndef SYS_METAL
-+ (NSOpenGLPixelFormat*) basicPixelFormat {
-    // TODO (DK) pass via argument in
-    int aa = 1; //Kore::Application::the()->antialiasing();
++ (NSOpenGLPixelFormat*)basicPixelFormat {
+	// TODO (DK) pass via argument in
+	int aa = 1; // Kore::Application::the()->antialiasing();
 	if (aa > 0) {
-		NSOpenGLPixelFormatAttribute attributes[] = {
-			NSOpenGLPFADoubleBuffer,
-			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
-			NSOpenGLPFASupersample,
-			NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
-			NSOpenGLPFASamples, (NSOpenGLPixelFormatAttribute)aa,
-            NSOpenGLPFAStencilSize, (NSOpenGLPixelFormatAttribute)8,
-			(NSOpenGLPixelFormatAttribute)0
-		};
+		NSOpenGLPixelFormatAttribute attributes[] = {NSOpenGLPFADoubleBuffer,          NSOpenGLPFADepthSize,
+		                                             (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+		                                             NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
+		                                             NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
+		                                             (NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
+		                                             (NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
+		                                             (NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
 		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
 	}
 	else {
 		NSOpenGLPixelFormatAttribute attributes[] = {
-			NSOpenGLPFADoubleBuffer,
-			NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
-            NSOpenGLPFAStencilSize, (NSOpenGLPixelFormatAttribute)8,
-			(NSOpenGLPixelFormatAttribute)0
-		};
+		    NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+		    NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
+		    (NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
 		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
 	}
 }
@@ -54,17 +50,17 @@ namespace {
 		if (ch >= L'A' && ch <= L'Z') {
 			switch (ch) {
 			default:
-                if ([theEvent modifierFlags] & NSShiftKeyMask) {
+				if ([theEvent modifierFlags] & NSShiftKeyMask) {
 					if (!shift) Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
 					Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
-                    shift = true;
-                }
-                else {
+					shift = true;
+				}
+				else {
 					if (shift) Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
 					Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
-                    shift = false;
+					shift = false;
 				}
-                break;
+				break;
 			}
 		}
 		else {
@@ -81,20 +77,20 @@ namespace {
 			case NSDownArrowFunctionKey:
 				Kore::Keyboard::the()->_keydown(Kore::Key_Down, 0);
 				break;
-            case 27:
-                Kore::Keyboard::the()->_keydown(Kore::Key_Escape, 0);
-                break;
-            case NSEnterCharacter:
-            case NSNewlineCharacter:
-            case NSCarriageReturnCharacter:
+			case 27:
+				Kore::Keyboard::the()->_keydown(Kore::Key_Escape, 0);
+				break;
+			case NSEnterCharacter:
+			case NSNewlineCharacter:
+			case NSCarriageReturnCharacter:
 				Kore::Keyboard::the()->_keydown(Kore::Key_Enter, 0);
 				break;
-            case 0x7f:
-                Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
-                break;
+			case 0x7f:
+				Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
+				break;
 			default:
 				Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
-				break;	
+				break;
 			}
 		}
 	}
@@ -102,8 +98,8 @@ namespace {
 
 - (void)keyUp:(NSEvent*)theEvent {
 	NSString* characters = [theEvent characters];
-    if ([characters length]) {
-        unichar ch = [characters characterAtIndex:0];
+	if ([characters length]) {
+		unichar ch = [characters characterAtIndex:0];
 		int keycode = ch;
 		if (ch >= L'a' && ch <= L'z') keycode = keycode - L'a' + L'A';
 		switch (ch) {
@@ -119,14 +115,14 @@ namespace {
 		case NSDownArrowFunctionKey:
 			Kore::Keyboard::the()->_keyup(Kore::Key_Down, 0);
 			break;
-        case 27:
-            Kore::Keyboard::the()->_keyup(Kore::Key_Escape, 0);
-            break;
-        case NSEnterCharacter:
-        case NSNewlineCharacter:
-        case NSCarriageReturnCharacter:
-            Kore::Keyboard::the()->_keyup(Kore::Key_Enter, 0);
-            break;
+		case 27:
+			Kore::Keyboard::the()->_keyup(Kore::Key_Escape, 0);
+			break;
+		case NSEnterCharacter:
+		case NSNewlineCharacter:
+		case NSCarriageReturnCharacter:
+			Kore::Keyboard::the()->_keyup(Kore::Key_Enter, 0);
+			break;
 		case 0x7f:
 			Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
 			break;
@@ -139,20 +135,20 @@ namespace {
 
 namespace {
 	int getMouseX(NSEvent* event) {
-        // TODO (DK) map [theEvent window] to window id instead of 0
+		// TODO (DK) map [theEvent window] to window id instead of 0
 		return static_cast<int>([event locationInWindow].x);
 	}
-	
+
 	int getMouseY(NSEvent* event) {
-        // TODO (DK) map [theEvent window] to window id instead of 0
-        return static_cast<int>(Kore::System::windowHeight(0) - [event locationInWindow].y);
+		// TODO (DK) map [theEvent window] to window id instead of 0
+		return static_cast<int>(Kore::System::windowHeight(0) - [event locationInWindow].y);
 	}
-	
+
 	bool controlKeyMouseButton = false;
 }
 
 - (void)mouseDown:(NSEvent*)theEvent {
-    // TODO (DK) map [theEvent window] to window id instead of 0
+	// TODO (DK) map [theEvent window] to window id instead of 0
 	if ([theEvent modifierFlags] & NSControlKeyMask) {
 		controlKeyMouseButton = true;
 		Kore::Mouse::the()->_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
@@ -164,7 +160,7 @@ namespace {
 }
 
 - (void)mouseUp:(NSEvent*)theEvent {
-    // TODO (DK) map [theEvent window] to window id instead of 0
+	// TODO (DK) map [theEvent window] to window id instead of 0
 	if (controlKeyMouseButton) {
 		Kore::Mouse::the()->_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 	}
@@ -175,32 +171,32 @@ namespace {
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent {
-    // TODO (DK) map [theEvent window] to window id instead of 0
+	// TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)mouseDragged:(NSEvent*)theEvent {
-    // TODO (DK) map [theEvent window] to window id instead of 0
+	// TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDown:(NSEvent*)theEvent {
-    // TODO (DK) map [theEvent window] to window id instead of 0
+	// TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseUp:(NSEvent*)theEvent {
-    // TODO (DK) map [theEvent window] to window id instead of 0
+	// TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDragged:(NSEvent*)theEvent {
-    // TODO (DK) map [theEvent window] to window id instead of 0
+	// TODO (DK) map [theEvent window] to window id instead of 0
 	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)scrollWheel:(NSEvent*)theEvent {
-    // TODO (DK) map [theEvent window] to window id instead of 0
+	// TODO (DK) map [theEvent window] to window id instead of 0
 	int delta = [theEvent deltaY];
 	Kore::Mouse::the()->_scroll(0, delta);
 }
@@ -219,15 +215,15 @@ namespace {
 #ifndef SYS_METAL
 - (id)initWithFrame:(NSRect)frameRect {
 	NSOpenGLPixelFormat* pf = [BasicOpenGLView basicPixelFormat];
-	self = [super initWithFrame: frameRect pixelFormat: pf];
-	
+	self = [super initWithFrame:frameRect pixelFormat:pf];
+
 	[self prepareOpenGL];
-    //[[self openGLContext] makeCurrentContext];
+	//[[self openGLContext] makeCurrentContext];
 	return self;
 }
 #else
 - (id)initWithFrame:(NSRect)frameRect {
-	self = [super initWithFrame: frameRect device: MTLCreateSystemDefaultDevice()];
+	self = [super initWithFrame:frameRect device:MTLCreateSystemDefaultDevice()];
 	commandQueue = [self.device newCommandQueue];
 	library = [self.device newDefaultLibrary];
 	return self;
@@ -239,7 +235,7 @@ namespace {
 }
 
 - (BOOL)becomeFirstResponder {
-	return  YES;
+	return YES;
 }
 
 - (BOOL)resignFirstResponder {
@@ -247,31 +243,31 @@ namespace {
 }
 
 #ifdef SYS_METAL
-- (id <MTLDevice>)metalDevice {
+- (id<MTLDevice>)metalDevice {
 	return self.device;
 }
 
-- (id <MTLLibrary>)metalLibrary {
+- (id<MTLLibrary>)metalLibrary {
 	return library;
 }
 
-- (id <MTLRenderCommandEncoder>)metalEncoder {
+- (id<MTLRenderCommandEncoder>)metalEncoder {
 	return commandEncoder;
 }
 
 - (void)begin {
 	@autoreleasepool {
 		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
-		
+
 		drawable = [metalLayer nextDrawable];
-		
-		//printf("It's %i\n", drawable == nil ? 0 : 1);
-		//if (drawable == nil) return;
+
+		// printf("It's %i\n", drawable == nil ? 0 : 1);
+		// if (drawable == nil) return;
 		id<MTLTexture> texture = drawable.texture;
-		
-		//backingWidth = (int)[texture width];
-		//backingHeight = (int)[texture height];
-		
+
+		// backingWidth = (int)[texture width];
+		// backingHeight = (int)[texture height];
+
 		if (renderPassDescriptor == nil) {
 			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		}
@@ -279,13 +275,12 @@ namespace {
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-		
-		//id <MTLCommandQueue> commandQueue = [device newCommandQueue];
+
+		// id <MTLCommandQueue> commandQueue = [device newCommandQueue];
 		commandBuffer = [commandQueue commandBuffer];
-		//if (drawable != nil) {
+		// if (drawable != nil) {
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 		//}
-		
 	}
 }
 
@@ -295,8 +290,8 @@ namespace {
 		[commandBuffer presentDrawable:drawable];
 		[commandBuffer commit];
 		commandBuffer = nil;
-		
-		//if (drawable != nil) {
+
+		// if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
 		//	[drawable present];
 		//}

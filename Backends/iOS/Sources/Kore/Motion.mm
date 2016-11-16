@@ -1,18 +1,18 @@
 #include "pch.h"
-#import "Motion.h"
 
+#import "Motion.h"
 
 @implementation Motion
 /*
 Motion* the = [[Motion alloc]init];
 + (Motion*) the {return the;};
 
--(void)configureAccelerometerWithGyroHandler: (Kt::GyroHandler*) gyroHandler 
+-(void)configureAccelerometerWithGyroHandler: (Kt::GyroHandler*) gyroHandler
                            AndUpdateInterval: (int) updateInterval
 {
     UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
     accelerometer.updateInterval = 1 / updateInterval;
-    
+
     accelerometer.delegate = self;
     self->gyroHandler = gyroHandler;
 }

@@ -30,9 +30,7 @@ namespace Kore {
 
 	class FileReader : public Reader {
 	public:
-		enum FileType {
-			Asset, Save
-		};
+		enum FileType { Asset, Save };
 
 		FileReader();
 		FileReader(const char* filename, FileType type = Asset);
@@ -48,6 +46,6 @@ namespace Kore {
 		FileReaderData data;
 		void* readdata;
 	};
-	
+
 	void setFilesLocation(char* dir);
 }

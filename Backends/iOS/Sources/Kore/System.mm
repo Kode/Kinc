@@ -1,8 +1,10 @@
 #include "pch.h"
-#include <Kore/System.h>
-#include <Kore/Graphics/Graphics.h>
-#import <UIKit/UIKit.h>
+
 #import "KoreAppDelegate.h"
+
+#include <Kore/Graphics/Graphics.h>
+#include <Kore/System.h>
+#import <UIKit/UIKit.h>
 
 using namespace Kore;
 
@@ -19,8 +21,7 @@ bool System::handleMessages() {
 	SInt32 result;
 	do {
 		result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, TRUE);
-	}
-	while(result == kCFRunLoopRunHandledSource);
+	} while (result == kCFRunLoopRunHandledSource);
 	return true;
 }
 
@@ -28,25 +29,15 @@ vec2i System::mousePos() {
 	return vec2i(mouseX, mouseY);
 }
 
-void System::destroyWindow(int windowId) {
-	
-}
+void System::destroyWindow(int windowId) {}
 
-void System::changeResolution(int width, int height, bool fullscreen) {
+void System::changeResolution(int width, int height, bool fullscreen) {}
 
-}
+void System::showWindow() {}
 
-void System::showWindow() {
-	
-}
+void System::setTitle(const char* title) {}
 
-void System::setTitle(const char* title) {
-	
-}
-
-void System::setKeepScreenOn( bool on ) {
-    
-}
+void System::setKeepScreenOn(bool on) {}
 
 bool System::showsKeyboard() {
 	return keyboardshown;
@@ -62,7 +53,7 @@ void System::showKeyboard() {
 
 void System::hideKeyboard() {
 	keyboardshown = false;
-    ::hideKeyboard();
+	::hideKeyboard();
 }
 
 void loadURL(const char* url);
@@ -73,55 +64,53 @@ void System::loadURL(const char* url) {
 
 // called on rotation event
 void KoreUpdateKeyboard() {
-    if (keyboardshown) {
-        ::hideKeyboard();
-        ::showKeyboard();
-    }
-    else {
-        ::hideKeyboard();
-    }
+	if (keyboardshown) {
+		::hideKeyboard();
+		::showKeyboard();
+	}
+	else {
+		::hideKeyboard();
+	}
 }
 
 int Kore::System::initWindow(Kore::WindowOptions options) {
-    Graphics::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-    return 0;
+	Graphics::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	return 0;
 }
 
 int Kore::System::windowCount() {
-    return 1;
+	return 1;
 }
 
 bool Kore::System::isFullscreen() {
-    return true;
+	return true;
 }
 
-void Kore::System::setup() {
-}
+void Kore::System::setup() {}
 
-void Graphics::makeCurrent(int contextId) {
-}
+void Graphics::makeCurrent(int contextId) {}
 
-namespace { namespace windowimpl {
-    int currentDeviceId = -1;
-}}
+namespace {
+	namespace windowimpl {
+		int currentDeviceId = -1;
+	}
+}
 
 void Kore::System::makeCurrent(int id) {
-    windowimpl::currentDeviceId = id;
+	windowimpl::currentDeviceId = id;
 }
 
 int Kore::System::currentDevice() {
-    return windowimpl::currentDeviceId;
+	return windowimpl::currentDeviceId;
 }
 
-void Kore::System::clearCurrent() {
-}
+void Kore::System::clearCurrent() {}
 
 void endGL();
 
 void System::swapBuffers(int) {
 	endGL();
 }
-
 
 namespace {
 	char sysid[512];
@@ -138,18 +127,18 @@ const char* System::systemId() {
 
 namespace {
 	const char* savePath = nullptr;
-	
+
 	void getSavePath() {
 		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSString* resolvedPath = [paths objectAtIndex:0];
-        NSString* appName = [NSString stringWithUTF8String:Kore::System::name()];
+		NSString* appName = [NSString stringWithUTF8String:Kore::System::name()];
 		resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
-		
+
 		NSFileManager* fileMgr = [[NSFileManager alloc] init];
-		
-		NSError *error;
+
+		NSError* error;
 		[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
-		
+
 		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
 		savePath = [resolvedPath cStringUsingEncoding:1];
 	}
@@ -161,7 +150,7 @@ const char* System::savePath() {
 }
 
 namespace {
-	const char* videoFormats[] = { "mp4", nullptr };
+	const char* videoFormats[] = {"mp4", nullptr};
 }
 
 const char** Kore::System::videoFormats() {
@@ -181,10 +170,10 @@ System::ticks System::timestamp() {
 	return time;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 	int retVal = 0;
 	@autoreleasepool {
-		[KoreAppDelegate description]; //otherwise removed by the linker
+		[KoreAppDelegate description]; // otherwise removed by the linker
 		retVal = UIApplicationMain(argc, argv, nil, @"KoreAppDelegate");
 	}
 	return retVal;

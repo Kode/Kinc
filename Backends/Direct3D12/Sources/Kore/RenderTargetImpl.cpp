@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "RenderTargetImpl.h"
 #include "Direct3D12.h"
+#include "RenderTargetImpl.h"
 #include "d3dx12.h"
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>

@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Image.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "VertexStructure.h"
+#include <Kore/GraphicsImpl.h>
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
-#include <Kore/GraphicsImpl.h>
-#include "Shader.h"
-#include "VertexStructure.h"
-#include "Texture.h"
 
 namespace Kore {
 	class VertexBuffer : public VertexBufferImpl {
@@ -31,28 +31,26 @@ namespace Kore {
 		void _set();
 	};
 
-	enum TextureAddressing {
-		Repeat,
-		Mirror,
-		Clamp,
-		Border
-	};
+	enum TextureAddressing { Repeat, Mirror, Clamp, Border };
 
-	enum TextureFilter {
-		PointFilter,
-		LinearFilter,
-		AnisotropicFilter
-	};
+	enum TextureFilter { PointFilter, LinearFilter, AnisotropicFilter };
 
 	enum MipmapFilter {
 		NoMipFilter,
 		PointMipFilter,
-		LinearMipFilter //linear texture filter + linear mip filter -> trilinear filter
+		LinearMipFilter // linear texture filter + linear mip filter -> trilinear filter
 	};
 
 	enum RenderState {
-		BlendingState, DepthTest, DepthTestCompare, /*Lighting,*/ DepthWrite, Normalize, BackfaceCulling, /*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
-		AlphaTestState, AlphaReferenceState
+		BlendingState,
+		DepthTest,
+		DepthTestCompare,
+		/*Lighting,*/ DepthWrite,
+		Normalize,
+		BackfaceCulling,
+		/*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
+		AlphaTestState,
+		AlphaReferenceState
 	};
 
 	enum BlendingOperation {
@@ -79,53 +77,24 @@ namespace Kore {
 		ZCompareGreaterEqual
 	};
 
-	enum CullMode {
-		Clockwise,
-		CounterClockwise,
-		NoCulling
-	};
+	enum CullMode { Clockwise, CounterClockwise, NoCulling };
 
-	enum TexDir {
-		U, V
-	};
+	enum TexDir { U, V };
 
-	enum FogType {
-		LinearFog
-	};
+	enum FogType { LinearFog };
 
-	enum RenderTargetFormat {
-		Target32Bit,
-		Target64BitFloat,
-		Target32BitRedFloat,
-		Target128BitFloat,
-		Target16BitDepth
-	};
+	enum RenderTargetFormat { Target32Bit, Target64BitFloat, Target32BitRedFloat, Target128BitFloat, Target16BitDepth };
 
-	enum StencilAction {
-		Keep,
-		Zero,
-		Replace,
-		Increment,
-		IncrementWrap,
-		Decrement,
-		DecrementWrap,
-		Invert
-	};
+	enum StencilAction { Keep, Zero, Replace, Increment, IncrementWrap, Decrement, DecrementWrap, Invert };
 
-	enum TextureOperation {
-		ModulateOperation,
-		SelectFirstOperation,
-		SelectSecondOperation
-	};
+	enum TextureOperation { ModulateOperation, SelectFirstOperation, SelectSecondOperation };
 
-	enum TextureArgument {
-		CurrentColorArgument,
-		TextureColorArgument
-	};
+	enum TextureArgument { CurrentColorArgument, TextureColorArgument };
 
 	class RenderTarget : public RenderTargetImpl {
 	public:
-		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1, int contextId = 0);
+		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
+		             int contextId = 0);
 		int width;
 		int height;
 		int texWidth;
@@ -154,7 +123,7 @@ namespace Kore {
 		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
 		void setIndexBuffer(IndexBuffer& indexBuffer);
 		void setTexture(TextureUnit unit, Texture* texture);
-	
+
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
 		void drawIndexedVerticesInstanced(int instanceCount);
@@ -181,7 +150,8 @@ namespace Kore {
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();
-		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask = 0, int writeMask = 0);
+		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+		                          int readMask = 0, int writeMask = 0);
 
 		void setRenderState(RenderState state, bool on);
 		void setRenderState(RenderState state, int v);
@@ -198,8 +168,15 @@ namespace Kore {
 		unsigned refreshRate();
 		bool nonPow2TexturesSupported();
 
-		const uint ClearColorFlag   = 1;
-		const uint ClearDepthFlag   = 2;
+		// Occlusion Query
+		bool initOcclusionQuery(uint* occlusionQuery);
+		void deleteOcclusionQuery(uint occlusionQuery);
+		void renderOcclusionQuery(uint occlusionQuery, int triangles);
+		bool isQueryResultsAvailable(uint occlusionQuery);
+		void getQueryResults(uint occlusionQuery, uint* pixelCount);
+
+		const uint ClearColorFlag = 1;
+		const uint ClearDepthFlag = 2;
 		const uint ClearStencilFlag = 4;
 
 		void clear(uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);

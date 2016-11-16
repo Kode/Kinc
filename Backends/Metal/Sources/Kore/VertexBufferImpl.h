@@ -5,7 +5,7 @@
 
 namespace Kore {
 	class VertexBuffer;
-	
+
 	class VertexBufferImpl {
 	protected:
 		VertexBufferImpl(int count);
@@ -15,8 +15,8 @@ namespace Kore {
 		int myStride;
 		int index;
 		id mtlBuffer;
+
 	public:
 		static VertexBuffer* current;
 	};
 }
-

@@ -1,29 +1,31 @@
 #include "pch.h"
+
 #include "Metal.h"
 #include "VertexBufferImpl.h"
-#include <Kore/System.h>
+
 #include <Kore/Math/Core.h>
-#include <cstdio>
+#include <Kore/System.h>
 #import <Metal/Metal.h>
+#include <cstdio>
 
 using namespace Kore;
 
 namespace {
-	//bool fullscreen;
-	//TextureFilter minFilters[32];
-	//MipmapFilter mipFilters[32];
-	//int originalFramebuffer;
-	id <MTLBuffer> vertexUniforms;
-	id <MTLBuffer> fragmentUniforms;
+	// bool fullscreen;
+	// TextureFilter minFilters[32];
+	// MipmapFilter mipFilters[32];
+	// int originalFramebuffer;
+	id<MTLBuffer> vertexUniforms;
+	id<MTLBuffer> fragmentUniforms;
 	const int uniformsSize = 4096;
 	const int more = 5;
 	int uniformsIndex = 0;
-	
+
 	void* vertexData(int offset) {
 		u8* bytes = (u8*)[vertexUniforms contents];
 		return &bytes[uniformsIndex * uniformsSize + offset];
 	}
-	
+
 	void* fragmentData(int offset) {
 		u8* bytes = (u8*)[fragmentUniforms contents];
 		return &bytes[uniformsIndex * uniformsSize + offset];
@@ -41,15 +43,13 @@ void Graphics::destroy(int windowId) {
 #undef CreateWindow
 
 void Graphics::init(int, int, int) {
-	//System::createWindow();
-	id <MTLDevice> device = getMetalDevice();
+	// System::createWindow();
+	id<MTLDevice> device = getMetalDevice();
 	vertexUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
 	fragmentUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
 }
 
-void Graphics::flush() {
-	
-}
+void Graphics::flush() {}
 
 unsigned Graphics::refreshRate() {
 	return 60;
@@ -59,7 +59,7 @@ bool Graphics::vsynced() {
 	return true;
 }
 
-//void* Graphics::getControl() {
+// void* Graphics::getControl() {
 //	return nullptr;
 //}
 
@@ -191,12 +191,16 @@ void Graphics::drawIndexedVertices() {
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-	id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+
 	//[encoder setDepthStencilState:_depthState];
 	[encoder setVertexBuffer:vertexUniforms offset:uniformsIndex * uniformsSize atIndex:1];
 	[encoder setFragmentBuffer:fragmentUniforms offset:uniformsIndex * uniformsSize atIndex:0];
-	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:count indexType:MTLIndexTypeUInt32 indexBuffer:IndexBufferImpl::current->mtlBuffer indexBufferOffset:start + IndexBufferImpl::current->offset()];
+	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+	                    indexCount:count
+	                     indexType:MTLIndexTypeUInt32
+	                   indexBuffer:IndexBufferImpl::current->mtlBuffer
+	             indexBufferOffset:start + IndexBufferImpl::current->offset()];
 }
 
 void Graphics::swapBuffers(int windowId) {
@@ -207,11 +211,10 @@ void beginGL();
 
 void Graphics::begin(int windowId) {
 	beginGL();
-	
 }
 
 void Graphics::viewport(int x, int y, int width, int height) {
-	//TODO
+	// TODO
 	// id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	// MTLViewport viewport;
 	// viewport.originX=x;
@@ -222,15 +225,16 @@ void Graphics::viewport(int x, int y, int width, int height) {
 }
 
 void Graphics::scissor(int x, int y, int width, int height) {
-	//TODO
+	// TODO
 }
 
 void Graphics::disableScissor() {
-	//TODO
+	// TODO
 }
 
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask, int writeMask) {
-	//TODO
+void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+                                    int readMask, int writeMask) {
+	// TODO
 }
 
 void Graphics::end(int windowId) {
@@ -240,49 +244,40 @@ void Graphics::end(int windowId) {
 	}
 }
 
-void Graphics::clear(uint flags, uint color, float depth, int stencil) {
+void Graphics::clear(uint flags, uint color, float depth, int stencil) {}
 
+void Graphics::setRenderState(RenderState state, bool on) {}
+
+void Graphics::setRenderState(RenderState state, int v) {}
+
+void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
+
+void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+
+void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
+
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
+
+void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
+
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
+
+void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {}
+
+void Graphics::restoreRenderTarget() {}
 }
 
-void Graphics::setRenderState(RenderState state, bool on) {
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
-}
+void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
-void Graphics::setRenderState(RenderState state, int v) {
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {}
 
-}
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
-void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {}
 
-}
-
-void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-
-}
-
-void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-
-}
-
-void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-
-}
-
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
-
-}
-
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-
-}
-
-void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
-
-}
-
-void Graphics::restoreRenderTarget() {
-
-}
+void Graphics::restoreRenderTarget() {}
 
 bool Graphics::renderTargetsInvertedY() {
 	return true;
@@ -292,10 +287,26 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics::setIndexBuffer(Kore::IndexBuffer &ib) {
+void Graphics::setIndexBuffer(Kore::IndexBuffer& ib) {
 	ib._set();
 }
 
-void Graphics::setVertexBuffers(Kore::VertexBuffer **vertexBuffers, int count) {
+void Graphics::setVertexBuffers(Kore::VertexBuffer** vertexBuffers, int count) {
 	vertexBuffers[0]->_set(0);
 }
+
+void Graphics::setTexture(Kore::TextureUnit unit, Kore::Texture* texture) {}
+
+bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	return false;
+}
+
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {}
+
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+	return false;
+}
+
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {}

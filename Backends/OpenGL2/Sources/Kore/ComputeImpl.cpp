@@ -1,9 +1,11 @@
 #include "pch.h"
+
 #include "ComputeImpl.h"
+#include "ogl.h"
+
 #include <Kore/Compute/Compute.h>
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Math/Core.h>
-#include "ogl.h"
 #include <stdio.h>
 
 using namespace Kore;
@@ -20,7 +22,8 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 	_source[length] = 0;
 
 #ifdef HAS_COMPUTE
-	_id = glCreateShader(GL_COMPUTE_SHADER); glCheckErrors();
+	_id = glCreateShader(GL_COMPUTE_SHADER);
+	glCheckErrors();
 	glShaderSource(_id, 1, &_source, nullptr);
 	glCompileShader(_id);
 
@@ -60,14 +63,13 @@ ComputeShaderImpl::~ComputeShaderImpl() {
 #endif
 }
 
-ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {
-
-}
+ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {}
 
 ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 	ComputeConstantLocation location;
 #ifdef HAS_COMPUTE
-	location.location = glGetUniformLocation(_programid, name); glCheckErrors2();
+	location.location = glGetUniformLocation(_programid, name);
+	glCheckErrors2();
 	if (location.location < 0) {
 		log(Warning, "Uniform %s not found.", name);
 	}
@@ -83,26 +85,32 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 
 void Compute::setFloat(ComputeConstantLocation location, float value) {
 #ifdef HAS_COMPUTE
-	glUniform1f(location.location, value); glCheckErrors2();
+	glUniform1f(location.location, value);
+	glCheckErrors2();
 #endif
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Texture* texture) {
 #ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.unit); glCheckErrors2();
-	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); glCheckErrors2();
+	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glCheckErrors2();
+	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glCheckErrors2();
 #endif
 }
 
 void Compute::setShader(ComputeShader* shader) {
 #ifdef HAS_COMPUTE
-	glUseProgram(shader->_programid); glCheckErrors2();
+	glUseProgram(shader->_programid);
+	glCheckErrors2();
 #endif
 }
 
 void Compute::compute(int x, int y, int z) {
 #ifdef HAS_COMPUTE
-	glDispatchCompute(x, y, z); glCheckErrors2();
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT); glCheckErrors2();
+	glDispatchCompute(x, y, z);
+	glCheckErrors2();
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glCheckErrors2();
 #endif
 }

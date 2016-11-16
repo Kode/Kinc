@@ -9,17 +9,17 @@ namespace Kore {
 		void (*Press)(int windowId, int button, int x, int y);
 		void (*Release)(int windowId, int button, int x, int y);
 		void (*Scroll)(int windowId, int delta);
-		
+
 		bool canLock(int windowId);
 		bool isLocked(int windowId);
 		void lock(int windowId);
 		void unlock(int windowId);
-		
+
 		void show(bool truth);
 		void setPosition(int windowId, int x, int y);
 		void getPosition(int windowId, int& x, int& y);
 
-		//for backend
+		// for backend
 		void _move(int windowId, int x, int y);
 		void _press(int windowId, int button, int x, int y);
 		void _release(int windowId, int button, int x, int y);

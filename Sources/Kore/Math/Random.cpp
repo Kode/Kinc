@@ -1,9 +1,10 @@
 #include "pch.h"
+
 #include "Random.h"
 
 using namespace Kore;
 
-//MT19937
+// MT19937
 
 namespace {
 	s32 MT[624];

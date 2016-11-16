@@ -1,6 +1,9 @@
 #include "pch.h"
+
 #include <Kore/Graphics/Graphics.h>
+
 #include <vulkan/vulkan.h>
+
 #include <assert.h>
 #include <string.h>
 
@@ -9,13 +12,11 @@ using namespace Kore;
 extern VkDevice device;
 extern VkCommandBuffer draw_cmd;
 
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
 IndexBuffer* IndexBufferImpl::current = nullptr;
 
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {
-
-}
+IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
 IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
 	VkBufferCreateInfo buf_info = {};

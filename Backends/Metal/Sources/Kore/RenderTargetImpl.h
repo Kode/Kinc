@@ -3,6 +3,5 @@
 namespace Kore {
 	class RenderTargetImpl {
 	public:
-		
 	};
 }

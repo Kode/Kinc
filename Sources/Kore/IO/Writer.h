@@ -3,7 +3,7 @@
 namespace Kore {
 	class Writer {
 	public:
-		virtual ~Writer() { }
+		virtual ~Writer() {}
 		virtual void write(void* data, int size) = 0;
 
 		void writeLE(float value);

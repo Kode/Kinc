@@ -1,12 +1,13 @@
 #include "pch.h"
-#include "Quaternion.h"
+
 #include "Core.h"
+#include "Quaternion.h"
 
 using namespace Kore;
 
-Quaternion::Quaternion() : x(0), y(0), z(0), w(0) { }
+Quaternion::Quaternion() : x(0), y(0), z(0), w(0) {}
 
-Quaternion::Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) { }
+Quaternion::Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
 Quaternion::Quaternion(const vec3& axis, float radians) {
 	w = cos(radians / 2);
@@ -60,14 +61,28 @@ float Quaternion::dot(const Quaternion& q) const {
 
 mat4 Quaternion::matrix() const {
 	const float s = 2;
-	float xs = x * s; float ys = y * s; float zs = z * s;
-	float wx = w * xs; float wy = w * ys; float wz = w * zs;
-	float xx = x * xs; float xy = x * ys; float xz = x * zs;
-	float yy = y * ys; float yz = y * zs; float zz = z * zs;
+	float xs = x * s;
+	float ys = y * s;
+	float zs = z * s;
+	float wx = w * xs;
+	float wy = w * ys;
+	float wz = w * zs;
+	float xx = x * xs;
+	float xy = x * ys;
+	float xz = x * zs;
+	float yy = y * ys;
+	float yz = y * zs;
+	float zz = z * zs;
 	mat4 m = mat4::Identity();
-	m.Set(0, 0, 1 - (yy + zz)); m.Set(1, 0, xy - wz); m.Set(2, 0, xz + wy);
-	m.Set(0, 1, xy + wz); m.Set(1, 1, 1 - (xx + zz)); m.Set(2, 1, yz - wx);
-	m.Set(0, 2, xz - wy); m.Set(1, 2, yz + wx); m.Set(2, 2, 1 - (xx + yy));
+	m.Set(0, 0, 1 - (yy + zz));
+	m.Set(1, 0, xy - wz);
+	m.Set(2, 0, xz + wy);
+	m.Set(0, 1, xy + wz);
+	m.Set(1, 1, 1 - (xx + zz));
+	m.Set(2, 1, yz - wx);
+	m.Set(0, 2, xz - wy);
+	m.Set(1, 2, yz + wx);
+	m.Set(2, 2, 1 - (xx + yy));
 	return m;
 }
 
@@ -80,17 +95,14 @@ Quaternion Quaternion::operator+(const Quaternion& q) const {
 }
 
 Quaternion Quaternion::operator+(const vec3& v) const {
-	Quaternion result(x, y, z, w); 
-	Quaternion q1(0,
-                v.x(),
-                v.y(), 
-                v.z());
-            q1 = q1 * result;
-			result.x += q1.x * 0.5f;
-			result.y += q1.y * 0.5f;
-			result.z += q1.z * 0.5f;
-			result.w += q1.w * 0.5f;
-			return result;
+	Quaternion result(x, y, z, w);
+	Quaternion q1(0, v.x(), v.y(), v.z());
+	q1 = q1 * result;
+	result.x += q1.x * 0.5f;
+	result.y += q1.y * 0.5f;
+	result.z += q1.z * 0.5f;
+	result.w += q1.w * 0.5f;
+	return result;
 }
 
 void Quaternion::operator+=(const vec3& v) {
@@ -110,8 +122,6 @@ Quaternion Quaternion::operator*(const Quaternion& r) const {
 	q.w = x * r.w + y * r.z - z * r.y + w * r.x;
 	return q;
 }
-
-
 
 bool Quaternion::operator==(const Quaternion& q) const {
 	return x == q.x && y == q.y && z == q.z && w == q.w;

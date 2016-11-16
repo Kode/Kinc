@@ -1,5 +1,7 @@
 #include "pch.h"
+
 #include "Graphics.h"
+
 #include <limits>
 
 using namespace Kore;
@@ -10,8 +12,7 @@ namespace {
 }
 
 #if !defined(SYS_WINDOWS)
-void Graphics::setup() {
-}
+void Graphics::setup() {}
 #endif
 
 int Graphics::antialiasingSamples() {
@@ -45,6 +46,6 @@ void Graphics::setFloat4(ConstantLocation position, vec4 value) {
 }
 
 void Graphics::setVertexBuffer(VertexBuffer& vertexBuffer) {
-	VertexBuffer* vertexBuffers[1] = { &vertexBuffer };
+	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
 	setVertexBuffers(vertexBuffers, 1);
 }

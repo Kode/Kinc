@@ -1,17 +1,20 @@
 #include "pch.h"
+
 #include "Socket.h"
-#include <stdio.h>
+
 #include <Kore/Log.h>
 
+#include <stdio.h>
+
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
-#include <winsock2.h>
 #include <Ws2tcpip.h>
+#include <winsock2.h>
 #elif defined(SYS_UNIXOID)
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 using namespace Kore;
@@ -50,7 +53,7 @@ void Socket::open(int port) {
 	sockaddr_in address;
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons((unsigned short) port);
+	address.sin_port = htons((unsigned short)port);
 	if (bind(handle, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0) {
 		log(Kore::Error, "Could not bind socket.");
 		return;
@@ -65,7 +68,7 @@ void Socket::open(int port) {
 	}
 #elif defined(SYS_UNIXOID)
 	int nonBlocking = 1;
-	if (fcntl(handle, F_SETFL, O_NONBLOCK, nonBlocking ) == -1) {
+	if (fcntl(handle, F_SETFL, O_NONBLOCK, nonBlocking) == -1) {
 		log(Kore::Error, "Could not set non-blocking mode.");
 		return;
 	}
@@ -90,13 +93,13 @@ void Socket::send(const char* url, int port, const unsigned char* data, int size
 	addrinfo* address = NULL;
 	char serv[5];
 	sprintf(serv, "%u", port);
-	
+
 	int res = getaddrinfo(url, serv, &hints, &address);
 	if (res != 0) {
 		log(Kore::Error, "Could not resolve address.");
 		return;
 	}
-	
+
 	int sent = sendto(handle, (const char*)data, size, 0, address->ai_addr, sizeof(sockaddr_in));
 	if (sent != size) {
 		log(Kore::Error, "Could not send packet.");

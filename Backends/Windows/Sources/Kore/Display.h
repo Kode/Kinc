@@ -6,28 +6,30 @@
 
 #undef RegisterClass
 
-namespace Kore { namespace Display {
-	struct DeviceInfo {
-		HMONITOR id;
-		bool isAvailable;
-		char name[32];
-		int x;
-		int y;
-        int width;
-        int height;
-		bool isPrimary;
+namespace Kore {
+	namespace Display {
+		struct DeviceInfo {
+			HMONITOR id;
+			bool isAvailable;
+			char name[32];
+			int x;
+			int y;
+			int width;
+			int height;
+			bool isPrimary;
 
-		DeviceInfo () {
-			id = NULL;
-			name[0] = 0;
-			isAvailable = false;
-			isPrimary = false;
-		}
-	};
+			DeviceInfo() {
+				id = NULL;
+				name[0] = 0;
+				isAvailable = false;
+				isPrimary = false;
+			}
+		};
 
-	void enumerate();
-	const DeviceInfo * primary();
-	const DeviceInfo * byId( int id );   
-	int height( int index );
-	int width( int index ); 
-}}
+		void enumerate();
+		const DeviceInfo* primary();
+		const DeviceInfo* byId(int id);
+		int height(int index);
+		int width(int index);
+	}
+}

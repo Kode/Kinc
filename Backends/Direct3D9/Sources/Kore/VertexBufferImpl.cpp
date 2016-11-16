@@ -1,16 +1,16 @@
 #include "pch.h"
+
+#include "Direct3D9.h"
 #include "VertexBufferImpl.h"
+
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/WinError.h>
-#include "Direct3D9.h"
 
 using namespace Kore;
 
 VertexBuffer* VertexBufferImpl::_current = nullptr;
 
-VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {
-
-}
+VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
 
 VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, instanceDataStepRate) {
 	DWORD usage = D3DUSAGE_WRITEONLY;
@@ -40,7 +40,7 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 			break;
 		}
 	}
-	
+
 	affirm(device->CreateVertexBuffer(stride() * count, usage, 0, D3DPOOL_DEFAULT, &vb, 0));
 }
 

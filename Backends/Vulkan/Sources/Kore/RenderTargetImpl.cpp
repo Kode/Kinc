@@ -1,8 +1,12 @@
 #include "pch.h"
+
 #include "RenderTargetImpl.h"
+
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
+
 #include <vulkan/vulkan.h>
+
 #include <assert.h>
 
 using namespace Kore;
@@ -32,7 +36,7 @@ extern Texture* vulkanTextures[8];
 extern RenderTarget* vulkanRenderTargets[8];
 
 void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
 void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
 	VkImageMemoryBarrier imageMemoryBarrier = {};
@@ -48,7 +52,7 @@ void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout 
 	imageMemoryBarrier.subresourceRange.levelCount = 1;
 	imageMemoryBarrier.subresourceRange.layerCount = 1;
 
-	//if (oldImageLayout == VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+	// if (oldImageLayout == VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
 	if (oldImageLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 	if (oldImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 	if (oldImageLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
@@ -62,7 +66,8 @@ void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout 
 		imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		if (oldImageLayout != VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 	}
-	if (newImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	if (newImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 	if (newImageLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 		if (oldImageLayout != VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
 		imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -74,7 +79,8 @@ void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout 
 	vkCmdPipelineBarrier(draw_cmd, srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+    : width(width), height(height) {
 	texWidth = width;
 	texHeight = height;
 	{
@@ -89,7 +95,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 		imageCreateInfo.pNext = NULL;
 		imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
 		imageCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-		imageCreateInfo.extent = { (uint32_t)width, (uint32_t)height, 1 };
+		imageCreateInfo.extent = {(uint32_t)width, (uint32_t)height, 1};
 		imageCreateInfo.mipLevels = 1;
 		imageCreateInfo.arrayLayers = 1;
 		imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -108,7 +114,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 		allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocationInfo.pNext = nullptr;
 		allocationInfo.memoryTypeIndex = 0;
-				
+
 		vkGetImageMemoryRequirements(device, destImage, &memoryRequirements);
 		allocationInfo.allocationSize = memoryRequirements.size;
 		bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
@@ -126,8 +132,8 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 		view.image = VK_NULL_HANDLE;
 		view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		view.format = VK_FORMAT_R8G8B8A8_UNORM;
-		view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
-		view.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
+		view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 		view.image = destImage;
 		err = vkCreateImageView(device, &view, nullptr, &destView);
 		assert(!err);
@@ -169,7 +175,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 
 		err = vkCreateImage(device, &image, nullptr, &sourceImage);
 		assert(!err);
-		
+
 		VkMemoryRequirements memoryRequirements;
 		vkGetImageMemoryRequirements(device, sourceImage, &memoryRequirements);
 
@@ -234,7 +240,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 
 	VkMemoryRequirements memoryRequirements;
 	vkGetImageMemoryRequirements(device, image, &memoryRequirements);
-	
+
 	VkMemoryAllocateInfo allocationInfo = {};
 	allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocationInfo.pNext = nullptr;
@@ -266,7 +272,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	viewInfo.subresourceRange.layerCount = 1;
 	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	viewInfo.flags = 0;
-	
+
 	err = vkCreateImageView(device, &viewInfo, nullptr, &view);
 	assert(!err);*/
 
@@ -308,7 +314,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 
 	err = vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass);
 	assert(!err);
-	
+
 	VkFramebufferCreateInfo fbufCreateInfo = {};
 	fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	fbufCreateInfo.pNext = nullptr;
@@ -328,5 +334,6 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	vulkanRenderTargets[unit.binding - 2] = this;
 	vulkanTextures[unit.binding - 2] = nullptr;
-	if (ProgramImpl::current != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
+	if (ProgramImpl::current != nullptr)
+		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }

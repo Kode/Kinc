@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "Writer.h"
 
 using namespace Kore;
@@ -72,11 +73,19 @@ void Writer::writeS8(s8 value) {
 }
 
 #ifdef SYS_LITTLE_ENDIAN
-#define TO_LE(size) u8* values = (u8*)&value; for (int i = 0; i < size; ++i) data[i] = values[i];
-#define TO_BE(size) u8* values = (u8*)&value; for (int i = 0; i < size; ++i) data[i] = values[size - 1 - i];
+#define TO_LE(size)                                                                                                                                            \
+	u8* values = (u8*)&value;                                                                                                                                  \
+	for (int i = 0; i < size; ++i) data[i] = values[i];
+#define TO_BE(size)                                                                                                                                            \
+	u8* values = (u8*)&value;                                                                                                                                  \
+	for (int i = 0; i < size; ++i) data[i] = values[size - 1 - i];
 #else
-#define TO_LE(size) u8* values = (u8*)&value; for (int i = 0; i < size; ++i) data[i] = values[size - 1 - i];
-#define TO_BE(size) u8* values = (u8*)&value; for (int i = 0; i < size; ++i) data[i] = values[i];
+#define TO_LE(size)                                                                                                                                            \
+	u8* values = (u8*)&value;                                                                                                                                  \
+	for (int i = 0; i < size; ++i) data[i] = values[size - 1 - i];
+#define TO_BE(size)                                                                                                                                            \
+	u8* values = (u8*)&value;                                                                                                                                  \
+	for (int i = 0; i < size; ++i) data[i] = values[i];
 #endif
 
 void Writer::writeLE(float value, u8* data) {

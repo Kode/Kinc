@@ -1,5 +1,7 @@
 #include "pch.h"
+
 #include "RenderTargetImpl.h"
+
 #include <Kore/Graphics/Graphics.h>
 
 using namespace Kore;
@@ -10,19 +12,17 @@ namespace {
 		for (int i = 0; i < pow; ++i) ret *= 2;
 		return ret;
 	}
-	
+
 	int getPower2(int i) {
-		for (int power = 0; ; ++power)
+		for (int power = 0;; ++power)
 			if (pow(power) >= i) return pow(power);
 	}
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+    : width(width), height(height) {
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
-	
 }
 
-void RenderTarget::useColorAsTexture(TextureUnit unit) {
-	
-}
+void RenderTarget::useColorAsTexture(TextureUnit unit) {}

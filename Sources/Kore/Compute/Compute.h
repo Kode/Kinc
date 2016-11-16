@@ -3,15 +3,11 @@
 #include <Kore/ComputeImpl.h>
 
 namespace Kore {
-	class ComputeConstantLocation : public ComputeConstantLocationImpl {
-
-	};
+	class ComputeConstantLocation : public ComputeConstantLocationImpl {};
 
 	class Texture;
 
-	class ComputeTextureUnit : public ComputeTextureUnitImpl {
-
-	};
+	class ComputeTextureUnit : public ComputeTextureUnitImpl {};
 
 	class ComputeShader : public ComputeShaderImpl {
 	public:

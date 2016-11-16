@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "Core.h"
 
 #ifdef SYS_HTML5
@@ -13,7 +14,7 @@ using namespace Kore;
 
 float Kore::tan(float x) {
 	return std::sin(x) / std::cos(x);
-	//return tanf(x);
+	// return tanf(x);
 	// Verhält sich tanf(x) genauso wie sinf(x) / cosf(x) ?
 }
 
@@ -22,14 +23,14 @@ float Kore::cot(float x) {
 }
 
 double Kore::round(double value) {
-	//if (value - floor(value) >= 0.5) return ceil(value);
-	//else return floor(value);
+	// if (value - floor(value) >= 0.5) return ceil(value);
+	// else return floor(value);
 	return std::floor(value + 0.5);
 }
 
 float Kore::round(float value) {
-//	if (value - floorf(value) >= 0.5f) return ceilf(value);
-//	else return floorf(value);
+	//	if (value - floorf(value) >= 0.5f) return ceilf(value);
+	//	else return floorf(value);
 	return std::floor(value + 0.5f);
 }
 
@@ -41,8 +42,7 @@ float Kore::floor(float value) {
 	return std::floor(value);
 }
 
-float Kore::mod(float numer, float denom)
-{
+float Kore::mod(float numer, float denom) {
 	return std::fmod(numer, denom);
 }
 
@@ -77,7 +77,7 @@ float Kore::sqrt(float value) {
 }
 
 float Kore::abs(float value) {
-	//return ::abs(value);
+	// return ::abs(value);
 	return value < 0 ? -value : value;
 	// TODO: int-Trick
 }

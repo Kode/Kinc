@@ -1,8 +1,10 @@
 #include "pch.h"
+
 #include "Error.h"
 #include "ErrorArgs.h"
 #include "Log.h"
 #include "LogArgs.h"
+
 #include <stdlib.h>
 
 using namespace Kore;

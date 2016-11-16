@@ -1,17 +1,15 @@
 #include "pch.h"
 
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/WinError.h>
 #include "Direct3D9.h"
 #include "IndexBufferImpl.h"
+#include <Kore/Graphics/Graphics.h>
+#include <Kore/WinError.h>
 
 using namespace Kore;
 
 IndexBuffer* IndexBufferImpl::_current = nullptr;
 
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {
-
-}
+IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
 IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	DWORD usage = 0;

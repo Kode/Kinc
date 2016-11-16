@@ -1,8 +1,8 @@
 #include "pch.h"
 
+#include "Direct3D12.h"
+#include "Direct3D12.h"
 #include "TextureImpl.h"
-#include "Direct3D12.h"
-#include "Direct3D12.h"
 #include "d3dx12.h"
 #include <Kore/WinError.h>
 

@@ -11,8 +11,9 @@ namespace Kore {
 		void Free();
 		void Lock();
 		void Unlock();
+
 	private:
-	#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
+#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 		struct CriticalSection {
 			void* DebugInfo;
 			long LockCount;
@@ -21,19 +22,19 @@ namespace Kore {
 			void* LockSemaphore;
 			unsigned long __w64 SpinCount;
 		} criticalSection;
-	#elif defined(SYS_UNIXOID)
+#elif defined(SYS_UNIXOID)
 		pthread_mutex_t pthread_mutex;
-	#endif
+#endif
 	};
 
 	class UberMutex {
 	public:
-		#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
-		void *id;
-		#endif
+#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
+		void* id;
+#endif
 
-		bool Create(const wchar_t *name);
-		void Free  ();
+		bool Create(const wchar_t* name);
+		void Free();
 
 		void Lock();
 		void Unlock();

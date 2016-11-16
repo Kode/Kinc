@@ -1,7 +1,8 @@
 #include "pch.h"
+
+#include <Kore/Graphics/Graphics.h>
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Math/Core.h>
-#include <Kore/Graphics/Graphics.h>
 
 using namespace Kore;
 
@@ -16,9 +17,6 @@ ShaderImpl::ShaderImpl(void* source, int length) : length(length), id(0) {
 ShaderImpl::~ShaderImpl() {
 	delete[] source;
 	source = nullptr;
-
 }
 
-Shader::Shader(void* source, int length, ShaderType type) : ShaderImpl(source, length) {
-	
-}
+Shader::Shader(void* source, int length, ShaderType type) : ShaderImpl(source, length) {}

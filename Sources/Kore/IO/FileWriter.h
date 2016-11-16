@@ -11,6 +11,7 @@ namespace Kore {
 		bool open(const char* filename);
 		void close();
 		void write(void* data, int size) override;
+
 	private:
 		void* file;
 	};

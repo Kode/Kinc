@@ -13,12 +13,10 @@ namespace Kore {
 	class ConstantLocationImpl {
 	public:
 		ShaderRegister reg;
-		int shaderType; //0: Vertex, 1: Fragment
+		int shaderType; // 0: Vertex, 1: Fragment
 	};
 
-	class AttributeLocationImpl {
-
-	};
+	class AttributeLocationImpl {};
 
 	class ShaderImpl {
 	public:

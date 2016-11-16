@@ -1,11 +1,12 @@
 #include "pch.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#include <Kore/Threads/Thread.h>
-#include <Kore/Threads/Mutex.h>
-#include <pthread.h>
 #include <Foundation/Foundation.h>
+#include <Kore/Threads/Mutex.h>
+#include <Kore/Threads/Thread.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <wchar.h>
 
@@ -16,8 +17,8 @@ struct IOS_Thread {
 	void (*thread)(void* param);
 	pthread_t pthread;
 };
-IOS_Thread         tt[16];
-//IndexAllocator ia;
+IOS_Thread tt[16];
+// IndexAllocator ia;
 Mutex mutex;
 
 namespace {
@@ -32,14 +33,14 @@ namespace {
 	}
 }
 
-Thread* Kore::createAndRunThread(void (*thread)(void *param), void *param) {
+Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param) {
 	mutex.Lock();
-	
-	uint i = threadIndex++;//ia.AllocateIndex();
-	//ktassert_d(i != 0xFFFFFFFF);
-	
-	IOS_Thread *t = &tt[i];
-	t->param  = param;
+
+	uint i = threadIndex++; // ia.AllocateIndex();
+	// ktassert_d(i != 0xFFFFFFFF);
+
+	IOS_Thread* t = &tt[i];
+	t->param = param;
 	t->thread = thread;
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
@@ -49,40 +50,40 @@ Thread* Kore::createAndRunThread(void (*thread)(void *param), void *param) {
 	sp.sched_priority = 0;
 	pthread_attr_setschedparam(&attr, &sp);
 	int ret = pthread_create(&t->pthread, &attr, &threadProc, t);
-    //Kt::affirmD(ret == 0);
+	// Kt::affirmD(ret == 0);
 	pthread_attr_destroy(&attr);
-	
+
 	mutex.Unlock();
-	
+
 	return (Thread*)t;
 }
 
 /*
 void SR_StopThread(SR_Thread *sr) {
-	mutex.Lock();
-	Thread *t = (Thread*)sr;
-	CloseHandle(t->handle);
-	mutex.Unlock();
+    mutex.Lock();
+    Thread *t = (Thread*)sr;
+    CloseHandle(t->handle);
+    mutex.Unlock();
 }
 */
 
-void Kore::waitForThreadStopThenFree(Thread *sr) {
+void Kore::waitForThreadStopThenFree(Thread* sr) {
 	mutex.Lock();
-	IOS_Thread *t = (IOS_Thread*)sr;
+	IOS_Thread* t = (IOS_Thread*)sr;
 Again:;
 	int ret = pthread_join(t->pthread, NULL);
 	if (ret != 0) goto Again;
 	mutex.Unlock();
-	//uint ti = ((uint)t - (uint)&tt[0]) / sizeof(IOS_Thread);
-	//ia.DeallocateIndex(ti);
+	// uint ti = ((uint)t - (uint)&tt[0]) / sizeof(IOS_Thread);
+	// ia.DeallocateIndex(ti);
 }
 
 void Kore::threadsInit() {
 	mutex.Create();
-	//ia.Create(1);//SR_MAX_THREADS32);
+	// ia.Create(1);//SR_MAX_THREADS32);
 }
 
 void Kore::threadsQuit() {
 	mutex.Free();
-	//ia.Free();
+	// ia.Free();
 }

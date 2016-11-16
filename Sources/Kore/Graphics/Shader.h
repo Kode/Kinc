@@ -1,24 +1,20 @@
 #pragma once
 
-#include <Kore/Math/Matrix.h>
-#include "VertexStructure.h"
-#include <Kore/ShaderImpl.h>
-#include <Kore/ProgramImpl.h>
 #include "Texture.h"
+#include "VertexStructure.h"
+#include <Kore/Math/Matrix.h>
+#include <Kore/ProgramImpl.h>
+#include <Kore/ShaderImpl.h>
 
 namespace Kore {
-	enum ShaderType {
-		FragmentShader, VertexShader, GeometryShader, TessellationControlShader, TessellationEvaluationShader
-	};
+	enum ShaderType { FragmentShader, VertexShader, GeometryShader, TessellationControlShader, TessellationEvaluationShader };
 
 	class Shader : public ShaderImpl {
 	public:
 		Shader(void* source, int length, ShaderType type);
 	};
 
-	class ConstantLocation : public ConstantLocationImpl {
-
-	};
+	class ConstantLocation : public ConstantLocationImpl {};
 
 	class Program : public ProgramImpl {
 	public:
@@ -29,7 +25,7 @@ namespace Kore {
 		void setTessellationControlShader(Shader* shader);
 		void setTessellationEvaluationShader(Shader* shader);
 		void link(VertexStructure& structure) {
-			VertexStructure* structures[1] = { &structure };
+			VertexStructure* structures[1] = {&structure};
 			link(structures, 1);
 		}
 		void link(VertexStructure** structures, int count);

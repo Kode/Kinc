@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <Kore/Log.h>
+
 #include "Direct3D11.h"
 #include <Kore/Math/Core.h>
 //#include <Kore/Application.h>
@@ -389,16 +391,6 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 	sampler->Release();
 }
 
-// (DK) fancy macro's to generate a clickable warning message in visual studio, can be removed when setColorMask() is implemented
-#define Stringize(L) #L
-#define MakeString(M, L) M(L)
-#define $Line MakeString(Stringize, __LINE__)
-#define Warning __FILE__ "(" $Line ") : warning: "
-
-void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
-#pragma message(Warning "(DK) Robert, please implement d3d11's version of setColorMask() here")
-}
-
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	if (flags & ClearColorFlag) {
 		const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f};
@@ -743,34 +735,61 @@ namespace {
 			return D3D11_BLEND_SRC_ALPHA;
 		}
 	}
+
+	BlendingOperation lastSource = SourceAlpha;
+	BlendingOperation lastDestination = InverseSourceAlpha;
+	bool lastRed = true;
+	bool lastGreen = true;
+	bool lastBlue = true;
+	bool lastAlpha = true;
+	ID3D11BlendState* blendState = nullptr;
+
+	void setBlendState(BlendingOperation source, BlendingOperation destination, bool red, bool green, bool blue, bool alpha) {
+		lastSource = source;
+		lastDestination = destination;
+		lastRed = red;
+		lastGreen = green;
+		lastBlue = blue;
+		lastAlpha = alpha;
+
+		if (blendState != nullptr) {
+			blendState->Release();
+		}
+
+		D3D11_BLEND_DESC blendDesc;
+		ZeroMemory(&blendDesc, sizeof(blendDesc));
+
+		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+		ZeroMemory(&rtbd, sizeof(rtbd));
+
+		rtbd.BlendEnable = source != BlendOne || destination != BlendZero;
+		rtbd.SrcBlend = convert(source);
+		rtbd.DestBlend = convert(destination);
+		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+		rtbd.SrcBlendAlpha = convert(source);
+		rtbd.DestBlendAlpha = convert(destination);
+		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		rtbd.RenderTargetWriteMask =
+		    ((((red ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (green ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) | (blue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		     (alpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0));
+
+		blendDesc.AlphaToCoverageEnable = false;
+		blendDesc.RenderTarget[0] = rtbd;
+
+		device->CreateBlendState(&blendDesc, &blendState);
+
+		float blendFactor[] = {0, 0, 0, 0};
+		UINT sampleMask = 0xffffffff;
+		context->OMSetBlendState(blendState, blendFactor, sampleMask);
+	}
 }
 
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-	ID3D11BlendState* blendState = nullptr;
+	setBlendState(source, destination, lastRed, lastGreen, lastBlue, lastAlpha);
+}
 
-	D3D11_BLEND_DESC blendDesc;
-	ZeroMemory(&blendDesc, sizeof(blendDesc));
-
-	D3D11_RENDER_TARGET_BLEND_DESC rtbd;
-	ZeroMemory(&rtbd, sizeof(rtbd));
-
-	rtbd.BlendEnable = source != BlendOne || destination != BlendZero;
-	rtbd.SrcBlend = convert(source);
-	rtbd.DestBlend = convert(destination);
-	rtbd.BlendOp = D3D11_BLEND_OP_ADD;
-	rtbd.SrcBlendAlpha = convert(source);
-	rtbd.DestBlendAlpha = convert(destination);
-	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-	blendDesc.AlphaToCoverageEnable = false;
-	blendDesc.RenderTarget[0] = rtbd;
-
-	device->CreateBlendState(&blendDesc, &blendState);
-
-	float blendFactor[] = {0, 0, 0, 0};
-	UINT sampleMask = 0xffffffff;
-	context->OMSetBlendState(blendState, blendFactor, sampleMask);
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+	setBlendState(lastSource, lastDestination, red, green, blue, alpha);
 }
 
 bool Graphics::renderTargetsInvertedY() {
@@ -828,3 +847,62 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 }
 
 void Graphics::setup() {}
+
+uint queryCount = 0;
+std::vector<ID3D11Query*> queryPool;
+
+bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	D3D11_QUERY_DESC queryDesc;
+	queryDesc.Query = D3D11_QUERY_OCCLUSION;
+	queryDesc.MiscFlags = 0;
+	ID3D11Query* pQuery = nullptr;
+	HRESULT result = device->CreateQuery(&queryDesc, &pQuery);
+
+	if (FAILED(result)) {
+		Kore::log(Kore::LogLevel::Info, "Internal query creation failed, result: 0x%X.", result);
+		return false;
+	}
+
+	queryPool.push_back(pQuery);
+	*occlusionQuery = queryCount;
+	++queryCount;
+
+	return true;
+}
+
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+	if (occlusionQuery < queryPool.size()) queryPool[occlusionQuery] = nullptr;
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Program::setConstants();
+		context->Begin(pQuery);
+		context->Draw(triangles, 0);
+		context->End(pQuery);
+	}
+}
+
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		if (S_OK == context->GetData(pQuery, 0, 0, 0)) return true;
+	}
+	return false;
+}
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		UINT64 numberOfPixelsDrawn;
+		HRESULT result = context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
+		if (S_OK == result) {
+			*pixelCount = numberOfPixelsDrawn;
+		}
+		else {
+			Kore::log(Kore::LogLevel::Info, "Check first if results are available");
+			*pixelCount = 0;
+		}
+	}
+}

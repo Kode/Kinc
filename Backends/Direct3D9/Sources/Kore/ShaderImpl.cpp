@@ -1,7 +1,9 @@
 #include "pch.h"
+
+#include "Direct3D9.h"
+
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Math/Core.h>
-#include "Direct3D9.h"
 #include <cstdio>
 
 #undef min
@@ -41,5 +43,5 @@ Shader::Shader(void* _data, int length, ShaderType type) {
 		hr = device->CreateVertexShader((DWORD*)&data[index], (IDirect3DVertexShader9**)&shader);
 	else
 		hr = device->CreatePixelShader((DWORD*)&data[index], (IDirect3DPixelShader9**)&shader);
-	//if (FAILED(hr)) throw Exception("CreateShader failed");
+	// if (FAILED(hr)) throw Exception("CreateShader failed");
 }

@@ -1,13 +1,15 @@
 #include "pch.h"
-#include <Kore/Graphics/Shader.h>
+
 #include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics/Shader.h>
 #include <Kore/Log.h>
-#include <vulkan/vulkan.h>
 #include <assert.h>
+#include <malloc.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <malloc.h>
+
+#include <vulkan/vulkan.h>
 
 using namespace Kore;
 
@@ -21,7 +23,7 @@ extern VkDescriptorPool desc_pool;
 extern Texture* vulkanTextures[8];
 extern RenderTarget* vulkanRenderTargets[8];
 
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
 Program* ProgramImpl::current = nullptr;
 
@@ -38,7 +40,8 @@ namespace {
 	VkDeviceMemory memFragment;
 	VkDescriptorBufferInfo buffer_infoFragment;
 
-	void parseShader(Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings, std::map<std::string, u32>& uniformOffsets) {
+	void parseShader(Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings,
+	                 std::map<std::string, u32>& uniformOffsets) {
 		u32* spirv = (u32*)shader->source;
 		int spirvsize = shader->length / 4;
 		int index = 0;
@@ -48,7 +51,7 @@ namespace {
 		unsigned generator = spirv[index++];
 		unsigned bound = spirv[index++];
 		index++;
-		
+
 		std::map<u32, std::string> names;
 		std::map<u32, std::string> memberNames;
 		std::map<u32, u32> locs;
@@ -61,7 +64,7 @@ namespace {
 
 			u32* operands = wordCount > 1 ? &spirv[index + 1] : nullptr;
 			u32 length = wordCount - 1;
-			
+
 			switch (opcode) {
 			case 5: { // OpName
 				u32 id = operands[0];
@@ -120,7 +123,7 @@ namespace {
 		}
 	}
 
-	VkShaderModule demo_prepare_shader_module(const void *code, size_t size) {
+	VkShaderModule demo_prepare_shader_module(const void* code, size_t size) {
 		VkShaderModuleCreateInfo moduleCreateInfo;
 		VkShaderModule module;
 		VkResult err;
@@ -183,18 +186,16 @@ namespace Kore {
 	bool programUsesTessellation = false;
 }
 
-ProgramImpl::ProgramImpl() : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr), tessellationControlShader(nullptr) {
+ProgramImpl::ProgramImpl()
+    : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
+      tessellationControlShader(nullptr) {
 	textures = new const char*[16];
 	textureValues = new int[16];
 }
 
-Program::Program() {
-	
-}
+Program::Program() {}
 
-ProgramImpl::~ProgramImpl() {
-
-}
+ProgramImpl::~ProgramImpl() {}
 
 void Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
@@ -275,7 +276,7 @@ void createDescriptorLayout() {
 }
 
 void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
-	//VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
+	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
 	VkDescriptorBufferInfo buffer_descs[2];
 
 	VkDescriptorSetAllocateInfo alloc_info = {};
@@ -563,7 +564,7 @@ void Program::link(VertexStructure** structures, int count) {
 
 void Program::set() {
 	current = this;
-	
+
 	{
 		uint8_t* data;
 		VkResult err = vkMapMemory(device, memVertex, 0, mem_allocVertex.allocationSize, 0, (void**)&data);
@@ -582,9 +583,12 @@ void Program::set() {
 
 	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-	if (vulkanRenderTargets[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, nullptr);
-	else if (vulkanTextures[0] != nullptr) vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, nullptr);
-	else vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, nullptr);
+	if (vulkanRenderTargets[0] != nullptr)
+		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, nullptr);
+	else if (vulkanTextures[0] != nullptr)
+		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, nullptr);
+	else
+		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
