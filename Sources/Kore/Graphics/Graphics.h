@@ -199,10 +199,10 @@ namespace Kore {
 		bool nonPow2TexturesSupported();
         
         // Occlusion Query
-        void initOcclusionQuery(uint* occlusionQuery);
-        void deleteOcclusionQuery(uint* occlusionQuery);
+        bool initOcclusionQuery(uint* occlusionQuery);
+        void deleteOcclusionQuery(uint occlusionQuery);
         void renderOcclusionQuery(uint occlusionQuery, int triangles);
-        bool queryResultsAvailable(uint occlusionQuery);
+        bool isQueryResultsAvailable(uint occlusionQuery);
         void getQueryResults(uint occlusionQuery, uint* pixelCount);
 
 		const uint ClearColorFlag   = 1;

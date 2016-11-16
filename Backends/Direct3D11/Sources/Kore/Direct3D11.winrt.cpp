@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <Kore/Log.h>
+
 #include "Direct3D11.h"
 #include <Kore/Math/Core.h>
 //#include <Kore/Application.h>
@@ -44,9 +46,6 @@ namespace Kore {
 namespace {
 	unsigned hz;
 	bool vsync;
-
-	D3D11_QUERY_DESC queryDesc;
-	ID3D11Query* pQuery = nullptr;
 
 	D3D_FEATURE_LEVEL featureLevel;
 #ifdef SYS_WINDOWSAPP
@@ -832,23 +831,62 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 
 void Graphics::setup() {}
 
-void Graphics::initOcclusionQuery(uint* occlusionQuery) {
-	device->CreateQuery(&queryDesc, &pQuery);
+uint queryCount = 0;
+std::vector<ID3D11Query*> queryPool;
+
+bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	D3D11_QUERY_DESC queryDesc;
+	queryDesc.Query = D3D11_QUERY_OCCLUSION;
+	queryDesc.MiscFlags = 0;
+	ID3D11Query* pQuery = nullptr;
+	HRESULT result = device->CreateQuery(&queryDesc, &pQuery);
+
+	if (FAILED(result)) {
+		Kore::log(Kore::LogLevel::Info, "Internal query creation failed, result: 0x%X.", result);
+		return false;
+	}
+
+	queryPool.push_back(pQuery);
+	*occlusionQuery = queryCount;
+	++queryCount;
+
+	return true;
 }
 
-void Graphics::deleteOcclusionQuery(uint* occlusionQuery) {
-	pQuery = nullptr;
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+	if (occlusionQuery < queryPool.size())
+		queryPool[occlusionQuery] = nullptr;
 }
 
 void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
-	context->Begin(pQuery);
-	context->Draw(triangles, 0);
-	context->End(pQuery);
+	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Program::setConstants();
+		context->Begin(pQuery);
+		context->Draw(triangles, 0);
+		context->End(pQuery);
+	}
 }
 
-bool Graphics::queryResultsAvailable(uint occlusionQuery) {
-	return  context->GetData(pQuery, 0, 0, 0);
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		if (S_OK == context->GetData(pQuery, 0, 0, 0))
+			return true;
+	}
+	return false;
 }
 void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
-	context->GetData(pQuery, pixelCount, sizeof(uint), 0);
+	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
+		UINT64 numberOfPixelsDrawn;
+		HRESULT result = context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
+		if (S_OK == result) {
+			*pixelCount = numberOfPixelsDrawn;
+		} else {
+			Kore::log(Kore::LogLevel::Info, "Check first if results are available");
+			*pixelCount = 0;
+		}
+	}
 }
