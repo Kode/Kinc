@@ -644,18 +644,12 @@ bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 	return false;
 }
 
-void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {}
 
-}
-
-void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
-
-}
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {}
 
 bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 	return false;
 }
 
-void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
-
-}
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {}

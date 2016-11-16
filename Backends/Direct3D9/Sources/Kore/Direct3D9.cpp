@@ -802,8 +802,7 @@ bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 }
 
 void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
-	if (occlusionQuery < queryPool.size())
-		queryPool[occlusionQuery] = nullptr;
+	if (occlusionQuery < queryPool.size()) queryPool[occlusionQuery] = nullptr;
 }
 
 void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
@@ -831,11 +830,10 @@ void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 		HRESULT result = pQuery->GetData(&numberOfPixelsDrawn, sizeof(DWORD), 0);
 		if (S_OK == result) {
 			*pixelCount = numberOfPixelsDrawn;
-		} else {
+		}
+		else {
 			Kore::log(Kore::LogLevel::Warning, "Check first if results are available");
 			*pixelCount = 0;
 		}
 	}
 }
-
-

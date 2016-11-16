@@ -769,24 +769,23 @@ namespace {
 		rtbd.SrcBlendAlpha = convert(source);
 		rtbd.DestBlendAlpha = convert(destination);
 		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbd.RenderTargetWriteMask = ((((red ? D3D11_COLOR_WRITE_ENABLE_RED : 0)
-			| (green ? D3D11_COLOR_WRITE_ENABLE_GREEN: 0))
-			| (blue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0))
-			| (alpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0));
+		rtbd.RenderTargetWriteMask =
+		    ((((red ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (green ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) | (blue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		     (alpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0));
 
 		blendDesc.AlphaToCoverageEnable = false;
 		blendDesc.RenderTarget[0] = rtbd;
 
 		device->CreateBlendState(&blendDesc, &blendState);
 
-		float blendFactor[] = { 0, 0, 0, 0 };
+		float blendFactor[] = {0, 0, 0, 0};
 		UINT sampleMask = 0xffffffff;
 		context->OMSetBlendState(blendState, blendFactor, sampleMask);
 	}
 }
 
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-	setBlendState(source, destination, lastRed, lastGreen, lastBlue, lastAlpha);	
+	setBlendState(source, destination, lastRed, lastGreen, lastBlue, lastAlpha);
 }
 
 void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
@@ -872,8 +871,7 @@ bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 }
 
 void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
-	if (occlusionQuery < queryPool.size())
-		queryPool[occlusionQuery] = nullptr;
+	if (occlusionQuery < queryPool.size()) queryPool[occlusionQuery] = nullptr;
 }
 
 void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
@@ -890,8 +888,7 @@ void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
-		if (S_OK == context->GetData(pQuery, 0, 0, 0))
-			return true;
+		if (S_OK == context->GetData(pQuery, 0, 0, 0)) return true;
 	}
 	return false;
 }
@@ -902,7 +899,8 @@ void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 		HRESULT result = context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
 		if (S_OK == result) {
 			*pixelCount = numberOfPixelsDrawn;
-		} else {
+		}
+		else {
 			Kore::log(Kore::LogLevel::Info, "Check first if results are available");
 			*pixelCount = 0;
 		}
