@@ -22,15 +22,6 @@ using namespace Kore;
 namespace {
 	bool initialized = false;
 
-	void init() {
-		if (initialized) return;
-#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
-		WSADATA WsaData;
-		WSAStartup(MAKEWORD(2, 2), &WsaData);
-#endif
-		initialized = true;
-	}
-
 	void destroy() {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 		WSACleanup();
@@ -38,8 +29,17 @@ namespace {
 	}
 }
 
-Socket::Socket() : handle(0) {
-	init();
+Socket::Socket() { }
+
+void Socket::init() {
+	if (initialized) return;
+
+	handle = 0;
+#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
+	WSADATA WsaData;
+	WSAStartup(MAKEWORD(2, 2), &WsaData);
+#endif
+	initialized = true;
 }
 
 void Socket::open(int port) {
@@ -81,9 +81,10 @@ Socket::~Socket() {
 #elif defined(SYS_UNIXOID)
 	close(handle);
 #endif
+	destroy();
 }
 
-void Socket::send(const char* url, int port, const unsigned char* data, int size) {
+void Socket::send(const char* url, int port, const u8* data, int size) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
 	addrinfo hints = {};
 	hints.ai_family = AF_INET;
@@ -108,7 +109,7 @@ void Socket::send(const char* url, int port, const unsigned char* data, int size
 #endif
 }
 
-int Socket::receive(unsigned char* data, int maxSize, unsigned& fromAddress, unsigned& fromPort) {
+int Socket::receive(u8* data, int maxSize, unsigned& fromAddress, unsigned& fromPort) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 	typedef int socklen_t;
 #endif
