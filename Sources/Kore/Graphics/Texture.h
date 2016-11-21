@@ -15,6 +15,7 @@ namespace Kore {
 		Texture(unsigned texid);
 #endif
 		void _set(TextureUnit unit);
+		void _setImage(TextureUnit unit);
 		u8* lock();
 		void unlock();
 #ifdef SYS_IOS

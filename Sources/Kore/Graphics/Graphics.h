@@ -123,6 +123,7 @@ namespace Kore {
 		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
 		void setIndexBuffer(IndexBuffer& indexBuffer);
 		void setTexture(TextureUnit unit, Texture* texture);
+		void setImageTexture(TextureUnit unit, Texture* texture);
 
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
