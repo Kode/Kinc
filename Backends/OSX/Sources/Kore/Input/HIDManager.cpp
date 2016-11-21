@@ -36,25 +36,14 @@ int HIDManager::initHIDManager() {
         if (matchingCFArrayRef) {
             // Create a device matching dictionary for joysticks
             CFDictionaryRef matchingCFDictRef = createDeviceMatchingDictionary(kHIDPage_GenericDesktop, kHIDUsage_GD_Joystick);
-            if (matchingCFDictRef) {
-                // Add it to the matching array
-                CFArrayAppendValue(matchingCFArrayRef, matchingCFDictRef);
-                CFRelease(matchingCFDictRef); // and release it
-            } else {
-                log(Error, "%s: CreateDeviceMatchingDictionary(joystick) failed.", __PRETTY_FUNCTION__);
-            }
+            addMatchingArray(matchingCFArrayRef, matchingCFDictRef);
             
             // Create a device matching dictionary for game pads
             matchingCFDictRef = createDeviceMatchingDictionary(kHIDPage_GenericDesktop, kHIDUsage_GD_GamePad);
-            if (matchingCFDictRef) {
-                // Add it to the matching array
-                CFArrayAppendValue(matchingCFArrayRef, matchingCFDictRef);
-                CFRelease(matchingCFDictRef); // and release it
-            } else {
-                log(Error, "%s: hu_CreateDeviceMatchingDictionary(gamepad) failed.", __PRETTY_FUNCTION__);
-            }
+            addMatchingArray(matchingCFArrayRef, matchingCFDictRef);
         } else {
             log(Error, "%s: CFArrayCreateMutable failed.", __PRETTY_FUNCTION__);
+            return -1;
         }
         
         // Set the HID device matching array
@@ -83,6 +72,16 @@ int HIDManager::initHIDManager() {
     
 
     return -1;
+}
+
+bool HIDManager::addMatchingArray(CFMutableArrayRef matchingCFArrayRef, CFDictionaryRef matchingCFDictRef) {
+    if (matchingCFDictRef) {
+        // Add it to the matching array
+        CFArrayAppendValue(matchingCFArrayRef, matchingCFDictRef);
+        CFRelease(matchingCFDictRef); // and release it
+        return true;
+    }
+    return false;
 }
 
 // Create matching dictionary

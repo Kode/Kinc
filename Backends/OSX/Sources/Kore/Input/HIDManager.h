@@ -16,7 +16,9 @@ namespace Kore {
         
         int gamepadsCounter;
         
+        bool addMatchingArray(CFMutableArrayRef matchingCFArrayRef, CFDictionaryRef matchingCFDictRef);
         CFMutableDictionaryRef createDeviceMatchingDictionary(u32 inUsagePage, u32 inUsage);
+        
         static void deviceConnected(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
         static void deviceRemoved(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
         

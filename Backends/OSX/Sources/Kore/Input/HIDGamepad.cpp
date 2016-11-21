@@ -20,13 +20,21 @@ namespace {
         }
         return NULL;
     }
+    
+    // TODO: make it
+    char* toString(int number) {
+        static char buffer[16];
+        sprintf(buffer, "%i", number);
+        return buffer;
+    }
 }
 
 HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(deviceRef), padIndex(padIndex) {
     initHIDDevice();
     
     Gamepad* gamepad = Gamepad::get(padIndex);
-    gamepad->vendor = "";//getVendorID();
+    
+    gamepad->vendor = toString(getVendorID());
     gamepad->productName = getProductKey();
 }
 
@@ -121,7 +129,6 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
         IOHIDElementType elemType = IOHIDElementGetType(elementRef);
         
         //log(Info, "Type %d %d\n", elemType, elementRef);
-        //log(Info, "logicalMin %d logicalMax %d physicalMin %d physicalMax %d \n", logicalMin, logicalMax, physicalMin, physicalMax);
         switch(elemType) {
             case kIOHIDElementTypeInput_Button: {
                 IOHIDElementCookie button = IOHIDElementGetCookie(elementRef);
@@ -144,8 +151,8 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
             case kIOHIDElementTypeInput_Axis: {
                 IOHIDElementCookie axis = IOHIDElementGetCookie(elementRef);
                 
-                if (axis < 20 || axis > 24) // TODO: this works only on joystick PS3
-                    break;
+                //if (axis < 20 || axis > 24) // TODO: this works only on joystick PS3
+                //    break;
                 
                 //double rawValue = IOHIDValueGetIntegerValue(valueRef);
                 double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
@@ -153,10 +160,10 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
                 // Axes normalize to the range [-1.0, 1.0] (-1 - left, 0 - release, 1 - right)
                 double min = IOHIDElementGetPhysicalMin(elementRef);
                 double max = IOHIDElementGetPhysicalMax(elementRef);
-                //double normalize = (((rawValue - min) / (max - min)) * 2) - 1;
-                double normalize = (rawValue - min) / (max - min);
-                if (axis % 2 == 1)
-                    normalize = -normalize;
+                double normalize = (((rawValue - min) / (max - min)) * 2) - 1;
+                //double normalize = (rawValue - min) / (max - min);
+                //if (axis % 2 == 1)
+                //    normalize = -normalize;
                 
                 //log(Info, "%f %f %f %f", rawValue, min, max, normalize);
                 
