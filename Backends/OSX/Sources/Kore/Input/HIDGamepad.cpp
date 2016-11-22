@@ -21,7 +21,7 @@ namespace {
         return NULL;
     }
     
-    // TODO: make it
+    // TODO: make it better
     char* toString(int number) {
         static char buffer[16];
         sprintf(buffer, "%i", number);
@@ -29,13 +29,16 @@ namespace {
     }
 }
 
-HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(deviceRef), padIndex(padIndex) {
+HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(deviceRef), padIndex(padIndex), axisCount(6), buttonCount(15) {
+    axis = new IOHIDElementCookie[axisCount];
+    buttons = new IOHIDElementCookie[buttonCount];
     initHIDDevice();
     
     Gamepad* gamepad = Gamepad::get(padIndex);
     
     gamepad->vendor = toString(getVendorID());
     gamepad->productName = getProductKey();
+    log(Info, "Add gamepad. Vendor: %s, Name: %s", gamepad->vendor, gamepad->productName);
 }
 
 HIDGamepad::~HIDGamepad() {
@@ -50,6 +53,10 @@ HIDGamepad::~HIDGamepad() {
         IOHIDQueueUnscheduleFromRunLoop(inIOHIDQueueRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     }
 
+    delete axis;
+    delete buttons;
+    axis = nullptr;
+    buttons = nullptr;
 }
 
 void HIDGamepad::initHIDDevice() {
@@ -79,12 +86,58 @@ void HIDGamepad::initHIDDevice() {
 
 void HIDGamepad::initElementsFromArray(CFArrayRef elements) {
     for (CFIndex i = 0, count = CFArrayGetCount(elements); i < count; ++i) {
-        IOHIDElementRef element = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, i);
-        IOHIDElementType elemType = IOHIDElementGetType(element);
+        IOHIDElementRef elementRef = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, i);
+        IOHIDElementType elemType = IOHIDElementGetType(elementRef);
+        
+        IOHIDElementCookie cookie = IOHIDElementGetCookie(elementRef);
+        
+        uint32_t page = IOHIDElementGetUsagePage(elementRef);
+        uint32_t usage = IOHIDElementGetUsage(elementRef);
+        
+        // Match up items
+        int j = 0;
+        switch(page) {
+            case 1:  // Generic Desktop
+                j = 0;
+                switch(usage) {
+                    case 53:  // Right trigger
+                        log(Info, "Right trigger");
+                        j++;
+                    case 50:  // Left trigger
+                        log(Info, "Left trigger");
+                        j++;
+                    case 52:  // Right stick Y
+                        log(Info, "Right stick Y");
+                        j++;
+                    case 51:  // Right stick X
+                        log(Info, "Right stick X");
+                        j++;
+                    case 49:  // Left stick Y
+                        log(Info, "Left stick Y");
+                        j++;
+                    case 48:  // Left stick X
+                        log(Info, "Left stick X");
+                        axis[j] = cookie;
+                        log(Info, "Add axis %i", j);
+                    default:
+                        break;
+                }
+                break;
+            case 9:  // Button
+                if((usage >= 1) && (usage <= 15)) {
+                    // Button 1-11
+                    buttons[usage-1] = cookie;
+                    log(Info, "Button %i", usage-1);
+                }
+                break;
+            default:
+                break;
+        }
+        
         
         if (elemType == kIOHIDElementTypeInput_Misc || elemType == kIOHIDElementTypeInput_Button || elemType == kIOHIDElementTypeInput_Axis) {
-            if(!IOHIDQueueContainsElement(inIOHIDQueueRef, element))
-                IOHIDQueueAddElement(inIOHIDQueueRef, element);
+            if(!IOHIDQueueContainsElement(inIOHIDQueueRef, elementRef))
+                IOHIDQueueAddElement(inIOHIDQueueRef, elementRef);
         }
     }
 }
@@ -114,6 +167,17 @@ char* HIDGamepad::getProductKey() {
 void HIDGamepad::inputValueCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDValueRef inIOHIDValueRef) {
     //log(Info, "%s(context: %p, result: %p, sender: %p, value: %p).\n",
     //    __PRETTY_FUNCTION__, inContext, (void *) inResult, inSender, (void*) inIOHIDValueRef);
+    
+    IOHIDElementRef elementRef = IOHIDValueGetElement(inIOHIDValueRef);
+    IOHIDElementType elemType = IOHIDElementGetType(elementRef);
+    
+    IOHIDElementCookie cookie = IOHIDElementGetCookie(elementRef);
+    
+    // for Xbox 360 wired controller
+    uint32_t page = IOHIDElementGetUsagePage(elementRef);
+    uint32_t usage = IOHIDElementGetUsage(elementRef);
+    
+    log(Info, "page %i, usage %i", page, usage);
 }
 
 void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void *inSender) {
@@ -124,19 +188,31 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
         IOHIDValueRef valueRef = IOHIDQueueCopyNextValueWithTimeout((IOHIDQueueRef) inSender, 0.);
         if (!valueRef) break;
         // process the HID value reference
-    
         IOHIDElementRef elementRef = IOHIDValueGetElement(valueRef);
         IOHIDElementType elemType = IOHIDElementGetType(elementRef);
         
         //log(Info, "Type %d %d\n", elemType, elementRef);
         switch(elemType) {
             case kIOHIDElementTypeInput_Button: {
-                IOHIDElementCookie button = IOHIDElementGetCookie(elementRef);
+                IOHIDElementCookie cookie = IOHIDElementGetCookie(elementRef);
+                
+                bool found = false;
+                int button = 0;
+                for (int i = 0; i < pad->buttonCount; ++i) {
+                    if (cookie == pad->buttons[i]) {
+                        button = i;
+                        found = true;
+                    }
+                }
+                
+                if (!found) {
+                    break;
+                }
                 
                 //double rawValue = IOHIDValueGetIntegerValue(valueRef);
                 double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
                 
-                // Buttons normalize to the range [0.0, 1.0] (0 - release, 1 - pressed)
+                // Normalize button value to the range [0.0, 1.0] (0 - release, 1 - pressed)
                 double min = IOHIDElementGetLogicalMin(elementRef);
                 double max = IOHIDElementGetLogicalMax(elementRef);
                 double normalize = (rawValue - min) / (max - min);
@@ -149,15 +225,25 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
             }
             case kIOHIDElementTypeInput_Misc:
             case kIOHIDElementTypeInput_Axis: {
-                IOHIDElementCookie axis = IOHIDElementGetCookie(elementRef);
+                IOHIDElementCookie cookie = IOHIDElementGetCookie(elementRef);
                 
-                //if (axis < 20 || axis > 24) // TODO: this works only on joystick PS3
-                //    break;
+                bool found = false;
+                int axis = 0;
+                for (int i = 0; i < pad->axisCount; ++i) {
+                    if (cookie == pad->axis[i]) {
+                        axis = i;
+                        found = true;
+                    }
+                }
+                
+                if (!found) {
+                    break;
+                }
                 
                 //double rawValue = IOHIDValueGetIntegerValue(valueRef);
                 double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
                 
-                // Axes normalize to the range [-1.0, 1.0] (-1 - left, 0 - release, 1 - right)
+                // Normalize axis value to the range [-1.0, 1.0] (e.g. -1 - left, 0 - release, 1 - right)
                 double min = IOHIDElementGetPhysicalMin(elementRef);
                 double max = IOHIDElementGetPhysicalMax(elementRef);
                 double normalize = (((rawValue - min) / (max - min)) * 2) - 1;
@@ -185,4 +271,5 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
     } while (1) ;
     
 }
+
 

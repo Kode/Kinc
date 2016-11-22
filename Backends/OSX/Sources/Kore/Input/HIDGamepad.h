@@ -10,6 +10,11 @@ namespace  Kore {
         IOHIDDeviceRef deviceRef;
         IOHIDQueueRef inIOHIDQueueRef;
         
+        int axisCount;
+        int buttonCount;
+        IOHIDElementCookie* axis;
+        IOHIDElementCookie* buttons;
+        
         int padIndex;
         
         void initHIDDevice();
