@@ -7,8 +7,13 @@
 
 using namespace Kore;
 
+namespace {
+    int maxPadCount = 15;
+    int connectedGamepads = 0;
+    bool* gamepadList = new bool[maxPadCount];
+}
+
 HIDManager::HIDManager() : managerRef(0x0) {
-    gamepadsCounter = 0;
     initHIDManager();
 }
 
@@ -69,8 +74,6 @@ int HIDManager::initHIDManager() {
 
         return 0;
     }
-    
-
     return -1;
 }
 
@@ -118,21 +121,33 @@ CFMutableDictionaryRef HIDManager::createDeviceMatchingDictionary(u32 inUsagePag
 
 // This will be called when the HID Manager matches a new (hot plugged) HID device
 void HIDManager::deviceConnected(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
-    HIDManager* manager = (HIDManager*)inContext;
     
-    HIDGamepad* hidDevice = new HIDGamepad(inIOHIDDeviceRef, manager->gamepadsCounter);
+    // Get a free index
+    int padIndex = -1;
+    for (int i = 0; i < maxPadCount; ++i) {
+        if (!gamepadList[i]) {
+            padIndex = i;
+            break;
+        }
+    }
     
-    manager->gamepadsCounter++;
+    if (padIndex == -1) {
+        log(Warning, "Too many gamepads connected");
+    }
     
-    log(Info, "HID device plugged. %i gamepad(s) connected.\n", manager->gamepadsCounter);
+    HIDGamepad* hidDevice = new HIDGamepad(inIOHIDDeviceRef, padIndex);
+    gamepadList[padIndex] = true;
+    ++connectedGamepads;
+    
+    log(Info, "HID device plugged. %i gamepad(s) connected.\n", connectedGamepads);
 }
 
 // This will be called when a HID device is removed (unplugged)
 void HIDManager::deviceRemoved(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
-    
-    HIDManager* manager = (HIDManager*)inContext;
-    manager->gamepadsCounter--;
-    
-    log(Info, "HID device removed. %i gamepad(s) connected.\n", manager->gamepadsCounter);
+    --connectedGamepads;
+    log(Info, "HID device removed. %i gamepad(s) connected.\n", connectedGamepads);
 }
 
+void HIDManager::cleanupPad(int index) {
+    gamepadList[index] = false;
+}

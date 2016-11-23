@@ -14,8 +14,6 @@ namespace Kore {
         
         int initHIDManager();
         
-        int gamepadsCounter;
-        
         bool addMatchingArray(CFMutableArrayRef matchingCFArrayRef, CFDictionaryRef matchingCFDictRef);
         CFMutableDictionaryRef createDeviceMatchingDictionary(u32 inUsagePage, u32 inUsage);
         
@@ -25,5 +23,7 @@ namespace Kore {
     public:
         HIDManager();
         ~HIDManager();
+        
+        static void cleanupPad(int index);
     };
 }
