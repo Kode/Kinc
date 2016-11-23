@@ -865,6 +865,7 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
+#if SYS_ANDROID_API >= 18
 bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 	glGenQueries(1, occlusionQuery);
 	return true;
@@ -890,6 +891,7 @@ bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 	glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, pixelCount);
 }
+#endif
 
 void Graphics::flush() {
 	glFlush();
