@@ -29,7 +29,7 @@ namespace {
     }
 }
 
-HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(deviceRef), padIndex(padIndex), axisCount(6), buttonCount(15) {
+HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(deviceRef), padIndex(padIndex), axisCount(6), buttonCount(15), invertY(true) {
     axis = new IOHIDElementCookie[axisCount];
     buttons = new IOHIDElementCookie[buttonCount];
     initHIDDevice();
@@ -38,7 +38,7 @@ HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(devic
     
     gamepad->vendor = toString(getVendorID());
     gamepad->productName = getProductKey();
-    log(Info, "Add gamepad. Vendor: %s, Name: %s", gamepad->vendor, gamepad->productName);
+    log(Info, "Add gamepad: Vendor: %s, Name: %s", gamepad->vendor, gamepad->productName);
 }
 
 HIDGamepad::~HIDGamepad() {
@@ -95,30 +95,33 @@ void HIDGamepad::initElementsFromArray(CFArrayRef elements) {
         uint32_t usage = IOHIDElementGetUsage(elementRef);
         
         // Match up items
-        int j = 0;
         switch(page) {
             case 1:  // Generic Desktop
-                j = 0;
                 switch(usage) {
                     case 53:  // Right trigger
-                        log(Info, "Right trigger");
-                        j++;
+                        log(Info, "Right trigger axis[5] = %i", cookie);
+                        axis[5] = cookie;
+                        break;
                     case 50:  // Left trigger
-                        log(Info, "Left trigger");
-                        j++;
+                        log(Info, "Left trigger axis[4] = %i", cookie);
+                        axis[4] = cookie;
+                        break;
                     case 52:  // Right stick Y
-                        log(Info, "Right stick Y");
-                        j++;
+                        log(Info, "Right stick Y axis[3] = %i", cookie);
+                        axis[3] = cookie;
+                        break;
                     case 51:  // Right stick X
-                        log(Info, "Right stick X");
-                        j++;
+                        log(Info, "Right stick X axis[2] = %i", cookie);
+                        axis[2] = cookie;
+                        break;
                     case 49:  // Left stick Y
-                        log(Info, "Left stick Y");
-                        j++;
+                        log(Info, "Left stick Y axis[1] = %i", cookie);
+                        axis[1] = cookie;
+                        break;
                     case 48:  // Left stick X
-                        log(Info, "Left stick X");
-                        axis[j] = cookie;
-                        log(Info, "Add axis %i", j);
+                        log(Info, "Left stick X axis[0] = %i", cookie);
+                        axis[0] = cookie;
+                        break;
                     default:
                         break;
                 }
@@ -127,7 +130,7 @@ void HIDGamepad::initElementsFromArray(CFArrayRef elements) {
                 if((usage >= 1) && (usage <= 15)) {
                     // Button 1-11
                     buttons[usage-1] = cookie;
-                    log(Info, "Button %i", usage-1);
+                    log(Info, "Button %i = %i", usage-1, cookie);
                 }
                 break;
             default:
@@ -250,6 +253,10 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
                 //double normalize = (rawValue - min) / (max - min);
                 //if (axis % 2 == 1)
                 //    normalize = -normalize;
+                
+                // Invert Y axis
+                if (pad->invertY && (axis == 1 || axis == 3))
+                    normalize = -normalize;
                 
                 //log(Info, "%f %f %f %f", rawValue, min, max, normalize);
                 
