@@ -17,8 +17,6 @@ namespace  Kore {
         
         int padIndex;
         
-        bool invertY;
-        
         void initHIDDevice();
         
         static void inputValueCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDValueRef inIOHIDValueRef);

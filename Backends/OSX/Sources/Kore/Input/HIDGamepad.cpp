@@ -29,7 +29,7 @@ namespace {
     }
 }
 
-HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(deviceRef), padIndex(padIndex), axisCount(6), buttonCount(15), invertY(true) {
+HIDGamepad::HIDGamepad(IOHIDDeviceRef deviceRef, int padIndex) : deviceRef(deviceRef), padIndex(padIndex), axisCount(6), buttonCount(15) {
     axis = new IOHIDElementCookie[axisCount];
     buttons = new IOHIDElementCookie[buttonCount];
     initHIDDevice();
@@ -250,12 +250,9 @@ void HIDGamepad::valueAvailableCallback(void *inContext, IOReturn inResult, void
                 double min = IOHIDElementGetPhysicalMin(elementRef);
                 double max = IOHIDElementGetPhysicalMax(elementRef);
                 double normalize = (((rawValue - min) / (max - min)) * 2) - 1;
-                //double normalize = (rawValue - min) / (max - min);
-                //if (axis % 2 == 1)
-                //    normalize = -normalize;
                 
                 // Invert Y axis
-                if (pad->invertY && (axis == 1 || axis == 3))
+                if (axis % 2 == 1)
                     normalize = -normalize;
                 
                 //log(Info, "%f %f %f %f", rawValue, min, max, normalize);
