@@ -68,7 +68,7 @@ int HIDManager::initHIDManager() {
         CFSetRef deviceSetRef = IOHIDManagerCopyDevices(managerRef);
         if (deviceSetRef) {
             CFIndex num_devices = CFSetGetCount(deviceSetRef);
-            log(Info, "%d gamepad(s) found.\n",(int)num_devices);
+            //log(Info, "%d gamepad(s) found.\n",(int)num_devices);
             CFRelease(deviceSetRef);
         }
 

@@ -198,27 +198,27 @@ void HIDGamepad::initElementsFromArray(CFArrayRef elements) {
             case kHIDPage_GenericDesktop:
                 switch(usage) {
                     case kHIDUsage_GD_X:  // Left stick X
-                        log(Info, "Left stick X axis[0] = %i", cookie);
+                        //log(Info, "Left stick X axis[0] = %i", cookie);
                         axis[0] = cookie;
                         break;
                     case kHIDUsage_GD_Y:  // Left stick Y
-                        log(Info, "Left stick Y axis[1] = %i", cookie);
+                        //log(Info, "Left stick Y axis[1] = %i", cookie);
                         axis[1] = cookie;
                         break;
                     case kHIDUsage_GD_Z:  // Left trigger
-                        log(Info, "Left trigger axis[4] = %i", cookie);
+                        //log(Info, "Left trigger axis[4] = %i", cookie);
                         axis[4] = cookie;
                         break;
                     case kHIDUsage_GD_Rx:  // Right stick X
-                        log(Info, "Right stick X axis[2] = %i", cookie);
+                        //log(Info, "Right stick X axis[2] = %i", cookie);
                         axis[2] = cookie;
                         break;
                     case kHIDUsage_GD_Ry:  // Right stick Y
-                        log(Info, "Right stick Y axis[3] = %i", cookie);
+                        //log(Info, "Right stick Y axis[3] = %i", cookie);
                         axis[3] = cookie;
                         break;
                     case kHIDUsage_GD_Rz:  // Right trigger
-                        log(Info, "Right trigger axis[5] = %i", cookie);
+                        //log(Info, "Right trigger axis[5] = %i", cookie);
                         axis[5] = cookie;
                         break;
                     case kHIDUsage_GD_Hatswitch:
@@ -231,7 +231,7 @@ void HIDGamepad::initElementsFromArray(CFArrayRef elements) {
                 if((usage >= 1) && (usage <= 15)) {
                     // Button 1-11
                     buttons[usage-1] = cookie;
-                    log(Info, "Button %i = %i", usage-1, cookie);
+                    //log(Info, "Button %i = %i", usage-1, cookie);
                 }
                 break;
             default:
