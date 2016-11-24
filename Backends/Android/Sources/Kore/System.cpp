@@ -48,20 +48,20 @@ namespace {
 		glContext->Suspend();
 	}
 
-    void updateAppForegroundStatus(bool displayIsInitializedValue, bool appIsForegroundValue) {
-        bool oldStatus = displayIsInitialized && appIsForeground;
-        displayIsInitialized = displayIsInitializedValue;
-        appIsForeground = appIsForegroundValue;
-        bool newStatus = displayIsInitialized && appIsForeground;
-        if(oldStatus != newStatus) {
-            if(newStatus == true) {
-                Kore::System::foregroundCallback();
-            }
-            else {
-                Kore::System::backgroundCallback();
-            }
-        }
-    }
+	void updateAppForegroundStatus(bool displayIsInitializedValue, bool appIsForegroundValue) {
+		bool oldStatus = displayIsInitialized && appIsForeground;
+		displayIsInitialized = displayIsInitializedValue;
+		appIsForeground = appIsForegroundValue;
+		bool newStatus = displayIsInitialized && appIsForeground;
+		if(oldStatus != newStatus) {
+			if(newStatus == true) {
+				Kore::System::foregroundCallback();
+			}
+			else {
+				Kore::System::backgroundCallback();
+			}
+		}
+	}
 
 	int32_t input(android_app* app, AInputEvent* event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
@@ -391,12 +391,12 @@ namespace {
 					started = true;
 				}
 				Kore::System::swapBuffers(0);
-                updateAppForegroundStatus(true, appIsForeground);
-            }
+				updateAppForegroundStatus(true, appIsForeground);
+			}
 			break;
 		case APP_CMD_TERM_WINDOW:
 			termDisplay();
-            updateAppForegroundStatus(false, appIsForeground);
+			updateAppForegroundStatus(false, appIsForeground);
 			break;
 		case APP_CMD_GAINED_FOCUS:
 			if (accelerometerSensor != NULL) {
@@ -417,7 +417,7 @@ namespace {
 			}
 			break;
 		case APP_CMD_START:
-            updateAppForegroundStatus(displayIsInitialized, true);
+			updateAppForegroundStatus(displayIsInitialized, true);
 			break;
 		case APP_CMD_RESUME:
 			Kore::System::resumeCallback();
@@ -430,7 +430,7 @@ namespace {
 			paused = true;
 			break;
 		case APP_CMD_STOP:
-            updateAppForegroundStatus(displayIsInitialized, false);
+			updateAppForegroundStatus(displayIsInitialized, false);
 			break;
 		case APP_CMD_DESTROY:
 			Kore::System::shutdownCallback();
