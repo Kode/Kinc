@@ -56,13 +56,15 @@ public class KoreActivity extends NativeActivity {
 
     private void delayedHideSystemUI() {
         hideSystemUIHandler.removeMessages(0);
-        hideSystemUIHandler.sendEmptyMessageDelayed(0, 300);
+        if(!isDisabledStickyImmersiveMode) {
+            hideSystemUIHandler.sendEmptyMessageDelayed(0, 300);
+        }
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus && !isDisabledStickyImmersiveMode) {
+        if (hasFocus) {
             delayedHideSystemUI();
         }
         else {
