@@ -9,6 +9,10 @@
 
 using namespace Kore;
 
+namespace {
+	const u32 REC_WINDOW = ((u32)-1) / 4;
+}
+
 Connection::Connection(const char* url, int sendPort, int receivePort, double timeout, double pngInterv, int buffSize, int cacheCount) :
 		url(url),
 		sndPort(sendPort),
@@ -118,7 +122,7 @@ int Connection::receive(u8* data) {
 			}
 			else {
 				// Ignore old packets, no resend
-				if (recNr > lastRecNrURel || recNr < (lastRecNrURel - ((u32)-1) / 2)) { // Handle wrap around
+				if (recNr < lastRecNrURel + REC_WINDOW) { // Wrap around handled by overflow
 					lastRecNrURel = recNr;
 
 					// Process message
