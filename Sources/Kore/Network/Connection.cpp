@@ -16,13 +16,15 @@ namespace {
 	const double PNG_SMOOTHING = 0.1; // png = (value * old) + (1 - value) * new
 }
 
-Connection::Connection(const char* url, int sendPort, int receivePort, double timeout, double pngInterv, double resndInterv, int buffSize, int cacheCount) :
+Connection::Connection(const char* url, int sendPort, int receivePort, double timeout, double pngInterv, double resndInterv, double congestPing, float congestShare, int buffSize, int cacheCount) :
 		url(url),
 		sndPort(sendPort),
 		recPort(receivePort),
 		timeout(timeout),
 		pngInterv(pngInterv),
 		resndInterv(resndInterv),
+		congestPing(congestPing),
+		congestShare(congestShare),
 		buffSize(buffSize),
 		cacheCount(cacheCount) {
 
@@ -185,6 +187,18 @@ void Connection::processControlMessage() {
 		// Don't smooth first ping
 		if (ping == -1) ping = recPing;
 		else ping = (PNG_SMOOTHING * ping) + (1 - PNG_SMOOTHING) * recPing;
+
+		// Congestion check
+		bool nowCongest = ping > congestPing;
+		congestBits = (congestBits << 1) + nowCongest;
+
+		// Method by Brian Kernighan
+		unsigned int set, all;
+		for (all = 0; set; all++) {
+			set &= set - 1;
+		}
+		congested = ((float)set) / all > congestShare;
+
 		break;
 	}
 }
@@ -203,9 +217,11 @@ void Connection::reset() {
 	lastAckNrRel = 0;
 	lastRecNrRel = 0;
 	lastRecNrURel = 0;
+	congestBits = 0;
 
 	state = Disconnected;
 	ping = -1;
 	lastRec = 0;
 	lastPng = 0;
+	congested = false;
 }
