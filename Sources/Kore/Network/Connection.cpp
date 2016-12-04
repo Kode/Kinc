@@ -100,7 +100,7 @@ int Connection::receive(u8* data) {
 			bool control = (header & 2);
 			int recNr = *((u32*)(recBuff + 4));
 			if (reliable) {
-				if (recNr == lastRecNrRel + 1) {
+				if (recNr == lastRecNrRel + 1) { // Wrap around handled by overflow
 					lastRecNrRel = recNr;
 
 					// Process message
@@ -118,7 +118,7 @@ int Connection::receive(u8* data) {
 			}
 			else {
 				// Ignore old packets, no resend
-				if (recNr > lastRecNrURel) {
+				if (recNr > lastRecNrURel || recNr < (lastRecNrURel - ((u32)-1) / 2)) { // Handle wrap around
 					lastRecNrURel = recNr;
 
 					// Process message
