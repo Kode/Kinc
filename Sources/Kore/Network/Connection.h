@@ -49,5 +49,6 @@ namespace Kore {
 		void send(const u8* data, int size, bool reliable, bool control);
 		void processControlMessage();
 		int processMessage(int size, u8* returnBuffer);
+		void reset();
 	};
 }

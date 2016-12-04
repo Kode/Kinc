@@ -32,22 +32,16 @@ Connection::Connection(const char* url, int sendPort, int receivePort, double ti
 	sndCache = new u8[(buffSize + 12) * cacheCount];
 	recBuff = new u8[buffSize];
 	recCache = new u8[(buffSize + 12) * cacheCount];
-	lastSndNrRel = 0;
-	lastSndNrURel = 0;
-	lastAckNrRel = 0;
-	lastRecNrRel = 0;
-	lastRecNrURel = 0;
-
-	state = Disconnected;
-	ping = -1;
-	lastRec = 0;
-	lastPng = 0;
+	
+	reset();
 	// TODO: (Dis-)connection handling, especially for the server (broadcasting, control messages - client hello / ping) -> maybe split into two classes
 }
 
 Connection::~Connection() {
 	delete sndBuff;
+	delete sndCache;
 	delete recBuff;
+	delete recCache;
 }
 
 void Connection::send(const u8* data, int size, bool reliable) {
@@ -143,8 +137,7 @@ int Connection::receive(u8* data) {
 
 	// Connection timeout?
 	if ((System::time() - lastRec) > timeout) {
-		ping = -1;
-		state = Disconnected;
+		reset();
 	}
 
 	return 0;
@@ -191,4 +184,17 @@ int Connection::processMessage(int size, u8* returnBuffer) {
 	memcpy(returnBuffer, recBuff + HEADER_SIZE, msgSize);
 
 	return msgSize;
+}
+
+void Connection::reset() {
+	lastSndNrRel = 0;
+	lastSndNrURel = 0;
+	lastAckNrRel = 0;
+	lastRecNrRel = 0;
+	lastRecNrURel = 0;
+
+	state = Disconnected;
+	ping = -1;
+	lastRec = 0;
+	lastPng = 0;
 }
