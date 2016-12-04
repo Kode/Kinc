@@ -71,8 +71,8 @@ void Connection::send(const u8* data, int size, bool reliable, bool control) {
 		*((u32*)(sndBuff + 4)) = lastSndNrURel++;
 	}
 
-	// DEBUG ONLY: Introduced random packet drop
-	// if (!reliable || lastSndNrRel % 2)
+	// DEBUG ONLY: Introduce packet drop
+	//if (!reliable || lastSndNrRel % 2)
 	socket.send(url, sndPort, sndBuff, HEADER_SIZE + size);
 }
 
@@ -150,7 +150,7 @@ int Connection::receive(u8* data) {
 		if (System::time() - sndTime > ping * 1.1f) {
 			int size = *((u32*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 8));
 			memcpy(sndBuff, sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 12, size);
-			socket.send(url, sndPort, sndBuff, HEADER_SIZE + size);
+			socket.send(url, sndPort, sndBuff, size);
 		}
 	}
 
