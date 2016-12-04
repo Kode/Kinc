@@ -104,8 +104,8 @@ void Socket::send(const char* url, int port, const u8* data, int size) {
 	int sent = sendto(handle, (const char*)data, size, 0, address->ai_addr, sizeof(sockaddr_in));
 	if (sent != size) {
 		log(Kore::Error, "Could not send packet.");
-		return;
 	}
+	freeaddrinfo(address);
 #endif
 }
 
