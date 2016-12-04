@@ -24,9 +24,6 @@ namespace Kore {
 			Pong = 1
 		};
 
-		static const u32 magicID = 1346655563;
-		static const int headerSize = 8;
-
 		const int sndPort;
 		const int recPort;
 		const char* url;
