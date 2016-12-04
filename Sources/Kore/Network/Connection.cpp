@@ -35,6 +35,7 @@ Connection::Connection(const char* url, int sendPort, int receivePort, double ti
 	
 	reset();
 	// TODO: (Dis-)connection handling, especially for the server (broadcasting, control messages - client hello / ping) -> maybe split into two classes
+	// TODO: There is a synchronization issue if a new client connects before the last connection has timed out
 }
 
 Connection::~Connection() {
@@ -143,6 +144,15 @@ int Connection::receive(u8* data) {
 	if ((System::time() - lastRec) > timeout) {
 		reset();
 	}
+	// Trigger resend if last paket is overdue
+	else if (lastSndNrRel != lastAckNrRel) {
+		double sndTime = *((double*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize));
+		if (System::time() - sndTime > ping * 1.1f) {
+			int size = *((u32*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 8));
+			memcpy(sndBuff, sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 12, size);
+			socket.send(url, sndPort, sndBuff, HEADER_SIZE + size);
+		}
+	}
 
 	return 0;
 }
@@ -158,15 +168,6 @@ void Connection::processControlMessage() {
 		int recNr = *((u32*)(recBuff + HEADER_SIZE + 9));
 		if (checkSeqNr(recNr, lastAckNrRel)) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time, stepwise increment handled by client
 			lastAckNrRel = recNr;
-		}
-		// Trigger resend if last paket is overdue
-		else if (lastSndNrRel != lastAckNrRel) {
-			double sndTime = *((double*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize));
-			if (System::time() - sndTime > ping * 1.1f) {
-				int size = *((u32*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 8));
-				memcpy(sndBuff, sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 12, size);
-				socket.send(url, sndPort, sndBuff, HEADER_SIZE + size);
-			}
 		}
 
 		send(data, 13, false, true);
