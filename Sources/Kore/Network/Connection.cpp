@@ -48,6 +48,10 @@ void Connection::send(const u8* data, int size, bool reliable) {
 	send(data, size, reliable, false);
 }
 
+bool Connection::checkSeqNr(u32 next, u32 last) {
+	return ((next > last || next < REC_NR_WINDOW) && next < last + REC_NR_WINDOW); // Wrap around handled by overflow
+}
+
 void Connection::send(const u8* data, int size, bool reliable, bool control) {
 	assert(size + HEADER_SIZE <= buffSize);
 
@@ -119,7 +123,7 @@ int Connection::receive(u8* data) {
 			}
 			else {
 				// Ignore old packets, no resend
-				if (recNr < lastRecNrURel + REC_NR_WINDOW) { // Wrap around handled by overflow
+				if (checkSeqNr(recNr, lastRecNrURel)) {
 					lastRecNrURel = recNr;
 
 					// Process message
@@ -152,7 +156,7 @@ void Connection::processControlMessage() {
 		data[0] = Pong;
 		*((double*)(data + 1)) = *((double*)(recBuff + HEADER_SIZE + 1));
 		int recNr = *((u32*)(recBuff + HEADER_SIZE + 9));
-		if (recNr > lastAckNrRel) {
+		if (checkSeqNr(recNr, lastAckNrRel)) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time, stepwise increment handled by client
 			lastAckNrRel = recNr;
 		}
 		// Trigger resend if last paket is overdue

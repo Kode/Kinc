@@ -47,6 +47,7 @@ namespace Kore {
 		double lastPng;
 
 		void send(const u8* data, int size, bool reliable, bool control);
+		bool checkSeqNr(u32 next, u32 last);
 		void processControlMessage();
 		int processMessage(int size, u8* returnBuffer);
 		void reset();
