@@ -50,6 +50,7 @@ void Connection::send(const u8* data, int size, bool reliable) {
 }
 
 bool Connection::checkSeqNr(u32 next, u32 last) {
+inline bool Connection::checkSeqNr(u32 next, u32 last) {
 	return ((next > last || next < REC_NR_WINDOW) && next < last + REC_NR_WINDOW); // Wrap around handled by overflow
 }
 
