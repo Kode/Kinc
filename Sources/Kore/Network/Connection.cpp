@@ -12,16 +12,17 @@ using namespace Kore;
 namespace {
 	const u32 PROTOCOL_ID = 1346655563;
 	const u32 REC_NR_WINDOW = ((u32)-1) / 4;
-	const int HEADER_SIZE = 8;
+	const int HEADER_SIZE = 12;
 	const double PNG_SMOOTHING = 0.1; // png = (value * old) + (1 - value) * new
 }
 
-Connection::Connection(const char* url, int sendPort, int receivePort, double timeout, double pngInterv, int buffSize, int cacheCount) :
+Connection::Connection(const char* url, int sendPort, int receivePort, double timeout, double pngInterv, double resndInterv, int buffSize, int cacheCount) :
 		url(url),
 		sndPort(sendPort),
 		recPort(receivePort),
 		timeout(timeout),
 		pngInterv(pngInterv),
+		resndInterv(resndInterv),
 		buffSize(buffSize),
 		cacheCount(cacheCount) {
 
@@ -59,16 +60,18 @@ void Connection::send(const u8* data, int size, bool reliable, bool control) {
 	memcpy(sndBuff + HEADER_SIZE, data, size);
 	// Identifier
 	*((u32*)(sndBuff)) = (PROTOCOL_ID & 0xFFFFFFF0) + reliable + 2 * control;
+	// Reliable ack
+	*((u32*)(sndBuff + 4)) = lastRecNrRel;
 	// Reliability via sequence numbers (wrap around via overflow)
 	if (reliable) {
-		*((u32*)(sndBuff + 4)) = ++lastSndNrRel;
+		*((u32*)(sndBuff + 8)) = ++lastSndNrRel;
 		// Cache message for potential resend
 		*((double*)(sndCache + (lastSndNrRel % cacheCount) * buffSize)) = System::time();
-		*((u32*)(sndCache + (lastSndNrRel % cacheCount) * buffSize + 8)) = HEADER_SIZE + size;
+		*((int*)(sndCache + (lastSndNrRel % cacheCount) * buffSize + 8)) = HEADER_SIZE + size;
 		memcpy(sndCache + (lastSndNrRel % cacheCount) * buffSize + 12, sndBuff, HEADER_SIZE + size);
 	}
 	else {
-		*((u32*)(sndBuff + 4)) = lastSndNrURel++;
+		*((u32*)(sndBuff + 8)) = ++lastSndNrURel;
 	}
 
 	// DEBUG ONLY: Introduce packet drop
@@ -83,11 +86,10 @@ int Connection::receive(u8* data) {
 
 	// Regularily send a ping / keep-alive
 	if ((System::time() - lastPng) > pngInterv) {
-		u8 data[13];
+		u8 data[9];
 		data[0] = Ping;
 		*((double*)(data + 1)) = System::time();
-		*((u32*)(data + 9)) = lastRecNrRel;
-		send(data, 13, false, true);
+		send(data, 9, false, true);
 
 		lastPng = System::time();
 	}
@@ -104,7 +106,13 @@ int Connection::receive(u8* data) {
 
 			bool reliable = (header & 1);
 			bool control = (header & 2);
-			int recNr = *((u32*)(recBuff + 4));
+			
+			u32 ackNrRel = *((u32*)(recBuff + 4));
+			if (checkSeqNr(ackNrRel, lastAckNrRel)) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time, stepwise increment handled by client
+				lastAckNrRel = ackNrRel;
+			}
+
+			u32 recNr = *((u32*)(recBuff + 8));
 			if (reliable) {
 				if (recNr == lastRecNrRel + 1) { // Wrap around handled by overflow
 					lastRecNrRel = recNr;
@@ -146,11 +154,13 @@ int Connection::receive(u8* data) {
 	}
 	// Trigger resend if last paket is overdue
 	else if (lastSndNrRel != lastAckNrRel) {
-		double sndTime = *((double*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize));
-		if (System::time() - sndTime > ping * 1.1f) {
-			int size = *((u32*)(sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 8));
-			memcpy(sndBuff, sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize + 12, size);
+		u8* cachedPacket = sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize;
+		double* sndTime = ((double*)cachedPacket);
+		if (System::time() - *sndTime > resndInterv) {
+			int size = *((int*)(cachedPacket + 8));
+			memcpy(sndBuff, cachedPacket + 12, size);
 			socket.send(url, sndPort, sndBuff, size);
+			*sndTime += resndInterv;
 		}
 	}
 
@@ -162,15 +172,11 @@ void Connection::processControlMessage() {
 	switch (controlType) {
 	case Ping: {
 		// Send back as pong
-		u8 data[13];
+		u8 data[9];
 		data[0] = Pong;
 		*((double*)(data + 1)) = *((double*)(recBuff + HEADER_SIZE + 1));
-		int recNr = *((u32*)(recBuff + HEADER_SIZE + 9));
-		if (checkSeqNr(recNr, lastAckNrRel)) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time, stepwise increment handled by client
-			lastAckNrRel = recNr;
-		}
 
-		send(data, 13, false, true);
+		send(data, 9, false, true);
 		break;
 	}
 	case Pong:

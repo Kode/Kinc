@@ -14,7 +14,7 @@ namespace Kore {
 		State state;
 		double ping;
 
-		Connection(const char* url, int sendPort, int receivePort, double timeout = 10, double pngInterv = 1, int buffSize = 256, int cacheCount = 20);
+		Connection(const char* url, int sendPort, int receivePort, double timeout = 10, double pngInterv = 1, double resndInterv = 0.2, int buffSize = 256, int cacheCount = 20);
 		~Connection();
 		void send(const u8* data, int size, bool reliable = true);
 		int receive(u8* data);
@@ -43,6 +43,7 @@ namespace Kore {
 
 		double timeout;
 		double pngInterv;
+		double resndInterv;
 		double lastRec;
 		double lastPng;
 
