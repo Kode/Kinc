@@ -16,17 +16,18 @@ namespace {
 	const double PNG_SMOOTHING = 0.1; // png = (value * old) + (1 - value) * new
 }
 
-Connection::Connection(const char* url, int sendPort, int receivePort, double timeout, double pngInterv, double resndInterv, double congestPing, float congestShare, int buffSize, int cacheCount) :
-		url(url),
-		sndPort(sendPort),
+Connection::Connection(int receivePort, int maxConns, double timeout, double pngInterv, double resndInterv, double congestPing, float congestShare, int buffSize, int cacheCount) :
 		recPort(receivePort),
+		maxConns(maxConns),
 		timeout(timeout),
 		pngInterv(pngInterv),
 		resndInterv(resndInterv),
 		congestPing(congestPing),
 		congestShare(congestShare),
 		buffSize(buffSize),
-		cacheCount(cacheCount) {
+		cacheCount(cacheCount),
+		activeConns(0),
+		acceptConns(false) {
 
 	socket.init();
 	socket.open(receivePort);
@@ -35,21 +36,69 @@ Connection::Connection(const char* url, int sendPort, int receivePort, double ti
 	sndCache = new u8[(buffSize + 12) * cacheCount];
 	recBuff = new u8[buffSize];
 	recCache = new u8[(buffSize + 12) * cacheCount];
-	
-	reset();
+
+	states = new State[maxConns];
+	connAdds = new unsigned[maxConns];
+	connPorts = new int[maxConns];
+
+	for (int id = 0; id < maxConns; ++id) {
+		reset(id, false);
+	}
 	// TODO: (Dis-)connection handling, especially for the server (broadcasting, control messages - client hello / ping) -> maybe split into two classes
 	// TODO: There is a synchronization issue if a new client connects before the last connection has timed out
 }
 
 Connection::~Connection() {
-	delete sndBuff;
-	delete sndCache;
-	delete recBuff;
-	delete recCache;
+	delete[] sndBuff;
+	delete[] sndCache;
+	delete[] recBuff;
+	delete[] recCache;
+
+	delete[] states;
+	delete[] connAdds;
+	delete[] connPorts;
+}
+
+void Connection::listen() {
+	acceptConns = true;
+}
+
+void Connection::connect(unsigned address, int port) {
+	for (int id = 0; id < maxConns; ++id) {
+		if (states[id] == Disconnected) {
+
+			states[id] = Connecting;
+			connAdds[id] = address;
+			connPorts[id] = port;
+
+			lastRec = System::time(); // Prevent premature timeout
+			lastPng = 0; // Force ping immediately
+			activeConns++;
+
+			return;
+		}
+	}
+
+	// All connection slots used?
+	// Just returning a bool value could be seen as misleading since connect == true would not mean that an end point has been reached
+	assert(false);
+}
+
+void Connection::connect(const char* url, int port) {
+	connect(socket.urlToInt(url, port), port);
 }
 
 void Connection::send(const u8* data, int size, bool reliable) {
 	send(data, size, reliable, false);
+}
+
+int Connection::getID(unsigned int recAddr, unsigned int recPort) {
+	for (int id = 0; id < maxConns; ++id) {
+		if (connAdds[id] == recAddr && connPorts[id] == recPort) {
+			return id;
+		}
+	}
+	return -1;
 }
 
 inline bool Connection::checkSeqNr(u32 next, u32 last) {
@@ -76,9 +125,14 @@ void Connection::send(const u8* data, int size, bool reliable, bool control) {
 		*((u32*)(sndBuff + 8)) = ++lastSndNrURel;
 	}
 
-	// DEBUG ONLY: Introduce packet drop
-	//if (!reliable || lastSndNrRel % 2)
-	socket.send(url, sndPort, sndBuff, HEADER_SIZE + size);
+	for (int id = 0; id < maxConns; ++id) {
+		if (states[id] == Disconnected)
+			continue;
+
+		// DEBUG ONLY: Introduce packet drop
+		//if (!reliable || lastSndNrRel % 2)
+		socket.send(connAdds[id], connPorts[id], sndBuff, HEADER_SIZE + size);
+	}
 }
 
 // Must be called regularily as it also keeps the connection alive
@@ -87,28 +141,43 @@ int Connection::receive(u8* data) {
 	unsigned int recPort;
 
 	// Regularily send a ping / keep-alive
-	if ((System::time() - lastPng) > pngInterv) {
-		u8 data[9];
-		data[0] = Ping;
-		*((double*)(data + 1)) = System::time();
-		send(data, 9, false, true);
+	{
+		if ((System::time() - lastPng) > pngInterv) {
+			u8 data[9];
+			data[0] = Ping;
+			*((double*)(data + 1)) = System::time();
+			send(data, 9, false, true);
 
-		lastPng = System::time();
+			lastPng = System::time();
+		}
 	}
+	
+	// Receive pending packets
+	{
+		int size = 0;
+		while ((size = socket.receive(recBuff, buffSize, recAddr, recPort)) > 0) {
+			assert(size < buffSize);
 
-	int size = 0;
-	while ((size = socket.receive(recBuff, buffSize, recAddr, recPort)) > 0) {
-		assert(size < buffSize);
+			int id = getID(recAddr, recPort);
+			// Unknown sender?
+			if (id < 0) {
+				if (acceptConns && activeConns < maxConns)
+					connect(recAddr, recPort);
+				else
+					continue;
+			}
 
-		// Check for prefix (stray packets)
-		u32 header = *((u32*)(recBuff));
-		if ((header & 0xFFFFFFF0) == (PROTOCOL_ID & 0xFFFFFFF0)) {
-			state = Connected;
+			u32 header = *((u32*)(recBuff));
+			// Check for prefix (stray packets)
+			if ((header & 0xFFFFFFF0) != (PROTOCOL_ID & 0xFFFFFFF0))
+				continue;
+
+			states[id] = Connected;
 			lastRec = System::time();
 
 			bool reliable = (header & 1);
 			bool control = (header & 2);
-			
+
 			u32 ackNrRel = *((u32*)(recBuff + 4));
 			if (checkSeqNr(ackNrRel, lastAckNrRel)) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time, stepwise increment handled by client
 				lastAckNrRel = ackNrRel;
@@ -150,19 +219,27 @@ int Connection::receive(u8* data) {
 		}
 	}
 
-	// Connection timeout?
-	if ((System::time() - lastRec) > timeout) {
-		reset();
-	}
-	// Trigger resend if last paket is overdue
-	else if (lastSndNrRel != lastAckNrRel) {
-		u8* cachedPacket = sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize;
-		double* sndTime = ((double*)cachedPacket);
-		if (System::time() - *sndTime > resndInterv) {
-			int size = *((int*)(cachedPacket + 8));
-			memcpy(sndBuff, cachedPacket + 12, size);
-			socket.send(url, sndPort, sndBuff, size);
-			*sndTime += resndInterv;
+	// Connection maintenance
+	{
+		for (int id = 0; id < maxConns; ++id) {
+			if (states[id] == Disconnected)
+				continue;
+
+			// Connection timeout?
+			if ((System::time() - lastRec) > timeout) {
+				reset(id, true);
+			}
+			// Trigger resend if last paket is overdue
+			else if (lastSndNrRel != lastAckNrRel) {
+				u8* cachedPacket = sndCache + ((lastAckNrRel + 1) % cacheCount) * buffSize;
+				double* sndTime = ((double*)cachedPacket);
+				if (System::time() - *sndTime > resndInterv) {
+					int size = *((int*)(cachedPacket + 8));
+					memcpy(sndBuff, cachedPacket + 12, size);
+					socket.send(connAdds[id], connPorts[id], sndBuff, size);
+					*sndTime += resndInterv;
+				}
+			}
 		}
 	}
 
@@ -211,7 +288,7 @@ int Connection::processMessage(int size, u8* returnBuffer) {
 	return msgSize;
 }
 
-void Connection::reset() {
+void Connection::reset(int id, bool decCount) {
 	lastSndNrRel = 0;
 	lastSndNrURel = 0;
 	lastAckNrRel = 0;
@@ -219,9 +296,13 @@ void Connection::reset() {
 	lastRecNrURel = 0;
 	congestBits = 0;
 
-	state = Disconnected;
+	states[id] = Disconnected;
 	ping = -1;
 	lastRec = 0;
 	lastPng = 0;
 	congested = false;
+
+	if (decCount) {
+		--activeConns;
+	}
 }
