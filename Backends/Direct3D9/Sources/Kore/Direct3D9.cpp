@@ -646,15 +646,20 @@ void Graphics::setBool(ConstantLocation position, bool value) {
 
 void Graphics::setInt(ConstantLocation position, int value) {
 	if (position.shaderType == -1) return;
-	int ints[4];
-	ints[0] = value;
-	ints[1] = value;
-	ints[2] = value;
-	ints[3] = value;
-	if (position.shaderType == 0)
-		device->SetVertexShaderConstantI(position.reg.regindex, &ints[0], 1);
-	else
-		device->SetPixelShaderConstantI(position.reg.regindex, &ints[0], 1);
+	if (position.reg.regtype == 'f') {
+		setFloat(position, (float)value);
+	}
+	else {
+		int ints[4];
+		ints[0] = value;
+		ints[1] = value;
+		ints[2] = value;
+		ints[3] = value;
+		if (position.shaderType == 0)
+			device->SetVertexShaderConstantI(position.reg.regindex, &ints[0], 1);
+		else
+			device->SetPixelShaderConstantI(position.reg.regindex, &ints[0], 1);
+	}
 }
 
 void Graphics::setFloat(ConstantLocation position, float value) {
