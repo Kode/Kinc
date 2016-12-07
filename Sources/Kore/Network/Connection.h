@@ -26,7 +26,7 @@ namespace Kore {
 		void listen();
 		void connect(unsigned address, int port);
 		void connect(const char* url, int port);
-		void send(const u8* data, int size, bool reliable = true);
+		void send(const u8* data, int size, int connId = -1, bool reliable = true);
 		int receive(u8* data, int& fromId);
 
 	private:
@@ -65,7 +65,8 @@ namespace Kore {
 		double lastPng;
 
 		int getID(unsigned int recAddr, unsigned int recPort);
-		void send(const u8* data, int size, bool reliable, bool control);
+		void sendPacket(const u8* data, int size, int connId, bool reliable, bool control);
+		void sendPreparedBuffer(int size, bool reliable, int id);
 		bool checkSeqNr(u32 next, u32 last);
 		void processControlMessage(int id);
 		int processMessage(int size, u8* returnBuffer);

@@ -120,11 +120,11 @@ void Connection::connect(const char* url, int port) {
 	connect(socket.urlToInt(url, port), port);
 }
 
-void Connection::send(const u8* data, int size, bool reliable) {
-	send(data, size, reliable, false);
+void Connection::send(const u8* data, int size, int connId, bool reliable) {
+	sendPacket(data, size, connId, reliable, false);
 }
 
-void Connection::send(const u8* data, int size, bool reliable, bool control) {
+void Connection::sendPacket(const u8* data, int size, int connId, bool reliable, bool control) {
 	assert(size + HEADER_SIZE <= buffSize);
 
 	memcpy(sndBuff + HEADER_SIZE, data, size);
@@ -132,28 +132,37 @@ void Connection::send(const u8* data, int size, bool reliable, bool control) {
 	// Identifier
 	*((u32*)(sndBuff)) = (PROTOCOL_ID & 0xFFFFFFF0) + reliable + 2 * control;
 
-	for (int id = 0; id < maxConns; ++id) {
-		if (states[id] == Disconnected)
-			continue;
-
-		// Reliable ack
-		*((u32*)(sndBuff + 4)) = lastRecNrsRel[id];
-		// Reliability via sequence numbers (wrap around via overflow)
-		if (reliable) {
-			*((u32*)(sndBuff + 8)) = ++lastSndNrsRel[id];
-			// Cache message for potential resend
-			*((double*)(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize)) = System::time();
-			*((int*)(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize + 8)) = HEADER_SIZE + size;
-			memcpy(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize + 12, sndBuff, HEADER_SIZE + size);
-		}
-		else {
-			*((u32*)(sndBuff + 8)) = ++lastSndNrsURel[id];
-		}
-
-		// DEBUG ONLY: Introduce packet drop
-		//if (!reliable || lastSndNrRel % 2)
-		socket.send(connAdds[id], connPorts[id], sndBuff, HEADER_SIZE + size);
+	if (connId >= 0) {
+		sendPreparedBuffer(size, reliable, connId);
 	}
+	else {
+		for (int id = 0; id < maxConns; ++id) {
+			if (states[id] == Disconnected)
+				continue;
+
+			sendPreparedBuffer(size, reliable, id);
+		}
+	}
+}
+
+void Connection::sendPreparedBuffer(int size, bool reliable, int id) {
+	// Reliable ack
+	*((u32*)(sndBuff + 4)) = lastRecNrsRel[id];
+	// Reliability via sequence numbers (wrap around via overflow)
+	if (reliable) {
+		*((u32*)(sndBuff + 8)) = ++lastSndNrsRel[id];
+		// Cache message for potential resend
+		*((double*)(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize)) = System::time();
+		*((int*)(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize + 8)) = HEADER_SIZE + size;
+		memcpy(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize + 12, sndBuff, HEADER_SIZE + size);
+	}
+	else {
+		*((u32*)(sndBuff + 8)) = ++lastSndNrsURel[id];
+	}
+
+	// DEBUG ONLY: Introduce packet drop
+	//if (!reliable || lastSndNrRel % 2)
+	socket.send(connAdds[id], connPorts[id], sndBuff, HEADER_SIZE + size);
 }
 
 // Must be called regularily as it also keeps the connection alive
@@ -167,7 +176,7 @@ int Connection::receive(u8* data, int& id) {
 			u8 data[9];
 			data[0] = Ping;
 			*((double*)(data + 1)) = System::time();
-			send(data, 9, false, true);
+			sendPacket(data, 9, -1, false, true);
 
 			lastPng = System::time();
 		}
@@ -276,7 +285,7 @@ void Connection::processControlMessage(int id) {
 		data[0] = Pong;
 		*((double*)(data + 1)) = *((double*)(recBuff + HEADER_SIZE + 1));
 
-		send(data, 9, false, true);
+		sendPacket(data, 9, id, false, true);
 		break;
 	}
 	case Pong:
