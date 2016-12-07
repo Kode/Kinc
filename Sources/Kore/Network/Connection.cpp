@@ -54,7 +54,6 @@ Connection::Connection(int receivePort, int maxConns, double timeout, double png
 	for (int id = 0; id < maxConns; ++id) {
 		reset(id, false);
 	}
-	// TODO: (Dis-)connection handling, especially for the server (broadcasting, control messages - client hello / ping) -> maybe split into two classes
 	// TODO: There is a synchronization issue if a new client connects before the last connection has timed out
 }
 
