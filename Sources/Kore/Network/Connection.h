@@ -12,6 +12,9 @@ namespace Kore {
 			Connected = 2,
 		};
 
+		int maxConns;
+		int activeConns;
+
 		// For each connected entity
 		State* states;
 		double* pings;
@@ -33,7 +36,6 @@ namespace Kore {
 		};
 
 		bool acceptConns;
-		int activeConns;
 		const int recPort;
 		Kore::Socket socket;
 
@@ -49,7 +51,6 @@ namespace Kore {
 		u32* congestBits;
 		u8* recCaches;
 
-		int maxConns;
 		int buffSize;
 		int cacheCount;
 		u8* recBuff;
