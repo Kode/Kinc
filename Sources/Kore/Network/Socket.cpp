@@ -36,7 +36,7 @@ namespace {
 		hints.ai_socktype = SOCK_DGRAM;
 		hints.ai_protocol = IPPROTO_UDP;
 
-		char serv[5];
+		char serv[6];
 		sprintf(serv, "%u", port);
 
 		return getaddrinfo(url, serv, &hints, &result);
