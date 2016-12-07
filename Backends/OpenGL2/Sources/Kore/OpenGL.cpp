@@ -487,7 +487,7 @@ void Graphics::end(int windowId) {
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
-	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, (color & 0xff000000) / 255.0f);
+	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, ((color & 0xff000000) >> 24) / 255.0f);
 	glCheckErrors();
 	if (flags & ClearDepthFlag) {
 		glEnable(GL_DEPTH_TEST);
@@ -864,6 +864,34 @@ bool Graphics::renderTargetsInvertedY() {
 bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
+
+#if SYS_ANDROID_API >= 18
+bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	glGenQueries(1, occlusionQuery);
+	return true;
+}
+
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+	glDeleteQueries(1, &occlusionQuery);
+}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+	glBeginQuery(GL_SAMPLES_PASSED, occlusionQuery);
+	glDrawArrays(GL_TRIANGLES, 0, triangles);
+	glCheckErrors();
+	glEndQuery(GL_SAMPLES_PASSED);
+}
+
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+	uint available;
+	glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, &available);
+	return available != 0;
+}
+
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+	glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, pixelCount);
+}
+#endif
 
 void Graphics::flush() {
 	glFlush();

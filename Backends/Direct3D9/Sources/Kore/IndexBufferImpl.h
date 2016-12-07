@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/Graphics/Graphics.h>
+//#include <Kore/Graphics/Graphics.h>
 
 #ifdef SYS_WINDOWS
 struct IDirect3DIndexBuffer9;

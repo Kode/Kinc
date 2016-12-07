@@ -639,3 +639,17 @@ void Graphics::setIndexBuffer(IndexBuffer& buffer) {
 void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
+
+bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+	return false;
+}
+
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {}
+
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {}
+
+bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+	return false;
+}
+
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
