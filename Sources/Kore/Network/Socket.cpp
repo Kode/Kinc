@@ -27,6 +27,21 @@ namespace {
 		WSACleanup();
 #endif
 	}
+
+	// Important: Must be cleaned with freeaddrinfo(address) later if the result is 0 in order to prevent memory leaks
+	int resolveAddress(const char* url, int port, addrinfo *& result) {
+#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
+		addrinfo hints = {};
+		hints.ai_family = AF_INET;
+		hints.ai_socktype = SOCK_DGRAM;
+		hints.ai_protocol = IPPROTO_UDP;
+
+		char serv[6];
+		sprintf(serv, "%u", port);
+
+		return getaddrinfo(url, serv, &hints, &result);
+#endif
+	}
 }
 
 Socket::Socket() { }
@@ -84,23 +99,45 @@ Socket::~Socket() {
 	destroy();
 }
 
+unsigned Socket::urlToInt(const char* url, int port) {
+#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
+	addrinfo* address = new addrinfo;
+	int res = resolveAddress(url, port, address);
+	if (res != 0) {
+		log(Kore::Error, "Could not resolve address.");
+		return -1;
+	}
+
+	unsigned fromAddress = ntohl(((sockaddr_in*)address->ai_addr)->sin_addr.S_un.S_addr);
+	freeaddrinfo(address);
+
+	return fromAddress;
+#endif
+}
+
+void Socket::send(unsigned address, int port, const u8* data, int size) {
+#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
+	sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(address);
+	addr.sin_port = htons(port);
+
+	int sent = sendto(handle, (const char*)data, size, 0, (sockaddr*)&addr, sizeof(sockaddr_in));
+	if (sent != size) {
+		log(Kore::Error, "Could not send packet.");
+	}
+#endif
+}
+
 void Socket::send(const char* url, int port, const u8* data, int size) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
-	addrinfo hints = {};
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_protocol = IPPROTO_UDP;
-
-	addrinfo* address = NULL;
-	char serv[5];
-	sprintf(serv, "%u", port);
-
-	int res = getaddrinfo(url, serv, &hints, &address);
+	addrinfo* address = new addrinfo;
+	int res = resolveAddress(url, port, address);
 	if (res != 0) {
 		log(Kore::Error, "Could not resolve address.");
 		return;
 	}
-
+	
 	int sent = sendto(handle, (const char*)data, size, 0, address->ai_addr, sizeof(sockaddr_in));
 	if (sent != size) {
 		log(Kore::Error, "Could not send packet.");
