@@ -51,7 +51,7 @@ namespace {
 	bool renderToBackbuffer;
 
 	bool depthTest = false;
-	bool depthMask = false;
+	bool depthMask = true;
 
 #if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
 	void* glesDrawBuffers;
