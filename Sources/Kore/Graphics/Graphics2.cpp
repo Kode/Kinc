@@ -143,6 +143,7 @@ void ImageShaderPainter::setRectColor(float r, float g, float b, float a) {
 
 void ImageShaderPainter::drawBuffer() {
 	rectVertexBuffer->unlock();
+	shaderPipeline->set();
 	Graphics::setVertexBuffer(*rectVertexBuffer);
 	Graphics::setIndexBuffer(*indexBuffer);
 	Graphics::setTexture(textureLocation, lastTexture);
@@ -154,8 +155,7 @@ void ImageShaderPainter::drawBuffer() {
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
 
 	Graphics::setRenderState(DepthTest, false);
-	shaderPipeline->set();
-
+	
 	Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
 	// Graphics::setTexture(textureLocation, nullptr);
@@ -398,12 +398,13 @@ void ColoredShaderPainter::drawBuffer(bool trisDone) {
 	if (!trisDone) endTris(true);
 
 	rectVertexBuffer->unlock();
+
+	shaderPipeline->set();
 	Graphics::setVertexBuffer(*rectVertexBuffer);
 	Graphics::setIndexBuffer(*indexBuffer);
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
 
 	Graphics::setRenderState(DepthTest, false);
-	shaderPipeline->set();
 
 	Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
@@ -602,6 +603,7 @@ void TextShaderPainter::setRectColors(float opacity, uint color) {
 
 void TextShaderPainter::drawBuffer() {
 	rectVertexBuffer->unlock();
+	shaderPipeline->set();
 	Graphics::setVertexBuffer(*rectVertexBuffer);
 	Graphics::setIndexBuffer(*indexBuffer);
 	Graphics::setTexture(textureLocation, lastTexture);
@@ -613,7 +615,6 @@ void TextShaderPainter::drawBuffer() {
 	Graphics::setTextureMipmapFilter(textureLocation, NoMipFilter);
 
 	Graphics::setRenderState(DepthTest, false);
-	shaderPipeline->set();
 
 	Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
