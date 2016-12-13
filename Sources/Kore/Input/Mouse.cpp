@@ -77,7 +77,7 @@ void Mouse::lock(int windowId) {
 	locked = true;
 	_lock(windowId, true);
 	getPosition(windowId, lockX, lockY);
-	centerX = Kore::System::windowHeight(windowId) / 2;
+	centerX = Kore::System::windowWidth(windowId) / 2;
 	centerY = Kore::System::windowHeight(windowId) / 2;
 	setPosition(windowId, centerX, centerY);
 }
