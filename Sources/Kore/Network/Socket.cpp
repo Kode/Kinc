@@ -100,9 +100,7 @@ Socket::~Socket() {
 }
 
 unsigned Socket::urlToInt(const char* url, int port) {
-#if defined(SYS_OSX)
-	return 0;
-#elif defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
+#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 	addrinfo* address = new addrinfo;
 	int res = resolveAddress(url, port, address);
 	if (res != 0) {
@@ -114,6 +112,8 @@ unsigned Socket::urlToInt(const char* url, int port) {
 	freeaddrinfo(address);
 
 	return fromAddress;
+#else
+	return 0;
 #endif
 }
 
