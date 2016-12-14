@@ -102,11 +102,16 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), rig
 		format.samplesPerSecond = wave.sampleRate;
 		data = wave.data;
 		size = wave.dataSize;
-		// Left and right channel are in s16 audio stream, alternating.
-		left = new s16[size / 2];
-		right = new s16[size / 2];
-		split((s16*)data, size, left, right);
-		sampleRatePos = 44100 / (float)format.samplesPerSecond;
+        left = new s16[size / 2];
+        right = new s16[size / 2];
+        if (format.channels == 1) {
+            left = (s16*)data;
+            right = (s16*)data;
+        } else {
+            // Left and right channel are in s16 audio stream, alternating.
+            split((s16*)data, size, left, right);
+        }
+        sampleRatePos = 44100 / (float)format.samplesPerSecond;
 	}
 }
 
