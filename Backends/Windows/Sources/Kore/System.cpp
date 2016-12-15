@@ -40,6 +40,7 @@ extern "C"
 namespace {
 	struct KoreWindow : public Kore::KoreWindowBase {
 		HWND hwnd;
+		bool isMouseInside = false;
 
 		KoreWindow(HWND hwnd, int x, int y, int width, int height) : KoreWindowBase(x, y, width, height) {
 			this->hwnd = hwnd;
@@ -336,6 +337,7 @@ namespace {
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowWidth;
 	int windowHeight;
+	int windowId;
 
 	switch (msg) {
 	case WM_MOVE:
@@ -359,10 +361,24 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		else
 			Mouse::the()->_activated(idFromHWND(hWnd), false);
 		break;
+	case WM_MOUSELEAVE:
+		windowId = idFromHWND(hWnd);
+		windows[windowId]->isMouseInside = false;
+		Mouse::the()->___leave(windowId);
+		break;
 	case WM_MOUSEMOVE:
+		windowId = idFromHWND(hWnd);
+		if (!windows[windowId]->isMouseInside) {
+			windows[windowId]->isMouseInside = true;
+			TRACKMOUSEEVENT tme;
+			tme.cbSize = sizeof(TRACKMOUSEEVENT);
+			tme.dwFlags = TME_LEAVE;
+			tme.hwndTrack = hWnd;
+			TrackMouseEvent(&tme);
+		}
 		mouseX = LOWORD(lParam);
 		mouseY = HIWORD(lParam);
-		Mouse::the()->_move(idFromHWND(hWnd), LOWORD(lParam), HIWORD(lParam));
+		Mouse::the()->_move(windowId, LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_LBUTTONDOWN:
 		mouseX = LOWORD(lParam);
