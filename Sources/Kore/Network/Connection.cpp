@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "Connection.h"
 #include "Socket.h"
 
@@ -16,18 +17,10 @@ namespace {
 	const double PNG_SMOOTHING = 0.1; // png = (value * old) + (1 - value) * new
 }
 
-Connection::Connection(int receivePort, int maxConns, double timeout, double pngInterv, double resndInterv, double congestPing, float congestShare, int buffSize, int cacheCount) :
-		recPort(receivePort),
-		maxConns(maxConns),
-		timeout(timeout),
-		pngInterv(pngInterv),
-		resndInterv(resndInterv),
-		congestPing(congestPing),
-		congestShare(congestShare),
-		buffSize(buffSize),
-		cacheCount(cacheCount),
-		activeConns(0),
-		acceptConns(false) {
+Connection::Connection(int receivePort, int maxConns, double timeout, double pngInterv, double resndInterv, double congestPing, float congestShare,
+                       int buffSize, int cacheCount)
+    : recPort(receivePort), maxConns(maxConns), timeout(timeout), pngInterv(pngInterv), resndInterv(resndInterv), congestPing(congestPing),
+      congestShare(congestShare), buffSize(buffSize), cacheCount(cacheCount), activeConns(0), acceptConns(false) {
 
 	socket.init();
 	socket.open(receivePort);
@@ -103,7 +96,7 @@ void Connection::connect(unsigned address, int port) {
 			connPorts[id] = port;
 
 			lastRecs[id] = System::time(); // Prevent premature timeout
-			lastPng = 0; // Force ping immediately
+			lastPng = 0;                   // Force ping immediately
 			activeConns++;
 
 			return;
@@ -136,8 +129,7 @@ void Connection::sendPacket(const u8* data, int size, int connId, bool reliable,
 	}
 	else {
 		for (int id = 0; id < maxConns; ++id) {
-			if (states[id] == Disconnected)
-				continue;
+			if (states[id] == Disconnected) continue;
 
 			sendPreparedBuffer(size, reliable, id);
 		}
@@ -160,7 +152,7 @@ void Connection::sendPreparedBuffer(int size, bool reliable, int id) {
 	}
 
 	// DEBUG ONLY: Introduce packet drop
-	//if (!reliable || lastSndNrRel % 2)
+	// if (!reliable || lastSndNrRel % 2)
 	socket.send(connAdds[id], connPorts[id], sndBuff, HEADER_SIZE + size);
 }
 
@@ -180,7 +172,7 @@ int Connection::receive(u8* data, int& id) {
 			lastPng = System::time();
 		}
 	}
-	
+
 	// Receive pending packets
 	{
 		int size = 0;
@@ -198,8 +190,7 @@ int Connection::receive(u8* data, int& id) {
 
 			u32 header = *((u32*)(recBuff));
 			// Check for prefix (stray packets)
-			if ((header & 0xFFFFFFF0) != (PROTOCOL_ID & 0xFFFFFFF0))
-				continue;
+			if ((header & 0xFFFFFFF0) != (PROTOCOL_ID & 0xFFFFFFF0)) continue;
 
 			states[id] = Connected;
 			lastRecs[id] = System::time();
@@ -208,7 +199,8 @@ int Connection::receive(u8* data, int& id) {
 			bool control = (header & 2);
 
 			u32 ackNrRel = *((u32*)(recBuff + 4));
-			if (checkSeqNr(ackNrRel, lastAckNrsRel[id])) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time, stepwise increment handled by client
+			if (checkSeqNr(ackNrRel, lastAckNrsRel[id])) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time,
+			                                               // stepwise increment handled by client
 				lastAckNrsRel[id] = ackNrRel;
 			}
 
@@ -251,8 +243,7 @@ int Connection::receive(u8* data, int& id) {
 	// Connection maintenance
 	{
 		for (int id = 0; id < maxConns; ++id) {
-			if (states[id] == Disconnected)
-				continue;
+			if (states[id] == Disconnected) continue;
 
 			// Connection timeout?
 			if ((System::time() - lastRecs[id]) > timeout) {
@@ -291,8 +282,10 @@ void Connection::processControlMessage(int id) {
 		// Measure ping
 		double recPing = System::time() - *((double*)(recBuff + HEADER_SIZE + 1));
 		// Don't smooth first ping
-		if (pings[id] == -1) pings[id] = recPing;
-		else pings[id] = (PNG_SMOOTHING * pings[id]) + (1 - PNG_SMOOTHING) * recPing;
+		if (pings[id] == -1)
+			pings[id] = recPing;
+		else
+			pings[id] = (PNG_SMOOTHING * pings[id]) + (1 - PNG_SMOOTHING) * recPing;
 
 		// Congestion check
 		bool nowCongest = pings[id] > congestPing;

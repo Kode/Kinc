@@ -29,7 +29,7 @@ namespace {
 	}
 
 	// Important: Must be cleaned with freeaddrinfo(address) later if the result is 0 in order to prevent memory leaks
-	int resolveAddress(const char* url, int port, addrinfo *& result) {
+	int resolveAddress(const char* url, int port, addrinfo*& result) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
 		addrinfo hints = {};
 		hints.ai_family = AF_INET;
@@ -44,7 +44,7 @@ namespace {
 	}
 }
 
-Socket::Socket() { }
+Socket::Socket() {}
 
 void Socket::init() {
 	if (initialized) return;
@@ -139,7 +139,7 @@ void Socket::send(const char* url, int port, const u8* data, int size) {
 		log(Kore::Error, "Could not resolve address.");
 		return;
 	}
-	
+
 	int sent = sendto(handle, (const char*)data, size, 0, address->ai_addr, sizeof(sockaddr_in));
 	if (sent != size) {
 		log(Kore::Error, "Could not send packet.");

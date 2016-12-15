@@ -155,7 +155,7 @@ void ImageShaderPainter::drawBuffer() {
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
 
 	Graphics::setRenderState(DepthTest, false);
-	
+
 	Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
 	// Graphics::setTexture(textureLocation, nullptr);
