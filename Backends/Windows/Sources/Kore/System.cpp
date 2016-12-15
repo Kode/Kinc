@@ -20,6 +20,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
+#include <Windowsx.h>
 #include <XInput.h>
 #include <exception>
 #include <shlobj.h>
@@ -376,52 +377,52 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			tme.hwndTrack = hWnd;
 			TrackMouseEvent(&tme);
 		}
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_move(windowId, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_move(windowId, mouseX, mouseY);
 		break;
 	case WM_LBUTTONDOWN:
 		if (!Mouse::the()->isLocked(idFromHWND(hWnd)))
 			SetCapture(hWnd);
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 0, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_press(idFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_LBUTTONUP:
 		if (!Mouse::the()->isLocked(idFromHWND(hWnd)))
 			ReleaseCapture();
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 0, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_release(idFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_RBUTTONDOWN:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 1, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_press(idFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_RBUTTONUP:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 1, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_release(idFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_MBUTTONDOWN:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 2, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_press(idFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_MBUTTONUP:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 2, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_release(idFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONDOWN:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
 		Mouse::the()->_press(idFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONUP:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
 		Mouse::the()->_release(idFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_MOUSEWHEEL:
