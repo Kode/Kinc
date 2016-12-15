@@ -45,6 +45,7 @@ namespace Kore {
 
 	public:
 		ImageShaderPainter();
+		~ImageShaderPainter();
 
 		PipelineState* get_pipeline() const;
 		void set_pipeline(PipelineState* pipe);
@@ -99,6 +100,7 @@ namespace Kore {
 
 	public:
 		ColoredShaderPainter();
+		~ColoredShaderPainter();
 
 		PipelineState* get_pipeline() const;
 		void set_pipeline(PipelineState* pipe);
@@ -161,6 +163,7 @@ namespace Kore {
 
 	public:
 		TextShaderPainter();
+		~TextShaderPainter();
 
 		int fontSize;
 
@@ -222,6 +225,7 @@ namespace Kore {
 
 	public:
 		Graphics2(int width, int height, bool rTargets = false);
+		~Graphics2();
 
 		void drawImage(Texture* img, float x, float y);
 		void drawScaledSubImage(Texture* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);
