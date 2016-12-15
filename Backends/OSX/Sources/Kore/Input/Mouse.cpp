@@ -1,4 +1,4 @@
-#include "../pch.h"
+#include "pch.h"
 #include <Kore/Input/Mouse.h>
 
 using namespace Kore;
