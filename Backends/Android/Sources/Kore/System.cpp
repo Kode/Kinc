@@ -53,8 +53,8 @@ namespace {
 		displayIsInitialized = displayIsInitializedValue;
 		appIsForeground = appIsForegroundValue;
 		bool newStatus = displayIsInitialized && appIsForeground;
-		if(oldStatus != newStatus) {
-			if(newStatus == true) {
+		if (oldStatus != newStatus) {
+			if (newStatus == true) {
 				Kore::System::foregroundCallback();
 			}
 			else {

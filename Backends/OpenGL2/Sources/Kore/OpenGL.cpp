@@ -487,7 +487,8 @@ void Graphics::end(int windowId) {
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
-	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, ((color & 0xff000000) >> 24) / 255.0f);
+	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
+	             ((color & 0xff000000) >> 24) / 255.0f);
 	glCheckErrors();
 	if (flags & ClearDepthFlag) {
 		glEnable(GL_DEPTH_TEST);

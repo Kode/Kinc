@@ -20,7 +20,8 @@ namespace Kore {
 		double* pings;
 		bool* congests;
 
-		Connection(int receivePort, int maxConns, double timeout = 10, double pngInterv = 1, double resndInterv = 0.2, double congestPing = 0.2, float congestShare = 0.5, int buffSize = 256, int cacheCount = 20);
+		Connection(int receivePort, int maxConns, double timeout = 10, double pngInterv = 1, double resndInterv = 0.2, double congestPing = 0.2,
+		           float congestShare = 0.5, int buffSize = 256, int cacheCount = 20);
 		~Connection();
 
 		void listen();
@@ -30,10 +31,7 @@ namespace Kore {
 		int receive(u8* data, int& fromId);
 
 	private:
-		enum ControlType {
-			Ping = 0,
-			Pong = 1
-		};
+		enum ControlType { Ping = 0, Pong = 1 };
 
 		bool acceptConns;
 		const int recPort;

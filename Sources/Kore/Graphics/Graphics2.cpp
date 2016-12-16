@@ -155,7 +155,7 @@ void ImageShaderPainter::drawBuffer() {
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
 
 	Graphics::setRenderState(DepthTest, false);
-	
+
 	Graphics::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
 	// Graphics::setTexture(textureLocation, nullptr);
@@ -219,6 +219,12 @@ inline void ImageShaderPainter::drawImageScale(Kore::Texture* img, float sx, flo
 void ImageShaderPainter::end() {
 	if (bufferIndex > 0) drawBuffer();
 	lastTexture = nullptr;
+}
+
+ImageShaderPainter::~ImageShaderPainter() {
+	delete shaderPipeline;
+	delete rectVertexBuffer;
+	delete indexBuffer;
 }
 
 //==========
@@ -326,7 +332,6 @@ void ColoredShaderPainter::setRectVertices(float bottomleftx, float bottomlefty,
 }
 
 void ColoredShaderPainter::setRectColors(float opacity, uint color) {
-	// TODO: i am not sure if this is correct
 	Color c = Color(color);
 	float r = c.R;
 	float g = c.G;
@@ -461,6 +466,14 @@ void ColoredShaderPainter::endRects(bool trisDone) {
 void ColoredShaderPainter::end() {
 	endTris(false);
 	endRects(false);
+}
+
+ColoredShaderPainter::~ColoredShaderPainter() {
+	delete shaderPipeline;
+	delete rectVertexBuffer;
+	delete indexBuffer;
+	delete triangleVertexBuffer;
+	delete triangleIndexBuffer;
 }
 
 //==========
@@ -672,13 +685,19 @@ void TextShaderPainter::end() {
 	lastTexture = nullptr;
 }
 
+TextShaderPainter::~TextShaderPainter() {
+	delete shaderPipeline;
+	delete rectVertexBuffer;
+	delete indexBuffer;
+}
+
 //==========
 // Graphics2
 //==========
 
 Graphics2::Graphics2(int width, int height, bool rTargets)
     : screenWidth(width), screenHeight(height), renderTargets(rTargets), color(Color::White), fontColor(Color::Black), fontSize(14) {
-	transformation = mat3::Identity(); // TODO
+	transformation = mat3::Identity();
 	opacity = 1.f;
 
 	myImageScaleQuality = High;
@@ -978,4 +997,11 @@ uint Graphics2::getFontColor() const {
 
 void Graphics2::setFontColor(uint color) {
 	this->fontColor = color;
+}
+
+Graphics2::~Graphics2() {
+	delete imagePainter;
+	delete coloredPainter;
+	delete textPainter;
+	delete videoPipeline;
 }
