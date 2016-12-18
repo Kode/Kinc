@@ -3,7 +3,7 @@
 #include "Core.h"
 
 namespace Kore {
-	template <class Type, unsigned count> class Vector {
+	template <class Type, unsigned count, class LengthType = float> class Vector {
 	public:
 		Type values[count];
 
@@ -120,7 +120,7 @@ namespace Kore {
 			for (unsigned i = 0; i < count; ++i) values[i] += v.values[i];
 		}
 
-		void addScaledVector(Vector<Type, count> v, float scale) {
+		void addScaledVector(Vector<Type, count> v, LengthType scale) {
 			for (unsigned i = 0; i < count; ++i) values[i] += v.values[i] * scale;
 		}
 
@@ -174,18 +174,18 @@ namespace Kore {
 			divide(value);
 		}
 
-		Type squareLength() const {
-			Type ret = 0;
+		LengthType squareLength() const {
+			LengthType ret = 0;
 			for (unsigned i = 0; i < count; ++i) ret += values[i] * values[i];
 			return ret;
 		}
 
-		Type getLength() const {
+		LengthType getLength() const {
 			return sqrt(squareLength());
 		}
 
-		void setLength(Type length) {
-			Type mul = length / getLength();
+		void setLength(LengthType length) {
+			LengthType mul = length / getLength();
 			for (unsigned i = 0; i < count; ++i) values[i] *= mul;
 		}
 
@@ -226,7 +226,7 @@ namespace Kore {
 			return Vector<Type, count>(_x, _y, _z);
 		}
 
-		Type distance(Vector<Type, count> v) {
+		LengthType distance(Vector<Type, count> v) {
 			return (*this - v).getLength();
 		}
 
@@ -295,9 +295,9 @@ namespace Kore {
 	typedef Vector<float, 2> vec2;
 	typedef Vector<float, 3> vec3;
 	typedef Vector<float, 4> vec4;
-	typedef Vector<double, 2> vec2d;
-	typedef Vector<double, 3> vec3d;
-	typedef Vector<double, 4> vec4d;
+	typedef Vector<double, 2, double> vec2d;
+	typedef Vector<double, 3, double> vec3d;
+	typedef Vector<double, 4, double> vec4d;
 	typedef Vector<int, 2> vec2i;
 	typedef Vector<int, 3> vec3i;
 	typedef Vector<int, 4> vec4i;
