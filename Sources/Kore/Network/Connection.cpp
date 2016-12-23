@@ -200,7 +200,7 @@ int Connection::receive(u8* data, int& id) {
 
 			u32 ackNrRel = *((u32*)(recBuff + 4));
 			if (checkSeqNr(ackNrRel, lastAckNrsRel[id])) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time,
-			                                               // stepwise increment handled by client
+				                                           // stepwise increment handled by client
 				lastAckNrsRel[id] = ackNrRel;
 			}
 
