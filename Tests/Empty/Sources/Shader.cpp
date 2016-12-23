@@ -42,7 +42,7 @@ int kore(int argc, char** argv) {
 	options.x = 100;
 	options.y = 100;
 	options.targetDisplay = -1;
-	options.mode = WindowMode::Window;
+	options.mode = WindowModeWindow;
 	options.rendererOptions.depthBufferBits = 16;
 	options.rendererOptions.stencilBufferBits = 8;
 	options.rendererOptions.textureFormat = 0;
