@@ -1,0 +1,17 @@
+sudo: false
+os:
+  - linux
+  - osx
+addons:
+  apt:
+    packages:
+      - libasound2-dev
+language: cpp
+compiler:
+  - gcc
+  - clang
+before_script:
+  - git submodule update --init --recursive
+  - git clone https://github.com/ktxsoftware/nodejs_bin.git
+  - nodejs_bin/copysysbin.sh
+script: nodejs_bin/node make.js --kore . --from Tests/Empty --compile
