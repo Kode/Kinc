@@ -2,7 +2,7 @@ version: 1.0.{build}
 before_build:
 - git submodule update --init --recursive
 - git clone https://github.com/ktxsoftware/nodejs_bin.git
-- nodejs_bin\node.exe make.js --kore . --from Tests/Empty --visualstudio vs2013
+- nodejs_bin\node.exe make.js --kore . --from Tests/Empty --visualstudio vs2013 --noshaders
 build:
   project: build\Empty.sln
   verbosity: minimal
