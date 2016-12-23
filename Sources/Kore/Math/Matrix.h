@@ -196,7 +196,7 @@ namespace Kore {
 			// StaticAssert(X >= 3 && Y >= 3);
 			myType m = Identity();
 			m.Set(0, 0, scale);
-			m.Set(1, 1, scale;
+			m.Set(1, 1, scale);
 			m.Set(2, 2, scale);
 			return m;
 		}
