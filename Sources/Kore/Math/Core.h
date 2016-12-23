@@ -31,4 +31,10 @@ namespace Kore {
 	template <class T> T max(T a, T b) {
 		return (a > b) ? a : b;
 	}
+
+	template <class T> T clamp(T value, T minValue, T maxValue)
+	{
+		const T clampedToMin = value < minValue ? minValue : value;
+		return clampedToMin > maxValue ? maxValue : clampedToMin;
+	}
 }
