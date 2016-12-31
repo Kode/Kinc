@@ -2,7 +2,30 @@ const child_process = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const excludes = JSON.parse(fs.readFileSync('format-excludes.json', 'utf8'));
+const excludes = [
+	'Backends/Android/Sources/android_native_app_glue.h',
+	'Backends/Android/Sources/gl3stub.h',
+	'Backends/Android/Sources/GLContext.cpp',
+	'Backends/Android/Sources/GLContext.h',
+	'Backends/Android/Sources/JNIHelper.cpp',
+	'Backends/Android/Sources/JNIHelper.h',
+	'Backends/OpenGL2/Sources/GL/eglew.h',
+	'Backends/OpenGL2/Sources/GL/glew.h',
+	'Backends/OpenGL2/Sources/GL/glxew.h',
+	'Backends/OpenGL2/Sources/GL/wglew.h',
+	'Backends/Direct3D12/Sources/Kore/d3dx12.h',
+	'Backends/Vulkan/Sources/vulkan/vk_platform.h',
+	'Backends/Vulkan/Sources/vulkan/vulkan.h',
+	'Sources/Kore/Audio/stb_vorbis.cpp',
+	'Sources/Kore/Audio/stb_vorbis.h',
+	'Sources/Kore/Graphics/stb_image.h',
+	'Sources/Kore/IO/snappy/snappy-c.h',
+	'Sources/Kore/IO/snappy/snappy-internal.h',
+	'Sources/Kore/IO/snappy/snappy-sinksource.h',
+	'Sources/Kore/IO/snappy/snappy-stubs-internal.h',
+	'Sources/Kore/IO/snappy/snappy-stubs-public.h',
+	'Sources/Kore/IO/snappy/snappy.h'
+];
 
 function isExcluded(filepath) {
 	filepath = filepath.replace(/\\/g, '/');
