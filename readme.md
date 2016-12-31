@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/KTXSoftware/Kore.svg?branch=master)](https://travis-ci.org/KTXSoftware/Kore) [![Build status](https://ci.appveyor.com/api/projects/status/y3yxe87qj32wqcou?svg=true)](https://ci.appveyor.com/project/RobDangerous/kore)
+[![Build Status](https://travis-ci.org/Kode/Kore.svg?branch=master)](https://travis-ci.org/Kode/Kore) [![Build status](https://ci.appveyor.com/api/projects/status/y3yxe87qj32wqcou/branch/master?svg=true)](https://ci.appveyor.com/project/RobDangerous/kore)
 
 Kore projects are built using koremake, a nodejs tool.
 In your project's directory call node Kore/make - this will

@@ -1,12 +1,12 @@
 [submodule "Tools/koremake"]
 	path = Tools/koremake
-	url = ../koremake
+	url = https://github.com/Kode/koremake.git
 	branch = master
 [submodule "Tools/kraffiti"]
 	path = Tools/kraffiti
-	url = ../kraffiti_bin
+	url = https://github.com/Kode/kraffiti_bin.git
 	branch = master
 [submodule "Tools/krafix"]
 	path = Tools/krafix
-	url = ../krafix_bin
+	url = https://github.com/Kode/krafix_bin.git
 	branch = master
