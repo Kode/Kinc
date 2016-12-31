@@ -1,4 +1,6 @@
-Kore projects are build using koremake, a nodejs tool.
+[![Build Status](https://travis-ci.org/KTXSoftware/Kore.svg?branch=master)](https://travis-ci.org/KTXSoftware/Kore) [![Build status](https://ci.appveyor.com/api/projects/status/y3yxe87qj32wqcou?svg=true)](https://ci.appveyor.com/project/RobDangerous/kore)
+
+Kore projects are built using koremake, a nodejs tool.
 In your project's directory call node Kore/make - this will
 create a project file for your IDE in a build subdirectory.
 koremake by default creates a project for the system you are currently using,
