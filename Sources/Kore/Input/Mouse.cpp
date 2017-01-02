@@ -66,6 +66,12 @@ void Mouse::_activated(int windowId, bool truth) {
 	}
 }
 
+void Mouse::___leave(int windowId) {
+	if (Leave != nullptr) {
+		Leave(windowId);
+	}
+}
+
 bool Mouse::isLocked(int windowId) {
 	return locked;
 }

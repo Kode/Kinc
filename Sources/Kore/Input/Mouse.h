@@ -9,6 +9,7 @@ namespace Kore {
 		void (*Press)(int windowId, int button, int x, int y);
 		void (*Release)(int windowId, int button, int x, int y);
 		void (*Scroll)(int windowId, int delta);
+		void (*Leave)(int windowId);
 
 		bool canLock(int windowId);
 		bool isLocked(int windowId);
@@ -25,6 +26,7 @@ namespace Kore {
 		void _release(int windowId, int button, int x, int y);
 		void _scroll(int windowId, int delta);
 		void _activated(int windowId, bool truth);
+		void ___leave(int windowId); // use ___leave, because _leave and __leave are reserved keywords
 
 	private:
 		void _lock(int windowId, bool truth);
