@@ -20,6 +20,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
+#include <Windowsx.h>
 #include <XInput.h>
 #include <exception>
 #include <shlobj.h>
@@ -40,6 +41,7 @@ extern "C"
 namespace {
 	struct KoreWindow : public Kore::KoreWindowBase {
 		HWND hwnd;
+		bool isMouseInside = false;
 
 		KoreWindow(HWND hwnd, int x, int y, int width, int height) : KoreWindowBase(x, y, width, height) {
 			this->hwnd = hwnd;
@@ -336,6 +338,7 @@ namespace {
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowWidth;
 	int windowHeight;
+	int windowId;
 
 	switch (msg) {
 	case WM_MOVE:
@@ -359,49 +362,67 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		else
 			Mouse::the()->_activated(idFromHWND(hWnd), false);
 		break;
+	case WM_MOUSELEAVE:
+		windowId = idFromHWND(hWnd);
+		windows[windowId]->isMouseInside = false;
+		Mouse::the()->___leave(windowId);
+		break;
 	case WM_MOUSEMOVE:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_move(idFromHWND(hWnd), LOWORD(lParam), HIWORD(lParam));
+		windowId = idFromHWND(hWnd);
+		if (!windows[windowId]->isMouseInside) {
+			windows[windowId]->isMouseInside = true;
+			TRACKMOUSEEVENT tme;
+			tme.cbSize = sizeof(TRACKMOUSEEVENT);
+			tme.dwFlags = TME_LEAVE;
+			tme.hwndTrack = hWnd;
+			TrackMouseEvent(&tme);
+		}
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_move(windowId, mouseX, mouseY);
 		break;
 	case WM_LBUTTONDOWN:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 0, LOWORD(lParam), HIWORD(lParam));
+		if (!Mouse::the()->isLocked(idFromHWND(hWnd)))
+			SetCapture(hWnd);
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_press(idFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_LBUTTONUP:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 0, LOWORD(lParam), HIWORD(lParam));
+		if (!Mouse::the()->isLocked(idFromHWND(hWnd)))
+			ReleaseCapture();
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_release(idFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_RBUTTONDOWN:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 1, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_press(idFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_RBUTTONUP:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 1, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_release(idFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_MBUTTONDOWN:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 2, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_press(idFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_MBUTTONUP:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 2, LOWORD(lParam), HIWORD(lParam));
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
+		Mouse::the()->_release(idFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONDOWN:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
 		Mouse::the()->_press(idFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONUP:
-		mouseX = LOWORD(lParam);
-		mouseY = HIWORD(lParam);
+		mouseX = GET_X_LPARAM(lParam);
+		mouseY = GET_Y_LPARAM(lParam);
 		Mouse::the()->_release(idFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_MOUSEWHEEL:
