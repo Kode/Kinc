@@ -77,7 +77,7 @@ void Program::link(VertexStructure** structures, int count) {
 	MTLRenderPipelineReflection* reflection = nil;
 	id<MTLDevice> device = getMetalDevice();
 	pipeline = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
-    NSLog(@"%@",[errors localizedDescription]);
+    if (errors != nil) NSLog(@"%@",[errors localizedDescription]);
     assert(pipeline && !errors);
 	this->reflection = reflection;
 }
