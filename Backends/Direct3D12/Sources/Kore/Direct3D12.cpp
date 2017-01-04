@@ -290,6 +290,8 @@ void Graphics::init(int window, int depthBufferBits, int stencilBufferBits) {
 		UpdateWindow(hwnd);
 	}
 #endif
+
+	begin(window);
 }
 
 void Graphics::changeResolution(int width, int height) {}
@@ -342,7 +344,13 @@ void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {}
 
+namespace {
+	bool began = false;
+}
+
 void Graphics::begin(int window) {
+	if (began) return;
+	began = true;
 #ifdef SYS_WINDOWSRT
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
@@ -410,6 +418,7 @@ void Graphics::end(int window) {
 
 	ID3D12CommandList* commandLists[] = {commandList};
 	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+	began = false;
 }
 
 void graphicsFlushAndWait() {
