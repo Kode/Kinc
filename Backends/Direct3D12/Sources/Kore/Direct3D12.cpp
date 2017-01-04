@@ -4,7 +4,6 @@
 #include "IndexBufferImpl.h"
 #include "ProgramImpl.h"
 #include "VertexBufferImpl.h"
-#include <Kore/Application.h>
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Math/Core.h>
 #include <dxgi1_4.h>
@@ -274,19 +273,19 @@ namespace {
 	}*/
 }
 
-void Graphics::destroy() {}
+void Graphics::destroy(int window) {}
 
-void Graphics::init() {
+void Graphics::init(int window, int depthBufferBits, int stencilBufferBits) {
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
-	HWND hwnd = (HWND)System::createWindow();
-	renderTargetWidth = Application::the()->width();
-	renderTargetHeight = Application::the()->height();
+	HWND hwnd = (HWND)System::windowHandle(window);
+	renderTargetWidth = System::windowWidth(window);
+	renderTargetHeight = System::windowHeight(window);
 	initialize(renderTargetWidth, renderTargetHeight, hwnd);
 
 #ifdef SYS_WINDOWS
-	if (Application::the()->showWindow()) {
+	if (System::hasShowWindowFlag()) {
 		ShowWindow(hwnd, SW_SHOWDEFAULT);
 		UpdateWindow(hwnd);
 	}
@@ -295,9 +294,15 @@ void Graphics::init() {
 
 void Graphics::changeResolution(int width, int height) {}
 
-void* Graphics::getControl() {
-	return nullptr;
-}
+void Graphics::setup() {}
+
+void Graphics::makeCurrent(int window) {}
+
+void Graphics::clearCurrent() {}
+
+//void* Graphics::getControl() {
+//	return nullptr;
+//}
 
 void Graphics::drawIndexedVertices() {
 	// Program::setConstants();
@@ -337,7 +342,7 @@ void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {}
 
-void Graphics::begin() {
+void Graphics::begin(int window) {
 #ifdef SYS_WINDOWSRT
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
@@ -389,7 +394,7 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 	// TODO
 }
 
-void Graphics::end() {
+void Graphics::end(int window) {
 	D3D12_RESOURCE_BARRIER barrier;
 	barrier.Transition.pResource = renderTarget;
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -434,7 +439,7 @@ unsigned Graphics::refreshRate() {
 	return hz;
 }
 
-void Graphics::swapBuffers() {
+void Graphics::swapBuffers(int window) {
 	swapChain->Present(1, 0);
 
 	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
