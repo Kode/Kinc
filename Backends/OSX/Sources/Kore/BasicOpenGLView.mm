@@ -280,12 +280,9 @@ namespace {
 
 		// backingWidth = (int)[texture width];
 		// backingHeight = (int)[texture height];
-
-        MTLRenderPassDescriptor* renderPassDescriptor;
-		if (renderPassDescriptor == nil) {
-			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-		}
-		renderPassDescriptor.colorAttachments[0].texture = texture;
+        
+		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+        renderPassDescriptor.colorAttachments[0].texture = texture;
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
@@ -295,7 +292,7 @@ namespace {
 		// if (drawable != nil) {
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 		//}
-    
+        
         [commandEncoder retain];
         [drawable retain];
         [commandBuffer retain];

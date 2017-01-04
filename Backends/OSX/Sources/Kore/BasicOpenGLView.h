@@ -21,7 +21,7 @@
 	id<MTLRenderCommandEncoder> commandEncoder;
 	id<CAMetalDrawable> drawable;
 	id<MTLLibrary> library;
-	//MTLRenderPassDescriptor* renderPassDescriptor;
+	MTLRenderPassDescriptor* renderPassDescriptor;
 }
 
 #else
