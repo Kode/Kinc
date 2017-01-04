@@ -24,7 +24,7 @@ namespace {
 	}
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits) {
+RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 
