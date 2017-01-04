@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "../IO/snappy/snappy.h"
+#include "../IO/lz4/lz4.h"
 #include "Image.h"
 
 #include <Kore/Graphics/Graphics.h>
@@ -62,6 +63,11 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 			snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
 			this->data = (u8*)malloc(length);
 			snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
+		}
+		else if (strcmp(fourcc, "LZ4 ") == 0) {
+			int length = width * height * 4;
+			this->data = (u8*)malloc(length);
+			LZ4_decompress_safe((char*)(data + 12), (char*)this->data, file.size() - 12, length);
 		}
 	}
 	else if (endsWith(filename, ".pvr")) {
