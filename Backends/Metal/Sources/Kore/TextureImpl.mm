@@ -50,7 +50,7 @@ id getMetalEncoder();
 void Texture::_set(TextureUnit unit) {
 	id<MTLDevice> device = getMetalDevice();
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
-	desc.minFilter = MTLSamplerMinMagFilterLinear;
+	desc.minFilter = MTLSamplerMinMagFilterNearest;
 	desc.magFilter = MTLSamplerMinMagFilterLinear;
 	desc.sAddressMode = MTLSamplerAddressModeRepeat;
 	desc.tAddressMode = MTLSamplerAddressModeRepeat;

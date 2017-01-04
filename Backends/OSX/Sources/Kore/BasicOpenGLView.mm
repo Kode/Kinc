@@ -223,9 +223,22 @@ namespace {
 }
 #else
 - (id)initWithFrame:(NSRect)frameRect {
-	self = [super initWithFrame:frameRect device:MTLCreateSystemDefaultDevice()];
-	commandQueue = [self.device newCommandQueue];
-	library = [self.device newDefaultLibrary];
+	self = [super initWithFrame:frameRect];
+    
+    device = MTLCreateSystemDefaultDevice();
+	commandQueue = [device newCommandQueue];
+	library = [device newDefaultLibrary];
+    
+    CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+    
+    metalLayer.device = device;
+    metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    metalLayer.framebufferOnly = YES;
+    // metalLayer.presentsWithTransaction = YES;
+    
+    metalLayer.opaque = YES;
+    metalLayer.backgroundColor = nil;
+    
 	return self;
 }
 #endif
@@ -244,7 +257,7 @@ namespace {
 
 #ifdef SYS_METAL
 - (id<MTLDevice>)metalDevice {
-	return self.device;
+	return device;
 }
 
 - (id<MTLLibrary>)metalLibrary {
@@ -268,6 +281,7 @@ namespace {
 		// backingWidth = (int)[texture width];
 		// backingHeight = (int)[texture height];
 
+        MTLRenderPassDescriptor* renderPassDescriptor;
 		if (renderPassDescriptor == nil) {
 			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		}
@@ -281,6 +295,10 @@ namespace {
 		// if (drawable != nil) {
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 		//}
+    
+        [commandEncoder retain];
+        [drawable retain];
+        [commandBuffer retain];
 	}
 }
 
@@ -296,6 +314,10 @@ namespace {
 		//	[drawable present];
 		//}
 	}
+    
+    [commandEncoder release];
+    [drawable release];
+    [commandBuffer release];
 }
 #endif
 

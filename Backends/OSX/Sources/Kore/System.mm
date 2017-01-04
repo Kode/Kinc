@@ -90,7 +90,8 @@ bool System::handleMessages() {
 }
 
 void System::swapBuffers(int windowId) {
-	[windows[windowId]->view switchBuffers];
+	//[windows[windowId]->view switchBuffers];
+    endGL();
 }
 
 int Kore::System::windowCount() {
@@ -126,7 +127,7 @@ int Kore::System::initWindow(Kore::WindowOptions options) {
 }
 
 void Graphics::makeCurrent(int contextId) {
-	[[windows[contextId]->view openGLContext] makeCurrentContext];
+	//[[windows[contextId]->view openGLContext] makeCurrentContext];
 }
 
 int Kore::System::windowWidth(int id) {

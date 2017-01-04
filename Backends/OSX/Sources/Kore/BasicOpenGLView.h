@@ -15,12 +15,13 @@
 
 @interface BasicOpenGLView : MTKView {
 @private
+    id<MTLDevice> device;
 	id<MTLCommandQueue> commandQueue;
 	id<MTLCommandBuffer> commandBuffer;
 	id<MTLRenderCommandEncoder> commandEncoder;
 	id<CAMetalDrawable> drawable;
 	id<MTLLibrary> library;
-	MTLRenderPassDescriptor* renderPassDescriptor;
+	//MTLRenderPassDescriptor* renderPassDescriptor;
 }
 
 #else
