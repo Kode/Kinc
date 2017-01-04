@@ -89,14 +89,12 @@ bool System::handleMessages() {
 	return true;
 }
 
+void System::swapBuffers(int windowId) {
 #ifdef SYS_METAL
-void System::swapBuffers(int windowId) {
     endGL();
-}
-#endif
-
-void System::swapBuffers(int windowId) {
+#else
     [windows[windowId]->view switchBuffers];
+#endif
 }
 
 int Kore::System::windowCount() {
