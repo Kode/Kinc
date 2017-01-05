@@ -94,6 +94,10 @@ int VertexBuffer::stride() {
 	return myStride;
 }
 
+namespace {
+	bool attribDivisorUsed = false;
+}
+
 int VertexBufferImpl::setVertexAttributes(int offset) {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
@@ -134,8 +138,11 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, (void*)(internaloffset + addonOffset));
 				glCheckErrors();
 #ifndef OPENGLES
-				glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
-				glCheckErrors();
+				if (attribDivisorUsed || instanceDataStepRate != 0) {
+					attribDivisorUsed = true;
+					glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
+					glCheckErrors();
+				}
 #endif
 				subsize -= 4;
 				addonOffset += 4 * 4;
@@ -148,8 +155,11 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, (void*)internaloffset);
 			glCheckErrors();
 #ifndef OPENGLES
-			glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
-			glCheckErrors();
+			if (attribDivisorUsed || instanceDataStepRate != 0) {
+				attribDivisorUsed = true;
+				glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
+				glCheckErrors();
+			}
 #endif
 			++actualIndex;
 		}
