@@ -53,6 +53,7 @@ namespace {
 
 void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
+		_hasDepth = true;
 #ifdef OPENGLES
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
 #else
@@ -99,6 +100,7 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 		glCheckErrors();
 	}
 	else if (depthBufferBits > 0) {
+		_hasDepth = true;
 		// Renderbuffer
 		// glGenRenderbuffers(1, &_depthRenderbuffer);
 		// glCheckErrors();
@@ -129,6 +131,8 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 
 RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
     : width(width), height(height) {
+
+	_hasDepth = false;
 
 	if (nonPow2RenderTargetsSupported()) {
 		texWidth = width;
@@ -211,6 +215,19 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glCheckErrors();
+}
+
+RenderTarget::~RenderTarget() {
+	{
+		GLuint textures[] = { _texture };
+		glDeleteTextures(1, textures);
+	}
+	if (_hasDepth) {
+		GLuint textures[] = { _depthTexture };
+		glDeleteTextures(1, textures);
+	}
+	GLuint framebuffers[] = { _framebuffer };
+	glDeleteFramebuffers(1, framebuffers);
 }
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {

@@ -30,6 +30,11 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	log(Info, "stencilBufferBits not implemented yet, using defaults (D3DFMT_D24S8)");
 #endif
 
+	colorSurface = nullptr;
+	depthSurface = nullptr;
+	colorTexture = nullptr;
+	depthTexture = nullptr;
+
 	if (antialiasing) {
 		affirm(device->CreateRenderTarget(width, height, d3dformat, D3DMULTISAMPLE_8_SAMPLES, 0, FALSE, &colorSurface, nullptr));
 		affirm(device->CreateDepthStencilSurface(width, height, D3DFMT_D24S8, D3DMULTISAMPLE_8_SAMPLES, 0, TRUE, &depthSurface, nullptr));
@@ -43,6 +48,13 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 		affirm(colorTexture->GetSurfaceLevel(0, &colorSurface));
 		affirm(depthTexture->GetSurfaceLevel(0, &depthSurface));
 	}
+}
+
+RenderTarget::~RenderTarget() {
+	if (colorSurface != nullptr) colorSurface->Release();
+	if (depthSurface != nullptr) depthSurface->Release();
+	if (colorTexture != nullptr) colorTexture->Release();
+	if (depthTexture != nullptr) depthTexture->Release();
 }
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {

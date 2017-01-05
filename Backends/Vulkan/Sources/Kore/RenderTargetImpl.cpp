@@ -331,6 +331,8 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	createDescriptorSet(nullptr, this, desc_set);
 }
 
+RenderTarget::~RenderTarget() {}
+
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	vulkanRenderTargets[unit.binding - 2] = this;
 	vulkanTextures[unit.binding - 2] = nullptr;

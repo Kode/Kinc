@@ -25,4 +25,6 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	texHeight = getPower2(height);
 }
 
+RenderTarget::~RenderTarget() {}
+
 void RenderTarget::useColorAsTexture(TextureUnit unit) {}

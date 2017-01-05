@@ -95,6 +95,7 @@ namespace Kore {
 	public:
 		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
 		             int contextId = 0);
+		~RenderTarget();
 		int width;
 		int height;
 		int texWidth;

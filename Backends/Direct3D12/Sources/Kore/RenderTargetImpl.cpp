@@ -76,6 +76,12 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
 }
 
+RenderTarget::~RenderTarget() {
+	renderTarget->Release();
+	renderTargetDescriptorHeap->Release();
+	srvDescriptorHeap->Release();
+}
+
 extern void graphicsFlushAndWait();
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
@@ -84,4 +90,12 @@ void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	this->stage = unit.unit;
 	currentRenderTargets[stage] = this;
 	currentTextures[stage] = nullptr;
+}
+
+void RenderTarget::useDepthAsTexture(TextureUnit unit) {
+
+}
+
+void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+
 }

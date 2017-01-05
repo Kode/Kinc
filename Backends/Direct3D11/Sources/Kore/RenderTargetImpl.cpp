@@ -49,6 +49,11 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	lastBoundUnit = -1;
 }
 
+RenderTarget::~RenderTarget() {
+	renderTargetView->Release();
+	view->Release();
+}
+
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &view);
