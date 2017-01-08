@@ -59,15 +59,20 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		fourcc[3] = Reader::readS8(data + 11);
 		fourcc[4] = 0;
 		if (strcmp(fourcc, "SNAP") == 0) {
+			compressed = false;
+			internalFormat = 0;
 			size_t length;
 			snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
+			dataSize = length;
 			this->data = (u8*)malloc(length);
 			snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
 		}
 		else if (strcmp(fourcc, "LZ4 ") == 0) {
-			int length = width * height * 4;
-			this->data = (u8*)malloc(length);
-			LZ4_decompress_safe((char*)(data + 12), (char*)this->data, file.size() - 12, length);
+			compressed = false;
+			internalFormat = 0;
+			dataSize = width * height * 4;
+			this->data = (u8*)malloc(dataSize);
+			LZ4_decompress_safe((char*)(data + 12), (char*)this->data, file.size() - 12, dataSize);
 		}
 	}
 	else if (endsWith(filename, ".pvr")) {
