@@ -15,9 +15,11 @@ namespace Kore {
 		int screenCounter = -1;
 		bool initialized = false;
 
-		void ensureInitialized() {
-			enumerate();
-		}
+		volatile static struct StaticInitializer {
+			StaticInitializer() {
+				enumerate();
+			}
+		} displayInitializer;
 
 		bool queryInformation(HMONITOR monitor) {
 			MONITORINFOEXA info;
@@ -75,7 +77,6 @@ namespace Kore {
 		}
 
 		int count() {
-			ensureInitialized();
 			return screenCounter + 1;
 		}
 
@@ -113,27 +114,22 @@ namespace Kore {
 		}
 
 		int width(int index) {
-			ensureInitialized();
 			return displays[index].width;
 		}
 
 		int height(int index) {
-			ensureInitialized();
 			return displays[index].height;
 		}
 
 		int x(int index) {
-			ensureInitialized();
 			return displays[index].x;
 		}
 
 		int y(int index) {
-			ensureInitialized();
 			return displays[index].y;
 		}
 
 		bool isPrimary(int index) {
-			ensureInitialized();
 			return displays[index].isPrimary;
 		}
 	}
