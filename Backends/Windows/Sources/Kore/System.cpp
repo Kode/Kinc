@@ -41,10 +41,11 @@ extern "C"
 namespace {
 	struct KoreWindow : public Kore::KoreWindowBase {
 		HWND hwnd;
-		bool isMouseInside = false;
+		bool isMouseInside;
 
 		KoreWindow(HWND hwnd, int x, int y, int width, int height) : KoreWindowBase(x, y, width, height) {
 			this->hwnd = hwnd;
+			isMouseInside = false;
 		}
 	};
 
