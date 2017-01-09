@@ -43,6 +43,18 @@ namespace Kore {
 			return displays[index].height;
 		}
 
+		int x(int index) {
+			return displays[index].x;
+		}
+
+		int y(int index) {
+			return displays[index].y;
+		}
+
+		bool isPrimary(int index) {
+			return displays[index].isPrimary;
+		}
+
 		const DeviceInfo* primaryScreen() {
 			for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {
 				const DeviceInfo& info = displays[index];
