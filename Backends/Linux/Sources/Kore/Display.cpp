@@ -20,6 +20,12 @@ namespace Kore {
 		int displayCounter = -1;
 		bool initialized = false;
 #ifdef OPENGL
+		volatile static struct StaticInitializer {
+			StaticInitializer() {
+				enumerate();
+			}
+		} displayInitializer;
+
 		void enumDisplayMonitors(DeviceInfo screens[], int& displayCounter);
 #endif
 		void enumerate() {
