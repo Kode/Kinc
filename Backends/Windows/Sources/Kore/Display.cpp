@@ -121,5 +121,20 @@ namespace Kore {
 			ensureInitialized();
 			return displays[index].height;
 		}
+
+		int x(int index) {
+			ensureInitialized();
+			return displays[index].x;
+		}
+
+		int y(int index) {
+			ensureInitialized();
+			return displays[index].y;
+		}
+
+		bool isPrimary(int index) {
+			ensureInitialized();
+			return displays[index].isPrimary;
+		}
 	}
 }
