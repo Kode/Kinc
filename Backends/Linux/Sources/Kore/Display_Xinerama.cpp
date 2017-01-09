@@ -39,7 +39,7 @@ namespace Kore {
 					for (int head = 0; head < heads; ++head) {
 						++displayCounter;
 						XineramaScreenInfo& info = queried[head];
-						log(Info, "Head %i: %ix%i @%i;%i", head + 1, info.width, info.height, info.x_org, info.y_org);
+						//log(Info, "Head %i: %ix%i @%i;%i", head + 1, info.width, info.height, info.x_org, info.y_org);
 						DeviceInfo& di = displays[displayCounter];
 						di.isAvailable = true;
 						di.x = info.x_org;
