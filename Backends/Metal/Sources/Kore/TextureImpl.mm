@@ -37,7 +37,7 @@ void TextureImpl::create(int width, int height) {
 	descriptor.width = width;
 	descriptor.height = height;
 	descriptor.depth = 1;
-	descriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 
@@ -50,7 +50,7 @@ id getMetalEncoder();
 void Texture::_set(TextureUnit unit) {
 	id<MTLDevice> device = getMetalDevice();
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
-	desc.minFilter = MTLSamplerMinMagFilterLinear;
+	desc.minFilter = MTLSamplerMinMagFilterNearest;
 	desc.magFilter = MTLSamplerMinMagFilterLinear;
 	desc.sAddressMode = MTLSamplerAddressModeRepeat;
 	desc.tAddressMode = MTLSamplerAddressModeRepeat;

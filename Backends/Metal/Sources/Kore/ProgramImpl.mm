@@ -30,11 +30,48 @@ void Program::link(VertexStructure** structures, int count) {
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
 	renderPipelineDesc.fragmentFunction = fragmentShader->mtlFunction;
 	renderPipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+    
+	// Create a vertex descriptor
+	float offset = 0;
+	MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
+	
+	for (int i = 0; i < structures[0]->size; ++i) {
+		
+		vertexDescriptor.attributes[i].bufferIndex = 0;
+		vertexDescriptor.attributes[i].offset = offset;
+		
+		switch (structures[0]->elements[i].data) {
+			case Float1VertexData:
+				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat;
+				offset += sizeof(float);
+				break;
+			case Float2VertexData:
+				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat2;
+				offset += 2 * sizeof(float);
+				break;
+			case Float3VertexData:
+				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat3;
+				offset += 3 * sizeof(float);
+				break;
+			case Float4VertexData:
+				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat4;
+				offset += 4 * sizeof(float);
+				break;
+			default:
+				break;
+		}
+	}
+	
+	vertexDescriptor.layouts[0].stride = offset;
+	vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+	
+	renderPipelineDesc.vertexDescriptor = vertexDescriptor;
 
 	NSError* errors = nil;
 	MTLRenderPipelineReflection* reflection = nil;
 	id<MTLDevice> device = getMetalDevice();
 	pipeline = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
+	if (errors != nil) NSLog(@"%@",[errors localizedDescription]);
 	assert(pipeline && !errors);
 	this->reflection = reflection;
 }

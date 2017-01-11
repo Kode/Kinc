@@ -19,10 +19,6 @@
 
 #ifndef SYS_CONSOLE
 
-#ifndef KORE_DEBUGDIR
-#define KORE_DEBUGDIR "Deployment"
-#endif
-
 #ifdef SYS_IOS
 const char* iphonegetresourcepath();
 #endif
