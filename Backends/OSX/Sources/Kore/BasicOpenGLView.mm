@@ -224,21 +224,21 @@ namespace {
 #else
 - (id)initWithFrame:(NSRect)frameRect {
 	self = [super initWithFrame:frameRect];
-    
-    device = MTLCreateSystemDefaultDevice();
+	
+	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
 	library = [device newDefaultLibrary];
-    
-    CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
-    
-    metalLayer.device = device;
-    metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    metalLayer.framebufferOnly = YES;
-    // metalLayer.presentsWithTransaction = YES;
-    
-    metalLayer.opaque = YES;
-    metalLayer.backgroundColor = nil;
-    
+	
+	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+	
+	metalLayer.device = device;
+	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	metalLayer.framebufferOnly = YES;
+	// metalLayer.presentsWithTransaction = YES;
+	
+	metalLayer.opaque = YES;
+	metalLayer.backgroundColor = nil;
+	
 	return self;
 }
 #endif
@@ -282,7 +282,7 @@ namespace {
 		// backingHeight = (int)[texture height];
         
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-        renderPassDescriptor.colorAttachments[0].texture = texture;
+		renderPassDescriptor.colorAttachments[0].texture = texture;
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
@@ -292,10 +292,10 @@ namespace {
 		// if (drawable != nil) {
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 		//}
-        
-        [commandEncoder retain];
-        [drawable retain];
-        [commandBuffer retain];
+		
+		[commandEncoder retain];
+		[drawable retain];
+		[commandBuffer retain];
 	}
 }
 
@@ -311,10 +311,10 @@ namespace {
 		//	[drawable present];
 		//}
 	}
-    
-    [commandEncoder release];
-    [drawable release];
-    [commandBuffer release];
+	
+	[commandEncoder release];
+	[drawable release];
+	[commandBuffer release];
 }
 #endif
 

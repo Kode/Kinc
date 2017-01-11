@@ -15,7 +15,7 @@
 
 @interface BasicOpenGLView : MTKView {
 @private
-    id<MTLDevice> device;
+	id<MTLDevice> device;
 	id<MTLCommandQueue> commandQueue;
 	id<MTLCommandBuffer> commandBuffer;
 	id<MTLRenderCommandEncoder> commandEncoder;

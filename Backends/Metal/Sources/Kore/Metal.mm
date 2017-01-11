@@ -285,7 +285,7 @@ void Graphics::setVertexBuffers(Kore::VertexBuffer** vertexBuffers, int count) {
 }
 
 void Graphics::setTexture(Kore::TextureUnit unit, Kore::Texture* texture) {
-    texture->_set(unit);
+	texture->_set(unit);
 }
 
 bool Graphics::initOcclusionQuery(uint* occlusionQuery) {

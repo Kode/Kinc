@@ -37,7 +37,7 @@ void TextureImpl::create(int width, int height) {
 	descriptor.width = width;
 	descriptor.height = height;
 	descriptor.depth = 1;
-       descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+	descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 

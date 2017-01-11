@@ -91,9 +91,9 @@ bool System::handleMessages() {
 
 void System::swapBuffers(int windowId) {
 #ifdef SYS_METAL
-    endGL();
+	endGL();
 #else
-    [windows[windowId]->view switchBuffers];
+	[windows[windowId]->view switchBuffers];
 #endif
 }
 

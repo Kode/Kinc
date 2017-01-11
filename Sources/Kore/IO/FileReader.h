@@ -2,6 +2,10 @@
 
 #include "Reader.h"
 
+#ifndef KORE_DEBUGDIR
+#define KORE_DEBUGDIR "Deployment"
+#endif
+
 #ifdef SYS_ANDROID
 struct AAsset;
 struct __sFILE;
