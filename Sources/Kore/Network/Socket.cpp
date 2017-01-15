@@ -62,6 +62,52 @@ void Socket::open(int port) {
 	handle = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (handle <= 0) {
 		log(Kore::Error, "Could not create socket.");
+#if defined(SYS_WINDOWS) || defined (SYS_WINDOWSAPP)
+		int errorCode = WSAGetLastError();
+		switch (errorCode) {
+			case(WSANOTINITIALISED) :
+				Kore::log(Error, "A successful WSAStartup call must occur before using this function.");
+				break;
+			case (WSAENETDOWN) :
+				Kore::log(Error, "The network subsystem or the associated service provider has failed.");
+				break;
+			case (WSAEAFNOSUPPORT):
+				Kore::log(Error, "The specified address family is not supported.For example, an application tried to create a socket for the AF_IRDA address family but an infrared adapter and device driver is not installed on the local computer.");
+				break;
+			case (WSAEINPROGRESS):
+				Kore::log(Error, "A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
+				break;
+			case (WSAEMFILE) :
+				Kore::log(Error, "No more socket descriptors are available.");
+				break;
+			case (WSAEINVAL):
+				Kore::log(Error, "An invalid argument was supplied.This error is returned if the af parameter is set to AF_UNSPEC and the type and protocol parameter are unspecified.");
+				break;
+			case (WSAENOBUFS):
+				Kore::log(Error, "No buffer space is available.The socket cannot be created.");
+				break;
+			case (WSAEPROTONOSUPPORT):
+				Kore::log(Error, "The specified protocol is not supported.");
+				break;
+			case (WSAEPROTOTYPE):
+				Kore::log(Error, "The specified protocol is the wrong type for this socket.");
+				break;
+			case (WSAEPROVIDERFAILEDINIT):
+				Kore::log(Error, "The service provider failed to initialize.This error is returned if a layered service provider(LSP) or namespace provider was improperly installed or the provider fails to operate correctly.");
+				break;
+			case (WSAESOCKTNOSUPPORT):
+				Kore::log(Error, "The specified socket type is not supported in this address family.");
+				break;
+			case (WSAEINVALIDPROVIDER):
+				Kore::log(Error, "The service provider returned a version other than 2.2.");
+				break;
+			case (WSAEINVALIDPROCTABLE):
+				Kore::log(Error, "The service provider returned an invalid or incomplete procedure table to the WSPStartup.");
+				break;
+			default:
+				Kore::log(Error, "Unknown error.");
+		}
+#endif // defined(SYS_WINDOWS) || defined (SYS_WINDOWSAPP)
 		return;
 	}
 
@@ -73,7 +119,7 @@ void Socket::open(int port) {
 		log(Kore::Error, "Could not bind socket.");
 		return;
 	}
-#endif
+#endif // defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
 
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 	DWORD nonBlocking = 1;
