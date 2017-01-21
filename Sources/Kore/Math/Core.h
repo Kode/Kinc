@@ -23,7 +23,8 @@ namespace Kore {
 	float atan2(float y, float x);
 	float floor(float value);
 	float mod(float numer, float denom);
-
+	float exp(float exponent);
+		
 	template <class T> T min(T a, T b) {
 		return (a < b) ? a : b;
 	}
