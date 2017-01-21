@@ -360,7 +360,7 @@ void Texture::_set(TextureUnit unit) {
 }
 
 int Texture::stride() {
-	return width * 4;
+	return width * sizeOf(format);
 }
 
 u8* Texture::lock() {
