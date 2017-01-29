@@ -788,6 +788,8 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 	setBlendState(source, destination, lastRed, lastGreen, lastBlue, lastAlpha);
 }
 
+void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
+
 void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
 	setBlendState(lastSource, lastDestination, red, green, blue, alpha);
 }

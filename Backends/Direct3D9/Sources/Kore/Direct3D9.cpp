@@ -552,6 +552,8 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 	device->SetRenderState(D3DRS_DESTBLEND, convert(destination));
 }
 
+void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
+
 void Graphics::setRenderState(RenderState state, bool on) {
 	switch (state) {
 	case BlendingState:

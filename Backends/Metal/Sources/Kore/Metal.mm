@@ -270,6 +270,8 @@ void Graphics::setTextureOperation(TextureOperation operation, TextureArgument a
 
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
+void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
+
 void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {}
 
 void Graphics::restoreRenderTarget() {}

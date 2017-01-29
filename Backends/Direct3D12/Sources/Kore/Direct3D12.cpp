@@ -622,6 +622,8 @@ void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) 
 
 void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
+void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
+
 bool Graphics::renderTargetsInvertedY() {
 	return false;
 }

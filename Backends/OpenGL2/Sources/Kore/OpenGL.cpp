@@ -819,6 +819,11 @@ void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation desti
 	glCheckErrors();
 }
 
+void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {
+	glBlendFuncSeparate(convert(source), convert(destination), convert(alphaSource), convert(alphaDestination));
+	glCheckErrors();
+}
+
 void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
 	if (num == 0) {
 		// TODO (DK) uneccessary?
