@@ -25,6 +25,18 @@ void Program::setFragmentShader(Shader* fragmentShader) {
 	this->fragmentShader = fragmentShader;
 }
 
+void Program::setGeometryShader(Kore::Shader* shader) {
+	
+}
+
+void Program::setTessellationControlShader(Kore::Shader* shader) {
+	
+}
+
+void Program::setTessellationEvaluationShader(Kore::Shader* shader) {
+	
+}
+
 void Program::link(VertexStructure** structures, int count) {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;

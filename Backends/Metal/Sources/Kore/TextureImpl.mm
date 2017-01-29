@@ -27,6 +27,12 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	create(width, height);
 }
 
+Texture::Texture(int width, int height, int depth, Format format, bool readable) : Image(width, height, format, readable) {
+	texWidth = width;
+	texHeight = height;
+	create(width, height);
+}
+
 TextureImpl::~TextureImpl() {}
 
 void TextureImpl::create(int width, int height) {

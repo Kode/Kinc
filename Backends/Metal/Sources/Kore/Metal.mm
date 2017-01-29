@@ -203,6 +203,14 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	             indexBufferOffset:start + IndexBufferImpl::current->offset()];
 }
 
+void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+	
+}
+
+void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+	
+}
+
 void Graphics::swapBuffers(int windowId) {
 	System::swapBuffers(windowId);
 }

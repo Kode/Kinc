@@ -28,3 +28,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 RenderTarget::~RenderTarget() {}
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {}
+
+void RenderTarget::useDepthAsTexture(Kore::TextureUnit unit) {}
+
+void RenderTarget::setDepthStencilFrom(Kore::RenderTarget* source) {}
