@@ -74,6 +74,14 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 			this->data = (u8*)malloc(dataSize);
 			LZ4_decompress_safe((char*)(data + 12), (char*)this->data, file.size() - 12, dataSize);
 		}
+		else if (strcmp(fourcc, "LZ4F") == 0) {
+			compressed = false;
+			internalFormat = 0;
+			dataSize = width * height * 16;
+			this->hdrData = (float*)malloc(dataSize);
+			LZ4_decompress_safe((char*)(data + 12), (char*)this->hdrData, file.size() - 12, dataSize);
+			format = RGBA128;
+		}
 	}
 	else if (endsWith(filename, ".pvr")) {
 		u32 version = file.readU32LE();
