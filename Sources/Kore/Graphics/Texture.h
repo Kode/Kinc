@@ -9,8 +9,10 @@ namespace Kore {
 	class Texture : public Image, public TextureImpl {
 	public:
 		Texture(int width, int height, Format format, bool readable);
-		Texture(int width, int height, int depth, Format format, bool readable);
+		Texture(int width, int height, int depth, Format format, bool readable = false);
+		Texture(Kore::Reader& reader, const char* format, bool readable = false);
 		Texture(const char* filename, bool readable = false);
+		Texture(void* data, int size, const char* format, bool readable = false);
 #ifdef SYS_ANDROID
 		Texture(unsigned texid);
 #endif

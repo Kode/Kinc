@@ -3,6 +3,7 @@
 #include "Direct3D9.h"
 #include "TextureImpl.h"
 
+#include <Kore/IO/BufferReader.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
@@ -22,14 +23,14 @@ namespace {
 	}
 }
 
-Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
+Texture::Texture(Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
 	stage = 0;
 	mipmap = true;
 	DWORD usage = 0;
 	texWidth = width;
 	texHeight = height;
 	usage = D3DUSAGE_DYNAMIC;
-	affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
+	affirm(device->CreateTexture(width, height, 1, usage, convert(this->format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
 	D3DLOCKED_RECT rect;
 	affirm(texture->LockRect(0, &rect, 0, 0));
 	pitch = rect.Pitch;

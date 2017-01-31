@@ -175,7 +175,7 @@ namespace {
 	}
 }
 
-Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
+Texture::Texture(Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
 	bool toPow2;
 	if (Graphics::nonPow2TexturesSupported()) {
 		texWidth = width;
@@ -202,8 +202,8 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 #endif
 	}
 	else if (toPow2) {
-		conversionBuffer = new u8[texWidth * texHeight * sizeOf(format)];
-		convertImageToPow2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		conversionBuffer = new u8[texWidth * texHeight * sizeOf(this->format)];
+		convertImageToPow2(this->format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 	}
 
 #ifdef SYS_ANDROID
@@ -217,7 +217,7 @@ Texture::Texture(const char* filename, bool readable) : Image(filename, readable
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glCheckErrors();
 
-	int convertedType = convertType(format);
+	int convertedType = convertType(this->format);
 	bool isHdr = convertedType == GL_FLOAT;
 
 	if (compressed) {

@@ -1,6 +1,8 @@
 #pragma once
 
 namespace Kore {
+	class Reader;
+
 	class Image {
 	public:
 		enum Format { RGBA32, Grey8, RGB24, RGBA128, RGBA64 };
@@ -10,6 +12,7 @@ namespace Kore {
 		Image(int width, int height, Format format, bool readable);
 		Image(int width, int height, int depth, Format format, bool readable);
 		Image(const char* filename, bool readable);
+		Image(Kore::Reader& reader, const char* format, bool readable);
 		virtual ~Image();
 		int at(int x, int y);
 

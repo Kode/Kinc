@@ -213,7 +213,7 @@ namespace {
 	}
 }
 
-Texture::Texture(const char* filename, bool readable) : Image(filename, readable) {
+Texture::Texture(Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
 	texWidth = width;
 	texHeight = height;
 

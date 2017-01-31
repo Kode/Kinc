@@ -50,10 +50,12 @@ Image::Image(int width, int height, int depth, Format format, bool readable) : w
 	data = new u8[width * height * depth * sizeOf(format)];
 }
 
-Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
-	printf("Image %s\n", filename);
-	FileReader file(filename);
-	if (endsWith(filename, ".k")) {
+Image::Image(const char* filename, bool readable) : Image(FileReader(filename), filename, readable) {
+
+}
+
+Image::Image(Reader& file, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
+	if (endsWith(format, "k")) {
 		u8* data = (u8*)file.readAll();
 		width = Reader::readS32LE(data + 0);
 		height = Reader::readS32LE(data + 4);
@@ -85,13 +87,13 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 			dataSize = width * height * 16;
 			this->hdrData = (float*)malloc(dataSize);
 			LZ4_decompress_safe((char*)(data + 12), (char*)this->hdrData, file.size() - 12, dataSize);
-			format = RGBA128;
+			this->format = RGBA128;
 		}
 		else {
 			log(Error, "Unknown fourcc in .k file.");
 		}
 	}
-	else if (endsWith(filename, ".pvr")) {
+	else if (endsWith(format, "pvr")) {
 		u32 version = file.readU32LE();
 		u32 flags = file.readU32LE();
 		u64 pixelFormat1 = file.readU64LE();
@@ -135,7 +137,7 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 			data[i] = all[52 + metaDataSize + i];
 		}
 	}
-	else if (endsWith(filename, ".astc")) {
+	else if (endsWith(format, "astc")) {
 		u32 magic = file.readU32LE();
 		u8 blockdim_x = file.readU8();
 		u8 blockdim_y = file.readU8();
@@ -164,7 +166,7 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 			data[i] = all[16 + i];
 		}
 	}
-	else if (endsWith(filename, ".png")) {
+	else if (endsWith(format, "png")) {
 		int size = file.size();
 		int comp;
 		compressed = false;
@@ -189,7 +191,7 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		}
 		dataSize = width * height * 4;
 	}
-	else if (endsWith(filename, ".hdr")) {
+	else if (endsWith(format, "hdr")) {
 		int size = file.size();
 		int comp;
 		compressed = false;
@@ -199,7 +201,7 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 			log(Error, stbi_failure_reason());
 		}
 		dataSize = width * height * 16;
-		format = RGBA128;
+		this->format = RGBA128;
 	}
 	else {
 		int size = file.size();
