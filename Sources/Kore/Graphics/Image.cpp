@@ -6,6 +6,10 @@
 
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/IO/FileReader.h>
+#include <Kore/IO/BufferReader.h>
+#include <Kore/IO/Reader.h>
+#include <Kore/Log.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <stdio.h>
@@ -14,6 +18,7 @@
 using namespace Kore;
 
 namespace {
+
 	bool endsWith(const char* str, const char* suffix) {
 		if (!str || !suffix) return 0;
 		size_t lenstr = strlen(str);
@@ -73,6 +78,9 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 			dataSize = width * height * 4;
 			this->data = (u8*)malloc(dataSize);
 			LZ4_decompress_safe((char*)(data + 12), (char*)this->data, file.size() - 12, dataSize);
+		}
+		else {
+			log(Error, "Unknown fourcc in .k file.");
 		}
 	}
 	else if (endsWith(filename, ".pvr")) {
@@ -154,6 +162,9 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		compressed = false;
 		internalFormat = 0;
 		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		if (data == nullptr) {
+			log(Error, stbi_failure_reason());
+		}
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
 				float r = data[y * width * 4 + x * 4 + 0] / 255.0f;
@@ -176,6 +187,9 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		compressed = false;
 		internalFormat = 0;
 		hdrData = stbi_loadf_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		if (hdrData == nullptr) {
+			log(Error, stbi_failure_reason());
+		}
 		dataSize = width * height * 16;
 		format = RGBA128;
 	}
@@ -185,6 +199,9 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 		compressed = false;
 		internalFormat = 0;
 		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
+		if (data == nullptr) {
+			log(Error, stbi_failure_reason());
+		}
 		dataSize = width * height * 4;
 	}
 }
