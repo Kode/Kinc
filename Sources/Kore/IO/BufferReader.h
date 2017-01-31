@@ -7,8 +7,8 @@ namespace Kore {
 	class BufferReader : public Reader {
 		u8* buffer;
 		int bufferSize;
-		int position = 0;
-		void* readAllBuffer = nullptr;
+		int position;
+		void* readAllBuffer;
 	public:
 		BufferReader(void const* buffer, int size);
 		virtual ~BufferReader();

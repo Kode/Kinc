@@ -12,7 +12,7 @@ using namespace Kore;
 
 id getMetalDevice();
 
-Texture::Texture(Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
+void Texture::init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 

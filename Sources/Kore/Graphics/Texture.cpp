@@ -7,6 +7,14 @@
 
 using namespace Kore;
 
-Texture::Texture(const char* filename, bool readable) : Texture(FileReader(filename), filename, readable) {}
+Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
+	init(format, readable);
+}
 
-Texture::Texture(void* data, int size, const char* format, bool readable) : Texture(BufferReader(data, size), format, readable) {}
+Texture::Texture(const char* filename, bool readable) : Image(FileReader(filename), filename, readable) {
+	init(filename, readable);
+}
+
+Texture::Texture(void* data, int size, const char* format, bool readable) : Image(BufferReader(data, size), format, readable) {
+	init(format, readable);
+}

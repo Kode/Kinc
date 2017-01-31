@@ -34,7 +34,7 @@ void TextureImpl::setTextures() {
 	}
 }
 
-Texture::Texture(Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
+void Texture::init(const char* format, bool readable) {
 	stage = 0;
 	mipmap = true;
 	texWidth = width;

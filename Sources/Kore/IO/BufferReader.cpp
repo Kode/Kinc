@@ -4,8 +4,7 @@
 
 namespace Kore {
 
-	BufferReader::BufferReader(void const* buffer, int size) : buffer((u8*)buffer), bufferSize(size) {
-	}
+	BufferReader::BufferReader(void const* buffer, int size) : buffer((u8*)buffer), bufferSize(size), position(0), readAllBuffer(nullptr) {}
 
 	BufferReader::~BufferReader() {
 		if (readAllBuffer != nullptr)
@@ -40,5 +39,4 @@ namespace Kore {
 	void BufferReader::seek(int pos) {
 		position = pos < 0 ? 0 : (pos > bufferSize ? bufferSize : pos);
 	}
-
 }

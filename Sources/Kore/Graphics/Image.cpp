@@ -50,11 +50,15 @@ Image::Image(int width, int height, int depth, Format format, bool readable) : w
 	data = new u8[width * height * depth * sizeOf(format)];
 }
 
-Image::Image(const char* filename, bool readable) : Image(FileReader(filename), filename, readable) {
-
+Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
+	init(FileReader(filename), filename, readable);
 }
 
-Image::Image(Reader& file, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
+Image::Image(Reader& reader, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
+	init(reader, format, readable);
+}
+
+void Image::init(Kore::Reader& file, const char* format, bool readable) {
 	if (endsWith(format, "k")) {
 		u8* data = (u8*)file.readAll();
 		width = Reader::readS32LE(data + 0);
