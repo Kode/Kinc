@@ -51,7 +51,8 @@ Image::Image(int width, int height, int depth, Format format, bool readable) : w
 }
 
 Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
-	init(FileReader(filename), filename, readable);
+	FileReader reader(filename);
+	init(reader, filename, readable);
 }
 
 Image::Image(Reader& reader, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
