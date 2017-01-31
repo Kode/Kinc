@@ -59,6 +59,8 @@ Image::Image(Reader& reader, const char* format, bool readable) : depth(1), form
 	init(reader, format, readable);
 }
 
+Image::Image() : depth(1), format(RGBA32), readable(readable) {}
+
 void Image::init(Kore::Reader& file, const char* format, bool readable) {
 	if (endsWith(format, "k")) {
 		u8* data = (u8*)file.readAll();

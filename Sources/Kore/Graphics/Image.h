@@ -24,7 +24,8 @@ namespace Kore {
 		float* hdrData;
 		int dataSize;
 		unsigned internalFormat;
-	private:
+	protected:
+		Image();
 		void init(Kore::Reader& reader, const char* format, bool readable);
 	};
 }

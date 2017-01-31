@@ -11,10 +11,14 @@ Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Imag
 	init(format, readable);
 }
 
-Texture::Texture(const char* filename, bool readable) : Image(FileReader(filename), filename, readable) {
+Texture::Texture(const char* filename, bool readable) {
+	FileReader reader(filename);
+	Image::init(reader, filename, readable);
 	init(filename, readable);
 }
 
-Texture::Texture(void* data, int size, const char* format, bool readable) : Image(BufferReader(data, size), format, readable) {
+Texture::Texture(void* data, int size, const char* format, bool readable) {
+	BufferReader reader(data, size);
+	Image::init(reader, format, readable);
 	init(format, readable);
 }
