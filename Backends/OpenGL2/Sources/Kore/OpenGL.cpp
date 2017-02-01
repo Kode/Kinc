@@ -263,6 +263,11 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	glCheckErrors();
 }
 
+void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
+	glUniform4fv(location.location, count, values);
+	glCheckErrors();
+}
+
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	glUniformMatrix4fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
 	glCheckErrors();
