@@ -685,6 +685,10 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	::setFloats(tessControlConstants, location.tessControlOffset, location.tessControlSize, values, count);
 }
 
+void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
+	Graphics::setFloats(location, values, count);
+}
+
 void Graphics::setBool(ConstantLocation location, bool value) {
 	::setBool(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setBool(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);

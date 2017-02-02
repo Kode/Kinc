@@ -1177,6 +1177,10 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	}
 }
 
+void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
+	Graphics::setFloats(location, values, count);
+}
+
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	if (location.vertexOffset >= 0) {
 		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];

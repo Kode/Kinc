@@ -737,6 +737,10 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	}
 }
 
+void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
+	Graphics::setFloats(location, values, count);
+}
+
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	if (location.shaderType == -1) return;
 	float floats[16];
