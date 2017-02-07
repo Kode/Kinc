@@ -64,57 +64,54 @@ void Program::set() {
 }
 
 ConstantLocation Program::getConstantLocation(const char* name) {
-	char d3dname[101];
-	strcpy(d3dname, "_");
-	strcat(d3dname, name);
 	ConstantLocation location;
 
-	if (vertexShader->constants.find(d3dname) == vertexShader->constants.end()) {
+	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
 		location.vertexOffset = 0;
 		location.vertexSize = 0;
 	}
 	else {
-		ShaderConstant constant = vertexShader->constants[d3dname];
+		ShaderConstant constant = vertexShader->constants[name];
 		location.vertexOffset = constant.offset;
 		location.vertexSize = constant.size;
 	}
 
-	if (fragmentShader->constants.find(d3dname) == fragmentShader->constants.end()) {
+	if (fragmentShader->constants.find(name) == fragmentShader->constants.end()) {
 		location.fragmentOffset = 0;
 		location.fragmentSize = 0;
 	}
 	else {
-		ShaderConstant constant = fragmentShader->constants[d3dname];
+		ShaderConstant constant = fragmentShader->constants[name];
 		location.fragmentOffset = constant.offset;
 		location.fragmentSize = constant.size;
 	}
 
-	if (geometryShader == nullptr || geometryShader->constants.find(d3dname) == geometryShader->constants.end()) {
+	if (geometryShader == nullptr || geometryShader->constants.find(name) == geometryShader->constants.end()) {
 		location.geometryOffset = 0;
 		location.geometrySize = 0;
 	}
 	else {
-		ShaderConstant constant = geometryShader->constants[d3dname];
+		ShaderConstant constant = geometryShader->constants[name];
 		location.geometryOffset = constant.offset;
 		location.geometrySize = constant.size;
 	}
 
-	if (tessControlShader == nullptr || tessControlShader->constants.find(d3dname) == tessControlShader->constants.end()) {
+	if (tessControlShader == nullptr || tessControlShader->constants.find(name) == tessControlShader->constants.end()) {
 		location.tessControlOffset = 0;
 		location.tessControlSize = 0;
 	}
 	else {
-		ShaderConstant constant = tessControlShader->constants[d3dname];
+		ShaderConstant constant = tessControlShader->constants[name];
 		location.tessControlOffset = constant.offset;
 		location.tessControlSize = constant.size;
 	}
 
-	if (tessEvalShader == nullptr || tessEvalShader->constants.find(d3dname) == tessEvalShader->constants.end()) {
+	if (tessEvalShader == nullptr || tessEvalShader->constants.find(name) == tessEvalShader->constants.end()) {
 		location.tessEvalOffset = 0;
 		location.tessEvalSize = 0;
 	}
 	else {
-		ShaderConstant constant = tessEvalShader->constants[d3dname];
+		ShaderConstant constant = tessEvalShader->constants[name];
 		location.tessEvalOffset = constant.offset;
 		location.tessEvalSize = constant.size;
 	}
@@ -123,20 +120,17 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 }
 
 TextureUnit Program::getTextureUnit(const char* name) {
-	char d3dname[101];
-	strcpy(d3dname, "_");
-	strcat(d3dname, name);
 	TextureUnit unit;
-	if (vertexShader->textures.find(d3dname) == vertexShader->textures.end()) {
-		if (fragmentShader->textures.find(d3dname) == fragmentShader->textures.end()) {
+	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
+		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
 			unit.unit = -1;
 		}
 		else {
-			unit.unit = fragmentShader->textures[d3dname];
+			unit.unit = fragmentShader->textures[name];
 		}
 	}
 	else {
-		unit.unit = vertexShader->textures[d3dname];
+		unit.unit = vertexShader->textures[name];
 	}
 	return unit;
 }
