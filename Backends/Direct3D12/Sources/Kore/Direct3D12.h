@@ -9,7 +9,6 @@ extern int currentBackBuffer;
 extern ID3D12Device* device;
 extern ID3D12RootSignature* rootSignature;
 extern ID3D12GraphicsCommandList* commandList;
-extern ID3D12Resource* constantBuffers[QUEUE_SLOT_COUNT];
 
 extern Kore::u8 vertexConstants[1024 * 4];
 extern Kore::u8 fragmentConstants[1024 * 4];

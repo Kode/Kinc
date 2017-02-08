@@ -33,18 +33,10 @@ void ProgramImpl::setConstants() {
 	}
 	*/
 
-	u8* data;
-	constantBuffers[currentBackBuffer]->Map(0, nullptr, (void**)&data);
-	memcpy(data, vertexConstants, sizeof(vertexConstants));
-	memcpy(data + sizeof(vertexConstants), fragmentConstants, sizeof(fragmentConstants));
-	constantBuffers[currentBackBuffer]->Unmap(0, nullptr);
-
 	commandList->SetPipelineState(_current->pso);
 	commandList->SetGraphicsRootSignature(rootSignature);
 
 	TextureImpl::setTextures();
-
-	commandList->SetGraphicsRootConstantBufferView(1, constantBuffers[currentBackBuffer]->GetGPUVirtualAddress());
 }
 
 ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
@@ -206,7 +198,7 @@ void Program::link(VertexStructure** structures, int count) {
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
 
 	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_FRONT;
 	psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
 	psoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
 	psoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
@@ -226,9 +218,13 @@ void Program::link(VertexStructure** structures, int count) {
 	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
 	psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	psoDesc.SampleDesc.Count = 1;
-	psoDesc.DepthStencilState.DepthEnable = false;
+	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState.DepthEnable = true;
+	psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 	psoDesc.DepthStencilState.StencilEnable = false;
+	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	psoDesc.SampleDesc.Count = 1;
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
