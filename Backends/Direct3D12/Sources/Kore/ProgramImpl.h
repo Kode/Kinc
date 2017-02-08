@@ -16,6 +16,7 @@ namespace Kore {
 		// ID3D11Buffer* geometryConstantBuffer;
 		// ID3D11Buffer* tessEvalConstantBuffer;
 		// ID3D11Buffer* tessControlConstantBuffer;
+
 		Shader* vertexShader;
 		Shader* fragmentShader;
 		Shader* geometryShader;

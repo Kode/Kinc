@@ -35,10 +35,13 @@ ID3D12DescriptorHeap* cbvHeap;*/
 // ID3D12DepthStencilView* depthStencilView;
 
 int currentBackBuffer = 0;
+int currentInstance = 0;
 ID3D12Device* device;
 ID3D12RootSignature* rootSignature;
 ID3D12GraphicsCommandList* commandList;
-ID3D12Resource* constantBuffers[QUEUE_SLOT_COUNT];
+ID3D12Resource* vertexConstantBuffers[QUEUE_SLOT_COUNT * 128]; // TODO: Test only
+ID3D12Resource* fragmentConstantBuffers[QUEUE_SLOT_COUNT * 128];
+ID3D12Resource* depthStencilTexture;
 
 int renderTargetWidth;
 int renderTargetHeight;
@@ -58,6 +61,7 @@ namespace {
 	D3D12_RECT rectScissor;
 	ID3D12Resource* renderTarget;
 	ID3D12DescriptorHeap* renderTargetDescriptorHeap;
+	ID3D12DescriptorHeap* depthStencilDescriptorHeap;
 	ID3D12CommandQueue* commandQueue;
 	UINT64 currentFenceValue;
 	UINT64 fenceValues[QUEUE_SLOT_COUNT];
@@ -120,6 +124,28 @@ namespace {
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap));
 
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+		dsvHeapDesc.NumDescriptors = 1;
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&depthStencilDescriptorHeap));
+
+		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0,
+			renderTargetWidth, renderTargetHeight, 1, 1,
+			DXGI_FORMAT_D32_FLOAT, 1, 0, D3D12_TEXTURE_LAYOUT_UNKNOWN,
+			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+
+		D3D12_CLEAR_VALUE clearValue;
+		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		clearValue.DepthStencil.Depth = 1.0f;
+		clearValue.DepthStencil.Stencil = 0;
+
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+			IID_PPV_ARGS(&depthStencilTexture));
+
+		device->CreateDepthStencilView(depthStencilTexture, nullptr, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
 		currentFenceValue = 0;
 
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
@@ -180,12 +206,13 @@ namespace {
 		ID3DBlob* rootBlob;
 		ID3DBlob* errorBlob;
 
-		CD3DX12_ROOT_PARAMETER parameters[2];
+		CD3DX12_ROOT_PARAMETER parameters[3];
 
 		CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
 		parameters[0].InitAsDescriptorTable(1, &range);
 
-		parameters[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
+		parameters[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 		CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
@@ -193,21 +220,31 @@ namespace {
 		}
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
-		descRootSignature.Init(2, parameters, textureCount, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		descRootSignature.Init(3, parameters, textureCount, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 		affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	}
 
 	void createConstantBuffer() {
-		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-			                                &CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) + sizeof(fragmentConstants)),
-			                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constantBuffers[i]));
+		void* p;
 
-			void* p;
-			constantBuffers[i]->Map(0, nullptr, &p);
-			ZeroMemory(p, sizeof(vertexConstants) + sizeof(fragmentConstants));
-			constantBuffers[i]->Unmap(0, nullptr);
+		for (int i = 0; i < QUEUE_SLOT_COUNT * 128; ++i) {
+
+			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants)),
+				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexConstantBuffers[i]));
+
+			vertexConstantBuffers[i]->Map(0, nullptr, &p);
+			ZeroMemory(p, sizeof(vertexConstants));
+			vertexConstantBuffers[i]->Unmap(0, nullptr);
+
+			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(sizeof(fragmentConstants)),
+				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&fragmentConstantBuffers[i]));
+
+			fragmentConstantBuffers[i]->Map(0, nullptr, &p);
+			ZeroMemory(p, sizeof(fragmentConstants));
+			fragmentConstantBuffers[i]->Unmap(0, nullptr);
 		}
 	}
 
@@ -323,7 +360,22 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
 	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->indexBufferView);
+
+	u8* data;
+	vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
+	memcpy(data, vertexConstants, sizeof(vertexConstants));
+	vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
+
+	fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
+	memcpy(data, fragmentConstants, sizeof(fragmentConstants));
+	fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
+
+	commandList->SetGraphicsRootConstantBufferView(1, vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(2, fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
+	if (++currentInstance >= 128) currentInstance = 0;
+
 	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
+
 }
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount) {}
@@ -361,7 +413,7 @@ void Graphics::begin(int window) {
 
 	commandList = commandLists[currentBackBuffer];
 	commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
-	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, &depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	commandList->RSSetViewports(1, &::viewport);
 	commandList->RSSetScissorRects(1, &rectScissor);
 
@@ -378,6 +430,8 @@ void Graphics::begin(int window) {
 	static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
 	commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
+
+	commandList->ClearDepthStencilView(depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	static int frameNumber = 0;
 	frameNumber++;
@@ -403,6 +457,7 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 }
 
 void Graphics::end(int window) {
+
 	D3D12_RESOURCE_BARRIER barrier;
 	barrier.Transition.pResource = renderTarget;
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -637,7 +692,7 @@ bool Graphics::nonPow2TexturesSupported() {
 }
 
 void Graphics::restoreRenderTarget() {
-	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, &depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	commandList->RSSetViewports(1, &::viewport);
 	commandList->RSSetScissorRects(1, &rectScissor);
 }
