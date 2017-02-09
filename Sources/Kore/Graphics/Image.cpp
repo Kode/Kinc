@@ -1,5 +1,9 @@
 #include "pch.h"
 
+#if defined (SYS_WINDOWS) && (SYS_VULKAN)
+#include <windows.h>
+#endif
+
 #include "../IO/snappy/snappy.h"
 #include "../IO/lz4/lz4.h"
 #include "Image.h"

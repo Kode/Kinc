@@ -244,6 +244,14 @@ namespace {
 		image_memory_barrier.subresourceRange.levelCount = 1;
 		image_memory_barrier.subresourceRange.baseArrayLayer = 0;
 		image_memory_barrier.subresourceRange.layerCount = 1;
+		
+		if (old_image_layout != VK_IMAGE_LAYOUT_UNDEFINED) {
+			image_memory_barrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		}
+
+		if (new_image_layout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
+			image_memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		}
 
 		if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
 			// Make sure anything that was copying from this image has completed
@@ -331,6 +339,8 @@ void Graphics::destroy(int windowId) {}
 #if defined(SYS_WINDOWS)
 void Graphics::setup() {}
 #endif
+
+void Graphics::changeResolution(int width, int height) {}
 
 void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {}
 
@@ -997,6 +1007,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	attachments[0].flags = 0;
 
 	attachments[1].format = depth_format;
 	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -1006,6 +1017,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].flags = 0;
 
 	VkAttachmentReference color_reference = {};
 	color_reference.attachment = 0;
