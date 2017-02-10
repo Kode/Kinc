@@ -153,6 +153,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 		image.format = VK_FORMAT_R8G8B8A8_UNORM;
 		image.extent.width = width;
 		image.extent.height = height;
+		image.extent.depth = 1;
 		image.mipLevels = 1;
 		image.arrayLayers = 1;
 		image.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -338,4 +339,12 @@ void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	vulkanTextures[unit.binding - 2] = nullptr;
 	if (ProgramImpl::current != nullptr)
 		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
+}
+
+void RenderTarget::useDepthAsTexture(TextureUnit unit) {
+
+}
+
+void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+
 }
