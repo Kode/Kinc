@@ -14,7 +14,7 @@ double Kore::System::time() {
 #endif
 #endif
 
-#if !defined(SYS_WINDOWS) && !defined(SYS_OSX) && !defined(SYS_LINUX) && !defined(SYS_HTML5)
+#if !defined(SYS_WINDOWS) && !defined(SYS_OSX) && !defined(SYS_LINUX) && !defined(SYS_HTML5) && !defined(SYS_PI)
 
 int Kore::System::desktopWidth() {
 	return windowWidth(0);
