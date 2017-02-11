@@ -54,8 +54,10 @@ namespace {
 void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
 		_hasDepth = true;
-#ifdef OPENGLES
+#if defined(OPENGLES) && !defined(SYS_PI)
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
+#elif defined(SYS_PI)
+		GLenum internalFormat = NULL;
 #else
 		GLenum internalFormat;
 		if (depthBufferBits == 24)

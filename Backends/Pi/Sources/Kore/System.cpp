@@ -34,6 +34,7 @@ namespace {
 	Kore::WindowMode windowMode;
 	uint32_t width;
 	uint32_t height;
+	bool bcmHostStarted = false;
 
 	EGLDisplay display;
 	EGLSurface surface;
@@ -108,6 +109,19 @@ namespace {
 		XMoveWindow(dpy, w, x - 1, y - 30); // extents[2]);
 		XFlush(dpy);
 	}
+
+	void setScreenSize() {
+        if (!bcmHostStarted) {
+            bcm_host_init();
+            bcmHostStarted = true;
+        }
+
+        if (screen_width == 0 || screen_height == 0) {
+            int32_t success = 0;
+            success = graphics_get_display_size(0 /* LCD */, &screen_width, &screen_height);
+            assert(success >= 0);
+        }
+    }
 }
 
 namespace Kore {
@@ -129,7 +143,10 @@ bool Kore::System::isFullscreen() {
 //  -then there would be a better separation between window + context setup
 int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
                  int stencilBufferBits) {
-	bcm_host_init();
+	if (!bcmHostStarted) {
+        bcm_host_init();
+        bcmHostStarted = true;
+    }
 
 	::windowMode = windowMode;
 	::width = width;
@@ -137,7 +154,6 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	// uint32_t screen_width = 640;
 	// uint32_t screen_height = 480;
 
-	int32_t success = 0;
 	EGLBoolean result;
 	EGLint num_config;
 
@@ -174,10 +190,9 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	assert(context != EGL_NO_CONTEXT);
 	glCheckErrors();
 
-	success = graphics_get_display_size(0 /* LCD */, &screen_width, &screen_height);
-	assert(success >= 0);
+	setScreenSize();
 
-	if (windowMode == Kore::WindowMode::Fullscreen) {
+	if (windowMode == Kore::WindowModeFullscreen) {
 		dst_rect.x = 0;
 		dst_rect.y = 0;
 		dst_rect.width = screen_width;
@@ -210,7 +225,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	                                          0 /*clamp*/, (DISPMANX_TRANSFORM_T)0 /*transform*/);
 
 	nativewindow.element = dispman_element;
-	if (windowMode == Kore::WindowMode::Fullscreen) {
+	if (windowMode == Kore::WindowModeFullscreen) {
 		nativewindow.width = screen_width;
 		nativewindow.height = screen_height;
 	}
@@ -308,7 +323,7 @@ namespace Kore {
 		}
 
 		int windowWidth(int id) {
-			if (windowMode == Kore::WindowMode::Fullscreen) {
+			if (windowMode == Kore::WindowModeFullscreen) {
 				return screen_width;
 			}
 			else {
@@ -317,12 +332,22 @@ namespace Kore {
 		}
 
 		int windowHeight(int id) {
-			if (windowMode == Kore::WindowMode::Fullscreen) {
+			if (windowMode == Kore::WindowModeFullscreen) {
 				return screen_height;
 			}
 			else {
 				return height;
 			}
+		}
+
+		int desktopWidth() {
+            setScreenSize();
+			return screen_width;
+		}
+
+		int desktopHeight() {
+            setScreenSize();
+			return screen_height;
 		}
 
 		int initWindow(WindowOptions options) {
@@ -403,7 +428,7 @@ bool Kore::System::handleMessages() {
 		}
 	}
 
-	if (windowMode != Kore::WindowMode::Fullscreen) {
+	if (windowMode != Kore::WindowModeFullscreen) {
 		while (XPending(dpy) > 0) {
 			XEvent event;
 			XNextEvent(dpy, &event);
@@ -522,3 +547,4 @@ extern int kore(int argc, char** argv);
 int main(int argc, char** argv) {
 	kore(argc, argv);
 }
+
