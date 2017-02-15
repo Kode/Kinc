@@ -1,0 +1,474 @@
+<?xml version="1.0"?>
+<instrumentationManifest xsi:schemaLocation="http://schemas.microsoft.com/win/2004/08/events eventman.xsd" xmlns="http://schemas.microsoft.com/win/2004/08/events" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:trace="http://schemas.microsoft.com/win/2004/08/events/trace">
+	<instrumentation>
+		<events>
+			<provider name="OVR-SDK-LibOVR" guid="{553787FC-D3D7-4F5E-ACB2-1597C7209B3C}" symbol="LibOVRProvider" resourceFileName="res" messageFileName="msg">
+				<events>
+					<event symbol="Call" value="0" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Function" opcode="Call" template="FunctionWaypoint" message="$(string.OVR-SDK-LibOVR.event.0.message)"></event>
+					<event symbol="Return" value="1" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Function" opcode="Return" template="FunctionWaypoint" message="$(string.OVR-SDK-LibOVR.event.1.message)"></event>
+					<event symbol="Waypoint" value="2" version="0" channel="LibOVR/Debug" level="win:Informational" task="Function" opcode="Waypoint" template="FunctionWaypoint" message="$(string.OVR-SDK-LibOVR.event.2.message)"></event>
+					<event symbol="DistortionBegin" value="4" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Distort" opcode="Begin" template="Distortion" message="$(string.OVR-SDK-LibOVR.event.4.message)"></event>
+					<event symbol="DistortionWaitGPU" value="5" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Distort" opcode="WaitGPU" template="Distortion" message="$(string.OVR-SDK-LibOVR.event.5.message)"></event>
+					<event symbol="DistortionPresent" value="6" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Distort" opcode="Present" template="Distortion" message="$(string.OVR-SDK-LibOVR.event.6.message)"></event>
+					<event symbol="DistortionEnd" value="7" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Distort" opcode="End" template="Distortion" message="$(string.OVR-SDK-LibOVR.event.7.message)"></event>
+					<event symbol="HmdDesc_v0" value="8" version="0" channel="LibOVR/Analytic" level="win:Informational" task="HmdInfo" opcode="HmdDesc" template="HmdDesc_v0" message="$(string.OVR-SDK-LibOVR.event.8.message)"></event>
+					<event symbol="HmdDesc" value="8" version="1" channel="LibOVR/Analytic" level="win:Informational" task="HmdInfo" opcode="HmdDesc" template="HmdDesc" message="$(string.OVR-SDK-LibOVR.event.8.message)"></event>
+					<event symbol="CameraFrameReceived_v0" value="9" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Receive" template="CameraFrameData_v0" message="$(string.OVR-SDK-LibOVR.event.9.message)"></event>
+					<event symbol="CameraFrameReceived" value="9" version="1" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Receive" template="CameraFrameData" message="$(string.OVR-SDK-LibOVR.event.9.message)"></event>
+					<event symbol="CameraBeginProcessing_v0" value="10" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Begin" template="CameraFrameData_v0" message="$(string.OVR-SDK-LibOVR.event.10.message)"></event>
+					<event symbol="CameraBeginProcessing" value="10" version="1" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Begin" template="CameraFrameData" message="$(string.OVR-SDK-LibOVR.event.10.message)"></event>
+					<event symbol="CameraFrameRequest" value="11" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Request" template="CameraFrameRequest" message="$(string.OVR-SDK-LibOVR.event.11.message)"></event>
+					<event symbol="CameraEndProcessing_v0" value="12" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="End" template="CameraFrameData_v0" message="$(string.OVR-SDK-LibOVR.event.12.message)"></event>
+					<event symbol="CameraEndProcessing" value="12" version="1" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="End" template="CameraFrameData" message="$(string.OVR-SDK-LibOVR.event.12.message)"></event>
+					<event symbol="CameraSkippedFrames_v0" value="13" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Waypoint" template="CameraFrameRequest" message="$(string.OVR-SDK-LibOVR.event.13.message)"></event>
+					<event symbol="CameraSkippedFrames" value="13" version="1" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Waypoint" template="CameraGetFrame" message="$(string.OVR-SDK-LibOVR.event.13.message)"></event>
+					<event symbol="JSONChunk" value="14" version="0" channel="LibOVR/Analytic" level="win:Informational" task="HmdInfo" opcode="Waypoint" template="JSONChunk" message="$(string.OVR-SDK-LibOVR.event.14.message)"></event>
+					<event symbol="LogDebugMessage" value="15" version="0" channel="LibOVR/Debug" level="win:Verbose" task="Log" opcode="Waypoint" template="Log" message="$(string.OVR-SDK-LibOVR.event.15.message)"></event>
+					<event symbol="LogInfoMessage" value="16" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Log" opcode="Waypoint" template="Log" message="$(string.OVR-SDK-LibOVR.event.16.message)"></event>
+					<event symbol="LogErrorMessage" value="17" version="0" channel="LibOVR/Error" level="win:Error" task="Log" opcode="Waypoint" template="Log" message="$(string.OVR-SDK-LibOVR.event.17.message)"></event>
+					<event symbol="HmdTrackingState" value="18" version="0" channel="LibOVR/Analytic" level="win:Informational" task="HmdInfo" opcode="Waypoint" template="HmdTrackingState" message="$(string.OVR-SDK-LibOVR.event.18.message)"></event>
+					<event symbol="CameraBlobs_v0" value="19" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Waypoint" template="CameraBlobs_v0" message="$(string.OVR-SDK-LibOVR.event.19.message)"></event>
+					<event symbol="CameraBlobs" value="19" version="1" channel="LibOVR/Analytic" level="win:Informational" task="Camera" opcode="Waypoint" template="CameraBlobs" message="$(string.OVR-SDK-LibOVR.event.19.message)"></event>
+					<event symbol="PoseLatchCPUWrite" value="30" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Distort" opcode="Begin" template="PoseLLCPUWrite" message="$(string.OVR-SDK-LibOVR.event.30.message)"></event>
+					<event symbol="PoseLatchGPULatchReadback" value="31" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Distort" opcode="End" template="PoseLLGPUReadback" message="$(string.OVR-SDK-LibOVR.event.31.message)"></event>
+					<event symbol="QueueAheadDelayBegin" value="32" version="0" channel="LibOVR/Analytic" level="win:Informational" task="SubmitFrame" opcode="Begin" template="QueueAhead" message="$(string.OVR-SDK-LibOVR.event.32.message)"></event>
+					<event symbol="QueueAheadDelayEnd" value="33" version="0" channel="LibOVR/Analytic" level="win:Informational" task="SubmitFrame" opcode="End" template="QueueAhead" message="$(string.OVR-SDK-LibOVR.event.33.message)"></event>
+					<event symbol="HmdDisplay" value="34" version="0" channel="LibOVR/Analytic" level="win:Informational" task="HmdInfo" opcode="HmdDesc" template="HmdDisplay" message="$(string.OVR-SDK-LibOVR.event.34.message)"></event>
+					<event symbol="PhaseSyncBegin" value="35" version="0" channel="LibOVR/Analytic" level="win:Informational" task="PhaseSync" opcode="Begin" template="PhaseSyncBegin" message="$(string.OVR-SDK-LibOVR.event.35.message)"></event>
+					<event symbol="PhaseSyncEnd" value="36" version="0" channel="LibOVR/Analytic" level="win:Informational" task="PhaseSync" opcode="End" template="PhaseSyncEnd" message="$(string.OVR-SDK-LibOVR.event.36.message)"></event>
+					<event symbol="VSync" value="37" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Distort" opcode="Present" template="RecordedVSync" message="$(string.OVR-SDK-LibOVR.event.37.message)"></event>
+					<event symbol="AppCompositorFocus" value="38" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Log" opcode="Waypoint" template="AppEvent" message="$(string.OVR-SDK-LibOVR.event.38.message)"></event>
+					<event symbol="AppConnect" value="39" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Log" opcode="Waypoint" template="AppEvent" message="$(string.OVR-SDK-LibOVR.event.39.message)"></event>
+					<event symbol="AppDisconnect" value="40" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Log" opcode="Waypoint" template="AppEvent" message="$(string.OVR-SDK-LibOVR.event.40.message)"></event>
+					<event symbol="AppNoOp" value="41" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Log" opcode="Waypoint" template="AppEvent" message="$(string.OVR-SDK-LibOVR.event.41.message)"></event>
+					<event symbol="PosePrediction" value="42" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Sensor" opcode="Begin" template="PosePrediction" message="$(string.OVR-SDK-LibOVR.event.42.message)"></event>
+					<event symbol="LatencyTiming" value="43" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Log" opcode="Waypoint" template="LatencyTiming" message="$(string.OVR-SDK-LibOVR.event.43.message)"></event>
+					<event symbol="EndFrameAppTiming" value="44" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Log" opcode="Waypoint" template="EndFrameAppTiming" message="$(string.OVR-SDK-LibOVR.event.44.message)"></event>
+					<event symbol="HardwareInfo" value="45" version="0" channel="LibOVR/Analytic" level="win:Informational" task="HmdInfo" opcode="Waypoint" template="HardwareInfoTemplate" message="$(string.OVR-SDK-LibOVR.event.45.message)"></event>
+					<event symbol="VirtualDisplayPacketTrace" value="46" version="0" channel="LibOVR/Analytic" level="win:Informational" task="VirtualDisplay" opcode="Waypoint" template="VirtualDisplayPacketTemplate" message="$(string.OVR-SDK-LibOVR.event.46.message)"></event>
+					<event symbol="ClientFrameMissed" value="47" version="0" channel="LibOVR/Analytic" level="win:Informational" task="VirtualDisplay" opcode="Waypoint" template="ClientMissedFrame" message="$(string.OVR-SDK-LibOVR.event.47.message)"></event>
+					<event symbol="CompositionBegin" value="48" version="0" channel="LibOVR/Analytic" level="win:Informational" task="CompositorRunLoop" opcode="Begin" template="CompositionBegin" message="$(string.OVR-SDK-LibOVR.event.48.message)"></event>
+					<event symbol="CompositionEnd" value="49" version="0" channel="LibOVR/Analytic" level="win:Informational" task="CompositorRunLoop" opcode="End" message="$(string.OVR-SDK-LibOVR.event.49.message)"></event>
+					<event symbol="RenderPacketTrace" value="50" version="0" channel="LibOVR/Analytic" level="win:Informational" task="VirtualDisplay" opcode="Waypoint" template="RenderPacketTemplate" message="$(string.OVR-SDK-LibOVR.event.50.message)"></event>
+					<event symbol="EndFrameOrigAppTiming" value="51" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Log" opcode="Begin" template="EndFrameAppTiming" message="$(string.OVR-SDK-LibOVR.event.51.message)"></event>
+					<event symbol="DistortionEndToEndTiming" value="52" version="0" channel="LibOVR/Analytic" level="win:LogAlways" task="CompositorRunLoop" opcode="Call" template="DistortionEndToEndTiming" message="$(string.OVR-SDK-LibOVR.event.52.message)"></event>
+					<event symbol="CompositionEndSpinWait" value="53" version="0" channel="LibOVR/Analytic" level="win:Informational" task="CompositorRunLoop" opcode="End" message="$(string.OVR-SDK-LibOVR.event.53.message)"></event>
+					<event symbol="CompositionFlushingToGPU" value="54" version="0" channel="LibOVR/Analytic" level="win:Informational" task="CompositorRunLoop" opcode="Waypoint" message="$(string.OVR-SDK-LibOVR.event.54.message)"></event>
+					<event symbol="PhaseSyncGPUCompleted" value="55" version="0" channel="LibOVR/Analytic" level="win:Informational" task="PhaseSync" opcode="Waypoint" template="PhaseSyncAppGPUEndTime" message="$(string.OVR-SDK-LibOVR.event.55.message)"></event>
+					<event symbol="CompositionMissedCompositorFrame" value="56" version="0" channel="LibOVR/Analytic" level="win:Informational" task="CompositorRunLoop" opcode="Waypoint" message="$(string.OVR-SDK-LibOVR.event.56.message)"></event>
+					<event symbol="CompositionGPUStartTime" value="57" version="0" channel="LibOVR/Analytic" level="win:Informational" task="CompositorRunLoop" opcode="Waypoint" template="CompositionGPUBeginTime" message="$(string.OVR-SDK-LibOVR.event.57.message)"></event>
+					<event symbol="NotificationBegin" value="58" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Notification" opcode="Waypoint" template="NotificationBegin" message="$(string.OVR-SDK-LibOVR.event.58.message)"></event>
+					<event symbol="NotificationEnd" value="59" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Notification" opcode="Waypoint" template="NotificationEnd" message="$(string.OVR-SDK-LibOVR.event.59.message)"></event>
+					<event symbol="NotificationCompSubmit" value="60" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Notification" opcode="Waypoint" template="NotificationCompSubmit" message="$(string.OVR-SDK-LibOVR.event.60.message)"></event>
+					<event symbol="MotionEstimationCostStats" value="61" version="0" channel="LibOVR/Analytic" level="win:Informational" task="CompositorRunLoop" opcode="Waypoint" template="MotionEstimationCostStats" message="$(string.OVR-SDK-LibOVR.event.61.message)"></event>
+				</events>
+				<levels></levels>
+				<tasks>
+					<task name="Function" symbol="FN_TRACE" value="1" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.FN_TRACE.message)"></task>
+					<task name="Distort" symbol="DIS_TRACE" value="2" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.DIS_TRACE.message)"></task>
+					<task name="HmdInfo" symbol="HMD_TRACE" value="3" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.HMD_TRACE.message)"></task>
+					<task name="Camera" symbol="CAMERA_TRACE" value="4" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.CAMERA_TRACE.message)"></task>
+					<task name="Log" symbol="LOG_TRACE" value="5" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.LOG_TRACE.message)"></task>
+					<task name="SubmitFrame" symbol="SUBMITFRAME_TRACE" value="6" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.SUBMITFRAME_TRACE.message)"></task>
+					<task name="PhaseSync" symbol="PHASESYNC_TRACE" value="7" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.PHASESYNC_TRACE.message)"></task>
+					<task name="Sensor" symbol="SENSOR_TRACE" value="8" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.SENSOR_TRACE.message)"></task>
+					<task name="VirtualDisplay" symbol="VIRTUALDISPLAY_TRACE" value="9" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.VIRTUALDISPLAY_TRACE.message)"></task>
+					<task name="CompositorRunLoop" symbol="COMPOSITOR_RUNLOOP_TRACE" value="10" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.Compositor_RunLoop.message)"></task>
+					<task name="Notification" symbol="NOTIFICATION_TRACE" value="11" eventGUID="{00000000-0000-0000-0000-000000000000}" message="$(string.OVR-SDK-LibOVR.task.NOTIFICATION_TRACE.message)"></task>
+				</tasks>
+				<opcodes>
+					<opcode name="Call" symbol="FN_CALL" value="10" message="$(string.OVR-SDK-LibOVR.opcode.FN_CALL.message)"></opcode>
+					<opcode name="Return" symbol="FN_RETURN" value="11" message="$(string.OVR-SDK-LibOVR.opcode.FN_RETURN.message)"></opcode>
+					<opcode name="Waypoint" symbol="FN_WAYPOINT" value="12" message="$(string.OVR-SDK-LibOVR.opcode.FN_WAYPOINT.message)"></opcode>
+					<opcode name="Begin" symbol="DIS_BEGIN" value="13" message="$(string.OVR-SDK-LibOVR.opcode.DIS_BEGIN.message)"></opcode>
+					<opcode name="WaitGPU" symbol="DIS_WAITGPU" value="14" message="$(string.OVR-SDK-LibOVR.opcode.DIS_WAITGPU.message)"></opcode>
+					<opcode name="Present" symbol="DIS_PRESENT" value="15" message="$(string.OVR-SDK-LibOVR.opcode.DIS_PRESENT.message)"></opcode>
+					<opcode name="End" symbol="DIS_END" value="16" message="$(string.OVR-SDK-LibOVR.opcode.DIS_END.message)"></opcode>
+					<opcode name="HmdDesc" symbol="HMD_DESC" value="17" message="$(string.OVR-SDK-LibOVR.opcode.HMD_DESC.message)"></opcode>
+					<opcode name="Receive" symbol="CAM_RECEIVE" value="18" message="$(string.OVR-SDK-LibOVR.opcode.CAM_RECEIVE.message)"></opcode>
+					<opcode name="Request" symbol="CAM_REQUEST" value="19" message="$(string.OVR-SDK-LibOVR.opcode.CAM_REQUEST.message)"></opcode>
+				</opcodes>
+				<channels>
+					<channel name="LibOVR/Debug" chid="LibOVR/Debug" symbol="DEBUG_CHANNEL" type="Debug" enabled="false"></channel>
+					<channel name="LibOVR/Analytic" chid="LibOVR/Analytic" symbol="ANALYTIC_CHANNEL" type="Analytic" enabled="false"></channel>
+					<channel name="LibOVR/Error" chid="LibOVR/Error" symbol="ERROR_CHANNEL" type="Operational" enabled="false"></channel>
+				</channels>
+				<templates>
+					<template tid="FunctionWaypoint">
+						<data name="Name" inType="win:UnicodeString" outType="xs:string"></data>
+						<data name="Line" inType="win:Int32" outType="xs:int"></data>
+						<data name="FrameID" inType="win:UInt32" outType="xs:unsignedInt"></data>
+					</template>
+					<template tid="Distortion">
+						<data name="VidPnTargetId" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="FrameID" inType="win:UInt32" outType="xs:unsignedInt"></data>
+					</template>
+					<template tid="HmdDesc_v0">
+						<data name="Type" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="VendorId" inType="win:Int16" outType="xs:short"></data>
+						<data name="ProductId" inType="win:Int16" outType="xs:short"></data>
+						<data name="SerialNumber" inType="win:AnsiString" outType="xs:string" length="24"></data>
+						<data name="FirmwareMajor" inType="win:Int16" outType="xs:short"></data>
+						<data name="FirmwareMinor" inType="win:Int16" outType="xs:short"></data>
+						<data name="HmdCaps" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="TrackingCaps" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="DistortionCaps" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ResolutionWidth" inType="win:Int32" outType="xs:int"></data>
+						<data name="ResolutionHeight" inType="win:Int32" outType="xs:int"></data>
+					</template>
+					<template tid="HmdDesc">
+						<data name="Type" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="VendorId" inType="win:Int16" outType="xs:short"></data>
+						<data name="ProductId" inType="win:Int16" outType="xs:short"></data>
+						<data name="SerialNumber" inType="win:AnsiString" outType="xs:string" length="24"></data>
+						<data name="FirmwareMajor" inType="win:Int16" outType="xs:short"></data>
+						<data name="FirmwareMinor" inType="win:Int16" outType="xs:short"></data>
+						<data name="HmdCaps" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="TrackingCaps" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ResolutionWidth" inType="win:Int32" outType="xs:int"></data>
+						<data name="ResolutionHeight" inType="win:Int32" outType="xs:int"></data>
+					</template>
+					<template tid="CameraFrameData_v0">
+						<data name="FrameRate" inType="win:Float" outType="xs:float"></data>
+						<data name="FrameNumber" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ArrivalTimeSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="CaptureTime" inType="win:Double" outType="xs:double"></data>
+						<data name="LostFrames" inType="win:UInt32" outType="xs:unsignedInt"></data>
+					</template>
+					<template tid="CameraFrameData">
+						<data name="Camera" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="FrameNumber" inType="win:Int32" outType="xs:int"></data>
+						<data name="HmdFrameNumber" inType="win:Int32" outType="xs:int"></data>
+						<data name="ArrivalTime" inType="win:Double" outType="xs:double"></data>
+						<data name="CaptureTime" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="CameraFrameRequest">
+						<data name="RequestNumber" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="FrameCounter" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="LastFrameNumber" inType="win:UInt32" outType="xs:unsignedInt"></data>
+					</template>
+					<template tid="CameraGetFrame">
+						<data name="Camera" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="LastFrameNumber" inType="win:UInt32" outType="xs:unsignedInt"></data>
+					</template>
+					<template tid="JSONChunk">
+						<data name="Name" inType="win:UnicodeString" outType="xs:string"></data>
+						<data name="TotalChunks" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ChunkSequence" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="TotalSize" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ChunkSize" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ChunkOffset" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="Chunk" inType="win:Binary" outType="xs:hexBinary" length="ChunkSize"></data>
+					</template>
+					<template tid="Log">
+						<data name="Message" inType="win:AnsiString" outType="xs:string"></data>
+					</template>
+					<template tid="HmdTrackingState">
+						<data name="TimeInSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="HeadPoseQuat" inType="win:Float" outType="xs:float" count="4"></data>
+						<data name="HeadPoseTranslation" inType="win:Float" outType="xs:float" count="3"></data>
+						<data name="HeadAngularVelocity" inType="win:Float" outType="xs:float" count="3"></data>
+						<data name="HeadLinearVelocity" inType="win:Float" outType="xs:float" count="3"></data>
+						<data name="CameraPoseQuat" inType="win:Float" outType="xs:float" count="4"></data>
+						<data name="CameraPoseTranslation" inType="win:Float" outType="xs:float" count="3"></data>
+						<data name="StatusFlags" inType="win:UInt32" outType="xs:unsignedInt"></data>
+					</template>
+					<template tid="CameraBlobs_v0">
+						<data name="BlobCount" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="PositionX" inType="win:Double" outType="xs:double" count="BlobCount"></data>
+						<data name="PositionY" inType="win:Double" outType="xs:double" count="BlobCount"></data>
+						<data name="Size" inType="win:Int32" outType="xs:int" count="BlobCount"></data>
+					</template>
+					<template tid="CameraBlobs">
+						<data name="Camera" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="FrameNumber" inType="win:Int32" outType="xs:int"></data>
+						<data name="ArrivalTime" inType="win:Double" outType="xs:double"></data>
+						<data name="Width" inType="win:Int32" outType="xs:int"></data>
+						<data name="Height" inType="win:Int32" outType="xs:int"></data>
+						<data name="BlobCount" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="PositionX" inType="win:Double" outType="xs:double" count="BlobCount"></data>
+						<data name="PositionY" inType="win:Double" outType="xs:double" count="BlobCount"></data>
+						<data name="Size" inType="win:Int32" outType="xs:int" count="BlobCount"></data>
+					</template>
+					<template tid="PoseLLCPUWrite">
+						<data name="Sequence" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="Layer" inType="win:Int32" outType="xs:int"></data>
+						<data name="MotionSensorTime" inType="win:Float" outType="xs:float"></data>
+						<data name="PredictedScanlineFirst" inType="win:Float" outType="xs:float"></data>
+						<data name="PredictedScanlineLast" inType="win:Float" outType="xs:float"></data>
+						<data name="TimeToScanlineFirst" inType="win:Float" outType="xs:float"></data>
+						<data name="TimeToScanlineLast" inType="win:Float" outType="xs:float"></data>
+						<data name="StartPosition" inType="win:Float" outType="xs:float" count="3"></data>
+						<data name="EndPosition" inType="win:Float" outType="xs:float" count="3"></data>
+						<data name="StartQuat" inType="win:Float" outType="xs:float" count="4"></data>
+						<data name="EndQuat" inType="win:Float" outType="xs:float" count="4"></data>
+					</template>
+					<template tid="QueueAhead">
+						<data name="QueueAheadSeconds" inType="win:Float" outType="xs:float"></data>
+					</template>
+					<template tid="HmdDisplay">
+						<data name="Extended" inType="win:Boolean" outType="xs:boolean"></data>
+						<data name="DeviceTypeGuess" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="DisplayID" inType="win:AnsiString" outType="xs:string"></data>
+						<data name="ModelName" inType="win:AnsiString" outType="xs:string"></data>
+						<data name="EdidSerialNumber" inType="win:AnsiString" outType="xs:string"></data>
+						<data name="LogicalResolutionInPixels_w" inType="win:Int32" outType="xs:int"></data>
+						<data name="LogicalResolutionInPixels_h" inType="win:Int32" outType="xs:int"></data>
+						<data name="NativeResolutionInPixels_w" inType="win:Int32" outType="xs:int"></data>
+						<data name="NativeResolutionInPixels_h" inType="win:Int32" outType="xs:int"></data>
+						<data name="DesktopDisplayOffset_x" inType="win:Int32" outType="xs:int"></data>
+						<data name="DesktopDisplayOffset_y" inType="win:Int32" outType="xs:int"></data>
+						<data name="DeviceNumber" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="Rotation" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ApplicationExclusive" inType="win:Boolean" outType="xs:boolean"></data>
+					</template>
+					<template tid="PoseLLGPUReadback">
+						<data name="Sequence" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="Layer" inType="win:Int32" outType="xs:int"></data>
+						<data name="MotionSensorTime" inType="win:Float" outType="xs:float"></data>
+						<data name="PredictedScanlineFirst" inType="win:Float" outType="xs:float"></data>
+						<data name="PredictedScanlineLast" inType="win:Float" outType="xs:float"></data>
+						<data name="TimeToScanlineFirst" inType="win:Float" outType="xs:float"></data>
+						<data name="TimeToScanlineLast" inType="win:Float" outType="xs:float"></data>
+					</template>
+					<template tid="PhaseSyncBegin">
+						<data name="LastCompositeTime" inType="win:Double" outType="xs:double"></data>
+						<data name="LastVSyncTime" inType="win:Double" outType="xs:double"></data>
+						<data name="FrameIntervalMS" inType="win:Float" outType="xs:float"></data>
+						<data name="SemaphoreMS" inType="win:Float" outType="xs:float"></data>
+						<data name="SleepMS" inType="win:Float" outType="xs:float"></data>
+						<data name="SpinMS" inType="win:Float" outType="xs:float"></data>
+						<data name="PhaseSyncMS" inType="win:Float" outType="xs:float"></data>
+						<data name="BeginFrameTime" inType="win:Double" outType="xs:double"></data>
+						<data name="TargetCompletionTime" inType="win:Double" outType="xs:double"></data>
+						<data name="TargetCompositeTime" inType="win:Double" outType="xs:double"></data>
+						<data name="TargetVSyncTime" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="PhaseSyncEnd">
+						<data name="BeginFrameTime" inType="win:Double" outType="xs:double"></data>
+						<data name="EndFrameTime" inType="win:Double" outType="xs:double"></data>
+						<data name="CompletionTime" inType="win:Double" outType="xs:double"></data>
+						<data name="CompositeTime" inType="win:Double" outType="xs:double"></data>
+						<data name="VSyncTime" inType="win:Double" outType="xs:double"></data>
+						<data name="FrameTimeMS" inType="win:Float" outType="xs:float"></data>
+						<data name="FrameTimeCpuMS" inType="win:Float" outType="xs:float"></data>
+						<data name="FrameTimeVarianceMS" inType="win:Float" outType="xs:float"></data>
+						<data name="QueueAhead" inType="win:Float" outType="xs:float"></data>
+						<data name="FramesMissed" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="AvgFrameTimeMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgFrameTimeCpuMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgFrameTimeVarianceMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgQueueAhead" inType="win:Float" outType="xs:float"></data>
+						<data name="SyncFrameTimeMS" inType="win:Float" outType="xs:float"></data>
+						<data name="SyncQueueAhead" inType="win:Float" outType="xs:float"></data>
+						<data name="SyncFramesMissed" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="PhaseSyncMS" inType="win:Float" outType="xs:float"></data>
+					</template>
+					<template tid="RecordedVSync">
+						<data name="Time" inType="win:Double" outType="xs:double"></data>
+						<data name="FrameIndex" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="TwGpuEndTime" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="AppEvent">
+						<data name="ProcessID" inType="win:UInt64" outType="xs:unsignedLong"></data>
+					</template>
+					<template tid="PosePrediction">
+						<data name="OriginalPosition" inType="win:Double" outType="xs:double" count="3"></data>
+						<data name="OriginalOrientation" inType="win:Double" outType="xs:double" count="4"></data>
+						<data name="PredictedPosition" inType="win:Double" outType="xs:double" count="3"></data>
+						<data name="PredictedOrientation" inType="win:Double" outType="xs:double" count="4"></data>
+						<data name="PredictionTimeDeltaSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="TimeInSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="id" inType="win:AnsiString" outType="xs:string"></data>
+					</template>
+					<template tid="LatencyTiming">
+						<data name="RenderCpuBegin" inType="win:Double" outType="xs:double"></data>
+						<data name="RenderCpuEnd" inType="win:Double" outType="xs:double"></data>
+						<data name="RenderImu" inType="win:Double" outType="xs:double"></data>
+						<data name="TimewarpCpu" inType="win:Double" outType="xs:double"></data>
+						<data name="TimewarpLatched" inType="win:Double" outType="xs:double"></data>
+						<data name="TimewarpGpuEnd" inType="win:Double" outType="xs:double"></data>
+						<data name="PostPresent" inType="win:Double" outType="xs:double"></data>
+						<data name="ErrorRender" inType="win:Double" outType="xs:double"></data>
+						<data name="ErrorTimewarp" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="EndFrameAppTiming">
+						<data name="FrameIndex" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="RenderImuTime" inType="win:Double" outType="xs:double"></data>
+						<data name="ScanoutStartTime" inType="win:Double" outType="xs:double"></data>
+						<data name="GpuRenderDuration" inType="win:Double" outType="xs:double"></data>
+						<data name="BeginRenderingTime" inType="win:Double" outType="xs:double"></data>
+						<data name="EndRenderingTime" inType="win:Double" outType="xs:double"></data>
+						<data name="QueueAheadSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="RenderCount" inType="win:Int32" outType="xs:int"></data>
+					</template>
+					<template tid="HardwareInfoTemplate">
+						<data name="RequestedBits" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="CollectedBits" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ImuTemp" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="StmTemp" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="NrfTemp" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="VBusVoltage" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="IAD" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="Proximity" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="PanelOnTime" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="UseRolling" inType="win:Boolean" outType="xs:boolean"></data>
+						<data name="HighBrightness" inType="win:Boolean" outType="xs:boolean"></data>
+						<data name="DP" inType="win:Boolean" outType="xs:boolean"></data>
+						<data name="SelfRefresh" inType="win:Boolean" outType="xs:boolean"></data>
+						<data name="Persistence" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="LightingOffset" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="PixelSettle" inType="win:UInt16" outType="xs:unsignedShort"></data>
+						<data name="TotalRows" inType="win:UInt16" outType="xs:unsignedShort"></data>
+					</template>
+					<template tid="VirtualDisplayPacketTemplate">
+						<data name="PacketType" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="Stage" inType="win:Int32" outType="xs:int"></data>
+						<data name="SubmittingProcessID" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="ActiveProcessID" inType="win:UInt64" outType="xs:unsignedLong"></data>
+					</template>
+					<template tid="ClientMissedFrame">
+						<data name="FrameIndex" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="ProcessID" inType="win:UInt64" outType="xs:unsignedLong"></data>
+					</template>
+					<template tid="RenderPacketTemplate">
+						<data name="Stage" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="ClientPID" inType="win:UInt64" outType="xs:unsignedLong"></data>
+					</template>
+					<template tid="DistortionEndToEndTiming">
+						<data name="ElapsedMs" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="CompositionBegin">
+						<data name="ExpectedCPUStartTimeInSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="ActualCPUStartTimeInSeconds" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="CompositionGPUBeginTime">
+						<data name="DistortionBeginTimeInSeconds" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="PhaseSyncAppGPUEndTime">
+						<data name="AppGPUEndTimeSeconds" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="NotificationEnd">
+						<data name="AppFrameIndex" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="CpuBeginToGpuEndSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="CpuBeginSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="GpuEndSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="SleepTimeMilliseconds" inType="win:UInt32" outType="xs:unsignedInt"></data>
+					</template>
+					<template tid="NotificationBegin">
+						<data name="AppFrameIndex" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="CpuBeginToGpuEndSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="CompositeTimeSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="VSyncTimeSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="CompositeDeltaSeconds" inType="win:Double" outType="xs:double"></data>
+						<data name="VSyncDeltaSeconds" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="NotificationCompSubmit">
+						<data name="ShouldBeVisible" inType="win:Boolean" outType="xs:boolean"></data>
+						<data name="DisabledLayer" inType="win:Boolean" outType="xs:boolean"></data>
+						<data name="FrameIndex" inType="win:UInt64" outType="xs:unsignedLong"></data>
+					</template>
+					<template tid="MotionEstimationCostStats">
+						<data name="Count" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="Average" inType="win:UInt32" outType="xs:unsignedInt"></data>
+						<data name="Log2Histogram" inType="win:UInt32" outType="xs:unsignedInt" count="33"></data>
+					</template>
+				</templates>
+			</provider>
+		</events>
+	</instrumentation>
+	<localization>
+		<resources culture="en-US">
+			<stringTable>
+				<string id="opcode.Info" value="Info"></string>
+				<string id="level.Verbose" value="Verbose"></string>
+				<string id="level.LogAlways" value="Log Always"></string>
+				<string id="level.Informational" value="Information"></string>
+				<string id="level.Error" value="Error"></string>
+				<string id="OVR-SDK-LibOVR.task.VIRTUALDISPLAY_TRACE.message" value="VirtualDisplay"></string>
+				<string id="OVR-SDK-LibOVR.task.SUBMITFRAME_TRACE.message" value="SubmitFrame"></string>
+				<string id="OVR-SDK-LibOVR.task.SENSOR_TRACE.message" value="Sensor"></string>
+				<string id="OVR-SDK-LibOVR.task.PHASESYNC_TRACE.message" value="PhaseSync"></string>
+				<string id="OVR-SDK-LibOVR.task.NOTIFICATION_TRACE.message" value="Notification"></string>
+				<string id="OVR-SDK-LibOVR.task.LOG_TRACE.message" value="Log"></string>
+				<string id="OVR-SDK-LibOVR.task.HMD_TRACE.message" value="HmdInfo"></string>
+				<string id="OVR-SDK-LibOVR.task.FN_TRACE.message" value="Function"></string>
+				<string id="OVR-SDK-LibOVR.task.DIS_TRACE.message" value="Distort"></string>
+				<string id="OVR-SDK-LibOVR.task.Compositor_RunLoop.message" value="Compositor run loop (render thread) events."></string>
+				<string id="OVR-SDK-LibOVR.task.CAMERA_TRACE.message" value="Camera"></string>
+				<string id="OVR-SDK-LibOVR.opcode.HMD_DESC.message" value="Descriptor"></string>
+				<string id="OVR-SDK-LibOVR.opcode.FN_WAYPOINT.message" value="Waypoint"></string>
+				<string id="OVR-SDK-LibOVR.opcode.FN_RETURN.message" value="Return"></string>
+				<string id="OVR-SDK-LibOVR.opcode.FN_CALL.message" value="Call"></string>
+				<string id="OVR-SDK-LibOVR.opcode.DIS_WAITGPU.message" value="WaitGPU"></string>
+				<string id="OVR-SDK-LibOVR.opcode.DIS_PRESENT.message" value="Present"></string>
+				<string id="OVR-SDK-LibOVR.opcode.DIS_END.message" value="End"></string>
+				<string id="OVR-SDK-LibOVR.opcode.DIS_BEGIN.message" value="Begin"></string>
+				<string id="OVR-SDK-LibOVR.opcode.CAM_REQUEST.message" value="Request"></string>
+				<string id="OVR-SDK-LibOVR.opcode.CAM_RECEIVE.message" value="Receive"></string>
+				<string id="OVR-SDK-LibOVR.event.9.message" value="Received Frame %2"></string>
+				<string id="OVR-SDK-LibOVR.event.8.message" value="Hmd Descriptor for %4"></string>
+				<string id="OVR-SDK-LibOVR.event.7.message" value="End distortion rendering for %1 (frame %2)"></string>
+				<string id="OVR-SDK-LibOVR.event.61.message" value="Motion Estimation Cost Statistics"></string>
+				<string id="OVR-SDK-LibOVR.event.60.message" value="Submisison of notification to distortion"></string>
+				<string id="OVR-SDK-LibOVR.event.6.message" value="Present distortion for %1 (frame %2)"></string>
+				<string id="OVR-SDK-LibOVR.event.59.message" value="Notification end frame"></string>
+				<string id="OVR-SDK-LibOVR.event.58.message" value="Notification begin frame"></string>
+				<string id="OVR-SDK-LibOVR.event.57.message" value="Time GPU started work (after preemption)"></string>
+				<string id="OVR-SDK-LibOVR.event.56.message" value="Compositor missed frame (glitched)"></string>
+				<string id="OVR-SDK-LibOVR.event.55.message" value="App GPU work completed."></string>
+				<string id="OVR-SDK-LibOVR.event.54.message" value="Flushing ATW work to GPU"></string>
+				<string id="OVR-SDK-LibOVR.event.53.message" value="End of spinwait"></string>
+				<string id="OVR-SDK-LibOVR.event.52.message" value="Distortion end to end timing %1s"></string>
+				<string id="OVR-SDK-LibOVR.event.51.message" value="App EndFrame %1"></string>
+				<string id="OVR-SDK-LibOVR.event.50.message" value="RenderPacket stage %1 client pid %2"></string>
+				<string id="OVR-SDK-LibOVR.event.5.message" value="Wait for distortion renderer GPU for %1 (frame %2)"></string>
+				<string id="OVR-SDK-LibOVR.event.49.message" value="End ATW Composition"></string>
+				<string id="OVR-SDK-LibOVR.event.48.message" value="Begin ATW Composition"></string>
+				<string id="OVR-SDK-LibOVR.event.47.message" value="Client Missed Frame %1"></string>
+				<string id="OVR-SDK-LibOVR.event.46.message" value="Virtual Display Packet %1"></string>
+				<string id="OVR-SDK-LibOVR.event.45.message" value="Hardware info"></string>
+				<string id="OVR-SDK-LibOVR.event.44.message" value="End frame app timing"></string>
+				<string id="OVR-SDK-LibOVR.event.43.message" value="Latency Timing"></string>
+				<string id="OVR-SDK-LibOVR.event.42.message" value="PosePrediction"></string>
+				<string id="OVR-SDK-LibOVR.event.41.message" value="Testing only. Should not see in production."></string>
+				<string id="OVR-SDK-LibOVR.event.40.message" value="Application Disconnected"></string>
+				<string id="OVR-SDK-LibOVR.event.4.message" value="Begin distortion rendering for %1 (frame %2)"></string>
+				<string id="OVR-SDK-LibOVR.event.39.message" value="Application Connected"></string>
+				<string id="OVR-SDK-LibOVR.event.38.message" value="Application compositor focus"></string>
+				<string id="OVR-SDK-LibOVR.event.37.message" value="VSync Service QPC"></string>
+				<string id="OVR-SDK-LibOVR.event.36.message" value="PhaseSyncEnd"></string>
+				<string id="OVR-SDK-LibOVR.event.35.message" value="PhaseSyncBegin"></string>
+				<string id="OVR-SDK-LibOVR.event.34.message" value="Hmd Display %4 %5"></string>
+				<string id="OVR-SDK-LibOVR.event.33.message" value="End of Queue Ahead frame delay"></string>
+				<string id="OVR-SDK-LibOVR.event.32.message" value="Beginning timing delay for QueueAhead"></string>
+				<string id="OVR-SDK-LibOVR.event.31.message" value="Pose latch GPU readback"></string>
+				<string id="OVR-SDK-LibOVR.event.30.message" value="Pose latch CPU write"></string>
+				<string id="OVR-SDK-LibOVR.event.29.message" value="Camera %1 Segment Blobs for %2"></string>
+				<string id="OVR-SDK-LibOVR.event.28.message" value="Camera %1 Get Frame %2"></string>
+				<string id="OVR-SDK-LibOVR.event.27.message" value="Camera %1 Pose Sensor Fusion for %2"></string>
+				<string id="OVR-SDK-LibOVR.event.26.message" value="Camera %1 Pose Reconstruction for %2"></string>
+				<string id="OVR-SDK-LibOVR.event.25.message" value="Synced Camera %1 Clock"></string>
+				<string id="OVR-SDK-LibOVR.event.24.message" value="Camera Pose Change %1"></string>
+				<string id="OVR-SDK-LibOVR.event.23.message" value="End Camera LED Matching %1 %2 %3 %4"></string>
+				<string id="OVR-SDK-LibOVR.event.22.message" value="Begin Camera LED Matching %1 %2 %3 %4"></string>
+				<string id="OVR-SDK-LibOVR.event.21.message" value="End Global Image Aquisition %2 %3"></string>
+				<string id="OVR-SDK-LibOVR.event.20.message" value="Begin Global Image Aquisition %1"></string>
+				<string id="OVR-SDK-LibOVR.event.2.message" value="Waypoint %1:%2 (frame %3)"></string>
+				<string id="OVR-SDK-LibOVR.event.19.message" value="Blobs %1"></string>
+				<string id="OVR-SDK-LibOVR.event.18.message" value="Tracking State"></string>
+				<string id="OVR-SDK-LibOVR.event.17.message" value="Error: %1"></string>
+				<string id="OVR-SDK-LibOVR.event.16.message" value="Info: %1"></string>
+				<string id="OVR-SDK-LibOVR.event.15.message" value="Debug: %1"></string>
+				<string id="OVR-SDK-LibOVR.event.14.message" value="JSON chunk %1 (%3 of %2) size %5"></string>
+				<string id="OVR-SDK-LibOVR.event.13.message" value="Camera %1 Skipped Frames %2"></string>
+				<string id="OVR-SDK-LibOVR.event.12.message" value="Finished Processing Frame %2"></string>
+				<string id="OVR-SDK-LibOVR.event.11.message" value="Request Frame %2"></string>
+				<string id="OVR-SDK-LibOVR.event.10.message" value="Begin Processing Frame %2"></string>
+				<string id="OVR-SDK-LibOVR.event.1.message" value="Return %1:%2 (frame %3)"></string>
+				<string id="OVR-SDK-LibOVR.event.0.message" value="Call %1:%2 (frame %3)"></string>
+				<string id="OVR-SDK-LibOVR.channel.ERROR_CHANNEL.message" value="Error"></string>
+			</stringTable>
+		</resources>
+	</localization>
+</instrumentationManifest>
