@@ -14,6 +14,15 @@ if (platform === Platform.Windows) {
 	project.addLib('dsound');
 	project.addLib('dinput8');
 	
+	project.addDefine('VR_RIFT');
+	project.addLibFor('x64', 'Backends/Windows/Libraries/OculusSDK/Lib/x64/LibOVR');
+	project.addLibFor('Win32', 'Backends/Windows/Libraries/OculusSDK/Lib/Win32/LibOVR');
+	project.addFile('Backends/Windows/Libraries/OculusSDK/**');
+	project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVR/Include');
+	project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVR/Src');
+	project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVRKernel/Src');
+	project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/Logging/include');
+
 	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
 	project.addLib('ws2_32');
 
