@@ -4,300 +4,383 @@
 
 #ifdef VR_RIFT
 
-#include <GL/CAPI_GLE.h>
-#include <OVR_CAPI_GL.h>
+#include "Kore/Log.h"
 
-#include <Kernel/OVR_System.h>
+#include "GL/CAPI_GLE.h"
+#include "Extras/OVR_Math.h"
+#include "OVR_CAPI_GL.h"
 
-#include <kha/math/Quaternion.h>
-#include <kha/math/Vector3.h>
-#include <kha/vr/Pose.h>
-#include <kha/vr/PoseState.h>
-#include <kha/vr/TimeWarpImage.h>
-
-#include <Extras/OVR_Math.h>
+#include <assert.h>
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
 
-using namespace kha::vr;
-
 namespace Kore {
-	//
-	namespace VrInterface {
 
-		ovrHmd HMD;
+	//-------------------------------------------------------------------------------------------
+	struct OGL
+	{
+		HWND                    Window;
+		HDC                     hDC;
+		HGLRC                   WglContext;
+		OVR::GLEContext         GLEContext;
+		bool                    Running;
+		bool                    Key[256];
+		int                     WinSizeW;
+		int                     WinSizeH;
+		GLuint                  fboId;
+		HINSTANCE               hInstance;
 
-		ovrGLConfig config;
+		static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam)
+		{
+			OGL *p = reinterpret_cast<OGL *>(GetWindowLongPtr(hWnd, 0));
+			switch (Msg)
+			{
+			case WM_KEYDOWN:
+				p->Key[wParam] = true;
+				break;
+			case WM_KEYUP:
+				p->Key[wParam] = false;
+				break;
+			case WM_DESTROY:
+				p->Running = false;
+				break;
+			default:
+				return DefWindowProcW(hWnd, Msg, wParam, lParam);
+			}
+			if ((p->Key['Q'] && p->Key[VK_CONTROL]) || p->Key[VK_ESCAPE])
+			{
+				p->Running = false;
+			}
+			return 0;
+		}
 
-		ovrEyeRenderDesc EyeRenderDesc[2];
+		OGL() :
+			Window(nullptr),
+			hDC(nullptr),
+			WglContext(nullptr),
+			GLEContext(),
+			Running(false),
+			WinSizeW(0),
+			WinSizeH(0),
+			fboId(0),
+			hInstance(nullptr)
+		{
+			// Clear input
+			for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
+				Key[i] = false;
+		}
 
-		//-------------------------------------------------------------------------------------------
-		struct OGL {
-			HWND Window;
-			HDC hDC;
-			HGLRC WglContext;
-			OVR::GLEContext GLEContext;
+		~OGL()
+		{
+			ReleaseDevice();
+			CloseWindow();
+		}
 
-			GLuint fboId;
+		bool InitWindow(HINSTANCE hInst, LPCWSTR title)
+		{
+			hInstance = hInst;
+			Running = true;
 
-			bool Key[256];
+			WNDCLASSW wc;
+			memset(&wc, 0, sizeof(wc));
+			wc.style = CS_CLASSDC;
+			wc.lpfnWndProc = WindowProc;
+			wc.cbWndExtra = sizeof(struct OGL *);
+			wc.hInstance = GetModuleHandleW(NULL);
+			wc.lpszClassName = L"ORT";
+			RegisterClassW(&wc);
 
-			bool InitWindowAndDevice(HINSTANCE hInst, OVR::Recti vp, bool windowed, char* deviceName) {
-				WglContext = 0;
-				/* WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, DefWindowProc, 0L, 0L,
-				    GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"ORT", NULL };
-				RegisterClassEx(&wc); */
+			// adjust the window size and show at InitDevice time
+			//Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
+			Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, 0, 0, 1000, 1000, GetDesktopWindow(), NULL, hInst, NULL);
+			if (!Window) return false;
 
-				Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, vp.x, vp.y, vp.w, vp.h, GetDesktopWindow(), NULL, hInst, NULL);
+			SetWindowLongPtr(Window, 0, LONG_PTR(this));
 
-				hDC = GetDC(Window);
+			hDC = GetDC(Window);
 
-				PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARBFunc = NULL;
-				PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARBFunc = NULL;
+			return true;
+		}
+
+		void CloseWindow()
+		{
+			if (Window)
+			{
+				if (hDC)
 				{
-					// First create a context for the purpose of getting access to wglChoosePixelFormatARB / wglCreateContextAttribsARB.
-					PIXELFORMATDESCRIPTOR pfd;
-					memset(&pfd, 0, sizeof(pfd));
-
-					pfd.nSize = sizeof(pfd);
-					pfd.nVersion = 1;
-					pfd.iPixelType = PFD_TYPE_RGBA;
-					pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
-					pfd.cColorBits = 32;
-					pfd.cDepthBits = 16;
-
-					int pf = ChoosePixelFormat(hDC, &pfd);
-					if (!pf) {
-						ReleaseDC(Window, hDC);
-						return false;
-					}
-
-					if (!SetPixelFormat(hDC, pf, &pfd)) {
-						ReleaseDC(Window, hDC);
-						return false;
-					}
-
-					HGLRC context = wglCreateContext(hDC);
-					if (!wglMakeCurrent(hDC, context)) {
-						wglDeleteContext(context);
-						ReleaseDC(Window, hDC);
-						return false;
-					}
-
-					wglChoosePixelFormatARBFunc = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-					wglCreateContextAttribsARBFunc = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-					OVR_ASSERT(wglChoosePixelFormatARBFunc && wglCreateContextAttribsARBFunc);
-
-					wglDeleteContext(context);
-				}
-
-				// Now create the real context that we will be using.
-				int iAttributes[] = {// WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-				                     WGL_SUPPORT_OPENGL_ARB,
-				                     GL_TRUE,
-				                     WGL_COLOR_BITS_ARB,
-				                     32,
-				                     WGL_DEPTH_BITS_ARB,
-				                     16,
-				                     WGL_DOUBLE_BUFFER_ARB,
-				                     GL_TRUE,
-				                     WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB,
-				                     GL_TRUE,
-				                     0,
-				                     0};
-
-				float fAttributes[] = {0, 0};
-				int pf = 0;
-				UINT numFormats = 0;
-
-				if (!wglChoosePixelFormatARBFunc(hDC, iAttributes, fAttributes, 1, &pf, &numFormats)) {
 					ReleaseDC(Window, hDC);
-					return false;
+					hDC = nullptr;
 				}
+				DestroyWindow(Window);
+				Window = nullptr;
+				UnregisterClassW(L"OGL", hInstance);
+			}
+		}
 
+		// Note: currently there is no way to get GL to use the passed pLuid
+		bool InitDevice(int vpW, int vpH, const LUID*, bool windowed = true)
+		{
+			UNREFERENCED_PARAMETER(windowed);
+
+			WinSizeW = vpW;
+			WinSizeH = vpH;
+
+			RECT size = { 0, 0, vpW, vpH };
+			AdjustWindowRect(&size, WS_OVERLAPPEDWINDOW, false);
+			const UINT flags = SWP_NOMOVE | SWP_NOZORDER | SWP_SHOWWINDOW;
+			if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags))
+				return false;
+
+			PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARBFunc = nullptr;
+			PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARBFunc = nullptr;
+			{
+				// First create a context for the purpose of getting access to wglChoosePixelFormatARB / wglCreateContextAttribsARB.
 				PIXELFORMATDESCRIPTOR pfd;
 				memset(&pfd, 0, sizeof(pfd));
+				pfd.nSize = sizeof(pfd);
+				pfd.nVersion = 1;
+				pfd.iPixelType = PFD_TYPE_RGBA;
+				pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
+				pfd.cColorBits = 32;
+				pfd.cDepthBits = 16;
+				int pf = ChoosePixelFormat(hDC, &pfd);
+				if (!pf) {
+					log(Warning, "Failed to choose pixel format.");
+					ReleaseDC(Window, hDC);
+					return false;
+				}
 
 				if (!SetPixelFormat(hDC, pf, &pfd)) {
+					log(Warning, "Failed to set pixel format.");
 					ReleaseDC(Window, hDC);
 					return false;
 				}
 
-				GLint attribs[16];
-				int attribCount = 0;
-				int flags = 0;
-				int profileFlags = 0;
-
-				attribs[attribCount] = 0;
-
-				WglContext = wglCreateContextAttribsARBFunc(hDC, 0, attribs);
-				if (!wglMakeCurrent(hDC, WglContext)) {
-					wglDeleteContext(WglContext);
+				HGLRC context = wglCreateContext(hDC);
+				if (!context) {
+					log(Warning, "wglCreateContextfailed.");
+					ReleaseDC(Window, hDC);
+					return false;
+				}
+				if (!wglMakeCurrent(hDC, context)) {
+					log(Warning, "wglMakeCurrent failed.");
+					wglDeleteContext(context);
 					ReleaseDC(Window, hDC);
 					return false;
 				}
 
-				OVR::GLEContext::SetCurrentContext(&GLEContext);
-				GLEContext.Init();
+				wglChoosePixelFormatARBFunc = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+				wglCreateContextAttribsARBFunc = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+				assert(wglChoosePixelFormatARBFunc && wglCreateContextAttribsARBFunc);
 
-				ShowWindow(Window, SW_SHOWDEFAULT);
-
-				OVR::glGenFramebuffers(1, &fboId);
-
-				glEnable(GL_DEPTH_TEST);
-				glFrontFace(GL_CW);
-				glEnable(GL_CULL_FACE);
-
-				SetCapture(Platform.Window);
-
-				ShowCursor(FALSE);
-
-				return true;
+				wglDeleteContext(context);
 			}
 
-			void HandleMessages(void) {
-				MSG msg;
-				if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE)) {
-					if (msg.message == WM_KEYDOWN) Key[msg.wParam] = true;
-					if (msg.message == WM_KEYUP) Key[msg.wParam] = false;
+			// Now create the real context that we will be using.
+			int iAttributes[] =
+			{
+				// WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+				WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+				WGL_COLOR_BITS_ARB, 32,
+				WGL_DEPTH_BITS_ARB, 16,
+				WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+				WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB, GL_TRUE,
+				0, 0
+			};
+
+			float fAttributes[] = { 0, 0 };
+			int   pf = 0;
+			UINT  numFormats = 0;
+
+			if (!wglChoosePixelFormatARBFunc(hDC, iAttributes, fAttributes, 1, &pf, &numFormats)) {
+				log(Warning, "wglChoosePixelFormatARBFunc failed.");
+				ReleaseDC(Window, hDC);
+				return false;
+			}
+
+			PIXELFORMATDESCRIPTOR pfd;
+			memset(&pfd, 0, sizeof(pfd));
+			if (!SetPixelFormat(hDC, pf, &pfd)) {
+				log(Warning, "SetPixelFormat failed.");
+				ReleaseDC(Window, hDC);
+				return false;
+			}
+
+			GLint attribs[16];
+			int   attribCount = 0;
+			attribs[attribCount] = 0;
+
+			WglContext = wglCreateContextAttribsARBFunc(hDC, 0, attribs);
+			if (!wglMakeCurrent(hDC, WglContext)) {
+				log(Warning, "wglMakeCurrent failed.");
+				wglDeleteContext(WglContext);
+				ReleaseDC(Window, hDC);
+				return false;
+			}
+
+			OVR::GLEContext::SetCurrentContext(&GLEContext);
+			GLEContext.Init();
+
+			glGenFramebuffers(1, &fboId);
+
+			glEnable(GL_DEPTH_TEST);
+			glFrontFace(GL_CW);
+			glEnable(GL_CULL_FACE);
+
+			return true;
+		}
+
+		bool HandleMessages(void)
+		{
+			MSG msg;
+			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+			return Running;
+		}
+
+		void Run(bool(*MainLoop)(bool retryCreate))
+		{
+			while (HandleMessages())
+			{
+				// true => we'll attempt to retry for ovrError_DisplayLost
+				if (!MainLoop(true))
+					break;
+				// Sleep a bit before retrying to reduce CPU load while the HMD is disconnected
+				Sleep(10);
+			}
+		}
+
+		void ReleaseDevice()
+		{
+			if (fboId)
+			{
+				glDeleteFramebuffers(1, &fboId);
+				fboId = 0;
+			}
+			if (WglContext)
+			{
+				wglMakeCurrent(NULL, NULL);
+				wglDeleteContext(WglContext);
+				WglContext = nullptr;
+			}
+			GLEContext.Shutdown();
+		}
+
+	};
+
+	// Global OpenGL state
+	static OGL Platform;
+
+	//------------------------------------------------------------------------------
+
+	namespace VrInterface {
+
+		// return true to retry later (e.g. after display lost)
+		static bool MainLoop(bool retryCreate)
+		{
+			ovrMirrorTexture mirrorTexture = nullptr;
+			GLuint mirrorFBO = 0;
+
+			ovrSession session;
+			ovrGraphicsLuid luid;
+			ovrResult result = ovr_Create(&session, &luid);
+			if (!OVR_SUCCESS(result)) {
+				log(Info, "HMD not connected.");
+				return retryCreate;
+			}
+
+			ovrHmdDesc hmdDesc = ovr_GetHmdDesc(session);
+
+			// Setup Window and Graphics
+			// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
+			ovrSizei windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
+			if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid)))
+				goto Done;
+		
+			// Make eye render buffers
+			for (int eye = 0; eye < 2; ++eye)
+			{
+				ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
+			}
+		
+			ovrMirrorTextureDesc desc;
+			memset(&desc, 0, sizeof(desc));
+			desc.Width = windowSize.w;
+			desc.Height = windowSize.h;
+			desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
+
+			// Create mirror texture and an FBO used to copy mirror texture to back buffer
+			result = ovr_CreateMirrorTextureGL(session, &desc, &mirrorTexture);
+			if (!OVR_SUCCESS(result))
+			{
+				if (retryCreate) goto Done;
+				log(Warning, "Failed to create mirror texture.");
+			}
+
+			// Configure the mirror read buffer
+			GLuint texId;
+			ovr_GetMirrorTextureBufferGL(session, mirrorTexture, &texId);
+
+			glGenFramebuffers(1, &mirrorFBO);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
+			glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
+			glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+			// Turn off vsync to let the compositor do its magic
+			wglSwapIntervalEXT(0);
+
+			// FloorLevel will give tracking poses where the floor height is 0
+			ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
+		
+			// Main loop
+			while (Platform.HandleMessages())
+			{
+				ovrSessionStatus sessionStatus;
+				ovr_GetSessionStatus(session, &sessionStatus);
+				if (sessionStatus.ShouldQuit)
+				{
+					// Because the application is requested to quit, should not request retry
+					retryCreate = false;
+					break;
 				}
+				if (sessionStatus.ShouldRecenter)
+					ovr_RecenterTrackingOrigin(session);
+				
 			}
+		
+		Done:
+			Platform.ReleaseDevice();
+			ovr_Destroy(session);
 
-			void ReleaseWindow(HINSTANCE hInst) {
-				ReleaseCapture();
-				ShowCursor(TRUE);
-
-				OVR::glDeleteFramebuffers(1, &fboId);
-
-				if (WglContext) {
-					wglMakeCurrent(NULL, NULL);
-					wglDeleteContext(WglContext);
-				}
-
-				UnregisterClass(L"ORT", hInst);
-			}
-
-		} Platform;
+			// Retry on ovrError_DisplayLost*/
+			return retryCreate || (result == ovrError_DisplayLost);
+		}
 
 		void* Init(void* hinst) {
-			OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
-
-			// Initialise rift
-			if (!ovr_Initialize()) {
-				MessageBoxA(NULL, "Unable to initialize libOVR.", "", MB_OK);
-				return 0;
-			}
-			HMD = ovrHmd_Create(0);
-			if (HMD == NULL) {
-				HMD = ovrHmd_CreateDebug(ovrHmd_DK2);
+			ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
+			ovrResult result = ovr_Initialize(&initParams);
+			if (!OVR_SUCCESS(result)) {
+				log(Warning, "Failed to initialize libOVR.");
+				return(0);
 			}
 
-			if (!HMD) {
-				MessageBoxA(NULL, "Oculus Rift not detected.", "", MB_OK);
-				ovr_Shutdown();
-				return 0;
+			if (!Platform.InitWindow((HINSTANCE)hinst, L"ORT(OpenGL)")) {
+				log(Warning, "Failed to open window.");
+				return(0);
 			}
-			if (HMD->ProductName[0] == '\0') MessageBoxA(NULL, "Rift detected, display not enabled.", "", MB_OK);
 
-			bool windowed = (HMD->HmdCaps & ovrHmdCap_ExtendDesktop) ? false : true;
+			Platform.Run(MainLoop);
 
-			if (!Platform.InitWindowAndDevice((HINSTANCE)hinst, OVR::Recti(HMD->WindowsPos, HMD->Resolution), windowed, (char*)HMD->DisplayDeviceName))
-				return 0;
-
-			config.OGL.Header.API = ovrRenderAPI_OpenGL;
-			config.OGL.Header.BackBufferSize = HMD->Resolution;
-			config.OGL.Header.Multisample = 0;
-			config.OGL.Window = Platform.Window;
-			config.OGL.DC = Platform.hDC;
-
-			ovrHmd_ConfigureRendering(HMD, &config.Config, ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive,
-			                          HMD->DefaultEyeFov, EyeRenderDesc);
-
-			ovrHmd_SetEnabledCaps(HMD, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
-			ovrHmd_AttachToWindow(HMD, Platform.Window, NULL, NULL);
-
-			// Start the sensor
-			ovrHmd_ConfigureTracking(HMD, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, 0);
-
-			// Dismiss the health and safety warning
-			ovrHmd_DismissHSWDisplay(HMD);
+			ovr_Shutdown();
 
 			return Platform.Window;
 		}
-
-		template <typename T> T* CreateEmpty() {
-
-			return dynamic_cast<T*>(T::__CreateEmpty().mPtr);
-		}
-
-		kha::vr::SensorState_obj* GetSensorState() {
-
-			// Get eye poses, feeding in correct IPD offset
-			ovrVector3f ViewOffset[2] = {EyeRenderDesc[0].HmdToEyeViewOffset, EyeRenderDesc[1].HmdToEyeViewOffset};
-			ovrPosef EyeRenderPose[2];
-			ovrHmd_GetEyePoses(HMD, 0, ViewOffset, EyeRenderPose, NULL);
-
-			kha::vr::SensorState_obj* state = dynamic_cast<kha::vr::SensorState_obj*>(kha::vr::SensorState_obj::__CreateEmpty().mPtr);
-
-			state->Predicted = CreateEmpty<kha::vr::PoseState_obj>();
-			state->Predicted->Pose = CreateEmpty<kha::vr::Pose_obj>();
-			state->Predicted->Pose->Position = CreateEmpty<kha::math::Vector3_obj>();
-			state->Predicted->Pose->Orientation = CreateEmpty<kha::math::Quaternion_obj>();
-			state->Predicted->Pose->Orientation->__construct(0.0f, 0.0f, 0.0f, 0.0f);
-			state->Predicted->Pose->Orientation->set_x(EyeRenderPose[0].Orientation.x);
-			state->Predicted->Pose->Orientation->set_y(EyeRenderPose[0].Orientation.y);
-			state->Predicted->Pose->Orientation->set_z(EyeRenderPose[0].Orientation.z);
-			state->Predicted->Pose->Orientation->set_w(EyeRenderPose[0].Orientation.w);
-
-			//	kha::vr::PoseState_obj* poseState = CreateEmpty<kha::vr::PoseState_obj>();
-			//
-			//	poseState->TimeInSeconds = nativeState.TimeInSeconds;
-			//	poseState->AngularAcceleration = GetVector3(nativeState.AngularAcceleration);
-			//	poseState->AngularVelocity = GetVector3(nativeState.AngularVelocity);
-			//	poseState->LinearAcceleration = GetVector3(nativeState.LinearAcceleration);
-			//	poseState->LinearVelocity = GetVector3(nativeState.LinearVelocity);
-			//
-			//	poseState->Pose = GetPose(nativeState.Pose);
-			//
-			//	return poseState;
-			//}
-
-			state->Recorded = state->Predicted;
-
-			return state;
-		}
-
-		void WarpSwap(kha::vr::TimeWarpParms_obj* parms) {
-			ovrHmd_BeginFrame(HMD, 0);
-
-			ovrVector3f ViewOffset[2] = {EyeRenderDesc[0].HmdToEyeViewOffset, EyeRenderDesc[1].HmdToEyeViewOffset};
-			ovrPosef EyeRenderPose[2];
-			ovrHmd_GetEyePoses(HMD, 0, ViewOffset, EyeRenderPose, NULL);
-
-			unsigned int leftImage = parms->LeftImage->Image->renderTarget->_texture;
-			unsigned int rightImage = parms->RightImage->Image->renderTarget->_texture;
-
-			ovrGLTexture eyeTex[2];
-
-			// TODO: Should be set from the ideal size given by OVR
-			ovrSizei size;
-			size.w = 1182;
-			size.h = 1464;
-
-			for (int i = 0; i < 2; i++) {
-				eyeTex[i].OGL.Header.API = ovrRenderAPI_OpenGL;
-				eyeTex[i].OGL.Header.TextureSize = size;
-				eyeTex[i].OGL.Header.RenderViewport = OVR::Recti(OVR::Vector2i(0, 0), size);
-			}
-
-			eyeTex[0].OGL.TexId = leftImage;
-			eyeTex[1].OGL.TexId = rightImage;
-
-			ovrHmd_EndFrame(HMD, EyeRenderPose, &eyeTex[0].Texture);
-		}
 	}
 }
-
 #endif

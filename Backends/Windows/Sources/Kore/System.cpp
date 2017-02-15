@@ -868,9 +868,12 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 
 	HINSTANCE inst = GetModuleHandleA(nullptr);
 #ifdef VR_RIFT
-	::registerWindowClass(inst);
-	::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
-#else  /* #ifdef VR_RIFT  */
+	::registerWindowClass(inst, windowClassName);
+	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
+	int dstx = 0;
+	int dsty = 0;
+	HWND hwnd = (HWND)VrInterface::Init(inst);
+#else
 
 	if (windowCounter == 0) {
 		::registerWindowClass(inst, windowClassName);
