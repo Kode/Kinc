@@ -10,13 +10,16 @@
 #include "Extras/OVR_Math.h"
 #include "OVR_CAPI_GL.h"
 
-#include <assert.h>
-
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
+#include <assert.h>
 
 namespace Kore {
+
+	ovrSession session;
+	ovrHmdDesc hmdDesc;
+	long long frameIndex;
 
 	//-------------------------------------------------------------------------------------------
 	struct OGL
@@ -78,8 +81,9 @@ namespace Kore {
 			CloseWindow();
 		}
 
-		bool InitWindow(HINSTANCE hInst, LPCWSTR title)
+		bool InitWindowAndDevice(HINSTANCE hInst, LPCWSTR title)
 		{
+			// Init window
 			hInstance = hInst;
 			Running = true;
 
@@ -93,13 +97,31 @@ namespace Kore {
 			RegisterClassW(&wc);
 
 			// adjust the window size and show at InitDevice time
-			//Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
-			Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, 0, 0, 1000, 1000, GetDesktopWindow(), NULL, hInst, NULL);
+			Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
+			//Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, 0, 0, 1000, 1000, GetDesktopWindow(), NULL, hInst, NULL);
 			if (!Window) return false;
 
 			SetWindowLongPtr(Window, 0, LONG_PTR(this));
 
 			hDC = GetDC(Window);
+
+			// Init device
+			ovrGraphicsLuid luid;
+			ovrResult result = ovr_Create(&session, &luid);
+			if (!OVR_SUCCESS(result)) {
+				log(Info, "HMD not connected.");
+				return false; // todo: retry
+			}
+
+			hmdDesc = ovr_GetHmdDesc(session);
+
+			// Setup Window and Graphics
+			// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
+			ovrSizei windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
+			if (!InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
+				ReleaseDevice();
+				ovr_Destroy(session);
+			}
 
 			return true;
 		}
@@ -173,7 +195,7 @@ namespace Kore {
 
 				wglChoosePixelFormatARBFunc = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 				wglCreateContextAttribsARBFunc = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-				assert(wglChoosePixelFormatARBFunc && wglCreateContextAttribsARBFunc);
+				assert(wglChoosePixelFormatARBFunc && wglCreateContextAttribsARBFunc); //OVR_ASSERT
 
 				wglDeleteContext(context);
 			}
@@ -223,11 +245,16 @@ namespace Kore {
 			OVR::GLEContext::SetCurrentContext(&GLEContext);
 			GLEContext.Init();
 
+			//ShowWindow(Window, SW_SHOWDEFAULT); // TODO: ???
+
 			glGenFramebuffers(1, &fboId);
 
 			glEnable(GL_DEPTH_TEST);
 			glFrontFace(GL_CW);
 			glEnable(GL_CULL_FACE);
+
+			//SetCapture(Platform.Window);	// TODO: ???
+			//ShowCursor(FALSE);				// TODO: ???
 
 			return true;
 		}
@@ -241,18 +268,6 @@ namespace Kore {
 				DispatchMessage(&msg);
 			}
 			return Running;
-		}
-
-		void Run(bool(*MainLoop)(bool retryCreate))
-		{
-			while (HandleMessages())
-			{
-				// true => we'll attempt to retry for ovrError_DisplayLost
-				if (!MainLoop(true))
-					break;
-				// Sleep a bit before retrying to reduce CPU load while the HMD is disconnected
-				Sleep(10);
-			}
 		}
 
 		void ReleaseDevice()
@@ -280,88 +295,6 @@ namespace Kore {
 
 	namespace VrInterface {
 
-		// return true to retry later (e.g. after display lost)
-		static bool MainLoop(bool retryCreate)
-		{
-			ovrMirrorTexture mirrorTexture = nullptr;
-			GLuint mirrorFBO = 0;
-
-			ovrSession session;
-			ovrGraphicsLuid luid;
-			ovrResult result = ovr_Create(&session, &luid);
-			if (!OVR_SUCCESS(result)) {
-				log(Info, "HMD not connected.");
-				return retryCreate;
-			}
-
-			ovrHmdDesc hmdDesc = ovr_GetHmdDesc(session);
-
-			// Setup Window and Graphics
-			// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
-			ovrSizei windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
-			if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid)))
-				goto Done;
-		
-			// Make eye render buffers
-			for (int eye = 0; eye < 2; ++eye)
-			{
-				ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
-			}
-		
-			ovrMirrorTextureDesc desc;
-			memset(&desc, 0, sizeof(desc));
-			desc.Width = windowSize.w;
-			desc.Height = windowSize.h;
-			desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-
-			// Create mirror texture and an FBO used to copy mirror texture to back buffer
-			result = ovr_CreateMirrorTextureGL(session, &desc, &mirrorTexture);
-			if (!OVR_SUCCESS(result))
-			{
-				if (retryCreate) goto Done;
-				log(Warning, "Failed to create mirror texture.");
-			}
-
-			// Configure the mirror read buffer
-			GLuint texId;
-			ovr_GetMirrorTextureBufferGL(session, mirrorTexture, &texId);
-
-			glGenFramebuffers(1, &mirrorFBO);
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
-			glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
-			glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-			// Turn off vsync to let the compositor do its magic
-			wglSwapIntervalEXT(0);
-
-			// FloorLevel will give tracking poses where the floor height is 0
-			ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
-		
-			// Main loop
-			while (Platform.HandleMessages())
-			{
-				ovrSessionStatus sessionStatus;
-				ovr_GetSessionStatus(session, &sessionStatus);
-				if (sessionStatus.ShouldQuit)
-				{
-					// Because the application is requested to quit, should not request retry
-					retryCreate = false;
-					break;
-				}
-				if (sessionStatus.ShouldRecenter)
-					ovr_RecenterTrackingOrigin(session);
-				
-			}
-		
-		Done:
-			Platform.ReleaseDevice();
-			ovr_Destroy(session);
-
-			// Retry on ovrError_DisplayLost*/
-			return retryCreate || (result == ovrError_DisplayLost);
-		}
-
 		void* Init(void* hinst) {
 			ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
 			ovrResult result = ovr_Initialize(&initParams);
@@ -370,16 +303,60 @@ namespace Kore {
 				return(0);
 			}
 
-			if (!Platform.InitWindow((HINSTANCE)hinst, L"ORT(OpenGL)")) {
+			if (!Platform.InitWindowAndDevice((HINSTANCE)hinst, L"ORT(OpenGL)")) {
 				log(Warning, "Failed to open window.");
 				return(0);
 			}
 
-			Platform.Run(MainLoop);
-
 			ovr_Shutdown();
 
 			return Platform.Window;
+		}
+
+		SensorState getSensorState() {
+
+			SensorState* sensorState = new SensorState();
+
+			// Call ovr_GetRenderDesc each frame to get the ovrEyeRenderDesc, as the returned values (e.g. HmdToEyeOffset) may change at runtime.
+			ovrEyeRenderDesc eyeRenderDesc[2];
+			eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
+			eyeRenderDesc[1] = ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1]);
+
+			// Get eye poses, feeding in correct IPD offset
+			ovrPosef EyeRenderPose[2];
+			ovrVector3f HmdToEyeOffset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
+
+			double sensorSampleTime;    // sensorSampleTime is fed into the layer later
+			ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyeRenderPose, &sensorSampleTime);
+			frameIndex++;
+
+			VrPoseState* poseState[2];
+			poseState[0] = new VrPoseState();
+			poseState[1] = new VrPoseState();
+
+			for (int eye = 0; eye < 2; ++eye){
+				// Get view and projection matrices
+				/*Matrix4f rollPitchYaw = Matrix4f::RotationY(Yaw);
+				Matrix4f finalRollPitchYaw = rollPitchYaw * Matrix4f(EyeRenderPose[eye].Orientation);
+				Vector3f finalUp = finalRollPitchYaw.Transform(Vector3f(0, 1, 0));
+				Vector3f finalForward = finalRollPitchYaw.Transform(Vector3f(0, 0, -1));
+				Vector3f shiftedEyePos = Pos2 + rollPitchYaw.Transform(EyeRenderPose[eye].Position);
+
+				Matrix4f view = Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
+				Matrix4f proj = ovrMatrix4f_Projection(hmdDesc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);*/
+
+				ovrQuatf orientation = EyeRenderPose[eye].Orientation;
+				poseState[eye]->vrPose->orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
+
+				ovrVector3f pos = EyeRenderPose[eye].Position;
+				poseState[eye]->vrPose->position = vec3(pos.x, pos.y, pos.z);
+
+			}
+
+			//poseState->AngularAcceleration = 
+			sensorState->predicted = poseState[0];
+
+			return SensorState();
 		}
 	}
 }
