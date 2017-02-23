@@ -333,7 +333,8 @@ namespace Kore {
 			// Get eye poses, feeding in correct IPD offset
 			ovrPosef EyeRenderPose[2];
 			ovrVector3f HmdToEyeOffset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
-
+			
+			// Get predicted eye pose
 			double sensorSampleTime;    // sensorSampleTime is fed into the layer later
 			ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyeRenderPose, &sensorSampleTime);
 			frameIndex++;
@@ -391,6 +392,12 @@ namespace Kore {
 
 		void recenterTracking() {
 			ovr_RecenterTrackingOrigin(session);
+		}
+
+		void getHMDRessolution(int eye, int& w, int&h) {
+			ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
+			w = idealTextureSize.w;
+			h = idealTextureSize.h;
 		}
 	}
 }

@@ -15,5 +15,6 @@ namespace Kore {
 		void ovrShutdown();
 		void changeTrackingOrigin(bool standUp);
 		void recenterTracking();
+		void getHMDRessolution(int eye, int& w, int&h);
 	}
 }
