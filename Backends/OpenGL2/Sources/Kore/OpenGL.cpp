@@ -876,7 +876,7 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
-#if (defined(OPENGL) && !defined(SYS_PI)) || (defined(SYS_ANDROID) && SYS_ANDROID_API >= 18)
+#if (defined(OPENGL) && !defined(SYS_PI) && !defined(SYS_ANDROID)) || (defined(SYS_ANDROID) && SYS_ANDROID_API >= 18)
 bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 	glGenQueries(1, occlusionQuery);
 	return true;
