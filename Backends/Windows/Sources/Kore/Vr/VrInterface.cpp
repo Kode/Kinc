@@ -20,6 +20,8 @@ namespace Kore {
 	ovrSession session;
 	ovrHmdDesc hmdDesc;
 	long long frameIndex;
+	ovrPosef EyeRenderPose[2];
+	double sensorSampleTime;
 
 	//-------------------------------------------------------------------------------------------
 	struct OGL
@@ -331,11 +333,9 @@ namespace Kore {
 			eyeRenderDesc[1] = ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1]);
 
 			// Get eye poses, feeding in correct IPD offset
-			ovrPosef EyeRenderPose[2];
 			ovrVector3f HmdToEyeOffset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
 			
 			// Get predicted eye pose
-			double sensorSampleTime;    // sensorSampleTime is fed into the layer later
 			ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyeRenderPose, &sensorSampleTime);
 			frameIndex++;
 
@@ -381,6 +381,27 @@ namespace Kore {
 			return sensorState;
 		}
 
+		void WarpSwap() {
+			ovrLayerEyeFov ld;
+			ld.Header.Type = ovrLayerType_EyeFov;
+			ld.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;   // Because OpenGL.
+
+			for (int eye = 0; eye < 2; ++eye) {
+				//ld.ColorTexture[eye] = eyeRenderTexture[eye]->TextureChain; // TODO: set image
+				ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
+				ld.Viewport[eye] = OVR::Recti(idealTextureSize);
+				ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
+				ld.RenderPose[eye] = EyeRenderPose[eye];
+				ld.SensorSampleTime = sensorSampleTime;
+			}
+
+			ovrLayerHeader* layers = &ld.Header;
+			ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
+			// exit the rendering loop if submit returns an error, will retry on ovrError_DisplayLost
+			if (!OVR_SUCCESS(result))
+
+		}
+
 		void changeTrackingOrigin(bool standUp) {
 			if (standUp) {
 				ovr_SetTrackingOriginType(session, ovrTrackingOrigin_EyeLevel);
@@ -392,12 +413,6 @@ namespace Kore {
 
 		void recenterTracking() {
 			ovr_RecenterTrackingOrigin(session);
-		}
-
-		void getHMDRessolution(int eye, int& w, int&h) {
-			ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
-			w = idealTextureSize.w;
-			h = idealTextureSize.h;
 		}
 	}
 }

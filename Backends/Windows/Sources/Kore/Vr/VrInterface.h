@@ -8,13 +8,12 @@
 
 namespace Kore {
 	namespace VrInterface {
-		//void WarpSwap(kha::vr::TimeWarpParms_obj* parms);
 		void* Init(void* hinst);
 		SensorState* getSensorState();
+		void WarpSwap(/*kha::vr::TimeWarpParms_obj* parms*/);
 
 		void ovrShutdown();
 		void changeTrackingOrigin(bool standUp);
 		void recenterTracking();
-		void getHMDRessolution(int eye, int& w, int&h);
 	}
 }
