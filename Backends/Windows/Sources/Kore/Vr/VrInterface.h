@@ -12,6 +12,7 @@ namespace Kore {
 		void* Init(void* hinst);
 		SensorState* getSensorState();
 
+		void ovrShutdown();
 		void changeTrackingOrigin(bool standUp);
 		void recenterTracking();
 	}

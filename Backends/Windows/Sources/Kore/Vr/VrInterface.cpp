@@ -97,9 +97,12 @@ namespace Kore {
 			RegisterClassW(&wc);
 
 			// adjust the window size and show at InitDevice time
-			//Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
-			Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, 0, 0, 1000, 1000, GetDesktopWindow(), NULL, hInstance, NULL);
-			if (!Window) return false;
+			Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
+			//Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, 0, 0, 1000, 1000, GetDesktopWindow(), NULL, hInstance, NULL);
+			if (!Window) {
+				log(Info, "Failed to open window.");
+				return false;
+			}
 
 			SetWindowLongPtr(Window, 0, LONG_PTR(this));
 
@@ -307,13 +310,15 @@ namespace Kore {
 			}
 
 			if (!Platform.InitWindowAndDevice((HINSTANCE)hinst, L"ORT(OpenGL)")) {
-				log(Warning, "Failed to open window.");
+				log(Warning, "Failed to init window and device.");
 				return(0);
 			}
 
-			ovr_Shutdown();
-
 			return Platform.Window;
+		}
+
+		void ovrShutdown() {
+			ovr_Shutdown();
 		}
 
 		SensorState* getSensorState() {
