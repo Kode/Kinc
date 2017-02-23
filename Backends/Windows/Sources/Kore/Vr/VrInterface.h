@@ -10,6 +10,9 @@ namespace Kore {
 	namespace VrInterface {
 		//void WarpSwap(kha::vr::TimeWarpParms_obj* parms);
 		void* Init(void* hinst);
-		SensorState getSensorState();
+		SensorState* getSensorState();
+
+		void changeTrackingOrigin(bool standUp);
+		void recenterTracking();
 	}
 }

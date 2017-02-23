@@ -9,5 +9,11 @@ public:
 
 	Kore::Quaternion orientation;
 	Kore::vec3 position;
+	
+	// fov
+	float left;
+	float right;
+	float bottom;
+	float top;
 };
 

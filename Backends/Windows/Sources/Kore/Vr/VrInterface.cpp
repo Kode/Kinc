@@ -97,8 +97,8 @@ namespace Kore {
 			RegisterClassW(&wc);
 
 			// adjust the window size and show at InitDevice time
-			Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
-			//Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, 0, 0, 1000, 1000, GetDesktopWindow(), NULL, hInst, NULL);
+			//Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
+			Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, 0, 0, 1000, 1000, GetDesktopWindow(), NULL, hInstance, NULL);
 			if (!Window) return false;
 
 			SetWindowLongPtr(Window, 0, LONG_PTR(this));
@@ -122,6 +122,9 @@ namespace Kore {
 				ReleaseDevice();
 				ovr_Destroy(session);
 			}
+
+			// FloorLevel will give tracking poses where the floor height is 0
+			ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 
 			return true;
 		}
@@ -313,7 +316,7 @@ namespace Kore {
 			return Platform.Window;
 		}
 
-		SensorState getSensorState() {
+		SensorState* getSensorState() {
 
 			SensorState* sensorState = new SensorState();
 
@@ -330,33 +333,59 @@ namespace Kore {
 			ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyeRenderPose, &sensorSampleTime);
 			frameIndex++;
 
+			ovrSessionStatus sessionStatus;
+			ovr_GetSessionStatus(session, &sessionStatus);
+
 			VrPoseState* poseState[2];
 			poseState[0] = new VrPoseState();
 			poseState[1] = new VrPoseState();
 
-			for (int eye = 0; eye < 2; ++eye){
-				// Get view and projection matrices
-				/*Matrix4f rollPitchYaw = Matrix4f::RotationY(Yaw);
-				Matrix4f finalRollPitchYaw = rollPitchYaw * Matrix4f(EyeRenderPose[eye].Orientation);
-				Vector3f finalUp = finalRollPitchYaw.Transform(Vector3f(0, 1, 0));
-				Vector3f finalForward = finalRollPitchYaw.Transform(Vector3f(0, 0, -1));
-				Vector3f shiftedEyePos = Pos2 + rollPitchYaw.Transform(EyeRenderPose[eye].Position);
-
-				Matrix4f view = Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
-				Matrix4f proj = ovrMatrix4f_Projection(hmdDesc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);*/
-
+			for (int eye = 0; eye < 2; ++eye) {
 				ovrQuatf orientation = EyeRenderPose[eye].Orientation;
 				poseState[eye]->vrPose->orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
 				ovrVector3f pos = EyeRenderPose[eye].Position;
 				poseState[eye]->vrPose->position = vec3(pos.x, pos.y, pos.z);
 
+				ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
+				poseState[eye]->vrPose->left = fov.LeftTan;
+				poseState[eye]->vrPose->right = fov.RightTan;
+				poseState[eye]->vrPose->bottom = fov.DownTan;
+				poseState[eye]->vrPose->top = fov.UpTan;
 			}
 
+			// TODO: get angular and linear sensor data
 			//poseState->AngularAcceleration = 
 			sensorState->predicted = poseState[0];
+			sensorState->recorded = sensorState->predicted; // TODO: ist this necessary
 
-			return SensorState();
+			if (sessionStatus.IsVisible) sensorState->isVisible = true;
+			else sensorState->isVisible = false;
+			if (sessionStatus.HmdPresent) sensorState->hmdPresenting = true;
+			else sensorState->hmdPresenting = false;
+			if (sessionStatus.HmdMounted) sensorState->hmdMounted = true;
+			else sensorState->hmdMounted = false;
+			if (sessionStatus.DisplayLost) sensorState->displayLost = true;
+			else sensorState->displayLost = false;
+			if (sessionStatus.ShouldQuit) sensorState->shouldQuit = true;
+			else sensorState->shouldQuit = false;
+			if (sessionStatus.ShouldRecenter) sensorState->shouldRecenter = true;
+			else sensorState->shouldRecenter = false;
+
+			return sensorState;
+		}
+
+		void changeTrackingOrigin(bool standUp) {
+			if (standUp) {
+				ovr_SetTrackingOriginType(session, ovrTrackingOrigin_EyeLevel);
+			} else {
+				// FloorLevel will give tracking poses where the floor height is 0
+				ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
+			}
+		}
+
+		void recenterTracking() {
+			ovr_RecenterTrackingOrigin(session);
 		}
 	}
 }

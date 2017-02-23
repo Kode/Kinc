@@ -19,7 +19,12 @@ public:
 	// Sensor temperature reading, in degrees Celsius, as sample time.
 	float temperature;
 	
-	// Sensor status described by ovrStatusBits.
-	int status;
+	// Sensor status
+	bool isVisible;
+	bool hmdPresenting;
+	bool hmdMounted;
+	bool displayLost;
+	bool shouldQuit;
+	bool shouldRecenter;
 };
 
