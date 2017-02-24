@@ -22,7 +22,6 @@
 #include <linux/input.h>
 
 #include <X11/Xlib.h>
-#include <linux/input.h>
 
 // apt-get install libx11-dev
 
