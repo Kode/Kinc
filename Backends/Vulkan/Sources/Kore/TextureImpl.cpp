@@ -333,6 +333,10 @@ void Texture::unlock() {
 	vkUnmapMemory(device, texture.mem);
 }
 
+void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+
+}
+
 void Texture::generateMipmaps(int levels) {}
 
 void Texture::setMipmap(Texture* mipmap, int level) {}

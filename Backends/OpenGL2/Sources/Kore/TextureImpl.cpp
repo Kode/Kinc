@@ -397,6 +397,19 @@ void Texture::unlock() {
 	// }
 }
 
+void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+#ifdef GL_VERSION_4_4
+	static float clearColor[4];
+	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
+	clearColor[1] = ((color & 0x0000ff00) >> 8) / 255.0f;
+	clearColor[2] = (color & 0x000000ff) / 255.0f;
+	clearColor[3] = ((color & 0xff000000) >> 24) / 255.0f;
+	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	glBindTexture(target, texture);
+	glClearTexSubImage(texture, 0, x, y, z, width, height, depth, convertFormat(format), convertType(format), clearColor);
+#endif
+}
+
 #ifdef SYS_IOS
 void Texture::upload(u8* data) {
 	glBindTexture(GL_TEXTURE_2D, texture);
