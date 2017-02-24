@@ -19,6 +19,7 @@ namespace Kore {
 		void _set(TextureUnit unit);
 		u8* lock();
 		void unlock();
+		void clear(int x, int y, int z, int width, int height, int depth, uint color);
 #ifdef SYS_IOS
 		void upload(u8* data);
 #endif

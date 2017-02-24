@@ -156,6 +156,10 @@ void Texture::unlock() {
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 }
 
+void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+
+}
+
 int Texture::stride() {
 	return 1;
 }

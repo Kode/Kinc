@@ -120,6 +120,10 @@ void Texture::unlock() {
 	context->Unmap(texture, 0);
 }
 
+void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+
+}
+
 int Texture::stride() {
 	return format == Image::RGBA32 ? width * 4 : width; // TODO: Return mappedResource's stride
 }

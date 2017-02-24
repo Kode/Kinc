@@ -97,6 +97,10 @@ void Texture::unlock() {
 	affirm(texture->UnlockRect(0));
 }
 
+void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+
+}
+
 int Texture::stride() {
 	return pitch;
 }
