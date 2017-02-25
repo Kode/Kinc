@@ -396,32 +396,67 @@ bool Kore::System::handleMessages() {
 
 			set_bit(inputDevices[i].key_state, event.code, event.value);
 
-			if (event.code == 105) {
-				if (event.value == 1) {
-					Kore::Keyboard::the()->_keydown(Key_Left, ' ');
-				}
-				else if (event.value == 0) {
-					Kore::Keyboard::the()->_keyup(Key_Left, ' ');
-				}
+#define KEY(linuxkey, korekey, keychar)                         \
+    case linuxkey:                                              \
+        if (event.value == 1)                                   \
+            Kore::Keyboard::the()->_keydown(korekey, keychar);  \
+        else if (event.value == 0)                              \
+            Kore::Keyboard::the()->_keyup(korekey, keychar);    \
+		break;
+			switch(event.code) {
+			    KEY(KEY_RIGHT, Key_Right, ' ')
+			    KEY(KEY_LEFT, Key_Left, ' ')
+                KEY(KEY_UP, Key_Up, ' ')
+                KEY(KEY_DOWN, Key_Down, ' ')
+                KEY(KEY_SPACE, Key_Space, ' ')
+                KEY(KEY_BACKSPACE, Key_Backspace, ' ')
+                KEY(KEY_TAB, Key_Tab, ' ')
+                KEY(KEY_ENTER, Key_Enter, ' ')
+                KEY(KEY_LEFTSHIFT, Key_Shift, ' ')
+                KEY(KEY_RIGHTSHIFT, Key_Shift, ' ')
+                KEY(KEY_LEFTCTRL, Key_Control, ' ')
+                KEY(KEY_RIGHTCTRL, Key_Control, ' ')
+                KEY(KEY_LEFTALT, Key_Alt, ' ')
+                KEY(KEY_RIGHTALT, Key_Alt, ' ')
+                KEY(KEY_DELETE, Key_Delete, ' ')
+                KEY(KEY_A, Key_A, 'a')
+                KEY(KEY_B, Key_B, 'b')
+                KEY(KEY_C, Key_C, 'c')
+                KEY(KEY_D, Key_D, 'd')
+                KEY(KEY_E, Key_E, 'e')
+                KEY(KEY_F, Key_F, 'f')
+                KEY(KEY_G, Key_G, 'g')
+                KEY(KEY_H, Key_H, 'h')
+                KEY(KEY_I, Key_I, 'i')
+                KEY(KEY_J, Key_J, 'j')
+                KEY(KEY_K, Key_K, 'k')
+                KEY(KEY_L, Key_L, 'l')
+                KEY(KEY_M, Key_M, 'm')
+                KEY(KEY_N, Key_N, 'n')
+                KEY(KEY_O, Key_O, 'o')
+                KEY(KEY_P, Key_P, 'p')
+                KEY(KEY_Q, Key_Q, 'q')
+                KEY(KEY_R, Key_R, 'r')
+                KEY(KEY_S, Key_S, 's')
+                KEY(KEY_T, Key_T, 't')
+                KEY(KEY_U, Key_U, 'u')
+                KEY(KEY_V, Key_V, 'v')
+                KEY(KEY_W, Key_W, 'w')
+                KEY(KEY_X, Key_X, 'x')
+                KEY(KEY_Y, Key_Y, 'y')
+                KEY(KEY_Z, Key_Z, 'z')
+                KEY(KEY_1, Key_1, '1')
+                KEY(KEY_2, Key_2, '2')
+                KEY(KEY_3, Key_3, '3')
+                KEY(KEY_4, Key_4, '4')
+                KEY(KEY_5, Key_5, '5')
+                KEY(KEY_6, Key_6, '6')
+                KEY(KEY_7, Key_7, '7')
+                KEY(KEY_8, Key_8, '8')
+                KEY(KEY_9, Key_9, '9')
+                KEY(KEY_0, Key_0, '0')
 			}
-			if (event.code == 106) {
-				if (event.value == 1)
-					Kore::Keyboard::the()->_keydown(Key_Right, ' ');
-				else if (event.value == 0)
-					Kore::Keyboard::the()->_keyup(Key_Right, ' ');
-			}
-			if (event.code == 108) {
-				if (event.value == 1)
-					Kore::Keyboard::the()->_keydown(Key_Down, ' ');
-				else if (event.value == 0)
-					Kore::Keyboard::the()->_keyup(Key_Down, ' ');
-			}
-			if (event.code == 103) {
-				if (event.value == 1)
-					Kore::Keyboard::the()->_keydown(Key_Up, ' ');
-				else if (event.value == 0)
-					Kore::Keyboard::the()->_keyup(Key_Up, ' ');
-			}
+#undef KEY
 
 			// printf("Code %d Value %d\n", event.code, event.value);
 			readsize = read(inputDevices[i].fd, &event, sizeof(event));
