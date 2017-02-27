@@ -6,10 +6,6 @@
 
 #include "Kore/Log.h"
 
-#include "GL/CAPI_GLE.h"
-#include "Extras/OVR_Math.h"
-#include "OVR_CAPI_GL.h"
-
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
@@ -17,15 +13,86 @@
 
 namespace Kore {
 
+	OculusTexture::OculusTexture(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char * data, int sampleCount) :
+		session(session), textureChain(nullptr), texSize(size), renderTarget(nullptr) {
+		if (displayableOnHmd) {
+			ovrTextureSwapChainDesc desc = {};
+			desc.Type = ovrTexture_2D;
+			desc.ArraySize = 1;
+			desc.Width = size.w;
+			desc.Height = size.h;
+			desc.MipLevels = 1;
+			desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
+			desc.SampleCount = 1;
+			desc.StaticImage = ovrFalse;
+
+			int length = 0;
+			ovr_GetTextureSwapChainLength(session, textureChain, &length);
+
+			ovrResult result = ovr_CreateTextureSwapChainGL(session, &desc, &textureChain);
+			if (OVR_SUCCESS(result)) {
+				for (int i = 0; i < length; ++i) {
+					GLuint chainTexId;
+					ovr_GetTextureSwapChainBufferGL(session, textureChain, i, &chainTexId);
+					glBindTexture(GL_TEXTURE_2D, chainTexId);
+
+					// TODO: depthBufferBits?
+					renderTarget = new RenderTarget(texSize.w, texSize.h, 0);
+				}
+			}
+		}
+
+		if (mipLevels > 1) {
+			// TODO set
+			//renderTarget->
+		}
+	}
+
+	OculusTexture::~OculusTexture() {
+		if (textureChain) {
+			ovr_DestroyTextureSwapChain(session, textureChain);
+			textureChain = nullptr;
+		}
+		if (renderTarget) {
+			renderTarget = nullptr;
+		}
+	}
+
+	OVR::Sizei OculusTexture::getSize() const {
+		return texSize;
+	}
+
+	void OculusTexture::setAndClearRenderSurface() {
+		GLuint curTexId;
+		if (textureChain) {
+			int curIndex;
+			ovr_GetTextureSwapChainCurrentIndex(session, textureChain, &curIndex);
+			ovr_GetTextureSwapChainBufferGL(session, textureChain, curIndex, &curTexId);
+		}
+	}
+
+	void OculusTexture::commit() {
+		if (textureChain) {
+			ovr_CommitTextureSwapChain(session, textureChain);
+		}
+	}
+
+	ovrTextureSwapChain OculusTexture::getOculusTexture() {
+		return textureChain;
+	}
+	
+	//-------------------------------------------------------------------------------------------
+
 	ovrSession session;
 	ovrHmdDesc hmdDesc;
 	long long frameIndex;
 	ovrPosef EyeRenderPose[2];
 	double sensorSampleTime;
 
-	//-------------------------------------------------------------------------------------------
-	struct OGL
-	{
+	OculusTexture* eyeRenderTexture[2] = { nullptr, nullptr };
+	bool isVisible = true;
+
+	struct OGL {
 		HWND                    Window;
 		HDC                     hDC;
 		HGLRC                   WglContext;
@@ -37,11 +104,9 @@ namespace Kore {
 		GLuint                  fboId;
 		HINSTANCE               hInstance;
 
-		static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam)
-		{
+		static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
 			OGL *p = reinterpret_cast<OGL *>(GetWindowLongPtr(hWnd, 0));
-			switch (Msg)
-			{
+			switch (Msg) {
 			case WM_KEYDOWN:
 				p->Key[wParam] = true;
 				break;
@@ -54,8 +119,7 @@ namespace Kore {
 			default:
 				return DefWindowProcW(hWnd, Msg, wParam, lParam);
 			}
-			if ((p->Key['Q'] && p->Key[VK_CONTROL]) || p->Key[VK_ESCAPE])
-			{
+			if ((p->Key['Q'] && p->Key[VK_CONTROL]) || p->Key[VK_ESCAPE]) {
 				p->Running = false;
 			}
 			return 0;
@@ -70,21 +134,18 @@ namespace Kore {
 			WinSizeW(0),
 			WinSizeH(0),
 			fboId(0),
-			hInstance(nullptr)
-		{
+			hInstance(nullptr) {
 			// Clear input
 			for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
 				Key[i] = false;
 		}
 
-		~OGL()
-		{
+		~OGL() {
 			ReleaseDevice();
 			CloseWindow();
 		}
 
-		bool InitWindowAndDevice(HINSTANCE hInst, LPCWSTR title)
-		{
+		bool InitWindowAndDevice(HINSTANCE hInst, LPCWSTR title) {
 			// Init window
 			hInstance = hInst;
 			Running = true;
@@ -126,6 +187,19 @@ namespace Kore {
 			if (!InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
 				ReleaseDevice();
 				ovr_Destroy(session);
+				log(Info, "Failed to init device.");
+			}
+
+			// Make eye render buffers
+			for (int eye = 0; eye < 2; ++eye) {
+				ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
+				eyeRenderTexture[eye] = new OculusTexture(session, true, idealTextureSize, 1, NULL, 1);
+				
+				if (!eyeRenderTexture[eye]->getOculusTexture()) {
+					ReleaseDevice();
+					ovr_Destroy(session);
+					log(Info, "Failed to create texture.");
+				}
 			}
 
 			// FloorLevel will give tracking poses where the floor height is 0
@@ -134,12 +208,9 @@ namespace Kore {
 			return true;
 		}
 
-		void CloseWindow()
-		{
-			if (Window)
-			{
-				if (hDC)
-				{
+		void CloseWindow() {
+			if (Window) {
+				if (hDC) {
 					ReleaseDC(Window, hDC);
 					hDC = nullptr;
 				}
@@ -150,8 +221,7 @@ namespace Kore {
 		}
 
 		// Note: currently there is no way to get GL to use the passed pLuid
-		bool InitDevice(int vpW, int vpH, const LUID*, bool windowed = true)
-		{
+		bool InitDevice(int vpW, int vpH, const LUID*, bool windowed = true) {
 			UNREFERENCED_PARAMETER(windowed);
 
 			WinSizeW = vpW;
@@ -164,8 +234,7 @@ namespace Kore {
 				return false;
 
 			PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARBFunc = nullptr;
-			PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARBFunc = nullptr;
-			{
+			PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARBFunc = nullptr; {
 				// First create a context for the purpose of getting access to wglChoosePixelFormatARB / wglCreateContextAttribsARB.
 				PIXELFORMATDESCRIPTOR pfd;
 				memset(&pfd, 0, sizeof(pfd));
@@ -209,8 +278,7 @@ namespace Kore {
 			}
 
 			// Now create the real context that we will be using.
-			int iAttributes[] =
-			{
+			int iAttributes[] = {
 				// WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 				WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
 				WGL_COLOR_BITS_ARB, 32,
@@ -267,26 +335,12 @@ namespace Kore {
 			return true;
 		}
 
-		bool HandleMessages(void)
-		{
-			MSG msg;
-			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-			return Running;
-		}
-
-		void ReleaseDevice()
-		{
-			if (fboId)
-			{
+		void ReleaseDevice() {
+			if (fboId) {
 				glDeleteFramebuffers(1, &fboId);
 				fboId = 0;
 			}
-			if (WglContext)
-			{
+			if (WglContext) {
 				wglMakeCurrent(NULL, NULL);
 				wglDeleteContext(WglContext);
 				WglContext = nullptr;
@@ -303,7 +357,7 @@ namespace Kore {
 
 	namespace VrInterface {
 
-		void* Init(void* hinst) {
+		void* init(void* hinst) {
 			ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
 			ovrResult result = ovr_Initialize(&initParams);
 			if (!OVR_SUCCESS(result)) {
@@ -381,37 +435,43 @@ namespace Kore {
 			return sensorState;
 		}
 
-		void WarpSwap() {
+		void warpSwap() {
 			ovrLayerEyeFov ld;
 			ld.Header.Type = ovrLayerType_EyeFov;
 			ld.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;   // Because OpenGL.
 
-			for (int eye = 0; eye < 2; ++eye) {
-				//ld.ColorTexture[eye] = eyeRenderTexture[eye]->TextureChain; // TODO: set image
-				ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
-				ld.Viewport[eye] = OVR::Recti(idealTextureSize);
-				ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
-				ld.RenderPose[eye] = EyeRenderPose[eye];
-				ld.SensorSampleTime = sensorSampleTime;
+			if (isVisible) {
+				for (int eye = 0; eye < 2; ++eye) {
+					// Switch to eye render target
+					eyeRenderTexture[eye]->setAndClearRenderSurface();
+
+					ld.ColorTexture[eye] = eyeRenderTexture[eye]->getOculusTexture();
+					ld.Viewport[eye] = OVR::Recti(eyeRenderTexture[eye]->getSize());
+					ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
+					ld.RenderPose[eye] = EyeRenderPose[eye];
+					ld.SensorSampleTime = sensorSampleTime;
+
+					eyeRenderTexture[eye]->commit();
+				}
 			}
 
 			ovrLayerHeader* layers = &ld.Header;
 			ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
-			// exit the rendering loop if submit returns an error, will retry on ovrError_DisplayLost
-			if (!OVR_SUCCESS(result))
-
+			isVisible = (result == ovrSuccess);
 		}
 
-		void changeTrackingOrigin(bool standUp) {
-			if (standUp) {
-				ovr_SetTrackingOriginType(session, ovrTrackingOrigin_EyeLevel);
-			} else {
-				// FloorLevel will give tracking poses where the floor height is 0
-				ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
+		void updateTrackingOrigin(TrackingOrigin origin) {
+			switch (origin) {
+				case Stand:
+					ovr_SetTrackingOriginType(session, ovrTrackingOrigin_EyeLevel);
+				case Sit:
+					ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
+				default:
+					ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 			}
 		}
 
-		void recenterTracking() {
+		void resetHmdPose() {
 			ovr_RecenterTrackingOrigin(session);
 		}
 	}
