@@ -21,12 +21,16 @@ namespace Kore {
 		ovrTextureSwapChain		textureChain;
 		OVR::Sizei				texSize;
 		RenderTarget*			renderTarget;
+
+		GLuint					texId; // TODO: delete
+		GLuint					fboId;
 	
 	public:
 		OculusTexture(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char * data, int sampleCount);
 		~OculusTexture();
 		OVR::Sizei getSize() const;
-		void setAndClearRenderSurface();
+		void setAndClearRenderSurface(int texId);
+		void unsetRenderSurface();
 		void commit();
 		ovrTextureSwapChain getOculusTexture();
 
@@ -34,11 +38,13 @@ namespace Kore {
 
 	namespace VrInterface {
 		void* init(void* hinst);
-		SensorState* getSensorState();
+		void begin(int eye);
+		void end(int eye);
+		SensorState* getSensorState(int eye);
 		void warpSwap(/*kha::vr::TimeWarpParms_obj* parms*/);
 
-		void ovrShutdown();
 		void updateTrackingOrigin(TrackingOrigin origin);
 		void resetHmdPose();
+		void ovrShutdown();
 	}
 }
