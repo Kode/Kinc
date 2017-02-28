@@ -164,9 +164,6 @@ ovrTextureSwapChain OculusTexture::getOculusTexture() {
 
 ovrSession session;
 ovrHmdDesc hmdDesc;
-long frameIndex;
-ovrPosef EyeRenderPose[2];
-double sensorSampleTime;
 
 OculusTexture* eyeRenderTexture[2] = { nullptr, nullptr };
 DepthBuffer  * eyeDepthBuffer[2] = { nullptr, nullptr };
@@ -268,7 +265,7 @@ struct OGL {
 		// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
 		ovrSizei windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
 		if (!InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
-			//Platform.releaseAndDestroy();
+			ReleaseAndDestroy();
 			log(Info, "Failed to init device.");
 		}
 
@@ -279,8 +276,7 @@ struct OGL {
 			eyeDepthBuffer[eye] = new DepthBuffer(eyeRenderTexture[eye]->getSize(), 0);
 
 			if (!eyeRenderTexture[eye]->getOculusTexture()) {
-				ReleaseDevice();
-				ovr_Destroy(session);
+				ReleaseAndDestroy();
 				log(Info, "Failed to create texture.");
 			}
 		}
@@ -293,10 +289,8 @@ struct OGL {
 
 		// Create mirror texture and an FBO used to copy mirror texture to back buffer
 		result = ovr_CreateMirrorTextureGL(session, &desc, &mirrorTexture);
-		if (!OVR_SUCCESS(result))
-		{
-			ReleaseDevice();
-			ovr_Destroy(session);
+		if (!OVR_SUCCESS(result)) {
+			ReleaseAndDestroy();
 			log(Info, "Failed to create mirror texture.");
 		}
 
@@ -460,6 +454,17 @@ struct OGL {
 		GLEContext.Shutdown();
 	}
 
+	void ReleaseAndDestroy() {
+		if (mirrorFBO) glDeleteFramebuffers(1, &mirrorFBO);
+		if (mirrorTexture) ovr_DestroyMirrorTexture(session, mirrorTexture);
+		for (int eye = 0; eye < 2; ++eye) {
+			delete eyeRenderTexture[eye];
+			delete eyeDepthBuffer[eye];
+		}
+		ReleaseDevice();
+		ovr_Destroy(session);
+	}
+
 };
 
 // Global OpenGL state
@@ -468,16 +473,10 @@ static OGL Platform;
 //------------------------------------------------------------------------------
 
 namespace {
-	void releaseAndDestroy() {
-		if (mirrorFBO) glDeleteFramebuffers(1, &mirrorFBO);
-		if (mirrorTexture) ovr_DestroyMirrorTexture(session, mirrorTexture);
-		for (int eye = 0; eye < 2; ++eye) {
-			delete eyeRenderTexture[eye];
-			delete eyeDepthBuffer[eye];
-		}
-		Platform.ReleaseDevice();
-		ovr_Destroy(session);
-	}
+	ovrTrackingState trackingState;
+	ovrPosef eyeRenderPose[2];
+	long frameIndex;
+	double sensorSampleTime;
 }
 
 void* VrInterface::init(void* hinst) {
@@ -506,10 +505,14 @@ void VrInterface::begin(int eye) {
 	ovrVector3f HmdToEyeOffset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
 
 	// Get predicted eye pose
-	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyeRenderPose, &sensorSampleTime);
+	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, eyeRenderPose, &sensorSampleTime);
 
 	// Switch to eye render target
 	eyeRenderTexture[eye]->setAndClearRenderSurface(eyeDepthBuffer[eye]->texId);
+
+	// Ask the API for the times when this frame is expected to be displayed. 
+	int frameTiming = ovr_GetPredictedDisplayTime(session, frameIndex);
+	trackingState = ovr_GetTrackingState(session, frameTiming, ovrFalse);
 }
 
 void VrInterface::end(int eye) {
@@ -522,10 +525,10 @@ SensorState* VrInterface::getSensorState(int eye) {
 	SensorState* sensorState = new SensorState();
 	VrPoseState* poseState = new VrPoseState();
 
-	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
+	ovrQuatf orientation = eyeRenderPose[eye].Orientation;
 	poseState->vrPose->orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
-	ovrVector3f pos = EyeRenderPose[eye].Position;
+	ovrVector3f pos = eyeRenderPose[eye].Position;
 	poseState->vrPose->position = vec3(pos.x, pos.y, pos.z);
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
@@ -534,11 +537,10 @@ SensorState* VrInterface::getSensorState(int eye) {
 	poseState->vrPose->bottom = fov.DownTan;
 	poseState->vrPose->top = fov.UpTan;
 
-	ovrTrackingState ts = ovr_GetTrackingState(session, 0.0, ovrFalse);
-	ovrVector3f  angularVelocity = ts.HeadPose.AngularVelocity;
-	ovrVector3f  linearVelocity = ts.HeadPose.LinearVelocity;
-	ovrVector3f  angularAcceleration = ts.HeadPose.AngularAcceleration;
-	ovrVector3f  linearAcceleration = ts.HeadPose.LinearAcceleration;
+	ovrVector3f  angularVelocity = trackingState.HeadPose.AngularVelocity;
+	ovrVector3f  linearVelocity = trackingState.HeadPose.LinearVelocity;
+	ovrVector3f  angularAcceleration = trackingState.HeadPose.AngularAcceleration;
+	ovrVector3f  linearAcceleration = trackingState.HeadPose.LinearAcceleration;
 	poseState->angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
 	poseState->linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
 	poseState->angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
@@ -574,13 +576,8 @@ void VrInterface::warpSwap() {
 		for (int eye = 0; eye < 2; ++eye) {
 			ld.ColorTexture[eye] = eyeRenderTexture[eye]->getOculusTexture();
 			ld.Viewport[eye] = OVR::Recti(eyeRenderTexture[eye]->getSize());
-			/*if (eye == 0) {
-				ld.Viewport[0] = OVR::Recti(0, 0, windowSize.w / 2, windowSize.h);
-			} else {
-				ld.Viewport[1] = OVR::Recti(windowSize.w / 2, 0, windowSize.w / 2, windowSize.h);
-			}*/
 			ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
-			ld.RenderPose[eye] = EyeRenderPose[eye];
+			ld.RenderPose[eye] = eyeRenderPose[eye];
 			ld.SensorSampleTime = sensorSampleTime;
 		}
 	}
@@ -588,12 +585,10 @@ void VrInterface::warpSwap() {
 	ovrLayerHeader* layers = &ld.Header;
 	ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
 	if (!OVR_SUCCESS(result)) {
-		releaseAndDestroy();
 		isVisible = false;
 	}
 
-	//frameIndex++;
-	ovr_GetPredictedDisplayTime(session, frameIndex);
+	frameIndex++;
 
 	// Blit mirror texture to back buffer
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
