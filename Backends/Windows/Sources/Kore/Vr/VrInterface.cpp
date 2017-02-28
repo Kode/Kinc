@@ -534,6 +534,17 @@ SensorState* VrInterface::getSensorState(int eye) {
 	poseState->vrPose->bottom = fov.DownTan;
 	poseState->vrPose->top = fov.UpTan;
 
+	ovrTrackingState ts = ovr_GetTrackingState(session, 0.0, ovrFalse);
+	ovrVector3f  angularVelocity = ts.HeadPose.AngularVelocity;
+	ovrVector3f  linearVelocity = ts.HeadPose.LinearVelocity;
+	ovrVector3f  angularAcceleration = ts.HeadPose.AngularAcceleration;
+	ovrVector3f  linearAcceleration = ts.HeadPose.LinearAcceleration;
+	poseState->angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
+	poseState->linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
+	poseState->angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
+	poseState->linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
+	sensorState->pose = poseState;
+
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
 	if (sessionStatus.IsVisible) sensorState->isVisible = true;
@@ -548,11 +559,6 @@ SensorState* VrInterface::getSensorState(int eye) {
 	else sensorState->shouldQuit = false;
 	if (sessionStatus.ShouldRecenter) sensorState->shouldRecenter = true;
 	else sensorState->shouldRecenter = false;
-
-	// TODO: get angular and linear sensor data
-	//poseState->AngularAcceleration = 
-	sensorState->predicted = poseState;
-	sensorState->recorded = sensorState->predicted; // TODO: ist this necessary
 
 	return sensorState;
 }
@@ -580,13 +586,14 @@ void VrInterface::warpSwap() {
 	}
 
 	ovrLayerHeader* layers = &ld.Header;
-	ovrResult result = ovr_SubmitFrame(session, 0, nullptr, &layers, 1);
+	ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
 	if (!OVR_SUCCESS(result)) {
 		releaseAndDestroy();
 		isVisible = false;
 	}
 
-	frameIndex++;
+	//frameIndex++;
+	ovr_GetPredictedDisplayTime(session, frameIndex);
 
 	// Blit mirror texture to back buffer
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
@@ -600,11 +607,14 @@ void VrInterface::warpSwap() {
 void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {
 	switch (origin) {
 	case Stand:
-		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_EyeLevel);
-	case Sit:
 		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
+		break;
+	case Sit:
+		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_EyeLevel);
+		break;
 	default:
 		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
+		break;
 	}
 }
 
