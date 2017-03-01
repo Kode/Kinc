@@ -96,12 +96,17 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
 
+    // Enable vertex attributes
+    unsigned int usedAttribsMask = 0;
+
 	int internaloffset = 0;
 	int actualIndex = 0;
+
 	for (int index = 0; index < structure.size; ++index) {
 		VertexElement element = structure.elements[index];
 		int    size = 0;
 		GLenum type = GL_FLOAT;
+
 		switch (element.data) {
 		case ColorVertexData:
 			size = 4;
@@ -123,39 +128,6 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			size = 16;
 			break;
 		}
-
-        #if 0
-
-		if (size > 4) {
-			int subsize = size;
-			int addonOffset = 0;
-			while (subsize > 0) {
-				glEnableVertexAttribArray(offset + actualIndex);
-				glCheckErrors();
-				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, (void*)(internaloffset + addonOffset));
-				glCheckErrors();
-/*#ifndef OPENGLES
-				glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
-				glCheckErrors();
-#endif*/
-				subsize -= 4;
-				addonOffset += 4 * 4;
-				++actualIndex;
-			}
-		}
-		else {
-			glEnableVertexAttribArray(offset + actualIndex);
-			glCheckErrors();
-			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, (void*)internaloffset);
-			glCheckErrors();
-/*#ifndef OPENGLES
-			glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
-			glCheckErrors();
-#endif*/
-			++actualIndex;
-		}
-        
-        #else
 
         switch (element.attribute) {
             case VertexCoord:
@@ -200,9 +172,8 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
                 break;
         }
 
+        usedAttribsMask |= (1u << element.attribute);
         ++actualIndex;
-
-        #endif
 
 		switch (element.data) {
 		case ColorVertexData:
@@ -225,9 +196,45 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			break;
 		}
 	}
-	for (int index = actualIndex; index < 16; ++index) {
-		//glDisableVertexAttribArray(offset + index);
+
+    // Disable unused vertex attributes
+	for (int attrib = VertexCoord; attrib <= VertexTexCoord7; ++attrib) {
+        if ((usedAttribsMask & (1u << attrib)) == 0) {
+            switch (attrib) {
+                case VertexCoord:
+                    glDisableClientState(GL_VERTEX_ARRAY);
+                    break;
+
+                case VertexNormal:
+                    glDisableClientState(GL_NORMAL_ARRAY);
+                    break;
+
+                case VertexColor0:
+                    glDisableClientState(GL_COLOR_ARRAY);
+                    break;
+
+                case VertexColor1:
+                    glDisableClientState(GL_SECONDARY_COLOR_ARRAY);
+                    break;
+
+                case VertexTexCoord0:
+                case VertexTexCoord1:
+                case VertexTexCoord2:
+                case VertexTexCoord3:
+                case VertexTexCoord4:
+                case VertexTexCoord5:
+                case VertexTexCoord6:
+                case VertexTexCoord7:
+                    glClientActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(attrib - VertexTexCoord0));
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    break;
+
+                default:
+                    break;
+            }
+        }
 		glCheckErrors();
 	}
+
 	return actualIndex;
 }
