@@ -233,55 +233,6 @@ bool Graphics3::vsynced() {
 	return true;
 }
 
-#if 0
-
-void Graphics3::setBool(ConstantLocation location, bool value) {
-	glUniform1i(location.location, value ? 1 : 0);
-	glCheckErrors();
-}
-
-void Graphics3::setInt(ConstantLocation location, int value) {
-	glUniform1i(location.location, value);
-	glCheckErrors();
-}
-
-void Graphics3::setFloat(ConstantLocation location, float value) {
-	glUniform1f(location.location, value);
-	glCheckErrors();
-}
-
-void Graphics3::setFloat2(ConstantLocation location, float value1, float value2) {
-	glUniform2f(location.location, value1, value2);
-	glCheckErrors();
-}
-
-void Graphics3::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	glUniform3f(location.location, value1, value2, value3);
-	glCheckErrors();
-}
-
-void Graphics3::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	glUniform4f(location.location, value1, value2, value3, value4);
-	glCheckErrors();
-}
-
-void Graphics3::setFloats(ConstantLocation location, float* values, int count) {
-	glUniform1fv(location.location, count, values);
-	glCheckErrors();
-}
-
-void Graphics3::setMatrix(ConstantLocation location, const mat4& value) {
-	glUniformMatrix4fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
-	glCheckErrors();
-}
-
-void Graphics3::setMatrix(ConstantLocation location, const mat3& value) {
-	glUniformMatrix3fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
-	glCheckErrors();
-}
-
-#endif
-
 static void invertMatrixEntry(mat4& m, int row, int col)
 {
     m.Set(row, col, -m.get(row, col));
@@ -363,41 +314,12 @@ void Graphics3::drawIndexedVertices(int start, int count) {
 #endif
     glCheckErrors();
 #else
-    #if 0
-	if (programUsesTessellation) {
-		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
-		glCheckErrors();
-	}
-	else
-    #endif
     {
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
 		glCheckErrors();
 	}
 #endif
 }
-
-#if 0
-
-void Graphics3::drawIndexedVerticesInstanced(int instanceCount) {
-	drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
-}
-
-void Graphics3::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-#ifndef OPENGLES
-	int indices[3] = { 0, 1, 2 };
-	if (programUsesTessellation) {
-		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
-		glCheckErrors();
-	}
-	else {
-		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
-		glCheckErrors();
-	}
-#endif
-}
-
-#endif
 
 void Graphics3::swapBuffers(int contextId) {
 #ifdef SYS_WINDOWS
@@ -890,22 +812,10 @@ void Graphics3::setRenderState(RenderState state, float value) {
 	}
 }
 
-//TODO: "vertex arrays" are not supported in OpenGL 1.x
-// -> replace "glBindVertexArray" with "glBindBuffer" and several calls to "gl
+// "vertex arrays" are not supported in OpenGL 1.x
+// -> "glBindVertexArray" replaced with "glBindBuffer" and several calls to "gl[...]Pointer" 
+// -> see VertexBufferImpl::setVertexAttributes
 void Graphics3::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
-    #if 0 //TODO: glBindVertexArray not supported in GL 1.x
-
-    #if defined(SYS_IOS)
-	glBindVertexArrayOES(arrayId[0]);
-    #elif defined(SYS_OSX)
-    glBindVertexArrayAPPLE(arrayId[System::currentDevice()]);
-    #elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN) && !defined(SYS_PI)
-	glBindVertexArray(arrayId[System::currentDevice()]);
-    #endif
-    glCheckErrors();
-
-    #endif
-
 	int offset = 0;
 	for (int i = 0; i < count; ++i) {
 		offset += vertexBuffers[i]->_set(offset);

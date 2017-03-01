@@ -190,9 +190,9 @@ namespace Kore {
 	};
 
 	namespace Graphics3 {
-        #if 0 //TODO: this must be removed
 
-		void setBool(ConstantLocation location, bool value);
+        // Shader constants not supported in OpenGL 1.X
+		/*void setBool(ConstantLocation location, bool value);
 		void setInt(ConstantLocation location, int value);
 		void setFloat(ConstantLocation location, float value);
 		void setFloat2(ConstantLocation location, float value1, float value2);
@@ -203,11 +203,9 @@ namespace Kore {
 		void setFloat4(ConstantLocation location, vec4 value);
 		void setFloats(ConstantLocation location, float* values, int count);
 		void setMatrix(ConstantLocation location, const mat3& value);
-		void setMatrix(ConstantLocation location, const mat4& value);
+		void setMatrix(ConstantLocation location, const mat4& value);*/
 
-        #endif
-
-        #if 1 //TODO: this must be included
+        // Fixed-function features (OpenGL 1.X) {
 
         void setLight(Light* light, int num = 0);
 
@@ -217,7 +215,7 @@ namespace Kore {
         void setWorldMatrix(const mat4& value);
         void setProjectionMatrix(const mat4& value);
 
-        #endif
+        // } /Fixed-function features
 
 		void setVertexBuffer(VertexBuffer& vertexBuffer);
 		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
@@ -227,10 +225,9 @@ namespace Kore {
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
 
-        #if 0//TODO: this must be removed (OpenGL1 does not support hardware instancing)
-		void drawIndexedVerticesInstanced(int instanceCount);
-		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
-        #endif
+        // OpenGL 1.X does not support hardware instancing
+		/*void drawIndexedVerticesInstanced(int instanceCount);
+		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);*/
 
 		void changeResolution(int width, int height);
 		bool hasWindow();
@@ -256,10 +253,15 @@ namespace Kore {
 		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask = 0, int writeMask = 0);
         
         //NEW: material states
+        
+        // Fixed-function material states (OpenGL 1.X) {
+
         void setMaterialState(MaterialState state, const vec4& value);
         void setMaterialState(MaterialState state, float value);
 		void setTextureMapping(TextureUnit texunit, TextureMapping mapping, bool on);
         void setTexCoordGeneration(TextureUnit texunit, TextureCoordinate texcoord, TexCoordGeneration generation);
+
+        // } /Fixed-function material states
 
 		void setRenderState(RenderState state, bool on);
 		void setRenderState(RenderState state, int v);
