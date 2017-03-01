@@ -152,7 +152,12 @@ void ImageShaderPainter::drawBuffer() {
 	Graphics::setTextureMinificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
 	Graphics::setTextureMagnificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);
 	Graphics::setTextureMipmapFilter(textureLocation, NoMipFilter);
+
+    #ifdef OPENGL_1_X
+    Graphics::setProjectionMatrix(projectionMatrix);
+    #else
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
+    #endif
 
 	Graphics::setRenderState(DepthTest, false);
 
@@ -407,7 +412,12 @@ void ColoredShaderPainter::drawBuffer(bool trisDone) {
 	shaderPipeline->set();
 	Graphics::setVertexBuffer(*rectVertexBuffer);
 	Graphics::setIndexBuffer(*indexBuffer);
+
+    #ifdef OPENGL_1_X
+    Graphics::setProjectionMatrix(projectionMatrix);
+    #else
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
+    #endif
 
 	Graphics::setRenderState(DepthTest, false);
 
@@ -423,7 +433,12 @@ void ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
 	triangleVertexBuffer->unlock();
 	Graphics::setVertexBuffer(*triangleVertexBuffer);
 	Graphics::setIndexBuffer(*triangleIndexBuffer);
+
+    #ifdef OPENGL_1_X
+    Graphics::setProjectionMatrix(projectionMatrix);
+    #else
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
+    #endif
 
 	Graphics::setRenderState(DepthTest, false);
 	shaderPipeline->set();
@@ -620,7 +635,13 @@ void TextShaderPainter::drawBuffer() {
 	Graphics::setVertexBuffer(*rectVertexBuffer);
 	Graphics::setIndexBuffer(*indexBuffer);
 	Graphics::setTexture(textureLocation, lastTexture);
+
+    #ifdef OPENGL_1_X
+    Graphics::setProjectionMatrix(projectionMatrix);
+    #else
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
+    #endif
+
 	Graphics::setTextureAddressing(textureLocation, U, Clamp);
 	Graphics::setTextureAddressing(textureLocation, V, Clamp);
 	Graphics::setTextureMinificationFilter(textureLocation, bilinear ? LinearFilter : PointFilter);

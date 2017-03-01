@@ -1,22 +1,14 @@
 #pragma once
 
-#ifdef OPENGL_1_X
-
-#include "Graphics3.h"
-
-namespace Kore {
-    namespace Graphics = Graphics3;
-}
-
-#else
-
 #include "Image.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "VertexStructure.h"
-#include <Kore/GraphicsImpl.h>
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
+#include <Kore/GraphicsImpl.h>
+#include "Shader.h"
+#include "Light.h"
+#include "Color.h"
+#include "VertexStructure.h"
+#include "Texture.h"
 
 namespace Kore {
 	class VertexBuffer : public VertexBufferImpl {
@@ -28,7 +20,7 @@ namespace Kore {
 		void unlock();
 		int count();
 		int stride();
-		int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers
+		int _set(int offset = 0); // Do not call this directly, use Graphics3::setVertexBuffers
 	};
 
 	class IndexBuffer : public IndexBufferImpl {
@@ -41,27 +33,60 @@ namespace Kore {
 		void _set();
 	};
 
-	enum TextureAddressing { Repeat, Mirror, Clamp, Border };
+	enum TextureAddressing {
+		Repeat,
+		Mirror,
+		Clamp,
+		Border
+	};
 
-	enum TextureFilter { PointFilter, LinearFilter, AnisotropicFilter };
+	enum TextureFilter {
+		PointFilter,
+		LinearFilter,
+		AnisotropicFilter
+	};
 
 	enum MipmapFilter {
 		NoMipFilter,
 		PointMipFilter,
-		LinearMipFilter // linear texture filter + linear mip filter -> trilinear filter
+		LinearMipFilter //linear texture filter + linear mip filter -> trilinear filter
 	};
 
 	enum RenderState {
-		BlendingState,
-		DepthTest,
-		DepthTestCompare,
-		/*Lighting,*/ DepthWrite,
-		Normalize,
-		BackfaceCulling,
-		/*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
+        AlphaReferenceState,
 		AlphaTestState,
-		AlphaReferenceState
+        BackfaceCulling,
+		BlendingState,
+        DepthTest,
+        DepthTestCompare,
+        DepthWrite,
+        FogState,       // fixed function fog state
+        FogStart,       // fixed function fog start
+        FogEnd,         // fixed function fog end
+        FogDensity,     // fixed function fog density
+        FogType,        // fixed function fog type
+        FogColor,       // fixed function fog color
+        Lighting,       // fixed function lighting state
+        Normalize,
+        ScissorTestState,
 	};
+
+    //NEW: material states (fixed-function material)
+    enum MaterialState {
+        AmbientColor,
+        DiffuseColor,
+        SpecularColor,
+        EmissionColor,
+        ShininessExponent,
+    };
+
+    //NEW: texture mappings
+    enum TextureMapping {
+        Texture1D,
+        Texture2D,
+        Texture3D,
+        TextureCubeMap,
+    };
 
 	enum BlendingOperation {
 		BlendOne,
@@ -87,25 +112,73 @@ namespace Kore {
 		ZCompareGreaterEqual
 	};
 
-	enum CullMode { Clockwise, CounterClockwise, NoCulling };
+	enum CullMode {
+		Clockwise,
+		CounterClockwise,
+		NoCulling
+	};
 
-	enum TexDir { U, V };
+	enum TexDir {
+		U, V
+	};
 
-	enum FogType { LinearFog };
+	enum FogType {
+		LinearFog,
+        ExpFog,
+        Exp2Fog,
+	};
 
-	enum RenderTargetFormat { Target32Bit, Target64BitFloat, Target32BitRedFloat, Target128BitFloat, Target16BitDepth };
+	enum RenderTargetFormat {
+		Target32Bit,
+		Target64BitFloat,
+		Target32BitRedFloat,
+		Target128BitFloat,
+		Target16BitDepth
+	};
 
-	enum StencilAction { Keep, Zero, Replace, Increment, IncrementWrap, Decrement, DecrementWrap, Invert };
+	enum StencilAction {
+		Keep,
+		Zero,
+		Replace,
+		Increment,
+		IncrementWrap,
+		Decrement,
+		DecrementWrap,
+		Invert
+	};
 
-	enum TextureOperation { ModulateOperation, SelectFirstOperation, SelectSecondOperation };
+	enum TextureOperation {
+		ModulateOperation,
+		SelectFirstOperation,
+		SelectSecondOperation
+	};
 
-	enum TextureArgument { CurrentColorArgument, TextureColorArgument };
+	enum TextureArgument {
+		CurrentColorArgument,
+		TextureColorArgument
+	};
+
+    //NEW: texture coordinate generation
+    enum TexCoordGeneration {
+        TexGenDisabled,
+        TexGenObjectLinear,
+        TexGenViewLinear,
+        TexGenSphereMap,
+        TexGenNormalMap,
+        TexGenReflectionMap,
+    };
+
+    //NEW: texture coordinate components
+    enum TextureCoordinate {
+        TexCoordX, // Texture X-coordinate (also called S-coordinate).
+        TexCoordY, // Texture Y-coordinate (also called T-coordinate).
+        TexCoordZ, // Texture Z-coordinate (also called R-coordinate).
+        TexCoordW, // Texture W-coordinate (also called Q-coordinate).
+    };
 
 	class RenderTarget : public RenderTargetImpl {
 	public:
-		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
-		             int contextId = 0);
-		~RenderTarget();
+		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1, int contextId = 0);
 		int width;
 		int height;
 		int texWidth;
@@ -116,7 +189,9 @@ namespace Kore {
 		void setDepthStencilFrom(RenderTarget* source);
 	};
 
-	namespace Graphics {
+	namespace Graphics3 {
+        #if 0 //TODO: this must be removed
+
 		void setBool(ConstantLocation location, bool value);
 		void setInt(ConstantLocation location, int value);
 		void setFloat(ConstantLocation location, float value);
@@ -127,19 +202,35 @@ namespace Kore {
 		void setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4);
 		void setFloat4(ConstantLocation location, vec4 value);
 		void setFloats(ConstantLocation location, float* values, int count);
-		void setFloat4s(ConstantLocation location, float* values, int count);
 		void setMatrix(ConstantLocation location, const mat3& value);
 		void setMatrix(ConstantLocation location, const mat4& value);
+
+        #endif
+
+        #if 1 //TODO: this must be included
+
+        void setLight(Light* light, int num = 0);
+
+        void setFogColor(const Color& color);
+
+        void setViewMatrix(const mat4& value);
+        void setWorldMatrix(const mat4& value);
+        void setProjectionMatrix(const mat4& value);
+
+        #endif
 
 		void setVertexBuffer(VertexBuffer& vertexBuffer);
 		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
 		void setIndexBuffer(IndexBuffer& indexBuffer);
 		void setTexture(TextureUnit unit, Texture* texture);
-
+	
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
+
+        #if 0//TODO: this must be removed (OpenGL1 does not support hardware instancing)
 		void drawIndexedVerticesInstanced(int instanceCount);
 		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
+        #endif
 
 		void changeResolution(int width, int height);
 		bool hasWindow();
@@ -162,8 +253,13 @@ namespace Kore {
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();
-		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-		                          int readMask = 0, int writeMask = 0);
+		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask = 0, int writeMask = 0);
+        
+        //NEW: material states
+        void setMaterialState(MaterialState state, const vec4& value);
+        void setMaterialState(MaterialState state, float value);
+		void setTextureMapping(TextureUnit texunit, TextureMapping mapping, bool on);
+        void setTexCoordGeneration(TextureUnit texunit, TextureCoordinate texcoord, TexCoordGeneration generation);
 
 		void setRenderState(RenderState state, bool on);
 		void setRenderState(RenderState state, int v);
@@ -173,7 +269,6 @@ namespace Kore {
 		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		void setBlendingMode(BlendingOperation source, BlendingOperation destination);
-		void setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
 		void setColorMask(bool red, bool green, bool blue, bool alpha);
 
@@ -181,15 +276,8 @@ namespace Kore {
 		unsigned refreshRate();
 		bool nonPow2TexturesSupported();
 
-		// Occlusion Query
-		bool initOcclusionQuery(uint* occlusionQuery);
-		void deleteOcclusionQuery(uint occlusionQuery);
-		void renderOcclusionQuery(uint occlusionQuery, int triangles);
-		bool isQueryResultsAvailable(uint occlusionQuery);
-		void getQueryResults(uint occlusionQuery, uint* pixelCount);
-
-		const uint ClearColorFlag = 1;
-		const uint ClearDepthFlag = 2;
+		const uint ClearColorFlag   = 1;
+		const uint ClearDepthFlag   = 2;
 		const uint ClearStencilFlag = 4;
 
 		void clear(uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
@@ -202,5 +290,3 @@ namespace Kore {
 		void flush();
 	};
 }
-
-#endif
