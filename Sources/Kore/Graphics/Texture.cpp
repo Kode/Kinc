@@ -22,3 +22,7 @@ Texture::Texture(void* data, int size, const char* format, bool readable) {
 	Image::init(reader, format, readable);
 	init(format, readable);
 }
+
+Texture::Texture(void* data, int width, int height, int format, bool readable) : Image(data, width, height, Image::Format(format), readable) {
+	init("", readable);
+}
