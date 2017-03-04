@@ -244,7 +244,7 @@ void Image::init(Kore::Reader& file, const char* format, bool readable) {
 
 Image::~Image() {
 	if (readable) {
-		if (format == RGBA128) {
+		if (format == RGBA128 || format == RGBA64 || format == A32) {
 			delete[] hdrData;
 			hdrData = nullptr;
 		}
