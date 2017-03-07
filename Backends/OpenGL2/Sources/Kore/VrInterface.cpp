@@ -1,23 +1,24 @@
 #include "pch.h"
 
-#include "VrInterface.h"
+#include <Kore/Vr/VrInterface.h>
 
 #ifdef VR_RIFT
 
-#include "Kore/Log.h"
+#include <Kore/Graphics/Graphics.h>
+#include <Kore/Log.h>
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
+#include "GL/CAPI_GLE.h"
+#include "Extras/OVR_Math.h"
+#include "OVR_CAPI_GL.h"
 #include <assert.h>
 
 using namespace Kore;
+
 //---------------------------------------------------------------------------------------
 struct DepthBuffer {
 	GLuint        texId;
 
-	DepthBuffer(OVR::Sizei size, int sampleCount)
-	{
+	DepthBuffer(OVR::Sizei size, int sampleCount) {
 		UNREFERENCED_PARAMETER(sampleCount);
 
 		assert(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
@@ -38,151 +39,143 @@ struct DepthBuffer {
 
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, size.w, size.h, 0, GL_DEPTH_COMPONENT, type, NULL);
 	}
-	~DepthBuffer()
-	{
-		if (texId)
-		{
+
+	~DepthBuffer() {
+		if (texId) {
 			glDeleteTextures(1, &texId);
 			texId = 0;
 		}
 	}
 };
 
-OculusTexture::OculusTexture(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char * data, int sampleCount) :
-	session(session), textureChain(nullptr), texSize(size), texId(0), fboId(0), renderTarget(nullptr) {
+//--------------------------------------------------------------------------
+struct TextureBuffer {
+	ovrSession Session;
+	ovrTextureSwapChain TextureChain;
+	GLuint texId;
+	GLuint fboId;
+	OVR::Sizei texSize;
 
-	UNREFERENCED_PARAMETER(sampleCount);
+	RenderTarget* RenderTarget;
 
-	assert(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
+	TextureBuffer(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char * data, int sampleCount) :
+		Session(session), TextureChain(nullptr), texId(0), fboId(0), texSize(size), RenderTarget(nullptr) {
+		UNREFERENCED_PARAMETER(sampleCount);
 
-	if (displayableOnHmd) {
-		assert(session); // No HMD? A little odd.
-		assert(sampleCount == 1); // ovr_CreateSwapTextureSetD3D11 doesn't support MSAA.
+		assert(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
 
-		ovrTextureSwapChainDesc desc = {};
-		desc.Type = ovrTexture_2D;
-		desc.ArraySize = 1;
-		desc.Width = size.w;
-		desc.Height = size.h;
-		desc.MipLevels = 1;
-		desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-		desc.SampleCount = 1;
-		desc.StaticImage = ovrFalse;
+		if (displayableOnHmd) {
+			// This texture isn't necessarily going to be a rendertarget, but it usually is.
+			assert(session); // No HMD? A little odd.
+			assert(sampleCount == 1); // ovr_CreateSwapTextureSetD3D11 doesn't support MSAA.
 
-		ovrResult result = ovr_CreateTextureSwapChainGL(session, &desc, &textureChain);
+			ovrTextureSwapChainDesc desc = {};
+			desc.Type = ovrTexture_2D;
+			desc.ArraySize = 1;
+			desc.Width = size.w;
+			desc.Height = size.h;
+			desc.MipLevels = 1;
+			desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
+			desc.SampleCount = 1;
+			desc.StaticImage = ovrFalse;
 
-		int length = 0;
-		ovr_GetTextureSwapChainLength(session, textureChain, &length);
+			ovrResult result = ovr_CreateTextureSwapChainGL(Session, &desc, &TextureChain);
 
-		if (OVR_SUCCESS(result)) {
-			for (int i = 0; i < length; ++i) {
-				GLuint chainTexId;
-				ovr_GetTextureSwapChainBufferGL(session, textureChain, i, &chainTexId);
-				glBindTexture(GL_TEXTURE_2D, chainTexId);
+			int length = 0;
+			ovr_GetTextureSwapChainLength(session, TextureChain, &length);
 
-				// TODO: depthBufferBits?
-				//renderTarget = new RenderTarget(texSize.w, texSize.h, 0);
+			if (OVR_SUCCESS(result)) {
+				for (int i = 0; i < length; ++i) {
+					GLuint chainTexId;
+					ovr_GetTextureSwapChainBufferGL(Session, TextureChain, i, &chainTexId);
+					glBindTexture(GL_TEXTURE_2D, chainTexId);
 
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+					//renderTarget = new RenderTarget(texSize.w, texSize.h, 0); TODO
+
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				}
 			}
+		}
+
+		if (mipLevels > 1) {
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+
+		glGenFramebuffers(1, &fboId);
+	}
+
+	~TextureBuffer() {
+		if (TextureChain) {
+			ovr_DestroyTextureSwapChain(Session, TextureChain);
+			TextureChain = nullptr;
+		}
+		if (texId) {
+			glDeleteTextures(1, &texId);
+			texId = 0;
+		}
+		if (fboId) {
+			glDeleteFramebuffers(1, &fboId);
+			fboId = 0;
+		}
+		if (RenderTarget) {
+			RenderTarget = nullptr;
 		}
 	}
 
-	if (mipLevels > 1) {
-		// TODO set
-		glGenerateMipmap(GL_TEXTURE_2D);
+	OVR::Sizei GetSize() const {
+		return texSize;
 	}
 
-	glGenFramebuffers(1, &fboId);
-}
+	void SetAndClearRenderSurface(DepthBuffer* dbuffer) {
+		GLuint curTexId;
+		if (TextureChain) {
+			int curIndex;
+			ovr_GetTextureSwapChainCurrentIndex(Session, TextureChain, &curIndex);
+			ovr_GetTextureSwapChainBufferGL(Session, TextureChain, curIndex, &curTexId);
+		} else {
+			curTexId = texId;
+		}
 
-OculusTexture::~OculusTexture() {
-	if (textureChain) {
-		ovr_DestroyTextureSwapChain(session, textureChain);
-		textureChain = nullptr;
-	}
-	if (texId) {
-		glDeleteTextures(1, &texId);
-		texId = 0;
-	}
-	if (fboId) {
-		glDeleteFramebuffers(1, &fboId);
-		fboId = 0;
-	}
-	if (renderTarget) {
-		renderTarget = nullptr;
-	}
-}
+		glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dbuffer->texId, 0);
 
-OVR::Sizei OculusTexture::getSize() const {
-	return texSize;
-}
+		glViewport(0, 0, texSize.w, texSize.h);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_FRAMEBUFFER_SRGB);
 
-void OculusTexture::setAndClearRenderSurface(int texId) {
-	GLuint curTexId;
-	if (textureChain) {
-		int curIndex;
-		ovr_GetTextureSwapChainCurrentIndex(session, textureChain, &curIndex);
-		ovr_GetTextureSwapChainBufferGL(session, textureChain, curIndex, &curTexId);
-	}
-	else {
-		curTexId = texId;
+		if (RenderTarget)
+			Graphics::setRenderTarget(RenderTarget, 0, 0);
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fboId);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texId, 0);
-
-	glViewport(0, 0, texSize.w, texSize.h);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_FRAMEBUFFER_SRGB);
-
-	if (renderTarget)
-		Graphics::setRenderTarget(renderTarget, 0, 0);
-}
-
-void OculusTexture::unsetRenderSurface() {
-	glBindFramebuffer(GL_FRAMEBUFFER, fboId);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
-}
-
-void OculusTexture::commit() {
-	if (textureChain) {
-		ovr_CommitTextureSwapChain(session, textureChain);
+	void UnsetRenderSurface() {
+		glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 	}
-}
 
-ovrTextureSwapChain OculusTexture::getOculusTexture() {
-	return textureChain;
-}
+	void Commit() {
+		if (TextureChain) {
+			ovr_CommitTextureSwapChain(Session, TextureChain);
+		}
+	}
+};
 
 //-------------------------------------------------------------------------------------------
-
-ovrSession session;
-ovrHmdDesc hmdDesc;
-
-OculusTexture* eyeRenderTexture[2] = { nullptr, nullptr };
-DepthBuffer  * eyeDepthBuffer[2] = { nullptr, nullptr };
-bool isVisible = true;
-
-ovrMirrorTexture mirrorTexture = nullptr;
-GLuint          mirrorFBO = 0;
-
 struct OGL {
-	HWND                    Window;
-	HDC                     hDC;
-	HGLRC                   WglContext;
-	OVR::GLEContext         GLEContext;
-	bool                    Running;
-	bool                    Key[256];
-	int                     WinSizeW;
-	int                     WinSizeH;
-	GLuint                  fboId;
-	HINSTANCE               hInstance;
+	HWND Window;
+	HDC hDC;
+	HGLRC WglContext;
+	OVR::GLEContext GLEContext;
+	bool Running;
+	bool Key[256];
+	int WinSizeW;
+	int WinSizeH;
+	GLuint fboId;
+	HINSTANCE hInstance;
 
 	static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
 		OGL *p = reinterpret_cast<OGL *>(GetWindowLongPtr(hWnd, 0));
@@ -205,16 +198,7 @@ struct OGL {
 		return 0;
 	}
 
-	OGL() :
-		Window(nullptr),
-		hDC(nullptr),
-		WglContext(nullptr),
-		GLEContext(),
-		Running(false),
-		WinSizeW(0),
-		WinSizeH(0),
-		fboId(0),
-		hInstance(nullptr) {
+	OGL() : Window(nullptr), hDC(nullptr), WglContext(nullptr),GLEContext(), Running(false), WinSizeW(0), WinSizeH(0), fboId(0), hInstance(nullptr) {
 		// Clear input
 		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
 			Key[i] = false;
@@ -225,8 +209,7 @@ struct OGL {
 		CloseWindow();
 	}
 
-	bool InitWindowAndDevice(HINSTANCE hInst, LPCWSTR title) {
-		// Init window
+	bool InitWindow(HINSTANCE hInst, LPCWSTR title) {
 		hInstance = hInst;
 		Running = true;
 
@@ -241,75 +224,11 @@ struct OGL {
 
 		// adjust the window size and show at InitDevice time
 		Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
-		//Window = CreateWindowA("ORT", "ORT(OpenGL)", WS_POPUP, 0, 0, 1000, 1000, GetDesktopWindow(), NULL, hInstance, NULL);
-		if (!Window) {
-			log(Info, "Failed to open window.");
-			return false;
-		}
+		if (!Window) return false;
 
 		SetWindowLongPtr(Window, 0, LONG_PTR(this));
 
 		hDC = GetDC(Window);
-
-		// Init device
-		ovrGraphicsLuid luid;
-		ovrResult result = ovr_Create(&session, &luid);
-		if (!OVR_SUCCESS(result)) {
-			log(Info, "HMD not connected.");
-			return false; // todo: retry
-		}
-
-		hmdDesc = ovr_GetHmdDesc(session);
-
-		// Setup Window and Graphics
-		// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
-		ovrSizei windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
-		if (!InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
-			ReleaseAndDestroy();
-			log(Info, "Failed to init device.");
-		}
-
-		// Make eye render buffers
-		for (int eye = 0; eye < 2; ++eye) {
-			ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
-			eyeRenderTexture[eye] = new OculusTexture(session, true, idealTextureSize, 1, NULL, 1);
-			eyeDepthBuffer[eye] = new DepthBuffer(eyeRenderTexture[eye]->getSize(), 0);
-
-			if (!eyeRenderTexture[eye]->getOculusTexture()) {
-				ReleaseAndDestroy();
-				log(Info, "Failed to create texture.");
-			}
-		}
-
-		ovrMirrorTextureDesc desc;
-		memset(&desc, 0, sizeof(desc));
-		desc.Width = windowSize.w;
-		desc.Height = windowSize.h;
-		desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-
-		// Create mirror texture and an FBO used to copy mirror texture to back buffer
-		result = ovr_CreateMirrorTextureGL(session, &desc, &mirrorTexture);
-		if (!OVR_SUCCESS(result)) {
-			ReleaseAndDestroy();
-			log(Info, "Failed to create mirror texture.");
-		}
-
-		// Configure the mirror read buffer
-		GLuint texId;
-		ovr_GetMirrorTextureBufferGL(session, mirrorTexture, &texId);
-
-		glGenFramebuffers(1, &mirrorFBO);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
-		glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
-		glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-		// Turn off vsync to let the compositor do its magic
-		wglSwapIntervalEXT(0);
-
-
-		// FloorLevel will give tracking poses where the floor height is 0
-		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 
 		return true;
 	}
@@ -327,7 +246,7 @@ struct OGL {
 	}
 
 	// Note: currently there is no way to get GL to use the passed pLuid
-	bool InitDevice(int vpW, int vpH, const LUID*, bool windowed = true) {
+	bool InitDevice(int vpW, int vpH, const LUID* /*pLuid*/, bool windowed = true) {
 		UNREFERENCED_PARAMETER(windowed);
 
 		WinSizeW = vpW;
@@ -340,7 +259,8 @@ struct OGL {
 			return false;
 
 		PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARBFunc = nullptr;
-		PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARBFunc = nullptr; {
+		PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARBFunc = nullptr;
+		{
 			// First create a context for the purpose of getting access to wglChoosePixelFormatARB / wglCreateContextAttribsARB.
 			PIXELFORMATDESCRIPTOR pfd;
 			memset(&pfd, 0, sizeof(pfd));
@@ -378,7 +298,7 @@ struct OGL {
 
 			wglChoosePixelFormatARBFunc = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 			wglCreateContextAttribsARBFunc = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-			assert(wglChoosePixelFormatARBFunc && wglCreateContextAttribsARBFunc); //OVR_ASSERT
+			assert(wglChoosePixelFormatARBFunc && wglCreateContextAttribsARBFunc);
 
 			wglDeleteContext(context);
 		}
@@ -427,16 +347,11 @@ struct OGL {
 		OVR::GLEContext::SetCurrentContext(&GLEContext);
 		GLEContext.Init();
 
-		//ShowWindow(Window, SW_SHOWDEFAULT); // TODO: ???
-
 		glGenFramebuffers(1, &fboId);
 
 		glEnable(GL_DEPTH_TEST);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
-
-		//SetCapture(Platform.Window);	// TODO: ???
-		//ShowCursor(FALSE);				// TODO: ???
 
 		return true;
 	}
@@ -453,30 +368,38 @@ struct OGL {
 		}
 		GLEContext.Shutdown();
 	}
+};
 
-	void ReleaseAndDestroy() {
+namespace {
+	TextureBuffer* eyeRenderTexture[2] = { nullptr, nullptr };
+	DepthBuffer* eyeDepthBuffer[2] = { nullptr, nullptr };
+
+	ovrMirrorTexture mirrorTexture = nullptr;
+	uint mirrorFBO = 0;
+	long long frameIndex = 0;
+	bool isVisible = true;
+
+	ovrSession session;
+	ovrHmdDesc hmdDesc;
+
+	ovrPosef EyePose[2];
+	ovrPosef EyePredictedPose[2];
+	double sensorSampleTime;
+	double predictedFrameTiming;
+	ovrTrackingState trackingState;
+
+	OGL Platform;
+
+	void done() {
 		if (mirrorFBO) glDeleteFramebuffers(1, &mirrorFBO);
 		if (mirrorTexture) ovr_DestroyMirrorTexture(session, mirrorTexture);
 		for (int eye = 0; eye < 2; ++eye) {
 			delete eyeRenderTexture[eye];
 			delete eyeDepthBuffer[eye];
 		}
-		ReleaseDevice();
+		Platform.ReleaseDevice();
 		ovr_Destroy(session);
 	}
-
-};
-
-// Global OpenGL state
-static OGL Platform;
-
-//------------------------------------------------------------------------------
-
-namespace {
-	ovrTrackingState trackingState;
-	ovrPosef eyeRenderPose[2];
-	long frameIndex;
-	double sensorSampleTime;
 }
 
 void* VrInterface::init(void* hinst) {
@@ -487,15 +410,74 @@ void* VrInterface::init(void* hinst) {
 		return(0);
 	}
 
-	if (!Platform.InitWindowAndDevice((HINSTANCE)hinst, L"ORT(OpenGL)")) {
-		log(Warning, "Failed to init window and device.");
+	if (!Platform.InitWindow((HINSTANCE)hinst, L"Oculus Rift")) {
+		log(Warning, "Failed to open window.");
 		return(0);
 	}
 
+	ovrGraphicsLuid luid;
+	result = ovr_Create(&session, &luid);
+	if (!OVR_SUCCESS(result)) {
+		log(Info, "HMD not connected.");
+		return false; // TODO: retry
+	}
+
+	hmdDesc = ovr_GetHmdDesc(session);
+
+	// Setup Window and Graphics
+	// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
+	ovrSizei windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
+	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
+		log(Info, "Failed to init device.");
+		done();
+	}
+
+	// Make eye render buffers
+	for (int eye = 0; eye < 2; ++eye) {
+		ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
+		eyeRenderTexture[eye] = new TextureBuffer(session, true, idealTextureSize, 1, NULL, 1);
+		eyeDepthBuffer[eye] = new DepthBuffer(eyeRenderTexture[eye]->GetSize(), 0);
+
+		if (!eyeRenderTexture[eye]->TextureChain) {
+			log(Info, "Failed to create texture."); 
+			done();
+		}
+	}
+
+	ovrMirrorTextureDesc desc;
+	memset(&desc, 0, sizeof(desc));
+	desc.Width = Platform.WinSizeW;
+	desc.Height = Platform.WinSizeH;
+	desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
+
+	// Create mirror texture and an FBO used to copy mirror texture to back buffer
+	result = ovr_CreateMirrorTextureGL(session, &desc, &mirrorTexture);
+	if (!OVR_SUCCESS(result)) {
+		log(Info, "Failed to create mirror texture.");
+		done();
+	}
+
+	// Configure the mirror read buffer
+	GLuint texId;
+	ovr_GetMirrorTextureBufferGL(session, mirrorTexture, &texId);
+
+	glGenFramebuffers(1, &mirrorFBO);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
+	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
+	glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+	// Turn off vsync to let the compositor do its magic
+	wglSwapIntervalEXT(0);
+
+	// FloorLevel will give tracking poses where the floor height is 0
+	ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
+
+	// Return window
 	return Platform.Window;
 }
 
-void VrInterface::begin(int eye) {
+void VrInterface::begin() {
 	// Call ovr_GetRenderDesc each frame to get the ovrEyeRenderDesc, as the returned values (e.g. HmdToEyeOffset) may change at runtime.
 	ovrEyeRenderDesc eyeRenderDesc[2];
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
@@ -505,30 +487,34 @@ void VrInterface::begin(int eye) {
 	ovrVector3f HmdToEyeOffset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
 
 	// Get predicted eye pose
-	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, eyeRenderPose, &sensorSampleTime);
-
-	// Switch to eye render target
-	eyeRenderTexture[eye]->setAndClearRenderSurface(eyeDepthBuffer[eye]->texId);
+	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyePose, &sensorSampleTime);
 
 	// Ask the API for the times when this frame is expected to be displayed. 
-	int frameTiming = ovr_GetPredictedDisplayTime(session, frameIndex);
-	trackingState = ovr_GetTrackingState(session, frameTiming, ovrFalse);
+	predictedFrameTiming = ovr_GetPredictedDisplayTime(session, frameIndex);
+	trackingState = ovr_GetTrackingState(session, predictedFrameTiming, ovrTrue);
+	ovr_CalcEyePoses(trackingState.HeadPose.ThePose, HmdToEyeOffset, EyePredictedPose);
 }
 
-void VrInterface::end(int eye) {
-	eyeRenderTexture[eye]->unsetRenderSurface();
+void VrInterface::beginRender(int eye) {
+	// Switch to eye render target
+	eyeRenderTexture[eye]->SetAndClearRenderSurface(eyeDepthBuffer[eye]);
+}
+
+void VrInterface::endRender(int eye) {
+	// Avoids an error when calling SetAndClearRenderSurface during next iteration.
+	eyeRenderTexture[eye]->UnsetRenderSurface();
 	// Commit changes to the textures so they get picked up frame
-	eyeRenderTexture[eye]->commit();
+	eyeRenderTexture[eye]->Commit();
 }
 
 SensorState* VrInterface::getSensorState(int eye) {
 	SensorState* sensorState = new SensorState();
 	VrPoseState* poseState = new VrPoseState();
 
-	ovrQuatf orientation = eyeRenderPose[eye].Orientation;
+	ovrQuatf orientation = EyePose[eye].Orientation;
 	poseState->vrPose->orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
-	ovrVector3f pos = eyeRenderPose[eye].Position;
+	ovrVector3f pos = EyePose[eye].Position;
 	poseState->vrPose->position = vec3(pos.x, pos.y, pos.z);
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
@@ -537,15 +523,25 @@ SensorState* VrInterface::getSensorState(int eye) {
 	poseState->vrPose->bottom = fov.DownTan;
 	poseState->vrPose->top = fov.UpTan;
 
-	ovrVector3f  angularVelocity = trackingState.HeadPose.AngularVelocity;
-	ovrVector3f  linearVelocity = trackingState.HeadPose.LinearVelocity;
-	ovrVector3f  angularAcceleration = trackingState.HeadPose.AngularAcceleration;
-	ovrVector3f  linearAcceleration = trackingState.HeadPose.LinearAcceleration;
+	ovrVector3f angularVelocity = trackingState.HeadPose.AngularVelocity;
+	ovrVector3f linearVelocity = trackingState.HeadPose.LinearVelocity;
+	ovrVector3f angularAcceleration = trackingState.HeadPose.AngularAcceleration;
+	ovrVector3f linearAcceleration = trackingState.HeadPose.LinearAcceleration;
 	poseState->angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
 	poseState->linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
 	poseState->angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
 	poseState->linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
-	sensorState->pose = poseState;
+
+	// Get predicted orientation and position
+	VrPoseState* predictedPoseState = new VrPoseState();
+	ovrQuatf predOrientation = EyePredictedPose[eye].Orientation;
+	predictedPoseState->vrPose->orientation = Quaternion(predOrientation.x, predOrientation.y, predOrientation.z, predOrientation.w);
+
+	ovrVector3f predPos = EyePredictedPose[eye].Position;
+	predictedPoseState->vrPose->position = vec3(predPos.x, predPos.y, predPos.z);
+
+	//sensorState->pose = poseState;
+	sensorState->pose = predictedPoseState;
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
@@ -566,19 +562,22 @@ SensorState* VrInterface::getSensorState(int eye) {
 }
 
 void VrInterface::warpSwap() {
+	// Initialize our single full screen Fov layer.
 	ovrLayerEyeFov ld;
 	ld.Header.Type = ovrLayerType_EyeFov;
 	ld.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;   // Because OpenGL.
 
-	ovrSizei windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
-
 	if (isVisible) {
 		for (int eye = 0; eye < 2; ++eye) {
-			ld.ColorTexture[eye] = eyeRenderTexture[eye]->getOculusTexture();
-			ld.Viewport[eye] = OVR::Recti(eyeRenderTexture[eye]->getSize());
+			ld.ColorTexture[eye] = eyeRenderTexture[eye]->TextureChain;
+			ld.Viewport[eye] = OVR::Recti(eyeRenderTexture[eye]->GetSize());
 			ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
-			ld.RenderPose[eye] = eyeRenderPose[eye];
-			ld.SensorSampleTime = sensorSampleTime;
+			ld.RenderPose[eye] = EyePose[eye];			// EyePredictedPose[eye];
+			ld.SensorSampleTime = sensorSampleTime;		// predictedFrameTiming;
+
+			//log(Info, "viewport %i %i %i %i", ld.Viewport[eye].Size.w, ld.Viewport[eye].Size.h, ld.Viewport[eye].Pos.x, ld.Viewport[eye].Pos.y);
+			//log(Info, "Fov %f %f %f %f", ld.Fov[eye].UpTan, ld.Fov[eye].DownTan, ld.Fov[eye].LeftTan, ld.Fov[eye].RightTan);
+			//log(Info, "sensorSampleTime %i", sensorSampleTime);
 		}
 	}
 
@@ -586,6 +585,8 @@ void VrInterface::warpSwap() {
 	ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
 	if (!OVR_SUCCESS(result)) {
 		isVisible = false;
+	} else {
+		isVisible = true;
 	}
 
 	frameIndex++;
@@ -593,8 +594,8 @@ void VrInterface::warpSwap() {
 	// Blit mirror texture to back buffer
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	GLint w = windowSize.w;
-	GLint h = windowSize.h;
+	GLint w = Platform.WinSizeW;
+	GLint h = Platform.WinSizeH;
 	glBlitFramebuffer(0, h, w, 0, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
