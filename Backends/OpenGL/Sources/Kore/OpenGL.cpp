@@ -551,6 +551,9 @@ void Graphics3::setMaterialState(MaterialState state, const vec4& value) {
     case EmissionColor:
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, value.values);
         break;
+    case SolidColor:
+        glColor4fv(value.values);
+        break;
     default:
         break;
     }

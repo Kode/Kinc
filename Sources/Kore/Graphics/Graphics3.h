@@ -78,6 +78,7 @@ namespace Kore {
         SpecularColor,
         EmissionColor,
         ShininessExponent,
+        SolidColor, // color for non-lighting materials (i.e. when lighting is disabled)
     };
 
     //NEW: texture mappings
