@@ -20,6 +20,7 @@ if (platform === Platform.Windows) {
 	if (graphics === GraphicsApi.OpenGL) {
 		addBackend('OpenGL');
 		project.addDefine('OPENGL');
+		project.addDefine('OPENGL_1_X');
 	}
 	else if (graphics === GraphicsApi.OpenGL2) {
 		addBackend('OpenGL2');

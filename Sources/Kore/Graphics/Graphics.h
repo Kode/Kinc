@@ -1,5 +1,15 @@
 #pragma once
 
+#ifdef OPENGL_1_X
+
+#include "Graphics3.h"
+
+namespace Kore {
+    namespace Graphics = Graphics3;
+}
+
+#else
+
 #include "Image.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -192,3 +202,5 @@ namespace Kore {
 		void flush();
 	};
 }
+
+#endif
