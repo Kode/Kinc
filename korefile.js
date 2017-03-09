@@ -22,7 +22,7 @@ if (platform === Platform.Windows) {
 		project.addDefine('OPENGL');
 		project.addDefine('OPENGL_1_X');
 	}
-	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.OpenGL2) {
+	else if (graphics === GraphicsApi.OpenGL) {
 		addBackend('OpenGL2');
 		project.addDefine('OPENGL');
 	}
