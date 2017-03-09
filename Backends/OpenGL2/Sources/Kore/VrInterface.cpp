@@ -13,53 +13,15 @@
 #include <assert.h>
 
 using namespace Kore;
-
-//---------------------------------------------------------------------------------------
-struct DepthBuffer {
-	GLuint        texId;
-
-	DepthBuffer(OVR::Sizei size, int sampleCount) {
-		UNREFERENCED_PARAMETER(sampleCount);
-
-		assert(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
-
-		glGenTextures(1, &texId);
-		glBindTexture(GL_TEXTURE_2D, texId);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		GLenum internalFormat = GL_DEPTH_COMPONENT24;
-		GLenum type = GL_UNSIGNED_INT;
-		if (GLE_ARB_depth_buffer_float) {
-			internalFormat = GL_DEPTH_COMPONENT32F;
-			type = GL_FLOAT;
-		}
-
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, size.w, size.h, 0, GL_DEPTH_COMPONENT, type, NULL);
-	}
-
-	~DepthBuffer() {
-		if (texId) {
-			glDeleteTextures(1, &texId);
-			texId = 0;
-		}
-	}
-};
-
-//--------------------------------------------------------------------------
 struct TextureBuffer {
 	ovrSession Session;
 	ovrTextureSwapChain TextureChain;
-	GLuint texId;
-	GLuint fboId;
 	OVR::Sizei texSize;
 
-	RenderTarget* RenderTarget;
+	RenderTarget* OVRRenderTarget;
 
 	TextureBuffer(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char * data, int sampleCount) :
-		Session(session), TextureChain(nullptr), texId(0), fboId(0), texSize(size), RenderTarget(nullptr) {
+		Session(session), TextureChain(nullptr), texSize(size), OVRRenderTarget(nullptr) {
 		UNREFERENCED_PARAMETER(sampleCount);
 
 		assert(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
@@ -90,12 +52,7 @@ struct TextureBuffer {
 					ovr_GetTextureSwapChainBufferGL(Session, TextureChain, i, &chainTexId);
 					glBindTexture(GL_TEXTURE_2D, chainTexId);
 
-					//renderTarget = new RenderTarget(texSize.w, texSize.h, 0); TODO
-
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+					OVRRenderTarget = new RenderTarget(texSize.w, texSize.h, 1);
 				}
 			}
 		}
@@ -103,8 +60,6 @@ struct TextureBuffer {
 		if (mipLevels > 1) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
-
-		glGenFramebuffers(1, &fboId);
 	}
 
 	~TextureBuffer() {
@@ -112,16 +67,9 @@ struct TextureBuffer {
 			ovr_DestroyTextureSwapChain(Session, TextureChain);
 			TextureChain = nullptr;
 		}
-		if (texId) {
-			glDeleteTextures(1, &texId);
-			texId = 0;
-		}
-		if (fboId) {
-			glDeleteFramebuffers(1, &fboId);
-			fboId = 0;
-		}
-		if (RenderTarget) {
-			RenderTarget = nullptr;
+		if (OVRRenderTarget) {
+			delete OVRRenderTarget;
+			OVRRenderTarget = nullptr;
 		}
 	}
 
@@ -129,30 +77,22 @@ struct TextureBuffer {
 		return texSize;
 	}
 
-	void SetAndClearRenderSurface(DepthBuffer* dbuffer) {
+	void SetAndClearRenderSurface() {
 		GLuint curTexId;
-		if (TextureChain) {
-			int curIndex;
-			ovr_GetTextureSwapChainCurrentIndex(Session, TextureChain, &curIndex);
-			ovr_GetTextureSwapChainBufferGL(Session, TextureChain, curIndex, &curTexId);
-		} else {
-			curTexId = texId;
-		}
+		int curIndex;
+		ovr_GetTextureSwapChainCurrentIndex(Session, TextureChain, &curIndex);
+		ovr_GetTextureSwapChainBufferGL(Session, TextureChain, curIndex, &curTexId);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+		if (OVRRenderTarget) Graphics::setRenderTarget(OVRRenderTarget, 0, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dbuffer->texId, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, OVRRenderTarget->_depthTexture, 0);
 
-		glViewport(0, 0, texSize.w, texSize.h);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_FRAMEBUFFER_SRGB);
-
-		if (RenderTarget)
-			Graphics::setRenderTarget(RenderTarget, 0, 0);
 	}
 
 	void UnsetRenderSurface() {
-		glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+		glBindFramebuffer(GL_FRAMEBUFFER, OVRRenderTarget->_framebuffer);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 	}
@@ -174,7 +114,6 @@ struct OGL {
 	bool Key[256];
 	int WinSizeW;
 	int WinSizeH;
-	GLuint fboId;
 	HINSTANCE hInstance;
 
 	static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
@@ -198,7 +137,7 @@ struct OGL {
 		return 0;
 	}
 
-	OGL() : Window(nullptr), hDC(nullptr), WglContext(nullptr),GLEContext(), Running(false), WinSizeW(0), WinSizeH(0), fboId(0), hInstance(nullptr) {
+	OGL() : Window(nullptr), hDC(nullptr), WglContext(nullptr),GLEContext(), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
 		// Clear input
 		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
 			Key[i] = false;
@@ -347,9 +286,7 @@ struct OGL {
 		OVR::GLEContext::SetCurrentContext(&GLEContext);
 		GLEContext.Init();
 
-		glGenFramebuffers(1, &fboId);
-
-		glEnable(GL_DEPTH_TEST);
+		Graphics::setRenderState(RenderState::DepthTest, true);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
 
@@ -357,10 +294,6 @@ struct OGL {
 	}
 
 	void ReleaseDevice() {
-		if (fboId) {
-			glDeleteFramebuffers(1, &fboId);
-			fboId = 0;
-		}
 		if (WglContext) {
 			wglMakeCurrent(NULL, NULL);
 			wglDeleteContext(WglContext);
@@ -372,7 +305,6 @@ struct OGL {
 
 namespace {
 	TextureBuffer* eyeRenderTexture[2] = { nullptr, nullptr };
-	DepthBuffer* eyeDepthBuffer[2] = { nullptr, nullptr };
 
 	ovrMirrorTexture mirrorTexture = nullptr;
 	uint mirrorFBO = 0;
@@ -395,7 +327,6 @@ namespace {
 		if (mirrorTexture) ovr_DestroyMirrorTexture(session, mirrorTexture);
 		for (int eye = 0; eye < 2; ++eye) {
 			delete eyeRenderTexture[eye];
-			delete eyeDepthBuffer[eye];
 		}
 		Platform.ReleaseDevice();
 		ovr_Destroy(session);
@@ -430,18 +361,6 @@ void* VrInterface::init(void* hinst) {
 	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
 		log(Info, "Failed to init device.");
 		done();
-	}
-
-	// Make eye render buffers
-	for (int eye = 0; eye < 2; ++eye) {
-		ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
-		eyeRenderTexture[eye] = new TextureBuffer(session, true, idealTextureSize, 1, NULL, 1);
-		eyeDepthBuffer[eye] = new DepthBuffer(eyeRenderTexture[eye]->GetSize(), 0);
-
-		if (!eyeRenderTexture[eye]->TextureChain) {
-			log(Info, "Failed to create texture."); 
-			done();
-		}
 	}
 
 	ovrMirrorTextureDesc desc;
@@ -497,7 +416,7 @@ void VrInterface::begin() {
 
 void VrInterface::beginRender(int eye) {
 	// Switch to eye render target
-	eyeRenderTexture[eye]->SetAndClearRenderSurface(eyeDepthBuffer[eye]);
+	eyeRenderTexture[eye]->SetAndClearRenderSurface();
 }
 
 void VrInterface::endRender(int eye) {
@@ -621,4 +540,18 @@ void VrInterface::resetHmdPose() {
 void VrInterface::ovrShutdown() {
 	ovr_Shutdown();
 }
+
+void VrInterface::createOculusTexture() {
+	// Make eye render buffers
+	for (int eye = 0; eye < 2; ++eye) {
+		ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
+		eyeRenderTexture[eye] = new TextureBuffer(session, true, idealTextureSize, 1, NULL, 1);
+
+		if (!eyeRenderTexture[eye]->TextureChain) {
+			log(Info, "Failed to create texture.");
+			done();
+		}
+	}
+}
+
 #endif

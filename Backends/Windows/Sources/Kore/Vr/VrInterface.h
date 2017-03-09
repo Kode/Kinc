@@ -16,5 +16,7 @@ namespace Kore {
 		void updateTrackingOrigin(TrackingOrigin origin);
 		void resetHmdPose();
 		void ovrShutdown();
+
+		void createOculusTexture();
 	}
 }
