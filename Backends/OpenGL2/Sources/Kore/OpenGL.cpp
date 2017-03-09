@@ -264,7 +264,7 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 }
 
 void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
-	glUniform4fv(location.location, count, values);
+	glUniform4fv(location.location, count / 4, values);
 	glCheckErrors();
 }
 

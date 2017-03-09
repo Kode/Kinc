@@ -27,6 +27,7 @@ namespace {
 		// #endif
 		case Image::RGB24:
 			return GL_RGB;
+		case Image::A32:
 		case Image::Grey8:
 #ifdef OPENGLES
 			return GL_LUMINANCE;
@@ -54,6 +55,8 @@ namespace {
 		// #endif
 		case Image::RGB24:
 			return GL_RGB;
+		case Image::A32:
+			return GL_R8;
 		case Image::Grey8:
 #ifdef OPENGLES
 			return GL_LUMINANCE;
@@ -67,6 +70,7 @@ namespace {
 		switch (format) {
 		case Image::RGBA128:
 		case Image::RGBA64:
+		case Image::A32:
 			return GL_FLOAT;
 		case Image::RGBA32:
 		default:
@@ -230,12 +234,10 @@ void Texture::init(const char* format, bool readable) {
 #endif
 	}
 	else {
-		if (isHdr) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, convertedType, hdrData);
-		}
-		else {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, convertedType, toPow2 ? conversionBuffer : data);
-		}
+		void *texdata = data;
+		if (isHdr) texdata = hdrData;
+		else if (toPow2) texdata = conversionBuffer;
+		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(this->format), texWidth, texHeight, 0, convertFormat(this->format), convertedType, texdata);
 		glCheckErrors();
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
