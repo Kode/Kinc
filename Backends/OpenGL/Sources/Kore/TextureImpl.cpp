@@ -39,11 +39,7 @@ namespace {
 	int convertInternalFormat(Image::Format format) {
 		switch (format) {
 		case Image::RGBA128:
-#ifdef GL_ARB_texture_float
-			return GL_RGBA32F;
-#else
 			return GL_RGBA;
-#endif
 		case Image::RGBA32:
 		case Image::RGBA64:
 		default:
