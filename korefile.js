@@ -17,12 +17,12 @@ if (platform === Platform.Windows) {
 	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
 	project.addLib('ws2_32');
 
-	if (graphics === GraphicsApi.OpenGL) {
+	if (graphics === GraphicsApi.OpenGL1) {
 		addBackend('OpenGL');
 		project.addDefine('OPENGL');
 		project.addDefine('OPENGL_1_X');
 	}
-	else if (graphics === GraphicsApi.OpenGL2) {
+	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.OpenGL2) {
 		addBackend('OpenGL2');
 		project.addDefine('OPENGL');
 	}
