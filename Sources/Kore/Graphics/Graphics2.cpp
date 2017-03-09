@@ -154,8 +154,10 @@ void ImageShaderPainter::drawBuffer() {
 	Graphics::setTextureMipmapFilter(textureLocation, NoMipFilter);
 
     #ifdef OPENGL_1_X
+    // Set fixed-function projection matrix
     Graphics::setProjectionMatrix(projectionMatrix);
     #else
+    // Set shader matrix uniform
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
     #endif
 
@@ -414,8 +416,10 @@ void ColoredShaderPainter::drawBuffer(bool trisDone) {
 	Graphics::setIndexBuffer(*indexBuffer);
 
     #ifdef OPENGL_1_X
+    // Set fixed-function projection matrix
     Graphics::setProjectionMatrix(projectionMatrix);
     #else
+    // Set shader matrix uniform
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
     #endif
 
@@ -435,8 +439,10 @@ void ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
 	Graphics::setIndexBuffer(*triangleIndexBuffer);
 
     #ifdef OPENGL_1_X
+    // Set fixed-function projection matrix
     Graphics::setProjectionMatrix(projectionMatrix);
     #else
+    // Set shader matrix uniform
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
     #endif
 
@@ -637,8 +643,10 @@ void TextShaderPainter::drawBuffer() {
 	Graphics::setTexture(textureLocation, lastTexture);
 
     #ifdef OPENGL_1_X
+    // Set fixed-function projection matrix
     Graphics::setProjectionMatrix(projectionMatrix);
     #else
+    // Set shader matrix uniform
 	Graphics::setMatrix(projectionLocation, projectionMatrix);
     #endif
 
