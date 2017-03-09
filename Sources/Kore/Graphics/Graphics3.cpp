@@ -4,6 +4,8 @@
 
 using namespace Kore;
 
+#ifdef OPENGL_1_X
+
 namespace {
 	int samples = 1;
 	bool window = true;
@@ -37,3 +39,4 @@ void Graphics3::setVertexBuffer(VertexBuffer& vertexBuffer) {
 	setVertexBuffers(vertexBuffers, 1);
 }
 
+#endif

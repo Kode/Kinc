@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef OPENGL_1_X
+
 #include "Image.h"
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
@@ -293,3 +295,5 @@ namespace Kore {
 		void flush();
 	};
 }
+
+#endif
