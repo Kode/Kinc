@@ -886,11 +886,17 @@ void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
 	glDeleteQueries(1, &occlusionQuery);
 }
 
+#if defined(OPENGLES)
+#define SAMPLES_PASSED GL_ANY_SAMPLES_PASSED
+#else
+#define SAMPLES_PASSED GL_SAMPLES_PASSED
+#endif
+
 void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
-	glBeginQuery(GL_SAMPLES_PASSED, occlusionQuery);
+	glBeginQuery(SAMPLES_PASSED, occlusionQuery);
 	glDrawArrays(GL_TRIANGLES, 0, triangles);
 	glCheckErrors();
-	glEndQuery(GL_SAMPLES_PASSED);
+	glEndQuery(SAMPLES_PASSED);
 }
 
 bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
