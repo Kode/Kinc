@@ -6,15 +6,12 @@
 
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
+#include "Direct3D11.h"
 
 #include "OVR_CAPI_D3D.h"
 
-#include <cstdint>
 #include <vector>
-#include "d3dcompiler.h"
 #include "d3d11.h"
-#include "stdio.h"
-#include <new>
 #if _MSC_VER > 1600
 #include "DirectXMath.h"
 using namespace DirectX;
@@ -28,17 +25,9 @@ using namespace DirectX;
 
 using namespace Kore;
 
-// clean up member COM pointers
-template<typename T> void Release(T *&obj)
-{
-	if (!obj) return;
-	obj->Release();
-	obj = nullptr;
-}
-
 //------------------------------------------------------------
 struct DepthBuffer {
-	ID3D11DepthStencilView* TexDsv;
+	ID3D11DepthStencilView* TexDsv;		// depthStencilView
 
 	DepthBuffer(ID3D11Device * Device, int sizeW, int sizeH, int sampleCount = 1) {
 		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT;
@@ -60,28 +49,8 @@ struct DepthBuffer {
 		Tex->Release();
 	}
 	~DepthBuffer() {
-		Release(TexDsv);
-	}
-};
-
-//----------------------------------------------------------------
-struct DataBuffer {
-	ID3D11Buffer* D3DBuffer;
-	size_t Size;
-
-	DataBuffer(ID3D11Device * Device, D3D11_BIND_FLAG use, const void* buffer, size_t size) : Size(size) {
-		D3D11_BUFFER_DESC desc;   memset(&desc, 0, sizeof(desc));
-		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		desc.BindFlags = use;
-		desc.ByteWidth = (unsigned)size;
-		D3D11_SUBRESOURCE_DATA sr;
-		sr.pSysMem = buffer;
-		sr.SysMemPitch = sr.SysMemSlicePitch = 0;
-		Device->CreateBuffer(&desc, buffer ? &sr : NULL, &D3DBuffer);
-	}
-	~DataBuffer() {
-		Release(D3DBuffer);
+		TexDsv->Release();
+		TexDsv = nullptr;
 	}
 };
 
@@ -92,16 +61,7 @@ struct DirectX11 {
 	bool Key[256];
 	int WinSizeW;
 	int WinSizeH;
-	ID3D11Device* Device;
-	ID3D11DeviceContext* Context;
-	IDXGISwapChain* SwapChain;
-	DepthBuffer* MainDepthBuffer;
-	ID3D11Texture2D* BackBuffer;
-	ID3D11RenderTargetView* BackBufferRT;
-	// Fixed size buffer for shader constants, before copied into buffer
-	static const int UNIFORM_DATA_SIZE = 2000;
-	unsigned char UniformData[UNIFORM_DATA_SIZE];
-	DataBuffer* UniformBufferGen;		// TODO: Delete?
+
 	HINSTANCE hInstance;
 
 	static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
@@ -125,8 +85,7 @@ struct DirectX11 {
 		return 0;
 	}
 
-	DirectX11() : Window(nullptr), Running(false), WinSizeW(0), WinSizeH(0), Device(nullptr), Context(nullptr), SwapChain(nullptr),
-		MainDepthBuffer(nullptr), BackBuffer(nullptr), BackBufferRT(nullptr), UniformBufferGen(nullptr), hInstance(nullptr) {
+	DirectX11() : Window(nullptr), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
 		// Clear input
 		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
 			Key[i] = false;
@@ -149,7 +108,7 @@ struct DirectX11 {
 		wc.cbWndExtra = sizeof(this);
 		RegisterClassW(&wc);
 
-		// adjust the window size and show at InitDevice time
+		// Adjust the window size and show at InitDevice time
 		Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hinst, 0);
 		if (!Window) return false;
 
@@ -179,85 +138,15 @@ struct DirectX11 {
 		if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags))
 			return false;
 
-		IDXGIFactory * DXGIFactory = nullptr;
-		HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&DXGIFactory));
-		if (hr != ERROR_SUCCESS) {
-			log(Warning, "CreateDXGIFactory1 failed");
-			return false;
-		}
-
-		IDXGIAdapter * Adapter = nullptr;
-		for (UINT iAdapter = 0; DXGIFactory->EnumAdapters(iAdapter, &Adapter) != DXGI_ERROR_NOT_FOUND; ++iAdapter) {
-			DXGI_ADAPTER_DESC adapterDesc;
-			Adapter->GetDesc(&adapterDesc);
-			if ((pLuid == nullptr) || memcmp(&adapterDesc.AdapterLuid, pLuid, sizeof(LUID)) == 0)
-				break;
-			Release(Adapter);
-		}
-
-		auto DriverType = Adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE;
-		hr = D3D11CreateDevice(Adapter, DriverType, 0, 0, 0, 0, D3D11_SDK_VERSION, &Device, 0, &Context);
-		Release(Adapter);
-		if (hr != ERROR_SUCCESS) {
-			log(Warning, "D3D11CreateDevice failed");
-			return false;
-		}
-
-		// Create swap chain
-		DXGI_SWAP_CHAIN_DESC scDesc;
-		memset(&scDesc, 0, sizeof(scDesc));
-		scDesc.BufferCount = 2;
-		scDesc.BufferDesc.Width = WinSizeW;
-		scDesc.BufferDesc.Height = WinSizeH;
-		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		scDesc.BufferDesc.RefreshRate.Denominator = 1;
-		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scDesc.OutputWindow = Window;
-		scDesc.SampleDesc.Count = 1;
-		scDesc.Windowed = windowed;
-		scDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
-		hr = DXGIFactory->CreateSwapChain(Device, &scDesc, &SwapChain);
-		Release(DXGIFactory);
-		if (hr != ERROR_SUCCESS) {
-			log(Warning, "CreateSwapChain failed");
-			return false;
-		}
-
-		// Create backbuffer
-		SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
-		hr = Device->CreateRenderTargetView(BackBuffer, NULL, &BackBufferRT);
-		if (hr != ERROR_SUCCESS) {
-			log(Warning, "CreateRenderTargetView failed");
-			return false;
-		}
-
-		// Main depth buffer
-		MainDepthBuffer = new DepthBuffer(Device, WinSizeW, WinSizeH);
-		Context->OMSetRenderTargets(1, &BackBufferRT, MainDepthBuffer->TexDsv);
-
-		// Buffer for shader constants
-		UniformBufferGen = new DataBuffer(Device, D3D11_BIND_CONSTANT_BUFFER, NULL, UNIFORM_DATA_SIZE);
-		Context->VSSetConstantBuffers(0, 1, &UniformBufferGen->D3DBuffer);
-
-		// Set max frame latency to 1
-		IDXGIDevice1* DXGIDevice1 = nullptr;
-		hr = Device->QueryInterface(__uuidof(IDXGIDevice1), (void**)&DXGIDevice1);
-		if (hr != ERROR_SUCCESS) {
-			log(Warning, "QueryInterface failed");
-			return false;
-		}
-		DXGIDevice1->SetMaximumFrameLatency(1);
-		Release(DXGIDevice1);
-
 		return true;
 	}
 
-	void SetAndClearRenderTarget(ID3D11RenderTargetView * rendertarget, struct DepthBuffer * depthbuffer, float R = 0, float G = 0, float B = 0, float A = 0) {
+	void SetAndClearRenderTarget(ID3D11RenderTargetView* rendertarget, DepthBuffer* depthbuffer, float R = 0, float G = 0, float B = 0, float A = 0) {
 		float black[] = { R, G, B, A }; // Important that alpha=0, if want pixels to be transparent, for manual layers
-		Context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr));
-		Context->ClearRenderTargetView(rendertarget, black);
+		context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr)); //see Graphics::begin
+		context->ClearRenderTargetView(rendertarget, black);	//see Graphics::clear
 		if (depthbuffer)
-			Context->ClearDepthStencilView(depthbuffer->TexDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+			context->ClearDepthStencilView(depthbuffer->TexDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 	}
 
 	void SetViewport(float vpX, float vpY, float vpW, float vpH) {
@@ -265,22 +154,10 @@ struct DirectX11 {
 		D3Dvp.Width = vpW;    D3Dvp.Height = vpH;
 		D3Dvp.MinDepth = 0;   D3Dvp.MaxDepth = 1;
 		D3Dvp.TopLeftX = vpX; D3Dvp.TopLeftY = vpY;
-		Context->RSSetViewports(1, &D3Dvp);
+		context->RSSetViewports(1, &D3Dvp);
 	}
 
 	void ReleaseDevice() {
-		Release(BackBuffer);
-		Release(BackBufferRT);
-		if (SwapChain) {
-			SwapChain->SetFullscreenState(FALSE, NULL);
-			Release(SwapChain);
-		}
-		Release(Context);
-		Release(Device);
-		delete MainDepthBuffer;
-		MainDepthBuffer = nullptr;
-		delete UniformBufferGen;
-		UniformBufferGen = nullptr;
 	}
 };
 
@@ -288,18 +165,15 @@ static DirectX11 Platform;
 
 //---------------------------------------------------------------------
 
-// ovrSwapTextureSet wrapper class that also maintains the render target views
-// needed for D3D11 rendering.
+// ovrSwapTextureSet wrapper class that also maintains the render target views needed for D3D11 rendering.
 struct OculusTexture {
 	ovrSession Session;
 	ovrTextureSwapChain TextureChain;
 	std::vector<ID3D11RenderTargetView*> TexRtv;
 
-	OculusTexture() : Session(nullptr), TextureChain(nullptr) {}
+//	RenderTarget* OVRRenderTarget;
 
-	bool Init(ovrSession session, int sizeW, int sizeH) {
-		Session = session;
-
+	OculusTexture(ovrSession session, int sizeW, int sizeH) : Session(session), TextureChain(nullptr) {
 		ovrTextureSwapChainDesc desc = {};
 		desc.Type = ovrTexture_2D;
 		desc.ArraySize = 1;
@@ -312,43 +186,53 @@ struct OculusTexture {
 		desc.BindFlags = ovrTextureBind_DX_RenderTarget;
 		desc.StaticImage = ovrFalse;
 
-		ovrResult result = ovr_CreateTextureSwapChainDX(session, Platform.Device, &desc, &TextureChain);
-		if (!OVR_SUCCESS(result))
-			return false;
+		ovrResult result = ovr_CreateTextureSwapChainDX(session, device, &desc, &TextureChain);
 
 		int textureCount = 0;
 		ovr_GetTextureSwapChainLength(Session, TextureChain, &textureCount);
-		for (int i = 0; i < textureCount; ++i) {
-			ID3D11Texture2D* tex = nullptr;
-			ovr_GetTextureSwapChainBufferDX(Session, TextureChain, i, IID_PPV_ARGS(&tex));
-			D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
-			rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-			ID3D11RenderTargetView* rtv;
-			Platform.Device->CreateRenderTargetView(tex, &rtvd, &rtv);
-			TexRtv.push_back(rtv);
-			tex->Release();
+		if (OVR_SUCCESS(result)) {
+			for (int i = 0; i < textureCount; ++i) {
+				ID3D11Texture2D* tex = nullptr;
+				ovr_GetTextureSwapChainBufferDX(Session, TextureChain, i, IID_PPV_ARGS(&tex));
+				D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
+				rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				ID3D11RenderTargetView* rtv;
+				device->CreateRenderTargetView(tex, &rtvd, &rtv);
+				TexRtv.push_back(rtv);
+				//OVRRenderTarget = new RenderTarget(sizeW, sizeH, 1);
+				tex->Release();
+			}
 		}
-
-		return true;
 	}
 
 	~OculusTexture() {
 		for (int i = 0; i < (int)TexRtv.size(); ++i) {
-			Release(TexRtv[i]);
+			TexRtv[i]->Release();
+			TexRtv[i] = nullptr;
 		}
 		if (TextureChain) {
 			ovr_DestroyTextureSwapChain(Session, TextureChain);
+			TextureChain = nullptr;
 		}
+		/*if (OVRRenderTarget) {
+			delete OVRRenderTarget;
+			OVRRenderTarget = nullptr;
+		}*/
 	}
 
 	ID3D11RenderTargetView* GetRTV() {
 		int index = 0;
 		ovr_GetTextureSwapChainCurrentIndex(Session, TextureChain, &index);
+		
+		//ID3D11Texture2D* tex = nullptr;
+		//ovr_GetTextureSwapChainBufferDX(Session, TextureChain, index, IID_PPV_ARGS(&tex));
+
+		//if (OVRRenderTarget) Graphics::setRenderTarget(OVRRenderTarget, 0, 0);
+
 		return TexRtv[index];
 	}
 
-	// Commit changes
 	void Commit() {
 		ovr_CommitTextureSwapChain(Session, TextureChain);
 	}
@@ -375,6 +259,8 @@ namespace {
 	double predictedFrameTiming;
 	ovrTrackingState trackingState;
 
+	bool textureInitialized = false;
+
 	void done() {
 		if (mirrorTexture)
 			ovr_DestroyMirrorTexture(session, mirrorTexture);
@@ -385,25 +271,55 @@ namespace {
 		Platform.ReleaseDevice();
 		ovr_Destroy(session);
 	}
+
+	void createOculusTexture() {
+		// Create mirror texture
+		ovrMirrorTextureDesc desc;
+		memset(&desc, 0, sizeof(desc));
+		desc.Width = Platform.WinSizeW;
+		desc.Height = Platform.WinSizeH;
+		desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
+		HRESULT result = ovr_CreateMirrorTextureDX(session, device, &desc, &mirrorTexture);
+		if (!OVR_SUCCESS(result)) {
+			log(Error, "Failed to create mirror texture.");
+			done();
+		}
+
+		// Make eye render buffers
+		for (int eye = 0; eye < 2; ++eye) {
+			ovrSizei idealSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
+			pEyeRenderTexture[eye] = new OculusTexture(session, idealSize.w, idealSize.h);
+			pEyeDepthBuffer[eye] = new DepthBuffer(device, idealSize.w, idealSize.h);
+			eyeRenderViewport[eye].Pos.x = 0;
+			eyeRenderViewport[eye].Pos.y = 0;
+			eyeRenderViewport[eye].Size = idealSize;
+			if (!pEyeRenderTexture[eye]->TextureChain) {
+				log(Error, "Failed to create texture.");
+				done();
+			}
+		}
+
+		textureInitialized = true;
+	}
 }
 
 void* VrInterface::init(void* hinst) {
 	ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
-		log(Warning, "Failed to initialize libOVR.");
+		log(Error, "Failed to initialize libOVR.");
 		return(0);
 	}
 
 	if (!Platform.InitWindow((HINSTANCE)hinst, L"Oculus Rift")) {
-		log(Warning, "Failed to open window.");
+		log(Error, "Failed to open window.");
 		return(0);
 	}
 
 	ovrGraphicsLuid luid;
 	result = ovr_Create(&session, &luid);
 	if (!OVR_SUCCESS(result)) {
-		log(Info, "HMD not connected.");
+		log(Error, "HMD not connected.");
 		return false; // TODO: retry
 	}
 
@@ -413,36 +329,7 @@ void* VrInterface::init(void* hinst) {
 	// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
 	windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
 	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
-		log(Info, "Failed to init device.");
-		done();
-	}
-
-	// Make eye render buffers
-	for (int eye = 0; eye < 2; ++eye) {
-		ovrSizei idealSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
-		pEyeRenderTexture[eye] = new OculusTexture();
-		if (!pEyeRenderTexture[eye]->Init(session, idealSize.w, idealSize.h)) {
-			log(Warning, "Failed to create eye texture.");
-			done();
-		}
-		pEyeDepthBuffer[eye] = new DepthBuffer(Platform.Device, idealSize.w, idealSize.h);
-		eyeRenderViewport[eye].Pos.x = 0;
-		eyeRenderViewport[eye].Pos.y = 0;
-		eyeRenderViewport[eye].Size = idealSize;
-		if (!pEyeRenderTexture[eye]->TextureChain) {
-			log(Warning, "Failed to create texture.");
-			done();
-		}
-	}
-
-	ovrMirrorTextureDesc desc;
-	memset(&desc, 0, sizeof(desc));
-	desc.Width = Platform.WinSizeW;
-	desc.Height = Platform.WinSizeH;
-	desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-	result = ovr_CreateMirrorTextureDX(session, Platform.Device, &desc, &mirrorTexture);
-	if (!OVR_SUCCESS(result)) {
-		log(Info, "Failed to create mirror texture.");
+		log(Error, "Failed to init device.");
 		done();
 	}
 
@@ -453,6 +340,8 @@ void* VrInterface::init(void* hinst) {
 }
 
 void VrInterface::begin() {
+	if (!textureInitialized) createOculusTexture();
+
 	// Call ovr_GetRenderDesc each frame to get the ovrEyeRenderDesc, as the returned values (e.g. HmdToEyeOffset) may change at runtime.
 	ovrEyeRenderDesc eyeRenderDesc[2];
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
@@ -549,10 +438,6 @@ void VrInterface::warpSwap() {
 			ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
 			ld.RenderPose[eye] = EyePose[eye];		// eyePredictedPose[eye];
 			ld.SensorSampleTime = sensorSampleTime;		// predictedFrameTiming;
-
-			//log(Info, "viewport %i %i %i %i", ld.Viewport[eye].Size.w, ld.Viewport[eye].Size.h, ld.Viewport[eye].Pos.x, ld.Viewport[eye].Pos.y);
-			//log(Info, "Fov %f %f %f %f", ld.Fov[eye].UpTan, ld.Fov[eye].DownTan, ld.Fov[eye].LeftTan, ld.Fov[eye].RightTan);
-			//log(Info, "sensorSampleTime %i", sensorSampleTime);
 		}
 	}
 
@@ -569,9 +454,8 @@ void VrInterface::warpSwap() {
 	// Render mirror
 	ID3D11Texture2D* tex = nullptr;
 	ovr_GetMirrorTextureBufferDX(session, mirrorTexture, IID_PPV_ARGS(&tex));
-	Platform.Context->CopyResource(Platform.BackBuffer, tex);
+	context->CopyResource(backBuffer, tex);
 	tex->Release();
-	Platform.SwapChain->Present(0, 0);
 }
 
 void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {
@@ -595,4 +479,5 @@ void VrInterface::resetHmdPose() {
 void VrInterface::ovrShutdown() {
 	ovr_Shutdown();
 }
+
 #endif

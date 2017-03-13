@@ -21,6 +21,7 @@ ID3D11Device* device;
 ID3D11DeviceContext* context;
 ID3D11RenderTargetView* renderTargetView;
 ID3D11DepthStencilView* depthStencilView;
+ID3D11Texture2D* backBuffer;
 
 int renderTargetWidth = 4096;
 int renderTargetHeight = 4096;
@@ -127,7 +128,8 @@ namespace {
 
 void Graphics::destroy(int windowId) {}
 
-void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
+void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
+	vsync = vSync;
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
@@ -149,6 +151,11 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #ifdef SYS_WINDOWSAPP
 	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 	                         &featureLevel, &context));
+#elif VR_RIFT
+	IDXGIFactory* dxgiFactory = nullptr;
+	affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));
+
+	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &featureLevel, &context));
 #endif
 	// affirm(device0.As(&device));
 	// affirm(context0.As(&context));
@@ -206,8 +213,30 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 		affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
 		                                                 &swapChain));
 		affirm(dxgiDevice->SetMaximumFrameLatency(1));
+
+#elif VR_RIFT
+		DXGI_SWAP_CHAIN_DESC scDesc = {0};
+		scDesc.BufferCount = 2;
+		scDesc.BufferDesc.Width = System::windowWidth(windowId);
+		scDesc.BufferDesc.Height = System::windowHeight(windowId);
+		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		scDesc.BufferDesc.RefreshRate.Denominator = 1;
+		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		scDesc.OutputWindow = (HWND)System::windowHandle(windowId);;
+		scDesc.SampleDesc.Count = 1;
+		scDesc.Windowed = true;
+		scDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
+
+		affirm(dxgiFactory->CreateSwapChain(device, &scDesc, &swapChain));
+		dxgiFactory->Release();
+
+		IDXGIDevice1* dxgiDevice = nullptr;
+		affirm(device->QueryInterface(__uuidof(IDXGIDevice1), (void**)&dxgiDevice));
+		affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		dxgiDevice->Release();
 #else
 		UINT flags = 0;
+
 #ifdef _DEBUG
 		flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -216,7 +245,6 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 #endif
 	}
 
-	ID3D11Texture2D* backBuffer;
 	affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
 	affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
@@ -453,7 +481,7 @@ unsigned Graphics::refreshRate() {
 }
 
 void Graphics::swapBuffers(int windowId) {
-	HRESULT hr = swapChain->Present(1, 0);
+	HRESULT hr = swapChain->Present(vsync, 0);
 	// TODO: if (hr == DXGI_STATUS_OCCLUDED)...
 	// http://www.pouet.net/topic.php?which=10454
 	// "Proper handling of DXGI_STATUS_OCCLUDED would be to pause the application,

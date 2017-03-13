@@ -11,12 +11,10 @@ namespace Kore {
 		void beginRender(int eye);
 		void endRender(int eye);
 		SensorState* getSensorState(int eye);
-		void warpSwap(/*kha::vr::TimeWarpParms_obj* parms*/);
+		void warpSwap();
 
 		void updateTrackingOrigin(TrackingOrigin origin);
 		void resetHmdPose();
 		void ovrShutdown();
-
-		void createOculusTexture();
 	}
 }

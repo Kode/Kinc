@@ -13,6 +13,7 @@ extern ID3D11Device* device;
 extern ID3D11DeviceContext* context;
 extern ID3D11RenderTargetView* renderTargetView;
 extern ID3D11DepthStencilView* depthStencilView;
+extern ID3D11Texture2D* backBuffer;
 extern Kore::u8 vertexConstants[1024 * 4];
 extern Kore::u8 fragmentConstants[1024 * 4];
 extern Kore::u8 geometryConstants[1024 * 4];
