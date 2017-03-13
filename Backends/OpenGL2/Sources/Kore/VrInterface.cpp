@@ -386,9 +386,6 @@ void* VrInterface::init(void* hinst) {
 	glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-	// Turn off vsync to let the compositor do its magic
-	wglSwapIntervalEXT(0);
-
 	// FloorLevel will give tracking poses where the floor height is 0
 	ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 
@@ -493,10 +490,6 @@ void VrInterface::warpSwap() {
 			ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
 			ld.RenderPose[eye] = EyePose[eye];			// EyePredictedPose[eye];
 			ld.SensorSampleTime = sensorSampleTime;		// predictedFrameTiming;
-
-			//log(Info, "viewport %i %i %i %i", ld.Viewport[eye].Size.w, ld.Viewport[eye].Size.h, ld.Viewport[eye].Pos.x, ld.Viewport[eye].Pos.y);
-			//log(Info, "Fov %f %f %f %f", ld.Fov[eye].UpTan, ld.Fov[eye].DownTan, ld.Fov[eye].LeftTan, ld.Fov[eye].RightTan);
-			//log(Info, "sensorSampleTime %i", sensorSampleTime);
 		}
 	}
 

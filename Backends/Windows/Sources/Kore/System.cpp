@@ -1030,7 +1030,11 @@ int Kore::System::initWindow(WindowOptions options) {
 	SetWindowLong(hwnd, GWL_STYLE, style);
 
 	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
-	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	bool vsync = true;
+#ifdef VR_RIFT
+	vsync = false;
+#endif
+	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, vsync);
 
 	return windowId;
 }
