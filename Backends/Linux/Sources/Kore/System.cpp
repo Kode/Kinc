@@ -295,9 +295,9 @@ namespace Kore {
 
 		int initWindow(WindowOptions options) {
 			char buffer[1024] = {0};
-			strcat(buffer, name());
+			strcpy(buffer, name());
 			if (options.title != nullptr) {
-				strcat(buffer, options.title);
+				strcpy(buffer, options.title);
 			}
 
 			int id = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay,

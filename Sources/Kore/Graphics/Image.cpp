@@ -38,6 +38,10 @@ int Image::sizeOf(Image::Format format) {
 		return 16;
 	case Image::RGBA32:
 		return 4;
+	case Image::RGBA64:
+		return 8;
+	case Image::A32:
+		return 4;
 	case Image::Grey8:
 		return 1;
 	}
@@ -61,6 +65,17 @@ Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), re
 
 Image::Image(Reader& reader, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
 	init(reader, format, readable);
+}
+
+Image::Image(void* data, int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
+	compressed = false;
+	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32;
+    if (isFloat) {
+        this->hdrData = (float*)data;
+    }
+    else {
+        this->data = (u8*)data;
+    }
 }
 
 Image::Image() : depth(1), format(RGBA32), readable(readable) {}
@@ -229,7 +244,7 @@ void Image::init(Kore::Reader& file, const char* format, bool readable) {
 
 Image::~Image() {
 	if (readable) {
-		if (format == RGBA128) {
+		if (format == RGBA128 || format == RGBA64 || format == A32) {
 			delete[] hdrData;
 			hdrData = nullptr;
 		}

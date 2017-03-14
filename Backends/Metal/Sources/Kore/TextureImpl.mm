@@ -85,6 +85,10 @@ void Texture::unlock() {
 	[texture replaceRegion:MTLRegionMake2D(0, 0, width, height) mipmapLevel:0 slice:0 withBytes:data bytesPerRow:stride() bytesPerImage:stride() * height];
 }
 
+void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+
+}
+
 #ifdef SYS_IOS
 void Texture::upload(u8* data) {}
 #endif

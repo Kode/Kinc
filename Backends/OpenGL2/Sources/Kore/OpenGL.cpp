@@ -262,7 +262,7 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 }
 
 void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
-	glUniform4fv(location.location, count, values);
+	glUniform4fv(location.location, count / 4, values);
 	glCheckErrors();
 }
 
@@ -874,7 +874,7 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
-#if (defined(OPENGL) && !defined(SYS_PI)) || (defined(SYS_ANDROID) && SYS_ANDROID_API >= 18)
+#if (defined(OPENGL) && !defined(SYS_PI) && !defined(SYS_ANDROID)) || (defined(SYS_ANDROID) && SYS_ANDROID_API >= 18)
 bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 	glGenQueries(1, occlusionQuery);
 	return true;
@@ -884,11 +884,17 @@ void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
 	glDeleteQueries(1, &occlusionQuery);
 }
 
+#if defined(OPENGLES)
+#define SAMPLES_PASSED GL_ANY_SAMPLES_PASSED
+#else
+#define SAMPLES_PASSED GL_SAMPLES_PASSED
+#endif
+
 void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
-	glBeginQuery(GL_SAMPLES_PASSED, occlusionQuery);
+	glBeginQuery(SAMPLES_PASSED, occlusionQuery);
 	glDrawArrays(GL_TRIANGLES, 0, triangles);
 	glCheckErrors();
-	glEndQuery(GL_SAMPLES_PASSED);
+	glEndQuery(SAMPLES_PASSED);
 }
 
 bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {

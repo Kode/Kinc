@@ -1,3 +1,6 @@
+
+#ifndef OPENGL_1_X
+
 #include "pch.h"
 
 #include "Graphics.h"
@@ -49,3 +52,5 @@ void Graphics::setVertexBuffer(VertexBuffer& vertexBuffer) {
 	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
 	setVertexBuffers(vertexBuffers, 1);
 }
+
+#endif

@@ -17,11 +17,12 @@ if (platform === Platform.Windows) {
 	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
 	project.addLib('ws2_32');
 
-	if (graphics === GraphicsApi.OpenGL) {
+	if (graphics === GraphicsApi.OpenGL1) {
 		addBackend('OpenGL');
 		project.addDefine('OPENGL');
+		project.addDefine('OPENGL_1_X');
 	}
-	else if (graphics === GraphicsApi.OpenGL2) {
+	else if (graphics === GraphicsApi.OpenGL) {
 		addBackend('OpenGL2');
 		project.addDefine('OPENGL');
 	}
@@ -79,6 +80,12 @@ else if (platform === Platform.OSX) {
 		project.addDefine('SYS_METAL');
 		project.addLib('Metal');
 		project.addLib('MetalKit');
+	}
+	if (graphics === GraphicsApi.OpenGL1) {
+		addBackend('OpenGL');
+		project.addDefine('OPENGL');
+		project.addDefine('OPENGL_1_X');
+		project.addLib('OpenGL');
 	}
 	else {
 		addBackend('OpenGL2');
