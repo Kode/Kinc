@@ -88,7 +88,7 @@ struct TextureBuffer {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, OVRRenderTarget->_depthTexture, 0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_FRAMEBUFFER_SRGB);
+		//glEnable(GL_FRAMEBUFFER_SRGB); // TODO: too bright
 	}
 
 	void UnsetRenderSurface() {
