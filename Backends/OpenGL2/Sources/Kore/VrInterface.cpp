@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include <Kore/Vr/VrInterface.h>
-
 #ifdef VR_RIFT
+
+#include <Kore/Vr/VrInterface.h>
 
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Log.h>
