@@ -148,7 +148,7 @@ struct OGL {
 		CloseWindow();
 	}
 
-	bool InitWindow(HINSTANCE hInst, LPCWSTR title) {
+	bool InitWindow(HINSTANCE hInst, const char* title) {
 		hInstance = hInst;
 		Running = true;
 
@@ -162,7 +162,9 @@ struct OGL {
 		RegisterClassW(&wc);
 
 		// adjust the window size and show at InitDevice time
-		Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
+		wchar_t wchTitle[256];
+		MultiByteToWideChar(CP_ACP, 0, title, -1, wchTitle, 256);
+		Window = CreateWindowW(wc.lpszClassName, wchTitle, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
 		if (!Window) return false;
 
 		SetWindowLongPtr(Window, 0, LONG_PTR(this));
@@ -331,9 +333,22 @@ namespace {
 		Platform.ReleaseDevice();
 		ovr_Destroy(session);
 	}
+
+	void createOculusTexture() {
+		// Make eye render buffers
+		for (int eye = 0; eye < 2; ++eye) {
+			ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
+			eyeRenderTexture[eye] = new TextureBuffer(session, true, idealTextureSize, 1, NULL, 1);
+
+			if (!eyeRenderTexture[eye]->TextureChain) {
+				log(Info, "Failed to create texture.");
+				done();
+			}
+		}
+	}
 }
 
-void* VrInterface::init(void* hinst) {
+void* VrInterface::init(void* hinst, const char* title) {
 	ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
@@ -341,7 +356,7 @@ void* VrInterface::init(void* hinst) {
 		return(0);
 	}
 
-	if (!Platform.InitWindow((HINSTANCE)hinst, L"Oculus Rift")) {
+	if (!Platform.InitWindow((HINSTANCE)hinst, title)) {
 		log(Warning, "Failed to open window.");
 		return(0);
 	}
@@ -412,6 +427,7 @@ void VrInterface::begin() {
 }
 
 void VrInterface::beginRender(int eye) {
+	if (eyeRenderTexture[0] == nullptr || eyeRenderTexture[1] == nullptr) createOculusTexture();
 	// Switch to eye render target
 	eyeRenderTexture[eye]->SetAndClearRenderSurface();
 }
@@ -488,8 +504,8 @@ void VrInterface::warpSwap() {
 			ld.ColorTexture[eye] = eyeRenderTexture[eye]->TextureChain;
 			ld.Viewport[eye] = OVR::Recti(eyeRenderTexture[eye]->GetSize());
 			ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
-			ld.RenderPose[eye] = EyePose[eye];			// EyePredictedPose[eye];
-			ld.SensorSampleTime = sensorSampleTime;		// predictedFrameTiming;
+			ld.RenderPose[eye] = EyePose[eye];
+			ld.SensorSampleTime = sensorSampleTime;
 		}
 	}
 
@@ -532,19 +548,6 @@ void VrInterface::resetHmdPose() {
 
 void VrInterface::ovrShutdown() {
 	ovr_Shutdown();
-}
-
-void VrInterface::createOculusTexture() {
-	// Make eye render buffers
-	for (int eye = 0; eye < 2; ++eye) {
-		ovrSizei idealTextureSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
-		eyeRenderTexture[eye] = new TextureBuffer(session, true, idealTextureSize, 1, NULL, 1);
-
-		if (!eyeRenderTexture[eye]->TextureChain) {
-			log(Info, "Failed to create texture.");
-			done();
-		}
-	}
 }
 
 #endif
