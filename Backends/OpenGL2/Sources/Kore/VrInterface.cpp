@@ -116,6 +116,8 @@ struct OGL {
 	int WinSizeH;
 	HINSTANCE hInstance;
 
+	LPCWSTR windowClassName = L"ORT";
+
 	static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
 		OGL *p = reinterpret_cast<OGL *>(GetWindowLongPtr(hWnd, 0));
 		switch (Msg) {
@@ -158,7 +160,7 @@ struct OGL {
 		wc.lpfnWndProc = WindowProc;
 		wc.cbWndExtra = sizeof(struct OGL *);
 		wc.hInstance = GetModuleHandleW(NULL);
-		wc.lpszClassName = L"ORT";
+		wc.lpszClassName = windowClassName;
 		RegisterClassW(&wc);
 
 		// adjust the window size and show at InitDevice time
@@ -182,7 +184,7 @@ struct OGL {
 			}
 			DestroyWindow(Window);
 			Window = nullptr;
-			UnregisterClassW(L"OGL", hInstance);
+			UnregisterClassW(windowClassName, hInstance);
 		}
 	}
 
