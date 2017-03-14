@@ -872,7 +872,7 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
 	int dstx = 0;
 	int dsty = 0;
-	HWND hwnd = (HWND)VrInterface::init(inst, title);
+	HWND hwnd = (HWND)VrInterface::init(inst, title, windowClassName);
 #else
 
 	if (windowCounter == 0) {

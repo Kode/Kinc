@@ -6,7 +6,7 @@ enum TrackingOrigin { Stand, Sit };
 
 namespace Kore {
 	namespace VrInterface {
-		void* init(void* hinst, const char* title);
+		void* init(void* hinst, const char* title, const char* windowClassName);
 		void begin();
 		void beginRender(int eye);
 		void endRender(int eye);

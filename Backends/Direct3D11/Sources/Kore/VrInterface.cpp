@@ -64,29 +64,6 @@ struct DirectX11 {
 
 	HINSTANCE hInstance;
 
-	LPCWSTR windowClassName = L"App";
-
-	static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
-		auto p = reinterpret_cast<DirectX11 *>(GetWindowLongPtr(hWnd, 0));
-		switch (Msg) {
-		case WM_KEYDOWN:
-			p->Key[wParam] = true;
-			break;
-		case WM_KEYUP:
-			p->Key[wParam] = false;
-			break;
-		case WM_DESTROY:
-			p->Running = false;
-			break;
-		default:
-			return DefWindowProcW(hWnd, Msg, wParam, lParam);
-		}
-		if ((p->Key['Q'] && p->Key[VK_CONTROL]) || p->Key[VK_ESCAPE]) {
-			p->Running = false;
-		}
-		return 0;
-	}
-
 	DirectX11() : Window(nullptr), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
 		// Clear input
 		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
@@ -98,22 +75,16 @@ struct DirectX11 {
 		CloseWindow();
 	}
 
-	bool InitWindow(HINSTANCE hinst, const char* title) {
+	bool InitWindow(HINSTANCE hinst, const char* title, const char* windowClassName) {
 		hInstance = hinst;
 		Running = true;
-
-		WNDCLASSW wc;
-		memset(&wc, 0, sizeof(wc));
-		wc.lpszClassName = windowClassName;
-		wc.style = CS_OWNDC;
-		wc.lpfnWndProc = WindowProc;
-		wc.cbWndExtra = sizeof(this);
-		RegisterClassW(&wc);
 
 		// Adjust the window size and show at InitDevice time
 		wchar_t wchTitle[256];
 		MultiByteToWideChar(CP_ACP, 0, title, -1, wchTitle, 256);
-		Window = CreateWindowW(wc.lpszClassName, wchTitle, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hinst, 0);
+		wchar_t wchClassName[256];
+		MultiByteToWideChar(CP_ACP, 0, windowClassName, -1, wchClassName, 256);
+		Window = CreateWindowW(wchClassName, wchTitle, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hinst, 0);
 		if (!Window) return false;
 
 		SetWindowLongPtr(Window, 0, LONG_PTR(this));
@@ -123,9 +94,7 @@ struct DirectX11 {
 
 	void CloseWindow() {
 		if (Window) {
-			DestroyWindow(Window);
 			Window = nullptr;
-			UnregisterClassW(windowClassName, hInstance);
 		}
 	}
 
@@ -145,10 +114,11 @@ struct DirectX11 {
 		return true;
 	}
 
-	void SetAndClearRenderTarget(ID3D11RenderTargetView* rendertarget, DepthBuffer* depthbuffer, float R = 0, float G = 0, float B = 0, float A = 0) {
+	void SetAndClearRenderTarget(ID3D11RenderTargetView* rendertarget, DepthBuffer* depthbuffer,
+								 float R = 0, float G = 0, float B = 0, float A = 0) {
 		float black[] = { R, G, B, A }; // Important that alpha=0, if want pixels to be transparent, for manual layers
-		context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr)); //see Graphics::begin
-		context->ClearRenderTargetView(rendertarget, black);	//see Graphics::clear
+		context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr));
+		context->ClearRenderTargetView(rendertarget, black);
 		if (depthbuffer)
 			context->ClearDepthStencilView(depthbuffer->TexDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 	}
@@ -250,8 +220,6 @@ namespace {
 	double predictedFrameTiming;
 	ovrTrackingState trackingState;
 
-	bool textureInitialized = false;
-
 	void done() {
 		if (mirrorTexture)
 			ovr_DestroyMirrorTexture(session, mirrorTexture);
@@ -289,12 +257,10 @@ namespace {
 				done();
 			}
 		}
-
-		textureInitialized = true;
 	}
 }
 
-void* VrInterface::init(void* hinst, const char* title) {
+void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
 	ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
@@ -302,7 +268,7 @@ void* VrInterface::init(void* hinst, const char* title) {
 		return(0);
 	}
 
-	if (!Platform.InitWindow((HINSTANCE)hinst, title)) {
+	if (!Platform.InitWindow((HINSTANCE)hinst, title, windowClassName)) {
 		log(Error, "Failed to open window.");
 		return(0);
 	}
@@ -331,8 +297,6 @@ void* VrInterface::init(void* hinst, const char* title) {
 }
 
 void VrInterface::begin() {
-	if (!textureInitialized) createOculusTexture();
-
 	// Call ovr_GetRenderDesc each frame to get the ovrEyeRenderDesc, as the returned values (e.g. HmdToEyeOffset) may change at runtime.
 	ovrEyeRenderDesc eyeRenderDesc[2];
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
@@ -351,6 +315,8 @@ void VrInterface::begin() {
 }
 
 void VrInterface::beginRender(int eye) {
+	if (pEyeRenderTexture[0] == nullptr || pEyeRenderTexture[1] == nullptr) createOculusTexture();
+
 	// Clear and set up rendertarget
 	Platform.SetAndClearRenderTarget(pEyeRenderTexture[eye]->GetRTV(), pEyeDepthBuffer[eye]);
 	Platform.SetViewport((float)eyeRenderViewport[eye].Pos.x, (float)eyeRenderViewport[eye].Pos.y,
@@ -395,8 +361,8 @@ SensorState* VrInterface::getSensorState(int eye) {
 	ovrVector3f predPos = EyePredictedPose[eye].Position;
 	predictedPoseState->vrPose->position = vec3(predPos.x, predPos.y, predPos.z);
 
-	//sensorState->pose = poseState;
-	sensorState->pose = predictedPoseState;
+	sensorState->predictedPose = predictedPoseState;
+	sensorState->pose = poseState;
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);

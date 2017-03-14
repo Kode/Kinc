@@ -116,29 +116,6 @@ struct OGL {
 	int WinSizeH;
 	HINSTANCE hInstance;
 
-	LPCWSTR windowClassName = L"ORT";
-
-	static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
-		OGL *p = reinterpret_cast<OGL *>(GetWindowLongPtr(hWnd, 0));
-		switch (Msg) {
-		case WM_KEYDOWN:
-			p->Key[wParam] = true;
-			break;
-		case WM_KEYUP:
-			p->Key[wParam] = false;
-			break;
-		case WM_DESTROY:
-			p->Running = false;
-			break;
-		default:
-			return DefWindowProcW(hWnd, Msg, wParam, lParam);
-		}
-		if ((p->Key['Q'] && p->Key[VK_CONTROL]) || p->Key[VK_ESCAPE]) {
-			p->Running = false;
-		}
-		return 0;
-	}
-
 	OGL() : Window(nullptr), hDC(nullptr), WglContext(nullptr),GLEContext(), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
 		// Clear input
 		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
@@ -150,23 +127,16 @@ struct OGL {
 		CloseWindow();
 	}
 
-	bool InitWindow(HINSTANCE hInst, const char* title) {
+	bool InitWindow(HINSTANCE hInst, const char* title, const char* windowClassName) {
 		hInstance = hInst;
 		Running = true;
 
-		WNDCLASSW wc;
-		memset(&wc, 0, sizeof(wc));
-		wc.style = CS_CLASSDC;
-		wc.lpfnWndProc = WindowProc;
-		wc.cbWndExtra = sizeof(struct OGL *);
-		wc.hInstance = GetModuleHandleW(NULL);
-		wc.lpszClassName = windowClassName;
-		RegisterClassW(&wc);
-
-		// adjust the window size and show at InitDevice time
+		// Adjust the window size and show at InitDevice time
 		wchar_t wchTitle[256];
 		MultiByteToWideChar(CP_ACP, 0, title, -1, wchTitle, 256);
-		Window = CreateWindowW(wc.lpszClassName, wchTitle, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, 0);
+		wchar_t wchClassName[256];
+		MultiByteToWideChar(CP_ACP, 0, windowClassName, -1, wchClassName, 256);
+		Window = CreateWindowW(wchClassName, wchTitle, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInst, 0);
 		if (!Window) return false;
 
 		SetWindowLongPtr(Window, 0, LONG_PTR(this));
@@ -182,9 +152,7 @@ struct OGL {
 				ReleaseDC(Window, hDC);
 				hDC = nullptr;
 			}
-			DestroyWindow(Window);
 			Window = nullptr;
-			UnregisterClassW(windowClassName, hInstance);
 		}
 	}
 
@@ -350,7 +318,7 @@ namespace {
 	}
 }
 
-void* VrInterface::init(void* hinst, const char* title) {
+void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
 	ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
@@ -358,7 +326,7 @@ void* VrInterface::init(void* hinst, const char* title) {
 		return(0);
 	}
 
-	if (!Platform.InitWindow((HINSTANCE)hinst, title)) {
+	if (!Platform.InitWindow((HINSTANCE)hinst, title, windowClassName)) {
 		log(Warning, "Failed to open window.");
 		return(0);
 	}
