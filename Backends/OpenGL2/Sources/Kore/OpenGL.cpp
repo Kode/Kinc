@@ -223,7 +223,11 @@ unsigned Graphics::refreshRate() {
 }
 
 bool Graphics::vsynced() {
+#ifdef SYS_WINDOWS
 	return wglGetSwapIntervalEXT();
+#else
+	return true;
+#endif
 }
 
 void Graphics::setBool(ConstantLocation location, bool value) {
