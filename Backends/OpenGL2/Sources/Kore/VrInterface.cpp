@@ -472,8 +472,8 @@ SensorState* VrInterface::getSensorState(int eye) {
 	ovrVector3f predPos = EyePredictedPose[eye].Position;
 	predictedPoseState->vrPose->position = vec3(predPos.x, predPos.y, predPos.z);
 
-	//sensorState->pose = poseState;
-	sensorState->pose = predictedPoseState;
+	sensorState->predictedPose = predictedPoseState;
+	sensorState->pose = poseState;
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
