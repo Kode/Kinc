@@ -27,7 +27,7 @@ using namespace Kore;
 
 //------------------------------------------------------------
 struct DepthBuffer {
-	ID3D11DepthStencilView* TexDsv;		// depthStencilView
+	ID3D11DepthStencilView* TexDsv;
 
 	DepthBuffer(ID3D11Device * Device, int sizeW, int sizeH, int sampleCount = 1) {
 		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT;
@@ -64,6 +64,8 @@ struct DirectX11 {
 
 	HINSTANCE hInstance;
 
+	LPCWSTR windowClassName = L"App";
+
 	static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT Msg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
 		auto p = reinterpret_cast<DirectX11 *>(GetWindowLongPtr(hWnd, 0));
 		switch (Msg) {
@@ -96,20 +98,22 @@ struct DirectX11 {
 		CloseWindow();
 	}
 
-	bool InitWindow(HINSTANCE hinst, LPCWSTR title) {
+	bool InitWindow(HINSTANCE hinst, const char* title) {
 		hInstance = hinst;
 		Running = true;
 
 		WNDCLASSW wc;
 		memset(&wc, 0, sizeof(wc));
-		wc.lpszClassName = L"App";
+		wc.lpszClassName = windowClassName;
 		wc.style = CS_OWNDC;
 		wc.lpfnWndProc = WindowProc;
 		wc.cbWndExtra = sizeof(this);
 		RegisterClassW(&wc);
 
 		// Adjust the window size and show at InitDevice time
-		Window = CreateWindowW(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hinst, 0);
+		wchar_t wchTitle[256];
+		MultiByteToWideChar(CP_ACP, 0, title, -1, wchTitle, 256);
+		Window = CreateWindowW(wc.lpszClassName, wchTitle, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hinst, 0);
 		if (!Window) return false;
 
 		SetWindowLongPtr(Window, 0, LONG_PTR(this));
@@ -121,7 +125,7 @@ struct DirectX11 {
 		if (Window) {
 			DestroyWindow(Window);
 			Window = nullptr;
-			UnregisterClassW(L"App", hInstance);
+			UnregisterClassW(windowClassName, hInstance);
 		}
 	}
 
@@ -171,8 +175,6 @@ struct OculusTexture {
 	ovrTextureSwapChain TextureChain;
 	std::vector<ID3D11RenderTargetView*> TexRtv;
 
-//	RenderTarget* OVRRenderTarget;
-
 	OculusTexture(ovrSession session, int sizeW, int sizeH) : Session(session), TextureChain(nullptr) {
 		ovrTextureSwapChainDesc desc = {};
 		desc.Type = ovrTexture_2D;
@@ -200,7 +202,6 @@ struct OculusTexture {
 				ID3D11RenderTargetView* rtv;
 				device->CreateRenderTargetView(tex, &rtvd, &rtv);
 				TexRtv.push_back(rtv);
-				//OVRRenderTarget = new RenderTarget(sizeW, sizeH, 1);
 				tex->Release();
 			}
 		}
@@ -215,21 +216,11 @@ struct OculusTexture {
 			ovr_DestroyTextureSwapChain(Session, TextureChain);
 			TextureChain = nullptr;
 		}
-		/*if (OVRRenderTarget) {
-			delete OVRRenderTarget;
-			OVRRenderTarget = nullptr;
-		}*/
 	}
 
 	ID3D11RenderTargetView* GetRTV() {
 		int index = 0;
 		ovr_GetTextureSwapChainCurrentIndex(Session, TextureChain, &index);
-		
-		//ID3D11Texture2D* tex = nullptr;
-		//ovr_GetTextureSwapChainBufferDX(Session, TextureChain, index, IID_PPV_ARGS(&tex));
-
-		//if (OVRRenderTarget) Graphics::setRenderTarget(OVRRenderTarget, 0, 0);
-
 		return TexRtv[index];
 	}
 
@@ -303,7 +294,7 @@ namespace {
 	}
 }
 
-void* VrInterface::init(void* hinst) {
+void* VrInterface::init(void* hinst, const char* title) {
 	ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
@@ -311,7 +302,7 @@ void* VrInterface::init(void* hinst) {
 		return(0);
 	}
 
-	if (!Platform.InitWindow((HINSTANCE)hinst, L"Oculus Rift")) {
+	if (!Platform.InitWindow((HINSTANCE)hinst, title)) {
 		log(Error, "Failed to open window.");
 		return(0);
 	}
