@@ -56,7 +56,11 @@ namespace {
 		case Image::RGB24:
 			return GL_RGB;
 		case Image::A32:
+#ifdef OPENGLES
+			return GL_LUMINANCE;
+#else
 			return GL_R8;
+#endif
 		case Image::Grey8:
 #ifdef OPENGLES
 			return GL_LUMINANCE;
