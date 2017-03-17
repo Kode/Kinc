@@ -6,6 +6,12 @@
 
 #include <cstdio>
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+
+#undef RegisterClass
+
 // TODO (DK) use the windows defines versions instead of ascii functionA (GetMonitorInfoA -> GetMonitorInfo)?
 namespace Kore {
 	namespace Display {
