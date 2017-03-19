@@ -837,6 +837,7 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 		// System::makeCurrent(texture->contextId);
 		glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
 		glCheckErrors();
+		if (texture->isCubeMap) glFramebufferTexture(GL_FRAMEBUFFER, texture->isDepthAttachment ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0, texture->_texture, 0); // Layered
 		glViewport(0, 0, texture->width, texture->height);
 		_renderTargetWidth = texture->width;
 		_renderTargetHeight = texture->height;
@@ -856,6 +857,17 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 #endif
 		}
 	}
+}
+
+void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+	glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
+	glCheckErrors();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, texture->isDepthAttachment ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, texture->_texture, 0);
+	glViewport(0, 0, texture->width, texture->height);
+	_renderTargetWidth = texture->width;
+	_renderTargetHeight = texture->height;
+	renderToBackbuffer = false;
+	glCheckErrors();
 }
 
 void Graphics::restoreRenderTarget() {
