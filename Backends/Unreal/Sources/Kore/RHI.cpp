@@ -61,6 +61,10 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 
 }
 
+void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+	
+}
+
 void Graphics::restoreRenderTarget() {
 
 }

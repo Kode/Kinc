@@ -703,6 +703,10 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 	commandList->RSSetScissorRects(1, (D3D12_RECT*)&target->scissor);
 }
 
+void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+	
+}
+
 void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
 	buffers[0]->_set(0);
 }

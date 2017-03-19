@@ -332,6 +332,10 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	createDescriptorSet(nullptr, this, desc_set);
 }
 
+RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+	
+}
+
 RenderTarget::~RenderTarget() {}
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {

@@ -76,6 +76,10 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
 }
 
+RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+	
+}
+
 RenderTarget::~RenderTarget() {
 	renderTarget->Release();
 	renderTargetDescriptorHeap->Release();

@@ -50,6 +50,10 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	}
 }
 
+RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+	
+}
+
 RenderTarget::~RenderTarget() {
 	if (colorSurface != nullptr) colorSurface->Release();
 	if (depthSurface != nullptr) depthSurface->Release();

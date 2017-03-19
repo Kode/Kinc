@@ -1639,6 +1639,10 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }
 
+void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+	
+}
+
 void Graphics::restoreRenderTarget() {
 	if (onBackBuffer) return;
 
