@@ -9,6 +9,6 @@ namespace Kore {
 		bool _hasDepth;
 		// unsigned _depthRenderbuffer;
 		int contextId;
-		void setupDepthStencil(int depthBufferBits, int stencilBufferBits, int width, int height);
+		void setupDepthStencil(unsigned int texType, int depthBufferBits, int stencilBufferBits, int width, int height);
 	};
 }
