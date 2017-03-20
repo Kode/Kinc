@@ -2,7 +2,8 @@
 
 #include "SoundStream.h"
 
-#include "stb_vorbis.h"
+#define STB_VORBIS_HEADER_ONLY
+#include "stb_vorbis.c"
 #include <Kore/IO/FileReader.h>
 #include <string.h>
 

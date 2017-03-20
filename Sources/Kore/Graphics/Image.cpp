@@ -80,7 +80,7 @@ Image::Image(void* data, int width, int height, Format format, bool readable) : 
     }
 }
 
-Image::Image() : depth(1), format(RGBA32), readable(readable) {}
+Image::Image() : depth(1), format(RGBA32), readable(false) {}
 
 void Image::init(Kore::Reader& file, const char* format, bool readable) {
 	if (endsWith(format, "k")) {
@@ -98,7 +98,7 @@ void Image::init(Kore::Reader& file, const char* format, bool readable) {
 			internalFormat = 0;
 			size_t length;
 			snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
-			dataSize = length;
+			dataSize = static_cast<int>(length);
 			this->data = (u8*)malloc(length);
 			snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
 		}

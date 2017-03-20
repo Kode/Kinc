@@ -33,8 +33,8 @@
 	statusCode = (int)[httpResponse statusCode];
 }
 
-- (void)connection:(NSURLConnection*)connection didReceiveData:(NSData*)data {
-	[responseData appendData:data];
+- (void)connection:(NSURLConnection*)connection didReceiveData:(NSData*)moreData {
+	[responseData appendData:moreData];
 }
 
 - (NSCachedURLResponse*)connection:(NSURLConnection*)connection willCacheResponse:(NSCachedURLResponse*)cachedResponse {

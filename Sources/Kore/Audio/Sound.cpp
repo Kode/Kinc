@@ -3,7 +3,8 @@
 #include "Audio.h"
 #include "Sound.h"
 
-#include "stb_vorbis.h"
+#define STB_VORBIS_HEADER_ONLY
+#include "stb_vorbis.c"
 #include <Kore/Error.h>
 #include <Kore/IO/FileReader.h>
 #include <string.h>
@@ -82,9 +83,8 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), rig
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
 		FileReader file(filename);
 		u8* filedata = (u8*)file.readAll();
-		size = 4 * stb_vorbis_decode_memory(filedata, file.size(), &format.channels, (short**)&data);
+		size = 4 * stb_vorbis_decode_memory(filedata, file.size(), &format.channels, &format.samplesPerSecond, (short**)&data);
 		format.bitsPerSample = 16;
-		format.samplesPerSecond = 44100;
 	}
 	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
 		WaveData wave = {0};
