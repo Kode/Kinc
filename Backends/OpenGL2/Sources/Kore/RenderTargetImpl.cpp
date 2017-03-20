@@ -51,7 +51,7 @@ namespace {
 	}
 }
 
-void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferBits, int width, int height) {
+void RenderTargetImpl::setupDepthStencil(GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
 		_hasDepth = true;
 #if defined(OPENGLES) && !defined(SYS_PI)
@@ -82,22 +82,22 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 		// Texture
 		glGenTextures(1, &_depthTexture);
 		glCheckErrors();
-		glBindTexture(GL_TEXTURE_2D, _depthTexture);
+		glBindTexture(texType, _depthTexture);
 		glCheckErrors();
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+		glTexImage2D(texType, 0, internalFormat, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		glCheckErrors();
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glCheckErrors();
 		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 		glCheckErrors();
 #ifdef OPENGLES
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTexture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, _depthTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, _depthTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, texType, _depthTexture, 0);
 #else
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, _depthTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, texType, _depthTexture, 0);
 #endif
 		glCheckErrors();
 	}
@@ -115,24 +115,24 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 		// Texture
 		glGenTextures(1, &_depthTexture);
 		glCheckErrors();
-		glBindTexture(GL_TEXTURE_2D, _depthTexture);
+		glBindTexture(texType, _depthTexture);
 		glCheckErrors();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+		glTexImage2D(texType, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		glCheckErrors();
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glCheckErrors();
 		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 		glCheckErrors();
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, _depthTexture, 0);
 		glCheckErrors();
 	}
 }
 
 RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
-    : width(width), height(height) {
+    : width(width), height(height), isCubeMap(false), isDepthAttachment(false) {
 
 	_hasDepth = false;
 
@@ -197,7 +197,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glCheckErrors();
 
-	setupDepthStencil(depthBufferBits, stencilBufferBits, texWidth, texHeight);
+	setupDepthStencil(GL_TEXTURE_2D, depthBufferBits, stencilBufferBits, texWidth, texHeight);
 
 	if (format == Target16BitDepth) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _texture, 0);
@@ -219,6 +219,90 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 }
 
+RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+    : width(cubeMapSize), height(cubeMapSize), isCubeMap(true), isDepthAttachment(false) {
+
+	_hasDepth = false;
+
+	if (nonPow2RenderTargetsSupported()) {
+		texWidth = width;
+		texHeight = height;
+	}
+	else {
+		texWidth = getPower2(width);
+		texHeight = getPower2(height);
+	}
+
+	this->contextId = contextId;
+
+	// (DK) required on windows/gl
+	Kore::System::makeCurrent(contextId);
+
+	glGenTextures(1, &_texture);
+	glCheckErrors();
+	glBindTexture(GL_TEXTURE_CUBE_MAP, _texture);
+	glCheckErrors();
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glCheckErrors();
+
+	switch (format) {
+	case Target128BitFloat:
+#ifdef OPENGLES
+		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
+#else
+		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
+#endif
+		break;
+	case Target64BitFloat:
+#ifdef OPENGLES
+		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
+#else
+		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
+#endif
+		break;
+	case Target16BitDepth:
+#ifdef OPENGLES
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+#endif
+		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+		break;
+	case Target32Bit:
+	default:
+		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	}
+
+	glCheckErrors();
+	glGenFramebuffers(1, &_framebuffer);
+	glCheckErrors();
+	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glCheckErrors();
+
+	setupDepthStencil(GL_TEXTURE_CUBE_MAP, depthBufferBits, stencilBufferBits, texWidth, texHeight);
+
+	if (format == Target16BitDepth) {
+		isDepthAttachment = true;
+#ifndef OPENGLES
+		glDrawBuffer(GL_NONE);
+		glCheckErrors();
+		glReadBuffer(GL_NONE);
+		glCheckErrors();
+#endif
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glCheckErrors();
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	glCheckErrors();
+}
+
 RenderTarget::~RenderTarget() {
 	{
 		GLuint textures[] = { _texture };
@@ -235,18 +319,18 @@ RenderTarget::~RenderTarget() {
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
-	glBindTexture(GL_TEXTURE_2D, _texture);
+	glBindTexture(isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, _texture);
 	glCheckErrors();
 }
 
 void RenderTarget::useDepthAsTexture(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
-	glBindTexture(GL_TEXTURE_2D, _depthTexture);
+	glBindTexture(isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, _depthTexture);
 	glCheckErrors();
 }
 
 void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, source->_depthTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, source->_depthTexture, 0);
 }

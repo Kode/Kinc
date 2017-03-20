@@ -373,6 +373,10 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 	affirm(device->SetRenderTarget(num, target->colorSurface));
 }
 
+void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+	
+}
+
 // void Graphics::setDepthStencilTarget(Texture* texture) {
 //	//if (depthBuffer != nullptr) depthBuffer->Release();
 //	device->GetDepthStencilSurface(&depthBuffer);

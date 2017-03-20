@@ -105,12 +105,16 @@ namespace Kore {
 	public:
 		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
 		             int contextId = 0);
+		RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
+		             int contextId = 0);
 		~RenderTarget();
 		int width;
 		int height;
 		int texWidth;
 		int texHeight;
 		int contextId;
+		bool isCubeMap;
+		bool isDepthAttachment;
 		void useColorAsTexture(TextureUnit unit);
 		void useDepthAsTexture(TextureUnit unit);
 		void setDepthStencilFrom(RenderTarget* source);
@@ -149,6 +153,7 @@ namespace Kore {
 
 		bool renderTargetsInvertedY();
 		void setRenderTarget(RenderTarget* texture, int num = 0, int additionalTargets = 0);
+		void setRenderTargetFace(RenderTarget* texture, int face = 0);
 		void restoreRenderTarget();
 
 		// TODO (DK) windowId should be renamed contextId?

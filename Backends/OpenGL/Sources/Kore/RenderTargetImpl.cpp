@@ -208,6 +208,10 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 }
 
+RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+	
+}
+
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();

@@ -278,6 +278,8 @@ void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperati
 
 void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {}
 
+void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {}
+
 void Graphics::restoreRenderTarget() {}
 
 void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {}

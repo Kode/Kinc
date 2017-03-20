@@ -853,6 +853,10 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 	context->RSSetViewports(1, &viewPort);
 }
 
+void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+	
+}
+
 void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
 	buffers[0]->_set(0);
 
