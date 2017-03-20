@@ -36,11 +36,11 @@ int kore(int argc, char** argv);
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
 	// CGRect rect = [[UIScreen mainScreen] applicationFrame];
-	CGRect screenBounds = [[UIScreen mainScreen] bounds];
+	// CGRect screenBounds = [[UIScreen mainScreen] bounds];
 
 	// window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, Kore::max(screenBounds.size.width, screenBounds.size.height),
 	// Kore::max(screenBounds.size.width, screenBounds.size.height))];
-	CGRect bounds = [[UIScreen mainScreen] bounds];
+	// CGRect bounds = [[UIScreen mainScreen] bounds];
 	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	[window setBackgroundColor:[UIColor blackColor]];
 
@@ -62,35 +62,35 @@ int kore(int argc, char** argv);
 }
 
 #ifndef SYS_TVOS
-static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
-	switch (orientation) {
-	case UIDeviceOrientationLandscapeLeft:
-		return Kore::OrientationLandscapeRight;
-	case UIDeviceOrientationLandscapeRight:
-		return Kore::OrientationLandscapeLeft;
-	case UIDeviceOrientationPortrait:
-		return Kore::OrientationPortrait;
-	case UIDeviceOrientationPortraitUpsideDown:
-		return Kore::OrientationPortraitUpsideDown;
-	default:
-		return Kore::OrientationUnknown;
-	}
-}
+//static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
+//	switch (orientation) {
+//	case UIDeviceOrientationLandscapeLeft:
+//		return Kore::OrientationLandscapeRight;
+//	case UIDeviceOrientationLandscapeRight:
+//		return Kore::OrientationLandscapeLeft;
+//	case UIDeviceOrientationPortrait:
+//		return Kore::OrientationPortrait;
+//	case UIDeviceOrientationPortraitUpsideDown:
+//		return Kore::OrientationPortraitUpsideDown;
+//	default:
+//		return Kore::OrientationUnknown;
+//	}
+//}
 
-static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orientation, UIInterfaceOrientation lastOrientation) {
-	switch (orientation) {
-	case UIDeviceOrientationLandscapeLeft:
-		return UIInterfaceOrientationLandscapeRight;
-	case UIDeviceOrientationLandscapeRight:
-		return UIInterfaceOrientationLandscapeLeft;
-	case UIDeviceOrientationPortrait:
-		return UIInterfaceOrientationPortrait;
-	case UIDeviceOrientationPortraitUpsideDown:
-		return UIInterfaceOrientationPortraitUpsideDown;
-	default:
-		return lastOrientation;
-	}
-}
+//static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orientation, UIInterfaceOrientation lastOrientation) {
+//	switch (orientation) {
+//	case UIDeviceOrientationLandscapeLeft:
+//		return UIInterfaceOrientationLandscapeRight;
+//	case UIDeviceOrientationLandscapeRight:
+//		return UIInterfaceOrientationLandscapeLeft;
+//	case UIDeviceOrientationPortrait:
+//		return UIInterfaceOrientationPortrait;
+//	case UIDeviceOrientationPortraitUpsideDown:
+//		return UIInterfaceOrientationPortraitUpsideDown;
+//	default:
+//		return lastOrientation;
+//	}
+//}
 #endif
 
 void KoreUpdateKeyboard();

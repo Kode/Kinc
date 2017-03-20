@@ -836,7 +836,9 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 		// System::makeCurrent(texture->contextId);
 		glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
 		glCheckErrors();
+#if !defined(OPENGLES)
 		if (texture->isCubeMap) glFramebufferTexture(GL_FRAMEBUFFER, texture->isDepthAttachment ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0, texture->_texture, 0); // Layered
+#endif
 		glViewport(0, 0, texture->width, texture->height);
 		_renderTargetWidth = texture->width;
 		_renderTargetHeight = texture->height;

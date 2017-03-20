@@ -25,7 +25,7 @@ void iosStopVideoSoundStream() {
 }
 
 namespace {
-	const int samplesPerSecond = 44100;
+	// const int samplesPerSecond = 44100;
 
 	void affirm(OSStatus err) {
 		if (err) {

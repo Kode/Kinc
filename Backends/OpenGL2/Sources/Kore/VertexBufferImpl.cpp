@@ -96,9 +96,11 @@ int VertexBuffer::stride() {
 	return myStride;
 }
 
+#ifndef OPENGLES
 namespace {
 	bool attribDivisorUsed = false;
 }
+#endif
 
 int VertexBufferImpl::setVertexAttributes(int offset) {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);

@@ -49,7 +49,8 @@ Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param) {
 	memset(&sp, 0, sizeof(sp));
 	sp.sched_priority = 0;
 	pthread_attr_setschedparam(&attr, &sp);
-	int ret = pthread_create(&t->pthread, &attr, &threadProc, t);
+	// int ret =
+	pthread_create(&t->pthread, &attr, &threadProc, t);
 	// Kt::affirmD(ret == 0);
 	pthread_attr_destroy(&attr);
 

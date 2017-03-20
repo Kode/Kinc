@@ -6,6 +6,6 @@
 	// Kt::GyroHandler* gyroHandler;
 }
 
-+ (Motion*)the;
+// + (Motion*)the;
 
 @end
