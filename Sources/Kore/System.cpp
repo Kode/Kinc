@@ -5,6 +5,7 @@
 #include <Kore/Math/Random.h>
 
 #include <limits>
+#include <string.h>
 
 #ifndef SYS_HTML5
 #ifndef SYS_ANDROID
@@ -136,7 +137,7 @@ namespace {
 	namespace appstate {
 		bool running = false;
 		bool showWindowFlag = true;
-		const char* name = "KoreApplication";
+		char name[1024] = {"KoreApplication"};
 	}
 }
 
@@ -149,7 +150,7 @@ bool Kore::System::hasShowWindowFlag() {
 }
 
 void Kore::System::setName(const char* value) {
-	appstate::name = value; // TODO (DK) strcpy?
+	strcpy(appstate::name, value);
 }
 
 const char* Kore::System::name() {
