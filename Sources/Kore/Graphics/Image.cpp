@@ -44,6 +44,8 @@ int Image::sizeOf(Image::Format format) {
 		return 4;
 	case Image::Grey8:
 		return 1;
+	case Image::RGB24:
+		return 3;
 	}
 	return -1;
 }
@@ -120,27 +122,27 @@ void Image::init(Kore::Reader& file, const char* format, bool readable) {
 		}
 	}
 	else if (endsWith(format, "pvr")) {
-		u32 version = file.readU32LE();
-		u32 flags = file.readU32LE();
-		u64 pixelFormat1 = file.readU64LE();
-		u32 colourSpace = file.readU32LE();
-		u32 channelType = file.readU32LE();
+		file.readU32LE(); // version
+		file.readU32LE(); // flags
+		file.readU64LE(); // pixelFormat1
+		file.readU32LE(); // colourSpace
+		file.readU32LE(); // channelType
 		u32 height = file.readU32LE();
 		u32 width = file.readU32LE();
-		u32 depth = file.readU32LE();
-		u32 numSurfaces = file.readU32LE();
-		u32 numFaces = file.readU32LE();
-		u32 mipMapCount = file.readU32LE();
+		file.readU32LE(); // depth
+		file.readU32LE(); // numSurfaces
+		file.readU32LE(); // numFaces
+		file.readU32LE(); // mipMapCount
 		u32 metaDataSize = file.readU32LE();
 
 		u32 meta1fourcc = file.readU32LE();
-		u32 meta1key = file.readU32LE();
-		u32 meta1size = file.readU32LE();
+		file.readU32LE(); // meta1key
+		file.readU32LE(); // meta1size
 		u32 meta1data = file.readU32LE();
 
 		u32 meta2fourcc = file.readU32LE();
-		u32 meta2key = file.readU32LE();
-		u32 meta2size = file.readU32LE();
+		file.readU32LE(); // meta2key
+		file.readU32LE(); // meta2size
 		u32 meta2data = file.readU32LE();
 
 		int w = 0;
@@ -164,10 +166,10 @@ void Image::init(Kore::Reader& file, const char* format, bool readable) {
 		}
 	}
 	else if (endsWith(format, "astc")) {
-		u32 magic = file.readU32LE();
+		file.readU32LE(); // magic
 		u8 blockdim_x = file.readU8();
 		u8 blockdim_y = file.readU8();
-		u8 blockdim_z = file.readU8();
+		file.readU8(); // blockdim_z
 		internalFormat = (blockdim_x << 8) + blockdim_y;
 		u8 xsize[4];
 		xsize[0] = file.readU8();

@@ -47,10 +47,10 @@ Kravur* Kravur::load(const char* name, FontStyle style, float size) {
 }
 
 Kravur::Kravur(Reader* reader) {
-	int size = reader->readS32LE();
+	reader->readS32LE(); // size
 	int ascent = reader->readS32LE();
-	int descent = reader->readS32LE();
-	int lineGap = reader->readS32LE();
+	reader->readS32LE(); // descent
+	reader->readS32LE(); // lineGap
 	baseline = static_cast<float>(ascent);
 	for (int i = 0; i < 256 - 32; ++i) {
 		BakedChar c;

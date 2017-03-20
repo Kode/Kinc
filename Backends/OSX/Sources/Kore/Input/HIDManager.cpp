@@ -68,7 +68,7 @@ int HIDManager::initHIDManager() {
 		// Check how many devices are connected
 		CFSetRef deviceSetRef = IOHIDManagerCopyDevices(managerRef);
 		if (deviceSetRef) {
-			CFIndex num_devices = CFSetGetCount(deviceSetRef);
+			// CFIndex num_devices = CFSetGetCount(deviceSetRef);
 			// log(Info, "%d gamepad(s) found.\n",(int)num_devices);
 			CFRelease(deviceSetRef);
 		}
@@ -139,7 +139,7 @@ void HIDManager::deviceConnected(void* inContext, IOReturn inResult, void* inSen
 		log(Warning, "Too many gamepads connected");
 	}
 
-	HIDGamepad* hidDevice = new HIDGamepad(inIOHIDDeviceRef, padIndex);
+	// HIDGamepad* hidDevice = new HIDGamepad(inIOHIDDeviceRef, padIndex);
 	gamepadList[padIndex] = true;
 	++connectedGamepads;
 

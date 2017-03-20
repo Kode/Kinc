@@ -1,6 +1,9 @@
-#include <string.h>
 #include "pch.h"
+
 #include "BufferReader.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 namespace Kore {
 
@@ -8,7 +11,7 @@ namespace Kore {
 
 	BufferReader::~BufferReader() {
 		if (readAllBuffer != nullptr)
-			delete[] readAllBuffer;
+			free(readAllBuffer);
 	}
 
 	int BufferReader::read(void* data, int size) {
@@ -22,8 +25,8 @@ namespace Kore {
 	// create a copy of the buffer, because returned buffer can be changed...
 	void* BufferReader::readAll() {
 		if (readAllBuffer != nullptr) 
-			delete[] readAllBuffer;
-		readAllBuffer = new Kore::u8[bufferSize];
+			free(readAllBuffer);
+		readAllBuffer = malloc(bufferSize);
 		memcpy(readAllBuffer, buffer, bufferSize);
 		return readAllBuffer;
 	}

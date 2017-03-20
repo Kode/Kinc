@@ -252,8 +252,8 @@ int FileReader::read(void* data, int size) {
 
 void* FileReader::readAll() {
 	seek(0);
-	delete[] readdata;
-	readdata = new Kore::u8[this->data.size];
+	free(readdata);
+	readdata = malloc(this->data.size);
 	read(readdata, this->data.size);
 	return readdata;
 }
@@ -287,7 +287,7 @@ void FileReader::close() {
 	fclose((FILE*)data.file);
 	data.file = nullptr;
 #endif
-	delete[] readdata;
+	free(readdata);
 	readdata = nullptr;
 }
 

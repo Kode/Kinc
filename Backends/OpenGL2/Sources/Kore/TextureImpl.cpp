@@ -179,6 +179,11 @@ namespace {
 				}
 			}
 			break;
+			case Image::RGB24:
+			case Image::RGBA128:
+			case Image::RGBA64:
+			case Image::A32:
+				break;
 		}
 	}
 }

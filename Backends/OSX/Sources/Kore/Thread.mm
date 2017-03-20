@@ -46,7 +46,8 @@ Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param) {
 	memset(&sp, 0, sizeof(sp));
 	sp.sched_priority = 0;
 	pthread_attr_setschedparam(&attr, &sp);
-	int ret = pthread_create(&t->pthread, &attr, &ThreadProc, t);
+	// int ret =
+	pthread_create(&t->pthread, &attr, &ThreadProc, t);
 	// Kt::affirmD(ret == 0);
 	pthread_attr_destroy(&attr);
 
@@ -71,7 +72,7 @@ Again:;
 	int ret = pthread_join(t->pthread, NULL);
 	if (ret != 0) goto Again;
 	mutex.Unlock();
-	int ti = static_cast<int>(((upint)t - (upint)&tt[0]) / sizeof(IOS_Thread));
+	// int ti = static_cast<int>(((upint)t - (upint)&tt[0]) / sizeof(IOS_Thread));
 	// ia.DeallocateIndex(ti);
 }
 

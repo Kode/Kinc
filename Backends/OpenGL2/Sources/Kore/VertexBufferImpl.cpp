@@ -40,6 +40,8 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 		case Float4x4VertexData:
 			myStride += 4 * 4 * 4;
 			break;
+		case NoVertexData:
+			break;
 		}
 	}
 	this->structure = structure;
@@ -128,6 +130,8 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		case Float4x4VertexData:
 			size = 16;
 			break;
+		case NoVertexData:
+			break;
 		}
 		if (size > 4) {
 			int subsize = size;
@@ -135,7 +139,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			while (subsize > 0) {
 				glEnableVertexAttribArray(offset + actualIndex);
 				glCheckErrors();
-				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, (void*)(internaloffset + addonOffset));
+				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, reinterpret_cast<void*>(internaloffset + addonOffset));
 				glCheckErrors();
 #ifndef OPENGLES
 				if (attribDivisorUsed || instanceDataStepRate != 0) {
@@ -152,7 +156,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		else {
 			glEnableVertexAttribArray(offset + actualIndex);
 			glCheckErrors();
-			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, (void*)internaloffset);
+			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, reinterpret_cast<void*>(internaloffset));
 			glCheckErrors();
 #ifndef OPENGLES
 			if (attribDivisorUsed || instanceDataStepRate != 0) {
@@ -181,6 +185,8 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			break;
 		case Float4x4VertexData:
 			internaloffset += 4 * 4 * 4;
+			break;
+		case NoVertexData:
 			break;
 		}
 	}

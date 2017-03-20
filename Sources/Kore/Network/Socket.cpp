@@ -170,7 +170,7 @@ void Socket::send(unsigned address, int port, const u8* data, int size) {
 	addr.sin_addr.s_addr = htonl(address);
 	addr.sin_port = htons(port);
 
-	int sent = sendto(handle, (const char*)data, size, 0, (sockaddr*)&addr, sizeof(sockaddr_in));
+	size_t sent = sendto(handle, (const char*)data, size, 0, (sockaddr*)&addr, sizeof(sockaddr_in));
 	if (sent != size) {
 		log(Kore::Error, "Could not send packet.");
 	}
@@ -186,7 +186,7 @@ void Socket::send(const char* url, int port, const u8* data, int size) {
 		return;
 	}
 
-	int sent = sendto(handle, (const char*)data, size, 0, address->ai_addr, sizeof(sockaddr_in));
+	size_t sent = sendto(handle, (const char*)data, size, 0, address->ai_addr, sizeof(sockaddr_in));
 	if (sent != size) {
 		log(Kore::Error, "Could not send packet.");
 	}
@@ -201,11 +201,11 @@ int Socket::receive(u8* data, int maxSize, unsigned& fromAddress, unsigned& from
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
 	sockaddr_in from;
 	socklen_t fromLength = sizeof(from);
-	int bytes = recvfrom(handle, (char*)data, maxSize, 0, (sockaddr*)&from, &fromLength);
-	if (bytes <= 0) return bytes;
+	ssize_t bytes = recvfrom(handle, (char*)data, maxSize, 0, (sockaddr*)&from, &fromLength);
+	if (bytes <= 0) return static_cast<int>(bytes);
 	fromAddress = ntohl(from.sin_addr.s_addr);
 	fromPort = ntohs(from.sin_port);
-	return bytes;
+	return static_cast<int>(bytes);
 #else
 	return 0;
 #endif

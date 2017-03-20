@@ -45,7 +45,7 @@ namespace {
 		return sample1 * (1 - a) + sample2 * a;
 	}
 
-	float sampleHermite4pt3oX(s16* data, float position) {
+	/*float sampleHermite4pt3oX(s16* data, float position) {
 		float s0 = data[(int)(position - 1)] / 32767.0f;
 		float s1 = data[(int)(position + 0)] / 32767.0f;
 		float s2 = data[(int)(position + 1)] / 32767.0f;
@@ -59,7 +59,7 @@ namespace {
 		float c2 = s0 - 2.5f * s1 + 2 * s2 - 0.5f * s3;
 		float c3 = 0.5f * (s3 - s0) + 1.5f * (s1 - s2);
 		return ((c3 * x + c2) * x + c1) * x + c0;
-	}
+	}*/
 
 	void mix(int samples) {
 		for (int i = 0; i < samples; ++i) {

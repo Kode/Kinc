@@ -690,8 +690,8 @@ void TextShaderPainter::drawString(const char* text, float opacity, uint color, 
 
 	float xpos = x;
 	float ypos = y;
-	unsigned length = strlen(text);
-	for (unsigned i = 0; i < length; ++i) {
+	size_t length = strlen(text);
+	for (size_t i = 0; i < length; ++i) {
 		AlignedQuad q = font->getBakedQuad(text[i] - 32, xpos, ypos);
 		if (q.x0 >= 0) {
 			if (bufferIndex + 1 >= bufferSize) drawBuffer();
