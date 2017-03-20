@@ -1,10 +1,7 @@
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-
-#undef RegisterClass
+class HMONITOR__;
+typedef HMONITOR__* HMONITOR;
 
 namespace Kore {
 	namespace Display {
@@ -19,7 +16,7 @@ namespace Kore {
 			bool isPrimary;
 
 			DeviceInfo() {
-				id = NULL;
+				id = nullptr;
 				name[0] = 0;
 				isAvailable = false;
 				isPrimary = false;

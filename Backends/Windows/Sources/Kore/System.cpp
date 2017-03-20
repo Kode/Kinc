@@ -868,9 +868,12 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 
 	HINSTANCE inst = GetModuleHandleA(nullptr);
 #ifdef VR_RIFT
-	::registerWindowClass(inst);
-	::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
-#else  /* #ifdef VR_RIFT  */
+	::registerWindowClass(inst, windowClassName);
+	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
+	int dstx = 0;
+	int dsty = 0;
+	HWND hwnd = (HWND)VrInterface::init(inst, title, windowClassName);
+#else
 
 	if (windowCounter == 0) {
 		::registerWindowClass(inst, windowClassName);
@@ -1027,7 +1030,11 @@ int Kore::System::initWindow(WindowOptions options) {
 	SetWindowLong(hwnd, GWL_STYLE, style);
 
 	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
-	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	bool vsync = true;
+#ifdef VR_RIFT
+	vsync = false;
+#endif
+	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, vsync);
 
 	return windowId;
 }

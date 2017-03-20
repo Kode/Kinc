@@ -96,7 +96,7 @@ namespace Kore {
 void Graphics::setup() {}
 #endif
 
-void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
+void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 #ifdef SYS_WINDOWS
 	HWND windowHandle = (HWND)System::windowHandle(windowId);
 
@@ -185,8 +185,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
 
 #ifdef SYS_WINDOWS
 	if (windowId == 0) {
-		// TODO (DK) check if we actually want vsync
-		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(1);
+		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(vsync);
 	}
 #endif
 
@@ -223,9 +222,12 @@ unsigned Graphics::refreshRate() {
 	return 60;
 }
 
-// TODO (DK) should check the extension and return wheter it's enabled (wglSwapIntervalEXT(1)) or not?
 bool Graphics::vsynced() {
+#ifdef SYS_WINDOWS
+	return wglGetSwapIntervalEXT();
+#else
 	return true;
+#endif
 }
 
 void Graphics::setBool(ConstantLocation location, bool value) {

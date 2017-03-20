@@ -132,7 +132,7 @@ void Graphics::setup() {
 	// if (!d3d) throw Exception("Could not initialize Direct3D9");
 }
 
-void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
+void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	if (!hasWindow()) return;
 
 	hWnd = (HWND)System::windowHandle(windowId);

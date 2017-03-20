@@ -1,16 +1,20 @@
 #pragma once
 
-/*
-#include <kha/Image.h>
-#include <kha/math/Quaternion.h>
-#include <kha/vr/SensorState.h>
-#include <kha/vr/TimeWarpParms.h>
+#include <Kore/Vr/SensorState.h>
+
+enum TrackingOrigin { Stand, Sit };
 
 namespace Kore {
-    namespace VrInterface {
-        kha::vr::SensorState_obj* GetSensorState();
-        void WarpSwap(kha::vr::TimeWarpParms_obj* parms);
-        void* Init(void* hinst);
-    }
+	namespace VrInterface {
+		void* init(void* hinst, const char* title, const char* windowClassName);
+		void begin();
+		void beginRender(int eye);
+		void endRender(int eye);
+		SensorState* getSensorState(int eye);
+		void warpSwap();
+
+		void updateTrackingOrigin(TrackingOrigin origin);
+		void resetHmdPose();
+		void ovrShutdown();
+	}
 }
-*/
