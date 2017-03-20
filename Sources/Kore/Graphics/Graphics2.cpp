@@ -782,7 +782,7 @@ void Graphics2::setProjection() {
 	int height = screenHeight;
 
 	if (!renderTargets) {
-		projectionMatrix = mat4::orthogonalProjection(0, width, height, 0, 0.1f, 1000);
+		projectionMatrix = mat4::orthogonalProjection(0, static_cast<float>(width), static_cast<float>(height), 0, 0.1f, 1000);
 	}
 	else {
 		if (!Graphics::nonPow2TexturesSupported()) {
@@ -790,10 +790,10 @@ void Graphics2::setProjection() {
 			height = upperPowerOfTwo(height);
 		}
 		if (Graphics::renderTargetsInvertedY()) {
-			projectionMatrix = mat4::orthogonalProjection(0, width, 0, height, 0.1f, 1000);
+			projectionMatrix = mat4::orthogonalProjection(0, static_cast<float>(width), 0, static_cast<float>(height), 0.1f, 1000);
 		}
 		else {
-			projectionMatrix = mat4::orthogonalProjection(0, width, height, 0, 0.1f, 1000);
+			projectionMatrix = mat4::orthogonalProjection(0, static_cast<float>(width), static_cast<float>(height), 0, 0.1f, 1000);
 		}
 	}
 
@@ -896,8 +896,8 @@ void Graphics2::drawLine(float x1, float y1, float x2, float y2, float strength)
 	else
 		vec = vec3(1.0f, -(x2 - x1) / (y2 - y1), 1.0f);
 	vec.setLength(strength);
-	vec3 p1 = vec3(x1 + 0.5 * vec.x(), y1 + 0.5 * vec.y(), 1.0f);
-	vec3 p2 = vec3(x2 + 0.5 * vec.x(), y2 + 0.5 * vec.y(), 1.0f);
+	vec3 p1 = vec3(x1 + 0.5f * vec.x(), y1 + 0.5f * vec.y(), 1.0f);
+	vec3 p2 = vec3(x2 + 0.5f * vec.x(), y2 + 0.5f * vec.y(), 1.0f);
 	vec3 p3 = p1 - vec;
 	vec3 p4 = p2 - vec;
 

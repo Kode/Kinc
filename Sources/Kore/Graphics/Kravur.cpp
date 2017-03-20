@@ -51,7 +51,7 @@ Kravur::Kravur(Reader* reader) {
 	int ascent = reader->readS32LE();
 	int descent = reader->readS32LE();
 	int lineGap = reader->readS32LE();
-	baseline = ascent;
+	baseline = static_cast<float>(ascent);
 	for (int i = 0; i < 256 - 32; ++i) {
 		BakedChar c;
 		c.x0 = reader->readS16LE();
@@ -94,19 +94,19 @@ Texture* Kravur::getTexture() {
 }
 
 AlignedQuad Kravur::getBakedQuad(int char_index, float xpos, float ypos) {
-	if (char_index >= chars.size()) return AlignedQuad();
+	if (char_index >= static_cast<int>(chars.size())) return AlignedQuad();
 	float ipw = 1.0f / width;
 	float iph = 1.0f / height;
 	BakedChar b = chars[char_index];
 	if (b.x0 < 0) return AlignedQuad();
-	int round_x = Kore::round(xpos + b.xoff);
-	int round_y = Kore::round(ypos + b.yoff);
+	int round_x = static_cast<int>(Kore::round(xpos + b.xoff));
+	int round_y = static_cast<int>(Kore::round(ypos + b.yoff));
 
 	AlignedQuad q;
-	q.x0 = round_x;
-	q.y0 = round_y;
-	q.x1 = round_x + b.x1 - b.x0;
-	q.y1 = round_y + b.y1 - b.y0;
+	q.x0 = static_cast<float>(round_x);
+	q.y0 = static_cast<float>(round_y);
+	q.x1 = static_cast<float>(round_x + b.x1 - b.x0);
+	q.y1 = static_cast<float>(round_y + b.y1 - b.y0);
 
 	q.s0 = b.x0 * ipw;
 	q.t0 = b.y0 * iph;
@@ -120,7 +120,7 @@ AlignedQuad Kravur::getBakedQuad(int char_index, float xpos, float ypos) {
 
 float Kravur::getCharWidth(int charIndex) {
 	if (charIndex < 32) return 0;
-	if (charIndex - 32 >= chars.size()) return 0;
+	if (charIndex - 32 >= static_cast<int>(chars.size())) return 0;
 	return chars[charIndex - 32].xadvance;
 }
 

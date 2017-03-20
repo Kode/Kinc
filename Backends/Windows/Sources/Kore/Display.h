@@ -1,6 +1,6 @@
 #pragma once
 
-class HMONITOR__;
+struct HMONITOR__;
 typedef HMONITOR__* HMONITOR;
 
 namespace Kore {
