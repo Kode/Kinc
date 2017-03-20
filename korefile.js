@@ -1,6 +1,7 @@
 var project = new Project('Kore', __dirname);
 
 project.addFile('Sources/**');
+project.addExclude('Sources/Kore/IO/snappy/**');
 project.addIncludeDir('Sources');
 
 function addBackend(name) {

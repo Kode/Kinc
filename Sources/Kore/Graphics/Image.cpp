@@ -93,16 +93,7 @@ void Image::init(Kore::Reader& file, const char* format, bool readable) {
 		fourcc[2] = Reader::readS8(data + 10);
 		fourcc[3] = Reader::readS8(data + 11);
 		fourcc[4] = 0;
-		if (strcmp(fourcc, "SNAP") == 0) {
-			compressed = false;
-			internalFormat = 0;
-			size_t length;
-			snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
-			dataSize = static_cast<int>(length);
-			this->data = (u8*)malloc(length);
-			snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
-		}
-		else if (strcmp(fourcc, "LZ4 ") == 0) {
+		if (strcmp(fourcc, "LZ4 ") == 0) {
 			compressed = false;
 			internalFormat = 0;
 			dataSize = width * height * 4;
@@ -117,6 +108,15 @@ void Image::init(Kore::Reader& file, const char* format, bool readable) {
 			LZ4_decompress_safe((char*)(data + 12), (char*)this->hdrData, file.size() - 12, dataSize);
 			this->format = RGBA128;
 		}
+		//else if (strcmp(fourcc, "SNAP") == 0) {
+		//	compressed = false;
+		//	internalFormat = 0;
+		//	size_t length;
+		//	snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
+		//	dataSize = static_cast<int>(length);
+		//	this->data = (u8*)malloc(length);
+		//	snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
+		//}
 		else {
 			log(Error, "Unknown fourcc in .k file.");
 		}
