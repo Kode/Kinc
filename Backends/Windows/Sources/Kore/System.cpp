@@ -1040,7 +1040,7 @@ int Kore::System::initWindow(WindowOptions options) {
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 
-#pragma message("TODO (DK) implement changeResolution(w,h,fs) for d3dX")
+#pragma message("TODO (DK) implement changeResolution(w,h,fs) for d3d")
 
 #if !defined(OPENGL) && !defined(SYS_VULKAN)
 /*Application::the()->setWidth(width);

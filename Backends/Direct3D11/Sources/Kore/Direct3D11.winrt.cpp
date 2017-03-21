@@ -483,7 +483,7 @@ unsigned Graphics::refreshRate() {
 	return hz;
 }
 
-void Graphics::swapBuffers(int windowId) {
+bool Graphics::swapBuffers(int windowId) {
 	HRESULT hr = swapChain->Present(vsync, 0);
 	// TODO: if (hr == DXGI_STATUS_OCCLUDED)...
 	// http://www.pouet.net/topic.php?which=10454
@@ -494,7 +494,7 @@ void Graphics::swapBuffers(int windowId) {
 	//	Initialize(m_window);
 	//}
 	// else {
-	affirm(SUCCEEDED(hr));
+	return SUCCEEDED(hr);
 	//}
 }
 

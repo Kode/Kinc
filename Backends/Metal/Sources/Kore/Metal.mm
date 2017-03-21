@@ -215,8 +215,9 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 	
 }
 
-void Graphics::swapBuffers(int windowId) {
+bool Graphics::swapBuffers(int windowId) {
 	System::swapBuffers(windowId);
+	return true;
 }
 
 void beginGL();

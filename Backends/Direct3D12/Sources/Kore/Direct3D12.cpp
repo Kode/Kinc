@@ -312,7 +312,7 @@ namespace {
 
 void Graphics::destroy(int window) {}
 
-void Graphics::init(int window, int depthBufferBits, int stencilBufferBits) {
+void Graphics::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
@@ -503,7 +503,7 @@ unsigned Graphics::refreshRate() {
 	return hz;
 }
 
-void Graphics::swapBuffers(int window) {
+bool Graphics::swapBuffers(int window) {
 	swapChain->Present(1, 0);
 
 	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
@@ -515,6 +515,8 @@ void Graphics::swapBuffers(int window) {
 	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
 	fenceValues[currentBackBuffer] = fenceValue;
 	++currentFenceValue;
+
+	return true;
 }
 
 void Graphics::flush() {}

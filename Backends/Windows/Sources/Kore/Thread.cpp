@@ -27,7 +27,7 @@ Kore::Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param)
 	ThreadData* data = new ThreadData;
 	data->param = param;
 	data->thread = thread;
-	data->handle = CreateThread(0, 65536, ThreadProc, data, 0, 0);
+	HANDLE handle = CreateThread(0, 65536, ThreadProc, data, 0, 0);
 	return (Thread*)data;
 }
 

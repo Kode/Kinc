@@ -34,15 +34,17 @@ namespace {
 
 	D3DVIEWPORT9 vp;
 
-	void swapBuffers() {
+	bool swapBuffers() {
+		HRESULT result;
 		if (resizable) {
 			RECT vRect;
 			GetClientRect(hWnd, &vRect);
-			device->Present(&vRect, &vRect, 0, 0);
+			result = device->Present(&vRect, &vRect, 0, 0);
 		}
 		else {
-			device->Present(0, 0, 0, 0);
+			result = device->Present(0, 0, 0, 0);
 		}
+		return result != D3DERR_DEVICELOST;
 	}
 
 	Shader* pixelShader = nullptr;
@@ -520,13 +522,13 @@ unsigned Graphics::refreshRate() {
 	return hz;
 }
 
-void Graphics::swapBuffers(int windowId) {
+bool Graphics::swapBuffers(int windowId) {
 	// TODO (DK) ignore secondary windows for now
 	if (windowId > 0) {
-		return;
+		return true;
 	}
 
-	::swapBuffers();
+	return ::swapBuffers();
 }
 
 namespace {
