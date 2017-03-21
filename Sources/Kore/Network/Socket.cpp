@@ -194,13 +194,10 @@ void Socket::send(const char* url, int port, const u8* data, int size) {
 #endif
 }
 
-#ifdef SYS_WINDOWS
-typedef int ssize_t;
-#endif
-
 int Socket::receive(u8* data, int maxSize, unsigned& fromAddress, unsigned& fromPort) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
 	typedef int socklen_t;
+	typedef int ssize_t;
 #endif
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
 	sockaddr_in from;
