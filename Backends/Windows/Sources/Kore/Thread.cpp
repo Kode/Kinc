@@ -28,19 +28,17 @@ Kore::Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param)
 	data->param = param;
 	data->thread = thread;
 	data->handle = CreateThread(0, 65536, ThreadProc, data, 0, 0);
-
 	return (Thread*)data;
 }
 
 void Kore::waitForThreadStopThenFree(Thread* thread) {
 	ThreadData* data = (ThreadData*)thread;
-Again:;
-	uint r = ::WaitForSingleObject(data->handle, 1000);
-	if (r == WAIT_TIMEOUT) {
-		goto Again;
-	}
-
+	uint wait;
+	do {
+		wait = WaitForSingleObject(data->handle, 1000);
+	} while (wait == WAIT_TIMEOUT);
 	CloseHandle(data->handle);
+	delete data;
 }
 
 bool Kore::isThreadStoppedThenFree(Thread* thread) {
