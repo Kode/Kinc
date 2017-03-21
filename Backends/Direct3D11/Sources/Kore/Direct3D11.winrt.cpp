@@ -85,6 +85,7 @@ namespace {
 
 	D3D11_COMPARISON_FUNC getComparison(ZCompareMode compare) {
 		switch (compare) {
+		default:
 		case ZCompareAlways:
 			return D3D11_COMPARISON_ALWAYS;
 		case ZCompareNever:
@@ -106,6 +107,7 @@ namespace {
 
 	D3D11_STENCIL_OP getStencilAction(StencilAction action) {
 		switch (action) {
+		default:
 		case Keep:
 			return D3D11_STENCIL_OP_KEEP;
 		case Zero:
@@ -387,6 +389,7 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 namespace {
 	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(TextureAddressing addressing) {
 		switch (addressing) {
+		default:
 		case Repeat:
 			return D3D11_TEXTURE_ADDRESS_WRAP;
 		case Mirror:
@@ -395,8 +398,6 @@ namespace {
 			return D3D11_TEXTURE_ADDRESS_CLAMP;
 		case Border:
 			return D3D11_TEXTURE_ADDRESS_BORDER;
-		default:
-			return D3D11_TEXTURE_ADDRESS_WRAP;
 		}
 	}
 }
@@ -428,7 +429,7 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	}
 	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
 		uint d3dflags = ((flags & ClearDepthFlag) ? D3D11_CLEAR_DEPTH : 0) | ((flags & ClearStencilFlag) ? D3D11_CLEAR_STENCIL : 0);
-		context->ClearDepthStencilView(depthStencilView, d3dflags, depth, stencil);
+		context->ClearDepthStencilView(depthStencilView, d3dflags, max(0.0f, min(1.0f, depth)), stencil);
 	}
 }
 
@@ -932,13 +933,14 @@ bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 	}
 	return false;
 }
+
 void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		UINT64 numberOfPixelsDrawn;
 		HRESULT result = context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
 		if (S_OK == result) {
-			*pixelCount = numberOfPixelsDrawn;
+			*pixelCount = static_cast<uint>(numberOfPixelsDrawn);
 		}
 		else {
 			Kore::log(Kore::LogLevel::Info, "Check first if results are available");

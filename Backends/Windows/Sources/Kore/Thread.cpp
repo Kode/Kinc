@@ -54,7 +54,6 @@ bool Kore::isThreadStoppedThenFree(Thread* thread) {
 	return false;
 }
 
-//#pragma warning(disable : 4996)
 void Kore::threadsInit() {
 
 }
