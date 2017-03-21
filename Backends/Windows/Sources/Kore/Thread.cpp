@@ -43,10 +43,11 @@ void Kore::waitForThreadStopThenFree(Thread* thread) {
 
 bool Kore::isThreadStoppedThenFree(Thread* thread) {
 	ThreadData* data = (ThreadData*)thread;
-	DWORD c;
-	GetExitCodeThread(data->handle, &c);
-	if (c != STILL_ACTIVE) {
+	DWORD code;
+	GetExitCodeThread(data->handle, &code);
+	if (code != STILL_ACTIVE) {
 		CloseHandle(data->handle);
+		delete data;
 		return true;
 	}
 	return false;
