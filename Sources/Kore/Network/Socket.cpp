@@ -29,7 +29,7 @@ namespace {
 	}
 
 	// Important: Must be cleaned with freeaddrinfo(address) later if the result is 0 in order to prevent memory leaks
-	int resolveAddress(const char* url, int port, addrinfo*& result) {
+	int resolveAddress(const char* url, int port, addrinfo** result) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
 		addrinfo hints = {};
 		hints.ai_family = AF_INET;
@@ -39,7 +39,7 @@ namespace {
 		char serv[6];
 		sprintf(serv, "%u", port);
 
-		return getaddrinfo(url, serv, &hints, &result);
+		return getaddrinfo(url, serv, &hints, result);
 #endif
 	}
 }
@@ -147,8 +147,8 @@ Socket::~Socket() {
 
 unsigned Socket::urlToInt(const char* url, int port) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
-	addrinfo* address = new addrinfo;
-	int res = resolveAddress(url, port, address);
+	addrinfo* address = nullptr;
+	int res = resolveAddress(url, port, &address);
 	if (res != 0) {
 		log(Kore::Error, "Could not resolve address.");
 		return -1;
@@ -179,8 +179,8 @@ void Socket::send(unsigned address, int port, const u8* data, int size) {
 
 void Socket::send(const char* url, int port, const u8* data, int size) {
 #if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP) || defined(SYS_UNIXOID)
-	addrinfo* address = new addrinfo;
-	int res = resolveAddress(url, port, address);
+	addrinfo* address = nullptr;
+	int res = resolveAddress(url, port, &address);
 	if (res != 0) {
 		log(Kore::Error, "Could not resolve address.");
 		return;
