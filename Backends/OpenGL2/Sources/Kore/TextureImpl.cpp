@@ -310,7 +310,7 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_FLOAT, nullptr);
 	}
 	else {
-		glTexImage2D(GL_TEXTURE_2D, 0, convertFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(format), texWidth, texHeight, 0, convertFormat(format), GL_UNSIGNED_BYTE, data);
 	}
 	glCheckErrors();
 
@@ -445,12 +445,12 @@ void Texture::setMipmap(Texture* mipmap, int level) {
 	glBindTexture(target, texture);
 	glCheckErrors();
 	if (isHdr) {
-		glTexImage2D(target, level, convertFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType,
+		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType,
 		             mipmap->hdrData);
 		glCheckErrors();
 	}
 	else {
-		glTexImage2D(target, level, convertFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType,
+		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType,
 		             mipmap->data);
 		glCheckErrors();
 	}
