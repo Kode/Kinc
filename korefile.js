@@ -26,6 +26,7 @@ if (platform === Platform.Windows) {
 	else if (graphics === GraphicsApi.OpenGL) {
 		addBackend('OpenGL2');
 		project.addDefine('OPENGL');
+		project.addDefine('GLEW_STATIC');
 	}
 	else if (graphics === GraphicsApi.Direct3D11) {
 		addBackend('Direct3D11');

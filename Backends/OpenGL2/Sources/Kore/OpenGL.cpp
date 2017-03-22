@@ -118,8 +118,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bo
 	    0,                 // Shift Bit Ignored
 	    0,                 // No Accumulation Buffer
 	    0, 0, 0, 0,        // Accumulation Bits Ignored
-	    depthBufferBits,   // 16Bit Z-Buffer (Depth Buffer)
-	    stencilBufferBits, // 8Bit Stencil Buffer
+	    static_cast<BYTE>(depthBufferBits),   // 16Bit Z-Buffer (Depth Buffer)
+	    static_cast<BYTE>(stencilBufferBits), // 8Bit Stencil Buffer
 	    0,                 // No Auxiliary Buffer
 	    PFD_MAIN_PLANE,    // Main Drawing Layer
 	    0,                 // Reserved
