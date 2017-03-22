@@ -8,6 +8,7 @@
 
 #include "Display.h"
 
+#define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include <oleauto.h>
 #include <stdio.h>
@@ -862,6 +863,11 @@ vec2i Kore::System::mousePos() {
 
 #undef CreateWindow
 
+namespace {
+	bool deviceModeChanged = false;
+	DEVMODE startDeviceMode;
+}
+
 int createWindow(const char* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
 	++windowCounter;
 
@@ -898,6 +904,9 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 		dwExStyle = WS_EX_APPWINDOW;
 		break;
 	case WindowModeFullscreen: {
+		EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &startDeviceMode);
+		deviceModeChanged = true;
+
 		DEVMODEA dmScreenSettings;                              // Device Mode
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings)); // Makes Sure Memory's Cleared
 		dmScreenSettings.dmSize = sizeof(dmScreenSettings);     // Size Of The Devmode Structure
@@ -984,6 +993,14 @@ void Kore::System::destroyWindow(int index) {
 	if (!UnregisterClassA(windowClassName, GetModuleHandleA(nullptr))) {
 		// MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		// hInstance=NULL;
+	}
+
+	--windowCounter;
+}
+
+void Kore::System::_shutdown() {
+	if (windowCounter == 0 && deviceModeChanged) {
+		ChangeDisplaySettings(&startDeviceMode, 0);
 	}
 }
 

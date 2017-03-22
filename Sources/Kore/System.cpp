@@ -157,6 +157,12 @@ const char* Kore::System::name() {
 	return appstate::name;
 }
 
+#ifndef SYS_WINDOWS
+void Kore::System::_shutdown() {
+
+}
+#endif
+
 void Kore::System::stop() {
 	appstate::running = false;
 
@@ -177,6 +183,7 @@ void Kore::System::start() {
 		callback();
 		handleMessages();
 	}
+	_shutdown();
 #endif
 }
 

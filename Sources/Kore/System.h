@@ -64,6 +64,7 @@ namespace Kore {
 		void setup();
 		void start();
 		void stop();
+		void _shutdown();
 		bool isFullscreen();
 
 		void setCallback(void (*value)());
