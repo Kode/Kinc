@@ -126,6 +126,9 @@ namespace {
 			return D3D11_STENCIL_OP_INVERT;
 		}
 	}
+
+	ID3D11RenderTargetView* currentRenderTargetView;
+	ID3D11DepthStencilView* currentDepthStencilView;
 }
 
 void Graphics::destroy(int windowId) {}
@@ -264,6 +267,8 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bo
 
 	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
+	currentRenderTargetView = renderTargetView;
+	currentDepthStencilView = depthStencilView;
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
@@ -423,13 +428,13 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 }
 
 void Graphics::clear(uint flags, uint color, float depth, int stencil) {
-	if (flags & ClearColorFlag) {
+	if (currentRenderTargetView != nullptr && flags & ClearColorFlag) {
 		const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f};
-		context->ClearRenderTargetView(renderTargetView, clearColor);
+		context->ClearRenderTargetView(currentRenderTargetView, clearColor);
 	}
-	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
+	if (currentDepthStencilView != nullptr && (flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
 		uint d3dflags = ((flags & ClearDepthFlag) ? D3D11_CLEAR_DEPTH : 0) | ((flags & ClearStencilFlag) ? D3D11_CLEAR_STENCIL : 0);
-		context->ClearDepthStencilView(depthStencilView, d3dflags, max(0.0f, min(1.0f, depth)), stencil);
+		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, max(0.0f, min(1.0f, depth)), stencil);
 	}
 }
 
@@ -838,6 +843,8 @@ bool Graphics::nonPow2TexturesSupported() {
 }
 
 void Graphics::restoreRenderTarget() {
+	currentRenderTargetView = renderTargetView;
+	currentDepthStencilView = depthStencilView;
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(renderTargetWidth), static_cast<float>(renderTargetHeight));
 	context->RSSetViewports(1, &viewPort);
@@ -849,7 +856,9 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 		nullview[0] = nullptr;
 		context->PSSetShaderResources(target->lastBoundUnit, 1, nullview);
 	}
-	context->OMSetRenderTargets(1, &target->renderTargetView, nullptr);
+	currentRenderTargetView = target->renderTargetView;
+	currentDepthStencilView = target->depthStencilView;
+	context->OMSetRenderTargets(1, &target->renderTargetView, target->depthStencilView);
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(target->width), static_cast<float>(target->height));
 	context->RSSetViewports(1, &viewPort);
 }

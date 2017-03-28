@@ -2,6 +2,7 @@
 
 struct ID3D11Texture2D;
 struct ID3D11RenderTargetView;
+struct ID3D11DepthStencilView;
 struct ID3D11ShaderResourceView;
 
 namespace Kore {
@@ -9,6 +10,8 @@ namespace Kore {
 	public:
 		ID3D11Texture2D* texture;
 		ID3D11RenderTargetView* renderTargetView;
+		ID3D11Texture2D* depthStencil;
+		ID3D11DepthStencilView* depthStencilView;
 		ID3D11ShaderResourceView* view;
 		int lastBoundUnit;
 	};
