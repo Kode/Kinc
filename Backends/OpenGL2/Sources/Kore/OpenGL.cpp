@@ -697,6 +697,10 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
 
+void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+	texture->_setImage(unit);
+}
+
 void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	GLenum texDir;

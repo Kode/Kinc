@@ -18,6 +18,7 @@ namespace Kore {
 		Texture(unsigned texid);
 #endif
 		void _set(TextureUnit unit);
+		void _setImage(TextureUnit unit);
 		u8* lock();
 		void unlock();
 		void clear(int x, int y, int z, int width, int height, int depth, uint color);

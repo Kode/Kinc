@@ -370,6 +370,13 @@ void Texture::_set(TextureUnit unit) {
 #endif
 }
 
+void Texture::_setImage(TextureUnit unit) {
+#if defined(SYS_WINDOWS) || defined(SYS_LINUX)
+	glBindImageTexture(unit.unit, texture, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+	glCheckErrors();
+#endif
+}
+
 int Texture::stride() {
 	return width * sizeOf(format);
 }
