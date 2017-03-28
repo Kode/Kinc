@@ -1,5 +1,11 @@
 var project = new Project('Kore', __dirname);
 
+const g1 = true;
+const g2 = true;
+const g3 = true;
+let g4 = false;
+let g5 = false;
+
 project.addFile('Sources/**');
 project.addExclude('Sources/Kore/IO/snappy/**');
 project.addIncludeDir('Sources');
@@ -24,22 +30,28 @@ if (platform === Platform.Windows) {
 		project.addDefine('OPENGL_1_X');
 	}
 	else if (graphics === GraphicsApi.OpenGL) {
+		g4 = true;
 		addBackend('OpenGL2');
 		project.addDefine('OPENGL');
 		project.addDefine('GLEW_STATIC');
 	}
 	else if (graphics === GraphicsApi.Direct3D11) {
+		g4 = true;
 		addBackend('Direct3D11');
 		project.addDefine('DIRECT3D');
 		project.addLib('d3d11');
 	}
 	else if (graphics === GraphicsApi.Direct3D12) {
+		g4 = true;
+		g5 = true;
 		addBackend('Direct3D12');
 		project.addDefine('DIRECT3D');
 		project.addLib('dxgi');
 		project.addLib('d3d12');
 	}
 	else if (graphics === GraphicsApi.Vulkan) {
+		g4 = true;
+		//g5 = true;
 		addBackend('Vulkan');
 		project.addDefine('SYS_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
@@ -47,6 +59,7 @@ if (platform === Platform.Windows) {
 		project.addLibFor('x64', 'Backends/Vulkan/Libraries/win64/vulkan-1');
 	}
 	else {
+		g4 = true;
 		addBackend('Direct3D9');
 		project.addDefine('DIRECT3D');
 		project.addLib('d3d9');
@@ -64,32 +77,39 @@ if (platform === Platform.Windows) {
 	}
 }
 else if (platform === Platform.WindowsApp) {
+	g4 = true;
 	addBackend('WindowsApp');
 	addBackend('Direct3D11');
 }
 else if (platform === Platform.Xbox360) {
+	g4 = true;
 	addBackend('Xbox360');
 	addBackend('Direct3D9');
 	project.addDefine('DIRECT3D');
 }
 else if (platform === Platform.PlayStation3) {
+	g4 = true;
 	addBackend('PlayStation3');
 }
 else if (platform === Platform.OSX) {
 	addBackend('OSX');
 	if (graphics === GraphicsApi.Metal) {
+		g4 = true;
+		//g5 = true;
 		addBackend('Metal');
 		project.addDefine('SYS_METAL');
 		project.addLib('Metal');
 		project.addLib('MetalKit');
 	}
 	if (graphics === GraphicsApi.OpenGL1) {
+		g4 = true;
 		addBackend('OpenGL');
 		project.addDefine('OPENGL');
 		project.addDefine('OPENGL_1_X');
 		project.addLib('OpenGL');
 	}
 	else {
+		g4 = true;
 		addBackend('OpenGL2');
 		project.addDefine('OPENGL');
 		project.addLib('OpenGL');
@@ -105,11 +125,14 @@ else if (platform === Platform.OSX) {
 else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	addBackend('iOS');
 	if (graphics === GraphicsApi.Metal) {
+		g4 = true;
+		//g5 = true;
 		addBackend('Metal');
 		project.addDefine('SYS_METAL');
 		project.addLib('Metal');
 	}
 	else {
+		g4 = true;
 		addBackend('OpenGL2');
 		project.addDefine('OPENGL');
 		project.addLib('OpenGLES');
@@ -130,10 +153,13 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 else if (platform === Platform.Android) {
 	addBackend('Android');
 	if (graphics === GraphicsApi.Vulkan) {
+		g4 = true;
+		//g5 = true;
 		addBackend('Vulkan');
 		project.addDefine('SYS_VULKAN');
 	}
 	else {
+		g4 = true;
 		addBackend('OpenGL2');
 		project.addDefine('OPENGL');
 	}
@@ -147,6 +173,7 @@ else if (platform === Platform.Android) {
 	project.addLib('OpenMAXAL');
 }
 else if (platform === Platform.HTML5) {
+	g4 = true;
 	addBackend('HTML5');
 	addBackend('OpenGL2');
 	project.addExclude('Backends/OpenGL2/Sources/GL/**');
@@ -157,6 +184,8 @@ else if (platform === Platform.Linux) {
 	project.addLib('asound');
 	project.addLib('dl');
 	if (graphics === GraphicsApi.Vulkan) {
+		g4 = true;
+		//g5 = true;
 		addBackend('Vulkan');
 		project.addLib('vulkan');
 		project.addLib('xcb');
@@ -164,6 +193,7 @@ else if (platform === Platform.Linux) {
 		project.addDefine('VK_USE_PLATFORM_XCB_KHR');
 	}
 	else {
+		g4 = true;
 		addBackend('OpenGL2');
 		project.addLib('GL');
 		project.addLib('X11');
@@ -173,6 +203,7 @@ else if (platform === Platform.Linux) {
 	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.Pi) {
+	g4 = true;
 	addBackend('Pi');
 	addBackend('OpenGL2');
 	project.addExclude('Backends/OpenGL2/Sources/GL/**');
@@ -190,11 +221,16 @@ else if (platform === Platform.Pi) {
 	project.addLib('X11');		
 }
 else if (platform === Platform.Tizen) {
+	g4 = true;
 	addBackend('Tizen');
 	addBackend('OpenGL2');
 	project.addExclude('Backends/OpenGL2/Sources/GL/**');
 	project.addDefine('OPENGL');
 	project.addDefine('SYS_UNIXOID');
+}
+
+if (g5) {
+	addBackend('G4onG5');
 }
 
 resolve(project);
