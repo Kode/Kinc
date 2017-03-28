@@ -117,7 +117,8 @@ void RenderTargetImpl::setupDepthStencil(GLenum texType, int depthBufferBits, in
 		glCheckErrors();
 		glBindTexture(texType, _depthTexture);
 		glCheckErrors();
-		glTexImage2D(texType, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+		GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;
+		glTexImage2D(texType, 0, format, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		glCheckErrors();
 		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
