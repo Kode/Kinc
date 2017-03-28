@@ -1460,6 +1460,10 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
+void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+	
+}
+
 void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
 void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}

@@ -721,6 +721,10 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
 
+void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+	
+}
+
 bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 	return false;
 }

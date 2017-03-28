@@ -896,6 +896,10 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
 
+void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+	
+}
+
 void Graphics::setup() {}
 
 uint queryCount = 0;

@@ -797,6 +797,10 @@ void Graphics::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
 
+void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+	
+}
+
 uint queryCount = 0;
 std::vector<IDirect3DQuery9*> queryPool;
 
