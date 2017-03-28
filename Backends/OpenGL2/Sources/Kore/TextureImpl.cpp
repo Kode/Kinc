@@ -371,7 +371,8 @@ void Texture::_set(TextureUnit unit) {
 }
 
 void Texture::_setImage(TextureUnit unit) {
-#if defined(SYS_WINDOWS) || (defined(SYS_LINUX) && defined(GL_VERSION_4_2))
+#if defined(SYS_WINDOWS)
+// || (defined(SYS_LINUX) && defined(GL_VERSION_4_2)) // Undefined reference on Travis
 	glBindImageTexture(unit.unit, texture, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 	glCheckErrors();
 #endif
