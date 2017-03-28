@@ -187,6 +187,9 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 #endif
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		break;
+	case Target8BitRed:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+		break;
 	case Target32Bit:
 	default:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
