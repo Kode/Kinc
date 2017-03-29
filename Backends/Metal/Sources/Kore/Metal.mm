@@ -42,7 +42,7 @@ void Graphics::destroy(int windowId) {
 
 #undef CreateWindow
 
-void Graphics::init(int, int, int) {
+void Graphics::init(int, int, int, bool) {
 	// System::createWindow();
 	id<MTLDevice> device = getMetalDevice();
 	vertexUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];

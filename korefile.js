@@ -101,8 +101,7 @@ else if (platform === Platform.OSX) {
 		project.addLib('Metal');
 		project.addLib('MetalKit');
 	}
-	if (graphics === GraphicsApi.OpenGL1) {
-		g4 = true;
+	else if (graphics === GraphicsApi.OpenGL1) {
 		addBackend('OpenGL');
 		project.addDefine('OPENGL');
 		project.addDefine('OPENGL_1_X');
