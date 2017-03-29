@@ -4,14 +4,14 @@ struct ID3D12Resource;
 struct ID3D12DescriptorHeap;
 
 namespace Kore {
-	class TextureUnitImpl {
+	class TextureUnit5Impl {
 	public:
 		int unit;
 	};
 
-	class TextureImpl {
+	class Texture5Impl {
 	public:
-		~TextureImpl();
+		~Texture5Impl();
 		void unmipmap();
 		void unset();
 

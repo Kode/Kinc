@@ -1,19 +1,19 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "IndexBufferImpl.h"
+#include "IndexBuffer5Impl.h"
 #include "d3dx12.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
 #include <Kore/WinError.h>
 #include <Windows.h>
 
 using namespace Kore;
 
-IndexBufferImpl* IndexBufferImpl::_current = nullptr;
+IndexBuffer5Impl* IndexBuffer5Impl::_current = nullptr;
 
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
+IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count) {}
 
-IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
+Graphics5::IndexBuffer::IndexBuffer(int count) : IndexBuffer5Impl(count) {
 	static_assert(sizeof(D3D12IindexBufferView) == sizeof(D3D12_INDEX_BUFFER_VIEW), "Something is wrong with D3D12IindexBufferView");
 	static const int uploadBufferSize = sizeof(int) * count;
 
@@ -28,18 +28,18 @@ IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 }
 
-IndexBuffer::~IndexBuffer() {
+Graphics5::IndexBuffer::~IndexBuffer() {
 	// ib->Release();
 	// delete[] indices;
 }
 
-int* IndexBuffer::lock() {
+int* Graphics5::IndexBuffer::lock() {
 	void* p;
 	uploadBuffer->Map(0, nullptr, &p);
 	return (int*)p;
 }
 
-void IndexBuffer::unlock() {
+void Graphics5::IndexBuffer::unlock() {
 	uploadBuffer->Unmap(0, nullptr);
 
 	commandList->CopyBufferRegion(indexBuffer, 0, uploadBuffer, 0, sizeof(int) * count());
@@ -50,10 +50,10 @@ void IndexBuffer::unlock() {
 	commandList->ResourceBarrier(1, barriers);
 }
 
-void IndexBuffer::_set() {
+void Graphics5::IndexBuffer::_set() {
 	_current = this;
 }
 
-int IndexBuffer::count() {
+int Graphics5::IndexBuffer::count() {
 	return myCount;
 }

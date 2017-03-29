@@ -9,9 +9,9 @@ namespace Kore {
 		u8 size;
 	};
 
-	class ShaderImpl {
+	class Shader5Impl {
 	public:
-		ShaderImpl();
+		Shader5Impl();
 		std::map<std::string, ShaderConstant> constants;
 		int constantsSize;
 		std::map<std::string, int> attributes;

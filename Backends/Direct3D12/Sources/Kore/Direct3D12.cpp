@@ -1,10 +1,10 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "IndexBufferImpl.h"
-#include "ProgramImpl.h"
-#include "VertexBufferImpl.h"
-#include <Kore/Graphics/Shader.h>
+#include "IndexBuffer5Impl.h"
+#include "Program5Impl.h"
+#include "VertexBuffer5Impl.h"
+#include <Kore/Graphics5/PipelineState.h>
 #include <Kore/Math/Core.h>
 #include <dxgi1_4.h>
 #undef CreateWindow
@@ -289,7 +289,7 @@ namespace {
 }
 
 namespace Kore {
-	extern ProgramImpl* currentProgram;
+	extern Program5Impl* currentProgram;
 }
 
 namespace {
@@ -310,9 +310,9 @@ namespace {
 	}*/
 }
 
-void Graphics::destroy(int window) {}
+void Graphics5::destroy(int window) {}
 
-void Graphics::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
@@ -331,26 +331,26 @@ void Graphics::init(int window, int depthBufferBits, int stencilBufferBits, bool
 	begin(window);
 }
 
-void Graphics::changeResolution(int width, int height) {}
+void Graphics5::changeResolution(int width, int height) {}
 
-void Graphics::setup() {}
+void Graphics5::setup() {}
 
-void Graphics::makeCurrent(int window) {}
+void Graphics5::makeCurrent(int window) {}
 
-void Graphics::clearCurrent() {}
+void Graphics5::clearCurrent() {}
 
 //void* Graphics::getControl() {
 //	return nullptr;
 //}
 
-void Graphics::drawIndexedVertices() {
+void Graphics5::drawIndexedVertices() {
 	// Program::setConstants();
 	// context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
 
 	drawIndexedVertices(0, IndexBuffer::_current->myCount);
 }
 
-void Graphics::drawIndexedVertices(int start, int count) {
+void Graphics5::drawIndexedVertices(int start, int count) {
 	/*commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
 	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
 	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);*/
@@ -378,11 +378,11 @@ void Graphics::drawIndexedVertices(int start, int count) {
 
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount) {}
+void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {}
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
+void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
 
-void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
+void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
 // (DK) fancy macro's to generate a clickable warning message in visual studio, can be removed when setColorMask() is implemented
 #define Stringize(L) #L
@@ -390,17 +390,17 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 #define $Line MakeString(Stringize, __LINE__)
 #define Warning __FILE__ "(" $Line ") : warning: "
 
-void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+void Graphics5::setColorMask(bool red, bool green, bool blue, bool alpha) {
 #pragma message(Warning "(DK) Robert, please implement d3d12's version of setColorMask() here")
 }
 
-void Graphics::clear(uint flags, uint color, float depth, int stencil) {}
+void Graphics5::clear(uint flags, uint color, float depth, int stencil) {}
 
 namespace {
 	bool began = false;
 }
 
-void Graphics::begin(int window) {
+void Graphics5::begin(int window) {
 	if (began) return;
 	began = true;
 #ifdef SYS_WINDOWSRT
@@ -439,24 +439,24 @@ void Graphics::begin(int window) {
 	commandList = commandLists[currentBackBuffer];
 }
 
-void Graphics::viewport(int x, int y, int width, int height) {
+void Graphics5::viewport(int x, int y, int width, int height) {
 	// TODO
 }
 
-void Graphics::scissor(int x, int y, int width, int height) {
+void Graphics5::scissor(int x, int y, int width, int height) {
 	// TODO
 }
 
-void Graphics::disableScissor() {
+void Graphics5::disableScissor() {
 	// TODO
 }
 
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+void Graphics5::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
                                     int readMask, int writeMask) {
 	// TODO
 }
 
-void Graphics::end(int window) {
+void Graphics5::end(int window) {
 
 	D3D12_RESOURCE_BARRIER barrier;
 	barrier.Transition.pResource = renderTarget;
@@ -495,15 +495,15 @@ void graphicsFlushAndWait() {
 	commandList->RSSetScissorRects(1, &rectScissor);
 }
 
-bool Graphics::vsynced() {
+bool Graphics5::vsynced() {
 	return vsync;
 }
 
-unsigned Graphics::refreshRate() {
+unsigned Graphics5::refreshRate() {
 	return hz;
 }
 
-bool Graphics::swapBuffers(int window) {
+bool Graphics5::swapBuffers(int window) {
 	swapChain->Present(1, 0);
 
 	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
@@ -519,13 +519,13 @@ bool Graphics::swapBuffers(int window) {
 	return true;
 }
 
-void Graphics::flush() {}
+void Graphics5::flush() {}
 
-void Graphics::setRenderState(RenderState state, bool on) {}
+void Graphics5::setRenderState(RenderState state, bool on) {}
 
-void Graphics::setRenderState(RenderState state, int v) {}
+void Graphics5::setRenderState(RenderState state, int v) {}
 
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
+void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
 namespace {
 	void setInt(u8* constants, u8 offset, u8 size, int value) {
@@ -599,7 +599,7 @@ namespace {
 	}
 }
 
-void Graphics::setInt(ConstantLocation location, int value) {
+void Graphics5::setInt(ConstantLocation location, int value) {
 	::setInt(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setInt(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setInt(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -607,7 +607,7 @@ void Graphics::setInt(ConstantLocation location, int value) {
 	::setInt(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setFloat(ConstantLocation location, float value) {
+void Graphics5::setFloat(ConstantLocation location, float value) {
 	::setFloat(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setFloat(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setFloat(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -615,7 +615,7 @@ void Graphics::setFloat(ConstantLocation location, float value) {
 	::setFloat(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
+void Graphics5::setFloat2(ConstantLocation location, float value1, float value2) {
 	::setFloat2(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2);
 	::setFloat2(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2);
 	::setFloat2(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2);
@@ -623,7 +623,7 @@ void Graphics::setFloat2(ConstantLocation location, float value1, float value2) 
 	::setFloat2(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2);
 }
 
-void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
+void Graphics5::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
 	::setFloat3(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3);
 	::setFloat3(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3);
 	::setFloat3(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3);
@@ -631,7 +631,7 @@ void Graphics::setFloat3(ConstantLocation location, float value1, float value2, 
 	::setFloat3(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3);
 }
 
-void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
+void Graphics5::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
 	::setFloat4(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3, value4);
 	::setFloat4(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3, value4);
 	::setFloat4(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3, value4);
@@ -639,7 +639,7 @@ void Graphics::setFloat4(ConstantLocation location, float value1, float value2, 
 	::setFloat4(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3, value4);
 }
 
-void Graphics::setFloats(ConstantLocation location, float* values, int count) {
+void Graphics5::setFloats(ConstantLocation location, float* values, int count) {
 	::setFloats(vertexConstants, location.vertexOffset, location.vertexSize, values, count);
 	::setFloats(fragmentConstants, location.fragmentOffset, location.fragmentSize, values, count);
 	::setFloats(geometryConstants, location.geometryOffset, location.geometrySize, values, count);
@@ -647,11 +647,11 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	::setFloats(tessControlConstants, location.tessControlOffset, location.tessControlSize, values, count);
 }
 
-void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
-	Graphics::setFloats(location, values, count);
+void Graphics5::setFloat4s(ConstantLocation location, float* values, int count) {
+	Graphics5::setFloats(location, values, count);
 }
 
-void Graphics::setBool(ConstantLocation location, bool value) {
+void Graphics5::setBool(ConstantLocation location, bool value) {
 	::setBool(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setBool(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setBool(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -659,7 +659,7 @@ void Graphics::setBool(ConstantLocation location, bool value) {
 	::setBool(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
+void Graphics5::setMatrix(ConstantLocation location, const mat4& value) {
 	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -667,7 +667,7 @@ void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
+void Graphics5::setMatrix(ConstantLocation location, const mat3& value) {
 	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -675,66 +675,66 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
+void Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
+void Graphics5::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
-void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
+void Graphics5::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
 
-bool Graphics::renderTargetsInvertedY() {
+bool Graphics5::renderTargetsInvertedY() {
 	return false;
 }
 
-bool Graphics::nonPow2TexturesSupported() {
+bool Graphics5::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics::restoreRenderTarget() {
+void Graphics5::restoreRenderTarget() {
 	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, &depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	commandList->RSSetViewports(1, &::viewport);
 	commandList->RSSetScissorRects(1, &rectScissor);
 }
 
-void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
+void Graphics5::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
 	commandList->OMSetRenderTargets(1, &target->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
 	commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&target->viewport);
 	commandList->RSSetScissorRects(1, (D3D12_RECT*)&target->scissor);
 }
 
-void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {
 	
 }
 
-void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
+void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
 	buffers[0]->_set(0);
 }
 
-void Graphics::setIndexBuffer(IndexBuffer& buffer) {
+void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
 	buffer._set();
 }
 
-void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
 
-void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+bool Graphics5::initOcclusionQuery(uint* occlusionQuery) {
+	return false;
+}
+
+void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {
 	
 }
 
-bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+void Graphics5::deleteOcclusionQuery(uint occlusionQuery) {}
+
+void Graphics5::renderOcclusionQuery(uint occlusionQuery, int triangles) {}
+
+bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 	return false;
 }
 
-void Graphics::deleteOcclusionQuery(uint occlusionQuery) {}
-
-void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {}
-
-bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
-	return false;
-}
-
-void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
+void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}

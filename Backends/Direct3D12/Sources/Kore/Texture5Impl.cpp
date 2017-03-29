@@ -1,8 +1,7 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "Direct3D12.h"
-#include "TextureImpl.h"
+#include "Texture5Impl.h"
 #include "d3dx12.h"
 #include <Kore/WinError.h>
 
@@ -10,12 +9,12 @@ using namespace Kore;
 
 static const int textureCount = 16;
 
-RenderTarget* currentRenderTargets[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+Graphics5::RenderTarget* currentRenderTargets[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-Texture* currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+Graphics5::Texture* currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                           nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-void TextureImpl::setTextures() {
+void Texture5Impl::setTextures() {
 	if (currentRenderTargets[0] != nullptr) {
 		ID3D12DescriptorHeap* heaps[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
@@ -34,7 +33,7 @@ void TextureImpl::setTextures() {
 	}
 }
 
-void Texture::init(const char* format, bool readable) {
+void Graphics5::Texture::_init(const char* format, bool readable) {
 	stage = 0;
 	mipmap = true;
 	texWidth = width;
@@ -81,7 +80,7 @@ void Texture::init(const char* format, bool readable) {
 	}
 }
 
-Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
+Graphics5::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
 	stage = 0;
 	mipmap = true;
 	texWidth = width;
@@ -117,17 +116,17 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	device->CreateShaderResourceView(image, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
-Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
+Graphics5::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
-TextureImpl::~TextureImpl() {
+Texture5Impl::~Texture5Impl() {
 	unset();
 }
 
-void TextureImpl::unmipmap() {
+void Texture5Impl::unmipmap() {
 	mipmap = false;
 }
 
-void Texture::_set(TextureUnit unit) {
+void Graphics5::Texture::_set(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	// context->PSSetShaderResources(unit.unit, 1, &view);
 	this->stage = unit.unit;
@@ -135,18 +134,18 @@ void Texture::_set(TextureUnit unit) {
 	currentRenderTargets[stage] = nullptr;
 }
 
-void TextureImpl::unset() {
+void Texture5Impl::unset() {
 	if (currentTextures[stage] == this) {
 
 		currentTextures[stage] = nullptr;
 	}
 }
 
-u8* Texture::lock() {
+u8* Graphics5::Texture::lock() {
 	return (u8*)data;
 }
 
-void Texture::unlock() {
+void Graphics5::Texture::unlock() {
 	D3D12_SUBRESOURCE_DATA srcData;
 	srcData.pData = this->data;
 	srcData.RowPitch = format == Image::RGBA32 ? (width * 4) : width;
@@ -156,14 +155,14 @@ void Texture::unlock() {
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 }
 
-void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
 
 }
 
-int Texture::stride() {
+int Graphics5::Texture::stride() {
 	return 1;
 }
 
-void Texture::generateMipmaps(int levels) {}
+void Graphics5::Texture::generateMipmaps(int levels) {}
 
-void Texture::setMipmap(Texture* mipmap, int level) {}
+void Graphics5::Texture::setMipmap(Texture* mipmap, int level) {}

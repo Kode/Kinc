@@ -20,7 +20,7 @@ namespace Kore {
 		long bottom;
 	};
 
-	class RenderTargetImpl {
+	class RenderTarget5Impl {
 	public:
 		ID3D12Resource* renderTarget;
 		ID3D12DescriptorHeap* renderTargetDescriptorHeap;

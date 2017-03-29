@@ -9,15 +9,15 @@ struct D3D12IindexBufferView {
 };
 
 namespace Kore {
-	class IndexBufferImpl {
+	class IndexBuffer5Impl {
 	protected:
-		IndexBufferImpl(int count);
+		IndexBuffer5Impl(int count);
 
 	public:
 		ID3D12Resource* indexBuffer;
 		D3D12IindexBufferView indexBufferView;
 		ID3D12Resource* uploadBuffer;
 		int myCount;
-		static IndexBufferImpl* _current;
+		static IndexBuffer5Impl* _current;
 	};
 }
