@@ -33,7 +33,7 @@ void Texture5Impl::setTextures() {
 	}
 }
 
-void Graphics5::Texture::init(const char* format, bool readable) {
+void Graphics5::Texture::_init(const char* format, bool readable) {
 	stage = 0;
 	mipmap = true;
 	texWidth = width;

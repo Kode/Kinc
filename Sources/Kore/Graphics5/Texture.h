@@ -32,8 +32,8 @@ namespace Kore {
 			int stride();
 			int texWidth;
 			int texHeight;
-		private:
-			void init(const char* format, bool readable = false);
+
+			void _init(const char* format, bool readable = false);
 		};
 	}
 }

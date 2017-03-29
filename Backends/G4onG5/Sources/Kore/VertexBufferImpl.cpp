@@ -6,32 +6,28 @@
 
 using namespace Kore;
 
-Kore::VertexBufferImpl::VertexBufferImpl(int count) {}
+Kore::VertexBufferImpl::VertexBufferImpl(int count, const VertexStructure& structure, int instanceDataStepRate) : _buffer(count, structure, instanceDataStepRate) {}
 
-VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
+VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, structure, instanceDataStepRate) {}
 
-}
-
-VertexBuffer::~VertexBuffer() {
-
-}
+VertexBuffer::~VertexBuffer() {}
 
 float* VertexBuffer::lock() {
-	return lock(0, count());
+	return _buffer.lock();
 }
 
 float* VertexBuffer::lock(int start, int count) {
-	return nullptr;
+	return _buffer.lock(start, count);
 }
 
 void VertexBuffer::unlock() {
-
+	_buffer.unlock();
 }
 
 int VertexBuffer::count() {
-	return 0;
+	return _buffer.count();
 }
 
 int VertexBuffer::stride() {
-	return 0;
+	return _buffer.stride();
 }

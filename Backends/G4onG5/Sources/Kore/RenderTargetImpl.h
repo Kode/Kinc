@@ -5,6 +5,8 @@
 namespace Kore {
 	class RenderTargetImpl {
 	public:
-		Graphics5::Texture* _texture;
+		RenderTargetImpl(int width, int height, int depthBufferBits, bool antialiasing, Graphics5::RenderTargetFormat format, int stencilBufferBits, int contextId);
+		RenderTargetImpl(int cubeMapSize, int depthBufferBits, bool antialiasing, Graphics5::RenderTargetFormat format, int stencilBufferBits, int contextId);
+		Graphics5::RenderTarget _renderTarget;
 	};
 }

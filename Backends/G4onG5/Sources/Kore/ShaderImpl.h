@@ -5,7 +5,7 @@
 namespace Kore {
 	class ShaderImpl {
 	public:
-		ShaderImpl();
-		Graphics5::Shader* _shader;
+		ShaderImpl(void* data, int length, Graphics5::ShaderType type);
+		Graphics5::Shader _shader;
 	};
 }

@@ -1,62 +1,15 @@
 #pragma once
 
+#include <Kore/Graphics/VertexStructure.h>
+
 namespace Kore {
 	namespace Graphics5 {
-		enum VertexData {
-			NoVertexData,
-			Float1VertexData,
-			Float2VertexData,
-			Float3VertexData,
-			Float4VertexData,
-			Float4x4VertexData, // not supported in fixed function OpenGL
-			ColorVertexData
-		};
+		typedef Kore::VertexData VertexData;
 
-		// Fixed-function vertex attributes
-		enum VertexAttribute {
-			NoVertexAttribute,
-			VertexCoord,
-			VertexNormal,
-			VertexColor0,
-			VertexColor1,
-			VertexTexCoord0,
-			VertexTexCoord1,
-			VertexTexCoord2,
-			VertexTexCoord3,
-			VertexTexCoord4,
-			VertexTexCoord5,
-			VertexTexCoord6,
-			VertexTexCoord7,
-		};
+		typedef Kore::VertexAttribute VertexAttribute;
 
-		class VertexElement {
-		public:
-			const char* name;
-			VertexAttribute attribute; // for fixed-function (OpenGL 1.x)
-			VertexData data;
+		typedef Kore::VertexElement VertexElement;
 
-			VertexElement() : name(nullptr), data(NoVertexData) {}
-
-			VertexElement(const char* name, VertexData data) : name(name), data(data) {}
-
-			VertexElement(VertexAttribute attribute, VertexData data) : name(""), attribute(attribute), data(data) { }
-		};
-
-		class VertexStructure {
-		public:
-			const static int maxElementsCount = 16;
-			VertexElement elements[maxElementsCount];
-			int size;
-
-			VertexStructure() : size(0) {}
-
-			void add(const char* name, VertexData data) {
-				elements[size++] = VertexElement(name, data);
-			}
-
-			void add(VertexAttribute attribute, VertexData data) {
-				elements[size++] = VertexElement(attribute, data);
-			}
-		};
+		typedef Kore::VertexStructure VertexStructure;
 	}
 }

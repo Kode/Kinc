@@ -11,7 +11,7 @@ namespace Kore {
 	public:
 		ProgramImpl();
 
-		Graphics5::Program* _program;
+		Graphics5::Program _program;
 		//Graphics5::PipelineState* _state;
 	};
 
