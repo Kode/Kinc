@@ -85,7 +85,7 @@ public class KoreActivity extends NativeActivity {
 		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 		instance.startActivity(i);
 	}
-
+	
 	public static int getRotation() {
 		Context context = getInstance().getApplicationContext();
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
@@ -98,5 +98,20 @@ public class KoreActivity extends NativeActivity {
 		android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
 		manager.getDefaultDisplay().getMetrics(metrics);
 		return (int)(metrics.density * android.util.DisplayMetrics.DENSITY_DEFAULT);
+	}
+	
+	public static int getWindowWidth() {
+		Context context = getInstance().getApplicationContext();
+		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+		android.graphics.Point size = new android.graphics.Point();
+		manager.getDefaultDisplay().getRealSize(size);
+		return (int)(size.x);
+	}
+	public static int getWindowHeight() {
+		Context context = getInstance().getApplicationContext();
+		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+		android.graphics.Point size = new android.graphics.Point();
+		manager.getDefaultDisplay().getRealSize(size);
+		return (int)(size.y);
 	}
 }
