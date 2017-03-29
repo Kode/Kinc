@@ -4,11 +4,13 @@
 #include <objc/runtime.h>
 
 namespace Kore {
-	class VertexBuffer;
+	namespace Graphics5 {
+		class VertexBuffer;
+	}
 
-	class VertexBufferImpl {
+	class VertexBuffer5Impl {
 	protected:
-		VertexBufferImpl(int count);
+		VertexBuffer5Impl(int count);
 		void unset();
 		int offset();
 		int myCount;
@@ -17,6 +19,6 @@ namespace Kore {
 		id mtlBuffer;
 
 	public:
-		static VertexBuffer* current;
+		static Graphics5::VertexBuffer* current;
 	};
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Kore {
-	class RenderTargetImpl {
+	class RenderTarget5Impl {
 	public:
 	};
 }

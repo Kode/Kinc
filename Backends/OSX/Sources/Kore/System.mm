@@ -129,9 +129,11 @@ int Kore::System::initWindow(Kore::WindowOptions options) {
 	return id;
 }
 
+#ifndef SYS_METAL
 void Graphics::makeCurrent(int contextId) {
 	//[[windows[contextId]->view openGLContext] makeCurrentContext];
 }
+#endif
 
 int Kore::System::windowWidth(int id) {
 	return windows[id]->width;

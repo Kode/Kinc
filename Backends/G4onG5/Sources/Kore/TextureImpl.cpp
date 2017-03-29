@@ -30,12 +30,12 @@ TextureImpl::~TextureImpl() {
 	unset();
 }
 
-void TextureImpl::unmipmap() {
-	_texture->unmipmap();
+void TextureImpl::unset() {
+	// TODO
 }
 
-void TextureImpl::unset() {
-	_texture->unset();
+void TextureImpl::unmipmap() {
+	// TODO
 }
 
 u8* Texture::lock() {

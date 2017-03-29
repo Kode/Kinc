@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics5/Graphics.h>
+#include <Kore/Graphics5/Shader.h>
 #include <Kore/Math/Core.h>
 #include <Metal/Metal.h>
 #include <objc/runtime.h>
@@ -10,7 +10,7 @@ using namespace Kore;
 
 id getMetalLibrary();
 
-ShaderImpl::ShaderImpl(void* source, int length) {
+Shader5Impl::Shader5Impl(void* source, int length) {
 	u8* data = (u8*)source;
 	for (int i = 0; i < length; ++i) {
 		name[i] = data[i];
@@ -18,7 +18,7 @@ ShaderImpl::ShaderImpl(void* source, int length) {
 	name[length] = 0;
 }
 
-Shader::Shader(void* source, int length, ShaderType type) : ShaderImpl(source, length) {
+Graphics5::Shader::Shader(void* source, int length, ShaderType type) : Shader5Impl(source, length) {
 	id<MTLLibrary> library = getMetalLibrary();
 	id<MTLFunction> program;
 	program = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];

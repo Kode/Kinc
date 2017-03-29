@@ -14,7 +14,7 @@ namespace {
 	bool window = true;
 }
 
-#if !defined(SYS_WINDOWS)
+#if !defined(SYS_WINDOWS) && !defined(SYS_METAL)
 void Graphics::setup() {}
 #endif
 

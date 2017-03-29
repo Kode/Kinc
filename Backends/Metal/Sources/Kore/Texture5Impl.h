@@ -4,16 +4,18 @@
 #include <objc/runtime.h>
 
 namespace Kore {
-	class Texture;
+	namespace Graphics5 {
+		class Texture;
+	}
 
-	class TextureUnitImpl {
+	class TextureUnit5Impl {
 	public:
 		int index;
 	};
 
-	class TextureImpl {
+	class Texture5Impl {
 	public:
-		~TextureImpl();
+		~Texture5Impl();
 		id tex;
 
 	protected:

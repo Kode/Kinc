@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics5/Shader.h>
 
 #import <Metal/Metal.h>
 
@@ -13,31 +13,31 @@ using namespace Kore;
 id getMetalDevice();
 id getMetalEncoder();
 
-ProgramImpl::ProgramImpl() {}
+Program5Impl::Program5Impl() {}
 
-Program::Program() {}
+Graphics5::Program::Program() {}
 
-void Program::setVertexShader(Shader* vertexShader) {
+void Graphics5::Program::setVertexShader(Shader* vertexShader) {
 	this->vertexShader = vertexShader;
 }
 
-void Program::setFragmentShader(Shader* fragmentShader) {
+void Graphics5::Program::setFragmentShader(Shader* fragmentShader) {
 	this->fragmentShader = fragmentShader;
 }
 
-void Program::setGeometryShader(Kore::Shader* shader) {
+void Graphics5::Program::setGeometryShader(Shader* shader) {
 	
 }
 
-void Program::setTessellationControlShader(Kore::Shader* shader) {
+void Graphics5::Program::setTessellationControlShader(Shader* shader) {
 	
 }
 
-void Program::setTessellationEvaluationShader(Kore::Shader* shader) {
+void Graphics5::Program::setTessellationEvaluationShader(Shader* shader) {
 	
 }
 
-void Program::link(VertexStructure** structures, int count) {
+void Graphics5::Program::link(VertexStructure** structures, int count) {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
 	renderPipelineDesc.fragmentFunction = fragmentShader->mtlFunction;
@@ -88,12 +88,12 @@ void Program::link(VertexStructure** structures, int count) {
 	this->reflection = reflection;
 }
 
-void Program::set() {
+void Graphics5::Program::set() {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setRenderPipelineState:pipeline];
 }
 
-ConstantLocation Program::getConstantLocation(const char* name) {
+Graphics5::ConstantLocation Graphics5::Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.vertexOffset = -1;
 	location.fragmentOffset = -1;
@@ -129,7 +129,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	return location;
 }
 
-TextureUnit Program::getTextureUnit(const char* name) {
+Graphics5::TextureUnit Graphics5::Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
 	unit.index = -1;
 

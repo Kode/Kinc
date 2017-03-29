@@ -1,28 +1,29 @@
 #include "pch.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
+
 #import <Metal/Metal.h>
 
 using namespace Kore;
 
 id getMetalDevice();
 
-IndexBuffer* IndexBufferImpl::current = nullptr;
+Graphics5::IndexBuffer* IndexBuffer5Impl::current = nullptr;
 const int more = 10;
 
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
+IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count) {}
 
-IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
+Graphics5::IndexBuffer::IndexBuffer(int indexCount) : IndexBuffer5Impl(indexCount) {
 	id<MTLDevice> device = getMetalDevice();
 	mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount * more options:MTLResourceOptionCPUCacheModeDefault];
 	index = -1;
 }
 
-IndexBuffer::~IndexBuffer() {
+Graphics5::IndexBuffer::~IndexBuffer() {
 	unset();
 }
 
-int* IndexBuffer::lock() {
+int* Graphics5::IndexBuffer::lock() {
 	++index;
 	if (index >= more) index = 0;
 
@@ -32,20 +33,20 @@ int* IndexBuffer::lock() {
 	// return (int*)[buffer contents];
 }
 
-void IndexBuffer::unlock() {}
+void Graphics5::IndexBuffer::unlock() {}
 
-void IndexBuffer::_set() {
+void Graphics5::IndexBuffer::_set() {
 	current = this;
 }
 
-void IndexBufferImpl::unset() {
+void IndexBuffer5Impl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
 }
 
-int IndexBufferImpl::offset() {
+int IndexBuffer5Impl::offset() {
 	return index * myCount * sizeof(int);
 }
 
-int IndexBuffer::count() {
+int Graphics5::IndexBuffer::count() {
 	return myCount;
 }

@@ -15,7 +15,7 @@ namespace {
 }
 
 #if !defined(SYS_WINDOWS)
-void Graphics::setup() {}
+void Graphics5::setup() {}
 #endif
 
 int Graphics5::antialiasingSamples() {

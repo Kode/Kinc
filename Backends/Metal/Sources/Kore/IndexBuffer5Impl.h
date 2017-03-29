@@ -3,12 +3,14 @@
 #include <objc/runtime.h>
 
 namespace Kore {
-	class IndexBuffer;
+	namespace Graphics5 {
+		class IndexBuffer;
+	}
 
-	class IndexBufferImpl {
+	class IndexBuffer5Impl {
 	protected:
 	public:
-		IndexBufferImpl(int count);
+		IndexBuffer5Impl(int count);
 		void unset();
 		int offset();
 		id mtlBuffer;
@@ -16,6 +18,6 @@ namespace Kore {
 		int index;
 
 	public:
-		static IndexBuffer* current;
+		static Graphics5::IndexBuffer* current;
 	};
 }

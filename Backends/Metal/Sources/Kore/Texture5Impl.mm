@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "TextureImpl.h"
+#include "Texture5Impl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
 #include <Kore/Graphics/Image.h>
 #include <Kore/Log.h>
 
@@ -12,7 +12,7 @@ using namespace Kore;
 
 id getMetalDevice();
 
-void Texture::init(const char* format, bool readable) {
+void Graphics5::Texture::_init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 
@@ -21,21 +21,21 @@ void Texture::init(const char* format, bool readable) {
 	unlock();
 }
 
-Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
+Graphics5::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 	texWidth = width;
 	texHeight = height;
 	create(width, height);
 }
 
-Texture::Texture(int width, int height, int depth, Format format, bool readable) : Image(width, height, format, readable) {
+Graphics5::Texture::Texture(int width, int height, int depth, Format format, bool readable) : Image(width, height, format, readable) {
 	texWidth = width;
 	texHeight = height;
 	create(width, height);
 }
 
-TextureImpl::~TextureImpl() {}
+Texture5Impl::~Texture5Impl() {}
 
-void TextureImpl::create(int width, int height) {
+void Texture5Impl::create(int width, int height) {
 	id<MTLDevice> device = getMetalDevice();
 
 	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
@@ -53,7 +53,7 @@ void TextureImpl::create(int width, int height) {
 id getMetalDevice();
 id getMetalEncoder();
 
-void Texture::_set(TextureUnit unit) {
+void Graphics5::Texture::_set(TextureUnit unit) {
 	id<MTLDevice> device = getMetalDevice();
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
@@ -72,27 +72,27 @@ void Texture::_set(TextureUnit unit) {
 	[encoder setFragmentTexture:tex atIndex:unit.index];
 }
 
-int Texture::stride() {
+int Graphics5::Texture::stride() {
 	return width * 4;
 }
 
-u8* Texture::lock() {
+u8* Graphics5::Texture::lock() {
 	return (u8*)data;
 }
 
-void Texture::unlock() {
+void Graphics5::Texture::unlock() {
 	id<MTLTexture> texture = tex;
 	[texture replaceRegion:MTLRegionMake2D(0, 0, width, height) mipmapLevel:0 slice:0 withBytes:data bytesPerRow:stride() bytesPerImage:stride() * height];
 }
 
-void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
 
 }
 
 #ifdef SYS_IOS
-void Texture::upload(u8* data) {}
+void Graphics5::Texture::upload(u8* data) {}
 #endif
 
-void Texture::generateMipmaps(int levels) {}
+void Graphics5::Texture::generateMipmaps(int levels) {}
 
-void Texture::setMipmap(Texture* mipmap, int level) {}
+void Graphics5::Texture::setMipmap(Texture* mipmap, int level) {}

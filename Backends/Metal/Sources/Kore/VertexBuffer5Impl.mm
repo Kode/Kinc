@@ -1,9 +1,9 @@
 #include "pch.h"
 
-#include "ShaderImpl.h"
-#include "VertexBufferImpl.h"
+#include "Shader5Impl.h"
+#include "VertexBuffer5Impl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
 #import <Metal/Metal.h>
 
 using namespace Kore;
@@ -11,12 +11,12 @@ using namespace Kore;
 id getMetalDevice();
 id getMetalEncoder();
 
-VertexBuffer* VertexBufferImpl::current = nullptr;
+Graphics5::VertexBuffer* VertexBuffer5Impl::current = nullptr;
 const int more = 10;
 
-VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {}
+VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count) {}
 
-VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
+Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBuffer5Impl(count) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
@@ -46,11 +46,11 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 	index = -1;
 }
 
-VertexBuffer::~VertexBuffer() {
+Graphics5::VertexBuffer::~VertexBuffer() {
 	unset();
 }
 
-float* VertexBuffer::lock() {
+float* Graphics5::VertexBuffer::lock() {
 	++index;
 	if (index >= more) index = 0;
 
@@ -60,9 +60,13 @@ float* VertexBuffer::lock() {
 	// return (float*)[buffer contents];
 }
 
-void VertexBuffer::unlock() {}
+float* Graphics5::VertexBuffer::lock(int start, int count) {
+	return nullptr;
+}
 
-int VertexBuffer::_set(int offset_) {
+void Graphics5::VertexBuffer::unlock() {}
+
+int Graphics5::VertexBuffer::_set(int offset_) {
 	current = this;
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
 
@@ -72,18 +76,18 @@ int VertexBuffer::_set(int offset_) {
 	return offset_;
 }
 
-void VertexBufferImpl::unset() {
+void VertexBuffer5Impl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
 }
 
-int VertexBufferImpl::offset() {
+int VertexBuffer5Impl::offset() {
 	return index * myCount * myStride;
 }
 
-int VertexBuffer::count() {
+int Graphics5::VertexBuffer::count() {
 	return myCount;
 }
 
-int VertexBuffer::stride() {
+int Graphics5::VertexBuffer::stride() {
 	return myStride;
 }

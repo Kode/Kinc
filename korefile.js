@@ -95,7 +95,7 @@ else if (platform === Platform.OSX) {
 	addBackend('OSX');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
-		//g5 = true;
+		g5 = true;
 		addBackend('Metal');
 		project.addDefine('SYS_METAL');
 		project.addLib('Metal');
@@ -125,7 +125,7 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	addBackend('iOS');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
-		//g5 = true;
+		g5 = true;
 		addBackend('Metal');
 		project.addDefine('SYS_METAL');
 		project.addLib('Metal');
