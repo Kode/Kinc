@@ -332,7 +332,7 @@ Texture::Texture(int width, int height, int depth, Image::Format format, bool re
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCheckErrors();
 
-	glTexImage3D(GL_TEXTURE_3D, 0, convertFormat(format), width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(format), width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glCheckErrors();
 #endif
 }
