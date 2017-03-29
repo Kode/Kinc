@@ -498,13 +498,23 @@ void Kore::System::loadURL(const char* url) {
 }
 
 int Kore::System::windowWidth(int windowId) {
-	glContext->UpdateSize();
-	return glContext->GetScreenWidth();
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getWindowWidth", "()I");
+	int width = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
+	activity->vm->DetachCurrentThread();
+	return width;
 }
 
 int Kore::System::windowHeight(int windowId) {
-	glContext->UpdateSize();
-	return glContext->GetScreenHeight();
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getWindowHeight", "()I");
+	int height = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
+	activity->vm->DetachCurrentThread();
+	return height;
 }
 
 const char* Kore::System::savePath() {
