@@ -232,5 +232,8 @@ else if (platform === Platform.Tizen) {
 if (g5) {
 	addBackend('G4onG5');
 }
+else {
+	project.addExclude('Sources/Kore/Graphics5/**');
+}
 
 resolve(project);
