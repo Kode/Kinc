@@ -352,7 +352,7 @@ void Graphics::clearCurrent() {}
 void Graphics::makeCurrent(int contextId) {}
 #endif
 
-void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
+void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
 #ifdef VALIDATE
@@ -1241,7 +1241,9 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
 
 void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
 
-void Graphics::swapBuffers(int contextId) {}
+bool Graphics::swapBuffers(int contextId) {
+	return true;
+}
 
 void Graphics::begin(int contextId) {
 	if (began) return;
