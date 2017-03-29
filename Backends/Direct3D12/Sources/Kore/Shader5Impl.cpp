@@ -1,15 +1,15 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics5/Shader.h>
 #include <Kore/Math/Core.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
-ShaderImpl::ShaderImpl() {}
+Shader5Impl::Shader5Impl() {}
 
-Shader::Shader(void* _data, int length, ShaderType type) {
+Graphics5::Shader::Shader(void* _data, int length, ShaderType type) {
 	unsigned index = 0;
 	u8* data = (u8*)_data;
 

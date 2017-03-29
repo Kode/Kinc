@@ -1,12 +1,11 @@
 #pragma once
 
-struct ID3D12Resource;
-struct ID3D12DescriptorHeap;
+#include <Kore/Graphics5/Graphics.h>
 
 namespace Kore {
 	class TextureUnitImpl {
 	public:
-		int unit;
+		Kore::Graphics5::TextureUnit _unit;
 	};
 
 	class TextureImpl {
@@ -15,12 +14,6 @@ namespace Kore {
 		void unmipmap();
 		void unset();
 
-		bool mipmap;
-		int stage;
-
-		ID3D12Resource* image;
-		ID3D12Resource* uploadImage;
-		ID3D12DescriptorHeap* srvDescriptorHeap;
-		static void setTextures();
+		Kore::Graphics5::Texture* _texture;
 	};
 }

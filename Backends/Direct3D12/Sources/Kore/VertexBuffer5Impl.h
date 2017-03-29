@@ -9,9 +9,9 @@ struct D3D12VertexBufferView {
 };
 
 namespace Kore {
-	class VertexBufferImpl {
+	class VertexBuffer5Impl {
 	protected:
-		VertexBufferImpl(int count);
+		VertexBuffer5Impl(int count);
 
 	public:
 		// ID3D12Resource* vertexBuffer;
@@ -22,6 +22,6 @@ namespace Kore {
 		int myStride;
 		int currentIndex;
 		// float* vertices;
-		static VertexBufferImpl* _current;
+		static VertexBuffer5Impl* _current;
 	};
 }

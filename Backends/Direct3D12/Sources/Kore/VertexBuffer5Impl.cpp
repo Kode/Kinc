@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "VertexBufferImpl.h"
+#include "VertexBuffer5Impl.h"
 #include "d3dx12.h"
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/WinError.h>
@@ -12,11 +12,11 @@ namespace {
 	const int multiple = 100;
 }
 
-VertexBufferImpl* VertexBufferImpl::_current = nullptr;
+VertexBuffer5Impl* VertexBuffer5Impl::_current = nullptr;
 
-VertexBufferImpl::VertexBufferImpl(int count) : myCount(count), currentIndex(0) {}
+VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), currentIndex(0) {}
 
-VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
+Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBuffer5Impl(count) {
 	static_assert(sizeof(D3D12VertexBufferView) == sizeof(D3D12_VERTEX_BUFFER_VIEW), "Something is wrong with D3D12IVertexBufferView");
 
 	myStride = 0;
@@ -55,16 +55,16 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 	view.StrideInBytes = myStride;
 }
 
-VertexBuffer::~VertexBuffer() {
+Graphics5::VertexBuffer::~VertexBuffer() {
 	// vb->Release();
 	// delete[] vertices;
 }
 
-float* VertexBuffer::lock() {
+float* Graphics5::VertexBuffer::lock() {
 	return lock(0, count());
 }
 
-float* VertexBuffer::lock(int start, int count) {
+float* Graphics5::VertexBuffer::lock(int start, int count) {
 	void* p;
 	D3D12_RANGE range;
 	range.Begin = currentIndex * myCount * myStride;
@@ -75,7 +75,7 @@ float* VertexBuffer::lock(int start, int count) {
 	return (float*)bytes;
 }
 
-void VertexBuffer::unlock() {
+void Graphics5::VertexBuffer::unlock() {
 	D3D12_RANGE range;
 	range.Begin = currentIndex * myCount * myStride;
 	range.End = range.Begin + myCount * myStride;
@@ -94,7 +94,7 @@ void VertexBuffer::unlock() {
 	// commandList->ResourceBarrier(1, barriers);
 }
 
-int VertexBuffer::_set(int offset) {
+int Graphics5::VertexBuffer::_set(int offset) {
 	// UINT stride = myStride;
 	// UINT offset = 0;
 	// context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
@@ -102,10 +102,10 @@ int VertexBuffer::_set(int offset) {
 	return 0;
 }
 
-int VertexBuffer::count() {
+int Graphics5::VertexBuffer::count() {
 	return myCount;
 }
 
-int VertexBuffer::stride() {
+int Graphics5::VertexBuffer::stride() {
 	return myStride;
 }

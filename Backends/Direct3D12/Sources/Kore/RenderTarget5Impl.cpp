@@ -1,17 +1,17 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "RenderTargetImpl.h"
+#include "RenderTarget5Impl.h"
 #include "d3dx12.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
 static const int textureCount = 16;
-extern Texture* currentTextures[textureCount];
-extern RenderTarget* currentRenderTargets[textureCount];
+extern Graphics5::Texture* currentTextures[textureCount];
+extern Graphics5::RenderTarget* currentRenderTargets[textureCount];
 
 namespace {
 	ID3D12Fence* renderFence;
@@ -24,7 +24,7 @@ namespace {
 	}
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 
@@ -76,11 +76,11 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
 }
 
-RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
 	
 }
 
-RenderTarget::~RenderTarget() {
+Graphics5::RenderTarget::~RenderTarget() {
 	renderTarget->Release();
 	renderTargetDescriptorHeap->Release();
 	srvDescriptorHeap->Release();
@@ -88,7 +88,7 @@ RenderTarget::~RenderTarget() {
 
 extern void graphicsFlushAndWait();
 
-void RenderTarget::useColorAsTexture(TextureUnit unit) {
+void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	graphicsFlushAndWait();
 	this->stage = unit.unit;
@@ -96,10 +96,10 @@ void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	currentTextures[stage] = nullptr;
 }
 
-void RenderTarget::useDepthAsTexture(TextureUnit unit) {
+void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 
 }
 
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+void Graphics5::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 
 }

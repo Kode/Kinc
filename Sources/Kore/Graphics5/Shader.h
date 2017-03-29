@@ -3,21 +3,21 @@
 #include "Texture.h"
 #include "VertexStructure.h"
 #include <Kore/Math/Matrix.h>
-#include <Kore/ProgramImpl.h>
-#include <Kore/ShaderImpl.h>
+#include <Kore/Program5Impl.h>
+#include <Kore/Shader5Impl.h>
 
 namespace Kore {
 	namespace Graphics5 {
 		enum ShaderType { FragmentShader, VertexShader, GeometryShader, TessellationControlShader, TessellationEvaluationShader };
 
-		class Shader : public ShaderImpl {
+		class Shader : public Shader5Impl {
 		public:
 			Shader(void* source, int length, ShaderType type);
 		};
 
-		class ConstantLocation : public ConstantLocationImpl {};
+		class ConstantLocation : public ConstantLocation5Impl {};
 
-		class Program : public ProgramImpl {
+		class Program : public Program5Impl {
 		public:
 			Program();
 			void setVertexShader(Shader* shader);

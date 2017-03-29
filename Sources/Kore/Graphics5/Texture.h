@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Kore/Graphics/Image.h>
-#include <Kore/TextureImpl.h>
+#include <Kore/Texture5Impl.h>
 
 namespace Kore {
 	namespace Graphics5 {
-		class TextureUnit : public TextureUnitImpl {};
+		class TextureUnit : public TextureUnit5Impl {};
 
-		class Texture : public Image, public TextureImpl {
+		class Texture : public Image, public Texture5Impl {
 		public:
 			Texture(int width, int height, Format format, bool readable);
 			Texture(int width, int height, int depth, Format format, bool readable = false);

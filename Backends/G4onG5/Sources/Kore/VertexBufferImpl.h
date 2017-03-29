@@ -1,12 +1,6 @@
 #pragma once
 
-struct ID3D12Resource;
-
-struct D3D12VertexBufferView {
-	__int64 BufferLocation;
-	unsigned int SizeInBytes;
-	unsigned int StrideInBytes;
-};
+#include <Kore/Graphics5/Graphics.h>
 
 namespace Kore {
 	class VertexBufferImpl {
@@ -14,14 +8,6 @@ namespace Kore {
 		VertexBufferImpl(int count);
 
 	public:
-		// ID3D12Resource* vertexBuffer;
-		ID3D12Resource* uploadBuffer;
-		D3D12VertexBufferView view;
-
-		int myCount;
-		int myStride;
-		int currentIndex;
-		// float* vertices;
-		static VertexBufferImpl* _current;
+		Graphics5::VertexBuffer* _buffer;
 	};
 }

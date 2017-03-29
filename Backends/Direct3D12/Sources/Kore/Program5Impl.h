@@ -4,11 +4,13 @@ struct ID3D12PipelineState;
 struct ID3D12GraphicsCommandList;
 
 namespace Kore {
-	class Shader;
+	namespace Graphics5 {
+		class Shader;
+	}
 
-	class ProgramImpl {
+	class Program5Impl {
 	public:
-		ProgramImpl();
+		Program5Impl();
 		ID3D12PipelineState* pso;
 		// ID3D11InputLayout* inputLayout;
 		// ID3D11Buffer* fragmentConstantBuffer;
@@ -17,16 +19,16 @@ namespace Kore {
 		// ID3D11Buffer* tessEvalConstantBuffer;
 		// ID3D11Buffer* tessControlConstantBuffer;
 
-		Shader* vertexShader;
-		Shader* fragmentShader;
-		Shader* geometryShader;
-		Shader* tessEvalShader;
-		Shader* tessControlShader;
+		Graphics5::Shader* vertexShader;
+		Graphics5::Shader* fragmentShader;
+		Graphics5::Shader* geometryShader;
+		Graphics5::Shader* tessEvalShader;
+		Graphics5::Shader* tessControlShader;
 		static void setConstants();
-		static ProgramImpl* _current;
+		static Program5Impl* _current;
 	};
 
-	class ConstantLocationImpl {
+	class ConstantLocation5Impl {
 	public:
 		u8 vertexOffset;
 		u8 vertexSize;
@@ -40,5 +42,5 @@ namespace Kore {
 		u8 tessControlSize;
 	};
 
-	class AttributeLocationImpl {};
+	class AttributeLocation5Impl {};
 }

@@ -6,13 +6,13 @@
 #include "Texture.h"
 #include "VertexStructure.h"
 
-#include <Kore/GraphicsImpl.h>
+#include <Kore/Graphics5Impl.h>
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
 
 namespace Kore {
 	namespace Graphics5 {
-		class VertexBuffer : public VertexBufferImpl {
+		class VertexBuffer : public VertexBuffer5Impl {
 		public:
 			VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
 			virtual ~VertexBuffer();
@@ -24,7 +24,7 @@ namespace Kore {
 			int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers
 		};
 
-		class IndexBuffer : public IndexBufferImpl {
+		class IndexBuffer : public IndexBuffer5Impl {
 		public:
 			IndexBuffer(int count);
 			virtual ~IndexBuffer();
@@ -94,7 +94,7 @@ namespace Kore {
 
 		enum TextureArgument { CurrentColorArgument, TextureColorArgument };
 
-		class RenderTarget : public RenderTargetImpl {
+		class RenderTarget : public RenderTarget5Impl {
 		public:
 			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
 				int contextId = 0);

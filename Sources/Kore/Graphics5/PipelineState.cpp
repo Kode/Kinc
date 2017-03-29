@@ -4,13 +4,13 @@
 
 using namespace Kore;
 
-PipelineState::PipelineState() : Program() {
+Graphics5::PipelineState::PipelineState() { //: Program() {
 	// TODO
 	// program = new Program;
 }
 
-void PipelineState::compile() {
-	link(PipelineStateBase::inputLayout, 0);
+void Graphics5::PipelineState::compile() {
+	//link(PipelineStateBase::inputLayout, 0);
 }
 
 // ConstantLocation PipelineState::getConstantLocation(const char* name) {

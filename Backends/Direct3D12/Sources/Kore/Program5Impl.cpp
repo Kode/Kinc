@@ -1,16 +1,17 @@
 #include "pch.h"
 
+#include "Program5Impl.h"
+
 #include "Direct3D12.h"
-#include "ProgramImpl.h"
 #include "d3dx12.h"
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics5/Shader.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
-ProgramImpl* ProgramImpl::_current = nullptr;
+Program5Impl* Program5Impl::_current = nullptr;
 
-void ProgramImpl::setConstants() {
+void Program5Impl::setConstants() {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
 	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
 	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
@@ -36,14 +37,14 @@ void ProgramImpl::setConstants() {
 	commandList->SetPipelineState(_current->pso);
 	commandList->SetGraphicsRootSignature(rootSignature);
 
-	TextureImpl::setTextures();
+	Texture5Impl::setTextures();
 }
 
-ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
+Program5Impl::Program5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
 
-Program::Program() {}
+Graphics5::Program::Program() {}
 
-void Program::set() {
+void Graphics5::Program::set() {
 	_current = this;
 	// context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
 	// context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
@@ -55,7 +56,7 @@ void Program::set() {
 	// context->IASetInputLayout(inputLayout);
 }
 
-ConstantLocation Program::getConstantLocation(const char* name) {
+Graphics5::ConstantLocation Graphics5::Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 
 	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
@@ -111,7 +112,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	return location;
 }
 
-TextureUnit Program::getTextureUnit(const char* name) {
+Graphics5::TextureUnit Graphics5::Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
 	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
 		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
@@ -127,23 +128,23 @@ TextureUnit Program::getTextureUnit(const char* name) {
 	return unit;
 }
 
-void Program::setVertexShader(Shader* shader) {
+void Graphics5::Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
 
-void Program::setFragmentShader(Shader* shader) {
+void Graphics5::Program::setFragmentShader(Shader* shader) {
 	fragmentShader = shader;
 }
 
-void Program::setGeometryShader(Shader* shader) {
+void Graphics5::Program::setGeometryShader(Shader* shader) {
 	geometryShader = shader;
 }
 
-void Program::setTessellationControlShader(Shader* shader) {
+void Graphics5::Program::setTessellationControlShader(Shader* shader) {
 	tessControlShader = shader;
 }
 
-void Program::setTessellationEvaluationShader(Shader* shader) {
+void Graphics5::Program::setTessellationEvaluationShader(Shader* shader) {
 	tessEvalShader = shader;
 }
 
@@ -155,7 +156,7 @@ namespace {
 	}
 }
 
-void Program::link(VertexStructure** structures, int count) {
+void Graphics5::Program::link(VertexStructure** structures, int count) {
 	D3D12_INPUT_ELEMENT_DESC vertexDesc[10];
 	for (int i = 0; i < structures[0]->size; ++i) {
 		vertexDesc[i].SemanticName = "TEXCOORD";
