@@ -21,11 +21,13 @@ namespace Kore {
 		VkDeviceMemory mem;
 	};
 
-	class VertexBuffer;
+	namespace Graphics5 {
+		class VertexBuffer;
+	}
 
-	class VertexBufferImpl {
+	class VertexBuffer5Impl {
 	protected:
-		VertexBufferImpl(int count, int instanceDataStepRate);
+		VertexBuffer5Impl(int count, int instanceDataStepRate);
 		void unset();
 		float* data;
 		int myCount;
@@ -43,6 +45,6 @@ namespace Kore {
 		int index;
 
 	public:
-		static VertexBuffer* current;
+		static Graphics5::VertexBuffer* current;
 	};
 }

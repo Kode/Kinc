@@ -15,7 +15,7 @@
 #endif
 
 namespace Kore {
-	class RenderTargetImpl {
+	class RenderTarget5Impl {
 	public:
 		VkImage destImage;
 		VkDeviceMemory destMemory;

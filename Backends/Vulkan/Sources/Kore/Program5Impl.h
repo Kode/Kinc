@@ -17,20 +17,22 @@
 #endif
 
 namespace Kore {
-	class Program;
-	class Shader;
+	namespace Graphics5 {
+		class Program;
+		class Shader;
+	}
 
-	class ProgramImpl {
+	class Program5Impl {
 	protected:
 		uint programId;
-		Shader* vertexShader;
-		Shader* fragmentShader;
-		Shader* geometryShader;
-		Shader* tessellationControlShader;
-		Shader* tessellationEvaluationShader;
+		Graphics5::Shader* vertexShader;
+		Graphics5::Shader* fragmentShader;
+		Graphics5::Shader* geometryShader;
+		Graphics5::Shader* tessellationControlShader;
+		Graphics5::Shader* tessellationEvaluationShader;
 
-		ProgramImpl();
-		virtual ~ProgramImpl();
+		Program5Impl();
+		virtual ~Program5Impl();
 
 		const char** textures;
 		int* textureValues;
@@ -51,10 +53,10 @@ namespace Kore {
 		VkPipelineLayout pipeline_layout;
 		float uniformDataVertex[256];
 		float uniformDataFragment[256];
-		static Program* current;
+		static Graphics5::Program* current;
 	};
 
-	class ConstantLocationImpl {
+	class ConstantLocation5Impl {
 	public:
 		int vertexOffset;
 		int fragmentOffset;

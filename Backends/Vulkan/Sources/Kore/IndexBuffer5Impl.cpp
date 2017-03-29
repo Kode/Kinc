@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
 
 #include <vulkan/vulkan.h>
 
@@ -14,11 +14,11 @@ extern VkCommandBuffer draw_cmd;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
-IndexBuffer* IndexBufferImpl::current = nullptr;
+Graphics5::IndexBuffer* IndexBuffer5Impl::current = nullptr;
 
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
+IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count) {}
 
-IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
+Graphics5::IndexBuffer::IndexBuffer(int indexCount) : IndexBuffer5Impl(indexCount) {
 	VkBufferCreateInfo buf_info = {};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
@@ -53,31 +53,31 @@ IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
 	assert(!err);
 }
 
-IndexBuffer::~IndexBuffer() {
+Graphics5::IndexBuffer::~IndexBuffer() {
 	unset();
 	delete[] data;
 }
 
-int* IndexBuffer::lock() {
+int* Graphics5::IndexBuffer::lock() {
 	VkResult err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
 	assert(!err);
 	return data;
 }
 
-void IndexBuffer::unlock() {
+void Graphics5::IndexBuffer::unlock() {
 	vkUnmapMemory(device, mem);
 }
 
-void IndexBuffer::_set() {
+void Graphics5::IndexBuffer::_set() {
 	current = this;
 
 	vkCmdBindIndexBuffer(draw_cmd, buf, 0, VK_INDEX_TYPE_UINT32);
 }
 
-void IndexBufferImpl::unset() {
+void IndexBuffer5Impl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
 }
 
-int IndexBuffer::count() {
+int Graphics5::IndexBuffer::count() {
 	return myCount;
 }

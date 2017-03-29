@@ -1,9 +1,9 @@
 #include "pch.h"
 
-#include "ShaderImpl.h"
-#include "VertexBufferImpl.h"
+#include "Shader5Impl.h"
+#include "VertexBuffer5Impl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
 
 #include <assert.h>
 #include <stdlib.h>
@@ -18,15 +18,15 @@ extern VkCommandBuffer draw_cmd;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
-VertexBuffer* VertexBufferImpl::current = nullptr;
+Graphics5::VertexBuffer* VertexBuffer5Impl::current = nullptr;
 
 namespace {
 	const int multiple = 100;
 }
 
-VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
+VertexBuffer5Impl::VertexBuffer5Impl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
 
-VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
+Graphics5::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBuffer5Impl(vertexCount, instanceDataStepRate) {
 	index = 0;
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
@@ -92,11 +92,11 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 	// createVertexInfo(structure, vertices.info);
 }
 
-VertexBuffer::~VertexBuffer() {
+Graphics5::VertexBuffer::~VertexBuffer() {
 	unset();
 }
 
-float* VertexBuffer::lock() {
+float* Graphics5::VertexBuffer::lock() {
 	++index;
 	if (index >= multiple) {
 		index = 0;
@@ -106,11 +106,15 @@ float* VertexBuffer::lock() {
 	return data;
 }
 
-void VertexBuffer::unlock() {
+float* Graphics5::VertexBuffer::lock(int, int) {
+	return nullptr;
+}
+
+void Graphics5::VertexBuffer::unlock() {
 	vkUnmapMemory(device, vertices.mem);
 }
 
-int VertexBuffer::_set(int offset) {
+int Graphics5::VertexBuffer::_set(int offset) {
 	int offsetoffset = setVertexAttributes(offset);
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
 
@@ -120,19 +124,19 @@ int VertexBuffer::_set(int offset) {
 	return offsetoffset;
 }
 
-void VertexBufferImpl::unset() {
+void VertexBuffer5Impl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
 }
 
-int VertexBuffer::count() {
+int Graphics5::VertexBuffer::count() {
 	return myCount;
 }
 
-int VertexBuffer::stride() {
+int Graphics5::VertexBuffer::stride() {
 	return myStride;
 }
 
-int VertexBufferImpl::setVertexAttributes(int offset) {
+int VertexBuffer5Impl::setVertexAttributes(int offset) {
 
 	return 0;
 }

@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "TextureImpl.h"
+#include "Texture5Impl.h"
 
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Graphics/Image.h>
@@ -20,7 +20,7 @@ extern VkQueue queue;
 extern bool use_staging_buffer;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
-void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
+void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
 namespace {
 	void demo_flush_init_cmd() {
@@ -213,7 +213,7 @@ namespace {
 	}
 }
 
-void Texture::init(const char* format, bool readable) {
+void Graphics5::Texture::_init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 
@@ -301,19 +301,19 @@ void Texture::init(const char* format, bool readable) {
 	createDescriptorSet(this, nullptr, desc_set);
 }
 
-Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {}
+Graphics5::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {}
 
-Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
+Graphics5::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
-TextureImpl::~TextureImpl() {}
+Texture5Impl::~Texture5Impl() {}
 
-void Texture::_set(TextureUnit unit) {}
+void Graphics5::Texture::_set(TextureUnit unit) {}
 
-int Texture::stride() {
+int Graphics5::Texture::stride() {
 	return width * 4;
 }
 
-u8* Texture::lock() {
+u8* Graphics5::Texture::lock() {
 	VkImageSubresource subres = {};
 	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	subres.mipLevel = 0;
@@ -329,14 +329,14 @@ u8* Texture::lock() {
 	return (u8*)data;
 }
 
-void Texture::unlock() {
+void Graphics5::Texture::unlock() {
 	vkUnmapMemory(device, texture.mem);
 }
 
-void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
 
 }
 
-void Texture::generateMipmaps(int levels) {}
+void Graphics5::Texture::generateMipmaps(int levels) {}
 
-void Texture::setMipmap(Texture* mipmap, int level) {}
+void Graphics5::Texture::setMipmap(Texture* mipmap, int level) {}

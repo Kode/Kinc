@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Error.h>
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
@@ -76,11 +76,11 @@ struct DepthBuffer {
 
 DepthBuffer depth;
 
-Texture* vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-RenderTarget* vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+Graphics5::Texture* vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+Graphics5::RenderTarget* vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 void createDescriptorLayout();
-void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
+void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
 #ifdef SYS_LINUX
 extern xcb_connection_t* connection;
@@ -334,25 +334,25 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 	return false;
 }
 
-void Graphics::destroy(int windowId) {}
+void Graphics5::destroy(int windowId) {}
 
 #if defined(SYS_WINDOWS)
-void Graphics::setup() {}
+void Graphics5::setup() {}
 #endif
 
-void Graphics::changeResolution(int width, int height) {}
+void Graphics5::changeResolution(int width, int height) {}
 
-void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {}
+void Graphics5::setColorMask(bool red, bool green, bool blue, bool alpha) {}
 
 #if defined(SYS_WINDOWS)
-void Graphics::clearCurrent() {}
+void Graphics5::clearCurrent() {}
 #endif
 
 #if defined(SYS_WINDOWS)
-void Graphics::makeCurrent(int contextId) {}
+void Graphics5::makeCurrent(int contextId) {}
 #endif
 
-void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
 #ifdef VALIDATE
@@ -1084,11 +1084,11 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bo
 	begin();
 }
 
-unsigned Graphics::refreshRate() {
+unsigned Graphics5::refreshRate() {
 	return 60;
 }
 
-bool Graphics::vsynced() {
+bool Graphics5::vsynced() {
 	return false;
 }
 
@@ -1096,121 +1096,121 @@ bool Graphics::vsynced() {
 //	return nullptr;
 //}
 
-void Graphics::setBool(ConstantLocation location, bool value) {
+void Graphics5::setBool(ConstantLocation location, bool value) {
 	if (location.vertexOffset >= 0) {
-		int* data = (int*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		int* data = (int*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		data[0] = value;
 	}
 	if (location.fragmentOffset >= 0) {
-		int* data = (int*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		int* data = (int*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
 		data[0] = value;
 	}
 }
 
-void Graphics::setInt(ConstantLocation location, int value) {
+void Graphics5::setInt(ConstantLocation location, int value) {
 	if (location.vertexOffset >= 0) {
-		int* data = (int*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		int* data = (int*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		data[0] = value;
 	}
 	if (location.fragmentOffset >= 0) {
-		int* data = (int*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		int* data = (int*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
 		data[0] = value;
 	}
 }
 
-void Graphics::setFloat(ConstantLocation location, float value) {
+void Graphics5::setFloat(ConstantLocation location, float value) {
 	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		data[0] = value;
 	}
 	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
 		data[0] = value;
 	}
 }
 
-void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
+void Graphics5::setFloat2(ConstantLocation location, float value1, float value2) {
 	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		data[0] = value1;
 		data[1] = value2;
 	}
 	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
 		data[0] = value1;
 		data[1] = value2;
 	}
 }
 
-void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
+void Graphics5::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
 	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
-		data[0] = value1;
-		data[1] = value2;
-		data[2] = value3;
-	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		data[0] = value1;
 		data[1] = value2;
 		data[2] = value3;
 	}
-}
-
-void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
 		data[0] = value1;
 		data[1] = value2;
 		data[2] = value3;
-		data[3] = value4;
 	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+}
+
+void Graphics5::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
+	if (location.vertexOffset >= 0) {
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		data[0] = value1;
 		data[1] = value2;
 		data[2] = value3;
 		data[3] = value4;
 	}
+	if (location.fragmentOffset >= 0) {
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
+		data[0] = value1;
+		data[1] = value2;
+		data[2] = value3;
+		data[3] = value4;
+	}
 }
 
-void Graphics::setFloats(ConstantLocation location, float* values, int count) {
+void Graphics5::setFloats(ConstantLocation location, float* values, int count) {
 	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		for (int i = 0; i < count; ++i) {
 			data[i] = values[i];
 		}
 	}
 	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
 		for (int i = 0; i < count; ++i) {
 			data[i] = values[i];
 		}
 	}
 }
 
-void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
-	Graphics::setFloats(location, values, count);
+void Graphics5::setFloat4s(ConstantLocation location, float* values, int count) {
+	Graphics5::setFloats(location, values, count);
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
+void Graphics5::setMatrix(ConstantLocation location, const mat4& value) {
 	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		for (int i = 0; i < 16; ++i) {
 			data[i] = value.data[i];
 		}
 	}
 	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
 		for (int i = 0; i < 16; ++i) {
 			data[i] = value.data[i];
 		}
 	}
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
+void Graphics5::setMatrix(ConstantLocation location, const mat3& value) {
 	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataVertex)[location.vertexOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataVertex)[location.vertexOffset];
 		for (int y = 0; y < 3; ++y) {
 			for (int x = 0; x < 3; ++x) {
 				data[y * 4 + x] = value.data[y * 3 + x];
@@ -1218,7 +1218,7 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 		}
 	}
 	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)ProgramImpl::current->uniformDataFragment)[location.fragmentOffset];
+		float* data = (float*)&((u8*)Program5Impl::current->uniformDataFragment)[location.fragmentOffset];
 		for (int y = 0; y < 3; ++y) {
 			for (int x = 0; x < 3; ++x) {
 				data[y * 4 + x] = value.data[y * 3 + x];
@@ -1227,25 +1227,25 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 	}
 }
 
-void Graphics::drawIndexedVertices() {
-	drawIndexedVertices(0, IndexBufferImpl::current->count());
+void Graphics5::drawIndexedVertices() {
+	drawIndexedVertices(0, IndexBuffer5Impl::current->count());
 }
 
-void Graphics::drawIndexedVertices(int start, int count) {
+void Graphics5::drawIndexedVertices(int start, int count) {
 	vkCmdDrawIndexed(draw_cmd, count, 1, start, 0, 0);
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {
 	// drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
+void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
 
-bool Graphics::swapBuffers(int contextId) {
+bool Graphics5::swapBuffers(int contextId) {
 	return true;
 }
 
-void Graphics::begin(int contextId) {
+void Graphics5::begin(int contextId) {
 	if (began) return;
 
 	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {};
@@ -1342,16 +1342,16 @@ void Graphics::begin(int contextId) {
 	onBackBuffer = true;
 }
 
-void Graphics::viewport(int x, int y, int width, int height) {}
+void Graphics5::viewport(int x, int y, int width, int height) {}
 
-void Graphics::scissor(int x, int y, int width, int height) {}
+void Graphics5::scissor(int x, int y, int width, int height) {}
 
-void Graphics::disableScissor() {}
+void Graphics5::disableScissor() {}
 
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+void Graphics5::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
                                     int readMask, int writeMask) {}
 
-void Graphics::end(int windowId) {
+void Graphics5::end(int windowId) {
 	vkCmdEndRenderPass(draw_cmd);
 
 	VkImageMemoryBarrier prePresentBarrier = {};
@@ -1428,7 +1428,7 @@ void Graphics::end(int windowId) {
 	began = false;
 }
 
-void Graphics::clear(uint flags, uint color, float depth, int stencil) {
+void Graphics5::clear(uint flags, uint color, float depth, int stencil) {
 	/*VkClearColorValue clearColor = {};
 	clearColor.float32[0] = 1.0f;
 	clearColor.float32[1] = 0.0f;
@@ -1443,47 +1443,47 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	vkCmdClearColorImage(draw_cmd, buffers[current_buffer].image, VK_IMAGE_LAYOUT_GENERAL, &clearColor, 1, &range);*/
 }
 
-void Graphics::setRenderState(RenderState state, bool on) {}
+void Graphics5::setRenderState(RenderState state, bool on) {}
 
-void Graphics::setRenderState(RenderState state, int v) {}
+void Graphics5::setRenderState(RenderState state, int v) {}
 
-void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
+void Graphics5::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 	vertexBuffers[0]->_set();
 }
 
-void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
+void Graphics5::setIndexBuffer(IndexBuffer& indexBuffer) {
 	indexBuffer._set();
 }
 
-void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
 	vulkanTextures[unit.binding - 2] = texture;
 	vulkanRenderTargets[unit.binding - 2] = nullptr;
-	if (ProgramImpl::current != nullptr)
-		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
+	if (Program5Impl::current != nullptr)
+		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, Program5Impl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
-void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {
 	
 }
 
-void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
+void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
-void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
+void Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
+void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
+void Graphics5::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
-void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
+void Graphics5::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
 
 void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 
 namespace {
-	RenderTarget* currentRenderTarget = nullptr;
+	Graphics5::RenderTarget* currentRenderTarget = nullptr;
 
 	void endPass() {
 		vkCmdEndRenderPass(draw_cmd);
@@ -1601,7 +1601,7 @@ namespace {
 	}
 }
 
-void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
+void Graphics5::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
 	endPass();
 
 	currentRenderTarget = texture;
@@ -1645,11 +1645,11 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }
 
-void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {
 	
 }
 
-void Graphics::restoreRenderTarget() {
+void Graphics5::restoreRenderTarget() {
 	if (onBackBuffer) return;
 
 	endPass();
@@ -1697,12 +1697,32 @@ void Graphics::restoreRenderTarget() {
 	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }
 
-bool Graphics::renderTargetsInvertedY() {
+bool Graphics5::renderTargetsInvertedY() {
 	return true;
 }
 
-bool Graphics::nonPow2TexturesSupported() {
+bool Graphics5::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics::flush() {}
+void Graphics5::flush() {}
+
+bool Graphics5::initOcclusionQuery(uint* query) {
+	return false;
+}
+
+void Graphics5::deleteOcclusionQuery(uint query) {
+
+}
+
+void Graphics5::renderOcclusionQuery(uint query, int triangles) {
+
+}
+
+bool Graphics5::isQueryResultsAvailable(uint query) {
+	return false;
+}
+
+void Graphics5::getQueryResults(uint, uint*) {
+
+}

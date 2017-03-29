@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics5/Graphics.h>
+#include <Kore/Graphics5/Shader.h>
 #include <Kore/Log.h>
 #include <assert.h>
 #include <malloc.h>
@@ -20,12 +20,12 @@ extern VkRenderPass render_pass;
 extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
 extern VkDescriptorPool desc_pool;
-extern Texture* vulkanTextures[8];
-extern RenderTarget* vulkanRenderTargets[8];
+extern Graphics5::Texture* vulkanTextures[8];
+extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
-Program* ProgramImpl::current = nullptr;
+Graphics5::Program* Program5Impl::current = nullptr;
 
 namespace {
 	VkDescriptorSetLayout desc_layout;
@@ -40,7 +40,7 @@ namespace {
 	VkDeviceMemory memFragment;
 	VkDescriptorBufferInfo buffer_infoFragment;
 
-	void parseShader(Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings,
+	void parseShader(Graphics5::Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings,
 	                 std::map<std::string, u32>& uniformOffsets) {
 		u32* spirv = (u32*)shader->source;
 		int spirvsize = shader->length / 4;
@@ -140,12 +140,12 @@ namespace {
 		return module;
 	}
 
-	VkShaderModule demo_prepare_vs(VkShaderModule& vert_shader_module, Shader* vertexShader) {
+	VkShaderModule demo_prepare_vs(VkShaderModule& vert_shader_module, Graphics5::Shader* vertexShader) {
 		vert_shader_module = demo_prepare_shader_module(vertexShader->source, vertexShader->length);
 		return vert_shader_module;
 	}
 
-	VkShaderModule demo_prepare_fs(VkShaderModule& frag_shader_module, Shader* fragmentShader) {
+	VkShaderModule demo_prepare_fs(VkShaderModule& frag_shader_module, Graphics5::Shader* fragmentShader) {
 		frag_shader_module = demo_prepare_shader_module(fragmentShader->source, fragmentShader->length);
 		return frag_shader_module;
 	}
@@ -186,34 +186,34 @@ namespace Kore {
 	bool programUsesTessellation = false;
 }
 
-ProgramImpl::ProgramImpl()
+Program5Impl::Program5Impl()
     : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
       tessellationControlShader(nullptr) {
 	textures = new const char*[16];
 	textureValues = new int[16];
 }
 
-Program::Program() {}
+Graphics5::Program::Program() {}
 
-ProgramImpl::~ProgramImpl() {}
+Program5Impl::~Program5Impl() {}
 
-void Program::setVertexShader(Shader* shader) {
+void Graphics5::Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
 
-void Program::setFragmentShader(Shader* shader) {
+void Graphics5::Program::setFragmentShader(Shader* shader) {
 	fragmentShader = shader;
 }
 
-void Program::setGeometryShader(Shader* shader) {
+void Graphics5::Program::setGeometryShader(Shader* shader) {
 	geometryShader = shader;
 }
 
-void Program::setTessellationControlShader(Shader* shader) {
+void Graphics5::Program::setTessellationControlShader(Shader* shader) {
 	tessellationControlShader = shader;
 }
 
-void Program::setTessellationEvaluationShader(Shader* shader) {
+void Graphics5::Program::setTessellationEvaluationShader(Shader* shader) {
 	tessellationEvaluationShader = shader;
 }
 
@@ -275,7 +275,7 @@ void createDescriptorLayout() {
 	assert(!err);
 }
 
-void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
+void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
 	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
 	VkDescriptorBufferInfo buffer_descs[2];
 
@@ -350,7 +350,7 @@ void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescrip
 	}
 }
 
-void Program::link(VertexStructure** structures, int count) {
+void Graphics5::Program::link(VertexStructure** structures, int count) {
 	parseShader(vertexShader, vertexLocations, textureBindings, vertexOffsets);
 	parseShader(fragmentShader, fragmentLocations, textureBindings, fragmentOffsets);
 
@@ -562,7 +562,7 @@ void Program::link(VertexStructure** structures, int count) {
 	vkDestroyShaderModule(device, vert_shader_module, nullptr);
 }
 
-void Program::set() {
+void Graphics5::Program::set() {
 	current = this;
 
 	{
@@ -591,7 +591,7 @@ void Program::set() {
 		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
-ConstantLocation Program::getConstantLocation(const char* name) {
+Graphics5::ConstantLocation Graphics5::Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.vertexOffset = -1;
 	location.fragmentOffset = -1;
@@ -604,7 +604,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	return location;
 }
 
-TextureUnit Program::getTextureUnit(const char* name) {
+Graphics5::TextureUnit Graphics5::Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
 	unit.binding = textureBindings[name];
 	return unit;

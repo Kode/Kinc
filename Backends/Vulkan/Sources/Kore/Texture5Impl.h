@@ -27,14 +27,16 @@ namespace Kore {
 		int32_t tex_width, tex_height;
 	};
 
-	class Texture;
+	namespace Graphics5 {
+		class Texture;
+	}
 
-	class TextureUnitImpl {
+	class TextureUnit5Impl {
 	public:
 		int binding;
 	};
 
-	class TextureImpl {
+	class Texture5Impl {
 	protected:
 		// static TreeMap<Image, Texture*> images;
 	public:
@@ -45,7 +47,7 @@ namespace Kore {
 
 		VkDescriptorSet desc_set;
 
-		~TextureImpl();
+		~Texture5Impl();
 		u8* conversionBuffer; // Fuer wenn Textur aus Image erstellt wird
 	};
 }

@@ -51,7 +51,7 @@ if (platform === Platform.Windows) {
 	}
 	else if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
-		//g5 = true;
+		g5 = true;
 		addBackend('Vulkan');
 		project.addDefine('SYS_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
@@ -153,7 +153,7 @@ else if (platform === Platform.Android) {
 	addBackend('Android');
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
-		//g5 = true;
+		g5 = true;
 		addBackend('Vulkan');
 		project.addDefine('SYS_VULKAN');
 	}
@@ -184,7 +184,7 @@ else if (platform === Platform.Linux) {
 	project.addLib('dl');
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
-		//g5 = true;
+		g5 = true;
 		addBackend('Vulkan');
 		project.addLib('vulkan');
 		project.addLib('xcb');
@@ -228,7 +228,12 @@ else if (platform === Platform.Tizen) {
 	project.addDefine('SYS_UNIXOID');
 }
 
+if (g4) {
+	project.addDefine('SYS_G4');
+}
+
 if (g5) {
+	project.addDefine('SYS_G5');
 	addBackend('G4onG5');
 }
 else {

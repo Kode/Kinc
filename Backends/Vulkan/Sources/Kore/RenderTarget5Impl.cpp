@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "RenderTargetImpl.h"
+#include "RenderTarget5Impl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
 
 #include <vulkan/vulkan.h>
@@ -32,10 +32,10 @@ struct DepthBuffer {
 };
 
 extern DepthBuffer depth;
-extern Texture* vulkanTextures[8];
-extern RenderTarget* vulkanRenderTargets[8];
+extern Graphics5::Texture* vulkanTextures[8];
+extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 
-void createDescriptorSet(Texture* texture, RenderTarget* renderTarget, VkDescriptorSet& desc_set);
+void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
 void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
@@ -79,7 +79,7 @@ void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout 
 	vkCmdPipelineBarrier(draw_cmd, srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
     : width(width), height(height) {
 	texWidth = width;
 	texHeight = height;
@@ -332,23 +332,23 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	createDescriptorSet(nullptr, this, desc_set);
 }
 
-RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
 	
 }
 
-RenderTarget::~RenderTarget() {}
+Graphics5::RenderTarget::~RenderTarget() {}
 
-void RenderTarget::useColorAsTexture(TextureUnit unit) {
+void Graphics5::RenderTarget::useColorAsTexture(Graphics5::TextureUnit unit) {
 	vulkanRenderTargets[unit.binding - 2] = this;
 	vulkanTextures[unit.binding - 2] = nullptr;
-	if (ProgramImpl::current != nullptr)
-		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, ProgramImpl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
+	if (Program5Impl::current != nullptr)
+		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, Program5Impl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
-void RenderTarget::useDepthAsTexture(TextureUnit unit) {
+void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 
 }
 
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+void Graphics5::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 
 }

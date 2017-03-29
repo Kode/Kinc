@@ -15,12 +15,14 @@
 #endif
 
 namespace Kore {
-	class IndexBuffer;
+	namespace Graphics5 {
+		class IndexBuffer;
+	}
 
-	class IndexBufferImpl {
+	class IndexBuffer5Impl {
 	protected:
 	public:
-		IndexBufferImpl(int count);
+		IndexBuffer5Impl(int count);
 		void unset();
 
 		int* data;
@@ -32,6 +34,6 @@ namespace Kore {
 		VkMemoryAllocateInfo mem_alloc;
 
 	public:
-		static IndexBuffer* current;
+		static Graphics5::IndexBuffer* current;
 	};
 }
