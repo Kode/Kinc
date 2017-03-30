@@ -9,7 +9,7 @@
 
 using namespace Kore;
 
-VertexBuffer* VertexBufferImpl::current = nullptr;
+Graphics4::VertexBuffer* VertexBufferImpl::current = nullptr;
 
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {
 #ifndef NDEBUG

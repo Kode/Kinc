@@ -3,7 +3,9 @@
 #include <Kore/Graphics4/VertexStructure.h>
 
 namespace Kore {
-	class VertexBuffer;
+	namespace Graphics4 {
+		class VertexBuffer;
+	}
 
 	class VertexBufferImpl {
 	protected:
@@ -22,6 +24,6 @@ namespace Kore {
 		bool initialized;
 #endif
 	public:
-		static VertexBuffer* current;
+		static Graphics4::VertexBuffer* current;
 	};
 }
