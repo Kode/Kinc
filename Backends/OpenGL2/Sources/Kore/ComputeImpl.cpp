@@ -4,7 +4,7 @@
 #include "ogl.h"
 
 #include <Kore/Compute/Compute.h>
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Math/Core.h>
 #include <stdio.h>
 
@@ -90,7 +90,7 @@ void Compute::setFloat(ComputeConstantLocation location, float value) {
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Texture* texture) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors2();

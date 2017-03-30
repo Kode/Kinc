@@ -39,8 +39,8 @@ namespace {
 	HGLRC glContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 #endif
 
-	TextureFilter minFilters[10][32];
-	MipmapFilter mipFilters[10][32];
+	Graphics4::TextureFilter minFilters[10][32];
+	Graphics4::MipmapFilter mipFilters[10][32];
 	int originalFramebuffer[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 	uint arrayId[10];
 
@@ -58,7 +58,7 @@ namespace {
 #endif
 }
 
-void Graphics::destroy(int windowId) {
+void Graphics4::destroy(int windowId) {
 #ifdef SYS_WINDOWS
 	if (glContexts[windowId]) {
 		if (!wglMakeCurrent(nullptr, nullptr)) {
@@ -93,10 +93,10 @@ namespace Kore {
 #endif
 
 #if defined(SYS_WINDOWS)
-void Graphics::setup() {}
+void Graphics4::setup() {}
 #endif
 
-void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 #ifdef SYS_WINDOWS
 	HWND windowHandle = (HWND)System::windowHandle(windowId);
 
@@ -208,7 +208,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bo
 #endif
 }
 
-void Graphics::changeResolution(int width, int height) {
+void Graphics4::changeResolution(int width, int height) {
 	_width = width;
 	_height = height;
 	if (renderToBackbuffer) {
@@ -218,11 +218,11 @@ void Graphics::changeResolution(int width, int height) {
 }
 
 // TODO (DK) should return displays refreshrate?
-unsigned Graphics::refreshRate() {
+unsigned Graphics4::refreshRate() {
 	return 60;
 }
 
-bool Graphics::vsynced() {
+bool Graphics4::vsynced() {
 #ifdef SYS_WINDOWS
 	return wglGetSwapIntervalEXT();
 #else
@@ -230,61 +230,61 @@ bool Graphics::vsynced() {
 #endif
 }
 
-void Graphics::setBool(ConstantLocation location, bool value) {
+void Graphics4::setBool(ConstantLocation location, bool value) {
 	glUniform1i(location.location, value ? 1 : 0);
 	glCheckErrors();
 }
 
-void Graphics::setInt(ConstantLocation location, int value) {
+void Graphics4::setInt(ConstantLocation location, int value) {
 	glUniform1i(location.location, value);
 	glCheckErrors();
 }
 
-void Graphics::setFloat(ConstantLocation location, float value) {
+void Graphics4::setFloat(ConstantLocation location, float value) {
 	glUniform1f(location.location, value);
 	glCheckErrors();
 }
 
-void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
+void Graphics4::setFloat2(ConstantLocation location, float value1, float value2) {
 	glUniform2f(location.location, value1, value2);
 	glCheckErrors();
 }
 
-void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
+void Graphics4::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
 	glUniform3f(location.location, value1, value2, value3);
 	glCheckErrors();
 }
 
-void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
+void Graphics4::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
 	glUniform4f(location.location, value1, value2, value3, value4);
 	glCheckErrors();
 }
 
-void Graphics::setFloats(ConstantLocation location, float* values, int count) {
+void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
 	glUniform1fv(location.location, count, values);
 	glCheckErrors();
 }
 
-void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
+void Graphics4::setFloat4s(ConstantLocation location, float* values, int count) {
 	glUniform4fv(location.location, count / 4, values);
 	glCheckErrors();
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
+void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
 	glUniformMatrix4fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
 	glCheckErrors();
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
+void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
 	glUniformMatrix3fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
 	glCheckErrors();
 }
 
-void Graphics::drawIndexedVertices() {
+void Graphics4::drawIndexedVertices() {
 	drawIndexedVertices(0, IndexBufferImpl::current->count());
 }
 
-void Graphics::drawIndexedVertices(int start, int count) {
+void Graphics4::drawIndexedVertices(int start, int count) {
 #ifdef OPENGLES
 #if defined(SYS_ANDROID) || defined(SYS_PI)
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void*)(start * sizeof(GL_UNSIGNED_SHORT)));
@@ -304,11 +304,11 @@ void Graphics::drawIndexedVertices(int start, int count) {
 #endif
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
 	drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
 #ifndef OPENGLES
 	if (programUsesTessellation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
@@ -321,7 +321,7 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 #endif
 }
 
-bool Graphics::swapBuffers(int contextId) {
+bool Graphics4::swapBuffers(int contextId) {
 #ifdef SYS_WINDOWS
 	::SwapBuffers(deviceContexts[contextId]);
 #else
@@ -335,12 +335,12 @@ void beginGL();
 #endif
 
 #if defined(SYS_WINDOWS)
-void Graphics::makeCurrent(int contextId) {
+void Graphics4::makeCurrent(int contextId) {
 	wglMakeCurrent(deviceContexts[contextId], glContexts[contextId]);
 }
 #endif
 
-void Graphics::begin(int contextId) {
+void Graphics4::begin(int contextId) {
 	if (System::currentDevice() != -1) {
 		if (System::currentDevice() != contextId) {
 			log(Warning, "begin: wrong glContext is active");
@@ -368,44 +368,44 @@ void Graphics::begin(int contextId) {
 #endif
 }
 
-void Graphics::viewport(int x, int y, int width, int height) {
+void Graphics4::viewport(int x, int y, int width, int height) {
 	glViewport(x, _renderTargetHeight - y - height, width, height);
 }
 
-void Graphics::scissor(int x, int y, int width, int height) {
+void Graphics4::scissor(int x, int y, int width, int height) {
 	glEnable(GL_SCISSOR_TEST);
 	glScissor(x, _renderTargetHeight - y - height, width, height);
 }
 
-void Graphics::disableScissor() {
+void Graphics4::disableScissor() {
 	glDisable(GL_SCISSOR_TEST);
 }
 
 namespace {
-	GLenum convert(StencilAction action) {
+	GLenum convert(Graphics4::StencilAction action) {
 		switch (action) {
 		default:
-		case Decrement:
+		case Graphics4::Decrement:
 			return GL_DECR;
-		case DecrementWrap:
+		case Graphics4::DecrementWrap:
 			return GL_DECR_WRAP;
-		case Increment:
+		case Graphics4::Increment:
 			return GL_INCR;
-		case IncrementWrap:
+		case Graphics4::IncrementWrap:
 			return GL_INCR_WRAP;
-		case Invert:
+		case Graphics4::Invert:
 			return GL_INVERT;
-		case Keep:
+		case Graphics4::Keep:
 			return GL_KEEP;
-		case Replace:
+		case Graphics4::Replace:
 			return GL_REPLACE;
-		case Zero:
+		case Graphics4::Zero:
 			return GL_ZERO;
 		}
 	}
 }
 
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+void Graphics4::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
                                     int readMask, int writeMask) {
 	if (compareMode == ZCompareAlways && bothPass == Keep && depthFail == Keep && stencilFail == Keep) {
 		glDisable(GL_STENCIL_TEST);
@@ -472,13 +472,13 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 }*/
 
 #if defined(SYS_WINDOWS)
-void Graphics::clearCurrent() {
+void Graphics4::clearCurrent() {
 	wglMakeCurrent(nullptr, nullptr);
 }
 #endif
 
 // TODO (DK) this never gets called on some targets, needs investigation?
-void Graphics::end(int windowId) {
+void Graphics4::end(int windowId) {
 	// glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 	// glClear(GL_COLOR_BUFFER_BIT);
 	glCheckErrors();
@@ -494,7 +494,7 @@ void Graphics::end(int windowId) {
 	System::clearCurrent();
 }
 
-void Graphics::clear(uint flags, uint color, float depth, int stencil) {
+void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
 	             ((color & 0xff000000) >> 24) / 255.0f);
 	glCheckErrors();
@@ -533,11 +533,11 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	glCheckErrors();
 }
 
-void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
 	glColorMask(red, green, blue, alpha);
 }
 
-void Graphics::setRenderState(RenderState state, bool on) {
+void Graphics4::setRenderState(RenderState state, bool on) {
 	switch (state) {
 	case DepthWrite:
 		if (on)
@@ -588,7 +588,7 @@ void Graphics::setRenderState(RenderState state, bool on) {
 	}*/
 }
 
-void Graphics::setRenderState(RenderState state, int v) {
+void Graphics4::setRenderState(RenderState state, int v) {
 	switch (state) {
 	case DepthTestCompare:
 		switch (v) {
@@ -674,7 +674,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 	}*/
 }
 
-void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
+void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 #if defined(SYS_IOS)
 	glBindVertexArrayOES(arrayId[0]);
 	glCheckErrors();
@@ -689,19 +689,19 @@ void Graphics::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 	}
 }
 
-void Graphics::setIndexBuffer(IndexBuffer& indexBuffer) {
+void Graphics4::setIndexBuffer(IndexBuffer& indexBuffer) {
 	indexBuffer._set();
 }
 
-void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
 
-void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
 	texture->_setImage(unit);
 }
 
-void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	GLenum texDir;
 	switch (dir) {
@@ -731,7 +731,7 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 	glCheckErrors();
 }
 
-void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
 	glActiveTexture(GL_TEXTURE0 + texunit.unit);
 	glCheckErrors();
 	switch (filter) {
@@ -751,29 +751,29 @@ namespace {
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glCheckErrors();
 		switch (minFilters[System::currentDevice()][unit]) {
-		case PointFilter:
+		case Graphics4::PointFilter:
 			switch (mipFilters[System::currentDevice()][unit]) {
-			case NoMipFilter:
+			case Graphics4::NoMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				break;
-			case PointMipFilter:
+			case Graphics4::PointMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 				break;
-			case LinearMipFilter:
+			case Graphics4::LinearMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 				break;
 			}
 			break;
-		case LinearFilter:
-		case AnisotropicFilter:
+		case Graphics4::LinearFilter:
+		case Graphics4::AnisotropicFilter:
 			switch (mipFilters[System::currentDevice()][unit]) {
-			case NoMipFilter:
+			case Graphics4::NoMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				break;
-			case PointMipFilter:
+			case Graphics4::PointMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 				break;
-			case LinearMipFilter:
+			case Graphics4::LinearMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				break;
 			}
@@ -783,38 +783,38 @@ namespace {
 	}
 }
 
-void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
 	minFilters[System::currentDevice()][texunit.unit] = filter;
 	setMinMipFilters(texunit.unit);
 }
 
-void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
 	mipFilters[System::currentDevice()][texunit.unit] = filter;
 	setMinMipFilters(texunit.unit);
 }
 
 namespace {
-	GLenum convert(BlendingOperation operation) {
+	GLenum convert(Graphics4::BlendingOperation operation) {
 		switch (operation) {
-		case BlendZero:
+		case Graphics4::BlendZero:
 			return GL_ZERO;
-		case BlendOne:
+		case Graphics4::BlendOne:
 			return GL_ONE;
-		case SourceAlpha:
+		case Graphics4::SourceAlpha:
 			return GL_SRC_ALPHA;
-		case DestinationAlpha:
+		case Graphics4::DestinationAlpha:
 			return GL_DST_ALPHA;
-		case InverseSourceAlpha:
+		case Graphics4::InverseSourceAlpha:
 			return GL_ONE_MINUS_SRC_ALPHA;
-		case InverseDestinationAlpha:
+		case Graphics4::InverseDestinationAlpha:
 			return GL_ONE_MINUS_DST_ALPHA;
-		case SourceColor:
+		case Graphics4::SourceColor:
 			return GL_SRC_COLOR;
-		case DestinationColor:
+		case Graphics4::DestinationColor:
 			return GL_DST_COLOR;
-		case InverseSourceColor:
+		case Graphics4::InverseSourceColor:
 			return GL_ONE_MINUS_SRC_COLOR;
-		case InverseDestinationColor:
+		case Graphics4::InverseDestinationColor:
 			return GL_ONE_MINUS_DST_COLOR;
 		default:
 			return GL_ONE;
@@ -822,21 +822,21 @@ namespace {
 	}
 }
 
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
+void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
 	// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
 	glBlendFunc(convert(source), convert(destination));
 	glCheckErrors();
 }
 
-void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {
+void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {
 	glBlendFuncSeparate(convert(source), convert(destination), convert(alphaSource), convert(alphaDestination));
 	glCheckErrors();
 }
 
-void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
+void Graphics4::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
 	if (num == 0) {
 		// TODO (DK) uneccessary?
 		// System::makeCurrent(texture->contextId);
@@ -866,7 +866,7 @@ void Graphics::setRenderTarget(RenderTarget* texture, int num, int additionalTar
 	}
 }
 
-void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
 	glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
 	glCheckErrors();
 	glFramebufferTexture2D(GL_FRAMEBUFFER, texture->isDepthAttachment ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, texture->_texture, 0);
@@ -877,7 +877,7 @@ void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
 	glCheckErrors();
 }
 
-void Graphics::restoreRenderTarget() {
+void Graphics4::restoreRenderTarget() {
 	glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer[System::currentDevice()]);
 	glCheckErrors();
 	int w = System::windowWidth(System::currentDevice());
@@ -889,21 +889,21 @@ void Graphics::restoreRenderTarget() {
 	glCheckErrors();
 }
 
-bool Graphics::renderTargetsInvertedY() {
+bool Graphics4::renderTargetsInvertedY() {
 	return true;
 }
 
-bool Graphics::nonPow2TexturesSupported() {
+bool Graphics4::nonPow2TexturesSupported() {
 	return true;
 }
 
 #if (defined(OPENGL) && !defined(SYS_PI) && !defined(SYS_ANDROID)) || (defined(SYS_ANDROID) && SYS_ANDROID_API >= 18)
-bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
 	glGenQueries(1, occlusionQuery);
 	return true;
 }
 
-void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+void Graphics4::deleteOcclusionQuery(uint occlusionQuery) {
 	glDeleteQueries(1, &occlusionQuery);
 }
 
@@ -913,25 +913,25 @@ void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
 #define SAMPLES_PASSED GL_SAMPLES_PASSED
 #endif
 
-void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+void Graphics4::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 	glBeginQuery(SAMPLES_PASSED, occlusionQuery);
 	glDrawArrays(GL_TRIANGLES, 0, triangles);
 	glCheckErrors();
 	glEndQuery(SAMPLES_PASSED);
 }
 
-bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+bool Graphics4::isQueryResultsAvailable(uint occlusionQuery) {
 	uint available;
 	glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, &available);
 	return available != 0;
 }
 
-void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 	glGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, pixelCount);
 }
 #endif
 
-void Graphics::flush() {
+void Graphics4::flush() {
 	glFlush();
 	glCheckErrors();
 }

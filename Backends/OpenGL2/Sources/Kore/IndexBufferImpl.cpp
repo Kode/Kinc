@@ -2,15 +2,15 @@
 
 #include "ogl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 
 using namespace Kore;
 
-IndexBuffer* IndexBufferImpl::current = nullptr;
+Graphics4::IndexBuffer* IndexBufferImpl::current = nullptr;
 
 IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
-IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
+Graphics4::IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
 	glGenBuffers(1, &bufferId);
 	glCheckErrors();
 	data = new int[indexCount];
@@ -19,16 +19,16 @@ IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
 #endif
 }
 
-IndexBuffer::~IndexBuffer() {
+Graphics4::IndexBuffer::~IndexBuffer() {
 	unset();
 	delete[] data;
 }
 
-int* IndexBuffer::lock() {
+int* Graphics4::IndexBuffer::lock() {
 	return data;
 }
 
-void IndexBuffer::unlock() {
+void Graphics4::IndexBuffer::unlock() {
 #if defined(SYS_ANDROID) || defined(SYS_PI)
 	for (int i = 0; i < myCount; ++i) shortData[i] = (u16)data[i];
 #endif
@@ -45,7 +45,7 @@ void IndexBuffer::unlock() {
 	glCheckErrors();
 }
 
-void IndexBuffer::_set() {
+void Graphics4::IndexBuffer::_set() {
 	current = this;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
@@ -55,6 +55,6 @@ void IndexBufferImpl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
 }
 
-int IndexBuffer::count() {
+int Graphics4::IndexBuffer::count() {
 	return myCount;
 }

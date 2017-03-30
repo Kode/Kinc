@@ -72,7 +72,7 @@ Kravur::Kravur(Reader* reader) {
 		w = w / 2;
 		h = h / 2;
 	}
-	texture = new Graphics4::Texture(w, h, Image::Grey8, true);
+	texture = new Graphics4::Texture(w, h, Graphics4::Image::Grey8, true);
 	u8* bytes = texture->lock();
 	int pos = 0;
 	for (int y = 0; y < h; ++y)

@@ -4,7 +4,7 @@
 #include "VertexBufferImpl.h"
 #include "ogl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <assert.h>
 
 using namespace Kore;
@@ -17,7 +17,7 @@ VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCoun
 #endif
 }
 
-VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
+Graphics4::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
@@ -51,12 +51,12 @@ VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, in
 	data = new float[vertexCount * myStride / 4];
 }
 
-VertexBuffer::~VertexBuffer() {
+Graphics4::VertexBuffer::~VertexBuffer() {
 	unset();
 	delete[] data;
 }
 
-float* VertexBuffer::lock() {
+float* Graphics4::VertexBuffer::lock() {
 	return data;
 }
 /*
@@ -67,7 +67,7 @@ float* VertexBuffer::lock(int start, int count) {
 }
 */
 
-void VertexBuffer::unlock() {
+void Graphics4::VertexBuffer::unlock() {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
 	glBufferData(GL_ARRAY_BUFFER, myStride * myCount, data, GL_STATIC_DRAW);
@@ -77,7 +77,7 @@ void VertexBuffer::unlock() {
 #endif
 }
 
-int VertexBuffer::_set(int offset) {
+int Graphics4::VertexBuffer::_set(int offset) {
 	assert(initialized); // Vertex Buffer is used before lock/unlock was called
 	int offsetoffset = setVertexAttributes(offset);
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
@@ -88,11 +88,11 @@ void VertexBufferImpl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
 }
 
-int VertexBuffer::count() {
+int Graphics4::VertexBuffer::count() {
 	return myCount;
 }
 
-int VertexBuffer::stride() {
+int Graphics4::VertexBuffer::stride() {
 	return myStride;
 }
 
@@ -109,30 +109,30 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 	int internaloffset = 0;
 	int actualIndex = 0;
 	for (int index = 0; index < structure.size; ++index) {
-		VertexElement element = structure.elements[index];
+		Graphics4::VertexElement element = structure.elements[index];
 		int size = 0;
 		GLenum type = GL_FLOAT;
 		switch (element.data) {
-		case ColorVertexData:
+		case Graphics4::ColorVertexData:
 			size = 4;
 			type = GL_UNSIGNED_BYTE;
 			break;
-		case Float1VertexData:
+		case Graphics4::Float1VertexData:
 			size = 1;
 			break;
-		case Float2VertexData:
+		case Graphics4::Float2VertexData:
 			size = 2;
 			break;
-		case Float3VertexData:
+		case Graphics4::Float3VertexData:
 			size = 3;
 			break;
-		case Float4VertexData:
+		case Graphics4::Float4VertexData:
 			size = 4;
 			break;
-		case Float4x4VertexData:
+		case Graphics4::Float4x4VertexData:
 			size = 16;
 			break;
-		case NoVertexData:
+		case Graphics4::NoVertexData:
 			break;
 		}
 		if (size > 4) {
@@ -170,25 +170,25 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			++actualIndex;
 		}
 		switch (element.data) {
-		case ColorVertexData:
+		case Graphics4::ColorVertexData:
 			internaloffset += 4 * 1;
 			break;
-		case Float1VertexData:
+		case Graphics4::Float1VertexData:
 			internaloffset += 4 * 1;
 			break;
-		case Float2VertexData:
+		case Graphics4::Float2VertexData:
 			internaloffset += 4 * 2;
 			break;
-		case Float3VertexData:
+		case Graphics4::Float3VertexData:
 			internaloffset += 4 * 3;
 			break;
-		case Float4VertexData:
+		case Graphics4::Float4VertexData:
 			internaloffset += 4 * 4;
 			break;
-		case Float4x4VertexData:
+		case Graphics4::Float4x4VertexData:
 			internaloffset += 4 * 4 * 4;
 			break;
-		case NoVertexData:
+		case Graphics4::NoVertexData:
 			break;
 		}
 	}

@@ -2,8 +2,8 @@
 
 #include "ogl.h"
 
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics4/Graphics.h>
+#include <Kore/Graphics4/Shader.h>
 #include <Kore/Math/Core.h>
 
 using namespace Kore;
@@ -22,4 +22,4 @@ ShaderImpl::~ShaderImpl() {
 	if (id != 0) glDeleteShader(id);
 }
 
-Shader::Shader(void* source, int length, ShaderType type) : ShaderImpl(source, length) {}
+Graphics4::Shader::Shader(void* source, int length, ShaderType type) : ShaderImpl(source, length) {}

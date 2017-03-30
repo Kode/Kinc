@@ -2,14 +2,14 @@
 
 #include "Direct3D11.h"
 #include "VertexBufferImpl.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
 VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {}
 
-VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
+Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		switch (structure.elements[i].data) {
@@ -47,35 +47,35 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 	affirm(device->CreateBuffer(&bufferDesc, nullptr, &_vb));
 }
 
-VertexBuffer::~VertexBuffer() {
+Graphics4::VertexBuffer::~VertexBuffer() {
 	_vb->Release();
 	delete[] vertices;
 }
 
-float* VertexBuffer::lock() {
+float* Graphics4::VertexBuffer::lock() {
 	return lock(0, count());
 }
 
-float* VertexBuffer::lock(int start, int count) {
+float* Graphics4::VertexBuffer::lock(int start, int count) {
 	return &vertices[start * myStride / 4];
 }
 
-void VertexBuffer::unlock() {
+void Graphics4::VertexBuffer::unlock() {
 
 	context->UpdateSubresource(_vb, 0, nullptr, vertices, 0, 0);
 }
 
-int VertexBuffer::_set(int offset) {
+int Graphics4::VertexBuffer::_set(int offset) {
 	// UINT stride = myStride;
 	// UINT internaloffset = 0;
 	// context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
 	return 0;
 }
 
-int VertexBuffer::count() {
+int Graphics4::VertexBuffer::count() {
 	return myCount;
 }
 
-int VertexBuffer::stride() {
+int Graphics4::VertexBuffer::stride() {
 	return myStride;
 }

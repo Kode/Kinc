@@ -3,18 +3,18 @@
 #include "Direct3D11.h"
 #include "IndexBufferImpl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/WinError.h>
 #include <Windows.h>
 #include <d3d11.h>
 
 using namespace Kore;
 
-IndexBuffer* IndexBufferImpl::_current = nullptr;
+Graphics4::IndexBuffer* IndexBufferImpl::_current = nullptr;
 
 IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
-IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
+Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	indices = new int[count];
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -28,24 +28,24 @@ IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	affirm(device->CreateBuffer(&bufferDesc, nullptr, &ib));
 }
 
-IndexBuffer::~IndexBuffer() {
+Graphics4::IndexBuffer::~IndexBuffer() {
 	ib->Release();
 	delete[] indices;
 }
 
-int* IndexBuffer::lock() {
+int* Graphics4::IndexBuffer::lock() {
 	return indices;
 }
 
-void IndexBuffer::unlock() {
+void Graphics4::IndexBuffer::unlock() {
 	context->UpdateSubresource(ib, 0, nullptr, indices, 0, 0);
 }
 
-void IndexBuffer::_set() {
+void Graphics4::IndexBuffer::_set() {
 	_current = this;
 	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 }
 
-int IndexBuffer::count() {
+int Graphics4::IndexBuffer::count() {
 	return myCount;
 }

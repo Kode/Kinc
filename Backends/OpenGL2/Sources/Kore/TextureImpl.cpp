@@ -3,8 +3,8 @@
 #include "TextureImpl.h"
 #include "ogl.h"
 
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/Graphics/Image.h>
+#include <Kore/Graphics4/Graphics.h>
+#include <Kore/Graphics1/Image.h>
 #include <Kore/Log.h>
 
 using namespace Kore;
@@ -14,21 +14,21 @@ using namespace Kore;
 #endif
 
 namespace {
-	int convertFormat(Image::Format format) {
+	int convertFormat(Graphics4::Image::Format format) {
 		switch (format) {
-		case Image::RGBA32:
-		case Image::RGBA64:
-		case Image::RGBA128:
+		case Graphics4::Image::RGBA32:
+		case Graphics4::Image::RGBA64:
+		case Graphics4::Image::RGBA128:
 		default:
 			// #ifdef GL_BGRA
 			// return GL_BGRA;
 			// #else
 			return GL_RGBA;
 		// #endif
-		case Image::RGB24:
+		case Graphics4::Image::RGB24:
 			return GL_RGB;
-		case Image::A32:
-		case Image::Grey8:
+		case Graphics4::Image::A32:
+		case Graphics4::Image::Grey8:
 #ifdef OPENGLES
 			return GL_LUMINANCE;
 #else
@@ -37,31 +37,31 @@ namespace {
 		}
 	}
 
-	int convertInternalFormat(Image::Format format) {
+	int convertInternalFormat(Graphics4::Image::Format format) {
 		switch (format) {
-		case Image::RGBA128:
+		case Graphics4::Image::RGBA128:
 #ifdef GL_ARB_texture_float
 			return GL_RGBA32F;
 #else
 			return GL_RGBA;
 #endif
-		case Image::RGBA32:
-		case Image::RGBA64:
+		case Graphics4::Image::RGBA32:
+		case Graphics4::Image::RGBA64:
 		default:
 			// #ifdef GL_BGRA
 			// return GL_BGRA;
 			// #else
 			return GL_RGBA;
 		// #endif
-		case Image::RGB24:
+		case Graphics4::Image::RGB24:
 			return GL_RGB;
-		case Image::A32:
+		case Graphics4::Image::A32:
 #ifdef OPENGLES
 			return GL_LUMINANCE;
 #else
 			return GL_R8;
 #endif
-		case Image::Grey8:
+		case Graphics4::Image::Grey8:
 #ifdef OPENGLES
 			return GL_LUMINANCE;
 #else
@@ -70,13 +70,13 @@ namespace {
 		}
 	}
 
-	int convertType(Image::Format format) {
+	int convertType(Graphics4::Image::Format format) {
 		switch (format) {
-		case Image::RGBA128:
-		case Image::RGBA64:
-		case Image::A32:
+		case Graphics4::Image::RGBA128:
+		case Graphics4::Image::RGBA64:
+		case Graphics4::Image::A32:
 			return GL_FLOAT;
-		case Image::RGBA32:
+		case Graphics4::Image::RGBA32:
 		default:
 			return GL_UNSIGNED_BYTE;
 		}
@@ -147,9 +147,9 @@ namespace {
 			if (pow(power) >= i) return pow(power);
 	}
 
-	void convertImageToPow2(Image::Format format, u8* from, int fw, int fh, u8* to, int tw, int th) {
+	void convertImageToPow2(Graphics4::Image::Format format, u8* from, int fw, int fh, u8* to, int tw, int th) {
 		switch (format) {
-		case Image::RGBA32:
+		case Graphics4::Image::RGBA32:
 			for (int y = 0; y < th; ++y) {
 				for (int x = 0; x < tw; ++x) {
 					to[tw * 4 * y + x * 4 + 0] = 0;
@@ -167,7 +167,7 @@ namespace {
 				}
 			}
 			break;
-		case Image::Grey8:
+		case Graphics4::Image::Grey8:
 			for (int y = 0; y < th; ++y) {
 				for (int x = 0; x < tw; ++x) {
 					to[tw * y + x] = 0;
@@ -179,18 +179,18 @@ namespace {
 				}
 			}
 			break;
-			case Image::RGB24:
-			case Image::RGBA128:
-			case Image::RGBA64:
-			case Image::A32:
+			case Graphics4::Image::RGB24:
+			case Graphics4::Image::RGBA128:
+			case Graphics4::Image::RGBA64:
+			case Graphics4::Image::A32:
 				break;
 		}
 	}
 }
 
-void Texture::init(const char* format, bool readable) {
+void Graphics4::Texture::init(const char* format, bool readable) {
 	bool toPow2;
-	if (Graphics::nonPow2TexturesSupported()) {
+	if (Graphics4::nonPow2TexturesSupported()) {
 		texWidth = width;
 		texHeight = height;
 		toPow2 = false;
@@ -275,12 +275,12 @@ void Texture::init(const char* format, bool readable) {
 	}
 }
 
-Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
+Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 #ifdef SYS_IOS
 	texWidth = width;
 	texHeight = height;
 #else
-	if (Graphics::nonPow2TexturesSupported()) {
+	if (Graphics4::nonPow2TexturesSupported()) {
 		texWidth = width;
 		texHeight = height;
 	}
@@ -320,7 +320,7 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	}*/
 }
 
-Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
 #ifndef OPENGLES
 	glGenTextures(1, &texture);
 	glCheckErrors();
@@ -351,7 +351,7 @@ TextureImpl::~TextureImpl() {
 	glFlush();
 }
 
-void Texture::_set(TextureUnit unit) {
+void Graphics4::Texture::_set(TextureUnit unit) {
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
@@ -370,7 +370,7 @@ void Texture::_set(TextureUnit unit) {
 #endif
 }
 
-void Texture::_setImage(TextureUnit unit) {
+void Graphics4::Texture::_setImage(TextureUnit unit) {
 #if defined(SYS_WINDOWS)
 // || (defined(SYS_LINUX) && defined(GL_VERSION_4_2)) // Undefined reference on Travis
 	glBindImageTexture(unit.unit, texture, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
@@ -378,11 +378,11 @@ void Texture::_setImage(TextureUnit unit) {
 #endif
 }
 
-int Texture::stride() {
+int Graphics4::Texture::stride() {
 	return width * sizeOf(format);
 }
 
-u8* Texture::lock() {
+u8* Graphics4::Texture::lock() {
 	return (u8*)data;
 }
 
@@ -398,7 +398,7 @@ GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
     }
 }*/
 
-void Texture::unlock() {
+void Graphics4::Texture::unlock() {
 	// if (conversionBuffer != nullptr) {
 	// convertImageToPow2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -416,7 +416,7 @@ void Texture::unlock() {
 	// }
 }
 
-void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
 #ifdef GL_VERSION_4_4
 	static float clearColor[4];
 	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
@@ -438,7 +438,7 @@ void Texture::upload(u8* data) {
 }
 #endif
 
-void Texture::generateMipmaps(int levels) {
+void Graphics4::Texture::generateMipmaps(int levels) {
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glBindTexture(target, texture);
 	glCheckErrors();
@@ -446,7 +446,7 @@ void Texture::generateMipmaps(int levels) {
 	glCheckErrors();
 }
 
-void Texture::setMipmap(Texture* mipmap, int level) {
+void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
 	int convertedType = convertType(mipmap->format);
 	bool isHdr = convertedType == GL_FLOAT;
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;

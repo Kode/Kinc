@@ -3,12 +3,14 @@
 struct IDirect3DVertexDeclaration9;
 
 namespace Kore {
-	class Shader;
+	namespace Graphics4 {
+		class Shader;
+	}
 
 	class ProgramImpl {
 	public:
-		Shader* vertexShader;
-		Shader* fragmentShader;
+		Graphics4::Shader* vertexShader;
+		Graphics4::Shader* fragmentShader;
 		IDirect3DVertexDeclaration9* vertexDecleration;
 		int halfPixelLocation;
 	};

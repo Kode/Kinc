@@ -8,11 +8,11 @@
 using namespace Kore;
 
 namespace {
-	Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	Graphics4::Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 	                            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 }
 
-void Texture::init(const char* format, bool readable) {
+void Graphics4::Texture::init(const char* format, bool readable) {
 	stage = 0;
 	mipmap = true;
 	texWidth = width;
@@ -45,7 +45,7 @@ void Texture::init(const char* format, bool readable) {
 	}
 }
 
-Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
+Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 	stage = 0;
 	mipmap = true;
 	texWidth = width;
@@ -86,7 +86,7 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	}
 }
 
-Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
+Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
 TextureImpl::~TextureImpl() {
 	unset();
@@ -96,7 +96,7 @@ void TextureImpl::unmipmap() {
 	mipmap = false;
 }
 
-void Texture::_set(TextureUnit unit) {
+void Graphics4::Texture::_set(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &view);
 	this->stage = unit.unit;
@@ -110,24 +110,24 @@ void TextureImpl::unset() {
 	}
 }
 
-u8* Texture::lock() {
+u8* Graphics4::Texture::lock() {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	context->Map(texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	return (u8*)mappedResource.pData;
 }
 
-void Texture::unlock() {
+void Graphics4::Texture::unlock() {
 	context->Unmap(texture, 0);
 }
 
-void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
 
 }
 
-int Texture::stride() {
+int Graphics4::Texture::stride() {
 	return format == Image::RGBA32 ? width * 4 : width; // TODO: Return mappedResource's stride
 }
 
-void Texture::generateMipmaps(int levels) {}
+void Graphics4::Texture::generateMipmaps(int levels) {}
 
-void Texture::setMipmap(Texture* mipmap, int level) {}
+void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {}

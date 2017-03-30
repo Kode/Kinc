@@ -2,13 +2,13 @@
 
 #include "Direct3D11.h"
 #include "RenderTargetImpl.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 	this->contextId = contextId;
@@ -61,22 +61,22 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	lastBoundUnit = -1;
 }
 
-RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
 	
 }
 
-RenderTarget::~RenderTarget() {
+Graphics4::RenderTarget::~RenderTarget() {
 	depthStencilView->Release();
 	renderTargetView->Release();
 	view->Release();
 }
 
-void RenderTarget::useColorAsTexture(TextureUnit unit) {
+void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &view);
 	lastBoundUnit = unit.unit;
 }
 
-void RenderTarget::useDepthAsTexture(TextureUnit unit) {}
+void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
 
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {}
+void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {}

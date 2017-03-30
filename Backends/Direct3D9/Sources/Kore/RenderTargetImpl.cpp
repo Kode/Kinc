@@ -8,7 +8,7 @@
 
 using namespace Kore;
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, Graphics4::RenderTargetFormat format, int stencilBufferBits, int contextId)
     : width(width), height(height), texWidth(width), texHeight(height) {
 	this->antialiasing = antialiasing;
 	this->contextId = contextId;
@@ -50,18 +50,18 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	}
 }
 
-RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
 	
 }
 
-RenderTarget::~RenderTarget() {
+Graphics4::RenderTarget::~RenderTarget() {
 	if (colorSurface != nullptr) colorSurface->Release();
 	if (depthSurface != nullptr) depthSurface->Release();
 	if (colorTexture != nullptr) colorTexture->Release();
 	if (depthTexture != nullptr) depthTexture->Release();
 }
 
-void RenderTarget::useColorAsTexture(TextureUnit unit) {
+void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (antialiasing) {
 		IDirect3DSurface9* surface;
 		colorTexture->GetSurfaceLevel(0, &surface);
@@ -71,11 +71,11 @@ void RenderTarget::useColorAsTexture(TextureUnit unit) {
 	device->SetTexture(unit.unit, colorTexture);
 }
 
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 	//! TODO Implement
 }
 
-void RenderTarget::useDepthAsTexture(TextureUnit unit) {}
+void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
 /*void RenderTarget::useDepthAsTexture(int texunit) {
     if (antialiasing) {
         IDirect3DSurface9* surface;

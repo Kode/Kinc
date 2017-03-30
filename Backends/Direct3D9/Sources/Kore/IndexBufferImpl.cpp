@@ -2,16 +2,16 @@
 
 #include "Direct3D9.h"
 #include "IndexBufferImpl.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
-IndexBuffer* IndexBufferImpl::_current = nullptr;
+Graphics4::IndexBuffer* IndexBufferImpl::_current = nullptr;
 
 IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
-IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
+Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	DWORD usage = 0;
 #ifdef SYS_WINDOWS
 	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
@@ -19,11 +19,11 @@ IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	affirm(device->CreateIndexBuffer(sizeof(int) * count, usage, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &ib, 0));
 }
 
-IndexBuffer::~IndexBuffer() {
+Graphics4::IndexBuffer::~IndexBuffer() {
 	ib->Release();
 }
 
-int* IndexBuffer::lock() {
+int* Graphics4::IndexBuffer::lock() {
 	int* buffer;
 	DWORD lockflags = 0;
 #ifdef SYS_WINDOWS
@@ -37,15 +37,15 @@ int* IndexBuffer::lock() {
 	return buffer;
 }
 
-void IndexBuffer::unlock() {
+void Graphics4::IndexBuffer::unlock() {
 	affirm(ib->Unlock());
 }
 
-void IndexBuffer::_set() {
+void Graphics4::IndexBuffer::_set() {
 	_current = this;
 	affirm(device->SetIndices(ib));
 }
 
-int IndexBuffer::count() {
+int Graphics4::IndexBuffer::count() {
 	return myCount;
 }

@@ -3,7 +3,7 @@
 #include "RenderTargetImpl.h"
 #include "ogl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
 #ifdef SYS_ANDROID
@@ -132,7 +132,7 @@ void RenderTargetImpl::setupDepthStencil(GLenum texType, int depthBufferBits, in
 	}
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
     : width(width), height(height), isCubeMap(false), isDepthAttachment(false) {
 
 	_hasDepth = false;
@@ -223,7 +223,7 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 }
 
-RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
     : width(cubeMapSize), height(cubeMapSize), isCubeMap(true), isDepthAttachment(false) {
 
 	_hasDepth = false;
@@ -307,7 +307,7 @@ RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasi
 	glCheckErrors();
 }
 
-RenderTarget::~RenderTarget() {
+Graphics4::RenderTarget::~RenderTarget() {
 	{
 		GLuint textures[] = { _texture };
 		glDeleteTextures(1, textures);
@@ -320,21 +320,21 @@ RenderTarget::~RenderTarget() {
 	glDeleteFramebuffers(1, framebuffers);
 }
 
-void RenderTarget::useColorAsTexture(TextureUnit unit) {
+void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 	glBindTexture(isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, _texture);
 	glCheckErrors();
 }
 
-void RenderTarget::useDepthAsTexture(TextureUnit unit) {
+void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 	glBindTexture(isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, _depthTexture);
 	glCheckErrors();
 }
 
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, source->_depthTexture, 0);
 }

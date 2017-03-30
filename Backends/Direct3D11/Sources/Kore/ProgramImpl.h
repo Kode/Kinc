@@ -6,7 +6,9 @@ struct ID3D11VertexShader;
 struct ID3D11Buffer;
 
 namespace Kore {
-	class Shader;
+	namespace Graphics4 {
+		class Shader;
+	}
 
 	class ProgramImpl {
 	public:
@@ -17,11 +19,11 @@ namespace Kore {
 		ID3D11Buffer* geometryConstantBuffer;
 		ID3D11Buffer* tessEvalConstantBuffer;
 		ID3D11Buffer* tessControlConstantBuffer;
-		Shader* vertexShader;
-		Shader* fragmentShader;
-		Shader* geometryShader;
-		Shader* tessEvalShader;
-		Shader* tessControlShader;
+		Graphics4::Shader* vertexShader;
+		Graphics4::Shader* fragmentShader;
+		Graphics4::Shader* geometryShader;
+		Graphics4::Shader* tessEvalShader;
+		Graphics4::Shader* tessControlShader;
 		static void setConstants();
 	};
 

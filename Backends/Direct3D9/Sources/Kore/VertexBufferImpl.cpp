@@ -3,16 +3,16 @@
 #include "Direct3D9.h"
 #include "VertexBufferImpl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
-VertexBuffer* VertexBufferImpl::_current = nullptr;
+Graphics4::VertexBuffer* VertexBufferImpl::_current = nullptr;
 
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
 
-VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, instanceDataStepRate) {
+Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, instanceDataStepRate) {
 	DWORD usage = D3DUSAGE_WRITEONLY;
 #ifdef SYS_WINDOWS
 	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
@@ -44,15 +44,15 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 	affirm(device->CreateVertexBuffer(stride() * count, usage, 0, D3DPOOL_DEFAULT, &vb, 0));
 }
 
-VertexBuffer::~VertexBuffer() {
+Graphics4::VertexBuffer::~VertexBuffer() {
 	vb->Release();
 }
 
-float* VertexBuffer::lock() {
+float* Graphics4::VertexBuffer::lock() {
 	return lock(0, count());
 }
 
-float* VertexBuffer::lock(int start, int count) {
+float* Graphics4::VertexBuffer::lock(int start, int count) {
 	float* vertices;
 	unset();
 #ifdef SYS_XBOX360
@@ -63,11 +63,11 @@ float* VertexBuffer::lock(int start, int count) {
 	return vertices;
 }
 
-void VertexBuffer::unlock() {
+void Graphics4::VertexBuffer::unlock() {
 	affirm(vb->Unlock());
 }
 
-int VertexBuffer::_set(int offset) {
+int Graphics4::VertexBuffer::_set(int offset) {
 	_offset = offset;
 	if (instanceDataStepRate == 0) {
 		_current = this;
@@ -81,16 +81,16 @@ int VertexBuffer::_set(int offset) {
 }
 
 void VertexBufferImpl::unset() {
-	if (_current == (VertexBuffer*)this) {
+	if (_current == (Graphics4::VertexBuffer*)this) {
 		affirm(device->SetStreamSource(0, nullptr, 0, 0));
 		_current = nullptr;
 	}
 }
 
-int VertexBuffer::count() {
+int Graphics4::VertexBuffer::count() {
 	return myCount;
 }
 
-int VertexBuffer::stride() {
+int Graphics4::VertexBuffer::stride() {
 	return myStride;
 }

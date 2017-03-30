@@ -2,8 +2,8 @@
 
 #include "ogl.h"
 
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics4/Graphics.h>
+#include <Kore/Graphics4/Shader.h>
 #include <Kore/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +29,7 @@ ProgramImpl::ProgramImpl()
 	textureValues = new int[16];
 }
 
-Program::Program() {
+Graphics4::Program::Program() {
 	programId = glCreateProgram();
 	glCheckErrors();
 }
@@ -43,52 +43,52 @@ ProgramImpl::~ProgramImpl() {
 	glDeleteProgram(programId);
 }
 
-void Program::setVertexShader(Shader* shader) {
+void Graphics4::Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
 
-void Program::setFragmentShader(Shader* shader) {
+void Graphics4::Program::setFragmentShader(Shader* shader) {
 	fragmentShader = shader;
 }
 
-void Program::setGeometryShader(Shader* shader) {
+void Graphics4::Program::setGeometryShader(Shader* shader) {
 #ifndef OPENGLES
 	geometryShader = shader;
 #endif
 }
 
-void Program::setTessellationControlShader(Shader* shader) {
+void Graphics4::Program::setTessellationControlShader(Shader* shader) {
 #ifndef OPENGLES
 	tessellationControlShader = shader;
 #endif
 }
 
-void Program::setTessellationEvaluationShader(Shader* shader) {
+void Graphics4::Program::setTessellationEvaluationShader(Shader* shader) {
 #ifndef OPENGLES
 	tessellationEvaluationShader = shader;
 #endif
 }
 
 namespace {
-	int toGlShader(ShaderType type) {
+	int toGlShader(Graphics4::ShaderType type) {
 		switch (type) {
-		case VertexShader:
+		case Graphics4::VertexShader:
 		default:
 			return GL_VERTEX_SHADER;
-		case FragmentShader:
+		case Graphics4::FragmentShader:
 			return GL_FRAGMENT_SHADER;
 #ifndef OPENGLES
-		case GeometryShader:
+		case Graphics4::GeometryShader:
 			return GL_GEOMETRY_SHADER;
-		case TessellationControlShader:
+		case Graphics4::TessellationControlShader:
 			return GL_TESS_CONTROL_SHADER;
-		case TessellationEvaluationShader:
+		case Graphics4::TessellationEvaluationShader:
 			return GL_TESS_EVALUATION_SHADER;
 #endif
 		}
 	}
 
-	void compileShader(uint& id, char* source, int length, ShaderType type) {
+	void compileShader(uint& id, char* source, int length, Graphics4::ShaderType type) {
 		id = glCreateShader(toGlShader(type));
 		glCheckErrors();
 		glShaderSource(id, 1, (const GLchar**)&source, 0);
@@ -107,7 +107,7 @@ namespace {
 	}
 }
 
-void Program::link(VertexStructure** structures, int count) {
+void Graphics4::Program::link(VertexStructure** structures, int count) {
 	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
 #ifndef OPENGLES
@@ -165,7 +165,7 @@ void Program::link(VertexStructure** structures, int count) {
 #endif
 }
 
-void Program::set() {
+void Graphics4::Program::set() {
 #ifndef OPENGLES
 	programUsesTessellation = tessellationControlShader != nullptr;
 #endif
@@ -177,7 +177,7 @@ void Program::set() {
 	}
 }
 
-ConstantLocation Program::getConstantLocation(const char* name) {
+Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.location = glGetUniformLocation(programId, name);
 	glCheckErrors();
@@ -194,7 +194,7 @@ int ProgramImpl::findTexture(const char* name) {
 	return -1;
 }
 
-TextureUnit Program::getTextureUnit(const char* name) {
+Graphics4::TextureUnit Graphics4::Program::getTextureUnit(const char* name) {
 	int index = findTexture(name);
 	if (index < 0) {
 		int location = glGetUniformLocation(programId, name);

@@ -3,7 +3,9 @@
 struct ID3D11Buffer;
 
 namespace Kore {
-	class IndexBuffer;
+	namespace Graphics4 {
+		class IndexBuffer;
+	}
 
 	class IndexBufferImpl {
 	protected:
@@ -13,6 +15,6 @@ namespace Kore {
 		int myCount;
 
 	public:
-		static IndexBuffer* _current;
+		static Graphics4::IndexBuffer* _current;
 	};
 }

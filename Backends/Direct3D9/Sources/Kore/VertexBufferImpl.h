@@ -10,7 +10,9 @@ struct D3DVertexBuffer;
 #endif
 
 namespace Kore {
-	class VertexBuffer;
+	namespace Graphics4 {
+		class VertexBuffer;
+	}
 
 	class VertexBufferImpl {
 	protected:
@@ -27,7 +29,7 @@ namespace Kore {
 		void unset();
 
 	public:
-		static VertexBuffer* _current;
+		static Graphics4::VertexBuffer* _current;
 		int _offset;
 	};
 }

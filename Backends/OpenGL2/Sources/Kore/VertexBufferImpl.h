@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/Graphics/VertexStructure.h>
+#include <Kore/Graphics4/VertexStructure.h>
 
 namespace Kore {
 	class VertexBuffer;
@@ -14,7 +14,7 @@ namespace Kore {
 		int myStride;
 		uint bufferId;
 		//#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
-		VertexStructure structure;
+		Graphics4::VertexStructure structure;
 		//#endif
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);

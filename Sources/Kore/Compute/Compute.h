@@ -3,9 +3,11 @@
 #include <Kore/ComputeImpl.h>
 
 namespace Kore {
-	class ComputeConstantLocation : public ComputeConstantLocationImpl {};
+	namespace Graphics4 {
+		class Texture;
+	}
 
-	class Texture;
+	class ComputeConstantLocation : public ComputeConstantLocationImpl {};
 
 	class ComputeTextureUnit : public ComputeTextureUnitImpl {};
 
@@ -18,7 +20,7 @@ namespace Kore {
 
 	namespace Compute {
 		void setFloat(ComputeConstantLocation location, float value);
-		void setTexture(ComputeTextureUnit unit, Texture* texture);
+		void setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture);
 		void setShader(ComputeShader* shader);
 		void compute(int x, int y, int z);
 	};

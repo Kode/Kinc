@@ -3,39 +3,39 @@
 #include "Direct3D9.h"
 #include "ProgramImpl.h"
 
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics4/Shader.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
-Program::Program() {
+Graphics4::Program::Program() {
 	vertexShader = nullptr;
 	fragmentShader = nullptr;
 }
 
-void Program::setVertexShader(Shader* shader) {
+void Graphics4::Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
 
-void Program::setFragmentShader(Shader* shader) {
+void Graphics4::Program::setFragmentShader(Shader* shader) {
 	fragmentShader = shader;
 }
 
-void Program::setGeometryShader(Shader* shader) {
+void Graphics4::Program::setGeometryShader(Shader* shader) {
 	log(Error, "Direct3D 9 does not support geometry shaders.");
 }
 
-void Program::setTessellationControlShader(Shader* shader) {
+void Graphics4::Program::setTessellationControlShader(Shader* shader) {
 	log(Error, "Direct3D 9 does not support tessellation shaders.");
 }
 
-void Program::setTessellationEvaluationShader(Shader* shader) {
+void Graphics4::Program::setTessellationEvaluationShader(Shader* shader) {
 	log(Error, "Direct3D 9 does not support tessellation shaders.");
 }
 
-void Program::link(VertexStructure** structures, int count) {
+void Graphics4::Program::link(Graphics4::VertexStructure** structures, int count) {
 	int highestIndex = 0;
 	for (std::map<std::string, int>::iterator it = vertexShader->attributes.begin(); it != vertexShader->attributes.end(); ++it) {
 		if (it->second > highestIndex) {
@@ -137,7 +137,7 @@ void Program::link(VertexStructure** structures, int count) {
 	halfPixelLocation = vertexShader->constants["gl_HalfPixel"].regindex;
 }
 
-void Program::set() {
+void Graphics4::Program::set() {
 	affirm(device->SetVertexShader((IDirect3DVertexShader9*)vertexShader->shader));
 	affirm(device->SetPixelShader((IDirect3DPixelShader9*)fragmentShader->shader));
 	affirm(device->SetVertexDeclaration(vertexDecleration));
@@ -151,7 +151,7 @@ void Program::set() {
 	affirm(device->SetVertexShaderConstantF(halfPixelLocation, floats, 1));
 }
 
-ConstantLocation Program::getConstantLocation(const char* name) {
+Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 
 	if (fragmentShader->constants.find(name) != fragmentShader->constants.end()) {
@@ -169,7 +169,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	return location;
 }
 
-TextureUnit Program::getTextureUnit(const char* name) {
+Graphics4::TextureUnit Graphics4::Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
 
 	if (fragmentShader->constants.find(name) != fragmentShader->constants.end()) {

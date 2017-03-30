@@ -2,7 +2,7 @@
 
 #include "Direct3D9.h"
 
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics4/Shader.h>
 #include <Kore/Math/Core.h>
 #include <cstdio>
 
@@ -11,7 +11,7 @@
 
 using namespace Kore;
 
-Shader::Shader(void* _data, int length, ShaderType type) {
+Graphics4::Shader::Shader(void* _data, int length, Graphics4::ShaderType type) {
 	unsigned index = 0;
 
 	u8* data = (u8*)_data;

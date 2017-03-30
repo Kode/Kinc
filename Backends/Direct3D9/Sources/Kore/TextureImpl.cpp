@@ -9,21 +9,21 @@
 using namespace Kore;
 
 namespace {
-	Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	Graphics4::Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 	                            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-	D3DFORMAT convert(Image::Format format) {
+	D3DFORMAT convert(Graphics4::Image::Format format) {
 		switch (format) {
-		case Image::RGBA32:
+		case Graphics4::Image::RGBA32:
 		default:
 			return D3DFMT_A8R8G8B8;
-		case Image::Grey8:
+		case Graphics4::Image::Grey8:
 			return D3DFMT_L8;
 		}
 	}
 }
 
-void Texture::init(const char* format, bool readable) {
+void Graphics4::Texture::init(const char* format, bool readable) {
 	stage = 0;
 	mipmap = true;
 	DWORD usage = 0;
@@ -52,7 +52,7 @@ void Texture::init(const char* format, bool readable) {
 	}
 }
 
-Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
+Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 	stage = 0;
 	mipmap = true;
 	DWORD usage = 0;
@@ -66,14 +66,14 @@ Texture::Texture(int width, int height, Format format, bool readable) : Image(wi
 	}
 }
 
-Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
+Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
 TextureImpl::~TextureImpl() {
 	unset();
 	texture->Release();
 }
 
-void Texture::_set(TextureUnit unit) {
+void Graphics4::Texture::_set(TextureUnit unit) {
 	affirm(device->SetTexture(unit.unit, texture));
 	this->stage = unit.unit;
 	setTextures[stage] = this;
@@ -86,25 +86,25 @@ void TextureImpl::unset() {
 	}
 }
 
-u8* Texture::lock() {
+u8* Graphics4::Texture::lock() {
 	D3DLOCKED_RECT rect;
 	affirm(texture->LockRect(0, &rect, 0, 0));
 	pitch = rect.Pitch;
 	return (u8*)rect.pBits;
 }
 
-void Texture::unlock() {
+void Graphics4::Texture::unlock() {
 	affirm(texture->UnlockRect(0));
 }
 
-void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
 
 }
 
-int Texture::stride() {
+int Graphics4::Texture::stride() {
 	return pitch;
 }
 
-void Texture::generateMipmaps(int levels) {}
+void Graphics4::Texture::generateMipmaps(int levels) {}
 
-void Texture::setMipmap(Texture* mipmap, int level) {}
+void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {}

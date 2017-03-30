@@ -2,7 +2,7 @@
 
 #include "Direct3D11.h"
 #include "ProgramImpl.h"
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics4/Shader.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
@@ -36,9 +36,9 @@ void ProgramImpl::setConstants() {
 
 ProgramImpl::ProgramImpl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
 
-Program::Program() {}
+Graphics4::Program::Program() {}
 
-void Program::set() {
+void Graphics4::Program::set() {
 	currentProgram = this;
 	context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
 	context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
@@ -50,7 +50,7 @@ void Program::set() {
 	context->IASetInputLayout(inputLayout);
 }
 
-ConstantLocation Program::getConstantLocation(const char* name) {
+Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 
 	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
@@ -106,7 +106,7 @@ ConstantLocation Program::getConstantLocation(const char* name) {
 	return location;
 }
 
-TextureUnit Program::getTextureUnit(const char* name) {
+Graphics4::TextureUnit Graphics4::Program::getTextureUnit(const char* name) {
 	TextureUnit unit;
 	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
 		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
@@ -122,23 +122,23 @@ TextureUnit Program::getTextureUnit(const char* name) {
 	return unit;
 }
 
-void Program::setVertexShader(Shader* shader) {
+void Graphics4::Program::setVertexShader(Shader* shader) {
 	vertexShader = shader;
 }
 
-void Program::setFragmentShader(Shader* shader) {
+void Graphics4::Program::setFragmentShader(Shader* shader) {
 	fragmentShader = shader;
 }
 
-void Program::setGeometryShader(Shader* shader) {
+void Graphics4::Program::setGeometryShader(Shader* shader) {
 	geometryShader = shader;
 }
 
-void Program::setTessellationControlShader(Shader* shader) {
+void Graphics4::Program::setTessellationControlShader(Shader* shader) {
 	tessControlShader = shader;
 }
 
-void Program::setTessellationEvaluationShader(Shader* shader) {
+void Graphics4::Program::setTessellationEvaluationShader(Shader* shader) {
 	tessEvalShader = shader;
 }
 
@@ -159,7 +159,7 @@ namespace {
 	}
 }
 
-void Program::link(VertexStructure** structures, int count) {
+void Graphics4::Program::link(VertexStructure** structures, int count) {
 	if (vertexShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 		                            &vertexConstantBuffer));

@@ -7,7 +7,7 @@
 //#include <Kore/Application.h>
 #include "IndexBufferImpl.h"
 #include "VertexBufferImpl.h"
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics4/Shader.h>
 #undef CreateWindow
 #include <Kore/System.h>
 #include <Kore/WinError.h>
@@ -83,46 +83,46 @@ namespace {
 		return ds.state;
 	}
 
-	D3D11_COMPARISON_FUNC getComparison(ZCompareMode compare) {
+	D3D11_COMPARISON_FUNC getComparison(Graphics4::ZCompareMode compare) {
 		switch (compare) {
 		default:
-		case ZCompareAlways:
+		case Graphics4::ZCompareAlways:
 			return D3D11_COMPARISON_ALWAYS;
-		case ZCompareNever:
+		case Graphics4::ZCompareNever:
 			return D3D11_COMPARISON_NEVER;
-		case ZCompareEqual:
+		case Graphics4::ZCompareEqual:
 			return D3D11_COMPARISON_EQUAL;
-		case ZCompareNotEqual:
+		case Graphics4::ZCompareNotEqual:
 			return D3D11_COMPARISON_NOT_EQUAL;
-		case ZCompareLess:
+		case Graphics4::ZCompareLess:
 			return D3D11_COMPARISON_LESS;
-		case ZCompareLessEqual:
+		case Graphics4::ZCompareLessEqual:
 			return D3D11_COMPARISON_LESS_EQUAL;
-		case ZCompareGreater:
+		case Graphics4::ZCompareGreater:
 			return D3D11_COMPARISON_GREATER;
-		case ZCompareGreaterEqual:
+		case Graphics4::ZCompareGreaterEqual:
 			return D3D11_COMPARISON_GREATER_EQUAL;
 		}
 	}
 
-	D3D11_STENCIL_OP getStencilAction(StencilAction action) {
+	D3D11_STENCIL_OP getStencilAction(Graphics4::StencilAction action) {
 		switch (action) {
 		default:
-		case Keep:
+		case Graphics4::Keep:
 			return D3D11_STENCIL_OP_KEEP;
-		case Zero:
+		case Graphics4::Zero:
 			return D3D11_STENCIL_OP_ZERO;
-		case Replace:
+		case Graphics4::Replace:
 			return D3D11_STENCIL_OP_REPLACE;
-		case Increment:
+		case Graphics4::Increment:
 			return D3D11_STENCIL_OP_INCR;
-		case IncrementWrap:
+		case Graphics4::IncrementWrap:
 			return D3D11_STENCIL_OP_INCR_SAT;
-		case Decrement:
+		case Graphics4::Decrement:
 			return D3D11_STENCIL_OP_DECR;
-		case DecrementWrap:
+		case Graphics4::DecrementWrap:
 			return D3D11_STENCIL_OP_DECR_SAT;
-		case Invert:
+		case Graphics4::Invert:
 			return D3D11_STENCIL_OP_INVERT;
 		}
 	}
@@ -131,9 +131,9 @@ namespace {
 	ID3D11DepthStencilView* currentDepthStencilView;
 }
 
-void Graphics::destroy(int windowId) {}
+void Graphics4::destroy(int windowId) {}
 
-void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
+void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
 	vsync = vSync;
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
@@ -276,7 +276,7 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bo
 
 	D3D11_DEPTH_STENCIL_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
-	desc.DepthEnable = TRUE;
+	desc.DepthEnable = FALSE;
 	desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	desc.DepthFunc = D3D11_COMPARISON_LESS;
 	desc.StencilEnable = FALSE;
@@ -342,19 +342,19 @@ void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits, bo
 	System::makeCurrent(windowId);
 }
 
-void Graphics::makeCurrent(int contextId) {
+void Graphics4::makeCurrent(int contextId) {
 	// TODO (DK) implement me
 }
 
-void Graphics::clearCurrent() {
+void Graphics4::clearCurrent() {
 	// TODO (DK) implement me
 }
 
-void Graphics::flush() {}
+void Graphics4::flush() {}
 
-void Graphics::changeResolution(int width, int height) {}
+void Graphics4::changeResolution(int width, int height) {}
 
-void Graphics::drawIndexedVertices() {
+void Graphics4::drawIndexedVertices() {
 	if (currentProgram->tessControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -365,7 +365,7 @@ void Graphics::drawIndexedVertices() {
 	context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
 }
 
-void Graphics::drawIndexedVertices(int start, int count) {
+void Graphics4::drawIndexedVertices(int start, int count) {
 	if (currentProgram->tessControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -376,11 +376,11 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	context->DrawIndexed(count, start, 0);
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
 	drawIndexedVerticesInstanced(instanceCount, 0, IndexBuffer::_current->count());
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
 	if (currentProgram->tessControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -392,22 +392,22 @@ void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int co
 }
 
 namespace {
-	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(TextureAddressing addressing) {
+	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(Graphics4::TextureAddressing addressing) {
 		switch (addressing) {
 		default:
-		case Repeat:
+		case Graphics4::Repeat:
 			return D3D11_TEXTURE_ADDRESS_WRAP;
-		case Mirror:
+		case Graphics4::Mirror:
 			return D3D11_TEXTURE_ADDRESS_MIRROR;
-		case Clamp:
+		case Graphics4::Clamp:
 			return D3D11_TEXTURE_ADDRESS_CLAMP;
-		case Border:
+		case Graphics4::Border:
 			return D3D11_TEXTURE_ADDRESS_BORDER;
 		}
 	}
 }
 
-void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	if (unit.unit < 0) return;
 	
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -427,7 +427,7 @@ void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddress
 	sampler->Release();
 }
 
-void Graphics::clear(uint flags, uint color, float depth, int stencil) {
+void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 	if (currentRenderTargetView != nullptr && flags & ClearColorFlag) {
 		const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f};
 		context->ClearRenderTargetView(currentRenderTargetView, clearColor);
@@ -438,26 +438,26 @@ void Graphics::clear(uint flags, uint color, float depth, int stencil) {
 	}
 }
 
-void Graphics::begin(int windowId) {
+void Graphics4::begin(int windowId) {
 #ifdef SYS_WINDOWSAPP
 	// TODO (DK) do i need to do something here?
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 }
 
-void Graphics::viewport(int x, int y, int width, int height) {
+void Graphics4::viewport(int x, int y, int width, int height) {
 	// TODO
 }
 
-void Graphics::scissor(int x, int y, int width, int height) {
+void Graphics4::scissor(int x, int y, int width, int height) {
 	// TODO
 }
 
-void Graphics::disableScissor() {
+void Graphics4::disableScissor() {
 	// TODO
 }
 
-void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+void Graphics4::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
                                     int readMask, int writeMask) {
 	D3D11_DEPTH_STENCIL_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
@@ -478,17 +478,17 @@ void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction both
 	context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
 }
 
-void Graphics::end(int windowId) {}
+void Graphics4::end(int windowId) {}
 
-bool Graphics::vsynced() {
+bool Graphics4::vsynced() {
 	return vsync;
 }
 
-unsigned Graphics::refreshRate() {
+unsigned Graphics4::refreshRate() {
 	return hz;
 }
 
-bool Graphics::swapBuffers(int windowId) {
+bool Graphics4::swapBuffers(int windowId) {
 	HRESULT hr = swapChain->Present(vsync, 0);
 	// TODO: if (hr == DXGI_STATUS_OCCLUDED)...
 	// http://www.pouet.net/topic.php?which=10454
@@ -509,7 +509,7 @@ namespace {
 	//}
 }
 
-void Graphics::setRenderState(RenderState state, bool on) {
+void Graphics4::setRenderState(RenderState state, bool on) {
 	switch (state) {
 	case DepthTest: {
 		D3D11_DEPTH_STENCIL_DESC desc;
@@ -572,7 +572,7 @@ void Graphics::setRenderState(RenderState state, bool on) {
 	}
 }
 
-void Graphics::setRenderState(RenderState state, int v) {
+void Graphics4::setRenderState(RenderState state, int v) {
 	switch (state) {
 	case DepthTestCompare:
 		D3D11_DEPTH_STENCIL_DESC desc;
@@ -599,7 +599,7 @@ void Graphics::setRenderState(RenderState state, int v) {
 	}
 }
 
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
+void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
 namespace {
 	void setInt(u8* constants, u8 offset, u8 size, int value) {
@@ -673,7 +673,7 @@ namespace {
 	}
 }
 
-void Graphics::setInt(ConstantLocation location, int value) {
+void Graphics4::setInt(ConstantLocation location, int value) {
 	::setInt(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setInt(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setInt(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -681,7 +681,7 @@ void Graphics::setInt(ConstantLocation location, int value) {
 	::setInt(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setFloat(ConstantLocation location, float value) {
+void Graphics4::setFloat(ConstantLocation location, float value) {
 	::setFloat(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setFloat(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setFloat(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -689,7 +689,7 @@ void Graphics::setFloat(ConstantLocation location, float value) {
 	::setFloat(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setFloat2(ConstantLocation location, float value1, float value2) {
+void Graphics4::setFloat2(ConstantLocation location, float value1, float value2) {
 	::setFloat2(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2);
 	::setFloat2(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2);
 	::setFloat2(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2);
@@ -697,7 +697,7 @@ void Graphics::setFloat2(ConstantLocation location, float value1, float value2) 
 	::setFloat2(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2);
 }
 
-void Graphics::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
+void Graphics4::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
 	::setFloat3(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3);
 	::setFloat3(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3);
 	::setFloat3(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3);
@@ -705,7 +705,7 @@ void Graphics::setFloat3(ConstantLocation location, float value1, float value2, 
 	::setFloat3(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3);
 }
 
-void Graphics::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
+void Graphics4::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
 	::setFloat4(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3, value4);
 	::setFloat4(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3, value4);
 	::setFloat4(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3, value4);
@@ -713,7 +713,7 @@ void Graphics::setFloat4(ConstantLocation location, float value1, float value2, 
 	::setFloat4(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3, value4);
 }
 
-void Graphics::setFloats(ConstantLocation location, float* values, int count) {
+void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
 	::setFloats(vertexConstants, location.vertexOffset, location.vertexSize, values, count);
 	::setFloats(fragmentConstants, location.fragmentOffset, location.fragmentSize, values, count);
 	::setFloats(geometryConstants, location.geometryOffset, location.geometrySize, values, count);
@@ -721,11 +721,11 @@ void Graphics::setFloats(ConstantLocation location, float* values, int count) {
 	::setFloats(tessControlConstants, location.tessControlOffset, location.tessControlSize, values, count);
 }
 
-void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
-	Graphics::setFloats(location, values, count);
+void Graphics4::setFloat4s(ConstantLocation location, float* values, int count) {
+	Graphics4::setFloats(location, values, count);
 }
 
-void Graphics::setBool(ConstantLocation location, bool value) {
+void Graphics4::setBool(ConstantLocation location, bool value) {
 	::setBool(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setBool(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setBool(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -733,7 +733,7 @@ void Graphics::setBool(ConstantLocation location, bool value) {
 	::setBool(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
+void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
 	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -741,7 +741,7 @@ void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
+void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
 	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
 	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
 	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
@@ -749,26 +749,26 @@ void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
 	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
-void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
+void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
 namespace {
-	D3D11_BLEND convert(BlendingOperation operation) {
+	D3D11_BLEND convert(Graphics4::BlendingOperation operation) {
 		switch (operation) {
-		case BlendOne:
+		case Graphics4::BlendOne:
 			return D3D11_BLEND_ONE;
-		case BlendZero:
+		case Graphics4::BlendZero:
 			return D3D11_BLEND_ZERO;
-		case SourceAlpha:
+		case Graphics4::SourceAlpha:
 			return D3D11_BLEND_SRC_ALPHA;
-		case DestinationAlpha:
+		case Graphics4::DestinationAlpha:
 			return D3D11_BLEND_DEST_ALPHA;
-		case InverseSourceAlpha:
+		case Graphics4::InverseSourceAlpha:
 			return D3D11_BLEND_INV_SRC_ALPHA;
-		case InverseDestinationAlpha:
+		case Graphics4::InverseDestinationAlpha:
 			return D3D11_BLEND_INV_DEST_ALPHA;
 		default:
 			//	throw Exception("Unknown blending operation.");
@@ -776,15 +776,15 @@ namespace {
 		}
 	}
 
-	BlendingOperation lastSource = SourceAlpha;
-	BlendingOperation lastDestination = InverseSourceAlpha;
+	Graphics4::BlendingOperation lastSource = Graphics4::SourceAlpha;
+	Graphics4::BlendingOperation lastDestination = Graphics4::InverseSourceAlpha;
 	bool lastRed = true;
 	bool lastGreen = true;
 	bool lastBlue = true;
 	bool lastAlpha = true;
 	ID3D11BlendState* blendState = nullptr;
 
-	void setBlendState(BlendingOperation source, BlendingOperation destination, bool red, bool green, bool blue, bool alpha) {
+	void setBlendState(Graphics4::BlendingOperation source, Graphics4::BlendingOperation destination, bool red, bool green, bool blue, bool alpha) {
 		lastSource = source;
 		lastDestination = destination;
 		lastRed = red;
@@ -802,7 +802,7 @@ namespace {
 		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
 		ZeroMemory(&rtbd, sizeof(rtbd));
 
-		rtbd.BlendEnable = source != BlendOne || destination != BlendZero;
+		rtbd.BlendEnable = source != Graphics4::BlendOne || destination != Graphics4::BlendZero;
 		rtbd.SrcBlend = convert(source);
 		rtbd.DestBlend = convert(destination);
 		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
@@ -824,25 +824,25 @@ namespace {
 	}
 }
 
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
 	setBlendState(source, destination, lastRed, lastGreen, lastBlue, lastAlpha);
 }
 
-void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
+void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
 
-void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
 	setBlendState(lastSource, lastDestination, red, green, blue, alpha);
 }
 
-bool Graphics::renderTargetsInvertedY() {
+bool Graphics4::renderTargetsInvertedY() {
 	return false;
 }
 
-bool Graphics::nonPow2TexturesSupported() {
+bool Graphics4::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics::restoreRenderTarget() {
+void Graphics4::restoreRenderTarget() {
 	currentRenderTargetView = renderTargetView;
 	currentDepthStencilView = depthStencilView;
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
@@ -850,7 +850,7 @@ void Graphics::restoreRenderTarget() {
 	context->RSSetViewports(1, &viewPort);
 }
 
-void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
+void Graphics4::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
 	if (target->lastBoundUnit >= 0) {
 		ID3D11ShaderResourceView* nullview[1];
 		nullview[0] = nullptr;
@@ -863,11 +863,11 @@ void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTarg
 	context->RSSetViewports(1, &viewPort);
 }
 
-void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
+void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
 	
 }
 
-void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
+void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
 	buffers[0]->_set(0);
 
 	ID3D11Buffer** d3dbuffers = (ID3D11Buffer**)alloca(count * sizeof(ID3D11Buffer*));
@@ -888,24 +888,24 @@ void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
 	context->IASetVertexBuffers(0, count, d3dbuffers, strides, internaloffsets);
 }
 
-void Graphics::setIndexBuffer(IndexBuffer& buffer) {
+void Graphics4::setIndexBuffer(IndexBuffer& buffer) {
 	buffer._set();
 }
 
-void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
 
-void Graphics::setImageTexture(TextureUnit unit, Texture* texture) {
+void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
 	
 }
 
-void Graphics::setup() {}
+void Graphics4::setup() {}
 
 uint queryCount = 0;
 std::vector<ID3D11Query*> queryPool;
 
-bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
 	D3D11_QUERY_DESC queryDesc;
 	queryDesc.Query = D3D11_QUERY_OCCLUSION;
 	queryDesc.MiscFlags = 0;
@@ -924,11 +924,11 @@ bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 	return true;
 }
 
-void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+void Graphics4::deleteOcclusionQuery(uint occlusionQuery) {
 	if (occlusionQuery < queryPool.size()) queryPool[occlusionQuery] = nullptr;
 }
 
-void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+void Graphics4::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -939,7 +939,7 @@ void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 	}
 }
 
-bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
+bool Graphics4::isQueryResultsAvailable(uint occlusionQuery) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		if (S_OK == context->GetData(pQuery, 0, 0, 0)) return true;
@@ -947,7 +947,7 @@ bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 	return false;
 }
 
-void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		UINT64 numberOfPixelsDrawn;

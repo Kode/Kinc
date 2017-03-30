@@ -3,7 +3,9 @@
 struct ID3D11Buffer;
 
 namespace Kore {
-	class VertexBuffer;
+	namespace Graphics4 {
+		class VertexBuffer;
+	}
 
 	class VertexBufferImpl {
 	public:
