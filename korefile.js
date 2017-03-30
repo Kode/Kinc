@@ -1,4 +1,4 @@
-var project = new Project('Kore', __dirname);
+const project = new Project('Kore', __dirname);
 
 const g1 = true;
 const g2 = true;
@@ -16,7 +16,7 @@ function addBackend(name) {
 }
 
 if (platform === Platform.Windows) {
-	addBackend('Windows');
+	addBackend('System/Windows');
 	project.addLib('dxguid');
 	project.addLib('dsound');
 	project.addLib('dinput8');
@@ -25,26 +25,26 @@ if (platform === Platform.Windows) {
 	project.addLib('ws2_32');
 
 	if (graphics === GraphicsApi.OpenGL1) {
-		addBackend('OpenGL');
+		addBackend('Graphics3/OpenGL1');
 		project.addDefine('OPENGL');
 		project.addDefine('OPENGL_1_X');
 	}
 	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
-		addBackend('OpenGL2');
+		addBackend('Graphics4/OpenGL');
 		project.addDefine('OPENGL');
 		project.addDefine('GLEW_STATIC');
 	}
 	else if (graphics === GraphicsApi.Direct3D11) {
 		g4 = true;
-		addBackend('Direct3D11');
+		addBackend('Graphics4/Direct3D11');
 		project.addDefine('DIRECT3D');
 		project.addLib('d3d11');
 	}
 	else if (graphics === GraphicsApi.Direct3D12) {
 		g4 = true;
 		g5 = true;
-		addBackend('Direct3D12');
+		addBackend('Graphics5/Direct3D12');
 		project.addDefine('DIRECT3D');
 		project.addLib('dxgi');
 		project.addLib('d3d12');
@@ -52,7 +52,7 @@ if (platform === Platform.Windows) {
 	else if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
-		addBackend('Vulkan');
+		addBackend('Graphics5/Vulkan');
 		project.addDefine('SYS_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
 		project.addLibFor('Win32', 'Backends/Vulkan/Libraries/win32/vulkan-1');
@@ -60,7 +60,7 @@ if (platform === Platform.Windows) {
 	}
 	else {
 		g4 = true;
-		addBackend('Direct3D9');
+		addBackend('Graphics4/Direct3D9');
 		project.addDefine('DIRECT3D');
 		project.addLib('d3d9');
 	}
@@ -78,38 +78,28 @@ if (platform === Platform.Windows) {
 }
 else if (platform === Platform.WindowsApp) {
 	g4 = true;
-	addBackend('WindowsApp');
-	addBackend('Direct3D11');
-}
-else if (platform === Platform.Xbox360) {
-	g4 = true;
-	addBackend('Xbox360');
-	addBackend('Direct3D9');
-	project.addDefine('DIRECT3D');
-}
-else if (platform === Platform.PlayStation3) {
-	g4 = true;
-	addBackend('PlayStation3');
+	addBackend('System/WindowsApp');
+	addBackend('Graphics4/Direct3D11');
 }
 else if (platform === Platform.OSX) {
-	addBackend('OSX');
+	addBackend('System/macOS');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
 		g5 = true;
-		addBackend('Metal');
+		addBackend('Graphics5/Metal');
 		project.addDefine('SYS_METAL');
 		project.addLib('Metal');
 		project.addLib('MetalKit');
 	}
 	else if (graphics === GraphicsApi.OpenGL1) {
-		addBackend('OpenGL');
+		addBackend('Graphics3/OpenGL1');
 		project.addDefine('OPENGL');
 		project.addDefine('OPENGL_1_X');
 		project.addLib('OpenGL');
 	}
 	else {
 		g4 = true;
-		addBackend('OpenGL2');
+		addBackend('Graphics4/OpenGL');
 		project.addDefine('OPENGL');
 		project.addLib('OpenGL');
 	}
@@ -122,17 +112,17 @@ else if (platform === Platform.OSX) {
 	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.iOS || platform === Platform.tvOS) {
-	addBackend('iOS');
+	addBackend('System/iOS');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
 		g5 = true;
-		addBackend('Metal');
+		addBackend('Graphics5/Metal');
 		project.addDefine('SYS_METAL');
 		project.addLib('Metal');
 	}
 	else {
 		g4 = true;
-		addBackend('OpenGL2');
+		addBackend('Graphics4/OpenGL');
 		project.addDefine('OPENGL');
 		project.addLib('OpenGLES');
 	}
@@ -150,16 +140,16 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	project.addDefine('SYS_UNIXOID');
 }
 else if (platform === Platform.Android) {
-	addBackend('Android');
+	addBackend('System/Android');
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
-		addBackend('Vulkan');
+		addBackend('Graphics5/Vulkan');
 		project.addDefine('SYS_VULKAN');
 	}
 	else {
 		g4 = true;
-		addBackend('OpenGL2');
+		addBackend('Graphics4/OpenGL');
 		project.addDefine('OPENGL');
 	}
 	project.addDefine('SYS_ANDROID_API=15');
@@ -173,19 +163,19 @@ else if (platform === Platform.Android) {
 }
 else if (platform === Platform.HTML5) {
 	g4 = true;
-	addBackend('HTML5');
-	addBackend('OpenGL2');
-	project.addExclude('Backends/OpenGL2/Sources/GL/**');
+	addBackend('System/HTML5');
+	addBackend('Graphics4/OpenGL');
+	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
 	project.addDefine('OPENGL');
 }
 else if (platform === Platform.Linux) {
-	addBackend('Linux');
+	addBackend('System/Linux');
 	project.addLib('asound');
 	project.addLib('dl');
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
-		addBackend('Vulkan');
+		addBackend('Graphics5/Vulkan');
 		project.addLib('vulkan');
 		project.addLib('xcb');
 		project.addDefine('SYS_VULKAN');
@@ -193,7 +183,7 @@ else if (platform === Platform.Linux) {
 	}
 	else {
 		g4 = true;
-		addBackend('OpenGL2');
+		addBackend('Graphics4/OpenGL');
 		project.addLib('GL');
 		project.addLib('X11');
 		project.addLib('Xinerama');
@@ -203,9 +193,9 @@ else if (platform === Platform.Linux) {
 }
 else if (platform === Platform.Pi) {
 	g4 = true;
-	addBackend('Pi');
-	addBackend('OpenGL2');
-	project.addExclude('Backends/OpenGL2/Sources/GL/**');
+	addBackend('System/Pi');
+	addBackend('Graphics4/OpenGL');
+	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
 	project.addDefine('OPENGL');
 	project.addDefine('SYS_UNIXOID');
 	project.addDefine('SYS_PI');
@@ -221,9 +211,9 @@ else if (platform === Platform.Pi) {
 }
 else if (platform === Platform.Tizen) {
 	g4 = true;
-	addBackend('Tizen');
-	addBackend('OpenGL2');
-	project.addExclude('Backends/OpenGL2/Sources/GL/**');
+	addBackend('System/Tizen');
+	addBackend('Graphics4/OpenGL');
+	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
 	project.addDefine('OPENGL');
 	project.addDefine('SYS_UNIXOID');
 }
@@ -234,7 +224,7 @@ if (g4) {
 
 if (g5) {
 	project.addDefine('SYS_G5');
-	addBackend('G4onG5');
+	addBackend('Graphics4/G4onG5');
 }
 else {
 	project.addExclude('Sources/Kore/Graphics5/**');
