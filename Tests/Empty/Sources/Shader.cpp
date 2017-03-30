@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/Graphics/Shader.h>
+#include <Kore/Graphics4/Graphics.h>
+#include <Kore/Graphics4/Shader.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/System.h>
 
@@ -12,24 +12,24 @@
 using namespace Kore;
 
 namespace {
-	Shader* vertexShader;
-	Shader* fragmentShader;
-	Program* program;
-	VertexBuffer* vertices;
-	IndexBuffer* indices;
+	Graphics4::Shader* vertexShader;
+	Graphics4::Shader* fragmentShader;
+	Graphics4::Program* program;
+	Graphics4::VertexBuffer* vertices;
+	Graphics4::IndexBuffer* indices;
 
 	void update() {
 		printf("update\n");
-		Graphics::begin();
-		Graphics::clear(Kore::Graphics::ClearColorFlag);
+		Graphics4::begin();
+		Graphics4::clear(Kore::Graphics4::ClearColorFlag);
 
 		program->set();
-		Graphics::setVertexBuffer(*vertices);
-		Graphics::setIndexBuffer(*indices);
-		Graphics::drawIndexedVertices();
+		Graphics4::setVertexBuffer(*vertices);
+		Graphics4::setIndexBuffer(*indices);
+		Graphics4::drawIndexedVertices();
 
-		Graphics::end();
-		Graphics::swapBuffers();
+		Graphics4::end();
+		Graphics4::swapBuffers();
 	}
 }
 
@@ -53,16 +53,16 @@ int kore(int argc, char** argv) {
 
 	FileReader vs("shader.vert");
 	FileReader fs("shader.frag");
-	vertexShader = new Shader(vs.readAll(), vs.size(), VertexShader);
-	fragmentShader = new Shader(fs.readAll(), fs.size(), FragmentShader);
-	VertexStructure structure;
+	vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), VertexShader);
+	fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), FragmentShader);
+	Graphics4::VertexStructure structure;
 	structure.add("pos", Float3VertexData);
-	program = new Program;
+	program = new Graphics4::Program;
 	program->setVertexShader(vertexShader);
 	program->setFragmentShader(fragmentShader);
 	program->link(structure);
 
-	vertices = new VertexBuffer(3, structure);
+	vertices = new Graphics4::VertexBuffer(3, structure);
 	float* v = vertices->lock();
 	v[0] = -1;
 	v[1] = -1;
@@ -75,7 +75,7 @@ int kore(int argc, char** argv) {
 	v[8] = 0.5;
 	vertices->unlock();
 
-	indices = new IndexBuffer(3);
+	indices = new Graphics4::IndexBuffer(3);
 	int* i = indices->lock();
 	i[0] = 0;
 	i[1] = 1;
