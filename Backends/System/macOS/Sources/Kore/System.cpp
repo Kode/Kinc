@@ -1,5 +1,5 @@
 #include "pch.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/System.h>
 
 using namespace Kore;
@@ -75,7 +75,7 @@ int Kore::System::currentDevice() {
 
 void Kore::System::makeCurrent(int contextId) {
 	appstate::currentDeviceId = contextId;
-	Graphics::makeCurrent(contextId);
+	Graphics4::makeCurrent(contextId);
 }
 
 void Kore::System::clearCurrent() {

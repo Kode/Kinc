@@ -4,7 +4,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Input/HIDManager.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Log.h>
@@ -125,12 +125,12 @@ void System::destroyWindow(int windowId) {}
 
 int Kore::System::initWindow(Kore::WindowOptions options) {
 	int id = createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
-	Graphics::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	Graphics4::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return id;
 }
 
 #ifndef SYS_METAL
-void Graphics::makeCurrent(int contextId) {
+void Graphics4::makeCurrent(int contextId) {
 	//[[windows[contextId]->view openGLContext] makeCurrentContext];
 }
 #endif

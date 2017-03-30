@@ -1,5 +1,5 @@
 #include "pch.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Log.h>
@@ -95,8 +95,6 @@ namespace {
 }
 #endif
 
-// TODO (DK) the whole glx stuff should go into Graphics/OpenGL?
-//  -then there would be a better separation between window + context setup
 int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
                  int stencilBufferBits) {
 #ifdef OPENGL
@@ -302,7 +300,7 @@ namespace Kore {
 
 			int id = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay,
 			                      options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-			Graphics::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+			Graphics4::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 			return id;
 		}
 	}
@@ -595,11 +593,11 @@ void Kore::System::makeCurrent(int contextId) {
 #endif
 }
 
-void Kore::Graphics::clearCurrent() {}
+void Kore::Graphics4::clearCurrent() {}
 
 void Kore::System::clearCurrent() {
 	currentDeviceId = -1;
-	Graphics::clearCurrent();
+	Graphics4::clearCurrent();
 }
 
 void Kore::System::swapBuffers(int contextId) {
