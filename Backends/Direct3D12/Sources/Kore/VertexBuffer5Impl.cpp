@@ -3,7 +3,7 @@
 #include "Direct3D12.h"
 #include "VertexBuffer5Impl.h"
 #include "d3dx12.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
@@ -22,19 +22,19 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		switch (structure.elements[i].data) {
-		case Float1VertexData:
+		case Graphics4::Float1VertexData:
 			myStride += 1 * 4;
 			break;
-		case Float2VertexData:
+		case Graphics4::Float2VertexData:
 			myStride += 2 * 4;
 			break;
-		case Float3VertexData:
+		case Graphics4::Float3VertexData:
 			myStride += 3 * 4;
 			break;
-		case Float4VertexData:
+		case Graphics4::Float4VertexData:
 			myStride += 4 * 4;
 			break;
-		case ColorVertexData:
+		case Graphics4::ColorVertexData:
 			myStride += 1 * 4;
 			break;
 		}

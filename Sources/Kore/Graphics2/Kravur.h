@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/IO/Reader.h>
 #include <vector>
 
@@ -60,7 +60,7 @@ namespace Kore {
 
 		float mySize;
 		std::vector<BakedChar> chars;
-		Texture* texture;
+		Graphics4::Texture* texture;
 		float baseline;
 		float getCharWidth(int charIndex);
 		float charWidth(char ch);
@@ -71,7 +71,7 @@ namespace Kore {
 
 		static Kravur* load(const char* name, FontStyle style, float size);
 
-		Texture* getTexture();
+		Graphics4::Texture* getTexture();
 		AlignedQuad getBakedQuad(int char_index, float xpos, float ypos);
 
 		float getHeight();

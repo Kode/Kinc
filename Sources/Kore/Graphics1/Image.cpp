@@ -8,7 +8,7 @@
 #include "../IO/lz4/lz4.h"
 #include "Image.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/IO/BufferReader.h>
 #include <Kore/IO/Reader.h>
@@ -32,7 +32,7 @@ namespace {
 	}
 }
 
-int Image::sizeOf(Image::Format format) {
+int Graphics1::Image::sizeOf(Image::Format format) {
 	switch (format) {
 	case Image::RGBA128:
 		return 16;
@@ -50,26 +50,26 @@ int Image::sizeOf(Image::Format format) {
 	return -1;
 }
 
-Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
+Graphics1::Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
 	compressed = false;
 	data = new u8[width * height * sizeOf(format)];
 }
 
-Image::Image(int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
+Graphics1::Image::Image(int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compressed = false;
 	data = new u8[width * height * depth * sizeOf(format)];
 }
 
-Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
+Graphics1::Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
 	FileReader reader(filename);
 	init(reader, filename, readable);
 }
 
-Image::Image(Reader& reader, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
+Graphics1::Image::Image(Reader& reader, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
 	init(reader, format, readable);
 }
 
-Image::Image(void* data, int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
+Graphics1::Image::Image(void* data, int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
 	compressed = false;
 	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32;
     if (isFloat) {
@@ -80,9 +80,9 @@ Image::Image(void* data, int width, int height, Format format, bool readable) : 
     }
 }
 
-Image::Image() : depth(1), format(RGBA32), readable(false) {}
+Graphics1::Image::Image() : depth(1), format(RGBA32), readable(false) {}
 
-void Image::init(Kore::Reader& file, const char* format, bool readable) {
+void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readable) {
 	if (endsWith(format, "k")) {
 		u8* data = (u8*)file.readAll();
 		width = Reader::readS32LE(data + 0);
@@ -244,7 +244,7 @@ void Image::init(Kore::Reader& file, const char* format, bool readable) {
 	}
 }
 
-Image::~Image() {
+Graphics1::Image::~Image() {
 	if (readable) {
 		if (format == RGBA128 || format == RGBA64 || format == A32) {
 			delete[] hdrData;
@@ -257,7 +257,7 @@ Image::~Image() {
 	}
 }
 
-int Image::at(int x, int y) {
+int Graphics1::Image::at(int x, int y) {
 	if (data == nullptr)
 		return 0;
 	else

@@ -2,28 +2,28 @@
 
 #include "IndexBufferImpl.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 
 using namespace Kore;
 
 Kore::IndexBufferImpl::IndexBufferImpl(int count) : _buffer(count) {}
 
-IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {}
+Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {}
 
-IndexBuffer::~IndexBuffer() {}
+Graphics4::IndexBuffer::~IndexBuffer() {}
 
-int* IndexBuffer::lock() {
+int* Graphics4::IndexBuffer::lock() {
 	return _buffer.lock();
 }
 
-void IndexBuffer::unlock() {
+void Graphics4::IndexBuffer::unlock() {
 	_buffer.unlock();
 }
 
-void IndexBuffer::_set() {
+void Graphics4::IndexBuffer::_set() {
 	_buffer._set();
 }
 
-int IndexBuffer::count() {
+int Graphics4::IndexBuffer::count() {
 	return _buffer.count();;
 }

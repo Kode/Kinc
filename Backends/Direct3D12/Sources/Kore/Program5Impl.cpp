@@ -167,19 +167,19 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 		vertexDesc[i].InstanceDataStepRate = 0;
 
 		switch (structures[0]->elements[i].data) {
-		case Float1VertexData:
+		case Graphics4::Float1VertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 			break;
-		case Float2VertexData:
+		case Graphics4::Float2VertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 			break;
-		case Float3VertexData:
+		case Graphics4::Float3VertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 			break;
-		case Float4VertexData:
+		case Graphics4::Float4VertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			break;
-		case ColorVertexData:
+		case Graphics4::ColorVertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 			break;
 		}

@@ -10,7 +10,7 @@ namespace Kore {
 
 #else
 
-#include "Image.h"
+#include <Kore/Graphics1/Image.h>
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexStructure.h"
@@ -19,108 +19,108 @@ namespace Kore {
 #include <Kore/Math/Vector.h>
 
 namespace Kore {
-	class VertexBuffer : public VertexBufferImpl {
-	public:
-		VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
-		virtual ~VertexBuffer();
-		float* lock();
-		float* lock(int start, int count);
-		void unlock();
-		int count();
-		int stride();
-		int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers
-	};
+	namespace Graphics4 {
+		class VertexBuffer : public VertexBufferImpl {
+		public:
+			VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
+			virtual ~VertexBuffer();
+			float* lock();
+			float* lock(int start, int count);
+			void unlock();
+			int count();
+			int stride();
+			int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers
+		};
 
-	class IndexBuffer : public IndexBufferImpl {
-	public:
-		IndexBuffer(int count);
-		virtual ~IndexBuffer();
-		int* lock();
-		void unlock();
-		int count();
-		void _set();
-	};
+		class IndexBuffer : public IndexBufferImpl {
+		public:
+			IndexBuffer(int count);
+			virtual ~IndexBuffer();
+			int* lock();
+			void unlock();
+			int count();
+			void _set();
+		};
 
-	enum TextureAddressing { Repeat, Mirror, Clamp, Border };
+		enum TextureAddressing { Repeat, Mirror, Clamp, Border };
 
-	enum TextureFilter { PointFilter, LinearFilter, AnisotropicFilter };
+		enum TextureFilter { PointFilter, LinearFilter, AnisotropicFilter };
 
-	enum MipmapFilter {
-		NoMipFilter,
-		PointMipFilter,
-		LinearMipFilter // linear texture filter + linear mip filter -> trilinear filter
-	};
+		enum MipmapFilter {
+			NoMipFilter,
+			PointMipFilter,
+			LinearMipFilter // linear texture filter + linear mip filter -> trilinear filter
+		};
 
-	enum RenderState {
-		BlendingState,
-		DepthTest,
-		DepthTestCompare,
-		/*Lighting,*/ DepthWrite,
-		Normalize,
-		BackfaceCulling,
-		/*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
-		AlphaTestState,
-		AlphaReferenceState
-	};
+		enum RenderState {
+			BlendingState,
+			DepthTest,
+			DepthTestCompare,
+			/*Lighting,*/ DepthWrite,
+			Normalize,
+			BackfaceCulling,
+			/*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
+			AlphaTestState,
+			AlphaReferenceState
+		};
 
-	enum BlendingOperation {
-		BlendOne,
-		BlendZero,
-		SourceAlpha,
-		DestinationAlpha,
-		InverseSourceAlpha,
-		InverseDestinationAlpha,
-		SourceColor,
-		DestinationColor,
-		InverseSourceColor,
-		InverseDestinationColor
-	};
+		enum BlendingOperation {
+			BlendOne,
+			BlendZero,
+			SourceAlpha,
+			DestinationAlpha,
+			InverseSourceAlpha,
+			InverseDestinationAlpha,
+			SourceColor,
+			DestinationColor,
+			InverseSourceColor,
+			InverseDestinationColor
+		};
 
-	enum ZCompareMode {
-		ZCompareAlways,
-		ZCompareNever,
-		ZCompareEqual,
-		ZCompareNotEqual,
-		ZCompareLess,
-		ZCompareLessEqual,
-		ZCompareGreater,
-		ZCompareGreaterEqual
-	};
+		enum ZCompareMode {
+			ZCompareAlways,
+			ZCompareNever,
+			ZCompareEqual,
+			ZCompareNotEqual,
+			ZCompareLess,
+			ZCompareLessEqual,
+			ZCompareGreater,
+			ZCompareGreaterEqual
+		};
 
-	enum CullMode { Clockwise, CounterClockwise, NoCulling };
+		enum CullMode { Clockwise, CounterClockwise, NoCulling };
 
-	enum TexDir { U, V };
+		enum TexDir { U, V };
 
-	enum FogType { LinearFog };
+		enum FogType { LinearFog };
 
-	enum RenderTargetFormat { Target32Bit, Target64BitFloat, Target32BitRedFloat, Target128BitFloat, Target16BitDepth, Target8BitRed };
+		enum RenderTargetFormat { Target32Bit, Target64BitFloat, Target32BitRedFloat, Target128BitFloat, Target16BitDepth, Target8BitRed };
 
-	enum StencilAction { Keep, Zero, Replace, Increment, IncrementWrap, Decrement, DecrementWrap, Invert };
+		enum StencilAction { Keep, Zero, Replace, Increment, IncrementWrap, Decrement, DecrementWrap, Invert };
 
-	enum TextureOperation { ModulateOperation, SelectFirstOperation, SelectSecondOperation };
+		enum TextureOperation { ModulateOperation, SelectFirstOperation, SelectSecondOperation };
 
-	enum TextureArgument { CurrentColorArgument, TextureColorArgument };
+		enum TextureArgument { CurrentColorArgument, TextureColorArgument };
 
-	class RenderTarget : public RenderTargetImpl {
-	public:
-		RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
-		             int contextId = 0);
-		RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
-		             int contextId = 0);
-		~RenderTarget();
-		int width;
-		int height;
-		int texWidth;
-		int texHeight;
-		int contextId;
-		bool isCubeMap;
-		bool isDepthAttachment;
-		void useColorAsTexture(TextureUnit unit);
-		void useDepthAsTexture(TextureUnit unit);
-		void setDepthStencilFrom(RenderTarget* source);
-	};
+		class RenderTarget : public RenderTargetImpl {
+		public:
+			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
+				int contextId = 0);
+			RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
+				int contextId = 0);
+			~RenderTarget();
+			int width;
+			int height;
+			int texWidth;
+			int texHeight;
+			int contextId;
+			bool isCubeMap;
+			bool isDepthAttachment;
+			void useColorAsTexture(TextureUnit unit);
+			void useDepthAsTexture(TextureUnit unit);
+			void setDepthStencilFrom(RenderTarget* source);
+		};
 
-	namespace Graphics {
 		void setBool(ConstantLocation location, bool value);
 		void setInt(ConstantLocation location, int value);
 		void setFloat(ConstantLocation location, float value);
@@ -169,7 +169,7 @@ namespace Kore {
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();
 		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-		                          int readMask = 0, int writeMask = 0);
+			int readMask = 0, int writeMask = 0);
 
 		void setRenderState(RenderState state, bool on);
 		void setRenderState(RenderState state, int v);
@@ -206,7 +206,7 @@ namespace Kore {
 		extern bool fullscreen;
 
 		void flush();
-	};
+	}
 }
 
 #endif

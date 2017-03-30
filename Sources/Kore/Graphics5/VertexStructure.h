@@ -1,15 +1,15 @@
 #pragma once
 
-#include <Kore/Graphics/VertexStructure.h>
+#include <Kore/Graphics4/VertexStructure.h>
 
 namespace Kore {
 	namespace Graphics5 {
-		typedef Kore::VertexData VertexData;
+		typedef Graphics4::VertexData VertexData;
 
-		typedef Kore::VertexAttribute VertexAttribute;
+		typedef Graphics4::VertexAttribute VertexAttribute;
 
-		typedef Kore::VertexElement VertexElement;
+		typedef Graphics4::VertexElement VertexElement;
 
-		typedef Kore::VertexStructure VertexStructure;
+		typedef Graphics4::VertexStructure VertexStructure;
 	}
 }

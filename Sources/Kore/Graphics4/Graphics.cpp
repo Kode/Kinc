@@ -18,37 +18,37 @@ namespace {
 void Graphics::setup() {}
 #endif
 
-int Graphics::antialiasingSamples() {
+int Graphics4::antialiasingSamples() {
 	return ::samples;
 }
 
-void Graphics::setAntialiasingSamples(int samples) {
+void Graphics4::setAntialiasingSamples(int samples) {
 	::samples = samples;
 }
 
-bool Graphics::hasWindow() {
+bool Graphics4::hasWindow() {
 	return ::window;
 }
 
-void Graphics::setWindow(bool value) {
+void Graphics4::setWindow(bool value) {
 	::window = value;
 }
 
-bool Kore::Graphics::fullscreen = false;
+bool Kore::Graphics4::fullscreen = false;
 
-void Graphics::setFloat2(ConstantLocation position, vec2 value) {
+void Graphics4::setFloat2(ConstantLocation position, vec2 value) {
 	setFloat2(position, value.x(), value.y());
 }
 
-void Graphics::setFloat3(ConstantLocation position, vec3 value) {
+void Graphics4::setFloat3(ConstantLocation position, vec3 value) {
 	setFloat3(position, value.x(), value.y(), value.z());
 }
 
-void Graphics::setFloat4(ConstantLocation position, vec4 value) {
+void Graphics4::setFloat4(ConstantLocation position, vec4 value) {
 	setFloat4(position, value.x(), value.y(), value.z(), value.w());
 }
 
-void Graphics::setVertexBuffer(VertexBuffer& vertexBuffer) {
+void Graphics4::setVertexBuffer(VertexBuffer& vertexBuffer) {
 	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
 	setVertexBuffers(vertexBuffers, 1);
 }

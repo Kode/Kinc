@@ -3,11 +3,13 @@
 #include <Kore/Graphics5/Graphics.h>
 
 namespace Kore {
-	class VertexStructure;
+	namespace Graphics4 {
+		class VertexStructure;
+	}
 
 	class VertexBufferImpl {
 	protected:
-		VertexBufferImpl(int count, const VertexStructure& structure, int instanceDataStepRate);
+		VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate);
 
 	public:
 		Graphics5::VertexBuffer _buffer;

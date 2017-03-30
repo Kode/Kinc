@@ -5,7 +5,9 @@
 #include <Kore/Graphics5/PipelineState.h>
 
 namespace Kore {
-	class Shader;
+	namespace Graphics4 {
+		class Shader;
+	}
 
 	class ProgramImpl {
 	public:

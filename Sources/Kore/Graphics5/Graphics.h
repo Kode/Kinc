@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/Graphics/Image.h>
+#include <Kore/Graphics1/Image.h>
 
 #include "Shader.h"
 #include "Texture.h"
@@ -12,6 +12,8 @@
 
 namespace Kore {
 	namespace Graphics5 {
+		typedef Graphics1::Image Image;
+
 		class VertexBuffer : public VertexBuffer5Impl {
 		public:
 			VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);

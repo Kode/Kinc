@@ -1,5 +1,5 @@
 #include "pch.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
@@ -350,7 +350,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_SIZE:
 		windowWidth = LOWORD(lParam);
 		windowHeight = HIWORD(lParam);
-		Graphics::changeResolution(windowWidth, windowHeight);
+		Graphics4::changeResolution(windowWidth, windowHeight);
 		break;
 	case WM_DESTROY:
 		Kore::System::stop();
@@ -1010,12 +1010,12 @@ void Kore::System::makeCurrent(int contextId) {
 	}
 
 	currentDeviceId = contextId;
-	Graphics::makeCurrent(contextId);
+	Graphics4::makeCurrent(contextId);
 }
 
 void Kore::System::clearCurrent() {
 	currentDeviceId = -1;
-	Graphics::clearCurrent();
+	Graphics4::clearCurrent();
 }
 
 int Kore::System::initWindow(WindowOptions options) {
@@ -1045,12 +1045,12 @@ int Kore::System::initWindow(WindowOptions options) {
 
 	SetWindowLong(hwnd, GWL_STYLE, style);
 
-	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
+	Graphics4::setAntialiasingSamples(options.rendererOptions.antialiasing);
 	bool vsync = true;
 #ifdef VR_RIFT
 	vsync = false;
 #endif
-	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, vsync);
+	Graphics4::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, vsync);
 
 	return windowId;
 }
@@ -1086,7 +1086,7 @@ if (!Application::the()->fullscreen()) {
 
 void Kore::System::setup() {
 	Display::enumerate();
-	Graphics::setup();
+	Graphics4::setup();
 }
 
 bool Kore::System::isFullscreen() {

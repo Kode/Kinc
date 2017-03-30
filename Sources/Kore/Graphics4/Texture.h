@@ -1,15 +1,15 @@
 #pragma once
 
 #include <Kore/Graphics1/Image.h>
-#include <Kore/Texture5Impl.h>
+#include <Kore/TextureImpl.h>
 
 namespace Kore {
-	namespace Graphics5 {
+	namespace Graphics4 {
 		typedef Graphics1::Image Image;
 
-		class TextureUnit : public TextureUnit5Impl {};
+		class TextureUnit : public TextureUnitImpl {};
 
-		class Texture : public Image, public Texture5Impl {
+		class Texture : public Image, public TextureImpl {
 		public:
 			Texture(int width, int height, Format format, bool readable);
 			Texture(int width, int height, int depth, Format format, bool readable = false);
@@ -34,8 +34,8 @@ namespace Kore {
 			int stride();
 			int texWidth;
 			int texHeight;
-
-			void _init(const char* format, bool readable = false);
+		private:
+			void init(const char* format, bool readable = false);
 		};
 	}
 }

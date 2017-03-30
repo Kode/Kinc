@@ -4,12 +4,12 @@
 
 using namespace Kore;
 
-PipelineState::PipelineState() : Program() {
+Graphics4::PipelineState::PipelineState() : Program() {
 	// TODO
 	// program = new Program;
 }
 
-void PipelineState::compile() {
+void Graphics4::PipelineState::compile() {
 	link(PipelineStateBase::inputLayout, 0);
 }
 
