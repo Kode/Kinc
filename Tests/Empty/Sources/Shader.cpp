@@ -53,10 +53,10 @@ int kore(int argc, char** argv) {
 
 	FileReader vs("shader.vert");
 	FileReader fs("shader.frag");
-	vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), VertexShader);
-	fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), FragmentShader);
+	vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
+	fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
 	Graphics4::VertexStructure structure;
-	structure.add("pos", Float3VertexData);
+	structure.add("pos", Graphics4::Float3VertexData);
 	program = new Graphics4::Program;
 	program->setVertexShader(vertexShader);
 	program->setFragmentShader(fragmentShader);
