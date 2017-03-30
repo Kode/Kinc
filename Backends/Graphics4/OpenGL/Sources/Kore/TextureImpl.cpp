@@ -430,7 +430,7 @@ void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int d
 }
 
 #ifdef SYS_IOS
-void Texture::upload(u8* data) {
+void Graphics4::Texture::upload(u8* data) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glCheckErrors();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), GL_UNSIGNED_BYTE, data);

@@ -3,7 +3,9 @@
 #include <Kore/Graphics1/Image.h>
 
 namespace Kore {
-	class Texture;
+	namespace Graphics4 {
+		class Texture;
+	}
 
 	class TextureUnitImpl {
 	public:

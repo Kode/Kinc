@@ -170,7 +170,7 @@ void Video::updateImage() {
 			CGSize size = CVImageBufferGetDisplaySize(pixelBuffer);
 			myWidth = size.width;
 			myHeight = size.height;
-			image = new Graphics4::Texture(width(), height(), Image::RGBA32, false);
+			image = new Graphics4::Texture(width(), height(), Graphics4::Image::RGBA32, false);
 		}
 
 		if (pixelBuffer != NULL) {
