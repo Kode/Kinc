@@ -1,1 +1,1 @@
-* 2016-08-01: What was previously Kore::Graphics is now Kore::Graphics4.
+* 2017-03-30: What was previously Kore::Graphics is now Kore::Graphics4.
