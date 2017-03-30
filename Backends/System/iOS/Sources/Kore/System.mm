@@ -2,7 +2,7 @@
 
 #import "KoreAppDelegate.h"
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/System.h>
 #import <UIKit/UIKit.h>
 
@@ -74,7 +74,7 @@ void KoreUpdateKeyboard() {
 }
 
 int Kore::System::initWindow(Kore::WindowOptions options) {
-	Graphics::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	Graphics4::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return 0;
 }
 
@@ -88,7 +88,7 @@ bool Kore::System::isFullscreen() {
 
 void Kore::System::setup() {}
 
-void Graphics::makeCurrent(int contextId) {}
+void Graphics4::makeCurrent(int contextId) {}
 
 namespace {
 	namespace windowimpl {

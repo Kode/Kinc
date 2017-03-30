@@ -3,7 +3,7 @@
 #include <EGL/egl.h>
 #include <GLContext.h>
 #include <Kore/Android.h>
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
@@ -668,7 +668,7 @@ extern "C" void android_main(android_app* app) {
 void Kore::System::setup() {}
 
 int Kore::System::initWindow(Kore::WindowOptions options) {
-	Graphics::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	Graphics4::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return 0;
 }
 

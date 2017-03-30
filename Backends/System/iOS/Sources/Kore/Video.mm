@@ -4,7 +4,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #include <Kore/Audio/Mixer.h>
-#include <Kore/Graphics/Texture.h>
+#include <Kore/Graphics4/Texture.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
@@ -170,7 +170,7 @@ void Video::updateImage() {
 			CGSize size = CVImageBufferGetDisplaySize(pixelBuffer);
 			myWidth = size.width;
 			myHeight = size.height;
-			image = new Texture(width(), height(), Image::RGBA32, false);
+			image = new Graphics4::Texture(width(), height(), Image::RGBA32, false);
 		}
 
 		if (pixelBuffer != NULL) {
@@ -222,7 +222,7 @@ int Video::height() {
 	return myHeight;
 }
 
-Texture* Video::currentImage() {
+Graphics4::Texture* Video::currentImage() {
 	update(System::time());
 	return image;
 }
