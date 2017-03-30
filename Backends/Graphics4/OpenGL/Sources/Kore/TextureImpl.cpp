@@ -338,7 +338,7 @@ Graphics4::Texture::Texture(int width, int height, int depth, Image::Format form
 }
 
 #ifdef SYS_ANDROID
-Texture::Texture(unsigned texid) : Image(1023, 684, Image::RGBA32, false) {
+Graphics4::Texture::Texture(unsigned texid) : Image(1023, 684, Image::RGBA32, false) {
 	texture = texid;
 	external_oes = true;
 	texWidth = 1023;

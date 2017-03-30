@@ -188,6 +188,9 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		break;
 	case Target8BitRed:
+#ifndef GL_RED
+#define GL_RED GL_LUMINANCE
+#endif
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 		break;
 	case Target32Bit:

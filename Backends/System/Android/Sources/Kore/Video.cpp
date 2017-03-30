@@ -3,7 +3,7 @@
 #include "Video.h"
 
 #include <Kore/Audio/Mixer.h>
-#include <Kore/Graphics/Texture.h>
+#include <Kore/Graphics4/Texture.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
@@ -499,7 +499,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 
 	KoreAndroid::getActivity()->vm->DetachCurrentThread();
 
-	image = new Texture(texid);
+	image = new Graphics4::Texture(texid);
 #endif
 }
 
@@ -556,7 +556,7 @@ int Video::height() {
 #endif
 }
 
-Texture* Video::currentImage() {
+Graphics4::Texture* Video::currentImage() {
 #if SYS_ANDROID_API >= 15
 	return image;
 #else

@@ -1,4 +1,4 @@
-#include <Kore/Graphics/Texture.h>
+#include <Kore/Graphics4/Texture.h>
 #include <Kore/IO/FileReader.h>
 
 namespace Kore {
@@ -25,7 +25,7 @@ namespace Kore {
 		void stop();
 		int width();
 		int height();
-		Texture* currentImage();
+		Graphics4::Texture* currentImage();
 		double duration; // milliseconds
 		double position; // milliseconds
 		bool finished;
@@ -35,14 +35,14 @@ namespace Kore {
 		int id;
 
 	private:
-		Texture* image;
+		Graphics4::Texture* image;
 		double lastTime;
 		int myWidth;
 		int myHeight;
 
 	private:
 		void video_write();
-		Kore::Image* videoImage;
+		Kore::Graphics4::Image* videoImage;
 		FileReader* infile;
 	};
 }
