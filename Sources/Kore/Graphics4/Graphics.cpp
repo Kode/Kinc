@@ -15,7 +15,7 @@ namespace {
 }
 
 #if !defined(SYS_WINDOWS) && !defined(SYS_METAL)
-void Graphics::setup() {}
+void Graphics4::setup() {}
 #endif
 
 int Graphics4::antialiasingSamples() {
