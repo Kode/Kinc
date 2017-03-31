@@ -9,7 +9,7 @@
 
 using namespace Kore;
 
-#ifdef SYS_G4
+#ifdef KORE_G4
 
 namespace {
 	std::map<std::string, Kravur*> fontCache;

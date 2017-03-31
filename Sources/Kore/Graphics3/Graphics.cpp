@@ -4,14 +4,14 @@
 
 using namespace Kore;
 
-#ifdef OPENGL_1_X
+#ifndef KORE_G4
 
 namespace {
 	int samples = 1;
 	bool window = true;
 }
 
-#if !defined(SYS_WINDOWS)
+#if !defined(KORE_WINDOWS)
 void Graphics3::Graphics3::setup() {
 }
 #endif

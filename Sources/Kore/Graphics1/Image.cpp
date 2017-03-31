@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#if defined (SYS_WINDOWS) && (SYS_VULKAN)
+#if defined(KORE_WINDOWS) && defined(KORE_VULKAN)
 #include <windows.h>
 #endif
 

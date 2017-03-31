@@ -6,44 +6,44 @@
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 #include <Kore/Android.h>
 #endif
 #include <cstdlib>
 #include <cstring>
 #include <stdio.h>
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #include <malloc.h>
 #include <memory.h>
 #endif
 
-#ifndef SYS_CONSOLE
+#ifndef KORE_CONSOLE
 
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 const char* iphonegetresourcepath();
 #endif
 
-#ifdef SYS_OSX
+#ifdef KORE_OSX
 const char* macgetresourcepath();
 #endif
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 #include <android/asset_manager.h>
 
 #include <JNIHelper.h>
 #endif
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #define NOMINMAX
 #include <Windows.h>
 #endif
 
-#ifdef SYS_TIZEN
+#ifdef KORE_TIZEN
 #include <FApp.h>
 #endif
 
-#ifdef SYS_PI
-#define SYS_LINUX
+#ifdef KORE_PI
+#define KORE_LINUX
 #endif
 
 using namespace Kore;
@@ -56,7 +56,7 @@ void Kore::setFilesLocation(char* dir) {
 	fileslocation = dir;
 }
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 namespace {
 	char* externalFilesDir;
 }
@@ -69,7 +69,7 @@ void initAndroidFileReader() {
 #endif
 
 FileReader::FileReader() : readdata(nullptr) {
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	data.size = 0;
 	data.pos = 0;
 	data.file = nullptr;
@@ -81,7 +81,7 @@ FileReader::FileReader() : readdata(nullptr) {
 }
 
 FileReader::FileReader(const char* filename, FileType type) : readdata(nullptr) {
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	data.size = 0;
 	data.pos = 0;
 	data.file = nullptr;
@@ -95,7 +95,7 @@ FileReader::FileReader(const char* filename, FileType type) : readdata(nullptr) 
 	}
 }
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 bool FileReader::open(const char* filename, FileType type) {
 	data.pos = 0;
 	if (type == Save) {
@@ -137,10 +137,10 @@ bool FileReader::open(const char* filename, FileType type) {
 }
 #endif
 
-#ifndef SYS_ANDROID
+#ifndef KORE_ANDROID
 bool FileReader::open(const char* filename, FileType type) {
 	char filepath[1001];
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 	strcpy(filepath, type == Save ? System::savePath() : iphonegetresourcepath());
 	if (type != Save) {
 		strcat(filepath, "/");
@@ -150,7 +150,7 @@ bool FileReader::open(const char* filename, FileType type) {
 
 	strcat(filepath, filename);
 #endif
-#ifdef SYS_OSX
+#ifdef KORE_MACOS
 	strcpy(filepath, type == Save ? System::savePath() : macgetresourcepath());
 	if (type != Save) {
 		strcat(filepath, "/");
@@ -159,14 +159,7 @@ bool FileReader::open(const char* filename, FileType type) {
 	}
 	strcat(filepath, filename);
 #endif
-#ifdef SYS_XBOX360
-	filepath = Kt::Text(L"game:\\media\\") + filepath;
-	filepath.replace(Kt::Char('/'), Kt::Char('\\'));
-#endif
-#ifdef SYS_PS3
-	filepath = Kt::Text(SYS_APP_HOME) + "/" + filepath;
-#endif
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (type == Save) {
 		strcpy(filepath, System::savePath());
 		strcat(filepath, filename);
@@ -178,7 +171,7 @@ bool FileReader::open(const char* filename, FileType type) {
 	for (size_t i = 0; i < filepathlength; ++i)
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 	const wchar_t* location = Windows::ApplicationModel::Package::Current->InstalledLocation->Path->Data();
 	int i;
 	for (i = 0; location[i] != 0; ++i) {
@@ -198,15 +191,15 @@ bool FileReader::open(const char* filename, FileType type) {
 	}
 	filepath[i] = 0;
 #endif
-#ifdef SYS_LINUX
+#ifdef KORE_LINUX
 	strcpy(filepath, filename);
 #endif
-#ifdef SYS_HTML5
+#ifdef KORE_HTML5
 	strcpy(filepath, KORE_DEBUGDIR);
 	strcat(filepath, "/");
 	strcat(filepath, filename);
 #endif
-#ifdef SYS_TIZEN
+#ifdef KORE_TIZEN
 	for (int i = 0; i < Tizen::App::App::GetInstance()->GetAppDataPath().GetLength(); ++i) {
 		wchar_t c;
 		Tizen::App::App::GetInstance()->GetAppDataPath().GetCharAt(i, c);
@@ -236,7 +229,7 @@ bool FileReader::open(const char* filename, FileType type) {
 #endif
 
 int FileReader::read(void* data, int size) {
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	if (this->data.file != nullptr) {
 		return static_cast<int>(fread(data, 1, size, this->data.file));
 	}
@@ -259,7 +252,7 @@ void* FileReader::readAll() {
 }
 
 void FileReader::seek(int pos) {
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	if (data.file != nullptr) {
 		fseek(data.file, pos, SEEK_SET);
 	}
@@ -273,7 +266,7 @@ void FileReader::seek(int pos) {
 }
 
 void FileReader::close() {
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	if (data.file != nullptr) {
 		fclose(data.file);
 		data.file = nullptr;
@@ -296,7 +289,7 @@ FileReader::~FileReader() {
 }
 
 int FileReader::pos() const {
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	if (data.file != nullptr)
 		return static_cast<int>(ftell(data.file));
 	else

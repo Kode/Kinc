@@ -4,10 +4,10 @@
 #include "LogArgs.h"
 
 #include <stdio.h>
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #include <Windows.h>
 #endif
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 #include <android/log.h>
 #endif
 
@@ -23,13 +23,13 @@ void Kore::log(LogLevel level, const char* format, ...) {
 void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 	vfprintf(level == Info ? stdout : stderr, format, args);
 	fprintf(level == Info ? stdout : stderr, "\n");
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	char buffer[4096];
 	vsnprintf(buffer, sizeof(buffer) - 2, format, args);
 	strcat(buffer, "\r\n");
 	OutputDebugStringA(buffer);
 #endif
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	switch (level) {
 	case Info:
 		__android_log_vprint(ANDROID_LOG_INFO, "kore", format, args);

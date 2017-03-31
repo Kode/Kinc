@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef OPENGL_1_X
+#ifndef KORE_G4
 
 #include <Kore/Graphics1/Image.h>
 #include <Kore/Math/Matrix.h>

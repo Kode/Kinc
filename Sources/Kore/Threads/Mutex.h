@@ -1,6 +1,6 @@
 #pragma once
 
-#if !defined(SYS_WINDOWS) && !defined(SYS_WINDOWSAPP) && defined(SYS_UNIXOID)
+#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && defined(KORE_POSIX)
 #include <pthread.h>
 #endif
 
@@ -13,7 +13,7 @@ namespace Kore {
 		void Unlock();
 
 	private:
-#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 		struct CriticalSection {
 			void* DebugInfo;
 			long LockCount;
@@ -22,14 +22,14 @@ namespace Kore {
 			void* LockSemaphore;
 			unsigned long __w64 SpinCount;
 		} criticalSection;
-#elif defined(SYS_UNIXOID)
+#elif defined(KORE_POSIX)
 		pthread_mutex_t pthread_mutex;
 #endif
 	};
 
 	class UberMutex {
 	public:
-#if defined(SYS_WINDOWS) || defined(SYS_WINDOWSAPP)
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 		void* id;
 #endif
 
@@ -39,5 +39,4 @@ namespace Kore {
 		void Lock();
 		void Unlock();
 	};
-	// Prozess-übergreifend (zur Zeit nur unter Windows).
 }

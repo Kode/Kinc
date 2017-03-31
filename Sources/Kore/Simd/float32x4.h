@@ -63,7 +63,7 @@ namespace Kore {
 	}
 }
 
-#elif defined(SYS_IOS)
+#elif defined(KORE_IOS)
 
 #include <arm_neon.h>
 

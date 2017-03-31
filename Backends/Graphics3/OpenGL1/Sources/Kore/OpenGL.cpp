@@ -8,11 +8,11 @@
 #include <cstdio>
 #include <cassert>
 
-#if defined(SYS_IOS)
+#ifdef KORE_IOS
 #include <OpenGLES/ES1/glext.h>
 #endif
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	#include <GL/wglew.h>
 
 	#define WIN32_LEAN_AND_MEAN
@@ -26,13 +26,13 @@
 using namespace Kore;
 
 namespace Kore {
-#if !defined(SYS_IOS) && !defined(SYS_ANDROID)
+#if !defined(KORE_IOS) && !defined(KORE_ANDROID)
 	extern bool programUsesTessellation;
 #endif
 }
 
 namespace {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	HINSTANCE instance = 0;
     HDC deviceContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	HGLRC glContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -58,13 +58,13 @@ namespace {
         mat4 world;
     } g_wvpTransform;
 
-#if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	void* glesDrawBuffers;
 #endif
 }
 
 void Graphics3::destroy(int windowId) {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (glContexts[windowId]) {
 		if (!wglMakeCurrent(nullptr, nullptr)) {
 			//MessageBox(NULL,"Release Of DC And RC Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
@@ -89,19 +89,19 @@ void Graphics3::destroy(int windowId) {
 
 #undef CreateWindow
 
-#if defined(SYS_WINDOWS)
+#ifdef KORE_WINDOWS
 namespace Kore { namespace System {
 	extern int currentDeviceId;
 }}
 #endif
 
-#if defined(SYS_WINDOWS)
+#ifdef KORE_WINDOWS
 void Graphics3::setup() {
 }
 #endif
 
 void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	HWND windowHandle = (HWND)System::windowHandle(windowId);
 
 #ifndef VR_RIFT
@@ -167,12 +167,12 @@ void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
 	SetFocus(windowHandle); // Sets Keyboard Focus To The Window
-#else /* #ifndef VR_RIFT */
+#else
 	deviceContexts[windowId] = GetDC(windowHandle);
 	glContexts[windowId] = wglGetCurrentContext();
 	glewInit();
-#endif /* #ifndef VR_RIFT */
-#endif /* #ifdef SYS_WINDOWS */
+#endif
+#endif
 
 #ifndef VR_RIFT
 	glEnable(GL_BLEND);
@@ -187,18 +187,18 @@ void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	}
 #endif
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (windowId == 0) {
 		// TODO (DK) check if we actually want vsync
 		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(1);
 	}
 #endif
 
-#if defined(SYS_IOS)
+#if defined(KORE_IOS)
 	glGenVertexArraysOES(1, &arrayId[windowId]);
-#elif defined(SYS_OSX)
+#elif defined(KORE_MACOS)
     glGenVertexArraysAPPLE(1, &arrayId[windowId]);
-#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN) && !defined(SYS_PI)
+#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
 	glGenVertexArrays(1, &arrayId[windowId]);
 #endif
     glCheckErrors();
@@ -209,7 +209,7 @@ void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	_renderTargetHeight = _height;
 	renderToBackbuffer = true;
 
-#if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	glesDrawBuffers = (void*)eglGetProcAddress("glDrawBuffers");
 #endif
 }
@@ -306,8 +306,8 @@ void Graphics3::drawIndexedVertices() {
 }
 
 void Graphics3::drawIndexedVertices(int start, int count) {
-#ifdef OPENGLES
-#if defined(SYS_ANDROID) || defined(SYS_PI)
+#ifdef KORE_OPENGL_ES
+#if defined(KORE_ANDROID) || defined(KORE_PI)
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void*)(start * sizeof(GL_UNSIGNED_SHORT)));
 #else
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
@@ -322,18 +322,18 @@ void Graphics3::drawIndexedVertices(int start, int count) {
 }
 
 void Graphics3::swapBuffers(int contextId) {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	::SwapBuffers(deviceContexts[contextId]);
 #else
 	System::swapBuffers(contextId);
 #endif
 }
 
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 void beginGL();
 #endif
 
-#if defined(SYS_WINDOWS)
+#if defined(KORE_WINDOWS)
 void Graphics3::makeCurrent(int contextId) {
 	wglMakeCurrent(deviceContexts[contextId], glContexts[contextId]);
 }
@@ -356,11 +356,11 @@ void Graphics3::begin(int contextId) {
 
 	glViewport(0, 0, _width, _height);
 	
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 	beginGL();
 #endif
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -470,7 +470,7 @@ void Graphics3::setStencilParameters(ZCompareMode compareMode, StencilAction bot
 //#endif
 }*/
 
-#if defined(SYS_WINDOWS)
+#ifdef KORE_WINDOWS
 void Graphics3::clearCurrent() {
 	wglMakeCurrent(nullptr, nullptr);
 }
@@ -501,7 +501,7 @@ void Graphics3::clear(uint flags, uint color, float depth, int stencil) {
 		glDepthMask(GL_TRUE);
 		glCheckErrors();
 	}
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 	glClearDepthf(depth);
 #else
 	glClearDepth(depth);
@@ -981,9 +981,9 @@ void Graphics3::setRenderTarget(RenderTarget* texture, int num, int additionalTa
 		if (num == additionalTargets) {
 			GLenum buffers[16];
 			for (int i = 0; i <= additionalTargets; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-#if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
             ((void(*)(GLsizei, GLenum*))glesDrawBuffers)(additionalTargets + 1, buffers);
-#elif !defined(OPENGLES)
+#elif !defined(KORE_OPENGL_ES)
 			glDrawBuffers(additionalTargets + 1, buffers);
 #endif
 		}
@@ -1005,7 +1005,8 @@ void Graphics3::restoreRenderTarget() {
 void Graphics3::setLight(Light* light, int num) {
     if (light) {
         light->_set(num);
-    } else {
+    }
+	else {
         glDisable(GL_LIGHT0 + num);
     }
 }

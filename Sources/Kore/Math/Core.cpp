@@ -2,7 +2,7 @@
 
 #include "Core.h"
 
-#ifdef SYS_HTML5
+#ifdef KORE_HTML5
 typedef float float_t;
 typedef double double_t;
 #endif

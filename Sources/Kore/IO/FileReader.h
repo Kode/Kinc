@@ -6,24 +6,19 @@
 #define KORE_DEBUGDIR "Deployment"
 #endif
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 struct AAsset;
 struct __sFILE;
 typedef __sFILE FILE;
 #endif
 
 namespace Kore {
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	struct FileReaderData {
 		int pos;
 		int size;
 		FILE* file;
 		AAsset* asset;
-	};
-#elif defined(SYS_WIIU)
-	struct FileReaderData {
-		int file;
-		int pos;
 	};
 #else
 	struct FileReaderData {

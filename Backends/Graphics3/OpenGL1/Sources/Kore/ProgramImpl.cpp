@@ -139,8 +139,8 @@ void Graphics4::Program::link(VertexStructure** structures, int count) {
 		delete[] errormessage;
 	}
 
-#ifndef OPENGLES
-#ifndef SYS_LINUX
+#ifndef KORE_OPENGL_ES
+#ifndef KORE_LINUX
 /*	if (tessellationControlShader != nullptr) {
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 		glCheckErrors();
@@ -150,7 +150,7 @@ void Graphics4::Program::link(VertexStructure** structures, int count) {
 }
 
 void Graphics4::Program::set() {
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 	programUsesTessellation = tessellationControlShader != nullptr;
 #endif
 	glUseProgram(programId);

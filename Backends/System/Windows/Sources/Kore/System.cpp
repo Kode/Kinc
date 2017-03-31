@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#ifdef SYS_G4
+#ifdef KORE_G4
 #include <Kore/Graphics4/Graphics.h>
 #else
 #include <Kore/Graphics3/Graphics.h>
@@ -32,7 +32,7 @@
 #include <exception>
 #include <shlobj.h>
 
-#ifdef SYS_G4
+#ifdef KORE_G4
 #define Graphics Graphics4
 #else
 #define Graphics Graphics3
@@ -1071,7 +1071,7 @@ void Kore::System::changeResolution(int width, int height, bool fullscreen) {
 
 #pragma message("TODO (DK) implement changeResolution(w,h,fs) for d3d")
 
-#if !defined(OPENGL) && !defined(SYS_VULKAN)
+#if !defined(KORE_OPENGL) && !defined(KORE_VULKAN)
 /*Application::the()->setWidth(width);
 Application::the()->setHeight(height);
 Application::the()->setFullscreen(fullscreen);
