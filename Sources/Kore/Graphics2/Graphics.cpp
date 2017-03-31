@@ -1007,7 +1007,7 @@ void Graphics2::Graphics2::setOpacity(float opacity) {
 	this->opacity = opacity;
 }
 
-Kravur* Graphics2::Graphics2::Graphics2::getFont() const {
+Kravur* Graphics2::Graphics2::getFont() const {
 	return font;
 }
 

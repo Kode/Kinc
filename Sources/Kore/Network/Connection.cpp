@@ -195,8 +195,8 @@ int Connection::receive(u8* data, int& id) {
 			states[id] = Connected;
 			lastRecs[id] = System::time();
 
-			bool reliable = (header & 1);
-			bool control = (header & 2);
+			bool reliable = (header & 1) != 0;
+			bool control = (header & 2) != 0;
 
 			u32 ackNrRel = *((u32*)(recBuff + 4));
 			if (checkSeqNr(ackNrRel, lastAckNrsRel[id])) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time,
