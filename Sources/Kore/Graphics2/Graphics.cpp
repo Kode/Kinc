@@ -2,8 +2,10 @@
 
 #include "Graphics.h"
 
+#include <Kore/Graphics3/Graphics.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/Simd/float32x4.h>
+
 #include <string.h>
 
 using namespace Kore;
@@ -440,7 +442,7 @@ void Graphics2::ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
 
     #ifdef OPENGL_1_X
     // Set fixed-function projection matrix
-    Graphics::setProjectionMatrix(projectionMatrix);
+    Graphics3::setProjectionMatrix(projectionMatrix);
     #else
     // Set shader matrix uniform
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);

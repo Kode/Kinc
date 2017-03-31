@@ -1,16 +1,16 @@
 #include "pch.h"
-#include <Kore/Graphics/Graphics3.h>
+#include <Kore/Graphics3/Graphics.h>
 #include "ogl.h"
 
 using namespace Kore;
 
-IndexBuffer* IndexBufferImpl::current = nullptr;
+Graphics3::IndexBuffer* IndexBufferImpl::current = nullptr;
 
 IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {
 
 }
 
-IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
+Graphics3::IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
 	glGenBuffers(1, &bufferId);
 	glCheckErrors();
 	data = new int[indexCount];
@@ -19,16 +19,16 @@ IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
 #endif
 }
 
-IndexBuffer::~IndexBuffer() {
+Graphics3::IndexBuffer::~IndexBuffer() {
 	unset();
 	delete[] data;
 }
 
-int* IndexBuffer::lock() {
+int* Graphics3::IndexBuffer::lock() {
 	return data;
 }
 
-void IndexBuffer::unlock() {
+void Graphics3::IndexBuffer::unlock() {
 #if defined(SYS_ANDROID) || defined(SYS_PI)
 	for (int i = 0; i < myCount; ++i) shortData[i] = (u16)data[i];
 #endif
@@ -43,7 +43,7 @@ void IndexBuffer::unlock() {
 #endif
 }
 
-void IndexBuffer::_set() {
+void Graphics3::IndexBuffer::_set() {
 	current = this;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
@@ -53,6 +53,6 @@ void IndexBufferImpl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
 }
 
-int IndexBuffer::count() {
+int Graphics3::IndexBuffer::count() {
 	return myCount;
 }

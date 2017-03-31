@@ -16,25 +16,25 @@ void Graphics3::Graphics3::setup() {
 }
 #endif
 
-int Graphics3::Graphics3::antialiasingSamples() {
+int Graphics3::antialiasingSamples() {
 	return ::samples;
 }
 
-void Graphics3::Graphics3::setAntialiasingSamples(int samples) {
+void Graphics3::setAntialiasingSamples(int samples) {
 	::samples = samples;
 }
 
-bool Graphics3::Graphics3::hasWindow() {
+bool Graphics3::hasWindow() {
 	return ::window;
 }
 
-void Graphics3::Graphics3::setWindow(bool value) {
+void Graphics3::setWindow(bool value) {
 	::window = value;
 }
 
-bool Kore::Graphics3::Graphics3::fullscreen = false;
+bool Graphics3::fullscreen = false;
 
-void Graphics3::Graphics3::setVertexBuffer(VertexBuffer& vertexBuffer) {
+void Graphics3::setVertexBuffer(VertexBuffer& vertexBuffer) {
 	VertexBuffer* vertexBuffers[1] = { &vertexBuffer };
 	setVertexBuffers(vertexBuffers, 1);
 }

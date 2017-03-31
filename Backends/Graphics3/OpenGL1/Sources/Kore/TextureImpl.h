@@ -1,9 +1,11 @@
 #pragma once
 
-#include <Kore/Graphics/Image.h>
+#include <Kore/Graphics1/Image.h>
 
 namespace Kore {
-	class Texture;
+	namespace Graphics3 {
+		class Texture;
+	}
 
 	class TextureUnitImpl {
 	public:

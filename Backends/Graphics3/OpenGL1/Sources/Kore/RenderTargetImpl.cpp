@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "RenderTargetImpl.h"
 #include <Kore/System.h>
-#include <Kore/Graphics/Graphics3.h>
+#include <Kore/Graphics3/Graphics.h>
 #include <Kore/Log.h>
 #include "ogl.h"
 #ifdef SYS_ANDROID
@@ -121,7 +121,7 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 	}
 }
 
-RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
+Graphics3::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
 
 	if (nonPow2RenderTargetsSupported()) {
 		texWidth = width;
@@ -208,25 +208,21 @@ RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool anti
 	glCheckErrors();
 }
 
-RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
-	
-}
-
-void RenderTarget::useColorAsTexture(TextureUnit unit) {
+void Graphics3::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, _texture);
 	glCheckErrors();
 }
 
-void RenderTarget::useDepthAsTexture(TextureUnit unit) {
+void Graphics3::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
 	glCheckErrors();
 }
 
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+void Graphics3::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, source->_depthTexture, 0);
 }

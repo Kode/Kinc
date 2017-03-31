@@ -1,7 +1,9 @@
 #pragma once
 
 namespace Kore {
-	class IndexBuffer;
+	namespace Graphics3 {
+		class IndexBuffer;
+	}
 
 	class IndexBufferImpl {
 	protected:
@@ -16,6 +18,6 @@ namespace Kore {
 		int myCount;
 		uint bufferId;
 	public:
-		static IndexBuffer* current;
+		static Graphics3::IndexBuffer* current;
 	};
 }

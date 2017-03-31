@@ -3,8 +3,8 @@
 #include "TextureImpl.h"
 #include "ogl.h"
 
-#include <Kore/Graphics/Graphics.h>
-#include <Kore/Graphics/Image.h>
+#include <Kore/Graphics3/Graphics.h>
+#include <Kore/Graphics1/Image.h>
 #include <Kore/Log.h>
 
 using namespace Kore;
@@ -14,20 +14,20 @@ using namespace Kore;
 #endif
 
 namespace {
-	int convertFormat(Image::Format format) {
+	int convertFormat(Graphics3::Image::Format format) {
 		switch (format) {
-		case Image::RGBA32:
-		case Image::RGBA64:
-		case Image::RGBA128:
+		case Graphics3::Image::RGBA32:
+		case Graphics3::Image::RGBA64:
+		case Graphics3::Image::RGBA128:
 		default:
 			// #ifdef GL_BGRA
 			// return GL_BGRA;
 			// #else
 			return GL_RGBA;
 		// #endif
-		case Image::RGB24:
+		case Graphics3::Image::RGB24:
 			return GL_RGB;
-		case Image::Grey8:
+		case Graphics3::Image::Grey8:
 #ifdef OPENGLES
 			return GL_LUMINANCE;
 #else
@@ -36,21 +36,21 @@ namespace {
 		}
 	}
 
-	int convertInternalFormat(Image::Format format) {
+	int convertInternalFormat(Graphics3::Image::Format format) {
 		switch (format) {
-		case Image::RGBA128:
+		case Graphics3::Image::RGBA128:
 			return GL_RGBA;
-		case Image::RGBA32:
-		case Image::RGBA64:
+		case Graphics3::Image::RGBA32:
+		case Graphics3::Image::RGBA64:
 		default:
 			// #ifdef GL_BGRA
 			// return GL_BGRA;
 			// #else
 			return GL_RGBA;
 		// #endif
-		case Image::RGB24:
+		case Graphics3::Image::RGB24:
 			return GL_RGB;
-		case Image::Grey8:
+		case Graphics3::Image::Grey8:
 #ifdef OPENGLES
 			return GL_LUMINANCE;
 #else
@@ -59,12 +59,12 @@ namespace {
 		}
 	}
 
-	int convertType(Image::Format format) {
+	int convertType(Graphics3::Image::Format format) {
 		switch (format) {
-		case Image::RGBA128:
-		case Image::RGBA64:
+		case Graphics3::Image::RGBA128:
+		case Graphics3::Image::RGBA64:
 			return GL_FLOAT;
-		case Image::RGBA32:
+		case Graphics3::Image::RGBA32:
 		default:
 			return GL_UNSIGNED_BYTE;
 		}
@@ -135,9 +135,9 @@ namespace {
 			if (pow(power) >= i) return pow(power);
 	}
 
-	void convertImageToPow2(Image::Format format, u8* from, int fw, int fh, u8* to, int tw, int th) {
+	void convertImageToPow2(Graphics3::Image::Format format, u8* from, int fw, int fh, u8* to, int tw, int th) {
 		switch (format) {
-		case Image::RGBA32:
+		case Graphics3::Image::RGBA32:
 			for (int y = 0; y < th; ++y) {
 				for (int x = 0; x < tw; ++x) {
 					to[tw * 4 * y + x * 4 + 0] = 0;
@@ -155,7 +155,7 @@ namespace {
 				}
 			}
 			break;
-		case Image::Grey8:
+		case Graphics3::Image::Grey8:
 			for (int y = 0; y < th; ++y) {
 				for (int x = 0; x < tw; ++x) {
 					to[tw * y + x] = 0;
@@ -171,9 +171,9 @@ namespace {
 	}
 }
 
-void Texture::init(const char* format, bool readable) {
+void Graphics3::Texture::init(const char* format, bool readable) {
 	bool toPow2;
-	if (Graphics::nonPow2TexturesSupported()) {
+	if (Graphics3::nonPow2TexturesSupported()) {
 		texWidth = width;
 		texHeight = height;
 		toPow2 = false;
@@ -260,12 +260,12 @@ void Texture::init(const char* format, bool readable) {
 	}
 }
 
-Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
+Graphics3::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 #ifdef SYS_IOS
 	texWidth = width;
 	texHeight = height;
 #else
-	if (Graphics::nonPow2TexturesSupported()) {
+	if (Graphics3::nonPow2TexturesSupported()) {
 		texWidth = width;
 		texHeight = height;
 	}
@@ -305,7 +305,7 @@ Texture::Texture(int width, int height, Image::Format format, bool readable) : I
 	}*/
 }
 
-Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+Graphics3::Texture::Texture(int width, int height, int depth, Graphics3::Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
 #ifndef OPENGLES
 	glGenTextures(1, &texture);
 	glCheckErrors();
@@ -336,7 +336,7 @@ TextureImpl::~TextureImpl() {
 	glFlush();
 }
 
-void Texture::_set(TextureUnit unit) {
+void Graphics3::Texture::_set(TextureUnit unit) {
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
@@ -355,11 +355,11 @@ void Texture::_set(TextureUnit unit) {
 #endif
 }
 
-int Texture::stride() {
+int Graphics3::Texture::stride() {
 	return width * sizeOf(format);
 }
 
-u8* Texture::lock() {
+u8* Graphics3::Texture::lock() {
 	return (u8*)data;
 }
 
@@ -375,7 +375,7 @@ GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
     }
 }*/
 
-void Texture::unlock() {
+void Graphics3::Texture::unlock() {
 	// if (conversionBuffer != nullptr) {
 	// convertImageToPow2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -393,7 +393,7 @@ void Texture::unlock() {
 	// }
 }
 
-void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+void Graphics3::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
 #ifdef GL_VERSION_4_4
 	static float clearColor[4];
 	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
@@ -415,7 +415,7 @@ void Texture::upload(u8* data) {
 }
 #endif
 
-void Texture::generateMipmaps(int levels) {
+void Graphics3::Texture::generateMipmaps(int levels) {
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glBindTexture(target, texture);
 	glCheckErrors();
@@ -423,7 +423,7 @@ void Texture::generateMipmaps(int levels) {
 	glCheckErrors();
 }
 
-void Texture::setMipmap(Texture* mipmap, int level) {
+void Graphics3::Texture::setMipmap(Texture* mipmap, int level) {
 	int convertedType = convertType(mipmap->format);
 	bool isHdr = convertedType == GL_FLOAT;
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;

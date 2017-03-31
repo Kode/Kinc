@@ -1,7 +1,10 @@
 #pragma once
 
 namespace Kore {
-	class Program;
+	namespace Graphics4 {
+		class Program;
+	}
+
 	class ProgramImpl;
 
 	class ShaderImpl {

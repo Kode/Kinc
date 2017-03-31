@@ -1,9 +1,11 @@
 #pragma once
 
-#include <Kore/Graphics/VertexStructure.h>
+#include <Kore/Graphics4/VertexStructure.h>
 
 namespace Kore {
-	class VertexBuffer;
+	namespace Graphics3 {
+		class VertexBuffer;
+	}
 	
 	class VertexBufferImpl {
 	protected:
@@ -14,7 +16,7 @@ namespace Kore {
 		int myStride;
 		uint bufferId;
 //#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
-		VertexStructure structure;
+		Graphics4::VertexStructure structure;
 //#endif
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);
@@ -22,6 +24,6 @@ namespace Kore {
 		bool initialized;
 #endif
 	public:
-		static VertexBuffer* current;
+		static Graphics3::VertexBuffer* current;
 	};
 }

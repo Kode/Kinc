@@ -38,8 +38,8 @@ namespace {
 	HGLRC glContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 #endif
 
-	TextureFilter minFilters[10][32];
-	MipmapFilter mipFilters[10][32];
+	Graphics3::TextureFilter minFilters[10][32];
+	Graphics3::MipmapFilter mipFilters[10][32];
 	int originalFramebuffer[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 	uint arrayId[10];
 	
@@ -275,7 +275,7 @@ static void uploadProjectionMatrix() {
     glLoadMatrixf(g_wvpTransform.projection.data);
 }
 
-void Graphics3::setFogColor(const Color& color) {
+void Graphics3::setFogColor(const Graphics1::Color& color) {
     glFogfv(GL_FOG_COLOR, &(color.R));
 }
 
@@ -381,23 +381,23 @@ void Graphics3::disableScissor() {
 }
 
 namespace {
-	GLenum convert(StencilAction action) {
+	GLenum convert(Graphics3::StencilAction action) {
 		switch (action) {
-		case Decrement:
+		case Graphics3::Decrement:
 			return GL_DECR;
-		case DecrementWrap:
+		case Graphics3::DecrementWrap:
 			return GL_DECR_WRAP;
-		case Increment:
+		case Graphics3::Increment:
 			return GL_INCR;
-		case IncrementWrap:
+		case Graphics3::IncrementWrap:
 			return GL_INCR_WRAP;
-		case Invert:
+		case Graphics3::Invert:
 			return GL_INVERT;
-		case Keep:
+		case Graphics3::Keep:
 			return GL_KEEP;
-		case Replace:
+		case Graphics3::Replace:
 			return GL_REPLACE;
-		case Zero:
+		case Graphics3::Zero:
 			return GL_ZERO;
 		}
         return 0;
@@ -595,24 +595,24 @@ void Graphics3::setTextureMapping(TextureUnit texunit, TextureMapping mapping, b
     }
 }
 
-static GLenum texCoordToGLenum(TextureCoordinate texcoord)
+static GLenum texCoordToGLenum(Graphics3::TextureCoordinate texcoord)
 {
     switch (texcoord) {
-    case TexCoordX: return GL_S;
-    case TexCoordY: return GL_T;
-    case TexCoordZ: return GL_R;
-    case TexCoordW: return GL_Q;
+    case Graphics3::TexCoordX: return GL_S;
+    case Graphics3::TexCoordY: return GL_T;
+    case Graphics3::TexCoordZ: return GL_R;
+    case Graphics3::TexCoordW: return GL_Q;
     }
     return 0;
 }
 
-static GLenum texGenCoordToGLenum(TextureCoordinate texcoord)
+static GLenum texGenCoordToGLenum(Graphics3::TextureCoordinate texcoord)
 {
     switch (texcoord) {
-    case TexCoordX: return GL_TEXTURE_GEN_S;
-    case TexCoordY: return GL_TEXTURE_GEN_T;
-    case TexCoordZ: return GL_TEXTURE_GEN_R;
-    case TexCoordW: return GL_TEXTURE_GEN_Q;
+    case Graphics3::TexCoordX: return GL_TEXTURE_GEN_S;
+    case Graphics3::TexCoordY: return GL_TEXTURE_GEN_T;
+    case Graphics3::TexCoordZ: return GL_TEXTURE_GEN_R;
+    case Graphics3::TexCoordW: return GL_TEXTURE_GEN_Q;
     }
     return 0;
 }
@@ -883,29 +883,29 @@ namespace {
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glCheckErrors();
 		switch (minFilters[System::currentDevice()][unit]) {
-		case PointFilter:
+		case Graphics3::PointFilter:
 			switch (mipFilters[System::currentDevice()][unit]) {
-			case NoMipFilter:
+			case Graphics3::NoMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				break;
-			case PointMipFilter:
+			case Graphics3::PointMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 				break;
-			case LinearMipFilter:
+			case Graphics3::LinearMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 				break;
 			}
 			break;
-		case LinearFilter:
-		case AnisotropicFilter:
+		case Graphics3::LinearFilter:
+		case Graphics3::AnisotropicFilter:
 			switch (mipFilters[System::currentDevice()][unit]) {
-			case NoMipFilter:
+			case Graphics3::NoMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				break;
-			case PointMipFilter:
+			case Graphics3::PointMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 				break;
-			case LinearMipFilter:
+			case Graphics3::LinearMipFilter:
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				break;
 			}
@@ -926,27 +926,27 @@ void Graphics3::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter)
 }
 
 namespace {
-	GLenum convert(BlendingOperation operation) {
+	GLenum convert(Graphics3::BlendingOperation operation) {
 		switch (operation) {
-		case BlendZero:
+		case Graphics3::BlendZero:
 			return GL_ZERO;
-		case BlendOne:
+		case Graphics3::BlendOne:
 			return GL_ONE;
-		case SourceAlpha:
+		case Graphics3::SourceAlpha:
 			return GL_SRC_ALPHA;
-		case DestinationAlpha:
+		case Graphics3::DestinationAlpha:
 			return GL_DST_ALPHA;
-		case InverseSourceAlpha:
+		case Graphics3::InverseSourceAlpha:
 			return GL_ONE_MINUS_SRC_ALPHA;
-		case InverseDestinationAlpha:
+		case Graphics3::InverseDestinationAlpha:
 			return GL_ONE_MINUS_DST_ALPHA;
-		case SourceColor:
+		case Graphics3::SourceColor:
 			return GL_SRC_COLOR;
-		case DestinationColor:
+		case Graphics3::DestinationColor:
 			return GL_DST_COLOR;
-		case InverseSourceColor:
+		case Graphics3::InverseSourceColor:
 			return GL_ONE_MINUS_SRC_COLOR;
-		case InverseDestinationColor:
+		case Graphics3::InverseDestinationColor:
 			return GL_ONE_MINUS_DST_COLOR;
 		default:
 			return GL_ONE;

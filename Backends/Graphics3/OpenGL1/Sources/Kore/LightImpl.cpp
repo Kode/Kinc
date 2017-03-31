@@ -1,7 +1,7 @@
 #include "pch.h"
-#include <Kore/Graphics/Light.h>
+#include <Kore/Graphics3/Light.h>
 #include <Kore/Math/Core.h>
-#include <Kore/Graphics/Graphics3.h>
+#include <Kore/Graphics3/Graphics.h>
 #include "ogl.h"
 
 using namespace Kore;

@@ -1,16 +1,18 @@
 #pragma once
 
 namespace Kore {
-	class Shader;
+	namespace Graphics4 {
+		class Shader;
+	}
 
 	class ProgramImpl {
 	protected:
 		uint programId;
-		Shader* vertexShader;
-		Shader* fragmentShader;
-		Shader* geometryShader;
-		Shader* tessellationControlShader;
-		Shader* tessellationEvaluationShader;
+		Graphics4::Shader* vertexShader;
+		Graphics4::Shader* fragmentShader;
+		Graphics4::Shader* geometryShader;
+		Graphics4::Shader* tessellationControlShader;
+		Graphics4::Shader* tessellationEvaluationShader;
 
 		ProgramImpl();
 		virtual ~ProgramImpl();

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ComputeImpl.h"
 #include <Kore/Compute/Compute.h>
-#include <Kore/Graphics/Graphics3.h>
+#include <Kore/Graphics3/Graphics.h>
 #include <Kore/Math/Core.h>
 #include "ogl.h"
 #include <stdio.h>
@@ -87,7 +87,7 @@ void Compute::setFloat(ComputeConstantLocation location, float value) {
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Texture* texture) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit); glCheckErrors2();
 	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); glCheckErrors2();

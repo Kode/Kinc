@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Kore/Math/Matrix.h>
-#include "VertexStructure.h"
+#include <Kore/Graphics4/VertexStructure.h>
 #include <Kore/LightImpl.h>
 
 namespace Kore {
