@@ -4,7 +4,7 @@
 
 using namespace Kore;
 
-#ifdef OPENGL_1_X
+#ifndef SYS_G4
 
 namespace {
 	int samples = 1;
