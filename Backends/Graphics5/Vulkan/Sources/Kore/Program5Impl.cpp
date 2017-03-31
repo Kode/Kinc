@@ -392,22 +392,22 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	for (int i = 0; i < structures[0]->size; ++i) {
 		VertexElement element = structures[0]->elements[i];
 		switch (element.data) {
-		case ColorVertexData:
+		case Graphics4::ColorVertexData:
 			stride += 1 * 4;
 			break;
-		case Float1VertexData:
+		case Graphics4::Float1VertexData:
 			stride += 1 * 4;
 			break;
-		case Float2VertexData:
+		case Graphics4::Float2VertexData:
 			stride += 2 * 4;
 			break;
-		case Float3VertexData:
+		case Graphics4::Float3VertexData:
 			stride += 3 * 4;
 			break;
-		case Float4VertexData:
+		case Graphics4::Float4VertexData:
 			stride += 4 * 4;
 			break;
-		case Float4x4VertexData:
+		case Graphics4::Float4x4VertexData:
 			stride += 4 * 4 * 4;
 			break;
 		}
@@ -432,42 +432,42 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	for (int i = 0; i < structures[0]->size; ++i) {
 		VertexElement element = structures[0]->elements[i];
 		switch (element.data) {
-		case ColorVertexData:
+		case Graphics4::ColorVertexData:
 			vi_attrs[i].binding = 0;
 			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32_UINT;
 			vi_attrs[i].offset = offset;
 			offset += 1 * 4;
 			break;
-		case Float1VertexData:
+		case Graphics4::Float1VertexData:
 			vi_attrs[i].binding = 0;
 			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 1 * 4;
 			break;
-		case Float2VertexData:
+		case Graphics4::Float2VertexData:
 			vi_attrs[i].binding = 0;
 			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32G32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 2 * 4;
 			break;
-		case Float3VertexData:
+		case Graphics4::Float3VertexData:
 			vi_attrs[i].binding = 0;
 			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32G32B32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 3 * 4;
 			break;
-		case Float4VertexData:
+		case Graphics4::Float4VertexData:
 			vi_attrs[i].binding = 0;
 			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4;
 			break;
-		case Float4x4VertexData:
+		case Graphics4::Float4x4VertexData:
 			vi_attrs[i].binding = 0;
 			vi_attrs[i].location = vertexLocations[element.name];
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT; // TODO

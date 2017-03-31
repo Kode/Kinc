@@ -1,5 +1,5 @@
 
-#ifndef OPENGL_1_X
+#ifdef KORE_G4
 
 #include "pch.h"
 
@@ -14,7 +14,7 @@ namespace {
 	bool window = true;
 }
 
-#if !defined(SYS_WINDOWS) && !defined(SYS_METAL)
+#if !defined(KORE_WINDOWS) && !defined(KORE_METAL)
 void Graphics4::setup() {}
 #endif
 

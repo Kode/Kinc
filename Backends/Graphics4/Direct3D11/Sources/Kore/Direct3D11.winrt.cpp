@@ -11,7 +11,7 @@
 #undef CreateWindow
 #include <Kore/System.h>
 #include <Kore/WinError.h>
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
 #include <wrl.h>
 #endif
@@ -34,7 +34,7 @@ Kore::u8 tessEvalConstants[1024 * 4];
 
 using namespace Kore;
 
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -49,7 +49,7 @@ namespace {
 	bool vsync;
 
 	D3D_FEATURE_LEVEL featureLevel;
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 	IDXGISwapChain1* swapChain;
 #else
 	IDXGISwapChain* swapChain;
@@ -146,14 +146,14 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 	    D3D_FEATURE_LEVEL_11_1,
 #endif
 	    D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3, D3D_FEATURE_LEVEL_9_2, D3D_FEATURE_LEVEL_9_1};
 
 // ID3D11Device* device0;
 // ID3D11DeviceContext* context0;
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 	                         &featureLevel, &context));
 #elif VR_RIFT
@@ -171,7 +171,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
 	else {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 		DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
@@ -192,7 +192,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Windowed = true;
 #endif
 
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
 		swapChainDesc.Width = 0; // use automatic sizing
 		swapChainDesc.Height = 0;
@@ -317,7 +317,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
 	rtbd.DestBlendAlpha = D3D11_BLEND_ZERO;
 	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 	rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 #else
 	rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
@@ -332,7 +332,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	affirm(device->CreateBlendState(&blendDesc, &blending));
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (System::hasShowWindowFlag()) {
 		ShowWindow(hwnd, SW_SHOWDEFAULT);
 		UpdateWindow(hwnd);
@@ -439,7 +439,7 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 }
 
 void Graphics4::begin(int windowId) {
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 	// TODO (DK) do i need to do something here?
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif

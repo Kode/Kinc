@@ -2,7 +2,7 @@
 
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Math/Matrix.h>
-#ifdef SYS_WINDOWS8
+#ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
 #else
 #pragma warning(disable : 4005)

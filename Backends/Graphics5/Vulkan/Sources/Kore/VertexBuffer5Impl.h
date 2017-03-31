@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/Graphics/VertexStructure.h>
+#include <Kore/Graphics5/VertexStructure.h>
 #include <vulkan/vulkan.h>
 
 #ifdef min
@@ -33,8 +33,8 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		uint bufferId;
-		//#if defined SYS_ANDROID || defined SYS_HTML5 || defined SYS_TIZEN
-		VertexStructure structure;
+		//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
+		Graphics5::VertexStructure structure;
 		//#endif
 
 		Vertices vertices;

@@ -1,12 +1,8 @@
 #pragma once
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 struct IDirect3DVertexBuffer9;
 struct IDirect3DVertexDeclaration9;
-#endif
-
-#ifdef SYS_XBOX360
-struct D3DVertexBuffer;
 #endif
 
 namespace Kore {
@@ -16,11 +12,8 @@ namespace Kore {
 
 	class VertexBufferImpl {
 	protected:
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 		IDirect3DVertexBuffer9* vb;
-#endif
-#ifdef SYS_XBOX360
-		D3DVertexBuffer* vb;
 #endif
 		int myCount;
 		int myStride;

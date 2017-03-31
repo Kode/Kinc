@@ -15,7 +15,7 @@
 
 using namespace Kore;
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #define ERR_EXIT(err_msg, err_class)                                                                                                                           \
 	do {                                                                                                                                                       \
 		MessageBoxA(NULL, err_msg, err_class, MB_OK);                                                                                                          \
@@ -82,7 +82,7 @@ Graphics5::RenderTarget* vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nu
 void createDescriptorLayout();
 void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
-#ifdef SYS_LINUX
+#ifdef KORE_LINUX
 extern xcb_connection_t* connection;
 extern xcb_screen_t* screen;
 extern xcb_window_t window;
@@ -90,7 +90,7 @@ extern xcb_intern_atom_reply_t* atom_wm_delete_window;
 #endif
 
 namespace {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	HWND windowHandle;
 
 	HINSTANCE connection;        // hInstance - Windows Instance
@@ -336,7 +336,7 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 
 void Graphics5::destroy(int windowId) {}
 
-#if defined(SYS_WINDOWS)
+#if defined(KORE_WINDOWS)
 void Graphics5::setup() {}
 #endif
 
@@ -344,11 +344,11 @@ void Graphics5::changeResolution(int width, int height) {}
 
 void Graphics5::setColorMask(bool red, bool green, bool blue, bool alpha) {}
 
-#if defined(SYS_WINDOWS)
+#if defined(KORE_WINDOWS)
 void Graphics5::clearCurrent() {}
 #endif
 
-#if defined(SYS_WINDOWS)
+#if defined(KORE_WINDOWS)
 void Graphics5::makeCurrent(int contextId) {}
 #endif
 
@@ -417,7 +417,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 				surfaceExtFound = 1;
 				extension_names[enabled_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
 			}
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 			if (!strcmp(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
 				platformSurfaceExtFound = 1;
 				extension_names[enabled_extension_count++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
@@ -449,7 +449,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		         "vkCreateInstance Failure");
 	}
 	if (!platformSurfaceExtFound) {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
 		         "the " VK_KHR_WIN32_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
 		         "Vulkan installable client driver (ICD) installed?\nPlease "
@@ -649,7 +649,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	depthStencil = 1.0;
 	depthIncrement = -0.01f;
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	windowHandle = (HWND)System::windowHandle(windowId);
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
@@ -659,7 +659,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	{
 		VkResult err;
 		uint32_t i;
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.pNext = NULL;
@@ -1421,7 +1421,7 @@ void Graphics5::end(int windowId) {
 
 	depthStencil += depthIncrement;
 
-#ifndef SYS_WINDOWS
+#ifndef KORE_WINDOWS
 	vkDeviceWaitIdle(device);
 #endif
 

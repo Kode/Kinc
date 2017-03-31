@@ -14,7 +14,7 @@ VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCoun
 
 Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, instanceDataStepRate) {
 	DWORD usage = D3DUSAGE_WRITEONLY;
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
 #endif
 	myStride = 0;
@@ -55,11 +55,7 @@ float* Graphics4::VertexBuffer::lock() {
 float* Graphics4::VertexBuffer::lock(int start, int count) {
 	float* vertices;
 	unset();
-#ifdef SYS_XBOX360
-	vb->Lock(start, 0, (void**)&vertices, 0);
-#else
 	affirm(vb->Lock(start, count * stride(), (void**)&vertices, D3DLOCK_DISCARD));
-#endif
 	return vertices;
 }
 

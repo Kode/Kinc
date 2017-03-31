@@ -13,7 +13,7 @@ IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
 Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	DWORD usage = 0;
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
 #endif
 	affirm(device->CreateIndexBuffer(sizeof(int) * count, usage, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &ib, 0));
@@ -26,13 +26,10 @@ Graphics4::IndexBuffer::~IndexBuffer() {
 int* Graphics4::IndexBuffer::lock() {
 	int* buffer;
 	DWORD lockflags = 0;
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	lockflags = D3DLOCK_DISCARD;
 #endif
 	int count2 = count();
-#ifdef SYS_XBOX360
-	count2 = 0;
-#endif
 	affirm(ib->Lock(0, count2 * 4, (void**)&buffer, lockflags));
 	return buffer;
 }

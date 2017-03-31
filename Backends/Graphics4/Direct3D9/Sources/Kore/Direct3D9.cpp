@@ -14,10 +14,6 @@
 
 using namespace Kore;
 
-#ifdef SYS_XBOX360
-#define USE_SHADER
-#endif
-
 LPDIRECT3D9 d3d;
 LPDIRECT3DDEVICE9 device;
 
@@ -157,7 +153,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		return;
 	}
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	// TODO (DK) convert depthBufferBits + stencilBufferBits to: d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 	D3DPRESENT_PARAMETERS d3dpp;
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
@@ -192,31 +188,11 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	}
 #endif
 
-#ifdef SYS_XBOX360
-	D3DPRESENT_PARAMETERS d3dpp;
-	ZeroMemory(&d3dpp, sizeof(d3dpp));
-	XVIDEO_MODE VideoMode;
-	XGetVideoMode(&VideoMode);
-	// g_bWidescreen = VideoMode.fIsWideScreen;
-	d3dpp.BackBufferWidth = min(VideoMode.dwDisplayWidth, 1280);
-	d3dpp.BackBufferHeight = min(VideoMode.dwDisplayHeight, 720);
-	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
-	d3dpp.BackBufferCount = 1;
-	d3dpp.EnableAutoDepthStencil = TRUE;
-	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-#endif
-
-#ifdef SYS_XBOX360
-	d3d->CreateDevice(0, D3DDEVTYPE_HAL, nullptr, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device);
-#else
 	if (!SUCCEEDED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device)))
 		d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
 // d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
-#endif
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (System::hasShowWindowFlag(/*windowId*/)) {
 		ShowWindow(hWnd, SW_SHOWDEFAULT);
 		UpdateWindow(hWnd);
@@ -225,7 +201,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	initDeviceStates();
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (fullscreen) {
 		// hz = d3dpp.FullScreen_RefreshRateInHz;
 		D3DDISPLAYMODE mode;
@@ -238,9 +214,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		hz = devMode.dmDisplayFrequency;
 	}
 #endif
-#ifdef SYS_XBOX360
-	hz = 60;
-#endif
+
 	// vsync = d3dpp.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	System::ticks test1 = Kore::System::timestamp();
@@ -251,17 +225,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	}
 	else
 		vsync = true;
-
-#ifdef USE_SHADER
-	vertexShader = new Shader("standard", SHADER_VERTEX);
-	pixelShader = new Shader("standard", SHADER_FRAGMENT);
-
-	vertexShader->set();
-	pixelShader->set();
-
-	setFragmentBool(L"lighting", false);
-#endif
-
+	
 	_width = System::windowWidth(windowId);
 	_height = System::windowHeight(windowId);
 

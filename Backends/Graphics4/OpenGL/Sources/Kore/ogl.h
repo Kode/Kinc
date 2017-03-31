@@ -1,41 +1,38 @@
 #pragma once
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #include <GL/glew.h>
 
 #include <GL/gl.h>
 #endif
 
-#ifdef SYS_OSX
+#ifdef KORE_MACOS
 #include <OpenGL/gl3.h>
 #include <OpenGL/gl3ext.h>
 #endif
 
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 #import <OpenGLES/ES3/gl.h>
-#define OPENGLES
 #endif
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 #include <EGL/egl.h>
-#if SYS_ANDROID_API >= 18
+#if KORE_ANDROID_API >= 18
 #include <GLES3/gl3.h>
 #endif
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#define OPENGLES
 #endif
 
-#ifdef SYS_HTML5
+#ifdef KORE_HTML5
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 #include <GL/gl.h>
-#define OPENGLES
 #endif
 
-#ifdef SYS_LINUX
+#ifdef KORE_LINUX
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #define GL_GLEXT_PROTOTYPES
@@ -44,23 +41,21 @@
 #include <GL/glx.h>
 #endif
 
-#ifdef SYS_PI
+#ifdef KORE_PI
 //#define GL_GLEXT_PROTOTYPES
 #include "GLES2/gl2.h"
 
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
-#define OPENGLES
 #endif
 
-#ifdef SYS_TIZEN
+#ifdef KORE_TIZEN
 #include <gl2.h>
-#define OPENGLES
 #endif
 
 #include <Kore/Log.h>
 
-#if defined(NDEBUG) || defined(SYS_OSX) || defined(SYS_IOS) || defined(SYS_ANDROID) || 1 // Calling glGetError too early means trouble
+#if defined(NDEBUG) || defined(KORE_OSX) || defined(KORE_IOS) || defined(KORE_ANDROID) || 1 // Calling glGetError too early means trouble
 #define glCheckErrors()                                                                                                                                        \
 	{}
 #else

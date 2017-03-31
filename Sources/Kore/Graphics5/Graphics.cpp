@@ -14,7 +14,7 @@ namespace {
 	bool window = true;
 }
 
-#if !defined(SYS_WINDOWS)
+#if !defined(KORE_WINDOWS)
 void Graphics5::setup() {}
 #endif
 

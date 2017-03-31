@@ -9,11 +9,11 @@
 #include <Kore/System.h>
 #include <cstdio>
 
-#if defined(SYS_IOS)
+#ifdef KORE_IOS
 #include <OpenGLES/ES2/glext.h>
 #endif
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #include <GL/wglew.h>
 
 #define WIN32_LEAN_AND_MEAN
@@ -27,13 +27,13 @@
 using namespace Kore;
 
 namespace Kore {
-#if !defined(SYS_IOS) && !defined(SYS_ANDROID)
+#if !defined(KORE_IOS) && !defined(KORE_ANDROID)
 	extern bool programUsesTessellation;
 #endif
 }
 
 namespace {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	HINSTANCE instance = 0;
 	HDC deviceContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	HGLRC glContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -53,13 +53,13 @@ namespace {
 	bool depthTest = false;
 	bool depthMask = true;
 
-#if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	void* glesDrawBuffers;
 #endif
 }
 
 void Graphics4::destroy(int windowId) {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (glContexts[windowId]) {
 		if (!wglMakeCurrent(nullptr, nullptr)) {
 			// MessageBox(NULL,"Release Of DC And RC Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
@@ -84,7 +84,7 @@ void Graphics4::destroy(int windowId) {
 
 #undef CreateWindow
 
-#if defined(SYS_WINDOWS)
+#ifdef KORE_WINDOWS
 namespace Kore {
 	namespace System {
 		extern int currentDeviceId;
@@ -92,12 +92,12 @@ namespace Kore {
 }
 #endif
 
-#if defined(SYS_WINDOWS)
+#ifdef KORE_WINDOWS
 void Graphics4::setup() {}
 #endif
 
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	HWND windowHandle = (HWND)System::windowHandle(windowId);
 
 #ifndef VR_RIFT
@@ -163,12 +163,12 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
 	SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
-#else  /* #ifndef VR_RIFT */
+#else
 	deviceContexts[windowId] = GetDC(windowHandle);
 	glContexts[windowId] = wglGetCurrentContext();
 	glewInit();
-#endif /* #ifndef VR_RIFT */
-#endif /* #ifdef SYS_WINDOWS */
+#endif
+#endif
 
 #ifndef VR_RIFT
 	glEnable(GL_BLEND);
@@ -183,16 +183,16 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	}
 #endif
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (windowId == 0) {
 		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(vsync);
 	}
 #endif
 
-#if defined(SYS_IOS)
+#ifdef KORE_IOS
 	glGenVertexArraysOES(1, &arrayId[windowId]);
 	glCheckErrors();
-#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN) && !defined(SYS_PI)
+#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
 	glGenVertexArrays(1, &arrayId[windowId]);
 	glCheckErrors();
 #endif
@@ -203,7 +203,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	_renderTargetHeight = _height;
 	renderToBackbuffer = true;
 
-#if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	glesDrawBuffers = (void*)eglGetProcAddress("glDrawBuffers");
 #endif
 }
@@ -223,7 +223,7 @@ unsigned Graphics4::refreshRate() {
 }
 
 bool Graphics4::vsynced() {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	return wglGetSwapIntervalEXT();
 #else
 	return true;
@@ -285,8 +285,8 @@ void Graphics4::drawIndexedVertices() {
 }
 
 void Graphics4::drawIndexedVertices(int start, int count) {
-#ifdef OPENGLES
-#if defined(SYS_ANDROID) || defined(SYS_PI)
+#ifdef KORE_OPENGL_ES
+#if defined(KORE_ANDROID) || defined(KORE_PI)
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void*)(start * sizeof(GL_UNSIGNED_SHORT)));
 #else
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)));
@@ -309,7 +309,7 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 	if (programUsesTessellation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void*)(start * sizeof(GL_UNSIGNED_INT)), instanceCount);
 		glCheckErrors();
@@ -322,7 +322,7 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int c
 }
 
 bool Graphics4::swapBuffers(int contextId) {
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	::SwapBuffers(deviceContexts[contextId]);
 #else
 	System::swapBuffers(contextId);
@@ -330,11 +330,11 @@ bool Graphics4::swapBuffers(int contextId) {
 	return true;
 }
 
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 void beginGL();
 #endif
 
-#if defined(SYS_WINDOWS)
+#ifdef KORE_WINDOWS
 void Graphics4::makeCurrent(int contextId) {
 	wglMakeCurrent(deviceContexts[contextId], glContexts[contextId]);
 }
@@ -357,11 +357,11 @@ void Graphics4::begin(int contextId) {
 
 	glViewport(0, 0, _width, _height);
 
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 	beginGL();
 #endif
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -471,7 +471,7 @@ void Graphics4::setStencilParameters(ZCompareMode compareMode, StencilAction bot
 //#endif
 }*/
 
-#if defined(SYS_WINDOWS)
+#ifdef KORE_WINDOWS
 void Graphics4::clearCurrent() {
 	wglMakeCurrent(nullptr, nullptr);
 }
@@ -503,7 +503,7 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 		glDepthMask(GL_TRUE);
 		glCheckErrors();
 	}
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 	glClearDepthf(depth);
 #else
 	glClearDepth(depth);
@@ -675,10 +675,10 @@ void Graphics4::setRenderState(RenderState state, int v) {
 }
 
 void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
-#if defined(SYS_IOS)
+#if defined(KORE_IOS)
 	glBindVertexArrayOES(arrayId[0]);
 	glCheckErrors();
-#elif !defined(SYS_ANDROID) && !defined(SYS_HTML5) && !defined(SYS_TIZEN) && !defined(SYS_PI)
+#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
 	glBindVertexArray(arrayId[System::currentDevice()]);
 	glCheckErrors();
 #endif
@@ -857,9 +857,9 @@ void Graphics4::setRenderTarget(RenderTarget* texture, int num, int additionalTa
 		if (num == additionalTargets) {
 			GLenum buffers[16];
 			for (int i = 0; i <= additionalTargets; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-#if defined(OPENGLES) && defined(SYS_ANDROID) && SYS_ANDROID_API >= 18
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 			((void (*)(GLsizei, GLenum*))glesDrawBuffers)(additionalTargets + 1, buffers);
-#elif !defined(OPENGLES)
+#elif !defined(KORE_OPENGL_ES)
 			glDrawBuffers(additionalTargets + 1, buffers);
 #endif
 		}
@@ -897,7 +897,7 @@ bool Graphics4::nonPow2TexturesSupported() {
 	return true;
 }
 
-#if (defined(OPENGL) && !defined(SYS_PI) && !defined(SYS_ANDROID)) || (defined(SYS_ANDROID) && SYS_ANDROID_API >= 18)
+#if (defined(KORE_OPENGL) && !defined(KORE_PI) && !defined(KORE_ANDROID)) || (defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
 bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
 	glGenQueries(1, occlusionQuery);
 	return true;

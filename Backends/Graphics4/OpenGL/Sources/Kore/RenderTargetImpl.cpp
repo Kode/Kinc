@@ -6,7 +6,7 @@
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 #include <GLContext.h>
 #endif
 using namespace Kore;
@@ -36,8 +36,8 @@ namespace {
 	}
 
 	bool nonPow2RenderTargetsSupported() {
-#ifdef OPENGLES
-#ifdef SYS_ANDROID
+#ifdef KORE_OPENGL_ES
+#ifdef KORE_ANDROID
 		if (ndk_helper::GLContext::GetInstance()->GetGLVersion() >= 3.0)
 			return true;
 		else
@@ -54,9 +54,9 @@ namespace {
 void RenderTargetImpl::setupDepthStencil(GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
 		_hasDepth = true;
-#if defined(OPENGLES) && !defined(SYS_PI)
+#if defined(KORE_OPENGL_ES) && !defined(KORE_PI)
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
-#elif defined(SYS_PI)
+#elif defined(KORE_PI)
 		GLenum internalFormat = NULL;
 #else
 		GLenum internalFormat;
@@ -72,7 +72,7 @@ void RenderTargetImpl::setupDepthStencil(GLenum texType, int depthBufferBits, in
 		// 		glCheckErrors();
 		// 		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, width, height);
 		// 		glCheckErrors();
-		// #ifdef OPENGLES
+		// #ifdef KORE_OPENGL_ES
 		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
 		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
 		// #else
@@ -93,7 +93,7 @@ void RenderTargetImpl::setupDepthStencil(GLenum texType, int depthBufferBits, in
 		glCheckErrors();
 		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 		glCheckErrors();
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, _depthTexture, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, texType, _depthTexture, 0);
 #else
@@ -167,21 +167,21 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 
 	switch (format) {
 	case Target128BitFloat:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #endif
 		break;
 	case Target64BitFloat:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #endif
 		break;
 	case Target16BitDepth:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #endif
@@ -261,21 +261,21 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 
 	switch (format) {
 	case Target128BitFloat:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #else
 		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #endif
 		break;
 	case Target64BitFloat:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
 		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #endif
 		break;
 	case Target16BitDepth:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #endif

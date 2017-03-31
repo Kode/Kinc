@@ -14,7 +14,7 @@ Graphics4::IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount
 	glGenBuffers(1, &bufferId);
 	glCheckErrors();
 	data = new int[indexCount];
-#if defined(SYS_ANDROID) || defined(SYS_PI)
+#if defined(KORE_ANDROID) || defined(KORE_PI)
 	shortData = new u16[indexCount];
 #endif
 }
@@ -29,12 +29,12 @@ int* Graphics4::IndexBuffer::lock() {
 }
 
 void Graphics4::IndexBuffer::unlock() {
-#if defined(SYS_ANDROID) || defined(SYS_PI)
+#if defined(KORE_ANDROID) || defined(KORE_PI)
 	for (int i = 0; i < myCount; ++i) shortData[i] = (u16)data[i];
 #endif
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
-#if defined(SYS_ANDROID) || defined(SYS_PI)
+#if defined(KORE_ANDROID) || defined(KORE_PI)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, myCount * 2, shortData, GL_STATIC_DRAW);
 	glCheckErrors();
 #else

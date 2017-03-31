@@ -29,7 +29,7 @@ namespace {
 			return GL_RGB;
 		case Graphics4::Image::A32:
 		case Graphics4::Image::Grey8:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 			return GL_LUMINANCE;
 #else
 			return GL_RED;
@@ -56,13 +56,13 @@ namespace {
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
 		case Graphics4::Image::A32:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 			return GL_LUMINANCE;
 #else
 			return GL_R8;
 #endif
 		case Graphics4::Image::Grey8:
-#ifdef OPENGLES
+#ifdef KORE_OPENGL_ES
 			return GL_LUMINANCE;
 #else
 			return GL_RED;
@@ -204,12 +204,12 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	u8* conversionBuffer = nullptr;
 
 	if (compressed) {
-#if defined(SYS_IOS)
+#if defined(KORE_IOS)
 		texWidth = Kore::max(texWidth, texHeight);
 		texHeight = Kore::max(texWidth, texHeight);
 		if (texWidth < 8) texWidth = 8;
 		if (texHeight < 8) texHeight = 8;
-#elif defined(SYS_ANDROID)
+#elif defined(KORE_ANDROID)
 		texWidth = width;
 		texHeight = height;
 #endif
@@ -219,7 +219,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 		convertImageToPow2(this->format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
 	}
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	external_oes = false;
 #endif
 
@@ -234,9 +234,9 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	bool isHdr = convertedType == GL_FLOAT;
 
 	if (compressed) {
-#if defined(SYS_IOS)
+#if defined(KORE_IOS)
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
-//#elif defined(SYS_ANDROID)
+//#elif defined(KORE_ANDROID)
 //		u8 blockX = internalFormat >> 8;
 //		u8 blockY = internalFormat & 0xff;
 //		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
@@ -276,7 +276,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 }
 
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 	texWidth = width;
 	texHeight = height;
 #else
@@ -291,7 +291,7 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 #endif
 // conversionBuffer = new u8[texWidth * texHeight * 4];
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	external_oes = false;
 #endif
 
@@ -337,7 +337,7 @@ Graphics4::Texture::Texture(int width, int height, int depth, Image::Format form
 #endif
 }
 
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 Graphics4::Texture::Texture(unsigned texid) : Image(1023, 684, Image::RGBA32, false) {
 	texture = texid;
 	external_oes = true;
@@ -355,7 +355,7 @@ void Graphics4::Texture::_set(TextureUnit unit) {
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 	if (external_oes) {
 		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
 		glCheckErrors();
@@ -371,8 +371,8 @@ void Graphics4::Texture::_set(TextureUnit unit) {
 }
 
 void Graphics4::Texture::_setImage(TextureUnit unit) {
-#if defined(SYS_WINDOWS)
-// || (defined(SYS_LINUX) && defined(GL_VERSION_4_2)) // Undefined reference on Travis
+#if defined(KORE_WINDOWS)
+// || (defined(KORE_LINUX) && defined(GL_VERSION_4_2)) // Undefined reference on Travis
 	glBindImageTexture(unit.unit, texture, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 	glCheckErrors();
 #endif
@@ -429,7 +429,7 @@ void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int d
 #endif
 }
 
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 void Graphics4::Texture::upload(u8* data) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glCheckErrors();

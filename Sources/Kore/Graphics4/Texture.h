@@ -17,7 +17,7 @@ namespace Kore {
 			Texture(const char* filename, bool readable = false);
 			Texture(void* data, int size, const char* format, bool readable = false);
 			Texture(void* data, int width, int height, int format, bool readable = false);
-#ifdef SYS_ANDROID
+#ifdef KORE_ANDROID
 			Texture(unsigned texid);
 #endif
 			void _set(TextureUnit unit);
@@ -25,7 +25,7 @@ namespace Kore {
 			u8* lock();
 			void unlock();
 			void clear(int x, int y, int z, int width, int height, int depth, uint color);
-#ifdef SYS_IOS
+#ifdef KORE_IOS
 			void upload(u8* data);
 #endif
 			void generateMipmaps(int levels);
