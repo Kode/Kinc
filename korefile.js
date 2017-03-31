@@ -97,7 +97,6 @@ else if (platform === Platform.WindowsApp) {
 }
 else if (platform === Platform.OSX) {
 	project.addDefine('KORE_MACOS');
-	project.addDefine('KORE_64');
 	addBackend('System/macOS');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
