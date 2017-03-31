@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 #include <GL/gl.h>
 #include <GL/glx.h>
 
@@ -26,7 +26,7 @@
 namespace {
 // static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, None};
 // static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, GLX_DOUBLEBUFFER, None};
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	struct MwmHints {
 		// These correspond to XmRInt resources. (VendorSE.c)
 		int flags;
@@ -47,7 +47,7 @@ namespace {
 	}
 }
 
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 namespace windowimpl {
 	struct KoreWindow : public Kore::KoreWindowBase {
 		Window handle;
@@ -83,7 +83,7 @@ bool Kore::System::isFullscreen() {
 	return false;
 }
 
-#ifndef OPENGL
+#ifndef KORE_OPENGL
 xcb_connection_t* connection;
 xcb_screen_t* screen;
 xcb_window_t window;
@@ -97,7 +97,7 @@ namespace {
 
 int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
                  int stencilBufferBits) {
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	int wcounter = windowimpl::windowCounter + 1;
 
 	XVisualInfo* vi;
@@ -257,7 +257,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 namespace Kore {
 	namespace System {
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 		int windowCount() {
 			return windowimpl::windowCounter + 1;
 		}
@@ -321,7 +321,7 @@ namespace Kore {
 }
 
 bool Kore::System::handleMessages() {
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	while (XPending(dpy) > 0) {
 		XEvent event;
 		XNextEvent(dpy, &event);
@@ -588,7 +588,7 @@ void Kore::System::makeCurrent(int contextId) {
 		return;
 	}
 	currentDeviceId = contextId;
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	glXMakeCurrent(dpy, windowimpl::windows[contextId]->handle, windowimpl::windows[contextId]->context);
 #endif
 }
@@ -601,7 +601,7 @@ void Kore::System::clearCurrent() {
 }
 
 void Kore::System::swapBuffers(int contextId) {
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	glXSwapBuffers(dpy, windowimpl::windows[contextId]->handle);
 #endif
 }
@@ -625,7 +625,7 @@ void Kore::System::hideKeyboard() {}
 void Kore::System::loadURL(const char* url) {}
 
 int Kore::System::desktopWidth() {
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	return XWidthOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
 #else
 	return 1920;
@@ -633,7 +633,7 @@ int Kore::System::desktopWidth() {
 }
 
 int Kore::System::desktopHeight() {
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	return XHeightOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
 #else
 	return 1080;
