@@ -907,7 +907,7 @@ void Graphics4::deleteOcclusionQuery(uint occlusionQuery) {
 	glDeleteQueries(1, &occlusionQuery);
 }
 
-#if defined(OPENGLES)
+#if defined(KORE_OPENGL_ES)
 #define SAMPLES_PASSED GL_ANY_SAMPLES_PASSED
 #else
 #define SAMPLES_PASSED GL_SAMPLES_PASSED
