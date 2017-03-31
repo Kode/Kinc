@@ -77,7 +77,7 @@ namespace {
 			return GL_VERTEX_SHADER;
 		case Graphics4::FragmentShader:
 			return GL_FRAGMENT_SHADER;
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 		case Graphics4::GeometryShader:
 			return GL_GEOMETRY_SHADER;
 		case Graphics4::TessellationControlShader:

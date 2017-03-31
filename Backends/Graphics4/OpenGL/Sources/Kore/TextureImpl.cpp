@@ -321,7 +321,7 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 }
 
 Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 	glGenTextures(1, &texture);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_3D, texture);

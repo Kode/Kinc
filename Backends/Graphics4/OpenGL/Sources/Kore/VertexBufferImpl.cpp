@@ -143,7 +143,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 				glCheckErrors();
 				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, reinterpret_cast<void*>(internaloffset + addonOffset));
 				glCheckErrors();
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 				if (attribDivisorUsed || instanceDataStepRate != 0) {
 					attribDivisorUsed = true;
 					glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);
@@ -160,7 +160,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			glCheckErrors();
 			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, reinterpret_cast<void*>(internaloffset));
 			glCheckErrors();
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 			if (attribDivisorUsed || instanceDataStepRate != 0) {
 				attribDivisorUsed = true;
 				glVertexAttribDivisor(offset + actualIndex, instanceDataStepRate);

@@ -208,7 +208,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 
 	if (format == Target16BitDepth) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _texture, 0);
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
 #endif
@@ -296,7 +296,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 
 	if (format == Target16BitDepth) {
 		isDepthAttachment = true;
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 		glDrawBuffer(GL_NONE);
 		glCheckErrors();
 		glReadBuffer(GL_NONE);

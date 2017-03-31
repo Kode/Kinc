@@ -842,7 +842,7 @@ void Graphics4::setRenderTarget(RenderTarget* texture, int num, int additionalTa
 		// System::makeCurrent(texture->contextId);
 		glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
 		glCheckErrors();
-#if !defined(OPENGLES)
+#ifndef KORE_OPENGL_ES
 		if (texture->isCubeMap) glFramebufferTexture(GL_FRAMEBUFFER, texture->isDepthAttachment ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0, texture->_texture, 0); // Layered
 #endif
 		glViewport(0, 0, texture->width, texture->height);
