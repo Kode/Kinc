@@ -100,7 +100,7 @@ void Graphics3::setup() {
 }
 #endif
 
-void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits) {
+void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 #ifdef SYS_WINDOWS
 	HWND windowHandle = (HWND)System::windowHandle(windowId);
 

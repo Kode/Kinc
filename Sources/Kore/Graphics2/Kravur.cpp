@@ -9,6 +9,8 @@
 
 using namespace Kore;
 
+#ifdef SYS_G4
+
 namespace {
 	std::map<std::string, Kravur*> fontCache;
 
@@ -148,3 +150,5 @@ float Kravur::stringWidth(const char* string, int length) {
 float Kravur::getBaselinePosition() {
 	return baseline;
 }
+
+#endif

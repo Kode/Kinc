@@ -1,5 +1,11 @@
 #include "pch.h"
+
+#ifdef SYS_G4
 #include <Kore/Graphics4/Graphics.h>
+#else
+#include <Kore/Graphics3/Graphics.h>
+#endif
+
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
@@ -25,6 +31,12 @@
 #include <XInput.h>
 #include <exception>
 #include <shlobj.h>
+
+#ifdef SYS_G4
+#define Graphics Graphics4
+#else
+#define Graphics Graphics3
+#endif
 
 extern "C" {
 __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
@@ -350,7 +362,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_SIZE:
 		windowWidth = LOWORD(lParam);
 		windowHeight = HIWORD(lParam);
-		Graphics4::changeResolution(windowWidth, windowHeight);
+		Graphics::changeResolution(windowWidth, windowHeight);
 		break;
 	case WM_DESTROY:
 		Kore::System::stop();
@@ -1010,12 +1022,12 @@ void Kore::System::makeCurrent(int contextId) {
 	}
 
 	currentDeviceId = contextId;
-	Graphics4::makeCurrent(contextId);
+	Graphics::makeCurrent(contextId);
 }
 
 void Kore::System::clearCurrent() {
 	currentDeviceId = -1;
-	Graphics4::clearCurrent();
+	Graphics::clearCurrent();
 }
 
 int Kore::System::initWindow(WindowOptions options) {
@@ -1045,12 +1057,12 @@ int Kore::System::initWindow(WindowOptions options) {
 
 	SetWindowLong(hwnd, GWL_STYLE, style);
 
-	Graphics4::setAntialiasingSamples(options.rendererOptions.antialiasing);
+	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
 	bool vsync = true;
 #ifdef VR_RIFT
 	vsync = false;
 #endif
-	Graphics4::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, vsync);
+	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, vsync);
 
 	return windowId;
 }
@@ -1086,7 +1098,7 @@ if (!Application::the()->fullscreen()) {
 
 void Kore::System::setup() {
 	Display::enumerate();
-	Graphics4::setup();
+	Graphics::setup();
 }
 
 bool Kore::System::isFullscreen() {

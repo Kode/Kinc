@@ -1,9 +1,16 @@
 const project = new Project('Kore', __dirname);
 
 const g1 = true;
+project.addDefine('SYS_G1');
+
 const g2 = true;
+project.addDefine('SYS_G2');
+
 const g3 = true;
+project.addDefine('SYS_G3');
+
 let g4 = false;
+
 let g5 = false;
 
 project.addFile('Sources/**');
@@ -28,6 +35,7 @@ if (platform === Platform.Windows) {
 		addBackend('Graphics3/OpenGL1');
 		project.addDefine('OPENGL');
 		project.addDefine('OPENGL_1_X');
+		project.addDefine('GLEW_STATIC');
 	}
 	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
@@ -220,6 +228,9 @@ else if (platform === Platform.Tizen) {
 
 if (g4) {
 	project.addDefine('SYS_G4');
+}
+else {
+	project.addExclude('Sources/Kore/Graphics4/**');
 }
 
 if (g5) {

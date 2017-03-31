@@ -288,7 +288,7 @@ namespace Kore {
 
 		void clear(uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
 
-		void init(int windowId, int depthBufferBits, int stencilBufferBits);
+		void init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync);
 		void destroy(int windowId);
 
 		extern bool fullscreen;

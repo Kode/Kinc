@@ -10,6 +10,8 @@
 
 using namespace Kore;
 
+#ifdef SYS_G4
+
 //==========
 // ImageShaderPainter
 //==========
@@ -1036,3 +1038,5 @@ Graphics2::Graphics2::~Graphics2() {
 	delete textPainter;
 	delete videoPipeline;
 }
+
+#endif
