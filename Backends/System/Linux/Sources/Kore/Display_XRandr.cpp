@@ -26,4 +26,4 @@ namespace Kore {
 	}
 }
 
-#endif #if defined(KORE_LINUX_SYSTEM_SCREENS_XRANDR)
+#endif

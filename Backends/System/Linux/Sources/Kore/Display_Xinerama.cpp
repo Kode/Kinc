@@ -6,7 +6,7 @@
 #include "pch.h"
 #include <Kore/Log.h>
 
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 #include <X11/X.h>
 #include <X11/extensions/Xinerama.h>
 #else
@@ -15,7 +15,7 @@
 
 // apt-get install libxinerama-dev
 
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 namespace Kore {
 	namespace Display {
 		void fatalError(const char* message);
