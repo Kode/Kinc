@@ -90,7 +90,7 @@ if (platform === Platform.Windows) {
 }
 else if (platform === Platform.WindowsApp) {
 	g4 = true;
-	project.addDefine(KORE_WINDOWSAPP);
+	project.addDefine('KORE_WINDOWSAPP');
 	addBackend('System/WindowsApp');
 	addBackend('Graphics4/Direct3D11');
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');
