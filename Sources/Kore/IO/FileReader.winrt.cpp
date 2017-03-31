@@ -23,7 +23,7 @@
 const char* iphonegetresourcepath();
 #endif
 
-#ifdef KORE_OSX
+#ifdef KORE_MACOS
 const char* macgetresourcepath();
 #endif
 
