@@ -80,7 +80,7 @@ namespace Kore {
 
 		enum CullMode { Clockwise, CounterClockwise, NoCulling };
 
-		enum TexDir { U, V };
+		enum TexDir { U, V, W };
 
 		enum FogType { LinearFog };
 
@@ -168,6 +168,10 @@ namespace Kore {
 		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter);
+		void setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
+		void setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter);
+		void setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter);
+		void setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		void setBlendingMode(BlendingOperation source, BlendingOperation destination);
 		void setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);

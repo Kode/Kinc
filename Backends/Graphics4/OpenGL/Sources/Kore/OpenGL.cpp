@@ -701,66 +701,89 @@ void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
 	texture->_setImage(unit);
 }
 
-void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
-	glActiveTexture(GL_TEXTURE0 + unit.unit);
-	GLenum texDir;
-	switch (dir) {
-	case U:
-		texDir = GL_TEXTURE_WRAP_S;
-		break;
-	case V:
-		texDir = GL_TEXTURE_WRAP_T;
-		break;
+namespace {
+	void setTextureAddressingInternal(GLenum target, TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+		glActiveTexture(GL_TEXTURE0 + unit.unit);
+		GLenum texDir;
+		switch (dir) {
+		case U:
+			texDir = GL_TEXTURE_WRAP_S;
+			break;
+		case V:
+			texDir = GL_TEXTURE_WRAP_T;
+			break;
+		case W:
+			texDir = GL_TEXTURE_WRAP_R;
+			break;
+		}
+		switch (addressing) {
+		case Clamp:
+			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+			break;
+		case Repeat:
+			glTexParameteri(target, texDir, GL_REPEAT);
+			break;
+		case Border:
+			// unsupported
+			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+			break;
+		case Mirror:
+			// unsupported
+			glTexParameteri(target, texDir, GL_REPEAT);
+			break;
+		}
+		glCheckErrors();
 	}
-	switch (addressing) {
-	case Clamp:
-		glTexParameteri(GL_TEXTURE_2D, texDir, GL_CLAMP_TO_EDGE);
-		break;
-	case Repeat:
-		glTexParameteri(GL_TEXTURE_2D, texDir, GL_REPEAT);
-		break;
-	case Border:
-		// unsupported
-		glTexParameteri(GL_TEXTURE_2D, texDir, GL_CLAMP_TO_EDGE);
-		break;
-	case Mirror:
-		// unsupported
-		glTexParameteri(GL_TEXTURE_2D, texDir, GL_REPEAT);
-		break;
-	}
-	glCheckErrors();
 }
 
-void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-	glActiveTexture(GL_TEXTURE0 + texunit.unit);
-	glCheckErrors();
-	switch (filter) {
-	case PointFilter:
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		break;
-	case LinearFilter:
-	case AnisotropicFilter:
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		break;
-	}
-	glCheckErrors();
+void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+	setTextureAddressingInternal(GL_TEXTURE_2D, unit, dir, addressing);
+}
+
+void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+	setTextureAddressingInternal(GL_TEXTURE_3D, unit, dir, addressing);
 }
 
 namespace {
-	void setMinMipFilters(int unit) {
+	void setTextureMagnificationFilterInternal(GLenum target, TextureUnit texunit, TextureFilter filter) {
+		glActiveTexture(GL_TEXTURE0 + texunit.unit);
+		glCheckErrors();
+		switch (filter) {
+		case PointFilter:
+			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			break;
+		case LinearFilter:
+		case AnisotropicFilter:
+			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		}
+		glCheckErrors();
+	}
+}
+
+void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	setTextureMagnificationFilterInternal(GL_TEXTURE_2D, texunit, filter);
+}
+
+void Graphics4::setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	setTextureMagnificationFilterInternal(GL_TEXTURE_3D, texunit, filter);
+}
+
+namespace {
+	void setMinMipFilters(GLenum target, int unit) {
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glCheckErrors();
 		switch (minFilters[System::currentDevice()][unit]) {
 		case Graphics4::PointFilter:
 			switch (mipFilters[System::currentDevice()][unit]) {
 			case Graphics4::NoMipFilter:
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				break;
 			case Graphics4::PointMipFilter:
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 				break;
 			case Graphics4::LinearMipFilter:
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 				break;
 			}
 			break;
@@ -768,13 +791,13 @@ namespace {
 		case Graphics4::AnisotropicFilter:
 			switch (mipFilters[System::currentDevice()][unit]) {
 			case Graphics4::NoMipFilter:
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				break;
 			case Graphics4::PointMipFilter:
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 				break;
 			case Graphics4::LinearMipFilter:
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				break;
 			}
 			break;
@@ -785,12 +808,22 @@ namespace {
 
 void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
 	minFilters[System::currentDevice()][texunit.unit] = filter;
-	setMinMipFilters(texunit.unit);
+	setMinMipFilters(GL_TEXTURE_2D, texunit.unit);
+}
+
+void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+	minFilters[System::currentDevice()][texunit.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_3D, texunit.unit);
 }
 
 void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
 	mipFilters[System::currentDevice()][texunit.unit] = filter;
-	setMinMipFilters(texunit.unit);
+	setMinMipFilters(GL_TEXTURE_2D, texunit.unit);
+}
+
+void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+	mipFilters[System::currentDevice()][texunit.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_3D, texunit.unit);
 }
 
 namespace {
