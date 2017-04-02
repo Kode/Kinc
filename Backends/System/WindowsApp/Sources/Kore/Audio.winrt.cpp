@@ -1,6 +1,7 @@
 #include "pch.h"
+
 #include <AudioClient.h>
-#include <Kore/Audio/Audio.h>
+#include <Kore/Audio2/Audio.h>
 #include <Windows.h>
 #include <mfapi.h>
 #include <mmdeviceapi.h>
@@ -61,9 +62,9 @@ namespace {
 	UINT32 bufferFrameCount;
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
-		Audio::buffer.readLocation += 4;
-		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+		Audio2::buffer.readLocation += 4;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		*(float*)buffer = value;
 	}
 
@@ -107,8 +108,8 @@ namespace {
 					affirm(audioClient->GetCurrentPadding(&numFramesPadding));
 					numFramesAvailable = bufferFrameCount - numFramesPadding;
 
-					if (Kore::Audio::audioCallback != nullptr && numFramesAvailable > 0) {
-						Kore::Audio::audioCallback(numFramesAvailable * 2);
+					if (Kore::Audio2::audioCallback != nullptr && numFramesAvailable > 0) {
+						Kore::Audio2::audioCallback(numFramesAvailable * 2);
 						// Grab all the available space in the shared buffer.
 						affirm(pRenderClient->GetBuffer(numFramesAvailable, &pData));
 						// Get next 1/2-second of data from the audio source.
@@ -130,7 +131,7 @@ namespace {
 	ComPtr<AudioRenderer> renderer;
 }
 
-void Audio::init() {
+void Audio2::init() {
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
@@ -143,9 +144,9 @@ void Audio::init() {
 	SafeRelease(&asyncOp);
 }
 
-void Audio::update() {}
+void Audio2::update() {}
 
-void Audio::shutdown() {
+void Audio2::shutdown() {
 	// Wait for last data in buffer to play before stopping.
 	// Sleep((DWORD)(hnsActualDuration/REFTIMES_PER_MILLISEC/2));
 

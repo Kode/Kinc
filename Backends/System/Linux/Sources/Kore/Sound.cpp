@@ -1,5 +1,5 @@
 #include "pch.h"
-#include <Kore/Audio/Audio.h>
+#include <Kore/Audio2/Audio.h>
 #include <alsa/asoundlib.h>
 #include <errno.h>
 #include <poll.h>
@@ -18,9 +18,9 @@ namespace {
 	short buf[4096 * 4];
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
-		Audio::buffer.readLocation += 4;
-		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+		Audio2::buffer.readLocation += 4;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		if (value != 0) {
 			int a = 3;
 			++a;
@@ -30,8 +30,8 @@ namespace {
 
 	int playback_callback(snd_pcm_sframes_t nframes) {
 		int err = 0;
-		if (Kore::Audio::audioCallback != nullptr) {
-			Kore::Audio::audioCallback(nframes * 2);
+		if (Kore::Audio2::audioCallback != nullptr) {
+			Kore::Audio2::audioCallback(nframes * 2);
 			int ni = 0;
 			while (ni < nframes) {
 				int i = 0;
@@ -182,7 +182,7 @@ namespace {
 	}
 }
 
-void Audio::init() {
+void Audio2::init() {
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
@@ -192,8 +192,8 @@ void Audio::init() {
 	pthread_create(&threadid, nullptr, &doAudio, nullptr);
 }
 
-void Audio::update() {}
+void Audio2::update() {}
 
-void Audio::shutdown() {
+void Audio2::shutdown() {
 	audioRunning = false;
 }

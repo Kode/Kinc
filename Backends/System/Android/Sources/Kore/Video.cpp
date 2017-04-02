@@ -2,7 +2,7 @@
 
 #include "Video.h"
 
-#include <Kore/Audio/Mixer.h>
+#include <Kore/Audio1/Audio.h>
 #include <Kore/Graphics4/Texture.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/Log.h>

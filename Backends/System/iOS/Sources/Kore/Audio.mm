@@ -4,7 +4,7 @@
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <Foundation/Foundation.h>
-#include <Kore/Audio/Audio.h>
+#include <Kore/Audio2/Audio.h>
 #include <Kore/Math/Core.h>
 #include <stdio.h>
 
@@ -41,9 +41,9 @@ namespace {
 	bool isInterleaved = true;
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
-		Audio::buffer.readLocation += 4;
-		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+		Audio2::buffer.readLocation += 4;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 
 		if (video != nullptr) {
 			value += video->nextSample();
@@ -59,7 +59,7 @@ namespace {
 
 	OSStatus renderInput(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
 	                     UInt32 inNumberFrames, AudioBufferList* outOutputData) {
-		Audio::audioCallback(inNumberFrames * 2);
+		Audio2::audioCallback(inNumberFrames * 2);
 		if (isInterleaved) {
 			if (isFloat) {
 				float* out = (float*)outOutputData->mBuffers[0].mData;
@@ -98,7 +98,7 @@ namespace {
 	}
 }
 
-void Audio::init() {
+void Audio2::init() {
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
@@ -158,9 +158,9 @@ void Audio::init() {
 	soundPlaying = true;
 }
 
-void Audio::update() {}
+void Audio2::update() {}
 
-void Audio::shutdown() {
+void Audio2::shutdown() {
 	if (!initialized) return;
 	if (!soundPlaying) return;
 

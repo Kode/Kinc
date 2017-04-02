@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <CoreAudio/AudioHardware.h>
 #include <CoreServices/CoreServices.h>
-#include <Kore/Audio/Audio.h>
+#include <Kore/Audio2/Audio.h>
 #include <Kore/Log.h>
 #include <stdio.h>
 
@@ -25,16 +25,16 @@ namespace {
 	AudioDeviceIOProcID theIOProcID = nullptr;
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
-		Audio::buffer.readLocation += 4;
-		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+		Audio2::buffer.readLocation += 4;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		*(float*)buffer = value;
 	}
 
 	OSStatus appIOProc(AudioDeviceID inDevice, const AudioTimeStamp* inNow, const AudioBufferList* inInputData, const AudioTimeStamp* inInputTime,
 	                   AudioBufferList* outOutputData, const AudioTimeStamp* inOutputTime, void* userdata) {
 		int numSamples = deviceBufferSize / deviceFormat.mBytesPerFrame;
-		Audio::audioCallback(numSamples * 2);
+		Audio2::audioCallback(numSamples * 2);
 		float* out = (float*)outOutputData->mBuffers[0].mData;
 		for (int i = 0; i < numSamples; ++i) {
 			copySample(out++); // left
@@ -44,7 +44,7 @@ namespace {
 	}
 }
 
-void Audio::init() {
+void Audio2::init() {
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
@@ -99,9 +99,9 @@ void Audio::init() {
 	soundPlaying = true;
 }
 
-void Audio::update() {}
+void Audio2::update() {}
 
-void Audio::shutdown() {
+void Audio2::shutdown() {
 	if (!initialized) return;
 	if (!soundPlaying) return;
 

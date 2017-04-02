@@ -1,5 +1,5 @@
 #include "pch.h"
-#include <Kore/Audio/Audio.h>
+#include <Kore/Audio2/Audio.h>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <string.h>
@@ -17,15 +17,15 @@ namespace {
 	s16 tempBuffer[bufferSize];
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
-		Audio::buffer.readLocation += 4;
-		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+		Audio2::buffer.readLocation += 4;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		*(s16*)buffer = static_cast<s16>(value * 32767);
 	}
 
 	void bqPlayerCallback(SLAndroidSimpleBufferQueueItf caller, void* context) {
-		if (Kore::Audio::audioCallback != nullptr) {
-			Kore::Audio::audioCallback(bufferSize);
+		if (Kore::Audio2::audioCallback != nullptr) {
+			Kore::Audio2::audioCallback(bufferSize);
 			for (int i = 0; i < bufferSize; i += 1) {
 				copySample(&tempBuffer[i]);
 			}
@@ -38,7 +38,7 @@ namespace {
 	}
 }
 
-void Kore::Audio::init() {
+void Kore::Audio2::init() {
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
@@ -91,9 +91,9 @@ void resumeAudio() {
 	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
 }
 
-void Kore::Audio::update() {}
+void Kore::Audio2::update() {}
 
-void Kore::Audio::shutdown() {
+void Kore::Audio2::shutdown() {
 	if (bqPlayerObject != nullptr) {
 		(*bqPlayerObject)->Destroy(bqPlayerObject);
 		bqPlayerObject = nullptr;
