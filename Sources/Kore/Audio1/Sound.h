@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Audio.h"
+#include <Kore/Audio2/Audio.h>
 
 namespace Kore {
 	struct Sound {
 	public:
 		Sound(const char* filename);
 		~Sound();
-		Audio::BufferFormat format;
+		Audio2::BufferFormat format;
 		float volume();
 		void setVolume(float value);
 		u8* data;

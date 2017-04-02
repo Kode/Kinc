@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Kore {
-	namespace Audio {
+	namespace Audio2 {
 		void init();
 		void update();
 		void shutdown();

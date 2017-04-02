@@ -1,8 +1,8 @@
 #include "pch.h"
 
 #include "Audio.h"
-#include "Mixer.h"
 
+#include <Kore/Audio2/Audio.h>
 #include <Kore/Math/Core.h>
 #include <Kore/Threads/Mutex.h>
 #if 0
@@ -117,14 +117,14 @@ namespace {
 			}
 			mutex.Unlock();
 #endif
-			*(float*)&Audio::buffer.data[Audio::buffer.writeLocation] = value;
-			Audio::buffer.writeLocation += 4;
-			if (Audio::buffer.writeLocation >= Audio::buffer.dataSize) Audio::buffer.writeLocation = 0;
+			*(float*)&Audio2::buffer.data[Audio2::buffer.writeLocation] = value;
+			Audio2::buffer.writeLocation += 4;
+			if (Audio2::buffer.writeLocation >= Audio2::buffer.dataSize) Audio2::buffer.writeLocation = 0;
 		}
 	}
 }
 
-void Mixer::init() {
+void Audio1::init() {
 	for (int i = 0; i < channelCount; ++i) {
 		channels[i].sound = nullptr;
 		channels[i].position = 0;
@@ -134,10 +134,10 @@ void Mixer::init() {
 		streams[i].position = 0;
 	}
 	mutex.Create();
-	Audio::audioCallback = mix;
+	Audio2::audioCallback = mix;
 }
 
-void Mixer::play(Sound* sound, float pitch) {
+void Audio1::play(Sound* sound, float pitch) {
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == nullptr) {
@@ -150,7 +150,7 @@ void Mixer::play(Sound* sound, float pitch) {
 	mutex.Unlock();
 }
 
-void Mixer::stop(Sound* sound) {
+void Audio1::stop(Sound* sound) {
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == sound) {
@@ -162,7 +162,7 @@ void Mixer::stop(Sound* sound) {
 	mutex.Unlock();
 }
 
-void Mixer::play(SoundStream* stream) {
+void Audio1::play(SoundStream* stream) {
 	mutex.Lock();
 
 	for (int i = 0; i < channelCount; ++i) {
@@ -184,7 +184,7 @@ void Mixer::play(SoundStream* stream) {
 	mutex.Unlock();
 }
 
-void Mixer::stop(SoundStream* stream) {
+void Audio1::stop(SoundStream* stream) {
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (streams[i].stream == stream) {
@@ -196,7 +196,7 @@ void Mixer::stop(SoundStream* stream) {
 	mutex.Unlock();
 }
 
-void Mixer::play(VideoSoundStream* stream) {
+void Audio1::play(VideoSoundStream* stream) {
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (videos[i].stream == nullptr) {
@@ -208,7 +208,7 @@ void Mixer::play(VideoSoundStream* stream) {
 	mutex.Unlock();
 }
 
-void Mixer::stop(VideoSoundStream* stream) {
+void Audio1::stop(VideoSoundStream* stream) {
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (videos[i].stream == stream) {

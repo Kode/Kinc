@@ -6,7 +6,7 @@
 namespace Kore {
 	class VideoSoundStream;
 
-	namespace Mixer {
+	namespace Audio1 {
 		void init();
 		void play(Sound* sound, float pitch = 1.0f);
 		void stop(Sound* sound);

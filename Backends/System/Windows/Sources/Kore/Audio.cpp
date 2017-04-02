@@ -1,7 +1,9 @@
 #include "pch.h"
-#include <Kore/Audio/Audio.h>
+
+#include <Kore/Audio2/Audio.h>
 #include <Kore/System.h>
 #include <Kore/WinError.h>
+
 #include <dsound.h>
 
 using namespace Kore;
@@ -20,7 +22,7 @@ namespace {
 	DWORD writePos = gap;
 }
 
-void Audio::init() {
+void Audio2::init() {
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
@@ -60,15 +62,15 @@ void Audio::init() {
 
 namespace {
 	void copySample(u8* buffer, DWORD& index) {
-		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
-		Audio::buffer.readLocation += 4;
-		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+		Audio2::buffer.readLocation += 4;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		*(s16*)&buffer[index] = static_cast<s16>(value * 32767);
 		index += 2;
 	}
 }
 
-void Audio::update() {
+void Audio2::update() {
 	DWORD playPosition;
 	DWORD writePosition;
 	affirm(dbuffer->GetCurrentPosition(&playPosition, &writePosition));
@@ -111,7 +113,7 @@ void Audio::update() {
 	if (writePos >= dsize) writePos -= dsize;
 }
 
-void Audio::shutdown() {
+void Audio2::shutdown() {
 	if (dbuffer != nullptr) {
 		dbuffer->Release();
 		dbuffer = nullptr;
