@@ -308,12 +308,24 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter
 	device->SetSamplerState(texunit.unit, D3DSAMP_MAGFILTER, convertFilter(filter));
 }
 
+void Graphics4::setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	Graphics4::setTextureMagnificationFilter(texunit, filter);
+}
+
 void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
 	device->SetSamplerState(texunit.unit, D3DSAMP_MINFILTER, convertFilter(filter));
 }
 
+void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+	Graphics4::setTextureMinificationFilter(texunit, filter);
+}
+
 void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
 	device->SetSamplerState(texunit.unit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
+}
+
+void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+	Graphics4::setTextureMipmapFilter(texunit, filter);
 }
 
 void Graphics4::makeCurrent(int contextId) {
@@ -397,6 +409,10 @@ void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddres
 		break;
 	}
 	device->SetSamplerState(unit.unit, dir == U ? D3DSAMP_ADDRESSU : D3DSAMP_ADDRESSV, value);
+}
+
+void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+	Graphics4::setTextureAddressing(unit, dir, addressing);
 }
 
 namespace {

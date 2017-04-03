@@ -55,6 +55,10 @@ void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddres
 	Graphics5::setTextureAddressing(unit._unit, (Graphics5::TexDir)dir, (Graphics5::TextureAddressing)addressing);
 }
 
+void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+	Graphics4::setTextureAddressing(unit, dir, addressing);
+}
+
 void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
 	Graphics5::setColorMask(red, green, blue, alpha);
 }
@@ -160,12 +164,24 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter
 	Graphics5::setTextureMagnificationFilter(texunit._unit, (Graphics5::TextureFilter)filter);
 }
 
+void Graphics4::setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	Graphics4::setTextureMagnificationFilter(texunit, filter);
+}
+
 void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
 	Graphics5::setTextureMinificationFilter(texunit._unit, (Graphics5::TextureFilter)filter);
 }
 
+void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+	Graphics4::setTextureMinificationFilter(texunit, filter);
+}
+
 void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
 	Graphics5::setTextureMipmapFilter(texunit._unit, (Graphics5::MipmapFilter)filter);
+}
+
+void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+	Graphics4::setTextureMipmapFilter(texunit, filter);
 }
 
 void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation destination) {

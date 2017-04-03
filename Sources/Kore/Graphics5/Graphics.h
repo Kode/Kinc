@@ -84,7 +84,7 @@ namespace Kore {
 
 		enum CullMode { Clockwise, CounterClockwise, NoCulling };
 
-		enum TexDir { U, V };
+		enum TexDir { U, V, W };
 
 		enum FogType { LinearFog };
 
