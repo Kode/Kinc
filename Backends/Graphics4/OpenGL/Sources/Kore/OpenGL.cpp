@@ -702,32 +702,32 @@ void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
 }
 
 namespace {
-	void setTextureAddressingInternal(GLenum target, TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+	void setTextureAddressingInternal(GLenum target, Graphics4::TextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
 		glActiveTexture(GL_TEXTURE0 + unit.unit);
 		GLenum texDir;
 		switch (dir) {
-		case U:
+		case Graphics4::U:
 			texDir = GL_TEXTURE_WRAP_S;
 			break;
-		case V:
+		case Graphics4::V:
 			texDir = GL_TEXTURE_WRAP_T;
 			break;
-		case W:
+		case Graphics4::W:
 			texDir = GL_TEXTURE_WRAP_R;
 			break;
 		}
 		switch (addressing) {
-		case Clamp:
+		case Graphics4::Clamp:
 			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
 			break;
-		case Repeat:
+		case Graphics4::Repeat:
 			glTexParameteri(target, texDir, GL_REPEAT);
 			break;
-		case Border:
+		case Graphics4::Border:
 			// unsupported
 			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
 			break;
-		case Mirror:
+		case Graphics4::Mirror:
 			// unsupported
 			glTexParameteri(target, texDir, GL_REPEAT);
 			break;
@@ -745,15 +745,15 @@ void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddr
 }
 
 namespace {
-	void setTextureMagnificationFilterInternal(GLenum target, TextureUnit texunit, TextureFilter filter) {
+	void setTextureMagnificationFilterInternal(GLenum target, Graphics4::TextureUnit texunit, Graphics4::TextureFilter filter) {
 		glActiveTexture(GL_TEXTURE0 + texunit.unit);
 		glCheckErrors();
 		switch (filter) {
-		case PointFilter:
+		case Graphics4::PointFilter:
 			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			break;
-		case LinearFilter:
-		case AnisotropicFilter:
+		case Graphics4::LinearFilter:
+		case Graphics4::AnisotropicFilter:
 			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
 		}
