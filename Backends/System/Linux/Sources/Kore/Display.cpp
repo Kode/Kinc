@@ -19,7 +19,7 @@ namespace Kore {
 		DeviceInfo displays[MAXIMUM_DISPLAY_COUNT];
 		int displayCounter = -1;
 		bool initialized = false;
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 		volatile static struct StaticInitializer {
 			StaticInitializer() {
 				enumerate();
@@ -34,7 +34,7 @@ namespace Kore {
 			}
 
 			initialized = true;
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 			enumDisplayMonitors(displays, displayCounter);
 #endif
 		}

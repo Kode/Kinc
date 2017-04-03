@@ -56,7 +56,7 @@ void Mouse::show(bool truth) {
 }
 
 void Mouse::setPosition(int windowId, int x, int y) {
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	Display* dpy = XOpenDisplay(0);
 	::Window win = (XID)System::windowHandle(windowId);
 
@@ -68,7 +68,7 @@ void Mouse::setPosition(int windowId, int x, int y) {
 }
 
 void Mouse::getPosition(int windowId, int& x, int& y) {
-#ifdef OPENGL
+#ifdef KORE_OPENGL
 	Display* dpy = XOpenDisplay(NULL);
 	::Window win = (XID)System::windowHandle(windowId);
 
