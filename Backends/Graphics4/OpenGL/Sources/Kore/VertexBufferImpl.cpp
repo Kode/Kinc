@@ -59,13 +59,11 @@ Graphics4::VertexBuffer::~VertexBuffer() {
 float* Graphics4::VertexBuffer::lock() {
 	return data;
 }
-/*
-// TODO: FIXME!
-float* VertexBuffer::lock(int start, int count) {
-    myCount = count;
-    return nullptr;//&buffer[start * 9];
+
+float* Graphics4::VertexBuffer::lock(int start, int count) {
+	u8* u8data = (u8*)data;
+	return (float*)&u8data[start * stride()];
 }
-*/
 
 void Graphics4::VertexBuffer::unlock() {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
@@ -96,7 +94,7 @@ int Graphics4::VertexBuffer::stride() {
 	return myStride;
 }
 
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 namespace {
 	bool attribDivisorUsed = false;
 }
