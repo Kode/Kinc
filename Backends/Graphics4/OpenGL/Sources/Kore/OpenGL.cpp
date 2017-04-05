@@ -33,10 +33,10 @@ namespace Kore {
 }
 
 namespace {
-	void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-		int a = 2;
-		++a;
-	}
+	// void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	//	int a = 2;
+	//	++a;
+	// }
 
 #ifdef KORE_WINDOWS
 	HINSTANCE instance = 0;
