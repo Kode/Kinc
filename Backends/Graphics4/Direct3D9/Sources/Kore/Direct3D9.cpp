@@ -341,14 +341,14 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 
 	System::makeCurrent(targets[0]->contextId);
 
-	if (num == 0) {
-		if (backBuffer == nullptr) {
-			device->GetRenderTarget(0, &backBuffer);
-			device->GetDepthStencilSurface(&depthBuffer);
-		}
-		affirm(device->SetDepthStencilSurface(targets[0]->depthSurface));
+	if (backBuffer == nullptr) {
+		device->GetRenderTarget(0, &backBuffer);
+		device->GetDepthStencilSurface(&depthBuffer);
 	}
-	affirm(device->SetRenderTarget(num, targets[0]->colorSurface));
+	affirm(device->SetDepthStencilSurface(targets[0]->depthSurface));
+	for (int i = 0; i < count; ++i) {
+		affirm(device->SetRenderTarget(i, targets[i]->colorSurface));
+	}
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
