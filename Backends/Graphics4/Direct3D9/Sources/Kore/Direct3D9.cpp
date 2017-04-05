@@ -336,19 +336,19 @@ void Graphics4::clearCurrent() {
 	// TODO (DK) implement me
 }
 
-void Graphics4::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
+void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 	// if (backBuffer != nullptr) backBuffer->Release();
 
-	System::makeCurrent(target->contextId);
+	System::makeCurrent(targets[0]->contextId);
 
 	if (num == 0) {
 		if (backBuffer == nullptr) {
 			device->GetRenderTarget(0, &backBuffer);
 			device->GetDepthStencilSurface(&depthBuffer);
 		}
-		affirm(device->SetDepthStencilSurface(target->depthSurface));
+		affirm(device->SetDepthStencilSurface(targets[0]->depthSurface));
 	}
-	affirm(device->SetRenderTarget(num, target->colorSurface));
+	affirm(device->SetRenderTarget(num, targets[0]->colorSurface));
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {

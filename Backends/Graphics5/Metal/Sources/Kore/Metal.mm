@@ -275,7 +275,7 @@ void Graphics5::setBlendingMode(BlendingOperation source, BlendingOperation dest
 
 void Graphics5::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
 
-void Graphics5::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {}
+void Graphics5::setRenderTarget(RenderTarget** targets, int count) {}
 
 void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
 

@@ -1601,10 +1601,10 @@ namespace {
 	}
 }
 
-void Graphics5::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
+void Graphics5::setRenderTargets(RenderTarget** targets, int count) {
 	endPass();
 
-	currentRenderTarget = texture;
+	currentRenderTarget = targets[0];
 	onBackBuffer = false;
 
 	VkClearValue clear_values[1];
@@ -1617,12 +1617,12 @@ void Graphics5::setRenderTarget(RenderTarget* texture, int num, int additionalTa
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = nullptr;
-	rp_begin.renderPass = texture->renderPass;
-	rp_begin.framebuffer = texture->framebuffer;
+	rp_begin.renderPass = targets[0]->renderPass;
+	rp_begin.framebuffer = targets[0]->framebuffer;
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
-	rp_begin.renderArea.extent.width = texture->width;
-	rp_begin.renderArea.extent.height = texture->height;
+	rp_begin.renderArea.extent.width = targets[0]->width;
+	rp_begin.renderArea.extent.height = targets[0]->height;
 	rp_begin.clearValueCount = 1;
 	rp_begin.pClearValues = clear_values;
 
@@ -1630,16 +1630,16 @@ void Graphics5::setRenderTarget(RenderTarget* texture, int num, int additionalTa
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.width = (float)texture->width;
-	viewport.height = (float)texture->height;
+	viewport.width = (float)targets[0]->width;
+	viewport.height = (float)targets[0]->height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
 
 	VkRect2D scissor;
 	memset(&scissor, 0, sizeof(scissor));
-	scissor.extent.width = texture->width;
-	scissor.extent.height = texture->height;
+	scissor.extent.width = targets[0]->width;
+	scissor.extent.height = targets[0]->height;
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
 	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);

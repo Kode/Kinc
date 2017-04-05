@@ -699,10 +699,10 @@ void Graphics5::restoreRenderTarget() {
 	commandList->RSSetScissorRects(1, &rectScissor);
 }
 
-void Graphics5::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
-	commandList->OMSetRenderTargets(1, &target->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-	commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&target->viewport);
-	commandList->RSSetScissorRects(1, (D3D12_RECT*)&target->scissor);
+void Graphics5::setRenderTargets(RenderTarget** targets, int count) {
+	commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&targets[0]->viewport);
+	commandList->RSSetScissorRects(1, (D3D12_RECT*)&targets[0]->scissor);
 }
 
 void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {
