@@ -718,7 +718,9 @@ namespace {
 			texDir = GL_TEXTURE_WRAP_T;
 			break;
 		case Graphics4::W:
+#ifndef KORE_OPENGL_ES
 			texDir = GL_TEXTURE_WRAP_R;
+#endif
 			break;
 		}
 		switch (addressing) {
@@ -746,7 +748,9 @@ void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddres
 }
 
 void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+#ifndef KORE_OPENGL_ES
 	setTextureAddressingInternal(GL_TEXTURE_3D, unit, dir, addressing);
+#endif
 }
 
 namespace {
@@ -771,7 +775,9 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter
 }
 
 void Graphics4::setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+#ifndef KORE_OPENGL_ES
 	setTextureMagnificationFilterInternal(GL_TEXTURE_3D, texunit, filter);
+#endif
 }
 
 namespace {
@@ -818,7 +824,9 @@ void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter 
 
 void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
 	minFilters[System::currentDevice()][texunit.unit] = filter;
+#ifndef KORE_OPENGL_ES
 	setMinMipFilters(GL_TEXTURE_3D, texunit.unit);
+#endif
 }
 
 void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
@@ -828,7 +836,9 @@ void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter)
 
 void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
 	mipFilters[System::currentDevice()][texunit.unit] = filter;
+#ifndef KORE_OPENGL_ES
 	setMinMipFilters(GL_TEXTURE_3D, texunit.unit);
+#endif
 }
 
 namespace {
