@@ -374,7 +374,12 @@ void Graphics4::viewport(int x, int y, int width, int height) {
 
 void Graphics4::scissor(int x, int y, int width, int height) {
 	glEnable(GL_SCISSOR_TEST);
-	glScissor(x, _renderTargetHeight - y - height, width, height);
+	if (renderToBackbuffer) {
+		glScissor(x, _renderTargetHeight - y - height, width, height);
+	}
+	else {
+		glScissor(x, y, width, height);
+	}
 }
 
 void Graphics4::disableScissor() {
