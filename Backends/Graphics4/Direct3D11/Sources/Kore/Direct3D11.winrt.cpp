@@ -866,16 +866,25 @@ void Graphics4::restoreRenderTarget() {
 	context->RSSetViewports(1, &viewPort);
 }
 
-void Graphics4::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
-	if (target->lastBoundUnit >= 0) {
-		ID3D11ShaderResourceView* nullview[1];
-		nullview[0] = nullptr;
-		context->PSSetShaderResources(target->lastBoundUnit, 1, nullview);
+void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
+	for (int i = 0; i < count; ++i) {
+		if (targets[i]->lastBoundUnit >= 0) {
+			ID3D11ShaderResourceView* nullview[1];
+			nullview[0] = nullptr;
+			context->PSSetShaderResources(targets[i]->lastBoundUnit, 1, nullview);
+		}
 	}
-	currentRenderTargetView = target->renderTargetView;
-	currentDepthStencilView = target->depthStencilView;
-	context->OMSetRenderTargets(1, &target->renderTargetView, target->depthStencilView);
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(target->width), static_cast<float>(target->height));
+	
+	currentRenderTargetView = targets[0]->renderTargetView;
+	currentDepthStencilView = targets[0]->depthStencilView;
+	
+	ID3D11RenderTargetView** renderViews = (ID3D11RenderTargetView**)alloca(sizeof(ID3D11RenderTargetView*) * count);
+	for (int i = 0; i < count; ++i) {
+		renderViews[i] = targets[i]->renderTargetView;
+	}
+
+	context->OMSetRenderTargets(count, renderViews, targets[0]->depthStencilView);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(targets[0]->width), static_cast<float>(targets[0]->height));
 	context->RSSetViewports(1, &viewPort);
 }
 

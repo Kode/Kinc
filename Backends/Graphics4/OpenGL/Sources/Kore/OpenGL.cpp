@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 
 #include "OpenGL.h"
 #include "VertexBufferImpl.h"
@@ -33,6 +33,11 @@ namespace Kore {
 }
 
 namespace {
+	void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+		int a = 2;
+		++a;
+	}
+
 #ifdef KORE_WINDOWS
 	HINSTANCE instance = 0;
 	HDC deviceContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -206,6 +211,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	glesDrawBuffers = (void*)eglGetProcAddress("glDrawBuffers");
 #endif
+
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(debugCallback, nullptr);
 }
 
 void Graphics4::changeResolution(int width, int height) {
@@ -884,33 +892,34 @@ void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperat
 	glCheckErrors();
 }
 
-void Graphics4::setRenderTarget(RenderTarget* texture, int num, int additionalTargets) {
-	if (num == 0) {
-		// TODO (DK) uneccessary?
-		// System::makeCurrent(texture->contextId);
-		glBindFramebuffer(GL_FRAMEBUFFER, texture->_framebuffer);
-		glCheckErrors();
+void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
+	// TODO (DK) uneccessary?
+	// System::makeCurrent(texture->contextId);
+	glBindFramebuffer(GL_FRAMEBUFFER, targets[0]->_framebuffer);
+	glCheckErrors();
 #ifndef KORE_OPENGL_ES
-		if (texture->isCubeMap) glFramebufferTexture(GL_FRAMEBUFFER, texture->isDepthAttachment ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0, texture->_texture, 0); // Layered
+	if (targets[0]->isCubeMap) glFramebufferTexture(GL_FRAMEBUFFER, targets[0]->isDepthAttachment ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0, targets[0]->_texture, 0); // Layered
 #endif
-		glViewport(0, 0, texture->width, texture->height);
-		_renderTargetWidth = texture->width;
-		_renderTargetHeight = texture->height;
-		renderToBackbuffer = false;
-		glCheckErrors();
-	}
+	glViewport(0, 0, targets[0]->width, targets[0]->height);
+	_renderTargetWidth = targets[0]->width;
+	_renderTargetHeight = targets[0]->height;
+	renderToBackbuffer = false;
+	glCheckErrors();
 
-	if (additionalTargets > 0) {
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + num, GL_TEXTURE_2D, texture->_texture, 0);
-		if (num == additionalTargets) {
-			GLenum buffers[16];
-			for (int i = 0; i <= additionalTargets; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
-			((void (*)(GLsizei, GLenum*))glesDrawBuffers)(additionalTargets + 1, buffers);
-#elif !defined(KORE_OPENGL_ES)
-			glDrawBuffers(additionalTargets + 1, buffers);
-#endif
+	if (count > 1) {
+		for (int i = 0; i < count; ++i) {
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, targets[i]->_texture, 0);
+			glCheckErrors();
 		}
+
+		GLenum buffers[16];
+		for (int i = 0; i < count; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
+		((void(*)(GLsizei, GLenum*))glesDrawBuffers)(count, buffers);
+#elif !defined(KORE_OPENGL_ES)
+		glDrawBuffers(count, buffers);
+#endif
+		glCheckErrors();
 	}
 }
 

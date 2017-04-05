@@ -53,4 +53,8 @@ void Graphics4::setVertexBuffer(VertexBuffer& vertexBuffer) {
 	setVertexBuffers(vertexBuffers, 1);
 }
 
+void Graphics4::setRenderTarget(RenderTarget* target) {
+	setRenderTargets(&target, 1);
+}
+
 #endif
