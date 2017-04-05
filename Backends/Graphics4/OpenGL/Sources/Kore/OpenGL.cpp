@@ -212,8 +212,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glesDrawBuffers = (void*)eglGetProcAddress("glDrawBuffers");
 #endif
 
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(debugCallback, nullptr);
+	// glEnable(GL_DEBUG_OUTPUT);
+	// glDebugMessageCallback(debugCallback, nullptr);
 }
 
 void Graphics4::changeResolution(int width, int height) {
