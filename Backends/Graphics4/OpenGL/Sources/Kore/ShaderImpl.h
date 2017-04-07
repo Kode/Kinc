@@ -9,10 +9,11 @@ namespace Kore {
 
 	class ShaderImpl {
 	public:
-		ShaderImpl(void* source, int length);
+		ShaderImpl(void* data, int length);
+		ShaderImpl(const char* source);
 		virtual ~ShaderImpl();
 		uint id;
-		char* source;
+		const char* source;
 		int length;
 		friend class Graphics4::Program;
 		friend class ProgramImpl;

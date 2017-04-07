@@ -88,7 +88,7 @@ namespace {
 		}
 	}
 
-	void compileShader(uint& id, char* source, int length, Graphics4::ShaderType type) {
+	void compileShader(uint& id, const char* source, int length, Graphics4::ShaderType type) {
 		id = glCreateShader(toGlShader(type));
 		glCheckErrors();
 		glShaderSource(id, 1, (const GLchar**)&source, 0);

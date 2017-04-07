@@ -12,7 +12,8 @@ namespace Kore {
 
 		class Shader : public ShaderImpl {
 		public:
-			Shader(void* source, int length, ShaderType type);
+			Shader(void* data, int length, ShaderType type);
+			Shader(const char* source); // Beware, this is not portable
 		};
 
 		class ConstantLocation : public ConstantLocationImpl {};
