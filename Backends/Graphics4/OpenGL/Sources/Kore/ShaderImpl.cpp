@@ -31,4 +31,4 @@ ShaderImpl::~ShaderImpl() {
 
 Graphics4::Shader::Shader(void* data, int length, ShaderType type) : ShaderImpl(data, length) {}
 
-Graphics4::Shader::Shader(const char* source) : ShaderImpl(source) {}
+Graphics4::Shader::Shader(const char* source, ShaderType type) : ShaderImpl(source) {}
