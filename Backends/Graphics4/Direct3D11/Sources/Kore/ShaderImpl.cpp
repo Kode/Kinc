@@ -69,3 +69,5 @@ Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
 		break;
 	}
 }
+
+Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {}

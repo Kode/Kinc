@@ -45,3 +45,5 @@ Graphics4::Shader::Shader(void* _data, int length, Graphics4::ShaderType type) {
 		hr = device->CreatePixelShader((DWORD*)&data[index], (IDirect3DPixelShader9**)&shader);
 	// if (FAILED(hr)) throw Exception("CreateShader failed");
 }
+
+Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {}
