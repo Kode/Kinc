@@ -4,6 +4,10 @@
 
 using namespace Kore;
 
+#if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_3)) || (defined(KORE_ANDROID) && defined(GL_ES_VERSION_3_1))
+#define HAS_COMPUTE
+#endif
+
 ShaderStorageBuffer* ShaderStorageBufferImpl::current = nullptr;
 
 ShaderStorageBufferImpl::ShaderStorageBufferImpl(int count, Graphics4::VertexData type) : myCount(count) {
@@ -32,9 +36,10 @@ ShaderStorageBuffer::ShaderStorageBuffer(int indexCount, Graphics4::VertexData t
 		myStride += 4 * 4 * 4;
 		break;
 	}
-
+#ifdef HAS_COMPUTE
 	glGenBuffers(1, &bufferId);
 	glCheckErrors();
+#endif
 	data = new int[indexCount];
 }
 
@@ -48,16 +53,20 @@ int* ShaderStorageBuffer::lock() {
 }
 
 void ShaderStorageBuffer::unlock() {
+#ifdef HAS_COMPUTE
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferId);
 	glCheckErrors();
 	glBufferData(GL_SHADER_STORAGE_BUFFER, myCount * myStride, data, GL_STATIC_DRAW);
 	glCheckErrors();
+#endif
 }
 
 void ShaderStorageBuffer::_set() {
 	current = this;
+#ifdef HAS_COMPUTE
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferId);
 	glCheckErrors();
+#endif
 }
 
 void ShaderStorageBufferImpl::unset() {
