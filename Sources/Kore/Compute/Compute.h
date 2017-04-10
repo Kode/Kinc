@@ -21,7 +21,7 @@ namespace Kore {
 
 	class ShaderStorageBuffer : public ShaderStorageBufferImpl {
 	public:
-		ShaderStorageBuffer(int count, VertexData type);
+		ShaderStorageBuffer(int count, Graphics4::VertexData type);
 		virtual ~ShaderStorageBuffer();
 		int* lock();
 		void unlock();

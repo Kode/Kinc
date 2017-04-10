@@ -6,29 +6,29 @@ using namespace Kore;
 
 ShaderStorageBuffer* ShaderStorageBufferImpl::current = nullptr;
 
-ShaderStorageBufferImpl::ShaderStorageBufferImpl(int count, VertexData type) : myCount(count) {
+ShaderStorageBufferImpl::ShaderStorageBufferImpl(int count, Graphics4::VertexData type) : myCount(count) {
 
 }
 
-ShaderStorageBuffer::ShaderStorageBuffer(int indexCount, VertexData type) : ShaderStorageBufferImpl(indexCount, type) {
+ShaderStorageBuffer::ShaderStorageBuffer(int indexCount, Graphics4::VertexData type) : ShaderStorageBufferImpl(indexCount, type) {
 	myStride = 0;
 	switch (type) {
-	case ColorVertexData:
+	case Graphics4::ColorVertexData:
 		myStride += 1 * 4;
 		break;
-	case Float1VertexData:
+	case Graphics4::Float1VertexData:
 		myStride += 1 * 4;
 		break;
-	case Float2VertexData:
+	case Graphics4::Float2VertexData:
 		myStride += 2 * 4;
 		break;
-	case Float3VertexData:
+	case Graphics4::Float3VertexData:
 		myStride += 3 * 4;
 		break;
-	case Float4VertexData:
+	case Graphics4::Float4VertexData:
 		myStride += 4 * 4;
 		break;
-	case Float4x4VertexData:
+	case Graphics4::Float4x4VertexData:
 		myStride += 4 * 4 * 4;
 		break;
 	}

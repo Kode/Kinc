@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/Graphics/VertexStructure.h>
+#include <Kore/Graphics4/VertexStructure.h>
 
 namespace Kore {
 	class ShaderStorageBuffer;
@@ -8,7 +8,7 @@ namespace Kore {
 	class ShaderStorageBufferImpl {
 	protected:
 	public:
-		ShaderStorageBufferImpl(int count, VertexData type);
+		ShaderStorageBufferImpl(int count, Graphics4::VertexData type);
 		void unset();
 
 		int* data;
