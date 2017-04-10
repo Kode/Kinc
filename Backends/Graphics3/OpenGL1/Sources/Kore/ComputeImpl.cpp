@@ -87,6 +87,12 @@ void Compute::setFloat(ComputeConstantLocation location, float value) {
 #endif
 }
 
+void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
+#ifdef HAS_COMPUTE
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->bufferId); glCheckErrors2();
+#endif
+}
+
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit); glCheckErrors2();
@@ -104,5 +110,6 @@ void Compute::compute(int x, int y, int z) {
 #ifdef HAS_COMPUTE
 	glDispatchCompute(x, y, z); glCheckErrors2();
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT); glCheckErrors2();
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT); glCheckErrors2();
 #endif
 }
