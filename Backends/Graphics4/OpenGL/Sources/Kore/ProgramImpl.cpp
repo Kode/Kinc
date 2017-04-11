@@ -183,13 +183,16 @@ Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* 
 	location.type = GL_FLOAT;
 	GLint count = 0;
 	glGetProgramiv(programId, GL_ACTIVE_UNIFORMS, &count);
+	char arrayName[1024];
+	strcpy(arrayName, name);
+	strcat(arrayName, "[0]");
 	for (GLint i = 0; i < count; ++i) {
 		GLenum type;
 		char uniformName[1024];
 		GLsizei length;
 		GLint size;
 		glGetActiveUniform(programId, i, 1024 - 1, &length, &size, &type, uniformName);
-		if (strcmp(uniformName, name) == 0) {
+		if (strcmp(uniformName, name) == 0 || strcmp(uniformName, arrayName) == 0) {
 			location.type = type;
 		}
 	}
