@@ -180,6 +180,19 @@ void Graphics4::Program::set() {
 Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.location = glGetUniformLocation(programId, name);
+	location.type = GL_FLOAT;
+	GLint count = 0;
+	glGetProgramiv(programId, GL_ACTIVE_UNIFORMS, &count);
+	for (GLint i = 0; i < count; ++i) {
+		GLenum type;
+		char uniformName[1024];
+		GLsizei length;
+		GLint size;
+		glGetActiveUniform(programId, i, 1024 - 1, &length, &size, &type, uniformName);
+		if (strcmp(uniformName, name) == 0) {
+			location.type = type;
+		}
+	}
 	glCheckErrors();
 	if (location.location < 0) {
 		log(Warning, "Uniform %s not found.", name);

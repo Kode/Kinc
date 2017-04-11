@@ -144,10 +144,6 @@ void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
 	Graphics5::setFloats(location._location, values, count);
 }
 
-void Graphics4::setFloat4s(ConstantLocation location, float* values, int count) {
-	Graphics5::setFloat4s(location._location, values, count);
-}
-
 void Graphics4::setBool(ConstantLocation location, bool value) {
 	Graphics5::setBool(location._location, value);
 }

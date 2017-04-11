@@ -269,12 +269,20 @@ void Graphics4::setFloat4(ConstantLocation location, float value1, float value2,
 }
 
 void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
-	glUniform1fv(location.location, count, values);
-	glCheckErrors();
-}
-
-void Graphics4::setFloat4s(ConstantLocation location, float* values, int count) {
-	glUniform4fv(location.location, count / 4, values);
+	switch (location.type) {
+	case GL_FLOAT_VEC2:
+		glUniform2fv(location.location, count / 2, values);
+		break;
+	case GL_FLOAT_VEC3:
+		glUniform3fv(location.location, count / 3, values);
+		break;
+	case GL_FLOAT_VEC4:
+		glUniform4fv(location.location, count / 4, values);
+		break;
+	default:
+		glUniform1fv(location.location, count, values);
+		break;
+	}
 	glCheckErrors();
 }
 

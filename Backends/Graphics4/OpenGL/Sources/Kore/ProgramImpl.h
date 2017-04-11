@@ -25,5 +25,6 @@ namespace Kore {
 	class ConstantLocationImpl {
 	public:
 		int location;
+		unsigned int type;
 	};
 }
