@@ -194,6 +194,7 @@ Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* 
 		glGetActiveUniform(programId, i, 1024 - 1, &length, &size, &type, uniformName);
 		if (strcmp(uniformName, name) == 0 || strcmp(uniformName, arrayName) == 0) {
 			location.type = type;
+			break;
 		}
 	}
 	glCheckErrors();
