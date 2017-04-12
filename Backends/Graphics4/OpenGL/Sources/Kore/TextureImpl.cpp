@@ -379,7 +379,7 @@ void Graphics4::Texture::_setImage(TextureUnit unit) {
 }
 
 int Graphics4::Texture::stride() {
-	return width * sizeOf(format);
+	return texWidth * sizeOf(format);
 }
 
 u8* Graphics4::Texture::lock() {

@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Kore/ComputeImpl.h>
+#ifdef KORE_OPENGL
 #include <Kore/ShaderStorageBufferImpl.h>
+#endif
 
 namespace Kore {
 	namespace Graphics4 {
@@ -19,6 +21,7 @@ namespace Kore {
 		ComputeTextureUnit getTextureUnit(const char* name);
 	};
 
+#ifdef KORE_OPENGL
 	class ShaderStorageBuffer : public ShaderStorageBufferImpl {
 	public:
 		ShaderStorageBuffer(int count, Graphics4::VertexData type);
@@ -28,10 +31,13 @@ namespace Kore {
 		int count();
 		void _set();
 	};
+#endif
 
 	namespace Compute {
 		void setFloat(ComputeConstantLocation location, float value);
+#ifdef KORE_OPENGL
 		void setBuffer(ShaderStorageBuffer* buffer, int index);
+#endif
 		void setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture);
 		void setShader(ComputeShader* shader);
 		void compute(int x, int y, int z);
