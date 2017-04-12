@@ -1,5 +1,5 @@
 #include "pch.h"
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Log.h>
@@ -205,8 +205,13 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	else {
 		dst_rect.x = x;
 		dst_rect.y = y;
+		#ifdef KORE_PI_SCALING
+		dst_rect.width = screen_width;
+		dst_rect.height = screen_height;
+		#else
 		dst_rect.width = width;
 		dst_rect.height = height;
+		#endif
 		src_rect.x = 0;
 		src_rect.y = 0;
 		src_rect.width = width << 16;
@@ -232,7 +237,9 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	else {
 		nativewindow.width = width;
 		nativewindow.height = height;
+		#ifndef KORE_PI_SCALING
 		openXWindow(x, y, width, height);
+		#endif
 	}
 	vc_dispmanx_update_submit_sync(dispman_update);
 
@@ -359,7 +366,7 @@ namespace Kore {
 
 			int id = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay,
 			                      options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-			Graphics::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+			Graphics4::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 			return id;
 		}
 
@@ -463,6 +470,7 @@ bool Kore::System::handleMessages() {
 		}
 	}
 
+    #ifndef KORE_PI_SCALING
 	if (windowMode != Kore::WindowModeFullscreen) {
 		while (XPending(dpy) > 0) {
 			XEvent event;
@@ -488,6 +496,7 @@ bool Kore::System::handleMessages() {
 			}
 		}
 	}
+	#endif
 
 	return true;
 }
@@ -508,7 +517,7 @@ void Kore::System::makeCurrent(int contextId) {
 	currentDeviceId = contextId;
 }
 
-void Kore::Graphics::clearCurrent() {}
+void Kore::Graphics4::clearCurrent() {}
 
 void Kore::System::clearCurrent() {
 #if !defined(NDEBUG)
@@ -516,7 +525,7 @@ void Kore::System::clearCurrent() {
 #endif
 
 	currentDeviceId = -1;
-	Graphics::clearCurrent();
+	Graphics4::clearCurrent();
 }
 
 void Kore::System::swapBuffers(int contextId) {
