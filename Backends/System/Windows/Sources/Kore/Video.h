@@ -15,12 +15,8 @@ namespace Kore {
 		void play() {}
 		void pause() {}
 		void stop() {}
-		int width() {
-			return 100;
-		}
-		int height() {
-			return 100;
-		}
+		int width();
+		int height();
 		Graphics4::Texture* currentImage();
 		double duration; // milliseconds
 		double position; // milliseconds

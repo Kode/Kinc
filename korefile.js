@@ -33,6 +33,11 @@ if (platform === Platform.Windows) {
 	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
 	project.addLib('ws2_32');
 
+	project.addFile('Backends/System/Windows/Libraries/DirectShow/**');
+	project.addIncludeDir('Backends/System/Windows/Libraries/DirectShow/BaseClasses');
+	project.addLib('strmiids');
+	project.addLib('winmm');
+
 	if (graphics === GraphicsApi.OpenGL1) {
 		addBackend('Graphics3/OpenGL1');
 		project.addDefine('KORE_OPENGL1');
@@ -75,11 +80,6 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_DIRECT3D');
 		project.addDefine('KORE_DIRECT3D9');
 		project.addLib('d3d9');
-		
-		project.addFile('Backends/System/Windows/Libraries/DirectShow/**');
-		project.addIncludeDir('Backends/System/Windows/Libraries/DirectShow/BaseClasses');
-		project.addLib('strmiids');
-		project.addLib('winmm');
 	}
 	
 	if (vr === VrApi.Oculus) {
