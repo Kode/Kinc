@@ -75,6 +75,8 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_DIRECT3D');
 		project.addDefine('KORE_DIRECT3D9');
 		project.addLib('d3d9');
+		project.addLib('strmbase');
+		project.addLib('winmm');
 	}
 	
 	if (vr === VrApi.Oculus) {

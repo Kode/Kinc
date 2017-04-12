@@ -6,13 +6,7 @@ namespace Kore {
 
 	class Video {
 	public:
-		Video(const char* filename) {
-			duration = 1000 * 10;
-			position = 0;
-			finished = false;
-			paused = false;
-			image = new Graphics4::Texture(100, 100, Graphics4::Image::RGBA32, false);
-		}
+		Video(const char* filename);
 		~Video() {
 			delete image;
 		}
