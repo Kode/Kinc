@@ -16,27 +16,28 @@ namespace {
 	IMediaControl* mediaControl;
 	IMediaPosition* mediaPosition;
 	IMediaEvent* mediaEvent;
-	IBaseFilter* renderer;
 
-	struct __declspec(uuid("{71771540-2017-11cf-ae24-0020afd79767}")) CLSID_TextureRenderer;
-
-	class CTextureRenderer : public CBaseVideoRenderer
-	{
-	public:
-		CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr);
-		~CTextureRenderer();
-
-	public:
-		HRESULT CheckMediaType(const CMediaType *pmt);     // Format acceptable? 
-		HRESULT SetMediaType(const CMediaType *pmt);       // Video format notification 
-		HRESULT DoRenderSample(IMediaSample *pMediaSample); // New video sample 
-
-		BOOL m_bUseDynamicTextures;
-		LONG m_lVidWidth;   // Video width 
-		LONG m_lVidHeight;  // Video Height 
-		LONG m_lVidPitch;   // Video Pitch 
-	};
+	struct __declspec(uuid("{71771540-2017-11cf-ae24-0020afd79767}")) CLSID_TextureRenderer;	
 }
+
+class CTextureRenderer : public CBaseVideoRenderer
+{
+public:
+	CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr);
+	~CTextureRenderer();
+
+public:
+	HRESULT CheckMediaType(const CMediaType *pmt);     // Format acceptable? 
+	HRESULT SetMediaType(const CMediaType *pmt);       // Video format notification 
+	HRESULT DoRenderSample(IMediaSample *pMediaSample); // New video sample 
+
+	BOOL m_bUseDynamicTextures;
+	LONG m_lVidWidth;   // Video width 
+	LONG m_lVidHeight;  // Video Height 
+	LONG m_lVidPitch;   // Video Pitch
+
+	Graphics4::Texture* image;
+};
 
 CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr)
 	: CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer),
@@ -88,6 +89,7 @@ HRESULT CTextureRenderer::SetMediaType(const CMediaType *pmt)
 	VIDEOINFO* info = (VIDEOINFO*)pmt->Format();
 	int width = info->bmiHeader.biWidth;
 	int height = abs(info->bmiHeader.biHeight);
+	image = new Graphics4::Texture(width, height, Graphics4::Image::RGBA32, false);
 	/*HRESULT hr;
 
 	UINT uintWidth = 2;
@@ -185,8 +187,21 @@ HRESULT CTextureRenderer::SetMediaType(const CMediaType *pmt)
 //-----------------------------------------------------------------------------
 // DoRenderSample: A sample has been delivered. Copy it to the texture.
 //-----------------------------------------------------------------------------
-HRESULT CTextureRenderer::DoRenderSample(IMediaSample * pSample)
+HRESULT CTextureRenderer::DoRenderSample(IMediaSample* sample)
 {
+	u8* pixels = image->lock();
+	BYTE* videoPixels;
+	sample->GetPointer(&videoPixels);
+	for (int y = 0; y < image->height; ++y) {
+		for (int x = 0; x < image->width; ++x) {
+			pixels[y * image->pitch + x * 4 + 0] = videoPixels[y * image->width * 3 + x * 3 + 0];
+			pixels[y * image->pitch + x * 4 + 1] = videoPixels[y * image->width * 3 + x * 3 + 1];
+			pixels[y * image->pitch + x * 4 + 2] = videoPixels[y * image->width * 3 + x * 3 + 2];
+			pixels[y * image->pitch + x * 4 + 3] = 255;
+		}
+	}
+	image->unlock();
+
 	/*BYTE  *pBmpBuffer, *pTxtBuffer; // Bitmap buffer, texture buffer
 	LONG  lTxtPitch;                // Pitch of bitmap, texture
 
@@ -303,12 +318,11 @@ Video::Video(const char* filename) {
 	position = 0;
 	finished = false;
 	paused = false;
-	image = new Graphics4::Texture(100, 100, Graphics4::Image::RGBA32, false);
+	//image = new Graphics4::Texture(100, 100, Graphics4::Image::RGBA32, false);
 
 	HRESULT hr = S_OK;
 	IBaseFilter* pFSrc;          // Source Filter 
 	IPin* pFSrcPinOut;    // Source Filter Output Pin    
-	//CTextureRenderer        *pCTR = 0;        // DirectShow Texture renderer 
 
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC, __uuidof(IGraphBuilder), (void**)&graphBuilder);
 	renderer = new CTextureRenderer(NULL, &hr);
@@ -322,4 +336,8 @@ Video::Video(const char* filename) {
 	graphBuilder->QueryInterface(&mediaEvent);
 
 	hr = mediaControl->Run();
+}
+
+Graphics4::Texture* Video::currentImage() {
+	return renderer->image;
 }

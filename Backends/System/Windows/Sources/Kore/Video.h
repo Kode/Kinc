@@ -1,6 +1,8 @@
 #include <Kore/Graphics4/Texture.h>
 #include <Kore/IO/FileReader.h>
 
+class CTextureRenderer;
+
 namespace Kore {
 	class VideoSoundStream;
 
@@ -8,7 +10,7 @@ namespace Kore {
 	public:
 		Video(const char* filename);
 		~Video() {
-			delete image;
+			//delete image;
 		}
 		void play() {}
 		void pause() {}
@@ -19,9 +21,7 @@ namespace Kore {
 		int height() {
 			return 100;
 		}
-		Graphics4::Texture* currentImage() {
-			return image;
-		}
+		Graphics4::Texture* currentImage();
 		double duration; // milliseconds
 		double position; // milliseconds
 		bool finished;
@@ -29,6 +29,7 @@ namespace Kore {
 		void update(double time) {}
 
 	private:
-		Graphics4::Texture* image;
+		//Graphics4::Texture* image;
+		CTextureRenderer* renderer;
 	};
 }
