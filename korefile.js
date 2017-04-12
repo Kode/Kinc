@@ -75,7 +75,10 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_DIRECT3D');
 		project.addDefine('KORE_DIRECT3D9');
 		project.addLib('d3d9');
-		project.addLib('strmbase');
+		
+		project.addFile('Backends/System/Windows/Libraries/DirectShow/**');
+		project.addIncludeDir('Backends/System/Windows/Libraries/DirectShow/BaseClasses');
+		project.addLib('strmiids');
 		project.addLib('winmm');
 	}
 	

@@ -2,7 +2,7 @@
 
 #include "Video.h"
 
-#include "DirectShow.h"
+#include <streams.h>
 
 using namespace Kore;
 
@@ -85,6 +85,9 @@ HRESULT CTextureRenderer::CheckMediaType(const CMediaType *pmt)
 //-----------------------------------------------------------------------------
 HRESULT CTextureRenderer::SetMediaType(const CMediaType *pmt)
 {
+	VIDEOINFO* info = (VIDEOINFO*)pmt->Format();
+	int width = info->bmiHeader.biWidth;
+	int height = abs(info->bmiHeader.biHeight);
 	/*HRESULT hr;
 
 	UINT uintWidth = 2;
@@ -308,7 +311,15 @@ Video::Video(const char* filename) {
 	//CTextureRenderer        *pCTR = 0;        // DirectShow Texture renderer 
 
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC, __uuidof(IGraphBuilder), (void**)&graphBuilder);
-	//renderer = new CTextureRenderer();
+	renderer = new CTextureRenderer(NULL, &hr);
 	hr = graphBuilder->AddFilter(renderer, L"TEXTURERENDERER");
-	hr = graphBuilder->AddSourceFilter(L"whatever.avi", L"SOURCE", &pFSrc);
+	hr = graphBuilder->AddSourceFilter(L"king-arthur-trailer-4_h480p.avi", L"SOURCE", &pFSrc);
+	hr = pFSrc->FindPin(L"Output", &pFSrcPinOut);
+	hr = graphBuilder->Render(pFSrcPinOut);
+
+	graphBuilder->QueryInterface(&mediaControl);
+	graphBuilder->QueryInterface(&mediaPosition);
+	graphBuilder->QueryInterface(&mediaEvent);
+
+	hr = mediaControl->Run();
 }
