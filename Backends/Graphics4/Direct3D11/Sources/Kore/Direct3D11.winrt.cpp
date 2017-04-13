@@ -108,6 +108,31 @@ namespace {
 		return r.state;
 	}
 
+	D3D11_SAMPLER_DESC lastSamplers[16];
+
+	struct Sampler {
+		D3D11_SAMPLER_DESC desc;
+		ID3D11SamplerState* state;
+	};
+
+	std::vector<Sampler> samplers;
+
+	ID3D11SamplerState* getSamplerState(const D3D11_SAMPLER_DESC& desc) {
+		for (unsigned i = 0; i < samplers.size(); ++i) {
+			D3D11_SAMPLER_DESC& d = samplers[i].desc;
+			if (desc.AddressU == d.AddressU && desc.AddressV == d.AddressV && desc.AddressW == d.AddressW
+				&& desc.BorderColor == d.BorderColor && desc.ComparisonFunc == d.ComparisonFunc && desc.Filter == d.Filter
+				&& desc.MaxAnisotropy == d.MaxAnisotropy && desc.MaxLOD == d.MaxLOD && desc.MinLOD == d.MinLOD && desc.MipLODBias == d.MipLODBias) {
+				return samplers[i].state;
+			}
+		}
+		Sampler s;
+		s.desc = desc;
+		device->CreateSamplerState(&s.desc, &s.state);
+		samplers.push_back(s);
+		return s.state;
+	}
+
 	D3D11_COMPARISON_FUNC getComparison(Graphics4::ZCompareMode compare) {
 		switch (compare) {
 		default:
@@ -328,6 +353,19 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	lastRasterizer = rasterDesc;
 	context->RSSetState(getRasterizerState(rasterDesc));
 
+	D3D11_SAMPLER_DESC samplerDesc;
+	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	for (int i = 0; i < 16; ++i) {
+		lastSamplers[i] = samplerDesc;
+	}
+
 	D3D11_BLEND_DESC blendDesc;
 	ZeroMemory(&blendDesc, sizeof(blendDesc));
 
@@ -434,21 +472,20 @@ namespace {
 void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	if (unit.unit < 0) return;
 	
-	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
-	samplerDesc.AddressU = convertAddressing(addressing);
-	samplerDesc.AddressV = convertAddressing(addressing);
-	samplerDesc.AddressW = convertAddressing(addressing);
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	ID3D11SamplerState* sampler;
-	affirm(device->CreateSamplerState(&samplerDesc, &sampler));
-
+	switch (dir) {
+	case TexDir::U:
+		lastSamplers[unit.unit].AddressU = convertAddressing(addressing);
+		break;
+	case TexDir::V:
+		lastSamplers[unit.unit].AddressV = convertAddressing(addressing);
+		break;
+	case TexDir::W:
+		lastSamplers[unit.unit].AddressW = convertAddressing(addressing);
+		break;
+	}
+	
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
-
-	sampler->Release();
 }
 
 void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
