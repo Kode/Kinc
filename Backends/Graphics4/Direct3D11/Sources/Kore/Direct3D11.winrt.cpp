@@ -83,6 +83,31 @@ namespace {
 		return ds.state;
 	}
 
+	D3D11_RASTERIZER_DESC lastRasterizer;
+
+	struct Rasterizer {
+		D3D11_RASTERIZER_DESC desc;
+		ID3D11RasterizerState* state;
+	};
+
+	std::vector<Rasterizer> rasterizers;
+
+	ID3D11RasterizerState* getRasterizerState(const D3D11_RASTERIZER_DESC& desc) {
+		for (unsigned i = 0; i < rasterizers.size(); ++i) {
+			D3D11_RASTERIZER_DESC& d = rasterizers[i].desc;
+			if (desc.AntialiasedLineEnable == d.AntialiasedLineEnable && desc.CullMode == d.CullMode && desc.DepthBias == d.DepthBias && desc.DepthBiasClamp == d.DepthBiasClamp
+				&& desc.DepthClipEnable == d.DepthClipEnable && desc.FillMode == d.FillMode && desc.FrontCounterClockwise == d.FrontCounterClockwise
+				&& desc.MultisampleEnable == d.MultisampleEnable && desc.ScissorEnable == d.ScissorEnable && desc.SlopeScaledDepthBias == d.SlopeScaledDepthBias) {
+				return rasterizers[i].state;
+			}
+		}
+		Rasterizer r;
+		r.desc = desc;
+		device->CreateRasterizerState(&r.desc, &r.state);
+		rasterizers.push_back(r);
+		return r.state;
+	}
+
 	D3D11_COMPARISON_FUNC getComparison(Graphics4::ZCompareMode compare) {
 		switch (compare) {
 		default:
@@ -300,9 +325,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	rasterDesc.ScissorEnable = FALSE;
 	rasterDesc.MultisampleEnable = FALSE;
 	rasterDesc.AntialiasedLineEnable = FALSE;
-	ID3D11RasterizerState* rasterState;
-	device->CreateRasterizerState(&rasterDesc, &rasterState);
-	context->RSSetState(rasterState);
+	lastRasterizer = rasterDesc;
+	context->RSSetState(getRasterizerState(rasterDesc));
 
 	D3D11_BLEND_DESC blendDesc;
 	ZeroMemory(&blendDesc, sizeof(blendDesc));
@@ -450,15 +474,30 @@ void Graphics4::begin(int windowId) {
 }
 
 void Graphics4::viewport(int x, int y, int width, int height) {
-	// TODO
+	D3D11_VIEWPORT viewport;
+	viewport.TopLeftX = x;
+	viewport.TopLeftY = y;
+	viewport.Width = width;
+	viewport.Height = height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	context->RSSetViewports(1, &viewport);
 }
 
 void Graphics4::scissor(int x, int y, int width, int height) {
-	// TODO
+	lastRasterizer.ScissorEnable = TRUE;
+	context->RSSetState(getRasterizerState(lastRasterizer));
+	D3D11_RECT rect;
+	rect.left = x;
+	rect.top = y;
+	rect.right = x + width;
+	rect.bottom = y + height;
+	context->RSSetScissorRects(1, &rect);
 }
 
 void Graphics4::disableScissor() {
-	// TODO
+	lastRasterizer.ScissorEnable = FALSE;
+	context->RSSetState(getRasterizerState(lastRasterizer));
 }
 
 void Graphics4::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
@@ -562,15 +601,8 @@ void Graphics4::setRenderState(RenderState state, bool on) {
 		break;
 	}
 	case BackfaceCulling: {
-		// ID3D11RasterizerState* state;
-		// D3D11_RASTERIZER_DESC desc;
-
-		// context->RSGetState(&state);
-		////state->GetDesc(&desc);
-
-		// desc.CullMode = on ? D3D11_CULL_BACK : D3D11_CULL_NONE;
-		// device->CreateRasterizerState(&desc, &state);
-		// context->RSSetState(state);
+		lastRasterizer.CullMode = on ? D3D11_CULL_BACK : D3D11_CULL_NONE;
+		context->RSSetState(getRasterizerState(lastRasterizer));
 		break;
 	}
 	}
@@ -749,19 +781,25 @@ void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
 	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	// TODO
+}
 
 void Graphics4::setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
 	Graphics4::setTextureMagnificationFilter(texunit, filter);
 }
 
-void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+	// TODO
+}
 
 void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
 	Graphics4::setTextureMinificationFilter(texunit, filter);
 }
 
-void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
+void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+	// TODO
+}
 
 void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
 	Graphics4::setTextureMipmapFilter(texunit, filter);
@@ -840,7 +878,9 @@ void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation dest
 	setBlendState(source, destination, lastRed, lastGreen, lastBlue, lastAlpha);
 }
 
-void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
+void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {
+	// TODO
+}
 
 void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
 	setBlendState(lastSource, lastDestination, red, green, blue, alpha);
@@ -885,7 +925,7 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
-	
+	// TODO
 }
 
 void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
@@ -918,7 +958,7 @@ void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
 }
 
 void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
-	
+	// TODO
 }
 
 void Graphics4::setup() {}
