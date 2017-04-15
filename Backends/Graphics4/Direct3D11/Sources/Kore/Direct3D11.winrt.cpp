@@ -672,7 +672,9 @@ void Graphics4::setRenderState(RenderState state, int v) {
 	}
 }
 
-void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
+void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
+	// TODO
+}
 
 namespace {
 	void setInt(u8* constants, u8 offset, u8 size, int value) {
@@ -818,24 +820,209 @@ void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
 	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-	// TODO
+/*
+case D3D11_FILTER_MIN_MAG_MIP_POINT:
+	break;
+case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
+	break;
+case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
+	break;
+case D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR:
+	break;
+case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
+	break;
+case D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+	break;
+case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
+	break;
+case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
+	break;
+case D3D11_FILTER_ANISOTROPIC:
+	break;
+*/
+
+void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter filter) {
+	if (unit.unit < 0) return;
+
+	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+	switch (filter) {
+	case PointFilter:
+		switch (lastSamplers[unit.unit].Filter) {
+		case D3D11_FILTER_MIN_MAG_MIP_POINT:
+			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
+		case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
+		case D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
+			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
+		case D3D11_FILTER_ANISOTROPIC:
+			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;
+		}
+		break;
+	case LinearFilter:
+		switch (lastSamplers[unit.unit].Filter) {
+		case D3D11_FILTER_MIN_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
+			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
+			d3d11filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
+		case D3D11_FILTER_ANISOTROPIC:
+			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			break;
+		}
+		break;
+	case AnisotropicFilter:
+		d3d11filter = D3D11_FILTER_ANISOTROPIC;
+		break;
+	}
+
+	lastSamplers[unit.unit].Filter = d3d11filter;
+	
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
+	context->PSSetSamplers(unit.unit, 1, &sampler);
 }
 
 void Graphics4::setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
 	Graphics4::setTextureMagnificationFilter(texunit, filter);
 }
 
-void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	// TODO
+void Graphics4::setTextureMinificationFilter(TextureUnit unit, TextureFilter filter) {
+	if (unit.unit < 0) return;
+
+	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+	switch (filter) {
+	case PointFilter:
+		switch (lastSamplers[unit.unit].Filter) {
+		case D3D11_FILTER_MIN_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
+			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
+		case D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
+		case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
+			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR:
+		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
+		case D3D11_FILTER_ANISOTROPIC:
+			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		}
+		break;
+	case LinearFilter:
+		switch (lastSamplers[unit.unit].Filter) {
+		case D3D11_FILTER_MIN_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
+			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
+		case D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;
+		case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
+		case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
+			d3d11filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR:
+		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
+		case D3D11_FILTER_ANISOTROPIC:
+			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			break;
+		}
+		break;
+	case AnisotropicFilter:
+		d3d11filter = D3D11_FILTER_ANISOTROPIC;
+		break;
+	}
+
+	lastSamplers[unit.unit].Filter = d3d11filter;
+
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
+	context->PSSetSamplers(unit.unit, 1, &sampler);
 }
 
 void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
 	Graphics4::setTextureMinificationFilter(texunit, filter);
 }
 
-void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	// TODO
+void Graphics4::setTextureMipmapFilter(TextureUnit unit, MipmapFilter filter) {
+	if (unit.unit < 0) return;
+
+	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+	switch (filter) {
+	case PointFilter:
+		switch (lastSamplers[unit.unit].Filter) {
+		case D3D11_FILTER_MIN_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
+		case D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
+		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
+		case D3D11_FILTER_ANISOTROPIC:
+			d3d11filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		}
+		break;
+	case LinearFilter:
+		switch (lastSamplers[unit.unit].Filter) {
+		case D3D11_FILTER_MIN_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
+		case D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
+		case D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;
+		case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
+		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
+		case D3D11_FILTER_ANISOTROPIC:
+			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			break;
+		}
+		break;
+	case AnisotropicFilter:
+		d3d11filter = D3D11_FILTER_ANISOTROPIC;
+		break;
+	}
+
+	lastSamplers[unit.unit].Filter = d3d11filter;
+
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
+	context->PSSetSamplers(unit.unit, 1, &sampler);
 }
 
 void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
