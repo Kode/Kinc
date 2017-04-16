@@ -140,7 +140,7 @@ void Kore::System::swapBuffers(int windowId) {}
 #undef CreateWindow
 
 int Kore::System::initWindow(WindowOptions options) {
-	Graphics::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	Graphics4::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return 0;
 }
 
