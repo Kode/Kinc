@@ -56,7 +56,15 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-	affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &view));
+	affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &renderTargetSRV));
+
+	if (depthBufferBits > 0) {
+		shaderResourceViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
+	}
 
 	lastBoundUnit = -1;
 }
@@ -68,15 +76,19 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 Graphics4::RenderTarget::~RenderTarget() {
 	depthStencilView->Release();
 	renderTargetView->Release();
-	view->Release();
+	renderTargetSRV->Release();
 }
 
 void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
-	context->PSSetShaderResources(unit.unit, 1, &view);
+	context->PSSetShaderResources(unit.unit, 1, &renderTargetSRV);
 	lastBoundUnit = unit.unit;
 }
 
-void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
+void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
+	if (unit.unit < 0) return;
+	context->PSSetShaderResources(unit.unit, 1, &depthStencilSRV);
+	lastBoundUnit = unit.unit;
+}
 
 void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {}
