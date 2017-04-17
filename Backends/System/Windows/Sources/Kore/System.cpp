@@ -1058,7 +1058,7 @@ int Kore::System::initWindow(WindowOptions options) {
 	SetWindowLong(hwnd, GWL_STYLE, style);
 
 	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
-	bool vsync = true;
+	bool vsync = options.vSync;
 #ifdef VR_RIFT
 	vsync = false;
 #endif
