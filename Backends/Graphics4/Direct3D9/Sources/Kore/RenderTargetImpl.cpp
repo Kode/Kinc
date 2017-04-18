@@ -43,8 +43,15 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		depthTexture = nullptr;
 	}
 	else {
-		affirm(device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, d3dformat, D3DPOOL_DEFAULT, &colorTexture, nullptr));
-		affirm(device->CreateTexture(width, height, 1, D3DUSAGE_DEPTHSTENCIL, D3DFMT_D24S8, D3DPOOL_DEFAULT, &depthTexture, nullptr));
+		if (format == Target16BitDepth) {
+			affirm(device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, (D3DFORMAT)MAKEFOURCC('N', 'U', 'L', 'L'), D3DPOOL_DEFAULT, &colorTexture, nullptr));
+			affirm(device->CreateTexture(width, height, 1, D3DUSAGE_DEPTHSTENCIL, (D3DFORMAT)MAKEFOURCC('I', 'N', 'T', 'Z'), D3DPOOL_DEFAULT, &depthTexture, nullptr));
+			isDepthAttachment = true;
+		}
+		else {
+			affirm(device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, d3dformat, D3DPOOL_DEFAULT, &colorTexture, nullptr));
+			affirm(device->CreateTexture(width, height, 1, D3DUSAGE_DEPTHSTENCIL, D3DFMT_D24S8, D3DPOOL_DEFAULT, &depthTexture, nullptr));
+		}
 		affirm(colorTexture->GetSurfaceLevel(0, &colorSurface));
 		affirm(depthTexture->GetSurfaceLevel(0, &depthSurface));
 	}
@@ -68,20 +75,20 @@ void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 		affirm(device->StretchRect(colorSurface, nullptr, surface, nullptr, D3DTEXF_NONE));
 		surface->Release();
 	}
-	device->SetTexture(unit.unit, colorTexture);
+	device->SetTexture(unit.unit, isDepthAttachment ? depthTexture : colorTexture);
 }
 
 void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
-	//! TODO Implement
+	depthTexture = source->depthTexture;
+	depthSurface = source->depthSurface;
 }
 
-void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
-/*void RenderTarget::useDepthAsTexture(int texunit) {
+void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
     if (antialiasing) {
         IDirect3DSurface9* surface;
         depthTexture->GetSurfaceLevel(0, &surface);
         affirm(device->StretchRect(depthSurface, nullptr, surface, nullptr, D3DTEXF_NONE));
         surface->Release();
     }
-    device->SetTexture(texunit, depthTexture);
-}*/
+    device->SetTexture(unit.unit, depthTexture);
+}
