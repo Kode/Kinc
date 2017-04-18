@@ -1,6 +1,6 @@
 version: 1.0.{build}
 platform:
-- x86
+- Win32
 - x64
 before_build:
 - git submodule update --init --recursive
