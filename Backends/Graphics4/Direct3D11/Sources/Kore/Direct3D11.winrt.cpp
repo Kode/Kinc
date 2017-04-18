@@ -512,10 +512,10 @@ void Graphics4::begin(int windowId) {
 
 void Graphics4::viewport(int x, int y, int width, int height) {
 	D3D11_VIEWPORT viewport;
-	viewport.TopLeftX = x;
-	viewport.TopLeftY = y;
-	viewport.Width = width;
-	viewport.Height = height;
+	viewport.TopLeftX = static_cast<float>(x);
+	viewport.TopLeftY = static_cast<float>(y);
+	viewport.Width = static_cast<float>(width);
+	viewport.Height = static_cast<float>(height);
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	context->RSSetViewports(1, &viewport);
@@ -819,27 +819,6 @@ void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
 	::setMatrix(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
 	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
-
-/*
-case D3D11_FILTER_MIN_MAG_MIP_POINT:
-	break;
-case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
-	break;
-case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
-	break;
-case D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR:
-	break;
-case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
-	break;
-case D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
-	break;
-case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
-	break;
-case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
-	break;
-case D3D11_FILTER_ANISOTROPIC:
-	break;
-*/
 
 void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter filter) {
 	if (unit.unit < 0) return;

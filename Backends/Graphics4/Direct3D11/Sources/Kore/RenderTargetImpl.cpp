@@ -45,10 +45,10 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	}
 
 	if (depthBufferBits > 0) {
-		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, width, height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
+		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R24G8_TYPELESS, width, height, 1, 1, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
 		affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
+		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT), &depthStencilView));
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -56,7 +56,15 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-	affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &view));
+	affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &renderTargetSRV));
+
+	if (depthBufferBits > 0) {
+		shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
+	}
 
 	lastBoundUnit = -1;
 }
@@ -68,15 +76,19 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 Graphics4::RenderTarget::~RenderTarget() {
 	depthStencilView->Release();
 	renderTargetView->Release();
-	view->Release();
+	renderTargetSRV->Release();
 }
 
 void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
-	context->PSSetShaderResources(unit.unit, 1, &view);
+	context->PSSetShaderResources(unit.unit, 1, &renderTargetSRV);
 	lastBoundUnit = unit.unit;
 }
 
-void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
+void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
+	if (unit.unit < 0) return;
+	context->PSSetShaderResources(unit.unit, 1, &depthStencilSRV);
+	lastBoundUnit = unit.unit;
+}
 
 void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {}
