@@ -66,13 +66,7 @@ namespace {
 
 	ID3D11DepthStencilState* getDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& desc) {
 		for (unsigned i = 0; i < depthStencils.size(); ++i) {
-			D3D11_DEPTH_STENCIL_DESC& d = depthStencils[i].desc;
-			if (desc.DepthEnable == d.DepthEnable && desc.DepthWriteMask == d.DepthWriteMask && desc.DepthFunc == d.DepthFunc &&
-			    desc.StencilEnable == d.StencilEnable && desc.StencilReadMask == d.StencilReadMask && desc.StencilWriteMask == d.StencilWriteMask &&
-			    desc.FrontFace.StencilFunc == d.FrontFace.StencilFunc && desc.BackFace.StencilFunc == d.BackFace.StencilFunc &&
-			    desc.FrontFace.StencilDepthFailOp == d.FrontFace.StencilDepthFailOp && desc.BackFace.StencilDepthFailOp == d.BackFace.StencilDepthFailOp &&
-			    desc.FrontFace.StencilPassOp == d.FrontFace.StencilPassOp && desc.BackFace.StencilPassOp == d.BackFace.StencilPassOp &&
-			    desc.FrontFace.StencilFailOp == d.FrontFace.StencilFailOp && desc.BackFace.StencilFailOp == d.BackFace.StencilFailOp) {
+			if (memcmp(&desc, &depthStencils[i].desc, sizeof(D3D11_DEPTH_STENCIL_DESC)) == 0) {
 				return depthStencils[i].state;
 			}
 		}
@@ -94,10 +88,7 @@ namespace {
 
 	ID3D11RasterizerState* getRasterizerState(const D3D11_RASTERIZER_DESC& desc) {
 		for (unsigned i = 0; i < rasterizers.size(); ++i) {
-			D3D11_RASTERIZER_DESC& d = rasterizers[i].desc;
-			if (desc.AntialiasedLineEnable == d.AntialiasedLineEnable && desc.CullMode == d.CullMode && desc.DepthBias == d.DepthBias && desc.DepthBiasClamp == d.DepthBiasClamp
-				&& desc.DepthClipEnable == d.DepthClipEnable && desc.FillMode == d.FillMode && desc.FrontCounterClockwise == d.FrontCounterClockwise
-				&& desc.MultisampleEnable == d.MultisampleEnable && desc.ScissorEnable == d.ScissorEnable && desc.SlopeScaledDepthBias == d.SlopeScaledDepthBias) {
+			if (memcmp(&desc, &rasterizers[i].desc, sizeof(D3D11_RASTERIZER_DESC)) == 0) {
 				return rasterizers[i].state;
 			}
 		}
@@ -119,10 +110,7 @@ namespace {
 
 	ID3D11SamplerState* getSamplerState(const D3D11_SAMPLER_DESC& desc) {
 		for (unsigned i = 0; i < samplers.size(); ++i) {
-			D3D11_SAMPLER_DESC& d = samplers[i].desc;
-			if (desc.AddressU == d.AddressU && desc.AddressV == d.AddressV && desc.AddressW == d.AddressW
-				&& desc.BorderColor == d.BorderColor && desc.ComparisonFunc == d.ComparisonFunc && desc.Filter == d.Filter
-				&& desc.MaxAnisotropy == d.MaxAnisotropy && desc.MaxLOD == d.MaxLOD && desc.MinLOD == d.MinLOD && desc.MipLODBias == d.MipLODBias) {
+			if (memcmp(&desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
 				return samplers[i].state;
 			}
 		}
