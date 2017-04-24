@@ -55,7 +55,7 @@ namespace {
 	int windowCounter = -1;
 }
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 
 id getMetalDevice() {
 	return [view metalDevice];
@@ -90,7 +90,7 @@ bool System::handleMessages() {
 }
 
 void System::swapBuffers(int windowId) {
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 	endGL();
 #else
 	[windows[windowId]->view switchBuffers];
@@ -129,7 +129,7 @@ int Kore::System::initWindow(Kore::WindowOptions options) {
 	return id;
 }
 
-#ifndef SYS_METAL
+#ifndef KORE_METAL
 void Graphics4::makeCurrent(int contextId) {
 	//[[windows[contextId]->view openGLContext] makeCurrentContext];
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/Graphics/Image.h>
+#include <Kore/Graphics1/Image.h>
 #include <objc/runtime.h>
 
 namespace Kore {

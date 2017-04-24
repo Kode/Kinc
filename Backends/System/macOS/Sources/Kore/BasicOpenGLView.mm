@@ -12,7 +12,7 @@ namespace {
 	bool shift = false;
 }
 
-#ifndef SYS_METAL
+#ifndef KORE_METAL
 + (NSOpenGLPixelFormat*)basicPixelFormat {
 	// TODO (DK) pass via argument in
 	int aa = 1; // Kore::Application::the()->antialiasing();
@@ -201,7 +201,7 @@ namespace {
 	Kore::Mouse::the()->_scroll(0, delta);
 }
 
-#ifndef SYS_METAL
+#ifndef KORE_METAL
 - (void)prepareOpenGL {
 	const GLint swapInt = 1;
 	[[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
@@ -212,7 +212,7 @@ namespace {
 	[super update];
 }
 
-#ifndef SYS_METAL
+#ifndef KORE_METAL
 - (id)initWithFrame:(NSRect)frameRect {
 	NSOpenGLPixelFormat* pf = [BasicOpenGLView basicPixelFormat];
 	self = [super initWithFrame:frameRect pixelFormat:pf];
@@ -255,7 +255,7 @@ namespace {
 	return YES;
 }
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 - (id<MTLDevice>)metalDevice {
 	return device;
 }

@@ -200,8 +200,12 @@ void Graphics4::restoreRenderTarget() {
 	Graphics5::restoreRenderTarget();
 }
 
-void Graphics4::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
-	Graphics5::setRenderTarget(&target->_renderTarget, num, additionalTargets);
+void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
+	Graphics5::RenderTarget* renderTargets[16];
+	for (int i = 0; i < count; ++i) {
+		renderTargets[i] = &targets[i]->_renderTarget;
+	}
+	Graphics5::setRenderTargets(renderTargets, count);
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
@@ -222,6 +226,10 @@ void Graphics4::setIndexBuffer(IndexBuffer& buffer) {
 
 void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
 	Graphics5::setTexture(unit._unit, texture->_texture);
+}
+
+void Graphics4::setImageTexture(Kore::Graphics4::TextureUnit unit, Kore::Graphics4::Texture *texture) {
+	
 }
 
 bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {

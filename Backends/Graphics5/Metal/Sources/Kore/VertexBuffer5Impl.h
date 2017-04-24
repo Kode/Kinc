@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/Graphics/VertexStructure.h>
+#include <Kore/Graphics5/VertexStructure.h>
 #include <objc/runtime.h>
 
 namespace Kore {

@@ -53,19 +53,19 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 		vertexDescriptor.attributes[i].offset = offset;
 		
 		switch (structures[0]->elements[i].data) {
-			case Float1VertexData:
+			case Graphics4::Float1VertexData:
 				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat;
 				offset += sizeof(float);
 				break;
-			case Float2VertexData:
+			case Graphics4::Float2VertexData:
 				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat2;
 				offset += 2 * sizeof(float);
 				break;
-			case Float3VertexData:
+			case Graphics4::Float3VertexData:
 				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat3;
 				offset += 3 * sizeof(float);
 				break;
-			case Float4VertexData:
+			case Graphics4::Float4VertexData:
 				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat4;
 				offset += 4 * sizeof(float);
 				break;
