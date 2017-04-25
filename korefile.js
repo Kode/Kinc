@@ -83,7 +83,7 @@ if (platform === Platform.Windows) {
 	}
 	
 	if (vr === VrApi.Oculus) {
-		project.addDefine('VR_RIFT');
+		project.addDefine('KORE_OCULUS');
 		project.addLibFor('x64', 'Backends/System/Windows/Libraries/OculusSDK/Lib/x64/LibOVR');
 		project.addLibFor('Win32', 'Backends/System/Windows/Libraries/OculusSDK/Lib/Win32/LibOVR');
 		project.addFile('Backends/System/Windows/Libraries/OculusSDK/**');

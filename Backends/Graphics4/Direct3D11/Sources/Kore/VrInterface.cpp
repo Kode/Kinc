@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#ifdef VR_RIFT
+#ifdef KORE_OCULUS
 
 #include <Kore/Vr/VrInterface.h>
 

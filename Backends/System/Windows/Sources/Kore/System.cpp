@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <wbemidl.h>
 
-#ifdef VR_RIFT
+#ifdef KORE_OCULUS
 #include "Vr/VrInterface.h"
 #endif
 
@@ -76,7 +76,7 @@ namespace {
 		return -1;
 	}
 
-#ifdef VR_RIFT
+#ifdef KORE_OCULUS
 	const char* windowClassName = "ORT";
 #else
 	const char* windowClassName = "KoreWindow";
@@ -884,7 +884,7 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 	++windowCounter;
 
 	HINSTANCE inst = GetModuleHandleA(nullptr);
-#ifdef VR_RIFT
+#ifdef KORE_OCULUS
 	::registerWindowClass(inst, windowClassName);
 	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
 	int dstx = 0;
@@ -980,7 +980,7 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 		loadXInput();
 		initializeDirectInput();
 	}
-#endif /*#else // #ifdef VR_RIFT  */
+#endif /*#else // #ifdef KORE_OCULUS  */
 
 	windows[windowCounter] = new KoreWindow(hwnd, dstx, dsty, width, height);
 	return windowCounter;
@@ -1059,7 +1059,7 @@ int Kore::System::initWindow(WindowOptions options) {
 
 	Graphics::setAntialiasingSamples(options.rendererOptions.antialiasing);
 	bool vsync = options.vSync;
-#ifdef VR_RIFT
+#ifdef KORE_OCULUS
 	vsync = false;
 #endif
 	Graphics::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, vsync);

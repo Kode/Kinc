@@ -194,7 +194,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef KORE_WINDOWSAPP
 	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 	                         &featureLevel, &context));
-#elif VR_RIFT
+#elif KORE_OCULUS
 	IDXGIFactory* dxgiFactory = nullptr;
 	affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));
 
@@ -257,7 +257,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		                                                 &swapChain));
 		affirm(dxgiDevice->SetMaximumFrameLatency(1));
 
-#elif VR_RIFT
+#elif KORE_OCULUS
 		DXGI_SWAP_CHAIN_DESC scDesc = {0};
 		scDesc.BufferCount = 2;
 		scDesc.BufferDesc.Width = System::windowWidth(windowId);
