@@ -84,13 +84,13 @@ if (platform === Platform.Windows) {
 	
 	if (vr === VrApi.Oculus) {
 		project.addDefine('VR_RIFT');
-		project.addLibFor('x64', 'Backends/Windows/Libraries/OculusSDK/Lib/x64/LibOVR');
-		project.addLibFor('Win32', 'Backends/Windows/Libraries/OculusSDK/Lib/Win32/LibOVR');
-		project.addFile('Backends/Windows/Libraries/OculusSDK/**');
-		project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVR/Include');
-		project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVR/Src');
-		project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVRKernel/Src');
-		project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/Logging/include');
+		project.addLibFor('x64', 'Backends/System/Windows/Libraries/OculusSDK/Lib/x64/LibOVR');
+		project.addLibFor('Win32', 'Backends/System/Windows/Libraries/OculusSDK/Lib/Win32/LibOVR');
+		project.addFile('Backends/System/Windows/Libraries/OculusSDK/**');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVR/Include');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVR/Src');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/Logging/include');
 	}
 }
 else if (platform === Platform.WindowsApp) {
