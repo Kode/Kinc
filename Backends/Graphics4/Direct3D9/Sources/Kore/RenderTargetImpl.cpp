@@ -9,7 +9,7 @@
 using namespace Kore;
 
 Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, Graphics4::RenderTargetFormat format, int stencilBufferBits, int contextId)
-    : width(width), height(height), texWidth(width), texHeight(height) {
+	: width(width), height(height), texWidth(width), texHeight(height), isCubeMap(false), isDepthAttachment(false) {
 	this->antialiasing = antialiasing;
 	this->contextId = contextId;
 	D3DFORMAT d3dformat;
@@ -57,7 +57,8 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	}
 }
 
-Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+	: isCubeMap(true), isDepthAttachment(false) {
 	
 }
 
