@@ -71,8 +71,8 @@ if (platform === Platform.Windows) {
 		addBackend('Graphics5/Vulkan');
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
-		project.addLibFor('Win32', 'Backends/Vulkan/Libraries/win32/vulkan-1');
-		project.addLibFor('x64', 'Backends/Vulkan/Libraries/win64/vulkan-1');
+		project.addLibFor('Win32', 'Backends/Graphics5/Vulkan/Libraries/win32/vulkan-1');
+		project.addLibFor('x64', 'Backends/Graphics5/Vulkan/Libraries/win64/vulkan-1');
 	}
 	else {
 		g4 = true;
