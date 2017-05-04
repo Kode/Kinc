@@ -92,3 +92,5 @@ void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
     }
     device->SetTexture(unit.unit, depthTexture);
 }
+
+void Graphics4::RenderTarget::getPixels(u8* data) {}
