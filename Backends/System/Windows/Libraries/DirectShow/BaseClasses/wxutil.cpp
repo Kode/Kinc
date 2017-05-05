@@ -12,6 +12,7 @@
 #define STRSAFE_NO_DEPRECATE
 #include <strsafe.h>
 
+#pragma warning(disable: 4996)
 
 // --- CAMEvent -----------------------
 CAMEvent::CAMEvent(BOOL fManualReset, __inout_opt HRESULT *phr)
