@@ -8,137 +8,44 @@
 #include <Kore/Log.h>
 #include "Direct3D11.h"
 
-#include <vector>
-#include "d3d11.h"
-#if _MSC_VER > 1600
-#include "DirectXMath.h"
-using namespace DirectX;
-#else
-#include "xnamath.h"
-#endif //_MSC_VER > 1600
-
 #include <openvr.h>
 
 using namespace Kore;
 
-//------------------------------------------------------------
-struct DepthBuffer {
-	ID3D11DepthStencilView* TexDsv;
+namespace {
+	vr::IVRSystem* hmd;
+	Graphics4::RenderTarget* leftTexture;
+	Graphics4::RenderTarget* rightTexture;
 
-	DepthBuffer(ID3D11Device* Device, int sizeW, int sizeH, int sampleCount = 1) {
-		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT;
-		D3D11_TEXTURE2D_DESC dsDesc;
-		dsDesc.Width = sizeW;
-		dsDesc.Height = sizeH;
-		dsDesc.MipLevels = 1;
-		dsDesc.ArraySize = 1;
-		dsDesc.Format = format;
-		dsDesc.SampleDesc.Count = sampleCount;
-		dsDesc.SampleDesc.Quality = 0;
-		dsDesc.Usage = D3D11_USAGE_DEFAULT;
-		dsDesc.CPUAccessFlags = 0;
-		dsDesc.MiscFlags = 0;
-		dsDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		ID3D11Texture2D* Tex;
-		Device->CreateTexture2D(&dsDesc, NULL, &Tex);
-		Device->CreateDepthStencilView(Tex, NULL, &TexDsv);
-		Tex->Release();
-	}
-	~DepthBuffer() {
-		TexDsv->Release();
-		TexDsv = nullptr;
-	}
-};
-
-//---------------------------------------------------------------------
-struct DirectX11 {
-	HWND Window;
-	bool Running;
-	bool Key[256];
-	int WinSizeW;
-	int WinSizeH;
-
-	HINSTANCE hInstance;
-
-	DirectX11() : Window(nullptr), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
-		// Clear input
-		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
-			Key[i] = false;
-	}
-
-	~DirectX11() {
-		ReleaseDevice();
-		CloseWindow();
-	}
-
-	bool InitWindow(HINSTANCE hinst, const char* title, const char* windowClassName) {
-		hInstance = hinst;
-		Running = true;
-
-		// Adjust the window size and show at InitDevice time
-		wchar_t wchTitle[256];
-		MultiByteToWideChar(CP_ACP, 0, title, -1, wchTitle, 256);
-		wchar_t wchClassName[256];
-		MultiByteToWideChar(CP_ACP, 0, windowClassName, -1, wchClassName, 256);
-		Window = CreateWindowW(wchClassName, wchTitle, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hinst, 0);
-		if (!Window) return false;
-
-		SetWindowLongPtr(Window, 0, LONG_PTR(this));
-
-		return true;
-	}
-
-	void CloseWindow() {
-		if (Window) {
-			Window = nullptr;
+	void processVREvent(const vr::VREvent_t & event) {
+		switch (event.eventType) {
+		case vr::VREvent_TrackedDeviceActivated:
+			//SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
+			//dprintf("Device %u attached. Setting up render model.\n", event.trackedDeviceIndex);
+			break;
+		case vr::VREvent_TrackedDeviceDeactivated:
+			printf("Device %u detached.\n", event.trackedDeviceIndex);
+			break;
+		case vr::VREvent_TrackedDeviceUpdated:
+			printf("Device %u updated.\n", event.trackedDeviceIndex);
+			break;
 		}
 	}
-
-	bool InitDevice(int vpW, int vpH, const LUID* pLuid, bool windowed = true, int scale = 1) {
-		WinSizeW = vpW;
-		WinSizeH = vpH;
-
-		if (scale == 0)
-			scale = 1;
-
-		RECT size = { 0, 0, vpW / scale, vpH / scale };
-		AdjustWindowRect(&size, WS_OVERLAPPEDWINDOW, false);
-		const UINT flags = SWP_NOMOVE | SWP_NOZORDER | SWP_SHOWWINDOW;
-		if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags))
-			return false;
-
-		return true;
-	}
-
-	void SetAndClearRenderTarget(ID3D11RenderTargetView* rendertarget, DepthBuffer* depthbuffer,
-								 float R = 0, float G = 0, float B = 0, float A = 0) {
-		float black[] = { R, G, B, A }; // Important that alpha=0, if want pixels to be transparent, for manual layers
-		context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr));
-		context->ClearRenderTargetView(rendertarget, black);
-		if (depthbuffer)
-			context->ClearDepthStencilView(depthbuffer->TexDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
-	}
-
-	void SetViewport(float vpX, float vpY, float vpW, float vpH) {
-		D3D11_VIEWPORT D3Dvp;
-		D3Dvp.Width = vpW;    D3Dvp.Height = vpH;
-		D3Dvp.MinDepth = 0;   D3Dvp.MaxDepth = 1;
-		D3Dvp.TopLeftX = vpX; D3Dvp.TopLeftY = vpY;
-		context->RSSetViewports(1, &D3Dvp);
-	}
-
-	void ReleaseDevice() {
-	}
-};
-
-static DirectX11 Platform;
+}
 
 void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
 	vr::HmdError error;
-	vr::VR_Init(&error, vr::VRApplication_Scene);
+	hmd = vr::VR_Init(&error, vr::VRApplication_Scene);
+	//vr::IVRRenderModels* renderModels = (vr::IVRRenderModels*)vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &error);
+	vr::VRCompositor();
 
-	// Return window
-	return Platform.Window;
+	uint32_t width, height;
+	hmd->GetRecommendedRenderTargetSize(&width, &height);
+
+	leftTexture = new Graphics4::RenderTarget(width, height, 16);
+	rightTexture = new Graphics4::RenderTarget(width, height, 16);
+	
+	return nullptr;
 }
 
 void VrInterface::begin() {
@@ -146,24 +53,72 @@ void VrInterface::begin() {
 }
 
 void VrInterface::beginRender(int eye) {
-
+	if (eye == 0) {
+		Kore::Graphics4::setRenderTarget(leftTexture);
+	}
+	else {
+		Kore::Graphics4::setRenderTarget(rightTexture);
+	}
 }
 
 void VrInterface::endRender(int eye) {
-
+	vr::Texture_t leftEyeTexture = { (void*)leftTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+	vr::Texture_t rightEyeTexture = { (void*)rightTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 }
 
 SensorState* VrInterface::getSensorState(int eye) {
 	SensorState* sensorState = new SensorState();
+
 	VrPoseState* poseState = new VrPoseState();
+	vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
+	vr::TrackedDevicePose_t predictedPoses[vr::k_unMaxTrackedDeviceCount];
+	vr::VRCompositor()->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, predictedPoses, vr::k_unMaxTrackedDeviceCount);
+
+	for (int device = 0; device < vr::k_unMaxTrackedDeviceCount; ++device) {
+		if (poses[device].bPoseIsValid) {
+			if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_HMD) {
+				poseState->linearVelocity = vec3(poses[device].vVelocity.v[0], poses[device].vVelocity.v[1], poses[device].vVelocity.v[2]);
+				poseState->angularVelocity = vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
+				
+				vr::HmdMatrix34_t m = poses[device].mDeviceToAbsoluteTracking;
+				
+				poseState->vrPose->position = vec3(m.m[0][3], m.m[1][3], m.m[2][3]);
+
+				Quaternion q;
+				q.w = sqrt(fmax(0, 1 + m.m[0][0] + m.m[1][1] + m.m[2][2])) / 2;
+				q.x = sqrt(fmax(0, 1 + m.m[0][0] - m.m[1][1] - m.m[2][2])) / 2;
+				q.y = sqrt(fmax(0, 1 - m.m[0][0] + m.m[1][1] - m.m[2][2])) / 2;
+				q.z = sqrt(fmax(0, 1 - m.m[0][0] - m.m[1][1] + m.m[2][2])) / 2;
+				q.x = copysign(q.x, m.m[2][1] - m.m[1][2]);
+				q.y = copysign(q.y, m.m[0][2] - m.m[2][0]);
+				q.z = copysign(q.z, m.m[1][0] - m.m[0][1]);
+				poseState->vrPose->orientation = q;
+			}
+		}
+	}
 
 	VrPoseState* predictedPoseState = new VrPoseState();
+
+	sensorState->pose = poseState;
+	sensorState->predictedPose = predictedPoseState;
 
 	return sensorState;
 }
 
 void VrInterface::warpSwap() {
+	vr::VREvent_t event;
+	while (hmd->PollNextEvent(&event, sizeof(event))) {
+		processVREvent(event);
+	}
 
+	for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; ++unDevice) {
+		vr::VRControllerState_t state;
+		if (hmd->GetControllerState(unDevice, &state, sizeof(state))) {
+			//m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
+		}
+	}
 }
 
 void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {
@@ -175,7 +130,7 @@ void VrInterface::resetHmdPose() {
 }
 
 void VrInterface::ovrShutdown() {
-
+	vr::VR_Shutdown();
 }
 
 #endif
