@@ -321,7 +321,7 @@ void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	renderTargetHeight = System::windowHeight(window);
 	initialize(renderTargetWidth, renderTargetHeight, hwnd);
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (System::hasShowWindowFlag()) {
 		ShowWindow(hwnd, SW_SHOWDEFAULT);
 		UpdateWindow(hwnd);
@@ -403,7 +403,7 @@ namespace {
 void Graphics5::begin(int window) {
 	if (began) return;
 	began = true;
-#ifdef SYS_WINDOWSRT
+#ifdef KORE_WINDOWSAPP
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 
