@@ -38,3 +38,5 @@ void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 	_renderTarget.setDepthStencilFrom(&source->_renderTarget);
 }
+
+void Graphics4::RenderTarget::getPixels(u8* data) {}

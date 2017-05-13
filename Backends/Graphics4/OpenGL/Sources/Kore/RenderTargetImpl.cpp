@@ -341,3 +341,8 @@ void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, source->_depthTexture, 0);
 }
+
+void Graphics4::RenderTarget::getPixels(u8* data) {
+	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+}

@@ -6,10 +6,7 @@
 
 using namespace Kore;
 
-#define NAME(x) TEXT(x)
-
-extern HRESULT UpgradeGeometry(LONG lActualW, LONG lTextureW,
-	LONG lActualH, LONG lTextureH);
+extern HRESULT UpgradeGeometry(LONG lActualW, LONG lTextureW, LONG lActualH, LONG lTextureH);
 
 namespace {
 	IGraphBuilder* graphBuilder;
@@ -44,7 +41,7 @@ public:
 
 CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr)
 	: CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer),
-		NAME("Texture Renderer"), pUnk, phr) //, m_bUseDynamicTextures(FALSE)
+		TEXT("Texture Renderer"), pUnk, phr)
 {
 	// Store and AddRef the texture for our use.
 	ASSERT(phr);

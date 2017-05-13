@@ -23,7 +23,6 @@ namespace Kore {
 		void normalize();
 		void rotate(const Quaternion& q2);
 
-	private:
 		float x, y, z, w;
 	};
 }

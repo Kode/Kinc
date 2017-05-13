@@ -99,6 +99,32 @@ namespace {
 		return r.state;
 	}
 
+	struct BlendState {
+		D3D11_RENDER_TARGET_BLEND_DESC desc;
+		ID3D11BlendState* state;
+	};
+
+	std::vector<BlendState> blendStates;
+
+	ID3D11BlendState* getBlendState(const D3D11_RENDER_TARGET_BLEND_DESC& desc) {
+		for (unsigned i = 0; i < blendStates.size(); ++i) {
+			if (memcmp(&desc, &blendStates[i].desc, sizeof(D3D11_RENDER_TARGET_BLEND_DESC)) == 0) {
+				return blendStates[i].state;
+			}
+		}
+		BlendState b;
+		b.desc = desc;
+
+		D3D11_BLEND_DESC blendDesc;
+		ZeroMemory(&blendDesc, sizeof(blendDesc));
+		blendDesc.AlphaToCoverageEnable = false;
+		blendDesc.RenderTarget[0] = b.desc;
+		device->CreateBlendState(&blendDesc, &b.state);
+
+		blendStates.push_back(b);
+		return b.state;
+	}
+
 	D3D11_SAMPLER_DESC lastSamplers[16];
 
 	struct Sampler {
@@ -1011,70 +1037,69 @@ namespace {
 			return D3D11_BLEND_INV_SRC_ALPHA;
 		case Graphics4::InverseDestinationAlpha:
 			return D3D11_BLEND_INV_DEST_ALPHA;
+		case Graphics4::SourceColor:
+			return D3D11_BLEND_SRC_COLOR;
+		case Graphics4::DestinationColor:
+			return D3D11_BLEND_DEST_COLOR;
+		case Graphics4::InverseSourceColor:
+			return D3D11_BLEND_INV_SRC_COLOR;
+		case Graphics4::InverseDestinationColor:
+			return D3D11_BLEND_INV_DEST_COLOR;
 		default:
 			//	throw Exception("Unknown blending operation.");
 			return D3D11_BLEND_SRC_ALPHA;
 		}
 	}
 
-	Graphics4::BlendingOperation lastSource = Graphics4::SourceAlpha;
-	Graphics4::BlendingOperation lastDestination = Graphics4::InverseSourceAlpha;
+	Graphics4::BlendingOperation lastSourceColor = Graphics4::SourceAlpha;
+	Graphics4::BlendingOperation lastDestinationColor = Graphics4::InverseSourceAlpha;
+	Graphics4::BlendingOperation lastSourceAlpha = Graphics4::SourceAlpha;
+	Graphics4::BlendingOperation lastDestinationAlpha = Graphics4::InverseSourceAlpha;
 	bool lastRed = true;
 	bool lastGreen = true;
 	bool lastBlue = true;
 	bool lastAlpha = true;
-	ID3D11BlendState* blendState = nullptr;
 
-	void setBlendState(Graphics4::BlendingOperation source, Graphics4::BlendingOperation destination, bool red, bool green, bool blue, bool alpha) {
-		lastSource = source;
-		lastDestination = destination;
+	void setBlendState(Graphics4::BlendingOperation sourceColor, Graphics4::BlendingOperation destinationColor, Graphics4::BlendingOperation sourceAlpha, Graphics4::BlendingOperation destinationAlpha, bool red, bool green, bool blue, bool alpha) {
+		lastSourceColor = sourceColor;
+		lastDestinationColor = destinationColor;
+		lastSourceAlpha = sourceAlpha;
+		lastDestinationAlpha = destinationAlpha;
 		lastRed = red;
 		lastGreen = green;
 		lastBlue = blue;
 		lastAlpha = alpha;
 
-		if (blendState != nullptr) {
-			blendState->Release();
-		}
-
-		D3D11_BLEND_DESC blendDesc;
-		ZeroMemory(&blendDesc, sizeof(blendDesc));
-
 		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
 		ZeroMemory(&rtbd, sizeof(rtbd));
 
-		rtbd.BlendEnable = source != Graphics4::BlendOne || destination != Graphics4::BlendZero;
-		rtbd.SrcBlend = convert(source);
-		rtbd.DestBlend = convert(destination);
+		rtbd.BlendEnable = sourceColor != Graphics4::BlendOne || destinationColor != Graphics4::BlendZero || sourceAlpha != Graphics4::BlendOne || destinationAlpha != Graphics4::BlendZero;
+		rtbd.SrcBlend = convert(sourceColor);
+		rtbd.DestBlend = convert(destinationColor);
 		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
-		rtbd.SrcBlendAlpha = convert(source);
-		rtbd.DestBlendAlpha = convert(destination);
+		rtbd.SrcBlendAlpha = convert(sourceAlpha);
+		rtbd.DestBlendAlpha = convert(destinationAlpha);
 		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
 		rtbd.RenderTargetWriteMask =
 		    ((((red ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (green ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) | (blue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
 		     (alpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0));
 
-		blendDesc.AlphaToCoverageEnable = false;
-		blendDesc.RenderTarget[0] = rtbd;
-
-		device->CreateBlendState(&blendDesc, &blendState);
-
 		float blendFactor[] = {0, 0, 0, 0};
 		UINT sampleMask = 0xffffffff;
-		context->OMSetBlendState(blendState, blendFactor, sampleMask);
+		context->OMSetBlendState(getBlendState(rtbd), blendFactor, sampleMask);
 	}
 }
 
 void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-	setBlendState(source, destination, lastRed, lastGreen, lastBlue, lastAlpha);
+	setBlendState(source, destination, source, destination, lastRed, lastGreen, lastBlue, lastAlpha);
 }
 
 void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {
-	// TODO
+	setBlendState(source, destination, alphaSource, alphaDestination, lastRed, lastGreen, lastBlue, lastAlpha);
 }
 
 void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
-	setBlendState(lastSource, lastDestination, red, green, blue, alpha);
+	setBlendState(lastSourceColor, lastDestinationColor, lastSourceAlpha, lastDestinationAlpha, red, green, blue, alpha);
 }
 
 bool Graphics4::renderTargetsInvertedY() {

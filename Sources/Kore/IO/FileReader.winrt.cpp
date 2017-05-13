@@ -210,7 +210,16 @@ bool FileReader::open(const char* filename, FileType type) {
 	strcat(filepath, filename);
 #endif
 
-	if (fileslocation != nullptr) {
+#ifdef KORE_WINDOWS
+	bool isAbsolute = filename[1] == ':' && filename[2] == '\\';
+#else
+	bool isAbsolute = filename[0] == '/';
+#endif
+
+	if (isAbsolute) {
+		strcpy(filepath, filename);
+	}
+	else if (fileslocation != nullptr) {
 		strcpy(filepath, fileslocation);
 		strcat(filepath, "/");
 		strcat(filepath, filename);

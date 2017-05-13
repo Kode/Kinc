@@ -57,6 +57,10 @@ namespace {
 
 	bool depthTest = false;
 	bool depthMask = true;
+	bool colorMaskRed = true;
+	bool colorMaskGreen= true;
+	bool colorMaskBlue = true;
+	bool colorMaskAlpha = true;
 
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	void* glesDrawBuffers;
@@ -516,6 +520,8 @@ void Graphics4::end(int windowId) {
 }
 
 void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
+	glColorMask(true, true, true, true);
+	glCheckErrors();
 	glClearColor(((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
 	             ((color & 0xff000000) >> 24) / 255.0f);
 	glCheckErrors();
@@ -538,6 +544,8 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 	                      ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT : 0);
 	glClear(oglflags);
 	glCheckErrors();
+	glColorMask(colorMaskRed, colorMaskGreen, colorMaskBlue, colorMaskAlpha);
+	glCheckErrors();
 	if (depthTest) {
 		glEnable(GL_DEPTH_TEST);
 	}
@@ -556,6 +564,10 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 
 void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
 	glColorMask(red, green, blue, alpha);
+	colorMaskRed = red;
+	colorMaskGreen = green;
+	colorMaskBlue = blue;
+	colorMaskAlpha = alpha;
 }
 
 void Graphics4::setRenderState(RenderState state, bool on) {

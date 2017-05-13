@@ -109,6 +109,7 @@ namespace Kore {
 			void useColorAsTexture(TextureUnit unit);
 			void useDepthAsTexture(TextureUnit unit);
 			void setDepthStencilFrom(RenderTarget* source);
+			void getPixels(u8* data);
 		};
 
 		void setBool(ConstantLocation location, bool value);
