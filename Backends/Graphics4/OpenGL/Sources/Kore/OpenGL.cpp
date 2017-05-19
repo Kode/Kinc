@@ -592,6 +592,12 @@ void Graphics4::setRenderState(RenderState state, bool on) {
 		else
 			glDisable(GL_BLEND);
 		break;
+	case ConservativeRasterization:
+		if (on)
+			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
+		else
+			glDisable(0x9346);
+		break;
 	default:
 		break;
 	}
