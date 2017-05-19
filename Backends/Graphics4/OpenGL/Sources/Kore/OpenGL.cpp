@@ -57,6 +57,7 @@ namespace {
 
 	bool depthTest = false;
 	bool depthMask = true;
+	bool conservativeRasterOn = false;
 	bool colorMaskRed = true;
 	bool colorMaskGreen= true;
 	bool colorMaskBlue = true;
@@ -593,10 +594,13 @@ void Graphics4::setRenderState(RenderState state, bool on) {
 			glDisable(GL_BLEND);
 		break;
 	case ConservativeRasterization:
-		if (on)
+		if (on) {
 			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
-		else
+		}
+		else if (conservativeRasterOn) {
 			glDisable(0x9346);
+		}
+		conservativeRasterOn = on;
 		break;
 	default:
 		break;
