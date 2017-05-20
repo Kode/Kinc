@@ -51,7 +51,8 @@ namespace Kore {
 			BackfaceCulling,
 			/*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
 			AlphaTestState,
-			AlphaReferenceState
+			AlphaReferenceState,
+			ConservativeRasterization
 		};
 
 		enum BlendingOperation {
