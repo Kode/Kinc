@@ -163,12 +163,7 @@ namespace Kore {
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();
-		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-			int readMask = 0, int writeMask = 0);
 
-		void setRenderState(RenderState state, bool on);
-		void setRenderState(RenderState state, int v);
-		void setRenderState(RenderState state, float value);
 		void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
 		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
@@ -177,10 +172,7 @@ namespace Kore {
 		void setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter);
-		void setBlendingMode(BlendingOperation source, BlendingOperation destination);
-		void setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
-		void setColorMask(bool red, bool green, bool blue, bool alpha);
 
 		bool vsynced();
 		unsigned refreshRate();

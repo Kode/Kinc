@@ -167,8 +167,6 @@ void Graphics2::ImageShaderPainter::drawBuffer() {
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
     #endif
 
-	Graphics4::setRenderState(Graphics4::DepthTest, false);
-
 	Graphics4::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
 	// Graphics::setTexture(textureLocation, nullptr);
@@ -431,8 +429,6 @@ void Graphics2::ColoredShaderPainter::drawBuffer(bool trisDone) {
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
     #endif
 
-	Graphics4::setRenderState(Graphics4::DepthTest, false);
-
 	Graphics4::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
 	bufferIndex = 0;
@@ -454,7 +450,6 @@ void Graphics2::ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
     #endif
 
-	Graphics4::setRenderState(Graphics4::DepthTest, false);
 	Graphics4::setPipeline(shaderPipeline);
 
 	Graphics4::drawIndexedVertices(0, triangleBufferIndex * 3);
@@ -663,8 +658,6 @@ void Graphics2::TextShaderPainter::drawBuffer() {
 	Graphics4::setTextureMinificationFilter(textureLocation, bilinear ? Graphics4::LinearFilter : Graphics4::PointFilter);
 	Graphics4::setTextureMagnificationFilter(textureLocation, bilinear ? Graphics4::LinearFilter : Graphics4::PointFilter);
 	Graphics4::setTextureMipmapFilter(textureLocation, Graphics4::NoMipFilter);
-
-	Graphics4::setRenderState(Graphics4::DepthTest, false);
 
 	Graphics4::drawIndexedVertices(0, bufferIndex * 2 * 3);
 

@@ -11,6 +11,90 @@ using namespace Kore::Graphics4;
 
 namespace Kore {
 	PipelineState* currentPipeline = nullptr;
+
+	D3D11_CULL_MODE convert(Graphics4::CullMode cullMode) {
+		switch (cullMode) {
+		case Graphics4::Clockwise:
+			return D3D11_CULL_BACK;
+		case Graphics4::CounterClockwise:
+			return D3D11_CULL_FRONT;
+		case Graphics4::NoCulling:
+		default:
+			return D3D11_CULL_NONE;
+		}
+	}
+
+	D3D11_BLEND convert(Graphics4::BlendingOperation operation) {
+		switch (operation) {
+		case Graphics4::BlendOne:
+			return D3D11_BLEND_ONE;
+		case Graphics4::BlendZero:
+			return D3D11_BLEND_ZERO;
+		case Graphics4::SourceAlpha:
+			return D3D11_BLEND_SRC_ALPHA;
+		case Graphics4::DestinationAlpha:
+			return D3D11_BLEND_DEST_ALPHA;
+		case Graphics4::InverseSourceAlpha:
+			return D3D11_BLEND_INV_SRC_ALPHA;
+		case Graphics4::InverseDestinationAlpha:
+			return D3D11_BLEND_INV_DEST_ALPHA;
+		case Graphics4::SourceColor:
+			return D3D11_BLEND_SRC_COLOR;
+		case Graphics4::DestinationColor:
+			return D3D11_BLEND_DEST_COLOR;
+		case Graphics4::InverseSourceColor:
+			return D3D11_BLEND_INV_SRC_COLOR;
+		case Graphics4::InverseDestinationColor:
+			return D3D11_BLEND_INV_DEST_COLOR;
+		default:
+			//	throw Exception("Unknown blending operation.");
+			return D3D11_BLEND_SRC_ALPHA;
+		}
+	}
+
+	D3D11_COMPARISON_FUNC getComparison(Graphics4::ZCompareMode compare) {
+		switch (compare) {
+		default:
+		case Graphics4::ZCompareAlways:
+			return D3D11_COMPARISON_ALWAYS;
+		case Graphics4::ZCompareNever:
+			return D3D11_COMPARISON_NEVER;
+		case Graphics4::ZCompareEqual:
+			return D3D11_COMPARISON_EQUAL;
+		case Graphics4::ZCompareNotEqual:
+			return D3D11_COMPARISON_NOT_EQUAL;
+		case Graphics4::ZCompareLess:
+			return D3D11_COMPARISON_LESS;
+		case Graphics4::ZCompareLessEqual:
+			return D3D11_COMPARISON_LESS_EQUAL;
+		case Graphics4::ZCompareGreater:
+			return D3D11_COMPARISON_GREATER;
+		case Graphics4::ZCompareGreaterEqual:
+			return D3D11_COMPARISON_GREATER_EQUAL;
+		}
+	}
+
+	D3D11_STENCIL_OP getStencilAction(Graphics4::StencilAction action) {
+		switch (action) {
+		default:
+		case Graphics4::Keep:
+			return D3D11_STENCIL_OP_KEEP;
+		case Graphics4::Zero:
+			return D3D11_STENCIL_OP_ZERO;
+		case Graphics4::Replace:
+			return D3D11_STENCIL_OP_REPLACE;
+		case Graphics4::Increment:
+			return D3D11_STENCIL_OP_INCR;
+		case Graphics4::IncrementWrap:
+			return D3D11_STENCIL_OP_INCR_SAT;
+		case Graphics4::Decrement:
+			return D3D11_STENCIL_OP_DECR;
+		case Graphics4::DecrementWrap:
+			return D3D11_STENCIL_OP_DECR_SAT;
+		case Graphics4::Invert:
+			return D3D11_STENCIL_OP_INVERT;
+		}
+	}
 }
 
 void PipelineStateImpl::setConstants() {
@@ -36,10 +120,17 @@ void PipelineStateImpl::setConstants() {
 	}
 }
 
-PipelineStateImpl::PipelineStateImpl() {}
+PipelineStateImpl::PipelineStateImpl() : rasterizerState(nullptr), rasterizerStateScissor(nullptr) {}
 
-void PipelineStateImpl::set(PipelineState* pipeline) {
+void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 	currentPipeline = pipeline;
+
+	context->OMSetDepthStencilState(depthStencilState, pipeline->stencilReferenceValue);
+	float blendFactor[] = { 0, 0, 0, 0 };
+	UINT sampleMask = 0xffffffff;
+	context->OMSetBlendState(blendState, blendFactor, sampleMask);
+	setRasterizerState(scissoring);
+
 	context->VSSetShader((ID3D11VertexShader*)pipeline->vertexShader->shader, nullptr, 0);
 	context->PSSetShader((ID3D11PixelShader*)pipeline->fragmentShader->shader, nullptr, 0);
 
@@ -48,6 +139,13 @@ void PipelineStateImpl::set(PipelineState* pipeline) {
 	if (pipeline->tessellationEvaluationShader != nullptr) context->DSSetShader((ID3D11DomainShader*)pipeline->tessellationEvaluationShader->shader, nullptr, 0);
 
 	context->IASetInputLayout(pipeline->d3d11inputLayout);
+}
+
+void PipelineStateImpl::setRasterizerState(bool scissoring) {
+	if (scissoring && rasterizerStateScissor != nullptr)
+		context->RSSetState(rasterizerStateScissor);
+	else if (rasterizerState != nullptr)
+		context->RSSetState(rasterizerState);
 }
 
 Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const char* name) {
@@ -142,19 +240,19 @@ namespace {
 void Graphics4::PipelineState::compile() {
 	if (vertexShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &vertexConstantBuffer));
+			&vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &fragmentConstantBuffer));
+			&fragmentConstantBuffer));
 	if (geometryShader != nullptr && geometryShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &geometryConstantBuffer));
+			&geometryConstantBuffer));
 	if (tessellationControlShader != nullptr && tessellationControlShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &tessControlConstantBuffer));
+			&tessControlConstantBuffer));
 	if (tessellationEvaluationShader != nullptr && tessellationEvaluationShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &tessEvalConstantBuffer));
+			&tessEvalConstantBuffer));
 
 	int all = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
@@ -218,4 +316,63 @@ void Graphics4::PipelineState::compile() {
 	}
 
 	affirm(device->CreateInputLayout(vertexDesc, all, vertexShader->data, vertexShader->length, &d3d11inputLayout));
+
+	{
+		D3D11_DEPTH_STENCIL_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.DepthEnable = depthMode != ZCompareAlways;
+		desc.DepthWriteMask = depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+		desc.DepthFunc = getComparison(depthMode);
+
+		desc.StencilEnable = stencilMode != ZCompareAlways;
+		desc.StencilReadMask = stencilReadMask;
+		desc.StencilWriteMask = stencilWriteMask;
+		desc.FrontFace.StencilFunc = desc.BackFace.StencilFunc = getComparison(stencilMode);
+		desc.FrontFace.StencilDepthFailOp = desc.BackFace.StencilDepthFailOp = getStencilAction(stencilDepthFail);
+		desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = getStencilAction(stencilBothPass);
+		desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = getStencilAction(stencilFail);
+
+		device->CreateDepthStencilState(&desc, &depthStencilState);
+	}
+
+	{
+		D3D11_RASTERIZER_DESC rasterDesc;
+		rasterDesc.CullMode = convert(cullMode);
+		rasterDesc.FillMode = D3D11_FILL_SOLID;
+		rasterDesc.CullMode = D3D11_CULL_NONE;
+		rasterDesc.FrontCounterClockwise = FALSE;
+		rasterDesc.DepthBias = 0;
+		rasterDesc.SlopeScaledDepthBias = 0.0f;
+		rasterDesc.DepthBiasClamp = 0.0f;
+		rasterDesc.DepthClipEnable = TRUE;
+		rasterDesc.ScissorEnable = FALSE;
+		rasterDesc.MultisampleEnable = FALSE;
+		rasterDesc.AntialiasedLineEnable = FALSE;
+
+		device->CreateRasterizerState(&rasterDesc, &rasterizerState);
+		rasterDesc.ScissorEnable = TRUE;
+		device->CreateRasterizerState(&rasterDesc, &rasterizerStateScissor);
+	}
+
+	{
+		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+		ZeroMemory(&rtbd, sizeof(rtbd));
+
+		rtbd.BlendEnable = blendSource != Graphics4::BlendOne || blendDestination != Graphics4::BlendZero || alphaBlendSource != Graphics4::BlendOne || alphaBlendDestination != Graphics4::BlendZero;
+		rtbd.SrcBlend = convert(blendSource);
+		rtbd.DestBlend = convert(blendDestination);
+		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+		rtbd.SrcBlendAlpha = convert(alphaBlendSource);
+		rtbd.DestBlendAlpha = convert(alphaBlendDestination);
+		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		rtbd.RenderTargetWriteMask =
+			(((colorWriteMaskRed ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (colorWriteMaskGreen ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) | (colorWriteMaskBlue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+			(colorWriteMaskAlpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+
+		D3D11_BLEND_DESC blendDesc;
+		ZeroMemory(&blendDesc, sizeof(blendDesc));
+		blendDesc.AlphaToCoverageEnable = false;
+		blendDesc.RenderTarget[0] = rtbd;
+		device->CreateBlendState(&blendDesc, &blendState);
+	}
 }

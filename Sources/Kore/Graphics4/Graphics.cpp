@@ -58,8 +58,4 @@ void Graphics4::setRenderTarget(RenderTarget* target) {
 	setRenderTargets(&target, 1);
 }
 
-void Graphics4::setPipeline(PipelineState* pipeline) {
-	pipeline->set(pipeline);
-}
-
 #endif
