@@ -6,8 +6,6 @@
 
 using namespace Kore;
 
-extern HRESULT UpgradeGeometry(LONG lActualW, LONG lTextureW, LONG lActualH, LONG lTextureH);
-
 namespace {
 	IGraphBuilder* graphBuilder;
 	IMediaControl* mediaControl;
@@ -86,6 +84,15 @@ HRESULT CTextureRenderer::SetMediaType(const CMediaType *pmt) {
 	height = abs(info->bmiHeader.biHeight);
 	image = new Graphics4::Texture(width, height, Graphics4::Image::RGBA32, false);
 	pixels = (u8*)malloc(width * height * 3);
+
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			pixels[y * width * 3 + x * 3 + 0] = 0;
+			pixels[y * width * 3 + x * 3 + 1] = 0;
+			pixels[y * width * 3 + x * 3 + 2] = 0;
+		}
+	}
+
 	return S_OK;
 }
 
@@ -127,7 +134,8 @@ Video::Video(const char* filename) {
 	graphBuilder->QueryInterface(&mediaPosition);
 	graphBuilder->QueryInterface(&mediaEvent);
 
-	hr = mediaControl->Run();
+	mediaPosition->get_Duration(&duration);
+	this->position = 0;
 }
 
 Graphics4::Texture* Video::currentImage() {
@@ -143,6 +151,8 @@ Graphics4::Texture* Video::currentImage() {
 	}
 	renderer->image->unlock();
 
+	mediaPosition->get_CurrentPosition(&position);
+
 	return renderer->image;
 }
 
@@ -152,4 +162,20 @@ int Video::width() {
 
 int Video::height() {
 	return renderer->height;
+}
+
+void Video::play() {
+	mediaControl->Run();
+}
+
+void Video::pause() {
+	mediaControl->Pause();
+}
+
+void Video::stop() {
+	mediaControl->Stop();
+}
+
+void Video::update(double time) {
+	mediaPosition->put_CurrentPosition(time);
 }
