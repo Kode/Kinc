@@ -4,6 +4,7 @@
 
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Graphics4/Shader.h>
+#include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,12 +13,12 @@
 using namespace Kore;
 
 namespace Kore {
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 	bool programUsesTessellation = false;
 #endif
 }
 
-ProgramImpl::ProgramImpl()
+PipelineStateImpl::PipelineStateImpl()
     : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
       tessellationControlShader(nullptr) {
 	// TODO: Get rid of allocations
@@ -27,46 +28,18 @@ ProgramImpl::ProgramImpl()
 		textures[i][0] = 0;
 	}
 	textureValues = new int[16];
-}
 
-Graphics4::Program::Program() {
 	programId = glCreateProgram();
 	glCheckErrors();
 }
 
-ProgramImpl::~ProgramImpl() {
+PipelineStateImpl::~PipelineStateImpl() {
 	for (int i = 0; i < 16; ++i) {
 		delete[] textures[i];
 	}
 	delete[] textures;
 	delete[] textureValues;
 	glDeleteProgram(programId);
-}
-
-void Graphics4::Program::setVertexShader(Shader* shader) {
-	vertexShader = shader;
-}
-
-void Graphics4::Program::setFragmentShader(Shader* shader) {
-	fragmentShader = shader;
-}
-
-void Graphics4::Program::setGeometryShader(Shader* shader) {
-#ifndef OPENGLES
-	geometryShader = shader;
-#endif
-}
-
-void Graphics4::Program::setTessellationControlShader(Shader* shader) {
-#ifndef OPENGLES
-	tessellationControlShader = shader;
-#endif
-}
-
-void Graphics4::Program::setTessellationEvaluationShader(Shader* shader) {
-#ifndef OPENGLES
-	tessellationEvaluationShader = shader;
-#endif
 }
 
 namespace {
@@ -107,7 +80,7 @@ namespace {
 	}
 }
 
-void Graphics4::Program::link(VertexStructure** structures, int count) {
+void Graphics4::PipelineState::compile() {
 	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
 #ifndef OPENGLES
@@ -128,9 +101,9 @@ void Graphics4::Program::link(VertexStructure** structures, int count) {
 	glCheckErrors();
 
 	int index = 0;
-	for (int i1 = 0; i1 < count; ++i1) {
-		for (int i2 = 0; i2 < structures[i1]->size; ++i2) {
-			VertexElement element = structures[i1]->elements[i2];
+	for (int i1 = 0; inputLayout[i1] != nullptr; ++i1) {
+		for (int i2 = 0; i2 < inputLayout[i1]->size; ++i2) {
+			VertexElement element = inputLayout[i1]->elements[i2];
 			glBindAttribLocation(programId, index, element.name);
 			glCheckErrors();
 			if (element.data == Float4x4VertexData) {
@@ -165,7 +138,7 @@ void Graphics4::Program::link(VertexStructure** structures, int count) {
 #endif
 }
 
-void Graphics4::Program::set() {
+void PipelineStateImpl::set() {
 #ifndef KORE_OPENGL_ES
 	programUsesTessellation = tessellationControlShader != nullptr;
 #endif
@@ -177,7 +150,7 @@ void Graphics4::Program::set() {
 	}
 }
 
-Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* name) {
+Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.location = glGetUniformLocation(programId, name);
 	location.type = GL_FLOAT;
@@ -204,14 +177,14 @@ Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* 
 	return location;
 }
 
-int ProgramImpl::findTexture(const char* name) {
+int PipelineStateImpl::findTexture(const char* name) {
 	for (int index = 0; index < textureCount; ++index) {
 		if (strcmp(textures[index], name) == 0) return index;
 	}
 	return -1;
 }
 
-Graphics4::TextureUnit Graphics4::Program::getTextureUnit(const char* name) {
+Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
 	int index = findTexture(name);
 	if (index < 0) {
 		int location = glGetUniformLocation(programId, name);

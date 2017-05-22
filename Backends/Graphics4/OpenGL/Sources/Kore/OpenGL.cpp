@@ -4,6 +4,8 @@
 #include "VertexBufferImpl.h"
 #include "ogl.h"
 
+#include <Kore/Graphics4/PipelineState.h>
+
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
@@ -183,7 +185,6 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifndef VR_RIFT
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	setRenderState(DepthTest, false);
 	glViewport(0, 0, System::windowWidth(windowId), System::windowHeight(windowId));
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &originalFramebuffer[windowId]);
 
@@ -431,37 +432,37 @@ namespace {
 	}
 }
 
-void Graphics4::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+void __setStencilParameters(Graphics4::ZCompareMode compareMode, Graphics4::StencilAction bothPass, Graphics4::StencilAction depthFail, Graphics4::StencilAction stencilFail, int referenceValue,
                                     int readMask, int writeMask) {
-	if (compareMode == ZCompareAlways && bothPass == Keep && depthFail == Keep && stencilFail == Keep) {
+	if (compareMode == Graphics4::ZCompareAlways && bothPass == Graphics4::Keep && depthFail == Graphics4::Keep && stencilFail == Graphics4::Keep) {
 		glDisable(GL_STENCIL_TEST);
 	}
 	else {
 		glEnable(GL_STENCIL_TEST);
 		int stencilFunc = 0;
 		switch (compareMode) {
-		case ZCompareAlways:
+		case Graphics4::ZCompareAlways:
 			stencilFunc = GL_ALWAYS;
 			break;
-		case ZCompareEqual:
+		case Graphics4::ZCompareEqual:
 			stencilFunc = GL_EQUAL;
 			break;
-		case ZCompareGreater:
+		case Graphics4::ZCompareGreater:
 			stencilFunc = GL_GREATER;
 			break;
-		case ZCompareGreaterEqual:
+		case Graphics4::ZCompareGreaterEqual:
 			stencilFunc = GL_GEQUAL;
 			break;
-		case ZCompareLess:
+		case Graphics4::ZCompareLess:
 			stencilFunc = GL_LESS;
 			break;
-		case ZCompareLessEqual:
+		case Graphics4::ZCompareLessEqual:
 			stencilFunc = GL_LEQUAL;
 			break;
-		case ZCompareNever:
+		case Graphics4::ZCompareNever:
 			stencilFunc = GL_NEVER;
 			break;
-		case ZCompareNotEqual:
+		case Graphics4::ZCompareNotEqual:
 			stencilFunc = GL_NOTEQUAL;
 			break;
 		}
@@ -563,7 +564,7 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 	glCheckErrors();
 }
 
-void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
+void __setColorMask(bool red, bool green, bool blue, bool alpha) {
 	glColorMask(red, green, blue, alpha);
 	colorMaskRed = red;
 	colorMaskGreen = green;
@@ -571,29 +572,29 @@ void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
 	colorMaskAlpha = alpha;
 }
 
-void Graphics4::setRenderState(RenderState state, bool on) {
+void __setRenderState(Graphics4::RenderState state, bool on) {
 	switch (state) {
-	case DepthWrite:
+	case Graphics4::DepthWrite:
 		if (on)
 			glDepthMask(GL_TRUE);
 		else
 			glDepthMask(GL_FALSE);
 		depthMask = on;
 		break;
-	case DepthTest:
+	case Graphics4::DepthTest:
 		if (on)
 			glEnable(GL_DEPTH_TEST);
 		else
 			glDisable(GL_DEPTH_TEST);
 		depthTest = on;
 		break;
-	case BlendingState:
+	case Graphics4::BlendingState:
 		if (on)
 			glEnable(GL_BLEND);
 		else
 			glDisable(GL_BLEND);
 		break;
-	case ConservativeRasterization:
+	case Graphics4::ConservativeRasterization:
 		if (on) {
 			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
 		}
@@ -631,52 +632,52 @@ void Graphics4::setRenderState(RenderState state, bool on) {
 	}*/
 }
 
-void Graphics4::setRenderState(RenderState state, int v) {
+void __setRenderState(Graphics4::RenderState state, int v) {
 	switch (state) {
-	case DepthTestCompare:
+	case Graphics4::DepthTestCompare:
 		switch (v) {
 		default:
-		case ZCompareAlways:
+		case Graphics4::ZCompareAlways:
 			v = GL_ALWAYS;
 			break;
-		case ZCompareNever:
+		case Graphics4::ZCompareNever:
 			v = GL_NEVER;
 			break;
-		case ZCompareEqual:
+		case Graphics4::ZCompareEqual:
 			v = GL_EQUAL;
 			break;
-		case ZCompareNotEqual:
+		case Graphics4::ZCompareNotEqual:
 			v = GL_NOTEQUAL;
 			break;
-		case ZCompareLess:
+		case Graphics4::ZCompareLess:
 			v = GL_LESS;
 			break;
-		case ZCompareLessEqual:
+		case Graphics4::ZCompareLessEqual:
 			v = GL_LEQUAL;
 			break;
-		case ZCompareGreater:
+		case Graphics4::ZCompareGreater:
 			v = GL_GREATER;
 			break;
-		case ZCompareGreaterEqual:
+		case Graphics4::ZCompareGreaterEqual:
 			v = GL_GEQUAL;
 			break;
 		}
 		glDepthFunc(v);
 		glCheckErrors();
 		break;
-	case BackfaceCulling:
+	case Graphics4::BackfaceCulling:
 		switch (v) {
-		case Clockwise:
+		case Graphics4::Clockwise:
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 			glCheckErrors();
 			break;
-		case CounterClockwise:
+		case Graphics4::CounterClockwise:
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT);
 			glCheckErrors();
 			break;
-		case NoCulling:
+		case Graphics4::NoCulling:
 			glDisable(GL_CULL_FACE);
 			glCheckErrors();
 			break;
@@ -912,12 +913,12 @@ void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument 
 	// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
-void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+void __setBlendingMode(Graphics4::BlendingOperation source, Graphics4::BlendingOperation destination) {
 	glBlendFunc(convert(source), convert(destination));
 	glCheckErrors();
 }
 
-void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {
+void __setBlendingModeSeparate(Graphics4::BlendingOperation source, Graphics4::BlendingOperation destination, Graphics4::BlendingOperation alphaSource, Graphics4::BlendingOperation alphaDestination) {
 	glBlendFuncSeparate(convert(source), convert(destination), convert(alphaSource), convert(alphaDestination));
 	glCheckErrors();
 }
@@ -1021,4 +1022,8 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 void Graphics4::flush() {
 	glFlush();
 	glCheckErrors();
+}
+
+void Graphics4::setPipeline(PipelineState* pipeline) {
+	pipeline->set();
 }
