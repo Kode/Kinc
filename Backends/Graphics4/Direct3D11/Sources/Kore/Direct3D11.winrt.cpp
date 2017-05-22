@@ -1210,7 +1210,7 @@ void Graphics4::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Program::setConstants();
+		PipelineState::setConstants();
 		context->Begin(pQuery);
 		context->Draw(triangles, 0);
 		context->End(pQuery);
