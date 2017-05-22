@@ -4,6 +4,7 @@
 #include "pch.h"
 
 #include "Graphics.h"
+#include "PipelineState.h"
 
 #include <limits>
 
@@ -55,6 +56,10 @@ void Graphics4::setVertexBuffer(VertexBuffer& vertexBuffer) {
 
 void Graphics4::setRenderTarget(RenderTarget* target) {
 	setRenderTargets(&target, 1);
+}
+
+void Graphics4::setPipeline(PipelineState* pipeline) {
+	pipeline->set(pipeline);
 }
 
 #endif

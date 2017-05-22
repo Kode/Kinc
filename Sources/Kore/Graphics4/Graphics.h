@@ -10,6 +10,8 @@
 
 namespace Kore {
 	namespace Graphics4 {
+		class PipelineState;
+
 		class VertexBuffer : public VertexBufferImpl {
 		public:
 			VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
@@ -112,7 +114,7 @@ namespace Kore {
 			void setDepthStencilFrom(RenderTarget* source);
 			void getPixels(u8* data);
 		};
-
+		
 		void setBool(ConstantLocation location, bool value);
 		void setInt(ConstantLocation location, int value);
 		void setFloat(ConstantLocation location, float value);
@@ -131,6 +133,7 @@ namespace Kore {
 		void setIndexBuffer(IndexBuffer& indexBuffer);
 		void setTexture(TextureUnit unit, Texture* texture);
 		void setImageTexture(TextureUnit unit, Texture* texture);
+		void setPipeline(PipelineState* pipeline);
 
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);

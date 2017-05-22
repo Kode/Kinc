@@ -7,6 +7,7 @@
 //#include <Kore/Application.h>
 #include "IndexBufferImpl.h"
 #include "VertexBufferImpl.h"
+#include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #undef CreateWindow
 #include <Kore/System.h>
@@ -41,7 +42,7 @@ using namespace Windows::Foundation;
 #endif
 
 namespace Kore {
-	extern ProgramImpl* currentProgram;
+	extern Graphics4::PipelineState* currentPipeline;
 }
 
 namespace {
@@ -431,24 +432,24 @@ void Graphics4::flush() {}
 void Graphics4::changeResolution(int width, int height) {}
 
 void Graphics4::drawIndexedVertices() {
-	if (currentProgram->tessControlShader != nullptr) {
+	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Program::setConstants();
+	PipelineState::setConstants();
 	context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
 }
 
 void Graphics4::drawIndexedVertices(int start, int count) {
-	if (currentProgram->tessControlShader != nullptr) {
+	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Program::setConstants();
+	PipelineState::setConstants();
 	context->DrawIndexed(count, start, 0);
 }
 
@@ -457,13 +458,13 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-	if (currentProgram->tessControlShader != nullptr) {
+	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Program::setConstants();
+	PipelineState::setConstants();
 	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
 }
 
