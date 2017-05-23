@@ -47,6 +47,8 @@ namespace Kore {
 			bool colorWriteMaskBlue;
 			bool colorWriteMaskAlpha;
 
+			bool conservativeRasterization;
+
 			void compile();
 			ConstantLocation getConstantLocation(const char* name);
 			TextureUnit getTextureUnit(const char* name);

@@ -408,70 +408,6 @@ void Graphics4::disableScissor() {
 	glDisable(GL_SCISSOR_TEST);
 }
 
-namespace {
-	GLenum convert(Graphics4::StencilAction action) {
-		switch (action) {
-		default:
-		case Graphics4::Decrement:
-			return GL_DECR;
-		case Graphics4::DecrementWrap:
-			return GL_DECR_WRAP;
-		case Graphics4::Increment:
-			return GL_INCR;
-		case Graphics4::IncrementWrap:
-			return GL_INCR_WRAP;
-		case Graphics4::Invert:
-			return GL_INVERT;
-		case Graphics4::Keep:
-			return GL_KEEP;
-		case Graphics4::Replace:
-			return GL_REPLACE;
-		case Graphics4::Zero:
-			return GL_ZERO;
-		}
-	}
-}
-
-void __setStencilParameters(Graphics4::ZCompareMode compareMode, Graphics4::StencilAction bothPass, Graphics4::StencilAction depthFail, Graphics4::StencilAction stencilFail, int referenceValue,
-                                    int readMask, int writeMask) {
-	if (compareMode == Graphics4::ZCompareAlways && bothPass == Graphics4::Keep && depthFail == Graphics4::Keep && stencilFail == Graphics4::Keep) {
-		glDisable(GL_STENCIL_TEST);
-	}
-	else {
-		glEnable(GL_STENCIL_TEST);
-		int stencilFunc = 0;
-		switch (compareMode) {
-		case Graphics4::ZCompareAlways:
-			stencilFunc = GL_ALWAYS;
-			break;
-		case Graphics4::ZCompareEqual:
-			stencilFunc = GL_EQUAL;
-			break;
-		case Graphics4::ZCompareGreater:
-			stencilFunc = GL_GREATER;
-			break;
-		case Graphics4::ZCompareGreaterEqual:
-			stencilFunc = GL_GEQUAL;
-			break;
-		case Graphics4::ZCompareLess:
-			stencilFunc = GL_LESS;
-			break;
-		case Graphics4::ZCompareLessEqual:
-			stencilFunc = GL_LEQUAL;
-			break;
-		case Graphics4::ZCompareNever:
-			stencilFunc = GL_NEVER;
-			break;
-		case Graphics4::ZCompareNotEqual:
-			stencilFunc = GL_NOTEQUAL;
-			break;
-		}
-		glStencilMask(writeMask);
-		glStencilOp(convert(stencilFail), convert(depthFail), convert(bothPass));
-		glStencilFunc(stencilFunc, referenceValue, readMask);
-	}
-}
-
 /*void glCheckErrors() {
     if (System::currentDevice() == -1) {
         log(Warning, "no OpenGL device context is set");
@@ -562,160 +498,6 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 		glDepthMask(GL_FALSE);
 	}
 	glCheckErrors();
-}
-
-void __setColorMask(bool red, bool green, bool blue, bool alpha) {
-	glColorMask(red, green, blue, alpha);
-	colorMaskRed = red;
-	colorMaskGreen = green;
-	colorMaskBlue = blue;
-	colorMaskAlpha = alpha;
-}
-
-void __setRenderState(Graphics4::RenderState state, bool on) {
-	switch (state) {
-	case Graphics4::DepthWrite:
-		if (on)
-			glDepthMask(GL_TRUE);
-		else
-			glDepthMask(GL_FALSE);
-		depthMask = on;
-		break;
-	case Graphics4::DepthTest:
-		if (on)
-			glEnable(GL_DEPTH_TEST);
-		else
-			glDisable(GL_DEPTH_TEST);
-		depthTest = on;
-		break;
-	case Graphics4::BlendingState:
-		if (on)
-			glEnable(GL_BLEND);
-		else
-			glDisable(GL_BLEND);
-		break;
-	case Graphics4::ConservativeRasterization:
-		if (on) {
-			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
-		}
-		else if (conservativeRasterOn) {
-			glDisable(0x9346);
-		}
-		conservativeRasterOn = on;
-		break;
-	default:
-		break;
-	}
-
-	glCheckErrors();
-
-	/*switch (state) {
-	    case Normalize:
-	        device->SetRenderState(D3DRS_NORMALIZENORMALS, on ? TRUE : FALSE);
-	        break;
-	    case BackfaceCulling:
-	        if (on) device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-	        else device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	        break;
-	    case FogState:
-	        device->SetRenderState(D3DRS_FOGENABLE, on ? TRUE : FALSE);
-	        break;
-	    case ScissorTestState:
-	        device->SetRenderState(D3DRS_SCISSORTESTENABLE, on ? TRUE : FALSE);
-	        break;
-	    case AlphaTestState:
-	        device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
-	        device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
-	        break;
-	    default:
-	        throw Exception();
-	}*/
-}
-
-void __setRenderState(Graphics4::RenderState state, int v) {
-	switch (state) {
-	case Graphics4::DepthTestCompare:
-		switch (v) {
-		default:
-		case Graphics4::ZCompareAlways:
-			v = GL_ALWAYS;
-			break;
-		case Graphics4::ZCompareNever:
-			v = GL_NEVER;
-			break;
-		case Graphics4::ZCompareEqual:
-			v = GL_EQUAL;
-			break;
-		case Graphics4::ZCompareNotEqual:
-			v = GL_NOTEQUAL;
-			break;
-		case Graphics4::ZCompareLess:
-			v = GL_LESS;
-			break;
-		case Graphics4::ZCompareLessEqual:
-			v = GL_LEQUAL;
-			break;
-		case Graphics4::ZCompareGreater:
-			v = GL_GREATER;
-			break;
-		case Graphics4::ZCompareGreaterEqual:
-			v = GL_GEQUAL;
-			break;
-		}
-		glDepthFunc(v);
-		glCheckErrors();
-		break;
-	case Graphics4::BackfaceCulling:
-		switch (v) {
-		case Graphics4::Clockwise:
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-			glCheckErrors();
-			break;
-		case Graphics4::CounterClockwise:
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
-			glCheckErrors();
-			break;
-		case Graphics4::NoCulling:
-			glDisable(GL_CULL_FACE);
-			glCheckErrors();
-			break;
-		default:
-			break;
-		}
-		break;
-	default:
-		break;
-	}
-	/*switch (state) {
-	    case DepthTestCompare:
-	        switch (v) {
-	                // TODO: Cmp-Konstanten systemabhaengig abgleichen
-	            default:
-	            case ZCmp_Always      : v = D3DCMP_ALWAYS; break;
-	            case ZCmp_Never       : v = D3DCMP_NEVER; break;
-	            case ZCmp_Equal       : v = D3DCMP_EQUAL; break;
-	            case ZCmp_NotEqual    : v = D3DCMP_NOTEQUAL; break;
-	            case ZCmp_Less        : v = D3DCMP_LESS; break;
-	            case ZCmp_LessEqual   : v = D3DCMP_LESSEQUAL; break;
-	            case ZCmp_Greater     : v = D3DCMP_GREATER; break;
-	            case ZCmp_GreaterEqual: v = D3DCMP_GREATEREQUAL; break;
-	        }
-	        device->SetRenderState(D3DRS_ZFUNC, v);
-	        break;
-	    case FogTypeState:
-	        switch (v) {
-	            case LinearFog:
-	                device->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR);
-	        }
-	        break;
-	    case AlphaReferenceState:
-	        device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
-	        break;
-	    default:
-	        throw Exception();
-	}*/
 }
 
 void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
@@ -880,47 +662,8 @@ void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filte
 #endif
 }
 
-namespace {
-	GLenum convert(Graphics4::BlendingOperation operation) {
-		switch (operation) {
-		case Graphics4::BlendZero:
-			return GL_ZERO;
-		case Graphics4::BlendOne:
-			return GL_ONE;
-		case Graphics4::SourceAlpha:
-			return GL_SRC_ALPHA;
-		case Graphics4::DestinationAlpha:
-			return GL_DST_ALPHA;
-		case Graphics4::InverseSourceAlpha:
-			return GL_ONE_MINUS_SRC_ALPHA;
-		case Graphics4::InverseDestinationAlpha:
-			return GL_ONE_MINUS_DST_ALPHA;
-		case Graphics4::SourceColor:
-			return GL_SRC_COLOR;
-		case Graphics4::DestinationColor:
-			return GL_DST_COLOR;
-		case Graphics4::InverseSourceColor:
-			return GL_ONE_MINUS_SRC_COLOR;
-		case Graphics4::InverseDestinationColor:
-			return GL_ONE_MINUS_DST_COLOR;
-		default:
-			return GL_ONE;
-		}
-	}
-}
-
 void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
 	// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-}
-
-void __setBlendingMode(Graphics4::BlendingOperation source, Graphics4::BlendingOperation destination) {
-	glBlendFunc(convert(source), convert(destination));
-	glCheckErrors();
-}
-
-void __setBlendingModeSeparate(Graphics4::BlendingOperation source, Graphics4::BlendingOperation destination, Graphics4::BlendingOperation alphaSource, Graphics4::BlendingOperation alphaDestination) {
-	glBlendFuncSeparate(convert(source), convert(destination), convert(alphaSource), convert(alphaDestination));
-	glCheckErrors();
 }
 
 void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
@@ -1025,5 +768,5 @@ void Graphics4::flush() {
 }
 
 void Graphics4::setPipeline(PipelineState* pipeline) {
-	pipeline->set();
+	pipeline->set(pipeline);
 }

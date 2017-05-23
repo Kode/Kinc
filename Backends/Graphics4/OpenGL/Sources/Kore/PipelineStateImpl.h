@@ -2,6 +2,7 @@
 
 namespace Kore {
 	namespace Graphics4 {
+		class PipelineState;
 		class Shader;
 	}
 
@@ -20,6 +21,6 @@ namespace Kore {
 		char** textures;
 		int* textureValues;
 		int textureCount;
-		void set();
+		void set(Graphics4::PipelineState* pipeline);
 	};
 }

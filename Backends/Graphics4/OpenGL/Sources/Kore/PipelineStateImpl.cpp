@@ -18,6 +18,57 @@ namespace Kore {
 #endif
 }
 
+namespace {
+	GLenum convert(Graphics4::StencilAction action) {
+		switch (action) {
+		default:
+		case Graphics4::Decrement:
+			return GL_DECR;
+		case Graphics4::DecrementWrap:
+			return GL_DECR_WRAP;
+		case Graphics4::Increment:
+			return GL_INCR;
+		case Graphics4::IncrementWrap:
+			return GL_INCR_WRAP;
+		case Graphics4::Invert:
+			return GL_INVERT;
+		case Graphics4::Keep:
+			return GL_KEEP;
+		case Graphics4::Replace:
+			return GL_REPLACE;
+		case Graphics4::Zero:
+			return GL_ZERO;
+		}
+	}
+
+	GLenum convert(Graphics4::BlendingOperation operation) {
+		switch (operation) {
+		case Graphics4::BlendZero:
+			return GL_ZERO;
+		case Graphics4::BlendOne:
+			return GL_ONE;
+		case Graphics4::SourceAlpha:
+			return GL_SRC_ALPHA;
+		case Graphics4::DestinationAlpha:
+			return GL_DST_ALPHA;
+		case Graphics4::InverseSourceAlpha:
+			return GL_ONE_MINUS_SRC_ALPHA;
+		case Graphics4::InverseDestinationAlpha:
+			return GL_ONE_MINUS_DST_ALPHA;
+		case Graphics4::SourceColor:
+			return GL_SRC_COLOR;
+		case Graphics4::DestinationColor:
+			return GL_DST_COLOR;
+		case Graphics4::InverseSourceColor:
+			return GL_ONE_MINUS_SRC_COLOR;
+		case Graphics4::InverseDestinationColor:
+			return GL_ONE_MINUS_DST_COLOR;
+		default:
+			return GL_ONE;
+		}
+	}
+}
+
 PipelineStateImpl::PipelineStateImpl()
     : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
       tessellationControlShader(nullptr) {
@@ -138,7 +189,7 @@ void Graphics4::PipelineState::compile() {
 #endif
 }
 
-void PipelineStateImpl::set() {
+void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 #ifndef KORE_OPENGL_ES
 	programUsesTessellation = tessellationControlShader != nullptr;
 #endif
@@ -148,6 +199,179 @@ void PipelineStateImpl::set() {
 		glUniform1i(textureValues[index], index);
 		glCheckErrors();
 	}
+
+	if (pipeline->stencilMode == Graphics4::ZCompareAlways && pipeline->stencilBothPass == Graphics4::Keep && pipeline->stencilDepthFail == Graphics4::Keep && pipeline->stencilFail == Graphics4::Keep) {
+		glDisable(GL_STENCIL_TEST);
+	}
+	else {
+		glEnable(GL_STENCIL_TEST);
+		int stencilFunc = 0;
+		switch (pipeline->stencilMode) {
+		case Graphics4::ZCompareAlways:
+			stencilFunc = GL_ALWAYS;
+			break;
+		case Graphics4::ZCompareEqual:
+			stencilFunc = GL_EQUAL;
+			break;
+		case Graphics4::ZCompareGreater:
+			stencilFunc = GL_GREATER;
+			break;
+		case Graphics4::ZCompareGreaterEqual:
+			stencilFunc = GL_GEQUAL;
+			break;
+		case Graphics4::ZCompareLess:
+			stencilFunc = GL_LESS;
+			break;
+		case Graphics4::ZCompareLessEqual:
+			stencilFunc = GL_LEQUAL;
+			break;
+		case Graphics4::ZCompareNever:
+			stencilFunc = GL_NEVER;
+			break;
+		case Graphics4::ZCompareNotEqual:
+			stencilFunc = GL_NOTEQUAL;
+			break;
+		}
+		glStencilMask(pipeline->stencilWriteMask);
+		glStencilOp(convert(pipeline->stencilFail), convert(pipeline->stencilDepthFail), convert(pipeline->stencilBothPass));
+		glStencilFunc(stencilFunc, pipeline->stencilReferenceValue, pipeline->stencilReadMask);
+	}
+
+	glColorMask(pipeline->colorWriteMaskRed, pipeline->colorWriteMaskGreen, pipeline->colorWriteMaskBlue, pipeline->colorWriteMaskAlpha);
+
+	if (pipeline->conservativeRasterization) {
+		glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
+	}
+	else {
+		glDisable(0x9346);
+	}
+	
+	glCheckErrors();
+
+	/*switch (state) {
+	case Normalize:
+	device->SetRenderState(D3DRS_NORMALIZENORMALS, on ? TRUE : FALSE);
+	break;
+	case BackfaceCulling:
+	if (on) device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	else device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	break;
+	case FogState:
+	device->SetRenderState(D3DRS_FOGENABLE, on ? TRUE : FALSE);
+	break;
+	case ScissorTestState:
+	device->SetRenderState(D3DRS_SCISSORTESTENABLE, on ? TRUE : FALSE);
+	break;
+	case AlphaTestState:
+	device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
+	device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+	break;
+	default:
+	throw Exception();
+	}*/
+
+	if (pipeline->depthWrite) {
+		glDepthMask(GL_TRUE);
+	}
+	else {
+		glDepthMask(GL_FALSE);
+	}
+
+	if (pipeline->depthMode != Graphics4::ZCompareAlways) {
+		glEnable(GL_DEPTH_TEST);
+	}
+	else {
+		glDisable(GL_DEPTH_TEST);
+	}
+
+	GLenum func = GL_ALWAYS;
+	switch (pipeline->depthMode) {
+	default:
+	case Graphics4::ZCompareAlways:
+		func = GL_ALWAYS;
+		break;
+	case Graphics4::ZCompareNever:
+		func = GL_NEVER;
+		break;
+	case Graphics4::ZCompareEqual:
+		func = GL_EQUAL;
+		break;
+	case Graphics4::ZCompareNotEqual:
+		func = GL_NOTEQUAL;
+		break;
+	case Graphics4::ZCompareLess:
+		func = GL_LESS;
+		break;
+	case Graphics4::ZCompareLessEqual:
+		func = GL_LEQUAL;
+		break;
+	case Graphics4::ZCompareGreater:
+		func = GL_GREATER;
+		break;
+	case Graphics4::ZCompareGreaterEqual:
+		func = GL_GEQUAL;
+		break;
+	}
+	glDepthFunc(func);
+	glCheckErrors();
+
+	switch (pipeline->cullMode) {
+	case Graphics4::Clockwise:
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glCheckErrors();
+		break;
+	case Graphics4::CounterClockwise:
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		glCheckErrors();
+		break;
+	case Graphics4::NoCulling:
+		glDisable(GL_CULL_FACE);
+		glCheckErrors();
+		break;
+	default:
+		break;
+	}
+
+	/*switch (state) {
+	case DepthTestCompare:
+	switch (v) {
+	// TODO: Cmp-Konstanten systemabhaengig abgleichen
+	default:
+	case ZCmp_Always      : v = D3DCMP_ALWAYS; break;
+	case ZCmp_Never       : v = D3DCMP_NEVER; break;
+	case ZCmp_Equal       : v = D3DCMP_EQUAL; break;
+	case ZCmp_NotEqual    : v = D3DCMP_NOTEQUAL; break;
+	case ZCmp_Less        : v = D3DCMP_LESS; break;
+	case ZCmp_LessEqual   : v = D3DCMP_LESSEQUAL; break;
+	case ZCmp_Greater     : v = D3DCMP_GREATER; break;
+	case ZCmp_GreaterEqual: v = D3DCMP_GREATEREQUAL; break;
+	}
+	device->SetRenderState(D3DRS_ZFUNC, v);
+	break;
+	case FogTypeState:
+	switch (v) {
+	case LinearFog:
+	device->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR);
+	}
+	break;
+	case AlphaReferenceState:
+	device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
+	break;
+	default:
+	throw Exception();
+	}*/
+
+	if (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero || pipeline->alphaBlendSource != Graphics4::BlendOne || pipeline->alphaBlendDestination != Graphics4::BlendZero) {
+		glEnable(GL_BLEND);
+	}
+	else {
+		glDisable(GL_BLEND);
+	}
+
+	//glBlendFunc(convert(pipeline->blendSource), convert(pipeline->blendDestination));
+	glBlendFuncSeparate(convert(pipeline->blendSource), convert(pipeline->blendDestination), convert(pipeline->alphaBlendSource), convert(pipeline->alphaBlendDestination));
 }
 
 Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const char* name) {
