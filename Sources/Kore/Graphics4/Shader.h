@@ -4,6 +4,7 @@
 #include "VertexStructure.h"
 #include <Kore/Math/Matrix.h>
 #include <Kore/ShaderImpl.h>
+#include <Kore/PipelineStateImpl.h>
 
 namespace Kore {
 	namespace Graphics4 {

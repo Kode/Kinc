@@ -1,17 +1,18 @@
 #include "pch.h"
 
-#include "Program5Impl.h"
+#include "PipelineState5Impl.h"
 
 #include "Direct3D12.h"
 #include "d3dx12.h"
 #include <Kore/Graphics5/Shader.h>
+#include <Kore/Graphics5/PipelineState.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
 
-Program5Impl* Program5Impl::_current = nullptr;
+PipelineState5Impl* PipelineState5Impl::_current = nullptr;
 
-void Program5Impl::setConstants() {
+void PipelineState5Impl::setConstants() {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
 	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
 	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
@@ -40,11 +41,9 @@ void Program5Impl::setConstants() {
 	Texture5Impl::setTextures();
 }
 
-Program5Impl::Program5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
+PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
 
-Graphics5::Program::Program() {}
-
-void Graphics5::Program::set() {
+void PipelineState5Impl::set(Graphics5::PipelineState* pipeline) {
 	_current = this;
 	// context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
 	// context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
@@ -56,7 +55,7 @@ void Graphics5::Program::set() {
 	// context->IASetInputLayout(inputLayout);
 }
 
-Graphics5::ConstantLocation Graphics5::Program::getConstantLocation(const char* name) {
+Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
 	ConstantLocation location;
 
 	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
@@ -112,7 +111,7 @@ Graphics5::ConstantLocation Graphics5::Program::getConstantLocation(const char* 
 	return location;
 }
 
-Graphics5::TextureUnit Graphics5::Program::getTextureUnit(const char* name) {
+Graphics5::TextureUnit Graphics5::PipelineState::getTextureUnit(const char* name) {
 	TextureUnit unit;
 	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
 		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
@@ -128,26 +127,6 @@ Graphics5::TextureUnit Graphics5::Program::getTextureUnit(const char* name) {
 	return unit;
 }
 
-void Graphics5::Program::setVertexShader(Shader* shader) {
-	vertexShader = shader;
-}
-
-void Graphics5::Program::setFragmentShader(Shader* shader) {
-	fragmentShader = shader;
-}
-
-void Graphics5::Program::setGeometryShader(Shader* shader) {
-	geometryShader = shader;
-}
-
-void Graphics5::Program::setTessellationControlShader(Shader* shader) {
-	tessControlShader = shader;
-}
-
-void Graphics5::Program::setTessellationEvaluationShader(Shader* shader) {
-	tessEvalShader = shader;
-}
-
 namespace {
 	int getMultipleOf16(int value) {
 		int ret = 16;
@@ -156,17 +135,17 @@ namespace {
 	}
 }
 
-void Graphics5::Program::link(VertexStructure** structures, int count) {
+void Graphics5::PipelineState::compile() {
 	D3D12_INPUT_ELEMENT_DESC vertexDesc[10];
-	for (int i = 0; i < structures[0]->size; ++i) {
+	for (int i = 0; i < inputLayout[0]->size; ++i) {
 		vertexDesc[i].SemanticName = "TEXCOORD";
-		vertexDesc[i].SemanticIndex = vertexShader->attributes[structures[0]->elements[i].name];
+		vertexDesc[i].SemanticIndex = vertexShader->attributes[inputLayout[0]->elements[i].name];
 		vertexDesc[i].InputSlot = 0;
 		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
 		vertexDesc[i].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 		vertexDesc[i].InstanceDataStepRate = 0;
 
-		switch (structures[0]->elements[i].data) {
+		switch (inputLayout[0]->elements[i].data) {
 		case Graphics4::Float1VertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 			break;
@@ -195,7 +174,7 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 
-	psoDesc.InputLayout.NumElements = structures[0]->size;
+	psoDesc.InputLayout.NumElements = inputLayout[0]->size;
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
 
 	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
