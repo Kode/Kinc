@@ -2,11 +2,12 @@
 
 namespace Kore {
 	namespace Graphics4 {
+		class PipelineState;
 		class Shader;
 	}
 
-	class ProgramImpl {
-	protected:
+	class PipelineStateImpl {
+	public:
 		uint programId;
 		Graphics4::Shader* vertexShader;
 		Graphics4::Shader* fragmentShader;
@@ -14,17 +15,12 @@ namespace Kore {
 		Graphics4::Shader* tessellationControlShader;
 		Graphics4::Shader* tessellationEvaluationShader;
 
-		ProgramImpl();
-		virtual ~ProgramImpl();
+		PipelineStateImpl();
+		virtual ~PipelineStateImpl();
 		int findTexture(const char* name);
 		char** textures;
 		int* textureValues;
 		int textureCount;
-	};
-
-	class ConstantLocationImpl {
-	public:
-		int location;
-		unsigned int type;
+		void set(Graphics4::PipelineState* pipeline);
 	};
 }
