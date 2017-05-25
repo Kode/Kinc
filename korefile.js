@@ -102,6 +102,7 @@ else if (platform === Platform.WindowsApp) {
 }
 else if (platform === Platform.OSX) {
 	project.addDefine('KORE_MACOS');
+	addBackend('System/Apple');
 	addBackend('System/macOS');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
@@ -127,6 +128,9 @@ else if (platform === Platform.OSX) {
 	project.addLib('AppKit');
 	project.addLib('CoreAudio');
 	project.addLib('CoreData');
+	project.addLib('CoreMedia');
+	project.addLib('CoreVideo');
+	project.addLib('AVFoundation');
 	project.addLib('Foundation');
 	project.addDefine('KORE_POSIX');
 }
@@ -137,6 +141,7 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	else {
 		project.addDefine('KORE_IOS');
 	}
+	addBackend('System/Apple');
 	addBackend('System/iOS');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;

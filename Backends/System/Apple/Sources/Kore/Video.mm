@@ -3,7 +3,7 @@
 #include "Video.h"
 
 #import <AVFoundation/AVFoundation.h>
-#include <Kore/Audio/Mixer.h>
+#include <Kore/Audio1/Audio.h>
 #include <Kore/Graphics4/Texture.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/Log.h>
@@ -16,6 +16,7 @@
 using namespace Kore;
 
 extern const char* iphonegetresourcepath();
+extern const char* macgetresourcepath();
 
 VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
 	buffer = new float[bufferSize];
@@ -59,7 +60,11 @@ struct Video::Impl {
 
 Video::Video(const char* filename) : playing(false), sound(nullptr), impl(new Impl) {
 	char name[2048];
+#ifdef KORE_IOS
 	strcpy(name, iphonegetresourcepath());
+#else
+	strcpy(name, macgetresourcepath());
+#endif
 	strcat(name, "/");
 	strcat(name, KORE_DEBUGDIR);
 	strcat(name, "/");
@@ -116,8 +121,13 @@ Video::~Video() {
 	delete impl;
 }
 
+#ifdef KORE_IOS
 void iosPlayVideoSoundStream(VideoSoundStream* video);
 void iosStopVideoSoundStream();
+#else
+void macPlayVideoSoundStream(VideoSoundStream* video);
+void macStopVideoSoundStream();
+#endif
 
 void Video::play() {
 	AVAssetReader* reader = impl->assetReader;
@@ -125,8 +135,12 @@ void Video::play() {
 
 	sound = new VideoSoundStream(2, 44100);
 	// Mixer::play(sound);
+#ifdef KORE_IOS
 	iosPlayVideoSoundStream(sound);
-
+#else
+	macPlayVideoSoundStream(sound);
+#endif
+	
 	playing = true;
 	start = System::time() - videoStart;
 }
@@ -135,7 +149,11 @@ void Video::pause() {
 	playing = false;
 	if (sound != nullptr) {
 		// Mixer::stop(sound);
+#ifdef KORE_IOS
 		iosStopVideoSoundStream();
+#else
+		macStopVideoSoundStream();
+#endif
 		delete sound;
 		sound = nullptr;
 	}
@@ -170,7 +188,7 @@ void Video::updateImage() {
 			CGSize size = CVImageBufferGetDisplaySize(pixelBuffer);
 			myWidth = size.width;
 			myHeight = size.height;
-			image = new Graphics4::Texture(width(), height(), Graphics4::Image::RGBA32, false);
+			image = new Graphics4::Texture(width(), height(), Graphics4::Image::BGRA32, false);
 		}
 
 		if (pixelBuffer != NULL) {

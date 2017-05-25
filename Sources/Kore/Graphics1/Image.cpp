@@ -37,6 +37,7 @@ int Graphics1::Image::sizeOf(Image::Format format) {
 	case Image::RGBA128:
 		return 16;
 	case Image::RGBA32:
+	case Image::BGRA32:
 		return 4;
 	case Image::RGBA64:
 		return 8;

@@ -16,15 +16,17 @@ using namespace Kore;
 namespace {
 	int convertFormat(Graphics4::Image::Format format) {
 		switch (format) {
+		case Graphics4::Image::BGRA32:
+#ifdef GL_BGRA
+				return GL_BGRA;
+#else
+				return GL_RGBA;
+#endif
 		case Graphics4::Image::RGBA32:
 		case Graphics4::Image::RGBA64:
 		case Graphics4::Image::RGBA128:
 		default:
-			// #ifdef GL_BGRA
-			// return GL_BGRA;
-			// #else
 			return GL_RGBA;
-		// #endif
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
 		case Graphics4::Image::A32:
@@ -429,7 +431,7 @@ void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int d
 #endif
 }
 
-#ifdef KORE_IOS
+#if defined(KORE_IOS) || defined(KORE_MACOS)
 void Graphics4::Texture::upload(u8* data) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glCheckErrors();

@@ -25,7 +25,7 @@ namespace Kore {
 			u8* lock();
 			void unlock();
 			void clear(int x, int y, int z, int width, int height, int depth, uint color);
-#ifdef KORE_IOS
+#if defined(KORE_IOS) || defined(KORE_MACOS)
 			void upload(u8* data);
 #endif
 			void generateMipmaps(int levels);
