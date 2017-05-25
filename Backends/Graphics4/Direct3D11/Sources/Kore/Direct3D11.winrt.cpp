@@ -85,7 +85,11 @@ namespace {
 void Graphics4::destroy(int windowId) {}
 
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
+#ifdef KORE_VR
+	vsync = false;
+#else
 	vsync = vSync;
+#endif
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 

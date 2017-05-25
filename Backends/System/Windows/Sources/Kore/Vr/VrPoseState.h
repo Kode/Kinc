@@ -8,7 +8,7 @@ public:
 	VrPoseState();
 	~VrPoseState();
 
-	VrPose* vrPose;
+	VrPose vrPose;
 	Kore::vec3 angularVelocity;				// Angular velocity in radians per second.
 	Kore::vec3 linearVelocity;				// Velocity in meters per second.
 	Kore::vec3 angularAcceleration;			// Angular acceleration in radians per second per second.
