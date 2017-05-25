@@ -57,13 +57,7 @@ namespace {
 	int _renderTargetHeight;
 	bool renderToBackbuffer;
 
-	bool depthTest = false;
-	bool depthMask = true;
-	bool conservativeRasterOn = false;
-	bool colorMaskRed = true;
-	bool colorMaskGreen= true;
-	bool colorMaskBlue = true;
-	bool colorMaskAlpha = true;
+	Graphics4::PipelineState* lastPipeline = nullptr;
 
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	void* glesDrawBuffers;
@@ -485,22 +479,9 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 	                      ((flags & ClearStencilFlag) ? GL_STENCIL_BUFFER_BIT : 0);
 	glClear(oglflags);
 	glCheckErrors();
-	glColorMask(colorMaskRed, colorMaskGreen, colorMaskBlue, colorMaskAlpha);
-	glCheckErrors();
-	if (depthTest) {
-		glEnable(GL_DEPTH_TEST);
+	if (lastPipeline != nullptr) {
+		setPipeline(lastPipeline);
 	}
-	else {
-		glDisable(GL_DEPTH_TEST);
-	}
-	glCheckErrors();
-	if (depthMask) {
-		glDepthMask(GL_TRUE);
-	}
-	else {
-		glDepthMask(GL_FALSE);
-	}
-	glCheckErrors();
 }
 
 void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
@@ -772,4 +753,5 @@ void Graphics4::flush() {
 
 void Graphics4::setPipeline(PipelineState* pipeline) {
 	pipeline->set(pipeline);
+	lastPipeline = pipeline;
 }
