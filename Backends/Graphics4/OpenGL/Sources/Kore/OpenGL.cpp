@@ -194,6 +194,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 #ifdef KORE_WINDOWS
 	if (windowId == 0) {
+#ifdef KORE_VR
+		vsync = false;
+#endif
 		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(vsync);
 	}
 #endif

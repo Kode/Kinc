@@ -6,9 +6,12 @@
 
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
-#include "Direct3D11.h"
+//#include "Direct3D11.h"
 
 #include <openvr.h>
+
+#include <math.h>
+#include <stdio.h>
 
 using namespace Kore;
 
@@ -62,10 +65,27 @@ void VrInterface::beginRender(int eye) {
 }
 
 void VrInterface::endRender(int eye) {
-	vr::Texture_t leftEyeTexture = { (void*)leftTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = { (void*)rightTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+
+}
+
+namespace {
+	mat4 convert(vr::HmdMatrix34_t& m) {
+		mat4 mat;
+		mat.Set(0, 0, m.m[0][0]); mat.Set(0, 1, m.m[0][1]); mat.Set(0, 2, m.m[0][2]); mat.Set(0, 3, m.m[0][3]);
+		mat.Set(1, 0, m.m[1][0]); mat.Set(1, 1, m.m[1][1]); mat.Set(1, 2, m.m[1][2]); mat.Set(1, 3, m.m[1][3]);
+		mat.Set(2, 0, m.m[2][0]); mat.Set(2, 1, m.m[2][1]); mat.Set(2, 2, m.m[2][2]); mat.Set(2, 3, m.m[2][3]);
+		mat.Set(3, 0, 0); mat.Set(3, 1, 0); mat.Set(3, 2, 0); mat.Set(3, 3, 1);
+		return mat;
+	}
+
+	mat4 convert(vr::HmdMatrix44_t& m) {
+		mat4 mat;
+		mat.Set(0, 0, m.m[0][0]); mat.Set(0, 1, m.m[0][1]); mat.Set(0, 2, m.m[0][2]); mat.Set(0, 3, m.m[0][3]);
+		mat.Set(1, 0, m.m[1][0]); mat.Set(1, 1, m.m[1][1]); mat.Set(1, 2, m.m[1][2]); mat.Set(1, 3, m.m[1][3]);
+		mat.Set(2, 0, m.m[2][0]); mat.Set(2, 1, m.m[2][1]); mat.Set(2, 2, m.m[2][2]); mat.Set(2, 3, m.m[2][3]);
+		mat.Set(3, 0, m.m[3][0]); mat.Set(3, 1, m.m[3][1]); mat.Set(3, 2, m.m[3][2]); mat.Set(3, 3, m.m[3][3]);
+		return mat;
+	}
 }
 
 SensorState* VrInterface::getSensorState(int eye) {
@@ -86,6 +106,8 @@ SensorState* VrInterface::getSensorState(int eye) {
 				
 				poseState->vrPose->position = vec3(m.m[0][3], m.m[1][3], m.m[2][3]);
 
+				//log(Info, "x: %f y: %f z: %f", m.m[0][3], m.m[1][3], m.m[2][3]);
+
 				Quaternion q;
 				q.w = sqrt(fmax(0, 1 + m.m[0][0] + m.m[1][1] + m.m[2][2])) / 2;
 				q.x = sqrt(fmax(0, 1 + m.m[0][0] - m.m[1][1] - m.m[2][2])) / 2;
@@ -95,6 +117,12 @@ SensorState* VrInterface::getSensorState(int eye) {
 				q.y = copysign(q.y, m.m[0][2] - m.m[2][0]);
 				q.z = copysign(q.z, m.m[1][0] - m.m[0][1]);
 				poseState->vrPose->orientation = q;
+
+				vr::HmdMatrix34_t eyeMatrix = hmd->GetEyeToHeadTransform(eye == 0 ? vr::Eye_Left : vr::Eye_Right);
+				poseState->vrPose->eye = convert(eyeMatrix).Invert() * convert(m).Invert();
+
+				vr::HmdMatrix44_t proj = hmd->GetProjectionMatrix(eye == 0 ? vr::Eye_Left : vr::Eye_Right, 0.1f, 100.0f);
+				poseState->vrPose->projection = convert(proj);
 			}
 		}
 	}
@@ -108,6 +136,18 @@ SensorState* VrInterface::getSensorState(int eye) {
 }
 
 void VrInterface::warpSwap() {
+#ifdef KORE_OPENGL
+	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)leftTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+	vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)rightTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+#else
+	vr::Texture_t leftEyeTexture = { (void*)leftTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+	vr::Texture_t rightEyeTexture = { (void*)rightTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+#endif
+
 	vr::VREvent_t event;
 	while (hmd->PollNextEvent(&event, sizeof(event))) {
 		processVREvent(event);
