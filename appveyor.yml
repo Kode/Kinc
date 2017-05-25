@@ -1,8 +1,15 @@
 version: 1.0.{build}
+platform:
+  - Win32
+  - x64
+environment:
+  matrix:
+  - platform_name: windows
+  - platform_name: windowsapp
 before_build:
-- git submodule update --init --recursive
-- git clone https://github.com/ktxsoftware/nodejs_bin.git
-- nodejs_bin\node.exe make.js --kore . --from Tests/Empty --visualstudio vs2013 --noshaders
+  - git submodule update --init --recursive
+  - git clone https://github.com/ktxsoftware/nodejs_bin.git
+  - nodejs_bin\node.exe make.js %platform_name% --kore . --from Tests/Empty --visualstudio vs2015 --noshaders
 build:
   project: build\Empty.sln
   verbosity: minimal

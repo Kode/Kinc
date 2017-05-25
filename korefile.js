@@ -71,8 +71,8 @@ if (platform === Platform.Windows) {
 		addBackend('Graphics5/Vulkan');
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
-		project.addLibFor('Win32', 'Backends/Vulkan/Libraries/win32/vulkan-1');
-		project.addLibFor('x64', 'Backends/Vulkan/Libraries/win64/vulkan-1');
+		project.addLibFor('Win32', 'Backends/Graphics5/Vulkan/Libraries/win32/vulkan-1');
+		project.addLibFor('x64', 'Backends/Graphics5/Vulkan/Libraries/win64/vulkan-1');
 	}
 	else {
 		g4 = true;
@@ -83,14 +83,24 @@ if (platform === Platform.Windows) {
 	}
 	
 	if (vr === VrApi.Oculus) {
-		project.addDefine('VR_RIFT');
-		project.addLibFor('x64', 'Backends/Windows/Libraries/OculusSDK/Lib/x64/LibOVR');
-		project.addLibFor('Win32', 'Backends/Windows/Libraries/OculusSDK/Lib/Win32/LibOVR');
-		project.addFile('Backends/Windows/Libraries/OculusSDK/**');
-		project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVR/Include');
-		project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVR/Src');
-		project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/LibOVRKernel/Src');
-		project.addIncludeDir('Backends/Windows/Libraries/OculusSDK/Logging/include');
+		project.addDefine('KORE_VR');
+		project.addDefine('KORE_OCULUS');
+		project.addLibFor('x64', 'Backends/System/Windows/Libraries/OculusSDK/Lib/x64/LibOVR');
+		project.addLibFor('Win32', 'Backends/System/Windows/Libraries/OculusSDK/Lib/Win32/LibOVR');
+		project.addFile('Backends/System/Windows/Libraries/OculusSDK/**');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVR/Include');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVR/Src');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/Logging/include');
+	}
+	else if (vr === VrApi.SteamVR) {
+		project.addDefine('KORE_VR');
+		project.addDefine('KORE_STEAMVR');
+		project.addDefine('VR_API_PUBLIC');
+		project.addFile('Backends/System/Windows/Libraries/SteamVR/src/**');
+		project.addIncludeDir('Backends/System/Windows/Libraries/SteamVR/src');
+		project.addIncludeDir('Backends/System/Windows/Libraries/SteamVR/src/vrcommon');
+		project.addIncludeDir('Backends/System/Windows/Libraries/SteamVR/headers');
 	}
 }
 else if (platform === Platform.WindowsApp) {

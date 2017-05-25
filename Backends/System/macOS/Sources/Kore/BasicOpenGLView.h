@@ -1,4 +1,4 @@
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 #import <MetalKit/MTKView.h>
 #else
 #import <Cocoa/Cocoa.h>
@@ -11,7 +11,7 @@
 #import <OpenGL/glu.h>
 #endif
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 
 @interface BasicOpenGLView : MTKView {
 @private
@@ -36,7 +36,7 @@
 
 #endif
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 - (id<MTLDevice>)metalDevice;
 - (id<MTLLibrary>)metalLibrary;
 - (id<MTLRenderCommandEncoder>)metalEncoder;

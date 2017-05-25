@@ -5,8 +5,8 @@
 
 namespace Kore {
 	struct ShaderConstant {
-		u8 offset;
-		u8 size;
+		u32 offset;
+		u32 size;
 	};
 
 	class ShaderImpl {
@@ -19,5 +19,19 @@ namespace Kore {
 		void* shader;
 		u8* data;
 		int length;
+	};
+
+	class ConstantLocationImpl {
+	public:
+		u8 vertexOffset;
+		u8 vertexSize;
+		u8 fragmentOffset;
+		u8 fragmentSize;
+		u8 geometryOffset;
+		u8 geometrySize;
+		u8 tessEvalOffset;
+		u8 tessEvalSize;
+		u8 tessControlOffset;
+		u8 tessControlSize;
 	};
 }

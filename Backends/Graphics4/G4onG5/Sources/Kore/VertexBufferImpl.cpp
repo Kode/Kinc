@@ -6,7 +6,11 @@
 
 using namespace Kore;
 
-Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : _buffer(count, structure, instanceDataStepRate) {}
+namespace {
+	const int multiple = 100;
+}
+
+Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : _buffer(count * multiple, structure, instanceDataStepRate), currentIndex(0) {}
 
 Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, structure, instanceDataStepRate) {}
 
@@ -17,11 +21,16 @@ float* Graphics4::VertexBuffer::lock() {
 }
 
 float* Graphics4::VertexBuffer::lock(int start, int count) {
-	return _buffer.lock(start, count);
+	return _buffer.lock(start + currentIndex * _buffer.count(), count);
 }
 
 void Graphics4::VertexBuffer::unlock() {
 	_buffer.unlock();
+
+	++currentIndex;
+	if (currentIndex >= multiple) {
+		currentIndex = 0;
+	}
 }
 
 int Graphics4::VertexBuffer::count() {

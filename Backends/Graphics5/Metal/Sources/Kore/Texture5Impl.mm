@@ -3,7 +3,7 @@
 #include "Texture5Impl.h"
 
 #include <Kore/Graphics5/Graphics.h>
-#include <Kore/Graphics/Image.h>
+#include <Kore/Graphics1/Image.h>
 #include <Kore/Log.h>
 
 #import <Metal/Metal.h>

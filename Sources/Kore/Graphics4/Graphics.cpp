@@ -4,6 +4,7 @@
 #include "pch.h"
 
 #include "Graphics.h"
+#include "PipelineState.h"
 
 #include <limits>
 
@@ -14,7 +15,7 @@ namespace {
 	bool window = true;
 }
 
-#if !defined(KORE_WINDOWS) && !defined(KORE_METAL)
+#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && !defined(KORE_METAL)
 void Graphics4::setup() {}
 #endif
 

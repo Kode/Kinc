@@ -22,6 +22,8 @@
 #endif // DEBUG
 #include <strsafe.h>
 
+#pragma warning(disable: 4996)
+
 extern CFactoryTemplate g_Templates[];
 extern int g_cTemplates;
 

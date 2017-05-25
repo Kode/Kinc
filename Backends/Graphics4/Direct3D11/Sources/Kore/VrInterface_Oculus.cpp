@@ -1,10 +1,10 @@
 #include "pch.h"
 
+#ifdef KORE_OCULUS
+
 #include <Kore/Vr/VrInterface.h>
 
-#ifdef VR_RIFT
-
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
 #include "Direct3D11.h"
 
@@ -29,7 +29,7 @@ using namespace Kore;
 struct DepthBuffer {
 	ID3D11DepthStencilView* TexDsv;
 
-	DepthBuffer(ID3D11Device * Device, int sizeW, int sizeH, int sampleCount = 1) {
+	DepthBuffer(ID3D11Device* Device, int sizeW, int sizeH, int sampleCount = 1) {
 		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT;
 		D3D11_TEXTURE2D_DESC dsDesc;
 		dsDesc.Width = sizeW;
@@ -43,7 +43,7 @@ struct DepthBuffer {
 		dsDesc.CPUAccessFlags = 0;
 		dsDesc.MiscFlags = 0;
 		dsDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		ID3D11Texture2D * Tex;
+		ID3D11Texture2D* Tex;
 		Device->CreateTexture2D(&dsDesc, NULL, &Tex);
 		Device->CreateDepthStencilView(Tex, NULL, &TexDsv);
 		Tex->Release();

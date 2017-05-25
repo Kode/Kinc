@@ -12,7 +12,8 @@ namespace Kore {
 		ID3D11RenderTargetView* renderTargetView;
 		ID3D11Texture2D* depthStencil;
 		ID3D11DepthStencilView* depthStencilView;
-		ID3D11ShaderResourceView* view;
+		ID3D11ShaderResourceView* renderTargetSRV;
+		ID3D11ShaderResourceView* depthStencilSRV;
 		int lastBoundUnit;
 	};
 }
