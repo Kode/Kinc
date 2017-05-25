@@ -3,8 +3,9 @@
 #include "G4.h"
 
 #include "IndexBufferImpl.h"
-#include "ProgramImpl.h"
+#include "PipelineStateImpl.h"
 #include "VertexBufferImpl.h"
+#include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
@@ -59,10 +60,6 @@ void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddr
 	Graphics4::setTextureAddressing(unit, dir, addressing);
 }
 
-void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
-	Graphics5::setColorMask(red, green, blue, alpha);
-}
-
 void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 	Graphics5::clear(flags, color, depth, stencil);
 }
@@ -83,11 +80,6 @@ void Graphics4::disableScissor() {
 	Graphics5::disableScissor();
 }
 
-void Graphics4::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-                                    int readMask, int writeMask) {
-	Graphics5::setStencilParameters((Graphics5::ZCompareMode)compareMode, (Graphics5::StencilAction)bothPass, (Graphics5::StencilAction)depthFail, (Graphics5::StencilAction)stencilFail, referenceValue, readMask, writeMask);
-}
-
 void Graphics4::end(int window) {
 	Graphics5::end(window);
 }
@@ -106,14 +98,6 @@ bool Graphics4::swapBuffers(int window) {
 
 void Graphics4::flush() {
 	return Graphics5::flush();
-}
-
-void Graphics4::setRenderState(RenderState state, bool on) {
-	Graphics5::setRenderState((Graphics5::RenderState)state, on);
-}
-
-void Graphics4::setRenderState(RenderState state, int v) {
-	Graphics5::setRenderState((Graphics5::RenderState)state, v);
 }
 
 void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
@@ -180,14 +164,6 @@ void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filte
 	Graphics4::setTextureMipmapFilter(texunit, filter);
 }
 
-void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-	Graphics5::setBlendingMode((Graphics5::BlendingOperation)source, (Graphics5::BlendingOperation)destination);
-}
-
-void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {
-	Graphics5::setBlendingModeSeparate((Graphics5::BlendingOperation)source, (Graphics5::BlendingOperation)destination, (Graphics5::BlendingOperation)alphaSource, (Graphics5::BlendingOperation)alphaDestination);
-}
-
 bool Graphics4::renderTargetsInvertedY() {
 	return Graphics5::renderTargetsInvertedY();
 }
@@ -250,4 +226,8 @@ bool Graphics4::isQueryResultsAvailable(uint occlusionQuery) {
 
 void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 	Graphics5::getQueryResults(occlusionQuery, pixelCount);
+}
+
+void Graphics4::setPipeline(PipelineState* pipeline) {
+	Graphics5::setPipeline(pipeline->_pipeline);
 }

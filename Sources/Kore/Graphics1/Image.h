@@ -6,7 +6,7 @@ namespace Kore {
 	namespace Graphics1 {
 		class Image {
 		public:
-			enum Format { RGBA32, Grey8, RGB24, RGBA128, RGBA64, A32 };
+			enum Format { RGBA32, Grey8, RGB24, RGBA128, RGBA64, A32, BGRA32 };
 
 			static int sizeOf(Image::Format format);
 

@@ -10,6 +10,8 @@
 
 namespace Kore {
 	namespace Graphics4 {
+		class PipelineState;
+
 		class VertexBuffer : public VertexBufferImpl {
 		public:
 			VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
@@ -51,7 +53,8 @@ namespace Kore {
 			BackfaceCulling,
 			/*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
 			AlphaTestState,
-			AlphaReferenceState
+			AlphaReferenceState,
+			ConservativeRasterization
 		};
 
 		enum BlendingOperation {
@@ -111,7 +114,7 @@ namespace Kore {
 			void setDepthStencilFrom(RenderTarget* source);
 			void getPixels(u8* data);
 		};
-
+		
 		void setBool(ConstantLocation location, bool value);
 		void setInt(ConstantLocation location, int value);
 		void setFloat(ConstantLocation location, float value);
@@ -130,6 +133,7 @@ namespace Kore {
 		void setIndexBuffer(IndexBuffer& indexBuffer);
 		void setTexture(TextureUnit unit, Texture* texture);
 		void setImageTexture(TextureUnit unit, Texture* texture);
+		void setPipeline(PipelineState* pipeline);
 
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
@@ -159,12 +163,7 @@ namespace Kore {
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();
-		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-			int readMask = 0, int writeMask = 0);
 
-		void setRenderState(RenderState state, bool on);
-		void setRenderState(RenderState state, int v);
-		void setRenderState(RenderState state, float value);
 		void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
 		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
@@ -173,10 +172,7 @@ namespace Kore {
 		void setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter);
-		void setBlendingMode(BlendingOperation source, BlendingOperation destination);
-		void setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
-		void setColorMask(bool red, bool green, bool blue, bool alpha);
 
 		bool vsynced();
 		unsigned refreshRate();

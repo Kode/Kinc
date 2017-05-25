@@ -7,6 +7,7 @@
 //#include <Kore/Application.h>
 #include "IndexBufferImpl.h"
 #include "VertexBufferImpl.h"
+#include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #undef CreateWindow
 #include <Kore/System.h>
@@ -41,7 +42,8 @@ using namespace Windows::Foundation;
 #endif
 
 namespace Kore {
-	extern ProgramImpl* currentProgram;
+	extern Graphics4::PipelineState* currentPipeline;
+	bool scissoring = false;
 }
 
 namespace {
@@ -54,51 +56,6 @@ namespace {
 #else
 	IDXGISwapChain* swapChain;
 #endif
-	int lastStencilReferenceValue = 0;
-	D3D11_DEPTH_STENCIL_DESC lastDepthStencil;
-
-	struct DepthStencil {
-		D3D11_DEPTH_STENCIL_DESC desc;
-		ID3D11DepthStencilState* state;
-	};
-
-	std::vector<DepthStencil> depthStencils;
-
-	ID3D11DepthStencilState* getDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& desc) {
-		for (unsigned i = 0; i < depthStencils.size(); ++i) {
-			if (memcmp(&desc, &depthStencils[i].desc, sizeof(D3D11_DEPTH_STENCIL_DESC)) == 0) {
-				return depthStencils[i].state;
-			}
-		}
-		DepthStencil ds;
-		ds.desc = desc;
-		device->CreateDepthStencilState(&ds.desc, &ds.state);
-		depthStencils.push_back(ds);
-		return ds.state;
-	}
-
-	D3D11_RASTERIZER_DESC lastRasterizer;
-
-	struct Rasterizer {
-		D3D11_RASTERIZER_DESC desc;
-		ID3D11RasterizerState* state;
-	};
-
-	std::vector<Rasterizer> rasterizers;
-
-	ID3D11RasterizerState* getRasterizerState(const D3D11_RASTERIZER_DESC& desc) {
-		for (unsigned i = 0; i < rasterizers.size(); ++i) {
-			if (memcmp(&desc, &rasterizers[i].desc, sizeof(D3D11_RASTERIZER_DESC)) == 0) {
-				return rasterizers[i].state;
-			}
-		}
-		Rasterizer r;
-		r.desc = desc;
-		device->CreateRasterizerState(&r.desc, &r.state);
-		rasterizers.push_back(r);
-		return r.state;
-	}
-
 	D3D11_SAMPLER_DESC lastSamplers[16];
 
 	struct Sampler {
@@ -119,50 +76,6 @@ namespace {
 		device->CreateSamplerState(&s.desc, &s.state);
 		samplers.push_back(s);
 		return s.state;
-	}
-
-	D3D11_COMPARISON_FUNC getComparison(Graphics4::ZCompareMode compare) {
-		switch (compare) {
-		default:
-		case Graphics4::ZCompareAlways:
-			return D3D11_COMPARISON_ALWAYS;
-		case Graphics4::ZCompareNever:
-			return D3D11_COMPARISON_NEVER;
-		case Graphics4::ZCompareEqual:
-			return D3D11_COMPARISON_EQUAL;
-		case Graphics4::ZCompareNotEqual:
-			return D3D11_COMPARISON_NOT_EQUAL;
-		case Graphics4::ZCompareLess:
-			return D3D11_COMPARISON_LESS;
-		case Graphics4::ZCompareLessEqual:
-			return D3D11_COMPARISON_LESS_EQUAL;
-		case Graphics4::ZCompareGreater:
-			return D3D11_COMPARISON_GREATER;
-		case Graphics4::ZCompareGreaterEqual:
-			return D3D11_COMPARISON_GREATER_EQUAL;
-		}
-	}
-
-	D3D11_STENCIL_OP getStencilAction(Graphics4::StencilAction action) {
-		switch (action) {
-		default:
-		case Graphics4::Keep:
-			return D3D11_STENCIL_OP_KEEP;
-		case Graphics4::Zero:
-			return D3D11_STENCIL_OP_ZERO;
-		case Graphics4::Replace:
-			return D3D11_STENCIL_OP_REPLACE;
-		case Graphics4::Increment:
-			return D3D11_STENCIL_OP_INCR;
-		case Graphics4::IncrementWrap:
-			return D3D11_STENCIL_OP_INCR_SAT;
-		case Graphics4::Decrement:
-			return D3D11_STENCIL_OP_DECR;
-		case Graphics4::DecrementWrap:
-			return D3D11_STENCIL_OP_DECR_SAT;
-		case Graphics4::Invert:
-			return D3D11_STENCIL_OP_INVERT;
-		}
 	}
 
 	ID3D11RenderTargetView* currentRenderTargetView;
@@ -311,36 +224,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
 	context->RSSetViewports(1, &viewPort);
-
-	D3D11_DEPTH_STENCIL_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.DepthEnable = FALSE;
-	desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	desc.DepthFunc = D3D11_COMPARISON_LESS;
-	desc.StencilEnable = FALSE;
-	desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
-	desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
-	desc.FrontFace.StencilFunc = desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	desc.FrontFace.StencilDepthFailOp = desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
-	lastDepthStencil = desc;
-
-	D3D11_RASTERIZER_DESC rasterDesc;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.CullMode = D3D11_CULL_NONE;
-	rasterDesc.FrontCounterClockwise = FALSE;
-	rasterDesc.DepthBias = 0;
-	rasterDesc.SlopeScaledDepthBias = 0.0f;
-	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = TRUE;
-	rasterDesc.ScissorEnable = FALSE;
-	rasterDesc.MultisampleEnable = FALSE;
-	rasterDesc.AntialiasedLineEnable = FALSE;
-	lastRasterizer = rasterDesc;
-	context->RSSetState(getRasterizerState(rasterDesc));
-
+	
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -405,24 +289,24 @@ void Graphics4::flush() {}
 void Graphics4::changeResolution(int width, int height) {}
 
 void Graphics4::drawIndexedVertices() {
-	if (currentProgram->tessControlShader != nullptr) {
+	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Program::setConstants();
+	PipelineState::setConstants();
 	context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
 }
 
 void Graphics4::drawIndexedVertices(int start, int count) {
-	if (currentProgram->tessControlShader != nullptr) {
+	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Program::setConstants();
+	PipelineState::setConstants();
 	context->DrawIndexed(count, start, 0);
 }
 
@@ -431,13 +315,13 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-	if (currentProgram->tessControlShader != nullptr) {
+	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Program::setConstants();
+	PipelineState::setConstants();
 	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
 }
 
@@ -510,40 +394,28 @@ void Graphics4::viewport(int x, int y, int width, int height) {
 }
 
 void Graphics4::scissor(int x, int y, int width, int height) {
-	lastRasterizer.ScissorEnable = TRUE;
-	context->RSSetState(getRasterizerState(lastRasterizer));
 	D3D11_RECT rect;
 	rect.left = x;
 	rect.top = y;
 	rect.right = x + width;
 	rect.bottom = y + height;
 	context->RSSetScissorRects(1, &rect);
+	scissoring = true;
+	if (currentPipeline != nullptr) {
+		currentPipeline->setRasterizerState(scissoring);
+	}
 }
 
 void Graphics4::disableScissor() {
-	lastRasterizer.ScissorEnable = FALSE;
-	context->RSSetState(getRasterizerState(lastRasterizer));
+	context->RSSetScissorRects(0, nullptr);
+	scissoring = false;
+	if (currentPipeline != nullptr) {
+		currentPipeline->setRasterizerState(scissoring);
+	}
 }
 
-void Graphics4::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-                                    int readMask, int writeMask) {
-	D3D11_DEPTH_STENCIL_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.DepthEnable = lastDepthStencil.DepthEnable;
-	desc.DepthWriteMask = lastDepthStencil.DepthWriteMask;
-	desc.DepthFunc = lastDepthStencil.DepthFunc;
-	desc.StencilEnable = TRUE;
-	desc.StencilReadMask = readMask;
-	desc.StencilWriteMask = writeMask;
-	desc.FrontFace.StencilFunc = desc.BackFace.StencilFunc = getComparison(compareMode);
-	desc.FrontFace.StencilDepthFailOp = desc.BackFace.StencilDepthFailOp = getStencilAction(depthFail);
-	desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = getStencilAction(bothPass);
-	desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = getStencilAction(stencilFail);
-
-	lastDepthStencil = desc;
-	lastStencilReferenceValue = referenceValue;
-
-	context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
+void Graphics4::setPipeline(PipelineState* pipeline) {
+	pipeline->set(pipeline, scissoring);
 }
 
 void Graphics4::end(int windowId) {}
@@ -569,95 +441,6 @@ bool Graphics4::swapBuffers(int windowId) {
 	// else {
 	return SUCCEEDED(hr);
 	//}
-}
-
-namespace {
-	// vec4 toVec(const Color& color) {
-	//	return vec4(color.R(), color.G(), color.B(), color.A());
-	//}
-}
-
-void Graphics4::setRenderState(RenderState state, bool on) {
-	switch (state) {
-	case DepthTest: {
-		D3D11_DEPTH_STENCIL_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
-		desc.DepthEnable = on;
-		desc.DepthWriteMask = lastDepthStencil.DepthWriteMask;
-		desc.DepthFunc = lastDepthStencil.DepthFunc;
-		desc.StencilEnable = lastDepthStencil.StencilEnable;
-		desc.StencilReadMask = lastDepthStencil.StencilReadMask;
-		desc.StencilWriteMask = lastDepthStencil.StencilWriteMask;
-		desc.FrontFace.StencilFunc = lastDepthStencil.FrontFace.StencilFunc;
-		desc.BackFace.StencilFunc = lastDepthStencil.BackFace.StencilFunc;
-		desc.FrontFace.StencilDepthFailOp = lastDepthStencil.FrontFace.StencilDepthFailOp;
-		desc.BackFace.StencilDepthFailOp = lastDepthStencil.BackFace.StencilDepthFailOp;
-		desc.FrontFace.StencilPassOp = lastDepthStencil.FrontFace.StencilPassOp;
-		desc.BackFace.StencilPassOp = lastDepthStencil.BackFace.StencilPassOp;
-		desc.FrontFace.StencilFailOp = lastDepthStencil.FrontFace.StencilFailOp;
-		desc.BackFace.StencilFailOp = lastDepthStencil.BackFace.StencilFailOp;
-
-		lastDepthStencil = desc;
-
-		context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
-		break;
-	}
-	case DepthWrite: {
-		D3D11_DEPTH_STENCIL_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
-		desc.DepthEnable = lastDepthStencil.DepthEnable;
-		desc.DepthWriteMask = on ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-		desc.DepthFunc = lastDepthStencil.DepthFunc;
-		desc.StencilEnable = lastDepthStencil.StencilEnable;
-		desc.StencilReadMask = lastDepthStencil.StencilReadMask;
-		desc.StencilWriteMask = lastDepthStencil.StencilWriteMask;
-		desc.FrontFace.StencilFunc = lastDepthStencil.FrontFace.StencilFunc;
-		desc.BackFace.StencilFunc = lastDepthStencil.BackFace.StencilFunc;
-		desc.FrontFace.StencilDepthFailOp = lastDepthStencil.FrontFace.StencilDepthFailOp;
-		desc.BackFace.StencilDepthFailOp = lastDepthStencil.BackFace.StencilDepthFailOp;
-		desc.FrontFace.StencilPassOp = lastDepthStencil.FrontFace.StencilPassOp;
-		desc.BackFace.StencilPassOp = lastDepthStencil.BackFace.StencilPassOp;
-		desc.FrontFace.StencilFailOp = lastDepthStencil.FrontFace.StencilFailOp;
-		desc.BackFace.StencilFailOp = lastDepthStencil.BackFace.StencilFailOp;
-
-		lastDepthStencil = desc;
-
-		context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
-		break;
-	}
-	case BackfaceCulling: {
-		lastRasterizer.CullMode = on ? D3D11_CULL_BACK : D3D11_CULL_NONE;
-		context->RSSetState(getRasterizerState(lastRasterizer));
-		break;
-	}
-	}
-}
-
-void Graphics4::setRenderState(RenderState state, int v) {
-	switch (state) {
-	case DepthTestCompare:
-		D3D11_DEPTH_STENCIL_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
-		desc.DepthEnable = lastDepthStencil.DepthEnable;
-		desc.DepthWriteMask = lastDepthStencil.DepthWriteMask;
-		desc.DepthFunc = getComparison((ZCompareMode)v);
-		desc.StencilEnable = lastDepthStencil.StencilEnable;
-		desc.StencilReadMask = lastDepthStencil.StencilReadMask;
-		desc.StencilWriteMask = lastDepthStencil.StencilWriteMask;
-		desc.FrontFace.StencilFunc = lastDepthStencil.FrontFace.StencilFunc;
-		desc.BackFace.StencilFunc = lastDepthStencil.BackFace.StencilFunc;
-		desc.FrontFace.StencilDepthFailOp = lastDepthStencil.FrontFace.StencilDepthFailOp;
-		desc.BackFace.StencilDepthFailOp = lastDepthStencil.BackFace.StencilDepthFailOp;
-		desc.FrontFace.StencilPassOp = lastDepthStencil.FrontFace.StencilPassOp;
-		desc.BackFace.StencilPassOp = lastDepthStencil.BackFace.StencilPassOp;
-		desc.FrontFace.StencilFailOp = lastDepthStencil.FrontFace.StencilFailOp;
-		desc.BackFace.StencilFailOp = lastDepthStencil.BackFace.StencilFailOp;
-
-		lastDepthStencil = desc;
-
-		context->OMSetDepthStencilState(getDepthStencilState(desc), lastStencilReferenceValue);
-		break;
-	}
 }
 
 void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
@@ -996,87 +779,6 @@ void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filte
 	Graphics4::setTextureMipmapFilter(texunit, filter);
 }
 
-namespace {
-	D3D11_BLEND convert(Graphics4::BlendingOperation operation) {
-		switch (operation) {
-		case Graphics4::BlendOne:
-			return D3D11_BLEND_ONE;
-		case Graphics4::BlendZero:
-			return D3D11_BLEND_ZERO;
-		case Graphics4::SourceAlpha:
-			return D3D11_BLEND_SRC_ALPHA;
-		case Graphics4::DestinationAlpha:
-			return D3D11_BLEND_DEST_ALPHA;
-		case Graphics4::InverseSourceAlpha:
-			return D3D11_BLEND_INV_SRC_ALPHA;
-		case Graphics4::InverseDestinationAlpha:
-			return D3D11_BLEND_INV_DEST_ALPHA;
-		default:
-			//	throw Exception("Unknown blending operation.");
-			return D3D11_BLEND_SRC_ALPHA;
-		}
-	}
-
-	Graphics4::BlendingOperation lastSource = Graphics4::SourceAlpha;
-	Graphics4::BlendingOperation lastDestination = Graphics4::InverseSourceAlpha;
-	bool lastRed = true;
-	bool lastGreen = true;
-	bool lastBlue = true;
-	bool lastAlpha = true;
-	ID3D11BlendState* blendState = nullptr;
-
-	void setBlendState(Graphics4::BlendingOperation source, Graphics4::BlendingOperation destination, bool red, bool green, bool blue, bool alpha) {
-		lastSource = source;
-		lastDestination = destination;
-		lastRed = red;
-		lastGreen = green;
-		lastBlue = blue;
-		lastAlpha = alpha;
-
-		if (blendState != nullptr) {
-			blendState->Release();
-		}
-
-		D3D11_BLEND_DESC blendDesc;
-		ZeroMemory(&blendDesc, sizeof(blendDesc));
-
-		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
-		ZeroMemory(&rtbd, sizeof(rtbd));
-
-		rtbd.BlendEnable = source != Graphics4::BlendOne || destination != Graphics4::BlendZero;
-		rtbd.SrcBlend = convert(source);
-		rtbd.DestBlend = convert(destination);
-		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
-		rtbd.SrcBlendAlpha = convert(source);
-		rtbd.DestBlendAlpha = convert(destination);
-		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbd.RenderTargetWriteMask =
-		    ((((red ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (green ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) | (blue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
-		     (alpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0));
-
-		blendDesc.AlphaToCoverageEnable = false;
-		blendDesc.RenderTarget[0] = rtbd;
-
-		device->CreateBlendState(&blendDesc, &blendState);
-
-		float blendFactor[] = {0, 0, 0, 0};
-		UINT sampleMask = 0xffffffff;
-		context->OMSetBlendState(blendState, blendFactor, sampleMask);
-	}
-}
-
-void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-	setBlendState(source, destination, lastRed, lastGreen, lastBlue, lastAlpha);
-}
-
-void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {
-	// TODO
-}
-
-void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
-	setBlendState(lastSource, lastDestination, red, green, blue, alpha);
-}
-
 bool Graphics4::renderTargetsInvertedY() {
 	return false;
 }
@@ -1184,7 +886,7 @@ void Graphics4::renderOcclusionQuery(uint occlusionQuery, int triangles) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Program::setConstants();
+		PipelineState::setConstants();
 		context->Begin(pQuery);
 		context->Draw(triangles, 0);
 		context->End(pQuery);

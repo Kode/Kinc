@@ -198,7 +198,7 @@ namespace {
 - (void)scrollWheel:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	int delta = [theEvent deltaY];
-	Kore::Mouse::the()->_scroll(0, delta);
+	Kore::Mouse::the()->_scroll(0, -delta);
 }
 
 #ifndef KORE_METAL

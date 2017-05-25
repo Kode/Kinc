@@ -8,13 +8,9 @@
 
 using namespace Kore;
 
-namespace {
-	const int multiple = 100;
-}
-
 VertexBuffer5Impl* VertexBuffer5Impl::_current = nullptr;
 
-VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), currentIndex(0) {}
+VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), myStart(0) {}
 
 Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBuffer5Impl(count) {
 	static_assert(sizeof(D3D12VertexBufferView) == sizeof(D3D12_VERTEX_BUFFER_VIEW), "Something is wrong with D3D12IVertexBufferView");
@@ -43,7 +39,7 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	static const int uploadBufferSize = myStride * myCount;
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize * multiple), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+	                                &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 	                                IID_PPV_ARGS(&uploadBuffer));
 
 	// device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
@@ -65,28 +61,24 @@ float* Graphics5::VertexBuffer::lock() {
 }
 
 float* Graphics5::VertexBuffer::lock(int start, int count) {
+	myStart = start;
 	void* p;
 	D3D12_RANGE range;
-	range.Begin = currentIndex * myCount * myStride;
-	range.End = range.Begin + myCount * myStride;
+	range.Begin = start * myStride;
+	range.End = range.Begin + count * myStride;
 	uploadBuffer->Map(0, &range, &p);
 	byte* bytes = (byte*)p;
-	bytes += currentIndex * myCount * myStride;
+	bytes += start * myStride;
 	return (float*)bytes;
 }
 
 void Graphics5::VertexBuffer::unlock() {
 	D3D12_RANGE range;
-	range.Begin = currentIndex * myCount * myStride;
+	range.Begin = myStart * myStride;
 	range.End = range.Begin + myCount * myStride;
 	uploadBuffer->Unmap(0, &range);
 
-	view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + currentIndex * myCount * myStride;
-
-	++currentIndex;
-	if (currentIndex >= multiple) {
-		currentIndex = 0;
-	}
+	view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
 
 	// commandList->CopyBufferRegion(vertexBuffer, 0, uploadBuffer, 0, count() * stride());
 	// CD3DX12_RESOURCE_BARRIER barriers[1] = { CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST,
