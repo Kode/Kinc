@@ -37,6 +37,8 @@ Graphics4::PipelineState::PipelineState() {
 	colorWriteMaskGreen = true;
 	colorWriteMaskBlue = true;
 	colorWriteMaskAlpha = true;
+
+	conservativeRasterization = false;
 }
 
 Graphics4::PipelineState::~PipelineState() {
