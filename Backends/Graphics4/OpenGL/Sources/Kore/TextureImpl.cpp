@@ -84,59 +84,57 @@ namespace {
 		}
 	}
 
-#if 0
 	int astcFormat(u8 blockX, u8 blockY) {
 		switch (blockX) {
 		case 4:
 			switch (blockY) {
 			case 4:
-				return COMPRESSED_RGBA_ASTC_4x4_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_4x4_KHR;
 			}
 		case 5:
 			switch (blockY) {
 			case 4:
-				return COMPRESSED_RGBA_ASTC_5x4_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_5x4_KHR;
 			case 5:
-				return COMPRESSED_RGBA_ASTC_5x5_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_5x5_KHR;
 			}
 		case 6:
 			switch (blockY) {
 			case 5:
-				return COMPRESSED_RGBA_ASTC_6x5_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_6x5_KHR;
 			case 6:
-				return COMPRESSED_RGBA_ASTC_6x6_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_6x6_KHR;
 			}
 		case 8:
 			switch (blockY) {
 			case 5:
-				return COMPRESSED_RGBA_ASTC_8x5_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_8x5_KHR;
 			case 6:
-				return COMPRESSED_RGBA_ASTC_8x6_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_8x6_KHR;
 			case 8:
-				return COMPRESSED_RGBA_ASTC_8x8_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_8x8_KHR;
 			}
 		case 10:
 			switch (blockY) {
 			case 5:
-				return COMPRESSED_RGBA_ASTC_10x5_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_10x5_KHR;
 			case 6:
-				return COMPRESSED_RGBA_ASTC_10x6_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_10x6_KHR;
 			case 8:
-				return COMPRESSED_RGBA_ASTC_10x8_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_10x8_KHR;
 			case 10:
-				return COMPRESSED_RGBA_ASTC_10x10_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_10x10_KHR;
 			}
 		case 12:
 			switch (blockY) {
 			case 10:
-				return COMPRESSED_RGBA_ASTC_12x10_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_12x10_KHR;
 			case 12:
-				return COMPRESSED_RGBA_ASTC_12x12_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_12x12_KHR;
 			}
 		}
 		return 0;
 	}
-#endif
 
 	int pow(int pow) {
 		int ret = 1;
@@ -211,7 +209,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 		texHeight = Kore::max(texWidth, texHeight);
 		if (texWidth < 8) texWidth = 8;
 		if (texHeight < 8) texHeight = 8;
-#elif defined(KORE_ANDROID)
+#else
 		texWidth = width;
 		texHeight = height;
 #endif
@@ -238,21 +236,21 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	if (compressed) {
 #if defined(KORE_IOS)
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
-//#elif defined(KORE_ANDROID)
-//		u8 blockX = internalFormat >> 8;
-//		u8 blockY = internalFormat & 0xff;
-//		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
+#else
+		u8 blockX = internalFormat >> 8;
+		u8 blockY = internalFormat & 0xff;
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
 #endif
 	}
 	else {
-		void *texdata = data;
+		void* texdata = data;
 		if (isHdr) texdata = hdrData;
 		else if (toPow2) texdata = conversionBuffer;
 		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(this->format), texWidth, texHeight, 0, convertFormat(this->format), convertedType, texdata);
 		glCheckErrors();
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glCheckErrors();
+	glCheckErrors2();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCheckErrors();
 

@@ -109,15 +109,47 @@ void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readabl
 			LZ4_decompress_safe((char*)(data + 12), (char*)this->hdrData, file.size() - 12, dataSize);
 			this->format = RGBA128;
 		}
-		//else if (strcmp(fourcc, "SNAP") == 0) {
-		//	compressed = false;
-		//	internalFormat = 0;
-		//	size_t length;
-		//	snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
-		//	dataSize = static_cast<int>(length);
-		//	this->data = (u8*)malloc(length);
-		//	snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
-		//}
+		else if (strcmp(fourcc, "ASTC") || strcmp(fourcc, "astc")) {
+			compressed = true;
+			dataSize = width * height * 4;
+			u8* astcdata = (u8*)malloc(dataSize);
+			dataSize = LZ4_decompress_safe((char*)(data + 12), (char*)astcdata, file.size() - 12, dataSize);
+			
+			this->data = astcdata;
+			u8 blockdim_x = 6;
+			u8 blockdim_y = 6;
+			internalFormat = (blockdim_x << 8) + blockdim_y;
+
+			/*int index = 0;
+			index += 4; // magic
+			u8 blockdim_x = astcdata[index++];
+			u8 blockdim_y = astcdata[index++];
+			++index; // blockdim_z
+			internalFormat = (blockdim_x << 8) + blockdim_y;
+			u8 xsize[4];
+			xsize[0] = astcdata[index++];
+			xsize[1] = astcdata[index++];
+			xsize[2] = astcdata[index++];
+			xsize[3] = 0;
+			this->width = *(unsigned*)&xsize[0];
+			u8 ysize[4];
+			ysize[0] = astcdata[index++];
+			ysize[1] = astcdata[index++];
+			ysize[2] = astcdata[index++];
+			ysize[3] = 0;
+			this->height = *(unsigned*)&ysize[0];
+			u8 zsize[3];
+			zsize[0] = astcdata[index++];
+			zsize[1] = astcdata[index++];
+			zsize[2] = astcdata[index++];
+			u8* all = (u8*)astcdata[index];
+			dataSize -= 16;
+			this->data = new u8[dataSize];
+			for (int i = 0; i < dataSize; ++i) {
+				data[i] = all[16 + i];
+			}
+			free(astcdata);*/
+		}
 		else {
 			log(Error, "Unknown fourcc in .k file.");
 		}
@@ -164,35 +196,6 @@ void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readabl
 		data = new u8[dataSize];
 		for (int i = 0; i < dataSize; ++i) {
 			data[i] = all[52 + metaDataSize + i];
-		}
-	}
-	else if (endsWith(format, "astc")) {
-		file.readU32LE(); // magic
-		u8 blockdim_x = file.readU8();
-		u8 blockdim_y = file.readU8();
-		file.readU8(); // blockdim_z
-		internalFormat = (blockdim_x << 8) + blockdim_y;
-		u8 xsize[4];
-		xsize[0] = file.readU8();
-		xsize[1] = file.readU8();
-		xsize[2] = file.readU8();
-		xsize[3] = 0;
-		this->width = *(unsigned*)&xsize[0];
-		u8 ysize[4];
-		ysize[0] = file.readU8();
-		ysize[1] = file.readU8();
-		ysize[2] = file.readU8();
-		ysize[3] = 0;
-		this->height = *(unsigned*)&ysize[0];
-		u8 zsize[3];
-		zsize[0] = file.readU8();
-		zsize[1] = file.readU8();
-		zsize[2] = file.readU8();
-		u8* all = (u8*)file.readAll();
-		dataSize = file.size() - 16;
-		data = new u8[dataSize];
-		for (int i = 0; i < dataSize; ++i) {
-			data[i] = all[16 + i];
 		}
 	}
 	else if (endsWith(format, "png")) {
