@@ -236,20 +236,23 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 
 	u8* conversionBuffer = nullptr;
 
-	if (compressed) {
-#if defined(KORE_IOS)
+	switch (compression) {
+	case Graphics1::ImageCompressionNone:
+		if (toPow2) {
+			conversionBuffer = new u8[texWidth * texHeight * sizeOf(this->format)];
+			convertImageToPow2(this->format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		}
+		break;
+	case Graphics1::ImageCompressionPVRTC:
 		texWidth = Kore::max(texWidth, texHeight);
 		texHeight = Kore::max(texWidth, texHeight);
 		if (texWidth < 8) texWidth = 8;
 		if (texHeight < 8) texHeight = 8;
-#else
+		break;
+	default:
 		texWidth = width;
 		texHeight = height;
-#endif
-	}
-	else if (toPow2) {
-		conversionBuffer = new u8[texWidth * texHeight * sizeOf(this->format)];
-		convertImageToPow2(this->format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		break;
 	}
 
 #ifdef KORE_ANDROID
@@ -266,24 +269,31 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	int convertedType = convertType(this->format);
 	bool isHdr = convertedType == GL_FLOAT;
 
-	if (compressed) {
-#if defined(KORE_IOS)
+	switch (compression) {
+	case Graphics1::ImageCompressionPVRTC:
+#ifdef KORE_IOS
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
-#else
+#endif
+		break;
+	case Graphics1::ImageCompressionASTC: {
 		u8 blockX = internalFormat >> 8;
 		u8 blockY = internalFormat & 0xff;
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
-#endif
+		break;
 	}
-	else {
+	case Graphics1::ImageCompressionDXT5:
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, texWidth, texHeight, 0, dataSize, data);
+		break;
+	case Graphics1::ImageCompressionNone:
 		void* texdata = data;
 		if (isHdr) texdata = hdrData;
 		else if (toPow2) texdata = conversionBuffer;
 		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(this->format), texWidth, texHeight, 0, convertFormat(this->format), convertedType, texdata);
 		glCheckErrors();
+		break;
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glCheckErrors2();
+	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCheckErrors();
 
@@ -303,7 +313,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 		}
 	}
 
-	if (readable && compressed) {
+	if (readable && compression != Graphics1::ImageCompressionNone) {
 		log(Kore::Warning, "Compressed images can not be readable.");
 	}
 }
