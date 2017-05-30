@@ -11,6 +11,7 @@
 namespace Kore {
 	namespace Graphics4 {
 		class PipelineState;
+		class TextureArray;
 
 		class VertexBuffer : public VertexBufferImpl {
 		public:
@@ -132,6 +133,7 @@ namespace Kore {
 		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
 		void setIndexBuffer(IndexBuffer& indexBuffer);
 		void setTexture(TextureUnit unit, Texture* texture);
+		void setTextureArray(TextureUnit unit, TextureArray* array);
 		void setImageTexture(TextureUnit unit, Texture* texture);
 		void setPipeline(PipelineState* pipeline);
 

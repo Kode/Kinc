@@ -5,6 +5,7 @@
 #include "ogl.h"
 
 #include <Kore/Graphics4/PipelineState.h>
+#include <Kore/Graphics4/TextureArray.h>
 
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
@@ -754,4 +755,8 @@ void Graphics4::flush() {
 void Graphics4::setPipeline(PipelineState* pipeline) {
 	pipeline->set(pipeline);
 	lastPipeline = pipeline;
+}
+
+void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
+	array->set(unit);
 }
