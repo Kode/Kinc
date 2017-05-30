@@ -24,27 +24,16 @@ TextureArray::TextureArray(Image** textures, int count) {
 
 	u8* data = new u8[textures[0]->width * textures[0]->height * 4 * count];
 
-	D3D11_SUBRESOURCE_DATA resdata;
-	resdata.pSysMem = data;
-	resdata.SysMemPitch = textures[0]->width * 4;
-	resdata.SysMemSlicePitch = textures[0]->width * textures[0]->height * 4;
-
-	for (int layer = 0; layer < count; ++layer) {
-		for (int y = 0; y < textures[0]->height; ++y) {
-			for (int x = 0; x < textures[0]->width; ++x) {
-				data[resdata.SysMemSlicePitch * layer + resdata.SysMemPitch * y + x * 4 + 0] = textures[layer]->data[textures[0]->width * 4 * y + x * 4 + 0];
-				data[resdata.SysMemSlicePitch * layer + resdata.SysMemPitch * y + x * 4 + 1] = textures[layer]->data[textures[0]->width * 4 * y + x * 4 + 1];
-				data[resdata.SysMemSlicePitch * layer + resdata.SysMemPitch * y + x * 4 + 2] = textures[layer]->data[textures[0]->width * 4 * y + x * 4 + 2];
-				data[resdata.SysMemSlicePitch * layer + resdata.SysMemPitch * y + x * 4 + 3] = textures[layer]->data[textures[0]->width * 4 * y + x * 4 + 3];
-			}
-		}
+	D3D11_SUBRESOURCE_DATA* resdata = (D3D11_SUBRESOURCE_DATA*)alloca(sizeof(D3D11_SUBRESOURCE_DATA) * count);
+	for (int i = 0; i < count; ++i) {
+		resdata[i].pSysMem = textures[i]->data;
+		resdata[i].SysMemPitch = textures[0]->width * 4;
+		resdata[i].SysMemSlicePitch = 0;
 	}
-
+	
 	texture = nullptr;
-	affirm(device->CreateTexture2D(&desc, &resdata, &texture));
+	affirm(device->CreateTexture2D(&desc, resdata, &texture));
 	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
-
-	delete[] data;
 }
 
 void TextureArrayImpl::set(TextureUnit unit) {
