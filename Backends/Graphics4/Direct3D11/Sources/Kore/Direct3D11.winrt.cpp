@@ -9,6 +9,7 @@
 #include "VertexBufferImpl.h"
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
+#include <Kore/Graphics4/TextureArray.h>
 #undef CreateWindow
 #include <Kore/System.h>
 #include <Kore/WinError.h>
@@ -921,5 +922,5 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 }
 
 void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
-
+	array->set(unit);
 }
