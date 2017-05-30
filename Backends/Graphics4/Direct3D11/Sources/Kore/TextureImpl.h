@@ -8,6 +8,7 @@ namespace Kore {
 	class TextureUnitImpl {
 	public:
 		int unit;
+		bool vertex;
 	};
 
 	class TextureImpl {
