@@ -834,3 +834,7 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 		}
 	}
 }
+
+void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
+
+}
