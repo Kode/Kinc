@@ -212,10 +212,12 @@ Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name
 		}
 		else {
 			unit.unit = fragmentShader->textures[name];
+			unit.vertex = false;
 		}
 	}
 	else {
 		unit.unit = vertexShader->textures[name];
+		unit.vertex = true;
 	}
 	return unit;
 }

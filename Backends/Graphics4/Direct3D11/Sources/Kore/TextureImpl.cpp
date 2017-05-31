@@ -99,7 +99,12 @@ void TextureImpl::unmipmap() {
 
 void Graphics4::Texture::_set(TextureUnit unit) {
 	if (unit.unit < 0) return;
-	context->PSSetShaderResources(unit.unit, 1, &view);
+	if (unit.vertex) {
+		context->VSSetShaderResources(unit.unit, 1, &view);
+	}
+	else {
+		context->PSSetShaderResources(unit.unit, 1, &view);
+	}
 	this->stage = unit.unit;
 	setTextures[stage] = this;
 }
