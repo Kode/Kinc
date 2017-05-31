@@ -20,6 +20,7 @@ namespace {
 	Graphics4::RenderTarget* leftTexture;
 	Graphics4::RenderTarget* rightTexture;
 	SensorState sensorStates[2];
+	VrPoseState controller[vr::k_unMaxTrackedDeviceCount];
 
 	mat4 convert(vr::HmdMatrix34_t& m) {
 		mat4 mat;
@@ -94,6 +95,23 @@ namespace {
 					vr::HmdMatrix44_t rightProj = hmd->GetProjectionMatrix(vr::Eye_Right, 0.1f, 100.0f);
 					sensorStates[0].pose.vrPose.projection = convert(leftProj);
 					sensorStates[1].pose.vrPose.projection = convert(rightProj);
+				} else if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_Controller ||
+					hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_GenericTracker) {
+					VrPoseState poseState;
+					poseState.linearVelocity = vec3(poses[device].vVelocity.v[0], poses[device].vVelocity.v[1], poses[device].vVelocity.v[2]);
+					poseState.angularVelocity = vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
+
+					vr::HmdMatrix34_t m = poses[device].mDeviceToAbsoluteTracking;
+
+					poseState.vrPose.position = vec3(m.m[0][3], m.m[1][3], m.m[2][3]);
+
+					//Kore::log(Kore::Info, "Pos of device %i %f %f %f", device, poseState.vrPose.position.x(), poseState.vrPose.position.y(), poseState.vrPose.position.z());
+
+					if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_Controller)
+						poseState.trackedDevice = Controller;
+					else if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_GenericTracker)
+						poseState.trackedDevice = ViveTracker;
+					controller[device] = poseState;
 				}
 			}
 		}
@@ -146,6 +164,10 @@ void VrInterface::endRender(int eye) {
 
 SensorState VrInterface::getSensorState(int eye) {
 	return sensorStates[eye];
+}
+
+VrPoseState VrInterface::getController(int index) {
+	return controller[index];
 }
 
 void VrInterface::warpSwap() {
