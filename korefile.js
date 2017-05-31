@@ -13,6 +13,14 @@ let g4 = false;
 
 let g5 = false;
 
+const a1 = true;
+project.addDefine('KORE_A1');
+
+const a2 = true;
+project.addDefine('KORE_A2');
+
+let a3 = false;
+
 project.addFile('Sources/**');
 project.addExclude('Sources/Kore/IO/snappy/**');
 project.addIncludeDir('Sources');
@@ -280,6 +288,12 @@ if (g5) {
 }
 else {
 	project.addExclude('Sources/Kore/Graphics5/**');
+}
+
+if (!a3) {
+	a3 = true;
+	project.addDefine('KORE_A3');
+	addBackend('Audio3/A3onA2');
 }
 
 resolve(project);
