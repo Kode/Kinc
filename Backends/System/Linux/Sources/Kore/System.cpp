@@ -468,6 +468,9 @@ bool Kore::System::handleMessages() {
 			case Button1:
 				Kore::Mouse::the()->_press(windowId, 0, button->x, button->y);
 				break;
+			case Button2:
+				Kore::Mouse::the()->_press(windowId, 2, button->x, button->y);
+				break;
 			case Button3:
 				Kore::Mouse::the()->_press(windowId, 1, button->x, button->y);
 				break;
@@ -481,6 +484,9 @@ bool Kore::System::handleMessages() {
 			switch (button->button) {
 			case Button1:
 				Kore::Mouse::the()->_release(windowId, 0, button->x, button->y);
+				break;
+			case Button2:
+				Kore::Mouse::the()->_release(windowId, 2, button->x, button->y);
 				break;
 			case Button3:
 				Kore::Mouse::the()->_release(windowId, 1, button->x, button->y);
