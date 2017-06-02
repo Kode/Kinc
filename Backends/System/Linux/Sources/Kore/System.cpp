@@ -199,7 +199,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	}
 
 	// (7) request the X window to be displayed on the screen
-	if (System::hasShowWindowFlag()) {
+	if (Kore::System::hasShowWindowFlag()) {
 		XMapWindow(dpy, win);
 		XMoveWindow(dpy, win, dstx, dsty);
 	}
