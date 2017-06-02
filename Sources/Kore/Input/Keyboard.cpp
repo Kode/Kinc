@@ -17,10 +17,14 @@ void Keyboard::clear() {
 	KeyUp = nullptr;
 }
 
-void Keyboard::_keydown(KeyCode code, wchar_t character) {
-	if (KeyDown != nullptr) KeyDown(code, character);
+void Keyboard::_keydown(KeyCode code) {
+	if (KeyDown != nullptr) KeyDown(code);
 }
 
-void Keyboard::_keyup(KeyCode code, wchar_t character) {
-	if (KeyUp != nullptr) KeyUp(code, character);
+void Keyboard::_keyup(KeyCode code) {
+	if (KeyUp != nullptr) KeyUp(code);
+}
+
+void Keyboard::_keypress(wchar_t character) {
+	if (KeyPress != nullptr) KeyPress(character);
 }
