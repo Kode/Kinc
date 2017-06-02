@@ -94,7 +94,11 @@ namespace {
 #ifdef KORE_OPENGL_ES
 			return GL_LUMINANCE;
 #else
-			return GL_R8;
+	#ifdef GL_ARB_texture_float
+			return GL_R32F;
+	#else
+			return GL_RED;
+	#endif
 #endif
 		case Graphics4::Image::Grey8:
 #ifdef KORE_OPENGL_ES

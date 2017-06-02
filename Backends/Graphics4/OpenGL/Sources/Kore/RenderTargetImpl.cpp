@@ -19,8 +19,20 @@ using namespace Kore;
 #define GL_RGBA32F_EXT 0x8814
 #endif
 
+#ifndef GL_R16F_EXT
+#define GL_R16F_EXT 0x822D
+#endif
+                 
+#ifndef GL_R32F_EXT
+#define GL_R32F_EXT 0x822E
+#endif                
+
 #ifndef GL_HALF_FLOAT
 #define GL_HALF_FLOAT 0x140B
+#endif
+
+#ifndef GL_RED
+#define GL_RED GL_LUMINANCE
 #endif
 
 namespace {
@@ -146,6 +158,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		texHeight = getPower2(height);
 	}
 
+	this->format = (int)format;
 	this->contextId = contextId;
 
 	// (DK) required on windows/gl
@@ -188,10 +201,13 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		break;
 	case Target8BitRed:
-#ifndef GL_RED
-#define GL_RED GL_LUMINANCE
-#endif
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+		break;
+	case Target16BitRedFloat:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F_EXT, texWidth, texHeight, 0, GL_RED, GL_HALF_FLOAT, 0);
+		break;
+	case Target32BitRedFloat:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F_EXT, texWidth, texHeight, 0, GL_RED, GL_FLOAT, 0);
 		break;
 	case Target32Bit:
 	default:
@@ -240,6 +256,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		texHeight = getPower2(height);
 	}
 
+	this->format = (int)format;
 	this->contextId = contextId;
 
 	// (DK) required on windows/gl
@@ -344,5 +361,18 @@ void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 
 void Graphics4::RenderTarget::getPixels(u8* data) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-	glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	switch((RenderTargetFormat)format) {
+	case Target128BitFloat:
+	case Target64BitFloat:
+		glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_FLOAT, data);
+		break;
+	case Target8BitRed:
+	case Target16BitRedFloat:
+	case Target32BitRedFloat:
+		glReadPixels(0, 0, texWidth, texHeight, GL_RED, GL_FLOAT, data);
+		break;
+	case Target32Bit:
+	default:
+		glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
 }
