@@ -15,6 +15,7 @@ Keyboard* Keyboard::the() {
 void Keyboard::clear() {
 	KeyDown = nullptr;
 	KeyUp = nullptr;
+	KeyPress = nullptr;
 }
 
 void Keyboard::_keydown(KeyCode code) {
