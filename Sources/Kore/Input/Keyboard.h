@@ -3,6 +3,7 @@
 namespace Kore {
 	enum KeyCode {
 		KeyUnknown = 0,
+		KeyBack = 1, // Android
 		KeyCancel = 3,
 		KeyHelp = 6,
 		KeyBackspace = 8,

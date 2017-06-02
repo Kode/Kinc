@@ -282,7 +282,9 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 		break;
 	}
 	case Graphics1::ImageCompressionDXT5:
+#ifdef KORE_WINDOWS
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, texWidth, texHeight, 0, dataSize, data);
+#endif
 		break;
 	case Graphics1::ImageCompressionNone:
 		void* texdata = data;
