@@ -63,6 +63,7 @@ namespace {
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
 		case Graphics4::Image::A32:
+		case Graphics4::Image::A16:
 		case Graphics4::Image::Grey8:
 #ifdef KORE_OPENGL_ES
 			return GL_LUMINANCE;
@@ -96,6 +97,16 @@ namespace {
 #else
 	#ifdef GL_ARB_texture_float
 			return GL_R32F;
+	#else
+			return GL_RED;
+	#endif
+#endif
+		case Graphics4::Image::A16:
+#ifdef KORE_OPENGL_ES
+			return GL_LUMINANCE;
+#else
+	#ifdef GL_ARB_texture_float
+			return GL_R16F;
 	#else
 			return GL_RED;
 	#endif
@@ -220,6 +231,7 @@ namespace {
 			case Graphics4::Image::RGBA128:
 			case Graphics4::Image::RGBA64:
 			case Graphics4::Image::A32:
+			case Graphics4::Image::A16:
 				break;
 		}
 	}
