@@ -122,6 +122,7 @@ namespace {
 		case Graphics4::Image::RGBA128:
 		case Graphics4::Image::RGBA64:
 		case Graphics4::Image::A32:
+		case Graphics4::Image::A16:
 			return GL_FLOAT;
 		case Graphics4::Image::RGBA32:
 		default:
