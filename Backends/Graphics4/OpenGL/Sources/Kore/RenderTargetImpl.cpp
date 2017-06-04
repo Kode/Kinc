@@ -22,10 +22,10 @@ using namespace Kore;
 #ifndef GL_R16F_EXT
 #define GL_R16F_EXT 0x822D
 #endif
-                 
+
 #ifndef GL_R32F_EXT
 #define GL_R32F_EXT 0x822E
-#endif                
+#endif
 
 #ifndef GL_HALF_FLOAT
 #define GL_HALF_FLOAT 0x140B
@@ -363,11 +363,17 @@ void Graphics4::RenderTarget::getPixels(u8* data) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	switch((RenderTargetFormat)format) {
 	case Target128BitFloat:
-	case Target64BitFloat:
 		glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_FLOAT, data);
 		break;
+	case Target64BitFloat:
+		glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_HALF_FLOAT, data);
+		break;
 	case Target8BitRed:
+		glReadPixels(0, 0, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, data);
+		break;
 	case Target16BitRedFloat:
+		glReadPixels(0, 0, texWidth, texHeight, GL_RED, GL_HALF_FLOAT, data);
+		break;
 	case Target32BitRedFloat:
 		glReadPixels(0, 0, texWidth, texHeight, GL_RED, GL_FLOAT, data);
 		break;
