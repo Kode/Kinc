@@ -9,12 +9,11 @@ namespace Kore {
 		class Shader;
 	}
 
-	class ProgramImpl {
+	class PipelineStateImpl {
 	public:
-		ProgramImpl();
+		PipelineStateImpl();
 
-		Graphics5::Program _program;
-		//Graphics5::PipelineState* _state;
+		Graphics5::PipelineState* _pipeline;
 	};
 
 	class ConstantLocationImpl {

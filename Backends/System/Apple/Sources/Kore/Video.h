@@ -4,7 +4,7 @@
 
 namespace Kore {
 	class VideoSoundStream;
-
+	
 	class Video {
 	private:
 		void updateImage();
@@ -16,7 +16,7 @@ namespace Kore {
 		bool playing;
 		VideoSoundStream* sound;
 		void load(double startTime);
-
+		
 	public:
 		Video(const char* filename);
 		~Video();
@@ -31,18 +31,18 @@ namespace Kore {
 		bool finished;
 		bool paused;
 		void update(double time);
-
+		
 	private:
 		Graphics4::Texture* image;
 		double lastTime;
 		int myWidth;
 		int myHeight;
-
+		
 	private:
 		void video_write();
 		Kore::Graphics4::Image* videoImage;
 		FileReader* infile;
-
+		
 		struct Impl;
 		Impl* impl;
 	};

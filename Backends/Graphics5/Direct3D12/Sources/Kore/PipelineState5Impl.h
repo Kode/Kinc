@@ -5,12 +5,13 @@ struct ID3D12GraphicsCommandList;
 
 namespace Kore {
 	namespace Graphics5 {
+		class PipelineState;
 		class Shader;
 	}
 
-	class Program5Impl {
+	class PipelineState5Impl {
 	public:
-		Program5Impl();
+		PipelineState5Impl();
 		ID3D12PipelineState* pso;
 		// ID3D11InputLayout* inputLayout;
 		// ID3D11Buffer* fragmentConstantBuffer;
@@ -25,7 +26,8 @@ namespace Kore {
 		Graphics5::Shader* tessEvalShader;
 		Graphics5::Shader* tessControlShader;
 		static void setConstants();
-		static Program5Impl* _current;
+		static PipelineState5Impl* _current;
+		void set(Graphics5::PipelineState* pipeline);
 	};
 
 	class ConstantLocation5Impl {

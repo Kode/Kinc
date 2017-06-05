@@ -8,6 +8,7 @@ namespace Kore {
 	class TextureUnitImpl {
 	public:
 		int unit;
+		bool vertex;
 	};
 
 	class TextureImpl {
@@ -21,5 +22,6 @@ namespace Kore {
 		ID3D11Texture2D* texture;
 		ID3D11ShaderResourceView* view;
 		ID3D11UnorderedAccessView* computeView;
+		int rowPitch;
 	};
 }

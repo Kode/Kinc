@@ -1,11 +1,12 @@
 #include "pch.h"
 
-#include "VideoSoundStream.h"
-
 #import <AudioToolbox/AudioToolbox.h>
 #import <Foundation/Foundation.h>
+
 #include <Kore/Audio2/Audio.h>
 #include <Kore/Math/Core.h>
+#include <Kore/VideoSoundStream.h>
+
 #include <stdio.h>
 
 using namespace Kore;

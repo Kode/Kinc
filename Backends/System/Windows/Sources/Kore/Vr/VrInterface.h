@@ -10,7 +10,8 @@ namespace Kore {
 		void begin();
 		void beginRender(int eye);
 		void endRender(int eye);
-		SensorState* getSensorState(int eye);
+		SensorState getSensorState(int eye);
+		VrPoseState getController(int index);
 		void warpSwap();
 
 		void updateTrackingOrigin(TrackingOrigin origin);

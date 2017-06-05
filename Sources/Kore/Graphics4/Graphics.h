@@ -10,6 +10,9 @@
 
 namespace Kore {
 	namespace Graphics4 {
+		class PipelineState;
+		class TextureArray;
+
 		class VertexBuffer : public VertexBufferImpl {
 		public:
 			VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
@@ -51,7 +54,8 @@ namespace Kore {
 			BackfaceCulling,
 			/*FogState, FogStartState, FogEndState, FogTypeState, FogColorState,*/ ScissorTestState,
 			AlphaTestState,
-			AlphaReferenceState
+			AlphaReferenceState,
+			ConservativeRasterization
 		};
 
 		enum BlendingOperation {
@@ -84,7 +88,7 @@ namespace Kore {
 
 		enum FogType { LinearFog };
 
-		enum RenderTargetFormat { Target32Bit, Target64BitFloat, Target32BitRedFloat, Target128BitFloat, Target16BitDepth, Target8BitRed };
+		enum RenderTargetFormat { Target32Bit, Target64BitFloat, Target32BitRedFloat, Target128BitFloat, Target16BitDepth, Target8BitRed, Target16BitRedFloat };
 
 		enum StencilAction { Keep, Zero, Replace, Increment, IncrementWrap, Decrement, DecrementWrap, Invert };
 
@@ -109,8 +113,9 @@ namespace Kore {
 			void useColorAsTexture(TextureUnit unit);
 			void useDepthAsTexture(TextureUnit unit);
 			void setDepthStencilFrom(RenderTarget* source);
+			void getPixels(u8* data);
 		};
-
+		
 		void setBool(ConstantLocation location, bool value);
 		void setInt(ConstantLocation location, int value);
 		void setFloat(ConstantLocation location, float value);
@@ -128,7 +133,9 @@ namespace Kore {
 		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
 		void setIndexBuffer(IndexBuffer& indexBuffer);
 		void setTexture(TextureUnit unit, Texture* texture);
+		void setTextureArray(TextureUnit unit, TextureArray* array);
 		void setImageTexture(TextureUnit unit, Texture* texture);
+		void setPipeline(PipelineState* pipeline);
 
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
@@ -158,12 +165,7 @@ namespace Kore {
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();
-		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-			int readMask = 0, int writeMask = 0);
 
-		void setRenderState(RenderState state, bool on);
-		void setRenderState(RenderState state, int v);
-		void setRenderState(RenderState state, float value);
 		void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
 		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
@@ -172,10 +174,7 @@ namespace Kore {
 		void setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter);
-		void setBlendingMode(BlendingOperation source, BlendingOperation destination);
-		void setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
-		void setColorMask(bool red, bool green, bool blue, bool alpha);
 
 		bool vsynced();
 		unsigned refreshRate();

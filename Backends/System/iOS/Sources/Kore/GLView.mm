@@ -351,31 +351,33 @@ namespace {
 		unichar ch = [text characterAtIndex:[text length] - 1];
 		if (ch == 8212) ch = '_';
 		if (ch == L'\n') {
-			Kore::Keyboard::the()->_keydown(Kore::Key_Return, '\n');
-			Kore::Keyboard::the()->_keyup(Kore::Key_Return, '\n');
+			Kore::Keyboard::the()->_keydown(Kore::KeyReturn);
+			Kore::Keyboard::the()->_keyup(Kore::KeyReturn);
 		}
 		else if (ch >= L'a' && ch <= L'z') {
 			if (shiftDown) {
-				Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
+				Kore::Keyboard::the()->_keyup(Kore::KeyShift);
 				shiftDown = false;
 			}
-			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch + L'A' - L'a'), ch);
-			Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch + L'A' - L'a'), ch);
+			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch + Kore::KeyA - L'a'));
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch + Kore::KeyA - L'a'));
+			Kore::Keyboard::the()->_keypress(ch);
 		}
 		else {
 			if (!shiftDown) {
-				Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
+				Kore::Keyboard::the()->_keydown(Kore::KeyShift);
 				shiftDown = true;
 			}
-			Kore::Keyboard::the()->_keydown((Kore::KeyCode)ch, ch);
-			Kore::Keyboard::the()->_keyup((Kore::KeyCode)ch, ch);
+			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch + Kore::KeyA - L'A'));
+			Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch + Kore::KeyA - L'A'));
+			Kore::Keyboard::the()->_keypress(ch);
 		}
 	}
 }
 
 - (void)deleteBackward {
-	Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
-	Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
+	Kore::Keyboard::the()->_keydown(Kore::KeyBackspace);
+	Kore::Keyboard::the()->_keyup(Kore::KeyBackspace);
 }
 
 - (BOOL)canBecomeFirstResponder {

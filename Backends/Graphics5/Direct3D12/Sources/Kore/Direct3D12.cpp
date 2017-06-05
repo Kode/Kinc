@@ -2,7 +2,7 @@
 
 #include "Direct3D12.h"
 #include "IndexBuffer5Impl.h"
-#include "Program5Impl.h"
+#include "PipelineState5Impl.h"
 #include "VertexBuffer5Impl.h"
 #include <Kore/Graphics5/PipelineState.h>
 #include <Kore/Math/Core.h>
@@ -289,7 +289,7 @@ namespace {
 }
 
 namespace Kore {
-	extern Program5Impl* currentProgram;
+	extern PipelineState5Impl* currentProgram;
 }
 
 namespace {
@@ -321,7 +321,7 @@ void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	renderTargetHeight = System::windowHeight(window);
 	initialize(renderTargetWidth, renderTargetHeight, hwnd);
 
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 	if (System::hasShowWindowFlag()) {
 		ShowWindow(hwnd, SW_SHOWDEFAULT);
 		UpdateWindow(hwnd);
@@ -355,7 +355,7 @@ void Graphics5::drawIndexedVertices(int start, int count) {
 	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
 	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);*/
 
-	Program::setConstants();
+	PipelineState5Impl::setConstants();
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
@@ -390,10 +390,6 @@ void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddres
 #define $Line MakeString(Stringize, __LINE__)
 #define Warning __FILE__ "(" $Line ") : warning: "
 
-void Graphics5::setColorMask(bool red, bool green, bool blue, bool alpha) {
-#pragma message(Warning "(DK) Robert, please implement d3d12's version of setColorMask() here")
-}
-
 void Graphics5::clear(uint flags, uint color, float depth, int stencil) {}
 
 namespace {
@@ -403,7 +399,7 @@ namespace {
 void Graphics5::begin(int window) {
 	if (began) return;
 	began = true;
-#ifdef SYS_WINDOWSRT
+#ifdef KORE_WINDOWSAPP
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 
@@ -448,11 +444,6 @@ void Graphics5::scissor(int x, int y, int width, int height) {
 }
 
 void Graphics5::disableScissor() {
-	// TODO
-}
-
-void Graphics5::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-                                    int readMask, int writeMask) {
 	// TODO
 }
 
@@ -520,10 +511,6 @@ bool Graphics5::swapBuffers(int window) {
 }
 
 void Graphics5::flush() {}
-
-void Graphics5::setRenderState(RenderState state, bool on) {}
-
-void Graphics5::setRenderState(RenderState state, int v) {}
 
 void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
@@ -677,10 +664,6 @@ void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter 
 
 void Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
-void Graphics5::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
-
-void Graphics5::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
-
 bool Graphics5::renderTargetsInvertedY() {
 	return false;
 }
@@ -734,3 +717,7 @@ bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 }
 
 void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
+
+void Graphics5::setPipeline(PipelineState* pipeline) {
+	pipeline->set(pipeline);
+}

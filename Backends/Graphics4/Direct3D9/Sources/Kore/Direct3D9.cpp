@@ -2,6 +2,7 @@
 
 #include "Direct3D9.h"
 
+#include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Math/Core.h>
 #undef CreateWindow
@@ -288,16 +289,6 @@ namespace {
 	}
 }
 
-void Graphics4::setColorMask(bool red, bool green, bool blue, bool alpha) {
-	DWORD flags = 0;
-	if (red) flags |= D3DCOLORWRITEENABLE_RED;
-	if (green) flags |= D3DCOLORWRITEENABLE_GREEN;
-	if (blue) flags |= D3DCOLORWRITEENABLE_BLUE;
-	if (alpha) flags |= D3DCOLORWRITEENABLE_ALPHA;
-
-	device->SetRenderState(D3DRS_COLORWRITEENABLE, flags);
-}
-
 void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
 	device->SetTextureStageState(0, D3DTSS_COLOROP, convert(operation));
 	device->SetTextureStageState(0, D3DTSS_COLORARG1, convert(arg1));
@@ -462,7 +453,7 @@ void Graphics4::viewport(int x, int y, int width, int height) {
 }
 
 void Graphics4::scissor(int x, int y, int width, int height) {
-	setRenderState(Graphics4::RenderState::ScissorTestState, true);
+	device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
 	RECT rc;
 	rc.left = x;
@@ -473,12 +464,7 @@ void Graphics4::scissor(int x, int y, int width, int height) {
 }
 
 void Graphics4::disableScissor() {
-	setRenderState(Graphics4::RenderState::ScissorTestState, false);
-}
-
-void Graphics4::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-                                    int readMask, int writeMask) {
-	// TODO
+	device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
 }
 
 void Graphics4::end(int windowId) {
@@ -510,116 +496,6 @@ bool Graphics4::swapBuffers(int windowId) {
 
 	return ::swapBuffers();
 }
-
-namespace {
-	_D3DBLEND convert(Graphics4::BlendingOperation operation) {
-		switch (operation) {
-		case Graphics4::BlendOne:
-			return D3DBLEND_ONE;
-		case Graphics4::BlendZero:
-			return D3DBLEND_ZERO;
-		case Graphics4::SourceAlpha:
-			return D3DBLEND_SRCALPHA;
-		case Graphics4::DestinationAlpha:
-			return D3DBLEND_DESTALPHA;
-		case Graphics4::InverseSourceAlpha:
-			return D3DBLEND_INVSRCALPHA;
-		case Graphics4::InverseDestinationAlpha:
-			return D3DBLEND_INVDESTALPHA;
-		default:
-			//	throw Exception("Unknown blending operation.");
-			return D3DBLEND_SRCALPHA;
-		}
-	}
-}
-
-void Graphics4::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
-	device->SetRenderState(D3DRS_SRCBLEND, convert(source));
-	device->SetRenderState(D3DRS_DESTBLEND, convert(destination));
-}
-
-void Graphics4::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
-
-void Graphics4::setRenderState(RenderState state, bool on) {
-	switch (state) {
-	case BlendingState:
-		device->SetRenderState(D3DRS_ALPHABLENDENABLE, on ? TRUE : FALSE);
-		break;
-	case DepthWrite:
-		device->SetRenderState(D3DRS_ZWRITEENABLE, on ? TRUE : FALSE);
-		break;
-	case DepthTest:
-		device->SetRenderState(D3DRS_ZENABLE, on ? TRUE : FALSE);
-		break;
-	case Normalize:
-		device->SetRenderState(D3DRS_NORMALIZENORMALS, on ? TRUE : FALSE);
-		break;
-	case ScissorTestState:
-		device->SetRenderState(D3DRS_SCISSORTESTENABLE, on ? TRUE : FALSE);
-		break;
-	case AlphaTestState:
-		device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
-		device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
-		break;
-		// default:
-		//	throw Exception();
-	}
-}
-
-void Graphics4::setRenderState(RenderState state, int v) {
-	switch (state) {
-	case DepthTestCompare:
-		switch (v) {
-		// TODO: Cmp-Konstanten systemabh�ngig abgleichen
-		default:
-		case ZCompareAlways:
-			v = D3DCMP_ALWAYS;
-			break;
-		case ZCompareNever:
-			v = D3DCMP_NEVER;
-			break;
-		case ZCompareEqual:
-			v = D3DCMP_EQUAL;
-			break;
-		case ZCompareNotEqual:
-			v = D3DCMP_NOTEQUAL;
-			break;
-		case ZCompareLess:
-			v = D3DCMP_LESS;
-			break;
-		case ZCompareLessEqual:
-			v = D3DCMP_LESSEQUAL;
-			break;
-		case ZCompareGreater:
-			v = D3DCMP_GREATER;
-			break;
-		case ZCompareGreaterEqual:
-			v = D3DCMP_GREATEREQUAL;
-			break;
-		}
-		device->SetRenderState(D3DRS_ZFUNC, v);
-		break;
-	case BackfaceCulling:
-		switch (v) {
-		case Clockwise:
-			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
-			break;
-		case CounterClockwise:
-			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-			break;
-		case NoCulling:
-			device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-			break;
-		default:
-			break;
-		}
-	case AlphaReferenceState:
-		device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
-		break;
-	}
-}
-
-void Graphics4::setRenderState(Graphics4::RenderState state, float value) {}
 
 void Graphics4::setBool(ConstantLocation position, bool value) {
 	if (position.shaderType == -1) return;
@@ -833,4 +709,13 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 			*pixelCount = 0;
 		}
 	}
+}
+
+void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
+
+}
+
+
+void Graphics4::setPipeline(PipelineState* pipeline) {
+	pipeline->set(pipeline);
 }

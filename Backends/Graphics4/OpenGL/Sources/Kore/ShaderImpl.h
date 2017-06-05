@@ -2,10 +2,10 @@
 
 namespace Kore {
 	namespace Graphics4 {
-		class Program;
+		class PipelineState;
 	}
 
-	class ProgramImpl;
+	class PipelineStateImpl;
 
 	class ShaderImpl {
 	public:
@@ -15,7 +15,13 @@ namespace Kore {
 		uint id;
 		const char* source;
 		int length;
-		friend class Graphics4::Program;
-		friend class ProgramImpl;
+		friend class Graphics4::PipelineState;
+		friend class PipelineStateImpl;
+	};
+
+	class ConstantLocationImpl {
+	public:
+		int location;
+		unsigned int type;
 	};
 }
