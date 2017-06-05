@@ -883,7 +883,7 @@ void Graphics2::Graphics2::fillRect(float x, float y, float width, float height)
 	coloredPainter->fillRect(opacity, color, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y());
 }
 
-void Graphics2::Graphics2::drawString(char* text, float x, float y) {
+void Graphics2::Graphics2::drawString(const char* text, float x, float y) {
 	imagePainter->end();
 	coloredPainter->end();
 
