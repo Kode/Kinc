@@ -544,7 +544,7 @@ void Graphics2::TextShaderPainter::initShaders() {
 	shaderPipeline->fragmentShader = fragmentShader;
 	shaderPipeline->vertexShader = vertexShader;
 
-	shaderPipeline->blendSource = Graphics4::BlendOne;
+	shaderPipeline->blendSource = Graphics4::SourceAlpha;
 	shaderPipeline->blendDestination = Graphics4::InverseSourceAlpha;
 	shaderPipeline->alphaBlendSource = Graphics4::SourceAlpha;
 	shaderPipeline->alphaBlendDestination = Graphics4::InverseSourceAlpha;
