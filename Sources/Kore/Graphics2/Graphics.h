@@ -179,7 +179,7 @@ namespace Kore {
 
 			void setFont(Kravur* font);
 
-			void drawString(const char* text, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs);
+			void drawString(const char* text, int length, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs);
 
 			void end();
 		};
@@ -236,7 +236,9 @@ namespace Kore {
 			void drawRect(float x, float y, float width, float height, float strength = 1.0);
 			void fillRect(float x, float y, float width, float height);
 
-			void drawString(char* text, float x, float y);
+			void drawString(const char* text, float x, float y);
+
+			void drawString(const char* text, int length, float x, float y);
 
 			void drawLine(float x1, float y1, float x2, float y2, float strength = 1.0);
 
