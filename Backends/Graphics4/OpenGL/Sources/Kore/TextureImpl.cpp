@@ -13,6 +13,30 @@ using namespace Kore;
 #define GL_TEXTURE_3D 0x806F
 #endif
 
+#ifndef GL_RGBA16F_EXT
+#define GL_RGBA16F_EXT 0x881A
+#endif
+
+#ifndef GL_RGBA32F_EXT
+#define GL_RGBA32F_EXT 0x8814
+#endif
+
+#ifndef GL_R16F_EXT
+#define GL_R16F_EXT 0x822D
+#endif
+
+#ifndef GL_R32F_EXT
+#define GL_R32F_EXT 0x822E
+#endif
+
+#ifndef GL_HALF_FLOAT
+#define GL_HALF_FLOAT 0x140B
+#endif
+
+#ifndef GL_RED
+#define GL_RED GL_LUMINANCE
+#endif
+
 #ifndef GL_KHR_texture_compression_astc_ldr
 #define GL_KHR_texture_compression_astc_ldr 1
 
@@ -63,45 +87,33 @@ namespace {
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
 		case Graphics4::Image::A32:
+		case Graphics4::Image::A16:
 		case Graphics4::Image::Grey8:
-#ifdef KORE_OPENGL_ES
-			return GL_LUMINANCE;
-#else
 			return GL_RED;
-#endif
 		}
 	}
 
 	int convertInternalFormat(Graphics4::Image::Format format) {
 		switch (format) {
 		case Graphics4::Image::RGBA128:
-#ifdef GL_ARB_texture_float
-			return GL_RGBA32F;
-#else
-			return GL_RGBA;
-#endif
-		case Graphics4::Image::RGBA32:
+			return GL_RGBA32F_EXT;
 		case Graphics4::Image::RGBA64:
+			return GL_RGBA16F_EXT;
+		case Graphics4::Image::RGBA32:
 		default:
-			// #ifdef GL_BGRA
+// #ifdef GL_BGRA
 			// return GL_BGRA;
-			// #else
+// #else
 			return GL_RGBA;
-		// #endif
+// #endif
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
 		case Graphics4::Image::A32:
-#ifdef KORE_OPENGL_ES
-			return GL_LUMINANCE;
-#else
-			return GL_R8;
-#endif
+			return GL_R32F_EXT;
+		case Graphics4::Image::A16:
+			return GL_R16F_EXT;
 		case Graphics4::Image::Grey8:
-#ifdef KORE_OPENGL_ES
-			return GL_LUMINANCE;
-#else
 			return GL_RED;
-#endif
 		}
 	}
 
@@ -110,6 +122,7 @@ namespace {
 		case Graphics4::Image::RGBA128:
 		case Graphics4::Image::RGBA64:
 		case Graphics4::Image::A32:
+		case Graphics4::Image::A16:
 			return GL_FLOAT;
 		case Graphics4::Image::RGBA32:
 		default:
@@ -216,6 +229,7 @@ namespace {
 			case Graphics4::Image::RGBA128:
 			case Graphics4::Image::RGBA64:
 			case Graphics4::Image::A32:
+			case Graphics4::Image::A16:
 				break;
 		}
 	}
@@ -500,13 +514,11 @@ void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
 	glBindTexture(target, texture);
 	glCheckErrors();
 	if (isHdr) {
-		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType,
-		             mipmap->hdrData);
+		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType, mipmap->hdrData);
 		glCheckErrors();
 	}
 	else {
-		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType,
-		             mipmap->data);
+		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType, mipmap->data);
 		glCheckErrors();
 	}
 }
