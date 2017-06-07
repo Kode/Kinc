@@ -86,14 +86,16 @@ void Video::load(double startTime) {
 	    [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
 	AVAssetReaderTrackOutput* videoOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoOutputSettings];
 
-	AVAssetTrack* audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
-	NSDictionary* audioOutputSettings = [NSDictionary
-	    dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey, [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
-	                                 [NSNumber numberWithInt:32], AVLinearPCMBitDepthKey, [NSNumber numberWithBool:NO], AVLinearPCMIsNonInterleaved,
-	                                 [NSNumber numberWithBool:YES], AVLinearPCMIsFloatKey, [NSNumber numberWithBool:NO], AVLinearPCMIsBigEndianKey, nil];
-	AVAssetReaderAudioMixOutput* audioOutput =
-	    [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[ audioTrack ] audioSettings:audioOutputSettings];
-
+	bool hasAudio = [[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0;
+	AVAssetReaderAudioMixOutput* audioOutput = nullptr;
+	if (hasAudio) {
+		AVAssetTrack* audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
+		NSDictionary* audioOutputSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey, [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
+			[NSNumber numberWithInt:32], AVLinearPCMBitDepthKey, [NSNumber numberWithBool:NO], AVLinearPCMIsNonInterleaved,
+	        [NSNumber numberWithBool:YES], AVLinearPCMIsFloatKey, [NSNumber numberWithBool:NO], AVLinearPCMIsBigEndianKey, nil];
+		audioOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[ audioTrack ] audioSettings:audioOutputSettings];
+	}
+	
 	AVAssetReader* reader = [AVAssetReader assetReaderWithAsset:asset error:nil];
 
 	if (startTime > 0) {
@@ -102,12 +104,19 @@ void Video::load(double startTime) {
 	}
 
 	[reader addOutput:videoOutput];
-	[reader addOutput:audioOutput];
-
+	if (hasAudio) {
+		[reader addOutput:audioOutput];
+	}
+	
 	impl->assetReader = reader;
 	impl->videoTrackOutput = videoOutput;
-	impl->audioTrackOutput = audioOutput;
-
+	if (hasAudio) {
+		impl->audioTrackOutput = audioOutput;
+	}
+	else {
+		impl->audioTrackOutput = nullptr;
+	}
+	
 	if (myWidth < 0) myWidth = [videoTrack naturalSize].width;
 	if (myHeight < 0) myHeight = [videoTrack naturalSize].height;
 	int framerate = [videoTrack nominalFrameRate];
@@ -200,7 +209,7 @@ void Video::updateImage() {
 		CFRelease(buffer);
 	}
 
-	{
+	if (impl->audioTrackOutput != nullptr) {
 		AVAssetReaderAudioMixOutput* audioOutput = impl->audioTrackOutput;
 		while (audioTime / 44100.0 < next + 0.1) {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
