@@ -193,8 +193,9 @@ void Video::updateImage() {
 
 		if (pixelBuffer != NULL) {
 			CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-			image->upload((u8*)CVPixelBufferGetBaseAddress(pixelBuffer));
+			image->upload((u8*)CVPixelBufferGetBaseAddress(pixelBuffer), static_cast<int>(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
 			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+			
 		}
 		CFRelease(buffer);
 	}
