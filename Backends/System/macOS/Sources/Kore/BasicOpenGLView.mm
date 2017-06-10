@@ -90,6 +90,9 @@ namespace {
 			else if (ch >= L'A' && ch <= L'Z') {
 				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'A' + Kore::KeyA));
 			}
+			else if (ch >= L'0' && ch <= L'9') {
+				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'0' + Kore::Key0));
+			}
 			break;
 		}
 	}
@@ -129,6 +132,9 @@ namespace {
 			}
 			else if (ch >= L'A' && ch <= L'Z') {
 				Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch - L'A' + Kore::KeyA));
+			}
+			else if (ch >= L'0' && ch <= L'9') {
+				Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch - L'0' + Kore::Key0));
 			}
 			Kore::Keyboard::the()->_keypress(ch);
 			break;
