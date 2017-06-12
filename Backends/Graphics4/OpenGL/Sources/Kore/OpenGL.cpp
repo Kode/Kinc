@@ -167,9 +167,11 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		glContexts[windowId] = tempGlContext;
 	}
 
-	ShowWindow(windowHandle, SW_SHOW);
-	SetForegroundWindow(windowHandle); // Slightly Higher Priority
-	SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
+	if (System::hasShowWindowFlag()) {
+		ShowWindow(windowHandle, SW_SHOW);
+		SetForegroundWindow(windowHandle); // Slightly Higher Priority
+		SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
+	}
 #else
 	deviceContexts[windowId] = GetDC(windowHandle);
 	glContexts[windowId] = wglGetCurrentContext();
