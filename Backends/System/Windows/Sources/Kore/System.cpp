@@ -77,13 +77,13 @@ namespace {
 	}
 
 #ifdef KORE_OCULUS
-	const char* windowClassName = "ORT";
+	const wchar_t* windowClassName = L"ORT";
 #else
-	const char* windowClassName = "KoreWindow";
+	const wchar_t* windowClassName = L"KoreWindow";
 #endif
 
-	void registerWindowClass(HINSTANCE hInstance, const char* className) {
-		WNDCLASSEXA wc = {sizeof(WNDCLASSEXA),
+	void registerWindowClass(HINSTANCE hInstance, const wchar_t* className) {
+		WNDCLASSEXW wc = {sizeof(WNDCLASSEXA),
 		                  CS_OWNDC /*CS_CLASSDC*/,
 		                  MsgProc,
 		                  0L,
@@ -96,7 +96,7 @@ namespace {
 		                  className /*windowClassName*/,
 		                  0};
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		RegisterClassExA(&wc);
+		RegisterClassExW(&wc);
 	}
 }
 
@@ -898,7 +898,7 @@ namespace {
 	DEVMODE startDeviceMode;
 }
 
-int createWindow(const char* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
+int createWindow(const wchar_t* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
 	++windowCounter;
 
 	HINSTANCE inst = GetModuleHandleA(nullptr);
@@ -982,7 +982,7 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 	} break;
 	}
 
-	HWND hwnd = CreateWindowExA(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left,
+	HWND hwnd = CreateWindowExW(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left,
 	                            WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
 
 	if (windowCounter == 0) {
@@ -1020,7 +1020,7 @@ void Kore::System::destroyWindow(int index) {
 	windows[index] = nullptr;
 
 	// TODO (DK) only unregister after the last window is destroyed?
-	if (!UnregisterClassA(windowClassName, GetModuleHandleA(nullptr))) {
+	if (!UnregisterClassW(windowClassName, GetModuleHandleA(nullptr))) {
 		// MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		// hInstance=NULL;
 	}
@@ -1056,7 +1056,10 @@ int Kore::System::initWindow(WindowOptions options) {
 		strcpy(buffer, options.title);
 	}
 
-	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
+	wchar_t wbuffer[1024];
+	MultiByteToWideChar(CP_UTF8, 0, buffer, -1, wbuffer, 1024);
+
+	int windowId = createWindow(wbuffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
 
 	HWND hwnd = (HWND)windowHandle(windowId);
 	long style = GetWindowLong(hwnd, GWL_STYLE);
