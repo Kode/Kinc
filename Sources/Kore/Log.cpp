@@ -21,14 +21,18 @@ void Kore::log(LogLevel level, const char* format, ...) {
 }
 
 void Kore::logArgs(LogLevel level, const char* format, va_list args) {
+#ifdef KORE_WINDOWS
+	wchar_t buffer[4096];
+	MultiByteToWideChar(CP_UTF8, 0, format, -1, buffer, 4096 - 2);
+	_vsnwprintf(buffer, sizeof(buffer) - 2, buffer, args);
+	wcscat(buffer, L"\r\n");
+	OutputDebugStringW(buffer);
+	vfwprintf(level == Info ? stdout : stderr, buffer, args);
+#else
 	vfprintf(level == Info ? stdout : stderr, format, args);
 	fprintf(level == Info ? stdout : stderr, "\n");
-#ifdef KORE_WINDOWS
-	char buffer[4096];
-	vsnprintf(buffer, sizeof(buffer) - 2, format, args);
-	strcat(buffer, "\r\n");
-	OutputDebugStringA(buffer);
 #endif
+
 #ifdef KORE_ANDROID
 	switch (level) {
 	case Info:
