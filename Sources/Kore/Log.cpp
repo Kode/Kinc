@@ -24,10 +24,11 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 #ifdef KORE_WINDOWS
 	wchar_t buffer[4096];
 	MultiByteToWideChar(CP_UTF8, 0, format, -1, buffer, 4096 - 2);
-	_vsnwprintf(buffer, sizeof(buffer) - 2, buffer, args);
-	wcscat(buffer, L"\r\n");
-	OutputDebugStringW(buffer);
-	vfwprintf(level == Info ? stdout : stderr, buffer, args);
+	wchar_t buffer2[4096];
+	_vsnwprintf(buffer2, sizeof(buffer) - 2, buffer, args);
+	wcscat(buffer2, L"\r\n");
+	OutputDebugStringW(buffer2);
+	vfwprintf(level == Info ? stdout : stderr, buffer2, args);
 #else
 	vfprintf(level == Info ? stdout : stderr, format, args);
 	fprintf(level == Info ? stdout : stderr, "\n");
