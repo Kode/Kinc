@@ -210,7 +210,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	CoreWindow^ win = CoreWindow::GetForCurrentThread();
 	// Create a holographic space for the core window for the current view.
-	// Presenting holographic frames that are created by this holographic space will put
+	// Presenting holographic frames that are created by this holographic space will putwwwwwww
 	// the app into exclusive mode.
 	m_holographicSpace = HolographicSpace::CreateForCoreWindow(win);
 
@@ -228,7 +228,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &featureLevel, &context));
 #endif
-	// affirm(device0.As(&device));
+	// affirm(device0.As(&device));aa
 	// affirm(context0.As(&context));
 
 	// m_windowBounds = m_window->Bounds;
@@ -316,29 +316,29 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 	}
 
-	affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	//affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	//affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
-	D3D11_TEXTURE2D_DESC backBufferDesc;
-	backBuffer->GetDesc(&backBufferDesc);
-	renderTargetWidth = backBufferDesc.Width;
-	renderTargetHeight = backBufferDesc.Height;
+	//D3D11_TEXTURE2D_DESC backBufferDesc;
+	//backBuffer->GetDesc(&backBufferDesc);
+	//renderTargetWidth = backBufferDesc.Width;
+	//renderTargetHeight = backBufferDesc.Height;
 
-	// TODO (DK) map depth/stencilBufferBits arguments
-	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
+	//// TODO (DK) map depth/stencilBufferBits arguments
+	//CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
 
-	ID3D11Texture2D* depthStencil;
-	affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	//ID3D11Texture2D* depthStencil;
+	//affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
+	//affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
-	currentRenderTargetView = renderTargetView;
-	currentDepthStencilView = depthStencilView;
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	//currentRenderTargetView = renderTargetView;
+	//currentDepthStencilView = depthStencilView;
+	//context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
-	context->RSSetViewports(1, &viewPort);
+	//CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
+	//context->RSSetViewports(1, &viewPort);
 
 	D3D11_DEPTH_STENCIL_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));

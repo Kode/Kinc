@@ -137,18 +137,18 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
     }
 
     // Create the constant buffer, if needed.
-    if (m_viewProjectionConstantBuffer == nullptr)
-    {
-        // Create a constant buffer to store view and projection matrices for the camera.
-        CD3D11_BUFFER_DESC constantBufferDesc(sizeof(ViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
-        DX::ThrowIfFailed(
-            device->CreateBuffer(
-                &constantBufferDesc,
-                nullptr,
-                &m_viewProjectionConstantBuffer
-                )
-            );
-    }
+    //if (m_viewProjectionConstantBuffer == nullptr)
+    //{
+    //    // Create a constant buffer to store view and projection matrices for the camera.
+    //    CD3D11_BUFFER_DESC constantBufferDesc(sizeof(ViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+    //    DX::ThrowIfFailed(
+    //        device->CreateBuffer(
+    //            &constantBufferDesc,
+    //            nullptr,
+    //            &m_viewProjectionConstantBuffer
+    //            )
+    //        );
+    //}
 }
 
 // Releases resources associated with a back buffer.
@@ -176,81 +176,81 @@ void DX::CameraResources::UpdateViewProjectionBuffer(
     SpatialCoordinateSystem^ coordinateSystem
     )
 {
-    // The system changes the viewport on a per-frame basis for system optimizations.
-    m_d3dViewport = CD3D11_VIEWPORT(
-        cameraPose->Viewport.Left,
-        cameraPose->Viewport.Top,
-        cameraPose->Viewport.Width,
-        cameraPose->Viewport.Height
-        );
+    //// The system changes the viewport on a per-frame basis for system optimizations.
+    //m_d3dViewport = CD3D11_VIEWPORT(
+    //    cameraPose->Viewport.Left,
+    //    cameraPose->Viewport.Top,
+    //    cameraPose->Viewport.Width,
+    //    cameraPose->Viewport.Height
+    //    );
 
-    // The projection transform for each frame is provided by the HolographicCameraPose.
-    HolographicStereoTransform cameraProjectionTransform = cameraPose->ProjectionTransform;
+    //// The projection transform for each frame is provided by the HolographicCameraPose.
+    //HolographicStereoTransform cameraProjectionTransform = cameraPose->ProjectionTransform;
 
-    // Get a container object with the view and projection matrices for the given
-    // pose in the given coordinate system.
-    Platform::IBox<HolographicStereoTransform>^ viewTransformContainer = cameraPose->TryGetViewTransform(coordinateSystem);
+    //// Get a container object with the view and projection matrices for the given
+    //// pose in the given coordinate system.
+    //Platform::IBox<HolographicStereoTransform>^ viewTransformContainer = cameraPose->TryGetViewTransform(coordinateSystem);
 
-    // If TryGetViewTransform returns a null pointer, that means the pose and coordinate
-    // system cannot be understood relative to one another; content cannot be rendered
-    // in this coordinate system for the duration of the current frame.
-    // This usually means that positional tracking is not active for the current frame, in
-    // which case it is possible to use a SpatialLocatorAttachedFrameOfReference to render
-    // content that is not world-locked instead.
-    ViewProjectionConstantBuffer viewProjectionConstantBufferData;
-    bool viewTransformAcquired = viewTransformContainer != nullptr;
-    if (viewTransformAcquired)
-    {
-        // Otherwise, the set of view transforms can be retrieved.
-        HolographicStereoTransform viewCoordinateSystemTransform = viewTransformContainer->Value;
+    //// If TryGetViewTransform returns a null pointer, that means the pose and coordinate
+    //// system cannot be understood relative to one another; content cannot be rendered
+    //// in this coordinate system for the duration of the current frame.
+    //// This usually means that positional tracking is not active for the current frame, in
+    //// which case it is possible to use a SpatialLocatorAttachedFrameOfReference to render
+    //// content that is not world-locked instead.
+    //ViewProjectionConstantBuffer viewProjectionConstantBufferData;
+    //bool viewTransformAcquired = viewTransformContainer != nullptr;
+    //if (viewTransformAcquired)
+    //{
+    //    // Otherwise, the set of view transforms can be retrieved.
+    //    HolographicStereoTransform viewCoordinateSystemTransform = viewTransformContainer->Value;
 
-        // Update the view matrices. Holographic cameras (such as Microsoft HoloLens) are
-        // constantly moving relative to the world. The view matrices need to be updated
-        // every frame.
-        XMStoreFloat4x4(
-            &viewProjectionConstantBufferData.viewProjection[0],
-            XMMatrixTranspose(XMLoadFloat4x4(&viewCoordinateSystemTransform.Left) * XMLoadFloat4x4(&cameraProjectionTransform.Left))
-            );
-        XMStoreFloat4x4(
-            &viewProjectionConstantBufferData.viewProjection[1],
-            XMMatrixTranspose(XMLoadFloat4x4(&viewCoordinateSystemTransform.Right) * XMLoadFloat4x4(&cameraProjectionTransform.Right))
-            );
+    //    // Update the view matrices. Holographic cameras (such as Microsoft HoloLens) are
+    //    // constantly moving relative to the world. The view matrices need to be updated
+    //    // every frame.
+    //    XMStoreFloat4x4(
+    //        &viewProjectionConstantBufferData.viewProjection[0],
+    //        XMMatrixTranspose(XMLoadFloat4x4(&viewCoordinateSystemTransform.Left) * XMLoadFloat4x4(&cameraProjectionTransform.Left))
+    //        );
+    //    XMStoreFloat4x4(
+    //        &viewProjectionConstantBufferData.viewProjection[1],
+    //        XMMatrixTranspose(XMLoadFloat4x4(&viewCoordinateSystemTransform.Right) * XMLoadFloat4x4(&cameraProjectionTransform.Right))
+    //        );
 
-        float4x4 viewInverse;
-        bool invertible = Windows::Foundation::Numerics::invert(viewCoordinateSystemTransform.Left, &viewInverse);
-        if (invertible)
-        {
-            // For the purposes of this sample, use the camera position as a light source.
-            float4 cameraPosition = float4(viewInverse.m41, viewInverse.m42, viewInverse.m43, 0.f);
-            float4 lightPosition = cameraPosition + float4(0.f, 0.25f, 0.f, 0.f);
+    //    float4x4 viewInverse;
+    //    bool invertible = Windows::Foundation::Numerics::invert(viewCoordinateSystemTransform.Left, &viewInverse);
+    //    if (invertible)
+    //    {
+    //        // For the purposes of this sample, use the camera position as a light source.
+    //        float4 cameraPosition = float4(viewInverse.m41, viewInverse.m42, viewInverse.m43, 0.f);
+    //        float4 lightPosition = cameraPosition + float4(0.f, 0.25f, 0.f, 0.f);
 
-            XMStoreFloat4(&viewProjectionConstantBufferData.cameraPosition, DirectX::XMLoadFloat4(&cameraPosition));
-            XMStoreFloat4(&viewProjectionConstantBufferData.lightPosition, DirectX::XMLoadFloat4(&lightPosition));
-        }
-    }
+    //        XMStoreFloat4(&viewProjectionConstantBufferData.cameraPosition, DirectX::XMLoadFloat4(&cameraPosition));
+    //        XMStoreFloat4(&viewProjectionConstantBufferData.lightPosition, DirectX::XMLoadFloat4(&lightPosition));
+    //    }
+    //}
 
-    // Use the D3D device context to update Direct3D device-based resources.
-    const auto context = deviceResources->GetD3DDeviceContext();
+    //// Use the D3D device context to update Direct3D device-based resources.
+    //const auto context = deviceResources->GetD3DDeviceContext();
 
-    // Loading is asynchronous. Resources must be created before they can be updated.
-    if (context == nullptr || m_viewProjectionConstantBuffer == nullptr || !viewTransformAcquired)
-    {
-        m_framePending = false;
-    }
-    else
-    {
-        // Update the view and projection matrices.
-        context->UpdateSubresource(
-            m_viewProjectionConstantBuffer.Get(),
-            0,
-            nullptr,
-            &viewProjectionConstantBufferData,
-            0,
-            0
-            );
+    //// Loading is asynchronous. Resources must be created before they can be updated.
+    //if (context == nullptr || m_viewProjectionConstantBuffer == nullptr || !viewTransformAcquired)
+    //{
+    //    m_framePending = false;
+    //}
+    //else
+    //{
+    //    // Update the view and projection matrices.
+    //    context->UpdateSubresource(
+    //        m_viewProjectionConstantBuffer.Get(),
+    //        0,
+    //        nullptr,
+    //        &viewProjectionConstantBufferData,
+    //        0,
+    //        0
+    //        );
 
-        m_framePending = true;
-    }
+    //    m_framePending = true;
+    //}
 }
 
 // Gets the view-projection constant buffer for the HolographicCamera and attaches it
