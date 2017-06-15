@@ -22,13 +22,41 @@ void Kore::log(LogLevel level, const char* format, ...) {
 
 void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 #ifdef KORE_WINDOWS
+	wchar_t formatw[4096];
+	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);
+
 	wchar_t buffer[4096];
-	MultiByteToWideChar(CP_UTF8, 0, format, -1, buffer, 4096 - 2);
-	wchar_t buffer2[4096];
-	_vsnwprintf(buffer2, sizeof(buffer) - 2, buffer, args);
-	wcscat(buffer2, L"\r\n");
-	OutputDebugStringW(buffer2);
-	vfwprintf(level == Info ? stdout : stderr, buffer2, args);
+	int bufferIndex = 0;
+	buffer[bufferIndex] = 0;
+
+	for (int i = 0; formatw[i] != 0; ++i) {
+		if (formatw[i] == L'%') {
+			++i;
+			if (formatw[i] == L's' || formatw[i] == L'S') {
+				char* arg = va_arg(args, char*);
+				wchar_t argw[1024];
+				MultiByteToWideChar(CP_UTF8, 0, arg, -1, argw, 1024);
+				wcscat(buffer, argw);
+				bufferIndex += wcslen(argw);
+			}
+			else {
+				void* arg = va_arg(args, void*);
+				wchar_t argformat[3];
+				argformat[0] = L'%';
+				argformat[1] = formatw[i];
+				argformat[2] = 0;
+				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, argformat, arg);
+			}
+		}
+		else {
+			buffer[bufferIndex++] = formatw[i];
+			buffer[bufferIndex] = 0;
+		}
+	}
+
+	wcscat(buffer, L"\r\n");
+	OutputDebugString(buffer);
+	vfwprintf(level == Info ? stdout : stderr, buffer, args);
 #else
 	vfprintf(level == Info ? stdout : stderr, format, args);
 	fprintf(level == Info ? stdout : stderr, "\n");
