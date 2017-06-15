@@ -17,6 +17,14 @@
 #endif
 #include <vector>
 
+#include <memory>
+#include "DeviceResources.h"
+
+using namespace Windows::Graphics::Holographic;
+
+HolographicSpace^ m_holographicSpace = nullptr;
+std::shared_ptr<DX::DeviceResources>  m_deviceResources;
+
 ID3D11Device* device;
 ID3D11DeviceContext* context;
 ID3D11RenderTargetView* renderTargetView;
@@ -171,6 +179,8 @@ namespace {
 
 void Graphics4::destroy(int windowId) {}
 
+
+
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
 	vsync = vSync;
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
@@ -192,9 +202,27 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 // ID3D11Device* device0;
 // ID3D11DeviceContext* context0;
 #ifdef KORE_WINDOWSAPP
-	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
+
+	/*affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 	                         &featureLevel, &context));
-#elif KORE_OCULUS
+*/
+	m_deviceResources = std::make_shared<DX::DeviceResources>();
+
+	CoreWindow^ win = CoreWindow::GetForCurrentThread();
+	// Create a holographic space for the core window for the current view.
+	// Presenting holographic frames that are created by this holographic space will put
+	// the app into exclusive mode.
+	m_holographicSpace = HolographicSpace::CreateForCoreWindow(win);
+
+	// The DeviceResources class uses the preferred DXGI adapter ID from the holographic
+	// space (when available) to create a Direct3D device. The HolographicSpace
+	// uses this ID3D11Device to create and manage device-based resources such as
+	// swap chains.
+	m_deviceResources->SetHolographicSpace(m_holographicSpace);
+
+
+
+	#elif KORE_OCULUS
 	IDXGIFactory* dxgiFactory = nullptr;
 	affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));
 
