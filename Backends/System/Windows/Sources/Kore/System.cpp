@@ -96,7 +96,7 @@ namespace {
 		                  className /*windowClassName*/,
 		                  0};
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		RegisterClassExW(&wc);
+		RegisterClassEx(&wc);
 	}
 }
 
@@ -495,7 +495,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 	}
-	return DefWindowProcA(hWnd, msg, wParam, lParam);
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 namespace {
@@ -506,12 +506,12 @@ namespace {
 	XInputGetStateType InputGetState = nullptr;
 
 	void loadXInput() {
-		HMODULE lib = LoadLibraryA("xinput1_4.dll");
+		HMODULE lib = LoadLibrary(L"xinput1_4.dll");
 		if (lib == nullptr) {
-			lib = LoadLibraryA("xinput1_3.dll");
+			lib = LoadLibrary(L"xinput1_3.dll");
 		}
 		if (lib == nullptr) {
-			lib = LoadLibraryA("xinput9_1_0.dll");
+			lib = LoadLibrary(L"xinput9_1_0.dll");
 		}
 
 		if (lib != nullptr) {
@@ -737,7 +737,7 @@ namespace {
 	}
 
 	void initializeDirectInput() {
-		HINSTANCE hinstance = GetModuleHandleA(nullptr);
+		HINSTANCE hinstance = GetModuleHandle(nullptr);
 
 		memset(&di_pads, 0, sizeof(IDirectInputDevice8) * XUSER_MAX_COUNT);
 		memset(&di_padState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
@@ -901,7 +901,7 @@ namespace {
 int createWindow(const wchar_t* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
 	++windowCounter;
 
-	HINSTANCE inst = GetModuleHandleA(nullptr);
+	HINSTANCE inst = GetModuleHandle(nullptr);
 #ifdef KORE_OCULUS
 	::registerWindowClass(inst, windowClassName);
 	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
@@ -937,7 +937,7 @@ int createWindow(const wchar_t* title, int x, int y, int width, int height, Wind
 		EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &startDeviceMode);
 		deviceModeChanged = true;
 
-		DEVMODEA dmScreenSettings;                              // Device Mode
+		DEVMODEW dmScreenSettings;                              // Device Mode
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings)); // Makes Sure Memory's Cleared
 		dmScreenSettings.dmSize = sizeof(dmScreenSettings);     // Size Of The Devmode Structure
 		dmScreenSettings.dmPelsWidth = width;                   // Selected Screen Width
@@ -946,7 +946,7 @@ int createWindow(const wchar_t* title, int x, int y, int width, int height, Wind
 		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 		// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
-		if (ChangeDisplaySettingsA(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+		if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
 			// return FALSE;
 		}
 
@@ -982,9 +982,9 @@ int createWindow(const wchar_t* title, int x, int y, int width, int height, Wind
 	} break;
 	}
 
-	HWND hwnd = CreateWindowExW(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left,
+	HWND hwnd = CreateWindowEx(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left,
 	                            WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
-
+	
 	if (windowCounter == 0) {
 		if (windowMode == WindowModeFullscreen) {
 			SetWindowPos(hwnd, nullptr, dstx, dsty, width, height, 0);
@@ -1020,7 +1020,7 @@ void Kore::System::destroyWindow(int index) {
 	windows[index] = nullptr;
 
 	// TODO (DK) only unregister after the last window is destroyed?
-	if (!UnregisterClassW(windowClassName, GetModuleHandleA(nullptr))) {
+	if (!UnregisterClass(windowClassName, GetModuleHandle(nullptr))) {
 		// MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		// hInstance=NULL;
 	}
@@ -1146,7 +1146,9 @@ bool Kore::System::showsKeyboard() {
 void Kore::System::loadURL(const char* url) {}
 
 void Kore::System::setTitle(const char* title) {
-	SetWindowTextA(windows[currentDevice()]->hwnd, title);
+	wchar_t buffer[1024];
+	MultiByteToWideChar(CP_UTF8, 0, title, -1, buffer, 1024);
+	SetWindowText(windows[currentDevice()]->hwnd, buffer);
 }
 
 void Kore::System::setKeepScreenOn(bool on) {}
@@ -1176,9 +1178,10 @@ const char* Kore::System::systemId() {
 }
 
 namespace {
-	char* savePath = nullptr;
-
-	void getSavePath() {
+	wchar_t savePathw[2048];
+	char savePath[2048];
+	
+	void findSavePath() {
 		// CoInitialize(NULL);
 		IKnownFolderManager* folders = nullptr;
 		CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&folders));
@@ -1188,20 +1191,15 @@ namespace {
 		LPWSTR path;
 		folder->GetPath(0, &path);
 
-		size_t length = wcslen(path);
-		size_t length2 = strlen(Kore::System::name());
-		savePath = new char[length + length2 + 3];
-		for (size_t i = 0; i < length; ++i) {
-			savePath[i] = static_cast<char>(path[i]);
-		}
-		savePath[length] = '\\';
-		for (size_t i = 0; i < length2; ++i) {
-			savePath[length + 1 + i] = Kore::System::name()[i];
-		}
-		savePath[length + 1 + length2] = '\\';
-		savePath[length + 1 + length2 + 1] = 0;
+		wcscpy(savePathw, path);
+		wcscat(savePathw, L"\\");
+		wchar_t name[1024];
+		MultiByteToWideChar(CP_UTF8, 0, Kore::System::name(), -1, name, 1024);
+		wcscat(savePathw, name);
+		wcscat(savePathw, L"\\");
 
-		SHCreateDirectoryExA(nullptr, savePath, nullptr);
+		SHCreateDirectoryEx(nullptr, savePathw, nullptr);
+		WideCharToMultiByte(CP_UTF8, 0, savePathw, -1, savePath, 1024, nullptr, nullptr);
 
 		CoTaskMemFree(path);
 		folder->Release();
@@ -1211,7 +1209,7 @@ namespace {
 }
 
 const char* Kore::System::savePath() {
-	if (::savePath == nullptr) getSavePath();
+	if (::savePath == nullptr) findSavePath();
 	return ::savePath;
 }
 
