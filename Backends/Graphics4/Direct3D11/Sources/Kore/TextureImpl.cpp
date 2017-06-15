@@ -17,6 +17,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	mipmap = true;
 	texWidth = width;
 	texHeight = height;
+	rowPitch = 0;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -98,7 +99,12 @@ void TextureImpl::unmipmap() {
 
 void Graphics4::Texture::_set(TextureUnit unit) {
 	if (unit.unit < 0) return;
-	context->PSSetShaderResources(unit.unit, 1, &view);
+	if (unit.vertex) {
+		context->VSSetShaderResources(unit.unit, 1, &view);
+	}
+	else {
+		context->PSSetShaderResources(unit.unit, 1, &view);
+	}
 	this->stage = unit.unit;
 	setTextures[stage] = this;
 }
@@ -113,6 +119,7 @@ void TextureImpl::unset() {
 u8* Graphics4::Texture::lock() {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	context->Map(texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	rowPitch = mappedResource.RowPitch;
 	return (u8*)mappedResource.pData;
 }
 
@@ -125,7 +132,7 @@ void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int d
 }
 
 int Graphics4::Texture::stride() {
-	return format == Image::RGBA32 ? width * 4 : width; // TODO: Return mappedResource's stride
+	return rowPitch;
 }
 
 void Graphics4::Texture::generateMipmaps(int levels) {}

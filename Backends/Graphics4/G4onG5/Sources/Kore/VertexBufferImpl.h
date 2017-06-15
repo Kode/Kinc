@@ -10,7 +10,7 @@ namespace Kore {
 	class VertexBufferImpl {
 	protected:
 		VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate);
-
+		int currentIndex;
 	public:
 		Graphics5::VertexBuffer _buffer;
 	};

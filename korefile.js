@@ -13,6 +13,14 @@ let g4 = false;
 
 let g5 = false;
 
+const a1 = true;
+project.addDefine('KORE_A1');
+
+const a2 = true;
+project.addDefine('KORE_A2');
+
+let a3 = false;
+
 project.addFile('Sources/**');
 project.addExclude('Sources/Kore/IO/snappy/**');
 project.addIncludeDir('Sources');
@@ -112,6 +120,7 @@ else if (platform === Platform.WindowsApp) {
 }
 else if (platform === Platform.OSX) {
 	project.addDefine('KORE_MACOS');
+	addBackend('System/Apple');
 	addBackend('System/macOS');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
@@ -137,6 +146,9 @@ else if (platform === Platform.OSX) {
 	project.addLib('AppKit');
 	project.addLib('CoreAudio');
 	project.addLib('CoreData');
+	project.addLib('CoreMedia');
+	project.addLib('CoreVideo');
+	project.addLib('AVFoundation');
 	project.addLib('Foundation');
 	project.addDefine('KORE_POSIX');
 }
@@ -147,6 +159,7 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	else {
 		project.addDefine('KORE_IOS');
 	}
+	addBackend('System/Apple');
 	addBackend('System/iOS');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
@@ -275,6 +288,12 @@ if (g5) {
 }
 else {
 	project.addExclude('Sources/Kore/Graphics5/**');
+}
+
+if (!a3) {
+	a3 = true;
+	project.addDefine('KORE_A3');
+	addBackend('Audio3/A3onA2');
 }
 
 resolve(project);

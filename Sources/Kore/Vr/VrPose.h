@@ -9,6 +9,9 @@ public:
 
 	Kore::Quaternion orientation;
 	Kore::vec3 position;
+
+	Kore::mat4 eye;
+	Kore::mat4 projection;
 	
 	// fov
 	float left;

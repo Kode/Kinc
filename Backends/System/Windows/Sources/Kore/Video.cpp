@@ -6,8 +6,6 @@
 
 using namespace Kore;
 
-extern HRESULT UpgradeGeometry(LONG lActualW, LONG lTextureW, LONG lActualH, LONG lTextureH);
-
 namespace {
 	IGraphBuilder* graphBuilder;
 	IMediaControl* mediaControl;
@@ -28,18 +26,20 @@ public:
 	HRESULT SetMediaType(const CMediaType *pmt);       // Video format notification 
 	HRESULT DoRenderSample(IMediaSample *pMediaSample); // New video sample 
 
-	BOOL m_bUseDynamicTextures;
-	LONG m_lVidWidth;   // Video width 
-	LONG m_lVidHeight;  // Video Height 
-	LONG m_lVidPitch;   // Video Pitch
+	//BOOL m_bUseDynamicTextures;
+	//LONG m_lVidWidth;   // Video width 
+	//LONG m_lVidHeight;  // Video Height 
+	//LONG m_lVidPitch;   // Video Pitch
 
 	Graphics4::Texture* image;
+	int width;
+	int height;
+	u8* pixels;
 };
 
 CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr)
 	: CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer),
-		TEXT("Texture Renderer"), pUnk, phr),
-	m_bUseDynamicTextures(FALSE)
+		TEXT("Texture Renderer"), pUnk, phr)
 {
 	// Store and AddRef the texture for our use.
 	ASSERT(phr);
@@ -80,26 +80,33 @@ HRESULT CTextureRenderer::CheckMediaType(const CMediaType *pmt)
 
 HRESULT CTextureRenderer::SetMediaType(const CMediaType *pmt) {
 	VIDEOINFO* info = (VIDEOINFO*)pmt->Format();
-	int width = info->bmiHeader.biWidth;
-	int height = abs(info->bmiHeader.biHeight);
+	width = info->bmiHeader.biWidth;
+	height = abs(info->bmiHeader.biHeight);
 	image = new Graphics4::Texture(width, height, Graphics4::Image::RGBA32, false);
+	pixels = (u8*)malloc(width * height * 3);
+
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			pixels[y * width * 3 + x * 3 + 0] = 0;
+			pixels[y * width * 3 + x * 3 + 1] = 0;
+			pixels[y * width * 3 + x * 3 + 2] = 0;
+		}
+	}
+
 	return S_OK;
 }
 
 HRESULT CTextureRenderer::DoRenderSample(IMediaSample* sample) {
-	u8* pixels = image->lock();
 	BYTE* videoPixels;
 	sample->GetPointer(&videoPixels);
-	int videoPitch = (image->width * 3 + 3) & ~(3);
-	for (int y = 0; y < image->height; ++y) {
-		for (int x = 0; x < image->width; ++x) {
-			pixels[y * image->stride() + x * 4 + 0] = videoPixels[(image->height - y - 1) * videoPitch + x * 3 + 0];
-			pixels[y * image->stride() + x * 4 + 1] = videoPixels[(image->height - y - 1) * videoPitch + x * 3 + 1];
-			pixels[y * image->stride() + x * 4 + 2] = videoPixels[(image->height - y - 1) * videoPitch + x * 3 + 2];
-			pixels[y * image->stride() + x * 4 + 3] = 255;
+	int videoPitch = (width * 3 + 3) & ~(3);
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			pixels[y * width * 3 + x * 3 + 0] = videoPixels[(height - y - 1) * videoPitch + x * 3 + 2];
+			pixels[y * width * 3 + x * 3 + 1] = videoPixels[(height - y - 1) * videoPitch + x * 3 + 1];
+			pixels[y * width * 3 + x * 3 + 2] = videoPixels[(height - y - 1) * videoPitch + x * 3 + 0];
 		}
 	}
-	image->unlock();
 	return S_OK;
 }
 
@@ -127,17 +134,48 @@ Video::Video(const char* filename) {
 	graphBuilder->QueryInterface(&mediaPosition);
 	graphBuilder->QueryInterface(&mediaEvent);
 
-	hr = mediaControl->Run();
+	mediaPosition->get_Duration(&duration);
+	this->position = 0;
 }
 
 Graphics4::Texture* Video::currentImage() {
+	u8* pixels = renderer->image->lock();
+	int stride = renderer->image->stride();
+	for (int y = 0; y < renderer->height; ++y) {
+		for (int x = 0; x < renderer->width; ++x) {
+			pixels[y * stride + x * 4 + 0] = renderer->pixels[y * renderer->width * 3 + x * 3 + 0];
+			pixels[y * stride + x * 4 + 1] = renderer->pixels[y * renderer->width * 3 + x * 3 + 1];
+			pixels[y * stride + x * 4 + 2] = renderer->pixels[y * renderer->width * 3 + x * 3 + 2];
+			pixels[y * stride + x * 4 + 3] = 255;
+		}
+	}
+	renderer->image->unlock();
+
+	mediaPosition->get_CurrentPosition(&position);
+
 	return renderer->image;
 }
 
 int Video::width() {
-	return renderer->image->width;
+	return renderer->width;
 }
 
 int Video::height() {
-	return renderer->image->height;
+	return renderer->height;
+}
+
+void Video::play() {
+	mediaControl->Run();
+}
+
+void Video::pause() {
+	mediaControl->Pause();
+}
+
+void Video::stop() {
+	mediaControl->Stop();
+}
+
+void Video::update(double time) {
+	mediaPosition->put_CurrentPosition(time);
 }

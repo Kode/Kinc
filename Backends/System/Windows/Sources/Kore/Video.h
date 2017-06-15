@@ -12,17 +12,17 @@ namespace Kore {
 		~Video() {
 			//delete image;
 		}
-		void play() {}
-		void pause() {}
-		void stop() {}
+		void play();
+		void pause();
+		void stop();
 		int width();
 		int height();
 		Graphics4::Texture* currentImage();
-		double duration; // milliseconds
-		double position; // milliseconds
+		double duration;
+		double position;
 		bool finished;
 		bool paused;
-		void update(double time) {}
+		void update(double time);
 
 	private:
 		//Graphics4::Texture* image;

@@ -7,8 +7,8 @@ public:
 	SensorState();
 	~SensorState();
 
-	VrPoseState* pose;
-	VrPoseState* predictedPose;
+	VrPoseState pose;
+	VrPoseState predictedPose;
 	
 	// Sensor status
 	bool isVisible;
