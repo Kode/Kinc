@@ -4,9 +4,13 @@ namespace Kore {
 	class Reader;
 
 	namespace Graphics1 {
+		enum ImageCompression {
+			ImageCompressionNone, ImageCompressionDXT5, ImageCompressionASTC, ImageCompressionPVRTC
+		};
+
 		class Image {
 		public:
-			enum Format { RGBA32, Grey8, RGB24, RGBA128, RGBA64, A32 };
+			enum Format { RGBA32, Grey8, RGB24, RGBA128, RGBA64, A32, BGRA32, A16 };
 
 			static int sizeOf(Image::Format format);
 
@@ -21,7 +25,7 @@ namespace Kore {
 			int width, height, depth;
 			Format format;
 			bool readable;
-			bool compressed;
+			ImageCompression compression;
 			u8* data;
 			float* hdrData;
 			int dataSize;

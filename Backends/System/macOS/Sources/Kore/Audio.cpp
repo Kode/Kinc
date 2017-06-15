@@ -1,11 +1,28 @@
 #include "pch.h"
+
 #include <CoreAudio/AudioHardware.h>
 #include <CoreServices/CoreServices.h>
+
 #include <Kore/Audio2/Audio.h>
 #include <Kore/Log.h>
+
+#include <Kore/VideoSoundStream.h>
+
 #include <stdio.h>
 
 using namespace Kore;
+
+namespace {
+	VideoSoundStream* video = nullptr;
+}
+
+void macPlayVideoSoundStream(VideoSoundStream* video) {
+	::video = video;
+}
+
+void macStopVideoSoundStream() {
+	video = nullptr;
+}
 
 namespace {
 	// const int samplesPerSecond = 44100;

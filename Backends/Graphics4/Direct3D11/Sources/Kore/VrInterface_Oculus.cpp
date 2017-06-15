@@ -382,6 +382,10 @@ SensorState* VrInterface::getSensorState(int eye) {
 	return sensorState;
 }
 
+/*VrPoseState VrInterface::getController(int index) {
+	return -1;
+}*/
+
 void VrInterface::warpSwap() {
 	// Initialize our single full screen Fov layer.
 	ovrLayerEyeFov ld = {};

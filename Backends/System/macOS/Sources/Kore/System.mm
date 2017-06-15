@@ -113,7 +113,9 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 	[window setAcceptsMouseMovedEvents:YES];
 	[[window contentView] addSubview:view];
 	[window center];
-	[window makeKeyAndOrderFront:nil];
+	if (Kore::System::hasShowWindowFlag()) {
+		[window makeKeyAndOrderFront:nil];
+	}
 
 	++windowCounter;
 	windows[windowCounter] = new KoreWindow(window, view, x, y, width, height);

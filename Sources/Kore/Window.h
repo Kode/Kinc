@@ -40,7 +40,6 @@ namespace Kore {
 		RendererOptions rendererOptions;
 
 		WindowOptions() {
-			showWindow = true;
 			title = "KoreWindow";
 			targetDisplay = -1;
 			mode = WindowModeWindow;
