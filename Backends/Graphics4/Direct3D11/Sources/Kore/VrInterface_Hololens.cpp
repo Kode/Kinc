@@ -17,9 +17,9 @@ void VrInterface::beginRender(int eye)
 	
 }
 
-SensorState* VrInterface::getSensorState(int eye)
+SensorState VrInterface::getSensorState(int eye)
 {
-	SensorState* state = new SensorState();
+	SensorState state;
 	return state;
 }
 
