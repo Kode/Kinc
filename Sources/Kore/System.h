@@ -74,6 +74,7 @@ namespace Kore {
 		void setBackgroundCallback(void (*value)());
 		void setShutdownCallback(void (*value)());
 		void setOrientationCallback(void (*value)(Orientation));
+		void setDropFilesCallback(void (*value)(wchar_t*));
 		void setKeepScreenOn(bool on);
 
 		void callback();
@@ -83,5 +84,6 @@ namespace Kore {
 		void backgroundCallback();
 		void shutdownCallback();
 		void orientationCallback(Orientation);
+		void dropFilesCallback(wchar_t*);
 	}
 }

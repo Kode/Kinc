@@ -494,6 +494,17 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}
 		break;
+	case WM_DROPFILES:
+		HDROP hDrop = (HDROP)wParam;
+		uint count = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, NULL);
+		if (count == 1) { // Single file only for now
+			wchar_t filePath[260];
+			if (DragQueryFile(hDrop, 0, filePath, 260)) {
+				Kore::System::dropFilesCallback(filePath);
+			}
+		}	
+		DragFinish(hDrop);
+		break;
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
@@ -993,6 +1004,8 @@ int createWindow(const wchar_t* title, int x, int y, int width, int height, Wind
 
 	GetFocus(); // TODO (DK) that seems like a useless call, as the return value isn't saved anywhere?
 	::SetCursor(LoadCursor(0, IDC_ARROW));
+
+	DragAcceptFiles(hwnd, true);
 
 	if (windowCounter == 0) {
 		loadXInput();
