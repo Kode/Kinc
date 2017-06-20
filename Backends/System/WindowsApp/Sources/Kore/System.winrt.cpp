@@ -9,11 +9,11 @@
 #include <windows.h>
 
 #ifndef XINPUT
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #define XINPUT 1
 #endif
 
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 #define XINPUT !(WINAPI_PARTITION_PHONE_APP)
 #endif
 #endif
