@@ -83,6 +83,9 @@ namespace {
 		case 0x7f:
 			Kore::Keyboard::the()->_keydown(Kore::KeyBackspace);
 			break;
+		case 32:
+			Kore::Keyboard::the()->_keydown(Kore::KeySpace);
+			break;
 		default:
 			if (ch >= L'a' && ch <= L'z') {
 				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'a' + Kore::KeyA));
@@ -126,6 +129,9 @@ namespace {
 			break;
 		case 0x7f:
 			Kore::Keyboard::the()->_keyup(Kore::KeyBackspace);
+			break;
+		case 32:
+			Kore::Keyboard::the()->_keyup(Kore::KeySpace);
 			break;
 		default:
 			if (ch >= L'a' && ch <= L'z') {
