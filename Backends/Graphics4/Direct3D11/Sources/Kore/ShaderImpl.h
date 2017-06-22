@@ -23,15 +23,15 @@ namespace Kore {
 
 	class ConstantLocationImpl {
 	public:
-		u8 vertexOffset;
-		u8 vertexSize;
-		u8 fragmentOffset;
-		u8 fragmentSize;
-		u8 geometryOffset;
-		u8 geometrySize;
-		u8 tessEvalOffset;
-		u8 tessEvalSize;
-		u8 tessControlOffset;
-		u8 tessControlSize;
+		u32 vertexOffset;
+		u32 vertexSize;
+		u32 fragmentOffset;
+		u32 fragmentSize;
+		u32 geometryOffset;
+		u32 geometrySize;
+		u32 tessEvalOffset;
+		u32 tessEvalSize;
+		u32 tessControlOffset;
+		u32 tessControlSize;
 	};
 }
