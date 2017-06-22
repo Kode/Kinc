@@ -29,6 +29,9 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	case Target32BitRedFloat:
 		desc.Format = DXGI_FORMAT_R32_FLOAT;
 		break;
+	case Target16BitRedFloat:
+		desc.Format = DXGI_FORMAT_R16_FLOAT;
+		break;
 	case Target8BitRed:
 		desc.Format = DXGI_FORMAT_R8_UNORM;
 		break;
