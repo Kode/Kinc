@@ -15,9 +15,9 @@ namespace Kore {
 	D3D11_CULL_MODE convert(Graphics4::CullMode cullMode) {
 		switch (cullMode) {
 		case Graphics4::Clockwise:
-			return D3D11_CULL_BACK;
-		case Graphics4::CounterClockwise:
 			return D3D11_CULL_FRONT;
+		case Graphics4::CounterClockwise:
+			return D3D11_CULL_BACK;
 		case Graphics4::NoCulling:
 		default:
 			return D3D11_CULL_NONE;
@@ -342,7 +342,6 @@ void Graphics4::PipelineState::compile() {
 		D3D11_RASTERIZER_DESC rasterDesc;
 		rasterDesc.CullMode = convert(cullMode);
 		rasterDesc.FillMode = D3D11_FILL_SOLID;
-		rasterDesc.CullMode = D3D11_CULL_NONE;
 		rasterDesc.FrontCounterClockwise = FALSE;
 		rasterDesc.DepthBias = 0;
 		rasterDesc.SlopeScaledDepthBias = 0.0f;
