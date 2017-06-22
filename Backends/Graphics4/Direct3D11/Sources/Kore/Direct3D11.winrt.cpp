@@ -806,6 +806,13 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 			ID3D11ShaderResourceView* nullview[1];
 			nullview[0] = nullptr;
 			context->PSSetShaderResources(targets[i]->lastBoundUnit, 1, nullview);
+			targets[i]->lastBoundUnit = -1;
+		}
+		if (targets[i]->lastBoundDepthUnit >= 0) {
+			ID3D11ShaderResourceView* nullview[1];
+			nullview[0] = nullptr;
+			context->PSSetShaderResources(targets[i]->lastBoundDepthUnit, 1, nullview);
+			targets[i]->lastBoundDepthUnit = -1;
 		}
 	}
 	

@@ -99,6 +99,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	}
 
 	lastBoundUnit = -1;
+	lastBoundDepthUnit = -1;
 }
 
 Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
@@ -121,7 +122,7 @@ void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &depthStencilSRV);
-	lastBoundUnit = unit.unit;
+	lastBoundDepthUnit = unit.unit;
 }
 
 void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
