@@ -951,8 +951,8 @@ int createWindow(const wchar_t* title, int x, int y, int width, int height, Wind
 		DEVMODEW dmScreenSettings;                              // Device Mode
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings)); // Makes Sure Memory's Cleared
 		dmScreenSettings.dmSize = sizeof(dmScreenSettings);     // Size Of The Devmode Structure
-		dmScreenSettings.dmPelsWidth = width;                   // Selected Screen Width
-		dmScreenSettings.dmPelsHeight = height;                 // Selected Screen Height
+		dmScreenSettings.dmPelsWidth = width = startDeviceMode.dmPelsWidth;    // Selected Screen Width
+		dmScreenSettings.dmPelsHeight = height = startDeviceMode.dmPelsHeight; // Selected Screen Height
 		dmScreenSettings.dmBitsPerPel = 32;                     // Selected Bits Per Pixel
 		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
@@ -963,7 +963,6 @@ int createWindow(const wchar_t* title, int x, int y, int width, int height, Wind
 
 		dwExStyle = WS_EX_APPWINDOW;
 		dwStyle = WS_POPUP;
-		ShowCursor(FALSE);
 		break;
 	}
 	}
