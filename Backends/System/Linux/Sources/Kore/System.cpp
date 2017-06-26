@@ -504,6 +504,8 @@ bool Kore::System::handleMessages() {
 			break;
 		}
 		case ConfigureNotify:
+            windowimpl::windows[0]->width = event.xconfigure.width;
+            windowimpl::windows[0]->height = event.xconfigure.height;
 			glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
 		// fall through...
 		case Expose:
