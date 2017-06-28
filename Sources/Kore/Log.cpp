@@ -56,7 +56,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 
 	wcscat(buffer, L"\r\n");
 	OutputDebugString(buffer);
-	vfwprintf(level == Info ? stdout : stderr, buffer, args);
+	fwprintf(level == Info ? stdout : stderr, L"%s", buffer);
 #else
 	vfprintf(level == Info ? stdout : stderr, format, args);
 	fprintf(level == Info ? stdout : stderr, "\n");

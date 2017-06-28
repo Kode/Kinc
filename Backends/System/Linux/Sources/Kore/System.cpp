@@ -503,11 +503,14 @@ bool Kore::System::handleMessages() {
 			Kore::Mouse::the()->_move(windowId, motion->x, motion->y);
 			break;
 		}
-		case ConfigureNotify:
+		case ConfigureNotify: {
+            int windowId = windowimpl::idFromWindow(event.xconfigure.window);
+            windowimpl::windows[windowId]->width = event.xconfigure.width;
+            windowimpl::windows[windowId]->height = event.xconfigure.height;
 			glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
-		// fall through...
+            break;
+		}
 		case Expose:
-			// needRedraw = GL_TRUE;
 			break;
 		}
 	}
