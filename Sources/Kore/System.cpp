@@ -42,6 +42,7 @@ namespace {
 		void (*resumeCallback)();
 		void (*shutdownCallback)();
 		void (*orientationCallback)(Kore::Orientation);
+		void (*dropFilesCallback)(wchar_t*);
 	}
 }
 
@@ -91,6 +92,10 @@ void Kore::System::setOrientationCallback(void (*value)(Orientation)) {
 	callbacks::orientationCallback = value;
 }
 
+void Kore::System::setDropFilesCallback(void (*value)(wchar_t*)) {
+	callbacks::dropFilesCallback = value;
+}
+
 void Kore::System::callback() {
 	if (callbacks::callback != nullptr) {
 		callbacks::callback();
@@ -130,6 +135,12 @@ void Kore::System::shutdownCallback() {
 void Kore::System::orientationCallback(Orientation orientation) {
 	if (callbacks::orientationCallback != nullptr) {
 		callbacks::orientationCallback(orientation);
+	}
+}
+
+void Kore::System::dropFilesCallback(wchar_t* filePath) {
+	if (callbacks::dropFilesCallback != nullptr) {
+		callbacks::dropFilesCallback(filePath);
 	}
 }
 

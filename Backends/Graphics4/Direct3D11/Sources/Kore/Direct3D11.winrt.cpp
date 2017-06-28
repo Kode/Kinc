@@ -473,26 +473,26 @@ void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument 
 }
 
 namespace {
-	void setInt(u8* constants, u8 offset, u8 size, int value) {
+	void setInt(u8* constants, u32 offset, u32 size, int value) {
 		if (size == 0) return;
 		int* ints = reinterpret_cast<int*>(&constants[offset]);
 		ints[0] = value;
 	}
 
-	void setFloat(u8* constants, u8 offset, u8 size, float value) {
+	void setFloat(u8* constants, u32 offset, u32 size, float value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value;
 	}
 
-	void setFloat2(u8* constants, u8 offset, u8 size, float value1, float value2) {
+	void setFloat2(u8* constants, u32 offset, u32 size, float value1, float value2) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
 		floats[1] = value2;
 	}
 
-	void setFloat3(u8* constants, u8 offset, u8 size, float value1, float value2, float value3) {
+	void setFloat3(u8* constants, u32 offset, u32 size, float value1, float value2, float value3) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
@@ -500,7 +500,7 @@ namespace {
 		floats[2] = value3;
 	}
 
-	void setFloat4(u8* constants, u8 offset, u8 size, float value1, float value2, float value3, float value4) {
+	void setFloat4(u8* constants, u32 offset, u32 size, float value1, float value2, float value3, float value4) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
@@ -509,7 +509,7 @@ namespace {
 		floats[3] = value4;
 	}
 
-	void setFloats(u8* constants, u8 offset, u8 size, float* values, int count) {
+	void setFloats(u8* constants, u32 offset, u32 size, float* values, int count) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int i = 0; i < count; ++i) {
@@ -517,13 +517,13 @@ namespace {
 		}
 	}
 
-	void setBool(u8* constants, u8 offset, u8 size, bool value) {
+	void setBool(u8* constants, u32 offset, u32 size, bool value) {
 		if (size == 0) return;
 		int* ints = reinterpret_cast<int*>(&constants[offset]);
 		ints[0] = value ? 1 : 0;
 	}
 
-	void setMatrix(u8* constants, u8 offset, u8 size, const mat4& value) {
+	void setMatrix(u8* constants, u32 offset, u32 size, const mat4& value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 4; ++y) {
@@ -533,7 +533,7 @@ namespace {
 		}
 	}
 
-	void setMatrix(u8* constants, u8 offset, u8 size, const mat3& value) {
+	void setMatrix(u8* constants, u32 offset, u32 size, const mat3& value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 3; ++y) {
@@ -826,6 +826,13 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 			ID3D11ShaderResourceView* nullview[1];
 			nullview[0] = nullptr;
 			context->PSSetShaderResources(targets[i]->lastBoundUnit, 1, nullview);
+			targets[i]->lastBoundUnit = -1;
+		}
+		if (targets[i]->lastBoundDepthUnit >= 0) {
+			ID3D11ShaderResourceView* nullview[1];
+			nullview[0] = nullptr;
+			context->PSSetShaderResources(targets[i]->lastBoundDepthUnit, 1, nullview);
+			targets[i]->lastBoundDepthUnit = -1;
 		}
 	}
 

@@ -9,11 +9,11 @@
 #include <windows.h>
 
 #ifndef XINPUT
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #define XINPUT 1
 #endif
 
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 #define XINPUT !(WINAPI_PARTITION_PHONE_APP)
 #endif
 #endif
@@ -282,6 +282,14 @@ void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::
 	case Windows::System::VirtualKey::Down:
 		Keyboard::the()->_keydown(Kore::KeyDown);
 		break;
+	default:
+		if (args->VirtualKey >= Windows::System::VirtualKey::A && args->VirtualKey <= Windows::System::VirtualKey::Z) {
+			Keyboard::the()->_keydown((Kore::KeyCode)args->VirtualKey);
+		}
+		else if (args->VirtualKey >= Windows::System::VirtualKey::Number0 && args->VirtualKey <= Windows::System::VirtualKey::Number9) {
+			Keyboard::the()->_keydown((Kore::KeyCode)args->VirtualKey);
+		}
+		break;
 	}
 }
 
@@ -298,6 +306,14 @@ void Win8Application::OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::U
 		break;
 	case Windows::System::VirtualKey::Down:
 		Keyboard::the()->_keyup(Kore::KeyDown);
+		break;
+	default:
+		if (args->VirtualKey >= Windows::System::VirtualKey::A && args->VirtualKey <= Windows::System::VirtualKey::Z) {
+			Keyboard::the()->_keyup((Kore::KeyCode)args->VirtualKey);
+		}
+		else if (args->VirtualKey >= Windows::System::VirtualKey::Number0 && args->VirtualKey <= Windows::System::VirtualKey::Number9) {
+			Keyboard::the()->_keyup((Kore::KeyCode)args->VirtualKey);
+		}
 		break;
 	}
 }
