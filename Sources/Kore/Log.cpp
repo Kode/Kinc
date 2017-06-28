@@ -4,9 +4,11 @@
 #include "LogArgs.h"
 
 #include <stdio.h>
+
 #ifdef KORE_WINDOWS
 #include <Windows.h>
 #endif
+
 #ifdef KORE_ANDROID
 #include <android/log.h>
 #endif
@@ -56,7 +58,8 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 
 	wcscat(buffer, L"\r\n");
 	OutputDebugString(buffer);
-	fwprintf(level == Info ? stdout : stderr, L"%s", buffer);
+	DWORD written;
+	WriteConsole(GetStdHandle(level == Info ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, wcslen(buffer), &written, nullptr);
 #else
 	vfprintf(level == Info ? stdout : stderr, format, args);
 	fprintf(level == Info ? stdout : stderr, "\n");
