@@ -691,7 +691,7 @@ void Graphics2::TextShaderPainter::drawString(const char* text, int length, floa
 
 	float xpos = x;
 	float ypos = y;
-	for (size_t i = 0; i < length; ++i) {
+	for (int i = 0; i < length; ++i) {
 		AlignedQuad q = font->getBakedQuad(text[i] - 32, xpos, ypos);
 		if (q.x0 >= 0) {
 			if (bufferIndex + 1 >= bufferSize) drawBuffer();
