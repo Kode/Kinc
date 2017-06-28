@@ -19,7 +19,7 @@
 #endif
 #include <vector>
 #include <memory>
-#include "DeviceResources.h"
+#include "DeviceResources.winrt.h"
 using namespace Windows::Graphics::Holographic;
 
 HolographicSpace^ m_holographicSpace = nullptr;

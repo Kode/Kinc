@@ -10,8 +10,9 @@
 //*********************************************************
 
 #include "pch.h"
-#include "DeviceResources.h"
-#include "DirectXHelper.h"
+#include "DeviceResources.winrt.h"
+#include "DirectXHelper.winrt.h"
+#include "CameraResources.winrt.h"
 
 #include <Collection.h>
 #include <windows.graphics.directx.direct3d11.interop.h>

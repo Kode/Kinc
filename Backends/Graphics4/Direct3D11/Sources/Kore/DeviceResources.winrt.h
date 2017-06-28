@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "CameraResources.h"
+#include "CameraResources.winrt.h"
 #include <wrl.h>
 #include <dxgi1_5.h>
 #include <d3d11_4.h>

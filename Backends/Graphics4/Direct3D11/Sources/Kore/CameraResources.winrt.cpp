@@ -11,9 +11,9 @@
 
 #include "pch.h"
 
-#include "CameraResources.h"
-#include "DirectXHelper.h"
-#include "DeviceResources.h"
+#include "CameraResources.winrt.h"
+#include "DirectXHelper.winrt.h"
+#include "DeviceResources.winrt.h"
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <WindowsNumerics.h>
 
