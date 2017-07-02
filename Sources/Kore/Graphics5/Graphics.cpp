@@ -14,7 +14,7 @@ namespace {
 	bool window = true;
 }
 
-#if !defined(KORE_WINDOWS)
+#if !defined(KORE_WINDOWS) && !defined(KORE_XBOX_ONE)
 void Graphics5::setup() {}
 #endif
 
