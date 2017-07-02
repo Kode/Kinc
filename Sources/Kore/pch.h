@@ -42,7 +42,7 @@ namespace Kore {
 #endif
 
 // pseudo C++11
-#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && __cplusplus <= 199711L
+#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && !defined(KORE_XBOX_ONE) && __cplusplus <= 199711L
 #define nullptr 0
 #define override
 #endif

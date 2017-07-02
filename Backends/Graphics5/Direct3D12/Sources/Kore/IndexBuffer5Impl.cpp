@@ -2,9 +2,10 @@
 
 #include "Direct3D12.h"
 #include "IndexBuffer5Impl.h"
-#include "d3dx12.h"
+
 #include <Kore/Graphics5/Graphics.h>
 #include <Kore/WinError.h>
+
 #include <Windows.h>
 
 using namespace Kore;
@@ -18,10 +19,10 @@ Graphics5::IndexBuffer::IndexBuffer(int count) : IndexBuffer5Impl(count) {
 	static const int uploadBufferSize = sizeof(int) * count;
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer));
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadBuffer));
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&indexBuffer));
+	                                D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&indexBuffer));
 
 	indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 	indexBufferView.SizeInBytes = uploadBufferSize;

@@ -2,7 +2,7 @@
 
 #include "Direct3D12.h"
 #include "RenderTarget5Impl.h"
-#include "d3dx12.h"
+
 #include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/WinError.h>
@@ -31,7 +31,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	device->CreateCommittedResource(
 	    &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	    &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-	    D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&renderTarget));
+	    D3D12_RESOURCE_STATE_COMMON, nullptr, IID_GRAPHICS_PPV_ARGS(&renderTarget));
 
 #if defined(_DEBUG)
 	log(Info, "depthBufferBits not implemented yet, using target defaults");
@@ -49,7 +49,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap));
+	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));
 
 	device->CreateRenderTargetView(renderTarget, &view, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -60,7 +60,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;

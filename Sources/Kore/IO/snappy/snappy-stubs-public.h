@@ -38,7 +38,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP)
+#if defined(KORE_POSIX)
 #include <sys/uio.h>
 #endif
 

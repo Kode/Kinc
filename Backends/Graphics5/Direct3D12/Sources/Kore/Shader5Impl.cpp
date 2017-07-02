@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
+
 #include <Kore/Graphics5/Shader.h>
 #include <Kore/Math/Core.h>
 #include <Kore/WinError.h>

@@ -6,9 +6,10 @@
 #include "VertexBuffer5Impl.h"
 #include <Kore/Graphics5/PipelineState.h>
 #include <Kore/Math/Core.h>
+#ifdef KORE_WINDOWS
 #include <dxgi1_4.h>
 #undef CreateWindow
-#include "d3dx12.h"
+#endif
 #include <Kore/System.h>
 #include <Kore/WinError.h>
 #include <wrl.h>
@@ -80,7 +81,7 @@ namespace {
 
 	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
 		RenderEnvironment result;
-
+#ifdef KORE_WINDOWS
 		affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
 
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -94,7 +95,7 @@ namespace {
 
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
 		affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
-
+#endif
 		return result;
 	}
 
@@ -122,13 +123,13 @@ namespace {
 		heapDesc.NumDescriptors = 1;
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap));
+		device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));
 
 		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 		dsvHeapDesc.NumDescriptors = 1;
 		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&depthStencilDescriptorHeap));
+		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&depthStencilDescriptorHeap));
 
 		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0,
 			renderTargetWidth, renderTargetHeight, 1, 1,
@@ -142,7 +143,7 @@ namespace {
 
 		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-			IID_PPV_ARGS(&depthStencilTexture));
+			IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
 
 		device->CreateDepthStencilView(depthStencilTexture, nullptr, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -151,23 +152,24 @@ namespace {
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
 			frameFenceEvents[i] = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 			fenceValues[i] = 0;
-			device->CreateFence(currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&frameFences[i]));
+			device->CreateFence(currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&frameFences[i]));
 		}
 
-		swapChain->GetBuffer(currentBackBuffer, IID_PPV_ARGS(&renderTarget));
+		swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
 		createRenderTargetView();
 	}
 
 	void createDeviceAndSwapChain(int width, int height, HWND window) {
 #ifdef _DEBUG
 		ID3D12Debug* debugController;
-		D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
+		D3D12GetDebugInterface(IID_GRAPHICS_PPV_ARGS(&debugController));
 		debugController->EnableDebugLayer();
 #endif
 
 		DXGI_SWAP_CHAIN_DESC swapChainDesc;
 		ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
+#ifdef KORE_WINDOWS
 		swapChainDesc.BufferCount = QUEUE_SLOT_COUNT;
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -177,6 +179,9 @@ namespace {
 		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.Windowed = true;
+#else
+		initSwapChain(&swapChainDesc, width, height, window);
+#endif
 
 		auto renderEnv = createDeviceAndSwapChainHelper(nullptr, D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
 
@@ -189,8 +194,8 @@ namespace {
 
 	void createAllocatorsAndCommandLists() {
 		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocators[i]));
-			device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[i], nullptr, IID_PPV_ARGS(&commandLists[i]));
+			device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&commandAllocators[i]));
+			device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[i], nullptr, IID_GRAPHICS_PPV_ARGS(&commandLists[i]));
 			commandLists[i]->Close();
 		}
 	}
@@ -222,7 +227,7 @@ namespace {
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(3, parameters, textureCount, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 		affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&rootSignature));
 	}
 
 	void createConstantBuffer() {
@@ -232,7 +237,7 @@ namespace {
 
 			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants)),
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexConstantBuffers[i]));
+				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&vertexConstantBuffers[i]));
 
 			vertexConstantBuffers[i]->Map(0, nullptr, &p);
 			ZeroMemory(p, sizeof(vertexConstants));
@@ -240,7 +245,7 @@ namespace {
 
 			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(sizeof(fragmentConstants)),
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&fragmentConstantBuffers[i]));
+				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&fragmentConstantBuffers[i]));
 
 			fragmentConstantBuffers[i]->Map(0, nullptr, &p);
 			ZeroMemory(p, sizeof(fragmentConstants));
@@ -256,10 +261,10 @@ namespace {
 
 		createConstantBuffer();
 
-		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&uploadFence));
+		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&uploadFence));
 
-		device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&initCommandAllocator));
-		device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, nullptr, IID_PPV_ARGS(&initCommandList));
+		device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&initCommandAllocator));
+		device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, nullptr, IID_GRAPHICS_PPV_ARGS(&initCommandList));
 
 		initCommandList->Close();
 
@@ -498,7 +503,7 @@ bool Graphics5::swapBuffers(int window) {
 	swapChain->Present(1, 0);
 
 	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
-	swapChain->GetBuffer(currentBackBuffer, IID_PPV_ARGS(&renderTarget));
+	swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
 
 	createRenderTargetView();
 

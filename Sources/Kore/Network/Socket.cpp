@@ -28,6 +28,7 @@ namespace {
 #endif
 	}
 
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	// Important: Must be cleaned with freeaddrinfo(address) later if the result is 0 in order to prevent memory leaks
 	int resolveAddress(const char* url, int port, addrinfo** result) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
@@ -42,6 +43,7 @@ namespace {
 		return getaddrinfo(url, serv, &hints, result);
 #endif
 	}
+#endif
 }
 
 Socket::Socket() {}
