@@ -2,7 +2,7 @@
 
 #include "Direct3D12.h"
 #include "Texture5Impl.h"
-#include "d3dx12.h"
+
 #include <Kore/WinError.h>
 
 using namespace Kore;
@@ -41,11 +41,11 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	                                &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST,
-	                                nullptr, IID_PPV_ARGS(&image));
+	                                nullptr, IID_GRAPHICS_PPV_ARGS(&image));
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(image, 0, 1);
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadImage));
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadImage));
 
 	D3D12_SUBRESOURCE_DATA srcData;
 	srcData.pData = this->data;
@@ -62,7 +62,7 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -90,11 +90,11 @@ Graphics5::Texture::Texture(int width, int height, Format format, bool readable)
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texWidth, texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
-	                                IID_PPV_ARGS(&image));
+									IID_GRAPHICS_PPV_ARGS(&image));
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(image, 0, 1);
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadImage));
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadImage));
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -103,7 +103,7 @@ Graphics5::Texture::Texture(int width, int height, Format format, bool readable)
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;

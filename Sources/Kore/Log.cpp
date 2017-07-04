@@ -4,9 +4,11 @@
 #include "LogArgs.h"
 
 #include <stdio.h>
+
 #ifdef KORE_WINDOWS
 #include <Windows.h>
 #endif
+
 #ifdef KORE_ANDROID
 #include <android/log.h>
 #endif
@@ -21,14 +23,48 @@ void Kore::log(LogLevel level, const char* format, ...) {
 }
 
 void Kore::logArgs(LogLevel level, const char* format, va_list args) {
+#ifdef KORE_WINDOWS
+	wchar_t formatw[4096];
+	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);
+
+	wchar_t buffer[4096];
+	int bufferIndex = 0;
+	buffer[bufferIndex] = 0;
+
+	for (int i = 0; formatw[i] != 0; ++i) {
+		if (formatw[i] == L'%') {
+			++i;
+			if (formatw[i] == L's' || formatw[i] == L'S') {
+				char* arg = va_arg(args, char*);
+				wchar_t argw[1024];
+				MultiByteToWideChar(CP_UTF8, 0, arg, -1, argw, 1024);
+				wcscat(buffer, argw);
+				bufferIndex += wcslen(argw);
+			}
+			else {
+				void* arg = va_arg(args, void*);
+				wchar_t argformat[3];
+				argformat[0] = L'%';
+				argformat[1] = formatw[i];
+				argformat[2] = 0;
+				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, argformat, arg);
+			}
+		}
+		else {
+			buffer[bufferIndex++] = formatw[i];
+			buffer[bufferIndex] = 0;
+		}
+	}
+
+	wcscat(buffer, L"\r\n");
+	OutputDebugString(buffer);
+	DWORD written;
+	WriteConsole(GetStdHandle(level == Info ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, wcslen(buffer), &written, nullptr);
+#else
 	vfprintf(level == Info ? stdout : stderr, format, args);
 	fprintf(level == Info ? stdout : stderr, "\n");
-#ifdef KORE_WINDOWS
-	char buffer[4096];
-	vsnprintf(buffer, sizeof(buffer) - 2, format, args);
-	strcat(buffer, "\r\n");
-	OutputDebugStringA(buffer);
 #endif
+
 #ifdef KORE_ANDROID
 	switch (level) {
 	case Info:

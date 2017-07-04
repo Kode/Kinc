@@ -5,8 +5,6 @@
 
 #include "Direct3D12.h"
 
-#include "d3dx12.h"
-
 using namespace Kore;
 using namespace Kore::Graphics5;
 
@@ -29,8 +27,8 @@ namespace {
 }
 
 CommandList::CommandList() {
-	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator));
-	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator, nullptr, IID_PPV_ARGS(&_commandList));
+	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&_commandAllocator));
+	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator, nullptr, IID_GRAPHICS_PPV_ARGS(&_commandList));
 	//_commandList->Close();
 	_indexCount = 0;
 }
