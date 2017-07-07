@@ -3,7 +3,7 @@
 #include "PipelineState5Impl.h"
 
 #include "Direct3D12.h"
-#include "d3dx12.h"
+
 #include <Kore/Graphics5/Shader.h>
 #include <Kore/Graphics5/PipelineState.h>
 #include <Kore/WinError.h>
@@ -208,5 +208,5 @@ void Graphics5::PipelineState::compile() {
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
+	device->CreateGraphicsPipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pso));
 }

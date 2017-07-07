@@ -15,9 +15,9 @@ namespace Kore {
 	D3D11_CULL_MODE convert(Graphics4::CullMode cullMode) {
 		switch (cullMode) {
 		case Graphics4::Clockwise:
-			return D3D11_CULL_BACK;
-		case Graphics4::CounterClockwise:
 			return D3D11_CULL_FRONT;
+		case Graphics4::CounterClockwise:
+			return D3D11_CULL_BACK;
 		case Graphics4::NoCulling:
 		default:
 			return D3D11_CULL_NONE;
@@ -212,10 +212,12 @@ Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name
 		}
 		else {
 			unit.unit = fragmentShader->textures[name];
+			unit.vertex = false;
 		}
 	}
 	else {
 		unit.unit = vertexShader->textures[name];
+		unit.vertex = true;
 	}
 	return unit;
 }
@@ -227,10 +229,11 @@ namespace {
 		return ret;
 	}
 
-	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream) {
+	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream, bool interleavedLayout) {
 		vertexDesc.SemanticName = "TEXCOORD";
 		vertexDesc.SemanticIndex = attributeIndex;
 		vertexDesc.InputSlot = stream;
+		if (!interleavedLayout) vertexDesc.InputSlot += stream == 0 ? index : attributeIndex;
 		vertexDesc.AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
 		vertexDesc.InputSlotClass = stream == 0 ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA; // hack
 		vertexDesc.InstanceDataStepRate = stream == 0 ? 0 : 1;                                                 // hack
@@ -272,27 +275,27 @@ void Graphics4::PipelineState::compile() {
 		for (int index = 0; index < inputLayout[stream]->size; ++index) {
 			switch (inputLayout[stream]->elements[index].data) {
 			case Float1VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream, interleavedLayout);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 				++i;
 				break;
 			case Float2VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream, interleavedLayout);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 				++i;
 				break;
 			case Float3VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream, interleavedLayout);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				++i;
 				break;
 			case Float4VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream, interleavedLayout);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
 			case ColorVertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream, interleavedLayout);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 				++i;
 				break;
@@ -305,7 +308,7 @@ void Graphics4::PipelineState::compile() {
 					_itoa(i2, &name[length], 10);
 					name[length + 1] = 0;
 
-					setVertexDesc(vertexDesc[i], vertexShader->attributes[name], index + i2, stream);
+					setVertexDesc(vertexDesc[i], vertexShader->attributes[name], index + i2, stream, interleavedLayout);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 					++i;
@@ -339,7 +342,6 @@ void Graphics4::PipelineState::compile() {
 		D3D11_RASTERIZER_DESC rasterDesc;
 		rasterDesc.CullMode = convert(cullMode);
 		rasterDesc.FillMode = D3D11_FILL_SOLID;
-		rasterDesc.CullMode = D3D11_CULL_NONE;
 		rasterDesc.FrontCounterClockwise = FALSE;
 		rasterDesc.DepthBias = 0;
 		rasterDesc.SlopeScaledDepthBias = 0.0f;

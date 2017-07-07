@@ -112,14 +112,14 @@ namespace {
 				case AKEYCODE_SHIFT_LEFT:
 				case AKEYCODE_SHIFT_RIGHT:
 					shift = true;
-					Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
+					Kore::Keyboard::the()->_keydown(Kore::KeyShift);
 					return 1;
 				case AKEYCODE_DEL:
-					Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
+					Kore::Keyboard::the()->_keydown(Kore::KeyBackspace);
 					return 1;
 				case AKEYCODE_ENTER:
 				case AKEYCODE_NUMPAD_ENTER:
-					Kore::Keyboard::the()->_keydown(Kore::Key_Return, 0);
+					Kore::Keyboard::the()->_keydown(Kore::KeyReturn);
 					return 1;
 				case AKEYCODE_DPAD_LEFT:
 					Kore::Gamepad::get(0)->_axis(0, -1);
@@ -143,7 +143,7 @@ namespace {
 						return 1;
 					}
 					else {
-						Kore::Keyboard::the()->_keydown(Kore::Key_Back, 1);
+						Kore::Keyboard::the()->_keydown(Kore::KeyBack);
 						return 1;
 					}
 				case AKEYCODE_BUTTON_A:
@@ -157,57 +157,56 @@ namespace {
 					return 1;
 				case AKEYCODE_STAR:
 				case AKEYCODE_NUMPAD_MULTIPLY:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'*', '*');
+					Kore::Keyboard::the()->_keydown(Kore::KeyMultiply);
 					return 1;
-				case AKEYCODE_POUND:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'&', '&');
-					return 1;
+				// case AKEYCODE_POUND:
+				//	Kore::Keyboard::the()->_keydown((Kore::KeyCode)'&', '&');
+				//	return 1;
 				case AKEYCODE_COMMA:
 				case AKEYCODE_NUMPAD_COMMA:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)',', ',');
+					Kore::Keyboard::the()->_keydown(Kore::KeyComma);
 					return 1;
 				case AKEYCODE_PERIOD:
 				case AKEYCODE_NUMPAD_DOT:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'.', '.');
+					Kore::Keyboard::the()->_keydown(Kore::KeyPeriod);
 					return 1;
 				case AKEYCODE_SPACE:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)' ', ' ');
+					Kore::Keyboard::the()->_keydown(Kore::KeySpace);
 					return 1;
 				case AKEYCODE_MINUS:
 				case AKEYCODE_NUMPAD_SUBTRACT:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'-', '-');
+					Kore::Keyboard::the()->_keydown(Kore::KeyHyphenMinus);
 					return 1;
 				case AKEYCODE_EQUALS:
 				case AKEYCODE_NUMPAD_EQUALS:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'=', '=');
+					Kore::Keyboard::the()->_keydown(Kore::KeyEquals);
 					return 1;
 				case AKEYCODE_LEFT_BRACKET:
 				case AKEYCODE_NUMPAD_LEFT_PAREN:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'(', '(');
+					Kore::Keyboard::the()->_keydown(Kore::KeyOpenBracket);
 					return 1;
 				case AKEYCODE_RIGHT_BRACKET:
 				case AKEYCODE_NUMPAD_RIGHT_PAREN:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)')', ')');
+					Kore::Keyboard::the()->_keydown(Kore::KeyCloseBracket);
 					return 1;
 				case AKEYCODE_BACKSLASH:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'\\', '\\');
+					Kore::Keyboard::the()->_keydown(Kore::KeyBackSlash);
 					return 1;
 				case AKEYCODE_SEMICOLON:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)';', ';');
+					Kore::Keyboard::the()->_keydown(Kore::KeySemicolon);
 					return 1;
-				case AKEYCODE_APOSTROPHE:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'\'', '\'');
-					return 1;
+				// case AKEYCODE_APOSTROPHE:
+				//	return 1;
 				case AKEYCODE_SLASH:
 				case AKEYCODE_NUMPAD_DIVIDE:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'/', '/');
+					Kore::Keyboard::the()->_keydown(Kore::KeySlash);
 					return 1;
 				case AKEYCODE_AT:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'@', '@');
+					Kore::Keyboard::the()->_keydown(Kore::KeyAt);
 					return 1;
 				case AKEYCODE_PLUS:
 				case AKEYCODE_NUMPAD_ADD:
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)'+', '+');
+					Kore::Keyboard::the()->_keydown(Kore::KeyPlus);
 					return 1;
 				// (DK) Amazon FireTV remote/controller mappings
 				// (DK) TODO handle multiple pads (up to 4 possible)
@@ -226,18 +225,15 @@ namespace {
 				// (DK) /Amazon FireTV remote/controller mappings
 				default:
 					if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
-						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + '0' - AKEYCODE_NUMPAD_0), code + '0' - AKEYCODE_NUMPAD_0);
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + Kore::KeyNumpad0 - AKEYCODE_NUMPAD_0));
 						return 1;
 					}
 					else if (code >= AKEYCODE_0 && code <= AKEYCODE_9) {
-						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + '0' - AKEYCODE_0), code + '0' - AKEYCODE_0);
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + Kore::Key0 - AKEYCODE_0));
 						return 1;
 					}
 					else if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
-						if (shift)
-							Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + 'A' - AKEYCODE_A), code + 'A' - AKEYCODE_A);
-						else
-							Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + 'a' - AKEYCODE_A), code + 'a' - AKEYCODE_A);
+						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + Kore::KeyA - AKEYCODE_A));
 						return 1;
 					}
 				}
@@ -247,13 +243,13 @@ namespace {
 				case AKEYCODE_SHIFT_LEFT:
 				case AKEYCODE_SHIFT_RIGHT:
 					shift = false;
-					Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
+					Kore::Keyboard::the()->_keyup(Kore::KeyShift);
 					return 1;
 				case AKEYCODE_DEL:
-					Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
+					Kore::Keyboard::the()->_keyup(Kore::KeyBackspace);
 					return 1;
 				case AKEYCODE_ENTER:
-					Kore::Keyboard::the()->_keyup(Kore::Key_Return, 0);
+					Kore::Keyboard::the()->_keyup(Kore::KeyReturn);
 					return 1;
 				case AKEYCODE_DPAD_LEFT:
 					Kore::Gamepad::get(0)->_axis(0, 0);
@@ -277,7 +273,7 @@ namespace {
 						return 1;
 					}
 					else {
-						Kore::Keyboard::the()->_keyup(Kore::Key_Back, 0);
+						Kore::Keyboard::the()->_keyup(Kore::KeyBack);
 						return 1;
 					}
 				case AKEYCODE_BUTTON_A:
@@ -291,57 +287,57 @@ namespace {
 					return 1;
 				case AKEYCODE_STAR:
 				case AKEYCODE_NUMPAD_MULTIPLY:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'*', '*');
+					Kore::Keyboard::the()->_keyup(Kore::KeyMultiply);
 					return 1;
-				case AKEYCODE_POUND:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'&', '&');
-					return 1;
+				// case AKEYCODE_POUND:
+				//	Kore::Keyboard::the()->_keyup((Kore::KeyCode)'&', '&');
+				//	return 1;
 				case AKEYCODE_COMMA:
 				case AKEYCODE_NUMPAD_COMMA:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)',', ',');
+					Kore::Keyboard::the()->_keyup(Kore::KeyComma);
 					return 1;
 				case AKEYCODE_PERIOD:
 				case AKEYCODE_NUMPAD_DOT:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'.', '.');
+					Kore::Keyboard::the()->_keyup(Kore::KeyPeriod);
 					return 1;
 				case AKEYCODE_SPACE:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)' ', ' ');
+					Kore::Keyboard::the()->_keyup(Kore::KeySpace);
 					return 1;
 				case AKEYCODE_MINUS:
 				case AKEYCODE_NUMPAD_SUBTRACT:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'-', '-');
+					Kore::Keyboard::the()->_keyup(Kore::KeyHyphenMinus);
 					return 1;
 				case AKEYCODE_EQUALS:
 				case AKEYCODE_NUMPAD_EQUALS:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'=', '=');
+					Kore::Keyboard::the()->_keyup(Kore::KeyEquals);
 					return 1;
 				case AKEYCODE_LEFT_BRACKET:
 				case AKEYCODE_NUMPAD_LEFT_PAREN:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'(', '(');
+					Kore::Keyboard::the()->_keyup(Kore::KeyOpenBracket);
 					return 1;
 				case AKEYCODE_RIGHT_BRACKET:
 				case AKEYCODE_NUMPAD_RIGHT_PAREN:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)')', ')');
+					Kore::Keyboard::the()->_keyup(Kore::KeyCloseBracket);
 					return 1;
 				case AKEYCODE_BACKSLASH:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'\\', '\\');
+					Kore::Keyboard::the()->_keyup(Kore::KeyBackSlash);
 					return 1;
 				case AKEYCODE_SEMICOLON:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)';', ';');
+					Kore::Keyboard::the()->_keyup(Kore::KeySemicolon);
 					return 1;
-				case AKEYCODE_APOSTROPHE:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'\'', '\'');
-					return 1;
+				// case AKEYCODE_APOSTROPHE:
+				//	Kore::Keyboard::the()->_keyup((Kore::KeyCode)'\'', '\'');
+				//	return 1;
 				case AKEYCODE_SLASH:
 				case AKEYCODE_NUMPAD_DIVIDE:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'/', '/');
+					Kore::Keyboard::the()->_keyup(Kore::KeySlash);
 					return 1;
 				case AKEYCODE_AT:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'@', '@');
+					Kore::Keyboard::the()->_keyup(Kore::KeyAt);
 					return 1;
 				case AKEYCODE_PLUS:
 				case AKEYCODE_NUMPAD_ADD:
-					Kore::Keyboard::the()->_keyup((Kore::KeyCode)'+', '+');
+					Kore::Keyboard::the()->_keyup(Kore::KeyPlus);
 					return 1;
 				// (DK) Amazon FireTV remote/controller mappings
 				// (DK) TODO handle multiple pads (up to 4 possible)
@@ -360,18 +356,15 @@ namespace {
 				// (DK) /Amazon FireTV remote/controller mappings
 				default:
 					if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
-						Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + '0' - AKEYCODE_NUMPAD_0), code + '0' - AKEYCODE_NUMPAD_0);
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + Kore::KeyNumpad0 - AKEYCODE_NUMPAD_0));
 						return 1;
 					}
 					else if (code >= AKEYCODE_0 && code <= AKEYCODE_9) {
-						Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + '0' - AKEYCODE_0), code + '0' - AKEYCODE_0);
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + Kore::Key0 - AKEYCODE_0));
 						return 1;
 					}
 					else if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
-						if (shift)
-							Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + 'A' - AKEYCODE_A), code + 'A' - AKEYCODE_A);
-						else
-							Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + 'a' - AKEYCODE_A), code + 'a' - AKEYCODE_A);
+						Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + Kore::KeyA - AKEYCODE_A));
 						return 1;
 					}
 				}

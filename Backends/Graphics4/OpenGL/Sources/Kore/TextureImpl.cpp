@@ -13,6 +13,63 @@ using namespace Kore;
 #define GL_TEXTURE_3D 0x806F
 #endif
 
+#ifndef GL_RGBA16F_EXT
+#define GL_RGBA16F_EXT 0x881A
+#endif
+
+#ifndef GL_RGBA32F_EXT
+#define GL_RGBA32F_EXT 0x8814
+#endif
+
+#ifndef GL_R16F_EXT
+#define GL_R16F_EXT 0x822D
+#endif
+
+#ifndef GL_R32F_EXT
+#define GL_R32F_EXT 0x822E
+#endif
+
+#ifndef GL_HALF_FLOAT
+#define GL_HALF_FLOAT 0x140B
+#endif
+
+#ifndef GL_RED
+#define GL_RED GL_LUMINANCE
+#endif
+
+#ifndef GL_KHR_texture_compression_astc_ldr
+#define GL_KHR_texture_compression_astc_ldr 1
+
+#define GL_COMPRESSED_RGBA_ASTC_4x4_KHR 0x93B0
+#define GL_COMPRESSED_RGBA_ASTC_5x4_KHR 0x93B1
+#define GL_COMPRESSED_RGBA_ASTC_5x5_KHR 0x93B2
+#define GL_COMPRESSED_RGBA_ASTC_6x5_KHR 0x93B3
+#define GL_COMPRESSED_RGBA_ASTC_6x6_KHR 0x93B4
+#define GL_COMPRESSED_RGBA_ASTC_8x5_KHR 0x93B5
+#define GL_COMPRESSED_RGBA_ASTC_8x6_KHR 0x93B6
+#define GL_COMPRESSED_RGBA_ASTC_8x8_KHR 0x93B7
+#define GL_COMPRESSED_RGBA_ASTC_10x5_KHR 0x93B8
+#define GL_COMPRESSED_RGBA_ASTC_10x6_KHR 0x93B9
+#define GL_COMPRESSED_RGBA_ASTC_10x8_KHR 0x93BA
+#define GL_COMPRESSED_RGBA_ASTC_10x10_KHR 0x93BB
+#define GL_COMPRESSED_RGBA_ASTC_12x10_KHR 0x93BC
+#define GL_COMPRESSED_RGBA_ASTC_12x12_KHR 0x93BD
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR 0x93D0
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR 0x93D1
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR 0x93D2
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR 0x93D3
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR 0x93D4
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR 0x93D5
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR 0x93D6
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR 0x93D7
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR 0x93D8
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR 0x93D9
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR 0x93DA
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR 0x93DB
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR 0x93DC
+#define GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR 0x93DD
+#endif
+
 namespace {
 	int convertFormat(Graphics4::Image::Format format) {
 		switch (format) {
@@ -30,45 +87,33 @@ namespace {
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
 		case Graphics4::Image::A32:
+		case Graphics4::Image::A16:
 		case Graphics4::Image::Grey8:
-#ifdef KORE_OPENGL_ES
-			return GL_LUMINANCE;
-#else
 			return GL_RED;
-#endif
 		}
 	}
 
 	int convertInternalFormat(Graphics4::Image::Format format) {
 		switch (format) {
 		case Graphics4::Image::RGBA128:
-#ifdef GL_ARB_texture_float
-			return GL_RGBA32F;
-#else
-			return GL_RGBA;
-#endif
-		case Graphics4::Image::RGBA32:
+			return GL_RGBA32F_EXT;
 		case Graphics4::Image::RGBA64:
+			return GL_RGBA16F_EXT;
+		case Graphics4::Image::RGBA32:
 		default:
-			// #ifdef GL_BGRA
+// #ifdef GL_BGRA
 			// return GL_BGRA;
-			// #else
+// #else
 			return GL_RGBA;
-		// #endif
+// #endif
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
 		case Graphics4::Image::A32:
-#ifdef KORE_OPENGL_ES
-			return GL_LUMINANCE;
-#else
-			return GL_R8;
-#endif
+			return GL_R32F_EXT;
+		case Graphics4::Image::A16:
+			return GL_R16F_EXT;
 		case Graphics4::Image::Grey8:
-#ifdef KORE_OPENGL_ES
-			return GL_LUMINANCE;
-#else
 			return GL_RED;
-#endif
 		}
 	}
 
@@ -77,6 +122,7 @@ namespace {
 		case Graphics4::Image::RGBA128:
 		case Graphics4::Image::RGBA64:
 		case Graphics4::Image::A32:
+		case Graphics4::Image::A16:
 			return GL_FLOAT;
 		case Graphics4::Image::RGBA32:
 		default:
@@ -84,59 +130,57 @@ namespace {
 		}
 	}
 
-#if 0
 	int astcFormat(u8 blockX, u8 blockY) {
 		switch (blockX) {
 		case 4:
 			switch (blockY) {
 			case 4:
-				return COMPRESSED_RGBA_ASTC_4x4_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_4x4_KHR;
 			}
 		case 5:
 			switch (blockY) {
 			case 4:
-				return COMPRESSED_RGBA_ASTC_5x4_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_5x4_KHR;
 			case 5:
-				return COMPRESSED_RGBA_ASTC_5x5_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_5x5_KHR;
 			}
 		case 6:
 			switch (blockY) {
 			case 5:
-				return COMPRESSED_RGBA_ASTC_6x5_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_6x5_KHR;
 			case 6:
-				return COMPRESSED_RGBA_ASTC_6x6_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_6x6_KHR;
 			}
 		case 8:
 			switch (blockY) {
 			case 5:
-				return COMPRESSED_RGBA_ASTC_8x5_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_8x5_KHR;
 			case 6:
-				return COMPRESSED_RGBA_ASTC_8x6_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_8x6_KHR;
 			case 8:
-				return COMPRESSED_RGBA_ASTC_8x8_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_8x8_KHR;
 			}
 		case 10:
 			switch (blockY) {
 			case 5:
-				return COMPRESSED_RGBA_ASTC_10x5_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_10x5_KHR;
 			case 6:
-				return COMPRESSED_RGBA_ASTC_10x6_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_10x6_KHR;
 			case 8:
-				return COMPRESSED_RGBA_ASTC_10x8_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_10x8_KHR;
 			case 10:
-				return COMPRESSED_RGBA_ASTC_10x10_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_10x10_KHR;
 			}
 		case 12:
 			switch (blockY) {
 			case 10:
-				return COMPRESSED_RGBA_ASTC_12x10_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_12x10_KHR;
 			case 12:
-				return COMPRESSED_RGBA_ASTC_12x12_KHR;
+				return GL_COMPRESSED_RGBA_ASTC_12x12_KHR;
 			}
 		}
 		return 0;
 	}
-#endif
 
 	int pow(int pow) {
 		int ret = 1;
@@ -185,6 +229,7 @@ namespace {
 			case Graphics4::Image::RGBA128:
 			case Graphics4::Image::RGBA64:
 			case Graphics4::Image::A32:
+			case Graphics4::Image::A16:
 				break;
 		}
 	}
@@ -205,20 +250,23 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 
 	u8* conversionBuffer = nullptr;
 
-	if (compressed) {
-#if defined(KORE_IOS)
+	switch (compression) {
+	case Graphics1::ImageCompressionNone:
+		if (toPow2) {
+			conversionBuffer = new u8[texWidth * texHeight * sizeOf(this->format)];
+			convertImageToPow2(this->format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		}
+		break;
+	case Graphics1::ImageCompressionPVRTC:
 		texWidth = Kore::max(texWidth, texHeight);
 		texHeight = Kore::max(texWidth, texHeight);
 		if (texWidth < 8) texWidth = 8;
 		if (texHeight < 8) texHeight = 8;
-#elif defined(KORE_ANDROID)
+		break;
+	default:
 		texWidth = width;
 		texHeight = height;
-#endif
-	}
-	else if (toPow2) {
-		conversionBuffer = new u8[texWidth * texHeight * sizeOf(this->format)];
-		convertImageToPow2(this->format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		break;
 	}
 
 #ifdef KORE_ANDROID
@@ -235,21 +283,30 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	int convertedType = convertType(this->format);
 	bool isHdr = convertedType == GL_FLOAT;
 
-	if (compressed) {
-#if defined(KORE_IOS)
+	switch (compression) {
+	case Graphics1::ImageCompressionPVRTC:
+#ifdef KORE_IOS
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
-//#elif defined(KORE_ANDROID)
-//		u8 blockX = internalFormat >> 8;
-//		u8 blockY = internalFormat & 0xff;
-//		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
 #endif
+		break;
+	case Graphics1::ImageCompressionASTC: {
+		u8 blockX = internalFormat >> 8;
+		u8 blockY = internalFormat & 0xff;
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
+		break;
 	}
-	else {
-		void *texdata = data;
+	case Graphics1::ImageCompressionDXT5:
+#ifdef KORE_WINDOWS
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, texWidth, texHeight, 0, dataSize, data);
+#endif
+		break;
+	case Graphics1::ImageCompressionNone:
+		void* texdata = data;
 		if (isHdr) texdata = hdrData;
 		else if (toPow2) texdata = conversionBuffer;
 		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(this->format), texWidth, texHeight, 0, convertFormat(this->format), convertedType, texdata);
 		glCheckErrors();
+		break;
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glCheckErrors();
@@ -272,7 +329,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 		}
 	}
 
-	if (readable && compressed) {
+	if (readable && compression != Graphics1::ImageCompressionNone) {
 		log(Kore::Warning, "Compressed images can not be readable.");
 	}
 }
@@ -432,11 +489,13 @@ void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int d
 }
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-void Graphics4::Texture::upload(u8* data) {
+void Graphics4::Texture::upload(u8* data, int stride) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glCheckErrors();
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), GL_UNSIGNED_BYTE, data);
 	glCheckErrors();
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 #endif
 
@@ -455,13 +514,11 @@ void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
 	glBindTexture(target, texture);
 	glCheckErrors();
 	if (isHdr) {
-		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType,
-		             mipmap->hdrData);
+		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType, mipmap->hdrData);
 		glCheckErrors();
 	}
 	else {
-		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType,
-		             mipmap->data);
+		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->texWidth, mipmap->texHeight, 0, convertFormat(mipmap->format), convertedType, mipmap->data);
 		glCheckErrors();
 	}
 }

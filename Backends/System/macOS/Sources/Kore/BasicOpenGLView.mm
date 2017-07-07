@@ -45,53 +45,59 @@ namespace {
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
-		int keycode = ch;
-		if (ch >= L'a' && ch <= L'z') keycode = keycode - L'a' + L'A';
 		if (ch >= L'A' && ch <= L'Z') {
 			switch (ch) {
 			default:
 				if ([theEvent modifierFlags] & NSShiftKeyMask) {
-					if (!shift) Kore::Keyboard::the()->_keydown(Kore::Key_Shift, 0);
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
+					if (!shift) Kore::Keyboard::the()->_keydown(Kore::KeyShift);
 					shift = true;
 				}
 				else {
-					if (shift) Kore::Keyboard::the()->_keyup(Kore::Key_Shift, 0);
-					Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
+					if (shift) Kore::Keyboard::the()->_keyup(Kore::KeyShift);
 					shift = false;
 				}
 				break;
 			}
 		}
-		else {
-			switch (ch) {
-			case NSRightArrowFunctionKey:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Right, 0);
-				break;
-			case NSLeftArrowFunctionKey:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Left, 0);
-				break;
-			case NSUpArrowFunctionKey:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Up, 0);
-				break;
-			case NSDownArrowFunctionKey:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Down, 0);
-				break;
-			case 27:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Escape, 0);
-				break;
-			case NSEnterCharacter:
-			case NSNewlineCharacter:
-			case NSCarriageReturnCharacter:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Enter, 0);
-				break;
-			case 0x7f:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Backspace, 0);
-				break;
-			default:
-				Kore::Keyboard::the()->_keydown((Kore::KeyCode)keycode, ch);
-				break;
+		switch (ch) {
+		case NSRightArrowFunctionKey:
+			Kore::Keyboard::the()->_keydown(Kore::KeyRight);
+			break;
+		case NSLeftArrowFunctionKey:
+			Kore::Keyboard::the()->_keydown(Kore::KeyLeft);
+			break;
+		case NSUpArrowFunctionKey:
+			Kore::Keyboard::the()->_keydown(Kore::KeyUp);
+			break;
+		case NSDownArrowFunctionKey:
+			Kore::Keyboard::the()->_keydown(Kore::KeyDown);
+			break;
+		case 27:
+			Kore::Keyboard::the()->_keydown(Kore::KeyEscape);
+			break;
+		case NSEnterCharacter:
+		case NSNewlineCharacter:
+		case NSCarriageReturnCharacter:
+			Kore::Keyboard::the()->_keydown(Kore::KeyReturn);
+			break;
+		case 0x7f:
+			Kore::Keyboard::the()->_keydown(Kore::KeyBackspace);
+			break;
+		case 32:
+			Kore::Keyboard::the()->_keydown(Kore::KeySpace);
+			break;
+		default:
+			if (ch >= L'a' && ch <= L'z') {
+				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'a' + Kore::KeyA));
 			}
+			else if (ch >= L'A' && ch <= L'Z') {
+				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'A' + Kore::KeyA));
+			}
+			else if (ch >= L'0' && ch <= L'9') {
+				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'0' + Kore::Key0));
+			}
+			Kore::Keyboard::the()->_keypress(ch);
+			break;
 		}
 	}
 }
@@ -100,34 +106,43 @@ namespace {
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
-		int keycode = ch;
-		if (ch >= L'a' && ch <= L'z') keycode = keycode - L'a' + L'A';
 		switch (ch) {
 		case NSRightArrowFunctionKey:
-			Kore::Keyboard::the()->_keyup(Kore::Key_Right, 0);
+			Kore::Keyboard::the()->_keyup(Kore::KeyRight);
 			break;
 		case NSLeftArrowFunctionKey:
-			Kore::Keyboard::the()->_keyup(Kore::Key_Left, 0);
+			Kore::Keyboard::the()->_keyup(Kore::KeyLeft);
 			break;
 		case NSUpArrowFunctionKey:
-			Kore::Keyboard::the()->_keyup(Kore::Key_Up, 0);
+			Kore::Keyboard::the()->_keyup(Kore::KeyUp);
 			break;
 		case NSDownArrowFunctionKey:
-			Kore::Keyboard::the()->_keyup(Kore::Key_Down, 0);
+			Kore::Keyboard::the()->_keyup(Kore::KeyDown);
 			break;
 		case 27:
-			Kore::Keyboard::the()->_keyup(Kore::Key_Escape, 0);
+			Kore::Keyboard::the()->_keyup(Kore::KeyEscape);
 			break;
 		case NSEnterCharacter:
 		case NSNewlineCharacter:
 		case NSCarriageReturnCharacter:
-			Kore::Keyboard::the()->_keyup(Kore::Key_Enter, 0);
+			Kore::Keyboard::the()->_keyup(Kore::KeyReturn);
 			break;
 		case 0x7f:
-			Kore::Keyboard::the()->_keyup(Kore::Key_Backspace, 0);
+			Kore::Keyboard::the()->_keyup(Kore::KeyBackspace);
+			break;
+		case 32:
+			Kore::Keyboard::the()->_keyup(Kore::KeySpace);
 			break;
 		default:
-			Kore::Keyboard::the()->_keyup((Kore::KeyCode)keycode, ch);
+			if (ch >= L'a' && ch <= L'z') {
+				Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch - L'a' + Kore::KeyA));
+			}
+			else if (ch >= L'A' && ch <= L'Z') {
+				Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch - L'A' + Kore::KeyA));
+			}
+			else if (ch >= L'0' && ch <= L'9') {
+				Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch - L'0' + Kore::Key0));
+			}
 			break;
 		}
 	}

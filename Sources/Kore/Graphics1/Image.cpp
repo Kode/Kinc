@@ -43,6 +43,8 @@ int Graphics1::Image::sizeOf(Image::Format format) {
 		return 8;
 	case Image::A32:
 		return 4;
+	case Image::A16:
+		return 2;
 	case Image::Grey8:
 		return 1;
 	case Image::RGB24:
@@ -52,12 +54,12 @@ int Graphics1::Image::sizeOf(Image::Format format) {
 }
 
 Graphics1::Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
-	compressed = false;
+	compression = ImageCompressionNone;
 	data = new u8[width * height * sizeOf(format)];
 }
 
 Graphics1::Image::Image(int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
-	compressed = false;
+	compression = ImageCompressionNone;
 	data = new u8[width * height * depth * sizeOf(format)];
 }
 
@@ -71,8 +73,8 @@ Graphics1::Image::Image(Reader& reader, const char* format, bool readable) : dep
 }
 
 Graphics1::Image::Image(void* data, int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
-	compressed = false;
-	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32;
+	compression = ImageCompressionNone;
+	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
     if (isFloat) {
         this->hdrData = (float*)data;
     }
@@ -95,29 +97,70 @@ void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readabl
 		fourcc[3] = Reader::readS8(data + 11);
 		fourcc[4] = 0;
 		if (strcmp(fourcc, "LZ4 ") == 0) {
-			compressed = false;
+			compression = ImageCompressionNone;
 			internalFormat = 0;
 			dataSize = width * height * 4;
 			this->data = (u8*)malloc(dataSize);
 			LZ4_decompress_safe((char*)(data + 12), (char*)this->data, file.size() - 12, dataSize);
 		}
 		else if (strcmp(fourcc, "LZ4F") == 0) {
-			compressed = false;
+			compression = ImageCompressionNone;
 			internalFormat = 0;
 			dataSize = width * height * 16;
 			this->hdrData = (float*)malloc(dataSize);
 			LZ4_decompress_safe((char*)(data + 12), (char*)this->hdrData, file.size() - 12, dataSize);
 			this->format = RGBA128;
 		}
-		//else if (strcmp(fourcc, "SNAP") == 0) {
-		//	compressed = false;
-		//	internalFormat = 0;
-		//	size_t length;
-		//	snappy::GetUncompressedLength((char*)(data + 12), file.size() - 12, &length);
-		//	dataSize = static_cast<int>(length);
-		//	this->data = (u8*)malloc(length);
-		//	snappy::RawUncompress((char*)(data + 12), file.size() - 12, (char*)this->data);
-		//}
+		else if (strcmp(fourcc, "ASTC") == 0) {
+			compression = ImageCompressionASTC;
+			dataSize = width * height * 4;
+			u8* astcdata = (u8*)malloc(dataSize);
+			dataSize = LZ4_decompress_safe((char*)(data + 12), (char*)astcdata, file.size() - 12, dataSize);
+			
+			this->data = astcdata;
+			u8 blockdim_x = 6;
+			u8 blockdim_y = 6;
+			internalFormat = (blockdim_x << 8) + blockdim_y;
+
+			/*int index = 0;
+			index += 4; // magic
+			u8 blockdim_x = astcdata[index++];
+			u8 blockdim_y = astcdata[index++];
+			++index; // blockdim_z
+			internalFormat = (blockdim_x << 8) + blockdim_y;
+			u8 xsize[4];
+			xsize[0] = astcdata[index++];
+			xsize[1] = astcdata[index++];
+			xsize[2] = astcdata[index++];
+			xsize[3] = 0;
+			this->width = *(unsigned*)&xsize[0];
+			u8 ysize[4];
+			ysize[0] = astcdata[index++];
+			ysize[1] = astcdata[index++];
+			ysize[2] = astcdata[index++];
+			ysize[3] = 0;
+			this->height = *(unsigned*)&ysize[0];
+			u8 zsize[3];
+			zsize[0] = astcdata[index++];
+			zsize[1] = astcdata[index++];
+			zsize[2] = astcdata[index++];
+			u8* all = (u8*)astcdata[index];
+			dataSize -= 16;
+			this->data = new u8[dataSize];
+			for (int i = 0; i < dataSize; ++i) {
+				data[i] = all[16 + i];
+			}
+			free(astcdata);*/
+		}
+		else if (strcmp(fourcc, "DXT5") == 0) {
+			compression = ImageCompressionDXT5;
+			dataSize = width * height;
+			u8* dxt5data = (u8*)malloc(dataSize);
+			dataSize = LZ4_decompress_safe((char*)(data + 12), (char*)dxt5data, file.size() - 12, dataSize);
+
+			this->data = dxt5data;
+			internalFormat = 0;
+		}
 		else {
 			log(Error, "Unknown fourcc in .k file.");
 		}
@@ -156,7 +199,7 @@ void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readabl
 
 		this->width = w;
 		this->height = h;
-		compressed = true;
+		compression = ImageCompressionPVRTC;
 		internalFormat = 0;
 
 		u8* all = (u8*)file.readAll();
@@ -166,39 +209,10 @@ void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readabl
 			data[i] = all[52 + metaDataSize + i];
 		}
 	}
-	else if (endsWith(format, "astc")) {
-		file.readU32LE(); // magic
-		u8 blockdim_x = file.readU8();
-		u8 blockdim_y = file.readU8();
-		file.readU8(); // blockdim_z
-		internalFormat = (blockdim_x << 8) + blockdim_y;
-		u8 xsize[4];
-		xsize[0] = file.readU8();
-		xsize[1] = file.readU8();
-		xsize[2] = file.readU8();
-		xsize[3] = 0;
-		this->width = *(unsigned*)&xsize[0];
-		u8 ysize[4];
-		ysize[0] = file.readU8();
-		ysize[1] = file.readU8();
-		ysize[2] = file.readU8();
-		ysize[3] = 0;
-		this->height = *(unsigned*)&ysize[0];
-		u8 zsize[3];
-		zsize[0] = file.readU8();
-		zsize[1] = file.readU8();
-		zsize[2] = file.readU8();
-		u8* all = (u8*)file.readAll();
-		dataSize = file.size() - 16;
-		data = new u8[dataSize];
-		for (int i = 0; i < dataSize; ++i) {
-			data[i] = all[16 + i];
-		}
-	}
 	else if (endsWith(format, "png")) {
 		int size = file.size();
 		int comp;
-		compressed = false;
+		compression = ImageCompressionNone;
 		internalFormat = 0;
 		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
 		if (data == nullptr) {
@@ -223,7 +237,7 @@ void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readabl
 	else if (endsWith(format, "hdr")) {
 		int size = file.size();
 		int comp;
-		compressed = false;
+		compression = ImageCompressionNone;
 		internalFormat = 0;
 		hdrData = stbi_loadf_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
 		if (hdrData == nullptr) {
@@ -235,7 +249,7 @@ void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readabl
 	else {
 		int size = file.size();
 		int comp;
-		compressed = false;
+		compression = ImageCompressionNone;
 		internalFormat = 0;
 		data = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
 		if (data == nullptr) {
@@ -247,7 +261,7 @@ void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readabl
 
 Graphics1::Image::~Image() {
 	if (readable) {
-		if (format == RGBA128 || format == RGBA64 || format == A32) {
+		if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
 			delete[] hdrData;
 			hdrData = nullptr;
 		}

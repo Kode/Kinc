@@ -77,13 +77,13 @@ namespace {
 	}
 
 #ifdef KORE_OCULUS
-	const char* windowClassName = "ORT";
+	const wchar_t* windowClassName = L"ORT";
 #else
-	const char* windowClassName = "KoreWindow";
+	const wchar_t* windowClassName = L"KoreWindow";
 #endif
 
-	void registerWindowClass(HINSTANCE hInstance, const char* className) {
-		WNDCLASSEXA wc = {sizeof(WNDCLASSEXA),
+	void registerWindowClass(HINSTANCE hInstance, const wchar_t* className) {
+		WNDCLASSEXW wc = {sizeof(WNDCLASSEXA),
 		                  CS_OWNDC /*CS_CLASSDC*/,
 		                  MsgProc,
 		                  0L,
@@ -96,7 +96,7 @@ namespace {
 		                  className /*windowClassName*/,
 		                  0};
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		RegisterClassExA(&wc);
+		RegisterClassEx(&wc);
 	}
 }
 
@@ -155,135 +155,132 @@ namespace {
 	Kore::KeyCode keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
 
 	void initKeyTranslation() {
-		for (int i = 0; i < 256; ++i) keyTranslated[i] = Kore::Key_unknown;
+		for (int i = 0; i < 256; ++i) keyTranslated[i] = Kore::KeyUnknown;
 
-		keyTranslated[VK_OEM_5] = Kore::Key_Huetchen;
-		keyTranslated[VK_OEM_102] = Kore::Key_GermanLessMore;
-
-		keyTranslated[VK_BACK] = Kore::Key_Backspace;
-		keyTranslated[VK_TAB] = Kore::Key_Tab;
-		// keyTranslated[VK_CLEAR]
-		keyTranslated[VK_RETURN] = Kore::Key_Return;
-		keyTranslated[VK_SHIFT] = Kore::Key_Shift;
-		keyTranslated[VK_CONTROL] = Kore::Key_Control;
-		keyTranslated[VK_MENU] = Kore::Key_Alt;
-		keyTranslated[VK_PAUSE] = Kore::Key_Pause;
-		keyTranslated[VK_CAPITAL] = Kore::Key_CapsLock;
-		// keyTranslated[VK_KANA]
+		keyTranslated[VK_BACK] = Kore::KeyBackspace;
+		keyTranslated[VK_TAB] = Kore::KeyTab;
+		keyTranslated[VK_CLEAR] = Kore::KeyClear;
+		keyTranslated[VK_RETURN] = Kore::KeyReturn;
+		keyTranslated[VK_SHIFT] = Kore::KeyShift;
+		keyTranslated[VK_CONTROL] = Kore::KeyControl;
+		keyTranslated[VK_MENU] = Kore::KeyAlt;
+		keyTranslated[VK_PAUSE] = Kore::KeyPause;
+		keyTranslated[VK_CAPITAL] = Kore::KeyCapsLock;
+		keyTranslated[VK_KANA] = Kore::KeyKana;
 		// keyTranslated[VK_HANGUEL]
-		// keyTransltaed[VK_HANGUL]
-		// keyTransltaed[VK_JUNJA]
-		// keyTranslated[VK_FINAL]
-		// keyTranslated[VK_HANJA]
-		// keyTranslated[VK_KANJI]
-		keyTranslated[VK_ESCAPE] = Kore::Key_Escape;
+		keyTranslated[VK_HANGUL] = Kore::KeyHangul;
+		keyTranslated[VK_JUNJA] = Kore::KeyJunja;
+		keyTranslated[VK_FINAL] = Kore::KeyFinal;
+		keyTranslated[VK_HANJA] = Kore::KeyHanja;
+		keyTranslated[VK_KANJI] = Kore::KeyKanji;
+		keyTranslated[VK_ESCAPE] = Kore::KeyEscape;
 		// keyTranslated[VK_CONVERT]
 		// keyTranslated[VK_NONCONVERT
 		// keyTranslated[VK_ACCEPT
 		// keyTranslated[VK_MODECHANGE
-		keyTranslated[VK_SPACE] = Kore::Key_Space;
-		keyTranslated[VK_PRIOR] = Kore::Key_PageUp;
-		keyTranslated[VK_NEXT] = Kore::Key_PageDown;
-		keyTranslated[VK_END] = Kore::Key_End;
-		keyTranslated[VK_HOME] = Kore::Key_Home;
-		keyTranslated[VK_LEFT] = Kore::Key_Left;
-		keyTranslated[VK_UP] = Kore::Key_Up;
-		keyTranslated[VK_RIGHT] = Kore::Key_Right;
-		keyTranslated[VK_DOWN] = Kore::Key_Down;
+		keyTranslated[VK_SPACE] = Kore::KeySpace;
+		keyTranslated[VK_PRIOR] = Kore::KeyPageUp;
+		keyTranslated[VK_NEXT] = Kore::KeyPageDown;
+		keyTranslated[VK_END] = Kore::KeyEnd;
+		keyTranslated[VK_HOME] = Kore::KeyHome;
+		keyTranslated[VK_LEFT] = Kore::KeyLeft;
+		keyTranslated[VK_UP] = Kore::KeyUp;
+		keyTranslated[VK_RIGHT] = Kore::KeyRight;
+		keyTranslated[VK_DOWN] = Kore::KeyDown;
 		// keyTranslated[VK_SELECT
-		keyTranslated[VK_PRINT] = Kore::Key_Print;
+		keyTranslated[VK_PRINT] = Kore::KeyPrint;
 		// keyTranslated[VK_EXECUTE
 		// keyTranslated[VK_SNAPSHOT
-		keyTranslated[VK_INSERT] = Kore::Key_Insert;
-		keyTranslated[VK_DELETE] = Kore::Key_Delete;
-		keyTranslated[VK_HELP] = Kore::Key_Help;
-		keyTranslated[0x30] = Kore::Key_0;
-		keyTranslated[0x31] = Kore::Key_1;
-		keyTranslated[0x32] = Kore::Key_2;
-		keyTranslated[0x33] = Kore::Key_3;
-		keyTranslated[0x34] = Kore::Key_4;
-		keyTranslated[0x35] = Kore::Key_5;
-		keyTranslated[0x36] = Kore::Key_6;
-		keyTranslated[0x37] = Kore::Key_7;
-		keyTranslated[0x38] = Kore::Key_8;
-		keyTranslated[0x39] = Kore::Key_9;
-		keyTranslated[0x41] = Kore::Key_A;
-		keyTranslated[0x42] = Kore::Key_B;
-		keyTranslated[0x43] = Kore::Key_C;
-		keyTranslated[0x44] = Kore::Key_D;
-		keyTranslated[0x45] = Kore::Key_E;
-		keyTranslated[0x46] = Kore::Key_F;
-		keyTranslated[0x47] = Kore::Key_G;
-		keyTranslated[0x48] = Kore::Key_H;
-		keyTranslated[0x49] = Kore::Key_I;
-		keyTranslated[0x4A] = Kore::Key_J;
-		keyTranslated[0x4B] = Kore::Key_K;
-		keyTranslated[0x4C] = Kore::Key_L;
-		keyTranslated[0x4D] = Kore::Key_M;
-		keyTranslated[0x4E] = Kore::Key_N;
-		keyTranslated[0x4F] = Kore::Key_O;
-		keyTranslated[0x50] = Kore::Key_P;
-		keyTranslated[0x51] = Kore::Key_Q;
-		keyTranslated[0x52] = Kore::Key_R;
-		keyTranslated[0x53] = Kore::Key_S;
-		keyTranslated[0x54] = Kore::Key_T;
-		keyTranslated[0x55] = Kore::Key_U;
-		keyTranslated[0x56] = Kore::Key_V;
-		keyTranslated[0x57] = Kore::Key_W;
-		keyTranslated[0x58] = Kore::Key_X;
-		keyTranslated[0x59] = Kore::Key_Y;
-		keyTranslated[0x5A] = Kore::Key_Z;
+		keyTranslated[VK_INSERT] = Kore::KeyInsert;
+		keyTranslated[VK_DELETE] = Kore::KeyDelete;
+		keyTranslated[VK_HELP] = Kore::KeyHelp;
+		keyTranslated[0x30] = Kore::Key0;
+		keyTranslated[0x31] = Kore::Key1;
+		keyTranslated[0x32] = Kore::Key2;
+		keyTranslated[0x33] = Kore::Key3;
+		keyTranslated[0x34] = Kore::Key4;
+		keyTranslated[0x35] = Kore::Key5;
+		keyTranslated[0x36] = Kore::Key6;
+		keyTranslated[0x37] = Kore::Key7;
+		keyTranslated[0x38] = Kore::Key8;
+		keyTranslated[0x39] = Kore::Key9;
+		keyTranslated[0x41] = Kore::KeyA;
+		keyTranslated[0x42] = Kore::KeyB;
+		keyTranslated[0x43] = Kore::KeyC;
+		keyTranslated[0x44] = Kore::KeyD;
+		keyTranslated[0x45] = Kore::KeyE;
+		keyTranslated[0x46] = Kore::KeyF;
+		keyTranslated[0x47] = Kore::KeyG;
+		keyTranslated[0x48] = Kore::KeyH;
+		keyTranslated[0x49] = Kore::KeyI;
+		keyTranslated[0x4A] = Kore::KeyJ;
+		keyTranslated[0x4B] = Kore::KeyK;
+		keyTranslated[0x4C] = Kore::KeyL;
+		keyTranslated[0x4D] = Kore::KeyM;
+		keyTranslated[0x4E] = Kore::KeyN;
+		keyTranslated[0x4F] = Kore::KeyO;
+		keyTranslated[0x50] = Kore::KeyP;
+		keyTranslated[0x51] = Kore::KeyQ;
+		keyTranslated[0x52] = Kore::KeyR;
+		keyTranslated[0x53] = Kore::KeyS;
+		keyTranslated[0x54] = Kore::KeyT;
+		keyTranslated[0x55] = Kore::KeyU;
+		keyTranslated[0x56] = Kore::KeyV;
+		keyTranslated[0x57] = Kore::KeyW;
+		keyTranslated[0x58] = Kore::KeyX;
+		keyTranslated[0x59] = Kore::KeyY;
+		keyTranslated[0x5A] = Kore::KeyZ;
 		// keyTranslated[VK_LWIN
 		// keyTranslated[VK_RWIN
 		// keyTranslated[VK_APPS
 		// keyTranslated[VK_SLEEP
-		// keyTranslated[VK_NUMPAD0]
-		// keyTranslated[VK_NUMPAD1
-		// keyTranslated[VK_NUMPAD2
-		// keyTranslated[VK_NUMPAD3
-		// keyTranslated[VK_NUMPAD4
-		// keyTranslated[VK_NUMPAD5
-		// keyTranslated[VK_NUMPAD6
-		// keyTranslated[VK_NUMPAD7
-		// keyTranslated[VK_NUMPAD8
-		// keyTranslated[VK_NUMPAD9
-		keyTranslated[VK_MULTIPLY] = Kore::Key_multiply;
+		keyTranslated[VK_NUMPAD0] = Kore::KeyNumpad0;
+		keyTranslated[VK_NUMPAD1] = Kore::KeyNumpad1;
+		keyTranslated[VK_NUMPAD2] = Kore::KeyNumpad2;
+		keyTranslated[VK_NUMPAD3] = Kore::KeyNumpad3;
+		keyTranslated[VK_NUMPAD4] = Kore::KeyNumpad4;
+		keyTranslated[VK_NUMPAD5] = Kore::KeyNumpad5;
+		keyTranslated[VK_NUMPAD6] = Kore::KeyNumpad6;
+		keyTranslated[VK_NUMPAD7] = Kore::KeyNumpad7;
+		keyTranslated[VK_NUMPAD8] = Kore::KeyNumpad8;
+		keyTranslated[VK_NUMPAD9] = Kore::KeyNumpad9;
+		keyTranslated[VK_MULTIPLY] = Kore::KeyMultiply;
 		// keyTranslated[VK_ADD]
 		// keyTranslated[VK_SEPARATOR
 		// keyTranslated[VK_SUBTRACT
 		// keyTranslated[VK_DECIMAL
 		// keyTranslated[VK_DIVIDE
-		keyTranslated[VK_F1] = Kore::Key_F1;
-		keyTranslated[VK_F2] = Kore::Key_F2;
-		keyTranslated[VK_F3] = Kore::Key_F3;
-		keyTranslated[VK_F4] = Kore::Key_F4;
-		keyTranslated[VK_F5] = Kore::Key_F5;
-		keyTranslated[VK_F6] = Kore::Key_F6;
-		keyTranslated[VK_F7] = Kore::Key_F7;
-		keyTranslated[VK_F8] = Kore::Key_F8;
-		keyTranslated[VK_F9] = Kore::Key_F9;
-		keyTranslated[VK_F10] = Kore::Key_F10;
-		keyTranslated[VK_F11] = Kore::Key_F11;
-		keyTranslated[VK_F12] = Kore::Key_F12;
-		// keyTranslated[VK_F13
-		// keyTranslated[VK_F14
-		// keyTranslated[VK_F15
-		// keyTranslated[VK_F16
-		// keyTranslated[VK_F17
-		// keyTranslated[VK_F18
-		// keyTranslated[VK_F19
-		// keyTranslated[VK_F20
-		// keyTranslated[VK_F21
-		// keyTranslated[VK_F22
-		// keyTranslated[VK_F23
-		// keyTranslated[VK_F24
-		keyTranslated[VK_NUMLOCK] = Kore::Key_NumLock;
-		keyTranslated[VK_SCROLL] = Kore::Key_ScrollLock;
+		keyTranslated[VK_F1] = Kore::KeyF1;
+		keyTranslated[VK_F2] = Kore::KeyF2;
+		keyTranslated[VK_F3] = Kore::KeyF3;
+		keyTranslated[VK_F4] = Kore::KeyF4;
+		keyTranslated[VK_F5] = Kore::KeyF5;
+		keyTranslated[VK_F6] = Kore::KeyF6;
+		keyTranslated[VK_F7] = Kore::KeyF7;
+		keyTranslated[VK_F8] = Kore::KeyF8;
+		keyTranslated[VK_F9] = Kore::KeyF9;
+		keyTranslated[VK_F10] = Kore::KeyF10;
+		keyTranslated[VK_F11] = Kore::KeyF11;
+		keyTranslated[VK_F12] = Kore::KeyF12;
+		keyTranslated[VK_F13] = Kore::KeyF13;
+		keyTranslated[VK_F14] = Kore::KeyF14;
+		keyTranslated[VK_F15] = Kore::KeyF15;
+		keyTranslated[VK_F16] = Kore::KeyF16;
+		keyTranslated[VK_F17] = Kore::KeyF17;
+		keyTranslated[VK_F18] = Kore::KeyF18;
+		keyTranslated[VK_F19] = Kore::KeyF19;
+		keyTranslated[VK_F20] = Kore::KeyF20;
+		keyTranslated[VK_F21] = Kore::KeyF21;
+		keyTranslated[VK_F22] = Kore::KeyF22;
+		keyTranslated[VK_F23] = Kore::KeyF23;
+		keyTranslated[VK_F24] = Kore::KeyF24;
+		keyTranslated[VK_NUMLOCK] = Kore::KeyNumLock;
+		keyTranslated[VK_SCROLL] = Kore::KeyScrollLock;
 		// 0x92-96 //OEM specific
-		// keyTranslated[VK_LSHIFT]
-		// keyTranslated[VK_RSHIFT
-		// keyTranslated[VK_LCONTROL]
-		// keyTranslated[VK_RCONTROL
+		keyTranslated[VK_LSHIFT] = Kore::KeyShift;
+		keyTranslated[VK_RSHIFT] = Kore::KeyShift;
+		keyTranslated[VK_LCONTROL] = Kore::KeyControl;
+		keyTranslated[VK_RCONTROL] = Kore::KeyControl;
 		// keyTranslated[VK_LMENU
 		// keyTranslated[VK_RMENU
 		// keyTranslated[VK_BROWSER_BACK
@@ -305,10 +302,10 @@ namespace {
 		// keyTranslated[VK_LAUNCH_APP1
 		// keyTranslated[VK_LAUNCH_APP2
 		// keyTranslated[VK_OEM_1 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ';:' key
-		keyTranslated[VK_OEM_PLUS] = Kore::Key_Plus;
-		keyTranslated[VK_OEM_COMMA] = Kore::Key_Comma;
-		keyTranslated[VK_OEM_MINUS] = Kore::Key_Minus;
-		keyTranslated[VK_OEM_PERIOD] = Kore::Key_Period;
+		keyTranslated[VK_OEM_PLUS] = Kore::KeyPlus;
+		keyTranslated[VK_OEM_COMMA] = Kore::KeyComma;
+		keyTranslated[VK_OEM_MINUS] = Kore::KeyHyphenMinus;
+		keyTranslated[VK_OEM_PERIOD] = Kore::KeyPeriod;
 		// keyTranslated[VK_OEM_2 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '/?' key
 		// keyTranslated[VK_OEM_3 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key
 		// keyTranslated[VK_OEM_4 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '[{' key
@@ -445,13 +442,33 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_SYSKEYDOWN:
 		if (!keyPressed[wParam]) {
 			keyPressed[wParam] = true;
-			Keyboard::the()->_keydown(keyTranslated[wParam], toUnicode(wParam, lParam));
+			Keyboard::the()->_keydown(keyTranslated[wParam]);
 		}
 		break;
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		keyPressed[wParam] = false;
-		Keyboard::the()->_keyup(keyTranslated[wParam], toUnicode(wParam, lParam));
+		Keyboard::the()->_keyup(keyTranslated[wParam]);
+		break;
+	case WM_CHAR:
+		switch (wParam) {
+		case 0x08: // backspace
+			break;
+		case 0x0A: // linefeed
+			Keyboard::the()->_keypress(L'\n');
+			break;
+		case 0x1B: // escape
+			break;
+		case 0x09: // tab
+			Keyboard::the()->_keypress(L'\t');
+			break;
+		case 0x0D: // carriage return
+			Keyboard::the()->_keypress(L'\r');
+			break;
+		default:
+			Keyboard::the()->_keypress((wchar_t)wParam);
+			break;
+		}
 		break;
 	case WM_SYSCOMMAND:
 		// printf("WS_SYSCOMMAND %5d %5d %5d\n", msg, wParam, lParam);
@@ -477,8 +494,19 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}
 		break;
+	case WM_DROPFILES:
+		HDROP hDrop = (HDROP)wParam;
+		uint count = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, NULL);
+		if (count == 1) { // Single file only for now
+			wchar_t filePath[260];
+			if (DragQueryFile(hDrop, 0, filePath, 260)) {
+				Kore::System::dropFilesCallback(filePath);
+			}
+		}	
+		DragFinish(hDrop);
+		break;
 	}
-	return DefWindowProcA(hWnd, msg, wParam, lParam);
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 namespace {
@@ -489,12 +517,12 @@ namespace {
 	XInputGetStateType InputGetState = nullptr;
 
 	void loadXInput() {
-		HMODULE lib = LoadLibraryA("xinput1_4.dll");
+		HMODULE lib = LoadLibrary(L"xinput1_4.dll");
 		if (lib == nullptr) {
-			lib = LoadLibraryA("xinput1_3.dll");
+			lib = LoadLibrary(L"xinput1_3.dll");
 		}
 		if (lib == nullptr) {
-			lib = LoadLibraryA("xinput9_1_0.dll");
+			lib = LoadLibrary(L"xinput9_1_0.dll");
 		}
 
 		if (lib != nullptr) {
@@ -720,7 +748,7 @@ namespace {
 	}
 
 	void initializeDirectInput() {
-		HINSTANCE hinstance = GetModuleHandleA(nullptr);
+		HINSTANCE hinstance = GetModuleHandle(nullptr);
 
 		memset(&di_pads, 0, sizeof(IDirectInputDevice8) * XUSER_MAX_COUNT);
 		memset(&di_padState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
@@ -808,8 +836,9 @@ namespace {
 
 bool Kore::System::handleMessages() {
 	static MSG message;
+
 	while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
-		// TranslateMessage(&message);
+		TranslateMessage(&message);
 		DispatchMessage(&message);
 	}
 
@@ -880,10 +909,10 @@ namespace {
 	DEVMODE startDeviceMode;
 }
 
-int createWindow(const char* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
+int createWindow(const wchar_t* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
 	++windowCounter;
 
-	HINSTANCE inst = GetModuleHandleA(nullptr);
+	HINSTANCE inst = GetModuleHandle(nullptr);
 #ifdef KORE_OCULUS
 	::registerWindowClass(inst, windowClassName);
 	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
@@ -919,7 +948,7 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 		EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &startDeviceMode);
 		deviceModeChanged = true;
 
-		DEVMODEA dmScreenSettings;                              // Device Mode
+		DEVMODEW dmScreenSettings;                              // Device Mode
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings)); // Makes Sure Memory's Cleared
 		dmScreenSettings.dmSize = sizeof(dmScreenSettings);     // Size Of The Devmode Structure
 		dmScreenSettings.dmPelsWidth = width;                   // Selected Screen Width
@@ -928,7 +957,7 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 		// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
-		if (ChangeDisplaySettingsA(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+		if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
 			// return FALSE;
 		}
 
@@ -964,9 +993,9 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 	} break;
 	}
 
-	HWND hwnd = CreateWindowExA(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left,
+	HWND hwnd = CreateWindowEx(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left,
 	                            WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
-
+	
 	if (windowCounter == 0) {
 		if (windowMode == WindowModeFullscreen) {
 			SetWindowPos(hwnd, nullptr, dstx, dsty, width, height, 0);
@@ -975,6 +1004,8 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 
 	GetFocus(); // TODO (DK) that seems like a useless call, as the return value isn't saved anywhere?
 	::SetCursor(LoadCursor(0, IDC_ARROW));
+
+	DragAcceptFiles(hwnd, true);
 
 	if (windowCounter == 0) {
 		loadXInput();
@@ -1002,7 +1033,7 @@ void Kore::System::destroyWindow(int index) {
 	windows[index] = nullptr;
 
 	// TODO (DK) only unregister after the last window is destroyed?
-	if (!UnregisterClassA(windowClassName, GetModuleHandleA(nullptr))) {
+	if (!UnregisterClass(windowClassName, GetModuleHandle(nullptr))) {
 		// MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
 		// hInstance=NULL;
 	}
@@ -1038,7 +1069,10 @@ int Kore::System::initWindow(WindowOptions options) {
 		strcpy(buffer, options.title);
 	}
 
-	int windowId = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
+	wchar_t wbuffer[1024];
+	MultiByteToWideChar(CP_UTF8, 0, buffer, -1, wbuffer, 1024);
+
+	int windowId = createWindow(wbuffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
 
 	HWND hwnd = (HWND)windowHandle(windowId);
 	long style = GetWindowLong(hwnd, GWL_STYLE);
@@ -1125,7 +1159,9 @@ bool Kore::System::showsKeyboard() {
 void Kore::System::loadURL(const char* url) {}
 
 void Kore::System::setTitle(const char* title) {
-	SetWindowTextA(windows[currentDevice()]->hwnd, title);
+	wchar_t buffer[1024];
+	MultiByteToWideChar(CP_UTF8, 0, title, -1, buffer, 1024);
+	SetWindowText(windows[currentDevice()]->hwnd, buffer);
 }
 
 void Kore::System::setKeepScreenOn(bool on) {}
@@ -1155,9 +1191,10 @@ const char* Kore::System::systemId() {
 }
 
 namespace {
-	char* savePath = nullptr;
-
-	void getSavePath() {
+	wchar_t savePathw[2048];
+	char savePath[2048];
+	
+	void findSavePath() {
 		// CoInitialize(NULL);
 		IKnownFolderManager* folders = nullptr;
 		CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&folders));
@@ -1167,20 +1204,15 @@ namespace {
 		LPWSTR path;
 		folder->GetPath(0, &path);
 
-		size_t length = wcslen(path);
-		size_t length2 = strlen(Kore::System::name());
-		savePath = new char[length + length2 + 3];
-		for (size_t i = 0; i < length; ++i) {
-			savePath[i] = static_cast<char>(path[i]);
-		}
-		savePath[length] = '\\';
-		for (size_t i = 0; i < length2; ++i) {
-			savePath[length + 1 + i] = Kore::System::name()[i];
-		}
-		savePath[length + 1 + length2] = '\\';
-		savePath[length + 1 + length2 + 1] = 0;
+		wcscpy(savePathw, path);
+		wcscat(savePathw, L"\\");
+		wchar_t name[1024];
+		MultiByteToWideChar(CP_UTF8, 0, Kore::System::name(), -1, name, 1024);
+		wcscat(savePathw, name);
+		wcscat(savePathw, L"\\");
 
-		SHCreateDirectoryExA(nullptr, savePath, nullptr);
+		SHCreateDirectoryEx(nullptr, savePathw, nullptr);
+		WideCharToMultiByte(CP_UTF8, 0, savePathw, -1, savePath, 1024, nullptr, nullptr);
 
 		CoTaskMemFree(path);
 		folder->Release();
@@ -1190,7 +1222,7 @@ namespace {
 }
 
 const char* Kore::System::savePath() {
-	if (::savePath == nullptr) getSavePath();
+	if (::savePath == nullptr) findSavePath();
 	return ::savePath;
 }
 

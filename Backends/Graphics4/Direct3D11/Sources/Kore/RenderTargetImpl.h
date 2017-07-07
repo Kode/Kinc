@@ -15,5 +15,6 @@ namespace Kore {
 		ID3D11ShaderResourceView* renderTargetSRV;
 		ID3D11ShaderResourceView* depthStencilSRV;
 		int lastBoundUnit;
+		int lastBoundDepthUnit;
 	};
 }

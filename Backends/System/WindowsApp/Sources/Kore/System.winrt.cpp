@@ -9,11 +9,11 @@
 #include <windows.h>
 
 #ifndef XINPUT
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #define XINPUT 1
 #endif
 
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 #define XINPUT !(WINAPI_PARTITION_PHONE_APP)
 #endif
 #endif
@@ -24,34 +24,34 @@
 ref class Win8Application sealed : public Windows::ApplicationModel::Core::IFrameworkView {
 public:
 	Win8Application();
-	virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView ^ applicationView);
-	virtual void SetWindow(Windows::UI::Core::CoreWindow ^ window);
-	virtual void Load(Platform::String ^ entryPoint);
+	virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView);
+	virtual void SetWindow(Windows::UI::Core::CoreWindow^ window);
+	virtual void Load(Platform::String^ entryPoint);
 	virtual void Run();
 	virtual void Uninitialize();
 
 protected:
-	void OnWindowSizeChanged(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::WindowSizeChangedEventArgs ^ args);
+	void OnWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args);
 	// void OnLogicalDpiChanged(Platform::Object^ sender);
-	void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView ^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs ^ args);
-	void OnSuspending(Platform::Object ^ sender, Windows::ApplicationModel::SuspendingEventArgs ^ args);
-	void OnResuming(Platform::Object ^ sender, Platform::Object ^ args);
-	void OnWindowClosed(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::CoreWindowEventArgs ^ args);
-	void OnPointerPressed(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args);
-	void OnPointerReleased(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args);
-	void OnPointerMoved(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args);
+	void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs^ args);
+	void OnSuspending(Platform::Object^ sender, Windows::ApplicationModel::SuspendingEventArgs^ args);
+	void OnResuming(Platform::Object^ sender, Platform::Object^ args);
+	void OnWindowClosed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::CoreWindowEventArgs^ args);
+	void OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
+	void OnPointerReleased(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
+	void OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
 
 private:
 	// CubeRenderer^ m_renderer;
 	// Windows::ApplicationModel::Core::CoreApplicationView^ view;
 	bool closed;
-	void OnKeyDown(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs ^ args);
-	void OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs ^ args);
+	void OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
+	void OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
 };
 
 ref class Win8ApplicationSource : Windows::ApplicationModel::Core::IFrameworkViewSource {
 public:
-	virtual Windows::ApplicationModel::Core::IFrameworkView ^ CreateView();
+	virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
 };
 
 using namespace Kore;
@@ -195,14 +195,14 @@ extern int renderTargetHeight;
 
 Win8Application::Win8Application() : closed(false) {}
 
-void Win8Application::Initialize(CoreApplicationView ^ applicationView) {
+void Win8Application::Initialize(CoreApplicationView^ applicationView) {
 	applicationView->Activated += ref new TypedEventHandler<CoreApplicationView ^, IActivatedEventArgs ^>(this, &Win8Application::OnActivated);
 	CoreApplication::Suspending += ref new EventHandler<SuspendingEventArgs ^>(this, &Win8Application::OnSuspending);
 	CoreApplication::Resuming += ref new EventHandler<Platform::Object ^>(this, &Win8Application::OnResuming);
 	// m_renderer = ref new CubeRenderer();
 }
 
-void Win8Application::SetWindow(CoreWindow ^ window) {
+void Win8Application::SetWindow(CoreWindow^ window) {
 	window->SizeChanged += ref new TypedEventHandler<CoreWindow ^, WindowSizeChangedEventArgs ^>(this, &Win8Application::OnWindowSizeChanged);
 	window->Closed += ref new TypedEventHandler<CoreWindow ^, CoreWindowEventArgs ^>(this, &Win8Application::OnWindowClosed);
 	window->PointerPressed += ref new TypedEventHandler<CoreWindow ^, PointerEventArgs ^>(this, &Win8Application::OnPointerPressed);
@@ -215,7 +215,7 @@ void Win8Application::SetWindow(CoreWindow ^ window) {
 	// m_renderer->Initialize(CoreWindow::GetForCurrentThread());
 }
 
-void Win8Application::Load(Platform::String ^ entryPoint) {}
+void Win8Application::Load(Platform::String^ entryPoint) {}
 
 void Win8Application::Run() {
 	// BasicTimer^ timer = ref new BasicTimer();
@@ -231,73 +231,89 @@ void Win8Application::Run() {
 
 void Win8Application::Uninitialize() {}
 
-void Win8Application::OnWindowSizeChanged(CoreWindow ^ sender, WindowSizeChangedEventArgs ^ args) {
+void Win8Application::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args) {
 	// m_renderer->UpdateForWindowSizeChange();
 }
 
-void Win8Application::OnWindowClosed(CoreWindow ^ sender, CoreWindowEventArgs ^ args) {
+void Win8Application::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args) {
 	closed = true;
 }
 
-void Win8Application::OnActivated(CoreApplicationView ^ applicationView, IActivatedEventArgs ^ args) {
+void Win8Application::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args) {
 	CoreWindow::GetForCurrentThread()->Activate();
 }
 
-void Win8Application::OnSuspending(Platform::Object ^ sender, SuspendingEventArgs ^ args) {
+void Win8Application::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args) {
 	// SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
 	// deferral->Complete();
 }
 
 void Win8Application::OnResuming(Platform::Object ^ sender, Platform::Object ^ args) {}
 
-void Win8Application::OnPointerPressed(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args) {
+void Win8Application::OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
 	Mouse::the()->_press(0, 0, mouseX, mouseY);
 }
 
-void Win8Application::OnPointerReleased(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args) {
+void Win8Application::OnPointerReleased(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
 	Mouse::the()->_release(0, 0, mouseX, mouseY);
 }
 
-void Win8Application::OnPointerMoved(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args) {
+void Win8Application::OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
 	Mouse::the()->_move(0, mouseX, mouseY);
 }
 
-void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs ^ args) {
+void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args) {
 	switch (args->VirtualKey) {
 	case Windows::System::VirtualKey::Left:
-		Keyboard::the()->_keydown(Kore::Key_Left, L' ');
+		Keyboard::the()->_keydown(Kore::KeyLeft);
 		break;
 	case Windows::System::VirtualKey::Right:
-		Keyboard::the()->_keydown(Kore::Key_Right, L' ');
+		Keyboard::the()->_keydown(Kore::KeyRight);
 		break;
 	case Windows::System::VirtualKey::Up:
-		Keyboard::the()->_keydown(Kore::Key_Up, L' ');
+		Keyboard::the()->_keydown(Kore::KeyUp);
 		break;
 	case Windows::System::VirtualKey::Down:
-		Keyboard::the()->_keydown(Kore::Key_Down, L' ');
+		Keyboard::the()->_keydown(Kore::KeyDown);
+		break;
+	default:
+		if (args->VirtualKey >= Windows::System::VirtualKey::A && args->VirtualKey <= Windows::System::VirtualKey::Z) {
+			Keyboard::the()->_keydown((Kore::KeyCode)args->VirtualKey);
+		}
+		else if (args->VirtualKey >= Windows::System::VirtualKey::Number0 && args->VirtualKey <= Windows::System::VirtualKey::Number9) {
+			Keyboard::the()->_keydown((Kore::KeyCode)args->VirtualKey);
+		}
 		break;
 	}
 }
 
-void Win8Application::OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs ^ args) {
+void Win8Application::OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs^ args) {
 	switch (args->VirtualKey) {
 	case Windows::System::VirtualKey::Left:
-		Keyboard::the()->_keyup(Kore::Key_Left, L' ');
+		Keyboard::the()->_keyup(Kore::KeyLeft);
 		break;
 	case Windows::System::VirtualKey::Right:
-		Keyboard::the()->_keyup(Kore::Key_Right, L' ');
+		Keyboard::the()->_keyup(Kore::KeyRight);
 		break;
 	case Windows::System::VirtualKey::Up:
-		Keyboard::the()->_keyup(Kore::Key_Up, L' ');
+		Keyboard::the()->_keyup(Kore::KeyUp);
 		break;
 	case Windows::System::VirtualKey::Down:
-		Keyboard::the()->_keyup(Kore::Key_Down, L' ');
+		Keyboard::the()->_keyup(Kore::KeyDown);
+		break;
+	default:
+		if (args->VirtualKey >= Windows::System::VirtualKey::A && args->VirtualKey <= Windows::System::VirtualKey::Z) {
+			Keyboard::the()->_keyup((Kore::KeyCode)args->VirtualKey);
+		}
+		else if (args->VirtualKey >= Windows::System::VirtualKey::Number0 && args->VirtualKey <= Windows::System::VirtualKey::Number9) {
+			Keyboard::the()->_keyup((Kore::KeyCode)args->VirtualKey);
+		}
 		break;
 	}
 }

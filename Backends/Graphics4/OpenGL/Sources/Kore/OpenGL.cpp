@@ -5,6 +5,7 @@
 #include "ogl.h"
 
 #include <Kore/Graphics4/PipelineState.h>
+#include <Kore/Graphics4/TextureArray.h>
 
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
@@ -166,9 +167,11 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		glContexts[windowId] = tempGlContext;
 	}
 
-	ShowWindow(windowHandle, SW_SHOW);
-	SetForegroundWindow(windowHandle); // Slightly Higher Priority
-	SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
+	if (System::hasShowWindowFlag()) {
+		ShowWindow(windowHandle, SW_SHOW);
+		SetForegroundWindow(windowHandle); // Slightly Higher Priority
+		SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
+	}
 #else
 	deviceContexts[windowId] = GetDC(windowHandle);
 	glContexts[windowId] = wglGetCurrentContext();
@@ -754,4 +757,8 @@ void Graphics4::flush() {
 void Graphics4::setPipeline(PipelineState* pipeline) {
 	pipeline->set(pipeline);
 	lastPipeline = pipeline;
+}
+
+void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
+	array->set(unit);
 }

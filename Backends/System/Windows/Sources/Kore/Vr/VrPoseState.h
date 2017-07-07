@@ -3,6 +3,8 @@
 #include <Kore/Math/Vector.h>
 #include <Kore/Vr/VrPose.h>
 
+enum TrackedDevice { HMD, Controller, ViveTracker };
+
 class VrPoseState {
 public:
 	VrPoseState();
@@ -14,5 +16,6 @@ public:
 	Kore::vec3 angularAcceleration;			// Angular acceleration in radians per second per second.
 	Kore::vec3 linearAcceleration;			// Acceleration in meters per second per second.
 
+	TrackedDevice trackedDevice;
 };
 
