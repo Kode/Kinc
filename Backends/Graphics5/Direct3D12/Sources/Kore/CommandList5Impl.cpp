@@ -10,24 +10,6 @@
 using namespace Kore;
 using namespace Kore::Graphics5;
 
-namespace {
-	struct D3D12Viewport {
-		float TopLeftX;
-		float TopLeftY;
-		float Width;
-		float Height;
-		float MinDepth;
-		float MaxDepth;
-	};
-
-	struct D3D12Rect {
-		long left;
-		long top;
-		long right;
-		long bottom;
-	};
-}
-
 CommandList::CommandList() {
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator, nullptr, IID_PPV_ARGS(&_commandList));
@@ -49,23 +31,23 @@ void CommandList::drawIndexedVertices(int start, int count) {
 }
 
 void CommandList::viewport(int x, int y, int width, int height) {
-	D3D12Viewport viewport;
+	D3D12_VIEWPORT viewport;
 	viewport.TopLeftX = static_cast<float>(x);
 	viewport.TopLeftY = static_cast<float>(y);
 	viewport.Width = static_cast<float>(width);
 	viewport.Height = static_cast<float>(height);
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	_commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&viewport);
+	_commandList->RSSetViewports(1, &viewport);
 }
 
 void CommandList::scissor(int x, int y, int width, int height) {
-	D3D12Rect scissor;
+	D3D12_RECT scissor;
 	scissor.left = x;
 	scissor.top = y;
 	scissor.right = x + width;
 	scissor.bottom = y + height;
-	_commandList->RSSetScissorRects(1, (D3D12_RECT*)&scissor);
+	_commandList->RSSetScissorRects(1, &scissor);
 }
 
 void CommandList::disableScissor() {
