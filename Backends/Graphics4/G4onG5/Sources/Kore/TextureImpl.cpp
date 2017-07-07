@@ -10,26 +10,18 @@ using namespace Kore;
 
 Graphics4::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
 	_texture = new Graphics5::Texture(reader, format, readable);
-	init(format, readable);
 }
 
 Graphics4::Texture::Texture(const char* filename, bool readable) {
-	FileReader reader(filename);
-	Image::init(reader, filename, readable);
 	_texture = new Graphics5::Texture(filename, readable);
-	init(filename, readable);
 }
 
 Graphics4::Texture::Texture(void* data, int size, const char* format, bool readable) {
-	BufferReader reader(data, size);
-	Image::init(reader, format, readable);
 	_texture = new Graphics5::Texture(data, size, format, readable);
-	init(format, readable);
 }
 
 Graphics4::Texture::Texture(void* data, int width, int height, int format, bool readable) : Image(data, width, height, Image::Format(format), readable) {
 	_texture = new Graphics5::Texture(data, width, height, format, readable);
-	init("", readable);
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
