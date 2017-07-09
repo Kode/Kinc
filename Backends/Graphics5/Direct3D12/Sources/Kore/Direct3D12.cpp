@@ -55,6 +55,21 @@ Kore::u8 tessEvalConstants[1024 * 4];
 
 using namespace Kore;
 
+#ifndef KORE_WINDOWS
+#define DXGI_SWAP_CHAIN_DESC DXGI_SWAP_CHAIN_DESC1
+#define IDXGISwapChain IDXGISwapChain1
+#endif
+
+struct RenderEnvironment {
+	ID3D12Device* device;
+	ID3D12CommandQueue* queue;
+	IDXGISwapChain* swapChain;
+};
+
+#ifndef KORE_WINDOWS
+void createSwapChain(RenderEnvironment* env, IDXGIAdapter* adapter, const DXGI_SWAP_CHAIN_DESC1* desc);
+#endif
+
 namespace {
 	ID3D12CommandAllocator* commandAllocators[QUEUE_SLOT_COUNT];
 	ID3D12GraphicsCommandList* commandLists[QUEUE_SLOT_COUNT];
@@ -73,12 +88,6 @@ namespace {
 	ID3D12GraphicsCommandList* initCommandList;
 	ID3D12CommandAllocator* initCommandAllocator;
 
-	struct RenderEnvironment {
-		ID3D12Device* device;
-		ID3D12CommandQueue* queue;
-		IDXGISwapChain* swapChain;
-	};
-
 	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
 		RenderEnvironment result;
 #ifdef KORE_WINDOWS
@@ -95,6 +104,8 @@ namespace {
 
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
 		affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
+#else
+		createSwapChain(&result, adapter, swapChainDesc);
 #endif
 		return result;
 	}
