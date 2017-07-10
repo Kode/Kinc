@@ -12,7 +12,7 @@ using namespace Kore;
 
 PipelineState5Impl* PipelineState5Impl::_current = nullptr;
 
-void PipelineState5Impl::setConstants() {
+void PipelineState5Impl::setConstants(ID3D12GraphicsCommandList* commandList) {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
 	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
 	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
@@ -38,7 +38,7 @@ void PipelineState5Impl::setConstants() {
 	commandList->SetPipelineState(_current->pso);
 	commandList->SetGraphicsRootSignature(rootSignature);
 
-	Texture5Impl::setTextures();
+	Texture5Impl::setTextures(commandList);
 }
 
 PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}

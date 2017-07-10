@@ -6,9 +6,11 @@ namespace Kore {
 	namespace Graphics5 {
 		class IndexBuffer;
 		class PipelineState;
+		class RenderTarget;
 		class VertexBuffer;
 
 		class CommandList : public CommandList5Impl {
+		public:
 			CommandList();
 			~CommandList();
 			void drawIndexedVertices();
@@ -19,6 +21,8 @@ namespace Kore {
 			void setPipeline(PipelineState* pipeline);
 			void setVertexBuffers(VertexBuffer** buffers, int count);
 			void setIndexBuffer(IndexBuffer& buffer);
+			void restoreRenderTarget();
+			void setRenderTargets(RenderTarget** targets, int count);
 		};
 	}
 }

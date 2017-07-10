@@ -25,7 +25,7 @@ namespace Kore {
 		Graphics5::Shader* geometryShader;
 		Graphics5::Shader* tessEvalShader;
 		Graphics5::Shader* tessControlShader;
-		static void setConstants();
+		static void setConstants(ID3D12GraphicsCommandList* commandList);
 		static PipelineState5Impl* _current;
 		void set(Graphics5::PipelineState* pipeline);
 	};
