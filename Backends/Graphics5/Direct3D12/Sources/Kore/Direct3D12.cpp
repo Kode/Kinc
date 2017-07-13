@@ -68,8 +68,6 @@ void createSwapChain(RenderEnvironment* env, IDXGIAdapter* adapter, const DXGI_S
 #endif
 
 namespace {
-	ID3D12CommandAllocator* commandAllocators[QUEUE_SLOT_COUNT];
-	ID3D12GraphicsCommandList* commandLists[QUEUE_SLOT_COUNT];
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT rectScissor;
 	ID3D12Resource* renderTarget;
@@ -200,14 +198,6 @@ namespace {
 		setupSwapChain();
 	}
 
-	void createAllocatorsAndCommandLists() {
-		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&commandAllocators[i]));
-			device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[i], nullptr, IID_GRAPHICS_PPV_ARGS(&commandLists[i]));
-			commandLists[i]->Close();
-		}
-	}
-
 	void createViewportScissor(int width, int height) {
 		rectScissor = {0, 0, width, height};
 		viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
@@ -240,7 +230,6 @@ namespace {
 
 	void initialize(int width, int height, HWND window) {
 		createDeviceAndSwapChain(width, height, window);
-		createAllocatorsAndCommandLists();
 		createViewportScissor(width, height);
 		createRootSignature();
 
@@ -393,57 +382,21 @@ void Graphics5::begin(int window) {
 
 	waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
 
-	commandAllocators[currentBackBuffer]->Reset();
+	//static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
-	commandList = commandLists[currentBackBuffer];
-	commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
-	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, &depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-	commandList->RSSetViewports(1, &::viewport);
-	commandList->RSSetScissorRects(1, &rectScissor);
+	//commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
 
-	D3D12_RESOURCE_BARRIER barrier;
-	barrier.Transition.pResource = renderTarget;
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-	commandList->ResourceBarrier(1, &barrier);
-
-	static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
-
-	commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
-
-	commandList->ClearDepthStencilView(depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	//commandList->ClearDepthStencilView(depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	static int frameNumber = 0;
 	frameNumber++;
-
-	commandList = commandLists[currentBackBuffer];
 }
 
 void Graphics5::end(int window) {
-
-	D3D12_RESOURCE_BARRIER barrier;
-	barrier.Transition.pResource = renderTarget;
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-	ID3D12GraphicsCommandList* commandList = commandLists[currentBackBuffer];
-	commandList->ResourceBarrier(1, &barrier);
-
-	commandList->Close();
-
-	ID3D12CommandList* commandLists[] = {commandList};
-	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 	began = false;
 }
 
-void graphicsFlushAndWait() {
+/*void graphicsFlushAndWait() {
 	commandList->Close();
 
 	ID3D12CommandList* commandLists[] = {commandList};
@@ -460,7 +413,7 @@ void graphicsFlushAndWait() {
 	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
 	commandList->RSSetViewports(1, &viewport);
 	commandList->RSSetScissorRects(1, &rectScissor);
-}
+}*/
 
 bool Graphics5::vsynced() {
 	return vsync;

@@ -68,6 +68,42 @@ CommandList::~CommandList() {
 
 }
 
+void CommandList::begin() {
+	_commandAllocator->Reset();
+	_commandList->Reset(_commandAllocator, nullptr);
+}
+
+void CommandList::end() {
+	_commandList->Close();
+
+	ID3D12CommandList* commandLists[] = { _commandList };
+	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+}
+
+void CommandList::renderTargetToFramebufferBarrier(RenderTarget* renderTarget) {
+	D3D12_RESOURCE_BARRIER barrier;
+	barrier.Transition.pResource = renderTarget->renderTarget;
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	_commandList->ResourceBarrier(1, &barrier);
+}
+
+void CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {
+	D3D12_RESOURCE_BARRIER barrier;
+	barrier.Transition.pResource = renderTarget->renderTarget;
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	_commandList->ResourceBarrier(1, &barrier);
+}
+
 void CommandList::drawIndexedVertices() {
 	drawIndexedVertices(0, _indexCount);
 }
@@ -130,11 +166,11 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer) {
 	_commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&buffer.indexBufferView);
 }
 
-void CommandList::restoreRenderTarget() {
-	_commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, &depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+//void CommandList::restoreRenderTarget() {
+	//_commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, &depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	//_commandList->RSSetViewports(1, &::viewport);
 	//_commandList->RSSetScissorRects(1, &rectScissor);
-}
+//}
 
 void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);

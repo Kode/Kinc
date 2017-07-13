@@ -13,6 +13,10 @@ namespace Kore {
 		public:
 			CommandList();
 			~CommandList();
+			void begin();
+			void end();
+			void renderTargetToFramebufferBarrier(RenderTarget* renderTarget);
+			void framebufferToRenderTargetBarrier(RenderTarget* renderTarget);
 			void drawIndexedVertices();
 			void drawIndexedVertices(int start, int count);
 			void viewport(int x, int y, int width, int height);
@@ -21,7 +25,7 @@ namespace Kore {
 			void setPipeline(PipelineState* pipeline);
 			void setVertexBuffers(VertexBuffer** buffers, int count);
 			void setIndexBuffer(IndexBuffer& buffer);
-			void restoreRenderTarget();
+			//void restoreRenderTarget();
 			void setRenderTargets(RenderTarget** targets, int count);
 		};
 	}
