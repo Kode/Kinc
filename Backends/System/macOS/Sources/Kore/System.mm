@@ -103,6 +103,7 @@ int Kore::System::windowCount() {
 
 int createWindow(const char* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
 	BasicOpenGLView* view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
+	[view registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, nil]];
 	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
 	                                               styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
 	                                                 backing:NSBackingStoreBuffered

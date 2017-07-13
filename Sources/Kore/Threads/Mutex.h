@@ -13,7 +13,7 @@ namespace Kore {
 		void Unlock();
 
 	private:
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_XBOX_ONE)
 		struct CriticalSection {
 			void* DebugInfo;
 			long LockCount;

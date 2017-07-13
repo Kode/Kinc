@@ -15,7 +15,7 @@ static const int QUEUE_SLOT_COUNT = 3;
 extern int currentBackBuffer;
 extern ID3D12Device* device;
 extern ID3D12RootSignature* rootSignature;
-extern ID3D12GraphicsCommandList* commandList;
+//extern ID3D12GraphicsCommandList* commandList;
 
 extern Kore::u8 vertexConstants[1024 * 4];
 extern Kore::u8 fragmentConstants[1024 * 4];

@@ -14,7 +14,7 @@ Graphics5::RenderTarget* currentRenderTargets[textureCount] = {nullptr, nullptr,
 Graphics5::Texture* currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                           nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-void Texture5Impl::setTextures() {
+void Texture5Impl::setTextures(ID3D12GraphicsCommandList* commandList) {
 	if (currentRenderTargets[0] != nullptr) {
 		ID3D12DescriptorHeap* heaps[textureCount];
 		for (int i = 0; i < textureCount; ++i) {

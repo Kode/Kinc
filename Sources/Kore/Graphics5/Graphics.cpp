@@ -48,9 +48,9 @@ void Graphics5::setFloat4(ConstantLocation position, vec4 value) {
 	setFloat4(position, value.x(), value.y(), value.z(), value.w());
 }
 
-void Graphics5::setVertexBuffer(VertexBuffer& vertexBuffer) {
-	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
-	setVertexBuffers(vertexBuffers, 1);
-}
+//void Graphics5::setVertexBuffer(VertexBuffer& vertexBuffer) {
+//	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
+//	setVertexBuffers(vertexBuffers, 1);
+//}
 
 #endif

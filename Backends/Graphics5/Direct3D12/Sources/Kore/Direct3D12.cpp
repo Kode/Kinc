@@ -36,12 +36,9 @@ ID3D12DescriptorHeap* cbvHeap;*/
 // ID3D12DepthStencilView* depthStencilView;
 
 int currentBackBuffer = 0;
-int currentInstance = 0;
 ID3D12Device* device;
 ID3D12RootSignature* rootSignature;
-ID3D12GraphicsCommandList* commandList;
-ID3D12Resource* vertexConstantBuffers[QUEUE_SLOT_COUNT * 128]; // TODO: Test only
-ID3D12Resource* fragmentConstantBuffers[QUEUE_SLOT_COUNT * 128];
+//ID3D12GraphicsCommandList* commandList;
 ID3D12Resource* depthStencilTexture;
 
 int renderTargetWidth;
@@ -54,6 +51,21 @@ Kore::u8 tessControlConstants[1024 * 4];
 Kore::u8 tessEvalConstants[1024 * 4];
 
 using namespace Kore;
+
+#ifndef KORE_WINDOWS
+#define DXGI_SWAP_CHAIN_DESC DXGI_SWAP_CHAIN_DESC1
+#define IDXGISwapChain IDXGISwapChain1
+#endif
+
+struct RenderEnvironment {
+	ID3D12Device* device;
+	ID3D12CommandQueue* queue;
+	IDXGISwapChain* swapChain;
+};
+
+#ifndef KORE_WINDOWS
+void createSwapChain(RenderEnvironment* env, IDXGIAdapter* adapter, const DXGI_SWAP_CHAIN_DESC1* desc);
+#endif
 
 namespace {
 	ID3D12CommandAllocator* commandAllocators[QUEUE_SLOT_COUNT];
@@ -73,12 +85,6 @@ namespace {
 	ID3D12GraphicsCommandList* initCommandList;
 	ID3D12CommandAllocator* initCommandAllocator;
 
-	struct RenderEnvironment {
-		ID3D12Device* device;
-		ID3D12CommandQueue* queue;
-		IDXGISwapChain* swapChain;
-	};
-
 	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
 		RenderEnvironment result;
 #ifdef KORE_WINDOWS
@@ -95,6 +101,8 @@ namespace {
 
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
 		affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
+#else
+		createSwapChain(&result, adapter, swapChainDesc);
 #endif
 		return result;
 	}
@@ -230,36 +238,11 @@ namespace {
 		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&rootSignature));
 	}
 
-	void createConstantBuffer() {
-		void* p;
-
-		for (int i = 0; i < QUEUE_SLOT_COUNT * 128; ++i) {
-
-			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants)),
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&vertexConstantBuffers[i]));
-
-			vertexConstantBuffers[i]->Map(0, nullptr, &p);
-			ZeroMemory(p, sizeof(vertexConstants));
-			vertexConstantBuffers[i]->Unmap(0, nullptr);
-
-			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(sizeof(fragmentConstants)),
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&fragmentConstantBuffers[i]));
-
-			fragmentConstantBuffers[i]->Map(0, nullptr, &p);
-			ZeroMemory(p, sizeof(fragmentConstants));
-			fragmentConstantBuffers[i]->Unmap(0, nullptr);
-		}
-	}
-
 	void initialize(int width, int height, HWND window) {
 		createDeviceAndSwapChain(width, height, window);
 		createAllocatorsAndCommandLists();
 		createViewportScissor(width, height);
 		createRootSignature();
-
-		createConstantBuffer();
 
 		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&uploadFence));
 
@@ -348,7 +331,7 @@ void Graphics5::clearCurrent() {}
 //	return nullptr;
 //}
 
-void Graphics5::drawIndexedVertices() {
+/*void Graphics5::drawIndexedVertices() {
 	// Program::setConstants();
 	// context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
 
@@ -356,9 +339,9 @@ void Graphics5::drawIndexedVertices() {
 }
 
 void Graphics5::drawIndexedVertices(int start, int count) {
-	/*commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
-	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
-	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);*/
+	//commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
+	//commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
+	//commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
 
 	PipelineState5Impl::setConstants();
 
@@ -382,7 +365,7 @@ void Graphics5::drawIndexedVertices(int start, int count) {
 	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
 
 }
-
+*/
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {}
 
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
@@ -438,18 +421,6 @@ void Graphics5::begin(int window) {
 	frameNumber++;
 
 	commandList = commandLists[currentBackBuffer];
-}
-
-void Graphics5::viewport(int x, int y, int width, int height) {
-	// TODO
-}
-
-void Graphics5::scissor(int x, int y, int width, int height) {
-	// TODO
-}
-
-void Graphics5::disableScissor() {
-	// TODO
 }
 
 void Graphics5::end(int window) {
@@ -677,22 +648,10 @@ bool Graphics5::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics5::restoreRenderTarget() {
-	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, &depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-	commandList->RSSetViewports(1, &::viewport);
-	commandList->RSSetScissorRects(1, &rectScissor);
-}
-
-void Graphics5::setRenderTargets(RenderTarget** targets, int count) {
-	commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-	commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&targets[0]->viewport);
-	commandList->RSSetScissorRects(1, (D3D12_RECT*)&targets[0]->scissor);
-}
-
 void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {
 	
 }
-
+/*
 void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
 	buffers[0]->_set(0);
 }
@@ -700,7 +659,7 @@ void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
 void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
 	buffer._set();
 }
-
+*/
 void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
 	texture->_set(unit);
 }
@@ -723,6 +682,6 @@ bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 
 void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
 
-void Graphics5::setPipeline(PipelineState* pipeline) {
+/*void Graphics5::setPipeline(PipelineState* pipeline) {
 	pipeline->set(pipeline);
-}
+}*/

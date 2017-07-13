@@ -130,14 +130,9 @@ namespace Kore {
 		void setMatrix(ConstantLocation location, const mat3& value);
 		void setMatrix(ConstantLocation location, const mat4& value);
 
-		void setVertexBuffer(VertexBuffer& vertexBuffer);
-		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
-		void setIndexBuffer(IndexBuffer& indexBuffer);
 		void setTexture(TextureUnit unit, Texture* texture);
 		void setImageTexture(TextureUnit unit, Texture* texture);
 
-		void drawIndexedVertices();
-		void drawIndexedVertices(int start, int count);
 		void drawIndexedVerticesInstanced(int instanceCount);
 		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
 
@@ -160,10 +155,6 @@ namespace Kore {
 		void end(int windowId = 0);
 		void makeCurrent(int windowId);
 		void clearCurrent();
-
-		void viewport(int x, int y, int width, int height);
-		void scissor(int x, int y, int width, int height);
-		void disableScissor();
 
 		void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
 		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
@@ -195,6 +186,6 @@ namespace Kore {
 
 		void flush();
 
-		void setPipeline(PipelineState* pipeline);
+		//void setPipeline(PipelineState* pipeline);
 	}
 }
