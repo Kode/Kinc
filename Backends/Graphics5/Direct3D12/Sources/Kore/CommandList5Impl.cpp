@@ -59,6 +59,7 @@ namespace {
 }
 
 CommandList::CommandList() {
+	closed = false;
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&_commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator, nullptr, IID_GRAPHICS_PPV_ARGS(&_commandList));
 	//_commandList->Close();
@@ -71,12 +72,15 @@ CommandList::~CommandList() {
 }
 
 void CommandList::begin() {
-	_commandAllocator->Reset();
-	_commandList->Reset(_commandAllocator, nullptr);
+	if (closed) {
+		_commandAllocator->Reset();
+		_commandList->Reset(_commandAllocator, nullptr);
+	}
 }
 
 void CommandList::end() {
 	_commandList->Close();
+	closed = true;
 
 	ID3D12CommandList* commandLists[] = { _commandList };
 	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
@@ -176,7 +180,8 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer) {
 //}
 
 void CommandList::setRenderTargets(RenderTarget** targets, int count) {
-	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
+		&targets[0]->depthStencilDescriptorHeap != nullptr ? &targets[0]->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
 	_commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&targets[0]->viewport);
 	_commandList->RSSetScissorRects(1, (D3D12_RECT*)&targets[0]->scissor);
 }

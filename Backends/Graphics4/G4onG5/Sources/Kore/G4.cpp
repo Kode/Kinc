@@ -13,8 +13,10 @@
 
 using namespace Kore;
 
+Graphics5::CommandList* commandList;
+
 namespace {
-	Graphics5::CommandList* commandList;
+	Graphics5::RenderTarget* framebuffer;
 }
 
 void Graphics4::destroy(int window) {
@@ -23,6 +25,8 @@ void Graphics4::destroy(int window) {
 
 void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	Graphics5::init(window, depthBufferBits, stencilBufferBits, vsync);
+	commandList = new Graphics5::CommandList;
+	framebuffer = new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits);
 }
 
 void Graphics4::changeResolution(int width, int height) {
@@ -71,7 +75,10 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 
 void Graphics4::begin(int window) {
 	Graphics5::begin(window);
-	commandList = new Graphics5::CommandList;
+	//commandList = new Graphics5::CommandList;
+	commandList->begin();
+	commandList->framebufferToRenderTargetBarrier(framebuffer);
+	commandList->setRenderTargets(&framebuffer, 1);
 }
 
 void Graphics4::viewport(int x, int y, int width, int height) {
@@ -87,8 +94,10 @@ void Graphics4::disableScissor() {
 }
 
 void Graphics4::end(int window) {
-	delete commandList;
-	commandList = nullptr;
+	commandList->renderTargetToFramebufferBarrier(framebuffer);
+	commandList->end();
+	//delete commandList;
+	//commandList = nullptr;
 	Graphics5::end(window);
 }
 
