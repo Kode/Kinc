@@ -110,7 +110,7 @@ unsigned Graphics4::refreshRate() {
 }
 
 bool Graphics4::swapBuffers(int window) {
-	return Graphics5::swapBuffers(window);
+	return Graphics5::swapBuffers(window, framebuffer);
 }
 
 void Graphics4::flush() {

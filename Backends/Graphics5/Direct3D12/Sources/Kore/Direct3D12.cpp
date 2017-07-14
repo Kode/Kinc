@@ -71,7 +71,7 @@ void createSwapChain(RenderEnvironment* env, IDXGIAdapter* adapter, const DXGI_S
 namespace {
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT rectScissor;
-	ID3D12Resource* renderTarget;
+	//ID3D12Resource* renderTarget;
 	ID3D12DescriptorHeap* renderTargetDescriptorHeap;
 	ID3D12DescriptorHeap* depthStencilDescriptorHeap;
 	UINT64 currentFenceValue;
@@ -112,7 +112,7 @@ namespace {
 		}
 	}
 
-	void createRenderTargetView() {
+	/*void createRenderTargetView() {
 		const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
 
 		D3D12_RENDER_TARGET_VIEW_DESC viewDesc;
@@ -122,7 +122,7 @@ namespace {
 		viewDesc.Texture2D.PlaneSlice = 0;
 
 		device->CreateRenderTargetView(renderTarget, &viewDesc, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-	}
+	}*/
 
 	void setupSwapChain() {
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
@@ -161,8 +161,8 @@ namespace {
 			device->CreateFence(currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&frameFences[i]));
 		}
 
-		swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
-		createRenderTargetView();
+		//**swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
+		//**createRenderTargetView();
 	}
 
 	void createDeviceAndSwapChain(int width, int height, HWND window) {
@@ -404,13 +404,13 @@ unsigned Graphics5::refreshRate() {
 	return hz;
 }
 
-bool Graphics5::swapBuffers(int window) {
+bool Graphics5::swapBuffers(int window, RenderTarget* renderTarget) {
 	swapChain->Present(1, 0);
 
 	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
-	swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
+	swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget->renderTarget));
 
-	createRenderTargetView();
+	//**createRenderTargetView();
 
 	const UINT64 fenceValue = currentFenceValue;
 	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);

@@ -147,7 +147,7 @@ namespace Kore {
 
 		// TODO (DK) windowId should be renamed contextId?
 		void setup();
-		bool swapBuffers(int windowId = 0);
+		bool swapBuffers(int windowId, RenderTarget* renderTarget);
 		void begin(int windowId = 0);
 		void end(int windowId = 0);
 		void makeCurrent(int windowId);
