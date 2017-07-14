@@ -86,7 +86,26 @@ Graphics5::RenderTarget::~RenderTarget() {
 	srvDescriptorHeap->Release();
 }
 
-extern void graphicsFlushAndWait();
+namespace {
+	void graphicsFlushAndWait() {
+		/*commandList->Close();
+
+		ID3D12CommandList* commandLists[] = {commandList};
+		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+
+		const UINT64 fenceValue = currentFenceValue;
+		commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
+		fenceValues[currentBackBuffer] = fenceValue;
+		++currentFenceValue;
+
+		waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
+
+		commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
+		commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+		commandList->RSSetViewports(1, &viewport);
+		commandList->RSSetScissorRects(1, &rectScissor);*/
+	}
+}
 
 void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;

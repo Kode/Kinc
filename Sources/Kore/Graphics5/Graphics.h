@@ -18,7 +18,7 @@ namespace Kore {
 
 		class VertexBuffer : public VertexBuffer5Impl {
 		public:
-			VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
+			VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate = 0);
 			virtual ~VertexBuffer();
 			float* lock();
 			float* lock(int start, int count);
@@ -30,7 +30,7 @@ namespace Kore {
 
 		class IndexBuffer : public IndexBuffer5Impl {
 		public:
-			IndexBuffer(int count);
+			IndexBuffer(int count, bool gpuMemory);
 			virtual ~IndexBuffer();
 			int* lock();
 			void unlock();
@@ -143,10 +143,7 @@ namespace Kore {
 		void setAntialiasingSamples(int samples);
 
 		bool renderTargetsInvertedY();
-		void setRenderTargets(RenderTarget** targets, int count);
-		void setRenderTarget(RenderTarget* target);
 		void setRenderTargetFace(RenderTarget* texture, int face = 0);
-		void restoreRenderTarget();
 
 		// TODO (DK) windowId should be renamed contextId?
 		void setup();
@@ -185,7 +182,5 @@ namespace Kore {
 		extern bool fullscreen;
 
 		void flush();
-
-		//void setPipeline(PipelineState* pipeline);
 	}
 }

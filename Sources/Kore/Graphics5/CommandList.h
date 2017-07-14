@@ -7,6 +7,7 @@ namespace Kore {
 		class IndexBuffer;
 		class PipelineState;
 		class RenderTarget;
+		class Texture;
 		class VertexBuffer;
 
 		class CommandList : public CommandList5Impl {
@@ -27,6 +28,9 @@ namespace Kore {
 			void setIndexBuffer(IndexBuffer& buffer);
 			//void restoreRenderTarget();
 			void setRenderTargets(RenderTarget** targets, int count);
+			void upload(IndexBuffer* buffer);
+			void upload(VertexBuffer* buffer);
+			void upload(Texture* texture);
 		};
 	}
 }

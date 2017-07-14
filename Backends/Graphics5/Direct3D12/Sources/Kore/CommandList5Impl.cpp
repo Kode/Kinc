@@ -8,6 +8,8 @@
 using namespace Kore;
 using namespace Kore::Graphics5;
 
+extern ID3D12CommandQueue* commandQueue;
+
 namespace {
 	struct D3D12Viewport {
 		float TopLeftX;
@@ -109,7 +111,7 @@ void CommandList::drawIndexedVertices() {
 }
 
 void CommandList::drawIndexedVertices(int start, int count) {
-	PipelineState5Impl::setConstants(_commandList);
+	PipelineState5Impl::setConstants(_commandList, _currentPipeline);
 
 	_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
@@ -154,6 +156,7 @@ void CommandList::disableScissor() {
 }
 
 void CommandList::setPipeline(PipelineState* pipeline) {
+	_currentPipeline = pipeline;
 	_commandList->SetPipelineState(pipeline->pso);
 }
 
@@ -176,4 +179,17 @@ void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
 	_commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&targets[0]->viewport);
 	_commandList->RSSetScissorRects(1, (D3D12_RECT*)&targets[0]->scissor);
+}
+
+void CommandList::upload(IndexBuffer* buffer) {
+	buffer->_upload(_commandList);
+}
+
+void CommandList::upload(Texture* texture) {
+	D3D12_SUBRESOURCE_DATA srcData;
+	srcData.pData = texture->data;
+	srcData.RowPitch = texture->format == Image::RGBA32 ? (texture->width * 4) : texture->width;
+	srcData.SlicePitch = texture->format == Image::RGBA32 ? (texture->width * texture->height * 4) : (texture->width * texture->height);
+	UpdateSubresources(_commandList, texture->image, texture->uploadImage, 0, 0, 1, &srcData);
+	_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture->image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 }

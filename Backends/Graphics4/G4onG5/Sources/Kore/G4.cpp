@@ -181,7 +181,7 @@ bool Graphics4::nonPow2TexturesSupported() {
 }
 
 void Graphics4::restoreRenderTarget() {
-	Graphics5::restoreRenderTarget();
+	//commandList->restoreRenderTarget();
 }
 
 void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
@@ -189,7 +189,7 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 	for (int i = 0; i < count; ++i) {
 		renderTargets[i] = &targets[i]->_renderTarget;
 	}
-	Graphics5::setRenderTargets(renderTargets, count);
+	commandList->setRenderTargets(renderTargets, count);
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {

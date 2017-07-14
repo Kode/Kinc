@@ -6,7 +6,7 @@
 
 using namespace Kore;
 
-Kore::IndexBufferImpl::IndexBufferImpl(int count) : _buffer(count) {}
+Kore::IndexBufferImpl::IndexBufferImpl(int count) : _buffer(count, true) {}
 
 Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {}
 

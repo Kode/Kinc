@@ -47,13 +47,13 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadImage));
 
-	D3D12_SUBRESOURCE_DATA srcData;
+	/*D3D12_SUBRESOURCE_DATA srcData;
 	srcData.pData = this->data;
 	srcData.RowPitch = width * 4;
 	srcData.SlicePitch = width * height * 4;
 
 	UpdateSubresources(commandList, image, uploadImage, 0, 0, 1, &srcData);
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));*/
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -146,13 +146,13 @@ u8* Graphics5::Texture::lock() {
 }
 
 void Graphics5::Texture::unlock() {
-	D3D12_SUBRESOURCE_DATA srcData;
+	/*D3D12_SUBRESOURCE_DATA srcData;
 	srcData.pData = this->data;
 	srcData.RowPitch = format == Image::RGBA32 ? (width * 4) : width;
 	srcData.SlicePitch = format == Image::RGBA32 ? (width * height * 4) : (width * height);
 
 	UpdateSubresources(commandList, image, uploadImage, 0, 0, 1, &srcData);
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));*/
 }
 
 void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {

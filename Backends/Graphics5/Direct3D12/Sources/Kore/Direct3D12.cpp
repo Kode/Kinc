@@ -40,6 +40,7 @@ ID3D12Device* device;
 ID3D12RootSignature* rootSignature;
 //ID3D12GraphicsCommandList* commandList;
 ID3D12Resource* depthStencilTexture;
+ID3D12CommandQueue* commandQueue;
 
 int renderTargetWidth;
 int renderTargetHeight;
@@ -73,7 +74,6 @@ namespace {
 	ID3D12Resource* renderTarget;
 	ID3D12DescriptorHeap* renderTargetDescriptorHeap;
 	ID3D12DescriptorHeap* depthStencilDescriptorHeap;
-	ID3D12CommandQueue* commandQueue;
 	UINT64 currentFenceValue;
 	UINT64 fenceValues[QUEUE_SLOT_COUNT];
 	HANDLE frameFenceEvents[QUEUE_SLOT_COUNT];
@@ -395,25 +395,6 @@ void Graphics5::begin(int window) {
 void Graphics5::end(int window) {
 	began = false;
 }
-
-/*void graphicsFlushAndWait() {
-	commandList->Close();
-
-	ID3D12CommandList* commandLists[] = {commandList};
-	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
-
-	const UINT64 fenceValue = currentFenceValue;
-	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
-	fenceValues[currentBackBuffer] = fenceValue;
-	++currentFenceValue;
-
-	waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
-
-	commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
-	commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-	commandList->RSSetViewports(1, &viewport);
-	commandList->RSSetScissorRects(1, &rectScissor);
-}*/
 
 bool Graphics5::vsynced() {
 	return vsync;
