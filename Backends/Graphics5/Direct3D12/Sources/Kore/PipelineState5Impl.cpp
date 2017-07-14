@@ -10,9 +10,7 @@
 
 using namespace Kore;
 
-PipelineState5Impl* PipelineState5Impl::_current = nullptr;
-
-void PipelineState5Impl::setConstants() {
+void PipelineState5Impl::setConstants(ID3D12GraphicsCommandList* commandList, Graphics5::PipelineState* pipeline) {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
 	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
 	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
@@ -35,16 +33,16 @@ void PipelineState5Impl::setConstants() {
 	}
 	*/
 
-	commandList->SetPipelineState(_current->pso);
+	commandList->SetPipelineState(pipeline->pso);
 	commandList->SetGraphicsRootSignature(rootSignature);
 
-	Texture5Impl::setTextures();
+	Texture5Impl::setTextures(commandList);
 }
 
 PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
 
-void PipelineState5Impl::set(Graphics5::PipelineState* pipeline) {
-	_current = this;
+//void PipelineState5Impl::set(Graphics5::PipelineState* pipeline) {
+	//_current = this;
 	// context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
 	// context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
 
@@ -53,7 +51,7 @@ void PipelineState5Impl::set(Graphics5::PipelineState* pipeline) {
 	// if (tessEvalShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessEvalShader->shader, nullptr, 0);
 
 	// context->IASetInputLayout(inputLayout);
-}
+//}
 
 Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
 	ConstantLocation location;

@@ -7,10 +7,17 @@
 #include "VertexBufferImpl.h"
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
+#include <Kore/Graphics5/CommandList.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
 
 using namespace Kore;
+
+Graphics5::CommandList* commandList;
+
+namespace {
+	Graphics5::RenderTarget* framebuffer;
+}
 
 void Graphics4::destroy(int window) {
 	Graphics5::destroy(window);
@@ -18,6 +25,8 @@ void Graphics4::destroy(int window) {
 
 void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	Graphics5::init(window, depthBufferBits, stencilBufferBits, vsync);
+	commandList = new Graphics5::CommandList;
+	framebuffer = new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits);
 }
 
 void Graphics4::changeResolution(int width, int height) {
@@ -37,11 +46,11 @@ void Graphics4::clearCurrent() {
 }
 
 void Graphics4::drawIndexedVertices() {
-	Graphics5::drawIndexedVertices();
+	commandList->drawIndexedVertices();
 }
 
 void Graphics4::drawIndexedVertices(int start, int count) {
-	Graphics5::drawIndexedVertices(start, count);
+	commandList->drawIndexedVertices(start, count);
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
@@ -66,21 +75,29 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 
 void Graphics4::begin(int window) {
 	Graphics5::begin(window);
+	//commandList = new Graphics5::CommandList;
+	commandList->begin();
+	commandList->framebufferToRenderTargetBarrier(framebuffer);
+	commandList->setRenderTargets(&framebuffer, 1);
 }
 
 void Graphics4::viewport(int x, int y, int width, int height) {
-	Graphics5::viewport(x, y, width, height);
+	commandList->viewport(x, y, width, height);
 }
 
 void Graphics4::scissor(int x, int y, int width, int height) {
-	Graphics5::scissor(x, y, width, height);
+	commandList->scissor(x, y, width, height);
 }
 
 void Graphics4::disableScissor() {
-	Graphics5::disableScissor();
+	commandList->disableScissor();
 }
 
 void Graphics4::end(int window) {
+	commandList->renderTargetToFramebufferBarrier(framebuffer);
+	commandList->end();
+	//delete commandList;
+	//commandList = nullptr;
 	Graphics5::end(window);
 }
 
@@ -173,7 +190,7 @@ bool Graphics4::nonPow2TexturesSupported() {
 }
 
 void Graphics4::restoreRenderTarget() {
-	Graphics5::restoreRenderTarget();
+	//commandList->restoreRenderTarget();
 }
 
 void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
@@ -181,7 +198,7 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 	for (int i = 0; i < count; ++i) {
 		renderTargets[i] = &targets[i]->_renderTarget;
 	}
-	Graphics5::setRenderTargets(renderTargets, count);
+	commandList->setRenderTargets(renderTargets, count);
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
@@ -193,11 +210,11 @@ void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
 	for (int i = 0; i < count; ++i) {
 		g5buffers[i] = &buffers[i]->_buffer;
 	}
-	Graphics5::setVertexBuffers(g5buffers, count);
+	commandList->setVertexBuffers(g5buffers, count);
 }
 
 void Graphics4::setIndexBuffer(IndexBuffer& buffer) {
-	Graphics5::setIndexBuffer(buffer._buffer);
+	commandList->setIndexBuffer(buffer._buffer);
 }
 
 void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
@@ -229,7 +246,7 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 }
 
 void Graphics4::setPipeline(PipelineState* pipeline) {
-	Graphics5::setPipeline(pipeline->_pipeline);
+	commandList->setPipeline(pipeline->_pipeline);
 }
 
 void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {

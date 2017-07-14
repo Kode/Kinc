@@ -25,6 +25,8 @@ namespace Kore {
 		ID3D12Resource* renderTarget;
 		ID3D12DescriptorHeap* renderTargetDescriptorHeap;
 		ID3D12DescriptorHeap* srvDescriptorHeap;
+		ID3D12DescriptorHeap* depthStencilDescriptorHeap;
+		ID3D12Resource* depthStencilTexture;
 		D3D12Viewport viewport;
 		D3D12Rect scissor;
 		int stage;

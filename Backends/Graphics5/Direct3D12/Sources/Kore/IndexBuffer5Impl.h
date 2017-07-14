@@ -11,7 +11,7 @@ struct D3D12IindexBufferView {
 namespace Kore {
 	class IndexBuffer5Impl {
 	protected:
-		IndexBuffer5Impl(int count);
+		IndexBuffer5Impl(int count, bool gpuMemory);
 
 	public:
 		ID3D12Resource* indexBuffer;
@@ -19,5 +19,7 @@ namespace Kore {
 		ID3D12Resource* uploadBuffer;
 		int myCount;
 		static IndexBuffer5Impl* _current;
+		void _upload(ID3D12GraphicsCommandList* commandList);
+		bool _gpuMemory;
 	};
 }
