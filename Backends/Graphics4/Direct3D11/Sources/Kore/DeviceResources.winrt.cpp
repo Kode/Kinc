@@ -26,50 +26,21 @@ using namespace Windows::Graphics::Holographic;
 // Constructor for DeviceResources.
 DX::DeviceResources::DeviceResources()
 {
-	m_cameraResourcesLockk= std::unique_lock<std::mutex>(m_cameraResourcesMutex, std::defer_lock);
+	m_cameraResLock= std::unique_lock<std::mutex>(m_cameraResourcesMutex, std::defer_lock);
     //CreateDeviceIndependentResources();
 }
 
-//// Configures resources that don't depend on the Direct3D device.
-//void DX::DeviceResources::CreateDeviceIndependentResources()
-//{
-//    // Initialize Direct2D resources.
-//    D2D1_FACTORY_OPTIONS options {};
-//
-//#if defined(_DEBUG)
-//    // If the project is in a debug build, enable Direct2D debugging via SDK Layers.
-//    options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
-//#endif
-//
-//    // Initialize the Direct2D Factory.
-//    DX::ThrowIfFailed(
-//        D2D1CreateFactory(
-//            D2D1_FACTORY_TYPE_SINGLE_THREADED,
-//            __uuidof(ID2D1Factory2),
-//            &options,
-//            &m_d2dFactory
-//            )
-//        );
-//
-//    // Initialize the DirectWrite Factory.
-//    DX::ThrowIfFailed(
-//        DWriteCreateFactory(
-//            DWRITE_FACTORY_TYPE_SHARED,
-//            __uuidof(IDWriteFactory2),
-//            &m_dwriteFactory
-//            )
-//        );
-//
-//    // Initialize the Windows Imaging Component (WIC) Factory.
-//    DX::ThrowIfFailed(
-//        CoCreateInstance(
-//            CLSID_WICImagingFactory2,
-//            nullptr,
-//            CLSCTX_INPROC_SERVER,
-//            IID_PPV_ARGS(&m_wicFactory)
-//            )
-//        );
-//}
+
+void DX::DeviceResources::LockCameraResources()
+{
+	m_cameraResLock.lock();
+}
+
+void DX::DeviceResources::UnlockCameraResources()
+{
+	m_cameraResLock.unlock();
+}
+
 
 void DX::DeviceResources::SetHolographicSpace(HolographicSpace^ holographicSpace)
 {
@@ -226,13 +197,6 @@ void DX::DeviceResources::CreateDeviceResources()
         dxgiAdapter.As(&m_dxgiAdapter)
         );
 
-    // Check for device support for the optional feature that allows setting the render target array index from the vertex shader stage.
-    D3D11_FEATURE_DATA_D3D11_OPTIONS3 options;
-    m_d3dDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &options, sizeof(options));
-    if (options.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer)
-    {
-        m_supportsVprt = true;
-    }
 }
 
 // Validates the back buffer for each HolographicCamera and recreates

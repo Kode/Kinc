@@ -178,21 +178,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		//	&swapChain));
 		//affirm(dxgiDevice->SetMaximumFrameLatency(1));
 
-		m_deviceResources = std::make_shared<DX::DeviceResources>();
 
-		CoreWindow^ win = CoreWindow::GetForCurrentThread();
-		// Create a holographic space for the core window for the current view.
-		// Presenting holographic frames that are created by this holographic space will putwwwwwww
-		// the app into exclusive mode.
-
-		// The DeviceResources class uses the preferred DXGI adapter ID from the holographic
-		// space (when available) to create a Direct3D device. The HolographicSpace
-		// uses this ID3D11Device to create and manage device-based resources such as
-		// swap chains.
-		m_deviceResources->SetHolographicSpace(m_holographicSpace);
-
-		m_main = std::make_unique<HolographicMain>(m_deviceResources);
-		m_main->SetHolographicSpace(m_holographicSpace);
 
 
 #elif KORE_OCULUS

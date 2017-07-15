@@ -45,6 +45,8 @@ namespace DX
             Windows::Graphics::Holographic::HolographicFrame^ frame,
             Windows::Graphics::Holographic::HolographicFramePrediction^ prediction);
 
+		void LockCameraResources();
+		void UnlockCameraResources();
         void AddHolographicCamera(Windows::Graphics::Holographic::HolographicCamera^ camera);
         void RemoveHolographicCamera(Windows::Graphics::Holographic::HolographicCamera^ camera);
 
@@ -59,15 +61,9 @@ namespace DX
         ID3D11Device4*          GetD3DDevice() const                    { return m_d3dDevice.Get();     }
         ID3D11DeviceContext3*   GetD3DDeviceContext() const             { return m_d3dContext.Get();    }
         D3D_FEATURE_LEVEL       GetDeviceFeatureLevel() const           { return m_d3dFeatureLevel;     }
-        bool                    GetDeviceSupportsVprt() const           { return m_supportsVprt;        }
 
         // DXGI acessors.
         IDXGIAdapter3*          GetDXGIAdapter() const                  { return m_dxgiAdapter.Get();   }
-
-        //// D2D accessors.
-        //ID2D1Factory2*          GetD2DFactory() const                   { return m_d2dFactory.Get();    }
-        //IDWriteFactory2*        GetDWriteFactory() const                { return m_dwriteFactory.Get(); }
-        //IWICImagingFactory2*    GetWicImagingFactory() const            { return m_wicFactory.Get();    }
 
     private:
         // Private methods related to the Direct3D device, and resources based on that device.
@@ -83,11 +79,6 @@ namespace DX
         // Direct3D interop objects.
         Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice^ m_d3dInteropDevice;
 
-        //// Direct2D factories.
-        //Microsoft::WRL::ComPtr<ID2D1Factory2>                   m_d2dFactory;
-        //Microsoft::WRL::ComPtr<IDWriteFactory2>                 m_dwriteFactory;
-        //Microsoft::WRL::ComPtr<IWICImagingFactory2>             m_wicFactory;
-
         // The holographic space provides a preferred DXGI adapter ID.
         Windows::Graphics::Holographic::HolographicSpace^       m_holographicSpace = nullptr;
 
@@ -97,14 +88,10 @@ namespace DX
         // The IDeviceNotify can be held directly as it owns the DeviceResources.
         IDeviceNotify*                                          m_deviceNotify = nullptr;
 
-        // Whether or not the current Direct3D device supports the optional feature
-        // for setting the render target array index from the vertex shader stage.
-        bool                                                    m_supportsVprt = false;
-
         // Back buffer resources, etc. for attached holographic cameras.
         std::map<UINT32, std::unique_ptr<CameraResources>>      m_cameraResources;
         std::mutex                                              m_cameraResourcesMutex;
-		std::unique_lock<std::mutex> m_cameraResourcesLockk;
+		std::unique_lock<std::mutex>							m_cameraResLock;
     };
 }
 

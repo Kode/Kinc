@@ -9,9 +9,9 @@
 // PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 //
 //*********************************************************
-
+#define NOMINMAX
 #include "DeviceResources.winrt.h"
-//#include "Common\StepTimer.h"
+#include <Kore/Vr/SensorState.h>
 
 
 class HolographicMain : public DX::IDeviceNotify
@@ -38,6 +38,13 @@ public:
 	virtual void OnDeviceLost();
 	virtual void OnDeviceRestored();
 
+	//vr interface
+	void begin();
+	void beginRender(int eye);
+	SensorState getSensorState(int eye);
+	void endRender(int eye);
+	void warpSwap();
+
 private:
 	// Asynchronously creates resources for new holographic cameras.
 	void OnCameraAdded(
@@ -50,9 +57,24 @@ private:
 		Windows::Graphics::Holographic::HolographicSpace^ sender,
 		Windows::Graphics::Holographic::HolographicSpaceCameraRemovedEventArgs^ args);
 
+	// Used to prevent the device from deactivating positional tracking, which is 
+	// necessary to continue to receive spatial mapping data.
+	void OnPositionalTrackingDeactivating(
+		Windows::Perception::Spatial::SpatialLocator^ sender,
+		Windows::Perception::Spatial::SpatialLocatorPositionalTrackingDeactivatingEventArgs^ args);
+
 	// Clears event registration state. Used when changing to a new HolographicSpace
 	// and when tearing down AppMain.
 	void UnregisterHolographicEventHandlers();
+
+	Windows::Graphics::Holographic::HolographicFrame^ m_currentHolographicFrame;
+
+	// SpatialLocator that is attached to the primary camera.
+	Windows::Perception::Spatial::SpatialLocator^                       m_locator;
+
+	// A reference frame attached to the holographic camera.
+	Windows::Perception::Spatial::SpatialLocatorAttachedFrameOfReference^ m_referenceFrame;
+
 
 	// Cached pointer to device resources.
 	std::shared_ptr<DX::DeviceResources>                                m_deviceResources;
@@ -63,4 +85,6 @@ private:
 	// Event registration tokens.
 	Windows::Foundation::EventRegistrationToken                         m_cameraAddedToken;
 	Windows::Foundation::EventRegistrationToken                         m_cameraRemovedToken;
+	Windows::Foundation::EventRegistrationToken                         m_positionalTrackingDeactivatingToken;
+
 };

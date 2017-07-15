@@ -8,15 +8,15 @@
 // PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 //
 //*********************************************************
-
 #include "pch.h"
+
 #include "HolographicMain.winrt.h"
 #include "DirectXHelper.winrt.h"
 #include <DirectXColors.h>
 
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <Collection.h>
-
+#include <ppltasks.h>    // For create_task
 
 using namespace concurrency;
 using namespace Platform;
@@ -25,7 +25,50 @@ using namespace Windows::Foundation::Collections;
 using namespace Windows::Foundation::Numerics;
 using namespace Windows::Graphics::DirectX;
 using namespace Windows::Graphics::Holographic;
+using namespace Windows::Perception::Spatial;
+using namespace Windows::UI::Input::Spatial;
 using namespace std::placeholders;
+
+
+std::unique_ptr<HolographicMain> m_main;
+
+void HolographicMain::begin()
+{
+	m_currentHolographicFrame = Update();
+
+	if (Render(m_currentHolographicFrame))
+	{
+		m_deviceResources->Present(m_currentHolographicFrame);
+	}
+	//m_deviceResources->LockCameraResources();
+
+	// Up-to-date frame predictions enhance the effectiveness of image stablization and
+	// allow more accurate positioning of holograms.
+	//m_currentHolographicFrame->UpdateCurrentPrediction();
+}
+
+void HolographicMain::beginRender(int eye)
+{
+
+}
+
+SensorState HolographicMain::getSensorState(int eye)
+{
+	SensorState state;
+	return state;
+}
+
+void HolographicMain::endRender(int eye)
+{
+	//m_deviceResources->UnlockCameraResources();
+}
+
+void HolographicMain::warpSwap()
+{
+	//m_deviceResources->Present(m_currentHolographicFrame);
+}
+
+
 
 // Loads and initializes application assets when the application is loaded.
 HolographicMain::HolographicMain(
@@ -36,6 +79,7 @@ HolographicMain::HolographicMain(
 	m_deviceResources->RegisterDeviceNotify(this);
 }
 
+
 void HolographicMain::SetHolographicSpace(
 	HolographicSpace^ holographicSpace)
 {
@@ -43,31 +87,38 @@ void HolographicMain::SetHolographicSpace(
 
 	m_holographicSpace = holographicSpace;
 
-	// Respond to camera added events by creating any resources that are specific
-	// to that camera, such as the back buffer render target view.
-	// When we add an event handler for CameraAdded, the API layer will avoid putting
-	// the new camera in new HolographicFrames until we complete the deferral we created
-	// for that handler, or return from the handler without creating a deferral. This
-	// allows the app to take more than one frame to finish creating resources and
-	// loading assets for the new holographic camera.
-	// This function should be registered before the app creates any HolographicFrames.
+	//register camera events
 	m_cameraAddedToken =
 		m_holographicSpace->CameraAdded +=
 		ref new Windows::Foundation::TypedEventHandler<HolographicSpace^, HolographicSpaceCameraAddedEventArgs^>(
 			std::bind(&HolographicMain::OnCameraAdded, this, _1, _2)
 			);
-
-	// Respond to camera removed events by releasing resources that were created for that
-	// camera.
-	// When the app receives a CameraRemoved event, it releases all references to the back
-	// buffer right away. This includes render target views, Direct2D target bitmaps, and so on.
-	// The app must also ensure that the back buffer is not attached as a render target, as
-	// shown in DeviceResources::ReleaseResourcesForBackBuffer.
 	m_cameraRemovedToken =
 		m_holographicSpace->CameraRemoved +=
 		ref new Windows::Foundation::TypedEventHandler<HolographicSpace^, HolographicSpaceCameraRemovedEventArgs^>(
 			std::bind(&HolographicMain::OnCameraRemoved, this, _1, _2)
 			);
+
+
+	// Use the default SpatialLocator to track the motion of the device.
+	m_locator = SpatialLocator::GetDefault();
+
+	m_positionalTrackingDeactivatingToken =
+		m_locator->PositionalTrackingDeactivating +=
+		ref new Windows::Foundation::TypedEventHandler<SpatialLocator^, SpatialLocatorPositionalTrackingDeactivatingEventArgs^>(
+			std::bind(&HolographicMain::OnPositionalTrackingDeactivating, this, _1, _2)
+			);
+	// follow along with the device's location.
+	m_referenceFrame = m_locator->CreateAttachedFrameOfReferenceAtCurrentHeading();
+
+}
+
+void HolographicMain::OnPositionalTrackingDeactivating(
+	SpatialLocator^ sender,
+	SpatialLocatorPositionalTrackingDeactivatingEventArgs^ args)
+{
+	// Without positional tracking, spatial meshes will not be locatable.
+	args->Canceled = true;
 }
 
 void HolographicMain::UnregisterHolographicEventHandlers()
@@ -87,6 +138,11 @@ void HolographicMain::UnregisterHolographicEventHandlers()
 			m_holographicSpace->CameraRemoved -= m_cameraRemovedToken;
 			m_cameraRemovedToken.Value = 0;
 		}
+	}
+
+	if (m_locator != nullptr)
+	{
+		m_locator->PositionalTrackingDeactivating -= m_positionalTrackingDeactivatingToken;
 	}
 }
 
@@ -180,15 +236,6 @@ bool HolographicMain::Render(
 	});
 }
 
-void HolographicMain::SaveAppState()
-{
-	// This sample does not persist any state between sessions.
-}
-
-void HolographicMain::LoadAppState()
-{
-	// This sample does not persist any state between sessions.
-}
 
 // Notifies classes that use Direct3D device resources that the device resources
 // need to be released before this method returns.
