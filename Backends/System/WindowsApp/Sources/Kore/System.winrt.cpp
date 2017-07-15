@@ -4,10 +4,10 @@
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/System.h>
+#include <Kore/Hololens.winrt.h>
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
-
 #ifndef XINPUT
 #ifdef KORE_WINDOWS
 #define XINPUT 1
@@ -213,6 +213,9 @@ void Win8Application::SetWindow(CoreWindow^ window) {
 	window->KeyUp +=
 	    ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow ^, Windows::UI::Core::KeyEventArgs ^>(this, &Win8Application::OnKeyUp);
 	// m_renderer->Initialize(CoreWindow::GetForCurrentThread());
+
+	//Create holographics space - needs to be created before window is activated
+	m_holographicSpace = HolographicSpace::CreateForCoreWindow(window);
 }
 
 void Win8Application::Load(Platform::String^ entryPoint) {}

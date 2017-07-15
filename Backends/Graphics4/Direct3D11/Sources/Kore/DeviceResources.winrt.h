@@ -103,7 +103,8 @@ namespace DX
 
         // Back buffer resources, etc. for attached holographic cameras.
         std::map<UINT32, std::unique_ptr<CameraResources>>      m_cameraResources;
-        std::mutex                                              m_cameraResourcesLock;
+        std::mutex                                              m_cameraResourcesMutex;
+		std::unique_lock<std::mutex> m_cameraResourcesLockk;
     };
 }
 
@@ -116,7 +117,7 @@ namespace DX
 template<typename RetType, typename LCallback>
 RetType DX::DeviceResources::UseHolographicCameraResources(const LCallback& callback)
 {
-    std::lock_guard<std::mutex> guard(m_cameraResourcesLock);
+    std::lock_guard<std::mutex> guard(m_cameraResourcesMutex);
     return callback(m_cameraResources);
 }
 

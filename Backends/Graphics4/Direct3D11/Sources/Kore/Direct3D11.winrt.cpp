@@ -20,10 +20,7 @@
 #include <vector>
 #include <memory>
 #include "DeviceResources.winrt.h"
-using namespace Windows::Graphics::Holographic;
-
-HolographicSpace^ m_holographicSpace = nullptr;
-std::shared_ptr<DX::DeviceResources>  m_deviceResources;
+#include "Hololens.winrt.h"
 
 ID3D11Device* device;
 ID3D11DeviceContext* context;
@@ -187,13 +184,16 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		// Create a holographic space for the core window for the current view.
 		// Presenting holographic frames that are created by this holographic space will putwwwwwww
 		// the app into exclusive mode.
-		m_holographicSpace = HolographicSpace::CreateForCoreWindow(win);
 
 		// The DeviceResources class uses the preferred DXGI adapter ID from the holographic
 		// space (when available) to create a Direct3D device. The HolographicSpace
 		// uses this ID3D11Device to create and manage device-based resources such as
 		// swap chains.
 		m_deviceResources->SetHolographicSpace(m_holographicSpace);
+
+		m_main = std::make_unique<HolographicMain>(m_deviceResources);
+		m_main->SetHolographicSpace(m_holographicSpace);
+
 
 #elif KORE_OCULUS
 		DXGI_SWAP_CHAIN_DESC scDesc = { 0 };
@@ -226,29 +226,29 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 	}
 
-	affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	//affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	//affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
-	D3D11_TEXTURE2D_DESC backBufferDesc;
-	backBuffer->GetDesc(&backBufferDesc);
-	renderTargetWidth = backBufferDesc.Width;
-	renderTargetHeight = backBufferDesc.Height;
+	//D3D11_TEXTURE2D_DESC backBufferDesc;
+	//backBuffer->GetDesc(&backBufferDesc);
+	//renderTargetWidth = backBufferDesc.Width;
+	//renderTargetHeight = backBufferDesc.Height;
 
-	// TODO (DK) map depth/stencilBufferBits arguments
-	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
+	//// TODO (DK) map depth/stencilBufferBits arguments
+	//CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
 
-	ID3D11Texture2D* depthStencil;
-	affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	//ID3D11Texture2D* depthStencil;
+	//affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
+	//affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
-	currentRenderTargetView = renderTargetView;
-	currentDepthStencilView = depthStencilView;
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	//currentRenderTargetView = renderTargetView;
+	//currentDepthStencilView = depthStencilView;
+	//context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
-	context->RSSetViewports(1, &viewPort);
+	//CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
+	//context->RSSetViewports(1, &viewPort);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));

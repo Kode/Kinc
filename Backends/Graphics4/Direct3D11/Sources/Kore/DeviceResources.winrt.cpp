@@ -26,6 +26,7 @@ using namespace Windows::Graphics::Holographic;
 // Constructor for DeviceResources.
 DX::DeviceResources::DeviceResources()
 {
+	m_cameraResourcesLockk= std::unique_lock<std::mutex>(m_cameraResourcesMutex, std::defer_lock);
     //CreateDeviceIndependentResources();
 }
 
