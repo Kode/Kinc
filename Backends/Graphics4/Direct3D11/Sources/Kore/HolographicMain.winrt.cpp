@@ -95,12 +95,13 @@ SensorState HolographicMain::getSensorState(int eye)
 
 void HolographicMain::endRender(int eye)
 {
-	m_deviceResources->UnlockCameraResources();
 }
 
 void HolographicMain::warpSwap()
 {
+	m_deviceResources->UnlockCameraResources();
 	m_deviceResources->Present(m_currentHolographicFrame);
+
 }
 
 

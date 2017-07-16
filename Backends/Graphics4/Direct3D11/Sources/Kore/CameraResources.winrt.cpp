@@ -16,6 +16,7 @@
 #include "DeviceResources.winrt.h"
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <WindowsNumerics.h>
+#include <iostream>
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -64,6 +65,14 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
         resource.As(&cameraBackBuffer)
         );
 
+	D3D11_TEXTURE2D_DESC desc;
+	cameraBackBuffer.Get()->GetDesc(&desc);
+	if(desc.ArraySize!=2)
+	{
+		std::cout << "should be a 2 dimensional texture2d array";
+		throw;
+	}
+
     // Determine if the back buffer has changed. If so, ensure that the render target view
     // is for the current back buffer.
     if (m_d3dBackBuffer.Get() != cameraBackBuffer.Get())
@@ -84,6 +93,39 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
                 )
             );
 
+		D3D11_RENDER_TARGET_VIEW_DESC rtvdesc;
+		m_d3dRenderTargetView->GetDesc(&rtvdesc);
+		std::cout << rtvdesc.Format;
+
+
+		//create single texture slice views for non stereo instancing rendering only
+		D3D11_RENDER_TARGET_VIEW_DESC leftRtvDesc;
+		leftRtvDesc.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+		leftRtvDesc.ViewDimension = D3D11_RTV_DIMENSION::D3D11_RTV_DIMENSION_TEXTURE2D;
+		leftRtvDesc.Texture2D.MipSlice = D3D11CalcSubresource(0, 0, 0);
+
+    	DX::ThrowIfFailed(
+			device->CreateRenderTargetView(
+				m_d3dBackBuffer.Get(),
+				&leftRtvDesc,
+				&m_d3dRenderTargetViewLeft
+			)
+		);
+
+		D3D11_RENDER_TARGET_VIEW_DESC rightRtvDesc;
+		rightRtvDesc.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+		rightRtvDesc.ViewDimension = D3D11_RTV_DIMENSION::D3D11_RTV_DIMENSION_TEXTURE2D;
+		rightRtvDesc.Texture2D.MipSlice = D3D11CalcSubresource(0, 1, 0);
+
+		DX::ThrowIfFailed(
+			device->CreateRenderTargetView(
+				m_d3dBackBuffer.Get(),
+				&rightRtvDesc,
+				&m_d3dRenderTargetViewRight
+			)
+		);
+
+
         // Get the DXGI format for the back buffer.
         // This information can be accessed by the app using CameraResources::GetBackBufferDXGIFormat().
         D3D11_TEXTURE2D_DESC backBufferDesc;
@@ -99,6 +141,8 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 
             // A new depth stencil view is also needed.
             m_d3dDepthStencilView.Reset();
+            m_d3dDepthStencilViewLeft.Reset();
+            m_d3dDepthStencilViewRight.Reset();
         }
     }
 
@@ -134,6 +178,37 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
                 &m_d3dDepthStencilView
                 )
             );
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC desc;
+       m_d3dDepthStencilView->GetDesc(&desc);
+	   std::cout << desc.Flags;
+
+		//left and right
+		CD3D11_DEPTH_STENCIL_VIEW_DESC leftDSVDesc;
+		leftDSVDesc.Flags = 0;
+		leftDSVDesc.Format= DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+		leftDSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		leftDSVDesc.Texture2D.MipSlice= D3D11CalcSubresource(0, 0, 0);
+		DX::ThrowIfFailed(
+			device->CreateDepthStencilView(
+				depthStencil.Get(),
+				&leftDSVDesc,
+				&m_d3dDepthStencilViewLeft
+			)
+		);
+
+		CD3D11_DEPTH_STENCIL_VIEW_DESC rightDSVDesc;
+		rightDSVDesc.Flags = 0;
+		rightDSVDesc.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+		rightDSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		rightDSVDesc.Texture2D.MipSlice = D3D11CalcSubresource(0, 1, 0);
+		DX::ThrowIfFailed(
+			device->CreateDepthStencilView(
+				depthStencil.Get(),
+				&rightDSVDesc,
+				&m_d3dDepthStencilViewRight
+			)
+		);
     }
 
 }
@@ -146,7 +221,11 @@ void DX::CameraResources::ReleaseResourcesForBackBuffer(DX::DeviceResources* pDe
     // Release camera-specific resources.
     m_d3dBackBuffer.Reset();
     m_d3dRenderTargetView.Reset();
+    m_d3dRenderTargetViewLeft.Reset();
+    m_d3dRenderTargetViewRight.Reset();
     m_d3dDepthStencilView.Reset();
+    m_d3dDepthStencilViewLeft.Reset();
+    m_d3dDepthStencilViewRight.Reset();
 
     // Ensure system references to the back buffer are released by clearing the render
     // target from the graphics pipeline state, and then flushing the Direct3D context.
