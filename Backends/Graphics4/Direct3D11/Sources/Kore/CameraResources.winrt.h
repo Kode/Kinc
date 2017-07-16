@@ -14,7 +14,6 @@
 #include <memory>
 #include <d3d11_4.h>
 #include <wrl.h>
-//#include "ShaderStructures.h"
 
 namespace DX
 {
@@ -34,11 +33,6 @@ namespace DX
         void ReleaseResourcesForBackBuffer(
             DX::DeviceResources* pDeviceResources
             );
-
-        void UpdateViewProjectionBuffer(
-            std::shared_ptr<DX::DeviceResources> deviceResources,
-            Windows::Graphics::Holographic::HolographicCameraPose^ cameraPose,
-            Windows::Perception::Spatial::SpatialCoordinateSystem^ coordinateSystem);
 
         bool AttachViewProjectionBuffer(
             std::shared_ptr<DX::DeviceResources> deviceResources);
@@ -62,9 +56,6 @@ namespace DX
         Microsoft::WRL::ComPtr<ID3D11RenderTargetView>      m_d3dRenderTargetView;
         Microsoft::WRL::ComPtr<ID3D11DepthStencilView>      m_d3dDepthStencilView;
         Microsoft::WRL::ComPtr<ID3D11Texture2D>             m_d3dBackBuffer;
-
-        // Device resource to store view and projection matrices.
-        Microsoft::WRL::ComPtr<ID3D11Buffer>                m_viewProjectionConstantBuffer;
 
         // Direct3D rendering properties.
         DXGI_FORMAT                                         m_dxgiFormat;

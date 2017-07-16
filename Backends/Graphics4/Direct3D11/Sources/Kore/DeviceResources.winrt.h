@@ -47,6 +47,8 @@ namespace DX
 
 		void LockCameraResources();
 		void UnlockCameraResources();
+
+		DX::CameraResources* GetResourcesForCamera(Windows::Graphics::Holographic::HolographicCamera^ camera);
         void AddHolographicCamera(Windows::Graphics::Holographic::HolographicCamera^ camera);
         void RemoveHolographicCamera(Windows::Graphics::Holographic::HolographicCamera^ camera);
 

@@ -36,36 +36,71 @@ void HolographicMain::begin()
 {
 	m_currentHolographicFrame = Update();
 
-	if (Render(m_currentHolographicFrame))
-	{
-		m_deviceResources->Present(m_currentHolographicFrame);
-	}
-	//m_deviceResources->LockCameraResources();
+	//if (Render(m_currentHolographicFrame))
+	//{
+	//	m_deviceResources->Present(m_currentHolographicFrame);
+	//}
+	m_deviceResources->LockCameraResources();
 
 	// Up-to-date frame predictions enhance the effectiveness of image stablization and
 	// allow more accurate positioning of holograms.
-	//m_currentHolographicFrame->UpdateCurrentPrediction();
+	m_currentHolographicFrame->UpdateCurrentPrediction();
+
+	m_currentPrediction = m_currentHolographicFrame->CurrentPrediction;
+	m_currentCoordinateSystem = m_referenceFrame->GetStationaryCoordinateSystemAtTimestamp(m_currentPrediction->Timestamp);
+	
+	m_currentCamPose = m_currentPrediction->CameraPoses->GetAt(0);
+	// This represents the device-based resources for a HolographicCamera.
+	m_currentCameraResources = m_deviceResources->GetResourcesForCamera(m_currentCamPose->HolographicCamera);
+
+	const auto context = m_deviceResources->GetD3DDeviceContext();
+	// Set render targets to the current holographic camera.
+	const auto depthStencilView = m_currentCameraResources->GetDepthStencilView();
+	ID3D11RenderTargetView *const targets[1] = { m_currentCameraResources->GetBackBufferRenderTargetView() };
+	context->OMSetRenderTargets(1, targets, depthStencilView);
+
+	// Clear the back buffer and depth stencil view.
+	context->ClearRenderTargetView(targets[0], DirectX::Colors::Transparent);
+	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 }
 
 void HolographicMain::beginRender(int eye)
 {
+	// The system changes the viewport on a per-frame basis for system optimizations.
+	auto m_d3dViewport = CD3D11_VIEWPORT(
+		m_currentCamPose->Viewport.Left,
+		m_currentCamPose->Viewport.Top,
+		m_currentCamPose->Viewport.Width,
+		m_currentCamPose->Viewport.Height
+	);
+	const auto context = m_deviceResources->GetD3DDeviceContext();
+	context->RSSetViewports(1, &m_d3dViewport);
 
+	
 }
 
 SensorState HolographicMain::getSensorState(int eye)
 {
 	SensorState state;
+
+	HolographicFramePrediction^ prediction = m_currentHolographicFrame->CurrentPrediction;
+	SpatialCoordinateSystem^ currentCoordinateSystem = m_referenceFrame->GetStationaryCoordinateSystemAtTimestamp(prediction->Timestamp);
+	auto firstCamPose = prediction->CameraPoses->GetAt(0);
+	// This represents the device-based resources for a HolographicCamera.
+	DX::CameraResources* pCameraResources = m_deviceResources->GetResourcesForCamera(firstCamPose->HolographicCamera);
+
 	return state;
 }
 
 void HolographicMain::endRender(int eye)
 {
-	//m_deviceResources->UnlockCameraResources();
+	m_deviceResources->UnlockCameraResources();
 }
 
 void HolographicMain::warpSwap()
 {
-	//m_deviceResources->Present(m_currentHolographicFrame);
+	m_deviceResources->Present(m_currentHolographicFrame);
 }
 
 

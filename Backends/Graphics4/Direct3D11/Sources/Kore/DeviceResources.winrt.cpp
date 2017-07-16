@@ -23,6 +23,7 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Holographic;
 
+
 // Constructor for DeviceResources.
 DX::DeviceResources::DeviceResources()
 {
@@ -30,6 +31,10 @@ DX::DeviceResources::DeviceResources()
     //CreateDeviceIndependentResources();
 }
 
+DX::CameraResources* DX::DeviceResources::GetResourcesForCamera(Windows::Graphics::Holographic::HolographicCamera^ camera)
+{
+	return m_cameraResources[camera->Id].get();
+}
 
 void DX::DeviceResources::LockCameraResources()
 {
