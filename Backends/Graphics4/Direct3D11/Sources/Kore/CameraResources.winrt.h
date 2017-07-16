@@ -38,10 +38,10 @@ namespace DX
             std::shared_ptr<DX::DeviceResources> deviceResources);
 
         // Direct3D device resources.
-        ID3D11RenderTargetView* GetBackBufferRenderTargetView()     const { return m_d3dRenderTargetView.Get();     }
+        //ID3D11RenderTargetView* GetBackBufferRenderTargetView()     const { return m_d3dRenderTargetView.Get();     }
         ID3D11RenderTargetView* GetBackBufferRenderTargetViewLeft()     const { return m_d3dRenderTargetViewLeft.Get();     }
         ID3D11RenderTargetView* GetBackBufferRenderTargetViewRight()     const { return m_d3dRenderTargetViewRight.Get();     }
-        ID3D11DepthStencilView* GetDepthStencilView()               const { return m_d3dDepthStencilView.Get();     }
+        //ID3D11DepthStencilView* GetDepthStencilView()               const { return m_d3dDepthStencilView.Get();     }
         ID3D11DepthStencilView* GetDepthStencilViewLeft()               const { return m_d3dDepthStencilViewLeft.Get();     }
         ID3D11DepthStencilView* GetDepthStencilViewRight()               const { return m_d3dDepthStencilViewRight.Get();     }
         ID3D11Texture2D*        GetBackBufferTexture2D()            const { return m_d3dBackBuffer.Get();           }

@@ -13,11 +13,12 @@
 #include "DeviceResources.winrt.h"
 #include "DirectXHelper.winrt.h"
 #include "CameraResources.winrt.h"
+#include <Kore/WinError.h>
 
 #include <Collection.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
 
-//using namespace D2D1;
+using namespace Kore;
 using namespace Microsoft::WRL;
 using namespace Windows::Graphics::DirectX::Direct3D11;
 using namespace Windows::Graphics::Display;
@@ -47,161 +48,29 @@ void DX::DeviceResources::UnlockCameraResources()
 }
 
 
-void DX::DeviceResources::SetHolographicSpace(HolographicSpace^ holographicSpace)
+void DX::DeviceResources::InitWithDevice(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context)
 {
-    // Cache the holographic space. Used to re-initalize during device-lost scenarios.
-    m_holographicSpace = holographicSpace;
+	m_d3dDevice = device;
+	m_d3dContext = context;
 
-    InitializeUsingHolographicSpace();
-}
+	// Acquire the DXGI interface for the Direct3D device.
+	ComPtr<IDXGIDevice3> dxgiDevice;
+	affirm(
+		m_d3dDevice.As(&dxgiDevice)
+	);
 
-void DX::DeviceResources::InitializeUsingHolographicSpace()
-{
-    // The holographic space might need to determine which adapter supports
-    // holograms, in which case it will specify a non-zero PrimaryAdapterId.
-    LUID id =
-    {
-        m_holographicSpace->PrimaryAdapterId.LowPart,
-        m_holographicSpace->PrimaryAdapterId.HighPart
-    };
+	// Wrap the native device using a WinRT interop object.
+	m_d3dInteropDevice = CreateDirect3DDevice(dxgiDevice.Get());
 
-    // When a primary adapter ID is given to the app, the app should find
-    // the corresponding DXGI adapter and use it to create Direct3D devices
-    // and device contexts. Otherwise, there is no restriction on the DXGI
-    // adapter the app can use.
-    if ((id.HighPart != 0) && (id.LowPart != 0))
-    {
-        UINT createFlags = 0;
-#ifdef DEBUG
-        if (DX::SdkLayersAvailable())
-        {
-            createFlags |= DXGI_CREATE_FACTORY_DEBUG;
-        }
-#endif
-        // Create the DXGI factory.
-        ComPtr<IDXGIFactory1> dxgiFactory;
-        DX::ThrowIfFailed(
-            CreateDXGIFactory2(
-                createFlags,
-                IID_PPV_ARGS(&dxgiFactory)
-                )
-            );
-        ComPtr<IDXGIFactory4> dxgiFactory4;
-        DX::ThrowIfFailed(dxgiFactory.As(&dxgiFactory4));
-
-        // Retrieve the adapter specified by the holographic space.
-        DX::ThrowIfFailed(
-            dxgiFactory4->EnumAdapterByLuid(
-                id,
-                IID_PPV_ARGS(&m_dxgiAdapter)
-                )
-            );
-    }
-    else
-    {
-        m_dxgiAdapter.Reset();
-    }
-
-    CreateDeviceResources();
-
-    m_holographicSpace->SetDirect3D11Device(m_d3dInteropDevice);
-}
-
-// Configures the Direct3D device, and stores handles to it and the device context.
-void DX::DeviceResources::CreateDeviceResources()
-{
-    // This flag adds support for surfaces with a different color channel ordering
-    // than the API default. It is required for compatibility with Direct2D.
-    UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-
-#if defined(_DEBUG)
-    if (DX::SdkLayersAvailable())
-    {
-        // If the project is in a debug build, enable debugging via SDK Layers with this flag.
-        creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-    }
-#endif
-
-    // This array defines the set of DirectX hardware feature levels this app will support.
-    // Note the ordering should be preserved.
-    // Note that HoloLens supports feature level 11.1. The HoloLens emulator is also capable
-    // of running on graphics cards starting with feature level 10.0.
-    D3D_FEATURE_LEVEL featureLevels [] =
-    {
-        D3D_FEATURE_LEVEL_12_1,
-        D3D_FEATURE_LEVEL_12_0,
-        D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_1,
-        D3D_FEATURE_LEVEL_10_0
-    };
-
-    // Create the Direct3D 11 API device object and a corresponding context.
-    ComPtr<ID3D11Device> device;
-    ComPtr<ID3D11DeviceContext> context;
-
-    const HRESULT hr = D3D11CreateDevice(
-        m_dxgiAdapter.Get(),        // Either nullptr, or the primary adapter determined by Windows Holographic.
-        D3D_DRIVER_TYPE_HARDWARE,   // Create a device using the hardware graphics driver.
-        0,                          // Should be 0 unless the driver is D3D_DRIVER_TYPE_SOFTWARE.
-        creationFlags,              // Set debug and Direct2D compatibility flags.
-        featureLevels,              // List of feature levels this app can support.
-        ARRAYSIZE(featureLevels),   // Size of the list above.
-        D3D11_SDK_VERSION,          // Always set this to D3D11_SDK_VERSION for Windows Store apps.
-        &device,                    // Returns the Direct3D device created.
-        &m_d3dFeatureLevel,         // Returns feature level of device created.
-        &context                    // Returns the device immediate context.
-        );
-
-    if (FAILED(hr))
-    {
-        // If the initialization fails, fall back to the WARP device.
-        // For more information on WARP, see:
-        // http://go.microsoft.com/fwlink/?LinkId=286690
-        DX::ThrowIfFailed(
-            D3D11CreateDevice(
-                nullptr,              // Use the default DXGI adapter for WARP.
-                D3D_DRIVER_TYPE_WARP, // Create a WARP device instead of a hardware device.
-                0,
-                creationFlags,
-                featureLevels,
-                ARRAYSIZE(featureLevels),
-                D3D11_SDK_VERSION,
-                &device,
-                &m_d3dFeatureLevel,
-                &context
-                )
-            );
-    }
-
-    // Store pointers to the Direct3D device and immediate context.
-    DX::ThrowIfFailed(
-        device.As(&m_d3dDevice)
-        );
-
-    DX::ThrowIfFailed(
-        context.As(&m_d3dContext)
-        );
-
-    // Acquire the DXGI interface for the Direct3D device.
-    ComPtr<IDXGIDevice3> dxgiDevice;
-    DX::ThrowIfFailed(
-        m_d3dDevice.As(&dxgiDevice)
-        );
-
-    // Wrap the native device using a WinRT interop object.
-    m_d3dInteropDevice = CreateDirect3DDevice(dxgiDevice.Get());
-
-    // Cache the DXGI adapter.
-    // This is for the case of no preferred DXGI adapter, or fallback to WARP.
-    ComPtr<IDXGIAdapter> dxgiAdapter;
-    DX::ThrowIfFailed(
-        dxgiDevice->GetAdapter(&dxgiAdapter)
-        );
-    DX::ThrowIfFailed(
-        dxgiAdapter.As(&m_dxgiAdapter)
-        );
-
+	//// Cache the DXGI adapter.
+	//// This is for the case of no preferred DXGI adapter, or fallback to WARP.
+	//ComPtr<IDXGIAdapter> dxgiAdapter;
+	//affirm(
+	//	dxgiDevice->GetAdapter(&dxgiAdapter)
+	//);
+	//affirm(
+	//	dxgiAdapter.As(&m_dxgiAdapter)
+	//);
 }
 
 // Validates the back buffer for each HolographicCamera and recreates
@@ -253,26 +122,26 @@ void DX::DeviceResources::RemoveHolographicCamera(HolographicCamera^ camera)
 // Locks the set of holographic camera resources until the function exits.
 void DX::DeviceResources::HandleDeviceLost()
 {
-    if (m_deviceNotify != nullptr)
-    {
-        m_deviceNotify->OnDeviceLost();
-    }
+    //if (m_deviceNotify != nullptr)
+    //{
+    //    m_deviceNotify->OnDeviceLost();
+    //}
 
-    UseHolographicCameraResources<void>([this](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
-    {
-        for (auto& pair : cameraResourceMap)
-        {
-            CameraResources* pCameraResources = pair.second.get();
-            pCameraResources->ReleaseResourcesForBackBuffer(this);
-        }
-    });
+    //UseHolographicCameraResources<void>([this](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
+    //{
+    //    for (auto& pair : cameraResourceMap)
+    //    {
+    //        CameraResources* pCameraResources = pair.second.get();
+    //        pCameraResources->ReleaseResourcesForBackBuffer(this);
+    //    }
+    //});
 
-    InitializeUsingHolographicSpace();
+    //InitializeUsingHolographicSpace();
 
-    if (m_deviceNotify != nullptr)
-    {
-        m_deviceNotify->OnDeviceRestored();
-    }
+    //if (m_deviceNotify != nullptr)
+    //{
+    //    m_deviceNotify->OnDeviceRestored();
+    //}
 }
 
 // Register our DeviceNotify to be informed on device lost and creation.
@@ -314,10 +183,13 @@ void DX::DeviceResources::Present(HolographicFrame^ frame)
             // This is a valid operation only when the existing contents will be
             // entirely overwritten. If dirty or scroll rects are used, this call
             // should be removed.
-            m_d3dContext->DiscardView(pCameraResources->GetBackBufferRenderTargetView());
+            m_d3dContext->DiscardView(pCameraResources->GetBackBufferRenderTargetViewLeft());
+			m_d3dContext->DiscardView(pCameraResources->GetBackBufferRenderTargetViewRight());
 
             // Discard the contents of the depth stencil.
-            m_d3dContext->DiscardView(pCameraResources->GetDepthStencilView());
+            m_d3dContext->DiscardView(pCameraResources->GetDepthStencilViewLeft());
+			m_d3dContext->DiscardView(pCameraResources->GetDepthStencilViewRight());
+			
         }
     });
 

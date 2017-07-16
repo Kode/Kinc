@@ -101,8 +101,10 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 		//create single texture slice views for non stereo instancing rendering only
 		D3D11_RENDER_TARGET_VIEW_DESC leftRtvDesc;
 		leftRtvDesc.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
-		leftRtvDesc.ViewDimension = D3D11_RTV_DIMENSION::D3D11_RTV_DIMENSION_TEXTURE2D;
-		leftRtvDesc.Texture2D.MipSlice = D3D11CalcSubresource(0, 0, 0);
+		leftRtvDesc.ViewDimension = D3D11_RTV_DIMENSION::D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+		leftRtvDesc.Texture2DArray.ArraySize = 1;
+		leftRtvDesc.Texture2DArray.MipSlice = 0;
+		leftRtvDesc.Texture2DArray.FirstArraySlice = D3D11CalcSubresource(0,0,1);
 
     	DX::ThrowIfFailed(
 			device->CreateRenderTargetView(
@@ -114,8 +116,11 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 
 		D3D11_RENDER_TARGET_VIEW_DESC rightRtvDesc;
 		rightRtvDesc.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
-		rightRtvDesc.ViewDimension = D3D11_RTV_DIMENSION::D3D11_RTV_DIMENSION_TEXTURE2D;
-		rightRtvDesc.Texture2D.MipSlice = D3D11CalcSubresource(0, 1, 0);
+		rightRtvDesc.ViewDimension = D3D11_RTV_DIMENSION::D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+		rightRtvDesc.Texture2DArray.ArraySize = 1;
+		rightRtvDesc.Texture2DArray.MipSlice = 0;
+		rightRtvDesc.Texture2DArray.FirstArraySlice = D3D11CalcSubresource(0, 1, 1);
+
 
 		DX::ThrowIfFailed(
 			device->CreateRenderTargetView(
@@ -187,8 +192,11 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 		CD3D11_DEPTH_STENCIL_VIEW_DESC leftDSVDesc;
 		leftDSVDesc.Flags = 0;
 		leftDSVDesc.Format= DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
-		leftDSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		leftDSVDesc.Texture2D.MipSlice= D3D11CalcSubresource(0, 0, 0);
+		leftDSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+		leftDSVDesc.Texture2DArray.ArraySize = 1;
+		leftDSVDesc.Texture2DArray.MipSlice = 0;
+		leftDSVDesc.Texture2DArray.FirstArraySlice = D3D11CalcSubresource(0, 0, 1);
+
 		DX::ThrowIfFailed(
 			device->CreateDepthStencilView(
 				depthStencil.Get(),
@@ -200,8 +208,11 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 		CD3D11_DEPTH_STENCIL_VIEW_DESC rightDSVDesc;
 		rightDSVDesc.Flags = 0;
 		rightDSVDesc.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
-		rightDSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		rightDSVDesc.Texture2D.MipSlice = D3D11CalcSubresource(0, 1, 0);
+		rightDSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+		rightDSVDesc.Texture2DArray.ArraySize = 1;
+		rightDSVDesc.Texture2DArray.MipSlice = 0;
+		rightDSVDesc.Texture2DArray.FirstArraySlice = D3D11CalcSubresource(0, 1, 1);
+
 		DX::ThrowIfFailed(
 			device->CreateDepthStencilView(
 				depthStencil.Get(),

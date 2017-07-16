@@ -21,6 +21,8 @@
 #include <memory>
 #include "DeviceResources.winrt.h"
 #include "Hololens.winrt.h"
+#include "DirectXHelper.winrt.h"
+#include <windows.graphics.directx.direct3d11.interop.h>
 
 ID3D11Device* device;
 ID3D11DeviceContext* context;
@@ -43,6 +45,8 @@ using namespace Kore;
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
+using namespace Windows::Graphics::Holographic;
+using namespace Windows::Graphics::DirectX::Direct3D11;
 #endif
 
 namespace Kore {
@@ -110,11 +114,30 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 		D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3, D3D_FEATURE_LEVEL_9_2, D3D_FEATURE_LEVEL_9_1 };
 
-	// ID3D11Device* device0;
-	// ID3D11DeviceContext* context0;
 #ifdef KORE_WINDOWSAPP
-	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
+	IDXGIAdapter3* adapter = nullptr;
+#ifdef KORE_HOLOLENS
+	adapter = m_main->GetCompatibleDxgiAdapter().Get();
+#endif
+	affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 		&featureLevel, &context));
+#ifdef KORE_HOLOLENS
+	ComPtr<ID3D11Device> devicePtr=device;
+	ComPtr<ID3D11DeviceContext> contextPtr=context;
+	Microsoft::WRL::ComPtr<ID3D11Device4>                   device4Ptr;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext3>            context3Ptr;
+
+	affirm(
+		devicePtr.As(&device4Ptr)
+	);
+
+	affirm(
+		contextPtr.As(&context3Ptr)
+	);
+
+	m_main->SetDeviceAndContext(device4Ptr, context3Ptr);
+#endif
+
 #elif KORE_OCULUS
 	IDXGIFactory* dxgiFactory = nullptr;
 	affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));

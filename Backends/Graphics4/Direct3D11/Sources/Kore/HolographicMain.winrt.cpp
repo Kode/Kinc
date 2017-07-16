@@ -13,11 +13,15 @@
 #include "HolographicMain.winrt.h"
 #include "DirectXHelper.winrt.h"
 #include <DirectXColors.h>
-
+#include <Kore/WinError.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <Collection.h>
 #include <ppltasks.h>    // For create_task
+#include <Kore/Graphics4/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
+#include <wrl.h>
 
+using namespace Microsoft::WRL;
 using namespace concurrency;
 using namespace Platform;
 using namespace Windows::Foundation;
@@ -27,8 +31,9 @@ using namespace Windows::Graphics::DirectX;
 using namespace Windows::Graphics::Holographic;
 using namespace Windows::Perception::Spatial;
 using namespace Windows::UI::Input::Spatial;
-using namespace std::placeholders;
 
+using namespace std::placeholders;
+using namespace Kore;
 
 std::unique_ptr<HolographicMain> m_main;
 
@@ -48,26 +53,15 @@ void HolographicMain::begin()
 
 	m_currentPrediction = m_currentHolographicFrame->CurrentPrediction;
 	m_currentCoordinateSystem = m_referenceFrame->GetStationaryCoordinateSystemAtTimestamp(m_currentPrediction->Timestamp);
-	
+
 	m_currentCamPose = m_currentPrediction->CameraPoses->GetAt(0);
 	// This represents the device-based resources for a HolographicCamera.
 	m_currentCameraResources = m_deviceResources->GetResourcesForCamera(m_currentCamPose->HolographicCamera);
-
-	const auto context = m_deviceResources->GetD3DDeviceContext();
-	// Set render targets to the current holographic camera.
-	const auto depthStencilView = m_currentCameraResources->GetDepthStencilView();
-	ID3D11RenderTargetView *const targets[1] = { m_currentCameraResources->GetBackBufferRenderTargetView() };
-	context->OMSetRenderTargets(1, targets, depthStencilView);
-
-	// Clear the back buffer and depth stencil view.
-	context->ClearRenderTargetView(targets[0], DirectX::Colors::Transparent);
-	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 }
 
 void HolographicMain::beginRender(int eye)
 {
-	// The system changes the viewport on a per-frame basis for system optimizations.
+	// The system changes the viewport on a per-frame basis for system optimizations. [can be done in begin() ?]
 	auto m_d3dViewport = CD3D11_VIEWPORT(
 		m_currentCamPose->Viewport.Left,
 		m_currentCamPose->Viewport.Top,
@@ -77,19 +71,72 @@ void HolographicMain::beginRender(int eye)
 	const auto context = m_deviceResources->GetD3DDeviceContext();
 	context->RSSetViewports(1, &m_d3dViewport);
 
-	
+	ID3D11DepthStencilView* depthStencilView;
+	ID3D11RenderTargetView* targets[1];
+	if (eye == 0) {
+		depthStencilView = m_currentCameraResources->GetDepthStencilViewLeft();
+		targets[0] = m_currentCameraResources->GetBackBufferRenderTargetViewLeft();
+	}
+	else {
+		depthStencilView = m_currentCameraResources->GetDepthStencilViewRight();
+		targets[0] = m_currentCameraResources->GetBackBufferRenderTargetViewRight();
+	}
+	//Kore::Graphics4::setRenderTargets(RenderTarget** targets, int count)
+	context->OMSetRenderTargets(1, targets, depthStencilView);
+	context->ClearRenderTargetView(targets[0], DirectX::Colors::Transparent);
+	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
+
+
+Kore::mat4 WindowsNumericsToKoreMat(float4x4 m)
+{
+	Kore::mat4 mat;
+	mat.Set(0, 0, m.m11);
+	mat.Set(0, 1, m.m21);
+	mat.Set(0, 2, m.m31);
+	mat.Set(0, 3, m.m41);
+
+	mat.Set(1, 0, m.m12);
+	mat.Set(1, 1, m.m22);
+	mat.Set(1, 2, m.m32);
+	mat.Set(1, 3, m.m42);
+
+	mat.Set(2, 0, m.m13);
+	mat.Set(2, 1, m.m23);
+	mat.Set(2, 2, m.m33);
+	mat.Set(2, 3, m.m43);
+
+	mat.Set(3, 0, m.m14);
+	mat.Set(3, 1, m.m24);
+	mat.Set(3, 2, m.m34);
+	mat.Set(3, 3, m.m44);
+	return mat;
+}
+
 
 SensorState HolographicMain::getSensorState(int eye)
 {
 	SensorState state;
+	// The projection transform for each frame is provided by the HolographicCameraPose.
+	HolographicStereoTransform cameraProjectionTransform = m_currentCamPose->ProjectionTransform;
 
-	HolographicFramePrediction^ prediction = m_currentHolographicFrame->CurrentPrediction;
-	SpatialCoordinateSystem^ currentCoordinateSystem = m_referenceFrame->GetStationaryCoordinateSystemAtTimestamp(prediction->Timestamp);
-	auto firstCamPose = prediction->CameraPoses->GetAt(0);
-	// This represents the device-based resources for a HolographicCamera.
-	DX::CameraResources* pCameraResources = m_deviceResources->GetResourcesForCamera(firstCamPose->HolographicCamera);
+	Platform::IBox<HolographicStereoTransform>^ viewTransformContainer = m_currentCamPose->TryGetViewTransform(m_currentCoordinateSystem);
+	bool viewTransformAcquired = viewTransformContainer != nullptr;
+	HolographicStereoTransform viewCoordinateSystemTransform;
+	if (viewTransformAcquired)
+	{
+		viewCoordinateSystemTransform = viewTransformContainer->Value;
+	}
 
+	if (eye == 0) {
+		state.pose.vrPose.projection = WindowsNumericsToKoreMat(cameraProjectionTransform.Left);
+		state.pose.vrPose.eye = WindowsNumericsToKoreMat(viewCoordinateSystemTransform.Left);
+	}
+	else
+	{
+		state.pose.vrPose.projection = WindowsNumericsToKoreMat(cameraProjectionTransform.Right);
+		state.pose.vrPose.eye = WindowsNumericsToKoreMat(viewCoordinateSystemTransform.Right);
+	}
 	return state;
 }
 
@@ -104,24 +151,73 @@ void HolographicMain::warpSwap()
 
 }
 
-
+void HolographicMain::SetDeviceAndContext(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context)
+{
+	m_deviceResources->InitWithDevice(device, context);
+	m_holographicSpace->SetDirect3D11Device(m_deviceResources->GetD3DInteropDevice());
+}
 
 // Loads and initializes application assets when the application is loaded.
-HolographicMain::HolographicMain(
-	const std::shared_ptr<DX::DeviceResources>& deviceResources) :
-	m_deviceResources(deviceResources)
+HolographicMain::HolographicMain(Windows::UI::Core::CoreWindow^ window)
 {
+	CreateHolographicSpace(window);
+	m_deviceResources = std::make_shared<DX::DeviceResources>();
 	// Register to be notified if the device is lost or recreated.
 	m_deviceResources->RegisterDeviceNotify(this);
 }
 
 
-void HolographicMain::SetHolographicSpace(
-	HolographicSpace^ holographicSpace)
+Microsoft::WRL::ComPtr<IDXGIAdapter3> HolographicMain::GetCompatibleDxgiAdapter()
+{
+	Microsoft::WRL::ComPtr<IDXGIAdapter3> theDxgiAdapter;
+	// The holographic space might need to determine which adapter supports
+	// holograms, in which case it will specify a non-zero PrimaryAdapterId.
+	LUID id =
+	{
+		m_holographicSpace->PrimaryAdapterId.LowPart,
+		m_holographicSpace->PrimaryAdapterId.HighPart
+	};
+
+	// When a primary adapter ID is given to the app, the app should find
+	// the corresponding DXGI adapter and use it to create Direct3D devices
+	// and device contexts. Otherwise, there is no restriction on the DXGI
+	// adapter the app can use.
+	if ((id.HighPart != 0) && (id.LowPart != 0))
+	{
+		UINT createFlags = 0;
+#ifdef DEBUG
+		if (DX::SdkLayersAvailable())
+		{
+			createFlags |= DXGI_CREATE_FACTORY_DEBUG;
+}
+#endif
+		// Create the DXGI factory.
+		ComPtr<IDXGIFactory1> dxgiFactory;
+		affirm(
+			CreateDXGIFactory2(
+				createFlags,
+				IID_PPV_ARGS(&dxgiFactory)
+			)
+		);
+		ComPtr<IDXGIFactory4> dxgiFactory4;
+		affirm(dxgiFactory.As(&dxgiFactory4));
+
+		// Retrieve the adapter specified by the holographic space.
+		affirm(
+			dxgiFactory4->EnumAdapterByLuid(
+				id,
+				IID_PPV_ARGS(&theDxgiAdapter)
+			)
+		);
+	}
+	return theDxgiAdapter;
+
+}
+void HolographicMain::CreateHolographicSpace(Windows::UI::Core::CoreWindow^ window)
 {
 	UnregisterHolographicEventHandlers();
 
-	m_holographicSpace = holographicSpace;
+	m_holographicSpace = HolographicSpace::CreateForCoreWindow(window);
 
 	//register camera events
 	m_cameraAddedToken =
@@ -213,63 +309,6 @@ HolographicFrame^ HolographicMain::Update()
 	// The holographic frame will be used to get up-to-date view and projection matrices and
 	// to present the swap chain.
 	return holographicFrame;
-}
-
-// Renders the current frame to each holographic camera, according to the
-// current application and spatial positioning state. Returns true if the
-// frame was rendered to at least one camera.
-bool HolographicMain::Render(
-	HolographicFrame^ holographicFrame)
-{
-	// Lock the set of holographic camera resources, then draw to each camera
-	// in this frame.
-	return m_deviceResources->UseHolographicCameraResources<bool>(
-		[this, holographicFrame](std::map<UINT32, std::unique_ptr<DX::CameraResources>>& cameraResourceMap)
-	{
-		// Up-to-date frame predictions enhance the effectiveness of image stablization and
-		// allow more accurate positioning of holograms.
-		holographicFrame->UpdateCurrentPrediction();
-		HolographicFramePrediction^ prediction = holographicFrame->CurrentPrediction;
-
-		bool atLeastOneCameraRendered = false;
-		for (auto cameraPose : prediction->CameraPoses)
-		{
-			// This represents the device-based resources for a HolographicCamera.
-			DX::CameraResources* pCameraResources = cameraResourceMap[cameraPose->HolographicCamera->Id].get();
-//
-//			// Get the device context.
-			const auto context = m_deviceResources->GetD3DDeviceContext();
-			const auto depthStencilView = pCameraResources->GetDepthStencilView();
-
-			// Set render targets to the current holographic camera.
-			ID3D11RenderTargetView *const targets[1] = { pCameraResources->GetBackBufferRenderTargetView() };
-			context->OMSetRenderTargets(1, targets, depthStencilView);
-
-			// Clear the back buffer and depth stencil view.
-			context->ClearRenderTargetView(targets[0], DirectX::Colors::Red);
-			context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-//			// The view and projection matrices for each holographic camera will change
-//			// every frame. This function refreshes the data in the constant buffer for
-//			// the holographic camera indicated by cameraPose.
-//			pCameraResources->UpdateViewProjectionBuffer(m_deviceResources, cameraPose, currentCoordinateSystem);
-//
-//			// Attach the view/projection constant buffer for this camera to the graphics pipeline.
-//			bool cameraActive = pCameraResources->AttachViewProjectionBuffer(m_deviceResources);
-//
-//#ifdef DRAW_SAMPLE_CONTENT
-//			// Only render world-locked content when positional tracking is active.
-//			if (cameraActive)
-//			{
-//				// Draw the sample hologram.
-//				m_meshRenderer->Render(pCameraResources->IsRenderingStereoscopic(), m_drawWireframe);
-//			}
-//#endif
-			atLeastOneCameraRendered = true;
-		}
-
-		return atLeastOneCameraRendered;
-	});
 }
 
 

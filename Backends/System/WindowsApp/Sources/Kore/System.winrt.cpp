@@ -21,9 +21,6 @@
 #include <Xinput.h>
 #endif
 
-using namespace Windows::Graphics::Holographic;
-using namespace Windows::Perception::Spatial;
-
 ref class Win8Application sealed : public Windows::ApplicationModel::Core::IFrameworkView {
 public:
 	Win8Application();
@@ -217,16 +214,8 @@ void Win8Application::SetWindow(CoreWindow^ window) {
 	    ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow ^, Windows::UI::Core::KeyEventArgs ^>(this, &Win8Application::OnKeyUp);
 	// m_renderer->Initialize(CoreWindow::GetForCurrentThread());
 
-
 	//Create holographics space - needs to be created before window is activated
-	HolographicSpace^ m_holographicSpace = HolographicSpace::CreateForCoreWindow(window);
-
-	std::shared_ptr<DX::DeviceResources> deviceResources = std::make_shared<DX::DeviceResources>();
-	deviceResources->SetHolographicSpace(m_holographicSpace);
-
-	m_main = std::make_unique<HolographicMain>(deviceResources);
-	m_main->SetHolographicSpace(m_holographicSpace);
-
+	m_main = std::make_unique<HolographicMain>(window);
 
 }
 

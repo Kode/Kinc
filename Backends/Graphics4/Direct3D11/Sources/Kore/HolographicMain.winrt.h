@@ -13,26 +13,20 @@
 #include "DeviceResources.winrt.h"
 #include <Kore/Vr/SensorState.h>
 
+using namespace Windows::UI::Core;
+using namespace Windows::System;
 
 class HolographicMain : public DX::IDeviceNotify
 {
 public:
-	HolographicMain(const std::shared_ptr<DX::DeviceResources>& deviceResources);
+	HolographicMain(Windows::UI::Core::CoreWindow^ window);
 	~HolographicMain();
 
-	// Sets the holographic space. This is our closest analogue to setting a new window
-	// for the app.
-	void SetHolographicSpace(Windows::Graphics::Holographic::HolographicSpace^ holographicSpace);
+	void SetDeviceAndContext(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context);
+	Microsoft::WRL::ComPtr<IDXGIAdapter3> HolographicMain::GetCompatibleDxgiAdapter();
 
 	// Starts the holographic frame and updates the content.
 	Windows::Graphics::Holographic::HolographicFrame^ Update();
-
-	// Renders holograms, including world-locked content.
-	bool Render(Windows::Graphics::Holographic::HolographicFrame^ holographicFrame);
-
-	// Handle saving and loading of app state owned by AppMain.
-	void SaveAppState();
-	void LoadAppState();
 
 	// IDeviceNotify
 	virtual void OnDeviceLost();
@@ -44,8 +38,10 @@ public:
 	SensorState getSensorState(int eye);
 	void endRender(int eye);
 	void warpSwap();
-
 private:
+	// Sets the holographic space. This is our closest analogue to setting a new window
+	// for the app.
+	void CreateHolographicSpace(Windows::UI::Core::CoreWindow^ window);
 	// Asynchronously creates resources for new holographic cameras.
 	void OnCameraAdded(
 		Windows::Graphics::Holographic::HolographicSpace^ sender,

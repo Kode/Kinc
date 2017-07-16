@@ -32,7 +32,7 @@ namespace DX
     {
     public:
         DeviceResources();
-
+		void InitWithDevice(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context);
         // Public methods related to Direct3D devices.
         void HandleDeviceLost();
         void RegisterDeviceNotify(IDeviceNotify* deviceNotify);
@@ -40,7 +40,6 @@ namespace DX
         void Present(Windows::Graphics::Holographic::HolographicFrame^ frame);
 
         // Public methods related to holographic devices.
-        void SetHolographicSpace(Windows::Graphics::Holographic::HolographicSpace^ space);
         void EnsureCameraResources(
             Windows::Graphics::Holographic::HolographicFrame^ frame,
             Windows::Graphics::Holographic::HolographicFramePrediction^ prediction);
@@ -64,25 +63,13 @@ namespace DX
         ID3D11DeviceContext3*   GetD3DDeviceContext() const             { return m_d3dContext.Get();    }
         D3D_FEATURE_LEVEL       GetDeviceFeatureLevel() const           { return m_d3dFeatureLevel;     }
 
-        // DXGI acessors.
-        IDXGIAdapter3*          GetDXGIAdapter() const                  { return m_dxgiAdapter.Get();   }
-
     private:
-        // Private methods related to the Direct3D device, and resources based on that device.
-        //void CreateDeviceIndependentResources();
-        void InitializeUsingHolographicSpace();
-        void CreateDeviceResources();
-
         // Direct3D objects.
         Microsoft::WRL::ComPtr<ID3D11Device4>                   m_d3dDevice;
         Microsoft::WRL::ComPtr<ID3D11DeviceContext3>            m_d3dContext;
-        Microsoft::WRL::ComPtr<IDXGIAdapter3>                   m_dxgiAdapter;
 
         // Direct3D interop objects.
         Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice^ m_d3dInteropDevice;
-
-        // The holographic space provides a preferred DXGI adapter ID.
-        Windows::Graphics::Holographic::HolographicSpace^       m_holographicSpace = nullptr;
 
         // Properties of the Direct3D device currently in use.
         D3D_FEATURE_LEVEL                                       m_d3dFeatureLevel = D3D_FEATURE_LEVEL_10_0;
