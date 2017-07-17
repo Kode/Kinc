@@ -101,9 +101,7 @@ int Kore::System::windowCount() {
 	return windowCounter + 1;
 }
 
-void System::destroyWindow(int windowId) {}
-
-int Kore::System::initWindow(Kore::WindowOptions options) {
+int createWindow(Kore::WindowOptions options) {
 	int width = options.width;
 	int height = options.height;
 	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
@@ -133,9 +131,15 @@ int Kore::System::initWindow(Kore::WindowOptions options) {
 	++windowCounter;
 	windows[windowCounter] = new KoreWindow(window, view, options.x, options.y, width, height);
 	Kore::System::makeCurrent(windowCounter);
-
-	Graphics4::init(windowCounter, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return windowCounter;
+}
+
+void System::destroyWindow(int windowId) {}
+
+int Kore::System::initWindow(Kore::WindowOptions options) {
+	int windowId = createWindow(options);
+	Graphics4::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+	return windowId;
 }
 
 #ifndef KORE_METAL
