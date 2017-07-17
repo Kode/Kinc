@@ -101,16 +101,28 @@ int Kore::System::windowCount() {
 	return windowCounter + 1;
 }
 
-int createWindow(const char* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
+void System::destroyWindow(int windowId) {}
+
+int Kore::System::initWindow(Kore::WindowOptions options) {
+	int width = options.width;
+	int height = options.height;
+	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
+	if (options.resizable || options.maximizable) {
+		styleMask |= NSResizableWindowMask;
+	}
+	if (options.minimizable) {
+		styleMask |= NSMiniaturizableWindowMask;
+	}
+
 	BasicOpenGLView* view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
 	[view registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, nil]];
 	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
-	                                               styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
+	                                               styleMask:styleMask
 	                                                 backing:NSBackingStoreBuffered
 	                                                   defer:TRUE];
 	delegate = [MyAppDelegate alloc];
 	[window setDelegate:delegate];
-	[window setTitle:[NSString stringWithCString:title encoding:1]];
+	[window setTitle:[NSString stringWithCString:options.title encoding:1]];
 	[window setAcceptsMouseMovedEvents:YES];
 	[[window contentView] addSubview:view];
 	[window center];
@@ -119,17 +131,11 @@ int createWindow(const char* title, int x, int y, int width, int height, WindowM
 	}
 
 	++windowCounter;
-	windows[windowCounter] = new KoreWindow(window, view, x, y, width, height);
+	windows[windowCounter] = new KoreWindow(window, view, options.x, options.y, width, height);
 	Kore::System::makeCurrent(windowCounter);
+
+	Graphics4::init(windowCounter, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 	return windowCounter;
-}
-
-void System::destroyWindow(int windowId) {}
-
-int Kore::System::initWindow(Kore::WindowOptions options) {
-	int id = createWindow(options.title, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay);
-	Graphics4::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-	return id;
 }
 
 #ifndef KORE_METAL
@@ -139,11 +145,15 @@ void Graphics4::makeCurrent(int contextId) {
 #endif
 
 int Kore::System::windowWidth(int id) {
-	return windows[id]->width;
+	NSWindow* window = windows[id]->handle;
+	return [[window contentView]frame].size.width;
+	// return windows[id]->width;
 }
 
 int Kore::System::windowHeight(int id) {
-	return windows[id]->height;
+	NSWindow* window = windows[id]->handle;
+	return [[window contentView]frame].size.height;
+	// return windows[id]->height;
 }
 
 int System::desktopWidth() {
