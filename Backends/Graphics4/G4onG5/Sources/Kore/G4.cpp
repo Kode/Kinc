@@ -74,7 +74,7 @@ void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddr
 }
 
 void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
-	Graphics5::clear(flags, color, depth, stencil);
+	commandList->clear(framebuffers[currentBuffer], flags, color, depth, stencil);
 }
 
 void Graphics4::begin(int window) {

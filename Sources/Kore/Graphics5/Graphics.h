@@ -173,9 +173,7 @@ namespace Kore {
 		const uint ClearColorFlag = 1;
 		const uint ClearDepthFlag = 2;
 		const uint ClearStencilFlag = 4;
-
-		void clear(uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
-
+		
 		void init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync = true);
 		void destroy(int windowId);
 

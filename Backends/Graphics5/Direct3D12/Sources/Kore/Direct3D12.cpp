@@ -367,8 +367,6 @@ void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddres
 #define $Line MakeString(Stringize, __LINE__)
 #define Warning __FILE__ "(" $Line ") : warning: "
 
-void Graphics5::clear(uint flags, uint color, float depth, int stencil) {}
-
 namespace {
 	bool began = false;
 }

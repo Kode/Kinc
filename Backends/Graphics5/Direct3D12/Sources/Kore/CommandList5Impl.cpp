@@ -71,6 +71,24 @@ void CommandList::end() {
 	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 }
 
+void CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, float depth, int stencil) {
+	float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
+		((color & 0xff000000) >> 24) / 255.0f };
+	if (flags & ClearColorFlag) {
+		_commandList->ClearRenderTargetView(renderTarget->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
+	}
+	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
+		D3D12_CLEAR_FLAGS flags =
+			(flags & ClearDepthFlag) && (flags & ClearStencilFlag)
+			? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
+			: (flags & ClearDepthFlag) ? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
+		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), flags, depth, stencil, 0, nullptr);
+	}
+	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
+		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	}
+}
+
 void CommandList::renderTargetToFramebufferBarrier(RenderTarget* renderTarget) {
 	D3D12_RESOURCE_BARRIER barrier;
 	barrier.Transition.pResource = renderTarget->renderTarget;

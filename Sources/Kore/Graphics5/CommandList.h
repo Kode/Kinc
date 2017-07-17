@@ -16,6 +16,7 @@ namespace Kore {
 			~CommandList();
 			void begin();
 			void end();
+			void clear(RenderTarget* renderTarget, uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
 			void renderTargetToFramebufferBarrier(RenderTarget* renderTarget);
 			void framebufferToRenderTargetBarrier(RenderTarget* renderTarget);
 			void drawIndexedVertices();
