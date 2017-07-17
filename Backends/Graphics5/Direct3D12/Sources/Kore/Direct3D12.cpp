@@ -35,7 +35,7 @@ ID3D12DescriptorHeap* cbvHeap;*/
 // ID3D12RenderTargetView* renderTargetView;
 // ID3D12DepthStencilView* depthStencilView;
 
-int currentBackBuffer = 0;
+int currentBackBuffer = -1;
 ID3D12Device* device;
 ID3D12RootSignature* rootSignature;
 //ID3D12GraphicsCommandList* commandList;
@@ -72,7 +72,7 @@ namespace {
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT rectScissor;
 	//ID3D12Resource* renderTarget;
-	ID3D12DescriptorHeap* renderTargetDescriptorHeap;
+	//ID3D12DescriptorHeap* renderTargetDescriptorHeap;
 	ID3D12DescriptorHeap* depthStencilDescriptorHeap;
 	UINT64 currentFenceValue;
 	UINT64 fenceValues[QUEUE_SLOT_COUNT];
@@ -112,7 +112,7 @@ namespace {
 		}
 	}
 
-	/*void createRenderTargetView() {
+	void createRenderTargetView(ID3D12Resource* renderTarget, ID3D12DescriptorHeap* renderTargetDescriptorHeap) {
 		const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
 
 		D3D12_RENDER_TARGET_VIEW_DESC viewDesc;
@@ -122,14 +122,14 @@ namespace {
 		viewDesc.Texture2D.PlaneSlice = 0;
 
 		device->CreateRenderTargetView(renderTarget, &viewDesc, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-	}*/
+	}
 
 	void setupSwapChain() {
-		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+		/*D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 		heapDesc.NumDescriptors = 1;
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));
+		device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));*/
 
 		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 		dsvHeapDesc.NumDescriptors = 1;
@@ -305,7 +305,7 @@ void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	}
 #endif
 
-	begin(window);
+	//**begin(window);
 }
 
 void Graphics5::changeResolution(int width, int height) {}
@@ -373,15 +373,25 @@ namespace {
 	bool began = false;
 }
 
-void Graphics5::begin(int window) {
+void Graphics5::begin(RenderTarget* renderTarget, int window) {
 	if (began) return;
 	began = true;
+
+	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
+	swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget->renderTarget));
+	createRenderTargetView(renderTarget->renderTarget, renderTarget->renderTargetDescriptorHeap);
+
+	const UINT64 fenceValue = currentFenceValue;
+	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
+	fenceValues[currentBackBuffer] = fenceValue;
+	++currentFenceValue;
+
 #ifdef KORE_WINDOWSAPP
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 
 	waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
-
+	
 	//static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
 	//commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
@@ -404,19 +414,8 @@ unsigned Graphics5::refreshRate() {
 	return hz;
 }
 
-bool Graphics5::swapBuffers(int window, RenderTarget* renderTarget) {
+bool Graphics5::swapBuffers(int window) {
 	swapChain->Present(1, 0);
-
-	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
-	swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget->renderTarget));
-
-	//**createRenderTargetView();
-
-	const UINT64 fenceValue = currentFenceValue;
-	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
-	fenceValues[currentBackBuffer] = fenceValue;
-	++currentFenceValue;
-
 	return true;
 }
 
