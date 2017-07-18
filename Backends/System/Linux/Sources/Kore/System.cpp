@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <X11/Xatom.h>
 
 #ifdef KORE_OPENGL
 #include <GL/gl.h>
@@ -40,6 +41,13 @@ namespace {
 	Display* dpy;
 	GLboolean doubleBuffer = GL_TRUE;
 #endif
+	Window win;
+	Atom XdndDrop;
+	Atom XdndFinished;
+	Atom XdndActionCopy;
+	Atom XdndSelection;
+	Atom XdndPrimary;
+	Window XdndSourceWindow = None;
 
 	void fatalError(const char* message) {
 		printf("main: %s\n", message);
@@ -162,7 +170,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	swa.border_pixel = 0;
 	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
 
-	Window win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
+	win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
 	                           CWBorderPixel | CWColormap | CWEventMask, &swa);
 	XSetStandardProperties(dpy, win, title, "main", None, NULL, 0, NULL);
 
@@ -204,6 +212,16 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 		XMoveWindow(dpy, win, dstx, dsty);
 	}
 	// Scheduler::addFrameTask(HandleMessages, 1001);
+
+	// Drag and drop
+	Atom XdndAware = XInternAtom(dpy, "XdndAware", 0);
+	Atom XdndVersion = 5;
+	XChangeProperty(dpy, win, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&XdndVersion, 1);
+	XdndDrop = XInternAtom(dpy, "XdndDrop", 0);
+	XdndFinished = XInternAtom(dpy, "XdndFinished", 0);
+	XdndActionCopy = XInternAtom(dpy, "XdndActionCopy", 0);
+	XdndSelection = XInternAtom(dpy, "XdndSelection", 0);
+	XdndPrimary = XInternAtom(dpy, "PRIMARY", 0);
 
 	windowimpl::windows[wcounter] = new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
 
@@ -515,6 +533,46 @@ bool Kore::System::handleMessages() {
             windowimpl::windows[windowId]->height = event.xconfigure.height;
 			glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
             break;
+		}
+		case ClientMessage: {
+			if (event.xclient.message_type == XdndDrop) {
+				XdndSourceWindow = event.xclient.data.l[0];
+				XConvertSelection(dpy, XdndSelection, XA_STRING, XdndPrimary, win, event.xclient.data.l[2]);
+			}
+		}
+		case SelectionNotify: {
+			Atom target = event.xselection.target;
+			if (target == XA_STRING) {
+				Atom type;
+				int format;
+				unsigned long numItems;
+				unsigned long bytesAfter = 1;
+				unsigned char* data = 0;
+				int readBytes = 1024;
+				while (bytesAfter != 0) {
+					if (data != 0) XFree(data);
+					XGetWindowProperty(dpy, win, XdndPrimary, 0, readBytes, false, AnyPropertyType, &type, &format, &numItems, &bytesAfter, &data);
+					readBytes *= 2;
+				}
+				size_t len = numItems * format / 8 - 1; // Strip new line at the end
+				wchar_t filePath[len + 1];
+				mbstowcs(filePath, (char*)data, len);
+				filePath[len] = 0;
+				Kore::System::dropFilesCallback(filePath + 7); // Strip file://
+
+				XClientMessageEvent m;
+				memset(&m, sizeof(m), 0);
+				m.type = ClientMessage;
+				m.display = dpy;
+				m.window = XdndSourceWindow;
+				m.message_type = XdndFinished;
+				m.format = 32;
+				m.data.l[0] = win;
+				m.data.l[1] = 1;
+				m.data.l[2] = XdndActionCopy;
+				XSendEvent(dpy, XdndSourceWindow, false, NoEventMask, (XEvent*)&m);
+				XSync(dpy, false);
+			}
 		}
 		case Expose:
 			break;
