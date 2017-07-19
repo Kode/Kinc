@@ -78,11 +78,11 @@ void CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, floa
 		_commandList->ClearRenderTargetView(renderTarget->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
 	}
 	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
-		D3D12_CLEAR_FLAGS flags =
+		D3D12_CLEAR_FLAGS d3dflags =
 			(flags & ClearDepthFlag) && (flags & ClearStencilFlag)
 			? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
 			: (flags & ClearDepthFlag) ? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
-		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), flags, depth, stencil, 0, nullptr);
+		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth, stencil, 0, nullptr);
 	}
 	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
 		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
@@ -194,10 +194,15 @@ void CommandList::upload(IndexBuffer* buffer) {
 }
 
 void CommandList::upload(Texture* texture) {
-	D3D12_SUBRESOURCE_DATA srcData;
-	srcData.pData = texture->data;
-	srcData.RowPitch = texture->format == Image::RGBA32 ? (texture->width * 4) : texture->width;
-	srcData.SlicePitch = texture->format == Image::RGBA32 ? (texture->width * texture->height * 4) : (texture->width * texture->height);
-	UpdateSubresources(_commandList, texture->image, texture->uploadImage, 0, 0, 1, &srcData);
+	D3D12_RESOURCE_DESC Desc = texture->image->GetDesc();
+	ID3D12Device* device;
+	texture->image->GetDevice(IID_GRAPHICS_PPV_ARGS(&device));
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
+	device->GetCopyableFootprints(&Desc, 0, 1, 0, &footprint, nullptr, nullptr, nullptr);
+	device->Release();
+
+	CD3DX12_TEXTURE_COPY_LOCATION source(texture->uploadImage, footprint);
+	CD3DX12_TEXTURE_COPY_LOCATION destination(texture->image, 0);
+	_commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
 	_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture->image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 }

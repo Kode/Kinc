@@ -224,6 +224,10 @@ void Graphics4::setIndexBuffer(IndexBuffer& buffer) {
 }
 
 void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
+	if (!texture->_uploaded) {
+		commandList->upload(texture->_texture);
+		texture->_uploaded = true;
+	}
 	Graphics5::setTexture(unit._unit, texture->_texture);
 }
 
