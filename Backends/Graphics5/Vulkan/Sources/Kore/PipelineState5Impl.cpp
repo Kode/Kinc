@@ -10,7 +10,10 @@
 using namespace Kore;
 
 extern VkDevice device;
+extern VkRenderPass render_pass;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+
+Graphics5::PipelineState* PipelineState5Impl::current;
 
 namespace {
 	VkDescriptorSetLayout desc_layout;

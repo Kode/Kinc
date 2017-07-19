@@ -2,6 +2,7 @@
 
 #include <Kore/Graphics5/CommandList.h>
 #include <Kore/Graphics5/PipelineState.h>
+#include <Kore/System.h>
 
 #include <assert.h>
 
@@ -12,86 +13,107 @@ using namespace Kore::Graphics5;
 
 extern VkDevice device;
 extern VkCommandPool cmd_pool;
+extern PFN_vkQueuePresentKHR fpQueuePresentKHR;
+extern PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
+extern VkSwapchainKHR swapchain;
+extern VkQueue queue;
+extern VkFramebuffer* framebuffers;
+extern VkRenderPass render_pass;
+
+struct SwapchainBuffers {
+	VkImage image;
+	VkCommandBuffer cmd;
+	VkImageView view;
+};
+
+extern SwapchainBuffers* buffers;
+extern uint32_t current_buffer;
 
 namespace {
-	void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
-		VkResult err;
+	VkCommandBuffer setup_cmd;
+	bool began = false;
+	bool onBackBuffer = false;
+}
 
-		if (setup_cmd == VK_NULL_HANDLE) {
-			VkCommandBufferAllocateInfo cmd = {};
-			cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			cmd.pNext = nullptr;
-			cmd.commandPool = cmd_pool;
-			cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			cmd.commandBufferCount = 1;
+void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
+	VkResult err;
 
-			err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
-			assert(!err);
+	if (setup_cmd == VK_NULL_HANDLE) {
+		VkCommandBufferAllocateInfo cmd = {};
+		cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		cmd.pNext = nullptr;
+		cmd.commandPool = cmd_pool;
+		cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		cmd.commandBufferCount = 1;
 
-			VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-			cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-			cmd_buf_hinfo.pNext = nullptr;
-			cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-			cmd_buf_hinfo.subpass = 0;
-			cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-			cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-			cmd_buf_hinfo.queryFlags = 0;
-			cmd_buf_hinfo.pipelineStatistics = 0;
+		err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
+		assert(!err);
 
-			VkCommandBufferBeginInfo cmd_buf_info = {};
-			cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			cmd_buf_info.pNext = nullptr;
-			cmd_buf_info.flags = 0;
-			cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+		VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
+		cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+		cmd_buf_hinfo.pNext = nullptr;
+		cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
+		cmd_buf_hinfo.subpass = 0;
+		cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
+		cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
+		cmd_buf_hinfo.queryFlags = 0;
+		cmd_buf_hinfo.pipelineStatistics = 0;
 
-			err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
-			assert(!err);
-		}
+		VkCommandBufferBeginInfo cmd_buf_info = {};
+		cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		cmd_buf_info.pNext = nullptr;
+		cmd_buf_info.flags = 0;
+		cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
 
-		VkImageMemoryBarrier image_memory_barrier = {};
-		image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		image_memory_barrier.pNext = nullptr;
-		image_memory_barrier.srcAccessMask = 0;
-		image_memory_barrier.dstAccessMask = 0;
-		image_memory_barrier.oldLayout = old_image_layout;
-		image_memory_barrier.newLayout = new_image_layout;
-		image_memory_barrier.image = image;
-		image_memory_barrier.subresourceRange.aspectMask = aspectMask;
-		image_memory_barrier.subresourceRange.baseMipLevel = 0;
-		image_memory_barrier.subresourceRange.levelCount = 1;
-		image_memory_barrier.subresourceRange.baseArrayLayer = 0;
-		image_memory_barrier.subresourceRange.layerCount = 1;
-
-		if (old_image_layout != VK_IMAGE_LAYOUT_UNDEFINED) {
-			image_memory_barrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-		}
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
-			image_memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-		}
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			// Make sure anything that was copying from this image has completed
-			image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-		}
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-			image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		}
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-			image_memory_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		}
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-			// Make sure any Copy or CPU writes to image are flushed
-			image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-		}
-
-		vkCmdPipelineBarrier(setup_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1,
-			&image_memory_barrier);
+		err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
+		assert(!err);
 	}
 
+	VkImageMemoryBarrier image_memory_barrier = {};
+	image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	image_memory_barrier.pNext = nullptr;
+	image_memory_barrier.srcAccessMask = 0;
+	image_memory_barrier.dstAccessMask = 0;
+	image_memory_barrier.oldLayout = old_image_layout;
+	image_memory_barrier.newLayout = new_image_layout;
+	image_memory_barrier.image = image;
+	image_memory_barrier.subresourceRange.aspectMask = aspectMask;
+	image_memory_barrier.subresourceRange.baseMipLevel = 0;
+	image_memory_barrier.subresourceRange.levelCount = 1;
+	image_memory_barrier.subresourceRange.baseArrayLayer = 0;
+	image_memory_barrier.subresourceRange.layerCount = 1;
+
+	if (old_image_layout != VK_IMAGE_LAYOUT_UNDEFINED) {
+		image_memory_barrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		// Make sure anything that was copying from this image has completed
+		image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		image_memory_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	}
+
+	if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		// Make sure any Copy or CPU writes to image are flushed
+		image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+	}
+
+	vkCmdPipelineBarrier(setup_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1,
+		&image_memory_barrier);
+}
+
+namespace {
 	void demo_flush_init_cmd() {
 		VkResult err;
 
@@ -122,6 +144,12 @@ namespace {
 		vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
 		setup_cmd = VK_NULL_HANDLE;
 	}
+
+	float depthStencil;
+	float depthIncrement;
+
+	VkSemaphore presentCompleteSemaphore;
+	
 }
 
 CommandList::CommandList() {
@@ -136,6 +164,9 @@ CommandList::CommandList() {
 	assert(!err);
 
 	_indexCount = 0;
+
+	depthStencil = 1.0;
+	depthIncrement = -0.01f;
 }
 
 CommandList::~CommandList() {
@@ -156,7 +187,7 @@ void CommandList::begin() {
 	// Get the index of the next available swapchain image:
 	err = fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
 		&current_buffer);
-	if (err == VK_ERROR_OUT_OF_DATE_KHR) {
+	/*if (err == VK_ERROR_OUT_OF_DATE_KHR) {
 		// demo->swapchain is out of date (e.g. the window was resized) and
 		// must be recreated:
 		// demo_resize(demo);
@@ -171,7 +202,8 @@ void CommandList::begin() {
 	}
 	else {
 		assert(!err);
-	}
+	}*/
+	assert(!err);
 
 	// Assume the command buffer has been run on current_buffer before so
 	// we need to set the image layout back to COLOR_ATTACHMENT_OPTIMAL
@@ -210,8 +242,8 @@ void CommandList::begin() {
 	rp_begin.framebuffer = framebuffers[current_buffer];
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
-	rp_begin.renderArea.extent.width = width;
-	rp_begin.renderArea.extent.height = height;
+	rp_begin.renderArea.extent.width = System::windowWidth();
+	rp_begin.renderArea.extent.height = System::windowHeight();
 	rp_begin.clearValueCount = 2;
 	rp_begin.pClearValues = clear_values;
 
@@ -221,16 +253,16 @@ void CommandList::begin() {
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.width = (float)width;
-	viewport.height = (float)height;
+	viewport.width = (float)System::windowWidth();
+	viewport.height = (float)System::windowHeight();
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(_buffer, 0, 1, &viewport);
 
 	VkRect2D scissor;
 	memset(&scissor, 0, sizeof(scissor));
-	scissor.extent.width = width;
-	scissor.extent.height = height;
+	scissor.extent.width = System::windowWidth();
+	scissor.extent.height = System::windowHeight();
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
 	vkCmdSetScissor(_buffer, 0, 1, &scissor);
@@ -285,7 +317,7 @@ void CommandList::end() {
 
 	// TBD/TODO: SHOULD THE "present" PARAMETER BE "const" IN THE HEADER?
 	err = fpQueuePresentKHR(queue, &present);
-	if (err == VK_ERROR_OUT_OF_DATE_KHR) {
+	/*if (err == VK_ERROR_OUT_OF_DATE_KHR) {
 		// demo->swapchain is out of date (e.g. the window was resized) and
 		// must be recreated:
 		// demo_resize(demo);
@@ -297,7 +329,8 @@ void CommandList::end() {
 	}
 	else {
 		assert(!err);
-	}
+	}*/
+	assert(!err);
 
 	err = vkQueueWaitIdle(queue);
 	assert(err == VK_SUCCESS);
@@ -366,14 +399,16 @@ void CommandList::setPipeline(PipelineState* pipeline) {
 
 void CommandList::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 	vertexBuffers[0]->_set();
+	VkDeviceSize offsets[1] = { vertexBuffers[0]->index * vertexBuffers[0]->count() * vertexBuffers[0]->stride() };
+	vkCmdBindVertexBuffers(_buffer, 0, 1, &vertexBuffers[0]->vertices.buf, offsets);
 }
 
 void CommandList::setIndexBuffer(IndexBuffer& indexBuffer) {
 	_indexCount = indexBuffer.count();
-	indexBuffer._set();
+	vkCmdBindIndexBuffer(_buffer, indexBuffer.buf, 0, VK_INDEX_TYPE_UINT32);
 }
 
-void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
+void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 
 namespace {
 	Graphics5::RenderTarget* currentRenderTarget = nullptr;
@@ -397,9 +432,9 @@ namespace {
 			vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
 		}
 		else {
-			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+			setImageLayout(_buffer, currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			setImageLayout(_buffer, currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 			VkImageBlit imgBlit;
@@ -427,9 +462,9 @@ namespace {
 			vkCmdBlitImage(_buffer, currentRenderTarget->sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTarget->destImage,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
 
-			setImageLayout(currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			setImageLayout(_buffer, currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			setImageLayout(currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			setImageLayout(_buffer, currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 

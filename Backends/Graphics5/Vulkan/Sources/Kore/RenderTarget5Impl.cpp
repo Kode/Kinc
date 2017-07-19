@@ -13,7 +13,6 @@ using namespace Kore;
 
 extern VkDevice device;
 extern VkRenderPass render_pass;
-extern VkCommandBuffer draw_cmd;
 extern uint32_t swapchainImageCount;
 extern VkPhysicalDevice gpu;
 
@@ -38,7 +37,7 @@ extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
-void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
+void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
 	VkImageMemoryBarrier imageMemoryBarrier = {};
 	imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	imageMemoryBarrier.pNext = nullptr;
@@ -76,14 +75,14 @@ void setImageLayout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout 
 	VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
-	vkCmdPipelineBarrier(draw_cmd, srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	vkCmdPipelineBarrier(_buffer, srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 }
 
 Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
     : width(width), height(height) {
 	texWidth = width;
 	texHeight = height;
-	{
+	/**{
 		VkFormatProperties formatProperties;
 		VkResult err;
 
@@ -200,7 +199,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		colorImageView.image = sourceImage;
 		err = vkCreateImageView(device, &colorImageView, nullptr, &sourceView);
 		assert(!err);
-	}
+	}*/
 
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -341,8 +340,8 @@ Graphics5::RenderTarget::~RenderTarget() {}
 void Graphics5::RenderTarget::useColorAsTexture(Graphics5::TextureUnit unit) {
 	vulkanRenderTargets[unit.binding - 2] = this;
 	vulkanTextures[unit.binding - 2] = nullptr;
-	if (Program5Impl::current != nullptr)
-		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, Program5Impl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
+	//** if (Program5Impl::current != nullptr)
+	//**	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, Program5Impl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
 void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {

@@ -14,7 +14,7 @@ using namespace Kore;
 
 extern VkDevice device;
 extern VkPhysicalDevice gpu;
-extern VkCommandBuffer setup_cmd;
+VkCommandBuffer setup_cmd;
 extern VkCommandPool cmd_pool;
 extern VkQueue queue;
 extern bool use_staging_buffer;

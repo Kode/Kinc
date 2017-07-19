@@ -50,12 +50,16 @@ VkRenderPass render_pass;
 //VkCommandBuffer draw_cmd;
 VkDescriptorSet desc_set;
 VkPhysicalDevice gpu;
-VkCommandBuffer setup_cmd; // Command Buffer for initialization commands
 VkCommandPool cmd_pool;
 VkQueue queue;
 bool use_staging_buffer;
 VkDescriptorPool desc_pool;
 uint32_t swapchainImageCount;
+VkFramebuffer* framebuffers;
+PFN_vkQueuePresentKHR fpQueuePresentKHR;
+PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
+
+void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 
 #ifndef NDEBUG
 #define VALIDATE
@@ -76,6 +80,8 @@ struct DepthBuffer {
 };
 
 DepthBuffer depth;
+VkSwapchainKHR swapchain;
+uint32_t current_buffer;
 
 Graphics5::Texture* vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 Graphics5::RenderTarget* vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -100,9 +106,7 @@ namespace {
 #endif
 	VkSurfaceKHR surface;
 	bool prepared;
-	bool began = false;
-	bool onBackBuffer = false;
-
+	
 	VkAllocationCallbacks allocator;
 
 	VkInstance inst;
@@ -129,27 +133,16 @@ namespace {
 	PFN_vkCreateSwapchainKHR fpCreateSwapchainKHR;
 	PFN_vkDestroySwapchainKHR fpDestroySwapchainKHR;
 	PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
-	PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
-	PFN_vkQueuePresentKHR fpQueuePresentKHR;
-	VkSwapchainKHR swapchain;
-
-	VkFramebuffer* framebuffers;
-
+	
 	VkPhysicalDeviceMemoryProperties memory_properties;
 
 	PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallback;
 	PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportCallback;
 	VkDebugReportCallbackEXT msg_callback;
 
-	float depthStencil;
-	float depthIncrement;
-
 	bool quit;
-	uint32_t current_buffer;
 	uint32_t queue_count;
-
-	VkSemaphore presentCompleteSemaphore;
-
+	
 	VkBool32 demo_check_layers(uint32_t check_count, char** check_names, uint32_t layer_count, VkLayerProperties* layers) {
 		for (uint32_t i = 0; i < check_count; ++i) {
 			VkBool32 found = 0;
@@ -536,8 +529,6 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	width = System::windowWidth(windowId);
 	height = System::windowHeight(windowId);
-	depthStencil = 1.0;
-	depthIncrement = -0.01f;
 
 #ifdef KORE_WINDOWS
 	windowHandle = (HWND)System::windowHandle(windowId);
@@ -1124,8 +1115,8 @@ void Graphics5::end(int windowId) {
 void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
 	vulkanTextures[unit.binding - 2] = texture;
 	vulkanRenderTargets[unit.binding - 2] = nullptr;
-	if (PipelineState5Impl::current != nullptr)
-		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineState5Impl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
+	//** if (PipelineState5Impl::current != nullptr)
+	//**	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineState5Impl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
 void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {
