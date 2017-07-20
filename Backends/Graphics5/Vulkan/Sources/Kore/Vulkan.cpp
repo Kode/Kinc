@@ -247,14 +247,15 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef VALIDATE
 	char* instance_validation_layers[] = {//"VK_LAYER_LUNARG_mem_tracker",
 	                                      //"VK_LAYER_GOOGLE_unique_objects",
-	                                      "VK_LAYER_LUNARG_standard_validation"};
+	                                      "VK_LAYER_LUNARG_standard_validation"
+	};
 #endif
 
 #ifdef VALIDATE
 	// device_validation_layers[0] = "VK_LAYER_LUNARG_mem_tracker";
 	// device_validation_layers[1] = "VK_LAYER_GOOGLE_unique_objects";
 	device_validation_layers[0] = "VK_LAYER_LUNARG_standard_validation";
-	device_validation_layer_count = 1;
+	device_validation_layer_count = 0;
 #endif
 
 	VkBool32 validation_found = 0;

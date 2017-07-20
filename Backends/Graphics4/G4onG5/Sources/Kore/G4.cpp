@@ -29,7 +29,7 @@ void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	Graphics5::init(window, depthBufferBits, stencilBufferBits, vsync);
 	commandList = new Graphics5::CommandList;
 	for (int i = 0; i < bufferCount; ++i) {
-		framebuffers[i] = new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits);
+		framebuffers[i] = nullptr;// new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits);
 	}
 }
 

@@ -330,6 +330,7 @@ void Graphics5::PipelineState::compile() {
 	rs.depthClampEnable = VK_FALSE;
 	rs.rasterizerDiscardEnable = VK_FALSE;
 	rs.depthBiasEnable = VK_FALSE;
+	rs.lineWidth = 1.0f;
 
 	memset(&cb, 0, sizeof(cb));
 	cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
