@@ -153,7 +153,7 @@ namespace {
 				}
 			}
 			if (!found) {
-				Kore::log(Kore::Error, "Cannot find layer: %s\n", check_names[i]);
+				Kore::log(Kore::Warning, "Cannot find layer: %s\n", check_names[i]);
 				return 0;
 			}
 		}
@@ -245,17 +245,12 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 // demo->enabled_layer_count = 0;
 
 #ifdef VALIDATE
-	char* instance_validation_layers[] = {//"VK_LAYER_LUNARG_mem_tracker",
-	                                      //"VK_LAYER_GOOGLE_unique_objects",
-	                                      "VK_LAYER_LUNARG_standard_validation"
-	};
+	char* instance_validation_layers[] = {"VK_LAYER_LUNARG_standard_validation"};
 #endif
 
 #ifdef VALIDATE
-	// device_validation_layers[0] = "VK_LAYER_LUNARG_mem_tracker";
-	// device_validation_layers[1] = "VK_LAYER_GOOGLE_unique_objects";
-	device_validation_layers[0] = "VK_LAYER_LUNARG_standard_validation";
-	device_validation_layer_count = 0;
+	device_validation_layers[0] = "VK_LAYER_LUNARG_core_validation";
+	device_validation_layer_count = 1;
 #endif
 
 	VkBool32 validation_found = 0;
@@ -274,17 +269,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		free(instance_layers);
 	}
 
-#ifdef VALIDATE
-	if (!validation_found) {
-		ERR_EXIT("vkEnumerateInstanceLayerProperties failed to find"
-		         "required validation layer.\n\n"
-		         "Please look at the Getting Started guide for additional "
-		         "information.\n",
-		         "vkCreateInstance Failure");
-	}
-#endif
-
-	/* Look for instance extensions */
+	// Look for instance extensions
 	VkBool32 surfaceExtFound = 0;
 	VkBool32 platformSurfaceExtFound = 0;
 	memset(extension_names, 0, sizeof(extension_names));
@@ -356,7 +341,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	app.applicationVersion = 0;
 	app.pEngineName = "Kore";
 	app.engineVersion = 0;
-	app.apiVersion = VK_MAKE_VERSION(1, 0, 3); // VK_API_VERSION;
+	app.apiVersion = VK_API_VERSION_1_0;
 
 	VkInstanceCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -438,16 +423,6 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 		free(device_layers);
 	}
-
-#ifdef VALIDATE
-	if (!validation_found) {
-		ERR_EXIT("vkEnumerateDeviceLayerProperties failed to find "
-		         "a required validation layer.\n\n"
-		         "Please look at the Getting Started guide for additional "
-		         "information.\n",
-		         "vkCreateDevice Failure");
-	}
-#endif
 
 	/* Loog for device extensions */
 	uint32_t device_extension_count = 0;
