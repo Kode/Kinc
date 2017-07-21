@@ -167,6 +167,8 @@ CommandList::CommandList() {
 
 	depthStencil = 1.0;
 	depthIncrement = -0.01f;
+
+	begin();
 }
 
 CommandList::~CommandList() {
