@@ -11,23 +11,14 @@ using namespace Kore;
 
 extern VkDevice device;
 extern VkRenderPass render_pass;
+extern VkDescriptorSet desc_set;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+void createDescriptorLayout(PipelineState5Impl* pipeline);
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
 Graphics5::PipelineState* PipelineState5Impl::current;
 
 namespace {
-	VkDescriptorSetLayout desc_layout;
-
-	VkBuffer bufVertex;
-	VkMemoryAllocateInfo mem_allocVertex;
-	VkDeviceMemory memVertex;
-	VkDescriptorBufferInfo buffer_infoVertex;
-
-	VkBuffer bufFragment;
-	VkMemoryAllocateInfo mem_allocFragment;
-	VkDeviceMemory memFragment;
-	VkDescriptorBufferInfo buffer_infoFragment;
-
 	void parseShader(Graphics5::Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings,
 		std::map<std::string, u32>& uniformOffsets) {
 		u32* spirv = (u32*)shader->source;
@@ -170,7 +161,10 @@ namespace {
 	}
 }
 
-PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
+PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
+	createDescriptorLayout(this);
+	createDescriptorSet(this, nullptr, nullptr, desc_set);
+}
 
 Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
 	ConstantLocation location;
@@ -406,7 +400,7 @@ void Graphics5::PipelineState::compile() {
 
 extern VkDescriptorPool desc_pool;
 
-void createDescriptorLayout() {
+void createDescriptorLayout(PipelineState5Impl* pipeline) {
 	VkDescriptorSetLayoutBinding layoutBindings[8];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 
@@ -436,7 +430,7 @@ void createDescriptorLayout() {
 	descriptor_layout.bindingCount = 8;
 	descriptor_layout.pBindings = layoutBindings;
 
-	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
+	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &pipeline->desc_layout);
 	assert(!err);
 
 	VkDescriptorPoolSize typeCounts[8];
@@ -464,7 +458,7 @@ void createDescriptorLayout() {
 	assert(!err);
 }
 
-void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
 	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
 	VkDescriptorBufferInfo buffer_descs[2];
 
@@ -473,22 +467,22 @@ void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* r
 	alloc_info.pNext = NULL;
 	alloc_info.descriptorPool = desc_pool;
 	alloc_info.descriptorSetCount = 1;
-	alloc_info.pSetLayouts = &desc_layout;
+	alloc_info.pSetLayouts = &pipeline->desc_layout;
 	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
 	if (texture == nullptr && renderTarget == nullptr) {
-		createUniformBuffer(bufVertex, mem_allocVertex, memVertex, buffer_infoVertex);
-		createUniformBuffer(bufFragment, mem_allocFragment, memFragment, buffer_infoFragment);
+		createUniformBuffer(pipeline->bufVertex, pipeline->mem_allocVertex, pipeline->memVertex, pipeline->buffer_infoVertex);
+		createUniformBuffer(pipeline->bufFragment, pipeline->mem_allocFragment, pipeline->memFragment, pipeline->buffer_infoFragment);
 	}
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
-	buffer_descs[0].buffer = bufVertex;
+	buffer_descs[0].buffer = pipeline->bufVertex;
 	buffer_descs[0].offset = 0;
 	buffer_descs[0].range = 256 * sizeof(float);
 
-	buffer_descs[1].buffer = bufFragment;
+	buffer_descs[1].buffer = pipeline->bufFragment;
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
 

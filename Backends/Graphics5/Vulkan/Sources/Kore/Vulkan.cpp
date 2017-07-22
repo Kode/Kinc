@@ -58,6 +58,7 @@ uint32_t swapchainImageCount;
 VkFramebuffer* framebuffers;
 PFN_vkQueuePresentKHR fpQueuePresentKHR;
 PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
+VkSemaphore presentCompleteSemaphore;
 
 void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 
@@ -86,9 +87,6 @@ uint32_t current_buffer;
 Graphics5::Texture* vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 Graphics5::RenderTarget* vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-void createDescriptorLayout();
-void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
-
 #ifdef KORE_LINUX
 extern xcb_connection_t* connection;
 extern xcb_screen_t* screen;
@@ -97,6 +95,7 @@ extern xcb_intern_atom_reply_t* atom_wm_delete_window;
 #endif
 
 namespace {
+	bool began = false;
 #ifdef KORE_WINDOWS
 	HWND windowHandle;
 
@@ -925,9 +924,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		}
 	}
 
-	createDescriptorLayout();
-	createDescriptorSet(nullptr, nullptr, desc_set);
-
+	began = false;
 	//begin();
 }
 
@@ -1081,11 +1078,45 @@ bool Graphics5::swapBuffers(int contextId) {
 }
 
 void Graphics5::begin(RenderTarget* renderTarget, int contextId) {
-	
+	if (began) return;
+
+	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {};
+	presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	presentCompleteSemaphoreCreateInfo.pNext = NULL;
+	presentCompleteSemaphoreCreateInfo.flags = 0;
+
+	VkResult err = vkCreateSemaphore(device, &presentCompleteSemaphoreCreateInfo, NULL, &presentCompleteSemaphore);
+	assert(!err);
+
+	// Get the index of the next available swapchain image:
+	err = fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
+		&current_buffer);
+	/*if (err == VK_ERROR_OUT_OF_DATE_KHR) {
+	// demo->swapchain is out of date (e.g. the window was resized) and
+	// must be recreated:
+	// demo_resize(demo);
+	// demo_draw(demo);
+	error("VK_ERROR_OUT_OF_DATE_KHR");
+	vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
+	return;
+	}
+	else if (err == VK_SUBOPTIMAL_KHR) {
+	// demo->swapchain is not as optimal as it could be, but the platform's
+	// presentation engine will still present the image correctly.
+	}
+	else {
+	assert(!err);
+	}*/
+	assert(!err);
+
+	renderTarget->renderPass = render_pass;
+	renderTarget->framebuffer = framebuffers[current_buffer];
+
+	began = true;
 }
 
 void Graphics5::end(int windowId) {
-	
+	began = false;
 }
 
 void Graphics5::setTexture(TextureUnit unit, Texture* texture) {

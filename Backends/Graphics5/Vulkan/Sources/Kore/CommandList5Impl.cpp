@@ -19,6 +19,9 @@ extern VkSwapchainKHR swapchain;
 extern VkQueue queue;
 extern VkFramebuffer* framebuffers;
 extern VkRenderPass render_pass;
+extern VkDescriptorSet desc_set;
+extern Graphics5::Texture* vulkanTextures[8];
+extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 
 struct SwapchainBuffers {
 	VkImage image;
@@ -147,10 +150,9 @@ namespace {
 
 	float depthStencil;
 	float depthIncrement;
-
-	VkSemaphore presentCompleteSemaphore;
-	
 }
+
+extern VkSemaphore presentCompleteSemaphore;
 
 CommandList::CommandList() {
 	VkCommandBufferAllocateInfo cmd = {};
@@ -177,36 +179,7 @@ CommandList::~CommandList() {
 
 void CommandList::begin() {
 	if (began) return;
-
-	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {};
-	presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	presentCompleteSemaphoreCreateInfo.pNext = NULL;
-	presentCompleteSemaphoreCreateInfo.flags = 0;
-
-	VkResult err = vkCreateSemaphore(device, &presentCompleteSemaphoreCreateInfo, NULL, &presentCompleteSemaphore);
-	assert(!err);
-
-	// Get the index of the next available swapchain image:
-	err = fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
-		&current_buffer);
-	/*if (err == VK_ERROR_OUT_OF_DATE_KHR) {
-		// demo->swapchain is out of date (e.g. the window was resized) and
-		// must be recreated:
-		// demo_resize(demo);
-		// demo_draw(demo);
-		error("VK_ERROR_OUT_OF_DATE_KHR");
-		vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
-		return;
-	}
-	else if (err == VK_SUBOPTIMAL_KHR) {
-		// demo->swapchain is not as optimal as it could be, but the platform's
-		// presentation engine will still present the image correctly.
-	}
-	else {
-		assert(!err);
-	}*/
-	assert(!err);
-
+		
 	// Assume the command buffer has been run on current_buffer before so
 	// we need to set the image layout back to COLOR_ATTACHMENT_OPTIMAL
 	demo_set_image_layout(buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -249,7 +222,7 @@ void CommandList::begin() {
 	rp_begin.clearValueCount = 2;
 	rp_begin.pClearValues = clear_values;
 
-	err = vkBeginCommandBuffer(_buffer, &cmd_buf_info);
+	VkResult err = vkBeginCommandBuffer(_buffer, &cmd_buf_info);
 	assert(!err);
 	vkCmdBeginRenderPass(_buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -397,6 +370,30 @@ void CommandList::disableScissor() {
 void CommandList::setPipeline(PipelineState* pipeline) {
 	_currentPipeline = pipeline;
 	
+	{
+		uint8_t* data;
+		VkResult err = vkMapMemory(device, _currentPipeline->memVertex, 0, _currentPipeline->mem_allocVertex.allocationSize, 0, (void**)&data);
+		assert(!err);
+		memcpy(data, &_currentPipeline->uniformDataVertex, sizeof(_currentPipeline->uniformDataVertex));
+		vkUnmapMemory(device, _currentPipeline->memVertex);
+	}
+
+	{
+		uint8_t* data;
+		VkResult err = vkMapMemory(device, _currentPipeline->memFragment, 0, _currentPipeline->mem_allocFragment.allocationSize, 0, (void**)&data);
+		assert(!err);
+		memcpy(data, &_currentPipeline->uniformDataFragment, sizeof(_currentPipeline->uniformDataFragment));
+		vkUnmapMemory(device, _currentPipeline->memFragment);
+	}
+
+	vkCmdBindPipeline(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline);
+
+	if (vulkanRenderTargets[0] != nullptr)
+		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, nullptr);
+	else if (vulkanTextures[0] != nullptr)
+		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, nullptr);
+	else
+		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
 void CommandList::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {

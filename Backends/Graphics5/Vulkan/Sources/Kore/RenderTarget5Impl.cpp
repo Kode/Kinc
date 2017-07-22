@@ -34,7 +34,7 @@ extern DepthBuffer depth;
 extern Graphics5::Texture* vulkanTextures[8];
 extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 
-void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
@@ -276,7 +276,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	err = vkCreateImageView(device, &viewInfo, nullptr, &view);
 	assert(!err);*/
 
-	VkAttachmentReference colorReference = {};
+	/*VkAttachmentReference colorReference = {};
 	colorReference.attachment = 0;
 	colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
@@ -328,7 +328,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	err = vkCreateFramebuffer(device, &fbufCreateInfo, nullptr, &framebuffer);
 	assert(!err);
 
-	createDescriptorSet(nullptr, this, desc_set);
+	createDescriptorSet(nullptr, this, desc_set);*/
 }
 
 Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {

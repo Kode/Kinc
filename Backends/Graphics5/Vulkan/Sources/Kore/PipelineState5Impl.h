@@ -3,7 +3,19 @@
 #include <map>
 #include <string>
 
-#include "vulkan_mini.h"
+#include <vulkan/vulkan.h>
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
+#ifdef RegisterClass
+#undef RegisterClass
+#endif
 
 namespace Kore {
 	namespace Graphics5 {
@@ -39,6 +51,18 @@ namespace Kore {
 		VkPipelineLayout pipeline_layout;
 		float uniformDataVertex[256];
 		float uniformDataFragment[256];
+
+		VkDescriptorSetLayout desc_layout;
+
+		VkBuffer bufVertex;
+		VkMemoryAllocateInfo mem_allocVertex;
+		VkDeviceMemory memVertex;
+		VkDescriptorBufferInfo buffer_infoVertex;
+
+		VkBuffer bufFragment;
+		VkMemoryAllocateInfo mem_allocFragment;
+		VkDeviceMemory memFragment;
+		VkDescriptorBufferInfo buffer_infoFragment;
 
 		static Graphics5::PipelineState* current;
 	};
