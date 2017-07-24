@@ -925,7 +925,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	}
 
 	began = false;
-	//begin();
+	begin(nullptr);
 }
 
 unsigned Graphics5::refreshRate() {
@@ -1078,6 +1078,11 @@ bool Graphics5::swapBuffers(int contextId) {
 }
 
 void Graphics5::begin(RenderTarget* renderTarget, int contextId) {
+	if (renderTarget != nullptr) {
+		renderTarget->renderPass = render_pass;
+		renderTarget->framebuffer = framebuffers[current_buffer];
+	}
+
 	if (began) return;
 
 	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {};
@@ -1108,9 +1113,6 @@ void Graphics5::begin(RenderTarget* renderTarget, int contextId) {
 	assert(!err);
 	}*/
 	assert(!err);
-
-	renderTarget->renderPass = render_pass;
-	renderTarget->framebuffer = framebuffers[current_buffer];
 
 	began = true;
 }

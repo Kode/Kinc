@@ -212,7 +212,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.mipLodBias = 0.0f;
 	samplerInfo.anisotropyEnable = VK_FALSE;
-	samplerInfo.maxAnisotropy = 0;
+	samplerInfo.maxAnisotropy = 1;
 	samplerInfo.compareOp = VK_COMPARE_OP_NEVER;
 	samplerInfo.minLod = 0.0f;
 	samplerInfo.maxLod = 0.0f;
