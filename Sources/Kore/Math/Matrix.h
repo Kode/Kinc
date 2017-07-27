@@ -370,8 +370,8 @@ namespace Kore {
 			return *this;
 		}
 
-		Vector<T, X> operator*(const Vector<T, X>& vec) const {
-			Vector<T, X> product;
+		Vector<T, Y> operator*(const Vector<T, X>& vec) const {
+			Vector<T, Y> product;
 			for (unsigned y = 0; y < Y; ++y) {
 				T t = 0;
 				for (unsigned x = 0; x < X; ++x) t += matrix[x][y] * vec[x];
