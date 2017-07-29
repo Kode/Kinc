@@ -16,7 +16,7 @@ using namespace Kore;
 // ImageShaderPainter
 //==========
 Graphics2::ImageShaderPainter::ImageShaderPainter()
-    : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false), shaderPipeline(nullptr), lastTexture(nullptr), lastRenderTarget(nullptr) {
+    : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false), shaderPipeline(nullptr), lastTexture(nullptr), lastRenderTarget(nullptr), myPipeline(nullptr) {
 	initShaders();
 	initBuffers();
 }
@@ -29,12 +29,13 @@ void Graphics2::ImageShaderPainter::set_pipeline(Graphics4::PipelineState* pipe)
 	if (pipe == nullptr) {
 		projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 		textureLocation = shaderPipeline->getTextureUnit("tex");
+		myPipeline = shaderPipeline;
 	}
 	else {
 		projectionLocation = pipe->getConstantLocation("projectionMatrix");
 		textureLocation = pipe->getTextureUnit("tex");
+		myPipeline = pipe;
 	}
-	myPipeline = pipe;
 }
 
 void Graphics2::ImageShaderPainter::setProjection(mat4 projectionMatrix) {
@@ -70,6 +71,8 @@ void Graphics2::ImageShaderPainter::initShaders() {
 
 	projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 	textureLocation = shaderPipeline->getTextureUnit("tex");
+
+	myPipeline = shaderPipeline;
 }
 
 void Graphics2::ImageShaderPainter::initBuffers() {
@@ -149,7 +152,7 @@ void Graphics2::ImageShaderPainter::setRectColor(float r, float g, float b, floa
 
 void Graphics2::ImageShaderPainter::drawBuffer() {
 	rectVertexBuffer->unlock();
-	Graphics4::setPipeline(shaderPipeline);
+	Graphics4::setPipeline(myPipeline);
 	Graphics4::setVertexBuffer(*rectVertexBuffer);
 	Graphics4::setIndexBuffer(*indexBuffer);
 	if (lastRenderTarget != nullptr) lastRenderTarget->useColorAsTexture(textureLocation);
@@ -280,6 +283,7 @@ inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::RenderTarge
 void Graphics2::ImageShaderPainter::end() {
 	if (bufferIndex > 0) drawBuffer();
 	lastTexture = nullptr;
+	lastRenderTarget = nullptr;
 }
 
 Graphics2::ImageShaderPainter::~ImageShaderPainter() {
