@@ -260,7 +260,7 @@ namespace Kore {
 			void scissor(int x, int y, int width, int height);
 			void disableScissor();
 
-			void begin(bool clear = true, uint clearColor = Color::Black);
+			void begin(bool renderTargets = false, bool clear = true, uint clearColor = Color::Black);
 			void clear(uint color = Color::Black);
 			void flush();
 			void end();
