@@ -163,6 +163,14 @@ namespace Kore {
 			return view;
 		}
 
+		static myType Translation(float x, float y) {
+			// StaticAssert(X == 4 && Y == 4);
+			myType m = Identity();
+			m.Set(0, X - 1, x);
+			m.Set(1, X - 1, y);
+			return m;
+		}
+
 		static myType Translation(float x, float y, float z) {
 			// StaticAssert(X == 4 && Y == 4);
 			myType m = Identity();

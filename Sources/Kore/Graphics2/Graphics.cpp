@@ -887,7 +887,7 @@ void Graphics2::Graphics2::drawScaledSubImage(Graphics4::Texture* img, float sx,
 	coloredPainter->end();
 	textPainter->end();
 	vec2 p1 = transformation * vec3(dx, dy + dh, 1.0f);
-	vec2 p2 = transformation * vec3(dx, dy, 3);
+	vec2 p2 = transformation * vec3(dx, dy, 1.0f);
 	vec2 p3 = transformation * vec3(dx + dw, dy, 1.0f);
 	vec2 p4 = transformation * vec3(dx + dw, dy + dh, 1.0f);
 
@@ -926,7 +926,7 @@ void Graphics2::Graphics2::drawScaledSubImage(Graphics4::RenderTarget* img, floa
 	coloredPainter->end();
 	textPainter->end();
 	vec2 p1 = transformation * vec3(dx, dy + dh, 1.0f);
-	vec2 p2 = transformation * vec3(dx, dy, 3);
+	vec2 p2 = transformation * vec3(dx, dy, 1.0f);
 	vec2 p3 = transformation * vec3(dx + dw, dy, 1.0f);
 	vec2 p4 = transformation * vec3(dx + dw, dy + dh, 1.0f);
 

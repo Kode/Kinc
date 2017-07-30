@@ -211,8 +211,6 @@ namespace Kore {
 
 			mat4 projectionMatrix;
 
-			mat3 transformation;
-
 			int* fontGlyphs;
 
 			ImageShaderPainter* imagePainter;
@@ -237,6 +235,8 @@ namespace Kore {
 		public:
 			Graphics2(int width, int height, bool rTargets = false);
 			~Graphics2();
+
+			mat3 transformation;
 
 			void drawImage(Graphics4::Texture* img, float x, float y);
 			void drawScaledSubImage(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);
