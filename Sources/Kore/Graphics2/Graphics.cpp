@@ -1054,8 +1054,12 @@ void Graphics2::Graphics2::disableScissor() {
 	Graphics4::disableScissor();
 }
 
-void Graphics2::Graphics2::begin(bool renderTargets, bool clear, uint clearColor) {
+void Graphics2::Graphics2::begin(bool renderTargets, int width, int height, bool clear, uint clearColor) {
 	//    Graphics::begin();
+	if (width > 0) {
+		screenWidth = width;
+		screenHeight = height;
+	}
 	this->renderTargets = renderTargets;
 	if (clear) Graphics2::clear(clearColor);
 	setProjection();
