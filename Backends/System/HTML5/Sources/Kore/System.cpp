@@ -4,6 +4,7 @@
 #include <Kore/Audio2/Audio.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Log.h>
 #include <Kore/System.h>
 #include <Kore/ogl.h>
 #include <cstring>
@@ -46,6 +47,21 @@ namespace {
 	void onKeyPressed(int key, int action) {
 		if (action == GLFW_PRESS) {
 			switch (key) {
+			case 87:
+				Kore::Keyboard::the()->_keydown(Kore::KeyW);
+				break;
+			case 65:
+				Kore::Keyboard::the()->_keydown(Kore::KeyA);
+				break;
+			case 83:
+				Kore::Keyboard::the()->_keydown(Kore::KeyS);
+				break;
+			case 68:
+				Kore::Keyboard::the()->_keydown(Kore::KeyD);
+				break;
+			case 32:
+				Kore::Keyboard::the()->_keydown(Kore::KeySpace);
+				break;
 			case 262:
 				Kore::Keyboard::the()->_keydown(Kore::KeyRight);
 				break;
@@ -62,6 +78,21 @@ namespace {
 		}
 		else {
 			switch (key) {
+			case 87:
+				Kore::Keyboard::the()->_keyup(Kore::KeyW);
+				break;
+			case 65:
+				Kore::Keyboard::the()->_keyup(Kore::KeyA);
+				break;
+			case 83:
+				Kore::Keyboard::the()->_keyup(Kore::KeyS);
+				break;
+			case 68:
+				Kore::Keyboard::the()->_keyup(Kore::KeyD);
+				break;
+			case 32:
+				Kore::Keyboard::the()->_keyup(Kore::KeySpace);
+				break;
 			case 262:
 				Kore::Keyboard::the()->_keyup(Kore::KeyRight);
 				break;
@@ -105,7 +136,13 @@ namespace {
 
 using namespace Kore;
 
+namespace {
+	int w, h;
+}
+
 int Kore::System::initWindow(WindowOptions options) {
+	w = options.width;
+	h = options.height;
 	/*glutInit(&argc, argv);
 	glutInitWindowSize(Kore::Application::the()->width(), Kore::Application::the()->height());
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -162,19 +199,19 @@ double Kore::System::frequency() {
 }
 
 int Kore::System::windowWidth(int window) {
-	return 800;
+	return w;
 }
 
 int Kore::System::windowHeight(int window) {
-	return 600;
+	return h;
 }
 
 int Kore::System::desktopWidth() {
-	return 800;
+	return w;
 }
 
 int Kore::System::desktopHeight() {
-	return 600;
+	return h;
 }
 
 Kore::System::ticks Kore::System::timestamp() {
