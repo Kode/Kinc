@@ -66,9 +66,9 @@ namespace {
 void RenderTargetImpl::setupDepthStencil(GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
 		_hasDepth = true;
-#if defined(KORE_OPENGL_ES) && !defined(KORE_PI)
+#if defined(KORE_OPENGL_ES) && !defined(KORE_PI) && !defined(KORE_HTML5)
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
-#elif defined(KORE_PI)
+#elif defined(KORE_OPENGL_ES)
 		GLenum internalFormat = NULL;
 #else
 		GLenum internalFormat;

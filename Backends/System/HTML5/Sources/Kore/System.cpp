@@ -1,7 +1,7 @@
 #include "pch.h"
+
 #include <GL/glfw.h>
-#include <Kore/Application.h>
-#include <Kore/Audio/Audio.h>
+#include <Kore/Audio2/Audio.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/System.h>
@@ -20,8 +20,8 @@ namespace {
 	//}
 
 	void drawfunc() {
-		Kore::Application::the()->callback();
-		Kore::Audio::update();
+		Kore::System::callback();
+		Kore::Audio2::update();
 		// glutSwapBuffers();
 		glfwSwapBuffers();
 	}
@@ -47,32 +47,32 @@ namespace {
 		if (action == GLFW_PRESS) {
 			switch (key) {
 			case 262:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Right, ' ');
+				Kore::Keyboard::the()->_keydown(Kore::KeyRight);
 				break;
 			case 263:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Left, ' ');
+				Kore::Keyboard::the()->_keydown(Kore::KeyLeft);
 				break;
 			case 265:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Up, ' ');
+				Kore::Keyboard::the()->_keydown(Kore::KeyUp);
 				break;
 			case 264:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Down, ' ');
+				Kore::Keyboard::the()->_keydown(Kore::KeyDown);
 				break;
 			}
 		}
 		else {
 			switch (key) {
 			case 262:
-				Kore::Keyboard::the()->_keyup(Kore::Key_Right, ' ');
+				Kore::Keyboard::the()->_keyup(Kore::KeyRight);
 				break;
 			case 263:
-				Kore::Keyboard::the()->_keyup(Kore::Key_Left, ' ');
+				Kore::Keyboard::the()->_keyup(Kore::KeyLeft);
 				break;
 			case 265:
-				Kore::Keyboard::the()->_keyup(Kore::Key_Up, ' ');
+				Kore::Keyboard::the()->_keyup(Kore::KeyUp);
 				break;
 			case 264:
-				Kore::Keyboard::the()->_keyup(Kore::Key_Down, ' ');
+				Kore::Keyboard::the()->_keyup(Kore::KeyDown);
 				break;
 			}
 		}
@@ -84,28 +84,28 @@ namespace {
 	void onMouseClick(int button, int action) {
 		if (action == GLFW_PRESS) {
 			if (button == 0)
-				Kore::Mouse::the()->_press(0, mouseX, mouseY);
+				Kore::Mouse::the()->_press(0, 0, mouseX, mouseY);
 			else if (button == 1)
-				Kore::Mouse::the()->_press(1, mouseX, mouseY);
+				Kore::Mouse::the()->_press(0, 1, mouseX, mouseY);
 		}
 		else {
 			if (button == 0)
-				Kore::Mouse::the()->_release(0, mouseX, mouseY);
+				Kore::Mouse::the()->_release(0, 0, mouseX, mouseY);
 			else if (button == 1)
-				Kore::Mouse::the()->_release(1, mouseX, mouseY);
+				Kore::Mouse::the()->_release(0, 1, mouseX, mouseY);
 		}
 	}
 
 	void onMouseMove(int x, int y) {
 		mouseX = x;
 		mouseY = y;
-		Kore::Mouse::the()->_move(x, y);
+		Kore::Mouse::the()->_move(0, x, y);
 	}
 }
 
 using namespace Kore;
 
-void* System::createWindow() {
+int Kore::System::initWindow(WindowOptions options) {
 	/*glutInit(&argc, argv);
 	glutInitWindowSize(Kore::Application::the()->width(), Kore::Application::the()->height());
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -116,8 +116,8 @@ void* System::createWindow() {
 	glutSpecialFunc(specialfunc);*/
 
 	glfwInit();
-	glfwOpenWindow(Kore::Application::the()->width(), Kore::Application::the()->height(), 8, 8, 8, 0, 0, 0, GLFW_WINDOW);
-	glfwSetWindowTitle(Kore::Application::the()->name());
+	glfwOpenWindow(Kore::System::windowWidth(), Kore::System::windowHeight(), 8, 8, 8, 0, 0, 0, GLFW_WINDOW);
+	glfwSetWindowTitle(Kore::System::name());
 
 	glfwSetKeyCallback(onKeyPressed);
 	// glfwSetCharCallback(onCharPressed);
@@ -131,13 +131,23 @@ void* System::createWindow() {
 	return nullptr;
 }
 
+void Kore::System::makeCurrent(int contextId) {}
+
+void Kore::System::setup() {}
+
+void Kore::System::clearCurrent() {}
+
+int Kore::System::currentDevice() {
+	return 0;
+}
+
 bool System::handleMessages() {
 	return true;
 }
 
-void Kore::System::swapBuffers() {}
+void Kore::System::swapBuffers(int window) {}
 
-void Kore::System::destroyWindow() {}
+void Kore::System::destroyWindow(int window) {}
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {}
 
@@ -151,11 +161,11 @@ double Kore::System::frequency() {
 	return 1000.0;
 }
 
-int Kore::System::screenWidth() {
+int Kore::System::windowWidth(int window) {
 	return 800;
 }
 
-int Kore::System::screenHeight() {
+int Kore::System::windowHeight(int window) {
 	return 600;
 }
 
