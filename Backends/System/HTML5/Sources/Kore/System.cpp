@@ -74,6 +74,12 @@ namespace {
 			case 264:
 				Kore::Keyboard::the()->_keydown(Kore::KeyDown);
 				break;
+			case 256:
+				Kore::Keyboard::the()->_keydown(Kore::KeyEscape);
+				break;
+			case 82:
+				Kore::Keyboard::the()->_keydown(Kore::KeyR);
+				break;
 			}
 		}
 		else {
@@ -104,6 +110,12 @@ namespace {
 				break;
 			case 264:
 				Kore::Keyboard::the()->_keyup(Kore::KeyDown);
+				break;
+			case 256:
+				Kore::Keyboard::the()->_keyup(Kore::KeyEscape);
+				break;
+			case 82:
+				Kore::Keyboard::the()->_keyup(Kore::KeyR);
 				break;
 			}
 		}
