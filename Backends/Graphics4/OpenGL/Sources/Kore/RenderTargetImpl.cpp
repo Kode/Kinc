@@ -55,7 +55,7 @@ namespace {
 		else
 			return false;
 #else
-		return false;
+		return true;
 #endif
 #else
 		return true;
