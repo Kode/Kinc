@@ -22,6 +22,8 @@ namespace Kore {
 		bool operator!=(const Quaternion& q) const;
 		void normalize();
 		void rotate(const Quaternion& q2);
+		Quaternion conjugate() const;
+		Quaternion invert() const;
 
 		float x, y, z, w;
 	};
