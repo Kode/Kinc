@@ -492,7 +492,7 @@ namespace {
 	void setFloats(u8* constants, u32 offset, u32 size, float* values, int count) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < count && i * 4 < size; ++i) {
 			floats[i] = values[i];
 		}
 	}

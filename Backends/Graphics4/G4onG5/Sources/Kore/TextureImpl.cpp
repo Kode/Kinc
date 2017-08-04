@@ -32,15 +32,15 @@ Graphics4::Texture::Texture(int width, int height, Format format, bool readable)
 
 Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {}
 
-TextureImpl::TextureImpl() : _texture(nullptr) {
+TextureImpl::TextureImpl() : _texture(nullptr), _uploaded(false) {
 	// TODO
 }
 
-TextureImpl::TextureImpl(int width, int height, Kore::Image::Format format, bool readable) {
+TextureImpl::TextureImpl(int width, int height, Kore::Image::Format format, bool readable) : _uploaded(false) {
 	_texture = new Graphics5::Texture(width, height, format, readable);
 }
 
-TextureImpl::TextureImpl(int width, int height, int depth, Image::Format format, bool readable) {
+TextureImpl::TextureImpl(int width, int height, int depth, Image::Format format, bool readable) : _uploaded(false) {
 	_texture = new Graphics5::Texture(width, height, depth, format, readable);
 }
 

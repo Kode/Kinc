@@ -47,13 +47,18 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadImage));
 
-	D3D12_SUBRESOURCE_DATA srcData;
-	srcData.pData = this->data;
-	srcData.RowPitch = width * 4;
-	srcData.SlicePitch = width * height * 4;
-
-	UpdateSubresources(commandList, image, uploadImage, 0, 0, 1, &srcData);
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	BYTE* pixel;
+	uploadImage->Map(0, nullptr, reinterpret_cast<void**>(&pixel));
+	int pitch = stride();
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			pixel[y * pitch + x * 4 + 0] = this->data[y * width * 4 + x * 4 + 0];
+			pixel[y * pitch + x * 4 + 1] = this->data[y * width * 4 + x * 4 + 1];
+			pixel[y * pitch + x * 4 + 2] = this->data[y * width * 4 + x * 4 + 2];
+			pixel[y * pitch + x * 4 + 3] = this->data[y * width * 4 + x * 4 + 3];
+		}
+	}
+	uploadImage->Unmap(0, nullptr);
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -146,13 +151,13 @@ u8* Graphics5::Texture::lock() {
 }
 
 void Graphics5::Texture::unlock() {
-	D3D12_SUBRESOURCE_DATA srcData;
+	/*D3D12_SUBRESOURCE_DATA srcData;
 	srcData.pData = this->data;
 	srcData.RowPitch = format == Image::RGBA32 ? (width * 4) : width;
 	srcData.SlicePitch = format == Image::RGBA32 ? (width * height * 4) : (width * height);
 
 	UpdateSubresources(commandList, image, uploadImage, 0, 0, 1, &srcData);
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));*/
 }
 
 void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
@@ -160,7 +165,12 @@ void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int d
 }
 
 int Graphics5::Texture::stride() {
-	return 1;
+	int baseStride = format == Image::RGBA32 ? (width * 4) : width;
+	for (int i = 0; ; ++i) {
+		if (D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * i >= baseStride) {
+			return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * i;
+		}
+	}
 }
 
 void Graphics5::Texture::generateMipmaps(int levels) {}

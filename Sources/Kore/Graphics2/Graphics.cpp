@@ -16,7 +16,7 @@ using namespace Kore;
 // ImageShaderPainter
 //==========
 Graphics2::ImageShaderPainter::ImageShaderPainter()
-    : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false), shaderPipeline(nullptr), lastTexture(nullptr) {
+    : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false), shaderPipeline(nullptr), lastTexture(nullptr), lastRenderTarget(nullptr), myPipeline(nullptr) {
 	initShaders();
 	initBuffers();
 }
@@ -29,12 +29,13 @@ void Graphics2::ImageShaderPainter::set_pipeline(Graphics4::PipelineState* pipe)
 	if (pipe == nullptr) {
 		projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 		textureLocation = shaderPipeline->getTextureUnit("tex");
+		myPipeline = shaderPipeline;
 	}
 	else {
 		projectionLocation = pipe->getConstantLocation("projectionMatrix");
 		textureLocation = pipe->getTextureUnit("tex");
+		myPipeline = pipe;
 	}
-	myPipeline = pipe;
 }
 
 void Graphics2::ImageShaderPainter::setProjection(mat4 projectionMatrix) {
@@ -70,6 +71,8 @@ void Graphics2::ImageShaderPainter::initShaders() {
 
 	projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 	textureLocation = shaderPipeline->getTextureUnit("tex");
+
+	myPipeline = shaderPipeline;
 }
 
 void Graphics2::ImageShaderPainter::initBuffers() {
@@ -149,10 +152,11 @@ void Graphics2::ImageShaderPainter::setRectColor(float r, float g, float b, floa
 
 void Graphics2::ImageShaderPainter::drawBuffer() {
 	rectVertexBuffer->unlock();
-	Graphics4::setPipeline(shaderPipeline);
+	Graphics4::setPipeline(myPipeline);
 	Graphics4::setVertexBuffer(*rectVertexBuffer);
 	Graphics4::setIndexBuffer(*indexBuffer);
-	Graphics4::setTexture(textureLocation, lastTexture);
+	if (lastRenderTarget != nullptr) lastRenderTarget->useColorAsTexture(textureLocation);
+	else Graphics4::setTexture(textureLocation, lastTexture);
 	Graphics4::setTextureAddressing(textureLocation, Graphics4::U, Graphics4::Clamp);
 	Graphics4::setTextureAddressing(textureLocation, Graphics4::V, Graphics4::Clamp);
 	Graphics4::setTextureMinificationFilter(textureLocation, bilinear ? Graphics4::LinearFilter : Graphics4::PointFilter);
@@ -187,7 +191,7 @@ void Graphics2::ImageShaderPainter::setBilinearMipmapFilter(bool bilinear) {
 inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::Texture* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx,
                                           float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color) {
 	Graphics4::Texture* tex = img;
-	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture)) drawBuffer();
+	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture) || lastRenderTarget != nullptr) drawBuffer();
 
 	Color c = Color(color);
 	setRectColor(c.R, c.G, c.B, c.A * opacity);
@@ -196,13 +200,14 @@ inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::Texture* img, fl
 
 	++bufferIndex;
 	lastTexture = tex;
+	lastRenderTarget = nullptr;
 }
 
 inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx,
                                            float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity,
                                            uint color) {
 	Graphics4::Texture* tex = img;
-	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture)) drawBuffer();
+	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture) || lastRenderTarget != nullptr) drawBuffer();
 
 	Color c = Color(color);
 	setRectColor(c.R, c.G, c.B, c.A * opacity);
@@ -211,12 +216,13 @@ inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::Texture* img, f
 
 	++bufferIndex;
 	lastTexture = tex;
+	lastRenderTarget = nullptr;
 }
 
 inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom,
-                                               float opacity, uint color) {
+	float opacity, uint color) {
 	Graphics4::Texture* tex = img;
-	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture)) drawBuffer();
+	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture) || lastRenderTarget != nullptr) drawBuffer();
 
 	Color c = Color(color);
 	setRectColor(c.R, c.G, c.B, opacity);
@@ -225,11 +231,59 @@ inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::Texture* im
 
 	++bufferIndex;
 	lastTexture = tex;
+	lastRenderTarget = nullptr;
+}
+
+inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::RenderTarget* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx,
+	float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color) {
+	Graphics4::RenderTarget* tex = img;
+	if (bufferIndex + 1 >= bufferSize || (lastRenderTarget != nullptr && tex != lastRenderTarget) || lastTexture != nullptr) drawBuffer();
+
+	Color c = Color(color);
+	setRectColor(c.R, c.G, c.B, c.A * opacity);
+	setRectTexCoords(0, 0, tex->width / (float)tex->texWidth, tex->height / (float)tex->texHeight);
+	setRectVertices(bottomleftx, bottomlefty, topleftx, toplefty, toprightx, toprighty, bottomrightx, bottomrighty);
+
+	++bufferIndex;
+	lastRenderTarget = tex;
+	lastTexture = nullptr;
+}
+
+inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx,
+	float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity,
+	uint color) {
+	Graphics4::RenderTarget* tex = img;
+	if (bufferIndex + 1 >= bufferSize || (lastRenderTarget != nullptr && tex != lastRenderTarget) || lastTexture != nullptr) drawBuffer();
+
+	Color c = Color(color);
+	setRectColor(c.R, c.G, c.B, c.A * opacity);
+	setRectTexCoords(sx / (float)tex->texWidth, sy / (float)tex->texHeight, (sx + sw) / (float)tex->texWidth, (sy + sh) / (float)tex->texHeight);
+	setRectVertices(bottomleftx, bottomlefty, topleftx, toplefty, toprightx, toprighty, bottomrightx, bottomrighty);
+
+	++bufferIndex;
+	lastRenderTarget = tex;
+	lastTexture = nullptr;
+}
+
+inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom,
+                                               float opacity, uint color) {
+	Graphics4::RenderTarget* tex = img;
+	if (bufferIndex + 1 >= bufferSize || (lastRenderTarget != nullptr && tex != lastRenderTarget) || lastTexture != nullptr) drawBuffer();
+
+	Color c = Color(color);
+	setRectColor(c.R, c.G, c.B, opacity);
+	setRectTexCoords(sx / (float)tex->texWidth, sy / (float)tex->texHeight, (sx + sw) / (float)tex->texWidth, (sy + sh) / (float)tex->texHeight);
+	setRectVertices(left, bottom, left, top, right, top, right, bottom);
+
+	++bufferIndex;
+	lastRenderTarget = tex;
+	lastTexture = nullptr;
 }
 
 void Graphics2::ImageShaderPainter::end() {
 	if (bufferIndex > 0) drawBuffer();
 	lastTexture = nullptr;
+	lastRenderTarget = nullptr;
 }
 
 Graphics2::ImageShaderPainter::~ImageShaderPainter() {
@@ -833,7 +887,46 @@ void Graphics2::Graphics2::drawScaledSubImage(Graphics4::Texture* img, float sx,
 	coloredPainter->end();
 	textPainter->end();
 	vec2 p1 = transformation * vec3(dx, dy + dh, 1.0f);
-	vec2 p2 = transformation * vec3(dx, dy, 3);
+	vec2 p2 = transformation * vec3(dx, dy, 1.0f);
+	vec2 p3 = transformation * vec3(dx + dw, dy, 1.0f);
+	vec2 p4 = transformation * vec3(dx + dw, dy + dh, 1.0f);
+
+	imagePainter->drawImage2(img, sx, sy, sw, sh, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y(), opacity, color);
+}
+
+void Graphics2::Graphics2::drawImage(Graphics4::RenderTarget* img, float x, float y) {
+	coloredPainter->end();
+	textPainter->end();
+
+	float xw = x + img->width;
+	float yh = y + img->height;
+
+	float32x4 xx = load(x, x, xw, xw);
+	float32x4 yy = load(yh, y, y, yh);
+
+	float32x4 _00 = loadAll(transformation.get(0, 0));
+	float32x4 _01 = loadAll(transformation.get(0, 1));
+	float32x4 _02 = loadAll(transformation.get(0, 2));
+	float32x4 _10 = loadAll(transformation.get(1, 0));
+	float32x4 _11 = loadAll(transformation.get(1, 1));
+	float32x4 _12 = loadAll(transformation.get(1, 2));
+	float32x4 _20 = loadAll(transformation.get(2, 0));
+	float32x4 _21 = loadAll(transformation.get(2, 1));
+	float32x4 _22 = loadAll(transformation.get(2, 2));
+
+	// matrix multiply
+	float32x4 w = add(add(mul(_02, xx), mul(_12, yy)), _22);
+	float32x4 px = div(add(add(mul(_00, xx), mul(_10, yy)), _20), w);
+	float32x4 py = div(add(add(mul(_01, xx), mul(_11, yy)), _21), w);
+
+	imagePainter->drawImage(img, get(px, 0), get(py, 0), get(px, 1), get(py, 1), get(px, 2), get(py, 2), get(px, 3), get(py, 3), opacity, color);
+}
+
+void Graphics2::Graphics2::drawScaledSubImage(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
+	coloredPainter->end();
+	textPainter->end();
+	vec2 p1 = transformation * vec3(dx, dy + dh, 1.0f);
+	vec2 p2 = transformation * vec3(dx, dy, 1.0f);
 	vec2 p3 = transformation * vec3(dx + dw, dy, 1.0f);
 	vec2 p4 = transformation * vec3(dx + dw, dy + dh, 1.0f);
 
@@ -961,8 +1054,13 @@ void Graphics2::Graphics2::disableScissor() {
 	Graphics4::disableScissor();
 }
 
-void Graphics2::Graphics2::begin(bool clear, uint clearColor) {
+void Graphics2::Graphics2::begin(bool renderTargets, int width, int height, bool clear, uint clearColor) {
 	//    Graphics::begin();
+	if (width > 0) {
+		screenWidth = width;
+		screenHeight = height;
+	}
+	this->renderTargets = renderTargets;
 	if (clear) Graphics2::clear(clearColor);
 	setProjection();
 }

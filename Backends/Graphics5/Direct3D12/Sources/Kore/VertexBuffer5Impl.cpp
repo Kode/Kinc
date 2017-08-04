@@ -12,7 +12,7 @@ VertexBuffer5Impl* VertexBuffer5Impl::_current = nullptr;
 
 VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), myStart(0) {}
 
-Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBuffer5Impl(count) {
+Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
 	static_assert(sizeof(D3D12VertexBufferView) == sizeof(D3D12_VERTEX_BUFFER_VIEW), "Something is wrong with D3D12IVertexBufferView");
 
 	myStride = 0;

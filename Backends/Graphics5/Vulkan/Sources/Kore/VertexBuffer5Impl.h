@@ -37,14 +37,14 @@ namespace Kore {
 		Graphics5::VertexStructure structure;
 		//#endif
 
-		Vertices vertices;
 		VkMemoryAllocateInfo mem_alloc;
 
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);
-		int index;
 
 	public:
+		int index;
+		Vertices vertices;
 		static Graphics5::VertexBuffer* current;
 	};
 }
