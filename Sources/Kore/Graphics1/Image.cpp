@@ -83,6 +83,17 @@ Graphics1::Image::Image(void* data, int width, int height, Format format, bool r
     }
 }
 
+Graphics1::Image::Image(void* data, int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
+	compression = ImageCompressionNone;
+	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
+    if (isFloat) {
+        this->hdrData = (float*)data;
+    }
+    else {
+        this->data = (u8*)data;
+    }
+}
+
 Graphics1::Image::Image() : depth(1), format(RGBA32), readable(false) {}
 
 void Graphics1::Image::init(Kore::Reader& file, const char* format, bool readable) {

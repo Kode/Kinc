@@ -28,6 +28,9 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	_texture->_init(format, readable);
 }
 
+void Graphics4::Texture::init3D(bool readable) {
+}
+
 Graphics4::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {}
 
 Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {}
