@@ -23,5 +23,11 @@ namespace Kore {
 		void enumerate();
 		const DeviceInfo* primaryScreen();
 		const DeviceInfo* screenById(int id);
+		int height(int index);
+		int width(int index);
+		int x(int index);
+		int y(int index);
+		bool isPrimary(int index);
+		int count();
 	}
 }
