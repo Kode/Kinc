@@ -144,7 +144,7 @@ namespace Kore {
 
 		void changeResolution(int width, int height);
 		bool hasWindow();
-		void setWindow(bool);
+		void setWindow(bool value);
 		int antialiasingSamples();
 		void setAntialiasingSamples(int samples);
 
