@@ -335,6 +335,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 }
 
 void Graphics4::Texture::init3D(bool readable) {
+#ifndef KORE_OPENGL_ES // Requires GLES 3.0
 	texWidth = width;
 	texHeight = height;
 	texDepth = depth;
@@ -383,6 +384,7 @@ void Graphics4::Texture::init3D(bool readable) {
 	if (compression != Graphics1::ImageCompressionNone) {
 		log(Kore::Warning, "Compressed images can not be 3D.");
 	}
+#endif
 }
 
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
