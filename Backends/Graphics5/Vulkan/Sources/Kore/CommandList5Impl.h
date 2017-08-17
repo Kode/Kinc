@@ -1,7 +1,6 @@
 #pragma once
 
-struct ID3D12CommandAllocator;
-struct ID3D12GraphicsCommandList;
+#include "vulkan_mini.h"
 
 namespace Kore {
 	namespace Graphics5 {
@@ -11,10 +10,9 @@ namespace Kore {
 
 class CommandList5Impl {
 public:
-	ID3D12CommandAllocator* _commandAllocator;
-	ID3D12GraphicsCommandList* _commandList;
 	Kore::Graphics5::PipelineState* _currentPipeline;
 	int _indexCount;
+	VkCommandBuffer _buffer;
 protected:
 	bool closed;
 };

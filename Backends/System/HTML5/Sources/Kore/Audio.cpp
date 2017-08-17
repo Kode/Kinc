@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <Kore/Audio/Audio.h>
+#include <Kore/Audio2/Audio.h>
 #include <assert.h>
 #include <emscripten.h>
 #include <stdio.h>
@@ -23,15 +23,15 @@ namespace {
 #define NUM_BUFFERS 3
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
-		Audio::buffer.readLocation += 4;
-		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
+		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+		Audio2::buffer.readLocation += 4;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		*(s16*)buffer = static_cast<s16>(value * 32767);
 	}
 
 	void streamBuffer(ALuint buffer) {
-		if (Kore::Audio::audioCallback != nullptr) {
-			Kore::Audio::audioCallback(bufsize);
+		if (Kore::Audio2::audioCallback != nullptr) {
+			Kore::Audio2::audioCallback(bufsize);
 			for (int i = 0; i < bufsize; ++i) {
 				copySample(&buf[i]);
 			}
@@ -60,7 +60,7 @@ namespace {
 	}
 }
 
-void Audio::init() {
+void Audio2::init() {
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
@@ -86,10 +86,10 @@ void Audio::init() {
 	alSourcePlay(source);
 }
 
-void Audio::update() {
+void Audio2::update() {
 	iter();
 }
 
-void Audio::shutdown() {
+void Audio2::shutdown() {
 	audioRunning = false;
 }

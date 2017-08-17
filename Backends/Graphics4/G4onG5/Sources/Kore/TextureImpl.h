@@ -21,5 +21,6 @@ namespace Kore {
 		void unset();
 
 		Kore::Graphics5::Texture* _texture;
+		bool _uploaded;
 	};
 }

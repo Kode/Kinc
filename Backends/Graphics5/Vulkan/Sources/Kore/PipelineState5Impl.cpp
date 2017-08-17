@@ -1,47 +1,26 @@
 #include "pch.h"
 
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Graphics5/Shader.h>
-#include <Kore/Log.h>
-#include <assert.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "PipelineState5Impl.h"
 
-#include <vulkan/vulkan.h>
+#include <Kore/Graphics5/Shader.h>
+#include <Kore/Graphics5/PipelineState.h>
+
+#include <assert.h>
 
 using namespace Kore;
 
 extern VkDevice device;
-extern VkFormat format;
-extern VkFormat depth_format;
 extern VkRenderPass render_pass;
-extern VkCommandBuffer draw_cmd;
 extern VkDescriptorSet desc_set;
-extern VkDescriptorPool desc_pool;
-extern Graphics5::Texture* vulkanTextures[8];
-extern Graphics5::RenderTarget* vulkanRenderTargets[8];
-
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+void createDescriptorLayout(PipelineState5Impl* pipeline);
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
-Graphics5::Program* Program5Impl::current = nullptr;
+Graphics5::PipelineState* PipelineState5Impl::current;
 
 namespace {
-	VkDescriptorSetLayout desc_layout;
-
-	VkBuffer bufVertex;
-	VkMemoryAllocateInfo mem_allocVertex;
-	VkDeviceMemory memVertex;
-	VkDescriptorBufferInfo buffer_infoVertex;
-
-	VkBuffer bufFragment;
-	VkMemoryAllocateInfo mem_allocFragment;
-	VkDeviceMemory memFragment;
-	VkDescriptorBufferInfo buffer_infoFragment;
-
 	void parseShader(Graphics5::Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings,
-	                 std::map<std::string, u32>& uniformOffsets) {
+		std::map<std::string, u32>& uniformOffsets) {
 		u32* spirv = (u32*)shader->source;
 		int spirvsize = shader->length / 4;
 		int index = 0;
@@ -182,175 +161,31 @@ namespace {
 	}
 }
 
-namespace Kore {
-	bool programUsesTessellation = false;
+PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
+	createDescriptorLayout(this);
+	createDescriptorSet(this, nullptr, nullptr, desc_set);
 }
 
-Program5Impl::Program5Impl()
-    : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
-      tessellationControlShader(nullptr) {
-	textures = new const char*[16];
-	textureValues = new int[16];
-}
-
-Graphics5::Program::Program() {}
-
-Program5Impl::~Program5Impl() {}
-
-void Graphics5::Program::setVertexShader(Shader* shader) {
-	vertexShader = shader;
-}
-
-void Graphics5::Program::setFragmentShader(Shader* shader) {
-	fragmentShader = shader;
-}
-
-void Graphics5::Program::setGeometryShader(Shader* shader) {
-	geometryShader = shader;
-}
-
-void Graphics5::Program::setTessellationControlShader(Shader* shader) {
-	tessellationControlShader = shader;
-}
-
-void Graphics5::Program::setTessellationEvaluationShader(Shader* shader) {
-	tessellationEvaluationShader = shader;
-}
-
-void createDescriptorLayout() {
-	VkDescriptorSetLayoutBinding layoutBindings[8];
-	memset(layoutBindings, 0, sizeof(layoutBindings));
-
-	layoutBindings[0].binding = 0;
-	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	layoutBindings[0].descriptorCount = 1;
-	layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	layoutBindings[0].pImmutableSamplers = nullptr;
-
-	layoutBindings[1].binding = 1;
-	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	layoutBindings[1].descriptorCount = 1;
-	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	layoutBindings[1].pImmutableSamplers = nullptr;
-
-	for (int i = 2; i < 8; ++i) {
-		layoutBindings[i].binding = i;
-		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		layoutBindings[i].descriptorCount = 1;
-		layoutBindings[i].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		layoutBindings[i].pImmutableSamplers = nullptr;
+Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
+	ConstantLocation location;
+	location.vertexOffset = -1;
+	location.fragmentOffset = -1;
+	if (vertexOffsets.find(name) != vertexOffsets.end()) {
+		location.vertexOffset = vertexOffsets[name];
 	}
-
-	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
-	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	descriptor_layout.pNext = NULL;
-	descriptor_layout.bindingCount = 8;
-	descriptor_layout.pBindings = layoutBindings;
-
-	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
-	assert(!err);
-
-	VkDescriptorPoolSize typeCounts[8];
-	memset(typeCounts, 0, sizeof(typeCounts));
-
-	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	typeCounts[0].descriptorCount = 1;
-
-	typeCounts[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	typeCounts[1].descriptorCount = 1;
-
-	for (int i = 2; i < 8; ++i) {
-		typeCounts[i].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		typeCounts[i].descriptorCount = 1;
+	if (fragmentOffsets.find(name) != fragmentOffsets.end()) {
+		location.fragmentOffset = fragmentOffsets[name];
 	}
-
-	VkDescriptorPoolCreateInfo descriptor_pool = {};
-	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	descriptor_pool.pNext = NULL;
-	descriptor_pool.maxSets = 128;
-	descriptor_pool.poolSizeCount = 8;
-	descriptor_pool.pPoolSizes = typeCounts;
-
-	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
-	assert(!err);
+	return location;
 }
 
-void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
-	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
-	VkDescriptorBufferInfo buffer_descs[2];
-
-	VkDescriptorSetAllocateInfo alloc_info = {};
-	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	alloc_info.pNext = NULL;
-	alloc_info.descriptorPool = desc_pool;
-	alloc_info.descriptorSetCount = 1;
-	alloc_info.pSetLayouts = &desc_layout;
-	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
-	assert(!err);
-
-	if (texture == nullptr && renderTarget == nullptr) {
-		createUniformBuffer(bufVertex, mem_allocVertex, memVertex, buffer_infoVertex);
-		createUniformBuffer(bufFragment, mem_allocFragment, memFragment, buffer_infoFragment);
-	}
-
-	memset(&buffer_descs, 0, sizeof(buffer_descs));
-
-	buffer_descs[0].buffer = bufVertex;
-	buffer_descs[0].offset = 0;
-	buffer_descs[0].range = 256 * sizeof(float);
-
-	buffer_descs[1].buffer = bufFragment;
-	buffer_descs[1].offset = 0;
-	buffer_descs[1].range = 256 * sizeof(float);
-
-	VkDescriptorImageInfo tex_desc;
-	memset(&tex_desc, 0, sizeof(tex_desc));
-
-	if (texture != nullptr) {
-		tex_desc.sampler = texture->texture.sampler;
-		tex_desc.imageView = texture->texture.view;
-	}
-	if (renderTarget != nullptr) {
-		tex_desc.sampler = renderTarget->sampler;
-		tex_desc.imageView = renderTarget->destView;
-	}
-	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-
-	VkWriteDescriptorSet writes[8];
-	memset(writes, 0, sizeof(writes));
-
-	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writes[0].dstSet = desc_set;
-	writes[0].dstBinding = 0;
-	writes[0].descriptorCount = 1;
-	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	writes[0].pBufferInfo = &buffer_descs[0];
-
-	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writes[1].dstSet = desc_set;
-	writes[1].dstBinding = 1;
-	writes[1].descriptorCount = 1;
-	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	writes[1].pBufferInfo = &buffer_descs[1];
-
-	for (int i = 2; i < 8; ++i) {
-		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writes[i].dstSet = desc_set;
-		writes[i].dstBinding = i;
-		writes[i].descriptorCount = 1;
-		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		writes[i].pImageInfo = &tex_desc;
-	}
-
-	if (texture != nullptr || renderTarget != nullptr) {
-		vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
-	}
-	else {
-		vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
-	}
+Graphics5::TextureUnit Graphics5::PipelineState::getTextureUnit(const char* name) {
+	TextureUnit unit;
+	unit.binding = textureBindings[name];
+	return unit;
 }
 
-void Graphics5::Program::link(VertexStructure** structures, int count) {
+void Graphics5::PipelineState::compile() {
 	parseShader(vertexShader, vertexLocations, textureBindings, vertexOffsets);
 	parseShader(fragmentShader, fragmentLocations, textureBindings, fragmentOffsets);
 
@@ -389,8 +224,8 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	pipeline_info.layout = pipeline_layout;
 
 	uint32_t stride = 0;
-	for (int i = 0; i < structures[0]->size; ++i) {
-		VertexElement element = structures[0]->elements[i];
+	for (int i = 0; i < inputLayout[0]->size; ++i) {
+		VertexElement element = inputLayout[0]->elements[i];
 		switch (element.data) {
 		case Graphics4::ColorVertexData:
 			stride += 1 * 4;
@@ -414,14 +249,14 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	}
 
 	VkVertexInputBindingDescription vi_bindings[1];
-	VkVertexInputAttributeDescription* vi_attrs = (VkVertexInputAttributeDescription*)alloca(sizeof(VkVertexInputAttributeDescription) * structures[0]->size);
+	VkVertexInputAttributeDescription* vi_attrs = (VkVertexInputAttributeDescription*)alloca(sizeof(VkVertexInputAttributeDescription) * inputLayout[0]->size);
 
 	VkPipelineVertexInputStateCreateInfo vi = {};
 	vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vi.pNext = NULL;
 	vi.vertexBindingDescriptionCount = 1;
 	vi.pVertexBindingDescriptions = vi_bindings;
-	vi.vertexAttributeDescriptionCount = structures[0]->size;
+	vi.vertexAttributeDescriptionCount = inputLayout[0]->size;
 	vi.pVertexAttributeDescriptions = vi_attrs;
 
 	vi_bindings[0].binding = 0;
@@ -429,8 +264,8 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	vi_bindings[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 	uint32_t offset = 0;
-	for (int i = 0; i < structures[0]->size; ++i) {
-		VertexElement element = structures[0]->elements[i];
+	for (int i = 0; i < inputLayout[0]->size; ++i) {
+		VertexElement element = inputLayout[0]->elements[i];
 		switch (element.data) {
 		case Graphics4::ColorVertexData:
 			vi_attrs[i].binding = 0;
@@ -487,8 +322,9 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	rs.cullMode = VK_CULL_MODE_NONE;
 	rs.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rs.depthClampEnable = VK_FALSE;
-	rs.rasterizerDiscardEnable = VK_FALSE;
+	rs.rasterizerDiscardEnable = VK_TRUE;
 	rs.depthBiasEnable = VK_FALSE;
+	rs.lineWidth = 1.0f;
 
 	memset(&cb, 0, sizeof(cb));
 	cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -562,50 +398,137 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	vkDestroyShaderModule(device, vert_shader_module, nullptr);
 }
 
-void Graphics5::Program::set() {
-	current = this;
+extern VkDescriptorPool desc_pool;
 
-	{
-		uint8_t* data;
-		VkResult err = vkMapMemory(device, memVertex, 0, mem_allocVertex.allocationSize, 0, (void**)&data);
-		assert(!err);
-		memcpy(data, &uniformDataVertex, sizeof(uniformDataVertex));
-		vkUnmapMemory(device, memVertex);
+void createDescriptorLayout(PipelineState5Impl* pipeline) {
+	VkDescriptorSetLayoutBinding layoutBindings[8];
+	memset(layoutBindings, 0, sizeof(layoutBindings));
+
+	layoutBindings[0].binding = 0;
+	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	layoutBindings[0].descriptorCount = 1;
+	layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	layoutBindings[0].pImmutableSamplers = nullptr;
+
+	layoutBindings[1].binding = 1;
+	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	layoutBindings[1].descriptorCount = 1;
+	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	layoutBindings[1].pImmutableSamplers = nullptr;
+
+	for (int i = 2; i < 8; ++i) {
+		layoutBindings[i].binding = i;
+		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		layoutBindings[i].descriptorCount = 1;
+		layoutBindings[i].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		layoutBindings[i].pImmutableSamplers = nullptr;
 	}
 
-	{
-		uint8_t* data;
-		VkResult err = vkMapMemory(device, memFragment, 0, mem_allocFragment.allocationSize, 0, (void**)&data);
-		assert(!err);
-		memcpy(data, &uniformDataFragment, sizeof(uniformDataFragment));
-		vkUnmapMemory(device, memFragment);
+	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
+	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descriptor_layout.pNext = NULL;
+	descriptor_layout.bindingCount = 8;
+	descriptor_layout.pBindings = layoutBindings;
+
+	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &pipeline->desc_layout);
+	assert(!err);
+
+	VkDescriptorPoolSize typeCounts[8];
+	memset(typeCounts, 0, sizeof(typeCounts));
+
+	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	typeCounts[0].descriptorCount = 1;
+
+	typeCounts[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	typeCounts[1].descriptorCount = 1;
+
+	for (int i = 2; i < 8; ++i) {
+		typeCounts[i].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		typeCounts[i].descriptorCount = 1;
 	}
 
-	vkCmdBindPipeline(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	VkDescriptorPoolCreateInfo descriptor_pool = {};
+	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descriptor_pool.pNext = NULL;
+	descriptor_pool.maxSets = 128;
+	descriptor_pool.poolSizeCount = 8;
+	descriptor_pool.pPoolSizes = typeCounts;
 
-	if (vulkanRenderTargets[0] != nullptr)
-		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, nullptr);
-	else if (vulkanTextures[0] != nullptr)
-		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, nullptr);
-	else
-		vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &desc_set, 0, nullptr);
+	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
+	assert(!err);
 }
 
-Graphics5::ConstantLocation Graphics5::Program::getConstantLocation(const char* name) {
-	ConstantLocation location;
-	location.vertexOffset = -1;
-	location.fragmentOffset = -1;
-	if (vertexOffsets.find(name) != vertexOffsets.end()) {
-		location.vertexOffset = vertexOffsets[name];
-	}
-	if (fragmentOffsets.find(name) != fragmentOffsets.end()) {
-		location.fragmentOffset = fragmentOffsets[name];
-	}
-	return location;
-}
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
+	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
+	VkDescriptorBufferInfo buffer_descs[2];
 
-Graphics5::TextureUnit Graphics5::Program::getTextureUnit(const char* name) {
-	TextureUnit unit;
-	unit.binding = textureBindings[name];
-	return unit;
+	VkDescriptorSetAllocateInfo alloc_info = {};
+	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	alloc_info.pNext = NULL;
+	alloc_info.descriptorPool = desc_pool;
+	alloc_info.descriptorSetCount = 1;
+	alloc_info.pSetLayouts = &pipeline->desc_layout;
+	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
+	assert(!err);
+
+	if (texture == nullptr && renderTarget == nullptr) {
+		createUniformBuffer(pipeline->bufVertex, pipeline->mem_allocVertex, pipeline->memVertex, pipeline->buffer_infoVertex);
+		createUniformBuffer(pipeline->bufFragment, pipeline->mem_allocFragment, pipeline->memFragment, pipeline->buffer_infoFragment);
+	}
+
+	memset(&buffer_descs, 0, sizeof(buffer_descs));
+
+	buffer_descs[0].buffer = pipeline->bufVertex;
+	buffer_descs[0].offset = 0;
+	buffer_descs[0].range = 256 * sizeof(float);
+
+	buffer_descs[1].buffer = pipeline->bufFragment;
+	buffer_descs[1].offset = 0;
+	buffer_descs[1].range = 256 * sizeof(float);
+
+	VkDescriptorImageInfo tex_desc;
+	memset(&tex_desc, 0, sizeof(tex_desc));
+
+	if (texture != nullptr) {
+		tex_desc.sampler = texture->texture.sampler;
+		tex_desc.imageView = texture->texture.view;
+	}
+	if (renderTarget != nullptr) {
+		tex_desc.sampler = renderTarget->sampler;
+		tex_desc.imageView = renderTarget->destView;
+	}
+	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+	VkWriteDescriptorSet writes[8];
+	memset(writes, 0, sizeof(writes));
+
+	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writes[0].dstSet = desc_set;
+	writes[0].dstBinding = 0;
+	writes[0].descriptorCount = 1;
+	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	writes[0].pBufferInfo = &buffer_descs[0];
+
+	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writes[1].dstSet = desc_set;
+	writes[1].dstBinding = 1;
+	writes[1].descriptorCount = 1;
+	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	writes[1].pBufferInfo = &buffer_descs[1];
+
+	for (int i = 2; i < 8; ++i) {
+		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		writes[i].dstSet = desc_set;
+		writes[i].dstBinding = i;
+		writes[i].descriptorCount = 1;
+		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		writes[i].pImageInfo = &tex_desc;
+	}
+
+	if (texture != nullptr || renderTarget != nullptr) {
+		vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
+	}
+	else {
+		vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
+	}
 }

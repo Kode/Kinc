@@ -334,6 +334,59 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	}
 }
 
+void Graphics4::Texture::init3D(bool readable) {
+#ifndef KORE_OPENGL_ES // Requires GLES 3.0
+	texWidth = width;
+	texHeight = height;
+	texDepth = depth;
+
+#ifdef KORE_ANDROID
+	external_oes = false;
+#endif
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glCheckErrors();
+	glGenTextures(1, &texture);
+	glCheckErrors();
+	glBindTexture(GL_TEXTURE_3D, texture);
+	glCheckErrors();
+
+	int convertedType = convertType(this->format);
+	bool isHdr = convertedType == GL_FLOAT;
+
+	void* texdata = data;
+	if (isHdr) texdata = hdrData;
+	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(this->format), texWidth, texHeight, texDepth, 0, convertFormat(this->format), convertedType, texdata);
+	glCheckErrors();
+
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glCheckErrors();
+
+	if (!readable) {
+		if (isHdr) {
+			delete[] hdrData;
+			hdrData = nullptr;
+		}
+		else {
+			delete[] data;
+			data = nullptr;
+		}
+	}
+
+	if (compression != Graphics1::ImageCompressionNone) {
+		log(Kore::Warning, "Compressed images can not be 3D.");
+	}
+#endif
+}
+
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 #ifdef KORE_IOS
 	texWidth = width;
@@ -430,8 +483,7 @@ void Graphics4::Texture::_set(TextureUnit unit) {
 }
 
 void Graphics4::Texture::_setImage(TextureUnit unit) {
-#if defined(KORE_WINDOWS)
-// || (defined(KORE_LINUX) && defined(GL_VERSION_4_2)) // Undefined reference on Travis
+#if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_4))
 	glBindImageTexture(unit.unit, texture, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 	glCheckErrors();
 #endif

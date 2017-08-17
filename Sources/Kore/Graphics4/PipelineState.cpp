@@ -7,7 +7,6 @@ using namespace Kore;
 
 Graphics4::PipelineState::PipelineState() {
 	for (int i = 0; i < 16; ++i) inputLayout[i] = nullptr;
-	interleavedLayout = true;
 	vertexShader = nullptr;
 	fragmentShader = nullptr;
 	geometryShader = nullptr;

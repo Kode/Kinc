@@ -10,7 +10,6 @@
 using namespace Kore;
 
 extern VkDevice device;
-extern VkCommandBuffer draw_cmd;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
@@ -18,7 +17,7 @@ Graphics5::IndexBuffer* IndexBuffer5Impl::current = nullptr;
 
 IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count) {}
 
-Graphics5::IndexBuffer::IndexBuffer(int indexCount) : IndexBuffer5Impl(indexCount) {
+Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffer5Impl(indexCount) {
 	VkBufferCreateInfo buf_info = {};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
@@ -70,8 +69,6 @@ void Graphics5::IndexBuffer::unlock() {
 
 void Graphics5::IndexBuffer::_set() {
 	current = this;
-
-	vkCmdBindIndexBuffer(draw_cmd, buf, 0, VK_INDEX_TYPE_UINT32);
 }
 
 void IndexBuffer5Impl::unset() {

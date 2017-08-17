@@ -19,6 +19,7 @@ namespace Kore {
 			Image(const char* filename, bool readable);
 			Image(Kore::Reader& reader, const char* format, bool readable);
 			Image(void* data, int width, int height, Format format, bool readable);
+			Image(void* data, int width, int height, int depth, Format format, bool readable);
 			virtual ~Image();
 			int at(int x, int y);
 

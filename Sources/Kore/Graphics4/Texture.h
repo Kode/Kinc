@@ -17,6 +17,7 @@ namespace Kore {
 			Texture(const char* filename, bool readable = false);
 			Texture(void* data, int size, const char* format, bool readable = false);
 			Texture(void* data, int width, int height, int format, bool readable = false);
+			Texture(void* data, int width, int height, int depth, int format, bool readable = false);
 #ifdef KORE_ANDROID
 			Texture(unsigned texid);
 #endif
@@ -34,8 +35,10 @@ namespace Kore {
 			int stride();
 			int texWidth;
 			int texHeight;
+			int texDepth;
 		private:
 			void init(const char* format, bool readable = false);
+			void init3D(bool readable = false);
 		};
 	}
 }

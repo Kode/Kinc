@@ -1,3 +1,5 @@
+const path = require('path');
+
 const project = new Project('Kore', __dirname);
 
 const g1 = true;
@@ -29,7 +31,9 @@ function addBackend(name) {
 	project.addFile('Backends/' + name + '/Sources/**');
 	project.addIncludeDir('Backends/' + name + '/Sources');
 }
-	
+
+let console = false;
+
 if (platform === Platform.Windows) {
 	project.addDefine('KORE_WINDOWS');
 	addBackend('System/Windows');
@@ -280,6 +284,16 @@ else if (platform === Platform.Tizen) {
 	project.addDefine('KORE_OPENGL_ES');
 	project.addDefine('KORE_POSIX');
 }
+else {
+	console = true;
+	g4 = true;
+	g5 = true;
+	if (platform === Platform.XboxOne) {
+		addBackend('Graphics5/Direct3D12');
+		project.addDefine('KORE_DIRECT3D');
+		project.addDefine('KORE_DIRECT3D12');
+	}
+}
 
 if (g4) {
 	project.addDefine('KORE_G4');
@@ -302,4 +316,12 @@ if (!a3) {
 	addBackend('Audio3/A3onA2');
 }
 
-resolve(project);
+if (console) {
+	Project.createProject(path.join(Project.root, 'Backends', 'XboxOne'), __dirname).then((backend) => {
+		project.addSubProject(backend);
+		resolve(project);
+	});
+}
+else {
+	resolve(project);
+}

@@ -14,13 +14,13 @@ using namespace Kore;
 
 extern VkDevice device;
 extern VkPhysicalDevice gpu;
-extern VkCommandBuffer setup_cmd;
+VkCommandBuffer setup_cmd;
 extern VkCommandPool cmd_pool;
 extern VkQueue queue;
 extern bool use_staging_buffer;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
-void createDescriptorSet(Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
 
 namespace {
 	void demo_flush_init_cmd() {
@@ -298,7 +298,7 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	err = vkCreateImageView(device, &view, NULL, &texture.view);
 	assert(!err);
 
-	createDescriptorSet(this, nullptr, desc_set);
+	createDescriptorSet(nullptr, this, nullptr, desc_set); // TODO
 }
 
 Graphics5::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {}

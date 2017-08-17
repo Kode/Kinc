@@ -15,7 +15,6 @@ namespace Kore {
 			~PipelineState();
 
 			VertexStructure* inputLayout[16];
-			bool interleavedLayout;
 			Shader* vertexShader;
 			Shader* fragmentShader;
 			Shader* geometryShader;

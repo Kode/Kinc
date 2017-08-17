@@ -147,3 +147,11 @@ void Quaternion::rotate(const Quaternion& q2) {
 	// q.normalize();
 	*this = q;
 }
+
+Quaternion Quaternion::conjugate() const {
+	return Quaternion(-x, -y, -z, w);
+}
+
+Quaternion Quaternion::invert() const {
+	return conjugate().scaled(1 / dot(*this));
+}

@@ -2,7 +2,7 @@
 
 #include "Direct3D12.h"
 #include "RenderTarget5Impl.h"
-#include "d3dx12.h"
+
 #include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/WinError.h>
@@ -31,12 +31,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	device->CreateCommittedResource(
 	    &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	    &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-	    D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&renderTarget));
-
-#if defined(_DEBUG)
-	log(Info, "depthBufferBits not implemented yet, using target defaults");
-	log(Info, "stencilBufferBits not implemented yet, using target defaults");
-#endif
+	    D3D12_RESOURCE_STATE_COMMON, nullptr, IID_GRAPHICS_PPV_ARGS(&renderTarget));
 
 	D3D12_RENDER_TARGET_VIEW_DESC view;
 	const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
@@ -49,7 +44,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&renderTargetDescriptorHeap));
+	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));
 
 	device->CreateRenderTargetView(renderTarget, &view, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -60,7 +55,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -71,6 +66,34 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
 	device->CreateShaderResourceView(renderTarget, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+	if (depthBufferBits > 0) {
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+		dsvHeapDesc.NumDescriptors = 1;
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&depthStencilDescriptorHeap));
+
+		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0,
+			width, height, 1, 1,
+			DXGI_FORMAT_D32_FLOAT, 1, 0, D3D12_TEXTURE_LAYOUT_UNKNOWN,
+			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+
+		D3D12_CLEAR_VALUE clearValue;
+		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		clearValue.DepthStencil.Depth = 1.0f;
+		clearValue.DepthStencil.Stencil = 0;
+
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+			IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
+
+		device->CreateDepthStencilView(depthStencilTexture, nullptr, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	}
+	else {
+		depthStencilDescriptorHeap = nullptr;
+		depthStencilTexture = nullptr;
+	}
 
 	scissor = {0, 0, width, height};
 	viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
@@ -86,7 +109,26 @@ Graphics5::RenderTarget::~RenderTarget() {
 	srvDescriptorHeap->Release();
 }
 
-extern void graphicsFlushAndWait();
+namespace {
+	void graphicsFlushAndWait() {
+		/*commandList->Close();
+
+		ID3D12CommandList* commandLists[] = {commandList};
+		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+
+		const UINT64 fenceValue = currentFenceValue;
+		commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
+		fenceValues[currentBackBuffer] = fenceValue;
+		++currentFenceValue;
+
+		waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
+
+		commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
+		commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+		commandList->RSSetViewports(1, &viewport);
+		commandList->RSSetScissorRects(1, &rectScissor);*/
+	}
+}
 
 void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
