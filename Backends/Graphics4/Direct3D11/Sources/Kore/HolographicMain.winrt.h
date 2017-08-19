@@ -58,6 +58,10 @@ private:
 	void OnPositionalTrackingDeactivating(
 		Windows::Perception::Spatial::SpatialLocator^ sender,
 		Windows::Perception::Spatial::SpatialLocatorPositionalTrackingDeactivatingEventArgs^ args);
+	
+	void OnPositionalTrackingLocatabilityChanged(
+		Windows::Perception::Spatial::SpatialLocator^ sender,
+		Platform::Object^ args);
 
 	// Clears event registration state. Used when changing to a new HolographicSpace
 	// and when tearing down AppMain.
@@ -73,7 +77,7 @@ private:
 	Windows::Perception::Spatial::SpatialLocator^                       m_locator;
 
 	// A reference frame attached to the holographic camera.
-	Windows::Perception::Spatial::SpatialLocatorAttachedFrameOfReference^ m_referenceFrame;
+	Windows::Perception::Spatial::SpatialStationaryFrameOfReference^ m_referenceFrame;
 
 
 	// Cached pointer to device resources.
@@ -86,5 +90,6 @@ private:
 	Windows::Foundation::EventRegistrationToken                         m_cameraAddedToken;
 	Windows::Foundation::EventRegistrationToken                         m_cameraRemovedToken;
 	Windows::Foundation::EventRegistrationToken                         m_positionalTrackingDeactivatingToken;
+	Windows::Foundation::EventRegistrationToken                         m_positionalTrackingLocatabilityChangedToken;
 
 };

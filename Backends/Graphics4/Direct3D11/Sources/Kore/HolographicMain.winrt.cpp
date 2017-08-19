@@ -40,22 +40,14 @@ std::unique_ptr<HolographicMain> m_main;
 void HolographicMain::begin()
 {
 	m_currentHolographicFrame = Update();
-
-	//if (Render(m_currentHolographicFrame))
-	//{
-	//	m_deviceResources->Present(m_currentHolographicFrame);
-	//}
 	m_deviceResources->LockCameraResources();
 
-	// Up-to-date frame predictions enhance the effectiveness of image stablization and
-	// allow more accurate positioning of holograms.
 	m_currentHolographicFrame->UpdateCurrentPrediction();
 
 	m_currentPrediction = m_currentHolographicFrame->CurrentPrediction;
-	m_currentCoordinateSystem = m_referenceFrame->GetStationaryCoordinateSystemAtTimestamp(m_currentPrediction->Timestamp);
+	m_currentCoordinateSystem = m_referenceFrame->CoordinateSystem;
 
 	m_currentCamPose = m_currentPrediction->CameraPoses->GetAt(0);
-	// This represents the device-based resources for a HolographicCamera.
 	m_currentCameraResources = m_deviceResources->GetResourcesForCamera(m_currentCamPose->HolographicCamera);
 }
 
@@ -121,9 +113,9 @@ SensorState HolographicMain::getSensorState(int eye)
 	HolographicStereoTransform cameraProjectionTransform = m_currentCamPose->ProjectionTransform;
 
 	Platform::IBox<HolographicStereoTransform>^ viewTransformContainer = m_currentCamPose->TryGetViewTransform(m_currentCoordinateSystem);
-	bool viewTransformAcquired = viewTransformContainer != nullptr;
 	HolographicStereoTransform viewCoordinateSystemTransform;
-	if (viewTransformAcquired)
+	
+	if (viewTransformContainer != nullptr)
 	{
 		viewCoordinateSystemTransform = viewTransformContainer->Value;
 	}
@@ -234,15 +226,19 @@ void HolographicMain::CreateHolographicSpace(Windows::UI::Core::CoreWindow^ wind
 
 	// Use the default SpatialLocator to track the motion of the device.
 	m_locator = SpatialLocator::GetDefault();
-
 	m_positionalTrackingDeactivatingToken =
 		m_locator->PositionalTrackingDeactivating +=
 		ref new Windows::Foundation::TypedEventHandler<SpatialLocator^, SpatialLocatorPositionalTrackingDeactivatingEventArgs^>(
 			std::bind(&HolographicMain::OnPositionalTrackingDeactivating, this, _1, _2)
 			);
-	// follow along with the device's location.
-	m_referenceFrame = m_locator->CreateAttachedFrameOfReferenceAtCurrentHeading();
 
+	m_positionalTrackingLocatabilityChangedToken =
+		m_locator->LocatabilityChanged +=
+		ref new Windows::Foundation::TypedEventHandler<SpatialLocator^,Object^>(
+			std::bind(&HolographicMain::OnPositionalTrackingLocatabilityChanged, this, _1, _2)
+			);
+	// follow along with the device's location.
+	m_referenceFrame = m_locator->CreateStationaryFrameOfReferenceAtCurrentLocation();
 }
 
 void HolographicMain::OnPositionalTrackingDeactivating(
@@ -252,6 +248,17 @@ void HolographicMain::OnPositionalTrackingDeactivating(
 	// Without positional tracking, spatial meshes will not be locatable.
 	args->Canceled = true;
 }
+
+void HolographicMain::OnPositionalTrackingLocatabilityChanged(
+	SpatialLocator^ sender,
+	Object^ args)
+{
+	//auto locatability = sender->Locatability;
+	//String^ message = L"Warning! Positional tracking is " +
+	//	sender->Locatability.ToString() + L".\n";
+	//OutputDebugStringW(message->Data());
+}
+
 
 void HolographicMain::UnregisterHolographicEventHandlers()
 {
@@ -275,6 +282,7 @@ void HolographicMain::UnregisterHolographicEventHandlers()
 	if (m_locator != nullptr)
 	{
 		m_locator->PositionalTrackingDeactivating -= m_positionalTrackingDeactivatingToken;
+		m_locator->LocatabilityChanged -= m_positionalTrackingLocatabilityChangedToken;
 	}
 }
 
