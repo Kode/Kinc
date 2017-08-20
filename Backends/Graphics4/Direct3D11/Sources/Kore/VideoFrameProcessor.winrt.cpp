@@ -18,7 +18,7 @@ using namespace Windows::Foundation::Numerics;
 
 using namespace Windows::Media::Capture;
 using namespace Windows::Media::Capture::Frames;
-
+using namespace Windows::Media::MediaProperties;
 using namespace concurrency;
 using namespace Platform;
 
@@ -80,7 +80,7 @@ task<std::shared_ptr<VideoFrameProcessor>> VideoFrameProcessor::CreateAsync(void
         {
             MediaFrameSource^ selectedSource = mediaCapture->FrameSources->Lookup(selectedSourceInfo->Id);
 
-            return create_task(mediaCapture->CreateFrameReaderAsync(selectedSource))
+            return create_task(mediaCapture->CreateFrameReaderAsync(selectedSource, MediaEncodingSubtypes::Bgra8)) //TODO mawe: format works on hololens?
                 .then([=](MediaFrameReader^ reader)
             {
                 return create_task(reader->StartAsync())

@@ -11,6 +11,8 @@
 //*********************************************************
 #define NOMINMAX
 #include "DeviceResources.winrt.h"
+#include "VideoFrameProcessor.winrt.h"
+
 #include <Kore/Vr/SensorState.h>
 
 using namespace Windows::UI::Core;

@@ -7,6 +7,9 @@ using namespace Kore;
 using namespace Windows::Foundation;
 using namespace Windows::UI::Core;
 
+using namespace Windows::Media::Capture;
+using namespace Windows::Media::Capture::Frames;
+using namespace Windows::Media::MediaProperties;
 
 void* VrInterface::init(void* hinst, const char* title, const char* windowClassName)
 {
@@ -54,3 +57,10 @@ void VrInterface::updateTrackingOrigin(TrackingOrigin origin)
 	
 }
 
+CameraImage VrInterface::getCurrentCameraImage()
+{
+	MediaFrameReference^ frame=m_videoFrameProcessor->GetLatestFrame();
+
+	//todo create cameraImage from frame..
+	
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Kore/Vr/SensorState.h>
+#include <Kore/Vr/CameraImage.h>
 
 enum TrackingOrigin { Stand, Sit };
 
@@ -17,5 +18,9 @@ namespace Kore {
 		void updateTrackingOrigin(TrackingOrigin origin);
 		void resetHmdPose();
 		void ovrShutdown();
+
+		//AR device functions
+		CameraImage getCurrentCameraImage();
+
 	}
 }
