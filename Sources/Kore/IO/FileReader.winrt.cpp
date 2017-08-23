@@ -220,7 +220,7 @@ bool FileReader::open(const char* filename, FileType type) {
 	if (isAbsolute) {
 		strcpy(filepath, filename);
 	}
-	else if (fileslocation != nullptr) {
+	else if (fileslocation != nullptr && type != Save) {
 		strcpy(filepath, fileslocation);
 		strcat(filepath, "/");
 		strcat(filepath, filename);
