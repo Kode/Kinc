@@ -9,11 +9,6 @@ namespace Kore {
 	class PipelineStateImpl {
 	public:
 		uint programId;
-		Graphics4::Shader* vertexShader;
-		Graphics4::Shader* fragmentShader;
-		Graphics4::Shader* geometryShader;
-		Graphics4::Shader* tessellationControlShader;
-		Graphics4::Shader* tessellationEvaluationShader;
 
 		PipelineStateImpl();
 		virtual ~PipelineStateImpl();
