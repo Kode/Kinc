@@ -215,11 +215,11 @@ bool Graphics5::swapBuffers(int windowId) {
 }
 
 void beginGL();
-/*
-void Graphics5::begin(int windowId) {
+
+void Graphics5::begin(RenderTarget* renderTarget, int windowId) {
 	beginGL();
 }
-
+/*
 void Graphics5::viewport(int x, int y, int width, int height) {
 	// TODO
 	// id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
@@ -243,14 +243,14 @@ void Graphics5::setStencilParameters(ZCompareMode compareMode, StencilAction bot
                                     int readMask, int writeMask) {
 	// TODO
 }
-
+*/
 void Graphics5::end(int windowId) {
 	++uniformsIndex;
 	if (uniformsIndex >= more) {
 		uniformsIndex = 0;
 	}
 }
-
+/*
 void Graphics5::clear(uint flags, uint color, float depth, int stencil) {}
 
 void Graphics5::setRenderState(RenderState state, bool on) {}

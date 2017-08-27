@@ -16,8 +16,6 @@ id getMetalEncoder();
 
 PipelineState5Impl::PipelineState5Impl() {}
 
-Graphics5::PipelineState::PipelineState() {}
-
 void Graphics5::PipelineState::compile() {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
