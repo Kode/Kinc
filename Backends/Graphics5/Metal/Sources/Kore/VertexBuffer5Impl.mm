@@ -16,7 +16,7 @@ const int more = 10;
 
 VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count) {}
 
-Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBuffer5Impl(count) {
+Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];

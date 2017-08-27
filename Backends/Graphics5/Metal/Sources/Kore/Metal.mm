@@ -183,7 +183,7 @@ void Graphics5::setMatrix(ConstantLocation location, const mat3& value) {
 		}
 	}
 }
-
+/*
 void Graphics5::drawIndexedVertices() {
 	drawIndexedVertices(0, IndexBuffer5Impl::current->count());
 }
@@ -200,7 +200,7 @@ void Graphics5::drawIndexedVertices(int start, int count) {
 	                   indexBuffer:IndexBuffer5Impl::current->mtlBuffer
 	             indexBufferOffset:start + IndexBuffer5Impl::current->offset()];
 }
-
+*/
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {
 	
 }
@@ -215,7 +215,7 @@ bool Graphics5::swapBuffers(int windowId) {
 }
 
 void beginGL();
-
+/*
 void Graphics5::begin(int windowId) {
 	beginGL();
 }
@@ -256,7 +256,7 @@ void Graphics5::clear(uint flags, uint color, float depth, int stencil) {}
 void Graphics5::setRenderState(RenderState state, bool on) {}
 
 void Graphics5::setRenderState(RenderState state, int v) {}
-
+*/
 void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
 void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
@@ -266,19 +266,19 @@ void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter 
 void Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
 void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
-
+/*
 void Graphics5::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
 void Graphics5::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
 
 void Graphics5::setRenderTargets(RenderTarget** targets, int count) {}
-
+*/
 void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
-
+/*
 void Graphics5::restoreRenderTarget() {}
 
 void Graphics5::setColorMask(bool red, bool green, bool blue, bool alpha) {}
-
+*/
 bool Graphics5::renderTargetsInvertedY() {
 	return true;
 }
@@ -286,7 +286,7 @@ bool Graphics5::renderTargetsInvertedY() {
 bool Graphics5::nonPow2TexturesSupported() {
 	return true;
 }
-
+/*
 void Graphics5::setIndexBuffer(Graphics5::IndexBuffer& ib) {
 	ib._set();
 }
@@ -294,7 +294,7 @@ void Graphics5::setIndexBuffer(Graphics5::IndexBuffer& ib) {
 void Graphics5::setVertexBuffers(Graphics5::VertexBuffer** vertexBuffers, int count) {
 	vertexBuffers[0]->_set(0);
 }
-
+*/
 void Graphics5::setTexture(Graphics5::TextureUnit unit, Graphics5::Texture* texture) {
 	texture->_set(unit);
 }

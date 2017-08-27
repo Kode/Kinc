@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <Kore/Graphics5/PipelineState.h>
 #include <Kore/Graphics5/Shader.h>
 
 #import <Metal/Metal.h>
@@ -13,31 +14,11 @@ using namespace Kore;
 id getMetalDevice();
 id getMetalEncoder();
 
-Program5Impl::Program5Impl() {}
+PipelineState5Impl::PipelineState5Impl() {}
 
-Graphics5::Program::Program() {}
+Graphics5::PipelineState::PipelineState() {}
 
-void Graphics5::Program::setVertexShader(Shader* vertexShader) {
-	this->vertexShader = vertexShader;
-}
-
-void Graphics5::Program::setFragmentShader(Shader* fragmentShader) {
-	this->fragmentShader = fragmentShader;
-}
-
-void Graphics5::Program::setGeometryShader(Shader* shader) {
-	
-}
-
-void Graphics5::Program::setTessellationControlShader(Shader* shader) {
-	
-}
-
-void Graphics5::Program::setTessellationEvaluationShader(Shader* shader) {
-	
-}
-
-void Graphics5::Program::link(VertexStructure** structures, int count) {
+void Graphics5::PipelineState::compile() {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
 	renderPipelineDesc.fragmentFunction = fragmentShader->mtlFunction;
@@ -46,13 +27,13 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	// Create a vertex descriptor
 	float offset = 0;
 	MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
-	
-	for (int i = 0; i < structures[0]->size; ++i) {
+
+	for (int i = 0; inputLayout[i] != nullptr; ++i) {
 		
 		vertexDescriptor.attributes[i].bufferIndex = 0;
 		vertexDescriptor.attributes[i].offset = offset;
 		
-		switch (structures[0]->elements[i].data) {
+		switch (inputLayout[0]->elements[i].data) {
 			case Graphics4::Float1VertexData:
 				vertexDescriptor.attributes[i].format = MTLVertexFormatFloat;
 				offset += sizeof(float);
@@ -88,12 +69,12 @@ void Graphics5::Program::link(VertexStructure** structures, int count) {
 	this->reflection = reflection;
 }
 
-void Graphics5::Program::set() {
+void PipelineState5Impl::_set() {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setRenderPipelineState:pipeline];
 }
 
-Graphics5::ConstantLocation Graphics5::Program::getConstantLocation(const char* name) {
+Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
 	ConstantLocation location;
 	location.vertexOffset = -1;
 	location.fragmentOffset = -1;
@@ -129,7 +110,7 @@ Graphics5::ConstantLocation Graphics5::Program::getConstantLocation(const char* 
 	return location;
 }
 
-Graphics5::TextureUnit Graphics5::Program::getTextureUnit(const char* name) {
+Graphics5::TextureUnit Graphics5::PipelineState::getTextureUnit(const char* name) {
 	TextureUnit unit;
 	unit.index = -1;
 
