@@ -10,30 +10,31 @@
 
 using namespace Kore;
 
+id getMetalDevice();
+id getMetalEncoder();
+
+int uniformsIndex = 0;
+id<MTLBuffer> vertexUniforms;
+id<MTLBuffer> fragmentUniforms;
+
 namespace {
 	// bool fullscreen;
 	// TextureFilter minFilters[32];
 	// MipmapFilter mipFilters[32];
 	// int originalFramebuffer;
-	id<MTLBuffer> vertexUniforms;
-	id<MTLBuffer> fragmentUniforms;
 	const int uniformsSize = 4096;
 	const int more = 5;
-	int uniformsIndex = 0;
-
+	
 	void* vertexData(int offset) {
 		u8* bytes = (u8*)[vertexUniforms contents];
 		return &bytes[uniformsIndex * uniformsSize + offset];
 	}
-
+	
 	void* fragmentData(int offset) {
 		u8* bytes = (u8*)[fragmentUniforms contents];
 		return &bytes[uniformsIndex * uniformsSize + offset];
 	}
 }
-
-id getMetalDevice();
-id getMetalEncoder();
 
 void Graphics5::destroy(int windowId) {
 

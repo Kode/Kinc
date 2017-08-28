@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Graphics5/CommandList.h>
+#include <Kore/Graphics5/Graphics.h>
 
 #import <Metal/Metal.h>
 
@@ -9,6 +10,14 @@
 #include <string.h>
 
 using namespace Kore;
+
+id getMetalDevice();
+id getMetalEncoder();
+
+extern int uniformsIndex;
+extern id<MTLBuffer> vertexUniforms;
+extern id<MTLBuffer> fragmentUniforms;
+const int uniformsSize = 4096;
 
 Graphics5::CommandList::CommandList() {
 	
@@ -43,7 +52,7 @@ void Graphics5::CommandList::drawIndexedVertices() {
 }
 
 void Graphics5::CommandList::drawIndexedVertices(int start, int count) {
-	/*id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	
 	//[encoder setDepthStencilState:_depthState];
 	[encoder setVertexBuffer:vertexUniforms offset:uniformsIndex * uniformsSize atIndex:1];
@@ -52,7 +61,7 @@ void Graphics5::CommandList::drawIndexedVertices(int start, int count) {
 						indexCount:count
 						 indexType:MTLIndexTypeUInt32
 					   indexBuffer:IndexBuffer5Impl::current->mtlBuffer
-				 indexBufferOffset:start + IndexBuffer5Impl::current->offset()];*/
+				 indexBufferOffset:start + IndexBuffer5Impl::current->offset()];
 }
 
 void Graphics5::CommandList::viewport(int x, int y, int width, int height) {
