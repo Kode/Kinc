@@ -124,20 +124,20 @@ void VideoFrameProcessor::OnFrameArrived(MediaFrameReader^ sender, MediaFrameArr
 
 
 // Opens up the underlying buffer of a SoftwareBitmap and copies to our D3D11 Texture
-void VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source)
+bool VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source, CameraImage* image)
 {
 	SoftwareBitmap^ softwareBitmap = source->SoftwareBitmap;
 
 	if (softwareBitmap == nullptr)
 	{
 		Kore::log(Kore::LogLevel::Info,"SoftwareBitmap was null\r\n");
-		return;
+		return false;
 	}
 
 	if (softwareBitmap->BitmapPixelFormat != BitmapPixelFormat::Bgra8)
 	{
 		Kore::log(Kore::LogLevel::Info, "BitmapPixelFormat was not Bgra8\r\n");
-		return;
+		return false;
 	}
 
 	BitmapBuffer^ bitmapBuffer = softwareBitmap->LockBuffer(BitmapBufferAccessMode::Read);
@@ -150,14 +150,19 @@ void VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frame
 		UINT32 sourceCapacity = 0;
 		if (SUCCEEDED(memoryBufferByteAccess->GetBuffer(&pSourceBuffer, &sourceCapacity)) && pSourceBuffer)
 		{
-			if (sourceCapacity != currentFrameDataSize) {
-				delete[]currentFrameData;
+			/*if (sourceCapacity != currentFrameDataSize) {
+				currentFrameDataSize = sourceCapacity;
+				delete[] currentFrameData;
 				currentFrameData = new int[currentFrameDataSize/4];
-			}
+			}*/
 
-			std::memcpy(currentFrameData, pSourceBuffer, sourceCapacity);
+			//std::memcpy(currentFrameData, pSourceBuffer, sourceCapacity);
+			image->imageBGRA8Data = new int[sourceCapacity / 4];
+			std::memcpy(image->imageBGRA8Data, pSourceBuffer, sourceCapacity);
+			return true;
 		}
 	}
+	return false;
 }
 
 CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^ worldCoordSystem) {
@@ -167,7 +172,11 @@ CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^
 		return NULL;
 	}
 
-	auto videoMediaFrame = frame->VideoMediaFrame;
+	VideoMediaFrame^ videoMediaFrame = frame->VideoMediaFrame;
+	if (videoMediaFrame == nullptr) {
+		return NULL;
+	}
+
 	auto format = videoMediaFrame->VideoFormat;
 
 
@@ -185,6 +194,14 @@ CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^
 	}
 	
 	//todo create cameraImage from frame..
-	CameraImage* cameraImage = new CameraImage(format->Width, format->Height, currentFrameData, WindowsNumericsToKoreMat(cameraToWorld->Value),Kore::mat4());
+	CameraImage* cameraImage = new CameraImage(format->Width, format->Height, nullptr, WindowsNumericsToKoreMat(cameraToWorld->Value),Kore::mat4());
+
+	if (!CopyFromVideoMediaFrame(videoMediaFrame,cameraImage)) {
+		delete cameraImage;
+		return NULL;
+	}
+
+
+
 	return cameraImage;
 }

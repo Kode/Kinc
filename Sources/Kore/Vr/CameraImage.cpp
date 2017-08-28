@@ -4,8 +4,13 @@
 
 using namespace Kore;
 
-CameraImage::CameraImage(int imageHeight, int imageWidth, int* imageBGRA8Data, mat4 cameraViewTransform,mat4 cameraProjectionTransform)
-	:imageHeight(imageHeight), imageWidth(imageWidth),imageBGRA8Data(imageBGRA8Data), cameraViewTransform(cameraViewTransform), cameraProjectionTransform(cameraProjectionTransform){
+CameraImage::CameraImage(int imageWidth, int imageHeight, int* imageBGRA8Data, mat4 cameraViewTransform,mat4 cameraProjectionTransform)
+	:imageWidth(imageWidth), imageHeight(imageHeight), imageBGRA8Data(imageBGRA8Data), cameraViewTransform(cameraViewTransform), cameraProjectionTransform(cameraProjectionTransform){
+}
+
+CameraImage::~CameraImage()
+{
+	//delete[] imageBGRA8Data;
 }
 
 //see https://developer.microsoft.com/en-us/windows/mixed-reality/locatable_camera

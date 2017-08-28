@@ -6,7 +6,7 @@
 class CameraImage {
 public:
 	CameraImage(int imageHeight, int imageWidth,int* imageBGRA8Data, Kore::mat4 cameraViewTransform, Kore::mat4 cameraProjectionTransform);
-
+	~CameraImage();
 	int* imageBGRA8Data;
 	int imageHeight, imageWidth;
 
