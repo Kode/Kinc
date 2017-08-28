@@ -57,10 +57,7 @@ void VrInterface::updateTrackingOrigin(TrackingOrigin origin)
 	
 }
 
-CameraImage VrInterface::getCurrentCameraImage()
+CameraImage* VrInterface::getCurrentCameraImage()
 {
-	MediaFrameReference^ frame=m_videoFrameProcessor->GetLatestFrame();
-
-	//todo create cameraImage from frame..
-	
+	return m_videoFrameProcessor->getCurrentCameraImage(m_main->getCurrentWorldCoordinateSystem());
 }

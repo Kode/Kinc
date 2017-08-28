@@ -120,3 +120,64 @@ void VideoFrameProcessor::OnFrameArrived(MediaFrameReader^ sender, MediaFrameArr
         m_latestFrame = frame;
     }
 }
+
+
+
+// Opens up the underlying buffer of a SoftwareBitmap and copies to our D3D11 Texture
+void VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source)
+{
+	SoftwareBitmap^ softwareBitmap = source->SoftwareBitmap;
+
+	if (softwareBitmap == nullptr)
+	{
+		OutputDebugString(L"SoftwareBitmap was null\r\n");
+		return;
+	}
+
+	if (softwareBitmap->BitmapPixelFormat != BitmapPixelFormat::Bgra8)
+	{
+		OutputDebugString(L"BitmapPixelFormat was not Bgra8\r\n");
+		return;
+	}
+
+	BitmapBuffer^ bitmapBuffer = softwareBitmap->LockBuffer(BitmapBufferAccessMode::Read);
+	IMemoryBufferReference^ bufferRef = bitmapBuffer->CreateReference();
+
+	ComPtr<IMemoryBufferByteAccess> memoryBufferByteAccess;
+	if (SUCCEEDED(reinterpret_cast<IInspectable*>(bufferRef)->QueryInterface(IID_PPV_ARGS(&memoryBufferByteAccess))))
+	{
+		BYTE* pSourceBuffer = nullptr;
+		UINT32 sourceCapacity = 0;
+		if (SUCCEEDED(memoryBufferByteAccess->GetBuffer(&pSourceBuffer, &sourceCapacity)) && pSourceBuffer)
+		{
+			if (sourceCapacity != currentFrameDataSize) {
+				delete[]currentFrameData;
+				currentFrameData = new int[currentFrameDataSize/4];
+			}
+
+			std::memcpy(currentFrameData, pSourceBuffer, sourceCapacity);
+		}
+	}
+}
+
+CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^ worldCoordSystem) {
+	MediaFrameReference^ frame = GetLatestFrame();
+
+	auto videoMediaFrame = frame->VideoMediaFrame;
+	auto format = videoMediaFrame->VideoFormat;
+
+
+	SpatialCoordinateSystem^ cameraCoordinateSystem = frame->CoordinateSystem;
+	CameraIntrinsics^ cameraIntrinsics = videoMediaFrame->CameraIntrinsics;
+	IBox<float4x4>^ cameraToWorld = cameraCoordinateSystem->TryGetTransformTo(worldCoordSystem);
+
+	// If we can't locate the world, this transform will be null.
+	if (cameraToWorld == nullptr)
+	{
+		return NULL;
+	}
+	
+	//todo create cameraImage from frame..
+	CameraImage* cameraImage = new CameraImage(format->Width, format->Height, currentFrameData, WindowsNumericsToKoreMat(cameraToWorld->Value),Kore::mat4());
+	return cameraImage;
+}

@@ -5,9 +5,9 @@
 
 class CameraImage {
 public:
-	CameraImage(int imageHeight, int imageWidth,Kore::u8* imageBGRA8Data, Kore::mat4 cameraViewTransform, Kore::mat4 cameraProjectionTransform);
+	CameraImage(int imageHeight, int imageWidth,int* imageBGRA8Data, Kore::mat4 cameraViewTransform, Kore::mat4 cameraProjectionTransform);
 
-	Kore::u8* imageBGRA8Data;
+	int* imageBGRA8Data;
 	int imageHeight, imageWidth;
 
 	//in world (root) coordinate  system

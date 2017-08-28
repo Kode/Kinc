@@ -34,6 +34,9 @@ public:
 	virtual void OnDeviceLost();
 	virtual void OnDeviceRestored();
 
+	//
+	Windows::Perception::Spatial::SpatialCoordinateSystem^ getCurrentWorldCoordinateSystem();
+
 	//vr interface
 	void begin();
 	void beginRender(int eye);

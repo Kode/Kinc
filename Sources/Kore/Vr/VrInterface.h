@@ -20,7 +20,7 @@ namespace Kore {
 		void ovrShutdown();
 
 		//AR device functions
-		CameraImage getCurrentCameraImage();
+		CameraImage* getCurrentCameraImage();
 
 	}
 }
