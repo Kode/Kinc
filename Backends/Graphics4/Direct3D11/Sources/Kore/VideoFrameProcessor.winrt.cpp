@@ -21,7 +21,6 @@ using namespace Windows::Media::Capture::Frames;
 using namespace Windows::Media::MediaProperties;
 using namespace concurrency;
 using namespace Platform;
-
 using namespace std::placeholders;
 
 VideoFrameProcessor::VideoFrameProcessor(Platform::Agile<MediaCapture> mediaCapture, MediaFrameReader^ reader, MediaFrameSource^ source)
@@ -74,12 +73,12 @@ task<std::shared_ptr<VideoFrameProcessor>> VideoFrameProcessor::CreateAsync(void
         settings->SourceGroup = selectedGroup;
 
         Platform::Agile<MediaCapture> mediaCapture(ref new MediaCapture());
-
-        return create_task(mediaCapture->InitializeAsync(settings))
+        
+		return create_task(mediaCapture->InitializeAsync(settings))
             .then([=]
         {
             MediaFrameSource^ selectedSource = mediaCapture->FrameSources->Lookup(selectedSourceInfo->Id);
-
+			
             return create_task(mediaCapture->CreateFrameReaderAsync(selectedSource, MediaEncodingSubtypes::Bgra8)) //TODO mawe: format works on hololens?
                 .then([=](MediaFrameReader^ reader)
             {
@@ -177,8 +176,21 @@ CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^
 		return NULL;
 	}
 
+	//videoMediaFrame->CameraIntrinsics->
 	auto format = videoMediaFrame->VideoFormat;
 
+
+	if (!frame->Properties->HasKey(MFSampleExtension_Spatial_CameraProjectionTransform)) {
+		return NULL;
+	}
+	auto projectionTransformProperty= (Windows::Foundation::IPropertyValue^) frame->Properties->Lookup(MFSampleExtension_Spatial_CameraProjectionTransform);
+	Platform::Array<unsigned char>^ projectionMatrixByteArray = ref new Platform::Array<unsigned char>(4*4*4);
+	projectionTransformProperty->GetUInt8Array(&projectionMatrixByteArray);
+	float* vals = reinterpret_cast<float*>(projectionMatrixByteArray->Data);
+	Kore::mat4 projectionMat;
+	for(int i=0;i<16;i++){
+		projectionMat.data[i] = vals[i];
+	}
 
 	SpatialCoordinateSystem^ cameraCoordinateSystem = frame->CoordinateSystem;
 	if (cameraCoordinateSystem == nullptr) {
@@ -194,7 +206,7 @@ CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^
 	}
 	
 	//todo create cameraImage from frame..
-	CameraImage* cameraImage = new CameraImage(format->Width, format->Height, nullptr, WindowsNumericsToKoreMat(cameraToWorld->Value),Kore::mat4());
+	CameraImage* cameraImage = new CameraImage(format->Width, format->Height, nullptr, WindowsNumericsToKoreMat(cameraToWorld->Value), projectionMat);
 
 	if (!CopyFromVideoMediaFrame(videoMediaFrame,cameraImage)) {
 		delete cameraImage;

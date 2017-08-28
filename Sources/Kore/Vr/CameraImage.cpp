@@ -39,7 +39,9 @@ void CameraImage::getWorldRayForPixelPosition(vec2 pixelPosition, vec3 &origin, 
 	vec2 ImagePosZeroToOne(pixelPosition.x() / imageWidth, 1.0 - (pixelPosition.y() / imageHeight));
 	vec2 ImagePosProjected = ((ImagePosZeroToOne * 2.0f) - vec2(1, 1)); // -1 to 1 space
 	vec3 CameraSpacePos = UnProjectVector(cameraProjectionTransform, vec3(ImagePosProjected, 1));
-	mat4 CameraToWorld = cameraViewTransform.Invert(); //NOT INVERTED OR CORRECT ??
+	mat4 CameraToWorld = cameraViewTransform; //.Invert(); //NOT INVERTED OR CORRECT ??
 	vec3 WorldSpaceRayPoint1 = CameraToWorld*vec4(0, 0, 0, 1); // camera location in world space
 	vec3 WorldSpaceRayPoint2 = CameraToWorld*vec4(CameraSpacePos,1); // ray point in world space
+	origin = WorldSpaceRayPoint1;
+	direction = (WorldSpaceRayPoint2 - WorldSpaceRayPoint1).normalize();
 }
