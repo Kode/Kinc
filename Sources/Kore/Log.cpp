@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-#ifdef KORE_WINDOWS
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 #include <Windows.h>
 #endif
 
@@ -25,7 +25,7 @@ void Kore::log(LogLevel level, const char* format, ...) {
 }
 
 void Kore::logArgs(LogLevel level, const char* format, va_list args) {
-#ifdef KORE_WINDOWS
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	wchar_t formatw[4096];
 	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);
 
@@ -110,8 +110,11 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 
 	wcscat(buffer, L"\r\n");
 	OutputDebugString(buffer);
+#ifdef KORE_WINDOWS
 	DWORD written;
 	WriteConsole(GetStdHandle(level == Info ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, wcslen(buffer), &written, nullptr);
+#endif /
+
 #else
 	vfprintf(level == Info ? stdout : stderr, format, args);
 	fprintf(level == Info ? stdout : stderr, "\n");
