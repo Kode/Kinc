@@ -35,7 +35,7 @@ using namespace std::placeholders;
 using namespace Kore;
 
 std::unique_ptr<HolographicMain> m_main;
-std::unique_ptr<VideoFrameProcessor> m_videoFrameProcessor;
+std::shared_ptr<VideoFrameProcessor> m_videoFrameProcessor;
 
 Windows::Perception::Spatial::SpatialCoordinateSystem^ HolographicMain::getCurrentWorldCoordinateSystem() {
 	return m_currentCoordinateSystem;

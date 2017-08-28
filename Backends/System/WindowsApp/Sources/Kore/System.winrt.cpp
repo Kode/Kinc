@@ -69,6 +69,7 @@ using namespace Windows::UI::Core;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+using namespace Concurrency;
 
 bool Kore::System::handleMessages() {
 	CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
@@ -217,6 +218,11 @@ void Win8Application::SetWindow(CoreWindow^ window) {
 	//Create holographics space - needs to be created before window is activated
 	m_main = std::make_unique<HolographicMain>(window);
 
+	task<void> videoInitTask = VideoFrameProcessor::CreateAsync()
+		.then([this](std::shared_ptr<VideoFrameProcessor> videoProcessor)
+	{
+		m_videoFrameProcessor = std::move(videoProcessor);
+	});
 }
 
 void Win8Application::Load(Platform::String^ entryPoint) {}

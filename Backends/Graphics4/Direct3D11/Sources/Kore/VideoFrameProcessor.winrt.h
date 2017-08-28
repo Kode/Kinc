@@ -19,6 +19,7 @@
 #include <MemoryBuffer.h> // IMemoryBufferByteAccess
 #include <Kore/Vr/CameraImage.h>
 #include "Conversion.winrt.h"
+#include <Kore/Log.h>
 
 using namespace Windows::Perception::Spatial;
 using namespace Windows::UI::Input::Spatial;

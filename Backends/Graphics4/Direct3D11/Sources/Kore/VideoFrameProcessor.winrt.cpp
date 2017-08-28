@@ -130,13 +130,13 @@ void VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frame
 
 	if (softwareBitmap == nullptr)
 	{
-		OutputDebugString(L"SoftwareBitmap was null\r\n");
+		Kore::log(Kore::LogLevel::Info,"SoftwareBitmap was null\r\n");
 		return;
 	}
 
 	if (softwareBitmap->BitmapPixelFormat != BitmapPixelFormat::Bgra8)
 	{
-		OutputDebugString(L"BitmapPixelFormat was not Bgra8\r\n");
+		Kore::log(Kore::LogLevel::Info, "BitmapPixelFormat was not Bgra8\r\n");
 		return;
 	}
 
@@ -163,11 +163,18 @@ void VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frame
 CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^ worldCoordSystem) {
 	MediaFrameReference^ frame = GetLatestFrame();
 
+	if (frame  == nullptr) {
+		return NULL;
+	}
+
 	auto videoMediaFrame = frame->VideoMediaFrame;
 	auto format = videoMediaFrame->VideoFormat;
 
 
 	SpatialCoordinateSystem^ cameraCoordinateSystem = frame->CoordinateSystem;
+	if (cameraCoordinateSystem == nullptr) {
+		return NULL;
+	}
 	CameraIntrinsics^ cameraIntrinsics = videoMediaFrame->CameraIntrinsics;
 	IBox<float4x4>^ cameraToWorld = cameraCoordinateSystem->TryGetTransformTo(worldCoordSystem);
 

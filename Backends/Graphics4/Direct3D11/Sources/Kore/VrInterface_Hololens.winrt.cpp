@@ -59,5 +59,8 @@ void VrInterface::updateTrackingOrigin(TrackingOrigin origin)
 
 CameraImage* VrInterface::getCurrentCameraImage()
 {
+	if (m_videoFrameProcessor == nullptr) {
+		return nullptr;
+	}
 	return m_videoFrameProcessor->getCurrentCameraImage(m_main->getCurrentWorldCoordinateSystem());
 }
