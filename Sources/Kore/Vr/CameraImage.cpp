@@ -10,7 +10,7 @@ CameraImage::CameraImage(int imageWidth, int imageHeight, int* imageBGRA8Data, m
 
 CameraImage::~CameraImage()
 {
-	//delete[] imageBGRA8Data;
+	delete[] imageBGRA8Data;
 }
 
 //see https://developer.microsoft.com/en-us/windows/mixed-reality/locatable_camera
@@ -36,7 +36,7 @@ static vec3 UnProjectVector(mat4 proj, vec3 to)
 //see https://developer.microsoft.com/en-us/windows/mixed-reality/locatable_camera
 void CameraImage::getWorldRayForPixelPosition(vec2 pixelPosition, vec3 &origin, vec3 &direction)
 {
-	vec2 ImagePosZeroToOne(pixelPosition.x() / imageWidth, 1.0 - (pixelPosition.y() / imageHeight));
+	vec2 ImagePosZeroToOne(pixelPosition.x() / imageWidth, 1.0f - (pixelPosition.y() / imageHeight));
 	vec2 ImagePosProjected = ((ImagePosZeroToOne * 2.0f) - vec2(1, 1)); // -1 to 1 space
 	vec3 CameraSpacePos = UnProjectVector(cameraProjectionTransform, vec3(ImagePosProjected, 1));
 	mat4 CameraToWorld = cameraViewTransform; //.Invert(); //NOT INVERTED OR CORRECT ??
