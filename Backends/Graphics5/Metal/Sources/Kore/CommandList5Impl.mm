@@ -2,6 +2,7 @@
 
 #include <Kore/Graphics5/CommandList.h>
 #include <Kore/Graphics5/Graphics.h>
+#include <Kore/Graphics5/PipelineState.h>
 
 #import <Metal/Metal.h>
 
@@ -48,7 +49,7 @@ void Graphics5::CommandList::framebufferToRenderTargetBarrier(RenderTarget* rend
 }
 
 void Graphics5::CommandList::drawIndexedVertices() {
-	
+	drawIndexedVertices(0, IndexBuffer5Impl::current->count());
 }
 
 void Graphics5::CommandList::drawIndexedVertices(int start, int count) {
@@ -65,7 +66,14 @@ void Graphics5::CommandList::drawIndexedVertices(int start, int count) {
 }
 
 void Graphics5::CommandList::viewport(int x, int y, int width, int height) {
-	
+	// TODO
+	// id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	// MTLViewport viewport;
+	// viewport.originX=x;
+	// viewport.originY=y;
+	// viewport.width=width;
+	// viewport.height=height;
+	// encoder.setViewport(viewport);
 }
 
 void Graphics5::CommandList::scissor(int x, int y, int width, int height) {
@@ -77,15 +85,15 @@ void Graphics5::CommandList::disableScissor() {
 }
 
 void Graphics5::CommandList::setPipeline(PipelineState* pipeline) {
-	
+	pipeline->_set();
 }
 
 void Graphics5::CommandList::setVertexBuffers(VertexBuffer** buffers, int count) {
-	
+	buffers[0]->_set(0);
 }
 
 void Graphics5::CommandList::setIndexBuffer(IndexBuffer& buffer) {
-	
+	buffer._set();
 }
 
 //void restoreRenderTarget();
