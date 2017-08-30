@@ -79,7 +79,8 @@ namespace {
 		return s.state;
 	}
 
-	ID3D11RenderTargetView* currentRenderTargetView;
+	ID3D11RenderTargetView** currentRenderTargetViews = (ID3D11RenderTargetView**)malloc(sizeof(ID3D11RenderTargetView*) * D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
+	int renderTargetCount = 1;
 	ID3D11DepthStencilView* currentDepthStencilView;
 }
 
@@ -223,7 +224,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
-	currentRenderTargetView = renderTargetView;
+	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
@@ -370,9 +371,11 @@ void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddr
 }
 
 void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
-	if (currentRenderTargetView != nullptr && flags & ClearColorFlag) {
-		const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f};
-		context->ClearRenderTargetView(currentRenderTargetView, clearColor);
+	const float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f };
+	for (int i = 0; i < renderTargetCount; ++i) {
+		if (currentRenderTargetViews[i] != nullptr && flags & ClearColorFlag) {
+			context->ClearRenderTargetView(currentRenderTargetViews[i], clearColor);
+		}
 	}
 	if (currentDepthStencilView != nullptr && (flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
 		uint d3dflags = ((flags & ClearDepthFlag) ? D3D11_CLEAR_DEPTH : 0) | ((flags & ClearStencilFlag) ? D3D11_CLEAR_STENCIL : 0);
@@ -793,9 +796,10 @@ bool Graphics4::nonPow2TexturesSupported() {
 }
 
 void Graphics4::restoreRenderTarget() {
-	currentRenderTargetView = renderTargetView;
+	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	renderTargetCount = 1;
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(renderTargetWidth), static_cast<float>(renderTargetHeight));
 	context->RSSetViewports(1, &viewPort);
 }
@@ -815,16 +819,15 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 			targets[i]->lastBoundDepthUnit = -1;
 		}
 	}
-	
-	currentRenderTargetView = targets[0]->renderTargetView;
+
 	currentDepthStencilView = targets[0]->depthStencilView;
-	
-	ID3D11RenderTargetView** renderViews = (ID3D11RenderTargetView**)alloca(sizeof(ID3D11RenderTargetView*) * count);
+
+	renderTargetCount = count;
 	for (int i = 0; i < count; ++i) {
-		renderViews[i] = targets[i]->renderTargetView;
+		currentRenderTargetViews[i] = targets[i]->renderTargetView;
 	}
 
-	context->OMSetRenderTargets(count, renderViews, targets[0]->depthStencilView);
+	context->OMSetRenderTargets(count, currentRenderTargetViews, targets[0]->depthStencilView);
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(targets[0]->width), static_cast<float>(targets[0]->height));
 	context->RSSetViewports(1, &viewPort);
 }
