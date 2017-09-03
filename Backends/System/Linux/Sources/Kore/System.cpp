@@ -373,6 +373,9 @@ bool Kore::System::handleMessages() {
 			else if (controlDown && (keysym == XK_v || keysym == XK_V)) {
 				XConvertSelection(dpy, clipboard, utf8, xseldata, win, CurrentTime);
 			}
+			else if (controlDown && (keysym == XK_c || keysym == XK_C)) {
+				XSetSelectionOwner(dpy, clipboard, win, CurrentTime);
+			}
 
 			switch (keysym) {
 				KEY(XK_Right, KeyRight)
@@ -561,10 +564,15 @@ bool Kore::System::handleMessages() {
 				XdndSourceWindow = event.xclient.data.l[0];
 				XConvertSelection(dpy, XdndSelection, XA_STRING, XdndPrimary, win, event.xclient.data.l[2]);
 			}
+			break;
 		}
 		case SelectionNotify: {
 			Atom target = event.xselection.target;
-			if (event.xselection.property) {
+			if (event.xselection.selection == clipboard) {
+				int a = 3;
+				++a;
+			}
+			else if (event.xselection.property) {
 				char* result;
 				unsigned long ressize, restail;
 				int resbits;
