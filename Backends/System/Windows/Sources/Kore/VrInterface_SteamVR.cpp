@@ -55,6 +55,22 @@ namespace {
 		}
 	}
 	
+	void getPosition(const vr::HmdMatrix34_t* m, vec3* position) {
+		position->x() = m->m[0][3];
+		position->y() = m->m[1][3];
+		position->z() = m->m[2][3];
+	}
+
+	void getOrientation(const vr::HmdMatrix34_t* m, Quaternion* orientation) {
+		orientation->w = sqrt(fmax(0, 1 + m->m[0][0] + m->m[1][1] + m->m[2][2])) / 2;
+		orientation->x = sqrt(fmax(0, 1 + m->m[0][0] - m->m[1][1] - m->m[2][2])) / 2;
+		orientation->y = sqrt(fmax(0, 1 - m->m[0][0] + m->m[1][1] - m->m[2][2])) / 2;
+		orientation->z = sqrt(fmax(0, 1 - m->m[0][0] - m->m[1][1] + m->m[2][2])) / 2;
+		orientation->x = copysign(orientation->x, m->m[2][1] - m->m[1][2]);
+		orientation->y = copysign(orientation->y, m->m[0][2] - m->m[2][0]);
+		orientation->z = copysign(orientation->z, m->m[1][0] - m->m[0][1]);
+	}
+
 	void readSensorStates() {
 		vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
 		vr::TrackedDevicePose_t predictedPoses[vr::k_unMaxTrackedDeviceCount];
@@ -68,20 +84,10 @@ namespace {
 					poseState.angularVelocity = vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
 
 					vr::HmdMatrix34_t m = poses[device].mDeviceToAbsoluteTracking;
-
-					poseState.vrPose.position = vec3(m.m[0][3], m.m[1][3], m.m[2][3]);
-
 					//log(Info, "x: %f y: %f z: %f", m.m[0][3], m.m[1][3], m.m[2][3]);
 
-					Quaternion q;
-					q.w = sqrt(fmax(0, 1 + m.m[0][0] + m.m[1][1] + m.m[2][2])) / 2;
-					q.x = sqrt(fmax(0, 1 + m.m[0][0] - m.m[1][1] - m.m[2][2])) / 2;
-					q.y = sqrt(fmax(0, 1 - m.m[0][0] + m.m[1][1] - m.m[2][2])) / 2;
-					q.z = sqrt(fmax(0, 1 - m.m[0][0] - m.m[1][1] + m.m[2][2])) / 2;
-					q.x = copysign(q.x, m.m[2][1] - m.m[1][2]);
-					q.y = copysign(q.y, m.m[0][2] - m.m[2][0]);
-					q.z = copysign(q.z, m.m[1][0] - m.m[0][1]);
-					poseState.vrPose.orientation = q;
+					getPosition(&m, &poseState.vrPose.position);
+					getOrientation(&m, &poseState.vrPose.orientation);
 
 					sensorStates[0].pose = poseState;
 					sensorStates[1].pose = poseState;
@@ -103,7 +109,8 @@ namespace {
 
 					vr::HmdMatrix34_t m = poses[device].mDeviceToAbsoluteTracking;
 
-					poseState.vrPose.position = vec3(m.m[0][3], m.m[1][3], m.m[2][3]);
+					getPosition(&m, &poseState.vrPose.position);
+					getOrientation(&m, &poseState.vrPose.orientation);
 
 					//Kore::log(Kore::Info, "Pos of device %i %f %f %f", device, poseState.vrPose.position.x(), poseState.vrPose.position.y(), poseState.vrPose.position.z());
 
