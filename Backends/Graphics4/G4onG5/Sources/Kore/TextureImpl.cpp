@@ -24,6 +24,10 @@ Graphics4::Texture::Texture(void* data, int width, int height, int format, bool 
 	_texture = new Graphics5::Texture(data, width, height, format, readable);
 }
 
+Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable) : Image(data, width, height, depth, Image::Format(format), readable) {
+
+}
+
 void Graphics4::Texture::init(const char* format, bool readable) {
 	_texture->_init(format, readable);
 }
