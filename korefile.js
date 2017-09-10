@@ -311,7 +311,17 @@ if (!a3) {
 }
 
 if (console) {
-	Project.createProject(path.join(Project.root, 'Backends', 'XboxOne'), __dirname).then((backend) => {
+	let consoleName = '';
+	if (platform === Platform.PlayStation4) {
+		consoleName = 'PlayStation4';
+	}
+	else if (platform === Platform.XboxOne) {
+		consoleName = 'XboxOne';
+	}
+	else if (platform === Platform.Switch) {
+		consoleName = 'Switch';
+	}
+	Project.createProject(path.join(Project.root, 'Backends', consoleName), __dirname).then((backend) => {
 		project.addSubProject(backend);
 		resolve(project);
 	});
