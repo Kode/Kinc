@@ -204,9 +204,11 @@ CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^
 	{
 		return NULL;
 	}
+
+	Kore::vec2 focalLength = Kore::vec2(cameraIntrinsics->FocalLength.x, cameraIntrinsics->FocalLength.x);
 	
 	//todo create cameraImage from frame..
-	CameraImage* cameraImage = new CameraImage(format->Width, format->Height, nullptr, WindowsNumericsToKoreMat(cameraToWorld->Value), projectionMat);
+	CameraImage* cameraImage = new CameraImage(format->Width, format->Height, nullptr, WindowsNumericsToKoreMat(cameraToWorld->Value), projectionMat, focalLength);
 
 	if (!CopyFromVideoMediaFrame(videoMediaFrame,cameraImage)) {
 		delete cameraImage;
