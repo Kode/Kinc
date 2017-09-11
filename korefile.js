@@ -32,7 +32,7 @@ function addBackend(name) {
 	project.addIncludeDir('Backends/' + name + '/Sources');
 }
 
-let console = false;
+let plugin = false;
 
 if (platform === Platform.Windows) {
 	project.addDefine('KORE_WINDOWS');
@@ -279,7 +279,7 @@ else if (platform === Platform.Tizen) {
 	project.addDefine('KORE_POSIX');
 }
 else {
-	console = true;
+	plugin = true;
 	g4 = true;
 	g5 = true;
 	if (platform === Platform.XboxOne) {
@@ -310,18 +310,18 @@ if (!a3) {
 	addBackend('Audio3/A3onA2');
 }
 
-if (console) {
-	let consoleName = '';
-	if (platform === Platform.PlayStation4) {
-		consoleName = 'PlayStation4';
+if (plugin) {
+	let backend = 'Unknown';
+	if (platform === Platform.PS4) {
+		backend = 'PlayStation4';
 	}
 	else if (platform === Platform.XboxOne) {
-		consoleName = 'XboxOne';
+		backend = 'XboxOne';
 	}
 	else if (platform === Platform.Switch) {
-		consoleName = 'Switch';
+		backend = 'Switch';
 	}
-	Project.createProject(path.join(Project.root, 'Backends', consoleName), __dirname).then((backend) => {
+	Project.createProject(path.join(Project.root, 'Backends', backend), __dirname).then((backend) => {
 		project.addSubProject(backend);
 		resolve(project);
 	});
