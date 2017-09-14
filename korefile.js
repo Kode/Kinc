@@ -301,7 +301,8 @@ if (g5) {
 	addBackend('Graphics4/G4onG5');
 }
 else {
-	project.addExclude('Sources/Kore/Graphics5/**');
+	project.addDefine('KORE_G5');
+	addBackend('Graphics5/G5onG4');
 }
 
 if (!a3) {
