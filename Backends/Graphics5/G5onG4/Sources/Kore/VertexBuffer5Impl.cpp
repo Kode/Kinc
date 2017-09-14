@@ -13,11 +13,11 @@ VertexBuffer5Impl* VertexBuffer5Impl::_current = nullptr;
 VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), myStart(0) {}
 
 Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
-	//buffer = new Graphics4::VertexBuffer(count, )
+	buffer = new Graphics4::VertexBuffer(count, structure, instanceDataStepRate);
 }
 
 Graphics5::VertexBuffer::~VertexBuffer() {
-
+	delete buffer;
 }
 
 float* Graphics5::VertexBuffer::lock() {

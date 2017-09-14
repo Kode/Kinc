@@ -1,6 +1,11 @@
 #pragma once
 
 namespace Kore {
+	namespace Graphics4 {
+		class ConstantLocation;
+		class PipelineState;
+	}
+
 	namespace Graphics5 {
 		class PipelineState;
 		class Shader;
@@ -9,20 +14,12 @@ namespace Kore {
 	class PipelineState5Impl {
 	public:
 		PipelineState5Impl();
+		Graphics4::PipelineState* state;
 	};
 
 	class ConstantLocation5Impl {
 	public:
-		u8 vertexOffset;
-		u8 vertexSize;
-		u8 fragmentOffset;
-		u8 fragmentSize;
-		u8 geometryOffset;
-		u8 geometrySize;
-		u8 tessEvalOffset;
-		u8 tessEvalSize;
-		u8 tessControlOffset;
-		u8 tessControlSize;
+		Graphics4::ConstantLocation* location;
 	};
 
 	class AttributeLocation5Impl {};

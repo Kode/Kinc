@@ -34,7 +34,51 @@ void CommandList::begin() {
 }
 
 void CommandList::end() {
-	
+	int index = 0;
+	while (index < commandIndex) {
+		switch (commands[index]) {
+		case Clear:
+			Graphics4::clear((uint)commands[index + 1], (uint)commands[index + 2]);
+			index += 3;
+			break;
+		case Draw:
+			Graphics4::drawIndexedVertices((int)commands[index + 1], (int)commands[index + 2]);
+			index += 3;
+			break;
+		case SetViewport:
+			Graphics4::viewport((int)commands[index + 1], (int)commands[index + 2], (int)commands[index + 3], (int)commands[index + 4]);
+			index += 5;
+			break;
+		case SetScissor:
+			Graphics4::scissor((int)commands[index + 1], (int)commands[index + 2], (int)commands[index + 3], (int)commands[index + 4]);
+			index += 5;
+			break;
+		case SetPipeline: {
+			PipelineState* pipeline = (PipelineState*)commands[index + 1];
+			Graphics4::setPipeline(pipeline->state);
+			index += 2;
+			break;
+		}
+		case SetVertexBuffer: {
+			VertexBuffer* vb = (VertexBuffer*)commands[index + 1];
+			Graphics4::setVertexBuffer(*vb->buffer);
+			index += 2;
+			break;
+		}
+		case SetIndexBuffer: {
+			IndexBuffer* ib = (IndexBuffer*)commands[index + 1];
+			Graphics4::setIndexBuffer(*ib->buffer);
+			index += 2;
+			break;
+		}
+		case SetRenderTarget:
+
+			index += 2;
+			break;
+		default:
+			return;
+		}
+	}
 }
 
 void CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, float depth, int stencil) {
