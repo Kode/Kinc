@@ -4,8 +4,6 @@
 
 #include <Kore/Graphics5/Graphics.h>
 
-#include <Kore/WinError.h>
-
 using namespace Kore;
 
 static const int textureCount = 16;
