@@ -15,9 +15,9 @@ namespace Kore {
 	D3D11_CULL_MODE convert(Graphics4::CullMode cullMode) {
 		switch (cullMode) {
 		case Graphics4::Clockwise:
-			return D3D11_CULL_BACK;
-		case Graphics4::CounterClockwise:
 			return D3D11_CULL_FRONT;
+		case Graphics4::CounterClockwise:
+			return D3D11_CULL_BACK;
 		case Graphics4::NoCulling:
 		default:
 			return D3D11_CULL_NONE;
@@ -229,13 +229,32 @@ namespace {
 		return ret;
 	}
 
-	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream) {
+	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream, bool instanced) {
 		vertexDesc.SemanticName = "TEXCOORD";
 		vertexDesc.SemanticIndex = attributeIndex;
 		vertexDesc.InputSlot = stream;
 		vertexDesc.AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
-		vertexDesc.InputSlotClass = stream == 0 ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA; // hack
-		vertexDesc.InstanceDataStepRate = stream == 0 ? 0 : 1;                                                 // hack
+		vertexDesc.InputSlotClass = instanced ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+		vertexDesc.InstanceDataStepRate = instanced ? 1 : 0;
+	}
+}
+
+namespace {
+	const int usedCount = 32;
+
+	int getAttributeLocation(std::map<std::string, int>& attributes, const char* name, bool* used) {
+		if (attributes.find(name) != attributes.end()) {
+			return attributes[name];
+		}
+		else {
+			for (int i = 0; i < usedCount; ++i) {
+				if (!used[i]) {
+					used[i] = true;
+					return i;
+				}
+			}
+		}
+		return 0;
 	}
 }
 
@@ -268,33 +287,38 @@ void Graphics4::PipelineState::compile() {
 		}
 	}
 
+	bool used[usedCount];
+	for (int i = 0; i < usedCount; ++i) used[i] = false;
+	for (auto attribute : vertexShader->attributes) {
+		used[attribute.second] = true;
+	}
 	D3D11_INPUT_ELEMENT_DESC* vertexDesc = (D3D11_INPUT_ELEMENT_DESC*)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
 	int i = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
 		for (int index = 0; index < inputLayout[stream]->size; ++index) {
 			switch (inputLayout[stream]->elements[index].data) {
 			case Float1VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 				++i;
 				break;
 			case Float2VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 				++i;
 				break;
 			case Float3VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				++i;
 				break;
 			case Float4VertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
 			case ColorVertexData:
-				setVertexDesc(vertexDesc[i], vertexShader->attributes[inputLayout[stream]->elements[index].name], index, stream);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 				++i;
 				break;
@@ -307,7 +331,7 @@ void Graphics4::PipelineState::compile() {
 					_itoa(i2, &name[length], 10);
 					name[length + 1] = 0;
 
-					setVertexDesc(vertexDesc[i], vertexShader->attributes[name], index + i2, stream);
+					setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, name, used), index + i2, stream, inputLayout[stream]->instanced);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 					++i;
@@ -341,7 +365,6 @@ void Graphics4::PipelineState::compile() {
 		D3D11_RASTERIZER_DESC rasterDesc;
 		rasterDesc.CullMode = convert(cullMode);
 		rasterDesc.FillMode = D3D11_FILL_SOLID;
-		rasterDesc.CullMode = D3D11_CULL_NONE;
 		rasterDesc.FrontCounterClockwise = FALSE;
 		rasterDesc.DepthBias = 0;
 		rasterDesc.SlopeScaledDepthBias = 0.0f;

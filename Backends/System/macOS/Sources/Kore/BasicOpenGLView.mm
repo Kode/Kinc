@@ -18,19 +18,19 @@ namespace {
 	int aa = 1; // Kore::Application::the()->antialiasing();
 	if (aa > 0) {
 		NSOpenGLPixelFormatAttribute attributes[] = {NSOpenGLPFADoubleBuffer,          NSOpenGLPFADepthSize,
-		                                             (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-		                                             NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
-		                                             NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
-		                                             (NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
-		                                             (NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
-		                                             (NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
+													 (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+													 NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
+													 NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
+													 (NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
+													 (NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
+													 (NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
 		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
 	}
 	else {
 		NSOpenGLPixelFormatAttribute attributes[] = {
-		    NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-		    NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
-		    (NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
+			NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+			NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
+			(NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
 		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
 	}
 }
@@ -83,6 +83,9 @@ namespace {
 		case 0x7f:
 			Kore::Keyboard::the()->_keydown(Kore::KeyBackspace);
 			break;
+		case 32:
+			Kore::Keyboard::the()->_keydown(Kore::KeySpace);
+			break;
 		default:
 			if (ch >= L'a' && ch <= L'z') {
 				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'a' + Kore::KeyA));
@@ -126,6 +129,9 @@ namespace {
 			break;
 		case 0x7f:
 			Kore::Keyboard::the()->_keyup(Kore::KeyBackspace);
+			break;
+		case 32:
+			Kore::Keyboard::the()->_keyup(Kore::KeySpace);
 			break;
 		default:
 			if (ch >= L'a' && ch <= L'z') {
@@ -210,6 +216,28 @@ namespace {
 	Kore::Mouse::the()->_scroll(0, -delta);
 }
 
+- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
+	NSPasteboard *pboard = [sender draggingPasteboard];
+	NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
+	if ([[pboard types] containsObject:NSURLPboardType]) {
+		if (sourceDragMask & NSDragOperationLink) {
+			return NSDragOperationLink;
+		}
+	}
+	return NSDragOperationNone;
+}
+
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
+	NSPasteboard *pboard = [sender draggingPasteboard];
+	NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
+	if ([[pboard types] containsObject:NSURLPboardType]) {
+		NSURL *fileURL = [NSURL URLFromPasteboard:pboard];
+		wchar_t *filePath = (wchar_t *)[fileURL.path cStringUsingEncoding:NSUTF32LittleEndianStringEncoding];
+		Kore::System::dropFilesCallback(filePath);
+	}
+	return YES;
+}
+
 #ifndef KORE_METAL
 - (void)prepareOpenGL {
 	const GLint swapInt = 1;
@@ -289,7 +317,7 @@ namespace {
 
 		// backingWidth = (int)[texture width];
 		// backingHeight = (int)[texture height];
-        
+		
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		renderPassDescriptor.colorAttachments[0].texture = texture;
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;

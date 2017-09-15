@@ -10,6 +10,50 @@ using namespace Kore;
 namespace {
 	Graphics4::Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 	                            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+
+	DXGI_FORMAT convertFormat(Graphics4::Image::Format format) {
+		switch (format) {
+		case Graphics4::Image::BGRA32:
+			return DXGI_FORMAT_B8G8R8A8_UNORM;
+		case Graphics4::Image::RGBA128:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case Graphics4::Image::RGBA64:
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		case Graphics4::Image::RGB24:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case Graphics4::Image::A32:
+			return DXGI_FORMAT_R32_FLOAT;
+		case Graphics4::Image::A16:
+			return DXGI_FORMAT_R16_FLOAT;
+		case Graphics4::Image::Grey8:
+			return DXGI_FORMAT_R8_UNORM;
+		case Graphics4::Image::RGBA32:
+		default:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		}
+	}
+
+	int formatByteSize(Graphics4::Image::Format format) {
+		switch (format) {
+		case Graphics4::Image::RGBA128:
+			return 16;
+		case Graphics4::Image::RGBA64:
+			return 8;
+		case Graphics4::Image::RGB24:
+			return 4;
+		case Graphics4::Image::A32:
+			return 4;
+		case Graphics4::Image::A16:
+			return 2;
+		case Graphics4::Image::Grey8:
+			return 1;
+		case Graphics4::Image::BGRA32:
+			return 4;
+		case Graphics4::Image::RGBA32:
+		default:
+			return 4;
+		}
+	}
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
@@ -18,12 +62,13 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 	rowPitch = 0;
+	bool isHdr = this->format == Graphics4::Image::RGBA128 || this->format == Graphics4::Image::RGBA64 || this->format == Graphics4::Image::A32 || this->format == Graphics4::Image::A16;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;
 	desc.MipLevels = desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Format = convertFormat(this->format);
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
@@ -32,8 +77,8 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = this->data;
-	data.SysMemPitch = width * 4;
+	data.pSysMem = isHdr ? (void*)this->hdrData : this->data;
+	data.SysMemPitch = width * formatByteSize(this->format);
 	data.SysMemSlicePitch = 0;
 
 	texture = nullptr;
@@ -41,9 +86,18 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	if (!readable) {
-		delete[] this->data;
-		this->data = nullptr;
+		if (isHdr) {
+			delete[] this->hdrData;
+			this->hdrData = nullptr;
+		}
+		else {
+			delete[] this->data;
+			this->data = nullptr;
+		}
 	}
+}
+
+void Graphics4::Texture::init3D(bool readable) {
 }
 
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
@@ -91,6 +145,15 @@ Graphics4::Texture::Texture(int width, int height, int depth, Image::Format form
 
 TextureImpl::~TextureImpl() {
 	unset();
+	if (view != nullptr) {
+		view->Release();
+	}
+	if (texture != nullptr) {
+		texture->Release();
+	}
+	if(computeView!=nullptr){
+		computeView->Release();
+	}
 }
 
 void TextureImpl::unmipmap() {
@@ -135,6 +198,11 @@ int Graphics4::Texture::stride() {
 	return rowPitch;
 }
 
-void Graphics4::Texture::generateMipmaps(int levels) {}
+void Graphics4::Texture::generateMipmaps(int levels) {
+	//context->GenerateMips(view);
+}
 
-void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {}
+void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
+	//D3D11CalcSubresource();
+	//context->UpdateSubresource();
+}

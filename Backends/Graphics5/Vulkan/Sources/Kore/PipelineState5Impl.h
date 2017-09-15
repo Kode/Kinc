@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+
 #include <vulkan/vulkan.h>
 
 #ifdef min
@@ -18,22 +19,20 @@
 
 namespace Kore {
 	namespace Graphics5 {
-		class Program;
+		class PipelineState;
 		class Shader;
 	}
 
-	class Program5Impl {
-	protected:
-		uint programId;
+	class PipelineState5Impl {
+	public:
+		PipelineState5Impl();
+
 		Graphics5::Shader* vertexShader;
 		Graphics5::Shader* fragmentShader;
 		Graphics5::Shader* geometryShader;
-		Graphics5::Shader* tessellationControlShader;
-		Graphics5::Shader* tessellationEvaluationShader;
-
-		Program5Impl();
-		virtual ~Program5Impl();
-
+		Graphics5::Shader* tessEvalShader;
+		Graphics5::Shader* tessControlShader;
+		
 		const char** textures;
 		int* textureValues;
 		int textureCount;
@@ -49,11 +48,23 @@ namespace Kore {
 		std::map<std::string, u32> vertexOffsets;
 		std::map<std::string, u32> fragmentOffsets;
 
-	public:
 		VkPipelineLayout pipeline_layout;
 		float uniformDataVertex[256];
 		float uniformDataFragment[256];
-		static Graphics5::Program* current;
+
+		VkDescriptorSetLayout desc_layout;
+
+		VkBuffer bufVertex;
+		VkMemoryAllocateInfo mem_allocVertex;
+		VkDeviceMemory memVertex;
+		VkDescriptorBufferInfo buffer_infoVertex;
+
+		VkBuffer bufFragment;
+		VkMemoryAllocateInfo mem_allocFragment;
+		VkDeviceMemory memFragment;
+		VkDescriptorBufferInfo buffer_infoFragment;
+
+		static Graphics5::PipelineState* current;
 	};
 
 	class ConstantLocation5Impl {
@@ -61,4 +72,6 @@ namespace Kore {
 		int vertexOffset;
 		int fragmentOffset;
 	};
+
+	class AttributeLocation5Impl {};
 }

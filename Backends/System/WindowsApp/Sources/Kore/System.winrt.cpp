@@ -4,16 +4,16 @@
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/System.h>
+#include <Kore/Hololens.winrt.h>
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
-
 #ifndef XINPUT
-#ifdef SYS_WINDOWS
+#ifdef KORE_WINDOWS
 #define XINPUT 1
 #endif
 
-#ifdef SYS_WINDOWSAPP
+#ifdef KORE_WINDOWSAPP
 #define XINPUT !(WINAPI_PARTITION_PHONE_APP)
 #endif
 #endif
@@ -69,6 +69,7 @@ using namespace Windows::UI::Core;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+using namespace Concurrency;
 
 bool Kore::System::handleMessages() {
 	CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
@@ -213,6 +214,15 @@ void Win8Application::SetWindow(CoreWindow^ window) {
 	window->KeyUp +=
 	    ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow ^, Windows::UI::Core::KeyEventArgs ^>(this, &Win8Application::OnKeyUp);
 	// m_renderer->Initialize(CoreWindow::GetForCurrentThread());
+
+	//Create holographics space - needs to be created before window is activated
+	m_main = std::make_unique<HolographicMain>(window);
+
+	task<void> videoInitTask = VideoFrameProcessor::CreateAsync()
+		.then([this](std::shared_ptr<VideoFrameProcessor> videoProcessor)
+	{
+		m_videoFrameProcessor = std::move(videoProcessor);
+	});
 }
 
 void Win8Application::Load(Platform::String^ entryPoint) {}
@@ -282,6 +292,14 @@ void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::
 	case Windows::System::VirtualKey::Down:
 		Keyboard::the()->_keydown(Kore::KeyDown);
 		break;
+	default:
+		if (args->VirtualKey >= Windows::System::VirtualKey::A && args->VirtualKey <= Windows::System::VirtualKey::Z) {
+			Keyboard::the()->_keydown((Kore::KeyCode)args->VirtualKey);
+		}
+		else if (args->VirtualKey >= Windows::System::VirtualKey::Number0 && args->VirtualKey <= Windows::System::VirtualKey::Number9) {
+			Keyboard::the()->_keydown((Kore::KeyCode)args->VirtualKey);
+		}
+		break;
 	}
 }
 
@@ -298,6 +316,14 @@ void Win8Application::OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::U
 		break;
 	case Windows::System::VirtualKey::Down:
 		Keyboard::the()->_keyup(Kore::KeyDown);
+		break;
+	default:
+		if (args->VirtualKey >= Windows::System::VirtualKey::A && args->VirtualKey <= Windows::System::VirtualKey::Z) {
+			Keyboard::the()->_keyup((Kore::KeyCode)args->VirtualKey);
+		}
+		else if (args->VirtualKey >= Windows::System::VirtualKey::Number0 && args->VirtualKey <= Windows::System::VirtualKey::Number9) {
+			Keyboard::the()->_keyup((Kore::KeyCode)args->VirtualKey);
+		}
 		break;
 	}
 }

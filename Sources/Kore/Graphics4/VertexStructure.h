@@ -47,8 +47,9 @@ namespace Kore {
 			const static int maxElementsCount = 16;
 			VertexElement elements[maxElementsCount];
 			int size;
+			bool instanced;
 
-			VertexStructure() : size(0) {}
+			VertexStructure() : size(0), instanced(false) {}
 
 			void add(const char* name, VertexData data) {
 				elements[size++] = VertexElement(name, data);

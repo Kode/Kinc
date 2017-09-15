@@ -14,7 +14,6 @@
 using namespace Kore;
 
 extern VkDevice device;
-extern VkCommandBuffer draw_cmd;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
@@ -26,7 +25,7 @@ namespace {
 
 VertexBuffer5Impl::VertexBuffer5Impl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
 
-Graphics5::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBuffer5Impl(vertexCount, instanceDataStepRate) {
+Graphics5::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(vertexCount, instanceDataStepRate) {
 	index = 0;
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
@@ -117,10 +116,7 @@ void Graphics5::VertexBuffer::unlock() {
 int Graphics5::VertexBuffer::_set(int offset) {
 	int offsetoffset = setVertexAttributes(offset);
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
-
-	VkDeviceSize offsets[1] = {index * myCount * myStride};
-	vkCmdBindVertexBuffers(draw_cmd, 0, 1, &vertices.buf, offsets);
-
+		
 	return offsetoffset;
 }
 

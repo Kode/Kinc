@@ -172,7 +172,8 @@ bool FileReader::open(const char* filename, FileType type) {
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
 #ifdef KORE_WINDOWSAPP
-	const wchar_t* location = Windows::ApplicationModel::Package::Current->InstalledLocation->Path->Data();
+	Platform::String^ locationString = Windows::ApplicationModel::Package::Current->InstalledLocation->Path;
+	const wchar_t* location = locationString->Begin();
 	int i;
 	for (i = 0; location[i] != 0; ++i) {
 		filepath[i] = (char)location[i];

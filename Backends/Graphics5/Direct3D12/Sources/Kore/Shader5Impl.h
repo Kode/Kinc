@@ -5,8 +5,8 @@
 
 namespace Kore {
 	struct ShaderConstant {
-		u8 offset;
-		u8 size;
+		u32 offset;
+		u32 size;
 	};
 
 	class Shader5Impl {

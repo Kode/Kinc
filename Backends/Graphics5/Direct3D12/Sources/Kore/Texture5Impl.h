@@ -2,6 +2,7 @@
 
 struct ID3D12Resource;
 struct ID3D12DescriptorHeap;
+struct ID3D12GraphicsCommandList;
 
 namespace Kore {
 	class TextureUnit5Impl {
@@ -21,6 +22,6 @@ namespace Kore {
 		ID3D12Resource* image;
 		ID3D12Resource* uploadImage;
 		ID3D12DescriptorHeap* srvDescriptorHeap;
-		static void setTextures();
+		static void setTextures(ID3D12GraphicsCommandList* commandList);
 	};
 }

@@ -220,6 +220,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	// glEnable(GL_DEBUG_OUTPUT);
 	// glDebugMessageCallback(debugCallback, nullptr);
+
+	lastPipeline = nullptr;
 }
 
 void Graphics4::changeResolution(int width, int height) {

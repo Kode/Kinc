@@ -163,6 +163,14 @@ namespace Kore {
 			return view;
 		}
 
+		static myType Translation(float x, float y) {
+			// StaticAssert(X == 4 && Y == 4);
+			myType m = Identity();
+			m.Set(0, X - 1, x);
+			m.Set(1, X - 1, y);
+			return m;
+		}
+
 		static myType Translation(float x, float y, float z) {
 			// StaticAssert(X == 4 && Y == 4);
 			myType m = Identity();
@@ -370,8 +378,8 @@ namespace Kore {
 			return *this;
 		}
 
-		Vector<T, X> operator*(const Vector<T, X>& vec) const {
-			Vector<T, X> product;
+		Vector<T, Y> operator*(const Vector<T, X>& vec) const {
+			Vector<T, Y> product;
 			for (unsigned y = 0; y < Y; ++y) {
 				T t = 0;
 				for (unsigned x = 0; x < X; ++x) t += matrix[x][y] * vec[x];

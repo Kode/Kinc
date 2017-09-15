@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
+
 #include <Kore/Graphics5/Shader.h>
 #include <Kore/Math/Core.h>
 #include <Kore/WinError.h>
@@ -42,8 +43,10 @@ Graphics5::Shader::Shader(void* _data, int length, ShaderType type) {
 			if (name[i2] == 0) break;
 		}
 		ShaderConstant constant;
-		constant.offset = data[index++];
-		constant.size = data[index++];
+		constant.offset = *(u32*)&data[index];
+		index += 4;
+		constant.size = *(u32*)&data[index];
+		index += 4;
 		constants[name] = constant;
 		constantsSize = constant.offset + constant.size;
 	}

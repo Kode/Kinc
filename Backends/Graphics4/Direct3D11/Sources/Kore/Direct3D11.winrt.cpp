@@ -18,6 +18,11 @@
 #include <wrl.h>
 #endif
 #include <vector>
+#include <memory>
+#include "DeviceResources.winrt.h"
+#include "Hololens.winrt.h"
+#include "DirectXHelper.winrt.h"
+#include <windows.graphics.directx.direct3d11.interop.h>
 
 ID3D11Device* device;
 ID3D11DeviceContext* context;
@@ -40,6 +45,8 @@ using namespace Kore;
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
+using namespace Windows::Graphics::Holographic;
+using namespace Windows::Graphics::DirectX::Direct3D11;
 #endif
 
 namespace Kore {
@@ -103,15 +110,34 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
 #ifdef KORE_WINDOWSAPP
-	    D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_1,
 #endif
-	    D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3, D3D_FEATURE_LEVEL_9_2, D3D_FEATURE_LEVEL_9_1};
+		D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3, D3D_FEATURE_LEVEL_9_2, D3D_FEATURE_LEVEL_9_1 };
 
-// ID3D11Device* device0;
-// ID3D11DeviceContext* context0;
 #ifdef KORE_WINDOWSAPP
-	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
-	                         &featureLevel, &context));
+	IDXGIAdapter3* adapter = nullptr;
+#ifdef KORE_HOLOLENS
+	adapter = m_main->GetCompatibleDxgiAdapter().Get();
+#endif
+	affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
+		&featureLevel, &context));
+#ifdef KORE_HOLOLENS
+	ComPtr<ID3D11Device> devicePtr=device;
+	ComPtr<ID3D11DeviceContext> contextPtr=context;
+	Microsoft::WRL::ComPtr<ID3D11Device4>                   device4Ptr;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext3>            context3Ptr;
+
+	affirm(
+		devicePtr.As(&device4Ptr)
+	);
+
+	affirm(
+		contextPtr.As(&context3Ptr)
+	);
+
+	m_main->SetDeviceAndContext(device4Ptr, context3Ptr);
+#endif
+
 #elif KORE_OCULUS
 	IDXGIFactory* dxgiFactory = nullptr;
 	affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));
@@ -128,14 +154,14 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	}
 	else {
 #ifdef KORE_WINDOWS
-		DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
+		DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 		swapChainDesc.BufferDesc.Width = System::windowWidth(windowId); // use automatic sizing
 		swapChainDesc.BufferDesc.Height = System::windowHeight(windowId);
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
-		// swapChainDesc.Stereo = false;
+																	  // swapChainDesc.Stereo = false;
 		swapChainDesc.SampleDesc.Count = 1; // don't use multi-sampling
 		swapChainDesc.SampleDesc.Quality = 0;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -149,34 +175,37 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 
 #ifdef KORE_WINDOWSAPP
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
-		swapChainDesc.Width = 0; // use automatic sizing
-		swapChainDesc.Height = 0;
-		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
-		swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = 1; // don't use multi-sampling
-		swapChainDesc.SampleDesc.Quality = 0;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
-		swapChainDesc.Scaling = DXGI_SCALING_NONE;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
-		swapChainDesc.Flags = 0;
+		//DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
+		//swapChainDesc.Width = 0; // use automatic sizing
+		//swapChainDesc.Height = 0;
+		//swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
+		//swapChainDesc.Stereo = false;
+		//swapChainDesc.SampleDesc.Count = 1; // don't use multi-sampling
+		//swapChainDesc.SampleDesc.Quality = 0;
+		//swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		//swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
+		//swapChainDesc.Scaling = DXGI_SCALING_NONE;
+		//swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
+		//swapChainDesc.Flags = 0;
 
-		IDXGIDevice1* dxgiDevice;
-		affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
+		//IDXGIDevice1* dxgiDevice;
+		//affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
 
-		IDXGIAdapter* dxgiAdapter;
-		affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		//IDXGIAdapter* dxgiAdapter;
+		//affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
-		IDXGIFactory2* dxgiFactory;
-		affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
+		//IDXGIFactory2* dxgiFactory;
+		//affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
 
-		affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
-		                                                 &swapChain));
-		affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		//affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
+		//	&swapChain));
+		//affirm(dxgiDevice->SetMaximumFrameLatency(1));
+
+
+
 
 #elif KORE_OCULUS
-		DXGI_SWAP_CHAIN_DESC scDesc = {0};
+		DXGI_SWAP_CHAIN_DESC scDesc = { 0 };
 		scDesc.BufferCount = 2;
 		scDesc.BufferDesc.Width = System::windowWidth(windowId);
 		scDesc.BufferDesc.Height = System::windowHeight(windowId);
@@ -202,34 +231,34 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
 		affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain,
-		                                     &device, nullptr, &context));
+			&device, nullptr, &context));
 #endif
 	}
 
-	affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	//affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	//affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
-	D3D11_TEXTURE2D_DESC backBufferDesc;
-	backBuffer->GetDesc(&backBufferDesc);
-	renderTargetWidth = backBufferDesc.Width;
-	renderTargetHeight = backBufferDesc.Height;
+	//D3D11_TEXTURE2D_DESC backBufferDesc;
+	//backBuffer->GetDesc(&backBufferDesc);
+	//renderTargetWidth = backBufferDesc.Width;
+	//renderTargetHeight = backBufferDesc.Height;
 
-	// TODO (DK) map depth/stencilBufferBits arguments
-	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
+	//// TODO (DK) map depth/stencilBufferBits arguments
+	//CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
 
-	ID3D11Texture2D* depthStencil;
-	affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	//ID3D11Texture2D* depthStencil;
+	//affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
+	//affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
-	currentRenderTargetView = renderTargetView;
-	currentDepthStencilView = depthStencilView;
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	//currentRenderTargetView = renderTargetView;
+	//currentDepthStencilView = depthStencilView;
+	//context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
-	context->RSSetViewports(1, &viewPort);
-	
+	//CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
+	//context->RSSetViewports(1, &viewPort);
+
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -348,7 +377,7 @@ namespace {
 
 void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	if (unit.unit < 0) return;
-	
+
 	switch (dir) {
 	case TexDir::U:
 		lastSamplers[unit.unit].AddressU = convertAddressing(addressing);
@@ -360,7 +389,7 @@ void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddres
 		lastSamplers[unit.unit].AddressW = convertAddressing(addressing);
 		break;
 	}
-	
+
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
 }
@@ -371,7 +400,7 @@ void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddr
 
 void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 	if (currentRenderTargetView != nullptr && flags & ClearColorFlag) {
-		const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f};
+		const float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f };
 		context->ClearRenderTargetView(currentRenderTargetView, clearColor);
 	}
 	if (currentDepthStencilView != nullptr && (flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
@@ -453,26 +482,26 @@ void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument 
 }
 
 namespace {
-	void setInt(u8* constants, u8 offset, u8 size, int value) {
+	void setInt(u8* constants, u32 offset, u32 size, int value) {
 		if (size == 0) return;
 		int* ints = reinterpret_cast<int*>(&constants[offset]);
 		ints[0] = value;
 	}
 
-	void setFloat(u8* constants, u8 offset, u8 size, float value) {
+	void setFloat(u8* constants, u32 offset, u32 size, float value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value;
 	}
 
-	void setFloat2(u8* constants, u8 offset, u8 size, float value1, float value2) {
+	void setFloat2(u8* constants, u32 offset, u32 size, float value1, float value2) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
 		floats[1] = value2;
 	}
 
-	void setFloat3(u8* constants, u8 offset, u8 size, float value1, float value2, float value3) {
+	void setFloat3(u8* constants, u32 offset, u32 size, float value1, float value2, float value3) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
@@ -480,7 +509,7 @@ namespace {
 		floats[2] = value3;
 	}
 
-	void setFloat4(u8* constants, u8 offset, u8 size, float value1, float value2, float value3, float value4) {
+	void setFloat4(u8* constants, u32 offset, u32 size, float value1, float value2, float value3, float value4) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
@@ -489,21 +518,21 @@ namespace {
 		floats[3] = value4;
 	}
 
-	void setFloats(u8* constants, u8 offset, u8 size, float* values, int count) {
+	void setFloats(u8* constants, u32 offset, u32 size, float* values, int count) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < count && i * 4 < static_cast<int>(size); ++i) {
 			floats[i] = values[i];
 		}
 	}
 
-	void setBool(u8* constants, u8 offset, u8 size, bool value) {
+	void setBool(u8* constants, u32 offset, u32 size, bool value) {
 		if (size == 0) return;
 		int* ints = reinterpret_cast<int*>(&constants[offset]);
 		ints[0] = value ? 1 : 0;
 	}
 
-	void setMatrix(u8* constants, u8 offset, u8 size, const mat4& value) {
+	void setMatrix(u8* constants, u32 offset, u32 size, const mat4& value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 4; ++y) {
@@ -513,7 +542,7 @@ namespace {
 		}
 	}
 
-	void setMatrix(u8* constants, u8 offset, u8 size, const mat3& value) {
+	void setMatrix(u8* constants, u32 offset, u32 size, const mat3& value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 3; ++y) {
@@ -649,7 +678,7 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter fi
 	}
 
 	lastSamplers[unit.unit].Filter = d3d11filter;
-	
+
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
 }
@@ -806,12 +835,19 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 			ID3D11ShaderResourceView* nullview[1];
 			nullview[0] = nullptr;
 			context->PSSetShaderResources(targets[i]->lastBoundUnit, 1, nullview);
+			targets[i]->lastBoundUnit = -1;
+		}
+		if (targets[i]->lastBoundDepthUnit >= 0) {
+			ID3D11ShaderResourceView* nullview[1];
+			nullview[0] = nullptr;
+			context->PSSetShaderResources(targets[i]->lastBoundDepthUnit, 1, nullview);
+			targets[i]->lastBoundDepthUnit = -1;
 		}
 	}
-	
+
 	currentRenderTargetView = targets[0]->renderTargetView;
 	currentDepthStencilView = targets[0]->depthStencilView;
-	
+
 	ID3D11RenderTargetView** renderViews = (ID3D11RenderTargetView**)alloca(sizeof(ID3D11RenderTargetView*) * count);
 	for (int i = 0; i < count; ++i) {
 		renderViews[i] = targets[i]->renderTargetView;

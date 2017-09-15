@@ -28,6 +28,7 @@ namespace Kore {
 			Graphics4::IndexBuffer* indexBuffer;
 
 			Graphics4::Texture* lastTexture;
+			Graphics4::RenderTarget* lastRenderTarget;
 
 			bool bilinear;
 			bool bilinearMipmaps;
@@ -63,6 +64,13 @@ namespace Kore {
 			inline void drawImage2(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty,
 				float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
 			inline void drawImageScale(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom, float opacity,
+				uint color);
+
+			inline void drawImage(Graphics4::RenderTarget* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty,
+				float bottomrightx, float bottomrighty, float opacity, uint color);
+			inline void drawImage2(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty,
+				float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
+			inline void drawImageScale(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom, float opacity,
 				uint color);
 
 			void end();
@@ -203,8 +211,6 @@ namespace Kore {
 
 			mat4 projectionMatrix;
 
-			mat3 transformation;
-
 			int* fontGlyphs;
 
 			ImageShaderPainter* imagePainter;
@@ -230,8 +236,13 @@ namespace Kore {
 			Graphics2(int width, int height, bool rTargets = false);
 			~Graphics2();
 
+			mat3 transformation;
+
 			void drawImage(Graphics4::Texture* img, float x, float y);
 			void drawScaledSubImage(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);
+
+			void drawImage(Graphics4::RenderTarget* img, float x, float y);
+			void drawScaledSubImage(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);
 
 			void drawRect(float x, float y, float width, float height, float strength = 1.0);
 			void fillRect(float x, float y, float width, float height);
@@ -249,7 +260,7 @@ namespace Kore {
 			void scissor(int x, int y, int width, int height);
 			void disableScissor();
 
-			void begin(bool clear = true, uint clearColor = Color::Black);
+			void begin(bool renderTargets = false, int width = -1, int height = -1, bool clear = true, uint clearColor = Color::Black);
 			void clear(uint color = Color::Black);
 			void flush();
 			void end();

@@ -1,28 +1,49 @@
 #include "pch.h"
 
 #include <Kore/Graphics4/Graphics.h>
+#include <Kore/IO/BufferReader.h>
+#include <Kore/IO/FileReader.h>
 
 #include "TextureImpl.h"
 
 using namespace Kore;
 
+Graphics4::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
+	_texture = new Graphics5::Texture(reader, format, readable);
+}
+
+Graphics4::Texture::Texture(const char* filename, bool readable) {
+	_texture = new Graphics5::Texture(filename, readable);
+}
+
+Graphics4::Texture::Texture(void* data, int size, const char* format, bool readable) {
+	_texture = new Graphics5::Texture(data, size, format, readable);
+}
+
+Graphics4::Texture::Texture(void* data, int width, int height, int format, bool readable) : Image(data, width, height, Image::Format(format), readable) {
+	_texture = new Graphics5::Texture(data, width, height, format, readable);
+}
+
 void Graphics4::Texture::init(const char* format, bool readable) {
 	_texture->_init(format, readable);
+}
+
+void Graphics4::Texture::init3D(bool readable) {
 }
 
 Graphics4::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {}
 
 Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {}
 
-TextureImpl::TextureImpl() : _texture(nullptr) {
+TextureImpl::TextureImpl() : _texture(nullptr), _uploaded(false) {
 	// TODO
 }
 
-TextureImpl::TextureImpl(int width, int height, Kore::Image::Format format, bool readable) {
+TextureImpl::TextureImpl(int width, int height, Kore::Image::Format format, bool readable) : _uploaded(false) {
 	_texture = new Graphics5::Texture(width, height, format, readable);
 }
 
-TextureImpl::TextureImpl(int width, int height, int depth, Image::Format format, bool readable) {
+TextureImpl::TextureImpl(int width, int height, int depth, Image::Format format, bool readable) : _uploaded(false) {
 	_texture = new Graphics5::Texture(width, height, depth, format, readable);
 }
 

@@ -28,5 +28,9 @@ namespace Kore {
 		const DeviceInfo* byId(int id);
 		int height(int index);
 		int width(int index);
+		int x(int index);
+		int y(int index);
+		bool isPrimary(int index);
+		int count();
 	}
 }
