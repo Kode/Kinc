@@ -4,14 +4,10 @@ phases:
   install:
     commands:
       - git clone https://github.com/Kode/nodejs_bin.git
-      - nodejs_bin/copysysbin.sh
   build:
     commands:
       - echo Build started on `date`
-      - nodejs_bin/node make.js --kore . --from Tests/Empty --noshaders --compile
+      - nodejs_bin/node-linux64 make.js --kore . --from $CODEBUILD_SRC_DIR/Tests/Empty --noshaders --compile
   post_build:
     commands:
       - echo Build completed on `date`
-artifacts:
-  files:
-    - hello.out
