@@ -35,14 +35,17 @@ int Kore::System::screenDpi() {
 
 namespace {
 	namespace callbacks {
-		void (*callback)();
-		void (*foregroundCallback)();
-		void (*backgroundCallback)();
-		void (*pauseCallback)();
-		void (*resumeCallback)();
-		void (*shutdownCallback)();
-		void (*orientationCallback)(Kore::Orientation);
-		void (*dropFilesCallback)(wchar_t*);
+		void (*callback)() = nullptr;
+		void (*foregroundCallback)() = nullptr;
+		void (*backgroundCallback)() = nullptr;
+		void (*pauseCallback)() = nullptr;
+		void (*resumeCallback)() = nullptr;
+		void (*shutdownCallback)() = nullptr;
+		void (*orientationCallback)(Kore::Orientation) = nullptr;
+		void (*dropFilesCallback)(wchar_t*) = nullptr;
+		char* (*cutCallback)() = nullptr;
+		char* (*copyCallback)() = nullptr;
+		void (*pasteCallback)(char*) = nullptr;
 	}
 }
 
@@ -96,6 +99,18 @@ void Kore::System::setDropFilesCallback(void (*value)(wchar_t*)) {
 	callbacks::dropFilesCallback = value;
 }
 
+void Kore::System::setCutCallback(char* (*value)()) {
+	callbacks::cutCallback = value;
+}
+
+void Kore::System::setCopyCallback(char* (*value)()) {
+	callbacks::copyCallback = value;
+}
+
+void Kore::System::setPasteCallback(void(*value)(char*)) {
+	callbacks::pasteCallback = value;
+}
+
 void Kore::System::callback() {
 	if (callbacks::callback != nullptr) {
 		callbacks::callback();
@@ -141,6 +156,26 @@ void Kore::System::orientationCallback(Orientation orientation) {
 void Kore::System::dropFilesCallback(wchar_t* filePath) {
 	if (callbacks::dropFilesCallback != nullptr) {
 		callbacks::dropFilesCallback(filePath);
+	}
+}
+
+char* Kore::System::cutCallback() {
+	if (callbacks::cutCallback != nullptr) {
+		return callbacks::cutCallback();
+	}
+	return nullptr;
+}
+
+char* Kore::System::copyCallback() {
+	if (callbacks::copyCallback != nullptr) {
+		return callbacks::copyCallback();
+	}
+	return nullptr;
+}
+
+void Kore::System::pasteCallback(char* value) {
+	if (callbacks::pasteCallback != nullptr) {
+		callbacks::pasteCallback(value);
 	}
 }
 

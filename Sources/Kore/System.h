@@ -75,6 +75,9 @@ namespace Kore {
 		void setShutdownCallback(void (*value)());
 		void setOrientationCallback(void (*value)(Orientation));
 		void setDropFilesCallback(void (*value)(wchar_t*));
+		void setCutCallback(char* (*value)());
+		void setCopyCallback(char* (*value)());
+		void setPasteCallback(void (*value)(char*));
 		void setKeepScreenOn(bool on);
 
 		void callback();
@@ -85,5 +88,8 @@ namespace Kore {
 		void shutdownCallback();
 		void orientationCallback(Orientation);
 		void dropFilesCallback(wchar_t*);
+		char* cutCallback();
+		char* copyCallback();
+		void pasteCallback(char*);
 	}
 }

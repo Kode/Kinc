@@ -10,7 +10,7 @@ namespace {
 	const int multiple = 100;
 }
 
-Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : _buffer(count * multiple, structure, instanceDataStepRate), currentIndex(0) {}
+Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : _buffer(count * multiple, structure, false, instanceDataStepRate), currentIndex(0) {}
 
 Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, structure, instanceDataStepRate) {}
 

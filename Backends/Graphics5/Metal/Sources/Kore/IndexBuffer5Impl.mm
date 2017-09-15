@@ -13,7 +13,7 @@ const int more = 10;
 
 IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count) {}
 
-Graphics5::IndexBuffer::IndexBuffer(int indexCount) : IndexBuffer5Impl(indexCount) {
+Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffer5Impl(indexCount) {
 	id<MTLDevice> device = getMetalDevice();
 	mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount * more options:MTLResourceOptionCPUCacheModeDefault];
 	index = -1;

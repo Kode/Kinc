@@ -349,6 +349,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowWidth;
 	int windowHeight;
 	int windowId;
+	static bool controlDown = false;
 
 	switch (msg) {
 	case WM_MOVE:
@@ -442,12 +443,72 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_SYSKEYDOWN:
 		if (!keyPressed[wParam]) {
 			keyPressed[wParam] = true;
+
+			if (keyTranslated[wParam] == Kore::KeyControl) {
+				controlDown = true;
+			}
+			else {
+				if (controlDown && keyTranslated[wParam] == Kore::KeyX) {
+					char* text = System::cutCallback();
+					if (text != nullptr) {
+						wchar_t wtext[4096];
+						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
+						OpenClipboard(hWnd);
+						EmptyClipboard();
+						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, strlen(text) + 1);
+						void* data = GlobalLock(handle);
+						memcpy(data, wtext, (wcslen(wtext) + 1) * sizeof(wchar_t));
+						GlobalUnlock(handle);
+						SetClipboardData(CF_UNICODETEXT, handle);
+						CloseClipboard();
+					}
+				}
+				
+				if (controlDown && keyTranslated[wParam] == Kore::KeyC) {
+					char* text = System::copyCallback();
+					if (text != nullptr) {
+						wchar_t wtext[4096];
+						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
+						OpenClipboard(hWnd);
+						EmptyClipboard();
+						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, strlen(text) + 1);
+						void* data = GlobalLock(handle);
+						memcpy(data, wtext, (wcslen(wtext) + 1) * sizeof(wchar_t));
+						GlobalUnlock(handle);
+						SetClipboardData(CF_UNICODETEXT, handle);
+						CloseClipboard();
+					}
+				}
+				
+				if (controlDown && keyTranslated[wParam] == Kore::KeyV) {
+					if (IsClipboardFormatAvailable(CF_UNICODETEXT)) {
+						OpenClipboard(hWnd);
+						HANDLE handle = GetClipboardData(CF_UNICODETEXT);
+						if (handle != nullptr) {
+							wchar_t* wtext = (wchar_t*)GlobalLock(handle);
+							if (wtext != nullptr) {
+								char text[4096];
+								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, "?", nullptr);
+								System::pasteCallback(text);
+								GlobalUnlock(handle);
+							}
+						}
+						CloseClipboard();
+					}
+				}
+			}
+
 			Keyboard::the()->_keydown(keyTranslated[wParam]);
 		}
 		break;
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		keyPressed[wParam] = false;
+
+		if (keyTranslated[wParam] == Kore::KeyControl) {
+			controlDown = false;
+		}
+
 		Keyboard::the()->_keyup(keyTranslated[wParam]);
 		break;
 	case WM_CHAR:

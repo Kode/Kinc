@@ -7,13 +7,15 @@ namespace Kore {
 		class Shader;
 	}
 
-	class Program5Impl {
+	class PipelineState5Impl {
 	protected:
 		Graphics5::Shader* vertexShader;
 		Graphics5::Shader* fragmentShader;
 		id pipeline;
 		id reflection;
-		Program5Impl();
+		PipelineState5Impl();
+	public:
+		void _set();
 	};
 
 	class ConstantLocation5Impl {

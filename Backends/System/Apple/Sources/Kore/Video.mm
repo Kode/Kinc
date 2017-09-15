@@ -202,7 +202,9 @@ void Video::updateImage() {
 
 		if (pixelBuffer != NULL) {
 			CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+#ifdef KORE_OPENGL
 			image->upload((u8*)CVPixelBufferGetBaseAddress(pixelBuffer), static_cast<int>(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
+#endif
 			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 			
 		}

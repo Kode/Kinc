@@ -18,6 +18,8 @@
 #include <GL/glx.h>
 
 #include <X11/keysym.h>
+#include <X11/Xlib.h>
+#include <climits>
 //#include <X11/Xlib.h>
 #endif
 
@@ -47,6 +49,9 @@ namespace {
 	Atom XdndActionCopy;
 	Atom XdndSelection;
 	Atom XdndPrimary;
+	Atom clipboard;
+	Atom utf8;
+	Atom xseldata;
 	Window XdndSourceWindow = None;
 
 	void fatalError(const char* message) {
@@ -222,6 +227,11 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	XdndActionCopy = XInternAtom(dpy, "XdndActionCopy", 0);
 	XdndSelection = XInternAtom(dpy, "XdndSelection", 0);
 	XdndPrimary = XInternAtom(dpy, "PRIMARY", 0);
+	clipboard = XInternAtom(dpy, "CLIPBOARD", 0);
+	utf8 = XInternAtom(dpy, "UTF8_STRING", 0);
+	xseldata = XInternAtom(dpy, "XSEL_DATA", False),
+
+	//**XSetSelectionOwner(dpy, clipboard, win, CurrentTime);
 
 	windowimpl::windows[wcounter] = new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
 
@@ -341,6 +351,7 @@ namespace Kore {
 }
 
 bool Kore::System::handleMessages() {
+	static bool controlDown = false;
 #ifdef KORE_OPENGL
 	while (XPending(dpy) > 0) {
 		XEvent event;
@@ -356,6 +367,16 @@ bool Kore::System::handleMessages() {
 	case xkey:                                                \
 		Kore::Keyboard::the()->_keydown(Kore::korekey);       \
 		break;
+			if (keysym == XK_Control_L || keysym == XK_Control_R) {
+				controlDown = true;
+			}
+			else if (controlDown && (keysym == XK_v || keysym == XK_V)) {
+				XConvertSelection(dpy, clipboard, utf8, xseldata, win, CurrentTime);
+			}
+			else if (controlDown && (keysym == XK_c || keysym == XK_C)) {
+				XSetSelectionOwner(dpy, clipboard, win, CurrentTime);
+			}
+
 			switch (keysym) {
 				KEY(XK_Right, KeyRight)
 				KEY(XK_Left, KeyLeft)
@@ -424,6 +445,10 @@ bool Kore::System::handleMessages() {
 	case xkey:                                            \
 		Kore::Keyboard::the()->_keyup(Kore::korekey);     \
 		break;
+			if (keysym == XK_Control_L || keysym == XK_Control_R) {
+				controlDown = false;
+			}
+
 			switch (keysym) {
 				KEY(XK_Right, KeyRight)
 				KEY(XK_Left, KeyLeft)
@@ -539,10 +564,24 @@ bool Kore::System::handleMessages() {
 				XdndSourceWindow = event.xclient.data.l[0];
 				XConvertSelection(dpy, XdndSelection, XA_STRING, XdndPrimary, win, event.xclient.data.l[2]);
 			}
+			break;
 		}
 		case SelectionNotify: {
 			Atom target = event.xselection.target;
-			if (target == XA_STRING) {
+			if (event.xselection.selection == clipboard) {
+				int a = 3;
+				++a;
+			}
+			else if (event.xselection.property) {
+				char* result;
+				unsigned long ressize, restail;
+				int resbits;
+				XGetWindowProperty(dpy, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
+				                   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
+				Kore::System::pasteCallback(result);
+				XFree(result);
+			}
+			else if (target == XA_STRING) {
 				Atom type;
 				int format;
 				unsigned long numItems;

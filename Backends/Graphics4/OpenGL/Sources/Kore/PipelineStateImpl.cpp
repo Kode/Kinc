@@ -70,8 +70,7 @@ namespace {
 }
 
 PipelineStateImpl::PipelineStateImpl()
-    : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
-      tessellationControlShader(nullptr) {
+    : textureCount(0) {
 	// TODO: Get rid of allocations
 	textures = new char*[16];
 	for (int i = 0; i < 16; ++i) {
@@ -191,7 +190,7 @@ void Graphics4::PipelineState::compile() {
 
 void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 #ifndef KORE_OPENGL_ES
-	programUsesTessellation = tessellationControlShader != nullptr;
+	programUsesTessellation = pipeline->tessellationControlShader != nullptr;
 #endif
 	glUseProgram(programId);
 	glCheckErrors();

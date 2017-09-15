@@ -32,7 +32,7 @@ function addBackend(name) {
 	project.addIncludeDir('Backends/' + name + '/Sources');
 }
 
-let console = false;
+let plugin = false;
 
 if (platform === Platform.Windows) {
 	project.addDefine('KORE_WINDOWS');
@@ -285,7 +285,7 @@ else if (platform === Platform.Tizen) {
 	project.addDefine('KORE_POSIX');
 }
 else {
-	console = true;
+	plugin = true;
 	g4 = true;
 	g5 = true;
 	if (platform === Platform.XboxOne) {
@@ -307,7 +307,8 @@ if (g5) {
 	addBackend('Graphics4/G4onG5');
 }
 else {
-	project.addExclude('Sources/Kore/Graphics5/**');
+	project.addDefine('KORE_G5');
+	addBackend('Graphics5/G5onG4');
 }
 
 if (!a3) {
@@ -316,8 +317,18 @@ if (!a3) {
 	addBackend('Audio3/A3onA2');
 }
 
-if (console) {
-	Project.createProject(path.join(Project.root, 'Backends', 'XboxOne'), __dirname).then((backend) => {
+if (plugin) {
+	let backend = 'Unknown';
+	if (platform === Platform.PS4) {
+		backend = 'PlayStation4';
+	}
+	else if (platform === Platform.XboxOne) {
+		backend = 'XboxOne';
+	}
+	else if (platform === Platform.Switch) {
+		backend = 'Switch';
+	}
+	Project.createProject(path.join(Project.root, 'Backends', backend), __dirname).then((backend) => {
 		project.addSubProject(backend);
 		resolve(project);
 	});
