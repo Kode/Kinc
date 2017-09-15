@@ -2,6 +2,7 @@
 
 #include <Kore/Audio3/TextToSpeech.h>
 #include <ppltasks.h>
+#include <Kore/Log.h>
 
 using namespace Kore;
 using namespace Windows::Media::SpeechSynthesis;
@@ -13,6 +14,12 @@ MediaPlayer^ mediaPlayer;
 
 void TextToSpeech::Init() {
 	speechSynthesizer = ref new SpeechSynthesizer();
+	//auto voices = speechSynthesizer->AllVoices;
+	//for (int i = 0; i < voices->Size; i++) {
+	//	auto voiceInfo = voices->GetAt(i);
+	//	OutputDebugStringW(voiceInfo->DisplayName->Data());
+	//	OutputDebugStringW(voiceInfo->Description->Data());
+	//}
 	mediaPlayer = ref new MediaPlayer();
 }
 
@@ -30,5 +37,6 @@ void TextToSpeech::SpeakText(const char* text) {
 		mediaPlayer->Source = MediaSource::CreateFromStream(stream, stream->ContentType);
 		//mediaPlayer->Volume = 1;
 		mediaPlayer->Play();
+		//mediaPlayer->
 	});
 }
