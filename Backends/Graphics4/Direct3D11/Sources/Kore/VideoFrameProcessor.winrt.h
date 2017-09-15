@@ -58,7 +58,7 @@ protected:
 	Windows::Media::Capture::Frames::MediaFrameSource^     m_mediaFrameSource;
 	Windows::Media::Capture::Frames::MediaFrameReference^  m_latestFrame;
 private:
-	Windows::Media::Capture::Frames::MediaFrameReference^ GetLatestFrame(void) const;
+	Windows::Media::Capture::Frames::MediaFrameReference^ GetAndResetLatestFrame(void);
 	Windows::Media::Capture::Frames::VideoMediaFrameFormat^ GetCurrentFormat(void) const;
 	bool VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source, CameraImage* image);
 	//int currentFrameDataSize;

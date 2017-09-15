@@ -100,10 +100,13 @@ task<std::shared_ptr<VideoFrameProcessor>> VideoFrameProcessor::CreateAsync(void
     });
 }
 
-Windows::Media::Capture::Frames::MediaFrameReference^ VideoFrameProcessor::GetLatestFrame(void) const
+Windows::Media::Capture::Frames::MediaFrameReference^ VideoFrameProcessor::GetAndResetLatestFrame(void)
 {
     auto lock = std::shared_lock<std::shared_mutex>(m_propertiesLock);
-    return m_latestFrame;
+    auto theFrame= m_latestFrame;
+	m_latestFrame = nullptr;
+	return theFrame;
+
 }
 
 Windows::Media::Capture::Frames::VideoMediaFrameFormat^ VideoFrameProcessor::GetCurrentFormat(void) const
@@ -165,7 +168,7 @@ bool VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frame
 }
 
 CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^ worldCoordSystem) {
-	MediaFrameReference^ frame = GetLatestFrame();
+	MediaFrameReference^ frame = GetAndResetLatestFrame();
 
 	if (frame  == nullptr) {
 		return NULL;
