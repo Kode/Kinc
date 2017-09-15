@@ -21,9 +21,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 
 Graphics5::TextureUnit Graphics5::PipelineState::getTextureUnit(const char* name) {
 	TextureUnit unit;
-
-
-
+	unit.unit = 0;
 	return unit;
 }
 
