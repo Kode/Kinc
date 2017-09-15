@@ -7,7 +7,7 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - nodejs_bin/node-linux64 make.js --kore . --from $CODEBUILD_SRC_DIR/Tests/Empty --noshaders --compile
+      - nodejs_bin/node-linux64 $CODEBUILD_SRC_DIR/make.js --kore $CODEBUILD_SRC_DIR --from $CODEBUILD_SRC_DIR/Tests/Empty --noshaders --compile
   post_build:
     commands:
       - echo Build completed on `date`
