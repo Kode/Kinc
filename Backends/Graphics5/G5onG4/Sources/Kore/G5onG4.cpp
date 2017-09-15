@@ -27,7 +27,9 @@ void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, boo
 
 void Graphics5::changeResolution(int width, int height) {}
 
+#if defined(KORE_WINDOWS) || defined(KORE_XBOX_ONE)
 void Graphics5::setup() {}
+#endif
 
 void Graphics5::makeCurrent(int window) {}
 
