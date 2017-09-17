@@ -18,14 +18,14 @@
 using namespace Windows::UI::Core;
 using namespace Windows::System;
 
-class HolographicMain : public DX::IDeviceNotify
+class HolographicFrameController : public DX::IDeviceNotify
 {
 public:
-	HolographicMain(Windows::UI::Core::CoreWindow^ window);
-	~HolographicMain();
+	HolographicFrameController(Windows::UI::Core::CoreWindow^ window);
+	~HolographicFrameController();
 
 	void SetDeviceAndContext(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context);
-	Microsoft::WRL::ComPtr<IDXGIAdapter3> HolographicMain::GetCompatibleDxgiAdapter();
+	Microsoft::WRL::ComPtr<IDXGIAdapter3> HolographicFrameController::GetCompatibleDxgiAdapter();
 
 	// Starts the holographic frame and updates the content.
 	Windows::Graphics::Holographic::HolographicFrame^ Update();

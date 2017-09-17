@@ -216,7 +216,7 @@ void Win8Application::SetWindow(CoreWindow^ window) {
 	// m_renderer->Initialize(CoreWindow::GetForCurrentThread());
 
 	//Create holographics space - needs to be created before window is activated
-	m_main = std::make_unique<HolographicMain>(window);
+	m_main = std::make_unique<HolographicFrameController>(window);
 
 	task<void> videoInitTask = VideoFrameProcessor::CreateAsync()
 		.then([this](std::shared_ptr<VideoFrameProcessor> videoProcessor)

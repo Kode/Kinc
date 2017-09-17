@@ -30,7 +30,7 @@ Platform::String^ CharToString(const char * char_array) {
 	return ref new Platform::String(w_char);
 }
 
-void TextToSpeech::SpeakText(const char* text) {
+void TextToSpeech::speakText(const char* text) {
 	concurrency::create_task(speechSynthesizer->SynthesizeTextToStreamAsync(CharToString(text)))
 		.then([](SpeechSynthesisStream^ stream)
 	{
