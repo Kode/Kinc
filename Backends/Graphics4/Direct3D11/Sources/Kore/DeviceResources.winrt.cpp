@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "DeviceResources.winrt.h"
-#include "DirectXHelper.winrt.h"
 #include "CameraResources.winrt.h"
 #include <Kore/WinError.h>
 
@@ -157,7 +156,7 @@ void DX::DeviceResources::Trim()
     m_d3dContext->ClearState();
 
     ComPtr<IDXGIDevice3> dxgiDevice;
-    DX::ThrowIfFailed(m_d3dDevice.As(&dxgiDevice));
+	Kore::affirm(m_d3dDevice.As(&dxgiDevice));
     dxgiDevice->Trim();
 }
 

@@ -21,7 +21,6 @@
 #include <memory>
 #include "DeviceResources.winrt.h"
 #include "Hololens.winrt.h"
-#include "DirectXHelper.winrt.h"
 #include <windows.graphics.directx.direct3d11.interop.h>
 
 ID3D11Device* device;

@@ -34,9 +34,6 @@ namespace DX
             DX::DeviceResources* pDeviceResources
             );
 
-        bool AttachViewProjectionBuffer(
-            std::shared_ptr<DX::DeviceResources> deviceResources);
-
         // Direct3D device resources.
         //ID3D11RenderTargetView* GetBackBufferRenderTargetView()     const { return m_d3dRenderTargetView.Get();     }
         ID3D11RenderTargetView* GetBackBufferRenderTargetViewLeft()     const { return m_d3dRenderTargetViewLeft.Get();     }
@@ -72,9 +69,6 @@ namespace DX
 
         // Indicates whether the camera supports stereoscopic rendering.
         bool                                                m_isStereo = false;
-
-        // Indicates whether this camera has a pending frame.
-        bool                                                m_framePending = false;
 
         // Pointer to the holographic camera these resources are for.
         Windows::Graphics::Holographic::HolographicCamera^  m_holographicCamera = nullptr;

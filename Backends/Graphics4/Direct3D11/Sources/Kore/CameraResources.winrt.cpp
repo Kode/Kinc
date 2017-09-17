@@ -11,8 +11,8 @@
 
 #include "pch.h"
 
+#include <Kore/WinError.h>
 #include "CameraResources.winrt.h"
-#include "DirectXHelper.winrt.h"
 #include "DeviceResources.winrt.h"
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <WindowsNumerics.h>
@@ -55,15 +55,11 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
     // by the system. The Direct3D back buffer resource is provided using WinRT
     // interop APIs.
     ComPtr<ID3D11Resource> resource;
-    ThrowIfFailed(
-        GetDXGIInterfaceFromObject(surface, IID_PPV_ARGS(&resource))
-        );
+    Kore::affirm(GetDXGIInterfaceFromObject(surface, IID_PPV_ARGS(&resource)));
 
     // Get a Direct3D interface for the holographic camera's back buffer.
     ComPtr<ID3D11Texture2D> cameraBackBuffer;
-    ThrowIfFailed(
-        resource.As(&cameraBackBuffer)
-        );
+	Kore::affirm(resource.As(&cameraBackBuffer));
 
 	D3D11_TEXTURE2D_DESC desc;
 	cameraBackBuffer.Get()->GetDesc(&desc);
@@ -85,7 +81,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
         // Create a render target view of the back buffer.
         // Creating this resource is inexpensive, and is better than keeping track of
         // the back buffers in order to pre-allocate render target views for each one.
-        DX::ThrowIfFailed(
+		Kore::affirm(
             device->CreateRenderTargetView(
                 m_d3dBackBuffer.Get(),
                 nullptr,
@@ -106,7 +102,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 		leftRtvDesc.Texture2DArray.MipSlice = 0;
 		leftRtvDesc.Texture2DArray.FirstArraySlice = D3D11CalcSubresource(0,0,1);
 
-    	DX::ThrowIfFailed(
+		Kore::affirm(
 			device->CreateRenderTargetView(
 				m_d3dBackBuffer.Get(),
 				&leftRtvDesc,
@@ -122,7 +118,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 		rightRtvDesc.Texture2DArray.FirstArraySlice = D3D11CalcSubresource(0, 1, 1);
 
 
-		DX::ThrowIfFailed(
+		Kore::affirm(
 			device->CreateRenderTargetView(
 				m_d3dBackBuffer.Get(),
 				&rightRtvDesc,
@@ -165,7 +161,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
             );
 
         ComPtr<ID3D11Texture2D> depthStencil;
-        DX::ThrowIfFailed(
+		Kore::affirm(
             device->CreateTexture2D(
                 &depthStencilDesc,
                 nullptr,
@@ -176,7 +172,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
         CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(
             m_isStereo ? D3D11_DSV_DIMENSION_TEXTURE2DARRAY : D3D11_DSV_DIMENSION_TEXTURE2D
             );
-        DX::ThrowIfFailed(
+		Kore::affirm(
             device->CreateDepthStencilView(
                 depthStencil.Get(),
                 &depthStencilViewDesc,
@@ -197,7 +193,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 		leftDSVDesc.Texture2DArray.MipSlice = 0;
 		leftDSVDesc.Texture2DArray.FirstArraySlice = D3D11CalcSubresource(0, 0, 1);
 
-		DX::ThrowIfFailed(
+		Kore::affirm(
 			device->CreateDepthStencilView(
 				depthStencil.Get(),
 				&leftDSVDesc,
@@ -213,7 +209,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 		rightDSVDesc.Texture2DArray.MipSlice = 0;
 		rightDSVDesc.Texture2DArray.FirstArraySlice = D3D11CalcSubresource(0, 1, 1);
 
-		DX::ThrowIfFailed(
+		Kore::affirm(
 			device->CreateDepthStencilView(
 				depthStencil.Get(),
 				&rightDSVDesc,
@@ -243,30 +239,4 @@ void DX::CameraResources::ReleaseResourcesForBackBuffer(DX::DeviceResources* pDe
     ID3D11RenderTargetView* nullViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { nullptr };
     context->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
     context->Flush();
-}
-
-
-// Gets the view-projection constant buffer for the HolographicCamera and attaches it
-// to the shader pipeline.
-bool DX::CameraResources::AttachViewProjectionBuffer(
-    std::shared_ptr<DX::DeviceResources> deviceResources
-    )
-{
-    // This method uses Direct3D device-based resources.
-    const auto context = deviceResources->GetD3DDeviceContext();
-
-    // Loading is asynchronous. Resources must be created before they can be updated.
-    // Cameras can also be added asynchronously, in which case they must be initialized
-    // before they can be used.
-    if (context == nullptr || m_framePending == false)
-    {
-        return false;
-    }
-
-    // Set the viewport for this camera.
-    context->RSSetViewports(1, &m_d3dViewport);
-
-    m_framePending = false;
-
-    return true;
 }

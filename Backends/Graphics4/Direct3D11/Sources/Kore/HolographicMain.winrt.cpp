@@ -11,7 +11,6 @@
 #include "pch.h"
 
 #include "HolographicMain.winrt.h"
-#include "DirectXHelper.winrt.h"
 #include <DirectXColors.h>
 #include <Kore/WinError.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
