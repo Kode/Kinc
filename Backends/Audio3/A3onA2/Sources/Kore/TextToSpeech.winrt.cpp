@@ -12,7 +12,7 @@ using namespace Windows::Media::Playback;
 SpeechSynthesizer^ speechSynthesizer;
 MediaPlayer^ mediaPlayer;
 
-void TextToSpeech::Init() {
+void TextToSpeech::init() {
 	speechSynthesizer = ref new SpeechSynthesizer();
 	//auto voices = speechSynthesizer->AllVoices;
 	//for (int i = 0; i < voices->Size; i++) {

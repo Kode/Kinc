@@ -2,7 +2,7 @@
 
 namespace Kore {
 	namespace TextToSpeech {
-		void Init();
+		void init();
 		void speakText(const char* text);
 	}
 }

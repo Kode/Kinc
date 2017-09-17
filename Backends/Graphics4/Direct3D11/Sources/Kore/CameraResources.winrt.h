@@ -26,31 +26,27 @@ namespace DX
     public:
         CameraResources(Windows::Graphics::Holographic::HolographicCamera^ holographicCamera);
 
-        void CreateResourcesForBackBuffer(
+        void createResourcesForBackBuffer(
             DX::DeviceResources* pDeviceResources,
             Windows::Graphics::Holographic::HolographicCameraRenderingParameters^ cameraParameters
             );
-        void ReleaseResourcesForBackBuffer(
+        void releaseResourcesForBackBuffer(
             DX::DeviceResources* pDeviceResources
             );
 
         // Direct3D device resources.
         //ID3D11RenderTargetView* GetBackBufferRenderTargetView()     const { return m_d3dRenderTargetView.Get();     }
-        ID3D11RenderTargetView* GetBackBufferRenderTargetViewLeft()     const { return m_d3dRenderTargetViewLeft.Get();     }
-        ID3D11RenderTargetView* GetBackBufferRenderTargetViewRight()     const { return m_d3dRenderTargetViewRight.Get();     }
+        ID3D11RenderTargetView* getBackBufferRenderTargetViewLeft()     const { return m_d3dRenderTargetViewLeft.Get();     }
+        ID3D11RenderTargetView* getBackBufferRenderTargetViewRight()     const { return m_d3dRenderTargetViewRight.Get();     }
         //ID3D11DepthStencilView* GetDepthStencilView()               const { return m_d3dDepthStencilView.Get();     }
-        ID3D11DepthStencilView* GetDepthStencilViewLeft()               const { return m_d3dDepthStencilViewLeft.Get();     }
-        ID3D11DepthStencilView* GetDepthStencilViewRight()               const { return m_d3dDepthStencilViewRight.Get();     }
-        ID3D11Texture2D*        GetBackBufferTexture2D()            const { return m_d3dBackBuffer.Get();           }
-        D3D11_VIEWPORT          GetViewport()                       const { return m_d3dViewport;                   }
-        DXGI_FORMAT             GetBackBufferDXGIFormat()           const { return m_dxgiFormat;                    }
+        ID3D11DepthStencilView* getDepthStencilViewLeft()               const { return m_d3dDepthStencilViewLeft.Get();     }
+        ID3D11DepthStencilView* getDepthStencilViewRight()               const { return m_d3dDepthStencilViewRight.Get();     }
 
         // Render target properties.
-        Windows::Foundation::Size GetRenderTargetSize()             const { return m_d3dRenderTargetSize;           }
-        bool                    IsRenderingStereoscopic()           const { return m_isStereo;                      }
+        bool                    isRenderingStereoscopic()           const { return m_isStereo;                      }
 
         // The holographic camera these resources are for.
-        Windows::Graphics::Holographic::HolographicCamera^ GetHolographicCamera() const { return m_holographicCamera; }
+        Windows::Graphics::Holographic::HolographicCamera^ getHolographicCamera() const { return m_holographicCamera; }
 
     private:
         // Direct3D rendering objects. Required for 3D.

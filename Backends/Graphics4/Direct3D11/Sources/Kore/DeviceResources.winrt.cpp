@@ -86,7 +86,7 @@ void DX::DeviceResources::EnsureCameraResources(
             HolographicCameraRenderingParameters^ renderingParameters = frame->GetRenderingParameters(pose);
             CameraResources* pCameraResources = cameraResourceMap[pose->HolographicCamera->Id].get();
 
-            pCameraResources->CreateResourcesForBackBuffer(this, renderingParameters);
+            pCameraResources->createResourcesForBackBuffer(this, renderingParameters);
         }
     });
 }
@@ -111,7 +111,7 @@ void DX::DeviceResources::RemoveHolographicCamera(HolographicCamera^ camera)
 
         if (pCameraResources != nullptr)
         {
-            pCameraResources->ReleaseResourcesForBackBuffer(this);
+            pCameraResources->releaseResourcesForBackBuffer(this);
             cameraResourceMap.erase(camera->Id);
         }
     });
@@ -182,12 +182,12 @@ void DX::DeviceResources::Present(HolographicFrame^ frame)
             // This is a valid operation only when the existing contents will be
             // entirely overwritten. If dirty or scroll rects are used, this call
             // should be removed.
-            m_d3dContext->DiscardView(pCameraResources->GetBackBufferRenderTargetViewLeft());
-			m_d3dContext->DiscardView(pCameraResources->GetBackBufferRenderTargetViewRight());
+            m_d3dContext->DiscardView(pCameraResources->getBackBufferRenderTargetViewLeft());
+			m_d3dContext->DiscardView(pCameraResources->getBackBufferRenderTargetViewRight());
 
             // Discard the contents of the depth stencil.
-            m_d3dContext->DiscardView(pCameraResources->GetDepthStencilViewLeft());
-			m_d3dContext->DiscardView(pCameraResources->GetDepthStencilViewRight());
+            m_d3dContext->DiscardView(pCameraResources->getDepthStencilViewLeft());
+			m_d3dContext->DiscardView(pCameraResources->getDepthStencilViewRight());
 			
         }
     });

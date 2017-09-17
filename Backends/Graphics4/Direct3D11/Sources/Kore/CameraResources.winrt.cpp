@@ -40,7 +40,7 @@ DX::CameraResources::CameraResources(HolographicCamera^ camera) :
 // Updates resources associated with a holographic camera's swap chain.
 // The app does not access the swap chain directly, but it does create
 // resource views for the back buffer.
-void DX::CameraResources::CreateResourcesForBackBuffer(
+void DX::CameraResources::createResourcesForBackBuffer(
     DX::DeviceResources* pDeviceResources,
     HolographicCameraRenderingParameters^ cameraParameters
     )
@@ -128,7 +128,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 
 
         // Get the DXGI format for the back buffer.
-        // This information can be accessed by the app using CameraResources::GetBackBufferDXGIFormat().
+        // This information can be accessed by the app using CameraResources::getBackBufferDXGIFormat().
         D3D11_TEXTURE2D_DESC backBufferDesc;
         m_d3dBackBuffer->GetDesc(&backBufferDesc);
         m_dxgiFormat = backBufferDesc.Format;
@@ -221,7 +221,7 @@ void DX::CameraResources::CreateResourcesForBackBuffer(
 }
 
 // Releases resources associated with a back buffer.
-void DX::CameraResources::ReleaseResourcesForBackBuffer(DX::DeviceResources* pDeviceResources)
+void DX::CameraResources::releaseResourcesForBackBuffer(DX::DeviceResources* pDeviceResources)
 {
     const auto context = pDeviceResources->GetD3DDeviceContext();
 

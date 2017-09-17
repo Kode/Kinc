@@ -122,12 +122,12 @@ void HolographicFrameController::beginRender(int eye)
 	ID3D11DepthStencilView* depthStencilView;
 	ID3D11RenderTargetView* targets[1];
 	if (eye == 0) {
-		depthStencilView = m_currentCameraResources->GetDepthStencilViewLeft();
-		targets[0] = m_currentCameraResources->GetBackBufferRenderTargetViewLeft();
+		depthStencilView = m_currentCameraResources->getDepthStencilViewLeft();
+		targets[0] = m_currentCameraResources->getBackBufferRenderTargetViewLeft();
 	}
 	else {
-		depthStencilView = m_currentCameraResources->GetDepthStencilViewRight();
-		targets[0] = m_currentCameraResources->GetBackBufferRenderTargetViewRight();
+		depthStencilView = m_currentCameraResources->getDepthStencilViewRight();
+		targets[0] = m_currentCameraResources->getBackBufferRenderTargetViewRight();
 	}
 	//Kore::Graphics4::setRenderTargets(RenderTarget** targets, int count)
 	context->OMSetRenderTargets(1, targets, depthStencilView);
