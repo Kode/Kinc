@@ -24,15 +24,15 @@ public:
 	HolographicFrameController(Windows::UI::Core::CoreWindow^ window);
 	~HolographicFrameController();
 
-	void SetDeviceAndContext(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context);
-	Microsoft::WRL::ComPtr<IDXGIAdapter3> HolographicFrameController::GetCompatibleDxgiAdapter();
+	void setDeviceAndContext(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context);
+	Microsoft::WRL::ComPtr<IDXGIAdapter3> getCompatibleDxgiAdapter();
 
 	// Starts the holographic frame and updates the content.
-	Windows::Graphics::Holographic::HolographicFrame^ Update();
+	Windows::Graphics::Holographic::HolographicFrame^ createNextHolographicFrame();
 
 	// IDeviceNotify
-	virtual void OnDeviceLost();
-	virtual void OnDeviceRestored();
+	virtual void onDeviceLost();
+	virtual void onDeviceRestored();
 
 	//
 	Windows::Perception::Spatial::SpatialCoordinateSystem^ getCurrentWorldCoordinateSystem();
@@ -46,31 +46,33 @@ public:
 private:
 	// Sets the holographic space. This is our closest analogue to setting a new window
 	// for the app.
-	void CreateHolographicSpace(Windows::UI::Core::CoreWindow^ window);
+	void createHolographicSpace(Windows::UI::Core::CoreWindow^ window);
+	void registerCameraEvents();
+	void setupSpatialLocator();
 	// Asynchronously creates resources for new holographic cameras.
-	void OnCameraAdded(
+	void onCameraAdded(
 		Windows::Graphics::Holographic::HolographicSpace^ sender,
 		Windows::Graphics::Holographic::HolographicSpaceCameraAddedEventArgs^ args);
 
 	// Synchronously releases resources for holographic cameras that are no longer
 	// attached to the system.
-	void OnCameraRemoved(
+	void onCameraRemoved(
 		Windows::Graphics::Holographic::HolographicSpace^ sender,
 		Windows::Graphics::Holographic::HolographicSpaceCameraRemovedEventArgs^ args);
 
 	// Used to prevent the device from deactivating positional tracking, which is 
 	// necessary to continue to receive spatial mapping data.
-	void OnPositionalTrackingDeactivating(
+	void onPositionalTrackingDeactivating(
 		Windows::Perception::Spatial::SpatialLocator^ sender,
 		Windows::Perception::Spatial::SpatialLocatorPositionalTrackingDeactivatingEventArgs^ args);
 	
-	void OnPositionalTrackingLocatabilityChanged(
+	void onPositionalTrackingLocatabilityChanged(
 		Windows::Perception::Spatial::SpatialLocator^ sender,
 		Platform::Object^ args);
 
 	// Clears event registration state. Used when changing to a new HolographicSpace
 	// and when tearing down AppMain.
-	void UnregisterHolographicEventHandlers();
+	void unregisterHolographicEventHandlers();
 
 	Windows::Graphics::Holographic::HolographicFrame^ m_currentHolographicFrame;
 	Windows::Graphics::Holographic::HolographicFramePrediction^ m_currentPrediction;
@@ -79,7 +81,7 @@ private:
 	DX::CameraResources* m_currentCameraResources;
 
 	// SpatialLocator that is attached to the primary camera.
-	Windows::Perception::Spatial::SpatialLocator^                       m_locator;
+	Windows::Perception::Spatial::SpatialLocator^                       m_spatialLocator;
 
 	// A reference frame attached to the holographic camera.
 	Windows::Perception::Spatial::SpatialStationaryFrameOfReference^ m_referenceFrame;
@@ -96,5 +98,4 @@ private:
 	Windows::Foundation::EventRegistrationToken                         m_cameraRemovedToken;
 	Windows::Foundation::EventRegistrationToken                         m_positionalTrackingDeactivatingToken;
 	Windows::Foundation::EventRegistrationToken                         m_positionalTrackingLocatabilityChangedToken;
-
 };

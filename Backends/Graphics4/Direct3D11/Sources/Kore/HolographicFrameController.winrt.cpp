@@ -10,7 +10,7 @@
 //*********************************************************
 #include "pch.h"
 
-#include "HolographicMain.winrt.h"
+#include "HolographicFrameController.winrt.h"
 #include <DirectXColors.h>
 #include <Kore/WinError.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
@@ -19,6 +19,7 @@
 #include <Kore/Graphics4/Graphics.h>
 #include <wrl.h>
 #include "Conversion.winrt.h"
+#include "HolographicFrameController.winrt.h"
 using namespace Microsoft::WRL;
 using namespace concurrency;
 using namespace Platform;
@@ -38,46 +39,54 @@ std::shared_ptr<VideoFrameProcessor> m_videoFrameProcessor;
 
 HolographicFrameController::HolographicFrameController(Windows::UI::Core::CoreWindow^ window)
 {
-	CreateHolographicSpace(window);
+	createHolographicSpace(window);
 	m_deviceResources = std::make_shared<DX::DeviceResources>();
 	// Register to be notified if the device is lost or recreated.
 	m_deviceResources->RegisterDeviceNotify(this);
 }
 
-void HolographicFrameController::CreateHolographicSpace(Windows::UI::Core::CoreWindow^ window)
+void HolographicFrameController::createHolographicSpace(Windows::UI::Core::CoreWindow^ window)
 {
-	UnregisterHolographicEventHandlers();
+	unregisterHolographicEventHandlers();
 
 	m_holographicSpace = HolographicSpace::CreateForCoreWindow(window);
+	registerCameraEvents();
 
-	//register camera events
+
+	setupSpatialLocator();
+}
+
+void HolographicFrameController::registerCameraEvents()
+{
 	m_cameraAddedToken =
 		m_holographicSpace->CameraAdded +=
 		ref new Windows::Foundation::TypedEventHandler<HolographicSpace^, HolographicSpaceCameraAddedEventArgs^>(
-			std::bind(&HolographicFrameController::OnCameraAdded, this, _1, _2)
+			std::bind(&HolographicFrameController::onCameraAdded, this, _1, _2)
 			);
 	m_cameraRemovedToken =
 		m_holographicSpace->CameraRemoved +=
 		ref new Windows::Foundation::TypedEventHandler<HolographicSpace^, HolographicSpaceCameraRemovedEventArgs^>(
-			std::bind(&HolographicFrameController::OnCameraRemoved, this, _1, _2)
+			std::bind(&HolographicFrameController::onCameraRemoved, this, _1, _2)
 			);
+}
 
-
+void HolographicFrameController::setupSpatialLocator()
+{
 	// Use the default SpatialLocator to track the motion of the device.
-	m_locator = SpatialLocator::GetDefault();
+	m_spatialLocator = SpatialLocator::GetDefault();
 	m_positionalTrackingDeactivatingToken =
-		m_locator->PositionalTrackingDeactivating +=
+		m_spatialLocator->PositionalTrackingDeactivating +=
 		ref new Windows::Foundation::TypedEventHandler<SpatialLocator^, SpatialLocatorPositionalTrackingDeactivatingEventArgs^>(
-			std::bind(&HolographicFrameController::OnPositionalTrackingDeactivating, this, _1, _2)
+			std::bind(&HolographicFrameController::onPositionalTrackingDeactivating, this, _1, _2)
 			);
 
 	m_positionalTrackingLocatabilityChangedToken =
-		m_locator->LocatabilityChanged +=
+		m_spatialLocator->LocatabilityChanged +=
 		ref new Windows::Foundation::TypedEventHandler<SpatialLocator^, Object^>(
-			std::bind(&HolographicFrameController::OnPositionalTrackingLocatabilityChanged, this, _1, _2)
+			std::bind(&HolographicFrameController::onPositionalTrackingLocatabilityChanged, this, _1, _2)
 			);
 
-	m_referenceFrame = m_locator->CreateStationaryFrameOfReferenceAtCurrentLocation();
+	m_referenceFrame = m_spatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocation();
 }
 
 Windows::Perception::Spatial::SpatialCoordinateSystem^ HolographicFrameController::getCurrentWorldCoordinateSystem() {
@@ -86,7 +95,7 @@ Windows::Perception::Spatial::SpatialCoordinateSystem^ HolographicFrameControlle
 
 void HolographicFrameController::begin()
 {
-	m_currentHolographicFrame = Update();
+	m_currentHolographicFrame = createNextHolographicFrame();
 	m_deviceResources->LockCameraResources();
 
 	m_currentHolographicFrame->UpdateCurrentPrediction();
@@ -163,7 +172,7 @@ void HolographicFrameController::warpSwap()
 
 }
 
-void HolographicFrameController::SetDeviceAndContext(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context)
+void HolographicFrameController::setDeviceAndContext(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context)
 {
 	m_deviceResources->InitWithDevice(device, context);
 	m_holographicSpace->SetDirect3D11Device(m_deviceResources->GetD3DInteropDevice());
@@ -171,7 +180,7 @@ void HolographicFrameController::SetDeviceAndContext(Microsoft::WRL::ComPtr<ID3D
 
 
 
-Microsoft::WRL::ComPtr<IDXGIAdapter3> HolographicFrameController::GetCompatibleDxgiAdapter()
+Microsoft::WRL::ComPtr<IDXGIAdapter3> HolographicFrameController::getCompatibleDxgiAdapter()
 {
 	Microsoft::WRL::ComPtr<IDXGIAdapter3> theDxgiAdapter;
 	// The holographic space might need to determine which adapter supports
@@ -219,7 +228,7 @@ Microsoft::WRL::ComPtr<IDXGIAdapter3> HolographicFrameController::GetCompatibleD
 }
 
 
-void HolographicFrameController::OnPositionalTrackingDeactivating(
+void HolographicFrameController::onPositionalTrackingDeactivating(
 	SpatialLocator^ sender,
 	SpatialLocatorPositionalTrackingDeactivatingEventArgs^ args)
 {
@@ -227,7 +236,7 @@ void HolographicFrameController::OnPositionalTrackingDeactivating(
 	args->Canceled = true;
 }
 
-void HolographicFrameController::OnPositionalTrackingLocatabilityChanged(
+void HolographicFrameController::onPositionalTrackingLocatabilityChanged(
 	SpatialLocator^ sender,
 	Object^ args)
 {
@@ -238,7 +247,7 @@ void HolographicFrameController::OnPositionalTrackingLocatabilityChanged(
 }
 
 
-void HolographicFrameController::UnregisterHolographicEventHandlers()
+void HolographicFrameController::unregisterHolographicEventHandlers()
 {
 	if (m_holographicSpace != nullptr)
 	{
@@ -257,10 +266,10 @@ void HolographicFrameController::UnregisterHolographicEventHandlers()
 		}
 	}
 
-	if (m_locator != nullptr)
+	if (m_spatialLocator != nullptr)
 	{
-		m_locator->PositionalTrackingDeactivating -= m_positionalTrackingDeactivatingToken;
-		m_locator->LocatabilityChanged -= m_positionalTrackingLocatabilityChangedToken;
+		m_spatialLocator->PositionalTrackingDeactivating -= m_positionalTrackingDeactivatingToken;
+		m_spatialLocator->LocatabilityChanged -= m_positionalTrackingLocatabilityChangedToken;
 	}
 }
 
@@ -268,12 +277,12 @@ HolographicFrameController::~HolographicFrameController()
 {
 	// Deregister device notification.
 	m_deviceResources->RegisterDeviceNotify(nullptr);
-	UnregisterHolographicEventHandlers();
+	unregisterHolographicEventHandlers();
 }
 
 
 // Updates the application state once per frame.
-HolographicFrame^ HolographicFrameController::Update()
+HolographicFrame^ HolographicFrameController::createNextHolographicFrame()
 {
 	// Before doing the timer update, there is some work to do per-frame
 	// to maintain holographic rendering. First, we will get information
@@ -300,7 +309,7 @@ HolographicFrame^ HolographicFrameController::Update()
 
 // Notifies classes that use Direct3D device resources that the device resources
 // need to be released before this method returns.
-void HolographicFrameController::OnDeviceLost()
+void HolographicFrameController::onDeviceLost()
 {
 	Kore::error("device lost");
 	//release device dependent resources
@@ -308,12 +317,12 @@ void HolographicFrameController::OnDeviceLost()
 
 // Notifies classes that use Direct3D device resources that the device resources
 // may now be recreated.
-void HolographicFrameController::OnDeviceRestored()
+void HolographicFrameController::onDeviceRestored()
 {
 	//recreate device dependent resources
 }
 
-void HolographicFrameController::OnCameraAdded(
+void HolographicFrameController::onCameraAdded(
 	HolographicSpace^ sender,
 	HolographicSpaceCameraAddedEventArgs^ args)
 {
@@ -337,7 +346,7 @@ void HolographicFrameController::OnCameraAdded(
 	});
 }
 
-void HolographicFrameController::OnCameraRemoved(
+void HolographicFrameController::onCameraRemoved(
 	HolographicSpace^ sender,
 	HolographicSpaceCameraRemovedEventArgs^ args)
 {

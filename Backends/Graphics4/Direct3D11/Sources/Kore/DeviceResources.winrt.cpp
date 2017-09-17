@@ -123,7 +123,7 @@ void DX::DeviceResources::HandleDeviceLost()
 {
     //if (m_deviceNotify != nullptr)
     //{
-    //    m_deviceNotify->OnDeviceLost();
+    //    m_deviceNotify->onDeviceLost();
     //}
 
     //UseHolographicCameraResources<void>([this](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
@@ -139,7 +139,7 @@ void DX::DeviceResources::HandleDeviceLost()
 
     //if (m_deviceNotify != nullptr)
     //{
-    //    m_deviceNotify->OnDeviceRestored();
+    //    m_deviceNotify->onDeviceRestored();
     //}
 }
 

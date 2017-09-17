@@ -23,8 +23,8 @@ namespace DX
     // Provides an interface for an application that owns DeviceResources to be notified of the device being lost or created.
     interface IDeviceNotify
     {
-        virtual void OnDeviceLost()     = 0;
-        virtual void OnDeviceRestored() = 0;
+        virtual void onDeviceLost()     = 0;
+        virtual void onDeviceRestored() = 0;
     };
 
     // Creates and manages a Direct3D device and immediate context, Direct2D device and context (for debug), and the holographic swap chain.
