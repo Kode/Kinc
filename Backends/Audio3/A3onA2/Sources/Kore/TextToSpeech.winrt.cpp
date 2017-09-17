@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#ifdef KORE_WINDOWSAPP
+
 #include <Kore/Audio3/TextToSpeech.h>
 #include <ppltasks.h>
 #include <Kore/Log.h>
@@ -40,3 +42,5 @@ void TextToSpeech::speakText(const char* text) {
 		//mediaPlayer->
 	});
 }
+
+#endif
