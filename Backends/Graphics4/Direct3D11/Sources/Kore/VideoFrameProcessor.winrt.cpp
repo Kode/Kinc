@@ -6,6 +6,8 @@
 
 
 #include "pch.h"
+
+#ifdef KORE_HOLOLENS 
 #include "VideoFrameProcessor.winrt.h"
 
 using namespace Windows::Foundation;
@@ -218,3 +220,5 @@ CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^
 
 	return cameraImage;
 }
+
+#endif

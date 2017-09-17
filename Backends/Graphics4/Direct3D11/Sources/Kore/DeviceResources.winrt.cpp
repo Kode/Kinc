@@ -5,6 +5,8 @@
 //*********************************************************
 
 #include "pch.h"
+
+#ifdef KORE_HOLOLENS 
 #include "DeviceResources.winrt.h"
 #include "CameraResources.winrt.h"
 #include <Kore/WinError.h>
@@ -185,3 +187,5 @@ void DX::DeviceResources::present(HolographicFrame^ frame)
         handleDeviceLost();
     }
 }
+
+#endif

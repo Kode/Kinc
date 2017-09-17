@@ -6,6 +6,8 @@
 
 #include "pch.h"
 
+#ifdef KORE_HOLOLENS 
+
 #include "HolographicFrameController.winrt.h"
 #include <DirectXColors.h>
 #include <Kore/WinError.h>
@@ -354,3 +356,5 @@ void HolographicFrameController::onCameraRemoved(
 	// not take long.
 	m_deviceResources->removeHolographicCamera(args->Camera);
 }
+
+#endif

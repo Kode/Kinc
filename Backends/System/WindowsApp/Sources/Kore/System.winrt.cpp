@@ -69,7 +69,6 @@ using namespace Windows::UI::Core;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
-using namespace Concurrency;
 
 bool Kore::System::handleMessages() {
 	CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
@@ -215,6 +214,7 @@ void Win8Application::SetWindow(CoreWindow^ window) {
 	    ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow ^, Windows::UI::Core::KeyEventArgs ^>(this, &Win8Application::OnKeyUp);
 	// m_renderer->Initialize(CoreWindow::GetForCurrentThread());
 
+#ifdef KORE_HOLOLENS
 	//Create holographics space - needs to be created before window is activated
 	holographicFrameController = std::make_unique<HolographicFrameController>(window);
 
@@ -224,6 +224,8 @@ void Win8Application::SetWindow(CoreWindow^ window) {
 	{
 		videoFrameProcessor = std::move(videoProcessor);
 	});
+#endif
+
 }
 
 void Win8Application::Load(Platform::String^ entryPoint) {}

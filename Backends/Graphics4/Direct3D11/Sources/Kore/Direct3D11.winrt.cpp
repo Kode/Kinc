@@ -18,10 +18,13 @@
 #include <wrl.h>
 #endif
 #include <vector>
+
+#ifdef KORE_HOLOLENS 
 #include <memory>
 #include "DeviceResources.winrt.h"
 #include "Hololens.winrt.h"
 #include <windows.graphics.directx.direct3d11.interop.h>
+#endif
 
 ID3D11Device* device;
 ID3D11DeviceContext* context;
@@ -44,8 +47,10 @@ using namespace Kore;
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
+#ifdef KORE_HOLOLENS 
 using namespace Windows::Graphics::Holographic;
 using namespace Windows::Graphics::DirectX::Direct3D11;
+#endif
 #endif
 
 namespace Kore {
@@ -126,15 +131,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	ComPtr<ID3D11DeviceContext> contextPtr=context;
 	Microsoft::WRL::ComPtr<ID3D11Device4>                   device4Ptr;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext3>            context3Ptr;
-
-	affirm(
-		devicePtr.As(&device4Ptr)
-	);
-
-	affirm(
-		contextPtr.As(&context3Ptr)
-	);
-
+	affirm(devicePtr.As(&device4Ptr));
+	affirm(contextPtr.As(&context3Ptr));
 	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
 #endif
 

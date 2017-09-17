@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#ifdef KORE_HOLOLENS
+
 #include "Hololens.winrt.h"
 #include <Kore/Vr/VrInterface.h>
 
@@ -65,3 +67,5 @@ CameraImage* VrInterface::getCurrentCameraImage()
 	}
 	return videoFrameProcessor->getCurrentCameraImage(holographicFrameController->getCurrentWorldCoordinateSystem());
 }
+
+#endif

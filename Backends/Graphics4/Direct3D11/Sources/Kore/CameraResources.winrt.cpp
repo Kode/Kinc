@@ -7,6 +7,8 @@
 
 #include "pch.h"
 
+#ifdef KORE_HOLOLENS 
+
 #include <Kore/WinError.h>
 #include "CameraResources.winrt.h"
 #include "DeviceResources.winrt.h"
@@ -236,3 +238,5 @@ void DX::CameraResources::releaseResourcesForBackBuffer(DX::DeviceResources* pDe
     context->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
     context->Flush();
 }
+
+#endif
