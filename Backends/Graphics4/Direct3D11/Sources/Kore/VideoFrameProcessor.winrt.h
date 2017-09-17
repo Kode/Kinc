@@ -37,7 +37,7 @@ EXTERN_GUID(MFSampleExtension_Spatial_CameraProjectionTransform, 0x47f9fcb5, 0x2
 class VideoFrameProcessor
 {
 public:
-	static Concurrency::task<std::shared_ptr<VideoFrameProcessor>> CreateAsync(void);
+	static Concurrency::task<std::shared_ptr<VideoFrameProcessor>> createAsync(void);
 
 	VideoFrameProcessor(
 		Platform::Agile<Windows::Media::Capture::MediaCapture> mediaCapture,
@@ -47,7 +47,7 @@ public:
 	CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^ worldCoordSystem);
 
 protected:
-	void OnFrameArrived(
+	void onFrameArrived(
 		Windows::Media::Capture::Frames::MediaFrameReader^ sender,
 		Windows::Media::Capture::Frames::MediaFrameArrivedEventArgs^ args);
 
@@ -58,9 +58,7 @@ protected:
 	Windows::Media::Capture::Frames::MediaFrameSource^     m_mediaFrameSource;
 	Windows::Media::Capture::Frames::MediaFrameReference^  m_latestFrame;
 private:
-	Windows::Media::Capture::Frames::MediaFrameReference^ GetAndResetLatestFrame(void);
-	Windows::Media::Capture::Frames::VideoMediaFrameFormat^ GetCurrentFormat(void) const;
-	bool VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source, CameraImage* image);
-	//int currentFrameDataSize;
-	//int* currentFrameData=nullptr;
+	Windows::Media::Capture::Frames::MediaFrameReference^ getAndResetLatestFrame(void);
+	Windows::Media::Capture::Frames::VideoMediaFrameFormat^ getCurrentFormat(void) const;
+	bool copyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source, CameraImage* image);
 };

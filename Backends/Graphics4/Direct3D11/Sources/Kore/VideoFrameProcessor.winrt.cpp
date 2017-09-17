@@ -31,10 +31,10 @@ VideoFrameProcessor::VideoFrameProcessor(Platform::Agile<MediaCapture> mediaCapt
     // Listen for new frames, so we know when to update our m_latestFrame
     m_mediaFrameReader->FrameArrived +=
         ref new TypedEventHandler<MediaFrameReader^, MediaFrameArrivedEventArgs^>(
-            std::bind(&VideoFrameProcessor::OnFrameArrived, this, _1, _2));
+            std::bind(&VideoFrameProcessor::onFrameArrived, this, _1, _2));
 }
 
-task<std::shared_ptr<VideoFrameProcessor>> VideoFrameProcessor::CreateAsync(void)
+task<std::shared_ptr<VideoFrameProcessor>> VideoFrameProcessor::createAsync(void)
 {
     return create_task(MediaFrameSourceGroup::FindAllAsync())
         .then([](IVectorView<MediaFrameSourceGroup^>^ groups)
@@ -100,7 +100,7 @@ task<std::shared_ptr<VideoFrameProcessor>> VideoFrameProcessor::CreateAsync(void
     });
 }
 
-Windows::Media::Capture::Frames::MediaFrameReference^ VideoFrameProcessor::GetAndResetLatestFrame(void)
+Windows::Media::Capture::Frames::MediaFrameReference^ VideoFrameProcessor::getAndResetLatestFrame(void)
 {
     auto lock = std::shared_lock<std::shared_mutex>(m_propertiesLock);
     auto theFrame= m_latestFrame;
@@ -109,12 +109,12 @@ Windows::Media::Capture::Frames::MediaFrameReference^ VideoFrameProcessor::GetAn
 
 }
 
-Windows::Media::Capture::Frames::VideoMediaFrameFormat^ VideoFrameProcessor::GetCurrentFormat(void) const
+Windows::Media::Capture::Frames::VideoMediaFrameFormat^ VideoFrameProcessor::getCurrentFormat(void) const
 {
     return m_mediaFrameSource->CurrentFormat->VideoFormat;
 }
 
-void VideoFrameProcessor::OnFrameArrived(MediaFrameReader^ sender, MediaFrameArrivedEventArgs^ args)
+void VideoFrameProcessor::onFrameArrived(MediaFrameReader^ sender, MediaFrameArrivedEventArgs^ args)
 {
     if (MediaFrameReference^ frame = sender->TryAcquireLatestFrame())
     {
@@ -126,7 +126,7 @@ void VideoFrameProcessor::OnFrameArrived(MediaFrameReader^ sender, MediaFrameArr
 
 
 // Opens up the underlying buffer of a SoftwareBitmap and copies to our D3D11 Texture
-bool VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source, CameraImage* image)
+bool VideoFrameProcessor::copyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source, CameraImage* image)
 {
 	SoftwareBitmap^ softwareBitmap = source->SoftwareBitmap;
 
@@ -168,7 +168,7 @@ bool VideoFrameProcessor::CopyFromVideoMediaFrame(Windows::Media::Capture::Frame
 }
 
 CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^ worldCoordSystem) {
-	MediaFrameReference^ frame = GetAndResetLatestFrame();
+	MediaFrameReference^ frame = getAndResetLatestFrame();
 
 	if (frame  == nullptr) {
 		return NULL;
@@ -213,7 +213,7 @@ CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^
 	//todo create cameraImage from frame..
 	CameraImage* cameraImage = new CameraImage(format->Width, format->Height, nullptr, WindowsNumericsToKoreMat(cameraToWorld->Value), projectionMat, focalLength);
 
-	if (!CopyFromVideoMediaFrame(videoMediaFrame,cameraImage)) {
+	if (!copyFromVideoMediaFrame(videoMediaFrame,cameraImage)) {
 		delete cameraImage;
 		return NULL;
 	}
