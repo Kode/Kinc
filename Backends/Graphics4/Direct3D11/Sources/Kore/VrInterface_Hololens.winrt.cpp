@@ -17,27 +17,27 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 }
 
 void VrInterface::begin() {
-	m_main->begin();
+	holographicFrameController->begin();
 }
 	
 void VrInterface::beginRender(int eye)
 {
-	m_main->beginRender(eye);
+	holographicFrameController->beginRender(eye);
 }
 
 SensorState VrInterface::getSensorState(int eye)
 {
-	return m_main->getSensorState(eye);
+	return holographicFrameController->getSensorState(eye);
 }
 
 void VrInterface::endRender(int eye)
 {
-	m_main->endRender(eye);
+	holographicFrameController->endRender(eye);
 }
 
 void VrInterface::warpSwap()
 {
-	m_main->warpSwap();
+	holographicFrameController->warpSwap();
 }
 
 
@@ -59,8 +59,8 @@ void VrInterface::updateTrackingOrigin(TrackingOrigin origin)
 
 CameraImage* VrInterface::getCurrentCameraImage()
 {
-	if (m_videoFrameProcessor == nullptr) {
+	if (videoFrameProcessor == nullptr) {
 		return nullptr;
 	}
-	return m_videoFrameProcessor->getCurrentCameraImage(m_main->getCurrentWorldCoordinateSystem());
+	return videoFrameProcessor->getCurrentCameraImage(holographicFrameController->getCurrentWorldCoordinateSystem());
 }

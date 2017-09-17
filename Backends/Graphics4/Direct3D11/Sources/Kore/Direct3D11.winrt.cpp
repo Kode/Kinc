@@ -117,7 +117,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef KORE_WINDOWSAPP
 	IDXGIAdapter3* adapter = nullptr;
 #ifdef KORE_HOLOLENS
-	adapter = m_main->getCompatibleDxgiAdapter().Get();
+	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
 	affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 		&featureLevel, &context));
@@ -135,7 +135,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		contextPtr.As(&context3Ptr)
 	);
 
-	m_main->setDeviceAndContext(device4Ptr, context3Ptr);
+	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
 #endif
 
 #elif KORE_OCULUS

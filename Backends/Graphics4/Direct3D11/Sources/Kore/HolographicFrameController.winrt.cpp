@@ -34,8 +34,8 @@ using namespace Windows::UI::Input::Spatial;
 using namespace std::placeholders;
 using namespace Kore;
 
-std::unique_ptr<HolographicFrameController> m_main;
-std::shared_ptr<VideoFrameProcessor> m_videoFrameProcessor;
+std::unique_ptr<HolographicFrameController> holographicFrameController;
+std::shared_ptr<VideoFrameProcessor> videoFrameProcessor;
 
 HolographicFrameController::HolographicFrameController(Windows::UI::Core::CoreWindow^ window)
 {
