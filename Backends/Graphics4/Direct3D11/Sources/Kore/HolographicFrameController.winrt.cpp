@@ -42,7 +42,7 @@ HolographicFrameController::HolographicFrameController(Windows::UI::Core::CoreWi
 	createHolographicSpace(window);
 	m_deviceResources = std::make_shared<DX::DeviceResources>();
 	// Register to be notified if the device is lost or recreated.
-	m_deviceResources->RegisterDeviceNotify(this);
+	m_deviceResources->registerDeviceNotify(this);
 }
 
 void HolographicFrameController::createHolographicSpace(Windows::UI::Core::CoreWindow^ window)
@@ -96,7 +96,7 @@ Windows::Perception::Spatial::SpatialCoordinateSystem^ HolographicFrameControlle
 void HolographicFrameController::begin()
 {
 	m_currentHolographicFrame = createNextHolographicFrame();
-	m_deviceResources->LockCameraResources();
+	m_deviceResources->lockCameraResources();
 
 	m_currentHolographicFrame->UpdateCurrentPrediction();
 
@@ -104,7 +104,7 @@ void HolographicFrameController::begin()
 	m_currentCoordinateSystem = m_referenceFrame->CoordinateSystem;
 
 	m_currentCamPose = m_currentPrediction->CameraPoses->GetAt(0);
-	m_currentCameraResources = m_deviceResources->GetResourcesForCamera(m_currentCamPose->HolographicCamera);
+	m_currentCameraResources = m_deviceResources->getResourcesForCamera(m_currentCamPose->HolographicCamera);
 }
 
 void HolographicFrameController::beginRender(int eye)
@@ -116,7 +116,7 @@ void HolographicFrameController::beginRender(int eye)
 		m_currentCamPose->Viewport.Width,
 		m_currentCamPose->Viewport.Height
 	);
-	const auto context = m_deviceResources->GetD3DDeviceContext();
+	const auto context = m_deviceResources->getD3DDeviceContext();
 	context->RSSetViewports(1, &m_d3dViewport);
 
 	ID3D11DepthStencilView* depthStencilView;
@@ -167,15 +167,15 @@ void HolographicFrameController::endRender(int eye)
 
 void HolographicFrameController::warpSwap()
 {
-	m_deviceResources->UnlockCameraResources();
-	m_deviceResources->Present(m_currentHolographicFrame);
+	m_deviceResources->unlockCameraResources();
+	m_deviceResources->present(m_currentHolographicFrame);
 
 }
 
 void HolographicFrameController::setDeviceAndContext(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context)
 {
-	m_deviceResources->InitWithDevice(device, context);
-	m_holographicSpace->SetDirect3D11Device(m_deviceResources->GetD3DInteropDevice());
+	m_deviceResources->initWithDevice(device, context);
+	m_holographicSpace->SetDirect3D11Device(m_deviceResources->getD3DInteropDevice());
 }
 
 
@@ -276,7 +276,7 @@ void HolographicFrameController::unregisterHolographicEventHandlers()
 HolographicFrameController::~HolographicFrameController()
 {
 	// Deregister device notification.
-	m_deviceResources->RegisterDeviceNotify(nullptr);
+	m_deviceResources->registerDeviceNotify(nullptr);
 	unregisterHolographicEventHandlers();
 }
 
@@ -299,7 +299,7 @@ HolographicFrame^ HolographicFrameController::createNextHolographicFrame()
 
 	// Back buffers can change from frame to frame. Validate each buffer, and recreate
 	// resource views and depth buffers as needed.
-	m_deviceResources->EnsureCameraResources(holographicFrame, prediction);
+	m_deviceResources->ensureCameraResources(holographicFrame, prediction);
 
 	// The holographic frame will be used to get up-to-date view and projection matrices and
 	// to present the swap chain.
@@ -332,13 +332,13 @@ void HolographicFrameController::onCameraAdded(
 	{
 		// Create device-based resources for the holographic camera and add it to the list of
 		// cameras used for updates and rendering. Notes:
-		//   * Since this function may be called at any time, the AddHolographicCamera function
+		//   * Since this function may be called at any time, the addHolographicCamera function
 		//     waits until it can get a lock on the set of holographic camera resources before
 		//     adding the new camera. At 60 frames per second this wait should not take long.
 		//   * A subsequent Update will take the back buffer from the RenderingParameters of this
 		//     camera's CameraPose and use it to create the ID3D11RenderTargetView for this camera.
 		//     Content can then be rendered for the HolographicCamera.
-		m_deviceResources->AddHolographicCamera(holographicCamera);
+		m_deviceResources->addHolographicCamera(holographicCamera);
 
 		// Holographic frame predictions will not include any information about this camera until
 		// the deferral is completed.
@@ -352,9 +352,9 @@ void HolographicFrameController::onCameraRemoved(
 {
 	// Before letting this callback return, ensure that all references to the back buffer
 	// are released.
-	// Since this function may be called at any time, the RemoveHolographicCamera function
+	// Since this function may be called at any time, the removeHolographicCamera function
 	// waits until it can get a lock on the set of holographic camera resources before
 	// deallocating resources for this camera. At 60 frames per second this wait should
 	// not take long.
-	m_deviceResources->RemoveHolographicCamera(args->Camera);
+	m_deviceResources->removeHolographicCamera(args->Camera);
 }

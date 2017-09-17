@@ -31,23 +31,23 @@ DX::DeviceResources::DeviceResources()
     //CreateDeviceIndependentResources();
 }
 
-DX::CameraResources* DX::DeviceResources::GetResourcesForCamera(Windows::Graphics::Holographic::HolographicCamera^ camera)
+DX::CameraResources* DX::DeviceResources::getResourcesForCamera(Windows::Graphics::Holographic::HolographicCamera^ camera)
 {
 	return m_cameraResources[camera->Id].get();
 }
 
-void DX::DeviceResources::LockCameraResources()
+void DX::DeviceResources::lockCameraResources()
 {
 	m_cameraResLock.lock();
 }
 
-void DX::DeviceResources::UnlockCameraResources()
+void DX::DeviceResources::unlockCameraResources()
 {
 	m_cameraResLock.unlock();
 }
 
 
-void DX::DeviceResources::InitWithDevice(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context)
+void DX::DeviceResources::initWithDevice(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3>  context)
 {
 	m_d3dDevice = device;
 	m_d3dContext = context;
@@ -75,11 +75,11 @@ void DX::DeviceResources::InitWithDevice(Microsoft::WRL::ComPtr<ID3D11Device4> d
 // Validates the back buffer for each HolographicCamera and recreates
 // resources for back buffers that have changed.
 // Locks the set of holographic camera resources until the function exits.
-void DX::DeviceResources::EnsureCameraResources(
+void DX::DeviceResources::ensureCameraResources(
     HolographicFrame^ frame,
     HolographicFramePrediction^ prediction)
 {
-    UseHolographicCameraResources<void>([this, frame, prediction](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
+    useHolographicCameraResources<void>([this, frame, prediction](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
     {
         for (const auto& pose : prediction->CameraPoses)
         {
@@ -93,9 +93,9 @@ void DX::DeviceResources::EnsureCameraResources(
 
 // Prepares to allocate resources and adds resource views for a camera.
 // Locks the set of holographic camera resources until the function exits.
-void DX::DeviceResources::AddHolographicCamera(HolographicCamera^ camera)
+void DX::DeviceResources::addHolographicCamera(HolographicCamera^ camera)
 {
-    UseHolographicCameraResources<void>([this, camera](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
+    useHolographicCameraResources<void>([this, camera](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
     {
         cameraResourceMap[camera->Id] = std::make_unique<CameraResources>(camera);
     });
@@ -103,9 +103,9 @@ void DX::DeviceResources::AddHolographicCamera(HolographicCamera^ camera)
 
 // Deallocates resources for a camera and removes the camera from the set.
 // Locks the set of holographic camera resources until the function exits.
-void DX::DeviceResources::RemoveHolographicCamera(HolographicCamera^ camera)
+void DX::DeviceResources::removeHolographicCamera(HolographicCamera^ camera)
 {
-    UseHolographicCameraResources<void>([this, camera](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
+    useHolographicCameraResources<void>([this, camera](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
     {
         CameraResources* pCameraResources = cameraResourceMap[camera->Id].get();
 
@@ -119,14 +119,14 @@ void DX::DeviceResources::RemoveHolographicCamera(HolographicCamera^ camera)
 
 // Recreate all device resources and set them back to the current state.
 // Locks the set of holographic camera resources until the function exits.
-void DX::DeviceResources::HandleDeviceLost()
+void DX::DeviceResources::handleDeviceLost()
 {
     //if (m_deviceNotify != nullptr)
     //{
     //    m_deviceNotify->onDeviceLost();
     //}
 
-    //UseHolographicCameraResources<void>([this](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
+    //useHolographicCameraResources<void>([this](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
     //{
     //    for (auto& pair : cameraResourceMap)
     //    {
@@ -144,25 +144,14 @@ void DX::DeviceResources::HandleDeviceLost()
 }
 
 // Register our DeviceNotify to be informed on device lost and creation.
-void DX::DeviceResources::RegisterDeviceNotify(DX::IDeviceNotify* deviceNotify)
+void DX::DeviceResources::registerDeviceNotify(DX::IDeviceNotify* deviceNotify)
 {
     m_deviceNotify = deviceNotify;
 }
 
-// Call this method when the app suspends. It provides a hint to the driver that the app
-// is entering an idle state and that temporary buffers can be reclaimed for use by other apps.
-void DX::DeviceResources::Trim()
-{
-    m_d3dContext->ClearState();
-
-    ComPtr<IDXGIDevice3> dxgiDevice;
-	Kore::affirm(m_d3dDevice.As(&dxgiDevice));
-    dxgiDevice->Trim();
-}
-
 // Present the contents of the swap chain to the screen.
 // Locks the set of holographic camera resources until the function exits.
-void DX::DeviceResources::Present(HolographicFrame^ frame)
+void DX::DeviceResources::present(HolographicFrame^ frame)
 {
     // By default, this API waits for the frame to finish before it returns.
     // Holographic apps should wait for the previous frame to finish before
@@ -171,7 +160,7 @@ void DX::DeviceResources::Present(HolographicFrame^ frame)
     HolographicFramePresentResult presentResult = frame->PresentUsingCurrentPrediction();
 
     HolographicFramePrediction^ prediction = frame->CurrentPrediction;
-    UseHolographicCameraResources<void>([this, prediction](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
+    useHolographicCameraResources<void>([this, prediction](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
     {
         for (auto cameraPose : prediction->CameraPoses)
         {
@@ -198,6 +187,6 @@ void DX::DeviceResources::Present(HolographicFrame^ frame)
     if (presentResult == HolographicFramePresentResult::DeviceRemoved)
     {
         // The Direct3D device, context, and resources should be recreated.
-        HandleDeviceLost();
+        handleDeviceLost();
     }
 }

@@ -45,7 +45,7 @@ void DX::CameraResources::createResourcesForBackBuffer(
     HolographicCameraRenderingParameters^ cameraParameters
     )
 {
-    const auto device = pDeviceResources->GetD3DDevice();
+    const auto device = pDeviceResources->getD3DDevice();
 
     // Get the WinRT object representing the holographic camera's back buffer.
     IDirect3DSurface^ surface = cameraParameters->Direct3D11BackBuffer;
@@ -223,7 +223,7 @@ void DX::CameraResources::createResourcesForBackBuffer(
 // Releases resources associated with a back buffer.
 void DX::CameraResources::releaseResourcesForBackBuffer(DX::DeviceResources* pDeviceResources)
 {
-    const auto context = pDeviceResources->GetD3DDeviceContext();
+    const auto context = pDeviceResources->getD3DDeviceContext();
 
     // Release camera-specific resources.
     m_d3dBackBuffer.Reset();
