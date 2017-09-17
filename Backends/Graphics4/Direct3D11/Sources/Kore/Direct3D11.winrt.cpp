@@ -126,15 +126,6 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 	affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 		&featureLevel, &context));
-#ifdef KORE_HOLOLENS
-	ComPtr<ID3D11Device> devicePtr=device;
-	ComPtr<ID3D11DeviceContext> contextPtr=context;
-	Microsoft::WRL::ComPtr<ID3D11Device4>                   device4Ptr;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext3>            context3Ptr;
-	affirm(devicePtr.As(&device4Ptr));
-	affirm(contextPtr.As(&context3Ptr));
-	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
-#endif
 
 #elif KORE_OCULUS
 	IDXGIFactory* dxgiFactory = nullptr;
@@ -172,35 +163,36 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Windowed = true;
 #endif
 
-#ifdef KORE_WINDOWSAPP
-		//DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
-		//swapChainDesc.Width = 0; // use automatic sizing
-		//swapChainDesc.Height = 0;
-		//swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
-		//swapChainDesc.Stereo = false;
-		//swapChainDesc.SampleDesc.Count = 1; // don't use multi-sampling
-		//swapChainDesc.SampleDesc.Quality = 0;
-		//swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		//swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
-		//swapChainDesc.Scaling = DXGI_SCALING_NONE;
-		//swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
-		//swapChainDesc.Flags = 0;
+#if defined(KORE_WINDOWSAPP)
+#ifdef KORE_HOLOLENS
+		//The Windows::Graphics::Holographic::HolographicSpace owns its own swapchain so we don't need to create one here
+#elif
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
+		swapChainDesc.Width = 0; // use automatic sizing
+		swapChainDesc.Height = 0;
+		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
+		swapChainDesc.Stereo = false;
+		swapChainDesc.SampleDesc.Count = 1; // don't use multi-sampling
+		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
+		swapChainDesc.Scaling = DXGI_SCALING_NONE;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
+		swapChainDesc.Flags = 0;
 
-		//IDXGIDevice1* dxgiDevice;
-		//affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
+		IDXGIDevice1* dxgiDevice;
+		affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
 
-		//IDXGIAdapter* dxgiAdapter;
-		//affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		IDXGIAdapter* dxgiAdapter;
+		affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
-		//IDXGIFactory2* dxgiFactory;
-		//affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
+		IDXGIFactory2* dxgiFactory;
+		affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
 
-		//affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
-		//	&swapChain));
-		//affirm(dxgiDevice->SetMaximumFrameLatency(1));
-
-
-
+		affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
+			&swapChain));
+		affirm(dxgiDevice->SetMaximumFrameLatency(1));
+#endif
 
 #elif KORE_OCULUS
 		DXGI_SWAP_CHAIN_DESC scDesc = { 0 };
@@ -233,29 +225,44 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 	}
 
-	//affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+#ifdef KORE_HOLOLENS
+	//holographicFrameController manages the targets and views for hololens.
+	// the views have to be created/deleted on the CameraAdded/Removed events
+	// at this point we don't know if this event has alread occured so we cannot
+	// simply set the renderTargetWidth, renderTargetHeight, currentRenderTargetViews and currentDepthStencilView.
+	// to bind the targets for hololens one has to use the VrInterface::beginRender(eye) instead of the methods in this class.
+	ComPtr<ID3D11Device> devicePtr = device;
+	ComPtr<ID3D11DeviceContext> contextPtr = context;
+	Microsoft::WRL::ComPtr<ID3D11Device4>                   device4Ptr;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext3>            context3Ptr;
+	affirm(devicePtr.As(&device4Ptr));
+	affirm(contextPtr.As(&context3Ptr));
+	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
+#elif
+	affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	//affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
-	//D3D11_TEXTURE2D_DESC backBufferDesc;
-	//backBuffer->GetDesc(&backBufferDesc);
-	//renderTargetWidth = backBufferDesc.Width;
-	//renderTargetHeight = backBufferDesc.Height;
+	D3D11_TEXTURE2D_DESC backBufferDesc;
+	backBuffer->GetDesc(&backBufferDesc);
+	renderTargetWidth = backBufferDesc.Width;
+	renderTargetHeight = backBufferDesc.Height;
 
-	//// TODO (DK) map depth/stencilBufferBits arguments
-	//CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
+	// TODO (DK) map depth/stencilBufferBits arguments
+	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
 
-	//ID3D11Texture2D* depthStencil;
-	//affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	ID3D11Texture2D* depthStencil;
+	affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	//affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
+	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
-	//currentRenderTargetViews[0] = renderTargetView;
-	//currentDepthStencilView = depthStencilView;
-	//context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	currentRenderTargetViews[0] = renderTargetView;
+	currentDepthStencilView = depthStencilView;
+	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
-	//CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
-	//context->RSSetViewports(1, &viewPort);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
+	context->RSSetViewports(1, &viewPort);
+#endif
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
