@@ -44,17 +44,18 @@ void VrInterface::warpSwap()
 
 void VrInterface::ovrShutdown()
 {
-	
+	holographicFrameController.reset();
+	videoFrameProcessor.reset();
 }
 
 void VrInterface::resetHmdPose()
 {
-	
+	//not supported for hololens
 }
 
 void VrInterface::updateTrackingOrigin(TrackingOrigin origin)
 {
-	
+	//could be implemented by setting up the tracking coordinate system with an offset
 }
 
 CameraImage* VrInterface::getCurrentCameraImage()
