@@ -1016,21 +1016,21 @@ void Graphics2::Graphics2::fillTriangle(float x1, float y1, float x2, float y2, 
 	coloredPainter->fillTriangle(opacity, color, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y());
 }
 
-Graphics2::ImageScaleQuality Graphics2::Graphics2::get_imageScaleQuality() const {
+Graphics2::ImageScaleQuality Graphics2::Graphics2::getImageScaleQuality() const {
 	return myImageScaleQuality;
 }
 
-void Graphics2::Graphics2::set_imageScaleQuality(Kore::Graphics2::ImageScaleQuality value) {
+void Graphics2::Graphics2::setImageScaleQuality(Kore::Graphics2::ImageScaleQuality value) {
 	imagePainter->setBilinearFilter(value == High);
 	textPainter->setBilinearFilter(value == High);
 	myImageScaleQuality = value;
 }
 
-Graphics2::ImageScaleQuality Graphics2::Graphics2::get_mipmapScaleQuality() const {
+Graphics2::ImageScaleQuality Graphics2::Graphics2::getMipmapScaleQuality() const {
 	return myMipmapScaleQuality;
 }
 
-void Graphics2::Graphics2::set_mipmapScaleQuality(Kore::Graphics2::ImageScaleQuality value) {
+void Graphics2::Graphics2::setMipmapScaleQuality(Kore::Graphics2::ImageScaleQuality value) {
 	imagePainter->setBilinearMipmapFilter(value == High);
 	// textPainter->setBilinearMipmapFilter(value == High); // TODO (DK) implement for fonts as well?
 	myMipmapScaleQuality = value;

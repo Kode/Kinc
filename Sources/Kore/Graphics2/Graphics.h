@@ -220,12 +220,7 @@ namespace Kore {
 			Graphics4::PipelineState* videoPipeline;
 
 			ImageScaleQuality myImageScaleQuality;
-			ImageScaleQuality get_imageScaleQuality() const;
-			void set_imageScaleQuality(ImageScaleQuality value);
-
 			ImageScaleQuality myMipmapScaleQuality;
-			ImageScaleQuality get_mipmapScaleQuality() const;
-			void set_mipmapScaleQuality(ImageScaleQuality value);
 
 			int upperPowerOfTwo(int v);
 			void setProjection();
@@ -273,6 +268,12 @@ namespace Kore {
 
 			float getOpacity() const;
 			void setOpacity(float opacity);
+
+			ImageScaleQuality getImageScaleQuality() const;
+			void setImageScaleQuality(ImageScaleQuality value);
+
+			ImageScaleQuality getMipmapScaleQuality() const;
+			void setMipmapScaleQuality(ImageScaleQuality value);
 
 			Kravur* getFont() const;
 			void setFont(Kravur* font);
