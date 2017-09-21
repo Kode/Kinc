@@ -595,17 +595,6 @@ bool Kore::System::handleMessages() {
 		}
 	}
 
-	{
-		JNIEnv* env = nullptr;
-		KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-		jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
-
-		jmethodID updateAll = env->GetStaticMethodID(koreMoviePlayerClass, "updateAll", "()V");
-		env->CallStaticVoidMethod(koreMoviePlayerClass, updateAll);
-
-		KoreAndroid::getActivity()->vm->DetachCurrentThread();
-	}
-
 	// Get screen rotation
 	/*
 	JNIEnv* env;
@@ -651,9 +640,17 @@ extern "C" void android_main(android_app* app) {
 	gyroSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_GYROSCOPE);
 	sensorEventQueue = ASensorManager_createEventQueue(sensorManager, app->looper, LOOPER_ID_USER, NULL, NULL);
 
+	JNIEnv* env = nullptr;
+	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	
+	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
+	jmethodID updateAll = env->GetStaticMethodID(koreMoviePlayerClass, "updateAll", "()V");
+
 	while (!started) {
 		Kore::System::handleMessages();
+		env->CallStaticVoidMethod(koreMoviePlayerClass, updateAll);
 	}
+	KoreAndroid::getActivity()->vm->DetachCurrentThread();
 	kore(0, nullptr);
 	exit(0);
 }
