@@ -137,7 +137,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferDesc.Height = System::windowHeight(windowId);
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
 		// swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = antialiasingSamples();
+		swapChainDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
 		swapChainDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
@@ -155,7 +155,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Height = 0;
 		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
 		swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = antialiasingSamples();
+		swapChainDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
 		swapChainDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
@@ -185,7 +185,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		scDesc.BufferDesc.RefreshRate.Denominator = 1;
 		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scDesc.OutputWindow = (HWND)System::windowHandle(windowId);;
-		scDesc.SampleDesc.Count = antialiasingSamples();
+		scDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
 		scDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 		scDesc.Windowed = true;
 		scDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
@@ -219,7 +219,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	// TODO (DK) map depth/stencilBufferBits arguments
 	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL, D3D11_USAGE_DEFAULT, 0U,
-		antialiasingSamples(), antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
+		antialiasingSamples() > 1 ? antialiasingSamples() : 1, antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
 
 	ID3D11Texture2D* depthStencil;
 	affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
