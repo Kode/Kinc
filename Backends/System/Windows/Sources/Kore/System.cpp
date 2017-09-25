@@ -455,9 +455,10 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
 						EmptyClipboard();
-						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, strlen(text) + 1);
+						int size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void* data = GlobalLock(handle);
-						memcpy(data, wtext, (wcslen(wtext) + 1) * sizeof(wchar_t));
+						memcpy(data, wtext, size);
 						GlobalUnlock(handle);
 						SetClipboardData(CF_UNICODETEXT, handle);
 						CloseClipboard();
@@ -471,9 +472,10 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
 						EmptyClipboard();
-						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, strlen(text) + 1);
+						int size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void* data = GlobalLock(handle);
-						memcpy(data, wtext, (wcslen(wtext) + 1) * sizeof(wchar_t));
+						memcpy(data, wtext, size);
 						GlobalUnlock(handle);
 						SetClipboardData(CF_UNICODETEXT, handle);
 						CloseClipboard();
@@ -488,7 +490,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 							wchar_t* wtext = (wchar_t*)GlobalLock(handle);
 							if (wtext != nullptr) {
 								char text[4096];
-								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, "?", nullptr);
+								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, nullptr, nullptr);
 								System::pasteCallback(text);
 								GlobalUnlock(handle);
 							}
