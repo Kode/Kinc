@@ -15,6 +15,8 @@
 #include <Kore/WinError.h>
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
+#include <d3d11_4.h>
+#include <dxgi1_5.h>
 #include <wrl.h>
 #endif
 #include <vector>
