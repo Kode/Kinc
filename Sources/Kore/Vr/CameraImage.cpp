@@ -23,9 +23,9 @@ vec2 CameraImage::getPixelForWorldPosition(vec3 worldPosition)
 static vec3 UnProjectVector(mat4 proj, vec3 to)
 {
 	vec3 from(0, 0, 0);
-	auto axsX = vec3(proj.get(0,0), proj.get(0, 1), proj.get(0, 2)); // proj.GetRow(0); TRANSPOSE ??
-	auto axsY = vec3(proj.get(1, 0), proj.get(1, 1), proj.get(1, 2)); // proj.GetRow(1); TRANSPOSE ??
-	auto axsZ = vec3(proj.get(2, 0), proj.get(2, 1), proj.get(2, 2)); // proj.GetRow(2); TRANSPOSE ??
+	vec3 axsX = vec3(proj.get(0,0), proj.get(0, 1), proj.get(0, 2)); // proj.GetRow(0); TRANSPOSE ??
+	vec3 axsY = vec3(proj.get(1, 0), proj.get(1, 1), proj.get(1, 2)); // proj.GetRow(1); TRANSPOSE ??
+	vec3 axsZ = vec3(proj.get(2, 0), proj.get(2, 1), proj.get(2, 2)); // proj.GetRow(2); TRANSPOSE ??
 
 	float z = to.z() / axsZ.z();
 	float y = (to.y() - (from.z() * axsY.z())) / axsY.y();
