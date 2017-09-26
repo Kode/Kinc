@@ -187,7 +187,7 @@ namespace Kore {
 
 			void setFont(Kravur* font);
 
-			void drawString(const char* text, int length, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs);
+			void drawString(const char* text, int start, int length, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs);
 
 			void end();
 		};
@@ -220,12 +220,7 @@ namespace Kore {
 			Graphics4::PipelineState* videoPipeline;
 
 			ImageScaleQuality myImageScaleQuality;
-			ImageScaleQuality get_imageScaleQuality() const;
-			void set_imageScaleQuality(ImageScaleQuality value);
-
 			ImageScaleQuality myMipmapScaleQuality;
-			ImageScaleQuality get_mipmapScaleQuality() const;
-			void set_mipmapScaleQuality(ImageScaleQuality value);
 
 			int upperPowerOfTwo(int v);
 			void setProjection();
@@ -248,8 +243,8 @@ namespace Kore {
 			void fillRect(float x, float y, float width, float height);
 
 			void drawString(const char* text, float x, float y);
-
 			void drawString(const char* text, int length, float x, float y);
+			void drawString(const char* text, int start, int length, float x, float y);
 
 			void drawLine(float x1, float y1, float x2, float y2, float strength = 1.0);
 
@@ -273,6 +268,12 @@ namespace Kore {
 
 			float getOpacity() const;
 			void setOpacity(float opacity);
+
+			ImageScaleQuality getImageScaleQuality() const;
+			void setImageScaleQuality(ImageScaleQuality value);
+
+			ImageScaleQuality getMipmapScaleQuality() const;
+			void setMipmapScaleQuality(ImageScaleQuality value);
 
 			Kravur* getFont() const;
 			void setFont(Kravur* font);

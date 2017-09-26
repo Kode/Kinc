@@ -5,6 +5,7 @@ phases:
     commands:
       - git submodule update --init --recursive
       - git clone https://github.com/Kode/nodejs_bin.git
+      - ~/Library/Android/sdk/tools/bin/sdkmanager --licenses
   build:
     commands:
       - echo Build started on `date`

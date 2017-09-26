@@ -738,14 +738,14 @@ int Graphics2::TextShaderPainter::findIndex(int charcode, int* fontGlyphs, int g
 	return -1;
 }
 
-void Graphics2::TextShaderPainter::drawString(const char* text, int length, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs) {
+void Graphics2::TextShaderPainter::drawString(const char* text, int start, int length, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs) {
 	Graphics4::Texture* tex = font->getTexture();
 	if (lastTexture != nullptr && tex != lastTexture) drawBuffer();
 	lastTexture = tex;
 
 	float xpos = x;
 	float ypos = y;
-	for (int i = 0; i < length; ++i) {
+	for (int i = start; i < start + length; ++i) {
 		AlignedQuad q = font->getBakedQuad(text[i] - 32, xpos, ypos);
 		if (q.x0 >= 0) {
 			if (bufferIndex + 1 >= bufferSize) drawBuffer();
@@ -972,14 +972,19 @@ void Graphics2::Graphics2::fillRect(float x, float y, float width, float height)
 }
 
 void Graphics2::Graphics2::drawString(const char* text, float x, float y) {
-	drawString(text, strlen(text), x, y);
+	drawString(text, 0, strlen(text), x, y);
 }
 
+
 void Graphics2::Graphics2::drawString(const char* text, int length, float x, float y) {
+	drawString(text, 0, length, x, y);
+}
+
+void Graphics2::Graphics2::drawString(const char* text, int start, int length, float x, float y) {
 	imagePainter->end();
 	coloredPainter->end();
 
-	textPainter->drawString(text, length, opacity, fontColor, x, y, transformation, fontGlyphs);
+	textPainter->drawString(text, start, length, opacity, fontColor, x, y, transformation, fontGlyphs);
 }
 
 void Graphics2::Graphics2::drawLine(float x1, float y1, float x2, float y2, float strength) {
@@ -1016,21 +1021,21 @@ void Graphics2::Graphics2::fillTriangle(float x1, float y1, float x2, float y2, 
 	coloredPainter->fillTriangle(opacity, color, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y());
 }
 
-Graphics2::ImageScaleQuality Graphics2::Graphics2::get_imageScaleQuality() const {
+Graphics2::ImageScaleQuality Graphics2::Graphics2::getImageScaleQuality() const {
 	return myImageScaleQuality;
 }
 
-void Graphics2::Graphics2::set_imageScaleQuality(Kore::Graphics2::ImageScaleQuality value) {
+void Graphics2::Graphics2::setImageScaleQuality(Kore::Graphics2::ImageScaleQuality value) {
 	imagePainter->setBilinearFilter(value == High);
 	textPainter->setBilinearFilter(value == High);
 	myImageScaleQuality = value;
 }
 
-Graphics2::ImageScaleQuality Graphics2::Graphics2::get_mipmapScaleQuality() const {
+Graphics2::ImageScaleQuality Graphics2::Graphics2::getMipmapScaleQuality() const {
 	return myMipmapScaleQuality;
 }
 
-void Graphics2::Graphics2::set_mipmapScaleQuality(Kore::Graphics2::ImageScaleQuality value) {
+void Graphics2::Graphics2::setMipmapScaleQuality(Kore::Graphics2::ImageScaleQuality value) {
 	imagePainter->setBilinearMipmapFilter(value == High);
 	// textPainter->setBilinearMipmapFilter(value == High); // TODO (DK) implement for fonts as well?
 	myMipmapScaleQuality = value;
