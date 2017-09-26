@@ -168,7 +168,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #if defined(KORE_WINDOWSAPP)
 #ifdef KORE_HOLOLENS
 		//The Windows::Graphics::Holographic::HolographicSpace owns its own swapchain so we don't need to create one here
-#elif
+#else
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
 		swapChainDesc.Width = 0; // use automatic sizing
 		swapChainDesc.Height = 0;
@@ -241,7 +241,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	affirm(devicePtr.As(&device4Ptr));
 	affirm(contextPtr.As(&context3Ptr));
 	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
-#elif
+#else
 	affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
 	affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
