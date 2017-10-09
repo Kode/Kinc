@@ -1,6 +1,6 @@
 [submodule "Tools/koremake"]
 	path = Tools/koremake
-	url = https://github.com/koenigvonamburu/koremake.git
+	url = https://github.com/Kode/koremake.git
 	branch = master
 [submodule "Tools/kraffiti"]
 	path = Tools/kraffiti

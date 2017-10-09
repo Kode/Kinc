@@ -48,7 +48,6 @@ namespace {
 		case Graphics4::Image::Grey8:
 			return 1;
 		case Graphics4::Image::BGRA32:
-			return 4;
 		case Graphics4::Image::RGBA32:
 		default:
 			return 4;
