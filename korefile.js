@@ -93,7 +93,7 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_DIRECT3D9');
 		project.addLib('d3d9');
 	}
-	
+
 	if (vr === VrApi.Oculus) {
 		project.addDefine('KORE_VR');
 		project.addDefine('KORE_OCULUS');
@@ -121,6 +121,12 @@ else if (platform === Platform.WindowsApp) {
 	addBackend('System/WindowsApp');
 	addBackend('Graphics4/Direct3D11');
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');
+	
+	if (vr === VrApi.Hololens) {
+		project.addDefine('KORE_VR');
+		project.addDefine('KORE_HOLOLENS');
+	}
+	
 }
 else if (platform === Platform.OSX) {
 	project.addDefine('KORE_MACOS');

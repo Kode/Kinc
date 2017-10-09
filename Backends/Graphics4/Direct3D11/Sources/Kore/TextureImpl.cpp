@@ -13,9 +13,8 @@ namespace {
 
 	DXGI_FORMAT convertFormat(Graphics4::Image::Format format) {
 		switch (format) {
-		case Graphics4::Image::RGBA32:
-		default:
-			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case Graphics4::Image::BGRA32:
+			return DXGI_FORMAT_B8G8R8A8_UNORM;
 		case Graphics4::Image::RGBA128:
 			return DXGI_FORMAT_R32G32B32A32_FLOAT;
 		case Graphics4::Image::RGBA64:
@@ -28,14 +27,14 @@ namespace {
 			return DXGI_FORMAT_R16_FLOAT;
 		case Graphics4::Image::Grey8:
 			return DXGI_FORMAT_R8_UNORM;
+		case Graphics4::Image::RGBA32:
+		default:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
 		}
 	}
 
 	int formatByteSize(Graphics4::Image::Format format) {
 		switch (format) {
-		case Graphics4::Image::RGBA32:
-		default:
-			return 4;
 		case Graphics4::Image::RGBA128:
 			return 16;
 		case Graphics4::Image::RGBA64:
@@ -48,6 +47,11 @@ namespace {
 			return 2;
 		case Graphics4::Image::Grey8:
 			return 1;
+		case Graphics4::Image::BGRA32:
+			return 4;
+		case Graphics4::Image::RGBA32:
+		default:
+			return 4;
 		}
 	}
 }
@@ -141,6 +145,15 @@ Graphics4::Texture::Texture(int width, int height, int depth, Image::Format form
 
 TextureImpl::~TextureImpl() {
 	unset();
+	if (view != nullptr) {
+		view->Release();
+	}
+	if (texture != nullptr) {
+		texture->Release();
+	}
+	if(computeView!=nullptr){
+		computeView->Release();
+	}
 }
 
 void TextureImpl::unmipmap() {
