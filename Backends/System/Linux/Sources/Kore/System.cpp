@@ -110,6 +110,16 @@ namespace {
 
 int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
                  int stencilBufferBits) {
+
+	int nameLength = strlen(Kore::System::name());
+	char strName[nameLength+1];
+	strcpy(strName, Kore::System::name());
+	char strClass[] = "_KoreApplication";
+	char strNameClass[nameLength+17];
+	strcpy(strNameClass, strName);
+	strncat(strNameClass, strClass, 16);
+	strNameClass[nameLength] = '\0';
+
 #ifdef KORE_OPENGL
 	int wcounter = windowimpl::windowCounter + 1;
 
@@ -178,6 +188,10 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
 	                           CWBorderPixel | CWColormap | CWEventMask, &swa);
 	XSetStandardProperties(dpy, win, title, "main", None, NULL, 0, NULL);
+
+	char* strNameClass_ptr = strNameClass;
+	Atom wmClassAtom = XInternAtom( dpy, "WM_CLASS", 0);
+	XChangeProperty(dpy, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)strNameClass_ptr, nameLength+17);
 
 	switch (windowMode) {
 	case Kore::WindowModeFullscreen: // fall through
@@ -268,6 +282,12 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 	xcb_create_window(connection, XCB_COPY_FROM_PARENT, window, screen->root, 0, 0, width, height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual,
 	                  value_mask, value_list);
+
+	// Needs to be tested
+	xcb_intern_atom_cookie_t atom_wm_class_cookie = xcb_intern_atom(connection, 1, 8, "WM_CLASS");
+	xcb_intern_atom_reply_t* atom_wm_class_reply = xcb_intern_atom_reply(connection, atom_wm_class_cookie, 0);
+	xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*atom_wm_class_reply).atom, 31, 8, nameLength+17, strNameClass);
+	free(atom_wm_class_reply);
 
 	// Magic code that will send notification when window is destroyed
 	xcb_intern_atom_cookie_t cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
