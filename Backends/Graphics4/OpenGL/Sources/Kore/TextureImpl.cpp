@@ -37,6 +37,14 @@ using namespace Kore;
 #define GL_RED GL_LUMINANCE
 #endif
 
+#ifndef GL_R8
+#define GL_R8 GL_RED
+#endif
+
+#ifndef GL_RGBA8
+#define GL_RGBA8 GL_RGBA
+#endif
+
 #ifndef GL_KHR_texture_compression_astc_ldr
 #define GL_KHR_texture_compression_astc_ldr 1
 
@@ -104,7 +112,7 @@ namespace {
 // #ifdef GL_BGRA
 			// return GL_BGRA;
 // #else
-			return GL_RGBA;
+			return GL_RGBA8;
 // #endif
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
@@ -113,7 +121,7 @@ namespace {
 		case Graphics4::Image::A16:
 			return GL_R16F_EXT;
 		case Graphics4::Image::Grey8:
-			return GL_RED;
+			return GL_R8;
 		}
 	}
 
@@ -444,7 +452,7 @@ Graphics4::Texture::Texture(int width, int height, int depth, Image::Format form
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCheckErrors();
 
-	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(format), width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(this->format), width, height, depth, 0, convertFormat(this->format), GL_UNSIGNED_BYTE, data);
 	glCheckErrors();
 #endif
 }
@@ -484,7 +492,7 @@ void Graphics4::Texture::_set(TextureUnit unit) {
 
 void Graphics4::Texture::_setImage(TextureUnit unit) {
 #if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_4))
-	glBindImageTexture(unit.unit, texture, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+	glBindImageTexture(unit.unit, texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, convertInternalFormat(this->format));
 	glCheckErrors();
 #endif
 }
