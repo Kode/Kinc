@@ -8,5 +8,7 @@ namespace Kore {
 		void begin();
 		void end();
 		void setPixel(int x, int y, float red, float green, float blue);
+		int width();
+		int height();
 	}
 }
