@@ -20,7 +20,7 @@ namespace {
 	Graphics4::IndexBuffer* ib;
 	Graphics4::Texture* texture;
 	int* image;
-	int width, height;
+	int w, h;
 }
 
 void Graphics1::begin() {
@@ -29,7 +29,7 @@ void Graphics1::begin() {
 }
 
 void Graphics1::setPixel(int x, int y, float red, float green, float blue) {
-	if (x < 0 || x >= width || y < 0 || y >= height) return;
+	if (x < 0 || x >= w || y < 0 || y >= h) return;
 	int r = (int)(red * 255);
 	int g = (int)(green * 255);
 	int b = (int)(blue * 255);
@@ -52,8 +52,8 @@ void Graphics1::end() {
 }
 
 void Graphics1::init(int width, int height) {
-	::width = width;
-	::height = height;
+	w = width;
+	h = height;
 	FileReader vs("g1.vert");
 	FileReader fs("g1.frag");
 	vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
@@ -102,4 +102,12 @@ void Graphics1::init(int width, int height) {
 		ii[i++] = 1; ii[i++] = 2; ii[i++] = 3;
 	}
 	ib->unlock();
+}
+
+int Graphics1::width() {
+	return w;
+}
+
+int Graphics1::height() {
+	return h;
 }
