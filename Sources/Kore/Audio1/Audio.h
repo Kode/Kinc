@@ -14,5 +14,6 @@ namespace Kore {
 		void stop(SoundStream* stream);
 		void play(VideoSoundStream* stream);
 		void stop(VideoSoundStream* stream);
+		void mix(int samples);
 	}
 }
