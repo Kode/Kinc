@@ -15,7 +15,7 @@ namespace Kore {
 	}
 
 	int BufferReader::read(void* data, int size) {
-		int bytesAvailable = size - position;
+		int bytesAvailable = bufferSize - position;
 		if (size > bytesAvailable) size = bytesAvailable;
 		memcpy(data, buffer + position, size);
 		position += size;
