@@ -87,6 +87,34 @@ namespace {
 			Kore::Keyboard::the()->_keydown(Kore::KeySpace);
 			break;
 		default:
+			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
+				char* text = Kore::System::cutCallback();
+				if (text != nullptr) {
+					NSPasteboard* board = [NSPasteboard generalPasteboard];
+					[board clearContents];
+					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
+				}
+				break;
+			}
+			if (ch == 'c' && [theEvent modifierFlags] & NSCommandKeyMask) {
+				char* text = Kore::System::copyCallback();
+				if (text != nullptr) {
+					NSPasteboard* board = [NSPasteboard generalPasteboard];
+					[board clearContents];
+					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
+				}
+				break;
+			}
+			if (ch == 'v' && [theEvent modifierFlags] & NSCommandKeyMask) {
+				NSPasteboard* board = [NSPasteboard generalPasteboard];
+				NSString* data = [board stringForType:NSStringPboardType];
+				if (data != nil) {
+					char charData[4096];
+					strcpy(charData, [data UTF8String]);
+					Kore::System::pasteCallback(charData);
+				}
+				break;
+			}
 			if (ch >= L'a' && ch <= L'z') {
 				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'a' + Kore::KeyA));
 			}

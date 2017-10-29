@@ -15,9 +15,18 @@
 #include <Kore/WinError.h>
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
+#include <d3d11_4.h>
+#include <dxgi1_5.h>
 #include <wrl.h>
 #endif
 #include <vector>
+
+#ifdef KORE_HOLOLENS 
+#include <memory>
+#include "DeviceResources.winrt.h"
+#include "Hololens.winrt.h"
+#include <windows.graphics.directx.direct3d11.interop.h>
+#endif
 
 ID3D11Device* device;
 ID3D11DeviceContext* context;
@@ -40,6 +49,10 @@ using namespace Kore;
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
+#ifdef KORE_HOLOLENS 
+using namespace Windows::Graphics::Holographic;
+using namespace Windows::Graphics::DirectX::Direct3D11;
+#endif
 #endif
 
 namespace Kore {
@@ -104,15 +117,18 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
 #ifdef KORE_WINDOWSAPP
-	    D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_1,
 #endif
-	    D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3, D3D_FEATURE_LEVEL_9_2, D3D_FEATURE_LEVEL_9_1};
+		D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3, D3D_FEATURE_LEVEL_9_2, D3D_FEATURE_LEVEL_9_1 };
 
-// ID3D11Device* device0;
-// ID3D11DeviceContext* context0;
 #ifdef KORE_WINDOWSAPP
-	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
-	                         &featureLevel, &context));
+	IDXGIAdapter3* adapter = nullptr;
+#ifdef KORE_HOLOLENS
+	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
+#endif
+	affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
+		&featureLevel, &context));
+
 #elif KORE_OCULUS
 	IDXGIFactory* dxgiFactory = nullptr;
 	affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));
@@ -129,7 +145,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	}
 	else {
 #ifdef KORE_WINDOWS
-		DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
+		DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
@@ -137,8 +153,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferDesc.Height = System::windowHeight(windowId);
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
 		// swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = 1; // don't use multi-sampling
-		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
+		swapChainDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -149,14 +165,17 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Windowed = true;
 #endif
 
-#ifdef KORE_WINDOWSAPP
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+#if defined(KORE_WINDOWSAPP)
+#ifdef KORE_HOLOLENS
+		//The Windows::Graphics::Holographic::HolographicSpace owns its own swapchain so we don't need to create one here
+#else
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
 		swapChainDesc.Width = 0; // use automatic sizing
 		swapChainDesc.Height = 0;
 		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
 		swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = 1; // don't use multi-sampling
-		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
+		swapChainDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 		swapChainDesc.Scaling = DXGI_SCALING_NONE;
@@ -173,11 +192,12 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
 
 		affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
-		                                                 &swapChain));
+			&swapChain));
 		affirm(dxgiDevice->SetMaximumFrameLatency(1));
+#endif
 
 #elif KORE_OCULUS
-		DXGI_SWAP_CHAIN_DESC scDesc = {0};
+		DXGI_SWAP_CHAIN_DESC scDesc = { 0 };
 		scDesc.BufferCount = 2;
 		scDesc.BufferDesc.Width = System::windowWidth(windowId);
 		scDesc.BufferDesc.Height = System::windowHeight(windowId);
@@ -185,7 +205,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		scDesc.BufferDesc.RefreshRate.Denominator = 1;
 		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scDesc.OutputWindow = (HWND)System::windowHandle(windowId);;
-		scDesc.SampleDesc.Count = 1;
+		scDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
+		scDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 		scDesc.Windowed = true;
 		scDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
 
@@ -203,10 +224,24 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
 		affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain,
-		                                     &device, nullptr, &context));
+			&device, nullptr, &context));
 #endif
 	}
 
+#ifdef KORE_HOLOLENS
+	//holographicFrameController manages the targets and views for hololens.
+	// the views have to be created/deleted on the CameraAdded/Removed events
+	// at this point we don't know if this event has alread occured so we cannot
+	// simply set the renderTargetWidth, renderTargetHeight, currentRenderTargetViews and currentDepthStencilView.
+	// to bind the targets for hololens one has to use the VrInterface::beginRender(eye) instead of the methods in this class.
+	ComPtr<ID3D11Device> devicePtr = device;
+	ComPtr<ID3D11DeviceContext> contextPtr = context;
+	Microsoft::WRL::ComPtr<ID3D11Device4>                   device4Ptr;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext3>            context3Ptr;
+	affirm(devicePtr.As(&device4Ptr));
+	affirm(contextPtr.As(&context3Ptr));
+	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
+#else
 	affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
 	affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
@@ -217,12 +252,13 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	renderTargetHeight = backBufferDesc.Height;
 
 	// TODO (DK) map depth/stencilBufferBits arguments
-	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL);
+	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL, D3D11_USAGE_DEFAULT, 0U,
+		antialiasingSamples() > 1 ? antialiasingSamples() : 1, antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
 
 	ID3D11Texture2D* depthStencil;
 	affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
+	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples() > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
 	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
@@ -230,7 +266,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
 	context->RSSetViewports(1, &viewPort);
-	
+#endif
+
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -349,7 +386,7 @@ namespace {
 
 void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	if (unit.unit < 0) return;
-	
+
 	switch (dir) {
 	case TexDir::U:
 		lastSamplers[unit.unit].AddressU = convertAddressing(addressing);
@@ -361,7 +398,7 @@ void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddres
 		lastSamplers[unit.unit].AddressW = convertAddressing(addressing);
 		break;
 	}
-	
+
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
 }
@@ -652,7 +689,7 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter fi
 	}
 
 	lastSamplers[unit.unit].Filter = d3d11filter;
-	
+
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
 }
