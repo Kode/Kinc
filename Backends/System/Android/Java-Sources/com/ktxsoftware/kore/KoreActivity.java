@@ -99,4 +99,20 @@ public class KoreActivity extends NativeActivity {
 		manager.getDefaultDisplay().getMetrics(metrics);
 		return (int)(metrics.density * android.util.DisplayMetrics.DENSITY_DEFAULT);
 	}
+	
+	public static int getDisplayWidth() {
+		Context context = getInstance().getApplicationContext();
+		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+		android.graphics.Point size = new android.graphics.Point();
+		manager.getDefaultDisplay().getRealSize(size);
+		return (int)(size.x);
+	}
+	
+	public static int getDisplayHeight() {
+		Context context = getInstance().getApplicationContext();
+		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+		android.graphics.Point size = new android.graphics.Point();
+		manager.getDefaultDisplay().getRealSize(size);
+		return (int)(size.y);
+	}
 }
