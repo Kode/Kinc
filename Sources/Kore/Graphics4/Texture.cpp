@@ -7,7 +7,7 @@
 
 using namespace Kore;
 
-//#ifndef KORE_G5
+#ifdef KORE_G5ONG4
 Graphics4::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
 	init(format, readable);
 }
@@ -31,4 +31,4 @@ Graphics4::Texture::Texture(void* data, int width, int height, int format, bool 
 Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable) : Image(data, width, height, depth, Image::Format(format), readable) {
 	init3D(readable);
 }
-//#endif
+#endif

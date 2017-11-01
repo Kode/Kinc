@@ -304,10 +304,12 @@ else {
 
 if (g5) {
 	project.addDefine('KORE_G5');
+	project.addDefine('KORE_G4ONG5');
 	addBackend('Graphics4/G4onG5');
 }
 else {
 	project.addDefine('KORE_G5');
+	project.addDefine('KORE_G5ONG4');
 	addBackend('Graphics5/G5onG4');
 }
 
