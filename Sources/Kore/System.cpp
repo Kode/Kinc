@@ -7,12 +7,10 @@
 #include <limits>
 #include <string.h>
 
-#ifndef KORE_HTML5
-#ifndef KORE_ANDROID
+#if !defined(KORE_HTML5) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS)
 double Kore::System::time() {
 	return timestamp() / frequency();
 }
-#endif
 #endif
 
 #if !defined(KORE_WINDOWS) && !defined(KORE_MACOS) && !defined(KORE_LINUX) && !defined(KORE_HTML5) && !defined(KORE_PI)
