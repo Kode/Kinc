@@ -10,18 +10,34 @@ using namespace Kore;
 
 Graphics4::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
 	_texture = new Graphics5::Texture(reader, format, readable);
+	width = _texture->width;
+	height = _texture->height;
+	texWidth = _texture->texWidth;
+	texHeight = _texture->texHeight;
 }
 
 Graphics4::Texture::Texture(const char* filename, bool readable) {
 	_texture = new Graphics5::Texture(filename, readable);
+	width = _texture->width;
+	height = _texture->height;
+	texWidth = _texture->texWidth;
+	texHeight = _texture->texHeight;
 }
 
 Graphics4::Texture::Texture(void* data, int size, const char* format, bool readable) {
 	_texture = new Graphics5::Texture(data, size, format, readable);
+	width = _texture->width;
+	height = _texture->height;
+	texWidth = _texture->texWidth;
+	texHeight = _texture->texHeight;
 }
 
 Graphics4::Texture::Texture(void* data, int width, int height, int format, bool readable) : Image(data, width, height, Image::Format(format), readable) {
 	_texture = new Graphics5::Texture(data, width, height, format, readable);
+	width = _texture->width;
+	height = _texture->height;
+	texWidth = _texture->texWidth;
+	texHeight = _texture->texHeight;
 }
 
 Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable) : Image(data, width, height, depth, Image::Format(format), readable) {
@@ -30,14 +46,28 @@ Graphics4::Texture::Texture(void* data, int width, int height, int depth, int fo
 
 void Graphics4::Texture::init(const char* format, bool readable) {
 	_texture->_init(format, readable);
+	width = _texture->width;
+	height = _texture->height;
+	texWidth = _texture->texWidth;
+	texHeight = _texture->texHeight;
 }
 
 void Graphics4::Texture::init3D(bool readable) {
 }
 
-Graphics4::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {}
+Graphics4::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {
+	width = _texture->width;
+	height = _texture->height;
+	texWidth = _texture->texWidth;
+	texHeight = _texture->texHeight;
+}
 
-Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {}
+Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {
+	width = _texture->width;
+	height = _texture->height;
+	texWidth = _texture->texWidth;
+	texHeight = _texture->texHeight;
+}
 
 TextureImpl::TextureImpl() : _texture(nullptr), _uploaded(false) {
 	// TODO
@@ -45,10 +75,18 @@ TextureImpl::TextureImpl() : _texture(nullptr), _uploaded(false) {
 
 TextureImpl::TextureImpl(int width, int height, Kore::Image::Format format, bool readable) : _uploaded(false) {
 	_texture = new Graphics5::Texture(width, height, format, readable);
+	width = _texture->width;
+	height = _texture->height;
+	//texWidth = _texture->texWidth;
+	//texHeight = _texture->texHeight;
 }
 
 TextureImpl::TextureImpl(int width, int height, int depth, Image::Format format, bool readable) : _uploaded(false) {
 	_texture = new Graphics5::Texture(width, height, depth, format, readable);
+	width = _texture->width;
+	height = _texture->height;
+	//texWidth = _texture->texWidth;
+	//texHeight = _texture->texHeight;
 }
 
 TextureImpl::~TextureImpl() {
