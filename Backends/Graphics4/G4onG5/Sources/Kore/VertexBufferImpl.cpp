@@ -10,26 +10,26 @@ namespace {
 	const int multiple = 100;
 }
 
-Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : _buffer(count * multiple, structure, false, instanceDataStepRate), currentIndex(0), myCount(count) {}
+Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : _buffer(count * multiple, structure, false, instanceDataStepRate), _currentIndex(0), myCount(count) {}
 
 Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, structure, instanceDataStepRate) {}
 
 Graphics4::VertexBuffer::~VertexBuffer() {}
 
 float* Graphics4::VertexBuffer::lock() {
-	return _buffer.lock(currentIndex * count(), count());
+	return _buffer.lock(_currentIndex * count(), count());
 }
 
 float* Graphics4::VertexBuffer::lock(int start, int count) {
-	return _buffer.lock(start + currentIndex * this->count(), count);
+	return _buffer.lock(start + _currentIndex * this->count(), count);
 }
 
 void Graphics4::VertexBuffer::unlock() {
 	_buffer.unlock();
 
-	++currentIndex;
-	if (currentIndex >= multiple) {
-		currentIndex = 0;
+	++_currentIndex;
+	if (_currentIndex >= multiple) {
+		_currentIndex = 0;
 	}
 }
 

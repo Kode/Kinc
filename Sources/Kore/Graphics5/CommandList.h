@@ -25,7 +25,7 @@ namespace Kore {
 			void scissor(int x, int y, int width, int height);
 			void disableScissor();
 			void setPipeline(PipelineState* pipeline);
-			void setVertexBuffers(VertexBuffer** buffers, int count);
+			void setVertexBuffers(VertexBuffer** buffers, int* offsets, int count);
 			void setIndexBuffer(IndexBuffer& buffer);
 			//void restoreRenderTarget();
 			void setRenderTargets(RenderTarget** targets, int count);

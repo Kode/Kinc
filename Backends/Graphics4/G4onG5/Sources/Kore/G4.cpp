@@ -213,10 +213,12 @@ void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
 
 void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
 	Graphics5::VertexBuffer* g5buffers[16];
+	int offsets[16];
 	for (int i = 0; i < count; ++i) {
 		g5buffers[i] = &buffers[i]->_buffer;
+		offsets[i] = (buffers[i]->_currentIndex - 1) * buffers[i]->count();
 	}
-	commandList->setVertexBuffers(g5buffers, count);
+	commandList->setVertexBuffers(g5buffers, offsets, count);
 }
 
 void Graphics4::setIndexBuffer(IndexBuffer& buffer) {
