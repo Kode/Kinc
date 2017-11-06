@@ -258,6 +258,27 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 }
 
 void Graphics4::setPipeline(PipelineState* pipeline) {
+	CullMode cullMode;
+
+	bool depthWrite;
+	ZCompareMode depthMode;
+
+	pipeline->_pipeline->stencilMode = (Graphics5::ZCompareMode)pipeline->stencilMode;
+	pipeline->_pipeline->stencilBothPass = (Graphics5::StencilAction)pipeline->stencilBothPass;
+	pipeline->_pipeline->stencilDepthFail = (Graphics5::StencilAction)pipeline->stencilDepthFail;
+	pipeline->_pipeline->stencilFail = (Graphics5::StencilAction)pipeline->stencilFail;
+	pipeline->_pipeline->stencilReferenceValue = pipeline->stencilReferenceValue;
+	pipeline->_pipeline->stencilReadMask = pipeline->stencilReadMask;
+	pipeline->_pipeline->stencilWriteMask = pipeline->stencilWriteMask;
+	pipeline->_pipeline->blendSource = (Graphics5::BlendingOperation)pipeline->blendSource;
+	pipeline->_pipeline->blendDestination = (Graphics5::BlendingOperation)pipeline->blendDestination;
+	pipeline->_pipeline->alphaBlendSource = (Graphics5::BlendingOperation)pipeline->alphaBlendSource;
+	pipeline->_pipeline->alphaBlendDestination = (Graphics5::BlendingOperation)pipeline->alphaBlendDestination;
+	pipeline->_pipeline->colorWriteMaskRed = pipeline->colorWriteMaskRed;
+	pipeline->_pipeline->colorWriteMaskGreen = pipeline->colorWriteMaskGreen;
+	pipeline->_pipeline->colorWriteMaskBlue = pipeline->colorWriteMaskBlue;
+	pipeline->_pipeline->colorWriteMaskAlpha = pipeline->colorWriteMaskAlpha;
+	pipeline->_pipeline->conservativeRasterization = pipeline->conservativeRasterization;
 	commandList->setPipeline(pipeline->_pipeline);
 }
 
