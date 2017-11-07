@@ -25,6 +25,10 @@ using namespace DirectX;
 
 using namespace Kore;
 
+namespace {
+	SensorState sensorStates[2];
+}
+
 //------------------------------------------------------------
 struct DepthBuffer {
 	ID3D11DepthStencilView* TexDsv;
@@ -328,58 +332,57 @@ void VrInterface::endRender(int eye) {
 	pEyeRenderTexture[eye]->Commit();
 }
 
-SensorState* VrInterface::getSensorState(int eye) {
-	SensorState* sensorState = new SensorState();
-	VrPoseState* poseState = new VrPoseState();
+SensorState VrInterface::getSensorState(int eye) {
+	VrPoseState poseState;
 
 	ovrQuatf orientation = EyePose[eye].Orientation;
-	poseState->vrPose->orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
+	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
 	ovrVector3f pos = EyePose[eye].Position;
-	poseState->vrPose->position = vec3(pos.x, pos.y, pos.z);
+	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
-	poseState->vrPose->left = fov.LeftTan;
-	poseState->vrPose->right = fov.RightTan;
-	poseState->vrPose->bottom = fov.DownTan;
-	poseState->vrPose->top = fov.UpTan;
+	poseState.vrPose.left = fov.LeftTan;
+	poseState.vrPose.right = fov.RightTan;
+	poseState.vrPose.bottom = fov.DownTan;
+	poseState.vrPose.top = fov.UpTan;
 
 	ovrVector3f angularVelocity = trackingState.HeadPose.AngularVelocity;
 	ovrVector3f linearVelocity = trackingState.HeadPose.LinearVelocity;
 	ovrVector3f angularAcceleration = trackingState.HeadPose.AngularAcceleration;
 	ovrVector3f linearAcceleration = trackingState.HeadPose.LinearAcceleration;
-	poseState->angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
-	poseState->linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
-	poseState->angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
-	poseState->linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
+	poseState.angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
+	poseState.linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
+	poseState.angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
+	poseState.linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
 
 	// Get predicted orientation and position
-	VrPoseState* predictedPoseState = new VrPoseState();
+	VrPoseState predictedPoseState;
 	ovrQuatf predOrientation = EyePredictedPose[eye].Orientation;
-	predictedPoseState->vrPose->orientation = Quaternion(predOrientation.x, predOrientation.y, predOrientation.z, predOrientation.w);
+	predictedPoseState.vrPose.orientation = Quaternion(predOrientation.x, predOrientation.y, predOrientation.z, predOrientation.w);
 
 	ovrVector3f predPos = EyePredictedPose[eye].Position;
-	predictedPoseState->vrPose->position = vec3(predPos.x, predPos.y, predPos.z);
+	predictedPoseState.vrPose.position = vec3(predPos.x, predPos.y, predPos.z);
 
-	sensorState->predictedPose = predictedPoseState;
-	sensorState->pose = poseState;
+	sensorStates[eye].predictedPose = predictedPoseState;
+	sensorStates[eye].pose = poseState;
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) sensorState->isVisible = true;
-	else sensorState->isVisible = false;
-	if (sessionStatus.HmdPresent) sensorState->hmdPresenting = true;
-	else sensorState->hmdPresenting = false;
-	if (sessionStatus.HmdMounted) sensorState->hmdMounted = true;
-	else sensorState->hmdMounted = false;
-	if (sessionStatus.DisplayLost) sensorState->displayLost = true;
-	else sensorState->displayLost = false;
-	if (sessionStatus.ShouldQuit) sensorState->shouldQuit = true;
-	else sensorState->shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) sensorState->shouldRecenter = true;
-	else sensorState->shouldRecenter = false;
+	if (sessionStatus.IsVisible) sensorStates[eye].isVisible = true;
+	else sensorStates[eye].isVisible = false;
+	if (sessionStatus.HmdPresent) sensorStates[eye].hmdPresenting = true;
+	else sensorStates[eye].hmdPresenting = false;
+	if (sessionStatus.HmdMounted) sensorStates[eye].hmdMounted = true;
+	else sensorStates[eye].hmdMounted = false;
+	if (sessionStatus.DisplayLost) sensorStates[eye].displayLost = true;
+	else sensorStates[eye].displayLost = false;
+	if (sessionStatus.ShouldQuit) sensorStates[eye].shouldQuit = true;
+	else sensorStates[eye].shouldQuit = false;
+	if (sessionStatus.ShouldRecenter) sensorStates[eye].shouldRecenter = true;
+	else sensorStates[eye].shouldRecenter = false;
 
-	return sensorState;
+	return sensorStates[eye];
 }
 
 /*VrPoseState VrInterface::getController(int index) {

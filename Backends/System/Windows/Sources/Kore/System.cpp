@@ -21,7 +21,7 @@
 #include <wbemidl.h>
 
 #ifdef KORE_OCULUS
-#include "Vr/VrInterface.h"
+#include "Kore/Vr/VrInterface.h"
 #endif
 
 #define WIN32_LEAN_AND_MEAN
@@ -981,7 +981,7 @@ int createWindow(const wchar_t* title, int x, int y, int width, int height, Wind
 	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
 	int dstx = 0;
 	int dsty = 0;
-	HWND hwnd = (HWND)VrInterface::init(inst, title, windowClassName);
+	HWND hwnd = (HWND)VrInterface::init(inst, nullptr, nullptr);// (inst, title, windowClassName);
 #else
 
 	if (windowCounter == 0) {
