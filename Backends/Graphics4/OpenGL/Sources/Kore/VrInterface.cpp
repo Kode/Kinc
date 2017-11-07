@@ -1,10 +1,11 @@
 #include "pch.h"
 
-#ifdef VR_RIFT
+#ifdef KORE_OCULUS
 
 #include <Kore/Vr/VrInterface.h>
 
-#include <Kore/Graphics/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
+#include <Kore/Graphics3/Graphics.h>
 #include <Kore/Log.h>
 
 #include "GL/CAPI_GLE.h"
@@ -13,12 +14,17 @@
 #include <assert.h>
 
 using namespace Kore;
+
+namespace {
+	SensorState sensorStates[2];
+}
+
 struct TextureBuffer {
 	ovrSession Session;
 	ovrTextureSwapChain TextureChain;
 	OVR::Sizei texSize;
 
-	RenderTarget* OVRRenderTarget;
+	Graphics4::RenderTarget* OVRRenderTarget;
 
 	TextureBuffer(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char * data, int sampleCount) :
 		Session(session), TextureChain(nullptr), texSize(size), OVRRenderTarget(nullptr) {
@@ -28,6 +34,7 @@ struct TextureBuffer {
 
 		if (displayableOnHmd) {
 			// This texture isn't necessarily going to be a rendertarget, but it usually is.
+
 			assert(session); // No HMD? A little odd.
 			assert(sampleCount == 1); // ovr_CreateSwapTextureSetD3D11 doesn't support MSAA.
 
@@ -52,7 +59,7 @@ struct TextureBuffer {
 					ovr_GetTextureSwapChainBufferGL(Session, TextureChain, i, &chainTexId);
 					glBindTexture(GL_TEXTURE_2D, chainTexId);
 
-					OVRRenderTarget = new RenderTarget(texSize.w, texSize.h, 1);
+					OVRRenderTarget = new Graphics4::RenderTarget(texSize.w, texSize.h, 1);
 				}
 			}
 		}
@@ -83,7 +90,7 @@ struct TextureBuffer {
 		ovr_GetTextureSwapChainCurrentIndex(Session, TextureChain, &curIndex);
 		ovr_GetTextureSwapChainBufferGL(Session, TextureChain, curIndex, &curTexId);
 
-		if (OVRRenderTarget) Graphics::setRenderTarget(OVRRenderTarget, 0, 0);
+		if (OVRRenderTarget) Graphics4::setRenderTarget(OVRRenderTarget);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, OVRRenderTarget->_depthTexture, 0);
 
@@ -258,7 +265,7 @@ struct OGL {
 		OVR::GLEContext::SetCurrentContext(&GLEContext);
 		GLEContext.Init();
 
-		Graphics::setRenderState(RenderState::DepthTest, true);
+		glEnable(GL_DEPTH_TEST);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
 
@@ -325,7 +332,7 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 		log(Warning, "Failed to initialize libOVR.");
 		return(0);
 	}
-
+	
 	if (!Platform.InitWindow((HINSTANCE)hinst, title, windowClassName)) {
 		log(Warning, "Failed to open window.");
 		return(0);
@@ -409,58 +416,57 @@ void VrInterface::endRender(int eye) {
 	eyeRenderTexture[eye]->Commit();
 }
 
-SensorState* VrInterface::getSensorState(int eye) {
-	SensorState* sensorState = new SensorState();
-	VrPoseState* poseState = new VrPoseState();
+SensorState VrInterface::getSensorState(int eye) {
+	VrPoseState poseState;
 
 	ovrQuatf orientation = EyePose[eye].Orientation;
-	poseState->vrPose->orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
+	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
 	ovrVector3f pos = EyePose[eye].Position;
-	poseState->vrPose->position = vec3(pos.x, pos.y, pos.z);
+	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
-	poseState->vrPose->left = fov.LeftTan;
-	poseState->vrPose->right = fov.RightTan;
-	poseState->vrPose->bottom = fov.DownTan;
-	poseState->vrPose->top = fov.UpTan;
+	poseState.vrPose.left = fov.LeftTan;
+	poseState.vrPose.right = fov.RightTan;
+	poseState.vrPose.bottom = fov.DownTan;
+	poseState.vrPose.top = fov.UpTan;
 
 	ovrVector3f angularVelocity = trackingState.HeadPose.AngularVelocity;
 	ovrVector3f linearVelocity = trackingState.HeadPose.LinearVelocity;
 	ovrVector3f angularAcceleration = trackingState.HeadPose.AngularAcceleration;
 	ovrVector3f linearAcceleration = trackingState.HeadPose.LinearAcceleration;
-	poseState->angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
-	poseState->linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
-	poseState->angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
-	poseState->linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
+	poseState.angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
+	poseState.linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
+	poseState.angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
+	poseState.linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
 
 	// Get predicted orientation and position
-	VrPoseState* predictedPoseState = new VrPoseState();
+	VrPoseState predictedPoseState;
 	ovrQuatf predOrientation = EyePredictedPose[eye].Orientation;
-	predictedPoseState->vrPose->orientation = Quaternion(predOrientation.x, predOrientation.y, predOrientation.z, predOrientation.w);
+	predictedPoseState.vrPose.orientation = Quaternion(predOrientation.x, predOrientation.y, predOrientation.z, predOrientation.w);
 
 	ovrVector3f predPos = EyePredictedPose[eye].Position;
-	predictedPoseState->vrPose->position = vec3(predPos.x, predPos.y, predPos.z);
+	predictedPoseState.vrPose.position = vec3(predPos.x, predPos.y, predPos.z);
 
-	sensorState->predictedPose = predictedPoseState;
-	sensorState->pose = poseState;
+	sensorStates[eye].predictedPose = predictedPoseState;
+	sensorStates[eye].pose = poseState;
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) sensorState->isVisible = true;
-	else sensorState->isVisible = false;
-	if (sessionStatus.HmdPresent) sensorState->hmdPresenting = true;
-	else sensorState->hmdPresenting = false;
-	if (sessionStatus.HmdMounted) sensorState->hmdMounted = true;
-	else sensorState->hmdMounted = false;
-	if (sessionStatus.DisplayLost) sensorState->displayLost = true;
-	else sensorState->displayLost = false;
-	if (sessionStatus.ShouldQuit) sensorState->shouldQuit = true;
-	else sensorState->shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) sensorState->shouldRecenter = true;
-	else sensorState->shouldRecenter = false;
+	if (sessionStatus.IsVisible) sensorStates[eye].isVisible = true;
+	else sensorStates[eye].isVisible = false;
+	if (sessionStatus.HmdPresent) sensorStates[eye].hmdPresenting = true;
+	else sensorStates[eye].hmdPresenting = false;
+	if (sessionStatus.HmdMounted) sensorStates[eye].hmdMounted = true;
+	else sensorStates[eye].hmdMounted = false;
+	if (sessionStatus.DisplayLost) sensorStates[eye].displayLost = true;
+	else sensorStates[eye].displayLost = false;
+	if (sessionStatus.ShouldQuit) sensorStates[eye].shouldQuit = true;
+	else sensorStates[eye].shouldQuit = false;
+	if (sessionStatus.ShouldRecenter) sensorStates[eye].shouldRecenter = true;
+	else sensorStates[eye].shouldRecenter = false;
 
-	return sensorState;
+	return sensorStates[eye];
 }
 
 void VrInterface::warpSwap() {
