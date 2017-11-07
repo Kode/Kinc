@@ -981,7 +981,13 @@ int createWindow(const wchar_t* title, int x, int y, int width, int height, Wind
 	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
 	int dstx = 0;
 	int dsty = 0;
-	HWND hwnd = (HWND)VrInterface::init(inst, nullptr, nullptr);// (inst, title, windowClassName);
+
+	char titleutf8[1024];
+	char classNameutf8[1024];
+	WideCharToMultiByte(CP_UTF8, 0, title, -1, titleutf8, 1024 - 1, nullptr, nullptr);
+	WideCharToMultiByte(CP_UTF8, 0, windowClassName, -1, classNameutf8, 1024 - 1, nullptr, nullptr);
+
+	HWND hwnd = (HWND)VrInterface::init(inst, titleutf8, classNameutf8);
 #else
 
 	if (windowCounter == 0) {
