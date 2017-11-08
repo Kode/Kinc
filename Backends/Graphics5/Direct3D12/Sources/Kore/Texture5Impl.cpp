@@ -166,11 +166,15 @@ void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int d
 
 int Graphics5::Texture::stride() {
 	int baseStride = format == Image::RGBA32 ? (width * 4) : width;
+#ifdef KORE_WINDOWS
 	for (int i = 0; ; ++i) {
 		if (D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * i >= baseStride) {
 			return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * i;
 		}
 	}
+#else
+	return baseStride;
+#endif
 }
 
 void Graphics5::Texture::generateMipmaps(int levels) {}

@@ -167,7 +167,7 @@ void CommandList::setPipeline(PipelineState* pipeline) {
 	_commandList->SetPipelineState(pipeline->pso);
 }
 
-void CommandList::setVertexBuffers(VertexBuffer** buffers, int count) {
+void CommandList::setVertexBuffers(VertexBuffer** buffers, int* offsets, int count) {
 	_commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&buffers[0]->view);
 }
 
