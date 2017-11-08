@@ -14,5 +14,6 @@ namespace Kore {
 	public:
 		Graphics5::VertexBuffer _buffer;
 		int _currentIndex;
+		const int _multiple;
 	};
 }

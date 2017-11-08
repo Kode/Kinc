@@ -216,7 +216,8 @@ void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
 	int offsets[16];
 	for (int i = 0; i < count; ++i) {
 		g5buffers[i] = &buffers[i]->_buffer;
-		offsets[i] = (buffers[i]->_currentIndex - 1) * buffers[i]->count();
+		int index = buffers[i]->_currentIndex == 0 ? buffers[i]->_multiple - 1 : buffers[i]->_currentIndex - 1;
+		offsets[i] = index * buffers[i]->count();
 	}
 	commandList->setVertexBuffers(g5buffers, offsets, count);
 }
