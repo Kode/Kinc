@@ -421,9 +421,9 @@ class InterceptCRTMalloc;
 //
 // We use these in our allocator functionality here.
 //
-typedef std::vector<void*, StdAllocatorSysMem<void*>> SysAllocatedPointerVector;
-typedef std::basic_string<char, std::char_traits<char>, StdAllocatorSysMem<char>> SysAllocatedString;
-typedef std::vector<SysAllocatedString, StdAllocatorSysMem<SysAllocatedString>> SysAllocatedStringVector;
+typedef std::vector<void*/*, StdAllocatorSysMem<void*>*/> SysAllocatedPointerVector;
+typedef std::basic_string<char, std::char_traits<char>/*, StdAllocatorSysMem<char>*/> SysAllocatedString;
+typedef std::vector<SysAllocatedString/*, StdAllocatorSysMem<SysAllocatedString>*/> SysAllocatedStringVector;
 
 
 //-----------------------------------------------------------------------------------
