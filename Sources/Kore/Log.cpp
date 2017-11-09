@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_XBOX_ONE)
 #include <Windows.h>
 #endif
 
@@ -25,7 +25,7 @@ void Kore::log(LogLevel level, const char* format, ...) {
 }
 
 void Kore::logArgs(LogLevel level, const char* format, va_list args) {
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_XBOX_ONE)
 	wchar_t formatw[4096];
 	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);
 
@@ -113,7 +113,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 #ifdef KORE_WINDOWS
 	DWORD written;
 	WriteConsole(GetStdHandle(level == Info ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, wcslen(buffer), &written, nullptr);
-#endif /
+#endif
 
 #else
 	vfprintf(level == Info ? stdout : stderr, format, args);
