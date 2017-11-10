@@ -109,11 +109,15 @@ namespace {
 			return GL_RGBA16F_EXT;
 		case Graphics4::Image::RGBA32:
 		default:
+#ifdef KORE_IOS
+				return GL_RGBA;
+#else
 // #ifdef GL_BGRA
 			// return GL_BGRA;
 // #else
 			return GL_RGBA8;
 // #endif
+#endif
 		case Graphics4::Image::RGB24:
 			return GL_RGB;
 		case Graphics4::Image::A32:
@@ -320,6 +324,9 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	glCheckErrors();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	if (toPow2) {
 		delete[] conversionBuffer;
