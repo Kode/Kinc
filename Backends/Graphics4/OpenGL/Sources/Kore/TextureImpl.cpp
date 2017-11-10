@@ -125,7 +125,11 @@ namespace {
 		case Graphics4::Image::A16:
 			return GL_R16F_EXT;
 		case Graphics4::Image::Grey8:
+#ifdef KORE_IOS
+			return GL_RED;
+#else
 			return GL_R8;
+#endif
 		}
 	}
 
