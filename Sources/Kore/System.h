@@ -63,6 +63,7 @@ namespace Kore {
 		                bool showWindow = true);
 		void setup();
 		void start();
+		bool frame();
 		void stop();
 		void _shutdown();
 		bool isFullscreen();

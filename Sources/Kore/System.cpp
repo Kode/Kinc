@@ -217,16 +217,19 @@ void Kore::System::stop() {
 	//}
 }
 
+bool Kore::System::frame() {
+	callback();
+	handleMessages();
+	return appstate::running;
+}
+
 void Kore::System::start() {
 	appstate::running = true;
 
-#if !defined(KORE_HTML5) && !defined(KORE_TIZEN)
+#if !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_XBOX_ONE)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
-	while (appstate::running) {
-		callback();
-		handleMessages();
-	}
+	while (frame()) { }
 	_shutdown();
 #endif
 }
