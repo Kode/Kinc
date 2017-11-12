@@ -33,7 +33,7 @@ const char* macgetresourcepath();
 #include <JNIHelper.h>
 #endif
 
-#ifdef KORE_WINDOWS
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 #define NOMINMAX
 #include <Windows.h>
 #endif
@@ -173,24 +173,9 @@ bool FileReader::open(const char* filename, FileType type) {
 #endif
 #ifdef KORE_WINDOWSAPP
 	Platform::String^ locationString = Windows::ApplicationModel::Package::Current->InstalledLocation->Path;
-	const wchar_t* location = locationString->Begin();
-	int i;
-	for (i = 0; location[i] != 0; ++i) {
-		filepath[i] = (char)location[i];
-	}
-	int len = (int)strlen(filename);
-	int index;
-	for (index = len; index > 0; --index) {
-		if (filename[index] == '/' || filename[index] == '\\') {
-			++index;
-			break;
-		}
-	}
-	filepath[i++] = '\\';
-	while (index < len) {
-		filepath[i++] = filename[index++];
-	}
-	filepath[i] = 0;
+	WideCharToMultiByte(CP_UTF8, 0, locationString->Begin(), -1, filepath, 1000, nullptr, nullptr);
+	strcat(filepath, "\\");
+	strcat(filepath, filename);
 #endif
 #ifdef KORE_LINUX
 	strcpy(filepath, filename);
