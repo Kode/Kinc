@@ -51,12 +51,7 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	uploadImage->Map(0, nullptr, reinterpret_cast<void**>(&pixel));
 	int pitch = stride();
 	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
-			pixel[y * pitch + x * 4 + 0] = this->data[y * width * 4 + x * 4 + 0];
-			pixel[y * pitch + x * 4 + 1] = this->data[y * width * 4 + x * 4 + 1];
-			pixel[y * pitch + x * 4 + 2] = this->data[y * width * 4 + x * 4 + 2];
-			pixel[y * pitch + x * 4 + 3] = this->data[y * width * 4 + x * 4 + 3];
-		}
+		memcpy(&pixel[y * pitch], &this->data[y * width * 4], width * 4);
 	}
 	uploadImage->Unmap(0, nullptr);
 
@@ -164,17 +159,21 @@ void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int d
 
 }
 
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+int d3d12_textureAlignment() {
+	return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+}
+#else
+int d3d12_textureAlignment();
+#endif
+
 int Graphics5::Texture::stride() {
 	int baseStride = format == Image::RGBA32 ? (width * 4) : width;
-#ifdef KORE_WINDOWS
 	for (int i = 0; ; ++i) {
-		if (D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * i >= baseStride) {
-			return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * i;
+		if (d3d12_textureAlignment() * i >= baseStride) {
+			return d3d12_textureAlignment() * i;
 		}
 	}
-#else
-	return baseStride;
-#endif
 }
 
 void Graphics5::Texture::generateMipmaps(int levels) {}
