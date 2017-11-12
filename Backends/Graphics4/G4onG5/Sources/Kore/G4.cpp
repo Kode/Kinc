@@ -16,7 +16,7 @@ using namespace Kore;
 Graphics5::CommandList* commandList;
 
 namespace {
-	const int bufferCount = 1;
+	const int bufferCount = 3;
 	int currentBuffer = 0;
 	Graphics5::RenderTarget* framebuffers[bufferCount];
 }
@@ -29,7 +29,7 @@ void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	Graphics5::init(window, depthBufferBits, stencilBufferBits, vsync);
 	commandList = new Graphics5::CommandList;
 	for (int i = 0; i < bufferCount; ++i) {
-		framebuffers[i] = new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits);
+		framebuffers[i] = new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits, false, Graphics5::Target32Bit, -1, -i - 1 /* hack in an index for backbuffer render targets */);
 	}
 }
 

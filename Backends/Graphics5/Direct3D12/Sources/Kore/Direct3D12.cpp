@@ -41,6 +41,7 @@ ID3D12RootSignature* rootSignature;
 //ID3D12GraphicsCommandList* commandList;
 ID3D12Resource* depthStencilTexture;
 ID3D12CommandQueue* commandQueue;
+IDXGISwapChain* swapChain;
 
 int renderTargetWidth;
 int renderTargetHeight;
@@ -78,7 +79,6 @@ namespace {
 	UINT64 fenceValues[QUEUE_SLOT_COUNT];
 	HANDLE frameFenceEvents[QUEUE_SLOT_COUNT];
 	ID3D12Fence* frameFences[QUEUE_SLOT_COUNT];
-	IDXGISwapChain* swapChain;
 	ID3D12Fence* uploadFence;
 	ID3D12GraphicsCommandList* initCommandList;
 	ID3D12CommandAllocator* initCommandAllocator;
@@ -110,22 +110,6 @@ namespace {
 			affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
 			WaitForSingleObject(waitEvent, INFINITE);
 		}
-	}
-
-	void createRenderTargetView(ID3D12Resource* renderTarget, ID3D12DescriptorHeap* renderTargetDescriptorHeap) {
-		const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
-
-		D3D12_RENDER_TARGET_VIEW_DESC viewDesc;
-#ifdef KORE_WINDOWS
-		viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-#else
-		viewDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
-#endif
-		viewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-		viewDesc.Texture2D.MipSlice = 0;
-		viewDesc.Texture2D.PlaneSlice = 0;
-
-		device->CreateRenderTargetView(renderTarget, &viewDesc, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
 	void setupSwapChain() {
@@ -380,8 +364,6 @@ void Graphics5::begin(RenderTarget* renderTarget, int window) {
 	began = true;
 
 	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
-	swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget->renderTarget));
-	createRenderTargetView(renderTarget->renderTarget, renderTarget->renderTargetDescriptorHeap);
 
 	const UINT64 fenceValue = currentFenceValue;
 	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
@@ -417,7 +399,7 @@ unsigned Graphics5::refreshRate() {
 }
 
 bool Graphics5::swapBuffers(int window) {
-	swapChain->Present(1, 0);
+	affirm(swapChain->Present(1, 0));
 	return true;
 }
 
