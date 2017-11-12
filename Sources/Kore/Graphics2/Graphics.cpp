@@ -866,13 +866,13 @@ void Graphics2::Graphics2::drawImage(Graphics4::Texture* img, float x, float y) 
 	float32x4 yy = load(yh, y, y, yh);
 
 	float32x4 _00 = loadAll(transformation.get(0, 0));
-	float32x4 _01 = loadAll(transformation.get(0, 1));
-	float32x4 _02 = loadAll(transformation.get(0, 2));
-	float32x4 _10 = loadAll(transformation.get(1, 0));
+	float32x4 _01 = loadAll(transformation.get(1, 0));
+	float32x4 _02 = loadAll(transformation.get(2, 0));
+	float32x4 _10 = loadAll(transformation.get(0, 1));
 	float32x4 _11 = loadAll(transformation.get(1, 1));
-	float32x4 _12 = loadAll(transformation.get(1, 2));
-	float32x4 _20 = loadAll(transformation.get(2, 0));
-	float32x4 _21 = loadAll(transformation.get(2, 1));
+	float32x4 _12 = loadAll(transformation.get(2, 1));
+	float32x4 _20 = loadAll(transformation.get(0, 2));
+	float32x4 _21 = loadAll(transformation.get(1, 2));
 	float32x4 _22 = loadAll(transformation.get(2, 2));
 
 	// matrix multiply
@@ -905,13 +905,13 @@ void Graphics2::Graphics2::drawImage(Graphics4::RenderTarget* img, float x, floa
 	float32x4 yy = load(yh, y, y, yh);
 
 	float32x4 _00 = loadAll(transformation.get(0, 0));
-	float32x4 _01 = loadAll(transformation.get(0, 1));
-	float32x4 _02 = loadAll(transformation.get(0, 2));
-	float32x4 _10 = loadAll(transformation.get(1, 0));
+	float32x4 _01 = loadAll(transformation.get(1, 0));
+	float32x4 _02 = loadAll(transformation.get(2, 0));
+	float32x4 _10 = loadAll(transformation.get(0, 1));
 	float32x4 _11 = loadAll(transformation.get(1, 1));
-	float32x4 _12 = loadAll(transformation.get(1, 2));
-	float32x4 _20 = loadAll(transformation.get(2, 0));
-	float32x4 _21 = loadAll(transformation.get(2, 1));
+	float32x4 _12 = loadAll(transformation.get(2, 1));
+	float32x4 _20 = loadAll(transformation.get(0, 2));
+	float32x4 _21 = loadAll(transformation.get(1, 2));
 	float32x4 _22 = loadAll(transformation.get(2, 2));
 
 	// matrix multiply
