@@ -10,7 +10,7 @@ using namespace Kore;
 
 VertexBuffer5Impl* VertexBuffer5Impl::_current = nullptr;
 
-VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), myStart(0) {}
+VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), lastStart(-1), lastCount(-1) {}
 
 Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
 	static_assert(sizeof(D3D12VertexBufferView) == sizeof(D3D12_VERTEX_BUFFER_VIEW), "Something is wrong with D3D12IVertexBufferView");
@@ -36,7 +36,7 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 		}
 	}
 
-	static const int uploadBufferSize = myStride * myCount;
+	int uploadBufferSize = myStride * myCount;
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
 	                                &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
@@ -61,7 +61,8 @@ float* Graphics5::VertexBuffer::lock() {
 }
 
 float* Graphics5::VertexBuffer::lock(int start, int count) {
-	myStart = start;
+	lastStart = start;
+	lastCount = count;
 	void* p;
 	D3D12_RANGE range;
 	range.Begin = start * myStride;
@@ -74,11 +75,11 @@ float* Graphics5::VertexBuffer::lock(int start, int count) {
 
 void Graphics5::VertexBuffer::unlock() {
 	D3D12_RANGE range;
-	range.Begin = myStart * myStride;
-	range.End = range.Begin + myCount * myStride;
+	range.Begin = lastStart * myStride;
+	range.End = range.Begin + lastCount * myStride;
 	uploadBuffer->Unmap(0, &range);
 
-	view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
+	//view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
 
 	// commandList->CopyBufferRegion(vertexBuffer, 0, uploadBuffer, 0, count() * stride());
 	// CD3DX12_RESOURCE_BARRIER barriers[1] = { CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST,

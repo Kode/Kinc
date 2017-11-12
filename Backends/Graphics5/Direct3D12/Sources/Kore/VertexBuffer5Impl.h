@@ -20,7 +20,8 @@ namespace Kore {
 
 		int myCount;
 		int myStride;
-		int myStart;
+		int lastStart;
+		int lastCount;
 		// float* vertices;
 		static VertexBuffer5Impl* _current;
 	};

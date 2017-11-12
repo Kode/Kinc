@@ -17,7 +17,7 @@ Graphics5::CommandList* commandList;
 
 namespace {
 	const int bufferCount = 3;
-	int currentBuffer = 0;
+	int currentBuffer = -1;
 	Graphics5::RenderTarget* framebuffers[bufferCount];
 }
 

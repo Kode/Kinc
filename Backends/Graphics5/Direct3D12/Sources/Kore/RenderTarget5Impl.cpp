@@ -7,6 +7,10 @@
 #include <Kore/Log.h>
 #include <Kore/WinError.h>
 
+#ifdef KORE_WINDOWS
+#include <dxgi1_4.h>
+#endif
+
 using namespace Kore;
 
 static const int textureCount = 16;
