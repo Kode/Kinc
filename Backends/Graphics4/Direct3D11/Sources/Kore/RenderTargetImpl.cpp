@@ -117,6 +117,9 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 
 	lastBoundUnit = -1;
 	lastBoundDepthUnit = -1;
+
+	FLOAT colors[4] = { 0, 0, 0, 0 };
+	context->ClearRenderTargetView(renderTargetView, colors);
 }
 
 Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
