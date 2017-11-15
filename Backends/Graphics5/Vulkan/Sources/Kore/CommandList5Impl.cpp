@@ -396,9 +396,9 @@ void CommandList::setPipeline(PipelineState* pipeline) {
 		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
-void CommandList::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
+void CommandList::setVertexBuffers(VertexBuffer** vertexBuffers, int* offsets_, int count) {
 	vertexBuffers[0]->_set();
-	VkDeviceSize offsets[1] = { vertexBuffers[0]->index * vertexBuffers[0]->count() * vertexBuffers[0]->stride() };
+	VkDeviceSize offsets[1] = { offsets[0] * vertexBuffers[0]->count() * vertexBuffers[0]->stride() };
 	vkCmdBindVertexBuffers(_buffer, 0, 1, &vertexBuffers[0]->vertices.buf, offsets);
 }
 

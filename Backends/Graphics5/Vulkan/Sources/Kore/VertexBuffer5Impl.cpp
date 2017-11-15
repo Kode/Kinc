@@ -19,14 +19,9 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 
 Graphics5::VertexBuffer* VertexBuffer5Impl::current = nullptr;
 
-namespace {
-	const int multiple = 100;
-}
-
 VertexBuffer5Impl::VertexBuffer5Impl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
 
 Graphics5::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(vertexCount, instanceDataStepRate) {
-	index = 0;
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
@@ -56,7 +51,7 @@ Graphics5::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& st
 	VkBufferCreateInfo buf_info = {};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
-	buf_info.size = vertexCount * myStride * multiple;
+	buf_info.size = vertexCount * myStride;
 	buf_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	buf_info.flags = 0;
 
@@ -96,17 +91,13 @@ Graphics5::VertexBuffer::~VertexBuffer() {
 }
 
 float* Graphics5::VertexBuffer::lock() {
-	++index;
-	if (index >= multiple) {
-		index = 0;
-	}
-	VkResult err = vkMapMemory(device, vertices.mem, index * myCount * myStride, myCount * myStride, 0, (void**)&data);
-	assert(!err);
-	return data;
+	return lock(0, myCount);
 }
 
-float* Graphics5::VertexBuffer::lock(int, int) {
-	return nullptr;
+float* Graphics5::VertexBuffer::lock(int start, int count) {
+	VkResult err = vkMapMemory(device, vertices.mem, start * myStride, count * myStride, 0, (void**)&data);
+	assert(!err);
+	return data;
 }
 
 void Graphics5::VertexBuffer::unlock() {

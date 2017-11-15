@@ -33,9 +33,7 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		uint bufferId;
-		//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
 		Graphics5::VertexStructure structure;
-		//#endif
 
 		VkMemoryAllocateInfo mem_alloc;
 
@@ -43,7 +41,6 @@ namespace Kore {
 		int setVertexAttributes(int offset);
 
 	public:
-		int index;
 		Vertices vertices;
 		static Graphics5::VertexBuffer* current;
 	};
