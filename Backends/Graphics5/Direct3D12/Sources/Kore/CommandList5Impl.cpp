@@ -169,6 +169,7 @@ void CommandList::setPipeline(PipelineState* pipeline) {
 
 void CommandList::setVertexBuffers(VertexBuffer** buffers, int* offsets, int count) {
 	buffers[0]->view.BufferLocation = buffers[0]->uploadBuffer->GetGPUVirtualAddress() + offsets[0] * buffers[0]->stride();
+	buffers[0]->view.SizeInBytes = (buffers[0]->count() - offsets[0]) * buffers[0]->stride();
 	_commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&buffers[0]->view);
 }
 
