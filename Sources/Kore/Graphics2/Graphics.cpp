@@ -779,7 +779,7 @@ Graphics2::TextShaderPainter::~TextShaderPainter() {
 //==========
 
 Graphics2::Graphics2::Graphics2(int width, int height, bool rTargets)
-    : screenWidth(width), screenHeight(height), renderTargets(rTargets), color(Color::White), fontColor(Color::Black), fontSize(14) {
+    : screenWidth(width), screenHeight(height), renderTargets(rTargets), color(Color::White), fontColor(Color::Black), fontSize(14), lastPipeline(nullptr) {
 	transformation = mat3::Identity();
 	opacity = 1.f;
 
@@ -1042,11 +1042,13 @@ void Graphics2::Graphics2::setMipmapScaleQuality(Kore::Graphics2::ImageScaleQual
 }
 
 void Graphics2::Graphics2::setPipeline(Graphics4::PipelineState* pipeline) {
-	flush();
-	imagePainter->set_pipeline(pipeline);
-	coloredPainter->set_pipeline(pipeline);
-	textPainter->set_pipeline(pipeline);
-	// if (pipeline != nullptr) g.setPipeline(pipeline);
+	if (pipeline != lastPipeline) {
+		flush();
+		imagePainter->set_pipeline(pipeline);
+		coloredPainter->set_pipeline(pipeline);
+		textPainter->set_pipeline(pipeline);
+		lastPipeline = pipeline;
+	}
 }
 
 void Graphics2::Graphics2::scissor(int x, int y, int width, int height) {

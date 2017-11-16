@@ -218,6 +218,7 @@ namespace Kore {
 			TextShaderPainter* textPainter;
 
 			Graphics4::PipelineState* videoPipeline;
+			Graphics4::PipelineState* lastPipeline;
 
 			ImageScaleQuality myImageScaleQuality;
 			ImageScaleQuality myMipmapScaleQuality;
