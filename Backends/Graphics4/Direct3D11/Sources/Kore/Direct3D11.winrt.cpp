@@ -408,7 +408,7 @@ void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddr
 }
 
 void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
-	const float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 1.0f };
+	const float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, 0.0f };
 	for (int i = 0; i < renderTargetCount; ++i) {
 		if (currentRenderTargetViews[i] != nullptr && flags & ClearColorFlag) {
 			context->ClearRenderTargetView(currentRenderTargetViews[i], clearColor);
