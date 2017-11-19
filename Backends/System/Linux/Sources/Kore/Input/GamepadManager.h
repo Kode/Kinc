@@ -4,7 +4,6 @@
 #ifndef GAMEPAD_MANAGER_H
 #define GAMEPAD_MANAGER_H
 
-#include <array>
 #include <linux/input.h>
 #include <vector>
 #include <string>
