@@ -9,7 +9,6 @@
 #include <fcntl.h>
 #include <libudev.h>
 #include <linux/joystick.h>
-#include <string>
 #include <unistd.h>
 #include <vector>
 

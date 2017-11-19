@@ -7,6 +7,7 @@
 #include <array>
 #include <linux/input.h>
 #include <vector>
+#include <string>
 
 namespace Kore {
 
