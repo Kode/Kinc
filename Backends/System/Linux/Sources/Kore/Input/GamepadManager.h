@@ -4,6 +4,8 @@
 #ifndef GAMEPAD_MANAGER_H
 #define GAMEPAD_MANAGER_H
 
+#include <Kore/pch.h>
+
 #include <linux/input.h>
 #include <vector>
 #include <string>
