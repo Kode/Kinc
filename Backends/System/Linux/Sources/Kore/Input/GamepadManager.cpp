@@ -265,6 +265,7 @@ namespace Kore {
 
 	void GamepadManager::initialize() {
 		// Fill vector with initial gamepads
+		gamePads = 12; // From Kore/Input/Gamepad.cpp
 		for (unsigned int i = 0; i < gamePads; i++) {
 			gamepadsVector.push_back(LinuxGamepad(i));
 		}

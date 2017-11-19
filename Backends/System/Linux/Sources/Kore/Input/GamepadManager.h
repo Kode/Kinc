@@ -20,7 +20,7 @@ namespace Kore {
 		void initialize();
 		bool isGamepadConnected(unsigned int index);
 		void terminate();
-		int gamePads = 12; // From Kore/Input/Gamepad.cpp
+		int gamePads;
 		std::vector<struct LinuxGamepad> gamepadsVector;
 	};
 
