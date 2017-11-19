@@ -309,11 +309,12 @@ Graphics4::PipelineState* Graphics2::ColoredShaderPainter::get_pipeline() const 
 void Graphics2::ColoredShaderPainter::set_pipeline(Graphics4::PipelineState* pipe) {
 	if (pipe == nullptr) {
 		projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
+		myPipeline = shaderPipeline;
 	}
 	else {
 		projectionLocation = pipe->getConstantLocation("projectionMatrix");
+		myPipeline = pipe;
 	}
-	myPipeline = pipe;
 }
 
 void Graphics2::ColoredShaderPainter::setProjection(mat4 projectionMatrix) {
@@ -347,6 +348,7 @@ void Graphics2::ColoredShaderPainter::initShaders() {
 	shaderPipeline->compile();
 
 	projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
+	myPipeline = shaderPipeline;
 }
 
 void Graphics2::ColoredShaderPainter::initBuffers() {
@@ -471,7 +473,7 @@ void Graphics2::ColoredShaderPainter::drawBuffer(bool trisDone) {
 
 	rectVertexBuffer->unlock();
 
-	Graphics4::setPipeline(shaderPipeline);
+	Graphics4::setPipeline(myPipeline);
 	Graphics4::setVertexBuffer(*rectVertexBuffer);
 	Graphics4::setIndexBuffer(*indexBuffer);
 
@@ -504,7 +506,7 @@ void Graphics2::ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
     #endif
 
-	Graphics4::setPipeline(shaderPipeline);
+	Graphics4::setPipeline(myPipeline);
 
 	Graphics4::drawIndexedVertices(0, triangleBufferIndex * 3);
 
