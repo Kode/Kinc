@@ -236,6 +236,7 @@ else if (platform === Platform.Linux) {
 	addBackend('System/Linux');
 	project.addLib('asound');
 	project.addLib('dl');
+	project.addLib('udev');
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
