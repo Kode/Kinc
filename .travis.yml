@@ -7,6 +7,7 @@ addons:
   apt:
     packages:
       - libasound2-dev
+      - libudev-dev
 language: cpp
 before_script:
   - git submodule update --init --recursive
