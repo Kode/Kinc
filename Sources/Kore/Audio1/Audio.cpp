@@ -15,26 +15,10 @@ using namespace Kore;
 namespace {
 	Mutex mutex;
 
-	struct Channel {
-		Sound* sound;
-		float position;
-		float pitch;
-	};
-
-	struct StreamChannel {
-		SoundStream* stream;
-		int position;
-	};
-
-	struct VideoChannel {
-		VideoSoundStream* stream;
-		int position;
-	};
-
 	const int channelCount = 16;
-	Channel channels[channelCount];
-	StreamChannel streams[channelCount];
-	VideoChannel videos[channelCount];
+	Audio1::Channel channels[channelCount];
+	Audio1::StreamChannel streams[channelCount];
+	Audio1::VideoChannel videos[channelCount];
 
 	float sampleLinear(s16* data, float position) {
 		int pos1 = (int)position;
@@ -99,7 +83,14 @@ void Audio1::mix(int samples) {
 				value = max(min(value, 1.0f), -1.0f);
 				if (!left) channels[i].position += channels[i].pitch / channels[i].sound->sampleRatePos;
 				// channels[i].position += 2;
-				if (channels[i].position >= channels[i].sound->size / 4) channels[i].sound = nullptr;
+				if (channels[i].position >= channels[i].sound->size / 4) {
+					if (channels[i].loop) {
+						channels[i].position = 0;
+					}
+					else {
+						channels[i].sound = nullptr;
+					}
+				}
 			}
 		}
 		for (int i = 0; i < channelCount; ++i) {
@@ -137,17 +128,21 @@ void Audio1::init() {
 	Audio2::audioCallback = mix;
 }
 
-void Audio1::play(Sound* sound, float pitch) {
+Audio1::Channel* Audio1::play(Sound* sound, bool loop, float pitch) {
+	Channel* channel = nullptr;
 	mutex.Lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == nullptr) {
 			channels[i].sound = sound;
 			channels[i].position = 0;
+			channels[i].loop = loop;
 			channels[i].pitch = pitch;
+			channel = &channels[i];
 			break;
 		}
 	}
 	mutex.Unlock();
+	return channel;
 }
 
 void Audio1::stop(Sound* sound) {
