@@ -871,6 +871,25 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
 	// TODO
+	D3D11_TEX2D_ARRAY_RTV subres;
+	subres.MipSlice = 0;
+	subres.FirstArraySlice = face;
+	subres.ArraySize = 1;
+
+	D3D11_RENDER_TARGET_VIEW_DESC viewDesc;
+	viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+	viewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+	viewDesc.Texture2DArray = subres;
+
+	currentDepthStencilView = texture->depthStencilView;
+
+	device->CreateRenderTargetView(texture->texture, &viewDesc, currentRenderTargetViews);
+	context->OMSetRenderTargets(1, currentRenderTargetViews, texture->depthStencilView);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(texture->width), static_cast<float>(texture->height));
+	context->RSSetViewports(1, &viewPort);
+
+	renderTargetWidth = texture->width;
+	renderTargetHeight = texture->height;
 }
 
 void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
