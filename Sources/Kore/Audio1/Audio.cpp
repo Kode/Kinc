@@ -77,9 +77,9 @@ void Audio1::mix(int samples) {
 			if (channels[i].sound != nullptr) {
 				// value += *(s16*)&channels[i].sound->data[(int)channels[i].position] / 32767.0f * channels[i].sound->volume();
 				if (left)
-					value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].sound->volume();
+					value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].volume * channels[i].sound->volume();
 				else
-					value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].sound->volume();
+					value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].volume * channels[i].sound->volume();
 				value = max(min(value, 1.0f), -1.0f);
 				if (!left) channels[i].position += channels[i].pitch / channels[i].sound->sampleRatePos;
 				// channels[i].position += 2;
@@ -137,6 +137,7 @@ Audio1::Channel* Audio1::play(Sound* sound, bool loop, float pitch) {
 			channels[i].position = 0;
 			channels[i].loop = loop;
 			channels[i].pitch = pitch;
+			channels[i].volume = 1.0f;
 			channel = &channels[i];
 			break;
 		}

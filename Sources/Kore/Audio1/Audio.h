@@ -11,6 +11,7 @@ namespace Kore {
 			Sound* sound;
 			float position;
 			bool loop;
+			float volume;
 			float pitch;
 		};
 
