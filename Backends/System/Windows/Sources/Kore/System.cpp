@@ -1260,8 +1260,8 @@ const char* Kore::System::systemId() {
 }
 
 namespace {
-	wchar_t savePathw[2048];
-	char savePath[2048];
+	wchar_t savePathw[2048] = { 0 };
+	char savePath[2048] = { 0 };
 	
 	void findSavePath() {
 		// CoInitialize(NULL);
@@ -1291,7 +1291,7 @@ namespace {
 }
 
 const char* Kore::System::savePath() {
-	if (::savePath == nullptr) findSavePath();
+	if (::savePath[0] == 0) findSavePath();
 	return ::savePath;
 }
 
