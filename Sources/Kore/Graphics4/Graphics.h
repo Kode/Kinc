@@ -114,6 +114,7 @@ namespace Kore {
 			void useDepthAsTexture(TextureUnit unit);
 			void setDepthStencilFrom(RenderTarget* source);
 			void getPixels(u8* data);
+			void generateMipmaps(int levels);
 		};
 		
 		void setBool(ConstantLocation location, bool value);
