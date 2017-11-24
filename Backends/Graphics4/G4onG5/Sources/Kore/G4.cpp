@@ -203,6 +203,7 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 	Graphics5::RenderTarget* renderTargets[16];
 	for (int i = 0; i < count; ++i) {
 		renderTargets[i] = &targets[i]->_renderTarget;
+		commandList->textureToRenderTargetBarrier(renderTargets[i]);
 	}
 	commandList->setRenderTargets(renderTargets, count);
 }

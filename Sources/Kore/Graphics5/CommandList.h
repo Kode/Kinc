@@ -19,6 +19,8 @@ namespace Kore {
 			void clear(RenderTarget* renderTarget, uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
 			void renderTargetToFramebufferBarrier(RenderTarget* renderTarget);
 			void framebufferToRenderTargetBarrier(RenderTarget* renderTarget);
+			void textureToRenderTargetBarrier(RenderTarget* renderTarget);
+			void renderTargetToTextureBarrier(RenderTarget* renderTarget);
 			void drawIndexedVertices();
 			void drawIndexedVertices(int start, int count);
 			void viewport(int x, int y, int width, int height);

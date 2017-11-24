@@ -4,8 +4,11 @@
 
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
+#include <Kore/Graphics5/CommandList.h>
 
 using namespace Kore;
+
+extern Graphics5::CommandList* commandList;
 
 Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
 	: RenderTargetImpl(width, height, depthBufferBits, antialiasing, (Graphics5::RenderTargetFormat)format, stencilBufferBits, contextId) {
@@ -28,6 +31,7 @@ RenderTargetImpl::RenderTargetImpl(int cubeMapSize, int depthBufferBits, bool an
 	: _renderTarget(cubeMapSize, depthBufferBits, antialiasing, format, stencilBufferBits, contextId) {}
 
 void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
+	commandList->textureToRenderTargetBarrier(&_renderTarget);
 	_renderTarget.useColorAsTexture(unit._unit);
 }
 

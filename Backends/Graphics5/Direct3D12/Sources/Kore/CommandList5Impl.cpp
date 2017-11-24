@@ -113,6 +113,30 @@ void CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {
 	_commandList->ResourceBarrier(1, &barrier);
 }
 
+void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {
+	D3D12_RESOURCE_BARRIER barrier;
+	barrier.Transition.pResource = renderTarget->renderTarget;
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	_commandList->ResourceBarrier(1, &barrier);
+}
+
+void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
+	D3D12_RESOURCE_BARRIER barrier;
+	barrier.Transition.pResource = renderTarget->renderTarget;
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	_commandList->ResourceBarrier(1, &barrier);
+}
+
 void CommandList::drawIndexedVertices() {
 	drawIndexedVertices(0, _indexCount);
 }
