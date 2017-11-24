@@ -186,7 +186,7 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer) {
 
 void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
-		&targets[0]->depthStencilDescriptorHeap != nullptr ? &targets[0]->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
+		targets[0]->depthStencilDescriptorHeap != nullptr ? &targets[0]->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
 	_commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&targets[0]->viewport);
 	_commandList->RSSetScissorRects(1, (D3D12_RECT*)&targets[0]->scissor);
 }

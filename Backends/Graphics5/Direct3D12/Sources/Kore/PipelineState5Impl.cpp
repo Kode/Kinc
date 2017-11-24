@@ -131,6 +131,32 @@ namespace {
 		while (ret < value) ret += 16;
 		return ret;
 	}
+
+	D3D12_BLEND convert(Graphics5::BlendingOperation op) {
+		switch (op) {
+		default:
+		case Graphics5::BlendOne:
+			return D3D12_BLEND_ONE;
+		case Graphics5::BlendZero:
+			return D3D12_BLEND_ZERO;
+		case Graphics5::SourceAlpha:
+			return D3D12_BLEND_SRC_ALPHA;
+		case Graphics5::DestinationAlpha:
+			return D3D12_BLEND_DEST_ALPHA;
+		case Graphics5::InverseSourceAlpha:
+			return D3D12_BLEND_INV_SRC_ALPHA;
+		case Graphics5::InverseDestinationAlpha:
+			return D3D12_BLEND_INV_DEST_ALPHA;
+		case Graphics5::SourceColor:
+			return D3D12_BLEND_SRC_COLOR;
+		case Graphics5::DestinationColor:
+			return D3D12_BLEND_DEST_COLOR;
+		case Graphics5::InverseSourceColor:
+			return D3D12_BLEND_INV_SRC_COLOR;
+		case Graphics5::InverseDestinationColor:
+			return D3D12_BLEND_INV_DEST_COLOR;
+		}
+	}
 }
 
 void Graphics5::PipelineState::compile() {
@@ -178,7 +204,7 @@ void Graphics5::PipelineState::compile() {
 
 	psoDesc.InputLayout.NumElements = inputLayout[0]->size;
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
-
+	
 	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
@@ -192,12 +218,12 @@ void Graphics5::PipelineState::compile() {
 	psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = true;
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
-	psoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	psoDesc.BlendState.RenderTarget[0].BlendEnable = blendSource != Graphics5::BlendOne || blendDestination != Graphics5::BlendZero || alphaBlendSource != Graphics5::BlendOne || alphaBlendDestination != Graphics5::BlendZero;
+	psoDesc.BlendState.RenderTarget[0].SrcBlend = convert(blendSource);
+	psoDesc.BlendState.RenderTarget[0].DestBlend = convert(blendDestination);
 	psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+	psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = convert(alphaBlendSource);
+	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = convert(alphaBlendDestination);
 	psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
