@@ -114,7 +114,7 @@ void CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {
 }
 
 void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {
-	D3D12_RESOURCE_BARRIER barrier;
+	/*D3D12_RESOURCE_BARRIER barrier;
 	barrier.Transition.pResource = renderTarget->renderTarget;
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -122,11 +122,11 @@ void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	_commandList->ResourceBarrier(1, &barrier);
+	_commandList->ResourceBarrier(1, &barrier);*/
 }
 
 void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
-	D3D12_RESOURCE_BARRIER barrier;
+	/*D3D12_RESOURCE_BARRIER barrier;
 	barrier.Transition.pResource = renderTarget->renderTarget;
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -134,7 +134,7 @@ void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	_commandList->ResourceBarrier(1, &barrier);
+	_commandList->ResourceBarrier(1, &barrier);*/
 }
 
 void CommandList::drawIndexedVertices() {
@@ -201,12 +201,6 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer) {
 	_indexCount = buffer.count();
 	_commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&buffer.indexBufferView);
 }
-
-//void CommandList::restoreRenderTarget() {
-	//_commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, &depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-	//_commandList->RSSetViewports(1, &::viewport);
-	//_commandList->RSSetScissorRects(1, &rectScissor);
-//}
 
 void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
