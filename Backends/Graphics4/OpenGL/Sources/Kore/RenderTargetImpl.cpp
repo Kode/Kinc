@@ -382,3 +382,10 @@ void Graphics4::RenderTarget::getPixels(u8* data) {
 		glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 }
+
+void Graphics4::RenderTarget::generateMipmaps(int levels) {
+	glBindTexture(GL_TEXTURE_2D, _texture);
+	glCheckErrors();
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glCheckErrors();
+}

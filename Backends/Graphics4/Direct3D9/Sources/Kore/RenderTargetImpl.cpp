@@ -95,3 +95,5 @@ void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 }
 
 void Graphics4::RenderTarget::getPixels(u8* data) {}
+
+void Graphics4::RenderTarget::generateMipmaps(int levels) {}
