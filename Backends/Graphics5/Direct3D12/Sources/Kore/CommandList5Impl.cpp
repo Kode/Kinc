@@ -70,12 +70,14 @@ namespace {
 		commandQueue->Signal(renderFence, ++renderFenceValue);
 
 		waitForFence(renderFence, renderFenceValue, renderFenceEvent);
-
+		commandAllocator->Reset();
 		commandList->Reset(commandAllocator, nullptr);
 		commandList->OMSetRenderTargets(1, &renderTarget->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
 		commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&renderTarget->viewport);
 		commandList->RSSetScissorRects(1, (D3D12_RECT*)&renderTarget->scissor);
 	}
+
+	RenderTarget* currentRenderTarget = nullptr;
 }
 
 CommandList::CommandList() {
@@ -150,27 +152,33 @@ void CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {
 }
 
 void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {
-	/*D3D12_RESOURCE_BARRIER barrier;
-	barrier.Transition.pResource = renderTarget->renderTarget;
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	if (renderTarget->resourceState != RenderTargetResourceStateRenderTarget) {
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = renderTarget->renderTarget;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	_commandList->ResourceBarrier(1, &barrier);*/
+		_commandList->ResourceBarrier(1, &barrier);
+		renderTarget->resourceState = RenderTargetResourceStateRenderTarget;
+	}
 }
 
 void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
-	/*D3D12_RESOURCE_BARRIER barrier;
-	barrier.Transition.pResource = renderTarget->renderTarget;
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	if (renderTarget->resourceState != RenderTargetResourceStateTexture) {
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = renderTarget->renderTarget;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	_commandList->ResourceBarrier(1, &barrier);*/
+		_commandList->ResourceBarrier(1, &barrier);
+		renderTarget->resourceState = RenderTargetResourceStateTexture;
+	}
 }
 
 void CommandList::drawIndexedVertices() {
@@ -196,6 +204,10 @@ void CommandList::drawIndexedVertices(int start, int count) {
 	if (++currentInstance >= 128) currentInstance = 0;
 
 	_commandList->DrawIndexedInstanced(count, 1, start, 0, 0);
+
+	if (currentRenderTarget != nullptr) {
+		graphicsFlushAndWait(_commandList, _commandAllocator, currentRenderTarget);
+	}
 }
 
 void CommandList::viewport(int x, int y, int width, int height) {
@@ -239,6 +251,7 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer) {
 }
 
 void CommandList::setRenderTargets(RenderTarget** targets, int count) {
+	currentRenderTarget = targets[0];
 	graphicsFlushAndWait(_commandList, _commandAllocator, targets[0]);
 	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
 		targets[0]->depthStencilDescriptorHeap != nullptr ? &targets[0]->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);

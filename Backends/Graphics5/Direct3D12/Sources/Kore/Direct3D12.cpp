@@ -207,7 +207,7 @@ namespace {
 
 		CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
-			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
 		}
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;

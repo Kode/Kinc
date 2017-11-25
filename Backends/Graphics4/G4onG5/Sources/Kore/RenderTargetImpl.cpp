@@ -31,7 +31,7 @@ RenderTargetImpl::RenderTargetImpl(int cubeMapSize, int depthBufferBits, bool an
 	: _renderTarget(cubeMapSize, depthBufferBits, antialiasing, format, stencilBufferBits, contextId) {}
 
 void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
-	commandList->textureToRenderTargetBarrier(&_renderTarget);
+	commandList->renderTargetToTextureBarrier(&_renderTarget);
 	_renderTarget.useColorAsTexture(unit._unit);
 }
 
