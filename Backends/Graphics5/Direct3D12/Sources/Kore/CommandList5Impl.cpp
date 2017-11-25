@@ -11,7 +11,6 @@ using namespace Kore::Graphics5;
 extern ID3D12CommandQueue* commandQueue;
 
 namespace {
-
 	int currentInstance = 0;
 
 	ID3D12Resource* vertexConstantBuffers[QUEUE_SLOT_COUNT * 128];
@@ -41,9 +40,46 @@ namespace {
 			fragmentConstantBuffers[i]->Unmap(0, nullptr);
 		}
 	}
+
+	UINT64 renderFenceValue = 0;
+	ID3D12Fence* renderFence;
+	HANDLE renderFenceEvent;
+
+	void init() {
+		static bool initialized = false;
+		if (!initialized) {
+			initialized = true;
+			renderFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&renderFence));
+		}
+	}
+
+	void waitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
+		if (fence->GetCompletedValue() < completionValue) {
+			fence->SetEventOnCompletion(completionValue, waitEvent);
+			WaitForSingleObject(waitEvent, INFINITE);
+		}
+	}
+
+	void graphicsFlushAndWait(ID3D12GraphicsCommandList* commandList, ID3D12CommandAllocator* commandAllocator, RenderTarget* renderTarget) {
+		commandList->Close();
+
+		ID3D12CommandList* commandLists[] = { commandList };
+		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+
+		commandQueue->Signal(renderFence, ++renderFenceValue);
+
+		waitForFence(renderFence, renderFenceValue, renderFenceEvent);
+
+		commandList->Reset(commandAllocator, nullptr);
+		commandList->OMSetRenderTargets(1, &renderTarget->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+		commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&renderTarget->viewport);
+		commandList->RSSetScissorRects(1, (D3D12_RECT*)&renderTarget->scissor);
+	}
 }
 
 CommandList::CommandList() {
+	::init();
 	closed = false;
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&_commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator, nullptr, IID_GRAPHICS_PPV_ARGS(&_commandList));
@@ -203,6 +239,7 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer) {
 }
 
 void CommandList::setRenderTargets(RenderTarget** targets, int count) {
+	graphicsFlushAndWait(_commandList, _commandAllocator, targets[0]);
 	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
 		targets[0]->depthStencilDescriptorHeap != nullptr ? &targets[0]->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
 	_commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&targets[0]->viewport);
