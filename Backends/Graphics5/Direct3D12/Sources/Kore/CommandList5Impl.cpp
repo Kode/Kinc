@@ -11,34 +11,32 @@ using namespace Kore::Graphics5;
 extern ID3D12CommandQueue* commandQueue;
 
 namespace {
-	int currentInstance = 0;
-
-	ID3D12Resource* vertexConstantBuffers[QUEUE_SLOT_COUNT * 128];
-	ID3D12Resource* fragmentConstantBuffers[QUEUE_SLOT_COUNT * 128];
+	const int constantBufferMultiply = 1024;
+	int currentConstantBuffer = 0;
+	ID3D12Resource* vertexConstantBuffer;
+	ID3D12Resource* fragmentConstantBuffer;
 	bool created = false;
 
 	void createConstantBuffer() {
 		if (created) return;
 		created = true;
 
-		for (int i = 0; i < QUEUE_SLOT_COUNT * 128; ++i) {
-			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants)),
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&vertexConstantBuffers[i]));
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) * constantBufferMultiply),
+			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&vertexConstantBuffer));
 
-			void* p;
-			vertexConstantBuffers[i]->Map(0, nullptr, &p);
-			ZeroMemory(p, sizeof(vertexConstants));
-			vertexConstantBuffers[i]->Unmap(0, nullptr);
+		void* p;
+		vertexConstantBuffer->Map(0, nullptr, &p);
+		ZeroMemory(p, sizeof(vertexConstants) * constantBufferMultiply);
+		vertexConstantBuffer->Unmap(0, nullptr);
 
-			device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(sizeof(fragmentConstants)),
-				D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&fragmentConstantBuffers[i]));
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(sizeof(fragmentConstants) * constantBufferMultiply),
+			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&fragmentConstantBuffer));
 
-			fragmentConstantBuffers[i]->Map(0, nullptr, &p);
-			ZeroMemory(p, sizeof(fragmentConstants));
-			fragmentConstantBuffers[i]->Unmap(0, nullptr);
-		}
+		fragmentConstantBuffer->Map(0, nullptr, &p);
+		ZeroMemory(p, sizeof(fragmentConstants) * constantBufferMultiply);
+		fragmentConstantBuffer->Unmap(0, nullptr);
 	}
 
 	UINT64 renderFenceValue = 0;
@@ -191,17 +189,26 @@ void CommandList::drawIndexedVertices(int start, int count) {
 	_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	u8* data;
-	vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
-	memcpy(data, vertexConstants, sizeof(vertexConstants));
-	vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
+	D3D12_RANGE range;
+	range.Begin = currentConstantBuffer * sizeof(vertexConstants);
+	range.End = range.Begin + sizeof(vertexConstants);
+	vertexConstantBuffer->Map(0, &range, (void**)&data);
+	memcpy(data + currentConstantBuffer * sizeof(vertexConstants), vertexConstants, sizeof(vertexConstants));
+	vertexConstantBuffer->Unmap(0, &range);
 
-	fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
-	memcpy(data, fragmentConstants, sizeof(fragmentConstants));
-	fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
+	range.Begin = currentConstantBuffer * sizeof(fragmentConstants);
+	range.End = range.Begin + sizeof(fragmentConstants);
+	fragmentConstantBuffer->Map(0, &range, (void**)&data);
+	memcpy(data + currentConstantBuffer * sizeof(fragmentConstants), fragmentConstants, sizeof(fragmentConstants));
+	fragmentConstantBuffer->Unmap(0, &range);
 
-	_commandList->SetGraphicsRootConstantBufferView(1, vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
-	_commandList->SetGraphicsRootConstantBufferView(2, fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
-	if (++currentInstance >= 128) currentInstance = 0;
+	_commandList->SetGraphicsRootConstantBufferView(1, vertexConstantBuffer->GetGPUVirtualAddress() + currentConstantBuffer * sizeof(vertexConstants));
+	_commandList->SetGraphicsRootConstantBufferView(2, fragmentConstantBuffer->GetGPUVirtualAddress() + currentConstantBuffer * sizeof(fragmentConstants));
+	
+	++currentConstantBuffer;
+	if (currentConstantBuffer >= constantBufferMultiply) {
+		currentConstantBuffer = 0;
+	}
 
 	_commandList->DrawIndexedInstanced(count, 1, start, 0, 0);
 
