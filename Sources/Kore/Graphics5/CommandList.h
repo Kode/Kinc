@@ -4,6 +4,7 @@
 
 namespace Kore {
 	namespace Graphics5 {
+		class ConstantBuffer;
 		class IndexBuffer;
 		class PipelineState;
 		class RenderTarget;
@@ -34,6 +35,11 @@ namespace Kore {
 			void upload(IndexBuffer* buffer);
 			void upload(VertexBuffer* buffer);
 			void upload(Texture* texture);
+			void setVertexConstantBuffer(ConstantBuffer* buffer, int offset);
+			void setFragmentConstantBuffer(ConstantBuffer* buffer, int offset);
+			void setPipelineLayout();
+			void execute();
+			void executeAndWait();
 		};
 	}
 }

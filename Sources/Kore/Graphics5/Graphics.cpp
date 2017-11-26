@@ -36,18 +36,6 @@ void Graphics5::setWindow(bool value) {
 
 bool Graphics5::fullscreen = false;
 
-void Graphics5::setFloat2(ConstantLocation position, vec2 value) {
-	setFloat2(position, value.x(), value.y());
-}
-
-void Graphics5::setFloat3(ConstantLocation position, vec3 value) {
-	setFloat3(position, value.x(), value.y(), value.z());
-}
-
-void Graphics5::setFloat4(ConstantLocation position, vec4 value) {
-	setFloat4(position, value.x(), value.y(), value.z(), value.w());
-}
-
 //void Graphics5::setVertexBuffer(VertexBuffer& vertexBuffer) {
 //	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
 //	setVertexBuffers(vertexBuffers, 1);

@@ -2,6 +2,7 @@
 
 #include <Kore/Graphics5/CommandList.h>
 #include <Kore/Graphics5/PipelineState.h>
+#include <Kore/Graphics5/ConstantBuffer.h>
 
 #include "Direct3D12.h"
 
@@ -11,7 +12,7 @@ using namespace Kore::Graphics5;
 extern ID3D12CommandQueue* commandQueue;
 
 namespace {
-	const int constantBufferMultiply = 1024;
+	/*const int constantBufferMultiply = 1024;
 	int currentConstantBuffer = 0;
 	ID3D12Resource* vertexConstantBuffer;
 	ID3D12Resource* fragmentConstantBuffer;
@@ -37,7 +38,7 @@ namespace {
 		fragmentConstantBuffer->Map(0, nullptr, &p);
 		ZeroMemory(p, sizeof(fragmentConstants) * constantBufferMultiply);
 		fragmentConstantBuffer->Unmap(0, nullptr);
-	}
+	}*/
 
 	UINT64 renderFenceValue = 0;
 	ID3D12Fence* renderFence;
@@ -84,7 +85,7 @@ CommandList::CommandList() {
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&_commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator, nullptr, IID_GRAPHICS_PPV_ARGS(&_commandList));
 	//_commandList->Close();
-	createConstantBuffer();
+	//createConstantBuffer();
 	_indexCount = 0;
 }
 
@@ -179,16 +180,26 @@ void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
 	}
 }
 
+void CommandList::setPipelineLayout() {
+	PipelineState5Impl::setConstants(_commandList, _currentPipeline);
+}
+
+void CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {
+	_commandList->SetGraphicsRootConstantBufferView(1, buffer->_buffer->GetGPUVirtualAddress() + offset);
+}
+
+void CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {
+	_commandList->SetGraphicsRootConstantBufferView(2, buffer->_buffer->GetGPUVirtualAddress() + offset);
+}
+
 void CommandList::drawIndexedVertices() {
 	drawIndexedVertices(0, _indexCount);
 }
 
 void CommandList::drawIndexedVertices(int start, int count) {
-	PipelineState5Impl::setConstants(_commandList, _currentPipeline);
-
 	_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
-	u8* data;
+	/*u8* data;
 	D3D12_RANGE range;
 	range.Begin = currentConstantBuffer * sizeof(vertexConstants);
 	range.End = range.Begin + sizeof(vertexConstants);
@@ -208,13 +219,13 @@ void CommandList::drawIndexedVertices(int start, int count) {
 	++currentConstantBuffer;
 	if (currentConstantBuffer >= constantBufferMultiply) {
 		currentConstantBuffer = 0;
-	}
+	}*/
 
 	_commandList->DrawIndexedInstanced(count, 1, start, 0, 0);
+}
 
-	if (currentRenderTarget != nullptr) {
-		graphicsFlushAndWait(_commandList, _commandAllocator, currentRenderTarget);
-	}
+void CommandList::executeAndWait() {
+	graphicsFlushAndWait(_commandList, _commandAllocator, currentRenderTarget);
 }
 
 void CommandList::viewport(int x, int y, int width, int height) {

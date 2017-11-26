@@ -7,7 +7,7 @@
 using namespace Kore;
 
 namespace {
-	const int multiple = 100;
+	const int multiple = 5000;
 }
 
 Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : _multiple(multiple), _buffer(count * multiple, structure, false, instanceDataStepRate), _currentIndex(0), myCount(count) {}
