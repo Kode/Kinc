@@ -16,6 +16,9 @@ using namespace Kore;
 
 Graphics5::CommandList* commandList;
 
+u64 frameNumber = 0;
+bool waitAfterNextDraw = false;
+
 namespace {
 	const int bufferCount = 3;
 	int currentBuffer = -1;
@@ -69,9 +72,10 @@ namespace {
 
 	void endDraw() {
 		++constantBufferIndex;
-		if (constantBufferIndex >= constantBufferMultiply) {
+		if (constantBufferIndex >= constantBufferMultiply || waitAfterNextDraw) {
 			commandList->executeAndWait();
 			constantBufferIndex = 0;
+			waitAfterNextDraw = false;
 		}
 		vertexConstantBuffer->lock(constantBufferIndex * constantBufferSize, constantBufferSize);
 		fragmentConstantBuffer->lock(constantBufferIndex * constantBufferSize, constantBufferSize);
@@ -123,6 +127,8 @@ void Graphics4::begin(int window) {
 	constantBufferIndex = 0;
 	vertexConstantBuffer->lock(0, constantBufferSize);
 	fragmentConstantBuffer->lock(0, constantBufferSize);
+
+	++frameNumber;
 }
 
 void Graphics4::viewport(int x, int y, int width, int height) {
@@ -267,7 +273,7 @@ void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
 	int offsets[16];
 	for (int i = 0; i < count; ++i) {
 		g5buffers[i] = &buffers[i]->_buffer;
-		int index = buffers[i]->_currentIndex == 0 ? buffers[i]->_multiple - 1 : buffers[i]->_currentIndex - 1;
+		int index = buffers[i]->_currentIndex;
 		offsets[i] = index * buffers[i]->count();
 	}
 	commandList->setVertexBuffers(g5buffers, offsets, count);
