@@ -59,7 +59,9 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	desc.MiscFlags = 0;
 
 	texture = nullptr;
-	renderTargetView = nullptr;
+	for (int i = 0; i < 6; i++) {
+		renderTargetView[i] = nullptr;
+	}
 	if (!isDepthAttachment) {
 		affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 
@@ -67,7 +69,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		renderTargetViewDesc.Format = desc.Format;
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView));
+		affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView[0]));
 	}
 
 	depthStencil = nullptr;
@@ -119,7 +121,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	lastBoundDepthUnit = -1;
 
 	FLOAT colors[4] = { 0, 0, 0, 0 };
-	context->ClearRenderTargetView(renderTargetView, colors);
+	context->ClearRenderTargetView(renderTargetView[0], colors);
 }
 
 Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
@@ -172,18 +174,23 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	desc.CPUAccessFlags = 0; // D3D11_CPU_ACCESS_WRITE;
-	desc.MiscFlags = 0;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
 	texture = nullptr;
-	renderTargetView = nullptr;
 	if (!isDepthAttachment) {
 		affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 
-		/*D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = desc.Format;
-		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView));*/
+		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+		renderTargetViewDesc.Texture2DArray.MipSlice = 0;
+		renderTargetViewDesc.Texture2DArray.ArraySize = 1;
+
+		for (int i = 0; i < 6; i++) {
+			renderTargetView[i] = nullptr;
+			renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
+			affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView[i]));
+		}		
 	}
 
 	depthStencil = nullptr;
@@ -200,7 +207,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	}
 
 	if (depthBufferBits > 0) {
-		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R24G8_TYPELESS, width, height, 6, 1, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
+		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R24G8_TYPELESS, width, height, 1, 1, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
 		if (antialiasing) {
 			depthStencilDesc.SampleDesc.Count = 4;
 			depthStencilDesc.SampleDesc.Quality = D3D11_STANDARD_MULTISAMPLE_PATTERN;
@@ -211,36 +218,40 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		}
 		affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-		// affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT), &depthStencilView));
+		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT), &depthStencilView));
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	if (!isDepthAttachment) {
 		shaderResourceViewDesc.Format = desc.Format;
-		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
+		shaderResourceViewDesc.TextureCube.MipLevels = 1;
 		affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &renderTargetSRV));
 	}
 
 	if (depthBufferBits > 0) {
 		shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
+		shaderResourceViewDesc.TextureCube.MipLevels = 1;
 		affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
 	}
 
 	lastBoundUnit = -1;
 	lastBoundDepthUnit = -1;
 
-	/*FLOAT colors[4] = { 0, 0, 0, 0 };
-	context->ClearRenderTargetView(renderTargetView, colors);*/
+	FLOAT colors[4] = { 0, 0, 0, 0 };
+	for (int i = 0; i < 6; i++) {
+		context->ClearRenderTargetView(renderTargetView[i], colors);
+	}
 }
 
 Graphics4::RenderTarget::~RenderTarget() {
 	depthStencilView->Release();
-	renderTargetView->Release();
+	for (int i = 0; i < 6; i++) {
+		renderTargetView[i]->Release();
+	}
 	renderTargetSRV->Release();
 }
 
@@ -263,3 +274,7 @@ void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 }
 
 void Graphics4::RenderTarget::getPixels(u8* data) {}
+
+void Graphics4::RenderTarget::generateMipMaps(int levels) {
+	// TODO
+}
