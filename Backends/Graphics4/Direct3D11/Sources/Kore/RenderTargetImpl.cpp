@@ -275,6 +275,4 @@ void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 
 void Graphics4::RenderTarget::getPixels(u8* data) {}
 
-void Graphics4::RenderTarget::generateMipMaps(int levels) {
-	// TODO
-}
+void Graphics4::RenderTarget::generateMipmaps(int levels) {}

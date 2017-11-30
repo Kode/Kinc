@@ -24,6 +24,7 @@
 #include "GLContext.h"
 #include "gl3stub.h"
 #include <Kore/Log.h>
+#include <cstring>
 
 namespace ndk_helper
 {

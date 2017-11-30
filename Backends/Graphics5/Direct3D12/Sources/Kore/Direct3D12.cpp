@@ -46,12 +46,6 @@ IDXGISwapChain* swapChain;
 int renderTargetWidth;
 int renderTargetHeight;
 
-Kore::u8 vertexConstants[1024 * 4];
-Kore::u8 fragmentConstants[1024 * 4];
-Kore::u8 geometryConstants[1024 * 4];
-Kore::u8 tessControlConstants[1024 * 4];
-Kore::u8 tessEvalConstants[1024 * 4];
-
 using namespace Kore;
 
 #ifndef KORE_WINDOWS
@@ -207,7 +201,7 @@ namespace {
 
 		CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
-			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
 		}
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
@@ -278,9 +272,6 @@ namespace {
 void Graphics5::destroy(int window) {}
 
 void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
-	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
-
 	HWND hwnd = (HWND)System::windowHandle(window);
 	renderTargetWidth = System::windowWidth(window);
 	renderTargetHeight = System::windowHeight(window);
@@ -406,150 +397,6 @@ bool Graphics5::swapBuffers(int window) {
 void Graphics5::flush() {}
 
 void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
-
-namespace {
-	void setInt(u8* constants, u32 offset, u32 size, int value) {
-		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
-		ints[0] = value;
-	}
-
-	void setFloat(u8* constants, u32 offset, u32 size, float value) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		floats[0] = value;
-	}
-
-	void setFloat2(u8* constants, u32 offset, u32 size, float value1, float value2) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-	}
-
-	void setFloat3(u8* constants, u32 offset, u32 size, float value1, float value2, float value3) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-	}
-
-	void setFloat4(u8* constants, u32 offset, u32 size, float value1, float value2, float value3, float value4) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-		floats[3] = value4;
-	}
-
-	void setFloats(u8* constants, u32 offset, u32 size, float* values, int count) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int i = 0; i < count; ++i) {
-			floats[i] = values[i];
-		}
-	}
-
-	void setBool(u8* constants, u32 offset, u32 size, bool value) {
-		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
-		ints[0] = value ? 1 : 0;
-	}
-
-	void setMatrix(u8* constants, u32 offset, u32 size, const mat4& value) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int y = 0; y < 4; ++y) {
-			for (int x = 0; x < 4; ++x) {
-				floats[x + y * 4] = value.get(y, x);
-			}
-		}
-	}
-
-	void setMatrix(u8* constants, u32 offset, u32 size, const mat3& value) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int y = 0; y < 3; ++y) {
-			for (int x = 0; x < 3; ++x) {
-				floats[x + y * 4] = value.get(y, x);
-			}
-		}
-	}
-}
-
-void Graphics5::setInt(ConstantLocation location, int value) {
-	::setInt(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setInt(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setInt(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setInt(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setInt(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
-}
-
-void Graphics5::setFloat(ConstantLocation location, float value) {
-	::setFloat(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setFloat(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setFloat(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setFloat(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setFloat(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
-}
-
-void Graphics5::setFloat2(ConstantLocation location, float value1, float value2) {
-	::setFloat2(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2);
-	::setFloat2(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2);
-	::setFloat2(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2);
-	::setFloat2(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2);
-	::setFloat2(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2);
-}
-
-void Graphics5::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	::setFloat3(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3);
-	::setFloat3(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3);
-	::setFloat3(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3);
-	::setFloat3(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2, value3);
-	::setFloat3(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3);
-}
-
-void Graphics5::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	::setFloat4(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3, value4);
-	::setFloat4(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3, value4);
-	::setFloat4(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3, value4);
-	::setFloat4(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2, value3, value4);
-	::setFloat4(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3, value4);
-}
-
-void Graphics5::setFloats(ConstantLocation location, float* values, int count) {
-	::setFloats(vertexConstants, location.vertexOffset, location.vertexSize, values, count);
-	::setFloats(fragmentConstants, location.fragmentOffset, location.fragmentSize, values, count);
-	::setFloats(geometryConstants, location.geometryOffset, location.geometrySize, values, count);
-	::setFloats(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, values, count);
-	::setFloats(tessControlConstants, location.tessControlOffset, location.tessControlSize, values, count);
-}
-
-void Graphics5::setBool(ConstantLocation location, bool value) {
-	::setBool(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setBool(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setBool(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setBool(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setBool(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
-}
-
-void Graphics5::setMatrix(ConstantLocation location, const mat4& value) {
-	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setMatrix(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
-}
-
-void Graphics5::setMatrix(ConstantLocation location, const mat3& value) {
-	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setMatrix(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
-}
 
 void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
 

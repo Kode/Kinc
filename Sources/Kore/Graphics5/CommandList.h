@@ -4,6 +4,7 @@
 
 namespace Kore {
 	namespace Graphics5 {
+		class ConstantBuffer;
 		class IndexBuffer;
 		class PipelineState;
 		class RenderTarget;
@@ -19,6 +20,8 @@ namespace Kore {
 			void clear(RenderTarget* renderTarget, uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
 			void renderTargetToFramebufferBarrier(RenderTarget* renderTarget);
 			void framebufferToRenderTargetBarrier(RenderTarget* renderTarget);
+			void textureToRenderTargetBarrier(RenderTarget* renderTarget);
+			void renderTargetToTextureBarrier(RenderTarget* renderTarget);
 			void drawIndexedVertices();
 			void drawIndexedVertices(int start, int count);
 			void viewport(int x, int y, int width, int height);
@@ -32,6 +35,11 @@ namespace Kore {
 			void upload(IndexBuffer* buffer);
 			void upload(VertexBuffer* buffer);
 			void upload(Texture* texture);
+			void setVertexConstantBuffer(ConstantBuffer* buffer, int offset);
+			void setFragmentConstantBuffer(ConstantBuffer* buffer, int offset);
+			void setPipelineLayout();
+			void execute();
+			void executeAndWait();
 		};
 	}
 }

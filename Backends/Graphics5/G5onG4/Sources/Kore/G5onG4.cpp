@@ -137,42 +137,6 @@ namespace {
 	}
 }
 
-void Graphics5::setInt(ConstantLocation location, int value) {
-
-}
-
-void Graphics5::setFloat(ConstantLocation location, float value) {
-
-}
-
-void Graphics5::setFloat2(ConstantLocation location, float value1, float value2) {
-
-}
-
-void Graphics5::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-
-}
-
-void Graphics5::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-
-}
-
-void Graphics5::setFloats(ConstantLocation location, float* values, int count) {
-
-}
-
-void Graphics5::setBool(ConstantLocation location, bool value) {
-
-}
-
-void Graphics5::setMatrix(ConstantLocation location, const mat4& value) {
-
-}
-
-void Graphics5::setMatrix(ConstantLocation location, const mat3& value) {
-
-}
-
 void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
 void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}

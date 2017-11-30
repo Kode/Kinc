@@ -11,9 +11,11 @@ namespace Kore {
 	protected:
 		VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate);
 		int myCount;
+		void prepareLock();
 	public:
 		Graphics5::VertexBuffer _buffer;
 		int _currentIndex;
 		const int _multiple;
+		u64 _lastFrameNumber;
 	};
 }

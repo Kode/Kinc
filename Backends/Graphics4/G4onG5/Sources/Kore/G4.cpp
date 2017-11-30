@@ -8,6 +8,7 @@
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics5/CommandList.h>
+#include <Kore/Graphics5/ConstantBuffer.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
 
@@ -15,10 +16,19 @@ using namespace Kore;
 
 Graphics5::CommandList* commandList;
 
+u64 frameNumber = 0;
+bool waitAfterNextDraw = false;
+
 namespace {
 	const int bufferCount = 3;
 	int currentBuffer = -1;
 	Graphics5::RenderTarget* framebuffers[bufferCount];
+
+	Graphics5::ConstantBuffer* vertexConstantBuffer;
+	Graphics5::ConstantBuffer* fragmentConstantBuffer;
+	const int constantBufferSize = 4096;
+	const int constantBufferMultiply = 500;
+	int constantBufferIndex = 0;
 }
 
 void Graphics4::destroy(int window) {
@@ -31,6 +41,8 @@ void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	for (int i = 0; i < bufferCount; ++i) {
 		framebuffers[i] = new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits, false, Graphics5::Target32Bit, -1, -i - 1 /* hack in an index for backbuffer render targets */);
 	}
+	vertexConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
+	fragmentConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
 }
 
 void Graphics4::changeResolution(int width, int height) {
@@ -49,15 +61,41 @@ void Graphics4::clearCurrent() {
 	Graphics5::clearCurrent();
 }
 
+namespace {
+	void startDraw() {
+		commandList->setPipelineLayout();
+		vertexConstantBuffer->unlock();
+		fragmentConstantBuffer->unlock();
+		commandList->setVertexConstantBuffer(vertexConstantBuffer, constantBufferIndex * constantBufferSize);
+		commandList->setFragmentConstantBuffer(fragmentConstantBuffer, constantBufferIndex * constantBufferSize);
+	}
+
+	void endDraw() {
+		++constantBufferIndex;
+		if (constantBufferIndex >= constantBufferMultiply || waitAfterNextDraw) {
+			commandList->executeAndWait();
+			constantBufferIndex = 0;
+			waitAfterNextDraw = false;
+		}
+		vertexConstantBuffer->lock(constantBufferIndex * constantBufferSize, constantBufferSize);
+		fragmentConstantBuffer->lock(constantBufferIndex * constantBufferSize, constantBufferSize);
+	}
+}
+
 void Graphics4::drawIndexedVertices() {
+	startDraw();
 	commandList->drawIndexedVertices();
+	endDraw();
 }
 
 void Graphics4::drawIndexedVertices(int start, int count) {
+	startDraw();
 	commandList->drawIndexedVertices(start, count);
+	endDraw();
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
+
 	Graphics5::drawIndexedVerticesInstanced(instanceCount);
 }
 
@@ -85,6 +123,12 @@ void Graphics4::begin(int window) {
 	commandList->begin();
 	commandList->framebufferToRenderTargetBarrier(framebuffers[currentBuffer]);
 	commandList->setRenderTargets(&framebuffers[currentBuffer], 1);
+
+	constantBufferIndex = 0;
+	vertexConstantBuffer->lock(0, constantBufferSize);
+	fragmentConstantBuffer->lock(0, constantBufferSize);
+
+	++frameNumber;
 }
 
 void Graphics4::viewport(int x, int y, int width, int height) {
@@ -100,6 +144,9 @@ void Graphics4::disableScissor() {
 }
 
 void Graphics4::end(int window) {
+	vertexConstantBuffer->unlock();
+	fragmentConstantBuffer->unlock();
+
 	commandList->renderTargetToFramebufferBarrier(framebuffers[currentBuffer]);
 	commandList->end();
 	//delete commandList;
@@ -128,39 +175,48 @@ void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument 
 }
 
 void Graphics4::setInt(ConstantLocation location, int value) {
-	Graphics5::setInt(location._location, value);
+	vertexConstantBuffer->setInt(0, value);
+	fragmentConstantBuffer->setInt(0, value);
 }
 
 void Graphics4::setFloat(ConstantLocation location, float value) {
-	Graphics5::setFloat(location._location, value);
+	vertexConstantBuffer->setFloat(0, value);
+	fragmentConstantBuffer->setFloat(0, value);
 }
 
 void Graphics4::setFloat2(ConstantLocation location, float value1, float value2) {
-	Graphics5::setFloat2(location._location, value1, value2);
+	vertexConstantBuffer->setFloat2(0, value1, value2);
+	fragmentConstantBuffer->setFloat2(0, value1, value2);
 }
 
 void Graphics4::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	Graphics5::setFloat3(location._location, value1, value2, value3);
+	vertexConstantBuffer->setFloat3(0, value1, value2, value3);
+	fragmentConstantBuffer->setFloat3(0, value1, value2, value3);
 }
 
 void Graphics4::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	Graphics5::setFloat4(location._location, value1, value2, value3, value4);
+	vertexConstantBuffer->setFloat4(0, value1, value2, value3, value4);
+	fragmentConstantBuffer->setFloat4(0, value1, value2, value3, value4);
 }
 
 void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
-	Graphics5::setFloats(location._location, values, count);
+	vertexConstantBuffer->setFloats(0, values, count);
+	fragmentConstantBuffer->setFloats(0, values, count);
 }
 
 void Graphics4::setBool(ConstantLocation location, bool value) {
-	Graphics5::setBool(location._location, value);
+	vertexConstantBuffer->setBool(0, value);
+	fragmentConstantBuffer->setBool(0, value);
 }
 
 void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
-	Graphics5::setMatrix(location._location, value);
+	vertexConstantBuffer->setMatrix(0, value);
+	fragmentConstantBuffer->setMatrix(0, value);
 }
 
 void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
-	Graphics5::setMatrix(location._location, value);
+	vertexConstantBuffer->setMatrix(0, value);
+	fragmentConstantBuffer->setMatrix(0, value);
 }
 
 void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
@@ -196,13 +252,14 @@ bool Graphics4::nonPow2TexturesSupported() {
 }
 
 void Graphics4::restoreRenderTarget() {
-	//commandList->restoreRenderTarget();
+	commandList->setRenderTargets(&framebuffers[currentBuffer], 1);
 }
 
 void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 	Graphics5::RenderTarget* renderTargets[16];
 	for (int i = 0; i < count; ++i) {
 		renderTargets[i] = &targets[i]->_renderTarget;
+		commandList->textureToRenderTargetBarrier(renderTargets[i]);
 	}
 	commandList->setRenderTargets(renderTargets, count);
 }
@@ -216,7 +273,7 @@ void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
 	int offsets[16];
 	for (int i = 0; i < count; ++i) {
 		g5buffers[i] = &buffers[i]->_buffer;
-		int index = buffers[i]->_currentIndex == 0 ? buffers[i]->_multiple - 1 : buffers[i]->_currentIndex - 1;
+		int index = buffers[i]->_currentIndex;
 		offsets[i] = index * buffers[i]->count();
 	}
 	commandList->setVertexBuffers(g5buffers, offsets, count);
@@ -259,27 +316,6 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 }
 
 void Graphics4::setPipeline(PipelineState* pipeline) {
-	CullMode cullMode;
-
-	bool depthWrite;
-	ZCompareMode depthMode;
-
-	pipeline->_pipeline->stencilMode = (Graphics5::ZCompareMode)pipeline->stencilMode;
-	pipeline->_pipeline->stencilBothPass = (Graphics5::StencilAction)pipeline->stencilBothPass;
-	pipeline->_pipeline->stencilDepthFail = (Graphics5::StencilAction)pipeline->stencilDepthFail;
-	pipeline->_pipeline->stencilFail = (Graphics5::StencilAction)pipeline->stencilFail;
-	pipeline->_pipeline->stencilReferenceValue = pipeline->stencilReferenceValue;
-	pipeline->_pipeline->stencilReadMask = pipeline->stencilReadMask;
-	pipeline->_pipeline->stencilWriteMask = pipeline->stencilWriteMask;
-	pipeline->_pipeline->blendSource = (Graphics5::BlendingOperation)pipeline->blendSource;
-	pipeline->_pipeline->blendDestination = (Graphics5::BlendingOperation)pipeline->blendDestination;
-	pipeline->_pipeline->alphaBlendSource = (Graphics5::BlendingOperation)pipeline->alphaBlendSource;
-	pipeline->_pipeline->alphaBlendDestination = (Graphics5::BlendingOperation)pipeline->alphaBlendDestination;
-	pipeline->_pipeline->colorWriteMaskRed = pipeline->colorWriteMaskRed;
-	pipeline->_pipeline->colorWriteMaskGreen = pipeline->colorWriteMaskGreen;
-	pipeline->_pipeline->colorWriteMaskBlue = pipeline->colorWriteMaskBlue;
-	pipeline->_pipeline->colorWriteMaskAlpha = pipeline->colorWriteMaskAlpha;
-	pipeline->_pipeline->conservativeRasterization = pipeline->conservativeRasterization;
 	commandList->setPipeline(pipeline->_pipeline);
 }
 

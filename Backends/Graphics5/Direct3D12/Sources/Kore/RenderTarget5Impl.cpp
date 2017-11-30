@@ -49,14 +49,22 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 
+	resourceState = RenderTargetResourceStateUndefined;
+
+#ifdef KORE_WINDOWS
+	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+#else
+	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+#endif
+
 	device->CreateCommittedResource(
 	    &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	    &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
+	    &CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
 	    D3D12_RESOURCE_STATE_COMMON, nullptr, IID_GRAPHICS_PPV_ARGS(&renderTarget));
 
 	D3D12_RENDER_TARGET_VIEW_DESC view;
 	const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
-	view.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	view.Format = dxgiFormat;
 	view.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	view.Texture2D.MipSlice = 0;
 	view.Texture2D.PlaneSlice = 0;
@@ -81,7 +89,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	shaderResourceViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	shaderResourceViewDesc.Format = dxgiFormat;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;

@@ -14,6 +14,7 @@ Graphics4::Texture::Texture(Kore::Reader& reader, const char* format, bool reada
 	height = _texture->height;
 	texWidth = _texture->texWidth;
 	texHeight = _texture->texHeight;
+	data = _texture->data;
 }
 
 Graphics4::Texture::Texture(const char* filename, bool readable) {
@@ -22,6 +23,7 @@ Graphics4::Texture::Texture(const char* filename, bool readable) {
 	height = _texture->height;
 	texWidth = _texture->texWidth;
 	texHeight = _texture->texHeight;
+	data = _texture->data;
 }
 
 Graphics4::Texture::Texture(void* data, int size, const char* format, bool readable) {
@@ -30,6 +32,7 @@ Graphics4::Texture::Texture(void* data, int size, const char* format, bool reada
 	height = _texture->height;
 	texWidth = _texture->texWidth;
 	texHeight = _texture->texHeight;
+	data = _texture->data;
 }
 
 Graphics4::Texture::Texture(void* data, int width, int height, int format, bool readable) : Image(data, width, height, Image::Format(format), readable) {
@@ -38,6 +41,7 @@ Graphics4::Texture::Texture(void* data, int width, int height, int format, bool 
 	height = _texture->height;
 	texWidth = _texture->texWidth;
 	texHeight = _texture->texHeight;
+	data = _texture->data;
 }
 
 Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable) : Image(data, width, height, depth, Image::Format(format), readable) {
@@ -50,6 +54,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	height = _texture->height;
 	texWidth = _texture->texWidth;
 	texHeight = _texture->texHeight;
+	data = _texture->data;
 }
 
 void Graphics4::Texture::init3D(bool readable) {
@@ -60,6 +65,7 @@ Graphics4::Texture::Texture(int width, int height, Format format, bool readable)
 	height = _texture->height;
 	texWidth = _texture->texWidth;
 	texHeight = _texture->texHeight;
+	data = _texture->data;
 }
 
 Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {
@@ -67,6 +73,7 @@ Graphics4::Texture::Texture(int width, int height, int depth, Image::Format form
 	height = _texture->height;
 	texWidth = _texture->texWidth;
 	texHeight = _texture->texHeight;
+	data = _texture->data;
 }
 
 TextureImpl::TextureImpl() : _texture(nullptr), _uploaded(false) {

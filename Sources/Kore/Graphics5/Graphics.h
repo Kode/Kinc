@@ -117,19 +117,6 @@ namespace Kore {
 			void setDepthStencilFrom(RenderTarget* source);
 		};
 
-		void setBool(ConstantLocation location, bool value);
-		void setInt(ConstantLocation location, int value);
-		void setFloat(ConstantLocation location, float value);
-		void setFloat2(ConstantLocation location, float value1, float value2);
-		void setFloat2(ConstantLocation location, vec2 value);
-		void setFloat3(ConstantLocation location, float value1, float value2, float value3);
-		void setFloat3(ConstantLocation location, vec3 value);
-		void setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4);
-		void setFloat4(ConstantLocation location, vec4 value);
-		void setFloats(ConstantLocation location, float* values, int count);
-		void setMatrix(ConstantLocation location, const mat3& value);
-		void setMatrix(ConstantLocation location, const mat4& value);
-
 		void setTexture(TextureUnit unit, Texture* texture);
 		void setImageTexture(TextureUnit unit, Texture* texture);
 

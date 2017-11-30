@@ -495,6 +495,8 @@ void Graphics2::ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
 	if (!rectsDone) endRects(true);
 
 	triangleVertexBuffer->unlock();
+
+	Graphics4::setPipeline(myPipeline);
 	Graphics4::setVertexBuffer(*triangleVertexBuffer);
 	Graphics4::setIndexBuffer(*triangleIndexBuffer);
 
@@ -505,8 +507,6 @@ void Graphics2::ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
     // Set shader matrix uniform
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
     #endif
-
-	Graphics4::setPipeline(myPipeline);
 
 	Graphics4::drawIndexedVertices(0, triangleBufferIndex * 3);
 

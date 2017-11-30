@@ -20,6 +20,12 @@ namespace Kore {
 		long bottom;
 	};
 
+	enum RenderTargetResourceState {
+		RenderTargetResourceStateUndefined,
+		RenderTargetResourceStateRenderTarget,
+		RenderTargetResourceStateTexture
+	};
+
 	class RenderTarget5Impl {
 	public:
 		ID3D12Resource* renderTarget;
@@ -30,5 +36,6 @@ namespace Kore {
 		D3D12Viewport viewport;
 		D3D12Rect scissor;
 		int stage;
+		RenderTargetResourceState resourceState;
 	};
 }

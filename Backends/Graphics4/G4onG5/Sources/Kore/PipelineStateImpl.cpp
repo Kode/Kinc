@@ -33,5 +33,9 @@ void Graphics4::PipelineState::compile() {
 	_pipeline->geometryShader = geometryShader != nullptr ? &geometryShader->_shader : nullptr;
 	_pipeline->tessellationControlShader = tessellationControlShader != nullptr ? &tessellationControlShader->_shader : nullptr;
 	_pipeline->tessellationEvaluationShader = tessellationEvaluationShader != nullptr ? &tessellationEvaluationShader->_shader : nullptr;
+	_pipeline->blendSource = (Graphics5::BlendingOperation)blendSource;
+	_pipeline->blendDestination = (Graphics5::BlendingOperation)blendDestination;
+	_pipeline->alphaBlendSource = (Graphics5::BlendingOperation)alphaBlendSource;
+	_pipeline->alphaBlendDestination = (Graphics5::BlendingOperation)alphaBlendDestination;
 	_pipeline->compile();
 }

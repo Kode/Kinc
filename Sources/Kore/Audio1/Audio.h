@@ -7,8 +7,26 @@ namespace Kore {
 	class VideoSoundStream;
 
 	namespace Audio1 {
+		struct Channel {
+			Sound* sound;
+			float position;
+			bool loop;
+			float volume;
+			float pitch;
+		};
+
+		struct StreamChannel {
+			SoundStream* stream;
+			int position;
+		};
+
+		struct VideoChannel {
+			VideoSoundStream* stream;
+			int position;
+		};
+
 		void init();
-		void play(Sound* sound, float pitch = 1.0f);
+		Channel* play(Sound* sound, bool loop = false, float pitch = 1.0f);
 		void stop(Sound* sound);
 		void play(SoundStream* stream);
 		void stop(SoundStream* stream);

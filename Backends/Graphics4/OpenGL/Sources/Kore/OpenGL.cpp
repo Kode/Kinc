@@ -27,6 +27,13 @@
 #pragma comment(lib, "glu32.lib")
 #endif
 
+#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
+#endif
+#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+#endif
+
 using namespace Kore;
 
 namespace Kore {
@@ -620,6 +627,11 @@ namespace {
 			case Graphics4::LinearMipFilter:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				break;
+			}
+			if (minFilters[System::currentDevice()][unit] == Graphics4::AnisotropicFilter) {
+				float maxAniso = 0.0f;
+				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+				glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
 			}
 			break;
 		}
