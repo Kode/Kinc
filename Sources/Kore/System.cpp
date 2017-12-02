@@ -47,7 +47,7 @@ namespace {
 	}
 }
 
-void Kore::System::init(const char* name, int width, int height) {
+void Kore::System::init(const char* name, int width, int height, int samplesPerPixel) {
 	Kore::System::setName(name);
 	Kore::System::setup();
 	Kore::WindowOptions options;
@@ -61,7 +61,7 @@ void Kore::System::init(const char* name, int width, int height) {
 	options.rendererOptions.depthBufferBits = 16;
 	options.rendererOptions.stencilBufferBits = 8;
 	options.rendererOptions.textureFormat = 0;
-	options.rendererOptions.antialiasing = 0;
+	options.rendererOptions.antialiasing = samplesPerPixel;
 	Kore::System::initWindow(options);
 }
 

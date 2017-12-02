@@ -10,7 +10,7 @@ namespace Kore {
 	//	remove windowing stuff from here and put into Kore::Windowing or something?
 	//	better separation between windows + rendering contexts ie. Graphics?
 	namespace System {
-		void init(const char* name, int width, int height);
+		void init(const char* name, int width, int height, int samplesPerPixel = 0);
 
 		enum { MAXIMUM_WINDOW_COUNT = 10 };
 
