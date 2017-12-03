@@ -116,6 +116,14 @@ namespace Kore {
 			return values[3];
 		}
 
+		const Vector<Type, 2> xy() const {
+			return Vector<Type, 2>(x(), y());
+		}
+
+		const Vector<Type, 3> xyz() const {
+			return Vector<Type, 3>(x(), y(), z());
+		}
+
 		void add(Vector<Type, count> v) {
 			for (unsigned i = 0; i < count; ++i) values[i] += v.values[i];
 		}
