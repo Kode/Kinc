@@ -861,7 +861,7 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 
 	renderTargetCount = count;
 	for (int i = 0; i < count; ++i) {
-		currentRenderTargetViews[i] = targets[i]->renderTargetView;
+		currentRenderTargetViews[i] = targets[i]->renderTargetView[0];
 	}
 
 	context->OMSetRenderTargets(count, currentRenderTargetViews, targets[0]->depthStencilView);
@@ -870,7 +870,12 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
-	// TODO
+	currentRenderTargetViews[0] = texture->renderTargetView[face];
+	renderTargetCount = 1;
+
+	context->OMSetRenderTargets(1, currentRenderTargetViews, texture->depthStencilView);
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(texture->width), static_cast<float>(texture->height));
+	context->RSSetViewports(1, &viewPort);
 }
 
 void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
