@@ -4,15 +4,17 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <stdio.h>
 
 using namespace Kore;
 
 HIDGamepad::HIDGamepad(int index) {
 	file_descriptor = -1;
 	connected = -1;
+	gamepad_dev_name[0] = 0;
 	if (index >= 0 && index < 12) {
 		idx = index;
-		gamepad_dev_name = "/dev/input/js" + std::to_string(idx);
+		sprintf(gamepad_dev_name, "/dev/input/js%d", idx);
 		Open();
 	}
 }
@@ -22,14 +24,14 @@ HIDGamepad::~HIDGamepad() {
 }
 
 int HIDGamepad::Open() {
-	file_descriptor = open(gamepad_dev_name.c_str(), O_RDONLY | O_NONBLOCK);
+	file_descriptor = open(gamepad_dev_name, O_RDONLY | O_NONBLOCK);
 	if (file_descriptor < 0) {
 		connected = -1;
 	}
 	else {
 		connected = 0;
 		Gamepad::get(idx)->vendor = "Linux gamepad";
-		Gamepad::get(idx)->productName = gamepad_dev_name.c_str();
+		Gamepad::get(idx)->productName = gamepad_dev_name;
 	}
 }
 

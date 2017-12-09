@@ -1,7 +1,6 @@
 #pragma once
 
 #include <linux/joystick.h>
-#include <string>
 
 namespace Kore {
 
@@ -14,7 +13,7 @@ namespace Kore {
 
 	private:
 		int idx;
-		std::string gamepad_dev_name;
+		char gamepad_dev_name[256];
 		int file_descriptor;
 		int connected;
 		struct js_event gamepadEvent;
