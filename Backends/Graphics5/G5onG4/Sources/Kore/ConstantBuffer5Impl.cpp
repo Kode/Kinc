@@ -4,6 +4,10 @@
 
 using namespace Kore;
 
+ConstantBuffer5Impl::ConstantBuffer5Impl() : transposeMat3(false), transposeMat4(false) {
+
+}
+
 Graphics5::ConstantBuffer::ConstantBuffer(int size) {
 	mySize = size;
 	data = nullptr;
