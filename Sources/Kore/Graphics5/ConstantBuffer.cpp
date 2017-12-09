@@ -110,9 +110,19 @@ void Graphics5::ConstantBuffer::setBool(int offset, bool value) {
 }
 
 void Graphics5::ConstantBuffer::setMatrix(int offset, const mat4& value) {
-	::setMatrix(data, offset, value);
+	if (transposeMat4) {
+		::setMatrix(data, offset, value.Transpose());
+	}
+	else {
+		::setMatrix(data, offset, value);
+	}
 }
 
 void Graphics5::ConstantBuffer::setMatrix(int offset, const mat3& value) {
-	::setMatrix(data, offset, value);
+	if (transposeMat3) {
+		::setMatrix(data, offset, value.Transpose());
+	}
+	else {
+		::setMatrix(data, offset, value);
+	}
 }
