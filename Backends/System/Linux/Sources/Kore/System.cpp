@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <Kore/Graphics4/Graphics.h>
+#include <Kore/Input/HIDManager.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Log.h>
@@ -370,6 +371,10 @@ namespace Kore {
 	}
 }
 
+namespace {
+	Kore::HIDManager * gamepadManager;
+}
+
 bool Kore::System::handleMessages() {
 	static bool controlDown = false;
 #ifdef KORE_OPENGL
@@ -450,6 +455,9 @@ bool Kore::System::handleMessages() {
 				KEY(XK_9, Key9)
 				KEY(XK_0, Key0)
 			case XK_Escape:
+				// Cleanup and remove gamepads before exit
+				delete gamepadManager;
+				gamepadManager = NULL;
 				System::stop();
 				break;
 			}
@@ -704,6 +712,10 @@ bool Kore::System::handleMessages() {
 		event = xcb_poll_for_event(connection);
 	}
 #endif
+
+	// Update gamepad input
+	gamepadManager->Update();
+
 	return true;
 }
 
@@ -807,5 +819,6 @@ Kore::System::ticks Kore::System::timestamp() {
 extern int kore(int argc, char** argv);
 
 int main(int argc, char** argv) {
+	gamepadManager = new Kore::HIDManager();
 	kore(argc, argv);
 }
