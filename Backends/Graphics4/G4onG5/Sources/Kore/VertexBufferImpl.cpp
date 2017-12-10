@@ -7,7 +7,7 @@
 using namespace Kore;
 
 namespace {
-	const int multiple = 500;
+	const int multiple = 50;
 }
 
 extern u64 frameNumber;

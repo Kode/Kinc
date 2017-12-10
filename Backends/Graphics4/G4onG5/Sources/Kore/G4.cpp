@@ -27,7 +27,7 @@ namespace {
 	Graphics5::ConstantBuffer* vertexConstantBuffer;
 	Graphics5::ConstantBuffer* fragmentConstantBuffer;
 	const int constantBufferSize = 4096;
-	const int constantBufferMultiply = 500;
+	const int constantBufferMultiply = 10;
 	int constantBufferIndex = 0;
 }
 
