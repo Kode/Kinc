@@ -14,6 +14,7 @@ namespace Kore {
 	private:
 		int idx;
 		char gamepad_dev_name[256];
+		char name[384];
 		int file_descriptor;
 		int connected;
 		struct js_event gamepadEvent;

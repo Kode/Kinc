@@ -1,10 +1,11 @@
 #include "HIDGamepad.h"
 #include "../pch.h"
 #include <Kore/Input/Gamepad.h>
+#include <cstring>
 #include <fcntl.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <stdio.h>
 
 using namespace Kore;
 
@@ -14,7 +15,7 @@ HIDGamepad::HIDGamepad(int index) {
 	gamepad_dev_name[0] = 0;
 	if (index >= 0 && index < 12) {
 		idx = index;
-		sprintf(gamepad_dev_name, "/dev/input/js%d", idx);
+		snprintf(gamepad_dev_name, sizeof(gamepad_dev_name), "/dev/input/js%d", idx);
 		Open();
 	}
 }
@@ -30,8 +31,12 @@ int HIDGamepad::Open() {
 	}
 	else {
 		connected = 0;
+
+		char buf[128];
+		if (ioctl(file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0) strncpy(buf, "Unknown", sizeof(buf));
+		snprintf(name, sizeof(name), "%s%s%s%s", buf, " (", gamepad_dev_name, ")");
 		Gamepad::get(idx)->vendor = "Linux gamepad";
-		Gamepad::get(idx)->productName = gamepad_dev_name;
+		Gamepad::get(idx)->productName = name;
 	}
 }
 
