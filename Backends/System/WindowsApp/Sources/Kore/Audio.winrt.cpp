@@ -1,7 +1,10 @@
 #include "pch.h"
 
-#include <AudioClient.h>
 #include <Kore/Audio2/Audio.h>
+
+#include <Kore/WinError.h>
+
+#include <AudioClient.h>
 #include <Windows.h>
 #include <mfapi.h>
 #include <mmdeviceapi.h>
@@ -13,116 +16,89 @@ using namespace Microsoft::WRL;
 using namespace Windows::Media::Devices;
 using namespace Windows::Storage::Streams;
 
+// based on the implementation in soloud and Microsoft sample code
 namespace {
-	void affirm(HRESULT hr) {
-		if (FAILED(hr)) {
-			int a = 3;
-			++a;
-		}
-	}
+	IMMDeviceEnumerator* deviceEnumerator;
+	IMMDevice* device;
+	IAudioClient* audioClient;
+	IAudioRenderClient* renderClient;
+	HANDLE bufferEndEvent;
+	HANDLE audioProcessingDoneEvent;
+	UINT32 bufferFrames;
+	int channels;
 
-	// release and zero out a possible NULL pointer. note this will
-	// do the release on a temp copy to avoid reentrancy issues that can result from
-	// callbacks durring the release
-	template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
-		T* pTTemp = *ppT; // temp copy
-		*ppT = nullptr;   // zero the input
-		if (pTTemp) {
-			pTTemp->Release();
-		}
-	}
-
-// REFERENCE_TIME time units per second and per millisecond
-#define REFTIMES_PER_SEC 10000000
-#define REFTIMES_PER_MILLISEC 10000
-
-#define EXIT_ON_ERROR(hres)                                                                                                                                    \
-	if (FAILED(hres)) {                                                                                                                                        \
-		goto Exit;                                                                                                                                             \
-	}
-#define SAFE_RELEASE(punk)                                                                                                                                     \
-	if ((punk) != NULL) {                                                                                                                                      \
-		(punk)->Release();                                                                                                                                     \
-		(punk) = NULL;                                                                                                                                         \
-	}
-
-	const IID IID_IAudioClient = __uuidof(IAudioClient);
-	const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
-
-	IMMDeviceEnumerator* pEnumerator = NULL;
-	IMMDevice* pDevice = NULL;
-	IAudioClient2* audioClient = nullptr;
-	IAudioRenderClient* pRenderClient = NULL;
-	WAVEFORMATEX* pwfx = NULL;
-	DWORD flags = 0;
-	BYTE* pData;
-	REFERENCE_TIME hnsActualDuration;
-	UINT32 numFramesAvailable;
-	UINT32 numFramesPadding;
-	UINT32 bufferFrameCount;
-
-	void copySample(void* buffer) {
+	void copySample(s16* buffer) {
 		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
 		Audio2::buffer.readLocation += 4;
 		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
-		*(float*)buffer = value;
+		*buffer = (s16)(value * 32767);
+	}
+	
+	void submitBuffer(unsigned frames) {
+		BYTE* buffer = nullptr;
+		if (FAILED(renderClient->GetBuffer(frames, &buffer))) {
+			return;
+		}
+		
+		s16* s16buffer = (s16*)buffer;
+		Kore::Audio2::audioCallback(frames * 2);
+		for (UINT32 i = 0; i < frames * 2; ++i) {
+			copySample(&s16buffer[i]);
+		}
+
+		renderClient->ReleaseBuffer(frames, 0);
+	}
+
+	void audioThread(LPVOID aParam) {
+		submitBuffer(bufferFrames);
+		audioClient->Start();
+		while (WAIT_OBJECT_0 != WaitForSingleObject(audioProcessingDoneEvent, 0)) {
+			WaitForSingleObject(bufferEndEvent, INFINITE);
+			UINT32 padding = 0;
+			if (FAILED(audioClient->GetCurrentPadding(&padding))) {
+				continue;
+			}
+			UINT32 frames = bufferFrames - padding;
+			submitBuffer(frames);
+		}
 	}
 
 	class AudioRenderer : public RuntimeClass<RuntimeClassFlags<ClassicCom>, FtmBase, IActivateAudioInterfaceCompletionHandler> {
 	public:
 		STDMETHOD(ActivateCompleted)(IActivateAudioInterfaceAsyncOperation* operation) {
-			REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
-
-			IUnknown* punkAudioInterface = nullptr;
+			IUnknown* audioInterface = nullptr;
 			HRESULT hrActivateResult = S_OK;
-			HRESULT hr = operation->GetActivateResult(&hrActivateResult, &punkAudioInterface);
+			HRESULT hr = operation->GetActivateResult(&hrActivateResult, &audioInterface);
 			if (SUCCEEDED(hr) && SUCCEEDED(hrActivateResult)) {
-				// Get the pointer for the Audio Client
-				punkAudioInterface->QueryInterface(IID_PPV_ARGS(&audioClient));
+				audioInterface->QueryInterface(IID_PPV_ARGS(&audioClient));
 
-				affirm(audioClient->GetMixFormat(&pwfx));
-				affirm(audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL));
+				const int sampleRate = 48000;
 
-				// Get the actual size of the allocated buffer.
-				affirm(audioClient->GetBufferSize(&bufferFrameCount));
-				affirm(audioClient->GetService(IID_IAudioRenderClient, (void**)&pRenderClient));
-				// Grab the entire buffer for the initial fill operation.
-				affirm(pRenderClient->GetBuffer(bufferFrameCount, &pData));
+				bufferEndEvent = CreateEvent(0, FALSE, FALSE, 0);
+				affirm(bufferEndEvent != 0);
 
-				// Load the initial data into the shared buffer.
-				// hr = pMySource->LoadData(bufferFrameCount, pData, &flags);
+				audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
+				affirm(audioProcessingDoneEvent != 0);
 
-				affirm(pRenderClient->ReleaseBuffer(bufferFrameCount, flags));
+				WAVEFORMATEX format;
+				ZeroMemory(&format, sizeof(WAVEFORMATEX));
+				format.nChannels = 2;
+				format.nSamplesPerSec = sampleRate;
+				format.wFormatTag = WAVE_FORMAT_PCM;
+				format.wBitsPerSample = sizeof(short) * 8;
+				format.nBlockAlign = (format.nChannels*format.wBitsPerSample) / 8;
+				format.nAvgBytesPerSec = format.nSamplesPerSec*format.nBlockAlign;
+				affirm(audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, &format, 0));
 
-				// Calculate the actual duration of the allocated buffer.
-				hnsActualDuration = static_cast<REFERENCE_TIME>((double)REFTIMES_PER_SEC * bufferFrameCount / pwfx->nSamplesPerSec);
+				bufferFrames = 0;
+				affirm(audioClient->GetBufferSize(&bufferFrames));
+				affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
+				affirm(audioClient->SetEventHandle(bufferEndEvent));
 
-				affirm(audioClient->Start()); // Start playing.
+				channels = format.nChannels;
 
-				// Each loop fills about half of the shared buffer.
-				while (flags != AUDCLNT_BUFFERFLAGS_SILENT) {
-					// Sleep for half the buffer duration.
-					// Sleep((DWORD)(hnsActualDuration/REFTIMES_PER_MILLISEC/2));
-
-					// See how much buffer space is available.
-					affirm(audioClient->GetCurrentPadding(&numFramesPadding));
-					numFramesAvailable = bufferFrameCount - numFramesPadding;
-
-					if (Kore::Audio2::audioCallback != nullptr && numFramesAvailable > 0) {
-						Kore::Audio2::audioCallback(numFramesAvailable * 2);
-						// Grab all the available space in the shared buffer.
-						affirm(pRenderClient->GetBuffer(numFramesAvailable, &pData));
-						// Get next 1/2-second of data from the audio source.
-						// pMySource->LoadData(numFramesAvailable, pData, &flags);
-
-						for (UINT32 i = 0; i < numFramesAvailable; ++i) {
-							copySample(&pData[i * pwfx->nBlockAlign]);
-							copySample(&pData[i * pwfx->nBlockAlign + 4]);
-						}
-
-						affirm(pRenderClient->ReleaseBuffer(numFramesAvailable, flags));
-					}
-				}
+				audioThread(nullptr);
+				//** createThread
 			}
 			return S_OK;
 		}
@@ -131,17 +107,45 @@ namespace {
 	ComPtr<AudioRenderer> renderer;
 }
 
+template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
+	T* pTTemp = *ppT;
+	*ppT = nullptr;
+	if (pTTemp) {
+		pTTemp->Release();
+	}
+}
+
+#define SAFE_RELEASE(punk)  \
+	if ((punk) != NULL) {   \
+		(punk)->Release();  \
+		(punk) = NULL;      \
+	}
+
 void Audio2::init() {
 	buffer.readLocation = 0;
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
 	buffer.data = new u8[buffer.dataSize];
+	
 	renderer = Make<AudioRenderer>();
 
 	IActivateAudioInterfaceAsyncOperation* asyncOp;
-	Platform::String ^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
+	Platform::String^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
 	affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
 	SafeRelease(&asyncOp);
+	
+	/*
+	affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
+	
+	auto m_DeviceIdString = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
+	ActivateAudioInterfaceAsync(m_DeviceIdString, __uuidof(IAudioClient))
+
+	affirm(CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&data->deviceEnumerator)));
+
+	affirm(data->deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &data->device));
+
+	affirm(data->device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&data->audioClient)));
+	*/
 }
 
 void Audio2::update() {}
