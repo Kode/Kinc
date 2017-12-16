@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Audio2/Audio.h>
-
+#include <Kore/Threads/Thread.h>
 #include <Kore/WinError.h>
 
 #include <AudioClient.h>
@@ -12,9 +12,11 @@
 
 using namespace Kore;
 
+#ifndef KORE_WINDOWS
 using namespace Microsoft::WRL;
 using namespace Windows::Media::Devices;
 using namespace Windows::Storage::Streams;
+#endif
 
 // based on the implementation in soloud and Microsoft sample code
 namespace {
@@ -63,6 +65,40 @@ namespace {
 		}
 	}
 
+	void initAudio() {
+		const int sampleRate = 48000;
+
+		bufferEndEvent = CreateEvent(0, FALSE, FALSE, 0);
+		affirm(bufferEndEvent != 0);
+
+		audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
+		affirm(audioProcessingDoneEvent != 0);
+
+		WAVEFORMATEX format;
+		ZeroMemory(&format, sizeof(WAVEFORMATEX));
+		format.nChannels = 2;
+		format.nSamplesPerSec = sampleRate;
+		format.wFormatTag = WAVE_FORMAT_PCM;
+		format.wBitsPerSample = sizeof(short) * 8;
+		format.nBlockAlign = (format.nChannels*format.wBitsPerSample) / 8;
+		format.nAvgBytesPerSec = format.nSamplesPerSec*format.nBlockAlign;
+		affirm(audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, &format, 0));
+
+		bufferFrames = 0;
+		affirm(audioClient->GetBufferSize(&bufferFrames));
+		affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
+		affirm(audioClient->SetEventHandle(bufferEndEvent));
+
+		channels = format.nChannels;
+
+#ifdef KORE_WINDOWS
+		createAndRunThread(audioThread, nullptr);
+#else
+		audioThread(nullptr);
+#endif
+	}
+
+#ifndef KORE_WINDOWS
 	class AudioRenderer : public RuntimeClass<RuntimeClassFlags<ClassicCom>, FtmBase, IActivateAudioInterfaceCompletionHandler> {
 	public:
 		STDMETHOD(ActivateCompleted)(IActivateAudioInterfaceAsyncOperation* operation) {
@@ -71,40 +107,14 @@ namespace {
 			HRESULT hr = operation->GetActivateResult(&hrActivateResult, &audioInterface);
 			if (SUCCEEDED(hr) && SUCCEEDED(hrActivateResult)) {
 				audioInterface->QueryInterface(IID_PPV_ARGS(&audioClient));
-
-				const int sampleRate = 48000;
-
-				bufferEndEvent = CreateEvent(0, FALSE, FALSE, 0);
-				affirm(bufferEndEvent != 0);
-
-				audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
-				affirm(audioProcessingDoneEvent != 0);
-
-				WAVEFORMATEX format;
-				ZeroMemory(&format, sizeof(WAVEFORMATEX));
-				format.nChannels = 2;
-				format.nSamplesPerSec = sampleRate;
-				format.wFormatTag = WAVE_FORMAT_PCM;
-				format.wBitsPerSample = sizeof(short) * 8;
-				format.nBlockAlign = (format.nChannels*format.wBitsPerSample) / 8;
-				format.nAvgBytesPerSec = format.nSamplesPerSec*format.nBlockAlign;
-				affirm(audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, &format, 0));
-
-				bufferFrames = 0;
-				affirm(audioClient->GetBufferSize(&bufferFrames));
-				affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
-				affirm(audioClient->SetEventHandle(bufferEndEvent));
-
-				channels = format.nChannels;
-
-				audioThread(nullptr);
-				//** createThread
+				initAudio();				
 			}
 			return S_OK;
 		}
 	};
 
 	ComPtr<AudioRenderer> renderer;
+#endif
 }
 
 template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
@@ -126,26 +136,21 @@ void Audio2::init() {
 	buffer.writeLocation = 0;
 	buffer.dataSize = 128 * 1024;
 	buffer.data = new u8[buffer.dataSize];
-	
+
+#ifdef KORE_WINDOWS
+	affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
+	affirm(CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&deviceEnumerator)));
+	affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
+	affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&audioClient)));
+	initAudio();
+#else
 	renderer = Make<AudioRenderer>();
 
 	IActivateAudioInterfaceAsyncOperation* asyncOp;
 	Platform::String^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
 	affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
 	SafeRelease(&asyncOp);
-	
-	/*
-	affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
-	
-	auto m_DeviceIdString = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
-	ActivateAudioInterfaceAsync(m_DeviceIdString, __uuidof(IAudioClient))
-
-	affirm(CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&data->deviceEnumerator)));
-
-	affirm(data->deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &data->device));
-
-	affirm(data->device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&data->audioClient)));
-	*/
+#endif
 }
 
 void Audio2::update() {}
