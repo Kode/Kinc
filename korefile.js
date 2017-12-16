@@ -61,7 +61,7 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_OPENGL');
 		project.addDefine('GLEW_STATIC');
 	}
-	else if (graphics === GraphicsApi.Direct3D11) {
+	else if (graphics === GraphicsApi.Direct3D11 || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/Direct3D11');
 		project.addDefine('KORE_DIRECT3D');
@@ -86,12 +86,25 @@ if (platform === Platform.Windows) {
 		project.addLibFor('Win32', 'Backends/Graphics5/Vulkan/Libraries/win32/vulkan-1');
 		project.addLibFor('x64', 'Backends/Graphics5/Vulkan/Libraries/win64/vulkan-1');
 	}
-	else {
+	else if (graphics === GraphicsApi.Direct3D9) {
 		g4 = true;
 		addBackend('Graphics4/Direct3D9');
 		project.addDefine('KORE_DIRECT3D');
 		project.addDefine('KORE_DIRECT3D9');
 		project.addLib('d3d9');
+	}
+	else {
+		throw new Error('Graphics API ' + graphics + ' is not available for Windows.');
+	}
+
+	if (audio === AudioApi.DirectSound) {
+		addBackend('Audio2/DirectSound');
+	}
+	else if (audio === AudioApi.WASAPI || audio === AudioApi.Default) {
+		addBackend('Audio2/WASAPI');
+	}
+	else {
+		throw new Error('Audio API ' + audio + ' is not available for Windows.');
 	}
 
 	if (vr === VrApi.Oculus) {
@@ -114,19 +127,31 @@ if (platform === Platform.Windows) {
 		project.addIncludeDir('Backends/System/Windows/Libraries/SteamVR/src/vrcommon');
 		project.addIncludeDir('Backends/System/Windows/Libraries/SteamVR/headers');
 	}
+	else if (vr === VrApi.None) {
+
+	}
+	else {
+		throw new Error('VR API ' + vr + ' is not available for Windows.');
+	}
 }
 else if (platform === Platform.WindowsApp) {
 	g4 = true;
 	project.addDefine('KORE_WINDOWSAPP');
 	addBackend('System/WindowsApp');
 	addBackend('Graphics4/Direct3D11');
+	addBackend('Audio2/WASAPI');
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');
 	
 	if (vr === VrApi.Hololens) {
 		project.addDefine('KORE_VR');
 		project.addDefine('KORE_HOLOLENS');
 	}
-	
+	else if (vr === VrApi.None) {
+
+	}
+	else {
+		throw new Error('VR API ' + vr + ' is not available for Windows Universal.');
+	}
 }
 else if (platform === Platform.OSX) {
 	project.addDefine('KORE_MACOS');
@@ -145,11 +170,14 @@ else if (platform === Platform.OSX) {
 		project.addDefine('KORE_OPENGL1');
 		project.addLib('OpenGL');
 	}
-	else {
+	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addDefine('KORE_OPENGL');
 		project.addLib('OpenGL');
+	}
+	else {
+		throw new Error('Graphics API ' + vr + ' is not available for macOS.');
 	}
 	project.addLib('IOKit');
 	project.addLib('Cocoa');
@@ -178,12 +206,15 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 		project.addDefine('KORE_METAL');
 		project.addLib('Metal');
 	}
-	else {
+	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addDefine('KORE_OPENGL');
 		project.addDefine('KORE_OPENGL_ES');
 		project.addLib('OpenGLES');
+	}
+	else {
+		throw new Error('Graphics API ' + vr + ' is not available for iOS.');
 	}
 	project.addLib('UIKit');
 	project.addLib('Foundation');
@@ -207,11 +238,14 @@ else if (platform === Platform.Android) {
 		addBackend('Graphics5/Vulkan');
 		project.addDefine('KORE_VULKAN');
 	}
-	else {
+	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addDefine('KORE_OPENGL');
 		project.addDefine('KORE_OPENGL_ES');
+	}
+	else {
+		throw new Error('Graphics API ' + vr + ' is not available for Android.');
 	}
 	project.addDefine('KORE_ANDROID_API=15');
 	project.addDefine('KORE_POSIX');
@@ -245,13 +279,16 @@ else if (platform === Platform.Linux) {
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_XCB_KHR');
 	}
-	else {
+	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addLib('GL');
 		project.addLib('X11');
 		project.addLib('Xinerama');
 		project.addDefine('KORE_OPENGL');
+	}
+	else {
+		throw new Error('Graphics API ' + vr + ' is not available for Linux.');
 	}
 	project.addDefine('KORE_POSIX');
 }
@@ -290,6 +327,7 @@ else {
 	g5 = true;
 	if (platform === Platform.XboxOne) {
 		addBackend('Graphics5/Direct3D12');
+		addBackend('Audio2/WASAPI');
 		project.addDefine('KORE_DIRECT3D');
 		project.addDefine('KORE_DIRECT3D12');
 	}
