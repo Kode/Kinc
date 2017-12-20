@@ -15,7 +15,7 @@ using namespace Kore;
 extern const char* macgetresourcepath();
 
 const char* macgetresourcepath() {
-	return [[[NSBundle mainBundle] resourcePath] cStringUsingEncoding:1];
+	return [[[NSBundle mainBundle] resourcePath] cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
 @interface MyApplication : NSApplication {
@@ -120,7 +120,7 @@ int createWindow(Kore::WindowOptions options) {
 	                                                   defer:TRUE];
 	delegate = [MyAppDelegate alloc];
 	[window setDelegate:delegate];
-	[window setTitle:[NSString stringWithCString:options.title encoding:1]];
+	[window setTitle:[NSString stringWithCString:options.title encoding:NSUTF8StringEncoding]];
 	[window setAcceptsMouseMovedEvents:YES];
 	[[window contentView] addSubview:view];
 	[window center];
@@ -191,7 +191,7 @@ namespace {
 		[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
 
 		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
-		savePath = [resolvedPath cStringUsingEncoding:1];
+		savePath = [resolvedPath cStringUsingEncoding:NSUTF8StringEncoding];
 	}
 
 	int argc = 0;
