@@ -2,10 +2,12 @@
 
 #include <Kore/Audio2/Audio.h>
 #include <Kore/Threads/Thread.h>
+#include <Kore/Log.h>
 #include <Kore/WinError.h>
 
-#include <AudioClient.h>
 #include <Windows.h>
+#include <initguid.h>
+#include <AudioClient.h>
 #include <mfapi.h>
 #include <mmdeviceapi.h>
 #include <wrl/implements.h>
@@ -80,9 +82,16 @@ namespace {
 		format.nSamplesPerSec = sampleRate;
 		format.wFormatTag = WAVE_FORMAT_PCM;
 		format.wBitsPerSample = sizeof(short) * 8;
-		format.nBlockAlign = (format.nChannels*format.wBitsPerSample) / 8;
-		format.nAvgBytesPerSec = format.nSamplesPerSec*format.nBlockAlign;
-		affirm(audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, &format, 0));
+		format.nBlockAlign = (format.nChannels * format.wBitsPerSample) / 8;
+		format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
+		format.cbSize = 0;
+		HRESULT result = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, &format, 0);
+		if (result != S_OK) {
+			log(Warning, "Falling back to the system's preferred mix format.");
+			WAVEFORMATEX* format;
+			audioClient->GetMixFormat(&format);
+			affirm(audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0));
+		}
 
 		bufferFrames = 0;
 		affirm(audioClient->GetBufferSize(&bufferFrames));

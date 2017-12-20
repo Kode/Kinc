@@ -9,7 +9,7 @@
 #define S_OK ((HRESULT)0L)
 
 namespace {
-	void winerror() {
+	void winerror(HRESULT result) {
 		LPVOID buffer = nullptr;
 		DWORD dw = GetLastError();
 
@@ -20,14 +20,14 @@ namespace {
 			Kore::error("Error: %s", buffer);
 		}
 		else {
-			Kore::error();
+			Kore::error("Unknown Windows error, return value was 0x%x.", result);
 		}
 	}
 }
 
 void Kore::affirm(HRESULT result) {
 	if (result != S_OK) {
-		winerror();
+		winerror(result);
 	}
 }
 
