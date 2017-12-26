@@ -72,7 +72,7 @@ void Audio1::mix(int samples) {
 		value = c.m128_f32[0] + c.m128_f32[1] + c.m128_f32[2] + c.m128_f32[3];
 		value = max(min(value, 1.0f), -1.0f);
 #else
-		mutex.Lock();
+		mutex.lock();
 		for (int i = 0; i < channelCount; ++i) {
 			if (channels[i].sound != nullptr) {
 				// value += *(s16*)&channels[i].sound->data[(int)channels[i].position] / 32767.0f * channels[i].sound->volume();
@@ -107,7 +107,7 @@ void Audio1::mix(int samples) {
 				if (videos[i].stream->ended()) videos[i].stream = nullptr;
 			}
 		}
-		mutex.Unlock();
+		mutex.unlock();
 #endif
 		*(float*)&Audio2::buffer.data[Audio2::buffer.writeLocation] = value;
 		Audio2::buffer.writeLocation += 4;
@@ -124,13 +124,13 @@ void Audio1::init() {
 		streams[i].stream = nullptr;
 		streams[i].position = 0;
 	}
-	mutex.Create();
+	mutex.create();
 	Audio2::audioCallback = mix;
 }
 
 Audio1::Channel* Audio1::play(Sound* sound, bool loop, float pitch) {
 	Channel* channel = nullptr;
-	mutex.Lock();
+	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == nullptr) {
 			channels[i].sound = sound;
@@ -142,12 +142,12 @@ Audio1::Channel* Audio1::play(Sound* sound, bool loop, float pitch) {
 			break;
 		}
 	}
-	mutex.Unlock();
+	mutex.unlock();
 	return channel;
 }
 
 void Audio1::stop(Sound* sound) {
-	mutex.Lock();
+	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == sound) {
 			channels[i].sound = nullptr;
@@ -155,11 +155,11 @@ void Audio1::stop(Sound* sound) {
 			break;
 		}
 	}
-	mutex.Unlock();
+	mutex.unlock();
 }
 
 void Audio1::play(SoundStream* stream) {
-	mutex.Lock();
+	mutex.lock();
 
 	for (int i = 0; i < channelCount; ++i) {
 		if (streams[i].stream == stream) {
@@ -177,11 +177,11 @@ void Audio1::play(SoundStream* stream) {
 		}
 	}
 
-	mutex.Unlock();
+	mutex.unlock();
 }
 
 void Audio1::stop(SoundStream* stream) {
-	mutex.Lock();
+	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (streams[i].stream == stream) {
 			streams[i].stream = nullptr;
@@ -189,11 +189,11 @@ void Audio1::stop(SoundStream* stream) {
 			break;
 		}
 	}
-	mutex.Unlock();
+	mutex.unlock();
 }
 
 void Audio1::play(VideoSoundStream* stream) {
-	mutex.Lock();
+	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (videos[i].stream == nullptr) {
 			videos[i].stream = stream;
@@ -201,11 +201,11 @@ void Audio1::play(VideoSoundStream* stream) {
 			break;
 		}
 	}
-	mutex.Unlock();
+	mutex.unlock();
 }
 
 void Audio1::stop(VideoSoundStream* stream) {
-	mutex.Lock();
+	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (videos[i].stream == stream) {
 			videos[i].stream = nullptr;
@@ -213,5 +213,5 @@ void Audio1::stop(VideoSoundStream* stream) {
 			break;
 		}
 	}
-	mutex.Unlock();
+	mutex.unlock();
 }

@@ -1,16 +1,19 @@
 #pragma once
 
+#include <Kore/MutexImpl.h>
+
 #if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && defined(KORE_POSIX)
 #include <pthread.h>
 #endif
 
 namespace Kore {
-	class Mutex {
+	class Mutex : public MutexImpl {
 	public:
-		void Create();
-		void Free();
-		void Lock();
-		void Unlock();
+		void create();
+		void free();
+		void lock();
+		bool tryLock();
+		void unlock();
 
 	private:
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_XBOX_ONE)
@@ -33,10 +36,9 @@ namespace Kore {
 		void* id;
 #endif
 
-		bool Create(const wchar_t* name);
-		void Free();
-
-		void Lock();
-		void Unlock();
+		bool create(const wchar_t* name);
+		void free();
+		void lock();
+		void unlock();
 	};
 }
