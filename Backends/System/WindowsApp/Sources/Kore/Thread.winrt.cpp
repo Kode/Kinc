@@ -15,14 +15,14 @@ namespace {
 }
 
 Kore::Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param) {
-	mutex.Lock();
+	mutex.lock();
 
 	uint i = index++;
 	// ktassert_d(i != 0xFFFFFFFF);
 	std::thread* t = &tt[i];
 	t->swap(std::thread(thread, param));
 
-	mutex.Unlock();
+	mutex.unlock();
 
 	return (Kore::Thread*)t;
 }
@@ -30,10 +30,10 @@ Kore::Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param)
 void Kore::waitForThreadStopThenFree(Kore::Thread* sr) {
 	std::thread* t = (std::thread*)sr;
 	t->join();
-	mutex.Lock();
+	mutex.lock();
 	uint ti = ((uint)t - (uint)&tt[0]) / sizeof(::Thread);
 	// ia.DeallocateIndex(ti);
-	mutex.Unlock();
+	mutex.unlock();
 }
 
 bool Kore::isThreadStoppedThenFree(Kore::Thread* sr) {
@@ -43,12 +43,12 @@ bool Kore::isThreadStoppedThenFree(Kore::Thread* sr) {
 
 #pragma warning(disable : 4996)
 void Kore::threadsInit() {
-	mutex.Create();
+	mutex.create();
 	// ia.Create(1);//SR_MAX_THREADS32);
 }
 
 void Kore::threadsQuit() {
-	mutex.Free();
+	mutex.destroy();
 	// ia.Free();
 }
 
