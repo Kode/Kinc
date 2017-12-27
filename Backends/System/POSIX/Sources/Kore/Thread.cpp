@@ -10,7 +10,7 @@
 
 using namespace Kore;
 
-#if !defined(KORE_IOS) && !defined(KORE_OSX)
+#if !defined(KORE_IOS) && !defined(KORE_MACOS)
 
 struct IOS_Thread {
 	void* param;
