@@ -10,9 +10,9 @@ namespace Kore {
 	class Mutex : public MutexImpl {
 	public:
 		void create();
-		void free();
+		void destroy();
 		void lock();
-		bool tryLock();
+		bool tryToLock();
 		void unlock();
 
 	private:
@@ -37,7 +37,7 @@ namespace Kore {
 #endif
 
 		bool create(const wchar_t* name);
-		void free();
+		void destroy();
 		void lock();
 		void unlock();
 	};
