@@ -10,7 +10,7 @@
 
 using namespace Kore;
 
-#if !defined(KORE_IOS)
+#if !defined(KORE_IOS) && !defined(KORE_OSX)
 
 struct IOS_Thread {
 	void* param;
@@ -30,7 +30,7 @@ static void* ThreadProc(void* arg) {
 }
 
 Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param) {
-	mutex.Lock();
+	mutex.lock();
 
 	uint i = threadindex++; // ia.AllocateIndex();
 	// ktassert_d(i != 0xFFFFFFFF);
@@ -49,7 +49,7 @@ Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param) {
 	// Kt::affirmD(ret == 0);
 	pthread_attr_destroy(&attr);
 
-	mutex.Unlock();
+	mutex.unlock();
 
 	return (Thread*)t;
 }
@@ -64,23 +64,23 @@ void SR_StopThread(SR_Thread *sr) {
 */
 
 void Kore::waitForThreadStopThenFree(Thread* sr) {
-	mutex.Lock();
+	mutex.lock();
 	IOS_Thread* t = (IOS_Thread*)sr;
 Again:;
 	int ret = pthread_join(t->pthread, NULL);
 	if (ret != 0) goto Again;
-	mutex.Unlock();
+	mutex.unlock();
 	int ti = static_cast<int>(((upint)t - (upint)&tt[0]) / sizeof(IOS_Thread));
 	// ia.DeallocateIndex(ti);
 }
 
 void Kore::threadsInit() {
-	mutex.Create();
+	mutex.create();
 	// ia.Create(1);//SR_MAX_THREADS32);
 }
 
 void Kore::threadsQuit() {
-	mutex.Free();
+	mutex.destroy();
 	// ia.Free();
 }
 
