@@ -7,23 +7,23 @@
 
 using namespace Kore;
 
-void Mutex::Create() {
+void Mutex::create() {
 	InitializeCriticalSection((CRITICAL_SECTION*)&criticalSection);
 }
 
-void Mutex::Free() {
+void Mutex::destroy() {
 	DeleteCriticalSection((CRITICAL_SECTION*)&criticalSection);
 }
 
-void Mutex::Lock() {
+void Mutex::lock() {
 	EnterCriticalSection((CRITICAL_SECTION*)&criticalSection);
 }
 
-void Mutex::Unlock() {
+void Mutex::unlock() {
 	LeaveCriticalSection((CRITICAL_SECTION*)&criticalSection);
 }
 
-bool UberMutex::Create(const wchar_t* name) {
+bool UberMutex::create(const wchar_t* name) {
 	id = (void*)CreateMutex(NULL, FALSE, name);
 	HRESULT res = GetLastError();
 	if (res && res != ERROR_ALREADY_EXISTS) {
@@ -34,19 +34,19 @@ bool UberMutex::Create(const wchar_t* name) {
 	return true;
 }
 
-void UberMutex::Free() {
+void UberMutex::destroy() {
 	if (id) {
 		::CloseHandle((HANDLE)id);
 		id = NULL;
 	}
 }
 
-void UberMutex::Lock() {
+void UberMutex::lock() {
 	bool succ = WaitForSingleObject((HANDLE)id, INFINITE) == WAIT_FAILED ? false : true;
 	affirm(succ);
 }
 
-void UberMutex::Unlock() {
+void UberMutex::unlock() {
 	bool succ = ReleaseMutex((HANDLE)id) == FALSE ? false : true;
 	affirm(succ);
 }

@@ -1,28 +1,30 @@
 #include "pch.h"
+
 #include <Kore/Threads/Mutex.h>
+
 #include <Windows.h>
 
 using namespace Kore;
 
-void Mutex::Create() {
+void Mutex::create() {
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	InitializeCriticalSection((CRITICAL_SECTION*)&criticalSection);
 #endif
 }
 
-void Mutex::Free() {
+void Mutex::destroy() {
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	DeleteCriticalSection((CRITICAL_SECTION*)&criticalSection);
 #endif
 }
 
-void Mutex::Lock() {
+void Mutex::lock() {
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	EnterCriticalSection((CRITICAL_SECTION*)&criticalSection);
 #endif
 }
 
-void Mutex::Unlock() {
+void Mutex::unlock() {
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	LeaveCriticalSection((CRITICAL_SECTION*)&criticalSection);
 #endif
