@@ -5,34 +5,34 @@
 
 using namespace Kore;
 
-void Mutex::Create() {
+void Mutex::create() {
 
 }
 
-void Mutex::Free() {
+void Mutex::destroy() {
 
 }
 
-void Mutex::Lock() {
+void Mutex::lock() {
 
 }
 
-void Mutex::Unlock() {
+void Mutex::unlock() {
 
 }
 
-bool UberMutex::Create(const wchar_t* name) {
+bool UberMutex::create(const wchar_t* name) {
 	return false;
 }
 
-void UberMutex::Free() {
+void UberMutex::destroy() {
 
 }
 
-void UberMutex::Lock() {
+void UberMutex::lock() {
 
 }
 
-void UberMutex::Unlock() {
+void UberMutex::unlock() {
 
 }

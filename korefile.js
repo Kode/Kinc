@@ -157,6 +157,7 @@ else if (platform === Platform.OSX) {
 	project.addDefine('KORE_MACOS');
 	addBackend('System/Apple');
 	addBackend('System/macOS');
+	addBackend('System/POSIX');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
 		g5 = true;
@@ -199,6 +200,7 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	}
 	addBackend('System/Apple');
 	addBackend('System/iOS');
+	addBackend('System/POSIX');
 	if (graphics === GraphicsApi.Metal) {
 		g4 = true;
 		g5 = true;
@@ -232,6 +234,7 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 else if (platform === Platform.Android) {
 	project.addDefine('KORE_ANDROID');
 	addBackend('System/Android');
+	addBackend('System/POSIX');
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
@@ -268,6 +271,7 @@ else if (platform === Platform.HTML5) {
 else if (platform === Platform.Linux) {
 	project.addDefine('KORE_LINUX');
 	addBackend('System/Linux');
+	addBackend('System/POSIX');
 	project.addLib('asound');
 	project.addLib('dl');
 	if (graphics === GraphicsApi.Vulkan) {
@@ -296,6 +300,7 @@ else if (platform === Platform.Pi) {
 	g4 = true;
 	project.addDefine('KORE_PI');
 	addBackend('System/Pi');
+	addBackend('System/POSIX');
 	addBackend('Graphics4/OpenGL');
 	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
 	project.addDefine('KORE_OPENGL');
@@ -315,6 +320,7 @@ else if (platform === Platform.Tizen) {
 	g4 = true;
 	project.addDefine('KORE_TIZEN');
 	addBackend('System/Tizen');
+	addBackend('System/POSIX');
 	addBackend('Graphics4/OpenGL');
 	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
 	project.addDefine('KORE_OPENGL');

@@ -10,6 +10,8 @@
 
 using namespace Kore;
 
+#if !defined(KORE_IOS)
+
 struct IOS_Thread {
 	void* param;
 	void (*thread)(void* param);
@@ -81,3 +83,5 @@ void Kore::threadsQuit() {
 	mutex.Free();
 	// ia.Free();
 }
+
+#endif
