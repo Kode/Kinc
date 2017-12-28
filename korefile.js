@@ -178,7 +178,7 @@ else if (platform === Platform.OSX) {
 		project.addLib('OpenGL');
 	}
 	else {
-		throw new Error('Graphics API ' + vr + ' is not available for macOS.');
+		throw new Error('Graphics API ' + graphics + ' is not available for macOS.');
 	}
 	project.addLib('IOKit');
 	project.addLib('Cocoa');
@@ -216,7 +216,7 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 		project.addLib('OpenGLES');
 	}
 	else {
-		throw new Error('Graphics API ' + vr + ' is not available for iOS.');
+		throw new Error('Graphics API ' + graphics + ' is not available for iOS.');
 	}
 	project.addLib('UIKit');
 	project.addLib('Foundation');
@@ -248,7 +248,7 @@ else if (platform === Platform.Android) {
 		project.addDefine('KORE_OPENGL_ES');
 	}
 	else {
-		throw new Error('Graphics API ' + vr + ' is not available for Android.');
+		throw new Error('Graphics API ' + graphics + ' is not available for Android.');
 	}
 	project.addDefine('KORE_ANDROID_API=15');
 	project.addDefine('KORE_POSIX');
@@ -292,7 +292,7 @@ else if (platform === Platform.Linux) {
 		project.addDefine('KORE_OPENGL');
 	}
 	else {
-		throw new Error('Graphics API ' + vr + ' is not available for Linux.');
+		throw new Error('Graphics API ' + graphics + ' is not available for Linux.');
 	}
 	project.addDefine('KORE_POSIX');
 }
