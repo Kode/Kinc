@@ -6,11 +6,11 @@
 #include <Kore/WinError.h>
 
 #include <Windows.h>
+#include <wrl/implements.h>
 #include <initguid.h>
 #include <AudioClient.h>
 #include <mfapi.h>
 #include <mmdeviceapi.h>
-#include <wrl/implements.h>
 
 using namespace Kore;
 
