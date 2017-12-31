@@ -29,13 +29,21 @@ namespace {
 	HANDLE bufferEndEvent;
 	HANDLE audioProcessingDoneEvent;
 	UINT32 bufferFrames;
-	int channels;
+	WAVEFORMATEX requestedFormat;
+	WAVEFORMATEX* format;
 
-	void copySample(s16* buffer) {
+	void copyS16Sample(s16* buffer) {
 		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
 		Audio2::buffer.readLocation += 4;
 		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		*buffer = (s16)(value * 32767);
+	}
+
+	void copyFloatSample(float* buffer) {
+		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+		Audio2::buffer.readLocation += 4;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		*buffer = value;
 	}
 	
 	void submitBuffer(unsigned frames) {
@@ -43,17 +51,26 @@ namespace {
 		if (FAILED(renderClient->GetBuffer(frames, &buffer))) {
 			return;
 		}
-		
-		s16* s16buffer = (s16*)buffer;
+				
 		Kore::Audio2::audioCallback(frames * 2);
-		for (UINT32 i = 0; i < frames * 2; ++i) {
-			copySample(&s16buffer[i]);
+		memset(buffer, 0, frames * format->nBlockAlign);
+		if (format->wFormatTag == WAVE_FORMAT_PCM) {
+			for (UINT32 i = 0; i < frames; ++i) {
+				copyS16Sample((s16*)&buffer[i * format->nBlockAlign]);
+				copyS16Sample((s16*)&buffer[i * format->nBlockAlign + 2]);
+			}
+		}
+		else {
+			for (UINT32 i = 0; i < frames; ++i) {
+				copyFloatSample((float*)&buffer[i * format->nBlockAlign]);
+				copyFloatSample((float*)&buffer[i * format->nBlockAlign + 4]);
+			}
 		}
 
 		renderClient->ReleaseBuffer(frames, 0);
 	}
 
-	void audioThread(LPVOID aParam) {
+	void audioThread(LPVOID) {
 		submitBuffer(bufferFrames);
 		audioClient->Start();
 		while (WAIT_OBJECT_0 != WaitForSingleObject(audioProcessingDoneEvent, 0)) {
@@ -76,19 +93,18 @@ namespace {
 		audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
 		affirm(audioProcessingDoneEvent != 0);
 
-		WAVEFORMATEX format;
-		ZeroMemory(&format, sizeof(WAVEFORMATEX));
-		format.nChannels = 2;
-		format.nSamplesPerSec = sampleRate;
-		format.wFormatTag = WAVE_FORMAT_PCM;
-		format.wBitsPerSample = sizeof(short) * 8;
-		format.nBlockAlign = (format.nChannels * format.wBitsPerSample) / 8;
-		format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
-		format.cbSize = 0;
-		HRESULT result = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, &format, 0);
+		format = &requestedFormat;
+		ZeroMemory(&requestedFormat, sizeof(WAVEFORMATEX));
+		requestedFormat.nChannels = 2;
+		requestedFormat.nSamplesPerSec = sampleRate;
+		requestedFormat.wFormatTag = WAVE_FORMAT_PCM;
+		requestedFormat.wBitsPerSample = sizeof(short) * 8;
+		requestedFormat.nBlockAlign = (requestedFormat.nChannels * requestedFormat.wBitsPerSample) / 8;
+		requestedFormat.nAvgBytesPerSec = requestedFormat.nSamplesPerSec * requestedFormat.nBlockAlign;
+		requestedFormat.cbSize = 0;
+		HRESULT result = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0);
 		if (result != S_OK) {
 			log(Warning, "Falling back to the system's preferred mix format.");
-			WAVEFORMATEX* format;
 			audioClient->GetMixFormat(&format);
 			affirm(audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0));
 		}
@@ -97,8 +113,6 @@ namespace {
 		affirm(audioClient->GetBufferSize(&bufferFrames));
 		affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
 		affirm(audioClient->SetEventHandle(bufferEndEvent));
-
-		channels = format.nChannels;
 
 #ifdef KORE_WINDOWS
 		createAndRunThread(audioThread, nullptr);
