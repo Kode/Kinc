@@ -169,6 +169,7 @@ int d3d12_textureAlignment();
 
 int Graphics5::Texture::stride() {
 	int baseStride = format == Image::RGBA32 ? (width * 4) : width;
+	if (format == Image::Grey8) return width; // please investigate further
 	for (int i = 0; ; ++i) {
 		if (d3d12_textureAlignment() * i >= baseStride) {
 			return d3d12_textureAlignment() * i;

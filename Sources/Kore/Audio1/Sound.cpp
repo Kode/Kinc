@@ -7,6 +7,8 @@
 #include <Kore/Audio2/Audio.h>
 #include <Kore/Error.h>
 #include <Kore/IO/FileReader.h>
+
+#include <assert.h>
 #include <string.h>
 
 using namespace Kore;
@@ -62,23 +64,42 @@ namespace {
 		}
 	}
 
-	void split(s16* data, int size, s16* left, s16* right) {
-		for (int i = 0; i < size / 4; ++i) {
-			left[i] = data[i * 2];
+	s16 convert8to16(u8 sample) {
+		return (sample - 127) << 8;
+	}
+
+	void splitStereo8(u8* data, int size, s16* left, s16* right) {
+		for (int i = 0; i < size; ++i) {
+			left[i]  = convert8to16(data[i * 2 + 0]);
+			right[i] = convert8to16(data[i * 2 + 1]);
+		}
+	}
+
+	void splitStereo16(s16* data, int size, s16* left, s16* right) {
+		for (int i = 0; i < size; ++i) {
+			left[i]  = data[i * 2 + 0];
 			right[i] = data[i * 2 + 1];
 		}
 	}
+
+	void splitMono8(u8* data, int size, s16* left, s16* right) {
+		for (int i = 0; i < size; ++i) {
+			left[i]  = convert8to16(data[i]);
+			right[i] = convert8to16(data[i]);
+		}
+	}
 	
-	void splitMono(s16* data, int size, s16* left, s16* right) {
-		for (int i = 0; i < size / 4; ++i) {
-			left[i] = data[i];
+	void splitMono16(s16* data, int size, s16* left, s16* right) {
+		for (int i = 0; i < size; ++i) {
+			left[i]  = data[i];
 			right[i] = data[i];
 		}
 	}
 }
 
-Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), right(0) {
+Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 	size_t filenameLength = strlen(filename);
+	u8* data;
 
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
 		FileReader file(filename);
@@ -110,23 +131,47 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), data(0), left(0), rig
 		data = wave.data;
 		size = wave.dataSize;
 	}
-	left = new s16[size / 2];
-	right = new s16[size / 2];
 	if (format.channels == 1) {
-		splitMono((s16*)data, size, left, right);
+		if (format.bitsPerSample == 8) {
+			left = new s16[size];
+			right = new s16[size];
+			splitMono8(data, size, left, right);
+		}
+		else if (format.bitsPerSample == 16) {
+			size /= 2;
+			left = new s16[size];
+			right = new s16[size];
+			splitMono16((s16*)data, size, left, right);
+		}
+		else {
+			assert(false);
+		}
 	}
 	else {
 		// Left and right channel are in s16 audio stream, alternating.
-		split((s16*)data, size, left, right);
+		if (format.bitsPerSample == 8) {
+			size /= 2;
+			left = new s16[size];
+			right = new s16[size];
+			splitStereo8(data, size, left, right);
+		}
+		else if (format.bitsPerSample == 16) {
+			size /= 4;
+			left = new s16[size];
+			right = new s16[size];
+			splitStereo16((s16*)data, size, left, right);
+		}
+		else {
+			assert(false);
+		}
 	}
 	sampleRatePos = 44100 / (float)format.samplesPerSecond;
+	delete[] data;
 }
 
 Sound::~Sound() {
-	delete[] data;
 	delete[] left;
 	delete[] right;
-	data = nullptr;
 	left = nullptr;
 	right = nullptr;
 }
