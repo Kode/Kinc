@@ -99,7 +99,7 @@ namespace {
 
 Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 	size_t filenameLength = strlen(filename);
-	u8* data;
+	u8* data = nullptr;
 
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
 		FileReader file(filename);
@@ -131,6 +131,10 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 		data = wave.data;
 		size = wave.dataSize;
 	}
+	else {
+		assert(false);
+	}
+
 	if (format.channels == 1) {
 		if (format.bitsPerSample == 8) {
 			left = new s16[size];
