@@ -14,7 +14,10 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	: RenderTargetImpl(width, height, depthBufferBits, antialiasing, (Graphics5::RenderTargetFormat)format, stencilBufferBits, contextId) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
-	commandList->clear(&_renderTarget, ClearColorFlag);
+	if (contextId >= 0) {
+		commandList->textureToRenderTargetBarrier(&_renderTarget);
+		commandList->clear(&_renderTarget, ClearColorFlag);
+	}
 }
 
 Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
