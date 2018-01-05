@@ -22,6 +22,7 @@
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
 #include <climits>
+#include <assert.h>
 //#include <X11/Xlib.h>
 #endif
 
@@ -111,7 +112,7 @@ namespace {
 #endif
 
 int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
-                 int stencilBufferBits) {
+                 int stencilBufferBits, int antialiasingSamples) {
 
 	int nameLength = strlen(Kore::System::name());
 	char strName[nameLength+1];
@@ -149,12 +150,44 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 		fatalError("X server has no OpenGL GLX extension");
 	}
 
-	// (3) find an appropriate visual
-	// find an OpenGL-capable RGB visual with depth buffer
 	int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, None};
 	int dblBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
 
-	vi = glXChooseVisual(dpy, DefaultScreen(dpy), dblBuf);
+	vi = NULL;
+	if (antialiasingSamples > 1) {
+        int attribs[] = {GLX_X_RENDERABLE    , True,
+        GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
+        GLX_RENDER_TYPE     , GLX_RGBA_BIT,
+        GLX_X_VISUAL_TYPE   , GLX_TRUE_COLOR,
+        GLX_RED_SIZE        , 8,
+        GLX_GREEN_SIZE      , 8,
+        GLX_BLUE_SIZE       , 8,
+        GLX_ALPHA_SIZE      , 8,
+        GLX_DEPTH_SIZE      , 24,
+        GLX_STENCIL_SIZE    , 8,
+        GLX_DOUBLEBUFFER    , True,
+        GLX_SAMPLE_BUFFERS  , 1,
+        GLX_SAMPLES         , antialiasingSamples,
+        None};
+
+        GLXFBConfig fbconfig = 0;
+        int fbcount;
+        GLXFBConfig* fbc = glXChooseFBConfig(dpy, DefaultScreen(dpy), attribs, &fbcount);
+        if (fbc) {
+            if (fbcount >= 1) {
+                fbconfig = fbc[0];
+            }
+            XFree(fbc);
+        }
+
+        assert(fbconfig);
+
+        vi = glXGetVisualFromFBConfig(dpy, fbconfig);
+	}
+
+	if (vi == NULL) {
+        vi = glXChooseVisual(dpy, DefaultScreen(dpy), dblBuf);
+    }
 
 	if (vi == NULL) {
 		vi = glXChooseVisual(dpy, DefaultScreen(dpy), snglBuf);
@@ -351,7 +384,7 @@ namespace Kore {
 			}
 
 			int id = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay,
-			                      options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+			                      options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, options.rendererOptions.antialiasing);
 			Graphics4::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 			return id;
 		}
