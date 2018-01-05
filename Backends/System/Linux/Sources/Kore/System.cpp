@@ -180,9 +180,9 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
             XFree(fbc);
         }
 
-        assert(fbconfig);
-
-        vi = glXGetVisualFromFBConfig(dpy, fbconfig);
+        if (fbconfig) {
+            vi = glXGetVisualFromFBConfig(dpy, fbconfig);
+        }
 	}
 
 	if (vi == NULL) {
