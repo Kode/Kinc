@@ -84,6 +84,8 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	affirm(device->CreateTexture2D(&desc, &data, &texture));
 	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
+	computeView = nullptr;
+
 	if (!readable) {
 		if (isHdr) {
 			delete[] this->hdrData;
