@@ -55,12 +55,29 @@ int Graphics1::Image::sizeOf(Image::Format format) {
 
 Graphics1::Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
 	compression = ImageCompressionNone;
-	data = new u8[width * height * sizeOf(format)];
+	
+	// If format is a floating point format
+	if(format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
+		hdrData = reinterpret_cast<float*>(new u8[width * height * sizeOf(format)]);
+		data = nullptr;
+	} else {
+		data = new u8[width * height * sizeOf(format)];
+		hdrData = nullptr;
+	}
 }
 
 Graphics1::Image::Image(int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compression = ImageCompressionNone;
-	data = new u8[width * height * depth * sizeOf(format)];
+	
+	// If format is a floating point format
+	if(format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
+		hdrData = reinterpret_cast<float*>(new u8[width * height * sizeOf(format)]);
+		data = nullptr;
+	}
+	else {
+		data = new u8[width * height * sizeOf(format)];
+		hdrData = nullptr;
+	}
 }
 
 Graphics1::Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
@@ -75,23 +92,23 @@ Graphics1::Image::Image(Reader& reader, const char* format, bool readable) : dep
 Graphics1::Image::Image(void* data, int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
 	compression = ImageCompressionNone;
 	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
-    if (isFloat) {
-        this->hdrData = (float*)data;
-    }
-    else {
-        this->data = (u8*)data;
-    }
+	if (isFloat) {
+		this->hdrData = (float*)data;
+	}
+	else {
+		this->data = (u8*)data;
+	}
 }
 
 Graphics1::Image::Image(void* data, int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compression = ImageCompressionNone;
 	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
-    if (isFloat) {
-        this->hdrData = (float*)data;
-    }
-    else {
-        this->data = (u8*)data;
-    }
+	if (isFloat) {
+		this->hdrData = (float*)data;
+	}
+	else {
+		this->data = (u8*)data;
+	}
 }
 
 Graphics1::Image::Image() : depth(1), format(RGBA32), readable(false) {}
