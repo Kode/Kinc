@@ -513,7 +513,8 @@ int Graphics4::Texture::stride() {
 }
 
 u8* Graphics4::Texture::lock() {
-	return (u8*)data;
+	// If data is nullptr then it must be a float image
+	return (data ? data : reinterpret_cast<u8*>(hdrData));
 }
 
 /*void Texture::unlock() {
