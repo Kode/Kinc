@@ -58,6 +58,32 @@ struct DepthBuffer {
 	}
 };
 
+//-----------------------------------------------------------
+struct Camera
+{
+	XMVECTOR Pos;
+	XMVECTOR Rot;
+	Camera() {};
+	Camera(XMVECTOR * pos, XMVECTOR * rot) : Pos(*pos), Rot(*rot) {};
+	Camera(const XMVECTOR & pos, const XMVECTOR & rot) : Pos(pos), Rot(rot) {};
+	XMMATRIX GetViewMatrix()
+	{
+		XMVECTOR forward = XMVector3Rotate(XMVectorSet(0, 0, -1, 0), Rot);
+		return(XMMatrixLookAtRH(Pos, XMVectorAdd(Pos, forward), XMVector3Rotate(XMVectorSet(0, 1, 0, 0), Rot)));
+	}
+
+	static void* operator new(std::size_t size)
+	{
+		UNREFERENCED_PARAMETER(size);
+		return _aligned_malloc(sizeof(Camera), __alignof(Camera));
+	}
+
+	static void operator delete(void* p)
+	{
+		_aligned_free(p);
+	}
+};
+
 //---------------------------------------------------------------------
 struct DirectX11 {
 	HWND Window;
@@ -332,6 +358,31 @@ void VrInterface::endRender(int eye) {
 	pEyeRenderTexture[eye]->Commit();
 }
 
+
+namespace {
+
+	mat4 convert(ovrMatrix4f& m) {
+		mat4 mat;
+		mat.Set(0, 0, m.M[0][0]); mat.Set(0, 1, m.M[0][1]); mat.Set(0, 2, m.M[0][2]); mat.Set(0, 3, m.M[0][3]);
+		mat.Set(1, 0, m.M[1][0]); mat.Set(1, 1, m.M[1][1]); mat.Set(1, 2, m.M[1][2]); mat.Set(1, 3, m.M[1][3]);
+		mat.Set(2, 0, m.M[2][0]); mat.Set(2, 1, m.M[2][1]); mat.Set(2, 2, m.M[2][2]); mat.Set(2, 3, m.M[2][3]);
+		mat.Set(3, 0, m.M[3][0]); mat.Set(3, 1, m.M[3][1]); mat.Set(3, 2, m.M[3][2]); mat.Set(3, 3, m.M[3][3]);
+		return mat;
+	}
+
+	mat4 convert(XMMATRIX& m) {
+		XMFLOAT4X4 fView;
+		XMStoreFloat4x4(&fView, m);
+
+		mat4 mat;
+		mat.Set(0, 0, fView._11); mat.Set(0, 1, fView._12); mat.Set(0, 2, fView._13); mat.Set(0, 3, fView._14);
+		mat.Set(1, 0, fView._21); mat.Set(1, 1, fView._22); mat.Set(1, 2, fView._23); mat.Set(1, 3, fView._24);
+		mat.Set(2, 0, fView._31); mat.Set(2, 1, fView._32); mat.Set(2, 2, fView._33); mat.Set(2, 3, fView._34);
+		mat.Set(3, 0, fView._41); mat.Set(3, 1, fView._42); mat.Set(3, 2, fView._43); mat.Set(3, 3, fView._44);
+		return mat;
+	}
+}
+
 SensorState VrInterface::getSensorState(int eye) {
 	VrPoseState poseState;
 
@@ -363,6 +414,47 @@ SensorState VrInterface::getSensorState(int eye) {
 
 	ovrVector3f predPos = EyePredictedPose[eye].Position;
 	predictedPoseState.vrPose.position = vec3(predPos.x, predPos.y, predPos.z);
+
+	// Get view and projection matrices for the Rift camera
+	/*mat4 rot = poseState.vrPose.orientation.matrix();
+	vec4 finalUp = rot.Translation(0, 1, 0) * vec4(0, 0, 0, 1);
+	vec4 finalForward = rot.Translation(0, 0, -1) * vec4(0, 0, 0, 1);
+	vec4 focusPos = vec4(pos.x, pos.y, pos.z, 0.0f) + finalForward;
+	XMVECTOR posVec = XMVectorSet(pos.x, pos.y, pos.z, 0);
+	XMVECTOR focusVec = XMVectorSet(focusPos.x(), focusPos.y(), focusPos.z(), 0);
+	XMVECTOR finalUpVec = XMVectorSet(finalUp.x(), finalUp.y(), finalUp.z(), 0);
+	XMMATRIX view = XMMatrixLookAtRH(posVec, focusVec, finalUpVec);
+	ovrMatrix4f p = ovrMatrix4f_Projection(fov, 0.2f, 1000.0f, ovrProjection_None);
+	XMMATRIX proj = XMMatrixSet(p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
+								p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
+								p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
+								p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3]);
+
+	//mat4 viewMatrix = convert(view).Transpose();
+	mat4 viewMatrix = convert(view).Invert();
+	poseState.vrPose.eye = viewMatrix;
+	poseState.vrPose.projection = convert(proj).Transpose();*/
+
+
+	//Get the pose information in XM format
+	XMVECTOR eyeQuat = XMVectorSet(EyePose[eye].Orientation.x, EyePose[eye].Orientation.y,
+								   EyePose[eye].Orientation.z, EyePose[eye].Orientation.w);
+	XMVECTOR eyePos = XMVectorSet(EyePose[eye].Position.x, EyePose[eye].Position.y, EyePose[eye].Position.z, 0);
+
+	// Get view and projection matrices for the Rift camera
+	XMVECTOR cameraPos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR cameraRot = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	XMVECTOR CombinedPos = XMVectorAdd(cameraPos, XMVector3Rotate(eyePos, cameraRot));
+	Camera finalCam(CombinedPos, XMQuaternionMultiply(eyeQuat, cameraRot));
+	XMMATRIX view = finalCam.GetViewMatrix();
+	ovrMatrix4f p = ovrMatrix4f_Projection(fov, 0.2f, 1000.0f, ovrProjection_None);
+	XMMATRIX proj = XMMatrixSet(p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
+		p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
+		p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
+		p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3]);
+
+	poseState.vrPose.eye = convert(view).Transpose();
+	poseState.vrPose.projection = convert(proj).Transpose();
 
 	sensorStates[eye].predictedPose = predictedPoseState;
 	sensorStates[eye].pose = poseState;
