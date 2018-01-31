@@ -1,0 +1,17 @@
+{
+    "appId": "827064807402789",
+    "canonicalName": "oculus-vrcvalidator",
+    "isCore": true,
+    "packageType": "CORE_APP",
+    "launchFile": "OculusVrcValidator.exe",
+    "launchParameters": "",
+    "launchFile2D": null,
+    "launchParameters2D": "",
+    "version": "1.0",
+    "versionCode": 100,
+    "redistributables": [],
+    "files": {
+        "OculusVrcValidator.exe": "03dc1bb3227d5da519a43b625a15ad2164e0a9598e3c33f60f2fda7ee066dd1f"
+    },
+    "firewallExceptionsRequired": false
+}

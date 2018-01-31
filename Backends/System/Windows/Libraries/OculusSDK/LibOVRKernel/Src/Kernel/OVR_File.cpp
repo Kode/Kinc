@@ -8,16 +8,16 @@ Authors     :   Michael Antonov
 
 Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
 
-Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License"); 
-you may not use the Oculus VR Rift SDK except in compliance with the License, 
-which is provided at the time of installation or download, or which 
+Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
+you may not use the Oculus VR Rift SDK except in compliance with the License,
+which is provided at the time of installation or download, or which
 otherwise accompanies this software in either electronic or hard copy form.
 
 You may obtain a copy of the License at
 
-http://www.oculusvr.com/licenses/LICENSE-3.3 
+http://www.oculusvr.com/licenses/LICENSE-3.3
 
-Unless required by applicable law or agreed to in writing, the Oculus VR SDK 
+Unless required by applicable law or agreed to in writing, the Oculus VR SDK
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
@@ -25,7 +25,7 @@ limitations under the License.
 
 **************************************************************************/
 
-#define  GFILE_CXX
+#define GFILE_CXX
 
 // Standard C library (Captain Obvious guarantees!)
 #include <stdio.h>
@@ -37,42 +37,38 @@ namespace OVR {
 // Buffered file adds buffering to an existing file
 // FILEBUFFER_SIZE defines the size of internal buffer, while
 // FILEBUFFER_TOLERANCE controls the amount of data we'll effectively try to buffer
-#define FILEBUFFER_SIZE         (8192-8)
-#define FILEBUFFER_TOLERANCE    4096
+#define FILEBUFFER_SIZE (8192 - 8)
+#define FILEBUFFER_TOLERANCE 4096
 
 // ** Constructor/Destructor
 
 // Hidden constructor
 // Not supposed to be used
-BufferedFile::BufferedFile() : DelegatedFile(0)
-{
-    pBuffer     = (uint8_t*)OVR_ALLOC(FILEBUFFER_SIZE);
-    BufferMode  = NoBuffer;
-    FilePos     = 0;
-    Pos         = 0;
-    DataSize    = 0;
+BufferedFile::BufferedFile() : DelegatedFile(0) {
+  pBuffer = (uint8_t*)OVR_ALLOC(FILEBUFFER_SIZE);
+  BufferMode = NoBuffer;
+  FilePos = 0;
+  Pos = 0;
+  DataSize = 0;
 }
 
 // Takes another file as source
-BufferedFile::BufferedFile(File *pfile) : DelegatedFile(pfile)
-{
-    pBuffer     = (uint8_t*)OVR_ALLOC(FILEBUFFER_SIZE);
-    BufferMode  = NoBuffer;
-    FilePos     = pfile->LTell();
-    Pos         = 0;
-    DataSize    = 0;
+BufferedFile::BufferedFile(File* pfile) : DelegatedFile(pfile) {
+  pBuffer = (uint8_t*)OVR_ALLOC(FILEBUFFER_SIZE);
+  BufferMode = NoBuffer;
+  FilePos = pfile->LTell();
+  Pos = 0;
+  DataSize = 0;
 }
 
-
 // Destructor
-BufferedFile::~BufferedFile()
-{
-    // Flush in case there's data
-    if (pFile)
-        FlushBuffer();
-    // Get rid of buffer
-    if (pBuffer)
-        OVR_FREE(pBuffer);
+BufferedFile::~BufferedFile() {
+  // Flush in case there's data
+  if (pFile)
+    FlushBuffer();
+  // Get rid of buffer
+  if (pBuffer)
+    OVR_FREE(pBuffer);
 }
 
 /*
@@ -94,66 +90,60 @@ bool    BufferedFile::VCopy(const Object &source)
 */
 
 // Initializes buffering to a certain mode
-bool    BufferedFile::SetBufferMode(BufferModeType mode)
-{
-    if (!pBuffer)
-        return false;
-    if (mode == BufferMode)
-        return true;
-     
-    FlushBuffer();
+bool BufferedFile::SetBufferMode(BufferModeType mode) {
+  if (!pBuffer)
+    return false;
+  if (mode == BufferMode)
+    return true;
 
-    // Can't set write mode if we can't write
-    if ((mode==WriteBuffer) && (!pFile || !pFile->IsWritable()) )
-        return 0;
+  FlushBuffer();
 
-    // And SetMode
-    BufferMode = mode;
-    Pos        = 0;
-    DataSize   = 0;
-    return 1;
+  // Can't set write mode if we can't write
+  if ((mode == WriteBuffer) && (!pFile || !pFile->IsWritable()))
+    return 0;
+
+  // And SetMode
+  BufferMode = mode;
+  Pos = 0;
+  DataSize = 0;
+  return 1;
 }
 
 // Flushes buffer
-void    BufferedFile::FlushBuffer()
-{
-    switch(BufferMode)
-    {
-        case WriteBuffer:
-            // Write data in buffer
-            FilePos += pFile->Write(pBuffer,Pos);
-            Pos = 0;
-            break;
+void BufferedFile::FlushBuffer() {
+  switch (BufferMode) {
+    case WriteBuffer:
+      // Write data in buffer
+      FilePos += pFile->Write(pBuffer, Pos);
+      Pos = 0;
+      break;
 
-        case ReadBuffer:
-            // Seek back & reset buffer data
-            if ((DataSize-Pos)>0)
-                FilePos = pFile->LSeek(-(int)(DataSize-Pos), Seek_Cur);
-            DataSize = 0;
-            Pos      = 0;
-            break;
-        default:
-            // not handled!
-            break;
-    }
+    case ReadBuffer:
+      // Seek back & reset buffer data
+      if ((DataSize - Pos) > 0)
+        FilePos = pFile->LSeek(-(int)(DataSize - Pos), Seek_Cur);
+      DataSize = 0;
+      Pos = 0;
+      break;
+    default:
+      // not handled!
+      break;
+  }
 }
 
 // Reloads data for ReadBuffer
-void    BufferedFile::LoadBuffer()
-{
-    if (BufferMode == ReadBuffer)
-    {
-        // We should only reload once all of pre-loaded buffer is consumed.
-        OVR_ASSERT(Pos == DataSize);
+void BufferedFile::LoadBuffer() {
+  if (BufferMode == ReadBuffer) {
+    // We should only reload once all of pre-loaded buffer is consumed.
+    OVR_ASSERT(Pos == DataSize);
 
-        // WARNING: Right now LoadBuffer() assumes the buffer's empty
-        int sz   = pFile->Read(pBuffer,FILEBUFFER_SIZE);
-        DataSize = sz<0 ? 0 : (unsigned)sz;
-        Pos      = 0;
-        FilePos  += DataSize;
-    }
+    // WARNING: Right now LoadBuffer() assumes the buffer's empty
+    int sz = pFile->Read(pBuffer, FILEBUFFER_SIZE);
+    DataSize = sz < 0 ? 0 : (unsigned)sz;
+    Pos = 0;
+    FilePos += DataSize;
+  }
 }
-
 
 // ** Overridden functions
 
@@ -161,60 +151,52 @@ void    BufferedFile::LoadBuffer()
 // require buffer mode switch, flush, or extra calculations
 
 // Tell() requires buffer adjustment
-int     BufferedFile::Tell()
-{
-    if (BufferMode == ReadBuffer)
-        return int (FilePos - DataSize + Pos);
+int BufferedFile::Tell() {
+  if (BufferMode == ReadBuffer)
+    return int(FilePos - DataSize + Pos);
 
-    int pos = pFile->Tell();
-    // Adjust position based on buffer mode & data
-    if (pos!=-1)
-    {
-        OVR_ASSERT(BufferMode != ReadBuffer);
-        if (BufferMode == WriteBuffer)
-            pos += Pos;
-    }
-    return pos;
+  int pos = pFile->Tell();
+  // Adjust position based on buffer mode & data
+  if (pos != -1) {
+    OVR_ASSERT(BufferMode != ReadBuffer);
+    if (BufferMode == WriteBuffer)
+      pos += Pos;
+  }
+  return pos;
 }
 
-int64_t BufferedFile::LTell()
-{
-    if (BufferMode == ReadBuffer)
-        return FilePos - DataSize + Pos;
+int64_t BufferedFile::LTell() {
+  if (BufferMode == ReadBuffer)
+    return FilePos - DataSize + Pos;
 
-    int64_t pos = pFile->LTell();
-    if (pos!=-1)
-    {
-        OVR_ASSERT(BufferMode != ReadBuffer);
-        if (BufferMode == WriteBuffer)
-            pos += Pos;
-    }
-    return pos;
+  int64_t pos = pFile->LTell();
+  if (pos != -1) {
+    OVR_ASSERT(BufferMode != ReadBuffer);
+    if (BufferMode == WriteBuffer)
+      pos += Pos;
+  }
+  return pos;
 }
 
-int     BufferedFile::GetLength()
-{
-    int len = pFile->GetLength();
-    // If writing through buffer, file length may actually be bigger
-    if ((len!=-1) && (BufferMode==WriteBuffer))
-    {
-        int currPos = pFile->Tell() + Pos;
-        if (currPos>len)
-            len = currPos;
-    }
-    return len;
+int BufferedFile::GetLength() {
+  int len = pFile->GetLength();
+  // If writing through buffer, file length may actually be bigger
+  if ((len != -1) && (BufferMode == WriteBuffer)) {
+    int currPos = pFile->Tell() + Pos;
+    if (currPos > len)
+      len = currPos;
+  }
+  return len;
 }
-int64_t BufferedFile::LGetLength()
-{
-    int64_t len = pFile->LGetLength();
-    // If writing through buffer, file length may actually be bigger
-    if ((len!=-1) && (BufferMode==WriteBuffer))
-    {
-        int64_t currPos = pFile->LTell() + Pos;
-        if (currPos>len)
-            len = currPos;
-    }
-    return len;
+int64_t BufferedFile::LGetLength() {
+  int64_t len = pFile->LGetLength();
+  // If writing through buffer, file length may actually be bigger
+  if ((len != -1) && (BufferMode == WriteBuffer)) {
+    int64_t currPos = pFile->LTell() + Pos;
+    if (currPos > len)
+      len = currPos;
+  }
+  return len;
 }
 
 /*
@@ -239,347 +221,301 @@ bool    BufferedFile::Stat(FileStats *pfs)
 }
 */
 
-int     BufferedFile::Write(const uint8_t *psourceBuffer, int numBytes)
-{
-    if ( (BufferMode==WriteBuffer) || SetBufferMode(WriteBuffer))
-    {
-        // If not data space in buffer, flush
-        if ((FILEBUFFER_SIZE-(int)Pos)<numBytes)
-        {
-            FlushBuffer();
-            // If bigger then tolerance, just write directly
-            if (numBytes>FILEBUFFER_TOLERANCE)
-            {
-                int sz = pFile->Write(psourceBuffer,numBytes);
-                if (sz > 0)
-                    FilePos += sz;
-                return sz;
-            }
-        }
-
-        // Enough space in buffer.. so copy to it
-        memcpy(pBuffer+Pos, psourceBuffer, numBytes);
-        Pos += numBytes;
-        return numBytes;
+int BufferedFile::Write(const uint8_t* psourceBuffer, int numBytes) {
+  if ((BufferMode == WriteBuffer) || SetBufferMode(WriteBuffer)) {
+    // If not data space in buffer, flush
+    if ((FILEBUFFER_SIZE - (int)Pos) < numBytes) {
+      FlushBuffer();
+      // If bigger then tolerance, just write directly
+      if (numBytes > FILEBUFFER_TOLERANCE) {
+        int sz = pFile->Write(psourceBuffer, numBytes);
+        if (sz > 0)
+          FilePos += sz;
+        return sz;
+      }
     }
-    int sz = pFile->Write(psourceBuffer,numBytes);
-    if (sz > 0)
-        FilePos += sz;
-    return sz;
+
+    // Enough space in buffer.. so copy to it
+    memcpy(pBuffer + Pos, psourceBuffer, numBytes);
+    Pos += numBytes;
+    return numBytes;
+  }
+  int sz = pFile->Write(psourceBuffer, numBytes);
+  if (sz > 0)
+    FilePos += sz;
+  return sz;
 }
 
-int     BufferedFile::Read(uint8_t *pdestBuffer, int numBytes)
-{
-    if ( (BufferMode==ReadBuffer) || SetBufferMode(ReadBuffer))
-    {
-        // Data in buffer... copy it
-        if ((int)(DataSize-Pos) >= numBytes)
-        {
-            memcpy(pdestBuffer, pBuffer+Pos, numBytes);
-            Pos += numBytes;
-            return numBytes;
-        }
+int BufferedFile::Read(uint8_t* pdestBuffer, int numBytes) {
+  if ((BufferMode == ReadBuffer) || SetBufferMode(ReadBuffer)) {
+    // Data in buffer... copy it
+    if ((int)(DataSize - Pos) >= numBytes) {
+      memcpy(pdestBuffer, pBuffer + Pos, numBytes);
+      Pos += numBytes;
+      return numBytes;
+    }
 
-        // Not enough data in buffer, copy buffer
-        int     readBytes = DataSize-Pos;
-        memcpy(pdestBuffer, pBuffer+Pos, readBytes);
-        numBytes    -= readBytes;
-        pdestBuffer += readBytes;
-        Pos = DataSize;
+    // Not enough data in buffer, copy buffer
+    int readBytes = DataSize - Pos;
+    memcpy(pdestBuffer, pBuffer + Pos, readBytes);
+    numBytes -= readBytes;
+    pdestBuffer += readBytes;
+    Pos = DataSize;
 
-        // Don't reload buffer if more then tolerance
-        // (No major advantage, and we don't want to write a loop)
-        if (numBytes>FILEBUFFER_TOLERANCE)
-        {
-            numBytes = pFile->Read(pdestBuffer,numBytes);
-            if (numBytes > 0)
-            {
-                FilePos += numBytes;
-                Pos = DataSize = 0;
-            }
-            return readBytes + ((numBytes==-1) ? 0 : numBytes);
-        }
+    // Don't reload buffer if more then tolerance
+    // (No major advantage, and we don't want to write a loop)
+    if (numBytes > FILEBUFFER_TOLERANCE) {
+      numBytes = pFile->Read(pdestBuffer, numBytes);
+      if (numBytes > 0) {
+        FilePos += numBytes;
+        Pos = DataSize = 0;
+      }
+      return readBytes + ((numBytes == -1) ? 0 : numBytes);
+    }
 
-        // Reload the buffer
-        // WARNING: Right now LoadBuffer() assumes the buffer's empty
+    // Reload the buffer
+    // WARNING: Right now LoadBuffer() assumes the buffer's empty
+    LoadBuffer();
+    if ((int)(DataSize - Pos) < numBytes)
+      numBytes = (int)DataSize - Pos;
+
+    memcpy(pdestBuffer, pBuffer + Pos, numBytes);
+    Pos += numBytes;
+    return numBytes + readBytes;
+
+    /*
+    // Alternative Read implementation. The one above is probably better
+    // due to FILEBUFFER_TOLERANCE.
+    int     total = 0;
+
+    do {
+        int     bufferBytes = (int)(DataSize-Pos);
+        int     copyBytes = (bufferBytes > numBytes) ? numBytes : bufferBytes;
+
+        memcpy(pdestBuffer, pBuffer+Pos, copyBytes);
+        numBytes    -= copyBytes;
+        pdestBuffer += copyBytes;
+        Pos         += copyBytes;
+        total       += copyBytes;
+
+        if (numBytes == 0)
+            break;
         LoadBuffer();
-        if ((int)(DataSize-Pos) < numBytes)
-            numBytes = (int)DataSize-Pos;
 
-        memcpy(pdestBuffer, pBuffer+Pos, numBytes);
-        Pos += numBytes;
-        return numBytes + readBytes;
-        
-        /*
-        // Alternative Read implementation. The one above is probably better
-        // due to FILEBUFFER_TOLERANCE.
-        int     total = 0;
+    } while (DataSize > 0);
 
-        do {
-            int     bufferBytes = (int)(DataSize-Pos);
-            int     copyBytes = (bufferBytes > numBytes) ? numBytes : bufferBytes;
-
-            memcpy(pdestBuffer, pBuffer+Pos, copyBytes);
-            numBytes    -= copyBytes;
-            pdestBuffer += copyBytes;
-            Pos         += copyBytes;
-            total       += copyBytes;
-
-            if (numBytes == 0)
-                break;
-            LoadBuffer();
-
-        } while (DataSize > 0);
-
-        return total;
-        */     
-    }
-    int sz = pFile->Read(pdestBuffer,numBytes);
-    if (sz > 0)
-        FilePos += sz;
-    return sz;
+    return total;
+    */
+  }
+  int sz = pFile->Read(pdestBuffer, numBytes);
+  if (sz > 0)
+    FilePos += sz;
+  return sz;
 }
 
+int BufferedFile::SkipBytes(int numBytes) {
+  int skippedBytes = 0;
 
-int     BufferedFile::SkipBytes(int numBytes)
-{
-    int skippedBytes = 0;
+  // Special case for skipping a little data in read buffer
+  if (BufferMode == ReadBuffer) {
+    skippedBytes = (((int)DataSize - (int)Pos) >= numBytes) ? numBytes : (DataSize - Pos);
+    Pos += skippedBytes;
+    numBytes -= skippedBytes;
+  }
 
-    // Special case for skipping a little data in read buffer
-    if (BufferMode==ReadBuffer)
-    {
-        skippedBytes = (((int)DataSize-(int)Pos) >= numBytes) ? numBytes : (DataSize-Pos);
-        Pos          += skippedBytes;
-        numBytes     -= skippedBytes;
-    }
-
-    if (numBytes)
-    {
-        numBytes = pFile->SkipBytes(numBytes);
-        // Make sure we return the actual number skipped, or error
-        if (numBytes!=-1)
-        {
-            skippedBytes += numBytes;
-            FilePos += numBytes;
-            Pos = DataSize = 0;
-        }
-        else if (skippedBytes <= 0)
-            skippedBytes = -1;
-    }
-    return skippedBytes;
+  if (numBytes) {
+    numBytes = pFile->SkipBytes(numBytes);
+    // Make sure we return the actual number skipped, or error
+    if (numBytes != -1) {
+      skippedBytes += numBytes;
+      FilePos += numBytes;
+      Pos = DataSize = 0;
+    } else if (skippedBytes <= 0)
+      skippedBytes = -1;
+  }
+  return skippedBytes;
 }
 
-int     BufferedFile::BytesAvailable()
-{
-    int available = pFile->BytesAvailable();
-    // Adjust available size based on buffers
-    switch(BufferMode)
-    {
-        case ReadBuffer:
-            available += DataSize-Pos;
-            break;
-        case WriteBuffer:
-            available -= Pos;
-            if (available<0)
-                available= 0;
-            break;
-        default:
-            break;
-    }
-    return available;
+int BufferedFile::BytesAvailable() {
+  int available = pFile->BytesAvailable();
+  // Adjust available size based on buffers
+  switch (BufferMode) {
+    case ReadBuffer:
+      available += DataSize - Pos;
+      break;
+    case WriteBuffer:
+      available -= Pos;
+      if (available < 0)
+        available = 0;
+      break;
+    default:
+      break;
+  }
+  return available;
 }
 
-bool    BufferedFile::Flush()
-{
-    FlushBuffer();
-    return pFile->Flush();
+bool BufferedFile::Flush() {
+  FlushBuffer();
+  return pFile->Flush();
 }
 
 // Seeking could be optimized better..
-int     BufferedFile::Seek(int offset, int origin)
-{    
-    if (BufferMode == ReadBuffer)
-    {
-        if (origin == Seek_Cur)
-        {
-            // Seek can fall either before or after Pos in the buffer,
-            // but it must be within bounds.
-            if (((unsigned(offset) + Pos)) <= DataSize)
-            {
-                Pos += offset;
-                return int (FilePos - DataSize + Pos);
-            }
-
-            // Lightweight buffer "Flush". We do this to avoid an extra seek
-            // back operation which would take place if we called FlushBuffer directly.
-            origin = Seek_Set;
-            OVR_ASSERT(((FilePos - DataSize + Pos) + (uint64_t)offset) < ~(uint64_t)0);
-            offset = (int)(FilePos - DataSize + Pos) + offset;
-            Pos = DataSize = 0;
-        }
-        else if (origin == Seek_Set)
-        {
-            if (((unsigned)offset - (FilePos-DataSize)) <= DataSize)
-            {
-                OVR_ASSERT((FilePos-DataSize) < ~(uint64_t)0);
-                Pos = (unsigned)offset - (unsigned)(FilePos-DataSize);
-                return offset;
-            }
-            Pos = DataSize = 0;
-        }
-        else
-        {
-            FlushBuffer();
-        }
-    }
-    else
-    {
-        FlushBuffer();
-    }    
-
-    /*
-    // Old Seek Logic
-    if (origin == Seek_Cur && offset + Pos < DataSize)
-    {
-        //OVR_ASSERT((FilePos - DataSize) >= (FilePos - DataSize + Pos + offset));
+int BufferedFile::Seek(int offset, int origin) {
+  if (BufferMode == ReadBuffer) {
+    if (origin == Seek_Cur) {
+      // Seek can fall either before or after Pos in the buffer,
+      // but it must be within bounds.
+      if (((unsigned(offset) + Pos)) <= DataSize) {
         Pos += offset;
-        OVR_ASSERT(int (Pos) >= 0);
-        return int (FilePos - DataSize + Pos);
+        return int(FilePos - DataSize + Pos);
+      }
+
+      // Lightweight buffer "Flush". We do this to avoid an extra seek
+      // back operation which would take place if we called FlushBuffer directly.
+      origin = Seek_Set;
+      OVR_ASSERT(((FilePos - DataSize + Pos) + (uint64_t)offset) < ~(uint64_t)0);
+      offset = (int)(FilePos - DataSize + Pos) + offset;
+      Pos = DataSize = 0;
+    } else if (origin == Seek_Set) {
+      if (((unsigned)offset - (FilePos - DataSize)) <= DataSize) {
+        OVR_ASSERT((FilePos - DataSize) < ~(uint64_t)0);
+        Pos = (unsigned)offset - (unsigned)(FilePos - DataSize);
+        return offset;
+      }
+      Pos = DataSize = 0;
+    } else {
+      FlushBuffer();
     }
-    else if (origin == Seek_Set && unsigned(offset) >= FilePos - DataSize && unsigned(offset) < FilePos)
-    {
-        Pos = unsigned(offset - FilePos + DataSize);
-        OVR_ASSERT(int (Pos) >= 0);
-        return int (FilePos - DataSize + Pos);
-    }   
-    
+  } else {
     FlushBuffer();
-    */
+  }
 
+  /*
+  // Old Seek Logic
+  if (origin == Seek_Cur && offset + Pos < DataSize)
+  {
+      //OVR_ASSERT((FilePos - DataSize) >= (FilePos - DataSize + Pos + offset));
+      Pos += offset;
+      OVR_ASSERT(int (Pos) >= 0);
+      return int (FilePos - DataSize + Pos);
+  }
+  else if (origin == Seek_Set && unsigned(offset) >= FilePos - DataSize && unsigned(offset) <
+  FilePos)
+  {
+      Pos = unsigned(offset - FilePos + DataSize);
+      OVR_ASSERT(int (Pos) >= 0);
+      return int (FilePos - DataSize + Pos);
+  }
 
-    FilePos = pFile->Seek(offset,origin);
-    return int (FilePos);
+  FlushBuffer();
+  */
+
+  FilePos = pFile->Seek(offset, origin);
+  return int(FilePos);
 }
 
-int64_t BufferedFile::LSeek(int64_t offset, int origin)
-{
-    if (BufferMode == ReadBuffer)
-    {
-        if (origin == Seek_Cur)
-        {
-            // Seek can fall either before or after Pos in the buffer,
-            // but it must be within bounds.
-            if (((unsigned(offset) + Pos)) <= DataSize)
-            {
-                Pos += (unsigned)offset;
-                return int64_t(FilePos - DataSize + Pos);
-            }
+int64_t BufferedFile::LSeek(int64_t offset, int origin) {
+  if (BufferMode == ReadBuffer) {
+    if (origin == Seek_Cur) {
+      // Seek can fall either before or after Pos in the buffer,
+      // but it must be within bounds.
+      if (((unsigned(offset) + Pos)) <= DataSize) {
+        Pos += (unsigned)offset;
+        return int64_t(FilePos - DataSize + Pos);
+      }
 
-            // Lightweight buffer "Flush". We do this to avoid an extra seek
-            // back operation which would take place if we called FlushBuffer directly.
-            origin = Seek_Set;            
-            offset = (int64_t)(FilePos - DataSize + Pos) + offset;
-            Pos = DataSize = 0;
-        }
-        else if (origin == Seek_Set)
-        {
-            if (((uint64_t)offset - (FilePos-DataSize)) <= DataSize)
-            {                
-                Pos = (unsigned)((uint64_t)offset - (FilePos-DataSize));
-                return offset;
-            }
-            Pos = DataSize = 0;
-        }
-        else
-        {
-            FlushBuffer();
-        }
+      // Lightweight buffer "Flush". We do this to avoid an extra seek
+      // back operation which would take place if we called FlushBuffer directly.
+      origin = Seek_Set;
+      offset = (int64_t)(FilePos - DataSize + Pos) + offset;
+      Pos = DataSize = 0;
+    } else if (origin == Seek_Set) {
+      if (((uint64_t)offset - (FilePos - DataSize)) <= DataSize) {
+        Pos = (unsigned)((uint64_t)offset - (FilePos - DataSize));
+        return offset;
+      }
+      Pos = DataSize = 0;
+    } else {
+      FlushBuffer();
     }
-    else
-    {
-        FlushBuffer();
-    }
-
-/*
-    OVR_ASSERT(BufferMode != NoBuffer);
-
-    if (origin == Seek_Cur && offset + Pos < DataSize)
-    {
-        Pos += int (offset);
-        return FilePos - DataSize + Pos;
-    }
-    else if (origin == Seek_Set && offset >= int64_t(FilePos - DataSize) && offset < int64_t(FilePos))
-    {
-        Pos = unsigned(offset - FilePos + DataSize);
-        return FilePos - DataSize + Pos;
-    }
-
+  } else {
     FlushBuffer();
-    */
+  }
 
-    FilePos = pFile->LSeek(offset,origin);
-    return FilePos;
+  /*
+      OVR_ASSERT(BufferMode != NoBuffer);
+
+      if (origin == Seek_Cur && offset + Pos < DataSize)
+      {
+          Pos += int (offset);
+          return FilePos - DataSize + Pos;
+      }
+      else if (origin == Seek_Set && offset >= int64_t(FilePos - DataSize) && offset <
+     int64_t(FilePos))
+      {
+          Pos = unsigned(offset - FilePos + DataSize);
+          return FilePos - DataSize + Pos;
+      }
+
+      FlushBuffer();
+      */
+
+  FilePos = pFile->LSeek(offset, origin);
+  return FilePos;
 }
 
-int     BufferedFile::CopyFromStream(File *pstream, int byteSize)
-{
-    // We can't rely on overridden Write()
-    // because delegation doesn't override virtual pointers
-    // So, just re-implement
-    uint8_t*  buff = new uint8_t[0x4000];
-    int     count = 0;
-    int     szRequest, szRead, szWritten;
+int BufferedFile::CopyFromStream(File* pstream, int byteSize) {
+  // We can't rely on overridden Write()
+  // because delegation doesn't override virtual pointers
+  // So, just re-implement
+  uint8_t* buff = new uint8_t[0x4000];
+  int count = 0;
+  int szRequest, szRead, szWritten;
 
-    while(byteSize)
-    {
-        szRequest = (byteSize > int(sizeof(buff))) ? int(sizeof(buff)) : byteSize;
+  while (byteSize) {
+    szRequest = (byteSize > int(sizeof(buff))) ? int(sizeof(buff)) : byteSize;
 
-        szRead    = pstream->Read(buff,szRequest);
-        szWritten = 0;
-        if (szRead > 0)
-            szWritten = Write(buff,szRead);
+    szRead = pstream->Read(buff, szRequest);
+    szWritten = 0;
+    if (szRead > 0)
+      szWritten = Write(buff, szRead);
 
-        count   +=szWritten;
-        byteSize-=szWritten;
-        if (szWritten < szRequest)
-            break;
-    }
+    count += szWritten;
+    byteSize -= szWritten;
+    if (szWritten < szRequest)
+      break;
+  }
 
-    delete[] buff;
+  delete[] buff;
 
-    return count;
+  return count;
 }
 
 // Closing files
-bool    BufferedFile::Close()
-{
-    switch(BufferMode)
-    {
-        case WriteBuffer:
-            FlushBuffer();
-            break;
-        case ReadBuffer:
-            // No need to seek back on close
-            BufferMode = NoBuffer;
-            break;
-        default:
-            break;
-    }
-    return pFile->Close();
+bool BufferedFile::Close() {
+  switch (BufferMode) {
+    case WriteBuffer:
+      FlushBuffer();
+      break;
+    case ReadBuffer:
+      // No need to seek back on close
+      BufferMode = NoBuffer;
+      break;
+    default:
+      break;
+  }
+  return pFile->Close();
 }
-
 
 // ***** Global path helpers
 
 // Find trailing short filename in a path.
-const char* OVR_CDECL GetShortFilename(const char* purl)
-{    
-    size_t len = OVR_strlen(purl);
-    for (size_t i=len; i>0; i--) 
-        if (purl[i]=='\\' || purl[i]=='/')
-            return purl+i+1;
-    return purl;
+const char* OVR_CDECL GetShortFilename(const char* purl) {
+  size_t len = OVR_strlen(purl);
+  for (size_t i = len; i > 0; i--)
+    if (purl[i] == '\\' || purl[i] == '/')
+      return purl + i + 1;
+  return purl;
 }
 
-} // OVR
-
+} // namespace OVR

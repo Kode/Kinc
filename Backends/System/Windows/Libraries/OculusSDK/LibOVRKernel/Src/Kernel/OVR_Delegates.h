@@ -68,473 +68,400 @@ limitations under the License.
 
 namespace OVR {
 
-
 template <class ret_type>
-class Delegate0
-{
-    typedef ret_type (*StubPointer)(void *);
-    typedef Delegate0<ret_type> this_type;
+class Delegate0 {
+  typedef ret_type (*StubPointer)(void*);
+  typedef Delegate0<ret_type> this_type;
 
-    void *_object;
-    StubPointer _stub;
+  void* _object;
+  StubPointer _stub;
 
-    inline Delegate0(void *object, StubPointer stub)
-    {
-        _object = object;
-        _stub = stub;
-    }
+  inline Delegate0(void* object, StubPointer stub) {
+    _object = object;
+    _stub = stub;
+  }
 
-    // Stubs
+  // Stubs
 
-    template <ret_type (*F)()>
-    static inline ret_type FreeStub(void * /*object*/)
-    {
-        return (F)();
-    }
+  template <ret_type (*F)()>
+  static inline ret_type FreeStub(void* /*object*/) {
+    return (F)();
+  }
 
-    template <class T, ret_type (T::*F)()>
-    static inline ret_type MemberStub(void *object)
-    {
-        T *p = static_cast<T*>(object);
-        return (p->*F)();
-    }
+  template <class T, ret_type (T::*F)()>
+  static inline ret_type MemberStub(void* object) {
+    T* p = static_cast<T*>(object);
+    return (p->*F)();
+  }
 
-    template <class T, ret_type (T::*F)() const>
-    static inline ret_type ConstMemberStub(void *object)
-    {
-        T *p = static_cast<T*>(object);
-        return (p->*F)();
-    }
+  template <class T, ret_type (T::*F)() const>
+  static inline ret_type ConstMemberStub(void* object) {
+    T* p = static_cast<T*>(object);
+    return (p->*F)();
+  }
 
-public:
-    inline Delegate0() : _object(0), _stub(0){}
+ public:
+  inline Delegate0() : _object(0), _stub(0) {}
 
-    // Function invocation
+  // Function invocation
 
-    inline ret_type operator()() const
-    {
-        return (*_stub)(_object);
-    }
+  inline ret_type operator()() const {
+    return (*_stub)(_object);
+  }
 
-    // Use stub pointer as a validity flag and equality checker
+  // Use stub pointer as a validity flag and equality checker
 
-    inline bool operator==(const this_type &rhs) const
-    {
-        return _object == rhs._object && _stub == rhs._stub;
-    }
+  inline bool operator==(const this_type& rhs) const {
+    return _object == rhs._object && _stub == rhs._stub;
+  }
 
-    inline bool operator!=(const this_type &rhs) const
-    {
-        return _object != rhs._object || _stub != rhs._stub;
-    }
+  inline bool operator!=(const this_type& rhs) const {
+    return _object != rhs._object || _stub != rhs._stub;
+  }
 
-    inline bool IsValid() const
-    {
-        return _stub != 0;
-    }
+  inline bool IsValid() const {
+    return _stub != 0;
+  }
 
-    inline bool operator!() const
-    {
-        return _stub == 0;
-    }
+  inline bool operator!() const {
+    return _stub == 0;
+  }
 
-    inline void Invalidate()
-    {
-        _stub = 0;
-    }
+  inline void Invalidate() {
+    _stub = 0;
+  }
 
-    // Delegate creation from a function
+  // Delegate creation from a function
 
-    template <ret_type (*F)()>
-    static inline this_type FromFree()
-    {
-        return this_type(0, &FreeStub<F>);
-    }
+  template <ret_type (*F)()>
+  static inline this_type FromFree() {
+    return this_type(0, &FreeStub<F>);
+  }
 
-    template <class T, ret_type (T::*F)()>
-    static inline this_type FromMember(T *object)
-    {
-        return this_type(object, &MemberStub<T, F>);
-    }
+  template <class T, ret_type (T::*F)()>
+  static inline this_type FromMember(T* object) {
+    return this_type(object, &MemberStub<T, F>);
+  }
 
-    template <class T, ret_type (T::*F)() const>
-    static inline this_type FromConstMember(T const *object)
-    {
-        return this_type(const_cast<T*>( object ), &ConstMemberStub<T, F>);
-    }
+  template <class T, ret_type (T::*F)() const>
+  static inline this_type FromConstMember(T const* object) {
+    return this_type(const_cast<T*>(object), &ConstMemberStub<T, F>);
+  }
 
-    // In-place assignment to a different function
+  // In-place assignment to a different function
 
-    template <ret_type (*F)()>
-    inline void SetFree()
-    {
-        *this = FromFree<F>();
-    }
+  template <ret_type (*F)()>
+  inline void SetFree() {
+    *this = FromFree<F>();
+  }
 
-    template <class T, ret_type (T::*F)()>
-    inline void SetMember(T *object)
-    {
-        *this = FromMember<T, F>(object);
-    }
+  template <class T, ret_type (T::*F)()>
+  inline void SetMember(T* object) {
+    *this = FromMember<T, F>(object);
+  }
 
-    template <class T, ret_type (T::*F)() const>
-    inline void SetConstMember(T const *object)
-    {
-        *this = FromConstMember<T, F>(object);
-    }
+  template <class T, ret_type (T::*F)() const>
+  inline void SetConstMember(T const* object) {
+    *this = FromConstMember<T, F>(object);
+  }
 };
-
 
 template <class ret_type, class arg1_type>
-class Delegate1
-{
-    typedef ret_type (*StubPointer)(void *, arg1_type);
-    typedef Delegate1<ret_type, arg1_type> this_type;
+class Delegate1 {
+  typedef ret_type (*StubPointer)(void*, arg1_type);
+  typedef Delegate1<ret_type, arg1_type> this_type;
 
-    void *_object;
-    StubPointer _stub;
+  void* _object;
+  StubPointer _stub;
 
-    inline Delegate1(void *object, StubPointer stub)
-    {
-        _object = object;
-        _stub = stub;
-    }
+  inline Delegate1(void* object, StubPointer stub) {
+    _object = object;
+    _stub = stub;
+  }
 
-    // Stubs
+  // Stubs
 
-    template <ret_type (*F)(arg1_type)>
-    static inline ret_type FreeStub(void * /*object*/, arg1_type a1)
-    {
-        return (F)(a1);
-    }
+  template <ret_type (*F)(arg1_type)>
+  static inline ret_type FreeStub(void* /*object*/, arg1_type a1) {
+    return (F)(a1);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type)>
-    static inline ret_type MemberStub(void *object, arg1_type a1)
-    {
-        T *p = static_cast<T*>(object);
-        return (p->*F)(a1);
-    }
+  template <class T, ret_type (T::*F)(arg1_type)>
+  static inline ret_type MemberStub(void* object, arg1_type a1) {
+    T* p = static_cast<T*>(object);
+    return (p->*F)(a1);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type) const>
-    static inline ret_type ConstMemberStub(void *object, arg1_type a1)
-    {
-        T *p = static_cast<T*>(object);
-        return (p->*F)(a1);
-    }
+  template <class T, ret_type (T::*F)(arg1_type) const>
+  static inline ret_type ConstMemberStub(void* object, arg1_type a1) {
+    T* p = static_cast<T*>(object);
+    return (p->*F)(a1);
+  }
 
-public:
-    inline Delegate1() : _object(0), _stub(0){}
+ public:
+  inline Delegate1() : _object(0), _stub(0) {}
 
-    // Function invocation
+  // Function invocation
 
-    inline ret_type operator()(arg1_type a1) const
-    {
-        return (*_stub)(_object, a1);
-    }
+  inline ret_type operator()(arg1_type a1) const {
+    return (*_stub)(_object, a1);
+  }
 
-    // Use stub pointer as a validity flag and equality checker
+  // Use stub pointer as a validity flag and equality checker
 
-    inline bool operator==(const this_type &rhs) const
-    {
-        return _object == rhs._object && _stub == rhs._stub;
-    }
+  inline bool operator==(const this_type& rhs) const {
+    return _object == rhs._object && _stub == rhs._stub;
+  }
 
-    inline bool operator!=(const this_type &rhs) const
-    {
-        return _object != rhs._object || _stub != rhs._stub;
-    }
+  inline bool operator!=(const this_type& rhs) const {
+    return _object != rhs._object || _stub != rhs._stub;
+  }
 
-    inline bool IsValid() const
-    {
-        return _stub != 0;
-    }
+  inline bool IsValid() const {
+    return _stub != 0;
+  }
 
-    inline bool operator!() const
-    {
-        return _stub == 0;
-    }
+  inline bool operator!() const {
+    return _stub == 0;
+  }
 
-    inline void Invalidate()
-    {
-        _stub = 0;
-    }
+  inline void Invalidate() {
+    _stub = 0;
+  }
 
-    // Delegate creation from a function
+  // Delegate creation from a function
 
-    template <ret_type (*F)(arg1_type)>
-    static inline this_type FromFree()
-    {
-        return this_type(0, &FreeStub<F>);
-    }
+  template <ret_type (*F)(arg1_type)>
+  static inline this_type FromFree() {
+    return this_type(0, &FreeStub<F>);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type)>
-    static inline this_type FromMember(T *object)
-    {
-        return this_type(object, &MemberStub<T, F>);
-    }
+  template <class T, ret_type (T::*F)(arg1_type)>
+  static inline this_type FromMember(T* object) {
+    return this_type(object, &MemberStub<T, F>);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type) const>
-    static inline this_type FromConstMember(T const *object)
-    {
-        return this_type(const_cast<T*>( object ), &ConstMemberStub<T, F>);
-    }
+  template <class T, ret_type (T::*F)(arg1_type) const>
+  static inline this_type FromConstMember(T const* object) {
+    return this_type(const_cast<T*>(object), &ConstMemberStub<T, F>);
+  }
 
-    // In-place assignment to a different function
+  // In-place assignment to a different function
 
-    template <ret_type (*F)(arg1_type)>
-    inline void SetFree()
-    {
-        *this = FromFree<F>();
-    }
+  template <ret_type (*F)(arg1_type)>
+  inline void SetFree() {
+    *this = FromFree<F>();
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type)>
-    inline void SetMember(T *object)
-    {
-        *this = FromMember<T, F>(object);
-    }
+  template <class T, ret_type (T::*F)(arg1_type)>
+  inline void SetMember(T* object) {
+    *this = FromMember<T, F>(object);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type) const>
-    inline void SetConstMember(T const *object)
-    {
-        *this = FromConstMember<T, F>(object);
-    }
+  template <class T, ret_type (T::*F)(arg1_type) const>
+  inline void SetConstMember(T const* object) {
+    *this = FromConstMember<T, F>(object);
+  }
 };
-
 
 template <class ret_type, class arg1_type, class arg2_type>
-class Delegate2
-{
-    typedef ret_type (*StubPointer)(void *, arg1_type, arg2_type);
-    typedef Delegate2<ret_type, arg1_type, arg2_type> this_type;
+class Delegate2 {
+  typedef ret_type (*StubPointer)(void*, arg1_type, arg2_type);
+  typedef Delegate2<ret_type, arg1_type, arg2_type> this_type;
 
-    void *_object;
-    StubPointer _stub;
+  void* _object;
+  StubPointer _stub;
 
-    inline Delegate2(void *object, StubPointer stub)
-    {
-        _object = object;
-        _stub = stub;
-    }
+  inline Delegate2(void* object, StubPointer stub) {
+    _object = object;
+    _stub = stub;
+  }
 
-    // Stubs
+  // Stubs
 
-    template <ret_type (*F)(arg1_type, arg2_type)>
-    static inline ret_type FreeStub(void * /*object*/, arg1_type a1, arg2_type a2)
-    {
-        return (F)(a1, a2);
-    }
+  template <ret_type (*F)(arg1_type, arg2_type)>
+  static inline ret_type FreeStub(void* /*object*/, arg1_type a1, arg2_type a2) {
+    return (F)(a1, a2);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type)>
-    static inline ret_type MemberStub(void *object, arg1_type a1, arg2_type a2)
-    {
-        T *p = static_cast<T*>(object);
-        return (p->*F)(a1, a2);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type)>
+  static inline ret_type MemberStub(void* object, arg1_type a1, arg2_type a2) {
+    T* p = static_cast<T*>(object);
+    return (p->*F)(a1, a2);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type) const>
-    static inline ret_type ConstMemberStub(void *object, arg1_type a1, arg2_type a2)
-    {
-        T *p = static_cast<T*>(object);
-        return (p->*F)(a1, a2);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type) const>
+  static inline ret_type ConstMemberStub(void* object, arg1_type a1, arg2_type a2) {
+    T* p = static_cast<T*>(object);
+    return (p->*F)(a1, a2);
+  }
 
-public:
-    inline Delegate2() : _object(0), _stub(0){}
+ public:
+  inline Delegate2() : _object(0), _stub(0) {}
 
-    // Function invocation
+  // Function invocation
 
-    inline ret_type operator()(arg1_type a1, arg2_type a2) const
-    {
-        return (*_stub)(_object, a1, a2);
-    }
+  inline ret_type operator()(arg1_type a1, arg2_type a2) const {
+    return (*_stub)(_object, a1, a2);
+  }
 
-    // Use stub pointer as a validity flag and equality checker
+  // Use stub pointer as a validity flag and equality checker
 
-    inline bool operator==(const this_type &rhs) const
-    {
-        return _object == rhs._object && _stub == rhs._stub;
-    }
+  inline bool operator==(const this_type& rhs) const {
+    return _object == rhs._object && _stub == rhs._stub;
+  }
 
-    inline bool operator!=(const this_type &rhs) const
-    {
-        return _object != rhs._object || _stub != rhs._stub;
-    }
+  inline bool operator!=(const this_type& rhs) const {
+    return _object != rhs._object || _stub != rhs._stub;
+  }
 
-    inline bool IsValid() const
-    {
-        return _stub != 0;
-    }
+  inline bool IsValid() const {
+    return _stub != 0;
+  }
 
-    inline bool operator!() const
-    {
-        return _stub == 0;
-    }
+  inline bool operator!() const {
+    return _stub == 0;
+  }
 
-    inline void Invalidate()
-    {
-        _stub = 0;
-    }
+  inline void Invalidate() {
+    _stub = 0;
+  }
 
-    // Delegate creation from a function
+  // Delegate creation from a function
 
-    template <ret_type (*F)(arg1_type, arg2_type)>
-    static inline this_type FromFree()
-    {
-        return this_type(0, &FreeStub<F>);
-    }
+  template <ret_type (*F)(arg1_type, arg2_type)>
+  static inline this_type FromFree() {
+    return this_type(0, &FreeStub<F>);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type)>
-    static inline this_type FromMember(T *object)
-    {
-        return this_type(object, &MemberStub<T, F>);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type)>
+  static inline this_type FromMember(T* object) {
+    return this_type(object, &MemberStub<T, F>);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type) const>
-    static inline this_type FromConstMember(T const *object)
-    {
-        return this_type(const_cast<T*>( object ), &ConstMemberStub<T, F>);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type) const>
+  static inline this_type FromConstMember(T const* object) {
+    return this_type(const_cast<T*>(object), &ConstMemberStub<T, F>);
+  }
 
-    // In-place assignment to a different function
+  // In-place assignment to a different function
 
-    template <ret_type (*F)(arg1_type, arg2_type)>
-    inline void SetFree()
-    {
-        *this = FromFree<F>();
-    }
+  template <ret_type (*F)(arg1_type, arg2_type)>
+  inline void SetFree() {
+    *this = FromFree<F>();
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type)>
-    inline void SetMember(T *object)
-    {
-        *this = FromMember<T, F>(object);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type)>
+  inline void SetMember(T* object) {
+    *this = FromMember<T, F>(object);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type) const>
-    inline void SetConstMember(T const *object)
-    {
-        *this = FromConstMember<T, F>(object);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type) const>
+  inline void SetConstMember(T const* object) {
+    *this = FromConstMember<T, F>(object);
+  }
 };
 
-
 template <class ret_type, class arg1_type, class arg2_type, class arg3_type>
-class Delegate3
-{
-    typedef ret_type (*StubPointer)(void *, arg1_type, arg2_type, arg3_type);
-    typedef Delegate3<ret_type, arg1_type, arg2_type, arg3_type> this_type;
+class Delegate3 {
+  typedef ret_type (*StubPointer)(void*, arg1_type, arg2_type, arg3_type);
+  typedef Delegate3<ret_type, arg1_type, arg2_type, arg3_type> this_type;
 
-    void *_object;
-    StubPointer _stub;
+  void* _object;
+  StubPointer _stub;
 
-    inline Delegate3(void *object, StubPointer stub)
-    {
-        _object = object;
-        _stub = stub;
-    }
+  inline Delegate3(void* object, StubPointer stub) {
+    _object = object;
+    _stub = stub;
+  }
 
-    // Stubs
+  // Stubs
 
-    template <ret_type (*F)(arg1_type, arg2_type, arg3_type)>
-    static inline ret_type FreeStub(void * /*object*/, arg1_type a1, arg2_type a2, arg3_type a3)
-    {
-        return (F)(a1, a2, a3);
-    }
+  template <ret_type (*F)(arg1_type, arg2_type, arg3_type)>
+  static inline ret_type FreeStub(void* /*object*/, arg1_type a1, arg2_type a2, arg3_type a3) {
+    return (F)(a1, a2, a3);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type)>
-    static inline ret_type MemberStub(void *object, arg1_type a1, arg2_type a2, arg3_type a3)
-    {
-        T *p = static_cast<T*>(object);
-        return (p->*F)(a1, a2, a3);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type)>
+  static inline ret_type MemberStub(void* object, arg1_type a1, arg2_type a2, arg3_type a3) {
+    T* p = static_cast<T*>(object);
+    return (p->*F)(a1, a2, a3);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type) const>
-    static inline ret_type ConstMemberStub(void *object, arg1_type a1, arg2_type a2, arg3_type a3)
-    {
-        T *p = static_cast<T*>(object);
-        return (p->*F)(a1, a2, a3);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type) const>
+  static inline ret_type ConstMemberStub(void* object, arg1_type a1, arg2_type a2, arg3_type a3) {
+    T* p = static_cast<T*>(object);
+    return (p->*F)(a1, a2, a3);
+  }
 
-public:
-    inline Delegate3() : _object(0), _stub(0){}
+ public:
+  inline Delegate3() : _object(0), _stub(0) {}
 
-    // Function invocation
+  // Function invocation
 
-    inline ret_type operator()(arg1_type a1, arg2_type a2, arg3_type a3) const
-    {
-        return (*_stub)(_object, a1, a2, a3);
-    }
+  inline ret_type operator()(arg1_type a1, arg2_type a2, arg3_type a3) const {
+    return (*_stub)(_object, a1, a2, a3);
+  }
 
-    // Use stub pointer as a validity flag and equality checker
+  // Use stub pointer as a validity flag and equality checker
 
-    inline bool operator==(const this_type &rhs) const
-    {
-        return _object == rhs._object && _stub == rhs._stub;
-    }
+  inline bool operator==(const this_type& rhs) const {
+    return _object == rhs._object && _stub == rhs._stub;
+  }
 
-    inline bool operator!=(const this_type &rhs) const
-    {
-        return _object != rhs._object || _stub != rhs._stub;
-    }
+  inline bool operator!=(const this_type& rhs) const {
+    return _object != rhs._object || _stub != rhs._stub;
+  }
 
-    inline bool IsValid() const
-    {
-        return _stub != 0;
-    }
+  inline bool IsValid() const {
+    return _stub != 0;
+  }
 
-    inline bool operator!() const
-    {
-        return _stub == 0;
-    }
+  inline bool operator!() const {
+    return _stub == 0;
+  }
 
-    inline void Invalidate()
-    {
-        _stub = 0;
-    }
+  inline void Invalidate() {
+    _stub = 0;
+  }
 
-    // Delegate creation from a function
+  // Delegate creation from a function
 
-    template <ret_type (*F)(arg1_type, arg2_type, arg3_type)>
-    static inline this_type FromFree()
-    {
-        return this_type(0, &FreeStub<F>);
-    }
+  template <ret_type (*F)(arg1_type, arg2_type, arg3_type)>
+  static inline this_type FromFree() {
+    return this_type(0, &FreeStub<F>);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type)>
-    static inline this_type FromMember(T *object)
-    {
-        return this_type(object, &MemberStub<T, F>);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type)>
+  static inline this_type FromMember(T* object) {
+    return this_type(object, &MemberStub<T, F>);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type) const>
-    static inline this_type FromConstMember(T const *object)
-    {
-        return this_type(const_cast<T*>( object ), &ConstMemberStub<T, F>);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type) const>
+  static inline this_type FromConstMember(T const* object) {
+    return this_type(const_cast<T*>(object), &ConstMemberStub<T, F>);
+  }
 
-    // In-place assignment to a different function
+  // In-place assignment to a different function
 
-    template <ret_type (*F)(arg1_type, arg2_type, arg3_type)>
-    inline void SetFree()
-    {
-        *this = FromFree<F>();
-    }
+  template <ret_type (*F)(arg1_type, arg2_type, arg3_type)>
+  inline void SetFree() {
+    *this = FromFree<F>();
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type)>
-    inline void SetMember(T *object)
-    {
-        *this = FromMember<T, F>(object);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type)>
+  inline void SetMember(T* object) {
+    *this = FromMember<T, F>(object);
+  }
 
-    template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type) const>
-    inline void SetConstMember(T const *object)
-    {
-        *this = FromConstMember<T, F>(object);
-    }
+  template <class T, ret_type (T::*F)(arg1_type, arg2_type, arg3_type) const>
+  inline void SetConstMember(T const* object) {
+    *this = FromConstMember<T, F>(object);
+  }
 };
 
 // Add more here if needed, but keep in mind that a short, simple interface
 // is rewarded by making the delegates faster...
-
 
 } // namespace OVR
 

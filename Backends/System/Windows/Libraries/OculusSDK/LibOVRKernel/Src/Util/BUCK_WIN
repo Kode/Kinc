@@ -1,0 +1,92 @@
+include_defs('//LibOVRKernel/DEFS', 'libovrkernel')
+
+cxx_library(
+    name = 'headers',
+    header_namespace = 'Util',
+    exported_headers = [
+        'Util_SystemGUI.h',
+        'Util_SystemInfo.h',
+        'Util_LongPollThread.h',
+        'Util_Watchdog.h',
+        'Util_Direct3D.h',
+        'Util_D3D11_Blitter.h',
+    ],
+    deps = [
+        '//LibOVRKernel/Src/Kernel:headers',
+    ],
+    visibility = ['PUBLIC'],
+)
+
+cxx_library(
+    name = 'libovr-kernel-util_win',
+    header_namespace = '',
+    srcs = [
+        'Util_D3D11_Blitter.cpp',
+        'Util_Direct3D.cpp',
+        'Util_GL_Blitter.cpp',
+        'Util_ImageWindow.cpp',
+        'Util_LongPollThread.cpp',
+        'Util_Watchdog.cpp',
+        'Util_SystemInfo.cpp',
+        'Util_SystemGui.cpp',
+    ],
+    headers = [
+        'Util_D3D11_Blitter.h',
+        'Util_Direct3D.h',
+        'Util_GL_Blitter.h',
+        'Util_ImageWindow.h',
+        'Util_LongPollThread.h',
+        'Util_Watchdog.h',
+        'Util_SystemInfo.h',
+        'Util_SystemGui.h',
+        ':fxc_Blt_ps',
+        ':fxc_Blt_vs',
+        ':fxc_Blt_ps_ms2',
+        ':fxc_Blt_ps_ms4',
+    ],
+    deps = [
+        '//LibOVRKernel/Src/Kernel:headers_win',
+        '//LibOVRKernel/Src/GL:headers',
+        '//Logging/include:headers',
+        '//LibOVR/Include:headers',
+    ],
+    visibility = ['PUBLIC'],
+    compiler_flags = WINDOWS_COMPILE_FLAGS + WINDOWS_COMMON_FLAGS + libovrkernel.WINDOWS_COMPILE_FLAGS,
+    preferred_linkage = 'static',
+)
+
+genrule(
+  name = 'fxc_Blt_ps',
+  srcs = [
+    'Shaders/Blt_ps.hlsl',
+  ],
+  cmd_exe = 'mkdir -p %OUT%\\.. && "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64\\fxc.exe" /nologo /E"main" /Vn "Blt_ps" /T ps_4_0 /Fh %OUT% %SRCS% ',
+  out = 'Shaders/Blt_ps.h',
+)
+
+genrule(
+  name = 'fxc_Blt_vs',
+  srcs = [
+    'Shaders/Blt_vs.hlsl',
+  ],
+  cmd_exe = 'mkdir -p %OUT%\\.. && "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64\\fxc.exe" /nologo /E"main" /Vn "Blt_vs" /T vs_4_0 /Fh %OUT% %SRCS%',
+  out = 'Shaders/Blt_vs.h',
+)
+
+genrule(
+  name = 'fxc_Blt_ps_ms2',
+  srcs = [
+    'Shaders/Blt_ps_ms2.hlsl',
+  ],
+  cmd_exe = 'mkdir -p %OUT%\\.. && "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64\\fxc.exe" /nologo /E"main" /Vn "Blt_ps_ms2" /T ps_5_0 /Fh %OUT% %SRCS%',
+  out = 'Shaders/Blt_ps_ms2.h',
+)
+
+genrule(
+  name = 'fxc_Blt_ps_ms4',
+  srcs = [
+    'Shaders/Blt_ps_ms4.hlsl',
+  ],
+  cmd_exe = 'mkdir -p %OUT%\\.. && "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64\\fxc.exe" /nologo /E"main" /Vn "Blt_ps_ms4" /T ps_5_0 /Fh %OUT% %SRCS%',
+  out = 'Shaders/Blt_ps_ms4.h',
+)

@@ -36,13 +36,11 @@ limitations under the License.
 
 OVR_DISABLE_MSVC_WARNING(4351) // new behavior: elements of array will be default initialized
 
-
 #ifndef OVR_RESULT_DEFINED
 #define OVR_RESULT_DEFINED ///< Allows ovrResult to be independently defined.
 /// API call results are represented at the highest level by a single ovrResult.
 typedef int32_t ovrResult;
 #endif
-
 
 /// \brief Indicates if an ovrResult indicates success.
 ///
@@ -52,7 +50,6 @@ typedef int32_t ovrResult;
 #if !defined(OVR_SUCCESS)
 #define OVR_SUCCESS(result) (result >= 0)
 #endif
-
 
 /// \brief Indicates if an ovrResult indicates an unqualified success.
 ///
@@ -64,151 +61,208 @@ typedef int32_t ovrResult;
 #define OVR_UNQUALIFIED_SUCCESS(result) (result == ovrSuccess)
 #endif
 
-
 /// \brief Indicates if an ovrResult indicates failure.
 ///
 #if !defined(OVR_FAILURE)
 #define OVR_FAILURE(result) (!OVR_SUCCESS(result))
 #endif
 
-
 // Success is a value greater or equal to 0, while all error types are negative values.
 #ifndef OVR_SUCCESS_DEFINED
 #define OVR_SUCCESS_DEFINED ///< Allows ovrResult to be independently defined.
-typedef enum ovrSuccessType_
-{
-    /// This is a general success result. Use OVR_SUCCESS to test for success.
-    ovrSuccess = 0,
+typedef enum ovrSuccessType_ {
+  /// This is a general success result. Use OVR_SUCCESS to test for success.
+  ovrSuccess = 0,
 } ovrSuccessType;
 #endif
-
 
 /// -----------------------------------------------------------------------------
 /// ***** OVR_FILE / OVR_LINE
 ///
 #if !defined(OVR_FILE)
-    #if defined(OVR_BUILD_DEBUG)
-        #define OVR_FILE __FILE__
-        #define OVR_LINE __LINE__
-    #else
-        #define OVR_FILE nullptr
-        #define OVR_LINE 0
-    #endif
+#if defined(OVR_BUILD_DEBUG)
+#define OVR_FILE __FILE__
+#define OVR_LINE __LINE__
+#else
+#define OVR_FILE nullptr
+#define OVR_LINE 0
+#endif
 #endif
 
 // LOG_VAARG_ATTRIBUTE macro, enforces printf-style formatting for message types
 #ifdef __GNUC__
-#  define OVR_LOG_VAARG_ATTRIBUTE(a,b) __attribute__((format (printf, a, b)))
+#define OVR_LOG_VAARG_ATTRIBUTE(a, b) __attribute__((format(printf, a, b)))
 #else
-#  define OVR_LOG_VAARG_ATTRIBUTE(a,b)
+#define OVR_LOG_VAARG_ATTRIBUTE(a, b)
 #endif
 
-
 namespace OVR {
-
 
 /// -----------------------------------------------------------------------------
 /// ***** OVR_MAKE_ERROR, OVR_MAKE_ERROR_F, OVR_MAKE_SYS_ERROR, OVR_MAKE_SYS_ERROR_F
 ///
 /// Declaration:
-///      OVRError OVR_MAKE_ERROR(ovrResult code, const char* pDescription);
-///      OVRError OVR_MAKE_ERROR_F(ovrResult code, const char* pFormat, ...);
+///   OVRError OVR_MAKE_ERROR(ovrResult r, const char* description);
+///   OVRError OVR_MAKE_ERROR_F(ovrResult r, const char* format, ...);
 ///
-///      OVRError OVR_MAKE_SYS_ERROR(ovrResult code, ovrSysErrorCode sysCode, const char* pDescription);
-///      OVRError OVR_MAKE_SYS_ERROR_F(ovrResult code, ovrSysErrorCode sysCode, const char* pFormat, ...);
+///   OVRError OVR_MAKE_SYS_ERROR(ovrResult r, ovrSysErrorCode sysCode, const char* description);
+///   OVRError OVR_MAKE_SYS_ERROR_F(ovrResult r, ovrSysErrorCode sysCode, const char* format, ...);
 ///
 /// Example usage:
 ///      OVRError InitGraphics()
 ///      {
 ///          if(!GraphicsCardPresent())
 ///          {
-///              return OVR_MAKE_ERROR(ovrError_GraphicsInit, "Failed to init graphics; graphics support absent.");
+///              return OVR_MAKE_ERROR(ovrError_GraphicsInit, "Failed to init graphics; graphics
+///                                                             support absent.");
 ///          }
 ///
 ///          HRESULT hr = pDevice->CreateTexture2D(&dsDesc, nullptr, &Texture);
 ///          if(FAILED(hr))
 ///          {
-///              return OVR_MAKE_SYS_ERROR_F(ovrError_GraphicsInit, hr, "Failed to create texture of size %u x %u", dsDesc.Width, dsDesc.Height);
+///              return OVR_MAKE_SYS_ERROR_F(ovrError_GraphicsInit, hr, "Failed to create texture of
+///                                                size %u x %u", dsDesc.Width, dsDesc.Height);
 ///          }
 ///          or:
-///              OVR_HR_CHECK_RET_ERROR(ovrError_GraphicsInit, hr, "Failed to create texture of size %u x %u", dsDesc.Width, dsDesc.Height);
+///              OVR_HR_CHECK_RET_ERROR(ovrError_GraphicsInit, hr, "Failed to create texture of size
+///                                                %u x %u", dsDesc.Width, dsDesc.Height);
 ///
 ///          return ovrSuccess; // Converts to an OVRError instance that has no error.
 ///      }
 ///
 #define OVR_MAKE_ERROR(errorCode, pDescription) \
-    OVR::MakeError((errorCode), OVR::ovrSysErrorCodeSuccess, OVR_FILE, OVR_LINE, true, true, nullptr, "%s", (pDescription))
+  OVR::MakeError(                               \
+      (errorCode),                              \
+      OVR::ovrSysErrorCodeSuccess,              \
+      OVR_FILE,                                 \
+      OVR_LINE,                                 \
+      true,                                     \
+      true,                                     \
+      nullptr,                                  \
+      "%s",                                     \
+      (pDescription))
 
 // Note: The format string is the first part of the .../__VA_ARGS__ as per the C99-C++11 Standards.
 #define OVR_MAKE_ERROR_F(errorCode, ...) \
-    OVR::MakeError((errorCode), OVR::ovrSysErrorCodeSuccess, OVR_FILE, OVR_LINE, true, true, nullptr, __VA_ARGS__)
+  OVR::MakeError(                        \
+      (errorCode),                       \
+      OVR::ovrSysErrorCodeSuccess,       \
+      OVR_FILE,                          \
+      OVR_LINE,                          \
+      true,                              \
+      true,                              \
+      nullptr,                           \
+      __VA_ARGS__)
 
 #define OVR_MAKE_SYS_ERROR(errorCode, sysErrorCode, pDescription) \
-    OVR::MakeError((errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, true, true, nullptr, "%s", (pDescription))
+  OVR::MakeError(                                                 \
+      (errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, true, true, nullptr, "%s", (pDescription))
 
 // Note: The format string is the first part of the .../__VA_ARGS__ as per the C99-C++11 Standards.
 #define OVR_MAKE_SYS_ERROR_F(errorCode, sysErrorCode, ...) \
-    OVR::MakeError((errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, true, true, nullptr, __VA_ARGS__)
+  OVR::MakeError((errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, true, true, nullptr, __VA_ARGS__)
 
 // Consider using OVR_MAKE_QUIET_ERROR() instead of OVR_MAKE_ERROR() where the error
 // should not automatically log/assert.  If the error is normal (HMD unplugged) or
 // repetitive then please use OVR_MAKE_QUIET_ERROR().
 
 #define OVR_MAKE_QUIET_ERROR(errorCode, pDescription) \
-    OVR::MakeError((errorCode), OVR::ovrSysErrorCodeSuccess, OVR_FILE, OVR_LINE, false, false, nullptr, "%s", (pDescription))
+  OVR::MakeError(                                     \
+      (errorCode),                                    \
+      OVR::ovrSysErrorCodeSuccess,                    \
+      OVR_FILE,                                       \
+      OVR_LINE,                                       \
+      false,                                          \
+      false,                                          \
+      nullptr,                                        \
+      "%s",                                           \
+      (pDescription))
 
 // Note: The format string is the first part of the .../__VA_ARGS__ as per the C99-C++11 Standards.
 #define OVR_MAKE_QUIET_ERROR_F(errorCode, ...) \
-    OVR::MakeError((errorCode), OVR::ovrSysErrorCodeSuccess, OVR_FILE, OVR_LINE, false, false, nullptr, __VA_ARGS__)
+  OVR::MakeError(                              \
+      (errorCode),                             \
+      OVR::ovrSysErrorCodeSuccess,             \
+      OVR_FILE,                                \
+      OVR_LINE,                                \
+      false,                                   \
+      false,                                   \
+      nullptr,                                 \
+      __VA_ARGS__)
 
 #define OVR_MAKE_QUIET_SYS_ERROR(errorCode, sysErrorCode, pDescription) \
-    OVR::MakeError((errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, false, false, nullptr, "%s", (pDescription))
+  OVR::MakeError(                                                       \
+      (errorCode),                                                      \
+      (sysErrorCode),                                                   \
+      OVR_FILE,                                                         \
+      OVR_LINE,                                                         \
+      false,                                                            \
+      false,                                                            \
+      nullptr,                                                          \
+      "%s",                                                             \
+      (pDescription))
 
 // Note: The format string is the first part of the .../__VA_ARGS__ as per the C99-C++11 Standards.
 #define OVR_MAKE_QUIET_SYS_ERROR_F(errorCode, sysErrorCode, ...) \
-    OVR::MakeError((errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, false, false, nullptr, __VA_ARGS__)
+  OVR::MakeError(                                                \
+      (errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, false, false, nullptr, __VA_ARGS__)
 
 // Consider using OVR_MAKE_NOASSERT_ERROR() instead of OVR_MAKE_ERROR() where the error
 // should not automatically log/assert.  If the error is normal (HMD unplugged) or
 // repetitive then please use OVR_MAKE_NOASSERT_ERROR().
 
 #define OVR_MAKE_NOASSERT_ERROR(errorCode, pDescription) \
-    OVR::MakeError((errorCode), OVR::ovrSysErrorCodeSuccess, OVR_FILE, OVR_LINE, true, false, nullptr, "%s", (pDescription))
+  OVR::MakeError(                                        \
+      (errorCode),                                       \
+      OVR::ovrSysErrorCodeSuccess,                       \
+      OVR_FILE,                                          \
+      OVR_LINE,                                          \
+      true,                                              \
+      false,                                             \
+      nullptr,                                           \
+      "%s",                                              \
+      (pDescription))
 
 // Note: The format string is the first part of the .../__VA_ARGS__ as per the C99-C++11 Standards.
 #define OVR_MAKE_NOASSERT_ERROR_F(errorCode, ...) \
-    OVR::MakeError((errorCode), OVR::ovrSysErrorCodeSuccess, OVR_FILE, OVR_LINE, true, false, nullptr, __VA_ARGS__)
+  OVR::MakeError(                                 \
+      (errorCode),                                \
+      OVR::ovrSysErrorCodeSuccess,                \
+      OVR_FILE,                                   \
+      OVR_LINE,                                   \
+      true,                                       \
+      false,                                      \
+      nullptr,                                    \
+      __VA_ARGS__)
 
 #define OVR_MAKE_NOASSERT_SYS_ERROR(errorCode, sysErrorCode, pDescription) \
-    OVR::MakeError((errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, true, false, nullptr, "%s", (pDescription))
+  OVR::MakeError(                                                          \
+      (errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, true, false, nullptr, "%s", (pDescription))
 
 // Note: The format string is the first part of the .../__VA_ARGS__ as per the C99-C++11 Standards.
 #define OVR_MAKE_NOASSERT_SYS_ERROR_F(errorCode, sysErrorCode, ...) \
-    OVR::MakeError((errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, true, false, nullptr, __VA_ARGS__)
+  OVR::MakeError((errorCode), (sysErrorCode), OVR_FILE, OVR_LINE, true, false, nullptr, __VA_ARGS__)
 
 // Set the TLS last error:
 
-#define OVR_SET_ERROR(ovrError) \
-    OVR::SetError(ovrError)
+#define OVR_SET_ERROR(ovrError) OVR::SetError(ovrError)
 
 // Log the error if it has not already been logged:
 
-#define OVR_LOG_ERROR(ovrError) \
-    OVR::LogError(ovrError)
+#define OVR_LOG_ERROR(ovrError) OVR::LogError(ovrError)
 
 // Check an HRESULT error code and assert/log on failure:
 
-#define OVR_HR_CHECK_RET_ERROR(errorCode, sysErrorCode, pDescription) \
-    if (FAILED(sysErrorCode)) { \
-        return OVR_MAKE_SYS_ERROR_F((errorCode), (sysErrorCode), "%s", (pDescription)); \
-    }
+#define OVR_HR_CHECK_RET_ERROR(errorCode, sysErrorCode, pDescription)               \
+  if (FAILED(sysErrorCode)) {                                                       \
+    return OVR_MAKE_SYS_ERROR_F((errorCode), (sysErrorCode), "%s", (pDescription)); \
+  }
 
 // Note: The format string is the first part of the .../__VA_ARGS__ as per the C99-C++11 Standards.
-#define OVR_HR_CHECK_RET_ERROR_F(errorCode, sysErrorCode, ...) \
-    if (FAILED(sysErrorCode)) { \
-        return OVR_MAKE_SYS_ERROR_F((errorCode), (sysErrorCode), __VA_ARGS__); \
-    }
-
+#define OVR_HR_CHECK_RET_ERROR_F(errorCode, sysErrorCode, ...)             \
+  if (FAILED(sysErrorCode)) {                                              \
+    return OVR_MAKE_SYS_ERROR_F((errorCode), (sysErrorCode), __VA_ARGS__); \
+  }
 
 /// -----------------------------------------------------------------------------
 /// ***** ovrSysErrorCode
@@ -219,14 +273,12 @@ namespace OVR {
 ///
 typedef uint32_t ovrSysErrorCode;
 
-
 /// -----------------------------------------------------------------------------
 /// ***** ovrSysErrorCodeSuccess
 ///
 /// Identifies a ovrSysErrorCode that's success.
 ///
 const ovrSysErrorCode ovrSysErrorCodeSuccess = 0;
-
 
 /// -----------------------------------------------------------------------------
 /// ***** ovrSysErrorCodeNone
@@ -235,12 +287,8 @@ const ovrSysErrorCode ovrSysErrorCodeSuccess = 0;
 ///
 const ovrSysErrorCode ovrSysErrorCodeNone = 0;
 
-
-
 // SysClockTime is a C++11 equivalent to C time_t.
 typedef std::chrono::time_point<std::chrono::system_clock> SysClockTime;
-
-
 
 /// -----------------------------------------------------------------------------
 /// ***** OVRError
@@ -254,108 +302,106 @@ typedef std::chrono::time_point<std::chrono::system_clock> SysClockTime;
 ///     https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSError_Class/
 ///     https://msdn.microsoft.com/en-us/library/windows/desktop/ms723041%28v=vs.85%29.aspx
 ///
-class OVRError
-{
-private:
-    // Cannot convert boolean to OVRError - It must be done explicitly.
-    OVRError(bool) { OVR_ASSERT(false); }
-    OVRError(bool, const char*, ...) { OVR_ASSERT(false); }
+class OVRError {
+ private:
+  // Cannot convert boolean to OVRError - It must be done explicitly.
+  OVRError(bool) {
+    OVR_ASSERT(false);
+  }
+  OVRError(bool, const char*, ...) {
+    OVR_ASSERT(false);
+  }
 
-public:
-    OVRError();
-    OVRError(ovrResult code); // Intentionally not explicit.
-    OVRError(ovrResult code, const char* pFormat, ...);
+ public:
+  OVRError();
+  OVRError(ovrResult code); // Intentionally not explicit.
+  OVRError(ovrResult code, const char* pFormat, ...);
 
-    OVRError(const OVRError& OVRError);
-    OVRError(OVRError&& OVRError);
+  OVRError(const OVRError& OVRError);
+  OVRError(OVRError&& OVRError);
 
-    virtual ~OVRError();
+  virtual ~OVRError();
 
-    // Construct a success code.  Use Succeeded() to check for success.
-    static OVRError Success() { return OVRError(); }
+  // Construct a success code.  Use Succeeded() to check for success.
+  static OVRError Success() {
+    return OVRError();
+  }
 
-    OVRError& operator=(const OVRError& OVRError);
-    OVRError& operator=(OVRError&& OVRError);
+  OVRError& operator=(const OVRError& OVRError);
+  OVRError& operator=(OVRError&& OVRError);
 
-    // Use this to check if result is a success code
-    bool Succeeded() const
-    {
-        return Code >= ovrSuccess;
-    }
-    bool Failed() const
-    {
-        return !Succeeded();
-    }
+  // Use this to check if result is a success code
+  bool Succeeded() const {
+    return Code >= ovrSuccess;
+  }
+  bool Failed() const {
+    return !Succeeded();
+  }
 
-    // Sets the OVRTime, ClockTime, Backtrace to current values.
-    void SetCurrentValues(); // To do: Come up with a more appropiate name.
+  // Sets the OVRTime, ClockTime, Backtrace to current values.
+  void SetCurrentValues(); // To do: Come up with a more appropiate name.
 
-    // Clears all members to a newly default-constructed state.
-    void Reset();
+  // Clears all members to a newly default-constructed state.
+  void Reset();
 
-    // Get the full error string for this error. May include newlines.
-    String GetErrorString() const;
+  // Get the full error string for this error. May include newlines.
+  String GetErrorString() const;
 
-    // Property accessors
-    void      SetCode(ovrResult code);
-    ovrResult GetCode() const;
+  // Property accessors
+  void SetCode(ovrResult code);
+  ovrResult GetCode() const;
 
-    void            SetSysCode(ovrSysErrorCode sysCode);
-    ovrSysErrorCode GetSysCode() const;
+  void SetSysCode(ovrSysErrorCode sysCode);
+  ovrSysErrorCode GetSysCode() const;
 
-    void   SetDescription(const char* pDescription);
-    String GetDescription() const;
+  void SetDescription(const char* pDescription);
+  String GetDescription() const;
 
-    void   SetContext(const char* pContext);
-    String GetContext() const;
+  void SetContext(const char* pContext);
+  String GetContext() const;
 
-    void   SetOVRTime(double ovrTime);
-    double GetOVRTime() const;
+  void SetOVRTime(double ovrTime);
+  double GetOVRTime() const;
 
-    void         SetSysClockTime(const SysClockTime& clockTime);
-    SysClockTime GetSysClockTime() const;
+  void SetSysClockTime(const SysClockTime& clockTime);
+  SysClockTime GetSysClockTime() const;
 
-    static const int64_t kLogLineUnset = -1;
-    void    SetLogLine(int64_t logLine);
-    int64_t GetLogLine() const;
+  static const int64_t kLogLineUnset = -1;
+  void SetLogLine(int64_t logLine);
+  int64_t GetLogLine() const;
 
-    bool    IsAlreadyLogged() const
-    {
-        return AlreadyLogged;
-    }
-    void    SetAlreadyLogged()
-    {
-        AlreadyLogged = true;
-    }
-    void    ResetAlreadyLogged()
-    {
-        AlreadyLogged = false;
-    }
+  bool IsAlreadyLogged() const {
+    return AlreadyLogged;
+  }
+  void SetAlreadyLogged() {
+    AlreadyLogged = true;
+  }
+  void ResetAlreadyLogged() {
+    AlreadyLogged = false;
+  }
 
-    void                   SetSource(const char* pSourceFilePath, int sourceFileLine);
-    std::pair<String, int> GetSource() const;
+  void SetSource(const char* pSourceFilePath, int sourceFileLine);
+  std::pair<String, int> GetSource() const;
 
-    typedef OVR::Array<void*> AddressArray;
-    AddressArray GetBacktrace() const;
+  typedef OVR::Array<void*> AddressArray;
+  AddressArray GetBacktrace() const;
 
-    static void RegisterResultCodeName(ovrResult number, const char* name);
+  static void RegisterResultCodeName(ovrResult number, const char* name);
 
-protected:
-    ovrResult         Code;                /// The main ovrResult, which is a high level error id.
-    ovrSysErrorCode   SysCode;             /// May be ovrSysErrorCodeSuccess to indicate there isn't a relevant system error code.
-    String            Description;         /// Unlocalized error description string.
-    String            Context;             /// Context string. For example, for a file open failure this is the file path.
-    double            OVRTime;             /// Time when the error was generated. Same format as OVR time.
-    SysClockTime      ClockTime;           /// Wall clock time.
-    int64_t           LogLine;             /// Log line of the error. -1 if not set (not logged).
-    String            SourceFilePath;      /// The __FILE__ where the error was first encountered.
-    int               SourceFileLine;      /// The __LINE__ where the error was first encountered.
-    AddressArray      Backtrace;           /// Backtrace at point of error. May be empty in publicly released builds.
-    bool              AlreadyLogged;       /// Error has already been logged to avoid double-printing it.
+ protected:
+  ovrResult Code; /// The main ovrResult, which is a high level error id.
+  ovrSysErrorCode SysCode; /// May be ovrSysErrorCodeSuccess to indicate there isn't a relevant
+  /// system error code.
+  String Description; /// Unlocalized error description string.
+  String Context; /// Context string. For example, for a file open failure this is the file path.
+  double OVRTime; /// Time when the error was generated. Same format as OVR time.
+  SysClockTime ClockTime; /// Wall clock time.
+  int64_t LogLine; /// Log line of the error. -1 if not set (not logged).
+  String SourceFilePath; /// The __FILE__ where the error was first encountered.
+  int SourceFileLine; /// The __LINE__ where the error was first encountered.
+  AddressArray Backtrace; /// Backtrace at point of error. May be empty in publicly released builds.
+  bool AlreadyLogged; /// Error has already been logged to avoid double-printing it.
 };
-
-
-
 
 /// -----------------------------------------------------------------------------
 /// ***** SetError
@@ -364,7 +410,6 @@ protected:
 ///
 void SetError(OVRError& ovrError);
 
-
 /// -----------------------------------------------------------------------------
 /// ***** LogError
 ///
@@ -372,19 +417,24 @@ void SetError(OVRError& ovrError);
 ///
 void LogError(OVRError& ovrError);
 
-
 /// -----------------------------------------------------------------------------
 /// ***** MakeError
 ///
-/// Utility function for making an error, logging it, and setting it as the last error for the current thread.
-/// It's preferred to instead use the OVR_MAKE_ERROR macro functions, as they
-/// handle file/line functionality cleanly between debug and release.
-/// The "quiet" parameter will prevent it from automatically logging/asserting.
+/// Utility function for making an error, logging it, and setting it as the last error for the
+/// current thread. It's preferred to instead use the OVR_MAKE_ERROR macro functions, as they handle
+/// file/line functionality cleanly between debug and release. The "quiet" parameter will prevent it
+/// from automatically logging/asserting.
 ///
-OVRError MakeError(ovrResult errorCode, ovrSysErrorCode sysCode, const char* pSourceFile,
-                   int sourceLine, bool logError, bool assertError, const char* pContext,
-                   const char* pDescriptionFormat, ...) OVR_LOG_VAARG_ATTRIBUTE(7,8);
-
+OVRError MakeError(
+    ovrResult errorCode,
+    ovrSysErrorCode sysCode,
+    const char* pSourceFile,
+    int sourceLine,
+    bool logError,
+    bool assertError,
+    const char* pContext,
+    const char* pDescriptionFormat,
+    ...) OVR_LOG_VAARG_ATTRIBUTE(8, 9);
 
 // -----------------------------------------------------------------------------
 // ***** LastErrorTLS
@@ -402,20 +452,19 @@ OVRError MakeError(ovrResult errorCode, ovrSysErrorCode sysCode, const char* pSo
 // We use pointers below instead of concrete objects because we want to have their
 // lifetimes entirely controlled by ovr_Initialize/ovr_Shutdown.
 
-class LastErrorTLS : public NewOverrideBase, public SystemSingletonBase <LastErrorTLS>
-{
-    OVR_DECLARE_SINGLETON(LastErrorTLS);
+class LastErrorTLS : public NewOverrideBase, public SystemSingletonBase<LastErrorTLS> {
+  OVR_DECLARE_SINGLETON(LastErrorTLS);
 
-public:
-    OVRError& LastError();
+ public:
+  OVRError& LastError();
 
-protected:
-    // Protect hash from multiple thread access.
-    Lock TheLock;
+ protected:
+  // Protect hash from multiple thread access.
+  Lock TheLock;
 
-    // Map thread-id to OVRError objects.
-    typedef Hash<ThreadId, OVRError> TLSHash;
-    TLSHash TLSDictionary;
+  // Map thread-id to OVRError objects.
+  typedef Hash<ThreadId, OVRError> TLSHash;
+  TLSHash TLSDictionary;
 };
 
 /// -----------------------------------------------------------------------------
@@ -444,54 +493,47 @@ bool GetErrorCodeString(ovrResult errorCode, bool prefixErrorCode, OVR::String& 
 /// Users of OVR_MAKE_SYS_ERROR and MakeError don't need to call this function, as it's done
 /// automatically internally.
 ///
-bool GetSysErrorCodeString(ovrSysErrorCode sysErrorCode, bool prefixErrorCode, OVR::String& sResult);
-
+bool GetSysErrorCodeString(
+    ovrSysErrorCode sysErrorCode,
+    bool prefixErrorCode,
+    OVR::String& sResult);
 
 //-------------------------------------------------------------------------------------
 // C++ Exception state
 
 // CPPExceptionInfo contains information about a possible exception state for the current library.
-// We cannot safely use the OVRError system for this, as it could fail when we are in an exceptional state.
-// It would be a non-trivial effort to make the OVRError system work in a way that doesn't allocate
-// memory, for various reasons.
+// We cannot safely use the OVRError system for this, as it could fail when we are in an exceptional
+// state. It would be a non-trivial effort to make the OVRError system work in a way that doesn't
+// allocate memory, for various reasons.
 
-struct CPPExceptionInfo
-{
-    CPPExceptionInfo() OVR_NOEXCEPT
-      : ExceptionOccurred(false),
-        Description()
-    {
-    }
+struct CPPExceptionInfo {
+  CPPExceptionInfo() OVR_NOEXCEPT : ExceptionOccurred(false), Description() {}
 
-    void Reset() OVR_NOEXCEPT
-    {
-        ExceptionOccurred = false;
-        Description[0] = '\0';
-    }
+  void Reset() OVR_NOEXCEPT {
+    ExceptionOccurred = false;
+    Description[0] = '\0';
+  }
 
-    void FromStdException(const std::exception& e) OVR_NOEXCEPT
-    {
-        ExceptionOccurred = true;
-        OVR_strlcpy(Description, e.what(), sizeof(Description));
-    }
+  void FromStdException(const std::exception& e) OVR_NOEXCEPT {
+    ExceptionOccurred = true;
+    OVR_strlcpy(Description, e.what(), sizeof(Description));
+  }
 
-    void FromString(const char* str) OVR_NOEXCEPT
-    {
-        ExceptionOccurred = true;
-        OVR_strlcpy(Description, str, sizeof(Description));
-    }
+  void FromString(const char* str) OVR_NOEXCEPT {
+    ExceptionOccurred = true;
+    OVR_strlcpy(Description, str, sizeof(Description));
+  }
 
-    // If this get set to true then it should never be set back to false
-    // except by an unloading of the module (i.e. DLL) itself.
-    bool ExceptionOccurred;
+  // If this get set to true then it should never be set back to false
+  // except by an unloading of the module (i.e. DLL) itself.
+  bool ExceptionOccurred;
 
-    // Describes the exception in a way that makes no external calls
-    // nor allocates any memory.
-    char Description[256];
+  // Describes the exception in a way that makes no external calls
+  // nor allocates any memory.
+  char Description[256];
 };
 
 extern OVR::CPPExceptionInfo gCPPExceptionInfo;
-
 
 // Helper macros to make repetitive exception handling tasks non-redundant.
 //
@@ -539,31 +581,50 @@ extern OVR::CPPExceptionInfo gCPPExceptionInfo;
 //        return ovrError_CPPException;
 //    }
 
-#define OVR_CAPI_TRY_VOID                                                          \
-    if (OVR::gCPPExceptionInfo.ExceptionOccurred)                                  \
-        return;                                                                    \
-    try
+#if defined(OVR_BUILD_DEBUG)
 
-#define OVR_CAPI_TRY_VALUE(exceptionStateReturnValue)                              \
-    if (OVR::gCPPExceptionInfo.ExceptionOccurred)                                  \
-        return exceptionStateReturnValue;                                          \
-    try
+#define OVR_CAPI_TRY_VOID \
+  do {                    \
+  } while (false);
 
-#define OVR_CAPI_TRY_OVRRESULT                                                     \
-    if (OVR::gCPPExceptionInfo.ExceptionOccurred)                                  \
-        return ovrError_RuntimeException;                                          \
-    try
+#define OVR_CAPI_TRY_VALUE(exceptionStateReturnValue) \
+  do {                                                \
+  } while (false);
 
-#define OVR_CAPI_CATCH                                                             \
-    catch(const std::exception& e)                                                 \
-    {                                                                              \
-        OVR::gCPPExceptionInfo.FromStdException(e);                                \
-    }                                                                              \
-    catch(...)                                                                     \
-    {                                                                              \
-        OVR::gCPPExceptionInfo.FromString("Non-standard C++ exception occurred."); \
-    }
+#define OVR_CAPI_TRY_OVRRESULT \
+  do {                         \
+  } while (false);
 
+#define OVR_CAPI_CATCH \
+  do {                 \
+  } while (false);
+
+#else // OVR_BUILD_DEBUG
+
+#define OVR_CAPI_TRY_VOID                       \
+  if (OVR::gCPPExceptionInfo.ExceptionOccurred) \
+    return;                                     \
+  try
+
+#define OVR_CAPI_TRY_VALUE(exceptionStateReturnValue) \
+  if (OVR::gCPPExceptionInfo.ExceptionOccurred)       \
+    return exceptionStateReturnValue;                 \
+  try
+
+#define OVR_CAPI_TRY_OVRRESULT                  \
+  if (OVR::gCPPExceptionInfo.ExceptionOccurred) \
+    return ovrError_RuntimeException;           \
+  try
+
+#define OVR_CAPI_CATCH                                                         \
+  catch (const std::exception& e) {                                            \
+    OVR::gCPPExceptionInfo.FromStdException(e);                                \
+  }                                                                            \
+  catch (...) {                                                                \
+    OVR::gCPPExceptionInfo.FromString("Non-standard C++ exception occurred."); \
+  }
+
+#endif // OVR_BUILD_DEBUG
 
 /// -----------------------------------------------------------------------------
 /// ***** OVRErrorCallback
@@ -581,17 +642,15 @@ typedef std::function<void(const OVRError& err, bool quiet)> OVRErrorCallback;
 ///
 void SetErrorCallback(OVRErrorCallback callback);
 
-
 } // namespace OVR
-
 
 #ifndef MICRO_OVR
 namespace ovrlog {
 
-    template<> LOGGING_INLINE void LogStringize(LogStringBuffer& buffer, const OVR::OVRError& first)
-    {
-        buffer.Stream << first.GetErrorString().ToCStr();
-    }
+template <>
+LOGGING_INLINE void LogStringize(LogStringBuffer& buffer, const OVR::OVRError& first) {
+  buffer.Stream << first.GetErrorString().ToCStr();
+}
 
 } // namespace ovrlog
 #endif

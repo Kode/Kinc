@@ -1,7 +1,8 @@
 /************************************************************************************
 
 Filename    :   Util_LongPollThread.cpp
-Content     :   Allows us to do all long polling tasks from a single thread to minimize deadlock risk
+Content     :   Allows us to do all long polling tasks from a single thread to minimize deadlock
+risk
 Created     :   June 30, 2013
 Authors     :   Chris Taylor
 
@@ -29,68 +30,56 @@ limitations under the License.
 
 OVR_DEFINE_SINGLETON(OVR::Util::LongPollThread);
 
-namespace OVR { namespace Util {
+namespace OVR {
+namespace Util {
 
-
-void LongPollThread::AddPollFunc(CallbackListener<PollFunc>* func)
-{
-    PollSubject.AddListener(func);
+void LongPollThread::AddPollFunc(CallbackListener<PollFunc>* func) {
+  PollSubject.AddListener(func);
 }
 
-LongPollThread::LongPollThread() :
-    Terminated(false)
-{
-    LongPollThreadHandle = std::make_unique<std::thread>([this] { this->Run(); });
+LongPollThread::LongPollThread() : Terminated(false) {
+  LongPollThreadHandle = std::make_unique<std::thread>([this] { this->Run(); });
 
-    // Must be at end of function
-    PushDestroyCallbacks();
+  // Must be at end of function
+  PushDestroyCallbacks();
 }
 
-LongPollThread::~LongPollThread()
-{
-    OVR_ASSERT(!LongPollThreadHandle->joinable());
+LongPollThread::~LongPollThread() {
+  OVR_ASSERT(!LongPollThreadHandle->joinable());
 }
 
-void LongPollThread::OnThreadDestroy()
-{
-    fireTermination();
+void LongPollThread::OnThreadDestroy() {
+  fireTermination();
 
-    LongPollThreadHandle->join();
+  LongPollThreadHandle->join();
 }
 
-void LongPollThread::Wake()
-{
-    WakeEvent.SetEvent();
+void LongPollThread::Wake() {
+  WakeEvent.SetEvent();
 }
 
-void LongPollThread::fireTermination()
-{
-    Terminated.store(true, std::memory_order_relaxed);
-    Wake();
+void LongPollThread::fireTermination() {
+  Terminated.store(true, std::memory_order_relaxed);
+  Wake();
 }
 
-void LongPollThread::OnSystemDestroy()
-{
-
-    delete this;
+void LongPollThread::OnSystemDestroy() {
+  delete this;
 }
 
-void LongPollThread::Run()
-{
-    Thread::SetCurrentThreadName("LongPoll");
-    WatchDog watchdog("LongPoll");
+void LongPollThread::Run() {
+  Thread::SetCurrentThreadName("LongPoll");
+  WatchDog watchdog("LongPoll");
 
-    // While not terminated,
-    do
-    {
-        watchdog.Feed(10000);
+  // While not terminated,
+  do {
+    watchdog.Feed(10000);
 
-        PollSubject.Call();
+    PollSubject.Call();
 
-        WakeEvent.Wait(WakeupInterval);
-        WakeEvent.ResetEvent();
-    } while (!Terminated.load(std::memory_order_acquire));
+    WakeEvent.Wait(WakeupInterval);
+    WakeEvent.ResetEvent();
+  } while (!Terminated.load(std::memory_order_acquire));
 }
-
-
-}} // namespace OVR::Util
+} // namespace Util
+} // namespace OVR

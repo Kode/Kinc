@@ -61,6 +61,10 @@
 					<event symbol="NotificationEnd" value="59" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Notification" opcode="Waypoint" template="NotificationEnd" message="$(string.OVR-SDK-LibOVR.event.59.message)"></event>
 					<event symbol="NotificationCompSubmit" value="60" version="0" channel="LibOVR/Analytic" level="win:Informational" task="Notification" opcode="Waypoint" template="NotificationCompSubmit" message="$(string.OVR-SDK-LibOVR.event.60.message)"></event>
 					<event symbol="MotionEstimationCostStats" value="61" version="0" channel="LibOVR/Analytic" level="win:Informational" task="CompositorRunLoop" opcode="Waypoint" template="MotionEstimationCostStats" message="$(string.OVR-SDK-LibOVR.event.61.message)"></event>
+					<event symbol="PhaseSyncWaitToBeginFrame" value="62" version="0" channel="LibOVR/Analytic" level="win:Informational" task="PhaseSync" opcode="Waypoint" template="PhaseSyncWaitToBeginFrame" message="$(string.OVR-SDK-LibOVR.event.63.message)"></event>
+					<event symbol="PhaseSyncBeginFrame" value="63" version="0" channel="LibOVR/Analytic" level="win:Informational" task="PhaseSync" opcode="Waypoint" template="PhaseSyncBeginFrame" message="$(string.OVR-SDK-LibOVR.event.64.message)"></event>
+					<event symbol="PhaseSyncEndFrame" value="64" version="0" channel="LibOVR/Analytic" level="win:Informational" task="PhaseSync" opcode="Waypoint" template="PhaseSyncEndFrame" message="$(string.OVR-SDK-LibOVR.event.65.message)"></event>
+					<event symbol="PhaseSyncCompleteFrame" value="65" version="0" channel="LibOVR/Analytic" level="win:Informational" task="PhaseSync" opcode="Waypoint" template="PhaseSyncCompleteFrame" message="$(string.OVR-SDK-LibOVR.event.66.message)"></event>
 				</events>
 				<levels></levels>
 				<tasks>
@@ -373,6 +377,44 @@
 						<data name="Average" inType="win:UInt32" outType="xs:unsignedInt"></data>
 						<data name="Log2Histogram" inType="win:UInt32" outType="xs:unsignedInt" count="33"></data>
 					</template>
+					<template tid="PhaseSyncWaitToBeginFrame">
+						<data name="Frame" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="BeginWaitTime" inType="win:Double" outType="xs:double"></data>
+						<data name="SemaphoreMS" inType="win:Float" outType="xs:float"></data>
+						<data name="SleepMS" inType="win:Float" outType="xs:float"></data>
+						<data name="SpinMS" inType="win:Float" outType="xs:float"></data>
+						<data name="EndWaitTime" inType="win:Double" outType="xs:double"></data>
+						<data name="TargetCompletionTime" inType="win:Double" outType="xs:double"></data>
+						<data name="TargetCompositeTime" inType="win:Double" outType="xs:double"></data>
+						<data name="TargetVSyncTime" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="PhaseSyncBeginFrame">
+						<data name="Frame" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="BeginFrameTime" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="PhaseSyncEndFrame">
+						<data name="Frame" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="EndFrameTime" inType="win:Double" outType="xs:double"></data>
+					</template>
+					<template tid="PhaseSyncCompleteFrame">
+						<data name="Frame" inType="win:UInt64" outType="xs:unsignedLong"></data>
+						<data name="CompletionTime" inType="win:Double" outType="xs:double"></data>
+						<data name="CompositeTime" inType="win:Double" outType="xs:double"></data>
+						<data name="VSyncTime" inType="win:Double" outType="xs:double"></data>
+						<data name="FrameTimeMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgFrameTimeMS" inType="win:Float" outType="xs:float"></data>
+						<data name="FrameTimeCpuMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgFrameTimeCpuMS" inType="win:Float" outType="xs:float"></data>
+						<data name="FrameTimeGpuMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgFrameTimeGpuMS" inType="win:Float" outType="xs:float"></data>
+						<data name="FrameVarianceMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgFrameVarianceMS" inType="win:Float" outType="xs:float"></data>
+						<data name="QueueAheadMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgQueueAheadMS" inType="win:Float" outType="xs:float"></data>
+						<data name="AdaptiveGpuPerformanceScale" inType="win:Float" outType="xs:float"></data>
+						<data name="AvgAdaptiveGpuPerformanceScale" inType="win:Float" outType="xs:float"></data>
+						<data name="PhaseSyncDelayMS" inType="win:Float" outType="xs:float"></data>
+					</template>
 				</templates>
 			</provider>
 		</events>
@@ -409,6 +451,11 @@
 				<string id="OVR-SDK-LibOVR.event.9.message" value="Received Frame %2"></string>
 				<string id="OVR-SDK-LibOVR.event.8.message" value="Hmd Descriptor for %4"></string>
 				<string id="OVR-SDK-LibOVR.event.7.message" value="End distortion rendering for %1 (frame %2)"></string>
+				<string id="OVR-SDK-LibOVR.event.66.message" value="CompleteFrame"></string>
+				<string id="OVR-SDK-LibOVR.event.65.message" value="EndFrame"></string>
+				<string id="OVR-SDK-LibOVR.event.64.message" value="BeginFrame"></string>
+				<string id="OVR-SDK-LibOVR.event.63.message" value="WaitToBeginFrame"></string>
+				<string id="OVR-SDK-LibOVR.event.62.message" value="BeginWait"></string>
 				<string id="OVR-SDK-LibOVR.event.61.message" value="Motion Estimation Cost Statistics"></string>
 				<string id="OVR-SDK-LibOVR.event.60.message" value="Submisison of notification to distortion"></string>
 				<string id="OVR-SDK-LibOVR.event.6.message" value="Present distortion for %1 (frame %2)"></string>

@@ -40,28 +40,31 @@ limitations under the License.
 #include <GL/gl.h>
 #endif
 
-namespace OVR { namespace GLUtil {
+namespace OVR {
+namespace GLUtil {
 
 //-------------------------------------------------------------------------------------
 // ***** CAPI::Blitter
 
 // D3D11 implementation of blitter
 
-class Blitter : public RefCountBase<Blitter>
-{
-public:
-    Blitter();
-    ~Blitter();
+class Blitter : public RefCountBase<Blitter> {
+ public:
+  Blitter();
+  ~Blitter();
 
-    bool Initialize();
+  bool Initialize();
 
-    // Blit sourceTexture to the active frame buffer
-    bool Blt(GLuint sourceTexId);
+  // Blit sourceTexture to the active frame buffer
+  bool Blt(GLuint sourceTexId);
+  bool
+  Blt(GLuint sourceTexId, uint32_t topLeftX, uint32_t topLeftY, uint32_t width, uint32_t height);
+  bool BltCubemap(GLuint sourceTexId, GLuint tempTexId, uint32_t cubeMapSize);
 
-private:
-    GLuint ReadFBO;
+ private:
+  GLuint ReadFBO;
 };
-
-}} // namespace OVR::GLUtil
+} // namespace GLUtil
+} // namespace OVR
 
 #endif // OVR_Util_GL_Blitter_h

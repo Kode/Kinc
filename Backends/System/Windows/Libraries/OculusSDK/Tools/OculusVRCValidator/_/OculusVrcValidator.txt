@@ -1,0 +1,75 @@
+VRC Validator
+
+== Goal ==
+
+The goal of this application validation tool is to ensure that the applications conform to certain SDK requirements. The list of requirements is referred to as a VRC (Virtual Reality Checks). OculusVrcValidator is a command line tool for automated validation of requirements conformance, which can run on an arbitrary Rift-based application.
+
+== Installation ==
+
+To install, use an admin command prompt to run Install.bat. It will copy the binary and the manifest to the correct location. Then, open an administrator command prompt, go to %ProgramFiles%\Oculus\Support\oculus-vrcvalidator and run OculusVrcValidator.exe.
+
+Note: If you're running the tool for the first time, you would have to restart the Oculus Service after running Install.bat.
+
+== Usage ==
+OculusVrcValidator.exe --help displays the command line usage of the tool. 
+
+Note: If you wish to run the validator in fully automated mode with no user input, use the --load_time_ms <int> flag. The application will run for the specified time before testing begins. If this argument is not provided, the you can navigate to a specific point in the application (eg. starting the game, loading a specific level) and hit Enter whenever you wish to start the test.
+
+== Tests ==
+
+As of this writing, OculusVrcValidator runs the following tests. There are other VRC items that this tool doesn't yet test, but will do so in a future version.
+
+Default validations:
+    TestSdkVersion - This outputs the version of the SDK the application was built against. It checks if the version is at least 1.8
+
+    TestEntitlementCheck - This validates that the application has issued entitlement check.
+
+    TestOculusDLLIncludes - This validates that the application is not distributing copies of Oculus DLLs. If an application loads an Oculus DLL, it should do it from the Oculus runtime directory. List of Oculus DLLs - 
+
+        LibOVRRT32_1.dll
+        LibOVRRT64_1.dll
+        LibOVRPlatform32_1.dll
+        LibOVRPlatform64_1.dll
+        LibOVRP2P32_1.dll
+        LibOVRP2P64_1.dll
+        LibOVRAvatar32_1.dll
+        LibOVRAvatar64_1.dll
+
+    TestLaunchIntoVR - This validates that the application launches into VR without any user input within the specified time and the first frame submitted contains a non-headlocked layer. The time to enter VR after the application calls ovr_Create is suggested to be 4 seconds. However, this can be changed using the --max_time_to_frame <int> argument.
+
+    TestSubmitFramesWhenVisible - This validates that the application is rendering when visible. It counts the number of texture swap chains committed and reports it at the end of the test.
+
+    TestSubmitFramesWhenNotVisible - This validates that the application does not render when not visible. It automatically switches the application to Universal Menu (UM) and verifies that there are no texture swap chains committed when not visible.
+
+    TestResponseToRecenterRequest - This validates that the application responds to re-centering requests. It sends a request to recenter and validates that the application calls either ovr_RecenterTrackingOrigin or ovr_ClearShouldRecenterFlag, thus handling the re-centering request properly.
+
+    TestAppShouldQuit - This validates that the application quits properly (calls ovr_Destroy) when instructed to do so. It exits the application from Universal Menu (UM) and verifies that the application called ovr_Destroy before quitting gracefully.
+
+    TestResponseToIadChanges - This validates if the application queries the HmdToEyeOffset values and responds to changes in Inter Axial Distance (IAD). It verifies that the application calls ovr_GetRenderDesc at least once in 500ms to get the updated HmdToEyeOffset values. It then changes the IAD values programmatically and verifies that the poses submitted change, thus responding to IAD changes.
+
+    TestPropertyAccess - This validates that the application does not call internal, undocumented or otherwise unsupported API functions. It checks if the application is calling ovr_GetInt, ovr_SetInt, etc property functions for properties which are internal. The allowed properties are - 
+
+        User
+        Name
+        Gender
+        PlayerHeight
+        EyeHeight
+        NeckEyeDistance
+        EyeNoseDist
+        IPD (allowed only for SDK versions older than 1.3)
+
+    ErrorCapture - In the manual mode, the user can run the application for arbitrary time and it will output all the errors received from the runtime. In the automated mode (using --load_time_ms <int> flag), it will run the application for the specified amount of time. Some of the common errors to look out for are - 
+
+        ovrError_InvalidParameter - invalid parameter provided. More information is output about the function which is called with invalid parameter.
+
+        ovrError_MismatchedAdapters - occurs when the HMD is not plugged in the primary display adapter and the application is not handling this. 
+
+        ovrError_LeakingResources - calling application has leaked resources
+
+        ovrError_TextureSwapChainFull - ovr_CommitTextureSwapChain was called too many times on a texture swapchain without calling submit to use the chain
+
+Non-default Validations:
+
+    TestMismatchedAdapters - This validates that the application supports graphics devices other that the primary display device. For this test to run, the system should have at least two GPUs and the headset should be connected to a GPU different than the GPU in which the monitor is plugged into.
+
+    TestResponseToDisplayLost - This validates if the application responds to HDMI cable unplug (display lost). On display lost, the application should either quit gracefully or not render to the HMD. In the manual mode, it will prompt you to unplug the headset, will check if frames are submitted and prompt you to plug it back. If you are using a Breaker Box, the plug/unplug of the HMD will be automated and it will not require any user input. Remember to run with --load_time_ms <int> and --use_breaker flags to achieve this.

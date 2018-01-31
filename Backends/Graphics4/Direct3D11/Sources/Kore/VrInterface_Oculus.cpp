@@ -244,8 +244,7 @@ namespace {
 	ovrSession session;
 	ovrHmdDesc hmdDesc;
 
-	ovrPosef EyePose[2];
-	ovrPosef EyePredictedPose[2];
+	ovrPosef EyeRenderPose[2];
 	double sensorSampleTime;
 	double predictedFrameTiming;
 	ovrTrackingState trackingState;
@@ -332,16 +331,10 @@ void VrInterface::begin() {
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
 	eyeRenderDesc[1] = ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1]);
 
-	// Get eye poses, feeding in correct IPD offset
-	ovrVector3f HmdToEyeOffset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
+	// Get both eye poses simultaneously, with IPD offset already included. 
+	ovrPosef HmdToEyePose[2] = { eyeRenderDesc[0].HmdToEyePose, eyeRenderDesc[1].HmdToEyePose };
 
-	// Get predicted eye pose
-	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyePose, &sensorSampleTime);
-
-	// Ask the API for the times when this frame is expected to be displayed. 
-	predictedFrameTiming = ovr_GetPredictedDisplayTime(session, frameIndex);
-	trackingState = ovr_GetTrackingState(session, predictedFrameTiming, ovrTrue);
-	ovr_CalcEyePoses(trackingState.HeadPose.ThePose, HmdToEyeOffset, EyePredictedPose);
+	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyePose, EyeRenderPose, &sensorSampleTime);
 }
 
 void VrInterface::beginRender(int eye) {
@@ -377,10 +370,10 @@ namespace {
 SensorState VrInterface::getSensorState(int eye) {
 	VrPoseState poseState;
 
-	ovrQuatf orientation = EyePose[eye].Orientation;
+	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
 	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
-	ovrVector3f pos = EyePose[eye].Position;
+	ovrVector3f pos = EyeRenderPose[eye].Position;
 	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
@@ -398,14 +391,6 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
 	poseState.linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
 
-	// Get predicted orientation and position
-	VrPoseState predictedPoseState;
-	ovrQuatf predOrientation = EyePredictedPose[eye].Orientation;
-	predictedPoseState.vrPose.orientation = Quaternion(predOrientation.x, predOrientation.y, predOrientation.z, predOrientation.w);
-
-	ovrVector3f predPos = EyePredictedPose[eye].Position;
-	predictedPoseState.vrPose.position = vec3(predPos.x, predPos.y, predPos.z);
-
 	//Get the pose information in XM format
 	XMVECTOR eyeQuat = XMVectorSet(orientation.x, orientation.y, orientation.z, orientation.w);
 	XMVECTOR eyePos = XMVectorSet(pos.x, pos.y, pos.z, 0);
@@ -422,7 +407,6 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.vrPose.eye = convert(view).Transpose();
 	poseState.vrPose.projection = convert(proj).Transpose();
 
-	sensorStates[eye].predictedPose = predictedPoseState;
 	sensorStates[eye].pose = poseState;
 
 	ovrSessionStatus sessionStatus;
@@ -458,8 +442,8 @@ void VrInterface::warpSwap() {
 			ld.ColorTexture[eye] = pEyeRenderTexture[eye]->TextureChain;
 			ld.Viewport[eye] = eyeRenderViewport[eye];
 			ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
-			ld.RenderPose[eye] = EyePose[eye];		// eyePredictedPose[eye];
-			ld.SensorSampleTime = sensorSampleTime;		// predictedFrameTiming;
+			ld.RenderPose[eye] = EyeRenderPose[eye];
+			ld.SensorSampleTime = sensorSampleTime;
 		}
 	}
 
@@ -476,6 +460,7 @@ void VrInterface::warpSwap() {
 	// Render mirror
 	ID3D11Texture2D* tex = nullptr;
 	ovr_GetMirrorTextureBufferDX(session, mirrorTexture, IID_PPV_ARGS(&tex));
+	
 	context->CopyResource(backBuffer, tex);
 	tex->Release();
 }
