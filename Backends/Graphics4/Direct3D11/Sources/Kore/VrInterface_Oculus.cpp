@@ -405,18 +405,18 @@ SensorState VrInterface::getSensorState(int eye) {
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) sensorStates[eye].isVisible = true;
-	else sensorStates[eye].isVisible = false;
-	if (sessionStatus.HmdPresent) sensorStates[eye].hmdPresenting = true;
-	else sensorStates[eye].hmdPresenting = false;
-	if (sessionStatus.HmdMounted) sensorStates[eye].hmdMounted = true;
-	else sensorStates[eye].hmdMounted = false;
-	if (sessionStatus.DisplayLost) sensorStates[eye].displayLost = true;
-	else sensorStates[eye].displayLost = false;
-	if (sessionStatus.ShouldQuit) sensorStates[eye].shouldQuit = true;
-	else sensorStates[eye].shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) sensorStates[eye].shouldRecenter = true;
-	else sensorStates[eye].shouldRecenter = false;
+	if (sessionStatus.IsVisible) poseState.isVisible = true;
+	else poseState.isVisible = false;
+	if (sessionStatus.HmdPresent)poseState.hmdPresenting = true;
+	else poseState.hmdPresenting = false;
+	if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
+	else poseState.hmdMounted = false;
+	if (sessionStatus.DisplayLost) poseState.displayLost = true;
+	else poseState.displayLost = false;
+	if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
+	else poseState.shouldQuit = false;
+	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
+	else poseState.shouldRecenter = false;
 
 	return sensorStates[eye];
 }
