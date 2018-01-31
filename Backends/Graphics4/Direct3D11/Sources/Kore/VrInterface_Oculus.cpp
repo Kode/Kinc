@@ -401,8 +401,6 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.vrPose.eye = convert(view).Transpose();
 	poseState.vrPose.projection = convert(proj).Transpose();
 
-	sensorStates[eye].pose = poseState;
-
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
 	if (sessionStatus.IsVisible) poseState.isVisible = true;
@@ -417,6 +415,8 @@ SensorState VrInterface::getSensorState(int eye) {
 	else poseState.shouldQuit = false;
 	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
 	else poseState.shouldRecenter = false;
+
+	sensorStates[eye].pose = poseState;
 
 	return sensorStates[eye];
 }

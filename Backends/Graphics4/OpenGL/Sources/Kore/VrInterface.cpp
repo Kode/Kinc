@@ -295,8 +295,6 @@ namespace {
 
 	ovrPosef EyeRenderPose[2];
 	double sensorSampleTime;
-	double predictedFrameTiming;
-	ovrTrackingState trackingState;
 
 	OGL Platform;
 
@@ -321,6 +319,29 @@ namespace {
 				done();
 			}
 		}
+
+		ovrMirrorTextureDesc desc;
+		memset(&desc, 0, sizeof(desc));
+		desc.Width = Platform.WinSizeW;
+		desc.Height = Platform.WinSizeH;
+		desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
+
+		// Create mirror texture and an FBO used to copy mirror texture to back buffer
+		ovrResult result = ovr_CreateMirrorTextureWithOptionsGL(session, &desc, &mirrorTexture);
+		if (!OVR_SUCCESS(result)) {
+			log(Info, "Failed to create mirror texture.");
+			done();
+		}
+
+		// Configure the mirror read buffer
+		GLuint texId;
+		ovr_GetMirrorTextureBufferGL(session, mirrorTexture, &texId);
+
+		glGenFramebuffers(1, &mirrorFBO);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
+		glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
+		glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	}
 }
 
@@ -353,29 +374,6 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 		log(Info, "Failed to init device.");
 		done();
 	}
-
-	ovrMirrorTextureDesc desc;
-	memset(&desc, 0, sizeof(desc));
-	desc.Width = windowSize.w;
-	desc.Height = windowSize.h;
-	desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-
-	// Create mirror texture and an FBO used to copy mirror texture to back buffer
-	result = ovr_CreateMirrorTextureWithOptionsGL(session, &desc, &mirrorTexture);
-	if (!OVR_SUCCESS(result)) {
-		log(Info, "Failed to create mirror texture.");
-		done();
-	}
-
-	// Configure the mirror read buffer
-	GLuint texId;
-	ovr_GetMirrorTextureBufferGL(session, mirrorTexture, &texId);
-
-	glGenFramebuffers(1, &mirrorFBO);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
-	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
-	glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 	// FloorLevel will give tracking poses where the floor height is 0
 	ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
@@ -436,18 +434,8 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.vrPose.bottom = fov.DownTan;
 	poseState.vrPose.top = fov.UpTan;
 
-	ovrVector3f angularVelocity = trackingState.HeadPose.AngularVelocity;
-	ovrVector3f linearVelocity = trackingState.HeadPose.LinearVelocity;
-	ovrVector3f angularAcceleration = trackingState.HeadPose.AngularAcceleration;
-	ovrVector3f linearAcceleration = trackingState.HeadPose.LinearAcceleration;
-	poseState.angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
-	poseState.linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
-	poseState.angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
-	poseState.linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
-
 	// Get view and projection matrices
-	static float Yaw(3.141592f);
-	OVR::Matrix4f rollPitchYaw = OVR::Matrix4f::RotationY(Yaw);
+	OVR::Matrix4f rollPitchYaw = OVR::Matrix4f::RotationY(Kore::pi);
 	OVR::Matrix4f finalRollPitchYaw = rollPitchYaw * OVR::Matrix4f(EyeRenderPose[eye].Orientation);
 	OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
 	OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
@@ -458,23 +446,23 @@ SensorState VrInterface::getSensorState(int eye) {
 
 	poseState.vrPose.eye = convert(view).Transpose();
 	poseState.vrPose.projection = convert(proj).Transpose();
-	
-	sensorStates[eye].pose = poseState;
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) sensorStates[eye].isVisible = true;
-	else sensorStates[eye].isVisible = false;
-	if (sessionStatus.HmdPresent) sensorStates[eye].hmdPresenting = true;
-	else sensorStates[eye].hmdPresenting = false;
-	if (sessionStatus.HmdMounted) sensorStates[eye].hmdMounted = true;
-	else sensorStates[eye].hmdMounted = false;
-	if (sessionStatus.DisplayLost) sensorStates[eye].displayLost = true;
-	else sensorStates[eye].displayLost = false;
-	if (sessionStatus.ShouldQuit) sensorStates[eye].shouldQuit = true;
-	else sensorStates[eye].shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) sensorStates[eye].shouldRecenter = true;
-	else sensorStates[eye].shouldRecenter = false;
+	if (sessionStatus.IsVisible) poseState.isVisible = true;
+	else poseState.isVisible = false;
+	if (sessionStatus.HmdPresent) poseState.hmdPresenting = true;
+	else poseState.hmdPresenting = false;
+	if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
+	else poseState.hmdMounted = false;
+	if (sessionStatus.DisplayLost) poseState.displayLost = true;
+	else poseState.displayLost = false;
+	if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
+	else poseState.shouldQuit = false;
+	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
+	else poseState.shouldRecenter = false;
+
+	sensorStates[eye].pose = poseState;
 
 	return sensorStates[eye];
 }
