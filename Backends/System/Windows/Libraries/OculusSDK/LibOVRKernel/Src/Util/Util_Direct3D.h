@@ -7,16 +7,16 @@ Authors     :   Chris Taylor
 
 Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
 
-Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License"); 
-you may not use the Oculus VR Rift SDK except in compliance with the License, 
-which is provided at the time of installation or download, or which 
+Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
+you may not use the Oculus VR Rift SDK except in compliance with the License,
+which is provided at the time of installation or download, or which
 otherwise accompanies this software in either electronic or hard copy form.
 
 You may obtain a copy of the License at
 
-http://www.oculusvr.com/licenses/LICENSE-3.3 
+http://www.oculusvr.com/licenses/LICENSE-3.3
 
-Unless required by applicable law or agreed to in writing, the Oculus VR SDK 
+Unless required by applicable law or agreed to in writing, the Oculus VR SDK
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
@@ -27,6 +27,8 @@ limitations under the License.
 #ifndef OVR_Util_Direct3D_h
 #define OVR_Util_Direct3D_h
 
+#if defined(_WIN32)
+
 // Include Windows correctly first before implicitly including it below
 #include "Kernel/OVR_Win32_IncludeWindows.h"
 #include "Kernel/OVR_String.h"
@@ -36,26 +38,25 @@ limitations under the License.
 #include <d3dcompiler.h>
 
 #if _MSC_VER >= 1800
-    // Visual Studio 2013+ support newer D3D/DXGI headers.
-    #define OVR_D3D11_VER 2
-    #include <d3d11_2.h>
-    #define OVR_DXGI_VER 3
-    #include <dxgi1_3.h> // Used in place of 1.2 for IDXGIFactory2 debug version (when available)
+// Visual Studio 2013+ support newer D3D/DXGI headers.
+#define OVR_D3D11_VER 2
+#include <d3d11_2.h>
+#define OVR_DXGI_VER 3
+#include <dxgi1_3.h> // Used in place of 1.2 for IDXGIFactory2 debug version (when available)
 #elif _MSC_VER >= 1700
-    // Visual Studio 2012+ only supports older D3D/DXGI headers.
-    #define OVR_D3D11_VER 1
-    #include <d3d11_1.h>
+// Visual Studio 2012+ only supports older D3D/DXGI headers.
+#define OVR_D3D11_VER 1
+#include <d3d11_1.h>
 #else
-    // Visual Studio 2010+ only supports original D3D/DXGI headers.
-    #define OVR_D3D11_VER 1
-    #include <d3d11.h>
+// Visual Studio 2010+ only supports original D3D/DXGI headers.
+#define OVR_D3D11_VER 1
+#include <d3d11.h>
 #endif
 
-namespace OVR { namespace D3DUtil {
-
+namespace OVR {
+namespace D3DUtil {
 
 String GetWindowsErrorString(HRESULT hr);
-
 
 //-----------------------------------------------------------------------------
 // Helper macros for verifying HRESULT values from Direct3D API calls
@@ -71,18 +72,18 @@ bool VerifyHRESULT(const char* file, int line, HRESULT hr);
 
 // Internal implementation of the OVR_D3D_CHECK_RET family of functions.
 #define OVR_D3D_CHECK_RET_IMPL(hr, returnExpression) \
-    {                                                \
-        if (!OVR_D3D_CHECK(hr))                      \
-        {                                            \
-            returnExpression                         \
-        }                                            \
-    }
+  {                                                  \
+    if (!OVR_D3D_CHECK(hr)) {                        \
+      returnExpression                               \
+    }                                                \
+  }
 
 // Returns provided value on failure.
 // Example usage:
 //     size_t Func() {
 //         . . .
-//         HRESULT hr = Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pDXGIDevice.GetRawRef());
+//         HRESULT hr = Device->QueryInterface(__uuidof(IDXGIDevice), (void
+//         **)&pDXGIDevice.GetRawRef());
 //         OVR_D3D_CHECK_RET_VAL(hr, 0);
 //         . . .
 //     }
@@ -92,7 +93,8 @@ bool VerifyHRESULT(const char* file, int line, HRESULT hr);
 // Example usage:
 //     void Func() {
 //         . . .
-//         HRESULT hr = Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pDXGIDevice.GetRawRef());
+//         HRESULT hr = Device->QueryInterface(__uuidof(IDXGIDevice), (void
+//         **)&pDXGIDevice.GetRawRef());
 //         OVR_D3D_CHECK_RET(hr);
 //         . . .
 //     }
@@ -102,7 +104,8 @@ bool VerifyHRESULT(const char* file, int line, HRESULT hr);
 // Example usage:
 //     bool Func() {
 //         . . .
-//         HRESULT hr = Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pDXGIDevice.GetRawRef());
+//         HRESULT hr = Device->QueryInterface(__uuidof(IDXGIDevice), (void
+//         **)&pDXGIDevice.GetRawRef());
 //         OVR_D3D_CHECK_RET_FALSE(hr);
 //         . . .
 //     }
@@ -112,7 +115,8 @@ bool VerifyHRESULT(const char* file, int line, HRESULT hr);
 // Example usage:
 //     void* Func() {
 //         . . .
-//         HRESULT hr = Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pDXGIDevice.GetRawRef());
+//         HRESULT hr = Device->QueryInterface(__uuidof(IDXGIDevice), (void
+//         **)&pDXGIDevice.GetRawRef());
 //         OVR_D3D_CHECK_RET_NULL(hr);
 //         . . .
 //     }
@@ -121,37 +125,37 @@ bool VerifyHRESULT(const char* file, int line, HRESULT hr);
 // If the result is a failure, it will write the exact compile error to the error log
 void LogD3DCompileError(HRESULT hr, ID3DBlob* errorBlob);
 
-
 #if defined(OVR_BUILD_DEBUG)
 
-    // Enable this to track down double-tagging object warnings from D3D.
-    #define OVR_D3D_TRACK_DOUBLE_TAGGING
+// Enable this to track down double-tagging object warnings from D3D.
+#define OVR_D3D_TRACK_DOUBLE_TAGGING
 
-    #if defined(OVR_D3D_TRACK_DOUBLE_TAGGING)
-        #define OVR_D3D_CHECK_REUSE(child) \
-                char tagReuseBuffer[1024]; \
-                UINT reuseSize = (UINT)sizeof(tagReuseBuffer); \
-                OVR_ASSERT(FAILED(child->GetPrivateData(WKPDID_D3DDebugObjectName, &reuseSize, tagReuseBuffer)));
-    #else
-        #define OVR_D3D_CHECK_REUSE(child) (void(0))
-    #endif
+#if defined(OVR_D3D_TRACK_DOUBLE_TAGGING)
+#define OVR_D3D_CHECK_REUSE(child)               \
+  char tagReuseBuffer[1024];                     \
+  UINT reuseSize = (UINT)sizeof(tagReuseBuffer); \
+  OVR_ASSERT(FAILED(child->GetPrivateData(WKPDID_D3DDebugObjectName, &reuseSize, tagReuseBuffer)));
+#else
+#define OVR_D3D_CHECK_REUSE(child) (void(0))
+#endif
 
-    #define OVR_D3D_TAG_OBJECT(child) \
-        if (child) { \
-            OVR_D3D_CHECK_REUSE(child); \
-            const char* tagName = OVR_STRINGIZE(child) " " __FILE__ "(" OVR_STRINGIZE(__LINE__) ")"; \
-            UINT tagDataSize = (UINT)strlen(tagName); \
-            HRESULT tagHR = child->SetPrivateData(WKPDID_D3DDebugObjectName, tagDataSize, tagName); \
-            OVR_D3D_CHECK(tagHR); \
-        }
+#define OVR_D3D_TAG_OBJECT(child)                                                            \
+  if (child) {                                                                               \
+    OVR_D3D_CHECK_REUSE(child);                                                              \
+    const char* tagName = OVR_STRINGIZE(child) " " __FILE__ "(" OVR_STRINGIZE(__LINE__) ")"; \
+    UINT tagDataSize = (UINT)strlen(tagName);                                                \
+    HRESULT tagHR = child->SetPrivateData(WKPDID_D3DDebugObjectName, tagDataSize, tagName);  \
+    OVR_D3D_CHECK(tagHR);                                                                    \
+  }
 
 #else // !Debug:
 
-    #define OVR_D3D_TAG_OBJECT(child) (void(0))
+#define OVR_D3D_TAG_OBJECT(child) (void(0))
 
 #endif // !Debug
+} // namespace D3DUtil
+} // namespace OVR
 
-
-}} // namespace OVR::D3DUtil
+#endif // _WIN32
 
 #endif // OVR_Util_Direct3D_h

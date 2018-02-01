@@ -1,0 +1,25 @@
+include_defs('//LibOVRKernel/DEFS', 'libovrkernel')
+
+cxx_library(
+    name = 'headers',
+    header_namespace = 'GL',
+    exported_headers = glob(['*.h']),
+    visibility = ['PUBLIC'],
+)
+
+cxx_library(
+    name = 'GL',
+    header_namespace = 'GL',
+    srcs=['CAPI_GLE.cpp'],
+    headers = glob(['*.h']),
+    exported_headers = {
+    	'GL/CAPI_GLE.h' : 'CAPI_GLE.h',
+    	'GL/CAPI_GLE_GL.h' : 'CAPI_GLE_GL.h',
+    },
+    deps = [
+        '//LibOVRKernel/Src/Kernel:headers_win',
+    ],
+    visibility = ['PUBLIC'],
+    compiler_flags = WINDOWS_COMPILE_FLAGS + WINDOWS_COMMON_FLAGS + libovrkernel.WINDOWS_COMPILE_FLAGS,
+    preferred_linkage = 'static',
+)

@@ -293,11 +293,8 @@ namespace {
 	ovrSession session;
 	ovrHmdDesc hmdDesc;
 
-	ovrPosef EyePose[2];
-	ovrPosef EyePredictedPose[2];
+	ovrPosef EyeRenderPose[2];
 	double sensorSampleTime;
-	double predictedFrameTiming;
-	ovrTrackingState trackingState;
 
 	OGL Platform;
 
@@ -322,6 +319,29 @@ namespace {
 				done();
 			}
 		}
+
+		ovrMirrorTextureDesc desc;
+		memset(&desc, 0, sizeof(desc));
+		desc.Width = Platform.WinSizeW;
+		desc.Height = Platform.WinSizeH;
+		desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
+
+		// Create mirror texture and an FBO used to copy mirror texture to back buffer
+		ovrResult result = ovr_CreateMirrorTextureWithOptionsGL(session, &desc, &mirrorTexture);
+		if (!OVR_SUCCESS(result)) {
+			log(Info, "Failed to create mirror texture.");
+			done();
+		}
+
+		// Configure the mirror read buffer
+		GLuint texId;
+		ovr_GetMirrorTextureBufferGL(session, mirrorTexture, &texId);
+
+		glGenFramebuffers(1, &mirrorFBO);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
+		glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
+		glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	}
 }
 
@@ -355,29 +375,6 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 		done();
 	}
 
-	ovrMirrorTextureDesc desc;
-	memset(&desc, 0, sizeof(desc));
-	desc.Width = Platform.WinSizeW;
-	desc.Height = Platform.WinSizeH;
-	desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-
-	// Create mirror texture and an FBO used to copy mirror texture to back buffer
-	result = ovr_CreateMirrorTextureGL(session, &desc, &mirrorTexture);
-	if (!OVR_SUCCESS(result)) {
-		log(Info, "Failed to create mirror texture.");
-		done();
-	}
-
-	// Configure the mirror read buffer
-	GLuint texId;
-	ovr_GetMirrorTextureBufferGL(session, mirrorTexture, &texId);
-
-	glGenFramebuffers(1, &mirrorFBO);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFBO);
-	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0);
-	glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
 	// FloorLevel will give tracking poses where the floor height is 0
 	ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 
@@ -391,16 +388,10 @@ void VrInterface::begin() {
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
 	eyeRenderDesc[1] = ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1]);
 
-	// Get eye poses, feeding in correct IPD offset
-	ovrVector3f HmdToEyeOffset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
+	// Get both eye poses simultaneously, with IPD offset already included.
+	ovrPosef HmdToEyePose[2] = { eyeRenderDesc[0].HmdToEyePose, eyeRenderDesc[1].HmdToEyePose };
 
-	// Get predicted eye pose
-	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyePose, &sensorSampleTime);
-
-	// Ask the API for the times when this frame is expected to be displayed. 
-	predictedFrameTiming = ovr_GetPredictedDisplayTime(session, frameIndex);
-	trackingState = ovr_GetTrackingState(session, predictedFrameTiming, ovrTrue);
-	ovr_CalcEyePoses(trackingState.HeadPose.ThePose, HmdToEyeOffset, EyePredictedPose);
+	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyePose, EyeRenderPose, &sensorSampleTime);
 }
 
 void VrInterface::beginRender(int eye) {
@@ -416,13 +407,25 @@ void VrInterface::endRender(int eye) {
 	eyeRenderTexture[eye]->Commit();
 }
 
+namespace {
+
+	mat4 convert(OVR::Matrix4f& m) {
+		mat4 mat;
+		mat.Set(0, 0, m.M[0][0]); mat.Set(0, 1, m.M[0][1]); mat.Set(0, 2, m.M[0][2]); mat.Set(0, 3, m.M[0][3]);
+		mat.Set(1, 0, m.M[1][0]); mat.Set(1, 1, m.M[1][1]); mat.Set(1, 2, m.M[1][2]); mat.Set(1, 3, m.M[1][3]);
+		mat.Set(2, 0, m.M[2][0]); mat.Set(2, 1, m.M[2][1]); mat.Set(2, 2, m.M[2][2]); mat.Set(2, 3, m.M[2][3]);
+		mat.Set(3, 0, m.M[3][0]); mat.Set(3, 1, m.M[3][1]); mat.Set(3, 2, m.M[3][2]); mat.Set(3, 3, m.M[3][3]);
+		return mat;
+	}
+}
+
 SensorState VrInterface::getSensorState(int eye) {
 	VrPoseState poseState;
 
-	ovrQuatf orientation = EyePose[eye].Orientation;
+	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
 	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
-	ovrVector3f pos = EyePose[eye].Position;
+	ovrVector3f pos = EyeRenderPose[eye].Position;
 	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
@@ -431,40 +434,34 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.vrPose.bottom = fov.DownTan;
 	poseState.vrPose.top = fov.UpTan;
 
-	ovrVector3f angularVelocity = trackingState.HeadPose.AngularVelocity;
-	ovrVector3f linearVelocity = trackingState.HeadPose.LinearVelocity;
-	ovrVector3f angularAcceleration = trackingState.HeadPose.AngularAcceleration;
-	ovrVector3f linearAcceleration = trackingState.HeadPose.LinearAcceleration;
-	poseState.angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
-	poseState.linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
-	poseState.angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
-	poseState.linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
+	// Get view and projection matrices
+	OVR::Matrix4f finalRollPitchYaw = OVR::Matrix4f(EyeRenderPose[eye].Orientation);
+	OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
+	OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
+	OVR::Vector3f shiftedEyePos = EyeRenderPose[eye].Position;
 
-	// Get predicted orientation and position
-	VrPoseState predictedPoseState;
-	ovrQuatf predOrientation = EyePredictedPose[eye].Orientation;
-	predictedPoseState.vrPose.orientation = Quaternion(predOrientation.x, predOrientation.y, predOrientation.z, predOrientation.w);
+	OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
+	OVR::Matrix4f proj = ovrMatrix4f_Projection(hmdDesc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);
 
-	ovrVector3f predPos = EyePredictedPose[eye].Position;
-	predictedPoseState.vrPose.position = vec3(predPos.x, predPos.y, predPos.z);
-
-	sensorStates[eye].predictedPose = predictedPoseState;
-	sensorStates[eye].pose = poseState;
+	poseState.vrPose.eye = convert(view);
+	poseState.vrPose.projection = convert(proj);
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) sensorStates[eye].isVisible = true;
-	else sensorStates[eye].isVisible = false;
-	if (sessionStatus.HmdPresent) sensorStates[eye].hmdPresenting = true;
-	else sensorStates[eye].hmdPresenting = false;
-	if (sessionStatus.HmdMounted) sensorStates[eye].hmdMounted = true;
-	else sensorStates[eye].hmdMounted = false;
-	if (sessionStatus.DisplayLost) sensorStates[eye].displayLost = true;
-	else sensorStates[eye].displayLost = false;
-	if (sessionStatus.ShouldQuit) sensorStates[eye].shouldQuit = true;
-	else sensorStates[eye].shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) sensorStates[eye].shouldRecenter = true;
-	else sensorStates[eye].shouldRecenter = false;
+	if (sessionStatus.IsVisible) poseState.isVisible = true;
+	else poseState.isVisible = false;
+	if (sessionStatus.HmdPresent) poseState.hmdPresenting = true;
+	else poseState.hmdPresenting = false;
+	if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
+	else poseState.hmdMounted = false;
+	if (sessionStatus.DisplayLost) poseState.displayLost = true;
+	else poseState.displayLost = false;
+	if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
+	else poseState.shouldQuit = false;
+	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
+	else poseState.shouldRecenter = false;
+
+	sensorStates[eye].pose = poseState;
 
 	return sensorStates[eye];
 }
@@ -480,7 +477,7 @@ void VrInterface::warpSwap() {
 			ld.ColorTexture[eye] = eyeRenderTexture[eye]->TextureChain;
 			ld.Viewport[eye] = OVR::Recti(eyeRenderTexture[eye]->GetSize());
 			ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
-			ld.RenderPose[eye] = EyePose[eye];
+			ld.RenderPose[eye] = EyeRenderPose[eye];
 			ld.SensorSampleTime = sensorSampleTime;
 		}
 	}

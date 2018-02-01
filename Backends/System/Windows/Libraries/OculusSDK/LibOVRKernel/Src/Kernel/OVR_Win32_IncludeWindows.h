@@ -7,16 +7,16 @@ Authors     :   Chris Taylor, Scott Bassett
 
 Copyright   :   Copyright 2014 Oculus, Inc. All Rights reserved.
 
-Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License"); 
-you may not use the Oculus VR Rift SDK except in compliance with the License, 
-which is provided at the time of installation or download, or which 
+Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
+you may not use the Oculus VR Rift SDK except in compliance with the License,
+which is provided at the time of installation or download, or which
 otherwise accompanies this software in either electronic or hard copy form.
 
 You may obtain a copy of the License at
 
-http://www.oculusvr.com/licenses/LICENSE-3.3 
+http://www.oculusvr.com/licenses/LICENSE-3.3
 
-Unless required by applicable law or agreed to in writing, the Oculus VR SDK 
+Unless required by applicable law or agreed to in writing, the Oculus VR SDK
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
@@ -48,11 +48,6 @@ limitations under the License.
 #define NOMINMAX
 #endif
 
-// We support Windows Windows 7 or newer.
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0601 /* Windows 7+ */
-#endif
-
 OVR_DISABLE_ALL_MSVC_WARNINGS()
 #include <Windows.h>
 OVR_RESTORE_ALL_MSVC_WARNINGS()
@@ -63,7 +58,6 @@ OVR_RESTORE_ALL_MSVC_WARNINGS()
 #endif
 
 namespace OVR {
-
 
 //-----------------------------------------------------------------------------
 // ScopedHANDLE
@@ -76,181 +70,148 @@ namespace OVR {
 // INVALID_HANDLE_VALUE.  The invalid value that is correct for the usage must
 // be provided as the template argument.
 
-struct ScopedHANDLE_NullTraits
-{
-    // We cannot make this a static member variable as it is not an integral type.
-    inline static HANDLE InvalidValue()
-    {
-        return nullptr;
-    }
+struct ScopedHANDLE_NullTraits {
+  // We cannot make this a static member variable as it is not an integral type.
+  inline static HANDLE InvalidValue() {
+    return nullptr;
+  }
 };
-struct ScopedHANDLE_InvalidTraits
-{
-    inline static HANDLE InvalidValue()
-    {
-        return INVALID_HANDLE_VALUE;
-    }
+struct ScopedHANDLE_InvalidTraits {
+  inline static HANDLE InvalidValue() {
+    return INVALID_HANDLE_VALUE;
+  }
 };
 
-template<typename Traits>
-class ScopedHANDLE
-{
-    HANDLE hAttachedHandle;
+template <typename Traits>
+class ScopedHANDLE {
+  HANDLE hAttachedHandle;
 
-public:
-    ScopedHANDLE(HANDLE handle) :
-        hAttachedHandle(handle)
-    {
-    }
-    ScopedHANDLE()
-    {
-        hAttachedHandle = Traits::InvalidValue();
-    }
-    ScopedHANDLE& operator=(HANDLE handle)
-    {
-        Close();
-        hAttachedHandle = handle;
-        return *this;
-    }
-    ~ScopedHANDLE()
-    {
-        Close();
-    }
+ public:
+  ScopedHANDLE(HANDLE handle) : hAttachedHandle(handle) {}
+  ScopedHANDLE() {
+    hAttachedHandle = Traits::InvalidValue();
+  }
+  ScopedHANDLE& operator=(HANDLE handle) {
+    Close();
+    hAttachedHandle = handle;
+    return *this;
+  }
+  ~ScopedHANDLE() {
+    Close();
+  }
 
-    bool IsValid() const
-    {
-        return hAttachedHandle != Traits::InvalidValue();
-    }
+  bool IsValid() const {
+    return hAttachedHandle != Traits::InvalidValue();
+  }
 
-    #if !OVR_CPP_NO_EXPLICIT_CONVERSION_OPERATORS
-        operator bool() const
-        {
-            return IsValid();
-        }
+#if !OVR_CPP_NO_EXPLICIT_CONVERSION_OPERATORS
+  operator bool() const {
+    return IsValid();
+  }
 
-        operator HANDLE() const
-        {
-            return hAttachedHandle;
-        }
-    #endif
+  operator HANDLE() const {
+    return hAttachedHandle;
+  }
+#endif
 
-    HANDLE Get() const
-    {
-        return hAttachedHandle;
+  HANDLE Get() const {
+    return hAttachedHandle;
+  }
+  HANDLE& GetRawRef() {
+    return hAttachedHandle;
+  }
+  void Attach(HANDLE handle) {
+    Close();
+    hAttachedHandle = handle;
+  }
+  void Detach() {
+    // Do not close handle
+    hAttachedHandle = Traits::InvalidValue();
+  }
+  bool Copy() {
+    Close();
+    if (DuplicateHandle(
+            GetCurrentProcess(),
+            cpuEvent,
+            GetCurrentProcess() serverProcess.Get(),
+            &hAttachedHandle,
+            0,
+            FALSE,
+            DUPLICATE_SAME_ACCESS))
+      return true;
+    hAttachedHandle = Traits::InvalidValue();
+    return false;
+  }
+  bool Close() {
+    bool success = true;
+    if (hAttachedHandle != Traits::InvalidValue()) {
+      if (::CloseHandle(hAttachedHandle) != TRUE) {
+        success = false;
+      }
+      hAttachedHandle = Traits::InvalidValue();
     }
-    HANDLE& GetRawRef()
-    {
-        return hAttachedHandle;
-    }
-    void Attach(HANDLE handle)
-    {
-        Close();
-        hAttachedHandle = handle;
-    }
-    void Detach()
-    {
-        // Do not close handle
-        hAttachedHandle = Traits::InvalidValue();
-    }
-    bool Copy()
-    {
-        Close();
-        if(DuplicateHandle(GetCurrentProcess(), cpuEvent, GetCurrentProcess()
-                           serverProcess.Get(), &hAttachedHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
-            return true;
-        hAttachedHandle = Traits::InvalidValue();
-        return false;
-    }
-    bool Close()
-    {
-        bool success = true;
-        if (hAttachedHandle != Traits::InvalidValue())
-        {
-            if (::CloseHandle(hAttachedHandle) != TRUE)
-            {
-                success = false;
-            }
-            hAttachedHandle = Traits::InvalidValue();
-        }
-        return success;
-    }
+    return success;
+  }
 };
 
 // Different Windows API functions have different invalid values.
 // These types are provided to improve readability.
-typedef ScopedHANDLE < ScopedHANDLE_NullTraits > ScopedMutexHANDLE;
-typedef ScopedHANDLE < ScopedHANDLE_NullTraits > ScopedEventHANDLE;
-typedef ScopedHANDLE < ScopedHANDLE_InvalidTraits > ScopedFileHANDLE;
-typedef ScopedHANDLE < ScopedHANDLE_NullTraits > ScopedProcessHANDLE;
-typedef ScopedHANDLE < ScopedHANDLE_NullTraits > ScopedThreadHANDLE;
-typedef ScopedHANDLE < ScopedHANDLE_NullTraits > ScopedSemaphoreHANDLE;
+typedef ScopedHANDLE<ScopedHANDLE_NullTraits> ScopedMutexHANDLE;
+typedef ScopedHANDLE<ScopedHANDLE_NullTraits> ScopedEventHANDLE;
+typedef ScopedHANDLE<ScopedHANDLE_InvalidTraits> ScopedFileHANDLE;
+typedef ScopedHANDLE<ScopedHANDLE_NullTraits> ScopedProcessHANDLE;
+typedef ScopedHANDLE<ScopedHANDLE_NullTraits> ScopedThreadHANDLE;
+typedef ScopedHANDLE<ScopedHANDLE_NullTraits> ScopedSemaphoreHANDLE;
 
 // Scoped registry keys
-class ScopedHKEY
-{
-    HKEY hAttachedHandle;
+class ScopedHKEY {
+  HKEY hAttachedHandle;
 
-public:
-    ScopedHKEY(HKEY handle) :
-        hAttachedHandle(handle)
-    {
-    }
-    ScopedHKEY()
-    {
-        hAttachedHandle = nullptr;
-    }
-    ScopedHKEY& operator=(HKEY handle)
-    {
-        Close();
-        hAttachedHandle = handle;
-        return *this;
-    }
-    ~ScopedHKEY()
-    {
-        Close();
-    }
+ public:
+  ScopedHKEY(HKEY handle) : hAttachedHandle(handle) {}
+  ScopedHKEY() {
+    hAttachedHandle = nullptr;
+  }
+  ScopedHKEY& operator=(HKEY handle) {
+    Close();
+    hAttachedHandle = handle;
+    return *this;
+  }
+  ~ScopedHKEY() {
+    Close();
+  }
 
-    bool IsValid()
-    {
-        return hAttachedHandle != nullptr;
+  bool IsValid() {
+    return hAttachedHandle != nullptr;
+  }
+  HKEY Get() {
+    return hAttachedHandle;
+  }
+  HKEY& GetRawRef() {
+    return hAttachedHandle;
+  }
+  void Attach(HKEY handle) {
+    Close();
+    hAttachedHandle = handle;
+  }
+  void Detach() {
+    // Do not close handle
+    hAttachedHandle = nullptr;
+  }
+  bool Close() {
+    bool success = true;
+    if (hAttachedHandle != nullptr) {
+      if (::RegCloseKey(hAttachedHandle) == ERROR_SUCCESS) {
+        success = false;
+      }
+      hAttachedHandle = nullptr;
     }
-    HKEY Get()
-    {
-        return hAttachedHandle;
-    }
-    HKEY& GetRawRef()
-    {
-        return hAttachedHandle;
-    }
-    void Attach(HKEY handle)
-    {
-        Close();
-        hAttachedHandle = handle;
-    }
-    void Detach()
-    {
-        // Do not close handle
-        hAttachedHandle = nullptr;
-    }
-    bool Close()
-    {
-        bool success = true;
-        if (hAttachedHandle != nullptr)
-        {
-            if (::RegCloseKey(hAttachedHandle) == ERROR_SUCCESS)
-            {
-                success = false;
-            }
-            hAttachedHandle = nullptr;
-        }
-        return success;
-    }
+    return success;
+  }
 };
-
 
 } // namespace OVR
 
-
-#endif // OVR_OS_WIN32
+#endif // OVR_OS_MS
 
 #endif // OVR_Win32_IncludeWindows_h

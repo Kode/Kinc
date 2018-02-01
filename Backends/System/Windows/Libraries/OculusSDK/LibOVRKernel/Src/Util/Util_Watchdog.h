@@ -7,16 +7,16 @@ Authors     :   Kevin Jenkins, Chris Taylor
 
 Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
 
-Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License"); 
-you may not use the Oculus VR Rift SDK except in compliance with the License, 
-which is provided at the time of installation or download, or which 
+Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
+you may not use the Oculus VR Rift SDK except in compliance with the License,
+which is provided at the time of installation or download, or which
 otherwise accompanies this software in either electronic or hard copy form.
 
 You may obtain a copy of the License at
 
-http://www.oculusvr.com/licenses/LICENSE-3.3 
+http://www.oculusvr.com/licenses/LICENSE-3.3
 
-Unless required by applicable law or agreed to in writing, the Oculus VR SDK 
+Unless required by applicable law or agreed to in writing, the Oculus VR SDK
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
@@ -33,101 +33,113 @@ limitations under the License.
 #include "Kernel/OVR_String.h"
 #include "Kernel/OVR_System.h"
 #include "Kernel/OVR_Threads.h"
-#include "Kernel/../../../Logging/include/Logging_Library.h"
+#include "Logging_Library.h"
+#include <thread>
 
-namespace OVR { namespace Util {
-
+namespace OVR {
+namespace Util {
 
 //-----------------------------------------------------------------------------
 // WatchDog
 
-class WatchDog : public NewOverrideBase
-{
-    friend class WatchDogObserver;
+class WatchDog : public NewOverrideBase {
+  friend class WatchDogObserver;
 
-public:
-    WatchDog(const String& threadName);
-    ~WatchDog();
+ public:
+  WatchDog(const String& threadName);
+  ~WatchDog();
 
-    void Disable();
-    void Enable();
+  void Disable();
+  void Enable();
 
-    void Feed(int threshold);
+  void Feed(int threshold);
 
-protected:
-    // Use 32 bit int so assignment and comparison is atomic
-    std::atomic<uint32_t> WhenLastFedMilliseconds = { 0 };
-    std::atomic<int>      ThreshholdMilliseconds = { 0 };
+ protected:
+  // Use 32 bit int so assignment and comparison is atomic
+  std::atomic<uint32_t> WhenLastFedMilliseconds = {0};
+  std::atomic<int> ThreshholdMilliseconds = {0};
 
-    String              ThreadName;
-    bool                Listed;
+  String ThreadName;
+  bool Listed;
 };
-
 
 //-----------------------------------------------------------------------------
 // WatchDogObserver
 
-class WatchDogObserver : public SystemSingletonBase<WatchDogObserver>
-{
-    OVR_DECLARE_SINGLETON(WatchDogObserver);
-    virtual void OnThreadDestroy() override;
+class WatchDogObserver : public SystemSingletonBase<WatchDogObserver> {
+  OVR_DECLARE_SINGLETON(WatchDogObserver);
+  virtual void OnThreadDestroy() override;
 
-    friend class WatchDog;
+  friend class WatchDog;
 
-    std::unique_ptr<std::thread> WatchdogThreadHandle;
+  std::unique_ptr<std::thread> WatchdogThreadHandle;
 
-public:
-    // Uses the exception logger to write deadlock reports
-    void EnableReporting(const String organization = String(),
-                         const String application = String());
+ public:
+  // Uses the exception logger to write deadlock reports
+  void EnableReporting(const String organization = String(), const String application = String());
 
-    // Disables deadlock reports
-    void DisableReporting();
+  // Disables deadlock reports
+  void DisableReporting();
 
-    // This is the delay between deciding a deadlock occurred and terminating the process, to allow for logging
-    static const int TerminationDelayMsec = 10000; // 10 seconds in msec
+  // This is the delay between deciding a deadlock occurred and terminating the process, to allow
+  // for logging
+  const int TerminationDelayMsec = 10000; // 10 seconds in msec
 
-    // Enable/disable auto-terminate on deadlock report
-    // IsDeadlocked() will return true, and after TerminationDelayMsec it will exit the process
-    void SetAutoTerminateOnDeadlock(bool enable = true)
-    {
-        AutoTerminateOnDeadlock = enable;
-    }
+  // Enable/disable auto-terminate on deadlock report
+  // IsDeadlocked() will return true, and after TerminationDelayMsec it will exit the process
+  void SetAutoTerminateOnDeadlock(bool enable = true) {
+    AutoTerminateOnDeadlock = enable;
+  }
 
-    // Is currently in a deadlock state?
-    bool IsDeadlocked() const
-    {
-        return DeadlockSeen;
-    }
+  // Is currently in a deadlock state?
+  bool IsDeadlocked() const {
+    return DeadlockSeen;
+  }
 
-protected:
-    Lock ListLock;
-    Array< WatchDog* > DogList;
+  // Sets the callback used to trigger a Breakpad Minidump write.
+  // Note: Lock does not need to be held here because only accessed on startup before deadlocks are
+  // reported.
+  void SetMiniDumpWriteCallback(void (*pWriteMiniDump)(void*)) {
+    WriteMiniDump = pWriteMiniDump;
+  }
 
-    // This indicates that EnableReporting() was requested
-    bool IsReporting = false;
+  // Sets the callback used to add additional info to Breakpad client
+  void SetAddBreakpadInfoClientCallback(
+      void (*pAddBreakpadInfoClient)(const char* name, const char* value)) {
+    AddBreakpadInfoClient = pAddBreakpadInfoClient;
+  }
 
-    Event TerminationEvent;
+ protected:
+  Lock ListLock;
+  Array<WatchDog*> DogList;
 
-    // Has a deadlock been seen?
-    bool DeadlockSeen = false;
-    bool AutoTerminateOnDeadlock = true;
+  // This indicates that EnableReporting() was requested
+  bool IsReporting = false;
 
-    // On Windows, deadlock logs are stored in %AppData%\OrganizationName\ApplicationName\.
-    // See ExceptionHandler::ReportDeadlock() for how these are used.
-    String ApplicationName;
-    String OrganizationName;
+  Event TerminationEvent;
 
-    void OnDeadlock(const String& deadlockedThreadName);
+  // Has a deadlock been seen?
+  bool DeadlockSeen = false;
+  bool AutoTerminateOnDeadlock = true;
 
-protected:
-    int Run();
+  // On Windows, deadlock logs are stored in %AppData%\OrganizationName\ApplicationName\.
+  // See ExceptionHandler::ReportDeadlock() for how these are used.
+  String ApplicationName;
+  String OrganizationName;
 
-    void Add(WatchDog* dog);
-    void Remove(WatchDog* dog);
+  void OnDeadlock(const String& deadlockedThreadName);
+
+  // Breakpad is used to write minidump files.
+  void (*WriteMiniDump)(void* pExceptionPtrs);
+  void (*AddBreakpadInfoClient)(const char* name, const char* value);
+
+ protected:
+  int Run();
+
+  void Add(WatchDog* dog);
+  void Remove(WatchDog* dog);
 };
-
-
-}} // namespace OVR::Util
+} // namespace Util
+} // namespace OVR
 
 #endif // OVR_Util_Watchdog_h
