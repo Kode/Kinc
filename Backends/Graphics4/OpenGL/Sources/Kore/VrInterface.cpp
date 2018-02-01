@@ -435,17 +435,16 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.vrPose.top = fov.UpTan;
 
 	// Get view and projection matrices
-	OVR::Matrix4f rollPitchYaw = OVR::Matrix4f::RotationY(Kore::pi);
-	OVR::Matrix4f finalRollPitchYaw = rollPitchYaw * OVR::Matrix4f(EyeRenderPose[eye].Orientation);
+	OVR::Matrix4f finalRollPitchYaw = OVR::Matrix4f(EyeRenderPose[eye].Orientation);
 	OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
 	OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
-	OVR::Vector3f shiftedEyePos = rollPitchYaw.Transform(EyeRenderPose[eye].Position);
+	OVR::Vector3f shiftedEyePos = EyeRenderPose[eye].Position;
 
 	OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
 	OVR::Matrix4f proj = ovrMatrix4f_Projection(hmdDesc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);
 
-	poseState.vrPose.eye = convert(view).Transpose();
-	poseState.vrPose.projection = convert(proj).Transpose();
+	poseState.vrPose.eye = convert(view);
+	poseState.vrPose.projection = convert(proj);
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
