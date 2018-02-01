@@ -55,12 +55,13 @@ int Graphics1::Image::sizeOf(Image::Format format) {
 
 Graphics1::Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
 	compression = ImageCompressionNone;
-	
+
 	// If format is a floating point format
-	if(format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
+	if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
 		hdrData = reinterpret_cast<float*>(new u8[width * height * sizeOf(format)]);
 		data = nullptr;
-	} else {
+	}
+	else {
 		data = new u8[width * height * sizeOf(format)];
 		hdrData = nullptr;
 	}
@@ -68,14 +69,14 @@ Graphics1::Image::Image(int width, int height, Format format, bool readable) : w
 
 Graphics1::Image::Image(int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compression = ImageCompressionNone;
-	
+
 	// If format is a floating point format
-	if(format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
-		hdrData = reinterpret_cast<float*>(new u8[width * height * sizeOf(format)]);
+	if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
+		hdrData = reinterpret_cast<float*>(new u8[width * height * depth * sizeOf(format)]);
 		data = nullptr;
 	}
 	else {
-		data = new u8[width * height * sizeOf(format)];
+		data = new u8[width * height * depth * sizeOf(format)];
 		hdrData = nullptr;
 	}
 }
