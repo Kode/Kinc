@@ -47,9 +47,9 @@ struct DepthBuffer {
 		dsDesc.CPUAccessFlags = 0;
 		dsDesc.MiscFlags = 0;
 		dsDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		ID3D11Texture2D* Tex;
-		Device->CreateTexture2D(&dsDesc, NULL, &Tex);
-		Device->CreateDepthStencilView(Tex, NULL, &TexDsv);
+		ID3D11Texture2D * Tex;
+		Device->CreateTexture2D(&dsDesc, nullptr, &Tex);
+		Device->CreateDepthStencilView(Tex, nullptr, &TexDsv);
 		Tex->Release();
 	}
 	~DepthBuffer() {
@@ -88,16 +88,13 @@ struct Camera
 struct DirectX11 {
 	HWND Window;
 	bool Running;
-	bool Key[256];
 	int WinSizeW;
 	int WinSizeH;
 
 	HINSTANCE hInstance;
 
 	DirectX11() : Window(nullptr), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
-		// Clear input
-		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
-			Key[i] = false;
+		
 	}
 
 	~DirectX11() {
@@ -175,7 +172,7 @@ struct OculusTexture {
 	ovrTextureSwapChain TextureChain;
 	std::vector<ID3D11RenderTargetView*> TexRtv;
 
-	OculusTexture(ovrSession session, int sizeW, int sizeH) : Session(session), TextureChain(nullptr) {
+	OculusTexture(ovrSession session, int sizeW, int sizeH, int sampleCount = 1) : Session(session), TextureChain(nullptr) {
 		ovrTextureSwapChainDesc desc = {};
 		desc.Type = ovrTexture_2D;
 		desc.ArraySize = 1;
@@ -183,8 +180,8 @@ struct OculusTexture {
 		desc.Width = sizeW;
 		desc.Height = sizeH;
 		desc.MipLevels = 1;
-		desc.SampleCount = 1;
-		desc.MiscFlags = ovrTextureMisc_DX_Typeless;
+		desc.SampleCount = sampleCount;
+		desc.MiscFlags = ovrTextureMisc_DX_Typeless | ovrTextureMisc_AutoGenerateMips;
 		desc.BindFlags = ovrTextureBind_DX_RenderTarget;
 		desc.StaticImage = ovrFalse;
 
@@ -198,7 +195,7 @@ struct OculusTexture {
 				ovr_GetTextureSwapChainBufferDX(Session, TextureChain, i, IID_PPV_ARGS(&tex));
 				D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
 				rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-				rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				rtvd.ViewDimension = (sampleCount > 1) ? D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
 				ID3D11RenderTargetView* rtv;
 				device->CreateRenderTargetView(tex, &rtvd, &rtv);
 				TexRtv.push_back(rtv);
@@ -231,24 +228,26 @@ struct OculusTexture {
 //---------------------------------------------------------------------
 
 namespace {
-	ovrRecti eyeRenderViewport[2];
+	// Initialize these to nullptr here to handle device lost failures cleanly
+	ovrMirrorTexture mirrorTexture = nullptr;
 	OculusTexture* pEyeRenderTexture[2] = { nullptr, nullptr };
 	DepthBuffer* pEyeDepthBuffer[2] = { nullptr, nullptr };
 
 	ovrSizei windowSize;
 
-	ovrMirrorTexture mirrorTexture = nullptr;
 	long long frameIndex = 0;
+	int msaaRate = 4;
+
 	bool isVisible = true;
 
 	ovrSession session;
 	ovrHmdDesc hmdDesc;
 
-	ovrPosef EyePose[2];
-	ovrPosef EyePredictedPose[2];
+	ovrPosef EyeRenderPose[2];
 	double sensorSampleTime;
-	double predictedFrameTiming;
-	ovrTrackingState trackingState;
+
+	// Make the eye render buffers (caution if actual size < requested due to HW limits). 
+	ovrRecti eyeRenderViewport[2];
 
 	void done() {
 		if (mirrorTexture)
@@ -263,12 +262,13 @@ namespace {
 
 	void createOculusTexture() {
 		// Create mirror texture
-		ovrMirrorTextureDesc desc;
-		memset(&desc, 0, sizeof(desc));
-		desc.Width = Platform.WinSizeW;
-		desc.Height = Platform.WinSizeH;
-		desc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-		HRESULT result = ovr_CreateMirrorTextureDX(session, device, &desc, &mirrorTexture);
+		ovrMirrorTextureDesc mirrorDesc;
+		memset(&mirrorDesc, 0, sizeof(mirrorDesc));
+		mirrorDesc.Width = Platform.WinSizeW;
+		mirrorDesc.Height = Platform.WinSizeH;
+		mirrorDesc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
+		mirrorDesc.MirrorOptions = ovrMirrorOption_Default;
+		HRESULT result = ovr_CreateMirrorTextureWithOptionsDX(session, device, &mirrorDesc, &mirrorTexture);
 		if (!OVR_SUCCESS(result)) {
 			log(Error, "Failed to create mirror texture.");
 			done();
@@ -291,7 +291,8 @@ namespace {
 }
 
 void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
-	ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
+	// Initializes LibOVR, and the Rift
+	ovrInitParams initParams = { ovrInit_RequestVersion | ovrInit_FocusAware, OVR_MINOR_VERSION, NULL, 0, 0 };
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
 		log(Error, "Failed to initialize libOVR.");
@@ -320,6 +321,7 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 		done();
 	}
 
+	// FloorLevel will give tracking poses where the floor height is 0
 	ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 
 	// Return window
@@ -332,16 +334,10 @@ void VrInterface::begin() {
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
 	eyeRenderDesc[1] = ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1]);
 
-	// Get eye poses, feeding in correct IPD offset
-	ovrVector3f HmdToEyeOffset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
+	// Get both eye poses simultaneously, with IPD offset already included. 
+	ovrPosef HmdToEyePose[2] = { eyeRenderDesc[0].HmdToEyePose, eyeRenderDesc[1].HmdToEyePose };
 
-	// Get predicted eye pose
-	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyeOffset, EyePose, &sensorSampleTime);
-
-	// Ask the API for the times when this frame is expected to be displayed. 
-	predictedFrameTiming = ovr_GetPredictedDisplayTime(session, frameIndex);
-	trackingState = ovr_GetTrackingState(session, predictedFrameTiming, ovrTrue);
-	ovr_CalcEyePoses(trackingState.HeadPose.ThePose, HmdToEyeOffset, EyePredictedPose);
+	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyePose, EyeRenderPose, &sensorSampleTime);
 }
 
 void VrInterface::beginRender(int eye) {
@@ -377,10 +373,10 @@ namespace {
 SensorState VrInterface::getSensorState(int eye) {
 	VrPoseState poseState;
 
-	ovrQuatf orientation = EyePose[eye].Orientation;
+	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
 	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
-	ovrVector3f pos = EyePose[eye].Position;
+	ovrVector3f pos = EyeRenderPose[eye].Position;
 	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
@@ -388,23 +384,6 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.vrPose.right = fov.RightTan;
 	poseState.vrPose.bottom = fov.DownTan;
 	poseState.vrPose.top = fov.UpTan;
-
-	ovrVector3f angularVelocity = trackingState.HeadPose.AngularVelocity;
-	ovrVector3f linearVelocity = trackingState.HeadPose.LinearVelocity;
-	ovrVector3f angularAcceleration = trackingState.HeadPose.AngularAcceleration;
-	ovrVector3f linearAcceleration = trackingState.HeadPose.LinearAcceleration;
-	poseState.angularVelocity = vec3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
-	poseState.linearVelocity = vec3(linearVelocity.x, linearVelocity.y, linearVelocity.z);
-	poseState.angularAcceleration = vec3(angularAcceleration.x, angularAcceleration.y, angularAcceleration.z);
-	poseState.linearAcceleration = vec3(linearAcceleration.x, linearAcceleration.y, linearAcceleration.z);
-
-	// Get predicted orientation and position
-	VrPoseState predictedPoseState;
-	ovrQuatf predOrientation = EyePredictedPose[eye].Orientation;
-	predictedPoseState.vrPose.orientation = Quaternion(predOrientation.x, predOrientation.y, predOrientation.z, predOrientation.w);
-
-	ovrVector3f predPos = EyePredictedPose[eye].Position;
-	predictedPoseState.vrPose.position = vec3(predPos.x, predPos.y, predPos.z);
 
 	//Get the pose information in XM format
 	XMVECTOR eyeQuat = XMVectorSet(orientation.x, orientation.y, orientation.z, orientation.w);
@@ -422,23 +401,22 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.vrPose.eye = convert(view).Transpose();
 	poseState.vrPose.projection = convert(proj).Transpose();
 
-	sensorStates[eye].predictedPose = predictedPoseState;
-	sensorStates[eye].pose = poseState;
-
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) sensorStates[eye].isVisible = true;
-	else sensorStates[eye].isVisible = false;
-	if (sessionStatus.HmdPresent) sensorStates[eye].hmdPresenting = true;
-	else sensorStates[eye].hmdPresenting = false;
-	if (sessionStatus.HmdMounted) sensorStates[eye].hmdMounted = true;
-	else sensorStates[eye].hmdMounted = false;
-	if (sessionStatus.DisplayLost) sensorStates[eye].displayLost = true;
-	else sensorStates[eye].displayLost = false;
-	if (sessionStatus.ShouldQuit) sensorStates[eye].shouldQuit = true;
-	else sensorStates[eye].shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) sensorStates[eye].shouldRecenter = true;
-	else sensorStates[eye].shouldRecenter = false;
+	if (sessionStatus.IsVisible) poseState.isVisible = true;
+	else poseState.isVisible = false;
+	if (sessionStatus.HmdPresent)poseState.hmdPresenting = true;
+	else poseState.hmdPresenting = false;
+	if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
+	else poseState.hmdMounted = false;
+	if (sessionStatus.DisplayLost) poseState.displayLost = true;
+	else poseState.displayLost = false;
+	if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
+	else poseState.shouldQuit = false;
+	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
+	else poseState.shouldRecenter = false;
+
+	sensorStates[eye].pose = poseState;
 
 	return sensorStates[eye];
 }
@@ -458,8 +436,8 @@ void VrInterface::warpSwap() {
 			ld.ColorTexture[eye] = pEyeRenderTexture[eye]->TextureChain;
 			ld.Viewport[eye] = eyeRenderViewport[eye];
 			ld.Fov[eye] = hmdDesc.DefaultEyeFov[eye];
-			ld.RenderPose[eye] = EyePose[eye];		// eyePredictedPose[eye];
-			ld.SensorSampleTime = sensorSampleTime;		// predictedFrameTiming;
+			ld.RenderPose[eye] = EyeRenderPose[eye];
+			ld.SensorSampleTime = sensorSampleTime;
 		}
 	}
 
@@ -476,6 +454,7 @@ void VrInterface::warpSwap() {
 	// Render mirror
 	ID3D11Texture2D* tex = nullptr;
 	ovr_GetMirrorTextureBufferDX(session, mirrorTexture, IID_PPV_ARGS(&tex));
+	
 	context->CopyResource(backBuffer, tex);
 	tex->Release();
 }

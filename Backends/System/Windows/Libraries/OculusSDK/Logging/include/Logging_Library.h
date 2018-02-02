@@ -30,16 +30,24 @@ limitations under the License.
 #pragma warning(disable: 4530) // C++ exception handler used, but unwind semantics are not enabled
 
 #include <string>
+#include <array>
 #include <sstream>
 #include <vector>
 #include <queue>
 #include <memory>
 #include <set>
 #include <map>
+#include <time.h>
 
 #pragma warning(push)
 
 #include "Logging_Tools.h"
+
+#if defined(__clang__)
+    #pragma clang diagnostic ignored "-Wformat-nonliteral"
+    #pragma clang diagnostic ignored "-Wformat-security"  // Otherwise the printf usage below generates a warning.
+#endif
+
 
 namespace ovrlog {
 
@@ -111,6 +119,58 @@ enum class Level : Log_Level_t
     #define LOGGING_LOC "(no LOC)"
 #endif
 
+//-----------------------------------------------------------------------------
+// Name
+//
+// A fixed length name which avoids allocation and is safe to share across DLL
+// boundaries.
+
+class Name;
+
+class Name
+{
+public:
+    // Longest string not including '\0' termination
+    static const size_t MaxLength = 63;
+
+    Name(const char* init)
+    {
+        // Maximum portability vs. ::strncpy_s
+        for (size_t i = 0; i < MaxLength; ++i)
+        {
+            if ((name[i] = init[i]) == '\0')
+                return;
+        }
+        name[MaxLength] = '\0';
+    }
+    Name(std::string init) : Name(init.c_str())
+    {
+    }
+    const char* Get() const
+    {
+        return name.data();
+    }
+    int cmp(const Name& rhs)
+    {
+        // Maximum portability vs. std::strncmp
+        int diff = 0;
+        for (size_t i = 0; i < MaxLength; ++i)
+        {
+            // this < rhs => (-), this > rhs => (+)
+            diff = int(name[i]) - int(rhs.name[i]);
+            // If strings are equal it is sufficent to terminate on either '\0'
+            if ((diff != 0) || (name[i] == '\0')) // => (rhs.name[i] == '\0')
+                break;
+        }
+        return diff;
+    }
+    bool operator==(const Name& rhs) { return cmp(rhs) == 0; }
+    bool operator!=(const Name& rhs) { return cmp(rhs) != 0; }
+
+private:
+    // '\0'-terminated 
+    std::array<char, MaxLength + 1> name;
+};
 
 //-----------------------------------------------------------------------------
 // LogStringBuffer
@@ -119,11 +179,8 @@ enum class Level : Log_Level_t
 
 struct LogStringBuffer
 {
-    // Raw pointer to subsystem name
-    const char* SubsystemName;
-
-    // Message log level
-    Level MessageLogLevel;
+    const Name SubsystemName;
+    const Level MessageLogLevel;
 
     // Buffer containing string as it is constructed
     std::stringstream Stream;
@@ -150,6 +207,26 @@ struct LogStringBuffer
 //
 // This is the function that user code can override to control how special types
 // are serialized into the log messages.
+
+// Delete logging a shared_ptr
+template<typename T>
+LOGGING_INLINE void LogStringize(LogStringBuffer& buffer, const std::shared_ptr<T>& thing) {
+  (void)buffer;
+  (void)thing;
+#if !defined(__clang__)
+  static_assert(false, "Don't log a shared_ptr, log *ptr (or ptr.get() for the raw pointer value).");
+#endif
+}
+
+// Delete logging a unique_ptr
+template<typename T, typename Deleter>
+LOGGING_INLINE void LogStringize(LogStringBuffer& buffer, const std::unique_ptr<T, Deleter>& thing) {
+  (void)buffer;
+  (void)thing;
+#if !defined(__clang__)
+  static_assert(false, "Don't log a unique_ptr, log *ptr (or ptr.get() for the raw pointer value).");
+#endif
+}
 
 template<typename T>
 LOGGING_INLINE void LogStringize(LogStringBuffer& buffer, const T& first)
@@ -217,28 +294,48 @@ enum class WriteOption : Write_Option_t
 
 // Iterate through the list of channels before the CRT has initialized
 #pragma pack(push,1)
-struct ChannelNode { const char* SubsystemName; Log_Level_t* Level; bool *UserOverrodeMinimumOutputLevel; ChannelNode* Next, *Prev; };
+struct ChannelNode 
+{
+    const char* SubsystemName; // This is always a pointer to a Channel's SubsystemName.Get()
+    Log_Level_t* Level;
+    bool* UserOverrodeMinimumOutputLevel;
+    ChannelNode* Next;
+    ChannelNode* Prev;
+};
 #pragma pack(pop)
+
+
+#ifndef OVR_EXPORTED_FUNCTION
+    #if defined(_WIN32)
+        #define OVR_EXPORTED_FUNCTION __declspec(dllexport)
+    #else
+        #define OVR_EXPORTED_FUNCTION __attribute__((visibility("default")))
+    #endif
+#endif
+
 
 // Export the function to access OutputWorker::Write(). This is used by the Channel class
 // to allow writing with OutputWorker possibly in a separate module
 extern "C"
 {
-    __declspec(dllexport) extern void OutputWorkerOutputFunctionC(const char* subsystemName, Log_Level_t messageLogLevel, const char* stream, bool relogged, Write_Option_t option);
+    OVR_EXPORTED_FUNCTION extern void OutputWorkerOutputFunctionC(const char* subsystemName, Log_Level_t messageLogLevel, const char* stream, bool relogged, Write_Option_t option);
     typedef void(*OutputWorkerOutputFunctionType)(const char* subsystemName, Log_Level_t messageLogLevel, const char* stream, bool relogged, Write_Option_t option);
 
-    __declspec(dllexport) extern void ConfiguratorOnChannelLevelChangeC(const char* channelName, Log_Level_t minimumOutputLevel);
+    OVR_EXPORTED_FUNCTION extern void ConfiguratorOnChannelLevelChangeC(const char* channelName, Log_Level_t minimumOutputLevel);
     typedef void(*ConfiguratorOnChannelLevelChangeType)(const char* channelName, Log_Level_t minimumOutputLevel);
 
-    __declspec(dllexport) extern void ConfiguratorRegisterC(ChannelNode* channelNode);
+    OVR_EXPORTED_FUNCTION extern void ConfiguratorRegisterC(ChannelNode* channelNode);
     typedef void(*ConfiguratorRegisterType)(ChannelNode* channelNode);
 
-    __declspec(dllexport) extern void ConfiguratorUnregisterC(ChannelNode* channelNode);
+    OVR_EXPORTED_FUNCTION extern void ConfiguratorUnregisterC(ChannelNode* channelNode);
     typedef void(*ConfiguratorUnregisterType)(ChannelNode* channelNode);
 }
 
 // Shutdown the logging system and release memory
 void ShutdownLogging();
+
+// Restart the logging system
+void RestartLogging();
 
 // Log Output Worker Thread
 class OutputWorker
@@ -273,6 +370,15 @@ public:
     // Get the lock used for the channels.
     Lock* GetChannelsLock();
 
+    // Our time type
+    #if defined(WIN32)
+        typedef SYSTEMTIME LogTime;
+    #else
+        typedef time_t LogTime;  // To do: Make this a C++ time with better resolution than time_t.
+    #endif
+    
+    static LogTime GetCurrentLogTime();
+    
 private:
     // Is the logger running in a debugger?
     bool IsInDebugger;
@@ -287,14 +393,14 @@ private:
     // Worker Log Buffer
     struct QueuedLogMessage
     {
-        QueuedLogMessage(const char* subsystemName, Level messageLogLevel, const char* stream, const SYSTEMTIME& time);
-
-        Level             MessageLogLevel;
-        const char*       SubsystemName;
+        const Name        SubsystemName;
+        const Level       MessageLogLevel;
         std::string       Buffer;
-        SYSTEMTIME        Time;
+        LogTime           Time;
         QueuedLogMessage* Next;
-        HANDLE            FlushEvent;
+        OvrLogHandle      FlushEvent;
+
+        QueuedLogMessage(const char* subsystemName, Level messageLogLevel, const char* stream, const LogTime& time);
     };
 
     // Maximum number of logs that we allow in the queue at a time.
@@ -325,7 +431,14 @@ private:
         ++WorkQueueSize;
     }
 
-    static DWORD WINAPI WorkerThreadEntrypoint_(void* worker);
+    #if defined(_WIN32)
+        #define OVR_THREAD_FUNCTION_TYPE DWORD WINAPI
+    #else
+        #define OVR_THREAD_FUNCTION_TYPE uint32_t
+    #endif
+    
+    static OVR_THREAD_FUNCTION_TYPE WorkerThreadEntrypoint_(void* worker);
+    
     void WorkerThreadEntrypoint();
 
     Lock StartStopLock;
@@ -395,13 +508,16 @@ private:
 class Channel
 {
 public:
-    // This name string pointer must not go out of scope for the entire lifetime
-    // of the logging output worker.
-    // We recommend that the name string must be a string literal not a string
-    // allocated on the heap at runtime.
     Channel(const char* nameString);
     Channel(const Channel& other);
     ~Channel();
+
+    const Name SubsystemName;
+    // Deprecated, use SubsystemName.Get() instead
+    const char* GetName() const
+    {
+        return SubsystemName.Get();
+    }
 
     // Add an extra prefix to all log messages generated by the channel.
     // This function is *not* thread-safe.  Logging from another thread while changing
@@ -415,7 +531,6 @@ public:
     // Set the output level temporarily for this session without remembering that setting.
     void SetMinimumOutputLevelNoSave(Level newLevel);
 
-    const char* GetName() const;
     Level GetMinimumOutputLevel() const;
 
     LOGGING_INLINE bool Active(Level level) const
@@ -559,13 +674,13 @@ public:
                 level = Level::Warning;
             }
 
-            LogStringBuffer buffer(SubsystemName, level);
+            LogStringBuffer buffer(SubsystemName.Get(), level);
 
             writeLogBuffer(buffer, Prefix, args...);
 
             // Submit buffer to logging subsystem
             const std::string& tmp = buffer.Stream.str();
-            OutputWorkerOutputFunction(buffer.SubsystemName, (Log_Level_t)buffer.MessageLogLevel, tmp.c_str(), buffer.Relogged, (Write_Option_t)WriteOption::DangerouslyIgnoreQueueLimit);
+            OutputWorkerOutputFunction(buffer.SubsystemName.Get(), (Log_Level_t)buffer.MessageLogLevel, tmp.c_str(), buffer.Relogged, (Write_Option_t)WriteOption::DangerouslyIgnoreQueueLimit);
         }
     }
     // DANGER DANGER DANGER
@@ -574,19 +689,20 @@ private:
     //-------------------------------------------------------------------------
     // Internal Implementation
 
-    Channel() {}
+    Channel() = delete;
+    Channel(Channel&& other) = delete;
+    Channel& operator=(const Channel& other) = delete;
+    Channel& operator=(Channel&& other) = delete;
 
     friend class Configurator;
 
     // Used to iterate through a linked list of Channel objects
     // A linked list is used to avoid CRT new / delete during startup as this is called from the constructor
     ChannelNode Node;
+    void registerNode();
 
     // Level at which this channel will log.
     Log_Level_t MinimumOutputLevel;
-
-    // Channel name string
-    const char* SubsystemName;
 
     // Optional prefix
     std::string Prefix;
@@ -644,13 +760,13 @@ private:
             level = Level::Warning;
         }
 
-        LogStringBuffer buffer(SubsystemName, level);
+        LogStringBuffer buffer(SubsystemName.Get(), level);
 
         writeLogBuffer(buffer, Prefix, args...);
 
         // Submit buffer to logging subsystem
         const std::string& tmp = buffer.Stream.str();
-        OutputWorkerOutputFunction(buffer.SubsystemName, (Log_Level_t)buffer.MessageLogLevel, tmp.c_str(), buffer.Relogged, (Write_Option_t)WriteOption::Default);
+        OutputWorkerOutputFunction(buffer.SubsystemName.Get(), (Log_Level_t)buffer.MessageLogLevel, tmp.c_str(), buffer.Relogged, (Write_Option_t)WriteOption::Default);
     }
 
     // Returns the buffer capacity required to printf the given format+arguments.
@@ -704,7 +820,7 @@ private:
             level = Level::Warning;
         }
 
-        LogStringBuffer buffer(SubsystemName, level);
+        LogStringBuffer buffer(SubsystemName.Get(), level);
 
         char  logCharsLocal[1024];
         char* logChars = logCharsLocal;
@@ -740,7 +856,7 @@ private:
 
         // Submit buffer to logging subsystem
         const std::string& tmp = buffer.Stream.str();
-        OutputWorkerOutputFunction(buffer.SubsystemName, (Log_Level_t)buffer.MessageLogLevel, tmp.c_str(), buffer.Relogged, (Write_Option_t)WriteOption::Default);
+        OutputWorkerOutputFunction(buffer.SubsystemName.Get(), (Log_Level_t)buffer.MessageLogLevel, tmp.c_str(), buffer.Relogged, (Write_Option_t)WriteOption::Default);
 
         delete[] logCharsAllocated;
     }
@@ -814,5 +930,11 @@ private:
     void SetChannelNoLock(std::string channelName, Level level, bool overrideUser);
 };
 
+
+// Convenience function: ovrlog::Flush();
+inline void Flush()
+{
+  OutputWorker::GetInstance()->Flush();
+}
 
 } // namespace ovrlog

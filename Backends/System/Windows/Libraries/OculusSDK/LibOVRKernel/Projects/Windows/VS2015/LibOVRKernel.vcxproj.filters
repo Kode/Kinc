@@ -1,0 +1,316 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Kernel">
+      <UniqueIdentifier>{cbd5aacf-597b-4418-bb2d-5cc31c56d320}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GL">
+      <UniqueIdentifier>{9c8f8b78-8c98-4daa-a0be-885ce14ec526}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{adfe2ad5-b3f5-4afd-98da-b3ca76652ced}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tracing">
+      <UniqueIdentifier>{af8a116e-e692-4597-ba74-77fd10a5276c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Shaders">
+      <UniqueIdentifier>{fc456049-35b9-44d7-b53d-a761c67053e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logging">
+      <UniqueIdentifier>{bc903fcf-621a-4443-a5a9-31c194309543}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Delegates.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Deque.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_File.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Hash.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_JSON.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_KeyCodes.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_List.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Lockless.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Log.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_mach_exc_OSX.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Nullptr.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_RefCount.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_SharedMemory.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Std.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_String.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_StringHash.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_SysFile.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_System.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Threads.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Timer.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Types.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_UTF8Util.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Alg.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Allocator.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Array.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Atomic.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Color.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Compiler.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_ContainerAllocator.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_CRC32.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_DebugHelp.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\GL\CAPI_GLE.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\GL\CAPI_GLE_GL.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Util\Util_ImageWindow.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Util\Util_SystemGUI.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Util\Util_SystemInfo.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Util\Util_LongPollThread.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Util\Util_Watchdog.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Util\Util_Direct3D.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Win32_IncludeWindows.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Rand.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Callbacks.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_CallbacksInternal.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Tracing\Tracing.h">
+      <Filter>Tracing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Tracing\LibOVREvents.h">
+      <Filter>Tracing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Util\Util_D3D11_Blitter.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Util\Util_GL_Blitter.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Logging\include\Logging_OutputPlugins.h">
+      <Filter>Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Logging\include\Logging_Tools.h">
+      <Filter>Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Logging\include\Logging_Library.h">
+      <Filter>Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Src\Kernel\OVR_Error.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_File.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_FileFILE.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_JSON.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Log.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_mach_exc_OSX.c">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_RefCount.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_SharedMemory.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Std.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_String.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_String_FormatUtil.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_String_PathUtil.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_SysFile.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_System.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_ThreadsPthread.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_ThreadsWinAPI.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Timer.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_UTF8Util.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Alg.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Allocator.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Atomic.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_CRC32.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_DebugHelp.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\GL\CAPI_GLE.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Util\Util_ImageWindow.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Util\Util_SystemGUI.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Util\Util_SystemInfo.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Util\Util_LongPollThread.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Util\Util_Watchdog.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Util\Util_Direct3D.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Rand.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Callbacks.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Util\Util_D3D11_Blitter.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Util\Util_GL_Blitter.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Logging\src\Logging_Library.cpp">
+      <Filter>Logging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Logging\src\Logging_OutputPlugins.cpp">
+      <Filter>Logging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Logging\src\internal\Logging_Tools.cpp">
+      <Filter>Logging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Src\Kernel\OVR_Error.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Src\Tracing\README.md">
+      <Filter>Tracing</Filter>
+    </None>
+    <None Include="..\..\..\Src\Tracing\LibOVREvents.man">
+      <Filter>Tracing</Filter>
+    </None>
+    <None Include="..\..\..\Src\Kernel\OVR_NewOverride.inl">
+      <Filter>Kernel</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\Src\Util\Shaders\Blt_ps.hlsl">
+      <Filter>Util\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\Src\Util\Shaders\Blt_vs.hlsl">
+      <Filter>Util\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\Src\Util\Shaders\Blt_ps_ms4.hlsl">
+      <Filter>Util\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\Src\Util\Shaders\Blt_ps_ms2.hlsl">
+      <Filter>Util\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>

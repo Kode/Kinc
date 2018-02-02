@@ -1,0 +1,8 @@
+cxx_library(
+    name = 'headers',
+    exported_headers = glob(
+        ['*.h'],
+    ),
+    header_namespace = '',
+    visibility = ['PUBLIC'],
+)

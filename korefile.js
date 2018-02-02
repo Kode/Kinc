@@ -112,11 +112,10 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_OCULUS');
 		project.addLibFor('x64', 'Backends/System/Windows/Libraries/OculusSDK/Lib/x64/LibOVR');
 		project.addLibFor('Win32', 'Backends/System/Windows/Libraries/OculusSDK/Lib/Win32/LibOVR');
-		project.addFile('Backends/System/Windows/Libraries/OculusSDK/**');
-		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVR/Include');
-		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVR/Src');
-		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src');
-		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/Logging/include');
+		//project.addFile('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src');
+		project.addFile('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src/GL/**');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVR/Include/');
+		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src/');
 	}
 	else if (vr === VrApi.SteamVR) {
 		project.addDefine('KORE_VR');

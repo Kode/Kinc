@@ -28,15 +28,25 @@ limitations under the License.
     #pragma warning(disable: 4530) // C++ exception handler used, but unwind semantics are not enabled
 #endif
 
-#include "../../include/Logging_Tools.h"
+#include "Logging_Tools.h"
 
 #include <assert.h>
 #include <time.h>
 
 #include <chrono>
 #include <codecvt>
-#include <filesystem>
 #include <vector>
+
+#if defined(_MSC_VER)
+    #include <filesystem> // Pre-release C++ filesystem support.
+#endif
+
+#if defined(__APPLE__)
+    #include <unistd.h>
+    #include <sys/sysctl.h>
+    #include <libproc.h>
+#endif
+
 
 namespace ovrlog {
 
@@ -58,13 +68,19 @@ bool Terminator::Initialize()
 {
     Terminated = false;
 
-    if (TerminateEvent.IsValid())
-    {
-        ::ResetEvent(TerminateEvent.Get());
-        return true;
-    }
+    #if defined(_WIN32)
+        if (TerminateEvent.IsValid())
+        {
+            ::ResetEvent(TerminateEvent.Get());
+            return true;
+        }
 
-    TerminateEvent = ::CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        TerminateEvent = ::CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    #else
+        // To do: Implement this.
+        fprintf(stderr, __FILE__ "[%s] Not implemented.\n", __func__);
+    #endif
+    
     return TerminateEvent.IsValid();
 }
 
@@ -74,28 +90,40 @@ void Terminator::Terminate()
 
     if (TerminateEvent.IsValid())
     {
-        ::SetEvent(TerminateEvent.Get());
+        #if defined(_WIN32)
+            ::SetEvent(TerminateEvent.Get());
+        #else
+            // To do: Implement this.
+            assert(false);
+        #endif
     }
 }
 
 // Returns true if the event signaled and false on termination.
-bool Terminator::WaitOn(HANDLE hEvent, DWORD timeoutMsec)
+bool Terminator::WaitOn(OvrLogHandle hEvent, uint32_t timeoutMsec)
 {
     if (Terminated || !TerminateEvent.IsValid())
         return false;
 
-    HANDLE events[2] = { hEvent, TerminateEvent.Get() };
+    #if defined(_WIN32)
+        HANDLE events[2] = { hEvent, TerminateEvent.Get() };
 
-    DWORD result = ::WaitForMultipleObjects(2, events, FALSE, timeoutMsec);
+        DWORD result = ::WaitForMultipleObjects(2, events, FALSE, timeoutMsec);
 
-    if (Terminated)
-        return false;
+        if (Terminated)
+            return false;
 
-    if (result == WAIT_TIMEOUT)
-        return false;
-    if (result == WAIT_OBJECT_0)
-        return true;
-
+        if (result == WAIT_TIMEOUT)
+            return false;
+        if (result == WAIT_OBJECT_0)
+            return true;
+    #else
+        // To do: Implement this.
+        (void)hEvent;
+        (void)timeoutMsec;
+        assert(false);
+    #endif
+    
     return false;
 }
 
@@ -105,7 +133,15 @@ bool Terminator::WaitSleep(int milliseconds)
     if (Terminated || !TerminateEvent.IsValid())
         return false;
 
-    ::WaitForSingleObject(TerminateEvent.Get(), milliseconds); // Ignore return value
+    #if defined(_WIN32)
+        ::WaitForSingleObject(TerminateEvent.Get(), milliseconds); // Ignore return value
+    #else
+        // To do: Implement this.
+        (void)milliseconds;
+        assert(false);
+    #endif
+
+    
     return !Terminated;
 }
 
@@ -114,30 +150,50 @@ bool Terminator::WaitSleep(int milliseconds)
 // Lock
 
 Lock::Lock() :
-    cs()
+#if defined(_WIN32)
+    cs{}
+#else
+	m()
+#endif
 {
+#if defined(_WIN32)
     static const DWORD kSpinCount = 1000;
     ::InitializeCriticalSectionAndSpinCount(&cs, kSpinCount);
+#endif
 }
 
 Lock::~Lock()
 {
+#if defined(_WIN32)
     ::DeleteCriticalSection(&cs);
+#endif
 }
 
 bool Lock::TryEnter()
 {
+#if defined(_WIN32)
     return ::TryEnterCriticalSection(&cs) != FALSE;
+#else
+	return m.try_lock();
+#endif
 }
 
 void Lock::Enter()
 {
+#if defined(_WIN32)
     ::EnterCriticalSection(&cs);
+#else
+	m.lock();
+#endif
 }
 
 void Lock::Leave()
 {
+#if defined(_WIN32)
     ::LeaveCriticalSection(&cs);
+#else
+	m.unlock();
+#endif
 }
 
 
@@ -208,7 +264,7 @@ void Locker::Clear()
 //-----------------------------------------------------------------------------
 // AutoHandle
 
-AutoHandle::AutoHandle(HANDLE handle) :
+AutoHandle::AutoHandle(OvrLogHandle handle) :
     TheHandle(handle)
 {
 }
@@ -218,7 +274,7 @@ AutoHandle::~AutoHandle()
     Clear();
 }
 
-void AutoHandle::operator=(HANDLE handle)
+void AutoHandle::operator=(OvrLogHandle handle)
 {
     Clear();
     TheHandle = handle;
@@ -228,7 +284,13 @@ void AutoHandle::Clear()
 {
     if (TheHandle)
     {
-        ::CloseHandle(TheHandle);
+        #if defined(_WIN32)
+            ::CloseHandle(TheHandle);
+        #else
+            // To do: Implement this.
+            assert(false);
+        #endif
+        
         TheHandle = nullptr;
     }
 }
@@ -237,41 +299,49 @@ void AutoHandle::Clear()
 //-----------------------------------------------------------------------------
 // Time
 
-typedef unsigned long long timestamp_t;
+// To do: Move to using only std::chrono in the future.
+// Also, it may be better to use a class instead of independent functions to
+// get time and frequency.
 
-static_assert(sizeof(timestamp_t) == 8, "64-bit types not supported?");
+// Returns the timer's seconds per cycle.
+// Get the number to multiply by timestamps to convert to seconds.
+double GetTimestampFrequencyInverse() {
+  static double PerfFrequencyInverse = 0.;
 
-// Get the number to multiply by timestamps to convert to seconds
-double GetTimestampFrequencyInverse()
-{
-    static double PerfFrequencyInverse = 0.;
-
-    if (PerfFrequencyInverse == 0.)
-    {
-        static LARGE_INTEGER freq = {};
-        if (!::QueryPerformanceFrequency(&freq) || freq.QuadPart == 0)
-        {
-            return -1.;
-        }
-
-        PerfFrequencyInverse = 1.0 / (double)freq.QuadPart;
+  if (PerfFrequencyInverse == 0.) {
+#if defined(_WIN32)
+    static LARGE_INTEGER freq = {};
+    if (!::QueryPerformanceFrequency(&freq) || freq.QuadPart == 0) {
+      return -1.;
     }
 
-    return PerfFrequencyInverse;
+    PerfFrequencyInverse = 1.0 / (double)freq.QuadPart;
+#else
+    // On OSX this period is 1 nanosecond, though that doesn't necessarily mean precision is 1
+    // nanosecond.
+    PerfFrequencyInverse = (double)std::chrono::high_resolution_clock::period::num /
+        (double)std::chrono::high_resolution_clock::period::den;
+#endif
+  }
+
+  return PerfFrequencyInverse;
 }
 
+// Returns the timer's current cycle count.
 // Get current time as a timestamp
-timestamp_t GetTimestamp()
-{
-    LARGE_INTEGER timeStamp;
-    if (!::QueryPerformanceCounter(&timeStamp))
-    {
-        return 0;
-    }
+timestamp_t GetTimestamp() {
+#if defined(_WIN32)
+  LARGE_INTEGER timeStamp;
+  if (!::QueryPerformanceCounter(&timeStamp)) {
+    return 0;
+  }
 
-    return timeStamp.QuadPart;
+  return timeStamp.QuadPart;
+#else
+  timestamp_t t = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+  return t;
+#endif
 }
-
 
 std::string GetLogFilenameDatestamp()
 {
@@ -301,6 +371,18 @@ bool IsDebuggerAttached()
 {
     #if defined(_WIN32)
         return ::IsDebuggerPresent() != FALSE;
+    #elif defined(__APPLE__)
+        int               mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
+        struct kinfo_proc info;
+        size_t            size = sizeof(info);
+
+        info.kp_proc.p_flag = 0;
+        sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, nullptr, 0);
+
+        return ((info.kp_proc.p_flag & P_TRACED) != 0);
+
+    #elif defined(PT_TRACE_ME) && !defined(__android__)
+        return (ptrace(PT_TRACE_ME, 0, 1, 0) < 0);
     #else
         // We have some platform-specific code elsewhere.
         #error "IsDebuggerAttached: Need to get platform-specific code for this."
@@ -396,63 +478,71 @@ void ForAllLogFiles(const char* dirPath, const char* fileNamePrefix, uint64_t mi
         }
     #else
         // We delete server log files that are older than N days.
-        using namespace std::tr2::sys;
+        #if defined(_WIN32)
+            using namespace std::tr2::sys;
 
-        auto ConvertFileTimeToDays = [](const FILETIME& ft) -> uint64_t 
-        {
-            // Convert 100ns interval to day interval.
-            return (((uint64_t)ft.dwHighDateTime << 32) + ft.dwLowDateTime) / (UINT64_C(10) * 1000 * 1000 * 60 * 60 * 24); 
-        };
-
-        FILETIME currentFILETIME;
-        ::GetSystemTimeAsFileTime(&currentFILETIME);
-        uint64_t currentDays = ConvertFileTimeToDays(currentFILETIME);
-
-        // Use VS2013's TR2 directory_iterator. The VS2015 version is easier to use, as it's more C++-proper.
-        // This code is not C++ portable, as there is yet a C++ standard way to iterate files. However, there
-        // is this: http://en.cppreference.com/w/cpp/experimental/fs/directory_iterator, which VS2015 and 
-        // some other C++ libraries implement. Also, on Microsoft platforms we must use W functions instead 
-        // of UTF8 functions because Windows doesn't understand UTF8.
-
-        const std::wstring dirPathW = UTF8StringToUCSString(dirPath);
-        const wpath dirPathObject = dirPathW.c_str();
-        wdirectory_iterator dirIterator(dirPathObject);
-
-        const std::wstring fileNamePrefixW = UTF8StringToUCSString(fileNamePrefix);
-
-        while (dirIterator != wdirectory_iterator())
-        {
-            const auto& entry = *dirIterator;
-
-            if (is_regular_file(entry.status()))
+            auto ConvertFileTimeToDays = [](const FILETIME& ft) -> uint64_t 
             {
-                const std::wstring& fileNameW = entry.path().filename();
+                // Convert 100ns interval to day interval.
+                return (((uint64_t)ft.dwHighDateTime << 32) + ft.dwLowDateTime) / (UINT64_C(10) * 1000 * 1000 * 60 * 60 * 24); 
+            };
 
-                if((wcsstr(fileNameW.c_str(), fileNamePrefixW.c_str()) == fileNameW.c_str()))
+            FILETIME currentFILETIME;
+            ::GetSystemTimeAsFileTime(&currentFILETIME);
+            uint64_t currentDays = ConvertFileTimeToDays(currentFILETIME);
+
+            // Use VS2013's TR2 directory_iterator. The VS2015 version is easier to use, as it's more C++-proper.
+            // This code is not C++ portable, as there is yet a C++ standard way to iterate files. However, there
+            // is this: http://en.cppreference.com/w/cpp/experimental/fs/directory_iterator, which VS2015 and 
+            // some other C++ libraries implement. Also, on Microsoft platforms we must use W functions instead 
+            // of UTF8 functions because Windows doesn't understand UTF8.
+
+            const std::wstring dirPathW = UTF8StringToUCSString(dirPath);
+            const wpath dirPathObject = dirPathW.c_str();
+            wdirectory_iterator dirIterator(dirPathObject);
+
+            const std::wstring fileNamePrefixW = UTF8StringToUCSString(fileNamePrefix);
+
+            while (dirIterator != wdirectory_iterator())
+            {
+                const auto& entry = *dirIterator;
+
+                if (is_regular_file(entry.status()))
                 {
-                    const std::wstring pathStrW = dirPathW + L'\\' + fileNameW;
+                    const std::wstring& fileNameW = entry.path().filename();
 
-                    WIN32_FIND_DATAW FindFileDataW;
-                    HANDLE hFind = FindFirstFileW(pathStrW.c_str(), &FindFileDataW);
-
-                    if (hFind != INVALID_HANDLE_VALUE) 
+                    if((wcsstr(fileNameW.c_str(), fileNamePrefixW.c_str()) == fileNameW.c_str()))
                     {
-                        const uint64_t days = ConvertFileTimeToDays(FindFileDataW.ftLastWriteTime);
-                        const uint64_t daysAge = _abs64(days - currentDays); // use abs to handle any files that have wacky dates.
+                        const std::wstring pathStrW = dirPathW + L'\\' + fileNameW;
 
-                        if(daysAge > minAge)
+                        WIN32_FIND_DATAW FindFileDataW;
+                        HANDLE hFind = FindFirstFileW(pathStrW.c_str(), &FindFileDataW);
+
+                        if (hFind != INVALID_HANDLE_VALUE) 
                         {
-                            const std::string filePath  = UCSStringToUTF8String(pathStrW);
-                            logFileFunction(filePath.c_str(), daysAge);
-                        }
+                            const uint64_t days = ConvertFileTimeToDays(FindFileDataW.ftLastWriteTime);
+                            const uint64_t daysAge = _abs64(days - currentDays); // use abs to handle any files that have wacky dates.
 
-                        FindClose(hFind);
+                            if(daysAge > minAge)
+                            {
+                                const std::string filePath  = UCSStringToUTF8String(pathStrW);
+                                logFileFunction(filePath.c_str(), daysAge);
+                            }
+
+                            FindClose(hFind);
+                        }
                     }
                 }
-            }
 
-            ++dirIterator;
-        }
+                ++dirIterator;
+            }
+        #else
+            // To do: Implement this when standard C++ filesystem support is available.
+            (void)dirPath;
+            (void)fileNamePrefix;
+            (void)minAge;
+            (void)logFileFunction;
+        #endif
     #endif
 }
 

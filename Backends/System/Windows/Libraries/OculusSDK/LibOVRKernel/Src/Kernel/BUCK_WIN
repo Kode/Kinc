@@ -1,0 +1,52 @@
+include_defs('//LibOVRKernel/DEFS', 'libovrkernel')
+
+cxx_library(
+    name = 'headers',
+    exported_headers = glob(
+        ['*.h'],
+        excludes=[
+            'OVR_ThreadsWinAPI.h',
+            'OVR_Win32_IncludeWindows.h',
+            'OVR_mach_exc_OSX.h'
+        ],
+    ),
+    header_namespace = 'Kernel',
+    visibility = ['PUBLIC'],
+    exported_deps = [
+        '//Logging/include:headers',
+    ],
+)
+
+cxx_library(
+    name = 'headers_win',
+    exported_headers = glob(
+        ['*.h', '*.inl'],
+        excludes=[
+            'OVR_ThreadsWinAPI.h',
+            'OVR_mach_exc_OSX.h'
+        ],
+    ),
+    header_namespace = 'Kernel',
+    visibility = ['PUBLIC'],
+    exported_deps = [
+        '//Logging/include:headers',
+    ],
+)
+
+cxx_library(
+    name = "libovr-kernel_win",
+    headers = glob(
+        ['*.h'],
+    ),
+    srcs = glob(
+        ['*.cpp', '*.c'],
+    ),
+    deps = [
+        '//LibOVRKernel/Src/Util:headers',
+        '//LibOVRKernel/Src/Tracing:headers',
+        '//Logging/include:headers',
+    ],
+    visibility = ['PUBLIC'],
+    compiler_flags = WINDOWS_COMPILE_FLAGS + WINDOWS_COMMON_FLAGS + libovrkernel.WINDOWS_COMPILE_FLAGS,
+    preferred_linkage = 'static',
+)

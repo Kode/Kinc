@@ -17,5 +17,13 @@ public:
 	Kore::vec3 linearAcceleration;			// Acceleration in meters per second per second.
 
 	TrackedDevice trackedDevice;
+
+	// Sensor status
+	bool isVisible;
+	bool hmdPresenting;
+	bool hmdMounted;
+	bool displayLost;
+	bool shouldQuit;
+	bool shouldRecenter;
 };
 

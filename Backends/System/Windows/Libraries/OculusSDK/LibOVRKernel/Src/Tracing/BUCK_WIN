@@ -1,0 +1,12 @@
+cxx_library(
+    name = 'headers',
+    header_namespace = 'Tracing',
+    exported_headers = [
+        'Tracing.h',
+        'LibOVREvents.h',
+    ],
+    deps = [
+    ],
+    visibility = ['PUBLIC'],
+)
+
