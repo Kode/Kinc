@@ -82,7 +82,7 @@ namespace {
         }
     }
 
-    void HIDGamepad::processEvent(struct js_event e) {
+    void HIDGamepad::processEvent(js_event e) {
         switch (e.type) {
         case JS_EVENT_BUTTON:
             if (Gamepad::get(idx)->Button != nullptr) {
@@ -91,7 +91,8 @@ namespace {
             break;
         case JS_EVENT_AXIS:
             if (Gamepad::get(idx)->Axis != nullptr) {
-                Gamepad::get(idx)->Axis(e.number, e.value / 32767.f);
+                float value = e.number % 2 == 0 ? e.value : -e.value;
+                Gamepad::get(idx)->Axis(e.number, value / 32767.0f);
             }
             break;
         default:
