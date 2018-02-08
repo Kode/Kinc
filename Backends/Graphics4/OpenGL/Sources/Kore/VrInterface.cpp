@@ -1,7 +1,6 @@
 #include "pch.h"
 
 #ifdef KORE_OCULUS
-
 #include <Kore/Vr/VrInterface.h>
 
 #include <Kore/Graphics4/Graphics.h>
@@ -417,6 +416,71 @@ namespace {
 		mat.Set(3, 0, m.M[3][0]); mat.Set(3, 1, m.M[3][1]); mat.Set(3, 2, m.M[3][2]); mat.Set(3, 3, m.M[3][3]);
 		return mat;
 	}
+
+	Vector<float, 3> vectorConvert(const OVR::Vector3f& v) {
+		return { v.x, v.y, v.z };
+	}
+
+	OVR::Vector3f vectorConvert(const Vector<float, 3>& v) {
+		return { v.x(), v.y(), v.z() };
+	}
+}
+
+SensorState VrInterface::getSensorState(int eye, Kore::Vector<float, 3>& headPosition) {
+	VrPoseState poseState;
+
+	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
+	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
+
+	ovrVector3f pos = EyeRenderPose[eye].Position;
+	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
+
+	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
+	poseState.vrPose.left = fov.LeftTan;
+	poseState.vrPose.right = fov.RightTan;
+	poseState.vrPose.bottom = fov.DownTan;
+	poseState.vrPose.top = fov.UpTan;
+
+	// Get view and projection matrices
+	OVR::Matrix4f finalRollPitchYaw = OVR::Matrix4f(EyeRenderPose[eye].Orientation);
+	OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
+	OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
+	
+	Kore::Vector<float, 3> right = vectorConvert(finalForward).cross(vectorConvert(finalUp)).normalize() * 0.01f;
+	
+	OVR::Vector3f shiftedEyePos;
+
+	if (eye == 0) {
+		shiftedEyePos = vectorConvert(headPosition - right);
+	} else {
+		shiftedEyePos = vectorConvert(headPosition + right);
+	}
+	
+	
+	OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
+	OVR::Matrix4f proj = ovrMatrix4f_Projection(hmdDesc.MaxEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);
+
+	poseState.vrPose.eye = convert(view);
+	poseState.vrPose.projection = convert(proj);
+
+	ovrSessionStatus sessionStatus;
+	ovr_GetSessionStatus(session, &sessionStatus);
+	if (sessionStatus.IsVisible) poseState.isVisible = true;
+	else poseState.isVisible = false;
+	if (sessionStatus.HmdPresent) poseState.hmdPresenting = true;
+	else poseState.hmdPresenting = false;
+	if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
+	else poseState.hmdMounted = false;
+	if (sessionStatus.DisplayLost) poseState.displayLost = true;
+	else poseState.displayLost = false;
+	if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
+	else poseState.shouldQuit = false;
+	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
+	else poseState.shouldRecenter = false;
+
+	sensorStates[eye].pose = poseState;
+
+	return sensorStates[eye];
 }
 
 SensorState VrInterface::getSensorState(int eye) {
