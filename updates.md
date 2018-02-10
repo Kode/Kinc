@@ -1,4 +1,4 @@
-* 2017-02-10: createProject and addSubProject were replaced by the simpler addProject. New code looks like:
+* 2017-02-10: createProject and addSubProject were replaced by the simpler addProject. New code looks like this:
 
 ```
 let project = new Project('Cool Name');
@@ -6,7 +6,7 @@ await project.addProject('aCoolLib');
 resolve(project);
 ```
 
-addProject is asynchronouse, please do not forget to await it.
+addProject is asynchronous, please do not forget to await it.
 
 Kore itself is now added automatically so if you used createProject to add Kore, just remove it.
 
