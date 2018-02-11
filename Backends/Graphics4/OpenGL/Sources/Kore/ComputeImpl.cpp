@@ -100,6 +100,23 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 	ComputeConstantLocation location;
 #ifdef HAS_COMPUTE
 	location.location = glGetUniformLocation(_programid, name);
+	location.type = GL_FLOAT;
+	GLint count = 0;
+	glGetProgramiv(_programid, GL_ACTIVE_UNIFORMS, &count);
+	char arrayName[1024];
+	strcpy(arrayName, name);
+	strcat(arrayName, "[0]");
+	for (GLint i = 0; i < count; ++i) {
+		GLenum type;
+		char uniformName[1024];
+		GLsizei length;
+		GLint size;
+		glGetActiveUniform(_programid, i, 1024 - 1, &length, &size, &type, uniformName);
+		if (strcmp(uniformName, name) == 0 || strcmp(uniformName, arrayName) == 0) {
+			location.type = type;
+			break;
+		}
+	}
 	glCheckErrors2();
 	if (location.location < 0) {
 		log(Warning, "Uniform %s not found.", name);
@@ -130,9 +147,76 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 	return unit;
 }
 
+void Compute::setBool(ComputeConstantLocation location, bool value) {
+#ifdef HAS_COMPUTE
+	glUniform1i(location.location, value ? 1 : 0);
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setInt(ComputeConstantLocation location, int value) {
+#ifdef HAS_COMPUTE
+	glUniform1i(location.location, value);
+	glCheckErrors2();
+#endif
+}
+
 void Compute::setFloat(ComputeConstantLocation location, float value) {
 #ifdef HAS_COMPUTE
 	glUniform1f(location.location, value);
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setFloat2(ComputeConstantLocation location, float value1, float value2) {
+#ifdef HAS_COMPUTE
+	glUniform2f(location.location, value1, value2);
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setFloat3(ComputeConstantLocation location, float value1, float value2, float value3) {
+#ifdef HAS_COMPUTE
+	glUniform3f(location.location, value1, value2, value3);
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setFloat4(ComputeConstantLocation location, float value1, float value2, float value3, float value4) {
+#ifdef HAS_COMPUTE
+	glUniform4f(location.location, value1, value2, value3, value4);
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {
+	switch (location.type) {
+	case GL_FLOAT_VEC2:
+		glUniform2fv(location.location, count / 2, values);
+		break;
+	case GL_FLOAT_VEC3:
+		glUniform3fv(location.location, count / 3, values);
+		break;
+	case GL_FLOAT_VEC4:
+		glUniform4fv(location.location, count / 4, values);
+		break;
+	default:
+		glUniform1fv(location.location, count, values);
+		break;
+	}
+	glCheckErrors2();
+}
+
+void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {
+#ifdef HAS_COMPUTE
+	glUniformMatrix4fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {
+#ifdef HAS_COMPUTE
+	glUniformMatrix3fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
 	glCheckErrors2();
 #endif
 }

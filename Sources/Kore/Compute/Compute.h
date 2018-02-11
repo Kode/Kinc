@@ -4,6 +4,7 @@
 #ifdef KORE_OPENGL
 #include <Kore/ShaderStorageBufferImpl.h>
 #endif
+#include <Kore/Math/Matrix.h>
 
 namespace Kore {
 	namespace Graphics4 {
@@ -36,7 +37,15 @@ namespace Kore {
 	namespace Compute {
 		enum Access { Read, Write, ReadWrite };
 
+		void setBool(ComputeConstantLocation location, bool value);
+		void setInt(ComputeConstantLocation location, int value);
 		void setFloat(ComputeConstantLocation location, float value);
+		void setFloat2(ComputeConstantLocation location, float value1, float value2);
+		void setFloat3(ComputeConstantLocation location, float value1, float value2, float value3);
+		void setFloat4(ComputeConstantLocation location, float value1, float value2, float value3, float value4);
+		void setFloats(ComputeConstantLocation location, float* values, int count);
+		void setMatrix(ComputeConstantLocation location, const mat4& value);
+		void setMatrix(ComputeConstantLocation location, const mat3& value);
 #ifdef KORE_OPENGL
 		void setBuffer(ShaderStorageBuffer* buffer, int index);
 #endif

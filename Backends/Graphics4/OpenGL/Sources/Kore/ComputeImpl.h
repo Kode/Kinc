@@ -4,6 +4,7 @@ namespace Kore {
 	class ComputeConstantLocationImpl {
 	public:
 		int location;
+		unsigned int type;
 	};
 
 	class ComputeTextureUnitImpl {
