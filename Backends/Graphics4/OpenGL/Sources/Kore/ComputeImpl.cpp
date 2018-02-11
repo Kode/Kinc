@@ -7,6 +7,7 @@
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Math/Core.h>
 #include <stdio.h>
+#include <string.h>
 
 using namespace Kore;
 
@@ -36,7 +37,7 @@ namespace {
 #endif
 }
 
-ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length) {
+ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length), textureCount(0) {
 	_source = new char[length + 1];
 	for (int i = 0; i < length; ++i) {
 		_source[i] = ((char*)source)[i];
@@ -74,6 +75,14 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 		delete[] errormessage;
 	}
 #endif
+
+	// TODO: Get rid of allocations
+	textures = new char*[16];
+	for (int i = 0; i < 16; ++i) {
+		textures[i] = new char[128];
+		textures[i][0] = 0;
+	}
+	textureValues = new int[16];
 }
 
 ComputeShaderImpl::~ComputeShaderImpl() {
@@ -99,9 +108,25 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 	return location;
 }
 
+int ComputeShaderImpl::findTexture(const char* name) {
+	for (int index = 0; index < textureCount; ++index) {
+		if (strcmp(textures[index], name) == 0) return index;
+	}
+	return -1;
+}
+
 ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
+	int index = findTexture(name);
+	if (index < 0) {
+		int location = glGetUniformLocation(_programid, name);
+		glCheckErrors2();
+		index = textureCount;
+		textureValues[index] = location;
+		strcpy(textures[index], name);
+		++textureCount;
+	}
 	ComputeTextureUnit unit;
-	unit.unit = 0;
+	unit.unit = index;
 	return unit;
 }
 
@@ -123,7 +148,7 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, A
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors2();
 	GLenum glaccess = access == Access::Read ? GL_READ_ONLY : (access == Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
+	glBindImageTexture(unit.unit, texture->texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
 	glCheckErrors2();
 #endif
 }
