@@ -95,6 +95,8 @@ namespace Kore {
 		enum TextureOperation { ModulateOperation, SelectFirstOperation, SelectSecondOperation };
 
 		enum TextureArgument { CurrentColorArgument, TextureColorArgument };
+		
+		enum Access { Read, Write, ReadWrite };
 
 		class RenderTarget : public RenderTargetImpl {
 		public:

@@ -68,7 +68,7 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 
 void Compute::setFloat(ComputeConstantLocation location, float value) {}
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Graphics4::Access access) {
 	ID3D11ShaderResourceView* nullView = nullptr;
 	context->PSSetShaderResources(0, 1, &nullView);
 

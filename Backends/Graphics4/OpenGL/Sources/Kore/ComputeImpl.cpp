@@ -14,6 +14,28 @@ using namespace Kore;
 #define HAS_COMPUTE
 #endif
 
+namespace {
+#ifdef HAS_COMPUTE
+	int convertInternalFormat(Graphics4::Image::Format format) {
+		switch (format) {
+		case Graphics4::Image::RGBA128:
+			return GL_RGBA32F;
+		case Graphics4::Image::RGBA64:
+			return GL_RGBA16F;
+		case Graphics4::Image::RGBA32:
+		default:
+			return GL_RGBA8;
+		case Graphics4::Image::A32:
+			return GL_R32F;
+		case Graphics4::Image::A16:
+			return GL_R16F;
+		case Graphics4::Image::Grey8:
+			return GL_R8;
+		}
+	}
+#endif
+}
+
 ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length) {
 	_source = new char[length + 1];
 	for (int i = 0; i < length; ++i) {
@@ -96,11 +118,12 @@ void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Graphics4::Access access) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors2();
-	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	GLenum glaccess = access == Graphics4::Access::Read ? GL_READ_ONLY : (access == Graphics4::Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
+	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
 	glCheckErrors2();
 #endif
 }
