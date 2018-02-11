@@ -190,6 +190,7 @@ void Compute::setFloat4(ComputeConstantLocation location, float value1, float va
 }
 
 void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {
+#ifdef HAS_COMPUTE
 	switch (location.type) {
 	case GL_FLOAT_VEC2:
 		glUniform2fv(location.location, count / 2, values);
@@ -205,6 +206,7 @@ void Compute::setFloats(ComputeConstantLocation location, float* values, int cou
 		break;
 	}
 	glCheckErrors2();
+#endif
 }
 
 void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {
