@@ -8,7 +8,6 @@
 namespace Kore {
 	namespace Graphics4 {
 		class Texture;
-		enum Access;
 	}
 
 	class ComputeConstantLocation : public ComputeConstantLocationImpl {};
@@ -35,11 +34,13 @@ namespace Kore {
 #endif
 
 	namespace Compute {
+		enum Access { Read, Write, ReadWrite };
+
 		void setFloat(ComputeConstantLocation location, float value);
 #ifdef KORE_OPENGL
 		void setBuffer(ShaderStorageBuffer* buffer, int index);
 #endif
-		void setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Graphics4::Access access);
+		void setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access);
 		void setShader(ComputeShader* shader);
 		void compute(int x, int y, int z);
 	};

@@ -93,10 +93,10 @@ void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics3::Texture* texture, Graphics3::Access access) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit); glCheckErrors2();
-	GLenum glaccess = access == Graphics3::Access::Read ? GL_READ_ONLY : (access == Graphics3::Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
+	GLenum glaccess = access == Access::Read ? GL_READ_ONLY : (access == Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
 	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, glaccess, GL_RGBA32F); glCheckErrors2();
 #endif
 }
