@@ -9,6 +9,7 @@
 namespace Kore {
 	namespace Graphics4 {
 		class Texture;
+		class RenderTarget;
 	}
 
 	class ComputeConstantLocation : public ComputeConstantLocationImpl {};
@@ -50,6 +51,10 @@ namespace Kore {
 		void setBuffer(ShaderStorageBuffer* buffer, int index);
 #endif
 		void setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access);
+		void setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* texture, Access access);
+		void setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture);
+		void setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target);
+		void setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target);
 		void setShader(ComputeShader* shader);
 		void compute(int x, int y, int z);
 	};

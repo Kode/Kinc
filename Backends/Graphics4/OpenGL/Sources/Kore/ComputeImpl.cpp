@@ -34,6 +34,26 @@ namespace {
 			return GL_R8;
 		}
 	}
+
+	int convertInternalFormat(Graphics4::RenderTargetFormat format) {
+		switch (format) {
+		case Graphics4::RenderTargetFormat::Target64BitFloat:
+			return GL_RGBA16F;
+		case Graphics4::RenderTargetFormat::Target32BitRedFloat:
+			return GL_R32F;
+		case Graphics4::RenderTargetFormat::Target128BitFloat:
+			return GL_RGBA32F;
+		case Graphics4::RenderTargetFormat::Target16BitDepth:
+			return GL_DEPTH_COMPONENT16;
+		case Graphics4::RenderTargetFormat::Target8BitRed:
+			return GL_RED;
+		case Graphics4::RenderTargetFormat::Target16BitRedFloat:
+			return GL_R16F;
+		case Graphics4::RenderTargetFormat::Target32Bit:
+		default:
+			return GL_RGBA;
+		}
+	}
 #endif
 }
 
@@ -235,6 +255,44 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, A
 	glCheckErrors2();
 	GLenum glaccess = access == Access::Read ? GL_READ_ONLY : (access == Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
 	glBindImageTexture(unit.unit, texture->texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {
+#ifdef HAS_COMPUTE
+	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glCheckErrors2();
+	GLenum glaccess = access == Access::Read ? GL_READ_ONLY : (access == Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
+	glBindImageTexture(unit.unit, target->_texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat((Graphics4::RenderTargetFormat)target->format));
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
+#ifdef HAS_COMPUTE
+	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glCheckErrors2();
+	GLenum gltarget = texture->depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	glBindTexture(gltarget, texture->texture);
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+#ifdef HAS_COMPUTE
+	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glCheckErrors2();
+	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->_texture);
+	glCheckErrors2();
+#endif
+}
+
+void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+#ifdef HAS_COMPUTE
+	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glCheckErrors2();
+	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->_depthTexture);
 	glCheckErrors2();
 #endif
 }

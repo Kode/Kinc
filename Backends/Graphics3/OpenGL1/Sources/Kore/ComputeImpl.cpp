@@ -101,6 +101,22 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, A
 #endif
 }
 
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {
+
+}
+
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
+
+}
+
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+
+}
+
+void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+
+}
+
 void Compute::setShader(ComputeShader* shader) {
 #ifdef HAS_COMPUTE
 	glUseProgram(shader->_programid); glCheckErrors2();
