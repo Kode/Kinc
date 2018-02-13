@@ -75,6 +75,22 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, A
 	context->CSSetUnorderedAccessViews(0, 1, &texture->computeView, nullptr);
 }
 
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {
+
+}
+
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
+
+}
+
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+
+}
+
+void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+
+}
+
 void Compute::setShader(ComputeShader* shader) {
 	context->CSSetShader((ID3D11ComputeShader*)shader->shader, nullptr, 0);
 }
