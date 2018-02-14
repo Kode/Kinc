@@ -5,6 +5,7 @@
 #include <Kore/ShaderStorageBufferImpl.h>
 #endif
 #include <Kore/Math/Matrix.h>
+#include <Kore/Graphics4/Graphics.h>
 
 namespace Kore {
 	namespace Graphics4 {
@@ -55,6 +56,14 @@ namespace Kore {
 		void setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture);
 		void setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target);
 		void setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target);
+		void setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing);
+		void setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter);
+		void setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter);
+		void setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter);
+		void setTexture3DAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing);
+		void setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter);
+		void setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter);
+		void setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter);
 		void setShader(ComputeShader* shader);
 		void compute(int x, int y, int z);
 	};

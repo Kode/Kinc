@@ -91,6 +91,38 @@ void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderT
 
 }
 
+void Compute::setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+
+}
+
+void Compute::setTexture3DAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+
+}
+
+void Compute::setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+
+}
+
+void Compute::setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+
+}
+
+void Compute::setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+
+}
+
+void Compute::setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+
+}
+
+void Compute::setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {
+
+}
+
+void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {
+
+}
+
 void Compute::setShader(ComputeShader* shader) {
 	context->CSSetShader((ID3D11ComputeShader*)shader->shader, nullptr, 0);
 }

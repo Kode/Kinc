@@ -54,6 +54,78 @@ namespace {
 			return GL_RGBA;
 		}
 	}
+
+	void setTextureAddressingInternal(GLenum target, ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+		glActiveTexture(GL_TEXTURE0 + unit.unit);
+		GLenum texDir = dir == Graphics4::U ? GL_TEXTURE_WRAP_S : (Graphics4::V ? GL_TEXTURE_WRAP_T : GL_TEXTURE_WRAP_R);
+		switch (addressing) {
+		case Graphics4::Clamp:
+			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+			break;
+		case Graphics4::Repeat:
+		default:
+			glTexParameteri(target, texDir, GL_REPEAT);
+			break;
+		}
+		glCheckErrors();
+	}
+
+	void setTextureMagnificationFilterInternal(GLenum target, ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+		glActiveTexture(GL_TEXTURE0 + unit.unit);
+		switch (filter) {
+		case Graphics4::PointFilter:
+			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			break;
+		case Graphics4::LinearFilter:
+		case Graphics4::AnisotropicFilter:
+		default:
+			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		}
+		glCheckErrors();
+	}
+
+	Graphics4::TextureFilter minFilters[32] = { Graphics4::PointFilter };
+	Graphics4::MipmapFilter mipFilters[32] = { Graphics4::NoMipFilter };
+
+	void setMinMipFilters(GLenum target, int unit) {
+		glActiveTexture(GL_TEXTURE0 + unit);
+		switch (minFilters[unit]) {
+		case Graphics4::PointFilter:
+			switch (mipFilters[unit]) {
+			case Graphics4::NoMipFilter:
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				break;
+			case Graphics4::PointMipFilter:
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+				break;
+			case Graphics4::LinearMipFilter:
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+				break;
+			}
+			break;
+		case Graphics4::LinearFilter:
+		case Graphics4::AnisotropicFilter:
+			switch (mipFilters[unit]) {
+			case Graphics4::NoMipFilter:
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				break;
+			case Graphics4::PointMipFilter:
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+				break;
+			case Graphics4::LinearMipFilter:
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				break;
+			}
+			if (minFilters[unit] == Graphics4::AnisotropicFilter) {
+				float maxAniso = 0.0f;
+				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+				glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+			}
+			break;
+		}
+		glCheckErrors();
+	}
 #endif
 }
 
@@ -294,6 +366,58 @@ void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderT
 	glCheckErrors2();
 	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->_depthTexture);
 	glCheckErrors2();
+#endif
+}
+
+void Compute::setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+#ifdef HAS_COMPUTE
+	setTextureAddressingInternal(GL_TEXTURE_2D, unit, dir, addressing);
+#endif
+}
+
+void Compute::setTexture3DAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+#ifdef HAS_COMPUTE
+	setTextureAddressingInternal(GL_TEXTURE_3D, unit, dir, addressing);
+#endif
+}
+
+void Compute::setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+#ifdef HAS_COMPUTE
+	setTextureMagnificationFilterInternal(GL_TEXTURE_2D, unit, filter);
+#endif
+}
+
+void Compute::setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+#ifdef HAS_COMPUTE
+	setTextureMagnificationFilterInternal(GL_TEXTURE_3D, unit, filter);
+#endif
+}
+
+void Compute::setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+#ifdef HAS_COMPUTE
+	minFilters[unit.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_2D, unit.unit);
+#endif
+}
+
+void Compute::setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+#ifdef HAS_COMPUTE
+	minFilters[unit.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_3D, unit.unit);
+#endif
+}
+
+void Compute::setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {
+#ifdef HAS_COMPUTE
+	mipFilters[unit.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_2D, unit.unit);
+#endif
+}
+
+void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {
+#ifdef HAS_COMPUTE
+	mipFilters[unit.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_3D, unit.unit);
 #endif
 }
 
