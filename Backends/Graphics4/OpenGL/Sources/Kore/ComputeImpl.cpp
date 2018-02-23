@@ -37,19 +37,19 @@ namespace {
 
 	int convertInternalFormat(Graphics4::RenderTargetFormat format) {
 		switch (format) {
-		case Graphics4::RenderTargetFormat::Target64BitFloat:
+		case Graphics4::Target64BitFloat:
 			return GL_RGBA16F;
-		case Graphics4::RenderTargetFormat::Target32BitRedFloat:
+		case Graphics4::Target32BitRedFloat:
 			return GL_R32F;
-		case Graphics4::RenderTargetFormat::Target128BitFloat:
+		case Graphics4::Target128BitFloat:
 			return GL_RGBA32F;
-		case Graphics4::RenderTargetFormat::Target16BitDepth:
+		case Graphics4::Target16BitDepth:
 			return GL_DEPTH_COMPONENT16;
-		case Graphics4::RenderTargetFormat::Target8BitRed:
+		case Graphics4::Target8BitRed:
 			return GL_RED;
-		case Graphics4::RenderTargetFormat::Target16BitRedFloat:
+		case Graphics4::Target16BitRedFloat:
 			return GL_R16F;
-		case Graphics4::RenderTargetFormat::Target32Bit:
+		case Graphics4::Target32Bit:
 		default:
 			return GL_RGBA;
 		}
@@ -325,7 +325,7 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, A
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors2();
-	GLenum glaccess = access == Access::Read ? GL_READ_ONLY : (access == Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
+	GLenum glaccess = access == Read ? GL_READ_ONLY : (access == Write ? GL_WRITE_ONLY : GL_READ_WRITE);
 	glBindImageTexture(unit.unit, texture->texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
 	glCheckErrors2();
 #endif
@@ -335,7 +335,7 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* targe
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors2();
-	GLenum glaccess = access == Access::Read ? GL_READ_ONLY : (access == Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
+	GLenum glaccess = access == Read ? GL_READ_ONLY : (access == Write ? GL_WRITE_ONLY : GL_READ_WRITE);
 	glBindImageTexture(unit.unit, target->_texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat((Graphics4::RenderTargetFormat)target->format));
 	glCheckErrors2();
 #endif
