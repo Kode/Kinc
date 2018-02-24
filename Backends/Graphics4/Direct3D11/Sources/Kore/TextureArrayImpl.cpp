@@ -5,6 +5,8 @@
 
 #include "Direct3D11.h"
 
+#include <malloc.h>
+
 using namespace Kore;
 using namespace Kore::Graphics4;
 

@@ -6,6 +6,8 @@
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/WinError.h>
 
+#include <malloc.h>
+
 using namespace Kore;
 using namespace Kore::Graphics4;
 

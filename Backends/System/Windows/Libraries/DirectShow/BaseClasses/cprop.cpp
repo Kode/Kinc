@@ -6,7 +6,7 @@
 // Copyright (c) 1992-2001 Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------------------------
 
-
+#undef NOMINMAX
 #include <streams.h>
 
 // Constructor for the base property page class. As described in the header

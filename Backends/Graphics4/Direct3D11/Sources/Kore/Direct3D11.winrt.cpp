@@ -21,6 +21,8 @@
 #endif
 #include <vector>
 
+#include <malloc.h>
+
 #ifdef KORE_HOLOLENS 
 #include <memory>
 #include "DeviceResources.winrt.h"

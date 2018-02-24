@@ -6,7 +6,7 @@
 // Copyright (c) 1992-2001 Microsoft Corporation.  All rights reserved.
 //------------------------------------------------------------------------------
 
-
+#undef NOMINMAX
 #include <streams.h>
 #include <intsafe.h>
 #include <checkbmi.h>

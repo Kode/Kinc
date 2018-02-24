@@ -10,6 +10,7 @@
 
 #define _WINDLL
 
+#undef NOMINMAX
 #include <streams.h>
 #include <stdarg.h>
 #include <stdio.h>
