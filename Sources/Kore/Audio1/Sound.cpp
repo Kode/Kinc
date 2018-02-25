@@ -104,7 +104,8 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
 		FileReader file(filename);
 		u8* filedata = (u8*)file.readAll();
-		size = 4 * stb_vorbis_decode_memory(filedata, file.size(), &format.channels, &format.samplesPerSecond, (short**)&data);
+		int samples = stb_vorbis_decode_memory(filedata, file.size(), &format.channels, &format.samplesPerSecond, (short**)&data);
+		size = samples * 2 * format.channels;
 		format.bitsPerSample = 16;
 	}
 	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
