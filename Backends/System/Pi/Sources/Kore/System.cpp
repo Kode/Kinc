@@ -364,7 +364,10 @@ namespace Kore {
 				strcat(buffer, options.title);
 			}
 
-			int id = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay,
+			int id = createWindow(buffer,
+                                  options.x == -1 ? screen_width / 2 - options.width / 2 : options.x,
+                                  options.y == -1 ? screen_height / 2 - options.height / 2 : options.y,
+                                  options.width, options.height, options.mode, options.targetDisplay,
 			                      options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 			Graphics4::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 			return id;
