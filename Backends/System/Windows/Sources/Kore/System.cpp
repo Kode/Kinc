@@ -9,6 +9,7 @@
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Input/Pen.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
 
@@ -349,6 +350,10 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowWidth;
 	int windowHeight;
 	int windowId;
+	DWORD pointerId;
+	POINTER_INFO pointerInfo = {NULL};
+	POINTER_PEN_INFO penInfo = {NULL};
+	LPPOINT penPoint;
 	static bool controlDown = false;
 
 	switch (msg) {
@@ -438,6 +443,33 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		break;
 	case WM_MOUSEWHEEL:
 		Mouse::the()->_scroll(idFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
+		break;
+	case WM_POINTERDOWN:
+		pointerId = GET_POINTERID_WPARAM(wParam);
+		GetPointerInfo(pointerId, &pointerInfo);
+		if (pointerInfo.pointerType == PT_PEN) {
+			GetPointerPenInfo(pointerId, &penInfo);
+			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
+			Pen::the()->_press(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
+		}
+		break;
+	case WM_POINTERUP:
+		pointerId = GET_POINTERID_WPARAM(wParam);
+		GetPointerInfo(pointerId, &pointerInfo);
+		if (pointerInfo.pointerType == PT_PEN) {
+			GetPointerPenInfo(pointerId, &penInfo);
+			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
+			Pen::the()->_release(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
+		}
+		break;
+	case WM_POINTERUPDATE:
+		pointerId = GET_POINTERID_WPARAM(wParam);
+		GetPointerInfo(pointerId, &pointerInfo);
+		if (pointerInfo.pointerType == PT_PEN) {
+			GetPointerPenInfo(pointerId, &penInfo);
+			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
+			Pen::the()->_move(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
+		}
 		break;
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
