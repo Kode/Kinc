@@ -293,6 +293,9 @@ void Compute::setFloats(ComputeConstantLocation location, float* values, int cou
 	case GL_FLOAT_VEC4:
 		glUniform4fv(location.location, count / 4, values);
 		break;
+	case GL_FLOAT_MAT4:
+		glUniformMatrix4fv(location.location, count / 16, false, values);
+		break;
 	default:
 		glUniform1fv(location.location, count, values);
 		break;
