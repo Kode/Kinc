@@ -156,51 +156,71 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
 		location.vertexOffset = 0;
 		location.vertexSize = 0;
+		location.vertexColumns = 0;
+		location.vertexRows = 0;
 	}
 	else {
 		ShaderConstant constant = vertexShader->constants[name];
 		location.vertexOffset = constant.offset;
 		location.vertexSize = constant.size;
+		location.vertexColumns = constant.columns;
+		location.vertexRows = constant.rows;
 	}
 
 	if (fragmentShader->constants.find(name) == fragmentShader->constants.end()) {
 		location.fragmentOffset = 0;
 		location.fragmentSize = 0;
+		location.fragmentColumns = 0;
+		location.fragmentRows = 0;
 	}
 	else {
 		ShaderConstant constant = fragmentShader->constants[name];
 		location.fragmentOffset = constant.offset;
 		location.fragmentSize = constant.size;
+		location.fragmentColumns = constant.columns;
+		location.fragmentRows = constant.rows;
 	}
 
 	if (geometryShader == nullptr || geometryShader->constants.find(name) == geometryShader->constants.end()) {
 		location.geometryOffset = 0;
 		location.geometrySize = 0;
+		location.geometryColumns = 0;
+		location.geometryRows = 0;
 	}
 	else {
 		ShaderConstant constant = geometryShader->constants[name];
 		location.geometryOffset = constant.offset;
 		location.geometrySize = constant.size;
+		location.geometryColumns = constant.columns;
+		location.geometryRows = constant.rows;
 	}
 
 	if (tessellationControlShader == nullptr || tessellationControlShader->constants.find(name) == tessellationControlShader->constants.end()) {
 		location.tessControlOffset = 0;
 		location.tessControlSize = 0;
+		location.tessControlColumns = 0;
+		location.tessControlRows = 0;
 	}
 	else {
 		ShaderConstant constant = tessellationControlShader->constants[name];
 		location.tessControlOffset = constant.offset;
 		location.tessControlSize = constant.size;
+		location.tessControlColumns = constant.columns;
+		location.tessControlRows = constant.rows;
 	}
 
 	if (tessellationEvaluationShader == nullptr || tessellationEvaluationShader->constants.find(name) == tessellationEvaluationShader->constants.end()) {
 		location.tessEvalOffset = 0;
 		location.tessEvalSize = 0;
+		location.tessEvalColumns = 0;
+		location.tessEvalRows = 0;
 	}
 	else {
 		ShaderConstant constant = tessellationEvaluationShader->constants[name];
 		location.tessEvalOffset = constant.offset;
 		location.tessEvalSize = constant.size;
+		location.tessEvalColumns = constant.columns;
+		location.tessEvalRows = constant.rows;
 	}
 
 	return location;

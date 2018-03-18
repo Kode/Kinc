@@ -46,13 +46,18 @@ Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
 		index += 4;
 		constant.size = *(u32*)&data[index];
 		index += 4;
+		constant.columns = data[index];
+		index += 1;
+		constant.rows = data[index];
+		index += 1;
 		constants[name] = constant;
 		constantsSize = constant.offset + constant.size;
 	}
 
-	this->data = &data[index];
 	this->length = length - index;
-
+	this->data = (u8*)malloc(this->length);
+	memcpy(this->data, &data[index], this->length);
+	
 	switch (type) {
 	case VertexShader:
 		affirm(device->CreateVertexShader(this->data, this->length, nullptr, (ID3D11VertexShader**)&shader));

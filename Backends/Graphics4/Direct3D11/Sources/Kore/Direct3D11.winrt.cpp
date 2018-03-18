@@ -531,11 +531,40 @@ namespace {
 		floats[3] = value4;
 	}
 
-	void setFloats(u8* constants, u32 offset, u32 size, float* values, int count) {
+	void setFloats(u8* constants, u32 offset, u32 size, u8 columns, u8 rows, float* values, int count) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int i = 0; i < count && i * 4 < static_cast<int>(size); ++i) {
-			floats[i] = values[i];
+		if (columns == 4 && rows == 4) {
+			for (int i = 0; i < count / 16 && i < static_cast<int>(size) / 4; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						floats[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
+					}
+				}
+			}
+		}
+		else if (columns == 3 && rows == 3) {
+			for (int i = 0; i < count / 9 && i < static_cast<int>(size) / 3; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						floats[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
+					}
+				}
+			}
+		}
+		else if (columns == 2 && rows == 2) {
+			for (int i = 0; i < count / 4 && i < static_cast<int>(size) / 2; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						floats[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
+					}
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < count && i * 4 < static_cast<int>(size); ++i) {
+				floats[i] = values[i];
+			}
 		}
 	}
 
@@ -607,11 +636,11 @@ void Graphics4::setFloat4(ConstantLocation location, float value1, float value2,
 }
 
 void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
-	::setFloats(vertexConstants, location.vertexOffset, location.vertexSize, values, count);
-	::setFloats(fragmentConstants, location.fragmentOffset, location.fragmentSize, values, count);
-	::setFloats(geometryConstants, location.geometryOffset, location.geometrySize, values, count);
-	::setFloats(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, values, count);
-	::setFloats(tessControlConstants, location.tessControlOffset, location.tessControlSize, values, count);
+	::setFloats(vertexConstants, location.vertexOffset, location.vertexSize, location.vertexColumns, location.vertexRows, values, count);
+	::setFloats(fragmentConstants, location.fragmentOffset, location.fragmentSize, location.fragmentColumns, location.fragmentRows, values, count);
+	::setFloats(geometryConstants, location.geometryOffset, location.geometrySize, location.geometryColumns, location.geometryRows, values, count);
+	::setFloats(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, location.tessEvalColumns, location.tessEvalRows, values, count);
+	::setFloats(tessControlConstants, location.tessControlOffset, location.tessControlSize, location.tessControlColumns, location.tessControlRows, values, count);
 }
 
 void Graphics4::setBool(ConstantLocation location, bool value) {

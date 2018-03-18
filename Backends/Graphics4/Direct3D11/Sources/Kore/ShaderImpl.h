@@ -7,6 +7,8 @@ namespace Kore {
 	struct ShaderConstant {
 		u32 offset;
 		u32 size;
+		u8 columns;
+		u8 rows;
 	};
 
 	class ShaderImpl {
@@ -33,5 +35,15 @@ namespace Kore {
 		u32 tessEvalSize;
 		u32 tessControlOffset;
 		u32 tessControlSize;
+		u8 vertexColumns;
+		u8 vertexRows;
+		u8 fragmentColumns;
+		u8 fragmentRows;
+		u8 geometryColumns;
+		u8 geometryRows;
+		u8 tessEvalColumns;
+		u8 tessEvalRows;
+		u8 tessControlColumns;
+		u8 tessControlRows;
 	};
 }
