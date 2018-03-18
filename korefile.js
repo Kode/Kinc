@@ -373,7 +373,7 @@ if (plugin) {
 	else if (platform === Platform.Switch) {
 		backend = 'Switch';
 	}
-	project.addSubProject(await Project.createProject(path.join(Project.root, 'Backends', backend), __dirname));
+	await project.addProject(path.join(Project.root, 'Backends', backend));
 	resolve(project);
 }
 else {
