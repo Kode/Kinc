@@ -47,12 +47,16 @@ Graphics5::Shader::Shader(void* _data, int length, ShaderType type) {
 		index += 4;
 		constant.size = *(u32*)&data[index];
 		index += 4;
+#ifdef KORE_WINDOWS
+		index += 2; // columns and rows
+#endif
 		constants[name] = constant;
 		constantsSize = constant.offset + constant.size;
 	}
 
-	this->data = &data[index];
 	this->length = length - index;
+	this->data = new u8[this->length];
+	memcpy(this->data, &data[index], this->length);
 
 	switch (type) {
 	case VertexShader:
