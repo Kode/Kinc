@@ -73,17 +73,19 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	}
 
 	depthStencil = nullptr;
-	depthStencilView = nullptr;
-	DXGI_FORMAT depthFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	if (depthBufferBits == 32 && stencilBufferBits == 8) {
-		depthFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	for (int i = 0; i < 6; i++) {
+		depthStencilView[i] = nullptr;
 	}
-	else if (depthBufferBits == 16 && stencilBufferBits <= 0) {
-		depthFormat = DXGI_FORMAT_D16_UNORM;
-	}
-	else if (stencilBufferBits <= 0) {
-		depthFormat = DXGI_FORMAT_D32_FLOAT;
-	}
+	// DXGI_FORMAT depthFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	// if (depthBufferBits == 32 && stencilBufferBits == 8) {
+	// 	depthFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	// }
+	// else if (depthBufferBits == 16 && stencilBufferBits <= 0) {
+	// 	depthFormat = DXGI_FORMAT_D16_UNORM;
+	// }
+	// else if (stencilBufferBits <= 0) {
+	// 	depthFormat = DXGI_FORMAT_D32_FLOAT;
+	// }
 
 	if (depthBufferBits > 0) {
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R24G8_TYPELESS, width, height, 1, 1, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
@@ -96,8 +98,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
 		affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-
-		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT), &depthStencilView));
+		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT), &depthStencilView[0]));
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -179,6 +180,9 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
 	texture = nullptr;
+	for (int i = 0; i < 6; i++) {
+		renderTargetView[i] = nullptr;
+	}
 	if (!isDepthAttachment) {
 		affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 
@@ -189,27 +193,30 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		renderTargetViewDesc.Texture2DArray.ArraySize = 1;
 
 		for (int i = 0; i < 6; i++) {
-			renderTargetView[i] = nullptr;
 			renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
 			affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView[i]));
-		}		
+		}
 	}
 
 	depthStencil = nullptr;
-	depthStencilView = nullptr;
-	DXGI_FORMAT depthFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	if (depthBufferBits == 32 && stencilBufferBits == 8) {
-		depthFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	for (int i = 0; i < 6; i++) {
+		depthStencilView[i] = nullptr;
 	}
-	else if (depthBufferBits == 16 && stencilBufferBits <= 0) {
-		depthFormat = DXGI_FORMAT_D16_UNORM;
-	}
-	else if (stencilBufferBits <= 0) {
-		depthFormat = DXGI_FORMAT_D32_FLOAT;
-	}
+	// DXGI_FORMAT depthFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	// if (depthBufferBits == 32 && stencilBufferBits == 8) {
+	// 	depthFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	// }
+	// else if (depthBufferBits == 16 && stencilBufferBits <= 0) {
+	// 	depthFormat = DXGI_FORMAT_D16_UNORM;
+	// }
+	// else if (stencilBufferBits <= 0) {
+	// 	depthFormat = DXGI_FORMAT_D32_FLOAT;
+	// }
 
 	if (depthBufferBits > 0) {
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R24G8_TYPELESS, width, height, 1, 1, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
+		depthStencilDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+		depthStencilDesc.ArraySize = 6;
 		if (antialiasing) {
 			depthStencilDesc.SampleDesc.Count = 4;
 			depthStencilDesc.SampleDesc.Quality = D3D11_STANDARD_MULTISAMPLE_PATTERN;
@@ -219,8 +226,17 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
 		affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-
-		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT), &depthStencilView));
+	
+		CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+		depthStencilViewDesc.Texture2DArray.MipSlice = 0;
+		depthStencilViewDesc.Texture2DArray.ArraySize = 1;
+		depthStencilViewDesc.Flags = 0;
+		for (int i = 0; i < 6; i++) {
+			depthStencilViewDesc.Texture2DArray.FirstArraySlice = i;
+			affirm(device->CreateDepthStencilView(depthStencil, &depthStencilViewDesc, &depthStencilView[i]));
+		}
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -243,18 +259,21 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	lastBoundUnit = -1;
 	lastBoundDepthUnit = -1;
 
-	FLOAT colors[4] = { 0, 0, 0, 0 };
-	for (int i = 0; i < 6; i++) {
-		context->ClearRenderTargetView(renderTargetView[i], colors);
+	if (!isDepthAttachment) {
+		FLOAT colors[4] = { 0, 0, 0, 0 };
+		for (int i = 0; i < 6; i++) {
+			context->ClearRenderTargetView(renderTargetView[i], colors);
+		}
 	}
 }
 
 Graphics4::RenderTarget::~RenderTarget() {
-	depthStencilView->Release();
 	for (int i = 0; i < 6; i++) {
-		renderTargetView[i]->Release();
+		if (renderTargetView[i] != nullptr) renderTargetView[i]->Release();
+		if (depthStencilView[i] != nullptr) depthStencilView[i]->Release();
 	}
 	renderTargetSRV->Release();
+	depthStencilSRV->Release();
 }
 
 void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
@@ -271,7 +290,9 @@ void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 
 void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 	depthStencil = source->depthStencil;
-	depthStencilView = source->depthStencilView;
+	for (int i = 0; i < 6; i++) {
+		depthStencilView[i] = source->depthStencilView[i];
+	}
 	depthStencilSRV = source->depthStencilSRV;
 }
 

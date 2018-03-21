@@ -888,23 +888,36 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 		}
 	}
 
-	currentDepthStencilView = targets[0]->depthStencilView;
+	currentDepthStencilView = targets[0]->depthStencilView[0];
 
 	renderTargetCount = count;
 	for (int i = 0; i < count; ++i) {
 		currentRenderTargetViews[i] = targets[i]->renderTargetView[0];
 	}
 
-	context->OMSetRenderTargets(count, currentRenderTargetViews, targets[0]->depthStencilView);
+	context->OMSetRenderTargets(count, currentRenderTargetViews, currentDepthStencilView);
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(targets[0]->width), static_cast<float>(targets[0]->height));
 	context->RSSetViewports(1, &viewPort);
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
-	currentRenderTargetViews[0] = texture->renderTargetView[face];
-	renderTargetCount = 1;
+	if (texture->lastBoundUnit >= 0) {
+		ID3D11ShaderResourceView* nullview[1];
+		nullview[0] = nullptr;
+		context->PSSetShaderResources(texture->lastBoundUnit, 1, nullview);
+		texture->lastBoundUnit = -1;
+	}
+	if (texture->lastBoundDepthUnit >= 0) {
+		ID3D11ShaderResourceView* nullview[1];
+		nullview[0] = nullptr;
+		context->PSSetShaderResources(texture->lastBoundDepthUnit, 1, nullview);
+		texture->lastBoundDepthUnit = -1;
+	}
 
-	context->OMSetRenderTargets(1, currentRenderTargetViews, texture->depthStencilView);
+	renderTargetCount = 1;
+	currentRenderTargetViews[0] = texture->renderTargetView[face];
+	currentDepthStencilView = texture->depthStencilView[face];
+	context->OMSetRenderTargets(1, currentRenderTargetViews, currentDepthStencilView);
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(texture->width), static_cast<float>(texture->height));
 	context->RSSetViewports(1, &viewPort);
 }
