@@ -66,7 +66,41 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 	return unit;
 }
 
-void Compute::setFloat(ComputeConstantLocation location, float value) {}
+void Compute::setBool(ComputeConstantLocation location, bool value) {
+
+}
+
+void Compute::setInt(ComputeConstantLocation location, int value) {
+
+}
+
+void Compute::setFloat(ComputeConstantLocation location, float value) {
+
+}
+
+void Compute::setFloat2(ComputeConstantLocation location, float value1, float value2) {
+
+}
+
+void Compute::setFloat3(ComputeConstantLocation location, float value1, float value2, float value3) {
+
+}
+
+void Compute::setFloat4(ComputeConstantLocation location, float value1, float value2, float value3, float value4) {
+
+}
+
+void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {
+
+}
+
+void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {
+
+}
+
+void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {
+
+}
 
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
 	ID3D11ShaderResourceView* nullView = nullptr;
