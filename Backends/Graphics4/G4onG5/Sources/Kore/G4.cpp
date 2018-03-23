@@ -175,48 +175,48 @@ void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument 
 }
 
 void Graphics4::setInt(ConstantLocation location, int value) {
-	vertexConstantBuffer->setInt(0, value);
-	fragmentConstantBuffer->setInt(0, value);
+	vertexConstantBuffer->setInt(location._location.vertexOffset, value);
+	fragmentConstantBuffer->setInt(location._location.fragmentOffset, value);
 }
 
 void Graphics4::setFloat(ConstantLocation location, float value) {
-	vertexConstantBuffer->setFloat(0, value);
-	fragmentConstantBuffer->setFloat(0, value);
+	vertexConstantBuffer->setFloat(location._location.vertexOffset, value);
+	fragmentConstantBuffer->setFloat(location._location.fragmentOffset, value);
 }
 
 void Graphics4::setFloat2(ConstantLocation location, float value1, float value2) {
-	vertexConstantBuffer->setFloat2(0, value1, value2);
-	fragmentConstantBuffer->setFloat2(0, value1, value2);
+	vertexConstantBuffer->setFloat2(location._location.vertexOffset, value1, value2);
+	fragmentConstantBuffer->setFloat2(location._location.fragmentOffset, value1, value2);
 }
 
 void Graphics4::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	vertexConstantBuffer->setFloat3(0, value1, value2, value3);
-	fragmentConstantBuffer->setFloat3(0, value1, value2, value3);
+	vertexConstantBuffer->setFloat3(location._location.vertexOffset, value1, value2, value3);
+	fragmentConstantBuffer->setFloat3(location._location.fragmentOffset, value1, value2, value3);
 }
 
 void Graphics4::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	vertexConstantBuffer->setFloat4(0, value1, value2, value3, value4);
-	fragmentConstantBuffer->setFloat4(0, value1, value2, value3, value4);
+	vertexConstantBuffer->setFloat4(location._location.vertexOffset, value1, value2, value3, value4);
+	fragmentConstantBuffer->setFloat4(location._location.fragmentOffset, value1, value2, value3, value4);
 }
 
 void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
-	vertexConstantBuffer->setFloats(0, values, count);
-	fragmentConstantBuffer->setFloats(0, values, count);
+	vertexConstantBuffer->setFloats(location._location.vertexOffset, values, count);
+	fragmentConstantBuffer->setFloats(location._location.fragmentOffset, values, count);
 }
 
 void Graphics4::setBool(ConstantLocation location, bool value) {
-	vertexConstantBuffer->setBool(0, value);
-	fragmentConstantBuffer->setBool(0, value);
+	vertexConstantBuffer->setBool(location._location.vertexOffset, value);
+	fragmentConstantBuffer->setBool(location._location.fragmentOffset, value);
 }
 
 void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
-	vertexConstantBuffer->setMatrix(0, value);
-	fragmentConstantBuffer->setMatrix(0, value);
+	vertexConstantBuffer->setMatrix(location._location.vertexOffset, value);
+	fragmentConstantBuffer->setMatrix(location._location.fragmentOffset, value);
 }
 
 void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
-	vertexConstantBuffer->setMatrix(0, value);
-	fragmentConstantBuffer->setMatrix(0, value);
+	vertexConstantBuffer->setMatrix(location._location.vertexOffset, value);
+	fragmentConstantBuffer->setMatrix(location._location.fragmentOffset, value);
 }
 
 void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {

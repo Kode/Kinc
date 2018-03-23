@@ -37,5 +37,7 @@ void Graphics4::PipelineState::compile() {
 	_pipeline->blendDestination = (Graphics5::BlendingOperation)blendDestination;
 	_pipeline->alphaBlendSource = (Graphics5::BlendingOperation)alphaBlendSource;
 	_pipeline->alphaBlendDestination = (Graphics5::BlendingOperation)alphaBlendDestination;
+	_pipeline->depthMode = (Graphics5::ZCompareMode)depthMode;
+	_pipeline->depthWrite = depthWrite;
 	_pipeline->compile();
 }
