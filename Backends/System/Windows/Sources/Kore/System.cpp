@@ -350,10 +350,11 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowWidth;
 	int windowHeight;
 	int windowId;
+	#if (WINVER >= _WIN32_WINNT_WIN8)
 	DWORD pointerId;
 	POINTER_INFO pointerInfo = {NULL};
 	POINTER_PEN_INFO penInfo = {NULL};
-	LPPOINT penPoint;
+	#endif
 	static bool controlDown = false;
 
 	switch (msg) {
@@ -444,6 +445,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_MOUSEWHEEL:
 		Mouse::the()->_scroll(idFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
 		break;
+	#if (WINVER >= _WIN32_WINNT_WIN8)
 	case WM_POINTERDOWN:
 		pointerId = GET_POINTERID_WPARAM(wParam);
 		GetPointerInfo(pointerId, &pointerInfo);
@@ -471,6 +473,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			Pen::the()->_move(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
 		}
 		break;
+	#endif
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
 		if (!keyPressed[wParam]) {
