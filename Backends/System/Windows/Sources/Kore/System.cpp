@@ -52,6 +52,9 @@ extern "C"
 int kore(int argc, char** argv);
 
 namespace {
+	typedef BOOL (WINAPI *GetPointerPenInfoType)(UINT32 pointerId, POINTER_PEN_INFO *penInfo);
+	GetPointerPenInfoType MyGetPointerPenInfo;
+
 	struct KoreWindow : public Kore::KoreWindowBase {
 		HWND hwnd;
 		bool isMouseInside;
@@ -450,7 +453,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		pointerId = GET_POINTERID_WPARAM(wParam);
 		GetPointerInfo(pointerId, &pointerInfo);
 		if (pointerInfo.pointerType == PT_PEN) {
-			GetPointerPenInfo(pointerId, &penInfo);
+			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			Pen::the()->_press(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
 		}
@@ -459,7 +462,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		pointerId = GET_POINTERID_WPARAM(wParam);
 		GetPointerInfo(pointerId, &pointerInfo);
 		if (pointerInfo.pointerType == PT_PEN) {
-			GetPointerPenInfo(pointerId, &penInfo);
+			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			Pen::the()->_release(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
 		}
@@ -468,7 +471,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		pointerId = GET_POINTERID_WPARAM(wParam);
 		GetPointerInfo(pointerId, &pointerInfo);
 		if (pointerInfo.pointerType == PT_PEN) {
-			GetPointerPenInfo(pointerId, &penInfo);
+			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			Pen::the()->_move(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
 		}
@@ -1357,6 +1360,9 @@ double Kore::System::time() {
 }
 
 int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nCmdShow*/) {
+	HMODULE user32 = LoadLibraryA("user32.dll");
+	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo"); // only in Windows 8 and later
+
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
