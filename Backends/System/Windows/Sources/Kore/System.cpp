@@ -52,6 +52,8 @@ extern "C"
 int kore(int argc, char** argv);
 
 namespace {
+	typedef BOOL (WINAPI *GetPointerInfoType)(UINT32 pointerId, POINTER_INFO *pointerInfo);
+	GetPointerInfoType MyGetPointerInfo;
 	typedef BOOL (WINAPI *GetPointerPenInfoType)(UINT32 pointerId, POINTER_PEN_INFO *penInfo);
 	GetPointerPenInfoType MyGetPointerPenInfo;
 
@@ -353,11 +355,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowWidth;
 	int windowHeight;
 	int windowId;
-	#if (WINVER >= _WIN32_WINNT_WIN8)
 	DWORD pointerId;
 	POINTER_INFO pointerInfo = {NULL};
 	POINTER_PEN_INFO penInfo = {NULL};
-	#endif
 	static bool controlDown = false;
 
 	switch (msg) {
@@ -448,10 +448,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_MOUSEWHEEL:
 		Mouse::the()->_scroll(idFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
 		break;
-	#if (WINVER >= _WIN32_WINNT_WIN8)
 	case WM_POINTERDOWN:
 		pointerId = GET_POINTERID_WPARAM(wParam);
-		GetPointerInfo(pointerId, &pointerInfo);
+		MyGetPointerInfo(pointerId, &pointerInfo);
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
@@ -460,7 +459,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		break;
 	case WM_POINTERUP:
 		pointerId = GET_POINTERID_WPARAM(wParam);
-		GetPointerInfo(pointerId, &pointerInfo);
+		MyGetPointerInfo(pointerId, &pointerInfo);
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
@@ -469,14 +468,13 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		break;
 	case WM_POINTERUPDATE:
 		pointerId = GET_POINTERID_WPARAM(wParam);
-		GetPointerInfo(pointerId, &pointerInfo);
+		MyGetPointerInfo(pointerId, &pointerInfo);
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			Pen::the()->_move(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
 		}
 		break;
-	#endif
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
 		if (!keyPressed[wParam]) {
@@ -1360,8 +1358,10 @@ double Kore::System::time() {
 }
 
 int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nCmdShow*/) {
+	// Pen functions are only in Windows 8 and later, so load them dynamically
 	HMODULE user32 = LoadLibraryA("user32.dll");
-	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo"); // only in Windows 8 and later
+	MyGetPointerInfo = (GetPointerInfoType)GetProcAddress(user32, "GetPointerInfo");
+	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo");
 
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
