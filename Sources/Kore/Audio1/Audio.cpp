@@ -128,18 +128,27 @@ void Audio1::init() {
 	Audio2::audioCallback = mix;
 }
 
-Audio1::Channel* Audio1::play(Sound* sound, bool loop, float pitch) {
+Audio1::Channel* Audio1::play(Sound* sound, bool loop, float pitch, bool unique) {
 	Channel* channel = nullptr;
 	mutex.lock();
+	bool found = false;
 	for (int i = 0; i < channelCount; ++i) {
-		if (channels[i].sound == nullptr) {
-			channels[i].sound = sound;
-			channels[i].position = 0;
-			channels[i].loop = loop;
-			channels[i].pitch = pitch;
-			channels[i].volume = 1.0f;
-			channel = &channels[i];
+		if (channels[i].sound == sound) {
+			found = true;
 			break;
+		}
+	}
+	if (!found || !unique) {
+		for (int i = 0; i < channelCount; ++i) {
+			if (channels[i].sound == nullptr) {
+				channels[i].sound = sound;
+				channels[i].position = 0;
+				channels[i].loop = loop;
+				channels[i].pitch = pitch;
+				channels[i].volume = 1.0f;
+				channel = &channels[i];
+				break;
+			}
 		}
 	}
 	mutex.unlock();
