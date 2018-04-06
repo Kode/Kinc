@@ -9,8 +9,10 @@ namespace Kore {
 	class ComputeTextureUnitImpl {};
 
 	struct ComputeShaderConstant {
-		u8 offset;
-		u8 size;
+		u32 offset;
+		u32 size;
+		u8 columns;
+		u8 rows;
 	};
 
 	class ComputeShaderImpl {

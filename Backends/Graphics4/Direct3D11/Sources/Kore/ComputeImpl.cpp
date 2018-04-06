@@ -44,8 +44,14 @@ ComputeShader::ComputeShader(void* _data, int length) {
 			if (name[i2] == 0) break;
 		}
 		ComputeShaderConstant constant;
-		constant.offset = data[index++];
-		constant.size = data[index++];
+		constant.offset = data[index];
+		index += 4;
+		constant.size = data[index];
+		index += 4;
+		constant.columns = data[index];
+		index += 1;
+		constant.rows = data[index];
+		index += 1;
 		constants[name] = constant;
 		constantsSize = constant.offset + constant.size;
 	}
