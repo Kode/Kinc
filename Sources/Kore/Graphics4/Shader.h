@@ -14,12 +14,12 @@ namespace Kore {
 		public:
 			Shader(void* data, int length, ShaderType type);
 			Shader(const char* source, ShaderType type); // Beware, this is not portable
+			u32 id;
 		private:
 			void setId() {
 				static u32 lastId = 0;
 				id = lastId++;
 			}
-			u32 id;
 		};
 
 		class ConstantLocation : public ConstantLocationImpl {

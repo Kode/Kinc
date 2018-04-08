@@ -131,22 +131,22 @@ namespace {
 }
 
 void Graphics4::PipelineState::compile() {
-	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
-	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
+	compileShader(vertexShader->_glid, vertexShader->source, vertexShader->length, VertexShader);
+	compileShader(fragmentShader->_glid, fragmentShader->source, fragmentShader->length, FragmentShader);
 #ifndef OPENGLES
-	if (geometryShader != nullptr) compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
+	if (geometryShader != nullptr) compileShader(geometryShader->_glid, geometryShader->source, geometryShader->length, GeometryShader);
 	if (tessellationControlShader != nullptr)
-		compileShader(tessellationControlShader->id, tessellationControlShader->source, tessellationControlShader->length, TessellationControlShader);
+		compileShader(tessellationControlShader->_glid, tessellationControlShader->source, tessellationControlShader->length, TessellationControlShader);
 	if (tessellationEvaluationShader != nullptr)
-		compileShader(tessellationEvaluationShader->id, tessellationEvaluationShader->source, tessellationEvaluationShader->length,
+		compileShader(tessellationEvaluationShader->_glid, tessellationEvaluationShader->source, tessellationEvaluationShader->length,
 		              TessellationEvaluationShader);
 #endif
-	glAttachShader(programId, vertexShader->id);
-	glAttachShader(programId, fragmentShader->id);
+	glAttachShader(programId, vertexShader->_glid);
+	glAttachShader(programId, fragmentShader->_glid);
 #ifndef OPENGLES
-	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->id);
-	if (tessellationControlShader != nullptr) glAttachShader(programId, tessellationControlShader->id);
-	if (tessellationEvaluationShader != nullptr) glAttachShader(programId, tessellationEvaluationShader->id);
+	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->_glid);
+	if (tessellationControlShader != nullptr) glAttachShader(programId, tessellationControlShader->_glid);
+	if (tessellationEvaluationShader != nullptr) glAttachShader(programId, tessellationEvaluationShader->_glid);
 #endif
 	glCheckErrors();
 
