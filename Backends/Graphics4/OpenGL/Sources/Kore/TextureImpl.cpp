@@ -252,6 +252,7 @@ namespace {
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
+	setId();
 	bool toPow2;
 	if (Graphics4::nonPow2TexturesSupported()) {
 		texWidth = width;
@@ -354,6 +355,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 }
 
 void Graphics4::Texture::init3D(bool readable) {
+	setId();
 #ifndef KORE_OPENGL_ES // Requires GLES 3.0
 	texWidth = width;
 	texHeight = height;

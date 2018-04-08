@@ -49,6 +49,7 @@ Graphics4::Texture::Texture(void* data, int width, int height, int depth, int fo
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
+	setId();
 	_texture->_init(format, readable);
 	width = _texture->width;
 	height = _texture->height;
@@ -58,6 +59,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 }
 
 void Graphics4::Texture::init3D(bool readable) {
+	setId();
 }
 
 Graphics4::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {

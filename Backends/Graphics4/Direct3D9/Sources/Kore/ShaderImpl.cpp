@@ -12,6 +12,7 @@
 using namespace Kore;
 
 Graphics4::Shader::Shader(void* _data, int length, Graphics4::ShaderType type) {
+	setId();
 	unsigned index = 0;
 
 	u8* data = (u8*)_data;
@@ -46,4 +47,6 @@ Graphics4::Shader::Shader(void* _data, int length, Graphics4::ShaderType type) {
 	// if (FAILED(hr)) throw Exception("CreateShader failed");
 }
 
-Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {}
+Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {
+	setId();
+}

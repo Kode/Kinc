@@ -14,6 +14,8 @@ namespace Kore {
 			PipelineState();
 			~PipelineState();
 
+			u32 id;
+
 			VertexStructure* inputLayout[16];
 			Shader* vertexShader;
 			Shader* fragmentShader;

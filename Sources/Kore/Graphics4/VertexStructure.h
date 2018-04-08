@@ -48,8 +48,12 @@ namespace Kore {
 			VertexElement elements[maxElementsCount];
 			int size;
 			bool instanced;
+			u32 id;
 
-			VertexStructure() : size(0), instanced(false) {}
+			VertexStructure() : size(0), instanced(false) {
+				static u32 lastId = 0;
+				id = lastId++;
+			}
 
 			void add(const char* name, VertexData data) {
 				elements[size++] = VertexElement(name, data);

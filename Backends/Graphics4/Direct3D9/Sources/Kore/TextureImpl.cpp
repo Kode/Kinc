@@ -24,6 +24,7 @@ namespace {
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
+	setId();
 	stage = 0;
 	mipmap = true;
 	DWORD usage = 0;
@@ -53,6 +54,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 }
 
 void Graphics4::Texture::init3D(bool readable) {
+	setId();
 }
 
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
