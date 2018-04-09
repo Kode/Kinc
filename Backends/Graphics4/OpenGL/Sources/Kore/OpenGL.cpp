@@ -10,7 +10,8 @@
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
-#include <cstdio>
+#include <stdio.h>
+#include <string.h>
 
 #ifdef KORE_IOS
 #include <OpenGLES/ES2/glext.h>
