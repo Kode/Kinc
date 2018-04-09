@@ -40,6 +40,7 @@ namespace Kore {
 #if !defined(KORE_IOS) && !defined(KORE_ANDROID)
 	extern bool programUsesTessellation;
 #endif
+	bool supportsConservativeRaster = false;
 }
 
 namespace {
@@ -227,6 +228,15 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	// glEnable(GL_DEBUG_OUTPUT);
 	// glDebugMessageCallback(debugCallback, nullptr);
+
+	int extensions;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &extensions);
+	for (int i = 0; i < extensions; ++i) {
+		const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
+		if (strcmp(extension, "GL_NV_conservative_raster") == 0) {
+			supportsConservativeRaster = true;
+		}
+	}
 
 	lastPipeline = nullptr;
 }

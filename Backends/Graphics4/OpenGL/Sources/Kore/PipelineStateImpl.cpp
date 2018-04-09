@@ -16,6 +16,7 @@ namespace Kore {
 #ifndef KORE_OPENGL_ES
 	bool programUsesTessellation = false;
 #endif
+	extern bool supportsConservativeRaster;
 }
 
 namespace {
@@ -238,11 +239,13 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 
 	glColorMask(pipeline->colorWriteMaskRed, pipeline->colorWriteMaskGreen, pipeline->colorWriteMaskBlue, pipeline->colorWriteMaskAlpha);
 
-	if (pipeline->conservativeRasterization) {
-		glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
-	}
-	else {
-		glDisable(0x9346);
+	if (supportsConservativeRaster) {
+		if (pipeline->conservativeRasterization) {
+			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
+		}
+		else {
+			glDisable(0x9346);
+		}
 	}
 	
 	glCheckErrors();
