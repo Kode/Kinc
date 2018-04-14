@@ -369,23 +369,7 @@ void CommandList::disableScissor() {
 
 void CommandList::setPipeline(PipelineState* pipeline) {
 	_currentPipeline = pipeline;
-	
-	{
-		uint8_t* data;
-		VkResult err = vkMapMemory(device, _currentPipeline->memVertex, 0, _currentPipeline->mem_allocVertex.allocationSize, 0, (void**)&data);
-		assert(!err);
-		memcpy(data, &_currentPipeline->uniformDataVertex, sizeof(_currentPipeline->uniformDataVertex));
-		vkUnmapMemory(device, _currentPipeline->memVertex);
-	}
-
-	{
-		uint8_t* data;
-		VkResult err = vkMapMemory(device, _currentPipeline->memFragment, 0, _currentPipeline->mem_allocFragment.allocationSize, 0, (void**)&data);
-		assert(!err);
-		memcpy(data, &_currentPipeline->uniformDataFragment, sizeof(_currentPipeline->uniformDataFragment));
-		vkUnmapMemory(device, _currentPipeline->memFragment);
-	}
-
+		
 	vkCmdBindPipeline(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline);
 
 	if (vulkanRenderTargets[0] != nullptr)
