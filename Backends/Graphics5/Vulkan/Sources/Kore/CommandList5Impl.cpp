@@ -563,3 +563,27 @@ void CommandList::upload(IndexBuffer* buffer) {
 void CommandList::upload(Texture* texture) {
 	
 }
+
+void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {
+	
+}
+
+void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
+	
+}
+
+void CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {
+	
+}
+
+void CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {
+	
+}
+
+void CommandList::setPipelineLayout() {
+
+}
+
+void CommandList::executeAndWait() {
+
+}
