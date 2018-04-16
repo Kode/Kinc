@@ -171,7 +171,11 @@ namespace {
 	}
 
 	VKAPI_ATTR void* VKAPI_CALL myrealloc(void* pUserData, void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
+#ifdef _MSC_VER
+		return _aligned_realloc(pOriginal, size, alignment);
+#else
 		return realloc(pOriginal, size);
+#endif
 	}
 
 	VKAPI_ATTR void* VKAPI_CALL myalloc(void* pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {

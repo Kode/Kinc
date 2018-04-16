@@ -25,7 +25,6 @@ extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 
 struct SwapchainBuffers {
 	VkImage image;
-	VkCommandBuffer cmd;
 	VkImageView view;
 };
 
