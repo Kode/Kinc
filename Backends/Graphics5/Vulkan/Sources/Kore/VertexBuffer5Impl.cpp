@@ -21,7 +21,8 @@ Graphics5::VertexBuffer* VertexBuffer5Impl::current = nullptr;
 
 VertexBuffer5Impl::VertexBuffer5Impl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
 
-Graphics5::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(vertexCount, instanceDataStepRate) {
+Graphics5::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate)
+    : VertexBuffer5Impl(vertexCount, instanceDataStepRate) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
@@ -107,7 +108,7 @@ void Graphics5::VertexBuffer::unlock() {
 int Graphics5::VertexBuffer::_set(int offset) {
 	int offsetoffset = setVertexAttributes(offset);
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
-		
+
 	return offsetoffset;
 }
 

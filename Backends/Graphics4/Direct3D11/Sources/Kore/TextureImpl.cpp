@@ -9,7 +9,7 @@ using namespace Kore;
 
 namespace {
 	Graphics4::Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-	                            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	                                       nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 	DXGI_FORMAT convertFormat(Graphics4::Image::Format format) {
 		switch (format) {
@@ -62,7 +62,8 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 	rowPitch = 0;
-	bool isHdr = this->format == Graphics4::Image::RGBA128 || this->format == Graphics4::Image::RGBA64 || this->format == Graphics4::Image::A32 || this->format == Graphics4::Image::A16;
+	bool isHdr = this->format == Graphics4::Image::RGBA128 || this->format == Graphics4::Image::RGBA64 || this->format == Graphics4::Image::A32 ||
+	             this->format == Graphics4::Image::A16;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -154,7 +155,7 @@ TextureImpl::~TextureImpl() {
 	if (texture != nullptr) {
 		texture->Release();
 	}
-	if(computeView!=nullptr){
+	if (computeView != nullptr) {
 		computeView->Release();
 	}
 }
@@ -193,19 +194,17 @@ void Graphics4::Texture::unlock() {
 	context->Unmap(texture, 0);
 }
 
-void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-
-}
+void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
 
 int Graphics4::Texture::stride() {
 	return rowPitch;
 }
 
 void Graphics4::Texture::generateMipmaps(int levels) {
-	//context->GenerateMips(view);
+	// context->GenerateMips(view);
 }
 
 void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
-	//D3D11CalcSubresource();
-	//context->UpdateSubresource();
+	// D3D11CalcSubresource();
+	// context->UpdateSubresource();
 }

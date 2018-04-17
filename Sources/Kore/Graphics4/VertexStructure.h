@@ -39,7 +39,7 @@ namespace Kore {
 
 			VertexElement(const char* name, VertexData data) : name(name), data(data) {}
 
-			VertexElement(VertexAttribute attribute, VertexData data) : name(""), attribute(attribute), data(data) { }
+			VertexElement(VertexAttribute attribute, VertexData data) : name(""), attribute(attribute), data(data) {}
 		};
 
 		class VertexStructure {

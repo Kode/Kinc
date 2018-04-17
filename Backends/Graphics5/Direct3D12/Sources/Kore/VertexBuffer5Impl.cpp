@@ -38,9 +38,8 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 
 	int uploadBufferSize = myStride * myCount;
 
-	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-									IID_GRAPHICS_PPV_ARGS(&uploadBuffer));
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadBuffer));
 
 	// device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	// &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
@@ -79,7 +78,7 @@ void Graphics5::VertexBuffer::unlock() {
 	range.End = range.Begin + lastCount * myStride;
 	uploadBuffer->Unmap(0, &range);
 
-	//view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
+	// view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
 
 	// commandList->CopyBufferRegion(vertexBuffer, 0, uploadBuffer, 0, count() * stride());
 	// CD3DX12_RESOURCE_BARRIER barriers[1] = { CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST,

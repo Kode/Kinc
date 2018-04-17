@@ -11,10 +11,10 @@ namespace Kore {
 	public:
 		int unit;
 	};
-	
+
 	class TextureImpl {
 	protected:
-		//static TreeMap<Image, Texture*> images;
+		// static TreeMap<Image, Texture*> images;
 	public:
 		unsigned int texture;
 #ifdef KORE_ANDROID

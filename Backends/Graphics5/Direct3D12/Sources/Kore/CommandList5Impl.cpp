@@ -1,8 +1,8 @@
 #include "pch.h"
 
 #include <Kore/Graphics5/CommandList.h>
-#include <Kore/Graphics5/PipelineState.h>
 #include <Kore/Graphics5/ConstantBuffer.h>
+#include <Kore/Graphics5/PipelineState.h>
 
 #include "Direct3D12.h"
 
@@ -19,25 +19,25 @@ namespace {
 	bool created = false;
 
 	void createConstantBuffer() {
-		if (created) return;
-		created = true;
+	    if (created) return;
+	    created = true;
 
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) * constantBufferMultiply),
-			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&vertexConstantBuffer));
+	    device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+	        &CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertexConstants) * constantBufferMultiply),
+	        D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&vertexConstantBuffer));
 
-		void* p;
-		vertexConstantBuffer->Map(0, nullptr, &p);
-		ZeroMemory(p, sizeof(vertexConstants) * constantBufferMultiply);
-		vertexConstantBuffer->Unmap(0, nullptr);
+	    void* p;
+	    vertexConstantBuffer->Map(0, nullptr, &p);
+	    ZeroMemory(p, sizeof(vertexConstants) * constantBufferMultiply);
+	    vertexConstantBuffer->Unmap(0, nullptr);
 
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(sizeof(fragmentConstants) * constantBufferMultiply),
-			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&fragmentConstantBuffer));
+	    device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+	        &CD3DX12_RESOURCE_DESC::Buffer(sizeof(fragmentConstants) * constantBufferMultiply),
+	        D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&fragmentConstantBuffer));
 
-		fragmentConstantBuffer->Map(0, nullptr, &p);
-		ZeroMemory(p, sizeof(fragmentConstants) * constantBufferMultiply);
-		fragmentConstantBuffer->Unmap(0, nullptr);
+	    fragmentConstantBuffer->Map(0, nullptr, &p);
+	    ZeroMemory(p, sizeof(fragmentConstants) * constantBufferMultiply);
+	    fragmentConstantBuffer->Unmap(0, nullptr);
 	}*/
 
 	UINT64 renderFenceValue = 0;
@@ -63,7 +63,7 @@ namespace {
 	void graphicsFlushAndWait(ID3D12GraphicsCommandList* commandList, ID3D12CommandAllocator* commandAllocator, RenderTarget* renderTarget) {
 		commandList->Close();
 
-		ID3D12CommandList* commandLists[] = { commandList };
+		ID3D12CommandList* commandLists[] = {commandList};
 		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 
 		commandQueue->Signal(renderFence, ++renderFenceValue);
@@ -85,13 +85,11 @@ CommandList::CommandList() {
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&_commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator, nullptr, IID_GRAPHICS_PPV_ARGS(&_commandList));
 	//_commandList->Close();
-	//createConstantBuffer();
+	// createConstantBuffer();
 	_indexCount = 0;
 }
 
-CommandList::~CommandList() {
-
-}
+CommandList::~CommandList() {}
 
 void CommandList::begin() {
 	if (closed) {
@@ -104,27 +102,28 @@ void CommandList::end() {
 	_commandList->Close();
 	closed = true;
 
-	ID3D12CommandList* commandLists[] = { _commandList };
+	ID3D12CommandList* commandLists[] = {_commandList};
 	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 }
 
 void CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, float depth, int stencil) {
 	int a = 3;
 	++a;
-	float clearColor[] = { ((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
-		((color & 0xff000000) >> 24) / 255.0f };
+	float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
+	                      ((color & 0xff000000) >> 24) / 255.0f};
 	if (flags & ClearColorFlag) {
 		_commandList->ClearRenderTargetView(renderTarget->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
 	}
 	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
-		D3D12_CLEAR_FLAGS d3dflags =
-			(flags & ClearDepthFlag) && (flags & ClearStencilFlag)
-			? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
-			: (flags & ClearDepthFlag) ? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
-		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth, stencil, 0, nullptr);
+		D3D12_CLEAR_FLAGS d3dflags = (flags & ClearDepthFlag) && (flags & ClearStencilFlag)
+		                                 ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
+		                                 : (flags & ClearDepthFlag) ? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
+		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth, stencil, 0,
+		                                    nullptr);
 	}
 	if ((flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
-		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		_commandList->ClearDepthStencilView(renderTarget->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+		                                    D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	}
 }
 
@@ -200,7 +199,7 @@ void CommandList::drawIndexedVertices() {
 
 void CommandList::drawIndexedVertices(int start, int count) {
 	_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
+
 	/*u8* data;
 	D3D12_RANGE range;
 	range.Begin = currentConstantBuffer * sizeof(vertexConstants);
@@ -217,10 +216,10 @@ void CommandList::drawIndexedVertices(int start, int count) {
 
 	_commandList->SetGraphicsRootConstantBufferView(1, vertexConstantBuffer->GetGPUVirtualAddress() + currentConstantBuffer * sizeof(vertexConstants));
 	_commandList->SetGraphicsRootConstantBufferView(2, fragmentConstantBuffer->GetGPUVirtualAddress() + currentConstantBuffer * sizeof(fragmentConstants));
-	
+
 	++currentConstantBuffer;
 	if (currentConstantBuffer >= constantBufferMultiply) {
-		currentConstantBuffer = 0;
+	    currentConstantBuffer = 0;
 	}*/
 
 	_commandList->DrawIndexedInstanced(count, 1, start, 0, 0);
@@ -250,9 +249,7 @@ void CommandList::scissor(int x, int y, int width, int height) {
 	_commandList->RSSetScissorRects(1, &scissor);
 }
 
-void CommandList::disableScissor() {
-	
-}
+void CommandList::disableScissor() {}
 
 void CommandList::setPipeline(PipelineState* pipeline) {
 	_currentPipeline = pipeline;
@@ -273,8 +270,9 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer) {
 void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	currentRenderTarget = targets[0];
 	graphicsFlushAndWait(_commandList, _commandAllocator, targets[0]);
-	_commandList->OMSetRenderTargets(1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
-		targets[0]->depthStencilDescriptorHeap != nullptr ? &targets[0]->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
+	_commandList->OMSetRenderTargets(
+	    1, &targets[0]->renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
+	    targets[0]->depthStencilDescriptorHeap != nullptr ? &targets[0]->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
 	_commandList->RSSetViewports(1, (D3D12_VIEWPORT*)&targets[0]->viewport);
 	_commandList->RSSetScissorRects(1, (D3D12_RECT*)&targets[0]->scissor);
 }
@@ -294,5 +292,6 @@ void CommandList::upload(Texture* texture) {
 	CD3DX12_TEXTURE_COPY_LOCATION source(texture->uploadImage, footprint);
 	CD3DX12_TEXTURE_COPY_LOCATION destination(texture->image, 0);
 	_commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
-	_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture->image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	_commandList->ResourceBarrier(
+	    1, &CD3DX12_RESOURCE_BARRIER::Transition(texture->image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 }

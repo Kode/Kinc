@@ -28,10 +28,10 @@ Graphics5::PipelineState::PipelineState() {
 
 	blendSource = BlendOne;
 	blendDestination = BlendZero;
-	//blendOperation = BlendingOperation.Add;
+	// blendOperation = BlendingOperation.Add;
 	alphaBlendSource = BlendOne;
 	alphaBlendDestination = BlendZero;
-	//alphaBlendOperation = BlendingOperation.Add;
+	// alphaBlendOperation = BlendingOperation.Add;
 
 	colorWriteMaskRed = true;
 	colorWriteMaskGreen = true;
@@ -39,6 +39,4 @@ Graphics5::PipelineState::PipelineState() {
 	colorWriteMaskAlpha = true;
 }
 
-Graphics5::PipelineState::~PipelineState() {
-
-}
+Graphics5::PipelineState::~PipelineState() {}

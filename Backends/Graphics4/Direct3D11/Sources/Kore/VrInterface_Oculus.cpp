@@ -4,14 +4,14 @@
 
 #include <Kore/Vr/VrInterface.h>
 
+#include "Direct3D11.h"
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
-#include "Direct3D11.h"
 
 #include "OVR_CAPI_D3D.h"
 
-#include <vector>
 #include "d3d11.h"
+#include <vector>
 #if _MSC_VER > 1600
 #include "DirectXMath.h"
 using namespace DirectX;
@@ -47,7 +47,7 @@ struct DepthBuffer {
 		dsDesc.CPUAccessFlags = 0;
 		dsDesc.MiscFlags = 0;
 		dsDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		ID3D11Texture2D * Tex;
+		ID3D11Texture2D* Tex;
 		Device->CreateTexture2D(&dsDesc, nullptr, &Tex);
 		Device->CreateDepthStencilView(Tex, nullptr, &TexDsv);
 		Tex->Release();
@@ -59,27 +59,23 @@ struct DepthBuffer {
 };
 
 //-----------------------------------------------------------
-struct Camera
-{
+struct Camera {
 	XMVECTOR Pos;
 	XMVECTOR Rot;
-	Camera() {};
-	Camera(XMVECTOR * pos, XMVECTOR * rot) : Pos(*pos), Rot(*rot) {};
-	Camera(const XMVECTOR & pos, const XMVECTOR & rot) : Pos(pos), Rot(rot) {};
-	XMMATRIX GetViewMatrix()
-	{
+	Camera(){};
+	Camera(XMVECTOR* pos, XMVECTOR* rot) : Pos(*pos), Rot(*rot){};
+	Camera(const XMVECTOR& pos, const XMVECTOR& rot) : Pos(pos), Rot(rot){};
+	XMMATRIX GetViewMatrix() {
 		XMVECTOR forward = XMVector3Rotate(XMVectorSet(0, 0, -1, 0), Rot);
-		return(XMMatrixLookAtRH(Pos, XMVectorAdd(Pos, forward), XMVector3Rotate(XMVectorSet(0, 1, 0, 0), Rot)));
+		return (XMMatrixLookAtRH(Pos, XMVectorAdd(Pos, forward), XMVector3Rotate(XMVectorSet(0, 1, 0, 0), Rot)));
 	}
 
-	static void* operator new(std::size_t size)
-	{
+	static void* operator new(std::size_t size) {
 		UNREFERENCED_PARAMETER(size);
 		return _aligned_malloc(sizeof(Camera), __alignof(Camera));
 	}
 
-	static void operator delete(void* p)
-	{
+	static void operator delete(void* p) {
 		_aligned_free(p);
 	}
 };
@@ -93,9 +89,7 @@ struct DirectX11 {
 
 	HINSTANCE hInstance;
 
-	DirectX11() : Window(nullptr), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
-		
-	}
+	DirectX11() : Window(nullptr), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {}
 
 	~DirectX11() {
 		ReleaseDevice();
@@ -129,37 +123,35 @@ struct DirectX11 {
 		WinSizeW = vpW;
 		WinSizeH = vpH;
 
-		if (scale == 0)
-			scale = 1;
+		if (scale == 0) scale = 1;
 
-		RECT size = { 0, 0, vpW / scale, vpH / scale };
+		RECT size = {0, 0, vpW / scale, vpH / scale};
 		AdjustWindowRect(&size, WS_OVERLAPPEDWINDOW, false);
 		const UINT flags = SWP_NOMOVE | SWP_NOZORDER | SWP_SHOWWINDOW;
-		if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags))
-			return false;
+		if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags)) return false;
 
 		return true;
 	}
 
-	void SetAndClearRenderTarget(ID3D11RenderTargetView* rendertarget, DepthBuffer* depthbuffer,
-								 float R = 0, float G = 0, float B = 0, float A = 0) {
-		float black[] = { R, G, B, A }; // Important that alpha=0, if want pixels to be transparent, for manual layers
+	void SetAndClearRenderTarget(ID3D11RenderTargetView* rendertarget, DepthBuffer* depthbuffer, float R = 0, float G = 0, float B = 0, float A = 0) {
+		float black[] = {R, G, B, A}; // Important that alpha=0, if want pixels to be transparent, for manual layers
 		context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr));
 		context->ClearRenderTargetView(rendertarget, black);
-		if (depthbuffer)
-			context->ClearDepthStencilView(depthbuffer->TexDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+		if (depthbuffer) context->ClearDepthStencilView(depthbuffer->TexDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 	}
 
 	void SetViewport(float vpX, float vpY, float vpW, float vpH) {
 		D3D11_VIEWPORT D3Dvp;
-		D3Dvp.Width = vpW;    D3Dvp.Height = vpH;
-		D3Dvp.MinDepth = 0;   D3Dvp.MaxDepth = 1;
-		D3Dvp.TopLeftX = vpX; D3Dvp.TopLeftY = vpY;
+		D3Dvp.Width = vpW;
+		D3Dvp.Height = vpH;
+		D3Dvp.MinDepth = 0;
+		D3Dvp.MaxDepth = 1;
+		D3Dvp.TopLeftX = vpX;
+		D3Dvp.TopLeftY = vpY;
 		context->RSSetViewports(1, &D3Dvp);
 	}
 
-	void ReleaseDevice() {
-	}
+	void ReleaseDevice() {}
 };
 
 static DirectX11 Platform;
@@ -230,8 +222,8 @@ struct OculusTexture {
 namespace {
 	// Initialize these to nullptr here to handle device lost failures cleanly
 	ovrMirrorTexture mirrorTexture = nullptr;
-	OculusTexture* pEyeRenderTexture[2] = { nullptr, nullptr };
-	DepthBuffer* pEyeDepthBuffer[2] = { nullptr, nullptr };
+	OculusTexture* pEyeRenderTexture[2] = {nullptr, nullptr};
+	DepthBuffer* pEyeDepthBuffer[2] = {nullptr, nullptr};
 
 	ovrSizei windowSize;
 
@@ -246,12 +238,11 @@ namespace {
 	ovrPosef EyeRenderPose[2];
 	double sensorSampleTime;
 
-	// Make the eye render buffers (caution if actual size < requested due to HW limits). 
+	// Make the eye render buffers (caution if actual size < requested due to HW limits).
 	ovrRecti eyeRenderViewport[2];
 
 	void done() {
-		if (mirrorTexture)
-			ovr_DestroyMirrorTexture(session, mirrorTexture);
+		if (mirrorTexture) ovr_DestroyMirrorTexture(session, mirrorTexture);
 		for (int eye = 0; eye < 2; ++eye) {
 			delete pEyeRenderTexture[eye];
 			delete pEyeDepthBuffer[eye];
@@ -292,16 +283,16 @@ namespace {
 
 void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
 	// Initializes LibOVR, and the Rift
-	ovrInitParams initParams = { ovrInit_RequestVersion | ovrInit_FocusAware, OVR_MINOR_VERSION, NULL, 0, 0 };
+	ovrInitParams initParams = {ovrInit_RequestVersion | ovrInit_FocusAware, OVR_MINOR_VERSION, NULL, 0, 0};
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
 		log(Error, "Failed to initialize libOVR.");
-		return(0);
+		return (0);
 	}
 
 	if (!Platform.InitWindow((HINSTANCE)hinst, title, windowClassName)) {
 		log(Error, "Failed to open window.");
-		return(0);
+		return (0);
 	}
 
 	ovrGraphicsLuid luid;
@@ -315,7 +306,7 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 
 	// Setup Window and Graphics
 	// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
-	windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
+	windowSize = {hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2};
 	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
 		log(Error, "Failed to init device.");
 		done();
@@ -334,8 +325,8 @@ void VrInterface::begin() {
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
 	eyeRenderDesc[1] = ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1]);
 
-	// Get both eye poses simultaneously, with IPD offset already included. 
-	ovrPosef HmdToEyePose[2] = { eyeRenderDesc[0].HmdToEyePose, eyeRenderDesc[1].HmdToEyePose };
+	// Get both eye poses simultaneously, with IPD offset already included.
+	ovrPosef HmdToEyePose[2] = {eyeRenderDesc[0].HmdToEyePose, eyeRenderDesc[1].HmdToEyePose};
 
 	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyePose, EyeRenderPose, &sensorSampleTime);
 }
@@ -345,15 +336,14 @@ void VrInterface::beginRender(int eye) {
 
 	// Clear and set up rendertarget
 	Platform.SetAndClearRenderTarget(pEyeRenderTexture[eye]->GetRTV(), pEyeDepthBuffer[eye]);
-	Platform.SetViewport((float)eyeRenderViewport[eye].Pos.x, (float)eyeRenderViewport[eye].Pos.y,
-						 (float)eyeRenderViewport[eye].Size.w, (float)eyeRenderViewport[eye].Size.h);
+	Platform.SetViewport((float)eyeRenderViewport[eye].Pos.x, (float)eyeRenderViewport[eye].Pos.y, (float)eyeRenderViewport[eye].Size.w,
+	                     (float)eyeRenderViewport[eye].Size.h);
 }
 
 void VrInterface::endRender(int eye) {
 	// Commit rendering to the swap chain
 	pEyeRenderTexture[eye]->Commit();
 }
-
 
 namespace {
 
@@ -362,10 +352,22 @@ namespace {
 		XMStoreFloat4x4(&fView, m);
 
 		mat4 mat;
-		mat.Set(0, 0, fView._11); mat.Set(0, 1, fView._12); mat.Set(0, 2, fView._13); mat.Set(0, 3, fView._14);
-		mat.Set(1, 0, fView._21); mat.Set(1, 1, fView._22); mat.Set(1, 2, fView._23); mat.Set(1, 3, fView._24);
-		mat.Set(2, 0, fView._31); mat.Set(2, 1, fView._32); mat.Set(2, 2, fView._33); mat.Set(2, 3, fView._34);
-		mat.Set(3, 0, fView._41); mat.Set(3, 1, fView._42); mat.Set(3, 2, fView._43); mat.Set(3, 3, fView._44);
+		mat.Set(0, 0, fView._11);
+		mat.Set(0, 1, fView._12);
+		mat.Set(0, 2, fView._13);
+		mat.Set(0, 3, fView._14);
+		mat.Set(1, 0, fView._21);
+		mat.Set(1, 1, fView._22);
+		mat.Set(1, 2, fView._23);
+		mat.Set(1, 3, fView._24);
+		mat.Set(2, 0, fView._31);
+		mat.Set(2, 1, fView._32);
+		mat.Set(2, 2, fView._33);
+		mat.Set(2, 3, fView._34);
+		mat.Set(3, 0, fView._41);
+		mat.Set(3, 1, fView._42);
+		mat.Set(3, 2, fView._43);
+		mat.Set(3, 3, fView._44);
 		return mat;
 	}
 }
@@ -385,7 +387,7 @@ SensorState VrInterface::getSensorState(int eye) {
 	poseState.vrPose.bottom = fov.DownTan;
 	poseState.vrPose.top = fov.UpTan;
 
-	//Get the pose information in XM format
+	// Get the pose information in XM format
 	XMVECTOR eyeQuat = XMVectorSet(orientation.x, orientation.y, orientation.z, orientation.w);
 	XMVECTOR eyePos = XMVectorSet(pos.x, pos.y, pos.z, 0);
 
@@ -393,28 +395,38 @@ SensorState VrInterface::getSensorState(int eye) {
 	Camera finalCam(eyePos, eyeQuat);
 	XMMATRIX view = finalCam.GetViewMatrix();
 	ovrMatrix4f p = ovrMatrix4f_Projection(fov, 0.2f, 1000.0f, ovrProjection_None);
-	XMMATRIX proj = XMMatrixSet(p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
-								p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
-								p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
-								p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3]);
+	XMMATRIX proj = XMMatrixSet(p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0], p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1], p.M[0][2], p.M[1][2], p.M[2][2],
+	                            p.M[3][2], p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3]);
 
 	poseState.vrPose.eye = convert(view).Transpose();
 	poseState.vrPose.projection = convert(proj).Transpose();
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) poseState.isVisible = true;
-	else poseState.isVisible = false;
-	if (sessionStatus.HmdPresent)poseState.hmdPresenting = true;
-	else poseState.hmdPresenting = false;
-	if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
-	else poseState.hmdMounted = false;
-	if (sessionStatus.DisplayLost) poseState.displayLost = true;
-	else poseState.displayLost = false;
-	if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
-	else poseState.shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
-	else poseState.shouldRecenter = false;
+	if (sessionStatus.IsVisible)
+		poseState.isVisible = true;
+	else
+		poseState.isVisible = false;
+	if (sessionStatus.HmdPresent)
+		poseState.hmdPresenting = true;
+	else
+		poseState.hmdPresenting = false;
+	if (sessionStatus.HmdMounted)
+		poseState.hmdMounted = true;
+	else
+		poseState.hmdMounted = false;
+	if (sessionStatus.DisplayLost)
+		poseState.displayLost = true;
+	else
+		poseState.displayLost = false;
+	if (sessionStatus.ShouldQuit)
+		poseState.shouldQuit = true;
+	else
+		poseState.shouldQuit = false;
+	if (sessionStatus.ShouldRecenter)
+		poseState.shouldRecenter = true;
+	else
+		poseState.shouldRecenter = false;
 
 	sensorStates[eye].pose = poseState;
 
@@ -422,14 +434,14 @@ SensorState VrInterface::getSensorState(int eye) {
 }
 
 /*VrPoseState VrInterface::getController(int index) {
-	return -1;
+    return -1;
 }*/
 
 void VrInterface::warpSwap() {
 	// Initialize our single full screen Fov layer.
 	ovrLayerEyeFov ld = {};
 	ld.Header.Type = ovrLayerType_EyeFov;
-	ld.Header.Flags = 0; 
+	ld.Header.Flags = 0;
 
 	if (isVisible) {
 		for (int eye = 0; eye < 2; ++eye) {
@@ -445,7 +457,8 @@ void VrInterface::warpSwap() {
 	ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
 	if (!OVR_SUCCESS(result)) {
 		isVisible = false;
-	} else {
+	}
+	else {
 		isVisible = true;
 	}
 
@@ -454,7 +467,7 @@ void VrInterface::warpSwap() {
 	// Render mirror
 	ID3D11Texture2D* tex = nullptr;
 	ovr_GetMirrorTextureBufferDX(session, mirrorTexture, IID_PPV_ARGS(&tex));
-	
+
 	context->CopyResource(backBuffer, tex);
 	tex->Release();
 }

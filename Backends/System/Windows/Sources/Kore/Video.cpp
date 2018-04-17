@@ -12,24 +12,23 @@ namespace {
 	IMediaPosition* mediaPosition;
 	IMediaEvent* mediaEvent;
 
-	struct __declspec(uuid("{71771540-2017-11cf-ae24-0020afd79767}")) CLSID_TextureRenderer;	
+	struct __declspec(uuid("{71771540-2017-11cf-ae24-0020afd79767}")) CLSID_TextureRenderer;
 }
 
-class CTextureRenderer : public CBaseVideoRenderer
-{
+class CTextureRenderer : public CBaseVideoRenderer {
 public:
-	CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr);
+	CTextureRenderer(LPUNKNOWN pUnk, HRESULT* phr);
 	~CTextureRenderer();
 
 public:
-	HRESULT CheckMediaType(const CMediaType *pmt);     // Format acceptable? 
-	HRESULT SetMediaType(const CMediaType *pmt);       // Video format notification 
-	HRESULT DoRenderSample(IMediaSample *pMediaSample); // New video sample 
+	HRESULT CheckMediaType(const CMediaType* pmt);      // Format acceptable?
+	HRESULT SetMediaType(const CMediaType* pmt);        // Video format notification
+	HRESULT DoRenderSample(IMediaSample* pMediaSample); // New video sample
 
-	//BOOL m_bUseDynamicTextures;
-	//LONG m_lVidWidth;   // Video width 
-	//LONG m_lVidHeight;  // Video Height 
-	//LONG m_lVidPitch;   // Video Pitch
+	// BOOL m_bUseDynamicTextures;
+	// LONG m_lVidWidth;   // Video width
+	// LONG m_lVidHeight;  // Video Height
+	// LONG m_lVidPitch;   // Video Pitch
 
 	Graphics4::Texture* image;
 	int width;
@@ -37,27 +36,24 @@ public:
 	u8* pixels;
 };
 
-CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr)
-	: CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer),
-		TEXT("Texture Renderer"), pUnk, phr)
-{
+CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT* phr) : CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer), TEXT("Texture Renderer"), pUnk, phr) {
 	// Store and AddRef the texture for our use.
 	ASSERT(phr);
-	if (phr)
-		*phr = S_OK;
+	if (phr) *phr = S_OK;
 }
 
-CTextureRenderer::~CTextureRenderer()
-{
+CTextureRenderer::~CTextureRenderer() {
 	// Do nothing
 }
 
-#define CheckPointer(p,ret) {if((p)==NULL) return (ret);}
+#define CheckPointer(p, ret)                                                                                                                                   \
+	{                                                                                                                                                          \
+		if ((p) == NULL) return (ret);                                                                                                                         \
+	}
 
-HRESULT CTextureRenderer::CheckMediaType(const CMediaType *pmt)
-{
-	HRESULT   hr = E_FAIL;
-	VIDEOINFO *pvi = 0;
+HRESULT CTextureRenderer::CheckMediaType(const CMediaType* pmt) {
+	HRESULT hr = E_FAIL;
+	VIDEOINFO* pvi = 0;
 
 	CheckPointer(pmt, E_POINTER);
 
@@ -67,18 +63,16 @@ HRESULT CTextureRenderer::CheckMediaType(const CMediaType *pmt)
 	}
 
 	// Only accept RGB24 video
-	pvi = (VIDEOINFO *)pmt->Format();
+	pvi = (VIDEOINFO*)pmt->Format();
 
-	if (IsEqualGUID(*pmt->Type(), MEDIATYPE_Video) &&
-		IsEqualGUID(*pmt->Subtype(), MEDIASUBTYPE_RGB24))
-	{
+	if (IsEqualGUID(*pmt->Type(), MEDIATYPE_Video) && IsEqualGUID(*pmt->Subtype(), MEDIASUBTYPE_RGB24)) {
 		hr = S_OK;
 	}
 
 	return hr;
 }
 
-HRESULT CTextureRenderer::SetMediaType(const CMediaType *pmt) {
+HRESULT CTextureRenderer::SetMediaType(const CMediaType* pmt) {
 	VIDEOINFO* info = (VIDEOINFO*)pmt->Format();
 	width = info->bmiHeader.biWidth;
 	height = abs(info->bmiHeader.biHeight);
@@ -115,11 +109,11 @@ Video::Video(const char* filename) {
 	position = 0;
 	finished = false;
 	paused = false;
-	//image = new Graphics4::Texture(100, 100, Graphics4::Image::RGBA32, false);
+	// image = new Graphics4::Texture(100, 100, Graphics4::Image::RGBA32, false);
 
 	HRESULT hr = S_OK;
-	IBaseFilter* pFSrc;          // Source Filter 
-	IPin* pFSrcPinOut;    // Source Filter Output Pin    
+	IBaseFilter* pFSrc; // Source Filter
+	IPin* pFSrcPinOut;  // Source Filter Output Pin
 
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC, __uuidof(IGraphBuilder), (void**)&graphBuilder);
 	renderer = new CTextureRenderer(NULL, &hr);

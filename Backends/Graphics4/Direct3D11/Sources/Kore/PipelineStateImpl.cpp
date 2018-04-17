@@ -128,7 +128,7 @@ void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 	currentPipeline = pipeline;
 
 	context->OMSetDepthStencilState(depthStencilState, pipeline->stencilReferenceValue);
-	float blendFactor[] = { 0, 0, 0, 0 };
+	float blendFactor[] = {0, 0, 0, 0};
 	UINT sampleMask = 0xffffffff;
 	context->OMSetBlendState(blendState, blendFactor, sampleMask);
 	setRasterizerState(scissoring);
@@ -138,7 +138,8 @@ void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 
 	if (pipeline->geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)pipeline->geometryShader->shader, nullptr, 0);
 	if (pipeline->tessellationControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)pipeline->tessellationControlShader->shader, nullptr, 0);
-	if (pipeline->tessellationEvaluationShader != nullptr) context->DSSetShader((ID3D11DomainShader*)pipeline->tessellationEvaluationShader->shader, nullptr, 0);
+	if (pipeline->tessellationEvaluationShader != nullptr)
+		context->DSSetShader((ID3D11DomainShader*)pipeline->tessellationEvaluationShader->shader, nullptr, 0);
 
 	context->IASetInputLayout(pipeline->d3d11inputLayout);
 }
@@ -283,19 +284,19 @@ namespace {
 void Graphics4::PipelineState::compile() {
 	if (vertexShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&vertexConstantBuffer));
+		                            &vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&fragmentConstantBuffer));
+		                            &fragmentConstantBuffer));
 	if (geometryShader != nullptr && geometryShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&geometryConstantBuffer));
+		                            &geometryConstantBuffer));
 	if (tessellationControlShader != nullptr && tessellationControlShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&tessControlConstantBuffer));
+		                            &tessControlConstantBuffer));
 	if (tessellationEvaluationShader != nullptr && tessellationEvaluationShader->constantsSize > 0)
 		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&tessEvalConstantBuffer));
+		                            &tessEvalConstantBuffer));
 
 	int all = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
@@ -320,27 +321,32 @@ void Graphics4::PipelineState::compile() {
 		for (int index = 0; index < inputLayout[stream]->size; ++index) {
 			switch (inputLayout[stream]->elements[index].data) {
 			case Float1VertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 				++i;
 				break;
 			case Float2VertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 				++i;
 				break;
 			case Float3VertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				++i;
 				break;
 			case Float4VertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
 			case ColorVertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 				++i;
 				break;
@@ -353,7 +359,8 @@ void Graphics4::PipelineState::compile() {
 					_itoa(i2, &name[length], 10);
 					name[length + 1] = 0;
 
-					setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, name, used), index + i2, stream, inputLayout[stream]->instanced);
+					setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, name, used), index + i2, stream,
+					              inputLayout[stream]->instanced);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 					++i;
@@ -405,16 +412,17 @@ void Graphics4::PipelineState::compile() {
 		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
 		ZeroMemory(&rtbd, sizeof(rtbd));
 
-		rtbd.BlendEnable = blendSource != Graphics4::BlendOne || blendDestination != Graphics4::BlendZero || alphaBlendSource != Graphics4::BlendOne || alphaBlendDestination != Graphics4::BlendZero;
+		rtbd.BlendEnable = blendSource != Graphics4::BlendOne || blendDestination != Graphics4::BlendZero || alphaBlendSource != Graphics4::BlendOne ||
+		                   alphaBlendDestination != Graphics4::BlendZero;
 		rtbd.SrcBlend = convert(blendSource);
 		rtbd.DestBlend = convert(blendDestination);
 		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
 		rtbd.SrcBlendAlpha = convert(alphaBlendSource);
 		rtbd.DestBlendAlpha = convert(alphaBlendDestination);
 		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbd.RenderTargetWriteMask =
-			(((colorWriteMaskRed ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (colorWriteMaskGreen ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) | (colorWriteMaskBlue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
-			(colorWriteMaskAlpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+		rtbd.RenderTargetWriteMask = (((colorWriteMaskRed ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (colorWriteMaskGreen ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
+		                              (colorWriteMaskBlue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		                             (colorWriteMaskAlpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
 
 		D3D11_BLEND_DESC blendDesc;
 		ZeroMemory(&blendDesc, sizeof(blendDesc));

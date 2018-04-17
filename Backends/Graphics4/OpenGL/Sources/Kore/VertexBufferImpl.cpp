@@ -17,7 +17,8 @@ VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCoun
 #endif
 }
 
-Graphics4::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
+Graphics4::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& structure, int instanceDataStepRate)
+    : VertexBufferImpl(vertexCount, instanceDataStepRate) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];

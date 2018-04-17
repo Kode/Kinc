@@ -18,7 +18,7 @@ namespace Kore {
 			int writeLocation;
 		};
 
-		typedef void(*AudioCallback)(int samples);
+		typedef void (*AudioCallback)(int samples);
 
 		struct Channel {
 			vec3 origin;
@@ -26,7 +26,7 @@ namespace Kore {
 			Buffer buffer;
 			bool active;
 		};
-				
+
 		void init();
 		void update();
 		void shutdown();

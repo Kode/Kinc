@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef KORE_HOLOLENS 
+#ifdef KORE_HOLOLENS
 
 #include "HolographicFrameController.winrt.h"
 

@@ -18,19 +18,19 @@ namespace {
 	int aa = 1; // Kore::Application::the()->antialiasing();
 	if (aa > 0) {
 		NSOpenGLPixelFormatAttribute attributes[] = {NSOpenGLPFADoubleBuffer,          NSOpenGLPFADepthSize,
-													 (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-													 NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
-													 NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
-													 (NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
-													 (NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
-													 (NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
+		                                             (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+		                                             NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
+		                                             NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
+		                                             (NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
+		                                             (NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
+		                                             (NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
 		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
 	}
 	else {
 		NSOpenGLPixelFormatAttribute attributes[] = {
-			NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-			NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
-			(NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
+		    NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+		    NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
+		    (NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
 		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
 	}
 }
@@ -244,8 +244,8 @@ namespace {
 	Kore::Mouse::the()->_scroll(0, -delta);
 }
 
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
-	NSPasteboard *pboard = [sender draggingPasteboard];
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
+	NSPasteboard* pboard = [sender draggingPasteboard];
 	NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
 	if ([[pboard types] containsObject:NSURLPboardType]) {
 		if (sourceDragMask & NSDragOperationLink) {
@@ -255,12 +255,12 @@ namespace {
 	return NSDragOperationNone;
 }
 
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-	NSPasteboard *pboard = [sender draggingPasteboard];
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
+	NSPasteboard* pboard = [sender draggingPasteboard];
 	NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
 	if ([[pboard types] containsObject:NSURLPboardType]) {
-		NSURL *fileURL = [NSURL URLFromPasteboard:pboard];
-		wchar_t *filePath = (wchar_t *)[fileURL.path cStringUsingEncoding:NSUTF32LittleEndianStringEncoding];
+		NSURL* fileURL = [NSURL URLFromPasteboard:pboard];
+		wchar_t* filePath = (wchar_t*)[fileURL.path cStringUsingEncoding:NSUTF32LittleEndianStringEncoding];
 		Kore::System::dropFilesCallback(filePath);
 	}
 	return YES;
@@ -289,21 +289,21 @@ namespace {
 #else
 - (id)initWithFrame:(NSRect)frameRect {
 	self = [super initWithFrame:frameRect];
-	
+
 	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
 	library = [device newDefaultLibrary];
-	
+
 	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
-	
+
 	metalLayer.device = device;
 	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 	metalLayer.framebufferOnly = YES;
 	// metalLayer.presentsWithTransaction = YES;
-	
+
 	metalLayer.opaque = YES;
 	metalLayer.backgroundColor = nil;
-	
+
 	return self;
 }
 #endif
@@ -345,7 +345,7 @@ namespace {
 
 		// backingWidth = (int)[texture width];
 		// backingHeight = (int)[texture height];
-		
+
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		renderPassDescriptor.colorAttachments[0].texture = texture;
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
@@ -357,7 +357,7 @@ namespace {
 		// if (drawable != nil) {
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 		//}
-		
+
 		[commandEncoder retain];
 		[drawable retain];
 		[commandBuffer retain];
@@ -376,7 +376,7 @@ namespace {
 		//	[drawable present];
 		//}
 	}
-	
+
 	[commandEncoder release];
 	[drawable release];
 	[commandBuffer release];

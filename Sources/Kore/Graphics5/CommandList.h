@@ -30,7 +30,7 @@ namespace Kore {
 			void setPipeline(PipelineState* pipeline);
 			void setVertexBuffers(VertexBuffer** buffers, int* offsets, int count);
 			void setIndexBuffer(IndexBuffer& buffer);
-			//void restoreRenderTarget();
+			// void restoreRenderTarget();
 			void setRenderTargets(RenderTarget** targets, int count);
 			void upload(IndexBuffer* buffer);
 			void upload(VertexBuffer* buffer);

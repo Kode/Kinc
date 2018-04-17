@@ -1,9 +1,9 @@
-#include "pch.h"
 #include "RenderTargetImpl.h"
-#include <Kore/System.h>
+#include "ogl.h"
+#include "pch.h"
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Log.h>
-#include "ogl.h"
+#include <Kore/System.h>
 #ifdef KORE_ANDROID
 #include <GLContext.h>
 #endif
@@ -29,18 +29,20 @@ namespace {
 	}
 
 	int getPower2(int i) {
-		for (int power = 0; ; ++power)
+		for (int power = 0;; ++power)
 			if (pow(power) >= i) return pow(power);
 	}
-	
+
 	bool nonPow2RenderTargetsSupported() {
 #ifdef KORE_OPENGL_ES
-	#ifdef KORE_ANDROID
-		if (ndk_helper::GLContext::GetInstance()->GetGLVersion() >= 3.0) return true;
-		else return false;
-	#else
+#ifdef KORE_ANDROID
+		if (ndk_helper::GLContext::GetInstance()->GetGLVersion() >= 3.0)
+			return true;
+		else
+			return false;
+#else
 		return false;
-	#endif
+#endif
 #else
 		return true;
 #endif
@@ -53,23 +55,25 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
 #else
 		GLenum internalFormat;
-		if (depthBufferBits == 24) internalFormat = GL_DEPTH24_STENCIL8;
-		else internalFormat = GL_DEPTH32F_STENCIL8;
+		if (depthBufferBits == 24)
+			internalFormat = GL_DEPTH24_STENCIL8;
+		else
+			internalFormat = GL_DEPTH32F_STENCIL8;
 #endif
 		// Renderbuffer
-// 		glGenRenderbuffers(1, &_depthRenderbuffer);
-// 		glCheckErrors();
-// 		glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderbuffer);
-// 		glCheckErrors();
-// 		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, width, height);
-// 		glCheckErrors();
-// #ifdef KORE_OPENGL_ES
-// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
-// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
-// #else
-// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
-// #endif
-// 		glCheckErrors();
+		// 		glGenRenderbuffers(1, &_depthRenderbuffer);
+		// 		glCheckErrors();
+		// 		glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderbuffer);
+		// 		glCheckErrors();
+		// 		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, width, height);
+		// 		glCheckErrors();
+		// #ifdef KORE_OPENGL_ES
+		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
+		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
+		// #else
+		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
+		// #endif
+		// 		glCheckErrors();
 		// Texture
 		glGenTextures(1, &_depthTexture);
 		glCheckErrors();
@@ -121,7 +125,9 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 	}
 }
 
-Graphics3::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height) {
+Graphics3::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId)
+    : width(width), height(height) {
 
 	if (nonPow2RenderTargetsSupported()) {
 		texWidth = width;
@@ -199,8 +205,8 @@ Graphics3::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
 	}
 	glCheckErrors();
-	//GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	//glDrawBuffers(1, drawBuffers);
+	// GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	// glDrawBuffers(1, drawBuffers);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glCheckErrors();

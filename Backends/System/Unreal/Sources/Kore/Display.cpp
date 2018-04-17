@@ -11,10 +11,8 @@ namespace Kore {
 		enum { MAXIMUM_DISPLAY_COUNT = 10 };
 
 		DeviceInfo displays[10];
-		
-		void enumerate() {
 
-		}
+		void enumerate() {}
 
 		int count() {
 			return 1;

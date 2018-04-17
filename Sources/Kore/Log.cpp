@@ -18,8 +18,8 @@ using namespace Kore;
 void Kore::log(LogLevel level, const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	//char* arg = va_arg(args, char*);
-	//float arg2 = va_arg(args, double);
+	// char* arg = va_arg(args, char*);
+	// float arg2 = va_arg(args, double);
 	logArgs(level, format, args);
 	va_end(args);
 }
@@ -38,8 +38,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 			++i;
 			switch (formatw[i]) {
 			case L's':
-			case L'S':
-			{
+			case L'S': {
 				char* arg = va_arg(args, char*);
 				wchar_t argw[1024];
 				MultiByteToWideChar(CP_UTF8, 0, arg, -1, argw, 1024);
@@ -51,8 +50,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 			case L'i':
 			case L'u':
 			case L'o':
-			case L'x':
-			{
+			case L'x': {
 				int arg = va_arg(args, int);
 				wchar_t argformat[3];
 				argformat[0] = L'%';
@@ -64,8 +62,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 			case 'f':
 			case 'e':
 			case 'g':
-			case 'a':
-			{
+			case 'a': {
 				double arg = va_arg(args, double);
 				wchar_t argformat[3];
 				argformat[0] = L'%';
@@ -74,8 +71,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, argformat, arg);
 				break;
 			}
-			case 'c':
-			{
+			case 'c': {
 				char arg = va_arg(args, char);
 				wchar_t argformat[3];
 				argformat[0] = L'%';
@@ -85,8 +81,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 				break;
 			}
 			case 'p':
-			case 'n':
-			{
+			case 'n': {
 				void* arg = va_arg(args, void*);
 				wchar_t argformat[3];
 				argformat[0] = L'%';
@@ -95,8 +90,7 @@ void Kore::logArgs(LogLevel level, const char* format, va_list args) {
 				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, argformat, arg);
 				break;
 			}
-			case '%':
-			{
+			case '%': {
 				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, L"%%");
 				break;
 			}

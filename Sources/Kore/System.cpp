@@ -105,7 +105,7 @@ void Kore::System::setCopyCallback(char* (*value)()) {
 	callbacks::copyCallback = value;
 }
 
-void Kore::System::setPasteCallback(void(*value)(char*)) {
+void Kore::System::setPasteCallback(void (*value)(char*)) {
 	callbacks::pasteCallback = value;
 }
 
@@ -202,9 +202,7 @@ const char* Kore::System::name() {
 }
 
 #ifndef KORE_WINDOWS
-void Kore::System::_shutdown() {
-
-}
+void Kore::System::_shutdown() {}
 #endif
 
 void Kore::System::stop() {
@@ -229,7 +227,8 @@ void Kore::System::start() {
 #if !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_XBOX_ONE)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
-	while (frame()) { }
+	while (frame()) {
+	}
 	_shutdown();
 #endif
 }

@@ -3,8 +3,8 @@
 #include "ogl.h"
 
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics4/PipelineState.h>
+#include <Kore/Graphics4/Shader.h>
 #include <Kore/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,8 +70,7 @@ namespace {
 	}
 }
 
-PipelineStateImpl::PipelineStateImpl()
-    : textureCount(0) {
+PipelineStateImpl::PipelineStateImpl() : textureCount(0) {
 	// TODO: Get rid of allocations
 	textures = new char*[16];
 	for (int i = 0; i < 16; ++i) {
@@ -200,7 +199,8 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 		glCheckErrors();
 	}
 
-	if (pipeline->stencilMode == Graphics4::ZCompareAlways && pipeline->stencilBothPass == Graphics4::Keep && pipeline->stencilDepthFail == Graphics4::Keep && pipeline->stencilFail == Graphics4::Keep) {
+	if (pipeline->stencilMode == Graphics4::ZCompareAlways && pipeline->stencilBothPass == Graphics4::Keep && pipeline->stencilDepthFail == Graphics4::Keep &&
+	    pipeline->stencilFail == Graphics4::Keep) {
 		glDisable(GL_STENCIL_TEST);
 	}
 	else {
@@ -241,13 +241,13 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 
 	if (supportsConservativeRaster) {
 		if (pipeline->conservativeRasterization) {
-			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
+			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV
 		}
 		else {
 			glDisable(0x9346);
 		}
 	}
-	
+
 	glCheckErrors();
 
 	/*switch (state) {
@@ -365,15 +365,17 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 	throw Exception();
 	}*/
 
-	if (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero || pipeline->alphaBlendSource != Graphics4::BlendOne || pipeline->alphaBlendDestination != Graphics4::BlendZero) {
+	if (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero ||
+	    pipeline->alphaBlendSource != Graphics4::BlendOne || pipeline->alphaBlendDestination != Graphics4::BlendZero) {
 		glEnable(GL_BLEND);
 	}
 	else {
 		glDisable(GL_BLEND);
 	}
 
-	//glBlendFunc(convert(pipeline->blendSource), convert(pipeline->blendDestination));
-	glBlendFuncSeparate(convert(pipeline->blendSource), convert(pipeline->blendDestination), convert(pipeline->alphaBlendSource), convert(pipeline->alphaBlendDestination));
+	// glBlendFunc(convert(pipeline->blendSource), convert(pipeline->blendDestination));
+	glBlendFuncSeparate(convert(pipeline->blendSource), convert(pipeline->blendDestination), convert(pipeline->alphaBlendSource),
+	                    convert(pipeline->alphaBlendDestination));
 }
 
 Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const char* name) {

@@ -15,6 +15,7 @@ public:
 	ID3D12GraphicsCommandList* _commandList;
 	Kore::Graphics5::PipelineState* _currentPipeline;
 	int _indexCount;
+
 protected:
 	bool closed;
 };

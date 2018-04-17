@@ -3,9 +3,7 @@
 namespace Kore {
 	namespace Display {
 		struct DeviceInfo {
-			DeviceInfo() {
-
-			}
+			DeviceInfo() {}
 		};
 
 		void enumerate();

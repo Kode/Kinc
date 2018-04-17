@@ -32,7 +32,7 @@ TextureArray::TextureArray(Image** textures, int count) {
 		resdata[i].SysMemPitch = textures[0]->width * 4;
 		resdata[i].SysMemSlicePitch = 0;
 	}
-	
+
 	texture = nullptr;
 	affirm(device->CreateTexture2D(&desc, resdata, &texture));
 	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
@@ -41,6 +41,6 @@ TextureArray::TextureArray(Image** textures, int count) {
 void TextureArrayImpl::set(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &view);
-	//this->stage = unit.unit;
-	//setTextures[stage] = this;
+	// this->stage = unit.unit;
+	// setTextures[stage] = this;
 }

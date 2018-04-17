@@ -9,4 +9,3 @@ public:
 
 	VrPoseState pose;
 };
-

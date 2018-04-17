@@ -41,13 +41,9 @@ void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int c
 
 void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
-void Graphics5::begin(RenderTarget* renderTarget, int window) {
+void Graphics5::begin(RenderTarget* renderTarget, int window) {}
 
-}
-
-void Graphics5::end(int window) {
-	
-}
+void Graphics5::end(int window) {}
 
 bool Graphics5::vsynced() {
 	return Graphics4::vsynced();
@@ -151,16 +147,14 @@ bool Graphics5::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {
-	
-}
+void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
 /*
 void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
-	buffers[0]->_set(0);
+    buffers[0]->_set(0);
 }
 
 void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
-	buffer._set();
+    buffer._set();
 }
 */
 void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
@@ -171,9 +165,7 @@ bool Graphics5::initOcclusionQuery(uint* occlusionQuery) {
 	return false;
 }
 
-void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {
-	
-}
+void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {}
 
 void Graphics5::deleteOcclusionQuery(uint occlusionQuery) {}
 
@@ -186,5 +178,5 @@ bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
 
 /*void Graphics5::setPipeline(PipelineState* pipeline) {
-	pipeline->set(pipeline);
+    pipeline->set(pipeline);
 }*/

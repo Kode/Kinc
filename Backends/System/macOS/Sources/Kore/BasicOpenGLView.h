@@ -58,8 +58,8 @@
 - (void)rightMouseUp:(NSEvent*)theEvent;
 - (void)rightMouseDragged:(NSEvent*)theEvent;
 - (void)scrollWheel:(NSEvent*)theEvent;
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender;
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender;
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender;
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender;
 
 - (void)prepareOpenGL;
 - (void)update; // moved or resized

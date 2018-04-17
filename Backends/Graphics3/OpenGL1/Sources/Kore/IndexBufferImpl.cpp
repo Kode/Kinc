@@ -1,14 +1,12 @@
+#include "ogl.h"
 #include "pch.h"
 #include <Kore/Graphics3/Graphics.h>
-#include "ogl.h"
 
 using namespace Kore;
 
 Graphics3::IndexBuffer* IndexBufferImpl::current = nullptr;
 
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {
-
-}
+IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
 Graphics3::IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount) {
 	glGenBuffers(1, &bufferId);

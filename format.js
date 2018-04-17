@@ -48,7 +48,8 @@ function isExcluded(filepath) {
 	return excludes.indexOf(filepath.replace(/\\/g, '/')) >= 0
 	|| filepath.indexOf('Libraries') >= 0
 	|| filepath.indexOf('lz4') >= 0
-	|| filepath.indexOf('Tools') >= 0;
+	|| filepath.indexOf('Tools') >= 0
+	|| filepath.endsWith('.winrt.cpp');
 }
 
 function format(dir) {

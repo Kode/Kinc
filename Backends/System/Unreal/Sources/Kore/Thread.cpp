@@ -11,22 +11,14 @@ Kore::Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param)
 	return nullptr;
 }
 
-void Kore::waitForThreadStopThenFree(Thread* sr) {
-
-}
+void Kore::waitForThreadStopThenFree(Thread* sr) {}
 
 bool Kore::isThreadStoppedThenFree(Thread* sr) {
 	return false;
 }
 
-void Kore::threadsInit() {
+void Kore::threadsInit() {}
 
-}
+void Kore::threadsQuit() {}
 
-void Kore::threadsQuit() {
-
-}
-
-void ThreadYield() {
-
-}
+void ThreadYield() {}

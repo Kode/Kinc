@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Kore/Graphics5/Graphics.h>
-#include <Kore/Graphics5/Shader.h>
 #include <Kore/Graphics5/PipelineState.h>
+#include <Kore/Graphics5/Shader.h>
 
 namespace Kore {
 	namespace Graphics4 {

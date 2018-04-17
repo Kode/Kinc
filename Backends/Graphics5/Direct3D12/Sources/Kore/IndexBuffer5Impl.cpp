@@ -22,8 +22,9 @@ Graphics5::IndexBuffer::IndexBuffer(int count, bool gpuMemory) : IndexBuffer5Imp
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadBuffer));
 
 	if (gpuMemory) {
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-			D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&indexBuffer));
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+		                                &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+		                                IID_GRAPHICS_PPV_ARGS(&indexBuffer));
 
 		indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 	}

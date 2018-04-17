@@ -8,8 +8,9 @@
 
 using namespace Kore;
 
-Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, Graphics4::RenderTargetFormat format, int stencilBufferBits, int contextId)
-	: width(width), height(height), texWidth(width), texHeight(height), isCubeMap(false), isDepthAttachment(false) {
+Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, Graphics4::RenderTargetFormat format,
+                                      int stencilBufferBits, int contextId)
+    : width(width), height(height), texWidth(width), texHeight(height), isCubeMap(false), isDepthAttachment(false) {
 	this->antialiasing = antialiasing;
 	this->contextId = contextId;
 	D3DFORMAT d3dformat;
@@ -44,8 +45,10 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	}
 	else {
 		if (format == Target16BitDepth) {
-			affirm(device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, (D3DFORMAT)MAKEFOURCC('N', 'U', 'L', 'L'), D3DPOOL_DEFAULT, &colorTexture, nullptr));
-			affirm(device->CreateTexture(width, height, 1, D3DUSAGE_DEPTHSTENCIL, (D3DFORMAT)MAKEFOURCC('I', 'N', 'T', 'Z'), D3DPOOL_DEFAULT, &depthTexture, nullptr));
+			affirm(device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, (D3DFORMAT)MAKEFOURCC('N', 'U', 'L', 'L'), D3DPOOL_DEFAULT, &colorTexture,
+			                             nullptr));
+			affirm(device->CreateTexture(width, height, 1, D3DUSAGE_DEPTHSTENCIL, (D3DFORMAT)MAKEFOURCC('I', 'N', 'T', 'Z'), D3DPOOL_DEFAULT, &depthTexture,
+			                             nullptr));
 			isDepthAttachment = true;
 		}
 		else {
@@ -58,9 +61,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 }
 
 Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
-	: isCubeMap(true), isDepthAttachment(false) {
-	
-}
+    : isCubeMap(true), isDepthAttachment(false) {}
 
 Graphics4::RenderTarget::~RenderTarget() {
 	if (colorSurface != nullptr) colorSurface->Release();
@@ -85,13 +86,13 @@ void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 }
 
 void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
-    if (antialiasing) {
-        IDirect3DSurface9* surface;
-        depthTexture->GetSurfaceLevel(0, &surface);
-        affirm(device->StretchRect(depthSurface, nullptr, surface, nullptr, D3DTEXF_NONE));
-        surface->Release();
-    }
-    device->SetTexture(unit.unit, depthTexture);
+	if (antialiasing) {
+		IDirect3DSurface9* surface;
+		depthTexture->GetSurfaceLevel(0, &surface);
+		affirm(device->StretchRect(depthSurface, nullptr, surface, nullptr, D3DTEXF_NONE));
+		surface->Release();
+	}
+	device->SetTexture(unit.unit, depthTexture);
 }
 
 void Graphics4::RenderTarget::getPixels(u8* data) {}

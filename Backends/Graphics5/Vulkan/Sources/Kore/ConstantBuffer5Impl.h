@@ -22,6 +22,7 @@ namespace Kore {
 		VkDescriptorBufferInfo buffer_info;
 		VkMemoryAllocateInfo mem_alloc;
 		VkDeviceMemory mem;
+
 	protected:
 		int lastStart;
 		int lastCount;

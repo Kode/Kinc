@@ -4,9 +4,9 @@
 
 #include <Kore/Graphics/Graphics.h>
 
+#include <Runtime/RHI/Public/DynamicRHI.h>
 #include <Runtime/RHI/Public/RHI.h>
 #include <Runtime/RHI/Public/RHIResources.h>
-#include <Runtime/RHI/Public/DynamicRHI.h>
 #include <Runtime/RHI/Public/RHIStaticStates.h>
 
 using namespace Kore;
@@ -43,9 +43,7 @@ VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int inst
 	vertexBuffer = GDynamicRHI->CreateVertexBuffer_RenderThread(commandList, myCount * myStride, BUF_UnorderedAccess, createInfo);
 }
 
-VertexBuffer::~VertexBuffer() {
-
-}
+VertexBuffer::~VertexBuffer() {}
 
 float* VertexBuffer::lock() {
 	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
@@ -68,9 +66,7 @@ int VertexBuffer::_set(int offset) {
 	return 0;
 }
 
-void VertexBufferImpl::unset() {
-
-}
+void VertexBufferImpl::unset() {}
 
 int VertexBuffer::count() {
 	return myCount;

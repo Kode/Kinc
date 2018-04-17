@@ -4,21 +4,13 @@
 
 using namespace Kore;
 
-void Semaphore::create(int current, int max) {
-	
-}
+void Semaphore::create(int current, int max) {}
 
-void Semaphore::destroy() {
+void Semaphore::destroy() {}
 
-}
+void Semaphore::release(int count) {}
 
-void Semaphore::release(int count) {
-
-}
-
-void Semaphore::acquire() {
-
-}
+void Semaphore::acquire() {}
 
 bool Semaphore::tryToAcquire(double seconds) {
 	return true;

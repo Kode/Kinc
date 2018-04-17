@@ -1,12 +1,12 @@
-#include "pch.h"
-#include <Kore/Graphics4/Shader.h>
-#include <Kore/Graphics3/Graphics.h>
-#include <Kore/Log.h>
 #include "ogl.h"
+#include "pch.h"
+#include <Kore/Graphics3/Graphics.h>
+#include <Kore/Graphics4/Shader.h>
+#include <Kore/Log.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
-#include <stdio.h>
 
 using namespace Kore;
 
@@ -16,7 +16,9 @@ namespace Kore {
 #endif
 }
 
-ProgramImpl::ProgramImpl() : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr), tessellationControlShader(nullptr) {
+ProgramImpl::ProgramImpl()
+    : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
+      tessellationControlShader(nullptr) {
 	textures = new const char*[16];
 	textureValues = new int[16];
 }
@@ -64,14 +66,14 @@ namespace {
 			return GL_VERTEX_SHADER;
 		case Graphics4::FragmentShader:
 			return GL_FRAGMENT_SHADER;
-/*#ifndef OPENGLES
-		case GeometryShader:
-			return GL_GEOMETRY_SHADER;
-		case TessellationControlShader:
-			return GL_TESS_CONTROL_SHADER;
-		case TessellationEvaluationShader:
-			return GL_TESS_EVALUATION_SHADER;
-#endif*/
+			/*#ifndef OPENGLES
+			        case GeometryShader:
+			            return GL_GEOMETRY_SHADER;
+			        case TessellationControlShader:
+			            return GL_TESS_CONTROL_SHADER;
+			        case TessellationEvaluationShader:
+			            return GL_TESS_EVALUATION_SHADER;
+			#endif*/
 		}
 	}
 
@@ -99,8 +101,11 @@ void Graphics4::Program::link(VertexStructure** structures, int count) {
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
 #ifndef OPENGLES
 	if (geometryShader != nullptr) compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
-	if (tessellationControlShader != nullptr) compileShader(tessellationControlShader->id, tessellationControlShader->source, tessellationControlShader->length, TessellationControlShader);
-	if (tessellationEvaluationShader != nullptr) compileShader(tessellationEvaluationShader->id, tessellationEvaluationShader->source, tessellationEvaluationShader->length, TessellationEvaluationShader);
+	if (tessellationControlShader != nullptr)
+		compileShader(tessellationControlShader->id, tessellationControlShader->source, tessellationControlShader->length, TessellationControlShader);
+	if (tessellationEvaluationShader != nullptr)
+		compileShader(tessellationEvaluationShader->id, tessellationEvaluationShader->source, tessellationEvaluationShader->length,
+		              TessellationEvaluationShader);
 #endif
 	glAttachShader(programId, vertexShader->id);
 	glAttachShader(programId, fragmentShader->id);
@@ -142,9 +147,9 @@ void Graphics4::Program::link(VertexStructure** structures, int count) {
 #ifndef KORE_OPENGL_ES
 #ifndef KORE_LINUX
 /*	if (tessellationControlShader != nullptr) {
-		glPatchParameteri(GL_PATCH_VERTICES, 3);
-		glCheckErrors();
-	}*/
+        glPatchParameteri(GL_PATCH_VERTICES, 3);
+        glCheckErrors();
+    }*/
 #endif
 #endif
 }

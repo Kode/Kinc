@@ -4,8 +4,8 @@
 
 #include "Direct3D12.h"
 
-#include <Kore/Graphics5/Shader.h>
 #include <Kore/Graphics5/PipelineState.h>
+#include <Kore/Graphics5/Shader.h>
 #include <Kore/WinError.h>
 
 using namespace Kore;
@@ -39,18 +39,19 @@ void PipelineState5Impl::setConstants(ID3D12GraphicsCommandList* commandList, Gr
 	Texture5Impl::setTextures(commandList);
 }
 
-PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
+PipelineState5Impl::PipelineState5Impl()
+    : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
 
-//void PipelineState5Impl::set(Graphics5::PipelineState* pipeline) {
-	//_current = this;
-	// context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
-	// context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
+// void PipelineState5Impl::set(Graphics5::PipelineState* pipeline) {
+//_current = this;
+// context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
+// context->PSSetShader((ID3D11PixelShader*)fragmentShader->shader, nullptr, 0);
 
-	// if (geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)geometryShader->shader, nullptr, 0);
-	// if (tessControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)tessControlShader->shader, nullptr, 0);
-	// if (tessEvalShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessEvalShader->shader, nullptr, 0);
+// if (geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)geometryShader->shader, nullptr, 0);
+// if (tessControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)tessControlShader->shader, nullptr, 0);
+// if (tessEvalShader != nullptr) context->DSSetShader((ID3D11DomainShader*)tessEvalShader->shader, nullptr, 0);
 
-	// context->IASetInputLayout(inputLayout);
+// context->IASetInputLayout(inputLayout);
 //}
 
 Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
@@ -204,7 +205,7 @@ void Graphics5::PipelineState::compile() {
 
 	psoDesc.InputLayout.NumElements = inputLayout[0]->size;
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
-	
+
 	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
@@ -218,7 +219,8 @@ void Graphics5::PipelineState::compile() {
 	psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = blendSource != Graphics5::BlendOne || blendDestination != Graphics5::BlendZero || alphaBlendSource != Graphics5::BlendOne || alphaBlendDestination != Graphics5::BlendZero;
+	psoDesc.BlendState.RenderTarget[0].BlendEnable = blendSource != Graphics5::BlendOne || blendDestination != Graphics5::BlendZero ||
+	                                                 alphaBlendSource != Graphics5::BlendOne || alphaBlendDestination != Graphics5::BlendZero;
 	psoDesc.BlendState.RenderTarget[0].SrcBlend = convert(blendSource);
 	psoDesc.BlendState.RenderTarget[0].DestBlend = convert(blendDestination);
 	psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;

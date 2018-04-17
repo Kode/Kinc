@@ -6,16 +6,16 @@
 
 #define NOMINMAX
 #pragma once
-#include <concrt.h>
-#include <ppltasks.h>
-#include <mutex>
-#include <wrl.h>
-#include <shared_mutex>
-#include <collection.h>
-#include <MemoryBuffer.h> // IMemoryBufferByteAccess
-#include <Kore/Vr/CameraImage.h>
 #include "Conversion.winrt.h"
 #include <Kore/Log.h>
+#include <Kore/Vr/CameraImage.h>
+#include <MemoryBuffer.h> // IMemoryBufferByteAccess
+#include <collection.h>
+#include <concrt.h>
+#include <mutex>
+#include <ppltasks.h>
+#include <shared_mutex>
+#include <wrl.h>
 
 using namespace Windows::Perception::Spatial;
 using namespace Windows::UI::Input::Spatial;
@@ -30,31 +30,27 @@ EXTERN_GUID(MFSampleExtension_Spatial_CameraCoordinateSystem, 0x9d13c82f, 0x2199
 EXTERN_GUID(MFSampleExtension_Spatial_CameraProjectionTransform, 0x47f9fcb5, 0x2a02, 0x4f26, 0xa4, 0x77, 0x79, 0x2f, 0xdf, 0x95, 0x88, 0x6a);
 
 // Class to manage receiving video frames from Windows::Media::Capture
-class VideoFrameProcessor
-{
+class VideoFrameProcessor {
 public:
-	static Concurrency::task<std::shared_ptr<VideoFrameProcessor>> createAsync(void);
+	static Concurrency::task<std::shared_ptr<VideoFrameProcessor> > createAsync(void);
 
-	VideoFrameProcessor(
-		Platform::Agile<Windows::Media::Capture::MediaCapture> mediaCapture,
-		Windows::Media::Capture::Frames::MediaFrameReader^ reader,
-		Windows::Media::Capture::Frames::MediaFrameSource^ source);
+	VideoFrameProcessor(Platform::Agile<Windows::Media::Capture::MediaCapture> mediaCapture, Windows::Media::Capture::Frames::MediaFrameReader ^ reader,
+	                    Windows::Media::Capture::Frames::MediaFrameSource ^ source);
 
-	CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem^ worldCoordSystem);
+	CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem ^ worldCoordSystem);
 
 protected:
-	void onFrameArrived(
-		Windows::Media::Capture::Frames::MediaFrameReader^ sender,
-		Windows::Media::Capture::Frames::MediaFrameArrivedEventArgs^ args);
+	void onFrameArrived(Windows::Media::Capture::Frames::MediaFrameReader ^ sender, Windows::Media::Capture::Frames::MediaFrameArrivedEventArgs ^ args);
 
 	Platform::Agile<Windows::Media::Capture::MediaCapture> m_mediaCapture;
-	Windows::Media::Capture::Frames::MediaFrameReader^     m_mediaFrameReader;
+	Windows::Media::Capture::Frames::MediaFrameReader ^ m_mediaFrameReader;
 
-	mutable std::shared_mutex                              m_propertiesLock;
-	Windows::Media::Capture::Frames::MediaFrameSource^     m_mediaFrameSource;
-	Windows::Media::Capture::Frames::MediaFrameReference^  m_latestFrame;
+	mutable std::shared_mutex m_propertiesLock;
+	Windows::Media::Capture::Frames::MediaFrameSource ^ m_mediaFrameSource;
+	Windows::Media::Capture::Frames::MediaFrameReference ^ m_latestFrame;
+
 private:
-	Windows::Media::Capture::Frames::MediaFrameReference^ getAndResetLatestFrame(void);
-	Windows::Media::Capture::Frames::VideoMediaFrameFormat^ getCurrentFormat(void) const;
-	bool copyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame^ source, CameraImage* image);
+	Windows::Media::Capture::Frames::MediaFrameReference ^ getAndResetLatestFrame(void);
+	Windows::Media::Capture::Frames::VideoMediaFrameFormat ^ getCurrentFormat(void) const;
+	bool copyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame ^ source, CameraImage* image);
 };

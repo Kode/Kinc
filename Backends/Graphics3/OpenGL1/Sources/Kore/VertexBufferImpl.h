@@ -6,7 +6,7 @@ namespace Kore {
 	namespace Graphics3 {
 		class VertexBuffer;
 	}
-	
+
 	class VertexBufferImpl {
 	protected:
 		VertexBufferImpl(int count, int instanceDataStepRate);
@@ -15,9 +15,9 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		uint bufferId;
-//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
+		//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
 		Graphics4::VertexStructure structure;
-//#endif
+		//#endif
 		int instanceDataStepRate;
 		int setVertexAttributes(int offset);
 #ifndef NDEBUG

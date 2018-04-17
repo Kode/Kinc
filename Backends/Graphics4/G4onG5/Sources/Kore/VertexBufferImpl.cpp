@@ -13,25 +13,27 @@ namespace {
 extern u64 frameNumber;
 extern bool waitAfterNextDraw;
 
-Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : _multiple(multiple), _buffer(count * multiple, structure, false, instanceDataStepRate), _lastFrameNumber(0), _currentIndex(0), myCount(count) {}
+Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate)
+    : _multiple(multiple), _buffer(count * multiple, structure, false, instanceDataStepRate), _lastFrameNumber(0), _currentIndex(0), myCount(count) {}
 
-Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(count, structure, instanceDataStepRate) {}
+Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate)
+    : VertexBufferImpl(count, structure, instanceDataStepRate) {}
 
 Graphics4::VertexBuffer::~VertexBuffer() {}
 
 void VertexBufferImpl::prepareLock() {
 	/*if (frameNumber > _lastFrameNumber) {
-		_lastFrameNumber = frameNumber;
-		_currentIndex = 0;
+	    _lastFrameNumber = frameNumber;
+	    _currentIndex = 0;
 	}
 	else {*/
-		++_currentIndex;
-		if (_currentIndex >= _multiple - 1) {
-			waitAfterNextDraw = true;
-		}
-		if (_currentIndex >= _multiple) {
-			_currentIndex = 0;
-		}
+	++_currentIndex;
+	if (_currentIndex >= _multiple - 1) {
+		waitAfterNextDraw = true;
+	}
+	if (_currentIndex >= _multiple) {
+		_currentIndex = 0;
+	}
 	//}
 }
 

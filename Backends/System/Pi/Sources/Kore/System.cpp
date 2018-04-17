@@ -111,17 +111,17 @@ namespace {
 	}
 
 	void setScreenSize() {
-        if (!bcmHostStarted) {
-            bcm_host_init();
-            bcmHostStarted = true;
-        }
+		if (!bcmHostStarted) {
+			bcm_host_init();
+			bcmHostStarted = true;
+		}
 
-        if (screen_width == 0 || screen_height == 0) {
-            int32_t success = 0;
-            success = graphics_get_display_size(0 /* LCD */, &screen_width, &screen_height);
-            assert(success >= 0);
-        }
-    }
+		if (screen_width == 0 || screen_height == 0) {
+			int32_t success = 0;
+			success = graphics_get_display_size(0 /* LCD */, &screen_width, &screen_height);
+			assert(success >= 0);
+		}
+	}
 }
 
 namespace Kore {
@@ -144,9 +144,9 @@ bool Kore::System::isFullscreen() {
 int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
                  int stencilBufferBits) {
 	if (!bcmHostStarted) {
-        bcm_host_init();
-        bcmHostStarted = true;
-    }
+		bcm_host_init();
+		bcmHostStarted = true;
+	}
 
 	::windowMode = windowMode;
 	::width = width;
@@ -205,13 +205,13 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	else {
 		dst_rect.x = x;
 		dst_rect.y = y;
-		#ifdef KORE_PI_SCALING
+#ifdef KORE_PI_SCALING
 		dst_rect.width = screen_width;
 		dst_rect.height = screen_height;
-		#else
+#else
 		dst_rect.width = width;
 		dst_rect.height = height;
-		#endif
+#endif
 		src_rect.x = 0;
 		src_rect.y = 0;
 		src_rect.width = width << 16;
@@ -237,9 +237,9 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	else {
 		nativewindow.width = width;
 		nativewindow.height = height;
-		#ifndef KORE_PI_SCALING
+#ifndef KORE_PI_SCALING
 		openXWindow(x, y, width, height);
-		#endif
+#endif
 	}
 	vc_dispmanx_update_submit_sync(dispman_update);
 
@@ -348,12 +348,12 @@ namespace Kore {
 		}
 
 		int desktopWidth() {
-            setScreenSize();
+			setScreenSize();
 			return screen_width;
 		}
 
 		int desktopHeight() {
-            setScreenSize();
+			setScreenSize();
 			return screen_height;
 		}
 
@@ -364,11 +364,9 @@ namespace Kore {
 				strcat(buffer, options.title);
 			}
 
-			int id = createWindow(buffer,
-                                  options.x == -1 ? screen_width / 2 - options.width / 2 : options.x,
-                                  options.y == -1 ? screen_height / 2 - options.height / 2 : options.y,
-                                  options.width, options.height, options.mode, options.targetDisplay,
-			                      options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+			int id = createWindow(buffer, options.x == -1 ? screen_width / 2 - options.width / 2 : options.x,
+			                      options.y == -1 ? screen_height / 2 - options.height / 2 : options.y, options.width, options.height, options.mode,
+			                      options.targetDisplay, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 			Graphics4::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
 			return id;
 		}
@@ -406,65 +404,65 @@ bool Kore::System::handleMessages() {
 
 			set_bit(inputDevices[i].key_state, event.code, event.value);
 
-#define KEY(linuxkey, korekey, keychar)                         \
-    case linuxkey:                                              \
-        if (event.value == 1)                                   \
-            Kore::Keyboard::the()->_keydown(korekey);  \
-        else if (event.value == 0)                              \
-            Kore::Keyboard::the()->_keyup(korekey);    \
+#define KEY(linuxkey, korekey, keychar)                                                                                                                        \
+	case linuxkey:                                                                                                                                             \
+		if (event.value == 1)                                                                                                                                  \
+			Kore::Keyboard::the()->_keydown(korekey);                                                                                                          \
+		else if (event.value == 0)                                                                                                                             \
+			Kore::Keyboard::the()->_keyup(korekey);                                                                                                            \
 		break;
-			switch(event.code) {
-			    KEY(KEY_RIGHT, KeyRight, ' ')
-			    KEY(KEY_LEFT, KeyLeft, ' ')
-                KEY(KEY_UP, KeyUp, ' ')
-                KEY(KEY_DOWN, KeyDown, ' ')
-                KEY(KEY_SPACE, KeySpace, ' ')
-                KEY(KEY_BACKSPACE, KeyBackspace, ' ')
-                KEY(KEY_TAB, KeyTab, ' ')
-                //KEY(KEY_ENTER, KeyEnter, ' ')
-                KEY(KEY_LEFTSHIFT, KeyShift, ' ')
-                KEY(KEY_RIGHTSHIFT, KeyShift, ' ')
-                KEY(KEY_LEFTCTRL, KeyControl, ' ')
-                KEY(KEY_RIGHTCTRL, KeyControl, ' ')
-                KEY(KEY_LEFTALT, KeyAlt, ' ')
-                KEY(KEY_RIGHTALT, KeyAlt, ' ')
-                KEY(KEY_DELETE, KeyDelete, ' ')
-                KEY(KEY_A, KeyA, 'a')
-                KEY(KEY_B, KeyB, 'b')
-                KEY(KEY_C, KeyC, 'c')
-                KEY(KEY_D, KeyD, 'd')
-                KEY(KEY_E, KeyE, 'e')
-                KEY(KEY_F, KeyF, 'f')
-                KEY(KEY_G, KeyG, 'g')
-                KEY(KEY_H, KeyH, 'h')
-                KEY(KEY_I, KeyI, 'i')
-                KEY(KEY_J, KeyJ, 'j')
-                KEY(KEY_K, KeyK, 'k')
-                KEY(KEY_L, KeyL, 'l')
-                KEY(KEY_M, KeyM, 'm')
-                KEY(KEY_N, KeyN, 'n')
-                KEY(KEY_O, KeyO, 'o')
-                KEY(KEY_P, KeyP, 'p')
-                KEY(KEY_Q, KeyQ, 'q')
-                KEY(KEY_R, KeyR, 'r')
-                KEY(KEY_S, KeyS, 's')
-                KEY(KEY_T, KeyT, 't')
-                KEY(KEY_U, KeyU, 'u')
-                KEY(KEY_V, KeyV, 'v')
-                KEY(KEY_W, KeyW, 'w')
-                KEY(KEY_X, KeyX, 'x')
-                KEY(KEY_Y, KeyY, 'y')
-                KEY(KEY_Z, KeyZ, 'z')
-                KEY(KEY_1, Key1, '1')
-                KEY(KEY_2, Key2, '2')
-                KEY(KEY_3, Key3, '3')
-                KEY(KEY_4, Key4, '4')
-                KEY(KEY_5, Key5, '5')
-                KEY(KEY_6, Key6, '6')
-                KEY(KEY_7, Key7, '7')
-                KEY(KEY_8, Key8, '8')
-                KEY(KEY_9, Key9, '9')
-                KEY(KEY_0, Key0, '0')
+			switch (event.code) {
+				KEY(KEY_RIGHT, KeyRight, ' ')
+				KEY(KEY_LEFT, KeyLeft, ' ')
+				KEY(KEY_UP, KeyUp, ' ')
+				KEY(KEY_DOWN, KeyDown, ' ')
+				KEY(KEY_SPACE, KeySpace, ' ')
+				KEY(KEY_BACKSPACE, KeyBackspace, ' ')
+				KEY(KEY_TAB, KeyTab, ' ')
+				// KEY(KEY_ENTER, KeyEnter, ' ')
+				KEY(KEY_LEFTSHIFT, KeyShift, ' ')
+				KEY(KEY_RIGHTSHIFT, KeyShift, ' ')
+				KEY(KEY_LEFTCTRL, KeyControl, ' ')
+				KEY(KEY_RIGHTCTRL, KeyControl, ' ')
+				KEY(KEY_LEFTALT, KeyAlt, ' ')
+				KEY(KEY_RIGHTALT, KeyAlt, ' ')
+				KEY(KEY_DELETE, KeyDelete, ' ')
+				KEY(KEY_A, KeyA, 'a')
+				KEY(KEY_B, KeyB, 'b')
+				KEY(KEY_C, KeyC, 'c')
+				KEY(KEY_D, KeyD, 'd')
+				KEY(KEY_E, KeyE, 'e')
+				KEY(KEY_F, KeyF, 'f')
+				KEY(KEY_G, KeyG, 'g')
+				KEY(KEY_H, KeyH, 'h')
+				KEY(KEY_I, KeyI, 'i')
+				KEY(KEY_J, KeyJ, 'j')
+				KEY(KEY_K, KeyK, 'k')
+				KEY(KEY_L, KeyL, 'l')
+				KEY(KEY_M, KeyM, 'm')
+				KEY(KEY_N, KeyN, 'n')
+				KEY(KEY_O, KeyO, 'o')
+				KEY(KEY_P, KeyP, 'p')
+				KEY(KEY_Q, KeyQ, 'q')
+				KEY(KEY_R, KeyR, 'r')
+				KEY(KEY_S, KeyS, 's')
+				KEY(KEY_T, KeyT, 't')
+				KEY(KEY_U, KeyU, 'u')
+				KEY(KEY_V, KeyV, 'v')
+				KEY(KEY_W, KeyW, 'w')
+				KEY(KEY_X, KeyX, 'x')
+				KEY(KEY_Y, KeyY, 'y')
+				KEY(KEY_Z, KeyZ, 'z')
+				KEY(KEY_1, Key1, '1')
+				KEY(KEY_2, Key2, '2')
+				KEY(KEY_3, Key3, '3')
+				KEY(KEY_4, Key4, '4')
+				KEY(KEY_5, Key5, '5')
+				KEY(KEY_6, Key6, '6')
+				KEY(KEY_7, Key7, '7')
+				KEY(KEY_8, Key8, '8')
+				KEY(KEY_9, Key9, '9')
+				KEY(KEY_0, Key0, '0')
 			}
 #undef KEY
 
@@ -473,7 +471,7 @@ bool Kore::System::handleMessages() {
 		}
 	}
 
-    #ifndef KORE_PI_SCALING
+#ifndef KORE_PI_SCALING
 	if (windowMode != Kore::WindowModeFullscreen) {
 		while (XPending(dpy) > 0) {
 			XEvent event;
@@ -499,7 +497,7 @@ bool Kore::System::handleMessages() {
 			}
 		}
 	}
-	#endif
+#endif
 
 	return true;
 }
@@ -594,4 +592,3 @@ extern int kore(int argc, char** argv);
 int main(int argc, char** argv) {
 	kore(argc, argv);
 }
-

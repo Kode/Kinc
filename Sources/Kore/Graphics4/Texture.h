@@ -46,6 +46,7 @@ namespace Kore {
 			int texDepth;
 
 			u32 id;
+
 		private:
 			void init(const char* format, bool readable = false);
 			void init3D(bool readable = false);

@@ -44,9 +44,8 @@ Graphics4::Texture::Texture(void* data, int width, int height, int format, bool 
 	data = _texture->data;
 }
 
-Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable) : Image(data, width, height, depth, Image::Format(format), readable) {
-
-}
+Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable)
+    : Image(data, width, height, depth, Image::Format(format), readable) {}
 
 void Graphics4::Texture::init(const char* format, bool readable) {
 	setId();
@@ -62,7 +61,8 @@ void Graphics4::Texture::init3D(bool readable) {
 	setId();
 }
 
-Graphics4::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {
+Graphics4::Texture::Texture(int width, int height, Format format, bool readable)
+    : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {
 	width = _texture->width;
 	height = _texture->height;
 	texWidth = _texture->texWidth;
@@ -70,7 +70,8 @@ Graphics4::Texture::Texture(int width, int height, Format format, bool readable)
 	data = _texture->data;
 }
 
-Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {
+Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable)
+    : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {
 	width = _texture->width;
 	height = _texture->height;
 	texWidth = _texture->texWidth;
@@ -86,16 +87,16 @@ TextureImpl::TextureImpl(int width, int height, Kore::Image::Format format, bool
 	_texture = new Graphics5::Texture(width, height, format, readable);
 	width = _texture->width;
 	height = _texture->height;
-	//texWidth = _texture->texWidth;
-	//texHeight = _texture->texHeight;
+	// texWidth = _texture->texWidth;
+	// texHeight = _texture->texHeight;
 }
 
 TextureImpl::TextureImpl(int width, int height, int depth, Image::Format format, bool readable) : _uploaded(false) {
 	_texture = new Graphics5::Texture(width, height, depth, format, readable);
 	width = _texture->width;
 	height = _texture->height;
-	//texWidth = _texture->texWidth;
-	//texHeight = _texture->texHeight;
+	// texWidth = _texture->texWidth;
+	// texHeight = _texture->texHeight;
 }
 
 TextureImpl::~TextureImpl() {

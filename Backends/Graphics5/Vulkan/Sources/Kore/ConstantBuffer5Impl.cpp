@@ -47,7 +47,7 @@ Graphics5::ConstantBuffer::ConstantBuffer(int size) {
 	data = nullptr;
 
 	createUniformBuffer(buf, mem_alloc, mem, buffer_info);
-	
+
 	uint8_t* data;
 	VkResult err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
 	assert(!err);
@@ -55,20 +55,16 @@ Graphics5::ConstantBuffer::ConstantBuffer(int size) {
 	vkUnmapMemory(device, mem);
 }
 
-Graphics5::ConstantBuffer::~ConstantBuffer() {
-	
-}
+Graphics5::ConstantBuffer::~ConstantBuffer() {}
 
 void Graphics5::ConstantBuffer::lock() {
 	lock(0, size());
 }
 
-void Graphics5::ConstantBuffer::lock(int start, int count) {
-	
-}
+void Graphics5::ConstantBuffer::lock(int start, int count) {}
 
 void Graphics5::ConstantBuffer::unlock() {
-	
+
 	data = nullptr;
 }
 
@@ -77,78 +73,78 @@ int Graphics5::ConstantBuffer::size() {
 }
 
 /*void Graphics5::ConstantBuffer::setBool(int offset, bool value) {
-	if (offset >= 0) {
-		int* data = (int*)&((u8*)data)[offset];
-		data[0] = value;
-	}
+    if (offset >= 0) {
+        int* data = (int*)&((u8*)data)[offset];
+        data[0] = value;
+    }
 }
 
 void Graphics5::ConstantBuffer::setInt(int offset, int value) {
-	if (offset  >= 0) {
-		int* data = (int*)&((u8*)data)[offset];
-		data[0] = value;
-	}
+    if (offset  >= 0) {
+        int* data = (int*)&((u8*)data)[offset];
+        data[0] = value;
+    }
 }
 
 void Graphics5::ConstantBuffer::setFloat(int offset, float value) {
-	if (offset >= 0) {
-		float* data = (float*)&((u8*)data)[offset];
-		data[0] = value;
-	}
+    if (offset >= 0) {
+        float* data = (float*)&((u8*)data)[offset];
+        data[0] = value;
+    }
 }
 
 void Graphics5::ConstantBuffer::setFloat2(int offset, float value1, float value2) {
-	if (offset >= 0) {
-		float* data = (float*)&((u8*)data)[offset];
-		data[0] = value1;
-		data[1] = value2;
-	}
+    if (offset >= 0) {
+        float* data = (float*)&((u8*)data)[offset];
+        data[0] = value1;
+        data[1] = value2;
+    }
 }
 
 void Graphics5::ConstantBuffer::setFloat3(int offset, float value1, float value2, float value3) {
-	if (offset >= 0) {
-		float* data = (float*)&((u8*)data)[offset];
-		data[0] = value1;
-		data[1] = value2;
-		data[2] = value3;
-	}
+    if (offset >= 0) {
+        float* data = (float*)&((u8*)data)[offset];
+        data[0] = value1;
+        data[1] = value2;
+        data[2] = value3;
+    }
 }
 
 void Graphics5::ConstantBuffer::setFloat4(int offset, float value1, float value2, float value3, float value4) {
-	if (offset >= 0) {
-		float* data = (float*)&((u8*)data)[offset];
-		data[0] = value1;
-		data[1] = value2;
-		data[2] = value3;
-		data[3] = value4;
-	}
+    if (offset >= 0) {
+        float* data = (float*)&((u8*)data)[offset];
+        data[0] = value1;
+        data[1] = value2;
+        data[2] = value3;
+        data[3] = value4;
+    }
 }
 
 void Graphics5::ConstantBuffer::setFloats(int offset, float* values, int count) {
-	if (offset >= 0) {
-		float* data = (float*)&((u8*)data)[offset];
-		for (int i = 0; i < count; ++i) {
-			data[i] = values[i];
-		}
-	}
+    if (offset >= 0) {
+        float* data = (float*)&((u8*)data)[offset];
+        for (int i = 0; i < count; ++i) {
+            data[i] = values[i];
+        }
+    }
 }
 
 void Graphics5::ConstantBuffer::setMatrix(int offset, const mat4& value) {
-	if (offset >= 0) {
-		float* data = (float*)&((u8*)data)[offset];
-		for (int i = 0; i < 16; ++i) {
-			data[i] = value.data[i];
-		}
-	}
+    if (offset >= 0) {
+        float* data = (float*)&((u8*)data)[offset];
+        for (int i = 0; i < 16; ++i) {
+            data[i] = value.data[i];
+        }
+    }
 }
 
 void Graphics5::ConstantBuffer::setMatrix(int offset, const mat3& value) {
-	if (offset >= 0) {
-		float* data = (float*)&((u8*)data)[offset];
-		for (int y = 0; y < 3; ++y) {
-			for (int x = 0; x < 3; ++x) {
-				data[y * 4 + x] = value.data[y * 3 + x];
-			}
-		}
-	}
+    if (offset >= 0) {
+        float* data = (float*)&((u8*)data)[offset];
+        for (int y = 0; y < 3; ++y) {
+            for (int x = 0; x < 3; ++x) {
+                data[y * 4 + x] = value.data[y * 3 + x];
+            }
+        }
+    }
 }*/

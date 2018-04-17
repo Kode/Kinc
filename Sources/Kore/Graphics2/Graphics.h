@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Kore/Graphics1/Color.h>
 #include "Kravur.h"
+#include <Kore/Graphics1/Color.h>
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Math/Matrix.h>
 
@@ -42,7 +42,7 @@ namespace Kore {
 			void initBuffers();
 
 			void setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx,
-				float bottomrighty);
+			                     float bottomrighty);
 			void setRectTexCoords(float left, float top, float right, float bottom);
 			void setRectColor(float r, float g, float b, float a);
 			void drawBuffer();
@@ -59,19 +59,19 @@ namespace Kore {
 			void setBilinearFilter(bool bilinear);
 			void setBilinearMipmapFilter(bool bilinear);
 
-			inline void drawImage(Graphics4::Texture* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty,
-				float bottomrightx, float bottomrighty, float opacity, uint color);
-			inline void drawImage2(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty,
-				float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
-			inline void drawImageScale(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom, float opacity,
-				uint color);
+			inline void drawImage(Graphics4::Texture* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx,
+			                      float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
+			inline void drawImage2(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx,
+			                       float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
+			inline void drawImageScale(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom,
+			                           float opacity, uint color);
 
-			inline void drawImage(Graphics4::RenderTarget* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty,
-				float bottomrightx, float bottomrighty, float opacity, uint color);
-			inline void drawImage2(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx, float toplefty,
-				float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
-			inline void drawImageScale(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom, float opacity,
-				uint color);
+			inline void drawImage(Graphics4::RenderTarget* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx,
+			                      float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
+			inline void drawImage2(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx,
+			                       float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color);
+			inline void drawImageScale(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom,
+			                           float opacity, uint color);
 
 			void end();
 		};
@@ -119,11 +119,11 @@ namespace Kore {
 			void setProjection(mat4 projectionMatrix);
 
 			void setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx,
-				float bottomrighty);
+			                     float bottomrighty);
 			void setRectColors(float opacity, uint color);
 
 			void fillRect(float opacity, uint color, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty,
-				float bottomrightx, float bottomrighty);
+			              float bottomrightx, float bottomrighty);
 			void fillTriangle(float opacity, uint color, float x1, float y1, float x2, float y2, float x3, float y3);
 
 			inline void endTris(bool rectsDone);
@@ -162,7 +162,7 @@ namespace Kore {
 			void initBuffers();
 
 			void setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx,
-				float bottomrighty);
+			                     float bottomrighty);
 			void setRectTexCoords(float left, float top, float right, float bottom);
 			void setRectColors(float opacity, uint color);
 			void drawBuffer();

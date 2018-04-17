@@ -6,13 +6,13 @@
 
 #include "ProgramImpl.h"
 
-#include "ShaderParameterUtils.h"
-#include "RHIStaticStates.h"
-#include "GlobalShader.h"
-#include "UniformBuffer.h"
-#include "ShaderParameters.h"
 #include "CoreUObject.h"
 #include "Engine.h"
+#include "GlobalShader.h"
+#include "RHIStaticStates.h"
+#include "ShaderParameterUtils.h"
+#include "ShaderParameters.h"
+#include "UniformBuffer.h"
 
 #include "PixelShaderDeclaration.h"
 
@@ -31,17 +31,11 @@ void Program::setFragmentShader(Shader* shader) {
 	fragmentShader = shader;
 }
 
-void Program::setGeometryShader(Shader* shader) {
+void Program::setGeometryShader(Shader* shader) {}
 
-}
+void Program::setTessellationControlShader(Shader* shader) {}
 
-void Program::setTessellationControlShader(Shader* shader) {
-
-}
-
-void Program::setTessellationEvaluationShader(Shader* shader) {
-
-}
+void Program::setTessellationEvaluationShader(Shader* shader) {}
 
 void Program::link(VertexStructure** structures, int count) {
 	uint stride = 0;
@@ -66,22 +60,22 @@ void Program::link(VertexStructure** structures, int count) {
 	int offset = 0;
 	for (int i = 0; i < structures[0]->size; ++i) {
 		switch (structures[0]->elements[i].data) {
-			case Kore::Float1VertexData:
-				elements.Add(FVertexElement(0, offset, VET_Float1, i, stride));
-				offset += 4;
-				break;
-			case Kore::Float2VertexData:
-				elements.Add(FVertexElement(0, offset, VET_Float2, i, stride));
-				offset += 4 * 2;
-				break;
-			case Kore::Float3VertexData:
-				elements.Add(FVertexElement(0, offset, VET_Float3, i, stride));
-				offset += 4 * 3;
-				break;
-			case Kore::Float4VertexData:
-				elements.Add(FVertexElement(0, offset, VET_Float4, i, stride));
-				offset += 4 * 4;
-				break;
+		case Kore::Float1VertexData:
+			elements.Add(FVertexElement(0, offset, VET_Float1, i, stride));
+			offset += 4;
+			break;
+		case Kore::Float2VertexData:
+			elements.Add(FVertexElement(0, offset, VET_Float2, i, stride));
+			offset += 4 * 2;
+			break;
+		case Kore::Float3VertexData:
+			elements.Add(FVertexElement(0, offset, VET_Float3, i, stride));
+			offset += 4 * 3;
+			break;
+		case Kore::Float4VertexData:
+			elements.Add(FVertexElement(0, offset, VET_Float4, i, stride));
+			offset += 4 * 4;
+			break;
 		}
 	}
 	_vertexDeclaration = RHICreateVertexDeclaration(elements);

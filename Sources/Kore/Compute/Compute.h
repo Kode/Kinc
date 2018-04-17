@@ -4,8 +4,8 @@
 #ifdef KORE_OPENGL
 #include <Kore/ShaderStorageBufferImpl.h>
 #endif
-#include <Kore/Math/Matrix.h>
 #include <Kore/Graphics4/Graphics.h>
+#include <Kore/Math/Matrix.h>
 
 namespace Kore {
 	namespace Graphics4 {

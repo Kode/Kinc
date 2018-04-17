@@ -114,10 +114,7 @@ int createWindow(Kore::WindowOptions options) {
 
 	BasicOpenGLView* view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
 	[view registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, nil]];
-	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
-	                                               styleMask:styleMask
-	                                                 backing:NSBackingStoreBuffered
-	                                                   defer:TRUE];
+	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:styleMask backing:NSBackingStoreBuffered defer:TRUE];
 	delegate = [MyAppDelegate alloc];
 	[window setDelegate:delegate];
 	[window setTitle:[NSString stringWithCString:options.title encoding:NSUTF8StringEncoding]];
@@ -150,13 +147,13 @@ void Graphics4::makeCurrent(int contextId) {
 
 int Kore::System::windowWidth(int id) {
 	NSWindow* window = windows[id]->handle;
-	return [[window contentView]frame].size.width;
+	return [[window contentView] frame].size.width;
 	// return windows[id]->width;
 }
 
 int Kore::System::windowHeight(int id) {
 	NSWindow* window = windows[id]->handle;
-	return [[window contentView]frame].size.height;
+	return [[window contentView] frame].size.height;
 	// return windows[id]->height;
 }
 

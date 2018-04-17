@@ -3,6 +3,5 @@
 namespace Kore {
 	class MutexImpl {
 	protected:
-		
 	};
 }

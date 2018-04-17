@@ -8,8 +8,9 @@
 
 using namespace Kore;
 
-Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
-	: isCubeMap(false), isDepthAttachment(false) {
+Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId)
+    : isCubeMap(false), isDepthAttachment(false) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 	this->contextId = contextId;
@@ -98,7 +99,8 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
 		affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT), &depthStencilView[0]));
+		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT),
+		                                      &depthStencilView[0]));
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -122,14 +124,14 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	lastBoundDepthUnit = -1;
 
 	if (renderTargetView[0] != nullptr) {
-		FLOAT colors[4] = { 0, 0, 0, 0 };
+		FLOAT colors[4] = {0, 0, 0, 0};
 		context->ClearRenderTargetView(renderTargetView[0], colors);
 	}
 }
 
 Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
-	: width(cubeMapSize), height(cubeMapSize), isCubeMap(true), isDepthAttachment(false) {
-	
+    : width(cubeMapSize), height(cubeMapSize), isCubeMap(true), isDepthAttachment(false) {
+
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 	this->contextId = contextId;
@@ -226,7 +228,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
 		affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-	
+
 		CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
@@ -260,7 +262,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	lastBoundDepthUnit = -1;
 
 	if (!isDepthAttachment) {
-		FLOAT colors[4] = { 0, 0, 0, 0 };
+		FLOAT colors[4] = {0, 0, 0, 0};
 		for (int i = 0; i < 6; i++) {
 			context->ClearRenderTargetView(renderTargetView[i], colors);
 		}

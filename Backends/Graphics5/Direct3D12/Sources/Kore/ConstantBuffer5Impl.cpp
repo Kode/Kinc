@@ -10,9 +10,9 @@ using namespace Kore;
 Graphics5::ConstantBuffer::ConstantBuffer(int size) {
 	mySize = size;
 	data = nullptr;
-	
-	affirm(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(size), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&_buffer)));
+
+	affirm(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(size),
+	                                       D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&_buffer)));
 
 	void* p;
 	_buffer->Map(0, nullptr, &p);
@@ -20,9 +20,7 @@ Graphics5::ConstantBuffer::ConstantBuffer(int size) {
 	_buffer->Unmap(0, nullptr);
 }
 
-Graphics5::ConstantBuffer::~ConstantBuffer() {
-	
-}
+Graphics5::ConstantBuffer::~ConstantBuffer() {}
 
 void Graphics5::ConstantBuffer::lock() {
 	lock(0, size());

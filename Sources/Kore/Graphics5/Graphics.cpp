@@ -36,7 +36,7 @@ void Graphics5::setWindow(bool value) {
 
 bool Graphics5::fullscreen = false;
 
-//void Graphics5::setVertexBuffer(VertexBuffer& vertexBuffer) {
+// void Graphics5::setVertexBuffer(VertexBuffer& vertexBuffer) {
 //	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
 //	setVertexBuffers(vertexBuffers, 1);
 //}

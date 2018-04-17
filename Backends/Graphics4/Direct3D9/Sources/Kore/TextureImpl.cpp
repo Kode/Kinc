@@ -10,7 +10,7 @@ using namespace Kore;
 
 namespace {
 	Graphics4::Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-	                            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	                                       nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 	D3DFORMAT convert(Graphics4::Image::Format format) {
 		switch (format) {
@@ -102,9 +102,7 @@ void Graphics4::Texture::unlock() {
 	affirm(texture->UnlockRect(0));
 }
 
-void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-
-}
+void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
 
 int Graphics4::Texture::stride() {
 	return pitch;

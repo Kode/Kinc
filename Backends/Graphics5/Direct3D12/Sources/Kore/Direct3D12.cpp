@@ -38,7 +38,7 @@ ID3D12DescriptorHeap* cbvHeap;*/
 int currentBackBuffer = -1;
 ID3D12Device* device;
 ID3D12RootSignature* rootSignature;
-//ID3D12GraphicsCommandList* commandList;
+// ID3D12GraphicsCommandList* commandList;
 ID3D12Resource* depthStencilTexture;
 ID3D12CommandQueue* commandQueue;
 IDXGISwapChain* swapChain;
@@ -66,8 +66,8 @@ void createSwapChain(RenderEnvironment* env, const DXGI_SWAP_CHAIN_DESC1* desc);
 namespace {
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT rectScissor;
-	//ID3D12Resource* renderTarget;
-	//ID3D12DescriptorHeap* renderTargetDescriptorHeap;
+	// ID3D12Resource* renderTarget;
+	// ID3D12DescriptorHeap* renderTargetDescriptorHeap;
 	ID3D12DescriptorHeap* depthStencilDescriptorHeap;
 	UINT64 currentFenceValue;
 	UINT64 fenceValues[QUEUE_SLOT_COUNT];
@@ -119,19 +119,16 @@ namespace {
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&depthStencilDescriptorHeap));
 
-		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0,
-			renderTargetWidth, renderTargetHeight, 1, 1,
-			DXGI_FORMAT_D32_FLOAT, 1, 0, D3D12_TEXTURE_LAYOUT_UNKNOWN,
-			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0, renderTargetWidth, renderTargetHeight, 1, 1, DXGI_FORMAT_D32_FLOAT, 1, 0,
+		                                   D3D12_TEXTURE_LAYOUT_UNKNOWN, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
 
 		D3D12_CLEAR_VALUE clearValue;
 		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
 		clearValue.DepthStencil.Depth = 1.0f;
 		clearValue.DepthStencil.Stencil = 0;
 
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-			IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &depthTexture,
+		                                D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
 
 		device->CreateDepthStencilView(depthStencilTexture, nullptr, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -295,42 +292,42 @@ void Graphics5::makeCurrent(int window) {}
 
 void Graphics5::clearCurrent() {}
 
-//void* Graphics::getControl() {
+// void* Graphics::getControl() {
 //	return nullptr;
 //}
 
 /*void Graphics5::drawIndexedVertices() {
-	// Program::setConstants();
-	// context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
+    // Program::setConstants();
+    // context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
 
-	drawIndexedVertices(0, IndexBuffer::_current->myCount);
+    drawIndexedVertices(0, IndexBuffer::_current->myCount);
 }
 
 void Graphics5::drawIndexedVertices(int start, int count) {
-	//commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
-	//commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
-	//commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
+    //commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
+    //commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
+    //commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
 
-	PipelineState5Impl::setConstants();
+    PipelineState5Impl::setConstants();
 
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
-	commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->indexBufferView);
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
+    commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->indexBufferView);
 
-	u8* data;
-	vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
-	memcpy(data, vertexConstants, sizeof(vertexConstants));
-	vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
+    u8* data;
+    vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
+    memcpy(data, vertexConstants, sizeof(vertexConstants));
+    vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
 
-	fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
-	memcpy(data, fragmentConstants, sizeof(fragmentConstants));
-	fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
+    fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
+    memcpy(data, fragmentConstants, sizeof(fragmentConstants));
+    fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
 
-	commandList->SetGraphicsRootConstantBufferView(1, vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootConstantBufferView(2, fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
-	if (++currentInstance >= 128) currentInstance = 0;
+    commandList->SetGraphicsRootConstantBufferView(1, vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(2, fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
+    if (++currentInstance >= 128) currentInstance = 0;
 
-	commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
+    commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
 
 }
 */
@@ -366,12 +363,12 @@ void Graphics5::begin(RenderTarget* renderTarget, int window) {
 #endif
 
 	waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
-	
-	//static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
-	//commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
+	// static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
-	//commandList->ClearDepthStencilView(depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	// commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
+
+	// commandList->ClearDepthStencilView(depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	static int frameNumber = 0;
 	frameNumber++;
@@ -412,16 +409,14 @@ bool Graphics5::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {
-	
-}
+void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
 /*
 void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
-	buffers[0]->_set(0);
+    buffers[0]->_set(0);
 }
 
 void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
-	buffer._set();
+    buffer._set();
 }
 */
 void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
@@ -432,9 +427,7 @@ bool Graphics5::initOcclusionQuery(uint* occlusionQuery) {
 	return false;
 }
 
-void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {
-	
-}
+void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {}
 
 void Graphics5::deleteOcclusionQuery(uint occlusionQuery) {}
 
@@ -447,5 +440,5 @@ bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
 
 /*void Graphics5::setPipeline(PipelineState* pipeline) {
-	pipeline->set(pipeline);
+    pipeline->set(pipeline);
 }*/

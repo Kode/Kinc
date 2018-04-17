@@ -30,5 +30,6 @@ void Graphics4::IndexBuffer::_set() {
 }
 
 int Graphics4::IndexBuffer::count() {
-	return _buffer.count();;
+	return _buffer.count();
+	;
 }

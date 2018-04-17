@@ -5,18 +5,10 @@
 
 using namespace Kore;
 
-namespace {
+namespace {}
 
-}
+void Audio::init() {}
 
-void Audio::init() {
+void Audio::update() {}
 
-}
-
-void Audio::update() {
-
-}
-
-void Audio::shutdown() {
-
-}
+void Audio::shutdown() {}

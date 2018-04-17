@@ -4,9 +4,7 @@ namespace Kore {
 	class Reader;
 
 	namespace Graphics1 {
-		enum ImageCompression {
-			ImageCompressionNone, ImageCompressionDXT5, ImageCompressionASTC, ImageCompressionPVRTC
-		};
+		enum ImageCompression { ImageCompressionNone, ImageCompressionDXT5, ImageCompressionASTC, ImageCompressionPVRTC };
 
 		class Image {
 		public:
@@ -31,6 +29,7 @@ namespace Kore {
 			float* hdrData;
 			int dataSize;
 			unsigned internalFormat;
+
 		protected:
 			Image();
 			void init(Kore::Reader& reader, const char* format, bool readable);

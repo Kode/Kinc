@@ -3,8 +3,8 @@
 #include "Texture.h"
 #include "VertexStructure.h"
 #include <Kore/Math/Matrix.h>
-#include <Kore/ShaderImpl.h>
 #include <Kore/PipelineStateImpl.h>
+#include <Kore/ShaderImpl.h>
 
 namespace Kore {
 	namespace Graphics4 {
@@ -15,6 +15,7 @@ namespace Kore {
 			Shader(void* data, int length, ShaderType type);
 			Shader(const char* source, ShaderType type); // Beware, this is not portable
 			u32 id;
+
 		private:
 			void setId() {
 				static u32 lastId = 0;

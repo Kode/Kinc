@@ -24,27 +24,51 @@ namespace {
 
 	mat4 convert(vr::HmdMatrix34_t& m) {
 		mat4 mat;
-		mat.Set(0, 0, m.m[0][0]); mat.Set(0, 1, m.m[0][1]); mat.Set(0, 2, m.m[0][2]); mat.Set(0, 3, m.m[0][3]);
-		mat.Set(1, 0, m.m[1][0]); mat.Set(1, 1, m.m[1][1]); mat.Set(1, 2, m.m[1][2]); mat.Set(1, 3, m.m[1][3]);
-		mat.Set(2, 0, m.m[2][0]); mat.Set(2, 1, m.m[2][1]); mat.Set(2, 2, m.m[2][2]); mat.Set(2, 3, m.m[2][3]);
-		mat.Set(3, 0, 0); mat.Set(3, 1, 0); mat.Set(3, 2, 0); mat.Set(3, 3, 1);
+		mat.Set(0, 0, m.m[0][0]);
+		mat.Set(0, 1, m.m[0][1]);
+		mat.Set(0, 2, m.m[0][2]);
+		mat.Set(0, 3, m.m[0][3]);
+		mat.Set(1, 0, m.m[1][0]);
+		mat.Set(1, 1, m.m[1][1]);
+		mat.Set(1, 2, m.m[1][2]);
+		mat.Set(1, 3, m.m[1][3]);
+		mat.Set(2, 0, m.m[2][0]);
+		mat.Set(2, 1, m.m[2][1]);
+		mat.Set(2, 2, m.m[2][2]);
+		mat.Set(2, 3, m.m[2][3]);
+		mat.Set(3, 0, 0);
+		mat.Set(3, 1, 0);
+		mat.Set(3, 2, 0);
+		mat.Set(3, 3, 1);
 		return mat;
 	}
 
 	mat4 convert(vr::HmdMatrix44_t& m) {
 		mat4 mat;
-		mat.Set(0, 0, m.m[0][0]); mat.Set(0, 1, m.m[0][1]); mat.Set(0, 2, m.m[0][2]); mat.Set(0, 3, m.m[0][3]);
-		mat.Set(1, 0, m.m[1][0]); mat.Set(1, 1, m.m[1][1]); mat.Set(1, 2, m.m[1][2]); mat.Set(1, 3, m.m[1][3]);
-		mat.Set(2, 0, m.m[2][0]); mat.Set(2, 1, m.m[2][1]); mat.Set(2, 2, m.m[2][2]); mat.Set(2, 3, m.m[2][3]);
-		mat.Set(3, 0, m.m[3][0]); mat.Set(3, 1, m.m[3][1]); mat.Set(3, 2, m.m[3][2]); mat.Set(3, 3, m.m[3][3]);
+		mat.Set(0, 0, m.m[0][0]);
+		mat.Set(0, 1, m.m[0][1]);
+		mat.Set(0, 2, m.m[0][2]);
+		mat.Set(0, 3, m.m[0][3]);
+		mat.Set(1, 0, m.m[1][0]);
+		mat.Set(1, 1, m.m[1][1]);
+		mat.Set(1, 2, m.m[1][2]);
+		mat.Set(1, 3, m.m[1][3]);
+		mat.Set(2, 0, m.m[2][0]);
+		mat.Set(2, 1, m.m[2][1]);
+		mat.Set(2, 2, m.m[2][2]);
+		mat.Set(2, 3, m.m[2][3]);
+		mat.Set(3, 0, m.m[3][0]);
+		mat.Set(3, 1, m.m[3][1]);
+		mat.Set(3, 2, m.m[3][2]);
+		mat.Set(3, 3, m.m[3][3]);
 		return mat;
 	}
 
-	void processVREvent(const vr::VREvent_t & event) {
+	void processVREvent(const vr::VREvent_t& event) {
 		switch (event.eventType) {
 		case vr::VREvent_TrackedDeviceActivated:
-			//SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
-			//dprintf("Device %u attached. Setting up render model.\n", event.trackedDeviceIndex);
+			// SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
+			// dprintf("Device %u attached. Setting up render model.\n", event.trackedDeviceIndex);
 			break;
 		case vr::VREvent_TrackedDeviceDeactivated:
 			printf("Device %u detached.\n", event.trackedDeviceIndex);
@@ -54,7 +78,7 @@ namespace {
 			break;
 		}
 	}
-	
+
 	void getPosition(const vr::HmdMatrix34_t* m, vec3* position) {
 		position->x() = m->m[0][3];
 		position->y() = m->m[1][3];
@@ -81,10 +105,11 @@ namespace {
 				if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_HMD) {
 					VrPoseState poseState;
 					poseState.linearVelocity = vec3(poses[device].vVelocity.v[0], poses[device].vVelocity.v[1], poses[device].vVelocity.v[2]);
-					poseState.angularVelocity = vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
+					poseState.angularVelocity =
+					    vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
 
 					vr::HmdMatrix34_t m = poses[device].mDeviceToAbsoluteTracking;
-					//log(Info, "x: %f y: %f z: %f", m.m[0][3], m.m[1][3], m.m[2][3]);
+					// log(Info, "x: %f y: %f z: %f", m.m[0][3], m.m[1][3], m.m[2][3]);
 
 					getPosition(&m, &poseState.vrPose.position);
 					getOrientation(&m, &poseState.vrPose.orientation);
@@ -101,18 +126,21 @@ namespace {
 					vr::HmdMatrix44_t rightProj = hmd->GetProjectionMatrix(vr::Eye_Right, 0.1f, 100.0f);
 					sensorStates[0].pose.vrPose.projection = convert(leftProj);
 					sensorStates[1].pose.vrPose.projection = convert(rightProj);
-				} else if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_Controller ||
-					hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_GenericTracker) {
+				}
+				else if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_Controller ||
+				         hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_GenericTracker) {
 					VrPoseState poseState;
 					poseState.linearVelocity = vec3(poses[device].vVelocity.v[0], poses[device].vVelocity.v[1], poses[device].vVelocity.v[2]);
-					poseState.angularVelocity = vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
+					poseState.angularVelocity =
+					    vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
 
 					vr::HmdMatrix34_t m = poses[device].mDeviceToAbsoluteTracking;
 
 					getPosition(&m, &poseState.vrPose.position);
 					getOrientation(&m, &poseState.vrPose.orientation);
 
-					//Kore::log(Kore::Info, "Pos of device %i %f %f %f", device, poseState.vrPose.position.x(), poseState.vrPose.position.y(), poseState.vrPose.position.z());
+					// Kore::log(Kore::Info, "Pos of device %i %f %f %f", device, poseState.vrPose.position.x(), poseState.vrPose.position.y(),
+					// poseState.vrPose.position.z());
 
 					if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_Controller)
 						poseState.trackedDevice = Controller;
@@ -128,7 +156,7 @@ namespace {
 void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
 	vr::HmdError error;
 	hmd = vr::VR_Init(&error, vr::VRApplication_Scene);
-	//vr::IVRRenderModels* renderModels = (vr::IVRRenderModels*)vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &error);
+	// vr::IVRRenderModels* renderModels = (vr::IVRRenderModels*)vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &error);
 	vr::VRCompositor();
 
 	uint32_t width, height;
@@ -136,7 +164,7 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 
 	leftTexture = new Graphics4::RenderTarget(width, height, 16);
 	rightTexture = new Graphics4::RenderTarget(width, height, 16);
-	
+
 	return nullptr;
 }
 
@@ -149,7 +177,7 @@ void VrInterface::begin() {
 	for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; ++unDevice) {
 		vr::VRControllerState_t state;
 		if (hmd->GetControllerState(unDevice, &state, sizeof(state))) {
-			//m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
+			// m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
 		}
 	}
 
@@ -165,9 +193,7 @@ void VrInterface::beginRender(int eye) {
 	}
 }
 
-void VrInterface::endRender(int eye) {
-
-}
+void VrInterface::endRender(int eye) {}
 
 SensorState VrInterface::getSensorState(int eye) {
 	return sensorStates[eye];
@@ -179,25 +205,21 @@ VrPoseState VrInterface::getController(int index) {
 
 void VrInterface::warpSwap() {
 #ifdef KORE_OPENGL
-	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)leftTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)rightTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #else
-	vr::Texture_t leftEyeTexture = { (void*)leftTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+	vr::Texture_t leftEyeTexture = {(void*)leftTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = { (void*)rightTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+	vr::Texture_t rightEyeTexture = {(void*)rightTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #endif
 }
 
-void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {
+void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {}
 
-}
-
-void VrInterface::resetHmdPose() {
-
-}
+void VrInterface::resetHmdPose() {}
 
 void VrInterface::ovrShutdown() {
 	vr::VR_Shutdown();

@@ -85,8 +85,8 @@ namespace {
 		glCheckErrors();
 	}
 
-	Graphics4::TextureFilter minFilters[32] = { Graphics4::PointFilter };
-	Graphics4::MipmapFilter mipFilters[32] = { Graphics4::NoMipFilter };
+	Graphics4::TextureFilter minFilters[32] = {Graphics4::PointFilter};
+	Graphics4::MipmapFilter mipFilters[32] = {Graphics4::NoMipFilter};
 
 	void setMinMipFilters(GLenum target, int unit) {
 		glActiveTexture(GL_TEXTURE0 + unit);
@@ -320,7 +320,8 @@ void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {
 
 void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
 #ifdef HAS_COMPUTE
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->bufferId); glCheckErrors2();
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->bufferId);
+	glCheckErrors2();
 #endif
 }
 

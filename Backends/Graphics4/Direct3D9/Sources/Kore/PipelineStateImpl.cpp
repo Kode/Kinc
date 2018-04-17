@@ -177,7 +177,8 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 
 	device->SetRenderState(D3DRS_COLORWRITEENABLE, flags);
 
-	device->SetRenderState(D3DRS_ALPHABLENDENABLE, (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero) ? TRUE : FALSE);
+	device->SetRenderState(D3DRS_ALPHABLENDENABLE,
+	                       (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero) ? TRUE : FALSE);
 	device->SetRenderState(D3DRS_SRCBLEND, convert(pipeline->blendSource));
 	device->SetRenderState(D3DRS_DESTBLEND, convert(pipeline->blendDestination));
 
@@ -199,12 +200,12 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 
 	/*
 	case AlphaTestState:
-		device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
-		device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
-		break;
+	    device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
+	    device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+	    break;
 	case AlphaReferenceState:
-		device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
-		break;
+	    device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
+	    break;
 	*/
 }
 

@@ -2,11 +2,9 @@
 #include "pch.h"
 #include <Kore/Graphics4/Graphics.h>
 
-
 using namespace Windows::Foundation::Numerics;
 
-inline Kore::mat4 WindowsNumericsToKoreMat(float4x4 m)
-{
+inline Kore::mat4 WindowsNumericsToKoreMat(float4x4 m) {
 	Kore::mat4 mat;
 	mat.Set(0, 0, m.m11);
 	mat.Set(0, 1, m.m21);

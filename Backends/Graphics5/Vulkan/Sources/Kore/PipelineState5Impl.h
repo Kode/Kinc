@@ -32,7 +32,7 @@ namespace Kore {
 		Graphics5::Shader* geometryShader;
 		Graphics5::Shader* tessEvalShader;
 		Graphics5::Shader* tessControlShader;
-		
+
 		const char** textures;
 		int* textureValues;
 		int textureCount;

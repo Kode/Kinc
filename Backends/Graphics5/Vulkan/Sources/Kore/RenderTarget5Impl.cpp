@@ -34,7 +34,8 @@ extern DepthBuffer depth;
 extern Graphics5::Texture* vulkanTextures[8];
 extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 
-void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set, VkBuffer* bufVertex, VkBuffer* bufFragment);
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set,
+                         VkBuffer* bufVertex, VkBuffer* bufFragment);
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
@@ -78,127 +79,128 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 	vkCmdPipelineBarrier(_buffer, srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 }
 
-Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId)
     : width(width), height(height) {
 	texWidth = width;
 	texHeight = height;
 	/**{
-		VkFormatProperties formatProperties;
-		VkResult err;
+	    VkFormatProperties formatProperties;
+	    VkResult err;
 
-		vkGetPhysicalDeviceFormatProperties(gpu, VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
-		assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT);
+	    vkGetPhysicalDeviceFormatProperties(gpu, VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
+	    assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT);
 
-		VkImageCreateInfo imageCreateInfo = {};
-		imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageCreateInfo.pNext = NULL;
-		imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-		imageCreateInfo.extent = {(uint32_t)width, (uint32_t)height, 1};
-		imageCreateInfo.mipLevels = 1;
-		imageCreateInfo.arrayLayers = 1;
-		imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-		imageCreateInfo.flags = 0;
-		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+	    VkImageCreateInfo imageCreateInfo = {};
+	    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	    imageCreateInfo.pNext = NULL;
+	    imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+	    imageCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+	    imageCreateInfo.extent = {(uint32_t)width, (uint32_t)height, 1};
+	    imageCreateInfo.mipLevels = 1;
+	    imageCreateInfo.arrayLayers = 1;
+	    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+	    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	    imageCreateInfo.flags = 0;
+	    imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
 
-		err = vkCreateImage(device, &imageCreateInfo, nullptr, &destImage);
-		assert(!err);
+	    err = vkCreateImage(device, &imageCreateInfo, nullptr, &destImage);
+	    assert(!err);
 
-		VkMemoryRequirements memoryRequirements;
-		vkGetImageMemoryRequirements(device, destImage, &memoryRequirements);
+	    VkMemoryRequirements memoryRequirements;
+	    vkGetImageMemoryRequirements(device, destImage, &memoryRequirements);
 
-		VkMemoryAllocateInfo allocationInfo = {};
-		allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocationInfo.pNext = nullptr;
-		allocationInfo.memoryTypeIndex = 0;
+	    VkMemoryAllocateInfo allocationInfo = {};
+	    allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	    allocationInfo.pNext = nullptr;
+	    allocationInfo.memoryTypeIndex = 0;
 
-		vkGetImageMemoryRequirements(device, destImage, &memoryRequirements);
-		allocationInfo.allocationSize = memoryRequirements.size;
-		bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
-		assert(pass);
-		err = vkAllocateMemory(device, &allocationInfo, nullptr, &destMemory);
-		assert(!err);
-		err = vkBindImageMemory(device, destImage, destMemory, 0);
-		assert(!err);
+	    vkGetImageMemoryRequirements(device, destImage, &memoryRequirements);
+	    allocationInfo.allocationSize = memoryRequirements.size;
+	    bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
+	    assert(pass);
+	    err = vkAllocateMemory(device, &allocationInfo, nullptr, &destMemory);
+	    assert(!err);
+	    err = vkBindImageMemory(device, destImage, destMemory, 0);
+	    assert(!err);
 
-		setImageLayout(destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	    setImageLayout(destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		VkImageViewCreateInfo view = {};
-		view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		view.pNext = nullptr;
-		view.image = VK_NULL_HANDLE;
-		view.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		view.format = VK_FORMAT_R8G8B8A8_UNORM;
-		view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
-		view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
-		view.image = destImage;
-		err = vkCreateImageView(device, &view, nullptr, &destView);
-		assert(!err);
+	    VkImageViewCreateInfo view = {};
+	    view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	    view.pNext = nullptr;
+	    view.image = VK_NULL_HANDLE;
+	    view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	    view.format = VK_FORMAT_R8G8B8A8_UNORM;
+	    view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
+	    view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+	    view.image = destImage;
+	    err = vkCreateImageView(device, &view, nullptr, &destView);
+	    assert(!err);
 	}
 
 	{
-		VkFormatProperties formatProperties;
-		VkResult err;
+	    VkFormatProperties formatProperties;
+	    VkResult err;
 
-		vkGetPhysicalDeviceFormatProperties(gpu, VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
-		assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT);
+	    vkGetPhysicalDeviceFormatProperties(gpu, VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
+	    assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT);
 
-		VkImageCreateInfo image = {};
-		image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		image.pNext = nullptr;
-		image.imageType = VK_IMAGE_TYPE_2D;
-		image.format = VK_FORMAT_R8G8B8A8_UNORM;
-		image.extent.width = width;
-		image.extent.height = height;
-		image.extent.depth = 1;
-		image.mipLevels = 1;
-		image.arrayLayers = 1;
-		image.samples = VK_SAMPLE_COUNT_1_BIT;
-		image.tiling = VK_IMAGE_TILING_OPTIMAL;
-		image.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-		image.flags = 0;
+	    VkImageCreateInfo image = {};
+	    image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	    image.pNext = nullptr;
+	    image.imageType = VK_IMAGE_TYPE_2D;
+	    image.format = VK_FORMAT_R8G8B8A8_UNORM;
+	    image.extent.width = width;
+	    image.extent.height = height;
+	    image.extent.depth = 1;
+	    image.mipLevels = 1;
+	    image.arrayLayers = 1;
+	    image.samples = VK_SAMPLE_COUNT_1_BIT;
+	    image.tiling = VK_IMAGE_TILING_OPTIMAL;
+	    image.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+	    image.flags = 0;
 
-		VkImageViewCreateInfo colorImageView = {};
-		colorImageView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		colorImageView.pNext = nullptr;
-		colorImageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		colorImageView.format = VK_FORMAT_R8G8B8A8_UNORM;
-		colorImageView.flags = 0;
-		colorImageView.subresourceRange = {};
-		colorImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		colorImageView.subresourceRange.baseMipLevel = 0;
-		colorImageView.subresourceRange.levelCount = 1;
-		colorImageView.subresourceRange.baseArrayLayer = 0;
-		colorImageView.subresourceRange.layerCount = 1;
+	    VkImageViewCreateInfo colorImageView = {};
+	    colorImageView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	    colorImageView.pNext = nullptr;
+	    colorImageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	    colorImageView.format = VK_FORMAT_R8G8B8A8_UNORM;
+	    colorImageView.flags = 0;
+	    colorImageView.subresourceRange = {};
+	    colorImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	    colorImageView.subresourceRange.baseMipLevel = 0;
+	    colorImageView.subresourceRange.levelCount = 1;
+	    colorImageView.subresourceRange.baseArrayLayer = 0;
+	    colorImageView.subresourceRange.layerCount = 1;
 
-		err = vkCreateImage(device, &image, nullptr, &sourceImage);
-		assert(!err);
+	    err = vkCreateImage(device, &image, nullptr, &sourceImage);
+	    assert(!err);
 
-		VkMemoryRequirements memoryRequirements;
-		vkGetImageMemoryRequirements(device, sourceImage, &memoryRequirements);
+	    VkMemoryRequirements memoryRequirements;
+	    vkGetImageMemoryRequirements(device, sourceImage, &memoryRequirements);
 
-		VkMemoryAllocateInfo allocationInfo = {};
-		allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocationInfo.pNext = nullptr;
-		allocationInfo.memoryTypeIndex = 0;
+	    VkMemoryAllocateInfo allocationInfo = {};
+	    allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	    allocationInfo.pNext = nullptr;
+	    allocationInfo.memoryTypeIndex = 0;
 
-		vkGetImageMemoryRequirements(device, sourceImage, &memoryRequirements);
-		allocationInfo.allocationSize = memoryRequirements.size;
-		bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
-		assert(pass);
+	    vkGetImageMemoryRequirements(device, sourceImage, &memoryRequirements);
+	    allocationInfo.allocationSize = memoryRequirements.size;
+	    bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
+	    assert(pass);
 
-		err = vkAllocateMemory(device, &allocationInfo, nullptr, &sourceMemory);
-		assert(!err);
+	    err = vkAllocateMemory(device, &allocationInfo, nullptr, &sourceMemory);
+	    assert(!err);
 
-		err = vkBindImageMemory(device, sourceImage, sourceMemory, 0);
-		assert(!err);
-		setImageLayout(sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	    err = vkBindImageMemory(device, sourceImage, sourceMemory, 0);
+	    assert(!err);
+	    setImageLayout(sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-		colorImageView.image = sourceImage;
-		err = vkCreateImageView(device, &colorImageView, nullptr, &sourceView);
-		assert(!err);
+	    colorImageView.image = sourceImage;
+	    err = vkCreateImageView(device, &colorImageView, nullptr, &sourceView);
+	    assert(!err);
 	}*/
 
 	VkSamplerCreateInfo samplerInfo = {};
@@ -331,9 +333,8 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	createDescriptorSet(nullptr, this, desc_set);*/
 }
 
-Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
-	
-}
+Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId) {}
 
 Graphics5::RenderTarget::~RenderTarget() {}
 
@@ -344,10 +345,6 @@ void Graphics5::RenderTarget::useColorAsTexture(Graphics5::TextureUnit unit) {
 	//**	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, Program5Impl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
-void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {
+void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
 
-}
-
-void Graphics5::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
-
-}
+void Graphics5::RenderTarget::setDepthStencilFrom(RenderTarget* source) {}

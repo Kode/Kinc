@@ -3,8 +3,8 @@
 #include "TextureImpl.h"
 #include "ogl.h"
 
-#include <Kore/Graphics3/Graphics.h>
 #include <Kore/Graphics1/Image.h>
+#include <Kore/Graphics3/Graphics.h>
 #include <Kore/Log.h>
 
 using namespace Kore;
