@@ -234,7 +234,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glGetIntegerv(GL_NUM_EXTENSIONS, &extensions);
 	for (int i = 0; i < extensions; ++i) {
 		const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
-		if (strcmp(extension, "GL_NV_conservative_raster") == 0) {
+		if (extension != nullptr && strcmp(extension, "GL_NV_conservative_raster") == 0) {
 			supportsConservativeRaster = true;
 		}
 	}
