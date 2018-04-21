@@ -455,6 +455,10 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 
 Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
 #ifndef KORE_OPENGL_ES
+	texWidth = width;
+	texHeight = height;
+	texDepth = depth;
+	
 	glGenTextures(1, &texture);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_3D, texture);
