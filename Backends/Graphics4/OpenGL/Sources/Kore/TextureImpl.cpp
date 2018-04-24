@@ -536,21 +536,19 @@ GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
 }*/
 
 void Graphics4::Texture::unlock() {
-	// if (conversionBuffer != nullptr) {
-	// convertImageToPow2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	void* texdata = data;
+	bool isHdr = convertType(format) == GL_FLOAT;
+	if (isHdr) texdata = hdrData;
+	glBindTexture(target, texture);
 	glCheckErrors();
-	// glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA :
-	// GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
-	if (convertType(format) == GL_FLOAT) {
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), GL_FLOAT, hdrData);
-		glCheckErrors();
+	if (depth > 1) {
+		glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, texWidth, texHeight, texDepth, convertFormat(format), convertType(format), texdata);
 	}
 	else {
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), GL_UNSIGNED_BYTE, data);
-		glCheckErrors();
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), convertType(format), texdata);
 	}
-	// }
+	glCheckErrors();
 }
 
 void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
