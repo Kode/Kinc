@@ -12,7 +12,7 @@
 #include <Kore/Graphics4/TextureArray.h>
 #undef CreateWindow
 #include <Kore/System.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemWindows.h>
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
 #include <d3d11_4.h>
@@ -128,14 +128,14 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
+	Windows::affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 		&featureLevel, &context));
 
 #elif KORE_OCULUS
 	IDXGIFactory* dxgiFactory = nullptr;
-	affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));
+	Windows::affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));
 
-	affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &featureLevel, &context));
+	Windows::affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &featureLevel, &context));
 #endif
 	// affirm(device0.As(&device));
 	// affirm(context0.As(&context));
@@ -143,7 +143,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	// m_windowBounds = m_window->Bounds;
 
 	if (swapChain != nullptr) {
-		affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		Windows::affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
 	else {
 #ifdef KORE_WINDOWS
@@ -185,17 +185,17 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Flags = 0;
 
 		IDXGIDevice1* dxgiDevice;
-		affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
+		Windows::affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
 
 		IDXGIAdapter* dxgiAdapter;
-		affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		Windows::affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
 		IDXGIFactory2* dxgiFactory;
-		affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
+		Windows::affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
 
-		affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
+		Windows::affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
 			&swapChain));
-		affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		Windows::affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #endif
 
 #elif KORE_OCULUS
@@ -212,12 +212,12 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		scDesc.Windowed = true;
 		scDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
 
-		affirm(dxgiFactory->CreateSwapChain(device, &scDesc, &swapChain));
+		Windows::affirm(dxgiFactory->CreateSwapChain(device, &scDesc, &swapChain));
 		dxgiFactory->Release();
 
 		IDXGIDevice1* dxgiDevice = nullptr;
-		affirm(device->QueryInterface(__uuidof(IDXGIDevice1), (void**)&dxgiDevice));
-		affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		Windows::affirm(device->QueryInterface(__uuidof(IDXGIDevice1), (void**)&dxgiDevice));
+		Windows::affirm(dxgiDevice->SetMaximumFrameLatency(1));
 		dxgiDevice->Release();
 #else
 		UINT flags = 0;
@@ -225,7 +225,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef _DEBUG
 		flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
-		affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain,
+		Windows::affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain,
 			&device, nullptr, &context));
 #endif
 	}
@@ -244,9 +244,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	affirm(contextPtr.As(&context3Ptr));
 	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
 #else
-	affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	Windows::affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	Windows::affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
 	backBuffer->GetDesc(&backBufferDesc);
@@ -258,9 +258,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		antialiasingSamples() > 1 ? antialiasingSamples() : 1, antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
 
 	ID3D11Texture2D* depthStencil;
-	affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	Windows::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples() > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
+	Windows::affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples() > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
 	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
@@ -308,7 +308,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	ID3D11BlendState* blending;
 	device->CreateBlendState(&blendDesc, &blending);
 
-	affirm(device->CreateBlendState(&blendDesc, &blending));
+	Windows::affirm(device->CreateBlendState(&blendDesc, &blending));
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 
 #ifdef KORE_WINDOWS

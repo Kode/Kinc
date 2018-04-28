@@ -4,7 +4,7 @@
 #include "RenderTargetImpl.h"
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemWindows.h>
 
 using namespace Kore;
 
@@ -64,13 +64,13 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		renderTargetView[i] = nullptr;
 	}
 	if (!isDepthAttachment) {
-		affirm(device->CreateTexture2D(&desc, nullptr, &texture));
+		Windows::affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = desc.Format;
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView[0]));
+		Windows::affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView[0]));
 	}
 
 	depthStencil = nullptr;
@@ -98,8 +98,8 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 			depthStencilDesc.SampleDesc.Count = 1;
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
-		affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-		affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT),
+		Windows::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+		Windows::affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT),
 		                                      &depthStencilView[0]));
 	}
 
@@ -109,7 +109,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &renderTargetSRV));
+		Windows::affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &renderTargetSRV));
 	}
 
 	if (depthBufferBits > 0) {
@@ -117,7 +117,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
+		Windows::affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
 	}
 
 	lastBoundUnit = -1;
@@ -186,7 +186,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		renderTargetView[i] = nullptr;
 	}
 	if (!isDepthAttachment) {
-		affirm(device->CreateTexture2D(&desc, nullptr, &texture));
+		Windows::affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = desc.Format;
@@ -196,7 +196,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 
 		for (int i = 0; i < 6; i++) {
 			renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
-			affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView[i]));
+			Windows::affirm(device->CreateRenderTargetView(texture, &renderTargetViewDesc, &renderTargetView[i]));
 		}
 	}
 
@@ -227,7 +227,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 			depthStencilDesc.SampleDesc.Count = 1;
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
-		affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+		Windows::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
 		CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -237,7 +237,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		depthStencilViewDesc.Flags = 0;
 		for (int i = 0; i < 6; i++) {
 			depthStencilViewDesc.Texture2DArray.FirstArraySlice = i;
-			affirm(device->CreateDepthStencilView(depthStencil, &depthStencilViewDesc, &depthStencilView[i]));
+			Windows::affirm(device->CreateDepthStencilView(depthStencil, &depthStencilViewDesc, &depthStencilView[i]));
 		}
 	}
 
@@ -247,7 +247,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCube.MipLevels = 1;
-		affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &renderTargetSRV));
+		Windows::affirm(device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &renderTargetSRV));
 	}
 
 	if (depthBufferBits > 0) {
@@ -255,7 +255,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCube.MipLevels = 1;
-		affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
+		Windows::affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
 	}
 
 	lastBoundUnit = -1;

@@ -3,7 +3,7 @@
 #include "Direct3D11.h"
 #include "VertexBufferImpl.h"
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemWindows.h>
 
 using namespace Kore;
 
@@ -44,7 +44,7 @@ Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	affirm(device->CreateBuffer(&bufferDesc, nullptr, &_vb));
+	Windows::affirm(device->CreateBuffer(&bufferDesc, nullptr, &_vb));
 }
 
 Graphics4::VertexBuffer::~VertexBuffer() {

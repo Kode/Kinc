@@ -3,7 +3,7 @@
 #include "Direct3D11.h"
 #include "TextureImpl.h"
 #include <Kore/Math/Random.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemWindows.h>
 
 using namespace Kore;
 
@@ -83,8 +83,8 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	data.SysMemSlicePitch = 0;
 
 	texture = nullptr;
-	affirm(device->CreateTexture2D(&desc, &data, &texture));
-	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Windows::affirm(device->CreateTexture2D(&desc, &data, &texture));
+	Windows::affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	computeView = nullptr;
 
@@ -132,8 +132,8 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	}
 
 	texture = nullptr;
-	affirm(device->CreateTexture2D(&desc, nullptr, &texture));
-	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Windows::affirm(device->CreateTexture2D(&desc, nullptr, &texture));
+	Windows::affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	computeView = nullptr;
 	if (format == Image::RGBA128) {
@@ -141,7 +141,7 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 		du.Format = desc.Format;
 		du.Texture2D.MipSlice = 0;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE2D;
-		affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
+		Windows::affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
 	}
 }
 
