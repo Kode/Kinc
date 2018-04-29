@@ -36,7 +36,9 @@ let plugin = false;
 
 if (platform === Platform.Windows) {
 	project.addDefine('KORE_WINDOWS');
+	project.addDefine('KORE_MICROSOFT');
 	addBackend('System/Windows');
+	addBackend('System/Microsoft');
 	project.addLib('dxguid');
 	project.addLib('dsound');
 	project.addLib('dinput8');
@@ -136,7 +138,9 @@ if (platform === Platform.Windows) {
 else if (platform === Platform.WindowsApp) {
 	g4 = true;
 	project.addDefine('KORE_WINDOWSAPP');
+	project.addDefine('KORE_MICROSOFT');
 	addBackend('System/WindowsApp');
+	addBackend('System/Microsoft');
 	addBackend('Graphics4/Direct3D11');
 	addBackend('Audio2/WASAPI');
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');

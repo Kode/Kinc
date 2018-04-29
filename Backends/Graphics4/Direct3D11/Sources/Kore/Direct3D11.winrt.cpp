@@ -12,7 +12,7 @@
 #include <Kore/Graphics4/TextureArray.h>
 #undef CreateWindow
 #include <Kore/System.h>
-#include <Kore/SystemWindows.h>
+#include <Kore/SystemMicrosoft.h>
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
 #include <d3d11_4.h>
@@ -48,7 +48,7 @@ Kore::u8 tessEvalConstants[1024 * 4];
 using namespace Kore;
 
 #ifdef KORE_WINDOWSAPP
-using namespace Microsoft::WRL;
+using namespace ::Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
 #ifdef KORE_HOLOLENS 
@@ -128,7 +128,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	Windows::affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
+	Microsoft::affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 		&featureLevel, &context));
 
 #elif KORE_OCULUS
@@ -143,7 +143,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	// m_windowBounds = m_window->Bounds;
 
 	if (swapChain != nullptr) {
-		Windows::affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		Microsoft::affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
 	else {
 #ifdef KORE_WINDOWS
@@ -185,17 +185,17 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Flags = 0;
 
 		IDXGIDevice1* dxgiDevice;
-		Windows::affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
+		Microsoft::affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
 
 		IDXGIAdapter* dxgiAdapter;
-		Windows::affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		Microsoft::affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
 		IDXGIFactory2* dxgiFactory;
-		Windows::affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
+		Microsoft::affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
 
-		Windows::affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
+		Microsoft::affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc, nullptr,
 			&swapChain));
-		Windows::affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		Microsoft::affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #endif
 
 #elif KORE_OCULUS
@@ -225,7 +225,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef _DEBUG
 		flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
-		Windows::affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain,
+		Microsoft::affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc, &swapChain,
 			&device, nullptr, &context));
 #endif
 	}
@@ -244,9 +244,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	affirm(contextPtr.As(&context3Ptr));
 	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
 #else
-	Windows::affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	Microsoft::affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	Windows::affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	Microsoft::affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
 	backBuffer->GetDesc(&backBufferDesc);
@@ -258,9 +258,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		antialiasingSamples() > 1 ? antialiasingSamples() : 1, antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
 
 	ID3D11Texture2D* depthStencil;
-	Windows::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	Microsoft::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	Windows::affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples() > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
+	Microsoft::affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples() > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D), &depthStencilView));
 
 	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
@@ -308,7 +308,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	ID3D11BlendState* blending;
 	device->CreateBlendState(&blendDesc, &blending);
 
-	Windows::affirm(device->CreateBlendState(&blendDesc, &blending));
+	Microsoft::affirm(device->CreateBlendState(&blendDesc, &blending));
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 
 #ifdef KORE_WINDOWS

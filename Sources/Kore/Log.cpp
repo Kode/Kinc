@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_XBOX_ONE)
-#include <Kore/SystemWindows.h>
+#ifdef KORE_MICROSOFT
+#include <Kore/SystemMicrosoft.h>
 #include <Windows.h>
 #endif
 
@@ -26,9 +26,9 @@ void Kore::log(LogLevel level, const char* format, ...) {
 }
 
 void Kore::logArgs(LogLevel level, const char* format, va_list args) {
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_XBOX_ONE)
+#ifdef KORE_MICROSOFT
 	wchar_t buffer[4096];
-	Windows::format(format, args, buffer);
+	Microsoft::format(format, args, buffer);
 	wcscat(buffer, L"\r\n");
 	OutputDebugString(buffer);
 #ifdef KORE_WINDOWS

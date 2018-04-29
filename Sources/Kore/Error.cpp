@@ -7,9 +7,9 @@
 
 #include <stdlib.h>
 
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+#ifdef KORE_WINDOWS
 #include <Windows.h>
-#include <Kore/SystemWindows.h>
+#include <Kore/SystemMicrosoft.h>
 #endif
 
 using namespace Kore;
@@ -46,12 +46,12 @@ void Kore::error(const char* format, ...) {
 		va_end(args);
 	}
 
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+#ifdef KORE_WINDOWS
 	{
 		va_list args;
 		va_start(args, format);
 		wchar_t buffer[4096];
-		Windows::format(format, args, buffer);
+		Microsoft::format(format, args, buffer);
 		MessageBox(nullptr, buffer, L"Error", 0);
 		va_end(args);
 	}
@@ -63,9 +63,9 @@ void Kore::error(const char* format, ...) {
 void Kore::errorArgs(const char* format, va_list args) {
 	logArgs(Error, format, args);
 
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+#ifdef KORE_WINDOWS
 	wchar_t buffer[4096];
-	Windows::format(format, args, buffer);
+	Microsoft::format(format, args, buffer);
 	MessageBox(nullptr, buffer, L"Error", 0);
 #endif
 

@@ -4,7 +4,7 @@
 #include "IndexBufferImpl.h"
 
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/SystemWindows.h>
+#include <Kore/SystemMicrosoft.h>
 #include <Windows.h>
 #include <d3d11.h>
 
@@ -25,7 +25,7 @@ Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	Windows::affirm(device->CreateBuffer(&bufferDesc, nullptr, &ib));
+	Microsoft::affirm(device->CreateBuffer(&bufferDesc, nullptr, &ib));
 }
 
 Graphics4::IndexBuffer::~IndexBuffer() {

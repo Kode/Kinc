@@ -46,11 +46,6 @@ CTextureRenderer::~CTextureRenderer() {
 	// Do nothing
 }
 
-#define CheckPointer(p, ret)                                                                                                                                   \
-	{                                                                                                                                                          \
-		if ((p) == NULL) return (ret);                                                                                                                         \
-	}
-
 HRESULT CTextureRenderer::CheckMediaType(const CMediaType* pmt) {
 	HRESULT hr = E_FAIL;
 	VIDEOINFO* pvi = 0;

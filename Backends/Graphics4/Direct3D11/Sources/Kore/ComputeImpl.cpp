@@ -5,7 +5,7 @@
 
 #include <Kore/Compute/Compute.h>
 #include <Kore/Math/Core.h>
-#include <Kore/SystemWindows.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 
@@ -59,7 +59,7 @@ ComputeShader::ComputeShader(void* _data, int length) {
 	this->data = &data[index];
 	this->length = length - index;
 
-	Windows::affirm(device->CreateComputeShader(this->data, this->length, nullptr, (ID3D11ComputeShader**)&shader));
+	Microsoft::affirm(device->CreateComputeShader(this->data, this->length, nullptr, (ID3D11ComputeShader**)&shader));
 }
 
 ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {

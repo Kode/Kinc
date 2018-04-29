@@ -32,7 +32,7 @@ namespace Kore {
 
 		bool isPrimary(int index) {
 			log(Warning, "TODO (DK) Kore::Display::isPrimary(int) implement me");
-			return -1;
+			return true;
 		}
 	}
 }

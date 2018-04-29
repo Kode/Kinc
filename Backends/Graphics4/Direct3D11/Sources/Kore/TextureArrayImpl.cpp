@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Graphics4/TextureArray.h>
-#include <Kore/SystemWindows.h>
+#include <Kore/SystemMicrosoft.h>
 
 #include "Direct3D11.h"
 
@@ -34,8 +34,8 @@ TextureArray::TextureArray(Image** textures, int count) {
 	}
 
 	texture = nullptr;
-	Windows::affirm(device->CreateTexture2D(&desc, resdata, &texture));
-	Windows::affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Microsoft::affirm(device->CreateTexture2D(&desc, resdata, &texture));
+	Microsoft::affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 }
 
 void TextureArrayImpl::set(TextureUnit unit) {
