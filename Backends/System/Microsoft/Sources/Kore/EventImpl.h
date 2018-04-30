@@ -1,7 +1,8 @@
 #pragma once
 
 namespace Kore {
-	class MutexImpl {
+	class EventImpl {
 	protected:
+		void* event;
 	};
 }
