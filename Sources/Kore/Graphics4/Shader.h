@@ -21,6 +21,7 @@ namespace Kore {
 				static u32 lastId = 0;
 				id = lastId++;
 			}
+			void parse(void* data, int length, ShaderType type);
 		};
 
 		class ConstantLocation : public ConstantLocationImpl {

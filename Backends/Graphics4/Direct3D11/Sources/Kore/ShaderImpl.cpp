@@ -9,8 +9,7 @@ using namespace Kore;
 
 ShaderImpl::ShaderImpl() {}
 
-Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
-	setId();
+void Graphics4::Shader::parse(void* _data, int length, ShaderType type) {
 	unsigned index = 0;
 	u8* data = (u8*)_data;
 
@@ -78,6 +77,21 @@ Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
 	}
 }
 
+Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
+	setId();
+	parse(_data, length, type);
+}
+
+#ifdef KRAFIX_LIBRARY
+extern void krafix_compile(const char* source, char* output, int* length, const char* targetlang, const char* system, const char* shadertype);
+#endif
+
 Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {
 	setId();
+#ifdef KRAFIX_LIBRARY
+	char* output = new char[1024 * 1024];
+	int length;
+	krafix_compile(source, output, &length, "d3d11", "windows", type == Graphics4::FragmentShader ? "frag" : "vert");
+	parse(output, length, type);
+#endif
 }
