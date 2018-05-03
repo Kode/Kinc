@@ -840,7 +840,11 @@ Kore::System::ticks Kore::System::timestamp() {
 	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
 }
 
-extern int kore(int argc, char** argv);
+extern
+#ifdef KOREC
+"C"
+#endif
+int kore(int argc, char** argv);
 
 int main(int argc, char** argv) {
 	Kore::initHIDGamepads();
