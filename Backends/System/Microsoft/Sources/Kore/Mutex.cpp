@@ -31,17 +31,29 @@ void Mutex::unlock() {
 }
 
 bool UberMutex::create(const wchar_t* name) {
-	return false;
+	id = (void*)CreateMutex(NULL, FALSE, name);
+	HRESULT res = GetLastError();
+	if (res && res != ERROR_ALREADY_EXISTS) {
+		id = NULL;
+		affirm(false);
+		return false;
+	}
+	return true;
 }
 
 void UberMutex::destroy() {
-	
+	if (id) {
+		::CloseHandle((HANDLE)id);
+		id = NULL;
+	}
 }
 
 void UberMutex::lock() {
-	
+	bool succ = WaitForSingleObject((HANDLE)id, INFINITE) == WAIT_FAILED ? false : true;
+	affirm(succ);
 }
 
 void UberMutex::unlock() {
-	
+	bool succ = ReleaseMutex((HANDLE)id) == FALSE ? false : true;
+	affirm(succ);
 }
