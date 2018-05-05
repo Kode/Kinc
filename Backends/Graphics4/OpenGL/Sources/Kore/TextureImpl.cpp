@@ -543,7 +543,9 @@ void Graphics4::Texture::unlock() {
 	glBindTexture(target, texture);
 	glCheckErrors();
 	if (depth > 1) {
+#ifndef KORE_OPENGL_ES
 		glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, texWidth, texHeight, texDepth, convertFormat(format), convertType(format), texdata);
+#endif
 	}
 	else {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), convertType(format), texdata);
