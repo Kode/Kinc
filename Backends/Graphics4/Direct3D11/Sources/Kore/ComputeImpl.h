@@ -3,8 +3,14 @@
 #include <map>
 #include <string>
 
+struct ID3D11Buffer;
+
 namespace Kore {
-	class ComputeConstantLocationImpl {};
+	class ComputeConstantLocationImpl {
+	public:
+		u32 offset;
+		u32 size;
+	};
 
 	class ComputeTextureUnitImpl {};
 
@@ -25,5 +31,6 @@ namespace Kore {
 		void* shader;
 		u8* data;
 		int length;
+		ID3D11Buffer* constantBuffer;
 	};
 }
