@@ -230,6 +230,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	// glEnable(GL_DEBUG_OUTPUT);
 	// glDebugMessageCallback(debugCallback, nullptr);
 
+#ifndef KORE_OPENGL_ES
 	int extensions;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &extensions);
 	for (int i = 0; i < extensions; ++i) {
@@ -238,6 +239,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 			supportsConservativeRaster = true;
 		}
 	}
+#endif
 
 	lastPipeline = nullptr;
 }
