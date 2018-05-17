@@ -52,7 +52,19 @@ bool Mouse::canLock(int windowId) {
 }
 
 void Mouse::show(bool truth) {
-	// TODO
+	Display* dpy = XOpenDisplay(0);
+	::Window win = (XID)System::windowHandle(0);
+	if (truth) {
+		XUndefineCursor(dpy, win);
+	}
+	else {
+		XColor col;
+		char data[1] = {0};
+		Pixmap blank = XCreateBitmapFromData(dpy, win, data, 1, 1);
+		Cursor cursor = XCreatePixmapCursor(dpy, blank, blank, &col, &col, 0, 0);
+		XFreePixmap(dpy, blank);
+		XDefineCursor(dpy, win, cursor);
+	}
 }
 
 void Mouse::setPosition(int windowId, int x, int y) {
