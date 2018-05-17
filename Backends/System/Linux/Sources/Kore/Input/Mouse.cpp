@@ -52,6 +52,7 @@ bool Mouse::canLock(int windowId) {
 }
 
 void Mouse::show(bool truth) {
+#ifdef KORE_OPENGL
 	Display* dpy = XOpenDisplay(0);
 	::Window win = (XID)System::windowHandle(0);
 	if (truth) {
@@ -65,6 +66,7 @@ void Mouse::show(bool truth) {
 		XFreePixmap(dpy, blank);
 		XDefineCursor(dpy, win, cursor);
 	}
+#endif
 }
 
 void Mouse::setPosition(int windowId, int x, int y) {
