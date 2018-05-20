@@ -13,7 +13,7 @@ using namespace Kore;
 
 struct ThreadData {
 	void* param;
-	void(*thread)(void* param);
+	void (*thread)(void* param);
 	HANDLE handle;
 };
 
@@ -23,7 +23,7 @@ static DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 	return 0;
 }
 
-Kore::Thread* Kore::createAndRunThread(void(*thread)(void* param), void* param) {
+Kore::Thread* Kore::createAndRunThread(void (*thread)(void* param), void* param) {
 	ThreadData* data = new ThreadData;
 	data->param = param;
 	data->thread = thread;

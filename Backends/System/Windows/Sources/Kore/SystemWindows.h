@@ -1,7 +1,5 @@
 #pragma once
 
 namespace Kore {
-	namespace Windows {
-		
-	}
+	namespace Windows {}
 }

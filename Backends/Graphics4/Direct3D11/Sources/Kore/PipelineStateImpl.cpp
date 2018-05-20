@@ -284,19 +284,19 @@ namespace {
 void Graphics4::PipelineState::compile() {
 	if (vertexShader->constantsSize > 0)
 		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &vertexConstantBuffer));
+		                                       &vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0)
 		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &fragmentConstantBuffer));
+		                                       &fragmentConstantBuffer));
 	if (geometryShader != nullptr && geometryShader->constantsSize > 0)
 		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &geometryConstantBuffer));
+		                                       &geometryConstantBuffer));
 	if (tessellationControlShader != nullptr && tessellationControlShader->constantsSize > 0)
-		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &tessControlConstantBuffer));
+		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		                                       nullptr, &tessControlConstantBuffer));
 	if (tessellationEvaluationShader != nullptr && tessellationEvaluationShader->constantsSize > 0)
-		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                            &tessEvalConstantBuffer));
+		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		                                       nullptr, &tessEvalConstantBuffer));
 
 	int all = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {

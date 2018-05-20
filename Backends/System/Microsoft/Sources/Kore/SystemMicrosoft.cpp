@@ -40,7 +40,6 @@ void Kore::Microsoft::affirm(HRESULT result, const char* format, ...) {
 	va_end(args);
 }
 
-
 void Kore::Microsoft::format(const char* format, va_list args, wchar_t* buffer) {
 	wchar_t formatw[4096];
 	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);

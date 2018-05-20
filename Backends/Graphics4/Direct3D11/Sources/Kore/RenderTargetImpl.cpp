@@ -99,8 +99,8 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
 		Microsoft::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-		Microsoft::affirm(device->CreateDepthStencilView(depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT),
-		                                      &depthStencilView[0]));
+		Microsoft::affirm(device->CreateDepthStencilView(
+		    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT), &depthStencilView[0]));
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;

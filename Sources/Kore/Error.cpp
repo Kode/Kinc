@@ -9,6 +9,7 @@
 
 #ifdef KORE_WINDOWS
 #include <Windows.h>
+
 #include <Kore/SystemMicrosoft.h>
 #endif
 
@@ -36,7 +37,6 @@ void Kore::affirmArgs(bool b, const char* format, va_list args) {
 void Kore::error() {
 	error("Unknown error");
 }
-
 
 void Kore::error(const char* format, ...) {
 	{
