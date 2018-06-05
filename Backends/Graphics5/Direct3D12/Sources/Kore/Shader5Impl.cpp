@@ -4,7 +4,7 @@
 
 #include <Kore/Graphics5/Shader.h>
 #include <Kore/Math/Core.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 
@@ -60,19 +60,19 @@ Graphics5::Shader::Shader(void* _data, int length, ShaderType type) {
 
 	switch (type) {
 	case VertexShader:
-		// affirm(device->CreateVertexShader(this->data, this->length, nullptr, (ID3D11VertexShader**)&shader));
+		// Microsoft::affirm(device->CreateVertexShader(this->data, this->length, nullptr, (ID3D11VertexShader**)&shader));
 		break;
 	case FragmentShader:
-		// affirm(device->CreatePixelShader(this->data, this->length, nullptr, (ID3D11PixelShader**)&shader));
+		// Microsoft::affirm(device->CreatePixelShader(this->data, this->length, nullptr, (ID3D11PixelShader**)&shader));
 		break;
 	case GeometryShader:
-		// affirm(device->CreateGeometryShader(this->data, this->length, nullptr, (ID3D11GeometryShader**)&shader));
+		// Microsoft::affirm(device->CreateGeometryShader(this->data, this->length, nullptr, (ID3D11GeometryShader**)&shader));
 		break;
 	case TessellationControlShader:
-		// affirm(device->CreateHullShader(this->data, this->length, nullptr, (ID3D11HullShader**)&shader));
+		// Microsoft::affirm(device->CreateHullShader(this->data, this->length, nullptr, (ID3D11HullShader**)&shader));
 		break;
 	case TessellationEvaluationShader:
-		// affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader**)&shader));
+		// Microsoft::affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader**)&shader));
 		break;
 	}
 }

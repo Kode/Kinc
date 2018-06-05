@@ -4,7 +4,7 @@
 #include "VertexBuffer5Impl.h"
 
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 

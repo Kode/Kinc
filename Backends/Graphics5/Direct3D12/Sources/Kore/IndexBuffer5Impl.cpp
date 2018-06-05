@@ -4,7 +4,7 @@
 #include "IndexBuffer5Impl.h"
 
 #include <Kore/Graphics5/Graphics.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 #include <Windows.h>
 

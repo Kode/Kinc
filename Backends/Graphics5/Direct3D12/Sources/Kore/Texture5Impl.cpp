@@ -3,7 +3,7 @@
 #include "Direct3D12.h"
 #include "Texture5Impl.h"
 
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 

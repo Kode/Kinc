@@ -5,7 +5,7 @@
 
 #include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 #ifdef KORE_WINDOWS
 #include <dxgi1_4.h>
