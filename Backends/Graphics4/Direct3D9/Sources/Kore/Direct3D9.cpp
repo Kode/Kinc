@@ -7,7 +7,7 @@
 #include <Kore/Math/Core.h>
 #undef CreateWindow
 #include <Kore/System.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 #include <Kore/Log.h>
 
@@ -67,8 +67,8 @@ namespace {
 		device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 		device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 		device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
-		affirm(device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
-		affirm(device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+		Microsoft::affirm(device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+		Microsoft::affirm(device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
 #endif
 		// if (d3dpp.Windowed != TRUE) Cursor->Hide();
 
@@ -336,9 +336,9 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 		device->GetRenderTarget(0, &backBuffer);
 		device->GetDepthStencilSurface(&depthBuffer);
 	}
-	affirm(device->SetDepthStencilSurface(targets[0]->depthSurface));
+	Microsoft::affirm(device->SetDepthStencilSurface(targets[0]->depthSurface));
 	for (int i = 0; i < count; ++i) {
-		affirm(device->SetRenderTarget(i, targets[i]->colorSurface));
+		Microsoft::affirm(device->SetRenderTarget(i, targets[i]->colorSurface));
 	}
 }
 
@@ -349,7 +349,7 @@ void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
 // void Graphics::setDepthStencilTarget(Texture* texture) {
 //	//if (depthBuffer != nullptr) depthBuffer->Release();
 //	device->GetDepthStencilSurface(&depthBuffer);
-//	affirm(device->SetDepthStencilSurface(dcast<D3D9Texture*>(texture)->getSurface()));
+//	Microsoft::affirm(device->SetDepthStencilSurface(dcast<D3D9Texture*>(texture)->getSurface()));
 //}
 
 void Graphics4::restoreRenderTarget() {
@@ -374,12 +374,12 @@ void Graphics4::drawIndexedVertices(int start, int count) {
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
-	affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
+	Microsoft::affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), 0, IndexBuffer::_current->count() / 3);
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-	affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
+	Microsoft::affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3);
 }
 

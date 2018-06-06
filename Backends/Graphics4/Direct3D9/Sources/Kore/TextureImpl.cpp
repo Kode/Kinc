@@ -4,7 +4,7 @@
 #include "TextureImpl.h"
 
 #include <Kore/IO/BufferReader.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 
@@ -31,9 +31,9 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 	usage = D3DUSAGE_DYNAMIC;
-	affirm(device->CreateTexture(width, height, 1, usage, convert(this->format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
+	Microsoft::affirm(device->CreateTexture(width, height, 1, usage, convert(this->format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
 	D3DLOCKED_RECT rect;
-	affirm(texture->LockRect(0, &rect, 0, 0));
+	Microsoft::affirm(texture->LockRect(0, &rect, 0, 0));
 	pitch = rect.Pitch;
 	u8* from = (u8*)data;
 	u8* to = (u8*)rect.pBits;
@@ -46,7 +46,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 			to[rect.Pitch * y + x * 4 + 3 /*alpha*/] = (from[y * width * 4 + x * 4 + 3]); /// 255.0f;
 		}
 	}
-	affirm(texture->UnlockRect(0));
+	Microsoft::affirm(texture->UnlockRect(0));
 	if (!readable) {
 		delete[] data;
 		data = nullptr;
@@ -64,7 +64,7 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	texWidth = width;
 	texHeight = height;
 	usage = D3DUSAGE_DYNAMIC;
-	affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
+	Microsoft::affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
 	if (!readable) {
 		delete[] data;
 		data = nullptr;
@@ -79,7 +79,7 @@ TextureImpl::~TextureImpl() {
 }
 
 void Graphics4::Texture::_set(TextureUnit unit) {
-	affirm(device->SetTexture(unit.unit, texture));
+	Microsoft::affirm(device->SetTexture(unit.unit, texture));
 	this->stage = unit.unit;
 	setTextures[stage] = this;
 }
@@ -93,13 +93,13 @@ void TextureImpl::unset() {
 
 u8* Graphics4::Texture::lock() {
 	D3DLOCKED_RECT rect;
-	affirm(texture->LockRect(0, &rect, 0, 0));
+	Microsoft::affirm(texture->LockRect(0, &rect, 0, 0));
 	pitch = rect.Pitch;
 	return (u8*)rect.pBits;
 }
 
 void Graphics4::Texture::unlock() {
-	affirm(texture->UnlockRect(0));
+	Microsoft::affirm(texture->UnlockRect(0));
 }
 
 void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
