@@ -246,15 +246,32 @@ Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name
 }
 
 namespace {
+	char stringCache[1024];
+	int stringCacheIndex = 0;
+
 	int getMultipleOf16(int value) {
 		int ret = 16;
 		while (ret < value) ret += 16;
 		return ret;
 	}
 
-	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream, bool instanced) {
-		vertexDesc.SemanticName = "TEXCOORD";
-		vertexDesc.SemanticIndex = attributeIndex;
+	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream, bool instanced, int subindex = -1) {
+		if (subindex < 0) {
+			vertexDesc.SemanticName = "TEXCOORD";
+			vertexDesc.SemanticIndex = attributeIndex;
+		}
+		else {
+			// SPIRV_CROSS uses TEXCOORD_0_0,... for split up matrices
+			int stringStart = stringCacheIndex;
+			strcpy(&stringCache[stringCacheIndex], "TEXCOORD");
+			stringCacheIndex += strlen("TEXCOORD");
+			_itoa(attributeIndex, &stringCache[stringCacheIndex], 10);
+			stringCacheIndex += strlen(&stringCache[stringCacheIndex]);
+			strcpy(&stringCache[stringCacheIndex], "_");
+			stringCacheIndex += 2;
+			vertexDesc.SemanticName = &stringCache[stringStart];
+			vertexDesc.SemanticIndex = subindex;
+		}
 		vertexDesc.InputSlot = stream;
 		vertexDesc.AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
 		vertexDesc.InputSlotClass = instanced ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
@@ -315,6 +332,7 @@ void Graphics4::PipelineState::compile() {
 	for (auto attribute : vertexShader->attributes) {
 		used[attribute.second] = true;
 	}
+	stringCacheIndex = 0;
 	D3D11_INPUT_ELEMENT_DESC* vertexDesc = (D3D11_INPUT_ELEMENT_DESC*)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
 	int i = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
@@ -351,18 +369,18 @@ void Graphics4::PipelineState::compile() {
 				++i;
 				break;
 			case Float4x4VertexData:
+				char name[101];
+				strcpy(name, inputLayout[stream]->elements[index].name);
+				strcat(name, "_");
+				size_t length = strlen(name);
+				_itoa(0, &name[length], 10);
+				name[length + 1] = 0;
+				int attributeLocation = getAttributeLocation(vertexShader->attributes, name, used);
+
 				for (int i2 = 0; i2 < 4; ++i2) {
-					char name[101];
-					strcpy(name, inputLayout[stream]->elements[index].name);
-					strcat(name, "_");
-					size_t length = strlen(name);
-					_itoa(i2, &name[length], 10);
-					name[length + 1] = 0;
-
-					setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, name, used), index + i2, stream,
-					              inputLayout[stream]->instanced);
+					setVertexDesc(vertexDesc[i], attributeLocation, index + i2, stream,
+					              inputLayout[stream]->instanced, i2);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-
 					++i;
 				}
 				break;
