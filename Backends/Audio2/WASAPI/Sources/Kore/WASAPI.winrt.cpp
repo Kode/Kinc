@@ -104,9 +104,13 @@ namespace {
 		requestedFormat.cbSize = 0;
 		HRESULT result = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0);
 		if (result != S_OK) {
-			log(Warning, "Falling back to the system's preferred mix format.");
+			log(Warning, "Falling back to the system's preferred WASAPI mix format.");
 			audioClient->GetMixFormat(&format);
-			Kore::Microsoft::affirm(audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0));
+			result = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0);
+			if (result != S_OK) {
+				log(Warning, "Could not initialize WASAPI audio, going silent.");
+				return;
+			}
 		}
 
 		bufferFrames = 0;
