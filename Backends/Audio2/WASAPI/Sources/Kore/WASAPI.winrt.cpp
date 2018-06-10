@@ -1,16 +1,16 @@
 #include "pch.h"
 
 #include <Kore/Audio2/Audio.h>
-#include <Kore/Threads/Thread.h>
 #include <Kore/Log.h>
 #include <Kore/SystemMicrosoft.h>
+#include <Kore/Threads/Thread.h>
 
-#include <Windows.h>
-#include <wrl/implements.h>
-#include <initguid.h>
 #include <AudioClient.h>
+#include <Windows.h>
+#include <initguid.h>
 #include <mfapi.h>
 #include <mmdeviceapi.h>
+#include <wrl/implements.h>
 
 using namespace Kore;
 
@@ -30,6 +30,7 @@ namespace {
 	HANDLE audioProcessingDoneEvent;
 	UINT32 bufferFrames;
 	WAVEFORMATEX requestedFormat;
+	WAVEFORMATEX* closestFormat;
 	WAVEFORMATEX* format;
 
 	void copyS16Sample(s16* buffer) {
@@ -45,13 +46,13 @@ namespace {
 		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		*buffer = value;
 	}
-	
+
 	void submitBuffer(unsigned frames) {
 		BYTE* buffer = nullptr;
 		if (FAILED(renderClient->GetBuffer(frames, &buffer))) {
 			return;
 		}
-				
+
 		Kore::Audio2::audioCallback(frames * 2);
 		memset(buffer, 0, frames * format->nBlockAlign);
 		if (format->wFormatTag == WAVE_FORMAT_PCM) {
@@ -102,15 +103,21 @@ namespace {
 		requestedFormat.nBlockAlign = (requestedFormat.nChannels * requestedFormat.wBitsPerSample) / 8;
 		requestedFormat.nAvgBytesPerSec = requestedFormat.nSamplesPerSec * requestedFormat.nBlockAlign;
 		requestedFormat.cbSize = 0;
+
+		HRESULT supported = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closestFormat);
+		if (supported == S_FALSE) {
+			log(Warning, "Falling back to the system's preferred WASAPI mix format.", supported);
+			if (closestFormat != nullptr) {
+				format = closestFormat;
+			}
+			else {
+				audioClient->GetMixFormat(&format);
+			}
+		}
 		HRESULT result = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0);
 		if (result != S_OK) {
-			log(Warning, "Falling back to the system's preferred WASAPI mix format.");
-			audioClient->GetMixFormat(&format);
-			result = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0);
-			if (result != S_OK) {
-				log(Warning, "Could not initialize WASAPI audio, going silent.");
-				return;
-			}
+			log(Warning, "Could not initialize WASAPI audio, going silent (error code 0x%x).", result);
+			return;
 		}
 
 		bufferFrames = 0;
@@ -134,7 +141,7 @@ namespace {
 			HRESULT hr = operation->GetActivateResult(&hrActivateResult, &audioInterface);
 			if (SUCCEEDED(hr) && SUCCEEDED(hrActivateResult)) {
 				audioInterface->QueryInterface(IID_PPV_ARGS(&audioClient));
-				initAudio();				
+				initAudio();
 			}
 			return S_OK;
 		}
@@ -142,7 +149,7 @@ namespace {
 
 	ComPtr<AudioRenderer> renderer;
 #endif
-}
+} // namespace
 
 template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
 	T* pTTemp = *ppT;
@@ -152,10 +159,10 @@ template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
 	}
 }
 
-#define SAFE_RELEASE(punk)  \
-	if ((punk) != NULL) {   \
-		(punk)->Release();  \
-		(punk) = NULL;      \
+#define SAFE_RELEASE(punk)                                                                                                                                     \
+	if ((punk) != NULL) {                                                                                                                                      \
+		(punk)->Release();                                                                                                                                     \
+		(punk) = NULL;                                                                                                                                         \
 	}
 
 void Audio2::init() {
@@ -166,7 +173,8 @@ void Audio2::init() {
 
 #ifdef KORE_WINDOWS
 	Microsoft::affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
-	Microsoft::affirm(CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&deviceEnumerator)));
+	Microsoft::affirm(
+	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&deviceEnumerator)));
 	Microsoft::affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
 	Microsoft::affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&audioClient)));
 	initAudio();
@@ -174,7 +182,7 @@ void Audio2::init() {
 	renderer = Make<AudioRenderer>();
 
 	IActivateAudioInterfaceAsyncOperation* asyncOp;
-	Platform::String^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
+	Platform::String ^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
 	Kore::Microsoft::affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
 	SafeRelease(&asyncOp);
 #endif
