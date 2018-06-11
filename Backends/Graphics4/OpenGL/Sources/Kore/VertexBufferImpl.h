@@ -15,6 +15,7 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		uint bufferId;
+		uint usage;
 		//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
 		Graphics4::VertexStructure structure;
 		//#endif
