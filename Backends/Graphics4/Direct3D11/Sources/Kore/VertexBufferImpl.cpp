@@ -35,12 +35,22 @@ Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	}
 
 	vertices = new float[myStride / 4 * myCount];
-
 	D3D11_BUFFER_DESC bufferDesc;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.CPUAccessFlags = 0;
+	switch (usage) {
+		case StaticUsage:
+			bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+			break;
+		case DynamicUsage:
+			bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+			bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			break;
+		case ReadableUsage:
+			bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+			break;
+	}
 	bufferDesc.ByteWidth = myStride * myCount;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
