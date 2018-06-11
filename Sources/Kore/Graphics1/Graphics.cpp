@@ -83,7 +83,7 @@ void Graphics1::init(int width, int height) {
 	float xAspect = (float)texture->width / texture->texWidth;
 	float yAspect = (float)texture->height / texture->texHeight;
 
-	vb = new Graphics4::VertexBuffer(4, structure, 0);
+	vb = new Graphics4::VertexBuffer(4, structure, Kore::Graphics4::StaticUsage, 0);
 	float* v = vb->lock();
 	{
 		int i = 0;
