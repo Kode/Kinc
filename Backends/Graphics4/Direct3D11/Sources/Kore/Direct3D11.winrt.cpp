@@ -228,10 +228,10 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef _DEBUG
 		flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
-		HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc,
+		HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
 		                                               &swapChain, &device, nullptr, &context);
 		if (result != S_OK) {
-			Microsoft::affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 6, D3D11_SDK_VERSION, &swapChainDesc,
+			Microsoft::affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
 			                                                &swapChain, &device, nullptr, &context));
 		}
 #endif
