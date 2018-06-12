@@ -9,7 +9,7 @@ using namespace Kore;
 
 VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {}
 
-Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate) : VertexBufferImpl(count) {
+Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure,Usage usage, int instanceDataStepRate) : VertexBufferImpl(count) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		switch (structure.elements[i].data) {
@@ -37,6 +37,8 @@ Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	vertices = new float[myStride / 4 * myCount];
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.CPUAccessFlags = 0;
+	this->usage = usage;
+	//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	switch (usage) {
 		case StaticUsage:
 			bufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -67,12 +69,25 @@ float* Graphics4::VertexBuffer::lock() {
 }
 
 float* Graphics4::VertexBuffer::lock(int start, int count) {
-	return &vertices[start * myStride / 4];
+		lockStart = start;
+		lockCount = count;
+		return &vertices[start * myStride / 4];
 }
+
+
 
 void Graphics4::VertexBuffer::unlock() {
 
-	context->UpdateSubresource(_vb, 0, nullptr, vertices, 0, 0);
+	if (usage == DynamicUsage)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+		context->Map(_vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		memcpy(mappedResource.pData, &vertices[lockStart * myStride / 4], (lockCount* myStride / 4) *sizeof(float));
+		context->Unmap(_vb, 0);
+	}else{
+		context->UpdateSubresource(_vb, 0, nullptr, vertices, 0, 0);
+	}
 }
 
 int Graphics4::VertexBuffer::_set(int offset) {
