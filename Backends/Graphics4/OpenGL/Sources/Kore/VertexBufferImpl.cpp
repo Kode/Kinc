@@ -46,6 +46,17 @@ Graphics4::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& st
 		}
 	}
 	this->structure = structure;
+	switch (usage) {
+		case StaticUsage:
+			this->usage = GL_STATIC_DRAW;
+			break;
+		case DynamicUsage:
+			this->usage = GL_DYNAMIC_DRAW;
+			break;
+		case ReadableUsage:
+			this->usage = GL_DYNAMIC_DRAW;
+			break;
+	}
 
 	glGenBuffers(1, &bufferId);
 	glCheckErrors();
@@ -69,7 +80,7 @@ float* Graphics4::VertexBuffer::lock(int start, int count) {
 void Graphics4::VertexBuffer::unlock() {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
-	glBufferData(GL_ARRAY_BUFFER, myStride * myCount, data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, myStride * myCount, data, usage);
 	glCheckErrors();
 #ifndef NDEBUG
 	initialized = true;
