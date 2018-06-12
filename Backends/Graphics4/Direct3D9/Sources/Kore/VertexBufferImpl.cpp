@@ -12,7 +12,7 @@ Graphics4::VertexBuffer* VertexBufferImpl::_current = nullptr;
 
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
 
-Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, usage: Usage, int instanceDataStepRate) : VertexBufferImpl(count, instanceDataStepRate) {
+Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate) : VertexBufferImpl(count, instanceDataStepRate) {
 	DWORD usage = D3DUSAGE_WRITEONLY;
 #ifdef KORE_WINDOWS
 	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
