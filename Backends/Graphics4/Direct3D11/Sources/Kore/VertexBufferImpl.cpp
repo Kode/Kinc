@@ -40,16 +40,16 @@ Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	
 	this->usage = usage;
 	switch (usage) {
-		case StaticUsage:
-			bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-			break;
-		case DynamicUsage:
-			bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-			bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			break;
-		case ReadableUsage:
-			bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-			break;
+	case StaticUsage:
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		break;
+	case DynamicUsage:
+		bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		break;
+	case ReadableUsage:
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		break;
 	}
 	
 	bufferDesc.ByteWidth = myStride * myCount;
