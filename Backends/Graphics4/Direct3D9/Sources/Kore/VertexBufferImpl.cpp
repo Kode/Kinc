@@ -13,10 +13,11 @@ Graphics4::VertexBuffer* VertexBufferImpl::_current = nullptr;
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
 
 Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate) : VertexBufferImpl(count, instanceDataStepRate) {
-	DWORD usage = D3DUSAGE_WRITEONLY;
-#ifdef KORE_WINDOWS
-	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
-#endif
+	DWORD usageFlags = D3DUSAGE_WRITEONLY;
+	if (usage == Kore::Graphics4::DynamicUsage){
+		usageFlags = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
+	}
+	
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		switch (structure.elements[i].data) {
@@ -41,7 +42,7 @@ Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 		}
 	}
 
-	Microsoft::affirm(device->CreateVertexBuffer(stride() * count, usage, 0, D3DPOOL_DEFAULT, &vb, 0));
+	Microsoft::affirm(device->CreateVertexBuffer(stride() * count, usageFlags, 0, D3DPOOL_DEFAULT, &vb, 0));
 }
 
 Graphics4::VertexBuffer::~VertexBuffer() {
