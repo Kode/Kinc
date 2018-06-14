@@ -11,11 +11,13 @@ namespace Kore {
 			Float4x4VertexData, // not supported in fixed function OpenGL
 			ColorVertexData
 		};
+
 		enum Usage {
 			StaticUsage,
 			DynamicUsage, 
 			ReadableUsage
 		};
+
 		// Fixed-function vertex attributes
 		enum VertexAttribute {
 			NoVertexAttribute,

@@ -76,8 +76,7 @@ float* Graphics4::VertexBuffer::lock(int start, int count) {
 }
 
 void Graphics4::VertexBuffer::unlock() {
-	if (usage == DynamicUsage)
-	{
+	if (usage == DynamicUsage) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		context->Map(_vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
