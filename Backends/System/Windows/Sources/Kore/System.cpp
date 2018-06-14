@@ -1371,64 +1371,14 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);
-
-	int argc = 1;
-	for (unsigned i = 0; i < strlen(lpCmdLine); ++i) {
-		while (lpCmdLine[i] == ' ' && i < strlen(lpCmdLine)) ++i;
-		if (lpCmdLine[i] == '\"') {
-			++i;
-			while (lpCmdLine[i] != '\"' && i < strlen(lpCmdLine)) ++i;
-			++argc;
-		}
-		else {
-			while (lpCmdLine[i] != ' ' && i < strlen(lpCmdLine)) ++i;
-			++argc;
-		}
-	}
-
-	char** argv = (char**)malloc(sizeof(char*) * (argc + 1));
-
-	argv[0] = (char*)malloc(1024);
-	GetModuleFileNameA(0, argv[0], 1024);
-
-	for (int i = 1; i < argc; ++i) argv[i] = (char*)malloc(strlen(lpCmdLine) + 10);
-	argv[argc] = 0;
-
-	argc = 1;
-	int pos = 0;
-	for (unsigned i = 0; i < strlen(lpCmdLine); ++i) {
-		while (lpCmdLine[i] == ' ' && i < strlen(lpCmdLine)) ++i;
-		if (lpCmdLine[i] == '\"') {
-			++i;
-			while (lpCmdLine[i] != '\"' && i < strlen(lpCmdLine)) {
-				argv[argc][pos] = lpCmdLine[i];
-				++i;
-				++pos;
-			}
-			argv[argc][pos] = '\0';
-			++argc;
-			pos = 0;
-		}
-		else {
-			while (lpCmdLine[i] != ' ' && i < strlen(lpCmdLine)) {
-				argv[argc][pos] = lpCmdLine[i];
-				++i;
-				++pos;
-			}
-			argv[argc][pos] = '\0';
-			++argc;
-			pos = 0;
-		}
-	}
-	argv[argc] = 0;
-
+		
 	int ret = 0;
 #ifndef _DEBUG
 	try {
 #endif
 		for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
-		ret = kore(argc, argv);
+		ret = kore(__argc, __argv);
 #ifndef _DEBUG
 	} catch (std::exception& ex) {
 		ret = 1;
@@ -1438,9 +1388,6 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 		MessageBox(0, L"Unknown Exception", L"Exception", MB_OK);
 	}
 #endif
-
-	for (int i = 0; i < argc; ++i) free(argv[i]);
-	free(argv);
 
 	return ret;
 }
