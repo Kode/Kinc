@@ -61,6 +61,7 @@ void Graphics4::Texture::init3D(bool readable) {
 }
 
 Graphics4::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {
+	_texture = new Graphics5::Texture(width, height, format, readable);
 	width = _texture->width;
 	height = _texture->height;
 	texWidth = _texture->texWidth;

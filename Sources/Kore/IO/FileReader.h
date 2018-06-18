@@ -24,6 +24,7 @@ namespace Kore {
 	struct FileReaderData {
 		void* file;
 		int size;
+		int offset;
 	};
 #endif
 

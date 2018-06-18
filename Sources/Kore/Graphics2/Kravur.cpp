@@ -76,17 +76,7 @@ Kravur::Kravur(Reader* reader) {
 	}
 	texture = new Graphics4::Texture(w, h, Graphics4::Image::Grey8, true);
 	u8* bytes = texture->lock();
-	int pos = 0;
-	for (int y = 0; y < h; ++y)
-		for (int x = 0; x < w; ++x) {
-			bytes[pos] = reader->readU8();
-
-			// filter-test
-			// if ((x + y) % 2 == 0) bytes.set(pos, 0xff);
-			// else bytes.set(pos, 0);
-
-			++pos;
-		}
+	reader->read(bytes, w * h);
 	texture->unlock();
 	reader->seek(0);
 }
