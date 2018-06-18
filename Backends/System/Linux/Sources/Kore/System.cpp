@@ -24,6 +24,8 @@
 #include <climits>
 #include <assert.h>
 //#include <X11/Xlib.h>
+
+typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 #endif
 
 // apt-get install mesa-common-dev
@@ -154,36 +156,37 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	int dblBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
 
 	vi = NULL;
-	if (antialiasingSamples > 1) {
-        int attribs[] = {GLX_X_RENDERABLE    , True,
-        GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
-        GLX_RENDER_TYPE     , GLX_RGBA_BIT,
-        GLX_X_VISUAL_TYPE   , GLX_TRUE_COLOR,
-        GLX_RED_SIZE        , 8,
-        GLX_GREEN_SIZE      , 8,
-        GLX_BLUE_SIZE       , 8,
-        GLX_ALPHA_SIZE      , 8,
-        GLX_DEPTH_SIZE      , 24,
-        GLX_STENCIL_SIZE    , 8,
-        GLX_DOUBLEBUFFER    , True,
-        GLX_SAMPLE_BUFFERS  , 1,
-        GLX_SAMPLES         , antialiasingSamples,
-        None};
+	
+    int attribs[] = {
+    	GLX_X_RENDERABLE    , True,
+	    GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
+	    GLX_RENDER_TYPE     , GLX_RGBA_BIT,
+	    GLX_X_VISUAL_TYPE   , GLX_TRUE_COLOR,
+	    GLX_RED_SIZE        , 8,
+	    GLX_GREEN_SIZE      , 8,
+	    GLX_BLUE_SIZE       , 8,
+	    GLX_ALPHA_SIZE      , 8,
+	    GLX_DEPTH_SIZE      , 24,
+	    GLX_STENCIL_SIZE    , 8,
+	    GLX_DOUBLEBUFFER    , True,
+	    GLX_SAMPLE_BUFFERS  , 1,
+	    GLX_SAMPLES         , antialiasingSamples,
+	    None
+	};
 
-        GLXFBConfig fbconfig = 0;
-        int fbcount;
-        GLXFBConfig* fbc = glXChooseFBConfig(dpy, DefaultScreen(dpy), attribs, &fbcount);
-        if (fbc) {
-            if (fbcount >= 1) {
-                fbconfig = fbc[0];
-            }
-            XFree(fbc);
+    GLXFBConfig fbconfig = 0;
+    int fbcount;
+    GLXFBConfig* fbc = glXChooseFBConfig(dpy, DefaultScreen(dpy), attribs, &fbcount);
+    if (fbc) {
+        if (fbcount >= 1) {
+            fbconfig = fbc[0];
         }
+        XFree(fbc);
+    }
 
-        if (fbconfig) {
-            vi = glXGetVisualFromFBConfig(dpy, fbconfig);
-        }
-	}
+    if (fbconfig) {
+        vi = glXGetVisualFromFBConfig(dpy, fbconfig);
+    }
 
 	if (vi == NULL) {
         vi = glXChooseVisual(dpy, DefaultScreen(dpy), dblBuf);
@@ -206,7 +209,22 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	//  -context sharing doesn't seem to work in virtual box?
 	//      -main screen flickers
 	//      -sprite in subscreens is black
-	cx = glXCreateContext(dpy, vi, wcounter == 0 ? None : windowimpl::windows[0]->context, /* direct rendering if possible */ GL_TRUE);
+	glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+	glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddressARB((const GLubyte *)"glXCreateContextAttribsARB");
+	if (glXCreateContextAttribsARB) {
+		int contextAttribs[] = {
+			GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+			GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+			GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        	GLX_CONTEXT_PROFILE_MASK_ARB , GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+			None
+		};
+		cx = glXCreateContextAttribsARB(dpy, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->context, GL_TRUE, contextAttribs);
+	}
+	
+	if (cx == NULL) {
+		cx = glXCreateContext(dpy, vi, wcounter == 0 ? None : windowimpl::windows[0]->context, /* direct rendering if possible */ GL_TRUE);
+	}
 
 	if (cx == NULL) {
 		fatalError("could not create rendering context");
@@ -840,7 +858,11 @@ Kore::System::ticks Kore::System::timestamp() {
 	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
 }
 
-extern int kore(int argc, char** argv);
+extern
+#ifdef KOREC
+"C"
+#endif
+int kore(int argc, char** argv);
 
 int main(int argc, char** argv) {
 	Kore::initHIDGamepads();

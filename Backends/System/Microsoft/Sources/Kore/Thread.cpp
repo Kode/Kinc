@@ -53,10 +53,6 @@ bool Kore::isThreadStoppedThenFree(Thread* thread) {
 	return false;
 }
 
-void Kore::threadsInit() {
+void Kore::threadsInit() {}
 
-}
-
-void Kore::threadsQuit() {
-
-}
+void Kore::threadsQuit() {}

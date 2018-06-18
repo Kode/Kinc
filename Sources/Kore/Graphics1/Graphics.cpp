@@ -2,10 +2,10 @@
 
 #include "Graphics.h"
 
-#include <Kore/IO/FileReader.h>
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
+#include <Kore/IO/FileReader.h>
 #include <Kore/IO/FileReader.h>
 #include <limits>
 
@@ -82,15 +82,31 @@ void Graphics1::init(int width, int height) {
 	// Correct for the difference between the texture's desired size and the actual power of 2 size
 	float xAspect = (float)texture->width / texture->texWidth;
 	float yAspect = (float)texture->height / texture->texHeight;
-	
-	vb = new Graphics4::VertexBuffer(4, structure, 0);
+
+	vb = new Graphics4::VertexBuffer(4, structure, Kore::Graphics4::StaticUsage, 0);
 	float* v = vb->lock();
 	{
 		int i = 0;
-		v[i++] = -1; v[i++] = 1; v[i++] = 0.5; v[i++] = 0; v[i++] = 0;
-		v[i++] = 1;  v[i++] = 1; v[i++] = 0.5; v[i++] = xAspect; v[i++] = 0;
-		v[i++] = 1; v[i++] = -1;  v[i++] = 0.5; v[i++] = xAspect; v[i++] = yAspect;
-		v[i++] = -1; v[i++] = -1;  v[i++] = 0.5; v[i++] = 0; v[i++] = yAspect;
+		v[i++] = -1;
+		v[i++] = 1;
+		v[i++] = 0.5;
+		v[i++] = 0;
+		v[i++] = 0;
+		v[i++] = 1;
+		v[i++] = 1;
+		v[i++] = 0.5;
+		v[i++] = xAspect;
+		v[i++] = 0;
+		v[i++] = 1;
+		v[i++] = -1;
+		v[i++] = 0.5;
+		v[i++] = xAspect;
+		v[i++] = yAspect;
+		v[i++] = -1;
+		v[i++] = -1;
+		v[i++] = 0.5;
+		v[i++] = 0;
+		v[i++] = yAspect;
 	}
 	vb->unlock();
 
@@ -98,8 +114,12 @@ void Graphics1::init(int width, int height) {
 	int* ii = ib->lock();
 	{
 		int i = 0;
-		ii[i++] = 0; ii[i++] = 1; ii[i++] = 3;
-		ii[i++] = 1; ii[i++] = 2; ii[i++] = 3;
+		ii[i++] = 0;
+		ii[i++] = 1;
+		ii[i++] = 3;
+		ii[i++] = 1;
+		ii[i++] = 2;
+		ii[i++] = 3;
 	}
 	ib->unlock();
 }

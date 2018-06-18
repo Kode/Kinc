@@ -9,25 +9,12 @@ using namespace Kore;
 using namespace Kore::Graphics5;
 
 namespace {
-	enum Commands {
-		Clear,
-		Draw,
-		SetViewport,
-		SetScissor,
-		SetPipeline,
-		SetVertexBuffer,
-		SetIndexBuffer,
-		SetRenderTarget
-	};
+	enum Commands { Clear, Draw, SetViewport, SetScissor, SetPipeline, SetVertexBuffer, SetIndexBuffer, SetRenderTarget };
 }
 
-CommandList::CommandList() {
+CommandList::CommandList() {}
 
-}
-
-CommandList::~CommandList() {
-
-}
+CommandList::~CommandList() {}
 
 void CommandList::begin() {
 	commandIndex = 0;
@@ -87,13 +74,9 @@ void CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, floa
 	commands[commandIndex++] = color;
 }
 
-void CommandList::renderTargetToFramebufferBarrier(RenderTarget* renderTarget) {
-	
-}
+void CommandList::renderTargetToFramebufferBarrier(RenderTarget* renderTarget) {}
 
-void CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {
-	
-}
+void CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {}
 
 void CommandList::drawIndexedVertices() {
 	commands[commandIndex++] = Draw;
@@ -123,9 +106,7 @@ void CommandList::scissor(int x, int y, int width, int height) {
 	commands[commandIndex++] = height;
 }
 
-void CommandList::disableScissor() {
-	
-}
+void CommandList::disableScissor() {}
 
 void CommandList::setPipeline(PipelineState* pipeline) {
 	commands[commandIndex++] = SetPipeline;
@@ -147,10 +128,6 @@ void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	commands[commandIndex++] = (s64)targets[0];
 }
 
-void CommandList::upload(IndexBuffer* buffer) {
-	
-}
+void CommandList::upload(IndexBuffer* buffer) {}
 
-void CommandList::upload(Texture* texture) {
-	
-}
+void CommandList::upload(Texture* texture) {}

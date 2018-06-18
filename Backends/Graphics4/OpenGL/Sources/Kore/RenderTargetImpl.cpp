@@ -144,7 +144,8 @@ void RenderTargetImpl::setupDepthStencil(GLenum texType, int depthBufferBits, in
 	}
 }
 
-Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId)
     : width(width), height(height), isCubeMap(false), isDepthAttachment(false) {
 
 	_hasDepth = false;
@@ -296,7 +297,8 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #endif
-		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+		for (int i = 0; i < 6; i++)
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT16, texWidth, texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		break;
 	case Target32Bit:
 	default:
@@ -329,14 +331,14 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 
 Graphics4::RenderTarget::~RenderTarget() {
 	{
-		GLuint textures[] = { _texture };
+		GLuint textures[] = {_texture};
 		glDeleteTextures(1, textures);
 	}
 	if (_hasDepth) {
-		GLuint textures[] = { _depthTexture };
+		GLuint textures[] = {_depthTexture};
 		glDeleteTextures(1, textures);
 	}
-	GLuint framebuffers[] = { _framebuffer };
+	GLuint framebuffers[] = {_framebuffer};
 	glDeleteFramebuffers(1, framebuffers);
 }
 
@@ -361,7 +363,7 @@ void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 
 void Graphics4::RenderTarget::getPixels(u8* data) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-	switch((RenderTargetFormat)format) {
+	switch ((RenderTargetFormat)format) {
 	case Target128BitFloat:
 		glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_FLOAT, data);
 		break;

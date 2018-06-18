@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Kore/Graphics1/Image.h>
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexStructure.h"
+#include <Kore/Graphics1/Image.h>
 #include <Kore/GraphicsImpl.h>
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
@@ -15,7 +15,7 @@ namespace Kore {
 
 		class VertexBuffer : public VertexBufferImpl {
 		public:
-			VertexBuffer(int count, const VertexStructure& structure, int instanceDataStepRate = 0);
+			VertexBuffer(int count, const VertexStructure& structure, Usage usage = StaticUsage, int instanceDataStepRate = 0);
 			virtual ~VertexBuffer();
 			float* lock();
 			float* lock(int start, int count);
@@ -98,10 +98,10 @@ namespace Kore {
 
 		class RenderTarget : public RenderTargetImpl {
 		public:
-			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
-				int contextId = 0);
+			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit,
+			             int stencilBufferBits = -1, int contextId = 0);
 			RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
-				int contextId = 0);
+			             int contextId = 0);
 			~RenderTarget();
 			int width;
 			int height;
@@ -116,7 +116,7 @@ namespace Kore {
 			void getPixels(u8* data);
 			void generateMipmaps(int levels);
 		};
-		
+
 		void setBool(ConstantLocation location, bool value);
 		void setInt(ConstantLocation location, int value);
 		void setFloat(ConstantLocation location, float value);

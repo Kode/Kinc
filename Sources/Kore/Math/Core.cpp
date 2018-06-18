@@ -46,8 +46,7 @@ float Kore::mod(float numer, float denom) {
 	return std::fmod(numer, denom);
 }
 
-float Kore::exp(float exponent)
-{
+float Kore::exp(float exponent) {
 	return std::exp(exponent);
 }
 

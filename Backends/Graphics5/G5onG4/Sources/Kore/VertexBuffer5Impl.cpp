@@ -13,7 +13,7 @@ VertexBuffer5Impl* VertexBuffer5Impl::_current = nullptr;
 VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), myStart(0) {}
 
 Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
-	buffer = new Graphics4::VertexBuffer(count, structure, instanceDataStepRate);
+	buffer = new Graphics4::VertexBuffer(count, structure, Kore::Graphics4::StaticUsage, instanceDataStepRate);
 }
 
 Graphics5::VertexBuffer::~VertexBuffer() {

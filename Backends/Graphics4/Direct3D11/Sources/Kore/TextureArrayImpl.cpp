@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Graphics4/TextureArray.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 #include "Direct3D11.h"
 
@@ -32,15 +32,15 @@ TextureArray::TextureArray(Image** textures, int count) {
 		resdata[i].SysMemPitch = textures[0]->width * 4;
 		resdata[i].SysMemSlicePitch = 0;
 	}
-	
+
 	texture = nullptr;
-	affirm(device->CreateTexture2D(&desc, resdata, &texture));
-	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Microsoft::affirm(device->CreateTexture2D(&desc, resdata, &texture));
+	Microsoft::affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 }
 
 void TextureArrayImpl::set(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &view);
-	//this->stage = unit.unit;
-	//setTextures[stage] = this;
+	// this->stage = unit.unit;
+	// setTextures[stage] = this;
 }

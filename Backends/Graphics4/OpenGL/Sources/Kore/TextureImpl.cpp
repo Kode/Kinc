@@ -252,6 +252,7 @@ namespace {
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
+	setId();
 	bool toPow2;
 	if (Graphics4::nonPow2TexturesSupported()) {
 		texWidth = width;
@@ -354,6 +355,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 }
 
 void Graphics4::Texture::init3D(bool readable) {
+	setId();
 #ifndef KORE_OPENGL_ES // Requires GLES 3.0
 	texWidth = width;
 	texHeight = height;
@@ -453,6 +455,10 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 
 Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
 #ifndef KORE_OPENGL_ES
+	texWidth = width;
+	texHeight = height;
+	texDepth = depth;
+	
 	glGenTextures(1, &texture);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_3D, texture);
@@ -530,21 +536,21 @@ GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
 }*/
 
 void Graphics4::Texture::unlock() {
-	// if (conversionBuffer != nullptr) {
-	// convertImageToPow2(format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	void* texdata = data;
+	bool isHdr = convertType(format) == GL_FLOAT;
+	if (isHdr) texdata = hdrData;
+	glBindTexture(target, texture);
 	glCheckErrors();
-	// glTexImage2D(GL_TEXTURE_2D, 0, (format == Image::RGBA32) ? GL_RGBA : GL_LUMINANCE, texWidth, texHeight, 0, (format == Image::RGBA32) ? GL_RGBA :
-	// GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
-	if (convertType(format) == GL_FLOAT) {
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), GL_FLOAT, hdrData);
-		glCheckErrors();
+	if (depth > 1) {
+#ifndef KORE_OPENGL_ES
+		glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, texWidth, texHeight, texDepth, convertFormat(format), convertType(format), texdata);
+#endif
 	}
 	else {
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), GL_UNSIGNED_BYTE, data);
-		glCheckErrors();
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), convertType(format), texdata);
 	}
-	// }
+	glCheckErrors();
 }
 
 void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {

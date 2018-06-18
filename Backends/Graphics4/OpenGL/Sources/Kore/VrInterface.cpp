@@ -4,12 +4,12 @@
 
 #include <Kore/Vr/VrInterface.h>
 
-#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Graphics3/Graphics.h>
+#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Log.h>
 
-#include "GL/CAPI_GLE.h"
 #include "Extras/OVR_Math.h"
+#include "GL/CAPI_GLE.h"
 #include "OVR_CAPI_GL.h"
 #include <assert.h>
 
@@ -26,8 +26,8 @@ struct TextureBuffer {
 
 	Graphics4::RenderTarget* OVRRenderTarget;
 
-	TextureBuffer(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char * data, int sampleCount) :
-		Session(session), TextureChain(nullptr), texSize(size), OVRRenderTarget(nullptr) {
+	TextureBuffer(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char* data, int sampleCount)
+	    : Session(session), TextureChain(nullptr), texSize(size), OVRRenderTarget(nullptr) {
 		UNREFERENCED_PARAMETER(sampleCount);
 
 		assert(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
@@ -35,7 +35,7 @@ struct TextureBuffer {
 		if (displayableOnHmd) {
 			// This texture isn't necessarily going to be a rendertarget, but it usually is.
 
-			assert(session); // No HMD? A little odd.
+			assert(session);          // No HMD? A little odd.
 			assert(sampleCount == 1); // ovr_CreateSwapTextureSetD3D11 doesn't support MSAA.
 
 			ovrTextureSwapChainDesc desc = {};
@@ -95,7 +95,7 @@ struct TextureBuffer {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, OVRRenderTarget->_depthTexture, 0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glEnable(GL_FRAMEBUFFER_SRGB); // TODO: too bright
+		// glEnable(GL_FRAMEBUFFER_SRGB); // TODO: too bright
 	}
 
 	void UnsetRenderSurface() {
@@ -123,10 +123,9 @@ struct OGL {
 	int WinSizeH;
 	HINSTANCE hInstance;
 
-	OGL() : Window(nullptr), hDC(nullptr), WglContext(nullptr),GLEContext(), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
+	OGL() : Window(nullptr), hDC(nullptr), WglContext(nullptr), GLEContext(), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
 		// Clear input
-		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
-			Key[i] = false;
+		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i) Key[i] = false;
 	}
 
 	~OGL() {
@@ -170,11 +169,10 @@ struct OGL {
 		WinSizeW = vpW;
 		WinSizeH = vpH;
 
-		RECT size = { 0, 0, vpW, vpH };
+		RECT size = {0, 0, vpW, vpH};
 		AdjustWindowRect(&size, WS_OVERLAPPEDWINDOW, false);
 		const UINT flags = SWP_NOMOVE | SWP_NOZORDER | SWP_SHOWWINDOW;
-		if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags))
-			return false;
+		if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags)) return false;
 
 		PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARBFunc = nullptr;
 		PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARBFunc = nullptr;
@@ -222,19 +220,23 @@ struct OGL {
 		}
 
 		// Now create the real context that we will be using.
-		int iAttributes[] = {
-			// WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-			WGL_COLOR_BITS_ARB, 32,
-			WGL_DEPTH_BITS_ARB, 16,
-			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-			WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB, GL_TRUE,
-			0, 0
-		};
+		int iAttributes[] = {// WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+		                     WGL_SUPPORT_OPENGL_ARB,
+		                     GL_TRUE,
+		                     WGL_COLOR_BITS_ARB,
+		                     32,
+		                     WGL_DEPTH_BITS_ARB,
+		                     16,
+		                     WGL_DOUBLE_BUFFER_ARB,
+		                     GL_TRUE,
+		                     WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB,
+		                     GL_TRUE,
+		                     0,
+		                     0};
 
-		float fAttributes[] = { 0, 0 };
-		int   pf = 0;
-		UINT  numFormats = 0;
+		float fAttributes[] = {0, 0};
+		int pf = 0;
+		UINT numFormats = 0;
 
 		if (!wglChoosePixelFormatARBFunc(hDC, iAttributes, fAttributes, 1, &pf, &numFormats)) {
 			log(Warning, "wglChoosePixelFormatARBFunc failed.");
@@ -251,7 +253,7 @@ struct OGL {
 		}
 
 		GLint attribs[16];
-		int   attribCount = 0;
+		int attribCount = 0;
 		attribs[attribCount] = 0;
 
 		WglContext = wglCreateContextAttribsARBFunc(hDC, 0, attribs);
@@ -283,7 +285,7 @@ struct OGL {
 };
 
 namespace {
-	TextureBuffer* eyeRenderTexture[2] = { nullptr, nullptr };
+	TextureBuffer* eyeRenderTexture[2] = {nullptr, nullptr};
 
 	ovrMirrorTexture mirrorTexture = nullptr;
 	uint mirrorFBO = 0;
@@ -346,16 +348,16 @@ namespace {
 }
 
 void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
-	ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
+	ovrInitParams initParams = {ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0};
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
 		log(Warning, "Failed to initialize libOVR.");
-		return(0);
+		return (0);
 	}
-	
+
 	if (!Platform.InitWindow((HINSTANCE)hinst, title, windowClassName)) {
 		log(Warning, "Failed to open window.");
-		return(0);
+		return (0);
 	}
 
 	ovrGraphicsLuid luid;
@@ -369,7 +371,7 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 
 	// Setup Window and Graphics
 	// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
-	ovrSizei windowSize = { hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2 };
+	ovrSizei windowSize = {hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2};
 	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
 		log(Info, "Failed to init device.");
 		done();
@@ -389,7 +391,7 @@ void VrInterface::begin() {
 	eyeRenderDesc[1] = ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1]);
 
 	// Get both eye poses simultaneously, with IPD offset already included.
-	ovrPosef HmdToEyePose[2] = { eyeRenderDesc[0].HmdToEyePose, eyeRenderDesc[1].HmdToEyePose };
+	ovrPosef HmdToEyePose[2] = {eyeRenderDesc[0].HmdToEyePose, eyeRenderDesc[1].HmdToEyePose};
 
 	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyePose, EyeRenderPose, &sensorSampleTime);
 }
@@ -411,10 +413,22 @@ namespace {
 
 	mat4 convert(OVR::Matrix4f& m) {
 		mat4 mat;
-		mat.Set(0, 0, m.M[0][0]); mat.Set(0, 1, m.M[0][1]); mat.Set(0, 2, m.M[0][2]); mat.Set(0, 3, m.M[0][3]);
-		mat.Set(1, 0, m.M[1][0]); mat.Set(1, 1, m.M[1][1]); mat.Set(1, 2, m.M[1][2]); mat.Set(1, 3, m.M[1][3]);
-		mat.Set(2, 0, m.M[2][0]); mat.Set(2, 1, m.M[2][1]); mat.Set(2, 2, m.M[2][2]); mat.Set(2, 3, m.M[2][3]);
-		mat.Set(3, 0, m.M[3][0]); mat.Set(3, 1, m.M[3][1]); mat.Set(3, 2, m.M[3][2]); mat.Set(3, 3, m.M[3][3]);
+		mat.Set(0, 0, m.M[0][0]);
+		mat.Set(0, 1, m.M[0][1]);
+		mat.Set(0, 2, m.M[0][2]);
+		mat.Set(0, 3, m.M[0][3]);
+		mat.Set(1, 0, m.M[1][0]);
+		mat.Set(1, 1, m.M[1][1]);
+		mat.Set(1, 2, m.M[1][2]);
+		mat.Set(1, 3, m.M[1][3]);
+		mat.Set(2, 0, m.M[2][0]);
+		mat.Set(2, 1, m.M[2][1]);
+		mat.Set(2, 2, m.M[2][2]);
+		mat.Set(2, 3, m.M[2][3]);
+		mat.Set(3, 0, m.M[3][0]);
+		mat.Set(3, 1, m.M[3][1]);
+		mat.Set(3, 2, m.M[3][2]);
+		mat.Set(3, 3, m.M[3][3]);
 		return mat;
 	}
 }
@@ -448,18 +462,30 @@ SensorState VrInterface::getSensorState(int eye) {
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) poseState.isVisible = true;
-	else poseState.isVisible = false;
-	if (sessionStatus.HmdPresent) poseState.hmdPresenting = true;
-	else poseState.hmdPresenting = false;
-	if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
-	else poseState.hmdMounted = false;
-	if (sessionStatus.DisplayLost) poseState.displayLost = true;
-	else poseState.displayLost = false;
-	if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
-	else poseState.shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
-	else poseState.shouldRecenter = false;
+	if (sessionStatus.IsVisible)
+		poseState.isVisible = true;
+	else
+		poseState.isVisible = false;
+	if (sessionStatus.HmdPresent)
+		poseState.hmdPresenting = true;
+	else
+		poseState.hmdPresenting = false;
+	if (sessionStatus.HmdMounted)
+		poseState.hmdMounted = true;
+	else
+		poseState.hmdMounted = false;
+	if (sessionStatus.DisplayLost)
+		poseState.displayLost = true;
+	else
+		poseState.displayLost = false;
+	if (sessionStatus.ShouldQuit)
+		poseState.shouldQuit = true;
+	else
+		poseState.shouldQuit = false;
+	if (sessionStatus.ShouldRecenter)
+		poseState.shouldRecenter = true;
+	else
+		poseState.shouldRecenter = false;
 
 	sensorStates[eye].pose = poseState;
 
@@ -470,7 +496,7 @@ void VrInterface::warpSwap() {
 	// Initialize our single full screen Fov layer.
 	ovrLayerEyeFov ld;
 	ld.Header.Type = ovrLayerType_EyeFov;
-	ld.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;   // Because OpenGL.
+	ld.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft; // Because OpenGL.
 
 	if (isVisible) {
 		for (int eye = 0; eye < 2; ++eye) {
@@ -486,7 +512,8 @@ void VrInterface::warpSwap() {
 	ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
 	if (!OVR_SUCCESS(result)) {
 		isVisible = false;
-	} else {
+	}
+	else {
 		isVisible = true;
 	}
 

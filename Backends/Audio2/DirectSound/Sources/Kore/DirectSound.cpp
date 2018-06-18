@@ -2,7 +2,7 @@
 
 #include <Kore/Audio2/Audio.h>
 #include <Kore/System.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 #include <dsound.h>
 
@@ -28,9 +28,9 @@ void Audio2::init() {
 	buffer.dataSize = 128 * 1024;
 	buffer.data = new u8[buffer.dataSize];
 
-	affirm(DirectSoundCreate8(nullptr, &dsound, nullptr));
+	Microsoft::affirm(DirectSoundCreate8(nullptr, &dsound, nullptr));
 	// TODO (DK) only for the main window?
-	affirm(dsound->SetCooperativeLevel((HWND)System::windowHandle(0), DSSCL_PRIORITY));
+	Microsoft::affirm(dsound->SetCooperativeLevel((HWND)System::windowHandle(0), DSSCL_PRIORITY));
 
 	WAVEFORMATEX waveFormat;
 	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
@@ -49,15 +49,15 @@ void Audio2::init() {
 	bufferDesc.lpwfxFormat = &waveFormat;
 	bufferDesc.guid3DAlgorithm = GUID_NULL;
 
-	affirm(dsound->CreateSoundBuffer(&bufferDesc, &dbuffer, nullptr));
+	Microsoft::affirm(dsound->CreateSoundBuffer(&bufferDesc, &dbuffer, nullptr));
 
 	DWORD size1;
 	u8* buffer1;
-	affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, nullptr, nullptr, 0));
+	Microsoft::affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, nullptr, nullptr, 0));
 	for (int i = 0; i < gap; ++i) buffer1[i] = 0;
-	affirm(dbuffer->Unlock(buffer1, size1, nullptr, 0));
+	Microsoft::affirm(dbuffer->Unlock(buffer1, size1, nullptr, 0));
 
-	affirm(dbuffer->Play(0, 0, DSBPLAY_LOOPING));
+	Microsoft::affirm(dbuffer->Play(0, 0, DSBPLAY_LOOPING));
 }
 
 namespace {
@@ -73,7 +73,7 @@ namespace {
 void Audio2::update() {
 	DWORD playPosition;
 	DWORD writePosition;
-	affirm(dbuffer->GetCurrentPosition(&playPosition, &writePosition));
+	Microsoft::affirm(dbuffer->GetCurrentPosition(&playPosition, &writePosition));
 
 	int dif;
 	if (writePos >= writePosition)
@@ -95,7 +95,7 @@ void Audio2::update() {
 
 	DWORD size1, size2;
 	u8 *buffer1, *buffer2;
-	affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, (void**)&buffer2, &size2, 0));
+	Microsoft::affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, (void**)&buffer2, &size2, 0));
 
 	for (DWORD i = 0; i < size1 - (bitsPerSample / 8 - 1);) {
 		copySample(buffer1, i);
@@ -108,7 +108,7 @@ void Audio2::update() {
 		writePos = size2;
 	}
 
-	affirm(dbuffer->Unlock(buffer1, size1, buffer2, size2));
+	Microsoft::affirm(dbuffer->Unlock(buffer1, size1, buffer2, size2));
 
 	if (writePos >= dsize) writePos -= dsize;
 }

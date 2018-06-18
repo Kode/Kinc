@@ -20,11 +20,7 @@ namespace Kore {
 		long bottom;
 	};
 
-	enum RenderTargetResourceState {
-		RenderTargetResourceStateUndefined,
-		RenderTargetResourceStateRenderTarget,
-		RenderTargetResourceStateTexture
-	};
+	enum RenderTargetResourceState { RenderTargetResourceStateUndefined, RenderTargetResourceStateRenderTarget, RenderTargetResourceStateTexture };
 
 	class RenderTarget5Impl {
 	public:

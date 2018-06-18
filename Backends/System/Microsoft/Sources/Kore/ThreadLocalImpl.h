@@ -1,8 +1,8 @@
 #pragma once
 
 namespace Kore {
-	class EventImpl {
+	class ThreadLocalImpl {
 	protected:
-		
+		int slot;
 	};
 }

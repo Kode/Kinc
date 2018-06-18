@@ -3,7 +3,7 @@
 #include "Direct3D9.h"
 #include "IndexBufferImpl.h"
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 
@@ -16,7 +16,7 @@ Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 #ifdef KORE_WINDOWS
 	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
 #endif
-	affirm(device->CreateIndexBuffer(sizeof(int) * count, usage, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &ib, 0));
+	Microsoft::affirm(device->CreateIndexBuffer(sizeof(int) * count, usage, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &ib, 0));
 }
 
 Graphics4::IndexBuffer::~IndexBuffer() {
@@ -30,17 +30,17 @@ int* Graphics4::IndexBuffer::lock() {
 	lockflags = D3DLOCK_DISCARD;
 #endif
 	int count2 = count();
-	affirm(ib->Lock(0, count2 * 4, (void**)&buffer, lockflags));
+	Microsoft::affirm(ib->Lock(0, count2 * 4, (void**)&buffer, lockflags));
 	return buffer;
 }
 
 void Graphics4::IndexBuffer::unlock() {
-	affirm(ib->Unlock());
+	Microsoft::affirm(ib->Unlock());
 }
 
 void Graphics4::IndexBuffer::_set() {
 	_current = this;
-	affirm(device->SetIndices(ib));
+	Microsoft::affirm(device->SetIndices(ib));
 }
 
 int Graphics4::IndexBuffer::count() {

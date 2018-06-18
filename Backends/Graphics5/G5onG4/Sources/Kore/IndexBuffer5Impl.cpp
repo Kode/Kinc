@@ -14,9 +14,7 @@ IndexBuffer5Impl::IndexBuffer5Impl(int count, bool gpuMemory) : myCount(count) {
 	buffer = new Graphics4::IndexBuffer(count);
 }
 
-Graphics5::IndexBuffer::IndexBuffer(int count, bool gpuMemory) : IndexBuffer5Impl(count, gpuMemory) {
-
-}
+Graphics5::IndexBuffer::IndexBuffer(int count, bool gpuMemory) : IndexBuffer5Impl(count, gpuMemory) {}
 
 Graphics5::IndexBuffer::~IndexBuffer() {
 	delete buffer;

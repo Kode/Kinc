@@ -19,15 +19,15 @@ namespace {
 	}
 }
 
-Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
+Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId)
     : width(width), height(height) {
 	texWidth = getPower2(width);
 	texHeight = getPower2(height);
 }
 
-Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
-	
-}
+Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId) {}
 
 Graphics5::RenderTarget::~RenderTarget() {}
 

@@ -5,22 +5,29 @@
 
 #include <Windows.h>
 
+#include <assert.h>
+
 using namespace Kore;
 
 void Mutex::create() {
-	InitializeCriticalSection((CRITICAL_SECTION*)&criticalSection);
+	assert(sizeof(RTL_CRITICAL_SECTION) == sizeof(Mutex::CriticalSection));
+	InitializeCriticalSection((LPCRITICAL_SECTION)&criticalSection);
 }
 
 void Mutex::destroy() {
-	DeleteCriticalSection((CRITICAL_SECTION*)&criticalSection);
+	DeleteCriticalSection((LPCRITICAL_SECTION)&criticalSection);
 }
 
 void Mutex::lock() {
-	EnterCriticalSection((CRITICAL_SECTION*)&criticalSection);
+	EnterCriticalSection((LPCRITICAL_SECTION)&criticalSection);
+}
+
+bool Mutex::tryToLock() {
+	return TryEnterCriticalSection((LPCRITICAL_SECTION)&criticalSection);
 }
 
 void Mutex::unlock() {
-	LeaveCriticalSection((CRITICAL_SECTION*)&criticalSection);
+	LeaveCriticalSection((LPCRITICAL_SECTION)&criticalSection);
 }
 
 bool UberMutex::create(const wchar_t* name) {

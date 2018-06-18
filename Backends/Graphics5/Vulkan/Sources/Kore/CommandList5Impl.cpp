@@ -25,7 +25,6 @@ extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 
 struct SwapchainBuffers {
 	VkImage image;
-	VkCommandBuffer cmd;
 	VkImageView view;
 };
 
@@ -369,23 +368,7 @@ void CommandList::disableScissor() {
 
 void CommandList::setPipeline(PipelineState* pipeline) {
 	_currentPipeline = pipeline;
-	
-	{
-		uint8_t* data;
-		VkResult err = vkMapMemory(device, _currentPipeline->memVertex, 0, _currentPipeline->mem_allocVertex.allocationSize, 0, (void**)&data);
-		assert(!err);
-		memcpy(data, &_currentPipeline->uniformDataVertex, sizeof(_currentPipeline->uniformDataVertex));
-		vkUnmapMemory(device, _currentPipeline->memVertex);
-	}
-
-	{
-		uint8_t* data;
-		VkResult err = vkMapMemory(device, _currentPipeline->memFragment, 0, _currentPipeline->mem_allocFragment.allocationSize, 0, (void**)&data);
-		assert(!err);
-		memcpy(data, &_currentPipeline->uniformDataFragment, sizeof(_currentPipeline->uniformDataFragment));
-		vkUnmapMemory(device, _currentPipeline->memFragment);
-	}
-
+		
 	vkCmdBindPipeline(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline);
 
 	if (vulkanRenderTargets[0] != nullptr)
@@ -578,4 +561,28 @@ void CommandList::upload(IndexBuffer* buffer) {
 
 void CommandList::upload(Texture* texture) {
 	
+}
+
+void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {
+	
+}
+
+void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
+	
+}
+
+void CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {
+	
+}
+
+void CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {
+	
+}
+
+void CommandList::setPipelineLayout() {
+
+}
+
+void CommandList::executeAndWait() {
+
 }

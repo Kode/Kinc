@@ -100,10 +100,10 @@ namespace Kore {
 
 		class RenderTarget : public RenderTarget5Impl {
 		public:
-			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
-				int contextId = 0);
+			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit,
+			             int stencilBufferBits = -1, int contextId = 0);
 			RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1,
-				int contextId = 0);
+			             int contextId = 0);
 			~RenderTarget();
 			int width;
 			int height;
@@ -160,7 +160,7 @@ namespace Kore {
 		const uint ClearColorFlag = 1;
 		const uint ClearDepthFlag = 2;
 		const uint ClearStencilFlag = 4;
-		
+
 		void init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync = true);
 		void destroy(int windowId);
 

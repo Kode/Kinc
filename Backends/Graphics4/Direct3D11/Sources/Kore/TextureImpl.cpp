@@ -3,13 +3,13 @@
 #include "Direct3D11.h"
 #include "TextureImpl.h"
 #include <Kore/Math/Random.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 
 namespace {
 	Graphics4::Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-	                            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	                                       nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 	DXGI_FORMAT convertFormat(Graphics4::Image::Format format) {
 		switch (format) {
@@ -56,12 +56,14 @@ namespace {
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
+	setId();
 	stage = 0;
 	mipmap = true;
 	texWidth = width;
 	texHeight = height;
 	rowPitch = 0;
-	bool isHdr = this->format == Graphics4::Image::RGBA128 || this->format == Graphics4::Image::RGBA64 || this->format == Graphics4::Image::A32 || this->format == Graphics4::Image::A16;
+	bool isHdr = this->format == Graphics4::Image::RGBA128 || this->format == Graphics4::Image::RGBA64 || this->format == Graphics4::Image::A32 ||
+	             this->format == Graphics4::Image::A16;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -81,8 +83,8 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	data.SysMemSlicePitch = 0;
 
 	texture = nullptr;
-	affirm(device->CreateTexture2D(&desc, &data, &texture));
-	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Microsoft::affirm(device->CreateTexture2D(&desc, &data, &texture));
+	Microsoft::affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	computeView = nullptr;
 
@@ -99,6 +101,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 }
 
 void Graphics4::Texture::init3D(bool readable) {
+	setId();
 }
 
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
@@ -129,8 +132,8 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	}
 
 	texture = nullptr;
-	affirm(device->CreateTexture2D(&desc, nullptr, &texture));
-	affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Microsoft::affirm(device->CreateTexture2D(&desc, nullptr, &texture));
+	Microsoft::affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	computeView = nullptr;
 	if (format == Image::RGBA128) {
@@ -138,7 +141,7 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 		du.Format = desc.Format;
 		du.Texture2D.MipSlice = 0;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE2D;
-		affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
+		Microsoft::affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
 	}
 }
 
@@ -152,7 +155,7 @@ TextureImpl::~TextureImpl() {
 	if (texture != nullptr) {
 		texture->Release();
 	}
-	if(computeView!=nullptr){
+	if (computeView != nullptr) {
 		computeView->Release();
 	}
 }
@@ -191,19 +194,17 @@ void Graphics4::Texture::unlock() {
 	context->Unmap(texture, 0);
 }
 
-void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-
-}
+void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
 
 int Graphics4::Texture::stride() {
 	return rowPitch;
 }
 
 void Graphics4::Texture::generateMipmaps(int levels) {
-	//context->GenerateMips(view);
+	// context->GenerateMips(view);
 }
 
 void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
-	//D3D11CalcSubresource();
-	//context->UpdateSubresource();
+	// D3D11CalcSubresource();
+	// context->UpdateSubresource();
 }

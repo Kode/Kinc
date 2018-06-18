@@ -12,11 +12,10 @@ public:
 
 	Kore::mat4 eye;
 	Kore::mat4 projection;
-	
+
 	// fov
 	float left;
 	float right;
 	float bottom;
 	float top;
 };
-

@@ -90,12 +90,13 @@ void Video::load(double startTime) {
 	AVAssetReaderAudioMixOutput* audioOutput = nullptr;
 	if (hasAudio) {
 		AVAssetTrack* audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
-		NSDictionary* audioOutputSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey, [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
-			[NSNumber numberWithInt:32], AVLinearPCMBitDepthKey, [NSNumber numberWithBool:NO], AVLinearPCMIsNonInterleaved,
-	        [NSNumber numberWithBool:YES], AVLinearPCMIsFloatKey, [NSNumber numberWithBool:NO], AVLinearPCMIsBigEndianKey, nil];
+		NSDictionary* audioOutputSettings = [NSDictionary
+		    dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey, [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
+		                                 [NSNumber numberWithInt:32], AVLinearPCMBitDepthKey, [NSNumber numberWithBool:NO], AVLinearPCMIsNonInterleaved,
+		                                 [NSNumber numberWithBool:YES], AVLinearPCMIsFloatKey, [NSNumber numberWithBool:NO], AVLinearPCMIsBigEndianKey, nil];
 		audioOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[ audioTrack ] audioSettings:audioOutputSettings];
 	}
-	
+
 	AVAssetReader* reader = [AVAssetReader assetReaderWithAsset:asset error:nil];
 
 	if (startTime > 0) {
@@ -107,7 +108,7 @@ void Video::load(double startTime) {
 	if (hasAudio) {
 		[reader addOutput:audioOutput];
 	}
-	
+
 	impl->assetReader = reader;
 	impl->videoTrackOutput = videoOutput;
 	if (hasAudio) {
@@ -116,7 +117,7 @@ void Video::load(double startTime) {
 	else {
 		impl->audioTrackOutput = nullptr;
 	}
-	
+
 	if (myWidth < 0) myWidth = [videoTrack naturalSize].width;
 	if (myHeight < 0) myHeight = [videoTrack naturalSize].height;
 	int framerate = [videoTrack nominalFrameRate];
@@ -143,13 +144,13 @@ void Video::play() {
 	[reader startReading];
 
 	sound = new VideoSoundStream(2, 44100);
-	// Mixer::play(sound);
+// Mixer::play(sound);
 #ifdef KORE_IOS
 	iosPlayVideoSoundStream(sound);
 #else
 	macPlayVideoSoundStream(sound);
 #endif
-	
+
 	playing = true;
 	start = System::time() - videoStart;
 }
@@ -157,7 +158,7 @@ void Video::play() {
 void Video::pause() {
 	playing = false;
 	if (sound != nullptr) {
-		// Mixer::stop(sound);
+// Mixer::stop(sound);
 #ifdef KORE_IOS
 		iosStopVideoSoundStream();
 #else
@@ -206,7 +207,6 @@ void Video::updateImage() {
 			image->upload((u8*)CVPixelBufferGetBaseAddress(pixelBuffer), static_cast<int>(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
 #endif
 			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-			
 		}
 		CFRelease(buffer);
 	}

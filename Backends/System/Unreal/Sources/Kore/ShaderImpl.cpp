@@ -7,6 +7,4 @@
 
 using namespace Kore;
 
-Shader::Shader(void* _data, int length, ShaderType type) {
-
-}
+Shader::Shader(void* _data, int length, ShaderType type) {}

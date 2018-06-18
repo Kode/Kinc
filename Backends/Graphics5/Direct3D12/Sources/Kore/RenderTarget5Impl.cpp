@@ -5,7 +5,7 @@
 
 #include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 #ifdef KORE_WINDOWS
 #include <dxgi1_4.h>
@@ -45,7 +45,8 @@ namespace {
 	}
 }
 
-Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
+Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 
@@ -57,10 +58,9 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
 #endif
 
-	device->CreateCommittedResource(
-	    &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	    &CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-	    D3D12_RESOURCE_STATE_COMMON, nullptr, IID_GRAPHICS_PPV_ARGS(&renderTarget));
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+	                                &CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
+	                                D3D12_RESOURCE_STATE_COMMON, nullptr, IID_GRAPHICS_PPV_ARGS(&renderTarget));
 
 	D3D12_RENDER_TARGET_VIEW_DESC view;
 	const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
@@ -103,19 +103,16 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&depthStencilDescriptorHeap));
 
-		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0,
-			width, height, 1, 1,
-			DXGI_FORMAT_D32_FLOAT, 1, 0, D3D12_TEXTURE_LAYOUT_UNKNOWN,
-			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0, width, height, 1, 1, DXGI_FORMAT_D32_FLOAT, 1, 0,
+		                                   D3D12_TEXTURE_LAYOUT_UNKNOWN, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
 
 		D3D12_CLEAR_VALUE clearValue;
 		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
 		clearValue.DepthStencil.Depth = 1.0f;
 		clearValue.DepthStencil.Stencil = 0;
 
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-			IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &depthTexture,
+		                                D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
 
 		device->CreateDepthStencilView(depthStencilTexture, nullptr, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	}
@@ -133,9 +130,8 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	}
 }
 
-Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {
-	
-}
+Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+                                      int contextId) {}
 
 Graphics5::RenderTarget::~RenderTarget() {
 	renderTarget->Release();
@@ -172,10 +168,6 @@ void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	currentTextures[stage] = nullptr;
 }
 
-void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {
+void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
 
-}
-
-void Graphics5::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
-
-}
+void Graphics5::RenderTarget::setDepthStencilFrom(RenderTarget* source) {}

@@ -14,6 +14,8 @@ namespace Kore {
 			PipelineState();
 			~PipelineState();
 
+			u32 id;
+
 			VertexStructure* inputLayout[16];
 			Shader* vertexShader;
 			Shader* fragmentShader;
@@ -37,10 +39,10 @@ namespace Kore {
 			// One, Zero deactivates blending
 			BlendingOperation blendSource;
 			BlendingOperation blendDestination;
-			//BlendingOperation blendOperation;
+			// BlendingOperation blendOperation;
 			BlendingOperation alphaBlendSource;
 			BlendingOperation alphaBlendDestination;
-			//BlendingOperation alphaBlendOperation;
+			// BlendingOperation alphaBlendOperation;
 
 			bool colorWriteMaskRed;
 			bool colorWriteMaskGreen;

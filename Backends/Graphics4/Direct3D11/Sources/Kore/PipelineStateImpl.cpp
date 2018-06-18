@@ -4,7 +4,7 @@
 #include "PipelineStateImpl.h"
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 #include <malloc.h>
 
@@ -128,7 +128,7 @@ void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 	currentPipeline = pipeline;
 
 	context->OMSetDepthStencilState(depthStencilState, pipeline->stencilReferenceValue);
-	float blendFactor[] = { 0, 0, 0, 0 };
+	float blendFactor[] = {0, 0, 0, 0};
 	UINT sampleMask = 0xffffffff;
 	context->OMSetBlendState(blendState, blendFactor, sampleMask);
 	setRasterizerState(scissoring);
@@ -138,7 +138,8 @@ void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 
 	if (pipeline->geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)pipeline->geometryShader->shader, nullptr, 0);
 	if (pipeline->tessellationControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)pipeline->tessellationControlShader->shader, nullptr, 0);
-	if (pipeline->tessellationEvaluationShader != nullptr) context->DSSetShader((ID3D11DomainShader*)pipeline->tessellationEvaluationShader->shader, nullptr, 0);
+	if (pipeline->tessellationEvaluationShader != nullptr)
+		context->DSSetShader((ID3D11DomainShader*)pipeline->tessellationEvaluationShader->shader, nullptr, 0);
 
 	context->IASetInputLayout(pipeline->d3d11inputLayout);
 }
@@ -245,15 +246,32 @@ Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name
 }
 
 namespace {
+	char stringCache[1024];
+	int stringCacheIndex = 0;
+
 	int getMultipleOf16(int value) {
 		int ret = 16;
 		while (ret < value) ret += 16;
 		return ret;
 	}
 
-	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream, bool instanced) {
-		vertexDesc.SemanticName = "TEXCOORD";
-		vertexDesc.SemanticIndex = attributeIndex;
+	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream, bool instanced, int subindex = -1) {
+		if (subindex < 0) {
+			vertexDesc.SemanticName = "TEXCOORD";
+			vertexDesc.SemanticIndex = attributeIndex;
+		}
+		else {
+			// SPIRV_CROSS uses TEXCOORD_0_0,... for split up matrices
+			int stringStart = stringCacheIndex;
+			strcpy(&stringCache[stringCacheIndex], "TEXCOORD");
+			stringCacheIndex += strlen("TEXCOORD");
+			_itoa(attributeIndex, &stringCache[stringCacheIndex], 10);
+			stringCacheIndex += strlen(&stringCache[stringCacheIndex]);
+			strcpy(&stringCache[stringCacheIndex], "_");
+			stringCacheIndex += 2;
+			vertexDesc.SemanticName = &stringCache[stringStart];
+			vertexDesc.SemanticIndex = subindex;
+		}
 		vertexDesc.InputSlot = stream;
 		vertexDesc.AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
 		vertexDesc.InputSlotClass = instanced ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
@@ -282,20 +300,20 @@ namespace {
 
 void Graphics4::PipelineState::compile() {
 	if (vertexShader->constantsSize > 0)
-		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&vertexConstantBuffer));
+		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		                                       &vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0)
-		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&fragmentConstantBuffer));
+		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		                                       &fragmentConstantBuffer));
 	if (geometryShader != nullptr && geometryShader->constantsSize > 0)
-		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&geometryConstantBuffer));
+		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		                                       &geometryConstantBuffer));
 	if (tessellationControlShader != nullptr && tessellationControlShader->constantsSize > 0)
-		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&tessControlConstantBuffer));
+		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		                                       nullptr, &tessControlConstantBuffer));
 	if (tessellationEvaluationShader != nullptr && tessellationEvaluationShader->constantsSize > 0)
-		affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-			&tessEvalConstantBuffer));
+		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		                                       nullptr, &tessEvalConstantBuffer));
 
 	int all = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
@@ -314,48 +332,55 @@ void Graphics4::PipelineState::compile() {
 	for (auto attribute : vertexShader->attributes) {
 		used[attribute.second] = true;
 	}
+	stringCacheIndex = 0;
 	D3D11_INPUT_ELEMENT_DESC* vertexDesc = (D3D11_INPUT_ELEMENT_DESC*)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
 	int i = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
 		for (int index = 0; index < inputLayout[stream]->size; ++index) {
 			switch (inputLayout[stream]->elements[index].data) {
 			case Float1VertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 				++i;
 				break;
 			case Float2VertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 				++i;
 				break;
 			case Float3VertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				++i;
 				break;
 			case Float4VertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
 			case ColorVertexData:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream, inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 				++i;
 				break;
 			case Float4x4VertexData:
+				char name[101];
+				strcpy(name, inputLayout[stream]->elements[index].name);
+				strcat(name, "_");
+				size_t length = strlen(name);
+				_itoa(0, &name[length], 10);
+				name[length + 1] = 0;
+				int attributeLocation = getAttributeLocation(vertexShader->attributes, name, used);
+
 				for (int i2 = 0; i2 < 4; ++i2) {
-					char name[101];
-					strcpy(name, inputLayout[stream]->elements[index].name);
-					strcat(name, "_");
-					size_t length = strlen(name);
-					_itoa(i2, &name[length], 10);
-					name[length + 1] = 0;
-
-					setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, name, used), index + i2, stream, inputLayout[stream]->instanced);
+					setVertexDesc(vertexDesc[i], attributeLocation, index + i2, stream,
+					              inputLayout[stream]->instanced, i2);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-
 					++i;
 				}
 				break;
@@ -363,7 +388,7 @@ void Graphics4::PipelineState::compile() {
 		}
 	}
 
-	affirm(device->CreateInputLayout(vertexDesc, all, vertexShader->data, vertexShader->length, &d3d11inputLayout));
+	Microsoft::affirm(device->CreateInputLayout(vertexDesc, all, vertexShader->data, vertexShader->length, &d3d11inputLayout));
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
@@ -405,16 +430,17 @@ void Graphics4::PipelineState::compile() {
 		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
 		ZeroMemory(&rtbd, sizeof(rtbd));
 
-		rtbd.BlendEnable = blendSource != Graphics4::BlendOne || blendDestination != Graphics4::BlendZero || alphaBlendSource != Graphics4::BlendOne || alphaBlendDestination != Graphics4::BlendZero;
+		rtbd.BlendEnable = blendSource != Graphics4::BlendOne || blendDestination != Graphics4::BlendZero || alphaBlendSource != Graphics4::BlendOne ||
+		                   alphaBlendDestination != Graphics4::BlendZero;
 		rtbd.SrcBlend = convert(blendSource);
 		rtbd.DestBlend = convert(blendDestination);
 		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
 		rtbd.SrcBlendAlpha = convert(alphaBlendSource);
 		rtbd.DestBlendAlpha = convert(alphaBlendDestination);
 		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbd.RenderTargetWriteMask =
-			(((colorWriteMaskRed ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (colorWriteMaskGreen ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) | (colorWriteMaskBlue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
-			(colorWriteMaskAlpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+		rtbd.RenderTargetWriteMask = (((colorWriteMaskRed ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (colorWriteMaskGreen ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
+		                              (colorWriteMaskBlue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		                             (colorWriteMaskAlpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
 
 		D3D11_BLEND_DESC blendDesc;
 		ZeroMemory(&blendDesc, sizeof(blendDesc));

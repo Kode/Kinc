@@ -4,26 +4,16 @@
 
 using namespace Kore;
 
-void Event::create() {
-	
-}
+void Event::create() {}
 
-void Event::destroy() {
-	
-}
+void Event::destroy() {}
 
-void Event::signal() {
-	
-}
+void Event::signal() {}
 
-void Event::wait() {
-	
-}
+void Event::wait() {}
 
 bool Event::tryToWait(double seconds) {
 	return true;
 }
 
-void Event::reset() {
-	
-}
+void Event::reset() {}

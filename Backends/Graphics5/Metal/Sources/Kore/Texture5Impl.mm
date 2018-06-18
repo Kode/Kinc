@@ -2,8 +2,8 @@
 
 #include "Texture5Impl.h"
 
-#include <Kore/Graphics5/Graphics.h>
 #include <Kore/Graphics1/Image.h>
+#include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
 
 #import <Metal/Metal.h>
@@ -85,9 +85,7 @@ void Graphics5::Texture::unlock() {
 	[texture replaceRegion:MTLRegionMake2D(0, 0, width, height) mipmapLevel:0 slice:0 withBytes:data bytesPerRow:stride() bytesPerImage:stride() * height];
 }
 
-void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-
-}
+void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
 
 #ifdef SYS_IOS
 void Graphics5::Texture::upload(u8* data) {}

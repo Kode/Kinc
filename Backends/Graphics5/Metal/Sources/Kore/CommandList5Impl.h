@@ -7,7 +7,5 @@ namespace Kore {
 		class Shader;
 	}
 
-	class CommandList5Impl {
-		
-	};
+	class CommandList5Impl {};
 }

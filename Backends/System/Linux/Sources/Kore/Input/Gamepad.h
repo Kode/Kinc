@@ -1,6 +1,6 @@
 #pragma once
 
 namespace Kore {
-    void initHIDGamepads();
+	void initHIDGamepads();
 	void updateHIDGamepads();
 }

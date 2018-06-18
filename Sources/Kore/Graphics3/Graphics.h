@@ -2,15 +2,15 @@
 
 #ifndef KORE_G4
 
-#include <Kore/Graphics1/Image.h>
-#include <Kore/Math/Matrix.h>
-#include <Kore/Math/Vector.h>
-#include <Kore/GraphicsImpl.h>
-#include <Kore/Graphics4/Shader.h>
 #include "Light.h"
 #include <Kore/Graphics1/Color.h>
-#include <Kore/Graphics4/VertexStructure.h>
+#include <Kore/Graphics1/Image.h>
 #include <Kore/Graphics3/Texture.h>
+#include <Kore/Graphics4/Shader.h>
+#include <Kore/Graphics4/VertexStructure.h>
+#include <Kore/GraphicsImpl.h>
+#include <Kore/Math/Matrix.h>
+#include <Kore/Math/Vector.h>
 
 namespace Kore {
 	namespace Graphics3 {
@@ -38,23 +38,14 @@ namespace Kore {
 			void _set();
 		};
 
-		enum TextureAddressing {
-			Repeat,
-			Mirror,
-			Clamp,
-			Border
-		};
+		enum TextureAddressing { Repeat, Mirror, Clamp, Border };
 
-		enum TextureFilter {
-			PointFilter,
-			LinearFilter,
-			AnisotropicFilter
-		};
+		enum TextureFilter { PointFilter, LinearFilter, AnisotropicFilter };
 
 		enum MipmapFilter {
 			NoMipFilter,
 			PointMipFilter,
-			LinearMipFilter //linear texture filter + linear mip filter -> trilinear filter
+			LinearMipFilter // linear texture filter + linear mip filter -> trilinear filter
 		};
 
 		enum RenderState {
@@ -65,18 +56,18 @@ namespace Kore {
 			DepthTest,
 			DepthTestCompare,
 			DepthWrite,
-			FogState,       // fixed function fog state
-			FogStart,       // fixed function fog start
-			FogEnd,         // fixed function fog end
-			FogDensity,     // fixed function fog density
-			FogType,        // fixed function fog type
-			FogColor,       // fixed function fog color
-			Lighting,       // fixed function lighting state
+			FogState,   // fixed function fog state
+			FogStart,   // fixed function fog start
+			FogEnd,     // fixed function fog end
+			FogDensity, // fixed function fog density
+			FogType,    // fixed function fog type
+			FogColor,   // fixed function fog color
+			Lighting,   // fixed function lighting state
 			Normalize,
 			ScissorTestState,
 		};
 
-		//NEW: material states (fixed-function material)
+		// NEW: material states (fixed-function material)
 		enum MaterialState {
 			AmbientColor,
 			DiffuseColor,
@@ -86,7 +77,7 @@ namespace Kore {
 			SolidColor, // color for non-lighting materials (i.e. when lighting is disabled)
 		};
 
-		//NEW: texture mappings
+		// NEW: texture mappings
 		enum TextureMapping {
 			Texture1D,
 			Texture2D,
@@ -118,15 +109,9 @@ namespace Kore {
 			ZCompareGreaterEqual
 		};
 
-		enum CullMode {
-			Clockwise,
-			CounterClockwise,
-			NoCulling
-		};
+		enum CullMode { Clockwise, CounterClockwise, NoCulling };
 
-		enum TexDir {
-			U, V
-		};
+		enum TexDir { U, V };
 
 		enum FogType {
 			LinearFog,
@@ -134,37 +119,15 @@ namespace Kore {
 			Exp2Fog,
 		};
 
-		enum RenderTargetFormat {
-			Target32Bit,
-			Target64BitFloat,
-			Target32BitRedFloat,
-			Target128BitFloat,
-			Target16BitDepth
-		};
+		enum RenderTargetFormat { Target32Bit, Target64BitFloat, Target32BitRedFloat, Target128BitFloat, Target16BitDepth };
 
-		enum StencilAction {
-			Keep,
-			Zero,
-			Replace,
-			Increment,
-			IncrementWrap,
-			Decrement,
-			DecrementWrap,
-			Invert
-		};
+		enum StencilAction { Keep, Zero, Replace, Increment, IncrementWrap, Decrement, DecrementWrap, Invert };
 
-		enum TextureOperation {
-			ModulateOperation,
-			SelectFirstOperation,
-			SelectSecondOperation
-		};
+		enum TextureOperation { ModulateOperation, SelectFirstOperation, SelectSecondOperation };
 
-		enum TextureArgument {
-			CurrentColorArgument,
-			TextureColorArgument
-		};
+		enum TextureArgument { CurrentColorArgument, TextureColorArgument };
 
-		//NEW: texture coordinate generation
+		// NEW: texture coordinate generation
 		enum TexCoordGeneration {
 			TexGenDisabled,
 			TexGenObjectLinear,
@@ -174,7 +137,7 @@ namespace Kore {
 			TexGenReflectionMap,
 		};
 
-		//NEW: texture coordinate components
+		// NEW: texture coordinate components
 		enum TextureCoordinate {
 			TexCoordX, // Texture X-coordinate (also called S-coordinate).
 			TexCoordY, // Texture Y-coordinate (also called T-coordinate).
@@ -184,7 +147,8 @@ namespace Kore {
 
 		class RenderTarget : public RenderTargetImpl {
 		public:
-			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit, int stencilBufferBits = -1, int contextId = 0);
+			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit,
+			             int stencilBufferBits = -1, int contextId = 0);
 			int width;
 			int height;
 			int texWidth;
@@ -194,7 +158,7 @@ namespace Kore {
 			void useDepthAsTexture(TextureUnit unit);
 			void setDepthStencilFrom(RenderTarget* source);
 		};
-				
+
 		// Shader constants not supported in OpenGL 1.X
 		/*void setBool(ConstantLocation location, bool value);
 		void setInt(ConstantLocation location, int value);
@@ -254,9 +218,10 @@ namespace Kore {
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();
-		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue, int readMask = 0, int writeMask = 0);
+		void setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
+		                          int readMask = 0, int writeMask = 0);
 
-		//NEW: material states
+		// NEW: material states
 
 		// Fixed-function material states (OpenGL 1.X) {
 

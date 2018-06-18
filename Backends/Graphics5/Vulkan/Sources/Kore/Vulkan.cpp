@@ -171,7 +171,11 @@ namespace {
 	}
 
 	VKAPI_ATTR void* VKAPI_CALL myrealloc(void* pUserData, void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
+#ifdef _MSC_VER
+		return _aligned_realloc(pOriginal, size, alignment);
+#else
 		return realloc(pOriginal, size);
+#endif
 	}
 
 	VKAPI_ATTR void* VKAPI_CALL myalloc(void* pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
@@ -939,133 +943,6 @@ bool Graphics5::vsynced() {
 // void* Graphics::getControl() {
 //	return nullptr;
 //}
-
-void Graphics5::setBool(ConstantLocation location, bool value) {
-	if (location.vertexOffset >= 0) {
-		int* data = (int*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		data[0] = value;
-	}
-	if (location.fragmentOffset >= 0) {
-		int* data = (int*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		data[0] = value;
-	}
-}
-
-void Graphics5::setInt(ConstantLocation location, int value) {
-	if (location.vertexOffset >= 0) {
-		int* data = (int*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		data[0] = value;
-	}
-	if (location.fragmentOffset >= 0) {
-		int* data = (int*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		data[0] = value;
-	}
-}
-
-void Graphics5::setFloat(ConstantLocation location, float value) {
-	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		data[0] = value;
-	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		data[0] = value;
-	}
-}
-
-void Graphics5::setFloat2(ConstantLocation location, float value1, float value2) {
-	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		data[0] = value1;
-		data[1] = value2;
-	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		data[0] = value1;
-		data[1] = value2;
-	}
-}
-
-void Graphics5::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		data[0] = value1;
-		data[1] = value2;
-		data[2] = value3;
-	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		data[0] = value1;
-		data[1] = value2;
-		data[2] = value3;
-	}
-}
-
-void Graphics5::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		data[0] = value1;
-		data[1] = value2;
-		data[2] = value3;
-		data[3] = value4;
-	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		data[0] = value1;
-		data[1] = value2;
-		data[2] = value3;
-		data[3] = value4;
-	}
-}
-
-void Graphics5::setFloats(ConstantLocation location, float* values, int count) {
-	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		for (int i = 0; i < count; ++i) {
-			data[i] = values[i];
-		}
-	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		for (int i = 0; i < count; ++i) {
-			data[i] = values[i];
-		}
-	}
-}
-
-void Graphics5::setMatrix(ConstantLocation location, const mat4& value) {
-	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		for (int i = 0; i < 16; ++i) {
-			data[i] = value.data[i];
-		}
-	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		for (int i = 0; i < 16; ++i) {
-			data[i] = value.data[i];
-		}
-	}
-}
-
-void Graphics5::setMatrix(ConstantLocation location, const mat3& value) {
-	if (location.vertexOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataVertex)[location.vertexOffset];
-		for (int y = 0; y < 3; ++y) {
-			for (int x = 0; x < 3; ++x) {
-				data[y * 4 + x] = value.data[y * 3 + x];
-			}
-		}
-	}
-	if (location.fragmentOffset >= 0) {
-		float* data = (float*)&((u8*)PipelineState5Impl::current->uniformDataFragment)[location.fragmentOffset];
-		for (int y = 0; y < 3; ++y) {
-			for (int x = 0; x < 3; ++x) {
-				data[y * 4 + x] = value.data[y * 3 + x];
-			}
-		}
-	}
-}
 
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {
 	// drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());

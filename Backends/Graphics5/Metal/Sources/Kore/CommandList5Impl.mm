@@ -20,33 +20,19 @@ extern id<MTLBuffer> vertexUniforms;
 extern id<MTLBuffer> fragmentUniforms;
 const int uniformsSize = 4096;
 
-Graphics5::CommandList::CommandList() {
-	
-}
+Graphics5::CommandList::CommandList() {}
 
-Graphics5::CommandList::~CommandList() {
-	
-}
+Graphics5::CommandList::~CommandList() {}
 
-void Graphics5::CommandList::begin() {
-	
-}
+void Graphics5::CommandList::begin() {}
 
-void Graphics5::CommandList::end() {
-	
-}
+void Graphics5::CommandList::end() {}
 
-void Graphics5::CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, float depth, int stencil) {
-	
-}
+void Graphics5::CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, float depth, int stencil) {}
 
-void Graphics5::CommandList::renderTargetToFramebufferBarrier(RenderTarget* renderTarget) {
-	
-}
+void Graphics5::CommandList::renderTargetToFramebufferBarrier(RenderTarget* renderTarget) {}
 
-void Graphics5::CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {
-	
-}
+void Graphics5::CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {}
 
 void Graphics5::CommandList::drawIndexedVertices() {
 	drawIndexedVertices(0, IndexBuffer5Impl::current->count());
@@ -54,15 +40,15 @@ void Graphics5::CommandList::drawIndexedVertices() {
 
 void Graphics5::CommandList::drawIndexedVertices(int start, int count) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	
+
 	//[encoder setDepthStencilState:_depthState];
 	[encoder setVertexBuffer:vertexUniforms offset:uniformsIndex * uniformsSize atIndex:1];
 	[encoder setFragmentBuffer:fragmentUniforms offset:uniformsIndex * uniformsSize atIndex:0];
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-						indexCount:count
-						 indexType:MTLIndexTypeUInt32
-					   indexBuffer:IndexBuffer5Impl::current->mtlBuffer
-				 indexBufferOffset:start + IndexBuffer5Impl::current->offset()];
+	                    indexCount:count
+	                     indexType:MTLIndexTypeUInt32
+	                   indexBuffer:IndexBuffer5Impl::current->mtlBuffer
+	             indexBufferOffset:start + IndexBuffer5Impl::current->offset()];
 }
 
 void Graphics5::CommandList::viewport(int x, int y, int width, int height) {
@@ -76,13 +62,9 @@ void Graphics5::CommandList::viewport(int x, int y, int width, int height) {
 	// encoder.setViewport(viewport);
 }
 
-void Graphics5::CommandList::scissor(int x, int y, int width, int height) {
-	
-}
+void Graphics5::CommandList::scissor(int x, int y, int width, int height) {}
 
-void Graphics5::CommandList::disableScissor() {
-	
-}
+void Graphics5::CommandList::disableScissor() {}
 
 void Graphics5::CommandList::setPipeline(PipelineState* pipeline) {
 	pipeline->_set();
@@ -96,20 +78,12 @@ void Graphics5::CommandList::setIndexBuffer(IndexBuffer& buffer) {
 	buffer._set();
 }
 
-//void restoreRenderTarget();
+// void restoreRenderTarget();
 
-void Graphics5::CommandList::setRenderTargets(RenderTarget** targets, int count) {
-	
-}
+void Graphics5::CommandList::setRenderTargets(RenderTarget** targets, int count) {}
 
-void Graphics5::CommandList::upload(IndexBuffer* buffer) {
-	
-}
+void Graphics5::CommandList::upload(IndexBuffer* buffer) {}
 
-void Graphics5::CommandList::upload(VertexBuffer* buffer) {
-	
-}
+void Graphics5::CommandList::upload(VertexBuffer* buffer) {}
 
-void Graphics5::CommandList::upload(Texture* texture) {
-	
-}
+void Graphics5::CommandList::upload(Texture* texture) {}

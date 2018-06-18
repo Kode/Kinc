@@ -62,7 +62,7 @@ int kore(int argc, char** argv);
 }
 
 #ifndef SYS_TVOS
-//static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
+// static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
 //	switch (orientation) {
 //	case UIDeviceOrientationLandscapeLeft:
 //		return Kore::OrientationLandscapeRight;
@@ -77,7 +77,7 @@ int kore(int argc, char** argv);
 //	}
 //}
 
-//static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orientation, UIInterfaceOrientation lastOrientation) {
+// static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orientation, UIInterfaceOrientation lastOrientation) {
 //	switch (orientation) {
 //	case UIDeviceOrientationLandscapeLeft:
 //		return UIInterfaceOrientationLandscapeRight;

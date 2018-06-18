@@ -612,6 +612,8 @@ bool Kore::Mouse::canLock(int windowId) {
 	return false;
 }
 
+void Kore::Mouse::show(bool truth){}
+
 void Kore::Mouse::setPosition(int windowId, int, int) {}
 
 void Kore::Mouse::_lock(int windowId, bool) {}

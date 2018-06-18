@@ -5,22 +5,14 @@
 
 using namespace Kore;
 
-void Mouse::_lock(int windowId, bool truth) {
-
-}
+void Mouse::_lock(int windowId, bool truth) {}
 
 bool Mouse::canLock(int windowId) {
 	return true;
 }
 
-void Mouse::show(bool truth) {
+void Mouse::show(bool truth) {}
 
-}
+void Mouse::setPosition(int windowId, int x, int y) {}
 
-void Mouse::setPosition(int windowId, int x, int y) {
-
-}
-
-void Mouse::getPosition(int windowId, int& x, int& y) {
-
-}
+void Mouse::getPosition(int windowId, int& x, int& y) {}

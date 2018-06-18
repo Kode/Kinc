@@ -7,7 +7,15 @@ namespace Kore {
 	namespace Graphics4 {
 		typedef Graphics1::Image Image;
 
-		class TextureUnit : public TextureUnitImpl {};
+		class TextureUnit : public TextureUnitImpl {
+		public:
+			u32 id;
+
+			TextureUnit() {
+				static u32 lastId = 0;
+				id = lastId++;
+			}
+		};
 
 		class Texture : public Image, public TextureImpl {
 		public:
@@ -36,9 +44,16 @@ namespace Kore {
 			int texWidth;
 			int texHeight;
 			int texDepth;
+
+			u32 id;
+
 		private:
 			void init(const char* format, bool readable = false);
 			void init3D(bool readable = false);
+			void setId() {
+				static u32 lastId = 0;
+				id = lastId++;
+			}
 		};
 	}
 }

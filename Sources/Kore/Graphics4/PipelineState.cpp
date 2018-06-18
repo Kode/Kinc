@@ -6,6 +6,9 @@
 using namespace Kore;
 
 Graphics4::PipelineState::PipelineState() {
+	static u32 lastId = 0;
+	id = lastId++;
+
 	for (int i = 0; i < 16; ++i) inputLayout[i] = nullptr;
 	vertexShader = nullptr;
 	fragmentShader = nullptr;
@@ -28,10 +31,10 @@ Graphics4::PipelineState::PipelineState() {
 
 	blendSource = BlendOne;
 	blendDestination = BlendZero;
-	//blendOperation = BlendingOperation.Add;
+	// blendOperation = BlendingOperation.Add;
 	alphaBlendSource = BlendOne;
 	alphaBlendDestination = BlendZero;
-	//alphaBlendOperation = BlendingOperation.Add;
+	// alphaBlendOperation = BlendingOperation.Add;
 
 	colorWriteMaskRed = true;
 	colorWriteMaskGreen = true;
@@ -41,6 +44,4 @@ Graphics4::PipelineState::PipelineState() {
 	conservativeRasterization = false;
 }
 
-Graphics4::PipelineState::~PipelineState() {
-
-}
+Graphics4::PipelineState::~PipelineState() {}

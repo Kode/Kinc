@@ -2,8 +2,8 @@
 
 #include "Texture5Impl.h"
 
-#include <Kore/Graphics5/Graphics.h>
 #include <Kore/Graphics1/Image.h>
+#include <Kore/Graphics5/Graphics.h>
 #include <Kore/Log.h>
 #include <assert.h>
 #include <string.h>
@@ -20,7 +20,8 @@ extern VkQueue queue;
 extern bool use_staging_buffer;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
-void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set,
+                         VkBuffer* bufVertex, VkBuffer* bufFragment);
 
 namespace {
 	void demo_flush_init_cmd() {
@@ -298,7 +299,7 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	err = vkCreateImageView(device, &view, NULL, &texture.view);
 	assert(!err);
 
-	createDescriptorSet(nullptr, this, nullptr, desc_set); // TODO
+	createDescriptorSet(nullptr, this, nullptr, desc_set, nullptr, nullptr); // TODO
 }
 
 Graphics5::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {}
@@ -333,9 +334,7 @@ void Graphics5::Texture::unlock() {
 	vkUnmapMemory(device, texture.mem);
 }
 
-void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-
-}
+void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
 
 void Graphics5::Texture::generateMipmaps(int levels) {}
 

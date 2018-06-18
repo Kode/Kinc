@@ -12,6 +12,12 @@ namespace Kore {
 			ColorVertexData
 		};
 
+		enum Usage {
+			StaticUsage,
+			DynamicUsage, 
+			ReadableUsage
+		};
+
 		// Fixed-function vertex attributes
 		enum VertexAttribute {
 			NoVertexAttribute,
@@ -39,7 +45,7 @@ namespace Kore {
 
 			VertexElement(const char* name, VertexData data) : name(name), data(data) {}
 
-			VertexElement(VertexAttribute attribute, VertexData data) : name(""), attribute(attribute), data(data) { }
+			VertexElement(VertexAttribute attribute, VertexData data) : name(""), attribute(attribute), data(data) {}
 		};
 
 		class VertexStructure {
@@ -48,8 +54,12 @@ namespace Kore {
 			VertexElement elements[maxElementsCount];
 			int size;
 			bool instanced;
+			u32 id;
 
-			VertexStructure() : size(0), instanced(false) {}
+			VertexStructure() : size(0), instanced(false) {
+				static u32 lastId = 0;
+				id = lastId++;
+			}
 
 			void add(const char* name, VertexData data) {
 				elements[size++] = VertexElement(name, data);

@@ -14,7 +14,7 @@ extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 void createDescriptorLayout(PipelineState5Impl* pipeline);
-void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set, VkBuffer* bufVertex, VkBuffer* bufFragment);
 
 Graphics5::PipelineState* PipelineState5Impl::current;
 
@@ -128,42 +128,11 @@ namespace {
 		frag_shader_module = demo_prepare_shader_module(fragmentShader->source, fragmentShader->length);
 		return frag_shader_module;
 	}
-
-	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info) {
-		VkBufferCreateInfo buf_info;
-		memset(&buf_info, 0, sizeof(buf_info));
-		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		buf_info.size = sizeof(float) * 256;
-		VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buf);
-		assert(!err);
-
-		VkMemoryRequirements mem_reqs;
-		vkGetBufferMemoryRequirements(device, buf, &mem_reqs);
-
-		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		mem_alloc.pNext = NULL;
-		mem_alloc.allocationSize = mem_reqs.size;
-		mem_alloc.memoryTypeIndex = 0;
-
-		bool pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
-		assert(pass);
-
-		err = vkAllocateMemory(device, &mem_alloc, NULL, &mem);
-		assert(!err);
-
-		err = vkBindBufferMemory(device, buf, mem, 0);
-		assert(!err);
-
-		buffer_info.buffer = buf;
-		buffer_info.offset = 0;
-		buffer_info.range = sizeof(float) * 256;
-	}
 }
 
 PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
 	createDescriptorLayout(this);
-	createDescriptorSet(this, nullptr, nullptr, desc_set);
+	createDescriptorSet(this, nullptr, nullptr, desc_set, nullptr, nullptr);
 }
 
 Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
@@ -458,7 +427,7 @@ void createDescriptorLayout(PipelineState5Impl* pipeline) {
 	assert(!err);
 }
 
-void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
+void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set, VkBuffer* bufVertex, VkBuffer* bufFragment) {
 	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
 	VkDescriptorBufferInfo buffer_descs[2];
 
@@ -471,21 +440,20 @@ void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* textu
 	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
-	if (texture == nullptr && renderTarget == nullptr) {
-		createUniformBuffer(pipeline->bufVertex, pipeline->mem_allocVertex, pipeline->memVertex, pipeline->buffer_infoVertex);
-		createUniformBuffer(pipeline->bufFragment, pipeline->mem_allocFragment, pipeline->memFragment, pipeline->buffer_infoFragment);
-	}
-
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
-	buffer_descs[0].buffer = pipeline->bufVertex;
+	if (bufVertex != nullptr) {
+		buffer_descs[0].buffer = *bufVertex;
+	}
 	buffer_descs[0].offset = 0;
 	buffer_descs[0].range = 256 * sizeof(float);
-
-	buffer_descs[1].buffer = pipeline->bufFragment;
+	
+	if (bufFragment != nullptr) {
+		buffer_descs[1].buffer = *bufFragment;
+	}
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
-
+	
 	VkDescriptorImageInfo tex_desc;
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
@@ -526,9 +494,16 @@ void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* textu
 	}
 
 	if (texture != nullptr || renderTarget != nullptr) {
-		vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
+		if (bufVertex != nullptr && bufFragment != nullptr) {
+			vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
+		}
+		else {
+			vkUpdateDescriptorSets(device, 1, writes + 2, 0, nullptr);
+		}
 	}
 	else {
-		vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
+		if (bufVertex != nullptr && bufFragment != nullptr) {
+			vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
+		}
 	}
 }

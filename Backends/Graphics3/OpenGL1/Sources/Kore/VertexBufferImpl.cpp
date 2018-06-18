@@ -19,7 +19,8 @@ VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCoun
 #endif
 }
 
-Graphics3::VertexBuffer::VertexBuffer(int vertexCount, const Graphics4::VertexStructure& structure, int instanceDataStepRate) : VertexBufferImpl(vertexCount, instanceDataStepRate) {
+Graphics3::VertexBuffer::VertexBuffer(int vertexCount, const Graphics4::VertexStructure& structure, Usage usage, int instanceDataStepRate)
+    : VertexBufferImpl(vertexCount, instanceDataStepRate) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		Graphics4::VertexElement element = structure.elements[i];
@@ -62,8 +63,8 @@ float* Graphics3::VertexBuffer::lock() {
 /*
 // TODO: FIXME!
 float* VertexBuffer::lock(int start, int count) {
-	myCount = count;
-	return nullptr;//&buffer[start * 9];
+    myCount = count;
+    return nullptr;//&buffer[start * 9];
 }
 */
 
@@ -100,15 +101,15 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
 
-    // Enable vertex attributes
-    unsigned int usedAttribsMask = 0;
+	// Enable vertex attributes
+	unsigned int usedAttribsMask = 0;
 
 	int internaloffset = 0;
 	int actualIndex = 0;
 
 	for (int index = 0; index < structure.size; ++index) {
 		Graphics4::VertexElement element = structure.elements[index];
-		int    size = 0;
+		int size = 0;
 		GLenum type = GL_FLOAT;
 
 		switch (element.data) {
@@ -133,51 +134,51 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			break;
 		}
 
-        switch (element.attribute) {
-            case Graphics4::VertexCoord:
-                assert(size >= 2 && size <= 4);
-                glEnableClientState(GL_VERTEX_ARRAY);
-                glVertexPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
-                break;
+		switch (element.attribute) {
+		case Graphics4::VertexCoord:
+			assert(size >= 2 && size <= 4);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glVertexPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
+			break;
 
-            case Graphics4::VertexNormal:
-                assert(size == 3);
-                glEnableClientState(GL_NORMAL_ARRAY);
-                glNormalPointer(type, myStride, reinterpret_cast<const void*>(internaloffset));
-                break;
+		case Graphics4::VertexNormal:
+			assert(size == 3);
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glNormalPointer(type, myStride, reinterpret_cast<const void*>(internaloffset));
+			break;
 
-            case Graphics4::VertexColor0:
-                assert(size >= 3 && size <= 4);
-                glEnableClientState(GL_COLOR_ARRAY);
-                glColorPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
-                break;
+		case Graphics4::VertexColor0:
+			assert(size >= 3 && size <= 4);
+			glEnableClientState(GL_COLOR_ARRAY);
+			glColorPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
+			break;
 
-            case Graphics4::VertexColor1:
-                assert(size == 3);
-                glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-                glSecondaryColorPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
-                break;
+		case Graphics4::VertexColor1:
+			assert(size == 3);
+			glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
+			glSecondaryColorPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
+			break;
 
-            case Graphics4::VertexTexCoord0:
-            case Graphics4::VertexTexCoord1:
-            case Graphics4::VertexTexCoord2:
-            case Graphics4::VertexTexCoord3:
-            case Graphics4::VertexTexCoord4:
-            case Graphics4::VertexTexCoord5:
-            case Graphics4::VertexTexCoord6:
-            case Graphics4::VertexTexCoord7:
-                assert(size >= 1 && size <= 4);
-                glClientActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(element.attribute - Graphics4::VertexTexCoord0));
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                glTexCoordPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
-                break;
+		case Graphics4::VertexTexCoord0:
+		case Graphics4::VertexTexCoord1:
+		case Graphics4::VertexTexCoord2:
+		case Graphics4::VertexTexCoord3:
+		case Graphics4::VertexTexCoord4:
+		case Graphics4::VertexTexCoord5:
+		case Graphics4::VertexTexCoord6:
+		case Graphics4::VertexTexCoord7:
+			assert(size >= 1 && size <= 4);
+			glClientActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(element.attribute - Graphics4::VertexTexCoord0));
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
+			break;
 
-            default:
-                break;
-        }
+		default:
+			break;
+		}
 
-        usedAttribsMask |= (1u << element.attribute);
-        ++actualIndex;
+		usedAttribsMask |= (1u << element.attribute);
+		++actualIndex;
 
 		switch (element.data) {
 		case Graphics4::ColorVertexData:
@@ -201,42 +202,42 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		}
 	}
 
-    // Disable unused vertex attributes
+	// Disable unused vertex attributes
 	for (int attrib = Graphics4::VertexCoord; attrib <= Graphics4::VertexTexCoord7; ++attrib) {
-        if ((usedAttribsMask & (1u << attrib)) == 0) {
-            switch (attrib) {
-                case Graphics4::VertexCoord:
-                    glDisableClientState(GL_VERTEX_ARRAY);
-                    break;
+		if ((usedAttribsMask & (1u << attrib)) == 0) {
+			switch (attrib) {
+			case Graphics4::VertexCoord:
+				glDisableClientState(GL_VERTEX_ARRAY);
+				break;
 
-                case Graphics4::VertexNormal:
-                    glDisableClientState(GL_NORMAL_ARRAY);
-                    break;
+			case Graphics4::VertexNormal:
+				glDisableClientState(GL_NORMAL_ARRAY);
+				break;
 
-                case Graphics4::VertexColor0:
-                    glDisableClientState(GL_COLOR_ARRAY);
-                    break;
+			case Graphics4::VertexColor0:
+				glDisableClientState(GL_COLOR_ARRAY);
+				break;
 
-                case Graphics4::VertexColor1:
-                    glDisableClientState(GL_SECONDARY_COLOR_ARRAY);
-                    break;
+			case Graphics4::VertexColor1:
+				glDisableClientState(GL_SECONDARY_COLOR_ARRAY);
+				break;
 
-                case Graphics4::VertexTexCoord0:
-                case Graphics4::VertexTexCoord1:
-                case Graphics4::VertexTexCoord2:
-                case Graphics4::VertexTexCoord3:
-                case Graphics4::VertexTexCoord4:
-                case Graphics4::VertexTexCoord5:
-                case Graphics4::VertexTexCoord6:
-                case Graphics4::VertexTexCoord7:
-                    glClientActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(attrib - Graphics4::VertexTexCoord0));
-                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                    break;
+			case Graphics4::VertexTexCoord0:
+			case Graphics4::VertexTexCoord1:
+			case Graphics4::VertexTexCoord2:
+			case Graphics4::VertexTexCoord3:
+			case Graphics4::VertexTexCoord4:
+			case Graphics4::VertexTexCoord5:
+			case Graphics4::VertexTexCoord6:
+			case Graphics4::VertexTexCoord7:
+				glClientActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(attrib - Graphics4::VertexTexCoord0));
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				break;
 
-                default:
-                    break;
-            }
-        }
+			default:
+				break;
+			}
+		}
 		glCheckErrors();
 	}
 

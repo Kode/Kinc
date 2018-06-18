@@ -15,7 +15,8 @@ namespace {
 	bool window = true;
 }
 
-#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && !defined(KORE_METAL) && !defined(KORE_XBOX_ONE) && !defined(KORE_SWITCH) && !defined(KORE_PLAYSTATION_4)
+#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && !defined(KORE_METAL) && !defined(KORE_XBOX_ONE) && !defined(KORE_SWITCH) &&                         \
+    !defined(KORE_PLAYSTATION_4)
 void Graphics4::setup() {}
 #endif
 

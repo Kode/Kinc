@@ -10,6 +10,7 @@ namespace Kore {
 	protected:
 		IndexBufferImpl(int count);
 		int myCount;
+
 	public:
 		static IndexBuffer* _current;
 		FIndexBufferRHIRef indexBuffer;

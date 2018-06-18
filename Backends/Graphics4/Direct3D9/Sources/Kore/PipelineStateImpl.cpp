@@ -6,7 +6,7 @@
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 
@@ -151,15 +151,15 @@ void Graphics4::PipelineState::compile() {
 	elements[all].UsageIndex = 0;
 
 	vertexDecleration = nullptr;
-	affirm(device->CreateVertexDeclaration(elements, &vertexDecleration));
+	Microsoft::affirm(device->CreateVertexDeclaration(elements, &vertexDecleration));
 
 	halfPixelLocation = vertexShader->constants["gl_HalfPixel"].regindex;
 }
 
 void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
-	affirm(device->SetVertexShader((IDirect3DVertexShader9*)pipeline->vertexShader->shader));
-	affirm(device->SetPixelShader((IDirect3DPixelShader9*)pipeline->fragmentShader->shader));
-	affirm(device->SetVertexDeclaration(vertexDecleration));
+	Microsoft::affirm(device->SetVertexShader((IDirect3DVertexShader9*)pipeline->vertexShader->shader));
+	Microsoft::affirm(device->SetPixelShader((IDirect3DPixelShader9*)pipeline->fragmentShader->shader));
+	Microsoft::affirm(device->SetVertexDeclaration(vertexDecleration));
 
 	// TODO (DK) System::screenWidth/Height are only main-window dimensions, what about other windows?
 	float floats[4];
@@ -167,7 +167,7 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 	floats[1] = 1.0f / System::windowHeight(0);
 	floats[2] = floats[0];
 	floats[3] = floats[1];
-	affirm(device->SetVertexShaderConstantF(halfPixelLocation, floats, 1));
+	Microsoft::affirm(device->SetVertexShaderConstantF(halfPixelLocation, floats, 1));
 
 	DWORD flags = 0;
 	if (pipeline->colorWriteMaskRed) flags |= D3DCOLORWRITEENABLE_RED;
@@ -177,7 +177,8 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 
 	device->SetRenderState(D3DRS_COLORWRITEENABLE, flags);
 
-	device->SetRenderState(D3DRS_ALPHABLENDENABLE, (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero) ? TRUE : FALSE);
+	device->SetRenderState(D3DRS_ALPHABLENDENABLE,
+	                       (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero) ? TRUE : FALSE);
 	device->SetRenderState(D3DRS_SRCBLEND, convert(pipeline->blendSource));
 	device->SetRenderState(D3DRS_DESTBLEND, convert(pipeline->blendDestination));
 
@@ -199,12 +200,12 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 
 	/*
 	case AlphaTestState:
-		device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
-		device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
-		break;
+	    device->SetRenderState(D3DRS_ALPHATESTENABLE, on ? TRUE : FALSE);
+	    device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+	    break;
 	case AlphaReferenceState:
-		device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
-		break;
+	    device->SetRenderState(D3DRS_ALPHAREF, (DWORD)v);
+	    break;
 	*/
 }
 

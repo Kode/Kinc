@@ -10,7 +10,7 @@
 
 using namespace Kore;
 
-ShaderImpl::ShaderImpl(void* data, int length) : length(length), id(0) {
+ShaderImpl::ShaderImpl(void* data, int length) : length(length), _glid(0) {
 	char* source = new char[length + 1];
 	for (int i = 0; i < length; ++i) {
 		source[i] = ((char*)data)[i];
@@ -19,16 +19,18 @@ ShaderImpl::ShaderImpl(void* data, int length) : length(length), id(0) {
 	this->source = source;
 }
 
-ShaderImpl::ShaderImpl(const char* source) : source(source), length(strlen(source)), id(0) {
-
-}
+ShaderImpl::ShaderImpl(const char* source) : source(source), length(strlen(source)), _glid(0) {}
 
 ShaderImpl::~ShaderImpl() {
 	delete[] source;
 	source = nullptr;
-	if (id != 0) glDeleteShader(id);
+	if (_glid != 0) glDeleteShader(_glid);
 }
 
-Graphics4::Shader::Shader(void* data, int length, ShaderType type) : ShaderImpl(data, length) {}
+Graphics4::Shader::Shader(void* data, int length, ShaderType type) : ShaderImpl(data, length) {
+	setId();
+}
 
-Graphics4::Shader::Shader(const char* source, ShaderType type) : ShaderImpl(source) {}
+Graphics4::Shader::Shader(const char* source, ShaderType type) : ShaderImpl(source) {
+	setId();
+}

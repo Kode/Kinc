@@ -4,6 +4,7 @@ namespace Kore {
 	class ConstantBuffer5Impl {
 	public:
 		ConstantBuffer5Impl();
+
 	protected:
 		int lastStart;
 		int lastCount;

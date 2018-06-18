@@ -12,7 +12,7 @@ namespace Kore {
 		ShaderImpl(void* data, int length);
 		ShaderImpl(const char* source);
 		virtual ~ShaderImpl();
-		uint id;
+		uint _glid;
 		const char* source;
 		int length;
 		friend class Graphics4::PipelineState;

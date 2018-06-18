@@ -3,13 +3,13 @@
 #include "Direct3D11.h"
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Math/Core.h>
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 
 ShaderImpl::ShaderImpl() {}
 
-Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
+void Graphics4::Shader::parse(void* _data, int length, ShaderType type) {
 	unsigned index = 0;
 	u8* data = (u8*)_data;
 
@@ -57,24 +57,41 @@ Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
 	this->length = length - index;
 	this->data = (u8*)malloc(this->length);
 	memcpy(this->data, &data[index], this->length);
-	
+
 	switch (type) {
 	case VertexShader:
-		affirm(device->CreateVertexShader(this->data, this->length, nullptr, (ID3D11VertexShader**)&shader));
+		Microsoft::affirm(device->CreateVertexShader(this->data, this->length, nullptr, (ID3D11VertexShader**)&shader));
 		break;
 	case FragmentShader:
-		affirm(device->CreatePixelShader(this->data, this->length, nullptr, (ID3D11PixelShader**)&shader));
+		Microsoft::affirm(device->CreatePixelShader(this->data, this->length, nullptr, (ID3D11PixelShader**)&shader));
 		break;
 	case GeometryShader:
-		affirm(device->CreateGeometryShader(this->data, this->length, nullptr, (ID3D11GeometryShader**)&shader));
+		Microsoft::affirm(device->CreateGeometryShader(this->data, this->length, nullptr, (ID3D11GeometryShader**)&shader));
 		break;
 	case TessellationControlShader:
-		affirm(device->CreateHullShader(this->data, this->length, nullptr, (ID3D11HullShader**)&shader));
+		Microsoft::affirm(device->CreateHullShader(this->data, this->length, nullptr, (ID3D11HullShader**)&shader));
 		break;
 	case TessellationEvaluationShader:
-		affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader**)&shader));
+		Microsoft::affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader**)&shader));
 		break;
 	}
 }
 
-Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {}
+Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
+	setId();
+	parse(_data, length, type);
+}
+
+#ifdef KRAFIX_LIBRARY
+extern void krafix_compile(const char* source, char* output, int* length, const char* targetlang, const char* system, const char* shadertype);
+#endif
+
+Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {
+	setId();
+#ifdef KRAFIX_LIBRARY
+	char* output = new char[1024 * 1024];
+	int length;
+	krafix_compile(source, output, &length, "d3d11", "windows", type == Graphics4::FragmentShader ? "frag" : "vert");
+	parse(output, length, type);
+#endif
+}

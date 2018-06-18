@@ -1,9 +1,9 @@
-#include "pch.h"
 #include "ComputeImpl.h"
+#include "ogl.h"
+#include "pch.h"
 #include <Kore/Compute/Compute.h>
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Math/Core.h>
-#include "ogl.h"
 #include <stdio.h>
 
 using namespace Kore;
@@ -20,7 +20,8 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 	_source[length] = 0;
 
 #ifdef HAS_COMPUTE
-	_id = glCreateShader(GL_COMPUTE_SHADER); glCheckErrors();
+	_id = glCreateShader(GL_COMPUTE_SHADER);
+	glCheckErrors();
 	glShaderSource(_id, 1, &_source, nullptr);
 	glCompileShader(_id);
 
@@ -60,14 +61,13 @@ ComputeShaderImpl::~ComputeShaderImpl() {
 #endif
 }
 
-ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {
-
-}
+ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {}
 
 ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 	ComputeConstantLocation location;
 #ifdef HAS_COMPUTE
-	location.location = glGetUniformLocation(_programid, name); glCheckErrors2();
+	location.location = glGetUniformLocation(_programid, name);
+	glCheckErrors2();
 	if (location.location < 0) {
 		log(Warning, "Uniform %s not found.", name);
 	}
@@ -83,82 +83,66 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 
 void Compute::setFloat(ComputeConstantLocation location, float value) {
 #ifdef HAS_COMPUTE
-	glUniform1f(location.location, value); glCheckErrors2();
+	glUniform1f(location.location, value);
+	glCheckErrors2();
 #endif
 }
 
 void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
 #ifdef HAS_COMPUTE
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->bufferId); glCheckErrors2();
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->bufferId);
+	glCheckErrors2();
 #endif
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
 #ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.unit); glCheckErrors2();
+	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glCheckErrors2();
 	GLenum glaccess = access == Access::Read ? GL_READ_ONLY : (access == Access::Write ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, glaccess, GL_RGBA32F); glCheckErrors2();
+	glBindImageTexture(0, texture->texture, 0, GL_FALSE, 0, glaccess, GL_RGBA32F);
+	glCheckErrors2();
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {}
 
-}
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {}
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {}
 
-}
+void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {}
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+void Compute::setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {}
 
-}
+void Compute::setTexture3DAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {}
 
-void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+void Compute::setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
 
-}
+void Compute::setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
 
-void Compute::setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+void Compute::setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
 
-}
+void Compute::setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
 
-void Compute::setTexture3DAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+void Compute::setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {}
 
-}
-
-void Compute::setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
-
-}
-
-void Compute::setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
-
-}
-
-void Compute::setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
-
-}
-
-void Compute::setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
-
-}
-
-void Compute::setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {
-
-}
-
-void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {
-
-}
+void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {}
 
 void Compute::setShader(ComputeShader* shader) {
 #ifdef HAS_COMPUTE
-	glUseProgram(shader->_programid); glCheckErrors2();
+	glUseProgram(shader->_programid);
+	glCheckErrors2();
 #endif
 }
 
 void Compute::compute(int x, int y, int z) {
 #ifdef HAS_COMPUTE
-	glDispatchCompute(x, y, z); glCheckErrors2();
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT); glCheckErrors2();
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT); glCheckErrors2();
+	glDispatchCompute(x, y, z);
+	glCheckErrors2();
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glCheckErrors2();
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	glCheckErrors2();
 #endif
 }

@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kore/Audio3/Audio.h>
 #include <Kore/Audio2/Audio.h>
+#include <Kore/Audio3/Audio.h>
 
 using namespace Kore;
 

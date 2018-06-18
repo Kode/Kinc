@@ -6,7 +6,7 @@ namespace Kore {
 	namespace Graphics5 {
 		class Program;
 	}
-	
+
 	class Program5Impl;
 
 	class Shader5Impl {

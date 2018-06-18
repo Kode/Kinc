@@ -3,16 +3,16 @@
 #include "Direct3D12.h"
 #include "Texture5Impl.h"
 
-#include <Kore/WinError.h>
+#include <Kore/SystemMicrosoft.h>
 
 using namespace Kore;
 
 static const int textureCount = 16;
 
 Graphics5::RenderTarget* currentRenderTargets[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                                                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+                                                               nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 Graphics5::Texture* currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                                          nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+                                                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 void Texture5Impl::setTextures(ID3D12GraphicsCommandList* commandList) {
 	if (currentRenderTargets[0] != nullptr) {
@@ -90,7 +90,7 @@ Graphics5::Texture::Texture(int width, int height, Format format, bool readable)
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texWidth, texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
-									IID_GRAPHICS_PPV_ARGS(&image));
+	                                IID_GRAPHICS_PPV_ARGS(&image));
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(image, 0, 1);
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
@@ -155,9 +155,7 @@ void Graphics5::Texture::unlock() {
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));*/
 }
 
-void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-
-}
+void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 int d3d12_textureAlignment() {
@@ -170,7 +168,7 @@ int d3d12_textureAlignment();
 int Graphics5::Texture::stride() {
 	int baseStride = format == Image::RGBA32 ? (width * 4) : width;
 	if (format == Image::Grey8) return width; // please investigate further
-	for (int i = 0; ; ++i) {
+	for (int i = 0;; ++i) {
 		if (d3d12_textureAlignment() * i >= baseStride) {
 			return d3d12_textureAlignment() * i;
 		}

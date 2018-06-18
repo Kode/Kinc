@@ -12,6 +12,7 @@ public:
 	int _indexCount;
 	Kore::s64 commands[1024];
 	int commandIndex;
+
 protected:
 	bool closed;
 };

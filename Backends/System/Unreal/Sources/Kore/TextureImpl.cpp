@@ -5,11 +5,11 @@
 #include <Kore/IO/BufferReader.h>
 #include <Kore/Math/Random.h>
 
-#include "ShaderParameterUtils.h"
-#include "RHIStaticStates.h"
 #include "GlobalShader.h"
-#include "UniformBuffer.h"
 #include "PixelShaderDeclaration.h"
+#include "RHIStaticStates.h"
+#include "ShaderParameterUtils.h"
+#include "UniformBuffer.h"
 
 using namespace Kore;
 
@@ -27,7 +27,7 @@ void Texture::init(const char* format, bool readable) {
 
 	uint32 stride;
 	u8* to = (u8*)commandList.LockTexture2D(_tex, 0, RLM_WriteOnly, stride, false);
-	
+
 	pitch = stride;
 	u8* from = (u8*)this->data;
 
@@ -43,20 +43,16 @@ void Texture::init(const char* format, bool readable) {
 	commandList.UnlockTexture2D(_tex, 0, false);
 
 	if (!readable) {
-//		delete[] data;
-//		data = nullptr;
+		//		delete[] data;
+		//		data = nullptr;
 	}
 }
 
-Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
-
-}
+Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {}
 
 Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
-TextureImpl::~TextureImpl() {
-
-}
+TextureImpl::~TextureImpl() {}
 
 void Texture::_set(TextureUnit unit) {
 	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
@@ -67,21 +63,15 @@ void Texture::_set(TextureUnit unit) {
 	SetTextureParameter(commandList, pixelShader->GetPixelShader(), unit.parameter, unit.sampler, SamplerStateLinear, _tex);
 }
 
-void TextureImpl::unset() {
-
-}
+void TextureImpl::unset() {}
 
 u8* Texture::lock() {
 	return nullptr;
 }
 
-void Texture::unlock() {
+void Texture::unlock() {}
 
-}
-
-void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-
-}
+void Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
 
 int Texture::stride() {
 	return pitch;

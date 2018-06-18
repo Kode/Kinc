@@ -1,6 +1,6 @@
+#include "ogl.h"
 #include "pch.h"
 #include <Kore/Compute/Compute.h>
-#include "ogl.h"
 
 using namespace Kore;
 
@@ -10,9 +10,7 @@ using namespace Kore;
 
 ShaderStorageBuffer* ShaderStorageBufferImpl::current = nullptr;
 
-ShaderStorageBufferImpl::ShaderStorageBufferImpl(int count, Graphics4::VertexData type) : myCount(count) {
-
-}
+ShaderStorageBufferImpl::ShaderStorageBufferImpl(int count, Graphics4::VertexData type) : myCount(count) {}
 
 ShaderStorageBuffer::ShaderStorageBuffer(int indexCount, Graphics4::VertexData type) : ShaderStorageBufferImpl(indexCount, type) {
 	myStride = 0;

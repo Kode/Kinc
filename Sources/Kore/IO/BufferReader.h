@@ -9,6 +9,7 @@ namespace Kore {
 		int bufferSize;
 		int position;
 		void* readAllBuffer;
+
 	public:
 		BufferReader(void const* buffer, int size);
 		virtual ~BufferReader();
@@ -18,5 +19,4 @@ namespace Kore {
 		int pos() const override;
 		void seek(int pos) override;
 	};
-
 }

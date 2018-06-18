@@ -35,41 +35,27 @@ void* Kore::System::windowHandle(int windowId) {
 	return nullptr;
 }
 
-void Kore::System::destroyWindow(int index) {
+void Kore::System::destroyWindow(int index) {}
 
-}
+void Kore::System::makeCurrent(int contextId) {}
 
-void Kore::System::makeCurrent(int contextId) {
-
-}
-
-void Kore::System::clearCurrent() {
-
-}
+void Kore::System::clearCurrent() {}
 
 int Kore::System::initWindow(WindowOptions options) {
 	return 0;
 }
 
-void Kore::System::changeResolution(int width, int height, bool fullscreen) {
+void Kore::System::changeResolution(int width, int height, bool fullscreen) {}
 
-}
-
-void Kore::System::setup() {
-
-}
+void Kore::System::setup() {}
 
 bool Kore::System::isFullscreen() {
 	return false;
 }
 
-void Kore::System::showKeyboard() {
+void Kore::System::showKeyboard() {}
 
-}
-
-void Kore::System::hideKeyboard() {
-
-}
+void Kore::System::hideKeyboard() {}
 
 bool Kore::System::showsKeyboard() {
 	return true;
@@ -77,15 +63,11 @@ bool Kore::System::showsKeyboard() {
 
 void Kore::System::loadURL(const char* url) {}
 
-void Kore::System::setTitle(const char* title) {
-	
-}
+void Kore::System::setTitle(const char* title) {}
 
 void Kore::System::setKeepScreenOn(bool on) {}
 
-void Kore::System::showWindow() {
-
-}
+void Kore::System::showWindow() {}
 
 const char* Kore::System::systemId() {
 	return "Windows";

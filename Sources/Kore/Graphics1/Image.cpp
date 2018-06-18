@@ -4,13 +4,13 @@
 #include <windows.h>
 #endif
 
-#include "../IO/snappy/snappy.h"
 #include "../IO/lz4/lz4.h"
+#include "../IO/snappy/snappy.h"
 #include "Image.h"
 
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/IO/FileReader.h>
 #include <Kore/IO/BufferReader.h>
+#include <Kore/IO/FileReader.h>
 #include <Kore/IO/Reader.h>
 #include <Kore/Log.h>
 
@@ -31,7 +31,8 @@ namespace {
 		return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 	}
 
-	void loadImage(Kore::Reader& file, const char* filename, u8*& output, int& outputSize, int& width, int& height, Graphics1::ImageCompression& compression, Graphics1::Image::Format& format, unsigned& internalFormat) {
+	void loadImage(Kore::Reader& file, const char* filename, u8*& output, int& outputSize, int& width, int& height, Graphics1::ImageCompression& compression,
+	               Graphics1::Image::Format& format, unsigned& internalFormat) {
 		format = Graphics1::Image::RGBA32;
 		if (endsWith(filename, "k")) {
 			u8* data = (u8*)file.readAll();
@@ -242,7 +243,8 @@ Graphics1::Image::Image(int width, int height, Format format, bool readable) : w
 	}
 }
 
-Graphics1::Image::Image(int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
+Graphics1::Image::Image(int width, int height, int depth, Format format, bool readable)
+    : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compression = ImageCompressionNone;
 
 	// If format is a floating point format
@@ -265,7 +267,8 @@ Graphics1::Image::Image(Reader& reader, const char* format, bool readable) : dep
 	init(reader, format, readable);
 }
 
-Graphics1::Image::Image(void* data, int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
+Graphics1::Image::Image(void* data, int width, int height, Format format, bool readable)
+    : width(width), height(height), depth(1), format(format), readable(readable) {
 	compression = ImageCompressionNone;
 	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
 	if (isFloat) {
@@ -276,7 +279,8 @@ Graphics1::Image::Image(void* data, int width, int height, Format format, bool r
 	}
 }
 
-Graphics1::Image::Image(void* data, int width, int height, int depth, Format format, bool readable) : width(width), height(height), depth(depth), format(format), readable(readable) {
+Graphics1::Image::Image(void* data, int width, int height, int depth, Format format, bool readable)
+    : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compression = ImageCompressionNone;
 	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
 	if (isFloat) {

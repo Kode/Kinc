@@ -4,9 +4,9 @@
 
 #include <Kore/Graphics/Graphics.h>
 
+#include <Runtime/RHI/Public/DynamicRHI.h>
 #include <Runtime/RHI/Public/RHI.h>
 #include <Runtime/RHI/Public/RHIResources.h>
-#include <Runtime/RHI/Public/DynamicRHI.h>
 #include <Runtime/RHI/Public/RHIStaticStates.h>
 
 using namespace Kore;
@@ -21,9 +21,7 @@ IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	indexBuffer = GDynamicRHI->CreateIndexBuffer_RenderThread(commandList, 4, count * 4, BUF_UnorderedAccess, createInfo);
 }
 
-IndexBuffer::~IndexBuffer() {
-
-}
+IndexBuffer::~IndexBuffer() {}
 
 int* IndexBuffer::lock() {
 	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();

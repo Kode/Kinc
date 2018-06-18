@@ -3,8 +3,8 @@
 #include "ogl.h"
 
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics4/PipelineState.h>
+#include <Kore/Graphics4/Shader.h>
 #include <Kore/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +16,7 @@ namespace Kore {
 #ifndef KORE_OPENGL_ES
 	bool programUsesTessellation = false;
 #endif
+	extern bool supportsConservativeRaster;
 }
 
 namespace {
@@ -69,8 +70,7 @@ namespace {
 	}
 }
 
-PipelineStateImpl::PipelineStateImpl()
-    : textureCount(0) {
+PipelineStateImpl::PipelineStateImpl() : textureCount(0) {
 	// TODO: Get rid of allocations
 	textures = new char*[16];
 	for (int i = 0; i < 16; ++i) {
@@ -131,22 +131,22 @@ namespace {
 }
 
 void Graphics4::PipelineState::compile() {
-	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
-	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
+	compileShader(vertexShader->_glid, vertexShader->source, vertexShader->length, VertexShader);
+	compileShader(fragmentShader->_glid, fragmentShader->source, fragmentShader->length, FragmentShader);
 #ifndef OPENGLES
-	if (geometryShader != nullptr) compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
+	if (geometryShader != nullptr) compileShader(geometryShader->_glid, geometryShader->source, geometryShader->length, GeometryShader);
 	if (tessellationControlShader != nullptr)
-		compileShader(tessellationControlShader->id, tessellationControlShader->source, tessellationControlShader->length, TessellationControlShader);
+		compileShader(tessellationControlShader->_glid, tessellationControlShader->source, tessellationControlShader->length, TessellationControlShader);
 	if (tessellationEvaluationShader != nullptr)
-		compileShader(tessellationEvaluationShader->id, tessellationEvaluationShader->source, tessellationEvaluationShader->length,
+		compileShader(tessellationEvaluationShader->_glid, tessellationEvaluationShader->source, tessellationEvaluationShader->length,
 		              TessellationEvaluationShader);
 #endif
-	glAttachShader(programId, vertexShader->id);
-	glAttachShader(programId, fragmentShader->id);
+	glAttachShader(programId, vertexShader->_glid);
+	glAttachShader(programId, fragmentShader->_glid);
 #ifndef OPENGLES
-	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->id);
-	if (tessellationControlShader != nullptr) glAttachShader(programId, tessellationControlShader->id);
-	if (tessellationEvaluationShader != nullptr) glAttachShader(programId, tessellationEvaluationShader->id);
+	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->_glid);
+	if (tessellationControlShader != nullptr) glAttachShader(programId, tessellationControlShader->_glid);
+	if (tessellationEvaluationShader != nullptr) glAttachShader(programId, tessellationEvaluationShader->_glid);
 #endif
 	glCheckErrors();
 
@@ -199,7 +199,8 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 		glCheckErrors();
 	}
 
-	if (pipeline->stencilMode == Graphics4::ZCompareAlways && pipeline->stencilBothPass == Graphics4::Keep && pipeline->stencilDepthFail == Graphics4::Keep && pipeline->stencilFail == Graphics4::Keep) {
+	if (pipeline->stencilMode == Graphics4::ZCompareAlways && pipeline->stencilBothPass == Graphics4::Keep && pipeline->stencilDepthFail == Graphics4::Keep &&
+	    pipeline->stencilFail == Graphics4::Keep) {
 		glDisable(GL_STENCIL_TEST);
 	}
 	else {
@@ -238,13 +239,15 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 
 	glColorMask(pipeline->colorWriteMaskRed, pipeline->colorWriteMaskGreen, pipeline->colorWriteMaskBlue, pipeline->colorWriteMaskAlpha);
 
-	if (pipeline->conservativeRasterization) {
-		glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV 
+	if (supportsConservativeRaster) {
+		if (pipeline->conservativeRasterization) {
+			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV
+		}
+		else {
+			glDisable(0x9346);
+		}
 	}
-	else {
-		glDisable(0x9346);
-	}
-	
+
 	glCheckErrors();
 
 	/*switch (state) {
@@ -362,15 +365,17 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 	throw Exception();
 	}*/
 
-	if (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero || pipeline->alphaBlendSource != Graphics4::BlendOne || pipeline->alphaBlendDestination != Graphics4::BlendZero) {
+	if (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero ||
+	    pipeline->alphaBlendSource != Graphics4::BlendOne || pipeline->alphaBlendDestination != Graphics4::BlendZero) {
 		glEnable(GL_BLEND);
 	}
 	else {
 		glDisable(GL_BLEND);
 	}
 
-	//glBlendFunc(convert(pipeline->blendSource), convert(pipeline->blendDestination));
-	glBlendFuncSeparate(convert(pipeline->blendSource), convert(pipeline->blendDestination), convert(pipeline->alphaBlendSource), convert(pipeline->alphaBlendDestination));
+	// glBlendFunc(convert(pipeline->blendSource), convert(pipeline->blendDestination));
+	glBlendFuncSeparate(convert(pipeline->blendSource), convert(pipeline->blendDestination), convert(pipeline->alphaBlendSource),
+	                    convert(pipeline->alphaBlendDestination));
 }
 
 Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const char* name) {

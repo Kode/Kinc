@@ -32,7 +32,7 @@ namespace Kore {
 		Graphics5::Shader* geometryShader;
 		Graphics5::Shader* tessEvalShader;
 		Graphics5::Shader* tessControlShader;
-		
+
 		const char** textures;
 		int* textureValues;
 		int textureCount;
@@ -49,20 +49,8 @@ namespace Kore {
 		std::map<std::string, u32> fragmentOffsets;
 
 		VkPipelineLayout pipeline_layout;
-		float uniformDataVertex[256];
-		float uniformDataFragment[256];
 
 		VkDescriptorSetLayout desc_layout;
-
-		VkBuffer bufVertex;
-		VkMemoryAllocateInfo mem_allocVertex;
-		VkDeviceMemory memVertex;
-		VkDescriptorBufferInfo buffer_infoVertex;
-
-		VkBuffer bufFragment;
-		VkMemoryAllocateInfo mem_allocFragment;
-		VkDeviceMemory memFragment;
-		VkDescriptorBufferInfo buffer_infoFragment;
 
 		static Graphics5::PipelineState* current;
 	};

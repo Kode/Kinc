@@ -780,8 +780,16 @@ Graphics2::TextShaderPainter::~TextShaderPainter() {
 // Graphics2
 //==========
 
-Graphics2::Graphics2::Graphics2(int width, int height, bool rTargets)
-    : screenWidth(width), screenHeight(height), renderTargets(rTargets), color(Color::White), fontColor(Color::Black), fontSize(14), lastPipeline(nullptr) {
+Graphics2::Graphics2::Graphics2(int width, int height, bool rTargets): 
+	screenWidth(width), 
+	screenHeight(height), 
+	renderTargets(rTargets), 
+	color(Color::White), 
+	fontColor(Color::Black), 
+	fontSize(14), 
+	lastPipeline(nullptr), 
+	videoPipeline(nullptr) {
+	
 	transformation = mat3::Identity();
 	opacity = 1.f;
 

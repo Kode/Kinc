@@ -1,73 +1,49 @@
 #include "pch.h"
 
 #include <Kore/Graphics/Shader.h>
+#include <Kore/IndexBufferImpl.h>
+#include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
-#include <Kore/Log.h>
-#include <Kore/IndexBufferImpl.h>
 
-#include <Runtime/RHI/Public/RHI.h>
-#include <Runtime/RHI/Public/RHIResources.h>
-#include <Runtime/RHI/Public/DynamicRHI.h>
-#include <Runtime/RHI/Public/RHIStaticStates.h>
-#include "ShaderParameters.h"
-#include "ShaderParameterUtils.h"
 #include "GlobalShader.h"
 #include "PixelShaderDeclaration.h"
+#include "ShaderParameterUtils.h"
+#include "ShaderParameters.h"
+#include <Runtime/RHI/Public/DynamicRHI.h>
+#include <Runtime/RHI/Public/RHI.h>
+#include <Runtime/RHI/Public/RHIResources.h>
+#include <Runtime/RHI/Public/RHIStaticStates.h>
 
 using namespace Kore;
 
 void Graphics::destroy(int windowId) {}
 
-void Graphics::changeResolution(int width, int height) {
+void Graphics::changeResolution(int width, int height) {}
 
-}
-
-void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {
-
-}
+void Graphics::init(int windowId, int depthBufferBits, int stencilBufferBits) {}
 
 void Graphics::flush() {}
 
-void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {
+void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {}
 
-}
+void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
+void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilterType filter) {}
 
-}
+void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilterType filter) {}
 
-void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilterType filter) {
+void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
 
-}
+void Graphics::makeCurrent(int contextId) {}
 
-void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilterType filter) {
+void Graphics::clearCurrent() {}
 
-}
+void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {}
 
-void Graphics::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {}
 
-}
-
-void Graphics::makeCurrent(int contextId) {
-
-}
-
-void Graphics::clearCurrent() {
-
-}
-
-void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {
-
-}
-
-void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {
-	
-}
-
-void Graphics::restoreRenderTarget() {
-
-}
+void Graphics::restoreRenderTarget() {}
 
 void Graphics::drawIndexedVertices() {
 	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
@@ -79,46 +55,26 @@ void Graphics::drawIndexedVertices(int start, int count) {
 	commandList.DrawIndexedPrimitive(IndexBufferImpl::_current->indexBuffer, PT_TriangleList, 0, 0, 3, 0, 1, 1);
 }
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount) {
+void Graphics::drawIndexedVerticesInstanced(int instanceCount) {}
 
-}
+void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
 
-void Graphics::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
-}
+void Graphics::clear(uint flags, uint color, float z, int stencil) {}
 
-void Graphics::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+void Graphics::begin(int windowId) {}
 
-}
+void Graphics::viewport(int x, int y, int width, int height) {}
 
-void Graphics::clear(uint flags, uint color, float z, int stencil) {
+void Graphics::scissor(int x, int y, int width, int height) {}
 
-}
-
-void Graphics::begin(int windowId) {
-
-}
-
-void Graphics::viewport(int x, int y, int width, int height) {
-
-}
-
-void Graphics::scissor(int x, int y, int width, int height) {
-
-}
-
-void Graphics::disableScissor() {
-
-}
+void Graphics::disableScissor() {}
 
 void Graphics::setStencilParameters(ZCompareMode compareMode, StencilAction bothPass, StencilAction depthFail, StencilAction stencilFail, int referenceValue,
-                                    int readMask, int writeMask) {
+                                    int readMask, int writeMask) {}
 
-}
-
-void Graphics::end(int windowId) {
-
-}
+void Graphics::end(int windowId) {}
 
 bool Graphics::vsynced() {
 	return true;
@@ -128,33 +84,22 @@ unsigned Graphics::refreshRate() {
 	return 60;
 }
 
-void Graphics::swapBuffers(int windowId) {
+void Graphics::swapBuffers(int windowId) {}
 
-}
+void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {}
 
-void Graphics::setBlendingMode(BlendingOperation source, BlendingOperation destination) {
+void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource,
+                                       BlendingOperation alphaDestination) {}
 
-}
+void Graphics::setRenderState(RenderState state, bool on) {}
 
-void Graphics::setBlendingModeSeparate(BlendingOperation source, BlendingOperation destination, BlendingOperation alphaSource, BlendingOperation alphaDestination) {}
-
-void Graphics::setRenderState(RenderState state, bool on) {
-
-}
-
-void Graphics::setRenderState(RenderState state, int v) {
-
-}
+void Graphics::setRenderState(RenderState state, int v) {}
 
 void Graphics::setRenderState(RenderState state, float value) {}
 
-void Graphics::setBool(ConstantLocation position, bool value) {
+void Graphics::setBool(ConstantLocation position, bool value) {}
 
-}
-
-void Graphics::setInt(ConstantLocation position, int value) {
-
-}
+void Graphics::setInt(ConstantLocation position, int value) {}
 
 void Graphics::setFloat(ConstantLocation position, float value) {
 	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
@@ -162,25 +107,15 @@ void Graphics::setFloat(ConstantLocation position, float value) {
 	commandList.SetShaderParameter(VertexShader->GetVertexShader(), position.parameter.GetBufferIndex(), position.parameter.GetBaseIndex(), 4, &value);
 }
 
-void Graphics::setFloat2(ConstantLocation position, float value1, float value2) {
+void Graphics::setFloat2(ConstantLocation position, float value1, float value2) {}
 
-}
+void Graphics::setFloat3(ConstantLocation position, float value1, float value2, float value3) {}
 
-void Graphics::setFloat3(ConstantLocation position, float value1, float value2, float value3) {
+void Graphics::setFloat4(ConstantLocation position, float value1, float value2, float value3, float value4) {}
 
-}
+void Graphics::setFloats(ConstantLocation location, float* values, int count) {}
 
-void Graphics::setFloat4(ConstantLocation position, float value1, float value2, float value3, float value4) {
-
-}
-
-void Graphics::setFloats(ConstantLocation location, float* values, int count) {
-
-}
-
-void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {
-
-}
+void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {}
 
 void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
 	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
@@ -226,18 +161,12 @@ bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
 	return false;
 }
 
-void Graphics::deleteOcclusionQuery(uint occlusionQuery) {
+void Graphics::deleteOcclusionQuery(uint occlusionQuery) {}
 
-}
-
-void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {
-
-}
+void Graphics::renderOcclusionQuery(uint occlusionQuery, int triangles) {}
 
 bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 	return false;
 }
 
-void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {
-
-}
+void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {}

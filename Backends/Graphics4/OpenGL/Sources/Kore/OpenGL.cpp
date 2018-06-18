@@ -10,7 +10,8 @@
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
-#include <cstdio>
+#include <stdio.h>
+#include <string.h>
 
 #ifdef KORE_IOS
 #include <OpenGLES/ES2/glext.h>
@@ -40,6 +41,7 @@ namespace Kore {
 #if !defined(KORE_IOS) && !defined(KORE_ANDROID)
 	extern bool programUsesTessellation;
 #endif
+	bool supportsConservativeRaster = false;
 }
 
 namespace {
@@ -227,6 +229,17 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	// glEnable(GL_DEBUG_OUTPUT);
 	// glDebugMessageCallback(debugCallback, nullptr);
+
+#ifndef KORE_OPENGL_ES
+	int extensions;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &extensions);
+	for (int i = 0; i < extensions; ++i) {
+		const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
+		if (extension != nullptr && strcmp(extension, "GL_NV_conservative_raster") == 0) {
+			supportsConservativeRaster = true;
+		}
+	}
+#endif
 
 	lastPipeline = nullptr;
 }

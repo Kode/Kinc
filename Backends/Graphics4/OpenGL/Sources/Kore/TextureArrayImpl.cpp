@@ -11,7 +11,7 @@ TextureArray::TextureArray(Image** textures, int count) {
 #ifdef GL_VERSION_4_2
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
-	//glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, textures[0]->width, textures[0]->height, count, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	// glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, textures[0]->width, textures[0]->height, count, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, textures[0]->width, textures[0]->height, count);
 	for (int i = 0; i < count; ++i) {
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, textures[i]->width, textures[i]->height, 1, GL_RGBA, GL_UNSIGNED_BYTE, textures[i]->data);

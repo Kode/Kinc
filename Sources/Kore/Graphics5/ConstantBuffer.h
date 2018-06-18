@@ -27,6 +27,7 @@ namespace Kore {
 			void setFloats(int offset, float* values, int count);
 			void setMatrix(int offset, const mat3& value);
 			void setMatrix(int offset, const mat4& value);
+
 		private:
 			u8* data;
 		};

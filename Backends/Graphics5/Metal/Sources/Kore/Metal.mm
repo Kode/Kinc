@@ -24,12 +24,12 @@ namespace {
 	// int originalFramebuffer;
 	const int uniformsSize = 4096;
 	const int more = 5;
-	
+
 	void* vertexData(int offset) {
 		u8* bytes = (u8*)[vertexUniforms contents];
 		return &bytes[uniformsIndex * uniformsSize + offset];
 	}
-	
+
 	void* fragmentData(int offset) {
 		u8* bytes = (u8*)[fragmentUniforms contents];
 		return &bytes[uniformsIndex * uniformsSize + offset];
@@ -185,13 +185,9 @@ void Graphics5::setMatrix(ConstantLocation location, const mat3& value) {
 	}
 }
 
-void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {
-	
-}
+void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {}
 
-void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-	
-}
+void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
 
 bool Graphics5::swapBuffers(int windowId) {
 	System::swapBuffers(windowId);
@@ -235,9 +231,7 @@ void Graphics5::setTexture(Graphics5::TextureUnit unit, Graphics5::Texture* text
 	texture->_set(unit);
 }
 
-void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {
-	
-}
+void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {}
 
 bool Graphics5::initOcclusionQuery(uint* occlusionQuery) {
 	return false;
@@ -253,14 +247,8 @@ bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 
 void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
 
-void Graphics5::makeCurrent(int window) {
-	
-}
+void Graphics5::makeCurrent(int window) {}
 
-void Graphics5::clearCurrent() {
-	
-}
+void Graphics5::clearCurrent() {}
 
-void Graphics5::changeResolution(int width, int height) {
-	
-}
+void Graphics5::changeResolution(int width, int height) {}

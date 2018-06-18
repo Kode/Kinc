@@ -4,8 +4,8 @@
 
 #include <Kore/Graphics4/PipelineState.h>
 
-#include <Kore/Graphics5/Shader.h>
 #include <Kore/Graphics5/PipelineState.h>
+#include <Kore/Graphics5/Shader.h>
 
 using namespace Kore;
 

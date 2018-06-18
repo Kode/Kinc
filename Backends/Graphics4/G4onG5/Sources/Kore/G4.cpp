@@ -39,7 +39,8 @@ void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	Graphics5::init(window, depthBufferBits, stencilBufferBits, vsync);
 	commandList = new Graphics5::CommandList;
 	for (int i = 0; i < bufferCount; ++i) {
-		framebuffers[i] = new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits, false, Graphics5::Target32Bit, -1, -i - 1 /* hack in an index for backbuffer render targets */);
+		framebuffers[i] = new Graphics5::RenderTarget(System::windowWidth(window), System::windowHeight(window), depthBufferBits, false, Graphics5::Target32Bit,
+		                                              -1, -i - 1 /* hack in an index for backbuffer render targets */);
 	}
 	vertexConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
 	fragmentConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
@@ -119,7 +120,7 @@ void Graphics4::begin(int window) {
 	currentBuffer = (currentBuffer + 1) % bufferCount;
 
 	Graphics5::begin(framebuffers[currentBuffer], window);
-	//commandList = new Graphics5::CommandList;
+	// commandList = new Graphics5::CommandList;
 	commandList->begin();
 	commandList->framebufferToRenderTargetBarrier(framebuffers[currentBuffer]);
 	commandList->setRenderTargets(&framebuffers[currentBuffer], 1);
@@ -149,8 +150,8 @@ void Graphics4::end(int window) {
 
 	commandList->renderTargetToFramebufferBarrier(framebuffers[currentBuffer]);
 	commandList->end();
-	//delete commandList;
-	//commandList = nullptr;
+	// delete commandList;
+	// commandList = nullptr;
 	Graphics5::end(window);
 }
 
@@ -291,9 +292,7 @@ void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
 	Graphics5::setTexture(unit._unit, texture->_texture);
 }
 
-void Graphics4::setImageTexture(Kore::Graphics4::TextureUnit unit, Kore::Graphics4::Texture *texture) {
-	
-}
+void Graphics4::setImageTexture(Kore::Graphics4::TextureUnit unit, Kore::Graphics4::Texture* texture) {}
 
 bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
 	return Graphics5::initOcclusionQuery(occlusionQuery);
@@ -319,6 +318,4 @@ void Graphics4::setPipeline(PipelineState* pipeline) {
 	commandList->setPipeline(pipeline->_pipeline);
 }
 
-void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
-
-}
+void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {}

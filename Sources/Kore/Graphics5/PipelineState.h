@@ -38,10 +38,10 @@ namespace Kore {
 			// One, Zero deactivates blending
 			BlendingOperation blendSource;
 			BlendingOperation blendDestination;
-			//BlendingOperation blendOperation;
+			// BlendingOperation blendOperation;
 			BlendingOperation alphaBlendSource;
 			BlendingOperation alphaBlendDestination;
-			//BlendingOperation alphaBlendOperation;
+			// BlendingOperation alphaBlendOperation;
 
 			bool colorWriteMaskRed;
 			bool colorWriteMaskGreen;

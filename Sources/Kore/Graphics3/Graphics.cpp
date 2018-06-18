@@ -1,5 +1,5 @@
-#include "pch.h"
 #include "Graphics.h"
+#include "pch.h"
 #include <limits>
 
 using namespace Kore;
@@ -12,8 +12,7 @@ namespace {
 }
 
 #if !defined(KORE_WINDOWS)
-void Graphics3::Graphics3::setup() {
-}
+void Graphics3::Graphics3::setup() {}
 #endif
 
 int Graphics3::antialiasingSamples() {
@@ -35,7 +34,7 @@ void Graphics3::setWindow(bool value) {
 bool Graphics3::fullscreen = false;
 
 void Graphics3::setVertexBuffer(VertexBuffer& vertexBuffer) {
-	VertexBuffer* vertexBuffers[1] = { &vertexBuffer };
+	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
 	setVertexBuffers(vertexBuffers, 1);
 }
 

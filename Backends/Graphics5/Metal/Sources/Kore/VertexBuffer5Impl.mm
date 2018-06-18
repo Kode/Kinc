@@ -21,7 +21,7 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
 		switch (element.data) {
-			case Graphics4::ColorVertexData:
+		case Graphics4::ColorVertexData:
 			myStride += 1 * 4;
 			break;
 		case Graphics4::Float1VertexData:

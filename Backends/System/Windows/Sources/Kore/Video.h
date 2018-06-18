@@ -10,7 +10,7 @@ namespace Kore {
 	public:
 		Video(const char* filename);
 		~Video() {
-			//delete image;
+			// delete image;
 		}
 		void play();
 		void pause();
@@ -25,7 +25,7 @@ namespace Kore {
 		void update(double time);
 
 	private:
-		//Graphics4::Texture* image;
+		// Graphics4::Texture* image;
 		CTextureRenderer* renderer;
 	};
 }

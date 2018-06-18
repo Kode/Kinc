@@ -28,7 +28,8 @@ Graphics4::Texture::Texture(void* data, int width, int height, int format, bool 
 	init("", readable);
 }
 
-Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable) : Image(data, width, height, depth, Image::Format(format), readable) {
+Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable)
+    : Image(data, width, height, depth, Image::Format(format), readable) {
 	init3D(readable);
 }
 #endif

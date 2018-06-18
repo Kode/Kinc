@@ -70,28 +70,28 @@ namespace {
 
 	void splitStereo8(u8* data, int size, s16* left, s16* right) {
 		for (int i = 0; i < size; ++i) {
-			left[i]  = convert8to16(data[i * 2 + 0]);
+			left[i] = convert8to16(data[i * 2 + 0]);
 			right[i] = convert8to16(data[i * 2 + 1]);
 		}
 	}
 
 	void splitStereo16(s16* data, int size, s16* left, s16* right) {
 		for (int i = 0; i < size; ++i) {
-			left[i]  = data[i * 2 + 0];
+			left[i] = data[i * 2 + 0];
 			right[i] = data[i * 2 + 1];
 		}
 	}
 
 	void splitMono8(u8* data, int size, s16* left, s16* right) {
 		for (int i = 0; i < size; ++i) {
-			left[i]  = convert8to16(data[i]);
+			left[i] = convert8to16(data[i]);
 			right[i] = convert8to16(data[i]);
 		}
 	}
-	
+
 	void splitMono16(s16* data, int size, s16* left, s16* right) {
 		for (int i = 0; i < size; ++i) {
-			left[i]  = data[i];
+			left[i] = data[i];
 			right[i] = data[i];
 		}
 	}
@@ -109,7 +109,7 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 		format.bitsPerSample = 16;
 	}
 	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
-		WaveData wave = { 0 };
+		WaveData wave = {0};
 		{
 			FileReader file(filename);
 			u8* filedata = (u8*)file.readAll();

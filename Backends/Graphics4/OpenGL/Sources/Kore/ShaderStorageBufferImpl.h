@@ -15,6 +15,7 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		uint bufferId;
+
 	public:
 		static ShaderStorageBuffer* current;
 	};
