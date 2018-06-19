@@ -142,17 +142,17 @@ void Texture5Impl::unset() {
 }
 
 u8* Graphics5::Texture::lock() {
-	return (u8*)data;
+	return (u8*)this->data;
 }
 
 void Graphics5::Texture::unlock() {
-	/*D3D12_SUBRESOURCE_DATA srcData;
-	srcData.pData = this->data;
-	srcData.RowPitch = format == Image::RGBA32 ? (width * 4) : width;
-	srcData.SlicePitch = format == Image::RGBA32 ? (width * height * 4) : (width * height);
-
-	UpdateSubresources(commandList, image, uploadImage, 0, 0, 1, &srcData);
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));*/
+	BYTE* pixel;
+	uploadImage->Map(0, nullptr, reinterpret_cast<void**>(&pixel));
+	int pitch = stride();
+	for (int y = 0; y < height; ++y) {
+		memcpy(&pixel[y * pitch], &this->data[y * width], format == Image::RGBA32 ? width * 4 : width);
+	}
+	uploadImage->Unmap(0, nullptr);
 }
 
 void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
