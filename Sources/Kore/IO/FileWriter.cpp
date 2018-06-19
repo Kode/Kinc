@@ -18,7 +18,17 @@ FileWriter::FileWriter(const char* filepath) : file(nullptr) {
 	}
 }
 
+#ifdef KORE_PS4
+bool mountSaveData(bool);
+void unmountSaveData();
+#endif
+
 bool FileWriter::open(const char* filepath) {
+#ifdef KORE_PS4
+	if (!mountSaveData(true)) {
+		return false;
+	}
+#endif
 	char path[1001];
 	strcpy(path, System::savePath());
 	strcat(path, filepath);
@@ -34,6 +44,9 @@ void FileWriter::close() {
 	if (file == nullptr) return;
 	fclose((FILE*)file);
 	file = nullptr;
+#ifdef KORE_PS4
+	unmountSaveData();
+#endif
 }
 
 FileWriter::~FileWriter() {

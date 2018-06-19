@@ -44,6 +44,7 @@ namespace Kore {
 		void seek(int pos) override;
 
 		FileReaderData data;
+		FileType type;
 		void* readdata;
 	};
 
