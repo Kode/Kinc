@@ -15,6 +15,7 @@ namespace {
 		LPVOID buffer = nullptr;
 		DWORD dw = GetLastError();
 
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 		if (dw != 0) {
 			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw,
 			               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
@@ -22,8 +23,11 @@ namespace {
 			Kore::error("Error: %s", buffer);
 		}
 		else {
+#endif
 			Kore::error("Unknown Windows error, return value was 0x%x.", result);
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 		}
+#endif
 	}
 }
 

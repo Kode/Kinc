@@ -31,6 +31,7 @@ void Mutex::unlock() {
 }
 
 bool UberMutex::create(const wchar_t* name) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	id = (void*)CreateMutex(NULL, FALSE, name);
 	HRESULT res = GetLastError();
 	if (res && res != ERROR_ALREADY_EXISTS) {
@@ -39,21 +40,30 @@ bool UberMutex::create(const wchar_t* name) {
 		return false;
 	}
 	return true;
+#else
+	return false;
+#endif
 }
 
 void UberMutex::destroy() {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	if (id) {
 		::CloseHandle((HANDLE)id);
 		id = NULL;
 	}
+#endif
 }
 
 void UberMutex::lock() {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	bool succ = WaitForSingleObject((HANDLE)id, INFINITE) == WAIT_FAILED ? false : true;
 	affirm(succ);
+#endif
 }
 
 void UberMutex::unlock() {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	bool succ = ReleaseMutex((HANDLE)id) == FALSE ? false : true;
 	affirm(succ);
+#endif
 }

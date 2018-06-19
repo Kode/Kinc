@@ -335,6 +335,7 @@ else {
 	g4 = true;
 	g5 = true;
 	if (platform === Platform.XboxOne) {
+		addBackend('System/Microsoft');
 		addBackend('Graphics5/Direct3D12');
 		addBackend('Audio2/WASAPI');
 		project.addDefine('KORE_DIRECT3D');
