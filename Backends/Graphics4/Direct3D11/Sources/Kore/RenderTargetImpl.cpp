@@ -60,6 +60,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	desc.MiscFlags = 0;
 
 	texture = nullptr;
+	renderTargetSRV = nullptr;
 	for (int i = 0; i < 6; i++) {
 		renderTargetView[i] = nullptr;
 	}
@@ -74,6 +75,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	}
 
 	depthStencil = nullptr;
+	depthStencilSRV = nullptr;
 	for (int i = 0; i < 6; i++) {
 		depthStencilView[i] = nullptr;
 	}
@@ -182,6 +184,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
 	texture = nullptr;
+	renderTargetSRV = nullptr;
 	for (int i = 0; i < 6; i++) {
 		renderTargetView[i] = nullptr;
 	}
@@ -201,6 +204,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	}
 
 	depthStencil = nullptr;
+	depthStencilSRV = nullptr;
 	for (int i = 0; i < 6; i++) {
 		depthStencilView[i] = nullptr;
 	}
@@ -274,8 +278,8 @@ Graphics4::RenderTarget::~RenderTarget() {
 		if (renderTargetView[i] != nullptr) renderTargetView[i]->Release();
 		if (depthStencilView[i] != nullptr) depthStencilView[i]->Release();
 	}
-	renderTargetSRV->Release();
-	depthStencilSRV->Release();
+	if (renderTargetSRV != nullptr) renderTargetSRV->Release();
+	if (depthStencilSRV != nullptr) depthStencilSRV->Release();
 }
 
 void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
