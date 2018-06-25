@@ -70,7 +70,7 @@ void Graphics5::CommandList::setPipeline(PipelineState* pipeline) {
 	pipeline->_set();
 }
 
-void Graphics5::CommandList::setVertexBuffers(VertexBuffer** buffers, int count) {
+void Graphics5::CommandList::setVertexBuffers(VertexBuffer** buffers, int* offsets, int count) {
 	buffers[0]->_set(0);
 }
 
@@ -87,3 +87,15 @@ void Graphics5::CommandList::upload(IndexBuffer* buffer) {}
 void Graphics5::CommandList::upload(VertexBuffer* buffer) {}
 
 void Graphics5::CommandList::upload(Texture* texture) {}
+
+void Graphics5::CommandList::executeAndWait() {}
+
+void Graphics5::CommandList::setPipelineLayout() {}
+
+void Graphics5::CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {}
+
+void Graphics5::CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {}
+
+void Graphics5::CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {}
+
+void Graphics5::CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {}
