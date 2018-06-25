@@ -52,13 +52,12 @@ float* Graphics5::VertexBuffer::lock() {
 	id<MTLBuffer> buffer = mtlBuffer;
 	float* floats = (float*)[buffer contents];
 	return floats;
-	//return &floats[index * myStride * myCount / sizeof(float)];
 }
 
 float* Graphics5::VertexBuffer::lock(int start, int count) {
 	id<MTLBuffer> buffer = mtlBuffer;
 	float* floats = (float*)[buffer contents];
-	return &floats[start * myStride];
+	return &floats[start * myStride / sizeof(float)];
 }
 
 void Graphics5::VertexBuffer::unlock() {}
@@ -68,7 +67,7 @@ int Graphics5::VertexBuffer::_set(int offset_) {
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
 
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setVertexBuffer:mtlBuffer offset:0 atIndex:0];
+	[encoder setVertexBuffer:mtlBuffer offset:offset_ * myStride atIndex:0];
 
 	return offset_;
 }

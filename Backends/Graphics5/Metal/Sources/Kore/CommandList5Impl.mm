@@ -64,7 +64,7 @@ void Graphics5::CommandList::setPipeline(PipelineState* pipeline) {
 }
 
 void Graphics5::CommandList::setVertexBuffers(VertexBuffer** buffers, int* offsets, int count) {
-	buffers[0]->_set(0);
+	buffers[0]->_set(offsets[0]);
 }
 
 void Graphics5::CommandList::setIndexBuffer(IndexBuffer& buffer) {
