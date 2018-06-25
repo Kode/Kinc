@@ -2,12 +2,16 @@
 
 #include <Kore/Graphics5/ConstantBuffer.h>
 
+#import <Metal/Metal.h>
+
 using namespace Kore;
+
+id getMetalDevice();
 
 Graphics5::ConstantBuffer::ConstantBuffer(int size) {
 	mySize = size;
 	data = nullptr;
-
+	_buffer = [getMetalDevice() newBufferWithLength:size options:MTLResourceOptionCPUCacheModeDefault];
 }
 
 Graphics5::ConstantBuffer::~ConstantBuffer() {}
@@ -19,7 +23,8 @@ void Graphics5::ConstantBuffer::lock() {
 void Graphics5::ConstantBuffer::lock(int start, int count) {
 	lastStart = start;
 	lastCount = count;
-
+	u8* data = (u8*)[_buffer contents];
+	this->data = &data[start];
 }
 
 void Graphics5::ConstantBuffer::unlock() {

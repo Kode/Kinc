@@ -1,10 +1,11 @@
 #pragma once
 
+#include <objc/runtime.h>
+
 namespace Kore {
 	class ConstantBuffer5Impl {
 	public:
-		//ID3D12Resource* _buffer;
-
+		id _buffer;
 	protected:
 		int lastStart;
 		int lastCount;

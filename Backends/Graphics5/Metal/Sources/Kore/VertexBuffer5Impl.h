@@ -15,7 +15,6 @@ namespace Kore {
 		int offset();
 		int myCount;
 		int myStride;
-		int index;
 		id mtlBuffer;
 
 	public:

@@ -13,27 +13,11 @@ using namespace Kore;
 id getMetalDevice();
 id getMetalEncoder();
 
-int uniformsIndex = 0;
-id<MTLBuffer> vertexUniforms;
-id<MTLBuffer> fragmentUniforms;
-
 namespace {
 	// bool fullscreen;
 	// TextureFilter minFilters[32];
 	// MipmapFilter mipFilters[32];
 	// int originalFramebuffer;
-	const int uniformsSize = 4096;
-	const int more = 5;
-
-	void* vertexData(int offset) {
-		u8* bytes = (u8*)[vertexUniforms contents];
-		return &bytes[uniformsIndex * uniformsSize + offset];
-	}
-
-	void* fragmentData(int offset) {
-		u8* bytes = (u8*)[fragmentUniforms contents];
-		return &bytes[uniformsIndex * uniformsSize + offset];
-	}
 }
 
 void Graphics5::destroy(int windowId) {
@@ -43,9 +27,7 @@ void Graphics5::destroy(int windowId) {
 
 void Graphics5::init(int, int, int, bool) {
 	// System::createWindow();
-	id<MTLDevice> device = getMetalDevice();
-	vertexUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
-	fragmentUniforms = [device newBufferWithLength:4096 * more options:MTLResourceOptionCPUCacheModeDefault];
+
 }
 
 void Graphics5::flush() {}
@@ -78,10 +60,7 @@ void Graphics5::begin(RenderTarget* renderTarget, int windowId) {
 }
 
 void Graphics5::end(int windowId) {
-	++uniformsIndex;
-	if (uniformsIndex >= more) {
-		uniformsIndex = 0;
-	}
+
 }
 
 void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}

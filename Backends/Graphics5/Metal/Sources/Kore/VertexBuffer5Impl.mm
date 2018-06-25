@@ -12,7 +12,6 @@ id getMetalDevice();
 id getMetalEncoder();
 
 Graphics5::VertexBuffer* VertexBuffer5Impl::current = nullptr;
-const int more = 10;
 
 VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count) {}
 
@@ -42,8 +41,7 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	}
 
 	id<MTLDevice> device = getMetalDevice();
-	mtlBuffer = [device newBufferWithLength:count * myStride * more options:MTLResourceOptionCPUCacheModeDefault];
-	index = -1;
+	mtlBuffer = [device newBufferWithLength:count * myStride options:MTLResourceOptionCPUCacheModeDefault];
 }
 
 Graphics5::VertexBuffer::~VertexBuffer() {
@@ -51,17 +49,16 @@ Graphics5::VertexBuffer::~VertexBuffer() {
 }
 
 float* Graphics5::VertexBuffer::lock() {
-	++index;
-	if (index >= more) index = 0;
-
 	id<MTLBuffer> buffer = mtlBuffer;
 	float* floats = (float*)[buffer contents];
-	return &floats[index * myStride * myCount / sizeof(float)];
-	// return (float*)[buffer contents];
+	return floats;
+	//return &floats[index * myStride * myCount / sizeof(float)];
 }
 
 float* Graphics5::VertexBuffer::lock(int start, int count) {
-	return nullptr;
+	id<MTLBuffer> buffer = mtlBuffer;
+	float* floats = (float*)[buffer contents];
+	return &floats[start * myStride];
 }
 
 void Graphics5::VertexBuffer::unlock() {}
@@ -81,7 +78,7 @@ void VertexBuffer5Impl::unset() {
 }
 
 int VertexBuffer5Impl::offset() {
-	return index * myCount * myStride;
+	return myCount * myStride;
 }
 
 int Graphics5::VertexBuffer::count() {
