@@ -12,10 +12,8 @@ namespace Kore {
 	public:
 		IndexBuffer5Impl(int count);
 		void unset();
-		int offset();
 		id mtlBuffer;
 		int myCount;
-		int index;
 
 	public:
 		static Graphics5::IndexBuffer* current;

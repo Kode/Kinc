@@ -12,7 +12,6 @@ namespace Kore {
 	protected:
 		VertexBuffer5Impl(int count);
 		void unset();
-		int offset();
 		int myCount;
 		int myStride;
 		id mtlBuffer;

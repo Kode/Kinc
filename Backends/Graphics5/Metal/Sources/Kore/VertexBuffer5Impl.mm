@@ -68,17 +68,13 @@ int Graphics5::VertexBuffer::_set(int offset_) {
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
 
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setVertexBuffer:mtlBuffer offset:offset() atIndex:0];
+	[encoder setVertexBuffer:mtlBuffer offset:0 atIndex:0];
 
 	return offset_;
 }
 
 void VertexBuffer5Impl::unset() {
 	if ((void*)current == (void*)this) current = nullptr;
-}
-
-int VertexBuffer5Impl::offset() {
-	return myCount * myStride;
 }
 
 int Graphics5::VertexBuffer::count() {

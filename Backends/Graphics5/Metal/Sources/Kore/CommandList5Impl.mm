@@ -41,7 +41,7 @@ void Graphics5::CommandList::drawIndexedVertices(int start, int count) {
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 		indexCount:count indexType:MTLIndexTypeUInt32
 		indexBuffer:IndexBuffer5Impl::current->mtlBuffer
-		indexBufferOffset:start + IndexBuffer5Impl::current->offset()];
+		indexBufferOffset:start];
 }
 
 void Graphics5::CommandList::viewport(int x, int y, int width, int height) {
