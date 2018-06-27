@@ -67,6 +67,13 @@ namespace Kore {
 			}
 			else {
 				log(Warning, "Xinerama extension is not installed");
+				DeviceInfo &di = displays[0];
+				di.isAvailable = true;
+				di.x = 0;
+				di.y = 0;
+				di.width = 1920;
+				di.height = 1080;
+				di.isPrimary = true;
 			}
 		}
 	}
