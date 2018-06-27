@@ -1,9 +1,6 @@
-let project = new Project('Empty', __dirname);
+let project = new Project('Empty');
 
 project.addFile('Sources/**');
 project.setDebugDir('Deployment');
 
-Project.createProject('../../', __dirname).then((kore) => {
-	project.addSubProject(kore);
-	resolve(project);
-});
+resolve(project);
