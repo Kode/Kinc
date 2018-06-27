@@ -953,20 +953,22 @@ void Graphics2::Graphics2::drawRect(float x, float y, float width, float height,
 	vec2 p4 = transformation * vec3(x + width + strength / 2, y + strength / 2, 1.0f);                        // bottom-right
 	coloredPainter->fillRect(opacity, color, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y()); // top
 
-	p1 = transformation * vec3(x - strength / 2, y + height + strength / 2, 1.0f);
-	p3 = transformation * vec3(x + strength / 2, y - strength / 2, 1.0f);
-	p4 = transformation * vec3(x + strength / 2, y + height + strength / 2, 1.0f);
+	p1 = transformation * vec3(x - strength / 2, y + height - strength / 2, 1.0f);
+	p2 = transformation * vec3(x - strength / 2, y + strength / 2, 1.0f);
+	p3 = transformation * vec3(x + strength / 2, y + strength / 2, 1.0f);
+	p4 = transformation * vec3(x + strength / 2, y + height - strength / 2, 1.0f);
 	coloredPainter->fillRect(opacity, color, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y()); // left
 
+	p1 = transformation * vec3(x - strength / 2, y + height + strength / 2, 1.0f);
 	p2 = transformation * vec3(x - strength / 2, y + height - strength / 2, 1.0f);
 	p3 = transformation * vec3(x + width + strength / 2, y + height - strength / 2, 1.0f);
 	p4 = transformation * vec3(x + width + strength / 2, y + height + strength / 2, 1.0f);
 	coloredPainter->fillRect(opacity, color, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y()); // bottom
 
-	p1 = transformation * vec3(x + width - strength / 2, y + height + strength / 2, 1.0f);
-	p2 = transformation * vec3(x + width - strength / 2, y - strength / 2, 1.0f);
-	p3 = transformation * vec3(x + width + strength / 2, y - strength / 2, 1.0f);
-	p4 = transformation * vec3(x + width + strength / 2, y + height + strength / 2, 1.0f);
+	p1 = transformation * vec3(x + width - strength / 2, y + height - strength / 2, 1.0f);
+	p2 = transformation * vec3(x + width - strength / 2, y + strength / 2, 1.0f);
+	p3 = transformation * vec3(x + width + strength / 2, y + strength / 2, 1.0f);
+	p4 = transformation * vec3(x + width + strength / 2, y + height - strength / 2, 1.0f);
 	coloredPainter->fillRect(opacity, color, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y()); // right
 }
 
