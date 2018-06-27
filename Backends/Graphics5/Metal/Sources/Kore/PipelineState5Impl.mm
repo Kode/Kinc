@@ -26,8 +26,7 @@ void Graphics5::PipelineState::compile() {
 	float offset = 0;
 	MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
 
-	for (int i = 0; inputLayout[i] != nullptr; ++i) {
-
+	for (int i = 0; i < inputLayout[0]->size; ++i) {
 		vertexDescriptor.attributes[i].bufferIndex = 0;
 		vertexDescriptor.attributes[i].offset = offset;
 
@@ -55,7 +54,7 @@ void Graphics5::PipelineState::compile() {
 
 	vertexDescriptor.layouts[0].stride = offset;
 	vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-
+	
 	renderPipelineDesc.vertexDescriptor = vertexDescriptor;
 
 	NSError* errors = nil;
