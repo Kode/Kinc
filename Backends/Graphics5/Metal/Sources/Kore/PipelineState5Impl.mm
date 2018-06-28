@@ -14,6 +14,33 @@ using namespace Kore;
 id getMetalDevice();
 id getMetalEncoder();
 
+namespace {
+	MTLBlendFactor convert(Kore::Graphics5::BlendingOperation op) {
+		switch (op) {
+			case Graphics5::BlendOne:
+				return MTLBlendFactorOne;
+			case Graphics5::BlendZero:
+				return MTLBlendFactorZero;
+			case Graphics5::SourceAlpha:
+				return MTLBlendFactorSourceAlpha;
+			case Graphics5::DestinationAlpha:
+				return MTLBlendFactorDestinationAlpha;
+			case Graphics5::InverseSourceAlpha:
+				return MTLBlendFactorOneMinusSourceAlpha;
+			case Graphics5::InverseDestinationAlpha:
+				return MTLBlendFactorOneMinusDestinationAlpha;
+			case Graphics5::SourceColor:
+				return MTLBlendFactorSourceColor;
+			case Graphics5::DestinationColor:
+				return MTLBlendFactorDestinationColor;
+			case Graphics5::InverseSourceColor:
+				return MTLBlendFactorOneMinusSourceColor;
+			case Graphics5::InverseDestinationColor:
+				return MTLBlendFactorOneMinusDestinationColor;
+		}
+	}
+}
+
 PipelineState5Impl::PipelineState5Impl() {}
 
 void Graphics5::PipelineState::compile() {
@@ -21,6 +48,11 @@ void Graphics5::PipelineState::compile() {
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
 	renderPipelineDesc.fragmentFunction = fragmentShader->mtlFunction;
 	renderPipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+	renderPipelineDesc.colorAttachments[0].blendingEnabled = blendSource != BlendOne || blendDestination != BlendZero || alphaBlendSource != BlendOne || alphaBlendDestination != BlendZero;
+	renderPipelineDesc.colorAttachments[0].sourceRGBBlendFactor = convert(blendSource);
+	renderPipelineDesc.colorAttachments[0].sourceAlphaBlendFactor = convert(alphaBlendSource);
+	renderPipelineDesc.colorAttachments[0].destinationRGBBlendFactor = convert(blendDestination);
+	renderPipelineDesc.colorAttachments[0].destinationAlphaBlendFactor = convert(alphaBlendDestination);
 
 	// Create a vertex descriptor
 	float offset = 0;
