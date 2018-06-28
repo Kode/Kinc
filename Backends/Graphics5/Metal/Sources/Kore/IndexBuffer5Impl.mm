@@ -13,8 +13,16 @@ Graphics5::IndexBuffer* IndexBuffer5Impl::current = nullptr;
 IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count) {}
 
 Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffer5Impl(indexCount) {
+	this->gpuMemory = gpuMemory;
 	id<MTLDevice> device = getMetalDevice();
-	mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount options:MTLResourceOptionCPUCacheModeDefault];
+	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
+	if (gpuMemory) {
+		options |= MTLResourceStorageModeManaged;
+	}
+	else {
+		options |= MTLResourceStorageModeShared;
+	}
+	mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount options:options];
 }
 
 Graphics5::IndexBuffer::~IndexBuffer() {
@@ -26,7 +34,15 @@ int* Graphics5::IndexBuffer::lock() {
 	return (int*)[buffer contents];
 }
 
-void Graphics5::IndexBuffer::unlock() {}
+void Graphics5::IndexBuffer::unlock() {
+	if (gpuMemory) {
+		id<MTLBuffer> buffer = mtlBuffer;
+		NSRange range;
+		range.location = 0;
+		range.length = count() * 4;
+		[buffer didModifyRange:range];
+	}
+}
 
 void Graphics5::IndexBuffer::_set() {
 	current = this;

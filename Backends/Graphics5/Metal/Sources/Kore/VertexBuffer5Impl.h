@@ -15,7 +15,9 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		id mtlBuffer;
-
+		bool gpuMemory;
+		int lastStart;
+		int lastCount;
 	public:
 		static Graphics5::VertexBuffer* current;
 	};

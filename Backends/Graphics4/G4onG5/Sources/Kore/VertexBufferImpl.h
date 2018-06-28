@@ -9,7 +9,7 @@ namespace Kore {
 
 	class VertexBufferImpl {
 	protected:
-		VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate);
+		VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, bool gpuMemory, int instanceDataStepRate);
 		int myCount;
 		void prepareLock();
 

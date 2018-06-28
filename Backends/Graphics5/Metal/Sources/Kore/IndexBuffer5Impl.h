@@ -14,7 +14,7 @@ namespace Kore {
 		void unset();
 		id mtlBuffer;
 		int myCount;
-
+		bool gpuMemory;
 	public:
 		static Graphics5::IndexBuffer* current;
 	};

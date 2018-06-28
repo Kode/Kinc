@@ -13,11 +13,11 @@ namespace {
 extern u64 frameNumber;
 extern bool waitAfterNextDraw;
 
-Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate)
-    : _multiple(multiple), _buffer(count * multiple, structure, false, instanceDataStepRate), _lastFrameNumber(0), _currentIndex(0), myCount(count) {}
+Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, bool gpuMemory, int instanceDataStepRate)
+    : _multiple(multiple), _buffer(count * multiple, structure, gpuMemory, instanceDataStepRate), _lastFrameNumber(0), _currentIndex(0), myCount(count) {}
 
 Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate)
-    : VertexBufferImpl(count, structure, instanceDataStepRate) {}
+    : VertexBufferImpl(count, structure, usage == StaticUsage, instanceDataStepRate) {}
 
 Graphics4::VertexBuffer::~VertexBuffer() {}
 

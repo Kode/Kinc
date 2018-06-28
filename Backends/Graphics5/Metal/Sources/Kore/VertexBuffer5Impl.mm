@@ -16,6 +16,7 @@ Graphics5::VertexBuffer* VertexBuffer5Impl::current = nullptr;
 VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count) {}
 
 Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
+	this->gpuMemory = gpuMemory;
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
 		VertexElement element = structure.elements[i];
@@ -44,7 +45,14 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	}
 
 	id<MTLDevice> device = getMetalDevice();
-	mtlBuffer = [device newBufferWithLength:count * myStride options:MTLResourceOptionCPUCacheModeDefault];
+	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
+	if (gpuMemory) {
+		options |= MTLResourceStorageModeManaged;
+	}
+	else {
+		options |= MTLResourceStorageModeShared;
+	}
+	mtlBuffer = [device newBufferWithLength:count * myStride options:options];
 }
 
 Graphics5::VertexBuffer::~VertexBuffer() {
@@ -52,18 +60,30 @@ Graphics5::VertexBuffer::~VertexBuffer() {
 }
 
 float* Graphics5::VertexBuffer::lock() {
+	lastStart = 0;
+	lastCount = count();
 	id<MTLBuffer> buffer = mtlBuffer;
 	float* floats = (float*)[buffer contents];
 	return floats;
 }
 
 float* Graphics5::VertexBuffer::lock(int start, int count) {
+	lastStart = start;
+	lastCount = count;
 	id<MTLBuffer> buffer = mtlBuffer;
 	float* floats = (float*)[buffer contents];
 	return &floats[start * myStride / sizeof(float)];
 }
 
-void Graphics5::VertexBuffer::unlock() {}
+void Graphics5::VertexBuffer::unlock() {
+	if (gpuMemory) {
+		id<MTLBuffer> buffer = mtlBuffer;
+		NSRange range;
+		range.location = lastStart * myStride;
+		range.length = lastCount * myStride;
+		[buffer didModifyRange:range];
+	}
+}
 
 int Graphics5::VertexBuffer::_set(int offset_) {
 	current = this;
