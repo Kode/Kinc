@@ -76,7 +76,7 @@ void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument 
 void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
 
 bool Graphics5::renderTargetsInvertedY() {
-	return true;
+	return false;
 }
 
 bool Graphics5::nonPow2TexturesSupported() {

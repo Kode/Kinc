@@ -6,6 +6,10 @@
 #include <Kore/Input/Mouse.h>
 #include <Kore/System.h>
 
+#ifdef KORE_METAL
+#include <Kore/Graphics5/Graphics.h>
+#endif
+
 @implementation BasicOpenGLView
 
 namespace {
@@ -382,5 +386,25 @@ namespace {
 	[commandBuffer release];
 }
 #endif
+
+- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget {
+	@autoreleasepool {
+		[commandEncoder endEncoding];
+		[commandBuffer commit];
+		[commandEncoder release];
+		[commandBuffer release];
+		
+		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->_tex;
+		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
+		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+		
+		commandBuffer = [commandQueue commandBuffer];
+		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+		[commandEncoder retain];
+		[commandBuffer retain];
+	}
+}
 
 @end

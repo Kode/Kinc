@@ -10,7 +10,7 @@ namespace Kore {
 		int lastStart;
 		int lastCount;
 		int mySize;
-		const bool transposeMat3 = false;
-		const bool transposeMat4 = false;
+		const bool transposeMat3 = true;
+		const bool transposeMat4 = true;
 	};
 }

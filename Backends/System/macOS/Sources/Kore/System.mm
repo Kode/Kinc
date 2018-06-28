@@ -10,6 +10,14 @@
 #include <Kore/Log.h>
 #include <Kore/System.h>
 
+#ifdef KORE_METAL
+namespace Kore {
+	namespace Graphics5 {
+		class RenderTarget;
+	}
+}
+#endif
+
 using namespace Kore;
 
 extern const char* macgetresourcepath();
@@ -75,6 +83,10 @@ void beginGL() {
 
 void endGL() {
 	[view end];
+}
+
+void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget) {
+	[view newRenderPass: renderTarget];
 }
 
 #endif

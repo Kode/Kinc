@@ -73,7 +73,12 @@ void Graphics5::CommandList::setIndexBuffer(IndexBuffer& buffer) {
 
 // void restoreRenderTarget();
 
-void Graphics5::CommandList::setRenderTargets(RenderTarget** targets, int count) {}
+void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget);
+
+void Graphics5::CommandList::setRenderTargets(RenderTarget** targets, int count) {
+	if (targets[0]->contextId < 0) newRenderPass(nullptr);
+	else newRenderPass(targets[0]);
+}
 
 void Graphics5::CommandList::upload(IndexBuffer* buffer) {}
 

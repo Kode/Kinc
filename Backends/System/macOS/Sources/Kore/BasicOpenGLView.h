@@ -13,6 +13,12 @@
 
 #ifdef KORE_METAL
 
+namespace Kore {
+	namespace Graphics5 {
+		class RenderTarget;
+	}
+}
+
 @interface BasicOpenGLView : MTKView {
 @private
 	id<MTLDevice> device;
@@ -43,6 +49,7 @@
 
 - (void)begin;
 - (void)end;
+- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget;
 #endif
 
 + (NSOpenGLPixelFormat*)basicPixelFormat;
