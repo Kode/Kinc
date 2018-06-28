@@ -27,6 +27,7 @@ namespace Kore {
 	id<CAMetalDrawable> drawable;
 	id<MTLLibrary> library;
 	MTLRenderPassDescriptor* renderPassDescriptor;
+	id<MTLTexture> depthTexture;
 #else
 	EAGLContext* context;
 	GLuint defaultFramebuffer, colorRenderbuffer, depthStencilRenderbuffer;
