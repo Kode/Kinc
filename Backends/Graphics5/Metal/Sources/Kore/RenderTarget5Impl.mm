@@ -28,14 +28,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 	
 	_tex = [device newTextureWithDescriptor:descriptor];
-}
-
-Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {}
-
-Graphics5::RenderTarget::~RenderTarget() {}
-
-void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
-	id<MTLDevice> device = getMetalDevice();
+	
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
 	desc.magFilter = MTLSamplerMinMagFilterLinear;
@@ -46,10 +39,19 @@ void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	desc.normalizedCoordinates = YES;
 	desc.lodMinClamp = 0.0f;
 	desc.lodMaxClamp = FLT_MAX;
-	id<MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:desc];
-	
+	_sampler = [device newSamplerStateWithDescriptor:desc];
+}
+
+Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {}
+
+Graphics5::RenderTarget::~RenderTarget() {
+	[_tex release];
+	[_sampler release];
+}
+
+void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setFragmentSamplerState:sampler atIndex:unit.index];
+	[encoder setFragmentSamplerState:_sampler atIndex:unit.index];
 	[encoder setFragmentTexture:_tex atIndex:unit.index];
 }
 

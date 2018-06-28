@@ -261,7 +261,7 @@ namespace {
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
 	NSPasteboard* pboard = [sender draggingPasteboard];
-	NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
+	//NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
 	if ([[pboard types] containsObject:NSURLPboardType]) {
 		NSURL* fileURL = [NSURL URLFromPasteboard:pboard];
 		wchar_t* filePath = (wchar_t*)[fileURL.path cStringUsingEncoding:NSUTF32LittleEndianStringEncoding];

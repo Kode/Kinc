@@ -9,7 +9,7 @@ namespace Kore {
 	namespace Display {
 		int count() {
 			NSArray* screens = [NSScreen screens];
-			return [screens count];
+			return (int)[screens count];
 		}
 
 		int width(int index) {

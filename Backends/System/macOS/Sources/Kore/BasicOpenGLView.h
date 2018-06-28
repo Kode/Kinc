@@ -50,9 +50,11 @@ namespace Kore {
 - (void)begin;
 - (void)end;
 - (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait;
-#endif
-
+#else
+- (void)prepareOpenGL;
+- (void)switchBuffers;
 + (NSOpenGLPixelFormat*)basicPixelFormat;
+#endif
 
 - (void)keyDown:(NSEvent*)theEvent;
 - (void)keyUp:(NSEvent*)theEvent;
@@ -68,7 +70,6 @@ namespace Kore {
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender;
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender;
 
-- (void)prepareOpenGL;
 - (void)update; // moved or resized
 
 - (BOOL)acceptsFirstResponder;
@@ -76,6 +77,5 @@ namespace Kore {
 - (BOOL)resignFirstResponder;
 
 - (id)initWithFrame:(NSRect)frameRect;
-- (void)switchBuffers;
 
 @end

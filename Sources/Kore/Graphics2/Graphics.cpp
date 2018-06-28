@@ -984,7 +984,7 @@ void Graphics2::Graphics2::fillRect(float x, float y, float width, float height)
 }
 
 void Graphics2::Graphics2::drawString(const char* text, float x, float y) {
-	drawString(text, 0, strlen(text), x, y);
+	drawString(text, 0, (int)strlen(text), x, y);
 }
 
 

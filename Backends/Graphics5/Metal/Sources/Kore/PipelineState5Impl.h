@@ -14,7 +14,7 @@ namespace Kore {
 		id pipeline;
 		id reflection;
 		PipelineState5Impl();
-
+		virtual ~PipelineState5Impl();
 	public:
 		void _set();
 	};

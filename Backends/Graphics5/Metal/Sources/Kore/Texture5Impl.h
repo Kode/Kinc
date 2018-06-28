@@ -17,8 +17,8 @@ namespace Kore {
 	class Texture5Impl {
 	public:
 		~Texture5Impl();
-		id tex;
-
+		id _tex;
+		id _sampler;
 	protected:
 		void create(int width, int height, int format);
 	};

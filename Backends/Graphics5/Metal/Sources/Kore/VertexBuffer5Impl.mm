@@ -37,6 +37,9 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 			break;
 		case Graphics4::NoVertexData:
 			break;
+		case Graphics4::Float4x4VertexData:
+			assert(false);
+			break;
 		}
 	}
 

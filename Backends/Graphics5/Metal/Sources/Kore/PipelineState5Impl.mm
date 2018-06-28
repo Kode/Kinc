@@ -41,7 +41,15 @@ namespace {
 	}
 }
 
-PipelineState5Impl::PipelineState5Impl() {}
+PipelineState5Impl::PipelineState5Impl() : pipeline(nullptr) {
+	
+}
+
+PipelineState5Impl::~PipelineState5Impl() {
+	if (pipeline != nullptr) {
+		[pipeline release];
+	}
+}
 
 void Graphics5::PipelineState::compile() {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];

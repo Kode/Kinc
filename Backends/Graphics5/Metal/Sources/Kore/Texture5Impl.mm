@@ -51,7 +51,10 @@ Graphics5::Texture::Texture(int width, int height, int depth, Format format, boo
 	create(width, height, format);
 }
 
-Texture5Impl::~Texture5Impl() {}
+Texture5Impl::~Texture5Impl() {
+	[_tex release];
+	[_sampler release];
+}
 
 void Texture5Impl::create(int width, int height, int format) {
 	id<MTLDevice> device = getMetalDevice();
@@ -65,14 +68,8 @@ void Texture5Impl::create(int width, int height, int format) {
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 
-	tex = [device newTextureWithDescriptor:descriptor];
-}
-
-id getMetalDevice();
-id getMetalEncoder();
-
-void Graphics5::Texture::_set(TextureUnit unit) {
-	id<MTLDevice> device = getMetalDevice();
+	_tex = [device newTextureWithDescriptor:descriptor];
+	
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
 	desc.magFilter = MTLSamplerMinMagFilterLinear;
@@ -83,11 +80,16 @@ void Graphics5::Texture::_set(TextureUnit unit) {
 	desc.normalizedCoordinates = YES;
 	desc.lodMinClamp = 0.0f;
 	desc.lodMaxClamp = FLT_MAX;
-	id<MTLSamplerState> sampler = [device newSamplerStateWithDescriptor:desc];
+	_sampler = [device newSamplerStateWithDescriptor:desc];
+}
 
+id getMetalDevice();
+id getMetalEncoder();
+
+void Graphics5::Texture::_set(TextureUnit unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setFragmentSamplerState:sampler atIndex:unit.index];
-	[encoder setFragmentTexture:tex atIndex:unit.index];
+	[encoder setFragmentSamplerState:_sampler atIndex:unit.index];
+	[encoder setFragmentTexture:_tex atIndex:unit.index];
 }
 
 int Graphics5::Texture::stride() {
@@ -99,7 +101,7 @@ u8* Graphics5::Texture::lock() {
 }
 
 void Graphics5::Texture::unlock() {
-	id<MTLTexture> texture = tex;
+	id<MTLTexture> texture = _tex;
 	[texture replaceRegion:MTLRegionMake2D(0, 0, width, height) mipmapLevel:0 slice:0 withBytes:data bytesPerRow:stride() bytesPerImage:stride() * height];
 }
 
