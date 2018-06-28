@@ -125,9 +125,11 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 				for (MTLStructMember* member in structObj.members) {
 					if (strcmp([[member name] UTF8String], name) == 0) {
 						location.vertexOffset = (int)[member offset];
+						break;
 					}
 				}
 			}
+			break;
 		}
 	}
 
@@ -137,10 +139,12 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 				MTLStructType* structObj = [arg bufferStructType];
 				for (MTLStructMember* member in structObj.members) {
 					if (strcmp([[member name] UTF8String], name) == 0) {
-						location.vertexOffset = (int)[member offset];
+						location.fragmentOffset = (int)[member offset];
+						break;
 					}
 				}
 			}
+			break;
 		}
 	}
 
