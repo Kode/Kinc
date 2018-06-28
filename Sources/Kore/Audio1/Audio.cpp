@@ -83,7 +83,7 @@ void Audio1::mix(int samples) {
 				value = max(min(value, 1.0f), -1.0f);
 				if (!left) channels[i].position += channels[i].pitch / channels[i].sound->sampleRatePos;
 				// channels[i].position += 2;
-				if (channels[i].position >= channels[i].sound->size) {
+				if (channels[i].position + 1 >= channels[i].sound->size) {
 					if (channels[i].loop) {
 						channels[i].position = 0;
 					}
