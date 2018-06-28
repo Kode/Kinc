@@ -26,6 +26,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 	descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+	descriptor.resourceOptions = MTLResourceStorageModePrivate;
 	
 	_tex = [device newTextureWithDescriptor:descriptor];
 	
@@ -40,6 +41,19 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	desc.lodMinClamp = 0.0f;
 	desc.lodMaxClamp = FLT_MAX;
 	_sampler = [device newSamplerStateWithDescriptor:desc];
+	
+	MTLTextureDescriptor* depthDescriptor = [MTLTextureDescriptor new];
+	depthDescriptor.textureType = MTLTextureType2D;
+	depthDescriptor.width = width;
+	depthDescriptor.height = height;
+	depthDescriptor.depth = 1;
+	depthDescriptor.pixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
+	depthDescriptor.arrayLength = 1;
+	depthDescriptor.mipmapLevelCount = 1;
+	depthDescriptor.usage = MTLTextureUsageRenderTarget;
+	depthDescriptor.resourceOptions = MTLResourceStorageModePrivate;
+	
+	_depthTex = [device newTextureWithDescriptor:depthDescriptor];
 }
 
 Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {}

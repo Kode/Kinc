@@ -7,5 +7,6 @@ namespace Kore {
 	public:
 		id _tex;
 		id _sampler;
+		id _depthTex;
 	};
 }
