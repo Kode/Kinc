@@ -342,6 +342,24 @@ namespace {
 		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
 
 		drawable = [metalLayer nextDrawable];
+		
+		if (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height) {
+			if (depthTexture != nil) {
+				[depthTexture release];
+			}
+			
+			MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
+			descriptor.textureType = MTLTextureType2D;
+			descriptor.width = drawable.texture.width;
+			descriptor.height = drawable.texture.height;
+			descriptor.depth = 1;
+			descriptor.pixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
+			descriptor.arrayLength = 1;
+			descriptor.mipmapLevelCount = 1;
+			descriptor.resourceOptions = MTLResourceStorageModePrivate;
+			descriptor.usage = MTLTextureUsageRenderTarget;
+			depthTexture = [device newTextureWithDescriptor:descriptor];
+		}
 
 		// printf("It's %i\n", drawable == nil ? 0 : 1);
 		// if (drawable == nil) return;
@@ -355,6 +373,14 @@ namespace {
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+		renderPassDescriptor.depthAttachment.clearDepth = 99999;
+		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+		renderPassDescriptor.depthAttachment.texture = depthTexture;
+		renderPassDescriptor.stencilAttachment.clearStencil = 0;
+		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
+		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
+		renderPassDescriptor.stencilAttachment.texture = depthTexture;
 
 		// id <MTLCommandQueue> commandQueue = [device newCommandQueue];
 		commandBuffer = [commandQueue commandBuffer];
@@ -401,6 +427,16 @@ namespace {
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+		if (renderTarget == nullptr) {
+			renderPassDescriptor.depthAttachment.clearDepth = 99999;
+			renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+			renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+			renderPassDescriptor.depthAttachment.texture = depthTexture;
+			renderPassDescriptor.stencilAttachment.clearStencil = 0;
+			renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
+			renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
+			renderPassDescriptor.stencilAttachment.texture = depthTexture;
+		}
 		
 		commandBuffer = [commandQueue commandBuffer];
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];

@@ -11,8 +11,9 @@ namespace Kore {
 	protected:
 		Graphics5::Shader* vertexShader;
 		Graphics5::Shader* fragmentShader;
-		id pipeline;
-		id reflection;
+		id _pipeline;
+		id _reflection;
+		id _depthStencil;
 		PipelineState5Impl();
 		virtual ~PipelineState5Impl();
 	public:

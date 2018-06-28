@@ -39,15 +39,36 @@ namespace {
 				return MTLBlendFactorOneMinusDestinationColor;
 		}
 	}
+	
+	MTLCompareFunction convert(Kore::Graphics5::ZCompareMode compare) {
+		switch (compare) {
+			case Graphics5::ZCompareAlways:
+				return MTLCompareFunctionAlways;
+			case Graphics5::ZCompareNever:
+				return MTLCompareFunctionNever;
+			case Graphics5::ZCompareEqual:
+				return MTLCompareFunctionEqual;
+			case Graphics5::ZCompareNotEqual:
+				return MTLCompareFunctionNotEqual;
+			case Graphics5::ZCompareLess:
+				return MTLCompareFunctionLess;
+			case Graphics5::ZCompareLessEqual:
+				return MTLCompareFunctionLessEqual;
+			case Graphics5::ZCompareGreater:
+				return MTLCompareFunctionGreater;
+			case Graphics5::ZCompareGreaterEqual:
+				return MTLCompareFunctionGreaterEqual;
+		}
+	}
 }
 
-PipelineState5Impl::PipelineState5Impl() : pipeline(nullptr) {
+PipelineState5Impl::PipelineState5Impl() : _pipeline(nullptr) {
 	
 }
 
 PipelineState5Impl::~PipelineState5Impl() {
-	if (pipeline != nullptr) {
-		[pipeline release];
+	if (_pipeline != nullptr) {
+		[_pipeline release];
 	}
 }
 
@@ -61,6 +82,8 @@ void Graphics5::PipelineState::compile() {
 	renderPipelineDesc.colorAttachments[0].sourceAlphaBlendFactor = convert(alphaBlendSource);
 	renderPipelineDesc.colorAttachments[0].destinationRGBBlendFactor = convert(blendDestination);
 	renderPipelineDesc.colorAttachments[0].destinationAlphaBlendFactor = convert(alphaBlendDestination);
+	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
+	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
 
 	// Create a vertex descriptor
 	float offset = 0;
@@ -100,15 +123,23 @@ void Graphics5::PipelineState::compile() {
 	NSError* errors = nil;
 	MTLRenderPipelineReflection* reflection = nil;
 	id<MTLDevice> device = getMetalDevice();
-	pipeline = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
+	_pipeline = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
 	if (errors != nil) NSLog(@"%@", [errors localizedDescription]);
-	assert(pipeline && !errors);
-	this->reflection = reflection;
+	assert(_pipeline && !errors);
+	_reflection = reflection;
+	
+	MTLDepthStencilDescriptor* depthStencilDescriptor = [MTLDepthStencilDescriptor new];
+	depthStencilDescriptor.depthCompareFunction = convert(depthMode);
+	depthStencilDescriptor.depthWriteEnabled = depthWrite;
+	_depthStencil = [device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
 }
 
 void PipelineState5Impl::_set() {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setRenderPipelineState:pipeline];
+	[encoder setRenderPipelineState:_pipeline];
+	[encoder setDepthStencilState:_depthStencil];
+	//[encoder setFrontFacingWinding:MTLWindingCounterClockwise];
+	//[encoder setCullMode:MTLCullModeBack];
 }
 
 Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
@@ -116,7 +147,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 	location.vertexOffset = -1;
 	location.fragmentOffset = -1;
 
-	MTLRenderPipelineReflection* reflection = this->reflection;
+	MTLRenderPipelineReflection* reflection = _reflection;
 
 	for (MTLArgument* arg in reflection.vertexArguments) {
 		if (arg.type == MTLArgumentTypeBuffer && [arg.name isEqualToString:@"uniforms"]) {
@@ -155,7 +186,7 @@ Graphics5::TextureUnit Graphics5::PipelineState::getTextureUnit(const char* name
 	TextureUnit unit;
 	unit.index = -1;
 
-	MTLRenderPipelineReflection* reflection = this->reflection;
+	MTLRenderPipelineReflection* reflection = _reflection;
 	for (MTLArgument* arg in reflection.fragmentArguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
 			unit.index = (int)[arg index];

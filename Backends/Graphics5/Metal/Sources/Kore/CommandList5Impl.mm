@@ -43,8 +43,6 @@ void Graphics5::CommandList::drawIndexedVertices() {
 
 void Graphics5::CommandList::drawIndexedVertices(int start, int count) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-
-	//[encoder setDepthStencilState:_depthState];
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 		indexCount:count indexType:MTLIndexTypeUInt32
 		indexBuffer:IndexBuffer5Impl::current->mtlBuffer
