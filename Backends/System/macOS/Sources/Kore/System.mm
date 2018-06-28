@@ -85,8 +85,8 @@ void endGL() {
 	[view end];
 }
 
-void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget) {
-	[view newRenderPass: renderTarget];
+void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget, bool wait) {
+	[view newRenderPass: renderTarget wait: wait];
 }
 
 #endif

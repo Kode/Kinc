@@ -49,7 +49,7 @@ namespace Kore {
 
 - (void)begin;
 - (void)end;
-- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget;
+- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait;
 #endif
 
 + (NSOpenGLPixelFormat*)basicPixelFormat;

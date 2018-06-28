@@ -385,12 +385,14 @@ namespace {
 	[drawable release];
 	[commandBuffer release];
 }
-#endif
 
-- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget {
+- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait {
 	@autoreleasepool {
 		[commandEncoder endEncoding];
 		[commandBuffer commit];
+		if (wait) {
+			[commandBuffer waitUntilCompleted];
+		}
 		[commandEncoder release];
 		[commandBuffer release];
 		
@@ -406,5 +408,7 @@ namespace {
 		[commandBuffer retain];
 	}
 }
+
+#endif
 
 @end

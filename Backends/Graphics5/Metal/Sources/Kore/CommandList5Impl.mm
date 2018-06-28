@@ -15,12 +15,19 @@ using namespace Kore;
 
 id getMetalDevice();
 id getMetalEncoder();
+void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget, bool wait);
 
 Graphics5::CommandList::CommandList() {}
 
 Graphics5::CommandList::~CommandList() {}
 
-void Graphics5::CommandList::begin() {}
+namespace {
+	Graphics5::RenderTarget* lastRenderTarget = nullptr;
+}
+
+void Graphics5::CommandList::begin() {
+	lastRenderTarget = nullptr;
+}
 
 void Graphics5::CommandList::end() {}
 
@@ -73,11 +80,15 @@ void Graphics5::CommandList::setIndexBuffer(IndexBuffer& buffer) {
 
 // void restoreRenderTarget();
 
-void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget);
-
 void Graphics5::CommandList::setRenderTargets(RenderTarget** targets, int count) {
-	if (targets[0]->contextId < 0) newRenderPass(nullptr);
-	else newRenderPass(targets[0]);
+	if (targets[0]->contextId < 0) {
+		lastRenderTarget = nullptr;
+		newRenderPass(nullptr, false);
+	}
+	else {
+		lastRenderTarget = targets[0];
+		newRenderPass(targets[0], false);
+	}
 }
 
 void Graphics5::CommandList::upload(IndexBuffer* buffer) {}
@@ -86,7 +97,9 @@ void Graphics5::CommandList::upload(VertexBuffer* buffer) {}
 
 void Graphics5::CommandList::upload(Texture* texture) {}
 
-void Graphics5::CommandList::executeAndWait() {}
+void Graphics5::CommandList::executeAndWait() {
+	newRenderPass(lastRenderTarget, true);
+}
 
 void Graphics5::CommandList::setPipelineLayout() {}
 
@@ -100,6 +113,9 @@ void Graphics5::CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, i
 	[encoder setFragmentBuffer:buffer->_buffer offset:offset atIndex:0];
 }
 
-void Graphics5::CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {}
+void Graphics5::CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	[encoder textureBarrier];
+}
 
 void Graphics5::CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {}
