@@ -2,7 +2,7 @@
 #import <OpenGLES/ES1/glext.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
-#ifndef SYS_TVOS
+#ifndef KORE_TVOS
 #import <CoreMotion/CMMotionManager.h>
 #endif
 

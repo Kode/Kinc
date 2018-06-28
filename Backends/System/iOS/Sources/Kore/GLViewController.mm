@@ -1,6 +1,8 @@
+#include "pch.h"
+
 #import "GLViewController.h"
 #import "GLView.h"
-#include "pch.h"
+
 #import <Foundation/Foundation.h>
 #include <Kore/Math/Core.h>
 #include <objc/runtime.h>
@@ -15,6 +17,12 @@ void endGL() {
 	[glView end];
 }
 
+#ifdef KORE_METAL
+void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget, bool wait) {
+	[glView newRenderPass: renderTarget wait: wait];
+}
+#endif
+
 void showKeyboard() {
 	[glView showKeyboard];
 }
@@ -24,7 +32,7 @@ void hideKeyboard() {
 }
 
 id getMetalDevice() {
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 	return [glView metalDevice];
 #else
 	return nil;
@@ -32,7 +40,7 @@ id getMetalDevice() {
 }
 
 id getMetalLibrary() {
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 	return [glView metalLibrary];
 #else
 	return nil;
@@ -40,7 +48,7 @@ id getMetalLibrary() {
 }
 
 id getMetalEncoder() {
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 	return [glView metalEncoder];
 #else
 	return nil;

@@ -114,8 +114,10 @@ void Graphics5::CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, i
 }
 
 void Graphics5::CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
+#ifndef KORE_IOS
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder textureBarrier];
+#endif
 }
 
 void Graphics5::CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {}

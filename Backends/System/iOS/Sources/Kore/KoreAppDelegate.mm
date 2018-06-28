@@ -47,7 +47,7 @@ int kore(int argc, char** argv);
 	// glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::max(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width,
 	// screenBounds.size.height))];
 	GLViewController* glViewController = [[GLViewController alloc] init];
-#ifndef SYS_TVOS
+#ifndef KORE_TVOS
 	glViewController.view.multipleTouchEnabled = YES;
 #endif
 	// glViewController.view = glView;
@@ -61,7 +61,7 @@ int kore(int argc, char** argv);
 	return YES;
 }
 
-#ifndef SYS_TVOS
+#ifndef KORE_TVOS
 // static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
 //	switch (orientation) {
 //	case UIDeviceOrientationLandscapeLeft:

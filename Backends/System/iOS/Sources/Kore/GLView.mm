@@ -5,6 +5,7 @@
 #include <Kore/Input/Sensor.h>
 #include <Kore/Input/Surface.h>
 #include <Kore/System.h>
+#include <Kore/Graphics5/Graphics.h>
 
 namespace {
 	const int touchmaxcount = 20;
@@ -56,7 +57,7 @@ int Kore::System::windowHeight(int id) {
 
 @implementation GLView
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 + (Class)layerClass {
 	return [CAMetalLayer class];
 }
@@ -66,7 +67,7 @@ int Kore::System::windowHeight(int id) {
 }
 #endif
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
@@ -122,7 +123,7 @@ int Kore::System::windowHeight(int id) {
 
 	// Start acceletometer
 	hasAccelerometer = false;
-#ifndef SYS_TVOS
+#ifndef KORE_TVOS
 	motionManager = [[CMMotionManager alloc] init];
 	if ([motionManager isAccelerometerAvailable]) {
 		motionManager.accelerometerUpdateInterval = 0.033;
@@ -131,7 +132,7 @@ int Kore::System::windowHeight(int id) {
 	}
 #endif
 
-#ifndef SYS_TVOS
+#ifndef KORE_TVOS
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onKeyboardHide:) name:UIKeyboardWillHideNotification object:nil];
 #endif
 
@@ -139,7 +140,7 @@ int Kore::System::windowHeight(int id) {
 }
 #endif
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 - (void)begin {
 	@autoreleasepool {
 		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
@@ -174,7 +175,7 @@ int Kore::System::windowHeight(int id) {
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
 	glViewport(0, 0, backingWidth, backingHeight);
 
-#ifndef SYS_TVOS
+#ifndef KORE_TVOS
 	// Accelerometer updates
 	if (hasAccelerometer) {
 
@@ -193,7 +194,7 @@ int Kore::System::windowHeight(int id) {
 }
 #endif
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 static float red = 0.0f;
 
 - (void)end {
@@ -216,7 +217,7 @@ static float red = 0.0f;
 }
 #endif
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 - (void)layoutSubviews {
 }
 #else
@@ -238,7 +239,7 @@ static float red = 0.0f;
 }
 #endif
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 - (void)dealloc {
 }
 #else
@@ -388,7 +389,7 @@ namespace {
 	Kore::System::hideKeyboard();
 }
 
-#ifdef SYS_METAL
+#ifdef KORE_METAL
 - (id<MTLDevice>)metalDevice {
 	return device;
 }
@@ -399,6 +400,26 @@ namespace {
 
 - (id<MTLRenderCommandEncoder>)metalEncoder {
 	return commandEncoder;
+}
+
+
+- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait {
+	@autoreleasepool {
+		[commandEncoder endEncoding];
+		[commandBuffer commit];
+		if (wait) {
+			[commandBuffer waitUntilCompleted];
+		}
+		
+		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->_tex;
+		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
+		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+		
+		commandBuffer = [commandQueue commandBuffer];
+		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+	}
 }
 #endif
 
