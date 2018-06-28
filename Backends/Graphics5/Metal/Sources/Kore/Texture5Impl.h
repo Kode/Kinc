@@ -20,6 +20,6 @@ namespace Kore {
 		id tex;
 
 	protected:
-		void create(int width, int height);
+		void create(int width, int height, int format);
 	};
 }

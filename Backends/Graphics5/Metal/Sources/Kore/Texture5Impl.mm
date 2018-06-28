@@ -12,30 +12,48 @@ using namespace Kore;
 
 id getMetalDevice();
 
+namespace {
+	MTLPixelFormat convert(Graphics1::Image::Format format) {
+		switch (format) {
+			case Graphics1::Image::RGBA32:
+				return MTLPixelFormatRGBA8Unorm;
+			case Graphics1::Image::Grey8:
+				return MTLPixelFormatR8Unorm;
+			case Graphics1::Image::RGB24:
+			case Graphics1::Image::RGBA128:
+			case Graphics1::Image::RGBA64:
+			case Graphics1::Image::A32:
+			case Graphics1::Image::BGRA32:
+			case Graphics1::Image::A16:
+				return MTLPixelFormatRGBA8Unorm;
+		}
+	}
+}
+
 void Graphics5::Texture::_init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 
-	create(width, height);
+	create(width, height, Image::RGBA32);
 	lock();
 	unlock();
 }
 
-Graphics5::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
+Graphics5::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
 	texWidth = width;
 	texHeight = height;
-	create(width, height);
+	create(width, height, format);
 }
 
 Graphics5::Texture::Texture(int width, int height, int depth, Format format, bool readable) : Image(width, height, format, readable) {
 	texWidth = width;
 	texHeight = height;
-	create(width, height);
+	create(width, height, format);
 }
 
 Texture5Impl::~Texture5Impl() {}
 
-void Texture5Impl::create(int width, int height) {
+void Texture5Impl::create(int width, int height, int format) {
 	id<MTLDevice> device = getMetalDevice();
 
 	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
@@ -43,7 +61,7 @@ void Texture5Impl::create(int width, int height) {
 	descriptor.width = width;
 	descriptor.height = height;
 	descriptor.depth = 1;
-	descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+	descriptor.pixelFormat = convert((Graphics1::Image::Format)format);
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 
