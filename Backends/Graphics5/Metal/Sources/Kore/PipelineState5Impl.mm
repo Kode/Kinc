@@ -72,6 +72,15 @@ PipelineState5Impl::~PipelineState5Impl() {
 	}
 }
 
+static int findAttributeIndex(NSArray<MTLVertexAttribute*>* attributes, const char* name) {
+	for (MTLVertexAttribute* attribute in attributes) {
+		if (strcmp(name, [[attribute name] UTF8String]) == 0) {
+			return (int)[attribute attributeIndex];
+		}
+	}
+	return -1;
+}
+
 void Graphics5::PipelineState::compile() {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
 	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
@@ -85,29 +94,30 @@ void Graphics5::PipelineState::compile() {
 	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
 	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
 
-	// Create a vertex descriptor
 	float offset = 0;
 	MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
 
 	for (int i = 0; i < inputLayout[0]->size; ++i) {
-		vertexDescriptor.attributes[i].bufferIndex = 0;
-		vertexDescriptor.attributes[i].offset = offset;
+		int index = findAttributeIndex(renderPipelineDesc.vertexFunction.vertexAttributes, inputLayout[0]->elements[i].name);
+		
+		vertexDescriptor.attributes[index].bufferIndex = 0;
+		vertexDescriptor.attributes[index].offset = offset;
 
 		switch (inputLayout[0]->elements[i].data) {
 		case Graphics4::Float1VertexData:
-			vertexDescriptor.attributes[i].format = MTLVertexFormatFloat;
+			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat;
 			offset += sizeof(float);
 			break;
 		case Graphics4::Float2VertexData:
-			vertexDescriptor.attributes[i].format = MTLVertexFormatFloat2;
+			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat2;
 			offset += 2 * sizeof(float);
 			break;
 		case Graphics4::Float3VertexData:
-			vertexDescriptor.attributes[i].format = MTLVertexFormatFloat3;
+			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat3;
 			offset += 3 * sizeof(float);
 			break;
 		case Graphics4::Float4VertexData:
-			vertexDescriptor.attributes[i].format = MTLVertexFormatFloat4;
+			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat4;
 			offset += 4 * sizeof(float);
 			break;
 		default:
