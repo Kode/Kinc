@@ -278,7 +278,7 @@ namespace {
 #endif
 
 - (void)update { // window resizes, moves and display changes (resize, depth and display config change)
-	[super update];
+	// [super update]; //TODO: Who did this?
 }
 
 #ifndef KORE_METAL
@@ -348,10 +348,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		drawable = [metalLayer nextDrawable];
 		
 		if (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height) {
-			if (depthTexture != nil) {
-				[depthTexture release];
-			}
-			
 			MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 			descriptor.textureType = MTLTextureType2D;
 			descriptor.width = drawable.texture.width;
@@ -391,10 +387,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		// if (drawable != nil) {
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 		//}
-
-		[commandEncoder retain];
-		[drawable retain];
-		[commandBuffer retain];
 	}
 }
 
@@ -409,10 +401,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		//	[drawable present];
 		//}
 	}
-
-	[commandEncoder release];
-	[drawable release];
-	[commandBuffer release];
 }
 
 - (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait {
@@ -422,8 +410,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		if (wait) {
 			[commandBuffer waitUntilCompleted];
 		}
-		[commandEncoder release];
-		[commandBuffer release];
 		
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->_tex;
@@ -441,8 +427,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		
 		commandBuffer = [commandQueue commandBuffer];
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-		[commandEncoder retain];
-		[commandBuffer retain];
 	}
 }
 

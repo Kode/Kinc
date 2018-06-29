@@ -67,11 +67,7 @@ PipelineState5Impl::PipelineState5Impl() : _pipeline(nullptr) {
 }
 
 PipelineState5Impl::~PipelineState5Impl() {
-#ifndef KORE_IOS
-	if (_pipeline != nullptr) {
-		[_pipeline release];
-	}
-#endif
+
 }
 
 static int findAttributeIndex(NSArray<MTLVertexAttribute*>* attributes, const char* name) {

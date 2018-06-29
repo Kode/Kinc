@@ -52,10 +52,7 @@ Graphics5::Texture::Texture(int width, int height, int depth, Format format, boo
 }
 
 Texture5Impl::~Texture5Impl() {
-#ifndef KORE_IOS
-	[_tex release];
-	[_sampler release];
-#endif
+	
 }
 
 void Texture5Impl::create(int width, int height, int format, bool writable) {

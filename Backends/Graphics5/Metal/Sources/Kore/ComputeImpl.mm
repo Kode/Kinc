@@ -15,12 +15,6 @@ id getMetalLibrary();
 namespace {
 	const int constantsSize = 1024 * 4;
 	u8* constantsMemory;
-	
-	int getMultipleOf16(int value) {
-		int ret = 16;
-		while (ret < value) ret += 16;
-		return ret;
-	}
 
 	void setFloat(u8* constants, u32 offset, u32 size, float value) {
 		if (size == 0) return;
@@ -60,22 +54,16 @@ namespace {
 
 void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> queue) {
 	commandQueue = queue;
-	[commandQueue retain];
 	commandBuffer = [commandQueue commandBuffer];
-	[commandBuffer retain];
 	commandEncoder = [commandBuffer computeCommandEncoder];
-	[commandEncoder retain];
 	buffer = [device newBufferWithLength:constantsSize options:MTLResourceOptionCPUCacheModeDefault];
 	constantsMemory = (u8*)[buffer contents];
 }
 
 void shutdownMetalCompute() {
 	[commandEncoder endEncoding];
-	[commandEncoder release];
 	commandEncoder = nil;
-	[commandBuffer release];
 	commandBuffer = nil;
-	[commandQueue release];
 	commandQueue = nil;
 }
 
@@ -212,8 +200,6 @@ void Compute::compute(int x, int y, int z) {
 	[commandEncoder endEncoding];
 	[commandBuffer commit];
 	[commandBuffer waitUntilCompleted];
-	[commandEncoder release];
-	[commandBuffer release];
 	
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer computeCommandEncoder];

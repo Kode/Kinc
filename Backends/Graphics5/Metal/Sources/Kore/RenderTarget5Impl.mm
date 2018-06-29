@@ -63,10 +63,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {}
 
 Graphics5::RenderTarget::~RenderTarget() {
-#ifndef KORE_IOS
-	[_tex release];
-	[_sampler release];
-#endif
+	
 }
 
 void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
