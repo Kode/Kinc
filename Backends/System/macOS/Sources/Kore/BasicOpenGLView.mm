@@ -353,7 +353,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 			descriptor.width = drawable.texture.width;
 			descriptor.height = drawable.texture.height;
 			descriptor.depth = 1;
-			descriptor.pixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
+			descriptor.pixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 			descriptor.arrayLength = 1;
 			descriptor.mipmapLevelCount = 1;
 			descriptor.resourceOptions = MTLResourceStorageModePrivate;
