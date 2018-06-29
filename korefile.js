@@ -161,7 +161,7 @@ else if (platform === Platform.OSX) {
 	addBackend('System/Apple');
 	addBackend('System/macOS');
 	addBackend('System/POSIX');
-	if (graphics === GraphicsApi.Metal) {
+	if (graphics === GraphicsApi.Metal || graphics === GraphicsApi.Default) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Metal');
@@ -174,7 +174,7 @@ else if (platform === Platform.OSX) {
 		project.addDefine('KORE_OPENGL1');
 		project.addLib('OpenGL');
 	}
-	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
+	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addDefine('KORE_OPENGL');
@@ -204,14 +204,14 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	addBackend('System/Apple');
 	addBackend('System/iOS');
 	addBackend('System/POSIX');
-	if (graphics === GraphicsApi.Metal) {
+	if (graphics === GraphicsApi.Metal || graphics === GraphicsApi.Default) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Metal');
 		project.addDefine('KORE_METAL');
 		project.addLib('Metal');
 	}
-	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
+	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addDefine('KORE_OPENGL');
