@@ -291,12 +291,16 @@ namespace {
 	return self;
 }
 #else
+
+void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
+
 - (id)initWithFrame:(NSRect)frameRect {
 	self = [super initWithFrame:frameRect];
 
 	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
 	library = [device newDefaultLibrary];
+	initMetalCompute(device, commandQueue);
 
 	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
 
@@ -399,7 +403,6 @@ namespace {
 		[commandEncoder endEncoding];
 		[commandBuffer presentDrawable:drawable];
 		[commandBuffer commit];
-		commandBuffer = nil;
 
 		// if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];

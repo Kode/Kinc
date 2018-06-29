@@ -34,7 +34,7 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 
-	create(width, height, Image::RGBA32);
+	create(width, height, Image::RGBA32, false);
 	lock();
 	unlock();
 }
@@ -42,13 +42,13 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 Graphics5::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
 	texWidth = width;
 	texHeight = height;
-	create(width, height, format);
+	create(width, height, format, true);
 }
 
 Graphics5::Texture::Texture(int width, int height, int depth, Format format, bool readable) : Image(width, height, format, readable) {
 	texWidth = width;
 	texHeight = height;
-	create(width, height, format);
+	create(width, height, format, true);
 }
 
 Texture5Impl::~Texture5Impl() {
@@ -58,7 +58,7 @@ Texture5Impl::~Texture5Impl() {
 #endif
 }
 
-void Texture5Impl::create(int width, int height, int format) {
+void Texture5Impl::create(int width, int height, int format, bool writable) {
 	id<MTLDevice> device = getMetalDevice();
 
 	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
@@ -69,7 +69,11 @@ void Texture5Impl::create(int width, int height, int format) {
 	descriptor.pixelFormat = convert((Graphics1::Image::Format)format);
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
-
+	//TODO: Make less textures writable
+	if (writable) {
+		descriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+	}
+	
 	_tex = [device newTextureWithDescriptor:descriptor];
 	
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];

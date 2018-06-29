@@ -4,7 +4,6 @@
 #include <Kore/Graphics5/Shader.h>
 #include <Kore/Math/Core.h>
 #include <Metal/Metal.h>
-#include <objc/runtime.h>
 
 using namespace Kore;
 

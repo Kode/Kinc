@@ -20,6 +20,6 @@ namespace Kore {
 		id _tex;
 		id _sampler;
 	protected:
-		void create(int width, int height, int format);
+		void create(int width, int height, int format, bool writable);
 	};
 }

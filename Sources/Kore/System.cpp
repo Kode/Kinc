@@ -205,6 +205,10 @@ const char* Kore::System::name() {
 void Kore::System::_shutdown() {}
 #endif
 
+#ifdef KORE_METAL
+void shutdownMetalCompute();
+#endif
+
 void Kore::System::stop() {
 	appstate::running = false;
 
@@ -213,6 +217,10 @@ void Kore::System::stop() {
 	// for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
 	//	Graphics::destroy(windowIndex);
 	//}
+	
+#ifdef KORE_METAL
+	shutdownMetalCompute();
+#endif
 }
 
 bool Kore::System::frame() {
