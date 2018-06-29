@@ -47,11 +47,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	depthDescriptor.width = width;
 	depthDescriptor.height = height;
 	depthDescriptor.depth = 1;
-#ifdef KORE_IOS
 	depthDescriptor.pixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-#else
-	depthDescriptor.pixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
-#endif
 	depthDescriptor.arrayLength = 1;
 	depthDescriptor.mipmapLevelCount = 1;
 	depthDescriptor.usage = MTLTextureUsageRenderTarget;

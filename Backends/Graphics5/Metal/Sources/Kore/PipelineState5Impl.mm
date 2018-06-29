@@ -89,13 +89,8 @@ void Graphics5::PipelineState::compile() {
 	renderPipelineDesc.colorAttachments[0].sourceAlphaBlendFactor = convert(alphaBlendSource);
 	renderPipelineDesc.colorAttachments[0].destinationRGBBlendFactor = convert(blendDestination);
 	renderPipelineDesc.colorAttachments[0].destinationAlphaBlendFactor = convert(alphaBlendDestination);
-#ifdef KORE_IOS
 	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-#else
-	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
-	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
-#endif
 	
 	float offset = 0;
 	MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
