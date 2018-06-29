@@ -19,7 +19,7 @@ ShaderImpl::ShaderImpl(void* data, int length) : length(length), _glid(0) {
 	this->source = source;
 }
 
-ShaderImpl::ShaderImpl(const char* source) : source(source), length(strlen(source)), _glid(0) {}
+ShaderImpl::ShaderImpl(const char* source) : source(source), length((int)strlen(source)), _glid(0) {}
 
 ShaderImpl::~ShaderImpl() {
 	delete[] source;

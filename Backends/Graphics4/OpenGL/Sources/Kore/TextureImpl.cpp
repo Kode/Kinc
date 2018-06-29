@@ -246,6 +246,7 @@ namespace {
 			case Graphics4::Image::RGBA64:
 			case Graphics4::Image::A32:
 			case Graphics4::Image::A16:
+			case Graphics4::Image::BGRA32:
 				break;
 		}
 	}

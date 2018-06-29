@@ -33,6 +33,8 @@ ShaderStorageBuffer::ShaderStorageBuffer(int indexCount, Graphics4::VertexData t
 	case Graphics4::Float4x4VertexData:
 		myStride += 4 * 4 * 4;
 		break;
+	case Graphics4::NoVertexData:
+		break;
 	}
 #ifdef HAS_COMPUTE
 	glGenBuffers(1, &bufferId);

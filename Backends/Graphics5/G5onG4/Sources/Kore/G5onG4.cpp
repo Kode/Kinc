@@ -14,11 +14,6 @@ namespace Kore {
 	extern PipelineState5Impl* currentProgram;
 }
 
-namespace {
-	unsigned hz;
-	bool vsync;
-}
-
 void Graphics5::destroy(int window) {}
 
 void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
@@ -60,78 +55,6 @@ bool Graphics5::swapBuffers(int window) {
 void Graphics5::flush() {}
 
 void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
-
-namespace {
-	void setInt(u8* constants, u32 offset, u32 size, int value) {
-		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
-		ints[0] = value;
-	}
-
-	void setFloat(u8* constants, u32 offset, u32 size, float value) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		floats[0] = value;
-	}
-
-	void setFloat2(u8* constants, u32 offset, u32 size, float value1, float value2) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-	}
-
-	void setFloat3(u8* constants, u32 offset, u32 size, float value1, float value2, float value3) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-	}
-
-	void setFloat4(u8* constants, u32 offset, u32 size, float value1, float value2, float value3, float value4) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-		floats[3] = value4;
-	}
-
-	void setFloats(u8* constants, u32 offset, u32 size, float* values, int count) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int i = 0; i < count; ++i) {
-			floats[i] = values[i];
-		}
-	}
-
-	void setBool(u8* constants, u32 offset, u32 size, bool value) {
-		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
-		ints[0] = value ? 1 : 0;
-	}
-
-	void setMatrix(u8* constants, u32 offset, u32 size, const mat4& value) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int y = 0; y < 4; ++y) {
-			for (int x = 0; x < 4; ++x) {
-				floats[x + y * 4] = value.get(y, x);
-			}
-		}
-	}
-
-	void setMatrix(u8* constants, u32 offset, u32 size, const mat3& value) {
-		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
-		for (int y = 0; y < 3; ++y) {
-			for (int x = 0; x < 3; ++x) {
-				floats[x + y * 4] = value.get(y, x);
-			}
-		}
-	}
-}
 
 void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
 

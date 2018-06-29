@@ -6,8 +6,6 @@
 
 using namespace Kore;
 
-static const int textureCount = 16;
-
 void Graphics5::Texture::_init(const char* format, bool readable) {}
 
 Graphics5::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {}

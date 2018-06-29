@@ -28,14 +28,14 @@ namespace {
 		                                             (NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
 		                                             (NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
 		                                             (NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
-		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
+		return [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
 	}
 	else {
 		NSOpenGLPixelFormatAttribute attributes[] = {
 		    NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
 		    NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
 		    (NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
-		return [[[NSOpenGLPixelFormat alloc] initWithAttributes:attributes] autorelease];
+		return [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
 	}
 }
 
