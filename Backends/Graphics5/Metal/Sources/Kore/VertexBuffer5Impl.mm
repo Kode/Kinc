@@ -46,12 +46,16 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 
 	id<MTLDevice> device = getMetalDevice();
 	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
+#ifdef KORE_IOS
+	options |= MTLResourceStorageModeShared;
+#else
 	if (gpuMemory) {
 		options |= MTLResourceStorageModeManaged;
 	}
 	else {
 		options |= MTLResourceStorageModeShared;
 	}
+#endif
 	mtlBuffer = [device newBufferWithLength:count * myStride options:options];
 }
 
@@ -76,6 +80,7 @@ float* Graphics5::VertexBuffer::lock(int start, int count) {
 }
 
 void Graphics5::VertexBuffer::unlock() {
+#ifndef KORE_IOS
 	if (gpuMemory) {
 		id<MTLBuffer> buffer = mtlBuffer;
 		NSRange range;
@@ -83,6 +88,7 @@ void Graphics5::VertexBuffer::unlock() {
 		range.length = lastCount * myStride;
 		[buffer didModifyRange:range];
 	}
+#endif
 }
 
 int Graphics5::VertexBuffer::_set(int offset_) {

@@ -16,12 +16,16 @@ Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffe
 	this->gpuMemory = gpuMemory;
 	id<MTLDevice> device = getMetalDevice();
 	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
+#ifdef KORE_IOS
+	options |= MTLResourceStorageModeShared;
+#else
 	if (gpuMemory) {
 		options |= MTLResourceStorageModeManaged;
 	}
 	else {
 		options |= MTLResourceStorageModeShared;
 	}
+#endif
 	mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount options:options];
 }
 
@@ -35,6 +39,7 @@ int* Graphics5::IndexBuffer::lock() {
 }
 
 void Graphics5::IndexBuffer::unlock() {
+#ifndef KORE_IOS
 	if (gpuMemory) {
 		id<MTLBuffer> buffer = mtlBuffer;
 		NSRange range;
@@ -42,6 +47,7 @@ void Graphics5::IndexBuffer::unlock() {
 		range.length = count() * 4;
 		[buffer didModifyRange:range];
 	}
+#endif
 }
 
 void Graphics5::IndexBuffer::_set() {
