@@ -381,7 +381,7 @@ void CommandList::setPipeline(PipelineState* pipeline) {
 
 void CommandList::setVertexBuffers(VertexBuffer** vertexBuffers, int* offsets_, int count) {
 	vertexBuffers[0]->_set();
-	VkDeviceSize offsets[1] = { offsets[0] * vertexBuffers[0]->count() * vertexBuffers[0]->stride() };
+	VkDeviceSize offsets[1] = { offsets_[0] * vertexBuffers[0]->stride() };
 	vkCmdBindVertexBuffers(_buffer, 0, 1, &vertexBuffers[0]->vertices.buf, offsets);
 }
 
@@ -517,12 +517,14 @@ void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	currentRenderTarget = targets[0];
 	onBackBuffer = false;
 
-	VkClearValue clear_values[1];
+	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue));
 	clear_values[0].color.float32[0] = 0.0f;
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
 	clear_values[0].color.float32[3] = 1.0f;
+	clear_values[1].depthStencil.depth = depthStencil;
+	clear_values[1].depthStencil.stencil = 0;
 
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -533,7 +535,7 @@ void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	rp_begin.renderArea.offset.y = 0;
 	rp_begin.renderArea.extent.width = targets[0]->width;
 	rp_begin.renderArea.extent.height = targets[0]->height;
-	rp_begin.clearValueCount = 1;
+	rp_begin.clearValueCount = 2;
 	rp_begin.pClearValues = clear_values;
 
 	vkCmdBeginRenderPass(_buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
