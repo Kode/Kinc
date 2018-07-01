@@ -62,8 +62,6 @@ PFN_vkQueuePresentKHR fpQueuePresentKHR;
 PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 VkSemaphore presentCompleteSemaphore;
 
-void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
-
 #ifndef NDEBUG
 #define VALIDATE
 #endif
@@ -756,7 +754,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
 		// to that state
-		demo_set_image_layout(Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		Vulkan::demo_set_image_layout(Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 		color_attachment_view.image = Vulkan::buffers[i].image;
 
@@ -830,7 +828,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	err = vkBindImageMemory(device, Vulkan::depth.image, Vulkan::depth.mem, 0);
 	assert(!err);
 
-	demo_set_image_layout(Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	Vulkan::demo_set_image_layout(Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 	/* create image view */
 	view.image = Vulkan::depth.image;
@@ -916,6 +914,8 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 			assert(!err);
 		}
 	}
+
+	Vulkan::demo_flush_init_cmd();
 
 	began = false;
 	begin(nullptr);

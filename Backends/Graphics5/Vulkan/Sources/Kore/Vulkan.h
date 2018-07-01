@@ -21,5 +21,8 @@ namespace Kore {
 		};
 
 		extern DepthBuffer depth;
+
+		void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
+		void demo_flush_init_cmd();
 	}
 }

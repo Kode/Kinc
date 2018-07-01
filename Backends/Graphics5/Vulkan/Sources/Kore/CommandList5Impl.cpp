@@ -33,7 +33,7 @@ namespace {
 	bool onBackBuffer = false;
 }
 
-void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
+void Kore::Vulkan::demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
 	VkResult err;
 	if (setup_cmd == VK_NULL_HANDLE) {
 		VkCommandBufferAllocateInfo cmd = {};
@@ -118,38 +118,38 @@ void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImage
 	vkCmdPipelineBarrier(setup_cmd, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
 }
 
+void Kore::Vulkan::demo_flush_init_cmd() {
+	VkResult err;
+
+	if (setup_cmd == VK_NULL_HANDLE) return;
+
+	err = vkEndCommandBuffer(setup_cmd);
+	assert(!err);
+
+	const VkCommandBuffer cmd_bufs[] = {setup_cmd};
+	VkFence nullFence = {VK_NULL_HANDLE};
+	VkSubmitInfo submit_info = {};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.pNext = NULL;
+	submit_info.waitSemaphoreCount = 0;
+	submit_info.pWaitSemaphores = NULL;
+	submit_info.pWaitDstStageMask = NULL;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = cmd_bufs;
+	submit_info.signalSemaphoreCount = 0;
+	submit_info.pSignalSemaphores = NULL;
+
+	err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+	assert(!err);
+
+	err = vkQueueWaitIdle(queue);
+	assert(!err);
+
+	vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
+	setup_cmd = VK_NULL_HANDLE;
+}
+
 namespace {
-	void demo_flush_init_cmd() {
-		VkResult err;
-
-		if (setup_cmd == VK_NULL_HANDLE) return;
-
-		err = vkEndCommandBuffer(setup_cmd);
-		assert(!err);
-
-		const VkCommandBuffer cmd_bufs[] = {setup_cmd};
-		VkFence nullFence = {VK_NULL_HANDLE};
-		VkSubmitInfo submit_info = {};
-		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submit_info.pNext = NULL;
-		submit_info.waitSemaphoreCount = 0;
-		submit_info.pWaitSemaphores = NULL;
-		submit_info.pWaitDstStageMask = NULL;
-		submit_info.commandBufferCount = 1;
-		submit_info.pCommandBuffers = cmd_bufs;
-		submit_info.signalSemaphoreCount = 0;
-		submit_info.pSignalSemaphores = NULL;
-
-		err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
-		assert(!err);
-
-		err = vkQueueWaitIdle(queue);
-		assert(!err);
-
-		vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
-		setup_cmd = VK_NULL_HANDLE;
-	}
-
 	float depthStencil;
 	float depthIncrement;
 }
@@ -172,18 +172,18 @@ CommandList::CommandList() {
 	depthStencil = 1.0;
 	depthIncrement = -0.01f;
 
-	begin();
+	//begin();
 }
 
 CommandList::~CommandList() {}
 
 void CommandList::begin() {
-	if (began) return;
+	//if (began) return;
 
 	// Assume the command buffer has been run on current_buffer before so
 	// we need to set the image layout back to COLOR_ATTACHMENT_OPTIMAL
-	demo_set_image_layout(Vulkan::buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-	demo_flush_init_cmd();
+	//demo_set_image_layout(Vulkan::buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	//demo_flush_init_cmd();
 
 	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
 	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -224,6 +224,22 @@ void CommandList::begin() {
 
 	VkResult err = vkBeginCommandBuffer(_buffer, &cmd_buf_info);
 	assert(!err);
+
+	VkImageMemoryBarrier prePresentBarrier = {};
+	prePresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	prePresentBarrier.pNext = NULL;
+	prePresentBarrier.srcAccessMask = 0;
+	prePresentBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	prePresentBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	prePresentBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	prePresentBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+
+	prePresentBarrier.image = Vulkan::buffers[current_buffer].image;
+	VkImageMemoryBarrier* pmemory_barrier = &prePresentBarrier;
+	vkCmdPipelineBarrier(_buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+
 	vkCmdBeginRenderPass(_buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
 	VkViewport viewport;
@@ -316,6 +332,8 @@ void CommandList::end() {
 	if (depthStencil < 0.8f) depthIncrement = 0.001f;
 
 	depthStencil += depthIncrement;
+
+	vkResetCommandBuffer(_buffer, 0);
 
 #ifndef KORE_WINDOWS
 	vkDeviceWaitIdle(device);
@@ -504,6 +522,7 @@ namespace {
 }
 
 void CommandList::setRenderTargets(RenderTarget** targets, int count) {
+	return;
 	endPass(_buffer);
 
 	currentRenderTarget = targets[0];
