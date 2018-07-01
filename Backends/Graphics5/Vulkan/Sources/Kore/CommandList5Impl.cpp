@@ -1,7 +1,10 @@
 #include "pch.h"
 
+#include "VUlkan.h"
+
 #include <Kore/Graphics5/CommandList.h>
 #include <Kore/Graphics5/PipelineState.h>
+#include <Kore/Log.h>
 #include <Kore/System.h>
 
 #include <assert.h>
@@ -22,13 +25,6 @@ extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
 extern Graphics5::Texture* vulkanTextures[8];
 extern Graphics5::RenderTarget* vulkanRenderTargets[8];
-
-struct SwapchainBuffers {
-	VkImage image;
-	VkImageView view;
-};
-
-extern SwapchainBuffers* buffers;
 extern uint32_t current_buffer;
 
 namespace {
@@ -39,7 +35,6 @@ namespace {
 
 void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
 	VkResult err;
-
 	if (setup_cmd == VK_NULL_HANDLE) {
 		VkCommandBufferAllocateInfo cmd = {};
 		cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -111,8 +106,16 @@ void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImage
 		image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
 	}
 
-	vkCmdPipelineBarrier(setup_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1,
-		&image_memory_barrier);
+	VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+	}
+	if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+		dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	}
+
+	vkCmdPipelineBarrier(setup_cmd, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
 }
 
 namespace {
@@ -124,8 +127,8 @@ namespace {
 		err = vkEndCommandBuffer(setup_cmd);
 		assert(!err);
 
-		const VkCommandBuffer cmd_bufs[] = { setup_cmd };
-		VkFence nullFence = { VK_NULL_HANDLE };
+		const VkCommandBuffer cmd_bufs[] = {setup_cmd};
+		VkFence nullFence = {VK_NULL_HANDLE};
 		VkSubmitInfo submit_info = {};
 		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submit_info.pNext = NULL;
@@ -172,16 +175,14 @@ CommandList::CommandList() {
 	begin();
 }
 
-CommandList::~CommandList() {
-
-}
+CommandList::~CommandList() {}
 
 void CommandList::begin() {
 	if (began) return;
-		
+
 	// Assume the command buffer has been run on current_buffer before so
 	// we need to set the image layout back to COLOR_ATTACHMENT_OPTIMAL
-	demo_set_image_layout(buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	demo_set_image_layout(Vulkan::buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	demo_flush_init_cmd();
 
 	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
@@ -257,9 +258,9 @@ void CommandList::end() {
 	prePresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 	prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	prePresentBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
-	prePresentBarrier.image = buffers[current_buffer].image;
+	prePresentBarrier.image = Vulkan::buffers[current_buffer].image;
 	VkImageMemoryBarrier* pmemory_barrier = &prePresentBarrier;
 	vkCmdPipelineBarrier(_buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
 
@@ -292,17 +293,17 @@ void CommandList::end() {
 	// TBD/TODO: SHOULD THE "present" PARAMETER BE "const" IN THE HEADER?
 	err = fpQueuePresentKHR(queue, &present);
 	/*if (err == VK_ERROR_OUT_OF_DATE_KHR) {
-		// demo->swapchain is out of date (e.g. the window was resized) and
-		// must be recreated:
-		// demo_resize(demo);
-		error("VK_ERROR_OUT_OF_DATE_KHR");
+	    // demo->swapchain is out of date (e.g. the window was resized) and
+	    // must be recreated:
+	    // demo_resize(demo);
+	    error("VK_ERROR_OUT_OF_DATE_KHR");
 	}
 	else if (err == VK_SUBOPTIMAL_KHR) {
-		// demo->swapchain is not as optimal as it could be, but the platform's
-		// presentation engine will still present the image correctly.
+	    // demo->swapchain is not as optimal as it could be, but the platform's
+	    // presentation engine will still present the image correctly.
 	}
 	else {
-		assert(!err);
+	    assert(!err);
 	}*/
 	assert(!err);
 
@@ -338,13 +339,9 @@ void CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, floa
 	vkCmdClearColorImage(draw_cmd, buffers[current_buffer].image, VK_IMAGE_LAYOUT_GENERAL, &clearColor, 1, &range);*/
 }
 
-void CommandList::renderTargetToFramebufferBarrier(RenderTarget* renderTarget) {
-	
-}
+void CommandList::renderTargetToFramebufferBarrier(RenderTarget* renderTarget) {}
 
-void CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {
-	
-}
+void CommandList::framebufferToRenderTargetBarrier(RenderTarget* renderTarget) {}
 
 void CommandList::drawIndexedVertices() {
 	drawIndexedVertices(0, _indexCount);
@@ -354,25 +351,20 @@ void CommandList::drawIndexedVertices(int start, int count) {
 	vkCmdDrawIndexed(_buffer, count, 1, start, 0, 0);
 }
 
-void CommandList::viewport(int x, int y, int width, int height) {
-	
-}
+void CommandList::viewport(int x, int y, int width, int height) {}
 
-void CommandList::scissor(int x, int y, int width, int height) {
-	
-}
+void CommandList::scissor(int x, int y, int width, int height) {}
 
-void CommandList::disableScissor() {
-	
-}
+void CommandList::disableScissor() {}
 
 void CommandList::setPipeline(PipelineState* pipeline) {
 	_currentPipeline = pipeline;
-		
+
 	vkCmdBindPipeline(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline);
 
 	if (vulkanRenderTargets[0] != nullptr)
-		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0, nullptr);
+		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &vulkanRenderTargets[0]->desc_set, 0,
+		                        nullptr);
 	else if (vulkanTextures[0] != nullptr)
 		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, nullptr);
 	else
@@ -381,7 +373,7 @@ void CommandList::setPipeline(PipelineState* pipeline) {
 
 void CommandList::setVertexBuffers(VertexBuffer** vertexBuffers, int* offsets_, int count) {
 	vertexBuffers[0]->_set();
-	VkDeviceSize offsets[1] = { offsets_[0] * vertexBuffers[0]->stride() };
+	VkDeviceSize offsets[1] = {(uint64_t)(offsets_[0] * vertexBuffers[0]->stride())};
 	vkCmdBindVertexBuffers(_buffer, 0, 1, &vertexBuffers[0]->vertices.buf, offsets);
 }
 
@@ -398,7 +390,7 @@ namespace {
 	void endPass(VkCommandBuffer _buffer) {
 		vkCmdEndRenderPass(_buffer);
 
-		if (currentRenderTarget == nullptr) {
+		if (currentRenderTarget == nullptr || currentRenderTarget->contextId < 0) {
 			/*VkImageMemoryBarrier barrier = {};
 			barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 			barrier.pNext = NULL;
@@ -415,9 +407,9 @@ namespace {
 		}
 		else {
 			setImageLayout(_buffer, currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 			setImageLayout(_buffer, currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 			VkImageBlit imgBlit;
 
@@ -426,7 +418,7 @@ namespace {
 			imgBlit.srcSubresource.baseArrayLayer = 0;
 			imgBlit.srcSubresource.layerCount = 1;
 
-			imgBlit.srcOffsets[0] = { 0, 0, 0 };
+			imgBlit.srcOffsets[0] = {0, 0, 0};
 			imgBlit.srcOffsets[1].x = currentRenderTarget->width;
 			imgBlit.srcOffsets[1].y = currentRenderTarget->height;
 			imgBlit.srcOffsets[1].z = 1;
@@ -436,18 +428,18 @@ namespace {
 			imgBlit.dstSubresource.baseArrayLayer = 0;
 			imgBlit.dstSubresource.layerCount = 1;
 
-			imgBlit.dstOffsets[0] = { 0, 0, 0 };
+			imgBlit.dstOffsets[0] = {0, 0, 0};
 			imgBlit.dstOffsets[1].x = currentRenderTarget->width;
 			imgBlit.dstOffsets[1].y = currentRenderTarget->height;
 			imgBlit.dstOffsets[1].z = 1;
 
 			vkCmdBlitImage(_buffer, currentRenderTarget->sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTarget->destImage,
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
+			               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
 
 			setImageLayout(_buffer, currentRenderTarget->sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 			setImageLayout(_buffer, currentRenderTarget->destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 
 		/*VkResult err = vkEndCommandBuffer(draw_cmd);
@@ -557,34 +549,18 @@ void CommandList::setRenderTargets(RenderTarget** targets, int count) {
 	vkCmdSetScissor(_buffer, 0, 1, &scissor);
 }
 
-void CommandList::upload(IndexBuffer* buffer) {
-	
-}
+void CommandList::upload(IndexBuffer* buffer) {}
 
-void CommandList::upload(Texture* texture) {
-	
-}
+void CommandList::upload(Texture* texture) {}
 
-void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {
-	
-}
+void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {}
 
-void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {
-	
-}
+void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {}
 
-void CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {
-	
-}
+void CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {}
 
-void CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {
-	
-}
+void CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {}
 
-void CommandList::setPipelineLayout() {
+void CommandList::setPipelineLayout() {}
 
-}
-
-void CommandList::executeAndWait() {
-
-}
+void CommandList::executeAndWait() {}

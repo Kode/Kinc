@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vulkan_mini.h"
+#include <vulkan/vulkan.h>
 
 namespace Kore {
 	namespace Graphics5 {

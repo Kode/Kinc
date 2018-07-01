@@ -15,22 +15,6 @@ extern VkDevice device;
 extern VkRenderPass render_pass;
 extern uint32_t swapchainImageCount;
 extern VkPhysicalDevice gpu;
-
-struct SwapchainBuffers {
-	VkImage image;
-	VkCommandBuffer cmd;
-	VkImageView view;
-};
-
-extern SwapchainBuffers* buffers;
-
-struct DepthBuffer {
-	VkImage image;
-	VkDeviceMemory mem;
-	VkImageView view;
-};
-
-extern DepthBuffer depth;
 extern Graphics5::Texture* vulkanTextures[8];
 extern Graphics5::RenderTarget* vulkanRenderTargets[8];
 
@@ -82,6 +66,7 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
                                       int contextId)
     : width(width), height(height) {
+	this->contextId = contextId;
 	texWidth = width;
 	texHeight = height;
 	/**{

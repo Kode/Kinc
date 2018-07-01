@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "Vulkan.h"
+
 #include <Kore/Error.h>
 #include <Kore/Graphics5/Graphics.h>
 #include <Kore/Graphics5/PipelineState.h>
@@ -47,7 +49,7 @@ VkDevice device;
 VkFormat format;
 VkFormat depth_format;
 VkRenderPass render_pass;
-//VkCommandBuffer draw_cmd;
+// VkCommandBuffer draw_cmd;
 VkDescriptorSet desc_set;
 VkPhysicalDevice gpu;
 VkCommandPool cmd_pool;
@@ -66,21 +68,8 @@ void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImage
 #define VALIDATE
 #endif
 
-struct SwapchainBuffers {
-	VkImage image;
-	VkCommandBuffer cmd;
-	VkImageView view;
-};
-
-SwapchainBuffers* buffers;
-
-struct DepthBuffer {
-	VkImage image;
-	VkDeviceMemory mem;
-	VkImageView view;
-};
-
-DepthBuffer depth;
+Kore::Vulkan::SwapchainBuffers* Kore::Vulkan::buffers;
+Kore::Vulkan::DepthBuffer Kore::Vulkan::depth;
 VkSwapchainKHR swapchain;
 uint32_t current_buffer;
 
@@ -105,7 +94,7 @@ namespace {
 #endif
 	VkSurfaceKHR surface;
 	bool prepared;
-	
+
 	VkAllocationCallbacks allocator;
 
 	VkInstance inst;
@@ -132,7 +121,7 @@ namespace {
 	PFN_vkCreateSwapchainKHR fpCreateSwapchainKHR;
 	PFN_vkDestroySwapchainKHR fpDestroySwapchainKHR;
 	PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
-	
+
 	VkPhysicalDeviceMemoryProperties memory_properties;
 
 	PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallback;
@@ -141,7 +130,7 @@ namespace {
 
 	bool quit;
 	uint32_t queue_count;
-	
+
 	VkBool32 demo_check_layers(uint32_t check_count, char** check_names, uint32_t layer_count, VkLayerProperties* layers) {
 		for (uint32_t i = 0; i < check_count; ++i) {
 			VkBool32 found = 0;
@@ -193,7 +182,7 @@ namespace {
 		free(pMemory);
 #endif
 	}
-	
+
 	int pow(int pow) {
 		int ret = 1;
 		for (int i = 0; i < pow; ++i) ret *= 2;
@@ -204,7 +193,7 @@ namespace {
 		for (int power = 0;; ++power)
 			if (pow(power) >= i) return pow(power);
 	}
-}
+} // namespace
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex) {
 	// Search memtypes to find first index with those properties
@@ -244,8 +233,8 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef VALIDATE
 	uint32_t device_validation_layer_count = 0;
 #endif
-// demo->enabled_extension_count = 0;
-// demo->enabled_layer_count = 0;
+	// demo->enabled_extension_count = 0;
+	// demo->enabled_layer_count = 0;
 
 #ifdef VALIDATE
 	char* instance_validation_layers[] = {"VK_LAYER_LUNARG_standard_validation"};
@@ -650,7 +639,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	err = vkCreateCommandPool(device, &cmd_pool_info, NULL, &cmd_pool);
 	assert(!err);
-		
+
 	VkSwapchainKHR oldSwapchain = swapchain;
 
 	// Check the surface capabilities and formats
@@ -741,8 +730,8 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
 	assert(!err);
 
-	buffers = (SwapchainBuffers*)malloc(sizeof(SwapchainBuffers) * swapchainImageCount);
-	assert(buffers);
+	Vulkan::buffers = (Vulkan::SwapchainBuffers*)malloc(sizeof(Vulkan::SwapchainBuffers) * swapchainImageCount);
+	assert(Vulkan::buffers);
 
 	for (i = 0; i < swapchainImageCount; i++) {
 		VkImageViewCreateInfo color_attachment_view = {};
@@ -761,17 +750,17 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		color_attachment_view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		color_attachment_view.flags = 0;
 
-		buffers[i].image = swapchainImages[i];
+		Vulkan::buffers[i].image = swapchainImages[i];
 
 		// Render loop will expect image to have been used before and in
 		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
 		// to that state
-		demo_set_image_layout(buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		demo_set_image_layout(Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-		color_attachment_view.image = buffers[i].image;
+		color_attachment_view.image = Vulkan::buffers[i].image;
 
-		err = vkCreateImageView(device, &color_attachment_view, NULL, &buffers[i].view);
+		err = vkCreateImageView(device, &color_attachment_view, NULL, &Vulkan::buffers[i].view);
 		assert(!err);
 	}
 
@@ -822,11 +811,11 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	::depth_format = depth_format;
 
 	/* create image */
-	err = vkCreateImage(device, &image, NULL, &depth.image);
+	err = vkCreateImage(device, &image, NULL, &Vulkan::depth.image);
 	assert(!err);
 
 	/* get memory requirements for this object */
-	vkGetImageMemoryRequirements(device, depth.image, &mem_reqs);
+	vkGetImageMemoryRequirements(device, Vulkan::depth.image, &mem_reqs);
 
 	/* select memory size and type */
 	mem_alloc.allocationSize = mem_reqs.size;
@@ -834,18 +823,18 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	assert(pass);
 
 	/* allocate memory */
-	err = vkAllocateMemory(device, &mem_alloc, NULL, &depth.mem);
+	err = vkAllocateMemory(device, &mem_alloc, NULL, &Vulkan::depth.mem);
 	assert(!err);
 
 	/* bind memory */
-	err = vkBindImageMemory(device, depth.image, depth.mem, 0);
+	err = vkBindImageMemory(device, Vulkan::depth.image, Vulkan::depth.mem, 0);
 	assert(!err);
 
-	demo_set_image_layout(depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	demo_set_image_layout(Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 	/* create image view */
-	view.image = depth.image;
-	err = vkCreateImageView(device, &view, NULL, &depth.view);
+	view.image = Vulkan::depth.image;
+	err = vkCreateImageView(device, &view, NULL, &Vulkan::depth.view);
 	assert(!err);
 
 	VkAttachmentDescription attachments[2];
@@ -904,7 +893,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	{
 		VkImageView attachments[2];
-		attachments[1] = depth.view;
+		attachments[1] = Vulkan::depth.view;
 
 		VkFramebufferCreateInfo fb_info = {};
 		fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -922,7 +911,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		assert(framebuffers);
 
 		for (i = 0; i < swapchainImageCount; i++) {
-			attachments[0] = buffers[i].view;
+			attachments[0] = Vulkan::buffers[i].view;
 			err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
 			assert(!err);
 		}
@@ -972,7 +961,7 @@ void Graphics5::begin(RenderTarget* renderTarget, int contextId) {
 
 	// Get the index of the next available swapchain image:
 	err = fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
-		&current_buffer);
+	                            &current_buffer);
 	/*if (err == VK_ERROR_OUT_OF_DATE_KHR) {
 	// demo->swapchain is out of date (e.g. the window was resized) and
 	// must be recreated:
@@ -1005,9 +994,7 @@ void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
 	//**	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineState5Impl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
-void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {
-	
-}
+void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {}
 
 void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
 
@@ -1019,56 +1006,54 @@ void Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter)
 
 void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
-void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {
-	
-}
+void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
 
 /*void Graphics5::restoreRenderTarget() {
-	if (onBackBuffer) return;
+    if (onBackBuffer) return;
 
-	endPass();
+    endPass();
 
-	currentRenderTarget = nullptr;
-	onBackBuffer = true;
+    currentRenderTarget = nullptr;
+    onBackBuffer = true;
 
-	VkClearValue clear_values[2];
-	memset(clear_values, 0, sizeof(VkClearValue) * 2);
-	clear_values[0].color.float32[0] = 0.0f;
-	clear_values[0].color.float32[1] = 0.0f;
-	clear_values[0].color.float32[2] = 0.0f;
-	clear_values[0].color.float32[3] = 1.0f;
-	clear_values[1].depthStencil.depth = depthStencil;
-	clear_values[1].depthStencil.stencil = 0;
+    VkClearValue clear_values[2];
+    memset(clear_values, 0, sizeof(VkClearValue) * 2);
+    clear_values[0].color.float32[0] = 0.0f;
+    clear_values[0].color.float32[1] = 0.0f;
+    clear_values[0].color.float32[2] = 0.0f;
+    clear_values[0].color.float32[3] = 1.0f;
+    clear_values[1].depthStencil.depth = depthStencil;
+    clear_values[1].depthStencil.stencil = 0;
 
-	VkRenderPassBeginInfo rp_begin = {};
-	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	rp_begin.pNext = nullptr;
-	rp_begin.renderPass = render_pass;
-	rp_begin.framebuffer = framebuffers[current_buffer];
-	rp_begin.renderArea.offset.x = 0;
-	rp_begin.renderArea.offset.y = 0;
-	rp_begin.renderArea.extent.width = width;
-	rp_begin.renderArea.extent.height = height;
-	rp_begin.clearValueCount = 2;
-	rp_begin.pClearValues = clear_values;
+    VkRenderPassBeginInfo rp_begin = {};
+    rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    rp_begin.pNext = nullptr;
+    rp_begin.renderPass = render_pass;
+    rp_begin.framebuffer = framebuffers[current_buffer];
+    rp_begin.renderArea.offset.x = 0;
+    rp_begin.renderArea.offset.y = 0;
+    rp_begin.renderArea.extent.width = width;
+    rp_begin.renderArea.extent.height = height;
+    rp_begin.clearValueCount = 2;
+    rp_begin.pClearValues = clear_values;
 
-	vkCmdBeginRenderPass(draw_cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(draw_cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
-	VkViewport viewport;
-	memset(&viewport, 0, sizeof(viewport));
-	viewport.width = (float)width;
-	viewport.height = (float)height;
-	viewport.minDepth = (float)0.0f;
-	viewport.maxDepth = (float)1.0f;
-	vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
+    VkViewport viewport;
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.width = (float)width;
+    viewport.height = (float)height;
+    viewport.minDepth = (float)0.0f;
+    viewport.maxDepth = (float)1.0f;
+    vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
 
-	VkRect2D scissor;
-	memset(&scissor, 0, sizeof(scissor));
-	scissor.extent.width = width;
-	scissor.extent.height = height;
-	scissor.offset.x = 0;
-	scissor.offset.y = 0;
-	vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
+    VkRect2D scissor;
+    memset(&scissor, 0, sizeof(scissor));
+    scissor.extent.width = width;
+    scissor.extent.height = height;
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }*/
 
 bool Graphics5::renderTargetsInvertedY() {
@@ -1085,18 +1070,12 @@ bool Graphics5::initOcclusionQuery(uint* query) {
 	return false;
 }
 
-void Graphics5::deleteOcclusionQuery(uint query) {
+void Graphics5::deleteOcclusionQuery(uint query) {}
 
-}
-
-void Graphics5::renderOcclusionQuery(uint query, int triangles) {
-
-}
+void Graphics5::renderOcclusionQuery(uint query, int triangles) {}
 
 bool Graphics5::isQueryResultsAvailable(uint query) {
 	return false;
 }
 
-void Graphics5::getQueryResults(uint, uint*) {
-
-}
+void Graphics5::getQueryResults(uint, uint*) {}
