@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "Vulkan.h"
+
 #include "PipelineState5Impl.h"
 
 #include <Kore/Graphics5/Shader.h>
@@ -14,7 +16,6 @@ extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 void createDescriptorLayout(PipelineState5Impl* pipeline);
-void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set, VkBuffer* bufVertex, VkBuffer* bufFragment);
 
 Graphics5::PipelineState* PipelineState5Impl::current;
 
@@ -132,7 +133,7 @@ namespace {
 
 PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
 	createDescriptorLayout(this);
-	createDescriptorSet(this, nullptr, nullptr, desc_set, nullptr, nullptr);
+	Vulkan::createDescriptorSet(this, nullptr, nullptr, desc_set);
 }
 
 Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
@@ -427,7 +428,7 @@ void createDescriptorLayout(PipelineState5Impl* pipeline) {
 	assert(!err);
 }
 
-void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set, VkBuffer* bufVertex, VkBuffer* bufFragment) {
+void Kore::Vulkan::createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
 	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
 	VkDescriptorBufferInfo buffer_descs[2];
 
@@ -442,14 +443,14 @@ void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* textu
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
-	if (bufVertex != nullptr) {
-		buffer_descs[0].buffer = *bufVertex;
+	if (vertexUniformBuffer != nullptr) {
+		buffer_descs[0].buffer = *vertexUniformBuffer;
 	}
 	buffer_descs[0].offset = 0;
 	buffer_descs[0].range = 256 * sizeof(float);
 	
-	if (bufFragment != nullptr) {
-		buffer_descs[1].buffer = *bufFragment;
+	if (fragmentUniformBuffer != nullptr) {
+		buffer_descs[1].buffer = *fragmentUniformBuffer;
 	}
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
@@ -494,7 +495,7 @@ void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* textu
 	}
 
 	if (texture != nullptr || renderTarget != nullptr) {
-		if (bufVertex != nullptr && bufFragment != nullptr) {
+		if (vertexUniformBuffer != nullptr && fragmentUniformBuffer != nullptr) {
 			vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
 		}
 		else {
@@ -502,7 +503,7 @@ void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* textu
 		}
 	}
 	else {
-		if (bufVertex != nullptr && bufFragment != nullptr) {
+		if (vertexUniformBuffer != nullptr && fragmentUniformBuffer != nullptr) {
 			vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
 		}
 	}

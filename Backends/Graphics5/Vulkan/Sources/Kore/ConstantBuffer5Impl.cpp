@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "Vulkan.h"
+
 #include <Kore/Graphics5/ConstantBuffer.h>
 
 #include <assert.h>
@@ -8,6 +10,9 @@ using namespace Kore;
 
 extern VkDevice device;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+
+VkBuffer* Kore::Vulkan::vertexUniformBuffer = nullptr;
+VkBuffer* Kore::Vulkan::fragmentUniformBuffer = nullptr;
 
 namespace {
 	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info) {
@@ -53,6 +58,14 @@ Graphics5::ConstantBuffer::ConstantBuffer(int size) {
 	assert(!err);
 	memcpy(data, &data, sizeof(data));
 	vkUnmapMemory(device, mem);
+
+	// buffer hack
+	if (Vulkan::vertexUniformBuffer == nullptr) {
+		Vulkan::vertexUniformBuffer = &buf;
+	}
+	else if (Vulkan::fragmentUniformBuffer == nullptr) {
+		Vulkan::fragmentUniformBuffer = &buf;
+	}
 }
 
 Graphics5::ConstantBuffer::~ConstantBuffer() {}

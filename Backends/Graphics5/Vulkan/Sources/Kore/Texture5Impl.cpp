@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "Vulkan.h"
+
 #include "Texture5Impl.h"
 
 #include <Kore/Graphics1/Image.h>
@@ -20,8 +22,6 @@ extern VkQueue queue;
 extern bool use_staging_buffer;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
-void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set,
-                         VkBuffer* bufVertex, VkBuffer* bufFragment);
 
 namespace {
 	void demo_flush_init_cmd() {
@@ -299,7 +299,7 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	err = vkCreateImageView(device, &view, NULL, &texture.view);
 	assert(!err);
 
-	createDescriptorSet(nullptr, this, nullptr, desc_set, nullptr, nullptr); // TODO
+	Vulkan::createDescriptorSet(nullptr, this, nullptr, desc_set); // TODO
 }
 
 Graphics5::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {}
