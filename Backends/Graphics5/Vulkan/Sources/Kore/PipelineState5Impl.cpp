@@ -292,7 +292,7 @@ void Graphics5::PipelineState::compile() {
 	rs.cullMode = VK_CULL_MODE_NONE;
 	rs.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rs.depthClampEnable = VK_FALSE;
-	rs.rasterizerDiscardEnable = VK_TRUE;
+	rs.rasterizerDiscardEnable = VK_FALSE;
 	rs.depthBiasEnable = VK_FALSE;
 	rs.lineWidth = 1.0f;
 
