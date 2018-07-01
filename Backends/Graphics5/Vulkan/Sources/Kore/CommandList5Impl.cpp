@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "VUlkan.h"
+#include "Vulkan.h"
 
 #include <Kore/Graphics5/CommandList.h>
 #include <Kore/Graphics5/PipelineState.h>
@@ -8,6 +8,7 @@
 #include <Kore/System.h>
 
 #include <assert.h>
+#include <memory.h>
 
 #include <vulkan/vulkan.h>
 

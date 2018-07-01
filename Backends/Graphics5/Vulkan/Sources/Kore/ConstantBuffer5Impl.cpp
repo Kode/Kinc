@@ -5,6 +5,7 @@
 #include <Kore/Graphics5/ConstantBuffer.h>
 
 #include <assert.h>
+#include <memory.h>
 
 using namespace Kore;
 

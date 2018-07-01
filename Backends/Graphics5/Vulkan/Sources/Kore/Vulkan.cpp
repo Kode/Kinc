@@ -217,13 +217,9 @@ void Graphics5::setup() {}
 
 void Graphics5::changeResolution(int width, int height) {}
 
-#if defined(KORE_WINDOWS)
 void Graphics5::clearCurrent() {}
-#endif
 
-#if defined(KORE_WINDOWS)
 void Graphics5::makeCurrent(int contextId) {}
-#endif
 
 void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	uint32_t instance_extension_count = 0;

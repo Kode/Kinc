@@ -15,16 +15,15 @@
 #include <stdlib.h>
 #include <X11/Xatom.h>
 
-#ifdef KORE_OPENGL
-#include <GL/gl.h>
-#include <GL/glx.h>
-
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
 #include <climits>
 #include <assert.h>
 //#include <X11/Xlib.h>
 
+#ifdef KORE_OPENGL
+#include <GL/gl.h>
+#include <GL/glx.h>
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 #endif
 
@@ -156,7 +155,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	int dblBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
 
 	vi = NULL;
-	
+
     int attribs[] = {
     	GLX_X_RENDERABLE    , True,
 	    GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
@@ -221,7 +220,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 		};
 		cx = glXCreateContextAttribsARB(dpy, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->context, GL_TRUE, contextAttribs);
 	}
-	
+
 	if (cx == NULL) {
 		cx = glXCreateContext(dpy, vi, wcounter == 0 ? None : windowimpl::windows[0]->context, /* direct rendering if possible */ GL_TRUE);
 	}
@@ -705,16 +704,16 @@ bool Kore::System::handleMessages() {
 			const xcb_key_press_event_t* key = (const xcb_key_press_event_t*)event;
 			switch (key->detail) {
 			case 111:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Up, ' ');
+				Kore::Keyboard::the()->_keydown(Kore::KeyUp);
 				break;
 			case 116:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Down, ' ');
+				Kore::Keyboard::the()->_keydown(Kore::KeyDown);
 				break;
 			case 113:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Left, ' ');
+				Kore::Keyboard::the()->_keydown(Kore::KeyLeft);
 				break;
 			case 114:
-				Kore::Keyboard::the()->_keydown(Kore::Key_Right, ' ');
+				Kore::Keyboard::the()->_keydown(Kore::KeyRight);
 				break;
 			}
 			break;
@@ -724,16 +723,16 @@ bool Kore::System::handleMessages() {
 			if (key->detail == 0x9) exit(0);
 			switch (key->detail) {
 			case 111:
-				Kore::Keyboard::the()->_keyup(Kore::Key_Up, ' ');
+				Kore::Keyboard::the()->_keyup(Kore::KeyUp);
 				break;
 			case 116:
-				Kore::Keyboard::the()->_keyup(Kore::Key_Down, ' ');
+				Kore::Keyboard::the()->_keyup(Kore::KeyDown);
 				break;
 			case 113:
-				Kore::Keyboard::the()->_keyup(Kore::Key_Left, ' ');
+				Kore::Keyboard::the()->_keyup(Kore::KeyLeft);
 				break;
 			case 114:
-				Kore::Keyboard::the()->_keyup(Kore::Key_Right, ' ');
+				Kore::Keyboard::the()->_keyup(Kore::KeyRight);
 				break;
 			}
 			break;
@@ -775,7 +774,9 @@ void Kore::System::makeCurrent(int contextId) {
 #endif
 }
 
+#ifdef KORE_OPENGL
 void Kore::Graphics4::clearCurrent() {}
+#endif
 
 void Kore::System::clearCurrent() {
 	currentDeviceId = -1;

@@ -8,6 +8,7 @@
 #include <Kore/Graphics5/PipelineState.h>
 
 #include <assert.h>
+#include <memory.h>
 
 using namespace Kore;
 
@@ -448,13 +449,13 @@ void Kore::Vulkan::createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::
 	}
 	buffer_descs[0].offset = 0;
 	buffer_descs[0].range = 256 * sizeof(float);
-	
+
 	if (fragmentUniformBuffer != nullptr) {
 		buffer_descs[1].buffer = *fragmentUniformBuffer;
 	}
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
-	
+
 	VkDescriptorImageInfo tex_desc;
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
