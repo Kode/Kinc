@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 
 const project = new Project('Kore', __dirname);
@@ -85,8 +86,21 @@ if (platform === Platform.Windows) {
 		addBackend('Graphics5/Vulkan');
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
-		project.addLibFor('Win32', 'Backends/Graphics5/Vulkan/Libraries/win32/vulkan-1');
-		project.addLibFor('x64', 'Backends/Graphics5/Vulkan/Libraries/win64/vulkan-1');
+		project.addLibFor('Win32', path.join(process.env.VULKAN_SDK, 'Lib32', 'vulkan-1'));
+		project.addLibFor('x64', path.join(process.env.VULKAN_SDK, 'Lib', 'vulkan-1'));
+		let libs = fs.readdirSync(path.join(process.env.VULKAN_SDK, 'Lib32'));
+		for (const lib of libs) {
+			if (lib.startsWith('VkLayer_')) {
+				project.addLibFor('Win32', path.join(process.env.VULKAN_SDK, 'Lib32', lib.substr(0, lib.length - 4)));
+			}
+		}
+		libs = fs.readdirSync(path.join(process.env.VULKAN_SDK, 'Lib'));
+		for (const lib of libs) {
+			if (lib.startsWith('VkLayer_')) {
+				project.addLibFor('x64', path.join(process.env.VULKAN_SDK, 'Lib', lib.substr(0, lib.length - 4)));
+			}
+		}
+		project.addIncludeDir(path.join(process.env.VULKAN_SDK, 'Include'));
 	}
 	else if (graphics === GraphicsApi.Direct3D9) {
 		g4 = true;

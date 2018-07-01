@@ -252,7 +252,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 
 #ifdef VALIDATE
-	device_validation_layers[0] = "VK_LAYER_LUNARG_core_validation";
+	device_validation_layers[0] = "VK_LAYER_LUNARG_standard_validation";
 	device_validation_layer_count = 1;
 #endif
 
