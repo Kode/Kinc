@@ -53,10 +53,9 @@ namespace Kore {
 }
 
 namespace {
-// void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-//	int a = 2;
-//	++a;
-// }
+	void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+		Kore::log(Info, "OpenGL: %s", message);
+	}
 
 #ifdef KORE_WINDOWS
 	HINSTANCE instance = 0;
@@ -148,8 +147,10 @@ namespace {
 #endif
 
 		if (window != 0) {
+			wglShareLists(glContexts[0], glContexts[window]);
 			windowRenderTargets[window] = new Graphics4::RenderTarget(800, 600, depthBufferBits);
 			if (windowVertexBuffer == nullptr) {
+				wglMakeCurrent(deviceContexts[window], glContexts[window]);
 				Graphics4::VertexStructure structure;
 				structure.add("pos", Graphics4::Float2VertexData);
 				windowVertexBuffer = new Graphics4::VertexBuffer(4, structure);
@@ -191,6 +192,7 @@ namespace {
 					"out vec4 frag;\n"\
 					"void main() {\n"\
 						"frag = texture(tex, texCoord);\n"\
+						"frag = vec4(1.0, 0.0, 0.0, 1.0);\n"\
 					"}\n",
 					Graphics4::FragmentShader);
 
@@ -200,6 +202,8 @@ namespace {
 				windowPipeline->vertexShader = windowVertexShader;
 				windowPipeline->fragmentShader = windowFragmentShader;
 				windowPipeline->compile();
+
+				wglMakeCurrent(deviceContexts[0], glContexts[0]);
 			}
 		}
 	}
@@ -299,8 +303,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glesDrawBuffers = (void*)eglGetProcAddress("glDrawBuffers");
 #endif
 
-	// glEnable(GL_DEBUG_OUTPUT);
-	// glDebugMessageCallback(debugCallback, nullptr);
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(debugCallback, nullptr);
 
 #ifndef KORE_OPENGL_ES
 	int extensions;
@@ -445,15 +449,16 @@ bool Graphics4::swapBuffers(int contextId) {
 
 	for (int i = 9; i >= 0; --i) {
 		if (deviceContexts[i] != nullptr) {
+			wglMakeCurrent(deviceContexts[i], glContexts[i]);
 			if (i != 0) {
-				wglMakeCurrent(deviceContexts[i], glContexts[i]);
+				restoreRenderTarget();
+				clear(Graphics4::ClearColorFlag, 0xff00ffff);
 				setPipeline(windowPipeline);
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, windowRenderTargets[i]->_texture);
 				setIndexBuffer(*windowIndexBuffer);
 				setVertexBuffer(*windowVertexBuffer);
 				drawIndexedVertices();
-				wglMakeCurrent(nullptr, nullptr);
 			}
 			::SwapBuffers(deviceContexts[i]);
 		}
@@ -477,7 +482,7 @@ void Graphics4::makeCurrent(int contextId) {
 void Graphics4::begin(int contextId) {
 	if (System::currentDevice() != -1) {
 		if (System::currentDevice() != contextId) {
-			log(Warning, "begin: wrong glContext is active");
+			//log(Warning, "begin: wrong glContext is active");
 		}
 		else {
 			//**log(Warning, "begin: a glContext is still active");
@@ -495,7 +500,7 @@ void Graphics4::begin(int contextId) {
 	else {
 		setRenderTarget(windowRenderTargets[contextId]);
 	}
-
+	
 	glViewport(0, 0, _width, _height);
 
 #ifdef KORE_IOS
@@ -566,11 +571,11 @@ void Graphics4::end(int windowId) {
 	glCheckErrors();
 
 	if (System::currentDevice() == -1) {
-		log(Warning, "end: a glContext wasn't active");
+		//log(Warning, "end: a glContext wasn't active");
 	}
 
 	if (System::currentDevice() != windowId) {
-		log(Warning, "end: wrong glContext is active");
+		//log(Warning, "end: wrong glContext is active");
 	}
 
 	// System::clearCurrent();
