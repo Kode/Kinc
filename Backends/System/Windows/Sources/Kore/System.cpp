@@ -120,7 +120,7 @@ namespace Kore {
 			//	log(Warning, "no current device is active");
 			//}
 
-			return currentDeviceId;
+			return 0;
 		}
 
 		// void setCurrentDevice(int id) {

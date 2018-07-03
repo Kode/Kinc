@@ -192,7 +192,6 @@ namespace {
 					"out vec4 frag;\n"\
 					"void main() {\n"\
 						"frag = texture(tex, texCoord);\n"\
-						"frag = vec4(1.0, 0.0, 0.0, 1.0);\n"\
 					"}\n",
 					Graphics4::FragmentShader);
 
@@ -285,6 +284,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	}
 #endif
 
+	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
 #ifdef KORE_IOS
 	glGenVertexArraysOES(1, &arrayId[windowId]);
 	glCheckErrors();
@@ -292,6 +292,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glGenVertexArrays(1, &arrayId[windowId]);
 	glCheckErrors();
 #endif
+	wglMakeCurrent(deviceContexts[0], glContexts[0]);
 
 	_width = System::windowWidth(0);
 	_height = System::windowHeight(0);
@@ -451,14 +452,20 @@ bool Graphics4::swapBuffers(int contextId) {
 		if (deviceContexts[i] != nullptr) {
 			wglMakeCurrent(deviceContexts[i], glContexts[i]);
 			if (i != 0) {
-				restoreRenderTarget();
+				glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer[i]);
 				clear(Graphics4::ClearColorFlag, 0xff00ffff);
 				setPipeline(windowPipeline);
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, windowRenderTargets[i]->_texture);
 				setIndexBuffer(*windowIndexBuffer);
-				setVertexBuffer(*windowVertexBuffer);
+				//setVertexBuffer(*windowVertexBuffer);
+
+				glBindVertexArray(arrayId[i]);
+				glCheckErrors();
+				windowVertexBuffer->_set(0);
+
 				drawIndexedVertices();
+				glCheckErrors2();
 			}
 			::SwapBuffers(deviceContexts[i]);
 		}
