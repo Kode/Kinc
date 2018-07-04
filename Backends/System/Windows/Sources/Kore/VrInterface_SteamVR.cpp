@@ -210,9 +210,9 @@ void VrInterface::warpSwap() {
 	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #else
-	vr::Texture_t leftEyeTexture = {(void*)leftTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = {(void*)rightTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #endif
 }
