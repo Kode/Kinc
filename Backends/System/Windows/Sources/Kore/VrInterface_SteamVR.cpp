@@ -5,6 +5,7 @@
 #include <Kore/Vr/VrInterface.h>
 
 #include <Kore/Graphics4/Graphics.h>
+#include <Kore/Input/Gamepad.h>
 #include <Kore/Log.h>
 //#include "Direct3D11.h"
 
@@ -64,17 +65,96 @@ namespace {
 		return mat;
 	}
 
+	void getControllerButton(const vr::VREvent_t& event) {
+		Gamepad* gamepad = Gamepad::get(event.trackedDeviceIndex);
+		// gamepad->_axis()
+
+		switch (event.data.controller.button) {
+		case vr::k_EButton_Grip:
+			switch (event.eventType) {
+			case vr::VREvent_ButtonPress:
+				gamepad->_button(vr::k_EButton_Grip, 1);
+				break;
+
+			case vr::VREvent_ButtonUnpress:
+				gamepad->_button(vr::k_EButton_Grip, 0);
+				break;
+			}
+			break;
+
+		case vr::k_EButton_SteamVR_Trigger:
+			switch (event.eventType) {
+			case vr::VREvent_ButtonPress:
+				gamepad->_button(vr::k_EButton_SteamVR_Trigger, 1);
+				break;
+
+			case vr::VREvent_ButtonUnpress:
+				gamepad->_button(vr::k_EButton_SteamVR_Trigger, 0);
+				break;
+			}
+			break;
+
+		case vr::k_EButton_SteamVR_Touchpad:
+			switch (event.eventType) {
+			case vr::VREvent_ButtonPress:
+				break;
+
+			case vr::VREvent_ButtonUnpress:
+				break;
+
+			case vr::VREvent_ButtonTouch:
+				break;
+
+			case vr::VREvent_ButtonUntouch:
+				break;
+			}
+			break;
+
+		case vr::k_EButton_ApplicationMenu:
+			switch (event.eventType) {
+			case vr::VREvent_ButtonPress:
+				break;
+
+			case vr::VREvent_ButtonUnpress:
+				break;
+			}
+			break;
+		}
+	
+	}
+
 	void processVREvent(const vr::VREvent_t& event) {
 		switch (event.eventType) {
+		case vr::VREvent_None:
+			//log(Info, "The event is invalid.");
+			break;
 		case vr::VREvent_TrackedDeviceActivated:
 			// SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
 			// dprintf("Device %u attached. Setting up render model.\n", event.trackedDeviceIndex);
+			log(Info, "Device %u attached", event.trackedDeviceIndex);
+
+			// TODO: this is never called?
+
 			break;
 		case vr::VREvent_TrackedDeviceDeactivated:
-			printf("Device %u detached.\n", event.trackedDeviceIndex);
+			log(Info, "Device %u detached.", event.trackedDeviceIndex);
 			break;
 		case vr::VREvent_TrackedDeviceUpdated:
-			printf("Device %u updated.\n", event.trackedDeviceIndex);
+			log(Info, "Device %u updated.", event.trackedDeviceIndex);
+			break;
+		case vr::VREvent_ButtonPress:
+			//log(Info, "The user has pressed a button on a controller %u.", event.trackedDeviceIndex);
+			getControllerButton(event);
+			break;
+		case vr::VREvent_ButtonUnpress:
+			//log(Info, "The user has stopped pressing a button on a controller.");
+			getControllerButton(event);
+			break;
+		case vr::VREvent_ButtonTouch:
+			//log(Info, "The user has touched a button on a controller.");
+			break;
+		case vr::VREvent_ButtonUntouch:
+			//log(Info, "The user has stopped touching a button on a controller.");
 			break;
 		}
 	}
