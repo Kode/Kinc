@@ -209,7 +209,7 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 			break;
 		}
 	}
-	glCheckErrors2();
+	glCheckErrors();
 	if (location.location < 0) {
 		log(Warning, "Uniform %s not found.", name);
 	}
@@ -228,7 +228,7 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 	int index = findTexture(name);
 	if (index < 0) {
 		int location = glGetUniformLocation(_programid, name);
-		glCheckErrors2();
+		glCheckErrors();
 		index = textureCount;
 		textureValues[index] = location;
 		strcpy(textures[index], name);
@@ -242,42 +242,42 @@ ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
 void Compute::setBool(ComputeConstantLocation location, bool value) {
 #ifdef HAS_COMPUTE
 	glUniform1i(location.location, value ? 1 : 0);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setInt(ComputeConstantLocation location, int value) {
 #ifdef HAS_COMPUTE
 	glUniform1i(location.location, value);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setFloat(ComputeConstantLocation location, float value) {
 #ifdef HAS_COMPUTE
 	glUniform1f(location.location, value);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setFloat2(ComputeConstantLocation location, float value1, float value2) {
 #ifdef HAS_COMPUTE
 	glUniform2f(location.location, value1, value2);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setFloat3(ComputeConstantLocation location, float value1, float value2, float value3) {
 #ifdef HAS_COMPUTE
 	glUniform3f(location.location, value1, value2, value3);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setFloat4(ComputeConstantLocation location, float value1, float value2, float value3, float value4) {
 #ifdef HAS_COMPUTE
 	glUniform4f(location.location, value1, value2, value3, value4);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
@@ -300,76 +300,76 @@ void Compute::setFloats(ComputeConstantLocation location, float* values, int cou
 		glUniform1fv(location.location, count, values);
 		break;
 	}
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {
 #ifdef HAS_COMPUTE
 	glUniformMatrix4fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {
 #ifdef HAS_COMPUTE
 	glUniformMatrix3fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
 #ifdef HAS_COMPUTE
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->bufferId);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
-	glCheckErrors2();
+	glCheckErrors();
 	GLenum glaccess = access == Read ? GL_READ_ONLY : (access == Write ? GL_WRITE_ONLY : GL_READ_WRITE);
 	glBindImageTexture(unit.unit, texture->texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
-	glCheckErrors2();
+	glCheckErrors();
 	GLenum glaccess = access == Read ? GL_READ_ONLY : (access == Write ? GL_WRITE_ONLY : GL_READ_WRITE);
 	glBindImageTexture(unit.unit, target->_texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat((Graphics4::RenderTargetFormat)target->format));
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
-	glCheckErrors2();
+	glCheckErrors();
 	GLenum gltarget = texture->depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glBindTexture(gltarget, texture->texture);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
-	glCheckErrors2();
+	glCheckErrors();
 	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->_texture);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
-	glCheckErrors2();
+	glCheckErrors();
 	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->_depthTexture);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
@@ -428,17 +428,17 @@ void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::Mipma
 void Compute::setShader(ComputeShader* shader) {
 #ifdef HAS_COMPUTE
 	glUseProgram(shader->_programid);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }
 
 void Compute::compute(int x, int y, int z) {
 #ifdef HAS_COMPUTE
 	glDispatchCompute(x, y, z);
-	glCheckErrors2();
+	glCheckErrors();
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	glCheckErrors2();
+	glCheckErrors();
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	glCheckErrors2();
+	glCheckErrors();
 #endif
 }

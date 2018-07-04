@@ -26,10 +26,6 @@ void Graphics5::changeResolution(int width, int height) {}
 void Graphics5::setup() {}
 #endif
 
-void Graphics5::makeCurrent(int window) {}
-
-void Graphics5::clearCurrent() {}
-
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {}
 
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
@@ -48,8 +44,8 @@ unsigned Graphics5::refreshRate() {
 	return Graphics4::refreshRate();
 }
 
-bool Graphics5::swapBuffers(int window) {
-	return Graphics4::swapBuffers(window);
+bool Graphics5::swapBuffers() {
+	return Graphics4::swapBuffers();
 }
 
 void Graphics5::flush() {}

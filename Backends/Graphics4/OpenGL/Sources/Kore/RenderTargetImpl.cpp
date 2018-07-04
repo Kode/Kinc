@@ -161,10 +161,7 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 
 	this->format = (int)format;
 	this->contextId = contextId;
-
-	// (DK) required on windows/gl
-	Kore::System::makeCurrent(contextId);
-
+		
 	glGenTextures(1, &_texture);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, _texture);
@@ -259,9 +256,6 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 
 	this->format = (int)format;
 	this->contextId = contextId;
-
-	// (DK) required on windows/gl
-	Kore::System::makeCurrent(contextId);
 
 	glGenTextures(1, &_texture);
 	glCheckErrors();

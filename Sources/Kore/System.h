@@ -38,13 +38,10 @@ namespace Kore {
 		int desktopWidth();
 		int desktopHeight();
 		const char* systemId();
-		void setTitle(const char* title);
+		void setTitle(const char* title, int window = 0);
 		const char* savePath();
 		const char** videoFormats();
 		void showWindow();
-		void swapBuffers(int contextId);
-		void makeCurrent(int contextId);
-		void clearCurrent();
 
 		typedef unsigned long long ticks;
 

@@ -134,11 +134,9 @@ namespace Kore {
 
 		// TODO (DK) windowId should be renamed contextId?
 		void setup();
-		void begin(RenderTarget* renderTarget, int windowId = 0);
-		void end(int windowId = 0);
-		bool swapBuffers(int windowId);
-		void makeCurrent(int windowId);
-		void clearCurrent();
+		void begin(RenderTarget* renderTarget, int window = 0);
+		void end(int window = 0);
+		bool swapBuffers();
 
 		void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
 		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);

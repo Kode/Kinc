@@ -112,21 +112,6 @@ namespace {
 // TODO (DK) split to Graphics / Windowing?
 namespace Kore {
 	namespace System {
-		int currentDeviceId = -1;
-
-		// (DK) only valid during begin() => end() calls
-		int currentDevice() {
-			// if (currentDeviceId == -1) {
-			//	log(Warning, "no current device is active");
-			//}
-
-			return 0;
-		}
-
-		// void setCurrentDevice(int id) {
-		//	currentDeviceId = id;
-		//}
-
 		int windowCount() {
 			return windowCounter + 1;
 		}
@@ -1155,20 +1140,6 @@ void Kore::System::_shutdown() {
 	}
 }
 
-void Kore::System::makeCurrent(int contextId) {
-	if (currentDeviceId == contextId) {
-		return;
-	}
-
-	currentDeviceId = contextId;
-	Graphics::makeCurrent(contextId);
-}
-
-void Kore::System::clearCurrent() {
-	currentDeviceId = -1;
-	Graphics::clearCurrent();
-}
-
 int Kore::System::initWindow(WindowOptions options) {
 	char buffer[1024];
 	strcpy(buffer, name());
@@ -1266,10 +1237,10 @@ bool Kore::System::showsKeyboard() {
 
 void Kore::System::loadURL(const char* url) {}
 
-void Kore::System::setTitle(const char* title) {
+void Kore::System::setTitle(const char* title, int window) {
 	wchar_t buffer[1024];
 	MultiByteToWideChar(CP_UTF8, 0, title, -1, buffer, 1024);
-	SetWindowText(windows[currentDevice()]->hwnd, buffer);
+	SetWindowText(windows[window]->hwnd, buffer);
 }
 
 void Kore::System::setKeepScreenOn(bool on) {}

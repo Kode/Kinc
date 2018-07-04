@@ -157,12 +157,10 @@ namespace Kore {
 
 		// TODO (DK) windowId should be renamed contextId?
 		void setup();
-		bool swapBuffers(int windowId = 0);
-		void begin(int windowId = 0);
-		void end(int windowId = 0);
-		void makeCurrent(int windowId);
-		void clearCurrent();
-
+		bool swapBuffers();
+		void begin(int window = 0);
+		void end(int window = 0);
+		
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();

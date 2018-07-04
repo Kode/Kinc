@@ -55,23 +55,10 @@
 
 #include <Kore/Log.h>
 
-#if defined(NDEBUG) || defined(KORE_OSX) || defined(KORE_IOS) || defined(KORE_ANDROID) || 0 // Calling glGetError too early means trouble
-#define glCheckErrors()                                                                                                                                        \
-	{}
-#else
-#define glCheckErrors()                                                                                                                                        \
-	{                                                                                                                                                          \
-		GLenum code = glGetError();                                                                                                                            \
-		if (code != GL_NO_ERROR) {                                                                                                                          \
-			Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                           \
-		}                                                                                                                                                      \
-	}
-#endif
-
-#define glCheckErrors2()                                                                                                                                       \
-	{                                                                                                                                                          \
-		GLenum code = glGetError();                                                                                                                            \
-		if (code != GL_NO_ERROR) {                                                                                                                          \
-			Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                           \
-		}                                                                                                                                                      \
-	}
+#define glCheckErrors()                                                                                                                                 \
+{                                                                                                                                                       \
+	GLenum code = glGetError();                                                                                                                         \
+	if (code != GL_NO_ERROR) {                                                                                                                          \
+		Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                        \
+	}                                                                                                                                                   \
+}

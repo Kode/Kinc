@@ -12,6 +12,8 @@
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
 
+#include "OpenGLWindow.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -38,18 +40,13 @@
 #endif
 
 using namespace Kore;
+using namespace Kore::OpenGL;
 
 namespace Kore {
 #if !defined(KORE_IOS) && !defined(KORE_ANDROID)
 	extern bool programUsesTessellation;
 #endif
 	bool supportsConservativeRaster = false;
-
-#ifdef KORE_WINDOWS
-	namespace System {
-		extern int currentDeviceId;
-	}
-#endif
 }
 
 namespace {
@@ -59,160 +56,13 @@ namespace {
 
 #ifdef KORE_WINDOWS
 	HINSTANCE instance = 0;
-	HDC deviceContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-	HGLRC glContexts[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-	Graphics4::RenderTarget* windowRenderTargets[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-	Graphics4::VertexBuffer* windowVertexBuffer;
-	Graphics4::IndexBuffer* windowIndexBuffer;
-	Graphics4::PipelineState* windowPipeline;
-	bool glewInitialized = false;
-
-	void initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits) {
-		HWND windowHandle = (HWND)System::windowHandle(window);
-
-#ifndef VR_RIFT
-		PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
-		                             1,
-		                             PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-		                             PFD_TYPE_RGBA,
-		                             32,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             0,
-		                             (BYTE)depthBufferBits,
-		                             (BYTE)stencilBufferBits,
-		                             0,
-		                             PFD_MAIN_PLANE,
-		                             0,
-		                             0,
-		                             0,
-		                             0};
-
-		deviceContexts[window] = GetDC(windowHandle);
-		GLuint pixelFormat = ChoosePixelFormat(deviceContexts[window], &pfd);
-		SetPixelFormat(deviceContexts[window], pixelFormat, &pfd);
-		HGLRC tempGlContext = wglCreateContext(deviceContexts[window]);
-		wglMakeCurrent(deviceContexts[window], tempGlContext);
-		Kore::System::currentDeviceId = window;
-
-		if (!glewInitialized) {
-			glewInit();
-			glewInitialized = true;
-		}
-
-		if (wglewIsSupported("WGL_ARB_create_context") == 1) {
-			int attributes[] = {WGL_CONTEXT_MAJOR_VERSION_ARB,
-			                    4,
-			                    WGL_CONTEXT_MINOR_VERSION_ARB,
-			                    2,
-			                    WGL_CONTEXT_FLAGS_ARB,
-			                    WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-			                    WGL_CONTEXT_PROFILE_MASK_ARB,
-			                    WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			                    0};
-
-			glContexts[window] = wglCreateContextAttribsARB(deviceContexts[window], glContexts[0], attributes);
-			glCheckErrors();
-			wglMakeCurrent(nullptr, nullptr);
-			wglDeleteContext(tempGlContext);
-			wglMakeCurrent(deviceContexts[window], glContexts[window]);
-			glCheckErrors();
-		}
-		else {
-			glContexts[window] = tempGlContext;
-		}
-
-		if (System::hasShowWindowFlag()) {
-			ShowWindow(windowHandle, SW_SHOW);
-			SetForegroundWindow(windowHandle); // slightly higher priority
-			SetFocus(windowHandle);
-		}
-#else
-		deviceContexts[window] = GetDC(windowHandle);
-		glContexts[window] = wglGetCurrentContext();
-		if (!glewInitialized) {
-			glewInit();
-			glewInitialized = true;
-		}
 #endif
 
-		if (window != 0) {
-			wglShareLists(glContexts[0], glContexts[window]);
-			windowRenderTargets[window] = new Graphics4::RenderTarget(800, 600, depthBufferBits);
-			if (windowVertexBuffer == nullptr) {
-				wglMakeCurrent(deviceContexts[window], glContexts[window]);
-				Graphics4::VertexStructure structure;
-				structure.add("pos", Graphics4::Float2VertexData);
-				windowVertexBuffer = new Graphics4::VertexBuffer(4, structure);
-				float* vertices = windowVertexBuffer->lock();
-				vertices[0] = -1.0f;
-				vertices[1] = -1.0f;
-				vertices[2] = -1.0f;
-				vertices[3] = 1.0f;
-				vertices[4] = 1.0f;
-				vertices[5] = 1.0f;
-				vertices[6] = 1.0f;
-				vertices[7] = -1.0f;
-				windowVertexBuffer->unlock();
-				
-				windowIndexBuffer = new Graphics4::IndexBuffer(6);
-				int* indices = windowIndexBuffer->lock();
-				indices[0] = 0;
-				indices[1] = 1;
-				indices[2] = 2;
-				indices[3] = 0;
-				indices[4] = 2;
-				indices[5] = 3;
-				windowIndexBuffer->unlock();
+	int currentWindow = 0;
 
-				Graphics4::Shader* windowVertexShader = new Graphics4::Shader(
-					"#version 450\n"\
-					"in vec2 pos;\n"\
-					"out vec2 texCoord;\n"\
-					"void main() {\n"\
-						"gl_Position = vec4(pos, 0.5, 1.0);\n"\
-						"texCoord = (pos + 1.0) / 2.0;\n"\
-					"}\n",
-					Graphics4::VertexShader);
-
-				Graphics4::Shader* windowFragmentShader = new Graphics4::Shader(
-					"#version 450\n"\
-					"uniform sampler2D tex;\n"\
-					"in vec2 texCoord;\n"\
-					"out vec4 frag;\n"\
-					"void main() {\n"\
-						"frag = texture(tex, texCoord);\n"\
-					"}\n",
-					Graphics4::FragmentShader);
-
-				windowPipeline = new Graphics4::PipelineState();
-				windowPipeline->inputLayout[0] = &structure;
-				windowPipeline->inputLayout[1] = nullptr;
-				windowPipeline->vertexShader = windowVertexShader;
-				windowPipeline->fragmentShader = windowFragmentShader;
-				windowPipeline->compile();
-
-				wglMakeCurrent(deviceContexts[0], glContexts[0]);
-			}
-		}
-	}
-#endif
-
-	Graphics4::TextureFilter minFilters[10][32];
-	Graphics4::MipmapFilter mipFilters[10][32];
-	int originalFramebuffer[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-	uint arrayId[10];
-
+	Graphics4::TextureFilter minFilters[32];
+	Graphics4::MipmapFilter mipFilters[32];
+	
 	int _width;
 	int _height;
 	int _renderTargetWidth;
@@ -228,18 +78,18 @@ namespace {
 
 void Graphics4::destroy(int window) {
 #ifdef KORE_WINDOWS
-	if (glContexts[window]) {
+	if (windows[window].glContext) {
 		affirm(wglMakeCurrent(nullptr, nullptr));
-		affirm(wglDeleteContext(glContexts[window]));
-		glContexts[window] = nullptr;
+		affirm(wglDeleteContext(windows[window].glContext));
+		windows[window].glContext = nullptr;
 	}
 
 	HWND windowHandle = (HWND)System::windowHandle(window);
 
 	// TODO (DK) shouldn't 'deviceContexts[windowId] = nullptr;' be moved out of here?
-	if (deviceContexts[window] && !ReleaseDC(windowHandle, deviceContexts[window])) {
+	if (windows[window].deviceContext && !ReleaseDC(windowHandle, windows[window].deviceContext)) {
 		// MessageBox(NULL,"Release Device Context Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
-		deviceContexts[window] = nullptr;
+		windows[window].deviceContext = nullptr;
 	}
 #endif
 
@@ -256,14 +106,9 @@ void Graphics4::setup() {}
 
 static void initGLState(int window) {
 #ifndef VR_RIFT
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &originalFramebuffer[window]);
-
 	for (int i = 0; i < 32; ++i) {
-		minFilters[window][i] = Graphics4::LinearFilter;
-		mipFilters[window][i] = Graphics4::NoMipFilter;
+		minFilters[i] = Graphics4::LinearFilter;
+		mipFilters[i] = Graphics4::NoMipFilter;
 	}
 #endif
 }
@@ -283,16 +128,6 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(vsync);
 	}
 #endif
-
-	wglMakeCurrent(deviceContexts[windowId], glContexts[windowId]);
-#ifdef KORE_IOS
-	glGenVertexArraysOES(1, &arrayId[windowId]);
-	glCheckErrors();
-#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
-	glGenVertexArrays(1, &arrayId[windowId]);
-	glCheckErrors();
-#endif
-	wglMakeCurrent(deviceContexts[0], glContexts[0]);
 
 	_width = System::windowWidth(0);
 	_height = System::windowHeight(0);
@@ -445,29 +280,16 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int c
 #endif
 }
 
-bool Graphics4::swapBuffers(int contextId) {
+bool Graphics4::swapBuffers() {
 #ifdef KORE_WINDOWS
 
 	for (int i = 9; i >= 0; --i) {
-		if (deviceContexts[i] != nullptr) {
-			wglMakeCurrent(deviceContexts[i], glContexts[i]);
+		if (windows[i].deviceContext != nullptr) {
+			wglMakeCurrent(windows[i].deviceContext, windows[i].glContext);
 			if (i != 0) {
-				glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer[i]);
-				clear(Graphics4::ClearColorFlag, 0xff00ffff);
-				setPipeline(windowPipeline);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, windowRenderTargets[i]->_texture);
-				setIndexBuffer(*windowIndexBuffer);
-				//setVertexBuffer(*windowVertexBuffer);
-
-				glBindVertexArray(arrayId[i]);
-				glCheckErrors();
-				windowVertexBuffer->_set(0);
-
-				drawIndexedVertices();
-				glCheckErrors2();
+				blitWindowContent(i);
 			}
-			::SwapBuffers(deviceContexts[i]);
+			::SwapBuffers(windows[i].deviceContext);
 		}
 	}
 #else
@@ -480,33 +302,9 @@ bool Graphics4::swapBuffers(int contextId) {
 void beginGL();
 #endif
 
-#ifdef KORE_WINDOWS
-void Graphics4::makeCurrent(int contextId) {
-	wglMakeCurrent(deviceContexts[contextId], glContexts[contextId]);
-}
-#endif
-
-void Graphics4::begin(int contextId) {
-	if (System::currentDevice() != -1) {
-		if (System::currentDevice() != contextId) {
-			//log(Warning, "begin: wrong glContext is active");
-		}
-		else {
-			//**log(Warning, "begin: a glContext is still active");
-		}
-
-		// return; // TODO (DK) return here?
-	}
-
-	// System::setCurrentDevice(contextId);
-	// System::makeCurrent(contextId);
-
-	if (contextId == 0) {
-		restoreRenderTarget();
-	}
-	else {
-		setRenderTarget(windowRenderTargets[contextId]);
-	}
+void Graphics4::begin(int window) {
+	currentWindow = window;
+	setWindowRenderTarget(window);
 	
 	glViewport(0, 0, _width, _height);
 
@@ -539,53 +337,9 @@ void Graphics4::disableScissor() {
 	glDisable(GL_SCISSOR_TEST);
 }
 
-	/*void glCheckErrors() {
-	    if (System::currentDevice() == -1) {
-	        log(Warning, "no OpenGL device context is set");
-	        return;
-	    }
-
-	//#ifdef _DEBUG
-	    GLenum code = glGetError();
-	    while (code != GL_NO_ERROR) {
-	        //std::printf("GLError: %s\n", glewGetErrorString(code));
-	        switch (code) {
-	        case GL_INVALID_VALUE:
-	            log(Warning, "OpenGL: Invalid value");
-	            break;
-	        case GL_INVALID_OPERATION:
-	            log(Warning, "OpenGL: Invalid operation");
-	            break;
-	        default:
-	            log(Warning, "OpenGL: Error code %i", code);
-	            break;
-	        }
-	        code = glGetError();
-	    }
-	//#endif
-	}*/
-
-#ifdef KORE_WINDOWS
-void Graphics4::clearCurrent() {
-	wglMakeCurrent(nullptr, nullptr);
-}
-#endif
-
-// TODO (DK) this never gets called on some targets, needs investigation?
 void Graphics4::end(int windowId) {
-	// glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-	// glClear(GL_COLOR_BUFFER_BIT);
+	currentWindow = 0;
 	glCheckErrors();
-
-	if (System::currentDevice() == -1) {
-		//log(Warning, "end: a glContext wasn't active");
-	}
-
-	if (System::currentDevice() != windowId) {
-		//log(Warning, "end: wrong glContext is active");
-	}
-
-	// System::clearCurrent();
 }
 
 void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
@@ -619,14 +373,6 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 }
 
 void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
-#if defined(KORE_IOS)
-	glBindVertexArrayOES(arrayId[0]);
-	glCheckErrors();
-#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
-	glBindVertexArray(arrayId[System::currentDevice()]);
-	glCheckErrors();
-#endif
-
 	int offset = 0;
 	for (int i = 0; i < count; ++i) {
 		offset += vertexBuffers[i]->_set(offset);
@@ -723,9 +469,9 @@ namespace {
 	void setMinMipFilters(GLenum target, int unit) {
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glCheckErrors();
-		switch (minFilters[System::currentDevice()][unit]) {
+		switch (minFilters[unit]) {
 		case Graphics4::PointFilter:
-			switch (mipFilters[System::currentDevice()][unit]) {
+			switch (mipFilters[unit]) {
 			case Graphics4::NoMipFilter:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				break;
@@ -739,7 +485,7 @@ namespace {
 			break;
 		case Graphics4::LinearFilter:
 		case Graphics4::AnisotropicFilter:
-			switch (mipFilters[System::currentDevice()][unit]) {
+			switch (mipFilters[unit]) {
 			case Graphics4::NoMipFilter:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				break;
@@ -750,7 +496,7 @@ namespace {
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				break;
 			}
-			if (minFilters[System::currentDevice()][unit] == Graphics4::AnisotropicFilter) {
+			if (minFilters[unit] == Graphics4::AnisotropicFilter) {
 				float maxAniso = 0.0f;
 				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
 				glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
@@ -762,24 +508,24 @@ namespace {
 } // namespace
 
 void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	minFilters[System::currentDevice()][texunit.unit] = filter;
+	minFilters[texunit.unit] = filter;
 	setMinMipFilters(GL_TEXTURE_2D, texunit.unit);
 }
 
 void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	minFilters[System::currentDevice()][texunit.unit] = filter;
+	minFilters[texunit.unit] = filter;
 #ifndef KORE_OPENGL_ES
 	setMinMipFilters(GL_TEXTURE_3D, texunit.unit);
 #endif
 }
 
 void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	mipFilters[System::currentDevice()][texunit.unit] = filter;
+	mipFilters[texunit.unit] = filter;
 	setMinMipFilters(GL_TEXTURE_2D, texunit.unit);
 }
 
 void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	mipFilters[System::currentDevice()][texunit.unit] = filter;
+	mipFilters[texunit.unit] = filter;
 #ifndef KORE_OPENGL_ES
 	setMinMipFilters(GL_TEXTURE_3D, texunit.unit);
 #endif
@@ -790,8 +536,6 @@ void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument 
 }
 
 void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
-	// TODO (DK) uneccessary?
-	// System::makeCurrent(texture->contextId);
 	glBindFramebuffer(GL_FRAMEBUFFER, targets[0]->_framebuffer);
 	glCheckErrors();
 #ifndef KORE_OPENGL_ES
@@ -834,10 +578,10 @@ void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
 }
 
 void Graphics4::restoreRenderTarget() {
-	glBindFramebuffer(GL_FRAMEBUFFER, originalFramebuffer[System::currentDevice()]);
+	setWindowRenderTarget(currentWindow);
 	glCheckErrors();
-	int w = System::windowWidth(System::currentDevice());
-	int h = System::windowHeight(System::currentDevice());
+	int w = System::windowWidth(currentWindow);
+	int h = System::windowHeight(currentWindow);
 	glViewport(0, 0, w, h);
 	_renderTargetWidth = w;
 	_renderTargetHeight = h;
