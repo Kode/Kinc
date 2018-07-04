@@ -1,71 +1,72 @@
 #pragma once
 
 namespace Kore {
-	struct RendererOptions {
+	struct FramebufferOptions {
+		bool verticalSync;
 		int textureFormat;
 		int depthBufferBits;
 		int stencilBufferBits;
-		int antialiasing;
+		int samplesPerPixel;
 
-		RendererOptions() {
+		FramebufferOptions() {
+			verticalSync = true;
 			textureFormat = 0;
 			depthBufferBits = 16;
 			stencilBufferBits = 8;
-			antialiasing = 0;
+			samplesPerPixel = 1;
 		}
 	};
 
 	enum WindowMode {
 		WindowModeWindow = 0,
-		WindowModeBorderless = 1,
-		WindowModeFullscreen = 2,
+		WindowModeFullScreen = 1,
+		WindowModeExclusiveFullscreen = 2, // Only relevant for Windows
 	};
+
+	const int WindowFeatureResizable = 1;
+	const int WindowFeatureMinimizable = 2;
+	const int WindowFeatureMaximizable = 4;
+	const int WindowFeatureBorderless = 8;
+	const int WindowFeatureOnTop = 16;
 
 	struct WindowOptions {
 		const char* title;
-		int width;
-		int height;
+
 		int x;
 		int y;
-		int targetDisplay;
+		int width;
+		int height;
+		int display;
 
-		bool vSync;
-
-		bool resizable;
-		bool maximizable;
-		bool minimizable;
-
+		bool visible;
+		int windowFeatures;
 		WindowMode mode;
-		bool showWindow;
-		RendererOptions rendererOptions;
 
 		WindowOptions() {
-			title = "KoreWindow";
-			targetDisplay = -1;
+			title = "Kore";
+			display = -1;
 			mode = WindowModeWindow;
-			rendererOptions.antialiasing = 0;
 			x = y = -1;
 			width = 800;
 			height = 600;
-			showWindow = true;
-
-			vSync = true;
-
-			resizable = false;
-			maximizable = false;
-			minimizable = true;
+			visible = true;
+			windowFeatures = WindowFeatureMinimizable;
 		}
 	};
 
-	struct KoreWindowBase {
-		int x, y;
-		int width, height;
-
-		KoreWindowBase(int x, int y, int width, int height) {
-			this->x = x;
-			this->y = y;
-			this->width = width;
-			this->height = height;
-		}
+	class Window {
+	public:
+		static Window* create(WindowOptions* win = nullptr, FramebufferOptions* frame = nullptr);
+		static void destroy(Window* window);
+		static Window* get(int index);
+		static int count();
+		void* handle();
+		void resize(int width, int height);
+		void move(int x, int y);
+		void changeWindowMode(WindowMode mode);
+		int x();
+		int y();
+		int width();
+		int height();
 	};
 }

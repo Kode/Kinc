@@ -60,7 +60,19 @@ namespace {
 	typedef BOOL (WINAPI *GetPointerPenInfoType)(UINT32 pointerId, POINTER_PEN_INFO *penInfo);
 	GetPointerPenInfoType MyGetPointerPenInfo;
 
-	struct KoreWindow : public Kore::KoreWindowBase {
+	struct KoreWindowBase {
+		int x, y;
+		int width, height;
+
+		KoreWindowBase(int x, int y, int width, int height) {
+			this->x = x;
+			this->y = y;
+			this->width = width;
+			this->height = height;
+		}
+	};
+
+	struct KoreWindow : public KoreWindowBase {
 		HWND hwnd;
 		bool isMouseInside;
 
