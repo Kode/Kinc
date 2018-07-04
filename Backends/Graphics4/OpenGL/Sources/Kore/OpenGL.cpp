@@ -282,7 +282,6 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int c
 
 bool Graphics4::swapBuffers() {
 #ifdef KORE_WINDOWS
-
 	for (int i = 9; i >= 0; --i) {
 		if (windows[i].deviceContext != nullptr) {
 			wglMakeCurrent(windows[i].deviceContext, windows[i].glContext);
@@ -292,6 +291,7 @@ bool Graphics4::swapBuffers() {
 			::SwapBuffers(windows[i].deviceContext);
 		}
 	}
+	wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
 #else
 	System::swapBuffers(contextId);
 #endif

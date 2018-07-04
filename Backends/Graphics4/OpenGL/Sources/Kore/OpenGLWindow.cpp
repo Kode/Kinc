@@ -103,6 +103,7 @@ void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBu
 
 	if (window != 0) {
 		wglShareLists(windows[0].glContext, windows[window].glContext);
+		wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
 		windows[window].renderTarget = new Graphics4::RenderTarget(800, 600, depthBufferBits);
 		if (windowVertexBuffer == nullptr) {
 			wglMakeCurrent(windows[window].deviceContext, windows[window].glContext);
@@ -157,20 +158,19 @@ void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBu
 
 			wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
 		}
-
-		wglMakeCurrent(windows[window].deviceContext, windows[window].glContext);
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &windows[window].framebuffer);
-#ifdef KORE_IOS
-		glGenVertexArraysOES(1, &arrayId[windowId]);
-		glCheckErrors();
-#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
-		glGenVertexArrays(1, &windows[window].vertexArray);
-		glCheckErrors();
-#endif
-		wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
-		glBindVertexArray(windows[0].vertexArray);
-		glCheckErrors();
 	}
+	wglMakeCurrent(windows[window].deviceContext, windows[window].glContext);
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &windows[window].framebuffer);
+#ifdef KORE_IOS
+	glGenVertexArraysOES(1, &arrayId[windowId]);
+	glCheckErrors();
+#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
+	glGenVertexArrays(1, &windows[window].vertexArray);
+	glCheckErrors();
+#endif
+	wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
+	glBindVertexArray(windows[0].vertexArray);
+	glCheckErrors();
 }
 
 void OpenGL::blitWindowContent(int window) {

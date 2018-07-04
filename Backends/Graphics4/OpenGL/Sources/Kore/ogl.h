@@ -55,10 +55,15 @@
 
 #include <Kore/Log.h>
 
-#define glCheckErrors()                                                                                                                                 \
-{                                                                                                                                                       \
-	GLenum code = glGetError();                                                                                                                         \
-	if (code != GL_NO_ERROR) {                                                                                                                          \
-		Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                        \
-	}                                                                                                                                                   \
-}
+#ifdef NDEBUG
+#define glCheckErrors()                                                                                                                                        \
+	{}
+#else
+#define glCheckErrors()                                                                                                                                        \
+	{                                                                                                                                                          \
+		GLenum code = glGetError();                                                                                                                            \
+		if (code != GL_NO_ERROR) {                                                                                                                             \
+			Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                           \
+		}                                                                                                                                                      \
+	}
+#endif
