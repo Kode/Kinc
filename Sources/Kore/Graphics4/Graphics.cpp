@@ -12,7 +12,6 @@ using namespace Kore;
 
 namespace {
 	int samples = 1;
-	bool window = true;
 }
 
 int Graphics4::antialiasingSamples() {
@@ -21,14 +20,6 @@ int Graphics4::antialiasingSamples() {
 
 void Graphics4::setAntialiasingSamples(int samples) {
 	::samples = samples;
-}
-
-bool Graphics4::hasWindow() {
-	return ::window;
-}
-
-void Graphics4::setWindow(bool value) {
-	::window = value;
 }
 
 bool Kore::Graphics4::fullscreen = false;

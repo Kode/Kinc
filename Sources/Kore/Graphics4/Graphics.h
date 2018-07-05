@@ -143,9 +143,6 @@ namespace Kore {
 		void drawIndexedVerticesInstanced(int instanceCount);
 		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
 
-		void changeResolution(int width, int height);
-		bool hasWindow();
-		void setWindow(bool);
 		int antialiasingSamples();
 		void setAntialiasingSamples(int samples);
 
@@ -155,11 +152,9 @@ namespace Kore {
 		void setRenderTargetFace(RenderTarget* texture, int face = 0);
 		void restoreRenderTarget();
 
-		// TODO (DK) windowId should be renamed contextId?
-		void setup();
-		bool swapBuffers();
 		void begin(int window = 0);
 		void end(int window = 0);
+		bool swapBuffers();
 		
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
@@ -175,8 +170,6 @@ namespace Kore {
 		void setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
 
-		bool vsynced();
-		unsigned refreshRate();
 		bool nonPow2TexturesSupported();
 
 		// Occlusion Query

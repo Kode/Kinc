@@ -152,7 +152,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	lastPipeline = nullptr;
 }
-
+/*
 void Graphics4::changeResolution(int width, int height) {
 	_width = width;
 	_height = height;
@@ -161,7 +161,7 @@ void Graphics4::changeResolution(int width, int height) {
 		_renderTargetHeight = _height;
 	}
 }
-
+*/
 /*
 bool Graphics4::vsynced() {
 #ifdef KORE_WINDOWS

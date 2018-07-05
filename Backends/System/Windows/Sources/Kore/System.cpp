@@ -278,7 +278,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_SIZE:
 		windowWidth = LOWORD(lParam);
 		windowHeight = HIWORD(lParam);
-		Graphics::changeResolution(windowWidth, windowHeight);
+		//**Graphics::changeResolution(windowWidth, windowHeight);
 		break;
 	case WM_DESTROY:
 		Kore::System::stop();

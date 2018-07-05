@@ -11,7 +11,6 @@ using namespace Kore;
 
 namespace {
 	int samples = 1;
-	bool window = true;
 }
 
 #if !defined(KORE_WINDOWS) && !defined(KORE_XBOX_ONE)
@@ -24,14 +23,6 @@ int Graphics5::antialiasingSamples() {
 
 void Graphics5::setAntialiasingSamples(int samples) {
 	::samples = samples;
-}
-
-bool Graphics5::hasWindow() {
-	return ::window;
-}
-
-void Graphics5::setWindow(bool value) {
-	::window = value;
 }
 
 bool Graphics5::fullscreen = false;

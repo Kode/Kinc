@@ -1,8 +1,8 @@
 #include "pch.h"
 
 #include <Kore/Display.h>
-#include <Kore/Window.h>
 #include <Kore/Graphics4/Graphics.h>
+#include <Kore/Window.h>
 
 #ifdef WIN32_LEAN_AND_MEAN
 #undef WIN32_LEAN_AND_MEAN
@@ -26,13 +26,13 @@ namespace {
 		HWND handle;
 		bool mouseInside;
 
-		WindowsWindow() : handle(nullptr), mouseInside(false) { }
+		WindowsWindow() : handle(nullptr), mouseInside(false) {}
 	};
 
 	WindowsWindow windows[maximumWindows];
 	int windowCounter = -1;
-	
-	#ifdef KORE_OCULUS
+
+#ifdef KORE_OCULUS
 	const wchar_t* windowClassName = L"ORT";
 #else
 	const wchar_t* windowClassName = L"KoreWindow";
@@ -66,6 +66,10 @@ int idFromHWND(HWND handle) {
 		}
 	}
 	return -1;
+}
+
+Window* Window::get(int window) {
+	return &windows[window];
 }
 
 int Window::count() {
@@ -229,15 +233,15 @@ void Window::destroy(Window* window) {
 
 /*
 void Kore::System::setTitle(const char* title, int window) {
-	wchar_t buffer[1024];
-	MultiByteToWideChar(CP_UTF8, 0, title, -1, buffer, 1024);
-	SetWindowText(windows[window]->hwnd, buffer);
+    wchar_t buffer[1024];
+    MultiByteToWideChar(CP_UTF8, 0, title, -1, buffer, 1024);
+    SetWindowText(windows[window]->hwnd, buffer);
 }
 
 // TODO (DK) windowId
 void Kore::System::showWindow() {
-	ShowWindow(windows[0]->hwnd, SW_SHOWDEFAULT);
-	UpdateWindow(windows[0]->hwnd);
+    ShowWindow(windows[0]->hwnd, SW_SHOWDEFAULT);
+    UpdateWindow(windows[0]->hwnd);
 }
 */
 
@@ -258,7 +262,7 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 		style |= WS_MAXIMIZEBOX;
 	}
 
-	if (win->windowFeatures & WindowFeatureMinimizable == 0) {
+	if ((win->windowFeatures & WindowFeatureMinimizable) == 0) {
 		style ^= WS_MINIMIZEBOX;
 	}
 
@@ -276,8 +280,8 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 
 /*
 void Kore::System::_shutdown() {
-	if (windowCounter == 0 && deviceModeChanged) {
-		ChangeDisplaySettings(&startDeviceMode, 0);
-	}
+    if (windowCounter == 0 && deviceModeChanged) {
+        ChangeDisplaySettings(&startDeviceMode, 0);
+    }
 }
 */

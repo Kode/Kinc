@@ -20,12 +20,6 @@ void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	Graphics4::init(window, depthBufferBits, stencilBufferBits, vsync);
 }
 
-void Graphics5::changeResolution(int width, int height) {}
-
-#if defined(KORE_WINDOWS) || defined(KORE_XBOX_ONE)
-void Graphics5::setup() {}
-#endif
-
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {}
 
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
@@ -35,14 +29,6 @@ void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddres
 void Graphics5::begin(RenderTarget* renderTarget, int window) {}
 
 void Graphics5::end(int window) {}
-
-bool Graphics5::vsynced() {
-	return Graphics4::vsynced();
-}
-
-unsigned Graphics5::refreshRate() {
-	return Graphics4::refreshRate();
-}
 
 bool Graphics5::swapBuffers() {
 	return Graphics4::swapBuffers();

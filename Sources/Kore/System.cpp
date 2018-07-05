@@ -202,9 +202,7 @@ const char* Kore::System::name() {
 	return appstate::name;
 }
 
-#ifndef KORE_WINDOWS
 void Kore::System::_shutdown() {}
-#endif
 
 #ifdef KORE_METAL
 void shutdownMetalCompute();
