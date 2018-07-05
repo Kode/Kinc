@@ -2,6 +2,7 @@
 
 #include <Kore/Input/Mouse.h>
 #include <Kore/System.h>
+#include <Kore/Window.h>
 
 #include <Windows.h>
 
@@ -10,7 +11,7 @@ using namespace Kore;
 void Mouse::_lock(int windowId, bool truth) {
 	show(!truth);
 	if (truth) {
-		HWND hwnd = (HWND)Kore::System::windowHandle(windowId);
+		HWND hwnd = (HWND)Kore::Window::get(windowId)->handle();
 		SetCapture(hwnd);
 		RECT rect;
 		GetWindowRect(hwnd, &rect);
@@ -31,7 +32,7 @@ void Mouse::show(bool truth) {
 }
 
 void Mouse::setPosition(int windowId, int x, int y) {
-	HWND hwnd = (HWND)Kore::System::windowHandle(windowId);
+	HWND hwnd = (HWND)Kore::Window::get(windowId)->handle();
 	POINT point;
 	point.x = x;
 	point.y = y;
@@ -42,7 +43,7 @@ void Mouse::setPosition(int windowId, int x, int y) {
 void Mouse::getPosition(int windowId, int& x, int& y) {
 	POINT point;
 	GetCursorPos(&point);
-	HWND hwnd = (HWND)Kore::System::windowHandle(windowId);
+	HWND hwnd = (HWND)Kore::Window::get(windowId)->handle();
 	ScreenToClient(hwnd, &point);
 	x = point.x;
 	y = point.y;

@@ -8,13 +8,7 @@ namespace Kore {
 		int stencilBufferBits;
 		int samplesPerPixel;
 
-		FramebufferOptions() {
-			verticalSync = true;
-			textureFormat = 0;
-			depthBufferBits = 16;
-			stencilBufferBits = 8;
-			samplesPerPixel = 1;
-		}
+		FramebufferOptions() : verticalSync(true), textureFormat(0), depthBufferBits(16), stencilBufferBits(8), samplesPerPixel(1) { }
 	};
 
 	enum WindowMode {
@@ -42,16 +36,7 @@ namespace Kore {
 		int windowFeatures;
 		WindowMode mode;
 
-		WindowOptions() {
-			title = "Kore";
-			display = -1;
-			mode = WindowModeWindow;
-			x = y = -1;
-			width = 800;
-			height = 600;
-			visible = true;
-			windowFeatures = WindowFeatureMinimizable;
-		}
+		WindowOptions() : title("Kore"), display(-1), mode(WindowModeWindow), x(-1), y(-1), width(800), height(600), visible(true), windowFeatures(WindowFeatureMinimizable) { }
 	};
 
 	class Window {

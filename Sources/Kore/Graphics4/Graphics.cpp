@@ -15,11 +15,6 @@ namespace {
 	bool window = true;
 }
 
-#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && !defined(KORE_METAL) && !defined(KORE_XBOX_ONE) && !defined(KORE_SWITCH) &&                         \
-    !defined(KORE_PLAYSTATION_4) && !defined(KORE_VULKAN)
-void Graphics4::setup() {}
-#endif
-
 int Graphics4::antialiasingSamples() {
 	return ::samples;
 }

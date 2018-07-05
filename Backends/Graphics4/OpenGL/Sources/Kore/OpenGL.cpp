@@ -11,6 +11,7 @@
 #include <Kore/Log.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
+#include <Kore/Window.h>
 
 #include "OpenGLWindow.h"
 
@@ -84,7 +85,7 @@ void Graphics4::destroy(int window) {
 		windows[window].glContext = nullptr;
 	}
 
-	HWND windowHandle = (HWND)System::windowHandle(window);
+	HWND windowHandle = (HWND)Window::get(window)->handle();
 
 	// TODO (DK) shouldn't 'deviceContexts[windowId] = nullptr;' be moved out of here?
 	if (windows[window].deviceContext && !ReleaseDC(windowHandle, windows[window].deviceContext)) {
@@ -93,15 +94,11 @@ void Graphics4::destroy(int window) {
 	}
 #endif
 
-	System::destroyWindow(window);
+	//**System::destroyWindow(window);
 }
 
 #ifdef CreateWindow
 #undef CreateWindow
-#endif
-
-#ifdef KORE_WINDOWS
-void Graphics4::setup() {}
 #endif
 
 static void initGLState(int window) {
@@ -165,11 +162,7 @@ void Graphics4::changeResolution(int width, int height) {
 	}
 }
 
-// TODO (DK) should return displays refreshrate?
-unsigned Graphics4::refreshRate() {
-	return 60;
-}
-
+/*
 bool Graphics4::vsynced() {
 #ifdef KORE_WINDOWS
 	return wglGetSwapIntervalEXT();
@@ -177,6 +170,7 @@ bool Graphics4::vsynced() {
 	return true;
 #endif
 }
+*/
 
 void Graphics4::setBool(ConstantLocation location, bool value) {
 	glUniform1i(location.location, value ? 1 : 0);

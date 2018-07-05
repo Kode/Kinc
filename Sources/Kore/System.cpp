@@ -2,6 +2,7 @@
 
 #include "System.h"
 
+#include <Kore/Window.h>
 #include <Kore/Math/Random.h>
 
 #include <limits>
@@ -47,7 +48,7 @@ namespace {
 	}
 }
 
-void Kore::System::init(const char* name, int width, int height, int samplesPerPixel) {
+/*void Kore::System::init(const char* name, int width, int height, int samplesPerPixel) {
 	Kore::System::setName(name);
 	Kore::System::setup();
 	Kore::WindowOptions options;
@@ -63,7 +64,7 @@ void Kore::System::init(const char* name, int width, int height, int samplesPerP
 	options.rendererOptions.textureFormat = 0;
 	options.rendererOptions.antialiasing = samplesPerPixel;
 	Kore::System::initWindow(options);
-}
+}*/
 
 void Kore::System::setCallback(void (*value)()) {
 	callbacks::callback = value;
@@ -109,69 +110,69 @@ void Kore::System::setPasteCallback(void (*value)(char*)) {
 	callbacks::pasteCallback = value;
 }
 
-void Kore::System::callback() {
+void Kore::System::_callback() {
 	if (callbacks::callback != nullptr) {
 		callbacks::callback();
 	}
 }
 
-void Kore::System::foregroundCallback() {
+void Kore::System::_foregroundCallback() {
 	if (callbacks::foregroundCallback != nullptr) {
 		callbacks::foregroundCallback();
 	}
 }
 
-void Kore::System::resumeCallback() {
+void Kore::System::_resumeCallback() {
 	if (callbacks::resumeCallback != nullptr) {
 		callbacks::resumeCallback();
 	}
 }
 
-void Kore::System::pauseCallback() {
+void Kore::System::_pauseCallback() {
 	if (callbacks::pauseCallback != nullptr) {
 		callbacks::pauseCallback();
 	}
 }
 
-void Kore::System::backgroundCallback() {
+void Kore::System::_backgroundCallback() {
 	if (callbacks::backgroundCallback != nullptr) {
 		callbacks::backgroundCallback();
 	}
 }
 
-void Kore::System::shutdownCallback() {
+void Kore::System::_shutdownCallback() {
 	if (callbacks::shutdownCallback != nullptr) {
 		callbacks::shutdownCallback();
 	}
 }
 
-void Kore::System::orientationCallback(Orientation orientation) {
+void Kore::System::_orientationCallback(Orientation orientation) {
 	if (callbacks::orientationCallback != nullptr) {
 		callbacks::orientationCallback(orientation);
 	}
 }
 
-void Kore::System::dropFilesCallback(wchar_t* filePath) {
+void Kore::System::_dropFilesCallback(wchar_t* filePath) {
 	if (callbacks::dropFilesCallback != nullptr) {
 		callbacks::dropFilesCallback(filePath);
 	}
 }
 
-char* Kore::System::cutCallback() {
+char* Kore::System::_cutCallback() {
 	if (callbacks::cutCallback != nullptr) {
 		return callbacks::cutCallback();
 	}
 	return nullptr;
 }
 
-char* Kore::System::copyCallback() {
+char* Kore::System::_copyCallback() {
 	if (callbacks::copyCallback != nullptr) {
 		return callbacks::copyCallback();
 	}
 	return nullptr;
 }
 
-void Kore::System::pasteCallback(char* value) {
+void Kore::System::_pasteCallback(char* value) {
 	if (callbacks::pasteCallback != nullptr) {
 		callbacks::pasteCallback(value);
 	}
@@ -184,7 +185,7 @@ namespace {
 		char name[1024] = {"KoreApplication"};
 	}
 }
-
+/*
 void Kore::System::setShowWindowFlag(bool value) {
 	appstate::showWindowFlag = value;
 }
@@ -196,7 +197,7 @@ bool Kore::System::hasShowWindowFlag() {
 void Kore::System::setName(const char* value) {
 	strcpy(appstate::name, value);
 }
-
+*/
 const char* Kore::System::name() {
 	return appstate::name;
 }
@@ -224,7 +225,7 @@ void Kore::System::stop() {
 }
 
 bool Kore::System::frame() {
-	callback();
+	_callback();
 	handleMessages();
 	return appstate::running;
 }
@@ -241,6 +242,7 @@ void Kore::System::start() {
 #endif
 }
 
+/*
 int Kore::System::simpleSetup(int argc, char* argv[], int width, int height, int antialiasing, WindowMode mode, const char* title, bool showWindow) {
 	System::setup();
 
@@ -255,4 +257,13 @@ int Kore::System::simpleSetup(int argc, char* argv[], int width, int height, int
 	System::setName(title);
 	System::setShowWindowFlag(showWindow);
 	return System::initWindow(windowOptions);
+}
+*/
+
+int Kore::System::windowWidth(int window) {
+	return Window::get(window)->width();
+}
+
+int Kore::System::windowHeight(int window) {
+	return Window::get(window)->height();
 }

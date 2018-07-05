@@ -5,7 +5,7 @@
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/System.h>
-
+#include <Kore/Window.h>
 #include "ogl.h"
 
 #ifdef KORE_WINDOWS
@@ -24,7 +24,7 @@ namespace {
 }
 
 void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits) {
-	HWND windowHandle = (HWND)System::windowHandle(window);
+	HWND windowHandle = (HWND)Kore::Window::get(window)->handle();
 
 #ifndef VR_RIFT
 	PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
@@ -87,11 +87,11 @@ void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBu
 		windows[window].glContext = tempGlContext;
 	}
 
-	if (System::hasShowWindowFlag()) {
+	//if (System::hasShowWindowFlag()) {
 		ShowWindow(windowHandle, SW_SHOW);
 		SetForegroundWindow(windowHandle); // slightly higher priority
 		SetFocus(windowHandle);
-	}
+	//}
 #else
 	deviceContexts[window] = GetDC(windowHandle);
 	glContexts[window] = wglGetCurrentContext();
@@ -180,7 +180,7 @@ void OpenGL::blitWindowContent(int window) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, windows[window].renderTarget->_texture);
 	setIndexBuffer(*windowIndexBuffer);
-	
+
 	glBindVertexArray(windows[window].vertexArray);
 	glCheckErrors();
 	windowVertexBuffer->_set(0);

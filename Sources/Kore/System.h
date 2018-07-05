@@ -9,6 +9,7 @@ namespace Kore {
 	namespace System {
 		Window* init(const char* name, int width, int height, WindowOptions* win = nullptr, FramebufferOptions* frame = nullptr);
 
+		const char* name();
 		int windowWidth(int id = 0);
 		int windowHeight(int id = 0);
 
