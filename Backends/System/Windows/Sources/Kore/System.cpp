@@ -1028,6 +1028,9 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	return ret;
 }
 
+void initDisplays();
+
 Window* System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
+	initDisplays();
 	return Window::create(win, frame);
 }

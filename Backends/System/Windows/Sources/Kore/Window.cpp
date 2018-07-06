@@ -190,12 +190,18 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 	}
 #endif /*#else // #ifdef KORE_OCULUS  */
 
-	/*windows[windowCounter].handle = hwnd;
-	windows[windowCounter].x = dstx;
-	windows[windowCounter].y = dsty;
-	windows[windowCounter].width = width;
-	windows[windowCounter].height = height;*/
+	windows[windowCounter]._data.handle = hwnd;
+	windows[windowCounter]._data.x = dstx;
+	windows[windowCounter]._data.y = dsty;
 	return windowCounter;
+}
+
+int Window::x() {
+	return _data.x;
+}
+
+int Window::y() {
+	return _data.y;
 }
 
 void* Window::handle() {
@@ -232,6 +238,17 @@ void Kore::System::showWindow() {
 */
 
 Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame) {
+	WindowOptions defaultWin;
+	FramebufferOptions defaultFrame;
+
+	if (win == nullptr) {
+		win = &defaultWin;
+	}
+
+	if (frame == nullptr) {
+		frame = &defaultFrame;
+	}
+
 	wchar_t wbuffer[1024];
 	MultiByteToWideChar(CP_UTF8, 0, win->title, -1, wbuffer, 1024);
 
