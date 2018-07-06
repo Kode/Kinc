@@ -47,7 +47,6 @@ namespace Kore {
 		static void destroy(Window* window);
 		static Window* get(int index);
 		static int count();
-		void* handle();
 		void resize(int width, int height);
 		void move(int x, int y);
 		void changeWindowMode(WindowMode mode);

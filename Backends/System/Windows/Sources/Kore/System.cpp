@@ -260,7 +260,7 @@ namespace {
 	}
 }
 
-LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowWidth;
 	int windowHeight;
 	int windowId;
@@ -843,7 +843,7 @@ void handleDirectInputPad(int padIndex) {
 }
 
 bool Kore::System::handleMessages() {
-	static MSG message;
+	MSG message;
 
 	while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&message);
@@ -1032,5 +1032,8 @@ void initDisplays();
 
 Window* System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
 	initDisplays();
-	return Window::create(win, frame);
+	Window* window = Window::create(win, frame);
+	loadXInput();
+	initializeDirectInput();
+	return window;
 }

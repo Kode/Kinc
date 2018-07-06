@@ -15,9 +15,7 @@
 
 using namespace Kore;
 
-LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-void initializeDirectInput();
-void loadXInput();
+LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace {
 	const int maximumWindows = 10;
@@ -33,17 +31,16 @@ namespace {
 	void registerWindowClass(HINSTANCE hInstance, const wchar_t* className) {
 		WNDCLASSEXW wc = {sizeof(WNDCLASSEXA),
 		                  CS_OWNDC /*CS_CLASSDC*/,
-		                  MsgProc,
+		                  KoreWindowsMessageProcedure,
 		                  0L,
 		                  0L,
 		                  hInstance,
 		                  LoadIcon(hInstance, MAKEINTRESOURCE(107)),
-		                  nullptr /*LoadCursor(0, IDC_ARROW)*/,
+		                  LoadCursor(nullptr, IDC_ARROW),
 		                  0,
 		                  0,
 		                  className,
 		                  0};
-		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 		RegisterClassEx(&wc);
 	}
 
@@ -68,15 +65,23 @@ int Window::count() {
 	return windowCounter;
 }
 
+int Window::x() {
+	return _data.x;
+}
+
+int Window::y() {
+	return _data.y;
+}
+
 int Window::width() {
 	RECT rect;
-	GetClientRect((HWND)handle(), &rect);
+	GetClientRect(_data.handle, &rect);
 	return rect.right;
 }
 
 int Window::height() {
 	RECT rect;
-	GetClientRect((HWND)handle(), &rect);
+	GetClientRect(_data.handle, &rect);
 	return rect.bottom;
 }
 
@@ -102,8 +107,7 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 		::registerWindowClass(inst, windowClassName);
 	}
 
-	DWORD dwExStyle;
-	DWORD dwStyle;
+	DWORD dwStyle, dwExStyle;
 
 	RECT WindowRect;
 	WindowRect.left = 0;
@@ -183,29 +187,34 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 	::SetCursor(LoadCursor(0, IDC_ARROW));
 
 	DragAcceptFiles(hwnd, true);
-
-	if (windowCounter == 0) {
-		loadXInput();
-		initializeDirectInput();
-	}
-#endif /*#else // #ifdef KORE_OCULUS  */
+#endif
 
 	windows[windowCounter]._data.handle = hwnd;
 	windows[windowCounter]._data.x = dstx;
 	windows[windowCounter]._data.y = dsty;
+	windows[windowCounter]._data.dwStyle = dwStyle;
+	windows[windowCounter]._data.dwExStyle = dwExStyle;
 	return windowCounter;
 }
 
-int Window::x() {
-	return _data.x;
+void Window::resize(int width, int height) {
+	RECT rect;
+	rect.left = 0;
+	rect.top = 0;
+	rect.right = width;
+	rect.bottom = height;
+	AdjustWindowRectEx(&rect, _data.dwStyle, FALSE, _data.dwExStyle);
+	SetWindowPos(_data.handle, nullptr, x(), y(), rect.right - rect.left, rect.bottom - rect.top, 0);
 }
 
-int Window::y() {
-	return _data.y;
+void Window::move(int x, int y) {
+	_data.x = x;
+	_data.y = y;
+	SetWindowPos(_data.handle, nullptr, x, y, width(), height(), 0);
 }
 
-void* Window::handle() {
-	return _data.handle;
+void Window::changeWindowMode(WindowMode mode) {
+
 }
 
 void Window::destroy(Window* window) {

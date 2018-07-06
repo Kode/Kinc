@@ -24,7 +24,7 @@ namespace {
 }
 
 void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits) {
-	HWND windowHandle = (HWND)Kore::Window::get(window)->handle();
+	HWND windowHandle = Kore::Window::get(window)->_data.handle;
 
 #ifndef VR_RIFT
 	PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),

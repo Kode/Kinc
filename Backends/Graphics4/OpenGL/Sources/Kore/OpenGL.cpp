@@ -85,7 +85,7 @@ void Graphics4::destroy(int window) {
 		windows[window].glContext = nullptr;
 	}
 
-	HWND windowHandle = (HWND)Window::get(window)->handle();
+	HWND windowHandle = Window::get(window)->_data.handle;
 
 	// TODO (DK) shouldn't 'deviceContexts[windowId] = nullptr;' be moved out of here?
 	if (windows[window].deviceContext && !ReleaseDC(windowHandle, windows[window].deviceContext)) {

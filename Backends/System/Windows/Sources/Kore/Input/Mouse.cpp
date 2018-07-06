@@ -11,15 +11,15 @@ using namespace Kore;
 void Mouse::_lock(int windowId, bool truth) {
 	show(!truth);
 	if (truth) {
-		HWND hwnd = (HWND)Kore::Window::get(windowId)->handle();
-		SetCapture(hwnd);
+		HWND handle = Kore::Window::get(windowId)->_data.handle;
+		SetCapture(handle);
 		RECT rect;
-		GetWindowRect(hwnd, &rect);
+		GetWindowRect(handle, &rect);
 		ClipCursor(&rect);
 	}
 	else {
 		ReleaseCapture();
-		ClipCursor(NULL);
+		ClipCursor(nullptr);
 	}
 }
 
@@ -32,19 +32,17 @@ void Mouse::show(bool truth) {
 }
 
 void Mouse::setPosition(int windowId, int x, int y) {
-	HWND hwnd = (HWND)Kore::Window::get(windowId)->handle();
 	POINT point;
 	point.x = x;
 	point.y = y;
-	ClientToScreen(hwnd, &point);
+	ClientToScreen(Window::get(windowId)->_data.handle, &point);
 	SetCursorPos(point.x, point.y);
 }
 
 void Mouse::getPosition(int windowId, int& x, int& y) {
 	POINT point;
 	GetCursorPos(&point);
-	HWND hwnd = (HWND)Kore::Window::get(windowId)->handle();
-	ScreenToClient(hwnd, &point);
+	ScreenToClient(Window::get(windowId)->_data.handle, &point);
 	x = point.x;
 	y = point.y;
 }
