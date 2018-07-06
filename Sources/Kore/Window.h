@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kore/WindowData.h>
+
 namespace Kore {
 	struct FramebufferOptions {
 		bool verticalSync;
@@ -53,5 +55,8 @@ namespace Kore {
 		int y();
 		int width();
 		int height();
+
+		WindowData _data;
+		Window();
 	};
 }

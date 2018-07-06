@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kore/DisplayData.h>
+
 /*
 #ifdef KORE_LINUX
 int number;
@@ -19,25 +21,23 @@ namespace Kore {
 
 	class Display {
 	public:
-	    bool available;
-	    char name[32];
-	    int x;
-	    int y;
-	    int width;
-	    int height;
-		int frequency;
-		int pixelsPerInch;
-
-	    Display() : available(false), pixelsPerInch(72) {
-			name[0] = 0;
-	    }
-				
 		static Display* primary();
 		static Display* get(int index);
 		static int count();
 
+	    bool available();
+	    const char* name();
+	    int x();
+	    int y();
+	    int width();
+	    int height();
+		int frequency();
+		int pixelsPerInch();
+		
 		DisplayMode availableMode(int index);
 		int countAvailableModes();
-		void setMode(int index);
+
+		DisplayData _data;
+		Display();
 	};
 }

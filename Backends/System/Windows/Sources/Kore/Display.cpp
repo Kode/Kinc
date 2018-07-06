@@ -14,15 +14,8 @@
 using namespace Kore;
 
 namespace {
-	class WindowsDisplay : public Display {
-	public:
-		HMONITOR id;
-		bool isPrimary;
-		WindowsDisplay() : id(nullptr), isPrimary(false) {}
-	};
-
 	const int maximumDisplays = 10;
-	WindowsDisplay displays[maximumDisplays];
+	Display displays[maximumDisplays];
 	int screenCounter = -1;
 }
 
@@ -37,34 +30,33 @@ BOOL CALLBACK enumerationCallback(HMONITOR monitor, HDC, LPRECT, LPARAM lparam) 
 
 	int freeSlot = 0;
 	for (; freeSlot < maximumDisplays; ++freeSlot) {
-		if (displays[freeSlot].id == monitor) {
+		if (displays[freeSlot]._data.id == monitor) {
 			return FALSE;
 		}
 
-		if (displays[freeSlot].id == NULL) {
+		if (displays[freeSlot]._data.id == NULL) {
 			break;
 		}
 	}
 
-	WindowsDisplay& display = displays[freeSlot];
-	strcpy_s(display.name, 32, info.szDevice);
-	display.id = monitor;
-	display.isPrimary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
-	display.available = true;
-	display.x = info.rcMonitor.left;
-	display.y = info.rcMonitor.top;
-	display.width = info.rcMonitor.right - info.rcMonitor.left;
-	display.height = info.rcMonitor.bottom - info.rcMonitor.top;
-
-
-	HDC hdc = CreateDCA(nullptr, display.name, nullptr, nullptr);
-	display.pixelsPerInch = GetDeviceCaps(hdc, LOGPIXELSX);
+	Display& display = displays[freeSlot];
+	strcpy_s(display._data.name, 32, info.szDevice);
+	display._data.id = monitor;
+	display._data.primary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
+	display._data.available = true;
+	display._data.x = info.rcMonitor.left;
+	display._data.y = info.rcMonitor.top;
+	display._data.width = info.rcMonitor.right - info.rcMonitor.left;
+	display._data.height = info.rcMonitor.bottom - info.rcMonitor.top;
+	
+	HDC hdc = CreateDCA(nullptr, display._data.name, nullptr, nullptr);
+	display._data.ppi = GetDeviceCaps(hdc, LOGPIXELSX);
 	DeleteDC(hdc);
 
 	DEVMODEA devMode = {0};
 	devMode.dmSize = sizeof(DEVMODEA);
-	EnumDisplaySettingsA(display.name, ENUM_CURRENT_SETTINGS, &devMode);
-	display.frequency = devMode.dmDisplayFrequency;
+	EnumDisplaySettingsA(display._data.name, ENUM_CURRENT_SETTINGS, &devMode);
+	display._data.frequency = devMode.dmDisplayFrequency;
 
 	++screenCounter;
 	return TRUE;
@@ -81,9 +73,9 @@ int Display::count() {
 
 Display* Display::primary() {
 	for (int screenIndex = 0; screenIndex < maximumDisplays; ++screenIndex) {
-		WindowsDisplay& display = displays[screenIndex];
+		Display& display = displays[screenIndex];
 
-		if (display.available && display.isPrimary) {
+		if (display._data.available && display._data.primary) {
 			return &display;
 		}
 	}
@@ -99,7 +91,7 @@ Display* Display::get(int index) {
 DisplayMode Display::availableMode(int index) {
 	DEVMODEA devMode = {0};
 	devMode.dmSize = sizeof(DEVMODEA);
-	EnumDisplaySettingsA(name, index, &devMode);
+	EnumDisplaySettingsA(_data.name, index, &devMode);
 	DisplayMode mode;
 	mode.width = devMode.dmPelsWidth;
 	mode.height = devMode.dmPelsHeight;
@@ -111,15 +103,15 @@ int Display::countAvailableModes() {
 	DEVMODEA devMode = {0};
 	devMode.dmSize = sizeof(DEVMODEA);
 	int i = 0;
-	for (; EnumDisplaySettingsA(name, i, &devMode) != FALSE; ++i) { }
+	for (; EnumDisplaySettingsA(_data.name, i, &devMode) != FALSE; ++i) { }
 	return i;
 }
 
-void Display::setMode(int index) {
+/*void Display::setMode(int index) {
 #pragma message("TODO (DK) implement changeResolution(w,h,fs) for d3d")
 
 #if !defined(KORE_OPENGL) && !defined(KORE_VULKAN)
-/*Application::the()->setWidth(width);
+Application::the()->setWidth(width);
 Application::the()->setHeight(height);
 Application::the()->setFullscreen(fullscreen);
 
@@ -139,9 +131,8 @@ if (!Application::the()->fullscreen()) {
 
     Graphics::changeResolution(width, height);
 }
-*/
 #endif
-}
+}*/
 
 /*int Kore::System::desktopWidth() {
 	RECT size;
@@ -156,3 +147,43 @@ int Kore::System::desktopHeight() {
 	GetWindowRect(desktop, &size);
 	return size.bottom;
 }*/
+
+int Display::pixelsPerInch() {
+	return _data.ppi;
+}
+
+DisplayData::DisplayData() : ppi(72) {
+	name[0] = 0;
+}
+
+bool Display::available() {
+	return _data.available;
+}
+
+const char* Display::name() {
+	return _data.name;
+}
+
+int Display::x() {
+	return _data.x;
+}
+
+int Display::y() {
+	return _data.y;
+}
+
+int Display::width() {
+	return _data.width;
+}
+
+int Display::height() {
+	return _data.height;
+}
+
+int Display::frequency() {
+	return _data.frequency;
+}
+
+Display::Display() {
+
+}

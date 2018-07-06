@@ -21,15 +21,7 @@ void loadXInput();
 
 namespace {
 	const int maximumWindows = 10;
-	class WindowsWindow : public Window {
-	public:
-		HWND handle;
-		bool mouseInside;
-
-		WindowsWindow() : handle(nullptr), mouseInside(false) {}
-	};
-
-	WindowsWindow windows[maximumWindows];
+	Window windows[maximumWindows];
 	int windowCounter = -1;
 
 #ifdef KORE_OCULUS
@@ -61,7 +53,7 @@ namespace {
 
 int idFromHWND(HWND handle) {
 	for (int i = 0; i < maximumWindows; ++i) {
-		if (windows[i].handle == handle) {
+		if (windows[i]._data.handle == handle) {
 			return i;
 		}
 	}
@@ -157,8 +149,8 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 
 	Kore::Display* displayDevice = targetDisplay < 0 ? Kore::Display::primary() : Kore::Display::get(targetDisplay);
 
-	int dstx = displayDevice->x;
-	int dsty = displayDevice->y;
+	int dstx = displayDevice->x();
+	int dsty = displayDevice->y();
 	uint xres = GetSystemMetrics(SM_CXSCREEN);
 	uint yres = GetSystemMetrics(SM_CYSCREEN);
 	uint w = width;
@@ -168,8 +160,8 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 	default:               // fall through
 	case WindowModeWindow: // fall through
 	case WindowModeFullScreen: {
-		dstx += x < 0 ? (displayDevice->width - w) >> 1 : x;
-		dsty += y < 0 ? (displayDevice->height - h) >> 1 : y;
+		dstx += x < 0 ? (displayDevice->width() - w) >> 1 : x;
+		dsty += y < 0 ? (displayDevice->height() - h) >> 1 : y;
 	} break;
 
 	case WindowModeExclusiveFullscreen: {
@@ -207,20 +199,14 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 }
 
 void* Window::handle() {
-	WindowsWindow* win = (WindowsWindow*)this;
-	return win->handle;
+	return _data.handle;
 }
 
 void Window::destroy(Window* window) {
-	HWND hwnd = (HWND)window->handle();
-
-	// TODO (DK) shouldn't 'hwnd = nullptr' moved out of here?
-	if (hwnd && !DestroyWindow(hwnd)) {
-		// MessageBox(NULL,"Could Not Release hWnd.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
-		hwnd = nullptr;
+	if (window->_data.handle != nullptr) {
+		DestroyWindow(window->_data.handle);
 	}
-
-	//**window->handle = nullptr;
+	window->_data.handle = nullptr;
 
 	// TODO (DK) only unregister after the last window is destroyed?
 	if (!UnregisterClass(windowClassName, GetModuleHandle(nullptr))) {
@@ -251,8 +237,7 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 
 	int windowId = createWindow(wbuffer, win->x, win->y, win->width, win->height, win->mode, win->display);
 
-	HWND hwnd = windows[windowId].handle;
-	long style = GetWindowLong(hwnd, GWL_STYLE);
+	long style = GetWindowLong(windows[windowId]._data.handle, GWL_STYLE);
 
 	if (win->windowFeatures & WindowFeatureResizable) {
 		style |= WS_SIZEBOX;
@@ -266,7 +251,7 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 		style ^= WS_MINIMIZEBOX;
 	}
 
-	SetWindowLong(hwnd, GWL_STYLE, style);
+	SetWindowLong(windows[windowId]._data.handle, GWL_STYLE, style);
 
 	Graphics4::setAntialiasingSamples(frame->samplesPerPixel);
 	bool vsync = frame->verticalSync;
@@ -285,3 +270,7 @@ void Kore::System::_shutdown() {
     }
 }
 */
+
+WindowData::WindowData() : handle(nullptr), mouseInside(false) {}
+
+Window::Window() {}
