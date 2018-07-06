@@ -116,7 +116,6 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 	WindowRect.bottom = height;
 
 	switch (windowMode) {
-	default: // fall through
 	case WindowModeWindow:
 		dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 		dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
@@ -129,53 +128,53 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 		EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &startDeviceMode);
 		deviceModeChanged = true;
 
-		DEVMODEW dmScreenSettings;                              // Device Mode
-		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings)); // Makes Sure Memory's Cleared
-		dmScreenSettings.dmSize = sizeof(dmScreenSettings);     // Size Of The Devmode Structure
-		dmScreenSettings.dmPelsWidth = width;                   // Selected Screen Width
-		dmScreenSettings.dmPelsHeight = height;                 // Selected Screen Height
-		dmScreenSettings.dmBitsPerPel = 32;                     // Selected Bits Per Pixel
+		DEVMODEW dmScreenSettings;
+		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+		dmScreenSettings.dmPelsWidth = width;
+		dmScreenSettings.dmPelsHeight = height;
+		dmScreenSettings.dmBitsPerPel = 32;
 		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-		// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
 		if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
 			// return FALSE;
 		}
 
-		dwExStyle = WS_EX_APPWINDOW;
 		dwStyle = WS_POPUP;
+		dwExStyle = WS_EX_APPWINDOW;
 		ShowCursor(FALSE);
 		break;
 	}
 	}
 
-	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle); // Adjust Window To True Requested Size
+	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);
 
-	Kore::Display* displayDevice = targetDisplay < 0 ? Kore::Display::primary() : Kore::Display::get(targetDisplay);
+	Display* display = targetDisplay < 0 ? Display::primary() : Display::get(targetDisplay);
 
-	int dstx = displayDevice->x();
-	int dsty = displayDevice->y();
-	uint xres = GetSystemMetrics(SM_CXSCREEN);
-	uint yres = GetSystemMetrics(SM_CYSCREEN);
-	uint w = width;
-	uint h = height;
+	int dstx = display->x();
+	int dsty = display->y();
+	int dstw = width;
+	int dsth = height;
 
 	switch (windowMode) {
-	default:               // fall through
-	case WindowModeWindow: // fall through
-	case WindowModeFullScreen: {
-		dstx += x < 0 ? (displayDevice->width() - w) >> 1 : x;
-		dsty += y < 0 ? (displayDevice->height() - h) >> 1 : y;
-	} break;
-
-	case WindowModeExclusiveFullscreen: {
+	case WindowModeWindow:
+		dstx += x < 0 ? (display->width() - width) / 2 : x;
+		dsty += y < 0 ? (display->height() - height) / 2 : y;
+		dstw = WindowRect.right - WindowRect.left;
+		dsth = WindowRect.bottom - WindowRect.top;
+		break;
+	case WindowModeFullScreen:
+		dstw = display->width();
+		dsth = display->height();
+		break;
+	case WindowModeExclusiveFullscreen:
 		// dstx = 0;
 		// dsty = 0;
-	} break;
+		break;
 	}
 
-	HWND hwnd = CreateWindowEx(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, WindowRect.right - WindowRect.left,
-	                           WindowRect.bottom - WindowRect.top, nullptr, nullptr, inst, nullptr);
+	HWND hwnd =
+	    CreateWindowEx(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, dstw, dsth, nullptr, nullptr, inst, nullptr);
 
 	if (windowCounter == 0) {
 		if (windowMode == WindowModeExclusiveFullscreen) {
@@ -183,9 +182,7 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 		}
 	}
 
-	GetFocus(); // TODO (DK) that seems like a useless call, as the return value isn't saved anywhere?
-	::SetCursor(LoadCursor(0, IDC_ARROW));
-
+	SetCursor(LoadCursor(0, IDC_ARROW));
 	DragAcceptFiles(hwnd, true);
 #endif
 
@@ -194,10 +191,16 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 	windows[windowCounter]._data.y = dsty;
 	windows[windowCounter]._data.dwStyle = dwStyle;
 	windows[windowCounter]._data.dwExStyle = dwExStyle;
+	windows[windowCounter]._data.mode = windowMode;
+	windows[windowCounter]._data.display = targetDisplay;
 	return windowCounter;
 }
 
 void Window::resize(int width, int height) {
+	if (_data.mode != 0) {
+		return;
+	}
+
 	RECT rect;
 	rect.left = 0;
 	rect.top = 0;
@@ -208,13 +211,30 @@ void Window::resize(int width, int height) {
 }
 
 void Window::move(int x, int y) {
+	if (_data.mode != 0) {
+		return;
+	}
+
 	_data.x = x;
 	_data.y = y;
 	SetWindowPos(_data.handle, nullptr, x, y, width(), height(), 0);
 }
 
 void Window::changeWindowMode(WindowMode mode) {
-
+	switch (mode) {
+	case WindowModeWindow:
+		break;
+	case WindowModeFullScreen: {
+		SetWindowLong(_data.handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
+		SetWindowLong(_data.handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
+		Display* display = _data.display < 0 ? Display::primary() : Display::get(_data.display);
+		SetWindowPos(_data.handle, nullptr, display->x(), display->y(), display->width(), display->height(), 0);
+		break;
+	}
+	case WindowModeExclusiveFullscreen:
+		break;
+	}
+	_data.mode = mode;
 }
 
 void Window::destroy(Window* window) {
@@ -232,19 +252,21 @@ void Window::destroy(Window* window) {
 	--windowCounter;
 }
 
-/*
-void Kore::System::setTitle(const char* title, int window) {
-    wchar_t buffer[1024];
-    MultiByteToWideChar(CP_UTF8, 0, title, -1, buffer, 1024);
-    SetWindowText(windows[window]->hwnd, buffer);
+void Window::show() {
+	ShowWindow(_data.handle, SW_SHOWDEFAULT);
+	UpdateWindow(_data.handle);
 }
 
-// TODO (DK) windowId
-void Kore::System::showWindow() {
-    ShowWindow(windows[0]->hwnd, SW_SHOWDEFAULT);
-    UpdateWindow(windows[0]->hwnd);
+void Window::hide() {
+	ShowWindow(_data.handle, SW_HIDE);
+	UpdateWindow(_data.handle);
 }
-*/
+
+void Window::setTitle(const char* title) {
+	wchar_t buffer[1024];
+	MultiByteToWideChar(CP_UTF8, 0, title, -1, buffer, 1024);
+	SetWindowTextW(_data.handle, buffer);
+}
 
 Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame) {
 	WindowOptions defaultWin;
@@ -262,22 +284,6 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 	MultiByteToWideChar(CP_UTF8, 0, win->title, -1, wbuffer, 1024);
 
 	int windowId = createWindow(wbuffer, win->x, win->y, win->width, win->height, win->mode, win->display);
-
-	long style = GetWindowLong(windows[windowId]._data.handle, GWL_STYLE);
-
-	if (win->windowFeatures & WindowFeatureResizable) {
-		style |= WS_SIZEBOX;
-	}
-
-	if (win->windowFeatures & WindowFeatureMaximizable) {
-		style |= WS_MAXIMIZEBOX;
-	}
-
-	if ((win->windowFeatures & WindowFeatureMinimizable) == 0) {
-		style ^= WS_MINIMIZEBOX;
-	}
-
-	SetWindowLong(windows[windowId]._data.handle, GWL_STYLE, style);
 
 	Graphics4::setAntialiasingSamples(frame->samplesPerPixel);
 	bool vsync = frame->verticalSync;
@@ -297,6 +303,10 @@ void Kore::System::_shutdown() {
 }
 */
 
-WindowData::WindowData() : handle(nullptr), mouseInside(false) {}
+WindowData::WindowData() : handle(nullptr), mouseInside(false), resizeCallback(nullptr) {}
 
 Window::Window() {}
+
+void Window::setResizeCallback(void (*value)(int x, int y)) {
+	_data.resizeCallback = value;
+}

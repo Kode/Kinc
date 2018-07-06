@@ -1032,6 +1032,12 @@ void initDisplays();
 
 Window* System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
 	initDisplays();
+	WindowOptions defaultWin;
+	if (win == nullptr) {
+		win = &defaultWin;
+	}
+	win->width = width;
+	win->height = height;
 	Window* window = Window::create(win, frame);
 	loadXInput();
 	initializeDirectInput();
