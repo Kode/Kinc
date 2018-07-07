@@ -86,12 +86,6 @@ void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBu
 	else {
 		windows[window].glContext = tempGlContext;
 	}
-
-	//if (System::hasShowWindowFlag()) {
-		ShowWindow(windowHandle, SW_SHOW);
-		SetForegroundWindow(windowHandle); // slightly higher priority
-		SetFocus(windowHandle);
-	//}
 #else
 	deviceContexts[window] = GetDC(windowHandle);
 	glContexts[window] = wglGetCurrentContext();

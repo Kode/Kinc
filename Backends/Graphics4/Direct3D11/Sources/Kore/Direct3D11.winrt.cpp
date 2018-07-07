@@ -10,15 +10,22 @@
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics4/TextureArray.h>
+
 #undef CreateWindow
+
 #include <Kore/System.h>
 #include <Kore/SystemMicrosoft.h>
+
+#include <Kore/Display.h>
+#include <Kore/Window.h>
+
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
 #include <d3d11_4.h>
 #include <dxgi1_5.h>
 #include <wrl.h>
 #endif
+
 #include <vector>
 
 #include <malloc.h>
@@ -33,11 +40,14 @@
 ID3D11Device* device;
 ID3D11DeviceContext* context;
 ID3D11RenderTargetView* renderTargetView;
+ID3D11Texture2D* depthStencil;
 ID3D11DepthStencilView* depthStencilView;
 ID3D11Texture2D* backBuffer;
 
 int renderTargetWidth = 4096;
 int renderTargetHeight = 4096;
+int newRenderTargetWidth = 4096;
+int newRenderTargetHeight = 4096;
 
 Kore::u8 vertexConstants[1024 * 4];
 Kore::u8 fragmentConstants[1024 * 4];
@@ -68,9 +78,9 @@ namespace {
 
 	D3D_FEATURE_LEVEL featureLevel;
 #ifdef KORE_WINDOWSAPP
-	IDXGISwapChain1* swapChain;
+	IDXGISwapChain1* swapChain = nullptr;
 #else
-	IDXGISwapChain* swapChain;
+	IDXGISwapChain* swapChain = nullptr;
 #endif
 	D3D11_SAMPLER_DESC lastSamplers[16];
 
@@ -102,6 +112,28 @@ namespace {
 
 void Graphics4::destroy(int windowId) {}
 
+static void createBackbuffer(int antialiasingSamples) {
+	Microsoft::affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+
+	Microsoft::affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+
+	D3D11_TEXTURE2D_DESC backBufferDesc;
+	backBuffer->GetDesc(&backBufferDesc);
+	renderTargetWidth = backBufferDesc.Width;
+	renderTargetHeight = backBufferDesc.Height;
+
+	// TODO (DK) map depth/stencilBufferBits arguments
+	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL,
+	                                       D3D11_USAGE_DEFAULT, 0U, antialiasingSamples > 1 ? antialiasingSamples : 1,
+	                                       antialiasingSamples > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
+
+	Microsoft::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+
+	Microsoft::affirm(device->CreateDepthStencilView(
+	    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D),
+	    &depthStencilView));
+}
+
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
 #ifdef KORE_VR
 	vsync = false;
@@ -111,7 +143,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
-	HWND hwnd = (HWND)System::windowHandle(windowId);
+	HWND hwnd = Window::get(windowId)->_data.handle;
 
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
@@ -165,7 +197,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
 		swapChainDesc.Flags = 0;
-		swapChainDesc.OutputWindow = (HWND)System::windowHandle(windowId);
+		swapChainDesc.OutputWindow = Window::get(windowId)->_data.handle;
 		swapChainDesc.Windowed = true;
 #endif
 
@@ -251,32 +283,12 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	affirm(contextPtr.As(&context3Ptr));
 	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
 #else
-	Microsoft::affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
-
-	Microsoft::affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
-
-	D3D11_TEXTURE2D_DESC backBufferDesc;
-	backBuffer->GetDesc(&backBufferDesc);
-	renderTargetWidth = backBufferDesc.Width;
-	renderTargetHeight = backBufferDesc.Height;
-
-	// TODO (DK) map depth/stencilBufferBits arguments
-	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL,
-	                                       D3D11_USAGE_DEFAULT, 0U, antialiasingSamples() > 1 ? antialiasingSamples() : 1,
-	                                       antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
-
-	ID3D11Texture2D* depthStencil;
-	Microsoft::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-
-	Microsoft::affirm(device->CreateDepthStencilView(
-	    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples() > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D),
-	    &depthStencilView));
-
+	createBackbuffer(antialiasingSamples());
 	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(backBufferDesc.Width), static_cast<float>(backBufferDesc.Height));
+	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(renderTargetWidth), static_cast<float>(renderTargetHeight));
 	context->RSSetViewports(1, &viewPort);
 #endif
 
@@ -320,28 +332,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	Microsoft::affirm(device->CreateBlendState(&blendDesc, &blending));
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
-
-#ifdef KORE_WINDOWS
-	if (System::hasShowWindowFlag()) {
-		ShowWindow(hwnd, SW_SHOWDEFAULT);
-		UpdateWindow(hwnd);
-	}
-#endif
-
-	System::makeCurrent(windowId);
-}
-
-void Graphics4::makeCurrent(int contextId) {
-	// TODO (DK) implement me
-}
-
-void Graphics4::clearCurrent() {
-	// TODO (DK) implement me
 }
 
 void Graphics4::flush() {}
-
-void Graphics4::changeResolution(int width, int height) {}
 
 void Graphics4::drawIndexedVertices() {
 	if (currentPipeline->tessellationControlShader != nullptr) {
@@ -433,6 +426,15 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 }
 
 void Graphics4::begin(int windowId) {
+	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
+		depthStencil->Release();
+		depthStencilView->Release();
+		renderTargetView->Release();
+		backBuffer->Release();
+		Microsoft::affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		createBackbuffer(antialiasingSamples());
+		restoreRenderTarget();
+	}
 #ifdef KORE_WINDOWSAPP
 	// TODO (DK) do i need to do something here?
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
@@ -477,15 +479,7 @@ void Graphics4::setPipeline(PipelineState* pipeline) {
 
 void Graphics4::end(int windowId) {}
 
-bool Graphics4::vsynced() {
-	return vsync;
-}
-
-unsigned Graphics4::refreshRate() {
-	return hz;
-}
-
-bool Graphics4::swapBuffers(int windowId) {
+bool Graphics4::swapBuffers() {
 	HRESULT hr = swapChain->Present(vsync, 0);
 	// TODO: if (hr == DXGI_STATUS_OCCLUDED)...
 	// http://www.pouet.net/topic.php?which=10454
@@ -966,8 +960,6 @@ void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
 	// TODO
 }
 
-void Graphics4::setup() {}
-
 uint queryCount = 0;
 std::vector<ID3D11Query*> queryPool;
 
@@ -1030,4 +1022,17 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 
 void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
 	array->set(unit);
+}
+
+void Graphics4::_resize(int window, int width, int height) {
+#ifdef KORE_WINDOWS
+	newRenderTargetWidth = width;
+	newRenderTargetHeight = height;
+#endif
+}
+
+void Graphics4::_changeFramebuffer(int window, FramebufferOptions* frame) {}
+
+bool Window::vsynced() {
+	return vsync;
 }

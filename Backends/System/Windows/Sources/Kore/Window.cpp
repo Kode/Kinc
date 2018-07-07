@@ -352,6 +352,10 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 #endif
 	Graphics4::init(windowId, frame->depthBufferBits, frame->stencilBufferBits, vsync);
 
+	if (win->visible) {
+		windows[windowId].show();
+	}
+
 	return &windows[windowId];
 }
 
