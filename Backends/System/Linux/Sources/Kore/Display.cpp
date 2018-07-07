@@ -1,104 +1,88 @@
 #include "pch.h"
 
-#include <Kore/Log.h>
+#include <Kore/Display.h>
 
-#include "Display.h"
+#include <X11/Xatom.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <X11/keysym.h>
+#include <X11/Xlib.h>
 
-namespace Kore {
-	namespace Display {
-		void fatalError(const char* message) {
-			printf("main: %s\n", message);
-			exit(1);
-		}
+#include <stdlib.h>
 
-		enum { MAXIMUM_DISPLAY_COUNT = 10 };
+namespace {
+	Kore::Display display;
+}
 
-		DeviceInfo displays[MAXIMUM_DISPLAY_COUNT];
-		int displayCounter = -1;
-		bool initialized = false;
-#ifdef KORE_OPENGL
-		volatile static struct StaticInitializer {
-			StaticInitializer() {
-				enumerate();
-			}
-		} displayInitializer;
+int Kore::Display::count() {
+	return 1;
+}
 
-		void enumDisplayMonitors(DeviceInfo screens[], int& displayCounter);
-#endif
-		void enumerate() {
-			if (initialized) {
-				return;
-			}
+Kore::Display* Kore::Display::primary() {
+	return &display;
+}
 
-			initialized = true;
-#ifdef KORE_OPENGL
-			enumDisplayMonitors(displays, displayCounter);
-#endif
-		}
-
-		int count() {
-			return displayCounter + 1;
-		}
-
-		int width(int index) {
-			return displays[index].width;
-		}
-
-		int height(int index) {
-			return displays[index].height;
-		}
-
-		int x(int index) {
-			return displays[index].x;
-		}
-
-		int y(int index) {
-			return displays[index].y;
-		}
-
-		bool isPrimary(int index) {
-			return displays[index].isPrimary;
-		}
-
-		const DeviceInfo* primaryScreen() {
-			for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {
-				const DeviceInfo& info = displays[index];
-
-				if (info.isAvailable && info.isPrimary) {
-					return &info;
-				}
-			}
-
-			if (!displays[0].isAvailable) {
-				log(Warning, "No display attached?");
-				// TODO (DK) throw exception?
-				return nullptr;
-			}
-
-			log(Warning, "No primary display defined, returning first display");
-			return &displays[0];
-		}
-
-		const DeviceInfo* screenById(int id) {
-			for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {
-				const DeviceInfo& info = displays[index];
-
-				if (info.number == id) {
-					return &info;
-				}
-			}
-
-			if (!displays[0].isAvailable) {
-				log(Warning, "No display available");
-				// TODO (DK) throw exception?
-				return nullptr;
-			}
-
-			log(Warning, "No display with id \"%i\" found, returning first display", id);
-			return &displays[0];
-		}
+Kore::Display* Kore::Display::get(int index) {
+	if (index > 0) {
+		return nullptr;
 	}
+	return &display;
+}
+
+Kore::DisplayMode Kore::Display::availableMode(int index) {
+	DisplayMode mode;
+	mode.width = 800;
+	mode.height = 600;
+	mode.frequency = 60;
+	mode.bitsPerPixel = 32;
+	return mode;
+}
+
+int Kore::Display::countAvailableModes() {
+	return 1;
+}
+
+int Kore::Display::pixelsPerInch() {
+	return 72;
+}
+
+Kore::DisplayData::DisplayData() {}
+
+bool Kore::Display::available() {
+	return true;
+}
+
+const char* Kore::Display::name() {
+	return "Display";
+}
+
+int Kore::Display::x() {
+	return 0;
+}
+
+int Kore::Display::y() {
+	return 0;
+}
+
+int Kore::Display::width() {
+#ifdef KORE_OPENGL
+	return XWidthOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
+#else
+	return 1920;
+#endif
+}
+
+int Kore::Display::height() {
+#ifdef KORE_OPENGL
+	return XHeightOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
+#else
+	return 1080;
+#endif
+}
+
+int Kore::Display::frequency() {
+	return 60;
+}
+
+Kore::Display::Display() {
+
 }

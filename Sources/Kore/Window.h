@@ -16,7 +16,7 @@ namespace Kore {
 
 	enum WindowMode {
 		WindowModeWindow = 0,
-		WindowModeFullScreen = 1,
+		WindowModeFullscreen = 1,
 		WindowModeExclusiveFullscreen = 2, // Only relevant for Windows
 	};
 
@@ -34,7 +34,7 @@ namespace Kore {
 		int width;
 		int height;
 		int display;
-		
+
 		bool visible;
 		int windowFeatures;
 		WindowMode mode;

@@ -65,7 +65,7 @@ namespace {
 
 	Graphics4::TextureFilter minFilters[32];
 	Graphics4::MipmapFilter mipFilters[32];
-	
+
 	int _width;
 	int _height;
 	int _renderTargetWidth;
@@ -167,6 +167,14 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 
 	lastPipeline = nullptr;
+
+#ifdef KORE_LINUX
+    unsigned vertexArray;
+	glGenVertexArrays(1, &vertexArray);
+	glCheckErrors();
+	glBindVertexArray(vertexArray);
+	glCheckErrors();
+#endif
 }
 
 bool Kore::Window::vsynced() {
@@ -283,6 +291,10 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int c
 void androidSwapBuffers();
 #endif
 
+#ifdef KORE_LINUX
+void swapLinuxBuffers(int window);
+#endif
+
 bool Graphics4::swapBuffers() {
 #ifdef KORE_WINDOWS
 	for (int i = 9; i >= 0; --i) {
@@ -297,6 +309,8 @@ bool Graphics4::swapBuffers() {
 	wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
 #elif defined(KORE_ANDROID)
     androidSwapBuffers();
+#elif defined(KORE_LINUX)
+    swapLinuxBuffers(0);
 #endif
 	return true;
 }
@@ -308,7 +322,7 @@ void beginGL();
 void Graphics4::begin(int window) {
 	currentWindow = window;
 	setWindowRenderTarget(window);
-	
+
 	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
 
 #ifdef KORE_IOS

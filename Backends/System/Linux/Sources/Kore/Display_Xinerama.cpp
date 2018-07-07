@@ -1,9 +1,10 @@
+#include "pch.h"
+
 //#define KORE_LINUX_DISPLAY_XINERAMA 1
 
 //#if defined(KORE_LINUX_DISPLAY_XINERAMA)
 
-#include "Display.h"
-#include "pch.h"
+#include <Kore/Display.h>
 #include <Kore/Log.h>
 
 #ifdef KORE_OPENGL
@@ -17,10 +18,10 @@
 
 #ifdef KORE_OPENGL
 namespace Kore {
-	namespace Display {
+	namespace Display_ {
 		void fatalError(const char* message);
 
-		void enumDisplayMonitors(DeviceInfo displays[], int& displayCounter) {
+		/*void enumDisplayMonitors(DeviceInfo displays[], int& displayCounter) {
 			::Display* dpy = XOpenDisplay(NULL);
 
 			if (dpy == NULL) {
@@ -75,7 +76,7 @@ namespace Kore {
 				di.height = 1080;
 				di.isPrimary = true;
 			}
-		}
+		}*/
 	}
 }
 #endif

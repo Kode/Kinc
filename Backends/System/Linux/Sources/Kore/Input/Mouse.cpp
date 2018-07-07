@@ -54,7 +54,7 @@ bool Mouse::canLock(int windowId) {
 void Mouse::show(bool truth) {
 #ifdef KORE_OPENGL
 	Display* dpy = XOpenDisplay(0);
-	::Window win = (XID)System::windowHandle(0);
+	::Window win = (XID)Window::get(0)->_data.handle;
 	if (truth) {
 		XUndefineCursor(dpy, win);
 	}
@@ -72,7 +72,7 @@ void Mouse::show(bool truth) {
 void Mouse::setPosition(int windowId, int x, int y) {
 #ifdef KORE_OPENGL
 	Display* dpy = XOpenDisplay(0);
-	::Window win = (XID)System::windowHandle(windowId);
+	::Window win = (XID)Window::get(windowId)->_data.handle;
 
 	XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
 	XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position.
@@ -84,7 +84,7 @@ void Mouse::setPosition(int windowId, int x, int y) {
 void Mouse::getPosition(int windowId, int& x, int& y) {
 #ifdef KORE_OPENGL
 	Display* dpy = XOpenDisplay(NULL);
-	::Window win = (XID)System::windowHandle(windowId);
+	::Window win = (XID)Window::get(windowId)->_data.handle;
 
 	::Window inwin;
 	::Window inchildwin;

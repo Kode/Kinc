@@ -7,7 +7,7 @@
 
 #include "Input/Gamepad.h"
 
-#include "Display.h"
+#include <Kore/Display.h>
 
 #include <cstring>
 
@@ -66,7 +66,7 @@ namespace {
 
 #ifdef KORE_OPENGL
 namespace windowimpl {
-	struct KoreWindow : public Kore::KoreWindowBase {
+	/*struct KoreWindow : public Kore::KoreWindowBase {
 		Window handle;
 		GLXContext context;
 
@@ -74,14 +74,14 @@ namespace windowimpl {
 			this->handle = handle;
 			this->context = context;
 		}
-	};
+	};*/
 
-	KoreWindow* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	Kore::Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	int windowCounter = -1;
 
 	int idFromWindow(Window window) {
 		for (int windowIndex = 0; windowIndex < sizeof(windows) / sizeof(windows[0]); ++windowIndex) {
-			if (windows[windowIndex]->handle == window) {
+			if (windows[windowIndex]->_data.handle == window) {
 				return windowIndex;
 			}
 		}
@@ -90,15 +90,6 @@ namespace windowimpl {
 	}
 }
 #endif
-
-void Kore::System::setup() {
-	Display::enumerate();
-}
-
-bool Kore::System::isFullscreen() {
-	// TODO (DK)
-	return false;
-}
 
 #ifndef KORE_OPENGL
 xcb_connection_t* connection;
@@ -218,11 +209,11 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
         	GLX_CONTEXT_PROFILE_MASK_ARB , GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 			None
 		};
-		cx = glXCreateContextAttribsARB(dpy, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->context, GL_TRUE, contextAttribs);
+		cx = glXCreateContextAttribsARB(dpy, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, GL_TRUE, contextAttribs);
 	}
 
 	if (cx == NULL) {
-		cx = glXCreateContext(dpy, vi, wcounter == 0 ? None : windowimpl::windows[0]->context, /* direct rendering if possible */ GL_TRUE);
+		cx = glXCreateContext(dpy, vi, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, /* direct rendering if possible */ GL_TRUE);
 	}
 
 	if (cx == NULL) {
@@ -247,7 +238,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 	switch (windowMode) {
 	case Kore::WindowModeFullscreen: // fall through
-	case Kore::WindowModeBorderless: {
+	case Kore::WindowModeExclusiveFullscreen: {
 		Atom awmHints = XInternAtom(dpy, "_MOTIF_WM_HINTS", 0);
 		MwmHints hints;
 		hints.flags = MWM_HINTS_DECORATIONS;
@@ -260,28 +251,23 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	// (6) bind the rendering context to the window
 	glXMakeCurrent(dpy, win, cx);
 
-	const Kore::Display::DeviceInfo* deviceInfo = targetDisplay < 0 ? Kore::Display::primaryScreen() : Kore::Display::screenById(targetDisplay);
+	Kore::Display* deviceInfo = targetDisplay < 0 ? Kore::Display::primary() : Kore::Display::get(targetDisplay);
 
-	int dstx = deviceInfo->x;
-	int dsty = deviceInfo->y;
+	int dstx = deviceInfo->x();
+	int dsty = deviceInfo->y();
 
 	switch (windowMode) {
-	default:                         // fall through
-	case Kore::WindowModeWindow:     // fall through
-	case Kore::WindowModeBorderless: // fall through
-	case Kore::WindowModeFullscreen: {
-		int dw = deviceInfo->width;
-		int dh = deviceInfo->height;
+	default: {
+		int dw = deviceInfo->width();
+		int dh = deviceInfo->height();
 		dstx += x < 0 ? (dw - width) / 2 : x;
 		dsty += y < 0 ? (dh - height) / 2 : y;
 	} break;
 	}
 
 	// (7) request the X window to be displayed on the screen
-	if (Kore::System::hasShowWindowFlag()) {
-		XMapWindow(dpy, win);
-		XMoveWindow(dpy, win, dstx, dsty);
-	}
+	XMapWindow(dpy, win);
+	XMoveWindow(dpy, win, dstx, dsty);
 	// Scheduler::addFrameTask(HandleMessages, 1001);
 
 	// Drag and drop
@@ -299,9 +285,11 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 	//**XSetSelectionOwner(dpy, clipboard, win, CurrentTime);
 
-	windowimpl::windows[wcounter] = new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
-
-	Kore::System::makeCurrent(wcounter);
+	windowimpl::windows[wcounter] = new Kore::Window; //new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
+	windowimpl::windows[wcounter]->_data.width = width;
+	windowimpl::windows[wcounter]->_data.height = height;
+	windowimpl::windows[wcounter]->_data.handle = win;
+	windowimpl::windows[wcounter]->_data.context = cx;
 
 	return windowimpl::windowCounter = wcounter;
 #else
@@ -360,21 +348,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 namespace Kore {
 	namespace System {
 #ifdef KORE_OPENGL
-		int windowCount() {
-			return windowimpl::windowCounter + 1;
-		}
 
-		int windowWidth(int id) {
-			return windowimpl::windows[id]->width;
-		}
-
-		int windowHeight(int id) {
-			return windowimpl::windows[id]->height;
-		}
-
-		void* windowHandle(int id) {
-			return (void*)windowimpl::windows[id]->handle;
-		}
 #else
 		int windowCount() {
 			return 1;
@@ -393,16 +367,16 @@ namespace Kore {
 		}
 #endif
 
-		int initWindow(WindowOptions options) {
+		int initWindow(WindowOptions* win, FramebufferOptions* frame) {
 			char buffer[1024] = {0};
 			strcpy(buffer, name());
-			if (options.title != nullptr) {
-				strcpy(buffer, options.title);
+			if (win->title != nullptr) {
+				strcpy(buffer, win->title);
 			}
 
-			int id = createWindow(buffer, options.x, options.y, options.width, options.height, options.mode, options.targetDisplay,
-			                      options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits, options.rendererOptions.antialiasing);
-			Graphics4::init(id, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
+			int id = createWindow(buffer, win->x, win->y, win->width, win->height, win->mode, win->display,
+			                      frame->depthBufferBits, frame->stencilBufferBits, frame->samplesPerPixel);
+			Graphics4::init(id, frame->depthBufferBits, frame->stencilBufferBits);
 			return id;
 		}
 	}
@@ -626,8 +600,8 @@ bool Kore::System::handleMessages() {
 		}
 		case ConfigureNotify: {
             int windowId = windowimpl::idFromWindow(event.xconfigure.window);
-            windowimpl::windows[windowId]->width = event.xconfigure.width;
-            windowimpl::windows[windowId]->height = event.xconfigure.height;
+            windowimpl::windows[windowId]->_data.width = event.xconfigure.width;
+            windowimpl::windows[windowId]->_data.height = event.xconfigure.height;
 			glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
             break;
 		}
@@ -650,7 +624,7 @@ bool Kore::System::handleMessages() {
 				int resbits;
 				XGetWindowProperty(dpy, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
 				                   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
-				Kore::System::pasteCallback(result);
+				Kore::System::_pasteCallback(result);
 				XFree(result);
 			}
 			else if (target == XA_STRING) {
@@ -669,7 +643,7 @@ bool Kore::System::handleMessages() {
 				wchar_t filePath[len + 1];
 				mbstowcs(filePath, (char*)data, len);
 				filePath[len] = 0;
-				Kore::System::dropFilesCallback(filePath + 7); // Strip file://
+				Kore::System::_dropFilesCallback(filePath + 7); // Strip file://
 
 				XClientMessageEvent m;
 				memset(&m, sizeof(m), 0);
@@ -764,7 +738,7 @@ const char* Kore::System::systemId() {
 	return "Linux";
 }
 
-void Kore::System::makeCurrent(int contextId) {
+/*void Kore::System::makeCurrent(int contextId) {
 	if (currentDeviceId == contextId) {
 		return;
 	}
@@ -781,47 +755,21 @@ void Kore::Graphics4::clearCurrent() {}
 void Kore::System::clearCurrent() {
 	currentDeviceId = -1;
 	Graphics4::clearCurrent();
-}
+}*/
 
-void Kore::System::swapBuffers(int contextId) {
+void swapLinuxBuffers(int window) {
 #ifdef KORE_OPENGL
-	glXSwapBuffers(dpy, windowimpl::windows[contextId]->handle);
+	glXSwapBuffers(dpy, windowimpl::windows[window]->_data.handle);
 #endif
 }
 
-void Kore::System::destroyWindow(int id) {
-	// TODO (DK) implement me
-}
-
-void Kore::System::changeResolution(int width, int height, bool fullscreen) {}
-
-void Kore::System::setTitle(const char* title) {}
-
 void Kore::System::setKeepScreenOn(bool on) {}
-
-void Kore::System::showWindow() {}
 
 void Kore::System::showKeyboard() {}
 
 void Kore::System::hideKeyboard() {}
 
 void Kore::System::loadURL(const char* url) {}
-
-int Kore::System::desktopWidth() {
-#ifdef KORE_OPENGL
-	return XWidthOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
-#else
-	return 1920;
-#endif
-}
-
-int Kore::System::desktopHeight() {
-#ifdef KORE_OPENGL
-	return XHeightOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
-#else
-	return 1080;
-#endif
-}
 
 namespace {
 	char save[2000];
@@ -857,6 +805,34 @@ Kore::System::ticks Kore::System::timestamp() {
 	timeval now;
 	gettimeofday(&now, NULL);
 	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
+}
+
+Kore::Window* Kore::System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
+    //**Display::enumerate();
+
+    WindowOptions defaultWin;
+    FramebufferOptions defaultFrame;
+
+    if (win == nullptr) {
+        win = &defaultWin;
+    }
+    win->width = width;
+    win->height = height;
+
+    if (frame == nullptr) {
+        frame = &defaultFrame;
+    }
+
+    int window = initWindow(win, frame);
+    return Window::get(window);
+}
+
+void Kore::System::_shutdown() {
+
+}
+
+Kore::Window* Kore::Window::get(int window) {
+	return windowimpl::windows[window];
 }
 
 extern
