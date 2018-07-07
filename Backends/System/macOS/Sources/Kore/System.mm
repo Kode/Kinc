@@ -49,7 +49,7 @@ namespace {
 	MyAppDelegate* delegate;
 	HIDManager* hidManager;
 
-	struct KoreWindow : public KoreWindowBase {
+	/*struct KoreWindow : public KoreWindowBase {
 		NSWindow* handle;
 		BasicOpenGLView* view;
 
@@ -57,10 +57,10 @@ namespace {
 		    : KoreWindowBase(x, y, width, height), handle(handle), view(view) {
 			::view = view;
 		}
-	};
+	};*/
 
-	KoreWindow* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-	int windowCounter = -1;
+	Kore::Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	int windowCounter = 0;
 }
 
 #ifdef KORE_METAL
@@ -101,7 +101,7 @@ bool System::handleMessages() {
 	return true;
 }
 
-void System::swapBuffers(int windowId) {
+void swapBuffersMac(int windowId) {
 #ifdef KORE_METAL
 	endGL();
 #else
@@ -109,18 +109,14 @@ void System::swapBuffers(int windowId) {
 #endif
 }
 
-int Kore::System::windowCount() {
-	return windowCounter + 1;
-}
-
-int createWindow(Kore::WindowOptions options) {
-	int width = options.width;
-	int height = options.height;
+int createWindow(Kore::WindowOptions* options) {
+	int width = options->width;
+	int height = options->height;
 	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
-	if (options.resizable || options.maximizable) {
-		styleMask |= NSResizableWindowMask;
+	if ((options->windowFeatures & WindowFeatureResizable) || (options->windowFeatures & WindowFeatureMaximizable)) {
+		//**styleMask |= NSResizableWindowMask;
 	}
-	if (options.minimizable) {
+	if (options->windowFeatures & WindowFeatureMinimizable) {
 		styleMask |= NSMiniaturizableWindowMask;
 	}
 
@@ -129,26 +125,44 @@ int createWindow(Kore::WindowOptions options) {
 	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:styleMask backing:NSBackingStoreBuffered defer:TRUE];
 	delegate = [MyAppDelegate alloc];
 	[window setDelegate:delegate];
-	[window setTitle:[NSString stringWithCString:options.title encoding:NSUTF8StringEncoding]];
+	[window setTitle:[NSString stringWithCString:options->title encoding:NSUTF8StringEncoding]];
 	[window setAcceptsMouseMovedEvents:YES];
 	[[window contentView] addSubview:view];
 	[window center];
-	if (Kore::System::hasShowWindowFlag()) {
-		[window makeKeyAndOrderFront:nil];
-	}
+	[window makeKeyAndOrderFront:nil];
 
-	++windowCounter;
-	windows[windowCounter] = new KoreWindow(window, view, options.x, options.y, width, height);
-	Kore::System::makeCurrent(windowCounter);
+	windows[windowCounter] = new Kore::Window; //new KoreWindow(window, view, options->x, options->y, width, height);
+	windows[windowCounter]->_data.handle = window;
+	windows[windowCounter]->_data.view = view;
+	::view = view;
+	return windowCounter++;
+}
+
+Window* Window::get(int window) {
+	return windows[window];
+}
+
+int Window::count() {
 	return windowCounter;
 }
 
-void System::destroyWindow(int windowId) {}
-
-int Kore::System::initWindow(Kore::WindowOptions options) {
-	int windowId = createWindow(options);
-	Graphics4::init(windowId, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-	return windowId;
+Kore::Window* Kore::System::init(const char* title, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
+	WindowOptions defaultWin;
+	FramebufferOptions defaultFrame;
+	
+	if (win == nullptr) {
+		win = &defaultWin;
+	}
+	win->width = width;
+	win->height = height;
+	
+	if (frame == nullptr) {
+		frame = &defaultFrame;
+	}
+	
+	int windowId = createWindow(win);
+	Graphics4::init(windowId, frame->depthBufferBits, frame->stencilBufferBits);
+	return Kore::Window::get(windowId);
 }
 
 #ifndef KORE_METAL
@@ -157,32 +171,18 @@ void Graphics4::makeCurrent(int contextId) {
 }
 #endif
 
-int Kore::System::windowWidth(int id) {
-	NSWindow* window = windows[id]->handle;
+int Kore::Window::width() {
+	NSWindow* window = _data.handle;
 	return [[window contentView] frame].size.width;
-	// return windows[id]->width;
 }
 
-int Kore::System::windowHeight(int id) {
-	NSWindow* window = windows[id]->handle;
+int Kore::Window::height() {
+	NSWindow* window = _data.handle;
 	return [[window contentView] frame].size.height;
-	// return windows[id]->height;
 }
 
-int System::desktopWidth() {
-	NSArray* screenArray = [NSScreen screens];
-	// unsigned screenCount = [screenArray count];
-	NSScreen* screen = [screenArray objectAtIndex:0];
-	NSRect screenRect = [screen visibleFrame];
-	return screenRect.size.width;
-}
-
-int System::desktopHeight() {
-	NSArray* screenArray = [NSScreen screens];
-	// unsigned screenCount = [screenArray count];
-	NSScreen* screen = [screenArray objectAtIndex:0];
-	NSRect screenRect = [screen visibleFrame];
-	return screenRect.size.height;
+void Kore::System::_shutdown() {
+	
 }
 
 namespace {

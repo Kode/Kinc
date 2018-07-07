@@ -13,8 +13,6 @@ vec2i System::mousePos() {
 	return vec2i(mouseX, mouseY);
 }
 
-void System::changeResolution(int width, int height, bool fullscreen) {}
-
 void System::showKeyboard() {
 	keyboardShown = true;
 }
@@ -41,10 +39,6 @@ const char** Kore::System::videoFormats() {
 	return ::videoFormats;
 }
 
-void System::showWindow() {}
-
-void System::setTitle(const char* title) {}
-
 void System::setKeepScreenOn(bool on) {}
 
 #include <mach/mach_time.h>
@@ -57,27 +51,4 @@ double System::frequency() {
 
 System::ticks System::timestamp() {
 	return mach_absolute_time();
-}
-
-namespace appstate {
-	int currentDeviceId = -1;
-}
-
-void Kore::System::setup() {}
-
-bool Kore::System::isFullscreen() {
-	return false; // TODO (DK)
-}
-
-int Kore::System::currentDevice() {
-	return appstate::currentDeviceId;
-}
-
-void Kore::System::makeCurrent(int contextId) {
-	appstate::currentDeviceId = contextId;
-	Graphics4::makeCurrent(contextId);
-}
-
-void Kore::System::clearCurrent() {
-	appstate::currentDeviceId = -1;
 }

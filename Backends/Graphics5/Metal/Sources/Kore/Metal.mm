@@ -22,7 +22,6 @@ namespace {
 
 void Graphics5::destroy(int windowId) {
 
-	System::destroyWindow(windowId);
 }
 
 void Graphics5::init(int, int, int, bool) {
@@ -32,14 +31,6 @@ void Graphics5::init(int, int, int, bool) {
 
 void Graphics5::flush() {}
 
-unsigned Graphics5::refreshRate() {
-	return 60;
-}
-
-bool Graphics5::vsynced() {
-	return true;
-}
-
 // void* Graphics::getControl() {
 //	return nullptr;
 //}
@@ -47,11 +38,6 @@ bool Graphics5::vsynced() {
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {}
 
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
-
-bool Graphics5::swapBuffers(int windowId) {
-	System::swapBuffers(windowId);
-	return true;
-}
 
 void beginGL();
 
@@ -61,6 +47,17 @@ void Graphics5::begin(RenderTarget* renderTarget, int windowId) {
 
 void Graphics5::end(int windowId) {
 
+}
+
+#ifdef KORE_MACOS
+void swapBuffersMac(int windowId);
+#endif
+
+bool Graphics5::swapBuffers() {
+#ifdef KORE_MACOS
+	swapBuffersMac(0);
+#endif
+	return true;
 }
 
 void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
@@ -102,9 +99,3 @@ bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 }
 
 void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
-
-void Graphics5::makeCurrent(int window) {}
-
-void Graphics5::clearCurrent() {}
-
-void Graphics5::changeResolution(int width, int height) {}

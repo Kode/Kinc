@@ -92,7 +92,7 @@ namespace {
 			break;
 		default:
 			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
-				char* text = Kore::System::cutCallback();
+				char* text = Kore::System::_cutCallback();
 				if (text != nullptr) {
 					NSPasteboard* board = [NSPasteboard generalPasteboard];
 					[board clearContents];
@@ -101,7 +101,7 @@ namespace {
 				break;
 			}
 			if (ch == 'c' && [theEvent modifierFlags] & NSCommandKeyMask) {
-				char* text = Kore::System::copyCallback();
+				char* text = Kore::System::_copyCallback();
 				if (text != nullptr) {
 					NSPasteboard* board = [NSPasteboard generalPasteboard];
 					[board clearContents];
@@ -115,7 +115,7 @@ namespace {
 				if (data != nil) {
 					char charData[4096];
 					strcpy(charData, [data UTF8String]);
-					Kore::System::pasteCallback(charData);
+					Kore::System::_pasteCallback(charData);
 				}
 				break;
 			}
@@ -265,7 +265,7 @@ namespace {
 	if ([[pboard types] containsObject:NSURLPboardType]) {
 		NSURL* fileURL = [NSURL URLFromPasteboard:pboard];
 		wchar_t* filePath = (wchar_t*)[fileURL.path cStringUsingEncoding:NSUTF32LittleEndianStringEncoding];
-		Kore::System::dropFilesCallback(filePath);
+		Kore::System::_dropFilesCallback(filePath);
 	}
 	return YES;
 }

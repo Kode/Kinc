@@ -46,22 +46,6 @@ void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	fragmentConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
 }
 
-void Graphics4::changeResolution(int width, int height) {
-	Graphics5::changeResolution(width, height);
-}
-
-void Graphics4::setup() {
-	Graphics5::setup();
-}
-
-void Graphics4::makeCurrent(int window) {
-	Graphics5::makeCurrent(window);
-}
-
-void Graphics4::clearCurrent() {
-	Graphics5::clearCurrent();
-}
-
 namespace {
 	void startDraw() {
 		commandList->setPipelineLayout();
@@ -155,16 +139,12 @@ void Graphics4::end(int window) {
 	Graphics5::end(window);
 }
 
-bool Graphics4::vsynced() {
-	return Graphics5::vsynced();
+void Graphics4::_changeFramebuffer(int window, Kore::FramebufferOptions* frame) {
+	
 }
 
-unsigned Graphics4::refreshRate() {
-	return Graphics5::refreshRate();
-}
-
-bool Graphics4::swapBuffers(int window) {
-	return Graphics5::swapBuffers(window);
+bool Graphics4::swapBuffers() {
+	return Graphics5::swapBuffers();
 }
 
 void Graphics4::flush() {
