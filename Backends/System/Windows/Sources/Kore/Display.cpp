@@ -16,6 +16,7 @@ using namespace Kore;
 namespace {
 	const int maximumDisplays = 10;
 	Display displays[maximumDisplays];
+	DEVMODEA originalModes[maximumDisplays];
 	int screenCounter = -1;
 }
 
@@ -53,10 +54,10 @@ BOOL CALLBACK enumerationCallback(HMONITOR monitor, HDC, LPRECT, LPARAM lparam) 
 	display._data.ppi = GetDeviceCaps(hdc, LOGPIXELSX);
 	DeleteDC(hdc);
 
-	DEVMODEA devMode = {0};
-	devMode.dmSize = sizeof(DEVMODEA);
-	EnumDisplaySettingsA(display._data.name, ENUM_CURRENT_SETTINGS, &devMode);
-	display._data.frequency = devMode.dmDisplayFrequency;
+	originalModes[freeSlot] = {0};
+	originalModes[freeSlot].dmSize = sizeof(DEVMODEA);
+	EnumDisplaySettingsA(display._data.name, ENUM_CURRENT_SETTINGS, &originalModes[freeSlot]);
+	display._data.frequency = originalModes[freeSlot].dmDisplayFrequency;
 
 	++screenCounter;
 	return TRUE;
@@ -96,6 +97,7 @@ DisplayMode Display::availableMode(int index) {
 	mode.width = devMode.dmPelsWidth;
 	mode.height = devMode.dmPelsHeight;
 	mode.frequency = devMode.dmDisplayFrequency;
+	mode.bitsPerPixel = devMode.dmBitsPerPel;
 	return mode;
 }
 
@@ -107,52 +109,33 @@ int Display::countAvailableModes() {
 	return i;
 }
 
-/*void Display::setMode(int index) {
-#pragma message("TODO (DK) implement changeResolution(w,h,fs) for d3d")
-
-#if !defined(KORE_OPENGL) && !defined(KORE_VULKAN)
-Application::the()->setWidth(width);
-Application::the()->setHeight(height);
-Application::the()->setFullscreen(fullscreen);
-
-if (!Application::the()->fullscreen()) {
-    uint yres = GetSystemMetrics(SM_CYSCREEN);
-
-    // Fenster rechts von Textkonsole positionieren
-    RECT r;
-    r.left   = 8 * 80 + 44;
-    r.top    = 0;
-    r.right  = r.left + Application::the()->width() - 1;
-    r.bottom = r.top + Application::the()->height() - 1;
-    uint h = r.bottom - r.top + 1;
-    DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-    AdjustWindowRect(&r, dwStyle, FALSE); // Rahmen usw. miteinberechnen
-    MoveWindow(hwnd, r.left, (yres - h) >> 1, r.right - r.left + 1, r.bottom - r.top + 1, TRUE);
-
-    Graphics::changeResolution(width, height);
-}
-#endif
-}*/
-
-/*int Kore::System::desktopWidth() {
-	RECT size;
-	const HWND desktop = GetDesktopWindow();
-	GetWindowRect(desktop, &size);
-	return size.right;
+bool setDisplayMode(Display* display, int width, int height, int bpp, int frequency) {
+	display->_data.modeChanged = true;
+	DEVMODEA mode = {0};
+	mode.dmSize = sizeof(mode);
+	strcpy((char*)mode.dmDeviceName, display->_data.name);
+	mode.dmPelsWidth = width;
+	mode.dmPelsHeight = height;
+	mode.dmBitsPerPel = bpp;
+	mode.dmDisplayFrequency = frequency;
+	mode.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
+	
+	return ChangeDisplaySettingsA(&mode, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
 }
 
-int Kore::System::desktopHeight() {
-	RECT size;
-	const HWND desktop = GetDesktopWindow();
-	GetWindowRect(desktop, &size);
-	return size.bottom;
-}*/
+void destroyDisplays() {
+	for (int i = 0; i < maximumDisplays; ++i) {
+		if (displays[i]._data.modeChanged) {
+			ChangeDisplaySettingsA(&originalModes[i], 0);
+		}
+	}
+}
 
 int Display::pixelsPerInch() {
 	return _data.ppi;
 }
 
-DisplayData::DisplayData() : ppi(72) {
+DisplayData::DisplayData() : ppi(72), modeChanged(false) {
 	name[0] = 0;
 }
 

@@ -4,13 +4,14 @@
 
 namespace Kore {
 	struct FramebufferOptions {
+		int frequency;
 		bool verticalSync;
-		int textureFormat;
+		int colorBufferBits;
 		int depthBufferBits;
 		int stencilBufferBits;
 		int samplesPerPixel;
 
-		FramebufferOptions() : verticalSync(true), textureFormat(0), depthBufferBits(16), stencilBufferBits(8), samplesPerPixel(1) {}
+		FramebufferOptions() : frequency(60), verticalSync(true), colorBufferBits(32), depthBufferBits(16), stencilBufferBits(8), samplesPerPixel(1) {}
 	};
 
 	enum WindowMode {
@@ -33,7 +34,7 @@ namespace Kore {
 		int width;
 		int height;
 		int display;
-
+		
 		bool visible;
 		int windowFeatures;
 		WindowMode mode;

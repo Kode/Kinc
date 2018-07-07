@@ -477,13 +477,12 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		}
 		break;
 	case WM_SYSCOMMAND:
-		// printf("WS_SYSCOMMAND %5d %5d %5d\n", msg, wParam, lParam);
 		switch (wParam) {
-		case SC_KEYMENU: // Ignorieren, wenn Alt f�r das WS_SYSMENU gedr�ckt wird.
-			return 0;
+		case SC_KEYMENU:
+			return 0; // Prevent from happening
 		case SC_SCREENSAVE:
 		case SC_MONITORPOWER:
-			return 0; // Prevent From Happening
+			return 0; // Prevent from happening
 
 		// Pause game when window is minimized, continue when it's restored or maximized.
 		//
@@ -1042,4 +1041,15 @@ Window* System::init(const char* name, int width, int height, WindowOptions* win
 	loadXInput();
 	initializeDirectInput();
 	return window;
+}
+
+void destroyWindows();
+void destroyDisplays();
+
+void Kore::System::_shutdown() {
+	if (System::_shutdownCallback != nullptr) {
+		System::_shutdownCallback();
+	}
+	destroyWindows();
+	destroyDisplays();
 }

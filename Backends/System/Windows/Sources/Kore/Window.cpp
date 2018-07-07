@@ -43,9 +43,6 @@ namespace {
 		                  0};
 		RegisterClassEx(&wc);
 	}
-
-	bool deviceModeChanged = false;
-	DEVMODE startDeviceMode;
 }
 
 int idFromHWND(HWND handle) {
@@ -85,12 +82,16 @@ int Window::height() {
 	return rect.bottom;
 }
 
-static int createWindow(const wchar_t* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay) {
+bool setDisplayMode(Display* display, int width, int height, int bpp, int frequency);
+
+static int createWindow(const wchar_t* title, int x, int y, int width, int height, int bpp, int frequency, Kore::WindowMode windowMode, int targetDisplay) {
 	++windowCounter;
 
 	HINSTANCE inst = GetModuleHandle(nullptr);
 #ifdef KORE_OCULUS
-	::registerWindowClass(inst, windowClassName);
+	if (windowCounter == 0) {
+		::registerWindowClass(inst, windowClassName);
+	}
 	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
 	int dstx = 0;
 	int dsty = 0;
@@ -106,6 +107,8 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 	if (windowCounter == 0) {
 		::registerWindowClass(inst, windowClassName);
 	}
+
+	Display* display = targetDisplay < 0 ? Display::primary() : Display::get(targetDisplay);
 
 	DWORD dwStyle, dwExStyle;
 
@@ -125,21 +128,7 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 		dwExStyle = WS_EX_APPWINDOW;
 		break;
 	case WindowModeExclusiveFullscreen: {
-		EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &startDeviceMode);
-		deviceModeChanged = true;
-
-		DEVMODEW dmScreenSettings;
-		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsWidth = width;
-		dmScreenSettings.dmPelsHeight = height;
-		dmScreenSettings.dmBitsPerPel = 32;
-		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-
-		if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
-			// return FALSE;
-		}
-
+		setDisplayMode(display, width, height, bpp, frequency);
 		dwStyle = WS_POPUP;
 		dwExStyle = WS_EX_APPWINDOW;
 		ShowCursor(FALSE);
@@ -148,8 +137,6 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 	}
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);
-
-	Display* display = targetDisplay < 0 ? Display::primary() : Display::get(targetDisplay);
 
 	int dstx = display->x();
 	int dsty = display->y();
@@ -242,14 +229,11 @@ void Window::destroy(Window* window) {
 		DestroyWindow(window->_data.handle);
 	}
 	window->_data.handle = nullptr;
-
-	// TODO (DK) only unregister after the last window is destroyed?
-	if (!UnregisterClass(windowClassName, GetModuleHandle(nullptr))) {
-		// MessageBox(NULL,"Could Not Unregister Class.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
-		// hInstance=NULL;
-	}
-
 	--windowCounter;
+}
+
+void destroyWindows() {
+	UnregisterClass(windowClassName, GetModuleHandle(nullptr));
 }
 
 void Window::show() {
@@ -283,7 +267,7 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 	wchar_t wbuffer[1024];
 	MultiByteToWideChar(CP_UTF8, 0, win->title, -1, wbuffer, 1024);
 
-	int windowId = createWindow(wbuffer, win->x, win->y, win->width, win->height, win->mode, win->display);
+	int windowId = createWindow(wbuffer, win->x, win->y, win->width, win->height, frame->colorBufferBits, frame->frequency, win->mode, win->display);
 
 	Graphics4::setAntialiasingSamples(frame->samplesPerPixel);
 	bool vsync = frame->verticalSync;
@@ -294,14 +278,6 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 
 	return &windows[windowId];
 }
-
-/*
-void Kore::System::_shutdown() {
-    if (windowCounter == 0 && deviceModeChanged) {
-        ChangeDisplaySettings(&startDeviceMode, 0);
-    }
-}
-*/
 
 WindowData::WindowData() : handle(nullptr), mouseInside(false), resizeCallback(nullptr) {}
 

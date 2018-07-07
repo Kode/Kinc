@@ -202,8 +202,6 @@ const char* Kore::System::name() {
 	return appstate::name;
 }
 
-void Kore::System::_shutdown() {}
-
 #ifdef KORE_METAL
 void shutdownMetalCompute();
 #endif

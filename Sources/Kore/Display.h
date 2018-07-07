@@ -17,6 +17,7 @@ namespace Kore {
 		int width;
 		int height;
 		int frequency;
+		int bitsPerPixel;
 	};
 
 	class Display {
