@@ -5,6 +5,7 @@
 #include <Kore/Vr/VrInterface.h>
 
 #include <Kore/Graphics4/Graphics.h>
+#include <Kore/Input/Gamepad.h>
 #include <Kore/Log.h>
 //#include "Direct3D11.h"
 
@@ -64,19 +65,86 @@ namespace {
 		return mat;
 	}
 
+	void getButtonEvent(const vr::VREvent_t& event) {
+		Gamepad* gamepad = Gamepad::get(event.trackedDeviceIndex);
+		switch (event.data.controller.button) {
+		case vr::k_EButton_Grip:
+			switch (event.eventType) {
+			case vr::VREvent_ButtonPress:
+				gamepad->_button(vr::k_EButton_Grip, 1);
+				break;
+
+			case vr::VREvent_ButtonUnpress:
+				gamepad->_button(vr::k_EButton_Grip, 0);
+				break;
+			}
+			break;
+
+		case vr::k_EButton_SteamVR_Trigger:
+			switch (event.eventType) {
+			case vr::VREvent_ButtonPress:
+				gamepad->_button(vr::k_EButton_SteamVR_Trigger, 1);
+				break;
+
+			case vr::VREvent_ButtonUnpress:
+				gamepad->_button(vr::k_EButton_SteamVR_Trigger, 0);
+				break;
+			}
+			break;
+
+		case vr::k_EButton_SteamVR_Touchpad:
+			// TODO: add axis
+			switch (event.eventType) {
+			case vr::VREvent_ButtonPress:
+				gamepad->_button(vr::k_EButton_SteamVR_Touchpad, 1);
+				break;
+
+			case vr::VREvent_ButtonUnpress:
+				gamepad->_button(vr::k_EButton_SteamVR_Touchpad, 0);
+				break;
+
+			case vr::VREvent_ButtonTouch:
+				break;
+
+			case vr::VREvent_ButtonUntouch:
+				break;
+			}
+			break;
+
+		case vr::k_EButton_ApplicationMenu:
+			switch (event.eventType) {
+			case vr::VREvent_ButtonPress:
+				gamepad->_button(vr::k_EButton_ApplicationMenu, 1);
+				break;
+
+			case vr::VREvent_ButtonUnpress:
+				gamepad->_button(vr::k_EButton_ApplicationMenu, 0);
+				break;
+			}
+			break;
+		}
+	}
+	
 	void processVREvent(const vr::VREvent_t& event) {
 		switch (event.eventType) {
+		case vr::VREvent_None:
+			//log(Info, "The event is invalid.");
+			break;
 		case vr::VREvent_TrackedDeviceActivated:
 			// SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
 			// dprintf("Device %u attached. Setting up render model.\n", event.trackedDeviceIndex);
+			log(Info, "Device %u attached", event.trackedDeviceIndex);
 			break;
 		case vr::VREvent_TrackedDeviceDeactivated:
-			printf("Device %u detached.\n", event.trackedDeviceIndex);
+			log(Info, "Device %u detached.", event.trackedDeviceIndex);
 			break;
 		case vr::VREvent_TrackedDeviceUpdated:
-			printf("Device %u updated.\n", event.trackedDeviceIndex);
+			log(Info, "Device %u updated.", event.trackedDeviceIndex);
 			break;
 		}
+
+		// Get buttons
+		getButtonEvent(event);
 	}
 
 	void getPosition(const vr::HmdMatrix34_t* m, vec3* position) {
@@ -210,9 +278,9 @@ void VrInterface::warpSwap() {
 	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #else
-	vr::Texture_t leftEyeTexture = {(void*)leftTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = {(void*)rightTexture->texture, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #endif
 }
