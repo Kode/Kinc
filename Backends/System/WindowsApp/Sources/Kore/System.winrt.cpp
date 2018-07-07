@@ -135,40 +135,28 @@ Kore::vec2i Kore::System::mousePos() {
 	return vec2i(mouseX, mouseY);
 }
 
-void Kore::System::swapBuffers(int windowId) {}
-
 #undef CreateWindow
 
-int Kore::System::initWindow(WindowOptions options) {
-	Graphics4::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-	return 0;
-}
+Kore::Window* Kore::System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
+	WindowOptions defaultWin;
+	FramebufferOptions defaultFrame;
 
-void Kore::System::setup() {}
+	if (win == nullptr) {
+		win = &defaultWin;
+	}
 
-bool Kore::System::isFullscreen() {
-	return true;
-}
+	win->width = width;
+	win->height = height;
 
-int Kore::System::windowCount() {
-	return 1;
-}
+	if (frame == nullptr) {
+		frame = &defaultFrame;
+	}
 
-void Kore::System::makeCurrent(int windowId) {}
-
-void* Kore::System::windowHandle(int windowId) {
+	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
 	return nullptr;
 }
 
-void Kore::System::destroyWindow(int windowId) {}
-
-void Kore::System::changeResolution(int width, int height, bool fullscreen) {}
-
-void Kore::System::setTitle(const char*) {}
-
 void Kore::System::setKeepScreenOn(bool on) {}
-
-void Kore::System::showWindow() {}
 
 namespace {
 	bool keyboardshown = false;
@@ -245,7 +233,7 @@ void Win8Application::Run() {
 void Win8Application::Uninitialize() {}
 
 void Win8Application::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args) {
-	// m_renderer->UpdateForWindowSizeChange();
+	Graphics4::_resize(0, args->Size.Width, args->Size.Height);
 }
 
 void Win8Application::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args) {
@@ -351,11 +339,11 @@ const char** Kore::System::videoFormats() {
 	return ::videoFormats;
 }
 
-int Kore::System::windowWidth(int windowId) {
+int Kore::Window::width() {
 	return renderTargetWidth;
 }
 
-int Kore::System::windowHeight(int windowId) {
+int Kore::Window::height() {
 	return renderTargetHeight;
 }
 
@@ -363,6 +351,10 @@ double Kore::System::frequency() {
 	ticks rate;
 	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&rate));
 	return (double)rate;
+}
+
+void Kore::System::_shutdown() {
+
 }
 
 Kore::System::ticks Kore::System::timestamp() {

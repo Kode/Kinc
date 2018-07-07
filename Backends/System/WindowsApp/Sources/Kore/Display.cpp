@@ -1,38 +1,68 @@
 #include "pch.h"
 
-#include <Kore/Log.h>
+#include <Kore/Display.h>
 
-#include <stdexcept>
+using namespace Kore;
 
-namespace Kore {
-	namespace Display {
-		int count() {
-			return 1;
-		}
+int Display::count() {
+	return 1;
+}
 
-		int width(int index) {
-			log(Warning, "TODO (DK) Kore::Display::width(int) implement me");
-			return -1;
-		}
+Display* Display::primary() {
+	return nullptr;
+}
 
-		int height(int index) {
-			log(Warning, "TODO (DK) Kore::Display::width(int) implement me");
-			return -1;
-		}
+Display* Display::get(int index) {
+	return nullptr;
+}
 
-		int x(int index) {
-			log(Warning, "TODO (DK) Kore::Display::x(int) implement me");
-			return -1;
-		}
+DisplayMode Display::availableMode(int index) {
+	DisplayMode mode;
+	mode.width = 800;
+	mode.height = 600;
+	mode.frequency = 60;
+	mode.bitsPerPixel = 32;
+	return mode;
+}
 
-		int y(int index) {
-			log(Warning, "TODO (DK) Kore::Display::y(int) implement me");
-			return -1;
-		}
+int Display::countAvailableModes() {
+	return 1;
+}
 
-		bool isPrimary(int index) {
-			log(Warning, "TODO (DK) Kore::Display::isPrimary(int) implement me");
-			return true;
-		}
-	}
+int Display::pixelsPerInch() {
+	return 72;
+}
+
+DisplayData::DisplayData() {}
+
+bool Display::available() {
+	return true;
+}
+
+const char* Display::name() {
+	return "Display";
+}
+
+int Display::x() {
+	return 0;
+}
+
+int Display::y() {
+	return 0;
+}
+
+int Display::width() {
+	return 800;
+}
+
+int Display::height() {
+	return 600;
+}
+
+int Display::frequency() {
+	return 60;
+}
+
+Display::Display() {
+
 }

@@ -113,23 +113,23 @@ namespace {
 void Graphics4::destroy(int windowId) {}
 
 static void createBackbuffer(int antialiasingSamples) {
-	Microsoft::affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	Kore::Microsoft::affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	Microsoft::affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	Kore::Microsoft::affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
 	backBuffer->GetDesc(&backBufferDesc);
-	renderTargetWidth = backBufferDesc.Width;
-	renderTargetHeight = backBufferDesc.Height;
+	newRenderTargetWidth = renderTargetWidth = backBufferDesc.Width;
+	newRenderTargetHeight = renderTargetHeight = backBufferDesc.Height;
 
 	// TODO (DK) map depth/stencilBufferBits arguments
 	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL,
 	                                       D3D11_USAGE_DEFAULT, 0U, antialiasingSamples > 1 ? antialiasingSamples : 1,
 	                                       antialiasingSamples > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
 
-	Microsoft::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	Kore::Microsoft::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	Microsoft::affirm(device->CreateDepthStencilView(
+	Kore::Microsoft::affirm(device->CreateDepthStencilView(
 	    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D),
 	    &depthStencilView));
 }
@@ -143,7 +143,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
+#ifdef KORE_WINDOWS
 	HWND hwnd = Window::get(windowId)->_data.handle;
+#endif
 
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
@@ -1025,10 +1027,8 @@ void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
 }
 
 void Graphics4::_resize(int window, int width, int height) {
-#ifdef KORE_WINDOWS
 	newRenderTargetWidth = width;
 	newRenderTargetHeight = height;
-#endif
 }
 
 void Graphics4::_changeFramebuffer(int window, FramebufferOptions* frame) {}

@@ -14,24 +14,6 @@ double Kore::System::time() {
 }
 #endif
 
-#if !defined(KORE_WINDOWS) && !defined(KORE_MACOS) && !defined(KORE_LINUX) && !defined(KORE_HTML5) && !defined(KORE_PI)
-
-int Kore::System::desktopWidth() {
-	return windowWidth(0);
-}
-
-int Kore::System::desktopHeight() {
-	return windowHeight(0);
-}
-
-#endif
-
-#if !defined(KORE_ANDROID) && !defined(KORE_WINDOWS)
-int Kore::System::screenDpi() {
-	return 96;
-}
-#endif
-
 namespace {
 	namespace callbacks {
 		void (*callback)() = nullptr;

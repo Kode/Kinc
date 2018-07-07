@@ -70,7 +70,7 @@ void initDisplays() {
 }
 
 int Display::count() {
-	return screenCounter + 1;
+	return screenCounter;
 }
 
 Display* Display::primary() {

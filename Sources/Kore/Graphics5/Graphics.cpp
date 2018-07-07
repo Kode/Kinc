@@ -13,10 +13,6 @@ namespace {
 	int samples = 1;
 }
 
-#if !defined(KORE_WINDOWS) && !defined(KORE_XBOX_ONE)
-void Graphics5::setup() {}
-#endif
-
 int Graphics5::antialiasingSamples() {
 	return ::samples;
 }
