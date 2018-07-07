@@ -6,8 +6,15 @@
 
 using namespace Kore;
 
+namespace {
+	Window win;
+}
+
 Window* Window::get(int window) {
-	return nullptr;
+	if (window > 0) {
+		return nullptr;
+	}
+	return &win;
 }
 
 int Window::count() {

@@ -4,16 +4,23 @@
 
 using namespace Kore;
 
+namespace {
+	Display display;
+}
+
 int Display::count() {
 	return 1;
 }
 
 Display* Display::primary() {
-	return nullptr;
+	return &display;
 }
 
 Display* Display::get(int index) {
-	return nullptr;
+	if (index > 0) {
+		return nullptr;
+	}
+	return &display;
 }
 
 DisplayMode Display::availableMode(int index) {

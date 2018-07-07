@@ -153,7 +153,7 @@ Kore::Window* Kore::System::init(const char* name, int width, int height, Window
 	}
 
 	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
-	return nullptr;
+	return Window::get(0);
 }
 
 void Kore::System::setKeepScreenOn(bool on) {}
@@ -233,7 +233,7 @@ void Win8Application::Run() {
 void Win8Application::Uninitialize() {}
 
 void Win8Application::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args) {
-	Graphics4::_resize(0, args->Size.Width, args->Size.Height);
+	Graphics4::_resize(0, (int)args->Size.Width, (int)args->Size.Height);
 }
 
 void Win8Application::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args) {
