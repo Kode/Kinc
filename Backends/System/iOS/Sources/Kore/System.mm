@@ -29,14 +29,6 @@ vec2i System::mousePos() {
 	return vec2i(mouseX, mouseY);
 }
 
-void System::destroyWindow(int windowId) {}
-
-void System::changeResolution(int width, int height, bool fullscreen) {}
-
-void System::showWindow() {}
-
-void System::setTitle(const char* title) {}
-
 void System::setKeepScreenOn(bool on) {}
 
 bool System::showsKeyboard() {
@@ -73,42 +65,31 @@ void KoreUpdateKeyboard() {
 	}
 }
 
-int Kore::System::initWindow(Kore::WindowOptions options) {
-	Graphics4::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-	return 0;
+void System::_shutdown() {
+	
 }
 
-int Kore::System::windowCount() {
-	return 1;
-}
-
-bool Kore::System::isFullscreen() {
-	return true;
-}
-
-void Kore::System::setup() {}
-
-void Graphics4::makeCurrent(int contextId) {}
-
-namespace {
-	namespace windowimpl {
-		int currentDeviceId = -1;
+Kore::Window* Kore::System::init(const char* name, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
+	WindowOptions defaultWin;
+	FramebufferOptions defaultFrame;
+	
+	if (win == nullptr) {
+		win = &defaultWin;
 	}
+	win->width = width;
+	win->height = height;
+	
+	if (frame == nullptr) {
+		frame = &defaultFrame;
+	}
+	
+	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
+	return Window::get(0);
 }
-
-void Kore::System::makeCurrent(int id) {
-	windowimpl::currentDeviceId = id;
-}
-
-int Kore::System::currentDevice() {
-	return windowimpl::currentDeviceId;
-}
-
-void Kore::System::clearCurrent() {}
 
 void endGL();
 
-void System::swapBuffers(int) {
+void swapBuffersiOS() {
 	endGL();
 }
 

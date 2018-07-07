@@ -104,26 +104,26 @@ sharedApplication].statusBarOrientation);
 }
 */
 - (void)applicationWillEnterForeground:(UIApplication*)application {
-	Kore::System::foregroundCallback();
+	Kore::System::_foregroundCallback();
 }
 
 - (void)applicationDidBecomeActive:(UIApplication*)application {
-	Kore::System::resumeCallback();
+	Kore::System::_resumeCallback();
 	//[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didRotate:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)applicationWillResignActive:(UIApplication*)application {
-	Kore::System::pauseCallback();
+	Kore::System::_pauseCallback();
 	//[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application {
-	Kore::System::backgroundCallback();
+	Kore::System::_backgroundCallback();
 }
 
 - (void)applicationWillTerminate:(UIApplication*)application {
-	Kore::System::shutdownCallback();
+	Kore::System::_shutdownCallback();
 }
 
 //- (void)dealloc {

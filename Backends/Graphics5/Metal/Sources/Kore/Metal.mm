@@ -53,9 +53,16 @@ void Graphics5::end(int windowId) {
 void swapBuffersMac(int windowId);
 #endif
 
+#ifdef KORE_IOS
+void swapBuffersiOS();
+#endif
+
 bool Graphics5::swapBuffers() {
 #ifdef KORE_MACOS
 	swapBuffersMac(0);
+#endif
+#ifdef KORE_IOS
+	swapBuffersiOS();
 #endif
 	return true;
 }

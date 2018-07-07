@@ -47,11 +47,11 @@ namespace {
 	GLint backingWidth, backingHeight;
 }
 
-int Kore::System::windowWidth(int id) {
+int Kore::Window::width() {
 	return backingWidth;
 }
 
-int Kore::System::windowHeight(int id) {
+int Kore::Window::height() {
 	return backingHeight;
 }
 
