@@ -23,6 +23,7 @@ namespace {
 	bool glewInitialized = false;
 }
 
+#ifdef KORE_WINDOWS
 void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits) {
 	HWND windowHandle = Kore::Window::get(window)->_data.handle;
 
@@ -166,6 +167,7 @@ void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBu
 	glBindVertexArray(windows[0].vertexArray);
 	glCheckErrors();
 }
+#endif
 
 void OpenGL::blitWindowContent(int window) {
 	glBindFramebuffer(GL_FRAMEBUFFER, windows[window].framebuffer);
@@ -175,14 +177,18 @@ void OpenGL::blitWindowContent(int window) {
 	glBindTexture(GL_TEXTURE_2D, windows[window].renderTarget->_texture);
 	setIndexBuffer(*windowIndexBuffer);
 
+#ifndef KORE_OPENGL_ES
 	glBindVertexArray(windows[window].vertexArray);
+#endif
 	glCheckErrors();
 	windowVertexBuffer->_set(0);
 
 	Graphics4::drawIndexedVertices();
 	glCheckErrors();
 
+#ifndef KORE_OPENGL_ES
 	glBindVertexArray(windows[0].vertexArray);
+#endif
 	glCheckErrors();
 }
 

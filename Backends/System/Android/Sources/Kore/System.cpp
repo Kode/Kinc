@@ -22,22 +22,30 @@ void pauseAudio();
 void resumeAudio();
 
 namespace {
-	android_app* app = nullptr;
-	ANativeActivity* activity = nullptr;
-	ASensorManager* sensorManager = nullptr;
-	const ASensor* accelerometerSensor = nullptr;
-	const ASensor* gyroSensor = nullptr;
-	ASensorEventQueue* sensorEventQueue = nullptr;
-	bool shift = false;
-	// int screenRotation = 0;
+    android_app *app = nullptr;
+    ANativeActivity *activity = nullptr;
+    ASensorManager *sensorManager = nullptr;
+    const ASensor *accelerometerSensor = nullptr;
+    const ASensor *gyroSensor = nullptr;
+    ASensorEventQueue *sensorEventQueue = nullptr;
+    bool shift = false;
+    // int screenRotation = 0;
 
-	ndk_helper::GLContext* glContext = nullptr;
+    ndk_helper::GLContext *glContext = nullptr;
 
-	bool started = false;
-	bool paused = true;
-	bool displayIsInitialized = false;
-	bool appIsForeground = false;
+    bool started = false;
+    bool paused = true;
+    bool displayIsInitialized = false;
+    bool appIsForeground = false;
+}
 
+void androidSwapBuffers() {
+    if (glContext->Swap() != EGL_SUCCESS) {
+        Kore::log(Kore::Warning, "GL context lost.");
+    }
+}
+
+namespace {
 	void initDisplay() {
 		if (glContext->Resume(app->window) != EGL_SUCCESS) {
 			Kore::log(Kore::Warning, "GL context lost.");
@@ -54,11 +62,11 @@ namespace {
 		appIsForeground = appIsForegroundValue;
 		bool newStatus = displayIsInitialized && appIsForeground;
 		if (oldStatus != newStatus) {
-			if (newStatus == true) {
-				Kore::System::foregroundCallback();
+			if (newStatus) {
+				Kore::System::_foregroundCallback();
 			}
 			else {
-				Kore::System::backgroundCallback();
+				Kore::System::_backgroundCallback();
 			}
 		}
 	}
@@ -383,7 +391,7 @@ namespace {
 				if (!started) {
 					started = true;
 				}
-				Kore::System::swapBuffers(0);
+				androidSwapBuffers();
 				updateAppForegroundStatus(true, appIsForeground);
 			}
 			break;
@@ -413,12 +421,12 @@ namespace {
 			updateAppForegroundStatus(displayIsInitialized, true);
 			break;
 		case APP_CMD_RESUME:
-			Kore::System::resumeCallback();
+			Kore::System::_resumeCallback();
 			resumeAudio();
 			paused = false;
 			break;
 		case APP_CMD_PAUSE:
-			Kore::System::pauseCallback();
+			Kore::System::_pauseCallback();
 			pauseAudio();
 			paused = true;
 			break;
@@ -426,7 +434,7 @@ namespace {
 			updateAppForegroundStatus(displayIsInitialized, false);
 			break;
 		case APP_CMD_DESTROY:
-			Kore::System::shutdownCallback();
+			Kore::System::_shutdownCallback();
 			break;
 		case APP_CMD_CONFIG_CHANGED: {
 
@@ -457,14 +465,6 @@ jclass KoreAndroid::findClass(JNIEnv* env, const char* name) {
 	return clazz;
 }
 
-void Kore::System::swapBuffers(int) {
-	if (glContext->Swap() != EGL_SUCCESS) {
-		Kore::log(Kore::Warning, "GL context lost.");
-	}
-}
-
-void Kore::System::destroyWindow(int) {}
-
 void Kore::System::showKeyboard() {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
@@ -490,12 +490,12 @@ void Kore::System::loadURL(const char* url) {
 	activity->vm->DetachCurrentThread();
 }
 
-int Kore::System::windowWidth(int windowId) {
+int glWidth() {
 	glContext->UpdateSize();
 	return glContext->GetScreenWidth();
 }
 
-int Kore::System::windowHeight(int windowId) {
+int glHeight() {
 	glContext->UpdateSize();
 	return glContext->GetScreenHeight();
 }
@@ -516,10 +516,6 @@ const char** Kore::System::videoFormats() {
 	return ::videoFormats;
 }
 
-void Kore::System::changeResolution(int, int, bool) {}
-
-void Kore::System::setTitle(const char*) {}
-
 void Kore::System::setKeepScreenOn(bool on) {
 	if (on) {
 		ANativeActivity_setWindowFlags(activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
@@ -527,22 +523,6 @@ void Kore::System::setKeepScreenOn(bool on) {
 	else {
 		ANativeActivity_setWindowFlags(activity, 0, AWINDOW_FLAG_KEEP_SCREEN_ON);
 	}
-}
-
-void Kore::System::showWindow() {}
-
-int Kore::System::windowCount() {
-	return 1;
-}
-
-int Kore::System::screenDpi() {
-	JNIEnv* env;
-	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
-	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getScreenDpi", "()I");
-	int dpi = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
-	activity->vm->DetachCurrentThread();
-	return dpi;
 }
 
 #include <sys/time.h>
@@ -657,27 +637,22 @@ extern "C" void android_main(android_app* app) {
 	exit(0);
 }
 
-void Kore::System::setup() {}
+Kore::Window* Kore::System::init(const char* name, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
+    WindowOptions defaultWin;
+    FramebufferOptions defaultFrame;
 
-int Kore::System::initWindow(Kore::WindowOptions options) {
-	Graphics4::init(0, options.rendererOptions.depthBufferBits, options.rendererOptions.stencilBufferBits);
-	return 0;
+    if (win == nullptr) {
+        win = &defaultWin;
+    }
+    win->width = width;
+    win->height = height;
+
+    if (frame == nullptr) {
+        frame = &defaultFrame;
+    }
+
+	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
+	return Window::get(0);
 }
 
-namespace appstate {
-	int currentDeviceId = -1;
-}
-
-bool Kore::System::isFullscreen() {
-	return true;
-}
-
-int Kore::System::currentDevice() {
-	return appstate::currentDeviceId;
-}
-
-void Kore::System::makeCurrent(int id) {
-	appstate::currentDeviceId = id;
-}
-
-void Kore::System::clearCurrent() {}
+void Kore::System::_shutdown() {}

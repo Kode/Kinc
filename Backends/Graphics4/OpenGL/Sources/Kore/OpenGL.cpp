@@ -51,9 +51,11 @@ namespace Kore {
 }
 
 namespace {
+#ifdef KORE_WINDOWS
 	void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
 		Kore::log(Info, "OpenGL: %s", message);
 	}
+#endif
 
 #ifdef KORE_WINDOWS
 	HINSTANCE instance = 0;
@@ -148,8 +150,10 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glesDrawBuffers = (void*)eglGetProcAddress("glDrawBuffers");
 #endif
 
+#ifdef KORE_WINDOWS
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(debugCallback, nullptr);
+#endif
 
 #ifndef KORE_OPENGL_ES
 	int extensions;
@@ -275,6 +279,10 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int c
 #endif
 }
 
+#ifdef KORE_ANDROID
+void androidSwapBuffers();
+#endif
+
 bool Graphics4::swapBuffers() {
 #ifdef KORE_WINDOWS
 	for (int i = 9; i >= 0; --i) {
@@ -287,8 +295,8 @@ bool Graphics4::swapBuffers() {
 		}
 	}
 	wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
-#else
-	System::swapBuffers(contextId);
+#elif defined(KORE_ANDROID)
+    androidSwapBuffers();
 #endif
 	return true;
 }

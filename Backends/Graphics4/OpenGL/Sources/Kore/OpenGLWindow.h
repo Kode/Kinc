@@ -13,8 +13,10 @@ namespace Kore {
 
 	namespace OpenGL {
 		struct Window {
+#ifdef KORE_WINDOWS
 			HDC deviceContext;
 			HGLRC glContext;
+#endif
 			int framebuffer;
 			uint vertexArray;
 			Graphics4::RenderTarget* renderTarget;
