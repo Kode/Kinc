@@ -158,7 +158,7 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 		dwStyle = getStyle(features);
 		dwExStyle = getExStyle(features);
 		break;
-	case WindowModeFullScreen:
+	case WindowModeFullscreen:
 		dwStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
 		dwExStyle = WS_EX_APPWINDOW;
 		break;
@@ -184,7 +184,7 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 		dstw = WindowRect.right - WindowRect.left;
 		dsth = WindowRect.bottom - WindowRect.top;
 		break;
-	case WindowModeFullScreen:
+	case WindowModeFullscreen:
 		dstw = display->width();
 		dsth = display->height();
 		break;
@@ -270,7 +270,7 @@ void Window::changeWindowMode(WindowMode mode) {
 		restoreDisplay(display->_data.index);
 		changeWindowFeatures(_data.features);
 		break;
-	case WindowModeFullScreen: {
+	case WindowModeFullscreen: {
 		restoreDisplay(display->_data.index);
 		SetWindowLong(_data.handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
 		SetWindowLong(_data.handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
