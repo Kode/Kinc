@@ -1,3 +1,4 @@
+* 2018-07-08: Kore::Window and Kore::Display have been overhauled and Kore::System was simplified. Projects are now always initialized using Kore::System::init (see Tests/Empty/Sources/Shader.cpp), additional windows are created using Kore::Window::create.
 * 2017-02-10: createProject and addSubProject were replaced by the simpler addProject. New code looks like this:
 
 ```
