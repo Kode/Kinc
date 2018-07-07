@@ -9,6 +9,8 @@
 #include <Kore/Math/Vector.h>
 
 namespace Kore {
+	struct FramebufferOptions;
+
 	namespace Graphics4 {
 		class PipelineState;
 		class TextureArray;
@@ -155,6 +157,9 @@ namespace Kore {
 		void begin(int window = 0);
 		void end(int window = 0);
 		bool swapBuffers();
+
+		void _resize(int window, int width, int height);
+		void _changeFramebuffer(int window, FramebufferOptions* frame);
 		
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);

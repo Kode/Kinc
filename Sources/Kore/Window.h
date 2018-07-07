@@ -53,6 +53,8 @@ namespace Kore {
 		void resize(int width, int height);
 		void move(int x, int y);
 		void changeWindowMode(WindowMode mode);
+		void changeWindowFeatures(int features);
+		void changeFramebuffer(FramebufferOptions* frame);
 		int x();
 		int y();
 		int width();
@@ -61,6 +63,7 @@ namespace Kore {
 		void hide();
 		void setTitle(const char* title);
 		void setResizeCallback(void (*value)(int x, int y));
+		bool vsynced();
 
 		WindowData _data;
 		Window();

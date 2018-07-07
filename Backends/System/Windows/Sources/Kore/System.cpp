@@ -261,8 +261,6 @@ namespace {
 }
 
 LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	int windowWidth;
-	int windowHeight;
 	int windowId;
 	DWORD pointerId;
 	POINTER_INFO pointerInfo = {NULL};
@@ -275,11 +273,16 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 	case WM_SIZING:
 		// Scheduler::breakTime();
 		break;
-	case WM_SIZE:
-		windowWidth = LOWORD(lParam);
-		windowHeight = HIWORD(lParam);
-		//**Graphics::changeResolution(windowWidth, windowHeight);
+	case WM_SIZE: {
+		int window = idFromHWND(hWnd);
+		int width = LOWORD(lParam);
+		int height = HIWORD(lParam);
+		Graphics::_resize(window, width, height);
+		if (Window::get(window)->_data.resizeCallback != nullptr) {
+			Window::get(window)->_data.resizeCallback(width, height);
+		}
 		break;
+	}
 	case WM_DESTROY:
 		Kore::System::stop();
 		return 0;
@@ -1043,13 +1046,15 @@ Window* System::init(const char* name, int width, int height, WindowOptions* win
 	return window;
 }
 
+void hideWindows();
 void destroyWindows();
-void destroyDisplays();
+void restoreDisplays();
 
 void Kore::System::_shutdown() {
+	hideWindows();
 	if (System::_shutdownCallback != nullptr) {
 		System::_shutdownCallback();
 	}
 	destroyWindows();
-	destroyDisplays();
+	restoreDisplays();
 }

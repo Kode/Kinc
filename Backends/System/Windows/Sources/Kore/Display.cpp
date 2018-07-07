@@ -17,7 +17,7 @@ namespace {
 	const int maximumDisplays = 10;
 	Display displays[maximumDisplays];
 	DEVMODEA originalModes[maximumDisplays];
-	int screenCounter = -1;
+	int screenCounter = 0;
 }
 
 BOOL CALLBACK enumerationCallback(HMONITOR monitor, HDC, LPRECT, LPARAM lparam) {
@@ -42,6 +42,7 @@ BOOL CALLBACK enumerationCallback(HMONITOR monitor, HDC, LPRECT, LPARAM lparam) 
 
 	Display& display = displays[freeSlot];
 	strcpy_s(display._data.name, 32, info.szDevice);
+	display._data.index = freeSlot;
 	display._data.id = monitor;
 	display._data.primary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
 	display._data.available = true;
@@ -123,11 +124,15 @@ bool setDisplayMode(Display* display, int width, int height, int bpp, int freque
 	return ChangeDisplaySettingsA(&mode, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
 }
 
-void destroyDisplays() {
+void restoreDisplay(int display) {
+	if (displays[display]._data.modeChanged) {
+		ChangeDisplaySettingsA(&originalModes[display], 0);
+	}
+}
+
+void restoreDisplays() {
 	for (int i = 0; i < maximumDisplays; ++i) {
-		if (displays[i]._data.modeChanged) {
-			ChangeDisplaySettingsA(&originalModes[i], 0);
-		}
+		restoreDisplay(i);	
 	}
 }
 

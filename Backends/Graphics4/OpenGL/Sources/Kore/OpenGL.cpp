@@ -77,6 +77,21 @@ namespace {
 #endif
 }
 
+void Graphics4::_resize(int window, int width, int height) {
+
+}
+
+void Graphics4::_changeFramebuffer(int window, FramebufferOptions* frame) {
+#ifdef KORE_WINDOWS
+	if (window == 0) {
+#ifdef KORE_VR
+		vsync = false;
+#endif
+		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(frame->verticalSync);
+	}
+#endif
+}
+
 void Graphics4::destroy(int window) {
 #ifdef KORE_WINDOWS
 	if (windows[window].glContext) {
@@ -87,14 +102,11 @@ void Graphics4::destroy(int window) {
 
 	HWND windowHandle = Window::get(window)->_data.handle;
 
-	// TODO (DK) shouldn't 'deviceContexts[windowId] = nullptr;' be moved out of here?
-	if (windows[window].deviceContext && !ReleaseDC(windowHandle, windows[window].deviceContext)) {
-		// MessageBox(NULL,"Release Device Context Failed.","SHUTDOWN ERROR",MB_OK | MB_ICONINFORMATION);
+	if (windows[window].deviceContext != nullptr) {
+		ReleaseDC(windowHandle, windows[window].deviceContext);
 		windows[window].deviceContext = nullptr;
 	}
 #endif
-
-	//**System::destroyWindow(window);
 }
 
 #ifdef CreateWindow
@@ -152,25 +164,14 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	lastPipeline = nullptr;
 }
-/*
-void Graphics4::changeResolution(int width, int height) {
-	_width = width;
-	_height = height;
-	if (renderToBackbuffer) {
-		_renderTargetWidth = _width;
-		_renderTargetHeight = _height;
-	}
-}
-*/
-/*
-bool Graphics4::vsynced() {
+
+bool Kore::Window::vsynced() {
 #ifdef KORE_WINDOWS
 	return wglGetSwapIntervalEXT();
 #else
 	return true;
 #endif
 }
-*/
 
 void Graphics4::setBool(ConstantLocation location, bool value) {
 	glUniform1i(location.location, value ? 1 : 0);
@@ -300,7 +301,7 @@ void Graphics4::begin(int window) {
 	currentWindow = window;
 	setWindowRenderTarget(window);
 	
-	glViewport(0, 0, _width, _height);
+	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
 
 #ifdef KORE_IOS
 	beginGL();

@@ -20,7 +20,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 namespace {
 	const int maximumWindows = 10;
 	Window windows[maximumWindows];
-	int windowCounter = -1;
+	int windowCounter = 0;
 
 #ifdef KORE_OCULUS
 	const wchar_t* windowClassName = L"ORT";
@@ -42,6 +42,42 @@ namespace {
 		                  className,
 		                  0};
 		RegisterClassEx(&wc);
+	}
+
+	DWORD getStyle(int features) {
+		DWORD style = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+
+		if (features & WindowFeatureResizable) {
+			style |= WS_SIZEBOX;
+		}
+
+		if (features & WindowFeatureMaximizable) {
+			style |= WS_MAXIMIZEBOX;
+		}
+
+		if (features & WindowFeatureMinimizable) {
+			style |= WS_MINIMIZEBOX;
+		}
+
+		if ((features & WindowFeatureBorderless) == 0) {
+			style |= WS_CAPTION | WS_SYSMENU;
+		}
+
+		if (features & WindowFeatureOnTop) {
+			style |= WS_POPUP;
+		}
+
+		return style;
+	}
+
+	DWORD getExStyle(int features) {
+		DWORD exStyle = WS_EX_APPWINDOW;
+
+		if ((features & WindowFeatureBorderless) == 0) {
+			exStyle |= WS_EX_WINDOWEDGE;
+		}
+
+		return exStyle;
 	}
 }
 
@@ -84,9 +120,8 @@ int Window::height() {
 
 bool setDisplayMode(Display* display, int width, int height, int bpp, int frequency);
 
-static int createWindow(const wchar_t* title, int x, int y, int width, int height, int bpp, int frequency, Kore::WindowMode windowMode, int targetDisplay) {
-	++windowCounter;
-
+static int createWindow(const wchar_t* title, int x, int y, int width, int height, int bpp, int frequency, int features, Kore::WindowMode windowMode,
+                        int targetDisplay) {
 	HINSTANCE inst = GetModuleHandle(nullptr);
 #ifdef KORE_OCULUS
 	if (windowCounter == 0) {
@@ -120,18 +155,17 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 
 	switch (windowMode) {
 	case WindowModeWindow:
-		dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-		dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+		dwStyle = getStyle(features);
+		dwExStyle = getExStyle(features);
 		break;
 	case WindowModeFullScreen:
-		dwStyle = WS_POPUP;
+		dwStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
 		dwExStyle = WS_EX_APPWINDOW;
 		break;
 	case WindowModeExclusiveFullscreen: {
 		setDisplayMode(display, width, height, bpp, frequency);
-		dwStyle = WS_POPUP;
+		dwStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
 		dwExStyle = WS_EX_APPWINDOW;
-		ShowCursor(FALSE);
 		break;
 	}
 	}
@@ -155,19 +189,11 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 		dsth = display->height();
 		break;
 	case WindowModeExclusiveFullscreen:
-		// dstx = 0;
-		// dsty = 0;
 		break;
 	}
 
 	HWND hwnd =
-	    CreateWindowEx(dwExStyle, windowClassName, title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dwStyle, dstx, dsty, dstw, dsth, nullptr, nullptr, inst, nullptr);
-
-	if (windowCounter == 0) {
-		if (windowMode == WindowModeExclusiveFullscreen) {
-			SetWindowPos(hwnd, nullptr, dstx, dsty, width, height, 0);
-		}
-	}
+	    CreateWindowEx(dwExStyle, windowClassName, title, dwStyle, dstx, dsty, dstw, dsth, nullptr, nullptr, inst, nullptr);
 
 	SetCursor(LoadCursor(0, IDC_ARROW));
 	DragAcceptFiles(hwnd, true);
@@ -180,21 +206,39 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 	windows[windowCounter]._data.dwExStyle = dwExStyle;
 	windows[windowCounter]._data.mode = windowMode;
 	windows[windowCounter]._data.display = targetDisplay;
-	return windowCounter;
+	windows[windowCounter]._data.bpp = bpp;
+	windows[windowCounter]._data.frequency = frequency;
+	windows[windowCounter]._data.features = features;
+	windows[windowCounter]._data.manualWidth = width;
+	windows[windowCounter]._data.manualHeight = height;
+	windows[windowCounter]._data.index = windowCounter;
+
+	return windowCounter++;
 }
 
 void Window::resize(int width, int height) {
-	if (_data.mode != 0) {
-		return;
+	_data.manualWidth = width;
+	_data.manualHeight = height;
+	switch (_data.mode) { 
+	case WindowModeWindow: {
+		RECT rect;
+		rect.left = 0;
+		rect.top = 0;
+		rect.right = width;
+		rect.bottom = height;
+		AdjustWindowRectEx(&rect, _data.dwStyle, FALSE, _data.dwExStyle);
+		SetWindowPos(_data.handle, nullptr, x(), y(), rect.right - rect.left, rect.bottom - rect.top, 0);
+		//Graphics4::_resize(_data.index, width, height);
+		break;
 	}
-
-	RECT rect;
-	rect.left = 0;
-	rect.top = 0;
-	rect.right = width;
-	rect.bottom = height;
-	AdjustWindowRectEx(&rect, _data.dwStyle, FALSE, _data.dwExStyle);
-	SetWindowPos(_data.handle, nullptr, x(), y(), rect.right - rect.left, rect.bottom - rect.top, 0);
+	case WindowModeExclusiveFullscreen: {
+		Display* display = _data.display < 0 ? Display::primary() : Display::get(_data.display);
+		setDisplayMode(display, width, height, _data.bpp, _data.frequency);
+		SetWindowPos(_data.handle, nullptr, display->x(), display->y(), display->width(), display->height(), 0);
+		//Graphics4::_resize(_data.index, display->width(), display->height());
+		break;
+	}
+	}
 }
 
 void Window::move(int x, int y) {
@@ -207,18 +251,37 @@ void Window::move(int x, int y) {
 	SetWindowPos(_data.handle, nullptr, x, y, width(), height(), 0);
 }
 
+void Window::changeFramebuffer(FramebufferOptions* frame) {
+	Graphics4::_changeFramebuffer(_data.index, frame);
+}
+
+void Window::changeWindowFeatures(int features) {
+	_data.features = features;
+	SetWindowLong(_data.handle, GWL_STYLE, getStyle(features));
+	SetWindowLong(_data.handle, GWL_EXSTYLE, getExStyle(features));
+}
+
+void restoreDisplay(int display);
+
 void Window::changeWindowMode(WindowMode mode) {
+	Display* display = _data.display < 0 ? Display::primary() : Display::get(_data.display);
 	switch (mode) {
 	case WindowModeWindow:
+		restoreDisplay(display->_data.index);
+		changeWindowFeatures(_data.features);
 		break;
 	case WindowModeFullScreen: {
+		restoreDisplay(display->_data.index);
 		SetWindowLong(_data.handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
 		SetWindowLong(_data.handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
-		Display* display = _data.display < 0 ? Display::primary() : Display::get(_data.display);
 		SetWindowPos(_data.handle, nullptr, display->x(), display->y(), display->width(), display->height(), 0);
 		break;
 	}
 	case WindowModeExclusiveFullscreen:
+		setDisplayMode(display, _data.manualWidth, _data.manualHeight, _data.bpp, _data.frequency);
+		SetWindowLong(_data.handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
+		SetWindowLong(_data.handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
+		SetWindowPos(_data.handle, nullptr, display->x(), display->y(), display->width(), display->height(), 0);
 		break;
 	}
 	_data.mode = mode;
@@ -227,12 +290,24 @@ void Window::changeWindowMode(WindowMode mode) {
 void Window::destroy(Window* window) {
 	if (window->_data.handle != nullptr) {
 		DestroyWindow(window->_data.handle);
+		window->_data.handle = nullptr;
+		--windowCounter;
 	}
-	window->_data.handle = nullptr;
-	--windowCounter;
+}
+
+void hideWindows() {
+	for (int i = 0; i < maximumWindows; ++i) {
+		if (windows[i]._data.handle != nullptr) {
+			ShowWindow(windows[i]._data.handle, SW_HIDE);
+			UpdateWindow(windows[i]._data.handle);
+		}
+	}
 }
 
 void destroyWindows() {
+	for (int i = 0; i < maximumWindows; ++i) {
+		Window::destroy(&windows[i]);
+	}
 	UnregisterClass(windowClassName, GetModuleHandle(nullptr));
 }
 
@@ -267,7 +342,8 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 	wchar_t wbuffer[1024];
 	MultiByteToWideChar(CP_UTF8, 0, win->title, -1, wbuffer, 1024);
 
-	int windowId = createWindow(wbuffer, win->x, win->y, win->width, win->height, frame->colorBufferBits, frame->frequency, win->mode, win->display);
+	int windowId =
+	    createWindow(wbuffer, win->x, win->y, win->width, win->height, frame->colorBufferBits, frame->frequency, win->windowFeatures, win->mode, win->display);
 
 	Graphics4::setAntialiasingSamples(frame->samplesPerPixel);
 	bool vsync = frame->verticalSync;
