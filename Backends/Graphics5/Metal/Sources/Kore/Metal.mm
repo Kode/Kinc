@@ -5,7 +5,10 @@
 
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
+#include <Kore/Window.h>
+
 #import <Metal/Metal.h>
+
 #include <cstdio>
 
 using namespace Kore;
@@ -106,3 +109,7 @@ bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 }
 
 void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
+
+bool Kore::Window::vsynced() {
+	return true;
+}
