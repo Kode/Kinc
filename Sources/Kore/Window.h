@@ -59,6 +59,7 @@ namespace Kore {
 		int y();
 		int width();
 		int height();
+		WindowMode mode();
 		void show();
 		void hide();
 		void setTitle(const char* title);

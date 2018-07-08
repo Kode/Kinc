@@ -88,3 +88,7 @@ Window::Window() {}
 void Window::setResizeCallback(void (*value)(int x, int y)) {
 	
 }
+
+WindowMode Window::mode() {
+	return true;
+}

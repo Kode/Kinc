@@ -287,6 +287,10 @@ void Window::changeWindowMode(WindowMode mode) {
 	_data.mode = mode;
 }
 
+WindowMode Window::mode() {
+	return (WindowMode)_data.mode;
+}
+
 void Window::destroy(Window* window) {
 	if (window->_data.handle != nullptr) {
 		DestroyWindow(window->_data.handle);
