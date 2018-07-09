@@ -37,7 +37,7 @@ int Display::countAvailableModes() {
 }
 
 int Display::pixelsPerInch() {
-	return 72;
+	return 96;
 }
 
 DisplayData::DisplayData() {}

@@ -360,12 +360,16 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 	return &windows[windowId];
 }
 
-WindowData::WindowData() : handle(nullptr), mouseInside(false), resizeCallback(nullptr) {}
+WindowData::WindowData() : handle(nullptr), mouseInside(false), resizeCallback(nullptr), ppiCallback(nullptr) {}
 
 Window::Window() {}
 
 void Window::setResizeCallback(void (*value)(int x, int y)) {
 	_data.resizeCallback = value;
+}
+
+void Window::setPpiChangedCallback(void(*value)(int ppi)) {
+	_data.ppiCallback = value;
 }
 
 Display* Window::display() {

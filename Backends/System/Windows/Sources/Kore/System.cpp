@@ -276,6 +276,13 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 			MyEnableNonClientDpiScaling(hWnd);
 		}
 		break;
+	case WM_DPICHANGED: {
+		int window = idFromHWND(hWnd);
+		if (Window::get(window)->_data.ppiCallback != nullptr) {
+			Window::get(window)->_data.ppiCallback(LOWORD(wParam));
+		}
+		break;
+	}
 	case WM_MOVE:
 	case WM_MOVING:
 	case WM_SIZING:

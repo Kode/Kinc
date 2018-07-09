@@ -42,7 +42,7 @@ int Kore::Display::countAvailableModes() {
 }
 
 int Kore::Display::pixelsPerInch() {
-	return 72;
+	return 96;
 }
 
 Kore::DisplayData::DisplayData() {}

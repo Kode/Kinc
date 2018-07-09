@@ -15,6 +15,7 @@ namespace Kore {
 		int manualWidth, manualHeight;
 		DWORD dwStyle, dwExStyle;
 		void (*resizeCallback)(int x, int y);
+		void (*ppiCallback)(int ppi);
 		WindowData();
 	};
 }

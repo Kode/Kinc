@@ -164,7 +164,7 @@ int Display::pixelsPerInch() {
 	return _data.ppi;
 }
 
-DisplayData::DisplayData() : ppi(72), modeChanged(false) {
+DisplayData::DisplayData() : ppi(96), modeChanged(false) {
 	name[0] = 0;
 }
 
