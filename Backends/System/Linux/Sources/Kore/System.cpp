@@ -103,7 +103,7 @@ namespace {
 }
 #endif
 
-int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
+int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, Kore::Display* targetDisplay, int depthBufferBits,
                  int stencilBufferBits, int antialiasingSamples) {
 
 	int nameLength = strlen(Kore::System::name());
@@ -251,7 +251,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	// (6) bind the rendering context to the window
 	glXMakeCurrent(dpy, win, cx);
 
-	Kore::Display* deviceInfo = targetDisplay < 0 ? Kore::Display::primary() : Kore::Display::get(targetDisplay);
+	Kore::Display* deviceInfo = targetDisplay == nullptr ? Kore::Display::primary() : targetDisplay;
 
 	int dstx = deviceInfo->x();
 	int dsty = deviceInfo->y();
