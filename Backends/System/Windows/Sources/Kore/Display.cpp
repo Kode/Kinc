@@ -22,7 +22,7 @@ namespace {
 
 	enum MONITOR_DPI_TYPE { MDT_EFFECTIVE_DPI = 0, MDT_ANGULAR_DPI = 1, MDT_RAW_DPI = 2, MDT_DEFAULT = MDT_EFFECTIVE_DPI };
 	typedef HRESULT(WINAPI* GetDpiForMonitorType)(HMONITOR hmonitor, MONITOR_DPI_TYPE dpiType, UINT* dpiX, UINT* dpiY);
-	GetDpiForMonitorType GetDpiForMonitor = nullptr;
+	GetDpiForMonitorType MyGetDpiForMonitor = nullptr;
 
 	BOOL CALLBACK enumerationCallback(HMONITOR monitor, HDC, LPRECT, LPARAM lparam) {
 		MONITORINFOEXA info;
@@ -61,8 +61,8 @@ namespace {
 		DeleteDC(hdc);
 
 		unsigned dpiX, dpiY;
-		if (GetDpiForMonitor != nullptr) {
-			GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+		if (MyGetDpiForMonitor != nullptr) {
+			MyGetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
 			display._data.ppi = (int)dpiX;
 		}
 
@@ -79,7 +79,7 @@ namespace {
 void Windows::initDisplays() {
 	HMODULE shcore = LoadLibraryA("Shcore.dll");
 	if (shcore != nullptr) {
-		GetDpiForMonitor = (GetDpiForMonitorType)GetProcAddress(shcore, "GetDpiForMonitor");
+		MyGetDpiForMonitor = (GetDpiForMonitorType)GetProcAddress(shcore, "GetDpiForMonitor");
 	}
 	EnumDisplayMonitors(NULL, NULL, enumerationCallback, NULL);
 }

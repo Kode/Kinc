@@ -61,6 +61,8 @@ namespace {
 	GetPointerInfoType MyGetPointerInfo = nullptr;
 	typedef BOOL(WINAPI* GetPointerPenInfoType)(UINT32 pointerId, POINTER_PEN_INFO* penInfo);
 	GetPointerPenInfoType MyGetPointerPenInfo = nullptr;
+	typedef BOOL(WINAPI* EnableNonClientDpiScalingType)(HWND hwnd);
+	EnableNonClientDpiScalingType MyEnableNonClientDpiScaling = nullptr;
 }
 
 using namespace Kore;
@@ -269,6 +271,11 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 	static bool controlDown = false;
 
 	switch (msg) {
+	case WM_NCCREATE:
+		if (MyEnableNonClientDpiScaling != nullptr) {
+			MyEnableNonClientDpiScaling(hWnd);
+		}
+		break;
 	case WM_MOVE:
 	case WM_MOVING:
 	case WM_SIZING:
@@ -1004,7 +1011,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	HMODULE user32 = LoadLibraryA("user32.dll");
 	MyGetPointerInfo = (GetPointerInfoType)GetProcAddress(user32, "GetPointerInfo");
 	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo");
-
+	MyEnableNonClientDpiScaling = (EnableNonClientDpiScalingType)GetProcAddress(user32, "EnableNonClientDpiScaling");
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
