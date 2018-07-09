@@ -3,6 +3,7 @@
 #include <Kore/Display.h>
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Window.h>
+#include <Kore/Windows.h>
 
 #ifdef WIN32_LEAN_AND_MEAN
 #undef WIN32_LEAN_AND_MEAN
@@ -121,7 +122,7 @@ int Window::height() {
 bool setDisplayMode(Display* display, int width, int height, int bpp, int frequency);
 
 static int createWindow(const wchar_t* title, int x, int y, int width, int height, int bpp, int frequency, int features, Kore::WindowMode windowMode,
-                        int targetDisplay) {
+                        Display* targetDisplay) {
 	HINSTANCE inst = GetModuleHandle(nullptr);
 #ifdef KORE_OCULUS
 	if (windowCounter == 0) {
@@ -143,7 +144,7 @@ static int createWindow(const wchar_t* title, int x, int y, int width, int heigh
 		::registerWindowClass(inst, windowClassName);
 	}
 
-	Display* display = targetDisplay < 0 ? Display::primary() : Display::get(targetDisplay);
+	Display* display = targetDisplay == nullptr ? Display::primary() : targetDisplay;
 
 	DWORD dwStyle, dwExStyle;
 
@@ -228,14 +229,12 @@ void Window::resize(int width, int height) {
 		rect.bottom = height;
 		AdjustWindowRectEx(&rect, _data.dwStyle, FALSE, _data.dwExStyle);
 		SetWindowPos(_data.handle, nullptr, x(), y(), rect.right - rect.left, rect.bottom - rect.top, 0);
-		//Graphics4::_resize(_data.index, width, height);
 		break;
 	}
 	case WindowModeExclusiveFullscreen: {
-		Display* display = _data.display < 0 ? Display::primary() : Display::get(_data.display);
+		Display* display = this->display();
 		setDisplayMode(display, width, height, _data.bpp, _data.frequency);
 		SetWindowPos(_data.handle, nullptr, display->x(), display->y(), display->width(), display->height(), 0);
-		//Graphics4::_resize(_data.index, display->width(), display->height());
 		break;
 	}
 	}
@@ -261,17 +260,15 @@ void Window::changeWindowFeatures(int features) {
 	SetWindowLong(_data.handle, GWL_EXSTYLE, getExStyle(features));
 }
 
-void restoreDisplay(int display);
-
 void Window::changeWindowMode(WindowMode mode) {
-	Display* display = _data.display < 0 ? Display::primary() : Display::get(_data.display);
+	Display* display = this->display();
 	switch (mode) {
 	case WindowModeWindow:
-		restoreDisplay(display->_data.index);
+		Windows::restoreDisplay(display->_data.index);
 		changeWindowFeatures(_data.features);
 		break;
 	case WindowModeFullscreen: {
-		restoreDisplay(display->_data.index);
+		Windows::restoreDisplay(display->_data.index);
 		SetWindowLong(_data.handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
 		SetWindowLong(_data.handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
 		SetWindowPos(_data.handle, nullptr, display->x(), display->y(), display->width(), display->height(), 0);
@@ -299,7 +296,7 @@ void Window::destroy(Window* window) {
 	}
 }
 
-void hideWindows() {
+void Windows::hideWindows() {
 	for (int i = 0; i < maximumWindows; ++i) {
 		if (windows[i]._data.handle != nullptr) {
 			ShowWindow(windows[i]._data.handle, SW_HIDE);
@@ -308,7 +305,7 @@ void hideWindows() {
 	}
 }
 
-void destroyWindows() {
+void Windows::destroyWindows() {
 	for (int i = 0; i < maximumWindows; ++i) {
 		Window::destroy(&windows[i]);
 	}
@@ -369,4 +366,8 @@ Window::Window() {}
 
 void Window::setResizeCallback(void (*value)(int x, int y)) {
 	_data.resizeCallback = value;
+}
+
+Display* Window::display() {
+	return Windows::getDisplayForMonitor(MonitorFromWindow(_data.handle, MONITOR_DEFAULTTOPRIMARY));
 }

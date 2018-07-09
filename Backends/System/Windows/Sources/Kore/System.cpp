@@ -14,6 +14,7 @@
 #include <Kore/Log.h>
 #include <Kore/System.h>
 #include <Kore/Window.h>
+#include <Kore/Windows.h>
 
 #define DIRECTINPUT_VERSION 0x0800
 #ifdef WIN32_LEAN_AND_MEAN
@@ -57,9 +58,9 @@ extern "C"
 
 namespace {
 	typedef BOOL(WINAPI* GetPointerInfoType)(UINT32 pointerId, POINTER_INFO* pointerInfo);
-	GetPointerInfoType MyGetPointerInfo;
+	GetPointerInfoType MyGetPointerInfo = nullptr;
 	typedef BOOL(WINAPI* GetPointerPenInfoType)(UINT32 pointerId, POINTER_PEN_INFO* penInfo);
-	GetPointerPenInfoType MyGetPointerPenInfo;
+	GetPointerPenInfoType MyGetPointerPenInfo = nullptr;
 }
 
 using namespace Kore;
@@ -1007,6 +1008,8 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
+	Windows::initDisplays();
+
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);
 
@@ -1030,10 +1033,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	return ret;
 }
 
-void initDisplays();
-
 Window* System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
-	initDisplays();
 	WindowOptions defaultWin;
 	if (win == nullptr) {
 		win = &defaultWin;
@@ -1046,15 +1046,11 @@ Window* System::init(const char* name, int width, int height, WindowOptions* win
 	return window;
 }
 
-void hideWindows();
-void destroyWindows();
-void restoreDisplays();
-
 void Kore::System::_shutdown() {
-	hideWindows();
+	Windows::hideWindows();
 	if (System::_shutdownCallback != nullptr) {
 		System::_shutdownCallback();
 	}
-	destroyWindows();
-	restoreDisplays();
+	Windows::destroyWindows();
+	Windows::restoreDisplays();
 }

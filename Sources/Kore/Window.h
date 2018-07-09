@@ -3,6 +3,8 @@
 #include <Kore/WindowData.h>
 
 namespace Kore {
+	class Display;
+
 	struct FramebufferOptions {
 		int frequency;
 		bool verticalSync;
@@ -33,14 +35,14 @@ namespace Kore {
 		int y;
 		int width;
 		int height;
-		int display;
+		Display* display;
 
 		bool visible;
 		int windowFeatures;
 		WindowMode mode;
 
 		WindowOptions()
-		    : title("Kore"), display(-1), mode(WindowModeWindow), x(-1), y(-1), width(800), height(600), visible(true),
+		    : title("Kore"), display(nullptr), mode(WindowModeWindow), x(-1), y(-1), width(800), height(600), visible(true),
 		      windowFeatures(WindowFeatureResizable | WindowFeatureMinimizable | WindowFeatureMaximizable) {}
 	};
 
@@ -59,6 +61,7 @@ namespace Kore {
 		int y();
 		int width();
 		int height();
+		Display* display();
 		WindowMode mode();
 		void show();
 		void hide();
