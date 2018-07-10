@@ -45,10 +45,6 @@ void Window::changeWindowFeatures(int features) {
 	
 }
 
-void Window::changeWindowMode(WindowMode mode) {
-	
-}
-
 void Window::destroy(Window* window) {
 	
 }
@@ -69,7 +65,7 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 	return nullptr;
 }
 
-WindowData::WindowData() : resizeCallback(nullptr) {}
+WindowData::WindowData() : resizeCallback(nullptr), fullscreen(false) {}
 
 Window::Window() {}
 

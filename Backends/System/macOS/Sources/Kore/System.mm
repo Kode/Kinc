@@ -42,7 +42,7 @@ const char* macgetresourcepath() {
 
 namespace {
 	NSApplication* myapp;
-	//	NSWindow* window;
+	NSWindow* window;
 	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
 	HIDManager* hidManager;
@@ -132,7 +132,14 @@ int createWindow(Kore::WindowOptions* options) {
 	windows[windowCounter] = new Kore::Window; //new KoreWindow(window, view, options->x, options->y, width, height);
 	windows[windowCounter]->_data.handle = window;
 	windows[windowCounter]->_data.view = view;
+	::window = window;
 	::view = view;
+	
+	if (options->mode == WindowModeFullscreen || options->mode == WindowModeExclusiveFullscreen) {
+		[window toggleFullScreen:nil];
+		windows[windowCounter]->_data.fullscreen = true;
+	}
+	
 	return windowCounter++;
 }
 
@@ -142,6 +149,25 @@ Window* Window::get(int window) {
 
 int Window::count() {
 	return windowCounter;
+}
+
+void Window::changeWindowMode(WindowMode mode) {
+	switch (mode) {
+		case WindowModeWindow:
+			if (_data.fullscreen) {
+				[window toggleFullScreen:nil];
+				_data.fullscreen = false;
+			}
+			break;
+		case WindowModeFullscreen:
+		case WindowModeExclusiveFullscreen:
+			if (!_data.fullscreen) {
+				[window toggleFullScreen:nil];
+				_data.fullscreen = true;
+			}
+			break;
+	}
+	
 }
 
 Kore::Window* Kore::System::init(const char* title, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
