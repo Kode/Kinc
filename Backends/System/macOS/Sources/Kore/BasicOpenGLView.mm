@@ -341,10 +341,13 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 	return commandEncoder;
 }
 
+- (void)resize:(NSSize)size {
+	[self setFrameSize:size];
+}
+
 - (void)begin {
 	@autoreleasepool {
 		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
-
 		drawable = [metalLayer nextDrawable];
 		
 		if (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height) {

@@ -69,12 +69,12 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 	return nullptr;
 }
 
-WindowData::WindowData() {}
+WindowData::WindowData() : resizeCallback(nullptr) {}
 
 Window::Window() {}
 
 void Window::setResizeCallback(void (*value)(int x, int y)) {
-	
+	_data.resizeCallback = value;
 }
 
 WindowMode Window::mode() {

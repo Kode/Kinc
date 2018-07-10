@@ -35,11 +35,9 @@ const char* macgetresourcepath() {
 
 @end
 
-@interface MyAppDelegate : NSObject <NSWindowDelegate> {
-}
-
-- (void)windowWillClose:(NSNotification*)notification;
-
+@interface MyAppDelegate : NSObject<NSWindowDelegate> {}
+-(void)windowWillClose:(NSNotification*)notification;
+-(void)windowDidResize:(NSNotification*)notification;
 @end
 
 namespace {
@@ -114,7 +112,7 @@ int createWindow(Kore::WindowOptions* options) {
 	int height = options->height;
 	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
 	if ((options->windowFeatures & WindowFeatureResizable) || (options->windowFeatures & WindowFeatureMaximizable)) {
-		//**styleMask |= NSResizableWindowMask;
+		styleMask |= NSResizableWindowMask;
 	}
 	if (options->windowFeatures & WindowFeatureMinimizable) {
 		styleMask |= NSMiniaturizableWindowMask;
@@ -130,7 +128,7 @@ int createWindow(Kore::WindowOptions* options) {
 	[[window contentView] addSubview:view];
 	[window center];
 	[window makeKeyAndOrderFront:nil];
-
+	
 	windows[windowCounter] = new Kore::Window; //new KoreWindow(window, view, options->x, options->y, width, height);
 	windows[windowCounter]->_data.handle = window;
 	windows[windowCounter]->_data.view = view;
@@ -251,8 +249,17 @@ extern "C"
 
 @implementation MyAppDelegate
 
-- (void)windowWillClose:(NSNotification*)notification {
+-(void)windowWillClose:(NSNotification*)notification {
 	Kore::System::stop();
+}
+
+-(void)windowDidResize:(NSNotification*)notification {
+	NSWindow* window = [notification object];
+	NSSize size = [[window contentView]frame].size;
+	[view resize:size];
+	if (windows[0]->_data.resizeCallback != nullptr) {
+		windows[0]->_data.resizeCallback(size.width, size.height);
+	}
 }
 
 @end

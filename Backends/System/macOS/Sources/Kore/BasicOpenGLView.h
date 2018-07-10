@@ -78,5 +78,6 @@ namespace Kore {
 - (BOOL)resignFirstResponder;
 
 - (id)initWithFrame:(NSRect)frameRect;
+- (void)resize:(NSSize)size;
 
 @end
