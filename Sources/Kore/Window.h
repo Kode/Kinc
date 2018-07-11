@@ -68,7 +68,7 @@ namespace Kore {
 		void setTitle(const char* title);
 		void setResizeCallback(void (*value)(int x, int y));
 		void setPpiChangedCallback(void (*value)(int ppi));
-		bool vsynced();
+		bool vSynced();
 
 		WindowData _data;
 		Window();

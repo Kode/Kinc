@@ -1033,6 +1033,6 @@ void Graphics4::_resize(int window, int width, int height) {
 
 void Graphics4::_changeFramebuffer(int window, FramebufferOptions* frame) {}
 
-bool Window::vsynced() {
+bool Window::vSynced() {
 	return vsync;
 }

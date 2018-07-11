@@ -290,11 +290,13 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		break;
 	case WM_SIZE: {
 		int window = idFromHWND(hWnd);
-		int width = LOWORD(lParam);
-		int height = HIWORD(lParam);
-		Graphics::_resize(window, width, height);
-		if (Window::get(window)->_data.resizeCallback != nullptr) {
-			Window::get(window)->_data.resizeCallback(width, height);
+		if (window >= 0) {
+			int width = LOWORD(lParam);
+			int height = HIWORD(lParam);
+			Graphics::_resize(window, width, height);
+			if (Window::get(window)->_data.resizeCallback != nullptr) {
+				Window::get(window)->_data.resizeCallback(width, height);
+			}
 		}
 		break;
 	}
