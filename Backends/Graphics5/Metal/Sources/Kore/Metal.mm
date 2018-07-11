@@ -110,6 +110,6 @@ bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
 
 void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
 
-bool Kore::Window::vsynced() {
+bool Kore::Window::vSynced() {
 	return true;
 }

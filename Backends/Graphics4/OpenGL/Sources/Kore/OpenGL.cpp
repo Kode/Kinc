@@ -177,7 +177,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #endif
 }
 
-bool Kore::Window::vsynced() {
+bool Kore::Window::vSynced() {
 #ifdef KORE_WINDOWS
 	return wglGetSwapIntervalEXT();
 #else
