@@ -81,8 +81,12 @@ WindowData::WindowData() {}
 
 Window::Window() {}
 
-void Window::setResizeCallback(void (*value)(int x, int y)) {
+void Window::setResizeCallback(void (*value)(int x, int y, void* data), void* data) {
 
+}
+
+void Window::setPpiChangedCallback(void(*callback)(int ppi, void* data), void* data) {
+	
 }
 
 WindowMode Window::mode() {
