@@ -284,7 +284,7 @@ extern "C"
 	NSSize size = [[window contentView]frame].size;
 	[view resize:size];
 	if (windows[0]->_data.resizeCallback != nullptr) {
-		windows[0]->_data.resizeCallback(size.width, size.height);
+		windows[0]->_data.resizeCallback(size.width, size.height, windows[0]->_data.resizeCallbackData);
 	}
 }
 
