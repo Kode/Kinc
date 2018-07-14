@@ -14,8 +14,10 @@ namespace Kore {
 		int x, y, mode, bpp, frequency, features;
 		int manualWidth, manualHeight;
 		DWORD dwStyle, dwExStyle;
-		void (*resizeCallback)(int x, int y);
-		void (*ppiCallback)(int ppi);
+		void (*resizeCallback)(int x, int y, void* data);
+		void* resizeCallbackData;
+		void (*ppiCallback)(int ppi, void* data);
+		void* ppiCallbackData;
 		WindowData();
 	};
 }

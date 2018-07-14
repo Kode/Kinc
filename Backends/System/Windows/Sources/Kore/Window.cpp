@@ -92,6 +92,9 @@ int idFromHWND(HWND handle) {
 }
 
 Window* Window::get(int window) {
+	if (window < 0 || window >= count()) {
+		return nullptr;
+	}
 	return &windows[window];
 }
 
@@ -364,12 +367,14 @@ WindowData::WindowData() : handle(nullptr), mouseInside(false), resizeCallback(n
 
 Window::Window() {}
 
-void Window::setResizeCallback(void (*value)(int x, int y)) {
-	_data.resizeCallback = value;
+void Window::setResizeCallback(void (*callback)(int x, int y, void* data), void* data) {
+	_data.resizeCallback = callback;
+	_data.resizeCallbackData = data;
 }
 
-void Window::setPpiChangedCallback(void(*value)(int ppi)) {
-	_data.ppiCallback = value;
+void Window::setPpiChangedCallback(void(*callback)(int ppi, void* data), void* data) {
+	_data.ppiCallback = callback;
+	_data.ppiCallbackData = data;
 }
 
 Display* Window::display() {

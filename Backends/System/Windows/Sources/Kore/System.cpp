@@ -277,9 +277,9 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		}
 		break;
 	case WM_DPICHANGED: {
-		int window = idFromHWND(hWnd);
-		if (Window::get(window)->_data.ppiCallback != nullptr) {
-			Window::get(window)->_data.ppiCallback(LOWORD(wParam));
+		Window* window = Window::get(idFromHWND(hWnd));
+		if (window != nullptr && window->_data.ppiCallback != nullptr) {
+			window->_data.ppiCallback(LOWORD(wParam), window->_data.ppiCallbackData);
 		}
 		break;
 	}
@@ -294,8 +294,9 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 			int width = LOWORD(lParam);
 			int height = HIWORD(lParam);
 			Graphics::_resize(window, width, height);
-			if (Window::get(window)->_data.resizeCallback != nullptr) {
-				Window::get(window)->_data.resizeCallback(width, height);
+			Window* win = Window::get(window);
+			if (win != nullptr && win->_data.resizeCallback != nullptr) {
+				win->_data.resizeCallback(width, height, win->_data.resizeCallbackData);
 			}
 		}
 		break;
