@@ -1,6 +1,8 @@
 #include "pch.h"
 
-#ifdef KORE_G4
+#ifdef KORE_G4ONG5
+#include <Kore/Graphics5/Graphics.h>
+#elif KORE_G4
 #include <Kore/Graphics4/Graphics.h>
 #else
 #include <Kore/Graphics3/Graphics.h>
@@ -37,7 +39,9 @@
 #include <exception>
 #include <shlobj.h>
 
-#ifdef KORE_G4
+#ifdef KORE_G4ONG5
+#define Graphics Graphics5
+#elif KORE_G4
 #define Graphics Graphics4
 #else
 #define Graphics Graphics3
