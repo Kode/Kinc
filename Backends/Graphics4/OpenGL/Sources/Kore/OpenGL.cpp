@@ -51,7 +51,7 @@ namespace Kore {
 }
 
 namespace {
-#ifdef KORE_WINDOWS
+#if defined(KORE_WINDOWS) && !defined(NDEBUG)
 	void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
 		Kore::log(Info, "OpenGL: %s", message);
 	}
@@ -150,7 +150,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glesDrawBuffers = (void*)eglGetProcAddress("glDrawBuffers");
 #endif
 
-#ifdef KORE_WINDOWS
+#if defined(KORE_WINDOWS) && !defined(NDEBUG)
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(debugCallback, nullptr);
 #endif
