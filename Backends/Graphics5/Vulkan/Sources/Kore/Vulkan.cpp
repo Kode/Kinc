@@ -211,15 +211,9 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 
 void Graphics5::destroy(int windowId) {}
 
-#if defined(KORE_WINDOWS)
-void Graphics5::setup() {}
-#endif
+void Graphics5::_resize(int window, int width, int height) {
 
-void Graphics5::changeResolution(int width, int height) {}
-
-void Graphics5::clearCurrent() {}
-
-void Graphics5::makeCurrent(int contextId) {}
+}
 
 void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	uint32_t instance_extension_count = 0;
@@ -493,7 +487,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	height = System::windowHeight(windowId);
 
 #ifdef KORE_WINDOWS
-	windowHandle = (HWND)System::windowHandle(windowId);
+	windowHandle = (HWND)Window::get(windowId)->_data.handle;
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
 	SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
@@ -917,17 +911,9 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	begin(nullptr);
 }
 
-unsigned Graphics5::refreshRate() {
-	return 60;
+bool Kore::Window::vSynced() {
+	return true;
 }
-
-bool Graphics5::vsynced() {
-	return false;
-}
-
-// void* Graphics::getControl() {
-//	return nullptr;
-//}
 
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {
 	// drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
@@ -935,7 +921,7 @@ void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {
 
 void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
 
-bool Graphics5::swapBuffers(int contextId) {
+bool Graphics5::swapBuffers() {
 	return true;
 }
 

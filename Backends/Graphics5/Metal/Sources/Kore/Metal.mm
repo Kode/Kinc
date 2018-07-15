@@ -27,6 +27,10 @@ void Graphics5::destroy(int windowId) {
 
 }
 
+void Graphics5::_resize(int window, int width, int height) {
+
+}
+
 void Graphics5::init(int, int, int, bool) {
 	// System::createWindow();
 

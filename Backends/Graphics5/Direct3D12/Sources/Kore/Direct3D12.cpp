@@ -268,33 +268,16 @@ namespace {
 
 void Graphics5::destroy(int window) {}
 
+void Graphics5::_resize(int window, int width, int height) {
+
+}
+
 void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	HWND hwnd = (HWND)System::windowHandle(window);
+	HWND hwnd = Window::get(window)->_data.handle;
 	renderTargetWidth = System::windowWidth(window);
 	renderTargetHeight = System::windowHeight(window);
 	initialize(renderTargetWidth, renderTargetHeight, hwnd);
-
-#ifdef KORE_WINDOWS
-	if (System::hasShowWindowFlag()) {
-		ShowWindow(hwnd, SW_SHOWDEFAULT);
-		UpdateWindow(hwnd);
-	}
-#endif
-
-	//**begin(window);
 }
-
-void Graphics5::changeResolution(int width, int height) {}
-
-void Graphics5::setup() {}
-
-void Graphics5::makeCurrent(int window) {}
-
-void Graphics5::clearCurrent() {}
-
-// void* Graphics::getControl() {
-//	return nullptr;
-//}
 
 /*void Graphics5::drawIndexedVertices() {
     // Program::setConstants();
@@ -378,15 +361,11 @@ void Graphics5::end(int window) {
 	began = false;
 }
 
-bool Graphics5::vsynced() {
-	return vsync;
+bool Kore::Window::vSynced() {
+	return true;
 }
 
-unsigned Graphics5::refreshRate() {
-	return hz;
-}
-
-bool Graphics5::swapBuffers(int window) {
+bool Graphics5::swapBuffers() {
 	Microsoft::affirm(swapChain->Present(1, 0));
 	return true;
 }

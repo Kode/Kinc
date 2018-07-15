@@ -16,6 +16,8 @@ namespace Kore {
 
 void Graphics5::destroy(int window) {}
 
+void Graphics5::_resize(int window, int width, int height) {}
+
 void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	Graphics4::init(window, depthBufferBits, stencilBufferBits, vsync);
 }

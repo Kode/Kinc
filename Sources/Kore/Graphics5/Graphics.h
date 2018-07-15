@@ -133,6 +133,8 @@ namespace Kore {
 		void end(int window = 0);
 		bool swapBuffers();
 
+		void _resize(int window, int width, int height);
+
 		void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
 		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
