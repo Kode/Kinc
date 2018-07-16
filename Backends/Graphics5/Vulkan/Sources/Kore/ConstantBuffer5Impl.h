@@ -17,7 +17,6 @@
 namespace Kore {
 	class ConstantBuffer5Impl {
 	public:
-		float data[256];
 		VkBuffer buf;
 		VkDescriptorBufferInfo buffer_info;
 		VkMemoryAllocateInfo mem_alloc;
@@ -27,7 +26,7 @@ namespace Kore {
 		int lastStart;
 		int lastCount;
 		int mySize;
-		const bool transposeMat3 = false;
-		const bool transposeMat4 = false;
+		const bool transposeMat3 = true;
+		const bool transposeMat4 = true;
 	};
 }
