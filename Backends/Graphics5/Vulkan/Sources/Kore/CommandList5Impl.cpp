@@ -32,6 +32,8 @@ namespace {
 	VkCommandBuffer setup_cmd;
 	bool began = false;
 	bool onBackBuffer = false;
+	int lastVertexConstantBufferOffset = 0;
+	int lastFragmentConstantBufferOffset = 0;
 }
 
 void Kore::Vulkan::demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
@@ -378,6 +380,8 @@ void CommandList::disableScissor() {}
 
 void CommandList::setPipeline(PipelineState* pipeline) {
 	_currentPipeline = pipeline;
+	lastVertexConstantBufferOffset = 0;
+	lastFragmentConstantBufferOffset = 0;
 
 	vkCmdBindPipeline(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline);
 
@@ -386,8 +390,6 @@ void CommandList::setPipeline(PipelineState* pipeline) {
 		                        nullptr);
 	else if (vulkanTextures[0] != nullptr)
 		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &vulkanTextures[0]->desc_set, 0, nullptr);
-	else
-		vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
 void CommandList::setVertexBuffers(VertexBuffer** vertexBuffers, int* offsets_, int count) {
@@ -577,9 +579,15 @@ void CommandList::textureToRenderTargetBarrier(RenderTarget* renderTarget) {}
 
 void CommandList::renderTargetToTextureBarrier(RenderTarget* renderTarget) {}
 
-void CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {}
+void CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {
+	lastVertexConstantBufferOffset = offset;
+}
 
-void CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {}
+void CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {
+	lastFragmentConstantBufferOffset = offset;
+	uint32_t offsets[2] = { lastVertexConstantBufferOffset, lastFragmentConstantBufferOffset };
+	vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentPipeline->pipeline_layout, 0, 1, &desc_set, 2, offsets);
+}
 
 void CommandList::setPipelineLayout() {}
 

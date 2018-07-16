@@ -21,7 +21,7 @@ namespace {
 		memset(&buf_info, 0, sizeof(buf_info));
 		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		buf_info.size = sizeof(float) * size;
+		buf_info.size = size;
 		VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buf);
 		assert(!err);
 
@@ -44,7 +44,7 @@ namespace {
 
 		buffer_info.buffer = buf;
 		buffer_info.offset = 0;
-		buffer_info.range = sizeof(float) * size;
+		buffer_info.range = size;
 	}
 }
 
