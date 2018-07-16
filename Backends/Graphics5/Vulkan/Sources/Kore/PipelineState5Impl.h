@@ -57,8 +57,8 @@ namespace Kore {
 
 	class ConstantLocation5Impl {
 	public:
-		int vertexOffset;
-		int fragmentOffset;
+		u32 vertexOffset;
+		u32 fragmentOffset;
 	};
 
 	class AttributeLocation5Impl {};
