@@ -30,15 +30,15 @@ namespace Kore {
 
 	class ConstantLocation5Impl {
 	public:
-		u32 vertexOffset;
+		int vertexOffset;
 		u32 vertexSize;
-		u32 fragmentOffset;
+		int fragmentOffset;
 		u32 fragmentSize;
-		u32 geometryOffset;
+		int geometryOffset;
 		u32 geometrySize;
-		u32 tessEvalOffset;
+		int tessEvalOffset;
 		u32 tessEvalSize;
-		u32 tessControlOffset;
+		int tessControlOffset;
 		u32 tessControlSize;
 	};
 

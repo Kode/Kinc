@@ -58,7 +58,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 	ConstantLocation location;
 
 	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
-		location.vertexOffset = 0;
+		location.vertexOffset = -1;
 		location.vertexSize = 0;
 	}
 	else {
@@ -68,7 +68,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 	}
 
 	if (fragmentShader->constants.find(name) == fragmentShader->constants.end()) {
-		location.fragmentOffset = 0;
+		location.fragmentOffset = -1;
 		location.fragmentSize = 0;
 	}
 	else {
@@ -78,7 +78,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 	}
 
 	if (geometryShader == nullptr || geometryShader->constants.find(name) == geometryShader->constants.end()) {
-		location.geometryOffset = 0;
+		location.geometryOffset = -1;
 		location.geometrySize = 0;
 	}
 	else {
@@ -88,7 +88,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 	}
 
 	if (tessControlShader == nullptr || tessControlShader->constants.find(name) == tessControlShader->constants.end()) {
-		location.tessControlOffset = 0;
+		location.tessControlOffset = -1;
 		location.tessControlSize = 0;
 	}
 	else {
@@ -98,7 +98,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 	}
 
 	if (tessEvalShader == nullptr || tessEvalShader->constants.find(name) == tessEvalShader->constants.end()) {
-		location.tessEvalOffset = 0;
+		location.tessEvalOffset = -1;
 		location.tessEvalSize = 0;
 	}
 	else {
