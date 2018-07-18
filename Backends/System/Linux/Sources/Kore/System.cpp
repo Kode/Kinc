@@ -8,6 +8,7 @@
 #include "Input/Gamepad.h"
 
 #include <Kore/Display.h>
+#include <Kore/Linux.h>
 
 #include <cstring>
 
@@ -30,6 +31,8 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 // apt-get install mesa-common-dev
 // apt-get install libgl-dev
 
+_XDisplay* Kore::Linux::display = nullptr;
+
 namespace {
 // static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, None};
 // static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, GLX_DOUBLEBUFFER, None};
@@ -44,7 +47,6 @@ namespace {
 	};
 
 #define MWM_HINTS_DECORATIONS (1L << 1)
-	Display* dpy;
 	GLboolean doubleBuffer = GL_TRUE;
 #endif
 	Window win;
@@ -127,25 +129,22 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	// GLboolean            recalcModelView = GL_TRUE;
 	int dummy;
 
-	// (1) open a connection to the X server
-
-	if (dpy == nullptr) {
-		dpy = XOpenDisplay(NULL);
+	if (Kore::Linux::display == nullptr) {
+		Kore::Linux::display = XOpenDisplay(nullptr);
 	}
 
-	if (dpy == NULL) {
+	if (Kore::Linux::display == nullptr) {
 		fatalError("could not open display");
 	}
 
-	// (2) make sure OpenGL's GLX extension supported
-	if (!glXQueryExtension(dpy, &dummy, &dummy)) {
+	if (!glXQueryExtension(Kore::Linux::display, &dummy, &dummy)) {
 		fatalError("X server has no OpenGL GLX extension");
 	}
 
 	int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, None};
 	int dblBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
 
-	vi = NULL;
+	vi = nullptr;
 
     int attribs[] = {
     	GLX_X_RENDERABLE    , True,
@@ -166,7 +165,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
     GLXFBConfig fbconfig = 0;
     int fbcount;
-    GLXFBConfig* fbc = glXChooseFBConfig(dpy, DefaultScreen(dpy), attribs, &fbcount);
+    GLXFBConfig* fbc = glXChooseFBConfig(Kore::Linux::display, DefaultScreen(Kore::Linux::display), attribs, &fbcount);
     if (fbc) {
         if (fbcount >= 1) {
             fbconfig = fbc[0];
@@ -175,17 +174,17 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
     }
 
     if (fbconfig) {
-        vi = glXGetVisualFromFBConfig(dpy, fbconfig);
+        vi = glXGetVisualFromFBConfig(Kore::Linux::display, fbconfig);
     }
 
-	if (vi == NULL) {
-        vi = glXChooseVisual(dpy, DefaultScreen(dpy), dblBuf);
+	if (vi == nullptr) {
+        vi = glXChooseVisual(Kore::Linux::display, DefaultScreen(Kore::Linux::display), dblBuf);
     }
 
-	if (vi == NULL) {
-		vi = glXChooseVisual(dpy, DefaultScreen(dpy), snglBuf);
+	if (vi == nullptr) {
+		vi = glXChooseVisual(Kore::Linux::display, DefaultScreen(Kore::Linux::display), snglBuf);
 
-		if (vi == NULL) {
+		if (vi == nullptr) {
 			fatalError("no RGB visual with valid depth/stencil buffer");
 		}
 
@@ -194,7 +193,6 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	// if(vi->class != TrueColor)
 	//  fatalError("TrueColor visual required for this program");
 
-	// (4) create an OpenGL rendering context
 	// TODO (DK)
 	//  -context sharing doesn't seem to work in virtual box?
 	//      -main screen flickers
@@ -209,47 +207,43 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
         	GLX_CONTEXT_PROFILE_MASK_ARB , GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 			None
 		};
-		cx = glXCreateContextAttribsARB(dpy, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, GL_TRUE, contextAttribs);
+		cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, GL_TRUE, contextAttribs);
 	}
 
 	if (cx == NULL) {
-		cx = glXCreateContext(dpy, vi, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, /* direct rendering if possible */ GL_TRUE);
+		cx = glXCreateContext(Kore::Linux::display, vi, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, /* direct rendering if possible */ GL_TRUE);
 	}
 
 	if (cx == NULL) {
 		fatalError("could not create rendering context");
 	}
 
-	// (5) create an X window with the selected visual
-
-	// create an X colormap since probably not using default visual
-	cmap = XCreateColormap(dpy, RootWindow(dpy, vi->screen), vi->visual, AllocNone);
+	cmap = XCreateColormap(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), vi->visual, AllocNone);
 	swa.colormap = cmap;
 	swa.border_pixel = 0;
 	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
 
-	win = XCreateWindow(dpy, RootWindow(dpy, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
+	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
 	                           CWBorderPixel | CWColormap | CWEventMask, &swa);
-	XSetStandardProperties(dpy, win, title, "main", None, NULL, 0, NULL);
+	XSetStandardProperties(Kore::Linux::display, win, title, "main", None, NULL, 0, NULL);
 
 	char* strNameClass_ptr = strNameClass;
-	Atom wmClassAtom = XInternAtom( dpy, "WM_CLASS", 0);
-	XChangeProperty(dpy, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)strNameClass_ptr, nameLength+17);
+	Atom wmClassAtom = XInternAtom(Kore::Linux::display, "WM_CLASS", 0);
+	XChangeProperty(Kore::Linux::display, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)strNameClass_ptr, nameLength+17);
 
 	switch (windowMode) {
 	case Kore::WindowModeFullscreen: // fall through
 	case Kore::WindowModeExclusiveFullscreen: {
-		Atom awmHints = XInternAtom(dpy, "_MOTIF_WM_HINTS", 0);
+		Atom awmHints = XInternAtom(Kore::Linux::display, "_MOTIF_WM_HINTS", 0);
 		MwmHints hints;
 		hints.flags = MWM_HINTS_DECORATIONS;
 		hints.decorations = 0;
 
-		XChangeProperty(dpy, win, awmHints, awmHints, 32, PropModeReplace, (unsigned char*)&hints, 5);
+		XChangeProperty(Kore::Linux::display, win, awmHints, awmHints, 32, PropModeReplace, (unsigned char*)&hints, 5);
 	}
 	}
 
-	// (6) bind the rendering context to the window
-	glXMakeCurrent(dpy, win, cx);
+	glXMakeCurrent(Kore::Linux::display, win, cx);
 
 	Kore::Display* deviceInfo = targetDisplay == nullptr ? Kore::Display::primary() : targetDisplay;
 
@@ -265,23 +259,22 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	} break;
 	}
 
-	// (7) request the X window to be displayed on the screen
-	XMapWindow(dpy, win);
-	XMoveWindow(dpy, win, dstx, dsty);
+	XMapWindow(Kore::Linux::display, win);
+	XMoveWindow(Kore::Linux::display, win, dstx, dsty);
 	// Scheduler::addFrameTask(HandleMessages, 1001);
 
 	// Drag and drop
-	Atom XdndAware = XInternAtom(dpy, "XdndAware", 0);
+	Atom XdndAware = XInternAtom(Kore::Linux::display, "XdndAware", 0);
 	Atom XdndVersion = 5;
-	XChangeProperty(dpy, win, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&XdndVersion, 1);
-	XdndDrop = XInternAtom(dpy, "XdndDrop", 0);
-	XdndFinished = XInternAtom(dpy, "XdndFinished", 0);
-	XdndActionCopy = XInternAtom(dpy, "XdndActionCopy", 0);
-	XdndSelection = XInternAtom(dpy, "XdndSelection", 0);
-	XdndPrimary = XInternAtom(dpy, "PRIMARY", 0);
-	clipboard = XInternAtom(dpy, "CLIPBOARD", 0);
-	utf8 = XInternAtom(dpy, "UTF8_STRING", 0);
-	xseldata = XInternAtom(dpy, "XSEL_DATA", False),
+	XChangeProperty(Kore::Linux::display, win, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&XdndVersion, 1);
+	XdndDrop = XInternAtom(Kore::Linux::display, "XdndDrop", 0);
+	XdndFinished = XInternAtom(Kore::Linux::display, "XdndFinished", 0);
+	XdndActionCopy = XInternAtom(Kore::Linux::display, "XdndActionCopy", 0);
+	XdndSelection = XInternAtom(Kore::Linux::display, "XdndSelection", 0);
+	XdndPrimary = XInternAtom(Kore::Linux::display, "PRIMARY", 0);
+	clipboard = XInternAtom(Kore::Linux::display, "CLIPBOARD", 0);
+	utf8 = XInternAtom(Kore::Linux::display, "UTF8_STRING", 0);
+	xseldata = XInternAtom(Kore::Linux::display, "XSEL_DATA", False),
 
 	//**XSetSelectionOwner(dpy, clipboard, win, CurrentTime);
 
@@ -399,9 +392,9 @@ namespace Kore {
 bool Kore::System::handleMessages() {
 	static bool controlDown = false;
 #ifdef KORE_OPENGL
-	while (XPending(dpy) > 0) {
+	while (XPending(Kore::Linux::display) > 0) {
 		XEvent event;
-		XNextEvent(dpy, &event);
+		XNextEvent(Kore::Linux::display, &event);
 
 		switch (event.type) {
 		case KeyPress: {
@@ -417,10 +410,10 @@ bool Kore::System::handleMessages() {
 				controlDown = true;
 			}
 			else if (controlDown && (keysym == XK_v || keysym == XK_V)) {
-				XConvertSelection(dpy, clipboard, utf8, xseldata, win, CurrentTime);
+				XConvertSelection(Kore::Linux::display, clipboard, utf8, xseldata, win, CurrentTime);
 			}
 			else if (controlDown && (keysym == XK_c || keysym == XK_C)) {
-				XSetSelectionOwner(dpy, clipboard, win, CurrentTime);
+				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
 			}
 
 			switch (keysym) {
@@ -608,7 +601,7 @@ bool Kore::System::handleMessages() {
 		case ClientMessage: {
 			if (event.xclient.message_type == XdndDrop) {
 				XdndSourceWindow = event.xclient.data.l[0];
-				XConvertSelection(dpy, XdndSelection, XA_STRING, XdndPrimary, win, event.xclient.data.l[2]);
+				XConvertSelection(Kore::Linux::display, XdndSelection, XA_STRING, XdndPrimary, win, event.xclient.data.l[2]);
 			}
 			break;
 		}
@@ -622,7 +615,7 @@ bool Kore::System::handleMessages() {
 				char* result;
 				unsigned long ressize, restail;
 				int resbits;
-				XGetWindowProperty(dpy, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
+				XGetWindowProperty(Kore::Linux::display, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
 				                   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
 				Kore::System::_pasteCallback(result);
 				XFree(result);
@@ -636,7 +629,7 @@ bool Kore::System::handleMessages() {
 				int readBytes = 1024;
 				while (bytesAfter != 0) {
 					if (data != 0) XFree(data);
-					XGetWindowProperty(dpy, win, XdndPrimary, 0, readBytes, false, AnyPropertyType, &type, &format, &numItems, &bytesAfter, &data);
+					XGetWindowProperty(Kore::Linux::display, win, XdndPrimary, 0, readBytes, false, AnyPropertyType, &type, &format, &numItems, &bytesAfter, &data);
 					readBytes *= 2;
 				}
 				size_t len = numItems * format / 8 - 1; // Strip new line at the end
@@ -648,15 +641,15 @@ bool Kore::System::handleMessages() {
 				XClientMessageEvent m;
 				memset(&m, sizeof(m), 0);
 				m.type = ClientMessage;
-				m.display = dpy;
+				m.display = Kore::Linux::display;
 				m.window = XdndSourceWindow;
 				m.message_type = XdndFinished;
 				m.format = 32;
 				m.data.l[0] = win;
 				m.data.l[1] = 1;
 				m.data.l[2] = XdndActionCopy;
-				XSendEvent(dpy, XdndSourceWindow, false, NoEventMask, (XEvent*)&m);
-				XSync(dpy, false);
+				XSendEvent(Kore::Linux::display, XdndSourceWindow, false, NoEventMask, (XEvent*)&m);
+				XSync(Kore::Linux::display, false);
 			}
 		}
 		case Expose:
@@ -759,7 +752,7 @@ void Kore::System::clearCurrent() {
 
 void swapLinuxBuffers(int window) {
 #ifdef KORE_OPENGL
-	glXSwapBuffers(dpy, windowimpl::windows[window]->_data.handle);
+	glXSwapBuffers(Kore::Linux::display, windowimpl::windows[window]->_data.handle);
 #endif
 }
 

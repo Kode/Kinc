@@ -7,7 +7,7 @@ namespace Kore {
     struct WindowData {
         XID handle;
         __GLXcontextRec* context;
-        int width, height;
+        int width, height, mode;
         WindowData();
     };
 }
