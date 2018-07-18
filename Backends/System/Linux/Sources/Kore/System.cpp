@@ -64,6 +64,8 @@ namespace {
 		printf("main: %s\n", message);
 		exit(1);
 	}
+
+	Atom wmDeleteMessage;
 }
 
 #ifdef KORE_OPENGL
@@ -292,6 +294,8 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 		windowimpl::windows[wcounter]->_data.mode = 0;
 	}
 
+	wmDeleteMessage = XInternAtom(Kore::Linux::display, "WM_DELETE_WINDOW", False);
+	XSetWMProtocols(Kore::Linux::display, win, &wmDeleteMessage, 1);
 
 	return windowimpl::windowCounter = wcounter;
 #else
@@ -611,6 +615,9 @@ bool Kore::System::handleMessages() {
 			if (event.xclient.message_type == XdndDrop) {
 				XdndSourceWindow = event.xclient.data.l[0];
 				XConvertSelection(Kore::Linux::display, XdndSelection, XA_STRING, XdndPrimary, win, event.xclient.data.l[2]);
+			}
+			else if (event.xclient.data.l[0] == wmDeleteMessage) {
+				Kore::System::stop();
 			}
 			break;
 		}
