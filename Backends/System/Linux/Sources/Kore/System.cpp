@@ -284,6 +284,15 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	windowimpl::windows[wcounter]->_data.handle = win;
 	windowimpl::windows[wcounter]->_data.context = cx;
 
+	if (windowMode == Kore::WindowModeFullscreen || windowMode == Kore::WindowModeExclusiveFullscreen) {
+		Kore::Linux::fullscreen(win, true);
+		windowimpl::windows[wcounter]->_data.mode = windowMode;
+	}
+	else {
+		windowimpl::windows[wcounter]->_data.mode = 0;
+	}
+
+
 	return windowimpl::windowCounter = wcounter;
 #else
 	::windowWidth = width;

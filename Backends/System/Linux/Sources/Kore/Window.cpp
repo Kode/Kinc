@@ -8,6 +8,8 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 
+#include <string.h>
+
 namespace {
 	Kore::Window win;
 }
@@ -55,24 +57,44 @@ void Kore::Window::changeWindowFeatures(int features) {
 
 }
 
+void Kore::Linux::fullscreen(XID window, bool value) {
+	Atom wm_state = XInternAtom(Kore::Linux::display, "_NET_WM_STATE", False);
+	Atom fullscreen = XInternAtom(Kore::Linux::display, "_NET_WM_STATE_FULLSCREEN", False);
+
+	XEvent xev;
+	memset(&xev, 0, sizeof(xev));
+	xev.type = ClientMessage;
+	xev.xclient.window = window;
+	xev.xclient.message_type = wm_state;
+	xev.xclient.format = 32;
+	xev.xclient.data.l[0] = value ? 1 : 0;
+	xev.xclient.data.l[1] = fullscreen;
+	xev.xclient.data.l[2] = 0;
+
+	XMapWindow(Kore::Linux::display, window);
+
+	XSendEvent(Kore::Linux::display, DefaultRootWindow(Kore::Linux::display), False,
+			   SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+
+	XFlush(Kore::Linux::display);
+}
+
 void Kore::Window::changeWindowMode(WindowMode mode) {
 	if (mode == WindowModeFullscreen || mode == WindowModeExclusiveFullscreen) {
 		if (_data.mode == WindowModeFullscreen || _data.mode == WindowModeExclusiveFullscreen) {
 			_data.mode = mode;
 			return;
 		}
-		Atom wm_state   = XInternAtom(Linux::display, "_NET_WM_STATE", true);
-		Atom wm_fullscreen = XInternAtom(Linux::display, "_NET_WM_STATE_FULLSCREEN", true);
-		XChangeProperty(Linux::display, _data.handle, wm_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wm_fullscreen, 1);
+
+		Kore::Linux::fullscreen(_data.handle, true);
 		_data.mode = mode;
 	}
 	else {
 		if (mode == _data.mode) {
 			return;
 		}
-        Atom wm_state   = XInternAtom(Linux::display, "_NET_WM_STATE", true);
-        Atom wm_fullscreen = XInternAtom(Linux::display, "_NET_WM_STATE_FULLSCREEN", false);
-        XChangeProperty(Linux::display, _data.handle, wm_state, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wm_fullscreen, 1);
+
+		Kore::Linux::fullscreen(_data.handle, false);
         _data.mode = mode;
 	}
 }
@@ -101,7 +123,7 @@ Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame
 	return nullptr;
 }
 
-Kore::WindowData::WindowData() {}
+Kore::WindowData::WindowData() : mode(0) {}
 
 Kore::Window::Window() {}
 
