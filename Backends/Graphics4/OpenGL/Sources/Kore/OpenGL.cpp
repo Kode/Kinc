@@ -168,7 +168,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	lastPipeline = nullptr;
 
-#ifdef KORE_LINUX
+#if defined(KORE_LINUX) || defined(KORE_MACOS)
     unsigned vertexArray;
 	glGenVertexArrays(1, &vertexArray);
 	glCheckErrors();
@@ -295,6 +295,10 @@ void androidSwapBuffers();
 void swapLinuxBuffers(int window);
 #endif
 
+#ifdef KORE_MACOS
+void swapBuffersMac(int window);
+#endif
+
 bool Graphics4::swapBuffers() {
 #ifdef KORE_WINDOWS
 	for (int i = 9; i >= 0; --i) {
@@ -311,6 +315,8 @@ bool Graphics4::swapBuffers() {
     androidSwapBuffers();
 #elif defined(KORE_LINUX)
     swapLinuxBuffers(0);
+#elif defined(KORE_MACOS)
+    swapBuffersMac(0);
 #endif
 	return true;
 }

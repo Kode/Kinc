@@ -103,7 +103,7 @@ void swapBuffersMac(int windowId) {
 #ifdef KORE_METAL
 	endGL();
 #else
-	[windows[windowId]->view switchBuffers];
+	[windows[windowId]->_data.view switchBuffers];
 #endif
 }
 
@@ -139,7 +139,7 @@ int createWindow(Kore::WindowOptions* options) {
 		[window toggleFullScreen:nil];
 		windows[windowCounter]->_data.fullscreen = true;
 	}
-	
+
 	return windowCounter++;
 }
 
@@ -188,12 +188,6 @@ Kore::Window* Kore::System::init(const char* title, int width, int height, Kore:
 	Graphics4::init(windowId, frame->depthBufferBits, frame->stencilBufferBits);
 	return Kore::Window::get(windowId);
 }
-
-#ifndef KORE_METAL
-void Graphics4::makeCurrent(int contextId) {
-	//[[windows[contextId]->view openGLContext] makeCurrentContext];
-}
-#endif
 
 int Kore::Window::width() {
 	NSWindow* window = _data.handle;
