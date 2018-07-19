@@ -48,9 +48,9 @@ void SetJVM(JavaVM* jvm) {
 	JNIEnv* env;
 	cachedJVM->AttachCurrentThread(&env, 0);
 
-	koreActivity = env->FindClass("com/ktxsoftware/kore/KoreActivity");
+	koreActivity = env->FindClass("tech/kode/kore/KoreActivity");
 	koreActivity = (jclass) env->NewGlobalRef(koreActivity);
-	jmethodID mid = env->GetStaticMethodID(koreActivity, "getInstance", "()Lcom/ktxsoftware/kore/KoreActivity;");
+	jmethodID mid = env->GetStaticMethodID(koreActivity, "getInstance", "()Ltech/kode/kore/KoreActivity;");
 
 	instance = env->CallStaticObjectMethod(koreActivity, mid);
 
@@ -127,8 +127,8 @@ void Initialize() {
 	cachedJVM->AttachCurrentThread(&env, 0);
 
 
-	jclass koreActivity = env->FindClass("com/ktxsoftware/kore/KoreActivity");
-	jmethodID mid = env->GetStaticMethodID(koreActivity, "getInstance", "()Lcom/ktxsoftware/kore/KoreActivity;");
+	jclass koreActivity = env->FindClass("tech/kode/kore/KoreActivity");
+	jmethodID mid = env->GetStaticMethodID(koreActivity, "getInstance", "()Ltech/kode/kore/KoreActivity;");
 
 
 	jobject instance = env->CallStaticObjectMethod(koreActivity, mid);

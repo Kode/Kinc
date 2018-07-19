@@ -43,7 +43,7 @@ int Display::countAvailableModes() {
 int Display::pixelsPerInch() {
     JNIEnv* env;
     KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-    jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+    jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
     jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getScreenDpi", "()I");
     int dpi = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
     KoreAndroid::getActivity()->vm->DetachCurrentThread();
@@ -71,7 +71,7 @@ int Display::y() {
 int Display::width() {
 	JNIEnv* env;
 	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
 	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getDisplayWidth", "()I");
 	int width = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
 	KoreAndroid::getActivity()->vm->DetachCurrentThread();
@@ -81,7 +81,7 @@ int Display::width() {
 int Display::height() {
 	JNIEnv* env;
 	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
 	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getDisplayHeight", "()I");
 	int height = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
 	KoreAndroid::getActivity()->vm->DetachCurrentThread();

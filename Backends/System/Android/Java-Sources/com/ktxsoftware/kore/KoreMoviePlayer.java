@@ -1,4 +1,4 @@
-package com.ktxsoftware.kore;
+package tech.kode.kore;
 
 import java.util.List;
 

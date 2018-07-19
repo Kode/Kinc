@@ -1,4 +1,4 @@
-package com.ktxsoftware.kore;
+package tech.kode.kore;
 
 import android.app.NativeActivity;
 import android.content.Context;

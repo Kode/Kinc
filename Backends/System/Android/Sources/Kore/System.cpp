@@ -468,7 +468,7 @@ jclass KoreAndroid::findClass(JNIEnv* env, const char* name) {
 void Kore::System::showKeyboard() {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "showKeyboard", "()V"));
 	activity->vm->DetachCurrentThread();
 }
@@ -476,7 +476,7 @@ void Kore::System::showKeyboard() {
 void Kore::System::hideKeyboard() {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "hideKeyboard", "()V"));
 	activity->vm->DetachCurrentThread();
 }
@@ -484,7 +484,7 @@ void Kore::System::hideKeyboard() {
 void Kore::System::loadURL(const char* url) {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
 	jstring jurl = env->NewStringUTF(url);
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "loadURL", "(Ljava/lang/String;)V"), jurl);
 	activity->vm->DetachCurrentThread();
@@ -579,7 +579,7 @@ bool Kore::System::handleMessages() {
 	/*
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreActivity");
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
 	jmethodID koreActivityGetRotation = env->GetStaticMethodID(koreActivityClass, "getRotation", "()I");
 	screenRotation = env->CallStaticIntMethod(koreActivityClass, koreActivityGetRotation);
 	activity->vm->DetachCurrentThread();
@@ -625,7 +625,7 @@ extern "C" void android_main(android_app* app) {
 	JNIEnv* env = nullptr;
 	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
 	
-	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
+	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreMoviePlayer");
 	jmethodID updateAll = env->GetStaticMethodID(koreMoviePlayerClass, "updateAll", "()V");
 
 	while (!started) {

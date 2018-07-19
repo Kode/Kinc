@@ -433,7 +433,7 @@ namespace {
 
 #endif
 
-extern "C" JNIEXPORT void JNICALL Java_com_ktxsoftware_kore_KoreMoviePlayer_nativeCreate(JNIEnv* env, jobject jobj, jstring jpath, jobject surface, jint id) {
+extern "C" JNIEXPORT void JNICALL Java_tech_kode_kore_KoreMoviePlayer_nativeCreate(JNIEnv* env, jobject jobj, jstring jpath, jobject surface, jint id) {
 #if KORE_ANDROID_API >= 15
 	const char* path = env->GetStringUTFChars(jpath, NULL);
 	AndroidVideo* av = new AndroidVideo;
@@ -453,11 +453,11 @@ void KoreAndroidVideoInit() {
 	JNIEnv* env;
 	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
 
-	jclass clazz = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
+	jclass clazz = KoreAndroid::findClass(env, "tech.kode.kore.KoreMoviePlayer");
 
 	// String path, Surface surface, int id
 	JNINativeMethod methodTable[] = {
-	    {"nativeCreate", "(Ljava/lang/String;Landroid/view/Surface;I)V", (void*)Java_com_ktxsoftware_kore_KoreMoviePlayer_nativeCreate}};
+	    {"nativeCreate", "(Ljava/lang/String;Landroid/view/Surface;I)V", (void*)Java_tech_kode_kore_KoreMoviePlayer_nativeCreate}};
 
 	int methodTableSize = sizeof(methodTable) / sizeof(methodTable[0]);
 
@@ -477,7 +477,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 
 	JNIEnv* env = nullptr;
 	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "com.ktxsoftware.kore.KoreMoviePlayer");
+	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreMoviePlayer");
 	jmethodID constructor = env->GetMethodID(koreMoviePlayerClass, "<init>", "(Ljava/lang/String;)V");
 	jobject object = env->NewObject(koreMoviePlayerClass, constructor, env->NewStringUTF(filename));
 
