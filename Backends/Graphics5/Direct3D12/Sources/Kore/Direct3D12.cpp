@@ -273,7 +273,11 @@ void Graphics5::_resize(int window, int width, int height) {
 }
 
 void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+#ifdef KORE_WINDOWS
 	HWND hwnd = Window::get(window)->_data.handle;
+#else
+	HWND hwnd = nullptr;
+#endif
 	renderTargetWidth = System::windowWidth(window);
 	renderTargetHeight = System::windowHeight(window);
 	initialize(renderTargetWidth, renderTargetHeight, hwnd);

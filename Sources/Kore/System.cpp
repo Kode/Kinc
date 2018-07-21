@@ -5,6 +5,7 @@
 #include <Kore/Window.h>
 #include <Kore/Math/Random.h>
 
+#include <assert.h>
 #include <limits>
 #include <string.h>
 
@@ -239,9 +240,11 @@ int Kore::System::simpleSetup(int argc, char* argv[], int width, int height, int
 */
 
 int Kore::System::windowWidth(int window) {
+	assert(window < Window::count());
 	return Window::get(window)->width();
 }
 
 int Kore::System::windowHeight(int window) {
+	assert(window < Window::count());
 	return Window::get(window)->height();
 }
