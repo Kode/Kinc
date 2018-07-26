@@ -25,7 +25,8 @@ namespace {
 
 #ifdef KORE_WINDOWS
 void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits) {
-	HWND windowHandle = Kore::Window::get(window)->_data.handle;
+	const Kore::WindowData &data = Kore::Window::get(window)->_data;
+	HWND windowHandle = data.handle;
 
 #ifndef VR_RIFT
 	PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
@@ -99,7 +100,7 @@ void OpenGL::initWindowsGLContext(int window, int depthBufferBits, int stencilBu
 	if (window != 0) {
 		wglShareLists(windows[0].glContext, windows[window].glContext);
 		wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
-		windows[window].renderTarget = new Graphics4::RenderTarget(800, 600, depthBufferBits);
+		windows[window].renderTarget = new Graphics4::RenderTarget(data.manualWidth, data.manualHeight, depthBufferBits);
 		if (windowVertexBuffer == nullptr) {
 			wglMakeCurrent(windows[window].deviceContext, windows[window].glContext);
 			Graphics4::VertexStructure structure;
