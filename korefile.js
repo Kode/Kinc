@@ -79,6 +79,12 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_DIRECT3D12');
 		project.addLib('dxgi');
 		project.addLib('d3d12');
+
+		if (raytrace === RayTraceApi.DXR) {
+			project.addDefine('KORE_DXR');
+			project.addFile('Backends/Graphics5/Direct3D12/Libraries/D3D12RaytracingFallback/src/**');
+			project.addIncludeDir('Backends/Graphics5/Direct3D12/Libraries/D3D12RaytracingFallback/Include/');
+		}
 	}
 	else if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
