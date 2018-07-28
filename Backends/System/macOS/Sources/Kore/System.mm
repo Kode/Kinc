@@ -240,6 +240,22 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+void addMenubar() {
+	NSString* appName = [[NSProcessInfo processInfo] processName];
+
+	NSMenu* appMenu = [NSMenu new];
+	NSString* quitTitle = [@"Quit " stringByAppendingString:appName];
+	NSMenuItem* quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"];
+	[appMenu addItem:quitMenuItem];
+
+	NSMenuItem* appMenuItem = [NSMenuItem new];
+	[appMenuItem setSubmenu:appMenu];
+
+	NSMenu* menubar = [NSMenu new];
+	[menubar addItem:appMenuItem];
+	[NSApp setMainMenu:menubar];
+}
+
 #ifdef KOREC
 extern "C"
 #endif
@@ -254,6 +270,8 @@ extern "C"
 		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
 
 		hidManager = new HIDManager();
+		addMenubar();
+
 		// try {
 		kore(argc, argv);
 		//}
