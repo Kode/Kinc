@@ -113,6 +113,8 @@ void CommandList::setPipeline(PipelineState* pipeline) {
 	commands[commandIndex++] = (s64)pipeline;
 }
 
+void CommandList::setPipelineLayout() {}
+
 void CommandList::setVertexBuffers(VertexBuffer** buffers, int* offsets, int count) {
 	commands[commandIndex++] = SetVertexBuffer;
 	commands[commandIndex++] = (s64)buffers[0];
