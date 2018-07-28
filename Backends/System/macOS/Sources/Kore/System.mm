@@ -251,6 +251,8 @@ extern "C"
 - (void)run {
 	@autoreleasepool {
 		[self finishLaunching];
+		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
+
 		hidManager = new HIDManager();
 		// try {
 		kore(argc, argv);
