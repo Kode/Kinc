@@ -21,5 +21,6 @@ Graphics5::Shader::Shader(void* source, int length, ShaderType type) : Shader5Im
 	id<MTLLibrary> library = getMetalLibrary();
 	id<MTLFunction> program;
 	program = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
+	assert(program);
 	mtlFunction = program;
 }

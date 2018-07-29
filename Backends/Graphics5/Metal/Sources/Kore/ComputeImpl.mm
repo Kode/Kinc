@@ -78,7 +78,8 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) {
 ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {
 	id<MTLLibrary> library = getMetalLibrary();
 	_function = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
-	
+	assert(_function);
+
 	id<MTLDevice> device = getMetalDevice();
 	MTLComputePipelineReflection* reflection = nil;
 	NSError* error = nil;
