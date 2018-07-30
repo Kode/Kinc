@@ -16,7 +16,7 @@ IndexBuffer5Impl::IndexBuffer5Impl(int count, bool gpuMemory) : myCount(count), 
 
 Graphics5::IndexBuffer::IndexBuffer(int count, bool gpuMemory) : IndexBuffer5Impl(count, gpuMemory) {
 	static_assert(sizeof(D3D12IindexBufferView) == sizeof(D3D12_INDEX_BUFFER_VIEW), "Something is wrong with D3D12IindexBufferView");
-	static const int uploadBufferSize = sizeof(int) * count;
+	int uploadBufferSize = sizeof(int) * count;
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadBuffer));
