@@ -18,6 +18,14 @@ namespace Kore {
 }
 #endif
 
+extern "C" {
+	bool withAutoreleasepool(bool (*f)()) {
+		@autoreleasepool {
+			return f();
+		}
+	}
+}
+	
 using namespace Kore;
 
 extern const char* macgetresourcepath();

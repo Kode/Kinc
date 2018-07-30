@@ -31,6 +31,12 @@ namespace {
 	}
 }
 
+#if defined(KORE_IOS) || defined(KORE_MACOS)
+extern "C" {
+	bool withAutoreleasepool(bool (*f)());
+}
+#endif
+
 /*void Kore::System::init(const char* name, int width, int height, int samplesPerPixel) {
 	Kore::System::setName(name);
 	Kore::System::setup();
@@ -215,7 +221,11 @@ void Kore::System::start() {
 #if !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_XBOX_ONE)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
+#if defined(KORE_IOS) || defined(KORE_MACOS)
+	while (withAutoreleasepool(Kore::System::frame)) {
+#else
 	while (frame()) {
+#endif
 	}
 	_shutdown();
 #endif
