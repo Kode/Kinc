@@ -16,6 +16,7 @@ namespace Kore {
 		class RayTracePipeline : public RayTracePipelineImpl {
 		public:
 			RayTracePipeline(CommandList* commandList, void* rayShader, int rayShaderSize, void* hitShader, int hitShaderSize, void* missShader, int missShaderSize, ConstantBuffer* constantBuffer);
+			ConstantBuffer* _constantBuffer;
 		};
 
 		class AccelerationStructure : public AccelerationStructureImpl {
