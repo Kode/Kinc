@@ -29,7 +29,6 @@ namespace {
 	ID3D12DeviceRaytracingPrototype* dxrDevice;
 	ID3D12CommandListRaytracingPrototype* dxrCommandList;
 	ID3D12RootSignature* globalRootSignature;
-	ID3D12RootSignature* localRootSignature;
 	ID3D12DescriptorHeap* descriptorHeap;
 	UINT descriptorSize;
 	Kore::Graphics5::AccelerationStructure* accel;
@@ -161,6 +160,7 @@ namespace Kore {
 	namespace Graphics5 {
 
 		RayTracePipeline::RayTracePipeline(CommandList* commandList, void* rayShader, int rayShaderSize, void* hitShader, int hitShaderSize, void* missShader, int missShaderSize, ConstantBuffer* constantBuffer) {
+			_constantBuffer = constantBuffer;
 			// Descriptor heap
 			D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 			// Allocate a heap for 3 descriptors:
@@ -188,21 +188,16 @@ namespace Kore {
 			{
 				CD3DX12_DESCRIPTOR_RANGE UAVDescriptor;
 				UAVDescriptor.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
-				CD3DX12_ROOT_PARAMETER rootParameters[2];
+				CD3DX12_ROOT_PARAMETER rootParameters[3];
 				// output view
 				rootParameters[0].InitAsDescriptorTable(1, &UAVDescriptor);
 				// acceleration structure
 				rootParameters[1].InitAsShaderResourceView(0);
+				// constant buffer
+				rootParameters[2].InitAsConstantBufferView(0);
+				
 				CD3DX12_ROOT_SIGNATURE_DESC globalRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
 				createRootSignature(globalRootSignatureDesc, &globalRootSignature);
-			}
-			// This is a root signature that enables a shader to have unique arguments that come from shader tables.
-			{
-				CD3DX12_ROOT_PARAMETER rootParameters[1];
-				rootParameters[0].InitAsConstants(constantBuffer->size() / 4, 0, 0);
-				CD3DX12_ROOT_SIGNATURE_DESC localRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
-				localRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-				createRootSignature(localRootSignatureDesc, &localRootSignature);
 			}
 
 			// Pipeline
@@ -226,12 +221,6 @@ namespace Kore {
 			// UINT payloadSize = 4 * sizeof(float);   // float4 color
 			// UINT attributeSize = 2 * sizeof(float); // float2 barycentrics
 			// shaderConfig->Config(payloadSize, attributeSize);
-
-			auto localRootSignatureSubobject = raytracingPipeline.CreateSubobject<CD3D12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
-			localRootSignatureSubobject->SetRootSignature(localRootSignature);
-			auto rootSignatureAssociation = raytracingPipeline.CreateSubobject<CD3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
-			rootSignatureAssociation->SetSubobjectToAssociate(*localRootSignatureSubobject);
-			rootSignatureAssociation->AddExport(rayShaderEntry);
 
 			auto globalRootSignatureSubobject = raytracingPipeline.CreateSubobject<CD3D12_ROOT_SIGNATURE_SUBOBJECT>();
 			globalRootSignatureSubobject->SetRootSignature(globalRootSignature);
@@ -505,6 +494,9 @@ namespace Kore {
 				commandList->_commandList->SetComputeRootDescriptorTable(0, output->_textureHandle);
 				// acceleration structure
 				fallbackCommandList->SetTopLevelAccelerationStructure(1, accel->fallbackTopLevelAccelerationStructurePointer);
+				// Copy the updated constant buffer to GPU
+				auto cbGpuAddress = pipeline->_constantBuffer->_buffer->GetGPUVirtualAddress();
+				commandList->_commandList->SetComputeRootConstantBufferView(2, cbGpuAddress);
 				dispatchRaysCommand(fallbackCommandList, pipeline->fallbackState, &dispatchDesc);
 			}
 			else {
@@ -512,6 +504,8 @@ namespace Kore {
 				commandList->_commandList->SetDescriptorHeaps(1, &descriptorHeap);
 				commandList->_commandList->SetComputeRootDescriptorTable(0, output->_textureHandle);
 				commandList->_commandList->SetComputeRootShaderResourceView(1, accel->topLevelAccelerationStructure->GetGPUVirtualAddress());
+				auto cbGpuAddress = pipeline->_constantBuffer->_buffer->GetGPUVirtualAddress();
+				commandList->_commandList->SetComputeRootConstantBufferView(2, cbGpuAddress);
 				dispatchRaysCommand(dxrCommandList, pipeline->dxrState, &dispatchDesc);
 			}
 		}
