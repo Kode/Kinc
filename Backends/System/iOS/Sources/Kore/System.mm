@@ -6,6 +6,14 @@
 #include <Kore/System.h>
 #import <UIKit/UIKit.h>
 
+extern "C" {
+    bool withAutoreleasepool(bool (*f)()) {
+        @autoreleasepool {
+            return f();
+        }
+    }
+}
+
 using namespace Kore;
 
 namespace {
@@ -66,23 +74,23 @@ void KoreUpdateKeyboard() {
 }
 
 void System::_shutdown() {
-	
+
 }
 
 Kore::Window* Kore::System::init(const char* name, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
 	WindowOptions defaultWin;
 	FramebufferOptions defaultFrame;
-	
+
 	if (win == nullptr) {
 		win = &defaultWin;
 	}
 	win->width = width;
 	win->height = height;
-	
+
 	if (frame == nullptr) {
 		frame = &defaultFrame;
 	}
-	
+
 	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
 	return Window::get(0);
 }
