@@ -1,5 +1,5 @@
 sudo: false
-dist: precise
+dist: trusty
 os:
   - linux
   - osx
@@ -7,6 +7,7 @@ addons:
   apt:
     packages:
       - libasound2-dev
+      - libxinerama-dev
 language: cpp
 before_script:
   - git submodule update --init --recursive
