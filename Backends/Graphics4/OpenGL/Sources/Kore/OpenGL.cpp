@@ -77,6 +77,9 @@ namespace {
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	void* glesDrawBuffers;
 #endif
+
+	int texModesU[256];
+	int texModesV[256];
 }
 
 void Graphics4::_resize(int window, int width, int height) {
@@ -125,6 +128,10 @@ static void initGLState(int window) {
 }
 
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+	for (int i = 0; i < 256; ++i) {
+		texModesU[i] = GL_CLAMP_TO_EDGE;
+		texModesV[i] = GL_CLAMP_TO_EDGE;
+	}
 #ifdef KORE_WINDOWS
 	initWindowsGLContext(windowId, depthBufferBits, stencilBufferBits);
 #endif
@@ -434,22 +441,54 @@ namespace {
 		switch (addressing) {
 		case Graphics4::Clamp:
 			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+			if (dir == Graphics4::U) {
+				texModesU[unit.unit] = GL_CLAMP_TO_EDGE;
+			}
+			else {
+				texModesV[unit.unit] = GL_CLAMP_TO_EDGE;
+			}
 			break;
 		case Graphics4::Repeat:
 			glTexParameteri(target, texDir, GL_REPEAT);
+			if (dir == Graphics4::U) {
+				texModesU[unit.unit] = GL_REPEAT;
+			}
+			else {
+				texModesV[unit.unit] = GL_REPEAT;
+			}
 			break;
 		case Graphics4::Border:
 			// unsupported
 			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+			if (dir == Graphics4::U) {
+				texModesU[unit.unit] = GL_CLAMP_TO_EDGE;
+			}
+			else {
+				texModesV[unit.unit] = GL_CLAMP_TO_EDGE;
+			}
 			break;
 		case Graphics4::Mirror:
 			// unsupported
 			glTexParameteri(target, texDir, GL_REPEAT);
+			if (dir == Graphics4::U) {
+				texModesU[unit.unit] = GL_REPEAT;
+			}
+			else {
+				texModesV[unit.unit] = GL_REPEAT;
+			}
 			break;
 		}
 		glCheckErrors();
 	}
-} // namespace
+}
+
+int OpenGL::textureAddressingU(Graphics4::TextureUnit unit) {
+	return texModesU[unit.unit];
+}
+
+int OpenGL::textureAddressingV(Graphics4::TextureUnit unit) {
+	return texModesV[unit.unit];
+}
 
 void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	setTextureAddressingInternal(GL_TEXTURE_2D, unit, dir, addressing);
