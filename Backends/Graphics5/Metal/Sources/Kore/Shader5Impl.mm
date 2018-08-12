@@ -9,12 +9,16 @@ using namespace Kore;
 
 id getMetalLibrary();
 
-Shader5Impl::Shader5Impl(void* source, int length) {
+Shader5Impl::Shader5Impl(void* source, int length) : mtlFunction(0) {
 	u8* data = (u8*)source;
 	for (int i = 0; i < length; ++i) {
 		name[i] = data[i];
 	}
 	name[length] = 0;
+}
+
+Shader5Impl::~Shader5Impl() {
+	mtlFunction = 0;
 }
 
 Graphics5::Shader::Shader(void* source, int length, ShaderType type) : Shader5Impl(source, length) {

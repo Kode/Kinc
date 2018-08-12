@@ -13,7 +13,11 @@ id getMetalEncoder();
 
 Graphics5::VertexBuffer* VertexBuffer5Impl::current = nullptr;
 
-VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count) {}
+VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), mtlBuffer(0) {}
+
+VertexBuffer5Impl::~VertexBuffer5Impl() {
+	mtlBuffer = 0;
+}
 
 Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
 	this->gpuMemory = gpuMemory;

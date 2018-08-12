@@ -11,6 +11,16 @@ using namespace Kore;
 id getMetalDevice();
 id getMetalEncoder();
 
+RenderTarget5Impl::RenderTarget5Impl() : _tex(0), _sampler(0), _depthTex(0) {
+	
+}
+
+RenderTarget5Impl::~RenderTarget5Impl() {
+	_tex = 0;
+	_sampler = 0;
+	_depthTex = 0;
+}
+
 Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height), contextId(contextId) {
 	texWidth = width;
 	texHeight = height;

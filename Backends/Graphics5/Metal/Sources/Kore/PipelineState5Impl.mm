@@ -62,12 +62,14 @@ namespace {
 	}
 }
 
-PipelineState5Impl::PipelineState5Impl() : _pipeline(nullptr) {
+PipelineState5Impl::PipelineState5Impl() : _pipeline(0), _reflection(0), _depthStencil(0) {
 	
 }
 
 PipelineState5Impl::~PipelineState5Impl() {
-
+	_pipeline = 0;
+	_reflection = 0;
+	_depthStencil = 0;
 }
 
 static int findAttributeIndex(NSArray<MTLVertexAttribute*>* attributes, const char* name) {

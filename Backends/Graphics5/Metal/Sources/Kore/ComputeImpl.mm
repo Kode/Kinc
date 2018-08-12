@@ -67,12 +67,18 @@ void shutdownMetalCompute() {
 	commandQueue = nil;
 }
 
-ComputeShaderImpl::ComputeShaderImpl(void* source, int length) {
+ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _function(0), _pipeline(0), _reflection(0) {
 	u8* data = (u8*)source;
 	for (int i = 0; i < length; ++i) {
 		name[i] = data[i];
 	}
 	name[length] = 0;
+}
+
+ComputeShaderImpl::~ComputeShaderImpl() {
+	_function = 0;
+	_pipeline = 0;
+	_reflection = 0;
 }
 
 ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {
