@@ -163,7 +163,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	Microsoft::affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	Kore_Microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
 	                                    &device, &featureLevel, &context));
 
 #elif KORE_OCULUS
@@ -221,17 +221,17 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Flags = 0;
 
 		IDXGIDevice1* dxgiDevice;
-		Microsoft::affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
+		Kore_Microsoft_affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
 
 		IDXGIAdapter* dxgiAdapter;
-		Microsoft::affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		Kore_Microsoft_affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
 		IDXGIFactory2* dxgiFactory;
-		Microsoft::affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
+		Kore_Microsoft_affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
 
-		Microsoft::affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
+		Kore_Microsoft_affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
 		                                                            nullptr, &swapChain));
-		Microsoft::affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		Kore_Microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #endif
 
 #elif KORE_OCULUS
