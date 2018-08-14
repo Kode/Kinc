@@ -2,7 +2,7 @@
 
 #include "SystemMicrosoft.h"
 
-#include <Kore/ErrorArgs.h>
+#include "../Sources/C/Kore/Error.h"
 
 #include <Windows.h>
 
@@ -10,25 +10,23 @@
 
 #define S_OK ((HRESULT)0L)
 
-namespace {
-	void winerror(HRESULT result) {
-		LPVOID buffer = nullptr;
-		DWORD dw = GetLastError();
+static void winerror(HRESULT result) {
+	LPVOID buffer = NULL;
+	DWORD dw = GetLastError();
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-		if (dw != 0) {
-			FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw,
-			               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
+	if (dw != 0) {
+		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw,
+		               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
 
-			Kore::error("Error: %s", buffer);
-		}
-		else {
-#endif
-			Kore::error("Unknown Windows error, return value was 0x%x.", result);
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-		}
-#endif
+		Kore_errorMessage("Error: %s", buffer);
 	}
+	else {
+#endif
+		Kore_errorMessage("Unknown Windows error, return value was 0x%x.", result);
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+	}
+#endif
 }
 
 void Kore_Microsoft_affirm(HRESULT result) {
@@ -40,7 +38,7 @@ void Kore_Microsoft_affirm(HRESULT result) {
 void Kore_Microsoft_affirmMessage(HRESULT result, const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	Kore::affirmArgs(result == S_OK, format, args);
+	Kore_affirmArgs(result == S_OK, format, args);
 	va_end(args);
 }
 
