@@ -5,6 +5,8 @@
 #include "Log.h"
 #include "LogArgs.h"
 
+#include "../C/Kore/Error.h"
+
 #include <stdlib.h>
 
 #ifdef KORE_WINDOWS
@@ -39,39 +41,16 @@ void Kore::affirmArgs(bool b, const char* format, va_list args) {
 }
 
 void Kore::error() {
-	error("Unknown error");
+	Kore_error();
 }
 
 void Kore::error(const char* format, ...) {
-	{
-		va_list args;
-		va_start(args, format);
-		logArgs(Error, format, args);
-		va_end(args);
-	}
-
-#ifdef KORE_WINDOWS
-	{
-		va_list args;
-		va_start(args, format);
-		wchar_t buffer[4096];
-		Kore_Microsoft_format(format, args, buffer);
-		MessageBox(nullptr, buffer, L"Error", 0);
-		va_end(args);
-	}
-#endif
-
-	exit(EXIT_FAILURE);
+	va_list args;
+	va_start(args, format);
+	Kore_errorArgs(format, args);
+	va_end(args);
 }
 
 void Kore::errorArgs(const char* format, va_list args) {
-	logArgs(Error, format, args);
-
-#ifdef KORE_WINDOWS
-	wchar_t buffer[4096];
-	Kore_Microsoft_format(format, args, buffer);
-	MessageBox(nullptr, buffer, L"Error", 0);
-#endif
-
-	exit(EXIT_FAILURE);
+	Kore_errorArgs(format, args);
 }

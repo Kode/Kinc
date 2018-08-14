@@ -27,7 +27,7 @@ typedef enum {
 } Kore_LogLevel;
 
 /**
- * @brief Logging function similar to printf including some system-specific bonuses
+ * @brief Logging function similar to printf including some system-specific bonuses.
  *
  * On most systems this is equivalent to printf.
  * On Windows it takes utf-8 string (like printf does on any other target)
