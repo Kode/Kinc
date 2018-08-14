@@ -30,7 +30,7 @@ extern "C" {
  * @param condition Exits the program if condition is false,
  * otherwise does nothing.
  */
-void Kore_affirm(bool condition);
+KORE_FUNC void Kore_affirm(bool condition);
 
 /**
  * @brief Exits the program when a condition is untrue and shows
@@ -43,7 +43,7 @@ void Kore_affirm(bool condition);
  * @param format The parameter is equivalent to the first printf parameter.
  * @param ... The parameter is equivalent to the second printf parameter.
  */
-void Kore_affirmMessage(bool condition, const char* format, ...);
+KORE_FUNC void Kore_affirmMessage(bool condition, const char* format, ...);
 
 /**
  * @brief Equivalent to Kore_affirmMessage but uses a va_list parameter.
@@ -54,7 +54,7 @@ void Kore_affirmMessage(bool condition, const char* format, ...);
  * @param format The parameter is equivalent to the first vprintf parameter.
  * @param ... The parameter is equivalent to the second vprintf parameter.
  */
-void Kore_affirmArgs(bool condition, const char* format, va_list args);
+KORE_FUNC void Kore_affirmArgs(bool condition, const char* format, va_list args);
 
 /**
  * @brief Exits the program and shows a generic error message.
