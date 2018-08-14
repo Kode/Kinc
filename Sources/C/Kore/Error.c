@@ -11,6 +11,27 @@
 #include <Kore/SystemMicrosoft.h>
 #endif
 
+void Kore_affirm(bool condition) {
+	if (!condition) {
+		Kore_error();
+	}
+}
+
+void Kore_affirmMessage(bool condition, const char* format, ...) {
+	if (!condition) {
+		va_list args;
+		va_start(args, format);
+		Kore_errorArgs(format, args);
+		va_end(args);
+	}
+}
+
+void Kore_affirmArgs(bool condition, const char* format, va_list args) {
+	if (!condition) {
+		Kore_errorArgs(format, args);
+	}
+}
+
 void Kore_error() {
 	Kore_errorMessage("Unknown error");
 }
