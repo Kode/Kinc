@@ -9,12 +9,6 @@
 
 #include <stdlib.h>
 
-#ifdef KORE_WINDOWS
-#include <Windows.h>
-
-#include <Kore/SystemMicrosoft.h>
-#endif
-
 using namespace Kore;
 
 void Kore::affirm(bool b) {
