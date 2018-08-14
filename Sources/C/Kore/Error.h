@@ -5,10 +5,10 @@
  * @brief File containing functionality to stop the program in
  * case of an error and create a user-visible error message.
  *
- * The error functions print an error message and then exit the
- * program. Error messages can be made visible to the user
- * (unless a console window is active this is only implemented
- * for Windows).
+ * The affirm and error functions print an error message and
+ * then exit the program. Error messages can be made visible to
+ * the user (unless a console window is active this is only
+ * implemented for Windows).
  */
 
 #include <stdarg.h>
