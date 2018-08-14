@@ -32,19 +32,19 @@ void Kore_logArgs(Kore_LogLevel level, const char* format, va_list args) {
 #endif
 
 #else
-	vfprintf(level == Info ? stdout : stderr, format, args);
-	fprintf(level == Info ? stdout : stderr, "\n");
+	vfprintf(level == KORE_LOG_LEVEL_INFO ? stdout : stderr, format, args);
+	fprintf(level == KORE_LOG_LEVEL_INFO ? stdout : stderr, "\n");
 #endif
 
 #ifdef KORE_ANDROID
 	switch (level) {
-	case Info:
+	case KORE_LOG_LEVEL_INFO:
 		__android_log_vprint(ANDROID_LOG_INFO, "kore", format, args);
 		break;
-	case Warning:
+	case KORE_LOG_LEVEL_WARNING:
 		__android_log_vprint(ANDROID_LOG_WARN, "kore", format, args);
 		break;
-	case Error:
+	case KORE_LOG_LEVEL_ERROR:
 		__android_log_vprint(ANDROID_LOG_ERROR, "kore", format, args);
 		break;
 	}
