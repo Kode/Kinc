@@ -31,20 +31,20 @@ namespace {
 	}
 }
 
-void Kore::Microsoft::affirm(HRESULT result) {
+void Kore_Microsoft_affirm(HRESULT result) {
 	if (result != S_OK) {
 		winerror(result);
 	}
 }
 
-void Kore::Microsoft::affirm(HRESULT result, const char* format, ...) {
+void Kore_Microsoft_affirmMessage(HRESULT result, const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	affirmArgs(result == S_OK, format, args);
+	Kore::affirmArgs(result == S_OK, format, args);
 	va_end(args);
 }
 
-void Kore::Microsoft::format(const char* format, va_list args, wchar_t* buffer) {
+void Kore_Microsoft_format(const char* format, va_list args, wchar_t* buffer) {
 	wchar_t formatw[4096];
 	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);
 

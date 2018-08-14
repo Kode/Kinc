@@ -1,15 +1,17 @@
 #pragma once
 
-#include <Kore/Error.h>
-
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef long HRESULT;
 
-namespace Kore {
-	namespace Microsoft {
-		void affirm(HRESULT result);
-		void affirm(HRESULT result, const char* format, ...);
-		void format(const char* format, va_list args, wchar_t* buffer);
-	}
+void Kore_Microsoft_affirm(HRESULT result);
+void Kore_Microsoft_affirmMessage(HRESULT result, const char* format, ...);
+void Kore_Microsoft_format(const char* format, va_list args, wchar_t* buffer);
+
+#ifdef __cplusplus
 }
+#endif

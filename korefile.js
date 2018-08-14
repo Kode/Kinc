@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const project = new Project('Kore', __dirname);
+const project = new Project('Kore');
 
 const g1 = true;
 project.addDefine('KORE_G1');
