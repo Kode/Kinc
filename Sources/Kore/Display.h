@@ -1,17 +1,5 @@
 #pragma once
 
-#include <Kore/DisplayData.h>
-
-/*
-#ifdef KORE_LINUX
-int number;
-#endif
-
-#ifdef KORE_LINUX
-number = -1;
-#endif
-*/
-
 namespace Kore {
 	struct DisplayMode {
 		int width;
@@ -38,7 +26,7 @@ namespace Kore {
 		DisplayMode availableMode(int index);
 		int countAvailableModes();
 
-		DisplayData _data;
+		int _index;
 		Display();
 	};
 }

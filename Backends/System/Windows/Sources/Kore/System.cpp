@@ -1029,7 +1029,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
-	Windows::initDisplays();
+	Kore_Windows_InitDisplays();
 
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);
@@ -1068,10 +1068,10 @@ Window* System::init(const char* name, int width, int height, WindowOptions* win
 }
 
 void Kore::System::_shutdown() {
-	Windows::hideWindows();
+	Kore_Windows_HideWindows();
 	if (System::_shutdownCallback != nullptr) {
 		System::_shutdownCallback();
 	}
-	Windows::destroyWindows();
-	Windows::restoreDisplays();
+	Kore_Windows_DestroyWindows();
+	Kore_Windows_RestoreDisplays();
 }

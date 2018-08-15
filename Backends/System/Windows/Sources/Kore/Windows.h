@@ -1,16 +1,21 @@
 #pragma once
 
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct HMONITOR__;
 
-namespace Kore {
-	class Display;
+void Kore_Windows_InitDisplays();
+int Kore_Windows_GetDisplayForMonitor(struct HMONITOR__ *monitor);
+bool Kore_Windows_SetDisplayMode(int display_index, int width, int height, int bpp, int frequency);
+void Kore_Windows_RestoreDisplay(int display);
+void Kore_Windows_RestoreDisplays();
+void Kore_Windows_HideWindows();
+void Kore_Windows_DestroyWindows();
 
-	namespace Windows {
-		void initDisplays();
-		Display* getDisplayForMonitor(HMONITOR__* monitor);
-		void restoreDisplay(int display);
-		void restoreDisplays();
-		void hideWindows();
-		void destroyWindows();
-	}
+#ifdef __cplusplus
 }
+#endif
