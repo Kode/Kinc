@@ -122,9 +122,9 @@ namespace {
 		}
 
 		bufferFrames = 0;
-		Kore_Microsoft_affirm(audioClient->GetBufferSize(&bufferFrames));
-		Kore_Microsoft_affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
-		Kore_Microsoft_affirm(audioClient->SetEventHandle(bufferEndEvent));
+		Kore_Microsoft_Affirm(audioClient->GetBufferSize(&bufferFrames));
+		Kore_Microsoft_Affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
+		Kore_Microsoft_Affirm(audioClient->SetEventHandle(bufferEndEvent));
 
 #ifdef KORE_WINDOWS
 		createAndRunThread(audioThread, nullptr);
@@ -173,11 +173,11 @@ void Audio2::init() {
 	buffer.data = new u8[buffer.dataSize];
 
 #ifdef KORE_WINDOWS
-	Kore_Microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
-	Kore_Microsoft_affirm(
+	Kore_Microsoft_Affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
+	Kore_Microsoft_Affirm(
 	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&deviceEnumerator)));
-	Kore_Microsoft_affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
-	Kore_Microsoft_affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&audioClient)));
+	Kore_Microsoft_Affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
+	Kore_Microsoft_Affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&audioClient)));
 	initAudio();
 #else
 	renderer = Make<AudioRenderer>();

@@ -83,8 +83,8 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	data.SysMemSlicePitch = 0;
 
 	texture = nullptr;
-	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, &data, &texture));
-	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Kore_Microsoft_Affirm(device->CreateTexture2D(&desc, &data, &texture));
+	Kore_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	computeView = nullptr;
 
@@ -132,8 +132,8 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	}
 
 	texture = nullptr;
-	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &texture));
-	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Kore_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &texture));
+	Kore_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	computeView = nullptr;
 	if (format == Image::RGBA128) {
@@ -141,7 +141,7 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 		du.Format = desc.Format;
 		du.Texture2D.MipSlice = 0;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE2D;
-		Kore_Microsoft_affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
+		Kore_Microsoft_Affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
 	}
 }
 

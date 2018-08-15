@@ -99,7 +99,7 @@ int Kore_Windows_GetDisplayForMonitor(struct HMONITOR__ *monitor) {
 		}
 	}
 
-	Kore_errorMessage("Display for monitor not found");
+	Kore_ErrorMessage("Display for monitor not found");
 	return -1;
 }
 
@@ -116,7 +116,7 @@ int Kore_PrimaryDisplay() {
 		}
 	}
 
-	Kore_errorMessage("No primary display defined");
+	Kore_ErrorMessage("No primary display defined");
 	return -1;
 }
 

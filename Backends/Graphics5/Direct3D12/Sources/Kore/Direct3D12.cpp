@@ -83,19 +83,19 @@ namespace {
 	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
 		RenderEnvironment result;
 #ifdef KORE_WINDOWS
-		Kore_Microsoft_affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
+		Kore_Microsoft_Affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
 
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		Kore_Microsoft_affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
+		Kore_Microsoft_Affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
 
 		IDXGIFactory4* dxgiFactory;
-		Kore_Microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
+		Kore_Microsoft_Affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
 
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
-		Kore_Microsoft_affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
+		Kore_Microsoft_Affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
 #else
 		createSwapChain(&result, swapChainDesc);
 #endif
@@ -104,7 +104,7 @@ namespace {
 
 	void waitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
 		if (fence->GetCompletedValue() < completionValue) {
-			Kore_Microsoft_affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
+			Kore_Microsoft_Affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
 			WaitForSingleObject(waitEvent, INFINITE);
 		}
 	}
@@ -210,7 +210,7 @@ namespace {
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(3, parameters, textureCount, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-		Kore_Microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
+		Kore_Microsoft_Affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&rootSignature));
 	}
 
@@ -377,7 +377,7 @@ bool Kore::Window::vSynced() {
 }
 
 bool Graphics5::swapBuffers() {
-	Kore_Microsoft_affirm(swapChain->Present(1, 0));
+	Kore_Microsoft_Affirm(swapChain->Present(1, 0));
 	return true;
 }
 
