@@ -18,6 +18,8 @@
 #include <Kore/Window.h>
 #include <Kore/Windows.h>
 
+#include <C/Kore/Window.h>
+
 #define DIRECTINPUT_VERSION 0x0800
 #ifdef WIN32_LEAN_AND_MEAN
 #undef WIN32_LEAN_AND_MEAN
@@ -52,20 +54,18 @@ __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
-int idFromHWND(HWND handle);
-
 #ifdef KOREC
 extern "C"
 #endif
     int
-    kore(int argc, char** argv);
+    kore(int argc, char **argv);
 
 namespace {
-	typedef BOOL(WINAPI* GetPointerInfoType)(UINT32 pointerId, POINTER_INFO* pointerInfo);
+	typedef BOOL(WINAPI *GetPointerInfoType)(UINT32 pointerId, POINTER_INFO *pointerInfo);
 	GetPointerInfoType MyGetPointerInfo = nullptr;
-	typedef BOOL(WINAPI* GetPointerPenInfoType)(UINT32 pointerId, POINTER_PEN_INFO* penInfo);
+	typedef BOOL(WINAPI *GetPointerPenInfoType)(UINT32 pointerId, POINTER_PEN_INFO *penInfo);
 	GetPointerPenInfoType MyGetPointerPenInfo = nullptr;
-	typedef BOOL(WINAPI* EnableNonClientDpiScalingType)(HWND hwnd);
+	typedef BOOL(WINAPI *EnableNonClientDpiScalingType)(HWND hwnd);
 	EnableNonClientDpiScalingType MyEnableNonClientDpiScaling = nullptr;
 }
 
@@ -267,7 +267,7 @@ namespace {
 	}
 }
 
-LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowId;
 	DWORD pointerId;
 	POINTER_INFO pointerInfo = {NULL};
@@ -281,9 +281,9 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		}
 		break;
 	case WM_DPICHANGED: {
-		Window* window = Window::get(idFromHWND(hWnd));
-		if (window != nullptr && window->_data.ppiCallback != nullptr) {
-			window->_data.ppiCallback(LOWORD(wParam), window->_data.ppiCallbackData);
+		int window = Kore_Windows_WindowIndexFromHWND(hWnd);
+		if (window >= 0) {
+			Kore_Internal_CallPpiChangedCallback(window, LOWORD(wParam));
 		}
 		break;
 	}
@@ -293,15 +293,12 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		// Scheduler::breakTime();
 		break;
 	case WM_SIZE: {
-		int window = idFromHWND(hWnd);
+		int window = Kore_Windows_WindowIndexFromHWND(hWnd);
 		if (window >= 0) {
 			int width = LOWORD(lParam);
 			int height = HIWORD(lParam);
 			Graphics::_resize(window, width, height);
-			Window* win = Window::get(window);
-			if (win != nullptr && win->_data.resizeCallback != nullptr) {
-				win->_data.resizeCallback(width, height, win->_data.resizeCallbackData);
-			}
+			Kore_Internal_CallResizeCallback(window, width, height);
 		}
 		break;
 	}
@@ -312,17 +309,17 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		return 1;
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_ACTIVE)
-			Mouse::the()->_activated(idFromHWND(hWnd), true);
+			Mouse::the()->_activated(Kore_Windows_WindowIndexFromHWND(hWnd), true);
 		else
-			Mouse::the()->_activated(idFromHWND(hWnd), false);
+			Mouse::the()->_activated(Kore_Windows_WindowIndexFromHWND(hWnd), false);
 		break;
 	case WM_MOUSELEAVE:
-		windowId = idFromHWND(hWnd);
+		windowId = Kore_Windows_WindowIndexFromHWND(hWnd);
 		//**windows[windowId]->isMouseInside = false;
 		Mouse::the()->___leave(windowId);
 		break;
 	case WM_MOUSEMOVE:
-		windowId = idFromHWND(hWnd);
+		windowId = Kore_Windows_WindowIndexFromHWND(hWnd);
 		/*if (!windows[windowId]->isMouseInside) {
 		    windows[windowId]->isMouseInside = true;
 		    TRACKMOUSEEVENT tme;
@@ -336,49 +333,49 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		Mouse::the()->_move(windowId, mouseX, mouseY);
 		break;
 	case WM_LBUTTONDOWN:
-		if (!Mouse::the()->isLocked(idFromHWND(hWnd))) SetCapture(hWnd);
+		if (!Mouse::the()->isLocked(Kore_Windows_WindowIndexFromHWND(hWnd))) SetCapture(hWnd);
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 0, mouseX, mouseY);
+		Mouse::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_LBUTTONUP:
-		if (!Mouse::the()->isLocked(idFromHWND(hWnd))) ReleaseCapture();
+		if (!Mouse::the()->isLocked(Kore_Windows_WindowIndexFromHWND(hWnd))) ReleaseCapture();
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 0, mouseX, mouseY);
+		Mouse::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_RBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 1, mouseX, mouseY);
+		Mouse::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_RBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 1, mouseX, mouseY);
+		Mouse::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_MBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), 2, mouseX, mouseY);
+		Mouse::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_MBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), 2, mouseX, mouseY);
+		Mouse::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Mouse::the()->_press(idFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		Mouse::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Mouse::the()->_release(idFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		Mouse::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_MOUSEWHEEL:
-		Mouse::the()->_scroll(idFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
+		Mouse::the()->_scroll(Kore_Windows_WindowIndexFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
 		break;
 	case WM_POINTERDOWN:
 		pointerId = GET_POINTERID_WPARAM(wParam);
@@ -386,7 +383,8 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Pen::the()->_press(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
+			Pen::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			                   float(penInfo.pressure) / 1024.0f);
 		}
 		break;
 	case WM_POINTERUP:
@@ -395,7 +393,8 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Pen::the()->_release(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
+			Pen::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			                     float(penInfo.pressure) / 1024.0f);
 		}
 		break;
 	case WM_POINTERUPDATE:
@@ -404,7 +403,8 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Pen::the()->_move(idFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y, float(penInfo.pressure) / 1024.0f);
+			Pen::the()->_move(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			                  float(penInfo.pressure) / 1024.0f);
 		}
 		break;
 	case WM_KEYDOWN:
@@ -417,7 +417,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 			}
 			else {
 				if (controlDown && keyTranslated[wParam] == Kore::KeyX) {
-					char* text = System::_cutCallback();
+					char *text = System::_cutCallback();
 					if (text != nullptr) {
 						wchar_t wtext[4096];
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
@@ -425,7 +425,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						EmptyClipboard();
 						int size = (wcslen(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
-						void* data = GlobalLock(handle);
+						void *data = GlobalLock(handle);
 						memcpy(data, wtext, size);
 						GlobalUnlock(handle);
 						SetClipboardData(CF_UNICODETEXT, handle);
@@ -434,7 +434,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 				}
 
 				if (controlDown && keyTranslated[wParam] == Kore::KeyC) {
-					char* text = System::_copyCallback();
+					char *text = System::_copyCallback();
 					if (text != nullptr) {
 						wchar_t wtext[4096];
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
@@ -442,7 +442,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						EmptyClipboard();
 						int size = (wcslen(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
-						void* data = GlobalLock(handle);
+						void *data = GlobalLock(handle);
 						memcpy(data, wtext, size);
 						GlobalUnlock(handle);
 						SetClipboardData(CF_UNICODETEXT, handle);
@@ -455,7 +455,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						OpenClipboard(hWnd);
 						HANDLE handle = GetClipboardData(CF_UNICODETEXT);
 						if (handle != nullptr) {
-							wchar_t* wtext = (wchar_t*)GlobalLock(handle);
+							wchar_t *wtext = (wchar_t *)GlobalLock(handle);
 							if (wtext != nullptr) {
 								char text[4096];
 								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, nullptr, nullptr);
@@ -543,7 +543,7 @@ namespace {
 	float axes[12 * 6];
 	float buttons[12 * 16];
 
-	typedef DWORD(WINAPI* XInputGetStateType)(DWORD dwUserIndex, XINPUT_STATE* pState);
+	typedef DWORD(WINAPI *XInputGetStateType)(DWORD dwUserIndex, XINPUT_STATE *pState);
 	XInputGetStateType InputGetState = nullptr;
 }
 
@@ -562,8 +562,8 @@ void loadXInput() {
 }
 
 namespace {
-	IDirectInput8* di_instance = nullptr;
-	IDirectInputDevice8* di_pads[XUSER_MAX_COUNT];
+	IDirectInput8 *di_instance = nullptr;
+	IDirectInputDevice8 *di_pads[XUSER_MAX_COUNT];
 	DIJOYSTATE2 di_padState[XUSER_MAX_COUNT];
 	DIJOYSTATE2 di_lastPadState[XUSER_MAX_COUNT];
 	DIDEVCAPS di_deviceCaps[XUSER_MAX_COUNT];
@@ -591,11 +591,11 @@ namespace {
 	// "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
 	// Unfortunately this information can not be found by just using DirectInput
 	//-----------------------------------------------------------------------------
-	BOOL IsXInputDevice(const GUID* pGuidProductFromDirectInput) {
-		IWbemLocator* pIWbemLocator = NULL;
-		IEnumWbemClassObject* pEnumDevices = NULL;
-		IWbemClassObject* pDevices[20] = {0};
-		IWbemServices* pIWbemServices = NULL;
+	BOOL IsXInputDevice(const GUID *pGuidProductFromDirectInput) {
+		IWbemLocator *pIWbemLocator = NULL;
+		IEnumWbemClassObject *pEnumDevices = NULL;
+		IWbemClassObject *pDevices[20] = {0};
+		IWbemServices *pIWbemServices = NULL;
 		BSTR bstrNamespace = NULL;
 		BSTR bstrDeviceID = NULL;
 		BSTR bstrClassName = NULL;
@@ -610,7 +610,7 @@ namespace {
 		bool bCleanupCOM = SUCCEEDED(hr);
 
 		// Create WMI
-		hr = CoCreateInstance(__uuidof(WbemLocator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IWbemLocator), (LPVOID*)&pIWbemLocator);
+		hr = CoCreateInstance(__uuidof(WbemLocator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IWbemLocator), (LPVOID *)&pIWbemLocator);
 		if (FAILED(hr) || pIWbemLocator == NULL) goto LCleanup;
 
 		bstrNamespace = SysAllocString(L"\\\\.\\root\\cimv2");
@@ -646,9 +646,9 @@ namespace {
 					if (wcsstr(var.bstrVal, L"IG_")) {
 						// If it does, then get the VID/PID from var.bstrVal
 						DWORD dwPid = 0, dwVid = 0;
-						WCHAR* strVid = wcsstr(var.bstrVal, L"VID_");
+						WCHAR *strVid = wcsstr(var.bstrVal, L"VID_");
 						if (strVid && swscanf(strVid, L"VID_%4X", &dwVid) != 1) dwVid = 0;
-						WCHAR* strPid = wcsstr(var.bstrVal, L"PID_");
+						WCHAR *strPid = wcsstr(var.bstrVal, L"PID_");
 						if (strPid && swscanf(strPid, L"PID_%4X", &dwPid) != 1) dwPid = 0;
 
 						// Compare the VID/PID to the DInput device
@@ -788,7 +788,7 @@ void initializeDirectInput() {
 	memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
 	memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * XUSER_MAX_COUNT);
 
-	HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&di_instance, nullptr);
+	HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&di_instance, nullptr);
 
 	if (SUCCEEDED(hr)) {
 		hr = di_instance->EnumDevices(DI8DEVCLASS_GAMECTRL, enumerateJoysticksCallback, nullptr, DIEDFL_ATTACHEDONLY);
@@ -820,8 +820,8 @@ void handleDirectInputPad(int padIndex) {
 		if (Kore::Gamepad::get(padIndex)->Axis != nullptr) {
 			// TODO (DK) there is a lot more to handle
 			for (int axisIndex = 0; axisIndex < 2; ++axisIndex) {
-				LONG* now = nullptr;
-				LONG* last = nullptr;
+				LONG *now = nullptr;
+				LONG *last = nullptr;
 
 				switch (axisIndex) {
 				case 0: {
@@ -845,8 +845,8 @@ void handleDirectInputPad(int padIndex) {
 
 			if (Kore::Gamepad::get(padIndex)->Button != nullptr) {
 				for (int buttonIndex = 0; buttonIndex < 128; ++buttonIndex) {
-					BYTE* now = &di_padState[padIndex].rgbButtons[buttonIndex];
-					BYTE* last = &di_lastPadState[padIndex].rgbButtons[buttonIndex];
+					BYTE *now = &di_padState[padIndex].rgbButtons[buttonIndex];
+					BYTE *last = &di_lastPadState[padIndex].rgbButtons[buttonIndex];
 
 					if (*now != *last) {
 						Kore::Gamepad::get(padIndex)->Button(buttonIndex, *now / 255.0f);
@@ -950,11 +950,11 @@ bool Kore::System::showsKeyboard() {
 	return keyboardshown;
 }
 
-void Kore::System::loadURL(const char* url) {}
+void Kore::System::loadURL(const char *url) {}
 
 void Kore::System::setKeepScreenOn(bool on) {}
 
-const char* Kore::System::systemId() {
+const char *Kore::System::systemId() {
 	return "Windows";
 }
 
@@ -964,9 +964,9 @@ namespace {
 
 	void findSavePath() {
 		// CoInitialize(NULL);
-		IKnownFolderManager* folders = nullptr;
+		IKnownFolderManager *folders = nullptr;
 		CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&folders));
-		IKnownFolder* folder = nullptr;
+		IKnownFolder *folder = nullptr;
 		folders->GetFolder(FOLDERID_SavedGames, &folder);
 
 		LPWSTR path;
@@ -989,18 +989,18 @@ namespace {
 	}
 }
 
-const char* Kore::System::savePath() {
+const char *Kore::System::savePath() {
 	if (::savePath[0] == 0) findSavePath();
 	return ::savePath;
 }
 
 namespace {
-	const char* videoFormats[] = {"ogv", nullptr};
+	const char *videoFormats[] = {"ogv", nullptr};
 	LARGE_INTEGER frequency;
 	LARGE_INTEGER startCount;
 }
 
-const char** Kore::System::videoFormats() {
+const char **Kore::System::videoFormats() {
 	return ::videoFormats;
 }
 
@@ -1042,7 +1042,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 
 		ret = kore(__argc, __argv);
 #ifndef _DEBUG
-	} catch (std::exception& ex) {
+	} catch (std::exception &ex) {
 		ret = 1;
 		MessageBoxA(0, ex.what(), "Exception", MB_OK);
 	} catch (...) {
@@ -1054,14 +1054,14 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	return ret;
 }
 
-Window* System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
+Window *System::init(const char *name, int width, int height, WindowOptions *win, FramebufferOptions *frame) {
 	WindowOptions defaultWin;
 	if (win == nullptr) {
 		win = &defaultWin;
 	}
 	win->width = width;
 	win->height = height;
-	Window* window = Window::create(win, frame);
+	Window *window = Window::create(win, frame);
 	loadXInput();
 	initializeDirectInput();
 	return window;

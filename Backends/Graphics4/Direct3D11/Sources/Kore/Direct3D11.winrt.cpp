@@ -18,6 +18,7 @@
 
 #include <Kore/Display.h>
 #include <Kore/Window.h>
+#include <Kore/Windows.h>
 
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
@@ -144,7 +145,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
 #ifdef KORE_WINDOWS
-	HWND hwnd = Window::get(windowId)->_data.handle;
+	HWND hwnd = Kore_Windows_WindowHandle(windowId);
 #endif
 
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -199,7 +200,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
 		swapChainDesc.Flags = 0;
-		swapChainDesc.OutputWindow = Window::get(windowId)->_data.handle;
+		swapChainDesc.OutputWindow = Kore_Windows_WindowHandle(windowId);
 		swapChainDesc.Windowed = true;
 #endif
 
@@ -1031,8 +1032,8 @@ void Graphics4::_resize(int window, int width, int height) {
 	newRenderTargetHeight = height;
 }
 
-void Graphics4::_changeFramebuffer(int window, FramebufferOptions* frame) {}
+void Graphics4::_changeFramebuffer(int window, _Kore_FramebufferOptions *frame) {}
 
-bool Window::vSynced() {
+extern "C" bool Kore_WindowVSynced(int window_index) {
 	return vsync;
 }
