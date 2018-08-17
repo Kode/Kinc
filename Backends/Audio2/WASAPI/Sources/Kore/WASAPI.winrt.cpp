@@ -1,6 +1,7 @@
 #include "pch.h"
 
-#include <Kore/Audio2/Audio.h>
+#include <C/Kore/Audio2/Audio.h>
+
 #include <Kore/Error.h>
 #include <Kore/Log.h>
 #include <Kore/SystemMicrosoft.h>
@@ -23,6 +24,9 @@ using namespace Windows::Storage::Streams;
 
 // based on the implementation in soloud and Microsoft sample code
 namespace {
+	void (*a2_callback)(Kore_A2_Buffer *buffer, int samples) = nullptr;
+	Kore_A2_Buffer a2_buffer;
+
 	IMMDeviceEnumerator* deviceEnumerator;
 	IMMDevice* device;
 	IAudioClient* audioClient;
@@ -35,16 +39,16 @@ namespace {
 	WAVEFORMATEX* format;
 
 	void copyS16Sample(s16* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+		a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 		*buffer = (s16)(value * 32767);
 	}
 
 	void copyFloatSample(float* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+		a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 		*buffer = value;
 	}
 
@@ -54,7 +58,9 @@ namespace {
 			return;
 		}
 
-		Kore::Audio2::audioCallback(frames * 2);
+		if (a2_callback != nullptr) {
+			a2_callback(&a2_buffer, frames * 2);
+		}
 		memset(buffer, 0, frames * format->nBlockAlign);
 		if (format->wFormatTag == WAVE_FORMAT_PCM) {
 			for (UINT32 i = 0; i < frames; ++i) {
@@ -166,11 +172,11 @@ template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
 		(punk) = NULL;                                                                                                                                         \
 	}
 
-void Audio2::init() {
-	buffer.readLocation = 0;
-	buffer.writeLocation = 0;
-	buffer.dataSize = 128 * 1024;
-	buffer.data = new u8[buffer.dataSize];
+void Kore_A2_Init() {
+	a2_buffer.read_location = 0;
+	a2_buffer.write_location = 0;
+	a2_buffer.data_size = 128 * 1024;
+	a2_buffer.data = new u8[a2_buffer.data_size];
 
 #ifdef KORE_WINDOWS
 	Kore_Microsoft_Affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
@@ -189,9 +195,13 @@ void Audio2::init() {
 #endif
 }
 
-void Audio2::update() {}
+void Kore_A2_SetCallback(void(*Kore_A2_audio_callback)(Kore_A2_Buffer *buffer, int samples)) {
+	a2_callback = Kore_A2_audio_callback;
+}
 
-void Audio2::shutdown() {
+void Kore_A2_Update() {}
+
+void Kore_A2_Shutdown() {
 	// Wait for last data in buffer to play before stopping.
 	// Sleep((DWORD)(hnsActualDuration/REFTIMES_PER_MILLISEC/2));
 
