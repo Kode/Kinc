@@ -27,7 +27,7 @@ typedef enum {
 #define KORE_WINDOW_FEATURE_BORDERLESS 8
 #define KORE_WINDOW_FEATURE_ON_TOP 16
 
-typedef struct {
+typedef struct _Kore_WindowOptions {
 	const char *title;
 
 	int x;
