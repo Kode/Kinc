@@ -2,36 +2,22 @@
 
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/HIDManager.h>
-
 #include <Kore/Log.h>
 
 using namespace Kore;
-
-namespace {
-	int maxPadCount = 15;
-	int connectedGamepads = 0;
-	bool* gamepadList = new bool[maxPadCount];
-}
 
 HIDManager::HIDManager() : managerRef(0x0) {
 	initHIDManager();
 }
 
 HIDManager::~HIDManager() {
-
 	if (managerRef) {
-		IOHIDManagerClose(managerRef, kIOHIDOptionsTypeNone);
 		IOHIDManagerUnscheduleFromRunLoop(managerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-
-		// Unregister
-		// IOHIDManagerRegisterInputValueCallback(managerRef, NULL, this);
-		// IOHIDManagerRegisterDeviceMatchingCallback(managerRef, NULL, this);
-		// IOHIDManagerRegisterDeviceRemovalCallback(managerRef, NULL, this);
+		IOHIDManagerClose(managerRef, kIOHIDOptionsTypeNone);
 	}
 }
 
 int HIDManager::initHIDManager() {
-
 	// Initialize the IOHIDManager
 	managerRef = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
 	if (CFGetTypeID(managerRef) == IOHIDManagerGetTypeID()) {
@@ -48,7 +34,7 @@ int HIDManager::initHIDManager() {
 			addMatchingArray(matchingCFArrayRef, matchingCFDictRef);
 		}
 		else {
-			log(Error, "%s: CFArrayCreateMutable failed.", __PRETTY_FUNCTION__);
+			Kore::log(Error, "%s: CFArrayCreateMutable failed.", __PRETTY_FUNCTION__);
 			return -1;
 		}
 
@@ -65,14 +51,6 @@ int HIDManager::initHIDManager() {
 
 		IOHIDManagerScheduleWithRunLoop(managerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
-		// Check how many devices are connected
-		CFSetRef deviceSetRef = IOHIDManagerCopyDevices(managerRef);
-		if (deviceSetRef) {
-			// CFIndex num_devices = CFSetGetCount(deviceSetRef);
-			// log(Info, "%d gamepad(s) found.\n",(int)num_devices);
-			CFRelease(deviceSetRef);
-		}
-
 		return 0;
 	}
 	return -1;
@@ -88,7 +66,6 @@ bool HIDManager::addMatchingArray(CFMutableArrayRef matchingCFArrayRef, CFDictio
 	return false;
 }
 
-// Create matching dictionary
 CFMutableDictionaryRef HIDManager::createDeviceMatchingDictionary(u32 inUsagePage, u32 inUsage) {
 	// Create a dictionary to add usage page/usages to
 	CFMutableDictionaryRef result = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
@@ -123,35 +100,38 @@ CFMutableDictionaryRef HIDManager::createDeviceMatchingDictionary(u32 inUsagePag
 	return result;
 }
 
-// This will be called when the HID Manager matches a new (hot plugged) HID device
+// HID device plugged callback
 void HIDManager::deviceConnected(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
+	// Reference manager
+	HIDManager *manager = (HIDManager*) inContext;
 
-	// Get a free index
-	int padIndex = -1;
-	for (int i = 0; i < maxPadCount; ++i) {
-		if (!gamepadList[i]) {
-			padIndex = i;
+	// Find an empty slot in the devices list and add the new device there
+	// TODO: does this need to be made thread safe?
+	DeviceRecord *device = manager->devices;
+	for (int i = 0; i < MAX_DEVICES; ++i, ++device) {
+		if (!device->connected) {
+			device->connected	= true;
+			device->device 		= inIOHIDDeviceRef;
+			device->pad.bind(inIOHIDDeviceRef, i);
 			break;
 		}
 	}
-
-	if (padIndex == -1) {
-		log(Warning, "Too many gamepads connected");
-	}
-
-	// HIDGamepad* hidDevice = new HIDGamepad(inIOHIDDeviceRef, padIndex);
-	gamepadList[padIndex] = true;
-	++connectedGamepads;
-
-	log(Info, "HID device plugged. %i gamepad(s) connected.\n", connectedGamepads);
 }
 
-// This will be called when a HID device is removed (unplugged)
+// HID device unplugged callback
 void HIDManager::deviceRemoved(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
-	--connectedGamepads;
-	log(Info, "HID device removed. %i gamepad(s) connected.\n", connectedGamepads);
-}
+	// Reference manager
+	HIDManager *manager = (HIDManager*) inContext;
 
-void HIDManager::cleanupPad(int index) {
-	gamepadList[index] = false;
+	// TODO: does this need to be made thread safe?
+	DeviceRecord *device = manager->devices;
+	for (int i = 0; i < MAX_DEVICES; ++i, ++device) {
+		// TODO: is comparing IOHIDDeviceRef to match devices safe? Is there a better way?
+		if (device->connected && device->device == inIOHIDDeviceRef) {
+			device->connected	= false;
+			device->device 		= nullptr;
+			device->pad.unbind();
+			break;
+		}
+	}
 }

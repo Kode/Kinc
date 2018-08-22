@@ -7,29 +7,32 @@
 namespace Kore {
 	class HIDGamepad {
 	private:
-		IOHIDDeviceRef deviceRef;
-		IOHIDQueueRef inIOHIDQueueRef;
-		int padIndex;
-
-		void initHIDDevice();
-
 		static void inputValueCallback(void* inContext, IOReturn inResult, void* inSender, IOHIDValueRef inIOHIDValueRef);
 		static void valueAvailableCallback(void* inContext, IOReturn inResult, void* inSender);
-		static void deviceRemovalCallback(void* inContext, IOReturn inResult, void* inSender);
 
-		void initElementsFromArray(CFArrayRef elements);
+		void reset();
+
+		void initDeviceElements(CFArrayRef elements);
 
 		void buttonChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef, int buttonIndex);
 		void axisChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef, int axisIndex);
 
+		int padIndex;
+		IOHIDDeviceRef hidDeviceRef;
+		IOHIDQueueRef hidQueueRef;
+		int hidDeviceVendorID;
+		int hidDeviceProductID;
+		char hidDeviceVendor[64];
+		char hidDeviceProduct[64];
+
+		IOHIDElementCookie axis[6];
+		IOHIDElementCookie buttons[15];
+
 	public:
-		HIDGamepad(IOHIDDeviceRef deviceRef, int ID);
+		HIDGamepad();
 		~HIDGamepad();
 
-		// Property functions
-		int getVendorID();
-		int getProductID();
-		char* getProductKey();
-		char* getManufacturerKey();
+		void bind(IOHIDDeviceRef deviceRef, int padIndex);
+		void unbind();
 	};
 }
