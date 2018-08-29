@@ -67,6 +67,9 @@ namespace {
 	GetPointerPenInfoType MyGetPointerPenInfo = nullptr;
 	typedef BOOL(WINAPI* EnableNonClientDpiScalingType)(HWND hwnd);
 	EnableNonClientDpiScalingType MyEnableNonClientDpiScaling = nullptr;
+
+	bool detectGamepad = true;
+	bool gamepadFound = false;
 }
 
 using namespace Kore;
@@ -524,6 +527,9 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 			break;
 		}
 		break;
+	case WM_DEVICECHANGE:
+		detectGamepad = true;
+		break;
 	case WM_DROPFILES:
 		HDROP hDrop = (HDROP)wParam;
 		uint count = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, NULL);
@@ -874,7 +880,8 @@ bool Kore::System::handleMessages() {
 		DispatchMessage(&message);
 	}
 
-	if (InputGetState != nullptr) {
+	if (InputGetState != nullptr && (detectGamepad || gamepadFound)) {
+		detectGamepad = false;
 		DWORD dwResult;
 		for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
 			XINPUT_STATE state;
@@ -882,6 +889,7 @@ bool Kore::System::handleMessages() {
 			dwResult = InputGetState(i, &state);
 
 			if (dwResult == ERROR_SUCCESS) {
+				gamepadFound = true;
 				Kore::Gamepad::get(i)->vendor = "Microsoft";
 				Kore::Gamepad::get(i)->productName = "Xbox 360 Controller";
 
