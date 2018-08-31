@@ -42,7 +42,7 @@ Graphics5::Shader::Shader(void* source, int length, ShaderType type) : Shader5Im
 	}
 	else {
 		id<MTLDevice> device = getMetalDevice();
-		library = [device newLibraryWithSource:[[NSString init] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
+		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
 	}
 	mtlFunction = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
 }
