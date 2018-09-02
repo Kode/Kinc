@@ -3,7 +3,7 @@
 ## Kore
 
 Kore projects are built using koremake, a nodejs tool.
-In your project's directory call `node Kore/make` - this will
+In your project's directory call `node Kore/make --init` this will
 create a project file for your IDE in a build subdirectory.
 koremake by default creates a project for the system you are currently using,
 but you can also put one of windows, linux, android, windowsapp, osx and ios
