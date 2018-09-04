@@ -328,6 +328,10 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 	return YES;
 }
 
+- (void)resize:(NSSize)size {
+	[self setFrameSize:size];
+}
+
 #ifdef KORE_METAL
 - (id<MTLDevice>)metalDevice {
 	return device;
@@ -339,10 +343,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 
 - (id<MTLRenderCommandEncoder>)metalEncoder {
 	return commandEncoder;
-}
-
-- (void)resize:(NSSize)size {
-	[self setFrameSize:size];
 }
 
 - (void)begin {
