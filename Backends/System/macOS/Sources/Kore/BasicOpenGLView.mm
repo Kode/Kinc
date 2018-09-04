@@ -278,7 +278,9 @@ namespace {
 #endif
 
 - (void)update { // window resizes, moves and display changes (resize, depth and display config change)
-	// [super update]; //TODO: Who did this?
+#ifdef KORE_OPENGL
+	[super update];
+#endif
 }
 
 #ifndef KORE_METAL
