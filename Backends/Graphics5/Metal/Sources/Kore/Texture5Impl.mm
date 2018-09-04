@@ -101,7 +101,12 @@ void Graphics5::Texture::_set(TextureUnit unit) {
 }
 
 int Graphics5::Texture::stride() {
-	return width * 4;
+	if (format == Graphics1::Image::Grey8) {
+		return width;
+	}
+	else {
+		return width * 4;
+	}
 }
 
 u8* Graphics5::Texture::lock() {
