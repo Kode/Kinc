@@ -15,7 +15,7 @@ Shader5Impl::Shader5Impl(void* source, int length) : mtlFunction(0) {
 	u8* data = (u8*)source;
 	if (length > 1 && data[0] == '>') {
 		memcpy(name, data + 1, length - 1);
-		name[length] = 0;
+		name[length - 1] = 0;
 	}
 	else {
 		for (int i = 3; i < length; ++i) {
