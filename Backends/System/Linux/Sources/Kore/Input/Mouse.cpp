@@ -7,6 +7,7 @@
 #include <GL/glx.h>
 
 #include <X11/X.h>
+#include <X11/extensions/Xfixes.h>
 #include <X11/keysym.h>
 
 using namespace Kore;
@@ -55,17 +56,16 @@ void Mouse::show(bool truth) {
 #ifdef KORE_OPENGL
 	::Display* dpy = XOpenDisplay(0);
 	::Window win = (XID)Window::get(0)->_data.handle;
-	if (truth) {
-		XUndefineCursor(dpy, win);
-	}
-	else {
-		XColor col;
-		char data[1] = {0};
-		Pixmap blank = XCreateBitmapFromData(dpy, win, data, 1, 1);
-		Cursor cursor = XCreatePixmapCursor(dpy, blank, blank, &col, &col, 0, 0);
-		XFreePixmap(dpy, blank);
-		XDefineCursor(dpy, win, cursor);
-	}
+	if (truth)
+    {
+        XFixesShowCursor(dpy, win);
+        XFlush(dpy);
+    }
+    else
+    {
+        XFixesHideCursor(dpy, win);
+        XFlush(dpy);
+    }
 #endif
 }
 
