@@ -20,7 +20,6 @@
 #include <X11/Xlib.h>
 #include <climits>
 #include <assert.h>
-//#include <X11/Xlib.h>
 
 #ifdef KORE_OPENGL
 #include <GL/gl.h>
@@ -223,7 +222,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	cmap = XCreateColormap(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), vi->visual, AllocNone);
 	swa.colormap = cmap;
 	swa.border_pixel = 0;
-	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
+	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask | LeaveNotifyMask;
 
 	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
 	                           CWBorderPixel | CWColormap | CWEventMask, &swa);
@@ -667,6 +666,9 @@ bool Kore::System::handleMessages() {
 				XSendEvent(Kore::Linux::display, XdndSourceWindow, false, NoEventMask, (XEvent*)&m);
 				XSync(Kore::Linux::display, false);
 			}
+		}
+		case LeaveNotify: {
+            Kore::Mouse::the()->show(true);
 		}
 		case Expose:
 			break;
