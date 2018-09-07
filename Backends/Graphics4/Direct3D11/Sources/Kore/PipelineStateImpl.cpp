@@ -2,9 +2,11 @@
 
 #include "Direct3D11.h"
 #include "PipelineStateImpl.h"
+
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/SystemMicrosoft.h>
+#include <Kore/Log.h>
 
 #include <malloc.h>
 
@@ -224,6 +226,10 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 		location.tessEvalRows = constant.rows;
 	}
 
+	if (location.vertexSize == 0 && location.fragmentSize == 0 && location.geometrySize == 0 && location.tessControlSize && location.tessEvalSize == 0) {
+		log(Warning, "Uniform %s not found.", name);
+	}
+
 	return location;
 }
 
@@ -232,6 +238,7 @@ Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name
 	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
 		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
 			unit.unit = -1;
+			log(Warning, "Sampler %s not found.", name);
 		}
 		else {
 			unit.unit = fragmentShader->textures[name];
