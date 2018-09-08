@@ -141,9 +141,6 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		Kore_Microsoft_affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
 	}
 
-	lastBoundUnit = -1;
-	lastBoundDepthUnit = -1;
-
 	if (renderTargetViewRender[0] != nullptr) {
 		FLOAT colors[4] = {0, 0, 0, 0};
 		context->ClearRenderTargetView(renderTargetViewRender[0], colors);
@@ -305,9 +302,6 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		Kore_Microsoft_affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
 	}
 
-	lastBoundUnit = -1;
-	lastBoundDepthUnit = -1;
-
 	if (!isDepthAttachment) {
 		FLOAT colors[4] = {0, 0, 0, 0};
 		for (int i = 0; i < 6; i++) {
@@ -332,13 +326,11 @@ void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 		context->ResolveSubresource(textureSample, 0, textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
 	context->PSSetShaderResources(unit.unit, 1, isDepthAttachment ? &depthStencilSRV : &renderTargetSRV);
-	lastBoundUnit = unit.unit;
 }
 
 void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
 	context->PSSetShaderResources(unit.unit, 1, &depthStencilSRV);
-	lastBoundDepthUnit = unit.unit;
 }
 
 void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {

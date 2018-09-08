@@ -104,6 +104,28 @@ namespace {
 		return s.state;
 	}
 
+	void initSamplers() {
+		D3D11_SAMPLER_DESC samplerDesc;
+		ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		ID3D11SamplerState* state;
+		device->CreateSamplerState(&samplerDesc, &state);
+
+		ID3D11SamplerState* states[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
+		for (int i = 0; i < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT; ++i) {
+			states[i] = state;
+		}
+
+		context->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
+		context->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
+	}
+
 	ID3D11RenderTargetView** currentRenderTargetViews =
 	    (ID3D11RenderTargetView**)malloc(sizeof(ID3D11RenderTargetView*) * D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 	int renderTargetCount = 1;
@@ -307,6 +329,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		lastSamplers[i] = samplerDesc;
 	}
 
+	initSamplers();
+
 	D3D11_BLEND_DESC blendDesc;
 	ZeroMemory(&blendDesc, sizeof(blendDesc));
 
@@ -338,6 +362,10 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 void Graphics4::flush() {}
 
+namespace {
+	ID3D11ShaderResourceView* nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
+}
+
 void Graphics4::drawIndexedVertices() {
 	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
@@ -347,6 +375,8 @@ void Graphics4::drawIndexedVertices() {
 	}
 	PipelineState::setConstants();
 	context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
+
+	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void Graphics4::drawIndexedVertices(int start, int count) {
@@ -358,6 +388,8 @@ void Graphics4::drawIndexedVertices(int start, int count) {
 	}
 	PipelineState::setConstants();
 	context->DrawIndexed(count, start, 0);
+
+	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
@@ -373,6 +405,8 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int c
 	}
 	PipelineState::setConstants();
 	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
+	
+	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 namespace {
@@ -880,21 +914,6 @@ void Graphics4::restoreRenderTarget() {
 }
 
 void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
-	for (int i = 0; i < count; ++i) {
-		if (targets[i]->lastBoundUnit >= 0) {
-			ID3D11ShaderResourceView* nullview[1];
-			nullview[0] = nullptr;
-			context->PSSetShaderResources(targets[i]->lastBoundUnit, 1, nullview);
-			targets[i]->lastBoundUnit = -1;
-		}
-		if (targets[i]->lastBoundDepthUnit >= 0) {
-			ID3D11ShaderResourceView* nullview[1];
-			nullview[0] = nullptr;
-			context->PSSetShaderResources(targets[i]->lastBoundDepthUnit, 1, nullview);
-			targets[i]->lastBoundDepthUnit = -1;
-		}
-	}
-
 	currentDepthStencilView = targets[0]->depthStencilView[0];
 
 	renderTargetCount = count;
@@ -908,19 +927,6 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
-	if (texture->lastBoundUnit >= 0) {
-		ID3D11ShaderResourceView* nullview[1];
-		nullview[0] = nullptr;
-		context->PSSetShaderResources(texture->lastBoundUnit, 1, nullview);
-		texture->lastBoundUnit = -1;
-	}
-	if (texture->lastBoundDepthUnit >= 0) {
-		ID3D11ShaderResourceView* nullview[1];
-		nullview[0] = nullptr;
-		context->PSSetShaderResources(texture->lastBoundDepthUnit, 1, nullview);
-		texture->lastBoundDepthUnit = -1;
-	}
-
 	renderTargetCount = 1;
 	currentRenderTargetViews[0] = texture->renderTargetViewRender[face];
 	currentDepthStencilView = texture->depthStencilView[face];
