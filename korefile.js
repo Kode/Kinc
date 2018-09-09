@@ -311,7 +311,6 @@ else if (platform === Platform.Linux) {
 		addBackend('Graphics4/OpenGL');
 		project.addLib('GL');
 		project.addLib('X11');
-		project.addLib('Xfixes');
 		project.addLib('Xinerama');
 		project.addDefine('KORE_OPENGL');
 	}
