@@ -7,7 +7,6 @@
 #include <GL/glx.h>
 
 #include <X11/X.h>
-#include <X11/extensions/Xfixes.h>
 #include <X11/keysym.h>
 
 using namespace Kore;
