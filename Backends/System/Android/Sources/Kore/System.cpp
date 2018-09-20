@@ -16,7 +16,11 @@
 #include <android_native_app_glue.h>
 #include <stdlib.h>
 
-extern int kore(int argc, char** argv);
+#ifdef KOREC
+extern "C" int kore(int argc, char **argv);
+#else
+extern int kore(int argc, char **argv);
+#endif
 
 void pauseAudio();
 void resumeAudio();
