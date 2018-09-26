@@ -74,6 +74,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
 
+	backingWidth = frame.size.width * self.contentScaleFactor;
+	backingHeight = frame.size.height * self.contentScaleFactor;
+	
 	initTouches();
 
 	device = MTLCreateSystemDefaultDevice();
