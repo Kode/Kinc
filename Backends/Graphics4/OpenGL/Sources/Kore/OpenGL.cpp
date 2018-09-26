@@ -341,11 +341,11 @@ void Graphics4::begin(int window) {
 	currentWindow = window;
 	setWindowRenderTarget(window);
 
-	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
-
 #ifdef KORE_IOS
 	beginGL();
 #endif
+
+	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
 
 #ifdef KORE_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared
