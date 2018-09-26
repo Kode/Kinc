@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 
 #include "OpenGL.h"
 #include "VertexBufferImpl.h"
@@ -306,6 +306,10 @@ void swapLinuxBuffers(int window);
 void swapBuffersMac(int window);
 #endif
 
+#ifdef KORE_IOS
+void swapBuffersiOS();
+#endif
+
 bool Graphics4::swapBuffers() {
 #ifdef KORE_WINDOWS
 	for (int i = 9; i >= 0; --i) {
@@ -323,6 +327,8 @@ bool Graphics4::swapBuffers() {
     swapLinuxBuffers(0);
 #elif defined(KORE_MACOS)
     swapBuffersMac(0);
+#elif defined(KORE_IOS)
+	swapBuffersiOS();
 #endif
 	return true;
 }
