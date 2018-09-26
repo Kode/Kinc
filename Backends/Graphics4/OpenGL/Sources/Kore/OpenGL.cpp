@@ -317,7 +317,6 @@ bool Graphics4::swapBuffers() {
 			::SwapBuffers(windows[i].deviceContext);
 		}
 	}
-	wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
 #elif defined(KORE_ANDROID)
     androidSwapBuffers();
 #elif defined(KORE_LINUX)
