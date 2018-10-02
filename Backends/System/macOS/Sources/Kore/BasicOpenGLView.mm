@@ -418,7 +418,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->_tex;
-		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
+		renderPassDescriptor.colorAttachments[0].loadAction = renderTarget == nullptr ? MTLLoadActionLoad : MTLLoadActionClear;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
 		renderPassDescriptor.depthAttachment.clearDepth = 99999;
