@@ -104,6 +104,28 @@ namespace {
 		return s.state;
 	}
 
+	void initSamplers() {
+		D3D11_SAMPLER_DESC samplerDesc;
+		ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		ID3D11SamplerState* state;
+		device->CreateSamplerState(&samplerDesc, &state);
+
+		ID3D11SamplerState* states[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
+		for (int i = 0; i < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT; ++i) {
+			states[i] = state;
+		}
+
+		context->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
+		context->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
+	}
+
 	ID3D11RenderTargetView** currentRenderTargetViews =
 	    (ID3D11RenderTargetView**)malloc(sizeof(ID3D11RenderTargetView*) * D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 	int renderTargetCount = 1;
@@ -113,9 +135,9 @@ namespace {
 void Graphics4::destroy(int windowId) {}
 
 static void createBackbuffer(int antialiasingSamples) {
-	Kore::Microsoft::affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	Kore_Microsoft_affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	Kore::Microsoft::affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	Kore_Microsoft_affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
 	backBuffer->GetDesc(&backBufferDesc);
@@ -127,9 +149,9 @@ static void createBackbuffer(int antialiasingSamples) {
 	                                       D3D11_USAGE_DEFAULT, 0U, antialiasingSamples > 1 ? antialiasingSamples : 1,
 	                                       antialiasingSamples > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
 
-	Kore::Microsoft::affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	Kore_Microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	Kore::Microsoft::affirm(device->CreateDepthStencilView(
+	Kore_Microsoft_affirm(device->CreateDepthStencilView(
 	    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D),
 	    &depthStencilView));
 }
@@ -163,7 +185,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	Microsoft::affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	Kore_Microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
 	                                    &device, &featureLevel, &context));
 
 #elif KORE_OCULUS
@@ -179,7 +201,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	// m_windowBounds = m_window->Bounds;
 
 	if (swapChain != nullptr) {
-		Microsoft::affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		Kore_Microsoft_affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
 	else {
 #ifdef KORE_WINDOWS
@@ -221,17 +243,17 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Flags = 0;
 
 		IDXGIDevice1* dxgiDevice;
-		Microsoft::affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
+		Kore_Microsoft_affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
 
 		IDXGIAdapter* dxgiAdapter;
-		Microsoft::affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		Kore_Microsoft_affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
 		IDXGIFactory2* dxgiFactory;
-		Microsoft::affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
+		Kore_Microsoft_affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
 
-		Microsoft::affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
+		Kore_Microsoft_affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
 		                                                            nullptr, &swapChain));
-		Microsoft::affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		Kore_Microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #endif
 
 #elif KORE_OCULUS
@@ -265,7 +287,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
 		                                               &swapChain, &device, nullptr, &context);
 		if (result != S_OK) {
-			Microsoft::affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
+			Kore_Microsoft_affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
 			                                                &swapChain, &device, nullptr, &context));
 		}
 #endif
@@ -307,6 +329,8 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		lastSamplers[i] = samplerDesc;
 	}
 
+	initSamplers();
+
 	D3D11_BLEND_DESC blendDesc;
 	ZeroMemory(&blendDesc, sizeof(blendDesc));
 
@@ -332,11 +356,15 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	ID3D11BlendState* blending;
 	device->CreateBlendState(&blendDesc, &blending);
 
-	Microsoft::affirm(device->CreateBlendState(&blendDesc, &blending));
+	Kore_Microsoft_affirm(device->CreateBlendState(&blendDesc, &blending));
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 }
 
 void Graphics4::flush() {}
+
+namespace {
+	ID3D11ShaderResourceView* nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
+}
 
 void Graphics4::drawIndexedVertices() {
 	if (currentPipeline->tessellationControlShader != nullptr) {
@@ -347,6 +375,8 @@ void Graphics4::drawIndexedVertices() {
 	}
 	PipelineState::setConstants();
 	context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
+
+	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void Graphics4::drawIndexedVertices(int start, int count) {
@@ -358,6 +388,8 @@ void Graphics4::drawIndexedVertices(int start, int count) {
 	}
 	PipelineState::setConstants();
 	context->DrawIndexed(count, start, 0);
+
+	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
@@ -373,6 +405,8 @@ void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int c
 	}
 	PipelineState::setConstants();
 	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
+	
+	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 namespace {
@@ -433,7 +467,7 @@ void Graphics4::begin(int windowId) {
 		depthStencilView->Release();
 		renderTargetView->Release();
 		backBuffer->Release();
-		Microsoft::affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		Kore_Microsoft_affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 		createBackbuffer(antialiasingSamples());
 		restoreRenderTarget();
 	}
@@ -880,21 +914,6 @@ void Graphics4::restoreRenderTarget() {
 }
 
 void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
-	for (int i = 0; i < count; ++i) {
-		if (targets[i]->lastBoundUnit >= 0) {
-			ID3D11ShaderResourceView* nullview[1];
-			nullview[0] = nullptr;
-			context->PSSetShaderResources(targets[i]->lastBoundUnit, 1, nullview);
-			targets[i]->lastBoundUnit = -1;
-		}
-		if (targets[i]->lastBoundDepthUnit >= 0) {
-			ID3D11ShaderResourceView* nullview[1];
-			nullview[0] = nullptr;
-			context->PSSetShaderResources(targets[i]->lastBoundDepthUnit, 1, nullview);
-			targets[i]->lastBoundDepthUnit = -1;
-		}
-	}
-
 	currentDepthStencilView = targets[0]->depthStencilView[0];
 
 	renderTargetCount = count;
@@ -908,19 +927,6 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 }
 
 void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
-	if (texture->lastBoundUnit >= 0) {
-		ID3D11ShaderResourceView* nullview[1];
-		nullview[0] = nullptr;
-		context->PSSetShaderResources(texture->lastBoundUnit, 1, nullview);
-		texture->lastBoundUnit = -1;
-	}
-	if (texture->lastBoundDepthUnit >= 0) {
-		ID3D11ShaderResourceView* nullview[1];
-		nullview[0] = nullptr;
-		context->PSSetShaderResources(texture->lastBoundDepthUnit, 1, nullview);
-		texture->lastBoundDepthUnit = -1;
-	}
-
 	renderTargetCount = 1;
 	currentRenderTargetViews[0] = texture->renderTargetViewRender[face];
 	currentDepthStencilView = texture->depthStencilView[face];

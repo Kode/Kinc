@@ -6,6 +6,7 @@
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Graphics1/Image.h>
 #include <Kore/Log.h>
+#include "OpenGL.h"
 
 using namespace Kore;
 
@@ -505,6 +506,8 @@ void Graphics4::Texture::_set(TextureUnit unit) {
 #else
 	glBindTexture(target, texture);
 	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, OpenGL::textureAddressingU(unit));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, OpenGL::textureAddressingV(unit));
 #endif
 }
 

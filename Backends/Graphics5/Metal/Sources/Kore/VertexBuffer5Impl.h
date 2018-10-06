@@ -19,6 +19,7 @@ namespace Kore {
 		int lastStart;
 		int lastCount;
 	public:
+		~VertexBuffer5Impl();
 		static Graphics5::VertexBuffer* current;
 	};
 }

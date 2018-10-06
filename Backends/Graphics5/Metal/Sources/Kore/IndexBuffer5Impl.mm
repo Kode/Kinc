@@ -10,7 +10,13 @@ id getMetalDevice();
 
 Graphics5::IndexBuffer* IndexBuffer5Impl::current = nullptr;
 
-IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count) {}
+IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count), mtlBuffer(0) {
+	
+}
+
+IndexBuffer5Impl::~IndexBuffer5Impl() {
+	mtlBuffer = 0;
+}
 
 Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffer5Impl(indexCount) {
 	this->gpuMemory = gpuMemory;

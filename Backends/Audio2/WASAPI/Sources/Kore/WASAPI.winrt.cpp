@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Audio2/Audio.h>
+#include <Kore/Error.h>
 #include <Kore/Log.h>
 #include <Kore/SystemMicrosoft.h>
 #include <Kore/Threads/Thread.h>
@@ -121,9 +122,9 @@ namespace {
 		}
 
 		bufferFrames = 0;
-		Kore::Microsoft::affirm(audioClient->GetBufferSize(&bufferFrames));
-		Kore::Microsoft::affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
-		Kore::Microsoft::affirm(audioClient->SetEventHandle(bufferEndEvent));
+		Kore_Microsoft_affirm(audioClient->GetBufferSize(&bufferFrames));
+		Kore_Microsoft_affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
+		Kore_Microsoft_affirm(audioClient->SetEventHandle(bufferEndEvent));
 
 #ifdef KORE_WINDOWS
 		createAndRunThread(audioThread, nullptr);
@@ -172,18 +173,18 @@ void Audio2::init() {
 	buffer.data = new u8[buffer.dataSize];
 
 #ifdef KORE_WINDOWS
-	Microsoft::affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
-	Microsoft::affirm(
+	Kore_Microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
+	Kore_Microsoft_affirm(
 	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&deviceEnumerator)));
-	Microsoft::affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
-	Microsoft::affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&audioClient)));
+	Kore_Microsoft_affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
+	Kore_Microsoft_affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&audioClient)));
 	initAudio();
 #else
 	renderer = Make<AudioRenderer>();
 
 	IActivateAudioInterfaceAsyncOperation* asyncOp;
 	Platform::String ^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
-	Kore::Microsoft::affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
+	Kore_Microsoft_affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
 	SafeRelease(&asyncOp);
 #endif
 }

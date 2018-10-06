@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const project = new Project('Kore', __dirname);
+const project = new Project('Kore');
 
 const g1 = true;
 project.addDefine('KORE_G1');
@@ -358,6 +358,7 @@ else {
 		addBackend('System/Microsoft');
 		addBackend('Graphics5/Direct3D12');
 		addBackend('Audio2/WASAPI');
+		project.addDefine('KORE_MICROSOFT');
 		project.addDefine('KORE_DIRECT3D');
 		project.addDefine('KORE_DIRECT3D12');
 	}

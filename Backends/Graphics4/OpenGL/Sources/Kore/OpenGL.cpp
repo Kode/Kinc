@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 
 #include "OpenGL.h"
 #include "VertexBufferImpl.h"
@@ -77,6 +77,9 @@ namespace {
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	void* glesDrawBuffers;
 #endif
+
+	int texModesU[256];
+	int texModesV[256];
 }
 
 void Graphics4::_resize(int window, int width, int height) {
@@ -125,6 +128,10 @@ static void initGLState(int window) {
 }
 
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+	for (int i = 0; i < 256; ++i) {
+		texModesU[i] = GL_CLAMP_TO_EDGE;
+		texModesV[i] = GL_CLAMP_TO_EDGE;
+	}
 #ifdef KORE_WINDOWS
 	initWindowsGLContext(windowId, depthBufferBits, stencilBufferBits);
 #endif
@@ -299,6 +306,10 @@ void swapLinuxBuffers(int window);
 void swapBuffersMac(int window);
 #endif
 
+#ifdef KORE_IOS
+void swapBuffersiOS();
+#endif
+
 bool Graphics4::swapBuffers() {
 #ifdef KORE_WINDOWS
 	for (int i = 9; i >= 0; --i) {
@@ -310,13 +321,14 @@ bool Graphics4::swapBuffers() {
 			::SwapBuffers(windows[i].deviceContext);
 		}
 	}
-	wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
 #elif defined(KORE_ANDROID)
     androidSwapBuffers();
 #elif defined(KORE_LINUX)
     swapLinuxBuffers(0);
 #elif defined(KORE_MACOS)
     swapBuffersMac(0);
+#elif defined(KORE_IOS)
+	swapBuffersiOS();
 #endif
 	return true;
 }
@@ -329,11 +341,11 @@ void Graphics4::begin(int window) {
 	currentWindow = window;
 	setWindowRenderTarget(window);
 
-	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
-
 #ifdef KORE_IOS
 	beginGL();
 #endif
+
+	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
 
 #ifdef KORE_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared
@@ -434,22 +446,54 @@ namespace {
 		switch (addressing) {
 		case Graphics4::Clamp:
 			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+			if (dir == Graphics4::U) {
+				texModesU[unit.unit] = GL_CLAMP_TO_EDGE;
+			}
+			else {
+				texModesV[unit.unit] = GL_CLAMP_TO_EDGE;
+			}
 			break;
 		case Graphics4::Repeat:
 			glTexParameteri(target, texDir, GL_REPEAT);
+			if (dir == Graphics4::U) {
+				texModesU[unit.unit] = GL_REPEAT;
+			}
+			else {
+				texModesV[unit.unit] = GL_REPEAT;
+			}
 			break;
 		case Graphics4::Border:
 			// unsupported
 			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+			if (dir == Graphics4::U) {
+				texModesU[unit.unit] = GL_CLAMP_TO_EDGE;
+			}
+			else {
+				texModesV[unit.unit] = GL_CLAMP_TO_EDGE;
+			}
 			break;
 		case Graphics4::Mirror:
 			// unsupported
 			glTexParameteri(target, texDir, GL_REPEAT);
+			if (dir == Graphics4::U) {
+				texModesU[unit.unit] = GL_REPEAT;
+			}
+			else {
+				texModesV[unit.unit] = GL_REPEAT;
+			}
 			break;
 		}
 		glCheckErrors();
 	}
-} // namespace
+}
+
+int OpenGL::textureAddressingU(Graphics4::TextureUnit unit) {
+	return texModesU[unit.unit];
+}
+
+int OpenGL::textureAddressingV(Graphics4::TextureUnit unit) {
+	return texModesV[unit.unit];
+}
 
 void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
 	setTextureAddressingInternal(GL_TEXTURE_2D, unit, dir, addressing);

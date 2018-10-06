@@ -11,6 +11,7 @@ namespace Kore {
 	protected:
 	public:
 		IndexBuffer5Impl(int count);
+		~IndexBuffer5Impl();
 		void unset();
 		id mtlBuffer;
 		int myCount;

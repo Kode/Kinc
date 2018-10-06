@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef __cplusplus
+
 namespace Kore {
 	typedef unsigned char u8;   // 1 Byte
 	typedef unsigned short u16; // 2 Byte
@@ -48,3 +50,17 @@ namespace Kore {
 #endif
 
 #define Noexcept throw()
+
+#define KORE_FUNC
+
+#else
+
+#define KORE_FUNC
+
+#if defined(KORE_PPC)
+#define KORE_BIG_ENDIAN
+#else
+#define KORE_LITTLE_ENDIAN
+#endif
+
+#endif

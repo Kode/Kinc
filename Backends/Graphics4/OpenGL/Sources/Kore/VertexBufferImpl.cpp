@@ -60,6 +60,10 @@ Graphics4::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& st
 
 	glGenBuffers(1, &bufferId);
 	glCheckErrors();
+	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+	glCheckErrors();
+	glBufferData(GL_ARRAY_BUFFER, myStride * myCount, nullptr, this->usage);
+	glCheckErrors();
 	data = new float[vertexCount * myStride / 4];
 }
 
@@ -69,18 +73,23 @@ Graphics4::VertexBuffer::~VertexBuffer() {
 }
 
 float* Graphics4::VertexBuffer::lock() {
+	sectionStart = 0;
+	sectionSize = myCount * myStride;
 	return data;
 }
 
 float* Graphics4::VertexBuffer::lock(int start, int count) {
+	sectionStart = start * myStride;
+	sectionSize = count * myStride;
 	u8* u8data = (u8*)data;
-	return (float*)&u8data[start * stride()];
+	return (float*)&u8data[sectionStart];
 }
 
 void Graphics4::VertexBuffer::unlock() {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
-	glBufferData(GL_ARRAY_BUFFER, myStride * myCount, data, usage);
+	u8* u8data = (u8*)data;
+	glBufferSubData(GL_ARRAY_BUFFER, sectionStart, sectionSize, u8data + sectionStart);
 	glCheckErrors();
 #ifndef NDEBUG
 	initialized = true;

@@ -6,6 +6,7 @@
 #include <Kore/Input/Surface.h>
 #include <Kore/System.h>
 #include <Kore/Graphics5/Graphics.h>
+#include <Kore/OpenGLWindow.h>
 
 namespace {
 	const int touchmaxcount = 20;
@@ -74,6 +75,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
 
+	backingWidth = frame.size.width * self.contentScaleFactor;
+	backingHeight = frame.size.height * self.contentScaleFactor;
+	
 	initTouches();
 
 	device = MTLCreateSystemDefaultDevice();
@@ -97,6 +101,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
+	
+	backingWidth = frame.size.width * self.contentScaleFactor;
+	backingHeight = frame.size.height * self.contentScaleFactor;
 
 	initTouches();
 
@@ -114,8 +121,10 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	}
 
 	glGenFramebuffersOES(1, &defaultFramebuffer);
-	glGenRenderbuffersOES(1, &colorRenderbuffer);
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
+	Kore::OpenGL::windows[0].framebuffer = defaultFramebuffer;
+	
+	glGenRenderbuffersOES(1, &colorRenderbuffer);
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
 	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, colorRenderbuffer);
 
@@ -197,8 +206,8 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 #else
 - (void)begin {
 	[EAGLContext setCurrentContext:context];
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
-	glViewport(0, 0, backingWidth, backingHeight);
+	//glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
+	//glViewport(0, 0, backingWidth, backingHeight);
 
 #ifndef KORE_TVOS
 	// Accelerometer updates

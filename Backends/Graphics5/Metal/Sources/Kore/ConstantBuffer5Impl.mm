@@ -8,6 +8,14 @@ using namespace Kore;
 
 id getMetalDevice();
 
+ConstantBuffer5Impl::ConstantBuffer5Impl() : _buffer(0) {
+	
+}
+
+ConstantBuffer5Impl::~ConstantBuffer5Impl() {
+	_buffer = 0;
+}
+
 Graphics5::ConstantBuffer::ConstantBuffer(int size) {
 	mySize = size;
 	data = nullptr;

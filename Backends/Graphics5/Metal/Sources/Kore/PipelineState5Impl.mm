@@ -62,12 +62,14 @@ namespace {
 	}
 }
 
-PipelineState5Impl::PipelineState5Impl() : _pipeline(nullptr) {
+PipelineState5Impl::PipelineState5Impl() : _pipeline(0), _reflection(0), _depthStencil(0) {
 	
 }
 
 PipelineState5Impl::~PipelineState5Impl() {
-
+	_pipeline = 0;
+	_reflection = 0;
+	_depthStencil = 0;
 }
 
 static int findAttributeIndex(NSArray<MTLVertexAttribute*>* attributes, const char* name) {
@@ -91,13 +93,17 @@ void Graphics5::PipelineState::compile() {
 	renderPipelineDesc.colorAttachments[0].destinationAlphaBlendFactor = convert(alphaBlendDestination);
 	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-	
+
 	float offset = 0;
 	MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
 
 	for (int i = 0; i < inputLayout[0]->size; ++i) {
 		int index = findAttributeIndex(renderPipelineDesc.vertexFunction.vertexAttributes, inputLayout[0]->elements[i].name);
-		
+
+		if (index < 0) {
+			fprintf(stderr, "could not find vertex attribute %s\n", inputLayout[0]->elements[i].name);
+		}
+
 		vertexDescriptor.attributes[index].bufferIndex = 0;
 		vertexDescriptor.attributes[index].offset = offset;
 

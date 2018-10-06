@@ -51,14 +51,19 @@ Graphics5::Texture::Texture(int width, int height, int depth, Format format, boo
 	create(width, height, format, true);
 }
 
+Texture5Impl::Texture5Impl() : _tex(0), _sampler(0) {
+
+}
+
 Texture5Impl::~Texture5Impl() {
-	
+	_tex = 0;
+	_sampler = 0;
 }
 
 void Texture5Impl::create(int width, int height, int format, bool writable) {
 	id<MTLDevice> device = getMetalDevice();
 
-	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
+	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert((Graphics1::Image::Format)format) width:width height:height mipmapped:NO];
 	descriptor.textureType = MTLTextureType2D;
 	descriptor.width = width;
 	descriptor.height = height;
@@ -96,7 +101,12 @@ void Graphics5::Texture::_set(TextureUnit unit) {
 }
 
 int Graphics5::Texture::stride() {
-	return width * 4;
+	if (format == Graphics1::Image::Grey8) {
+		return width;
+	}
+	else {
+		return width * 4;
+	}
 }
 
 u8* Graphics5::Texture::lock() {

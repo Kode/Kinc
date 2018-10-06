@@ -12,6 +12,7 @@ namespace Kore {
 	class Shader5Impl {
 	public:
 		Shader5Impl(void* source, int length);
+		~Shader5Impl();
 		char name[1024];
 		id mtlFunction;
 		friend class Graphics5::Program;

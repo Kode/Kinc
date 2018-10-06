@@ -2,9 +2,11 @@
 
 #include "Direct3D11.h"
 #include "PipelineStateImpl.h"
+
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/SystemMicrosoft.h>
+#include <Kore/Log.h>
 
 #include <malloc.h>
 
@@ -224,6 +226,10 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 		location.tessEvalRows = constant.rows;
 	}
 
+	if (location.vertexSize == 0 && location.fragmentSize == 0 && location.geometrySize == 0 && location.tessControlSize && location.tessEvalSize == 0) {
+		log(Warning, "Uniform %s not found.", name);
+	}
+
 	return location;
 }
 
@@ -232,6 +238,7 @@ Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name
 	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
 		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
 			unit.unit = -1;
+			log(Warning, "Sampler %s not found.", name);
 		}
 		else {
 			unit.unit = fragmentShader->textures[name];
@@ -300,19 +307,19 @@ namespace {
 
 void Graphics4::PipelineState::compile() {
 	if (vertexShader->constantsSize > 0)
-		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		Kore_Microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 		                                       &vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0)
-		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		Kore_Microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 		                                       &fragmentConstantBuffer));
 	if (geometryShader != nullptr && geometryShader->constantsSize > 0)
-		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		Kore_Microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 		                                       &geometryConstantBuffer));
 	if (tessellationControlShader != nullptr && tessellationControlShader->constantsSize > 0)
-		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		Kore_Microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
 		                                       nullptr, &tessControlConstantBuffer));
 	if (tessellationEvaluationShader != nullptr && tessellationEvaluationShader->constantsSize > 0)
-		Microsoft::affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		Kore_Microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
 		                                       nullptr, &tessEvalConstantBuffer));
 
 	int all = 0;
@@ -388,7 +395,7 @@ void Graphics4::PipelineState::compile() {
 		}
 	}
 
-	Microsoft::affirm(device->CreateInputLayout(vertexDesc, all, vertexShader->data, vertexShader->length, &d3d11inputLayout));
+	Kore_Microsoft_affirm(device->CreateInputLayout(vertexDesc, all, vertexShader->data, vertexShader->length, &d3d11inputLayout));
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;

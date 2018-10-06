@@ -34,8 +34,8 @@ TextureArray::TextureArray(Image** textures, int count) {
 	}
 
 	texture = nullptr;
-	Microsoft::affirm(device->CreateTexture2D(&desc, resdata, &texture));
-	Microsoft::affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, resdata, &texture));
+	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 }
 
 void TextureArrayImpl::set(TextureUnit unit) {
