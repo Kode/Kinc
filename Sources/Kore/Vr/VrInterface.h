@@ -11,6 +11,7 @@ namespace Kore {
 		void begin();
 		void beginRender(int eye);
 		void endRender(int eye);
+		SensorState getSensorState(int eye, Kore::Vector<float, 3>& headPosition);
 		SensorState getSensorState(int eye);
 		VrPoseState getController(int index);
 		void warpSwap();
