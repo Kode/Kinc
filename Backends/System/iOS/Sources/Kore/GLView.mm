@@ -1,12 +1,17 @@
-#import "GLView.h"
 #include "pch.h"
+
+#import "GLView.h"
+
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Sensor.h>
 #include <Kore/Input/Surface.h>
 #include <Kore/System.h>
 #include <Kore/Graphics5/Graphics.h>
+
+#ifdef KORE_OPENGL
 #include <Kore/OpenGLWindow.h>
+#endif
 
 namespace {
 	const int touchmaxcount = 20;
