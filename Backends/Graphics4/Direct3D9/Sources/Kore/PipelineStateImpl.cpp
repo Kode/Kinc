@@ -170,10 +170,10 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 	Microsoft::affirm(device->SetVertexShaderConstantF(halfPixelLocation, floats, 1));
 
 	DWORD flags = 0;
-	if (pipeline->colorWriteMaskRed) flags |= D3DCOLORWRITEENABLE_RED;
-	if (pipeline->colorWriteMaskGreen) flags |= D3DCOLORWRITEENABLE_GREEN;
-	if (pipeline->colorWriteMaskBlue) flags |= D3DCOLORWRITEENABLE_BLUE;
-	if (pipeline->colorWriteMaskAlpha) flags |= D3DCOLORWRITEENABLE_ALPHA;
+	if (pipeline->colorWriteMaskRed[0]) flags |= D3DCOLORWRITEENABLE_RED;
+	if (pipeline->colorWriteMaskGreen[0]) flags |= D3DCOLORWRITEENABLE_GREEN;
+	if (pipeline->colorWriteMaskBlue[0]) flags |= D3DCOLORWRITEENABLE_BLUE;
+	if (pipeline->colorWriteMaskAlpha[0]) flags |= D3DCOLORWRITEENABLE_ALPHA;
 
 	device->SetRenderState(D3DRS_COLORWRITEENABLE, flags);
 

@@ -445,9 +445,10 @@ void Graphics4::PipelineState::compile() {
 		rtbd.SrcBlendAlpha = convert(alphaBlendSource);
 		rtbd.DestBlendAlpha = convert(alphaBlendDestination);
 		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbd.RenderTargetWriteMask = (((colorWriteMaskRed ? D3D11_COLOR_WRITE_ENABLE_RED : 0) | (colorWriteMaskGreen ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
-		                              (colorWriteMaskBlue ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
-		                             (colorWriteMaskAlpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+		rtbd.RenderTargetWriteMask = (((colorWriteMaskRed[0] ? D3D11_COLOR_WRITE_ENABLE_RED : 0) |
+		                               (colorWriteMaskGreen[0] ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
+		                               (colorWriteMaskBlue[0] ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		                               (colorWriteMaskAlpha[0] ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
 
 		D3D11_BLEND_DESC blendDesc;
 		ZeroMemory(&blendDesc, sizeof(blendDesc));

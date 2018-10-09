@@ -43,10 +43,10 @@ namespace Kore {
 			BlendingOperation alphaBlendDestination;
 			// BlendingOperation alphaBlendOperation;
 
-			bool colorWriteMaskRed;
-			bool colorWriteMaskGreen;
-			bool colorWriteMaskBlue;
-			bool colorWriteMaskAlpha;
+			bool colorWriteMaskRed[8]; // Per render target
+			bool colorWriteMaskGreen[8];
+			bool colorWriteMaskBlue[8];
+			bool colorWriteMaskAlpha[8];
 
 			bool conservativeRasterization;
 
