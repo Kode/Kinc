@@ -56,6 +56,10 @@ void Kore::setFilesLocation(char* dir) {
 	fileslocation = dir;
 }
 
+char* Kore::getFilesLocation() {
+	return fileslocation;
+}
+
 #ifdef KORE_ANDROID
 namespace {
 	char* externalFilesDir;
