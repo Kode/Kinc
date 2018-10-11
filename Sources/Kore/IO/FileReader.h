@@ -49,4 +49,5 @@ namespace Kore {
 	};
 
 	void setFilesLocation(char* dir);
+	char* getFilesLocation();
 }
