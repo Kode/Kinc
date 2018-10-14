@@ -36,10 +36,10 @@ Graphics4::PipelineState::PipelineState() {
 	alphaBlendDestination = BlendZero;
 	// alphaBlendOperation = BlendingOperation.Add;
 
-	colorWriteMaskRed = true;
-	colorWriteMaskGreen = true;
-	colorWriteMaskBlue = true;
-	colorWriteMaskAlpha = true;
+	for (int i = 0; i < 8; ++i) colorWriteMaskRed[i] = true;
+	for (int i = 0; i < 8; ++i) colorWriteMaskGreen[i] = true;
+	for (int i = 0; i < 8; ++i) colorWriteMaskBlue[i] = true;
+	for (int i = 0; i < 8; ++i) colorWriteMaskAlpha[i] = true;
 
 	conservativeRasterization = false;
 }
