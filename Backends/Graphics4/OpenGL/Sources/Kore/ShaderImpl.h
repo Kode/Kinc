@@ -15,6 +15,7 @@ namespace Kore {
 		uint _glid;
 		const char* source;
 		int length;
+		bool fromSource;
 		friend class Graphics4::PipelineState;
 		friend class PipelineStateImpl;
 	};
