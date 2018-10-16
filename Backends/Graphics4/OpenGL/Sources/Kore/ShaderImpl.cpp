@@ -22,10 +22,8 @@ ShaderImpl::ShaderImpl(void* data, int length) : length(length), _glid(0), fromS
 ShaderImpl::ShaderImpl(const char* source) : source(source), length((int)strlen(source)), _glid(0), fromSource(true) {}
 
 ShaderImpl::~ShaderImpl() {
-	if (!fromSource) {
-		delete[] source;
-		source = nullptr;
-	}
+	if (!fromSource) delete[] source;
+	source = nullptr;
 	if (_glid != 0) glDeleteShader(_glid);
 }
 
