@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 
 #include "OpenGL.h"
 #include "VertexBufferImpl.h"
@@ -306,6 +306,10 @@ void swapLinuxBuffers(int window);
 void swapBuffersMac(int window);
 #endif
 
+#ifdef KORE_IOS
+void swapBuffersiOS();
+#endif
+
 bool Graphics4::swapBuffers() {
 #ifdef KORE_WINDOWS
 	for (int i = 9; i >= 0; --i) {
@@ -317,13 +321,14 @@ bool Graphics4::swapBuffers() {
 			::SwapBuffers(windows[i].deviceContext);
 		}
 	}
-	wglMakeCurrent(windows[0].deviceContext, windows[0].glContext);
 #elif defined(KORE_ANDROID)
     androidSwapBuffers();
 #elif defined(KORE_LINUX)
     swapLinuxBuffers(0);
 #elif defined(KORE_MACOS)
     swapBuffersMac(0);
+#elif defined(KORE_IOS)
+	swapBuffersiOS();
 #endif
 	return true;
 }
@@ -336,11 +341,11 @@ void Graphics4::begin(int window) {
 	currentWindow = window;
 	setWindowRenderTarget(window);
 
-	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
-
 #ifdef KORE_IOS
 	beginGL();
 #endif
+
+	glViewport(0, 0, System::windowWidth(window), System::windowHeight(window));
 
 #ifdef KORE_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared

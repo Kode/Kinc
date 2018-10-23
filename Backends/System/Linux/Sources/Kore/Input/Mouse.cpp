@@ -51,21 +51,29 @@ bool Mouse::canLock(int windowId) {
 	return true;
 }
 
+bool _mouseHidden = false;
+
 void Mouse::show(bool truth) {
 #ifdef KORE_OPENGL
-	::Display* dpy = XOpenDisplay(0);
+	::Display* dpy = glXGetCurrentDisplay();
 	::Window win = (XID)Window::get(0)->_data.handle;
-	if (truth) {
-		XUndefineCursor(dpy, win);
-	}
-	else {
-		XColor col;
-		char data[1] = {0};
-		Pixmap blank = XCreateBitmapFromData(dpy, win, data, 1, 1);
-		Cursor cursor = XCreatePixmapCursor(dpy, blank, blank, &col, &col, 0, 0);
-		XFreePixmap(dpy, blank);
-		XDefineCursor(dpy, win, cursor);
-	}
+	if (truth && _mouseHidden)
+    {
+		//log(LogLevel::Info, "show mouse\n");
+        XUndefineCursor(dpy, win);
+		_mouseHidden = false;
+    }
+    else if (!truth && !_mouseHidden)
+    {
+		//log(LogLevel::Info, "hide mouse\n");
+        XColor col = XColor{0, 0, 0, 0, DoRed | DoGreen | DoBlue, 0};
+        char data[1] = {'\0'};
+        Pixmap blank = XCreateBitmapFromData(dpy, win, data, 1, 1);
+        Cursor cursor = XCreatePixmapCursor(dpy, blank, blank, &col, &col, 0, 0);
+        XDefineCursor(dpy, win, cursor);
+        XFreePixmap(dpy, blank);
+		_mouseHidden = true;
+    }
 #endif
 }
 

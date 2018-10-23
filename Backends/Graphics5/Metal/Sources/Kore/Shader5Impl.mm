@@ -45,4 +45,5 @@ Graphics5::Shader::Shader(void* source, int length, ShaderType type) : Shader5Im
 		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
 	}
 	mtlFunction = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
+  assert(mtlFunction);
 }
