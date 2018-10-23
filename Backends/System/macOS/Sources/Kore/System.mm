@@ -135,13 +135,14 @@ int createWindow(Kore::WindowOptions* options) {
 	[window setAcceptsMouseMovedEvents:YES];
 	[[window contentView] addSubview:view];
 	[window center];
-	[window makeKeyAndOrderFront:nil];
 	
 	windows[windowCounter] = new Kore::Window; //new KoreWindow(window, view, options->x, options->y, width, height);
 	windows[windowCounter]->_data.handle = window;
 	windows[windowCounter]->_data.view = view;
 	::window = window;
 	::view = view;
+
+	[window makeKeyAndOrderFront:nil];
 	
 	if (options->mode == WindowModeFullscreen || options->mode == WindowModeExclusiveFullscreen) {
 		[window toggleFullScreen:nil];
