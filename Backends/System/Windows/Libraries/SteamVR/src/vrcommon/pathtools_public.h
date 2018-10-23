@@ -35,7 +35,7 @@ std::string Path_GetExtension( const std::string & sPath );
 bool Path_IsAbsolute( const std::string & sPath );
 
 /** Makes an absolute path from a relative path and a base path */
-std::string Path_MakeAbsolute( const std::string & sRelativePath, const std::string & sBasePath, char slash = 0 );
+std::string Path_MakeAbsolute( const std::string & sRelativePath, const std::string & sBasePath );
 
 /** Fixes the directory separators for the current platform.
 * If slash is unspecified the native path separator of the current platform
@@ -108,6 +108,7 @@ std::string GetUserDocumentsPath();
 //-----------------------------------------------------------------------------
 #if defined(WIN32)
 #define DYNAMIC_LIB_EXT	".dll"
+#define PROGRAM_EXT ".exe"
 #ifdef _WIN64
 #define PLATSUBDIR	"win64"
 #else
@@ -116,8 +117,10 @@ std::string GetUserDocumentsPath();
 #elif defined(OSX)
 #define DYNAMIC_LIB_EXT	".dylib"
 #define PLATSUBDIR	"osx32"
+#define PROGRAM_EXT ""
 #elif defined(LINUX)
 #define DYNAMIC_LIB_EXT	".so"
+#define PROGRAM_EXT ""
 #if defined( LINUX32 )
 #define PLATSUBDIR	"linux32"
 #else
