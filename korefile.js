@@ -24,8 +24,18 @@ project.addDefine('KORE_A2');
 
 let a3 = false;
 
+// Setting lz4x to false adds a BSD 2-Clause licensed component,
+// which is a little more restrictive than Kore's zlib license.
+const lz4x = true;
+
 project.addFile('Sources/**');
-project.addExclude('Sources/Kore/IO/snappy/**');
+if (lz4x) {
+	project.addDefine('KORE_LZ4X');
+	project.addExclude('Sources/Kore/IO/lz4/**');
+}
+else {
+	project.addExclude('Sources/Kore/IO/lz4x.cpp');	
+}
 project.addIncludeDir('Sources');
 
 function addBackend(name) {

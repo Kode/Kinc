@@ -4,8 +4,11 @@
 #include <windows.h>
 #endif
 
+#ifdef KORE_LZ4X
+int LZ4_decompress_safe(const char* source, char* dest, int compressedSize, int maxOutputSize);
+#else
 #include "../IO/lz4/lz4.h"
-#include "../IO/snappy/snappy.h"
+#endif
 #include "Image.h"
 
 #include <Kore/Graphics4/Graphics.h>

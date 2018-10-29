@@ -18,7 +18,7 @@ Written and placed in the public domain by Ilya Muravyov
 #endif
 
 #define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
-#define _CRT_SECURE_NO_WARNINGS
+//#define _CRT_SECURE_NO_WARNINGS
 #define _CRT_DISABLE_PERFCRIT_LOCKS
 
 #include <stdio.h>
@@ -52,12 +52,13 @@ typedef unsigned int uint;
 
 #define COMPRESS_BOUND (16+BLOCK_SIZE+(BLOCK_SIZE/255))
 
-byte buf[BLOCK_SIZE+COMPRESS_BOUND];
+//byte buf[BLOCK_SIZE+COMPRESS_BOUND];
 
 #define HASH_LOG 18
 #define HASH_SIZE (1<<HASH_LOG)
 #define NIL (-1)
 
+#if 0
 #ifdef FORCE_UNALIGNED
 #  define load32(p) (*((const uint*)&buf[p]))
 #else
@@ -68,12 +69,14 @@ byte buf[BLOCK_SIZE+COMPRESS_BOUND];
     return x;
   }
 #endif
+#endif
 #define hash32(p) ((load32(p)*0x125A517D)>>(32-HASH_LOG))
 #define copy128(p, s) memcpy(&buf[p], &buf[s], 16)
 
 #define get_byte() buf[BLOCK_SIZE+(bp++)]
 #define put_byte(c) (buf[BLOCK_SIZE+(bsize++)]=(c))
 
+#if 0
 FILE* fin;
 FILE* fout;
 
@@ -441,18 +444,30 @@ void compress_optimal()
       fprintf(stderr, "%3d%%\r", int((_ftelli64(fin)*100)/flen));
   }
 }
+#endif
 
-int decompress()
+#include <Kore/Math/Core.h>
+
+int kread(void* dst, size_t size, const char* src, size_t* offset, size_t compressedSize) {
+	size_t realSize = Kore::min(size, compressedSize - *offset);
+	memcpy(dst, &src[*offset], realSize);
+	*offset += realSize;
+	return realSize;
+}
+
+//int decompress()
+int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int maxOutputSize)
 {
+  uint offset = 0;
 #ifdef LZ4_MAGIC
   uint magic;
-  fread(&magic, 1, sizeof(magic), fin);
+  kread(&magic, sizeof(magic), source, &offset, compressedSize);
   if (magic!=LZ4_MAGIC)
     return 2;
 #endif
 
   int bsize;
-  while (fread(&bsize, 1, sizeof(bsize), fin)>0)
+  while (kread(&bsize, sizeof(bsize), source, &offset, compressedSize) > 0)
   {
 #ifdef LZ4_MAGIC
     if (bsize==LZ4_MAGIC)
@@ -460,7 +475,7 @@ int decompress()
 #endif
 
     if (bsize<0 || bsize>COMPRESS_BOUND
-        || fread(&buf[BLOCK_SIZE], 1, bsize, fin)!=bsize)
+        || kread(&buf[BLOCK_SIZE], bsize, source, &offset, compressedSize)!=bsize)
       return 1;
 
     int p=0;
@@ -527,12 +542,13 @@ int decompress()
     if (bp!=bsize)
       return 1;
 
-    fwrite(buf, 1, p, fout);
+    //fwrite(buf, 1, p, fout);
   }
 
   return 0;
 }
 
+#if 0
 int lz4x_main(int argc, char** argv)
 {
   const clock_t start=clock();
@@ -686,3 +702,4 @@ int lz4x_main(int argc, char** argv)
 
   return 0;
 }
+#endif
