@@ -278,7 +278,9 @@ namespace {
 #endif
 
 - (void)update { // window resizes, moves and display changes (resize, depth and display config change)
-	// [super update]; //TODO: Who did this?
+#ifdef KORE_OPENGL
+	[super update];
+#endif
 }
 
 #ifndef KORE_METAL
@@ -328,6 +330,10 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 	return YES;
 }
 
+- (void)resize:(NSSize)size {
+	[self setFrameSize:size];
+}
+
 #ifdef KORE_METAL
 - (id<MTLDevice>)metalDevice {
 	return device;
@@ -339,10 +345,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 
 - (id<MTLRenderCommandEncoder>)metalEncoder {
 	return commandEncoder;
-}
-
-- (void)resize:(NSSize)size {
-	[self setFrameSize:size];
 }
 
 - (void)begin {

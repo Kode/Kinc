@@ -237,7 +237,11 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 		glStencilFunc(stencilFunc, pipeline->stencilReferenceValue, pipeline->stencilReadMask);
 	}
 
-	glColorMask(pipeline->colorWriteMaskRed, pipeline->colorWriteMaskGreen, pipeline->colorWriteMaskBlue, pipeline->colorWriteMaskAlpha);
+	#ifdef KORE_OPENGL_ES
+	glColorMask(pipeline->colorWriteMaskRed[0], pipeline->colorWriteMaskGreen[0], pipeline->colorWriteMaskBlue[0], pipeline->colorWriteMaskAlpha[0]);
+	#else
+	for (int i = 0; i < 8; ++i) glColorMaski(i, pipeline->colorWriteMaskRed[i], pipeline->colorWriteMaskGreen[i], pipeline->colorWriteMaskBlue[i], pipeline->colorWriteMaskAlpha[i]);
+	#endif
 
 	if (supportsConservativeRaster) {
 		if (pipeline->conservativeRasterization) {

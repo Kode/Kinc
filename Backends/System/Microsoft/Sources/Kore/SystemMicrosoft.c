@@ -6,6 +6,8 @@
 
 #include <Windows.h>
 
+#include <intrin.h>
+
 #include <stdio.h>
 
 #define S_OK ((HRESULT)0L)
@@ -13,6 +15,8 @@
 static void winerror(HRESULT result) {
 	LPVOID buffer = NULL;
 	DWORD dw = GetLastError();
+
+	__debugbreak();
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	if (dw != 0) {
