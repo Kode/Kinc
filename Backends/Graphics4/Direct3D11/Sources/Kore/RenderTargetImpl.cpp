@@ -313,11 +313,12 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 Graphics4::RenderTarget::~RenderTarget() {
 	for (int i = 0; i < 6; i++) {
 		if (renderTargetViewRender[i] != nullptr) renderTargetViewRender[i]->Release();
-		if (renderTargetViewSample[i] != nullptr) renderTargetViewSample[i]->Release();
+		if (renderTargetViewSample[i] != nullptr && renderTargetViewSample[i] != renderTargetViewRender[i]) renderTargetViewSample[i]->Release();
 		if (depthStencilView[i] != nullptr) depthStencilView[i]->Release();
 	}
 	if (renderTargetSRV != nullptr) renderTargetSRV->Release();
 	if (depthStencilSRV != nullptr) depthStencilSRV->Release();
+	if (textureRender != nullptr) textureRender->Release();
 }
 
 void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
