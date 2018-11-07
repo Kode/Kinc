@@ -312,6 +312,7 @@ else if (platform === Platform.Linux) {
 		project.addLib('GL');
 		project.addLib('X11');
 		project.addLib('Xinerama');
+		project.addLib('Xi');
 		project.addDefine('KORE_OPENGL');
 	}
 	else {
