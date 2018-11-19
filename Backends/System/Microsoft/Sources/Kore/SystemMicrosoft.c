@@ -50,7 +50,7 @@ void Kore_Microsoft_format(const char* format, va_list args, wchar_t* buffer) {
 	wchar_t formatw[4096];
 	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);
 
-	int bufferIndex = 0;
+	size_t bufferIndex = 0;
 	buffer[bufferIndex] = 0;
 	printf("");
 	for (int i = 0; formatw[i] != 0; ++i) {

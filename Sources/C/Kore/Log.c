@@ -28,7 +28,7 @@ void Kore_logArgs(Kore_LogLevel level, const char* format, va_list args) {
 	OutputDebugString(buffer);
 #ifdef KORE_WINDOWS
 	DWORD written;
-	WriteConsole(GetStdHandle(level == KORE_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, wcslen(buffer), &written, NULL);
+	WriteConsole(GetStdHandle(level == KORE_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)wcslen(buffer), &written, NULL);
 #endif
 
 #else

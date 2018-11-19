@@ -265,7 +265,7 @@ namespace {
 		wchar_t buffer[11];
 		BYTE state[256];
 		GetKeyboardState(state);
-		ToUnicode(wParam, (lParam >> 8) & 0xFFFFFF00, state, buffer, 10, 0);
+		ToUnicode((UINT)wParam, (lParam >> 8) & 0xFFFFFF00, state, buffer, 10, 0);
 		return buffer[0];
 	}
 }
@@ -426,7 +426,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
 						EmptyClipboard();
-						int size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+						size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void* data = GlobalLock(handle);
 						memcpy(data, wtext, size);
@@ -443,7 +443,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
 						EmptyClipboard();
-						int size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+						size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void* data = GlobalLock(handle);
 						memcpy(data, wtext, size);
