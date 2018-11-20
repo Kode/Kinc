@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
@@ -72,21 +73,11 @@ namespace {
 	Atom wmDeleteMessage;
 }
 
-#ifdef KORE_OPENGL
 namespace windowimpl {
-	/*struct KoreWindow : public Kore::KoreWindowBase {
-		Window handle;
-		GLXContext context;
-
-		KoreWindow(Window handle, GLXContext context, int x, int y, int width, int height) : KoreWindowBase(x, y, width, height) {
-			this->handle = handle;
-			this->context = context;
-		}
-	};*/
-
 	Kore::Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	int windowCounter = -1;
 
+#ifdef KORE_OPENGL
 	int idFromWindow(Window window) {
 		for (int windowIndex = 0; windowIndex < sizeof(windows) / sizeof(windows[0]); ++windowIndex) {
 			if (windows[windowIndex]->_data.handle == window) {
@@ -96,8 +87,8 @@ namespace windowimpl {
 
 		return -1;
 	}
-}
 #endif
+}
 
 #ifndef KORE_OPENGL
 xcb_connection_t* connection;
@@ -375,7 +366,22 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 	xcb_map_window(connection, window);
 	xcb_flush(connection);
-	return 1;
+
+	windowimpl::windows[0] = new Kore::Window; //new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
+	windowimpl::windows[0]->_data.width = width;
+	windowimpl::windows[0]->_data.height = height;
+	windowimpl::windows[0]->_data.handle = win;
+
+	if (windowMode == Kore::WindowModeFullscreen || windowMode == Kore::WindowModeExclusiveFullscreen) {
+		windowimpl::windows[0]->_data.mode = windowMode;
+	}
+	else {
+		windowimpl::windows[0]->_data.mode = 0;
+	}
+
+	windowimpl::windowCounter = 1;
+
+	return 0;
 #endif
 }
 
@@ -386,14 +392,6 @@ namespace Kore {
 #else
 		int windowCount() {
 			return 1;
-		}
-
-		int windowWidth(int id) {
-			return ::windowWidth;
-		}
-
-		int windowHeight(int id) {
-			return ::windowHeight;
 		}
 
 		void* windowHandle(int id) {

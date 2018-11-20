@@ -220,7 +220,11 @@ void Graphics5::PipelineState::compile() {
 	}
 
 	VkVertexInputBindingDescription vi_bindings[1];
+#ifdef KORE_WINDOWS
 	VkVertexInputAttributeDescription* vi_attrs = (VkVertexInputAttributeDescription*)alloca(sizeof(VkVertexInputAttributeDescription) * inputLayout[0]->size);
+#else
+	VkVertexInputAttributeDescription vi_attrs[inputLayout[0]->size];
+#endif
 
 	VkPipelineVertexInputStateCreateInfo vi = {};
 	vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
