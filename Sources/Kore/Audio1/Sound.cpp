@@ -24,9 +24,9 @@ namespace {
 		u8* data;
 	};
 
-	void checkFOURCC(u8*& data, const char* fourcc) {
+	void checkFOURCC(u8*& data, const char* fourcc, const char* filename) {
 		for (int i = 0; i < 4; ++i) {
-			Kore::affirm(*data == fourcc[i]);
+			Kore::affirm(*data == fourcc[i], "Corrupt wav file: %s", filename);
 			++data;
 		}
 	}
@@ -115,10 +115,10 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 			u8* filedata = (u8*)file.readAll();
 			u8* data = filedata;
 
-			checkFOURCC(data, "RIFF");
+			checkFOURCC(data, "RIFF", filename);
 			u32 filesize = Reader::readU32LE(data);
 			data += 4;
-			checkFOURCC(data, "WAVE");
+			checkFOURCC(data, "WAVE", filename);
 			while (data + 8 - filedata < (spint)filesize) {
 				readChunk(data, wave);
 			}
