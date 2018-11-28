@@ -11,6 +11,8 @@
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics4/TextureArray.h>
 
+#include <VersionHelpers.h>
+
 #undef CreateWindow
 
 #include <Kore/System.h>
@@ -219,7 +221,12 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
+		if (IsWindows8OrGreater()) {
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		}
+		else {
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		}
 		swapChainDesc.Flags = 0;
 		swapChainDesc.OutputWindow = Window::get(windowId)->_data.handle;
 		swapChainDesc.Windowed = true;
