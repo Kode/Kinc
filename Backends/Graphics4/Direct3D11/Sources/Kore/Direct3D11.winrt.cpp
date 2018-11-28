@@ -156,6 +156,7 @@ static void createBackbuffer(int antialiasingSamples) {
 	    &depthStencilView));
 }
 
+#ifdef KORE_WINDOWS
 static bool isWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor) {
 	OSVERSIONINFOEXW osvi = {sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0};
 	DWORDLONG const dwlConditionMask =
@@ -184,6 +185,7 @@ static bool isWindows8OrGreater() {
 static bool isWindows10OrGreater() {
 	return isWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0);
 }
+#endif
 
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
 #ifdef KORE_VR
