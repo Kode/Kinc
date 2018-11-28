@@ -598,6 +598,28 @@ void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filte
 #endif
 }
 
+void Graphics4::setTextureCompareMode(TextureUnit texunit, bool enabled) {
+	if (texunit.unit < 0) return;
+	if (enabled) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	}
+}
+
+void Graphics4::setCubeMapCompareMode(TextureUnit texunit, bool enabled) {
+	if (texunit.unit < 0) return;
+	if (enabled) {
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	}
+}
+
 void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
 	// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
