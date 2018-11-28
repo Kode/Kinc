@@ -224,8 +224,11 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
-		if (IsWindows8OrGreater()) {
+		if (IsWindows10OrGreater()) {
 			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		}
+		else if (IsWindows8OrGreater()) {
+			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		}
 		else {
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
