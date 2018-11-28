@@ -11,8 +11,6 @@
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics4/TextureArray.h>
 
-#include <VersionHelpers.h>
-
 #undef CreateWindow
 
 #include <Kore/System.h>
@@ -158,6 +156,35 @@ static void createBackbuffer(int antialiasingSamples) {
 	    &depthStencilView));
 }
 
+static bool isWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor) {
+	OSVERSIONINFOEXW osvi = {sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0};
+	DWORDLONG const dwlConditionMask =
+	    VerSetConditionMask(VerSetConditionMask(VerSetConditionMask(0, VER_MAJORVERSION, VER_GREATER_EQUAL), VER_MINORVERSION, VER_GREATER_EQUAL),
+	                        VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+
+	osvi.dwMajorVersion = wMajorVersion;
+	osvi.dwMinorVersion = wMinorVersion;
+	osvi.wServicePackMajor = wServicePackMajor;
+
+	return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
+}
+
+#ifndef _WIN32_WINNT_WIN8
+#define _WIN32_WINNT_WIN8 0x0602
+#endif
+
+#ifndef _WIN32_WINNT_WIN10
+#define _WIN32_WINNT_WIN10 0x0A00
+#endif
+
+static bool isWindows8OrGreater() {
+	return isWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN8), LOBYTE(_WIN32_WINNT_WIN8), 0);
+}
+
+static bool isWindows10OrGreater() {
+	return isWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0);
+}
+
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
 #ifdef KORE_VR
 	vsync = false;
@@ -224,10 +251,10 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
-		if (IsWindows10OrGreater()) {
+		if (isWindows10OrGreater()) {
 			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		}
-		else if (IsWindows8OrGreater()) {
+		else if (isWindows8OrGreater()) {
 			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		}
 		else {
