@@ -202,6 +202,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	// m_windowBounds = m_window->Bounds;
 
+	const int _DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL = 3;
+	const int _DXGI_SWAP_EFFECT_FLIP_DISCARD = 4;
+
 	if (swapChain != nullptr) {
 		Kore_Microsoft_affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
@@ -222,7 +225,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
 		if (IsWindows8OrGreater()) {
-			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		}
 		else {
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
