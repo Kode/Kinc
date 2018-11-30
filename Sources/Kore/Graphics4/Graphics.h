@@ -173,6 +173,8 @@ namespace Kore {
 		void setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter);
+		void setTextureCompareMode(TextureUnit texunit, bool enabled);
+		void setCubeMapCompareMode(TextureUnit texunit, bool enabled);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
 
 		bool nonPow2TexturesSupported();

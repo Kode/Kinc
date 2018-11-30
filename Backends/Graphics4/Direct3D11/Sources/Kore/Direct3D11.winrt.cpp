@@ -938,6 +938,25 @@ void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filte
 	Graphics4::setTextureMipmapFilter(texunit, filter);
 }
 
+void Graphics4::setTextureCompareMode(TextureUnit unit, bool enabled) {
+	if (unit.unit < 0) return;
+
+	if (enabled) {
+		lastSamplers[unit.unit].ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+		lastSamplers[unit.unit].Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	}
+	else {
+		lastSamplers[unit.unit].ComparisonFunc = D3D11_COMPARISON_NEVER;
+	}
+
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
+	context->PSSetSamplers(unit.unit, 1, &sampler);
+}
+
+void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
+	Graphics4::setTextureCompareMode(unit, enabled);
+}
+
 bool Graphics4::renderTargetsInvertedY() {
 	return false;
 }
