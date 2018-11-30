@@ -53,17 +53,19 @@ namespace {
 			return 4;
 		}
 	}
+
+	bool isHdr(Graphics4::Image::Format format) {
+		return format == Graphics4::Image::RGBA128 || format == Graphics4::Image::RGBA64 ||
+			   format == Graphics4::Image::A32 || format == Graphics4::Image::A16;
+	}
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
 	setId();
 	stage = 0;
-	mipmap = true;
 	texWidth = width;
 	texHeight = height;
 	rowPitch = 0;
-	bool isHdr = this->format == Graphics4::Image::RGBA128 || this->format == Graphics4::Image::RGBA64 || this->format == Graphics4::Image::A32 ||
-	             this->format == Graphics4::Image::A16;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -78,7 +80,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = isHdr ? (void*)this->hdrData : this->data;
+	data.pSysMem = isHdr(this->format) ? (void*)this->hdrData : this->data;
 	data.SysMemPitch = width * formatByteSize(this->format);
 	data.SysMemSlicePitch = 0;
 
@@ -89,7 +91,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	computeView = nullptr;
 
 	if (!readable) {
-		if (isHdr) {
+		if (isHdr(this->format)) {
 			delete[] this->hdrData;
 			this->hdrData = nullptr;
 		}
@@ -106,7 +108,6 @@ void Graphics4::Texture::init3D(bool readable) {
 
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 	stage = 0;
-	mipmap = true;
 	texWidth = width;
 	texHeight = height;
 
@@ -147,6 +148,8 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 
 Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
+TextureImpl::TextureImpl() : hasMipmaps(false) {}
+
 TextureImpl::~TextureImpl() {
 	unset();
 	if (view != nullptr) {
@@ -161,7 +164,7 @@ TextureImpl::~TextureImpl() {
 }
 
 void TextureImpl::unmipmap() {
-	mipmap = false;
+	hasMipmaps = false;
 }
 
 void Graphics4::Texture::_set(TextureUnit unit) {
@@ -200,11 +203,56 @@ int Graphics4::Texture::stride() {
 	return rowPitch;
 }
 
+void TextureImpl::enableMipmaps(int texWidth, int texHeight, int format) {
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = texWidth;
+	desc.Height = texHeight;
+	desc.MipLevels = 0;
+	desc.ArraySize = 1;
+	desc.Format = convertFormat((Graphics4::Image::Format)format);
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+	ID3D11Texture2D* mipMappedTexture;
+	ID3D11ShaderResourceView* mipMappedView;
+	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &mipMappedTexture));
+	Kore_Microsoft_affirm(device->CreateShaderResourceView(mipMappedTexture, nullptr, &mipMappedView));
+
+	D3D11_BOX sourceRegion;
+	sourceRegion.left = 0;
+	sourceRegion.right = texWidth;
+	sourceRegion.top = 0;
+	sourceRegion.bottom = texHeight;
+	sourceRegion.front = 0;
+	sourceRegion.back = 1;
+	context->CopySubresourceRegion(mipMappedTexture, 0, 0, 0, 0, texture, 0, &sourceRegion);
+
+	if (texture != nullptr) texture->Release();
+	texture = mipMappedTexture;
+
+	if (view != nullptr) view->Release();
+	view = mipMappedView;
+
+	hasMipmaps = true;
+}
+
 void Graphics4::Texture::generateMipmaps(int levels) {
-	// context->GenerateMips(view);
+	if (!hasMipmaps) enableMipmaps(texWidth, texHeight, format);
+	context->GenerateMips(view);
 }
 
 void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
-	// D3D11CalcSubresource();
-	// context->UpdateSubresource();
+	if (!hasMipmaps) enableMipmaps(texWidth, texHeight, format);
+	D3D11_BOX dstRegion;
+	dstRegion.left = 0;
+	dstRegion.right = mipmap->texWidth;
+	dstRegion.top = 0;
+	dstRegion.bottom = mipmap->texHeight;
+	dstRegion.front = 0;
+	dstRegion.back = 1;
+	context->UpdateSubresource(texture, level, &dstRegion, isHdr(mipmap->format) ? (void*)mipmap->hdrData : mipmap->data, mipmap->texWidth * formatByteSize(mipmap->format), 0);
 }
