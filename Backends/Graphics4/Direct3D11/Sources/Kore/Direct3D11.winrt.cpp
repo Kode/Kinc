@@ -803,6 +803,7 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter fi
 	}
 
 	lastSamplers[unit.unit].Filter = d3d11filter;
+	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
@@ -866,6 +867,7 @@ void Graphics4::setTextureMinificationFilter(TextureUnit unit, TextureFilter fil
 	}
 
 	lastSamplers[unit.unit].Filter = d3d11filter;
+	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
@@ -929,6 +931,7 @@ void Graphics4::setTextureMipmapFilter(TextureUnit unit, MipmapFilter filter) {
 	}
 
 	lastSamplers[unit.unit].Filter = d3d11filter;
+	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
