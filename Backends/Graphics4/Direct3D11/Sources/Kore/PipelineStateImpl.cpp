@@ -137,11 +137,10 @@ void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 
 	context->VSSetShader((ID3D11VertexShader*)pipeline->vertexShader->shader, nullptr, 0);
 	context->PSSetShader((ID3D11PixelShader*)pipeline->fragmentShader->shader, nullptr, 0);
-
-	if (pipeline->geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)pipeline->geometryShader->shader, nullptr, 0);
-	if (pipeline->tessellationControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)pipeline->tessellationControlShader->shader, nullptr, 0);
-	if (pipeline->tessellationEvaluationShader != nullptr)
-		context->DSSetShader((ID3D11DomainShader*)pipeline->tessellationEvaluationShader->shader, nullptr, 0);
+	
+	context->GSSetShader(pipeline->geometryShader != nullptr ? (ID3D11GeometryShader*) pipeline->geometryShader->shader : nullptr, nullptr, 0);
+	context->HSSetShader(pipeline->tessellationControlShader != nullptr ? (ID3D11HullShader*) pipeline->tessellationControlShader->shader : nullptr, nullptr, 0);
+	context->DSSetShader(pipeline->tessellationEvaluationShader != nullptr ? (ID3D11DomainShader*) pipeline->tessellationEvaluationShader->shader : nullptr, nullptr, 0);		
 
 	context->IASetInputLayout(pipeline->d3d11inputLayout);
 }
