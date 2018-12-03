@@ -865,6 +865,14 @@ void Graphics2::Graphics2::setProjection() {
 	textPainter->setProjection(projectionMatrix);
 }
 
+Kore::mat3 Graphics2::Graphics2::rotation(float angle, float centerx, float centery) {
+	return (mat3::Translation(centerx, centery) * mat3::RotationZ(angle)) * mat3::Translation(-centerx, -centery) * transformation;
+}
+
+void Graphics2::Graphics2::pushRotation(float angle, float centerx, float centery) {
+	transformation = rotation(angle, centerx, centery);
+}
+
 void Graphics2::Graphics2::drawImage(Graphics4::Texture* img, float x, float y) {
 	coloredPainter->end();
 	textPainter->end();
