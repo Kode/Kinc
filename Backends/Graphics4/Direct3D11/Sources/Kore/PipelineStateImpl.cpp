@@ -430,6 +430,13 @@ void Graphics4::PipelineState::compile() {
 		device->CreateRasterizerState(&rasterDesc, &rasterizerState);
 		rasterDesc.ScissorEnable = TRUE;
 		device->CreateRasterizerState(&rasterDesc, &rasterizerStateScissor);
+
+		// We need d3d11_3 for conservative raster
+		// D3D11_RASTERIZER_DESC2 rasterDesc;
+		// rasterDesc.ConservativeRaster = conservativeRasterization ? D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		// device->CreateRasterizerState2(&rasterDesc, &rasterizerState);
+		// rasterDesc.ScissorEnable = TRUE;
+		// device->CreateRasterizerState2(&rasterDesc, &rasterizerStateScissor);
 	}
 
 	{
