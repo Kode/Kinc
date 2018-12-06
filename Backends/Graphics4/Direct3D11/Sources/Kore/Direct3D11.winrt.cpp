@@ -254,10 +254,12 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
 		if (isWindows10OrGreater()) {
-			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_DISCARD;
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+			//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		}
 		else if (isWindows8OrGreater()) {
-			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+			//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		}
 		else {
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
