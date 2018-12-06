@@ -205,7 +205,7 @@ void Graphics4::Texture::_setImage(TextureUnit unit) {
 		du.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
 		du.Texture3D.MipSlice = 0;
 		du.Texture3D.FirstWSlice = 0;
-		du.Texture3D.WSize = texWidth;
+		du.Texture3D.WSize = -1;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE3D;
 		Kore_Microsoft_affirm(device->CreateUnorderedAccessView(texture3D, &du, &computeView));
 	}
