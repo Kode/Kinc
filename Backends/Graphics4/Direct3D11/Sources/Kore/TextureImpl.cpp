@@ -88,8 +88,6 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, &data, &texture));
 	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
-	computeView = nullptr;
-
 	if (!readable) {
 		if (isHdr(this->format)) {
 			delete[] this->hdrData;
@@ -136,7 +134,6 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
-	computeView = nullptr;
 	if (format == Image::RGBA128) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
 		du.Format = desc.Format;
@@ -146,9 +143,31 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	}
 }
 
-Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
+Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+	stage = 0;
+	texWidth = width;
+	texHeight = height;
+	texDepth = depth;
+	hasMipmaps = true;
 
-TextureImpl::TextureImpl() : hasMipmaps(false) {}
+	D3D11_TEXTURE3D_DESC desc;
+	desc.Width = width;
+	desc.Height = height;
+	desc.Depth = depth;
+	desc.MipLevels = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.CPUAccessFlags = 0;
+
+	texture3D = nullptr;
+	Kore_Microsoft_affirm(device->CreateTexture3D(&desc, nullptr, &texture3D));
+	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
+}
+
+TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
 
 TextureImpl::~TextureImpl() {
 	unset();
@@ -179,6 +198,20 @@ void Graphics4::Texture::_set(TextureUnit unit) {
 	setTextures[stage] = this;
 }
 
+void Graphics4::Texture::_setImage(TextureUnit unit) {
+	if (unit.unit < 0) return;
+	if (computeView == nullptr) {
+		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
+		du.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+		du.Texture3D.MipSlice = 0;
+		du.Texture3D.FirstWSlice = 0;
+		du.Texture3D.WSize = -1;
+		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE3D;
+		Kore_Microsoft_affirm(device->CreateUnorderedAccessView(texture3D, &du, &computeView));
+	}
+	context->OMSetRenderTargetsAndUnorderedAccessViews(0, nullptr, nullptr, unit.unit, 1, &computeView, nullptr);
+}
+
 void TextureImpl::unset() {
 	if (setTextures[stage] == this) {
 
@@ -197,7 +230,19 @@ void Graphics4::Texture::unlock() {
 	context->Unmap(texture, 0);
 }
 
-void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
+void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+	if (renderView == nullptr) {
+		texDepth > 1 ? 
+			Kore_Microsoft_affirm(device->CreateRenderTargetView(texture3D, 0, &renderView)) :
+			Kore_Microsoft_affirm(device->CreateRenderTargetView(texture, 0, &renderView));
+	}
+	static float clearColor[4];
+	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
+	clearColor[1] = ((color & 0x0000ff00) >> 8) / 255.0f;
+	clearColor[2] = (color & 0x000000ff) / 255.0f;
+	clearColor[3] = ((color & 0xff000000) >> 24) / 255.0f;
+	context->ClearRenderTargetView(renderView, clearColor);
+}
 
 int Graphics4::Texture::stride() {
 	return rowPitch;

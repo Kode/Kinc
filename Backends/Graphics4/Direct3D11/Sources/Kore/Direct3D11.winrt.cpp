@@ -1031,7 +1031,7 @@ void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
 }
 
 void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
-	// TODO
+	texture->_setImage(unit);
 }
 
 uint queryCount = 0;
