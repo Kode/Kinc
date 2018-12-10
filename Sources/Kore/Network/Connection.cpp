@@ -87,7 +87,7 @@ void Connection::listen() {
 	acceptConns = true;
 }
 
-void Connection::connect(unsigned address, int port) {
+int Connection::connect(unsigned address, int port) {
 	for (int id = 0; id < maxConns; ++id) {
 		if (states[id] == Disconnected) {
 
@@ -99,17 +99,18 @@ void Connection::connect(unsigned address, int port) {
 			lastPng = 0;                   // Force ping immediately
 			activeConns++;
 
-			return;
+			return id;
 		}
 	}
 
 	// All connection slots used?
 	// Just returning a bool value could be seen as misleading since connect == true would not mean that an end point has been reached
 	assert(false);
+	return -1;
 }
 
-void Connection::connect(const char* url, int port) {
-	connect(socket.urlToInt(url, port), port);
+int Connection::connect(const char* url, int port) {
+	return connect(socket.urlToInt(url, port), port);
 }
 
 void Connection::send(const u8* data, int size, int connId, bool reliable) {
@@ -183,7 +184,7 @@ int Connection::receive(u8* data, int& id) {
 			// Unknown sender?
 			if (id < 0) {
 				if (acceptConns && activeConns < maxConns)
-					connect(recAddr, recPort);
+					id = connect(recAddr, recPort);
 				else
 					continue;
 			}
