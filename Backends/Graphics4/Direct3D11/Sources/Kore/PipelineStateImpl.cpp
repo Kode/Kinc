@@ -235,7 +235,8 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
 	char unitName[64];
 	int unitOffset = 0;
-	int len = min(strlen(name), 63);
+	int len = strlen(name);
+	if (len > 63) len = 63;
 	strncpy(unitName, name, len + 1);
 	if (unitName[len - 1] == ']') { // Check for array - mySampler[2]
 		unitOffset = int(unitName[len - 2] - '0'); // Array index is unit offset
