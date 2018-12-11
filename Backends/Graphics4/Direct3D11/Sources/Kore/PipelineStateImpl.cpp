@@ -233,19 +233,28 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 }
 
 Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
+	char unitName[64];
+	int unitOffset = 0;
+	int len = min(strlen(name), 63);
+	strncpy(unitName, name, len + 1);
+	if (unitName[len - 1] == ']') { // Check for array - mySampler[2]
+		unitOffset = int(unitName[len - 2] - '0'); // Array index is unit offset
+		unitName[len - 3] = 0; // Strip array from name
+	}
+	
 	TextureUnit unit;
-	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
-		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
+	if (vertexShader->textures.find(unitName) == vertexShader->textures.end()) {
+		if (fragmentShader->textures.find(unitName) == fragmentShader->textures.end()) {
 			unit.unit = -1;
-			log(Warning, "Sampler %s not found.", name);
+			log(Warning, "Sampler %s not found.", unitName);
 		}
 		else {
-			unit.unit = fragmentShader->textures[name];
+			unit.unit = fragmentShader->textures[unitName] + unitOffset;
 			unit.vertex = false;
 		}
 	}
 	else {
-		unit.unit = vertexShader->textures[name];
+		unit.unit = vertexShader->textures[unitName] + unitOffset;
 		unit.vertex = true;
 	}
 	return unit;
