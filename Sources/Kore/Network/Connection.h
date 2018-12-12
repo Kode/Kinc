@@ -25,8 +25,8 @@ namespace Kore {
 		~Connection();
 
 		void listen();
-		void connect(unsigned address, int port);
-		void connect(const char* url, int port);
+		int connect(unsigned address, int port);
+		int connect(const char* url, int port);
 		void send(const u8* data, int size, int connId = -1, bool reliable = true);
 		int receive(u8* data, int& fromId);
 
