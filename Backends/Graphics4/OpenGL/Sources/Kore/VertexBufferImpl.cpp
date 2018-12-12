@@ -211,8 +211,9 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			break;
 		}
 	}
-	for (int index = actualIndex; index < 16; ++index) {
-		glDisableVertexAttribArray(offset + index); // TODO: Can cause problems, please anaylze
+	int count = 16 - offset;
+	for (int index = actualIndex; index < count; ++index) {
+		glDisableVertexAttribArray(offset + index);
 		glCheckErrors();
 	}
 	return actualIndex;
