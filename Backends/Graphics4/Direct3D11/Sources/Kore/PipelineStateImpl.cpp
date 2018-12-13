@@ -378,6 +378,18 @@ void Graphics4::PipelineState::compile() {
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
+			case Short2NormVertexData:
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
+				vertexDesc[i].Format = DXGI_FORMAT_R16G16_SNORM;
+				++i;
+				break;
+			case Short4NormVertexData:
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
+				vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
+				++i;
+				break;
 			case ColorVertexData:
 				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
 				              inputLayout[stream]->instanced);
