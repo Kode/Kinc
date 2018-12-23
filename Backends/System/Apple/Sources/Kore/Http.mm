@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Http.h"
+#include <Kore/Networks/Http.h>
 
 #import <Foundation/Foundation.h>
 
@@ -56,7 +56,7 @@
 
 using namespace Kore;
 
-void Kore::httpRequest(const char* url, const char* path, const char* data, int port, bool secure, HttpMethod method, HttpCallback callback,
+void Kore::httpRequest(const char* url, const char* path, const char* data, int port, bool secure, HttpMethod method, const char* header, HttpCallback callback,
                        void* callbackdata) {
 	NSString* urlstring = secure ? @"https://" : @"http://";
 	urlstring = [urlstring stringByAppendingString:[NSString stringWithUTF8String:url]];
