@@ -47,6 +47,7 @@ if (platform === Platform.Windows) {
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');
 	project.addDefine('_WINSOCK_DEPRECATED_NO_WARNINGS');
 	project.addLib('ws2_32');
+	project.addLib('Winhttp');
 
 	project.addFile('Backends/System/Windows/Libraries/DirectShow/**');
 	project.addIncludeDir('Backends/System/Windows/Libraries/DirectShow/BaseClasses');

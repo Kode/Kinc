@@ -2,7 +2,7 @@
 
 #include "Http.h"
 
-#if !defined KORE_MACOS && !defined KORE_IOS
+#if !defined KORE_MACOS && !defined KORE_IOS && !defined KORE_WINDOWS
 
 using namespace Kore;
 
