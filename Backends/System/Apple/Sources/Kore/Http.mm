@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <Kore/Networks/Http.h>
+#include <Kore/Network/Http.h>
 
 #import <Foundation/Foundation.h>
 
