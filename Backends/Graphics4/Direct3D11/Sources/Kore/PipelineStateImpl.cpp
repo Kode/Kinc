@@ -235,7 +235,7 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
 	char unitName[64];
 	int unitOffset = 0;
-	int len = strlen(name);
+	size_t len = strlen(name);
 	if (len > 63) len = 63;
 	strncpy(unitName, name, len + 1);
 	if (unitName[len - 1] == ']') { // Check for array - mySampler[2]
@@ -280,9 +280,9 @@ namespace {
 			// SPIRV_CROSS uses TEXCOORD_0_0,... for split up matrices
 			int stringStart = stringCacheIndex;
 			strcpy(&stringCache[stringCacheIndex], "TEXCOORD");
-			stringCacheIndex += strlen("TEXCOORD");
+			stringCacheIndex += (int)strlen("TEXCOORD");
 			_itoa(attributeIndex, &stringCache[stringCacheIndex], 10);
-			stringCacheIndex += strlen(&stringCache[stringCacheIndex]);
+			stringCacheIndex += (int)strlen(&stringCache[stringCacheIndex]);
 			strcpy(&stringCache[stringCacheIndex], "_");
 			stringCacheIndex += 2;
 			vertexDesc.SemanticName = &stringCache[stringStart];
