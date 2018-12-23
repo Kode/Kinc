@@ -90,6 +90,8 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 		} while (dwSize > 0);
 	}
 
+	returnData[returnDataIndex] = 0;
+
 	if (!bResults) log(Error, "Error %d has occurred.\n", GetLastError());
 
 	if (hRequest) WinHttpCloseHandle(hRequest);
