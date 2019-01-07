@@ -4,6 +4,7 @@
 #include <Kore/Network/Http.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 using namespace Kore;
 
