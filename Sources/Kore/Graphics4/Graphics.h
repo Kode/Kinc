@@ -139,6 +139,7 @@ namespace Kore {
 		void setTextureArray(TextureUnit unit, TextureArray* array);
 		void setImageTexture(TextureUnit unit, Texture* texture);
 		void setPipeline(PipelineState* pipeline);
+		void setStencilReferenceValue(int value);
 
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
@@ -160,7 +161,7 @@ namespace Kore {
 
 		void _resize(int window, int width, int height);
 		void _changeFramebuffer(int window, FramebufferOptions* frame);
-		
+
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);
 		void disableScissor();

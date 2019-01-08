@@ -5,6 +5,7 @@
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
+#include <Kore/OpenGL.h>
 #include <Kore/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -205,33 +206,7 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 	}
 	else {
 		glEnable(GL_STENCIL_TEST);
-		int stencilFunc = 0;
-		switch (pipeline->stencilMode) {
-		case Graphics4::ZCompareAlways:
-			stencilFunc = GL_ALWAYS;
-			break;
-		case Graphics4::ZCompareEqual:
-			stencilFunc = GL_EQUAL;
-			break;
-		case Graphics4::ZCompareGreater:
-			stencilFunc = GL_GREATER;
-			break;
-		case Graphics4::ZCompareGreaterEqual:
-			stencilFunc = GL_GEQUAL;
-			break;
-		case Graphics4::ZCompareLess:
-			stencilFunc = GL_LESS;
-			break;
-		case Graphics4::ZCompareLessEqual:
-			stencilFunc = GL_LEQUAL;
-			break;
-		case Graphics4::ZCompareNever:
-			stencilFunc = GL_NEVER;
-			break;
-		case Graphics4::ZCompareNotEqual:
-			stencilFunc = GL_NOTEQUAL;
-			break;
-		}
+		int stencilFunc = Kore::OpenGL::stencilFunc(pipeline->stencilMode);
 		glStencilMask(pipeline->stencilWriteMask);
 		glStencilOp(convert(pipeline->stencilFail), convert(pipeline->stencilDepthFail), convert(pipeline->stencilBothPass));
 		glStencilFunc(stencilFunc, pipeline->stencilReferenceValue, pipeline->stencilReadMask);
