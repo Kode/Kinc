@@ -224,6 +224,14 @@ void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filte
 	Graphics4::setTextureMipmapFilter(texunit, filter);
 }
 
+void Graphics4::setTextureCompareMode(TextureUnit unit, bool enabled) {
+	
+}
+
+void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
+	
+}
+
 bool Graphics4::renderTargetsInvertedY() {
 	return Graphics5::renderTargetsInvertedY();
 }

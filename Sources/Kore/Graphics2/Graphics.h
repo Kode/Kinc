@@ -222,6 +222,8 @@ namespace Kore {
 
 			ImageScaleQuality myImageScaleQuality;
 			ImageScaleQuality myMipmapScaleQuality;
+			
+			mat3 rotation(float angle, float centerx, float centery);
 
 			int upperPowerOfTwo(int v);
 			void setProjection();
@@ -233,6 +235,8 @@ namespace Kore {
 			~Graphics2();
 
 			mat3 transformation;
+			
+			void pushRotation(float angle, float centerx, float centery);
 
 			void drawImage(Graphics4::Texture* img, float x, float y);
 			void drawScaledSubImage(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);

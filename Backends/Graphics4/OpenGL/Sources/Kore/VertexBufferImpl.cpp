@@ -160,7 +160,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			while (subsize > 0) {
 				glEnableVertexAttribArray(offset + actualIndex);
 				glCheckErrors();
-				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, reinterpret_cast<void*>(internaloffset + addonOffset));
+				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, reinterpret_cast<void*>(static_cast<Kore::spint>(internaloffset + addonOffset)));
 				glCheckErrors();
 #ifndef KORE_OPENGL_ES
 				if (attribDivisorUsed || instanceDataStepRate != 0) {
@@ -177,7 +177,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		else {
 			glEnableVertexAttribArray(offset + actualIndex);
 			glCheckErrors();
-			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, reinterpret_cast<void*>(internaloffset));
+			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, reinterpret_cast<void*>(static_cast<Kore::spint>(internaloffset)));
 			glCheckErrors();
 #ifndef KORE_OPENGL_ES
 			if (attribDivisorUsed || instanceDataStepRate != 0) {

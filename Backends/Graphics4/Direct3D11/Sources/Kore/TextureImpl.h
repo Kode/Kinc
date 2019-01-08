@@ -13,11 +13,13 @@ namespace Kore {
 
 	class TextureImpl {
 	public:
+		TextureImpl();
 		~TextureImpl();
+		void enableMipmaps(int texWidth, int texHeight, int format);
 		void unmipmap();
 		void unset();
 
-		bool mipmap;
+		bool hasMipmaps;
 		int stage;
 		ID3D11Texture2D* texture;
 		ID3D11ShaderResourceView* view;

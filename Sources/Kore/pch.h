@@ -7,7 +7,7 @@ namespace Kore {
 	typedef unsigned short u16; // 2 Byte
 	typedef unsigned int u32;   // 4 Byte
 
-#if defined(__LP64__) || defined(_LP64)
+#if defined(__LP64__) || defined(_LP64) || defined(_WIN64)
 #define KORE_64
 #endif
 

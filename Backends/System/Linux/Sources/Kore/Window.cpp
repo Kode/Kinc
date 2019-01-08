@@ -58,6 +58,7 @@ void Kore::Window::changeWindowFeatures(int features) {
 }
 
 void Kore::Linux::fullscreen(XID window, bool value) {
+#ifdef KORE_OPENGL
 	Atom wm_state = XInternAtom(Kore::Linux::display, "_NET_WM_STATE", False);
 	Atom fullscreen = XInternAtom(Kore::Linux::display, "_NET_WM_STATE_FULLSCREEN", False);
 
@@ -77,6 +78,7 @@ void Kore::Linux::fullscreen(XID window, bool value) {
 			   SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 
 	XFlush(Kore::Linux::display);
+#endif
 }
 
 void Kore::Window::changeWindowMode(WindowMode mode) {

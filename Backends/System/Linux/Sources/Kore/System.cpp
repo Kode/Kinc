@@ -1,7 +1,9 @@
 #include "pch.h"
+
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
+#include <Kore/Input/Pen.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
 
@@ -11,16 +13,15 @@
 #include <Kore/Linux.h>
 
 #include <cstring>
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <X11/Xatom.h>
-
-#include <X11/keysym.h>
-#include <X11/Xlib.h>
 #include <climits>
 #include <assert.h>
-//#include <X11/Xlib.h>
+
+#include <X11/Xatom.h>
+#include <X11/extensions/XInput.h>
+#include <X11/keysym.h>
+#include <X11/Xlib.h>
 
 #ifdef KORE_OPENGL
 #include <GL/gl.h>
@@ -51,14 +52,18 @@ namespace {
 #endif
 	Window win;
 	Atom XdndDrop;
-	Atom XdndFinished;
+	Atom XdndEnter;
+	Atom XdndTextUriList;
+	Atom XdndStatus;
 	Atom XdndActionCopy;
 	Atom XdndSelection;
-	Atom XdndPrimary;
 	Atom clipboard;
 	Atom utf8;
 	Atom xseldata;
 	Window XdndSourceWindow = None;
+	uint32_t penMotionEvent;
+	uint32_t penMaxPressure = 2048;
+	float penPressureLast = 0.0;
 
 	void fatalError(const char* message) {
 		printf("main: %s\n", message);
@@ -68,21 +73,11 @@ namespace {
 	Atom wmDeleteMessage;
 }
 
-#ifdef KORE_OPENGL
 namespace windowimpl {
-	/*struct KoreWindow : public Kore::KoreWindowBase {
-		Window handle;
-		GLXContext context;
-
-		KoreWindow(Window handle, GLXContext context, int x, int y, int width, int height) : KoreWindowBase(x, y, width, height) {
-			this->handle = handle;
-			this->context = context;
-		}
-	};*/
-
 	Kore::Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	int windowCounter = -1;
 
+#ifdef KORE_OPENGL
 	int idFromWindow(Window window) {
 		for (int windowIndex = 0; windowIndex < sizeof(windows) / sizeof(windows[0]); ++windowIndex) {
 			if (windows[windowIndex]->_data.handle == window) {
@@ -92,8 +87,8 @@ namespace windowimpl {
 
 		return -1;
 	}
-}
 #endif
+}
 
 #ifndef KORE_OPENGL
 xcb_connection_t* connection;
@@ -108,7 +103,7 @@ namespace {
 #endif
 
 int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, Kore::Display* targetDisplay, int depthBufferBits,
-                 int stencilBufferBits, int antialiasingSamples) {
+				 int stencilBufferBits, int antialiasingSamples) {
 
 	int nameLength = strlen(Kore::System::name());
 	char strName[nameLength+1];
@@ -148,40 +143,40 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 	vi = nullptr;
 
-    int attribs[] = {
-    	GLX_X_RENDERABLE    , True,
-	    GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
-	    GLX_RENDER_TYPE     , GLX_RGBA_BIT,
-	    GLX_X_VISUAL_TYPE   , GLX_TRUE_COLOR,
-	    GLX_RED_SIZE        , 8,
-	    GLX_GREEN_SIZE      , 8,
-	    GLX_BLUE_SIZE       , 8,
-	    GLX_ALPHA_SIZE      , 8,
-	    GLX_DEPTH_SIZE      , 24,
-	    GLX_STENCIL_SIZE    , 8,
-	    GLX_DOUBLEBUFFER    , True,
-	    GLX_SAMPLE_BUFFERS  , 1,
-	    GLX_SAMPLES         , antialiasingSamples,
-	    None
+	int attribs[] = {
+		GLX_X_RENDERABLE    , True,
+		GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
+		GLX_RENDER_TYPE     , GLX_RGBA_BIT,
+		GLX_X_VISUAL_TYPE   , GLX_TRUE_COLOR,
+		GLX_RED_SIZE        , 8,
+		GLX_GREEN_SIZE      , 8,
+		GLX_BLUE_SIZE       , 8,
+		GLX_ALPHA_SIZE      , 8,
+		GLX_DEPTH_SIZE      , 24,
+		GLX_STENCIL_SIZE    , 8,
+		GLX_DOUBLEBUFFER    , True,
+		GLX_SAMPLE_BUFFERS  , 1,
+		GLX_SAMPLES         , antialiasingSamples,
+		None
 	};
 
-    GLXFBConfig fbconfig = 0;
-    int fbcount;
-    GLXFBConfig* fbc = glXChooseFBConfig(Kore::Linux::display, DefaultScreen(Kore::Linux::display), attribs, &fbcount);
-    if (fbc) {
-        if (fbcount >= 1) {
-            fbconfig = fbc[0];
-        }
-        XFree(fbc);
-    }
+	GLXFBConfig fbconfig = 0;
+	int fbcount;
+	GLXFBConfig* fbc = glXChooseFBConfig(Kore::Linux::display, DefaultScreen(Kore::Linux::display), attribs, &fbcount);
+	if (fbc) {
+		if (fbcount >= 1) {
+			fbconfig = fbc[0];
+		}
+		XFree(fbc);
+	}
 
-    if (fbconfig) {
-        vi = glXGetVisualFromFBConfig(Kore::Linux::display, fbconfig);
-    }
+	if (fbconfig) {
+		vi = glXGetVisualFromFBConfig(Kore::Linux::display, fbconfig);
+	}
 
 	if (vi == nullptr) {
-        vi = glXChooseVisual(Kore::Linux::display, DefaultScreen(Kore::Linux::display), dblBuf);
-    }
+		vi = glXChooseVisual(Kore::Linux::display, DefaultScreen(Kore::Linux::display), dblBuf);
+	}
 
 	if (vi == nullptr) {
 		vi = glXChooseVisual(Kore::Linux::display, DefaultScreen(Kore::Linux::display), snglBuf);
@@ -206,7 +201,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 			GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
 			GLX_CONTEXT_MINOR_VERSION_ARB, 3,
 			GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-        	GLX_CONTEXT_PROFILE_MASK_ARB , GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+			GLX_CONTEXT_PROFILE_MASK_ARB , GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 			None
 		};
 		cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, GL_TRUE, contextAttribs);
@@ -226,7 +221,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
 
 	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
-	                           CWBorderPixel | CWColormap | CWEventMask, &swa);
+							   CWBorderPixel | CWColormap | CWEventMask, &swa);
 	XSetStandardProperties(Kore::Linux::display, win, title, "main", None, NULL, 0, NULL);
 
 	char* strNameClass_ptr = strNameClass;
@@ -270,15 +265,39 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	Atom XdndVersion = 5;
 	XChangeProperty(Kore::Linux::display, win, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&XdndVersion, 1);
 	XdndDrop = XInternAtom(Kore::Linux::display, "XdndDrop", 0);
-	XdndFinished = XInternAtom(Kore::Linux::display, "XdndFinished", 0);
+	XdndEnter = XInternAtom(Kore::Linux::display, "XdndEnter", 0);
+	XdndTextUriList = XInternAtom(Kore::Linux::display, "text/uri-list", 0);
+	XdndStatus = XInternAtom(Kore::Linux::display, "XdndStatus", 0);
 	XdndActionCopy = XInternAtom(Kore::Linux::display, "XdndActionCopy", 0);
 	XdndSelection = XInternAtom(Kore::Linux::display, "XdndSelection", 0);
-	XdndPrimary = XInternAtom(Kore::Linux::display, "PRIMARY", 0);
 	clipboard = XInternAtom(Kore::Linux::display, "CLIPBOARD", 0);
 	utf8 = XInternAtom(Kore::Linux::display, "UTF8_STRING", 0);
-	xseldata = XInternAtom(Kore::Linux::display, "XSEL_DATA", False),
+	xseldata = XInternAtom(Kore::Linux::display, "XSEL_DATA", False);
 
 	//**XSetSelectionOwner(dpy, clipboard, win, CurrentTime);
+
+	int count;
+	XDeviceInfoPtr devices = (XDeviceInfoPtr)XListInputDevices(Kore::Linux::display, &count);
+	for (int i = 0; i < count; i++) {
+		if (strstr(devices[i].name, "stylus")) {
+			XDevice* device = XOpenDevice(Kore::Linux::display, devices[i].id);
+			XAnyClassPtr c = devices[i].inputclassinfo;
+			for (int j = 0; j < devices[i].num_classes; j++) {
+				if (c->c_class == ValuatorClass) {
+					XValuatorInfo* info = (XValuatorInfo*)c;
+					if (info->num_axes > 2) {
+						penMaxPressure = info->axes[2].max_value;
+					}
+					XEventClass eventClass;
+					DeviceMotionNotify(device, penMotionEvent, eventClass);
+					XSelectExtensionEvent(Kore::Linux::display, win, &eventClass, 1);
+					break;
+				}
+				c = (XAnyClassPtr)((uint8_t*)c + c->length);
+			}
+			break;
+		}
+	}
 
 	windowimpl::windows[wcounter] = new Kore::Window; //new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
 	windowimpl::windows[wcounter]->_data.width = width;
@@ -327,7 +346,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	value_list[1] = XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
 	xcb_create_window(connection, XCB_COPY_FROM_PARENT, window, screen->root, 0, 0, width, height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual,
-	                  value_mask, value_list);
+					  value_mask, value_list);
 
 	// Needs to be tested
 	xcb_intern_atom_cookie_t atom_wm_class_cookie = xcb_intern_atom(connection, 1, 8, "WM_CLASS");
@@ -347,7 +366,22 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 	xcb_map_window(connection, window);
 	xcb_flush(connection);
-	return 1;
+
+	windowimpl::windows[0] = new Kore::Window; //new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
+	windowimpl::windows[0]->_data.width = width;
+	windowimpl::windows[0]->_data.height = height;
+	windowimpl::windows[0]->_data.handle = win;
+
+	if (windowMode == Kore::WindowModeFullscreen || windowMode == Kore::WindowModeExclusiveFullscreen) {
+		windowimpl::windows[0]->_data.mode = windowMode;
+	}
+	else {
+		windowimpl::windows[0]->_data.mode = 0;
+	}
+
+	windowimpl::windowCounter = 1;
+
+	return 0;
 #endif
 }
 
@@ -358,14 +392,6 @@ namespace Kore {
 #else
 		int windowCount() {
 			return 1;
-		}
-
-		int windowWidth(int id) {
-			return ::windowWidth;
-		}
-
-		int windowHeight(int id) {
-			return ::windowHeight;
 		}
 
 		void* windowHandle(int id) {
@@ -381,7 +407,7 @@ namespace Kore {
 			}
 
 			int id = createWindow(buffer, win->x, win->y, win->width, win->height, win->mode, win->display,
-			                      frame->depthBufferBits, frame->stencilBufferBits, frame->samplesPerPixel);
+								  frame->depthBufferBits, frame->stencilBufferBits, frame->samplesPerPixel);
 			Graphics4::init(id, frame->depthBufferBits, frame->stencilBufferBits);
 			return id;
 		}
@@ -409,12 +435,33 @@ bool Kore::System::handleMessages() {
 		XEvent event;
 		XNextEvent(Kore::Linux::display, &event);
 
+		if (event.type == penMotionEvent) {
+			XDeviceMotionEvent* motion = (XDeviceMotionEvent*)(&event);
+			int windowId = windowimpl::idFromWindow(motion->window);
+			float p = (float)motion->axis_data[2] / (float)penMaxPressure;
+			if (p > 0 && penPressureLast == 0) {
+				Pen::the()->_press(windowId, motion->x, motion->y, p);
+			}
+			else if (p == 0 && penPressureLast > 0) {
+				Pen::the()->_release(windowId, motion->x, motion->y, p);
+			}
+			else if (p > 0) {
+				Pen::the()->_move(windowId, motion->x, motion->y, p);
+			}
+			penPressureLast = p;
+		}
+
 		switch (event.type) {
 		case KeyPress: {
 			XKeyEvent* key = (XKeyEvent*)&event;
 			KeySym keysym;
 			char buffer[1];
 			XLookupString(key, buffer, 1, &keysym, NULL);
+
+			if (buffer[0] >= 32 && buffer[0] <= 126) {
+				Kore::Keyboard::the()->_keypress((wchar_t)buffer[0]);
+			}
+
 #define KEY(xkey, korekey)                                    \
 	case xkey:                                                \
 		Kore::Keyboard::the()->_keydown(Kore::korekey);       \
@@ -481,9 +528,19 @@ bool Kore::System::handleMessages() {
 				KEY(XK_8, Key8)
 				KEY(XK_9, Key9)
 				KEY(XK_0, Key0)
-			case XK_Escape:
-				System::stop();
-				break;
+				KEY(XK_Escape, KeyEscape)
+				KEY(XK_F1, KeyF1)
+				KEY(XK_F2, KeyF2)
+				KEY(XK_F3, KeyF3)
+				KEY(XK_F4, KeyF4)
+				KEY(XK_F5, KeyF5)
+				KEY(XK_F6, KeyF6)
+				KEY(XK_F7, KeyF7)
+				KEY(XK_F8, KeyF8)
+				KEY(XK_F9, KeyF9)
+				KEY(XK_F10, KeyF10)
+				KEY(XK_F11, KeyF11)
+				KEY(XK_F12, KeyF12)
 			}
 			break;
 #undef KEY
@@ -553,6 +610,19 @@ bool Kore::System::handleMessages() {
 				KEY(XK_8, Key8)
 				KEY(XK_9, Key9)
 				KEY(XK_0, Key0)
+				KEY(XK_Escape, KeyEscape)
+				KEY(XK_F1, KeyF1)
+				KEY(XK_F2, KeyF2)
+				KEY(XK_F3, KeyF3)
+				KEY(XK_F4, KeyF4)
+				KEY(XK_F5, KeyF5)
+				KEY(XK_F6, KeyF6)
+				KEY(XK_F7, KeyF7)
+				KEY(XK_F8, KeyF8)
+				KEY(XK_F9, KeyF9)
+				KEY(XK_F10, KeyF10)
+				KEY(XK_F11, KeyF11)
+				KEY(XK_F12, KeyF12)
 			}
 			break;
 #undef KEY
@@ -605,16 +675,31 @@ bool Kore::System::handleMessages() {
 			break;
 		}
 		case ConfigureNotify: {
-            int windowId = windowimpl::idFromWindow(event.xconfigure.window);
-            windowimpl::windows[windowId]->_data.width = event.xconfigure.width;
-            windowimpl::windows[windowId]->_data.height = event.xconfigure.height;
+			int windowId = windowimpl::idFromWindow(event.xconfigure.window);
+			windowimpl::windows[windowId]->_data.width = event.xconfigure.width;
+			windowimpl::windows[windowId]->_data.height = event.xconfigure.height;
 			glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
-            break;
+			break;
 		}
 		case ClientMessage: {
-			if (event.xclient.message_type == XdndDrop) {
+			if (event.xclient.message_type == XdndEnter) {
 				XdndSourceWindow = event.xclient.data.l[0];
-				XConvertSelection(Kore::Linux::display, XdndSelection, XA_STRING, XdndPrimary, win, event.xclient.data.l[2]);
+				XEvent m;
+				memset(&m, 0, sizeof(m));
+				m.type = ClientMessage;
+				m.xclient.window = event.xclient.data.l[0];
+				m.xclient.message_type = XdndStatus;
+				m.xclient.format = 32;
+				m.xclient.data.l[0] = win;
+				m.xclient.data.l[2] = 0;
+				m.xclient.data.l[3] = 0;
+				m.xclient.data.l[1] = 1;
+				m.xclient.data.l[4] = XdndActionCopy;
+				XSendEvent(Kore::Linux::display, XdndSourceWindow, false, NoEventMask, (XEvent*)&m);
+				XFlush(Kore::Linux::display);
+			}
+			else if (event.xclient.message_type == XdndDrop) {
+				XConvertSelection(Kore::Linux::display, XdndSelection, XdndTextUriList, XdndSelection, win, event.xclient.data.l[2]);
 			}
 			else if (event.xclient.data.l[0] == wmDeleteMessage) {
 				Kore::System::stop();
@@ -622,51 +707,36 @@ bool Kore::System::handleMessages() {
 			break;
 		}
 		case SelectionNotify: {
+			
 			Atom target = event.xselection.target;
 			if (event.xselection.selection == clipboard) {
 				int a = 3;
 				++a;
+			}
+			else if (event.xselection.property == XdndSelection) {
+				Atom type;
+				int format;
+				unsigned long numItems;
+				unsigned long bytesAfter = 1;
+				unsigned char* data = 0;
+				XGetWindowProperty(Kore::Linux::display, event.xselection.requestor, event.xselection.property, 0, LONG_MAX, False, event.xselection.target, &type, &format, &numItems, &bytesAfter, &data);
+				size_t len = numItems * format / 8 - 1; // Strip new line at the end
+				wchar_t filePath[len + 1];
+				mbstowcs(filePath, (char*)data, len);
+				XFree(data);
+				filePath[len] = 0;
+				Kore::System::_dropFilesCallback(filePath + 7); // Strip file://
 			}
 			else if (event.xselection.property) {
 				char* result;
 				unsigned long ressize, restail;
 				int resbits;
 				XGetWindowProperty(Kore::Linux::display, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
-				                   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
+								   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
 				Kore::System::_pasteCallback(result);
 				XFree(result);
 			}
-			else if (target == XA_STRING) {
-				Atom type;
-				int format;
-				unsigned long numItems;
-				unsigned long bytesAfter = 1;
-				unsigned char* data = 0;
-				int readBytes = 1024;
-				while (bytesAfter != 0) {
-					if (data != 0) XFree(data);
-					XGetWindowProperty(Kore::Linux::display, win, XdndPrimary, 0, readBytes, false, AnyPropertyType, &type, &format, &numItems, &bytesAfter, &data);
-					readBytes *= 2;
-				}
-				size_t len = numItems * format / 8 - 1; // Strip new line at the end
-				wchar_t filePath[len + 1];
-				mbstowcs(filePath, (char*)data, len);
-				filePath[len] = 0;
-				Kore::System::_dropFilesCallback(filePath + 7); // Strip file://
-
-				XClientMessageEvent m;
-				memset(&m, sizeof(m), 0);
-				m.type = ClientMessage;
-				m.display = Kore::Linux::display;
-				m.window = XdndSourceWindow;
-				m.message_type = XdndFinished;
-				m.format = 32;
-				m.data.l[0] = win;
-				m.data.l[1] = 1;
-				m.data.l[2] = XdndActionCopy;
-				XSendEvent(Kore::Linux::display, XdndSourceWindow, false, NoEventMask, (XEvent*)&m);
-				XSync(Kore::Linux::display, false);
-			}
+			break;
 		}
 		case Expose:
 			break;
@@ -817,23 +887,23 @@ Kore::System::ticks Kore::System::timestamp() {
 }
 
 Kore::Window* Kore::System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
-    //**Display::enumerate();
+	//**Display::enumerate();
 
-    WindowOptions defaultWin;
-    FramebufferOptions defaultFrame;
+	WindowOptions defaultWin;
+	FramebufferOptions defaultFrame;
 
-    if (win == nullptr) {
-        win = &defaultWin;
-    }
-    win->width = width;
-    win->height = height;
+	if (win == nullptr) {
+		win = &defaultWin;
+	}
+	win->width = width;
+	win->height = height;
 
-    if (frame == nullptr) {
-        frame = &defaultFrame;
-    }
+	if (frame == nullptr) {
+		frame = &defaultFrame;
+	}
 
-    int window = initWindow(win, frame);
-    return Window::get(window);
+	int window = initWindow(win, frame);
+	return Window::get(window);
 }
 
 void Kore::System::_shutdown() {

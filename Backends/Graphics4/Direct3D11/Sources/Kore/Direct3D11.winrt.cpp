@@ -156,6 +156,37 @@ static void createBackbuffer(int antialiasingSamples) {
 	    &depthStencilView));
 }
 
+#ifdef KORE_WINDOWS
+static bool isWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor) {
+	OSVERSIONINFOEXW osvi = {sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0};
+	DWORDLONG const dwlConditionMask =
+	    VerSetConditionMask(VerSetConditionMask(VerSetConditionMask(0, VER_MAJORVERSION, VER_GREATER_EQUAL), VER_MINORVERSION, VER_GREATER_EQUAL),
+	                        VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+
+	osvi.dwMajorVersion = wMajorVersion;
+	osvi.dwMinorVersion = wMinorVersion;
+	osvi.wServicePackMajor = wServicePackMajor;
+
+	return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
+}
+
+#ifndef _WIN32_WINNT_WIN8
+#define _WIN32_WINNT_WIN8 0x0602
+#endif
+
+#ifndef _WIN32_WINNT_WIN10
+#define _WIN32_WINNT_WIN10 0x0A00
+#endif
+
+static bool isWindows8OrGreater() {
+	return isWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN8), LOBYTE(_WIN32_WINNT_WIN8), 0);
+}
+
+static bool isWindows10OrGreater() {
+	return isWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0);
+}
+#endif
+
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
 #ifdef KORE_VR
 	vsync = false;
@@ -200,6 +231,9 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	// m_windowBounds = m_window->Bounds;
 
+	const int _DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL = 3;
+	const int _DXGI_SWAP_EFFECT_FLIP_DISCARD = 4;
+
 	if (swapChain != nullptr) {
 		Kore_Microsoft_affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
@@ -219,7 +253,15 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
+		if (isWindows10OrGreater()) {
+			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		}
+		else if (isWindows8OrGreater()) {
+			swapChainDesc.SwapEffect = (DXGI_SWAP_EFFECT)_DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+		}
+		else {
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		}
 		swapChainDesc.Flags = 0;
 		swapChainDesc.OutputWindow = Window::get(windowId)->_data.handle;
 		swapChainDesc.Windowed = true;
@@ -761,6 +803,7 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter fi
 	}
 
 	lastSamplers[unit.unit].Filter = d3d11filter;
+	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
@@ -824,6 +867,7 @@ void Graphics4::setTextureMinificationFilter(TextureUnit unit, TextureFilter fil
 	}
 
 	lastSamplers[unit.unit].Filter = d3d11filter;
+	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
@@ -887,6 +931,7 @@ void Graphics4::setTextureMipmapFilter(TextureUnit unit, MipmapFilter filter) {
 	}
 
 	lastSamplers[unit.unit].Filter = d3d11filter;
+	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
 	context->PSSetSamplers(unit.unit, 1, &sampler);
@@ -894,6 +939,25 @@ void Graphics4::setTextureMipmapFilter(TextureUnit unit, MipmapFilter filter) {
 
 void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
 	Graphics4::setTextureMipmapFilter(texunit, filter);
+}
+
+void Graphics4::setTextureCompareMode(TextureUnit unit, bool enabled) {
+	if (unit.unit < 0) return;
+
+	if (enabled) {
+		lastSamplers[unit.unit].ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+		lastSamplers[unit.unit].Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	}
+	else {
+		lastSamplers[unit.unit].ComparisonFunc = D3D11_COMPARISON_NEVER;
+	}
+
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
+	context->PSSetSamplers(unit.unit, 1, &sampler);
+}
+
+void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
+	Graphics4::setTextureCompareMode(unit, enabled);
 }
 
 bool Graphics4::renderTargetsInvertedY() {
