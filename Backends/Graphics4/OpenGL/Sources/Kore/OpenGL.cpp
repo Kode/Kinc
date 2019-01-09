@@ -739,6 +739,33 @@ void Graphics4::setPipeline(PipelineState* pipeline) {
 	lastPipeline = pipeline;
 }
 
+void Graphics4::setStencilReferenceValue(int value) {
+	glStencilFunc(OpenGL::stencilFunc(lastPipeline->stencilMode), value, lastPipeline->stencilReadMask);
+}
+
 void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
 	array->set(unit);
+}
+
+int Kore::OpenGL::stencilFunc(Graphics4::ZCompareMode mode) {
+	switch (mode) {
+	case Graphics4::ZCompareAlways:
+		return GL_ALWAYS;
+	case Graphics4::ZCompareEqual:
+		return GL_EQUAL;
+	case Graphics4::ZCompareGreater:
+		return GL_GREATER;
+	case Graphics4::ZCompareGreaterEqual:
+		return GL_GEQUAL;
+	case Graphics4::ZCompareLess:
+		return GL_LESS;
+	case Graphics4::ZCompareLessEqual:
+		return GL_LEQUAL;
+	case Graphics4::ZCompareNever:
+		return GL_NEVER;
+	case Graphics4::ZCompareNotEqual:
+		return GL_NOTEQUAL;
+	}
+
+	return 0;
 }

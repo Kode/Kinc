@@ -557,6 +557,12 @@ void Graphics4::setPipeline(PipelineState* pipeline) {
 	pipeline->set(pipeline, scissoring);
 }
 
+void Graphics4::setStencilReferenceValue(int value) {
+	if (currentPipeline != nullptr) {
+		context->OMSetDepthStencilState(currentPipeline->depthStencilState, value);
+	}
+}
+
 void Graphics4::end(int windowId) {}
 
 bool Graphics4::swapBuffers() {
