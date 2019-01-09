@@ -151,6 +151,10 @@ void Graphics4::flush() {
 	return Graphics5::flush();
 }
 
+void Graphics4::setStencilReferenceValue(int value) {
+
+}
+
 void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
 	Graphics5::setTextureOperation((Graphics5::TextureOperation)operation, (Graphics5::TextureArgument)arg1, (Graphics5::TextureArgument)arg2);
 }

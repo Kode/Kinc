@@ -505,6 +505,10 @@ bool Graphics4::swapBuffers(int windowId) {
 	return ::swapBuffers();
 }
 
+void Graphics4::setStencilReferenceValue(int value) {
+
+}
+
 void Graphics4::setBool(ConstantLocation position, bool value) {
 	if (position.shaderType == -1) return;
 	BOOL bools[4];
