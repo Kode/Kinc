@@ -18,6 +18,12 @@ namespace {
 		return ret;
 	}
 
+	void setInt(u8* constants, u32 offset, u32 size, int value) {
+		if (size == 0) return;
+		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		ints[0] = value;
+	}
+
 	void setFloat(u8* constants, u32 offset, u32 size, float value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
@@ -46,6 +52,69 @@ namespace {
 		floats[1] = value2;
 		floats[2] = value3;
 		floats[3] = value4;
+	}
+
+	void setFloats(u8* constants, u32 offset, u32 size, u8 columns, u8 rows, float* values, int count) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		if (columns == 4 && rows == 4) {
+			for (int i = 0; i < count / 16 && i < static_cast<int>(size) / 4; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						floats[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
+					}
+				}
+			}
+		}
+		else if (columns == 3 && rows == 3) {
+			for (int i = 0; i < count / 9 && i < static_cast<int>(size) / 3; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						floats[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
+					}
+				}
+			}
+		}
+		else if (columns == 2 && rows == 2) {
+			for (int i = 0; i < count / 4 && i < static_cast<int>(size) / 2; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						floats[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
+					}
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < count && i * 4 < static_cast<int>(size); ++i) {
+				floats[i] = values[i];
+			}
+		}
+	}
+
+	void setBool(u8* constants, u32 offset, u32 size, bool value) {
+		if (size == 0) return;
+		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		ints[0] = value ? 1 : 0;
+	}
+
+	void setMatrix(u8* constants, u32 offset, u32 size, const mat4& value) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		for (int y = 0; y < 4; ++y) {
+			for (int x = 0; x < 4; ++x) {
+				floats[x + y * 4] = value.get(y, x);
+			}
+		}
+	}
+
+	void setMatrix(u8* constants, u32 offset, u32 size, const mat3& value) {
+		if (size == 0) return;
+		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		for (int y = 0; y < 3; ++y) {
+			for (int x = 0; x < 3; ++x) {
+				floats[x + y * 4] = value.get(y, x);
+			}
+		}
 	}
 }
 
@@ -110,18 +179,35 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 		ComputeShaderConstant constant = constants[name];
 		location.offset = constant.offset;
 		location.size = constant.size;
+		location.columns = constant.columns;
+		location.rows = constant.rows;
 	}
 	return location;
 }
 
 ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
+	char unitName[64];
+	int unitOffset = 0;
+	size_t len = strlen(name);
+	if (len > 63) len = 63;
+	strncpy(unitName, name, len + 1);
+	if (unitName[len - 1] == ']') { // Check for array - mySampler[2]
+		unitOffset = int(unitName[len - 2] - '0'); // Array index is unit offset
+		unitName[len - 3] = 0; // Strip array from name
+	}
+
 	ComputeTextureUnit unit;
+	unit.unit = textures[unitName] + unitOffset;
 	return unit;
 }
 
-void Compute::setBool(ComputeConstantLocation location, bool value) {}
+void Compute::setBool(ComputeConstantLocation location, bool value) {
+	::setBool(constantsMemory, location.offset, location.size, value);
+}
 
-void Compute::setInt(ComputeConstantLocation location, int value) {}
+void Compute::setInt(ComputeConstantLocation location, int value) {
+	::setInt(constantsMemory, location.offset, location.size, value);
+}
 
 void Compute::setFloat(ComputeConstantLocation location, float value) {
 	::setFloat(constantsMemory, location.offset, location.size, value);
@@ -139,17 +225,23 @@ void Compute::setFloat4(ComputeConstantLocation location, float value1, float va
 	::setFloat4(constantsMemory, location.offset, location.size, value1, value2, value3, value4);
 }
 
-void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {}
+void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {
+	::setFloats(constantsMemory, location.offset, location.size, location.columns, location.rows, values, count);
+}
 
-void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {}
+void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {
+	::setMatrix(constantsMemory, location.offset, location.size, value);
+}
 
-void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {}
+void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {
+	::setMatrix(constantsMemory, location.offset, location.size, value);
+}
 
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
 	ID3D11ShaderResourceView* nullView = nullptr;
 	context->PSSetShaderResources(0, 1, &nullView);
 
-	context->CSSetUnorderedAccessViews(0, 1, &texture->computeView, nullptr);
+	context->CSSetUnorderedAccessViews(unit.unit, 1, &texture->computeView, nullptr);
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {}
