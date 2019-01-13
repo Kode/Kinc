@@ -16,7 +16,11 @@ void loadURL(const char* url) {
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
 }
 
-int kore(int argc, char** argv);
+#ifdef KOREC
+extern "C"
+#endif
+    void
+    kore(int, char**);
 
 - (void)mainLoop {
 	// NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
