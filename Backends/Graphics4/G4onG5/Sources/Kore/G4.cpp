@@ -44,6 +44,7 @@ void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	}
 	vertexConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
 	fragmentConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
+	commandList->begin();
 }
 
 namespace {
@@ -101,6 +102,8 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 }
 
 void Graphics4::begin(int window) {
+	commandList->end();
+
 	currentBuffer = (currentBuffer + 1) % bufferCount;
 
 	Graphics5::begin(framebuffers[currentBuffer], window);
@@ -137,6 +140,8 @@ void Graphics4::end(int window) {
 	// delete commandList;
 	// commandList = nullptr;
 	Graphics5::end(window);
+
+	commandList->begin();
 }
 
 void Graphics4::_changeFramebuffer(int window, Kore::FramebufferOptions* frame) {
