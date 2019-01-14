@@ -54,19 +54,24 @@ namespace {
 			return;
 		}
 
-		Kore::Audio2::audioCallback(frames * 2);
-		memset(buffer, 0, frames * format->nBlockAlign);
-		if (format->wFormatTag == WAVE_FORMAT_PCM) {
-			for (UINT32 i = 0; i < frames; ++i) {
-				copyS16Sample((s16*)&buffer[i * format->nBlockAlign]);
-				copyS16Sample((s16*)&buffer[i * format->nBlockAlign + 2]);
+		if (Kore::Audio2::audioCallback != nullptr) {
+			Kore::Audio2::audioCallback(frames * 2);
+			memset(buffer, 0, frames * format->nBlockAlign);
+			if (format->wFormatTag == WAVE_FORMAT_PCM) {
+				for (UINT32 i = 0; i < frames; ++i) {
+					copyS16Sample((s16*)&buffer[i * format->nBlockAlign]);
+					copyS16Sample((s16*)&buffer[i * format->nBlockAlign + 2]);
+				}
+			}
+			else {
+				for (UINT32 i = 0; i < frames; ++i) {
+					copyFloatSample((float*)&buffer[i * format->nBlockAlign]);
+					copyFloatSample((float*)&buffer[i * format->nBlockAlign + 4]);
+				}
 			}
 		}
 		else {
-			for (UINT32 i = 0; i < frames; ++i) {
-				copyFloatSample((float*)&buffer[i * format->nBlockAlign]);
-				copyFloatSample((float*)&buffer[i * format->nBlockAlign + 4]);
-			}
+			memset(buffer, 0, frames * format->nBlockAlign);
 		}
 
 		renderClient->ReleaseBuffer(frames, 0);
