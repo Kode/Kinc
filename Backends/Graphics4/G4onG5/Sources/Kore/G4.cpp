@@ -14,7 +14,7 @@
 
 using namespace Kore;
 
-Graphics5::CommandList* commandList;
+Graphics5::CommandList* commandList = nullptr;
 
 u64 frameNumber = 0;
 bool waitAfterNextDraw = false;
