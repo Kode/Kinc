@@ -247,7 +247,17 @@ Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name
 	if (vertexShader->textures.find(unitName) == vertexShader->textures.end()) {
 		if (fragmentShader->textures.find(unitName) == fragmentShader->textures.end()) {
 			unit.unit = -1;
-			log(Warning, "Sampler %s not found.", unitName);
+#ifndef NDEBUG
+			static int notFoundCount = 0;
+			if (notFoundCount < 10) {
+				log(Warning, "Sampler %s not found.", unitName);
+				++notFoundCount;
+			}
+			else if (notFoundCount == 10) {
+				log(Warning, "Giving up on sampler not found messages.", unitName);
+				++notFoundCount;
+			}
+#endif
 		}
 		else {
 			unit.unit = fragmentShader->textures[unitName] + unitOffset;
