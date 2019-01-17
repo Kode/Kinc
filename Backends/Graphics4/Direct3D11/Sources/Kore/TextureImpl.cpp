@@ -102,6 +102,43 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 
 void Graphics4::Texture::init3D(bool readable) {
 	setId();
+	stage = 0;
+	texWidth = width;
+	texHeight = height;
+	texDepth = depth;
+	rowPitch = 0;
+
+	D3D11_TEXTURE3D_DESC desc;
+	desc.Width = width;
+	desc.Height = height;
+	desc.Depth = depth;
+	desc.MipLevels = 1;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.MiscFlags = 0;
+	desc.Format = convertFormat(this->format);
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.CPUAccessFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = isHdr(this->format) ? (void*)this->hdrData : this->data;
+	data.SysMemPitch = width * formatByteSize(this->format);
+	data.SysMemSlicePitch = width * height * formatByteSize(this->format);
+
+	texture3D = nullptr;
+	Kore_Microsoft_affirm(device->CreateTexture3D(&desc, &data, &texture3D));
+	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
+
+	if (!readable) {
+		if (isHdr(this->format)) {
+			delete[] this->hdrData;
+			this->hdrData = nullptr;
+		}
+		else {
+			delete[] this->data;
+			this->data = nullptr;
+		}
+	}
 }
 
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
