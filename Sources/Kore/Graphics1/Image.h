@@ -20,6 +20,7 @@ namespace Kore {
 			Image(void* data, int width, int height, int depth, Format format, bool readable);
 			virtual ~Image();
 			int at(int x, int y);
+			u8* getPixels();
 
 			int width, height, depth;
 			Format format;

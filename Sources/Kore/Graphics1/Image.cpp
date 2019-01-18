@@ -324,3 +324,7 @@ int Graphics1::Image::at(int x, int y) {
 	else
 		return *(int*)&((u8*)data)[width * sizeOf(format) * y + x * sizeOf(format)];
 }
+
+u8* Graphics1::Image::getPixels() {
+	return data != nullptr ? data : reinterpret_cast<u8*>(hdrData);
+}
