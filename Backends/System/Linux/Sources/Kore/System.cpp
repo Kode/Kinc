@@ -889,19 +889,7 @@ Kore::System::ticks Kore::System::timestamp() {
 Kore::Window* Kore::System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
 	//**Display::enumerate();
 
-	WindowOptions defaultWin;
-	FramebufferOptions defaultFrame;
-
-	if (win == nullptr) {
-		win = &defaultWin;
-	}
-	win->width = width;
-	win->height = height;
-
-	if (frame == nullptr) {
-		frame = &defaultFrame;
-	}
-
+	System::_init(name, width, height, &win, &frame);
 	int window = initWindow(win, frame);
 	return Window::get(window);
 }

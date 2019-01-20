@@ -1063,12 +1063,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 }
 
 Window* System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
-	WindowOptions defaultWin;
-	if (win == nullptr) {
-		win = &defaultWin;
-	}
-	win->width = width;
-	win->height = height;
+	System::_init(name, width, height, &win, &frame);
 	Window* window = Window::create(win, frame);
 	loadXInput();
 	initializeDirectInput();

@@ -138,20 +138,7 @@ Kore::vec2i Kore::System::mousePos() {
 #undef CreateWindow
 
 Kore::Window* Kore::System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
-	WindowOptions defaultWin;
-	FramebufferOptions defaultFrame;
-
-	if (win == nullptr) {
-		win = &defaultWin;
-	}
-
-	win->width = width;
-	win->height = height;
-
-	if (frame == nullptr) {
-		frame = &defaultFrame;
-	}
-
+	System::_init(name, width, height, &win, &frame);
 	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
 	return Window::get(0);
 }

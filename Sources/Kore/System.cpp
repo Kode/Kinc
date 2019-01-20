@@ -168,11 +168,11 @@ void Kore::System::_pasteCallback(char* value) {
 }
 
 namespace {
-	namespace appstate {
-		bool running = false;
-		bool showWindowFlag = true;
-		char name[1024] = {"KoreApplication"};
-	}
+	bool running = false;
+	bool showWindowFlag = true;
+	char name[1024] = {"KoreApplication"};
+	Kore::WindowOptions defaultWin;
+	Kore::FramebufferOptions defaultFrame;
 }
 /*
 void Kore::System::setShowWindowFlag(bool value) {
@@ -188,7 +188,24 @@ void Kore::System::setName(const char* value) {
 }
 */
 const char* Kore::System::name() {
-	return appstate::name;
+	return ::name;
+}
+
+void Kore::System::_init(const char* name, int width, int height, WindowOptions** win, FramebufferOptions** frame) {
+	if (*win == nullptr) {
+		*win = &defaultWin;
+	}
+
+	strcpy(::name, name);
+	if (strcmp((*win)->title, "Kore") == 0) {
+		(*win)->title = name;
+	}
+	(*win)->width = width;
+	(*win)->height = height;
+
+	if (*frame == nullptr) {
+		*frame = &defaultFrame;
+	}
 }
 
 #ifdef KORE_METAL
@@ -196,7 +213,7 @@ void shutdownMetalCompute();
 #endif
 
 void Kore::System::stop() {
-	appstate::running = false;
+	running = false;
 
 	// TODO (DK) destroy graphics + windows, but afaik Application::~Application() was never called, so it's the same behavior now as well
 
@@ -212,11 +229,11 @@ void Kore::System::stop() {
 bool Kore::System::frame() {
 	_callback();
 	handleMessages();
-	return appstate::running;
+	return running;
 }
 
 void Kore::System::start() {
-	appstate::running = true;
+	running = true;
 
 #if !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_XBOX_ONE)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
