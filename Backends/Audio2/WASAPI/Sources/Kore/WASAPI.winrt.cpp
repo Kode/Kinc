@@ -126,6 +126,8 @@ namespace {
 			return;
 		}
 
+		Audio2::samplesPerSecond = format->nSamplesPerSec;
+
 		bufferFrames = 0;
 		Kore_Microsoft_affirm(audioClient->GetBufferSize(&bufferFrames));
 		Kore_Microsoft_affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
