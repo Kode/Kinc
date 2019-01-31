@@ -124,7 +124,21 @@ void PipelineStateImpl::setConstants() {
 	}
 }
 
-PipelineStateImpl::PipelineStateImpl() : rasterizerState(nullptr), rasterizerStateScissor(nullptr) {}
+PipelineStateImpl::PipelineStateImpl() : d3d11inputLayout(nullptr), fragmentConstantBuffer(nullptr), vertexConstantBuffer(nullptr), geometryConstantBuffer(nullptr), tessEvalConstantBuffer(nullptr), tessControlConstantBuffer(nullptr),
+	depthStencilState(nullptr), rasterizerState(nullptr), rasterizerStateScissor(nullptr), blendState(nullptr) {}
+
+PipelineStateImpl::~PipelineStateImpl() {
+	if (d3d11inputLayout != nullptr) d3d11inputLayout->Release();
+	if (fragmentConstantBuffer != nullptr) fragmentConstantBuffer->Release();
+	if (vertexConstantBuffer != nullptr) vertexConstantBuffer->Release();
+	if (geometryConstantBuffer != nullptr) geometryConstantBuffer->Release();
+	if (tessEvalConstantBuffer != nullptr) tessEvalConstantBuffer->Release();
+	if (tessControlConstantBuffer != nullptr) tessControlConstantBuffer->Release();
+	if (depthStencilState != nullptr) depthStencilState->Release();
+	if (rasterizerState != nullptr) rasterizerState->Release();
+	if (rasterizerStateScissor != nullptr) rasterizerStateScissor->Release();
+	if (blendState != nullptr) blendState->Release();
+}
 
 void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 	currentPipeline = pipeline;

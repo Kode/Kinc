@@ -17,6 +17,7 @@ namespace Kore {
 	class PipelineStateImpl {
 	public:
 		PipelineStateImpl();
+		~PipelineStateImpl();
 		ID3D11InputLayout* d3d11inputLayout;
 		ID3D11Buffer* fragmentConstantBuffer;
 		ID3D11Buffer* vertexConstantBuffer;

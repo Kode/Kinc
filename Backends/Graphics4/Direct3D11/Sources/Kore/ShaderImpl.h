@@ -14,6 +14,7 @@ namespace Kore {
 	class ShaderImpl {
 	public:
 		ShaderImpl();
+		~ShaderImpl();
 		std::map<std::string, ShaderConstant> constants;
 		int constantsSize;
 		std::map<std::string, int> attributes;
@@ -21,6 +22,7 @@ namespace Kore {
 		void* shader;
 		u8* data;
 		int length;
+		int type;
 	};
 
 	class ConstantLocationImpl {

@@ -7,11 +7,35 @@
 
 using namespace Kore;
 
-ShaderImpl::ShaderImpl() {}
+ShaderImpl::ShaderImpl() : shader(nullptr) {}
+
+ShaderImpl::~ShaderImpl() {
+	if (shader != nullptr) {
+		switch ((Graphics4::ShaderType)type) {
+		case Graphics4::VertexShader:
+			((ID3D11VertexShader*)shader)->Release();
+			break;
+		case Graphics4::FragmentShader:
+			((ID3D11PixelShader*)shader)->Release();
+			break;
+		case Graphics4::GeometryShader:
+			((ID3D11GeometryShader*)shader)->Release();
+			break;
+		case Graphics4::TessellationControlShader:
+			((ID3D11HullShader*)shader)->Release();
+			break;
+		case Graphics4::TessellationEvaluationShader:
+			((ID3D11DomainShader*)shader)->Release();
+			break;
+		}
+		free(this->data);
+	}
+}
 
 void Graphics4::Shader::parse(void* _data, int length, ShaderType type) {
 	unsigned index = 0;
 	u8* data = (u8*)_data;
+	this->type = (int)type;
 
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
