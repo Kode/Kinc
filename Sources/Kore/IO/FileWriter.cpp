@@ -18,7 +18,7 @@ FileWriter::FileWriter(const char* filepath) : file(nullptr) {
 	}
 }
 
-#ifdef KORE_PS4
+#if defined(KORE_PS4) || defined(KORE_SWITCH)
 bool mountSaveData(bool);
 void unmountSaveData();
 #endif
