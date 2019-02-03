@@ -319,6 +319,14 @@ void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filte
 	Graphics4::setTextureMipmapFilter(texunit, filter);
 }
 
+void Graphics4::setTextureCompareMode(TextureUnit unit, bool enabled) {
+	
+}
+
+void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
+	
+}
+
 void Graphics4::makeCurrent(int contextId) {
 	// TODO (DK) implement me
 }
@@ -495,6 +503,10 @@ bool Graphics4::swapBuffers(int windowId) {
 	}
 
 	return ::swapBuffers();
+}
+
+void Graphics4::setStencilReferenceValue(int value) {
+
 }
 
 void Graphics4::setBool(ConstantLocation position, bool value) {

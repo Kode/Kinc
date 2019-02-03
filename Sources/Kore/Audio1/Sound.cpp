@@ -24,9 +24,9 @@ namespace {
 		u8* data;
 	};
 
-	void checkFOURCC(u8*& data, const char* fourcc) {
+	void checkFOURCC(u8*& data, const char* fourcc, const char* filename) {
 		for (int i = 0; i < 4; ++i) {
-			Kore::affirm(*data == fourcc[i]);
+			Kore::affirm(*data == fourcc[i], "Corrupt wav file: %s", filename);
 			++data;
 		}
 	}
@@ -97,7 +97,7 @@ namespace {
 	}
 }
 
-Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
+Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0), length(0) {
 	size_t filenameLength = strlen(filename);
 	u8* data = nullptr;
 
@@ -107,6 +107,7 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 		int samples = stb_vorbis_decode_memory(filedata, file.size(), &format.channels, &format.samplesPerSecond, (short**)&data);
 		size = samples * 2 * format.channels;
 		format.bitsPerSample = 16;
+		length = samples / (float)format.samplesPerSecond;
 	}
 	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
 		WaveData wave = {0};
@@ -115,10 +116,10 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 			u8* filedata = (u8*)file.readAll();
 			u8* data = filedata;
 
-			checkFOURCC(data, "RIFF");
+			checkFOURCC(data, "RIFF", filename);
 			u32 filesize = Reader::readU32LE(data);
 			data += 4;
-			checkFOURCC(data, "WAVE");
+			checkFOURCC(data, "WAVE", filename);
 			while (data + 8 - filedata < (spint)filesize) {
 				readChunk(data, wave);
 			}
@@ -131,6 +132,7 @@ Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0) {
 		format.samplesPerSecond = wave.sampleRate;
 		data = wave.data;
 		size = wave.dataSize;
+		length = (size / (format.bitsPerSample / 8) / format.channels) / (float)format.samplesPerSecond;
 	}
 	else {
 		assert(false);

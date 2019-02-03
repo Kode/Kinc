@@ -69,23 +69,42 @@ void shutdownMetalCompute() {
 
 ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _function(0), _pipeline(0), _reflection(0) {
 	u8* data = (u8*)source;
-	for (int i = 0; i < length; ++i) {
-		name[i] = data[i];
+	if (length > 1 && data[0] == '>') {
+		memcpy(name, data + 1, length - 1);
+		name[length - 1] = 0;
 	}
-	name[length] = 0;
+	else {
+		for (int i = 3; i < length; ++i) {
+			if (data[i] == '\n') {
+				name[i - 3] = 0;
+				break;
+			}
+			else {
+				name[i - 3] = data[i];
+			}
+		}
+	}
 }
 
 ComputeShaderImpl::~ComputeShaderImpl() {
-	_function = 0;
-	_pipeline = 0;
-	_reflection = 0;
+	_function = nil;
+	_pipeline = nil;
+	_reflection = nil;
 }
 
 ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {
-	id<MTLLibrary> library = getMetalLibrary();
+	char* data = (char*)_data;
+	id<MTLLibrary> library = nil;
+	if (length > 1 && data[0] == '>') {
+		library = getMetalLibrary();
+	}
+	else {
+		id<MTLDevice> device = getMetalDevice();
+		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
+	}
 	_function = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
 	assert(_function);
-
+	
 	id<MTLDevice> device = getMetalDevice();
 	MTLComputePipelineReflection* reflection = nil;
 	NSError* error = nil;

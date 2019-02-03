@@ -179,20 +179,8 @@ void Window::changeWindowMode(WindowMode mode) {
 	
 }
 
-Kore::Window* Kore::System::init(const char* title, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
-	WindowOptions defaultWin;
-	FramebufferOptions defaultFrame;
-	
-	if (win == nullptr) {
-		win = &defaultWin;
-	}
-	win->width = width;
-	win->height = height;
-	
-	if (frame == nullptr) {
-		frame = &defaultFrame;
-	}
-	
+Kore::Window* Kore::System::init(const char* name, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
+	System::_init(name, width, height, &win, &frame);
 	int windowId = createWindow(win);
 	Graphics4::init(windowId, frame->depthBufferBits, frame->stencilBufferBits);
 	return Kore::Window::get(windowId);

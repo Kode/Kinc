@@ -53,17 +53,19 @@ namespace {
 			return 4;
 		}
 	}
+
+	bool isHdr(Graphics4::Image::Format format) {
+		return format == Graphics4::Image::RGBA128 || format == Graphics4::Image::RGBA64 ||
+			   format == Graphics4::Image::A32 || format == Graphics4::Image::A16;
+	}
 }
 
 void Graphics4::Texture::init(const char* format, bool readable) {
 	setId();
 	stage = 0;
-	mipmap = true;
 	texWidth = width;
 	texHeight = height;
 	rowPitch = 0;
-	bool isHdr = this->format == Graphics4::Image::RGBA128 || this->format == Graphics4::Image::RGBA64 || this->format == Graphics4::Image::A32 ||
-	             this->format == Graphics4::Image::A16;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -78,7 +80,7 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = isHdr ? (void*)this->hdrData : this->data;
+	data.pSysMem = isHdr(this->format) ? (void*)this->hdrData : this->data;
 	data.SysMemPitch = width * formatByteSize(this->format);
 	data.SysMemSlicePitch = 0;
 
@@ -86,10 +88,8 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, &data, &texture));
 	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
-	computeView = nullptr;
-
 	if (!readable) {
-		if (isHdr) {
+		if (isHdr(this->format)) {
 			delete[] this->hdrData;
 			this->hdrData = nullptr;
 		}
@@ -102,11 +102,47 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 
 void Graphics4::Texture::init3D(bool readable) {
 	setId();
+	stage = 0;
+	texWidth = width;
+	texHeight = height;
+	texDepth = depth;
+	rowPitch = 0;
+
+	D3D11_TEXTURE3D_DESC desc;
+	desc.Width = width;
+	desc.Height = height;
+	desc.Depth = depth;
+	desc.MipLevels = 1;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.MiscFlags = 0;
+	desc.Format = convertFormat(this->format);
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.CPUAccessFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = isHdr(this->format) ? (void*)this->hdrData : this->data;
+	data.SysMemPitch = width * formatByteSize(this->format);
+	data.SysMemSlicePitch = width * height * formatByteSize(this->format);
+
+	texture3D = nullptr;
+	Kore_Microsoft_affirm(device->CreateTexture3D(&desc, &data, &texture3D));
+	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
+
+	if (!readable) {
+		if (isHdr(this->format)) {
+			delete[] this->hdrData;
+			this->hdrData = nullptr;
+		}
+		else {
+			delete[] this->data;
+			this->data = nullptr;
+		}
+	}
 }
 
 Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
 	stage = 0;
-	mipmap = true;
 	texWidth = width;
 	texHeight = height;
 
@@ -135,7 +171,6 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &texture));
 	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
-	computeView = nullptr;
 	if (format == Image::RGBA128) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
 		du.Format = desc.Format;
@@ -145,7 +180,31 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	}
 }
 
-Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
+Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+	stage = 0;
+	texWidth = width;
+	texHeight = height;
+	texDepth = depth;
+	hasMipmaps = true;
+
+	D3D11_TEXTURE3D_DESC desc;
+	desc.Width = width;
+	desc.Height = height;
+	desc.Depth = depth;
+	desc.MipLevels = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.CPUAccessFlags = 0;
+
+	texture3D = nullptr;
+	Kore_Microsoft_affirm(device->CreateTexture3D(&desc, nullptr, &texture3D));
+	Kore_Microsoft_affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
+}
+
+TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
 
 TextureImpl::~TextureImpl() {
 	unset();
@@ -161,7 +220,7 @@ TextureImpl::~TextureImpl() {
 }
 
 void TextureImpl::unmipmap() {
-	mipmap = false;
+	hasMipmaps = false;
 }
 
 void Graphics4::Texture::_set(TextureUnit unit) {
@@ -174,6 +233,20 @@ void Graphics4::Texture::_set(TextureUnit unit) {
 	}
 	this->stage = unit.unit;
 	setTextures[stage] = this;
+}
+
+void Graphics4::Texture::_setImage(TextureUnit unit) {
+	if (unit.unit < 0) return;
+	if (computeView == nullptr) {
+		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
+		du.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+		du.Texture3D.MipSlice = 0;
+		du.Texture3D.FirstWSlice = 0;
+		du.Texture3D.WSize = -1;
+		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE3D;
+		Kore_Microsoft_affirm(device->CreateUnorderedAccessView(texture3D, &du, &computeView));
+	}
+	context->OMSetRenderTargetsAndUnorderedAccessViews(0, nullptr, nullptr, unit.unit, 1, &computeView, nullptr);
 }
 
 void TextureImpl::unset() {
@@ -194,17 +267,74 @@ void Graphics4::Texture::unlock() {
 	context->Unmap(texture, 0);
 }
 
-void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
+void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
+	if (renderView == nullptr) {
+		texDepth > 1 ? 
+			Kore_Microsoft_affirm(device->CreateRenderTargetView(texture3D, 0, &renderView)) :
+			Kore_Microsoft_affirm(device->CreateRenderTargetView(texture, 0, &renderView));
+	}
+	static float clearColor[4];
+	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
+	clearColor[1] = ((color & 0x0000ff00) >> 8) / 255.0f;
+	clearColor[2] = (color & 0x000000ff) / 255.0f;
+	clearColor[3] = ((color & 0xff000000) >> 24) / 255.0f;
+	context->ClearRenderTargetView(renderView, clearColor);
+}
 
 int Graphics4::Texture::stride() {
 	return rowPitch;
 }
 
+void TextureImpl::enableMipmaps(int texWidth, int texHeight, int format) {
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = texWidth;
+	desc.Height = texHeight;
+	desc.MipLevels = 0;
+	desc.ArraySize = 1;
+	desc.Format = convertFormat((Graphics4::Image::Format)format);
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+	ID3D11Texture2D* mipMappedTexture;
+	ID3D11ShaderResourceView* mipMappedView;
+	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &mipMappedTexture));
+	Kore_Microsoft_affirm(device->CreateShaderResourceView(mipMappedTexture, nullptr, &mipMappedView));
+
+	D3D11_BOX sourceRegion;
+	sourceRegion.left = 0;
+	sourceRegion.right = texWidth;
+	sourceRegion.top = 0;
+	sourceRegion.bottom = texHeight;
+	sourceRegion.front = 0;
+	sourceRegion.back = 1;
+	context->CopySubresourceRegion(mipMappedTexture, 0, 0, 0, 0, texture, 0, &sourceRegion);
+
+	if (texture != nullptr) texture->Release();
+	texture = mipMappedTexture;
+
+	if (view != nullptr) view->Release();
+	view = mipMappedView;
+
+	hasMipmaps = true;
+}
+
 void Graphics4::Texture::generateMipmaps(int levels) {
-	// context->GenerateMips(view);
+	if (!hasMipmaps) enableMipmaps(texWidth, texHeight, format);
+	context->GenerateMips(view);
 }
 
 void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
-	// D3D11CalcSubresource();
-	// context->UpdateSubresource();
+	if (!hasMipmaps) enableMipmaps(texWidth, texHeight, format);
+	D3D11_BOX dstRegion;
+	dstRegion.left = 0;
+	dstRegion.right = mipmap->texWidth;
+	dstRegion.top = 0;
+	dstRegion.bottom = mipmap->texHeight;
+	dstRegion.front = 0;
+	dstRegion.back = 1;
+	context->UpdateSubresource(texture, level, &dstRegion, isHdr(mipmap->format) ? (void*)mipmap->hdrData : mipmap->data, mipmap->texWidth * formatByteSize(mipmap->format), 0);
 }

@@ -9,6 +9,8 @@ namespace Kore {
 			Float3VertexData,
 			Float4VertexData,
 			Float4x4VertexData, // not supported in fixed function OpenGL
+			Short2NormVertexData,
+			Short4NormVertexData,
 			ColorVertexData
 		};
 

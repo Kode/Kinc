@@ -31,6 +31,12 @@ Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 		case Float4x4VertexData:
 			myStride += 4 * 4 * 4;
 			break;
+		case Short2NormVertexData:
+			myStride += 2 * 2;
+			break;
+		case Short4NormVertexData:
+			myStride += 4 * 2;
+			break;
 		}
 	}
 

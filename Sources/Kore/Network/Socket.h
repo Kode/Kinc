@@ -1,5 +1,17 @@
 #pragma once
 
+#ifdef KORE_WINDOWS
+#if defined(_WIN64)
+typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
+#else
+#if !defined _W64
+#define _W64
+#endif
+typedef _W64 unsigned int UINT_PTR, *PUINT_PTR;
+#endif
+typedef UINT_PTR SOCKET;
+#endif
+
 namespace Kore {
 	class Socket {
 	public:
@@ -14,6 +26,10 @@ namespace Kore {
 		int receive(unsigned char* data, int maxSize, unsigned& fromAddress, unsigned& fromPort);
 
 	private:
+#ifdef KORE_WINDOWS
+		SOCKET handle;
+#else
 		int handle;
+#endif
 	};
 }

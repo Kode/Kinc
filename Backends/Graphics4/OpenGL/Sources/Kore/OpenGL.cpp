@@ -39,6 +39,15 @@
 #ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
 #endif
+#ifndef GL_TEXTURE_COMPARE_MODE
+#define GL_TEXTURE_COMPARE_MODE 0x884C
+#endif
+#ifndef GL_TEXTURE_COMPARE_FUNC
+#define GL_TEXTURE_COMPARE_FUNC 0x884D
+#endif
+#ifndef GL_COMPARE_REF_TO_TEXTURE
+#define GL_COMPARE_REF_TO_TEXTURE 0x884E
+#endif
 
 using namespace Kore;
 using namespace Kore::OpenGL;
@@ -598,6 +607,28 @@ void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filte
 #endif
 }
 
+void Graphics4::setTextureCompareMode(TextureUnit texunit, bool enabled) {
+	if (texunit.unit < 0) return;
+	if (enabled) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	}
+}
+
+void Graphics4::setCubeMapCompareMode(TextureUnit texunit, bool enabled) {
+	if (texunit.unit < 0) return;
+	if (enabled) {
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	}
+}
+
 void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
 	// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
@@ -708,6 +739,33 @@ void Graphics4::setPipeline(PipelineState* pipeline) {
 	lastPipeline = pipeline;
 }
 
+void Graphics4::setStencilReferenceValue(int value) {
+	glStencilFunc(OpenGL::stencilFunc(lastPipeline->stencilMode), value, lastPipeline->stencilReadMask);
+}
+
 void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
 	array->set(unit);
+}
+
+int Kore::OpenGL::stencilFunc(Graphics4::ZCompareMode mode) {
+	switch (mode) {
+	case Graphics4::ZCompareAlways:
+		return GL_ALWAYS;
+	case Graphics4::ZCompareEqual:
+		return GL_EQUAL;
+	case Graphics4::ZCompareGreater:
+		return GL_GREATER;
+	case Graphics4::ZCompareGreaterEqual:
+		return GL_GEQUAL;
+	case Graphics4::ZCompareLess:
+		return GL_LESS;
+	case Graphics4::ZCompareLessEqual:
+		return GL_LEQUAL;
+	case Graphics4::ZCompareNever:
+		return GL_NEVER;
+	case Graphics4::ZCompareNotEqual:
+		return GL_NOTEQUAL;
+	}
+
+	return 0;
 }

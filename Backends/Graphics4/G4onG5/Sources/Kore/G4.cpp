@@ -14,7 +14,7 @@
 
 using namespace Kore;
 
-Graphics5::CommandList* commandList;
+Graphics5::CommandList* commandList = nullptr;
 
 u64 frameNumber = 0;
 bool waitAfterNextDraw = false;
@@ -44,6 +44,7 @@ void Graphics4::init(int window, int depthBufferBits, int stencilBufferBits, boo
 	}
 	vertexConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
 	fragmentConstantBuffer = new Graphics5::ConstantBuffer(constantBufferSize * constantBufferMultiply);
+	commandList->begin();
 }
 
 namespace {
@@ -101,6 +102,8 @@ void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
 }
 
 void Graphics4::begin(int window) {
+	commandList->end();
+
 	currentBuffer = (currentBuffer + 1) % bufferCount;
 
 	Graphics5::begin(framebuffers[currentBuffer], window);
@@ -137,6 +140,8 @@ void Graphics4::end(int window) {
 	// delete commandList;
 	// commandList = nullptr;
 	Graphics5::end(window);
+
+	commandList->begin();
 }
 
 void Graphics4::_changeFramebuffer(int window, Kore::FramebufferOptions* frame) {
@@ -149,6 +154,10 @@ bool Graphics4::swapBuffers() {
 
 void Graphics4::flush() {
 	return Graphics5::flush();
+}
+
+void Graphics4::setStencilReferenceValue(int value) {
+
 }
 
 void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
@@ -222,6 +231,14 @@ void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter)
 
 void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
 	Graphics4::setTextureMipmapFilter(texunit, filter);
+}
+
+void Graphics4::setTextureCompareMode(TextureUnit unit, bool enabled) {
+	
+}
+
+void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
+	
 }
 
 bool Graphics4::renderTargetsInvertedY() {

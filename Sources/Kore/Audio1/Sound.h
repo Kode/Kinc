@@ -14,7 +14,7 @@ namespace Kore {
 		s16* right;
 		int size;
 		float sampleRatePos;
-
+		float length;
 	private:
 		float myVolume;
 	};

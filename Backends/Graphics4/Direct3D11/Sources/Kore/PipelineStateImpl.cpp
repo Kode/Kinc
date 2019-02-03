@@ -124,7 +124,21 @@ void PipelineStateImpl::setConstants() {
 	}
 }
 
-PipelineStateImpl::PipelineStateImpl() : rasterizerState(nullptr), rasterizerStateScissor(nullptr) {}
+PipelineStateImpl::PipelineStateImpl() : d3d11inputLayout(nullptr), fragmentConstantBuffer(nullptr), vertexConstantBuffer(nullptr), geometryConstantBuffer(nullptr), tessEvalConstantBuffer(nullptr), tessControlConstantBuffer(nullptr),
+	depthStencilState(nullptr), rasterizerState(nullptr), rasterizerStateScissor(nullptr), blendState(nullptr) {}
+
+PipelineStateImpl::~PipelineStateImpl() {
+	if (d3d11inputLayout != nullptr) d3d11inputLayout->Release();
+	if (fragmentConstantBuffer != nullptr) fragmentConstantBuffer->Release();
+	if (vertexConstantBuffer != nullptr) vertexConstantBuffer->Release();
+	if (geometryConstantBuffer != nullptr) geometryConstantBuffer->Release();
+	if (tessEvalConstantBuffer != nullptr) tessEvalConstantBuffer->Release();
+	if (tessControlConstantBuffer != nullptr) tessControlConstantBuffer->Release();
+	if (depthStencilState != nullptr) depthStencilState->Release();
+	if (rasterizerState != nullptr) rasterizerState->Release();
+	if (rasterizerStateScissor != nullptr) rasterizerStateScissor->Release();
+	if (blendState != nullptr) blendState->Release();
+}
 
 void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 	currentPipeline = pipeline;
@@ -137,11 +151,10 @@ void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
 
 	context->VSSetShader((ID3D11VertexShader*)pipeline->vertexShader->shader, nullptr, 0);
 	context->PSSetShader((ID3D11PixelShader*)pipeline->fragmentShader->shader, nullptr, 0);
-
-	if (pipeline->geometryShader != nullptr) context->GSSetShader((ID3D11GeometryShader*)pipeline->geometryShader->shader, nullptr, 0);
-	if (pipeline->tessellationControlShader != nullptr) context->HSSetShader((ID3D11HullShader*)pipeline->tessellationControlShader->shader, nullptr, 0);
-	if (pipeline->tessellationEvaluationShader != nullptr)
-		context->DSSetShader((ID3D11DomainShader*)pipeline->tessellationEvaluationShader->shader, nullptr, 0);
+	
+	context->GSSetShader(pipeline->geometryShader != nullptr ? (ID3D11GeometryShader*) pipeline->geometryShader->shader : nullptr, nullptr, 0);
+	context->HSSetShader(pipeline->tessellationControlShader != nullptr ? (ID3D11HullShader*) pipeline->tessellationControlShader->shader : nullptr, nullptr, 0);
+	context->DSSetShader(pipeline->tessellationEvaluationShader != nullptr ? (ID3D11DomainShader*) pipeline->tessellationEvaluationShader->shader : nullptr, nullptr, 0);		
 
 	context->IASetInputLayout(pipeline->d3d11inputLayout);
 }
@@ -234,19 +247,39 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 }
 
 Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
+	char unitName[64];
+	int unitOffset = 0;
+	size_t len = strlen(name);
+	if (len > 63) len = 63;
+	strncpy(unitName, name, len + 1);
+	if (unitName[len - 1] == ']') { // Check for array - mySampler[2]
+		unitOffset = int(unitName[len - 2] - '0'); // Array index is unit offset
+		unitName[len - 3] = 0; // Strip array from name
+	}
+	
 	TextureUnit unit;
-	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
-		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
+	if (vertexShader->textures.find(unitName) == vertexShader->textures.end()) {
+		if (fragmentShader->textures.find(unitName) == fragmentShader->textures.end()) {
 			unit.unit = -1;
-			log(Warning, "Sampler %s not found.", name);
+#ifndef NDEBUG
+			static int notFoundCount = 0;
+			if (notFoundCount < 10) {
+				log(Warning, "Sampler %s not found.", unitName);
+				++notFoundCount;
+			}
+			else if (notFoundCount == 10) {
+				log(Warning, "Giving up on sampler not found messages.", unitName);
+				++notFoundCount;
+			}
+#endif
 		}
 		else {
-			unit.unit = fragmentShader->textures[name];
+			unit.unit = fragmentShader->textures[unitName] + unitOffset;
 			unit.vertex = false;
 		}
 	}
 	else {
-		unit.unit = vertexShader->textures[name];
+		unit.unit = vertexShader->textures[unitName] + unitOffset;
 		unit.vertex = true;
 	}
 	return unit;
@@ -271,9 +304,9 @@ namespace {
 			// SPIRV_CROSS uses TEXCOORD_0_0,... for split up matrices
 			int stringStart = stringCacheIndex;
 			strcpy(&stringCache[stringCacheIndex], "TEXCOORD");
-			stringCacheIndex += strlen("TEXCOORD");
+			stringCacheIndex += (int)strlen("TEXCOORD");
 			_itoa(attributeIndex, &stringCache[stringCacheIndex], 10);
-			stringCacheIndex += strlen(&stringCache[stringCacheIndex]);
+			stringCacheIndex += (int)strlen(&stringCache[stringCacheIndex]);
 			strcpy(&stringCache[stringCacheIndex], "_");
 			stringCacheIndex += 2;
 			vertexDesc.SemanticName = &stringCache[stringStart];
@@ -369,6 +402,18 @@ void Graphics4::PipelineState::compile() {
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
+			case Short2NormVertexData:
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
+				vertexDesc[i].Format = DXGI_FORMAT_R16G16_SNORM;
+				++i;
+				break;
+			case Short4NormVertexData:
+				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
+				              inputLayout[stream]->instanced);
+				vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
+				++i;
+				break;
 			case ColorVertexData:
 				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
 				              inputLayout[stream]->instanced);
@@ -431,6 +476,13 @@ void Graphics4::PipelineState::compile() {
 		device->CreateRasterizerState(&rasterDesc, &rasterizerState);
 		rasterDesc.ScissorEnable = TRUE;
 		device->CreateRasterizerState(&rasterDesc, &rasterizerStateScissor);
+
+		// We need d3d11_3 for conservative raster
+		// D3D11_RASTERIZER_DESC2 rasterDesc;
+		// rasterDesc.ConservativeRaster = conservativeRasterization ? D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		// device->CreateRasterizerState2(&rasterDesc, &rasterizerState);
+		// rasterDesc.ScissorEnable = TRUE;
+		// device->CreateRasterizerState2(&rasterDesc, &rasterizerStateScissor);
 	}
 
 	{

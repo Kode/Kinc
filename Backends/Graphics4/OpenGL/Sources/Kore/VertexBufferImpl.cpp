@@ -41,6 +41,12 @@ Graphics4::VertexBuffer::VertexBuffer(int vertexCount, const VertexStructure& st
 		case Float4x4VertexData:
 			myStride += 4 * 4 * 4;
 			break;
+		case Short2NormVertexData:
+			myStride += 2 * 2;
+			break;
+		case Short4NormVertexData:
+			myStride += 4 * 2;
+			break;
 		case NoVertexData:
 			break;
 		}
@@ -151,6 +157,14 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		case Graphics4::Float4x4VertexData:
 			size = 16;
 			break;
+		case Graphics4::Short2NormVertexData:
+			size = 2;
+			type = GL_SHORT;
+			break;
+		case Graphics4::Short4NormVertexData:
+			size = 4;
+			type = GL_SHORT;
+			break;
 		case Graphics4::NoVertexData:
 			break;
 		}
@@ -160,7 +174,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			while (subsize > 0) {
 				glEnableVertexAttribArray(offset + actualIndex);
 				glCheckErrors();
-				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, reinterpret_cast<void*>(internaloffset + addonOffset));
+				glVertexAttribPointer(offset + actualIndex, 4, type, false, myStride, reinterpret_cast<void*>(static_cast<Kore::spint>(internaloffset + addonOffset)));
 				glCheckErrors();
 #ifndef KORE_OPENGL_ES
 				if (attribDivisorUsed || instanceDataStepRate != 0) {
@@ -177,7 +191,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		else {
 			glEnableVertexAttribArray(offset + actualIndex);
 			glCheckErrors();
-			glVertexAttribPointer(offset + actualIndex, size, type, false, myStride, reinterpret_cast<void*>(internaloffset));
+			glVertexAttribPointer(offset + actualIndex, size, type, type == GL_FLOAT ? false : true, myStride, reinterpret_cast<void*>(static_cast<Kore::spint>(internaloffset)));
 			glCheckErrors();
 #ifndef KORE_OPENGL_ES
 			if (attribDivisorUsed || instanceDataStepRate != 0) {
@@ -207,12 +221,19 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		case Graphics4::Float4x4VertexData:
 			internaloffset += 4 * 4 * 4;
 			break;
+		case Graphics4::Short2NormVertexData:
+			internaloffset += 2 * 2;
+			break;
+		case Graphics4::Short4NormVertexData:
+			internaloffset += 2 * 4;
+			break;
 		case Graphics4::NoVertexData:
 			break;
 		}
 	}
-	for (int index = actualIndex; index < 16; ++index) {
-		glDisableVertexAttribArray(offset + index); // TODO: Can cause problems, please anaylze
+	int count = 16 - offset;
+	for (int index = actualIndex; index < count; ++index) {
+		glDisableVertexAttribArray(offset + index);
 		glCheckErrors();
 	}
 	return actualIndex;
