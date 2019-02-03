@@ -532,6 +532,10 @@ void Kore::System::setKeepScreenOn(bool on) {
 #include <sys/time.h>
 #include <time.h>
 
+namespace {
+	__kernel_time_t start_sec = 0;
+}
+
 double Kore::System::frequency() {
 	return 1000000.0;
 }
@@ -539,13 +543,13 @@ double Kore::System::frequency() {
 Kore::System::ticks Kore::System::timestamp() {
 	timeval now;
 	gettimeofday(&now, NULL);
-	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
+	return static_cast<ticks>(now.tv_sec - start_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
 }
 
 double Kore::System::time() {
 	timeval now;
 	gettimeofday(&now, NULL);
-	return (double)now.tv_sec + (now.tv_usec / 1000000.0);
+	return (double)(now.tv_sec - start_sec) + (now.tv_usec / 1000000.0);
 }
 
 bool Kore::System::handleMessages() {
@@ -612,6 +616,10 @@ void KoreAndroidVideoInit();
 
 extern "C" void android_main(android_app* app) {
 	app_dummy();
+
+	timeval now;
+	gettimeofday(&now, NULL);
+	start_sec = now.tv_sec;
 
 	::app = app;
 	activity = app->activity;
