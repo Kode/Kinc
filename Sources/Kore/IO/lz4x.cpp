@@ -448,7 +448,7 @@ void compress_optimal()
 
 #include <Kore/Math/Core.h>
 
-int kread(void* dst, size_t size, const char* src, size_t* offset, size_t compressedSize) {
+int kread(void* dst, size_t size, const char* src, uint* offset, size_t compressedSize) {
 	size_t realSize = Kore::min(size, compressedSize - *offset);
 	memcpy(dst, &src[*offset], realSize);
 	*offset += realSize;
