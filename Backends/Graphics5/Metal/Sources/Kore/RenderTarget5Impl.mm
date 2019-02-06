@@ -42,7 +42,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
-	desc.magFilter = MTLSamplerMinMagFilterLinear;
+	desc.magFilter = MTLSamplerMinMagFilterNearest;
 	desc.sAddressMode = MTLSamplerAddressModeRepeat;
 	desc.tAddressMode = MTLSamplerAddressModeRepeat;
 	desc.mipFilter = MTLSamplerMipFilterNotMipmapped;

@@ -80,7 +80,7 @@ void Texture5Impl::create(int width, int height, int format, bool writable) {
 	
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
-	desc.magFilter = MTLSamplerMinMagFilterLinear;
+	desc.magFilter = MTLSamplerMinMagFilterNearest;
 	desc.sAddressMode = MTLSamplerAddressModeRepeat;
 	desc.tAddressMode = MTLSamplerAddressModeRepeat;
 	desc.mipFilter = MTLSamplerMipFilterNotMipmapped;
