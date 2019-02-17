@@ -26,8 +26,8 @@ namespace {
 
 	ID3D12RaytracingFallbackDevice* fallbackDevice;
 	ID3D12RaytracingFallbackCommandList* fallbackCommandList;
-	ID3D12DeviceRaytracingPrototype* dxrDevice;
-	ID3D12CommandListRaytracingPrototype* dxrCommandList;
+	ID3D12Device5* dxrDevice;
+	ID3D12GraphicsCommandList4* dxrCommandList;
 	ID3D12RootSignature* globalRootSignature;
 	ID3D12DescriptorHeap* descriptorHeap;
 	UINT descriptorSize;
@@ -217,12 +217,12 @@ namespace Kore {
 			hitGroup->SetClosestHitShaderImport(hitShaderEntry);
 			hitGroup->SetHitGroupExport(hitGroupName);
 			
-			// auto shaderConfig = raytracingPipeline.CreateSubobject<CD3D12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-			// UINT payloadSize = 4 * sizeof(float);   // float4 color
-			// UINT attributeSize = 2 * sizeof(float); // float2 barycentrics
-			// shaderConfig->Config(payloadSize, attributeSize);
+			auto shaderConfig = raytracingPipeline.CreateSubobject<CD3D12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
+			UINT payloadSize = 4 * sizeof(float);   // float4 color
+			UINT attributeSize = 2 * sizeof(float); // float2 barycentrics
+			shaderConfig->Config(payloadSize, attributeSize);
 
-			auto globalRootSignatureSubobject = raytracingPipeline.CreateSubobject<CD3D12_ROOT_SIGNATURE_SUBOBJECT>();
+			auto globalRootSignatureSubobject = raytracingPipeline.CreateSubobject<CD3D12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
 			globalRootSignatureSubobject->SetRootSignature(globalRootSignature);
 
 			auto pipelineConfig = raytracingPipeline.CreateSubobject<CD3D12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
@@ -255,7 +255,7 @@ namespace Kore {
 			else {
 				ID3D12StateObjectPropertiesPrototype* stateObjectProperties = nullptr;
 				getShaderIds(stateObjectProperties);
-				shaderIdSize = dxrDevice->GetShaderIdentifierSize();
+				shaderIdSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
 			}
 
 			// Ray gen shader table
@@ -303,7 +303,7 @@ namespace Kore {
 			geometryDesc.Triangles.IndexBuffer = ib->uploadBuffer->GetGPUVirtualAddress();
 			geometryDesc.Triangles.IndexCount = ib->count();
 			geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
-			geometryDesc.Triangles.Transform = 0;
+			geometryDesc.Triangles.Transform3x4 = 0;
 			geometryDesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			geometryDesc.Triangles.VertexCount = vb->count();
 			geometryDesc.Triangles.VertexBuffer.StartAddress = vb->uploadBuffer->GetGPUVirtualAddress();
@@ -312,29 +312,29 @@ namespace Kore {
 
 			// Get required sizes for an acceleration structure
 			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-			D3D12_GET_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO_DESC prebuildInfoDesc = {};
-			prebuildInfoDesc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-			prebuildInfoDesc.Flags = buildFlags;
-			prebuildInfoDesc.NumDescs = 1;
+			D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS topLevelInputs = {};
+			topLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+			topLevelInputs.Flags = buildFlags;
+			topLevelInputs.NumDescs = 1;
+			topLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
 
 			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO topLevelPrebuildInfo = {};
-			prebuildInfoDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
-			prebuildInfoDesc.pGeometryDescs = nullptr;
 			if (useComputeFallback) {
-				fallbackDevice->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildInfoDesc, &topLevelPrebuildInfo);
+				fallbackDevice->GetRaytracingAccelerationStructurePrebuildInfo(&topLevelInputs, &topLevelPrebuildInfo);
 			}
 			else {
-				dxrDevice->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildInfoDesc, &topLevelPrebuildInfo);
+				dxrDevice->GetRaytracingAccelerationStructurePrebuildInfo(&topLevelInputs, &topLevelPrebuildInfo);
 			}
 
 			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO bottomLevelPrebuildInfo = {};
-			prebuildInfoDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
-			prebuildInfoDesc.pGeometryDescs = &geometryDesc;
+			D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS bottomLevelInputs = topLevelInputs;
+			bottomLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+			bottomLevelInputs.pGeometryDescs = &geometryDesc;
 			if (useComputeFallback) {
-				fallbackDevice->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildInfoDesc, &bottomLevelPrebuildInfo);
+				fallbackDevice->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 			}
 			else {
-				dxrDevice->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildInfoDesc, &bottomLevelPrebuildInfo);
+				dxrDevice->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 			}
 
 			ID3D12Resource* scratchResource;
@@ -359,7 +359,7 @@ namespace Kore {
 			ID3D12Resource* instanceDescs;
 			if (useComputeFallback) {
 				D3D12_RAYTRACING_FALLBACK_INSTANCE_DESC instanceDesc = {};
-				instanceDesc.Transform[0] = instanceDesc.Transform[5] = instanceDesc.Transform[10] = 1;
+				instanceDesc.Transform[0][0] = instanceDesc.Transform[1][1] = instanceDesc.Transform[2][2] = 1;
 				instanceDesc.InstanceMask = 1;
 				UINT numBufferElements = static_cast<UINT>(bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes) / sizeof(UINT32);
 				instanceDesc.AccelerationStructure = createFallbackWrappedPointer(bottomLevelAccelerationStructure, numBufferElements); 
@@ -367,7 +367,7 @@ namespace Kore {
 			}
 			else {
 				D3D12_RAYTRACING_INSTANCE_DESC instanceDesc = {};
-				instanceDesc.Transform[0] = instanceDesc.Transform[5] = instanceDesc.Transform[10] = 1;
+				instanceDesc.Transform[0][0] = instanceDesc.Transform[1][1] = instanceDesc.Transform[2][2] = 1;
 				instanceDesc.InstanceMask = 1;
 				instanceDesc.AccelerationStructure = bottomLevelAccelerationStructure->GetGPUVirtualAddress();
 				allocateUploadBuffer(device, &instanceDesc, sizeof(instanceDesc), &instanceDescs);
@@ -382,30 +382,24 @@ namespace Kore {
 			// Bottom Level Acceleration Structure desc
 			D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC bottomLevelBuildDesc = {};
 			{
-				bottomLevelBuildDesc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-				bottomLevelBuildDesc.Flags = buildFlags;
-				bottomLevelBuildDesc.ScratchAccelerationStructureData = { scratchResource->GetGPUVirtualAddress(), scratchResource->GetDesc().Width };
-				bottomLevelBuildDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
-				bottomLevelBuildDesc.DestAccelerationStructureData = { bottomLevelAccelerationStructure->GetGPUVirtualAddress(), bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes };
-				bottomLevelBuildDesc.NumDescs = 1;
-				bottomLevelBuildDesc.pGeometryDescs = &geometryDesc;
+				bottomLevelBuildDesc.Inputs = bottomLevelInputs;
+				bottomLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
+				bottomLevelBuildDesc.DestAccelerationStructureData = bottomLevelAccelerationStructure->GetGPUVirtualAddress();
 			}
 
 			// Top Level Acceleration Structure desc
 			D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC topLevelBuildDesc = bottomLevelBuildDesc;
 			{
-				topLevelBuildDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
-				topLevelBuildDesc.DestAccelerationStructureData = { topLevelAccelerationStructure->GetGPUVirtualAddress(), topLevelPrebuildInfo.ResultDataMaxSizeInBytes };
-				topLevelBuildDesc.NumDescs = 1;
-				topLevelBuildDesc.pGeometryDescs = nullptr;
-				topLevelBuildDesc.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
-				topLevelBuildDesc.ScratchAccelerationStructureData = { scratchResource->GetGPUVirtualAddress(), scratchResource->GetDesc().Width };
+				topLevelInputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
+				topLevelBuildDesc.Inputs = topLevelInputs;
+				topLevelBuildDesc.DestAccelerationStructureData = topLevelAccelerationStructure->GetGPUVirtualAddress();
+				topLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
 			}
 
 			auto buildAccelerationStructure = [&](auto* raytracingCommandList) {
-				raytracingCommandList->BuildRaytracingAccelerationStructure(&bottomLevelBuildDesc);
+				raytracingCommandList->BuildRaytracingAccelerationStructure(&bottomLevelBuildDesc, 0, nullptr);
 				commandList->_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(bottomLevelAccelerationStructure));
-				raytracingCommandList->BuildRaytracingAccelerationStructure(&topLevelBuildDesc);
+				raytracingCommandList->BuildRaytracingAccelerationStructure(&topLevelBuildDesc, 0, nullptr);
 			};
 
 			// Build acceleration structure
@@ -481,18 +475,17 @@ namespace Kore {
 				dispatchDesc->RayGenerationShaderRecord.SizeInBytes = pipeline->rayGenShaderTable->GetDesc().Width;
 				dispatchDesc->Width = output->_width;
 				dispatchDesc->Height = output->_height;
-				commandList->DispatchRays(stateObject, dispatchDesc);
+				commandList->SetPipelineState1(stateObject);
+				commandList->DispatchRays(dispatchDesc);
 			};
 
 			commandList->_commandList->SetComputeRootSignature(globalRootSignature);
 
 			// Bind the heaps, acceleration structure and dispatch rays  
 			if (useComputeFallback) {
-				D3D12_FALLBACK_DISPATCH_RAYS_DESC dispatchDesc = {};
+				D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
 				fallbackCommandList->SetDescriptorHeaps(1, &descriptorHeap);
-				// output view
 				commandList->_commandList->SetComputeRootDescriptorTable(0, output->_textureHandle);
-				// acceleration structure
 				fallbackCommandList->SetTopLevelAccelerationStructure(1, accel->fallbackTopLevelAccelerationStructurePointer);
 				// Copy the updated constant buffer to GPU
 				auto cbGpuAddress = pipeline->_constantBuffer->_buffer->GetGPUVirtualAddress();
