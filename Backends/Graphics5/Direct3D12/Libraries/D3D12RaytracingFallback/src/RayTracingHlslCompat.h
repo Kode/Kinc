@@ -12,6 +12,19 @@
 #define RAYTRACING_HLSL_COMPAT_H_INCLUDED
 #include "WaveDimensions.h"
 
+//*********----- AMD driver limitation workarounds ------******************
+//  
+// Set following to 0 to get MiniEngineSample to run on AMD.
+//
+// Enables an unroll in treelet. Fails to compile on AMD.
+#define USE_EXPLICIT_UNROLL_IN_FORMTREELET 1
+
+// Enables treelet BVH optimization. TDRs on AMD.
+#define ENABLE_TREELET_REORDERING 1
+//
+//*************************************************************************
+
+
 #define     TRAVERSAL_MAX_STACK_DEPTH       32
 
 #define     MAX_TRIS_IN_LEAF                1
@@ -32,9 +45,16 @@
 
 struct HierarchyNode
 {
+#ifdef HLSL
     uint ParentIndex;
+#else
+    uint ParentIndex : 31;
+    uint bCollapseChildren : 1;
+#endif
     uint LeftChildIndex;
     uint RightChildIndex;
+
+    static const int IsCollapseChildren = 0x80000000; // for extracting HierarchyNode::bCollapseChildren
 };
 
 struct AABB
@@ -236,6 +256,7 @@ struct BVHMetadata
 
 #ifdef HLSL
 #define Store4StrideInBytes 16
+static
 void StoreBVHMetadataToRawData(RWByteAddressBuffer buffer, uint offset, BVHMetadata metadata)
 {
     uint4 data[7];
@@ -275,6 +296,7 @@ RaytracingInstanceDesc RawDataToRaytracingInstanceDesc(uint4 a, uint4 b, uint4 c
     return desc;
 }
 
+static
 BVHMetadata LoadBVHMetadata(RWByteAddressBuffer buffer, uint offset)
 {
     uint4 data[7];
@@ -294,6 +316,7 @@ BVHMetadata LoadBVHMetadata(RWByteAddressBuffer buffer, uint offset)
     return metadata;
 }
 
+static
 RaytracingInstanceDesc LoadRaytracingInstanceDesc(RWByteAddressBuffer buffer, uint offset)
 {
     uint4 data[4];
@@ -305,6 +328,7 @@ RaytracingInstanceDesc LoadRaytracingInstanceDesc(RWByteAddressBuffer buffer, ui
     return RawDataToRaytracingInstanceDesc(data[0], data[1], data[2], data[3]);
 }
 
+static
 RaytracingInstanceDesc LoadRaytracingInstanceDesc(ByteAddressBuffer buffer, uint offset)
 {
     uint4 data[4];

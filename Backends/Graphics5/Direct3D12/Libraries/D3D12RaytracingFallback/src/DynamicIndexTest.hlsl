@@ -8,15 +8,15 @@
 // PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 //
 //*********************************************************
-#define HLSL
-#include "TreeletReorderBindings.h"
-#include "RayTracingHelper.hlsli"
+Buffer inputBuffers[] : register(t0);
 
-[numthreads(THREAD_GROUP_1D_WIDTH, 1, 1)]
-void main( uint3 DTid : SV_DispatchThreadID )
+RWByteAddressBuffer outputBuffer : register(u0);
+
+[numthreads(1, 1, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
 {
-    const uint NumberOfInternalNodes = GetNumInternalNodes(Constants.NumberOfElements);
-    if (DTid.x >= NumberOfInternalNodes) return;
-
-    NumTrianglesBuffer.Store(DTid.x * SizeOfUINT32, 0);
+    for (uint i = 0; i < 3; i++)
+    {
+        outputBuffer.Store4(i * 16, asuint(inputBuffers[i].Load(0)));
+    }
 }

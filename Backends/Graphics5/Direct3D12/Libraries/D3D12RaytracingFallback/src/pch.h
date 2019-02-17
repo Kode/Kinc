@@ -22,6 +22,7 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <deque>
 #include <string>
@@ -30,8 +31,19 @@
 #include "d3dx12.h"
 #include "dxc\dxcapi.h"
 #include "dxc\dxcapi.use.h"
+#include "dxc\dxcdxrfallbackcompiler.h"
 #include "dxc\hlsl\DxilContainer.h"
+#include "dxc\hlsl\DxilRuntimeReflection.h"
 #include "Util.h"
+
+#include <iostream>
+#include <sstream> 
+#define SKIP_BINDING_VALIDATION
+#define SKIP_STATE_OBJECT_MASK_VALIDATION
+#define INCLUDE_MESSAGE_LOG
+#include "StateObjectProcessing.hpp"
+#include "DxbcParser.h"
+
 
 #include "FallbackDebug.h"
 
@@ -40,6 +52,7 @@
 #include "ComObject.h"
 
 #include "NativeRaytracing.h"
+#include "ExperimentalRaytracing.h"
 
 #include "FallbackDxil.h"
 #include "RaytracingHlslCompat.h"
@@ -80,6 +93,6 @@
 
 #define USE_PIX_MARKERS 0
 #if USE_PIX_MARKERS
-#include <pix3.h>
+#include "..\..\..\packages\WinPixEventRuntime.1.0.180612001\Include\WinPixEventRuntime\pix3.h"
 static const UINT FallbackPixColor = PIX_COLOR(10, 10, 255);
 #endif

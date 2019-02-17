@@ -1,7 +1,680 @@
+#if 0
+;
+; Input signature:
+;
+; Name                 Index   Mask Register SysValue  Format   Used
+; -------------------- ----- ------ -------- -------- ------- ------
+; no parameters
+;
+; Output signature:
+;
+; Name                 Index   Mask Register SysValue  Format   Used
+; -------------------- ----- ------ -------- -------- ------- ------
+; no parameters
+;
+; Pipeline Runtime Information: 
+;
+;
+;
+; Buffer Definitions:
+;
+; cbuffer CB1
+; {
+;
+;   struct CB1
+;   {
+;
+;       uint NullItem;                                ; Offset:    0
+;       uint ListCount;                               ; Offset:    4
+;   
+;   } CB1                                             ; Offset:    0 Size:     8
+;
+; }
+;
+;
+; Resource Bindings:
+;
+; Name                                 Type  Format         Dim      ID      HLSL Bind  Count
+; ------------------------------ ---------- ------- ----------- ------- -------------- ------
+; CB1                               cbuffer      NA          NA     CB0            cb1     1
+; g_SortBuffer                          UAV    byte         r/w      U0             u0     1
+; g_IndexBuffer                         UAV    byte         r/w      U1             u1     1
+;
+target datalayout = "e-m:e-p:32:32-i1:32-i8:32-i16:32-i32:32-i64:64-f16:32-f32:32-f64:64-n8:16:32:64"
+target triple = "dxil-ms-dx"
+
+%struct.RWByteAddressBuffer = type { i32 }
+%CB1 = type { i32, i32 }
+%dx.types.Handle = type { i8* }
+%dx.types.CBufRet.i32 = type { i32, i32, i32, i32 }
+%dx.types.ResRet.i32 = type { i32, i32, i32, i32, i32 }
+
+@"\01?g_SortBuffer@@3URWByteAddressBuffer@@A" = external constant %struct.RWByteAddressBuffer, align 4
+@"\01?g_IndexBuffer@@3URWByteAddressBuffer@@A" = external constant %struct.RWByteAddressBuffer, align 4
+@"\01?gs_SortKeys@@3PAIA" = addrspace(3) global [2048 x i32] zeroinitializer, align 4
+@"\01?gs_SortIndices@@3PAIA" = addrspace(3) global [2048 x i32] zeroinitializer, align 4
+@CB1 = external constant %CB1
+
+define void @main() {
+  %g_IndexBuffer_UAV_rawbuf = call %dx.types.Handle @dx.op.createHandle(i32 57, i8 1, i32 1, i32 1, i1 false)  ; CreateHandle(resourceClass,rangeId,index,nonUniformIndex)
+  %g_SortBuffer_UAV_rawbuf = call %dx.types.Handle @dx.op.createHandle(i32 57, i8 1, i32 0, i32 0, i1 false)  ; CreateHandle(resourceClass,rangeId,index,nonUniformIndex)
+  %CB1_cbuffer = call %dx.types.Handle @dx.op.createHandle(i32 57, i8 2, i32 0, i32 1, i1 false)  ; CreateHandle(resourceClass,rangeId,index,nonUniformIndex)
+  %1 = call i32 @dx.op.groupId.i32(i32 94, i32 0)  ; GroupId(component)
+  %2 = call i32 @dx.op.flattenedThreadIdInGroup.i32(i32 96)  ; FlattenedThreadIdInGroup()
+  %3 = shl i32 %1, 11
+  %4 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %5 = extractvalue %dx.types.CBufRet.i32 %4, 1
+  %6 = add i32 %3, %2
+  %7 = icmp ult i32 %6, %5
+  br i1 %7, label %8, label %12
+
+; <label>:8                                       ; preds = %0
+  %9 = shl i32 %6, 2
+  %10 = call %dx.types.ResRet.i32 @dx.op.bufferLoad.i32(i32 68, %dx.types.Handle %g_SortBuffer_UAV_rawbuf, i32 %9, i32 undef)  ; BufferLoad(srv,index,wot)
+  %11 = extractvalue %dx.types.ResRet.i32 %10, 0
+  br label %14
+
+; <label>:12                                      ; preds = %0
+  %13 = extractvalue %dx.types.CBufRet.i32 %4, 0
+  br label %14
+
+; <label>:14                                      ; preds = %12, %8
+  %15 = phi i32 [ %11, %8 ], [ %13, %12 ]
+  br i1 %7, label %16, label %20
+
+; <label>:16                                      ; preds = %14
+  %17 = shl i32 %6, 2
+  %18 = call %dx.types.ResRet.i32 @dx.op.bufferLoad.i32(i32 68, %dx.types.Handle %g_IndexBuffer_UAV_rawbuf, i32 %17, i32 undef)  ; BufferLoad(srv,index,wot)
+  %19 = extractvalue %dx.types.ResRet.i32 %18, 0
+  br label %"\01?LoadKeyIndexPair@@YAXII@Z.exit"
+
+; <label>:20                                      ; preds = %14
+  %21 = extractvalue %dx.types.CBufRet.i32 %4, 0
+  br label %"\01?LoadKeyIndexPair@@YAXII@Z.exit"
+
+"\01?LoadKeyIndexPair@@YAXII@Z.exit":             ; preds = %20, %16
+  %22 = phi i32 [ %19, %16 ], [ %21, %20 ]
+  %23 = and i32 %6, 2047
+  %24 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %23
+  store i32 %22, i32 addrspace(3)* %24, align 4, !tbaa !23
+  %25 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %23
+  store i32 %15, i32 addrspace(3)* %25, align 4, !tbaa !23
+  %26 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %27 = extractvalue %dx.types.CBufRet.i32 %26, 1
+  %28 = add i32 %2, 1024
+  %29 = add i32 %28, %3
+  %30 = icmp ult i32 %29, %27
+  br i1 %30, label %31, label %35
+
+; <label>:31                                      ; preds = %"\01?LoadKeyIndexPair@@YAXII@Z.exit"
+  %32 = shl i32 %29, 2
+  %33 = call %dx.types.ResRet.i32 @dx.op.bufferLoad.i32(i32 68, %dx.types.Handle %g_SortBuffer_UAV_rawbuf, i32 %32, i32 undef)  ; BufferLoad(srv,index,wot)
+  %34 = extractvalue %dx.types.ResRet.i32 %33, 0
+  br label %37
+
+; <label>:35                                      ; preds = %"\01?LoadKeyIndexPair@@YAXII@Z.exit"
+  %36 = extractvalue %dx.types.CBufRet.i32 %26, 0
+  br label %37
+
+; <label>:37                                      ; preds = %35, %31
+  %38 = phi i32 [ %34, %31 ], [ %36, %35 ]
+  br i1 %30, label %39, label %43
+
+; <label>:39                                      ; preds = %37
+  %40 = shl i32 %29, 2
+  %41 = call %dx.types.ResRet.i32 @dx.op.bufferLoad.i32(i32 68, %dx.types.Handle %g_IndexBuffer_UAV_rawbuf, i32 %40, i32 undef)  ; BufferLoad(srv,index,wot)
+  %42 = extractvalue %dx.types.ResRet.i32 %41, 0
+  br label %"\01?LoadKeyIndexPair@@YAXII@Z.exit3"
+
+; <label>:43                                      ; preds = %37
+  %44 = extractvalue %dx.types.CBufRet.i32 %26, 0
+  br label %"\01?LoadKeyIndexPair@@YAXII@Z.exit3"
+
+"\01?LoadKeyIndexPair@@YAXII@Z.exit3":            ; preds = %43, %39
+  %45 = phi i32 [ %42, %39 ], [ %44, %43 ]
+  %46 = and i32 %29, 2047
+  %47 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %46
+  store i32 %45, i32 addrspace(3)* %47, align 4, !tbaa !23
+  %48 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %46
+  store i32 %38, i32 addrspace(3)* %48, align 4, !tbaa !23
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %49 = shl i32 %2, 1
+  %50 = and i32 %49, -2048
+  %51 = and i32 %2, 1023
+  %52 = or i32 %50, %51
+  %53 = or i32 %52, 1024
+  %54 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %52
+  %55 = load i32, i32 addrspace(3)* %54, align 4, !tbaa !23
+  %56 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %53
+  %57 = load i32, i32 addrspace(3)* %56, align 4, !tbaa !23
+  %58 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %52
+  %59 = load i32, i32 addrspace(3)* %58, align 4, !tbaa !23
+  %60 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %53
+  %61 = load i32, i32 addrspace(3)* %60, align 4, !tbaa !23
+  %62 = icmp eq i32 %55, %57
+  br i1 %62, label %63, label %65
+
+; <label>:63                                      ; preds = %"\01?LoadKeyIndexPair@@YAXII@Z.exit3"
+  %64 = icmp ugt i32 %59, %61
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit"
+
+; <label>:65                                      ; preds = %"\01?LoadKeyIndexPair@@YAXII@Z.exit3"
+  %66 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %67 = extractvalue %dx.types.CBufRet.i32 %66, 0
+  %68 = xor i32 %67, %55
+  %69 = xor i32 %67, %57
+  %70 = icmp ult i32 %68, %69
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit":                ; preds = %65, %63
+  %.0 = phi i1 [ %64, %63 ], [ %70, %65 ]
+  br i1 %.0, label %71, label %72
+
+; <label>:71                                      ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit"
+  store i32 %57, i32 addrspace(3)* %54, align 4, !tbaa !23
+  store i32 %55, i32 addrspace(3)* %56, align 4, !tbaa !23
+  store i32 %61, i32 addrspace(3)* %58, align 4, !tbaa !23
+  store i32 %59, i32 addrspace(3)* %60, align 4, !tbaa !23
+  br label %72
+
+; <label>:72                                      ; preds = %71, %"\01?ShouldSwap@@YA_NIIII@Z.exit"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %73 = and i32 %49, -1024
+  %74 = and i32 %2, 511
+  %75 = or i32 %73, %74
+  %76 = or i32 %75, 512
+  %77 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %75
+  %78 = load i32, i32 addrspace(3)* %77, align 4, !tbaa !23
+  %79 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %76
+  %80 = load i32, i32 addrspace(3)* %79, align 4, !tbaa !23
+  %81 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %75
+  %82 = load i32, i32 addrspace(3)* %81, align 4, !tbaa !23
+  %83 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %76
+  %84 = load i32, i32 addrspace(3)* %83, align 4, !tbaa !23
+  %85 = icmp eq i32 %78, %80
+  br i1 %85, label %103, label %97
+
+; <label>:86                                      ; preds = %310
+  %87 = load i32, i32 addrspace(3)* %25, align 4, !tbaa !23
+  %88 = shl i32 %6, 2
+  call void @dx.op.bufferStore.i32(i32 69, %dx.types.Handle %g_SortBuffer_UAV_rawbuf, i32 %88, i32 undef, i32 %87, i32 undef, i32 undef, i32 undef, i8 1)  ; BufferStore(uav,coord0,coord1,value0,value1,value2,value3,mask)
+  %89 = load i32, i32 addrspace(3)* %24, align 4, !tbaa !23
+  call void @dx.op.bufferStore.i32(i32 69, %dx.types.Handle %g_IndexBuffer_UAV_rawbuf, i32 %88, i32 undef, i32 %89, i32 undef, i32 undef, i32 undef, i8 1)  ; BufferStore(uav,coord0,coord1,value0,value1,value2,value3,mask)
+  br label %"\01?StoreKeyIndexPair@@YAXII@Z.exit"
+
+"\01?StoreKeyIndexPair@@YAXII@Z.exit":            ; preds = %310, %86
+  %90 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %91 = extractvalue %dx.types.CBufRet.i32 %90, 1
+  %92 = icmp ult i32 %29, %91
+  br i1 %92, label %93, label %"\01?StoreKeyIndexPair@@YAXII@Z.exit4"
+
+; <label>:93                                      ; preds = %"\01?StoreKeyIndexPair@@YAXII@Z.exit"
+  %94 = load i32, i32 addrspace(3)* %48, align 4, !tbaa !23
+  %95 = shl i32 %29, 2
+  call void @dx.op.bufferStore.i32(i32 69, %dx.types.Handle %g_SortBuffer_UAV_rawbuf, i32 %95, i32 undef, i32 %94, i32 undef, i32 undef, i32 undef, i8 1)  ; BufferStore(uav,coord0,coord1,value0,value1,value2,value3,mask)
+  %96 = load i32, i32 addrspace(3)* %47, align 4, !tbaa !23
+  call void @dx.op.bufferStore.i32(i32 69, %dx.types.Handle %g_IndexBuffer_UAV_rawbuf, i32 %95, i32 undef, i32 %96, i32 undef, i32 undef, i32 undef, i8 1)  ; BufferStore(uav,coord0,coord1,value0,value1,value2,value3,mask)
+  br label %"\01?StoreKeyIndexPair@@YAXII@Z.exit4"
+
+"\01?StoreKeyIndexPair@@YAXII@Z.exit4":           ; preds = %93, %"\01?StoreKeyIndexPair@@YAXII@Z.exit"
+  ret void
+
+; <label>:97                                      ; preds = %72
+  %98 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %99 = extractvalue %dx.types.CBufRet.i32 %98, 0
+  %100 = xor i32 %99, %78
+  %101 = xor i32 %99, %80
+  %102 = icmp ult i32 %100, %101
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.1"
+
+; <label>:103                                     ; preds = %72
+  %104 = icmp ugt i32 %82, %84
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.1"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.1":              ; preds = %103, %97
+  %.0.1 = phi i1 [ %104, %103 ], [ %102, %97 ]
+  br i1 %.0.1, label %105, label %106
+
+; <label>:105                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.1"
+  store i32 %80, i32 addrspace(3)* %77, align 4, !tbaa !23
+  store i32 %78, i32 addrspace(3)* %79, align 4, !tbaa !23
+  store i32 %84, i32 addrspace(3)* %81, align 4, !tbaa !23
+  store i32 %82, i32 addrspace(3)* %83, align 4, !tbaa !23
+  br label %106
+
+; <label>:106                                     ; preds = %105, %"\01?ShouldSwap@@YA_NIIII@Z.exit.1"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %107 = and i32 %49, -512
+  %108 = and i32 %2, 255
+  %109 = or i32 %107, %108
+  %110 = or i32 %109, 256
+  %111 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %109
+  %112 = load i32, i32 addrspace(3)* %111, align 4, !tbaa !23
+  %113 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %110
+  %114 = load i32, i32 addrspace(3)* %113, align 4, !tbaa !23
+  %115 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %109
+  %116 = load i32, i32 addrspace(3)* %115, align 4, !tbaa !23
+  %117 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %110
+  %118 = load i32, i32 addrspace(3)* %117, align 4, !tbaa !23
+  %119 = icmp eq i32 %112, %114
+  br i1 %119, label %126, label %120
+
+; <label>:120                                     ; preds = %106
+  %121 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %122 = extractvalue %dx.types.CBufRet.i32 %121, 0
+  %123 = xor i32 %122, %112
+  %124 = xor i32 %122, %114
+  %125 = icmp ult i32 %123, %124
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.2"
+
+; <label>:126                                     ; preds = %106
+  %127 = icmp ugt i32 %116, %118
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.2"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.2":              ; preds = %126, %120
+  %.0.2 = phi i1 [ %127, %126 ], [ %125, %120 ]
+  br i1 %.0.2, label %128, label %129
+
+; <label>:128                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.2"
+  store i32 %114, i32 addrspace(3)* %111, align 4, !tbaa !23
+  store i32 %112, i32 addrspace(3)* %113, align 4, !tbaa !23
+  store i32 %118, i32 addrspace(3)* %115, align 4, !tbaa !23
+  store i32 %116, i32 addrspace(3)* %117, align 4, !tbaa !23
+  br label %129
+
+; <label>:129                                     ; preds = %128, %"\01?ShouldSwap@@YA_NIIII@Z.exit.2"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %130 = and i32 %49, -256
+  %131 = and i32 %2, 127
+  %132 = or i32 %130, %131
+  %133 = or i32 %132, 128
+  %134 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %132
+  %135 = load i32, i32 addrspace(3)* %134, align 4, !tbaa !23
+  %136 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %133
+  %137 = load i32, i32 addrspace(3)* %136, align 4, !tbaa !23
+  %138 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %132
+  %139 = load i32, i32 addrspace(3)* %138, align 4, !tbaa !23
+  %140 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %133
+  %141 = load i32, i32 addrspace(3)* %140, align 4, !tbaa !23
+  %142 = icmp eq i32 %135, %137
+  br i1 %142, label %149, label %143
+
+; <label>:143                                     ; preds = %129
+  %144 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %145 = extractvalue %dx.types.CBufRet.i32 %144, 0
+  %146 = xor i32 %145, %135
+  %147 = xor i32 %145, %137
+  %148 = icmp ult i32 %146, %147
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.3"
+
+; <label>:149                                     ; preds = %129
+  %150 = icmp ugt i32 %139, %141
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.3"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.3":              ; preds = %149, %143
+  %.0.3 = phi i1 [ %150, %149 ], [ %148, %143 ]
+  br i1 %.0.3, label %151, label %152
+
+; <label>:151                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.3"
+  store i32 %137, i32 addrspace(3)* %134, align 4, !tbaa !23
+  store i32 %135, i32 addrspace(3)* %136, align 4, !tbaa !23
+  store i32 %141, i32 addrspace(3)* %138, align 4, !tbaa !23
+  store i32 %139, i32 addrspace(3)* %140, align 4, !tbaa !23
+  br label %152
+
+; <label>:152                                     ; preds = %151, %"\01?ShouldSwap@@YA_NIIII@Z.exit.3"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %153 = and i32 %49, -128
+  %154 = and i32 %2, 63
+  %155 = or i32 %153, %154
+  %156 = or i32 %155, 64
+  %157 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %155
+  %158 = load i32, i32 addrspace(3)* %157, align 4, !tbaa !23
+  %159 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %156
+  %160 = load i32, i32 addrspace(3)* %159, align 4, !tbaa !23
+  %161 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %155
+  %162 = load i32, i32 addrspace(3)* %161, align 4, !tbaa !23
+  %163 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %156
+  %164 = load i32, i32 addrspace(3)* %163, align 4, !tbaa !23
+  %165 = icmp eq i32 %158, %160
+  br i1 %165, label %172, label %166
+
+; <label>:166                                     ; preds = %152
+  %167 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %168 = extractvalue %dx.types.CBufRet.i32 %167, 0
+  %169 = xor i32 %168, %158
+  %170 = xor i32 %168, %160
+  %171 = icmp ult i32 %169, %170
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.4"
+
+; <label>:172                                     ; preds = %152
+  %173 = icmp ugt i32 %162, %164
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.4"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.4":              ; preds = %172, %166
+  %.0.4 = phi i1 [ %173, %172 ], [ %171, %166 ]
+  br i1 %.0.4, label %174, label %175
+
+; <label>:174                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.4"
+  store i32 %160, i32 addrspace(3)* %157, align 4, !tbaa !23
+  store i32 %158, i32 addrspace(3)* %159, align 4, !tbaa !23
+  store i32 %164, i32 addrspace(3)* %161, align 4, !tbaa !23
+  store i32 %162, i32 addrspace(3)* %163, align 4, !tbaa !23
+  br label %175
+
+; <label>:175                                     ; preds = %174, %"\01?ShouldSwap@@YA_NIIII@Z.exit.4"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %176 = and i32 %49, -64
+  %177 = and i32 %2, 31
+  %178 = or i32 %176, %177
+  %179 = or i32 %178, 32
+  %180 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %178
+  %181 = load i32, i32 addrspace(3)* %180, align 4, !tbaa !23
+  %182 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %179
+  %183 = load i32, i32 addrspace(3)* %182, align 4, !tbaa !23
+  %184 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %178
+  %185 = load i32, i32 addrspace(3)* %184, align 4, !tbaa !23
+  %186 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %179
+  %187 = load i32, i32 addrspace(3)* %186, align 4, !tbaa !23
+  %188 = icmp eq i32 %181, %183
+  br i1 %188, label %195, label %189
+
+; <label>:189                                     ; preds = %175
+  %190 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %191 = extractvalue %dx.types.CBufRet.i32 %190, 0
+  %192 = xor i32 %191, %181
+  %193 = xor i32 %191, %183
+  %194 = icmp ult i32 %192, %193
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.5"
+
+; <label>:195                                     ; preds = %175
+  %196 = icmp ugt i32 %185, %187
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.5"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.5":              ; preds = %195, %189
+  %.0.5 = phi i1 [ %196, %195 ], [ %194, %189 ]
+  br i1 %.0.5, label %197, label %198
+
+; <label>:197                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.5"
+  store i32 %183, i32 addrspace(3)* %180, align 4, !tbaa !23
+  store i32 %181, i32 addrspace(3)* %182, align 4, !tbaa !23
+  store i32 %187, i32 addrspace(3)* %184, align 4, !tbaa !23
+  store i32 %185, i32 addrspace(3)* %186, align 4, !tbaa !23
+  br label %198
+
+; <label>:198                                     ; preds = %197, %"\01?ShouldSwap@@YA_NIIII@Z.exit.5"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %199 = and i32 %49, -32
+  %200 = and i32 %2, 15
+  %201 = or i32 %199, %200
+  %202 = or i32 %201, 16
+  %203 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %201
+  %204 = load i32, i32 addrspace(3)* %203, align 4, !tbaa !23
+  %205 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %202
+  %206 = load i32, i32 addrspace(3)* %205, align 4, !tbaa !23
+  %207 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %201
+  %208 = load i32, i32 addrspace(3)* %207, align 4, !tbaa !23
+  %209 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %202
+  %210 = load i32, i32 addrspace(3)* %209, align 4, !tbaa !23
+  %211 = icmp eq i32 %204, %206
+  br i1 %211, label %218, label %212
+
+; <label>:212                                     ; preds = %198
+  %213 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %214 = extractvalue %dx.types.CBufRet.i32 %213, 0
+  %215 = xor i32 %214, %204
+  %216 = xor i32 %214, %206
+  %217 = icmp ult i32 %215, %216
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.6"
+
+; <label>:218                                     ; preds = %198
+  %219 = icmp ugt i32 %208, %210
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.6"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.6":              ; preds = %218, %212
+  %.0.6 = phi i1 [ %219, %218 ], [ %217, %212 ]
+  br i1 %.0.6, label %220, label %221
+
+; <label>:220                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.6"
+  store i32 %206, i32 addrspace(3)* %203, align 4, !tbaa !23
+  store i32 %204, i32 addrspace(3)* %205, align 4, !tbaa !23
+  store i32 %210, i32 addrspace(3)* %207, align 4, !tbaa !23
+  store i32 %208, i32 addrspace(3)* %209, align 4, !tbaa !23
+  br label %221
+
+; <label>:221                                     ; preds = %220, %"\01?ShouldSwap@@YA_NIIII@Z.exit.6"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %222 = and i32 %49, -16
+  %223 = and i32 %2, 7
+  %224 = or i32 %222, %223
+  %225 = or i32 %224, 8
+  %226 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %224
+  %227 = load i32, i32 addrspace(3)* %226, align 4, !tbaa !23
+  %228 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %225
+  %229 = load i32, i32 addrspace(3)* %228, align 4, !tbaa !23
+  %230 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %224
+  %231 = load i32, i32 addrspace(3)* %230, align 4, !tbaa !23
+  %232 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %225
+  %233 = load i32, i32 addrspace(3)* %232, align 4, !tbaa !23
+  %234 = icmp eq i32 %227, %229
+  br i1 %234, label %241, label %235
+
+; <label>:235                                     ; preds = %221
+  %236 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %237 = extractvalue %dx.types.CBufRet.i32 %236, 0
+  %238 = xor i32 %237, %227
+  %239 = xor i32 %237, %229
+  %240 = icmp ult i32 %238, %239
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.7"
+
+; <label>:241                                     ; preds = %221
+  %242 = icmp ugt i32 %231, %233
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.7"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.7":              ; preds = %241, %235
+  %.0.7 = phi i1 [ %242, %241 ], [ %240, %235 ]
+  br i1 %.0.7, label %243, label %244
+
+; <label>:243                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.7"
+  store i32 %229, i32 addrspace(3)* %226, align 4, !tbaa !23
+  store i32 %227, i32 addrspace(3)* %228, align 4, !tbaa !23
+  store i32 %233, i32 addrspace(3)* %230, align 4, !tbaa !23
+  store i32 %231, i32 addrspace(3)* %232, align 4, !tbaa !23
+  br label %244
+
+; <label>:244                                     ; preds = %243, %"\01?ShouldSwap@@YA_NIIII@Z.exit.7"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %245 = and i32 %49, -8
+  %246 = and i32 %2, 3
+  %247 = or i32 %245, %246
+  %248 = or i32 %247, 4
+  %249 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %247
+  %250 = load i32, i32 addrspace(3)* %249, align 4, !tbaa !23
+  %251 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %248
+  %252 = load i32, i32 addrspace(3)* %251, align 4, !tbaa !23
+  %253 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %247
+  %254 = load i32, i32 addrspace(3)* %253, align 4, !tbaa !23
+  %255 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %248
+  %256 = load i32, i32 addrspace(3)* %255, align 4, !tbaa !23
+  %257 = icmp eq i32 %250, %252
+  br i1 %257, label %264, label %258
+
+; <label>:258                                     ; preds = %244
+  %259 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %260 = extractvalue %dx.types.CBufRet.i32 %259, 0
+  %261 = xor i32 %260, %250
+  %262 = xor i32 %260, %252
+  %263 = icmp ult i32 %261, %262
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.8"
+
+; <label>:264                                     ; preds = %244
+  %265 = icmp ugt i32 %254, %256
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.8"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.8":              ; preds = %264, %258
+  %.0.8 = phi i1 [ %265, %264 ], [ %263, %258 ]
+  br i1 %.0.8, label %266, label %267
+
+; <label>:266                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.8"
+  store i32 %252, i32 addrspace(3)* %249, align 4, !tbaa !23
+  store i32 %250, i32 addrspace(3)* %251, align 4, !tbaa !23
+  store i32 %256, i32 addrspace(3)* %253, align 4, !tbaa !23
+  store i32 %254, i32 addrspace(3)* %255, align 4, !tbaa !23
+  br label %267
+
+; <label>:267                                     ; preds = %266, %"\01?ShouldSwap@@YA_NIIII@Z.exit.8"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %268 = and i32 %2, 1
+  %269 = or i32 %49, %268
+  %270 = or i32 %269, 2
+  %271 = and i32 %269, -3
+  %272 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %271
+  %273 = load i32, i32 addrspace(3)* %272, align 4, !tbaa !23
+  %274 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %270
+  %275 = load i32, i32 addrspace(3)* %274, align 4, !tbaa !23
+  %276 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %271
+  %277 = load i32, i32 addrspace(3)* %276, align 4, !tbaa !23
+  %278 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %270
+  %279 = load i32, i32 addrspace(3)* %278, align 4, !tbaa !23
+  %280 = icmp eq i32 %273, %275
+  br i1 %280, label %287, label %281
+
+; <label>:281                                     ; preds = %267
+  %282 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %283 = extractvalue %dx.types.CBufRet.i32 %282, 0
+  %284 = xor i32 %283, %273
+  %285 = xor i32 %283, %275
+  %286 = icmp ult i32 %284, %285
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.9"
+
+; <label>:287                                     ; preds = %267
+  %288 = icmp ugt i32 %277, %279
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.9"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.9":              ; preds = %287, %281
+  %.0.9 = phi i1 [ %288, %287 ], [ %286, %281 ]
+  br i1 %.0.9, label %289, label %290
+
+; <label>:289                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.9"
+  store i32 %275, i32 addrspace(3)* %272, align 4, !tbaa !23
+  store i32 %273, i32 addrspace(3)* %274, align 4, !tbaa !23
+  store i32 %279, i32 addrspace(3)* %276, align 4, !tbaa !23
+  store i32 %277, i32 addrspace(3)* %278, align 4, !tbaa !23
+  br label %290
+
+; <label>:290                                     ; preds = %289, %"\01?ShouldSwap@@YA_NIIII@Z.exit.9"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %291 = or i32 %49, 1
+  %292 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %49
+  %293 = load i32, i32 addrspace(3)* %292, align 4, !tbaa !23
+  %294 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortKeys@@3PAIA", i32 0, i32 %291
+  %295 = load i32, i32 addrspace(3)* %294, align 4, !tbaa !23
+  %296 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %49
+  %297 = load i32, i32 addrspace(3)* %296, align 4, !tbaa !23
+  %298 = getelementptr [2048 x i32], [2048 x i32] addrspace(3)* @"\01?gs_SortIndices@@3PAIA", i32 0, i32 %291
+  %299 = load i32, i32 addrspace(3)* %298, align 4, !tbaa !23
+  %300 = icmp eq i32 %293, %295
+  br i1 %300, label %307, label %301
+
+; <label>:301                                     ; preds = %290
+  %302 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %303 = extractvalue %dx.types.CBufRet.i32 %302, 0
+  %304 = xor i32 %303, %293
+  %305 = xor i32 %303, %295
+  %306 = icmp ult i32 %304, %305
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.10"
+
+; <label>:307                                     ; preds = %290
+  %308 = icmp ugt i32 %297, %299
+  br label %"\01?ShouldSwap@@YA_NIIII@Z.exit.10"
+
+"\01?ShouldSwap@@YA_NIIII@Z.exit.10":             ; preds = %307, %301
+  %.0.10 = phi i1 [ %308, %307 ], [ %306, %301 ]
+  br i1 %.0.10, label %309, label %310
+
+; <label>:309                                     ; preds = %"\01?ShouldSwap@@YA_NIIII@Z.exit.10"
+  store i32 %295, i32 addrspace(3)* %292, align 4, !tbaa !23
+  store i32 %293, i32 addrspace(3)* %294, align 4, !tbaa !23
+  store i32 %299, i32 addrspace(3)* %296, align 4, !tbaa !23
+  store i32 %297, i32 addrspace(3)* %298, align 4, !tbaa !23
+  br label %310
+
+; <label>:310                                     ; preds = %309, %"\01?ShouldSwap@@YA_NIIII@Z.exit.10"
+  call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
+  %311 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %CB1_cbuffer, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %312 = extractvalue %dx.types.CBufRet.i32 %311, 1
+  %313 = icmp ult i32 %6, %312
+  br i1 %313, label %86, label %"\01?StoreKeyIndexPair@@YAXII@Z.exit"
+}
+
+; Function Attrs: nounwind readnone
+declare i32 @dx.op.groupId.i32(i32, i32) #0
+
+; Function Attrs: nounwind readnone
+declare i32 @dx.op.flattenedThreadIdInGroup.i32(i32) #0
+
+; Function Attrs: nounwind readonly
+declare %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32, %dx.types.Handle, i32) #1
+
+; Function Attrs: noduplicate nounwind
+declare void @dx.op.barrier(i32, i32) #2
+
+; Function Attrs: nounwind readonly
+declare %dx.types.Handle @dx.op.createHandle(i32, i8, i32, i32, i1) #1
+
+; Function Attrs: nounwind readonly
+declare %dx.types.ResRet.i32 @dx.op.bufferLoad.i32(i32, %dx.types.Handle, i32, i32) #1
+
+; Function Attrs: nounwind
+declare void @dx.op.bufferStore.i32(i32, %dx.types.Handle, i32, i32, i32, i32, i32, i32, i8) #3
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind readonly }
+attributes #2 = { noduplicate nounwind }
+attributes #3 = { nounwind }
+
+!llvm.ident = !{!0}
+!dx.version = !{!1}
+!dx.valver = !{!2}
+!dx.shaderModel = !{!3}
+!dx.resources = !{!4}
+!dx.typeAnnotations = !{!10, !16}
+!dx.entryPoints = !{!20}
+
+!0 = !{!"dxc 1.2"}
+!1 = !{i32 1, i32 0}
+!2 = !{i32 1, i32 3}
+!3 = !{!"cs", i32 6, i32 0}
+!4 = !{null, !5, !8, null}
+!5 = !{!6, !7}
+!6 = !{i32 0, %struct.RWByteAddressBuffer* undef, !"g_SortBuffer", i32 0, i32 0, i32 1, i32 11, i1 false, i1 false, i1 false, null}
+!7 = !{i32 1, %struct.RWByteAddressBuffer* undef, !"g_IndexBuffer", i32 0, i32 1, i32 1, i32 11, i1 false, i1 false, i1 false, null}
+!8 = !{!9}
+!9 = !{i32 0, %CB1* undef, !"CB1", i32 0, i32 1, i32 1, i32 8, null}
+!10 = !{i32 0, %struct.RWByteAddressBuffer undef, !11, %CB1 undef, !13}
+!11 = !{i32 4, !12}
+!12 = !{i32 6, !"h", i32 3, i32 0, i32 7, i32 4}
+!13 = !{i32 8, !14, !15}
+!14 = !{i32 6, !"NullItem", i32 3, i32 0, i32 7, i32 5}
+!15 = !{i32 6, !"ListCount", i32 3, i32 4, i32 7, i32 5}
+!16 = !{i32 1, void ()* @main, !17}
+!17 = !{!18}
+!18 = !{i32 0, !19, !19}
+!19 = !{}
+!20 = !{void ()* @main, !"main", null, !4, !21}
+!21 = !{i32 0, i64 16, i32 4, !22}
+!22 = !{i32 1024, i32 1, i32 1}
+!23 = !{!24, !24, i64 0}
+!24 = !{!"int", !25, i64 0}
+!25 = !{!"omnipotent char", !26, i64 0}
+!26 = !{!"Simple C/C++ TBAA"}
+
+#endif
+
 const unsigned char g_pBitonicInnerSortCS[] = {
-  0x44, 0x58, 0x42, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
-  0x50, 0x15, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
+  0x44, 0x58, 0x42, 0x43, 0xcf, 0x6a, 0xe1, 0xbc, 0x08, 0xae, 0x71, 0xd0,
+  0xc9, 0x1e, 0x22, 0xee, 0x3a, 0x18, 0xff, 0x72, 0x01, 0x00, 0x00, 0x00,
+  0x2c, 0x15, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
   0x44, 0x00, 0x00, 0x00, 0x54, 0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00,
   0xd8, 0x00, 0x00, 0x00, 0x53, 0x46, 0x49, 0x30, 0x08, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x49, 0x53, 0x47, 0x31,
@@ -17,10 +690,10 @@ const unsigned char g_pBitonicInnerSortCS[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
   0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x44, 0x58, 0x49, 0x4c, 0x70, 0x14, 0x00, 0x00, 0x60, 0x00, 0x05, 0x00,
-  0x1c, 0x05, 0x00, 0x00, 0x44, 0x58, 0x49, 0x4c, 0x00, 0x01, 0x00, 0x00,
-  0x10, 0x00, 0x00, 0x00, 0x58, 0x14, 0x00, 0x00, 0x42, 0x43, 0xc0, 0xde,
-  0x21, 0x0c, 0x00, 0x00, 0x13, 0x05, 0x00, 0x00, 0x0b, 0x82, 0x20, 0x00,
+  0x44, 0x58, 0x49, 0x4c, 0x4c, 0x14, 0x00, 0x00, 0x60, 0x00, 0x05, 0x00,
+  0x13, 0x05, 0x00, 0x00, 0x44, 0x58, 0x49, 0x4c, 0x00, 0x01, 0x00, 0x00,
+  0x10, 0x00, 0x00, 0x00, 0x34, 0x14, 0x00, 0x00, 0x42, 0x43, 0xc0, 0xde,
+  0x21, 0x0c, 0x00, 0x00, 0x0a, 0x05, 0x00, 0x00, 0x0b, 0x82, 0x20, 0x00,
   0x02, 0x00, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00, 0x07, 0x81, 0x23, 0x91,
   0x41, 0xc8, 0x04, 0x49, 0x06, 0x10, 0x32, 0x39, 0x92, 0x01, 0x84, 0x0c,
   0x25, 0x05, 0x08, 0x19, 0x1e, 0x04, 0x8b, 0x62, 0x80, 0x18, 0x45, 0x02,
@@ -52,7 +725,7 @@ const unsigned char g_pBitonicInnerSortCS[] = {
   0x40, 0x5a, 0x51, 0x0e, 0x20, 0x02, 0x00, 0x00, 0x00, 0x80, 0x87, 0xb8,
   0x81, 0x80, 0x39, 0x02, 0x50, 0x98, 0x02, 0x18, 0x44, 0x00, 0x06, 0x00,
   0x13, 0x14, 0x72, 0xc0, 0x87, 0x74, 0x60, 0x87, 0x36, 0x68, 0x87, 0x79,
-  0x68, 0x03, 0x72, 0xc0, 0x87, 0x0d, 0xb0, 0x50, 0x0e, 0x6d, 0xd0, 0x0e,
+  0x68, 0x03, 0x72, 0xc0, 0x87, 0x0d, 0xaf, 0x50, 0x0e, 0x6d, 0xd0, 0x0e,
   0x7a, 0x50, 0x0e, 0x6d, 0x00, 0x0f, 0x7a, 0x30, 0x07, 0x72, 0xa0, 0x07,
   0x73, 0x20, 0x07, 0x6d, 0x90, 0x0e, 0x71, 0xa0, 0x07, 0x73, 0x20, 0x07,
   0x6d, 0x90, 0x0e, 0x78, 0xa0, 0x07, 0x73, 0x20, 0x07, 0x6d, 0x90, 0x0e,
@@ -60,66 +733,63 @@ const unsigned char g_pBitonicInnerSortCS[] = {
   0x72, 0xa0, 0x07, 0x73, 0x20, 0x07, 0x6d, 0x90, 0x0e, 0x76, 0x40, 0x07,
   0x7a, 0x60, 0x07, 0x74, 0xd0, 0x06, 0xe6, 0x10, 0x07, 0x76, 0xa0, 0x07,
   0x73, 0x20, 0x07, 0x6d, 0x60, 0x0e, 0x73, 0x20, 0x07, 0x7a, 0x30, 0x07,
-  0x72, 0xd0, 0x06, 0xe6, 0xa0, 0x07, 0x76, 0x40, 0x07, 0x7a, 0x60, 0x07,
-  0x74, 0xd0, 0x06, 0xee, 0x80, 0x07, 0x7a, 0x10, 0x07, 0x76, 0xa0, 0x07,
-  0x73, 0x20, 0x07, 0x7a, 0x60, 0x07, 0x74, 0xa0, 0xf3, 0x40, 0x06, 0x19,
-  0x32, 0x52, 0x44, 0x04, 0x60, 0x04, 0x00, 0xcc, 0x08, 0x00, 0x98, 0x73,
-  0x3a, 0x30, 0xe7, 0x74, 0x60, 0x76, 0x00, 0x00, 0x43, 0x1e, 0x04, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x86, 0x3c, 0x0a,
-  0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x79,
-  0x18, 0x20, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18,
-  0xf2, 0x48, 0x40, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x30, 0xe4, 0xa1, 0x80, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x60, 0xc8, 0x73, 0x01, 0x01, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0xc0, 0x90, 0x47, 0x03, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x80, 0x21, 0x0f, 0x07, 0x04, 0x00, 0x01, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x59, 0x20, 0x00, 0x0f, 0x00, 0x00, 0x00,
+  0x72, 0xd0, 0x06, 0xe6, 0x60, 0x07, 0x74, 0xa0, 0x07, 0x76, 0x40, 0x07,
+  0x6d, 0xe0, 0x0e, 0x78, 0xa0, 0x07, 0x71, 0x60, 0x07, 0x7a, 0x30, 0x07,
+  0x72, 0xa0, 0x07, 0x76, 0x40, 0x07, 0x3a, 0x0f, 0x64, 0x90, 0x21, 0x23,
+  0x45, 0x44, 0x00, 0x66, 0x00, 0xc0, 0xcc, 0x00, 0x80, 0x39, 0xa7, 0x03,
+  0x73, 0x4e, 0x07, 0x66, 0x07, 0x00, 0x30, 0xe4, 0x41, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0xc8, 0xa3, 0x00, 0x01,
+  0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x90, 0x87, 0x01,
+  0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x21, 0x8f,
+  0x04, 0x04, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43,
+  0x1e, 0x0a, 0x08, 0x80, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x86, 0x3c, 0x17, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x0c, 0x79, 0x34, 0x20, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x18, 0xf2, 0x70, 0x40, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x90, 0x05, 0x02, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00,
   0x32, 0x1e, 0x98, 0x14, 0x19, 0x11, 0x4c, 0x90, 0x8c, 0x09, 0x26, 0x47,
   0xc6, 0x04, 0x43, 0x02, 0x4a, 0x60, 0x04, 0xa0, 0x0c, 0x8a, 0xa1, 0x2c,
   0x0a, 0xa2, 0x10, 0xca, 0xa1, 0x14, 0x0a, 0x10, 0x82, 0xbe, 0x11, 0x80,
   0x02, 0x21, 0x6b, 0x04, 0x80, 0x8a, 0x19, 0x00, 0x32, 0x66, 0x00, 0x68,
   0x18, 0x01, 0x20, 0x61, 0x06, 0x80, 0x82, 0x19, 0x00, 0x00, 0x00, 0x00,
-  0x79, 0x18, 0x00, 0x00, 0x78, 0x00, 0x00, 0x00, 0x1a, 0x03, 0x4c, 0x90,
-  0x46, 0x02, 0x13, 0x44, 0x35, 0x18, 0x63, 0x0b, 0x73, 0x3b, 0x03, 0xb1,
-  0x2b, 0x93, 0x9b, 0x4b, 0x7b, 0x73, 0x03, 0x99, 0x71, 0xb9, 0x01, 0x41,
-  0xa1, 0x0b, 0x3b, 0x9b, 0x7b, 0x91, 0x2a, 0x62, 0x2a, 0x0a, 0x9a, 0x2a,
-  0xfa, 0x9a, 0xb9, 0x81, 0x79, 0x31, 0x4b, 0x73, 0x0b, 0x63, 0x4b, 0xd9,
-  0x10, 0x04, 0x13, 0x04, 0xa0, 0x99, 0x20, 0x00, 0xce, 0x06, 0x61, 0x20,
-  0x26, 0x08, 0xc0, 0xb3, 0x41, 0x18, 0x0c, 0x0a, 0x63, 0x73, 0x13, 0x04,
-  0x00, 0xda, 0x30, 0x20, 0x09, 0x31, 0x41, 0x10, 0x3a, 0x32, 0x67, 0x5f,
-  0x53, 0x6f, 0x72, 0x74, 0x42, 0x75, 0x66, 0x66, 0x65, 0x72, 0x13, 0x04,
-  0x20, 0x9a, 0x20, 0x58, 0xd9, 0x86, 0x85, 0x58, 0x18, 0x82, 0x18, 0x1a,
-  0xc7, 0x71, 0x00, 0x36, 0x67, 0x5f, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x42,
-  0x75, 0x66, 0x66, 0x65, 0x72, 0x1b, 0x96, 0x61, 0x81, 0x88, 0x61, 0x68,
-  0x1c, 0xc7, 0x01, 0x36, 0x08, 0x4f, 0x34, 0x41, 0x30, 0x36, 0x0e, 0x43,
-  0x42, 0x31, 0x13, 0x04, 0x40, 0xda, 0x80, 0x10, 0x13, 0x45, 0x0c, 0x43,
-  0x05, 0x6c, 0x08, 0xac, 0x0d, 0x04, 0x20, 0x5d, 0xc0, 0x04, 0x21, 0xf0,
-  0x26, 0x08, 0xc0, 0xc4, 0x00, 0x6d, 0x82, 0x00, 0x50, 0x1b, 0x8c, 0x64,
-  0x33, 0x08, 0x4e, 0xdb, 0x20, 0x68, 0xdd, 0x04, 0xa1, 0xd0, 0x88, 0x38,
-  0xd5, 0xb1, 0xb1, 0x25, 0xd1, 0x95, 0xb5, 0x4d, 0x10, 0x80, 0x6a, 0x83,
-  0x91, 0x80, 0x81, 0x41, 0x70, 0x61, 0xc0, 0x84, 0x29, 0x6d, 0x8e, 0x6e,
-  0xe8, 0xad, 0xce, 0x8d, 0x6e, 0x83, 0x91, 0x8c, 0x81, 0xa1, 0x71, 0x61,
-  0xb0, 0x61, 0xa8, 0xc4, 0x80, 0x0c, 0x36, 0x14, 0x44, 0xe6, 0x7d, 0x65,
-  0x30, 0x41, 0x48, 0x8a, 0x0d, 0xc0, 0x86, 0x81, 0x40, 0x03, 0x34, 0xd8,
-  0x10, 0xa4, 0xc1, 0x86, 0x61, 0x38, 0x03, 0x35, 0x20, 0xd1, 0x16, 0x96,
-  0xe6, 0x36, 0x41, 0xf8, 0xb0, 0x09, 0x02, 0x60, 0x6d, 0x18, 0xdc, 0x60,
-  0x18, 0x36, 0x10, 0x44, 0x1b, 0x68, 0x6f, 0xb0, 0xa1, 0x38, 0x03, 0x36,
-  0x00, 0x30, 0x38, 0xe0, 0x90, 0xe6, 0x46, 0xc7, 0xe7, 0xad, 0xcd, 0x2d,
-  0x0d, 0xee, 0x8d, 0xae, 0xcc, 0x8d, 0x0e, 0x64, 0x0c, 0x2d, 0x4c, 0x8e,
-  0xd1, 0x54, 0x5a, 0x1b, 0x1c, 0x5b, 0x19, 0xc8, 0xd0, 0xcb, 0xd0, 0xca,
-  0x0a, 0x08, 0x95, 0x50, 0x50, 0xd0, 0x86, 0x80, 0x0e, 0x26, 0x08, 0xdf,
-  0xb5, 0x61, 0x98, 0x83, 0x3a, 0xb0, 0x83, 0x0d, 0x83, 0x1c, 0xdc, 0x81,
-  0x1d, 0x6c, 0x18, 0xf0, 0x00, 0x0f, 0xec, 0xa0, 0x0a, 0x1b, 0x9b, 0x5d,
-  0x9b, 0x4b, 0x1a, 0x59, 0x99, 0x1b, 0xdd, 0x94, 0x20, 0xa8, 0x42, 0x86,
-  0xe7, 0x62, 0x57, 0x26, 0x37, 0x97, 0xf6, 0xe6, 0x36, 0x25, 0x20, 0x9a,
-  0x90, 0xe1, 0xb9, 0xd8, 0x85, 0xb1, 0xd9, 0x95, 0xc9, 0x4d, 0x09, 0x8c,
-  0x3a, 0x64, 0x78, 0x2e, 0x73, 0x68, 0x61, 0x64, 0x65, 0x72, 0x4d, 0x6f,
-  0x64, 0x65, 0x6c, 0x53, 0x82, 0xa4, 0x0c, 0x19, 0x9e, 0x8b, 0x5c, 0xd9,
-  0xdc, 0x5b, 0x9d, 0xdc, 0x58, 0xd9, 0xdc, 0x94, 0xe0, 0xaa, 0x44, 0x86,
-  0xe7, 0x42, 0x97, 0x07, 0x57, 0x16, 0xe4, 0xe6, 0xf6, 0x46, 0x17, 0x46,
-  0x97, 0xf6, 0xe6, 0x36, 0x37, 0x45, 0x28, 0x03, 0x35, 0xa8, 0x43, 0x86,
-  0xe7, 0x52, 0xe6, 0x46, 0x27, 0x97, 0x07, 0xf5, 0x96, 0xe6, 0x46, 0x37,
-  0x37, 0x25, 0x80, 0x03, 0x00, 0x00, 0x00, 0x00, 0x79, 0x18, 0x00, 0x00,
+  0x79, 0x18, 0x00, 0x00, 0x6f, 0x00, 0x00, 0x00, 0x1a, 0x03, 0x4c, 0x90,
+  0x46, 0x02, 0x13, 0xc4, 0x83, 0x0c, 0x6f, 0x0c, 0x24, 0xc6, 0x45, 0x66,
+  0x43, 0x10, 0x4c, 0x10, 0x80, 0x66, 0x82, 0x00, 0x38, 0x1b, 0x84, 0x81,
+  0x98, 0x20, 0x00, 0xcf, 0x06, 0x61, 0x30, 0x28, 0x8c, 0xcd, 0x4d, 0x10,
+  0x00, 0x68, 0xc3, 0x80, 0x24, 0xc4, 0x04, 0x41, 0xe8, 0xc8, 0x9c, 0x7d,
+  0x4d, 0xbd, 0xc9, 0xd1, 0x09, 0xd5, 0x99, 0x99, 0x95, 0xc9, 0x4d, 0x10,
+  0x80, 0x68, 0x82, 0x60, 0x65, 0x1b, 0x16, 0x62, 0x61, 0x08, 0x62, 0x68,
+  0x1c, 0xc7, 0x01, 0xd8, 0x9c, 0x7d, 0x25, 0xb9, 0x91, 0x95, 0xe1, 0x09,
+  0xd5, 0x99, 0x99, 0x95, 0xc9, 0x6d, 0x58, 0x86, 0x05, 0x22, 0x86, 0xa1,
+  0x71, 0x1c, 0x07, 0xd8, 0x20, 0x3c, 0xd1, 0x04, 0xc1, 0xd8, 0x38, 0x0c,
+  0x09, 0xc5, 0x4c, 0x10, 0x00, 0x69, 0x03, 0x42, 0x4c, 0x14, 0x31, 0x0c,
+  0x15, 0xb0, 0x21, 0xb0, 0x36, 0x10, 0x80, 0x74, 0x01, 0x13, 0x84, 0xc0,
+  0x9b, 0x20, 0x00, 0x13, 0x03, 0xb4, 0x09, 0x02, 0x40, 0x6d, 0x30, 0x92,
+  0xcd, 0x20, 0x38, 0x6d, 0x83, 0xa0, 0x75, 0x13, 0x84, 0x42, 0x23, 0xe2,
+  0x54, 0xc7, 0xc6, 0x96, 0x44, 0x57, 0xd6, 0x36, 0x41, 0x00, 0xaa, 0x0d,
+  0x46, 0x02, 0x06, 0x06, 0xc1, 0x85, 0x01, 0x13, 0xa6, 0xb4, 0x39, 0xba,
+  0xa1, 0xb7, 0x3a, 0x37, 0xba, 0x0d, 0x46, 0x32, 0x06, 0x86, 0xc6, 0x85,
+  0xc1, 0x86, 0xa1, 0x12, 0x03, 0x32, 0xd8, 0x50, 0x10, 0x99, 0xf7, 0x95,
+  0xc1, 0x04, 0x21, 0x29, 0x36, 0x00, 0x1b, 0x06, 0x02, 0x0d, 0xd0, 0x60,
+  0x43, 0x90, 0x06, 0x1b, 0x86, 0xe1, 0x0c, 0xd4, 0x80, 0x44, 0x5b, 0x58,
+  0x9a, 0xdb, 0x04, 0xe1, 0xc3, 0x26, 0x08, 0x80, 0xb5, 0x61, 0x70, 0x83,
+  0x61, 0xd8, 0x40, 0x10, 0x6d, 0xa0, 0xbd, 0xc1, 0x86, 0xe2, 0x0c, 0xd8,
+  0x00, 0xc0, 0xe0, 0x80, 0x43, 0x9a, 0x1b, 0x1d, 0x9f, 0xb7, 0x36, 0xb7,
+  0x34, 0xb8, 0x37, 0xba, 0x32, 0x37, 0x3a, 0x90, 0x31, 0xb4, 0x30, 0x39,
+  0x46, 0x53, 0x69, 0x6d, 0x70, 0x6c, 0x65, 0x20, 0x43, 0x2f, 0x43, 0x2b,
+  0x2b, 0x20, 0x54, 0x42, 0x41, 0x41, 0x1b, 0x02, 0x3a, 0x98, 0x20, 0x7c,
+  0xd7, 0x86, 0x61, 0x0e, 0xea, 0xc0, 0x0e, 0x36, 0x0c, 0x72, 0x70, 0x07,
+  0x76, 0xb0, 0x61, 0xc0, 0x03, 0x3c, 0xb0, 0x83, 0x2a, 0x6c, 0x6c, 0x76,
+  0x6d, 0x2e, 0x69, 0x64, 0x65, 0x6e, 0x74, 0x53, 0x82, 0xa0, 0x0a, 0x19,
+  0x9e, 0x8b, 0x5d, 0x99, 0xdc, 0x5c, 0xda, 0x9b, 0xdb, 0x94, 0x80, 0x68,
+  0x42, 0x86, 0xe7, 0x62, 0x17, 0xc6, 0x66, 0x57, 0x26, 0x37, 0x25, 0x30,
+  0xea, 0x90, 0xe1, 0xb9, 0xcc, 0xa1, 0x85, 0x91, 0x95, 0xc9, 0x35, 0xbd,
+  0x91, 0x95, 0xb1, 0x4d, 0x09, 0x92, 0x32, 0x64, 0x78, 0x2e, 0x72, 0x65,
+  0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x53, 0x82, 0xab, 0x12, 0x19,
+  0x9e, 0x0b, 0x5d, 0x1e, 0x5c, 0x59, 0x90, 0x9b, 0xdb, 0x1b, 0x5d, 0x18,
+  0x5d, 0xda, 0x9b, 0xdb, 0xdc, 0x14, 0xa1, 0x0c, 0xd4, 0xa0, 0x0e, 0x19,
+  0x9e, 0x4b, 0x99, 0x1b, 0x9d, 0x5c, 0x1e, 0xd4, 0x5b, 0x9a, 0x1b, 0xdd,
+  0xdc, 0x94, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x79, 0x18, 0x00, 0x00,
   0x50, 0x00, 0x00, 0x00, 0x33, 0x08, 0x80, 0x1c, 0xc4, 0xe1, 0x1c, 0x66,
   0x14, 0x01, 0x3d, 0x88, 0x43, 0x38, 0x84, 0xc3, 0x8c, 0x42, 0x80, 0x07,
   0x79, 0x78, 0x07, 0x73, 0x98, 0x71, 0x0c, 0xe6, 0x00, 0x0f, 0xed, 0x10,
