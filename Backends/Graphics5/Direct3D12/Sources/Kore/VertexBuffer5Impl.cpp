@@ -33,6 +33,12 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 		case Graphics4::ColorVertexData:
 			myStride += 1 * 4;
 			break;
+		case Graphics4::Short2NormVertexData:
+			myStride += 2 * 2;
+			break;
+		case Graphics4::Short4NormVertexData:
+			myStride += 4 * 2;
+			break;
 		}
 	}
 

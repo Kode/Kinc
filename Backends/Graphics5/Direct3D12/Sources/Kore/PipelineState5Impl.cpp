@@ -186,6 +186,12 @@ void Graphics5::PipelineState::compile() {
 		case Graphics4::ColorVertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 			break;
+		case Graphics4::Short2NormVertexData:
+			vertexDesc[i].Format = DXGI_FORMAT_R16G16_SNORM;
+			break;
+		case Graphics4::Short4NormVertexData:
+			vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
+			break;
 		}
 	}
 
