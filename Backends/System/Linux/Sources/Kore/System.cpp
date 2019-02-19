@@ -22,6 +22,7 @@
 #include <X11/extensions/XInput.h>
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
+#include <X11/XKBlib.h>
 
 #ifdef KORE_OPENGL
 #include <GL/gl.h>
@@ -64,6 +65,7 @@ namespace {
 	uint32_t penMotionEvent;
 	uint32_t penMaxPressure = 2048;
 	float penPressureLast = 0.0;
+	bool keyPressed[256];
 
 	void fatalError(const char* message) {
 		printf("main: %s\n", message);
@@ -137,6 +139,8 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	if (!glXQueryExtension(Kore::Linux::display, &dummy, &dummy)) {
 		fatalError("X server has no OpenGL GLX extension");
 	}
+
+	XkbSetDetectableAutoRepeat(Kore::Linux::display, True, NULL);
 
 	int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, None};
 	int dblBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
@@ -464,7 +468,10 @@ bool Kore::System::handleMessages() {
 
 #define KEY(xkey, korekey)                                    \
 	case xkey:                                                \
-		Kore::Keyboard::the()->_keydown(Kore::korekey);       \
+		if (!keyPressed[Kore::korekey]) {                     \
+			keyPressed[Kore::korekey] = true;                 \
+			Kore::Keyboard::the()->_keydown(Kore::korekey);   \
+		}                                                     \
 		break;
 			if (keysym == XK_Control_L || keysym == XK_Control_R) {
 				controlDown = true;
@@ -518,6 +525,32 @@ bool Kore::System::handleMessages() {
 				KEY(XK_x, KeyX)
 				KEY(XK_y, KeyY)
 				KEY(XK_z, KeyZ)
+				KEY(XK_A, KeyA)
+				KEY(XK_B, KeyB)
+				KEY(XK_C, KeyC)
+				KEY(XK_D, KeyD)
+				KEY(XK_E, KeyE)
+				KEY(XK_F, KeyF)
+				KEY(XK_G, KeyG)
+				KEY(XK_H, KeyH)
+				KEY(XK_I, KeyI)
+				KEY(XK_J, KeyJ)
+				KEY(XK_K, KeyK)
+				KEY(XK_L, KeyL)
+				KEY(XK_M, KeyM)
+				KEY(XK_N, KeyN)
+				KEY(XK_O, KeyO)
+				KEY(XK_P, KeyP)
+				KEY(XK_Q, KeyQ)
+				KEY(XK_R, KeyR)
+				KEY(XK_S, KeyS)
+				KEY(XK_T, KeyT)
+				KEY(XK_U, KeyU)
+				KEY(XK_V, KeyV)
+				KEY(XK_W, KeyW)
+				KEY(XK_X, KeyX)
+				KEY(XK_Y, KeyY)
+				KEY(XK_Z, KeyZ)
 				KEY(XK_1, Key1)
 				KEY(XK_2, Key2)
 				KEY(XK_3, Key3)
@@ -553,6 +586,7 @@ bool Kore::System::handleMessages() {
 #define KEY(xkey, korekey)                                \
 	case xkey:                                            \
 		Kore::Keyboard::the()->_keyup(Kore::korekey);     \
+		keyPressed[Kore::korekey] = false;                \
 		break;
 			if (keysym == XK_Control_L || keysym == XK_Control_R) {
 				controlDown = false;
@@ -600,6 +634,32 @@ bool Kore::System::handleMessages() {
 				KEY(XK_x, KeyX)
 				KEY(XK_y, KeyY)
 				KEY(XK_z, KeyZ)
+				KEY(XK_A, KeyA)
+				KEY(XK_B, KeyB)
+				KEY(XK_C, KeyC)
+				KEY(XK_D, KeyD)
+				KEY(XK_E, KeyE)
+				KEY(XK_F, KeyF)
+				KEY(XK_G, KeyG)
+				KEY(XK_H, KeyH)
+				KEY(XK_I, KeyI)
+				KEY(XK_J, KeyJ)
+				KEY(XK_K, KeyK)
+				KEY(XK_L, KeyL)
+				KEY(XK_M, KeyM)
+				KEY(XK_N, KeyN)
+				KEY(XK_O, KeyO)
+				KEY(XK_P, KeyP)
+				KEY(XK_Q, KeyQ)
+				KEY(XK_R, KeyR)
+				KEY(XK_S, KeyS)
+				KEY(XK_T, KeyT)
+				KEY(XK_U, KeyU)
+				KEY(XK_V, KeyV)
+				KEY(XK_W, KeyW)
+				KEY(XK_X, KeyX)
+				KEY(XK_Y, KeyY)
+				KEY(XK_Z, KeyZ)
 				KEY(XK_1, Key1)
 				KEY(XK_2, Key2)
 				KEY(XK_3, Key3)
@@ -909,6 +969,7 @@ extern
 int kore(int argc, char** argv);
 
 int main(int argc, char** argv) {
+	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 	Kore::initHIDGamepads();
 	kore(argc, argv);
 }
