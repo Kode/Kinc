@@ -82,11 +82,15 @@ float* Graphics4::VertexBuffer::lock(int start, int count) {
 }
 
 void Graphics4::VertexBuffer::unlock() {
+	unlock(lockCount);
+}
+
+void Graphics4::VertexBuffer::unlock(int count) {
 	if (usage == DynamicUsage) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		context->Map(_vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		memcpy(mappedResource.pData, &vertices[lockStart * myStride / 4], (lockCount * myStride / 4) * sizeof(float));
+		memcpy(mappedResource.pData, &vertices[lockStart * myStride / 4], (count * myStride / 4) * sizeof(float));
 		context->Unmap(_vb, 0);
 	}
 	else {
