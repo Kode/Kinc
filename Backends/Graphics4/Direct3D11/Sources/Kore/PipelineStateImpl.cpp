@@ -336,6 +336,23 @@ namespace {
 		}
 		return 0;
 	}
+
+	void createRenderTargetBlendDesc(Graphics4::PipelineState* pipe, D3D11_RENDER_TARGET_BLEND_DESC* rtbd, int targetNum) {
+		rtbd->BlendEnable = pipe->blendSource != Graphics4::BlendOne ||
+		                    pipe->blendDestination != Graphics4::BlendZero ||
+		                    pipe->alphaBlendSource != Graphics4::BlendOne ||
+		                    pipe->alphaBlendDestination != Graphics4::BlendZero;
+		rtbd->SrcBlend = convert(pipe->blendSource);
+		rtbd->DestBlend = convert(pipe->blendDestination);
+		rtbd->BlendOp = D3D11_BLEND_OP_ADD;
+		rtbd->SrcBlendAlpha = convert(pipe->alphaBlendSource);
+		rtbd->DestBlendAlpha = convert(pipe->alphaBlendDestination);
+		rtbd->BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		rtbd->RenderTargetWriteMask = (((pipe->colorWriteMaskRed[targetNum] ? D3D11_COLOR_WRITE_ENABLE_RED : 0) |
+		                                (pipe->colorWriteMaskGreen[targetNum] ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
+		                                (pipe->colorWriteMaskBlue[targetNum] ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		                                (pipe->colorWriteMaskAlpha[targetNum] ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+	}
 }
 
 void Graphics4::PipelineState::compile() {
@@ -486,26 +503,33 @@ void Graphics4::PipelineState::compile() {
 	}
 
 	{
-		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
-		ZeroMemory(&rtbd, sizeof(rtbd));
-
-		rtbd.BlendEnable = blendSource != Graphics4::BlendOne || blendDestination != Graphics4::BlendZero || alphaBlendSource != Graphics4::BlendOne ||
-		                   alphaBlendDestination != Graphics4::BlendZero;
-		rtbd.SrcBlend = convert(blendSource);
-		rtbd.DestBlend = convert(blendDestination);
-		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
-		rtbd.SrcBlendAlpha = convert(alphaBlendSource);
-		rtbd.DestBlendAlpha = convert(alphaBlendDestination);
-		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbd.RenderTargetWriteMask = (((colorWriteMaskRed[0] ? D3D11_COLOR_WRITE_ENABLE_RED : 0) |
-		                               (colorWriteMaskGreen[0] ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
-		                               (colorWriteMaskBlue[0] ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
-		                               (colorWriteMaskAlpha[0] ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+		bool independentBlend = false;
+		for (int i = 1; i < 8; ++i) {
+			if (colorWriteMaskRed[0] != colorWriteMaskRed[i] ||
+			    colorWriteMaskGreen[0] != colorWriteMaskGreen[i] ||
+			    colorWriteMaskBlue[0] != colorWriteMaskBlue[i] ||
+			    colorWriteMaskAlpha[0] != colorWriteMaskAlpha[i]) {
+				independentBlend = true;
+				break;
+			}
+		}
 
 		D3D11_BLEND_DESC blendDesc;
 		ZeroMemory(&blendDesc, sizeof(blendDesc));
 		blendDesc.AlphaToCoverageEnable = false;
-		blendDesc.RenderTarget[0] = rtbd;
+		blendDesc.IndependentBlendEnable = independentBlend;
+
+		D3D11_RENDER_TARGET_BLEND_DESC rtbd[8];
+		ZeroMemory(&rtbd, sizeof(rtbd));
+		createRenderTargetBlendDesc(this, &rtbd[0], 0);
+		blendDesc.RenderTarget[0] = rtbd[0];
+		if (independentBlend) {
+			for (int i = 1; i < 8; ++i) {
+				createRenderTargetBlendDesc(this, &rtbd[i], i);
+				blendDesc.RenderTarget[i] = rtbd[i];
+			}
+		}
+
 		device->CreateBlendState(&blendDesc, &blendState);
 	}
 }
