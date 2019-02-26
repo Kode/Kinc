@@ -350,6 +350,38 @@ void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 	depthStencilSRV = source->depthStencilSRV;
 }
 
-void Graphics4::RenderTarget::getPixels(u8* data) {}
+void Graphics4::RenderTarget::getPixels(u8* data) {
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width = texWidth;
+	desc.Height = texHeight;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.BindFlags = 0;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	desc.MiscFlags = 0;
+
+	ID3D11Texture2D* textureStaging;
+	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &textureStaging));
+
+	D3D11_BOX sourceRegion;
+	sourceRegion.left = 0;
+	sourceRegion.right = texWidth;
+	sourceRegion.top = 0;
+	sourceRegion.bottom = texHeight;
+	sourceRegion.front = 0;
+	sourceRegion.back = 1;
+	context->CopySubresourceRegion(textureStaging, 0, 0, 0, 0, textureRender, 0, &sourceRegion);
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	context->Map(textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
+	memcpy(data, mappedResource.pData, texWidth * texHeight * 4);
+	context->Unmap(textureStaging, 0);
+
+	if (textureStaging != nullptr) textureStaging->Release();
+}
 
 void Graphics4::RenderTarget::generateMipmaps(int levels) {}
