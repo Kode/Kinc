@@ -63,7 +63,7 @@ namespace Kore {
 	}
 }
 
-#elif defined(KORE_IOS)
+#elif defined(KORE_IOS) || defined(KORE_SWITCH)
 
 #include <arm_neon.h>
 
@@ -91,7 +91,7 @@ namespace Kore {
 	}
 
 	inline float32x4 div(float32x4 a, float32x4 b) {
-#ifdef ARM64
+#if defined(ARM64) || defined(KORE_SWITCH)
 		return vdivq_f32(a, b);
 #else
 		float32x4 inv = vrecpeq_f32(b);
@@ -122,7 +122,7 @@ namespace Kore {
 	}
 
 	inline float32x4 sqrt(float32x4 t) {
-#ifdef ARM64
+#if defined(ARM64) || defined(KORE_SWITCH)
 		return vsqrtq_f32(t);
 #else
 		return vmulq_f32(t, vrsqrteq_f32(t));
