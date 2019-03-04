@@ -110,7 +110,6 @@ bool FileReader::open(const char* filename, FileType type) {
 
 		data.file = fopen(filepath, "rb");
 		if (data.file == nullptr) {
-			log(Warning, "Could not open file %s.", filepath);
 			return false;
 		}
 		fseek(data.file, 0, SEEK_END);
@@ -217,7 +216,6 @@ bool FileReader::open(const char* filename, FileType type) {
 
 	data.file = fopen(filepath, "rb");
 	if (data.file == nullptr) {
-		log(Warning, "Could not open file %s.", filepath);
 		return false;
 	}
 	fseek((FILE*)data.file, 0, SEEK_END);
