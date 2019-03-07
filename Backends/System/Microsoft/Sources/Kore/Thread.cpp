@@ -56,3 +56,7 @@ bool Kore::isThreadStoppedThenFree(Thread* thread) {
 void Kore::threadsInit() {}
 
 void Kore::threadsQuit() {}
+
+void Kore::threadSleep(int milliseconds) {
+	Sleep(milliseconds);
+}
