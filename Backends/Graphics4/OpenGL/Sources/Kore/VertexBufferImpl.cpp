@@ -102,6 +102,17 @@ void Graphics4::VertexBuffer::unlock() {
 #endif
 }
 
+void Graphics4::VertexBuffer::unlock(int count) {
+glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+	glCheckErrors();
+	u8* u8data = (u8*)data;
+	glBufferSubData(GL_ARRAY_BUFFER, sectionStart, count * myStride, u8data + sectionStart);
+	glCheckErrors();
+#ifndef NDEBUG
+	initialized = true;
+#endif
+}
+
 int Graphics4::VertexBuffer::_set(int offset) {
 	assert(initialized); // Vertex Buffer is used before lock/unlock was called
 	int offsetoffset = setVertexAttributes(offset);
