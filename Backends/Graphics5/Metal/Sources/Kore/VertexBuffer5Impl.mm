@@ -95,6 +95,18 @@ void Graphics5::VertexBuffer::unlock() {
 #endif
 }
 
+void Graphics5::VertexBuffer::unlock(int count) {
+#ifndef KORE_IOS
+	if (gpuMemory) {
+		id<MTLBuffer> buffer = mtlBuffer;
+		NSRange range;
+		range.location = lastStart * myStride;
+		range.length = count * myStride;
+		[buffer didModifyRange:range];
+	}
+#endif
+}
+
 int Graphics5::VertexBuffer::_set(int offset_) {
 	current = this;
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
