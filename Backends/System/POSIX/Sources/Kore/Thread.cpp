@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <wchar.h>
+#include <unistd.h>
 
 using namespace Kore;
 
@@ -82,6 +83,10 @@ void Kore::threadsInit() {
 void Kore::threadsQuit() {
 	mutex.destroy();
 	// ia.Free();
+}
+
+void Kore::threadSleep(int milliseconds) {
+    usleep(1000 * (useconds_t)milliseconds);
 }
 
 #endif
