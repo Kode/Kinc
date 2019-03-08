@@ -13,4 +13,5 @@ namespace Kore {
 	Thread* createAndRunThread(void (*thread)(void* param), void* param);
 	void waitForThreadStopThenFree(Thread* sr);
 	bool isThreadStoppedThenFree(Thread* sr);
+	void threadSleep(int milliseconds);
 }

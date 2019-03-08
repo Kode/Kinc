@@ -92,6 +92,20 @@ void Graphics5::VertexBuffer::unlock() {
 	// commandList->ResourceBarrier(1, barriers);
 }
 
+void Graphics5::VertexBuffer::unlock(int count) {
+	D3D12_RANGE range;
+	range.Begin = lastStart * myStride;
+	range.End = range.Begin + count * myStride;
+	uploadBuffer->Unmap(0, &range);
+
+	// view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
+
+	// commandList->CopyBufferRegion(vertexBuffer, 0, uploadBuffer, 0, count() * stride());
+	// CD3DX12_RESOURCE_BARRIER barriers[1] = { CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer, D3D12_RESOURCE_STATE_COPY_DEST,
+	// D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER) };
+	// commandList->ResourceBarrier(1, barriers);
+}
+
 int Graphics5::VertexBuffer::_set(int offset) {
 	// UINT stride = myStride;
 	// UINT offset = 0;

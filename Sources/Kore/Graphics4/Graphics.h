@@ -22,6 +22,7 @@ namespace Kore {
 			float* lock();
 			float* lock(int start, int count);
 			void unlock();
+			void unlock(int count);
 			int count();
 			int stride();
 			int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers

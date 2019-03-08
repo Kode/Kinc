@@ -51,6 +51,10 @@ void Graphics4::VertexBuffer::unlock() {
 	_buffer.unlock();
 }
 
+void Graphics4::VertexBuffer::unlock(int count) {
+	_buffer.unlock(count);
+}
+
 int Graphics4::VertexBuffer::count() {
 	return myCount;
 }
