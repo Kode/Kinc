@@ -85,8 +85,8 @@ void Kore::threadsQuit() {
 	// ia.Free();
 }
 
-void Kore::threadSleep(int milliseconds) {
-    usleep(1000 * (useconds_t)milliseconds);
-}
-
 #endif
+
+void Kore::threadSleep(int milliseconds) {
+	usleep(1000 * (useconds_t)milliseconds);
+}
