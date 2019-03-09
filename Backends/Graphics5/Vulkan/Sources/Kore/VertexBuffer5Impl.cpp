@@ -105,6 +105,10 @@ void Graphics5::VertexBuffer::unlock() {
 	vkUnmapMemory(device, vertices.mem);
 }
 
+void Graphics5::VertexBuffer::unlock(int count) {
+	vkUnmapMemory(device, vertices.mem);
+}
+
 int Graphics5::VertexBuffer::_set(int offset) {
 	int offsetoffset = setVertexAttributes(offset);
 	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
