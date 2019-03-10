@@ -47,6 +47,7 @@ namespace {
 
 Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
                                       int contextId) {
+	stage = 0;
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 
@@ -131,9 +132,14 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 }
 
 Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
-                                      int contextId) {}
+                                      int contextId) {
+	stage = 0;
+}
 
 Graphics5::RenderTarget::~RenderTarget() {
+	if (currentRenderTargets[stage] == this) {
+		currentRenderTargets[stage] = nullptr;
+	}
 	renderTarget->Release();
 	renderTargetDescriptorHeap->Release();
 	srvDescriptorHeap->Release();

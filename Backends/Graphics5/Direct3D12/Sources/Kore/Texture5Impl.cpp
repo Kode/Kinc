@@ -120,6 +120,9 @@ Graphics5::Texture::Texture(int width, int height, int depth, Image::Format form
 
 Texture5Impl::~Texture5Impl() {
 	unset();
+	image->Release();
+	uploadImage->Release();
+	srvDescriptorHeap->Release();
 }
 
 void Texture5Impl::unmipmap() {
