@@ -244,12 +244,12 @@ void CommandList::viewport(int x, int y, int width, int height) {
 }
 
 void CommandList::scissor(int x, int y, int width, int height) {
-	D3D12_RECT scissor;
+	/*D3D12_RECT scissor;
 	scissor.left = x;
 	scissor.top = y;
 	scissor.right = x + width;
 	scissor.bottom = y + height;
-	_commandList->RSSetScissorRects(1, &scissor);
+	_commandList->RSSetScissorRects(1, &scissor);*/
 }
 
 void CommandList::disableScissor() {}
