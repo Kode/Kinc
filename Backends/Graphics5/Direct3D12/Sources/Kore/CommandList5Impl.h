@@ -18,4 +18,5 @@ public:
 
 protected:
 	bool closed;
+	unsigned long long currentFenceValue;
 };

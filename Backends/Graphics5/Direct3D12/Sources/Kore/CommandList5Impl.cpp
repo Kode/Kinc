@@ -93,6 +93,8 @@ CommandList::~CommandList() {}
 
 void CommandList::begin() {
 	if (closed) {
+		closed = false;
+		waitForFence(renderFence, currentFenceValue, renderFenceEvent);
 		_commandAllocator->Reset();
 		_commandList->Reset(_commandAllocator, nullptr);
 	}
@@ -104,6 +106,9 @@ void CommandList::end() {
 
 	ID3D12CommandList* commandLists[] = {_commandList};
 	commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
+
+	currentFenceValue = ++renderFenceValue;
+	commandQueue->Signal(renderFence, currentFenceValue);
 }
 
 void CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, float depth, int stencil) {
