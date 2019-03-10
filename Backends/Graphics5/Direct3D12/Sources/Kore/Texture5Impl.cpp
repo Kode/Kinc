@@ -14,23 +14,60 @@ Graphics5::RenderTarget* currentRenderTargets[textureCount] = {nullptr, nullptr,
 Graphics5::Texture* currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                                      nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
+bool bilinearFiltering = false;
+
+namespace {
+	ID3D12DescriptorHeap* samplerDescriptorHeapPoint;
+	ID3D12DescriptorHeap* samplerDescriptorHeapBilinear;
+}
+
 void Texture5Impl::setTextures(ID3D12GraphicsCommandList* commandList) {
 	if (currentRenderTargets[0] != nullptr) {
 		ID3D12DescriptorHeap* heaps[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
 			heaps[i] = currentRenderTargets[i] == nullptr ? nullptr : currentRenderTargets[i]->srvDescriptorHeap;
 		}
-		commandList->SetDescriptorHeaps(1, heaps);
+		heaps[1] = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
+		commandList->SetDescriptorHeaps(2, heaps);
 		commandList->SetGraphicsRootDescriptorTable(0, currentRenderTargets[0]->srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		commandList->SetGraphicsRootDescriptorTable(1, heaps[1]->GetGPUDescriptorHandleForHeapStart());
 	}
 	if (currentTextures[0] != nullptr) {
 		ID3D12DescriptorHeap* heaps[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
 			heaps[i] = currentTextures[i] == nullptr ? nullptr : currentTextures[i]->srvDescriptorHeap;
 		}
-		commandList->SetDescriptorHeaps(1, heaps);
+		heaps[1] = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
+		commandList->SetDescriptorHeaps(2, heaps);
 		commandList->SetGraphicsRootDescriptorTable(0, currentTextures[0]->srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		commandList->SetGraphicsRootDescriptorTable(1, heaps[1]->GetGPUDescriptorHandleForHeapStart());
 	}
+}
+
+static void createSampler(bool bilinear, D3D12_FILTER filter) {
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapSampler = {};
+	descHeapSampler.NumDescriptors = 2;
+	descHeapSampler.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+	descHeapSampler.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	device->CreateDescriptorHeap(&descHeapSampler, IID_GRAPHICS_PPV_ARGS(&(bilinear ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint)));
+
+	D3D12_SAMPLER_DESC samplerDesc;
+	ZeroMemory(&samplerDesc, sizeof(D3D12_SAMPLER_DESC));
+	samplerDesc.Filter = filter;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	device->CreateSampler(&samplerDesc, (bilinear ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint)->GetCPUDescriptorHandleForHeapStart());
+}
+
+void createSamplers() {
+	createSampler(false, D3D12_FILTER_MIN_MAG_MIP_POINT);
+	createSampler(true, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
 }
 
 void Graphics5::Texture::_init(const char* format, bool readable) {

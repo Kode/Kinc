@@ -189,11 +189,11 @@ void CommandList::setPipelineLayout() {
 }
 
 void CommandList::setVertexConstantBuffer(ConstantBuffer* buffer, int offset) {
-	_commandList->SetGraphicsRootConstantBufferView(1, buffer->_buffer->GetGPUVirtualAddress() + offset);
+	_commandList->SetGraphicsRootConstantBufferView(2, buffer->_buffer->GetGPUVirtualAddress() + offset);
 }
 
 void CommandList::setFragmentConstantBuffer(ConstantBuffer* buffer, int offset) {
-	_commandList->SetGraphicsRootConstantBufferView(2, buffer->_buffer->GetGPUVirtualAddress() + offset);
+	_commandList->SetGraphicsRootConstantBufferView(3, buffer->_buffer->GetGPUVirtualAddress() + offset);
 }
 
 void CommandList::drawIndexedVertices() {

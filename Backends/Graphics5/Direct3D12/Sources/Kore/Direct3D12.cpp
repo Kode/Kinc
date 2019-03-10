@@ -66,6 +66,9 @@ struct RenderEnvironment {
 void createSwapChain(RenderEnvironment* env, const DXGI_SWAP_CHAIN_DESC1* desc);
 #endif
 
+void createSamplers();
+extern bool bilinearFiltering;
+
 namespace {
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT rectScissor;
@@ -195,13 +198,15 @@ namespace {
 		ID3DBlob* rootBlob;
 		ID3DBlob* errorBlob;
 
-		CD3DX12_ROOT_PARAMETER parameters[3];
+		CD3DX12_ROOT_PARAMETER parameters[4];
 
 		CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
 		parameters[0].InitAsDescriptorTable(1, &range);
+		CD3DX12_DESCRIPTOR_RANGE range2{D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, (UINT)textureCount, 0};
+		parameters[1].InitAsDescriptorTable(1, &range2);
 
-		parameters[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-		parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+		parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		parameters[3].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 		CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
 		for (int i = 0; i < textureCount; ++i) {
@@ -212,9 +217,11 @@ namespace {
 		}
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
-		descRootSignature.Init(3, parameters, textureCount * 2, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		descRootSignature.Init(4, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 		Kore_Microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&rootSignature));
+
+		createSamplers();
 	}
 
 	void initialize(int width, int height, HWND window) {
@@ -388,7 +395,9 @@ void Graphics5::flush() {}
 
 void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
 
-void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	bilinearFiltering = filter != TextureFilter::PointFilter;
+}
 
 void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
 
