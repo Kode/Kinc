@@ -33,9 +33,9 @@ namespace {
 
 		D3D12_RENDER_TARGET_VIEW_DESC viewDesc;
 #ifdef KORE_WINDOWS
-		viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 #else
-		viewDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+		viewDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 #endif
 		viewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		viewDesc.Texture2D.MipSlice = 0;
@@ -53,9 +53,9 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	resourceState = RenderTargetResourceStateUndefined;
 
 #ifdef KORE_WINDOWS
-	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 #else
-	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
 #endif
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,

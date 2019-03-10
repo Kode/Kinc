@@ -112,8 +112,6 @@ void CommandList::end() {
 }
 
 void CommandList::clear(RenderTarget* renderTarget, uint flags, uint color, float depth, int stencil) {
-	int a = 3;
-	++a;
 	float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
 	                      ((color & 0xff000000) >> 24) / 255.0f};
 	if (flags & ClearColorFlag) {
