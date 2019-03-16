@@ -182,6 +182,8 @@ Kore_A1_Sound *Kore_A1_CreateSound(const char *filename) {
 	}
 	sound->sample_rate_pos = 44100 / (float)sound->format.samples_per_second;
 	delete[] data;
+
+	return sound;
 }
 
 void Kore_A1_DestroySound(Kore_A1_Sound *sound) {

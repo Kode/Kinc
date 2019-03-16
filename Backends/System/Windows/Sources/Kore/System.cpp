@@ -241,200 +241,13 @@ static void initKeyTranslation() {
 	// keyTranslated[VK_PA1
 	// keyTranslated[PA1 key
 	// keyTranslated[VK_OEM_CLEAR
-
-	bool detectGamepad = true;
-	bool gamepadFound = false;
 }
 
+static bool detectGamepad = true;
+static bool gamepadFound = false;
 static unsigned r = 0;
 
 namespace {
-	int mouseX, mouseY;
-	bool keyPressed[256];
-	Kore::KeyCode keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
-
-	void initKeyTranslation() {
-		for (int i = 0; i < 256; ++i) keyTranslated[i] = Kore::KeyUnknown;
-
-		keyTranslated[VK_BACK] = Kore::KeyBackspace;
-		keyTranslated[VK_TAB] = Kore::KeyTab;
-		keyTranslated[VK_CLEAR] = Kore::KeyClear;
-		keyTranslated[VK_RETURN] = Kore::KeyReturn;
-		keyTranslated[VK_SHIFT] = Kore::KeyShift;
-		keyTranslated[VK_CONTROL] = Kore::KeyControl;
-		keyTranslated[VK_MENU] = Kore::KeyAlt;
-		keyTranslated[VK_PAUSE] = Kore::KeyPause;
-		keyTranslated[VK_CAPITAL] = Kore::KeyCapsLock;
-		keyTranslated[VK_KANA] = Kore::KeyKana;
-		// keyTranslated[VK_HANGUEL]
-		keyTranslated[VK_HANGUL] = Kore::KeyHangul;
-		keyTranslated[VK_JUNJA] = Kore::KeyJunja;
-		keyTranslated[VK_FINAL] = Kore::KeyFinal;
-		keyTranslated[VK_HANJA] = Kore::KeyHanja;
-		keyTranslated[VK_KANJI] = Kore::KeyKanji;
-		keyTranslated[VK_ESCAPE] = Kore::KeyEscape;
-		// keyTranslated[VK_CONVERT]
-		// keyTranslated[VK_NONCONVERT
-		// keyTranslated[VK_ACCEPT
-		// keyTranslated[VK_MODECHANGE
-		keyTranslated[VK_SPACE] = Kore::KeySpace;
-		keyTranslated[VK_PRIOR] = Kore::KeyPageUp;
-		keyTranslated[VK_NEXT] = Kore::KeyPageDown;
-		keyTranslated[VK_END] = Kore::KeyEnd;
-		keyTranslated[VK_HOME] = Kore::KeyHome;
-		keyTranslated[VK_LEFT] = Kore::KeyLeft;
-		keyTranslated[VK_UP] = Kore::KeyUp;
-		keyTranslated[VK_RIGHT] = Kore::KeyRight;
-		keyTranslated[VK_DOWN] = Kore::KeyDown;
-		// keyTranslated[VK_SELECT
-		keyTranslated[VK_PRINT] = Kore::KeyPrint;
-		// keyTranslated[VK_EXECUTE
-		// keyTranslated[VK_SNAPSHOT
-		keyTranslated[VK_INSERT] = Kore::KeyInsert;
-		keyTranslated[VK_DELETE] = Kore::KeyDelete;
-		keyTranslated[VK_HELP] = Kore::KeyHelp;
-		keyTranslated[0x30] = Kore::Key0;
-		keyTranslated[0x31] = Kore::Key1;
-		keyTranslated[0x32] = Kore::Key2;
-		keyTranslated[0x33] = Kore::Key3;
-		keyTranslated[0x34] = Kore::Key4;
-		keyTranslated[0x35] = Kore::Key5;
-		keyTranslated[0x36] = Kore::Key6;
-		keyTranslated[0x37] = Kore::Key7;
-		keyTranslated[0x38] = Kore::Key8;
-		keyTranslated[0x39] = Kore::Key9;
-		keyTranslated[0x41] = Kore::KeyA;
-		keyTranslated[0x42] = Kore::KeyB;
-		keyTranslated[0x43] = Kore::KeyC;
-		keyTranslated[0x44] = Kore::KeyD;
-		keyTranslated[0x45] = Kore::KeyE;
-		keyTranslated[0x46] = Kore::KeyF;
-		keyTranslated[0x47] = Kore::KeyG;
-		keyTranslated[0x48] = Kore::KeyH;
-		keyTranslated[0x49] = Kore::KeyI;
-		keyTranslated[0x4A] = Kore::KeyJ;
-		keyTranslated[0x4B] = Kore::KeyK;
-		keyTranslated[0x4C] = Kore::KeyL;
-		keyTranslated[0x4D] = Kore::KeyM;
-		keyTranslated[0x4E] = Kore::KeyN;
-		keyTranslated[0x4F] = Kore::KeyO;
-		keyTranslated[0x50] = Kore::KeyP;
-		keyTranslated[0x51] = Kore::KeyQ;
-		keyTranslated[0x52] = Kore::KeyR;
-		keyTranslated[0x53] = Kore::KeyS;
-		keyTranslated[0x54] = Kore::KeyT;
-		keyTranslated[0x55] = Kore::KeyU;
-		keyTranslated[0x56] = Kore::KeyV;
-		keyTranslated[0x57] = Kore::KeyW;
-		keyTranslated[0x58] = Kore::KeyX;
-		keyTranslated[0x59] = Kore::KeyY;
-		keyTranslated[0x5A] = Kore::KeyZ;
-		// keyTranslated[VK_LWIN
-		// keyTranslated[VK_RWIN
-		// keyTranslated[VK_APPS
-		// keyTranslated[VK_SLEEP
-		keyTranslated[VK_NUMPAD0] = Kore::KeyNumpad0;
-		keyTranslated[VK_NUMPAD1] = Kore::KeyNumpad1;
-		keyTranslated[VK_NUMPAD2] = Kore::KeyNumpad2;
-		keyTranslated[VK_NUMPAD3] = Kore::KeyNumpad3;
-		keyTranslated[VK_NUMPAD4] = Kore::KeyNumpad4;
-		keyTranslated[VK_NUMPAD5] = Kore::KeyNumpad5;
-		keyTranslated[VK_NUMPAD6] = Kore::KeyNumpad6;
-		keyTranslated[VK_NUMPAD7] = Kore::KeyNumpad7;
-		keyTranslated[VK_NUMPAD8] = Kore::KeyNumpad8;
-		keyTranslated[VK_NUMPAD9] = Kore::KeyNumpad9;
-		keyTranslated[VK_MULTIPLY] = Kore::KeyMultiply;
-		// keyTranslated[VK_ADD]
-		// keyTranslated[VK_SEPARATOR
-		// keyTranslated[VK_SUBTRACT
-		// keyTranslated[VK_DECIMAL
-		// keyTranslated[VK_DIVIDE
-		keyTranslated[VK_F1] = Kore::KeyF1;
-		keyTranslated[VK_F2] = Kore::KeyF2;
-		keyTranslated[VK_F3] = Kore::KeyF3;
-		keyTranslated[VK_F4] = Kore::KeyF4;
-		keyTranslated[VK_F5] = Kore::KeyF5;
-		keyTranslated[VK_F6] = Kore::KeyF6;
-		keyTranslated[VK_F7] = Kore::KeyF7;
-		keyTranslated[VK_F8] = Kore::KeyF8;
-		keyTranslated[VK_F9] = Kore::KeyF9;
-		keyTranslated[VK_F10] = Kore::KeyF10;
-		keyTranslated[VK_F11] = Kore::KeyF11;
-		keyTranslated[VK_F12] = Kore::KeyF12;
-		keyTranslated[VK_F13] = Kore::KeyF13;
-		keyTranslated[VK_F14] = Kore::KeyF14;
-		keyTranslated[VK_F15] = Kore::KeyF15;
-		keyTranslated[VK_F16] = Kore::KeyF16;
-		keyTranslated[VK_F17] = Kore::KeyF17;
-		keyTranslated[VK_F18] = Kore::KeyF18;
-		keyTranslated[VK_F19] = Kore::KeyF19;
-		keyTranslated[VK_F20] = Kore::KeyF20;
-		keyTranslated[VK_F21] = Kore::KeyF21;
-		keyTranslated[VK_F22] = Kore::KeyF22;
-		keyTranslated[VK_F23] = Kore::KeyF23;
-		keyTranslated[VK_F24] = Kore::KeyF24;
-		keyTranslated[VK_NUMLOCK] = Kore::KeyNumLock;
-		keyTranslated[VK_SCROLL] = Kore::KeyScrollLock;
-		// 0x92-96 //OEM specific
-		keyTranslated[VK_LSHIFT] = Kore::KeyShift;
-		keyTranslated[VK_RSHIFT] = Kore::KeyShift;
-		keyTranslated[VK_LCONTROL] = Kore::KeyControl;
-		keyTranslated[VK_RCONTROL] = Kore::KeyControl;
-		// keyTranslated[VK_LMENU
-		// keyTranslated[VK_RMENU
-		// keyTranslated[VK_BROWSER_BACK
-		// keyTranslated[VK_BROWSER_FORWARD
-		// keyTranslated[VK_BROWSER_REFRESH
-		// keyTranslated[VK_BROWSER_STOP
-		// keyTranslated[VK_BROWSER_SEARCH
-		// keyTranslated[VK_BROWSER_FAVORITES
-		// keyTranslated[VK_BROWSER_HOME
-		// keyTranslated[VK_VOLUME_MUTE
-		// keyTranslated[VK_VOLUME_DOWN
-		// keyTranslated[VK_VOLUME_UP
-		// keyTranslated[VK_MEDIA_NEXT_TRACK
-		// keyTranslated[VK_MEDIA_PREV_TRACK
-		// keyTranslated[VK_MEDIA_STOP
-		// keyTranslated[VK_MEDIA_PLAY_PAUSE
-		// keyTranslated[VK_LAUNCH_MAIL
-		// keyTranslated[VK_LAUNCH_MEDIA_SELECT
-		// keyTranslated[VK_LAUNCH_APP1
-		// keyTranslated[VK_LAUNCH_APP2
-		// keyTranslated[VK_OEM_1 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ';:' key
-		keyTranslated[VK_OEM_PLUS] = Kore::KeyPlus;
-		keyTranslated[VK_OEM_COMMA] = Kore::KeyComma;
-		keyTranslated[VK_OEM_MINUS] = Kore::KeyHyphenMinus;
-		keyTranslated[VK_OEM_PERIOD] = Kore::KeyPeriod;
-		// keyTranslated[VK_OEM_2 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '/?' key
-		// keyTranslated[VK_OEM_3 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key
-		// keyTranslated[VK_OEM_4 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '[{' key
-		// keyTranslated[VK_OEM_5 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '\|' key
-		// keyTranslated[VK_OEM_6 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ']}' key
-		// keyTranslated[VK_OEM_7 //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the 'single-quote/double-quote'
-		// key
-		// keyTranslated[VK_OEM_8 //Used for miscellaneous characters; it can vary by keyboard.
-		// keyTranslated[0xE1 //OEM specific
-		// keyTranslated[VK_OEM_102 //Either the angle bracket key or the backslash key on the RT 102-key keyboard
-		// 0xE3-E4 //OEM specific
-		// keyTranslated[VK_PROCESSKEY
-		// 0xE6 //OEM specific
-		// keyTranslated[VK_PACKET //Used to pass Unicode characters as if they were keystrokes. The VK_PACKET key is the low word of a 32-bit Virtual Key value
-		// used for non-keyboard input methods.
-		// 0xE9-F5 //OEM specific
-		// keyTranslated[VK_ATTN
-		// keyTranslated[VK_CRSEL
-		// keyTranslated[VK_EXSEL
-		// keyTranslated[VK_EREOF
-		// keyTranslated[VK_PLAY
-		// keyTranslated[VK_ZOOM
-		// keyTranslated[VK_NONAME
-		// keyTranslated[VK_PA1
-		// keyTranslated[PA1 key
-		// keyTranslated[VK_OEM_CLEAR
-	}
-
-	uint r = 0;
-
 	wchar_t toUnicode(WPARAM wParam, LPARAM lParam) {
 		wchar_t buffer[11];
 		BYTE state[256];
@@ -1235,14 +1048,14 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 }
 
 int Kore_Init(const char *name, int width, int height, Kore_WindowOptions *win, Kore_FramebufferOptions *frame) {
-	System::_init(name, width, height, &win, &frame);
-	/*Kore_WindowOptions defaultWin;
+	//Kore::System::_init(name, width, height, &win, &frame);
+	Kore_WindowOptions defaultWin;
 	if (win == nullptr) {
 		Kore_Internal_InitWindowOptions(&defaultWin);
 		win = &defaultWin;
 	}
 	win->width = width;
-	win->height = height;*/
+	win->height = height;
 	int window = Kore_WindowCreate(win, frame);
 	loadXInput();
 	initializeDirectInput();

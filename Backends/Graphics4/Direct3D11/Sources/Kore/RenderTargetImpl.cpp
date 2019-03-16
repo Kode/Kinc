@@ -7,6 +7,8 @@
 #include <Kore/Log.h>
 #include <Kore/SystemMicrosoft.h>
 
+#include <C/Kore/Error.h>
+
 using namespace Kore;
 
 Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
@@ -365,7 +367,7 @@ void Graphics4::RenderTarget::getPixels(u8* data) {
 	desc.MiscFlags = 0;
 
 	ID3D11Texture2D* textureStaging;
-	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &textureStaging));
+	Kore_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &textureStaging));
 
 	D3D11_BOX sourceRegion;
 	sourceRegion.left = 0;

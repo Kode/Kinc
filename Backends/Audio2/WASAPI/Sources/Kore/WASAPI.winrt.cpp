@@ -59,7 +59,7 @@ namespace {
 		}
 
 		if (a2_callback != nullptr) {
-			a2_callback(frames * 2);
+			a2_callback(&a2_buffer, frames * 2);
 			memset(buffer, 0, frames * format->nBlockAlign);
 			if (format->wFormatTag == WAVE_FORMAT_PCM) {
 				for (UINT32 i = 0; i < frames; ++i) {
@@ -130,7 +130,7 @@ namespace {
 			return;
 		}
 
-		Audio2::samplesPerSecond = format->nSamplesPerSec;
+		Kore_A2_SamplesPerSecond = format->nSamplesPerSec;
 
 		bufferFrames = 0;
 		Kore_Microsoft_Affirm(audioClient->GetBufferSize(&bufferFrames));

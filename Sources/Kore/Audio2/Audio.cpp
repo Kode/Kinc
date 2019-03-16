@@ -41,6 +41,7 @@ namespace {
 
 void Audio2::init() {
 	Kore_A2_Init();
+	Audio2::samplesPerSecond = Kore_A2_SamplesPerSecond;
 	Kore_A2_SetCallback(audio);
 }
 

@@ -153,6 +153,7 @@ void shutdownMetalCompute();
 void Kore::System::stop() {
 	running = false;
 	Kore_Stop();
+}
 
 int Kore::System::windowWidth(int window) {
 	assert(window < Window::count());

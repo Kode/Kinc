@@ -21,7 +21,8 @@ typedef struct {
 } Kore_A2_Buffer;
 
 void Kore_A2_Init();
-void Kore_A2_SetCallback(void (*Kore_A2_audio_callback)(Kore_A2_Buffer* buffer, int samples));
+void Kore_A2_SetCallback(void (*Kore_A2_audio_callback)(Kore_A2_Buffer *buffer, int samples));
+extern int Kore_A2_SamplesPerSecond;
 void Kore_A2_Update();
 void Kore_A2_Shutdown();
 
