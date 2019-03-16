@@ -35,16 +35,16 @@ void Kore::affirmArgs(bool b, const char* format, va_list args) {
 }
 
 void Kore::error() {
-	Kore_error();
+	Kore_Error();
 }
 
 void Kore::error(const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	Kore_errorArgs(format, args);
+	Kore_ErrorArgs(format, args);
 	va_end(args);
 }
 
 void Kore::errorArgs(const char* format, va_list args) {
-	Kore_errorArgs(format, args);
+	Kore_ErrorArgs(format, args);
 }

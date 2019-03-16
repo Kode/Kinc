@@ -1,12 +1,12 @@
 #pragma once
 
-/**
- * @file Log.h
- * @brief File containing basic logging functionality.
- *
- * Logging functionality is similar to plain printf but provides
- * some system-specific bonuses.
- */
+/// <summary>
+/// File containing basic logging functionality
+/// </summary>
+/// <remarks>
+/// Logging functionality is similar to plain printf but provides
+/// some system-specific bonuses.
+/// </remarks>
 
 #include <stdarg.h>
 
@@ -14,43 +14,49 @@
 extern "C" {
 #endif
 
-/**
- * @brief Pass this to Kore_log or Kore_logArgs.
- *
- * When used on Android the log level is converted to the equivalent
- * Android logging level. It is currently ignored on all other targets.
- */
+/// <summary>
+/// Pass this to Kore_log or Kore_logArgs
+/// </summary>
+/// <remarks>
+/// When used on Android the log level is converted to the equivalent
+/// Android logging level. It is currently ignored on all other targets.
+/// </remarks>
 typedef enum {
 	KORE_LOG_LEVEL_INFO,
 	KORE_LOG_LEVEL_WARNING,
 	KORE_LOG_LEVEL_ERROR
 } Kore_LogLevel;
 
-/**
- * @brief Logging function similar to printf including some system-specific bonuses.
- *
- * On most systems this is equivalent to printf.
- * On Windows it takes utf-8 string (like printf does on any other target)
- * and also prints to the debug console in IDEs.
- * On Android this uses the android logging functions and also passes
- * the logging level.
- * @param logLevel The logLevel is ignored on all targets but Android where
- * it is converted to the equivalent Android log level.
- * @param format The parameter is equivalent to the first printf parameter.
- * @param ... The parameter is equivalent to the second printf parameter.
- */
-KORE_FUNC void Kore_log(Kore_LogLevel logLevel, const char *format, ...);
+/// <summary>
+/// Logging function similar to printf including some system-specific bonuses
+/// </summary>
+/// <remarks>
+/// On most systems this is equivalent to printf.
+/// On Windows it works with utf-8 strings (like printf does on any other target)
+/// and also prints to the debug console in IDEs.
+/// On Android this uses the android logging functions and also passes the logging level.
+/// </remarks>
+/// <param name="log_level">
+/// The logLevel is ignored on all targets but Android where it is converted
+/// to the equivalent Android log level
+/// </param>
+/// <param name="format">The parameter is equivalent to the first printf parameter.</param>
+/// <param name="...">The parameter is equivalent to the second printf parameter.</param>
+KORE_FUNC void Kore_Log(Kore_LogLevel log_level, const char *format, ...);
 
-/**
- * @brief Equivalent to Kore_log but uses a va_list parameter.
- *
- * You will need this if you want to log parameters using va_start/va_end.
- * @param logLevel The logLevel is ignored on all targets but Android where
- * it is converted to the equivalent Android log level.
- * @param format The parameter is equivalent to the first vprintf parameter.
- * @param args The parameter is equivalent to the second vprintf parameter.
- */
-KORE_FUNC void Kore_logArgs(Kore_LogLevel logLevel, const char *format, va_list args);
+ /// <summary>
+/// Equivalent to Kore_log but uses a va_list parameter
+/// </summary>
+/// <remarks>
+/// You will need this if you want to log parameters using va_start/va_end.
+/// </remarks>
+/// <param name="log_level">
+/// The logLevel is ignored on all targets but Android where it is converted
+/// to the equivalent Android log level
+/// </param>
+/// <param name="format">The parameter is equivalent to the first vprintf parameter.</param>
+/// <param name="args">The parameter is equivalent to the second vprintf parameter.</param>
+KORE_FUNC void Kore_LogArgs(Kore_LogLevel log_level, const char *format, va_list args);
 
 #ifdef __cplusplus
 }

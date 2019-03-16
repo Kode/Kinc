@@ -18,6 +18,7 @@
 
 #include <Kore/Display.h>
 #include <Kore/Window.h>
+#include <Kore/Windows.h>
 
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
@@ -135,9 +136,9 @@ namespace {
 void Graphics4::destroy(int windowId) {}
 
 static void createBackbuffer(int antialiasingSamples) {
-	Kore_Microsoft_affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	Kore_Microsoft_Affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
 
-	Kore_Microsoft_affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	Kore_Microsoft_Affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
 	backBuffer->GetDesc(&backBufferDesc);
@@ -149,9 +150,9 @@ static void createBackbuffer(int antialiasingSamples) {
 	                                       D3D11_USAGE_DEFAULT, 0U, antialiasingSamples > 1 ? antialiasingSamples : 1,
 	                                       antialiasingSamples > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
 
-	Kore_Microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	Kore_Microsoft_Affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	Kore_Microsoft_affirm(device->CreateDepthStencilView(
+	Kore_Microsoft_Affirm(device->CreateDepthStencilView(
 	    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D),
 	    &depthStencilView));
 }
@@ -197,7 +198,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
 #ifdef KORE_WINDOWS
-	HWND hwnd = Window::get(windowId)->_data.handle;
+	HWND hwnd = Kore_Windows_WindowHandle(windowId);
 #endif
 
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -216,7 +217,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	Kore_Microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	Kore_Microsoft_Affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
 	                                    &device, &featureLevel, &context));
 
 #elif KORE_OCULUS
@@ -235,7 +236,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	const int _DXGI_SWAP_EFFECT_FLIP_DISCARD = 4;
 
 	if (swapChain != nullptr) {
-		Kore_Microsoft_affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		Kore_Microsoft_Affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
 	else {
 #ifdef KORE_WINDOWS
@@ -265,7 +266,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		}
 		swapChainDesc.Flags = 0;
-		swapChainDesc.OutputWindow = Window::get(windowId)->_data.handle;
+		swapChainDesc.OutputWindow = Kore_Windows_WindowHandle(windowId);
 		swapChainDesc.Windowed = true;
 #endif
 
@@ -287,17 +288,17 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.Flags = 0;
 
 		IDXGIDevice1* dxgiDevice;
-		Kore_Microsoft_affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
+		Kore_Microsoft_Affirm(device->QueryInterface(IID_IDXGIDevice1, (void**)&dxgiDevice));
 
 		IDXGIAdapter* dxgiAdapter;
-		Kore_Microsoft_affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		Kore_Microsoft_Affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
 		IDXGIFactory2* dxgiFactory;
-		Kore_Microsoft_affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
+		Kore_Microsoft_Affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&dxgiFactory));
 
-		Kore_Microsoft_affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
+		Kore_Microsoft_Affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
 		                                                            nullptr, &swapChain));
-		Kore_Microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		Kore_Microsoft_Affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #endif
 
 #elif KORE_OCULUS
@@ -331,7 +332,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
 		                                               &swapChain, &device, nullptr, &context);
 		if (result != S_OK) {
-			Kore_Microsoft_affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
+			Kore_Microsoft_Affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
 			                                                &swapChain, &device, nullptr, &context));
 		}
 #endif
@@ -400,7 +401,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	ID3D11BlendState* blending;
 	device->CreateBlendState(&blendDesc, &blending);
 
-	Kore_Microsoft_affirm(device->CreateBlendState(&blendDesc, &blending));
+	Kore_Microsoft_Affirm(device->CreateBlendState(&blendDesc, &blending));
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 }
 
@@ -511,7 +512,7 @@ void Graphics4::begin(int windowId) {
 		depthStencilView->Release();
 		renderTargetView->Release();
 		backBuffer->Release();
-		Kore_Microsoft_affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		Kore_Microsoft_Affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 		createBackbuffer(antialiasingSamples());
 		restoreRenderTarget();
 	}
@@ -1109,8 +1110,8 @@ void Graphics4::_resize(int window, int width, int height) {
 	newRenderTargetHeight = height;
 }
 
-void Graphics4::_changeFramebuffer(int window, FramebufferOptions* frame) {}
+void Graphics4::_changeFramebuffer(int window, _Kore_FramebufferOptions *frame) {}
 
-bool Window::vSynced() {
+extern "C" bool Kore_WindowVSynced(int window_index) {
 	return vsync;
 }

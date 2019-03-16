@@ -13,17 +13,17 @@
 #include <android/log.h>
 #endif
 
-void Kore_log(Kore_LogLevel level, const char* format, ...) {
+void Kore_Log(Kore_LogLevel level, const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	Kore_logArgs(level, format, args);
+	Kore_LogArgs(level, format, args);
 	va_end(args);
 }
 
-void Kore_logArgs(Kore_LogLevel level, const char* format, va_list args) {
+void Kore_LogArgs(Kore_LogLevel level, const char* format, va_list args) {
 #ifdef KORE_MICROSOFT
 	wchar_t buffer[4096];
-	Kore_Microsoft_format(format, args, buffer);
+	Kore_Microsoft_Format(format, args, buffer);
 	wcscat(buffer, L"\r\n");
 	OutputDebugString(buffer);
 #ifdef KORE_WINDOWS

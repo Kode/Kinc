@@ -11,36 +11,36 @@
 #include <Kore/SystemMicrosoft.h>
 #endif
 
-void Kore_affirm(bool condition) {
+void Kore_Affirm(bool condition) {
 	if (!condition) {
-		Kore_error();
+		Kore_Error();
 	}
 }
 
-void Kore_affirmMessage(bool condition, const char* format, ...) {
+void Kore_AffirmMessage(bool condition, const char* format, ...) {
 	if (!condition) {
 		va_list args;
 		va_start(args, format);
-		Kore_errorArgs(format, args);
+		Kore_ErrorArgs(format, args);
 		va_end(args);
 	}
 }
 
-void Kore_affirmArgs(bool condition, const char* format, va_list args) {
+void Kore_AffirmArgs(bool condition, const char* format, va_list args) {
 	if (!condition) {
-		Kore_errorArgs(format, args);
+		Kore_ErrorArgs(format, args);
 	}
 }
 
-void Kore_error() {
-	Kore_errorMessage("Unknown error");
+void Kore_Error() {
+	Kore_ErrorMessage("Unknown error");
 }
 
-void Kore_errorMessage(const char* format, ...) {
+void Kore_ErrorMessage(const char* format, ...) {
 	{
 		va_list args;
 		va_start(args, format);
-		Kore_logArgs(KORE_LOG_LEVEL_ERROR, format, args);
+		Kore_LogArgs(KORE_LOG_LEVEL_ERROR, format, args);
 		va_end(args);
 	}
 
@@ -49,7 +49,7 @@ void Kore_errorMessage(const char* format, ...) {
 		va_list args;
 		va_start(args, format);
 		wchar_t buffer[4096];
-		Kore_Microsoft_format(format, args, buffer);
+		Kore_Microsoft_Format(format, args, buffer);
 		MessageBox(NULL, buffer, L"Error", 0);
 		va_end(args);
 	}
@@ -58,12 +58,12 @@ void Kore_errorMessage(const char* format, ...) {
 	exit(EXIT_FAILURE);
 }
 
-void Kore_errorArgs(const char* format, va_list args) {
-	Kore_logArgs(KORE_LOG_LEVEL_ERROR, format, args);
+void Kore_ErrorArgs(const char* format, va_list args) {
+	Kore_LogArgs(KORE_LOG_LEVEL_ERROR, format, args);
 
 #ifdef KORE_WINDOWS
 	wchar_t buffer[4096];
-	Kore_Microsoft_format(format, args, buffer);
+	Kore_Microsoft_Format(format, args, buffer);
 	MessageBox(NULL, buffer, L"Error", 0);
 #endif
 

@@ -63,7 +63,7 @@ Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	Kore_Microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &_vb));
+	Kore_Microsoft_Affirm(device->CreateBuffer(&bufferDesc, nullptr, &_vb));
 }
 
 Graphics4::VertexBuffer::~VertexBuffer() {

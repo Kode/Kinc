@@ -168,9 +168,9 @@ ComputeShader::ComputeShader(void* _data, int length) {
 	this->data = &data[index];
 	this->length = length - index;
 
-	Kore_Microsoft_affirm(device->CreateComputeShader(this->data, this->length, nullptr, (ID3D11ComputeShader**)&shader));
+	Kore_Microsoft_Affirm(device->CreateComputeShader(this->data, this->length, nullptr, (ID3D11ComputeShader**)&shader));
 
-	Kore_Microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &constantBuffer));
+	Kore_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &constantBuffer));
 }
 
 ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
