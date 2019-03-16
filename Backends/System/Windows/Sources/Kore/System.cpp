@@ -16,9 +16,9 @@
 #include <Kore/Window.h>
 #include <Kore/Windows.h>
 
-#include <C/Kore/Log.h>
-#include <C/Kore/System.h>
-#include <C/Kore/Window.h>
+#include <Kinc/Log.h>
+#include <Kinc/System.h>
+#include <Kinc/Window.h>
 
 #define DIRECTINPUT_VERSION 0x0800
 #ifdef WIN32_LEAN_AND_MEAN

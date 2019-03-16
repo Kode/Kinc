@@ -1,6 +1,6 @@
 #pragma once
 
-#include <C/Kore/Audio2/Audio.h>
+#include <Kinc/Audio2/Audio.h>
 
 #include <stdint.h>
 

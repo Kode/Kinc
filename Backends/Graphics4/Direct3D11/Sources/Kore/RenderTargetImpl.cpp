@@ -7,7 +7,7 @@
 #include <Kore/Log.h>
 #include <Kore/SystemMicrosoft.h>
 
-#include <C/Kore/Error.h>
+#include <Kinc/Error.h>
 
 using namespace Kore;
 

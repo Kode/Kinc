@@ -5,8 +5,8 @@
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.c"
 
-#include <C/Kore/Audio2/Audio.h>
-#include <C/Kore/Error.h>
+#include <Kinc/Audio2/Audio.h>
+#include <Kinc/Error.h>
 #include <Kore/IO/FileReader.h>
 
 #include <assert.h>

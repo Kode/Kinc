@@ -2,9 +2,9 @@
 
 #include <Kore/Windows.h>
 
-#include "../Sources/C/Kore/Display.h"
-#include "../Sources/C/Kore/Log.h"
-#include "../Sources/C/Kore/Error.h"
+#include <Kinc/Display.h>
+#include <Kinc/Log.h>
+#include <Kinc/Error.h>
 
 #include <stdio.h>
 

@@ -2,7 +2,7 @@
 
 #include "SystemMicrosoft.h"
 
-#include "../Sources/C/Kore/Error.h"
+#include <Kinc/Error.h>
 
 #include <Windows.h>
 

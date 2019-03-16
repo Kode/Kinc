@@ -5,7 +5,7 @@
 #include "Log.h"
 #include "LogArgs.h"
 
-#include "../C/Kore/Error.h"
+#include <Kinc/Error.h>
 
 #include <stdlib.h>
 

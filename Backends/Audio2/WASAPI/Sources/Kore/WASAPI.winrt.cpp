@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <C/Kore/Audio2/Audio.h>
+#include <Kinc/Audio2/Audio.h>
 
 #include <Kore/Error.h>
 #include <Kore/Log.h>

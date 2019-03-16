@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include <C/Kore/Window.h>
-#include <C/Kore/Display.h>
-#include <C/Kore/Bridge.h>
+#include <Kinc/Window.h>
+#include <Kinc/Display.h>
+#include <Kinc/Bridge.h>
 
 #include <Kore/Windows.h>
 

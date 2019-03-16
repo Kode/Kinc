@@ -2,7 +2,7 @@
 
 #include <Kore/Window.h>
 
-#include <C/Kore/Window.h>
+#include <Kinc/Window.h>
 
 namespace Kore {
 	Kore_WindowMode convert(WindowMode mode);

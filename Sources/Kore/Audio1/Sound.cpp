@@ -3,7 +3,7 @@
 #include "Sound.h"
 
 #define STB_VORBIS_HEADER_ONLY
-#include <C/Kore/Audio1/stb_vorbis.c>
+#include <Kinc/Audio1/stb_vorbis.c>
 #include <Kore/Audio2/Audio.h>
 #include <Kore/Error.h>
 #include <Kore/IO/FileReader.h>

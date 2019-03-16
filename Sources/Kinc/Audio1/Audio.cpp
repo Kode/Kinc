@@ -7,7 +7,7 @@
 #include <Kore/Threads/Mutex.h>
 #include <Kore/Math/Core.h>
 
-#include <C/Kore/Audio2/Audio.h>
+#include <Kinc/Audio2/Audio.h>
 
 /*#include <Kore/Audio2/Audio.h>
 #if 0
