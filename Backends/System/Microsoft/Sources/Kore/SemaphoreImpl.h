@@ -1,14 +1,11 @@
 #pragma once
 
-#include <Kore/Threads/Event.h>
-#include <Kore/Threads/Mutex.h>
+#include <Kinc/Threads/Event.h>
+#include <Kinc/Threads/Mutex.h>
 
-namespace Kore {
-	class SemaphoreImpl {
-	protected:
-		Event event;
-		Mutex mutex;
-		int current;
-		int max;
-	};
-}
+typedef struct {
+	Kinc_Event event;
+	Kinc_Mutex mutex;
+	int current;
+	int max;
+} Kinc_SemaphoreImpl;

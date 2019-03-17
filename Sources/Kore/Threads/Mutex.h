@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include <Kore/MutexImpl.h>
 
 #if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && defined(KORE_POSIX)
@@ -40,5 +41,31 @@ namespace Kore {
 		void destroy();
 		void lock();
 		void unlock();
+	};
+}
+*/
+
+#include <Kinc/Threads/Mutex.h>
+
+namespace Kore {
+	class Mutex {
+	public:
+		void create();
+		void destroy();
+		void lock();
+		bool tryToLock();
+		void unlock();
+	private:
+		Kinc_Mutex mutex;
+	};
+
+	class UberMutex {
+	public:
+		bool create(const char *name);
+		void destroy();
+		void lock();
+		void unlock();
+	private:
+		Kinc_UberMutex mutex;
 	};
 }
