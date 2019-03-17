@@ -82,7 +82,7 @@ void Kore_Internal_A1_Mix(Kore_A2_Buffer *buffer, int samples) {
 				else
 					value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].volume * channels[i].volume;
 				value = Kore::max(Kore::min(value, 1.0f), -1.0f);
-				//**if (!left) channels[i].position += channels[i].pitch / channels[i].sound->sampleRatePos;
+				if (!left) channels[i].position += channels[i].pitch / channels[i].sound->sample_rate_pos;
 				// channels[i].position += 2;
 				if (channels[i].position + 1 >= channels[i].sound->size) {
 					if (channels[i].loop) {
@@ -94,14 +94,14 @@ void Kore_Internal_A1_Mix(Kore_A2_Buffer *buffer, int samples) {
 				}
 			}
 		}
-		//**
-		/*for (int i = 0; i < CHANNEL_COUNT; ++i) {
+		for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (streams[i].stream != NULL) {
-				value += streams[i].stream->nextSample() * streams[i].stream->volume();
+				value += Kore_A1_SoundStreamNextSample(streams[i].stream) * Kore_A1_SoundStreamVolume(streams[i].stream);
 				value = Kore::max(Kore::min(value, 1.0f), -1.0f);
-				if (streams[i].stream->ended()) streams[i].stream = NULL;
+				if (Kore_A1_SoundStreamEnded(streams[i].stream)) streams[i].stream = NULL;
 			}
-		}*/
+		}
+		//**
 		/*for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (videos[i].stream != NULL) {
 				value += videos[i].stream->nextSample();

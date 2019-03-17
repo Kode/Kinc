@@ -32,4 +32,4 @@ void Kore_A1_PlaySoundStream(Kore_A1_SoundStream *stream);
 void Kore_A1_StopSoundStream(Kore_A1_SoundStream *stream);
 void Kore_A1_PlayVideoSoundStream(struct Kore_A1_VideoSoundStream *stream);
 void Kore_A1_StopVideoSoundStream(struct Kore_A1_VideoSoundStream *stream);
-void Kore_Internal_A1_Mix(int samples);
+void Kore_Internal_A1_Mix(Kore_A2_Buffer *buffer, int samples);
