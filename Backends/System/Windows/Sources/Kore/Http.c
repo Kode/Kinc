@@ -1,37 +1,33 @@
 #include "pch.h"
 
-#include <Kore/Log.h>
-#include <Kore/Network/Http.h>
+#include <Kinc/Log.h>
+#include <Kinc/Network/Http.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
-using namespace Kore;
-
-namespace {
-	const wchar_t* convert(HttpMethod method) {
-		switch (method) {
-		case GET:
-		default:
-			return L"GET";
-		case POST:
-			return L"POST";
-		case PUT:
-			return L"PUT";
-		case DELETE:
-			return L"DELETE";
-		}
+static const wchar_t *convert(int method) {
+	switch (method) {
+	case KINC_HTTP_GET:
+	default:
+		return L"GET";
+	case KINC_HTTP_POST:
+		return L"POST";
+	case KINC_HTTP_PUT:
+		return L"PUT";
+	case KINC_HTTP_DELETE:
+		return L"DELETE";
 	}
-
-	char* returnData = nullptr;
-	int returnDataSize = 0;
 }
+
+static char *returnData = NULL;
+static int returnDataSize = 0;
 
 #include <Windows.h>
 #include <winhttp.h>
 
-void Kore::httpRequest(const char* url, const char* path, const char* data, int port, bool secure, HttpMethod method, const char* header, HttpCallback callback,
-                       void* callbackdata) {
+void Kinc_HttpRequest(const char *url, const char *path, const char *data, int port, bool secure, int method, const char *header, Kinc_HttpCallback callback,
+                      void *callbackdata) {
 	// based on https://docs.microsoft.com/en-us/windows/desktop/winhttp/winhttp-sessions-overview
 	
 	HINTERNET hSession = WinHttpOpen(L"WinHTTP via Kore/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
@@ -70,13 +66,13 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 		DWORD dwSize;
 		do {
 			dwSize = 0;
-			if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) log(Error, "Error %d in WinHttpQueryDataAvailable.\n", GetLastError());
+			if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) Kore_Log(KORE_LOG_LEVEL_ERROR, "Error %d in WinHttpQueryDataAvailable.\n", GetLastError());
 
 			if ((int)dwSize + 1 > returnDataSize - returnDataIndex) {
 				int newReturnDataSize = (returnDataIndex + dwSize + 1) * 2;
 				char* newReturnData = (char*)malloc(newReturnDataSize);
 				if (newReturnData == 0) {
-					log(Error, "Out of memory\n");
+					Kore_Log(KORE_LOG_LEVEL_ERROR, "Out of memory\n");
 				}
 				memcpy(newReturnData, returnData, returnDataSize);
 				returnDataSize = newReturnDataSize;
@@ -85,7 +81,7 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 
 			DWORD dwDownloaded = 0;
 			if (!WinHttpReadData(hRequest, (LPVOID)(&returnData[returnDataIndex]), dwSize, &dwDownloaded))
-				log(Error, "Error %d in WinHttpReadData.\n", GetLastError());
+				Kore_Log(KORE_LOG_LEVEL_ERROR, "Error %d in WinHttpReadData.\n", GetLastError());
 			
 			returnDataIndex += dwSize;
 		} while (dwSize > 0);
@@ -93,7 +89,7 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 
 	returnData[returnDataIndex] = 0;
 
-	if (!bResults) log(Error, "Error %d has occurred.\n", GetLastError());
+	if (!bResults) Kore_Log(KORE_LOG_LEVEL_ERROR, "Error %d has occurred.\n", GetLastError());
 
 	if (hRequest) WinHttpCloseHandle(hRequest);
 	if (hConnect) WinHttpCloseHandle(hConnect);
