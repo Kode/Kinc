@@ -2,59 +2,77 @@
 
 #include "Core.h"
 
-#ifdef KORE_HTML5
-typedef float float_t;
-typedef double double_t;
-#endif
-
-#include <cfloat>
-#include <cmath>
-
-using namespace Kore;
+#include <Kinc/Math/Core.h>
 
 float Kore::tan(float x) {
-	return std::sin(x) / std::cos(x);
-	// return tanf(x);
-	// Verhält sich tanf(x) genauso wie sinf(x) / cosf(x) ?
+	return Kinc_Tan(x);
 }
 
 float Kore::cot(float x) {
-	return std::cos(x) / std::sin(x);
-}
-
-double Kore::round(double value) {
-	// if (value - floor(value) >= 0.5) return ceil(value);
-	// else return floor(value);
-	return std::floor(value + 0.5);
+	return Kinc_Cot(x);
 }
 
 float Kore::round(float value) {
-	//	if (value - floorf(value) >= 0.5f) return ceilf(value);
-	//	else return floorf(value);
-	return std::floor(value + 0.5f);
-}
-
-int Kore::roundUp(float value) {
-	return static_cast<int>(std::ceil(value));
+	return Kinc_Round(value);
 }
 
 float Kore::floor(float value) {
-	return std::floor(value);
+	return Kinc_Floor(value);
 }
 
 float Kore::mod(float numer, float denom) {
-	return std::fmod(numer, denom);
+	return Kinc_Mod(numer, denom);
 }
 
 float Kore::exp(float exponent) {
-	return std::exp(exponent);
+	return Kinc_Exp(exponent);
+}
+
+float Kore::pow(float value, float exponent) {
+	return Kinc_Pow(value, exponent);
+}
+
+float Kore::maxfloat() {
+	return Kinc_Maxfloat();
+}
+
+float Kore::sqrt(float value) {
+	return Kinc_Sqrt(value);
+}
+
+float Kore::abs(float value) {
+	return Kinc_Abs(value);
+}
+
+float Kore::sin(float value) {
+	return Kinc_Sin(value);
+}
+
+float Kore::cos(float value) {
+	return Kinc_Cos(value);
+}
+
+float Kore::asin(float value) {
+	return Kinc_Asin(value);
+}
+
+float Kore::acos(float value) {
+	return Kinc_Acos(value);
+}
+
+float Kore::atan(float value) {
+	return Kinc_Atan(value);
+}
+
+float Kore::atan2(float y, float x) {
+	return Kinc_Atan2(y, x);
+}
+
+int Kore::roundUp(float value) {
+	return static_cast<int>(Kinc_Ceil(value));
 }
 
 unsigned Kore::pow(unsigned value, unsigned exponent) {
-	/*unsigned ret = 1;
-	for (unsigned i = 0; i < exponent; ++i) ret *= value;
-	return ret;*/
-
 	uint result = 1;
 	if (!exponent) return result;
 	for (;;) {
@@ -64,52 +82,16 @@ unsigned Kore::pow(unsigned value, unsigned exponent) {
 	}
 }
 
-float Kore::pow(float value, float exponent) {
-	return std::pow(value, exponent);
-}
-
-double Kore::pow(double value, double exponent) {
-	return std::pow(value, exponent);
-}
-
-float Kore::maxfloat() {
-	return FLT_MAX;
-}
-
-float Kore::sqrt(float value) {
-	return std::sqrt(value);
-}
-
-float Kore::abs(float value) {
-	// return ::abs(value);
-	return value < 0 ? -value : value;
-	// TODO: int-Trick
-}
-
 int Kore::abs(int value) {
 	return value < 0 ? -value : value;
 }
 
-float Kore::sin(float value) {
-	return std::sin(value);
+#include <math.h>
+
+double Kore::round(double value) {
+	return ::floor(value + 0.5);
 }
 
-float Kore::cos(float value) {
-	return std::cos(value);
-}
-
-float Kore::asin(float value) {
-	return std::asin(value);
-}
-
-float Kore::acos(float value) {
-	return std::acos(value);
-}
-
-float Kore::atan(float value) {
-	return std::atan(value);
-}
-
-float Kore::atan2(float y, float x) {
-	return std::atan2(y, x);
+double Kore::pow(double value, double exponent) {
+	return ::pow(value, exponent);
 }
