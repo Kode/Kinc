@@ -7,10 +7,6 @@ namespace Kore {
 		void (*Axis)(int, float);
 		void (*Button)(int, float);
 
-		// called by backend
-		void _axis(int axis, float value);
-		void _button(int button, float value);
-
 		const char* vendor;
 		const char* productName;
 

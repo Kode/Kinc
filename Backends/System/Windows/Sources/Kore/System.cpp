@@ -8,8 +8,9 @@
 #include <Kore/Graphics3/Graphics.h>
 #endif
 
+#include <Kinc/Input/Gamepad.h>
+
 #include <Kore/Display.h>
-#include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Input/Pen.h>
@@ -800,49 +801,41 @@ void handleDirectInputPad(int padIndex) {
 		return;
 	}
 
-	// TODO (DK) code is copied from xinput stuff, why is it set every frame?
-	Kore::Gamepad::get(padIndex)->vendor = "DirectInput8";         // TODO (DK) figure out how to get vendor name
-	Kore::Gamepad::get(padIndex)->productName = "Generic Gamepad"; // TODO (DK) figure out how to get product name
-
 	HRESULT hr = di_pads[padIndex]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[padIndex]);
 
 	switch (hr) {
 	case S_OK: {
-		if (Kore::Gamepad::get(padIndex)->Axis != nullptr) {
-			// TODO (DK) there is a lot more to handle
-			for (int axisIndex = 0; axisIndex < 2; ++axisIndex) {
-				LONG *now = nullptr;
-				LONG *last = nullptr;
+		// TODO (DK) there is a lot more to handle
+		for (int axisIndex = 0; axisIndex < 2; ++axisIndex) {
+			LONG *now = nullptr;
+			LONG *last = nullptr;
 
-				switch (axisIndex) {
-				case 0: {
-					now = &di_padState[padIndex].lX;
-					last = &di_lastPadState[padIndex].lX;
-				} break;
-				case 1: {
-					now = &di_padState[padIndex].lY;
-					last = &di_lastPadState[padIndex].lY;
-				} break;
-				case 2: {
-					now = &di_padState[padIndex].lZ;
-					last = &di_lastPadState[padIndex].lZ;
-				} break;
-				}
-
-				if (*now != *last) {
-					Kore::Gamepad::get(padIndex)->Axis(axisIndex, *now / 32768.0f);
-				}
+			switch (axisIndex) {
+			case 0: {
+				now = &di_padState[padIndex].lX;
+				last = &di_lastPadState[padIndex].lX;
+			} break;
+			case 1: {
+				now = &di_padState[padIndex].lY;
+				last = &di_lastPadState[padIndex].lY;
+			} break;
+			case 2: {
+				now = &di_padState[padIndex].lZ;
+				last = &di_lastPadState[padIndex].lZ;
+			} break;
 			}
 
-			if (Kore::Gamepad::get(padIndex)->Button != nullptr) {
-				for (int buttonIndex = 0; buttonIndex < 128; ++buttonIndex) {
-					BYTE *now = &di_padState[padIndex].rgbButtons[buttonIndex];
-					BYTE *last = &di_lastPadState[padIndex].rgbButtons[buttonIndex];
+			if (*now != *last) {
+				Kinc_Internal_Gamepad_TriggerAxis(padIndex, axisIndex, *now / 32768.0f);
+			}
+		}
 
-					if (*now != *last) {
-						Kore::Gamepad::get(padIndex)->Button(buttonIndex, *now / 255.0f);
-					}
-				}
+		for (int buttonIndex = 0; buttonIndex < 128; ++buttonIndex) {
+			BYTE *now = &di_padState[padIndex].rgbButtons[buttonIndex];
+			BYTE *last = &di_lastPadState[padIndex].rgbButtons[buttonIndex];
+
+			if (*now != *last) {
+				Kinc_Internal_Gamepad_TriggerButton(padIndex, buttonIndex, *now / 255.0f);
 			}
 		}
 
@@ -857,6 +850,31 @@ void handleDirectInputPad(int padIndex) {
 	}
 }
 
+static bool isXInputGamepad(int gamepad) {
+	XINPUT_STATE state;
+	ZeroMemory(&state, sizeof(XINPUT_STATE));
+	DWORD dwResult = InputGetState(gamepad, &state);
+	return dwResult == ERROR_SUCCESS;
+}
+
+const char *Kinc_Gamepad_Vendor(int gamepad) {
+	if (isXInputGamepad(gamepad)) {
+		return "Microsoft";
+	}
+	else {
+		return "DirectInput8";
+	}
+}
+
+const char *Kinc_Gamepad_ProductName(int gamepad) {
+	if (isXInputGamepad(gamepad)) {
+		return "Xbox 360 Controller";
+	}
+	else {
+		return "Generic Gamepad";
+	}
+}
+
 bool Kore_Internal_HandleMessages() {
 	MSG message;
 
@@ -867,17 +885,14 @@ bool Kore_Internal_HandleMessages() {
 
 	if (InputGetState != nullptr && (detectGamepad || gamepadFound)) {
 		detectGamepad = false;
-		DWORD dwResult;
 		for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
 			XINPUT_STATE state;
 			ZeroMemory(&state, sizeof(XINPUT_STATE));
-			dwResult = InputGetState(i, &state);
+			DWORD dwResult = InputGetState(i, &state);
 
 			if (dwResult == ERROR_SUCCESS) {
 				gamepadFound = true;
-				Kore::Gamepad::get(i)->vendor = "Microsoft";
-				Kore::Gamepad::get(i)->productName = "Xbox 360 Controller";
-
+				
 				float newaxes[6];
 				newaxes[0] = state.Gamepad.sThumbLX / 32768.0f;
 				newaxes[1] = state.Gamepad.sThumbLY / 32768.0f;
@@ -887,7 +902,7 @@ bool Kore_Internal_HandleMessages() {
 				newaxes[5] = state.Gamepad.bRightTrigger / 255.0f;
 				for (int i2 = 0; i2 < 6; ++i2) {
 					if (axes[i * 6 + i2] != newaxes[i2]) {
-						if (Kore::Gamepad::get(i)->Axis != nullptr) Kore::Gamepad::get(i)->Axis(i2, newaxes[i2]);
+						Kinc_Internal_Gamepad_TriggerAxis(i, i2, newaxes[i2]);
 						axes[i * 6 + i2] = newaxes[i2];
 					}
 				}
@@ -910,13 +925,14 @@ bool Kore_Internal_HandleMessages() {
 				newbuttons[15] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? 1.0f : 0.0f;
 				for (int i2 = 0; i2 < 16; ++i2) {
 					if (buttons[i * 16 + i2] != newbuttons[i2]) {
-						if (Kore::Gamepad::get(i)->Button != nullptr) Kore::Gamepad::get(i)->Button(i2, newbuttons[i2]);
+						Kinc_Internal_Gamepad_TriggerButton(i, i2, newbuttons[i2]);
 						buttons[i * 16 + i2] = newbuttons[i2];
 					}
 				}
 			}
-
-			handleDirectInputPad(i);
+			else {
+				handleDirectInputPad(i);
+			}
 		}
 	}
 
