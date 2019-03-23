@@ -15,8 +15,8 @@ namespace Kore {
 		virtual ~BufferReader();
 		int read(void* data, int size) override;
 		void* readAll() override;
-		int size() const override;
-		int pos() const override;
+		int size() override;
+		int pos() override;
 		void seek(int pos) override;
 	};
 }

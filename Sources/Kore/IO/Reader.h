@@ -6,8 +6,8 @@ namespace Kore {
 		virtual ~Reader() {}
 		virtual int read(void* data, int size) = 0;
 		virtual void* readAll() = 0;
-		virtual int size() const = 0;
-		virtual int pos() const = 0;
+		virtual int size() = 0;
+		virtual int pos() = 0;
 		virtual void seek(int pos) = 0;
 
 		float readF32LE();
