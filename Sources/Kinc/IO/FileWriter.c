@@ -22,11 +22,11 @@ bool Kinc_FileWriter_Open(Kinc_FileWriter *writer, const char *filepath) {
 	}
 #endif
 	char path[1001];
-	strcpy(path, Kore_Internal_SavePath());
+	strcpy(path, Kinc_Internal_SavePath());
 	strcat(path, filepath);
 	writer->file = fopen(path, "wb");
 	if (writer->file == NULL) {
-		Kore_Log(KORE_LOG_LEVEL_WARNING, "Could not open file %s.", filepath);
+		Kinc_Log(KINC_LOG_LEVEL_WARNING, "Could not open file %s.", filepath);
 		return false;
 	}
 	return true;

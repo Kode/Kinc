@@ -33,14 +33,14 @@ extern "C" {
 /// Exits the program if condition is false,
 /// otherwise does nothing.
 /// </param>
-KORE_FUNC void Kore_Affirm(bool condition);
+KORE_FUNC void Kinc_Affirm(bool condition);
 
 /// <summary>
 /// Exits the program when a condition is untrue and shows
 /// a provided error message.
 /// </summary>
 /// <remarks>
-/// This is equivalent to Kore_affirm() but uses the provided message
+/// This is equivalent to Kinc_affirm() but uses the provided message
 /// instead of a generic one.
 /// </remarks>
 /// <param name="condition">
@@ -53,10 +53,10 @@ KORE_FUNC void Kore_Affirm(bool condition);
 /// <param name="...">
 /// The parameter is equivalent to the second printf parameter.
 /// </param>
-KORE_FUNC void Kore_AffirmMessage(bool condition, const char* format, ...);
+KORE_FUNC void Kinc_AffirmMessage(bool condition, const char* format, ...);
 
 /// <summary>
-/// Equivalent to Kore_affirmMessage but uses a va_list parameter.
+/// Equivalent to Kinc_affirmMessage but uses a va_list parameter.
 /// </summary>
 /// <remarks>
 /// You will need this if you want to provide the parameters using va_start/va_end.
@@ -71,7 +71,7 @@ KORE_FUNC void Kore_AffirmMessage(bool condition, const char* format, ...);
 /// <param name="...">
 /// The parameter is equivalent to the second vprintf parameter.
 /// </param>
-KORE_FUNC void Kore_AffirmArgs(bool condition, const char* format, va_list args);
+KORE_FUNC void Kinc_AffirmArgs(bool condition, const char* format, va_list args);
 
 /// <summary>
 /// Exits the program and shows a generic error message
@@ -80,13 +80,13 @@ KORE_FUNC void Kore_AffirmArgs(bool condition, const char* format, va_list args)
 /// Mainly this just calls exit(EXIT_FAILURE) but will also use
 /// Kore's log function and on Windows show an error message box.
 /// </remarks>
-KORE_FUNC void Kore_Error();
+KORE_FUNC void Kinc_Error();
 
 /// <summary>
 /// Exits the program and shows a provided error message.
 /// </summary>
 /// <remarks>
-/// This is equivalent to Kore_error() but uses the provided message
+/// This is equivalent to Kinc_error() but uses the provided message
 /// instead of a generic one.
 /// </remarks>
 /// <param name="format">
@@ -95,10 +95,10 @@ KORE_FUNC void Kore_Error();
 /// <param name="...">
 /// The parameter is equivalent to the second printf parameter.
 /// </param>
-KORE_FUNC void Kore_ErrorMessage(const char *format, ...);
+KORE_FUNC void Kinc_ErrorMessage(const char *format, ...);
 
 /// <summary>
-/// Equivalent to Kore_errorMessage but uses a va_list parameter.
+/// Equivalent to Kinc_errorMessage but uses a va_list parameter.
 /// </summary>
 /// <remarks>
 /// You will need this if you want to provide the parameters using va_start/va_end.
@@ -109,7 +109,7 @@ KORE_FUNC void Kore_ErrorMessage(const char *format, ...);
 /// <param name="...">
 /// The parameter is equivalent to the second vprintf parameter.
 /// </param>
-KORE_FUNC void Kore_ErrorArgs(const char* format, va_list args);
+KORE_FUNC void Kinc_ErrorArgs(const char* format, va_list args);
 
 #ifdef __cplusplus
 }

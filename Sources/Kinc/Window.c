@@ -2,19 +2,19 @@
 
 #include "Window.h"
 
-void Kore_Internal_InitWindowOptions(Kore_WindowOptions *win) {
+void Kinc_Internal_InitWindowOptions(Kinc_WindowOptions *win) {
 	win->title = "Kore";
 	win->display_index = 0;
-	win->mode = WINDOW_MODE_WINDOW;
+	win->mode = KINC_WINDOW_MODE_WINDOW;
 	win->x = -1;
 	win->y = -1;
 	win->width = 800;
 	win->height = 600;
 	win->visible = true;
-	win->window_features = KORE_WINDOW_FEATURE_RESIZEABLE | KORE_WINDOW_FEATURE_MINIMIZABLE | KORE_WINDOW_FEATURE_MAXIMIZABLE;
+	win->window_features = KINC_WINDOW_FEATURE_RESIZEABLE | KINC_WINDOW_FEATURE_MINIMIZABLE | KINC_WINDOW_FEATURE_MAXIMIZABLE;
 }
 
-void Kore_Internal_InitFramebufferOptions(Kore_FramebufferOptions *frame) {
+void Kinc_Internal_InitFramebufferOptions(Kinc_FramebufferOptions *frame) {
 	frame->frequency = 60;
 	frame->vertical_sync = true;
 	frame->color_bits = 32;

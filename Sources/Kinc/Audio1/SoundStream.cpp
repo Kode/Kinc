@@ -12,7 +12,7 @@
 
 using namespace Kore;
 
-static Kore_A1_SoundStream streams[256];
+static Kinc_A1_SoundStream streams[256];
 static int nextStream = 0;
 static u8 *buffer;
 static int bufferIndex;
@@ -21,8 +21,8 @@ void initSoundStreams() {
 	buffer = (u8*)malloc(1024 * 10);
 }
 
-Kore_A1_SoundStream *Kore_A1_CreateSoundStream(const char* filename, bool looping) {
-	Kore_A1_SoundStream *stream = &streams[nextStream];
+Kinc_A1_SoundStream *Kinc_A1_CreateSoundStream(const char *filename, bool looping) {
+	Kinc_A1_SoundStream *stream = &streams[nextStream];
 	stream->decoded = false;
 	stream->myLooping = looping;
 	stream->myVolume = 1;
@@ -47,52 +47,52 @@ Kore_A1_SoundStream *Kore_A1_CreateSoundStream(const char* filename, bool loopin
 	return stream;
 }
 
-int Kore_A1_SoundStreamChannels(Kore_A1_SoundStream *stream) {
+int Kinc_A1_SoundStreamChannels(Kinc_A1_SoundStream *stream) {
 	return stream->chans;
 }
 
-int Kore_A1_SoundStreamSampleRate(Kore_A1_SoundStream *stream) {
+int Kinc_A1_SoundStreamSampleRate(Kinc_A1_SoundStream *stream) {
 	return stream->rate;
 }
 
-bool Kore_A1_SoundStreamLooping(Kore_A1_SoundStream *stream) {
+bool Kinc_A1_SoundStreamLooping(Kinc_A1_SoundStream *stream) {
 	return stream->myLooping;
 }
 
-void Kore_A1_SoundStreamSetLooping(Kore_A1_SoundStream *stream, bool loop) {
+void Kinc_A1_SoundStreamSetLooping(Kinc_A1_SoundStream *stream, bool loop) {
 	stream->myLooping = loop;
 }
 
-float Kore_A1_SoundStreamVolume(Kore_A1_SoundStream *stream) {
+float Kinc_A1_SoundStreamVolume(Kinc_A1_SoundStream *stream) {
 	return stream->myVolume;
 }
 
-void Kore_A1_SoundStreamSetVolume(Kore_A1_SoundStream *stream, float value) {
+void Kinc_A1_SoundStreamSetVolume(Kinc_A1_SoundStream *stream, float value) {
 	stream->myVolume = value;
 }
 
-bool Kore_A1_SoundStreamEnded(Kore_A1_SoundStream *stream) {
+bool Kinc_A1_SoundStreamEnded(Kinc_A1_SoundStream *stream) {
 	return stream->end;
 }
 
-float Kore_A1_SoundStreamLength(Kore_A1_SoundStream *stream) {
+float Kinc_A1_SoundStreamLength(Kinc_A1_SoundStream *stream) {
 	if (stream->vorbis == nullptr) return 0;
 	return stb_vorbis_stream_length_in_seconds(stream->vorbis);
 }
 
-float Kore_A1_SoundStreamPosition(Kore_A1_SoundStream *stream) {
+float Kinc_A1_SoundStreamPosition(Kinc_A1_SoundStream *stream) {
 	if (stream->vorbis == nullptr) return 0;
-	return stb_vorbis_get_sample_offset(stream->vorbis) / stb_vorbis_stream_length_in_samples(stream->vorbis) * Kore_A1_SoundStreamLength(stream);
+	return stb_vorbis_get_sample_offset(stream->vorbis) / stb_vorbis_stream_length_in_samples(stream->vorbis) * Kinc_A1_SoundStreamLength(stream);
 }
 
-void Kore_A1_SoundStreamReset(Kore_A1_SoundStream *stream) {
+void Kinc_A1_SoundStreamReset(Kinc_A1_SoundStream *stream) {
 	if (stream->vorbis != nullptr) stb_vorbis_seek_start(stream->vorbis);
 	stream->end = false;
 	stream->rateDecodedHack = false;
 	stream->decoded = false;
 }
 
-float Kore_A1_SoundStreamNextSample(Kore_A1_SoundStream *stream) {
+float Kinc_A1_SoundStreamNextSample(Kinc_A1_SoundStream *stream) {
 	if (stream->vorbis == nullptr) return 0;
 	if (stream->rate == 22050) {
 		if (stream->rateDecodedHack) {
@@ -119,7 +119,7 @@ float Kore_A1_SoundStreamNextSample(Kore_A1_SoundStream *stream) {
 	else {
 		int read = stb_vorbis_get_samples_float_interleaved(stream->vorbis, stream->chans, &stream->samples[0], stream->chans);
 		if (read == 0) {
-			if (Kore_A1_SoundStreamLooping(stream)) {
+			if (Kinc_A1_SoundStreamLooping(stream)) {
 				stb_vorbis_seek_start(stream->vorbis);
 				stb_vorbis_get_samples_float_interleaved(stream->vorbis, stream->chans, &stream->samples[0], stream->chans);
 			}

@@ -27,7 +27,7 @@ namespace {
 
 	void checkFOURCC(u8*& data, const char* fourcc) {
 		for (int i = 0; i < 4; ++i) {
-			Kore_Affirm(*data == fourcc[i]);
+			Kinc_Affirm(*data == fourcc[i]);
 			++data;
 		}
 	}
@@ -56,7 +56,7 @@ namespace {
 		else if (strcmp(fourcc, "data") == 0) {
 			wave.dataSize = chunksize;
 			wave.data = new u8[chunksize];
-			Kore_Affirm(wave.data != nullptr);
+			Kinc_Affirm(wave.data != nullptr);
 			memcpy(wave.data, data, chunksize);
 			data += chunksize;
 		}
@@ -99,11 +99,11 @@ namespace {
 }
 
 #define MAXIMUM_SOUNDS 256
-static Kore_A1_Sound sounds[MAXIMUM_SOUNDS];
+static Kinc_A1_Sound sounds[MAXIMUM_SOUNDS];
 static int nextSoundIndex = 0;
 
-Kore_A1_Sound *Kore_A1_CreateSound(const char *filename) {
-	Kore_A1_Sound *sound = &sounds[nextSoundIndex];
+Kinc_A1_Sound *Kinc_A1_CreateSound(const char *filename) {
+	Kinc_A1_Sound *sound = &sounds[nextSoundIndex];
 	sound->my_volume = 1;
 	sound->size = 0;
 	sound->left = NULL;
@@ -159,7 +159,7 @@ Kore_A1_Sound *Kore_A1_CreateSound(const char *filename) {
 			splitMono16((s16*)data, sound->size, sound->left, sound->right);
 		}
 		else {
-			Kore_Affirm(false);
+			Kinc_Affirm(false);
 		}
 	}
 	else {
@@ -177,7 +177,7 @@ Kore_A1_Sound *Kore_A1_CreateSound(const char *filename) {
 			splitStereo16((s16*)data, sound->size, sound->left, sound->right);
 		}
 		else {
-			Kore_Affirm(false);
+			Kinc_Affirm(false);
 		}
 	}
 	sound->sample_rate_pos = 44100 / (float)sound->format.samples_per_second;
@@ -186,17 +186,17 @@ Kore_A1_Sound *Kore_A1_CreateSound(const char *filename) {
 	return sound;
 }
 
-void Kore_A1_DestroySound(Kore_A1_Sound *sound) {
+void Kinc_A1_DestroySound(Kinc_A1_Sound *sound) {
 	delete[] sound->left;
 	delete[] sound->right;
 	sound->left = NULL;
 	sound->right = NULL;
 }
 
-float Kore_A1_SoundVolume(Kore_A1_Sound *sound) {
+float Kinc_A1_SoundVolume(Kinc_A1_Sound *sound) {
 	return sound->my_volume;
 }
 
-void Kore_A1_SoundSetVolume(Kore_A1_Sound *sound, float value) {
+void Kinc_A1_SoundSetVolume(Kinc_A1_Sound *sound, float value) {
 	sound->my_volume = value;
 }

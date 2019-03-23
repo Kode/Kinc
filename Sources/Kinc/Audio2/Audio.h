@@ -10,21 +10,21 @@ typedef struct {
 	int channels;
 	int samples_per_second;
 	int bits_per_sample;
-} Kore_A2_BufferFormat;
+} Kinc_A2_BufferFormat;
 
 typedef struct {
-	Kore_A2_BufferFormat format;
+	Kinc_A2_BufferFormat format;
 	uint8_t *data;
 	int data_size;
 	int read_location;
 	int write_location;
-} Kore_A2_Buffer;
+} Kinc_A2_Buffer;
 
-void Kore_A2_Init();
-void Kore_A2_SetCallback(void (*Kore_A2_audio_callback)(Kore_A2_Buffer *buffer, int samples));
-extern int Kore_A2_SamplesPerSecond;
-void Kore_A2_Update();
-void Kore_A2_Shutdown();
+void Kinc_A2_Init();
+void Kinc_A2_SetCallback(void (*Kinc_A2_audio_callback)(Kinc_A2_Buffer *buffer, int samples));
+extern int Kinc_A2_SamplesPerSecond;
+void Kinc_A2_Update();
+void Kinc_A2_Shutdown();
 
 #ifdef __cplusplus
 }

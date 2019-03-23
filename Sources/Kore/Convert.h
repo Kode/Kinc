@@ -5,7 +5,7 @@
 #include <Kinc/Window.h>
 
 namespace Kore {
-	Kore_WindowMode convert(WindowMode mode);
-	Kore_WindowOptions convert(WindowOptions *win);
-	Kore_FramebufferOptions convert(FramebufferOptions *frame);
+	Kinc_WindowMode convert(WindowMode mode);
+	Kinc_WindowOptions convert(WindowOptions *win);
+	Kinc_FramebufferOptions convert(FramebufferOptions *frame);
 }

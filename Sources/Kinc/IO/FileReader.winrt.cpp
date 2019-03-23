@@ -136,7 +136,7 @@ bool Kinc_FileReader_Open(Kinc_FileReader *reader, const char *filename, int typ
 #endif
 #ifdef KORE_WINDOWS
 	if (type == KINC_FILE_TYPE_SAVE) {
-		strcpy(filepath, Kore_Internal_SavePath());
+		strcpy(filepath, Kinc_Internal_SavePath());
 		strcat(filepath, filename);
 	}
 	else {

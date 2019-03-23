@@ -272,9 +272,9 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		}
 		break;
 	case WM_DPICHANGED: {
-		int window = Kore_Windows_WindowIndexFromHWND(hWnd);
+		int window = Kinc_Windows_WindowIndexFromHWND(hWnd);
 		if (window >= 0) {
-			Kore_Internal_CallPpiChangedCallback(window, LOWORD(wParam));
+			Kinc_Internal_CallPpiChangedCallback(window, LOWORD(wParam));
 		}
 		break;
 	}
@@ -284,33 +284,33 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		// Scheduler::breakTime();
 		break;
 	case WM_SIZE: {
-		int window = Kore_Windows_WindowIndexFromHWND(hWnd);
+		int window = Kinc_Windows_WindowIndexFromHWND(hWnd);
 		if (window >= 0) {
 			int width = LOWORD(lParam);
 			int height = HIWORD(lParam);
 			Kore::Graphics::_resize(window, width, height);
-			Kore_Internal_CallResizeCallback(window, width, height);
+			Kinc_Internal_CallResizeCallback(window, width, height);
 		}
 		break;
 	}
 	case WM_DESTROY:
-		Kore_Stop();
+		Kinc_Stop();
 		return 0;
 	case WM_ERASEBKGND:
 		return 1;
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_ACTIVE)
-			Kinc_Internal_Mouse_WindowActivated(Kore_Windows_WindowIndexFromHWND(hWnd));
+			Kinc_Internal_Mouse_WindowActivated(Kinc_Windows_WindowIndexFromHWND(hWnd));
 		else
-			Kinc_Internal_Mouse_WindowDeactivated(Kore_Windows_WindowIndexFromHWND(hWnd));
+			Kinc_Internal_Mouse_WindowDeactivated(Kinc_Windows_WindowIndexFromHWND(hWnd));
 		break;
 	case WM_MOUSELEAVE:
-		windowId = Kore_Windows_WindowIndexFromHWND(hWnd);
+		windowId = Kinc_Windows_WindowIndexFromHWND(hWnd);
 		//**windows[windowId]->isMouseInside = false;
 		Kinc_Internal_Mouse_TriggerLeaveWindow(windowId);
 		break;
 	case WM_MOUSEMOVE:
-		windowId = Kore_Windows_WindowIndexFromHWND(hWnd);
+		windowId = Kinc_Windows_WindowIndexFromHWND(hWnd);
 		/*if (!windows[windowId]->isMouseInside) {
 		    windows[windowId]->isMouseInside = true;
 		    TRACKMOUSEEVENT tme;
@@ -324,49 +324,49 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		Kinc_Internal_Mouse_TriggerMove(windowId, mouseX, mouseY);
 		break;
 	case WM_LBUTTONDOWN:
-		if (!Kinc_Mouse_IsLocked(Kore_Windows_WindowIndexFromHWND(hWnd))) SetCapture(hWnd);
+		if (!Kinc_Mouse_IsLocked(Kinc_Windows_WindowIndexFromHWND(hWnd))) SetCapture(hWnd);
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_LBUTTONUP:
-		if (!Kinc_Mouse_IsLocked(Kore_Windows_WindowIndexFromHWND(hWnd))) ReleaseCapture();
+		if (!Kinc_Mouse_IsLocked(Kinc_Windows_WindowIndexFromHWND(hWnd))) ReleaseCapture();
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_RBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_RBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_MBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_MBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_MOUSEWHEEL:
-		Kinc_Internal_Mouse_TriggerScroll(Kore_Windows_WindowIndexFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
+		Kinc_Internal_Mouse_TriggerScroll(Kinc_Windows_WindowIndexFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
 		break;
 	case WM_POINTERDOWN:
 		pointerId = GET_POINTERID_WPARAM(wParam);
@@ -374,7 +374,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kinc_Internal_Pen_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			Kinc_Internal_Pen_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                         float(penInfo.pressure) / 1024.0f);
 		}
 		break;
@@ -384,7 +384,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kinc_Internal_Pen_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			Kinc_Internal_Pen_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                           float(penInfo.pressure) / 1024.0f);
 		}
 		break;
@@ -394,7 +394,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kinc_Internal_Pen_TriggerMove(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			Kinc_Internal_Pen_TriggerMove(Kinc_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                        float(penInfo.pressure) / 1024.0f);
 		}
 		break;
@@ -408,7 +408,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			}
 			else {
 				if (controlDown && keyTranslated[wParam] == KINC_KEY_X) {
-					char *text = Kore_Internal_CutCallback();
+					char *text = Kinc_Internal_CutCallback();
 					if (text != nullptr) {
 						wchar_t wtext[4096];
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
@@ -425,7 +425,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 				}
 
 				if (controlDown && keyTranslated[wParam] == KINC_KEY_C) {
-					char *text = Kore_Internal_CopyCallback();
+					char *text = Kinc_Internal_CopyCallback();
 					if (text != nullptr) {
 						wchar_t wtext[4096];
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
@@ -450,7 +450,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 							if (wtext != nullptr) {
 								char text[4096];
 								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, nullptr, nullptr);
-								Kore_Internal_PasteCallback(text);
+								Kinc_Internal_PasteCallback(text);
 								GlobalUnlock(handle);
 							}
 						}
@@ -524,7 +524,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (count == 1) { // Single file only for now
 			wchar_t filePath[260];
 			if (DragQueryFile(hDrop, 0, filePath, 260)) {
-				Kore_Internal_DropFilesCallback(filePath);
+				Kinc_Internal_DropFilesCallback(filePath);
 			}
 		}
 		DragFinish(hDrop);
@@ -697,7 +697,7 @@ namespace {
 		HRESULT hr = di_pads[padCount]->SetProperty(DIPROP_RANGE, &propertyRange.diph);
 
 		if (FAILED(hr)) {
-			Kore_Log(KORE_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetProperty() failed (HRESULT=0x%x)", padCount, hr);
+			Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetProperty() failed (HRESULT=0x%x)", padCount, hr);
 
 			// TODO (DK) cleanup?
 			// cleanupPad(padCount);
@@ -734,30 +734,30 @@ namespace {
 							hr = di_pads[padCount]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[padCount]);
 
 							if (SUCCEEDED(hr)) {
-								Kore_Log(KORE_LOG_LEVEL_INFO, "DirectInput8 / Pad%i / initialized", padCount);
+								Kinc_Log(KINC_LOG_LEVEL_INFO, "DirectInput8 / Pad%i / initialized", padCount);
 							}
 							else {
-								Kore_Log(KORE_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetDeviceState() failed (HRESULT=0x%x)", padCount, hr);
+								Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetDeviceState() failed (HRESULT=0x%x)", padCount, hr);
 								// cleanupPad(padCount); // (DK) don't kill it, we try again in handleDirectInputPad()
 							}
 						}
 						else {
-							Kore_Log(KORE_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / Acquire() failed (HRESULT=0x%x)", padCount, hr);
+							Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / Acquire() failed (HRESULT=0x%x)", padCount, hr);
 							cleanupPad(padCount);
 						}
 					}
 					else {
-						Kore_Log(KORE_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / EnumObjects(DIDFT_AXIS) failed (HRESULT=0x%x)", padCount, hr);
+						Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / EnumObjects(DIDFT_AXIS) failed (HRESULT=0x%x)", padCount, hr);
 						cleanupPad(padCount);
 					}
 				}
 				else {
-					Kore_Log(KORE_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetCapabilities() failed (HRESULT=0x%x)", padCount, hr);
+					Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetCapabilities() failed (HRESULT=0x%x)", padCount, hr);
 					cleanupPad(padCount);
 				}
 			}
 			else {
-				Kore_Log(KORE_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetDataFormat() failed (HRESULT=0x%x)", padCount, hr);
+				Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetDataFormat() failed (HRESULT=0x%x)", padCount, hr);
 				cleanupPad(padCount);
 			}
 
@@ -792,7 +792,7 @@ static void initializeDirectInput() {
 		}
 	}
 	else {
-		Kore_Log(KORE_LOG_LEVEL_WARNING, "DirectInput8Create failed (HRESULT=0x%x)", hr);
+		Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8Create failed (HRESULT=0x%x)", hr);
 	}
 }
 
@@ -875,7 +875,7 @@ const char *Kinc_Gamepad_ProductName(int gamepad) {
 	}
 }
 
-bool Kore_Internal_HandleMessages() {
+bool Kinc_Internal_HandleMessages() {
 	MSG message;
 
 	while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
@@ -959,11 +959,11 @@ namespace {
 //**	return keyboardshown;
 //**}
 
-void Kore_LoadURL(const char *url) {}
+void Kinc_LoadURL(const char *url) {}
 
-void Kore_SetKeepScreenOn(bool on) {}
+void Kinc_SetKeepScreenOn(bool on) {}
 
-const char *Kore_SystemId() {
+const char *Kinc_SystemId() {
 	return "Windows";
 }
 
@@ -984,7 +984,7 @@ namespace {
 		wcscpy(savePathw, path);
 		wcscat(savePathw, L"\\");
 		wchar_t name[1024];
-		MultiByteToWideChar(CP_UTF8, 0, Kore_ApplicationName(), -1, name, 1024);
+		MultiByteToWideChar(CP_UTF8, 0, Kinc_ApplicationName(), -1, name, 1024);
 		wcscat(savePathw, name);
 		wcscat(savePathw, L"\\");
 
@@ -998,7 +998,7 @@ namespace {
 	}
 }
 
-const char *Kore_Internal_SavePath() {
+const char *Kinc_Internal_SavePath() {
 	if (::savePath[0] == 0) findSavePath();
 	return ::savePath;
 }
@@ -1009,21 +1009,21 @@ namespace {
 	LARGE_INTEGER startCount;
 }
 
-const char **Kore_VideoFormats() {
+const char **Kinc_VideoFormats() {
 	return ::videoFormats;
 }
 
-double Kore_Frequency() {
+double Kinc_Frequency() {
 	return (double)::frequency.QuadPart;
 }
 
-Kore_ticks Kore_Timestamp() {
+Kinc_ticks Kinc_Timestamp(void) {
 	LARGE_INTEGER stamp;
 	QueryPerformanceCounter(&stamp);
 	return stamp.QuadPart - startCount.QuadPart;
 }
 
-double Kore_Time() {
+double Kinc_Time(void) {
 	LARGE_INTEGER stamp;
 	QueryPerformanceCounter(&stamp);
 	return double(stamp.QuadPart - startCount.QuadPart) / (double)::frequency.QuadPart;
@@ -1038,7 +1038,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
-	Kore_Windows_InitDisplays();
+	Kinc_Windows_InitDisplays();
 
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);
@@ -1063,24 +1063,24 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	return ret;
 }
 
-int Kore_Init(const char *name, int width, int height, Kore_WindowOptions *win, Kore_FramebufferOptions *frame) {
+int Kinc_Init(const char *name, int width, int height, Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame) {
 	//Kore::System::_init(name, width, height, &win, &frame);
-	Kore_WindowOptions defaultWin;
+	Kinc_WindowOptions defaultWin;
 	if (win == nullptr) {
-		Kore_Internal_InitWindowOptions(&defaultWin);
+		Kinc_Internal_InitWindowOptions(&defaultWin);
 		win = &defaultWin;
 	}
 	win->width = width;
 	win->height = height;
-	int window = Kore_WindowCreate(win, frame);
+	int window = Kinc_WindowCreate(win, frame);
 	loadXInput();
 	initializeDirectInput();
 	return window;
 }
 
-void Kore_Internal_Shutdown() {
-	Kore_Windows_HideWindows();
-	Kore_Internal_ShutdownCallback();
-	Kore_Windows_DestroyWindows();
-	Kore_Windows_RestoreDisplays();
+void Kinc_Internal_Shutdown() {
+	Kinc_Windows_HideWindows();
+	Kinc_Internal_ShutdownCallback();
+	Kinc_Windows_DestroyWindows();
+	Kinc_Windows_RestoreDisplays();
 }

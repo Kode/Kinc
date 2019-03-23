@@ -8,9 +8,9 @@ extern "C" {
 
 typedef long HRESULT;
 
-void Kore_Microsoft_Affirm(HRESULT result);
-void Kore_Microsoft_AffirmMessage(HRESULT result, const char* format, ...);
-void Kore_Microsoft_Format(const char* format, va_list args, wchar_t* buffer);
+void Kinc_Microsoft_Affirm(HRESULT result);
+void Kinc_Microsoft_AffirmMessage(HRESULT result, const char *format, ...);
+void Kinc_Microsoft_Format(const char *format, va_list args, wchar_t *buffer);
 
 #ifdef __cplusplus
 }

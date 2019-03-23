@@ -12,7 +12,7 @@ using namespace Kore;
 
 void Kinc_Internal_Mouse_Lock(int window) {
 	Kinc_Mouse_Hide();
-	HWND handle = Kore_Windows_WindowHandle(window);
+	HWND handle = Kinc_Windows_WindowHandle(window);
 	SetCapture(handle);
 	RECT rect;
 	GetWindowRect(handle, &rect);
@@ -41,14 +41,14 @@ void Kinc_Mouse_SetPosition(int window, int x, int y) {
 	POINT point;
 	point.x = x;
 	point.y = y;
-	ClientToScreen(Kore_Windows_WindowHandle(window), &point);
+	ClientToScreen(Kinc_Windows_WindowHandle(window), &point);
 	SetCursorPos(point.x, point.y);
 }
 
 void Kinc_Mouse_GetPosition(int window, int *x, int *y) {
 	POINT point;
 	GetCursorPos(&point);
-	ScreenToClient(Kore_Windows_WindowHandle(window), &point);
+	ScreenToClient(Kinc_Windows_WindowHandle(window), &point);
 	*x = point.x;
 	*y = point.y;
 }

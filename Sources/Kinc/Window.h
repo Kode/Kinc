@@ -6,28 +6,28 @@
 extern "C" {
 #endif
 
-typedef struct _Kore_FramebufferOptions {
+typedef struct _Kinc_FramebufferOptions {
 	int frequency;
 	bool vertical_sync;
 	int color_bits;
 	int depth_bits;
 	int stencil_bits;
 	int samples_per_pixel;
-} Kore_FramebufferOptions;
+} Kinc_FramebufferOptions;
 
 typedef enum {
-	WINDOW_MODE_WINDOW,
-	WINDOW_MODE_FULLSCREEN,
-	WINDOW_MODE_EXCLUSIVE_FULLSCREEN // Only relevant for Windows
-} Kore_WindowMode;
+	KINC_WINDOW_MODE_WINDOW,
+	KINC_WINDOW_MODE_FULLSCREEN,
+	KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN // Only relevant for Windows
+} Kinc_WindowMode;
 
-#define KORE_WINDOW_FEATURE_RESIZEABLE 1
-#define KORE_WINDOW_FEATURE_MINIMIZABLE 2
-#define KORE_WINDOW_FEATURE_MAXIMIZABLE 4
-#define KORE_WINDOW_FEATURE_BORDERLESS 8
-#define KORE_WINDOW_FEATURE_ON_TOP 16
+#define KINC_WINDOW_FEATURE_RESIZEABLE 1
+#define KINC_WINDOW_FEATURE_MINIMIZABLE 2
+#define KINC_WINDOW_FEATURE_MAXIMIZABLE 4
+#define KINC_WINDOW_FEATURE_BORDERLESS 8
+#define KINC_WINDOW_FEATURE_ON_TOP 16
 
-typedef struct _Kore_WindowOptions {
+typedef struct _Kinc_WindowOptions {
 	const char *title;
 
 	int x;
@@ -38,34 +38,34 @@ typedef struct _Kore_WindowOptions {
 
 	bool visible;
 	int window_features;
-	Kore_WindowMode mode;
-} Kore_WindowOptions;
+	Kinc_WindowMode mode;
+} Kinc_WindowOptions;
 
-int Kore_WindowCreate(Kore_WindowOptions *win, Kore_FramebufferOptions *frame);
-void Kore_WindowDestroy(int window_index);
-int Kore_CountWindows();
-void Kore_WindowResize(int window_index, int width, int height);
-void Kore_WindowMove(int window_index, int x, int y);
-void Kore_WindowChangeMode(int window_index, Kore_WindowMode mode);
-void Kore_WindowChangeFeatures(int window_index, int features);
-void Kore_WindowChangeFramebuffer(int window_index, Kore_FramebufferOptions *frame);
-int Kore_WindowX(int window_index);
-int Kore_WindowY(int window_index);
-int Kore_WindowWidth(int window_index);
-int Kore_WindowHeight(int window_index);
-int Kore_WindowDisplay(int window_index);
-Kore_WindowMode Kore_WindowGetMode(int window_index);
-void Kore_WindowShow(int window_index);
-void Kore_WindowHide(int window_index);
-void Kore_WindowSetTitle(int window_index, const char *title);
-void Kore_WindowSetResizeCallback(int window_index, void (*callback)(int x, int y, void *data), void *data);
-void Kore_WindowSetPpiChangedCallback(int window_index, void (*callback)(int ppi, void *data), void *data);
-bool Kore_WindowVSynced(int window_index);
+int Kinc_WindowCreate(Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame);
+void Kinc_WindowDestroy(int window_index);
+int Kinc_CountWindows(void);
+void Kinc_WindowResize(int window_index, int width, int height);
+void Kinc_WindowMove(int window_index, int x, int y);
+void Kinc_WindowChangeMode(int window_index, Kinc_WindowMode mode);
+void Kinc_WindowChangeFeatures(int window_index, int features);
+void Kinc_WindowChangeFramebuffer(int window_index, Kinc_FramebufferOptions *frame);
+int Kinc_WindowX(int window_index);
+int Kinc_WindowY(int window_index);
+int Kinc_WindowWidth(int window_index);
+int Kinc_WindowHeight(int window_index);
+int Kinc_WindowDisplay(int window_index);
+Kinc_WindowMode Kinc_WindowGetMode(int window_index);
+void Kinc_WindowShow(int window_index);
+void Kinc_WindowHide(int window_index);
+void Kinc_WindowSetTitle(int window_index, const char *title);
+void Kinc_WindowSetResizeCallback(int window_index, void (*callback)(int x, int y, void *data), void *data);
+void Kinc_WindowSetPpiChangedCallback(int window_index, void (*callback)(int ppi, void *data), void *data);
+bool Kinc_WindowVSynced(int window_index);
 
-void Kore_Internal_InitWindowOptions(Kore_WindowOptions *win);
-void Kore_Internal_InitFramebufferOptions(Kore_FramebufferOptions *frame);
-void Kore_Internal_CallResizeCallback(int window_index, int width, int height);
-void Kore_Internal_CallPpiChangedCallback(int window_index, int ppi);
+void Kinc_Internal_InitWindowOptions(Kinc_WindowOptions *win);
+void Kinc_Internal_InitFramebufferOptions(Kinc_FramebufferOptions *frame);
+void Kinc_Internal_CallResizeCallback(int window_index, int width, int height);
+void Kinc_Internal_CallPpiChangedCallback(int window_index, int ppi);
 
 #ifdef __cplusplus
 }

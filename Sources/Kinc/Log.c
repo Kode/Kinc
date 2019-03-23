@@ -13,22 +13,22 @@
 #include <android/log.h>
 #endif
 
-void Kore_Log(Kore_LogLevel level, const char* format, ...) {
+void Kinc_Log(Kinc_LogLevel level, const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	Kore_LogArgs(level, format, args);
+	Kinc_LogArgs(level, format, args);
 	va_end(args);
 }
 
-void Kore_LogArgs(Kore_LogLevel level, const char* format, va_list args) {
+void Kinc_LogArgs(Kinc_LogLevel level, const char* format, va_list args) {
 #ifdef KORE_MICROSOFT
 	wchar_t buffer[4096];
-	Kore_Microsoft_Format(format, args, buffer);
+	Kinc_Microsoft_Format(format, args, buffer);
 	wcscat(buffer, L"\r\n");
 	OutputDebugString(buffer);
 #ifdef KORE_WINDOWS
 	DWORD written;
-	WriteConsole(GetStdHandle(level == KORE_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)wcslen(buffer), &written, NULL);
+	WriteConsole(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)wcslen(buffer), &written, NULL);
 #endif
 
 #else

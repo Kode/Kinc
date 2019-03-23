@@ -13,7 +13,7 @@ Audio2::Buffer Audio2::buffer;
 int Audio2::samplesPerSecond = 44100;
 
 namespace {
-	void audio(Kore_A2_Buffer* buffer, int samples) {
+	void audio(Kinc_A2_Buffer *buffer, int samples) {
 		if (Audio2::audioCallback != nullptr) {
 			Audio2::audioCallback(samples);
 		}
@@ -40,15 +40,15 @@ namespace {
 }
 
 void Audio2::init() {
-	Kore_A2_Init();
-	Audio2::samplesPerSecond = Kore_A2_SamplesPerSecond;
-	Kore_A2_SetCallback(audio);
+	Kinc_A2_Init();
+	Audio2::samplesPerSecond = Kinc_A2_SamplesPerSecond;
+	Kinc_A2_SetCallback(audio);
 }
 
 void Audio2::update() {
-	Kore_A2_Update();
+	Kinc_A2_Update();
 }
 
 void Audio2::shutdown() {
-	Kore_A2_Shutdown();
+	Kinc_A2_Shutdown();
 }

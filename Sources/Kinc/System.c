@@ -5,7 +5,7 @@
 #include "Window.h"
 
 #if !defined(KORE_HTML5) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
-double Kore_Time() {
+double Kinc_Time() {
 	return timestamp() / frequency();
 }
 #endif
@@ -25,103 +25,103 @@ static void (*paste_callback)(char *) = NULL;
 bool withAutoreleasepool(bool (*f)());
 #endif
 
-void Kore_SetUpdateCallback(void (*value)()) {
+void Kinc_SetUpdateCallback(void (*value)()) {
 	update_callback = value;
 }
 
-void Kore_SetForegroundCallback(void (*value)()) {
+void Kinc_SetForegroundCallback(void (*value)()) {
 	foreground_callback = value;
 }
 
-void Kore_SetResumeCallback(void (*value)()) {
+void Kinc_SetResumeCallback(void (*value)()) {
 	resume_callback = value;
 }
 
-void Kore_SetPauseCallback(void (*value)()) {
+void Kinc_SetPauseCallback(void (*value)()) {
 	pause_callback = value;
 }
 
-void Kore_SetBackgroundCallback(void (*value)()) {
+void Kinc_SetBackgroundCallback(void (*value)()) {
 	background_callback = value;
 }
 
-void Kore_SetShutdownCallback(void (*value)()) {
+void Kinc_SetShutdownCallback(void (*value)()) {
 	shutdown_callback = value;
 }
 
-void Kore_SetDropFilesCallback(void (*value)(wchar_t *)) {
+void Kinc_SetDropFilesCallback(void (*value)(wchar_t *)) {
 	drop_files_callback = value;
 }
 
-void Kore_SetCutCallback(char *(*value)()) {
+void Kinc_SetCutCallback(char *(*value)()) {
 	cut_callback = value;
 }
 
-void Kore_SetCopyCallback(char *(*value)()) {
+void Kinc_SetCopyCallback(char *(*value)()) {
 	copy_callback = value;
 }
 
-void Kore_SetPasteCallback(void (*value)(char *)) {
+void Kinc_SetPasteCallback(void (*value)(char *)) {
 	paste_callback = value;
 }
 
-void Kore_Internal_UpdateCallback() {
+void Kinc_Internal_UpdateCallback() {
 	if (update_callback != NULL) {
 		update_callback();
 	}
 }
 
-void Kore_Internal_ForegroundCallback() {
+void Kinc_Internal_ForegroundCallback() {
 	if (foreground_callback != NULL) {
 		foreground_callback();
 	}
 }
 
-void Kore_Internal_ResumeCallback() {
+void Kinc_Internal_ResumeCallback() {
 	if (resume_callback != NULL) {
 		resume_callback();
 	}
 }
 
-void Kore_Internal_PauseCallback() {
+void Kinc_Internal_PauseCallback() {
 	if (pause_callback != NULL) {
 		pause_callback();
 	}
 }
 
-void Kore_Internal_BackgroundCallback() {
+void Kinc_Internal_BackgroundCallback() {
 	if (background_callback != NULL) {
 		background_callback();
 	}
 }
 
-void Kore_Internal_ShutdownCallback() {
+void Kinc_Internal_ShutdownCallback() {
 	if (shutdown_callback != NULL) {
 		shutdown_callback();
 	}
 }
 
-void Kore_Internal_DropFilesCallback(wchar_t *filePath) {
+void Kinc_Internal_DropFilesCallback(wchar_t *filePath) {
 	if (drop_files_callback != NULL) {
 		drop_files_callback(filePath);
 	}
 }
 
-char *Kore_Internal_CutCallback() {
+char *Kinc_Internal_CutCallback() {
 	if (cut_callback != NULL) {
 		return cut_callback();
 	}
 	return NULL;
 }
 
-char *Kore_Internal_CopyCallback() {
+char *Kinc_Internal_CopyCallback() {
 	if (copy_callback != NULL) {
 		return copy_callback();
 	}
 	return NULL;
 }
 
-void Kore_Internal_PasteCallback(char *value) {
+void Kinc_Internal_PasteCallback(char *value) {
 	if (paste_callback != NULL) {
 		paste_callback(value);
 	}
@@ -131,7 +131,7 @@ static bool running = false;
 static bool showWindowFlag = true;
 static char name[1024] = {"Kore Application"};
 
-const char *Kore_ApplicationName() {
+const char *Kinc_ApplicationName() {
 	return name;
 }
 
@@ -139,7 +139,7 @@ const char *Kore_ApplicationName() {
 void shutdownMetalCompute();
 #endif
 
-void Kore_Stop() {
+void Kinc_Stop() {
 	running = false;
 
 	// TODO (DK) destroy graphics + windows, but afaik Application::~Application() was never called, so it's the same behavior now as well
@@ -153,33 +153,32 @@ void Kore_Stop() {
 #endif
 }
 
-bool Kore_Internal_Frame() {
-	Kore_Internal_UpdateCallback();
-	Kore_Internal_HandleMessages();
+bool Kinc_Internal_Frame() {
+	Kinc_Internal_UpdateCallback();
+	Kinc_Internal_HandleMessages();
 	return running;
 }
 
-void Kore_Start() {
+void Kinc_Start() {
 	running = true;
 
 #if !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_XBOX_ONE)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-	while (withAutoreleasepool(Kore_Internal_Frame))
-		;
+	while (withAutoreleasepool(Kinc_Internal_Frame)) {
+	}
 #else
-	while (Kore_Internal_Frame())
-		;
+	while (Kinc_Internal_Frame()) {}
 #endif
-	Kore_Internal_Shutdown();
+	Kinc_Internal_Shutdown();
 #endif
 }
 
-int Kore_Width() {
-	return Kore_WindowWidth(0);
+int Kinc_Width() {
+	return Kinc_WindowWidth(0);
 }
 
-int Kore_Height() {
-	return Kore_WindowHeight(0);
+int Kinc_Height() {
+	return Kinc_WindowHeight(0);
 }

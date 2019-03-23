@@ -100,8 +100,8 @@ void Kinc_Mouse_Lock(int window) {
 	locked = true;
 	Kinc_Internal_Mouse_Lock(window);
 	Kinc_Mouse_GetPosition(window, &preLockX, &preLockY);
-	centerX = Kore_WindowWidth(window) / 2;
-	centerY = Kore_WindowHeight(window) / 2;
+	centerX = Kinc_WindowWidth(window) / 2;
+	centerY = Kinc_WindowHeight(window) / 2;
 	Kinc_Mouse_SetPosition(window, centerX, centerY);
 }
 

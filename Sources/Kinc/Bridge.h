@@ -8,11 +8,11 @@
 extern "C" {
 #endif
 
-struct _Kore_FramebufferOptions;
+struct _Kinc_FramebufferOptions;
 
-void Kore_Bridge_G4_Internal_ChangeFramebuffer(int window_index, struct _Kore_FramebufferOptions *frame);
-void Kore_Bridge_G4_Internal_SetAntialiasingSamples(int samples_per_pixel);
-void Kore_Bridge_G4_Internal_Init(int window_index, int depth_bits, int stencil_bits, bool vsync);
+void Kinc_Bridge_G4_Internal_ChangeFramebuffer(int window_index, struct _Kinc_FramebufferOptions *frame);
+void Kinc_Bridge_G4_Internal_SetAntialiasingSamples(int samples_per_pixel);
+void Kinc_Bridge_G4_Internal_Init(int window_index, int depth_bits, int stencil_bits, bool vsync);
 
 #ifdef __cplusplus
 }

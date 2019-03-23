@@ -9,63 +9,63 @@ extern "C" {
 
 int kore(int argc, char **argv);
 
-struct _Kore_WindowOptions;
-struct _Kore_FramebufferOptions;
+struct _Kinc_WindowOptions;
+struct _Kinc_FramebufferOptions;
 
-int Kore_Init(const char *name, int width, int height, struct _Kore_WindowOptions *win, struct _Kore_FramebufferOptions *frame);
+int Kinc_Init(const char *name, int width, int height, struct _Kinc_WindowOptions *win, struct _Kinc_FramebufferOptions *frame);
 
-const char *Kore_ApplicationName();
-int Kore_Width();
-int Kore_height();
+const char *Kinc_ApplicationName(void);
+int Kinc_Width(void);
+int Kinc_height(void);
 
-bool Kore_Internal_HandleMessages();
+bool Kinc_Internal_HandleMessages(void);
 
 //**vec2i mousePos();
 //**void showKeyboard();
 //**void hideKeyboard();
 //**bool showsKeyboard();
 
-void Kore_LoadURL(const char *title);
+void Kinc_LoadURL(const char *title);
 
-const char *Kore_SystemId();
+const char *Kinc_SystemId();
 
-const char *Kore_Internal_SavePath();
+const char *Kinc_Internal_SavePath();
 
-const char **Kore_VideoFormats();
+const char **Kinc_VideoFormats();
 
-typedef uint64_t Kore_ticks;
+typedef uint64_t Kinc_ticks;
 
-double Kore_Frequency();
-Kore_ticks Kore_Timestamp();
-double Kore_Time();
+double Kinc_Frequency();
+Kinc_ticks Kinc_Timestamp();
+double Kinc_Time();
 
-void Kore_Start();
-bool Kore_Internal_Frame();
-void Kore_Stop();
+void Kinc_Start();
+bool Kinc_Internal_Frame();
+void Kinc_Stop();
 
-void Kore_SetUpdateCallback(void (*value)());
-void Kore_SetForegroundCallback(void (*value)());
-void Kore_SetResumeCallback(void (*value)());
-void Kore_SetPauseCallback(void (*value)());
-void Kore_SetBackgroundCallback(void (*value)());
-void Kore_SetShutdownCallback(void (*value)());
-void Kore_SetDropFilesCallback(void (*value)(wchar_t *));
-void Kore_SetCutCallback(char *(*value)());
-void Kore_SetCopyCallback(char *(*value)());
-void Kore_SetPasteCallback(void (*value)(char *));
-void Kore_SetKeepScreenOn(bool on);
+void Kinc_SetUpdateCallback(void (*value)());
+void Kinc_SetForegroundCallback(void (*value)());
+void Kinc_SetResumeCallback(void (*value)());
+void Kinc_SetPauseCallback(void (*value)());
+void Kinc_SetBackgroundCallback(void (*value)());
+void Kinc_SetShutdownCallback(void (*value)());
+void Kinc_SetDropFilesCallback(void (*value)(wchar_t *));
+void Kinc_SetCutCallback(char *(*value)());
+void Kinc_SetCopyCallback(char *(*value)());
+void Kinc_SetPasteCallback(void (*value)(char *));
+void Kinc_SetKeepScreenOn(bool on);
 
-void Kore_Internal_Shutdown();
-void Kore_Internal_UpdateCallback();
-void Kore_Internal_ForegroundCallback();
-void Kore_Internal_ResumeCallback();
-void Kore_Internal_PauseCallback();
-void Kore_Internal_BackgroundCallback();
-void Kore_Internal_ShutdownCallback();
-void Kore_Internal_DropFilesCallback(wchar_t *);
-char *Kore_Internal_CutCallback();
-char *Kore_Internal_CopyCallback();
-void Kore_Internal_PasteCallback(char *);
+void Kinc_Internal_Shutdown();
+void Kinc_Internal_UpdateCallback();
+void Kinc_Internal_ForegroundCallback();
+void Kinc_Internal_ResumeCallback();
+void Kinc_Internal_PauseCallback();
+void Kinc_Internal_BackgroundCallback();
+void Kinc_Internal_ShutdownCallback();
+void Kinc_Internal_DropFilesCallback(wchar_t *);
+char *Kinc_Internal_CutCallback();
+char *Kinc_Internal_CopyCallback();
+void Kinc_Internal_PasteCallback(char *);
 
 #ifdef __cplusplus
 }

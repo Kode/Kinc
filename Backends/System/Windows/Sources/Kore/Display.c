@@ -83,7 +83,7 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 	return TRUE;
 }
 
-void Kore_Windows_InitDisplays() {
+void Kinc_Windows_InitDisplays() {
 	HMODULE shcore = LoadLibraryA("Shcore.dll");
 	if (shcore != NULL) {
 		MyGetDpiForMonitor = (GetDpiForMonitorType)GetProcAddress(shcore, "GetDpiForMonitor");
@@ -92,22 +92,22 @@ void Kore_Windows_InitDisplays() {
 	EnumDisplayMonitors(NULL, NULL, EnumerationCallback, 0);
 }
 
-int Kore_Windows_GetDisplayForMonitor(struct HMONITOR__ *monitor) {
+int Kinc_Windows_GetDisplayForMonitor(struct HMONITOR__ *monitor) {
 	for (int i = 0; i < MAXIMUM_DISPLAYS; ++i) {
 		if (displays[i].monitor == monitor) {
 			return i;
 		}
 	}
 
-	Kore_ErrorMessage("Display for monitor not found");
+	Kinc_ErrorMessage("Display for monitor not found");
 	return -1;
 }
 
-int Kore_CountDisplays() {
+int Kinc_CountDisplays() {
 	return screen_counter;
 }
 
-int Kore_PrimaryDisplay() {
+int Kinc_PrimaryDisplay() {
 	for (int i = 0; i < MAXIMUM_DISPLAYS; ++i) {
 		DisplayData *display = &displays[i];
 
@@ -116,15 +116,15 @@ int Kore_PrimaryDisplay() {
 		}
 	}
 
-	Kore_ErrorMessage("No primary display defined");
+	Kinc_ErrorMessage("No primary display defined");
 	return -1;
 }
 
-Kore_DisplayMode Kore_DisplayAvailableMode(int display_index, int mode_index) {
+Kinc_DisplayMode Kinc_DisplayAvailableMode(int display_index, int mode_index) {
 	DEVMODEA dev_mode = {0};
 	dev_mode.dmSize = sizeof(DEVMODEA);
 	EnumDisplaySettingsA(displays[display_index].name, mode_index, &dev_mode);
-	Kore_DisplayMode mode;
+	Kinc_DisplayMode mode;
 	mode.x = displays[display_index].x;
 	mode.y = displays[display_index].y;
 	mode.width = dev_mode.dmPelsWidth;
@@ -135,7 +135,7 @@ Kore_DisplayMode Kore_DisplayAvailableMode(int display_index, int mode_index) {
 	return mode;
 }
 
-int Kore_DisplayCountAvailableModes(int display_index) {
+int Kinc_DisplayCountAvailableModes(int display_index) {
 	DEVMODEA dev_mode = {0};
 	dev_mode.dmSize = sizeof(DEVMODEA);
 	int i = 0;
@@ -144,7 +144,7 @@ int Kore_DisplayCountAvailableModes(int display_index) {
 	return i;
 }
 
-bool Kore_Windows_SetDisplayMode(int display_index, int width, int height, int bpp, int frequency) {
+bool Kinc_Windows_SetDisplayMode(int display_index, int width, int height, int bpp, int frequency) {
 	DisplayData *display = &displays[display_index];
 	display->mode_changed = true;
 	DEVMODEA mode = {0};
@@ -159,32 +159,32 @@ bool Kore_Windows_SetDisplayMode(int display_index, int width, int height, int b
 	return ChangeDisplaySettingsA(&mode, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
 }
 
-void Kore_Windows_RestoreDisplay(int display) {
+void Kinc_Windows_RestoreDisplay(int display) {
 	if (displays[display].mode_changed) {
 		ChangeDisplaySettingsA(&original_modes[display], 0);
 	}
 }
 
-void Kore_Windows_RestoreDisplays() {
+void Kinc_Windows_RestoreDisplays() {
 	for (int i = 0; i < MAXIMUM_DISPLAYS; ++i) {
-		Kore_Windows_RestoreDisplay(i);	
+		Kinc_Windows_RestoreDisplay(i);	
 	}
 }
 
-bool Kore_DisplayAvailable(int display_index) {
+bool Kinc_DisplayAvailable(int display_index) {
 	if (display_index < 0 || display_index >= MAXIMUM_DISPLAYS) {
 		return false;
 	}
 	return displays[display_index].available;
 }
 
-const char* Kore_DisplayName(int display_index) {
+const char *Kinc_DisplayName(int display_index) {
 	return displays[display_index].name;
 }
 
-Kore_DisplayMode Kore_DisplayCurrentMode(int display_index) {
+Kinc_DisplayMode Kinc_DisplayCurrentMode(int display_index) {
 	DisplayData *display = &displays[display_index];
-	Kore_DisplayMode mode;
+	Kinc_DisplayMode mode;
 	mode.x = display->x;
 	mode.y = display->y;
 	mode.width = display->width;

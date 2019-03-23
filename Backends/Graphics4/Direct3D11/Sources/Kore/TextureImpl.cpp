@@ -85,8 +85,8 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	data.SysMemSlicePitch = 0;
 
 	texture = nullptr;
-	Kore_Microsoft_Affirm(device->CreateTexture2D(&desc, &data, &texture));
-	Kore_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, &data, &texture));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	if (!readable) {
 		if (isHdr(this->format)) {
@@ -126,8 +126,8 @@ void Graphics4::Texture::init3D(bool readable) {
 	data.SysMemSlicePitch = width * height * formatByteSize(this->format);
 
 	texture3D = nullptr;
-	Kore_Microsoft_Affirm(device->CreateTexture3D(&desc, &data, &texture3D));
-	Kore_Microsoft_Affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
+	Kinc_Microsoft_Affirm(device->CreateTexture3D(&desc, &data, &texture3D));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
 
 	if (!readable) {
 		if (isHdr(this->format)) {
@@ -168,15 +168,15 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	}
 
 	texture = nullptr;
-	Kore_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &texture));
-	Kore_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &texture));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
 
 	if (format == Image::RGBA128) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
 		du.Format = desc.Format;
 		du.Texture2D.MipSlice = 0;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE2D;
-		Kore_Microsoft_Affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
+		Kinc_Microsoft_Affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
 	}
 }
 
@@ -200,8 +200,8 @@ Graphics4::Texture::Texture(int width, int height, int depth, Image::Format form
 	desc.CPUAccessFlags = 0;
 
 	texture3D = nullptr;
-	Kore_Microsoft_Affirm(device->CreateTexture3D(&desc, nullptr, &texture3D));
-	Kore_Microsoft_Affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
+	Kinc_Microsoft_Affirm(device->CreateTexture3D(&desc, nullptr, &texture3D));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
 }
 
 TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
@@ -244,7 +244,7 @@ void Graphics4::Texture::_setImage(TextureUnit unit) {
 		du.Texture3D.FirstWSlice = 0;
 		du.Texture3D.WSize = -1;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE3D;
-		Kore_Microsoft_Affirm(device->CreateUnorderedAccessView(texture3D, &du, &computeView));
+		Kinc_Microsoft_Affirm(device->CreateUnorderedAccessView(texture3D, &du, &computeView));
 	}
 	context->OMSetRenderTargetsAndUnorderedAccessViews(0, nullptr, nullptr, unit.unit, 1, &computeView, nullptr);
 }
@@ -270,8 +270,8 @@ void Graphics4::Texture::unlock() {
 void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
 	if (renderView == nullptr) {
 		texDepth > 1 ? 
-			Kore_Microsoft_Affirm(device->CreateRenderTargetView(texture3D, 0, &renderView)) :
-			Kore_Microsoft_Affirm(device->CreateRenderTargetView(texture, 0, &renderView));
+			Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture3D, 0, &renderView))
+		             : Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture, 0, &renderView));
 	}
 	static float clearColor[4];
 	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
@@ -301,8 +301,8 @@ void TextureImpl::enableMipmaps(int texWidth, int texHeight, int format) {
 
 	ID3D11Texture2D* mipMappedTexture;
 	ID3D11ShaderResourceView* mipMappedView;
-	Kore_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &mipMappedTexture));
-	Kore_Microsoft_Affirm(device->CreateShaderResourceView(mipMappedTexture, nullptr, &mipMappedView));
+	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &mipMappedTexture));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(mipMappedTexture, nullptr, &mipMappedView));
 
 	D3D11_BOX sourceRegion;
 	sourceRegion.left = 0;

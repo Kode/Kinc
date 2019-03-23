@@ -6,20 +6,20 @@
 
 using namespace Kore;
 
-Kore_WindowMode Kore::convert(WindowMode mode) {
+Kinc_WindowMode Kore::convert(WindowMode mode) {
 	switch (mode) {
 	case WindowModeWindow:
-		return WINDOW_MODE_WINDOW;
+		return KINC_WINDOW_MODE_WINDOW;
 	case WindowModeFullscreen:
-		return WINDOW_MODE_FULLSCREEN;
+		return KINC_WINDOW_MODE_FULLSCREEN;
 	case WindowModeExclusiveFullscreen:
-		return WINDOW_MODE_EXCLUSIVE_FULLSCREEN;
+		return KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN;
 	}
-	return WINDOW_MODE_WINDOW;
+	return KINC_WINDOW_MODE_WINDOW;
 }
 
-Kore_WindowOptions Kore::convert(WindowOptions *win) {
-	Kore_WindowOptions kwin;
+Kinc_WindowOptions Kore::convert(WindowOptions *win) {
+	Kinc_WindowOptions kwin;
 	kwin.title = win->title;
 	kwin.x = win->x;
 	kwin.y = win->y;
@@ -32,8 +32,8 @@ Kore_WindowOptions Kore::convert(WindowOptions *win) {
 	return kwin;
 }
 
-Kore_FramebufferOptions Kore::convert(FramebufferOptions *frame) {
-	Kore_FramebufferOptions kframe;
+Kinc_FramebufferOptions Kore::convert(FramebufferOptions *frame) {
+	Kinc_FramebufferOptions kframe;
 	kframe.frequency = frame->frequency;
 	kframe.vertical_sync = frame->verticalSync;
 	kframe.color_bits = frame->colorBufferBits;
