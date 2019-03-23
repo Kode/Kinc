@@ -1,49 +1,54 @@
 #include "../pch.h"
 
-#include <Kore/Input/Mouse.h>
 #include <Kore/System.h>
 #include <Kore/Window.h>
 #include <Kore/Windows.h>
+
+#include <Kinc/Input/Mouse.h>
 
 #include <Windows.h>
 
 using namespace Kore;
 
-void Mouse::_lock(int windowId, bool truth) {
-	show(!truth);
-	if (truth) {
-		HWND handle = Kore_Windows_WindowHandle(windowId);
-		SetCapture(handle);
-		RECT rect;
-		GetWindowRect(handle, &rect);
-		ClipCursor(&rect);
-	}
-	else {
-		ReleaseCapture();
-		ClipCursor(nullptr);
-	}
+void Kinc_Internal_Mouse_Lock(int window) {
+	Kinc_Mouse_Hide();
+	HWND handle = Kore_Windows_WindowHandle(window);
+	SetCapture(handle);
+	RECT rect;
+	GetWindowRect(handle, &rect);
+	ClipCursor(&rect);
 }
 
-bool Mouse::canLock(int windowId) {
+void Kinc_Internal_Mouse_Unlock(int window) {
+	Kinc_Mouse_Show();
+	ReleaseCapture();
+	ClipCursor(nullptr);
+}
+
+bool Kinc_Mouse_CanLock(int window) {
 	return true;
 }
 
-void Mouse::show(bool truth) {
-	ShowCursor(truth);
+void Kinc_Mouse_Show() {
+	ShowCursor(true);
 }
 
-void Mouse::setPosition(int windowId, int x, int y) {
+void Kinc_Mouse_Hide() {
+	ShowCursor(false);
+}
+
+void Kinc_Mouse_SetPosition(int window, int x, int y) {
 	POINT point;
 	point.x = x;
 	point.y = y;
-	ClientToScreen(Kore_Windows_WindowHandle(windowId), &point);
+	ClientToScreen(Kore_Windows_WindowHandle(window), &point);
 	SetCursorPos(point.x, point.y);
 }
 
-void Mouse::getPosition(int windowId, int& x, int& y) {
+void Kinc_Mouse_GetPosition(int window, int *x, int *y) {
 	POINT point;
 	GetCursorPos(&point);
-	ScreenToClient(Kore_Windows_WindowHandle(windowId), &point);
-	x = point.x;
-	y = point.y;
+	ScreenToClient(Kore_Windows_WindowHandle(window), &point);
+	*x = point.x;
+	*y = point.y;
 }

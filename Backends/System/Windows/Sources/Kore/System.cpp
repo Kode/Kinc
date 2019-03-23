@@ -12,11 +12,11 @@
 
 #include <Kore/Display.h>
 #include <Kore/Input/Keyboard.h>
-#include <Kore/Input/Mouse.h>
-#include <Kore/Input/Pen.h>
 #include <Kore/Window.h>
 #include <Kore/Windows.h>
 
+#include <Kinc/Input/Mouse.h>
+#include <Kinc/Input/Pen.h>
 #include <Kinc/Log.h>
 #include <Kinc/System.h>
 #include <Kinc/Window.h>
@@ -300,14 +300,14 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		return 1;
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_ACTIVE)
-			Kore::Mouse::the()->_activated(Kore_Windows_WindowIndexFromHWND(hWnd), true);
+			Kinc_Internal_Mouse_WindowActivated(Kore_Windows_WindowIndexFromHWND(hWnd));
 		else
-			Kore::Mouse::the()->_activated(Kore_Windows_WindowIndexFromHWND(hWnd), false);
+			Kinc_Internal_Mouse_WindowDeactivated(Kore_Windows_WindowIndexFromHWND(hWnd));
 		break;
 	case WM_MOUSELEAVE:
 		windowId = Kore_Windows_WindowIndexFromHWND(hWnd);
 		//**windows[windowId]->isMouseInside = false;
-		Kore::Mouse::the()->___leave(windowId);
+		Kinc_Internal_Mouse_TriggerLeaveWindow(windowId);
 		break;
 	case WM_MOUSEMOVE:
 		windowId = Kore_Windows_WindowIndexFromHWND(hWnd);
@@ -321,52 +321,52 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		}*/
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_move(windowId, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerMove(windowId, mouseX, mouseY);
 		break;
 	case WM_LBUTTONDOWN:
-		if (!Kore::Mouse::the()->isLocked(Kore_Windows_WindowIndexFromHWND(hWnd))) SetCapture(hWnd);
+		if (!Kinc_Mouse_IsLocked(Kore_Windows_WindowIndexFromHWND(hWnd))) SetCapture(hWnd);
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_LBUTTONUP:
-		if (!Kore::Mouse::the()->isLocked(Kore_Windows_WindowIndexFromHWND(hWnd))) ReleaseCapture();
+		if (!Kinc_Mouse_IsLocked(Kore_Windows_WindowIndexFromHWND(hWnd))) ReleaseCapture();
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_RBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_RBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_MBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_MBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kore::Mouse::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		Kinc_Internal_Mouse_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_MOUSEWHEEL:
-		Kore::Mouse::the()->_scroll(Kore_Windows_WindowIndexFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
+		Kinc_Internal_Mouse_TriggerScroll(Kore_Windows_WindowIndexFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
 		break;
 	case WM_POINTERDOWN:
 		pointerId = GET_POINTERID_WPARAM(wParam);
@@ -374,7 +374,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kore::Pen::the()->_press(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			Kinc_Internal_Pen_TriggerPress(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                         float(penInfo.pressure) / 1024.0f);
 		}
 		break;
@@ -384,7 +384,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kore::Pen::the()->_release(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			Kinc_Internal_Pen_TriggerRelease(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                           float(penInfo.pressure) / 1024.0f);
 		}
 		break;
@@ -394,7 +394,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kore::Pen::the()->_move(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			Kinc_Internal_Pen_TriggerMove(Kore_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                        float(penInfo.pressure) / 1024.0f);
 		}
 		break;

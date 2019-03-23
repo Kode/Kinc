@@ -13,13 +13,13 @@ namespace {
 	bool callbacksInitialized = false;
 
 	void axisCallback(int gamepad, int axis, float value) {
-		if (gamepad <= maxGamepads && padInitialized[gamepad] && pads[gamepad].Axis != nullptr) {
+		if (gamepad < maxGamepads && padInitialized[gamepad] && pads[gamepad].Axis != nullptr) {
 			pads[gamepad].Axis(axis, value);
 		}
 	}
 
 	void buttonCallback(int gamepad, int button, float value) {
-		if (gamepad <= maxGamepads && padInitialized[gamepad] && pads[gamepad].Button != nullptr) {
+		if (gamepad < maxGamepads && padInitialized[gamepad] && pads[gamepad].Button != nullptr) {
 			pads[gamepad].Button(button, value);
 		}
 	}

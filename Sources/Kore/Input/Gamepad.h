@@ -10,6 +10,6 @@ namespace Kore {
 		const char* vendor;
 		const char* productName;
 
-		Gamepad() : vendor(nullptr), productName(nullptr) {}
+		Gamepad() : Axis(nullptr), Button(nullptr), vendor(nullptr), productName(nullptr) {}
 	};
 }
