@@ -25,7 +25,6 @@ project.addDefine('KORE_A2');
 let a3 = false;
 
 project.addFile('Sources/**');
-project.addExclude('Sources/Kore/IO/snappy/**');
 project.addIncludeDir('Sources');
 
 function addBackend(name) {

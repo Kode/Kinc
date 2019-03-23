@@ -4,8 +4,7 @@
 #include <windows.h>
 #endif
 
-#include "../IO/lz4/lz4.h"
-#include "../IO/snappy/snappy.h"
+#include <Kinc/IO/lz4/lz4.h>
 #include "Image.h"
 
 #include <Kore/Graphics4/Graphics.h>
