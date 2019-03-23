@@ -2,9 +2,9 @@
 
 #import "BasicOpenGLView.h"
 
-#include <Kore/Input/Keyboard.h>
-#include <Kore/Input/Mouse.h>
-#include <Kore/System.h>
+#include <Kinc/Input/Keyboard.h>
+#include <Kinc/Input/Mouse.h>
+#include <Kinc/System.h>
 
 #ifdef KORE_METAL
 #include <Kore/Graphics5/Graphics.h>
@@ -53,11 +53,11 @@ namespace {
 			switch (ch) {
 			default:
 				if ([theEvent modifierFlags] & NSShiftKeyMask) {
-					if (!shift) Kore::Keyboard::the()->_keydown(Kore::KeyShift);
+					if (!shift) Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_SHIFT);
 					shift = true;
 				}
 				else {
-					if (shift) Kore::Keyboard::the()->_keyup(Kore::KeyShift);
+					if (shift) Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_SHIFT);
 					shift = false;
 				}
 				break;
@@ -65,34 +65,34 @@ namespace {
 		}
 		switch (ch) {
 		case NSRightArrowFunctionKey:
-			Kore::Keyboard::the()->_keydown(Kore::KeyRight);
+			Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_RIGHT);
 			break;
 		case NSLeftArrowFunctionKey:
-			Kore::Keyboard::the()->_keydown(Kore::KeyLeft);
+			Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_LEFT);
 			break;
 		case NSUpArrowFunctionKey:
-			Kore::Keyboard::the()->_keydown(Kore::KeyUp);
+			Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_UP);
 			break;
 		case NSDownArrowFunctionKey:
-			Kore::Keyboard::the()->_keydown(Kore::KeyDown);
+			Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_DOWN);
 			break;
 		case 27:
-			Kore::Keyboard::the()->_keydown(Kore::KeyEscape);
+			Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_ESCAPE);
 			break;
 		case NSEnterCharacter:
 		case NSNewlineCharacter:
 		case NSCarriageReturnCharacter:
-			Kore::Keyboard::the()->_keydown(Kore::KeyReturn);
+			Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_RETURN);
 			break;
 		case 0x7f:
-			Kore::Keyboard::the()->_keydown(Kore::KeyBackspace);
+			Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_BACKSPACE);
 			break;
 		case 32:
-			Kore::Keyboard::the()->_keydown(Kore::KeySpace);
+			Kinc_Internal_Keyboard_TriggerKeyDown(KINC_KEY_SPACE);
 			break;
 		default:
 			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
-				char* text = Kore::System::_cutCallback();
+				char* text = Kinc_Internal_CutCallback();
 				if (text != nullptr) {
 					NSPasteboard* board = [NSPasteboard generalPasteboard];
 					[board clearContents];
@@ -101,7 +101,7 @@ namespace {
 				break;
 			}
 			if (ch == 'c' && [theEvent modifierFlags] & NSCommandKeyMask) {
-				char* text = Kore::System::_copyCallback();
+				char* text = Kinc_Internal_CopyCallback();
 				if (text != nullptr) {
 					NSPasteboard* board = [NSPasteboard generalPasteboard];
 					[board clearContents];
@@ -115,20 +115,20 @@ namespace {
 				if (data != nil) {
 					char charData[4096];
 					strcpy(charData, [data UTF8String]);
-					Kore::System::_pasteCallback(charData);
+					Kinc_Internal_PasteCallback(charData);
 				}
 				break;
 			}
 			if (ch >= L'a' && ch <= L'z') {
-				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'a' + Kore::KeyA));
+				Kinc_Internal_Keyboard_TriggerKeyDown(ch - L'a' + KINC_KEY_A);
 			}
 			else if (ch >= L'A' && ch <= L'Z') {
-				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'A' + Kore::KeyA));
+				Kinc_Internal_Keyboard_TriggerKeyDown(ch - L'A' + KINC_KEY_A);
 			}
 			else if (ch >= L'0' && ch <= L'9') {
-				Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch - L'0' + Kore::Key0));
+				Kinc_Internal_Keyboard_TriggerKeyDown(ch - L'0' + KINC_KEY_0);
 			}
-			Kore::Keyboard::the()->_keypress(ch);
+			Kinc_Internal_Keyboard_TriggerKeyPress(ch);
 			break;
 		}
 	}
@@ -140,40 +140,40 @@ namespace {
 		unichar ch = [characters characterAtIndex:0];
 		switch (ch) {
 		case NSRightArrowFunctionKey:
-			Kore::Keyboard::the()->_keyup(Kore::KeyRight);
+			Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_RIGHT);
 			break;
 		case NSLeftArrowFunctionKey:
-			Kore::Keyboard::the()->_keyup(Kore::KeyLeft);
+			Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_LEFT);
 			break;
 		case NSUpArrowFunctionKey:
-			Kore::Keyboard::the()->_keyup(Kore::KeyUp);
+			Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_UP);
 			break;
 		case NSDownArrowFunctionKey:
-			Kore::Keyboard::the()->_keyup(Kore::KeyDown);
+			Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_DOWN);
 			break;
 		case 27:
-			Kore::Keyboard::the()->_keyup(Kore::KeyEscape);
+			Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_ESCAPE);
 			break;
 		case NSEnterCharacter:
 		case NSNewlineCharacter:
 		case NSCarriageReturnCharacter:
-			Kore::Keyboard::the()->_keyup(Kore::KeyReturn);
+			Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_RETURN);
 			break;
 		case 0x7f:
-			Kore::Keyboard::the()->_keyup(Kore::KeyBackspace);
+			Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_BACKSPACE);
 			break;
 		case 32:
-			Kore::Keyboard::the()->_keyup(Kore::KeySpace);
+			Kinc_Internal_Keyboard_TriggerKeyUp(KINC_KEY_SPACE);
 			break;
 		default:
 			if (ch >= L'a' && ch <= L'z') {
-				Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch - L'a' + Kore::KeyA));
+				Kinc_Internal_Keyboard_TriggerKeyUp(ch - L'a' + KINC_KEY_A);
 			}
 			else if (ch >= L'A' && ch <= L'Z') {
-				Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch - L'A' + Kore::KeyA));
+				Kinc_Internal_Keyboard_TriggerKeyUp(ch - L'A' + KINC_KEY_A);
 			}
 			else if (ch >= L'0' && ch <= L'9') {
-				Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch - L'0' + Kore::Key0));
+				Kinc_Internal_Keyboard_TriggerKeyUp(ch - L'0' + KINC_KEY_0);
 			}
 			break;
 		}
@@ -188,7 +188,7 @@ namespace {
 
 	int getMouseY(NSEvent* event) {
 		// TODO (DK) map [theEvent window] to window id instead of 0
-		return static_cast<int>(Kore::System::windowHeight(0) - [event locationInWindow].y);
+		return static_cast<int>(Kinc_Height() - [event locationInWindow].y);
 	}
 
 	bool controlKeyMouseButton = false;
@@ -198,54 +198,54 @@ namespace {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	if ([theEvent modifierFlags] & NSControlKeyMask) {
 		controlKeyMouseButton = true;
-		Kore::Mouse::the()->_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
+		Kinc_Internal_Mouse_TriggerPress(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	else {
 		controlKeyMouseButton = false;
-		Kore::Mouse::the()->_press(0, 0, getMouseX(theEvent), getMouseY(theEvent));
+		Kinc_Internal_Mouse_TriggerPress(0, 0, getMouseX(theEvent), getMouseY(theEvent));
 	}
 }
 
 - (void)mouseUp:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	if (controlKeyMouseButton) {
-		Kore::Mouse::the()->_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
+		Kinc_Internal_Mouse_TriggerRelease(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	else {
-		Kore::Mouse::the()->_release(0, 0, getMouseX(theEvent), getMouseY(theEvent));
+		Kinc_Internal_Mouse_TriggerRelease(0, 0, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	controlKeyMouseButton = false;
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
-	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
+	Kinc_Internal_Mouse_TriggerMove(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)mouseDragged:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
-	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
+	Kinc_Internal_Mouse_TriggerMove(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDown:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
-	Kore::Mouse::the()->_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
+	Kinc_Internal_Mouse_TriggerPress(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseUp:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
-	Kore::Mouse::the()->_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
+	Kinc_Internal_Mouse_TriggerRelease(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)rightMouseDragged:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
-	Kore::Mouse::the()->_move(0, getMouseX(theEvent), getMouseY(theEvent));
+	Kinc_Internal_Mouse_TriggerMove(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
 - (void)scrollWheel:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	int delta = [theEvent deltaY];
-	Kore::Mouse::the()->_scroll(0, -delta);
+	Kinc_Internal_Mouse_TriggerScroll(0, -delta);
 }
 
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
@@ -265,7 +265,7 @@ namespace {
 	if ([[pboard types] containsObject:NSURLPboardType]) {
 		NSURL* fileURL = [NSURL URLFromPasteboard:pboard];
 		wchar_t* filePath = (wchar_t*)[fileURL.path cStringUsingEncoding:NSUTF32LittleEndianStringEncoding];
-		Kore::System::_dropFilesCallback(filePath);
+		Kinc_Internal_DropFilesCallback(filePath);
 	}
 	return YES;
 }

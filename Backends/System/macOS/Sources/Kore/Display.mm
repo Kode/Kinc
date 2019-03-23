@@ -2,69 +2,61 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <Kore/Display.h>
-#include <Kore/Log.h>
+#include <Kinc/Display.h>
+#include <Kinc/Log.h>
 
 using namespace Kore;
 
 namespace {
 	const int maxDisplays = 10;
-	Display displays[maxDisplays];
+	//Display displays[maxDisplays];
 }
 
-void initMacDisplays() {
+/*void initMacDisplays() {
 	for (int i = 0; i < maxDisplays; ++i) {
 		displays[i]._data.index = i;
 	}
-}
+}*/
 
-int Display::count() {
+int Kinc_CountDisplays() {
 	NSArray* screens = [NSScreen screens];
 	return (int)[screens count];
 }
 
-Display* Display::primary() {
+int Kinc_PrimaryDisplay() {
 	NSArray* screens = [NSScreen screens];
 	NSScreen* mainScreen = [NSScreen mainScreen];
 	for (int i = 0; i < maxDisplays; ++i) {
 		if (mainScreen == screens[i]) {
-			return &displays[i];
+			return i;
 		}
 	}
-	return nullptr;
+	return -1;
 }
 
-Display* Display::get(int index) {
-	return &displays[index];
+Kinc_DisplayMode Kinc_DisplayAvailableMode(int display, int mode) {
+	Kinc_DisplayMode dm;
+	dm.width = 800;
+	dm.height = 600;
+	dm.frequency = 60;
+	dm.bits_per_pixel = 32;
+	return dm;
 }
 
-DisplayMode Display::availableMode(int index) {
-	DisplayMode mode;
-	mode.width = 800;
-	mode.height = 600;
-	mode.frequency = 60;
-	mode.bitsPerPixel = 32;
-	return mode;
-}
-
-int Display::countAvailableModes() {
+int Kinc_DisplayCountAvailableModes(int display) {
 	return 1;
 }
 
-int Display::pixelsPerInch() {
-	return 96;
-}
-
-DisplayData::DisplayData() {}
-
-bool Display::available() {
+bool Kinc_DisplayAvailable(int display) {
 	return true;
 }
 
-const char* Display::name() {
+const char *Kinc_DisplayName(int display) {
 	return "Display";
 }
 
+//**
+/*
 int Display::x() {
 	NSArray* screens = [NSScreen screens];
 	NSScreen* screen = screens[_data.index];
@@ -98,6 +90,7 @@ int Display::frequency() {
 	return 60;
 }
 
-Display::Display() {
-	
+int Display::pixelsPerInch() {
+	return 96;
 }
+*/

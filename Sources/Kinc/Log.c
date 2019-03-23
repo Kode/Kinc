@@ -32,8 +32,8 @@ void Kinc_LogArgs(Kinc_LogLevel level, const char* format, va_list args) {
 #endif
 
 #else
-	vfprintf(level == KORE_LOG_LEVEL_INFO ? stdout : stderr, format, args);
-	fprintf(level == KORE_LOG_LEVEL_INFO ? stdout : stderr, "\n");
+	vfprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, format, args);
+	fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, "\n");
 #endif
 
 #ifdef KORE_ANDROID

@@ -1,83 +1,64 @@
 #include "pch.h"
 
-#include <Kore/Display.h>
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/Window.h>
 
-using namespace Kore;
+#include <Kinc/Bridge.h>
+#include <Kinc/Display.h>
+#include <Kinc/Window.h>
 
-namespace {
-	Window win;
-}
-
-/*Window* Window::get(int window) {
-	if (window > 0) {
-		return nullptr;
-	}
-	return &win;
-}
-
-int Window::count() {
-	return 1;
-}*/
-
-int Window::x() {
+int Kinc_WindowX() {
 	return 0;
 }
 
-int Window::y() {
+int Kinc_WindowY() {
 	return 0;
 }
 
-void Window::resize(int width, int height) {
+void Kinc_WindowResize(int width, int height) {
 	
 }
 
-void Window::move(int x, int y) {
+void Kinc_WindowMove(int x, int y) {
 	
 }
 
-void Window::changeFramebuffer(FramebufferOptions* frame) {
-	Graphics4::_changeFramebuffer(0, frame);
+void Kinc_WindowChangeFramebuffer(Kinc_FramebufferOptions *frame) {
+	Kinc_Bridge_G4_Internal_ChangeFramebuffer(0, frame);
 }
 
-void Window::changeWindowFeatures(int features) {
+void Kinc_WindowChangeWindowFeatures(int window, int features) {
 	
 }
 
-void Window::destroy(Window* window) {
+void Kinc_WindowDestroy(int window) {
 	
 }
 
-void Window::show() {
+void Kinc_WindowShow() {
 	
 }
 
-void Window::hide() {
+void Kinc_WindowHide() {
 	
 }
 
-void Window::setTitle(const char* title) {
+void Kinc_WindowSetTitle(const char *title) {
 	
 }
 
-Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame) {
-	return nullptr;
+int Kinc_WindowCreate(Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame) {
+	return 0;
 }
 
-WindowData::WindowData() : resizeCallback(nullptr), fullscreen(false) {}
-
-Window::Window() {}
-
-void Window::setResizeCallback(void (*callback)(int x, int y, void* data), void* data) {
-	_data.resizeCallback = callback;
-	_data.resizeCallbackData = data;
+void Kinc_WindowSetResizeCallback(int window, void (*callback)(int x, int y, void* data), void* data) {
+	//**_data.resizeCallback = callback;
+	//**_data.resizeCallbackData = data;
 }
 
-void Window::setPpiChangedCallback(void(*callback)(int ppi, void* data), void* data) {
+void Kinc_WindowSetPpiChangedCallback(int window, void(*callback)(int ppi, void* data), void* data) {
 	
 }
 
-WindowMode Window::mode() {
-	return WindowModeWindow;
+Kinc_WindowMode Kinc_WindowGetMode() {
+	return KINC_WINDOW_MODE_WINDOW;
 }

@@ -144,9 +144,9 @@ void Graphics4::end(int window) {
 	commandList->begin();
 }
 
-void Graphics4::_changeFramebuffer(int window, Kore::FramebufferOptions* frame) {
+/*void Graphics4::_changeFramebuffer(int window, Kore::FramebufferOptions* frame) {
 	
-}
+}*/
 
 bool Graphics4::swapBuffers() {
 	return Graphics5::swapBuffers();

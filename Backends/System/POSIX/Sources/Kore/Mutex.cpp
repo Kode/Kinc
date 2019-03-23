@@ -1,36 +1,37 @@
 #include "pch.h"
-#include <pthread.h>
 
-#include <Kore/Threads/Mutex.h>
+#include <Kinc/Threads/Mutex.h>
+
+#include <pthread.h>
 
 using namespace Kore;
 
-void Mutex::create() {
-	pthread_mutex_init(&pthread_mutex, nullptr);
+void Kinc_Mutex_Create(Kinc_Mutex *mutex) {
+	pthread_mutex_init(&mutex->impl.mutex, NULL);
 }
 
-void Mutex::destroy() {
-	pthread_mutex_destroy(&pthread_mutex);
+void Kinc_Mutex_Destroy(Kinc_Mutex *mutex) {
+	pthread_mutex_destroy(&mutex->impl.mutex);
 }
 
-void Mutex::lock() {
-	pthread_mutex_lock(&pthread_mutex);
+void Kinc_Mutex_Lock(Kinc_Mutex *mutex) {
+	pthread_mutex_lock(&mutex->impl.mutex);
 }
 
-void Mutex::unlock() {
-	pthread_mutex_unlock(&pthread_mutex);
+void Kinc_Mutex_Unlock(Kinc_Mutex *mutex) {
+	pthread_mutex_unlock(&mutex->impl.mutex);
 }
 
-bool UberMutex::create(const wchar_t* name) {
+bool Kinc_UberMutex_Create(Kinc_UberMutex *mutex, const wchar_t* name) {
 	return false;
 }
 
-void UberMutex::destroy() {}
+void Kinc_UberMutex_Destroy(Kinc_UberMutex *mutex) {}
 
-void UberMutex::lock() {
+void Kinc_UberMutex_Lock(Kinc_UberMutex *mutex) {
 	// affirm(false);
 }
 
-void UberMutex::unlock() {
+void Kinc_UberMutex_Unlock(Kinc_UberMutex *mutex) {
 	// affirm(false);
 }

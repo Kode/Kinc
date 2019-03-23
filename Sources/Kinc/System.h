@@ -16,7 +16,7 @@ int Kinc_Init(const char *name, int width, int height, struct _Kinc_WindowOption
 
 const char *Kinc_ApplicationName(void);
 int Kinc_Width(void);
-int Kinc_height(void);
+int Kinc_Height(void);
 
 bool Kinc_Internal_HandleMessages(void);
 

@@ -116,7 +116,7 @@ bool Kinc_FileReader_Open(Kinc_FileReader *reader, const char *filename, int typ
 	memset(reader, 0, sizeof(Kinc_FileReader));
 	char filepath[1001];
 #ifdef KORE_IOS
-	strcpy(filepath, type == Save ? System::savePath() : iphonegetresourcepath());
+	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? Kinc_Internal_SavePath() : iphonegetresourcepath());
 	if (type != Save) {
 		strcat(filepath, "/");
 		strcat(filepath, KORE_DEBUGDIR);
@@ -126,8 +126,8 @@ bool Kinc_FileReader_Open(Kinc_FileReader *reader, const char *filename, int typ
 	strcat(filepath, filename);
 #endif
 #ifdef KORE_MACOS
-	strcpy(filepath, type == Save ? System::savePath() : macgetresourcepath());
-	if (type != Save) {
+	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? Kinc_Internal_SavePath() : macgetresourcepath());
+	if (type != KINC_FILE_TYPE_SAVE) {
 		strcat(filepath, "/");
 		strcat(filepath, KORE_DEBUGDIR);
 		strcat(filepath, "/");

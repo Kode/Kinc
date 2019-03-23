@@ -17,7 +17,7 @@ struct IOS_Thread {
 	void (*thread)(void* param);
 	pthread_t pthread;
 };
-IOS_Thread tt[MAX_THREADS];
+IOS_Thread tt[16];
 // IndexAllocator ia;
 uint threadindex = 0;
 Mutex mutex;

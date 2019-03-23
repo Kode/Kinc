@@ -131,7 +131,7 @@ void Kinc_Socket_Open(Kinc_Socket *sock, int port) {
 	}
 #elif defined(KORE_POSIX)
 	int nonBlocking = 1;
-	if (fcntl(handle, F_SETFL, O_NONBLOCK, nonBlocking) == -1) {
+	if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, nonBlocking) == -1) {
 		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
 		return;
 	}
@@ -142,7 +142,7 @@ void Kinc_Socket_Destroy(Kinc_Socket *sock) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	closesocket(sock->handle);
 #elif defined(KORE_POSIX)
-	close(handle);
+	close(sock->handle);
 #endif
 	destroy();
 }

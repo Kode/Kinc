@@ -256,8 +256,7 @@ void addMenubar() {
 #ifdef KOREC
 extern "C"
 #endif
-    void
-    kore(int, char**);
+int kore(int, char**);
 
 @implementation MyApplication
 
