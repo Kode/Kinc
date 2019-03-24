@@ -9,8 +9,6 @@
 #include <Windows.h>
 #include <d3d11.h>
 
-static Kinc_G4_IndexBuffer *currentIndexBuffer = NULL;
-
 void Kinc_G4_IndexBuffer_Create(Kinc_G4_IndexBuffer *buffer, int count) {
 	buffer->impl.count = count;
 	buffer->impl.indices = new int[count];
@@ -42,9 +40,4 @@ void Kinc_G4_IndexBuffer_Unlock(Kinc_G4_IndexBuffer *buffer) {
 
 int Kinc_G4_IndexBuffer_Count(Kinc_G4_IndexBuffer *buffer) {
 	return buffer->impl.count;
-}
-
-void Kinc_Internal_G4_IndexBuffer_Set(Kinc_G4_IndexBuffer *buffer) {
-	currentIndexBuffer = buffer;
-	context->IASetIndexBuffer(buffer->impl.ib, DXGI_FORMAT_R32_UINT, 0);
 }

@@ -9,7 +9,7 @@ namespace Kore {
 		class Shader;
 		class VertexStructure;
 
-		class PipelineState : public PipelineStateImpl {
+		class PipelineState {
 		public:
 			PipelineState();
 			~PipelineState();

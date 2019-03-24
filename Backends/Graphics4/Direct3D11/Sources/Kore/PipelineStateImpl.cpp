@@ -1,9 +1,9 @@
 #include "pch.h"
 
 #include "Direct3D11.h"
-#include "PipelineStateImpl.h"
 
-#include <Kore/Graphics4/PipelineState.h>
+#include <Kinc/Graphics4/PipelineState.h>
+
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/SystemMicrosoft.h>
 #include <Kore/Log.h>
@@ -124,20 +124,60 @@ void PipelineStateImpl::setConstants() {
 	}
 }
 
-PipelineStateImpl::PipelineStateImpl() : d3d11inputLayout(nullptr), fragmentConstantBuffer(nullptr), vertexConstantBuffer(nullptr), geometryConstantBuffer(nullptr), tessEvalConstantBuffer(nullptr), tessControlConstantBuffer(nullptr),
-	depthStencilState(nullptr), rasterizerState(nullptr), rasterizerStateScissor(nullptr), blendState(nullptr) {}
+void Kinc_G4_PipelineState_Create(Kinc_G4_PipelineState *state) {
+	state->impl.d3d11inputLayout = nullptr;
+	state->impl.fragmentConstantBuffer = nullptr;
+	state->impl.vertexConstantBuffer = nullptr;
+	state->impl.geometryConstantBuffer = nullptr;
+	state->impl.tessEvalConstantBuffer = nullptr;
+	state->impl.tessControlConstantBuffer = nullptr;
+	state->impl.depthStencilState = nullptr;
+	state->impl.rasterizerState = nullptr;
+	state->impl.rasterizerStateScissor = nullptr;
+	state->impl.blendState = nullptr;
+}
 
-PipelineStateImpl::~PipelineStateImpl() {
-	if (d3d11inputLayout != nullptr) d3d11inputLayout->Release();
-	if (fragmentConstantBuffer != nullptr) fragmentConstantBuffer->Release();
-	if (vertexConstantBuffer != nullptr) vertexConstantBuffer->Release();
-	if (geometryConstantBuffer != nullptr) geometryConstantBuffer->Release();
-	if (tessEvalConstantBuffer != nullptr) tessEvalConstantBuffer->Release();
-	if (tessControlConstantBuffer != nullptr) tessControlConstantBuffer->Release();
-	if (depthStencilState != nullptr) depthStencilState->Release();
-	if (rasterizerState != nullptr) rasterizerState->Release();
-	if (rasterizerStateScissor != nullptr) rasterizerStateScissor->Release();
-	if (blendState != nullptr) blendState->Release();
+void Kinc_G4_PipelineState_Destroy(Kinc_G4_PipelineState *state) {
+	if (state->impl.d3d11inputLayout != nullptr) {
+		state->impl.d3d11inputLayout->Release();
+		state->impl.d3d11inputLayout = NULL;
+	}
+	if (state->impl.fragmentConstantBuffer != nullptr) {
+		state->impl.fragmentConstantBuffer->Release();
+		state->impl.fragmentConstantBuffer = NULL;
+	}
+	if (state->impl.vertexConstantBuffer != nullptr) {
+		state->impl.vertexConstantBuffer->Release();
+		state->impl.vertexConstantBuffer = NULL;
+	}
+	if (state->impl.geometryConstantBuffer != nullptr) {
+		state->impl.geometryConstantBuffer->Release();
+		state->impl.geometryConstantBuffer = NULL;
+	}
+	if (state->impl.tessEvalConstantBuffer != nullptr) {
+		state->impl.tessEvalConstantBuffer->Release();
+		state->impl.tessEvalConstantBuffer = NULL;
+	}
+	if (state->impl.tessControlConstantBuffer != nullptr) {
+		state->impl.tessControlConstantBuffer->Release();
+		state->impl.tessControlConstantBuffer = NULL;
+	}
+	if (state->impl.depthStencilState != nullptr) {
+		state->impl.depthStencilState->Release();
+		state->impl.depthStencilState = NULL;
+	}
+	if (state->impl.rasterizerState != nullptr) {
+		state->impl.rasterizerState->Release();
+		state->impl.rasterizerState = NULL;
+	}
+	if (state->impl.rasterizerStateScissor != nullptr) {
+		state->impl.rasterizerStateScissor->Release();
+		state->impl.rasterizerStateScissor = NULL;
+	}
+	if (state->impl.blendState != nullptr) {
+		state->impl.blendState->Release();
+		state->impl.blendState = NULL;
+	}
 }
 
 void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
@@ -166,8 +206,8 @@ void PipelineStateImpl::setRasterizerState(bool scissoring) {
 		context->RSSetState(rasterizerState);
 }
 
-Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const char* name) {
-	ConstantLocation location;
+Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_PipelineState *state, const char *name) {
+	Kinc_G4_ConstantLocation location;
 
 	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
 		location.vertexOffset = 0;
@@ -246,7 +286,7 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 	return location;
 }
 
-Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
+Kinc_G4_TextureUnit Kinc_G4_PipelineState_GetTextureUnit(Kinc_G4_PipelineState *state, const char *name) {
 	char unitName[64];
 	int unitOffset = 0;
 	size_t len = strlen(name);
@@ -257,7 +297,7 @@ Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name
 		unitName[len - 3] = 0; // Strip array from name
 	}
 	
-	TextureUnit unit;
+	Kinc_G4_TextureUnit unit;
 	if (vertexShader->textures.find(unitName) == vertexShader->textures.end()) {
 		if (fragmentShader->textures.find(unitName) == fragmentShader->textures.end()) {
 			unit.unit = -1;
@@ -355,7 +395,7 @@ namespace {
 	}
 }
 
-void Graphics4::PipelineState::compile() {
+void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
 	if (vertexShader->constantsSize > 0)
 		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 		                                       &vertexConstantBuffer));

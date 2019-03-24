@@ -9,6 +9,7 @@
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics4/TextureArray.h>
 
+#include <Kinc/Graphics4/Graphics.h>
 #include <Kinc/Graphics4/IndexBuffer.h>
 #include <Kinc/Graphics4/VertexBuffer.h>
 
@@ -414,7 +415,14 @@ namespace {
 	ID3D11ShaderResourceView* nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
 }
 
-void Graphics4::drawIndexedVertices() {
+static Kinc_G4_IndexBuffer *currentIndexBuffer = NULL;
+
+void Kinc_Internal_G4_IndexBuffer_Set(Kinc_G4_IndexBuffer *buffer) {
+	currentIndexBuffer = buffer;
+	context->IASetIndexBuffer(buffer->impl.ib, DXGI_FORMAT_R32_UINT, 0);
+}
+
+void Kinc_G4_DrawIndexedVertices() {
 	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -422,12 +430,12 @@ void Graphics4::drawIndexedVertices() {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	PipelineState::setConstants();
-	context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
+	context->DrawIndexed(currentIndexBuffer->impl.count, 0, 0);
 
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
-void Graphics4::drawIndexedVertices(int start, int count) {
+void Kinc_G4_DrawIndexedVerticesFromTo(int start, int count) {
 	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -440,11 +448,11 @@ void Graphics4::drawIndexedVertices(int start, int count) {
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
-void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
-	drawIndexedVerticesInstanced(instanceCount, 0, IndexBuffer::_current->count());
+void Kinc_G4_DrawIndexedVerticesInstanced(int instanceCount) {
+	Kinc_G4_DrawIndexedVerticesInstancedFromTo(instanceCount, 0, currentIndexBuffer->impl.count);
 }
 
-void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+void Kinc_G4_DrawIndexedVerticesInstancedFromTo(int instanceCount, int start, int count) {
 	if (currentPipeline->tessellationControlShader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -496,20 +504,20 @@ void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddr
 	Graphics4::setTextureAddressing(unit, dir, addressing);
 }
 
-void Graphics4::clear(uint flags, uint color, float depth, int stencil) {
+void Kinc_G4_Clear(uint flags, uint color, float depth, int stencil) {
 	const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, ((color & 0xff000000) >> 24) / 255.0f};
 	for (int i = 0; i < renderTargetCount; ++i) {
-		if (currentRenderTargetViews[i] != nullptr && flags & ClearColorFlag) {
+		if (currentRenderTargetViews[i] != nullptr && flags & KINC_G4_CLEAR_COLOR) {
 			context->ClearRenderTargetView(currentRenderTargetViews[i], clearColor);
 		}
 	}
-	if (currentDepthStencilView != nullptr && (flags & ClearDepthFlag) || (flags & ClearStencilFlag)) {
-		uint d3dflags = ((flags & ClearDepthFlag) ? D3D11_CLEAR_DEPTH : 0) | ((flags & ClearStencilFlag) ? D3D11_CLEAR_STENCIL : 0);
+	if (currentDepthStencilView != nullptr && (flags & KINC_G4_CLEAR_DEPTH) || (flags & KINC_G4_CLEAR_STENCIL)) {
+		uint d3dflags = ((flags & KINC_G4_CLEAR_DEPTH) ? D3D11_CLEAR_DEPTH : 0) | ((flags & KINC_G4_CLEAR_STENCIL) ? D3D11_CLEAR_STENCIL : 0);
 		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, max(0.0f, min(1.0f, depth)), stencil);
 	}
 }
 
-void Graphics4::begin(int windowId) {
+void Kinc_G4_Begin(int windowId) {
 	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
 		depthStencil->Release();
 		depthStencilView->Release();
@@ -525,7 +533,7 @@ void Graphics4::begin(int windowId) {
 #endif
 }
 
-void Graphics4::viewport(int x, int y, int width, int height) {
+void Kinc_G4_Viewport(int x, int y, int width, int height) {
 	D3D11_VIEWPORT viewport;
 	viewport.TopLeftX = static_cast<float>(x);
 	viewport.TopLeftY = static_cast<float>(y);
@@ -536,7 +544,7 @@ void Graphics4::viewport(int x, int y, int width, int height) {
 	context->RSSetViewports(1, &viewport);
 }
 
-void Graphics4::scissor(int x, int y, int width, int height) {
+void Kinc_G4_Scissor(int x, int y, int width, int height) {
 	D3D11_RECT rect;
 	rect.left = x;
 	rect.top = y;
@@ -549,7 +557,7 @@ void Graphics4::scissor(int x, int y, int width, int height) {
 	}
 }
 
-void Graphics4::disableScissor() {
+void Kinc_G4_DisableScissor() {
 	context->RSSetScissorRects(0, nullptr);
 	scissoring = false;
 	if (currentPipeline != nullptr) {
@@ -567,9 +575,9 @@ void Graphics4::setStencilReferenceValue(int value) {
 	}
 }
 
-void Graphics4::end(int windowId) {}
+void Kinc_G4_End(int windowId) {}
 
-bool Graphics4::swapBuffers() {
+bool Kinc_G4_SwapBuffers() {
 	HRESULT hr = swapChain->Present(vsync, 0);
 	// TODO: if (hr == DXGI_STATUS_OCCLUDED)...
 	// http://www.pouet.net/topic.php?which=10454
