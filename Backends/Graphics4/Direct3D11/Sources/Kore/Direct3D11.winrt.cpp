@@ -5,11 +5,12 @@
 #include "Direct3D11.h"
 #include <Kore/Math/Core.h>
 //#include <Kore/Application.h>
-#include "IndexBufferImpl.h"
-#include "VertexBufferImpl.h"
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics4/TextureArray.h>
+
+#include <Kinc/Graphics4/IndexBuffer.h>
+#include <Kinc/Graphics4/VertexBuffer.h>
 
 #undef CreateWindow
 
@@ -1010,17 +1011,17 @@ void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
 	context->RSSetViewports(1, &viewPort);
 }
 
-void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
-	buffers[0]->_set(0);
+void Kinc_G4_SetVertexBuffers(Kinc_G4_VertexBuffer **buffers, int count) {
+	Kinc_Internal_G4_VertexBuffer_Set(buffers[0], 0);
 
 	ID3D11Buffer** d3dbuffers = (ID3D11Buffer**)alloca(count * sizeof(ID3D11Buffer*));
 	for (int i = 0; i < count; ++i) {
-		d3dbuffers[i] = buffers[i]->_vb;
+		d3dbuffers[i] = buffers[i]->impl.vb;
 	}
 
 	UINT* strides = (UINT*)alloca(count * sizeof(UINT));
 	for (int i = 0; i < count; ++i) {
-		strides[i] = buffers[i]->myStride;
+		strides[i] = buffers[i]->impl.stride;
 	}
 
 	UINT* internaloffsets = (UINT*)alloca(count * sizeof(UINT));
@@ -1031,8 +1032,8 @@ void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
 	context->IASetVertexBuffers(0, count, d3dbuffers, strides, internaloffsets);
 }
 
-void Graphics4::setIndexBuffer(IndexBuffer& buffer) {
-	buffer._set();
+void Kinc_G4_SetIndexBuffer(Kinc_G4_IndexBuffer *buffer) {
+	Kinc_Internal_G4_IndexBuffer_Set(buffer);
 }
 
 void Graphics4::setTexture(TextureUnit unit, Texture* texture) {

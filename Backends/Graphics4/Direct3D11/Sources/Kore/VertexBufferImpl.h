@@ -1,25 +1,14 @@
 #pragma once
+
 struct ID3D11Buffer;
 
-namespace Kore {
-	namespace Graphics4 {
-		class VertexBuffer;
-	}
-
-	class VertexBufferImpl {
-	public:
-		ID3D11Buffer* _vb;
+typedef struct {
+	struct ID3D11Buffer *vb;
+	int stride;
+	int count;
+	int lockStart;
+	int lockCount;
+	float* vertices;
+	int usage;
 		
-		
-		int myStride;
-
-	protected:
-		VertexBufferImpl(int count);
-		int myCount;
-		int lockStart;
-		int lockCount;
-		float* vertices;
-		Kore::Graphics4::Usage usage;
-		
-	};
-}
+} Kinc_G4_VertexBufferImpl;

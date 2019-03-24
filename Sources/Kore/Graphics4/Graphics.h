@@ -15,7 +15,7 @@ namespace Kore {
 		class PipelineState;
 		class TextureArray;
 
-		class VertexBuffer : public VertexBufferImpl {
+		class VertexBuffer {
 		public:
 			VertexBuffer(int count, const VertexStructure& structure, Usage usage = StaticUsage, int instanceDataStepRate = 0);
 			virtual ~VertexBuffer();
@@ -28,7 +28,7 @@ namespace Kore {
 			int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers
 		};
 
-		class IndexBuffer : public IndexBufferImpl {
+		class IndexBuffer {
 		public:
 			IndexBuffer(int count);
 			virtual ~IndexBuffer();

@@ -1,21 +1,19 @@
 #include "pch.h"
 
 #include "Direct3D11.h"
-#include "IndexBufferImpl.h"
+
+#include <Kinc/Graphics4/IndexBuffer.h>
 
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/SystemMicrosoft.h>
 #include <Windows.h>
 #include <d3d11.h>
 
-using namespace Kore;
+static Kinc_G4_IndexBuffer *currentIndexBuffer = NULL;
 
-Graphics4::IndexBuffer* IndexBufferImpl::_current = nullptr;
-
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
-
-Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
-	indices = new int[count];
+void Kinc_G4_IndexBuffer_Create(Kinc_G4_IndexBuffer *buffer, int count) {
+	buffer->impl.count = count;
+	buffer->impl.indices = new int[count];
 
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -25,27 +23,28 @@ Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	Kinc_Microsoft_Affirm(device->CreateBuffer(&bufferDesc, nullptr, &ib));
+	Kinc_Microsoft_Affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.ib));
 }
 
-Graphics4::IndexBuffer::~IndexBuffer() {
-	ib->Release();
-	delete[] indices;
+void Kinc_G4_IndexBuffer_Destroy(Kinc_G4_IndexBuffer *buffer) {
+	buffer->impl.ib->Release();
+	delete[] buffer->impl.indices;
+	buffer->impl.indices = NULL;
 }
 
-int* Graphics4::IndexBuffer::lock() {
-	return indices;
+int *Kinc_G4_IndexBuffer_Lock(Kinc_G4_IndexBuffer *buffer) {
+	return buffer->impl.indices;
 }
 
-void Graphics4::IndexBuffer::unlock() {
-	context->UpdateSubresource(ib, 0, nullptr, indices, 0, 0);
+void Kinc_G4_IndexBuffer_Unlock(Kinc_G4_IndexBuffer *buffer) {
+	context->UpdateSubresource(buffer->impl.ib, 0, nullptr, buffer->impl.indices, 0, 0);
 }
 
-void Graphics4::IndexBuffer::_set() {
-	_current = this;
-	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+int Kinc_G4_IndexBuffer_Count(Kinc_G4_IndexBuffer *buffer) {
+	return buffer->impl.count;
 }
 
-int Graphics4::IndexBuffer::count() {
-	return myCount;
+void Kinc_Internal_G4_IndexBuffer_Set(Kinc_G4_IndexBuffer *buffer) {
+	currentIndexBuffer = buffer;
+	context->IASetIndexBuffer(buffer->impl.ib, DXGI_FORMAT_R32_UINT, 0);
 }
