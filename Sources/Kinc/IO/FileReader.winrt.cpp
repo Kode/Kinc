@@ -259,3 +259,121 @@ int Kinc_FileReader_Size(Kinc_FileReader *reader) {
 }
 
 #endif
+
+float Kinc_ReadF32LE(uint8_t *data) {
+#ifdef KORE_LITTLE_ENDIAN // speed optimization
+	return *(float *)data;
+#else // works on all architectures
+	int i = (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+	return *(float *)&i;
+#endif
+}
+
+float Kinc_ReadF32BE(uint8_t *data) {
+#ifdef KORE_BIG_ENDIAN // speed optimization
+	return *(float *)data;
+#else // works on all architectures
+	int i = (data[3] << 0) | (data[2] << 8) | (data[1] << 16) | (data[0] << 24);
+	return *(float *)&i;
+#endif
+}
+
+uint64_t Kinc_ReadU64LE(uint8_t *data) {
+#ifdef KORE_LITTLE_ENDIAN
+	return *(u64 *)data;
+#else
+	return ((u64)data[0] << 0) | ((u64)data[1] << 8) | ((u64)data[2] << 16) | ((u64)data[3] << 24) | ((u64)data[4] << 32) | ((u64)data[5] << 40) |
+	       ((u64)data[6] << 48) | ((u64)data[7] << 56);
+#endif
+}
+
+uint64_t Kinc_ReadU64BE(uint8_t *data) {
+#ifdef KORE_BIG_ENDIAN
+	return *(u64 *)data;
+#else
+	return ((u64)data[7] << 0) | ((u64)data[6] << 8) | ((u64)data[5] << 16) | ((u64)data[4] << 24) | ((u64)data[3] << 32) | ((u64)data[2] << 40) |
+	       ((u64)data[1] << 48) | ((u64)data[0] << 56);
+#endif
+}
+
+int64_t Kinc_ReadS64LE(uint8_t *data) {
+#ifdef KORE_LITTLE_ENDIAN
+	return *(s64 *)data;
+#else
+	return ((s64)data[0] << 0) | ((s64)data[1] << 8) | ((s64)data[2] << 16) | ((s64)data[3] << 24) | ((s64)data[4] << 32) | ((s64)data[5] << 40) |
+	       ((s64)data[6] << 48) | ((s64)data[7] << 56);
+#endif
+}
+
+int64_t Kinc_ReadS64BE(uint8_t *data) {
+#ifdef KORE_BIG_ENDIAN
+	return *(s64 *)data;
+#else
+	return ((s64)data[7] << 0) | ((s64)data[6] << 8) | ((s64)data[5] << 16) | ((s64)data[4] << 24) | ((s64)data[3] << 32) | ((s64)data[2] << 40) |
+	       ((s64)data[1] << 48) | ((s64)data[0] << 56);
+#endif
+}
+
+uint32_t Kinc_ReadU32LE(uint8_t *data) {
+#ifdef KORE_LITTLE_ENDIAN
+	return *(u32 *)data;
+#else
+	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+#endif
+}
+
+uint32_t Kinc_ReadU32BE(uint8_t *data) {
+#ifdef KORE_BIG_ENDIAN
+	return *(u32 *)data;
+#else
+	return (data[3] << 0) | (data[2] << 8) | (data[1] << 16) | (data[0] << 24);
+#endif
+}
+
+int32_t Kinc_ReadS32LE(uint8_t *data) {
+#ifdef KORE_LITTLE_ENDIAN
+	return *(s32 *)data;
+#else
+	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+#endif
+}
+
+int32_t Kinc_ReadS32BE(uint8_t *data) {
+#ifdef KORE_BIG_ENDIAN
+	return *(s32 *)data;
+#else
+	return (data[3] << 0) | (data[2] << 8) | (data[1] << 16) | (data[0] << 24);
+#endif
+}
+
+uint16_t Kinc_ReadU16LE(uint8_t *data) {
+#ifdef KORE_LITTLE_ENDIAN
+	return *(u16 *)data;
+#else
+	return (data[0] << 0) | (data[1] << 8);
+#endif
+}
+
+uint16_t Kinc_ReadU16BE(uint8_t *data) {
+#ifdef KORE_BIG_ENDIAN
+	return *(u16 *)data;
+#else
+	return (data[1] << 0) | (data[0] << 8);
+#endif
+}
+
+int16_t Kinc_ReadS16LE(uint8_t *data) {
+#ifdef KORE_LITTLE_ENDIAN
+	return *(s16 *)data;
+#else
+	return (data[0] << 0) | (data[1] << 8);
+#endif
+}
+
+int16_t Kinc_ReadS16BE(uint8_t *data) {
+#ifdef KORE_BIG_ENDIAN
+	return *(s16 *)data;
+#else
+	return (data[1] << 0) | (data[0] << 8);
+#endif
+}
