@@ -27,6 +27,12 @@ bool System::showsKeyboard() {
 
 void System::loadURL(const char* url) {}
 
+void Kore::System::vibrate(int ms) {}
+
+const char* Kore::System::language() {
+	return "en";
+}
+
 const char* System::systemId() {
 	return "OSX";
 }

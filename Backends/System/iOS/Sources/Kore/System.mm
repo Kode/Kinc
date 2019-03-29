@@ -62,6 +62,12 @@ void System::loadURL(const char* url) {
 	::loadURL(url);
 }
 
+void System::vibrate(int ms) {};
+
+const char* System::language() {
+	return "en";
+}
+
 // called on rotation event
 void KoreUpdateKeyboard() {
 	if (keyboardshown) {

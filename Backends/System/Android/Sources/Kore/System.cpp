@@ -494,6 +494,24 @@ void Kore::System::loadURL(const char* url) {
 	activity->vm->DetachCurrentThread();
 }
 
+void Kore::System::vibrate(int ms) {
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
+	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "vibrate", "(I)V"), ms);
+	activity->vm->DetachCurrentThread();
+}
+
+const char* Kore::System::language() {
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
+	jstring s = (jstring) env->CallObjectMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "getLanguage", "()Ljava/lang/String;"));
+	const char* str = env->GetStringUTFChars(s, 0);
+	activity->vm->DetachCurrentThread();
+	return str;
+}
+
 int glWidth() {
 	glContext->UpdateSize();
 	return glContext->GetScreenWidth();
@@ -636,7 +654,7 @@ extern "C" void android_main(android_app* app) {
 
 	JNIEnv* env = nullptr;
 	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	
+
 	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreMoviePlayer");
 	jmethodID updateAll = env->GetStaticMethodID(koreMoviePlayerClass, "updateAll", "()V");
 
