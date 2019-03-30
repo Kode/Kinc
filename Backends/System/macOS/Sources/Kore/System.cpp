@@ -27,9 +27,9 @@ bool System::showsKeyboard() {
 
 void System::loadURL(const char* url) {}
 
-void Kore::System::vibrate(int ms) {}
+void System::vibrate(int ms) {}
 
-const char* Kore::System::language() {
+const char* System::language() {
 	return "en";
 }
 
