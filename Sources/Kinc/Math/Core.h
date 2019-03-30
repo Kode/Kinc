@@ -6,6 +6,7 @@ extern "C" {
 
 #define KINC_PI 3.141592654
 #define KINC_TAU 6.283185307
+
 float Kinc_Sin(float value);
 float Kinc_Cos(float value);
 float Kinc_Tan(float x);

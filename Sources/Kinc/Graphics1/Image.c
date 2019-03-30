@@ -4,12 +4,13 @@
 #include <windows.h>
 #endif
 
-#include <Kinc/IO/lz4/lz4.h>
 #include "Image.h"
+#include <Kinc/IO/lz4/lz4.h>
 
 #include <Kinc/Graphics4/Graphics.h>
 #include <Kinc/IO/FileReader.h>
 #include <Kinc/Log.h>
+#include <Kinc/Math/Core.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -20,7 +21,7 @@
 
 uint8_t buffer[4096 * 4096 * 4];
 
-static _Bool endsWith(const char* str, const char* suffix) {
+static _Bool endsWith(const char *str, const char *suffix) {
 	if (str == NULL || suffix == NULL) return 0;
 	size_t lenstr = strlen(str);
 	size_t lensuffix = strlen(suffix);
@@ -28,8 +29,8 @@ static _Bool endsWith(const char* str, const char* suffix) {
 	return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
-static void loadImage(Kinc_FileReader *file, const char *filename, uint8_t *output, int *outputSize, int *width, int *height, Kinc_ImageCompression *compression,
-	            Kinc_ImageFormat *format, unsigned *internalFormat) {
+static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *output, int *outputSize, int *width, int *height,
+                      Kinc_ImageCompression *compression, Kinc_ImageFormat *format, unsigned *internalFormat) {
 	*format = KINC_IMAGE_FORMAT_RGBA32;
 	if (endsWith(filename, "k")) {
 		uint8_t data[4];
@@ -46,37 +47,41 @@ static void loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 
 		if (strcmp(fourcc, "LZ4 ") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_NONE;
-			internalFormat = 0;
+			*internalFormat = 0;
 			*outputSize = *width * *height * 4;
 			if (output == NULL) {
-				return;
+				return false;
 			}
 			Kinc_FileReader_Read(file, buffer, compressedSize);
-			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, outputSize);
+			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
+			return true;
 		}
 		else if (strcmp(fourcc, "LZ4F") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_NONE;
-			internalFormat = 0;
+			*internalFormat = 0;
 			*outputSize = *width * *height * 16;
 			if (output == NULL) {
-				return;
+				return false;
 			}
 			Kinc_FileReader_Read(file, buffer, compressedSize);
-			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, outputSize);
-			format = KINC_IMAGE_FORMAT_RGBA128;
+			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
+			*format = KINC_IMAGE_FORMAT_RGBA128;
+			return true;
 		}
 		else if (strcmp(fourcc, "ASTC") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_ASTC;
 			*outputSize = *width * *height * 4;
 			if (output == NULL) {
-				return;
+				return false;
 			}
 			Kinc_FileReader_Read(file, buffer, compressedSize);
-			*outputSize = LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, outputSize);
+			*outputSize = LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 
 			uint8_t blockdim_x = 6;
 			uint8_t blockdim_y = 6;
-			internalFormat = (blockdim_x << 8) + blockdim_y;
+			*internalFormat = (blockdim_x << 8) + blockdim_y;
+
+			return true;
 
 			/*int index = 0;
 			index += 4; // magic
@@ -112,14 +117,16 @@ static void loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 			*compression = KINC_IMAGE_COMPRESSION_DXT5;
 			*outputSize = *width * *height;
 			if (output == NULL) {
-				return;
+				return false;
 			}
 			Kinc_FileReader_Read(file, buffer, compressedSize);
-			*outputSize = LZ4_decompress_safe((char*)(data + 12), (char*)output, compressedSize, outputSize);
-			internalFormat = 0;
+			*outputSize = LZ4_decompress_safe((char *)(data + 12), (char *)output, compressedSize, *outputSize);
+			*internalFormat = 0;
+			return true;
 		}
 		else {
 			Kinc_Log(KINC_LOG_LEVEL_ERROR, "Unknown fourcc in .k file.");
+			return false;
 		}
 	}
 	else if (endsWith(filename, "pvr")) {
@@ -164,63 +171,80 @@ static void loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 
 		*width = w;
 		*height = h;
-		compression = KINC_IMAGE_COMPRESSION_PVRTC;
-		internalFormat = 0;
+		*compression = KINC_IMAGE_COMPRESSION_PVRTC;
+		*internalFormat = 0;
 
-		uint8_t *all = (u8*)file.readAll();
 		*outputSize = ww * hh / 2;
-		output = new u8[outputSize];
-		for (int i = 0; i < outputSize; ++i) {
-			output[i] = all[52 + metaDataSize + i];
-		}
+		Kinc_FileReader_Read(file, output, *outputSize);
+		return true;
 	}
 	else if (endsWith(filename, "png")) {
-		int size = file.size();
-		int comp;
-		compression = Graphics1::ImageCompressionNone;
-		internalFormat = 0;
-		output = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
-		if (output == nullptr) {
-			log(Error, stbi_failure_reason());
+		*compression = KINC_IMAGE_COMPRESSION_NONE;
+		*internalFormat = 0;
+		if (output == NULL) {
+			return false;
 		}
-		for (int y = 0; y < height; ++y) {
-			for (int x = 0; x < width; ++x) {
-				float r = output[y * width * 4 + x * 4 + 0] / 255.0f;
-				float g = output[y * width * 4 + x * 4 + 1] / 255.0f;
-				float b = output[y * width * 4 + x * 4 + 2] / 255.0f;
-				float a = output[y * width * 4 + x * 4 + 3] / 255.0f;
+		int size = Kinc_FileReader_Size(file);
+		Kinc_FileReader_Read(file, buffer, size);
+		int comp;
+		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
+		if (uncompressed == NULL) {
+			Kinc_Log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
+			return false;
+		}
+		for (int y = 0; y < *height; ++y) {
+			for (int x = 0; x < *width; ++x) {
+				float r = uncompressed[y * *width * 4 + x * 4 + 0] / 255.0f;
+				float g = uncompressed[y * *width * 4 + x * 4 + 1] / 255.0f;
+				float b = uncompressed[y * *width * 4 + x * 4 + 2] / 255.0f;
+				float a = uncompressed[y * *width * 4 + x * 4 + 3] / 255.0f;
 				r *= a;
 				g *= a;
 				b *= a;
-				output[y * width * 4 + x * 4 + 0] = (u8)Kore::round(r * 255.0f);
-				output[y * width * 4 + x * 4 + 1] = (u8)Kore::round(g * 255.0f);
-				output[y * width * 4 + x * 4 + 2] = (u8)Kore::round(b * 255.0f);
+				output[y * *width * 4 + x * 4 + 0] = (uint8_t)Kinc_Round(r * 255.0f);
+				output[y * *width * 4 + x * 4 + 1] = (uint8_t)Kinc_Round(g * 255.0f);
+				output[y * *width * 4 + x * 4 + 2] = (uint8_t)Kinc_Round(b * 255.0f);
 			}
 		}
-		outputSize = width * height * 4;
+		*outputSize = *width * *height * 4;
+		return true;
 	}
 	else if (endsWith(filename, "hdr")) {
-		int size = file.size();
-		int comp;
-		compression = Graphics1::ImageCompressionNone;
-		internalFormat = 0;
-		output = (u8*)stbi_loadf_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
-		if (output == nullptr) {
-			log(Error, stbi_failure_reason());
+		*compression = KINC_IMAGE_COMPRESSION_NONE;
+		*internalFormat = 0;
+		if (output == NULL) {
+			return false;
 		}
-		outputSize = width * height * 16;
-		format = Graphics1::Image::RGBA128;
+		int size = Kinc_FileReader_Size(file);
+		Kinc_FileReader_Read(file, buffer, size);
+		int comp;
+		float *uncompressed = stbi_loadf_from_memory(buffer, size, width, height, &comp, 4);
+		if (uncompressed == NULL) {
+			Kinc_Log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
+			return false;
+		}
+		*outputSize = *width * *height * 16;
+		memcpy(output, uncompressed, *outputSize);
+		*format = KINC_IMAGE_FORMAT_RGBA128;
+		return true;
 	}
 	else {
-		int size = file.size();
-		int comp;
-		compression = Graphics1::ImageCompressionNone;
-		internalFormat = 0;
-		output = stbi_load_from_memory((u8*)file.readAll(), size, &width, &height, &comp, 4);
-		if (output == nullptr) {
-			log(Error, stbi_failure_reason());
+		*compression = KINC_IMAGE_COMPRESSION_NONE;
+		*internalFormat = 0;
+		if (output == NULL) {
+			return false;
 		}
-		outputSize = width * height * 4;
+		int size = Kinc_FileReader_Size(file);
+		Kinc_FileReader_Read(file, buffer, size);
+		int comp;
+		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
+		if (uncompressed == NULL) {
+			Kinc_Log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
+			return false;
+		}
+		*outputSize = *width * *height * 4;
+		memcpy(output, uncompressed, *outputSize);
+		return true;
 	}
 }
 
@@ -245,102 +269,82 @@ int Kinc_ImageFormat_SizeOf(Kinc_ImageFormat format) {
 	return -1;
 }
 
-Graphics1::Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
-	compression = ImageCompressionNone;
+static bool formatIsFloatingPoint(Kinc_ImageFormat format) {
+	return format == KINC_IMAGE_FORMAT_RGBA128 || format == KINC_IMAGE_FORMAT_RGBA64 || format == KINC_IMAGE_FORMAT_A32 || format == KINC_IMAGE_FORMAT_A16;
+}
 
-	// If format is a floating point format
-	if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
-		hdrData = reinterpret_cast<float*>(new u8[width * height * sizeOf(format)]);
-		data = nullptr;
+void Kinc_Image_Create(Kinc_Image *image, int width, int height, Kinc_ImageFormat format, bool readable) {
+	Kinc_Image_Create3D(image, width, height, 1, format, readable);
+}
+
+void Kinc_Image_Create3D(Kinc_Image *image, int width, int height, int depth, Kinc_ImageFormat format, bool readable) {
+	image->width = width;
+	image->height = height;
+	image->depth = depth;
+	image->format = format;
+	image->readable = readable;
+	image->compression = KINC_IMAGE_COMPRESSION_NONE;
+
+	if (formatIsFloatingPoint(format)) {
+		image->hdrData = (float *)malloc(width * height * depth * Kinc_ImageFormat_SizeOf(format));
+		image->data = NULL;
 	}
 	else {
-		data = new u8[width * height * sizeOf(format)];
-		hdrData = nullptr;
+		image->data = malloc(width * height * depth * Kinc_ImageFormat_SizeOf(format));
+		image->hdrData = NULL;
 	}
 }
+void Kinc_Image_CreateFromBytes(Kinc_Image *image, void *data, int width, int height, Kinc_ImageFormat format, bool readable) {
+	Kinc_Image_CreateFromBytes3D(image, data, width, height, 1, format, readable);
+}
 
-Graphics1::Image::Image(int width, int height, int depth, Format format, bool readable)
-    : width(width), height(height), depth(depth), format(format), readable(readable) {
-	compression = ImageCompressionNone;
-
-	// If format is a floating point format
-	if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
-		hdrData = reinterpret_cast<float*>(new u8[width * height * depth * sizeOf(format)]);
-		data = nullptr;
+void Kinc_Image_CreateFromBytes3D(Kinc_Image *image, void *data, int width, int height, int depth, Kinc_ImageFormat format, bool readable) {
+	image->compression = KINC_IMAGE_COMPRESSION_NONE;
+	if (formatIsFloatingPoint(format)) {
+		image->hdrData = (float*)data;
 	}
 	else {
-		data = new u8[width * height * depth * sizeOf(format)];
-		hdrData = nullptr;
+		image->data = (uint8_t*)data;
 	}
 }
 
-Graphics1::Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
-	FileReader reader(filename);
-	init(reader, filename, readable);
-}
-
-Graphics1::Image::Image(Reader& reader, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
-	init(reader, format, readable);
-}
-
-Graphics1::Image::Image(void* data, int width, int height, Format format, bool readable)
-    : width(width), height(height), depth(1), format(format), readable(readable) {
-	compression = ImageCompressionNone;
-	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
-	if (isFloat) {
-		this->hdrData = (float*)data;
+void Kinc_Image_CreateFromFile(Kinc_Image *image, const char *filename, bool readable) {
+	uint8_t *imageData = NULL;
+	Kinc_FileReader reader;
+	Kinc_FileReader_Open(&reader, filename, KINC_FILE_TYPE_ASSET);
+	int dataSize;
+	loadImage(&reader, filename, imageData, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internalFormat);
+	Kinc_FileReader_Close(&reader);
+	if (formatIsFloatingPoint(image->format)) {
+		image->hdrData = (float*)imageData;
+		image->data = NULL;
 	}
 	else {
-		this->data = (u8*)data;
+		image->data = imageData;
+		image->hdrData = NULL;
 	}
 }
 
-Graphics1::Image::Image(void* data, int width, int height, int depth, Format format, bool readable)
-    : width(width), height(height), depth(depth), format(format), readable(readable) {
-	compression = ImageCompressionNone;
-	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
-	if (isFloat) {
-		this->hdrData = (float*)data;
-	}
-	else {
-		this->data = (u8*)data;
-	}
-}
-
-Graphics1::Image::Image() : depth(1), format(RGBA32), readable(false) {}
-
-void Graphics1::Image::init(Kore::Reader& file, const char* filename, bool readable) {
-	u8* imageData;
-	loadImage(file, filename, imageData, dataSize, width, height, compression, this->format, internalFormat);
-	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
-	if (isFloat) {
-		hdrData = (float*)imageData;
-	}
-	else {
-		data = imageData;
-	}
-}
-
-Graphics1::Image::~Image() {
-	if (readable) {
-		if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
-			delete[] hdrData;
-			hdrData = nullptr;
+void Kinc_Image_Destroy(Kinc_Image *image) {
+	if (image->readable) {
+		if (formatIsFloatingPoint(image->format)) {
+			free(image->hdrData);
+			image->hdrData = NULL;
 		}
 		else {
-			delete[] data;
-			data = nullptr;
+			free(image->data);
+			image->data = NULL;
 		}
 	}
 }
 
-int Graphics1::Image::at(int x, int y) {
-	if (data == nullptr)
+int Kinc_Image_At(Kinc_Image *image, int x, int y) {
+	if (image->data == NULL)
 		return 0;
 	else
-		return *(int*)&((u8*)data)[width * sizeOf(format) * y + x * sizeOf(format)];
+		return *(int *)&((uint8_t *)image->data)[image->width * Kinc_ImageFormat_SizeOf(image->format) * y + x * Kinc_ImageFormat_SizeOf(image->format)];
 }
 
-u8* Graphics1::Image::getPixels() {
-	return data != nullptr ? data : reinterpret_cast<u8*>(hdrData);
+uint8_t *Kinc_Image_GetPixels(Kinc_Image *image) {
+	return image->data != NULL ? image->data : (uint8_t*)image->hdrData;
 }
