@@ -21,6 +21,7 @@ namespace Kore {
 		void open(int port);
 
 		unsigned urlToInt(const char* url, int port);
+		void setBroadcastEnabled(bool enabled);
 		void send(unsigned address, int port, const unsigned char* data, int size);
 		void send(const char* url, int port, const unsigned char* data, int size);
 		int receive(unsigned char* data, int maxSize, unsigned& fromAddress, unsigned& fromPort);

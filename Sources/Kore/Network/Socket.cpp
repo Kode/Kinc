@@ -168,6 +168,16 @@ unsigned Socket::urlToInt(const char* url, int port) {
 #endif
 }
 
+void Socket::setBroadcastEnabled(bool enabled) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+	char broadcast = enabled ? 1 : 0;
+	if (setsockopt(handle, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast)) < 0) {
+		log(Kore::Error, "Could not set broadcast mode.");
+		return;
+	}
+#endif
+}
+
 void Socket::send(unsigned address, int port, const u8* data, int size) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	sockaddr_in addr;
