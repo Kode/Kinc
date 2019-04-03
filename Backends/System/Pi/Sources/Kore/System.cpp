@@ -551,6 +551,12 @@ void Kore::System::hideKeyboard() {}
 
 void Kore::System::loadURL(const char* url) {}
 
+void Kore::System::vibrate(int ms) {}
+
+const char* Kore::System::language() {
+	return "en";
+}
+
 namespace {
 	char save[2000];
 	bool saveInitialized = false;
