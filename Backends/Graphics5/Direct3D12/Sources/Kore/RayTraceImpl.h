@@ -4,7 +4,7 @@
 
 #include <d3d12.h>
 #include "D3D12RaytracingFallback.h"
-#include "D3D12RaytracingPrototypeHelpers.hpp"
+#include "D3D12RaytracingHelpers.hpp"
 
 namespace Kore {
 
