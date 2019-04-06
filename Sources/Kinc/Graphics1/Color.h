@@ -1,31 +1,22 @@
 #pragma once
 
-namespace Kore {
-	namespace Graphics1 {
-		class Color {
+#include <stdint.h>
 
-		private:
-			void getColorFromHex(uint color, float& red, float& green, float& blue, float& alpha);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-		public:
-			Color(uint color);
+void Kinc_Color_Components(uint32_t color, float *red, float *green, float *blue, float *alpha);
 
-			float R;
-			float G;
-			float B;
-			float A;
+#define KINC_COLOR_BLACK 0xff000000
+#define KINC_COLOR_WHITE 0xffffffff
+#define KINC_COLOR_RED 0xffff0000
+#define KINC_COLOR_BLUE 0xff0000ff
+#define KINC_COLOR_GREEN 0xff00ff00
+#define KINC_COLOR_MAGENTA 0xffff00ff
+#define KINC_COLOR_YELLOW 0xffffff00
+#define KINC_COLOR_CYAN 0xff00ffff
 
-			static const uint Black = 0xff000000;
-			static const uint White = 0xffffffff;
-			static const uint Red = 0xffff0000;
-			static const uint Blue = 0xff0000ff;
-			static const uint Green = 0xff00ff00;
-			static const uint Magenta = 0xffff00ff;
-			static const uint Yellow = 0xffffff00;
-			static const uint Cyan = 0xff00ffff;
-			static const uint Purple = 0xff800080;
-			static const uint Pink = 0xffffc0cb;
-			static const uint Orange = 0xffffa500;
-		};
-	}
+#ifdef __cplusplus
 }
+#endif

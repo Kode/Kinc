@@ -1,50 +1,60 @@
 #pragma once
 
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
-	u32 offset;
-	u32 size;
-	u8 columns;
-	u8 rows;
+	uint32_t offset;
+	uint32_t size;
+	uint8_t columns;
+	uint8_t rows;
 } Kinc_G4_ShaderConstant;
 
 typedef struct {
-	//ShaderImpl();
+	// ShaderImpl();
 	//~ShaderImpl();
-	//std::map<std::string, Kinc_G4_ShaderConstant> constants;
+	// std::map<std::string, Kinc_G4_ShaderConstant> constants;
 	int constantsSize;
-	//std::map<std::string, int> attributes;
-	//std::map<std::string, int> textures;
-	void* shader;
-	u8* data;
+	// std::map<std::string, int> attributes;
+	// std::map<std::string, int> textures;
+	void *shader;
+	uint8_t *data;
 	int length;
 	int type;
 } Kinc_G4_ShaderImpl;
 
 typedef struct {
 public:
-	u32 vertexOffset;
-	u32 vertexSize;
-	u32 fragmentOffset;
-	u32 fragmentSize;
-	u32 geometryOffset;
-	u32 geometrySize;
-	u32 tessEvalOffset;
-	u32 tessEvalSize;
-	u32 tessControlOffset;
-	u32 tessControlSize;
-	u8 vertexColumns;
-	u8 vertexRows;
-	u8 fragmentColumns;
-	u8 fragmentRows;
-	u8 geometryColumns;
-	u8 geometryRows;
-	u8 tessEvalColumns;
-	u8 tessEvalRows;
-	u8 tessControlColumns;
-	u8 tessControlRows;
+	uint32_t vertexOffset;
+	uint32_t vertexSize;
+	uint32_t fragmentOffset;
+	uint32_t fragmentSize;
+	uint32_t geometryOffset;
+	uint32_t geometrySize;
+	uint32_t tessEvalOffset;
+	uint32_t tessEvalSize;
+	uint32_t tessControlOffset;
+	uint32_t tessControlSize;
+	uint8_t vertexColumns;
+	uint8_t vertexRows;
+	uint8_t fragmentColumns;
+	uint8_t fragmentRows;
+	uint8_t geometryColumns;
+	uint8_t geometryRows;
+	uint8_t tessEvalColumns;
+	uint8_t tessEvalRows;
+	uint8_t tessControlColumns;
+	uint8_t tessControlRows;
 } Kinc_G4_ConstantLocationImpl;
 
 typedef struct {
 	int unit;
 	bool vertex;
 } Kinc_G4_TextureUnitImpl;
+
+#ifdef __cplusplus
+}
+#endif

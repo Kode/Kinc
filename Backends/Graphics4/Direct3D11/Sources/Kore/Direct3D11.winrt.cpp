@@ -31,6 +31,7 @@
 
 #include <vector>
 
+#include <stdint.h>
 #include <malloc.h>
 
 #ifdef KORE_HOLOLENS
@@ -40,25 +41,23 @@
 #include <windows.graphics.directx.direct3d11.interop.h>
 #endif
 
-ID3D11Device* device;
-ID3D11DeviceContext* context;
-ID3D11RenderTargetView* renderTargetView;
-ID3D11Texture2D* depthStencil;
-ID3D11DepthStencilView* depthStencilView;
-ID3D11Texture2D* backBuffer;
+ID3D11Device *device;
+ID3D11DeviceContext *context;
+ID3D11RenderTargetView *renderTargetView;
+ID3D11Texture2D *depthStencil;
+ID3D11DepthStencilView *depthStencilView;
+ID3D11Texture2D *backBuffer;
 
 int renderTargetWidth = 4096;
 int renderTargetHeight = 4096;
 int newRenderTargetWidth = 4096;
 int newRenderTargetHeight = 4096;
 
-Kore::u8 vertexConstants[1024 * 4];
-Kore::u8 fragmentConstants[1024 * 4];
-Kore::u8 geometryConstants[1024 * 4];
-Kore::u8 tessControlConstants[1024 * 4];
-Kore::u8 tessEvalConstants[1024 * 4];
-
-using namespace Kore;
+uint8_t vertexConstants[1024 * 4];
+uint8_t fragmentConstants[1024 * 4];
+uint8_t geometryConstants[1024 * 4];
+uint8_t tessControlConstants[1024 * 4];
+uint8_t tessEvalConstants[1024 * 4];
 
 #ifdef KORE_WINDOWSAPP
 using namespace ::Microsoft::WRL;

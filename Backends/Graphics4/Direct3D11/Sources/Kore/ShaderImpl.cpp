@@ -1,41 +1,41 @@
 #include "pch.h"
 
-#include "Direct3D11.h"
-#include <Kore/Graphics4/Shader.h>
+#include <Kinc/Graphics4/Shader.h>
+
 #include <Kore/Math/Core.h>
 #include <Kore/SystemMicrosoft.h>
 
-using namespace Kore;
+#include "Direct3D11.h"
 
-ShaderImpl::ShaderImpl() : shader(nullptr) {}
+#include <stdint.h>
 
-ShaderImpl::~ShaderImpl() {
-	if (shader != nullptr) {
-		switch ((Graphics4::ShaderType)type) {
-		case Graphics4::VertexShader:
+void Kinc_G4_Shader_Destroy(Kinc_G4_Shader *shader) {
+	if (shader->impl.shader != nullptr) {
+		switch (shader->impl.type) {
+		case KINC_SHADER_TYPE_VERTEX:
 			((ID3D11VertexShader*)shader)->Release();
 			break;
-		case Graphics4::FragmentShader:
+		case KINC_SHADER_TYPE_FRAGMENT:
 			((ID3D11PixelShader*)shader)->Release();
 			break;
-		case Graphics4::GeometryShader:
+		case KINC_SHADER_TYPE_GEOMETRY:
 			((ID3D11GeometryShader*)shader)->Release();
 			break;
-		case Graphics4::TessellationControlShader:
+		case KINC_SHADER_TYPE_TESSELLATION_CONTROL:
 			((ID3D11HullShader*)shader)->Release();
 			break;
-		case Graphics4::TessellationEvaluationShader:
+		case KINC_SHADER_TYPE_TESSELLATION_EVALUATION:
 			((ID3D11DomainShader*)shader)->Release();
 			break;
 		}
-		free(this->data);
+		free(shader->impl.data);
 	}
 }
 
-void Graphics4::Shader::parse(void* _data, int length, ShaderType type) {
+void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *_data, int length, Kinc_G4_ShaderType type) {
 	unsigned index = 0;
-	u8* data = (u8*)_data;
-	this->type = (int)type;
+	uint8_t *data = (uint8_t*)_data;
+	shader->impl.type = (int)type;
 
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
@@ -47,7 +47,7 @@ void Graphics4::Shader::parse(void* _data, int length, ShaderType type) {
 		attributes[name] = data[index++];
 	}
 
-	u8 texCount = data[index++];
+	uint8_t texCount = data[index++];
 	for (unsigned i = 0; i < texCount; ++i) {
 		char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
@@ -57,7 +57,7 @@ void Graphics4::Shader::parse(void* _data, int length, ShaderType type) {
 		textures[name] = data[index++];
 	}
 
-	u8 constantCount = data[index++];
+	uint8_t constantCount = data[index++];
 	constantsSize = 0;
 	for (unsigned i = 0; i < constantCount; ++i) {
 		char name[256];
@@ -78,40 +78,34 @@ void Graphics4::Shader::parse(void* _data, int length, ShaderType type) {
 		constantsSize = constant.offset + constant.size;
 	}
 
-	this->length = length - index;
-	this->data = (u8*)malloc(this->length);
-	memcpy(this->data, &data[index], this->length);
+	shader->impl.length = length - index;
+	shader->impl.data = (uint8_t*)malloc(shader->impl.length);
+	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
 	switch (type) {
-	case VertexShader:
-		Kinc_Microsoft_Affirm(device->CreateVertexShader(this->data, this->length, nullptr, (ID3D11VertexShader **)&shader));
+	case KINC_SHADER_TYPE_VERTEX:
+		Kinc_Microsoft_Affirm(device->CreateVertexShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11VertexShader **)&shader->impl.shader));
 		break;
-	case FragmentShader:
-		Kinc_Microsoft_Affirm(device->CreatePixelShader(this->data, this->length, nullptr, (ID3D11PixelShader **)&shader));
+	case KINC_SHADER_TYPE_FRAGMENT:
+		Kinc_Microsoft_Affirm(device->CreatePixelShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11PixelShader **)&shader->impl.shader));
 		break;
-	case GeometryShader:
-		Kinc_Microsoft_Affirm(device->CreateGeometryShader(this->data, this->length, nullptr, (ID3D11GeometryShader **)&shader));
+	case KINC_SHADER_TYPE_GEOMETRY:
+		Kinc_Microsoft_Affirm(device->CreateGeometryShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11GeometryShader **)&shader->impl.shader));
 		break;
-	case TessellationControlShader:
-		Kinc_Microsoft_Affirm(device->CreateHullShader(this->data, this->length, nullptr, (ID3D11HullShader **)&shader));
+	case KINC_SHADER_TYPE_TESSELLATION_CONTROL:
+		Kinc_Microsoft_Affirm(device->CreateHullShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11HullShader **)&shader->impl.shader));
 		break;
-	case TessellationEvaluationShader:
-		Kinc_Microsoft_Affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader **)&shader));
+	case KINC_SHADER_TYPE_TESSELLATION_EVALUATION:
+		Kinc_Microsoft_Affirm(device->CreateDomainShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11DomainShader **)&shader->impl.shader));
 		break;
 	}
-}
-
-Graphics4::Shader::Shader(void* _data, int length, ShaderType type) {
-	setId();
-	parse(_data, length, type);
 }
 
 #ifdef KRAFIX_LIBRARY
 extern void krafix_compile(const char* source, char* output, int* length, const char* targetlang, const char* system, const char* shadertype);
 #endif
 
-Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {
-	setId();
+void Kinc_G4_Shader_CreateFromSource(Kinc_G4_Shader *shader, const char *source, Kinc_G4_ShaderType type) {
 #ifdef KRAFIX_LIBRARY
 	char* output = new char[1024 * 1024];
 	int length;

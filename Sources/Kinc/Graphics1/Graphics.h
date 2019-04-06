@@ -1,14 +1,18 @@
 #pragma once
 
-#include <Kore/Graphics1/Color.h>
+#include <Kinc/Graphics1/Color.h>
 
-namespace Kore {
-	namespace Graphics1 {
-		void init(int width, int height);
-		void begin();
-		void end();
-		void setPixel(int x, int y, float red, float green, float blue);
-		int width();
-		int height();
-	}
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void Kinc_G1_Init(int width, int height);
+void Kinc_G1_Begin();
+void Kinc_G1_End();
+void Kinc_G1_SetPixel(int x, int y, float red, float green, float blue);
+int Kinc_G1_Width();
+int Kinc_G1_Height();
+
+#ifdef __cplusplus
 }
+#endif

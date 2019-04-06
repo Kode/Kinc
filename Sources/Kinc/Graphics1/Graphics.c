@@ -2,33 +2,29 @@
 
 #include "Graphics.h"
 
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Graphics4/PipelineState.h>
-#include <Kore/Graphics4/Shader.h>
-#include <Kore/IO/FileReader.h>
-#include <Kore/IO/FileReader.h>
-#include <limits>
+#if 0
 
-using namespace Kore;
+#include <Kinc/Graphics4/Graphics.h>
+#include <Kinc/Graphics4/PipelineState.h>
+#include <Kinc/Graphics4/Shader.h>
+#include <Kinc/IO/FileReader.h>
 
-namespace {
-	Graphics4::Shader* vertexShader;
-	Graphics4::Shader* fragmentShader;
-	Graphics4::PipelineState* pipeline;
-	Graphics4::TextureUnit tex;
-	Graphics4::VertexBuffer* vb;
-	Graphics4::IndexBuffer* ib;
-	Graphics4::Texture* texture;
-	int* image;
-	int w, h;
-}
+static Graphics4::Shader* vertexShader;
+static Graphics4::Shader *fragmentShader;
+static Graphics4::PipelineState *pipeline;
+static Graphics4::TextureUnit tex;
+static Graphics4::VertexBuffer *vb;
+static Graphics4::IndexBuffer *ib;
+static Graphics4::Texture *texture;
+static int *image;
+static int w, h;
 
-void Graphics1::begin() {
+void Kinc_G1_Begin() {
 	Graphics4::begin();
 	image = (int*)texture->lock();
 }
 
-void Graphics1::setPixel(int x, int y, float red, float green, float blue) {
+void Kinc_G1_SetPixel(int x, int y, float red, float green, float blue) {
 	if (x < 0 || x >= w || y < 0 || y >= h) return;
 	int r = (int)(red * 255);
 	int g = (int)(green * 255);
@@ -36,7 +32,7 @@ void Graphics1::setPixel(int x, int y, float red, float green, float blue) {
 	image[y * texture->texWidth + x] = 0xff << 24 | b << 16 | g << 8 | r;
 }
 
-void Graphics1::end() {
+void Kinc_G1_End() {
 	texture->unlock();
 
 	Graphics4::clear(Graphics4::ClearColorFlag, 0xff000000);
@@ -51,7 +47,7 @@ void Graphics1::end() {
 	Graphics4::swapBuffers();
 }
 
-void Graphics1::init(int width, int height) {
+void Kinc_G1_Init(int width, int height) {
 	w = width;
 	h = height;
 	FileReader vs("g1.vert");
@@ -124,10 +120,12 @@ void Graphics1::init(int width, int height) {
 	ib->unlock();
 }
 
-int Graphics1::width() {
+int Kinc_G1_Width() {
 	return w;
 }
 
-int Graphics1::height() {
+int Kinc_G1_Height() {
 	return h;
 }
+
+#endif

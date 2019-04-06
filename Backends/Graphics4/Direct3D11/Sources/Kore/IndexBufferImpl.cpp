@@ -4,8 +4,8 @@
 
 #include <Kinc/Graphics4/IndexBuffer.h>
 
-#include <Kore/Graphics4/Graphics.h>
 #include <Kore/SystemMicrosoft.h>
+
 #include <Windows.h>
 #include <d3d11.h>
 
