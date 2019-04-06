@@ -7,19 +7,23 @@ extern "C" {
 #endif
 
 typedef struct {
+	uint32_t hash;
 	uint32_t offset;
 	uint32_t size;
 	uint8_t columns;
 	uint8_t rows;
-} Kinc_G4_ShaderConstant;
+} Kinc_Internal_ShaderConstant;
 
 typedef struct {
-	// ShaderImpl();
-	//~ShaderImpl();
-	// std::map<std::string, Kinc_G4_ShaderConstant> constants;
+	uint32_t hash;
+	uint32_t index;
+} Kinc_Internal_HashIndex;
+
+typedef struct {
+	Kinc_Internal_ShaderConstant constants[64];
 	int constantsSize;
-	// std::map<std::string, int> attributes;
-	// std::map<std::string, int> textures;
+	Kinc_Internal_HashIndex attributes[64];
+	Kinc_Internal_HashIndex textures[64];
 	void *shader;
 	uint8_t *data;
 	int length;

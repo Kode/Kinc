@@ -3,124 +3,121 @@
 #include "Direct3D11.h"
 
 #include <Kinc/Graphics4/PipelineState.h>
+#include <Kinc/Graphics4/Shader.h>
 
-#include <Kore/Graphics4/Shader.h>
 #include <Kore/SystemMicrosoft.h>
 #include <Kore/Log.h>
 
+#include <assert.h>
 #include <malloc.h>
 
-using namespace Kore;
-using namespace Kore::Graphics4;
+Kinc_G4_PipelineState *currentPipeline = NULL;
 
-namespace Kore {
-	PipelineState* currentPipeline = nullptr;
-
-	D3D11_CULL_MODE convert(Graphics4::CullMode cullMode) {
-		switch (cullMode) {
-		case Graphics4::Clockwise:
-			return D3D11_CULL_FRONT;
-		case Graphics4::CounterClockwise:
-			return D3D11_CULL_BACK;
-		case Graphics4::NoCulling:
-		default:
-			return D3D11_CULL_NONE;
-		}
-	}
-
-	D3D11_BLEND convert(Graphics4::BlendingOperation operation) {
-		switch (operation) {
-		case Graphics4::BlendOne:
-			return D3D11_BLEND_ONE;
-		case Graphics4::BlendZero:
-			return D3D11_BLEND_ZERO;
-		case Graphics4::SourceAlpha:
-			return D3D11_BLEND_SRC_ALPHA;
-		case Graphics4::DestinationAlpha:
-			return D3D11_BLEND_DEST_ALPHA;
-		case Graphics4::InverseSourceAlpha:
-			return D3D11_BLEND_INV_SRC_ALPHA;
-		case Graphics4::InverseDestinationAlpha:
-			return D3D11_BLEND_INV_DEST_ALPHA;
-		case Graphics4::SourceColor:
-			return D3D11_BLEND_SRC_COLOR;
-		case Graphics4::DestinationColor:
-			return D3D11_BLEND_DEST_COLOR;
-		case Graphics4::InverseSourceColor:
-			return D3D11_BLEND_INV_SRC_COLOR;
-		case Graphics4::InverseDestinationColor:
-			return D3D11_BLEND_INV_DEST_COLOR;
-		default:
-			//	throw Exception("Unknown blending operation.");
-			return D3D11_BLEND_SRC_ALPHA;
-		}
-	}
-
-	D3D11_COMPARISON_FUNC getComparison(Graphics4::ZCompareMode compare) {
-		switch (compare) {
-		default:
-		case Graphics4::ZCompareAlways:
-			return D3D11_COMPARISON_ALWAYS;
-		case Graphics4::ZCompareNever:
-			return D3D11_COMPARISON_NEVER;
-		case Graphics4::ZCompareEqual:
-			return D3D11_COMPARISON_EQUAL;
-		case Graphics4::ZCompareNotEqual:
-			return D3D11_COMPARISON_NOT_EQUAL;
-		case Graphics4::ZCompareLess:
-			return D3D11_COMPARISON_LESS;
-		case Graphics4::ZCompareLessEqual:
-			return D3D11_COMPARISON_LESS_EQUAL;
-		case Graphics4::ZCompareGreater:
-			return D3D11_COMPARISON_GREATER;
-		case Graphics4::ZCompareGreaterEqual:
-			return D3D11_COMPARISON_GREATER_EQUAL;
-		}
-	}
-
-	D3D11_STENCIL_OP getStencilAction(Graphics4::StencilAction action) {
-		switch (action) {
-		default:
-		case Graphics4::Keep:
-			return D3D11_STENCIL_OP_KEEP;
-		case Graphics4::Zero:
-			return D3D11_STENCIL_OP_ZERO;
-		case Graphics4::Replace:
-			return D3D11_STENCIL_OP_REPLACE;
-		case Graphics4::Increment:
-			return D3D11_STENCIL_OP_INCR;
-		case Graphics4::IncrementWrap:
-			return D3D11_STENCIL_OP_INCR_SAT;
-		case Graphics4::Decrement:
-			return D3D11_STENCIL_OP_DECR;
-		case Graphics4::DecrementWrap:
-			return D3D11_STENCIL_OP_DECR_SAT;
-		case Graphics4::Invert:
-			return D3D11_STENCIL_OP_INVERT;
-		}
+static D3D11_CULL_MODE convert_cull_mode(Kinc_G4_CullMode cullMode) {
+	switch (cullMode) {
+	case KINC_G4_CULL_CLOCKWISE:
+		return D3D11_CULL_FRONT;
+	case KINC_G4_CULL_COUNTER_CLOCKWISE:
+		return D3D11_CULL_BACK;
+	case KINC_G4_CULL_NOTHING:
+		return D3D11_CULL_NONE;
+	default:
+		assert(false);
 	}
 }
 
-void PipelineStateImpl::setConstants() {
-	if (currentPipeline->vertexShader->constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
-		context->VSSetConstantBuffers(0, 1, &currentPipeline->vertexConstantBuffer);
+static D3D11_BLEND convert_blend_operation(Kinc_G4_BlendingOperation operation) {
+	switch (operation) {
+	case KINC_G4_BLEND_ONE:
+		return D3D11_BLEND_ONE;
+	case KINC_G4_BLEND_ZERO:
+		return D3D11_BLEND_ZERO;
+	case KINC_G4_BLEND_SOURCE_ALPHA:
+		return D3D11_BLEND_SRC_ALPHA;
+	case KINC_G4_BLEND_DEST_ALPHA:
+		return D3D11_BLEND_DEST_ALPHA;
+	case KINC_G4_BLEND_INV_SOURCE_ALPHA:
+		return D3D11_BLEND_INV_SRC_ALPHA;
+	case KINC_G4_BLEND_INV_DEST_ALPHA:
+		return D3D11_BLEND_INV_DEST_ALPHA;
+	case KINC_G4_BLEND_SOURCE_COLOR:
+		return D3D11_BLEND_SRC_COLOR;
+	case KINC_G4_BLEND_DEST_COLOR:
+		return D3D11_BLEND_DEST_COLOR;
+	case KINC_G4_BLEND_INV_SOURCE_COLOR:
+		return D3D11_BLEND_INV_SRC_COLOR;
+	case KINC_G4_BLEND_INV_DEST_COLOR:
+		return D3D11_BLEND_INV_DEST_COLOR;
+	default:
+		//	throw Exception("Unknown blending operation.");
+		return D3D11_BLEND_SRC_ALPHA;
 	}
-	if (currentPipeline->fragmentShader->constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->fragmentConstantBuffer, 0, nullptr, fragmentConstants, 0, 0);
-		context->PSSetConstantBuffers(0, 1, &currentPipeline->fragmentConstantBuffer);
+}
+
+static D3D11_COMPARISON_FUNC get_comparison(Kinc_G4_CompareMode compare) {
+	switch (compare) {
+	default:
+	case KINC_G4_COMPARE_ALWAYS:
+		return D3D11_COMPARISON_ALWAYS;
+	case KINC_G4_COMPARE_NEVER:
+		return D3D11_COMPARISON_NEVER;
+	case KINC_G4_COMPARE_EQUAL:
+		return D3D11_COMPARISON_EQUAL;
+	case KINC_G4_COMPARE_NOT_EQUAL:
+		return D3D11_COMPARISON_NOT_EQUAL;
+	case KINC_G4_COMPARE_LESS:
+		return D3D11_COMPARISON_LESS;
+	case KINC_G4_COMPARE_LESS_EQUAL:
+		return D3D11_COMPARISON_LESS_EQUAL;
+	case KINC_G4_COMPARE_GREATER:
+		return D3D11_COMPARISON_GREATER;
+	case KINC_G4_COMPARE_GREATER_EQUAL:
+		return D3D11_COMPARISON_GREATER_EQUAL;
 	}
-	if (currentPipeline->geometryShader != nullptr && currentPipeline->geometryShader->constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->geometryConstantBuffer, 0, nullptr, geometryConstants, 0, 0);
-		context->GSSetConstantBuffers(0, 1, &currentPipeline->geometryConstantBuffer);
+}
+
+static D3D11_STENCIL_OP get_stencil_action(Kinc_G4_StencilAction action) {
+	switch (action) {
+	default:
+	case KINC_G4_STENCIL_KEEP:
+		return D3D11_STENCIL_OP_KEEP;
+	case KINC_G4_STENCIL_ZERO:
+		return D3D11_STENCIL_OP_ZERO;
+	case KINC_G4_STENCIL_REPLACE:
+		return D3D11_STENCIL_OP_REPLACE;
+	case KINC_G4_STENCIL_INCREMENT:
+		return D3D11_STENCIL_OP_INCR;
+	case KINC_G4_STENCIL_INCREMENT_WRAP:
+		return D3D11_STENCIL_OP_INCR_SAT;
+	case KINC_G4_STENCIL_DECREMENT:
+		return D3D11_STENCIL_OP_DECR;
+	case KINC_G4_STENCIL_DECREMENT_WRAP:
+		return D3D11_STENCIL_OP_DECR_SAT;
+	case KINC_G4_STENCIL_INVERT:
+		return D3D11_STENCIL_OP_INVERT;
 	}
-	if (currentPipeline->tessellationControlShader != nullptr && currentPipeline->tessellationControlShader->constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->tessControlConstantBuffer, 0, nullptr, tessControlConstants, 0, 0);
-		context->HSSetConstantBuffers(0, 1, &currentPipeline->tessControlConstantBuffer);
+}
+
+void Kinc_Internal_SetConstants(void) {
+	if (currentPipeline->vertexShader->impl.constantsSize > 0) {
+		context->UpdateSubresource(currentPipeline->impl.vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
+		context->VSSetConstantBuffers(0, 1, &currentPipeline->impl.vertexConstantBuffer);
 	}
-	if (currentPipeline->tessellationEvaluationShader != nullptr && currentPipeline->tessellationEvaluationShader->constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
-		context->DSSetConstantBuffers(0, 1, &currentPipeline->tessEvalConstantBuffer);
+	if (currentPipeline->fragmentShader->impl.constantsSize > 0) {
+		context->UpdateSubresource(currentPipeline->impl.fragmentConstantBuffer, 0, nullptr, fragmentConstants, 0, 0);
+		context->PSSetConstantBuffers(0, 1, &currentPipeline->impl.fragmentConstantBuffer);
+	}
+	if (currentPipeline->geometryShader != nullptr && currentPipeline->geometryShader->impl.constantsSize > 0) {
+		context->UpdateSubresource(currentPipeline->impl.geometryConstantBuffer, 0, nullptr, geometryConstants, 0, 0);
+		context->GSSetConstantBuffers(0, 1, &currentPipeline->impl.geometryConstantBuffer);
+	}
+	if (currentPipeline->tessellationControlShader != nullptr && currentPipeline->tessellationControlShader->impl.constantsSize > 0) {
+		context->UpdateSubresource(currentPipeline->impl.tessControlConstantBuffer, 0, nullptr, tessControlConstants, 0, 0);
+		context->HSSetConstantBuffers(0, 1, &currentPipeline->impl.tessControlConstantBuffer);
+	}
+	if (currentPipeline->tessellationEvaluationShader != nullptr && currentPipeline->tessellationEvaluationShader->impl.constantsSize > 0) {
+		context->UpdateSubresource(currentPipeline->impl.tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
+		context->DSSetConstantBuffers(0, 1, &currentPipeline->impl.tessEvalConstantBuffer);
 	}
 }
 
@@ -180,103 +177,103 @@ void Kinc_G4_PipelineState_Destroy(Kinc_G4_PipelineState *state) {
 	}
 }
 
-void PipelineStateImpl::set(PipelineState* pipeline, bool scissoring) {
-	currentPipeline = pipeline;
-
-	context->OMSetDepthStencilState(depthStencilState, pipeline->stencilReferenceValue);
-	float blendFactor[] = {0, 0, 0, 0};
-	UINT sampleMask = 0xffffffff;
-	context->OMSetBlendState(blendState, blendFactor, sampleMask);
-	setRasterizerState(scissoring);
-
-	context->VSSetShader((ID3D11VertexShader*)pipeline->vertexShader->shader, nullptr, 0);
-	context->PSSetShader((ID3D11PixelShader*)pipeline->fragmentShader->shader, nullptr, 0);
-	
-	context->GSSetShader(pipeline->geometryShader != nullptr ? (ID3D11GeometryShader*) pipeline->geometryShader->shader : nullptr, nullptr, 0);
-	context->HSSetShader(pipeline->tessellationControlShader != nullptr ? (ID3D11HullShader*) pipeline->tessellationControlShader->shader : nullptr, nullptr, 0);
-	context->DSSetShader(pipeline->tessellationEvaluationShader != nullptr ? (ID3D11DomainShader*) pipeline->tessellationEvaluationShader->shader : nullptr, nullptr, 0);		
-
-	context->IASetInputLayout(pipeline->d3d11inputLayout);
+static void setRasterizerState(Kinc_G4_PipelineState *pipeline, bool scissoring) {
+	if (scissoring && pipeline->impl.rasterizerStateScissor != nullptr)
+		context->RSSetState(pipeline->impl.rasterizerStateScissor);
+	else if (pipeline->impl.rasterizerState != nullptr)
+		context->RSSetState(pipeline->impl.rasterizerState);
 }
 
-void PipelineStateImpl::setRasterizerState(bool scissoring) {
-	if (scissoring && rasterizerStateScissor != nullptr)
-		context->RSSetState(rasterizerStateScissor);
-	else if (rasterizerState != nullptr)
-		context->RSSetState(rasterizerState);
+void Kinc_Internal_SetPipeline(Kinc_G4_PipelineState *pipeline, bool scissoring) {
+	currentPipeline = pipeline;
+
+	context->OMSetDepthStencilState(pipeline->impl.depthStencilState, pipeline->stencilReferenceValue);
+	float blendFactor[] = {0, 0, 0, 0};
+	UINT sampleMask = 0xffffffff;
+	context->OMSetBlendState(pipeline->impl.blendState, blendFactor, sampleMask);
+	setRasterizerState(pipeline, scissoring);
+
+	context->VSSetShader((ID3D11VertexShader*)pipeline->vertexShader->impl.shader, nullptr, 0);
+	context->PSSetShader((ID3D11PixelShader*)pipeline->fragmentShader->impl.shader, nullptr, 0);
+	
+	context->GSSetShader(pipeline->geometryShader != nullptr ? (ID3D11GeometryShader*) pipeline->geometryShader->impl.shader : nullptr, nullptr, 0);
+	context->HSSetShader(pipeline->tessellationControlShader != nullptr ? (ID3D11HullShader*) pipeline->tessellationControlShader->impl.shader : nullptr, nullptr, 0);
+	context->DSSetShader(pipeline->tessellationEvaluationShader != nullptr ? (ID3D11DomainShader*) pipeline->tessellationEvaluationShader->impl.shader : nullptr, nullptr, 0);		
+
+	context->IASetInputLayout(pipeline->impl.d3d11inputLayout);
 }
 
 Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_PipelineState *state, const char *name) {
 	Kinc_G4_ConstantLocation location;
 
-	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
-		location.vertexOffset = 0;
-		location.vertexSize = 0;
-		location.vertexColumns = 0;
-		location.vertexRows = 0;
+	if (state->vertexShader->impl.constants.find(name) == state->vertexShader->impl.constants.end()) {
+		location.impl.vertexOffset = 0;
+		location.impl.vertexSize = 0;
+		location.impl.vertexColumns = 0;
+		location.impl.vertexRows = 0;
 	}
 	else {
-		ShaderConstant constant = vertexShader->constants[name];
-		location.vertexOffset = constant.offset;
-		location.vertexSize = constant.size;
-		location.vertexColumns = constant.columns;
-		location.vertexRows = constant.rows;
+		Kinc_Internal_ShaderConstant constant = vertexShader->constants[name];
+		location.impl.vertexOffset = constant.offset;
+		location.impl.vertexSize = constant.size;
+		location.impl.vertexColumns = constant.columns;
+		location.impl.vertexRows = constant.rows;
 	}
 
 	if (fragmentShader->constants.find(name) == fragmentShader->constants.end()) {
-		location.fragmentOffset = 0;
-		location.fragmentSize = 0;
-		location.fragmentColumns = 0;
-		location.fragmentRows = 0;
+		location.impl.fragmentOffset = 0;
+		location.impl.fragmentSize = 0;
+		location.impl.fragmentColumns = 0;
+		location.impl.fragmentRows = 0;
 	}
 	else {
-		ShaderConstant constant = fragmentShader->constants[name];
-		location.fragmentOffset = constant.offset;
-		location.fragmentSize = constant.size;
-		location.fragmentColumns = constant.columns;
-		location.fragmentRows = constant.rows;
+		Kinc_Internal_ShaderConstant constant = fragmentShader->constants[name];
+		location.impl.fragmentOffset = constant.offset;
+		location.impl.fragmentSize = constant.size;
+		location.impl.fragmentColumns = constant.columns;
+		location.impl.fragmentRows = constant.rows;
 	}
 
 	if (geometryShader == nullptr || geometryShader->constants.find(name) == geometryShader->constants.end()) {
-		location.geometryOffset = 0;
-		location.geometrySize = 0;
-		location.geometryColumns = 0;
-		location.geometryRows = 0;
+		location.impl.geometryOffset = 0;
+		location.impl.geometrySize = 0;
+		location.impl.geometryColumns = 0;
+		location.impl.geometryRows = 0;
 	}
 	else {
-		ShaderConstant constant = geometryShader->constants[name];
-		location.geometryOffset = constant.offset;
-		location.geometrySize = constant.size;
-		location.geometryColumns = constant.columns;
-		location.geometryRows = constant.rows;
+		Kinc_Internal_ShaderConstant constant = geometryShader->constants[name];
+		location.impl.geometryOffset = constant.offset;
+		location.impl.geometrySize = constant.size;
+		location.impl.geometryColumns = constant.columns;
+		location.impl.geometryRows = constant.rows;
 	}
 
 	if (tessellationControlShader == nullptr || tessellationControlShader->constants.find(name) == tessellationControlShader->constants.end()) {
-		location.tessControlOffset = 0;
-		location.tessControlSize = 0;
-		location.tessControlColumns = 0;
-		location.tessControlRows = 0;
+		location.impl.tessControlOffset = 0;
+		location.impl.tessControlSize = 0;
+		location.impl.tessControlColumns = 0;
+		location.impl.tessControlRows = 0;
 	}
 	else {
-		ShaderConstant constant = tessellationControlShader->constants[name];
-		location.tessControlOffset = constant.offset;
-		location.tessControlSize = constant.size;
-		location.tessControlColumns = constant.columns;
-		location.tessControlRows = constant.rows;
+		Kinc_Internal_ShaderConstant constant = tessellationControlShader->constants[name];
+		location.impl.tessControlOffset = constant.offset;
+		location.impl.tessControlSize = constant.size;
+		location.impl.tessControlColumns = constant.columns;
+		location.impl.tessControlRows = constant.rows;
 	}
 
 	if (tessellationEvaluationShader == nullptr || tessellationEvaluationShader->constants.find(name) == tessellationEvaluationShader->constants.end()) {
-		location.tessEvalOffset = 0;
-		location.tessEvalSize = 0;
-		location.tessEvalColumns = 0;
-		location.tessEvalRows = 0;
+		location.impl.tessEvalOffset = 0;
+		location.impl.tessEvalSize = 0;
+		location.impl.tessEvalColumns = 0;
+		location.impl.tessEvalRows = 0;
 	}
 	else {
-		ShaderConstant constant = tessellationEvaluationShader->constants[name];
-		location.tessEvalOffset = constant.offset;
-		location.tessEvalSize = constant.size;
-		location.tessEvalColumns = constant.columns;
-		location.tessEvalRows = constant.rows;
+		Kinc_Internal_ShaderConstant constant = tessellationEvaluationShader->constants[name];
+		location.impl.tessEvalOffset = constant.offset;
+		location.impl.tessEvalSize = constant.size;
+		location.impl.tessEvalColumns = constant.columns;
+		location.impl.tessEvalRows = constant.rows;
 	}
 
 	if (location.vertexSize == 0 && location.fragmentSize == 0 && location.geometrySize == 0 && location.tessControlSize && location.tessEvalSize == 0) {

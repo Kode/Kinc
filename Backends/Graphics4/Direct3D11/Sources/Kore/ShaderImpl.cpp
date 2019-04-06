@@ -7,6 +7,7 @@
 
 #include "Direct3D11.h"
 
+#include <assert.h>
 #include <stdint.h>
 
 void Kinc_G4_Shader_Destroy(Kinc_G4_Shader *shader) {
@@ -32,54 +33,72 @@ void Kinc_G4_Shader_Destroy(Kinc_G4_Shader *shader) {
 	}
 }
 
+// djb2
+static uint32_t hash(unsigned char *str) {
+	unsigned long hash = 5381;
+	int c;
+	while (c = *str++) {
+		hash = hash * 33 ^ c;
+	}
+	return hash;
+}
+
 void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *_data, int length, Kinc_G4_ShaderType type) {
 	unsigned index = 0;
 	uint8_t *data = (uint8_t*)_data;
 	shader->impl.type = (int)type;
 
+	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
-		char name[256];
+		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		attributes[name] = data[index++];
+		shader->impl.attributes[i].hash = hash(name);
+		shader->impl.attributes[i].index = data[index++];
 	}
 
+	memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
 	uint8_t texCount = data[index++];
 	for (unsigned i = 0; i < texCount; ++i) {
-		char name[256];
+		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		textures[name] = data[index++];
+		shader->impl.textures[i].hash = hash(name);
+		shader->impl.textures[i].index = data[index++];
 	}
 
+	memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
 	uint8_t constantCount = data[index++];
-	constantsSize = 0;
+	shader->impl.constantsSize = 0;
 	for (unsigned i = 0; i < constantCount; ++i) {
-		char name[256];
+		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		ShaderConstant constant;
-		constant.offset = *(u32*)&data[index];
+		Kinc_Internal_ShaderConstant constant;
+		constant.hash = hash(name);
+		constant.offset = *(uint32_t*)&data[index];
 		index += 4;
-		constant.size = *(u32*)&data[index];
+		constant.size = *(uint32_t*)&data[index];
 		index += 4;
 		constant.columns = data[index];
 		index += 1;
 		constant.rows = data[index];
 		index += 1;
-		constants[name] = constant;
-		constantsSize = constant.offset + constant.size;
+
+		shader->impl.constants[i] = constant;
+		shader->impl.constantsSize = constant.offset + constant.size;
 	}
 
 	shader->impl.length = length - index;
 	shader->impl.data = (uint8_t*)malloc(shader->impl.length);
+	assert(shader->impl.data != NULL);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
 	switch (type) {

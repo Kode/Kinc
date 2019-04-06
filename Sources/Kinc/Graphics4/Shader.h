@@ -14,7 +14,7 @@ typedef enum {
 	KINC_SHADER_TYPE_TESSELLATION_EVALUATION
 } Kinc_G4_ShaderType;
 
-typedef struct {
+typedef struct _Kinc_G4_Shader {
 	Kinc_G4_ShaderImpl impl;
 } Kinc_G4_Shader;
 

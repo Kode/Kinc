@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ID3D11InputLayout;
 struct ID3D11PixelShader;
 struct ID3D11VertexShader;
@@ -10,9 +14,9 @@ struct ID3D11BlendState;
 
 typedef struct {
 public:
-	//PipelineStateImpl();
+	// PipelineStateImpl();
 	//~PipelineStateImpl();
-	struct ID3D11InputLayout* d3d11inputLayout;
+	struct ID3D11InputLayout *d3d11inputLayout;
 	struct ID3D11Buffer *fragmentConstantBuffer;
 	struct ID3D11Buffer *vertexConstantBuffer;
 	struct ID3D11Buffer *geometryConstantBuffer;
@@ -22,7 +26,13 @@ public:
 	struct ID3D11RasterizerState *rasterizerState;
 	struct ID3D11RasterizerState *rasterizerStateScissor;
 	struct ID3D11BlendState *blendState;
-	//void set(Graphics4::PipelineState* pipeline, bool scissoring);
-	//void setRasterizerState(bool scissoring);
-	//static void setConstants();
+	// void set(Graphics4::PipelineState* pipeline, bool scissoring);
+	// void setRasterizerState(bool scissoring);
+	// static void setConstants();
 } Kinc_G4_PipelineStateImpl;
+
+void Kinc_Internal_SetConstants(void);
+
+#ifdef __cplusplus
+}
+#endif
