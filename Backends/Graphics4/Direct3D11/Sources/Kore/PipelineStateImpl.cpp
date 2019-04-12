@@ -4,9 +4,9 @@
 
 #include <Kinc/Graphics4/PipelineState.h>
 #include <Kinc/Graphics4/Shader.h>
+#include <Kinc/Log.h>
 
 #include <Kore/SystemMicrosoft.h>
-#include <Kore/Log.h>
 
 #include <assert.h>
 #include <malloc.h>
@@ -193,91 +193,104 @@ void Kinc_Internal_SetPipeline(Kinc_G4_PipelineState *pipeline, bool scissoring)
 	context->OMSetBlendState(pipeline->impl.blendState, blendFactor, sampleMask);
 	setRasterizerState(pipeline, scissoring);
 
-	context->VSSetShader((ID3D11VertexShader*)pipeline->vertexShader->impl.shader, nullptr, 0);
-	context->PSSetShader((ID3D11PixelShader*)pipeline->fragmentShader->impl.shader, nullptr, 0);
-	
-	context->GSSetShader(pipeline->geometryShader != nullptr ? (ID3D11GeometryShader*) pipeline->geometryShader->impl.shader : nullptr, nullptr, 0);
-	context->HSSetShader(pipeline->tessellationControlShader != nullptr ? (ID3D11HullShader*) pipeline->tessellationControlShader->impl.shader : nullptr, nullptr, 0);
-	context->DSSetShader(pipeline->tessellationEvaluationShader != nullptr ? (ID3D11DomainShader*) pipeline->tessellationEvaluationShader->impl.shader : nullptr, nullptr, 0);		
+	context->VSSetShader((ID3D11VertexShader *)pipeline->vertexShader->impl.shader, nullptr, 0);
+	context->PSSetShader((ID3D11PixelShader *)pipeline->fragmentShader->impl.shader, nullptr, 0);
+
+	context->GSSetShader(pipeline->geometryShader != nullptr ? (ID3D11GeometryShader *)pipeline->geometryShader->impl.shader : nullptr, nullptr, 0);
+	context->HSSetShader(pipeline->tessellationControlShader != nullptr ? (ID3D11HullShader *)pipeline->tessellationControlShader->impl.shader : nullptr,
+	                     nullptr, 0);
+	context->DSSetShader(
+	    pipeline->tessellationEvaluationShader != nullptr ? (ID3D11DomainShader *)pipeline->tessellationEvaluationShader->impl.shader : nullptr, nullptr, 0);
 
 	context->IASetInputLayout(pipeline->impl.d3d11inputLayout);
+}
+
+static Kinc_Internal_ShaderConstant *findConstant(Kinc_Internal_ShaderConstant *constants, uint32_t hash) {
+	for (int i = 0; i < 64; ++i) {
+		if (constants[i].hash == hash) {
+			return &constants[i];
+		}
+	}
+	return NULL;
 }
 
 Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_PipelineState *state, const char *name) {
 	Kinc_G4_ConstantLocation location;
 
-	if (state->vertexShader->impl.constants.find(name) == state->vertexShader->impl.constants.end()) {
+	uint32_t hash = Kinc_Internal_HashName((unsigned char*)name);
+
+	Kinc_Internal_ShaderConstant *constant = findConstant(state->vertexShader->impl.constants, hash);
+	if (constant == NULL) {
 		location.impl.vertexOffset = 0;
 		location.impl.vertexSize = 0;
 		location.impl.vertexColumns = 0;
 		location.impl.vertexRows = 0;
 	}
 	else {
-		Kinc_Internal_ShaderConstant constant = vertexShader->constants[name];
-		location.impl.vertexOffset = constant.offset;
-		location.impl.vertexSize = constant.size;
-		location.impl.vertexColumns = constant.columns;
-		location.impl.vertexRows = constant.rows;
+		location.impl.vertexOffset = constant->offset;
+		location.impl.vertexSize = constant->size;
+		location.impl.vertexColumns = constant->columns;
+		location.impl.vertexRows = constant->rows;
 	}
 
-	if (fragmentShader->constants.find(name) == fragmentShader->constants.end()) {
+	constant = findConstant(state->fragmentShader->impl.constants, hash);
+	if (constant == NULL) {
 		location.impl.fragmentOffset = 0;
 		location.impl.fragmentSize = 0;
 		location.impl.fragmentColumns = 0;
 		location.impl.fragmentRows = 0;
 	}
 	else {
-		Kinc_Internal_ShaderConstant constant = fragmentShader->constants[name];
-		location.impl.fragmentOffset = constant.offset;
-		location.impl.fragmentSize = constant.size;
-		location.impl.fragmentColumns = constant.columns;
-		location.impl.fragmentRows = constant.rows;
+		location.impl.fragmentOffset = constant->offset;
+		location.impl.fragmentSize = constant->size;
+		location.impl.fragmentColumns = constant->columns;
+		location.impl.fragmentRows = constant->rows;
 	}
 
-	if (geometryShader == nullptr || geometryShader->constants.find(name) == geometryShader->constants.end()) {
+	constant = state->geometryShader == NULL ? NULL : findConstant(state->geometryShader->impl.constants, hash);
+	if (constant == NULL) {
 		location.impl.geometryOffset = 0;
 		location.impl.geometrySize = 0;
 		location.impl.geometryColumns = 0;
 		location.impl.geometryRows = 0;
 	}
 	else {
-		Kinc_Internal_ShaderConstant constant = geometryShader->constants[name];
-		location.impl.geometryOffset = constant.offset;
-		location.impl.geometrySize = constant.size;
-		location.impl.geometryColumns = constant.columns;
-		location.impl.geometryRows = constant.rows;
+		location.impl.geometryOffset = constant->offset;
+		location.impl.geometrySize = constant->size;
+		location.impl.geometryColumns = constant->columns;
+		location.impl.geometryRows = constant->rows;
 	}
 
-	if (tessellationControlShader == nullptr || tessellationControlShader->constants.find(name) == tessellationControlShader->constants.end()) {
+	constant = state->tessellationControlShader == NULL ? NULL : findConstant(state->tessellationControlShader->impl.constants, hash);
+	if (constant == NULL) {
 		location.impl.tessControlOffset = 0;
 		location.impl.tessControlSize = 0;
 		location.impl.tessControlColumns = 0;
 		location.impl.tessControlRows = 0;
 	}
 	else {
-		Kinc_Internal_ShaderConstant constant = tessellationControlShader->constants[name];
-		location.impl.tessControlOffset = constant.offset;
-		location.impl.tessControlSize = constant.size;
-		location.impl.tessControlColumns = constant.columns;
-		location.impl.tessControlRows = constant.rows;
+		location.impl.tessControlOffset = constant->offset;
+		location.impl.tessControlSize = constant->size;
+		location.impl.tessControlColumns = constant->columns;
+		location.impl.tessControlRows = constant->rows;
 	}
 
-	if (tessellationEvaluationShader == nullptr || tessellationEvaluationShader->constants.find(name) == tessellationEvaluationShader->constants.end()) {
+	constant = state->tessellationEvaluationShader == NULL ? NULL : findConstant(state->tessellationEvaluationShader->impl.constants, hash);
+	if (constant == NULL) {
 		location.impl.tessEvalOffset = 0;
 		location.impl.tessEvalSize = 0;
 		location.impl.tessEvalColumns = 0;
 		location.impl.tessEvalRows = 0;
 	}
 	else {
-		Kinc_Internal_ShaderConstant constant = tessellationEvaluationShader->constants[name];
-		location.impl.tessEvalOffset = constant.offset;
-		location.impl.tessEvalSize = constant.size;
-		location.impl.tessEvalColumns = constant.columns;
-		location.impl.tessEvalRows = constant.rows;
+		location.impl.tessEvalOffset = constant->offset;
+		location.impl.tessEvalSize = constant->size;
+		location.impl.tessEvalColumns = constant->columns;
+		location.impl.tessEvalRows = constant->rows;
 	}
 
-	if (location.vertexSize == 0 && location.fragmentSize == 0 && location.geometrySize == 0 && location.tessControlSize && location.tessEvalSize == 0) {
-		log(Warning, "Uniform %s not found.", name);
+	if (location.impl.vertexSize == 0 && location.impl.fragmentSize == 0 && location.impl.geometrySize == 0 && location.impl.tessControlSize && location.impl.tessEvalSize == 0) {
+		Kinc_Log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
 	}
 
 	return location;
@@ -289,11 +302,11 @@ Kinc_G4_TextureUnit Kinc_G4_PipelineState_GetTextureUnit(Kinc_G4_PipelineState *
 	size_t len = strlen(name);
 	if (len > 63) len = 63;
 	strncpy(unitName, name, len + 1);
-	if (unitName[len - 1] == ']') { // Check for array - mySampler[2]
+	if (unitName[len - 1] == ']') {                // Check for array - mySampler[2]
 		unitOffset = int(unitName[len - 2] - '0'); // Array index is unit offset
-		unitName[len - 3] = 0; // Strip array from name
+		unitName[len - 3] = 0;                     // Strip array from name
 	}
-	
+
 	Kinc_G4_TextureUnit unit;
 	if (vertexShader->textures.find(unitName) == vertexShader->textures.end()) {
 		if (fragmentShader->textures.find(unitName) == fragmentShader->textures.end()) {
@@ -332,7 +345,7 @@ namespace {
 		return ret;
 	}
 
-	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC& vertexDesc, int attributeIndex, int index, int stream, bool instanced, int subindex = -1) {
+	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC &vertexDesc, int attributeIndex, int index, int stream, bool instanced, int subindex = -1) {
 		if (subindex < 0) {
 			vertexDesc.SemanticName = "TEXCOORD";
 			vertexDesc.SemanticIndex = attributeIndex;
@@ -359,7 +372,7 @@ namespace {
 namespace {
 	const int usedCount = 32;
 
-	int getAttributeLocation(std::map<std::string, int>& attributes, const char* name, bool* used) {
+	int getAttributeLocation(std::map<std::string, int> &attributes, const char *name, bool *used) {
 		if (attributes.find(name) != attributes.end()) {
 			return attributes[name];
 		}
@@ -374,11 +387,9 @@ namespace {
 		return 0;
 	}
 
-	void createRenderTargetBlendDesc(Graphics4::PipelineState* pipe, D3D11_RENDER_TARGET_BLEND_DESC* rtbd, int targetNum) {
-		rtbd->BlendEnable = pipe->blendSource != Graphics4::BlendOne ||
-		                    pipe->blendDestination != Graphics4::BlendZero ||
-		                    pipe->alphaBlendSource != Graphics4::BlendOne ||
-		                    pipe->alphaBlendDestination != Graphics4::BlendZero;
+	void createRenderTargetBlendDesc(Graphics4::PipelineState *pipe, D3D11_RENDER_TARGET_BLEND_DESC *rtbd, int targetNum) {
+		rtbd->BlendEnable = pipe->blendSource != Graphics4::BlendOne || pipe->blendDestination != Graphics4::BlendZero ||
+		                    pipe->alphaBlendSource != Graphics4::BlendOne || pipe->alphaBlendDestination != Graphics4::BlendZero;
 		rtbd->SrcBlend = convert(pipe->blendSource);
 		rtbd->DestBlend = convert(pipe->blendDestination);
 		rtbd->BlendOp = D3D11_BLEND_OP_ADD;
@@ -387,28 +398,27 @@ namespace {
 		rtbd->BlendOpAlpha = D3D11_BLEND_OP_ADD;
 		rtbd->RenderTargetWriteMask = (((pipe->colorWriteMaskRed[targetNum] ? D3D11_COLOR_WRITE_ENABLE_RED : 0) |
 		                                (pipe->colorWriteMaskGreen[targetNum] ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
-		                                (pipe->colorWriteMaskBlue[targetNum] ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
-		                                (pipe->colorWriteMaskAlpha[targetNum] ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+		                               (pipe->colorWriteMaskBlue[targetNum] ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		                              (pipe->colorWriteMaskAlpha[targetNum] ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
 	}
 }
 
 void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
 	if (vertexShader->constantsSize > 0)
 		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(vertexShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                                       &vertexConstantBuffer));
+		                                           &vertexConstantBuffer));
 	if (fragmentShader->constantsSize > 0)
 		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(fragmentShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                                       &fragmentConstantBuffer));
+		                                           &fragmentConstantBuffer));
 	if (geometryShader != nullptr && geometryShader->constantsSize > 0)
 		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(geometryShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                                       &geometryConstantBuffer));
+		                                           &geometryConstantBuffer));
 	if (tessellationControlShader != nullptr && tessellationControlShader->constantsSize > 0)
 		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(tessellationControlShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                                       nullptr, &tessControlConstantBuffer));
+		                                           nullptr, &tessControlConstantBuffer));
 	if (tessellationEvaluationShader != nullptr && tessellationEvaluationShader->constantsSize > 0)
 		Kinc_Microsoft_Affirm(device->CreateBuffer(
-		    &CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                                       nullptr, &tessEvalConstantBuffer));
+		    &CD3D11_BUFFER_DESC(getMultipleOf16(tessellationEvaluationShader->constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &tessEvalConstantBuffer));
 
 	int all = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
@@ -428,7 +438,7 @@ void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
 		used[attribute.second] = true;
 	}
 	stringCacheIndex = 0;
-	D3D11_INPUT_ELEMENT_DESC* vertexDesc = (D3D11_INPUT_ELEMENT_DESC*)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
+	D3D11_INPUT_ELEMENT_DESC *vertexDesc = (D3D11_INPUT_ELEMENT_DESC *)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
 	int i = 0;
 	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
 		for (int index = 0; index < inputLayout[stream]->size; ++index) {
@@ -485,8 +495,7 @@ void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
 				int attributeLocation = getAttributeLocation(vertexShader->attributes, name, used);
 
 				for (int i2 = 0; i2 < 4; ++i2) {
-					setVertexDesc(vertexDesc[i], attributeLocation, index + i2, stream,
-					              inputLayout[stream]->instanced, i2);
+					setVertexDesc(vertexDesc[i], attributeLocation, index + i2, stream, inputLayout[stream]->instanced, i2);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 					++i;
 				}
@@ -543,10 +552,8 @@ void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
 	{
 		bool independentBlend = false;
 		for (int i = 1; i < 8; ++i) {
-			if (colorWriteMaskRed[0] != colorWriteMaskRed[i] ||
-			    colorWriteMaskGreen[0] != colorWriteMaskGreen[i] ||
-			    colorWriteMaskBlue[0] != colorWriteMaskBlue[i] ||
-			    colorWriteMaskAlpha[0] != colorWriteMaskAlpha[i]) {
+			if (colorWriteMaskRed[0] != colorWriteMaskRed[i] || colorWriteMaskGreen[0] != colorWriteMaskGreen[i] ||
+			    colorWriteMaskBlue[0] != colorWriteMaskBlue[i] || colorWriteMaskAlpha[0] != colorWriteMaskAlpha[i]) {
 				independentBlend = true;
 				break;
 			}

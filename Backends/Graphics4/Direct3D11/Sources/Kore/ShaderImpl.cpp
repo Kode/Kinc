@@ -34,7 +34,7 @@ void Kinc_G4_Shader_Destroy(Kinc_G4_Shader *shader) {
 }
 
 // djb2
-static uint32_t hash(unsigned char *str) {
+uint32_t Kinc_Internal_HashName(unsigned char *str) {
 	unsigned long hash = 5381;
 	int c;
 	while (c = *str++) {
@@ -56,7 +56,7 @@ void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *_data, int length, Kinc
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		shader->impl.attributes[i].hash = hash(name);
+		shader->impl.attributes[i].hash = Kinc_Internal_HashName(name);
 		shader->impl.attributes[i].index = data[index++];
 	}
 
@@ -68,7 +68,7 @@ void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *_data, int length, Kinc
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		shader->impl.textures[i].hash = hash(name);
+		shader->impl.textures[i].hash = Kinc_Internal_HashName(name);
 		shader->impl.textures[i].index = data[index++];
 	}
 
@@ -82,7 +82,7 @@ void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *_data, int length, Kinc
 			if (name[i2] == 0) break;
 		}
 		Kinc_Internal_ShaderConstant constant;
-		constant.hash = hash(name);
+		constant.hash = Kinc_Internal_HashName(name);
 		constant.offset = *(uint32_t*)&data[index];
 		index += 4;
 		constant.size = *(uint32_t*)&data[index];

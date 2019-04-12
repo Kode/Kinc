@@ -59,6 +59,8 @@ typedef struct {
 	bool vertex;
 } Kinc_G4_TextureUnitImpl;
 
+uint32_t Kinc_Internal_HashName(unsigned char *str);
+
 #ifdef __cplusplus
 }
 #endif
