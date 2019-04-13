@@ -28,7 +28,11 @@ bool Mouse::canLock(int windowId) {
 }
 
 void Mouse::show(bool truth) {
-	ShowCursor(truth);
+  // Work around the internal counter of ShowCursor
+	if (truth)
+		while (ShowCursor(truth) < 0);
+	else
+		while (ShowCursor(truth) >= 0);
 }
 
 void Mouse::setPosition(int windowId, int x, int y) {
