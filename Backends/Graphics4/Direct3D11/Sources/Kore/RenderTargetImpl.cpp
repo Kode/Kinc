@@ -9,42 +9,62 @@
 
 using namespace Kore;
 
+namespace {
+	DXGI_FORMAT convertFormat(Graphics4::RenderTargetFormat format) {
+		switch (format) {
+		case Graphics4::RenderTargetFormat::Target128BitFloat:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case Graphics4::RenderTargetFormat::Target64BitFloat:
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		case Graphics4::RenderTargetFormat::Target32BitRedFloat:
+			return DXGI_FORMAT_R32_FLOAT;
+		case Graphics4::RenderTargetFormat::Target16BitRedFloat:
+			return DXGI_FORMAT_R16_FLOAT;
+		case Graphics4::RenderTargetFormat::Target8BitRed:
+			return DXGI_FORMAT_R8_UNORM;
+		case Graphics4::RenderTargetFormat::Target32Bit:
+		default:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		}
+	}
+
+	int formatByteSize(Graphics4::RenderTargetFormat format) {
+		switch (format) {
+		case Graphics4::RenderTargetFormat::Target128BitFloat:
+			return 16;
+		case Graphics4::RenderTargetFormat::Target64BitFloat:
+			return 8;
+		case Graphics4::RenderTargetFormat::Target32BitRedFloat:
+			return 4;
+		case Graphics4::RenderTargetFormat::Target16BitRedFloat:
+			return 2;
+		case Graphics4::RenderTargetFormat::Target8BitRed:
+			return 1;
+		case Graphics4::RenderTargetFormat::Target32Bit:
+		default:
+			return 4;
+		}
+	}
+}
+
 Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
                                       int contextId)
     : isCubeMap(false), isDepthAttachment(false) {
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 	this->contextId = contextId;
+	this->format = format;
+	this->textureStaging = nullptr;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;
 	desc.MipLevels = desc.ArraySize = 1;
-
-	switch (format) {
-	case Target128BitFloat:
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		break;
-	case Target64BitFloat:
-		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		break;
-	case Target32BitRedFloat:
-		desc.Format = DXGI_FORMAT_R32_FLOAT;
-		break;
-	case Target16BitRedFloat:
-		desc.Format = DXGI_FORMAT_R16_FLOAT;
-		break;
-	case Target8BitRed:
-		desc.Format = DXGI_FORMAT_R8_UNORM;
-		break;
-	case Target16BitDepth:
+	desc.Format = convertFormat(format);
+	if (format == Target16BitDepth) {
 		isDepthAttachment = true;
 		depthBufferBits = 16;
 		stencilBufferBits = 0;
-		break;
-	case Target32Bit:
-	default:
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
 
 	if (antialiasing) {
@@ -157,37 +177,19 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	this->texWidth = this->width = width;
 	this->texHeight = this->height = height;
 	this->contextId = contextId;
+	this->format = format;
+	this->textureStaging = nullptr;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 6;
-
-	switch (format) {
-	case Target128BitFloat:
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		break;
-	case Target64BitFloat:
-		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		break;
-	case Target32BitRedFloat:
-		desc.Format = DXGI_FORMAT_R32_FLOAT;
-		break;
-	case Target16BitRedFloat:
-		desc.Format = DXGI_FORMAT_R16_FLOAT;
-		break;
-	case Target8BitRed:
-		desc.Format = DXGI_FORMAT_R8_UNORM;
-		break;
-	case Target16BitDepth:
+	desc.Format = convertFormat(format);
+	if (format == Target16BitDepth) {
 		isDepthAttachment = true;
 		depthBufferBits = 16;
 		stencilBufferBits = 0;
-		break;
-	case Target32Bit:
-	default:
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
 
 	if (antialiasing) {
@@ -327,6 +329,7 @@ Graphics4::RenderTarget::~RenderTarget() {
 	if (renderTargetSRV != nullptr) renderTargetSRV->Release();
 	if (depthStencilSRV != nullptr) depthStencilSRV->Release();
 	if (textureRender != nullptr) textureRender->Release();
+	if (textureStaging != nullptr) textureStaging->Release();
 }
 
 void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
@@ -351,21 +354,21 @@ void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
 }
 
 void Graphics4::RenderTarget::getPixels(u8* data) {
-	D3D11_TEXTURE2D_DESC desc;
-	desc.Width = texWidth;
-	desc.Height = texHeight;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_STAGING;
-	desc.BindFlags = 0;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	desc.MiscFlags = 0;
-
-	ID3D11Texture2D* textureStaging;
-	Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &textureStaging));
+	if (textureStaging == nullptr) {
+		D3D11_TEXTURE2D_DESC desc;
+		desc.Width = texWidth;
+		desc.Height = texHeight;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = convertFormat((RenderTargetFormat)this->format);
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.BindFlags = 0;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		desc.MiscFlags = 0;
+		Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &textureStaging));
+	}
 
 	D3D11_BOX sourceRegion;
 	sourceRegion.left = 0;
@@ -378,10 +381,8 @@ void Graphics4::RenderTarget::getPixels(u8* data) {
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	context->Map(textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
-	memcpy(data, mappedResource.pData, texWidth * texHeight * 4);
+	memcpy(data, mappedResource.pData, texWidth * texHeight * formatByteSize((RenderTargetFormat)this->format));
 	context->Unmap(textureStaging, 0);
-
-	if (textureStaging != nullptr) textureStaging->Release();
 }
 
 void Graphics4::RenderTarget::generateMipmaps(int levels) {}
