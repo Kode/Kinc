@@ -5,6 +5,7 @@
 #include <Kinc/Graphics4/PipelineState.h>
 #include <Kinc/Graphics4/Shader.h>
 #include <Kinc/Graphics4/VertexBuffer.h>
+#include <Kinc/Graphics4/VertexBuffer.h>
 #include <Kinc/Log.h>
 
 #include <Kore/SystemMicrosoft.h>
@@ -24,6 +25,7 @@ static D3D11_CULL_MODE convert_cull_mode(Kinc_G4_CullMode cullMode) {
 		return D3D11_CULL_NONE;
 	default:
 		assert(false);
+		return D3D11_CULL_NONE;
 	}
 }
 
@@ -386,29 +388,33 @@ namespace {
 namespace {
 	const int usedCount = 32;
 
-	int getAttributeLocation(std::map<std::string, int> &attributes, const char *name, bool *used) {
-		if (attributes.find(name) != attributes.end()) {
-			return attributes[name];
-		}
-		else {
-			for (int i = 0; i < usedCount; ++i) {
-				if (!used[i]) {
-					used[i] = true;
-					return i;
-				}
+	int getAttributeLocation(Kinc_Internal_HashIndex *attributes, const char *name, bool *used) {
+		uint32_t hash = Kinc_Internal_HashName((unsigned char *)name);
+
+		for (int i = 0; i < 64; ++i) {
+			if (attributes[i].hash == hash) {
+				return attributes[i].index;
 			}
 		}
+		
+		for (int i = 0; i < usedCount; ++i) {
+			if (!used[i]) {
+				used[i] = true;
+				return i;
+			}
+		}
+	
 		return 0;
 	}
 
-	void createRenderTargetBlendDesc(Graphics4::PipelineState *pipe, D3D11_RENDER_TARGET_BLEND_DESC *rtbd, int targetNum) {
-		rtbd->BlendEnable = pipe->blendSource != Graphics4::BlendOne || pipe->blendDestination != Graphics4::BlendZero ||
-		                    pipe->alphaBlendSource != Graphics4::BlendOne || pipe->alphaBlendDestination != Graphics4::BlendZero;
-		rtbd->SrcBlend = convert(pipe->blendSource);
-		rtbd->DestBlend = convert(pipe->blendDestination);
+	void createRenderTargetBlendDesc(Kinc_G4_PipelineState *pipe, D3D11_RENDER_TARGET_BLEND_DESC *rtbd, int targetNum) {
+		rtbd->BlendEnable = pipe->blendSource != KINC_G4_BLEND_ONE || pipe->blendDestination != KINC_G4_BLEND_ZERO ||
+		                    pipe->alphaBlendSource != KINC_G4_BLEND_ONE || pipe->alphaBlendDestination != KINC_G4_BLEND_ZERO;
+		rtbd->SrcBlend = convert_blend_operation(pipe->blendSource);
+		rtbd->DestBlend = convert_blend_operation(pipe->blendDestination);
 		rtbd->BlendOp = D3D11_BLEND_OP_ADD;
-		rtbd->SrcBlendAlpha = convert(pipe->alphaBlendSource);
-		rtbd->DestBlendAlpha = convert(pipe->alphaBlendDestination);
+		rtbd->SrcBlendAlpha = convert_blend_operation(pipe->alphaBlendSource);
+		rtbd->DestBlendAlpha = convert_blend_operation(pipe->alphaBlendDestination);
 		rtbd->BlendOpAlpha = D3D11_BLEND_OP_ADD;
 		rtbd->RenderTargetWriteMask = (((pipe->colorWriteMaskRed[targetNum] ? D3D11_COLOR_WRITE_ENABLE_RED : 0) |
 		                                (pipe->colorWriteMaskGreen[targetNum] ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
@@ -437,7 +443,7 @@ void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
 	int all = 0;
 	for (int stream = 0; state->inputLayout[stream] != NULL; ++stream) {
 		for (int index = 0; index < state->inputLayout[stream]->size; ++index) {
-			if (state->inputLayout[stream]->elements[index].data == Float4x4VertexData) {
+			if (state->inputLayout[stream]->elements[index].data == KINC_G4_VERTEX_DATA_FLOAT4X4) {
 				all += 4;
 			}
 			else {
@@ -448,8 +454,8 @@ void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
 
 	bool used[usedCount];
 	for (int i = 0; i < usedCount; ++i) used[i] = false;
-	for (auto attribute : state->vertexShader->impl.attributes) {
-		used[attribute.second] = true;
+	for (int i = 0; i < 64; ++i) {
+		used[state->vertexShader->impl.attributes[i].index] = true;
 	}
 	stringCacheIndex = 0;
 	D3D11_INPUT_ELEMENT_DESC *vertexDesc = (D3D11_INPUT_ELEMENT_DESC *)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
@@ -458,58 +464,58 @@ void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
 		for (int index = 0; index < state->inputLayout[stream]->size; ++index) {
 			switch (state->inputLayout[stream]->elements[index].data) {
 			case KINC_G4_VERTEX_DATA_FLOAT1:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, state->inputLayout[stream]->elements[index].name, used), index, stream,
-				              inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(state->vertexShader->impl.attributes, state->inputLayout[stream]->elements[index].name, used), index, stream,
+				              state->inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_FLOAT2:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
-				              inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(state->vertexShader->impl.attributes, state->inputLayout[stream]->elements[index].name, used), index, stream,
+				              state->inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_FLOAT3:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
-				              inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(state->vertexShader->impl.attributes, state->inputLayout[stream]->elements[index].name, used), index, stream,
+				              state->inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_FLOAT4:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
-				              inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(state->vertexShader->impl.attributes, state->inputLayout[stream]->elements[index].name, used), index, stream,
+				              state->inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
-				              inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(state->vertexShader->impl.attributes, state->inputLayout[stream]->elements[index].name, used), index, stream,
+				              state->inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16_SNORM;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
-				              inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(state->vertexShader->impl.attributes, state->inputLayout[stream]->elements[index].name, used), index, stream,
+				              state->inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_COLOR:
-				setVertexDesc(vertexDesc[i], getAttributeLocation(vertexShader->attributes, inputLayout[stream]->elements[index].name, used), index, stream,
-				              inputLayout[stream]->instanced);
+				setVertexDesc(vertexDesc[i], getAttributeLocation(state->vertexShader->impl.attributes, state->inputLayout[stream]->elements[index].name, used), index, stream,
+				              state->inputLayout[stream]->instanced);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_FLOAT4X4:
 				char name[101];
-				strcpy(name, inputLayout[stream]->elements[index].name);
+				strcpy(name, state->inputLayout[stream]->elements[index].name);
 				strcat(name, "_");
 				size_t length = strlen(name);
 				_itoa(0, &name[length], 10);
 				name[length + 1] = 0;
-				int attributeLocation = getAttributeLocation(vertexShader->attributes, name, used);
+				int attributeLocation = getAttributeLocation(state->vertexShader->impl.attributes, name, used);
 
 				for (int i2 = 0; i2 < 4; ++i2) {
-					setVertexDesc(vertexDesc[i], attributeLocation, index + i2, stream, inputLayout[stream]->instanced, i2);
+					setVertexDesc(vertexDesc[i], attributeLocation, index + i2, stream, state->inputLayout[stream]->instanced, i2);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 					++i;
 				}

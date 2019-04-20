@@ -29,7 +29,7 @@ void Kinc_G4_VertexElement_Create(Kinc_G4_VertexElement *element, const char *na
 
 #define KINC_G4_MAX_VERTEX_ELEMENTS 16
 
-typedef struct {
+typedef struct _Kinc_G4_VertexStructure {
 	Kinc_G4_VertexElement elements[KINC_G4_MAX_VERTEX_ELEMENTS];
 	int size;
 	bool instanced;
