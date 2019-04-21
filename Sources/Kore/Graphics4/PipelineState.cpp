@@ -63,9 +63,9 @@ void Graphics4::PipelineState::compile() {
 
 	kincPipeline.vertexShader = &vertexShader->kincShader;
 	kincPipeline.fragmentShader = &fragmentShader->kincShader;
-	kincPipeline.geometryShader = &geometryShader->kincShader;
-	kincPipeline.tessellationControlShader = &tessellationControlShader->kincShader;
-	kincPipeline.tessellationEvaluationShader = &tessellationEvaluationShader->kincShader;
+	kincPipeline.geometryShader = geometryShader == nullptr ? nullptr : &geometryShader->kincShader;
+	kincPipeline.tessellationControlShader = tessellationControlShader == nullptr ? nullptr : &tessellationControlShader->kincShader;
+	kincPipeline.tessellationEvaluationShader = tessellationEvaluationShader == nullptr ? nullptr : &tessellationEvaluationShader->kincShader;
 
 	kincPipeline.cullMode = (Kinc_G4_CullMode)cullMode;
 

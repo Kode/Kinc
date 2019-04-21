@@ -125,6 +125,7 @@ void Kinc_Internal_SetConstants(void) {
 }
 
 void Kinc_G4_PipelineState_Create(Kinc_G4_PipelineState *state) {
+	memset(state, 0, sizeof(Kinc_G4_PipelineState));
 	state->impl.d3d11inputLayout = nullptr;
 	state->impl.fragmentConstantBuffer = nullptr;
 	state->impl.vertexConstantBuffer = nullptr;
