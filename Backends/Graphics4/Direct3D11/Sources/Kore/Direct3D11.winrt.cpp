@@ -518,7 +518,7 @@ void Kinc_G4_Clear(unsigned flags, unsigned color, float depth, int stencil) {
 	}
 	if (currentDepthStencilView != nullptr && (flags & KINC_G4_CLEAR_DEPTH) || (flags & KINC_G4_CLEAR_STENCIL)) {
 		unsigned d3dflags = ((flags & KINC_G4_CLEAR_DEPTH) ? D3D11_CLEAR_DEPTH : 0) | ((flags & KINC_G4_CLEAR_STENCIL) ? D3D11_CLEAR_STENCIL : 0);
-		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, Kinc_Max(0.0f, Kinc_Min(1.0f, depth)), stencil);
+		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, Kinc_Clamp(depth, 0.0f, 1.0f), stencil);
 	}
 }
 

@@ -72,3 +72,15 @@ float Kinc_Atan(float value) {
 float Kinc_Atan2(float y, float x) {
 	return atan2f(y, x);
 }
+
+float Kinc_Min(float a, float b) {
+	return a > b ? b : a;
+}
+
+float Kinc_Max(float a, float b) {
+	return a > b ? a : b;
+}
+
+float Kinc_Clamp(float value, float minValue, float maxValue) {
+	return Kinc_Max(minValue, Kinc_Min(maxValue, value));
+}

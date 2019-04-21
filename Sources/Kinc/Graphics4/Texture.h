@@ -9,7 +9,7 @@ extern "C" {
 
 typedef Kinc_Image Kinc_G4_Image;
 
-typedef struct {
+typedef struct _Kinc_G4_Texture {
 	int texWidth;
 	int texHeight;
 	int texDepth;

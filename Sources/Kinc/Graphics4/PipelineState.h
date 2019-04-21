@@ -94,7 +94,7 @@ typedef struct _Kinc_G4_PipelineState {
 
 void Kinc_G4_PipelineState_Create(Kinc_G4_PipelineState *state);
 void Kinc_G4_PipelineState_Destroy(Kinc_G4_PipelineState *state);
-void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state);
+void Kinc_G4_PipelineState_Compile(Kinc_G4_PipelineState *state);
 Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_PipelineState *state, const char *name);
 Kinc_G4_TextureUnit Kinc_G4_PipelineState_GetTextureUnit(Kinc_G4_PipelineState *state, const char *name);
 

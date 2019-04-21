@@ -8,7 +8,7 @@
 using namespace Kore;
 
 #ifdef KORE_G5ONG4
-Graphics4::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
+/*Graphics4::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
 	init(format, readable);
 }
 
@@ -31,5 +31,21 @@ Graphics4::Texture::Texture(void* data, int width, int height, int format, bool 
 Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable)
     : Image(data, width, height, depth, Image::Format(format), readable) {
 	init3D(readable);
-}
+}*/
 #endif
+
+Graphics4::Texture::Texture(int width, int height, Graphics4::Image::Format format, bool readable) {
+	Kinc_G4_Texture_Create(&kincTexture, width, height, (Kinc_ImageFormat)format, readable);
+}
+
+uint8_t* Graphics4::Texture::lock() {
+	return Kinc_G4_Texture_Lock(&kincTexture);
+}
+
+void Graphics4::Texture::unlock() {
+	Kinc_G4_Texture_Unlock(&kincTexture);
+}
+
+int Graphics4::Texture::stride() {
+	return Kinc_G4_Texture_Stride(&kincTexture);
+}

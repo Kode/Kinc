@@ -5,13 +5,17 @@
 using namespace Kore;
 using namespace Kore::Graphics4;
 
+void Kore_Internal_ConvertVertexStructure(Kinc_G4_VertexStructure* target, const VertexStructure* source) {
+	for (int i = 0; i < source->size; ++i) {
+		Kinc_G4_VertexStructure_Add(target, source->elements[i].name, (Kinc_G4_VertexData)source->elements[i].data);
+	}
+	target->instanced = source->instanced;
+}
+
 VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate) {
 	Kinc_G4_VertexStructure kincStructure;
 	Kinc_G4_VertexStructure_Create(&kincStructure);
-	for (int i = 0; i < structure.size; ++i) {
-		Kinc_G4_VertexStructure_Add(&kincStructure, structure.elements[i].name, (Kinc_G4_VertexData)structure.elements[i].data);
-	}
-	kincStructure.instanced = structure.instanced;
+	Kore_Internal_ConvertVertexStructure(&kincStructure, &structure);
 	Kinc_G4_VertexBuffer_Create(&kincBuffer, count, &kincStructure, (Kinc_G4_Usage)usage, instanceDataStepRate);
 }
 

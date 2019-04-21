@@ -423,7 +423,7 @@ namespace {
 	}
 }
 
-void Kinc_G4_PipelineState_compile(Kinc_G4_PipelineState *state) {
+void Kinc_G4_PipelineState_Compile(Kinc_G4_PipelineState *state) {
 	if (state->vertexShader->impl.constantsSize > 0)
 		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->vertexShader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 		                                           &state->impl.vertexConstantBuffer));

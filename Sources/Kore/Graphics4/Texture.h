@@ -49,8 +49,8 @@ namespace Kore {
 			Kinc_G4_Texture kincTexture;
 
 		private:
-			void init(const char* format, bool readable = false);
-			void init3D(bool readable = false);
+			//void init(const char* format, bool readable = false);
+			//void init3D(bool readable = false);
 		};
 	}
 }
