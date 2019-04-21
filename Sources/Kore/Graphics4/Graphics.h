@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kinc/Graphics4/RenderTarget.h>
+
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexStructure.h"
@@ -99,7 +101,7 @@ namespace Kore {
 
 		enum TextureArgument { CurrentColorArgument, TextureColorArgument };
 
-		class RenderTarget : public RenderTargetImpl {
+		class RenderTarget {
 		public:
 			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit,
 			             int stencilBufferBits = -1, int contextId = 0);
@@ -118,6 +120,8 @@ namespace Kore {
 			void setDepthStencilFrom(RenderTarget* source);
 			void getPixels(u8* data);
 			void generateMipmaps(int levels);
+
+			Kinc_G4_RenderTarget kincRenderTarget;
 		};
 
 		void setBool(ConstantLocation location, bool value);

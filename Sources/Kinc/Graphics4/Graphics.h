@@ -86,7 +86,7 @@ void Kinc_G4_SetTextureAddressing(Kinc_G4_TextureUnit unit, Kinc_G4_TextureDirec
 
 void Kinc_G4_SetTexture3DAddressing(Kinc_G4_TextureUnit unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
 
-void Kinc_G4_SetPipeline(_Kinc_G4_PipelineState *pipeline);
+void Kinc_G4_SetPipeline(struct _Kinc_G4_PipelineState *pipeline);
 
 void Kinc_G4_SetStencilReferenceValue(int value);
 
@@ -124,13 +124,13 @@ bool Kinc_G4_NonPow2TexturesSupported();
 
 void Kinc_G4_RestoreRenderTarget();
 
-void Kinc_G4_SetRenderTargets(_Kinc_G4_RenderTarget **targets, int count);
+void Kinc_G4_SetRenderTargets(struct _Kinc_G4_RenderTarget **targets, int count);
 
-void Kinc_G4_SetRenderTargetFace(_Kinc_G4_RenderTarget *texture, int face);
+void Kinc_G4_SetRenderTargetFace(struct _Kinc_G4_RenderTarget *texture, int face);
 
-void Kinc_G4_SetTexture(Kinc_G4_TextureUnit unit, _Kinc_G4_Texture *texture);
+void Kinc_G4_SetTexture(Kinc_G4_TextureUnit unit, struct _Kinc_G4_Texture *texture);
 
-void Kinc_G4_SetImageTexture(Kinc_G4_TextureUnit unit, _Kinc_G4_Texture *texture);
+void Kinc_G4_SetImageTexture(Kinc_G4_TextureUnit unit, struct _Kinc_G4_Texture *texture);
 
 bool Kinc_G4_InitOcclusionQuery(unsigned *occlusionQuery);
 
@@ -144,7 +144,7 @@ bool Kinc_G4_AreQueryResultsAvailable(unsigned occlusionQuery);
 
 void Kinc_G4_GetQueryResults(unsigned occlusionQuery, unsigned *pixelCount);
 
-void Kinc_G4_SetTextureArray(Kinc_G4_TextureUnit unit, _Kinc_G4_TextureArray *array);
+void Kinc_G4_SetTextureArray(Kinc_G4_TextureUnit unit, struct _Kinc_G4_TextureArray *array);
 
 int Kinc_G4_AntialiasingSamples();
 

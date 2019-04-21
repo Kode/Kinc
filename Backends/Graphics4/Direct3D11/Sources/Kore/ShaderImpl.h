@@ -31,7 +31,6 @@ typedef struct {
 } Kinc_G4_ShaderImpl;
 
 typedef struct {
-public:
 	uint32_t vertexOffset;
 	uint32_t vertexSize;
 	uint32_t fragmentOffset;

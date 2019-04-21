@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Kinc/Graphics4/TextureUnit.h>
+#include <Kinc/Graphics4/Texture.h>
+
 #include <Kore/Graphics1/Image.h>
 #include <Kore/TextureImpl.h>
 
@@ -7,9 +10,12 @@ namespace Kore {
 	namespace Graphics3 {
 		typedef Graphics1::Image Image;
 
-		class TextureUnit : public TextureUnitImpl {};
+		class TextureUnit {
+		public:
+			Kinc_G4_TextureUnit kincUnit;
+		};
 
-		class Texture : public Image, public TextureImpl {
+		class Texture : public Image {
 		public:
 			Texture(int width, int height, Format format, bool readable);
 			Texture(int width, int height, int depth, Format format, bool readable = false);
@@ -34,6 +40,8 @@ namespace Kore {
 			int stride();
 			int texWidth;
 			int texHeight;
+
+			Kinc_G4_Texture kincTexture;
 
 		private:
 			void init(const char* format, bool readable = false);

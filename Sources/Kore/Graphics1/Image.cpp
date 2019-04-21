@@ -13,9 +13,10 @@
 #include <Kore/IO/Reader.h>
 #include <Kore/Log.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <Kinc/Graphics1/stb_image.h>
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 using namespace Kore;

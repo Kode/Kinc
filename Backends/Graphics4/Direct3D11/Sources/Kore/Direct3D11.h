@@ -2,6 +2,8 @@
 
 #include <Kinc/Graphics4/Graphics.h>
 
+#define NOMINMAX
+
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
 #else

@@ -240,8 +240,8 @@ void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
 	ID3D11ShaderResourceView* nullView = nullptr;
 	context->PSSetShaderResources(0, 1, &nullView);
-
-	context->CSSetUnorderedAccessViews(unit.unit, 1, &texture->computeView, nullptr);
+	
+	context->CSSetUnorderedAccessViews(unit.unit, 1, &texture->kincTexture.impl.computeView, nullptr);
 }
 
 void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {}
