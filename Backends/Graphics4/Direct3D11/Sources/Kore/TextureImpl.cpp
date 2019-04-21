@@ -1,77 +1,82 @@
 #include "pch.h"
 
 #include "Direct3D11.h"
-#include "TextureImpl.h"
+
+#include <Kinc/Graphics4/Texture.h>
+#include <Kinc/Graphics4/TextureUnit.h>
+
 #include <Kore/Math/Random.h>
 #include <Kore/SystemMicrosoft.h>
 
+#include <assert.h>
+
 using namespace Kore;
 
-namespace {
-	Graphics4::Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-	                                       nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+static Kinc_G4_Texture *setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	                                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-	DXGI_FORMAT convertFormat(Graphics4::Image::Format format) {
-		switch (format) {
-		case Graphics4::Image::BGRA32:
-			return DXGI_FORMAT_B8G8R8A8_UNORM;
-		case Graphics4::Image::RGBA128:
-			return DXGI_FORMAT_R32G32B32A32_FLOAT;
-		case Graphics4::Image::RGBA64:
-			return DXGI_FORMAT_R16G16B16A16_FLOAT;
-		case Graphics4::Image::RGB24:
-			return DXGI_FORMAT_R8G8B8A8_UNORM;
-		case Graphics4::Image::A32:
-			return DXGI_FORMAT_R32_FLOAT;
-		case Graphics4::Image::A16:
-			return DXGI_FORMAT_R16_FLOAT;
-		case Graphics4::Image::Grey8:
-			return DXGI_FORMAT_R8_UNORM;
-		case Graphics4::Image::RGBA32:
-		default:
-			return DXGI_FORMAT_R8G8B8A8_UNORM;
-		}
-	}
-
-	int formatByteSize(Graphics4::Image::Format format) {
-		switch (format) {
-		case Graphics4::Image::RGBA128:
-			return 16;
-		case Graphics4::Image::RGBA64:
-			return 8;
-		case Graphics4::Image::RGB24:
-			return 4;
-		case Graphics4::Image::A32:
-			return 4;
-		case Graphics4::Image::A16:
-			return 2;
-		case Graphics4::Image::Grey8:
-			return 1;
-		case Graphics4::Image::BGRA32:
-		case Graphics4::Image::RGBA32:
-		default:
-			return 4;
-		}
-	}
-
-	bool isHdr(Graphics4::Image::Format format) {
-		return format == Graphics4::Image::RGBA128 || format == Graphics4::Image::RGBA64 ||
-			   format == Graphics4::Image::A32 || format == Graphics4::Image::A16;
+static DXGI_FORMAT convertFormat(Kinc_ImageFormat format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return DXGI_FORMAT_R16G16B16A16_FLOAT;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	case KINC_IMAGE_FORMAT_A32:
+		return DXGI_FORMAT_R32_FLOAT;
+	case KINC_IMAGE_FORMAT_A16:
+		return DXGI_FORMAT_R16_FLOAT;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return DXGI_FORMAT_R8_UNORM;
+	case KINC_IMAGE_FORMAT_BGRA32:
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	default:
+		assert(false);
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
 }
 
-void Graphics4::Texture::init(const char* format, bool readable) {
-	setId();
-	stage = 0;
-	texWidth = width;
-	texHeight = height;
-	rowPitch = 0;
+static int formatByteSize(Kinc_ImageFormat format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return 16;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return 8;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return 4;
+	case KINC_IMAGE_FORMAT_A32:
+		return 4;
+	case KINC_IMAGE_FORMAT_A16:
+		return 2;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return 1;
+	case KINC_IMAGE_FORMAT_BGRA32:
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return 4;
+	default:
+		assert(false);
+		return 4;
+	}
+}
+
+static bool isHdr(Kinc_ImageFormat format) {
+	return format == KINC_IMAGE_FORMAT_RGBA128 || format == KINC_IMAGE_FORMAT_RGBA64 || format == KINC_IMAGE_FORMAT_A32 || format == KINC_IMAGE_FORMAT_A16;
+}
+
+static void init_texture(Kinc_G4_Texture *texture, Kinc_ImageFormat format, bool readable) {
+	texture->impl.stage = 0;
+	texture->texWidth = texture->image.width;
+	texture->texHeight = texture->image.height;
+	texture->impl.rowPitch = 0;
 
 	D3D11_TEXTURE2D_DESC desc;
-	desc.Width = width;
-	desc.Height = height;
+	desc.Width = texture->image.width;
+	desc.Height = texture->image.height;
 	desc.MipLevels = desc.ArraySize = 1;
-	desc.Format = convertFormat(this->format);
+	desc.Format = convertFormat(texture->image.format);
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
@@ -80,71 +85,71 @@ void Graphics4::Texture::init(const char* format, bool readable) {
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = isHdr(this->format) ? (void*)this->hdrData : this->data;
-	data.SysMemPitch = width * formatByteSize(this->format);
+	data.pSysMem = isHdr(texture->image.format) ? (void*)texture->image.hdrData : texture->image.data;
+	data.SysMemPitch = texture->image.width * formatByteSize(texture->image.format);
 	data.SysMemSlicePitch = 0;
 
-	texture = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, &data, &texture));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	texture->impl.texture = nullptr;
+	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, &data, &texture->impl.texture));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture->impl.texture, nullptr, &texture->impl.view));
 
 	if (!readable) {
-		if (isHdr(this->format)) {
-			delete[] this->hdrData;
-			this->hdrData = nullptr;
+		if (isHdr(texture->image.format)) {
+			delete[] texture->image.hdrData;
+			texture->image.hdrData = nullptr;
 		}
 		else {
-			delete[] this->data;
-			this->data = nullptr;
+			delete[] texture->image.data;
+			texture->image.data = nullptr;
 		}
 	}
 }
 
-void Graphics4::Texture::init3D(bool readable) {
-	setId();
-	stage = 0;
-	texWidth = width;
-	texHeight = height;
-	texDepth = depth;
-	rowPitch = 0;
+static void init_texture3d(Kinc_G4_Texture *texture, bool readable) {
+	texture->impl.stage = 0;
+	texture->texWidth = texture->image.width;
+	texture->texHeight = texture->image.height;
+	texture->texDepth = texture->image.depth;
+	texture->impl.rowPitch = 0;
 
 	D3D11_TEXTURE3D_DESC desc;
-	desc.Width = width;
-	desc.Height = height;
-	desc.Depth = depth;
+	desc.Width = texture->image.width;
+	desc.Height = texture->image.height;
+	desc.Depth = texture->image.depth;
 	desc.MipLevels = 1;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MiscFlags = 0;
-	desc.Format = convertFormat(this->format);
+	desc.Format = convertFormat(texture->image.format);
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.CPUAccessFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = isHdr(this->format) ? (void*)this->hdrData : this->data;
-	data.SysMemPitch = width * formatByteSize(this->format);
-	data.SysMemSlicePitch = width * height * formatByteSize(this->format);
+	data.pSysMem = isHdr(texture->image.format) ? (void*)texture->image.hdrData : texture->image.data;
+	data.SysMemPitch = texture->image.width * formatByteSize(texture->image.format);
+	data.SysMemSlicePitch = texture->image.width * texture->image.height * formatByteSize(texture->image.format);
 
-	texture3D = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture3D(&desc, &data, &texture3D));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
+	texture->impl.texture3D = nullptr;
+	Kinc_Microsoft_Affirm(device->CreateTexture3D(&desc, &data, &texture->impl.texture3D));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
 
 	if (!readable) {
-		if (isHdr(this->format)) {
-			delete[] this->hdrData;
-			this->hdrData = nullptr;
+		if (isHdr(texture->image.format)) {
+			delete[] texture->image.hdrData;
+			texture->image.hdrData = nullptr;
 		}
 		else {
-			delete[] this->data;
-			this->data = nullptr;
+			delete[] texture->image.data;
+			texture->image.data = nullptr;
 		}
 	}
 }
 
-Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
-	stage = 0;
-	texWidth = width;
-	texHeight = height;
+void Kinc_G4_Texture_Create(Kinc_G4_Texture *texture, int width, int height, Kinc_ImageFormat format, bool readable) {
+	init_texture(texture, format, readable);
+	texture->impl.stage = 0;
+	texture->texWidth = width;
+	texture->texHeight = height;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -155,37 +160,38 @@ Graphics4::Texture::Texture(int width, int height, Image::Format format, bool re
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MiscFlags = 0;
 
-	if (format == Image::RGBA128) { // for compute
+	if (format == KINC_IMAGE_FORMAT_RGBA128) { // for compute
 		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
 		desc.CPUAccessFlags = 0;
 	}
 	else {
-		desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+		desc.Format = format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	}
 
-	texture = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &texture));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	texture->impl.texture = nullptr;
+	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &texture->impl.texture));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture->impl.texture, nullptr, &texture->impl.view));
 
-	if (format == Image::RGBA128) {
+	if (format == KINC_IMAGE_FORMAT_RGBA128) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
 		du.Format = desc.Format;
 		du.Texture2D.MipSlice = 0;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE2D;
-		Kinc_Microsoft_Affirm(device->CreateUnorderedAccessView(texture, &du, &computeView));
+		Kinc_Microsoft_Affirm(device->CreateUnorderedAccessView(texture->impl.texture, &du, &texture->impl.computeView));
 	}
 }
 
-Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
-	stage = 0;
-	texWidth = width;
-	texHeight = height;
-	texDepth = depth;
-	hasMipmaps = true;
+void Kinc_G4_TextureCreate3D(Kinc_G4_Texture *texture, int width, int height, int depth, Kinc_ImageFormat format, bool readable) {
+	init_texture3d(texture, readable);
+	texture->impl.stage = 0;
+	texture->texWidth = width;
+	texture->texHeight = height;
+	texture->texDepth = depth;
+	texture->impl.hasMipmaps = true;
 
 	D3D11_TEXTURE3D_DESC desc;
 	desc.Width = width;
@@ -194,104 +200,106 @@ Graphics4::Texture::Texture(int width, int height, int depth, Image::Format form
 	desc.MipLevels = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-	desc.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+	desc.Format = format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.CPUAccessFlags = 0;
 
-	texture3D = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture3D(&desc, nullptr, &texture3D));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture3D, nullptr, &view));
+	texture->impl.texture3D = nullptr;
+	Kinc_Microsoft_Affirm(device->CreateTexture3D(&desc, nullptr, &texture->impl.texture3D));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
 }
 
-TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
+//TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
 
-TextureImpl::~TextureImpl() {
-	unset();
-	if (view != nullptr) {
-		view->Release();
+void Kinc_Internal_TextureUnset(Kinc_G4_Texture *texture);
+
+void Kinc_G4_Texture_Destroy(Kinc_G4_Texture *texture) {
+	Kinc_Internal_TextureUnset(texture);
+	if (texture->impl.view != nullptr) {
+		texture->impl.view->Release();
 	}
-	if (texture != nullptr) {
-		texture->Release();
+	if (texture->impl.texture != nullptr) {
+		texture->impl.texture->Release();
 	}
-	if (computeView != nullptr) {
-		computeView->Release();
+	if (texture->impl.computeView != nullptr) {
+		texture->impl.computeView->Release();
 	}
 }
 
-void TextureImpl::unmipmap() {
-	hasMipmaps = false;
+void Kinc_Internal_TextureUnmipmap(Kinc_G4_Texture *texture) {
+	texture->impl.hasMipmaps = false;
 }
 
-void Graphics4::Texture::_set(TextureUnit unit) {
-	if (unit.unit < 0) return;
-	if (unit.vertex) {
-		context->VSSetShaderResources(unit.unit, 1, &view);
+void Kinc_Internal_TextureSet(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit) {
+	if (unit.impl.unit < 0) return;
+	if (unit.impl.vertex) {
+		context->VSSetShaderResources(unit.impl.unit, 1, &texture->impl.view);
 	}
 	else {
-		context->PSSetShaderResources(unit.unit, 1, &view);
+		context->PSSetShaderResources(unit.impl.unit, 1, &texture->impl.view);
 	}
-	this->stage = unit.unit;
-	setTextures[stage] = this;
+	texture->impl.stage = unit.impl.unit;
+	setTextures[texture->impl.stage] = texture;
 }
 
-void Graphics4::Texture::_setImage(TextureUnit unit) {
-	if (unit.unit < 0) return;
-	if (computeView == nullptr) {
+void Kinc_Internal_TexureSetImage(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit) {
+	if (unit.impl.unit < 0) return;
+	if (texture->impl.computeView == nullptr) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
-		du.Format = format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+		du.Format = texture->image.format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
 		du.Texture3D.MipSlice = 0;
 		du.Texture3D.FirstWSlice = 0;
 		du.Texture3D.WSize = -1;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE3D;
-		Kinc_Microsoft_Affirm(device->CreateUnorderedAccessView(texture3D, &du, &computeView));
+		Kinc_Microsoft_Affirm(device->CreateUnorderedAccessView(texture->impl.texture3D, &du, &texture->impl.computeView));
 	}
-	context->OMSetRenderTargetsAndUnorderedAccessViews(0, nullptr, nullptr, unit.unit, 1, &computeView, nullptr);
+	context->OMSetRenderTargetsAndUnorderedAccessViews(0, nullptr, nullptr, unit.impl.unit, 1, &texture->impl.computeView, nullptr);
 }
 
-void TextureImpl::unset() {
-	if (setTextures[stage] == this) {
+void Kinc_Internal_TextureUnset(Kinc_G4_Texture *texture) {
+	if (setTextures[texture->impl.stage] == texture) {
 
-		setTextures[stage] = nullptr;
+		setTextures[texture->impl.stage] = NULL;
 	}
 }
 
-u8* Graphics4::Texture::lock() {
+u8 *Kinc_G4_Texture_Lock(Kinc_G4_Texture *texture) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	context->Map(texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	rowPitch = mappedResource.RowPitch;
+	context->Map(texture->impl.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	texture->impl.rowPitch = mappedResource.RowPitch;
 	return (u8*)mappedResource.pData;
 }
 
-void Graphics4::Texture::unlock() {
-	context->Unmap(texture, 0);
+void Kinc_G4_Texture_Unlock(Kinc_G4_Texture *texture) {
+	context->Unmap(texture->impl.texture, 0);
 }
 
-void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-	if (renderView == nullptr) {
-		texDepth > 1 ? 
-			Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture3D, 0, &renderView))
-		             : Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture, 0, &renderView));
+void Kinc_G4_Texture_Clear(Kinc_G4_Texture *texture, int x, int y, int z, int width, int height, int depth, uint color) {
+	if (texture->impl.renderView == nullptr) {
+		texture->texDepth > 1 ? 
+			Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture->impl.texture3D, 0, &texture->impl.renderView))
+		             : Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture->impl.texture, 0, &texture->impl.renderView));
 	}
 	static float clearColor[4];
 	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
 	clearColor[1] = ((color & 0x0000ff00) >> 8) / 255.0f;
 	clearColor[2] = (color & 0x000000ff) / 255.0f;
 	clearColor[3] = ((color & 0xff000000) >> 24) / 255.0f;
-	context->ClearRenderTargetView(renderView, clearColor);
+	context->ClearRenderTargetView(texture->impl.renderView, clearColor);
 }
 
-int Graphics4::Texture::stride() {
-	return rowPitch;
+int Kinc_G4_Texture_Stride(Kinc_G4_Texture *texture) {
+	return texture->impl.rowPitch;
 }
 
-void TextureImpl::enableMipmaps(int texWidth, int texHeight, int format) {
+static void enableMipmaps(Kinc_G4_Texture *texture, int texWidth, int texHeight, int format) {
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = texWidth;
 	desc.Height = texHeight;
 	desc.MipLevels = 0;
 	desc.ArraySize = 1;
-	desc.Format = convertFormat((Graphics4::Image::Format)format);
+	desc.Format = convertFormat((Kinc_ImageFormat)format);
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
@@ -311,24 +319,32 @@ void TextureImpl::enableMipmaps(int texWidth, int texHeight, int format) {
 	sourceRegion.bottom = texHeight;
 	sourceRegion.front = 0;
 	sourceRegion.back = 1;
-	context->CopySubresourceRegion(mipMappedTexture, 0, 0, 0, 0, texture, 0, &sourceRegion);
+	context->CopySubresourceRegion(mipMappedTexture, 0, 0, 0, 0, texture->impl.texture, 0, &sourceRegion);
 
-	if (texture != nullptr) texture->Release();
-	texture = mipMappedTexture;
+	if (texture->impl.texture != nullptr) {
+		texture->impl.texture->Release();
+	}
+	texture->impl.texture = mipMappedTexture;
 
-	if (view != nullptr) view->Release();
-	view = mipMappedView;
+	if (texture->impl.view != nullptr) {
+		texture->impl.view->Release();
+	}
+	texture->impl.view = mipMappedView;
 
-	hasMipmaps = true;
+	texture->impl.hasMipmaps = true;
 }
 
-void Graphics4::Texture::generateMipmaps(int levels) {
-	if (!hasMipmaps) enableMipmaps(texWidth, texHeight, format);
-	context->GenerateMips(view);
+void Kinc_G4_Texture_GenerateMipmaps(Kinc_G4_Texture *texture, int levels) {
+	if (!texture->impl.hasMipmaps) {
+		enableMipmaps(texture, texture->texWidth, texture->texHeight, texture->image.format);
+	}
+	context->GenerateMips(texture->impl.view);
 }
 
-void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
-	if (!hasMipmaps) enableMipmaps(texWidth, texHeight, format);
+void Kinc_G4_Texture_setMipmap(Kinc_G4_Texture *texture, Kinc_G4_Texture *mipmap, int level) {
+	if (!texture->impl.hasMipmaps) {
+		enableMipmaps(texture, texture->texWidth, texture->texHeight, texture->image.format);
+	}
 	D3D11_BOX dstRegion;
 	dstRegion.left = 0;
 	dstRegion.right = mipmap->texWidth;
@@ -336,5 +352,5 @@ void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
 	dstRegion.bottom = mipmap->texHeight;
 	dstRegion.front = 0;
 	dstRegion.back = 1;
-	context->UpdateSubresource(texture, level, &dstRegion, isHdr(mipmap->format) ? (void*)mipmap->hdrData : mipmap->data, mipmap->texWidth * formatByteSize(mipmap->format), 0);
+	context->UpdateSubresource(texture->impl.texture, level, &dstRegion, isHdr(mipmap->image.format) ? (void*)mipmap->image.hdrData : mipmap->image.data, mipmap->texWidth * formatByteSize(mipmap->image.format), 0);
 }
