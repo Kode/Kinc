@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ID3D11Texture2D;
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
@@ -15,3 +19,7 @@ typedef struct {
 	struct ID3D11ShaderResourceView *renderTargetSRV;
 	struct ID3D11ShaderResourceView *depthStencilSRV;
 } Kinc_G4_RenderTargetImpl;
+
+#ifdef __cplusplus
+}
+#endif

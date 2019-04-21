@@ -1,16 +1,16 @@
 #include "pch.h"
 
-#include <Kore/Graphics4/TextureArray.h>
+#include <Kinc/Graphics4/TextureArray.h>
+#include <Kinc/Graphics4/TextureUnit.h>
+
 #include <Kore/SystemMicrosoft.h>
 
 #include "Direct3D11.h"
 
 #include <malloc.h>
+#include <stdint.h>
 
-using namespace Kore;
-using namespace Kore::Graphics4;
-
-TextureArray::TextureArray(Image** textures, int count) {
+void Kinc_G4_TextureArray_Create(Kinc_G4_TextureArray *array, Kinc_Image **textures, int count) {
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = textures[0]->width;
 	desc.Height = textures[0]->height;
@@ -24,7 +24,7 @@ TextureArray::TextureArray(Image** textures, int count) {
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
-	u8* data = new u8[textures[0]->width * textures[0]->height * 4 * count];
+	uint8_t* data = new uint8_t[textures[0]->width * textures[0]->height * 4 * count];
 
 	D3D11_SUBRESOURCE_DATA* resdata = (D3D11_SUBRESOURCE_DATA*)alloca(sizeof(D3D11_SUBRESOURCE_DATA) * count);
 	for (int i = 0; i < count; ++i) {
@@ -33,14 +33,14 @@ TextureArray::TextureArray(Image** textures, int count) {
 		resdata[i].SysMemSlicePitch = 0;
 	}
 
-	texture = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, resdata, &texture));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture, nullptr, &view));
+	array->impl.texture = nullptr;
+	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, resdata, &array->impl.texture));
+	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(array->impl.texture, nullptr, &array->impl.view));
 }
 
-void TextureArrayImpl::set(TextureUnit unit) {
-	if (unit.unit < 0) return;
-	context->PSSetShaderResources(unit.unit, 1, &view);
+void Kinc_Internal_TextureArraySet(Kinc_G4_TextureArray *array, Kinc_G4_TextureUnit unit) {
+	if (unit.impl.unit < 0) return;
+	context->PSSetShaderResources(unit.impl.unit, 1, &array->impl.view);
 	// this->stage = unit.unit;
 	// setTextures[stage] = this;
 }

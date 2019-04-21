@@ -12,7 +12,7 @@ typedef struct {
 	Kinc_G4_TextureArrayImpl impl;
 } Kinc_G4_TextureArray;
 
-void Kinc_G4_TextureArray_Create(Image **textures, int count);
+void Kinc_G4_TextureArray_Create(Kinc_G4_TextureArray *array, Kinc_Image **textures, int count);
 
 #ifdef __cplusplus
 }
