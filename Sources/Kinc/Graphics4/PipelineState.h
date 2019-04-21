@@ -53,7 +53,7 @@ typedef enum {
 	KINC_G4_STENCIL_INVERT
 } Kinc_G4_StencilAction;
 
-typedef struct {
+typedef struct _Kinc_G4_PipelineState {
 	_Kinc_G4_VertexStructure *inputLayout[16];
 	_Kinc_G4_Shader *vertexShader;
 	_Kinc_G4_Shader *fragmentShader;

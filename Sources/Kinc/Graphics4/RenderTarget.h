@@ -20,7 +20,7 @@ typedef enum {
 	KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT
 } Kinc_G4_RenderTargetFormat;
 
-typedef struct {
+typedef struct _Kinc_G4_RenderTarget {
 	int width;
 	int height;
 	int texWidth;

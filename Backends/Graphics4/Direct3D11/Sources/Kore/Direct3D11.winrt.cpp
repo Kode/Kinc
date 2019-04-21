@@ -1,16 +1,19 @@
 #include "pch.h"
 
-#include <Kore/Log.h>
+#define NOMINMAX
+
+#include <Kinc/Log.h>
 
 #include "Direct3D11.h"
-#include <Kore/Math/Core.h>
+#include <Kinc/Math/Core.h>
 //#include <Kore/Application.h>
-#include <Kore/Graphics4/PipelineState.h>
-#include <Kore/Graphics4/Shader.h>
-#include <Kore/Graphics4/TextureArray.h>
+#include <Kinc/Graphics4/PipelineState.h>
+#include <Kinc/Graphics4/Shader.h>
+#include <Kinc/Graphics4/TextureArray.h>
 
 #include <Kinc/Graphics4/Graphics.h>
 #include <Kinc/Graphics4/IndexBuffer.h>
+#include <Kinc/Graphics4/RenderTarget.h>
 #include <Kinc/Graphics4/VertexBuffer.h>
 
 #undef CreateWindow
@@ -18,8 +21,9 @@
 #include <Kore/System.h>
 #include <Kore/SystemMicrosoft.h>
 
-#include <Kore/Display.h>
-#include <Kore/Window.h>
+#include <Kinc/Display.h>
+#include <Kinc/Window.h>
+
 #include <Kore/Windows.h>
 
 #ifdef KORE_WINDOWSAPP
@@ -69,10 +73,10 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 #endif
 #endif
 
-namespace Kore {
-	extern Graphics4::PipelineState* currentPipeline;
-	bool scissoring = false;
-} // namespace Kore
+extern Kinc_G4_PipelineState *currentPipeline;
+void Kinc_Internal_SetConstants(void);
+
+bool Kinc_Internal_Scissoring = false;
 
 namespace {
 	unsigned hz;
@@ -134,7 +138,7 @@ namespace {
 	ID3D11DepthStencilView* currentDepthStencilView;
 } // namespace
 
-void Graphics4::destroy(int windowId) {}
+void Kinc_G4_Destroy(int window) {}
 
 static void createBackbuffer(int antialiasingSamples) {
 	Kinc_Microsoft_Affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
@@ -189,7 +193,7 @@ static bool isWindows10OrGreater() {
 }
 #endif
 
-void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
+void Kinc_G4_Init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
 #ifdef KORE_VR
 	vsync = false;
 #else
@@ -246,12 +250,12 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-		swapChainDesc.BufferDesc.Width = System::windowWidth(windowId); // use automatic sizing
-		swapChainDesc.BufferDesc.Height = System::windowHeight(windowId);
+		swapChainDesc.BufferDesc.Width = Kinc_WindowWidth(windowId); // use automatic sizing
+		swapChainDesc.BufferDesc.Height = Kinc_WindowHeight(windowId);
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
 		// swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
-		swapChainDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
+		swapChainDesc.SampleDesc.Count = Kinc_G4_AntialiasingSamples() > 1 ? Kinc_G4_AntialiasingSamples() : 1;
+		swapChainDesc.SampleDesc.Quality = Kinc_G4_AntialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -355,7 +359,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	affirm(contextPtr.As(&context3Ptr));
 	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
 #else
-	createBackbuffer(antialiasingSamples());
+	createBackbuffer(Kinc_G4_AntialiasingSamples());
 	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
@@ -408,7 +412,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 }
 
-void Graphics4::flush() {}
+void Kinc_G4_Flush() {}
 
 namespace {
 	ID3D11ShaderResourceView* nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
@@ -428,7 +432,7 @@ void Kinc_G4_DrawIndexedVertices() {
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	PipelineState::setConstants();
+	Kinc_Internal_SetConstants();
 	context->DrawIndexed(currentIndexBuffer->impl.count, 0, 0);
 
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
@@ -441,7 +445,7 @@ void Kinc_G4_DrawIndexedVerticesFromTo(int start, int count) {
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	PipelineState::setConstants();
+	Kinc_Internal_SetConstants();
 	context->DrawIndexed(count, start, 0);
 
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
@@ -458,52 +462,54 @@ void Kinc_G4_DrawIndexedVerticesInstancedFromTo(int instanceCount, int start, in
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	PipelineState::setConstants();
+	Kinc_Internal_SetConstants();
 	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
 	
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 namespace {
-	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(Graphics4::TextureAddressing addressing) {
+	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(Kinc_G4_TextureAddressing addressing) {
 		switch (addressing) {
 		default:
-		case Graphics4::Repeat:
+		case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
 			return D3D11_TEXTURE_ADDRESS_WRAP;
-		case Graphics4::Mirror:
+		case KINC_G4_TEXTURE_ADDRESSING_MIRROR:
 			return D3D11_TEXTURE_ADDRESS_MIRROR;
-		case Graphics4::Clamp:
+		case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
 			return D3D11_TEXTURE_ADDRESS_CLAMP;
-		case Graphics4::Border:
+		case KINC_G4_TEXTURE_ADDRESSING_BORDER:
 			return D3D11_TEXTURE_ADDRESS_BORDER;
 		}
 	}
-} // namespace
+}
 
-void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
-	if (unit.unit < 0) return;
+void Kinc_G4_SetTextureAddressing(Kinc_G4_TextureUnit unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+	if (unit.impl.unit < 0) {
+		return;
+	}
 
 	switch (dir) {
-	case TexDir::U:
-		lastSamplers[unit.unit].AddressU = convertAddressing(addressing);
+	case KINC_G4_TEXTURE_DIRECTION_U:
+		lastSamplers[unit.impl.unit].AddressU = convertAddressing(addressing);
 		break;
-	case TexDir::V:
-		lastSamplers[unit.unit].AddressV = convertAddressing(addressing);
+	case KINC_G4_TEXTURE_DIRECTION_V:
+		lastSamplers[unit.impl.unit].AddressV = convertAddressing(addressing);
 		break;
-	case TexDir::W:
-		lastSamplers[unit.unit].AddressW = convertAddressing(addressing);
+	case KINC_G4_TEXTURE_DIRECTION_W:
+		lastSamplers[unit.impl.unit].AddressW = convertAddressing(addressing);
 		break;
 	}
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
-	context->PSSetSamplers(unit.unit, 1, &sampler);
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
-	Graphics4::setTextureAddressing(unit, dir, addressing);
+void Kinc_G4_SetTexture3DAddressing(Kinc_G4_TextureUnit unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+	Kinc_G4_SetTextureAddressing(unit, dir, addressing);
 }
 
-void Kinc_G4_Clear(uint flags, uint color, float depth, int stencil) {
+void Kinc_G4_Clear(unsigned flags, unsigned color, float depth, int stencil) {
 	const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, ((color & 0xff000000) >> 24) / 255.0f};
 	for (int i = 0; i < renderTargetCount; ++i) {
 		if (currentRenderTargetViews[i] != nullptr && flags & KINC_G4_CLEAR_COLOR) {
@@ -511,8 +517,8 @@ void Kinc_G4_Clear(uint flags, uint color, float depth, int stencil) {
 		}
 	}
 	if (currentDepthStencilView != nullptr && (flags & KINC_G4_CLEAR_DEPTH) || (flags & KINC_G4_CLEAR_STENCIL)) {
-		uint d3dflags = ((flags & KINC_G4_CLEAR_DEPTH) ? D3D11_CLEAR_DEPTH : 0) | ((flags & KINC_G4_CLEAR_STENCIL) ? D3D11_CLEAR_STENCIL : 0);
-		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, max(0.0f, min(1.0f, depth)), stencil);
+		unsigned d3dflags = ((flags & KINC_G4_CLEAR_DEPTH) ? D3D11_CLEAR_DEPTH : 0) | ((flags & KINC_G4_CLEAR_STENCIL) ? D3D11_CLEAR_STENCIL : 0);
+		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, Kinc_Max(0.0f, Kinc_Min(1.0f, depth)), stencil);
 	}
 }
 
@@ -523,8 +529,8 @@ void Kinc_G4_Begin(int windowId) {
 		renderTargetView->Release();
 		backBuffer->Release();
 		Kinc_Microsoft_Affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
-		createBackbuffer(antialiasingSamples());
-		restoreRenderTarget();
+		createBackbuffer(Kinc_G4_AntialiasingSamples());
+		Kinc_G4_RestoreRenderTarget();
 	}
 #ifdef KORE_WINDOWSAPP
 	// TODO (DK) do i need to do something here?
@@ -543,6 +549,8 @@ void Kinc_G4_Viewport(int x, int y, int width, int height) {
 	context->RSSetViewports(1, &viewport);
 }
 
+void Kinc_Internal_SetRasterizerState(Kinc_G4_PipelineState *pipeline, bool scissoring);
+
 void Kinc_G4_Scissor(int x, int y, int width, int height) {
 	D3D11_RECT rect;
 	rect.left = x;
@@ -550,27 +558,29 @@ void Kinc_G4_Scissor(int x, int y, int width, int height) {
 	rect.right = x + width;
 	rect.bottom = y + height;
 	context->RSSetScissorRects(1, &rect);
-	scissoring = true;
+	Kinc_Internal_Scissoring = true;
 	if (currentPipeline != nullptr) {
-		currentPipeline->setRasterizerState(scissoring);
+		Kinc_Internal_SetRasterizerState(currentPipeline, Kinc_Internal_Scissoring);
 	}
 }
 
 void Kinc_G4_DisableScissor() {
 	context->RSSetScissorRects(0, nullptr);
-	scissoring = false;
+	Kinc_Internal_Scissoring = false;
 	if (currentPipeline != nullptr) {
-		currentPipeline->setRasterizerState(scissoring);
+		Kinc_Internal_SetRasterizerState(currentPipeline, Kinc_Internal_Scissoring);
 	}
 }
 
-void Graphics4::setPipeline(PipelineState* pipeline) {
-	pipeline->set(pipeline, scissoring);
+void Kinc_Internal_SetPipeline(Kinc_G4_PipelineState *pipeline, bool scissoring);
+
+void Kinc_G4_SetPipeline(_Kinc_G4_PipelineState *pipeline) {
+	Kinc_Internal_SetPipeline(pipeline, Kinc_Internal_Scissoring);
 }
 
-void Graphics4::setStencilReferenceValue(int value) {
+void Kinc_G4_SetStencilReferenceValue(int value) {
 	if (currentPipeline != nullptr) {
-		context->OMSetDepthStencilState(currentPipeline->depthStencilState, value);
+		context->OMSetDepthStencilState(currentPipeline->impl.depthStencilState, value);
 	}
 }
 
@@ -591,31 +601,31 @@ bool Kinc_G4_SwapBuffers() {
 	//}
 }
 
-void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
+void Kinc_G4_SetTextureOperation(Kinc_G4_TextureOperation operation, Kinc_G4_TextureArgument arg1, Kinc_G4_TextureArgument arg2) {
 	// TODO
 }
 
 namespace {
-	void setInt(u8* constants, u32 offset, u32 size, int value) {
+	void setInt(uint8_t* constants, uint32_t offset, uint32_t size, int value) {
 		if (size == 0) return;
 		int* ints = reinterpret_cast<int*>(&constants[offset]);
 		ints[0] = value;
 	}
 
-	void setFloat(u8* constants, u32 offset, u32 size, float value) {
+	void setFloat(uint8_t* constants, uint32_t offset, uint32_t size, float value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value;
 	}
 
-	void setFloat2(u8* constants, u32 offset, u32 size, float value1, float value2) {
+	void setFloat2(uint8_t* constants, uint32_t offset, uint32_t size, float value1, float value2) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
 		floats[1] = value2;
 	}
 
-	void setFloat3(u8* constants, u32 offset, u32 size, float value1, float value2, float value3) {
+	void setFloat3(uint8_t* constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
@@ -623,7 +633,7 @@ namespace {
 		floats[2] = value3;
 	}
 
-	void setFloat4(u8* constants, u32 offset, u32 size, float value1, float value2, float value3, float value4) {
+	void setFloat4(uint8_t* constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		floats[0] = value1;
@@ -632,7 +642,7 @@ namespace {
 		floats[3] = value4;
 	}
 
-	void setFloats(u8* constants, u32 offset, u32 size, u8 columns, u8 rows, float* values, int count) {
+	void setFloats(uint8_t* constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float* values, int count) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		if (columns == 4 && rows == 4) {
@@ -669,114 +679,119 @@ namespace {
 		}
 	}
 
-	void setBool(u8* constants, u32 offset, u32 size, bool value) {
+	void setBool(uint8_t* constants, uint32_t offset, uint32_t size, bool value) {
 		if (size == 0) return;
 		int* ints = reinterpret_cast<int*>(&constants[offset]);
 		ints[0] = value ? 1 : 0;
 	}
 
-	void setMatrix(u8* constants, u32 offset, u32 size, const mat4& value) {
+	void setMatrix(uint8_t* constants, uint32_t offset, uint32_t size, Kinc_Matrix4x4 *value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 4; ++y) {
 			for (int x = 0; x < 4; ++x) {
-				floats[x + y * 4] = value.get(y, x);
+				floats[x + y * 4] = value->m[x + y * 4];
 			}
 		}
 	}
 
-	void setMatrix(u8* constants, u32 offset, u32 size, const mat3& value) {
+	void setMatrix(uint8_t* constants, uint32_t offset, uint32_t size, Kinc_Matrix3x3 *value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 3; ++y) {
 			for (int x = 0; x < 3; ++x) {
-				floats[x + y * 4] = value.get(y, x);
+				floats[x + y * 4] = value->m[x + y * 3];
 			}
 		}
 	}
-} // namespace
-
-void Graphics4::setInt(ConstantLocation location, int value) {
-	::setInt(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setInt(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setInt(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setInt(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setInt(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
 }
 
-void Graphics4::setFloat(ConstantLocation location, float value) {
-	::setFloat(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setFloat(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setFloat(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setFloat(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setFloat(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
+void Kinc_G4_SetInt(Kinc_G4_ConstantLocation location, int value) {
+	::setInt(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	::setInt(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	::setInt(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	::setInt(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	::setInt(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
-void Graphics4::setFloat2(ConstantLocation location, float value1, float value2) {
-	::setFloat2(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2);
-	::setFloat2(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2);
-	::setFloat2(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2);
-	::setFloat2(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2);
-	::setFloat2(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2);
+void Kinc_G4_SetFloat(Kinc_G4_ConstantLocation location, float value) {
+	::setFloat(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	::setFloat(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	::setFloat(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	::setFloat(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	::setFloat(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
-void Graphics4::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	::setFloat3(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3);
-	::setFloat3(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3);
-	::setFloat3(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3);
-	::setFloat3(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2, value3);
-	::setFloat3(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3);
+void Kinc_G4_SetFloat2(Kinc_G4_ConstantLocation location, float value1, float value2) {
+	::setFloat2(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2);
+	::setFloat2(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2);
+	::setFloat2(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2);
+	::setFloat2(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2);
+	::setFloat2(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2);
 }
 
-void Graphics4::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	::setFloat4(vertexConstants, location.vertexOffset, location.vertexSize, value1, value2, value3, value4);
-	::setFloat4(fragmentConstants, location.fragmentOffset, location.fragmentSize, value1, value2, value3, value4);
-	::setFloat4(geometryConstants, location.geometryOffset, location.geometrySize, value1, value2, value3, value4);
-	::setFloat4(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value1, value2, value3, value4);
-	::setFloat4(tessControlConstants, location.tessControlOffset, location.tessControlSize, value1, value2, value3, value4);
+void Kinc_G4_SetFloat3(Kinc_G4_ConstantLocation location, float value1, float value2, float value3) {
+	::setFloat3(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3);
+	::setFloat3(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3);
+	::setFloat3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3);
+	::setFloat3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3);
+	::setFloat3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3);
 }
 
-void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
-	::setFloats(vertexConstants, location.vertexOffset, location.vertexSize, location.vertexColumns, location.vertexRows, values, count);
-	::setFloats(fragmentConstants, location.fragmentOffset, location.fragmentSize, location.fragmentColumns, location.fragmentRows, values, count);
-	::setFloats(geometryConstants, location.geometryOffset, location.geometrySize, location.geometryColumns, location.geometryRows, values, count);
-	::setFloats(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, location.tessEvalColumns, location.tessEvalRows, values, count);
-	::setFloats(tessControlConstants, location.tessControlOffset, location.tessControlSize, location.tessControlColumns, location.tessControlRows, values,
+void Kinc_G4_SetFloat4(Kinc_G4_ConstantLocation location, float value1, float value2, float value3, float value4) {
+	::setFloat4(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3, value4);
+	::setFloat4(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3, value4);
+	::setFloat4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3, value4);
+	::setFloat4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3, value4);
+	::setFloat4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3, value4);
+}
+
+void Kinc_G4_SetFloats(Kinc_G4_ConstantLocation location, float *values, int count) {
+	::setFloats(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, location.impl.vertexColumns, location.impl.vertexRows, values, count);
+	::setFloats(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, location.impl.fragmentColumns, location.impl.fragmentRows, values,
+	            count);
+	::setFloats(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, location.impl.geometryColumns, location.impl.geometryRows, values,
+	            count);
+	::setFloats(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, location.impl.tessEvalColumns, location.impl.tessEvalRows, values,
+	            count);
+	::setFloats(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
+	            location.impl.tessControlRows,
+	            values,
 	            count);
 }
 
-void Graphics4::setBool(ConstantLocation location, bool value) {
-	::setBool(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setBool(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setBool(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setBool(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setBool(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
+void Kinc_G4_SetBool(Kinc_G4_ConstantLocation location, bool value) {
+	::setBool(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	::setBool(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	::setBool(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	::setBool(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	::setBool(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
-void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
-	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setMatrix(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
+void Kinc_G4_SetMatrix4(Kinc_G4_ConstantLocation location, Kinc_Matrix4x4 *value) {
+	::setMatrix(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	::setMatrix(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	::setMatrix(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	::setMatrix(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	::setMatrix(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
-void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
-	::setMatrix(vertexConstants, location.vertexOffset, location.vertexSize, value);
-	::setMatrix(fragmentConstants, location.fragmentOffset, location.fragmentSize, value);
-	::setMatrix(geometryConstants, location.geometryOffset, location.geometrySize, value);
-	::setMatrix(tessEvalConstants, location.tessEvalOffset, location.tessEvalSize, value);
-	::setMatrix(tessControlConstants, location.tessControlOffset, location.tessControlSize, value);
+void Kinc_G4_SetMatrix3(Kinc_G4_ConstantLocation location, Kinc_Matrix3x3 *value) {
+	::setMatrix(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	::setMatrix(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	::setMatrix(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	::setMatrix(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	::setMatrix(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
-void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter filter) {
-	if (unit.unit < 0) return;
+void Kinc_G4_SetTextureMagnificationFilter(Kinc_G4_TextureUnit unit, Kinc_G4_TextureFilter filter) {
+	if (unit.impl.unit < 0) return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	switch (filter) {
-	case PointFilter:
-		switch (lastSamplers[unit.unit].Filter) {
+	case KINC_G4_TEXTURE_FILTER_POINT:
+		switch (lastSamplers[unit.impl.unit].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 			break;
@@ -796,8 +811,8 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter fi
 			break;
 		}
 		break;
-	case LinearFilter:
-		switch (lastSamplers[unit.unit].Filter) {
+	case KINC_G4_TEXTURE_FILTER_LINEAR:
+		switch (lastSamplers[unit.impl.unit].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
 			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
@@ -816,30 +831,30 @@ void Graphics4::setTextureMagnificationFilter(TextureUnit unit, TextureFilter fi
 			break;
 		}
 		break;
-	case AnisotropicFilter:
+	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
 		d3d11filter = D3D11_FILTER_ANISOTROPIC;
 		break;
 	}
 
-	lastSamplers[unit.unit].Filter = d3d11filter;
-	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
+	lastSamplers[unit.impl.unit].Filter = d3d11filter;
+	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
-	context->PSSetSamplers(unit.unit, 1, &sampler);
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void Graphics4::setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-	Graphics4::setTextureMagnificationFilter(texunit, filter);
+void Kinc_G4_SetTexture3DMagnificationFilter(Kinc_G4_TextureUnit texunit, Kinc_G4_TextureFilter filter) {
+	Kinc_G4_SetTextureMagnificationFilter(texunit, filter);
 }
 
-void Graphics4::setTextureMinificationFilter(TextureUnit unit, TextureFilter filter) {
-	if (unit.unit < 0) return;
+void Kinc_G4_SetTextureMinificationFilter(Kinc_G4_TextureUnit unit, Kinc_G4_TextureFilter filter) {
+	if (unit.impl.unit < 0) return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	switch (filter) {
-	case PointFilter:
-		switch (lastSamplers[unit.unit].Filter) {
+	case KINC_G4_TEXTURE_FILTER_POINT:
+		switch (lastSamplers[unit.impl.unit].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -859,8 +874,8 @@ void Graphics4::setTextureMinificationFilter(TextureUnit unit, TextureFilter fil
 			break;
 		}
 		break;
-	case LinearFilter:
-		switch (lastSamplers[unit.unit].Filter) {
+	case KINC_G4_TEXTURE_FILTER_LINEAR:
+		switch (lastSamplers[unit.impl.unit].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
 			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
@@ -880,30 +895,31 @@ void Graphics4::setTextureMinificationFilter(TextureUnit unit, TextureFilter fil
 			break;
 		}
 		break;
-	case AnisotropicFilter:
+	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
 		d3d11filter = D3D11_FILTER_ANISOTROPIC;
 		break;
 	}
 
-	lastSamplers[unit.unit].Filter = d3d11filter;
-	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
+	lastSamplers[unit.impl.unit].Filter = d3d11filter;
+	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
-	context->PSSetSamplers(unit.unit, 1, &sampler);
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	Graphics4::setTextureMinificationFilter(texunit, filter);
+void Kinc_G4_SetTexture3DMinificationFilter(Kinc_G4_TextureUnit texunit, Kinc_G4_TextureFilter filter) {
+	Kinc_G4_SetTextureMinificationFilter(texunit, filter);
 }
 
-void Graphics4::setTextureMipmapFilter(TextureUnit unit, MipmapFilter filter) {
-	if (unit.unit < 0) return;
+void Kinc_G4_SetTextureMipmapFilter(Kinc_G4_TextureUnit unit, Kinc_G4_MipmapFilter filter) {
+	if (unit.impl.unit < 0) return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	switch (filter) {
-	case PointFilter:
-		switch (lastSamplers[unit.unit].Filter) {
+	case KINC_G4_MIPMAP_FILTER_NONE:
+	case KINC_G4_MIPMAP_FILTER_POINT:
+		switch (lastSamplers[unit.impl.unit].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -918,13 +934,15 @@ void Graphics4::setTextureMipmapFilter(TextureUnit unit, MipmapFilter filter) {
 			break;
 		case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
 		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
-		case D3D11_FILTER_ANISOTROPIC:
 			d3d11filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case D3D11_FILTER_ANISOTROPIC:
+			d3d11filter = D3D11_FILTER_ANISOTROPIC;
 			break;
 		}
 		break;
-	case LinearFilter:
-		switch (lastSamplers[unit.unit].Filter) {
+	case KINC_G4_MIPMAP_FILTER_LINEAR:
+		switch (lastSamplers[unit.impl.unit].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
 			d3d11filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
@@ -939,55 +957,54 @@ void Graphics4::setTextureMipmapFilter(TextureUnit unit, MipmapFilter filter) {
 			break;
 		case D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT:
 		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
-		case D3D11_FILTER_ANISOTROPIC:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			break;
+		case D3D11_FILTER_ANISOTROPIC:
+			d3d11filter = D3D11_FILTER_ANISOTROPIC;
 			break;
 		}
 		break;
-	case AnisotropicFilter:
-		d3d11filter = D3D11_FILTER_ANISOTROPIC;
-		break;
 	}
 
-	lastSamplers[unit.unit].Filter = d3d11filter;
-	lastSamplers[unit.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
+	lastSamplers[unit.impl.unit].Filter = d3d11filter;
+	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
-	context->PSSetSamplers(unit.unit, 1, &sampler);
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	Graphics4::setTextureMipmapFilter(texunit, filter);
+void Kinc_G4_SetTexture3DMipmapFilter(Kinc_G4_TextureUnit texunit, Kinc_G4_MipmapFilter filter) {
+	Kinc_G4_SetTextureMipmapFilter(texunit, filter);
 }
 
-void Graphics4::setTextureCompareMode(TextureUnit unit, bool enabled) {
-	if (unit.unit < 0) return;
+void Kinc_G4_SetTextureCompareMode(Kinc_G4_TextureUnit unit, bool enabled) {
+	if (unit.impl.unit < 0) return;
 
 	if (enabled) {
-		lastSamplers[unit.unit].ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-		lastSamplers[unit.unit].Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+		lastSamplers[unit.impl.unit].ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+		lastSamplers[unit.impl.unit].Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 	}
 	else {
-		lastSamplers[unit.unit].ComparisonFunc = D3D11_COMPARISON_NEVER;
+		lastSamplers[unit.impl.unit].ComparisonFunc = D3D11_COMPARISON_NEVER;
 	}
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.unit]);
-	context->PSSetSamplers(unit.unit, 1, &sampler);
+	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
-	Graphics4::setTextureCompareMode(unit, enabled);
+void Kinc_G4_SetCubeMapCompareMode(Kinc_G4_TextureUnit unit, bool enabled) {
+	Kinc_G4_SetTextureCompareMode(unit, enabled);
 }
 
-bool Graphics4::renderTargetsInvertedY() {
+bool Kinc_G4_RenderTargetsInvertedY() {
 	return false;
 }
 
-bool Graphics4::nonPow2TexturesSupported() {
+bool Kinc_G4_NonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics4::restoreRenderTarget() {
+void Kinc_G4_RestoreRenderTarget() {
 	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
@@ -996,12 +1013,12 @@ void Graphics4::restoreRenderTarget() {
 	context->RSSetViewports(1, &viewPort);
 }
 
-void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
-	currentDepthStencilView = targets[0]->depthStencilView[0];
+void Kinc_G4_SetRenderTargets(_Kinc_G4_RenderTarget **targets, int count) {
+	currentDepthStencilView = targets[0]->impl.depthStencilView[0];
 
 	renderTargetCount = count;
 	for (int i = 0; i < count; ++i) {
-		currentRenderTargetViews[i] = targets[i]->renderTargetViewRender[0];
+		currentRenderTargetViews[i] = targets[i]->impl.renderTargetViewRender[0];
 	}
 
 	context->OMSetRenderTargets(count, currentRenderTargetViews, currentDepthStencilView);
@@ -1009,10 +1026,10 @@ void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
 	context->RSSetViewports(1, &viewPort);
 }
 
-void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
+void Kinc_G4_SetRenderTargetFace(_Kinc_G4_RenderTarget* texture, int face) {
 	renderTargetCount = 1;
-	currentRenderTargetViews[0] = texture->renderTargetViewRender[face];
-	currentDepthStencilView = texture->depthStencilView[face];
+	currentRenderTargetViews[0] = texture->impl.renderTargetViewRender[face];
+	currentDepthStencilView = texture->impl.depthStencilView[face];
 	context->OMSetRenderTargets(1, currentRenderTargetViews, currentDepthStencilView);
 	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(texture->width), static_cast<float>(texture->height));
 	context->RSSetViewports(1, &viewPort);
@@ -1043,18 +1060,22 @@ void Kinc_G4_SetIndexBuffer(Kinc_G4_IndexBuffer *buffer) {
 	Kinc_Internal_G4_IndexBuffer_Set(buffer);
 }
 
-void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
-	texture->_set(unit);
+void Kinc_Internal_TextureSet(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit);
+
+void Kinc_G4_SetTexture(Kinc_G4_TextureUnit unit, Kinc_G4_Texture *texture) {
+	Kinc_Internal_TextureSet(texture, unit);
 }
 
-void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
-	texture->_setImage(unit);
+void Kinc_Internal_TextureSetImage(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit);
+
+void Kinc_G4_SetImageTexture(Kinc_G4_TextureUnit unit, Kinc_G4_Texture *texture) {
+	Kinc_Internal_TextureSetImage(texture, unit);
 }
 
-uint queryCount = 0;
-std::vector<ID3D11Query*> queryPool;
+static unsigned queryCount = 0;
+static std::vector<ID3D11Query*> queryPool;
 
-bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
+bool Kinc_G4_InitOcclusionQuery(unsigned *occlusionQuery) {
 	D3D11_QUERY_DESC queryDesc;
 	queryDesc.Query = D3D11_QUERY_OCCLUSION;
 	queryDesc.MiscFlags = 0;
@@ -1062,7 +1083,7 @@ bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
 	HRESULT result = device->CreateQuery(&queryDesc, &pQuery);
 
 	if (FAILED(result)) {
-		Kore::log(Kore::LogLevel::Info, "Internal query creation failed, result: 0x%X.", result);
+		Kinc_Log(KINC_LOG_LEVEL_INFO, "Internal query creation failed, result: 0x%X.", result);
 		return false;
 	}
 
@@ -1073,22 +1094,25 @@ bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
 	return true;
 }
 
-void Graphics4::deleteOcclusionQuery(uint occlusionQuery) {
+void Kinc_G4_DeleteOcclusionQuery(unsigned occlusionQuery) {
 	if (occlusionQuery < queryPool.size()) queryPool[occlusionQuery] = nullptr;
 }
 
-void Graphics4::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+void Kinc_G4_StartOcclusionQuery(unsigned occlusionQuery) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		PipelineState::setConstants();
 		context->Begin(pQuery);
-		context->Draw(triangles, 0);
+	}
+}
+
+void Kinc_G4_EndOcclusionQuery(unsigned occlusionQuery) {
+	ID3D11Query *pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
 		context->End(pQuery);
 	}
 }
 
-bool Graphics4::isQueryResultsAvailable(uint occlusionQuery) {
+bool Kinc_G4_AreQueryResultsAvailable(unsigned occlusionQuery) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		if (S_OK == context->GetData(pQuery, 0, 0, 0)) return true;
@@ -1096,31 +1120,33 @@ bool Graphics4::isQueryResultsAvailable(uint occlusionQuery) {
 	return false;
 }
 
-void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
+void Kinc_G4_GetQueryResults(unsigned occlusionQuery, unsigned *pixelCount) {
 	ID3D11Query* pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		UINT64 numberOfPixelsDrawn;
 		HRESULT result = context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
 		if (S_OK == result) {
-			*pixelCount = static_cast<uint>(numberOfPixelsDrawn);
+			*pixelCount = static_cast<unsigned>(numberOfPixelsDrawn);
 		}
 		else {
-			Kore::log(Kore::LogLevel::Info, "Check first if results are available");
+			Kinc_Log(KINC_LOG_LEVEL_INFO, "Check first if results are available");
 			*pixelCount = 0;
 		}
 	}
 }
 
-void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
-	array->set(unit);
+void Kinc_Internal_TextureArraySet(Kinc_G4_TextureArray *array, Kinc_G4_TextureUnit unit);
+
+void Kinc_G4_SetTextureArray(Kinc_G4_TextureUnit unit, Kinc_G4_TextureArray *array) {
+	Kinc_Internal_TextureArraySet(array, unit);
 }
 
-void Graphics4::_resize(int window, int width, int height) {
+void Kinc_Internal_Resize(int window, int width, int height) {
 	newRenderTargetWidth = width;
 	newRenderTargetHeight = height;
 }
 
-void Graphics4::_changeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {}
+void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {}
 
 extern "C" bool Kinc_WindowVSynced(int window_index) {
 	return vsync;

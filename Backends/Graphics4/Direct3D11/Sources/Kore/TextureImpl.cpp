@@ -243,7 +243,7 @@ void Kinc_Internal_TextureSet(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit
 	setTextures[texture->impl.stage] = texture;
 }
 
-void Kinc_Internal_TexureSetImage(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit) {
+void Kinc_Internal_TextureSetImage(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit) {
 	if (unit.impl.unit < 0) return;
 	if (texture->impl.computeView == nullptr) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;

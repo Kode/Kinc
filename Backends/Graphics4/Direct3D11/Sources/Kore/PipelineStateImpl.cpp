@@ -180,7 +180,7 @@ void Kinc_G4_PipelineState_Destroy(Kinc_G4_PipelineState *state) {
 	}
 }
 
-static void setRasterizerState(Kinc_G4_PipelineState *pipeline, bool scissoring) {
+void Kinc_Internal_SetRasterizerState(Kinc_G4_PipelineState *pipeline, bool scissoring) {
 	if (scissoring && pipeline->impl.rasterizerStateScissor != nullptr)
 		context->RSSetState(pipeline->impl.rasterizerStateScissor);
 	else if (pipeline->impl.rasterizerState != nullptr)
@@ -194,7 +194,7 @@ void Kinc_Internal_SetPipeline(Kinc_G4_PipelineState *pipeline, bool scissoring)
 	float blendFactor[] = {0, 0, 0, 0};
 	UINT sampleMask = 0xffffffff;
 	context->OMSetBlendState(pipeline->impl.blendState, blendFactor, sampleMask);
-	setRasterizerState(pipeline, scissoring);
+	Kinc_Internal_SetRasterizerState(pipeline, scissoring);
 
 	context->VSSetShader((ID3D11VertexShader *)pipeline->vertexShader->impl.shader, nullptr, 0);
 	context->PSSetShader((ID3D11PixelShader *)pipeline->fragmentShader->impl.shader, nullptr, 0);
