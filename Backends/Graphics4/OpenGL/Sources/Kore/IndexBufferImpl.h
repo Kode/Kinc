@@ -1,24 +1,20 @@
 #pragma once
 
-namespace Kore {
-	namespace Graphics4 {
-		class IndexBuffer;
-	}
+#include <stdint.h>
 
-	class IndexBufferImpl {
-	protected:
-	public:
-		IndexBufferImpl(int count);
-		void unset();
-
-#if defined(KORE_ANDROID) || defined(KORE_PI)
-		u16* shortData;
+#ifdef __cplusplus
+extern "C" {
 #endif
-		int* data;
-		int myCount;
-		uint bufferId;
 
-	public:
-		static Graphics4::IndexBuffer* current;
-	};
+typedef struct {
+#if defined(KORE_ANDROID) || defined(KORE_PI)
+	uint16_t *shortData;
+#endif
+	int *data;
+	int myCount;
+	unsigned bufferId;
+} Kinc_G4_IndexBufferImpl;
+
+#ifdef __cplusplus
 }
+#endif

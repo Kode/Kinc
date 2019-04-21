@@ -53,7 +53,7 @@
 #include <gl2.h>
 #endif
 
-#include <Kore/Log.h>
+#include <Kinc/Log.h>
 
 #ifdef NDEBUG
 #define glCheckErrors()                                                                                                                                        \
@@ -63,7 +63,7 @@
 	{                                                                                                                                                          \
 		GLenum code = glGetError();                                                                                                                            \
 		if (code != GL_NO_ERROR) {                                                                                                                             \
-			Kore::log(Kore::Error, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                           \
+			Kinc_Log(KINC_LOG_LEVEL_ERROR, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                   \
 		}                                                                                                                                                      \
 	}
 #endif
