@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kinc/Graphics4/PipelineState.h>
+
 #include <Kore/PipelineStateImpl.h>
 
 #include "Graphics.h"
@@ -13,9 +15,7 @@ namespace Kore {
 		public:
 			PipelineState();
 			~PipelineState();
-
-			u32 id;
-
+			
 			VertexStructure* inputLayout[16];
 			Shader* vertexShader;
 			Shader* fragmentShader;
@@ -54,6 +54,8 @@ namespace Kore {
 			void compile();
 			ConstantLocation getConstantLocation(const char* name);
 			TextureUnit getTextureUnit(const char* name);
+
+			Kinc_G4_PipelineState kincPipeline;
 		};
 	}
 }

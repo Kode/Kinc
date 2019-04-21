@@ -17,10 +17,9 @@ namespace Kore {
 		public:
 			Shader(void* data, int length, ShaderType type);
 			Shader(const char* source, ShaderType type); // Beware, this is not portable
+			virtual ~Shader();
 			
 			Kinc_G4_Shader kincShader;
-		private:
-			void parse(void* data, int length, ShaderType type);
 		};
 
 		class ConstantLocation {

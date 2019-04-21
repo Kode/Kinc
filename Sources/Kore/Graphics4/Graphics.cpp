@@ -6,6 +6,8 @@
 #include "Graphics.h"
 #include "PipelineState.h"
 
+#include <Kinc/Graphics4/Graphics.h>
+
 #include <limits>
 
 using namespace Kore;
@@ -43,6 +45,34 @@ void Graphics4::setVertexBuffer(VertexBuffer& vertexBuffer) {
 
 void Graphics4::setRenderTarget(RenderTarget* target) {
 	setRenderTargets(&target, 1);
+}
+
+void Graphics4::setIndexBuffer(Kore::Graphics4::IndexBuffer& indexBuffer) {
+	Kinc_G4_SetIndexBuffer(&indexBuffer.kincBuffer);
+}
+
+void Graphics4::setPipeline(Kore::Graphics4::PipelineState* pipeline) {
+	Kinc_G4_SetPipeline(&pipeline->kincPipeline);
+}
+
+void Graphics4::drawIndexedVertices() {
+	Kinc_G4_DrawIndexedVertices();
+}
+
+void Graphics4::begin(int window) {
+	Kinc_G4_Begin(window);
+}
+
+void Graphics4::end(int window) {
+	Kinc_G4_End(window);
+}
+
+bool Graphics4::swapBuffers() {
+	return Kinc_G4_SwapBuffers();
+}
+
+void Graphics4::clear(unsigned flags, unsigned color, float depth, int stencil) {
+	Kinc_G4_Clear(flags, color, depth, stencil);
 }
 
 #endif

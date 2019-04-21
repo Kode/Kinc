@@ -6,9 +6,6 @@
 using namespace Kore;
 
 Graphics4::PipelineState::PipelineState() {
-	static u32 lastId = 0;
-	id = lastId++;
-
 	for (int i = 0; i < 16; ++i) inputLayout[i] = nullptr;
 	vertexShader = nullptr;
 	fragmentShader = nullptr;

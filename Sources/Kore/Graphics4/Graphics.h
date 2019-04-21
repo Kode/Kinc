@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Kinc/Graphics4/RenderTarget.h>
+#include <Kinc/Graphics4/IndexBuffer.h>
+#include <Kinc/Graphics4/VertexBuffer.h>
 
 #include "Shader.h"
 #include "Texture.h"
@@ -28,6 +30,8 @@ namespace Kore {
 			int count();
 			int stride();
 			int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers
+
+			Kinc_G4_VertexBuffer kincBuffer;
 		};
 
 		class IndexBuffer {
@@ -38,6 +42,8 @@ namespace Kore {
 			void unlock();
 			int count();
 			void _set();
+
+			Kinc_G4_IndexBuffer kincBuffer;
 		};
 
 		enum TextureAddressing { Repeat, Mirror, Clamp, Border };
