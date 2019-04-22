@@ -1,9 +1,13 @@
 #pragma once
 
-#include <Kore/Graphics4/Graphics.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-class TextureArrayImpl {
-public:
+typedef struct {
 	unsigned texture;
-	void set(Kore::Graphics4::TextureUnit unit);
-};
+} Kinc_G4_TextureArrayImpl;
+
+#ifdef __cplusplus
+}
+#endif

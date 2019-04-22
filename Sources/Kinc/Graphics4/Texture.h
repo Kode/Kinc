@@ -27,7 +27,7 @@ void Kinc_G4_Texture_Destroy(Kinc_G4_Texture *texture);
 Kinc_G4_Texture *Kinc_G4_Texture_CreateFromFile(const char *filename, bool readable);
 Kinc_G4_Texture *Kinc_G4_Texture_CreateFromBytes(void *data, int size, const char *format, bool readable);
 // Kinc_G4_Texture *Kinc_G4_Texture_CreateFromBytes(void *data, int width, int height, int format, bool readable);
-Kinc_G4_Texture *Kinc_G4_Texture_CreateFromBytes3D(void *data, int width, int height, int depth, int format, bool readable = false);
+Kinc_G4_Texture *Kinc_G4_Texture_CreateFromBytes3D(void *data, int width, int height, int depth, int format, bool readable);
 #ifdef KORE_ANDROID
 Texture(unsigned texid);
 #endif
@@ -37,7 +37,7 @@ unsigned char *Kinc_G4_Texture_Lock(Kinc_G4_Texture *texture);
 void Kinc_G4_Texture_Unlock(Kinc_G4_Texture *texture);
 void Kinc_G4_Texture_Clear(Kinc_G4_Texture *texture, int x, int y, int z, int width, int height, int depth, unsigned color);
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-void upload(u8 *data, int stride);
+void Kinc_G4_Texture_Upload(uint8_t *data, int stride);
 #endif
 void Kinc_G4_Texture_GenerateMipmaps(Kinc_G4_Texture *texture, int levels);
 void Kinc_G4_Texture_setMipmap(Kinc_G4_Texture *texture, Kinc_G4_Texture *mipmap, int level);

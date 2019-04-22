@@ -54,12 +54,12 @@ typedef enum {
 } Kinc_G4_StencilAction;
 
 typedef struct _Kinc_G4_PipelineState {
-	_Kinc_G4_VertexStructure *inputLayout[16];
-	_Kinc_G4_Shader *vertexShader;
-	_Kinc_G4_Shader *fragmentShader;
-	_Kinc_G4_Shader *geometryShader;
-	_Kinc_G4_Shader *tessellationControlShader;
-	_Kinc_G4_Shader *tessellationEvaluationShader;
+	struct _Kinc_G4_VertexStructure *inputLayout[16];
+	struct _Kinc_G4_Shader *vertexShader;
+	struct _Kinc_G4_Shader *fragmentShader;
+	struct _Kinc_G4_Shader *geometryShader;
+	struct _Kinc_G4_Shader *tessellationControlShader;
+	struct _Kinc_G4_Shader *tessellationEvaluationShader;
 
 	Kinc_G4_CullMode cullMode;
 

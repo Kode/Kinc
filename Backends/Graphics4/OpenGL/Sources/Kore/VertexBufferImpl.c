@@ -8,6 +8,7 @@
 #include <Kinc/Graphics4/VertexBuffer.h>
 
 #include <assert.h>
+#include <stdlib.h>
 
 extern Kinc_G4_IndexBuffer *Kinc_Internal_CurrentIndexBuffer = NULL;
 static Kinc_G4_VertexBuffer *currentVertexBuffer = NULL;
@@ -51,7 +52,7 @@ void Kinc_G4_VertexBuffer_Create(Kinc_G4_VertexBuffer *buffer, int vertexCount, 
 			break;
 		}
 	}
-	buffer->impl.structure = structure;
+	buffer->impl.structure = *structure;
 	switch (usage) {
 		case KINC_G4_USAGE_STATIC:
 			buffer->impl.usage = GL_STATIC_DRAW;
@@ -191,7 +192,7 @@ int Kinc_G4_Internal_SetVertexAttributes(Kinc_G4_VertexBuffer *buffer, int offse
 			while (subsize > 0) {
 				glEnableVertexAttribArray(offset + actualIndex);
 				glCheckErrors();
-				glVertexAttribPointer(offset + actualIndex, 4, type, false, buffer->impl.myStride, (void*)(internaloffset + addonOffset));
+				glVertexAttribPointer(offset + actualIndex, 4, type, false, buffer->impl.myStride, (void*)(int64_t)(internaloffset + addonOffset));
 				glCheckErrors();
 #ifndef KORE_OPENGL_ES
 				if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
@@ -208,7 +209,7 @@ int Kinc_G4_Internal_SetVertexAttributes(Kinc_G4_VertexBuffer *buffer, int offse
 		else {
 			glEnableVertexAttribArray(offset + actualIndex);
 			glCheckErrors();
-			glVertexAttribPointer(offset + actualIndex, size, type, type == GL_FLOAT ? false : true, buffer->impl.myStride, (void*)internaloffset);
+			glVertexAttribPointer(offset + actualIndex, size, type, type == GL_FLOAT ? false : true, buffer->impl.myStride, (void*)(int64_t)internaloffset);
 			glCheckErrors();
 #ifndef KORE_OPENGL_ES
 			if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {

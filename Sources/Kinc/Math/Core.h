@@ -26,6 +26,8 @@ float Kinc_Mod(float numer, float denom);
 float Kinc_Exp(float exponent);
 float Kinc_Min(float a, float b);
 float Kinc_Max(float a, float b);
+int Kinc_Mini(int a, int b);
+int Kinc_Maxi(int a, int b);
 float Kinc_Clamp(float value, float minValue, float maxValue);
 
 #ifdef __cplusplus

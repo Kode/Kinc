@@ -496,11 +496,11 @@ namespace {
 	}
 }
 
-int OpenGL::textureAddressingU(Graphics4::TextureUnit unit) {
+int Kinc_G4_Internal_TextureAddressingU(Graphics4::TextureUnit unit) {
 	return texModesU[unit.unit];
 }
 
-int OpenGL::textureAddressingV(Graphics4::TextureUnit unit) {
+int Kinc_G4_Internal_TextureAddressingV(Graphics4::TextureUnit unit) {
 	return texModesV[unit.unit];
 }
 
@@ -740,14 +740,14 @@ void Graphics4::setPipeline(PipelineState* pipeline) {
 }
 
 void Graphics4::setStencilReferenceValue(int value) {
-	glStencilFunc(OpenGL::stencilFunc(lastPipeline->stencilMode), value, lastPipeline->stencilReadMask);
+	glStencilFunc(Kinc_G4_Internal_StencilFunc(lastPipeline->stencilMode), value, lastPipeline->stencilReadMask);
 }
 
 void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
 	array->set(unit);
 }
 
-int Kore::OpenGL::stencilFunc(Graphics4::ZCompareMode mode) {
+int Kinc_G4_Internal_StencilFunc(Graphics4::ZCompareMode mode) {
 	switch (mode) {
 	case Graphics4::ZCompareAlways:
 		return GL_ALWAYS;

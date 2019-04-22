@@ -1,28 +1,27 @@
 #pragma once
 
-namespace Kore {
-	namespace Graphics4 {
-		class PipelineState;
-	}
+#include <stdbool.h>
 
-	class PipelineStateImpl;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class ShaderImpl {
-	public:
-		ShaderImpl(void* data, int length);
-		ShaderImpl(const char* source);
-		virtual ~ShaderImpl();
-		uint _glid;
-		const char* source;
-		int length;
-		bool fromSource;
-		friend class Graphics4::PipelineState;
-		friend class PipelineStateImpl;
-	};
+typedef struct {
+	unsigned _glid;
+	const char *source;
+	size_t length;
+	bool fromSource;
+} Kinc_G4_ShaderImpl;
 
-	class ConstantLocationImpl {
-	public:
-		int location;
-		unsigned int type;
-	};
+typedef struct {
+	int location;
+	unsigned type;
+} Kinc_G4_ConstantLocationImpl;
+
+typedef struct {
+	int unit;
+} Kinc_G4_TextureUnitImpl;
+
+#ifdef __cplusplus
 }
+#endif

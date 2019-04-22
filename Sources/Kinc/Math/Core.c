@@ -81,6 +81,14 @@ float Kinc_Max(float a, float b) {
 	return a > b ? a : b;
 }
 
+int Kinc_Mini(int a, int b) {
+	return a > b ? b : a;
+}
+
+int Kinc_Maxi(int a, int b) {
+	return a > b ? a : b;
+}
+
 float Kinc_Clamp(float value, float minValue, float maxValue) {
 	return Kinc_Max(minValue, Kinc_Min(maxValue, value));
 }

@@ -1,13 +1,9 @@
 #pragma once
 
-#include <Kore/Graphics1/Image.h>
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Math/Matrix.h>
+#include <Kinc/Graphics4/Graphics.h>
+#include <Kinc/Graphics4/PipelineState.h>
+#include <Kinc/Graphics4/TextureUnit.h>
 
-namespace Kore {
-	namespace OpenGL {
-		int textureAddressingU(Graphics4::TextureUnit unit);
-		int textureAddressingV(Graphics4::TextureUnit unit);
-		int stencilFunc(Graphics4::ZCompareMode mode);
-	}
-}
+int Kinc_G4_Internal_TextureAddressingU(Kinc_G4_TextureUnit unit);
+int Kinc_G4_Internal_TextureAddressingV(Kinc_G4_TextureUnit unit);
+int Kinc_G4_Internal_StencilFunc(Kinc_G4_CompareMode mode);
