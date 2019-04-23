@@ -38,8 +38,8 @@ typedef struct {
 
 bool Kinc_FileReader_Open(Kinc_FileReader *reader, const char *filename, int type);
 void Kinc_FileReader_Close(Kinc_FileReader *reader);
-int Kinc_FileReader_Read(Kinc_FileReader *reader, void *data, int size);
-int Kinc_FileReader_Size(Kinc_FileReader *reader);
+int Kinc_FileReader_Read(Kinc_FileReader *reader, void *data, size_t size);
+size_t Kinc_FileReader_Size(Kinc_FileReader *reader);
 int Kinc_FileReader_Pos(Kinc_FileReader *reader);
 void Kinc_FileReader_Seek(Kinc_FileReader *reader, int pos);
 

@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *data, int length, Kinc_G4_ShaderType type) {
+void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *data, size_t length, Kinc_G4_ShaderType type) {
 	shader->impl.length = length;
 	shader->impl._glid = 0;
 	shader->impl.fromSource = false;

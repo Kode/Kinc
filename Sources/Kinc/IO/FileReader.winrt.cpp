@@ -197,7 +197,7 @@ bool Kinc_FileReader_Open(Kinc_FileReader *reader, const char *filename, int typ
 }
 #endif
 
-int Kinc_FileReader_Read(Kinc_FileReader *reader, void *data, int size) {
+int Kinc_FileReader_Read(Kinc_FileReader *reader, void *data, size_t size) {
 #ifdef KORE_ANDROID
 	if (this->data.file != nullptr) {
 		return static_cast<int>(fread(data, 1, size, this->data.file));
@@ -254,8 +254,8 @@ int Kinc_FileReader_Pos(Kinc_FileReader *reader) {
 #endif
 }
 
-int Kinc_FileReader_Size(Kinc_FileReader *reader) {
-	return reader->size;
+size_t Kinc_FileReader_Size(Kinc_FileReader *reader) {
+	return (size_t)reader->size;
 }
 
 #endif

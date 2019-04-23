@@ -69,6 +69,42 @@ static GLenum convertBlendingOperation(Kinc_G4_BlendingOperation operation) {
 }
 
 void Kinc_G4_PipelineState_Create(Kinc_G4_PipelineState *state) {
+	memset(state, 0, sizeof(Kinc_G4_PipelineState));
+	
+	for (int i = 0; i < 16; ++i) state->inputLayout[i] = NULL;
+	state->vertexShader = NULL;
+	state->fragmentShader = NULL;
+	state->geometryShader = NULL;
+	state->tessellationControlShader = NULL;
+	state->tessellationEvaluationShader = NULL;
+
+	state->cullMode = KINC_G4_CULL_NOTHING;
+
+	state->depthWrite = false;
+	state->depthMode = KINC_G4_COMPARE_ALWAYS;
+
+	state->stencilMode = KINC_G4_COMPARE_ALWAYS;
+	state->stencilBothPass = KINC_G4_STENCIL_KEEP;
+	state->stencilDepthFail = KINC_G4_STENCIL_KEEP;
+	state->stencilFail = KINC_G4_STENCIL_KEEP;
+	state->stencilReferenceValue = 0;
+	state->stencilReadMask = 0xff;
+	state->stencilWriteMask = 0xff;
+
+	state->blendSource = KINC_G4_BLEND_ONE;
+	state->blendDestination = KINC_G4_BLEND_ZERO;
+	// blendOperation = BlendingOperation.Add;
+	state->alphaBlendSource = KINC_G4_BLEND_ONE;
+	state->alphaBlendDestination = KINC_G4_BLEND_ZERO;
+	// alphaBlendOperation = BlendingOperation.Add;
+
+	for (int i = 0; i < 8; ++i) state->colorWriteMaskRed[i] = true;
+	for (int i = 0; i < 8; ++i) state->colorWriteMaskGreen[i] = true;
+	for (int i = 0; i < 8; ++i) state->colorWriteMaskBlue[i] = true;
+	for (int i = 0; i < 8; ++i) state->colorWriteMaskAlpha[i] = true;
+
+	state->conservativeRasterization = false;
+
 	state->impl.textureCount = 0;
 	// TODO: Get rid of allocations
 	state->impl.textures = (char**)malloc(sizeof(char*) * 16);

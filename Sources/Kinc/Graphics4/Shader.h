@@ -18,7 +18,7 @@ typedef struct _Kinc_G4_Shader {
 	Kinc_G4_ShaderImpl impl;
 } Kinc_G4_Shader;
 
-void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *data, int length, Kinc_G4_ShaderType type);
+void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *data, size_t length, Kinc_G4_ShaderType type);
 void Kinc_G4_Shader_CreateFromSource(Kinc_G4_Shader *shader, const char *source, Kinc_G4_ShaderType type); // Beware, this is not portable
 void Kinc_G4_Shader_Destroy(Kinc_G4_Shader *shader);
 
