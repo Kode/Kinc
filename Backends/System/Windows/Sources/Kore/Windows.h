@@ -18,6 +18,8 @@ void Kinc_Windows_HideWindows();
 void Kinc_Windows_DestroyWindows();
 struct HWND__ *Kinc_Windows_WindowHandle(int window_index);
 int Kinc_Windows_WindowIndexFromHWND(struct HWND__ *handle);
+int Kinc_Windows_ManualWidth(int window);
+int Kinc_Windows_ManualHeight(int window);
 
 #ifdef __cplusplus
 }

@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-extern Kinc_G4_IndexBuffer *Kinc_Internal_CurrentIndexBuffer = NULL;
+extern Kinc_G4_IndexBuffer *Kinc_Internal_CurrentIndexBuffer;
 static Kinc_G4_VertexBuffer *currentVertexBuffer = NULL;
 
 void Kinc_G4_VertexBuffer_Create(Kinc_G4_VertexBuffer *buffer, int vertexCount, Kinc_G4_VertexStructure *structure, Kinc_G4_Usage usage,

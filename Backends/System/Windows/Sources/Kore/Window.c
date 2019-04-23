@@ -397,6 +397,14 @@ struct HWND__ *Kinc_Windows_WindowHandle(int window_index) {
 	return windows[window_index].handle;
 }
 
+int Kinc_Windows_ManualWidth(int window) {
+	return windows[window].manualWidth;
+}
+
+int Kinc_Windows_ManualHeight(int window) {
+	return windows[window].manualHeight;
+}
+
 void Kinc_Internal_CallResizeCallback(int window_index, int width, int height) {
 	if (windows[window_index].resizeCallback != NULL) {
 		windows[window_index].resizeCallback(width, height, windows[window_index].resizeCallbackData);

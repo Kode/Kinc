@@ -6,26 +6,28 @@
 #include <Windows.h>
 #endif
 
-namespace Kore {
-	namespace Graphics4 {
-		class RenderTarget;
-	}
-
-	namespace OpenGL {
-		struct Window {
-#ifdef KORE_WINDOWS
-			HDC deviceContext;
-			HGLRC glContext;
+#ifdef __cplusplus
+extern "C" {
 #endif
-			int framebuffer;
-			uint vertexArray;
-			Graphics4::RenderTarget* renderTarget;
-		};
 
-		extern Window windows[10];
+struct _Kinc_G4_RenderTarget;
 
-		void initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits);
-		void blitWindowContent(int window);
-		void setWindowRenderTarget(int window);
-	}
+typedef struct {
+#ifdef KORE_WINDOWS
+	HDC deviceContext;
+	HGLRC glContext;
+#endif
+	int framebuffer;
+	unsigned vertexArray;
+	struct _Kinc_G4_RenderTarget *renderTarget;
+} Kinc_Internal_OpenGLWindow;
+
+extern Kinc_Internal_OpenGLWindow Kinc_Internal_windows[10];
+
+void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits);
+void Kinc_Internal_blitWindowContent(int window);
+void Kinc_Internal_setWindowRenderTarget(int window);
+
+#ifdef __cplusplus
 }
+#endif

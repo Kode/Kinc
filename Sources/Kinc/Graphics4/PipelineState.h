@@ -98,6 +98,8 @@ void Kinc_G4_PipelineState_Compile(Kinc_G4_PipelineState *state);
 Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_PipelineState *state, const char *name);
 Kinc_G4_TextureUnit Kinc_G4_PipelineState_GetTextureUnit(Kinc_G4_PipelineState *state, const char *name);
 
+void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState *pipeline);
+
 #ifdef __cplusplus
 }
 #endif

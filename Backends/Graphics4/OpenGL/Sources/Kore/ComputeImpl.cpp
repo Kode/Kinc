@@ -1,11 +1,14 @@
 #include "pch.h"
 
 #include "ComputeImpl.h"
+
 #include "ogl.h"
 
 #include <Kore/Compute/Compute.h>
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Math/Core.h>
+#include <Kore/Log.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -330,7 +333,7 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, A
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 	GLenum glaccess = access == Read ? GL_READ_ONLY : (access == Write ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(unit.unit, texture->texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
+	glBindImageTexture(unit.unit, texture->kincTexture.impl.texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
 	glCheckErrors();
 #endif
 }
@@ -340,7 +343,7 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* targe
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 	GLenum glaccess = access == Read ? GL_READ_ONLY : (access == Write ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(unit.unit, target->_texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat((Graphics4::RenderTargetFormat)target->format));
+	glBindImageTexture(unit.unit, target->kincRenderTarget.impl._texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat((Graphics4::RenderTargetFormat)target->kincRenderTarget.impl.format));
 	glCheckErrors();
 #endif
 }
@@ -350,7 +353,7 @@ void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* tex
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
 	GLenum gltarget = texture->depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
-	glBindTexture(gltarget, texture->texture);
+	glBindTexture(gltarget, texture->kincTexture.impl.texture);
 	glCheckErrors();
 #endif
 }
@@ -359,7 +362,7 @@ void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
-	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->_texture);
+	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->kincRenderTarget.impl._texture);
 	glCheckErrors();
 #endif
 }
@@ -368,7 +371,7 @@ void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderT
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
-	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->_depthTexture);
+	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->kincRenderTarget.impl._depthTexture);
 	glCheckErrors();
 #endif
 }

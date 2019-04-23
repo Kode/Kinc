@@ -1,5 +1,7 @@
-#include "ogl.h"
 #include "pch.h"
+
+#include "ogl.h"
+
 #include <Kore/Compute/Compute.h>
 
 using namespace Kore;
