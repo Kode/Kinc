@@ -23,11 +23,11 @@ static void winerror(HRESULT result) {
 		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw,
 		               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
 
-		Kinc_ErrorMessage("Error: %s", buffer);
+		kinc_error_message("Error: %s", buffer);
 	}
 	else {
 #endif
-		Kinc_ErrorMessage("Unknown Windows error, return value was 0x%x.", result);
+		kinc_error_message("Unknown Windows error, return value was 0x%x.", result);
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	}
 #endif
@@ -42,7 +42,7 @@ void Kinc_Microsoft_Affirm(HRESULT result) {
 void Kinc_Microsoft_AffirmMessage(HRESULT result, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
-	Kinc_AffirmArgs(result == S_OK, format, args);
+	kinc_affirm_args(result == S_OK, format, args);
 	va_end(args);
 }
 

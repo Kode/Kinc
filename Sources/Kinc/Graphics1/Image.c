@@ -125,7 +125,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 			return true;
 		}
 		else {
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "Unknown fourcc in .k file.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown fourcc in .k file.");
 			return false;
 		}
 	}
@@ -189,7 +189,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 		int comp;
 		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
 		if (uncompressed == NULL) {
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
+			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
 			return false;
 		}
 		for (int y = 0; y < *height; ++y) {
@@ -220,7 +220,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 		int comp;
 		float *uncompressed = stbi_loadf_from_memory(buffer, size, width, height, &comp, 4);
 		if (uncompressed == NULL) {
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
+			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
 			return false;
 		}
 		*outputSize = *width * *height * 16;
@@ -239,7 +239,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 		int comp;
 		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
 		if (uncompressed == NULL) {
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
+			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
 			return false;
 		}
 		*outputSize = *width * *height * 4;

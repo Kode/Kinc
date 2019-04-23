@@ -12,8 +12,8 @@ namespace {
 }
 
 Display* Display::primary() {
-	displays[Kinc_PrimaryDisplay()]._index = Kinc_PrimaryDisplay();
-	return &displays[Kinc_PrimaryDisplay()];
+	displays[kinc_primary_display()]._index = kinc_primary_display();
+	return &displays[kinc_primary_display()];
 }
 
 Display* Display::get(int index) {
@@ -22,44 +22,44 @@ Display* Display::get(int index) {
 }
 
 int Display::count() {
-	return Kinc_CountDisplays();
+	return kinc_count_displays();
 }
 
 bool Display::available() {
-	return Kinc_DisplayAvailable(_index);
+	return kinc_display_available(_index);
 }
 
 const char* Display::name() {
-	return Kinc_DisplayName(_index);
+	return kinc_display_name(_index);
 }
 
 int Display::x() {
-	return Kinc_DisplayCurrentMode(_index).x;
+	return kinc_display_current_mode(_index).x;
 }
 
 int Display::y() {
-	return Kinc_DisplayCurrentMode(_index).y;
+	return kinc_display_current_mode(_index).y;
 }
 
 int Display::width() {
-	return Kinc_DisplayCurrentMode(_index).width;
+	return kinc_display_current_mode(_index).width;
 }
 
 int Display::height() {
-	return Kinc_DisplayCurrentMode(_index).height;
+	return kinc_display_current_mode(_index).height;
 }
 
 int Display::frequency() {
-	return Kinc_DisplayCurrentMode(_index).frequency;
+	return kinc_display_current_mode(_index).frequency;
 }
 
 int Display::pixelsPerInch() {
-	return Kinc_DisplayCurrentMode(_index).pixels_per_inch;
+	return kinc_display_current_mode(_index).pixels_per_inch;
 }
 
 DisplayMode Display::availableMode(int index) {
 	DisplayMode mode;
-	Kinc_DisplayMode kMode = Kinc_DisplayAvailableMode(_index, index);
+	kinc_display_mode_t kMode = kinc_display_available_mode(_index, index);
 	mode.width = kMode.width;
 	mode.height = kMode.height;
 	mode.frequency = kMode.frequency;
@@ -68,7 +68,7 @@ DisplayMode Display::availableMode(int index) {
 }
 
 int Display::countAvailableModes() {
-	return Kinc_DisplayCountAvailableModes(_index);
+	return kinc_display_count_available_modes(_index);
 }
 
 Display::Display() {}

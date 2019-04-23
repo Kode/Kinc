@@ -63,7 +63,7 @@
 	{                                                                                                                                                          \
 		GLenum code = glGetError();                                                                                                                            \
 		if (code != GL_NO_ERROR) {                                                                                                                             \
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                   \
+			kinc_log(KINC_LOG_LEVEL_ERROR, "GL Error %d %s %d\n", code, __FILE__, __LINE__);                                                                   \
 		}                                                                                                                                                      \
 	}
 #endif

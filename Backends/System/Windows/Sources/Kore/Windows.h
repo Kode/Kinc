@@ -11,9 +11,9 @@ struct HWND__;
 
 void Kinc_Windows_InitDisplays();
 int Kinc_Windows_GetDisplayForMonitor(struct HMONITOR__ *monitor);
-bool Kinc_Windows_SetDisplayMode(int display_index, int width, int height, int bpp, int frequency);
-void Kinc_Windows_RestoreDisplay(int display_index);
-void Kinc_Windows_RestoreDisplays();
+bool kinc_windows_set_display_mode(int display_index, int width, int height, int bpp, int frequency);
+void kinc_windows_restore_display(int display_index);
+void kinc_windows_restore_displays();
 void Kinc_Windows_HideWindows();
 void Kinc_Windows_DestroyWindows();
 struct HWND__ *Kinc_Windows_WindowHandle(int window_index);

@@ -64,7 +64,7 @@ extern "C" bool Kinc_Internal_SupportsConservativeRaster = false;
 namespace {
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)
 	void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
-		Kinc_Log(KINC_LOG_LEVEL_INFO, "OpenGL: %s", message);
+		kinc_log(KINC_LOG_LEVEL_INFO, "OpenGL: %s", message);
 	}
 #endif
 

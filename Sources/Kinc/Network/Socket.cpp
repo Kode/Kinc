@@ -56,58 +56,58 @@ void Kinc_Socket_Open(Kinc_Socket *sock, int port) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	sock->handle = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (sock->handle <= 0) {
-		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not create socket.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not create socket.");
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 		int errorCode = WSAGetLastError();
 		switch (errorCode) {
 		case (WSANOTINITIALISED):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "A successful WSAStartup call must occur before using this function.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "A successful WSAStartup call must occur before using this function.");
 			break;
 		case (WSAENETDOWN):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "The network subsystem or the associated service provider has failed.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "The network subsystem or the associated service provider has failed.");
 			break;
 		case (WSAEAFNOSUPPORT):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR,
+			kinc_log(KINC_LOG_LEVEL_ERROR,
 			          "The specified address family is not supported.For example, an application tried to create a socket for the AF_IRDA address "
 			                 "family but an infrared adapter and device driver is not installed on the local computer.");
 			break;
 		case (WSAEINPROGRESS):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR,
+			kinc_log(KINC_LOG_LEVEL_ERROR,
 			          "A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 			break;
 		case (WSAEMFILE):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "No more socket descriptors are available.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "No more socket descriptors are available.");
 			break;
 		case (WSAEINVAL):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR,
+			kinc_log(KINC_LOG_LEVEL_ERROR,
 			          "An invalid argument was supplied.This error is returned if the af parameter is set to AF_UNSPEC and the type and protocol "
 			                 "parameter are unspecified.");
 			break;
 		case (WSAENOBUFS):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "No buffer space is available.The socket cannot be created.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "No buffer space is available.The socket cannot be created.");
 			break;
 		case (WSAEPROTONOSUPPORT):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "The specified protocol is not supported.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "The specified protocol is not supported.");
 			break;
 		case (WSAEPROTOTYPE):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "The specified protocol is the wrong type for this socket.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "The specified protocol is the wrong type for this socket.");
 			break;
 		case (WSAEPROVIDERFAILEDINIT):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR,
+			kinc_log(KINC_LOG_LEVEL_ERROR,
 			          "The service provider failed to initialize.This error is returned if a layered service provider(LSP) or namespace provider was "
 			                 "improperly installed or the provider fails to operate correctly.");
 			break;
 		case (WSAESOCKTNOSUPPORT):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "The specified socket type is not supported in this address family.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "The specified socket type is not supported in this address family.");
 			break;
 		case (WSAEINVALIDPROVIDER):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "The service provider returned a version other than 2.2.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "The service provider returned a version other than 2.2.");
 			break;
 		case (WSAEINVALIDPROCTABLE):
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "The service provider returned an invalid or incomplete procedure table to the WSPStartup.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "The service provider returned an invalid or incomplete procedure table to the WSPStartup.");
 			break;
 		default:
-			Kinc_Log(KINC_LOG_LEVEL_ERROR, "Unknown error.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown error.");
 		}
 #endif
 		return;
@@ -118,7 +118,7 @@ void Kinc_Socket_Open(Kinc_Socket *sock, int port) {
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons((unsigned short)port);
 	if (bind(sock->handle, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0) {
-		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not bind socket.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not bind socket.");
 		return;
 	}
 #endif
@@ -126,7 +126,7 @@ void Kinc_Socket_Open(Kinc_Socket *sock, int port) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	DWORD nonBlocking = 1;
 	if (ioctlsocket(sock->handle, FIONBIO, &nonBlocking) != 0) {
-		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
 		return;
 	}
 #elif defined(KORE_POSIX)
@@ -152,7 +152,7 @@ unsigned Kinc_urlToInt(const char *url, int port) {
 	addrinfo* address = nullptr;
 	int res = resolveAddress(url, port, &address);
 	if (res != 0) {
-		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not resolve address.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not resolve address.");
 		return -1;
 	}
 
@@ -174,7 +174,7 @@ void Kinc_Socket_Send(Kinc_Socket *sock, unsigned address, int port, const unsig
 
 	size_t sent = sendto(sock->handle, (const char*)data, size, 0, (sockaddr*)&addr, sizeof(sockaddr_in));
 	if (sent != size) {
-		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
 	}
 #endif
 }
@@ -184,13 +184,13 @@ void Kinc_Socket_Send_URL(Kinc_Socket *sock, const char *url, int port, const un
 	addrinfo* address = nullptr;
 	int res = resolveAddress(url, port, &address);
 	if (res != 0) {
-		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not resolve address.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not resolve address.");
 		return;
 	}
 
 	size_t sent = sendto(sock->handle, (const char*)data, size, 0, address->ai_addr, sizeof(sockaddr_in));
 	if (sent != size) {
-		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
 	}
 	freeaddrinfo(address);
 #endif

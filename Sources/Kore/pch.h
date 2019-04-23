@@ -51,16 +51,15 @@ namespace Kore {
 
 #define Noexcept throw()
 
-#define KORE_FUNC
-
-#else
-
-#define KORE_FUNC
-
-#if defined(KORE_PPC)
-#define KORE_BIG_ENDIAN
-#else
-#define KORE_LITTLE_ENDIAN
 #endif
 
+#include <stdarg.h>
+#include <stdbool.h>
+
+#define KINC_FUNC
+
+#if defined(KORE_PPC)
+#define KINC_BIG_ENDIAN
+#else
+#define KINC_LITTLE_ENDIAN
 #endif

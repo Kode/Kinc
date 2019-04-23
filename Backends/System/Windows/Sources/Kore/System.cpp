@@ -697,7 +697,7 @@ namespace {
 		HRESULT hr = di_pads[padCount]->SetProperty(DIPROP_RANGE, &propertyRange.diph);
 
 		if (FAILED(hr)) {
-			Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetProperty() failed (HRESULT=0x%x)", padCount, hr);
+			kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetProperty() failed (HRESULT=0x%x)", padCount, hr);
 
 			// TODO (DK) cleanup?
 			// cleanupPad(padCount);
@@ -734,30 +734,30 @@ namespace {
 							hr = di_pads[padCount]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[padCount]);
 
 							if (SUCCEEDED(hr)) {
-								Kinc_Log(KINC_LOG_LEVEL_INFO, "DirectInput8 / Pad%i / initialized", padCount);
+								kinc_log(KINC_LOG_LEVEL_INFO, "DirectInput8 / Pad%i / initialized", padCount);
 							}
 							else {
-								Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetDeviceState() failed (HRESULT=0x%x)", padCount, hr);
+								kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetDeviceState() failed (HRESULT=0x%x)", padCount, hr);
 								// cleanupPad(padCount); // (DK) don't kill it, we try again in handleDirectInputPad()
 							}
 						}
 						else {
-							Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / Acquire() failed (HRESULT=0x%x)", padCount, hr);
+							kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / Acquire() failed (HRESULT=0x%x)", padCount, hr);
 							cleanupPad(padCount);
 						}
 					}
 					else {
-						Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / EnumObjects(DIDFT_AXIS) failed (HRESULT=0x%x)", padCount, hr);
+						kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / EnumObjects(DIDFT_AXIS) failed (HRESULT=0x%x)", padCount, hr);
 						cleanupPad(padCount);
 					}
 				}
 				else {
-					Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetCapabilities() failed (HRESULT=0x%x)", padCount, hr);
+					kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetCapabilities() failed (HRESULT=0x%x)", padCount, hr);
 					cleanupPad(padCount);
 				}
 			}
 			else {
-				Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetDataFormat() failed (HRESULT=0x%x)", padCount, hr);
+				kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetDataFormat() failed (HRESULT=0x%x)", padCount, hr);
 				cleanupPad(padCount);
 			}
 
@@ -792,7 +792,7 @@ static void initializeDirectInput() {
 		}
 	}
 	else {
-		Kinc_Log(KINC_LOG_LEVEL_WARNING, "DirectInput8Create failed (HRESULT=0x%x)", hr);
+		kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8Create failed (HRESULT=0x%x)", hr);
 	}
 }
 
@@ -1082,5 +1082,5 @@ void Kinc_Internal_Shutdown() {
 	Kinc_Windows_HideWindows();
 	Kinc_Internal_ShutdownCallback();
 	Kinc_Windows_DestroyWindows();
-	Kinc_Windows_RestoreDisplays();
+	kinc_windows_restore_displays();
 }

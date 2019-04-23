@@ -99,15 +99,15 @@ int Kinc_Windows_GetDisplayForMonitor(struct HMONITOR__ *monitor) {
 		}
 	}
 
-	Kinc_ErrorMessage("Display for monitor not found");
+	kinc_error_message("Display for monitor not found");
 	return -1;
 }
 
-int Kinc_CountDisplays() {
+int kinc_count_displays() {
 	return screen_counter;
 }
 
-int Kinc_PrimaryDisplay() {
+int kinc_primary_display() {
 	for (int i = 0; i < MAXIMUM_DISPLAYS; ++i) {
 		DisplayData *display = &displays[i];
 
@@ -116,15 +116,15 @@ int Kinc_PrimaryDisplay() {
 		}
 	}
 
-	Kinc_ErrorMessage("No primary display defined");
+	kinc_error_message("No primary display defined");
 	return -1;
 }
 
-Kinc_DisplayMode Kinc_DisplayAvailableMode(int display_index, int mode_index) {
+kinc_display_mode_t kinc_display_available_mode(int display_index, int mode_index) {
 	DEVMODEA dev_mode = {0};
 	dev_mode.dmSize = sizeof(DEVMODEA);
 	EnumDisplaySettingsA(displays[display_index].name, mode_index, &dev_mode);
-	Kinc_DisplayMode mode;
+	kinc_display_mode_t mode;
 	mode.x = displays[display_index].x;
 	mode.y = displays[display_index].y;
 	mode.width = dev_mode.dmPelsWidth;
@@ -135,7 +135,7 @@ Kinc_DisplayMode Kinc_DisplayAvailableMode(int display_index, int mode_index) {
 	return mode;
 }
 
-int Kinc_DisplayCountAvailableModes(int display_index) {
+int kinc_display_count_available_modes(int display_index) {
 	DEVMODEA dev_mode = {0};
 	dev_mode.dmSize = sizeof(DEVMODEA);
 	int i = 0;
@@ -144,7 +144,7 @@ int Kinc_DisplayCountAvailableModes(int display_index) {
 	return i;
 }
 
-bool Kinc_Windows_SetDisplayMode(int display_index, int width, int height, int bpp, int frequency) {
+bool kinc_windows_set_display_mode(int display_index, int width, int height, int bpp, int frequency) {
 	DisplayData *display = &displays[display_index];
 	display->mode_changed = true;
 	DEVMODEA mode = {0};
@@ -159,32 +159,32 @@ bool Kinc_Windows_SetDisplayMode(int display_index, int width, int height, int b
 	return ChangeDisplaySettingsA(&mode, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
 }
 
-void Kinc_Windows_RestoreDisplay(int display) {
+void kinc_windows_restore_display(int display) {
 	if (displays[display].mode_changed) {
 		ChangeDisplaySettingsA(&original_modes[display], 0);
 	}
 }
 
-void Kinc_Windows_RestoreDisplays() {
+void kinc_windows_restore_displays() {
 	for (int i = 0; i < MAXIMUM_DISPLAYS; ++i) {
-		Kinc_Windows_RestoreDisplay(i);	
+		kinc_windows_restore_display(i);	
 	}
 }
 
-bool Kinc_DisplayAvailable(int display_index) {
+bool kinc_display_available(int display_index) {
 	if (display_index < 0 || display_index >= MAXIMUM_DISPLAYS) {
 		return false;
 	}
 	return displays[display_index].available;
 }
 
-const char *Kinc_DisplayName(int display_index) {
+const char *kinc_display_name(int display_index) {
 	return displays[display_index].name;
 }
 
-Kinc_DisplayMode Kinc_DisplayCurrentMode(int display_index) {
+kinc_display_mode_t kinc_display_current_mode(int display_index) {
 	DisplayData *display = &displays[display_index];
-	Kinc_DisplayMode mode;
+	kinc_display_mode_t mode;
 	mode.x = display->x;
 	mode.y = display->y;
 	mode.width = display->width;

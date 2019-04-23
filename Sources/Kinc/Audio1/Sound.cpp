@@ -27,7 +27,7 @@ namespace {
 
 	void checkFOURCC(u8*& data, const char* fourcc) {
 		for (int i = 0; i < 4; ++i) {
-			Kinc_Affirm(*data == fourcc[i]);
+			kinc_affirm(*data == fourcc[i]);
 			++data;
 		}
 	}
@@ -56,7 +56,7 @@ namespace {
 		else if (strcmp(fourcc, "data") == 0) {
 			wave.dataSize = chunksize;
 			wave.data = new u8[chunksize];
-			Kinc_Affirm(wave.data != nullptr);
+			kinc_affirm(wave.data != nullptr);
 			memcpy(wave.data, data, chunksize);
 			data += chunksize;
 		}
@@ -159,7 +159,7 @@ Kinc_A1_Sound *Kinc_A1_CreateSound(const char *filename) {
 			splitMono16((s16*)data, sound->size, sound->left, sound->right);
 		}
 		else {
-			Kinc_Affirm(false);
+			kinc_affirm(false);
 		}
 	}
 	else {
@@ -177,7 +177,7 @@ Kinc_A1_Sound *Kinc_A1_CreateSound(const char *filename) {
 			splitStereo16((s16*)data, sound->size, sound->left, sound->right);
 		}
 		else {
-			Kinc_Affirm(false);
+			kinc_affirm(false);
 		}
 	}
 	sound->sample_rate_pos = 44100 / (float)sound->format.samples_per_second;

@@ -11,36 +11,36 @@
 #include <Kore/SystemMicrosoft.h>
 #endif
 
-void Kinc_Affirm(bool condition) {
+void kinc_affirm(bool condition) {
 	if (!condition) {
-		Kinc_Error();
+		kinc_error();
 	}
 }
 
-void Kinc_AffirmMessage(bool condition, const char* format, ...) {
+void kinc_affirm_message(bool condition, const char* format, ...) {
 	if (!condition) {
 		va_list args;
 		va_start(args, format);
-		Kinc_ErrorArgs(format, args);
+		kinc_error_args(format, args);
 		va_end(args);
 	}
 }
 
-void Kinc_AffirmArgs(bool condition, const char* format, va_list args) {
+void kinc_affirm_args(bool condition, const char* format, va_list args) {
 	if (!condition) {
-		Kinc_ErrorArgs(format, args);
+		kinc_error_args(format, args);
 	}
 }
 
-void Kinc_Error() {
-	Kinc_ErrorMessage("Unknown error");
+void kinc_error(void) {
+	kinc_error_message("Unknown error");
 }
 
-void Kinc_ErrorMessage(const char* format, ...) {
+void kinc_error_message(const char* format, ...) {
 	{
 		va_list args;
 		va_start(args, format);
-		Kinc_LogArgs(KINC_LOG_LEVEL_ERROR, format, args);
+		kinc_log_args(KINC_LOG_LEVEL_ERROR, format, args);
 		va_end(args);
 	}
 
@@ -58,8 +58,8 @@ void Kinc_ErrorMessage(const char* format, ...) {
 	exit(EXIT_FAILURE);
 }
 
-void Kinc_ErrorArgs(const char* format, va_list args) {
-	Kinc_LogArgs(KINC_LOG_LEVEL_ERROR, format, args);
+void kinc_error_args(const char* format, va_list args) {
+	kinc_log_args(KINC_LOG_LEVEL_ERROR, format, args);
 
 #ifdef KORE_WINDOWS
 	wchar_t buffer[4096];

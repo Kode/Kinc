@@ -355,7 +355,7 @@ static void init(Kinc_G4_Texture *texture, const char* format, bool readable) {
 	}
 
 	if (readable && texture->image.compression != KINC_IMAGE_COMPRESSION_NONE) {
-		Kinc_Log(KINC_LOG_LEVEL_WARNING, "Compressed images can not be readable.");
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Compressed images can not be readable.");
 	}
 }
 
@@ -407,7 +407,7 @@ static void init3D(Kinc_G4_Texture *texture, bool readable) {
 	}
 
 	if (texture->image.compression != KINC_IMAGE_COMPRESSION_NONE) {
-		Kinc_Log(KINC_LOG_LEVEL_WARNING, "Compressed images can not be 3D.");
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Compressed images can not be 3D.");
 	}
 #endif
 }

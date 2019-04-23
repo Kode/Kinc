@@ -10,6 +10,8 @@
 
 #include <stdarg.h>
 
+#include "pch.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,7 +27,7 @@ typedef enum {
 	KINC_LOG_LEVEL_INFO,
 	KINC_LOG_LEVEL_WARNING,
 	KINC_LOG_LEVEL_ERROR
-} Kinc_LogLevel;
+} kinc_log_level_t;
 
 /// <summary>
 /// Logging function similar to printf including some system-specific bonuses
@@ -42,7 +44,7 @@ typedef enum {
 /// </param>
 /// <param name="format">The parameter is equivalent to the first printf parameter.</param>
 /// <param name="...">The parameter is equivalent to the second printf parameter.</param>
-KORE_FUNC void Kinc_Log(Kinc_LogLevel log_level, const char *format, ...);
+KINC_FUNC void kinc_log(kinc_log_level_t log_level, const char *format, ...);
 
  /// <summary>
 /// Equivalent to Kinc_log but uses a va_list parameter
@@ -56,7 +58,7 @@ KORE_FUNC void Kinc_Log(Kinc_LogLevel log_level, const char *format, ...);
 /// </param>
 /// <param name="format">The parameter is equivalent to the first vprintf parameter.</param>
 /// <param name="args">The parameter is equivalent to the second vprintf parameter.</param>
-KORE_FUNC void Kinc_LogArgs(Kinc_LogLevel log_level, const char *format, va_list args);
+KINC_FUNC void kinc_log_args(kinc_log_level_t log_level, const char *format, va_list args);
 
 #ifdef __cplusplus
 }

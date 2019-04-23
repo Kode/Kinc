@@ -152,7 +152,7 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 		RegisterWindowClass(inst, windowClassName);
 	}
 
-	int display_index = target_display_index == -1 ? Kinc_PrimaryDisplay() : target_display_index;
+	int display_index = target_display_index == -1 ? kinc_primary_display() : target_display_index;
 
 	DWORD dwStyle, dwExStyle;
 
@@ -172,7 +172,7 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 		dwExStyle = WS_EX_APPWINDOW;
 		break;
 	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN: {
-		Kinc_Windows_SetDisplayMode(display_index, width, height, bpp, frequency);
+		kinc_windows_set_display_mode(display_index, width, height, bpp, frequency);
 		dwStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
 		dwExStyle = WS_EX_APPWINDOW;
 		break;
@@ -181,7 +181,7 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);
 
-	Kinc_DisplayMode display_mode = Kinc_DisplayCurrentMode(display_index);
+	kinc_display_mode_t display_mode = kinc_display_current_mode(display_index);
 
 	int dstx = display_mode.x;
 	int dsty = display_mode.y;
@@ -243,8 +243,8 @@ void Kinc_WindowResize(int window_index, int width, int height) {
 	}
 	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN: {
 		int display_index = Kinc_WindowDisplay(window_index);
-		Kinc_DisplayMode display_mode = Kinc_DisplayCurrentMode(display_index);
-		Kinc_Windows_SetDisplayMode(display_index, width, height, win->bpp, win->frequency);
+		kinc_display_mode_t display_mode = kinc_display_current_mode(display_index);
+		kinc_windows_set_display_mode(display_index, width, height, win->bpp, win->frequency);
 		SetWindowPos(win->handle, NULL, display_mode.x, display_mode.y, display_mode.width, display_mode.height, 0);
 		break;
 	}
@@ -277,21 +277,21 @@ void Kinc_WindowChangeFeatures(int window_index, int features) {
 void Kinc_WindowChangeMode(int window_index, Kinc_WindowMode mode) {
 	WindowData *win = &windows[window_index];
 	int display_index = Kinc_WindowDisplay(window_index);
-	Kinc_DisplayMode display_mode = Kinc_DisplayCurrentMode(display_index);
+	kinc_display_mode_t display_mode = kinc_display_current_mode(display_index);
 	switch (mode) {
 	case KINC_WINDOW_MODE_WINDOW:
-		Kinc_Windows_RestoreDisplay(display_index);
+		kinc_windows_restore_display(display_index);
 		Kinc_WindowChangeFeatures(window_index, win->features);
 		break;
 	case KINC_WINDOW_MODE_FULLSCREEN: {
-		Kinc_Windows_RestoreDisplay(display_index);
+		kinc_windows_restore_display(display_index);
 		SetWindowLong(win->handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
 		SetWindowLong(win->handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
 		SetWindowPos(win->handle, NULL, display_mode.x, display_mode.y, display_mode.width, display_mode.height, 0);
 		break;
 	}
 	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
-		Kinc_Windows_SetDisplayMode(display_index, win->manualWidth, win->manualHeight, win->bpp, win->frequency);
+		kinc_windows_set_display_mode(display_index, win->manualWidth, win->manualHeight, win->bpp, win->frequency);
 		SetWindowLong(win->handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
 		SetWindowLong(win->handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
 		SetWindowPos(win->handle, NULL, display_mode.x, display_mode.y, display_mode.width, display_mode.height, 0);

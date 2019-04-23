@@ -386,7 +386,7 @@ Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_Pipel
 	}
 	glCheckErrors();
 	if (location.impl.location < 0) {
-		Kinc_Log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
 	}
 	return location;
 }

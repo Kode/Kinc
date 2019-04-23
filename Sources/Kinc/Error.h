@@ -11,8 +11,7 @@
 /// implemented for Windows).
 /// </remarks>
 
-#include <stdarg.h>
-#include <stdbool.h>
+#include "pch.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +32,7 @@ extern "C" {
 /// Exits the program if condition is false,
 /// otherwise does nothing.
 /// </param>
-KORE_FUNC void Kinc_Affirm(bool condition);
+KINC_FUNC void kinc_affirm(bool condition);
 
 /// <summary>
 /// Exits the program when a condition is untrue and shows
@@ -53,7 +52,7 @@ KORE_FUNC void Kinc_Affirm(bool condition);
 /// <param name="...">
 /// The parameter is equivalent to the second printf parameter.
 /// </param>
-KORE_FUNC void Kinc_AffirmMessage(bool condition, const char* format, ...);
+KINC_FUNC void kinc_affirm_message(bool condition, const char *format, ...);
 
 /// <summary>
 /// Equivalent to Kinc_affirmMessage but uses a va_list parameter.
@@ -71,7 +70,7 @@ KORE_FUNC void Kinc_AffirmMessage(bool condition, const char* format, ...);
 /// <param name="...">
 /// The parameter is equivalent to the second vprintf parameter.
 /// </param>
-KORE_FUNC void Kinc_AffirmArgs(bool condition, const char* format, va_list args);
+KINC_FUNC void kinc_affirm_args(bool condition, const char *format, va_list args);
 
 /// <summary>
 /// Exits the program and shows a generic error message
@@ -80,7 +79,7 @@ KORE_FUNC void Kinc_AffirmArgs(bool condition, const char* format, va_list args)
 /// Mainly this just calls exit(EXIT_FAILURE) but will also use
 /// Kore's log function and on Windows show an error message box.
 /// </remarks>
-KORE_FUNC void Kinc_Error();
+KINC_FUNC void kinc_error(void);
 
 /// <summary>
 /// Exits the program and shows a provided error message.
@@ -95,7 +94,7 @@ KORE_FUNC void Kinc_Error();
 /// <param name="...">
 /// The parameter is equivalent to the second printf parameter.
 /// </param>
-KORE_FUNC void Kinc_ErrorMessage(const char *format, ...);
+KINC_FUNC void kinc_error_message(const char *format, ...);
 
 /// <summary>
 /// Equivalent to Kinc_errorMessage but uses a va_list parameter.
@@ -109,7 +108,7 @@ KORE_FUNC void Kinc_ErrorMessage(const char *format, ...);
 /// <param name="...">
 /// The parameter is equivalent to the second vprintf parameter.
 /// </param>
-KORE_FUNC void Kinc_ErrorArgs(const char* format, va_list args);
+KINC_FUNC void kinc_error_args(const char *format, va_list args);
 
 #ifdef __cplusplus
 }

@@ -13,14 +13,14 @@
 #include <android/log.h>
 #endif
 
-void Kinc_Log(Kinc_LogLevel level, const char* format, ...) {
+void kinc_log(kinc_log_level_t level, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
-	Kinc_LogArgs(level, format, args);
+	kinc_log_args(level, format, args);
 	va_end(args);
 }
 
-void Kinc_LogArgs(Kinc_LogLevel level, const char* format, va_list args) {
+void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 #ifdef KORE_MICROSOFT
 	wchar_t buffer[4096];
 	Kinc_Microsoft_Format(format, args, buffer);

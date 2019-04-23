@@ -26,7 +26,7 @@ bool Kinc_FileWriter_Open(Kinc_FileWriter *writer, const char *filepath) {
 	strcat(path, filepath);
 	writer->file = fopen(path, "wb");
 	if (writer->file == NULL) {
-		Kinc_Log(KINC_LOG_LEVEL_WARNING, "Could not open file %s.", filepath);
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not open file %s.", filepath);
 		return false;
 	}
 	return true;
