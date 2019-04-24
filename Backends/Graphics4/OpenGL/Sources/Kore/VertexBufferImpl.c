@@ -10,10 +10,10 @@
 #include <assert.h>
 #include <stdlib.h>
 
-extern Kinc_G4_IndexBuffer *Kinc_Internal_CurrentIndexBuffer;
-static Kinc_G4_VertexBuffer *currentVertexBuffer = NULL;
+extern kinc_g4_index_buffer_t *Kinc_Internal_CurrentIndexBuffer;
+static kinc_g4_vertex_buffer_t *currentVertexBuffer = NULL;
 
-void Kinc_G4_VertexBuffer_Create(Kinc_G4_VertexBuffer *buffer, int vertexCount, Kinc_G4_VertexStructure *structure, Kinc_G4_Usage usage,
+void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int vertexCount, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
                                  int instanceDataStepRate) {
 	buffer->impl.myCount = vertexCount;
 	buffer->impl.instanceDataStepRate = instanceDataStepRate;
@@ -22,7 +22,7 @@ void Kinc_G4_VertexBuffer_Create(Kinc_G4_VertexBuffer *buffer, int vertexCount, 
 #endif
 	buffer->impl.myStride = 0;
 	for (int i = 0; i < structure->size; ++i) {
-		Kinc_G4_VertexElement element = structure->elements[i];
+		kinc_g4_vertex_element_t element = structure->elements[i];
 		switch (element.data) {
 		case KINC_G4_VERTEX_DATA_COLOR:
 			buffer->impl.myStride += 1 * 4;
@@ -74,27 +74,27 @@ void Kinc_G4_VertexBuffer_Create(Kinc_G4_VertexBuffer *buffer, int vertexCount, 
 	buffer->impl.data = (float*)malloc(vertexCount * buffer->impl.myStride);
 }
 
-void Kinc_Internal_G4_VertexBuffer_Unset(Kinc_G4_VertexBuffer *buffer);
+void Kinc_Internal_G4_VertexBuffer_Unset(kinc_g4_vertex_buffer_t *buffer);
 
-void Kinc_G4_VertexBuffer_Destroy(Kinc_G4_VertexBuffer *buffer) {
+void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
 	Kinc_Internal_G4_VertexBuffer_Unset(buffer);
 	free(buffer->impl.data);
 }
 
-float *Kinc_G4_VertexBuffer_LockAll(Kinc_G4_VertexBuffer *buffer) {
+float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer) {
 	buffer->impl.sectionStart = 0;
 	buffer->impl.sectionSize = buffer->impl.myCount * buffer->impl.myStride;
 	return buffer->impl.data;
 }
 
-float *Kinc_G4_VertexBuffer_Lock(Kinc_G4_VertexBuffer *buffer, int start, int count) {
+float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, int count) {
 	buffer->impl.sectionStart = start * buffer->impl.myStride;
 	buffer->impl.sectionSize = count * buffer->impl.myStride;
 	uint8_t *u8data = (uint8_t*)buffer->impl.data;
 	return (float*)&u8data[buffer->impl.sectionStart];
 }
 
-void Kinc_G4_VertexBuffer_UnlockAll(Kinc_G4_VertexBuffer *buffer) {
+void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
 	uint8_t *u8data = (uint8_t*)buffer->impl.data;
@@ -105,8 +105,8 @@ void Kinc_G4_VertexBuffer_UnlockAll(Kinc_G4_VertexBuffer *buffer) {
 #endif
 }
 
-void Kinc_G4_VertexBuffer_Unlock(Kinc_G4_VertexBuffer *buffer, int count) {
-glBindBuffer(GL_ARRAY_BUFFER, buffer->impl.bufferId);
+void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
+	glBindBuffer(GL_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
 	uint8_t *u8data = (uint8_t*)buffer->impl.data;
 	glBufferSubData(GL_ARRAY_BUFFER, buffer->impl.sectionStart, count * buffer->impl.myStride, u8data + buffer->impl.sectionStart);
@@ -116,9 +116,9 @@ glBindBuffer(GL_ARRAY_BUFFER, buffer->impl.bufferId);
 #endif
 }
 
-int Kinc_G4_Internal_SetVertexAttributes(Kinc_G4_VertexBuffer *buffer, int offset);
+int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int offset);
 
-int Kinc_Internal_G4_VertexBuffer_Set(Kinc_G4_VertexBuffer *buffer, int offset) {
+int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	assert(buffer->impl.initialized); // Vertex Buffer is used before lock/unlock was called
 	int offsetoffset = Kinc_G4_Internal_SetVertexAttributes(buffer, offset);
 	if (Kinc_Internal_CurrentIndexBuffer != NULL) {
@@ -127,17 +127,17 @@ int Kinc_Internal_G4_VertexBuffer_Set(Kinc_G4_VertexBuffer *buffer, int offset) 
 	return offsetoffset;
 }
 
-void Kinc_Internal_G4_VertexBuffer_Unset(Kinc_G4_VertexBuffer *buffer) {
+void Kinc_Internal_G4_VertexBuffer_Unset(kinc_g4_vertex_buffer_t *buffer) {
 	if (currentVertexBuffer == buffer) {
 		currentVertexBuffer = NULL;
 	}
 }
 
-int Kinc_G4_VertexBuffer_Count(Kinc_G4_VertexBuffer *buffer) {
+int kinc_g4_vertex_buffer_count(kinc_g4_vertex_buffer_t *buffer) {
 	return buffer->impl.myCount;
 }
 
-int Kinc_G4_VertexBuffer_Stride(Kinc_G4_VertexBuffer *buffer) {
+int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer) {
 	return buffer->impl.myStride;
 }
 
@@ -145,14 +145,14 @@ int Kinc_G4_VertexBuffer_Stride(Kinc_G4_VertexBuffer *buffer) {
 static bool attribDivisorUsed = false;
 #endif
 
-int Kinc_G4_Internal_SetVertexAttributes(Kinc_G4_VertexBuffer *buffer, int offset) {
+int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
 
 	int internaloffset = 0;
 	int actualIndex = 0;
 	for (int index = 0; index < buffer->impl.structure.size; ++index) {
-		Kinc_G4_VertexElement element = buffer->impl.structure.elements[index];
+		kinc_g4_vertex_element_t element = buffer->impl.structure.elements[index];
 		int size = 0;
 		GLenum type = GL_FLOAT;
 		switch (element.data) {

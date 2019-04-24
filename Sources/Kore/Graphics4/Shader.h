@@ -19,7 +19,7 @@ namespace Kore {
 			Shader(const char* source, ShaderType type); // Beware, this is not portable
 			virtual ~Shader();
 			
-			Kinc_G4_Shader kincShader;
+			kinc_g4_shader_t kincShader;
 		};
 
 		class ConstantLocation {

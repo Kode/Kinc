@@ -15,11 +15,11 @@
 using namespace Kore;
 
 int Graphics4::antialiasingSamples() {
-	return Kinc_G4_AntialiasingSamples();
+	return kinc_g4_antialiasing_samples();
 }
 
 void Graphics4::setAntialiasingSamples(int samples) {
-	Kinc_G4_SetAntialiasingSamples(samples);
+	kinc_g4_set_antialiasing_samples(samples);
 }
 
 bool Kore::Graphics4::fullscreen = false;
@@ -46,128 +46,128 @@ void Graphics4::setRenderTarget(RenderTarget* target) {
 }
 
 void Graphics4::setIndexBuffer(Kore::Graphics4::IndexBuffer& indexBuffer) {
-	Kinc_G4_SetIndexBuffer(&indexBuffer.kincBuffer);
+	kinc_g4_set_index_buffer(&indexBuffer.kincBuffer);
 }
 
 void Graphics4::setPipeline(Kore::Graphics4::PipelineState* pipeline) {
-	Kinc_G4_SetPipeline(&pipeline->kincPipeline);
+	kinc_g4_set_pipeline(&pipeline->kincPipeline);
 }
 
 void Graphics4::drawIndexedVertices() {
-	Kinc_G4_DrawIndexedVertices();
+	kinc_g4_draw_indexed_vertices();
 }
 
 void Graphics4::drawIndexedVertices(int start, int count) {
-	Kinc_G4_DrawIndexedVerticesFromTo(start, count);
+	kinc_g4_draw_indexed_vertices_from_to(start, count);
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
-	Kinc_G4_DrawIndexedVerticesInstanced(instanceCount);
+	kinc_g4_draw_indexed_vertices_instanced(instanceCount);
 }
 
 void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-	Kinc_G4_DrawIndexedVerticesInstancedFromTo(instanceCount, start, count);
+	kinc_g4_draw_indexed_vertices_instanced_from_to(instanceCount, start, count);
 }
 
 void Graphics4::begin(int window) {
-	Kinc_G4_Begin(window);
+	kinc_g4_begin(window);
 }
 
 void Graphics4::end(int window) {
-	Kinc_G4_End(window);
+	kinc_g4_end(window);
 }
 
 bool Graphics4::swapBuffers() {
-	return Kinc_G4_SwapBuffers();
+	return kinc_g4_swap_buffers();
 }
 
 void Graphics4::clear(unsigned flags, unsigned color, float depth, int stencil) {
-	Kinc_G4_Clear(flags, color, depth, stencil);
+	kinc_g4_clear(flags, color, depth, stencil);
 }
 
 void Graphics4::viewport(int x, int y, int width, int height) {
-	Kinc_G4_Viewport(x, y, width, height);
+	kinc_g4_viewport(x, y, width, height);
 }
 
 void Graphics4::scissor(int x, int y, int width, int height) {
-	Kinc_G4_Scissor(x, y, width, height);
+	kinc_g4_scissor(x, y, width, height);
 }
 
 void Graphics4::disableScissor() {
-	Kinc_G4_DisableScissor();
+	kinc_g4_disable_scissor();
 }
 
 void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	Kinc_G4_Init(windowId, depthBufferBits, stencilBufferBits, vsync);
+	kinc_g4_init(windowId, depthBufferBits, stencilBufferBits, vsync);
 }
 
 void Graphics4::destroy(int windowId) {
-	Kinc_G4_Destroy(windowId);
+	kinc_g4_destroy(windowId);
 }
 
 void Graphics4::setTexture(Graphics4::TextureUnit unit, Graphics4::Texture* texture) {
-	Kinc_G4_SetTexture(unit.kincUnit, &texture->kincTexture);
+	kinc_g4_set_texture(unit.kincUnit, &texture->kincTexture);
 }
 
 void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
 	Kinc_Matrix3x3 matrix;
 	memcpy(&matrix.m, value.data, sizeof(float) * 3 * 3);
-	Kinc_G4_SetMatrix3(location.kincConstant, &matrix);
+	kinc_g4_set_matrix3(location.kincConstant, &matrix);
 }
 
 void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
 	Kinc_Matrix4x4 matrix;
 	memcpy(&matrix.m, value.data, sizeof(float) * 4 * 4);
-	Kinc_G4_SetMatrix4(location.kincConstant, &matrix);
+	kinc_g4_set_matrix4(location.kincConstant, &matrix);
 }
 
 bool Graphics4::renderTargetsInvertedY() {
-	return Kinc_G4_RenderTargetsInvertedY();
+	return kinc_g4_render_targets_inverted_y();
 }
 
 void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
-	Kinc_G4_SetTextureAddressing(unit.kincUnit, (Kinc_G4_TextureDirection)dir, (Kinc_G4_TextureAddressing)addressing);
+	kinc_g4_set_texture_addressing(unit.kincUnit, (Kinc_G4_TextureDirection)dir, (Kinc_G4_TextureAddressing)addressing);
 }
 
 void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-	Kinc_G4_SetTextureMagnificationFilter(texunit.kincUnit, (Kinc_G4_TextureFilter)filter);
+	kinc_g4_set_texture_magnification_filter(texunit.kincUnit, (Kinc_G4_TextureFilter)filter);
 }
 
 void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	Kinc_G4_SetTextureMinificationFilter(texunit.kincUnit, (Kinc_G4_TextureFilter)filter);
+	kinc_g4_set_texture_minification_filter(texunit.kincUnit, (Kinc_G4_TextureFilter)filter);
 }
 
 void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	Kinc_G4_SetTextureMipmapFilter(texunit.kincUnit, (Kinc_G4_MipmapFilter)filter);
+	kinc_g4_set_texture_mipmap_filter(texunit.kincUnit, (Kinc_G4_MipmapFilter)filter);
 }
 
 bool Graphics4::nonPow2TexturesSupported() {
-	return Kinc_G4_NonPow2TexturesSupported();
+	return kinc_g4_non_pow2_textures_supported();
 }
 
 void Graphics4::setFloat(ConstantLocation location, float value) {
-	Kinc_G4_SetFloat(location.kincConstant, value);
+	kinc_g4_set_float(location.kincConstant, value);
 }
 
 void Graphics4::setFloat2(ConstantLocation location, float value1, float value2) {
-	Kinc_G4_SetFloat2(location.kincConstant, value1, value2);
+	kinc_g4_set_float2(location.kincConstant, value1, value2);
 }
 
 void Graphics4::setFloat3(ConstantLocation location, float value1, float value2, float value3) {
-	Kinc_G4_SetFloat3(location.kincConstant, value1, value2, value3);
+	kinc_g4_set_float3(location.kincConstant, value1, value2, value3);
 }
 
 void Graphics4::setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4) {
-	Kinc_G4_SetFloat4(location.kincConstant, value1, value2, value3, value4);
+	kinc_g4_set_float4(location.kincConstant, value1, value2, value3, value4);
 }
 
 void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 	assert(count <= 16);
-	Kinc_G4_VertexBuffer *buffers[16];
+	kinc_g4_vertex_buffer_t *buffers[16];
 	for (int i = 0; i < count; ++i) {
 		buffers[i] = &vertexBuffers[i]->kincBuffer;
 	}
-	Kinc_G4_SetVertexBuffers(buffers, count);
+	kinc_g4_set_vertex_buffers(buffers, count);
 }
 
 void Graphics4::setRenderTargets(RenderTarget** renderTargets, int count) {
@@ -176,7 +176,7 @@ void Graphics4::setRenderTargets(RenderTarget** renderTargets, int count) {
 	for (int i = 0; i < count; ++i) {
 		targets[i] = &renderTargets[i]->kincRenderTarget;
 	}
-	Kinc_G4_SetRenderTargets(targets, count);
+	kinc_g4_set_render_targets(targets, count);
 }
 
 void Kinc_Internal_Resize(int window, int width, int height);

@@ -17,7 +17,7 @@ typedef struct {
 	int sectionStart;
 	int sectionSize;
 	//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
-	Kinc_G4_VertexStructure structure;
+	kinc_g4_vertex_structure_t structure;
 	//#endif
 	int instanceDataStepRate;
 #ifndef NDEBUG

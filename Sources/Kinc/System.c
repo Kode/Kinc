@@ -25,43 +25,43 @@ static void (*paste_callback)(char *) = NULL;
 bool withAutoreleasepool(bool (*f)());
 #endif
 
-void Kinc_SetUpdateCallback(void (*value)()) {
+void kinc_set_update_callback(void (*value)()) {
 	update_callback = value;
 }
 
-void Kinc_SetForegroundCallback(void (*value)()) {
+void kinc_set_foreground_callback(void (*value)()) {
 	foreground_callback = value;
 }
 
-void Kinc_SetResumeCallback(void (*value)()) {
+void kinc_set_resume_callback(void (*value)()) {
 	resume_callback = value;
 }
 
-void Kinc_SetPauseCallback(void (*value)()) {
+void kinc_set_pause_callback(void (*value)()) {
 	pause_callback = value;
 }
 
-void Kinc_SetBackgroundCallback(void (*value)()) {
+void kinc_set_background_callback(void (*value)()) {
 	background_callback = value;
 }
 
-void Kinc_SetShutdownCallback(void (*value)()) {
+void kinc_set_shutdown_callback(void (*value)()) {
 	shutdown_callback = value;
 }
 
-void Kinc_SetDropFilesCallback(void (*value)(wchar_t *)) {
+void kinc_set_drop_files_callback(void (*value)(wchar_t *)) {
 	drop_files_callback = value;
 }
 
-void Kinc_SetCutCallback(char *(*value)()) {
+void kinc_set_cut_callback(char *(*value)()) {
 	cut_callback = value;
 }
 
-void Kinc_SetCopyCallback(char *(*value)()) {
+void kinc_set_copy_callback(char *(*value)()) {
 	copy_callback = value;
 }
 
-void Kinc_SetPasteCallback(void (*value)(char *)) {
+void kinc_set_paste_callback(void (*value)(char *)) {
 	paste_callback = value;
 }
 
@@ -131,7 +131,7 @@ static bool running = false;
 static bool showWindowFlag = true;
 static char name[1024] = {"Kore Application"};
 
-const char *Kinc_ApplicationName() {
+const char *kinc_application_name() {
 	return name;
 }
 
@@ -139,7 +139,7 @@ const char *Kinc_ApplicationName() {
 void shutdownMetalCompute();
 #endif
 
-void Kinc_Stop() {
+void kinc_stop() {
 	running = false;
 
 	// TODO (DK) destroy graphics + windows, but afaik Application::~Application() was never called, so it's the same behavior now as well
@@ -159,7 +159,7 @@ bool Kinc_Internal_Frame() {
 	return running;
 }
 
-void Kinc_Start() {
+void kinc_start() {
 	running = true;
 
 #if !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_XBOX_ONE)
@@ -175,10 +175,10 @@ void Kinc_Start() {
 #endif
 }
 
-int Kinc_Width() {
+int kinc_width() {
 	return Kinc_WindowWidth(0);
 }
 
-int Kinc_Height() {
+int kinc_height() {
 	return Kinc_WindowHeight(0);
 }

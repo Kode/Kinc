@@ -29,21 +29,21 @@ static _Bool endsWith(const char *str, const char *suffix) {
 	return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
-static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *output, int *outputSize, int *width, int *height,
+static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *output, int *outputSize, int *width, int *height,
                       Kinc_ImageCompression *compression, Kinc_ImageFormat *format, unsigned *internalFormat) {
 	*format = KINC_IMAGE_FORMAT_RGBA32;
 	if (endsWith(filename, "k")) {
 		uint8_t data[4];
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4);
 		*width = Kinc_ReadS32LE(data);
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4);
 		*height = Kinc_ReadS32LE(data);
 
 		char fourcc[5];
-		Kinc_FileReader_Read(file, fourcc, 4);
+		kinc_file_reader_read(file, fourcc, 4);
 		fourcc[4] = 0;
 
-		int compressedSize = Kinc_FileReader_Size(file) - 12;
+		int compressedSize = kinc_file_reader_size(file) - 12;
 
 		if (strcmp(fourcc, "LZ4 ") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_NONE;
@@ -52,7 +52,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 			if (output == NULL) {
 				return false;
 			}
-			Kinc_FileReader_Read(file, buffer, compressedSize);
+			kinc_file_reader_read(file, buffer, compressedSize);
 			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 			return true;
 		}
@@ -63,7 +63,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 			if (output == NULL) {
 				return false;
 			}
-			Kinc_FileReader_Read(file, buffer, compressedSize);
+			kinc_file_reader_read(file, buffer, compressedSize);
 			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 			*format = KINC_IMAGE_FORMAT_RGBA128;
 			return true;
@@ -74,7 +74,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 			if (output == NULL) {
 				return false;
 			}
-			Kinc_FileReader_Read(file, buffer, compressedSize);
+			kinc_file_reader_read(file, buffer, compressedSize);
 			*outputSize = LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 
 			uint8_t blockdim_x = 6;
@@ -119,7 +119,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 			if (output == NULL) {
 				return false;
 			}
-			Kinc_FileReader_Read(file, buffer, compressedSize);
+			kinc_file_reader_read(file, buffer, compressedSize);
 			*outputSize = LZ4_decompress_safe((char *)(data + 12), (char *)output, compressedSize, *outputSize);
 			*internalFormat = 0;
 			return true;
@@ -131,34 +131,34 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 	}
 	else if (endsWith(filename, "pvr")) {
 		uint8_t data[4];
-		Kinc_FileReader_Read(file, data, 4); // version
-		Kinc_FileReader_Read(file, data, 4); // flags
-		Kinc_FileReader_Read(file, data, 4); // pixelFormat1
-		Kinc_FileReader_Read(file, data, 4); // colourSpace
-		Kinc_FileReader_Read(file, data, 4); // channelType
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4); // version
+		kinc_file_reader_read(file, data, 4); // flags
+		kinc_file_reader_read(file, data, 4); // pixelFormat1
+		kinc_file_reader_read(file, data, 4); // colourSpace
+		kinc_file_reader_read(file, data, 4); // channelType
+		kinc_file_reader_read(file, data, 4);
 		uint32_t hh = Kinc_ReadU32LE(data);
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4);
 		uint32_t ww = Kinc_ReadU32LE(data);
-		Kinc_FileReader_Read(file, data, 4); // depth
-		Kinc_FileReader_Read(file, data, 4); // numSurfaces
-		Kinc_FileReader_Read(file, data, 4); // numFaces
-		Kinc_FileReader_Read(file, data, 4); // mipMapCount
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4); // depth
+		kinc_file_reader_read(file, data, 4); // numSurfaces
+		kinc_file_reader_read(file, data, 4); // numFaces
+		kinc_file_reader_read(file, data, 4); // mipMapCount
+		kinc_file_reader_read(file, data, 4);
 		uint32_t metaDataSize = Kinc_ReadU32LE(data);
 
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4);
 		uint32_t meta1fourcc = Kinc_ReadU32LE(data);
-		Kinc_FileReader_Read(file, data, 4); // meta1key
-		Kinc_FileReader_Read(file, data, 4); // meta1size
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4); // meta1key
+		kinc_file_reader_read(file, data, 4); // meta1size
+		kinc_file_reader_read(file, data, 4);
 		uint32_t meta1data = Kinc_ReadU32LE(data);
 
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4);
 		uint32_t meta2fourcc = Kinc_ReadU32LE(data);
-		Kinc_FileReader_Read(file, data, 4); // meta2key
-		Kinc_FileReader_Read(file, data, 4); // meta2size
-		Kinc_FileReader_Read(file, data, 4);
+		kinc_file_reader_read(file, data, 4); // meta2key
+		kinc_file_reader_read(file, data, 4); // meta2size
+		kinc_file_reader_read(file, data, 4);
 		uint32_t meta2data = Kinc_ReadU32LE(data);
 
 		int w = 0;
@@ -175,7 +175,7 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 		*internalFormat = 0;
 
 		*outputSize = ww * hh / 2;
-		Kinc_FileReader_Read(file, output, *outputSize);
+		kinc_file_reader_read(file, output, *outputSize);
 		return true;
 	}
 	else if (endsWith(filename, "png")) {
@@ -184,8 +184,8 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 		if (output == NULL) {
 			return false;
 		}
-		int size = Kinc_FileReader_Size(file);
-		Kinc_FileReader_Read(file, buffer, size);
+		int size = kinc_file_reader_size(file);
+		kinc_file_reader_read(file, buffer, size);
 		int comp;
 		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
 		if (uncompressed == NULL) {
@@ -215,8 +215,8 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 		if (output == NULL) {
 			return false;
 		}
-		int size = Kinc_FileReader_Size(file);
-		Kinc_FileReader_Read(file, buffer, size);
+		int size = kinc_file_reader_size(file);
+		kinc_file_reader_read(file, buffer, size);
 		int comp;
 		float *uncompressed = stbi_loadf_from_memory(buffer, size, width, height, &comp, 4);
 		if (uncompressed == NULL) {
@@ -234,8 +234,8 @@ static bool loadImage(Kinc_FileReader *file, const char *filename, uint8_t *outp
 		if (output == NULL) {
 			return false;
 		}
-		int size = Kinc_FileReader_Size(file);
-		Kinc_FileReader_Read(file, buffer, size);
+		int size = kinc_file_reader_size(file);
+		kinc_file_reader_read(file, buffer, size);
 		int comp;
 		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
 		if (uncompressed == NULL) {
@@ -310,11 +310,11 @@ void Kinc_Image_CreateFromBytes3D(Kinc_Image *image, void *data, int width, int 
 
 void Kinc_Image_CreateFromFile(Kinc_Image *image, const char *filename, bool readable) {
 	uint8_t *imageData = NULL;
-	Kinc_FileReader reader;
-	Kinc_FileReader_Open(&reader, filename, KINC_FILE_TYPE_ASSET);
+	kinc_file_reader_t reader;
+	kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET);
 	int dataSize;
 	loadImage(&reader, filename, imageData, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internalFormat);
-	Kinc_FileReader_Close(&reader);
+	kinc_file_reader_close(&reader);
 	if (formatIsFloatingPoint(image->format)) {
 		image->hdrData = (float*)imageData;
 		image->data = NULL;

@@ -31,7 +31,7 @@ namespace Kore {
 			int stride();
 			int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers
 
-			Kinc_G4_VertexBuffer kincBuffer;
+			kinc_g4_vertex_buffer_t kincBuffer;
 		};
 
 		class IndexBuffer {
@@ -43,7 +43,7 @@ namespace Kore {
 			int count();
 			void _set();
 
-			Kinc_G4_IndexBuffer kincBuffer;
+			kinc_g4_index_buffer_t kincBuffer;
 		};
 
 		enum TextureAddressing { Repeat, Mirror, Clamp, Border };

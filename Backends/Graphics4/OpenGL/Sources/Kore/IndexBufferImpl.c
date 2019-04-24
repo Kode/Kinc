@@ -6,9 +6,9 @@
 
 #include <stdlib.h>
 
-Kinc_G4_IndexBuffer *Kinc_Internal_CurrentIndexBuffer = NULL;
+kinc_g4_index_buffer_t *Kinc_Internal_CurrentIndexBuffer = NULL;
 
-void Kinc_G4_IndexBuffer_Create(Kinc_G4_IndexBuffer *buffer, int count) {
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
 	buffer->impl.myCount = count;
 	glGenBuffers(1, &buffer->impl.bufferId);
 	glCheckErrors();
@@ -18,22 +18,22 @@ void Kinc_G4_IndexBuffer_Create(Kinc_G4_IndexBuffer *buffer, int count) {
 #endif
 }
 
-void Kinc_Internal_IndexBufferUnset(Kinc_G4_IndexBuffer *buffer) {
+void Kinc_Internal_IndexBufferUnset(kinc_g4_index_buffer_t *buffer) {
 	if (Kinc_Internal_CurrentIndexBuffer == buffer) {
 		Kinc_Internal_CurrentIndexBuffer = NULL;
 	}
 }
 
-void Kinc_G4_IndexBuffer_Destroy(Kinc_G4_IndexBuffer *buffer) {
+void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 	Kinc_Internal_IndexBufferUnset(buffer);
 	free(buffer->impl.data);
 }
 
-int *Kinc_G4_IndexBuffer_Lock(Kinc_G4_IndexBuffer *buffer) {
+int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 	return buffer->impl.data;
 }
 
-void Kinc_G4_IndexBuffer_Unlock(Kinc_G4_IndexBuffer *buffer) {
+void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
 #if defined(KORE_ANDROID) || defined(KORE_PI)
 	for (int i = 0; i < buffer->impl.myCount; ++i) {
 		buffer->impl.shortData[i] = (uint16_t)buffer->impl.data[i];
@@ -52,12 +52,12 @@ void Kinc_G4_IndexBuffer_Unlock(Kinc_G4_IndexBuffer *buffer) {
 	glCheckErrors();
 }
 
-void Kinc_Internal_G4_IndexBuffer_Set(Kinc_G4_IndexBuffer *buffer) {
+void Kinc_Internal_G4_IndexBuffer_Set(kinc_g4_index_buffer_t *buffer) {
 	Kinc_Internal_CurrentIndexBuffer = buffer;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
 }
 
-int Kinc_G4_IndexBuffer_Count(Kinc_G4_IndexBuffer *buffer) {
+int kinc_g4_index_buffer_count(kinc_g4_index_buffer_t *buffer) {
 	return buffer->impl.myCount;
 }

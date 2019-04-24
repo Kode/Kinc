@@ -10,28 +10,29 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_g4_vertex_buffer {
 	Kinc_G4_VertexBufferImpl impl;
-} Kinc_G4_VertexBuffer;
+} kinc_g4_vertex_buffer_t;
 
-typedef enum {
+typedef enum kinc_g4_usage {
 	KINC_G4_USAGE_STATIC,
 	KINC_G4_USAGE_DYNAMIC,
 	KINC_G4_USAGE_READABLE
-} Kinc_G4_Usage;
+} kinc_g4_usage_t;
 
-void Kinc_G4_VertexBuffer_Create(Kinc_G4_VertexBuffer *buffer, int count, Kinc_G4_VertexStructure *structure, Kinc_G4_Usage usage, int instance_data_step_rate);
-void Kinc_G4_VertexBuffer_Destroy(Kinc_G4_VertexBuffer *buffer);
-float *Kinc_G4_VertexBuffer_LockAll(Kinc_G4_VertexBuffer *buffer);
-float *Kinc_G4_VertexBuffer_Lock(Kinc_G4_VertexBuffer *buffer, int start, int count);
-void Kinc_G4_VertexBuffer_UnlockAll(Kinc_G4_VertexBuffer *buffer);
-void Kinc_G4_VertexBuffer_Unlock(Kinc_G4_VertexBuffer *buffer, int count);
-int Kinc_G4_VertexBuffer_Count(Kinc_G4_VertexBuffer *buffer);
-int Kinc_G4_VertexBuffer_Stride(Kinc_G4_VertexBuffer *buffer);
+void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
+                                 int instance_data_step_rate);
+void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer);
+float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer);
+float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, int count);
+void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer);
+void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count);
+int kinc_g4_vertex_buffer_count(kinc_g4_vertex_buffer_t *buffer);
+int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer);
 
-int Kinc_Internal_G4_VertexBuffer_Set(Kinc_G4_VertexBuffer *buffer, int offset);
+int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset);
 
-void Kinc_G4_SetVertexBuffers(Kinc_G4_VertexBuffer **buffers, int count);
+void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count);
 
 #ifdef __cplusplus
 }

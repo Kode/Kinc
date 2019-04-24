@@ -55,7 +55,7 @@ namespace Kore {
 			ConstantLocation getConstantLocation(const char* name);
 			TextureUnit getTextureUnit(const char* name);
 
-			Kinc_G4_PipelineState kincPipeline;
+			kinc_g4_pipeline_t kincPipeline;
 		};
 	}
 }

@@ -68,42 +68,42 @@ static GLenum convertBlendingOperation(Kinc_G4_BlendingOperation operation) {
 	}
 }
 
-void Kinc_G4_PipelineState_Create(Kinc_G4_PipelineState *state) {
-	memset(state, 0, sizeof(Kinc_G4_PipelineState));
+void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {
+	memset(state, 0, sizeof(kinc_g4_pipeline_t));
 	
-	for (int i = 0; i < 16; ++i) state->inputLayout[i] = NULL;
-	state->vertexShader = NULL;
-	state->fragmentShader = NULL;
-	state->geometryShader = NULL;
-	state->tessellationControlShader = NULL;
-	state->tessellationEvaluationShader = NULL;
+	for (int i = 0; i < 16; ++i) state->input_layout[i] = NULL;
+	state->vertex_shader = NULL;
+	state->fragment_shader = NULL;
+	state->geometry_shader = NULL;
+	state->tessellation_control_shader = NULL;
+	state->tessellation_evaluation_shader = NULL;
 
-	state->cullMode = KINC_G4_CULL_NOTHING;
+	state->cull_mode = KINC_G4_CULL_NOTHING;
 
-	state->depthWrite = false;
-	state->depthMode = KINC_G4_COMPARE_ALWAYS;
+	state->depth_write = false;
+	state->depth_mode = KINC_G4_COMPARE_ALWAYS;
 
-	state->stencilMode = KINC_G4_COMPARE_ALWAYS;
-	state->stencilBothPass = KINC_G4_STENCIL_KEEP;
-	state->stencilDepthFail = KINC_G4_STENCIL_KEEP;
-	state->stencilFail = KINC_G4_STENCIL_KEEP;
-	state->stencilReferenceValue = 0;
-	state->stencilReadMask = 0xff;
-	state->stencilWriteMask = 0xff;
+	state->stencil_mode = KINC_G4_COMPARE_ALWAYS;
+	state->stencil_both_pass = KINC_G4_STENCIL_KEEP;
+	state->stencil_depth_fail = KINC_G4_STENCIL_KEEP;
+	state->stencil_fail = KINC_G4_STENCIL_KEEP;
+	state->stencil_reference_value = 0;
+	state->stencil_read_mask = 0xff;
+	state->stencil_write_mask = 0xff;
 
-	state->blendSource = KINC_G4_BLEND_ONE;
-	state->blendDestination = KINC_G4_BLEND_ZERO;
+	state->blend_source = KINC_G4_BLEND_ONE;
+	state->blend_destination = KINC_G4_BLEND_ZERO;
 	// blendOperation = BlendingOperation.Add;
-	state->alphaBlendSource = KINC_G4_BLEND_ONE;
-	state->alphaBlendDestination = KINC_G4_BLEND_ZERO;
+	state->alpha_blend_source = KINC_G4_BLEND_ONE;
+	state->alpha_blend_destination = KINC_G4_BLEND_ZERO;
 	// alphaBlendOperation = BlendingOperation.Add;
 
-	for (int i = 0; i < 8; ++i) state->colorWriteMaskRed[i] = true;
-	for (int i = 0; i < 8; ++i) state->colorWriteMaskGreen[i] = true;
-	for (int i = 0; i < 8; ++i) state->colorWriteMaskBlue[i] = true;
-	for (int i = 0; i < 8; ++i) state->colorWriteMaskAlpha[i] = true;
+	for (int i = 0; i < 8; ++i) state->color_write_mask_red[i] = true;
+	for (int i = 0; i < 8; ++i) state->color_write_mask_green[i] = true;
+	for (int i = 0; i < 8; ++i) state->color_write_mask_blue[i] = true;
+	for (int i = 0; i < 8; ++i) state->color_write_mask_alpha[i] = true;
 
-	state->conservativeRasterization = false;
+	state->conservative_rasterization = false;
 
 	state->impl.textureCount = 0;
 	// TODO: Get rid of allocations
@@ -118,7 +118,7 @@ void Kinc_G4_PipelineState_Create(Kinc_G4_PipelineState *state) {
 	glCheckErrors();
 }
 
-void Kinc_G4_PipelineState_Destroy(Kinc_G4_PipelineState *state) {
+void Kinc_G4_PipelineState_Destroy(kinc_g4_pipeline_t *state) {
 	for (int i = 0; i < 16; ++i) {
 		free(state->impl.textures[i]);
 	}
@@ -127,7 +127,7 @@ void Kinc_G4_PipelineState_Destroy(Kinc_G4_PipelineState *state) {
 	glDeleteProgram(state->impl.programId);
 }
 
-static int toGlShader(Kinc_G4_ShaderType type) {
+static int toGlShader(kinc_g4_shader_type_t type) {
 	switch (type) {
 	case KINC_SHADER_TYPE_VERTEX:
 	default:
@@ -145,7 +145,7 @@ static int toGlShader(Kinc_G4_ShaderType type) {
 	}
 }
 
-static void compileShader(unsigned *id, const char* source, size_t length, Kinc_G4_ShaderType type) {
+static void compileShader(unsigned *id, const char *source, size_t length, kinc_g4_shader_type_t type) {
 	*id = glCreateShader(toGlShader(type));
 	glCheckErrors();
 	glShaderSource(*id, 1, (const GLchar**)&source, 0);
@@ -163,41 +163,41 @@ static void compileShader(unsigned *id, const char* source, size_t length, Kinc_
 	}
 }
 
-void Kinc_G4_PipelineState_Compile(Kinc_G4_PipelineState *state) {
-	compileShader(&state->vertexShader->impl._glid, state->vertexShader->impl.source, state->vertexShader->impl.length, KINC_SHADER_TYPE_VERTEX);
-	compileShader(&state->fragmentShader->impl._glid, state->fragmentShader->impl.source, state->fragmentShader->impl.length, KINC_SHADER_TYPE_FRAGMENT);
+void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
+	compileShader(&state->vertex_shader->impl._glid, state->vertex_shader->impl.source, state->vertex_shader->impl.length, KINC_SHADER_TYPE_VERTEX);
+	compileShader(&state->fragment_shader->impl._glid, state->fragment_shader->impl.source, state->fragment_shader->impl.length, KINC_SHADER_TYPE_FRAGMENT);
 #ifndef OPENGLES
-	if (state->geometryShader != NULL) {
-		compileShader(&state->geometryShader->impl._glid, state->geometryShader->impl.source, state->geometryShader->impl.length, KINC_SHADER_TYPE_GEOMETRY);
+	if (state->geometry_shader != NULL) {
+		compileShader(&state->geometry_shader->impl._glid, state->geometry_shader->impl.source, state->geometry_shader->impl.length, KINC_SHADER_TYPE_GEOMETRY);
 	}
-	if (state->tessellationControlShader != NULL) {
-		compileShader(&state->tessellationControlShader->impl._glid, state->tessellationControlShader->impl.source,
-		              state->tessellationControlShader->impl.length, KINC_SHADER_TYPE_TESSELLATION_CONTROL);
+	if (state->tessellation_control_shader != NULL) {
+		compileShader(&state->tessellation_control_shader->impl._glid, state->tessellation_control_shader->impl.source,
+		              state->tessellation_control_shader->impl.length, KINC_SHADER_TYPE_TESSELLATION_CONTROL);
 	}
-	if (state->tessellationEvaluationShader != NULL) {
-		compileShader(&state->tessellationEvaluationShader->impl._glid, state->tessellationEvaluationShader->impl.source,
-		              state->tessellationEvaluationShader->impl.length, KINC_SHADER_TYPE_TESSELLATION_EVALUATION);
+	if (state->tessellation_evaluation_shader != NULL) {
+		compileShader(&state->tessellation_evaluation_shader->impl._glid, state->tessellation_evaluation_shader->impl.source,
+		              state->tessellation_evaluation_shader->impl.length, KINC_SHADER_TYPE_TESSELLATION_EVALUATION);
 	}
 #endif
-	glAttachShader(state->impl.programId, state->vertexShader->impl._glid);
-	glAttachShader(state->impl.programId, state->fragmentShader->impl._glid);
+	glAttachShader(state->impl.programId, state->vertex_shader->impl._glid);
+	glAttachShader(state->impl.programId, state->fragment_shader->impl._glid);
 #ifndef OPENGLES
-	if (state->geometryShader != NULL) {
-		glAttachShader(state->impl.programId, state->geometryShader->impl._glid);
+	if (state->geometry_shader != NULL) {
+		glAttachShader(state->impl.programId, state->geometry_shader->impl._glid);
 	}
-	if (state->tessellationControlShader != NULL) {
-		glAttachShader(state->impl.programId, state->tessellationControlShader->impl._glid);
+	if (state->tessellation_control_shader != NULL) {
+		glAttachShader(state->impl.programId, state->tessellation_control_shader->impl._glid);
 	}
-	if (state->tessellationEvaluationShader != NULL) {
-		glAttachShader(state->impl.programId, state->tessellationEvaluationShader->impl._glid);
+	if (state->tessellation_evaluation_shader != NULL) {
+		glAttachShader(state->impl.programId, state->tessellation_evaluation_shader->impl._glid);
 	}
 #endif
 	glCheckErrors();
 
 	int index = 0;
-	for (int i1 = 0; state->inputLayout[i1] != NULL; ++i1) {
-		for (int i2 = 0; i2 < state->inputLayout[i1]->size; ++i2) {
-			Kinc_G4_VertexElement element = state->inputLayout[i1]->elements[i2];
+	for (int i1 = 0; state->input_layout[i1] != NULL; ++i1) {
+		for (int i2 = 0; i2 < state->input_layout[i1]->size; ++i2) {
+			kinc_g4_vertex_element_t element = state->input_layout[i1]->elements[i2];
 			glBindAttribLocation(state->impl.programId, index, element.name);
 			glCheckErrors();
 			if (element.data == KINC_G4_VERTEX_DATA_FLOAT4X4) {
@@ -224,7 +224,7 @@ void Kinc_G4_PipelineState_Compile(Kinc_G4_PipelineState *state) {
 
 #ifndef KORE_OPENGL_ES
 #ifndef KORE_LINUX
-	if (state->tessellationControlShader != NULL) {
+	if (state->tessellation_control_shader != NULL) {
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 		glCheckErrors();
 	}
@@ -232,9 +232,9 @@ void Kinc_G4_PipelineState_Compile(Kinc_G4_PipelineState *state) {
 #endif
 }
 
-void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState* pipeline) {
+void Kinc_G4_Internal_SetPipeline(kinc_g4_pipeline_t *pipeline) {
 #ifndef KORE_OPENGL_ES
-	Kinc_Internal_ProgramUsesTessellation = pipeline->tessellationControlShader != NULL;
+	Kinc_Internal_ProgramUsesTessellation = pipeline->tessellation_control_shader != NULL;
 #endif
 	glUseProgram(pipeline->impl.programId);
 	glCheckErrors();
@@ -243,26 +243,26 @@ void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState* pipeline) {
 		glCheckErrors();
 	}
 
-	if (pipeline->stencilMode == KINC_G4_COMPARE_ALWAYS && pipeline->stencilBothPass == KINC_G4_STENCIL_KEEP &&
-	    pipeline->stencilDepthFail == KINC_G4_STENCIL_KEEP && pipeline->stencilFail == KINC_G4_STENCIL_KEEP) {
+	if (pipeline->stencil_mode == KINC_G4_COMPARE_ALWAYS && pipeline->stencil_both_pass == KINC_G4_STENCIL_KEEP &&
+	    pipeline->stencil_depth_fail == KINC_G4_STENCIL_KEEP && pipeline->stencil_fail == KINC_G4_STENCIL_KEEP) {
 		glDisable(GL_STENCIL_TEST);
 	}
 	else {
 		glEnable(GL_STENCIL_TEST);
-		int stencilFunc = Kinc_G4_Internal_StencilFunc(pipeline->stencilMode);
-		glStencilMask(pipeline->stencilWriteMask);
-		glStencilOp(convertStencilAction(pipeline->stencilFail), convertStencilAction(pipeline->stencilDepthFail), convertStencilAction(pipeline->stencilBothPass));
-		glStencilFunc(stencilFunc, pipeline->stencilReferenceValue, pipeline->stencilReadMask);
+		int stencilFunc = Kinc_G4_Internal_StencilFunc(pipeline->stencil_mode);
+		glStencilMask(pipeline->stencil_write_mask);
+		glStencilOp(convertStencilAction(pipeline->stencil_fail), convertStencilAction(pipeline->stencil_depth_fail), convertStencilAction(pipeline->stencil_both_pass));
+		glStencilFunc(stencilFunc, pipeline->stencil_reference_value, pipeline->stencil_read_mask);
 	}
 
 	#ifdef KORE_OPENGL_ES
 	glColorMask(pipeline->colorWriteMaskRed[0], pipeline->colorWriteMaskGreen[0], pipeline->colorWriteMaskBlue[0], pipeline->colorWriteMaskAlpha[0]);
 	#else
-	for (int i = 0; i < 8; ++i) glColorMaski(i, pipeline->colorWriteMaskRed[i], pipeline->colorWriteMaskGreen[i], pipeline->colorWriteMaskBlue[i], pipeline->colorWriteMaskAlpha[i]);
+	for (int i = 0; i < 8; ++i) glColorMaski(i, pipeline->color_write_mask_red[i], pipeline->color_write_mask_green[i], pipeline->color_write_mask_blue[i], pipeline->color_write_mask_alpha[i]);
 	#endif
 
 	if (Kinc_Internal_SupportsConservativeRaster) {
-		if (pipeline->conservativeRasterization) {
+		if (pipeline->conservative_rasterization) {
 			glEnable(0x9346); // GL_CONSERVATIVE_RASTERIZATION_NV
 		}
 		else {
@@ -294,14 +294,14 @@ void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState* pipeline) {
 	throw Exception();
 	}*/
 
-	if (pipeline->depthWrite) {
+	if (pipeline->depth_write) {
 		glDepthMask(GL_TRUE);
 	}
 	else {
 		glDepthMask(GL_FALSE);
 	}
 
-	if (pipeline->depthMode != KINC_G4_COMPARE_ALWAYS) {
+	if (pipeline->depth_mode != KINC_G4_COMPARE_ALWAYS) {
 		glEnable(GL_DEPTH_TEST);
 	}
 	else {
@@ -309,7 +309,7 @@ void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState* pipeline) {
 	}
 
 	GLenum func = GL_ALWAYS;
-	switch (pipeline->depthMode) {
+	switch (pipeline->depth_mode) {
 	default:
 	case KINC_G4_COMPARE_ALWAYS:
 		func = GL_ALWAYS;
@@ -339,7 +339,7 @@ void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState* pipeline) {
 	glDepthFunc(func);
 	glCheckErrors();
 
-	switch (pipeline->cullMode) {
+	switch (pipeline->cull_mode) {
 	case KINC_G4_CULL_CLOCKWISE:
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -387,8 +387,8 @@ void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState* pipeline) {
 	throw Exception();
 	}*/
 
-	if (pipeline->blendSource != KINC_G4_BLEND_ONE || pipeline->blendDestination != KINC_G4_BLEND_ZERO || pipeline->alphaBlendSource != KINC_G4_BLEND_ONE ||
-	    pipeline->alphaBlendDestination != KINC_G4_BLEND_ZERO) {
+	if (pipeline->blend_source != KINC_G4_BLEND_ONE || pipeline->blend_destination != KINC_G4_BLEND_ZERO || pipeline->alpha_blend_source != KINC_G4_BLEND_ONE ||
+	    pipeline->alpha_blend_destination != KINC_G4_BLEND_ZERO) {
 		glEnable(GL_BLEND);
 	}
 	else {
@@ -396,11 +396,11 @@ void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState* pipeline) {
 	}
 
 	// glBlendFunc(convert(pipeline->blendSource), convert(pipeline->blendDestination));
-	glBlendFuncSeparate(convertBlendingOperation(pipeline->blendSource), convertBlendingOperation(pipeline->blendDestination),
-	                    convertBlendingOperation(pipeline->alphaBlendSource), convertBlendingOperation(pipeline->alphaBlendDestination));
+	glBlendFuncSeparate(convertBlendingOperation(pipeline->blend_source), convertBlendingOperation(pipeline->blend_destination),
+	                    convertBlendingOperation(pipeline->alpha_blend_source), convertBlendingOperation(pipeline->alpha_blend_destination));
 }
 
-Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_PipelineState *state, const char *name) {
+Kinc_G4_ConstantLocation kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name) {
 	Kinc_G4_ConstantLocation location;
 	location.impl.location = glGetUniformLocation(state->impl.programId, name);
 	location.impl.type = GL_FLOAT;
@@ -427,14 +427,14 @@ Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_Pipel
 	return location;
 }
 
-static int findTexture(Kinc_G4_PipelineState *state, const char *name) {
+static int findTexture(kinc_g4_pipeline_t *state, const char *name) {
 	for (int index = 0; index < state->impl.textureCount; ++index) {
 		if (strcmp(state->impl.textures[index], name) == 0) return index;
 	}
 	return -1;
 }
 
-Kinc_G4_TextureUnit Kinc_G4_PipelineState_GetTextureUnit(Kinc_G4_PipelineState *state, const char *name) {
+Kinc_G4_TextureUnit kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name) {
 	int index = findTexture(state, name);
 	if (index < 0) {
 		int location = glGetUniformLocation(state->impl.programId, name);

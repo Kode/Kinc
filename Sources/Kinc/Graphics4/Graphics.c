@@ -4,10 +4,10 @@
 
 static int antialiasing_samples;
 
-int Kinc_G4_AntialiasingSamples() {
+int kinc_g4_antialiasing_samples() {
 	return antialiasing_samples;
 }
 
-void Kinc_G4_SetAntialiasingSamples(int samples) {
+void kinc_g4_set_antialiasing_samples(int samples) {
 	antialiasing_samples = samples;
 }

@@ -6,19 +6,19 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_g4_index_buffer {
 	Kinc_G4_IndexBufferImpl impl;
-} Kinc_G4_IndexBuffer;
+} kinc_g4_index_buffer_t;
 
-void Kinc_G4_IndexBuffer_Create(Kinc_G4_IndexBuffer *buffer, int count);
-void Kinc_G4_IndexBuffer_Destroy(Kinc_G4_IndexBuffer *buffer);
-int *Kinc_G4_IndexBuffer_Lock(Kinc_G4_IndexBuffer *buffer);
-void Kinc_G4_IndexBuffer_Unlock(Kinc_G4_IndexBuffer *buffer);
-int Kinc_G4_IndexBuffer_Count(Kinc_G4_IndexBuffer *buffer);
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count);
+void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer);
+int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer);
+void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer);
+int kinc_g4_index_buffer_count(kinc_g4_index_buffer_t *buffer);
 
-void Kinc_Internal_G4_IndexBuffer_Set(Kinc_G4_IndexBuffer *buffer);
+void Kinc_Internal_G4_IndexBuffer_Set(kinc_g4_index_buffer_t *buffer);
 
-void Kinc_G4_SetIndexBuffer(Kinc_G4_IndexBuffer *buffer);
+void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *buffer);
 
 #ifdef __cplusplus
 }

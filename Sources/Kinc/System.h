@@ -12,11 +12,11 @@ int kore(int argc, char **argv);
 struct _Kinc_WindowOptions;
 struct _Kinc_FramebufferOptions;
 
-int Kinc_Init(const char *name, int width, int height, struct _Kinc_WindowOptions *win, struct _Kinc_FramebufferOptions *frame);
+int kinc_init(const char *name, int width, int height, struct _Kinc_WindowOptions *win, struct _Kinc_FramebufferOptions *frame);
 
-const char *Kinc_ApplicationName(void);
-int Kinc_Width(void);
-int Kinc_Height(void);
+const char *kinc_application_name(void);
+int kinc_width(void);
+int kinc_height(void);
 
 bool Kinc_Internal_HandleMessages(void);
 
@@ -25,35 +25,35 @@ bool Kinc_Internal_HandleMessages(void);
 //**void hideKeyboard();
 //**bool showsKeyboard();
 
-void Kinc_LoadURL(const char *title);
+void linc_load_url(const char *title);
 
-const char *Kinc_SystemId();
+const char *kinc_system_id();
 
 const char *Kinc_Internal_SavePath();
 
-const char **Kinc_VideoFormats();
+const char **kinc_video_formats();
 
-typedef uint64_t Kinc_ticks;
+typedef uint64_t kinc_ticks_t;
 
-double Kinc_Frequency();
-Kinc_ticks Kinc_Timestamp();
-double Kinc_Time();
+double kinc_frequency();
+kinc_ticks_t kinc_timestamp();
+double kinc_time();
 
-void Kinc_Start();
+void kinc_start();
 bool Kinc_Internal_Frame();
-void Kinc_Stop();
+void kinc_stop();
 
-void Kinc_SetUpdateCallback(void (*value)());
-void Kinc_SetForegroundCallback(void (*value)());
-void Kinc_SetResumeCallback(void (*value)());
-void Kinc_SetPauseCallback(void (*value)());
-void Kinc_SetBackgroundCallback(void (*value)());
-void Kinc_SetShutdownCallback(void (*value)());
-void Kinc_SetDropFilesCallback(void (*value)(wchar_t *));
-void Kinc_SetCutCallback(char *(*value)());
-void Kinc_SetCopyCallback(char *(*value)());
-void Kinc_SetPasteCallback(void (*value)(char *));
-void Kinc_SetKeepScreenOn(bool on);
+void kinc_set_update_callback(void (*value)());
+void kinc_set_foreground_callback(void (*value)());
+void kinc_set_resume_callback(void (*value)());
+void kinc_set_pause_callback(void (*value)());
+void kinc_set_background_callback(void (*value)());
+void kinc_set_shutdown_callback(void (*value)());
+void kinc_set_drop_files_callback(void (*value)(wchar_t *));
+void kinc_set_cut_callback(char *(*value)());
+void kinc_set_copy_callback(char *(*value)());
+void kinc_set_paste_callback(void (*value)(char *));
+void kinc_set_keep_screen_on(bool on);
 
 void Kinc_Internal_Shutdown();
 void Kinc_Internal_UpdateCallback();

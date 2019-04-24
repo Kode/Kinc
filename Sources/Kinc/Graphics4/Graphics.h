@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-struct _Kinc_G4_PipelineState;
+struct kinc_g4_pipeline;
 struct _Kinc_G4_RenderTarget;
 struct _Kinc_G4_Texture;
 struct _Kinc_G4_TextureArray;
@@ -50,105 +50,105 @@ typedef enum {
 	KINC_G4_MIPMAP_FILTER_LINEAR // linear texture filter + linear mip filter -> trilinear filter
 } Kinc_G4_MipmapFilter;
 
-void Kinc_G4_Init(int window, int depthBufferBits, int stencilBufferBits, bool vSync);
+void kinc_g4_init(int window, int depthBufferBits, int stencilBufferBits, bool vSync);
 
-void Kinc_G4_Destroy(int window);
+void kinc_g4_destroy(int window);
 
-void Kinc_G4_Flush();
+void kinc_g4_flush();
 
-void Kinc_G4_Begin(int window);
+void kinc_g4_begin(int window);
 
-void Kinc_G4_End(int window);
+void kinc_g4_end(int window);
 
-bool Kinc_G4_SwapBuffers();
+bool kinc_g4_swap_buffers();
 
 #define KINC_G4_CLEAR_COLOR   1
 #define KINC_G4_CLEAR_DEPTH   2
 #define KINC_G4_CLEAR_STENCIL 4
 
-void Kinc_G4_Clear(unsigned flags, unsigned color, float depth, int stencil);
+void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil);
 
-void Kinc_G4_Viewport(int x, int y, int width, int height);
+void kinc_g4_viewport(int x, int y, int width, int height);
 
-void Kinc_G4_Scissor(int x, int y, int width, int height);
+void kinc_g4_scissor(int x, int y, int width, int height);
 
-void Kinc_G4_DisableScissor();
+void kinc_g4_disable_scissor();
 
-void Kinc_G4_DrawIndexedVertices();
+void kinc_g4_draw_indexed_vertices();
 
-void Kinc_G4_DrawIndexedVerticesFromTo(int start, int count);
+void kinc_g4_draw_indexed_vertices_from_to(int start, int count);
 
-void Kinc_G4_DrawIndexedVerticesInstanced(int instanceCount);
+void kinc_g4_draw_indexed_vertices_instanced(int instanceCount);
 
-void Kinc_G4_DrawIndexedVerticesInstancedFromTo(int instanceCount, int start, int count);
+void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count);
 
-void Kinc_G4_SetTextureAddressing(Kinc_G4_TextureUnit unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
+void kinc_g4_set_texture_addressing(Kinc_G4_TextureUnit unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
 
-void Kinc_G4_SetTexture3DAddressing(Kinc_G4_TextureUnit unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
+void kinc_g4_set_texture3d_addressing(Kinc_G4_TextureUnit unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
 
-void Kinc_G4_SetPipeline(struct _Kinc_G4_PipelineState *pipeline);
+void kinc_g4_set_pipeline(struct kinc_g4_pipeline *pipeline);
 
-void Kinc_G4_SetStencilReferenceValue(int value);
+void kinc_g4_set_stencil_reference_value(int value);
 
-void Kinc_G4_SetTextureOperation(Kinc_G4_TextureOperation operation, Kinc_G4_TextureArgument arg1, Kinc_G4_TextureArgument arg2);
+void kinc_g4_set_texture_operation(Kinc_G4_TextureOperation operation, Kinc_G4_TextureArgument arg1, Kinc_G4_TextureArgument arg2);
 
-void Kinc_G4_SetInt(Kinc_G4_ConstantLocation location, int value);
-void Kinc_G4_SetFloat(Kinc_G4_ConstantLocation location, float value);
-void Kinc_G4_SetFloat2(Kinc_G4_ConstantLocation location, float value1, float value2);
-void Kinc_G4_SetFloat3(Kinc_G4_ConstantLocation location, float value1, float value2, float value3);
-void Kinc_G4_SetFloat4(Kinc_G4_ConstantLocation location, float value1, float value2, float value3, float value4);
-void Kinc_G4_SetFloats(Kinc_G4_ConstantLocation location, float *values, int count);
-void Kinc_G4_SetBool(Kinc_G4_ConstantLocation location, bool value);
-void Kinc_G4_SetMatrix3(Kinc_G4_ConstantLocation location, Kinc_Matrix3x3 *value);
-void Kinc_G4_SetMatrix4(Kinc_G4_ConstantLocation location, Kinc_Matrix4x4 *value);
+void kinc_g4_set_int(Kinc_G4_ConstantLocation location, int value);
+void kinc_g4_set_float(Kinc_G4_ConstantLocation location, float value);
+void kinc_g4_set_float2(Kinc_G4_ConstantLocation location, float value1, float value2);
+void kinc_g4_set_float3(Kinc_G4_ConstantLocation location, float value1, float value2, float value3);
+void kinc_g4_set_float4(Kinc_G4_ConstantLocation location, float value1, float value2, float value3, float value4);
+void kinc_g4_set_floats(Kinc_G4_ConstantLocation location, float *values, int count);
+void kinc_g4_set_bool(Kinc_G4_ConstantLocation location, bool value);
+void kinc_g4_set_matrix3(Kinc_G4_ConstantLocation location, Kinc_Matrix3x3 *value);
+void kinc_g4_set_matrix4(Kinc_G4_ConstantLocation location, Kinc_Matrix4x4 *value);
 
-void Kinc_G4_SetTextureMagnificationFilter(Kinc_G4_TextureUnit unit, Kinc_G4_TextureFilter filter);
+void kinc_g4_set_texture_magnification_filter(Kinc_G4_TextureUnit unit, Kinc_G4_TextureFilter filter);
 
-void Kinc_G4_SetTexture3DMagnificationFilter(Kinc_G4_TextureUnit texunit, Kinc_G4_TextureFilter filter);
+void kinc_g4_set_texture3d_magnification_filter(Kinc_G4_TextureUnit texunit, Kinc_G4_TextureFilter filter);
 
-void Kinc_G4_SetTextureMinificationFilter(Kinc_G4_TextureUnit unit, Kinc_G4_TextureFilter filter);
+void kinc_g4_set_texture_minification_filter(Kinc_G4_TextureUnit unit, Kinc_G4_TextureFilter filter);
 
-void Kinc_G4_SetTexture3DMinificationFilter(Kinc_G4_TextureUnit texunit, Kinc_G4_TextureFilter filter);
+void kinc_g4_set_texture3d_minification_filter(Kinc_G4_TextureUnit texunit, Kinc_G4_TextureFilter filter);
 
-void Kinc_G4_SetTextureMipmapFilter(Kinc_G4_TextureUnit unit, Kinc_G4_MipmapFilter filter);
+void kinc_g4_set_texture_mipmap_filter(Kinc_G4_TextureUnit unit, Kinc_G4_MipmapFilter filter);
 
-void Kinc_G4_SetTexture3DMipmapFilter(Kinc_G4_TextureUnit texunit, Kinc_G4_MipmapFilter filter);
+void kinc_g4_set_texture3d_mipmap_filter(Kinc_G4_TextureUnit texunit, Kinc_G4_MipmapFilter filter);
 
-void Kinc_G4_SetTextureCompareMode(Kinc_G4_TextureUnit unit, bool enabled);
+void kinc_g4_set_texture_compare_mode(Kinc_G4_TextureUnit unit, bool enabled);
 
-void Kinc_G4_SetCubeMapCompareMode(Kinc_G4_TextureUnit unit, bool enabled);
+void kinc_g4_set_cubemap_compare_mode(Kinc_G4_TextureUnit unit, bool enabled);
 
-bool Kinc_G4_RenderTargetsInvertedY();
+bool kinc_g4_render_targets_inverted_y();
 
-bool Kinc_G4_NonPow2TexturesSupported();
+bool kinc_g4_non_pow2_textures_supported();
 
-void Kinc_G4_RestoreRenderTarget();
+void kinc_g4_restore_render_target();
 
-void Kinc_G4_SetRenderTargets(struct _Kinc_G4_RenderTarget **targets, int count);
+void kinc_g4_set_render_targets(struct _Kinc_G4_RenderTarget **targets, int count);
 
-void Kinc_G4_SetRenderTargetFace(struct _Kinc_G4_RenderTarget *texture, int face);
+void kinc_g4_set_render_target_face(struct _Kinc_G4_RenderTarget *texture, int face);
 
-void Kinc_G4_SetTexture(Kinc_G4_TextureUnit unit, struct _Kinc_G4_Texture *texture);
+void kinc_g4_set_texture(Kinc_G4_TextureUnit unit, struct _Kinc_G4_Texture *texture);
 
-void Kinc_G4_SetImageTexture(Kinc_G4_TextureUnit unit, struct _Kinc_G4_Texture *texture);
+void kinc_g4_set_image_texture(Kinc_G4_TextureUnit unit, struct _Kinc_G4_Texture *texture);
 
-bool Kinc_G4_InitOcclusionQuery(unsigned *occlusionQuery);
+bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery);
 
-void Kinc_G4_DeleteOcclusionQuery(unsigned occlusionQuery);
+void kinc_g4_delete_occlusion_query(unsigned occlusionQuery);
 
-void Kinc_G4_StartOcclusionQuery(unsigned occlusionQuery);
+void kinc_g4_start_occlusion_query(unsigned occlusionQuery);
 
-void Kinc_G4_EndOcclusionQuery(unsigned occlusionQuery);
+void kinc_g4_end_occlusion_query(unsigned occlusionQuery);
 
-bool Kinc_G4_AreQueryResultsAvailable(unsigned occlusionQuery);
+bool kinc_g4_are_query_results_available(unsigned occlusionQuery);
 
-void Kinc_G4_GetQueryResults(unsigned occlusionQuery, unsigned *pixelCount);
+void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount);
 
-void Kinc_G4_SetTextureArray(Kinc_G4_TextureUnit unit, struct _Kinc_G4_TextureArray *array);
+void kinc_g4_set_texture_array(Kinc_G4_TextureUnit unit, struct _Kinc_G4_TextureArray *array);
 
-int Kinc_G4_AntialiasingSamples();
+int kinc_g4_antialiasing_samples();
 
-void Kinc_G4_SetAntialiasingSamples(int samples);
+void kinc_g4_set_antialiasing_samples(int samples);
 
 #ifdef __cplusplus
 }

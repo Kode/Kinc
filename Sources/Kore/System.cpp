@@ -14,31 +14,31 @@
 #include <string.h>
 
 double Kore::System::time() {
-	return Kinc_Time();
+	return kinc_time();
 }
 
 void Kore::System::setCallback(void (*value)()) {
-	Kinc_SetUpdateCallback(value);
+	kinc_set_update_callback(value);
 }
 
 void Kore::System::setForegroundCallback(void (*value)()) {
-	Kinc_SetForegroundCallback(value);
+	kinc_set_foreground_callback(value);
 }
 
 void Kore::System::setResumeCallback(void (*value)()) {
-	Kinc_SetResumeCallback(value);
+	kinc_set_resume_callback(value);
 }
 
 void Kore::System::setPauseCallback(void (*value)()) {
-	Kinc_SetPauseCallback(value);
+	kinc_set_pause_callback(value);
 }
 
 void Kore::System::setBackgroundCallback(void (*value)()) {
-	Kinc_SetBackgroundCallback(value);
+	kinc_set_background_callback(value);
 }
 
 void Kore::System::setShutdownCallback(void (*value)()) {
-	Kinc_SetShutdownCallback(value);
+	kinc_set_shutdown_callback(value);
 }
 
 void Kore::System::setOrientationCallback(void (*value)(Orientation)) {
@@ -46,19 +46,19 @@ void Kore::System::setOrientationCallback(void (*value)(Orientation)) {
 }
 
 void Kore::System::setDropFilesCallback(void (*value)(wchar_t*)) {
-	Kinc_SetDropFilesCallback(value);
+	kinc_set_drop_files_callback(value);
 }
 
 void Kore::System::setCutCallback(char* (*value)()) {
-	Kinc_SetCutCallback(value);
+	kinc_set_cut_callback(value);
 }
 
 void Kore::System::setCopyCallback(char* (*value)()) {
-	Kinc_SetCopyCallback(value);
+	kinc_set_copy_callback(value);
 }
 
 void Kore::System::setPasteCallback(void (*value)(char*)) {
-	Kinc_SetPasteCallback(value);
+	kinc_set_paste_callback(value);
 }
 
 void Kore::System::_callback() {
@@ -126,7 +126,7 @@ void Kore::System::setName(const char* value) {
 }
 */
 const char* Kore::System::name() {
-	return Kinc_ApplicationName();
+	return kinc_application_name();
 }
 
 void Kore::System::_init(const char* name, int width, int height, WindowOptions** win, FramebufferOptions** frame) {
@@ -152,7 +152,7 @@ void shutdownMetalCompute();
 
 void Kore::System::stop() {
 	running = false;
-	Kinc_Stop();
+	kinc_stop();
 }
 
 int Kore::System::windowWidth(int window) {
@@ -176,7 +176,7 @@ Kore::Window *Kore::System::init(const char *name, int width, int height, Kore::
 		kframe = convert(frame);
 	}
 
-	int window = Kinc_Init(name, width, height, win == nullptr ? nullptr : &kwin, frame == nullptr ? nullptr : &kframe);
+	int window = kinc_init(name, width, height, win == nullptr ? nullptr : &kwin, frame == nullptr ? nullptr : &kframe);
 	return Window::get(window);
 }
 
@@ -193,5 +193,5 @@ void Kore::System::_shutdown() {
 }
 
 void Kore::System::start() {
-	Kinc_Start();
+	kinc_start();
 }

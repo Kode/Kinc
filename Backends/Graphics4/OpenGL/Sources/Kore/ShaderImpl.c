@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *data, size_t length, Kinc_G4_ShaderType type) {
+void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t length, kinc_g4_shader_type_t type) {
 	shader->impl.length = length;
 	shader->impl._glid = 0;
 	shader->impl.fromSource = false;
@@ -17,14 +17,14 @@ void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *data, size_t length, Ki
 	shader->impl.source = source;
 }
 
-void Kinc_G4_Shader_CreateFromSource(Kinc_G4_Shader* shader, const char* source, Kinc_G4_ShaderType type) {
+void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {
 	shader->impl.source = source;
 	shader->impl.length = strlen(source);
 	shader->impl._glid = 0;
 	shader->impl.fromSource = true;
 }
 
-void Kinc_G4_Shader_Destroy(Kinc_G4_Shader *shader) {
+void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (!shader->impl.fromSource) {
 		free((void*)shader->impl.source);
 	}

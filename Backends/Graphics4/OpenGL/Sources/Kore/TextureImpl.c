@@ -255,7 +255,7 @@ static void convertImageToPow2(Kinc_ImageFormat format, uint8_t* from, int fw, i
 
 static void init(Kinc_G4_Texture *texture, const char* format, bool readable) {
 	bool toPow2;
-	if (Kinc_G4_NonPow2TexturesSupported()) {
+	if (kinc_g4_non_pow2_textures_supported()) {
 		texture->texWidth = texture->image.width;
 		texture->texHeight = texture->image.height;
 		toPow2 = false;
@@ -418,7 +418,7 @@ void Kinc_G4_Texture_Create(Kinc_G4_Texture *texture, int width, int height, Kin
 	texWidth = width;
 	texHeight = height;
 #else
-	if (Kinc_G4_NonPow2TexturesSupported()) {
+	if (kinc_g4_non_pow2_textures_supported()) {
 		texture->texWidth = width;
 		texture->texHeight = height;
 	}

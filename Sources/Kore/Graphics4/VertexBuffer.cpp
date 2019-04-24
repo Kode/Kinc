@@ -5,46 +5,46 @@
 using namespace Kore;
 using namespace Kore::Graphics4;
 
-void Kore_Internal_ConvertVertexStructure(Kinc_G4_VertexStructure* target, const VertexStructure* source) {
+void Kore_Internal_ConvertVertexStructure(kinc_g4_vertex_structure_t *target, const VertexStructure *source) {
 	for (int i = 0; i < source->size; ++i) {
-		Kinc_G4_VertexStructure_Add(target, source->elements[i].name, (Kinc_G4_VertexData)source->elements[i].data);
+		kinc_g4_vertex_structure_add(target, source->elements[i].name, (kinc_g4_vertex_data_t)source->elements[i].data);
 	}
 	target->instanced = source->instanced;
 }
 
 VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate) {
-	Kinc_G4_VertexStructure kincStructure;
-	Kinc_G4_VertexStructure_Create(&kincStructure);
+	kinc_g4_vertex_structure_t kincStructure;
+	kinc_g4_vertex_structure_init(&kincStructure);
 	Kore_Internal_ConvertVertexStructure(&kincStructure, &structure);
-	Kinc_G4_VertexBuffer_Create(&kincBuffer, count, &kincStructure, (Kinc_G4_Usage)usage, instanceDataStepRate);
+	kinc_g4_vertex_buffer_init(&kincBuffer, count, &kincStructure, (kinc_g4_usage_t)usage, instanceDataStepRate);
 }
 
 VertexBuffer::~VertexBuffer() {
-	Kinc_G4_VertexBuffer_Destroy(&kincBuffer);
+	kinc_g4_vertex_buffer_destroy(&kincBuffer);
 }
 
 float* VertexBuffer::lock() {
-	return Kinc_G4_VertexBuffer_LockAll(&kincBuffer);
+	return kinc_g4_vertex_buffer_lock_all(&kincBuffer);
 }
 
 float* VertexBuffer::lock(int start, int count) {
-	return Kinc_G4_VertexBuffer_Lock(&kincBuffer, start, count);
+	return kinc_g4_vertex_buffer_lock(&kincBuffer, start, count);
 }
 
 void VertexBuffer::unlock() {
-	Kinc_G4_VertexBuffer_UnlockAll(&kincBuffer);
+	kinc_g4_vertex_buffer_unlock_all(&kincBuffer);
 }
 
 void VertexBuffer::unlock(int count) {
-	Kinc_G4_VertexBuffer_Unlock(&kincBuffer, count);
+	kinc_g4_vertex_buffer_unlock(&kincBuffer, count);
 }
 
 int VertexBuffer::count() {
-	return Kinc_G4_VertexBuffer_Count(&kincBuffer);
+	return kinc_g4_vertex_buffer_count(&kincBuffer);
 }
 
 int VertexBuffer::stride() {
-	return Kinc_G4_VertexBuffer_Stride(&kincBuffer);
+	return kinc_g4_vertex_buffer_stride(&kincBuffer);
 }
 
 int VertexBuffer::_set(int offset) {

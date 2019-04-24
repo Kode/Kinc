@@ -20,7 +20,7 @@ namespace Kore {
 		int pos() override;
 		void seek(int pos) override;
 
-		Kinc_FileReader reader;
+		kinc_file_reader_t reader;
 		FileType type;
 		void* readdata;
 	};

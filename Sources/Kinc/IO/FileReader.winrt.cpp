@@ -112,8 +112,8 @@ bool FileReader::open(const char* filename, FileType type) {
 #endif
 
 #ifndef KORE_ANDROID
-bool Kinc_FileReader_Open(Kinc_FileReader *reader, const char *filename, int type) {
-	memset(reader, 0, sizeof(Kinc_FileReader));
+bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
+	memset(reader, 0, sizeof(kinc_file_reader_t));
 	char filepath[1001];
 #ifdef KORE_IOS
 	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? Kinc_Internal_SavePath() : iphonegetresourcepath());
@@ -197,7 +197,7 @@ bool Kinc_FileReader_Open(Kinc_FileReader *reader, const char *filename, int typ
 }
 #endif
 
-int Kinc_FileReader_Read(Kinc_FileReader *reader, void *data, size_t size) {
+int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 #ifdef KORE_ANDROID
 	if (this->data.file != nullptr) {
 		return static_cast<int>(fread(data, 1, size, this->data.file));
@@ -212,7 +212,7 @@ int Kinc_FileReader_Read(Kinc_FileReader *reader, void *data, size_t size) {
 #endif
 }
 
-void Kinc_FileReader_Seek(Kinc_FileReader *reader, int pos) {
+void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
 #ifdef KORE_ANDROID
 	if (data.file != nullptr) {
 		fseek(data.file, pos, SEEK_SET);
@@ -226,7 +226,7 @@ void Kinc_FileReader_Seek(Kinc_FileReader *reader, int pos) {
 #endif
 }
 
-void Kinc_FileReader_Close(Kinc_FileReader *reader) {
+void kinc_file_reader_close(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
 	if (data.file != nullptr) {
 		fclose(data.file);
@@ -243,7 +243,7 @@ void Kinc_FileReader_Close(Kinc_FileReader *reader) {
 #endif
 }
 
-int Kinc_FileReader_Pos(Kinc_FileReader *reader) {
+int kinc_file_reader_pos(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
 	if (data.file != nullptr)
 		return static_cast<int>(ftell(data.file));
@@ -254,7 +254,7 @@ int Kinc_FileReader_Pos(Kinc_FileReader *reader) {
 #endif
 }
 
-size_t Kinc_FileReader_Size(Kinc_FileReader *reader) {
+size_t kinc_file_reader_size(kinc_file_reader_t *reader) {
 	return (size_t)reader->size;
 }
 

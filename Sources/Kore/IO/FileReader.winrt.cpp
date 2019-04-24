@@ -22,28 +22,28 @@ FileReader::FileReader(const char* filename, FileType type) : readdata(nullptr) 
 }
 
 bool FileReader::open(const char* filename, FileType type) {
-	return Kinc_FileReader_Open(&reader, filename, (int)type);
+	return kinc_file_reader_open(&reader, filename, (int)type);
 }
 
 int FileReader::read(void* data, int size) {
-	return Kinc_FileReader_Read(&reader, data, size);
+	return kinc_file_reader_read(&reader, data, size);
 }
 
 void* FileReader::readAll() {
-	Kinc_FileReader_Seek(&reader, 0);
+	kinc_file_reader_seek(&reader, 0);
 	free(readdata);
-	int size = Kinc_FileReader_Size(&reader);
+	int size = kinc_file_reader_size(&reader);
 	readdata = malloc(size);
 	read(readdata, size);
 	return readdata;
 }
 
 void FileReader::seek(int pos) {
-	Kinc_FileReader_Seek(&reader, pos);
+	kinc_file_reader_seek(&reader, pos);
 }
 
 void FileReader::close() {
-	Kinc_FileReader_Close(&reader);
+	kinc_file_reader_close(&reader);
 	free(readdata);
 	readdata = nullptr;
 }
@@ -53,9 +53,9 @@ FileReader::~FileReader() {
 }
 
 int FileReader::pos() {
-	return Kinc_FileReader_Pos(&reader);
+	return kinc_file_reader_pos(&reader);
 }
 
 int FileReader::size() {
-	return Kinc_FileReader_Size(&reader);
+	return kinc_file_reader_size(&reader);
 }

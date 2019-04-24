@@ -294,7 +294,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		break;
 	}
 	case WM_DESTROY:
-		Kinc_Stop();
+		kinc_stop();
 		return 0;
 	case WM_ERASEBKGND:
 		return 1;
@@ -959,11 +959,11 @@ namespace {
 //**	return keyboardshown;
 //**}
 
-void Kinc_LoadURL(const char *url) {}
+void kinc_load_url(const char *url) {}
 
-void Kinc_SetKeepScreenOn(bool on) {}
+void kinc_set_keep_screen_on(bool on) {}
 
-const char *Kinc_SystemId() {
+const char *kinc_system_id() {
 	return "Windows";
 }
 
@@ -984,7 +984,7 @@ namespace {
 		wcscpy(savePathw, path);
 		wcscat(savePathw, L"\\");
 		wchar_t name[1024];
-		MultiByteToWideChar(CP_UTF8, 0, Kinc_ApplicationName(), -1, name, 1024);
+		MultiByteToWideChar(CP_UTF8, 0, kinc_application_name(), -1, name, 1024);
 		wcscat(savePathw, name);
 		wcscat(savePathw, L"\\");
 
@@ -1009,21 +1009,21 @@ namespace {
 	LARGE_INTEGER startCount;
 }
 
-const char **Kinc_VideoFormats() {
+const char **finc_video_formats() {
 	return ::videoFormats;
 }
 
-double Kinc_Frequency() {
+double kinc_frequency() {
 	return (double)::frequency.QuadPart;
 }
 
-Kinc_ticks Kinc_Timestamp(void) {
+kinc_ticks_t kinc_timestamp(void) {
 	LARGE_INTEGER stamp;
 	QueryPerformanceCounter(&stamp);
 	return stamp.QuadPart - startCount.QuadPart;
 }
 
-double Kinc_Time(void) {
+double kinc_time(void) {
 	LARGE_INTEGER stamp;
 	QueryPerformanceCounter(&stamp);
 	return double(stamp.QuadPart - startCount.QuadPart) / (double)::frequency.QuadPart;
@@ -1063,7 +1063,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	return ret;
 }
 
-int Kinc_Init(const char *name, int width, int height, Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame) {
+int kinc_init(const char *name, int width, int height, Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame) {
 	//Kore::System::_init(name, width, height, &win, &frame);
 	Kinc_WindowOptions defaultWin;
 	if (win == nullptr) {

@@ -2,16 +2,16 @@
 
 #include "VertexBuffer.h"
 
-void Kinc_G4_VertexElement_Create(Kinc_G4_VertexElement *element, const char *name, Kinc_G4_VertexData data) {
+void kinc_g4_vertex_element_init(kinc_g4_vertex_element_t *element, const char *name, kinc_g4_vertex_data_t data) {
 	element->name = name;
 	element->data = data;
 }
 
-void Kinc_G4_VertexStructure_Create(Kinc_G4_VertexStructure *structure) {
+void kinc_g4_vertex_structure_init(kinc_g4_vertex_structure_t *structure) {
 	structure->size = 0;
 	structure->instanced = false;
 }
 
-void Kinc_G4_VertexStructure_Add(Kinc_G4_VertexStructure *structure, const char *name, Kinc_G4_VertexData data) {
-	Kinc_G4_VertexElement_Create(&structure->elements[structure->size++], name, data);
+void kinc_g4_vertex_structure_add(kinc_g4_vertex_structure_t *structure, const char *name, kinc_g4_vertex_data_t data) {
+	kinc_g4_vertex_element_init(&structure->elements[structure->size++], name, data);
 }

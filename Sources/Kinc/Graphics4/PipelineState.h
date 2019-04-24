@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-struct _Kinc_G4_VertexStructure;
-struct _Kinc_G4_Shader;
+struct kinc_g4_vertex_structure;
+struct kinc_g4_shader;
 
 typedef enum {
 	KINC_G4_BLEND_ONE,
@@ -53,52 +53,52 @@ typedef enum {
 	KINC_G4_STENCIL_INVERT
 } Kinc_G4_StencilAction;
 
-typedef struct _Kinc_G4_PipelineState {
-	struct _Kinc_G4_VertexStructure *inputLayout[16];
-	struct _Kinc_G4_Shader *vertexShader;
-	struct _Kinc_G4_Shader *fragmentShader;
-	struct _Kinc_G4_Shader *geometryShader;
-	struct _Kinc_G4_Shader *tessellationControlShader;
-	struct _Kinc_G4_Shader *tessellationEvaluationShader;
+typedef struct kinc_g4_pipeline {
+	struct kinc_g4_vertex_structure *input_layout[16];
+	struct kinc_g4_shader *vertex_shader;
+	struct kinc_g4_shader *fragment_shader;
+	struct kinc_g4_shader *geometry_shader;
+	struct kinc_g4_shader *tessellation_control_shader;
+	struct kinc_g4_shader *tessellation_evaluation_shader;
 
-	Kinc_G4_CullMode cullMode;
+	Kinc_G4_CullMode cull_mode;
 
-	bool depthWrite;
-	Kinc_G4_CompareMode depthMode;
+	bool depth_write;
+	Kinc_G4_CompareMode depth_mode;
 
-	Kinc_G4_CompareMode stencilMode;
-	Kinc_G4_StencilAction stencilBothPass;
-	Kinc_G4_StencilAction stencilDepthFail;
-	Kinc_G4_StencilAction stencilFail;
-	int stencilReferenceValue;
-	int stencilReadMask;
-	int stencilWriteMask;
+	Kinc_G4_CompareMode stencil_mode;
+	Kinc_G4_StencilAction stencil_both_pass;
+	Kinc_G4_StencilAction stencil_depth_fail;
+	Kinc_G4_StencilAction stencil_fail;
+	int stencil_reference_value;
+	int stencil_read_mask;
+	int stencil_write_mask;
 
 	// One, Zero deactivates blending
-	Kinc_G4_BlendingOperation blendSource;
-	Kinc_G4_BlendingOperation blendDestination;
+	Kinc_G4_BlendingOperation blend_source;
+	Kinc_G4_BlendingOperation blend_destination;
 	// BlendingOperation blendOperation;
-	Kinc_G4_BlendingOperation alphaBlendSource;
-	Kinc_G4_BlendingOperation alphaBlendDestination;
+	Kinc_G4_BlendingOperation alpha_blend_source;
+	Kinc_G4_BlendingOperation alpha_blend_destination;
 	// BlendingOperation alphaBlendOperation;
 
-	bool colorWriteMaskRed[8]; // Per render target
-	bool colorWriteMaskGreen[8];
-	bool colorWriteMaskBlue[8];
-	bool colorWriteMaskAlpha[8];
+	bool color_write_mask_red[8]; // Per render target
+	bool color_write_mask_green[8];
+	bool color_write_mask_blue[8];
+	bool color_write_mask_alpha[8];
 
-	bool conservativeRasterization;
+	bool conservative_rasterization;
 
 	Kinc_G4_PipelineStateImpl impl;
-} Kinc_G4_PipelineState;
+} kinc_g4_pipeline_t;
 
-void Kinc_G4_PipelineState_Create(Kinc_G4_PipelineState *state);
-void Kinc_G4_PipelineState_Destroy(Kinc_G4_PipelineState *state);
-void Kinc_G4_PipelineState_Compile(Kinc_G4_PipelineState *state);
-Kinc_G4_ConstantLocation Kinc_G4_PipelineState_GetConstantLocation(Kinc_G4_PipelineState *state, const char *name);
-Kinc_G4_TextureUnit Kinc_G4_PipelineState_GetTextureUnit(Kinc_G4_PipelineState *state, const char *name);
+void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state);
+void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state);
+void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state);
+Kinc_G4_ConstantLocation kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name);
+Kinc_G4_TextureUnit kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name);
 
-void Kinc_G4_Internal_SetPipeline(Kinc_G4_PipelineState *pipeline);
+void Kinc_G4_Internal_SetPipeline(kinc_g4_pipeline_t *pipeline);
 
 #ifdef __cplusplus
 }

@@ -22,11 +22,11 @@
 Kinc_Internal_OpenGLWindow Kinc_Internal_windows[10] = {0};
 
 static bool initialized = false;
-static Kinc_G4_VertexBuffer windowVertexBuffer;
-static Kinc_G4_IndexBuffer windowIndexBuffer;
-static Kinc_G4_PipelineState windowPipeline;
-static Kinc_G4_Shader windowVertexShader;
-static Kinc_G4_Shader windowFragmentShader;
+static kinc_g4_vertex_buffer_t windowVertexBuffer;
+static kinc_g4_index_buffer_t windowIndexBuffer;
+static kinc_g4_pipeline_t windowPipeline;
+static kinc_g4_shader_t windowVertexShader;
+static kinc_g4_shader_t windowFragmentShader;
 static bool glewInitialized = false;
 
 #ifdef KORE_WINDOWS
@@ -110,11 +110,11 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 		                            false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, -1, 0);
 		if (!initialized) {
 			wglMakeCurrent(Kinc_Internal_windows[window].deviceContext, Kinc_Internal_windows[window].glContext);
-			Kinc_G4_VertexStructure structure;
-			Kinc_G4_VertexStructure_Create(&structure);
-			Kinc_G4_VertexStructure_Add(&structure, "pos", KINC_G4_VERTEX_DATA_FLOAT2);
-			Kinc_G4_VertexBuffer_Create(&windowVertexBuffer, 4, &structure, KINC_G4_USAGE_STATIC, 0);
-			float* vertices = Kinc_G4_VertexBuffer_LockAll(&windowVertexBuffer);
+			kinc_g4_vertex_structure_t structure;
+			kinc_g4_vertex_structure_init(&structure);
+			kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_FLOAT2);
+			kinc_g4_vertex_buffer_init(&windowVertexBuffer, 4, &structure, KINC_G4_USAGE_STATIC, 0);
+			float *vertices = kinc_g4_vertex_buffer_lock_all(&windowVertexBuffer);
 			vertices[0] = -1.0f;
 			vertices[1] = -1.0f;
 			vertices[2] = -1.0f;
@@ -123,42 +123,44 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			vertices[5] = 1.0f;
 			vertices[6] = 1.0f;
 			vertices[7] = -1.0f;
-			Kinc_G4_VertexBuffer_UnlockAll(&windowVertexBuffer);
+			kinc_g4_vertex_buffer_unlock_all(&windowVertexBuffer);
 
-			Kinc_G4_IndexBuffer_Create(&windowIndexBuffer, 6);
-			int* indices = Kinc_G4_IndexBuffer_Lock(&windowIndexBuffer);
+			kinc_g4_index_buffer_init(&windowIndexBuffer, 6);
+			int *indices = kinc_g4_index_buffer_lock(&windowIndexBuffer);
 			indices[0] = 0;
 			indices[1] = 1;
 			indices[2] = 2;
 			indices[3] = 0;
 			indices[4] = 2;
 			indices[5] = 3;
-			Kinc_G4_IndexBuffer_Unlock(&windowIndexBuffer);
+			kinc_g4_index_buffer_unlock(&windowIndexBuffer);
 
-			Kinc_G4_Shader_CreateFromSource(&windowVertexShader, "#version 450\n"
-			                                                     "in vec2 pos;\n"
-			                                                     "out vec2 texCoord;\n"
-			                                                     "void main() {\n"
-			                                                     "gl_Position = vec4(pos, 0.5, 1.0);\n"
-			                                                     "texCoord = (pos + 1.0) / 2.0;\n"
-			                                                     "}\n",
-			                                                     KINC_SHADER_TYPE_VERTEX);
+			kinc_g4_shader_init_from_source(&windowVertexShader,
+			                                "#version 450\n"
+			                                "in vec2 pos;\n"
+			                                "out vec2 texCoord;\n"
+			                                "void main() {\n"
+			                                "gl_Position = vec4(pos, 0.5, 1.0);\n"
+			                                "texCoord = (pos + 1.0) / 2.0;\n"
+			                                "}\n",
+			                                KINC_SHADER_TYPE_VERTEX);
 
-			Kinc_G4_Shader_CreateFromSource(&windowFragmentShader, "#version 450\n"
-			                                                       "uniform sampler2D tex;\n"
-			                                                       "in vec2 texCoord;\n"
-			                                                       "out vec4 frag;\n"
-			                                                       "void main() {\n"
-			                                                       "frag = texture(tex, texCoord);\n"
-			                                                       "}\n",
-			                                                       KINC_SHADER_TYPE_FRAGMENT);
+			kinc_g4_shader_init_from_source(&windowFragmentShader,
+			                                "#version 450\n"
+			                                "uniform sampler2D tex;\n"
+			                                "in vec2 texCoord;\n"
+			                                "out vec4 frag;\n"
+			                                "void main() {\n"
+			                                "frag = texture(tex, texCoord);\n"
+			                                "}\n",
+			                                KINC_SHADER_TYPE_FRAGMENT);
 
-			Kinc_G4_PipelineState_Create(&windowPipeline);
-			windowPipeline.inputLayout[0] = &structure;
-			windowPipeline.inputLayout[1] = NULL;
-			windowPipeline.vertexShader = &windowVertexShader;
-			windowPipeline.fragmentShader = &windowFragmentShader;
-			Kinc_G4_PipelineState_Compile(&windowPipeline);
+			kinc_g4_pipeline_init(&windowPipeline);
+			windowPipeline.input_layout[0] = &structure;
+			windowPipeline.input_layout[1] = NULL;
+			windowPipeline.vertex_shader = &windowVertexShader;
+			windowPipeline.fragment_shader = &windowFragmentShader;
+			kinc_g4_pipeline_compile(&windowPipeline);
 
 			wglMakeCurrent(Kinc_Internal_windows[0].deviceContext, Kinc_Internal_windows[0].glContext);
 
@@ -182,20 +184,20 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 
 void Kinc_Internal_blitWindowContent(int window) {
 	glBindFramebuffer(GL_FRAMEBUFFER, Kinc_Internal_windows[window].framebuffer);
-	Kinc_G4_Clear(KINC_G4_CLEAR_COLOR, 0xff00ffff, 0.0f, 0);
-	Kinc_G4_SetPipeline(&windowPipeline);
+	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xff00ffff, 0.0f, 0);
+	kinc_g4_set_pipeline(&windowPipeline);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Kinc_Internal_windows[window].renderTarget->impl._texture);
-	Kinc_G4_SetIndexBuffer(&windowIndexBuffer);
+	kinc_g4_set_index_buffer(&windowIndexBuffer);
 
 #ifndef KORE_OPENGL_ES
 	glBindVertexArray(Kinc_Internal_windows[window].vertexArray);
 #endif
 	glCheckErrors();
-	Kinc_G4_VertexBuffer *vertexBuffers[1] = {&windowVertexBuffer};
-	Kinc_G4_SetVertexBuffers(vertexBuffers, 1);
+	kinc_g4_vertex_buffer_t *vertexBuffers[1] = {&windowVertexBuffer};
+	kinc_g4_set_vertex_buffers(vertexBuffers, 1);
 
-	Kinc_G4_DrawIndexedVertices();
+	kinc_g4_draw_indexed_vertices();
 	glCheckErrors();
 
 #ifndef KORE_OPENGL_ES
@@ -210,6 +212,6 @@ void Kinc_Internal_setWindowRenderTarget(int window) {
 	}
 	else {
 		Kinc_G4_RenderTarget *renderTargets[1] = {Kinc_Internal_windows[window].renderTarget};
-		Kinc_G4_SetRenderTargets(renderTargets, 1);
+		kinc_g4_set_render_targets(renderTargets, 1);
 	}
 }

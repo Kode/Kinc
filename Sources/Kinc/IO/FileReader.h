@@ -29,19 +29,19 @@ typedef struct {
 	int type;
 } Kinc_FileReader;
 #else
-typedef struct {
+typedef struct kinc_file_reader {
 	void *file;
 	int size;
 	int type;
-} Kinc_FileReader;
+} kinc_file_reader_t;
 #endif
 
-bool Kinc_FileReader_Open(Kinc_FileReader *reader, const char *filename, int type);
-void Kinc_FileReader_Close(Kinc_FileReader *reader);
-int Kinc_FileReader_Read(Kinc_FileReader *reader, void *data, size_t size);
-size_t Kinc_FileReader_Size(Kinc_FileReader *reader);
-int Kinc_FileReader_Pos(Kinc_FileReader *reader);
-void Kinc_FileReader_Seek(Kinc_FileReader *reader, int pos);
+bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type);
+void kinc_file_reader_close(kinc_file_reader_t *reader);
+int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size);
+size_t kinc_file_reader_size(kinc_file_reader_t *reader);
+int kinc_file_reader_pos(kinc_file_reader_t *reader);
+void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos);
 
 float    Kinc_ReadF32LE(uint8_t *data);
 float    Kinc_ReadF32BE(uint8_t *data);
