@@ -95,10 +95,11 @@ typedef struct kinc_g4_pipeline {
 void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state);
 void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state);
 void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state);
-Kinc_G4_ConstantLocation kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name);
-Kinc_G4_TextureUnit kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name);
+kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name);
+kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name);
 
 void Kinc_G4_Internal_SetPipeline(kinc_g4_pipeline_t *pipeline);
+void kinc_g4_internal_pipeline_set_defaults(kinc_g4_pipeline_t *pipeline);
 
 #ifdef __cplusplus
 }

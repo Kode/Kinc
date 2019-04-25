@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-struct _Kinc_G4_RenderTarget;
+struct kinc_g4_render_target;
 
 typedef struct {
 #ifdef KORE_WINDOWS
@@ -19,7 +19,7 @@ typedef struct {
 #endif
 	int framebuffer;
 	unsigned vertexArray;
-	struct _Kinc_G4_RenderTarget *renderTarget;
+	struct kinc_g4_render_target *renderTarget;
 } Kinc_Internal_OpenGLWindow;
 
 extern Kinc_Internal_OpenGLWindow Kinc_Internal_windows[10];

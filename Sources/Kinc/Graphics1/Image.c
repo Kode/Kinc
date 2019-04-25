@@ -30,7 +30,7 @@ static _Bool endsWith(const char *str, const char *suffix) {
 }
 
 static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *output, int *outputSize, int *width, int *height,
-                      Kinc_ImageCompression *compression, Kinc_ImageFormat *format, unsigned *internalFormat) {
+                      kinc_image_compression_t *compression, kinc_image_format_t *format, unsigned *internalFormat) {
 	*format = KINC_IMAGE_FORMAT_RGBA32;
 	if (endsWith(filename, "k")) {
 		uint8_t data[4];
@@ -248,7 +248,7 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 	}
 }
 
-int Kinc_ImageFormat_SizeOf(Kinc_ImageFormat format) {
+int kinc_image_format_sizeof(kinc_image_format_t format) {
 	switch (format) {
 	case KINC_IMAGE_FORMAT_RGBA128:
 		return 16;
@@ -269,15 +269,15 @@ int Kinc_ImageFormat_SizeOf(Kinc_ImageFormat format) {
 	return -1;
 }
 
-static bool formatIsFloatingPoint(Kinc_ImageFormat format) {
+static bool formatIsFloatingPoint(kinc_image_format_t format) {
 	return format == KINC_IMAGE_FORMAT_RGBA128 || format == KINC_IMAGE_FORMAT_RGBA64 || format == KINC_IMAGE_FORMAT_A32 || format == KINC_IMAGE_FORMAT_A16;
 }
 
-void Kinc_Image_Create(Kinc_Image *image, int width, int height, Kinc_ImageFormat format, bool readable) {
-	Kinc_Image_Create3D(image, width, height, 1, format, readable);
+void kinc_image_init(kinc_image_t *image, int width, int height, kinc_image_format_t format, bool readable) {
+	kinc_image_init3d(image, width, height, 1, format, readable);
 }
 
-void Kinc_Image_Create3D(Kinc_Image *image, int width, int height, int depth, Kinc_ImageFormat format, bool readable) {
+void kinc_image_init3d(kinc_image_t *image, int width, int height, int depth, kinc_image_format_t format, bool readable) {
 	image->width = width;
 	image->height = height;
 	image->depth = depth;
@@ -286,19 +286,19 @@ void Kinc_Image_Create3D(Kinc_Image *image, int width, int height, int depth, Ki
 	image->compression = KINC_IMAGE_COMPRESSION_NONE;
 
 	if (formatIsFloatingPoint(format)) {
-		image->hdrData = (float *)malloc(width * height * depth * Kinc_ImageFormat_SizeOf(format));
+		image->hdrData = (float *)malloc(width * height * depth * kinc_image_format_sizeof(format));
 		image->data = NULL;
 	}
 	else {
-		image->data = malloc(width * height * depth * Kinc_ImageFormat_SizeOf(format));
+		image->data = malloc(width * height * depth * kinc_image_format_sizeof(format));
 		image->hdrData = NULL;
 	}
 }
-void Kinc_Image_CreateFromBytes(Kinc_Image *image, void *data, int width, int height, Kinc_ImageFormat format, bool readable) {
-	Kinc_Image_CreateFromBytes3D(image, data, width, height, 1, format, readable);
+void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int height, kinc_image_format_t format, bool readable) {
+	kinc_image_init_from_bytes3d(image, data, width, height, 1, format, readable);
 }
 
-void Kinc_Image_CreateFromBytes3D(Kinc_Image *image, void *data, int width, int height, int depth, Kinc_ImageFormat format, bool readable) {
+void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format, bool readable) {
 	image->compression = KINC_IMAGE_COMPRESSION_NONE;
 	if (formatIsFloatingPoint(format)) {
 		image->hdrData = (float*)data;
@@ -308,7 +308,7 @@ void Kinc_Image_CreateFromBytes3D(Kinc_Image *image, void *data, int width, int 
 	}
 }
 
-void Kinc_Image_CreateFromFile(Kinc_Image *image, const char *filename, bool readable) {
+void kinc_image_init_from_file(kinc_image_t *image, const char *filename, bool readable) {
 	uint8_t *imageData = NULL;
 	kinc_file_reader_t reader;
 	kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET);
@@ -325,7 +325,7 @@ void Kinc_Image_CreateFromFile(Kinc_Image *image, const char *filename, bool rea
 	}
 }
 
-void Kinc_Image_Destroy(Kinc_Image *image) {
+void kinc_image_destroy(kinc_image_t *image) {
 	if (image->readable) {
 		if (formatIsFloatingPoint(image->format)) {
 			free(image->hdrData);
@@ -338,13 +338,13 @@ void Kinc_Image_Destroy(Kinc_Image *image) {
 	}
 }
 
-int Kinc_Image_At(Kinc_Image *image, int x, int y) {
+int kinc_image_at(kinc_image_t *image, int x, int y) {
 	if (image->data == NULL)
 		return 0;
 	else
-		return *(int *)&((uint8_t *)image->data)[image->width * Kinc_ImageFormat_SizeOf(image->format) * y + x * Kinc_ImageFormat_SizeOf(image->format)];
+		return *(int *)&((uint8_t *)image->data)[image->width * kinc_image_format_sizeof(image->format) * y + x * kinc_image_format_sizeof(image->format)];
 }
 
-uint8_t *Kinc_Image_GetPixels(Kinc_Image *image) {
+uint8_t *kinc_image_get_pixels(kinc_image_t *image) {
 	return image->data != NULL ? image->data : (uint8_t*)image->hdrData;
 }

@@ -127,7 +127,7 @@ namespace Kore {
 			void getPixels(u8* data);
 			void generateMipmaps(int levels);
 
-			Kinc_G4_RenderTarget kincRenderTarget;
+			kinc_g4_render_target_t kincRenderTarget;
 		};
 
 		void setBool(ConstantLocation location, bool value);

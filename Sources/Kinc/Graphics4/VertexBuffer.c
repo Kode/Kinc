@@ -15,3 +15,8 @@ void kinc_g4_vertex_structure_init(kinc_g4_vertex_structure_t *structure) {
 void kinc_g4_vertex_structure_add(kinc_g4_vertex_structure_t *structure, const char *name, kinc_g4_vertex_data_t data) {
 	kinc_g4_vertex_element_init(&structure->elements[structure->size++], name, data);
 }
+
+void kinc_g4_set_vertex_buffer(kinc_g4_vertex_buffer_t *buffer) {
+	kinc_g4_vertex_buffer_t *buffers[1] = {buffer};
+	kinc_g4_set_vertex_buffers(buffers, 1);
+}

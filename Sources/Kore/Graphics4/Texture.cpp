@@ -35,17 +35,17 @@ Graphics4::Texture::Texture(void* data, int width, int height, int depth, int fo
 #endif
 
 Graphics4::Texture::Texture(int width, int height, Graphics4::Image::Format format, bool readable) {
-	Kinc_G4_Texture_Create(&kincTexture, width, height, (Kinc_ImageFormat)format, readable);
+	kinc_g4_texture_init(&kincTexture, width, height, (kinc_image_format_t)format, readable);
 }
 
 uint8_t* Graphics4::Texture::lock() {
-	return Kinc_G4_Texture_Lock(&kincTexture);
+	return kinc_g4_texture_lock(&kincTexture);
 }
 
 void Graphics4::Texture::unlock() {
-	Kinc_G4_Texture_Unlock(&kincTexture);
+	kinc_g4_texture_unlock(&kincTexture);
 }
 
 int Graphics4::Texture::stride() {
-	return Kinc_G4_Texture_Stride(&kincTexture);
+	return kinc_g4_texture_stride(&kincTexture);
 }

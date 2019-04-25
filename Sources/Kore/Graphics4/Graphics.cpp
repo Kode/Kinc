@@ -172,7 +172,7 @@ void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 
 void Graphics4::setRenderTargets(RenderTarget** renderTargets, int count) {
 	assert(count <= 16);
-	Kinc_G4_RenderTarget *targets[16];
+	kinc_g4_render_target_t *targets[16];
 	for (int i = 0; i < count; ++i) {
 		targets[i] = &renderTargets[i]->kincRenderTarget;
 	}

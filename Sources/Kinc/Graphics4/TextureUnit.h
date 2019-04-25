@@ -6,9 +6,9 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_g4_texture_unit {
 	Kinc_G4_TextureUnitImpl impl;
-} Kinc_G4_TextureUnit;
+} kinc_g4_texture_unit_t;
 
 #ifdef __cplusplus
 }

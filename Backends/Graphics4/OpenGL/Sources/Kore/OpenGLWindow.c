@@ -4,7 +4,7 @@
 
 #include <Kinc/Graphics4/Graphics.h>
 #include <Kinc/Graphics4/IndexBuffer.h>
-#include <Kinc/Graphics4/PipelineState.h>
+#include <Kinc/Graphics4/Pipeline.h>
 #include <Kinc/Graphics4/RenderTarget.h>
 #include <Kinc/Graphics4/Shader.h>
 #include <Kinc/Graphics4/VertexBuffer.h>
@@ -106,7 +106,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 	if (window != 0) {
 		wglShareLists(Kinc_Internal_windows[0].glContext, Kinc_Internal_windows[window].glContext);
 		wglMakeCurrent(Kinc_Internal_windows[0].deviceContext, Kinc_Internal_windows[0].glContext);
-		Kinc_G4_RenderTarget_Create(Kinc_Internal_windows[window].renderTarget, Kinc_Windows_ManualWidth(window), Kinc_Windows_ManualHeight(window), depthBufferBits,
+		kinc_g4_render_target_init(Kinc_Internal_windows[window].renderTarget, Kinc_Windows_ManualWidth(window), Kinc_Windows_ManualHeight(window), depthBufferBits,
 		                            false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, -1, 0);
 		if (!initialized) {
 			wglMakeCurrent(Kinc_Internal_windows[window].deviceContext, Kinc_Internal_windows[window].glContext);
@@ -211,7 +211,7 @@ void Kinc_Internal_setWindowRenderTarget(int window) {
 		glBindFramebuffer(GL_FRAMEBUFFER, Kinc_Internal_windows[window].framebuffer);
 	}
 	else {
-		Kinc_G4_RenderTarget *renderTargets[1] = {Kinc_Internal_windows[window].renderTarget};
+		kinc_g4_render_target_t *renderTargets[1] = {Kinc_Internal_windows[window].renderTarget};
 		kinc_g4_set_render_targets(renderTargets, 1);
 	}
 }

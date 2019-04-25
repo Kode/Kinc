@@ -5,7 +5,7 @@
 
 #include <Kore/ogl.h>
 
-void Kinc_G4_TextureArray_Create(Kinc_G4_TextureArray *array, Kinc_Image **textures, int count) {
+void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t **textures, int count) {
 #ifdef GL_VERSION_4_2
 	glGenTextures(1, &array->impl.texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, array->impl.texture);
@@ -17,7 +17,7 @@ void Kinc_G4_TextureArray_Create(Kinc_G4_TextureArray *array, Kinc_Image **textu
 #endif
 }
 
-void Kinc_G4_Internal_TextureArraySet(Kinc_G4_TextureArray *array, Kinc_G4_TextureUnit unit) {
+void Kinc_G4_Internal_TextureArraySet(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
 #ifdef GL_VERSION_4_2
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, array->impl.texture);

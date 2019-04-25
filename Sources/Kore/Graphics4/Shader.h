@@ -28,7 +28,7 @@ namespace Kore {
 
 			}
 
-			Kinc_G4_ConstantLocation kincConstant;
+			kinc_g4_constant_location_t kincConstant;
 		};
 	}
 }

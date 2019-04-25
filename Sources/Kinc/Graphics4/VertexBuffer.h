@@ -33,6 +33,7 @@ int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer);
 int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset);
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count);
+void kinc_g4_set_vertex_buffer(kinc_g4_vertex_buffer_t *buffer);
 
 #ifdef __cplusplus
 }

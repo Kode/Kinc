@@ -15,7 +15,7 @@ namespace Kore {
 			TextureUnit() {
 			}
 
-			Kinc_G4_TextureUnit kincUnit;
+			kinc_g4_texture_unit_t kincUnit;
 		};
 
 		class Texture : public Image {
@@ -46,7 +46,7 @@ namespace Kore {
 			int texHeight;
 			int texDepth;
 
-			Kinc_G4_Texture kincTexture;
+			kinc_g4_texture_t kincTexture;
 
 		private:
 			//void init(const char* format, bool readable = false);

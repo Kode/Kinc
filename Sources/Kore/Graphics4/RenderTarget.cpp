@@ -8,5 +8,5 @@ using namespace Kore;
 using namespace Kore::Graphics4;
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {
-	Kinc_G4_RenderTarget_UseColorAsTexture(&kincRenderTarget, unit.kincUnit);
+	kinc_g4_render_target_use_color_as_texture(&kincRenderTarget, unit.kincUnit);
 }

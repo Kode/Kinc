@@ -7,42 +7,42 @@
 extern "C" {
 #endif
 
-typedef Kinc_Image Kinc_G4_Image;
+typedef kinc_image_t kinc_g4_image_t;
 
-typedef struct _Kinc_G4_Texture {
-	int texWidth;
-	int texHeight;
-	int texDepth;
+typedef struct kinc_g4_texture {
+	int tex_width;
+	int tex_height;
+	int tex_depth;
 	// private:
 	// void init(const char* format, bool readable = false);
 	// void init3D(bool readable = false);
-	Kinc_Image image;
+	kinc_image_t image;
 	Kinc_G4_TextureImpl impl;
-} Kinc_G4_Texture;
+} kinc_g4_texture_t;
 
-void Kinc_G4_Texture_Create(Kinc_G4_Texture *texture, int width, int height, Kinc_ImageFormat format, bool readable);
-void Kinc_G4_Texture_Create3D(Kinc_G4_Texture *texture, int width, int height, int depth, Kinc_ImageFormat format, bool readable);
-void Kinc_G4_Texture_Destroy(Kinc_G4_Texture *texture);
+void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format, bool readable);
+void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format, bool readable);
+void kinc_g4_texture_destroy(kinc_g4_texture_t *texture);
 // Texture(Kore::Reader &reader, const char *format, bool readable = false);
-Kinc_G4_Texture *Kinc_G4_Texture_CreateFromFile(const char *filename, bool readable);
-Kinc_G4_Texture *Kinc_G4_Texture_CreateFromBytes(void *data, int size, const char *format, bool readable);
+kinc_g4_texture_t *kinc_g4_texture_init_from_file(const char *filename, bool readable);
+kinc_g4_texture_t *kinc_g4_texture_init_from_bytes(void *data, int size, const char *format, bool readable);
 // Kinc_G4_Texture *Kinc_G4_Texture_CreateFromBytes(void *data, int width, int height, int format, bool readable);
-Kinc_G4_Texture *Kinc_G4_Texture_CreateFromBytes3D(void *data, int width, int height, int depth, int format, bool readable);
+kinc_g4_texture_t *kinc_g4_texture_init_from_bytes3d(void *data, int width, int height, int depth, int format, bool readable);
 #ifdef KORE_ANDROID
 Texture(unsigned texid);
 #endif
 // void _set(TextureUnit unit);
 // void _setImage(TextureUnit unit);
-unsigned char *Kinc_G4_Texture_Lock(Kinc_G4_Texture *texture);
-void Kinc_G4_Texture_Unlock(Kinc_G4_Texture *texture);
-void Kinc_G4_Texture_Clear(Kinc_G4_Texture *texture, int x, int y, int z, int width, int height, int depth, unsigned color);
+unsigned char *kinc_g4_texture_lock(kinc_g4_texture_t *texture);
+void kinc_g4_texture_unlock(kinc_g4_texture_t *texture);
+void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color);
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-void Kinc_G4_Texture_Upload(uint8_t *data, int stride);
+void kinc_g4_texture_upload(uint8_t *data, int stride);
 #endif
-void Kinc_G4_Texture_GenerateMipmaps(Kinc_G4_Texture *texture, int levels);
-void Kinc_G4_Texture_setMipmap(Kinc_G4_Texture *texture, Kinc_G4_Texture *mipmap, int level);
+void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels);
+void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_g4_texture_t *mipmap, int level);
 
-int Kinc_G4_Texture_Stride(Kinc_G4_Texture *texture);
+int kinc_g4_texture_stride(kinc_g4_texture_t *texture);
 
 #ifdef __cplusplus
 }

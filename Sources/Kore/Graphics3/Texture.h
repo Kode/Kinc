@@ -12,7 +12,7 @@ namespace Kore {
 
 		class TextureUnit {
 		public:
-			Kinc_G4_TextureUnit kincUnit;
+			kinc_g4_texture_unit_t kincUnit;
 		};
 
 		class Texture : public Image {
@@ -28,9 +28,9 @@ namespace Kore {
 #endif
 			void _set(TextureUnit unit);
 			void _setImage(TextureUnit unit);
-			u8* lock();
+			uint8_t* lock();
 			void unlock();
-			void clear(int x, int y, int z, int width, int height, int depth, uint color);
+			void clear(int x, int y, int z, int width, int height, int depth, unsigned color);
 #ifdef KORE_IOS
 			void upload(u8* data);
 #endif
@@ -41,7 +41,7 @@ namespace Kore {
 			int texWidth;
 			int texHeight;
 
-			Kinc_G4_Texture kincTexture;
+			kinc_g4_texture_t kincTexture;
 
 		private:
 			void init(const char* format, bool readable = false);

@@ -6,9 +6,9 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_g4_constant_location {
 	Kinc_G4_ConstantLocationImpl impl;
-} Kinc_G4_ConstantLocation;
+} kinc_g4_constant_location_t;
 
 #ifdef __cplusplus
 }

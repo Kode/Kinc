@@ -62,7 +62,7 @@ static bool nonPow2RenderTargetsSupported() {
 #endif
 }
 
-static void setupDepthStencil(Kinc_G4_RenderTarget *renderTarget, GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
+static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
 		renderTarget->impl._hasDepth = true;
 #if defined(KORE_OPENGL_ES) && !defined(KORE_PI) && !defined(KORE_HTML5)
@@ -143,8 +143,8 @@ static void setupDepthStencil(Kinc_G4_RenderTarget *renderTarget, GLenum texType
 	}
 }
 
-void Kinc_G4_RenderTarget_Create(Kinc_G4_RenderTarget *renderTarget, int width, int height, int depthBufferBits, bool antialiasing,
-                                 Kinc_G4_RenderTargetFormat format, int stencilBufferBits, int contextId) {
+void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing,
+                                 kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
 	renderTarget->width = width;
 	renderTarget->height = height;
 	renderTarget->isCubeMap = false;
@@ -242,8 +242,8 @@ void Kinc_G4_RenderTarget_Create(Kinc_G4_RenderTarget *renderTarget, int width, 
 	glCheckErrors();
 }
 
-void Kinc_G4_RenderTarget_CreateCube(Kinc_G4_RenderTarget *renderTarget, int cubeMapSize, int depthBufferBits, bool antialiasing,
-                                     Kinc_G4_RenderTargetFormat format, int stencilBufferBits, int contextId) {
+void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int cubeMapSize, int depthBufferBits, bool antialiasing,
+                                     kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
 	renderTarget->width = cubeMapSize;
 	renderTarget->height = cubeMapSize;
 	renderTarget->isCubeMap = true;
@@ -334,7 +334,7 @@ void Kinc_G4_RenderTarget_CreateCube(Kinc_G4_RenderTarget *renderTarget, int cub
 	glCheckErrors();
 }
 
-void Kinc_G4_RenderTarget_Destroy(Kinc_G4_RenderTarget *renderTarget) {
+void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 	{
 		GLuint textures[] = {renderTarget->impl._texture};
 		glDeleteTextures(1, textures);
@@ -346,29 +346,29 @@ void Kinc_G4_RenderTarget_Destroy(Kinc_G4_RenderTarget *renderTarget) {
 	GLuint framebuffers[] = {renderTarget->impl._framebuffer};
 	glDeleteFramebuffers(1, framebuffers);
 }
-void Kinc_G4_RenderTarget_UseColorAsTexture(Kinc_G4_RenderTarget *renderTarget, Kinc_G4_TextureUnit unit) {
+void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
 	glBindTexture(renderTarget->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, renderTarget->impl._texture);
 	glCheckErrors();
 }
 
-void Kinc_G4_RenderTarget_UseDepthAsTexture(Kinc_G4_RenderTarget *renderTarget, Kinc_G4_TextureUnit unit) {
+void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
 	glBindTexture(renderTarget->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, renderTarget->impl._depthTexture);
 	glCheckErrors();
 }
 
-void Kinc_G4_RenderTarget_SetDepthStencilFrom(Kinc_G4_RenderTarget *renderTarget, Kinc_G4_RenderTarget *source) {
+void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *renderTarget, kinc_g4_render_target_t *source) {
 	renderTarget->impl._depthTexture = source->impl._depthTexture;
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, renderTarget->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, renderTarget->impl._depthTexture, 0);
 }
 
-void Kinc_G4_RenderTarget_GetPixels(Kinc_G4_RenderTarget *renderTarget, uint8_t *data) {
+void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uint8_t *data) {
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
-	switch ((Kinc_G4_RenderTargetFormat)renderTarget->impl.format) {
+	switch ((kinc_g4_render_target_format_t)renderTarget->impl.format) {
 	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
 		glReadPixels(0, 0, renderTarget->texWidth, renderTarget->texHeight, GL_RGBA, GL_FLOAT, data);
 		break;
@@ -390,7 +390,7 @@ void Kinc_G4_RenderTarget_GetPixels(Kinc_G4_RenderTarget *renderTarget, uint8_t 
 	}
 }
 
-void Kinc_G4_RenderTarget_GenerateMipmaps(Kinc_G4_RenderTarget *renderTarget, int levels) {
+void kinc_g4_render_target_generate_mipmaps(kinc_g4_render_target_t *renderTarget, int levels) {
 	glBindTexture(GL_TEXTURE_2D, renderTarget->impl._texture);
 	glCheckErrors();
 	glGenerateMipmap(GL_TEXTURE_2D);

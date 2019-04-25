@@ -8,11 +8,11 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_g4_texture_array {
 	Kinc_G4_TextureArrayImpl impl;
-} Kinc_G4_TextureArray;
+} kinc_g4_texture_array_t;
 
-void Kinc_G4_TextureArray_Create(Kinc_G4_TextureArray *array, Kinc_Image **textures, int count);
+void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t **textures, int count);
 
 #ifdef __cplusplus
 }
