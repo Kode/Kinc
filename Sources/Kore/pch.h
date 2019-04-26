@@ -53,7 +53,7 @@ namespace Kore {
 
 #endif
 
-#include <stdarg.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #define KINC_FUNC
