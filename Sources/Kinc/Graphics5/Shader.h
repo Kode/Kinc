@@ -26,10 +26,6 @@ typedef struct kinc_g5_shader {
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, int length, kinc_g5_shader_type_t type);
 
-typedef struct kinc_g5_constant_location {
-	ConstantLocation5Impl impl;
-} kinc_g5_constant_location_t;
-
 #ifdef __cplusplus
 }
 #endif
