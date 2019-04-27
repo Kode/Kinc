@@ -1,18 +1,18 @@
 #pragma once
 
-namespace Kore {
-	class TextureUnit5Impl {
-	public:
-		int unit;
-	};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class Texture5Impl {
-	public:
-		~Texture5Impl();
-		void unmipmap();
-		void unset();
+typedef struct {
+	int unit;
+} TextureUnit5Impl;
 
-		bool mipmap;
-		int stage;
-	};
+typedef struct {
+	bool mipmap;
+	int stage;
+} Texture5Impl;
+
+#ifdef __cplusplus
 }
+#endif

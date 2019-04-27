@@ -4,6 +4,8 @@
 
 #include "TextureUnit.h"
 
+#include <Kore/RenderTarget5Impl.h>
+
 #include <Kinc/Graphics4/RenderTarget.h>
 
 #ifdef __cplusplus

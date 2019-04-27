@@ -13,7 +13,6 @@ struct ID3D11RasterizerState;
 struct ID3D11BlendState;
 
 typedef struct {
-public:
 	// PipelineStateImpl();
 	//~PipelineStateImpl();
 	struct ID3D11InputLayout *d3d11inputLayout;

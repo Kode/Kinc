@@ -1,15 +1,10 @@
 #pragma once
 
-namespace Kore {
-	class ConstantBuffer5Impl {
-	public:
-		ConstantBuffer5Impl();
+typedef struct {
+	int lastStart;
+	int lastCount;
+	int mySize;
+} ConstantBuffer5Impl;
 
-	protected:
-		int lastStart;
-		int lastCount;
-		int mySize;
-		const bool transposeMat3;
-		const bool transposeMat4;
-	};
-}
+extern const bool kinc_g5_internal_transposeMat3;
+extern const bool kinc_g5_internal_transposeMat4;

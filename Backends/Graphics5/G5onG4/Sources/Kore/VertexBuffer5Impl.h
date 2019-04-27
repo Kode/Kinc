@@ -1,20 +1,17 @@
 #pragma once
 
-namespace Kore {
-	namespace Graphics4 {
-		class VertexBuffer;
-	}
+#include <Kinc/Graphics4/VertexBuffer.h>
 
-	class VertexBuffer5Impl {
-	protected:
-		VertexBuffer5Impl(int count);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	public:
-		Graphics4::VertexBuffer* buffer;
-		int myCount;
-		int myStride;
-		int myStart;
-		// float* vertices;
-		static VertexBuffer5Impl* _current;
-	};
+typedef struct {
+	kinc_g4_vertex_buffer_t buffer;
+	int myCount;
+	int myStart;
+} VertexBuffer5Impl;
+
+#ifdef __cplusplus
 }
+#endif

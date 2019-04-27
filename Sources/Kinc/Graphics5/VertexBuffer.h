@@ -12,7 +12,7 @@ typedef struct kinc_g5_vertex_buffer {
 	VertexBuffer5Impl impl;
 } kinc_g5_vertex_buffer_t;
 
-void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure *structure, bool gpuMemory, int instanceDataStepRate);
+void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure_t *structure, bool gpuMemory, int instanceDataStepRate);
 void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer);
 float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer);
 float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, int count);

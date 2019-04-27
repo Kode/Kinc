@@ -2,7 +2,7 @@
 
 #include <Kore/PipelineState5Impl.h>
 
-#include <Kore/Graphics5/VertexStructure.h>
+#include <Kinc/Graphics5/VertexStructure.h>
 
 #include "Graphics.h"
 
@@ -20,25 +20,25 @@ typedef struct kinc_g5_pipeline {
 	struct kinc_g5_shader *tessellationControlShader;
 	struct kinc_g5_shader *tessellationEvaluationShader;
 
-	CullMode cullMode;
+	kinc_g5_cull_mode_t cullMode;
 
 	bool depthWrite;
-	ZCompareMode depthMode;
+	kinc_g5_compare_mode_t depthMode;
 
-	ZCompareMode stencilMode;
-	StencilAction stencilBothPass;
-	StencilAction stencilDepthFail;
-	StencilAction stencilFail;
+	kinc_g5_compare_mode_t stencilMode;
+	kinc_g5_stencil_action_t stencilBothPass;
+	kinc_g5_stencil_action_t stencilDepthFail;
+	kinc_g5_stencil_action_t stencilFail;
 	int stencilReferenceValue;
 	int stencilReadMask;
 	int stencilWriteMask;
 
 	// One, Zero deactivates blending
-	BlendingOperation blendSource;
-	BlendingOperation blendDestination;
+	kinc_g5_blending_operation_t blendSource;
+	kinc_g5_blending_operation_t blendDestination;
 	// BlendingOperation blendOperation;
-	BlendingOperation alphaBlendSource;
-	BlendingOperation alphaBlendDestination;
+	kinc_g5_blending_operation_t alphaBlendSource;
+	kinc_g5_blending_operation_t alphaBlendDestination;
 	// BlendingOperation alphaBlendOperation;
 
 	bool colorWriteMaskRed[8]; // Per render target
@@ -47,6 +47,8 @@ typedef struct kinc_g5_pipeline {
 	bool colorWriteMaskAlpha[8];
 
 	bool conservativeRasterization;
+
+	PipelineState5Impl impl;
 } kinc_g5_pipeline_t;
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline);
