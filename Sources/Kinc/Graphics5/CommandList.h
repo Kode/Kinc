@@ -30,7 +30,7 @@ void kinc_g5_command_list_framebuffer_to_render_target_barrier(kinc_g5_command_l
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget);
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget);
 void kinc_g5_command_list_draw_indexed_vertices(kinc_g5_command_list_t *list);
-void kinc_g5_command_list_draw_indexed_vertices(kinc_g5_command_list_t *list, int start, int count);
+void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *list, int start, int count);
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height);
 void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height);
 void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list);
