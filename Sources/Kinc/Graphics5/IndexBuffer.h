@@ -2,6 +2,8 @@
 
 #include "pch.h"
 
+#include <Kore/IndexBuffer5Impl.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

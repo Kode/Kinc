@@ -1,4 +1,4 @@
 #pragma once
 
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Math/Matrix.h>
+#include <Kinc/Graphics5/Graphics.h>
+#include <Kinc/Math/Matrix.h>

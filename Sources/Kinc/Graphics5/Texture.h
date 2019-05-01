@@ -2,6 +2,8 @@
 
 #include <Kinc/Graphics1/Image.h>
 
+#include "TextureUnit.h"
+
 #include <Kore/Texture5Impl.h>
 
 #ifdef __cplusplus

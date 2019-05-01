@@ -5,6 +5,7 @@
 #include <Kinc/Graphics5/VertexStructure.h>
 
 #include "Graphics.h"
+#include "ConstantLocation.h"
 
 #ifdef __cplusplus
 extern "C" {
