@@ -6,7 +6,8 @@
 
 #include <Kore/SystemMicrosoft.h>
 
-void Kinc_G4_VertexBuffer_Create(Kinc_G4_VertexBuffer *buffer, int count, Kinc_G4_VertexStructure *structure, Kinc_G4_Usage usage, int instance_data_step_rate) {
+void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
+                                  int instance_data_step_rate) {
 	buffer->impl.count = count;
 	buffer->impl.stride = 0;
 	for (int i = 0; i < structure->size; ++i) {
@@ -64,26 +65,26 @@ void Kinc_G4_VertexBuffer_Create(Kinc_G4_VertexBuffer *buffer, int count, Kinc_G
 	Kinc_Microsoft_Affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.vb));
 }
 
-void Kinc_G4_VertexBuffer_Destroy(Kinc_G4_VertexBuffer *buffer) {
+void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
 	buffer->impl.vb->Release();
 	delete[] buffer->impl.vertices;
 }
 
-float *Kinc_G4_VertexBuffer_LockAll(Kinc_G4_VertexBuffer *buffer) {
-	return Kinc_G4_VertexBuffer_Lock(buffer, 0, buffer->impl.count);
+float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer) {
+	return kinc_g4_vertex_buffer_lock(buffer, 0, buffer->impl.count);
 }
 
-float *Kinc_G4_VertexBuffer_Lock(Kinc_G4_VertexBuffer *buffer, int start, int count) {
+float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, int count) {
 	buffer->impl.lockStart = start;
 	buffer->impl.lockCount = count;
 	return &buffer->impl.vertices[start * buffer->impl.stride / 4];
 }
 
-void Kinc_G4_VertexBuffer_UnlockAll(Kinc_G4_VertexBuffer *buffer) {
-	Kinc_G4_VertexBuffer_Unlock(buffer, buffer->impl.lockCount);
+void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
+	kinc_g4_vertex_buffer_unlock(buffer, buffer->impl.lockCount);
 }
 
-void Kinc_G4_VertexBuffer_Unlock(Kinc_G4_VertexBuffer *buffer, int count) {
+void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
@@ -96,17 +97,17 @@ void Kinc_G4_VertexBuffer_Unlock(Kinc_G4_VertexBuffer *buffer, int count) {
 	}
 }
 
-int Kinc_Internal_G4_VertexBuffer_Set(Kinc_G4_VertexBuffer *buffer, int offset) {
+int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	// UINT stride = myStride;
 	// UINT internaloffset = 0;
 	// context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
 	return 0;
 }
 
-int Kinc_G4_VertexBuffer_Count(Kinc_G4_VertexBuffer* buffer) {
+int kinc_g4_vertex_buffer_count(kinc_g4_vertex_buffer_t *buffer) {
 	return buffer->impl.count;
 }
 
-int Kinc_G4_VertexBuffer_Stride(Kinc_G4_VertexBuffer* buffer) {
+int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer) {
 	return buffer->impl.stride;
 }

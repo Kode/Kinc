@@ -9,7 +9,7 @@
 #include <Windows.h>
 #include <d3d11.h>
 
-void Kinc_G4_IndexBuffer_Create(Kinc_G4_IndexBuffer *buffer, int count) {
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
 	buffer->impl.count = count;
 	buffer->impl.indices = new int[count];
 
@@ -24,20 +24,20 @@ void Kinc_G4_IndexBuffer_Create(Kinc_G4_IndexBuffer *buffer, int count) {
 	Kinc_Microsoft_Affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.ib));
 }
 
-void Kinc_G4_IndexBuffer_Destroy(Kinc_G4_IndexBuffer *buffer) {
+void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 	buffer->impl.ib->Release();
 	delete[] buffer->impl.indices;
 	buffer->impl.indices = NULL;
 }
 
-int *Kinc_G4_IndexBuffer_Lock(Kinc_G4_IndexBuffer *buffer) {
+int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 	return buffer->impl.indices;
 }
 
-void Kinc_G4_IndexBuffer_Unlock(Kinc_G4_IndexBuffer *buffer) {
+void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
 	context->UpdateSubresource(buffer->impl.ib, 0, nullptr, buffer->impl.indices, 0, 0);
 }
 
-int Kinc_G4_IndexBuffer_Count(Kinc_G4_IndexBuffer *buffer) {
+int kinc_g4_index_buffer_count(kinc_g4_index_buffer_t *buffer) {
 	return buffer->impl.count;
 }

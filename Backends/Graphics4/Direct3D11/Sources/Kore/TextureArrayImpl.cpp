@@ -10,7 +10,7 @@
 #include <malloc.h>
 #include <stdint.h>
 
-void Kinc_G4_TextureArray_Create(Kinc_G4_TextureArray *array, Kinc_Image **textures, int count) {
+void kinc_g4_texture_array_create(kinc_g4_texture_array_t *array, kinc_image_t **textures, int count) {
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = textures[0]->width;
 	desc.Height = textures[0]->height;
@@ -38,7 +38,7 @@ void Kinc_G4_TextureArray_Create(Kinc_G4_TextureArray *array, Kinc_Image **textu
 	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(array->impl.texture, nullptr, &array->impl.view));
 }
 
-void Kinc_Internal_TextureArraySet(Kinc_G4_TextureArray *array, Kinc_G4_TextureUnit unit) {
+void Kinc_Internal_TextureArraySet(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	context->PSSetShaderResources(unit.impl.unit, 1, &array->impl.view);
 	// this->stage = unit.unit;

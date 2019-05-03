@@ -2,10 +2,6 @@
 
 #include "Texture.h"
 
-#include <Kore/IO/BufferReader.h>
-#include <Kore/IO/FileReader.h>
-
-using namespace Kore;
 /*
 Graphics5::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
 	_init(format, readable);

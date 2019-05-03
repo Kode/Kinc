@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <stdint.h>
 
-void Kinc_G4_Shader_Destroy(Kinc_G4_Shader *shader) {
+void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (shader->impl.shader != nullptr) {
 		switch (shader->impl.type) {
 		case KINC_SHADER_TYPE_VERTEX:
@@ -43,7 +43,7 @@ uint32_t Kinc_Internal_HashName(unsigned char *str) {
 	return hash;
 }
 
-void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *_data, int length, Kinc_G4_ShaderType type) {
+void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, kinc_g4_shader_type_t type) {
 	unsigned index = 0;
 	uint8_t *data = (uint8_t*)_data;
 	shader->impl.type = (int)type;
@@ -124,7 +124,7 @@ void Kinc_G4_Shader_Create(Kinc_G4_Shader *shader, void *_data, int length, Kinc
 extern void krafix_compile(const char* source, char* output, int* length, const char* targetlang, const char* system, const char* shadertype);
 #endif
 
-void Kinc_G4_Shader_CreateFromSource(Kinc_G4_Shader *shader, const char *source, Kinc_G4_ShaderType type) {
+void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {
 #ifdef KRAFIX_LIBRARY
 	char* output = new char[1024 * 1024];
 	int length;

@@ -60,7 +60,7 @@ void Kinc_WindowHide(int window_index);
 void Kinc_WindowSetTitle(int window_index, const char *title);
 void Kinc_WindowSetResizeCallback(int window_index, void (*callback)(int x, int y, void *data), void *data);
 void Kinc_WindowSetPpiChangedCallback(int window_index, void (*callback)(int ppi, void *data), void *data);
-bool Kinc_WindowVSynced(int window_index);
+bool kinc_window_vsynced(int window_index);
 
 void Kinc_Internal_InitWindowOptions(Kinc_WindowOptions *win);
 void Kinc_Internal_InitFramebufferOptions(Kinc_FramebufferOptions *frame);

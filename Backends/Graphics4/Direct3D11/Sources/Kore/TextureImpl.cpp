@@ -12,10 +12,10 @@
 
 using namespace Kore;
 
-static Kinc_G4_Texture *setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+static kinc_g4_texture_t *setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 	                                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-static DXGI_FORMAT convertFormat(Kinc_ImageFormat format) {
+static DXGI_FORMAT convertFormat(kinc_image_format_t format) {
 	switch (format) {
 	case KINC_IMAGE_FORMAT_RGBA128:
 		return DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -39,7 +39,7 @@ static DXGI_FORMAT convertFormat(Kinc_ImageFormat format) {
 	}
 }
 
-static int formatByteSize(Kinc_ImageFormat format) {
+static int formatByteSize(kinc_image_format_t format) {
 	switch (format) {
 	case KINC_IMAGE_FORMAT_RGBA128:
 		return 16;
@@ -62,14 +62,14 @@ static int formatByteSize(Kinc_ImageFormat format) {
 	}
 }
 
-static bool isHdr(Kinc_ImageFormat format) {
+static bool isHdr(kinc_image_format_t format) {
 	return format == KINC_IMAGE_FORMAT_RGBA128 || format == KINC_IMAGE_FORMAT_RGBA64 || format == KINC_IMAGE_FORMAT_A32 || format == KINC_IMAGE_FORMAT_A16;
 }
 
-static void init_texture(Kinc_G4_Texture *texture, Kinc_ImageFormat format, bool readable) {
+static void init_texture(kinc_g4_texture_t *texture, kinc_image_format_t format, bool readable) {
 	texture->impl.stage = 0;
-	texture->texWidth = texture->image.width;
-	texture->texHeight = texture->image.height;
+	texture->tex_width = texture->image.width;
+	texture->tex_height = texture->image.height;
 	texture->impl.rowPitch = 0;
 
 	D3D11_TEXTURE2D_DESC desc;
@@ -105,11 +105,11 @@ static void init_texture(Kinc_G4_Texture *texture, Kinc_ImageFormat format, bool
 	}
 }
 
-static void init_texture3d(Kinc_G4_Texture *texture, bool readable) {
+static void init_texture3d(kinc_g4_texture_t *texture, bool readable) {
 	texture->impl.stage = 0;
-	texture->texWidth = texture->image.width;
-	texture->texHeight = texture->image.height;
-	texture->texDepth = texture->image.depth;
+	texture->tex_width = texture->image.width;
+	texture->tex_height = texture->image.height;
+	texture->tex_depth = texture->image.depth;
 	texture->impl.rowPitch = 0;
 
 	D3D11_TEXTURE3D_DESC desc;
@@ -145,11 +145,11 @@ static void init_texture3d(Kinc_G4_Texture *texture, bool readable) {
 	}
 }
 
-void Kinc_G4_Texture_Create(Kinc_G4_Texture *texture, int width, int height, Kinc_ImageFormat format, bool readable) {
+void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format, bool readable) {
 	init_texture(texture, format, readable);
 	texture->impl.stage = 0;
-	texture->texWidth = width;
-	texture->texHeight = height;
+	texture->tex_width = width;
+	texture->tex_height = height;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -185,12 +185,12 @@ void Kinc_G4_Texture_Create(Kinc_G4_Texture *texture, int width, int height, Kin
 	}
 }
 
-void Kinc_G4_TextureCreate3D(Kinc_G4_Texture *texture, int width, int height, int depth, Kinc_ImageFormat format, bool readable) {
+void kinc_g4_texture3d_init_3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {
 	init_texture3d(texture, readable);
 	texture->impl.stage = 0;
-	texture->texWidth = width;
-	texture->texHeight = height;
-	texture->texDepth = depth;
+	texture->tex_width = width;
+	texture->tex_height = height;
+	texture->tex_depth = depth;
 	texture->impl.hasMipmaps = true;
 
 	D3D11_TEXTURE3D_DESC desc;
@@ -212,9 +212,9 @@ void Kinc_G4_TextureCreate3D(Kinc_G4_Texture *texture, int width, int height, in
 
 //TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
 
-void Kinc_Internal_TextureUnset(Kinc_G4_Texture *texture);
+void Kinc_Internal_TextureUnset(kinc_g4_texture_t *texture);
 
-void Kinc_G4_Texture_Destroy(Kinc_G4_Texture *texture) {
+void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 	Kinc_Internal_TextureUnset(texture);
 	if (texture->impl.view != nullptr) {
 		texture->impl.view->Release();
@@ -227,11 +227,11 @@ void Kinc_G4_Texture_Destroy(Kinc_G4_Texture *texture) {
 	}
 }
 
-void Kinc_Internal_TextureUnmipmap(Kinc_G4_Texture *texture) {
+void Kinc_Internal_TextureUnmipmap(kinc_g4_texture_t *texture) {
 	texture->impl.hasMipmaps = false;
 }
 
-void Kinc_Internal_TextureSet(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit) {
+void Kinc_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	if (unit.impl.vertex) {
 		context->VSSetShaderResources(unit.impl.unit, 1, &texture->impl.view);
@@ -243,7 +243,7 @@ void Kinc_Internal_TextureSet(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit
 	setTextures[texture->impl.stage] = texture;
 }
 
-void Kinc_Internal_TextureSetImage(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit unit) {
+void Kinc_Internal_TextureSetImage(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	if (texture->impl.computeView == nullptr) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
@@ -257,27 +257,27 @@ void Kinc_Internal_TextureSetImage(Kinc_G4_Texture *texture, Kinc_G4_TextureUnit
 	context->OMSetRenderTargetsAndUnorderedAccessViews(0, nullptr, nullptr, unit.impl.unit, 1, &texture->impl.computeView, nullptr);
 }
 
-void Kinc_Internal_TextureUnset(Kinc_G4_Texture *texture) {
+void Kinc_Internal_TextureUnset(kinc_g4_texture_t *texture) {
 	if (setTextures[texture->impl.stage] == texture) {
 
 		setTextures[texture->impl.stage] = NULL;
 	}
 }
 
-u8 *Kinc_G4_Texture_Lock(Kinc_G4_Texture *texture) {
+u8 *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	context->Map(texture->impl.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	texture->impl.rowPitch = mappedResource.RowPitch;
 	return (u8*)mappedResource.pData;
 }
 
-void Kinc_G4_Texture_Unlock(Kinc_G4_Texture *texture) {
+void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
 	context->Unmap(texture->impl.texture, 0);
 }
 
-void Kinc_G4_Texture_Clear(Kinc_G4_Texture *texture, int x, int y, int z, int width, int height, int depth, uint color) {
+void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, uint color) {
 	if (texture->impl.renderView == nullptr) {
-		texture->texDepth > 1 ? 
+		texture->tex_depth > 1 ? 
 			Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture->impl.texture3D, 0, &texture->impl.renderView))
 		             : Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture->impl.texture, 0, &texture->impl.renderView));
 	}
@@ -289,17 +289,17 @@ void Kinc_G4_Texture_Clear(Kinc_G4_Texture *texture, int x, int y, int z, int wi
 	context->ClearRenderTargetView(texture->impl.renderView, clearColor);
 }
 
-int Kinc_G4_Texture_Stride(Kinc_G4_Texture *texture) {
+int kinc_g4_texture_stride(kinc_g4_texture_t *texture) {
 	return texture->impl.rowPitch;
 }
 
-static void enableMipmaps(Kinc_G4_Texture *texture, int texWidth, int texHeight, int format) {
+static void enableMipmaps(kinc_g4_texture_t *texture, int texWidth, int texHeight, int format) {
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = texWidth;
 	desc.Height = texHeight;
 	desc.MipLevels = 0;
 	desc.ArraySize = 1;
-	desc.Format = convertFormat((Kinc_ImageFormat)format);
+	desc.Format = convertFormat((kinc_image_format_t)format);
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
@@ -334,23 +334,23 @@ static void enableMipmaps(Kinc_G4_Texture *texture, int texWidth, int texHeight,
 	texture->impl.hasMipmaps = true;
 }
 
-void Kinc_G4_Texture_GenerateMipmaps(Kinc_G4_Texture *texture, int levels) {
+void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels) {
 	if (!texture->impl.hasMipmaps) {
-		enableMipmaps(texture, texture->texWidth, texture->texHeight, texture->image.format);
+		enableMipmaps(texture, texture->tex_width, texture->tex_height, texture->image.format);
 	}
 	context->GenerateMips(texture->impl.view);
 }
 
-void Kinc_G4_Texture_setMipmap(Kinc_G4_Texture *texture, Kinc_G4_Texture *mipmap, int level) {
+void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_g4_texture_t *mipmap, int level) {
 	if (!texture->impl.hasMipmaps) {
-		enableMipmaps(texture, texture->texWidth, texture->texHeight, texture->image.format);
+		enableMipmaps(texture, texture->tex_width, texture->tex_height, texture->image.format);
 	}
 	D3D11_BOX dstRegion;
 	dstRegion.left = 0;
-	dstRegion.right = mipmap->texWidth;
+	dstRegion.right = mipmap->tex_width;
 	dstRegion.top = 0;
-	dstRegion.bottom = mipmap->texHeight;
+	dstRegion.bottom = mipmap->tex_height;
 	dstRegion.front = 0;
 	dstRegion.back = 1;
-	context->UpdateSubresource(texture->impl.texture, level, &dstRegion, isHdr(mipmap->image.format) ? (void*)mipmap->image.hdrData : mipmap->image.data, mipmap->texWidth * formatByteSize(mipmap->image.format), 0);
+	context->UpdateSubresource(texture->impl.texture, level, &dstRegion, isHdr(mipmap->image.format) ? (void*)mipmap->image.hdrData : mipmap->image.data, mipmap->tex_width * formatByteSize(mipmap->image.format), 0);
 }

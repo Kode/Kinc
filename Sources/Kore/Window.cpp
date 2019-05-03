@@ -116,7 +116,7 @@ void Window::setPpiChangedCallback(void(*callback)(int ppi, void *data), void *d
 }
 
 bool Window::vSynced() {
-	return Kinc_WindowVSynced(_index);
+	return kinc_window_vsynced(_index);
 }
 
 Window::Window() {
