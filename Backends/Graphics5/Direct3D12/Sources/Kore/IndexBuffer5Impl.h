@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ID3D12Resource;
 
 struct D3D12IindexBufferView {
@@ -8,18 +12,17 @@ struct D3D12IindexBufferView {
 	int Format;
 };
 
-namespace Kore {
-	class IndexBuffer5Impl {
-	protected:
-		IndexBuffer5Impl(int count, bool gpuMemory);
+typedef struct {
+	ID3D12Resource *indexBuffer;
+	D3D12IindexBufferView indexBufferView;
+	ID3D12Resource *uploadBuffer;
+	int myCount;
+	static IndexBuffer5Impl *_current;
+	bool _gpuMemory;
+} IndexBuffer5Impl;
 
-	public:
-		ID3D12Resource* indexBuffer;
-		D3D12IindexBufferView indexBufferView;
-		ID3D12Resource* uploadBuffer;
-		int myCount;
-		static IndexBuffer5Impl* _current;
-		void _upload(ID3D12GraphicsCommandList* commandList);
-		bool _gpuMemory;
-	};
+//void kinc_g5_internal_upload_index_buffer(ID3D12GraphicsCommandList *commandList);
+
+#ifdef __cplusplus
 }
+#endif

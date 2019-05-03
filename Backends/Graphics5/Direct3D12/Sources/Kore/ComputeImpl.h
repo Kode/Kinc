@@ -1,16 +1,21 @@
 #pragma once
 
-namespace Kore {
-	class ComputeConstantLocationImpl {
-	public:
-	};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class ComputeTextureUnitImpl {
-	public:
-	};
+typedef struct {
 
-	class ComputeShaderImpl {
-	public:
-		ComputeShaderImpl(void* source, int length);
-	};
+} ComputeConstantLocationImpl;
+
+typedef struct {
+
+} ComputeTextureUnitImpl;
+
+typedef struct {
+	
+} ComputeShaderImpl;
+
+#ifdef __cplusplus
 }
+#endif

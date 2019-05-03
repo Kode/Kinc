@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ID3D12Resource;
 
 struct D3D12VertexBufferView {
@@ -8,21 +12,19 @@ struct D3D12VertexBufferView {
 	unsigned int StrideInBytes;
 };
 
-namespace Kore {
-	class VertexBuffer5Impl {
-	protected:
-		VertexBuffer5Impl(int count);
+typedef struct {
+	// ID3D12Resource* vertexBuffer;
+	ID3D12Resource *uploadBuffer;
+	D3D12VertexBufferView view;
 
-	public:
-		// ID3D12Resource* vertexBuffer;
-		ID3D12Resource* uploadBuffer;
-		D3D12VertexBufferView view;
+	int myCount;
+	int myStride;
+	int lastStart;
+	int lastCount;
+	// float* vertices;
+	// static VertexBuffer5Impl* _current;
+} VertexBuffer5Impl;
 
-		int myCount;
-		int myStride;
-		int lastStart;
-		int lastCount;
-		// float* vertices;
-		static VertexBuffer5Impl* _current;
-	};
+#ifdef __cplusplus
 }
+#endif

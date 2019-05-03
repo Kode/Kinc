@@ -32,17 +32,17 @@ void kinc_compute_shader_destroy(kinc_compute_shader_t *shader);
 kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name);
 kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_shader_t *shader, const char *name);
 
-
 #ifdef KORE_OPENGL
-class ShaderStorageBuffer : public ShaderStorageBufferImpl {
-public:
-	ShaderStorageBuffer(int count, Graphics4::VertexData type);
-	virtual ~ShaderStorageBuffer();
-	int *lock();
-	void unlock();
-	int count();
-	void _set();
-};
+typedef struct kinc_shader_storage_buffer {
+	ShaderStorageBufferImpl impl;
+} kinc_shader_storage_buffer_t;
+
+void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int count, Graphics4::VertexData type);
+void kinc_shader_storage_buffer_destroy(kinc_shader_storage_buffer_t *buffer);
+int *kinc_shader_storage_buffer_lock(kinc_shader_storage_buffer_t *buffer);
+void kinc_shader_storage_buffer_unlock(kinc_shader_storage_buffer_t *buffer);
+int kinc_shader_storage_buffer_count(kinc_shader_storage_buffer_t *buffer);
+void kinc_shader_storage_buffer_internal_set(kinc_shader_storage_buffer_t *buffer);
 #endif
 
 typedef enum kinc_compute_access { KINC_COMPUTE_ACCESS_READ, KINC_COMPUTE_ACCESS_WRITE, KINC_COMPUTE_ACCESS_READ_WRITE } kinc_compute_access_t;
