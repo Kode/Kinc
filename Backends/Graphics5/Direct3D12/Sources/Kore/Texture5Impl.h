@@ -1,27 +1,30 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ID3D12Resource;
 struct ID3D12DescriptorHeap;
 struct ID3D12GraphicsCommandList;
 
-namespace Kore {
-	class TextureUnit5Impl {
-	public:
-		int unit;
-	};
+typedef struct {
+	int unit;
+} TextureUnit5Impl;
 
-	class Texture5Impl {
-	public:
-		~Texture5Impl();
-		void unmipmap();
-		void unset();
+typedef struct {
+	//void unmipmap();
+	//void unset();
 
-		bool mipmap;
-		int stage;
+	bool mipmap;
+	int stage;
 
-		ID3D12Resource* image;
-		ID3D12Resource* uploadImage;
-		ID3D12DescriptorHeap* srvDescriptorHeap;
-		static void setTextures(ID3D12GraphicsCommandList* commandList);
-	};
+	ID3D12Resource *image;
+	ID3D12Resource *uploadImage;
+	ID3D12DescriptorHeap *srvDescriptorHeap;
+	//static void setTextures(ID3D12GraphicsCommandList *commandList);
+} Texture5Impl;
+
+#ifdef __cplusplus
 }
+#endif

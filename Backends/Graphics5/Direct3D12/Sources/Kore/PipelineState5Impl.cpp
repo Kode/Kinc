@@ -4,13 +4,12 @@
 
 #include "Direct3D12.h"
 
-#include <Kore/Graphics5/PipelineState.h>
-#include <Kore/Graphics5/Shader.h>
+#include <Kinc/Graphics5/Pipeline.h>
+#include <Kinc/Graphics5/Shader.h>
+
 #include <Kore/SystemMicrosoft.h>
 
-using namespace Kore;
-
-void PipelineState5Impl::setConstants(ID3D12GraphicsCommandList* commandList, Graphics5::PipelineState* pipeline) {
+void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList* commandList, kinc_g5_pipeline_t *pipeline) {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
 	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
 	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
@@ -33,14 +32,19 @@ void PipelineState5Impl::setConstants(ID3D12GraphicsCommandList* commandList, Gr
 	}
 	*/
 
-	commandList->SetPipelineState(pipeline->pso);
+	commandList->SetPipelineState(pipeline->impl.pso);
 	commandList->SetGraphicsRootSignature(rootSignature);
 
 	Texture5Impl::setTextures(commandList);
 }
 
-PipelineState5Impl::PipelineState5Impl()
-    : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {}
+void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
+	pipe->vertexShader = nullptr;
+	pipe->fragmentShader = nullptr;
+	pipe->geometryShader = nullptr;
+	pipe->tessellationEvaluationShader = nullptr;
+	pipe->tessellationControlShader = nullptr;
+}
 
 // void PipelineState5Impl::set(Graphics5::PipelineState* pipeline) {
 //_current = this;
@@ -54,12 +58,12 @@ PipelineState5Impl::PipelineState5Impl()
 // context->IASetInputLayout(inputLayout);
 //}
 
-Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
-	ConstantLocation location;
+kinc_g5_constant_location_t kinc_g5_pipeine_get_constant_location(kinc_g5_pipeline *pipe, const char* name) {
+	kinc_g5_constant_location_t location;
 
-	if (vertexShader->constants.find(name) == vertexShader->constants.end()) {
-		location.vertexOffset = -1;
-		location.vertexSize = 0;
+	if (pipe->impl.vertexShader->impl.constants.find(name) == pipe->impl.vertexShader->impl.constants.end()) {
+		location.impl.vertexOffset = -1;
+		location.impl.vertexSize = 0;
 	}
 	else {
 		ShaderConstant constant = vertexShader->constants[name];
@@ -110,18 +114,18 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 	return location;
 }
 
-Graphics5::TextureUnit Graphics5::PipelineState::getTextureUnit(const char* name) {
-	TextureUnit unit;
-	if (vertexShader->textures.find(name) == vertexShader->textures.end()) {
-		if (fragmentShader->textures.find(name) == fragmentShader->textures.end()) {
-			unit.unit = -1;
+kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipe, const char* name) {
+	kinc_g5_texture_unit_t unit;
+	if (pipe->impl.vertexShader->impl.textures.find(name) == pipe->impl.vertexShader->impl.textures.end()) {
+		if (pipe->impl.fragmentShader->impl.textures.find(name) == pipe->impl.fragmentShader->impl.textures.end()) {
+			unit.impl.unit = -1;
 		}
 		else {
-			unit.unit = fragmentShader->textures[name];
+			unit.impl.unit = pipe->impl.fragmentShader->impl.textures[name];
 		}
 	}
 	else {
-		unit.unit = vertexShader->textures[name];
+		unit.impl.unit = pipe->impl.vertexShader->impl.textures[name];
 	}
 	return unit;
 }
@@ -133,7 +137,7 @@ namespace {
 		return ret;
 	}
 
-	D3D12_BLEND convert(Graphics5::BlendingOperation op) {
+	D3D12_BLEND convert(kinc_g5_blending_operation_t op) {
 		switch (op) {
 		default:
 		case Graphics5::BlendOne:
@@ -160,17 +164,17 @@ namespace {
 	}
 }
 
-void Graphics5::PipelineState::compile() {
+void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	D3D12_INPUT_ELEMENT_DESC vertexDesc[10];
-	for (int i = 0; i < inputLayout[0]->size; ++i) {
+	for (int i = 0; i < pipe->inputLayout[0]->size; ++i) {
 		vertexDesc[i].SemanticName = "TEXCOORD";
-		vertexDesc[i].SemanticIndex = vertexShader->attributes[inputLayout[0]->elements[i].name];
+		vertexDesc[i].SemanticIndex = pipe->impl.vertexShader->impl.attributes[pipe->inputLayout[0]->elements[i].name];
 		vertexDesc[i].InputSlot = 0;
 		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
 		vertexDesc[i].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 		vertexDesc[i].InstanceDataStepRate = 0;
 
-		switch (inputLayout[0]->elements[i].data) {
+		switch (pipe->inputLayout[0]->elements[i].data) {
 		case Graphics4::Float1VertexData:
 			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 			break;
@@ -196,10 +200,10 @@ void Graphics5::PipelineState::compile() {
 	}
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-	psoDesc.VS.BytecodeLength = vertexShader->length;
-	psoDesc.VS.pShaderBytecode = vertexShader->data;
-	psoDesc.PS.BytecodeLength = fragmentShader->length;
-	psoDesc.PS.pShaderBytecode = fragmentShader->data;
+	psoDesc.VS.BytecodeLength = pipe->vertexShader->impl.length;
+	psoDesc.VS.pShaderBytecode = pipe->vertexShader->impl.data;
+	psoDesc.PS.BytecodeLength = pipe->fragmentShader->impl.length;
+	psoDesc.PS.pShaderBytecode = pipe->fragmentShader->impl.data;
 	psoDesc.pRootSignature = rootSignature;
 	psoDesc.NumRenderTargets = 1;
 #ifdef KORE_WINDOWS
@@ -209,7 +213,7 @@ void Graphics5::PipelineState::compile() {
 #endif
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 
-	psoDesc.InputLayout.NumElements = inputLayout[0]->size;
+	psoDesc.InputLayout.NumElements = pipe->inputLayout[0]->size;
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
 
 	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
@@ -225,18 +229,18 @@ void Graphics5::PipelineState::compile() {
 	psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = blendSource != Graphics5::BlendOne || blendDestination != Graphics5::BlendZero ||
-	                                                 alphaBlendSource != Graphics5::BlendOne || alphaBlendDestination != Graphics5::BlendZero;
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = convert(blendSource);
-	psoDesc.BlendState.RenderTarget[0].DestBlend = convert(blendDestination);
+	psoDesc.BlendState.RenderTarget[0].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
+	                                                 pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+	psoDesc.BlendState.RenderTarget[0].SrcBlend = convert(pipe->blendSource);
+	psoDesc.BlendState.RenderTarget[0].DestBlend = convert(pipe->blendDestination);
 	psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = convert(alphaBlendSource);
-	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = convert(alphaBlendDestination);
+	psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = convert(pipe->alphaBlendSource);
+	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = convert(pipe->alphaBlendDestination);
 	psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState.DepthEnable = depthMode != ZCompareAlways;
-	psoDesc.DepthStencilState.DepthWriteMask = depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+	psoDesc.DepthStencilState.DepthEnable = pipe->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
+	psoDesc.DepthStencilState.DepthWriteMask = pipe->depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
 	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
@@ -244,5 +248,5 @@ void Graphics5::PipelineState::compile() {
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	device->CreateGraphicsPipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pso));
+	device->CreateGraphicsPipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipe->impl.pso));
 }

@@ -1,46 +1,48 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct kinc_g5_shader;
+
 struct ID3D12PipelineState;
 struct ID3D12GraphicsCommandList;
 
-namespace Kore {
-	namespace Graphics5 {
-		class PipelineState;
-		class Shader;
-	}
+typedef struct {
+	ID3D12PipelineState *pso;
+	// ID3D11InputLayout* inputLayout;
+	// ID3D11Buffer* fragmentConstantBuffer;
+	// ID3D11Buffer* vertexConstantBuffer;
+	// ID3D11Buffer* geometryConstantBuffer;
+	// ID3D11Buffer* tessEvalConstantBuffer;
+	// ID3D11Buffer* tessControlConstantBuffer;
 
-	class PipelineState5Impl {
-	public:
-		PipelineState5Impl();
-		ID3D12PipelineState* pso;
-		// ID3D11InputLayout* inputLayout;
-		// ID3D11Buffer* fragmentConstantBuffer;
-		// ID3D11Buffer* vertexConstantBuffer;
-		// ID3D11Buffer* geometryConstantBuffer;
-		// ID3D11Buffer* tessEvalConstantBuffer;
-		// ID3D11Buffer* tessControlConstantBuffer;
+	struct kinc_g5_shader *vertexShader;
+	struct kinc_g5_shader *fragmentShader;
+	struct kinc_g5_shader *geometryShader;
+	struct kinc_g5_shader *tessEvalShader;
+	struct kinc_g5_shader *tessControlShader;
+	//static void setConstants(ID3D12GraphicsCommandList *commandList, Graphics5::PipelineState *pipeline);
+} PipelineState5Impl;
 
-		Graphics5::Shader* vertexShader;
-		Graphics5::Shader* fragmentShader;
-		Graphics5::Shader* geometryShader;
-		Graphics5::Shader* tessEvalShader;
-		Graphics5::Shader* tessControlShader;
-		static void setConstants(ID3D12GraphicsCommandList* commandList, Graphics5::PipelineState* pipeline);
-	};
+typedef struct {
+public:
+	int vertexOffset;
+	uint32_t vertexSize;
+	int fragmentOffset;
+	uint32_t fragmentSize;
+	int geometryOffset;
+	uint32_t geometrySize;
+	int tessEvalOffset;
+	uint32_t tessEvalSize;
+	int tessControlOffset;
+	uint32_t tessControlSize;
+} ConstantLocation5Impl;
 
-	class ConstantLocation5Impl {
-	public:
-		int vertexOffset;
-		u32 vertexSize;
-		int fragmentOffset;
-		u32 fragmentSize;
-		int geometryOffset;
-		u32 geometrySize;
-		int tessEvalOffset;
-		u32 tessEvalSize;
-		int tessControlOffset;
-		u32 tessControlSize;
-	};
+typedef struct {
+} AttributeLocation5Impl;
 
-	class AttributeLocation5Impl {};
+#ifdef __cplusplus
 }
+#endif
