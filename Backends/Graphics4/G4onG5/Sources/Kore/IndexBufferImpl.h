@@ -1,13 +1,15 @@
 #pragma once
 
-#include <Kore/Graphics5/Graphics.h>
+#include <Kinc/Graphics5/IndexBuffer.h>
 
-namespace Kore {
-	class IndexBufferImpl {
-	protected:
-		IndexBufferImpl(int count);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	public:
-		Graphics5::IndexBuffer _buffer;
-	};
+typedef struct {
+	kinc_g5_index_buffer_t _buffer;
+} IndexBufferImpl;
+
+#ifdef __cplusplus
 }
+#endif

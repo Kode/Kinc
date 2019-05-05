@@ -1,35 +1,30 @@
 #include "pch.h"
 
-#include "IndexBufferImpl.h"
+#include <Kinc/Graphics4/IndexBuffer.h>
 
-#include <Kore/Graphics4/Graphics.h>
+#include <Kinc/Graphics5/CommandList.h>
 
-#include <Kore/Graphics5/CommandList.h>
+extern kinc_g5_command_list_t *commandList;
 
-using namespace Kore;
-
-extern Graphics5::CommandList* commandList;
-
-Kore::IndexBufferImpl::IndexBufferImpl(int count) : _buffer(count, true) {}
-
-Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {}
-
-Graphics4::IndexBuffer::~IndexBuffer() {}
-
-int* Graphics4::IndexBuffer::lock() {
-	return _buffer.lock();
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
+	kinc_g5_index_buffer_init(&buffer->impl, count, true);
 }
 
-void Graphics4::IndexBuffer::unlock() {
-	_buffer.unlock();
-	commandList->upload(&_buffer);
+void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {}
+
+int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
+	return kinc_g5_index_buffer_lock(&buffer->impl);
 }
 
-void Graphics4::IndexBuffer::_set() {
+void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
+	kinc_g5_index_buffer_unlock(&buffer->impl);
+	kinc_g5_command_list_upload_index_buffer(commandList, &buffer->impl);
+}
+
+void kinc_g4_internal_index_buffer__set(kinc_g4_index_buffer_t *buffer) {
 	_buffer._set();
 }
 
-int Graphics4::IndexBuffer::count() {
-	return _buffer.count();
-	;
+int kinc_g4_index_buffer_count(kinc_g4_index_buffer_t *buffer) {
+	return kinc_g5_index_buffer_count(&buffer->impl);
 }
