@@ -1,8 +1,13 @@
 #pragma once
 
-#include <Kore/Graphics4/Graphics.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-class TextureArrayImpl {
-public:
-	void set(Kore::Graphics4::TextureUnit unit);
-};
+typedef struct {
+	//void set(Kore::Graphics4::TextureUnit unit);
+} TextureArrayImpl;
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,22 +1,20 @@
 #pragma once
 
-#include <Kore/Graphics5/Graphics.h>
+#include <Kinc/Graphics5/VertexBuffer.h>
 
-namespace Kore {
-	namespace Graphics4 {
-		class VertexStructure;
-	}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class VertexBufferImpl {
-	protected:
-		VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, bool gpuMemory, int instanceDataStepRate);
-		int myCount;
-		void prepareLock();
+typedef struct {
+	int myCount;
+	//void prepareLock();
+	kinc_g5_vertex_buffer_t _buffer;
+	int _currentIndex;
+	const int _multiple;
+	uint64_t _lastFrameNumber;
+} VertexBufferImpl;
 
-	public:
-		Graphics5::VertexBuffer _buffer;
-		int _currentIndex;
-		const int _multiple;
-		u64 _lastFrameNumber;
-	};
+#ifdef __cplusplus
 }
+#endif
