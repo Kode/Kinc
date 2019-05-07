@@ -12,7 +12,15 @@
 extern "C" {
 #endif
 
-typedef kinc_g4_render_target_format_t kinc_g5_render_target_format_t;
+typedef enum kinc_g5_render_target_format {
+	KINC_G5_RENDER_TARGET_FORMAT_32BIT,
+	KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT,
+	KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT,
+	KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT,
+	KINC_G5_RENDER_TARGET_FORMAT_16BIT_DEPTH,
+	KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED,
+	KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT
+} kinc_g5_render_target_format_t;
 
 typedef struct kinc_g5_render_target {
 	int width;

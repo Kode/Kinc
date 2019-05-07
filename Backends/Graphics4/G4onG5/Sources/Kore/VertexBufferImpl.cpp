@@ -13,52 +13,56 @@ namespace {
 extern u64 frameNumber;
 extern bool waitAfterNextDraw;
 
-Kore::VertexBufferImpl::VertexBufferImpl(int count, const Graphics4::VertexStructure& structure, bool gpuMemory, int instanceDataStepRate)
-    : _multiple(multiple), _buffer(count * multiple, structure, gpuMemory, instanceDataStepRate), _lastFrameNumber(0), _currentIndex(0), myCount(count) {}
+void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
+                                int instanceDataStepRate) {
+	kinc_g5_vertex_buffer_init(&buffer->impl._buffer, count * multiple, structure, usage == KINC_G4_USAGE_STATIC, instanceDataStepRate);
+	buffer->impl._multiple = multiple;
+	buffer->impl._lastFrameNumber = 0;
+	buffer->impl._currentIndex = 0;
+	buffer->impl.myCount = count;
+}
 
-Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate)
-    : VertexBufferImpl(count, structure, usage == StaticUsage, instanceDataStepRate) {}
+void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {}
 
-Graphics4::VertexBuffer::~VertexBuffer() {}
-
-void VertexBufferImpl::prepareLock() {
+static void prepareLock(kinc_g4_vertex_buffer_t *buffer) {
 	/*if (frameNumber > _lastFrameNumber) {
 	    _lastFrameNumber = frameNumber;
 	    _currentIndex = 0;
 	}
 	else {*/
-	++_currentIndex;
-	if (_currentIndex >= _multiple - 1) {
+	++buffer->impl._currentIndex;
+	if (buffer->impl._currentIndex >= buffer->impl._multiple - 1) {
 		waitAfterNextDraw = true;
 	}
-	if (_currentIndex >= _multiple) {
-		_currentIndex = 0;
+	if (buffer->impl._currentIndex >= buffer->impl._multiple) {
+		buffer->impl._currentIndex = 0;
 	}
 	//}
 }
 
-float* Graphics4::VertexBuffer::lock() {
-	prepareLock();
-	return _buffer.lock(_currentIndex * count(), count());
+float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer) {
+	prepareLock(buffer);
+	return kinc_g5_vertex_buffer_lock(&buffer->impl._buffer, buffer->impl._currentIndex * kinc_g4_vertex_buffer_count(buffer),
+	                                  kinc_g4_vertex_buffer_count(buffer));
 }
 
-float* Graphics4::VertexBuffer::lock(int start, int count) {
-	prepareLock();
-	return _buffer.lock(start + _currentIndex * this->count(), count);
+float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, int count) {
+	prepareLock(buffer);
+	return kinc_g5_vertex_buffer_lock(&buffer->impl._buffer, start + buffer->impl._currentIndex * kinc_g4_vertex_buffer_count(buffer), count);
 }
 
-void Graphics4::VertexBuffer::unlock() {
-	_buffer.unlock();
+void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
+	kinc_g5_vertex_buffer_unlock_all(&buffer->impl._buffer);
 }
 
-void Graphics4::VertexBuffer::unlock(int count) {
-	_buffer.unlock(count);
+void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer, int count) {
+	kinc_g5_vertex_buffer_unlock(&buffer->impl._buffer, count);
 }
 
-int Graphics4::VertexBuffer::count() {
-	return myCount;
+int kinc_g4_vertex_buffer_count(kinc_g4_vertex_buffer_t *buffer) {
+	return buffer->impl.myCount;
 }
 
-int Graphics4::VertexBuffer::stride() {
-	return _buffer.stride();
+int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer) {
+	return kinc_g5_vertex_buffer_stride(&buffer->impl._buffer);
 }

@@ -8,7 +8,6 @@
 extern "C" {
 #endif
 
-
 typedef struct {
 	kinc_g5_texture_unit_t _unit;
 } TextureUnitImpl;
