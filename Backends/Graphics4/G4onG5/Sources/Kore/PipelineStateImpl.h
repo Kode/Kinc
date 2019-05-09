@@ -10,14 +10,14 @@ extern "C" {
 typedef struct {
 	// PipelineStateImpl();
 	kinc_g5_pipeline_t _pipeline;
-} PipelineStateImpl;
+} Kinc_G4_PipelineStateImpl;
 
 typedef struct {
 	kinc_g5_constant_location_t _location;
-} ConstantLocationImpl;
+} Kinc_G4_ConstantLocationImpl;
 
 typedef struct {
-} AttributeLocationImpl;
+} Kinc_G4_AttributeLocationImpl;
 
 #ifdef __cplusplus
 }

@@ -68,7 +68,7 @@ typedef enum kinc_g5_texture_direction { KINC_G5_TEXTURE_DIRECTION_U, KINC_G5_TE
 	KINC_G5_RENDER_TARGET_FORMAT_16BIT_DEPTH,
 	KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED
 } kinc_g5_render_target_format_t;*/
-typedef kinc_g4_render_target_format_t kinc_g5_render_target_format_t;
+//typedef kinc_g4_render_target_format_t kinc_g5_render_target_format_t;
 
 typedef enum kinc_g5_stencil_action {
 	KINC_G5_STENCIL_ACTION_KEEP,
@@ -99,9 +99,9 @@ int kinc_g5_antialiasing_samples();
 void kinc_g5_set_antialiasing_samples(int samples);
 
 bool kinc_g5_render_targets_inverted_y();
-void kinc_g5_set_render_target_face(kinc_g4_render_target_t *texture, int face);
+void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face);
 
-void kinc_g5_begin(kinc_g4_render_target_t *renderTarget, int window);
+void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window);
 void kinc_g5_end(int window);
 bool kinc_g5_swap_buffers();
 

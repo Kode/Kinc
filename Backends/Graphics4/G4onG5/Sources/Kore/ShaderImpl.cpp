@@ -1,16 +1,11 @@
 #include "pch.h"
 
-#include <Kore/Graphics4/Shader.h>
-#include <Kore/Math/Core.h>
+#include <Kinc/Graphics4/Shader.h>
 
-using namespace Kore;
-
-ShaderImpl::ShaderImpl(void* _data, int length, Graphics5::ShaderType type) : _shader(_data, length, type) {}
-
-Graphics4::Shader::Shader(void* _data, int length, ShaderType type) : ShaderImpl(_data, length, (Graphics5::ShaderType)type) {
-	setId();
+void kinc_g4_shader_init(kinc_g4_shader_t *shader, void* _data, int length, kinc_g4_shader_type_t type) {
+	kinc_g5_shader_init(&shader->impl._shader, _data, length, (kinc_g5_shader_type_t)type);
 }
 
-Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) : ShaderImpl(nullptr, 0, (Graphics5::ShaderType)type) {
-	setId();
+void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char* source, kinc_g4_shader_type_t type) {
+	kinc_g5_shader_init(&shader->impl._shader, NULL, 0, (kinc_g5_shader_type_t)type);
 }

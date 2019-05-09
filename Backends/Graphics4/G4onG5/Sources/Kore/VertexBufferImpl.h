@@ -11,9 +11,9 @@ typedef struct {
 	//void prepareLock();
 	kinc_g5_vertex_buffer_t _buffer;
 	int _currentIndex;
-	const int _multiple;
+	int _multiple;
 	uint64_t _lastFrameNumber;
-} VertexBufferImpl;
+} Kinc_G4_VertexBufferImpl;
 
 #ifdef __cplusplus
 }

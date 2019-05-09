@@ -1,10 +1,7 @@
 #include "pch.h"
 
-#include <Kore/Graphics4/TextureArray.h>
+#include <Kinc/Graphics4/TextureArray.h>
 
-using namespace Kore;
-using namespace Kore::Graphics4;
+void kinc_g4_texture_array_init(kinc_g4_image_t **textures, int count) {}
 
-TextureArray::TextureArray(Image** textures, int count) {}
-
-void TextureArrayImpl::set(TextureUnit unit) {}
+//void TextureArrayImpl::set(TextureUnit unit) {}

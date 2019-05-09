@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/ShaderImpl.h>
+#include <Kore/TextureImpl.h>
 
 #ifdef __cplusplus
 extern "C" {

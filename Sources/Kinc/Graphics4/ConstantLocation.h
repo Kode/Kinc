@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/ShaderImpl.h>
+#include <Kore/PipelineStateImpl.h>
 
 #ifdef __cplusplus
 extern "C" {
