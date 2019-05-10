@@ -43,6 +43,8 @@ void Mouse::_move(int windowId, int x, int y) {
 }
 
 void Mouse::_press(int windowId, int button, int x, int y) {
+	lastX = x;
+	lastY = y;
 	if (Press != nullptr) {
 		Press(windowId, button, x, y);
 	}
