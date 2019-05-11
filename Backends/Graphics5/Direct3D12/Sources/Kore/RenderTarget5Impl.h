@@ -26,15 +26,15 @@ struct D3D12Rect {
 enum RenderTargetResourceState { RenderTargetResourceStateUndefined, RenderTargetResourceStateRenderTarget, RenderTargetResourceStateTexture };
 
 typedef struct {
-	ID3D12Resource *renderTarget;
-	ID3D12DescriptorHeap *renderTargetDescriptorHeap;
-	ID3D12DescriptorHeap *srvDescriptorHeap;
-	ID3D12DescriptorHeap *depthStencilDescriptorHeap;
-	ID3D12Resource *depthStencilTexture;
-	D3D12Viewport viewport;
-	D3D12Rect scissor;
+	struct ID3D12Resource *renderTarget;
+	struct ID3D12DescriptorHeap *renderTargetDescriptorHeap;
+	struct ID3D12DescriptorHeap *srvDescriptorHeap;
+	struct ID3D12DescriptorHeap *depthStencilDescriptorHeap;
+	struct ID3D12Resource *depthStencilTexture;
+	struct D3D12Viewport viewport;
+	struct D3D12Rect scissor;
 	int stage;
-	RenderTargetResourceState resourceState;
+	enum RenderTargetResourceState resourceState;
 } RenderTarget5Impl;
 
 #ifdef __cplusplus

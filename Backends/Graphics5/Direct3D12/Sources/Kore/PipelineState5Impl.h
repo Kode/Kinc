@@ -10,7 +10,7 @@ struct ID3D12PipelineState;
 struct ID3D12GraphicsCommandList;
 
 typedef struct {
-	ID3D12PipelineState *pso;
+	struct ID3D12PipelineState *pso;
 	// ID3D11InputLayout* inputLayout;
 	// ID3D11Buffer* fragmentConstantBuffer;
 	// ID3D11Buffer* vertexConstantBuffer;
@@ -27,7 +27,6 @@ typedef struct {
 } PipelineState5Impl;
 
 typedef struct {
-public:
 	int vertexOffset;
 	uint32_t vertexSize;
 	int fragmentOffset;
@@ -41,6 +40,7 @@ public:
 } ConstantLocation5Impl;
 
 typedef struct {
+	int nothing;
 } AttributeLocation5Impl;
 
 #ifdef __cplusplus
