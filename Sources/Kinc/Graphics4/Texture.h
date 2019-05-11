@@ -24,10 +24,10 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format, bool readable);
 void kinc_g4_texture_destroy(kinc_g4_texture_t *texture);
 // Texture(Kore::Reader &reader, const char *format, bool readable = false);
-kinc_g4_texture_t *kinc_g4_texture_init_from_file(const char *filename, bool readable);
-kinc_g4_texture_t *kinc_g4_texture_init_from_bytes(void *data, int size, const char *format, bool readable);
+void kinc_g4_texture_init_from_file(kinc_g4_texture_t *texture, const char *filename, bool readable);
+void kinc_g4_texture_init_from_bytes(kinc_g4_texture_t *texture, void *data, int size, const char *format, bool readable);
 // Kinc_G4_Texture *Kinc_G4_Texture_CreateFromBytes(void *data, int width, int height, int format, bool readable);
-kinc_g4_texture_t *kinc_g4_texture_init_from_bytes3d(void *data, int width, int height, int depth, int format, bool readable);
+void kinc_g4_texture_init_from_bytes3d(kinc_g4_texture_t *texture, void *data, int width, int height, int depth, int format, bool readable);
 #ifdef KORE_ANDROID
 Texture(unsigned texid);
 #endif

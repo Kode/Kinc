@@ -2,51 +2,46 @@
 
 #include "RenderTargetImpl.h"
 
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Graphics5/CommandList.h>
-#include <Kore/Log.h>
+#include <Kinc/Graphics4/RenderTarget.h>
+#include <Kinc/Graphics5/CommandList.h>
+#include <Kinc/Log.h>
 
-using namespace Kore;
+extern kinc_g5_command_list_t commandList;
 
-extern Graphics5::CommandList* commandList;
-
-Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
-                                      int contextId)
-    : RenderTargetImpl(width, height, depthBufferBits, antialiasing, (Graphics5::RenderTargetFormat)format, stencilBufferBits, contextId) {
-	this->texWidth = this->width = width;
-	this->texHeight = this->height = height;
+void kinc_g4_render_target_init(kinc_g4_render_target_t *render_target, int width, int height, int depthBufferBits, bool antialiasing,
+                                kinc_g4_render_target_format_t format, int stencilBufferBits,
+                                      int contextId) {
+	kinc_g5_render_target_init(&render_target->impl._renderTarget, width, height, depthBufferBits, antialiasing, (kinc_g5_render_target_format_t)format,
+	                           stencilBufferBits, contextId);
+	render_target->texWidth = render_target->width = width;
+	render_target->texHeight = render_target->height = height;
 	if (contextId >= 0) {
-		commandList->textureToRenderTargetBarrier(&_renderTarget);
-		commandList->clear(&_renderTarget, ClearColorFlag);
+		kinc_g5_command_list_texture_to_render_target_barrier(&commandList, &render_target->impl._renderTarget);
+		kinc_g5_command_list_clear(&commandList, &render_target->impl._renderTarget, KINC_G5_CLEAR_COLOR);
 	}
 }
 
-Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
-    : RenderTargetImpl(cubeMapSize, depthBufferBits, antialiasing, (Graphics5::RenderTargetFormat)format, stencilBufferBits, contextId) {}
-
-Graphics4::RenderTarget::~RenderTarget() {}
-
-RenderTargetImpl::RenderTargetImpl(int width, int height, int depthBufferBits, bool antialiasing, Graphics5::RenderTargetFormat format, int stencilBufferBits,
-                                   int contextId)
-    : _renderTarget(width, height, depthBufferBits, antialiasing, format, stencilBufferBits, contextId) {}
-
-RenderTargetImpl::RenderTargetImpl(int cubeMapSize, int depthBufferBits, bool antialiasing, Graphics5::RenderTargetFormat format, int stencilBufferBits,
-                                   int contextId)
-    : _renderTarget(cubeMapSize, depthBufferBits, antialiasing, format, stencilBufferBits, contextId) {}
-
-void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
-	commandList->renderTargetToTextureBarrier(&_renderTarget);
-	_renderTarget.useColorAsTexture(unit._unit);
+void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *render_target, int cubeMapSize, int depthBufferBits, bool antialiasing,
+                                     kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
+	kinc_g5_render_target_init_cube(&render_target->impl._renderTarget, cubeMapSize, depthBufferBits, antialiasing, (kinc_g5_render_target_format_t)format,
+	                                stencilBufferBits, contextId);
 }
 
-void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
-	_renderTarget.useDepthAsTexture(unit._unit);
+void kinc_g4_render_target_destroy(kinc_g4_render_target_t *render_target) {}
+
+void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
+	kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
+	kinc_g5_render_target_use_color_as_texture(&render_target->impl._renderTarget, unit.impl._unit);
 }
 
-void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
-	_renderTarget.setDepthStencilFrom(&source->_renderTarget);
+void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
+	kinc_g5_render_target_use_depth_as_texture(&render_target->impl._renderTarget, unit.impl._unit);
 }
 
-void Graphics4::RenderTarget::getPixels(u8* data) {}
+void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *render_target, kinc_g4_render_target_t *source) {
+	kinc_g5_render_target_set_depth_stencil_from(&render_target->impl._renderTarget, &source->impl._renderTarget);
+}
 
-void Graphics4::RenderTarget::generateMipmaps(int levels) {}
+void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *render_target, uint8_t *data) {}
+
+void kinc_g4_render_target_generate_mipmaps(kinc_g4_render_target_t *render_target, int levels) {}

@@ -1,137 +1,69 @@
 #include "pch.h"
 
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/IO/BufferReader.h>
-#include <Kore/IO/FileReader.h>
+#include <Kinc/Graphics4/Graphics.h>
+#include <Kinc/Graphics4/Texture.h>
+#include <Kinc/IO/FileReader.h>
 
 #include "TextureImpl.h"
 
-using namespace Kore;
-
-Graphics4::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {
-	_texture = new Graphics5::Texture(reader, format, readable);
-	width = _texture->width;
-	height = _texture->height;
-	texWidth = _texture->texWidth;
-	texHeight = _texture->texHeight;
-	data = _texture->data;
+void kinc_g4_texture_init_from_file(kinc_g4_texture_t *texture, const char *filename, bool readable) {
+	kinc_g5_texture_init_from_file(&texture->impl._texture, filename, readable);
+	texture->image.width = texture->impl._texture.image.width;
+	texture->image.height = texture->impl._texture.image.height;
+	texture->tex_width = texture->impl._texture.texWidth;
+	texture->tex_height = texture->impl._texture.texHeight;
+	texture->image.data = texture->impl._texture.image.data;
 }
 
-Graphics4::Texture::Texture(const char* filename, bool readable) {
-	_texture = new Graphics5::Texture(filename, readable);
-	width = _texture->width;
-	height = _texture->height;
-	texWidth = _texture->texWidth;
-	texHeight = _texture->texHeight;
-	data = _texture->data;
+void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format, bool readable) {
+	kinc_g5_texture_init(&texture->impl._texture, width, height, format, readable);
+	texture->image.width = texture->impl._texture.image.width;
+	texture->image.height = texture->impl._texture.image.height;
+	texture->tex_width = texture->impl._texture.texWidth;
+	texture->tex_height = texture->impl._texture.texHeight;
+	texture->image.data = texture->impl._texture.image.data;
 }
 
-Graphics4::Texture::Texture(void* data, int size, const char* format, bool readable) {
-	_texture = new Graphics5::Texture(data, size, format, readable);
-	width = _texture->width;
-	height = _texture->height;
-	texWidth = _texture->texWidth;
-	texHeight = _texture->texHeight;
-	data = _texture->data;
+void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {}
+
+void kinc_g4_texture_init_from_bytes(kinc_g4_texture_t *texture, void *data, int size, const char *format, bool readable) {
+	
 }
 
-Graphics4::Texture::Texture(void* data, int width, int height, int format, bool readable) : Image(data, width, height, Image::Format(format), readable) {
-	_texture = new Graphics5::Texture(data, width, height, format, readable);
-	width = _texture->width;
-	height = _texture->height;
-	texWidth = _texture->texWidth;
-	texHeight = _texture->texHeight;
-	data = _texture->data;
+void kinc_g4_texture_init_from_bytes3d(kinc_g4_texture_t *texture, void *data, int width, int height, int depth, int format, bool readable) {}
+
+void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
+	//kinc_g4_internal_texture_unset(texture);
 }
 
-Graphics4::Texture::Texture(void* data, int width, int height, int depth, int format, bool readable)
-    : Image(data, width, height, depth, Image::Format(format), readable) {}
-
-void Graphics4::Texture::init(const char* format, bool readable) {
-	setId();
-	_texture->_init(format, readable);
-	width = _texture->width;
-	height = _texture->height;
-	texWidth = _texture->texWidth;
-	texHeight = _texture->texHeight;
-	data = _texture->data;
-}
-
-void Graphics4::Texture::init3D(bool readable) {
-	setId();
-}
-
-Graphics4::Texture::Texture(int width, int height, Format format, bool readable)
-    : Image(width, height, format, readable), TextureImpl(width, height, format, readable) {
-	_texture = new Graphics5::Texture(width, height, format, readable);
-	width = _texture->width;
-	height = _texture->height;
-	texWidth = _texture->texWidth;
-	texHeight = _texture->texHeight;
-	data = _texture->data;
-}
-
-Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable)
-    : Image(width, height, depth, format, readable), TextureImpl(width, height, depth, format, readable) {
-	width = _texture->width;
-	height = _texture->height;
-	texWidth = _texture->texWidth;
-	texHeight = _texture->texHeight;
-	data = _texture->data;
-}
-
-TextureImpl::TextureImpl() : _texture(nullptr), _uploaded(false) {
+void kinc_g4_internal_texture_unset(kinc_g4_texture_t *texture) {
 	// TODO
 }
 
-TextureImpl::TextureImpl(int width, int height, Kore::Image::Format format, bool readable) : _uploaded(false) {
-	_texture = new Graphics5::Texture(width, height, format, readable);
-	width = _texture->width;
-	height = _texture->height;
-	// texWidth = _texture->texWidth;
-	// texHeight = _texture->texHeight;
-}
-
-TextureImpl::TextureImpl(int width, int height, int depth, Image::Format format, bool readable) : _uploaded(false) {
-	_texture = new Graphics5::Texture(width, height, depth, format, readable);
-	width = _texture->width;
-	height = _texture->height;
-	// texWidth = _texture->texWidth;
-	// texHeight = _texture->texHeight;
-}
-
-TextureImpl::~TextureImpl() {
-	unset();
-}
-
-void TextureImpl::unset() {
+void kinc_g4_internal_texture_unmipmap(kinc_g4_texture_t *texture) {
 	// TODO
 }
 
-void TextureImpl::unmipmap() {
-	// TODO
+uint8_t* kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
+	return kinc_g5_texture_lock(&texture->impl._texture);
 }
 
-u8* Graphics4::Texture::lock() {
-	return _texture->lock();
+void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
+	kinc_g5_texture_unlock(&texture->impl._texture);
 }
 
-void Graphics4::Texture::unlock() {
-	_texture->unlock();
+void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {
+	kinc_g5_texture_clear(&texture->impl._texture, x, y, z, width, height, depth, color);
 }
 
-void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {
-	_texture->clear(x, y, z, width, height, depth, color);
+int kinc_g4_texture_stride(kinc_g4_texture_t *texture) {
+	return kinc_g5_texture_stride(&texture->impl._texture);
 }
 
-int Graphics4::Texture::stride() {
-	return _texture->stride();
+void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels) {
+	kinc_g5_texture_generate_mipmaps(&texture->impl._texture, levels);
 }
 
-void Graphics4::Texture::generateMipmaps(int levels) {
-	_texture->generateMipmaps(levels);
-}
-
-void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
-	_texture->setMipmap(mipmap->_texture, level);
+void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_g4_texture_t *mipmap, int level) {
+	kinc_g5_texture_set_mipmap(&texture->impl._texture, &mipmap->impl._texture, level);
 }
