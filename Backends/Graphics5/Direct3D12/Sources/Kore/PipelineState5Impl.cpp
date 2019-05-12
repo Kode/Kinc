@@ -100,7 +100,7 @@ static ShaderAttribute findAttribute(kinc_g5_shader_t *shader, const char *name)
 	return attribute;
 }
 
-kinc_g5_constant_location_t kinc_g5_pipeine_get_constant_location(kinc_g5_pipeline *pipe, const char *name) {
+kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline *pipe, const char *name) {
 	kinc_g5_constant_location_t location;
 
 	{

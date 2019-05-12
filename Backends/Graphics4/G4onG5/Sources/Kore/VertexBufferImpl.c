@@ -2,15 +2,12 @@
 
 #include "VertexBufferImpl.h"
 
-#include <Kore/Graphics4/Graphics.h>
+#include <Kinc/Graphics4/Graphics.h>
+#include <Kinc/Graphics4/VertexBuffer.h>
 
-using namespace Kore;
+#define multiple 50
 
-namespace {
-	const int multiple = 50;
-}
-
-extern u64 frameNumber;
+extern uint64_t frameNumber;
 extern bool waitAfterNextDraw;
 
 void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
@@ -55,7 +52,7 @@ void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
 	kinc_g5_vertex_buffer_unlock_all(&buffer->impl._buffer);
 }
 
-void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer, int count) {
+void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 	kinc_g5_vertex_buffer_unlock(&buffer->impl._buffer, count);
 }
 

@@ -33,8 +33,8 @@ void kinc_g5_constant_buffer_set_floats(kinc_g5_constant_buffer_t *buffer, int o
 void kinc_g5_constant_buffer_set_matrix3(kinc_g5_constant_buffer_t *buffer, int offset, Kinc_Matrix3x3 *value);
 void kinc_g5_constant_buffer_set_matrix4(kinc_g5_constant_buffer_t *buffer, int offset, Kinc_Matrix4x4 *value);
 
-extern bool kinc_g5_internal_transposeMat3;
-extern bool kinc_g5_internal_transposeMat4;
+extern bool kinc_g5_transposeMat3;
+extern bool kinc_g5_transposeMat4;
 
 #ifdef __cplusplus
 }

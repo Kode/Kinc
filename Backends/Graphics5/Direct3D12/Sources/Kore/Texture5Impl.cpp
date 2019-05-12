@@ -80,6 +80,11 @@ static void init_texture(kinc_g5_texture *texture, const char* format, bool read
 	}
 }
 
+void kinc_g5_texture_init_from_file(kinc_g5_texture_t *texture, const char *filename, bool readable) {
+	kinc_image_init_from_file(&texture->image, filename, readable);
+	init_texture(texture, filename, readable);
+}
+
 void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format, bool readable) {
 	kinc_image_init(&texture->image, width, height, format, readable);
 	texture->impl.stage = 0;

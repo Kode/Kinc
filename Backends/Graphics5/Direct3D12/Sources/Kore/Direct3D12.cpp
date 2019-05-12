@@ -7,6 +7,7 @@
 #ifdef KORE_DXR
 #include "RayTraceImpl.h"
 #endif
+#include <Kinc/Graphics5/Graphics.h>
 #include <Kinc/Graphics5/Pipeline.h>
 #include <Kinc/Math/Core.h>
 #ifdef KORE_WINDOWS
@@ -278,10 +279,6 @@ namespace {
 
 void kinc_g5_destroy(int window) {}
 
-void kinc_g5_internal_resize(int window, int width, int height) {
-
-}
-
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 #ifdef KORE_WINDOWS
 	HWND hwnd = Kinc_Windows_WindowHandle(window);
@@ -379,6 +376,14 @@ bool kinc_g5_vsynced() {
 	return true;
 }
 
+extern "C" bool kinc_window_vsynced(int window) {
+	return true;
+}
+
+extern "C" void Kinc_Internal_Resize(int window, int width, int height) {}
+
+extern "C" void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {}
+
 bool kinc_g5_swap_buffers() {
 	Kinc_Microsoft_Affirm(swapChain->Present(1, 0));
 	return true;
@@ -430,7 +435,7 @@ bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
 	return false;
 }
 
-void kinc_g5_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {}
+void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {}
 
 /*void Graphics5::setPipeline(PipelineState* pipeline) {
     pipeline->set(pipeline);

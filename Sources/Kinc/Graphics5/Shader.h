@@ -25,6 +25,7 @@ typedef struct kinc_g5_shader {
 } kinc_g5_shader_t;
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, int length, kinc_g5_shader_type_t type);
+void kinc_g5_shader_destroy(kinc_g5_shader_t *shader);
 
 #ifdef __cplusplus
 }

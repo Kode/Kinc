@@ -179,13 +179,13 @@ void Graphics4::setRenderTargets(RenderTarget** renderTargets, int count) {
 	kinc_g4_set_render_targets(targets, count);
 }
 
-void Kinc_Internal_Resize(int window, int width, int height);
+extern "C" void Kinc_Internal_Resize(int window, int width, int height);
 
 void Graphics4::_resize(int window, int width, int height) {
 	Kinc_Internal_Resize(window, width, height);
 }
 
-void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame);
+extern "C" void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame);
 
 void Graphics4::_changeFramebuffer(int window, _Kinc_FramebufferOptions* frame) {
 	Kinc_Internal_ChangeFramebuffer(window, frame);

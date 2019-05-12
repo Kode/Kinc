@@ -288,6 +288,14 @@ void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 	kinc_g5_command_list_set_vertex_buffers(&commandList, g5buffers, offsets, count);
 }
 
+
+int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset) {
+	kinc_g4_vertex_buffer_t *buffers[1];
+	buffers[0] = buffer;
+	kinc_g4_set_vertex_buffers(buffers, 1);
+	return 0;
+}
+
 void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *buffer) {
 	kinc_g5_command_list_set_index_buffer(&commandList, &buffer->impl._buffer);
 }

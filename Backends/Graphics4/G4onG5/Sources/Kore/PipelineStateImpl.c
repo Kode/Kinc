@@ -1,12 +1,10 @@
 #include "pch.h"
 
 #include "PipelineStateImpl.h"
-#include <Kore/Graphics4/PipelineState.h>
-#include <Kore/Graphics5/PipelineState.h>
+#include <Kinc/Graphics4/Pipeline.h>
+#include <Kinc/Graphics5/Pipeline.h>
 
-#include <Kore/Graphics4/Shader.h>
-
-using namespace Kore;
+#include <Kinc/Graphics4/Shader.h>
 
 void kinc_g4_pipeline_init(kinc_g4_pipeline_t *pipe) {
 	kinc_g5_pipeline_init(&pipe->impl._pipeline);
@@ -30,9 +28,10 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipe) {
 	}
 	pipe->impl._pipeline.vertexShader = &pipe->vertex_shader->impl._shader;
 	pipe->impl._pipeline.fragmentShader = &pipe->fragment_shader->impl._shader;
-	pipe->impl._pipeline.geometryShader = pipe->geometry_shader != nullptr ? &pipe->geometry_shader->impl._shader : nullptr;
-	pipe->impl._pipeline.tessellationControlShader = pipe->tessellation_control_shader != nullptr ? &pipe->tessellation_control_shader->impl._shader : nullptr;
-	pipe->impl._pipeline.tessellationEvaluationShader = pipe->tessellation_evaluation_shader != nullptr ? &pipe->tessellation_evaluation_shader->impl._shader : nullptr;
+	pipe->impl._pipeline.geometryShader = pipe->geometry_shader != NULL ? &pipe->geometry_shader->impl._shader : NULL;
+	pipe->impl._pipeline.tessellationControlShader = pipe->tessellation_control_shader != NULL ? &pipe->tessellation_control_shader->impl._shader : NULL;
+	pipe->impl._pipeline.tessellationEvaluationShader =
+	    pipe->tessellation_evaluation_shader != NULL ? &pipe->tessellation_evaluation_shader->impl._shader : NULL;
 	pipe->impl._pipeline.blendSource = (kinc_g5_blending_operation_t)pipe->blend_source;
 	pipe->impl._pipeline.blendDestination = (kinc_g5_blending_operation_t)pipe->blend_destination;
 	pipe->impl._pipeline.alphaBlendSource = (kinc_g5_blending_operation_t)pipe->alpha_blend_source;

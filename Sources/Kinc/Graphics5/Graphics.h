@@ -13,6 +13,10 @@
 #include <Kinc/Math/Matrix.h>
 #include <Kinc/Math/Vector.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum kinc_g5_texture_addressing {
 	KINC_G5_TEXTURE_ADDRESSING_REPEAT,
 	KINC_G5_TEXTURE_ADDRESSING_MIRROR,
@@ -61,14 +65,14 @@ typedef enum kinc_g5_cull_mode { KINC_G5_CULL_MODE_CLOCKWISE, KINC_G5_CULL_MODE_
 typedef enum kinc_g5_texture_direction { KINC_G5_TEXTURE_DIRECTION_U, KINC_G5_TEXTURE_DIRECTION_V, KINC_G5_TEXTURE_DIRECTION_W } kinc_g5_texture_direction_t;
 
 /*typedef enum kinc_g5_render_target_format {
-	KINC_G5_RENDER_TARGET_FORMAT_32BIT,
-	KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT,
-	KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT,
-	KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT,
-	KINC_G5_RENDER_TARGET_FORMAT_16BIT_DEPTH,
-	KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED
+    KINC_G5_RENDER_TARGET_FORMAT_32BIT,
+    KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT,
+    KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT,
+    KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT,
+    KINC_G5_RENDER_TARGET_FORMAT_16BIT_DEPTH,
+    KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED
 } kinc_g5_render_target_format_t;*/
-//typedef kinc_g4_render_target_format_t kinc_g5_render_target_format_t;
+// typedef kinc_g4_render_target_format_t kinc_g5_render_target_format_t;
 
 typedef enum kinc_g5_stencil_action {
 	KINC_G5_STENCIL_ACTION_KEEP,
@@ -88,7 +92,7 @@ typedef enum kinc_g5_texture_operation {
 } kinc_g5_texture_operation_t;
 
 typedef enum kinc_g5_texture_argument { KINC_G5_TEXTURE_ARGUMENT_CURRENT_COLOR, KINC_G5_TEXTURE_ARGUMENT_TEXTURE_COLOR } kinc_g5_texture_argument_t;
-		
+
 void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
 void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
 
@@ -132,3 +136,7 @@ void kinc_g5_destroy(int window);
 extern bool kinc_g5_fullscreen;
 
 void kinc_g5_flush();
+
+#ifdef __cplusplus
+}
+#endif

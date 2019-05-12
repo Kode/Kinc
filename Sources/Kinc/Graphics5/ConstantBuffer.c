@@ -67,23 +67,23 @@ void kinc_g5_constant_buffer_set_int(kinc_g5_constant_buffer_t *buffer, int offs
 	setInt(buffer->data, offset, value);
 }
 
-void kinc_g5_constant_buffer_setFloat(kinc_g5_constant_buffer_t *buffer, int offset, float value) {
+void kinc_g5_constant_buffer_set_float(kinc_g5_constant_buffer_t *buffer, int offset, float value) {
 	setFloat(buffer->data, offset, value);
 }
 
-void kinc_g5_constant_buffer_setFloat2(kinc_g5_constant_buffer_t *buffer, int offset, float value1, float value2) {
+void kinc_g5_constant_buffer_set_float2(kinc_g5_constant_buffer_t *buffer, int offset, float value1, float value2) {
 	setFloat2(buffer->data, offset, value1, value2);
 }
 
-void kinc_g5_constant_buffer_setFloat3(kinc_g5_constant_buffer_t *buffer, int offset, float value1, float value2, float value3) {
+void kinc_g5_constant_buffer_set_float3(kinc_g5_constant_buffer_t *buffer, int offset, float value1, float value2, float value3) {
 	setFloat3(buffer->data, offset, value1, value2, value3);
 }
 
-void kinc_g5_constant_buffer_setFloat4(kinc_g5_constant_buffer_t *buffer, int offset, float value1, float value2, float value3, float value4) {
+void kinc_g5_constant_buffer_set_float4(kinc_g5_constant_buffer_t *buffer, int offset, float value1, float value2, float value3, float value4) {
 	setFloat4(buffer->data, offset, value1, value2, value3, value4);
 }
 
-void kinc_g5_constant_buffer_setFloats(kinc_g5_constant_buffer_t *buffer, int offset, float *values, int count) {
+void kinc_g5_constant_buffer_set_floats(kinc_g5_constant_buffer_t *buffer, int offset, float *values, int count) {
 	setFloats(buffer->data, offset, values, count);
 }
 
@@ -92,7 +92,7 @@ void kinc_g5_constant_buffer_set_bool(kinc_g5_constant_buffer_t *buffer, int off
 }
 
 void kinc_g5_constant_buffer_set_matrix4(kinc_g5_constant_buffer_t *buffer, int offset, Kinc_Matrix4x4 *value) {
-	if (kinc_g5_internal_transposeMat4) {
+	if (kinc_g5_transposeMat4) {
 		Kinc_Matrix4x4 m = *value;
 		kinc_matrix4x4_transpose(&m);
 		setMatrix4(buffer->data, offset, &m);
@@ -103,7 +103,7 @@ void kinc_g5_constant_buffer_set_matrix4(kinc_g5_constant_buffer_t *buffer, int 
 }
 
 void kinc_g5_constant_buffer_set_matrix3(kinc_g5_constant_buffer_t *buffer, int offset, Kinc_Matrix3x3 *value) {
-	if (kinc_g5_internal_transposeMat3) {
+	if (kinc_g5_transposeMat3) {
 		Kinc_Matrix3x3 m = *value;
 		kinc_matrix3x3_transpose(&m);
 		setMatrix3(buffer->data, offset, &m);

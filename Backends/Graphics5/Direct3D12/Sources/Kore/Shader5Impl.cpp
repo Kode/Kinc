@@ -79,3 +79,5 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, int length, kinc
 		break;
 	}
 }
+
+void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {}
