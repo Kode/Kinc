@@ -3,57 +3,57 @@
 #include "Direct3D12.h"
 #include "Texture5Impl.h"
 
+#include <Kinc/Graphics5/RenderTarget.h>
+#include <Kinc/Graphics5/Texture.h>
 #include <Kore/SystemMicrosoft.h>
-
-using namespace Kore;
 
 static const int textureCount = 16;
 
-Graphics5::RenderTarget* currentRenderTargets[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+kinc_g5_render_target_t *currentRenderTargets[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                                                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-Graphics5::Texture* currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+kinc_g5_texture *currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                                      nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-void Texture5Impl::setTextures(ID3D12GraphicsCommandList* commandList) {
+void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 	if (currentRenderTargets[0] != nullptr) {
 		ID3D12DescriptorHeap* heaps[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
-			heaps[i] = currentRenderTargets[i] == nullptr ? nullptr : currentRenderTargets[i]->srvDescriptorHeap;
+			heaps[i] = currentRenderTargets[i] == nullptr ? nullptr : currentRenderTargets[i]->impl.srvDescriptorHeap;
 		}
 		commandList->SetDescriptorHeaps(1, heaps);
-		commandList->SetGraphicsRootDescriptorTable(0, currentRenderTargets[0]->srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		commandList->SetGraphicsRootDescriptorTable(0, currentRenderTargets[0]->impl.srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	}
 	if (currentTextures[0] != nullptr) {
 		ID3D12DescriptorHeap* heaps[textureCount];
 		for (int i = 0; i < textureCount; ++i) {
-			heaps[i] = currentTextures[i] == nullptr ? nullptr : currentTextures[i]->srvDescriptorHeap;
+			heaps[i] = currentTextures[i] == nullptr ? nullptr : currentTextures[i]->impl.srvDescriptorHeap;
 		}
 		commandList->SetDescriptorHeaps(1, heaps);
-		commandList->SetGraphicsRootDescriptorTable(0, currentTextures[0]->srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		commandList->SetGraphicsRootDescriptorTable(0, currentTextures[0]->impl.srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	}
 }
 
-void Graphics5::Texture::_init(const char* format, bool readable) {
-	stage = 0;
-	mipmap = true;
-	texWidth = width;
-	texHeight = height;
+static void init_texture(kinc_g5_texture *texture, const char* format, bool readable) {
+	texture->impl.stage = 0;
+	texture->impl.mipmap = true;
+	texture->texWidth = texture->image.width;
+	texture->texHeight = texture->image.height;
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texWidth, texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST,
-	                                nullptr, IID_GRAPHICS_PPV_ARGS(&image));
+	                                &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texture->texWidth, texture->texHeight, 1, 1),
+	                                D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 
-	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(image, 0, 1);
+	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadImage));
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 
 	BYTE* pixel;
-	uploadImage->Map(0, nullptr, reinterpret_cast<void**>(&pixel));
-	int pitch = stride();
-	for (int y = 0; y < height; ++y) {
-		memcpy(&pixel[y * pitch], &this->data[y * width * 4], width * 4);
+	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
+	int pitch = kinc_g5_texture_stride(texture);
+	for (int y = 0; y < texture->image.height; ++y) {
+		memcpy(&pixel[y * pitch], &texture->image.data[y * texture->image.width * 4], texture->image.width * 4);
 	}
-	uploadImage->Unmap(0, nullptr);
+	texture->impl.uploadImage->Unmap(0, nullptr);
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -62,7 +62,7 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -72,29 +72,29 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	device->CreateShaderResourceView(image, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->CreateShaderResourceView(texture->impl.image, &shaderResourceViewDesc, texture->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	if (!readable) {
-		delete[] this->data;
-		this->data = nullptr;
+		delete[] texture->image.data;
+		texture->image.data = nullptr;
 	}
 }
 
-Graphics5::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
-	stage = 0;
-	mipmap = true;
-	texWidth = width;
-	texHeight = height;
+void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format, bool readable) {
+	kinc_image_init(&texture->image, width, height, format, readable);
+	texture->impl.stage = 0;
+	texture->impl.mipmap = true;
+	texture->texWidth = width;
+	texture->texHeight = height;
 
-	DXGI_FORMAT d3dformat = (format == Image::RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8_UNORM);
+	DXGI_FORMAT d3dformat = (format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8_UNORM);
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texWidth, texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
-	                                IID_GRAPHICS_PPV_ARGS(&image));
+	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 
-	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(image, 0, 1);
+	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadImage));
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -103,7 +103,7 @@ Graphics5::Texture::Texture(int width, int height, Format format, bool readable)
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -113,49 +113,52 @@ Graphics5::Texture::Texture(int width, int height, Format format, bool readable)
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	device->CreateShaderResourceView(image, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->CreateShaderResourceView(texture->impl.image, &shaderResourceViewDesc, texture->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
-Graphics5::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
-
-Texture5Impl::~Texture5Impl() {
-	unset();
+void kinc_g5_texture_init3d(kinc_g5_texture *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {
+	kinc_image_init3d(&texture->image, width, height, depth, format, readable);
 }
 
-void Texture5Impl::unmipmap() {
-	mipmap = false;
+void kinc_g5_texture_destroy(kinc_g5_texture *texture) {
+	kinc_g5_internal_texture_unset(texture);
 }
 
-void Graphics5::Texture::_set(TextureUnit unit) {
-	if (unit.unit < 0) return;
+void kinc_g5_internal_texture_unmipmap(kinc_g5_texture *texture) {
+	texture->impl.mipmap = false;
+}
+
+void kinc_g5_internal_texture_set(kinc_g5_texture *texture, kinc_g5_texture_unit_t unit) {
+	if (unit.impl.unit < 0) return;
 	// context->PSSetShaderResources(unit.unit, 1, &view);
-	this->stage = unit.unit;
-	currentTextures[stage] = this;
-	currentRenderTargets[stage] = nullptr;
+	texture->impl.stage = unit.impl.unit;
+	currentTextures[texture->impl.stage] = texture;
+	currentRenderTargets[texture->impl.stage] = nullptr;
 }
 
-void Texture5Impl::unset() {
-	if (currentTextures[stage] == this) {
+void kinc_g5_internal_texture_unset(kinc_g5_texture *texture) {
+	if (currentTextures[texture->impl.stage] == texture) {
 
-		currentTextures[stage] = nullptr;
+		currentTextures[texture->impl.stage] = nullptr;
 	}
 }
 
-u8* Graphics5::Texture::lock() {
-	return (u8*)this->data;
+uint8_t *kinc_g5_texture_lock(kinc_g5_texture *texture) {
+	return (uint8_t *)texture->image.data;
 }
 
-void Graphics5::Texture::unlock() {
+void kinc_g5_texture_unlock(kinc_g5_texture *texture) {
 	BYTE* pixel;
-	uploadImage->Map(0, nullptr, reinterpret_cast<void**>(&pixel));
-	int pitch = stride();
-	for (int y = 0; y < height; ++y) {
-		memcpy(&pixel[y * pitch], &this->data[y * width], format == Image::RGBA32 ? width * 4 : width);
+	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
+	int pitch = kinc_g5_texture_stride(texture);
+	for (int y = 0; y < texture->image.height; ++y) {
+		memcpy(&pixel[y * pitch], &texture->image.data[y * texture->image.width],
+		       texture->image.format == KINC_IMAGE_FORMAT_RGBA32 ? texture->image.width * 4 : texture->image.width);
 	}
-	uploadImage->Unmap(0, nullptr);
+	texture->impl.uploadImage->Unmap(0, nullptr);
 }
 
-void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
+void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {}
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 int d3d12_textureAlignment() {
@@ -165,9 +168,9 @@ int d3d12_textureAlignment() {
 int d3d12_textureAlignment();
 #endif
 
-int Graphics5::Texture::stride() {
-	int baseStride = format == Image::RGBA32 ? (width * 4) : width;
-	if (format == Image::Grey8) return width; // please investigate further
+int kinc_g5_texture_stride(kinc_g5_texture *texture) {
+	int baseStride = texture->image.format == KINC_IMAGE_FORMAT_RGBA32 ? (texture->image.width * 4) : texture->image.width;
+	if (texture->image.format == KINC_IMAGE_FORMAT_GREY8) return texture->image.width; // please investigate further
 	for (int i = 0;; ++i) {
 		if (d3d12_textureAlignment() * i >= baseStride) {
 			return d3d12_textureAlignment() * i;
@@ -175,6 +178,6 @@ int Graphics5::Texture::stride() {
 	}
 }
 
-void Graphics5::Texture::generateMipmaps(int levels) {}
+void kinc_g5_texture_generate_mipmaps(kinc_g5_texture *texture, int levels) {}
 
-void Graphics5::Texture::setMipmap(Texture* mipmap, int level) {}
+void kinc_g5_texture_set_mipmap(kinc_g5_texture *texture, kinc_g5_texture *mipmap, int level) {}

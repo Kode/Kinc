@@ -3,86 +3,88 @@
 #include "Direct3D12.h"
 #include "VertexBuffer5Impl.h"
 
-#include <Kore/Graphics4/Graphics.h>
+#include <Kinc/Graphics5/VertexBuffer.h>
+
+#include <Kinc/Graphics4/Graphics.h>
 #include <Kore/SystemMicrosoft.h>
 
-using namespace Kore;
+kinc_g5_vertex_buffer_t *_current_vertex_buffer = nullptr;
 
-VertexBuffer5Impl* VertexBuffer5Impl::_current = nullptr;
+void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure_t *structure, bool gpuMemory, int instanceDataStepRate) {
+	buffer->impl.myCount = count;
+	buffer->impl.lastStart = -1;
+	buffer->impl.lastCount = -1;
 
-VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), lastStart(-1), lastCount(-1) {}
-
-Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
 	static_assert(sizeof(D3D12VertexBufferView) == sizeof(D3D12_VERTEX_BUFFER_VIEW), "Something is wrong with D3D12IVertexBufferView");
 
-	myStride = 0;
-	for (int i = 0; i < structure.size; ++i) {
-		switch (structure.elements[i].data) {
-		case Graphics4::Float1VertexData:
-			myStride += 1 * 4;
+	buffer->impl.myStride = 0;
+	for (int i = 0; i < structure->size; ++i) {
+		switch (structure->elements[i].data) {
+		case KINC_G4_VERTEX_DATA_FLOAT1:
+			buffer->impl.myStride += 1 * 4;
 			break;
-		case Graphics4::Float2VertexData:
-			myStride += 2 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT2:
+			buffer->impl.myStride += 2 * 4;
 			break;
-		case Graphics4::Float3VertexData:
-			myStride += 3 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT3:
+			buffer->impl.myStride += 3 * 4;
 			break;
-		case Graphics4::Float4VertexData:
-			myStride += 4 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT4:
+			buffer->impl.myStride += 4 * 4;
 			break;
-		case Graphics4::ColorVertexData:
-			myStride += 1 * 4;
+		case KINC_G4_VERTEX_DATA_COLOR:
+			buffer->impl.myStride += 1 * 4;
 			break;
-		case Graphics4::Short2NormVertexData:
-			myStride += 2 * 2;
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			buffer->impl.myStride += 2 * 2;
 			break;
-		case Graphics4::Short4NormVertexData:
-			myStride += 4 * 2;
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			buffer->impl.myStride += 4 * 2;
 			break;
 		}
 	}
 
-	int uploadBufferSize = myStride * myCount;
+	int uploadBufferSize = buffer->impl.myStride * buffer->impl.myCount;
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadBuffer));
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&buffer->impl.uploadBuffer));
 
 	// device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	// &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 	//	D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&vertexBuffer));
 
-	view.BufferLocation = uploadBuffer->GetGPUVirtualAddress();
-	view.SizeInBytes = uploadBufferSize;
-	view.StrideInBytes = myStride;
+	buffer->impl.view.BufferLocation = buffer->impl.uploadBuffer->GetGPUVirtualAddress();
+	buffer->impl.view.SizeInBytes = uploadBufferSize;
+	buffer->impl.view.StrideInBytes = buffer->impl.myStride;
 }
 
-Graphics5::VertexBuffer::~VertexBuffer() {
+void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {
 	// vb->Release();
 	// delete[] vertices;
 }
 
-float* Graphics5::VertexBuffer::lock() {
-	return lock(0, count());
+float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {
+	return kinc_g5_vertex_buffer_lock(buffer, 0, kinc_g5_vertex_buffer_count(buffer));
 }
 
-float* Graphics5::VertexBuffer::lock(int start, int count) {
-	lastStart = start;
-	lastCount = count;
+float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, int count) {
+	buffer->impl.lastStart = start;
+	buffer->impl.lastCount = count;
 	void* p;
 	D3D12_RANGE range;
-	range.Begin = start * myStride;
-	range.End = range.Begin + count * myStride;
-	uploadBuffer->Map(0, &range, &p);
+	range.Begin = start * buffer->impl.myStride;
+	range.End = range.Begin + count * buffer->impl.myStride;
+	buffer->impl.uploadBuffer->Map(0, &range, &p);
 	byte* bytes = (byte*)p;
-	bytes += start * myStride;
+	bytes += start * buffer->impl.myStride;
 	return (float*)bytes;
 }
 
-void Graphics5::VertexBuffer::unlock() {
+void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buffer) {
 	D3D12_RANGE range;
-	range.Begin = lastStart * myStride;
-	range.End = range.Begin + lastCount * myStride;
-	uploadBuffer->Unmap(0, &range);
+	range.Begin = buffer->impl.lastStart * buffer->impl.myStride;
+	range.End = range.Begin + buffer->impl.lastCount * buffer->impl.myStride;
+	buffer->impl.uploadBuffer->Unmap(0, &range);
 
 	// view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
 
@@ -92,11 +94,11 @@ void Graphics5::VertexBuffer::unlock() {
 	// commandList->ResourceBarrier(1, barriers);
 }
 
-void Graphics5::VertexBuffer::unlock(int count) {
+void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buffer, int count) {
 	D3D12_RANGE range;
-	range.Begin = lastStart * myStride;
-	range.End = range.Begin + count * myStride;
-	uploadBuffer->Unmap(0, &range);
+	range.Begin = buffer->impl.lastStart * buffer->impl.myStride;
+	range.End = range.Begin + count * buffer->impl.myStride;
+	buffer->impl.uploadBuffer->Unmap(0, &range);
 
 	// view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
 
@@ -106,18 +108,18 @@ void Graphics5::VertexBuffer::unlock(int count) {
 	// commandList->ResourceBarrier(1, barriers);
 }
 
-int Graphics5::VertexBuffer::_set(int offset) {
+int kinc_g5_internal_vertex_buffer_set(kinc_g5_vertex_buffer_t *buffer, int offset) {
 	// UINT stride = myStride;
 	// UINT offset = 0;
 	// context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
-	_current = this;
+	_current_vertex_buffer = buffer;
 	return 0;
 }
 
-int Graphics5::VertexBuffer::count() {
-	return myCount;
+int kinc_g5_vertex_buffer_count(kinc_g5_vertex_buffer_t *buffer) {
+	return buffer->impl.myCount;
 }
 
-int Graphics5::VertexBuffer::stride() {
-	return myStride;
+int kinc_g5_vertex_buffer_stride(kinc_g5_vertex_buffer_t *buffer) {
+	return buffer->impl.myStride;
 }

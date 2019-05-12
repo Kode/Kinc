@@ -257,13 +257,13 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list *list, kinc_g5_pipel
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list *list, kinc_g5_vertex_buffer_t **buffers, int *offsets, int count) {
-	buffers[0]->impl.view.BufferLocation = buffers[0]->impl.uploadBuffer->GetGPUVirtualAddress() + offsets[0] * buffers[0]->impl.stride();
-	buffers[0]->impl.view.SizeInBytes = (buffers[0]->impl.count() - offsets[0]) * buffers[0]->impl.stride();
+	buffers[0]->impl.view.BufferLocation = buffers[0]->impl.uploadBuffer->GetGPUVirtualAddress() + offsets[0] * kinc_g5_vertex_buffer_count(buffers[0]);
+	buffers[0]->impl.view.SizeInBytes = (kinc_g5_vertex_buffer_count(buffers[0]) - offsets[0]) * kinc_g5_vertex_buffer_stride(buffers[0]);
 	list->impl._commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW *)&buffers[0]->impl.view);
 }
 
 void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list *list, kinc_g5_index_buffer_t *buffer) {
-	list->impl._indexCount = buffer->impl.count();
+	list->impl._indexCount = kinc_g5_index_buffer_count(buffer);
 	list->impl._commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW *)&buffer->impl.indexBufferView);
 }
 

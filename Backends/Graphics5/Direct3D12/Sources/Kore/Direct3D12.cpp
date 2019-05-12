@@ -7,13 +7,13 @@
 #ifdef KORE_DXR
 #include "RayTraceImpl.h"
 #endif
-#include <Kore/Graphics5/PipelineState.h>
-#include <Kore/Math/Core.h>
+#include <Kinc/Graphics5/Pipeline.h>
+#include <Kinc/Math/Core.h>
 #ifdef KORE_WINDOWS
 #include <dxgi1_4.h>
 #undef CreateWindow
 #endif
-#include <Kore/System.h>
+#include <Kinc/System.h>
 #include <Kore/SystemMicrosoft.h>
 #include <wrl.h>
 
@@ -83,19 +83,19 @@ namespace {
 	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
 		RenderEnvironment result;
 #ifdef KORE_WINDOWS
-		Kore_Microsoft_Affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
+		Kinc_Microsoft_Affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
 
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		Kore_Microsoft_Affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
+		Kinc_Microsoft_Affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
 
 		IDXGIFactory4* dxgiFactory;
-		Kore_Microsoft_Affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
+		Kinc_Microsoft_Affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
 
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
-		Kore_Microsoft_Affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
+		Kinc_Microsoft_Affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
 #else
 		createSwapChain(&result, swapChainDesc);
 #endif
@@ -104,7 +104,7 @@ namespace {
 
 	void waitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
 		if (fence->GetCompletedValue() < completionValue) {
-			Kore_Microsoft_Affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
+			Kinc_Microsoft_Affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
 			WaitForSingleObject(waitEvent, INFINITE);
 		}
 	}
@@ -210,7 +210,7 @@ namespace {
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(3, parameters, textureCount, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-		Kore_Microsoft_Affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
+		Kinc_Microsoft_Affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&rootSignature));
 	}
 
@@ -273,20 +273,20 @@ namespace {
 	}*/
 }
 
-void Graphics5::destroy(int window) {}
+void kinc_g5_destroy(int window) {}
 
-void Graphics5::_resize(int window, int width, int height) {
+void kinc_g5_internal_resize(int window, int width, int height) {
 
 }
 
-void Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 #ifdef KORE_WINDOWS
 	HWND hwnd = Window::get(window)->_data.handle;
 #else
 	HWND hwnd = nullptr;
 #endif
-	renderTargetWidth = System::windowWidth(window);
-	renderTargetHeight = System::windowHeight(window);
+	renderTargetWidth = kinc_width();
+	renderTargetHeight = kinc_height();
 	initialize(renderTargetWidth, renderTargetHeight, hwnd);
 }
 
@@ -325,11 +325,11 @@ void Graphics5::drawIndexedVertices(int start, int count) {
 
 }
 */
-void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {}
+void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
 
-void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
+void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
-void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
+void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
 // (DK) fancy macro's to generate a clickable warning message in visual studio, can be removed when setColorMask() is implemented
 #define Stringize(L) #L
@@ -341,7 +341,7 @@ namespace {
 	bool began = false;
 }
 
-void Graphics5::begin(RenderTarget* renderTarget, int window) {
+void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	if (began) return;
 	began = true;
 
@@ -368,38 +368,38 @@ void Graphics5::begin(RenderTarget* renderTarget, int window) {
 	frameNumber++;
 }
 
-void Graphics5::end(int window) {
+void kinc_g5_end(int window) {
 	began = false;
 }
 
-bool Kore::Window::vSynced() {
+bool kinc_g5_vsynced() {
 	return true;
 }
 
-bool Graphics5::swapBuffers() {
-	Kore_Microsoft_Affirm(swapChain->Present(1, 0));
+bool kinc_g5_swap_buffers() {
+	Kinc_Microsoft_Affirm(swapChain->Present(1, 0));
 	return true;
 }
 
-void Graphics5::flush() {}
+void kinc_g5_flush() {}
 
-void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
+void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2) {}
 
-void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
 
-void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
 
-void Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
+void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 
-bool Graphics5::renderTargetsInvertedY() {
+bool kinc_g5_render_targets_inverted_y() {
 	return false;
 }
 
-bool Graphics5::nonPow2TexturesSupported() {
+bool kinc_g5_non_pow2_textures_supported() {
 	return true;
 }
 
-void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
+void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
 /*
 void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
     buffers[0]->_set(0);
@@ -409,25 +409,25 @@ void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
     buffer._set();
 }
 */
-void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
+void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
 	texture->_set(unit);
 }
 
-bool Graphics5::initOcclusionQuery(uint* occlusionQuery) {
+bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery) {
 	return false;
 }
 
-void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {}
+void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
 
-void Graphics5::deleteOcclusionQuery(uint occlusionQuery) {}
+void kinc_g5_delete_occlusion_query(unsigned occlusionQuery) {}
 
-void Graphics5::renderOcclusionQuery(uint occlusionQuery, int triangles) {}
+void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int triangles) {}
 
-bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
+bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
 	return false;
 }
 
-void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
+void kinc_g5_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {}
 
 /*void Graphics5::setPipeline(PipelineState* pipeline) {
     pipeline->set(pipeline);
