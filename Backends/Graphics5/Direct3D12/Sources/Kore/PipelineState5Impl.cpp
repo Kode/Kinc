@@ -104,31 +104,31 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 	kinc_g5_constant_location_t location;
 
 	{
-		ShaderConstant constant = findConstant(pipe->impl.vertexShader, name);
+		ShaderConstant constant = findConstant(pipe->vertexShader, name);
 		location.impl.vertexOffset = constant.offset;
 		location.impl.vertexSize = constant.size;
 	}
 
 	{
-		ShaderConstant constant = findConstant(pipe->impl.fragmentShader, name);
+		ShaderConstant constant = findConstant(pipe->fragmentShader, name);
 		location.impl.fragmentOffset = constant.offset;
 		location.impl.fragmentSize = constant.size;
 	}
 
 	{
-		ShaderConstant constant = findConstant(pipe->impl.geometryShader, name);
+		ShaderConstant constant = findConstant(pipe->geometryShader, name);
 		location.impl.geometryOffset = constant.offset;
 		location.impl.geometrySize = constant.size;
 	}
 
 	{
-		ShaderConstant constant = findConstant(pipe->impl.tessControlShader, name);
+		ShaderConstant constant = findConstant(pipe->tessellationControlShader, name);
 		location.impl.tessControlOffset = constant.offset;
 		location.impl.tessControlSize = constant.size;
 	}
 
 	{
-		ShaderConstant constant = findConstant(pipe->impl.tessEvalShader, name);
+		ShaderConstant constant = findConstant(pipe->tessellationEvaluationShader, name);
 		location.impl.tessEvalOffset = constant.offset;
 		location.impl.tessEvalSize = constant.size;
 	}
@@ -138,12 +138,12 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 
 kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipe, const char *name) {
 	kinc_g5_texture_unit_t unit;
-	ShaderTexture vertexTexture = findTexture(pipe->impl.vertexShader, name);
+	ShaderTexture vertexTexture = findTexture(pipe->vertexShader, name);
 	if (vertexTexture.texture != -1) {
 		unit.impl.unit = vertexTexture.texture;
 	}
 	else {
-		ShaderTexture fragmentTexture = findTexture(pipe->impl.fragmentShader, name);
+		ShaderTexture fragmentTexture = findTexture(pipe->fragmentShader, name);
 		unit.impl.unit = fragmentTexture.texture;
 	}
 	return unit;
@@ -187,7 +187,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	D3D12_INPUT_ELEMENT_DESC vertexDesc[10];
 	for (int i = 0; i < pipe->inputLayout[0]->size; ++i) {
 		vertexDesc[i].SemanticName = "TEXCOORD";
-		vertexDesc[i].SemanticIndex = findAttribute(pipe->impl.vertexShader, pipe->inputLayout[0]->elements[i].name).attribute;
+		vertexDesc[i].SemanticIndex = findAttribute(pipe->vertexShader, pipe->inputLayout[0]->elements[i].name).attribute;
 		vertexDesc[i].InputSlot = 0;
 		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
 		vertexDesc[i].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;

@@ -18,11 +18,6 @@ typedef struct {
 	// ID3D11Buffer* tessEvalConstantBuffer;
 	// ID3D11Buffer* tessControlConstantBuffer;
 
-	struct kinc_g5_shader *vertexShader;
-	struct kinc_g5_shader *fragmentShader;
-	struct kinc_g5_shader *geometryShader;
-	struct kinc_g5_shader *tessEvalShader;
-	struct kinc_g5_shader *tessControlShader;
 	//static void setConstants(ID3D12GraphicsCommandList *commandList, Graphics5::PipelineState *pipeline);
 } PipelineState5Impl;
 
