@@ -8,6 +8,8 @@
 
 #include <Windows.h>
 
+#include <assert.h>
+
 kinc_g5_index_buffer_t *_current_index_buffer = nullptr;
 
 void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool gpuMemory) {
@@ -16,13 +18,13 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool g
 	static_assert(sizeof(D3D12IindexBufferView) == sizeof(D3D12_INDEX_BUFFER_VIEW), "Something is wrong with D3D12IindexBufferView");
 	int uploadBufferSize = sizeof(int) * count;
 
-	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&buffer->impl.uploadBuffer));
+	assert(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&buffer->impl.uploadBuffer)) == S_OK);
 
 	if (gpuMemory) {
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+		assert(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 		                                &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
-		                                IID_GRAPHICS_PPV_ARGS(&buffer->impl.indexBuffer));
+		                                IID_GRAPHICS_PPV_ARGS(&buffer->impl.indexBuffer)) == S_OK);
 
 		buffer->impl.indexBufferView.BufferLocation = buffer->impl.indexBuffer->GetGPUVirtualAddress();
 	}
