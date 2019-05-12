@@ -330,4 +330,4 @@ void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 	kinc_g5_command_list_set_pipeline(&commandList, &pipeline->impl._pipeline);
 }
 
-void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, kinc_g4_texture_array_t *array) {}
+void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct _Kinc_G4_TextureArray *array) {}

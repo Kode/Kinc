@@ -6,7 +6,7 @@
 #include <Kinc/Math/Core.h>
 #include <Kore/SystemMicrosoft.h>
 
-void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, int length, kinc_g5_shader_type_t type) {
+void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, size_t length, kinc_g5_shader_type_t type) {
 	memset(shader->impl.constants, 0, sizeof(shader->impl.constants));
 	memset(shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	memset(shader->impl.textures, 0, sizeof(shader->impl.textures));
@@ -57,7 +57,7 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, int length, kinc
 		shader->impl.constantsSize = constant.offset + constant.size;
 	}
 
-	shader->impl.length = length - index;
+	shader->impl.length = (int)length - index;
 	shader->impl.data = new uint8_t[shader->impl.length];
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 

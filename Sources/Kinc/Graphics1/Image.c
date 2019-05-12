@@ -43,7 +43,7 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		kinc_file_reader_read(file, fourcc, 4);
 		fourcc[4] = 0;
 
-		int compressedSize = kinc_file_reader_size(file) - 12;
+		int compressedSize = (int)kinc_file_reader_size(file) - 12;
 
 		if (strcmp(fourcc, "LZ4 ") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_NONE;
@@ -184,7 +184,7 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		if (output == NULL) {
 			return false;
 		}
-		int size = kinc_file_reader_size(file);
+		int size = (int)kinc_file_reader_size(file);
 		kinc_file_reader_read(file, buffer, size);
 		int comp;
 		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
@@ -215,7 +215,7 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		if (output == NULL) {
 			return false;
 		}
-		int size = kinc_file_reader_size(file);
+		int size = (int)kinc_file_reader_size(file);
 		kinc_file_reader_read(file, buffer, size);
 		int comp;
 		float *uncompressed = stbi_loadf_from_memory(buffer, size, width, height, &comp, 4);
@@ -234,7 +234,7 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		if (output == NULL) {
 			return false;
 		}
-		int size = kinc_file_reader_size(file);
+		int size = (int)kinc_file_reader_size(file);
 		kinc_file_reader_read(file, buffer, size);
 		int comp;
 		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);

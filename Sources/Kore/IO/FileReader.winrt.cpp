@@ -32,7 +32,7 @@ int FileReader::read(void* data, int size) {
 void* FileReader::readAll() {
 	kinc_file_reader_seek(&reader, 0);
 	free(readdata);
-	int size = kinc_file_reader_size(&reader);
+	int size = (int)kinc_file_reader_size(&reader);
 	readdata = malloc(size);
 	read(readdata, size);
 	return readdata;
@@ -57,5 +57,5 @@ int FileReader::pos() {
 }
 
 int FileReader::size() {
-	return kinc_file_reader_size(&reader);
+	return (int)kinc_file_reader_size(&reader);
 }
