@@ -8,6 +8,8 @@
 
 #include "Direct3D12.h"
 
+#include <type_traits>
+
 extern ID3D12CommandQueue* commandQueue;
 
 namespace {
@@ -182,7 +184,7 @@ void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list 
 }
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list *list) {
-	PipelineState5Impl::setConstants(list->impl._commandList, list->impl._currentPipeline);
+	kinc_g5_internal_setConstants(list->impl._commandList, list->impl._currentPipeline);
 }
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset) {
@@ -278,7 +280,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list *list, kinc_g5
 }
 
 void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, kinc_g5_index_buffer_t *buffer) {
-	buffer->impl._upload(list->impl._commandList);
+	kinc_g5_internal_index_buffer_upload(buffer, list->impl._commandList);
 }
 
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_texture_t *texture) {

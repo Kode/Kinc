@@ -8,6 +8,10 @@
 extern "C" {
 #endif
 
+#define KINC_G5_CLEAR_COLOR 1
+#define KINC_G5_CLEAR_DEPTH 2
+#define KINC_G5_CLEAR_STENCIL 4
+
 struct kinc_g5_constant_buffer;
 struct kinc_g5_index_buffer;
 struct kinc_g5_pipeline;

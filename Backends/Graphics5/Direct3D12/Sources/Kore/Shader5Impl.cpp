@@ -7,34 +7,40 @@
 #include <Kore/SystemMicrosoft.h>
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, int length, kinc_g5_shader_type_t type) {
+	memset(shader->impl.constants, 0, sizeof(shader->impl.constants));
+	memset(shader->impl.attributes, 0, sizeof(shader->impl.attributes));
+	memset(shader->impl.textures, 0, sizeof(shader->impl.textures));
+
 	unsigned index = 0;
 	uint8_t* data = (uint8_t*)_data;
 
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
-		char name[256];
-		for (unsigned i2 = 0; i2 < 255; ++i2) {
+		char name[64];
+		for (unsigned i2 = 0; i2 < 63; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		shader->impl.attributes[name] = data[index++];
+		strcpy(shader->impl.attributes[i].name, name);
+		shader->impl.attributes->attribute = data[index++];
 	}
 
 	uint8_t texCount = data[index++];
 	for (unsigned i = 0; i < texCount; ++i) {
-		char name[256];
-		for (unsigned i2 = 0; i2 < 255; ++i2) {
+		char name[64];
+		for (unsigned i2 = 0; i2 < 63; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		shader->impl.textures[name] = data[index++];
+		strcpy(shader->impl.textures[i].name, name);
+		shader->impl.textures[i].texture = data[index++];
 	}
 
 	uint8_t constantCount = data[index++];
 	shader->impl.constantsSize = 0;
 	for (unsigned i = 0; i < constantCount; ++i) {
-		char name[256];
-		for (unsigned i2 = 0; i2 < 255; ++i2) {
+		char name[64];
+		for (unsigned i2 = 0; i2 < 63; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
@@ -46,7 +52,8 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, int length, kinc
 #ifdef KORE_WINDOWS
 		index += 2; // columns and rows
 #endif
-		shader->impl.constants[name] = constant;
+		strcpy(constant.name, name);
+		shader->impl.constants[i] = constant;
 		shader->impl.constantsSize = constant.offset + constant.size;
 	}
 

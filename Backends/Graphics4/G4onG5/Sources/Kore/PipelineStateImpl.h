@@ -17,6 +17,7 @@ typedef struct {
 } Kinc_G4_ConstantLocationImpl;
 
 typedef struct {
+	int nothing;
 } Kinc_G4_AttributeLocationImpl;
 
 #ifdef __cplusplus

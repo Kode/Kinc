@@ -25,6 +25,11 @@ typedef struct {
 	//static void setTextures(ID3D12GraphicsCommandList *commandList);
 } Texture5Impl;
 
+struct kinc_g5_texture;
+
+void kinc_g5_internal_set_textures(struct ID3D12GraphicsCommandList *commandList);
+void kinc_g5_internal_texture_set(struct kinc_g5_texture *texture, int unit);
+
 #ifdef __cplusplus
 }
 #endif

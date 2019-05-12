@@ -7,14 +7,14 @@ extern "C" {
 struct ID3D12Resource;
 
 typedef struct {
-	ID3D12Resource *_buffer;
+	struct ID3D12Resource *_buffer;
 	int lastStart;
 	int lastCount;
 	int mySize;
 } ConstantBuffer5Impl;
 
-const bool kinc_g5_transposeMat3 = false;
-const bool kinc_g5_transposeMat4 = false;
+extern bool kinc_g5_transposeMat3;
+extern bool kinc_g5_transposeMat4;
 
 #ifdef __cplusplus
 }

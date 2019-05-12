@@ -26,8 +26,8 @@ void kinc_g5_texture_destroy(kinc_g5_texture_t *texture);
 #ifdef KORE_ANDROID
 void kinc_g5_texture_init(kinc_g5_texture_t *texture, unsigned texid);
 #endif
-void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, kinc_g5_texture_unit_t unit);
-void kinc_g5_internal_texture_set_image(kinc_g5_texture_t *texture, kinc_g5_texture_unit_t unit);
+void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit);
+void kinc_g5_internal_texture_set_image(kinc_g5_texture_t *texture, int unit);
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture);
 void kinc_g5_texture_unlock(kinc_g5_texture_t *texture);
 void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color);

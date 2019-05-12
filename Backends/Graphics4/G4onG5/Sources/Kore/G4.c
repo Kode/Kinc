@@ -152,7 +152,7 @@ bool kinc_g4_swap_buffers() {
 }
 
 void kinc_g4_flush() {
-	return kinc_g5_flush();
+	kinc_g5_flush();
 }
 
 void kinc_g4_set_stencil_reference_value(int value) {}

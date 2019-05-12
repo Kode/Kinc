@@ -22,7 +22,7 @@ void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
 }
 
 void kinc_g4_internal_index_buffer_set(kinc_g4_index_buffer_t *buffer) {
-	_buffer._set();
+	kinc_g5_internal_index_buffer_set(&buffer->impl._buffer);
 }
 
 int kinc_g4_index_buffer_count(kinc_g4_index_buffer_t *buffer) {

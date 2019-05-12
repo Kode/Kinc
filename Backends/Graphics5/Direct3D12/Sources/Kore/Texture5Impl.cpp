@@ -120,6 +120,8 @@ void kinc_g5_texture_init3d(kinc_g5_texture *texture, int width, int height, int
 	kinc_image_init3d(&texture->image, width, height, depth, format, readable);
 }
 
+void kinc_g5_internal_texture_unset(kinc_g5_texture *texture);
+
 void kinc_g5_texture_destroy(kinc_g5_texture *texture) {
 	kinc_g5_internal_texture_unset(texture);
 }
@@ -128,10 +130,10 @@ void kinc_g5_internal_texture_unmipmap(kinc_g5_texture *texture) {
 	texture->impl.mipmap = false;
 }
 
-void kinc_g5_internal_texture_set(kinc_g5_texture *texture, kinc_g5_texture_unit_t unit) {
-	if (unit.impl.unit < 0) return;
+void kinc_g5_internal_texture_set(kinc_g5_texture *texture, int unit) {
+	if (unit < 0) return;
 	// context->PSSetShaderResources(unit.unit, 1, &view);
-	texture->impl.stage = unit.impl.unit;
+	texture->impl.stage = unit;
 	currentTextures[texture->impl.stage] = texture;
 	currentRenderTargets[texture->impl.stage] = nullptr;
 }

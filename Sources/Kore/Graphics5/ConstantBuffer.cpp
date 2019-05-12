@@ -110,7 +110,7 @@ void Graphics5::ConstantBuffer::setBool(int offset, bool value) {
 }
 
 void Graphics5::ConstantBuffer::setMatrix(int offset, const mat4& value) {
-	if (kinc_g5_internal_transposeMat4) {
+	if (kinc_g5_transposeMat4) {
 		::setMatrix(data, offset, value.Transpose());
 	}
 	else {
@@ -119,7 +119,7 @@ void Graphics5::ConstantBuffer::setMatrix(int offset, const mat4& value) {
 }
 
 void Graphics5::ConstantBuffer::setMatrix(int offset, const mat3& value) {
-	if (kinc_g5_internal_transposeMat3) {
+	if (kinc_g5_transposeMat3) {
 		::setMatrix(data, offset, value.Transpose());
 	}
 	else {

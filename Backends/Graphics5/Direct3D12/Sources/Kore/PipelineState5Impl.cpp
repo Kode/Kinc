@@ -9,7 +9,7 @@
 
 #include <Kore/SystemMicrosoft.h>
 
-void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList* commandList, kinc_g5_pipeline_t *pipeline) {
+void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_g5_pipeline_t *pipeline) {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
 	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
 	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
@@ -35,7 +35,7 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList* commandList, kinc_
 	commandList->SetPipelineState(pipeline->impl.pso);
 	commandList->SetGraphicsRootSignature(rootSignature);
 
-	Texture5Impl::setTextures(commandList);
+	kinc_g5_internal_set_textures(commandList);
 }
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
@@ -58,74 +58,93 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 // context->IASetInputLayout(inputLayout);
 //}
 
-kinc_g5_constant_location_t kinc_g5_pipeine_get_constant_location(kinc_g5_pipeline *pipe, const char* name) {
+#define MAX_SHADER_THING 32
+
+static ShaderConstant findConstant(kinc_g5_shader_t *shader, const char *name) {
+	for (int i = 0; i < MAX_SHADER_THING; ++i) {
+		if (strcmp(shader->impl.constants[i].name, name) == 0) {
+			return shader->impl.constants[i];
+		}
+	}
+
+	ShaderConstant constant;
+	constant.name[0] = 0;
+	constant.offset = -1;
+	constant.size = 0;
+	return constant;
+}
+
+static ShaderTexture findTexture(kinc_g5_shader_t *shader, const char *name) {
+	for (int i = 0; i < MAX_SHADER_THING; ++i) {
+		if (strcmp(shader->impl.textures[i].name, name) == 0) {
+			return shader->impl.textures[i];
+		}
+	}
+
+	ShaderTexture texture;
+	texture.name[0] = 0;
+	texture.texture = -1;
+	return texture;
+}
+
+static ShaderAttribute findAttribute(kinc_g5_shader_t *shader, const char *name) {
+	for (int i = 0; i < MAX_SHADER_THING; ++i) {
+		if (strcmp(shader->impl.attributes[i].name, name) == 0) {
+			return shader->impl.attributes[i];
+		}
+	}
+
+	ShaderAttribute attribute;
+	attribute.name[0] = 0;
+	attribute.attribute = -1;
+	return attribute;
+}
+
+kinc_g5_constant_location_t kinc_g5_pipeine_get_constant_location(kinc_g5_pipeline *pipe, const char *name) {
 	kinc_g5_constant_location_t location;
 
-	if (pipe->impl.vertexShader->impl.constants.find(name) == pipe->impl.vertexShader->impl.constants.end()) {
-		location.impl.vertexOffset = -1;
-		location.impl.vertexSize = 0;
-	}
-	else {
-		ShaderConstant constant = vertexShader->constants[name];
-		location.vertexOffset = constant.offset;
-		location.vertexSize = constant.size;
+	{
+		ShaderConstant constant = findConstant(pipe->impl.vertexShader, name);
+		location.impl.vertexOffset = constant.offset;
+		location.impl.vertexSize = constant.size;
 	}
 
-	if (fragmentShader->constants.find(name) == fragmentShader->constants.end()) {
-		location.fragmentOffset = -1;
-		location.fragmentSize = 0;
-	}
-	else {
-		ShaderConstant constant = fragmentShader->constants[name];
-		location.fragmentOffset = constant.offset;
-		location.fragmentSize = constant.size;
+	{
+		ShaderConstant constant = findConstant(pipe->impl.fragmentShader, name);
+		location.impl.fragmentOffset = constant.offset;
+		location.impl.fragmentSize = constant.size;
 	}
 
-	if (geometryShader == nullptr || geometryShader->constants.find(name) == geometryShader->constants.end()) {
-		location.geometryOffset = -1;
-		location.geometrySize = 0;
-	}
-	else {
-		ShaderConstant constant = geometryShader->constants[name];
-		location.geometryOffset = constant.offset;
-		location.geometrySize = constant.size;
+	{
+		ShaderConstant constant = findConstant(pipe->impl.geometryShader, name);
+		location.impl.geometryOffset = constant.offset;
+		location.impl.geometrySize = constant.size;
 	}
 
-	if (tessControlShader == nullptr || tessControlShader->constants.find(name) == tessControlShader->constants.end()) {
-		location.tessControlOffset = -1;
-		location.tessControlSize = 0;
-	}
-	else {
-		ShaderConstant constant = tessControlShader->constants[name];
-		location.tessControlOffset = constant.offset;
-		location.tessControlSize = constant.size;
+	{
+		ShaderConstant constant = findConstant(pipe->impl.tessControlShader, name);
+		location.impl.tessControlOffset = constant.offset;
+		location.impl.tessControlSize = constant.size;
 	}
 
-	if (tessEvalShader == nullptr || tessEvalShader->constants.find(name) == tessEvalShader->constants.end()) {
-		location.tessEvalOffset = -1;
-		location.tessEvalSize = 0;
-	}
-	else {
-		ShaderConstant constant = tessEvalShader->constants[name];
-		location.tessEvalOffset = constant.offset;
-		location.tessEvalSize = constant.size;
+	{
+		ShaderConstant constant = findConstant(pipe->impl.tessEvalShader, name);
+		location.impl.tessEvalOffset = constant.offset;
+		location.impl.tessEvalSize = constant.size;
 	}
 
 	return location;
 }
 
-kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipe, const char* name) {
+kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipe, const char *name) {
 	kinc_g5_texture_unit_t unit;
-	if (pipe->impl.vertexShader->impl.textures.find(name) == pipe->impl.vertexShader->impl.textures.end()) {
-		if (pipe->impl.fragmentShader->impl.textures.find(name) == pipe->impl.fragmentShader->impl.textures.end()) {
-			unit.impl.unit = -1;
-		}
-		else {
-			unit.impl.unit = pipe->impl.fragmentShader->impl.textures[name];
-		}
+	ShaderTexture vertexTexture = findTexture(pipe->impl.vertexShader, name);
+	if (vertexTexture.texture != -1) {
+		unit.impl.unit = vertexTexture.texture;
 	}
 	else {
-		unit.impl.unit = pipe->impl.vertexShader->impl.textures[name];
+		ShaderTexture fragmentTexture = findTexture(pipe->impl.fragmentShader, name);
+		unit.impl.unit = fragmentTexture.texture;
 	}
 	return unit;
 }
@@ -140,25 +159,25 @@ namespace {
 	D3D12_BLEND convert(kinc_g5_blending_operation_t op) {
 		switch (op) {
 		default:
-		case Graphics5::BlendOne:
+		case KINC_G5_BLEND_MODE_ONE:
 			return D3D12_BLEND_ONE;
-		case Graphics5::BlendZero:
+		case KINC_G5_BLEND_MODE_ZERO:
 			return D3D12_BLEND_ZERO;
-		case Graphics5::SourceAlpha:
+		case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
 			return D3D12_BLEND_SRC_ALPHA;
-		case Graphics5::DestinationAlpha:
+		case KINC_G5_BLEND_MODE_DEST_ALPHA:
 			return D3D12_BLEND_DEST_ALPHA;
-		case Graphics5::InverseSourceAlpha:
+		case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
 			return D3D12_BLEND_INV_SRC_ALPHA;
-		case Graphics5::InverseDestinationAlpha:
+		case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
 			return D3D12_BLEND_INV_DEST_ALPHA;
-		case Graphics5::SourceColor:
+		case KINC_G5_BLEND_MODE_SOURCE_COLOR:
 			return D3D12_BLEND_SRC_COLOR;
-		case Graphics5::DestinationColor:
+		case KINC_G5_BLEND_MODE_DEST_COLOR:
 			return D3D12_BLEND_DEST_COLOR;
-		case Graphics5::InverseSourceColor:
+		case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
 			return D3D12_BLEND_INV_SRC_COLOR;
-		case Graphics5::InverseDestinationColor:
+		case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
 			return D3D12_BLEND_INV_DEST_COLOR;
 		}
 	}
@@ -168,32 +187,32 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	D3D12_INPUT_ELEMENT_DESC vertexDesc[10];
 	for (int i = 0; i < pipe->inputLayout[0]->size; ++i) {
 		vertexDesc[i].SemanticName = "TEXCOORD";
-		vertexDesc[i].SemanticIndex = pipe->impl.vertexShader->impl.attributes[pipe->inputLayout[0]->elements[i].name];
+		vertexDesc[i].SemanticIndex = findAttribute(pipe->impl.vertexShader, pipe->inputLayout[0]->elements[i].name).attribute;
 		vertexDesc[i].InputSlot = 0;
 		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
 		vertexDesc[i].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 		vertexDesc[i].InstanceDataStepRate = 0;
 
 		switch (pipe->inputLayout[0]->elements[i].data) {
-		case Graphics4::Float1VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT1:
 			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 			break;
-		case Graphics4::Float2VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT2:
 			vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 			break;
-		case Graphics4::Float3VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT3:
 			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 			break;
-		case Graphics4::Float4VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT4:
 			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			break;
-		case Graphics4::ColorVertexData:
+		case KINC_G4_VERTEX_DATA_COLOR:
 			vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 			break;
-		case Graphics4::Short2NormVertexData:
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
 			vertexDesc[i].Format = DXGI_FORMAT_R16G16_SNORM;
 			break;
-		case Graphics4::Short4NormVertexData:
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
 			vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
 			break;
 		}

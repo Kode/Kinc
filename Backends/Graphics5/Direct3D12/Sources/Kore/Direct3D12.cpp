@@ -14,8 +14,11 @@
 #undef CreateWindow
 #endif
 #include <Kinc/System.h>
+#include <Kore/Windows.h>
 #include <Kore/SystemMicrosoft.h>
 #include <wrl.h>
+
+#include <type_traits>
 
 /*IDXGIFactory4* dxgiFactory;
 ID3D12Device* device;
@@ -281,7 +284,7 @@ void kinc_g5_internal_resize(int window, int width, int height) {
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 #ifdef KORE_WINDOWS
-	HWND hwnd = Window::get(window)->_data.handle;
+	HWND hwnd = Kinc_Windows_WindowHandle(window);
 #else
 	HWND hwnd = nullptr;
 #endif
@@ -410,7 +413,7 @@ void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
 }
 */
 void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	texture->_set(unit);
+	kinc_g5_internal_texture_set(texture, unit.impl.unit);
 }
 
 bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery) {

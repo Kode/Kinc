@@ -43,6 +43,10 @@ typedef struct {
 	int nothing;
 } AttributeLocation5Impl;
 
+struct kinc_g5_pipeline;
+
+void kinc_g5_internal_setConstants(struct ID3D12GraphicsCommandList *commandList, struct kinc_g5_pipeline *pipeline);
+
 #ifdef __cplusplus
 }
 #endif

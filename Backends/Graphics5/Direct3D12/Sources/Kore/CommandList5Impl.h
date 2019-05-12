@@ -10,8 +10,8 @@ struct ID3D12GraphicsCommandList;
 struct kinc_g5_pipeline;
 
 typedef struct {
-	ID3D12CommandAllocator *_commandAllocator;
-	ID3D12GraphicsCommandList *_commandList;
+	struct ID3D12CommandAllocator *_commandAllocator;
+	struct ID3D12GraphicsCommandList *_commandList;
 	struct kinc_g5_pipeline *_currentPipeline;
 	int _indexCount;
 	bool closed;

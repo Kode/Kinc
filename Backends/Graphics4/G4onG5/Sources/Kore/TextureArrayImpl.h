@@ -6,6 +6,7 @@ extern "C" {
 
 typedef struct {
 	//void set(Kore::Graphics4::TextureUnit unit);
+	int nothing;
 } Kinc_G4_TextureArrayImpl;
 
 #ifdef __cplusplus

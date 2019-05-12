@@ -14,8 +14,8 @@ struct D3D12VertexBufferView {
 
 typedef struct {
 	// ID3D12Resource* vertexBuffer;
-	ID3D12Resource *uploadBuffer;
-	D3D12VertexBufferView view;
+	struct ID3D12Resource *uploadBuffer;
+	struct D3D12VertexBufferView view;
 
 	int myCount;
 	int myStride;
