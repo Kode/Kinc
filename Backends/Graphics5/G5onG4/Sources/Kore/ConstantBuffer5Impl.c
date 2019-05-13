@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-const bool kinc_g5_internal_transposeMat3 = false;
-const bool kinc_g5_internal_transposeMat4 = false;
+bool kinc_g5_transposeMat3 = false;
+bool kinc_g5_transposeMat4 = false;
 
 void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	buffer->impl.mySize = size;

@@ -6,7 +6,7 @@
 #include <Kinc/Graphics5/Pipeline.h>
 #include <Kinc/Math/Core.h>
 
-#include <Kinc/Graphics4/Graphics.h>
+#include <Kinc/Graphics4/RenderTarget.h>
 
 //extern kinc_g5_pipeline_t *currentProgram;
 

@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <Kinc/Graphics4/RenderTarget.h>
 #include <Kinc/Graphics5/RenderTarget.h>
 #include <Kinc/Log.h>
 

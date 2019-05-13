@@ -2,6 +2,8 @@
 
 #include "ConstantBuffer.h"
 
+#include <Kinc/Graphics5/ConstantBuffer.h>
+
 #include <Kore/Math/Matrix.h>
 
 using namespace Kore;

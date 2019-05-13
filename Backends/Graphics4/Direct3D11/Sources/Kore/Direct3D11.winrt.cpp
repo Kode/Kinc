@@ -1141,12 +1141,12 @@ void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, kinc_g4_texture_arra
 	Kinc_Internal_TextureArraySet(array, unit);
 }
 
-void Kinc_Internal_Resize(int window, int width, int height) {
+extern "C" void Kinc_Internal_Resize(int window, int width, int height) {
 	newRenderTargetWidth = width;
 	newRenderTargetHeight = height;
 }
 
-void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {}
+extern "C" void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {}
 
 extern "C" bool kinc_window_vsynced(int window_index) {
 	return vsync;
