@@ -3,5 +3,5 @@
 
 #include <string>
 
-std::string GetEnvironmentVariable( const char *pchVarName );
-bool SetEnvironmentVariable( const char *pchVarName, const char *pchVarValue );
+std::string GetEnvironmentVariable(const char* pchVarName);
+bool SetEnvironmentVariable(const char* pchVarName, const char* pchVarValue);
