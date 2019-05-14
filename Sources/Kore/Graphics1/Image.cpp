@@ -13,7 +13,7 @@
 #include <Kore/IO/Reader.h>
 #include <Kore/Log.h>
 
-#include <Kinc/Graphics1/stb_image.h>
+#include <Kinc/libs/stb_image.h>
 
 #include <stdio.h>
 #include <stdlib.h>

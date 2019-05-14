@@ -13,7 +13,7 @@
 #include <Kinc/Math/Core.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <Kinc/libs/stb_image.h>
 #include <stdio.h>
 #include <string.h>
 

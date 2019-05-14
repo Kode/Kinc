@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Graphics1/Image.h>
+#include <Kinc/Image.h>
 
 #include "RenderTarget.h"
 #include "Shader.h"
