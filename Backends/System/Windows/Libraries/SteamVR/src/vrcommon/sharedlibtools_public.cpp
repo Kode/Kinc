@@ -10,33 +10,33 @@
 #include <dlfcn.h>
 #endif
 
-SharedLibHandle SharedLib_Load( const char *pchPath )
+SharedLibHandle SharedLib_Load(const char* pchPath)
 {
 #if defined( _WIN32)
-	return (SharedLibHandle)LoadLibraryExA( pchPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH );
+	return (SharedLibHandle)LoadLibraryExA(pchPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 #elif defined(POSIX)
-	return (SharedLibHandle)dlopen(pchPath, RTLD_LOCAL|RTLD_NOW);
+	return (SharedLibHandle)dlopen(pchPath, RTLD_LOCAL | RTLD_NOW);
 #endif
 }
 
-void *SharedLib_GetFunction( SharedLibHandle lib, const char *pchFunctionName)
+void* SharedLib_GetFunction(SharedLibHandle lib, const char* pchFunctionName)
 {
 #if defined( _WIN32)
-	return (void*)GetProcAddress( (HMODULE)lib, pchFunctionName );
+	return (void*)GetProcAddress((HMODULE)lib, pchFunctionName);
 #elif defined(POSIX)
-	return dlsym( lib, pchFunctionName );
+	return dlsym(lib, pchFunctionName);
 #endif
 }
 
 
-void SharedLib_Unload( SharedLibHandle lib )
+void SharedLib_Unload(SharedLibHandle lib)
 {
-	if ( !lib )
+	if (!lib)
 		return;
 #if defined( _WIN32)
-	FreeLibrary( (HMODULE)lib );
+	FreeLibrary((HMODULE)lib);
 #elif defined(POSIX)
-	dlclose( lib );
+	dlclose(lib);
 #endif
 }
 
