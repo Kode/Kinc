@@ -25,6 +25,7 @@ namespace Kore {
 		void* file;
 		int size;
 		int offset;
+		int mode;
 	};
 #endif
 
