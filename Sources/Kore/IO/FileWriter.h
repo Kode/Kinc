@@ -13,6 +13,7 @@ namespace Kore {
 		void write(void* data, int size) override;
 
 	private:
+		const char* filename;
 		void* file;
 	};
 }
