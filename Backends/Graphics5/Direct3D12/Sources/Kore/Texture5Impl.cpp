@@ -155,7 +155,7 @@ Graphics5::Texture::Texture(int width, int height, Format format, bool readable)
 
 Graphics5::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
 
-Texture5Impl::~Texture5Impl() {
+Graphics5::Texture::~Texture() {
 	unset();
 	image->Release();
 	uploadImage->Release();

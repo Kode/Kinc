@@ -12,7 +12,6 @@ namespace Kore {
 
 	class Texture5Impl {
 	public:
-		~Texture5Impl();
 		void unmipmap();
 		void unset();
 
