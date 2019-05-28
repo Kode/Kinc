@@ -34,8 +34,13 @@ Graphics4::Texture::Texture(void* data, int width, int height, int depth, int fo
 }*/
 #endif
 
+Graphics4::Texture::Texture(const char *filename, bool readable) {}
+
 Graphics4::Texture::Texture(int width, int height, Graphics4::Image::Format format, bool readable) {
-	kinc_g4_texture_init(&kincTexture, width, height, (kinc_image_format_t)format, readable);
+	kinc_g4_texture_init(&kincTexture, width, height, (kinc_image_format_t)format);
+	if (!readable) {
+		//**
+	}
 }
 
 uint8_t* Graphics4::Texture::lock() {

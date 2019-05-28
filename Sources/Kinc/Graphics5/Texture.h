@@ -13,7 +13,6 @@ extern "C" {
 typedef struct kinc_g5_texture {
 	int texWidth;
 	int texHeight;
-	kinc_image_t image;
 	Texture5Impl impl;
 } kinc_g5_texture_t;
 

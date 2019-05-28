@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Graphics1/Color.h>
+#include <Kinc/Color.h>
 
 #ifdef __cplusplus
 extern "C" {
