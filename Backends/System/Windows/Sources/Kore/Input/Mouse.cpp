@@ -30,15 +30,13 @@ bool Kinc_Mouse_CanLock(int window) {
 }
 
 void Kinc_Mouse_Show() {
-	 the internal counter of ShowCursor
-	if (truth)
-		while (ShowCursor(truth) < 0);
-	else
-		while (ShowCurso
+	// Work around the internal counter of ShowCursor
+	while (ShowCursor(true) < 0) {}
 }
 
 void Kinc_Mouse_Hide() {
-	ShowCursor(false);
+	// Work around the internal counter of ShowCursor
+	while (ShowCursor(false) >= 0) {}
 }
 
 void Kinc_Mouse_SetPosition(int window, int x, int y) {
