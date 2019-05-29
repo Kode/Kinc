@@ -337,12 +337,22 @@ void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
 	if (textureSample != textureRender) {
 		context->ResolveSubresource(textureSample, 0, textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
-	context->PSSetShaderResources(unit.unit, 1, isDepthAttachment ? &depthStencilSRV : &renderTargetSRV);
+	if (unit.vertex) {
+		context->VSSetShaderResources(unit.unit, 1, isDepthAttachment ? &depthStencilSRV : &renderTargetSRV);
+	}
+	else {
+		context->PSSetShaderResources(unit.unit, 1, isDepthAttachment ? &depthStencilSRV : &renderTargetSRV);
+	}
 }
 
 void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 	if (unit.unit < 0) return;
-	context->PSSetShaderResources(unit.unit, 1, &depthStencilSRV);
+	if (unit.vertex) {
+		context->VSSetShaderResources(unit.unit, 1, &depthStencilSRV);
+	}
+	else {
+		context->PSSetShaderResources(unit.unit, 1, &depthStencilSRV);
+	}
 }
 
 void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
