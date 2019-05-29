@@ -96,7 +96,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		shader->impl.constantsSize = constant.offset + constant.size;
 	}
 
-	shader->impl.length = length - index;
+	shader->impl.length = (int)(length - index);
 	shader->impl.data = (uint8_t*)malloc(shader->impl.length);
 	assert(shader->impl.data != NULL);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);

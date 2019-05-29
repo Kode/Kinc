@@ -1,8 +1,6 @@
 #include "pch.h"
 
-#include "VertexBuffer5Impl.h"
-
-#include <Kinc/Graphics5/VertexBuffer.h>
+#include <kinc/graphics5/vertexbuffer.h>
 
 kinc_g5_vertex_buffer_t *kinc_g5_internal_current_vertex_buffer = NULL;
 
@@ -24,8 +22,12 @@ float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, in
 	return kinc_g4_vertex_buffer_lock(&buffer->impl.buffer, start, count);
 }
 
-void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buffer) {
+void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buffer) {
 	kinc_g4_vertex_buffer_unlock_all(&buffer->impl.buffer);
+}
+
+void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t* buffer, int count) {
+	kinc_g4_vertex_buffer_unlock(&buffer->impl.buffer, count);
 }
 
 int kinc_g5_vertex_buffer_count(kinc_g5_vertex_buffer_t *buffer) {

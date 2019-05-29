@@ -1,12 +1,10 @@
 #include "pch.h"
 
-#include "IndexBuffer5Impl.h"
-#include "PipelineState5Impl.h"
-#include "VertexBuffer5Impl.h"
-#include <Kinc/Graphics5/Pipeline.h>
-#include <Kinc/Math/Core.h>
-
-#include <Kinc/Graphics4/RenderTarget.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/math/core.h>
 
 //extern kinc_g5_pipeline_t *currentProgram;
 
@@ -24,7 +22,7 @@ void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 
 void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
-void kinc_g5_begin(kinc_g4_render_target_t *renderTarget, int window) {}
+void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {}
 
 void kinc_g5_end(int window) {}
 
@@ -49,7 +47,7 @@ bool kinc_g5_non_pow2_textures_qupported() {
 	return true;
 }
 
-void kinc_g5_set_render_target_face(kinc_g4_render_target_t *texture, int face) {}
+void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
 /*
 void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
     buffers[0]->_set(0);
