@@ -23,30 +23,30 @@
 //-----------------------------------------------------------------------------
 // Purpose: utility function to create dirs & subdirs
 //-----------------------------------------------------------------------------
-bool BCreateDirectoryRecursive( const char *pchPath )
+bool BCreateDirectoryRecursive(const char* pchPath)
 {
 	// Does it already exist?
-	if ( Path_IsDirectory( pchPath ) )
+	if (Path_IsDirectory(pchPath))
 		return true;
 
 	// copy the path into something we can munge
-	int len = (int)strlen( pchPath );
-	char *path = (char *)malloc( len + 1 );
-	strcpy( path, pchPath );
+	int len = (int)strlen(pchPath);
+	char* path = (char*)malloc(len + 1);
+	strcpy(path, pchPath);
 
 	// Walk backwards to first non-existing dir that we find
-	char *s = path + len - 1;
+	char* s = path + len - 1;
 
 	const char slash = Path_GetSlash();
-	while ( s > path )
+	while (s > path)
 	{
-		if ( *s == slash )
+		if (*s == slash)
 		{
 			*s = '\0';
-			bool bExists = Path_IsDirectory( path );
+			bool bExists = Path_IsDirectory(path);
 			*s = slash;
 
-			if ( bExists )
+			if (bExists)
 			{
 				++s;
 				break;
@@ -57,19 +57,19 @@ bool BCreateDirectoryRecursive( const char *pchPath )
 
 	// and then move forwards from there
 
-	while ( *s )
+	while (*s)
 	{
-		if ( *s == slash )
+		if (*s == slash)
 		{
 			*s = '\0';
-			BCreateDirectory( path );
+			BCreateDirectory(path);
 			*s = slash;
 		}
 		s++;
 	}
 
-	bool bRetVal = BCreateDirectory( path );
-	free( path );
+	bool bRetVal = BCreateDirectory(path);
+	free(path);
 	return bRetVal;
 }
 
@@ -77,25 +77,24 @@ bool BCreateDirectoryRecursive( const char *pchPath )
 //-----------------------------------------------------------------------------
 // Purpose: Creates the directory, returning true if it is created, or if it already existed
 //-----------------------------------------------------------------------------
-bool BCreateDirectory( const char *pchPath )
+bool BCreateDirectory(const char* pchPath)
 {
 #ifdef WIN32
-	std::wstring wPath = UTF8to16( pchPath );
-	if ( ::CreateDirectoryW( wPath.c_str(), NULL ) )
+	std::wstring wPath = UTF8to16(pchPath);
+	if (::CreateDirectoryW(wPath.c_str(), NULL))
 		return true;
 
-	if ( ::GetLastError() == ERROR_ALREADY_EXISTS )
+	if (::GetLastError() == ERROR_ALREADY_EXISTS)
 		return true;
 
 	return false;
 #else
-	int i = mkdir( pchPath, S_IRWXU | S_IRWXG | S_IRWXO );
-	if ( i == 0 )
+	int i = mkdir(pchPath, S_IRWXU | S_IRWXG | S_IRWXO);
+	if (i == 0)
 		return true;
-	if ( errno == EEXIST )
+	if (errno == EEXIST)
 		return true;
 
 	return false;
 #endif
 }
-

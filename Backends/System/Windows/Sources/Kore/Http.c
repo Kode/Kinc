@@ -54,7 +54,7 @@ void Kinc_HttpRequest(const char *url, const char *path, const char *data, int p
 		if (header) {
 			MultiByteToWideChar(CP_UTF8, 0, header, -1, wheader, 4096);
 		}
-		DWORD optionalLength = (data != 0 && strlen(data) > 0) ? (DWORD)strlen(data) + 1 : 0;
+		DWORD optionalLength = (data != 0 && strlen(data) > 0) ? (DWORD)strlen(data) : 0;
 		bResults = WinHttpSendRequest(hRequest, header == 0 ? WINHTTP_NO_ADDITIONAL_HEADERS : wheader, header == 0 ? 0 : -1L,
 		                              data == 0 ? WINHTTP_NO_REQUEST_DATA : (LPVOID)data, optionalLength, optionalLength, 0);
 	}

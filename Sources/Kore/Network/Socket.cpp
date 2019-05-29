@@ -39,6 +39,11 @@ unsigned Socket::urlToInt(const char* url, int port) {
 
 void Socket::send(unsigned address, int port, const u8 *data, int size) {
 	Kinc_Socket_Send(&sock, address, port, data, size);
+
+}
+
+void Socket::setBroadcastEnabled(bool enabled) {
+	Kinc_Socket_SetBroadcastEnabled(&sock, enabled);
 }
 
 void Socket::send(const char *url, int port, const u8 *data, int size) {

@@ -962,6 +962,11 @@ namespace {
 void kinc_load_url(const char *url) {}
 
 void kinc_set_keep_screen_on(bool on) {}
+void kinc_vibrate(int ms) {}
+
+const char* kinc_language() {
+	return "en";
+}
 
 const char *kinc_system_id() {
 	return "Windows";

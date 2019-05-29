@@ -11,7 +11,5 @@
 #endif
 
 
-extern bool BCreateDirectoryRecursive( const char *pchPath );
-extern bool BCreateDirectory( const char *pchPath );
-
-
+extern bool BCreateDirectoryRecursive(const char* pchPath);
+extern bool BCreateDirectory(const char* pchPath);

@@ -8,6 +8,43 @@
 
 #include <Kore/SystemMicrosoft.h>
 
+namespace {
+	DXGI_FORMAT convertFormat(Graphics4::RenderTargetFormat format) {
+		switch (format) {
+		case Graphics4::RenderTargetFormat::Target128BitFloat:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case Graphics4::RenderTargetFormat::Target64BitFloat:
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		case Graphics4::RenderTargetFormat::Target32BitRedFloat:
+			return DXGI_FORMAT_R32_FLOAT;
+		case Graphics4::RenderTargetFormat::Target16BitRedFloat:
+			return DXGI_FORMAT_R16_FLOAT;
+		case Graphics4::RenderTargetFormat::Target8BitRed:
+			return DXGI_FORMAT_R8_UNORM;
+		case Graphics4::RenderTargetFormat::Target32Bit:
+		default:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		}
+	}
+
+	int formatByteSize(Graphics4::RenderTargetFormat format) {
+		switch (format) {
+		case Graphics4::RenderTargetFormat::Target128BitFloat:
+			return 16;
+		case Graphics4::RenderTargetFormat::Target64BitFloat:
+			return 8;
+		case Graphics4::RenderTargetFormat::Target32BitRedFloat:
+			return 4;
+		case Graphics4::RenderTargetFormat::Target16BitRedFloat:
+			return 2;
+		case Graphics4::RenderTargetFormat::Target8BitRed:
+			return 1;
+		case Graphics4::RenderTargetFormat::Target32Bit:
+		default:
+			return 4;
+		}
+	}
+}
 
 void Kinc_G4_RenderTarget_Create(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing, kinc_g4_render_target_format_t format, int stencilBufferBits,
                                       int contextId) {
@@ -16,36 +53,18 @@ void Kinc_G4_RenderTarget_Create(kinc_g4_render_target_t *renderTarget, int widt
 	renderTarget->texWidth = renderTarget->width = width;
 	renderTarget->texHeight = renderTarget->height = height;
 	renderTarget->contextId = contextId;
+	renderTarget->format = format;
+	renderTarget->textureStaging = nullptr;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;
 	desc.MipLevels = desc.ArraySize = 1;
-
-	switch (format) {
-	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
-		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
-		desc.Format = DXGI_FORMAT_R32_FLOAT;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
-		desc.Format = DXGI_FORMAT_R16_FLOAT;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
-		desc.Format = DXGI_FORMAT_R8_UNORM;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH:
+	desc.Format = convertFormat(format);
+	if (format == KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH) {
 		renderTarget->isDepthAttachment = true;
 		depthBufferBits = 16;
 		stencilBufferBits = 0;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_32BIT:
-	default:
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
 
 	if (antialiasing) {
@@ -162,37 +181,19 @@ void Kinc_G4_RenderTarget_CreateCube(kinc_g4_render_target_t *renderTarget, int 
 	renderTarget->texWidth = renderTarget->width;
 	renderTarget->texHeight = renderTarget->height;
 	renderTarget->contextId = contextId;
+	renderTarget->format = format;
+	renderTarget->textureStaging = nullptr;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = renderTarget->width;
 	desc.Height = renderTarget->height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 6;
-
-	switch (format) {
-	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
-		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
-		desc.Format = DXGI_FORMAT_R32_FLOAT;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
-		desc.Format = DXGI_FORMAT_R16_FLOAT;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
-		desc.Format = DXGI_FORMAT_R8_UNORM;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH:
+	desc.Format = convertFormat(format);
+	if (format == KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH) {
 		renderTarget->isDepthAttachment = true;
 		depthBufferBits = 16;
 		stencilBufferBits = 0;
-		break;
-	case KINC_G4_RENDER_TARGET_FORMAT_32BIT:
-	default:
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
 
 	if (antialiasing) {
@@ -336,6 +337,7 @@ void Kinc_G4_RenderTarget_Destroy(kinc_g4_render_target_t *renderTarget) {
 	if (renderTarget->impl.renderTargetSRV != nullptr) renderTarget->impl.renderTargetSRV->Release();
 	if (renderTarget->impl.depthStencilSRV != nullptr) renderTarget->impl.depthStencilSRV->Release();
 	if (renderTarget->impl.textureRender != nullptr) renderTarget->impl.textureRender->Release();
+	if (renderTarget->impl.textureStaging != nullptr) renderTarget->impl.textureStaging->Release();
 }
 
 void Kinc_G4_RenderTarget_UseColorAsTexture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
@@ -360,21 +362,21 @@ void Kinc_G4_RenderTarget_SetDepthStencilFrom(kinc_g4_render_target_t *renderTar
 }
 
 void Kinc_G4_RenderTarget_GetPixels(kinc_g4_render_target_t *renderTarget, uint8_t *data) {
-	D3D11_TEXTURE2D_DESC desc;
-	desc.Width = renderTarget->texWidth;
-	desc.Height = renderTarget->texHeight;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_STAGING;
-	desc.BindFlags = 0;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	desc.MiscFlags = 0;
-
-	ID3D11Texture2D* textureStaging;
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &textureStaging));
+	if (textureStaging == nullptr) {
+		D3D11_TEXTURE2D_DESC desc;
+		desc.Width = texWidth;
+		desc.Height = texHeight;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = convertFormat((RenderTargetFormat)this->format);
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.BindFlags = 0;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		desc.MiscFlags = 0;
+		Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &textureStaging));
+	}
 
 	D3D11_BOX sourceRegion;
 	sourceRegion.left = 0;
@@ -387,10 +389,8 @@ void Kinc_G4_RenderTarget_GetPixels(kinc_g4_render_target_t *renderTarget, uint8
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	context->Map(textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
-	memcpy(data, mappedResource.pData, renderTarget->texWidth * renderTarget->texHeight * 4);
+	memcpy(data, mappedResource.pData, renderTarget->texWidth * renderTarget->texHeight * formatByteSize((RenderTargetFormat)this->format));
 	context->Unmap(textureStaging, 0);
-
-	if (textureStaging != nullptr) textureStaging->Release();
 }
 
 void Kinc_G4_RenderTarget_GenerateMipmaps(kinc_g4_render_target_t *renderTarget, int levels) {}

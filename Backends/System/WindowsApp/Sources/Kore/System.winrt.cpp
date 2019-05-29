@@ -163,6 +163,12 @@ bool Kore::System::showsKeyboard() {
 
 void Kore::System::loadURL(const char* url) {}
 
+void Kore::System::vibrate(int ms) {}
+
+const char* Kore::System::language() {
+	return "en";
+}
+
 int kore(int argc, char** argv);
 
 extern int renderTargetWidth;

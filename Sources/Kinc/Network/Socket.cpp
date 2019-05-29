@@ -196,6 +196,16 @@ void Kinc_Socket_Send_URL(Kinc_Socket *sock, const char *url, int port, const un
 #endif
 }
 
+void Kinc_Socket_SetBroadcastEnabled(Kinc_Socket *sock, bool enabled) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+	char broadcast = enabled ? 1 : 0;
+	if (setsockopt(sock->handle, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast)) < 0) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set broadcast mode.");
+		return;
+	}
+#endif
+}
+
 int Kinc_Socket_Receive(Kinc_Socket *sock, unsigned char *data, int maxSize, unsigned *fromAddress, unsigned *fromPort) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	typedef int socklen_t;

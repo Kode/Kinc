@@ -63,6 +63,12 @@ bool Kore::System::showsKeyboard() {
 
 void Kore::System::loadURL(const char* url) {}
 
+void Kore::System::vibrate(int ms) {}
+
+const char* Kore::System::language() {
+	return "en";
+}
+
 void Kore::System::setTitle(const char* title) {}
 
 void Kore::System::setKeepScreenOn(bool on) {}

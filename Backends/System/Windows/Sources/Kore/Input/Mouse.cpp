@@ -30,7 +30,11 @@ bool Kinc_Mouse_CanLock(int window) {
 }
 
 void Kinc_Mouse_Show() {
-	ShowCursor(true);
+	 the internal counter of ShowCursor
+	if (truth)
+		while (ShowCursor(truth) < 0);
+	else
+		while (ShowCurso
 }
 
 void Kinc_Mouse_Hide() {

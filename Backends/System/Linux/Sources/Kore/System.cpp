@@ -767,7 +767,7 @@ bool Kore::System::handleMessages() {
 			break;
 		}
 		case SelectionNotify: {
-			
+
 			Atom target = event.xselection.target;
 			if (event.xselection.selection == clipboard) {
 				int a = 3;
@@ -909,6 +909,12 @@ void Kore::System::showKeyboard() {}
 void Kore::System::hideKeyboard() {}
 
 void Kore::System::loadURL(const char* url) {}
+
+void Kore::System::vibrate(int ms) {}
+
+const char* Kore::System::language() {
+	return "en";
+}
 
 namespace {
 	char save[2000];

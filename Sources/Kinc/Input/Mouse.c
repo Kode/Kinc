@@ -13,12 +13,6 @@ void (*Kinc_Mouse_ScrollCallback)(int /*window*/, int /*delta*/) = NULL;
 void (*Kinc_Mouse_EnterWindowCallback)(int /*window*/) = NULL;
 void (*Kinc_Mouse_LeaveWindowCallback)(int /*window*/) = NULL;
 
-void Kinc_Internal_Mouse_TriggerPress(int window, int button, int x, int y) {
-	if (Kinc_Mouse_PressCallback != NULL) {
-		Kinc_Mouse_PressCallback(window, button, x, y);
-	}
-}
-
 void Kinc_Internal_Mouse_TriggerRelease(int window, int button, int x, int y) {
 	if (Kinc_Mouse_ReleaseCallback != NULL) {
 		Kinc_Mouse_ReleaseCallback(window, button, x, y);
@@ -63,6 +57,14 @@ static int centerX = 0;
 static int centerY = 0;
 static int lastX = 0;
 static int lastY = 0;
+
+void Kinc_Internal_Mouse_TriggerPress(int window, int button, int x, int y) {
+	lastX = x;
+	lastY = y;
+	if (Kinc_Mouse_PressCallback != NULL) {
+		Kinc_Mouse_PressCallback(window, button, x, y);
+	}
+}
 
 void Kinc_Internal_Mouse_TriggerMove(int window, int x, int y) {
 	int movementX = 0;

@@ -4,9 +4,6 @@
 #include "IndexBuffer5Impl.h"
 #include "PipelineState5Impl.h"
 #include "VertexBuffer5Impl.h"
-#ifdef KORE_DXR
-#include "RayTraceImpl.h"
-#endif
 #include <Kinc/Graphics5/Graphics.h>
 #include <Kinc/Graphics5/Pipeline.h>
 #include <Kinc/Math/Core.h>
@@ -156,10 +153,6 @@ namespace {
 		ID3D12Debug* debugController = nullptr;
 		D3D12GetDebugInterface(IID_GRAPHICS_PPV_ARGS(&debugController));
 		debugController->EnableDebugLayer();
-#endif
-
-#ifdef KORE_DXR
-		Graphics5::enableRaytracing();
 #endif
 
 		DXGI_SWAP_CHAIN_DESC swapChainDesc;

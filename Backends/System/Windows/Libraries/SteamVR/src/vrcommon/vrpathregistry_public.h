@@ -5,9 +5,9 @@
 #include <vector>
 #include <stdint.h>
 
-static const char *k_pchRuntimeOverrideVar = "VR_OVERRIDE";
-static const char *k_pchConfigOverrideVar = "VR_CONFIG_PATH";
-static const char *k_pchLogOverrideVar = "VR_LOG_PATH";
+static const char* k_pchRuntimeOverrideVar = "VR_OVERRIDE";
+static const char* k_pchConfigOverrideVar = "VR_CONFIG_PATH";
+static const char* k_pchLogOverrideVar = "VR_LOG_PATH";
 
 class CVRPathRegistry_Public
 {
@@ -18,14 +18,14 @@ public:
 public:
 	CVRPathRegistry_Public();
 
-	/** Returns paths using the path registry and the provided override values. Pass NULL for any paths you don't care about. 
+	/** Returns paths using the path registry and the provided override values. Pass NULL for any paths you don't care about.
 	* Returns false if the path registry could not be read. Valid paths might still be returned based on environment variables. */
-	static bool GetPaths( std::string *psRuntimePath, std::string *psConfigPath, std::string *psLogPath, const char *pchConfigPathOverride, const char *pchLogPathOverride, std::vector<std::string> *pvecExternalDrivers = NULL );
+	static bool GetPaths(std::string* psRuntimePath, std::string* psConfigPath, std::string* psLogPath, const char* pchConfigPathOverride, const char* pchLogPathOverride, std::vector<std::string>* pvecExternalDrivers = NULL);
 
 	bool BLoadFromFile();
 	bool BSaveToFile() const;
 
-	bool ToJsonString( std::string &sJsonString );
+	bool ToJsonString(std::string& sJsonString);
 
 	// methods to get the current values
 	std::string GetRuntimePath() const;
