@@ -143,7 +143,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			                                "gl_Position = vec4(pos, 0.5, 1.0);\n"
 			                                "texCoord = (pos + 1.0) / 2.0;\n"
 			                                "}\n",
-			                                KINC_SHADER_TYPE_VERTEX);
+			                                KINC_G4_SHADER_TYPE_VERTEX);
 
 			kinc_g4_shader_init_from_source(&windowFragmentShader,
 			                                "#version 450\n"
@@ -153,7 +153,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			                                "void main() {\n"
 			                                "frag = texture(tex, texCoord);\n"
 			                                "}\n",
-			                                KINC_SHADER_TYPE_FRAGMENT);
+			                                KINC_G4_SHADER_TYPE_FRAGMENT);
 
 			kinc_g4_pipeline_init(&windowPipeline);
 			windowPipeline.input_layout[0] = &structure;

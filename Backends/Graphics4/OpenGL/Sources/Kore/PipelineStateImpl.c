@@ -97,17 +97,17 @@ void Kinc_G4_PipelineState_Destroy(kinc_g4_pipeline_t *state) {
 
 static int toGlShader(kinc_g4_shader_type_t type) {
 	switch (type) {
-	case KINC_SHADER_TYPE_VERTEX:
+	case KINC_G4_SHADER_TYPE_VERTEX:
 	default:
 		return GL_VERTEX_SHADER;
-	case KINC_SHADER_TYPE_FRAGMENT:
+	case KINC_G4_SHADER_TYPE_FRAGMENT:
 		return GL_FRAGMENT_SHADER;
 #ifndef KORE_OPENGL_ES
-	case KINC_SHADER_TYPE_GEOMETRY:
+	case KINC_G4_SHADER_TYPE_GEOMETRY:
 		return GL_GEOMETRY_SHADER;
-	case KINC_SHADER_TYPE_TESSELLATION_CONTROL:
+	case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
 		return GL_TESS_CONTROL_SHADER;
-	case KINC_SHADER_TYPE_TESSELLATION_EVALUATION:
+	case KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION:
 		return GL_TESS_EVALUATION_SHADER;
 #endif
 	}
@@ -132,19 +132,20 @@ static void compileShader(unsigned *id, const char *source, size_t length, kinc_
 }
 
 void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
-	compileShader(&state->vertex_shader->impl._glid, state->vertex_shader->impl.source, state->vertex_shader->impl.length, KINC_SHADER_TYPE_VERTEX);
-	compileShader(&state->fragment_shader->impl._glid, state->fragment_shader->impl.source, state->fragment_shader->impl.length, KINC_SHADER_TYPE_FRAGMENT);
+	compileShader(&state->vertex_shader->impl._glid, state->vertex_shader->impl.source, state->vertex_shader->impl.length, KINC_G4_SHADER_TYPE_VERTEX);
+	compileShader(&state->fragment_shader->impl._glid, state->fragment_shader->impl.source, state->fragment_shader->impl.length, KINC_G4_SHADER_TYPE_FRAGMENT);
 #ifndef OPENGLES
 	if (state->geometry_shader != NULL) {
-		compileShader(&state->geometry_shader->impl._glid, state->geometry_shader->impl.source, state->geometry_shader->impl.length, KINC_SHADER_TYPE_GEOMETRY);
+		compileShader(&state->geometry_shader->impl._glid, state->geometry_shader->impl.source, state->geometry_shader->impl.length,
+		              KINC_G4_SHADER_TYPE_GEOMETRY);
 	}
 	if (state->tessellation_control_shader != NULL) {
 		compileShader(&state->tessellation_control_shader->impl._glid, state->tessellation_control_shader->impl.source,
-		              state->tessellation_control_shader->impl.length, KINC_SHADER_TYPE_TESSELLATION_CONTROL);
+		              state->tessellation_control_shader->impl.length, KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL);
 	}
 	if (state->tessellation_evaluation_shader != NULL) {
 		compileShader(&state->tessellation_evaluation_shader->impl._glid, state->tessellation_evaluation_shader->impl.source,
-		              state->tessellation_evaluation_shader->impl.length, KINC_SHADER_TYPE_TESSELLATION_EVALUATION);
+		              state->tessellation_evaluation_shader->impl.length, KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION);
 	}
 #endif
 	glAttachShader(state->impl.programId, state->vertex_shader->impl._glid);

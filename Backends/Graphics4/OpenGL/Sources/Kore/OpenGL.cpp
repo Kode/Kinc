@@ -93,9 +93,9 @@ namespace {
 	int texModesV[256];
 }
 
-void Kinc_Internal_Resize(int window, int width, int height) {}
+extern "C" void Kinc_Internal_Resize(int window, int width, int height) {}
 
-void Kinc_Internal_ChangeFramebuffer(int window, Kinc_FramebufferOptions *frame) {
+extern "C" void Kinc_Internal_ChangeFramebuffer(int window, Kinc_FramebufferOptions *frame) {
 #ifdef KORE_WINDOWS
 	if (window == 0) {
 #ifdef KORE_VR
@@ -193,7 +193,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 #endif
 }
 
-bool Kinc_WindowVSynced(int window) {
+bool kinc_window_vsynced(int window) {
 #ifdef KORE_WINDOWS
 	return wglGetSwapIntervalEXT();
 #else
@@ -252,12 +252,12 @@ void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int
 	glCheckErrors();
 }
 
-void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, Kinc_Matrix4x4 *value) {
+void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
 	glUniformMatrix4fv(location.impl.location, 1, GL_FALSE, value->m);
 	glCheckErrors();
 }
 
-void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, Kinc_Matrix3x3 *value) {
+void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
 	glUniformMatrix3fv(location.impl.location, 1, GL_FALSE, value->m);
 	glCheckErrors();
 }

@@ -1,12 +1,13 @@
 #include "pch.h"
 
-#include <Kinc/Graphics4/Texture.h>
+#include <kinc/graphics4/texture.h>
 
 #include "ogl.h"
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Graphics1/Image.h>
-#include <Kinc/Log.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/math/core.h>
+#include <kinc/image.h>
+#include <Kinc/log.h>
 
 #include "OpenGL.h"
 
@@ -253,38 +254,39 @@ static void convertImageToPow2(kinc_image_format_t format, uint8_t *from, int fw
 	}
 }
 
-static void init(kinc_g4_texture_t *texture, const char *format, bool readable) {
+void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *image) {
+	texture->format = image->format;
 	bool toPow2;
 	if (kinc_g4_non_pow2_textures_supported()) {
-		texture->tex_width = texture->image.width;
-		texture->tex_height = texture->image.height;
+		texture->tex_width = image->width;
+		texture->tex_height = image->height;
 		toPow2 = false;
 	}
 	else {
-		texture->tex_width = getPower2(texture->image.width);
-		texture->tex_height = getPower2(texture->image.height);
-		toPow2 = !(texture->tex_width == texture->image.width && texture->tex_height == texture->image.height);
+		texture->tex_width = getPower2(image->width);
+		texture->tex_height = getPower2(image->height);
+		toPow2 = !(texture->tex_width == image->width && texture->tex_height == image->height);
 	}
 
 	uint8_t *conversionBuffer = NULL;
 
-	switch (texture->image.compression) {
+	switch (image->compression) {
 	case KINC_IMAGE_COMPRESSION_NONE:
 		if (toPow2) {
-			conversionBuffer = (uint8_t*)malloc(texture->tex_width * texture->tex_height * kinc_image_format_sizeof(texture->image.format));
-			convertImageToPow2(texture->image.format, (uint8_t *)texture->image.data, texture->image.width, texture->image.height, conversionBuffer,
+			conversionBuffer = (uint8_t*)malloc(texture->tex_width * texture->tex_height * kinc_image_format_sizeof(image->format));
+			convertImageToPow2(image->format, (uint8_t *)image->data, image->width, image->height, conversionBuffer,
 			                   texture->tex_width, texture->tex_height);
 		}
 		break;
 	case KINC_IMAGE_COMPRESSION_PVRTC:
-		texture->tex_width = Kinc_Maxi(texture->tex_width, texture->tex_height);
-		texture->tex_height = Kinc_Maxi(texture->tex_width, texture->tex_height);
+		texture->tex_width = kinc_maxi(texture->tex_width, texture->tex_height);
+		texture->tex_height = kinc_maxi(texture->tex_width, texture->tex_height);
 		if (texture->tex_width < 8) texture->tex_width = 8;
 		if (texture->tex_height < 8) texture->tex_height = 8;
 		break;
 	default:
-		texture->tex_width = texture->image.width;
-		texture->tex_height = texture->image.height;
+		texture->tex_width = image->width;
+		texture->tex_height = image->height;
 		break;
 	}
 
@@ -299,36 +301,36 @@ static void init(kinc_g4_texture_t *texture, const char *format, bool readable) 
 	glBindTexture(GL_TEXTURE_2D, texture->impl.texture);
 	glCheckErrors();
 
-	int convertedType = convertType(texture->image.format);
+	int convertedType = convertType(image->format);
 	bool isHdr = convertedType == GL_FLOAT;
 
-	switch (texture->image.compression) {
+	switch (image->compression) {
 	case KINC_IMAGE_COMPRESSION_PVRTC:
 #ifdef KORE_IOS
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
 #endif
 		break;
 	case KINC_IMAGE_COMPRESSION_ASTC: {
-		uint8_t blockX = texture->image.internalFormat >> 8;
-		uint8_t blockY = texture->image.internalFormat & 0xff;
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texture->tex_width, texture->tex_height, 0, texture->image.dataSize,
-		                       texture->image.data);
+		uint8_t blockX = image->internalFormat >> 8;
+		uint8_t blockY = image->internalFormat & 0xff;
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texture->tex_width, texture->tex_height, 0, image->dataSize,
+		                       image->data);
 		break;
 	}
 	case KINC_IMAGE_COMPRESSION_DXT5:
 #ifdef KORE_WINDOWS
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, texture->tex_width, texture->tex_height, 0, texture->image.dataSize,
-		                       texture->image.data);
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, texture->tex_width, texture->tex_height, 0, image->dataSize,
+		                       image->data);
 #endif
 		break;
 	case KINC_IMAGE_COMPRESSION_NONE: {
-		void *texdata = texture->image.data;
+		void *texdata = image->data;
 		if (isHdr)
-			texdata = texture->image.hdrData;
+			texdata = image->hdrData;
 		else if (toPow2)
 			texdata = conversionBuffer;
-		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(texture->image.format), texture->tex_width, texture->tex_height, 0,
-		             convertFormat(texture->image.format), convertedType, texdata);
+		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(image->format), texture->tex_width, texture->tex_height, 0,
+		             convertFormat(image->format), convertedType, texdata);
 		glCheckErrors();
 		break;
 	}
@@ -346,7 +348,7 @@ static void init(kinc_g4_texture_t *texture, const char *format, bool readable) 
 		conversionBuffer = NULL;
 	}
 
-	if (!readable) {
+	/*if (!readable) {
 		if (isHdr) {
 			free(texture->image.hdrData);
 			texture->image.hdrData = NULL;
@@ -359,14 +361,15 @@ static void init(kinc_g4_texture_t *texture, const char *format, bool readable) 
 
 	if (readable && texture->image.compression != KINC_IMAGE_COMPRESSION_NONE) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Compressed images can not be readable.");
-	}
+	}*/
 }
 
-static void init3D(kinc_g4_texture_t *texture, bool readable) {
+void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t *image) {
+	texture->format = image->format;
 #ifndef KORE_OPENGL_ES // Requires GLES 3.0
-	texture->tex_width = texture->image.width;
-	texture->tex_height = texture->image.height;
-	texture->tex_depth = texture->image.depth;
+	texture->tex_width = image->width;
+	texture->tex_height = image->height;
+	texture->tex_depth = image->depth;
 
 #ifdef KORE_ANDROID
 	external_oes = false;
@@ -379,13 +382,13 @@ static void init3D(kinc_g4_texture_t *texture, bool readable) {
 	glBindTexture(GL_TEXTURE_3D, texture->impl.texture);
 	glCheckErrors();
 
-	int convertedType = convertType(texture->image.format);
+	int convertedType = convertType(image->format);
 	bool isHdr = convertedType == GL_FLOAT;
 
-	void* texdata = texture->image.data;
-	if (isHdr) texdata = texture->image.hdrData;
-	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(texture->image.format), texture->tex_width, texture->tex_height, texture->tex_depth, 0,
-	             convertFormat(texture->image.format), convertedType, texdata);
+	void* texdata = image->data;
+	if (isHdr) texdata = image->hdrData;
+	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(image->format), texture->tex_width, texture->tex_height, texture->tex_depth, 0,
+	             convertFormat(image->format), convertedType, texdata);
 	glCheckErrors();
 
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -399,7 +402,7 @@ static void init3D(kinc_g4_texture_t *texture, bool readable) {
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glCheckErrors();
 
-	if (!readable) {
+	/*if (!readable) {
 		if (isHdr) {
 			free(texture->image.hdrData);
 			texture->image.hdrData = NULL;
@@ -412,12 +415,11 @@ static void init3D(kinc_g4_texture_t *texture, bool readable) {
 
 	if (texture->image.compression != KINC_IMAGE_COMPRESSION_NONE) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Compressed images can not be 3D.");
-	}
+	}*/
 #endif
 }
 
-void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format, bool readable) {
-//Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
+void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
 #ifdef KORE_IOS
 	texWidth = width;
 	texHeight = height;
@@ -448,27 +450,16 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCheckErrors();
 
-	if (convertType(format) == GL_FLOAT) {
-		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(format), texture->tex_width, texture->tex_height, 0, convertFormat(format), GL_FLOAT, NULL);
-	}
-	else {
-		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(format), texture->tex_width, texture->tex_height, 0, convertFormat(format), GL_UNSIGNED_BYTE,
-		             texture->image.data);
-	}
+	glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(format), texture->tex_width, texture->tex_height, 0, convertFormat(format), GL_FLOAT, NULL);
 	glCheckErrors();
-
-	/*if (!readable) {
-	    delete[] data;
-	    data = nullptr;
-	}*/
 }
 
-void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {
-//Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {
+void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {
 #ifndef KORE_OPENGL_ES
 	texture->tex_width = width;
 	texture->tex_height = height;
 	texture->tex_depth = depth;
+	texture->format = format;
 	
 	glGenTextures(1, &texture->impl.texture);
 	glCheckErrors();
@@ -480,7 +471,7 @@ void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, i
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCheckErrors();
 
-	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(texture->image.format), width, height, depth, 0, convertFormat(texture->image.format), GL_UNSIGNED_BYTE, texture->image.data);
+	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(format), width, height, depth, 0, convertFormat(format), GL_UNSIGNED_BYTE, NULL);
 	glCheckErrors();
 #endif
 }
@@ -500,7 +491,7 @@ void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 }
 
 void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
-	GLenum target = texture->image.depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
 #ifdef KORE_ANDROID
@@ -522,18 +513,22 @@ void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_uni
 
 void Kinc_G4_Internal_TextureImageSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 #if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_4))
-	glBindImageTexture(unit.impl.unit, texture->impl.texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, convertInternalFormat(texture->image.format));
+	glBindImageTexture(unit.impl.unit, texture->impl.texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, convertInternalFormat(texture->format));
 	glCheckErrors();
 #endif
 }
 
 int kinc_g4_texture_stride(kinc_g4_texture_t *texture) {
-	return texture->tex_width * kinc_image_format_sizeof(texture->image.format);
+	return texture->tex_width * kinc_image_format_sizeof(texture->format);
 }
 
+static uint8_t *lock_cache = NULL;
+
 unsigned char *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
-	// If data is nullptr then it must be a float image
-	return (texture->image.data ? texture->image.data : (uint8_t*)texture->image.hdrData);
+	if (lock_cache == NULL) {
+		lock_cache = (uint8_t*)malloc(4096 * 4096 * 4);
+	}
+	return lock_cache; //**(texture->image.data ? texture->image.data : (uint8_t *)texture->image.hdrData);
 }
 
 /*void Texture::unlock() {
@@ -549,21 +544,19 @@ GL_LUMINANCE, GL_UNSIGNED_BYTE, conversionBuffer);
 }*/
 
 void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
-	GLenum target = texture->image.depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
-	void* texdata = texture->image.data;
-	bool isHdr = convertType(texture->image.format) == GL_FLOAT;
-	if (isHdr) texdata = texture->image.hdrData;
+	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	void *texdata = lock_cache;
 	glBindTexture(target, texture->impl.texture);
 	glCheckErrors();
-	if (texture->image.depth > 1) {
+	if (texture->tex_depth > 1) {
 #ifndef KORE_OPENGL_ES
-		glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, texture->tex_width, texture->tex_height, texture->tex_depth, convertFormat(texture->image.format),
-		                convertType(texture->image.format), texdata);
+		glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, texture->tex_width, texture->tex_height, texture->tex_depth, convertFormat(texture->format),
+		                convertType(texture->format), texdata);
 #endif
 	}
 	else {
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->tex_width, texture->tex_height, convertFormat(texture->image.format),
-		                convertType(texture->image.format), texdata);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->tex_width, texture->tex_height, convertFormat(texture->format),
+		                convertType(texture->format), texdata);
 	}
 	glCheckErrors();
 }
@@ -577,7 +570,7 @@ void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int 
 	clearColor[3] = ((color & 0xff000000) >> 24) / 255.0f;
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glBindTexture(target, texture->impl.texture);
-	glClearTexSubImage(texture->impl.texture, 0, x, y, z, width, height, depth, convertFormat(texture->image.format), convertType(texture->image.format), clearColor);
+	glClearTexSubImage(texture->impl.texture, 0, x, y, z, width, height, depth, convertFormat(texture->format), convertType(texture->format), clearColor);
 #endif
 }
 
@@ -593,27 +586,27 @@ void kinc_g4_texture_upload(uint8_t *data, int stride) {
 #endif
 
 void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels) {
-	GLenum target = texture->image.depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glBindTexture(target, texture->impl.texture);
 	glCheckErrors();
 	glGenerateMipmap(target);
 	glCheckErrors();
 }
 
-void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_g4_texture_t *mipmap, int level) {
-	int convertedType = convertType(mipmap->image.format);
+void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap, int level) {
+	int convertedType = convertType(mipmap->format);
 	bool isHdr = convertedType == GL_FLOAT;
-	GLenum target = texture->image.depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glBindTexture(target, texture->impl.texture);
 	glCheckErrors();
 	if (isHdr) {
-		glTexImage2D(target, level, convertInternalFormat(mipmap->image.format), mipmap->tex_width, mipmap->tex_height, 0, convertFormat(mipmap->image.format),
-		             convertedType, mipmap->image.hdrData);
+		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->width, mipmap->height, 0, convertFormat(mipmap->format),
+		             convertedType, mipmap->hdrData);
 		glCheckErrors();
 	}
 	else {
-		glTexImage2D(target, level, convertInternalFormat(mipmap->image.format), mipmap->tex_width, mipmap->tex_height, 0, convertFormat(mipmap->image.format),
-		             convertedType, mipmap->image.data);
+		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->width, mipmap->height, 0, convertFormat(mipmap->format),
+		             convertedType, mipmap->data);
 		glCheckErrors();
 	}
 }
