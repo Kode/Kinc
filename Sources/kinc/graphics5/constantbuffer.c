@@ -45,7 +45,7 @@ static void setBool(uint8_t *constants, int offset, bool value) {
 	ints[0] = value ? 1 : 0;
 }
 
-static void setMatrix4(uint8_t *constants, int offset, Kinc_Matrix4x4 *value) {
+static void setMatrix4(uint8_t *constants, int offset, kinc_matrix4x4_t *value) {
 	float *floats = (float*)(&constants[offset]);
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
@@ -54,7 +54,7 @@ static void setMatrix4(uint8_t *constants, int offset, Kinc_Matrix4x4 *value) {
 	}
 }
 
-static void setMatrix3(uint8_t *constants, int offset, Kinc_Matrix3x3 *value) {
+static void setMatrix3(uint8_t *constants, int offset, kinc_matrix3x3_t *value) {
 	float *floats = (float*)(&constants[offset]);
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
@@ -91,9 +91,9 @@ void kinc_g5_constant_buffer_set_bool(kinc_g5_constant_buffer_t *buffer, int off
 	setBool(buffer->data, offset, value);
 }
 
-void kinc_g5_constant_buffer_set_matrix4(kinc_g5_constant_buffer_t *buffer, int offset, Kinc_Matrix4x4 *value) {
+void kinc_g5_constant_buffer_set_matrix4(kinc_g5_constant_buffer_t *buffer, int offset, kinc_matrix4x4_t *value) {
 	if (kinc_g5_transposeMat4) {
-		Kinc_Matrix4x4 m = *value;
+		kinc_matrix4x4_t m = *value;
 		kinc_matrix4x4_transpose(&m);
 		setMatrix4(buffer->data, offset, &m);
 	}
@@ -102,9 +102,9 @@ void kinc_g5_constant_buffer_set_matrix4(kinc_g5_constant_buffer_t *buffer, int 
 	}
 }
 
-void kinc_g5_constant_buffer_set_matrix3(kinc_g5_constant_buffer_t *buffer, int offset, Kinc_Matrix3x3 *value) {
+void kinc_g5_constant_buffer_set_matrix3(kinc_g5_constant_buffer_t *buffer, int offset, kinc_matrix3x3_t *value) {
 	if (kinc_g5_transposeMat3) {
-		Kinc_Matrix3x3 m = *value;
+		kinc_matrix3x3_t m = *value;
 		kinc_matrix3x3_transpose(&m);
 		setMatrix3(buffer->data, offset, &m);
 	}

@@ -201,9 +201,9 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 				r *= a;
 				g *= a;
 				b *= a;
-				output[y * *width * 4 + x * 4 + 0] = (uint8_t)Kinc_Round(r * 255.0f);
-				output[y * *width * 4 + x * 4 + 1] = (uint8_t)Kinc_Round(g * 255.0f);
-				output[y * *width * 4 + x * 4 + 2] = (uint8_t)Kinc_Round(b * 255.0f);
+				output[y * *width * 4 + x * 4 + 0] = (uint8_t)kinc_round(r * 255.0f);
+				output[y * *width * 4 + x * 4 + 1] = (uint8_t)kinc_round(g * 255.0f);
+				output[y * *width * 4 + x * 4 + 2] = (uint8_t)kinc_round(b * 255.0f);
 			}
 		}
 		*outputSize = *width * *height * 4;

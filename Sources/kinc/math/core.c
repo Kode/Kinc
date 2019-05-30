@@ -5,90 +5,90 @@
 #include <float.h>
 #include <math.h>
 
-float Kinc_Tan(float x) {
+float kinc_tan(float x) {
 	return tanf(x);
 }
 
-float Kinc_Cot(float x) {
+float kinc_cot(float x) {
 	return cosf(x) / sinf(x);
 }
 
-float Kinc_Round(float value) {
+float kinc_round(float value) {
 	return floorf(value + 0.5f);
 }
 
-float Kinc_Ceil(float value) {
+float kinc_ceil(float value) {
 	return ceilf(value);
 }
 
-float Kinc_Floor(float value) {
+float kinc_floor(float value) {
 	return floorf(value);
 }
 
-float Kinc_Mod(float numer, float denom) {
+float kinc_mod(float numer, float denom) {
 	return fmodf(numer, denom);
 }
 
-float Kinc_Exp(float exponent) {
+float kinc_exp(float exponent) {
 	return expf(exponent);
 }
 
-float Kinc_Pow(float value, float exponent) {
+float kinc_pow(float value, float exponent) {
 	return powf(value, exponent);
 }
 
-float Kinc_Maxfloat() {
+float kinc_max_float() {
 	return FLT_MAX;
 }
 
-float Kinc_Sqrt(float value) {
+float kinc_sqrt(float value) {
 	return sqrtf(value);
 }
 
-float Kinc_Abs(float value) {
+float kinc_abs(float value) {
 	return value < 0 ? -value : value;
 }
 
-float Kinc_Sin(float value) {
+float kinc_sin(float value) {
 	return sinf(value);
 }
 
-float Kinc_Cos(float value) {
+float kinc_cos(float value) {
 	return cosf(value);
 }
 
-float Kinc_Asin(float value) {
+float kinc_asin(float value) {
 	return asinf(value);
 }
 
-float Kinc_Acos(float value) {
+float kinc_acos(float value) {
 	return acosf(value);
 }
 
-float Kinc_Atan(float value) {
+float kinc_atan(float value) {
 	return atanf(value);
 }
 
-float Kinc_Atan2(float y, float x) {
+float kinc_atan2(float y, float x) {
 	return atan2f(y, x);
 }
 
-float Kinc_Min(float a, float b) {
+float kinc_min(float a, float b) {
 	return a > b ? b : a;
 }
 
-float Kinc_Max(float a, float b) {
+float kinc_max(float a, float b) {
 	return a > b ? a : b;
 }
 
-int Kinc_Mini(int a, int b) {
+int kinc_mini(int a, int b) {
 	return a > b ? b : a;
 }
 
-int Kinc_Maxi(int a, int b) {
+int kinc_maxi(int a, int b) {
 	return a > b ? a : b;
 }
 
-float Kinc_Clamp(float value, float minValue, float maxValue) {
-	return Kinc_Max(minValue, Kinc_Min(maxValue, value));
+float kinc_clamp(float value, float minValue, float maxValue) {
+	return kinc_max(minValue, kinc_min(maxValue, value));
 }

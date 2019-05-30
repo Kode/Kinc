@@ -4,8 +4,8 @@
 
 #include <Kore/ConstantBuffer5Impl.h>
 
-#include <Kinc/Math/Matrix.h>
-#include <Kinc/Math/Vector.h>
+#include <kinc/math/matrix.h>
+#include <kinc/math/vector.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,8 +30,8 @@ void kinc_g5_constant_buffer_set_float2(kinc_g5_constant_buffer_t *buffer, int o
 void kinc_g5_constant_buffer_set_float3(kinc_g5_constant_buffer_t *buffer, int offset, float value1, float value2, float value3);
 void kinc_g5_constant_buffer_set_float4(kinc_g5_constant_buffer_t *buffer, int offset, float value1, float value2, float value3, float value4);
 void kinc_g5_constant_buffer_set_floats(kinc_g5_constant_buffer_t *buffer, int offset, float *values, int count);
-void kinc_g5_constant_buffer_set_matrix3(kinc_g5_constant_buffer_t *buffer, int offset, Kinc_Matrix3x3 *value);
-void kinc_g5_constant_buffer_set_matrix4(kinc_g5_constant_buffer_t *buffer, int offset, Kinc_Matrix4x4 *value);
+void kinc_g5_constant_buffer_set_matrix3(kinc_g5_constant_buffer_t *buffer, int offset, kinc_matrix3x3_t *value);
+void kinc_g5_constant_buffer_set_matrix4(kinc_g5_constant_buffer_t *buffer, int offset, kinc_matrix4x4_t *value);
 
 extern bool kinc_g5_transposeMat3;
 extern bool kinc_g5_transposeMat4;

@@ -13,19 +13,19 @@
 void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (shader->impl.shader != nullptr) {
 		switch (shader->impl.type) {
-		case KINC_SHADER_TYPE_VERTEX:
+		case KINC_G4_SHADER_TYPE_VERTEX:
 			((ID3D11VertexShader*)shader)->Release();
 			break;
-		case KINC_SHADER_TYPE_FRAGMENT:
+		case KINC_G4_SHADER_TYPE_FRAGMENT:
 			((ID3D11PixelShader*)shader)->Release();
 			break;
-		case KINC_SHADER_TYPE_GEOMETRY:
+		case KINC_G4_SHADER_TYPE_GEOMETRY:
 			((ID3D11GeometryShader*)shader)->Release();
 			break;
-		case KINC_SHADER_TYPE_TESSELLATION_CONTROL:
+		case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
 			((ID3D11HullShader*)shader)->Release();
 			break;
-		case KINC_SHADER_TYPE_TESSELLATION_EVALUATION:
+		case KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION:
 			((ID3D11DomainShader*)shader)->Release();
 			break;
 		}
@@ -102,19 +102,19 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
 	switch (type) {
-	case KINC_SHADER_TYPE_VERTEX:
+	case KINC_G4_SHADER_TYPE_VERTEX:
 		Kinc_Microsoft_Affirm(device->CreateVertexShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11VertexShader **)&shader->impl.shader));
 		break;
-	case KINC_SHADER_TYPE_FRAGMENT:
+	case KINC_G4_SHADER_TYPE_FRAGMENT:
 		Kinc_Microsoft_Affirm(device->CreatePixelShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11PixelShader **)&shader->impl.shader));
 		break;
-	case KINC_SHADER_TYPE_GEOMETRY:
+	case KINC_G4_SHADER_TYPE_GEOMETRY:
 		Kinc_Microsoft_Affirm(device->CreateGeometryShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11GeometryShader **)&shader->impl.shader));
 		break;
-	case KINC_SHADER_TYPE_TESSELLATION_CONTROL:
+	case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
 		Kinc_Microsoft_Affirm(device->CreateHullShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11HullShader **)&shader->impl.shader));
 		break;
-	case KINC_SHADER_TYPE_TESSELLATION_EVALUATION:
+	case KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION:
 		Kinc_Microsoft_Affirm(device->CreateDomainShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11DomainShader **)&shader->impl.shader));
 		break;
 	}

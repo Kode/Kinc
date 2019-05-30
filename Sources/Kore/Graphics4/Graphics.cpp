@@ -110,13 +110,13 @@ void Graphics4::setTexture(Graphics4::TextureUnit unit, Graphics4::Texture* text
 }
 
 void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
-	Kinc_Matrix3x3 matrix;
+	kinc_matrix3x3_t matrix;
 	memcpy(&matrix.m, value.data, sizeof(float) * 3 * 3);
 	kinc_g4_set_matrix3(location.kincConstant, &matrix);
 }
 
 void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
-	Kinc_Matrix4x4 matrix;
+	kinc_matrix4x4_t matrix;
 	memcpy(&matrix.m, value.data, sizeof(float) * 4 * 4);
 	kinc_g4_set_matrix4(location.kincConstant, &matrix);
 }

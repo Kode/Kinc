@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Kinc/Math/Matrix.h>
+#include <kinc/math/matrix.h>
 
-#include "ConstantLocation.h"
-#include "TextureUnit.h"
+#include "constantlocation.h"
+#include "textureunit.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,8 +99,8 @@ void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, floa
 void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, float value2, float value3, float value4);
 void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count);
 void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value);
-void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, Kinc_Matrix3x3 *value);
-void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, Kinc_Matrix4x4 *value);
+void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value);
+void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value);
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, Kinc_G4_TextureFilter filter);
 

@@ -518,7 +518,7 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 	}
 	if (currentDepthStencilView != nullptr && (flags & KINC_G4_CLEAR_DEPTH) || (flags & KINC_G4_CLEAR_STENCIL)) {
 		unsigned d3dflags = ((flags & KINC_G4_CLEAR_DEPTH) ? D3D11_CLEAR_DEPTH : 0) | ((flags & KINC_G4_CLEAR_STENCIL) ? D3D11_CLEAR_STENCIL : 0);
-		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, Kinc_Clamp(depth, 0.0f, 1.0f), stencil);
+		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, kinc_clamp(depth, 0.0f, 1.0f), stencil);
 	}
 }
 
@@ -685,7 +685,7 @@ namespace {
 		ints[0] = value ? 1 : 0;
 	}
 
-	void setMatrix(uint8_t* constants, uint32_t offset, uint32_t size, Kinc_Matrix4x4 *value) {
+	void setMatrix(uint8_t* constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 4; ++y) {
@@ -695,7 +695,7 @@ namespace {
 		}
 	}
 
-	void setMatrix(uint8_t* constants, uint32_t offset, uint32_t size, Kinc_Matrix3x3 *value) {
+	void setMatrix(uint8_t* constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 3; ++y) {
@@ -768,7 +768,7 @@ void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
 	::setBool(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
-void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, Kinc_Matrix4x4 *value) {
+void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
 	::setMatrix(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
 	::setMatrix(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
 	::setMatrix(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
@@ -776,7 +776,7 @@ void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, Kinc_Matrix4x4 *v
 	::setMatrix(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
-void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, Kinc_Matrix3x3 *value) {
+void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
 	::setMatrix(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
 	::setMatrix(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
 	::setMatrix(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
