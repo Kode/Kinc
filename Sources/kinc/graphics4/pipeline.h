@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Kinc/Graphics4/ConstantLocation.h>
-#include <Kinc/Graphics4/TextureUnit.h>
+#include <kinc/graphics4/constantlocation.h>
+#include <kinc/graphics4/textureunit.h>
 
 #include <Kore/PipelineStateImpl.h>
 

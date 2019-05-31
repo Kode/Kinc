@@ -2,7 +2,7 @@
 
 #include <Kore/RenderTargetImpl.h>
 
-#include "TextureUnit.h"
+#include "textureunit.h"
 
 #include <stdint.h>
 

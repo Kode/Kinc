@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Texture.h"
+#include "texture.h"
 
 #include <Kore/TextureArrayImpl.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VertexStructure.h"
+#include "vertexstructure.h"
 
 #include <Kore/VertexBufferImpl.h>
 

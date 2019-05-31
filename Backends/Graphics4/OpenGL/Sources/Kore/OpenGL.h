@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Graphics4/Pipeline.h>
-#include <Kinc/Graphics4/TextureUnit.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/textureunit.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Kinc/Graphics4/RenderTarget.h>
-#include <Kinc/Graphics4/IndexBuffer.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/vertexbuffer.h>
 
 #include "Shader.h"
 #include "Texture.h"

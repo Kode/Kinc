@@ -4,22 +4,24 @@
 #include "VertexBufferImpl.h"
 #include "ogl.h"
 
-#include <Kinc/Graphics4/IndexBuffer.h>
-#include <Kinc/Graphics4/Pipeline.h>
-#include <Kinc/Graphics4/RenderTarget.h>
-#include <Kinc/Graphics4/Texture.h>
-#include <Kinc/Graphics4/TextureArray.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
+#include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/graphics4/texturearray.h>
+#include <kinc/graphics4/vertexbuffer.h>
 
-#include <Kinc/Error.h>
-#include <Kinc/Log.h>
-#include <Kinc/Math/Core.h>
-#include <Kinc/System.h>
-#include <Kinc/Window.h>
+#include <kinc/error.h>
+#include <kinc/log.h>
+#include <kinc/math/core.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
 #include "OpenGLWindow.h"
 
+#ifdef KORE_WINDOWS
 #include <Kore/Windows.h>
+#endif
 
 #include <assert.h>
 #include <stdio.h>

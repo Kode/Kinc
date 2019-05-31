@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Kinc/Graphics4/ConstantLocation.h>
-#include <Kinc/Graphics4/Shader.h>
+#include <kinc/graphics4/constantlocation.h>
+#include <kinc/graphics4/shader.h>
 
 #include "Texture.h"
 #include "VertexStructure.h"

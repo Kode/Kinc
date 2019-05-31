@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Graphics4/VertexStructure.h>
+#include <kinc/graphics4/vertexstructure.h>
 
 #include <stdbool.h>
 

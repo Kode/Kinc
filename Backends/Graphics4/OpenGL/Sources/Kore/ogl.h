@@ -53,7 +53,7 @@
 #include <gl2.h>
 #endif
 
-#include <Kinc/Log.h>
+#include <kinc/log.h>
 
 #ifdef NDEBUG
 #define glCheckErrors()                                                                                                                                        \

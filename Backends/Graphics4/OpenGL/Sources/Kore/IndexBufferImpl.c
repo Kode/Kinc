@@ -2,7 +2,7 @@
 
 #include "ogl.h"
 
-#include <Kinc/Graphics4/IndexBuffer.h>
+#include <kinc/graphics4/indexbuffer.h>
 
 #include <stdlib.h>
 
