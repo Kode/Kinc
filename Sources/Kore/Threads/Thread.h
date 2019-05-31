@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Threads/Thread.h>
+#include <kinc/threads/thread.h>
 
 namespace Kore {
 	class Thread {

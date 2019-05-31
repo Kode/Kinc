@@ -7,7 +7,7 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/math/core.h>
 #include <kinc/image.h>
-#include <Kinc/log.h>
+#include <kinc/log.h>
 
 #include "OpenGL.h"
 

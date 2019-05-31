@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Threads/ThreadLocal.h>
+#include <kinc/threads/threadlocal.h>
 
 namespace Kore {
 	class ThreadLocal {

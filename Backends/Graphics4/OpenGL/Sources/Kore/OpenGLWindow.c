@@ -2,16 +2,18 @@
 
 #include "OpenGLWindow.h"
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Graphics4/IndexBuffer.h>
-#include <Kinc/Graphics4/Pipeline.h>
-#include <Kinc/Graphics4/RenderTarget.h>
-#include <Kinc/Graphics4/Shader.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
-#include <Kinc/System.h>
-#include <Kinc/Window.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/shader.h>
+#include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
+#ifdef KORE_WINDOWS
 #include <Kore/Windows.h>
+#endif
 
 #include "ogl.h"
 

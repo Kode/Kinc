@@ -144,7 +144,7 @@ bool kinc_g4_are_query_results_available(unsigned occlusionQuery);
 
 void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount);
 
-void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct _Kinc_G4_TextureArray *array);
+void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array);
 
 int kinc_g4_antialiasing_samples();
 

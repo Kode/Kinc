@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <Kinc/Threads/Mutex.h>
+#include <kinc/threads/mutex.h>
 
 #include <pthread.h>
 

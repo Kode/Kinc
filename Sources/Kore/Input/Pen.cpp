@@ -2,7 +2,7 @@
 
 #include "Pen.h"
 
-#include <Kinc/Input/Pen.h>
+#include <kinc/input/pen.h>
 
 using namespace Kore;
 

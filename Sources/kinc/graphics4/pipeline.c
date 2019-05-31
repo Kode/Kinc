@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Pipeline.h"
+#include "pipeline.h"
 
 void kinc_g4_internal_pipeline_set_defaults(kinc_g4_pipeline_t *state) {
 	for (int i = 0; i < 16; ++i) state->input_layout[i] = NULL;

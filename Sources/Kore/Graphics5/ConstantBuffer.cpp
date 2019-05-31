@@ -2,7 +2,7 @@
 
 #include "ConstantBuffer.h"
 
-#include <Kinc/Graphics5/ConstantBuffer.h>
+#include <kinc/graphics5/constantbuffer.h>
 
 #include <Kore/Math/Matrix.h>
 

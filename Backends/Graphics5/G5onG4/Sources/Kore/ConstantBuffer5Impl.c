@@ -1,6 +1,8 @@
 #include "pch.h"
 
-#include <Kinc/Graphics5/ConstantBuffer.h>
+#include <kinc/graphics5/constantbuffer.h>
+
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {

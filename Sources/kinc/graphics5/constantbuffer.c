@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "ConstantBuffer.h"
+#include "constantbuffer.h"
 
 static void setInt(uint8_t *constants, int offset, int value) {
 	int *ints = (int*)(&constants[offset]);

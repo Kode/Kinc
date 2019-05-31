@@ -3,7 +3,7 @@
 #include "Log.h"
 #include "LogArgs.h"
 
-#include <Kinc/Log.h>
+#include <kinc/log.h>
 
 #include <stdio.h>
 

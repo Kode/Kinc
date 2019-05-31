@@ -5,7 +5,7 @@
 #include "Convert.h"
 #include "Display.h"
 
-#include <Kinc/Window.h>
+#include <kinc/window.h>
 
 using namespace Kore;
 

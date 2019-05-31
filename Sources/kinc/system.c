@@ -1,8 +1,10 @@
 #include "pch.h"
 
-#include "System.h"
+#include "system.h"
 
-#include "Window.h"
+#include "window.h"
+
+#include <stdlib.h>
 
 #if !defined(KORE_HTML5) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
 double Kinc_Time() {

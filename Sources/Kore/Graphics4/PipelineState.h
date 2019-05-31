@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Graphics4/Pipeline.h>
+#include <kinc/graphics4/pipeline.h>
 
 #include <Kore/PipelineStateImpl.h>
 

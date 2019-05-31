@@ -2,7 +2,7 @@
 
 #include "Random.h"
 
-#include <Kinc/Math/Random.h>
+#include <kinc/math/random.h>
 
 using namespace Kore;
 

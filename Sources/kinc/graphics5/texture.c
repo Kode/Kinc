@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Texture.h"
+#include "texture.h"
 
 /*
 Graphics5::Texture::Texture(Kore::Reader& reader, const char* format, bool readable) : Image(reader, format, readable) {

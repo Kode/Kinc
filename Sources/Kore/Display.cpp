@@ -2,7 +2,7 @@
 
 #include "Display.h"
 
-#include <Kinc/Display.h>
+#include <kinc/display.h>
 
 using namespace Kore;
 

@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "SoundStream.h"
+#include "soundstream.h"
 
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.c"

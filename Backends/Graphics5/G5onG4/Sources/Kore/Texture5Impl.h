@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Kinc/Graphics4/Texture.h>
-#include <Kinc/Graphics4/TextureUnit.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/graphics4/textureunit.h>
 
 #ifdef __cplusplus
 extern "C" {

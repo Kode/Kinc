@@ -2,11 +2,11 @@
 
 #include "ogl.h"
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Graphics4/Pipeline.h>
-#include <Kinc/Graphics4/Shader.h>
-#include <Kinc/Graphics4/VertexStructure.h>
-#include <Kinc/Log.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/shader.h>
+#include <kinc/graphics4/vertexstructure.h>
+#include <kinc/log.h>
 
 #include <Kore/OpenGL.h>
 

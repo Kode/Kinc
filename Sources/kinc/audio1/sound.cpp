@@ -1,12 +1,12 @@
 #include "pch.h"
 
-#include "Sound.h"
+#include "sound.h"
 
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.c"
 
-#include <Kinc/Audio2/Audio.h>
-#include <Kinc/Error.h>
+#include <kinc/audio2/audio.h>
+#include <kinc/error.h>
 #include <Kore/IO/FileReader.h>
 
 #include <assert.h>

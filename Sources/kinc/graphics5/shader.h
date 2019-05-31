@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Texture.h"
-#include "VertexStructure.h"
+#include "texture.h"
+#include "vertexstructure.h"
 
-#include <Kinc/Math/Matrix.h>
+#include <kinc/math/matrix.h>
 
 #include <Kore/PipelineState5Impl.h>
 #include <Kore/Shader5Impl.h>

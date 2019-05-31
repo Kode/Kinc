@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Kinc/Image.h>
+#include <kinc/image.h>
 
-#include "TextureUnit.h"
+#include "textureunit.h"
 
 #include <Kore/Texture5Impl.h>
 

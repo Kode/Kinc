@@ -1,17 +1,17 @@
 #pragma once
 
-#include <Kinc/Image.h>
+#include <kinc/image.h>
 
-#include "RenderTarget.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "TextureUnit.h"
-#include "VertexStructure.h"
+#include "rendertarget.h"
+#include "shader.h"
+#include "texture.h"
+#include "textureunit.h"
+#include "vertexstructure.h"
 
 #include <Kore/Graphics5Impl.h>
 
-#include <Kinc/Math/Matrix.h>
-#include <Kinc/Math/Vector.h>
+#include <kinc/math/matrix.h>
+#include <kinc/math/vector.h>
 
 #ifdef __cplusplus
 extern "C" {

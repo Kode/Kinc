@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Color.h"
+#include "color.h"
 
 void Kinc_Color_Components(uint32_t color, float *red, float *green, float *blue, float *alpha) {
 	*alpha = ((color & 0xff000000) >> 24) / 255.0f;

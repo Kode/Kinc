@@ -2,10 +2,10 @@
 
 #include <Kore/PipelineState5Impl.h>
 
-#include <Kinc/Graphics5/VertexStructure.h>
+#include <kinc/graphics5/vertexstructure.h>
 
-#include "Graphics.h"
-#include "ConstantLocation.h"
+#include "graphics.h"
+#include "constantlocation.h"
 
 #ifdef __cplusplus
 extern "C" {

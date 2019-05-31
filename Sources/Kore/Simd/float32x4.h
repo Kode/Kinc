@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Simd/float32x4.h>
+#include <kinc/simd/float32x4.h>
 
 namespace Kore {
 	typedef Kinc_float32x4 float32x4;

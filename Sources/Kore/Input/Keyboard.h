@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Input/Keyboard.h>
+#include <kinc/input/keyboard.h>
 
 namespace Kore {
 	enum KeyCode {

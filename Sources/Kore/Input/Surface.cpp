@@ -2,7 +2,7 @@
 
 #include "Surface.h"
 
-#include <Kinc/Input/Surface.h>
+#include <kinc/input/surface.h>
 
 using namespace Kore;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Kinc/Graphics4/TextureUnit.h>
-#include <Kinc/Graphics4/Texture.h>
+#include <kinc/graphics4/textureunit.h>
+#include <kinc/graphics4/texture.h>
 
 #include <Kore/Graphics1/Image.h>
 #include <Kore/TextureImpl.h>

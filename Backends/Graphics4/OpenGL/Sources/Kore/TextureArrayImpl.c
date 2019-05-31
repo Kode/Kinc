@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kinc/Graphics4/TextureArray.h>
-#include <Kinc/Graphics4/TextureUnit.h>
+#include <kinc/graphics4/texturearray.h>
+#include <kinc/graphics4/textureunit.h>
 
 #include <Kore/ogl.h>
 

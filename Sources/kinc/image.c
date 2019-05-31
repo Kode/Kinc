@@ -4,16 +4,16 @@
 #include <windows.h>
 #endif
 
-#include "Image.h"
-#include <Kinc/IO/lz4/lz4.h>
+#include "image.h"
+#include <kinc/io/lz4/lz4.h>
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/IO/FileReader.h>
-#include <Kinc/Log.h>
-#include <Kinc/Math/Core.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/io/filereader.h>
+#include <kinc/log.h>
+#include <kinc/math/core.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <Kinc/libs/stb_image.h>
+#include <kinc/libs/stb_image.h>
 #include <stdio.h>
 #include <string.h>
 

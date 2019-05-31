@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Acceleration.h"
+#include "acceleration.h"
 
 #include <memory.h>
 

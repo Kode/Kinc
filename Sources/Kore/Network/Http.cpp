@@ -2,7 +2,7 @@
 
 #include "Http.h"
 
-#include <Kinc/Network/Http.h>
+#include <kinc/network/http.h>
 
 using namespace Kore;
 

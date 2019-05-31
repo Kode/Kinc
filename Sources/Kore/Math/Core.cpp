@@ -2,7 +2,7 @@
 
 #include "Core.h"
 
-#include <Kinc/Math/Core.h>
+#include <kinc/math/core.h>
 
 float Kore::tan(float x) {
 	return kinc_tan(x);

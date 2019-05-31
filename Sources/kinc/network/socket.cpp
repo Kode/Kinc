@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "Socket.h"
+#include "socket.h"
 
-#include <Kinc/Log.h>
+#include <kinc/log.h>
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -132,7 +132,7 @@ void Kinc_Socket_Open(Kinc_Socket *sock, int port) {
 #elif defined(KORE_POSIX)
 	int nonBlocking = 1;
 	if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, nonBlocking) == -1) {
-		Kinc_Log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
 		return;
 	}
 #endif

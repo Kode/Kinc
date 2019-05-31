@@ -1,11 +1,11 @@
 #include "pch.h"
 
-#include <Kinc/Graphics5/CommandList.h>
-#include <Kinc/Graphics5/IndexBuffer.h>
-#include <Kinc/Graphics5/Pipeline.h>
-#include <Kinc/Graphics5/VertexBuffer.h>
+#include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/indexbuffer.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/vertexbuffer.h>
 
-#include <Kinc/Graphics4/Graphics.h>
+#include <kinc/graphics4/graphics.h>
 
 enum Commands { Clear, Draw, SetViewport, SetScissor, SetPipeline, SetVertexBuffer, SetIndexBuffer, SetRenderTarget };
 

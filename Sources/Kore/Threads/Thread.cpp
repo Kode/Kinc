@@ -2,7 +2,7 @@
 
 #include "Thread.h"
 
-#include <Kinc/Threads/Thread.h>
+#include <kinc/threads/thread.h>
 
 void Kore::threadsInit() {
 	Kinc_Threads_Init();

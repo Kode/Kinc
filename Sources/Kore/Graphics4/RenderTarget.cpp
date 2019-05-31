@@ -2,7 +2,7 @@
 
 #include "Graphics.h"
 
-#include <Kinc/Graphics4/RenderTarget.h>
+#include <kinc/graphics4/rendertarget.h>
 
 using namespace Kore;
 using namespace Kore::Graphics4;

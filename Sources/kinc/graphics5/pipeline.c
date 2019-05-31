@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Pipeline.h"
+#include "pipeline.h"
 
 void kinc_g5_internal_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	for (int i = 0; i < 16; ++i) pipe->inputLayout[i] = NULL;

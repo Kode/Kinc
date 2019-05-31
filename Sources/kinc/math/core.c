@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Core.h"
+#include "core.h"
 
 #include <float.h>
 #include <math.h>

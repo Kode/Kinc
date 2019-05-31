@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include <Kore/Display.h>
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Window.h>
+#include <kinc/display.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/window.h>
 #include <Kore/Linux.h>
 
 #include <X11/Xatom.h>
@@ -10,50 +10,44 @@
 
 #include <string.h>
 
-namespace {
-	Kore::Window win;
-}
+#include "WindowData.h"
 
-/*Window* Window::get(int window) {
-	if (window > 0) {
-		return nullptr;
-	}
-	return &win;
-}*/
+#define MAXIMUM_WINDOWS 16
+Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS] = {0};
 
-int Kore::Window::count() {
+int Kinc_CountWindows(void) {
 	return 1;
 }
 
-int Kore::Window::x() {
+int Kinc_WindowX(int window_index) {
 	return 0;
 }
 
-int Kore::Window::y() {
+int Kinc_WindowY(int window_index) {
 	return 0;
 }
 
-int Kore::Window::width() {
-    return _data.width;
+int Kinc_WindowWidth(int window_index) {
+    return kinc_internal_windows[window_index].width;
 }
 
-int Kore::Window::height() {
-    return _data.height;
+int Kinc_WindowHeight(int window_index) {
+    return kinc_internal_windows[window_index].height;
 }
 
-void Kore::Window::resize(int width, int height) {
-
-}
-
-void Kore::Window::move(int x, int y) {
+void Kinc_WindowResize(int window_index, int width, int height) {
 
 }
 
-void Kore::Window::changeFramebuffer(FramebufferOptions* frame) {
-	Graphics4::_changeFramebuffer(0, frame);
+void Kinc_WindowMove(int window_index, int x, int y) {
+
 }
 
-void Kore::Window::changeWindowFeatures(int features) {
+void Kinc_WindowChangeFramebuffer(int window_index, Kinc_FramebufferOptions *frame) {
+	//**kinc_g4_changeFramebuffer(0, frame);
+}
+
+void Kinc_WindowChangeFeatures(int window_index, int features) {
 
 }
 
@@ -81,62 +75,58 @@ void Kore::Linux::fullscreen(XID window, bool value) {
 #endif
 }
 
-void Kore::Window::changeWindowMode(WindowMode mode) {
-	if (mode == WindowModeFullscreen || mode == WindowModeExclusiveFullscreen) {
-		if (_data.mode == WindowModeFullscreen || _data.mode == WindowModeExclusiveFullscreen) {
-			_data.mode = mode;
+void Kinc_WindowChangeMode(int window_index, Kinc_WindowMode mode) {
+	if (mode == KINC_WINDOW_MODE_FULLSCREEN || mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
+		if (kinc_internal_windows[window_index].mode == KINC_WINDOW_MODE_FULLSCREEN || kinc_internal_windows[window_index].mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
+            kinc_internal_windows[window_index].mode = mode;
 			return;
 		}
 
-		Kore::Linux::fullscreen(_data.handle, true);
-		_data.mode = mode;
+		Kore::Linux::fullscreen(kinc_internal_windows[window_index].handle, true);
+        kinc_internal_windows[window_index].mode = mode;
 	}
 	else {
-		if (mode == _data.mode) {
+		if (mode == kinc_internal_windows[window_index].mode) {
 			return;
 		}
 
-		Kore::Linux::fullscreen(_data.handle, false);
-        _data.mode = mode;
+		Kore::Linux::fullscreen(kinc_internal_windows[window_index].handle, false);
+        kinc_internal_windows[window_index].mode = mode;
 	}
 }
 
-Kore::Display* Kore::Window::display() {
+int Kinc_WindowDisplay(int window_index) {
+	return NULL;
+}
+
+void Kinc_WindowDestroy(int window_index) {
+
+}
+
+void Kinc_WindowShow(int window_index) {
+
+}
+
+void Kinc_WindowHide(int window_index) {
+
+}
+
+void Kinc_WindowSetTitle(int window_index, const char *title) {
+
+}
+
+int Kinc_WindowCreate(Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame) {
 	return nullptr;
 }
 
-void Kore::Window::destroy(Window* window) {
+void Kinc_WindowSetResizeCallback(int window_index, void (*callback)(int x, int y, void *data), void *data) {
 
 }
 
-void Kore::Window::show() {
-
-}
-
-void Kore::Window::hide() {
-
-}
-
-void Kore::Window::setTitle(const char* title) {
-
-}
-
-Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame) {
-	return nullptr;
-}
-
-Kore::WindowData::WindowData() : mode(0) {}
-
-Kore::Window::Window() {}
-
-void Kore::Window::setResizeCallback(void (*value)(int x, int y, void* data), void* data) {
-
-}
-
-void Kore::Window::setPpiChangedCallback(void(*callback)(int ppi, void* data), void* data) {
+void Kinc_WindowSetPpiChangedCallback(int window_index, void (*callback)(int ppi, void *data), void *data) {
 	
 }
 
-Kore::WindowMode Kore::Window::mode() {
-	return (WindowMode)_data.mode;
+Kinc_WindowMode Kinc_WindowGetMode(int window_index) {
+	return (Kinc_WindowMode)kinc_internal_windows[window_index].mode;
 }

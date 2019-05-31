@@ -1,13 +1,13 @@
 #include "pch.h"
 
-#include "Audio.h"
+#include "audio.h"
 
 #include <stdint.h>
 
 #include <Kore/Threads/Mutex.h>
 #include <Kore/Math/Core.h>
 
-#include <Kinc/Audio2/Audio.h>
+#include <kinc/audio2/audio.h>
 
 /*#include <Kore/Audio2/Audio.h>
 #if 0

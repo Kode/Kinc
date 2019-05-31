@@ -2,7 +2,7 @@
 
 #include "ogl.h"
 
-#include <Kinc/Graphics4/Shader.h>
+#include <kinc/graphics4/shader.h>
 
 #include <stdlib.h>
 #include <string.h>

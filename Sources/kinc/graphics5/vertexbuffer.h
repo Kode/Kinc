@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "VertexStructure.h"
+#include "vertexstructure.h"
 
 #include <Kore/VertexBuffer5Impl.h>
 

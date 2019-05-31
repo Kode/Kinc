@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "Graphics.h"
+#include "graphics.h"
 
 static int samples = 1;
 

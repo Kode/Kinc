@@ -1,12 +1,12 @@
 #include "pch.h"
 
-#include <Kinc/Graphics4/RenderTarget.h>
+#include <kinc/graphics4/rendertarget.h>
 
 #include "ogl.h"
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Log.h>
-#include <Kinc/System.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
 #ifdef KORE_ANDROID
 #include <GLContext.h>
 #endif

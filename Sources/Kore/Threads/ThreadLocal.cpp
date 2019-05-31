@@ -2,7 +2,7 @@
 
 #include "ThreadLocal.h"
 
-#include <Kinc/Threads/ThreadLocal.h>
+#include <kinc/threads/threadlocal.h>
 
 using namespace Kore;
 

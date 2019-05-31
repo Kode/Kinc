@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "Bridge.h"
+#include "bridge.h"
 
-#include "Window.h"
+#include "window.h"
 
 #include <Kore/Graphics4/Graphics.h>
 

@@ -2,7 +2,7 @@
 
 #include "Writer.h"
 
-#include <Kinc/IO/FileWriter.h>
+#include <kinc/io/filewriter.h>
 
 namespace Kore {
 	class FileWriter : public Writer {

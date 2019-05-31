@@ -4,7 +4,7 @@
 #include <windows.h>
 #endif
 
-#include <Kinc/IO/lz4/lz4.h>
+#include <kinc/io/lz4/lz4.h>
 #include "Image.h"
 
 #include <Kore/Graphics4/Graphics.h>
@@ -13,7 +13,7 @@
 #include <Kore/IO/Reader.h>
 #include <Kore/Log.h>
 
-#include <Kinc/libs/stb_image.h>
+#include <kinc/libs/stb_image.h>
 
 #include <stdio.h>
 #include <stdlib.h>

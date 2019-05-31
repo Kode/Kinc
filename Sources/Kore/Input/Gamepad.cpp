@@ -2,7 +2,7 @@
 
 #include "Gamepad.h"
 
-#include <Kinc/Input/Gamepad.h>
+#include <kinc/input/gamepad.h>
 
 using namespace Kore;
 

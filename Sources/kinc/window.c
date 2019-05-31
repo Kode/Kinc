@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Window.h"
+#include "window.h"
 
 void Kinc_Internal_InitWindowOptions(Kinc_WindowOptions *win) {
 	win->title = "Kore";

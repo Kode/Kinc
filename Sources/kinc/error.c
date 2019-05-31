@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "Error.h"
-#include "Log.h"
+#include "error.h"
+#include "log.h"
 
 #include <stdlib.h>
 

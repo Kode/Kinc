@@ -2,7 +2,9 @@
 
 #include "IndexBuffer5Impl.h"
 
-#include <Kinc/Graphics5/IndexBuffer.h>
+#include <kinc/graphics5/indexbuffer.h>
+
+#include <stdlib.h>
 
 kinc_g5_index_buffer_t *kinc_g5_internal_current_index_buffer = NULL;
 

@@ -2,7 +2,7 @@
 
 #include "Texture5Impl.h"
 
-#include <Kinc/Graphics5/Texture.h>
+#include <kinc/graphics5/texture.h>
 
 void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format, bool readable) {}
 void kinc_g5_texture_init3d(kinc_g5_texture_t *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {}

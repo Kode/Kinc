@@ -2,6 +2,8 @@
 
 #include <kinc/graphics5/vertexbuffer.h>
 
+#include <stdlib.h>
+
 kinc_g5_vertex_buffer_t *kinc_g5_internal_current_vertex_buffer = NULL;
 
 void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure_t *structure, bool gpuMemory, int instanceDataStepRate) {

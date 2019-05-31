@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Threads/Event.h>
+#include <kinc/threads/event.h>
 
 namespace Kore {
 	class Event {

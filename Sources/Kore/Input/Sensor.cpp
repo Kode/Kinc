@@ -2,8 +2,8 @@
 
 #include "Sensor.h"
 
-#include <Kinc/Input/Acceleration.h>
-#include <Kinc/Input/Rotation.h>
+#include <kinc/input/acceleration.h>
+#include <kinc/input/rotation.h>
 
 using namespace Kore;
 

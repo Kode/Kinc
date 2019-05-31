@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Graphics4/Shader.h>
+#include <kinc/graphics4/shader.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Graphics4/VertexBuffer.h>
+#include <kinc/graphics4/vertexbuffer.h>
 
 #ifdef __cplusplus
 extern "C" {

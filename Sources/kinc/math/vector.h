@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core.h"
+#include "core.h"
 
 #ifdef __cplusplus
 extern "C" {

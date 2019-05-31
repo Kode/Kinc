@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "FileReader.h"
+#include "filereader.h"
 
-#include <Kinc/System.h>
+#include <kinc/system.h>
 
 #ifdef KORE_ANDROID
 #include <Kore/Android.h>

@@ -6,9 +6,10 @@
 #include "Graphics.h"
 #include "PipelineState.h"
 
-#include <Kinc/Graphics4/Graphics.h>
+#include <kinc/graphics4/graphics.h>
 
 #include <assert.h>
+#include <memory.h>
 
 #include <limits>
 

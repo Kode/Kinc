@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "Mouse.h"
+#include "mouse.h"
 
-#include <Kinc/Window.h>
+#include <kinc/window.h>
 
 #include <memory.h>
 

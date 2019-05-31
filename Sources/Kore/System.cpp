@@ -6,8 +6,8 @@
 #include <Kore/Window.h>
 #include <Kore/Math/Random.h>
 
-#include <Kinc/System.h>
-#include <Kinc/Window.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
 #include <assert.h>
 #include <limits>

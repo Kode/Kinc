@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/IO/FileReader.h>
+#include <kinc/io/filereader.h>
 
 #include "Reader.h"
 

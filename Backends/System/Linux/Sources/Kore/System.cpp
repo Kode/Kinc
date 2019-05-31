@@ -24,6 +24,12 @@
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 
+#include "WindowData.h"
+
+#include <kinc/input/keyboard.h>
+#include <kinc/input/mouse.h>
+#include <kinc/input/pen.h>
+
 #ifdef KORE_OPENGL
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -75,14 +81,16 @@ namespace {
 	Atom wmDeleteMessage;
 }
 
+#define MAXIMUM_WINDOWS 16
+extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
+
 namespace windowimpl {
-	Kore::Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	int windowCounter = -1;
 
 #ifdef KORE_OPENGL
 	int idFromWindow(Window window) {
-		for (int windowIndex = 0; windowIndex < sizeof(windows) / sizeof(windows[0]); ++windowIndex) {
-			if (windows[windowIndex]->_data.handle == window) {
+		for (int windowIndex = 0; windowIndex < MAXIMUM_WINDOWS; ++windowIndex) {
+			if (kinc_internal_windows[windowIndex].handle == window) {
 				return windowIndex;
 			}
 		}
@@ -208,11 +216,11 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 			GLX_CONTEXT_PROFILE_MASK_ARB , GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 			None
 		};
-		cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, GL_TRUE, contextAttribs);
+		cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig, wcounter == 0 ? None : kinc_internal_windows[0].context, GL_TRUE, contextAttribs);
 	}
 
 	if (cx == NULL) {
-		cx = glXCreateContext(Kore::Linux::display, vi, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, /* direct rendering if possible */ GL_TRUE);
+		cx = glXCreateContext(Kore::Linux::display, vi, wcounter == 0 ? None : kinc_internal_windows[0].context, /* direct rendering if possible */ GL_TRUE);
 	}
 
 	if (cx == NULL) {
@@ -303,18 +311,17 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 		}
 	}
 
-	windowimpl::windows[wcounter] = new Kore::Window; //new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
-	windowimpl::windows[wcounter]->_data.width = width;
-	windowimpl::windows[wcounter]->_data.height = height;
-	windowimpl::windows[wcounter]->_data.handle = win;
-	windowimpl::windows[wcounter]->_data.context = cx;
+    kinc_internal_windows[wcounter].width = width;
+    kinc_internal_windows[wcounter].height = height;
+    kinc_internal_windows[wcounter].handle = win;
+    kinc_internal_windows[wcounter].context = cx;
 
 	if (windowMode == Kore::WindowModeFullscreen || windowMode == Kore::WindowModeExclusiveFullscreen) {
 		Kore::Linux::fullscreen(win, true);
-		windowimpl::windows[wcounter]->_data.mode = windowMode;
+        kinc_internal_windows[wcounter].mode = windowMode;
 	}
 	else {
-		windowimpl::windows[wcounter]->_data.mode = 0;
+        kinc_internal_windows[wcounter].mode = 0;
 	}
 
 	wmDeleteMessage = XInternAtom(Kore::Linux::display, "WM_DELETE_WINDOW", False);
@@ -444,13 +451,13 @@ bool Kore::System::handleMessages() {
 			int windowId = windowimpl::idFromWindow(motion->window);
 			float p = (float)motion->axis_data[2] / (float)penMaxPressure;
 			if (p > 0 && penPressureLast == 0) {
-				Pen::the()->_press(windowId, motion->x, motion->y, p);
+                Kinc_Internal_Pen_TriggerPress(windowId, motion->x, motion->y, p);
 			}
 			else if (p == 0 && penPressureLast > 0) {
-				Pen::the()->_release(windowId, motion->x, motion->y, p);
+                Kinc_Internal_Pen_TriggerRelease(windowId, motion->x, motion->y, p);
 			}
 			else if (p > 0) {
-				Pen::the()->_move(windowId, motion->x, motion->y, p);
+                Kinc_Internal_Pen_TriggerMove(windowId, motion->x, motion->y, p);
 			}
 			penPressureLast = p;
 		}
@@ -463,16 +470,17 @@ bool Kore::System::handleMessages() {
 			XLookupString(key, buffer, 1, &keysym, NULL);
 
 			if (buffer[0] >= 32 && buffer[0] <= 126) {
-				Kore::Keyboard::the()->_keypress((wchar_t)buffer[0]);
+                Kinc_Internal_Keyboard_TriggerKeyPress((wchar_t)buffer[0]);
 			}
 
-#define KEY(xkey, korekey)                                    \
-	case xkey:                                                \
-		if (!keyPressed[Kore::korekey]) {                     \
-			keyPressed[Kore::korekey] = true;                 \
-			Kore::Keyboard::the()->_keydown(Kore::korekey);   \
-		}                                                     \
+#define KEY(xkey, korekey)                                          \
+	case xkey:                                                      \
+		if (!keyPressed[Kore::korekey]) {                           \
+			keyPressed[Kore::korekey] = true;                       \
+			Kinc_Internal_Keyboard_TriggerKeyDown(Kore::korekey);   \
+		}                                                           \
 		break;
+
 			if (keysym == XK_Control_L || keysym == XK_Control_R) {
 				controlDown = true;
 			}
@@ -583,11 +591,13 @@ bool Kore::System::handleMessages() {
 			KeySym keysym;
 			char buffer[1];
 			XLookupString(key, buffer, 1, &keysym, NULL);
-#define KEY(xkey, korekey)                                \
-	case xkey:                                            \
-		Kore::Keyboard::the()->_keyup(Kore::korekey);     \
-		keyPressed[Kore::korekey] = false;                \
+
+#define KEY(xkey, korekey)                                      \
+	case xkey:                                                  \
+		Kinc_Internal_Keyboard_TriggerKeyUp(Kore::korekey);     \
+		keyPressed[Kore::korekey] = false;                      \
 		break;
+
 			if (keysym == XK_Control_L || keysym == XK_Control_R) {
 				controlDown = false;
 			}
@@ -693,13 +703,13 @@ bool Kore::System::handleMessages() {
 
 			switch (button->button) {
 			case Button1:
-				Kore::Mouse::the()->_press(windowId, 0, button->x, button->y);
+                Kinc_Internal_Mouse_TriggerPress(windowId, 0, button->x, button->y);
 				break;
 			case Button2:
-				Kore::Mouse::the()->_press(windowId, 2, button->x, button->y);
+                Kinc_Internal_Mouse_TriggerPress(windowId, 2, button->x, button->y);
 				break;
 			case Button3:
-				Kore::Mouse::the()->_press(windowId, 1, button->x, button->y);
+                Kinc_Internal_Mouse_TriggerPress(windowId, 1, button->x, button->y);
 				break;
 			}
 			break;
@@ -710,20 +720,20 @@ bool Kore::System::handleMessages() {
 
 			switch (button->button) {
 			case Button1:
-				Kore::Mouse::the()->_release(windowId, 0, button->x, button->y);
+                Kinc_Internal_Mouse_TriggerRelease(windowId, 0, button->x, button->y);
 				break;
 			case Button2:
-				Kore::Mouse::the()->_release(windowId, 2, button->x, button->y);
+                Kinc_Internal_Mouse_TriggerRelease(windowId, 2, button->x, button->y);
 				break;
 			case Button3:
-				Kore::Mouse::the()->_release(windowId, 1, button->x, button->y);
+                Kinc_Internal_Mouse_TriggerRelease(windowId, 1, button->x, button->y);
 				break;
 			// Button4 and Button5 provide mouse wheel events because why not
 			case Button4:
-				Kore::Mouse::the()->_scroll(windowId, -1);
+                Kinc_Internal_Mouse_TriggerScroll(windowId, -1);
 				break;
 			case Button5:
-				Kore::Mouse::the()->_scroll(windowId, 1);
+                Kinc_Internal_Mouse_TriggerScroll(windowId, 1);
 				break;
 			}
 			break;
@@ -731,13 +741,13 @@ bool Kore::System::handleMessages() {
 		case MotionNotify: {
 			XMotionEvent* motion = (XMotionEvent*)&event;
 			int windowId = windowimpl::idFromWindow(motion->window);
-			Kore::Mouse::the()->_move(windowId, motion->x, motion->y);
+            Kinc_Internal_Mouse_TriggerMove(windowId, motion->x, motion->y);
 			break;
 		}
 		case ConfigureNotify: {
 			int windowId = windowimpl::idFromWindow(event.xconfigure.window);
-			windowimpl::windows[windowId]->_data.width = event.xconfigure.width;
-			windowimpl::windows[windowId]->_data.height = event.xconfigure.height;
+			kinc_internal_windows[windowId].width = event.xconfigure.width;
+            kinc_internal_windows[windowId].height = event.xconfigure.height;
 			glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
 			break;
 		}
@@ -898,7 +908,7 @@ void Kore::System::clearCurrent() {
 
 void swapLinuxBuffers(int window) {
 #ifdef KORE_OPENGL
-	glXSwapBuffers(Kore::Linux::display, windowimpl::windows[window]->_data.handle);
+	glXSwapBuffers(Kore::Linux::display, kinc_internal_windows[window].handle);
 #endif
 }
 
@@ -964,9 +974,9 @@ void Kore::System::_shutdown() {
 
 }
 
-Kore::Window* Kore::Window::get(int window) {
-	return windowimpl::windows[window];
-}
+//Kore::Window* Kore::Window::get(int window) {
+//	return windowimpl::windows[window];
+//}
 
 extern
 #ifdef KOREC

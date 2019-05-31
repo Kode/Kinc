@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Network/Socket.h>
+#include <kinc/network/socket.h>
 
 namespace Kore {
 	class Socket {

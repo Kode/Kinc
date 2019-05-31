@@ -5,7 +5,7 @@
 #include "Log.h"
 #include "LogArgs.h"
 
-#include <Kinc/Error.h>
+#include <kinc/error.h>
 
 #include <stdlib.h>
 

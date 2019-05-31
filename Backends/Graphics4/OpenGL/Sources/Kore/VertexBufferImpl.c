@@ -4,8 +4,8 @@
 #include "VertexBufferImpl.h"
 #include "ogl.h"
 
-#include <Kinc/Graphics4/IndexBuffer.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
+#include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/vertexbuffer.h>
 
 #include <assert.h>
 #include <stdlib.h>

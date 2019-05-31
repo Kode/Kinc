@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kinc/Graphics5/Pipeline.h>
-#include <Kinc/Graphics5/ConstantLocation.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/constantlocation.h>
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	kinc_g4_pipeline_init(&pipe->impl.pipe);

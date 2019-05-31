@@ -1,10 +1,10 @@
 #include "pch.h"
 
-#include "FileWriter.h"
+#include "filewriter.h"
 
-#include <Kinc/Error.h>
-#include <Kinc/Log.h>
-#include <Kinc/System.h>
+#include <kinc/error.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
 
 #include <stdio.h>
 #include <string.h>

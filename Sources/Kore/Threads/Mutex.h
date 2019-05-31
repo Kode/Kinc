@@ -45,7 +45,7 @@ namespace Kore {
 }
 */
 
-#include <Kinc/Threads/Mutex.h>
+#include <kinc/threads/mutex.h>
 
 namespace Kore {
 	class Mutex {

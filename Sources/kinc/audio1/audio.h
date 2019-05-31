@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Sound.h"
-#include "SoundStream.h"
+#include "sound.h"
+#include "soundstream.h"
 
 #include <stdbool.h>
 

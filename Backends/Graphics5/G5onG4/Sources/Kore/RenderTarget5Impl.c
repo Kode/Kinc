@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include <Kinc/Graphics4/RenderTarget.h>
-#include <Kinc/Graphics5/RenderTarget.h>
-#include <Kinc/Log.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics5/rendertarget.h>
+#include <kinc/log.h>
 
 void kinc_g5_render_target_init(kinc_g5_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing,
                                 kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {

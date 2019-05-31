@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "TextureUnit.h"
+#include "textureunit.h"
 
 #include <Kore/RenderTarget5Impl.h>
 

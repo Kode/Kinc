@@ -2,7 +2,7 @@
 
 #include "Mouse.h"
 
-#include <Kinc/Input/Mouse.h>
+#include <kinc/input/mouse.h>
 
 using namespace Kore;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Threads/Semaphore.h>
+#include <kinc/threads/semaphore.h>
 
 namespace Kore {
 	class Semaphore {

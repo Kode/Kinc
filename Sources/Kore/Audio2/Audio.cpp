@@ -2,7 +2,7 @@
 
 #include "Audio.h"
 
-#include <Kinc/Audio2/Audio.h>
+#include <kinc/audio2/audio.h>
 
 #include <stdio.h>
 
