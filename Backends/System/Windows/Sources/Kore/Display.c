@@ -2,9 +2,9 @@
 
 #include <Kore/Windows.h>
 
-#include <Kinc/Display.h>
-#include <Kinc/Log.h>
-#include <Kinc/Error.h>
+#include <kinc/display.h>
+#include <kinc/log.h>
+#include <kinc/error.h>
 
 #include <stdio.h>
 
@@ -83,7 +83,7 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 	return TRUE;
 }
 
-void Kinc_Windows_InitDisplays() {
+void kinc_windows_init_displays() {
 	HMODULE shcore = LoadLibraryA("Shcore.dll");
 	if (shcore != NULL) {
 		MyGetDpiForMonitor = (GetDpiForMonitorType)GetProcAddress(shcore, "GetDpiForMonitor");
@@ -92,7 +92,7 @@ void Kinc_Windows_InitDisplays() {
 	EnumDisplayMonitors(NULL, NULL, EnumerationCallback, 0);
 }
 
-int Kinc_Windows_GetDisplayForMonitor(struct HMONITOR__ *monitor) {
+int kinc_windows_get_display_for_monitor(struct HMONITOR__ *monitor) {
 	for (int i = 0; i < MAXIMUM_DISPLAYS; ++i) {
 		if (displays[i].monitor == monitor) {
 			return i;

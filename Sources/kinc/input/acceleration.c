@@ -4,4 +4,4 @@
 
 #include <memory.h>
 
-void (*Kinc_AccelerationCallback)(float /*x*/, float /*y*/, float /*z*/) = NULL;
+void (*kinc_acceleration_callback)(float /*x*/, float /*y*/, float /*z*/) = NULL;

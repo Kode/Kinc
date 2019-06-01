@@ -11,4 +11,4 @@ typedef struct {
 	float* vertices;
 	int usage;
 		
-} Kinc_G4_VertexBufferImpl;
+} kinc_g4_vertex_buffer_impl_t;

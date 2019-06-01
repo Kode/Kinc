@@ -29,9 +29,9 @@ namespace {
 
 Keyboard* Keyboard::the() {
 	if (!initialized) {
-		Kinc_Keyboard_KeyDownCallback = down;
-		Kinc_Keyboard_KeyUpCallback = up;
-		Kinc_Keyboard_KeyPressCallback = press;
+		kinc_keyboard_key_down_callback = down;
+		kinc_keyboard_key_up_callback = up;
+		kinc_keyboard_key_press_callback = press;
 		initialized = true;
 	}
 	return &keyboard;

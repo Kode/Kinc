@@ -4,4 +4,4 @@
 
 #include <memory.h>
 
-void (*Kinc_RotationCallback)(float /*x*/, float /*y*/, float /*z*/) = NULL;
+void (*kinc_rotation_callback)(float /*x*/, float /*y*/, float /*z*/) = NULL;

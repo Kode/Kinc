@@ -14,6 +14,6 @@ namespace Kore {
 		void close();
 		void write(void* data, int size) override;
 	private:
-		Kinc_FileWriter writer;
+		kinc_file_writer_t writer;
 	};
 }

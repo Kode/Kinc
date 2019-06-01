@@ -19,36 +19,36 @@ typedef enum {
 	KINC_G4_TEXTURE_ADDRESSING_MIRROR,
 	KINC_G4_TEXTURE_ADDRESSING_CLAMP,
 	KINC_G4_TEXTURE_ADDRESSING_BORDER
-} Kinc_G4_TextureAddressing;
+} kinc_g4_texture_addressing_t;
 
 typedef enum {
 	KINC_G4_TEXTURE_DIRECTION_U,
 	KINC_G4_TEXTURE_DIRECTION_V,
 	KINC_G4_TEXTURE_DIRECTION_W
-} Kinc_G4_TextureDirection;
+} kinc_g4_texture_direction_t;
 
 typedef enum {
 	KINC_G4_TEXTURE_OPERATION_MODULATE,
 	KINC_G4_TEXTURE_OPERATION_SELECT_FIRST,
 	KINC_G4_TEXTURE_OPERATION_SELECT_SECOND
-} Kinc_G4_TextureOperation;
+} kinc_g4_texture_operation_t;
 
 typedef enum {
 	KINC_G4_TEXTURE_ARGUMENT_CURRENT_COLOR,
 	KINC_G4_TEXTURE_ARGUMENT_TEXTURE_COLOR
-} Kinc_G4_TextureArgument;
+} kinc_g4_texture_argument_t;
 
 typedef enum {
 	KINC_G4_TEXTURE_FILTER_POINT,
 	KINC_G4_TEXTURE_FILTER_LINEAR,
 	KINC_G4_TEXTURE_FILTER_ANISOTROPIC
-} Kinc_G4_TextureFilter;
+} kinc_g4_texture_filter_t;
 
 typedef enum {
 	KINC_G4_MIPMAP_FILTER_NONE,
 	KINC_G4_MIPMAP_FILTER_POINT,
 	KINC_G4_MIPMAP_FILTER_LINEAR // linear texture filter + linear mip filter -> trilinear filter
-} Kinc_G4_MipmapFilter;
+} kinc_g4_mipmap_filter_t;
 
 void kinc_g4_init(int window, int depthBufferBits, int stencilBufferBits, bool vSync);
 
@@ -82,15 +82,15 @@ void kinc_g4_draw_indexed_vertices_instanced(int instanceCount);
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count);
 
-void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
+void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing);
 
-void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
+void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing);
 
 void kinc_g4_set_pipeline(struct kinc_g4_pipeline *pipeline);
 
 void kinc_g4_set_stencil_reference_value(int value);
 
-void kinc_g4_set_texture_operation(Kinc_G4_TextureOperation operation, Kinc_G4_TextureArgument arg1, Kinc_G4_TextureArgument arg2);
+void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2);
 
 void kinc_g4_set_int(kinc_g4_constant_location_t location, int value);
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value);
@@ -102,17 +102,17 @@ void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value);
 void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value);
 void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value);
 
-void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, Kinc_G4_TextureFilter filter);
+void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter);
 
-void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter);
+void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter);
 
-void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, Kinc_G4_TextureFilter filter);
+void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter);
 
-void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter);
+void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter);
 
-void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, Kinc_G4_MipmapFilter filter);
+void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipmap_filter_t filter);
 
-void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_MipmapFilter filter);
+void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter);
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled);
 

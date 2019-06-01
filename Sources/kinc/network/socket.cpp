@@ -41,7 +41,7 @@ static int resolveAddress(const char* url, int port, addrinfo** result) {
 }
 #endif
 
-void Kinc_Socket_Init(Kinc_Socket *sock) {
+void kinc_socket_init(kinc_socket_t *sock) {
 	if (initialized) return;
 
 	sock->handle = 0;
@@ -52,7 +52,7 @@ void Kinc_Socket_Init(Kinc_Socket *sock) {
 	initialized = true;
 }
 
-void Kinc_Socket_Open(Kinc_Socket *sock, int port) {
+void kinc_socket_open(kinc_socket_t *sock, int port) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	sock->handle = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (sock->handle <= 0) {
@@ -138,7 +138,7 @@ void Kinc_Socket_Open(Kinc_Socket *sock, int port) {
 #endif
 }
 
-void Kinc_Socket_Destroy(Kinc_Socket *sock) {
+void kinc_socket_destroy(kinc_socket_t *sock) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	closesocket(sock->handle);
 #elif defined(KORE_POSIX)
@@ -147,7 +147,7 @@ void Kinc_Socket_Destroy(Kinc_Socket *sock) {
 	destroy();
 }
 
-unsigned Kinc_urlToInt(const char *url, int port) {
+unsigned kinc_url_to_int(const char *url, int port) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	addrinfo* address = nullptr;
 	int res = resolveAddress(url, port, &address);
@@ -165,7 +165,7 @@ unsigned Kinc_urlToInt(const char *url, int port) {
 #endif
 }
 
-void Kinc_Socket_Send(Kinc_Socket *sock, unsigned address, int port, const unsigned char *data, int size) {
+void kinc_socket_send(kinc_socket_t *sock, unsigned address, int port, const unsigned char *data, int size) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	sockaddr_in addr;
 	addr.sin_family = AF_INET;
@@ -179,7 +179,7 @@ void Kinc_Socket_Send(Kinc_Socket *sock, unsigned address, int port, const unsig
 #endif
 }
 
-void Kinc_Socket_Send_URL(Kinc_Socket *sock, const char *url, int port, const unsigned char *data, int size) {
+void kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const unsigned char *data, int size) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	addrinfo* address = nullptr;
 	int res = resolveAddress(url, port, &address);
@@ -196,7 +196,7 @@ void Kinc_Socket_Send_URL(Kinc_Socket *sock, const char *url, int port, const un
 #endif
 }
 
-void Kinc_Socket_SetBroadcastEnabled(Kinc_Socket *sock, bool enabled) {
+void kinc_socket_set_broadcast_enabled(kinc_socket_t *sock, bool enabled) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	char broadcast = enabled ? 1 : 0;
 	if (setsockopt(sock->handle, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast)) < 0) {
@@ -206,7 +206,7 @@ void Kinc_Socket_SetBroadcastEnabled(Kinc_Socket *sock, bool enabled) {
 #endif
 }
 
-int Kinc_Socket_Receive(Kinc_Socket *sock, unsigned char *data, int maxSize, unsigned *fromAddress, unsigned *fromPort) {
+int kinc_socket_receive(kinc_socket_t *sock, unsigned char *data, int maxSize, unsigned *fromAddress, unsigned *fromPort) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	typedef int socklen_t;
 	typedef int ssize_t;

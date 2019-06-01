@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Threads/Atomic.h>
+#include <kinc/threads/atomic.h>
 
 #define KORE_ATOMIC_COMPARE_EXCHANGE KINC_ATOMIC_COMPARE_EXCHANGE
 

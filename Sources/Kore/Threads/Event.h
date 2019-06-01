@@ -12,6 +12,6 @@ namespace Kore {
 		bool tryToWait(double seconds);
 		void reset();
 	private:
-		Kinc_Event event;
+		kinc_event_t event;
 	};
 }

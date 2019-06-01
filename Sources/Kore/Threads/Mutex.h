@@ -56,7 +56,7 @@ namespace Kore {
 		bool tryToLock();
 		void unlock();
 	private:
-		Kinc_Mutex mutex;
+		kinc_mutex_t mutex;
 	};
 
 	class UberMutex {
@@ -66,6 +66,6 @@ namespace Kore {
 		void lock();
 		void unlock();
 	private:
-		Kinc_UberMutex mutex;
+		kinc_uber_mutex_t mutex;
 	};
 }

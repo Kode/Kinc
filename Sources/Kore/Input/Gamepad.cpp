@@ -30,12 +30,12 @@ Gamepad* Gamepad::get(int num) {
 		return nullptr;
 	}
 	if (!callbacksInitialized) {
-		Kinc_Gamepad_AxisCallback = axisCallback;
-		Kinc_Gamepad_ButtonCallback = buttonCallback;
+		kinc_gamepad_axis_callback = axisCallback;
+		kinc_gamepad_button_callback = buttonCallback;
 	}
 	if (!padInitialized[num]) {
-		pads[num].vendor = Kinc_Gamepad_Vendor(num);
-		pads[num].productName = Kinc_Gamepad_ProductName(num);
+		pads[num].vendor = kinc_gamepad_vendor(num);
+		pads[num].productName = kinc_gamepad_product_name(num);
 		padInitialized[num] = true;
 	}
 	return &pads[num];

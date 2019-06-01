@@ -43,11 +43,11 @@ namespace {
 
 Mouse* Mouse::the() {
 	if (!initialized) {
-		Kinc_Mouse_MoveCallback = move;
-		Kinc_Mouse_PressCallback = press;
-		Kinc_Mouse_ReleaseCallback = release;
-		Kinc_Mouse_ScrollCallback = scroll;
-		Kinc_Mouse_LeaveWindowCallback = leave;
+		kinc_mouse_move_callback = move;
+		kinc_mouse_press_callback = press;
+		kinc_mouse_release_callback = release;
+		kinc_mouse_scroll_callback = scroll;
+		kinc_mouse_leave_window_callback = leave;
 		initialized = true;
 	}
 	return &mouse;
@@ -56,34 +56,34 @@ Mouse* Mouse::the() {
 Mouse::Mouse() : Move(nullptr), Press(nullptr), Release(nullptr), Scroll(nullptr), Leave(nullptr) {}
 
 bool Mouse::canLock(int window) {
-	return Kinc_Mouse_CanLock(window);
+	return kinc_mouse_can_lock(window);
 }
 
 bool Mouse::isLocked(int window) {
-	return Kinc_Mouse_IsLocked(window);
+	return kinc_mouse_is_locked(window);
 }
 
 void Mouse::lock(int window) {
-	Kinc_Mouse_Lock(window);
+	kinc_mouse_lock(window);
 }
 
 void Mouse::unlock(int window) {
-	Kinc_Mouse_Unlock(window);
+	kinc_mouse_unlock(window);
 }
 
 void Mouse::show(bool truth) {
 	if (truth) {
-		Kinc_Mouse_Show();
+		kinc_mouse_show();
 	}
 	else {
-		Kinc_Mouse_Hide();
+		kinc_mouse_hide();
 	}
 }
 
 void Mouse::setPosition(int window, int x, int y) {
-	Kinc_Mouse_SetPosition(window, x, y);
+	kinc_mouse_set_position(window, x, y);
 }
 
 void Mouse::getPosition(int window, int &x, int &y) {
-	Kinc_Mouse_GetPosition(window, &x, &y);
+	kinc_mouse_get_position(window, &x, &y);
 }

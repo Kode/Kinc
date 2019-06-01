@@ -2,7 +2,7 @@
 
 #include "Direct3D11.h"
 
-#include <Kinc/Graphics4/VertexBuffer.h>
+#include <kinc/graphics4/vertexbuffer.h>
 
 #include <Kore/SystemMicrosoft.h>
 
@@ -62,7 +62,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	Kinc_Microsoft_Affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.vb));
+	kinc_microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.vb));
 }
 
 void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
@@ -97,7 +97,7 @@ void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 	}
 }
 
-int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset) {
+int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	// UINT stride = myStride;
 	// UINT internaloffset = 0;
 	// context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);

@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <Kinc/Audio2/Audio.h>
+#include <kinc/audio2/audio.h>
 
 #include <Kore/Error.h>
 #include <Kore/Log.h>
@@ -24,8 +24,8 @@ using namespace Windows::Storage::Streams;
 
 // based on the implementation in soloud and Microsoft sample code
 namespace {
-	void (*a2_callback)(Kinc_A2_Buffer *buffer, int samples) = nullptr;
-	Kinc_A2_Buffer a2_buffer;
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+	kinc_a2_buffer_t a2_buffer;
 
 	IMMDeviceEnumerator* deviceEnumerator;
 	IMMDevice* device;
@@ -130,12 +130,12 @@ namespace {
 			return;
 		}
 
-		Kinc_A2_SamplesPerSecond = format->nSamplesPerSec;
+		kinc_a2_samples_per_second = format->nSamplesPerSec;
 
 		bufferFrames = 0;
-		Kinc_Microsoft_Affirm(audioClient->GetBufferSize(&bufferFrames));
-		Kinc_Microsoft_Affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
-		Kinc_Microsoft_Affirm(audioClient->SetEventHandle(bufferEndEvent));
+		kinc_microsoft_affirm(audioClient->GetBufferSize(&bufferFrames));
+		kinc_microsoft_affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void **>(&renderClient)));
+		kinc_microsoft_affirm(audioClient->SetEventHandle(bufferEndEvent));
 
 #ifdef KORE_WINDOWS
 		createAndRunThread(audioThread, nullptr);
@@ -177,36 +177,36 @@ template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
 		(punk) = NULL;                                                                                                                                         \
 	}
 
-void Kinc_A2_Init() {
+void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
 	a2_buffer.data = new u8[a2_buffer.data_size];
 
 #ifdef KORE_WINDOWS
-	Kinc_Microsoft_Affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
-	Kinc_Microsoft_Affirm(
+	kinc_microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
+	kinc_microsoft_affirm(
 	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&deviceEnumerator)));
-	Kinc_Microsoft_Affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
-	Kinc_Microsoft_Affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&audioClient)));
+	kinc_microsoft_affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
+	kinc_microsoft_affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void **>(&audioClient)));
 	initAudio();
 #else
 	renderer = Make<AudioRenderer>();
 
 	IActivateAudioInterfaceAsyncOperation* asyncOp;
 	Platform::String ^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
-	Kinc_Microsoft_Affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
+	kinc_microsoft_affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
 	SafeRelease(&asyncOp);
 #endif
 }
 
-void Kinc_A2_SetCallback(void(*Kinc_A2_audio_callback)(Kinc_A2_Buffer *buffer, int samples)) {
-	a2_callback = Kinc_A2_audio_callback;
+void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+	a2_callback = kinc_a2_audio_callback;
 }
 
-void Kinc_A2_Update() {}
+void kinc_a2_update() {}
 
-void Kinc_A2_Shutdown() {
+void kinc_a2_shutdown() {
 	// Wait for last data in buffer to play before stopping.
 	// Sleep((DWORD)(hnsActualDuration/REFTIMES_PER_MILLISEC/2));
 

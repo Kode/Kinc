@@ -11,7 +11,7 @@ typedef struct {
 	struct ID3D11Texture2D *texture;
 	struct ID3D11ShaderResourceView *view;
 	// void set(Kore::Graphics4::TextureUnit unit);
-} Kinc_G4_TextureArrayImpl;
+} kinc_g4_texture_array_impl_t;
 
 #ifdef __cplusplus
 }

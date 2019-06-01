@@ -7,13 +7,13 @@ extern "C" {
 #endif
 
 typedef struct {
-	Kinc_ThreadLocalImpl impl;
-} Kinc_ThreadLocal;
+	kinc_thread_local_impl_t impl;
+} kinc_thread_local_t;
 
-void Kinc_ThreadLocal_Create(Kinc_ThreadLocal *local);
-void Kinc_ThreadLocal_Destroy(Kinc_ThreadLocal *local);
-void *Kinc_ThreadLocal_Get(Kinc_ThreadLocal *local);
-void Kinc_ThreadLocal_Set(Kinc_ThreadLocal *local, void *data);
+void kinc_thread_local_init(kinc_thread_local_t *local);
+void kinc_thread_local_destroy(kinc_thread_local_t *local);
+void *kinc_thread_local_get(kinc_thread_local_t *local);
+void kinc_thread_local_set(kinc_thread_local_t *local, void *data);
 
 #ifdef __cplusplus
 }

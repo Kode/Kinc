@@ -5,37 +5,37 @@
 using namespace Kore;
 
 void Mutex::create() {
-	Kinc_Mutex_Create(&mutex);
+	kinc_mutex_init(&mutex);
 }
 
 void Mutex::destroy() {
-	Kinc_Mutex_Destroy(&mutex);
+	kinc_mutex_destroy(&mutex);
 }
 
 void Mutex::lock() {
-	Kinc_Mutex_Lock(&mutex);
+	kinc_mutex_lock(&mutex);
 }
 
 bool Mutex::tryToLock() {
-	return Kinc_Mutex_TryToLock(&mutex);
+	return kinc_mutex_try_to_lock(&mutex);
 }
 
 void Mutex::unlock() {
-	Kinc_Mutex_Unlock(&mutex);
+	kinc_mutex_unlock(&mutex);
 }
 
 bool UberMutex::create(const char *name) {
-	return Kinc_UberMutex_Create(&mutex, name);
+	return kinc_uber_mutex_init(&mutex, name);
 }
 
 void UberMutex::destroy() {
-	Kinc_UberMutex_Destroy(&mutex);
+	kinc_uber_mutex_destroy(&mutex);
 }
 
 void UberMutex::lock() {
-	Kinc_UberMutex_Lock(&mutex);
+	kinc_uber_mutex_lock(&mutex);
 }
 
 void UberMutex::unlock() {
-	Kinc_UberMutex_Unlock(&mutex);
+	kinc_uber_mutex_unlock(&mutex);
 }

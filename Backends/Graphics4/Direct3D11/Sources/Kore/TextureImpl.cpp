@@ -2,8 +2,8 @@
 
 #include "Direct3D11.h"
 
-#include <Kinc/Graphics4/Texture.h>
-#include <Kinc/Graphics4/TextureUnit.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/graphics4/textureunit.h>
 
 #include <Kore/Math/Random.h>
 #include <Kore/SystemMicrosoft.h>
@@ -91,8 +91,8 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	data.SysMemSlicePitch = 0;
 
 	texture->impl.texture = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, &data, &texture->impl.texture));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture->impl.texture, nullptr, &texture->impl.view));
+	kinc_microsoft_affirm(device->CreateTexture2D(&desc, &data, &texture->impl.texture));
+	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture, nullptr, &texture->impl.view));
 }
 
 void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t *image) {
@@ -121,8 +121,8 @@ void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t 
 	data.SysMemSlicePitch = image->width * image->height * formatByteSize(image->format);
 
 	texture->impl.texture3D = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture3D(&desc, &data, &texture->impl.texture3D));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
+	kinc_microsoft_affirm(device->CreateTexture3D(&desc, &data, &texture->impl.texture3D));
+	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
 }
 
 void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
@@ -153,15 +153,15 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 	}
 
 	texture->impl.texture = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &texture->impl.texture));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture->impl.texture, nullptr, &texture->impl.view));
+	kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &texture->impl.texture));
+	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture, nullptr, &texture->impl.view));
 
 	if (format == KINC_IMAGE_FORMAT_RGBA128) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
 		du.Format = desc.Format;
 		du.Texture2D.MipSlice = 0;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE2D;
-		Kinc_Microsoft_Affirm(device->CreateUnorderedAccessView(texture->impl.texture, &du, &texture->impl.computeView));
+		kinc_microsoft_affirm(device->CreateUnorderedAccessView(texture->impl.texture, &du, &texture->impl.computeView));
 	}
 }
 
@@ -186,16 +186,16 @@ void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, i
 	desc.CPUAccessFlags = 0;
 
 	texture->impl.texture3D = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture3D(&desc, nullptr, &texture->impl.texture3D));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
+	kinc_microsoft_affirm(device->CreateTexture3D(&desc, nullptr, &texture->impl.texture3D));
+	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
 }
 
 //TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
 
-void Kinc_Internal_TextureUnset(kinc_g4_texture_t *texture);
+void kinc_internal_texture_unset(kinc_g4_texture_t *texture);
 
 void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
-	Kinc_Internal_TextureUnset(texture);
+	kinc_internal_texture_unset(texture);
 	if (texture->impl.view != nullptr) {
 		texture->impl.view->Release();
 	}
@@ -207,11 +207,11 @@ void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 	}
 }
 
-void Kinc_Internal_TextureUnmipmap(kinc_g4_texture_t *texture) {
+void kinc_internal_texture_unmipmap(kinc_g4_texture_t *texture) {
 	texture->impl.hasMipmaps = false;
 }
 
-void Kinc_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
+void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	if (unit.impl.vertex) {
 		context->VSSetShaderResources(unit.impl.unit, 1, &texture->impl.view);
@@ -223,7 +223,7 @@ void Kinc_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t
 	setTextures[texture->impl.stage] = texture;
 }
 
-void Kinc_Internal_TextureSetImage(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
+void kinc_internal_texture_set_image(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	if (texture->impl.computeView == nullptr) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
@@ -232,12 +232,12 @@ void Kinc_Internal_TextureSetImage(kinc_g4_texture_t *texture, kinc_g4_texture_u
 		du.Texture3D.FirstWSlice = 0;
 		du.Texture3D.WSize = -1;
 		du.ViewDimension = D3D11_UAV_DIMENSION::D3D11_UAV_DIMENSION_TEXTURE3D;
-		Kinc_Microsoft_Affirm(device->CreateUnorderedAccessView(texture->impl.texture3D, &du, &texture->impl.computeView));
+		kinc_microsoft_affirm(device->CreateUnorderedAccessView(texture->impl.texture3D, &du, &texture->impl.computeView));
 	}
 	context->OMSetRenderTargetsAndUnorderedAccessViews(0, nullptr, nullptr, unit.impl.unit, 1, &texture->impl.computeView, nullptr);
 }
 
-void Kinc_Internal_TextureUnset(kinc_g4_texture_t *texture) {
+void kinc_internal_texture_unset(kinc_g4_texture_t *texture) {
 	if (setTextures[texture->impl.stage] == texture) {
 
 		setTextures[texture->impl.stage] = NULL;
@@ -258,8 +258,8 @@ void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
 void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, uint color) {
 	if (texture->impl.renderView == nullptr) {
 		texture->tex_depth > 1 ? 
-			Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture->impl.texture3D, 0, &texture->impl.renderView))
-		             : Kinc_Microsoft_Affirm(device->CreateRenderTargetView(texture->impl.texture, 0, &texture->impl.renderView));
+			kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture3D, 0, &texture->impl.renderView))
+		                       : kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture, 0, &texture->impl.renderView));
 	}
 	static float clearColor[4];
 	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
@@ -289,8 +289,8 @@ static void enableMipmaps(kinc_g4_texture_t *texture, int texWidth, int texHeigh
 
 	ID3D11Texture2D* mipMappedTexture;
 	ID3D11ShaderResourceView* mipMappedView;
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, nullptr, &mipMappedTexture));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(mipMappedTexture, nullptr, &mipMappedView));
+	kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &mipMappedTexture));
+	kinc_microsoft_affirm(device->CreateShaderResourceView(mipMappedTexture, nullptr, &mipMappedView));
 
 	D3D11_BOX sourceRegion;
 	sourceRegion.left = 0;

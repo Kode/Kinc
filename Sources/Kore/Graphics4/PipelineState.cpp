@@ -67,23 +67,23 @@ void Graphics4::PipelineState::compile() {
 	kincPipeline.tessellation_control_shader = tessellationControlShader == nullptr ? nullptr : &tessellationControlShader->kincShader;
 	kincPipeline.tessellation_evaluation_shader = tessellationEvaluationShader == nullptr ? nullptr : &tessellationEvaluationShader->kincShader;
 
-	kincPipeline.cull_mode = (Kinc_G4_CullMode)cullMode;
+	kincPipeline.cull_mode = (kinc_g4_cull_mode_t)cullMode;
 
 	kincPipeline.depth_write = depthWrite;
-	kincPipeline.depth_mode = (Kinc_G4_CompareMode)depthMode;
+	kincPipeline.depth_mode = (kinc_g4_compare_mode_t)depthMode;
 
-	kincPipeline.stencil_mode = (Kinc_G4_CompareMode)stencilMode;
-	kincPipeline.stencil_both_pass = (Kinc_G4_StencilAction)stencilBothPass;
-	kincPipeline.stencil_depth_fail = (Kinc_G4_StencilAction)stencilDepthFail;
-	kincPipeline.stencil_fail = (Kinc_G4_StencilAction)stencilFail;
+	kincPipeline.stencil_mode = (kinc_g4_compare_mode_t)stencilMode;
+	kincPipeline.stencil_both_pass = (kinc_g4_stencil_action_t)stencilBothPass;
+	kincPipeline.stencil_depth_fail = (kinc_g4_stencil_action_t)stencilDepthFail;
+	kincPipeline.stencil_fail = (kinc_g4_stencil_action_t)stencilFail;
 	kincPipeline.stencil_reference_value = stencilReferenceValue;
 	kincPipeline.stencil_read_mask = stencilReadMask;
 	kincPipeline.stencil_write_mask = stencilWriteMask;
 
-	kincPipeline.blend_source = (Kinc_G4_BlendingOperation)blendSource;
-	kincPipeline.blend_destination = (Kinc_G4_BlendingOperation)blendDestination;
-	kincPipeline.alpha_blend_source = (Kinc_G4_BlendingOperation)alphaBlendSource;
-	kincPipeline.alpha_blend_destination = (Kinc_G4_BlendingOperation)alphaBlendDestination;
+	kincPipeline.blend_source = (kinc_g4_blending_operation_t)blendSource;
+	kincPipeline.blend_destination = (kinc_g4_blending_operation_t)blendDestination;
+	kincPipeline.alpha_blend_source = (kinc_g4_blending_operation_t)alphaBlendSource;
+	kincPipeline.alpha_blend_destination = (kinc_g4_blending_operation_t)alphaBlendDestination;
 
 	for (int i = 0; i < 8; ++i) {
 		kincPipeline.color_write_mask_red[i] = colorWriteMaskRed[i];

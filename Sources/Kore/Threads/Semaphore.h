@@ -11,6 +11,6 @@ namespace Kore {
 		void acquire();
 		bool tryToAcquire(double seconds);
 	private:
-		Kinc_Semaphore semaphore;
+		kinc_semaphore_t semaphore;
 	};
 }

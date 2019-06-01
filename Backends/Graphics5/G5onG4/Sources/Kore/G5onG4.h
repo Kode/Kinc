@@ -1,4 +1,4 @@
 #pragma once
 
-#include <Kinc/Graphics5/Graphics.h>
-#include <Kinc/Math/Matrix.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/math/matrix.h>

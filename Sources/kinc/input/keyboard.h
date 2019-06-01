@@ -192,13 +192,13 @@ extern "C" {
 #define KINC_KEY_PA1 253
 #define KINC_KEY_WIN_OEM_CLEAR 254
 
-extern void (*Kinc_Keyboard_KeyDownCallback)(int /*key_code*/);
-extern void (*Kinc_Keyboard_KeyUpCallback)(int /*key_code*/);
-extern void (*Kinc_Keyboard_KeyPressCallback)(unsigned /*character*/);
+extern void (*kinc_keyboard_key_down_callback)(int /*key_code*/);
+extern void (*kinc_keyboard_key_up_callback)(int /*key_code*/);
+extern void (*kinc_keyboard_key_press_callback)(unsigned /*character*/);
 
-void Kinc_Internal_Keyboard_TriggerKeyDown(int key_code);
-void Kinc_Internal_Keyboard_TriggerKeyUp(int key_code);
-void Kinc_Internal_Keyboard_TriggerKeyPress(unsigned character);
+void kinc_internal_keyboard_trigger_key_down(int key_code);
+void kinc_internal_keyboard_trigger_key_up(int key_code);
+void kinc_internal_keyboard_trigger_key_press(unsigned character);
 
 #ifdef __cplusplus
 }

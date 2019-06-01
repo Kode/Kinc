@@ -48,5 +48,5 @@ int VertexBuffer::stride() {
 }
 
 int VertexBuffer::_set(int offset) {
-	return Kinc_Internal_G4_VertexBuffer_Set(&kincBuffer, offset);
+	return kinc_internal_g4_vertex_buffer_set(&kincBuffer, offset);
 }

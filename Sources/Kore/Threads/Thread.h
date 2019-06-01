@@ -5,7 +5,7 @@
 namespace Kore {
 	class Thread {
 	public:
-		Kinc_Thread thread;
+		kinc_thread_t thread;
 	};
 
 	void threadsInit();

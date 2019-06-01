@@ -2,7 +2,7 @@
 
 #include "Direct3D11.h"
 
-#include <Kinc/Graphics4/IndexBuffer.h>
+#include <kinc/graphics4/indexBuffer.h>
 
 #include <Kore/SystemMicrosoft.h>
 
@@ -21,7 +21,7 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	Kinc_Microsoft_Affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.ib));
+	kinc_microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.ib));
 }
 
 void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {

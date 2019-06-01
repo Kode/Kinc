@@ -8,18 +8,18 @@
 #include <Kore/Graphics3/Graphics.h>
 #endif
 
-#include <Kinc/Input/Gamepad.h>
+#include <kinc/input/gamepad.h>
 
 #include <Kore/Display.h>
 #include <Kore/Window.h>
 #include <Kore/Windows.h>
 
-#include <Kinc/Input/Keyboard.h>
-#include <Kinc/Input/Mouse.h>
-#include <Kinc/Input/Pen.h>
-#include <Kinc/Log.h>
-#include <Kinc/System.h>
-#include <Kinc/Window.h>
+#include <kinc/input/keyboard.h>
+#include <kinc/input/mouse.h>
+#include <kinc/input/pen.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
 #define DIRECTINPUT_VERSION 0x0800
 #ifdef WIN32_LEAN_AND_MEAN
@@ -272,9 +272,9 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		}
 		break;
 	case WM_DPICHANGED: {
-		int window = Kinc_Windows_WindowIndexFromHWND(hWnd);
+		int window = kinc_windows_window_index_from_hwnd(hWnd);
 		if (window >= 0) {
-			Kinc_Internal_CallPpiChangedCallback(window, LOWORD(wParam));
+			kinc_internal_call_ppi_changed_callback(window, LOWORD(wParam));
 		}
 		break;
 	}
@@ -284,12 +284,12 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		// Scheduler::breakTime();
 		break;
 	case WM_SIZE: {
-		int window = Kinc_Windows_WindowIndexFromHWND(hWnd);
+		int window = kinc_windows_window_index_from_hwnd(hWnd);
 		if (window >= 0) {
 			int width = LOWORD(lParam);
 			int height = HIWORD(lParam);
 			Kore::Graphics::_resize(window, width, height);
-			Kinc_Internal_CallResizeCallback(window, width, height);
+			kinc_internal_call_resize_callback(window, width, height);
 		}
 		break;
 	}
@@ -300,17 +300,17 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		return 1;
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_ACTIVE)
-			Kinc_Internal_Mouse_WindowActivated(Kinc_Windows_WindowIndexFromHWND(hWnd));
+			kinc_internal_mouse_window_activated(kinc_windows_window_index_from_hwnd(hWnd));
 		else
-			Kinc_Internal_Mouse_WindowDeactivated(Kinc_Windows_WindowIndexFromHWND(hWnd));
+			kinc_internal_mouse_window_deactivated(kinc_windows_window_index_from_hwnd(hWnd));
 		break;
 	case WM_MOUSELEAVE:
-		windowId = Kinc_Windows_WindowIndexFromHWND(hWnd);
+		windowId = kinc_windows_window_index_from_hwnd(hWnd);
 		//**windows[windowId]->isMouseInside = false;
-		Kinc_Internal_Mouse_TriggerLeaveWindow(windowId);
+		kinc_internal_mouse_trigger_leave_window(windowId);
 		break;
 	case WM_MOUSEMOVE:
-		windowId = Kinc_Windows_WindowIndexFromHWND(hWnd);
+		windowId = kinc_windows_window_index_from_hwnd(hWnd);
 		/*if (!windows[windowId]->isMouseInside) {
 		    windows[windowId]->isMouseInside = true;
 		    TRACKMOUSEEVENT tme;
@@ -321,52 +321,52 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		}*/
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerMove(windowId, mouseX, mouseY);
+		kinc_internal_mouse_trigger_move(windowId, mouseX, mouseY);
 		break;
 	case WM_LBUTTONDOWN:
-		if (!Kinc_Mouse_IsLocked(Kinc_Windows_WindowIndexFromHWND(hWnd))) SetCapture(hWnd);
+		if (!kinc_mouse_is_locked(kinc_windows_window_index_from_hwnd(hWnd))) SetCapture(hWnd);
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
+		kinc_internal_mouse_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_LBUTTONUP:
-		if (!Kinc_Mouse_IsLocked(Kinc_Windows_WindowIndexFromHWND(hWnd))) ReleaseCapture();
+		if (!kinc_mouse_is_locked(kinc_windows_window_index_from_hwnd(hWnd))) ReleaseCapture();
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), 0, mouseX, mouseY);
+		kinc_internal_mouse_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_RBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
+		kinc_internal_mouse_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_RBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), 1, mouseX, mouseY);
+		kinc_internal_mouse_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), 1, mouseX, mouseY);
 		break;
 	case WM_MBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
+		kinc_internal_mouse_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_MBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), 2, mouseX, mouseY);
+		kinc_internal_mouse_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONDOWN:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		kinc_internal_mouse_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_XBUTTONUP:
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
-		Kinc_Internal_Mouse_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
+		kinc_internal_mouse_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), HIWORD(wParam) + 2, mouseX, mouseY);
 		break;
 	case WM_MOUSEWHEEL:
-		Kinc_Internal_Mouse_TriggerScroll(Kinc_Windows_WindowIndexFromHWND(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
+		kinc_internal_mouse_trigger_scroll(kinc_windows_window_index_from_hwnd(hWnd), GET_WHEEL_DELTA_WPARAM(wParam) / -120);
 		break;
 	case WM_POINTERDOWN:
 		pointerId = GET_POINTERID_WPARAM(wParam);
@@ -374,7 +374,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kinc_Internal_Pen_TriggerPress(Kinc_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			kinc_internal_pen_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                         float(penInfo.pressure) / 1024.0f);
 		}
 		break;
@@ -384,7 +384,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kinc_Internal_Pen_TriggerRelease(Kinc_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			kinc_internal_pen_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                           float(penInfo.pressure) / 1024.0f);
 		}
 		break;
@@ -394,7 +394,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (pointerInfo.pointerType == PT_PEN) {
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
-			Kinc_Internal_Pen_TriggerMove(Kinc_Windows_WindowIndexFromHWND(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
+			kinc_internal_pen_trigger_move(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
 			                        float(penInfo.pressure) / 1024.0f);
 		}
 		break;
@@ -408,7 +408,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			}
 			else {
 				if (controlDown && keyTranslated[wParam] == KINC_KEY_X) {
-					char *text = Kinc_Internal_CutCallback();
+					char *text = kinc_internal_cut_callback();
 					if (text != nullptr) {
 						wchar_t wtext[4096];
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
@@ -425,7 +425,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 				}
 
 				if (controlDown && keyTranslated[wParam] == KINC_KEY_C) {
-					char *text = Kinc_Internal_CopyCallback();
+					char *text = kinc_internal_copy_callback();
 					if (text != nullptr) {
 						wchar_t wtext[4096];
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
@@ -450,7 +450,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 							if (wtext != nullptr) {
 								char text[4096];
 								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, nullptr, nullptr);
-								Kinc_Internal_PasteCallback(text);
+								kinc_internal_paste_callback(text);
 								GlobalUnlock(handle);
 							}
 						}
@@ -459,7 +459,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 				}
 			}
 
-			Kinc_Internal_Keyboard_TriggerKeyDown(keyTranslated[wParam]);
+			kinc_internal_keyboard_trigger_key_down(keyTranslated[wParam]);
 		}
 		break;
 	case WM_KEYUP:
@@ -470,25 +470,25 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			controlDown = false;
 		}
 
-		Kinc_Internal_Keyboard_TriggerKeyUp(keyTranslated[wParam]);
+		kinc_internal_keyboard_trigger_key_up(keyTranslated[wParam]);
 		break;
 	case WM_CHAR:
 		switch (wParam) {
 		case 0x08: // backspace
 			break;
 		case 0x0A: // linefeed
-			Kinc_Internal_Keyboard_TriggerKeyPress(L'\n');
+			kinc_internal_keyboard_trigger_key_press(L'\n');
 			break;
 		case 0x1B: // escape
 			break;
 		case 0x09: // tab
-			Kinc_Internal_Keyboard_TriggerKeyPress(L'\t');
+			kinc_internal_keyboard_trigger_key_press(L'\t');
 			break;
 		case 0x0D: // carriage return
-			Kinc_Internal_Keyboard_TriggerKeyPress(L'\r');
+			kinc_internal_keyboard_trigger_key_press(L'\r');
 			break;
 		default:
-			Kinc_Internal_Keyboard_TriggerKeyPress((unsigned)wParam);
+			kinc_internal_keyboard_trigger_key_press((unsigned)wParam);
 			break;
 		}
 		break;
@@ -524,7 +524,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (count == 1) { // Single file only for now
 			wchar_t filePath[260];
 			if (DragQueryFile(hDrop, 0, filePath, 260)) {
-				Kinc_Internal_DropFilesCallback(filePath);
+				kinc_internal_drop_files_callback(filePath);
 			}
 		}
 		DragFinish(hDrop);
@@ -826,7 +826,7 @@ void handleDirectInputPad(int padIndex) {
 			}
 
 			if (*now != *last) {
-				Kinc_Internal_Gamepad_TriggerAxis(padIndex, axisIndex, *now / 32768.0f);
+				kinc_internal_gamepad_trigger_axis(padIndex, axisIndex, *now / 32768.0f);
 			}
 		}
 
@@ -835,7 +835,7 @@ void handleDirectInputPad(int padIndex) {
 			BYTE *last = &di_lastPadState[padIndex].rgbButtons[buttonIndex];
 
 			if (*now != *last) {
-				Kinc_Internal_Gamepad_TriggerButton(padIndex, buttonIndex, *now / 255.0f);
+				kinc_internal_gamepad_trigger_button(padIndex, buttonIndex, *now / 255.0f);
 			}
 		}
 
@@ -857,7 +857,7 @@ static bool isXInputGamepad(int gamepad) {
 	return dwResult == ERROR_SUCCESS;
 }
 
-const char *Kinc_Gamepad_Vendor(int gamepad) {
+const char *kinc_gamepad_vendor(int gamepad) {
 	if (isXInputGamepad(gamepad)) {
 		return "Microsoft";
 	}
@@ -866,7 +866,7 @@ const char *Kinc_Gamepad_Vendor(int gamepad) {
 	}
 }
 
-const char *Kinc_Gamepad_ProductName(int gamepad) {
+const char *kinc_gamepad_product_name(int gamepad) {
 	if (isXInputGamepad(gamepad)) {
 		return "Xbox 360 Controller";
 	}
@@ -875,7 +875,7 @@ const char *Kinc_Gamepad_ProductName(int gamepad) {
 	}
 }
 
-bool Kinc_Internal_HandleMessages() {
+bool kinc_internal_handle_messages() {
 	MSG message;
 
 	while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
@@ -902,7 +902,7 @@ bool Kinc_Internal_HandleMessages() {
 				newaxes[5] = state.Gamepad.bRightTrigger / 255.0f;
 				for (int i2 = 0; i2 < 6; ++i2) {
 					if (axes[i * 6 + i2] != newaxes[i2]) {
-						Kinc_Internal_Gamepad_TriggerAxis(i, i2, newaxes[i2]);
+						kinc_internal_gamepad_trigger_axis(i, i2, newaxes[i2]);
 						axes[i * 6 + i2] = newaxes[i2];
 					}
 				}
@@ -925,7 +925,7 @@ bool Kinc_Internal_HandleMessages() {
 				newbuttons[15] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? 1.0f : 0.0f;
 				for (int i2 = 0; i2 < 16; ++i2) {
 					if (buttons[i * 16 + i2] != newbuttons[i2]) {
-						Kinc_Internal_Gamepad_TriggerButton(i, i2, newbuttons[i2]);
+						kinc_internal_gamepad_trigger_button(i, i2, newbuttons[i2]);
 						buttons[i * 16 + i2] = newbuttons[i2];
 					}
 				}
@@ -1003,7 +1003,7 @@ namespace {
 	}
 }
 
-const char *Kinc_Internal_SavePath() {
+const char *kinc_internal_save_path() {
 	if (::savePath[0] == 0) findSavePath();
 	return ::savePath;
 }
@@ -1043,7 +1043,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
-	Kinc_Windows_InitDisplays();
+	kinc_windows_init_displays();
 
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);
@@ -1068,24 +1068,24 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	return ret;
 }
 
-int kinc_init(const char *name, int width, int height, Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame) {
+int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	//Kore::System::_init(name, width, height, &win, &frame);
-	Kinc_WindowOptions defaultWin;
+	kinc_window_options_t defaultWin;
 	if (win == nullptr) {
-		Kinc_Internal_InitWindowOptions(&defaultWin);
+		kinc_internal_init_window_options(&defaultWin);
 		win = &defaultWin;
 	}
 	win->width = width;
 	win->height = height;
-	int window = Kinc_WindowCreate(win, frame);
+	int window = kinc_window_create(win, frame);
 	loadXInput();
 	initializeDirectInput();
 	return window;
 }
 
-void Kinc_Internal_Shutdown() {
-	Kinc_Windows_HideWindows();
-	Kinc_Internal_ShutdownCallback();
-	Kinc_Windows_DestroyWindows();
+void kinc_internal_shutdown() {
+	kinc_windows_hide_windows();
+	kinc_internal_shutdown_callback();
+	kinc_windows_destroy_windows();
 	kinc_windows_restore_displays();
 }

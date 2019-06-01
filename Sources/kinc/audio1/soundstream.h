@@ -6,7 +6,7 @@
 struct stb_vorbis;
 
 typedef struct {
-	struct stb_vorbis* vorbis;
+	struct stb_vorbis *vorbis;
 	int chans;
 	int rate;
 	bool myLooping;
@@ -16,17 +16,17 @@ typedef struct {
 	bool end;
 	float samples[2];
 	uint8_t *buffer;
-} Kinc_A1_SoundStream;
+} kinc_a1_sound_stream_t;
 
-Kinc_A1_SoundStream *Kinc_A1_CreateSoundStream(const char *filename, bool looping);
-float Kinc_A1_SoundStreamNextSample(Kinc_A1_SoundStream *stream);
-int Kinc_A1_SoundStreamChannels(Kinc_A1_SoundStream *stream);
-int Kinc_A1_SoundStreamSampleRate(Kinc_A1_SoundStream *stream);
-bool Kinc_A1_SoundStreamLooping(Kinc_A1_SoundStream *stream);
-void Kinc_A1_SoundStreamSetLooping(Kinc_A1_SoundStream *stream, bool loop);
-bool Kinc_A1_SoundStreamEnded(Kinc_A1_SoundStream *stream);
-float Kinc_A1_SoundStreamLength(Kinc_A1_SoundStream *stream);
-float Kinc_A1_SoundStreamPosition(Kinc_A1_SoundStream *stream);
-void Kinc_A1_SoundStreamReset(Kinc_A1_SoundStream *stream);
-float Kinc_A1_SoundStreamVolume(Kinc_A1_SoundStream *stream);
-void Kinc_A1_SoundStreamSetVolume(Kinc_A1_SoundStream *stream, float value);
+kinc_a1_sound_stream_t *kinc_a1_sound_stream_create(const char *filename, bool looping);
+float kinc_a1_sound_stream_next_sample(kinc_a1_sound_stream_t *stream);
+int kinc_a1_sound_stream_channels(kinc_a1_sound_stream_t *stream);
+int kinc_a1_sound_stream_sample_rate(kinc_a1_sound_stream_t *stream);
+bool kinc_a1_sound_stream_looping(kinc_a1_sound_stream_t *stream);
+void kinc_a1_sound_stream_set_looping(kinc_a1_sound_stream_t *stream, bool loop);
+bool kinc_a1_sound_stream_ended(kinc_a1_sound_stream_t *stream);
+float kinc_a1_sound_stream_length(kinc_a1_sound_stream_t *stream);
+float kinc_a1_sound_stream_position(kinc_a1_sound_stream_t *stream);
+void kinc_a1_sound_stream_reset(kinc_a1_sound_stream_t *stream);
+float kinc_a1_sound_stream_volume(kinc_a1_sound_stream_t *stream);
+void kinc_a1_sound_stream_set_volume(kinc_a1_sound_stream_t *stream, float value);

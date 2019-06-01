@@ -8,11 +8,11 @@
 extern "C" {
 #endif
 
-struct _Kinc_FramebufferOptions;
+struct kinc_framebuffer_options;
 
-void Kinc_Bridge_G4_Internal_ChangeFramebuffer(int window_index, struct _Kinc_FramebufferOptions *frame);
-void Kinc_Bridge_G4_Internal_SetAntialiasingSamples(int samples_per_pixel);
-void Kinc_Bridge_G4_Internal_Init(int window_index, int depth_bits, int stencil_bits, bool vsync);
+void kinc_bridge_g4_internal_change_framebuffer(int window_index, struct kinc_framebuffer_options *frame);
+void kinc_bridge_g4_internal_set_antialiasing_samples(int samples_per_pixel);
+void kinc_bridge_g4_internal_init(int window_index, int depth_bits, int stencil_bits, bool vsync);
 
 #ifdef __cplusplus
 }

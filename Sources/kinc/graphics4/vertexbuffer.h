@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 typedef struct kinc_g4_vertex_buffer {
-	Kinc_G4_VertexBufferImpl impl;
+	kinc_g4_vertex_buffer_impl_t impl;
 } kinc_g4_vertex_buffer_t;
 
 typedef enum kinc_g4_usage {
@@ -30,7 +30,7 @@ void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count);
 int kinc_g4_vertex_buffer_count(kinc_g4_vertex_buffer_t *buffer);
 int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer);
 
-int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset);
+int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset);
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count);
 void kinc_g4_set_vertex_buffer(kinc_g4_vertex_buffer_t *buffer);

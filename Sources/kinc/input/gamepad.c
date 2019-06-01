@@ -4,17 +4,17 @@
 
 #include <memory.h>
 
-void (*Kinc_Gamepad_AxisCallback)(int /*gamepad*/, int /*axis*/, float /*value*/) = NULL;
-void (*Kinc_Gamepad_ButtonCallback)(int /*gamepad*/, int /*button*/, float /*value*/) = NULL;
+void (*kinc_gamepad_axis_callback)(int /*gamepad*/, int /*axis*/, float /*value*/) = NULL;
+void (*kinc_gamepad_button_callback)(int /*gamepad*/, int /*button*/, float /*value*/) = NULL;
 
-void Kinc_Internal_Gamepad_TriggerAxis(int gamepad, int axis, float value) {
-	if (Kinc_Gamepad_AxisCallback != NULL) {
-		Kinc_Gamepad_AxisCallback(gamepad, axis, value);
+void kinc_internal_gamepad_trigger_axis(int gamepad, int axis, float value) {
+	if (kinc_gamepad_axis_callback != NULL) {
+		kinc_gamepad_axis_callback(gamepad, axis, value);
 	}
 }
 
-void Kinc_Internal_Gamepad_TriggerButton(int gamepad, int button, float value) {
-	if (Kinc_Gamepad_ButtonCallback != NULL) {
-		Kinc_Gamepad_ButtonCallback(gamepad, button, value);
+void kinc_internal_gamepad_trigger_button(int gamepad, int button, float value) {
+	if (kinc_gamepad_button_callback != NULL) {
+		kinc_gamepad_button_callback(gamepad, button, value);
 	}
 }

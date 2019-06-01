@@ -2,11 +2,11 @@
 
 #include "Direct3D11.h"
 
-#include <Kinc/Graphics4/Pipeline.h>
-#include <Kinc/Graphics4/Shader.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
-#include <Kinc/Log.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/shader.h>
+#include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/log.h>
 
 #include <Kore/SystemMicrosoft.h>
 
@@ -15,7 +15,7 @@
 
 kinc_g4_pipeline_t *currentPipeline = NULL;
 
-static D3D11_CULL_MODE convert_cull_mode(Kinc_G4_CullMode cullMode) {
+static D3D11_CULL_MODE convert_cull_mode(kinc_g4_cull_mode_t cullMode) {
 	switch (cullMode) {
 	case KINC_G4_CULL_CLOCKWISE:
 		return D3D11_CULL_FRONT;
@@ -29,7 +29,7 @@ static D3D11_CULL_MODE convert_cull_mode(Kinc_G4_CullMode cullMode) {
 	}
 }
 
-static D3D11_BLEND convert_blend_operation(Kinc_G4_BlendingOperation operation) {
+static D3D11_BLEND convert_blend_operation(kinc_g4_blending_operation_t operation) {
 	switch (operation) {
 	case KINC_G4_BLEND_ONE:
 		return D3D11_BLEND_ONE;
@@ -57,7 +57,7 @@ static D3D11_BLEND convert_blend_operation(Kinc_G4_BlendingOperation operation) 
 	}
 }
 
-static D3D11_COMPARISON_FUNC get_comparison(Kinc_G4_CompareMode compare) {
+static D3D11_COMPARISON_FUNC get_comparison(kinc_g4_compare_mode_t compare) {
 	switch (compare) {
 	default:
 	case KINC_G4_COMPARE_ALWAYS:
@@ -79,7 +79,7 @@ static D3D11_COMPARISON_FUNC get_comparison(Kinc_G4_CompareMode compare) {
 	}
 }
 
-static D3D11_STENCIL_OP get_stencil_action(Kinc_G4_StencilAction action) {
+static D3D11_STENCIL_OP get_stencil_action(kinc_g4_stencil_action_t action) {
 	switch (action) {
 	default:
 	case KINC_G4_STENCIL_KEEP:
@@ -101,7 +101,7 @@ static D3D11_STENCIL_OP get_stencil_action(Kinc_G4_StencilAction action) {
 	}
 }
 
-void Kinc_Internal_SetConstants(void) {
+void kinc_internal_set_constants(void) {
 	if (currentPipeline->vertex_shader->impl.constantsSize > 0) {
 		context->UpdateSubresource(currentPipeline->impl.vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
 		context->VSSetConstantBuffers(0, 1, &currentPipeline->impl.vertexConstantBuffer);
@@ -182,21 +182,21 @@ void kinc_g4_pipeline_destroy(kinc_g4_pipeline *state) {
 	}
 }
 
-void Kinc_Internal_SetRasterizerState(kinc_g4_pipeline *pipeline, bool scissoring) {
+void kinc_internal_set_rasterizer_state(kinc_g4_pipeline *pipeline, bool scissoring) {
 	if (scissoring && pipeline->impl.rasterizerStateScissor != nullptr)
 		context->RSSetState(pipeline->impl.rasterizerStateScissor);
 	else if (pipeline->impl.rasterizerState != nullptr)
 		context->RSSetState(pipeline->impl.rasterizerState);
 }
 
-void Kinc_Internal_SetPipeline(kinc_g4_pipeline *pipeline, bool scissoring) {
+void kinc_internal_set_pipeline(kinc_g4_pipeline *pipeline, bool scissoring) {
 	currentPipeline = pipeline;
 
 	context->OMSetDepthStencilState(pipeline->impl.depthStencilState, pipeline->stencil_reference_value);
 	float blendFactor[] = {0, 0, 0, 0};
 	UINT sampleMask = 0xffffffff;
 	context->OMSetBlendState(pipeline->impl.blendState, blendFactor, sampleMask);
-	Kinc_Internal_SetRasterizerState(pipeline, scissoring);
+	kinc_internal_set_rasterizer_state(pipeline, scissoring);
 
 	context->VSSetShader((ID3D11VertexShader *)pipeline->vertex_shader->impl.shader, nullptr, 0);
 	context->PSSetShader((ID3D11PixelShader *)pipeline->fragment_shader->impl.shader, nullptr, 0);
@@ -210,7 +210,7 @@ void Kinc_Internal_SetPipeline(kinc_g4_pipeline *pipeline, bool scissoring) {
 	context->IASetInputLayout(pipeline->impl.d3d11inputLayout);
 }
 
-static Kinc_Internal_ShaderConstant *findConstant(Kinc_Internal_ShaderConstant *constants, uint32_t hash) {
+static kinc_internal_shader_constant_t *findConstant(kinc_internal_shader_constant_t *constants, uint32_t hash) {
 	for (int i = 0; i < 64; ++i) {
 		if (constants[i].hash == hash) {
 			return &constants[i];
@@ -219,7 +219,7 @@ static Kinc_Internal_ShaderConstant *findConstant(Kinc_Internal_ShaderConstant *
 	return NULL;
 }
 
-static Kinc_Internal_HashIndex *findTextureUnit(Kinc_Internal_HashIndex *units, uint32_t hash) {
+static kinc_internal_hash_index_t *findTextureUnit(kinc_internal_hash_index_t *units, uint32_t hash) {
 	for (int i = 0; i < 64; ++i) {
 		if (units[i].hash == hash) {
 			return &units[i];
@@ -231,9 +231,9 @@ static Kinc_Internal_HashIndex *findTextureUnit(Kinc_Internal_HashIndex *units, 
 kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline *state, const char *name) {
 	kinc_g4_constant_location_t location;
 
-	uint32_t hash = Kinc_Internal_HashName((unsigned char*)name);
+	uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
 
-	Kinc_Internal_ShaderConstant *constant = findConstant(state->vertex_shader->impl.constants, hash);
+	kinc_internal_shader_constant_t *constant = findConstant(state->vertex_shader->impl.constants, hash);
 	if (constant == NULL) {
 		location.impl.vertexOffset = 0;
 		location.impl.vertexSize = 0;
@@ -321,12 +321,12 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline *state
 		unitName[len - 3] = 0;                     // Strip array from name
 	}
 
-	uint32_t hash = Kinc_Internal_HashName((unsigned char *)name);
+	uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
 
 	kinc_g4_texture_unit_t unit;
-	Kinc_Internal_HashIndex *vertexUnit = findTextureUnit(state->vertex_shader->impl.textures, hash);
+	kinc_internal_hash_index_t *vertexUnit = findTextureUnit(state->vertex_shader->impl.textures, hash);
 	if (vertexUnit == NULL) {
-		Kinc_Internal_HashIndex *fragmentUnit = findTextureUnit(state->fragment_shader->impl.textures, hash);
+		kinc_internal_hash_index_t *fragmentUnit = findTextureUnit(state->fragment_shader->impl.textures, hash);
 		if (fragmentUnit == NULL) {
 			unit.impl.unit = -1;
 #ifndef NDEBUG
@@ -390,8 +390,8 @@ namespace {
 namespace {
 	const int usedCount = 32;
 
-	int getAttributeLocation(Kinc_Internal_HashIndex *attributes, const char *name, bool *used) {
-		uint32_t hash = Kinc_Internal_HashName((unsigned char *)name);
+	int getAttributeLocation(kinc_internal_hash_index_t *attributes, const char *name, bool *used) {
+		uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
 
 		for (int i = 0; i < 64; ++i) {
 			if (attributes[i].hash == hash) {
@@ -427,19 +427,23 @@ namespace {
 
 void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 	if (state->vertex_shader->impl.constantsSize > 0)
-		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->vertex_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->vertex_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 		                                           &state->impl.vertexConstantBuffer));
 	if (state->fragment_shader->impl.constantsSize > 0)
-		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->fragment_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->fragment_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		                                           nullptr,
 		                                           &state->impl.fragmentConstantBuffer));
 	if (state->geometry_shader != NULL && state->geometry_shader->impl.constantsSize > 0)
-		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->geometry_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
+		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->geometry_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		                                           nullptr,
 		                                           &state->impl.geometryConstantBuffer));
 	if (state->tessellation_control_shader != NULL && state->tessellation_control_shader->impl.constantsSize > 0)
-		Kinc_Microsoft_Affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->tessellation_control_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		kinc_microsoft_affirm(
+		    device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->tessellation_control_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
 		                                           nullptr, &state->impl.tessControlConstantBuffer));
 	if (state->tessellation_evaluation_shader != NULL && state->tessellation_evaluation_shader->impl.constantsSize > 0)
-		Kinc_Microsoft_Affirm(device->CreateBuffer(
+		kinc_microsoft_affirm(
+		    device->CreateBuffer(
 		    &CD3D11_BUFFER_DESC(getMultipleOf16(state->tessellation_evaluation_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &state->impl.tessEvalConstantBuffer));
 
 	int all = 0;
@@ -533,7 +537,8 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 		}
 	}
 
-	Kinc_Microsoft_Affirm(device->CreateInputLayout(vertexDesc, all, state->vertex_shader->impl.data, state->vertex_shader->impl.length, &state->impl.d3d11inputLayout));
+	kinc_microsoft_affirm(
+	    device->CreateInputLayout(vertexDesc, all, state->vertex_shader->impl.data, state->vertex_shader->impl.length, &state->impl.d3d11inputLayout));
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;

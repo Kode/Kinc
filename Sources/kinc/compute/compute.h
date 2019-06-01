@@ -15,16 +15,16 @@ struct kinc_g4_texture;
 struct kinc_g4_render_target;
 
 typedef struct kinc_compute_constant_location {
-	ComputeConstantLocationImpl impl;
+	kinc_compute_constant_location_impl_t impl;
 } kinc_compute_constant_location_t;
 
 typedef struct kinc_compute_texture_unit {
-	ComputeTextureUnitImpl impl;
+	kinc_compute_texture_unit_impl_t impl;
 } kinc_compute_texture_unit_t;
 
 typedef struct kinc_compute_shader {
 public:
-	ComputeShaderImpl impl;
+	kinc_compute_shader_impl_t impl;
 } kinc_compute_shader_t;
 
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int length);
@@ -64,14 +64,14 @@ void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_re
 void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture);
 void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target);
 void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target);
-void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
-void kinc_compute_set_texture_magnification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter);
-void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter);
-void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter);
-void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
-void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter);
-void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter);
-void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter);
+void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing);
+void kinc_compute_set_texture_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter);
+void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter);
+void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter);
+void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing);
+void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter);
+void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter);
+void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter);
 void kinc_compute_set_shader(kinc_compute_shader_t *shader);
 void kinc_compute(int x, int y, int z);
 

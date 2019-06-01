@@ -23,7 +23,7 @@ void kinc_log(kinc_log_level_t level, const char *format, ...) {
 void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 #ifdef KORE_MICROSOFT
 	wchar_t buffer[4096];
-	Kinc_Microsoft_Format(format, args, buffer);
+	kinc_microsoft_format(format, args, buffer);
 	wcscat(buffer, L"\r\n");
 	OutputDebugString(buffer);
 #ifdef KORE_WINDOWS

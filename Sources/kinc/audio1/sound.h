@@ -5,15 +5,15 @@
 #include <stdint.h>
 
 typedef struct {
-	Kinc_A2_BufferFormat format;
+	kinc_a2_buffer_format_t format;
 	int16_t *left;
 	int16_t *right;
 	int size;
 	float sample_rate_pos;
 	float my_volume;
-} Kinc_A1_Sound;
+} kinc_a1_sound_t;
 
-Kinc_A1_Sound *Kinc_A1_CreateSound(const char *filename);
-void Kinc_A1_DestroySound(Kinc_A1_Sound *sound);
-float Kinc_A1_SoundVolume(Kinc_A1_Sound *sound);
-void Kinc_A1_SoundSetVolume(Kinc_A1_Sound *sound, float value);
+kinc_a1_sound_t *kinc_a1_sound_create(const char *filename);
+void kinc_a1_sound_destroy(kinc_a1_sound_t *sound);
+float kinc_a1_sound_volume(kinc_a1_sound_t *sound);
+void kinc_a1_sound_set_volume(kinc_a1_sound_t *sound, float value);

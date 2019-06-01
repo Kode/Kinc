@@ -28,9 +28,9 @@ typedef struct {
 	// void set(Graphics4::PipelineState* pipeline, bool scissoring);
 	// void setRasterizerState(bool scissoring);
 	// static void setConstants();
-} Kinc_G4_PipelineStateImpl;
+} kinc_g4_pipeline_impl_t;
 
-void Kinc_Internal_SetConstants(void);
+void kinc_internal_set_constants(void);
 
 #ifdef __cplusplus
 }

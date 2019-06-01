@@ -9,17 +9,17 @@ extern "C" {
 struct HMONITOR__;
 struct HWND__;
 
-void Kinc_Windows_InitDisplays();
-int Kinc_Windows_GetDisplayForMonitor(struct HMONITOR__ *monitor);
+void kinc_windows_init_displays();
+int kinc_windows_get_display_for_monitor(struct HMONITOR__ *monitor);
 bool kinc_windows_set_display_mode(int display_index, int width, int height, int bpp, int frequency);
 void kinc_windows_restore_display(int display_index);
 void kinc_windows_restore_displays();
-void Kinc_Windows_HideWindows();
-void Kinc_Windows_DestroyWindows();
-struct HWND__ *Kinc_Windows_WindowHandle(int window_index);
-int Kinc_Windows_WindowIndexFromHWND(struct HWND__ *handle);
-int Kinc_Windows_ManualWidth(int window);
-int Kinc_Windows_ManualHeight(int window);
+void kinc_windows_hide_windows();
+void kinc_windows_destroy_windows();
+struct HWND__ *kinc_windows_window_handle(int window_index);
+int kinc_windows_window_index_from_hwnd(struct HWND__ *handle);
+int kinc_windows_manual_width(int window);
+int kinc_windows_manual_height(int window);
 
 #ifdef __cplusplus
 }

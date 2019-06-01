@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 typedef struct kinc_g4_texture_array {
-	Kinc_G4_TextureArrayImpl impl;
+	kinc_g4_texture_array_impl_t impl;
 } kinc_g4_texture_array_t;
 
 void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t **textures, int count);

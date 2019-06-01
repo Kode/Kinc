@@ -8,7 +8,7 @@ typedef struct {
 	void *handle;
 	void *param;
 	void (*func)(void *param);
-} Kinc_ThreadImpl;
+} kinc_thread_impl_t;
 
 #ifdef __cplusplus
 }

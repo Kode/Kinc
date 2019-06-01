@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kinc/Graphics4/TextureArray.h>
-#include <Kinc/Graphics4/TextureUnit.h>
+#include <kinc/graphics4/texturearray.h>
+#include <kinc/graphics4/textureunit.h>
 
 #include <Kore/SystemMicrosoft.h>
 
@@ -34,11 +34,11 @@ void kinc_g4_texture_array_create(kinc_g4_texture_array_t *array, kinc_image_t *
 	}
 
 	array->impl.texture = nullptr;
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&desc, resdata, &array->impl.texture));
-	Kinc_Microsoft_Affirm(device->CreateShaderResourceView(array->impl.texture, nullptr, &array->impl.view));
+	kinc_microsoft_affirm(device->CreateTexture2D(&desc, resdata, &array->impl.texture));
+	kinc_microsoft_affirm(device->CreateShaderResourceView(array->impl.texture, nullptr, &array->impl.view));
 }
 
-void Kinc_Internal_TextureArraySet(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
+void kinc_internal_texture_array_set(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	context->PSSetShaderResources(unit.impl.unit, 1, &array->impl.view);
 	// this->stage = unit.unit;

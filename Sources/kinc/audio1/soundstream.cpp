@@ -10,28 +10,26 @@
 #include <string.h>
 #include <stdlib.h>
 
-using namespace Kore;
-
-static Kinc_A1_SoundStream streams[256];
+static kinc_a1_sound_stream_t streams[256];
 static int nextStream = 0;
-static u8 *buffer;
+static uint8_t *buffer;
 static int bufferIndex;
 
 void initSoundStreams() {
-	buffer = (u8*)malloc(1024 * 10);
+	buffer = (uint8_t*)malloc(1024 * 10);
 }
 
-Kinc_A1_SoundStream *Kinc_A1_CreateSoundStream(const char *filename, bool looping) {
-	Kinc_A1_SoundStream *stream = &streams[nextStream];
+kinc_a1_sound_stream_t *kinc_a1_sound_stream_create(const char *filename, bool looping) {
+	kinc_a1_sound_stream_t *stream = &streams[nextStream];
 	stream->decoded = false;
 	stream->myLooping = looping;
 	stream->myVolume = 1;
 	stream->rateDecodedHack = false;
 	stream->end = false;
-	FileReader file(filename);
+	Kore::FileReader file(filename);
 	stream->buffer = &buffer[bufferIndex];
 	bufferIndex += file.size();
-	u8* filecontent = (u8*)file.readAll();
+	uint8_t *filecontent = (uint8_t*)file.readAll();
 	memcpy(stream->buffer, filecontent, file.size());
 	stream->vorbis = stb_vorbis_open_memory(buffer, file.size(), nullptr, nullptr);
 	if (stream->vorbis != NULL) {
@@ -47,52 +45,52 @@ Kinc_A1_SoundStream *Kinc_A1_CreateSoundStream(const char *filename, bool loopin
 	return stream;
 }
 
-int Kinc_A1_SoundStreamChannels(Kinc_A1_SoundStream *stream) {
+int kinc_a1_sound_stream_channels(kinc_a1_sound_stream_t *stream) {
 	return stream->chans;
 }
 
-int Kinc_A1_SoundStreamSampleRate(Kinc_A1_SoundStream *stream) {
+int kinc_a1_sound_stream_sample_rate(kinc_a1_sound_stream_t *stream) {
 	return stream->rate;
 }
 
-bool Kinc_A1_SoundStreamLooping(Kinc_A1_SoundStream *stream) {
+bool kinc_a1_sound_stream_looping(kinc_a1_sound_stream_t *stream) {
 	return stream->myLooping;
 }
 
-void Kinc_A1_SoundStreamSetLooping(Kinc_A1_SoundStream *stream, bool loop) {
+void kinc_a1_sound_stream_set_looping(kinc_a1_sound_stream_t *stream, bool loop) {
 	stream->myLooping = loop;
 }
 
-float Kinc_A1_SoundStreamVolume(Kinc_A1_SoundStream *stream) {
+float kinc_a1_sound_stream_volume(kinc_a1_sound_stream_t *stream) {
 	return stream->myVolume;
 }
 
-void Kinc_A1_SoundStreamSetVolume(Kinc_A1_SoundStream *stream, float value) {
+void kinc_a1_sound_stream_set_volume(kinc_a1_sound_stream_t *stream, float value) {
 	stream->myVolume = value;
 }
 
-bool Kinc_A1_SoundStreamEnded(Kinc_A1_SoundStream *stream) {
+bool kinc_a1_sound_stream_ended(kinc_a1_sound_stream_t *stream) {
 	return stream->end;
 }
 
-float Kinc_A1_SoundStreamLength(Kinc_A1_SoundStream *stream) {
+float kinc_a1_sound_stream_length(kinc_a1_sound_stream_t *stream) {
 	if (stream->vorbis == nullptr) return 0;
 	return stb_vorbis_stream_length_in_seconds(stream->vorbis);
 }
 
-float Kinc_A1_SoundStreamPosition(Kinc_A1_SoundStream *stream) {
+float kinc_a1_sound_stream_position(kinc_a1_sound_stream_t *stream) {
 	if (stream->vorbis == nullptr) return 0;
-	return stb_vorbis_get_sample_offset(stream->vorbis) / stb_vorbis_stream_length_in_samples(stream->vorbis) * Kinc_A1_SoundStreamLength(stream);
+	return stb_vorbis_get_sample_offset(stream->vorbis) / stb_vorbis_stream_length_in_samples(stream->vorbis) * kinc_a1_sound_stream_length(stream);
 }
 
-void Kinc_A1_SoundStreamReset(Kinc_A1_SoundStream *stream) {
+void kinc_a1_sound_stream_reset(kinc_a1_sound_stream_t *stream) {
 	if (stream->vorbis != nullptr) stb_vorbis_seek_start(stream->vorbis);
 	stream->end = false;
 	stream->rateDecodedHack = false;
 	stream->decoded = false;
 }
 
-float Kinc_A1_SoundStreamNextSample(Kinc_A1_SoundStream *stream) {
+float kinc_a1_sound_stream_next_sample(kinc_a1_sound_stream_t *stream) {
 	if (stream->vorbis == nullptr) return 0;
 	if (stream->rate == 22050) {
 		if (stream->rateDecodedHack) {
@@ -119,7 +117,7 @@ float Kinc_A1_SoundStreamNextSample(Kinc_A1_SoundStream *stream) {
 	else {
 		int read = stb_vorbis_get_samples_float_interleaved(stream->vorbis, stream->chans, &stream->samples[0], stream->chans);
 		if (read == 0) {
-			if (Kinc_A1_SoundStreamLooping(stream)) {
+			if (kinc_a1_sound_stream_looping(stream)) {
 				stb_vorbis_seek_start(stream->vorbis);
 				stb_vorbis_get_samples_float_interleaved(stream->vorbis, stream->chans, &stream->samples[0], stream->chans);
 			}

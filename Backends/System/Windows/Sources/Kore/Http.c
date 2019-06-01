@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kinc/Log.h>
-#include <Kinc/Network/Http.h>
+#include <kinc/log.h>
+#include <kinc/network/http.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +26,7 @@ static int returnDataSize = 0;
 #include <Windows.h>
 #include <winhttp.h>
 
-void Kinc_HttpRequest(const char *url, const char *path, const char *data, int port, bool secure, int method, const char *header, Kinc_HttpCallback callback,
+void kinc_http_request(const char *url, const char *path, const char *data, int port, bool secure, int method, const char *header, kinc_http_callback_t callback,
                       void *callbackdata) {
 	// based on https://docs.microsoft.com/en-us/windows/desktop/winhttp/winhttp-sessions-overview
 	

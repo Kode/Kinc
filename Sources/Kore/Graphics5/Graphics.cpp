@@ -23,10 +23,10 @@ void Graphics5::setAntialiasingSamples(int samples) {
 
 bool Graphics5::fullscreen = false;
 
-extern "C" void Kinc_Internal_Resize(int window, int width, int height);
+extern "C" void kinc_internal_resize(int window, int width, int height);
 
 void Graphics5::_resize(int window, int width, int height) {
-	Kinc_Internal_Resize(window, width, height);
+	kinc_internal_resize(window, width, height);
 }
 
 // void Graphics5::setVertexBuffer(VertexBuffer& vertexBuffer) {

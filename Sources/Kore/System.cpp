@@ -62,27 +62,27 @@ void Kore::System::setPasteCallback(void (*value)(char*)) {
 }
 
 void Kore::System::_callback() {
-	Kinc_Internal_UpdateCallback();
+	kinc_internal_update_callback();
 }
 
 void Kore::System::_foregroundCallback() {
-	Kinc_Internal_ForegroundCallback();
+	kinc_internal_foreground_callback();
 }
 
 void Kore::System::_resumeCallback() {
-	Kinc_Internal_ResumeCallback();
+	kinc_internal_resume_callback();
 }
 
 void Kore::System::_pauseCallback() {
-	Kinc_Internal_PauseCallback();
+	kinc_internal_pause_callback();
 }
 
 void Kore::System::_backgroundCallback() {
-	Kinc_Internal_BackgroundCallback();
+	kinc_internal_background_callback();
 }
 
 void Kore::System::_shutdownCallback() {
-	Kinc_Internal_ShutdownCallback();
+	kinc_internal_shutdown_callback();
 }
 
 void Kore::System::_orientationCallback(Orientation orientation) {
@@ -90,19 +90,19 @@ void Kore::System::_orientationCallback(Orientation orientation) {
 }
 
 void Kore::System::_dropFilesCallback(wchar_t* filePath) {
-	Kinc_Internal_DropFilesCallback(filePath);
+	kinc_internal_drop_files_callback(filePath);
 }
 
 char* Kore::System::_cutCallback() {
-	return Kinc_Internal_CutCallback();
+	return kinc_internal_cut_callback();
 }
 
 char* Kore::System::_copyCallback() {
-	return Kinc_Internal_CopyCallback();
+	return kinc_internal_copy_callback();
 }
 
 void Kore::System::_pasteCallback(char* value) {
-	Kinc_Internal_PasteCallback(value);
+	kinc_internal_paste_callback(value);
 }
 
 namespace {
@@ -166,12 +166,12 @@ int Kore::System::windowHeight(int window) {
 }
 
 Kore::Window *Kore::System::init(const char *name, int width, int height, Kore::WindowOptions *win, Kore::FramebufferOptions *frame) {
-	Kinc_WindowOptions kwin;
+	kinc_window_options_t kwin;
 	if (win != nullptr) {
 		kwin = convert(win);
 	}
 
-	Kinc_FramebufferOptions kframe;
+	kinc_framebuffer_options_t kframe;
 	if (frame != nullptr) {
 		kframe = convert(frame);
 	}
@@ -181,15 +181,15 @@ Kore::Window *Kore::System::init(const char *name, int width, int height, Kore::
 }
 
 const char *Kore::System::savePath() {
-	return Kinc_Internal_SavePath();
+	return kinc_internal_save_path();
 }
 
 bool Kore::System::handleMessages() {
-	return Kinc_Internal_HandleMessages();
+	return kinc_internal_handle_messages();
 }
 
 void Kore::System::_shutdown() {
-	Kinc_Internal_Shutdown();
+	kinc_internal_shutdown();
 }
 
 void Kore::System::start() {

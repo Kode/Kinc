@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <Kinc/Graphics4/Shader.h>
+#include <kinc/graphics4/shader.h>
 
 #include <Kore/Math/Core.h>
 #include <Kore/SystemMicrosoft.h>
@@ -34,7 +34,7 @@ void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 }
 
 // djb2
-uint32_t Kinc_Internal_HashName(unsigned char *str) {
+uint32_t kinc_internal_hash_name(unsigned char *str) {
 	unsigned long hash = 5381;
 	int c;
 	while (c = *str++) {
@@ -56,7 +56,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		shader->impl.attributes[i].hash = Kinc_Internal_HashName(name);
+		shader->impl.attributes[i].hash = kinc_internal_hash_name(name);
 		shader->impl.attributes[i].index = data[index++];
 	}
 
@@ -68,7 +68,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		shader->impl.textures[i].hash = Kinc_Internal_HashName(name);
+		shader->impl.textures[i].hash = kinc_internal_hash_name(name);
 		shader->impl.textures[i].index = data[index++];
 	}
 
@@ -81,8 +81,8 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		Kinc_Internal_ShaderConstant constant;
-		constant.hash = Kinc_Internal_HashName(name);
+		kinc_internal_shader_constant_t constant;
+		constant.hash = kinc_internal_hash_name(name);
 		constant.offset = *(uint32_t*)&data[index];
 		index += 4;
 		constant.size = *(uint32_t*)&data[index];
@@ -103,19 +103,19 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 
 	switch (type) {
 	case KINC_G4_SHADER_TYPE_VERTEX:
-		Kinc_Microsoft_Affirm(device->CreateVertexShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11VertexShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(device->CreateVertexShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11VertexShader **)&shader->impl.shader));
 		break;
 	case KINC_G4_SHADER_TYPE_FRAGMENT:
-		Kinc_Microsoft_Affirm(device->CreatePixelShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11PixelShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(device->CreatePixelShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11PixelShader **)&shader->impl.shader));
 		break;
 	case KINC_G4_SHADER_TYPE_GEOMETRY:
-		Kinc_Microsoft_Affirm(device->CreateGeometryShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11GeometryShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(device->CreateGeometryShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11GeometryShader **)&shader->impl.shader));
 		break;
 	case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
-		Kinc_Microsoft_Affirm(device->CreateHullShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11HullShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(device->CreateHullShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11HullShader **)&shader->impl.shader));
 		break;
 	case KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION:
-		Kinc_Microsoft_Affirm(device->CreateDomainShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11DomainShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(device->CreateDomainShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11DomainShader **)&shader->impl.shader));
 		break;
 	}
 }

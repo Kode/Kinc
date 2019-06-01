@@ -2,4 +2,4 @@
 
 #include "audio.h"
 
-int Kinc_A2_SamplesPerSecond = 44100;
+int kinc_a2_samples_per_second = 44100;

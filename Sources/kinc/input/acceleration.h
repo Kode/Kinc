@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-extern void (*Kinc_AccelerationCallback)(float /*x*/, float /*y*/, float /*z*/);
+extern void (*kinc_acceleration_callback)(float /*x*/, float /*y*/, float /*z*/);
 
 #ifdef __cplusplus
 }

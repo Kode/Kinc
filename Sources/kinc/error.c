@@ -49,7 +49,7 @@ void kinc_error_message(const char* format, ...) {
 		va_list args;
 		va_start(args, format);
 		wchar_t buffer[4096];
-		Kinc_Microsoft_Format(format, args, buffer);
+		kinc_microsoft_format(format, args, buffer);
 		MessageBox(NULL, buffer, L"Error", 0);
 		va_end(args);
 	}
@@ -63,7 +63,7 @@ void kinc_error_args(const char* format, va_list args) {
 
 #ifdef KORE_WINDOWS
 	wchar_t buffer[4096];
-	Kinc_Microsoft_Format(format, args, buffer);
+	kinc_microsoft_format(format, args, buffer);
 	MessageBox(NULL, buffer, L"Error", 0);
 #endif
 

@@ -7,17 +7,17 @@
 using namespace Kore;
 
 void Random::init(int seed) {
-	Kinc_Random_Init(seed);
+	kinc_random_init(seed);
 }
 
 s32 Random::get() {
-	return Kinc_Random_Get();
+	return kinc_random_get();
 }
 
 s32 Random::get(s32 max) {
-	return Kinc_Random_GetMax(max);
+	return kinc_random_get_max(max);
 }
 
 s32 Random::get(s32 min, s32 max) {
-	return Kinc_Random_GetIn(min, max);
+	return kinc_random_get_in(min, max);
 }

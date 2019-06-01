@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-void Kinc_Color_Components(uint32_t color, float *red, float *green, float *blue, float *alpha);
+void kinc_color_components(uint32_t color, float *red, float *green, float *blue, float *alpha);
 
 #define KINC_COLOR_BLACK 0xff000000
 #define KINC_COLOR_WHITE 0xffffffff

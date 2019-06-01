@@ -41,7 +41,7 @@ KINC_FUNC void kinc_affirm(bool condition);
 /// a provided error message.
 /// </summary>
 /// <remarks>
-/// This is equivalent to Kinc_affirm() but uses the provided message
+/// This is equivalent to kinc_affirm() but uses the provided message
 /// instead of a generic one.
 /// </remarks>
 /// <param name="condition">
@@ -57,7 +57,7 @@ KINC_FUNC void kinc_affirm(bool condition);
 KINC_FUNC void kinc_affirm_message(bool condition, const char *format, ...);
 
 /// <summary>
-/// Equivalent to Kinc_affirmMessage but uses a va_list parameter.
+/// Equivalent to kinc_affirm_message but uses a va_list parameter.
 /// </summary>
 /// <remarks>
 /// You will need this if you want to provide the parameters using va_start/va_end.
@@ -87,7 +87,7 @@ KINC_FUNC void kinc_error(void);
 /// Exits the program and shows a provided error message.
 /// </summary>
 /// <remarks>
-/// This is equivalent to Kinc_error() but uses the provided message
+/// This is equivalent to kinc_error() but uses the provided message
 /// instead of a generic one.
 /// </remarks>
 /// <param name="format">
@@ -99,7 +99,7 @@ KINC_FUNC void kinc_error(void);
 KINC_FUNC void kinc_error_message(const char *format, ...);
 
 /// <summary>
-/// Equivalent to Kinc_errorMessage but uses a va_list parameter.
+/// Equivalent to kinc_error_message but uses a va_list parameter.
 /// </summary>
 /// <remarks>
 /// You will need this if you want to provide the parameters using va_start/va_end.

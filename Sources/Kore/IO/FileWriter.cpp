@@ -25,11 +25,11 @@ void unmountSaveData();
 #endif
 
 bool FileWriter::open(const char* filepath) {
-	return Kinc_FileWriter_Open(&writer, filepath);
+	return kinc_file_writer_open(&writer, filepath);
 }
 
 void FileWriter::close() {
-	return Kinc_FileWriter_Close(&writer);
+	return kinc_file_writer_close(&writer);
 }
 
 FileWriter::~FileWriter() {
@@ -37,5 +37,5 @@ FileWriter::~FileWriter() {
 }
 
 void FileWriter::write(void* data, int size) {
-	return Kinc_FileWriter_Write(&writer, data, size);
+	return kinc_file_writer_write(&writer, data, size);
 }

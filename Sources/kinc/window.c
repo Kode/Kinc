@@ -2,7 +2,7 @@
 
 #include "window.h"
 
-void Kinc_Internal_InitWindowOptions(Kinc_WindowOptions *win) {
+void kinc_internal_init_window_options(kinc_window_options_t *win) {
 	win->title = "Kore";
 	win->display_index = 0;
 	win->mode = KINC_WINDOW_MODE_WINDOW;
@@ -14,7 +14,7 @@ void Kinc_Internal_InitWindowOptions(Kinc_WindowOptions *win) {
 	win->window_features = KINC_WINDOW_FEATURE_RESIZEABLE | KINC_WINDOW_FEATURE_MINIMIZABLE | KINC_WINDOW_FEATURE_MAXIMIZABLE;
 }
 
-void Kinc_Internal_InitFramebufferOptions(Kinc_FramebufferOptions *frame) {
+void kinc_internal_init_framebuffer_options(kinc_framebuffer_options_t *frame) {
 	frame->frequency = 60;
 	frame->vertical_sync = true;
 	frame->color_bits = 32;

@@ -35,9 +35,9 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 	if (endsWith(filename, "k")) {
 		uint8_t data[4];
 		kinc_file_reader_read(file, data, 4);
-		*width = Kinc_ReadS32LE(data);
+		*width = kinc_read_s32le(data);
 		kinc_file_reader_read(file, data, 4);
-		*height = Kinc_ReadS32LE(data);
+		*height = kinc_read_s32le(data);
 
 		char fourcc[5];
 		kinc_file_reader_read(file, fourcc, 4);
@@ -137,29 +137,29 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		kinc_file_reader_read(file, data, 4); // colourSpace
 		kinc_file_reader_read(file, data, 4); // channelType
 		kinc_file_reader_read(file, data, 4);
-		uint32_t hh = Kinc_ReadU32LE(data);
+		uint32_t hh = kinc_read_u32le(data);
 		kinc_file_reader_read(file, data, 4);
-		uint32_t ww = Kinc_ReadU32LE(data);
+		uint32_t ww = kinc_read_u32le(data);
 		kinc_file_reader_read(file, data, 4); // depth
 		kinc_file_reader_read(file, data, 4); // numSurfaces
 		kinc_file_reader_read(file, data, 4); // numFaces
 		kinc_file_reader_read(file, data, 4); // mipMapCount
 		kinc_file_reader_read(file, data, 4);
-		uint32_t metaDataSize = Kinc_ReadU32LE(data);
+		uint32_t metaDataSize = kinc_read_u32le(data);
 
 		kinc_file_reader_read(file, data, 4);
-		uint32_t meta1fourcc = Kinc_ReadU32LE(data);
+		uint32_t meta1fourcc = kinc_read_u32le(data);
 		kinc_file_reader_read(file, data, 4); // meta1key
 		kinc_file_reader_read(file, data, 4); // meta1size
 		kinc_file_reader_read(file, data, 4);
-		uint32_t meta1data = Kinc_ReadU32LE(data);
+		uint32_t meta1data = kinc_read_u32le(data);
 
 		kinc_file_reader_read(file, data, 4);
-		uint32_t meta2fourcc = Kinc_ReadU32LE(data);
+		uint32_t meta2fourcc = kinc_read_u32le(data);
 		kinc_file_reader_read(file, data, 4); // meta2key
 		kinc_file_reader_read(file, data, 4); // meta2size
 		kinc_file_reader_read(file, data, 4);
-		uint32_t meta2data = Kinc_ReadU32LE(data);
+		uint32_t meta2data = kinc_read_u32le(data);
 
 		int w = 0;
 		int h = 0;

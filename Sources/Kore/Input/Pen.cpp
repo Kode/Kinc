@@ -31,9 +31,9 @@ namespace {
 
 Pen* Pen::the() {
 	if (!initialized) {
-		Kinc_Pen_PressCallback = pressCallback;
-		Kinc_Pen_MoveCallback = moveCallback;
-		Kinc_Pen_ReleaseCallback = releaseCallback;
+		kinc_pen_press_callback = pressCallback;
+		kinc_pen_move_callback = moveCallback;
+		kinc_pen_release_callback = releaseCallback;
 		initialized = true;
 	}
 	return &pen;

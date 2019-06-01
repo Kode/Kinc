@@ -2,27 +2,27 @@
 
 #define NOMINMAX
 
-#include <Kinc/Log.h>
+#include <kinc/log.h>
 
 #include "Direct3D11.h"
-#include <Kinc/Math/Core.h>
+#include <kinc/math/core.h>
 //#include <Kore/Application.h>
-#include <Kinc/Graphics4/Pipeline.h>
-#include <Kinc/Graphics4/Shader.h>
-#include <Kinc/Graphics4/TextureArray.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/shader.h>
+#include <kinc/graphics4/texturearray.h>
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Graphics4/IndexBuffer.h>
-#include <Kinc/Graphics4/RenderTarget.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/vertexbuffer.h>
 
 #undef CreateWindow
 
 #include <Kore/System.h>
 #include <Kore/SystemMicrosoft.h>
 
-#include <Kinc/Display.h>
-#include <Kinc/Window.h>
+#include <kinc/display.h>
+#include <kinc/window.h>
 
 #include <Kore/Windows.h>
 
@@ -74,9 +74,9 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 #endif
 
 extern kinc_g4_pipeline_t *currentPipeline;
-void Kinc_Internal_SetConstants(void);
+void kinc_internal_set_constants(void);
 
-bool Kinc_Internal_Scissoring = false;
+bool kinc_internal_scissoring = false;
 
 namespace {
 	unsigned hz;
@@ -141,9 +141,9 @@ namespace {
 void kinc_g4_destroy(int window) {}
 
 static void createBackbuffer(int antialiasingSamples) {
-	Kinc_Microsoft_Affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+	kinc_microsoft_affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&backBuffer));
 
-	Kinc_Microsoft_Affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	kinc_microsoft_affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
 	backBuffer->GetDesc(&backBufferDesc);
@@ -155,9 +155,9 @@ static void createBackbuffer(int antialiasingSamples) {
 	                                       D3D11_USAGE_DEFAULT, 0U, antialiasingSamples > 1 ? antialiasingSamples : 1,
 	                                       antialiasingSamples > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
 
-	Kinc_Microsoft_Affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+	kinc_microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
 
-	Kinc_Microsoft_Affirm(device->CreateDepthStencilView(
+	kinc_microsoft_affirm(device->CreateDepthStencilView(
 	    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D),
 	    &depthStencilView));
 }
@@ -203,7 +203,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
 #ifdef KORE_WINDOWS
-	HWND hwnd = Kinc_Windows_WindowHandle(windowId);
+	HWND hwnd = kinc_windows_window_handle(windowId);
 #endif
 
 	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -222,7 +222,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	Kinc_Microsoft_Affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels),
+	kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels),
 	                                        D3D11_SDK_VERSION,
 	                                    &device, &featureLevel, &context));
 
@@ -242,7 +242,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	const int _DXGI_SWAP_EFFECT_FLIP_DISCARD = 4;
 
 	if (swapChain != nullptr) {
-		Kinc_Microsoft_Affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		kinc_microsoft_affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
 	else {
 #ifdef KORE_WINDOWS
@@ -250,8 +250,8 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-		swapChainDesc.BufferDesc.Width = Kinc_WindowWidth(windowId); // use automatic sizing
-		swapChainDesc.BufferDesc.Height = Kinc_WindowHeight(windowId);
+		swapChainDesc.BufferDesc.Width = kinc_window_width(windowId); // use automatic sizing
+		swapChainDesc.BufferDesc.Height = kinc_window_height(windowId);
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
 		// swapChainDesc.Stereo = false;
 		swapChainDesc.SampleDesc.Count = kinc_g4_antialiasing_samples() > 1 ? kinc_g4_antialiasing_samples() : 1;
@@ -272,7 +272,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		}
 		swapChainDesc.Flags = 0;
-		swapChainDesc.OutputWindow = Kinc_Windows_WindowHandle(windowId);
+		swapChainDesc.OutputWindow = kinc_windows_window_handle(windowId);
 		swapChainDesc.Windowed = true;
 #endif
 
@@ -294,17 +294,17 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		swapChainDesc.Flags = 0;
 
 		IDXGIDevice1* dxgiDevice;
-		Kinc_Microsoft_Affirm(device->QueryInterface(IID_IDXGIDevice1, (void **)&dxgiDevice));
+		kinc_microsoft_affirm(device->QueryInterface(IID_IDXGIDevice1, (void **)&dxgiDevice));
 
 		IDXGIAdapter* dxgiAdapter;
-		Kinc_Microsoft_Affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		kinc_microsoft_affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
 		IDXGIFactory2* dxgiFactory;
-		Kinc_Microsoft_Affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)&dxgiFactory));
+		kinc_microsoft_affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)&dxgiFactory));
 
-		Kinc_Microsoft_Affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown *>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
+		kinc_microsoft_affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown *>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
 		                                                            nullptr, &swapChain));
-		Kinc_Microsoft_Affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		kinc_microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #endif
 
 #elif KORE_OCULUS
@@ -338,7 +338,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
 		                                               &swapChain, &device, nullptr, &context);
 		if (result != S_OK) {
-			Kinc_Microsoft_Affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION,
+			kinc_microsoft_affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION,
 			                                                    &swapChainDesc,
 			                                                &swapChain, &device, nullptr, &context));
 		}
@@ -408,11 +408,11 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	ID3D11BlendState* blending;
 	device->CreateBlendState(&blendDesc, &blending);
 
-	Kinc_Microsoft_Affirm(device->CreateBlendState(&blendDesc, &blending));
+	kinc_microsoft_affirm(device->CreateBlendState(&blendDesc, &blending));
 	context->OMSetBlendState(blending, nullptr, 0xffffffff);
 }
 
-void Kinc_G4_Flush() {}
+void kinc_g4_flush() {}
 
 namespace {
 	ID3D11ShaderResourceView* nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
@@ -420,7 +420,7 @@ namespace {
 
 static kinc_g4_index_buffer_t *currentIndexBuffer = NULL;
 
-void Kinc_Internal_G4_IndexBuffer_Set(kinc_g4_index_buffer_t *buffer) {
+void kinc_internal_g4_index_buffer_set(kinc_g4_index_buffer_t *buffer) {
 	currentIndexBuffer = buffer;
 	context->IASetIndexBuffer(buffer->impl.ib, DXGI_FORMAT_R32_UINT, 0);
 }
@@ -432,7 +432,7 @@ void kinc_g4_draw_indexed_vertices() {
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Kinc_Internal_SetConstants();
+	kinc_internal_set_constants();
 	context->DrawIndexed(currentIndexBuffer->impl.count, 0, 0);
 
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
@@ -445,7 +445,7 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Kinc_Internal_SetConstants();
+	kinc_internal_set_constants();
 	context->DrawIndexed(count, start, 0);
 
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
@@ -462,14 +462,14 @@ void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 	else {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
-	Kinc_Internal_SetConstants();
+	kinc_internal_set_constants();
 	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
 	
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 namespace {
-	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(Kinc_G4_TextureAddressing addressing) {
+	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(kinc_g4_texture_addressing_t addressing) {
 		switch (addressing) {
 		default:
 		case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
@@ -484,7 +484,7 @@ namespace {
 	}
 }
 
-void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 	if (unit.impl.unit < 0) {
 		return;
 	}
@@ -505,7 +505,7 @@ void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_Texture
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 	kinc_g4_set_texture_addressing(unit, dir, addressing);
 }
 
@@ -528,7 +528,7 @@ void kinc_g4_begin(int windowId) {
 		depthStencilView->Release();
 		renderTargetView->Release();
 		backBuffer->Release();
-		Kinc_Microsoft_Affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		kinc_microsoft_affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 		createBackbuffer(kinc_g4_antialiasing_samples());
 		kinc_g4_restore_render_target();
 	}
@@ -549,7 +549,7 @@ void kinc_g4_viewport(int x, int y, int width, int height) {
 	context->RSSetViewports(1, &viewport);
 }
 
-void Kinc_Internal_SetRasterizerState(kinc_g4_pipeline_t *pipeline, bool scissoring);
+void kinc_internal_set_rasterizer_state(kinc_g4_pipeline_t *pipeline, bool scissoring);
 
 void kinc_g4_scissor(int x, int y, int width, int height) {
 	D3D11_RECT rect;
@@ -558,24 +558,24 @@ void kinc_g4_scissor(int x, int y, int width, int height) {
 	rect.right = x + width;
 	rect.bottom = y + height;
 	context->RSSetScissorRects(1, &rect);
-	Kinc_Internal_Scissoring = true;
+	kinc_internal_scissoring = true;
 	if (currentPipeline != nullptr) {
-		Kinc_Internal_SetRasterizerState(currentPipeline, Kinc_Internal_Scissoring);
+		kinc_internal_set_rasterizer_state(currentPipeline, kinc_internal_scissoring);
 	}
 }
 
 void kinc_g4_disable_scissor() {
 	context->RSSetScissorRects(0, nullptr);
-	Kinc_Internal_Scissoring = false;
+	kinc_internal_scissoring = false;
 	if (currentPipeline != nullptr) {
-		Kinc_Internal_SetRasterizerState(currentPipeline, Kinc_Internal_Scissoring);
+		kinc_internal_set_rasterizer_state(currentPipeline, kinc_internal_scissoring);
 	}
 }
 
-void Kinc_Internal_SetPipeline(kinc_g4_pipeline_t *pipeline, bool scissoring);
+void kinc_internal_set_pipeline(kinc_g4_pipeline_t *pipeline, bool scissoring);
 
 void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
-	Kinc_Internal_SetPipeline(pipeline, Kinc_Internal_Scissoring);
+	kinc_internal_set_pipeline(pipeline, kinc_internal_scissoring);
 }
 
 void kinc_g4_set_stencil_reference_value(int value) {
@@ -601,7 +601,7 @@ bool kinc_g4_swap_buffers() {
 	//}
 }
 
-void kinc_g4_set_texture_operation(Kinc_G4_TextureOperation operation, Kinc_G4_TextureArgument arg1, Kinc_G4_TextureArgument arg2) {
+void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
 	// TODO
 }
 
@@ -784,7 +784,7 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 	::setMatrix(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
-void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
 	if (unit.impl.unit < 0) return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -843,11 +843,11 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, Kinc_
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	kinc_g4_set_texture_magnification_filter(texunit, filter);
 }
 
-void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
 	if (unit.impl.unit < 0) return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -907,11 +907,11 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, Kinc_G
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	kinc_g4_set_texture_minification_filter(texunit, filter);
 }
 
-void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, Kinc_G4_MipmapFilter filter) {
+void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {
 	if (unit.impl.unit < 0) return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -973,7 +973,7 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, Kinc_G4_Mipm
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_MipmapFilter filter) {
+void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
 	kinc_g4_set_texture_mipmap_filter(texunit, filter);
 }
 
@@ -1036,7 +1036,7 @@ void kinc_g4_set_render_target_face(kinc_g4_render_target *texture, int face) {
 }
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
-	Kinc_Internal_G4_VertexBuffer_Set(buffers[0], 0);
+	kinc_internal_g4_vertex_buffer_set(buffers[0], 0);
 
 	ID3D11Buffer** d3dbuffers = (ID3D11Buffer**)alloca(count * sizeof(ID3D11Buffer*));
 	for (int i = 0; i < count; ++i) {
@@ -1057,19 +1057,19 @@ void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 }
 
 void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *buffer) {
-	Kinc_Internal_G4_IndexBuffer_Set(buffer);
+	kinc_internal_g4_index_buffer_set(buffer);
 }
 
-void Kinc_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
+void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
 
 void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {
-	Kinc_Internal_TextureSet(texture, unit);
+	kinc_internal_texture_set(texture, unit);
 }
 
-void Kinc_Internal_TextureSetImage(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
+void kinc_internal_texture_set_image(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
 
 void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {
-	Kinc_Internal_TextureSetImage(texture, unit);
+	kinc_internal_texture_set_image(texture, unit);
 }
 
 static unsigned queryCount = 0;
@@ -1135,18 +1135,18 @@ void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {
 	}
 }
 
-void Kinc_Internal_TextureArraySet(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit);
+void kinc_internal_texture_array_set(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit);
 
 void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, kinc_g4_texture_array_t *array) {
-	Kinc_Internal_TextureArraySet(array, unit);
+	kinc_internal_texture_array_set(array, unit);
 }
 
-extern "C" void Kinc_Internal_Resize(int window, int width, int height) {
+extern "C" void kinc_internal_resize(int window, int width, int height) {
 	newRenderTargetWidth = width;
 	newRenderTargetHeight = height;
 }
 
-extern "C" void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {}
+extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
 
 extern "C" bool kinc_window_vsynced(int window_index) {
 	return vsync;

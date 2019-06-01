@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 /// <summary>
-/// Pass this to Kinc_log or Kinc_logArgs
+/// Pass this to kinc_log or kinc_log_args
 /// </summary>
 /// <remarks>
 /// When used on Android the log level is converted to the equivalent
@@ -47,7 +47,7 @@ typedef enum {
 KINC_FUNC void kinc_log(kinc_log_level_t log_level, const char *format, ...);
 
  /// <summary>
-/// Equivalent to Kinc_log but uses a va_list parameter
+/// Equivalent to kinc_log but uses a va_list parameter
 /// </summary>
 /// <remarks>
 /// You will need this if you want to log parameters using va_start/va_end.

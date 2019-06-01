@@ -6,7 +6,7 @@ extern "C" {
 
 typedef struct {
 	void *event;
-} Kinc_EventImpl;
+} kinc_event_impl_t;
 
 #ifdef __cplusplus
 }

@@ -8,11 +8,11 @@ extern "C" {
 
 typedef struct {
 	void *file;
-} Kinc_FileWriter;
+} kinc_file_writer_t;
 
-bool Kinc_FileWriter_Open(Kinc_FileWriter *writer, const char *filepath);
-void Kinc_FileWriter_Write(Kinc_FileWriter *writer, void *data, int size);
-void Kinc_FileWriter_Close(Kinc_FileWriter *writer);
+bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath);
+void kinc_file_writer_write(kinc_file_writer_t *writer, void *data, int size);
+void kinc_file_writer_close(kinc_file_writer_t *writer);
 
 #ifdef __cplusplus
 }

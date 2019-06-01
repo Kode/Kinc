@@ -5,26 +5,26 @@
 #include <kinc/threads/thread.h>
 
 void Kore::threadsInit() {
-	Kinc_Threads_Init();
+	kinc_threads_init();
 }
 
 void Kore::threadsQuit() {
-	Kinc_Threads_Quit();
+	kinc_threads_quit();
 }
 
 Kore::Thread *Kore::createAndRunThread(void(*func)(void *param), void *param) {
 	Kore::Thread* thread = new Kore::Thread;
-	Kinc_Thread_Create(&thread->thread, func, param);
+	kinc_thread_init(&thread->thread, func, param);
 	return thread;
 }
 
 void Kore::waitForThreadStopThenFree(Thread *thread) {
-	Kinc_Thread_WaitAndDestroy(&thread->thread);
+	kinc_thread_wait_and_destroy(&thread->thread);
 	delete thread;
 }
 
 bool Kore::isThreadStoppedThenFree(Thread *thread) {
-	if (Kinc_Thread_TryToDestroy(&thread->thread)) {
+	if (kinc_thread_try_to_destroy(&thread->thread)) {
 		delete thread;
 		return true;
 	}
@@ -34,5 +34,5 @@ bool Kore::isThreadStoppedThenFree(Thread *thread) {
 }
 
 void Kore::threadSleep(int milliseconds) {
-	Kinc_Thread_Sleep(milliseconds);
+	kinc_thread_sleep(milliseconds);
 }

@@ -23,7 +23,7 @@ typedef enum {
 	KINC_G4_BLEND_DEST_COLOR,
 	KINC_G4_BLEND_INV_SOURCE_COLOR,
 	KINC_G4_BLEND_INV_DEST_COLOR
-} Kinc_G4_BlendingOperation;
+} kinc_g4_blending_operation_t;
 
 typedef enum {
 	KINC_G4_COMPARE_ALWAYS,
@@ -34,13 +34,13 @@ typedef enum {
 	KINC_G4_COMPARE_LESS_EQUAL,
 	KINC_G4_COMPARE_GREATER,
 	KINC_G4_COMPARE_GREATER_EQUAL
-} Kinc_G4_CompareMode;
+} kinc_g4_compare_mode_t;
 
 typedef enum {
 	KINC_G4_CULL_CLOCKWISE,
 	KINC_G4_CULL_COUNTER_CLOCKWISE,
 	KINC_G4_CULL_NOTHING
-} Kinc_G4_CullMode;
+} kinc_g4_cull_mode_t;
 
 typedef enum {
 	KINC_G4_STENCIL_KEEP,
@@ -51,7 +51,7 @@ typedef enum {
 	KINC_G4_STENCIL_DECREMENT,
 	KINC_G4_STENCIL_DECREMENT_WRAP,
 	KINC_G4_STENCIL_INVERT
-} Kinc_G4_StencilAction;
+} kinc_g4_stencil_action_t;
 
 typedef struct kinc_g4_pipeline {
 	struct kinc_g4_vertex_structure *input_layout[16];
@@ -61,25 +61,25 @@ typedef struct kinc_g4_pipeline {
 	struct kinc_g4_shader *tessellation_control_shader;
 	struct kinc_g4_shader *tessellation_evaluation_shader;
 
-	Kinc_G4_CullMode cull_mode;
+	kinc_g4_cull_mode_t cull_mode;
 
 	bool depth_write;
-	Kinc_G4_CompareMode depth_mode;
+	kinc_g4_compare_mode_t depth_mode;
 
-	Kinc_G4_CompareMode stencil_mode;
-	Kinc_G4_StencilAction stencil_both_pass;
-	Kinc_G4_StencilAction stencil_depth_fail;
-	Kinc_G4_StencilAction stencil_fail;
+	kinc_g4_compare_mode_t stencil_mode;
+	kinc_g4_stencil_action_t stencil_both_pass;
+	kinc_g4_stencil_action_t stencil_depth_fail;
+	kinc_g4_stencil_action_t stencil_fail;
 	int stencil_reference_value;
 	int stencil_read_mask;
 	int stencil_write_mask;
 
 	// One, Zero deactivates blending
-	Kinc_G4_BlendingOperation blend_source;
-	Kinc_G4_BlendingOperation blend_destination;
+	kinc_g4_blending_operation_t blend_source;
+	kinc_g4_blending_operation_t blend_destination;
 	// BlendingOperation blendOperation;
-	Kinc_G4_BlendingOperation alpha_blend_source;
-	Kinc_G4_BlendingOperation alpha_blend_destination;
+	kinc_g4_blending_operation_t alpha_blend_source;
+	kinc_g4_blending_operation_t alpha_blend_destination;
 	// BlendingOperation alphaBlendOperation;
 
 	bool color_write_mask_red[8]; // Per render target
@@ -89,7 +89,7 @@ typedef struct kinc_g4_pipeline {
 
 	bool conservative_rasterization;
 
-	Kinc_G4_PipelineStateImpl impl;
+	kinc_g4_pipeline_impl_t impl;
 } kinc_g4_pipeline_t;
 
 void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state);
@@ -98,7 +98,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state);
 kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name);
 kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name);
 
-void Kinc_G4_Internal_SetPipeline(kinc_g4_pipeline_t *pipeline);
+void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline);
 void kinc_g4_internal_pipeline_set_defaults(kinc_g4_pipeline_t *pipeline);
 
 #ifdef __cplusplus

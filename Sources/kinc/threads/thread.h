@@ -7,16 +7,16 @@ extern "C" {
 #endif
 
 typedef struct {
-	Kinc_ThreadImpl impl;
-} Kinc_Thread;
+	kinc_thread_impl_t impl;
+} kinc_thread_t;
 
-void Kinc_Threads_Init();
-void Kinc_Threads_Quit();
+void kinc_threads_init();
+void kinc_threads_quit();
 
-void Kinc_Thread_Create(Kinc_Thread *thread, void (*func)(void* param), void* param);
-void Kinc_Thread_WaitAndDestroy(Kinc_Thread *thread);
-bool Kinc_Thread_TryToDestroy(Kinc_Thread *thread);
-void Kinc_Thread_Sleep(int milliseconds);
+void kinc_thread_init(kinc_thread_t *thread, void (*func)(void *param), void *param);
+void kinc_thread_wait_and_destroy(kinc_thread_t *thread);
+bool kinc_thread_try_to_destroy(kinc_thread_t *thread);
+void kinc_thread_sleep(int milliseconds);
 
 #ifdef __cplusplus
 }

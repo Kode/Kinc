@@ -9,19 +9,19 @@ extern "C" {
 typedef struct {
 	float x;
 	float y;
-} Kinc_Vector2;
+} kinc_vector2_t;
 
 typedef struct {
 	float x;
 	float y;
 	float z;
-} Kinc_Vector3;
+} kinc_vector3_t;
 
 typedef struct {
 	float x;
 	float y;
 	float z;
-} Kinc_Vector4;
+} kinc_vector4_t;
 
 #ifdef __cplusplus
 }

@@ -15,23 +15,23 @@ namespace {
 }
 
 Window *Window::create(WindowOptions *win, FramebufferOptions *frame) {
-	Kinc_WindowOptions kwin;
+	kinc_window_options_t kwin;
 	if (win != nullptr) {
 		kwin = convert(win);
 	}
 	
-	Kinc_FramebufferOptions kframe;
+	kinc_framebuffer_options_t kframe;
 	if (frame != nullptr) {
 		kframe = convert(frame);
 	}
 
-	int index = Kinc_WindowCreate(win == nullptr ? nullptr : &kwin, frame == nullptr ? nullptr : &kframe);
+	int index = kinc_window_create(win == nullptr ? nullptr : &kwin, frame == nullptr ? nullptr : &kframe);
 	windows[index]._index = index;
 	return &windows[index];
 }
 
 void Window::destroy(Window *window) {
-	Kinc_WindowDestroy(window->_index);
+	kinc_window_destroy(window->_index);
 }
 
 Window *Window::get(int index) {
@@ -39,52 +39,52 @@ Window *Window::get(int index) {
 }
 
 int Window::count() {
-	return Kinc_CountWindows();
+	return kinc_count_windows();
 }
 
 void Window::resize(int width, int height) {
-	Kinc_WindowResize(_index, width, height);
+	kinc_window_resize(_index, width, height);
 }
 
 void Window::move(int x, int y) {
-	Kinc_WindowMove(_index, x, y);
+	kinc_window_move(_index, x, y);
 }
 
 void Window::changeWindowMode(WindowMode mode) {
-	Kinc_WindowChangeMode(_index, convert(mode));
+	kinc_window_change_mode(_index, convert(mode));
 }
 
 void Window::changeWindowFeatures(int features) {
-	Kinc_WindowChangeFeatures(_index, features);
+	kinc_window_change_features(_index, features);
 }
 
 void Window::changeFramebuffer(FramebufferOptions *frame) {
-	Kinc_FramebufferOptions kframe = convert(frame);
-	Kinc_WindowChangeFramebuffer(_index, &kframe);
+	kinc_framebuffer_options_t kframe = convert(frame);
+	kinc_window_change_framebuffer(_index, &kframe);
 }
 
 int Window::x() {
-	return Kinc_WindowX(_index);
+	return kinc_window_x(_index);
 }
 
 int Window::y() {
-	return Kinc_WindowY(_index);
+	return kinc_window_y(_index);
 }
 
 int Window::width() {
-	return Kinc_WindowWidth(_index);
+	return kinc_window_width(_index);
 }
 
 int Window::height() {
-	return Kinc_WindowHeight(_index);
+	return kinc_window_height(_index);
 }
 
 Display *Window::display() {
-	return Display::get(Kinc_WindowDisplay(_index));
+	return Display::get(kinc_window_display(_index));
 }
 
 WindowMode Window::mode() {
-	switch (Kinc_WindowGetMode(_index)) {
+	switch (kinc_window_get_mode(_index)) {
 	case KINC_WINDOW_MODE_WINDOW:
 		return WindowModeWindow;
 	case KINC_WINDOW_MODE_FULLSCREEN:
@@ -96,23 +96,23 @@ WindowMode Window::mode() {
 }
 
 void Window::show() {
-	Kinc_WindowShow(_index);
+	kinc_window_show(_index);
 }
 
 void Window::hide() {
-	Kinc_WindowHide(_index);
+	kinc_window_hide(_index);
 }
 
 void Window::setTitle(const char *title) {
-	Kinc_WindowSetTitle(_index, title);
+	kinc_window_set_title(_index, title);
 }
 
 void Window::setResizeCallback(void(*callback)(int x, int y, void *data), void *data) {
-	Kinc_WindowSetResizeCallback(_index, callback, data);
+	kinc_window_set_resize_callback(_index, callback, data);
 }
 
 void Window::setPpiChangedCallback(void(*callback)(int ppi, void *data), void *data) {
-	Kinc_WindowSetPpiChangedCallback(_index, callback, data);
+	kinc_window_set_ppi_changed_callback(_index, callback, data);
 }
 
 bool Window::vSynced() {

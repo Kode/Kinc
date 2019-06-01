@@ -5,37 +5,31 @@
 
 struct ID3D11Buffer;
 
-namespace Kore {
-	class ComputeConstantLocationImpl {
-	public:
-		u32 offset;
-		u32 size;
-		u8 columns;
-		u8 rows;
-	};
+typedef struct {
+	uint32_t offset;
+	uint32_t size;
+	uint8_t columns;
+	uint8_t rows;
+} kinc_compute_constant_location_impl_t;
 
-	class ComputeTextureUnitImpl {
-	public:
-		int unit;
-	};
+typedef struct {
+	int unit;
+} kinc_compute_texture_unit_impl_t;
 
-	struct ComputeShaderConstant {
-		u32 offset;
-		u32 size;
-		u8 columns;
-		u8 rows;
-	};
+typedef struct {
+	uint32_t offset;
+	uint32_t size;
+	uint8_t columns;
+	uint8_t rows;
+} kinc_compute_internal_shader_constant_t;
 
-	class ComputeShaderImpl {
-	public:
-		ComputeShaderImpl();
-		std::map<std::string, ComputeShaderConstant> constants;
-		int constantsSize;
-		std::map<std::string, int> attributes;
-		std::map<std::string, int> textures;
-		void* shader;
-		u8* data;
-		int length;
-		ID3D11Buffer* constantBuffer;
-	};
-}
+typedef struct {
+	std::map<std::string, kinc_compute_internal_shader_constant_t> constants;
+	int constantsSize;
+	std::map<std::string, int> attributes;
+	std::map<std::string, int> textures;
+	void* shader;
+	uint8_t *data;
+	int length;
+	ID3D11Buffer* constantBuffer;
+} kinc_compute_shader_impl_t;

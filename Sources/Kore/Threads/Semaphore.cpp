@@ -5,21 +5,21 @@
 using namespace Kore;
 
 void Semaphore::create(int current, int max) {
-	Kinc_Semaphore_Create(&semaphore, current, max);
+	kinc_semaphore_init(&semaphore, current, max);
 }
 
 void Semaphore::destroy() {
-	Kinc_Semaphore_Destroy(&semaphore);
+	kinc_semaphore_destroy(&semaphore);
 }
 
 void Semaphore::release(int count) {
-	Kinc_Semaphore_Release(&semaphore, count);
+	kinc_semaphore_release(&semaphore, count);
 }
 
 void Semaphore::acquire() {
-	Kinc_Semaphore_Acquire(&semaphore);
+	kinc_semaphore_acquire(&semaphore);
 }
 
 bool Semaphore::tryToAcquire(double seconds) {
-	return Kinc_Semaphore_TryToAcquire(&semaphore, seconds);
+	return kinc_semaphore_try_to_acquire(&semaphore, seconds);
 }

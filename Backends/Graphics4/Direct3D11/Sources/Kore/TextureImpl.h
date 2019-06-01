@@ -21,4 +21,4 @@ typedef struct {
 	struct ID3D11UnorderedAccessView *computeView;
 	struct ID3D11RenderTargetView *renderView;
 	int rowPitch;
-} Kinc_G4_TextureImpl;
+} kinc_g4_texture_impl_t;

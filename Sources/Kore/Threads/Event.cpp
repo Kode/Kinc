@@ -5,25 +5,25 @@
 using namespace Kore;
 
 void Event::create() {
-	Kinc_Event_Create(&event);
+	kinc_event_init(&event);
 }
 
 void Event::destroy() {
-	Kinc_Event_Destroy(&event);
+	kinc_event_destroy(&event);
 }
 
 void Event::signal() {
-	Kinc_Event_Signal(&event);
+	kinc_event_signal(&event);
 }
 
 void Event::wait() {
-	Kinc_Event_Wait(&event);
+	kinc_event_wait(&event);
 }
 
 bool Event::tryToWait(double seconds) {
-	return Kinc_Event_TryToWait(&event, seconds);
+	return kinc_event_try_to_wait(&event, seconds);
 }
 
 void Event::reset() {
-	Kinc_Event_Reset(&event);
+	kinc_event_reset(&event);
 }

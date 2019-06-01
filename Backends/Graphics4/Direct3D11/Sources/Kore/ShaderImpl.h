@@ -13,23 +13,23 @@ typedef struct {
 	uint32_t size;
 	uint8_t columns;
 	uint8_t rows;
-} Kinc_Internal_ShaderConstant;
+} kinc_internal_shader_constant_t;
 
 typedef struct {
 	uint32_t hash;
 	uint32_t index;
-} Kinc_Internal_HashIndex;
+} kinc_internal_hash_index_t;
 
 typedef struct {
-	Kinc_Internal_ShaderConstant constants[64];
+	kinc_internal_shader_constant_t constants[64];
 	int constantsSize;
-	Kinc_Internal_HashIndex attributes[64];
-	Kinc_Internal_HashIndex textures[64];
+	kinc_internal_hash_index_t attributes[64];
+	kinc_internal_hash_index_t textures[64];
 	void *shader;
 	uint8_t *data;
 	int length;
 	int type;
-} Kinc_G4_ShaderImpl;
+} kinc_g4_shader_impl_t;
 
 typedef struct {
 	uint32_t vertexOffset;
@@ -52,14 +52,14 @@ typedef struct {
 	uint8_t tessEvalRows;
 	uint8_t tessControlColumns;
 	uint8_t tessControlRows;
-} Kinc_G4_ConstantLocationImpl;
+} kinc_g4_constant_location_impl_t;
 
 typedef struct {
 	int unit;
 	bool vertex;
-} Kinc_G4_TextureUnitImpl;
+} kinc_g4_texture_unit_impl_t;
 
-uint32_t Kinc_Internal_HashName(unsigned char *str);
+uint32_t kinc_internal_hash_name(unsigned char *str);
 
 #ifdef __cplusplus
 }

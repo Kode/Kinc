@@ -50,11 +50,11 @@ namespace {
 	char* fileslocation = nullptr;
 }
 
-void Kinc_Internal_SetFilesLocation(char *dir) {
+void kinc_internal_set_files_location(char *dir) {
 	fileslocation = dir;
 }
 
-char *Kinc_Internal_GetFilesLocation() {
+char *kinc_internal_get_files_location() {
 	return fileslocation;
 }
 
@@ -116,7 +116,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	memset(reader, 0, sizeof(kinc_file_reader_t));
 	char filepath[1001];
 #ifdef KORE_IOS
-	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? Kinc_Internal_SavePath() : iphonegetresourcepath());
+	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
 	if (type != Save) {
 		strcat(filepath, "/");
 		strcat(filepath, KORE_DEBUGDIR);
@@ -126,7 +126,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	strcat(filepath, filename);
 #endif
 #ifdef KORE_MACOS
-	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? Kinc_Internal_SavePath() : macgetresourcepath());
+	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : macgetresourcepath());
 	if (type != KINC_FILE_TYPE_SAVE) {
 		strcat(filepath, "/");
 		strcat(filepath, KORE_DEBUGDIR);
@@ -136,7 +136,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 #ifdef KORE_WINDOWS
 	if (type == KINC_FILE_TYPE_SAVE) {
-		strcpy(filepath, Kinc_Internal_SavePath());
+		strcpy(filepath, kinc_internal_save_path());
 		strcat(filepath, filename);
 	}
 	else {
@@ -260,7 +260,7 @@ size_t kinc_file_reader_size(kinc_file_reader_t *reader) {
 
 #endif
 
-float Kinc_ReadF32LE(uint8_t *data) {
+float kinc_read_f32le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN // speed optimization
 	return *(float *)data;
 #else // works on all architectures
@@ -269,7 +269,7 @@ float Kinc_ReadF32LE(uint8_t *data) {
 #endif
 }
 
-float Kinc_ReadF32BE(uint8_t *data) {
+float kinc_read_f32be(uint8_t *data) {
 #ifdef KORE_BIG_ENDIAN // speed optimization
 	return *(float *)data;
 #else // works on all architectures
@@ -278,7 +278,7 @@ float Kinc_ReadF32BE(uint8_t *data) {
 #endif
 }
 
-uint64_t Kinc_ReadU64LE(uint8_t *data) {
+uint64_t kinc_read_u64le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN
 	return *(u64 *)data;
 #else
@@ -287,7 +287,7 @@ uint64_t Kinc_ReadU64LE(uint8_t *data) {
 #endif
 }
 
-uint64_t Kinc_ReadU64BE(uint8_t *data) {
+uint64_t kinc_read_u64be(uint8_t *data) {
 #ifdef KORE_BIG_ENDIAN
 	return *(u64 *)data;
 #else
@@ -296,7 +296,7 @@ uint64_t Kinc_ReadU64BE(uint8_t *data) {
 #endif
 }
 
-int64_t Kinc_ReadS64LE(uint8_t *data) {
+int64_t kinc_read_s64le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN
 	return *(s64 *)data;
 #else
@@ -305,7 +305,7 @@ int64_t Kinc_ReadS64LE(uint8_t *data) {
 #endif
 }
 
-int64_t Kinc_ReadS64BE(uint8_t *data) {
+int64_t kinc_read_s64be(uint8_t *data) {
 #ifdef KORE_BIG_ENDIAN
 	return *(s64 *)data;
 #else
@@ -314,7 +314,7 @@ int64_t Kinc_ReadS64BE(uint8_t *data) {
 #endif
 }
 
-uint32_t Kinc_ReadU32LE(uint8_t *data) {
+uint32_t kinc_read_u32le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN
 	return *(u32 *)data;
 #else
@@ -322,7 +322,7 @@ uint32_t Kinc_ReadU32LE(uint8_t *data) {
 #endif
 }
 
-uint32_t Kinc_ReadU32BE(uint8_t *data) {
+uint32_t kinc_read_u32be(uint8_t *data) {
 #ifdef KORE_BIG_ENDIAN
 	return *(u32 *)data;
 #else
@@ -330,7 +330,7 @@ uint32_t Kinc_ReadU32BE(uint8_t *data) {
 #endif
 }
 
-int32_t Kinc_ReadS32LE(uint8_t *data) {
+int32_t kinc_read_s32le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN
 	return *(s32 *)data;
 #else
@@ -338,7 +338,7 @@ int32_t Kinc_ReadS32LE(uint8_t *data) {
 #endif
 }
 
-int32_t Kinc_ReadS32BE(uint8_t *data) {
+int32_t kinc_read_s32be(uint8_t *data) {
 #ifdef KORE_BIG_ENDIAN
 	return *(s32 *)data;
 #else
@@ -346,7 +346,7 @@ int32_t Kinc_ReadS32BE(uint8_t *data) {
 #endif
 }
 
-uint16_t Kinc_ReadU16LE(uint8_t *data) {
+uint16_t kinc_read_u16le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN
 	return *(u16 *)data;
 #else
@@ -354,7 +354,7 @@ uint16_t Kinc_ReadU16LE(uint8_t *data) {
 #endif
 }
 
-uint16_t Kinc_ReadU16BE(uint8_t *data) {
+uint16_t kinc_read_u16be(uint8_t *data) {
 #ifdef KORE_BIG_ENDIAN
 	return *(u16 *)data;
 #else
@@ -362,7 +362,7 @@ uint16_t Kinc_ReadU16BE(uint8_t *data) {
 #endif
 }
 
-int16_t Kinc_ReadS16LE(uint8_t *data) {
+int16_t kinc_read_s16le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN
 	return *(s16 *)data;
 #else
@@ -370,7 +370,7 @@ int16_t Kinc_ReadS16LE(uint8_t *data) {
 #endif
 }
 
-int16_t Kinc_ReadS16BE(uint8_t *data) {
+int16_t kinc_read_s16be(uint8_t *data) {
 #ifdef KORE_BIG_ENDIAN
 	return *(s16 *)data;
 #else

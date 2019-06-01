@@ -17,7 +17,7 @@ typedef enum kinc_g4_shader_type {
 } kinc_g4_shader_type_t;
 
 typedef struct kinc_g4_shader {
-	Kinc_G4_ShaderImpl impl;
+	kinc_g4_shader_impl_t impl;
 } kinc_g4_shader_t;
 
 void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t length, kinc_g4_shader_type_t type);

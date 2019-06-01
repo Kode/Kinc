@@ -99,11 +99,11 @@ namespace {
 }
 
 #define MAXIMUM_SOUNDS 256
-static Kinc_A1_Sound sounds[MAXIMUM_SOUNDS];
+static kinc_a1_sound_t sounds[MAXIMUM_SOUNDS];
 static int nextSoundIndex = 0;
 
-Kinc_A1_Sound *Kinc_A1_CreateSound(const char *filename) {
-	Kinc_A1_Sound *sound = &sounds[nextSoundIndex];
+kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
+	kinc_a1_sound_t *sound = &sounds[nextSoundIndex];
 	sound->my_volume = 1;
 	sound->size = 0;
 	sound->left = NULL;
@@ -186,17 +186,17 @@ Kinc_A1_Sound *Kinc_A1_CreateSound(const char *filename) {
 	return sound;
 }
 
-void Kinc_A1_DestroySound(Kinc_A1_Sound *sound) {
+void kinc_a1_sound_destroy(kinc_a1_sound_t *sound) {
 	delete[] sound->left;
 	delete[] sound->right;
 	sound->left = NULL;
 	sound->right = NULL;
 }
 
-float Kinc_A1_SoundVolume(Kinc_A1_Sound *sound) {
+float kinc_a1_sound_volume(kinc_a1_sound_t *sound) {
 	return sound->my_volume;
 }
 
-void Kinc_A1_SoundSetVolume(Kinc_A1_Sound *sound, float value) {
+void kinc_a1_sound_set_volume(kinc_a1_sound_t *sound, float value) {
 	sound->my_volume = value;
 }

@@ -9,23 +9,23 @@ extern "C" {
 #endif
 
 typedef struct {
-	Kinc_MutexImpl impl;
-} Kinc_Mutex;
+	kinc_mutex_impl_t impl;
+} kinc_mutex_t;
 
-void Kinc_Mutex_Create(Kinc_Mutex *mutex);
-void Kinc_Mutex_Destroy(Kinc_Mutex *mutex);
-void Kinc_Mutex_Lock(Kinc_Mutex *mutex);
-bool Kinc_Mutex_TryToLock(Kinc_Mutex *mutex);
-void Kinc_Mutex_Unlock(Kinc_Mutex *mutex);
+void kinc_mutex_init(kinc_mutex_t *mutex);
+void kinc_mutex_destroy(kinc_mutex_t *mutex);
+void kinc_mutex_lock(kinc_mutex_t *mutex);
+bool kinc_mutex_try_to_lock(kinc_mutex_t *mutex);
+void kinc_mutex_unlock(kinc_mutex_t *mutex);
 
 typedef struct {
-	Kinc_UberMutexImpl impl;
-} Kinc_UberMutex;
+	kinc_uber_mutex_impl_t impl;
+} kinc_uber_mutex_t;
 
-bool Kinc_UberMutex_Create(Kinc_UberMutex *mutex, const char *name);
-void Kinc_UberMutex_Destroy(Kinc_UberMutex *mutex);
-void Kinc_UberMutex_Lock(Kinc_UberMutex *mutex);
-void Kinc_UberMutex_Unlock(Kinc_UberMutex *mutex);
+bool kinc_uber_mutex_init(kinc_uber_mutex_t *mutex, const char *name);
+void kinc_uber_mutex_destroy(kinc_uber_mutex_t *mutex);
+void kinc_uber_mutex_lock(kinc_uber_mutex_t *mutex);
+void kinc_uber_mutex_unlock(kinc_uber_mutex_t *mutex);
 
 #ifdef __cplusplus
 }

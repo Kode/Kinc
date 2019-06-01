@@ -39,7 +39,7 @@ KINC_FUNC int kinc_primary_display(void);
 /// Retrieves the number of displays connected to the system
 /// </summary>
 /// <remarks>
-/// All indices from 0 to Kinc_CountDisplays() - 1 are legal display indices.
+/// All indices from 0 to kinc_count_displays() - 1 are legal display indices.
 /// </remarks>
 /// <returns>The number of displays connected to the system</returns>
 KINC_FUNC int kinc_count_displays(void);

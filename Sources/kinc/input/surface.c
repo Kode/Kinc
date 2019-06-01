@@ -4,24 +4,24 @@
 
 #include <memory.h>
 
-void (*Kinc_Surface_TouchStartCallback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
-void (*Kinc_Surface_MoveCallback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
-void (*Kinc_Surface_TouchEndCallback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
+void (*kinc_surface_touch_start_callback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
+void (*kinc_surface_move_callback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
+void (*kinc_surface_touch_end_callback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
 
-void Kinc_Internal_Surface_TriggerTouchStart(int index, int x, int y) {
-	if (Kinc_Surface_TouchStartCallback != NULL) {
-		Kinc_Surface_TouchStartCallback(index, x, y);
+void kinc_internal_surface_trigger_touch_start(int index, int x, int y) {
+	if (kinc_surface_touch_start_callback != NULL) {
+		kinc_surface_touch_start_callback(index, x, y);
 	}
 }
 
-void Kinc_Internal_Surface_TriggerMove(int index, int x, int y) {
-	if (Kinc_Surface_MoveCallback != NULL) {
-		Kinc_Surface_MoveCallback(index, x, y);
+void kinc_internal_surface_trigger_move(int index, int x, int y) {
+	if (kinc_surface_move_callback != NULL) {
+		kinc_surface_move_callback(index, x, y);
 	}
 }
 
-void Kinc_Internal_Surface_TriggerTouchEnd(int index, int x, int y) {
-	if (Kinc_Surface_TouchEndCallback != NULL) {
-		Kinc_Surface_TouchEndCallback(index, x, y);
+void kinc_internal_surface_trigger_touch_end(int index, int x, int y) {
+	if (kinc_surface_touch_end_callback != NULL) {
+		kinc_surface_touch_end_callback(index, x, y);
 	}
 }

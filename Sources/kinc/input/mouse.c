@@ -6,45 +6,45 @@
 
 #include <memory.h>
 
-void (*Kinc_Mouse_PressCallback)(int /*window*/, int /*button*/, int /*x*/, int /*y*/) = NULL;
-void (*Kinc_Mouse_ReleaseCallback)(int /*window*/, int /*button*/, int /*x*/, int /*y*/) = NULL;
-void (*Kinc_Mouse_MoveCallback)(int /*window*/, int /*x*/, int /*y*/, int /*movementX*/, int /*movementY*/) = NULL;
-void (*Kinc_Mouse_ScrollCallback)(int /*window*/, int /*delta*/) = NULL;
-void (*Kinc_Mouse_EnterWindowCallback)(int /*window*/) = NULL;
-void (*Kinc_Mouse_LeaveWindowCallback)(int /*window*/) = NULL;
+void (*kinc_mouse_press_callback)(int /*window*/, int /*button*/, int /*x*/, int /*y*/) = NULL;
+void (*kinc_mouse_release_callback)(int /*window*/, int /*button*/, int /*x*/, int /*y*/) = NULL;
+void (*kinc_mouse_move_callback)(int /*window*/, int /*x*/, int /*y*/, int /*movementX*/, int /*movementY*/) = NULL;
+void (*kinc_mouse_scroll_callback)(int /*window*/, int /*delta*/) = NULL;
+void (*kinc_mouse_enter_window_callback)(int /*window*/) = NULL;
+void (*kinc_mouse_leave_window_callback)(int /*window*/) = NULL;
 
-void Kinc_Internal_Mouse_TriggerRelease(int window, int button, int x, int y) {
-	if (Kinc_Mouse_ReleaseCallback != NULL) {
-		Kinc_Mouse_ReleaseCallback(window, button, x, y);
+void kinc_internal_mouse_trigger_release(int window, int button, int x, int y) {
+	if (kinc_mouse_release_callback != NULL) {
+		kinc_mouse_release_callback(window, button, x, y);
 	}
 }
 
-void Kinc_Internal_Mouse_TriggerScroll(int window, int delta) {
-	if (Kinc_Mouse_ScrollCallback != NULL) {
-		Kinc_Mouse_ScrollCallback(window, delta);
+void kinc_internal_mouse_trigger_scroll(int window, int delta) {
+	if (kinc_mouse_scroll_callback != NULL) {
+		kinc_mouse_scroll_callback(window, delta);
 	}
 }
 
-void Kinc_Internal_Mouse_TriggerEnterWindow(int window) {
-	if (Kinc_Mouse_EnterWindowCallback != NULL) {
-		Kinc_Mouse_EnterWindowCallback(window);
+void kinc_internal_mouse_trigger_enter_window(int window) {
+	if (kinc_mouse_enter_window_callback != NULL) {
+		kinc_mouse_enter_window_callback(window);
 	}
 }
 
-void Kinc_Internal_Mouse_TriggerLeaveWindow(int window) {
-	if (Kinc_Mouse_LeaveWindowCallback != NULL) {
-		Kinc_Mouse_LeaveWindowCallback(window);
+void kinc_internal_mouse_trigger_leave_window(int window) {
+	if (kinc_mouse_leave_window_callback != NULL) {
+		kinc_mouse_leave_window_callback(window);
 	}
 }
 
-void Kinc_Internal_Mouse_WindowActivated(int window) {
-	if (Kinc_Mouse_IsLocked(window)) {
-		Kinc_Internal_Mouse_Lock(window);
+void kinc_internal_mouse_window_activated(int window) {
+	if (kinc_mouse_is_locked(window)) {
+		kinc_internal_mouse_lock(window);
 	}
 }
-void Kinc_Internal_Mouse_WindowDeactivated(int window) {
-	if (Kinc_Mouse_IsLocked(window)) {
-		Kinc_Internal_Mouse_Unlock(window);
+void kinc_internal_mouse_window_deactivated(int window) {
+	if (kinc_mouse_is_locked(window)) {
+		kinc_internal_mouse_unlock(window);
 	}
 }
 
@@ -58,22 +58,22 @@ static int centerY = 0;
 static int lastX = 0;
 static int lastY = 0;
 
-void Kinc_Internal_Mouse_TriggerPress(int window, int button, int x, int y) {
+void kinc_internal_mouse_trigger_press(int window, int button, int x, int y) {
 	lastX = x;
 	lastY = y;
-	if (Kinc_Mouse_PressCallback != NULL) {
-		Kinc_Mouse_PressCallback(window, button, x, y);
+	if (kinc_mouse_press_callback != NULL) {
+		kinc_mouse_press_callback(window, button, x, y);
 	}
 }
 
-void Kinc_Internal_Mouse_TriggerMove(int window, int x, int y) {
+void kinc_internal_mouse_trigger_move(int window, int x, int y) {
 	int movementX = 0;
 	int movementY = 0;
-	if (Kinc_Mouse_IsLocked(window)) {
+	if (kinc_mouse_is_locked(window)) {
 		movementX = x - centerX;
 		movementY = y - centerY;
 		if (movementX != 0 || movementY != 0) {
-			Kinc_Mouse_SetPosition(window, centerX, centerY);
+			kinc_mouse_set_position(window, centerX, centerY);
 			x = centerX;
 			y = centerY;
 		}
@@ -86,33 +86,33 @@ void Kinc_Internal_Mouse_TriggerMove(int window, int x, int y) {
 
 	lastX = x;
 	lastY = y;
-	if (Kinc_Mouse_MoveCallback != NULL && (movementX != 0 || movementY != 0)) {
-		Kinc_Mouse_MoveCallback(window, x, y, movementX, movementY);
+	if (kinc_mouse_move_callback != NULL && (movementX != 0 || movementY != 0)) {
+		kinc_mouse_move_callback(window, x, y, movementX, movementY);
 	}
 }
 
-bool Kinc_Mouse_IsLocked(int window) {
+bool kinc_mouse_is_locked(int window) {
 	return locked;
 }
 
-void Kinc_Mouse_Lock(int window) {
-	if (!Kinc_Mouse_CanLock(window)) {
+void kinc_mouse_lock(int window) {
+	if (!kinc_mouse_can_lock(window)) {
 		return;
 	}
 	locked = true;
-	Kinc_Internal_Mouse_Lock(window);
-	Kinc_Mouse_GetPosition(window, &preLockX, &preLockY);
-	centerX = Kinc_WindowWidth(window) / 2;
-	centerY = Kinc_WindowHeight(window) / 2;
-	Kinc_Mouse_SetPosition(window, centerX, centerY);
+	kinc_internal_mouse_lock(window);
+	kinc_mouse_get_position(window, &preLockX, &preLockY);
+	centerX = kinc_window_width(window) / 2;
+	centerY = kinc_window_height(window) / 2;
+	kinc_mouse_set_position(window, centerX, centerY);
 }
 
-void Kinc_Mouse_Unlock(int window) {
-	if (!Kinc_Mouse_CanLock(window)) {
+void kinc_mouse_unlock(int window) {
+	if (!kinc_mouse_can_lock(window)) {
 		return;
 	}
 	moved = false;
 	locked = false;
-	Kinc_Internal_Mouse_Unlock(window);
-	Kinc_Mouse_SetPosition(window, preLockX, preLockY);
+	kinc_internal_mouse_unlock(window);
+	kinc_mouse_set_position(window, preLockX, preLockY);
 }

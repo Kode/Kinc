@@ -10,6 +10,6 @@ namespace Kore {
 		void* get();
 		void set(void*);
 	private:
-		Kinc_ThreadLocal local;
+		kinc_thread_local_t local;
 	};
 }

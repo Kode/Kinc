@@ -15,14 +15,14 @@ bool mountSaveData(bool);
 void unmountSaveData();
 #endif
 
-bool Kinc_FileWriter_Open(Kinc_FileWriter *writer, const char *filepath) {
+bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath) {
 #ifdef MOUNT_SAVES
 	if (!mountSaveData(true)) {
 		return false;
 	}
 #endif
 	char path[1001];
-	strcpy(path, Kinc_Internal_SavePath());
+	strcpy(path, kinc_internal_save_path());
 	strcat(path, filepath);
 	writer->file = fopen(path, "wb");
 	if (writer->file == NULL) {
@@ -32,7 +32,7 @@ bool Kinc_FileWriter_Open(Kinc_FileWriter *writer, const char *filepath) {
 	return true;
 }
 
-void Kinc_FileWriter_Close(Kinc_FileWriter *writer) {
+void kinc_file_writer_close(kinc_file_writer_t *writer) {
 	if (writer->file == NULL) {
 		return;
 	}
@@ -43,6 +43,6 @@ void Kinc_FileWriter_Close(Kinc_FileWriter *writer) {
 #endif
 }
 
-void Kinc_FileWriter_Write(Kinc_FileWriter *writer, void *data, int size) {
+void kinc_file_writer_write(kinc_file_writer_t *writer, void *data, int size) {
 	fwrite(data, 1, size, (FILE*)writer->file);
 }

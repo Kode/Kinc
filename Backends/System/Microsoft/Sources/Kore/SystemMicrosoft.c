@@ -2,7 +2,7 @@
 
 #include "SystemMicrosoft.h"
 
-#include <Kinc/Error.h>
+#include <kinc/error.h>
 
 #include <Windows.h>
 
@@ -33,20 +33,20 @@ static void winerror(HRESULT result) {
 #endif
 }
 
-void Kinc_Microsoft_Affirm(HRESULT result) {
+void kinc_microsoft_affirm(HRESULT result) {
 	if (result != S_OK) {
 		winerror(result);
 	}
 }
 
-void Kinc_Microsoft_AffirmMessage(HRESULT result, const char *format, ...) {
+void kinc_microsoft_affirm_message(HRESULT result, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
 	kinc_affirm_args(result == S_OK, format, args);
 	va_end(args);
 }
 
-void Kinc_Microsoft_Format(const char *format, va_list args, wchar_t *buffer) {
+void kinc_microsoft_format(const char *format, va_list args, wchar_t *buffer) {
 	wchar_t formatw[4096];
 	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);
 

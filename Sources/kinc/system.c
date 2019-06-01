@@ -67,63 +67,63 @@ void kinc_set_paste_callback(void (*value)(char *)) {
 	paste_callback = value;
 }
 
-void Kinc_Internal_UpdateCallback() {
+void kinc_internal_update_callback() {
 	if (update_callback != NULL) {
 		update_callback();
 	}
 }
 
-void Kinc_Internal_ForegroundCallback() {
+void kinc_internal_foreground_callback() {
 	if (foreground_callback != NULL) {
 		foreground_callback();
 	}
 }
 
-void Kinc_Internal_ResumeCallback() {
+void kinc_internal_resume_callback() {
 	if (resume_callback != NULL) {
 		resume_callback();
 	}
 }
 
-void Kinc_Internal_PauseCallback() {
+void kinc_internal_pause_callback() {
 	if (pause_callback != NULL) {
 		pause_callback();
 	}
 }
 
-void Kinc_Internal_BackgroundCallback() {
+void kinc_internal_background_callback() {
 	if (background_callback != NULL) {
 		background_callback();
 	}
 }
 
-void Kinc_Internal_ShutdownCallback() {
+void kinc_internal_shutdown_callback() {
 	if (shutdown_callback != NULL) {
 		shutdown_callback();
 	}
 }
 
-void Kinc_Internal_DropFilesCallback(wchar_t *filePath) {
+void kinc_internal_drop_files_callback(wchar_t *filePath) {
 	if (drop_files_callback != NULL) {
 		drop_files_callback(filePath);
 	}
 }
 
-char *Kinc_Internal_CutCallback() {
+char *kinc_internal_cut_callback() {
 	if (cut_callback != NULL) {
 		return cut_callback();
 	}
 	return NULL;
 }
 
-char *Kinc_Internal_CopyCallback() {
+char *kinc_internal_copy_callback() {
 	if (copy_callback != NULL) {
 		return copy_callback();
 	}
 	return NULL;
 }
 
-void Kinc_Internal_PasteCallback(char *value) {
+void kinc_internal_paste_callback(char *value) {
 	if (paste_callback != NULL) {
 		paste_callback(value);
 	}
@@ -155,9 +155,9 @@ void kinc_stop() {
 #endif
 }
 
-bool Kinc_Internal_Frame() {
-	Kinc_Internal_UpdateCallback();
-	Kinc_Internal_HandleMessages();
+bool kinc_internal_frame() {
+	kinc_internal_update_callback();
+	kinc_internal_handle_messages();
 	return running;
 }
 
@@ -168,19 +168,19 @@ void kinc_start() {
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-	while (withAutoreleasepool(Kinc_Internal_Frame)) {
+	while (withAutoreleasepool(kinc_internal_frame)) {
 	}
 #else
-	while (Kinc_Internal_Frame()) {}
+	while (kinc_internal_frame()) {}
 #endif
-	Kinc_Internal_Shutdown();
+	kinc_internal_shutdown();
 #endif
 }
 
 int kinc_width() {
-	return Kinc_WindowWidth(0);
+	return kinc_window_width(0);
 }
 
 int kinc_height() {
-	return Kinc_WindowHeight(0);
+	return kinc_window_height(0);
 }

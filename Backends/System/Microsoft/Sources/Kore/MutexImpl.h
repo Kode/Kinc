@@ -11,15 +11,15 @@ typedef struct {
 	void *OwningThread;
 	void *LockSemaphore;
 	unsigned long __w64 SpinCount;
-} Kinc_Microsoft_CriticalSection;
+} kinc_microsoft_critical_section_t;
 
 typedef struct {
-	Kinc_Microsoft_CriticalSection criticalSection;
-} Kinc_MutexImpl;
+	kinc_microsoft_critical_section_t criticalSection;
+} kinc_mutex_impl_t;
 
 typedef struct {
 	void *id;
-} Kinc_UberMutexImpl;
+} kinc_uber_mutex_impl_t;
 
 #ifdef __cplusplus
 }

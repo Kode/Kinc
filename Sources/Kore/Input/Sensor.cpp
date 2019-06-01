@@ -27,8 +27,8 @@ namespace {
 
 Sensor* Sensor::the(SensorType type) {
 	if (!initialized) {
-		Kinc_AccelerationCallback = accelerate;
-		Kinc_RotationCallback = rotate;
+		kinc_acceleration_callback = accelerate;
+		kinc_rotation_callback = rotate;
 		initialized = true;
 	}
 	switch (type) {

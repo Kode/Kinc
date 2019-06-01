@@ -10,16 +10,16 @@ extern "C" {
 
 int kore(int argc, char **argv);
 
-struct _Kinc_WindowOptions;
-struct _Kinc_FramebufferOptions;
+struct kinc_window_options;
+struct kinc_framebuffer_options;
 
-int kinc_init(const char *name, int width, int height, struct _Kinc_WindowOptions *win, struct _Kinc_FramebufferOptions *frame);
+int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame);
 
 const char *kinc_application_name(void);
 int kinc_width(void);
 int kinc_height(void);
 
-bool Kinc_Internal_HandleMessages(void);
+bool kinc_internal_handle_messages(void);
 
 //**vec2i mousePos();
 //**void showKeyboard();
@@ -30,7 +30,7 @@ void kinc_load_url(const char *title);
 
 const char *kinc_system_id();
 
-const char *Kinc_Internal_SavePath();
+const char *kinc_internal_save_path();
 
 const char **kinc_video_formats();
 
@@ -41,7 +41,7 @@ kinc_ticks_t kinc_timestamp();
 double kinc_time();
 
 void kinc_start();
-bool Kinc_Internal_Frame();
+bool kinc_internal_frame();
 void kinc_stop();
 
 void kinc_set_update_callback(void (*value)());
@@ -56,17 +56,17 @@ void kinc_set_copy_callback(char *(*value)());
 void kinc_set_paste_callback(void (*value)(char *));
 void kinc_set_keep_screen_on(bool on);
 
-void Kinc_Internal_Shutdown();
-void Kinc_Internal_UpdateCallback();
-void Kinc_Internal_ForegroundCallback();
-void Kinc_Internal_ResumeCallback();
-void Kinc_Internal_PauseCallback();
-void Kinc_Internal_BackgroundCallback();
-void Kinc_Internal_ShutdownCallback();
-void Kinc_Internal_DropFilesCallback(wchar_t *);
-char *Kinc_Internal_CutCallback();
-char *Kinc_Internal_CopyCallback();
-void Kinc_Internal_PasteCallback(char *);
+void kinc_internal_shutdown();
+void kinc_internal_update_callback();
+void kinc_internal_foreground_callback();
+void kinc_internal_resume_callback();
+void kinc_internal_pause_callback();
+void kinc_internal_background_callback();
+void kinc_internal_shutdown_callback();
+void kinc_internal_drop_files_callback(wchar_t *);
+char *kinc_internal_cut_callback();
+char *kinc_internal_copy_callback();
+void kinc_internal_paste_callback(char *);
 
 #ifdef __cplusplus
 }

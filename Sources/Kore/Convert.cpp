@@ -6,7 +6,7 @@
 
 using namespace Kore;
 
-Kinc_WindowMode Kore::convert(WindowMode mode) {
+kinc_window_mode_t Kore::convert(WindowMode mode) {
 	switch (mode) {
 	case WindowModeWindow:
 		return KINC_WINDOW_MODE_WINDOW;
@@ -18,8 +18,8 @@ Kinc_WindowMode Kore::convert(WindowMode mode) {
 	return KINC_WINDOW_MODE_WINDOW;
 }
 
-Kinc_WindowOptions Kore::convert(WindowOptions *win) {
-	Kinc_WindowOptions kwin;
+kinc_window_options_t Kore::convert(WindowOptions *win) {
+	kinc_window_options_t kwin;
 	kwin.title = win->title;
 	kwin.x = win->x;
 	kwin.y = win->y;
@@ -32,8 +32,8 @@ Kinc_WindowOptions Kore::convert(WindowOptions *win) {
 	return kwin;
 }
 
-Kinc_FramebufferOptions Kore::convert(FramebufferOptions *frame) {
-	Kinc_FramebufferOptions kframe;
+kinc_framebuffer_options_t Kore::convert(FramebufferOptions *frame) {
+	kinc_framebuffer_options_t kframe;
 	kframe.frequency = frame->frequency;
 	kframe.vertical_sync = frame->verticalSync;
 	kframe.color_bits = frame->colorBufferBits;

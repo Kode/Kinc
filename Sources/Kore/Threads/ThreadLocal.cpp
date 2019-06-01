@@ -7,17 +7,17 @@
 using namespace Kore;
 
 void ThreadLocal::create() {
-	Kinc_ThreadLocal_Create(&local);
+	kinc_thread_local_init(&local);
 }
 
 void ThreadLocal::destroy() {
-	Kinc_ThreadLocal_Destroy(&local);
+	kinc_thread_local_destroy(&local);
 }
 
 void *ThreadLocal::get() {
-	return Kinc_ThreadLocal_Get(&local);
+	return kinc_thread_local_get(&local);
 }
 
 void ThreadLocal::set(void *data) {
-	Kinc_ThreadLocal_Set(&local, data);
+	kinc_thread_local_set(&local, data);
 }

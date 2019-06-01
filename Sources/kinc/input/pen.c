@@ -4,24 +4,24 @@
 
 #include <memory.h>
 
-void (*Kinc_Pen_PressCallback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
-void (*Kinc_Pen_MoveCallback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
-void (*Kinc_Pen_ReleaseCallback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
+void (*kinc_pen_press_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
+void (*kinc_pen_move_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
+void (*kinc_pen_release_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
 
-void Kinc_Internal_Pen_TriggerPress(int window, int x, int y, float pressure) {
-	if (Kinc_Pen_PressCallback != NULL) {
-		Kinc_Pen_PressCallback(window, x, y, pressure);
+void kinc_internal_pen_trigger_press(int window, int x, int y, float pressure) {
+	if (kinc_pen_press_callback != NULL) {
+		kinc_pen_press_callback(window, x, y, pressure);
 	}
 }
 
-void Kinc_Internal_Pen_TriggerMove(int window, int x, int y, float pressure) {
-	if (Kinc_Pen_MoveCallback != NULL) {
-		Kinc_Pen_MoveCallback(window, x, y, pressure);
+void kinc_internal_pen_trigger_move(int window, int x, int y, float pressure) {
+	if (kinc_pen_move_callback != NULL) {
+		kinc_pen_move_callback(window, x, y, pressure);
 	}
 }
 
-void Kinc_Internal_Pen_TriggerRelease(int window, int x, int y, float pressure) {
-	if (Kinc_Pen_ReleaseCallback != NULL) {
-		Kinc_Pen_ReleaseCallback(window, x, y, pressure);
+void kinc_internal_pen_trigger_release(int window, int x, int y, float pressure) {
+	if (kinc_pen_release_callback != NULL) {
+		kinc_pen_release_callback(window, x, y, pressure);
 	}
 }

@@ -5,32 +5,32 @@
 
 #include <stdbool.h>
 
-struct Kinc_A1_VideoSoundStream;
+struct kinc_a1_video_sound_stream;
 
 typedef struct {
-	Kinc_A1_Sound *sound;
+	kinc_a1_sound_t *sound;
 	float position;
 	bool loop;
 	float volume;
 	float pitch;
-} Kinc_A1_Channel;
+} kinc_a1_channel_t;
 
 typedef struct {
-	Kinc_A1_SoundStream *stream;
+	kinc_a1_sound_stream_t *stream;
 	int position;
-} Kinc_A1_StreamChannel;
+} kinc_a1_stream_channel_t;
 
 typedef struct {
-	struct Kinc_A1_VideoSoundStream *stream;
+	struct kinc_a1_video_sound_stream *stream;
 	int position;
-} Kinc_A1_VideoChannel;
+} kinc_a1_video_channel_t;
 
-void Kinc_A1_Init();
-Kinc_A1_Channel *Kinc_A1_PlaySound(Kinc_A1_Sound *sound, bool loop, float pitch,
-                                   bool unique); //(Kinc_A1_Sound* sound, bool loop = false, float pitch = 1.0f, bool unique = false);
-void Kinc_A1_StopSound(Kinc_A1_Sound *sound);
-void Kinc_A1_PlaySoundStream(Kinc_A1_SoundStream *stream);
-void Kinc_A1_StopSoundStream(Kinc_A1_SoundStream *stream);
-void Kinc_A1_PlayVideoSoundStream(struct Kinc_A1_VideoSoundStream *stream);
-void Kinc_A1_StopVideoSoundStream(struct Kinc_A1_VideoSoundStream *stream);
-void Kinc_Internal_A1_Mix(Kinc_A2_Buffer *buffer, int samples);
+void kinc_a1_init();
+kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float pitch,
+                                   bool unique); //(kinc_a1_sound_t *sound, bool loop = false, float pitch = 1.0f, bool unique = false);
+void kinc_a1_stop_sound(kinc_a1_sound_t *sound);
+void kinc_a1_play_sound_stream(kinc_a1_sound_stream_t *stream);
+void kinc_a1_stop_sound_stream(kinc_a1_sound_stream_t *stream);
+void kinc_a1_play_video_sound_stream(struct kinc_a1_video_sound_stream *stream);
+void kinc_a1_stop_video_sound_stream(struct kinc_a1_video_sound_stream *stream);
+void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples);

@@ -16,6 +16,6 @@ namespace Kore {
 		void send(const char* url, int port, const unsigned char* data, int size);
 		int receive(unsigned char* data, int maxSize, unsigned& fromAddress, unsigned& fromPort);
 	private:
-		Kinc_Socket sock;
+		kinc_socket_t sock;
 	};
 }

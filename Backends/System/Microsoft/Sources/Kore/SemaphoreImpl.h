@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Kinc/Threads/Event.h>
-#include <Kinc/Threads/Mutex.h>
+#include <kinc/threads/event.h>
+#include <kinc/threads/mutex.h>
 
 typedef struct {
-	Kinc_Event event;
-	Kinc_Mutex mutex;
+	kinc_event_t event;
+	kinc_mutex_t mutex;
 	int current;
 	int max;
-} Kinc_SemaphoreImpl;
+} kinc_semaphore_impl_t;

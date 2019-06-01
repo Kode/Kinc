@@ -127,19 +127,19 @@ bool Graphics4::renderTargetsInvertedY() {
 }
 
 void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
-	kinc_g4_set_texture_addressing(unit.kincUnit, (Kinc_G4_TextureDirection)dir, (Kinc_G4_TextureAddressing)addressing);
+	kinc_g4_set_texture_addressing(unit.kincUnit, (kinc_g4_texture_direction_t)dir, (kinc_g4_texture_addressing_t)addressing);
 }
 
 void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-	kinc_g4_set_texture_magnification_filter(texunit.kincUnit, (Kinc_G4_TextureFilter)filter);
+	kinc_g4_set_texture_magnification_filter(texunit.kincUnit, (kinc_g4_texture_filter_t)filter);
 }
 
 void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	kinc_g4_set_texture_minification_filter(texunit.kincUnit, (Kinc_G4_TextureFilter)filter);
+	kinc_g4_set_texture_minification_filter(texunit.kincUnit, (kinc_g4_texture_filter_t)filter);
 }
 
 void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	kinc_g4_set_texture_mipmap_filter(texunit.kincUnit, (Kinc_G4_MipmapFilter)filter);
+	kinc_g4_set_texture_mipmap_filter(texunit.kincUnit, (kinc_g4_mipmap_filter_t)filter);
 }
 
 bool Graphics4::nonPow2TexturesSupported() {
@@ -180,16 +180,16 @@ void Graphics4::setRenderTargets(RenderTarget** renderTargets, int count) {
 	kinc_g4_set_render_targets(targets, count);
 }
 
-extern "C" void Kinc_Internal_Resize(int window, int width, int height);
+extern "C" void kinc_internal_resize(int window, int width, int height);
 
 void Graphics4::_resize(int window, int width, int height) {
-	Kinc_Internal_Resize(window, width, height);
+	kinc_internal_resize(window, width, height);
 }
 
-extern "C" void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame);
+extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
 
-void Graphics4::_changeFramebuffer(int window, _Kinc_FramebufferOptions* frame) {
-	Kinc_Internal_ChangeFramebuffer(window, frame);
+void Graphics4::_changeFramebuffer(int window, struct kinc_framebuffer_options *frame) {
+	kinc_internal_change_framebuffer(window, frame);
 }
 
 #endif

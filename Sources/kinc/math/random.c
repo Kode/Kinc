@@ -15,12 +15,12 @@ static void generateNumbers() {
 	}
 }
 
-void Kinc_Random_Init(int seed) {
+void kinc_random_init(int seed) {
 	MT[0] = seed;
 	for (int i = 1; i < 624; ++i) MT[i] = 0x6c078965 * (MT[i - 1] ^ (MT[i - 1] >> 30)) + i;
 }
 
-int Kinc_Random_Get() {
+int kinc_random_get() {
 	if (index == 0) generateNumbers();
 
 	int y = MT[index];
@@ -33,10 +33,10 @@ int Kinc_Random_Get() {
 	return y;
 }
 
-int Kinc_Random_GetMax(int max) {
-	return Kinc_Random_Get() % (max + 1);
+int kinc_random_get_max(int max) {
+	return kinc_random_get() % (max + 1);
 }
 
-int Kinc_Random_GetIn(int min, int max) {
-	return Kinc_Random_Get() % (max + 1 - min) + min;
+int kinc_random_get_in(int min, int max) {
+	return kinc_random_get() % (max + 1 - min) + min;
 }

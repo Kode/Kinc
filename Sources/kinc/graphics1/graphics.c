@@ -4,10 +4,10 @@
 
 #if 0
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Graphics4/PipelineState.h>
-#include <Kinc/Graphics4/Shader.h>
-#include <Kinc/IO/FileReader.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/shader.h>
+#include <kinc/io/filereader.h>
 
 static Graphics4::Shader* vertexShader;
 static Graphics4::Shader *fragmentShader;
@@ -19,12 +19,12 @@ static Graphics4::Texture *texture;
 static int *image;
 static int w, h;
 
-void Kinc_G1_Begin() {
+void kinc_g1_begin() {
 	Graphics4::begin();
 	image = (int*)texture->lock();
 }
 
-void Kinc_G1_SetPixel(int x, int y, float red, float green, float blue) {
+void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
 	if (x < 0 || x >= w || y < 0 || y >= h) return;
 	int r = (int)(red * 255);
 	int g = (int)(green * 255);
@@ -32,7 +32,7 @@ void Kinc_G1_SetPixel(int x, int y, float red, float green, float blue) {
 	image[y * texture->texWidth + x] = 0xff << 24 | b << 16 | g << 8 | r;
 }
 
-void Kinc_G1_End() {
+void kinc_g1_end() {
 	texture->unlock();
 
 	Graphics4::clear(Graphics4::ClearColorFlag, 0xff000000);
@@ -47,7 +47,7 @@ void Kinc_G1_End() {
 	Graphics4::swapBuffers();
 }
 
-void Kinc_G1_Init(int width, int height) {
+void kinc_g1_init(int width, int height) {
 	w = width;
 	h = height;
 	FileReader vs("g1.vert");
@@ -120,11 +120,11 @@ void Kinc_G1_Init(int width, int height) {
 	ib->unlock();
 }
 
-int Kinc_G1_Width() {
+int kinc_g1_width() {
 	return w;
 }
 
-int Kinc_G1_Height() {
+int kinc_g1_height() {
 	return h;
 }
 

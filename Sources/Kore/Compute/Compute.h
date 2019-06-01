@@ -13,15 +13,20 @@ namespace Kore {
 		class RenderTarget;
 	}
 
-	class ComputeConstantLocation : public ComputeConstantLocationImpl {};
+	class ComputeConstantLocation {
+		kinc_compute_constant_location_impl_t kincImpl;
+	};
 
-	class ComputeTextureUnit : public ComputeTextureUnitImpl {};
+	class ComputeTextureUnit {
+		kinc_compute_texture_unit_impl_t kincImpl;
+	};
 
-	class ComputeShader : public ComputeShaderImpl {
+	class ComputeShader {
 	public:
 		ComputeShader(void* source, int length);
 		ComputeConstantLocation getConstantLocation(const char* name);
 		ComputeTextureUnit getTextureUnit(const char* name);
+		kinc_compute_shader_impl_t kincImpl;
 	};
 
 #ifdef KORE_OPENGL

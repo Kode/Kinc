@@ -29,7 +29,7 @@ typedef struct kinc_g4_render_target {
 	bool isCubeMap;
 	bool isDepthAttachment;
 
-	Kinc_G4_RenderTargetImpl impl;
+	kinc_g4_render_target_impl_t impl;
 } kinc_g4_render_target_t;
 
 void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing,

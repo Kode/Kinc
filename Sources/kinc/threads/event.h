@@ -9,15 +9,15 @@ extern "C" {
 #endif
 
 typedef struct {
-	Kinc_EventImpl impl;
-} Kinc_Event;
+	kinc_event_impl_t impl;
+} kinc_event_t;
 
-void Kinc_Event_Create(Kinc_Event *event);
-void Kinc_Event_Destroy(Kinc_Event *event);
-void Kinc_Event_Signal(Kinc_Event *event);
-void Kinc_Event_Wait(Kinc_Event *event);
-bool Kinc_Event_TryToWait(Kinc_Event *event, double seconds);
-void Kinc_Event_Reset(Kinc_Event *event);
+void kinc_event_init(kinc_event_t *event);
+void kinc_event_destroy(kinc_event_t *event);
+void kinc_event_signal(kinc_event_t *event);
+void kinc_event_wait(kinc_event_t *event);
+bool kinc_event_try_to_wait(kinc_event_t *event, double seconds);
+void kinc_event_reset(kinc_event_t *event);
 
 #ifdef __cplusplus
 }
