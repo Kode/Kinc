@@ -311,24 +311,23 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 #endif
 		break;
 	case KINC_IMAGE_COMPRESSION_ASTC: {
-		uint8_t blockX = image->internalFormat >> 8;
-		uint8_t blockY = image->internalFormat & 0xff;
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texture->tex_width, texture->tex_height, 0, image->dataSize,
+		uint8_t blockX = image->internal_format >> 8;
+		uint8_t blockY = image->internal_format & 0xff;
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texture->tex_width, texture->tex_height, 0, image->data_size,
 		                       image->data);
 		break;
 	}
 	case KINC_IMAGE_COMPRESSION_DXT5:
 #ifdef KORE_WINDOWS
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, texture->tex_width, texture->tex_height, 0, image->dataSize,
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, texture->tex_width, texture->tex_height, 0, image->data_size,
 		                       image->data);
 #endif
 		break;
 	case KINC_IMAGE_COMPRESSION_NONE: {
 		void *texdata = image->data;
-		if (isHdr)
-			texdata = image->hdrData;
-		else if (toPow2)
+		if (!isHdr && toPow2) {
 			texdata = conversionBuffer;
+		}
 		glTexImage2D(GL_TEXTURE_2D, 0, convertInternalFormat(image->format), texture->tex_width, texture->tex_height, 0,
 		             convertFormat(image->format), convertedType, texdata);
 		glCheckErrors();
@@ -386,7 +385,6 @@ void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t 
 	bool isHdr = convertedType == GL_FLOAT;
 
 	void* texdata = image->data;
-	if (isHdr) texdata = image->hdrData;
 	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(image->format), texture->tex_width, texture->tex_height, texture->tex_depth, 0,
 	             convertFormat(image->format), convertedType, texdata);
 	glCheckErrors();
@@ -599,14 +597,7 @@ void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap
 	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glBindTexture(target, texture->impl.texture);
 	glCheckErrors();
-	if (isHdr) {
-		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->width, mipmap->height, 0, convertFormat(mipmap->format),
-		             convertedType, mipmap->hdrData);
-		glCheckErrors();
-	}
-	else {
-		glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->width, mipmap->height, 0, convertFormat(mipmap->format),
-		             convertedType, mipmap->data);
-		glCheckErrors();
-	}
+	glTexImage2D(target, level, convertInternalFormat(mipmap->format), mipmap->width, mipmap->height, 0, convertFormat(mipmap->format),
+	             convertedType, mipmap->data);
+	glCheckErrors();
 }
