@@ -82,11 +82,11 @@ namespace {
 	void HIDGamepad::processEvent(js_event e) {
 		switch (e.type) {
 		case JS_EVENT_BUTTON:
-			Kinc_Internal_Gamepad_TriggerButton(idx, e.number, e.value);
+			kinc_internal_gamepad_trigger_button(idx, e.number, e.value);
 			break;
 		case JS_EVENT_AXIS: {
             float value = e.number % 2 == 0 ? e.value : -e.value;
-            Kinc_Internal_Gamepad_TriggerAxis(idx, e.number, value / 32767.0f);
+            kinc_internal_gamepad_trigger_axis(idx, e.number, value / 32767.0f);
             break;
         }
 		default:
@@ -110,10 +110,10 @@ void Kore::updateHIDGamepads() {
 	}
 }
 
-const char *Kinc_Gamepad_Vendor(int gamepad) {
+const char *kinc_gamepad_vendor(int gamepad) {
     return "Linux gamepad";
 }
 
-const char *Kinc_Gamepad_ProductName(int gamepad) {
+const char *kinc_gamepad_product_name(int gamepad) {
     return gamepads[gamepad].name;
 }

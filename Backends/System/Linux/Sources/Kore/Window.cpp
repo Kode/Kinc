@@ -15,39 +15,39 @@
 #define MAXIMUM_WINDOWS 16
 Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS] = {0};
 
-int Kinc_CountWindows(void) {
+int kinc_count_windows(void) {
 	return 1;
 }
 
-int Kinc_WindowX(int window_index) {
+int kinc_window_x(int window_index) {
 	return 0;
 }
 
-int Kinc_WindowY(int window_index) {
+int kinc_window_y(int window_index) {
 	return 0;
 }
 
-int Kinc_WindowWidth(int window_index) {
+int kinc_window_width(int window_index) {
     return kinc_internal_windows[window_index].width;
 }
 
-int Kinc_WindowHeight(int window_index) {
+int kinc_window_height(int window_index) {
     return kinc_internal_windows[window_index].height;
 }
 
-void Kinc_WindowResize(int window_index, int width, int height) {
+void kinc_window_resize(int window_index, int width, int height) {
 
 }
 
-void Kinc_WindowMove(int window_index, int x, int y) {
+void kinc_window_move(int window_index, int x, int y) {
 
 }
 
-void Kinc_WindowChangeFramebuffer(int window_index, Kinc_FramebufferOptions *frame) {
+void kinc_window_change_framebuffer(int window_index, kinc_framebuffer_options_t *frame) {
 	//**kinc_g4_changeFramebuffer(0, frame);
 }
 
-void Kinc_WindowChangeFeatures(int window_index, int features) {
+void kinc_window_change_features(int window_index, int features) {
 
 }
 
@@ -75,7 +75,7 @@ void Kore::Linux::fullscreen(XID window, bool value) {
 #endif
 }
 
-void Kinc_WindowChangeMode(int window_index, Kinc_WindowMode mode) {
+void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 	if (mode == KINC_WINDOW_MODE_FULLSCREEN || mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 		if (kinc_internal_windows[window_index].mode == KINC_WINDOW_MODE_FULLSCREEN || kinc_internal_windows[window_index].mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
             kinc_internal_windows[window_index].mode = mode;
@@ -95,38 +95,38 @@ void Kinc_WindowChangeMode(int window_index, Kinc_WindowMode mode) {
 	}
 }
 
-int Kinc_WindowDisplay(int window_index) {
+int kinc_window_display(int window_index) {
 	return 0;
 }
 
-void Kinc_WindowDestroy(int window_index) {
+void kinc_window_destroy(int window_index) {
 
 }
 
-void Kinc_WindowShow(int window_index) {
+void kinc_window_show(int window_index) {
 
 }
 
-void Kinc_WindowHide(int window_index) {
+void kinc_window_hide(int window_index) {
 
 }
 
-void Kinc_WindowSetTitle(int window_index, const char *title) {
+void kinc_window_set_title(int window_index, const char *title) {
 
 }
 
-int Kinc_WindowCreate(Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame) {
+int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	return 0;
 }
 
-void Kinc_WindowSetResizeCallback(int window_index, void (*callback)(int x, int y, void *data), void *data) {
+void kinc_window_set_resize_callback(int window_index, void (*callback)(int x, int y, void *data), void *data) {
 
 }
 
-void Kinc_WindowSetPpiChangedCallback(int window_index, void (*callback)(int ppi, void *data), void *data) {
+void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data) {
 
 }
 
-Kinc_WindowMode Kinc_WindowGetMode(int window_index) {
-	return (Kinc_WindowMode)kinc_internal_windows[window_index].mode;
+kinc_window_mode_t kinc_window_get_mode(int window_index) {
+	return (kinc_window_mode_t)kinc_internal_windows[window_index].mode;
 }

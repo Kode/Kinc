@@ -16,13 +16,13 @@
 #define MAXIMUM_WINDOWS 16
 extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
 
-void Kinc_Internal_Mouse_Lock(int window) {
-    Kinc_Mouse_Hide();
-    int width = Kinc_WindowWidth(window);
-    int height = Kinc_WindowHeight(window);
+void kinc_internal_mouse_lock(int window) {
+    kinc_mouse_hide();
+    int width = kinc_window_width(window);
+    int height = kinc_window_height(window);
 
     int x, y;
-    Kinc_Mouse_GetPosition(window, &x, &y);
+    kinc_mouse_get_position(window, &x, &y);
 
     // Guess the new position of X and Y
     int newX = x;
@@ -47,20 +47,20 @@ void Kinc_Internal_Mouse_Lock(int window) {
     }
 
     // Force the mouse to stay inside the window
-    Kinc_Mouse_SetPosition(window, newX, newY);
+    kinc_mouse_set_position(window, newX, newY);
 }
 
-void Kinc_Internal_Mouse_Unlock(int window) {
-    Kinc_Mouse_Show();
+void kinc_internal_mouse_unlock(int window) {
+    kinc_mouse_show();
 }
 
-bool Kinc_Mouse_CanLock(int window) {
+bool kinc_mouse_can_lock(int window) {
 	return true;
 }
 
 bool _mouseHidden = false;
 
-void Kinc_Mouse_Show() {
+void kinc_mouse_show() {
 #ifdef KORE_OPENGL
 	::Display* dpy = glXGetCurrentDisplay();
 	::Window win = (XID)kinc_internal_windows[0].handle;
@@ -73,7 +73,7 @@ void Kinc_Mouse_Show() {
 #endif
 }
 
-void Kinc_Mouse_Hide() {
+void kinc_mouse_hide() {
 #ifdef KORE_OPENGL
     ::Display* dpy = glXGetCurrentDisplay();
     ::Window win = (XID)kinc_internal_windows[0].handle;
@@ -91,7 +91,7 @@ void Kinc_Mouse_Hide() {
 #endif
 }
 
-void Kinc_Mouse_SetPosition(int window, int x, int y) {
+void kinc_mouse_set_position(int window, int x, int y) {
 #ifdef KORE_OPENGL
 	::Display* dpy = XOpenDisplay(0);
 	::Window win = (XID)kinc_internal_windows[0].handle;
@@ -103,7 +103,7 @@ void Kinc_Mouse_SetPosition(int window, int x, int y) {
 #endif
 }
 
-void Kinc_Mouse_GetPosition(int window, int *x, int *y) {
+void kinc_mouse_get_position(int window, int *x, int *y) {
 #ifdef KORE_OPENGL
 	::Display* dpy = XOpenDisplay(NULL);
 	::Window win = (XID)kinc_internal_windows[0].handle;

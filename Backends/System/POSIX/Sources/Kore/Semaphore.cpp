@@ -2,14 +2,14 @@
 
 #include <kinc/threads/semaphore.h>
 
-void Kinc_Semaphore_Create(Kinc_Semaphore *semaphore, int current, int max) {}
+void kinc_semaphore_init(kinc_semaphore_t *semaphore, int current, int max) {}
 
-void Kinc_Semaphore_Destroy(Kinc_Semaphore *semaphore) {}
+void kinc_semaphore_destroy(kinc_semaphore_t *semaphore) {}
 
-void Kinc_Semaphore_Release(Kinc_Semaphore *semaphore, int count) {}
+void kinc_semaphore_release(kinc_semaphore_t *semaphore, int count) {}
 
-void Kinc_Semaphore_Acquire(Kinc_Semaphore *semaphore) {}
+void kinc_semaphore_acquire(kinc_semaphore_t *semaphore) {}
 
-bool Kinc_Semaphore_TryToAcquire(Kinc_Semaphore *semaphore, double seconds) {
+bool kinc_semaphore_try_to_acquire(kinc_semaphore_t *semaphore, double seconds) {
 	return true;
 }

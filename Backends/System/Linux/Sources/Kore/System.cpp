@@ -109,7 +109,7 @@ namespace {
 }
 #endif
 
-int createWindow(const char* title, int x, int y, int width, int height, Kinc_WindowMode windowMode, int targetDisplay, int depthBufferBits,
+int createWindow(const char* title, int x, int y, int width, int height, kinc_window_mode_t windowMode, int targetDisplay, int depthBufferBits,
 				 int stencilBufferBits, int antialiasingSamples) {
 
 	int nameLength = strlen(kinc_application_name());
@@ -413,7 +413,7 @@ namespace Kore {
 		}
 #endif
 
-		int initWindow(Kinc_WindowOptions* win, Kinc_FramebufferOptions* frame) {
+		int initWindow(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 			char buffer[1024] = {0};
 			strcpy(buffer, kinc_application_name());
 			if (win->title != nullptr) {
@@ -442,7 +442,7 @@ namespace Kore {
 	}
 }
 
-bool Kinc_Internal_HandleMessages() {
+bool kinc_internal_handle_messages() {
 	static bool controlDown = false;
 #ifdef KORE_OPENGL
 	while (XPending(Kore::Linux::display) > 0) {
@@ -454,13 +454,13 @@ bool Kinc_Internal_HandleMessages() {
 			int windowId = windowimpl::idFromWindow(motion->window);
 			float p = (float)motion->axis_data[2] / (float)penMaxPressure;
 			if (p > 0 && penPressureLast == 0) {
-                Kinc_Internal_Pen_TriggerPress(windowId, motion->x, motion->y, p);
+                kinc_internal_pen_trigger_press(windowId, motion->x, motion->y, p);
 			}
 			else if (p == 0 && penPressureLast > 0) {
-                Kinc_Internal_Pen_TriggerRelease(windowId, motion->x, motion->y, p);
+                kinc_internal_pen_trigger_release(windowId, motion->x, motion->y, p);
 			}
 			else if (p > 0) {
-                Kinc_Internal_Pen_TriggerMove(windowId, motion->x, motion->y, p);
+                kinc_internal_pen_trigger_move(windowId, motion->x, motion->y, p);
 			}
 			penPressureLast = p;
 		}
@@ -473,14 +473,14 @@ bool Kinc_Internal_HandleMessages() {
 			XLookupString(key, buffer, 1, &keysym, NULL);
 
 			if (buffer[0] >= 32 && buffer[0] <= 126) {
-                Kinc_Internal_Keyboard_TriggerKeyPress((wchar_t)buffer[0]);
+                kinc_internal_keyboard_trigger_key_press((wchar_t)buffer[0]);
 			}
 
 #define KEY(xkey, korekey)                                          \
 	case xkey:                                                      \
 		if (!keyPressed[korekey]) {                           \
 			keyPressed[korekey] = true;                       \
-			Kinc_Internal_Keyboard_TriggerKeyDown(korekey);   \
+			kinc_internal_keyboard_trigger_key_down(korekey);   \
 		}                                                           \
 		break;
 
@@ -597,7 +597,7 @@ bool Kinc_Internal_HandleMessages() {
 
 #define KEY(xkey, korekey)                                      \
 	case xkey:                                                  \
-		Kinc_Internal_Keyboard_TriggerKeyUp(korekey);     \
+		kinc_internal_keyboard_trigger_key_up(korekey);     \
 		keyPressed[korekey] = false;                      \
 		break;
 
@@ -706,13 +706,13 @@ bool Kinc_Internal_HandleMessages() {
 
 			switch (button->button) {
 			case Button1:
-                Kinc_Internal_Mouse_TriggerPress(windowId, 0, button->x, button->y);
+                kinc_internal_mouse_trigger_press(windowId, 0, button->x, button->y);
 				break;
 			case Button2:
-                Kinc_Internal_Mouse_TriggerPress(windowId, 2, button->x, button->y);
+                kinc_internal_mouse_trigger_press(windowId, 2, button->x, button->y);
 				break;
 			case Button3:
-                Kinc_Internal_Mouse_TriggerPress(windowId, 1, button->x, button->y);
+                kinc_internal_mouse_trigger_press(windowId, 1, button->x, button->y);
 				break;
 			}
 			break;
@@ -723,20 +723,20 @@ bool Kinc_Internal_HandleMessages() {
 
 			switch (button->button) {
 			case Button1:
-                Kinc_Internal_Mouse_TriggerRelease(windowId, 0, button->x, button->y);
+                kinc_internal_mouse_trigger_release(windowId, 0, button->x, button->y);
 				break;
 			case Button2:
-                Kinc_Internal_Mouse_TriggerRelease(windowId, 2, button->x, button->y);
+                kinc_internal_mouse_trigger_release(windowId, 2, button->x, button->y);
 				break;
 			case Button3:
-                Kinc_Internal_Mouse_TriggerRelease(windowId, 1, button->x, button->y);
+                kinc_internal_mouse_trigger_release(windowId, 1, button->x, button->y);
 				break;
 			// Button4 and Button5 provide mouse wheel events because why not
 			case Button4:
-                Kinc_Internal_Mouse_TriggerScroll(windowId, -1);
+                kinc_internal_mouse_trigger_scroll(windowId, -1);
 				break;
 			case Button5:
-                Kinc_Internal_Mouse_TriggerScroll(windowId, 1);
+                kinc_internal_mouse_trigger_scroll(windowId, 1);
 				break;
 			}
 			break;
@@ -744,7 +744,7 @@ bool Kinc_Internal_HandleMessages() {
 		case MotionNotify: {
 			XMotionEvent* motion = (XMotionEvent*)&event;
 			int windowId = windowimpl::idFromWindow(motion->window);
-            Kinc_Internal_Mouse_TriggerMove(windowId, motion->x, motion->y);
+            kinc_internal_mouse_trigger_move(windowId, motion->x, motion->y);
 			break;
 		}
 		case ConfigureNotify: {
@@ -798,7 +798,7 @@ bool Kinc_Internal_HandleMessages() {
 				mbstowcs(filePath, (char*)data, len);
 				XFree(data);
 				filePath[len] = 0;
-                Kinc_Internal_DropFilesCallback(filePath + 7); // Strip file://
+                kinc_internal_drop_files_callback(filePath + 7); // Strip file://
 			}
 			else if (event.xselection.property) {
 				char* result;
@@ -806,7 +806,7 @@ bool Kinc_Internal_HandleMessages() {
 				int resbits;
 				XGetWindowProperty(Kore::Linux::display, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
 								   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
-                Kinc_Internal_PasteCallback(result);
+                kinc_internal_paste_callback(result);
 				XFree(result);
 			}
 			break;
@@ -934,7 +934,7 @@ namespace {
 	bool saveInitialized = false;
 }
 
-const char* Kinc_Internal_SavePath() {
+const char* kinc_internal_save_path() {
 	if (!saveInitialized) {
 		strcpy(save, "Ķ~/.");
 		strcat(save, kinc_application_name());
@@ -967,18 +967,18 @@ kinc_ticks_t kinc_timestamp(void) {
 
 extern "C" void enumerateDisplays();
 
-int kinc_init(const char* name, int width, int height, struct _Kinc_WindowOptions *win, struct _Kinc_FramebufferOptions *frame) {
+int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	enumerateDisplays();
 
 	//System::_init(name, width, height, &win, &frame);
-    Kinc_WindowOptions defaultWin;
+    kinc_window_options_t defaultWin;
     if (win == NULL) {
-        Kinc_Internal_InitWindowOptions(&defaultWin);
+        kinc_internal_init_window_options(&defaultWin);
         win = &defaultWin;
     }
-    Kinc_FramebufferOptions defaultFrame;
+    kinc_framebuffer_options_t defaultFrame;
     if (frame == NULL) {
-        Kinc_Internal_InitFramebufferOptions(&defaultFrame);
+        kinc_internal_init_framebuffer_options(&defaultFrame);
         frame = &defaultFrame;
     }
     win->width = width;
@@ -987,7 +987,7 @@ int kinc_init(const char* name, int width, int height, struct _Kinc_WindowOption
 	return window;
 }
 
-void Kinc_Internal_Shutdown() {
+void kinc_internal_shutdown() {
 
 }
 

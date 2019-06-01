@@ -10,7 +10,7 @@ typedef struct {
     void* param;
     void (*thread)(void* param);
     pthread_t pthread;
-} Kinc_ThreadImpl;
+} kinc_thread_impl_t;
 
 #ifdef __cplusplus
 }

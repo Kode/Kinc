@@ -12,8 +12,8 @@
 // apt-get install libasound2-dev
 
 namespace {
-    void (*a2_callback)(Kinc_A2_Buffer *buffer, int samples) = nullptr;
-    Kinc_A2_Buffer a2_buffer;
+    void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+    kinc_a2_buffer_t a2_buffer;
 
 	pthread_t threadid;
 	bool audioRunning = false;
@@ -185,7 +185,7 @@ namespace {
 	}
 }
 
-void Kinc_A2_Init() {
+void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
@@ -195,12 +195,12 @@ void Kinc_A2_Init() {
 	pthread_create(&threadid, nullptr, &doAudio, nullptr);
 }
 
-void Kinc_A2_Update() {}
+void kinc_a2_update() {}
 
-void Kinc_A2_Shutdown() {
+void kinc_a2_shutdown() {
 	audioRunning = false;
 }
 
-void Kinc_A2_SetCallback(void(*Kinc_A2_audio_callback)(Kinc_A2_Buffer *buffer, int samples)) {
-    a2_callback = Kinc_A2_audio_callback;
+void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+    a2_callback = kinc_a2_audio_callback;
 }

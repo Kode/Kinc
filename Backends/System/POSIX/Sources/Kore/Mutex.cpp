@@ -4,38 +4,36 @@
 
 #include <pthread.h>
 
-using namespace Kore;
-
-void Kinc_Mutex_Create(Kinc_Mutex *mutex) {
+void kinc_mutex_init(kinc_mutex_t *mutex) {
 	pthread_mutex_init(&mutex->impl.mutex, NULL);
 }
 
-void Kinc_Mutex_Destroy(Kinc_Mutex *mutex) {
+void kinc_mutex_destroy(kinc_mutex_t *mutex) {
 	pthread_mutex_destroy(&mutex->impl.mutex);
 }
 
-bool Kinc_Mutex_TryToLock(Kinc_Mutex *mutex) {
+bool kinc_mutex_try_to_lock(kinc_mutex_t *mutex) {
     return pthread_mutex_trylock(&mutex->impl.mutex) == 0;
 }
 
-void Kinc_Mutex_Lock(Kinc_Mutex *mutex) {
+void kinc_mutex_lock(kinc_mutex_t *mutex) {
 	pthread_mutex_lock(&mutex->impl.mutex);
 }
 
-void Kinc_Mutex_Unlock(Kinc_Mutex *mutex) {
+void kinc_mutex_unlock(kinc_mutex_t *mutex) {
 	pthread_mutex_unlock(&mutex->impl.mutex);
 }
 
-bool Kinc_UberMutex_Create(Kinc_UberMutex *mutex, const char* name) {
+bool kinc_uber_mutex_init(kinc_uber_mutex_t *mutex, const char* name) {
 	return false;
 }
 
-void Kinc_UberMutex_Destroy(Kinc_UberMutex *mutex) {}
+void kinc_uber_mutex_destroy(kinc_uber_mutex_t *mutex) {}
 
-void Kinc_UberMutex_Lock(Kinc_UberMutex *mutex) {
+void kinc_uber_mutex_lock(kinc_uber_mutex_t *mutex) {
 	// affirm(false);
 }
 
-void Kinc_UberMutex_Unlock(Kinc_UberMutex *mutex) {
+void kinc_uber_mutex_unlock(kinc_uber_mutex_t *mutex) {
 	// affirm(false);
 }

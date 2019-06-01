@@ -8,11 +8,11 @@ extern "C" {
 
 typedef struct {
 	pthread_mutex_t mutex;
-} Kinc_MutexImpl;
+} kinc_mutex_impl_t;
 	
 typedef struct {
 
-} Kinc_UberMutexImpl;
+} kinc_uber_mutex_impl_t;
 
 #ifdef __cplusplus
 }

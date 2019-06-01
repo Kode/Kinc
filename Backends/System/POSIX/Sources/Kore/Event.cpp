@@ -2,16 +2,16 @@
 
 #include <kinc/threads/event.h>
 
-void Kinc_Event_Create(Kinc_Event *event) {}
+void kinc_event_init(kinc_event_t *event) {}
 
-void Kinc_Event_Destroy(Kinc_Event *event) {}
+void kinc_event_destroy(kinc_event_t *event) {}
 
-void Kinc_Event_Signal(Kinc_Event *event) {}
+void kinc_event_signal(kinc_event_t *event) {}
 
-void Kinc_Event_Wait(Kinc_Event *event) {}
+void kinc_event_wait(kinc_event_t *event) {}
 
-bool Kinc_Event_TryToWait(Kinc_Event *event, double seconds) {
+bool kinc_event_try_to_wait(kinc_event_t *event, double seconds) {
 	return true;
 }
 
-void Kinc_Event_Reset(Kinc_Event *event) {}
+void kinc_event_reset(kinc_event_t *event) {}

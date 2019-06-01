@@ -6,7 +6,7 @@ extern "C" {
 
 typedef struct {
 
-} Kinc_SemaphoreImpl;
+} kinc_semaphore_impl_t;
 
 #ifdef __cplusplus
 }
