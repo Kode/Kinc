@@ -18,6 +18,8 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	
 	target->texWidth = width;
 	target->texHeight = height;
+	
+	target->contextId = contextId;
 		
 	id<MTLDevice> device = getMetalDevice();
 		

@@ -401,7 +401,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		[commandBuffer presentDrawable:drawable];
 		[commandBuffer commit];
 
-		// if (drawable != nil) {
+		//if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
 		//	[drawable present];
 		//}

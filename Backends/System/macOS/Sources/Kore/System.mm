@@ -13,14 +13,6 @@
 
 #include "WindowData.h"
 
-#ifdef KORE_METAL
-namespace Kore {
-	namespace Graphics5 {
-		class RenderTarget;
-	}
-}
-#endif
-
 extern "C" {
 	bool withAutoreleasepool(bool (*f)()) {
 		@autoreleasepool {
@@ -28,8 +20,6 @@ extern "C" {
 		}
 	}
 }
-	
-using namespace Kore;
 
 extern const char* macgetresourcepath();
 
@@ -56,7 +46,7 @@ namespace {
 	NSWindow* window;
 	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
-	HIDManager* hidManager;
+	Kore::HIDManager* hidManager;
 
 	/*struct KoreWindow : public KoreWindowBase {
 		NSWindow* handle;
@@ -275,7 +265,7 @@ int kore(int, char**);
 		[self finishLaunching];
 		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
 
-		hidManager = new HIDManager();
+		hidManager = new Kore::HIDManager();
 		addMenubar();
 
 		// try {
