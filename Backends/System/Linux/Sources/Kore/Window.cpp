@@ -96,7 +96,7 @@ void Kinc_WindowChangeMode(int window_index, Kinc_WindowMode mode) {
 }
 
 int Kinc_WindowDisplay(int window_index) {
-	return NULL;
+	return 0;
 }
 
 void Kinc_WindowDestroy(int window_index) {

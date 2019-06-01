@@ -203,6 +203,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kinc_Wi
 	//  -context sharing doesn't seem to work in virtual box?
 	//      -main screen flickers
 	//      -sprite in subscreens is black
+	cx = NULL;
 	glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
 	glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddressARB((const GLubyte *)"glXCreateContextAttribsARB");
 	if (glXCreateContextAttribsARB) {
@@ -213,7 +214,11 @@ int createWindow(const char* title, int x, int y, int width, int height, Kinc_Wi
 			GLX_CONTEXT_PROFILE_MASK_ARB , GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 			None
 		};
-		cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig, wcounter == 0 ? None : kinc_internal_windows[0].context, GL_TRUE, contextAttribs);
+		if (fbconfig) {
+			cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig,
+			                                wcounter == 0 ? None : kinc_internal_windows[0].context, GL_TRUE,
+			                                contextAttribs);
+		}
 	}
 
 	if (cx == NULL) {
@@ -960,8 +965,10 @@ kinc_ticks_t kinc_timestamp(void) {
 	return static_cast<kinc_ticks_t>(now.tv_sec) * 1000000 + static_cast<kinc_ticks_t>(now.tv_usec);
 }
 
+extern "C" void enumerateDisplays();
+
 int kinc_init(const char* name, int width, int height, struct _Kinc_WindowOptions *win, struct _Kinc_FramebufferOptions *frame) {
-	//**Display::enumerate();
+	enumerateDisplays();
 
 	//System::_init(name, width, height, &win, &frame);
     Kinc_WindowOptions defaultWin;
