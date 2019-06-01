@@ -33,7 +33,7 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 	}
 }
 
-static void init_texture(kinc_g5_texture *texture, const char* format, bool readable) {
+/*static void init_texture(kinc_g5_texture *texture, const char* format, bool readable) {
 	texture->impl.stage = 0;
 	texture->impl.mipmap = true;
 	texture->texWidth = texture->image.width;
@@ -50,8 +50,8 @@ static void init_texture(kinc_g5_texture *texture, const char* format, bool read
 	BYTE* pixel;
 	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
 	int pitch = kinc_g5_texture_stride(texture);
-	for (int y = 0; y < texture->image.height; ++y) {
-		memcpy(&pixel[y * pitch], &texture->image.data[y * texture->image.width * 4], texture->image.width * 4);
+	for (int y = 0; y < texture->texHeight; ++y) {
+		memcpy(&pixel[y * pitch], &texture->image.data[y * texture->texWidth * 4], texture->texWidth * 4);
 	}
 	texture->impl.uploadImage->Unmap(0, nullptr);
 
@@ -78,15 +78,15 @@ static void init_texture(kinc_g5_texture *texture, const char* format, bool read
 		delete[] texture->image.data;
 		texture->image.data = nullptr;
 	}
-}
+}*/
 
 void kinc_g5_texture_init_from_file(kinc_g5_texture_t *texture, const char *filename, bool readable) {
-	kinc_image_init_from_file(&texture->image, filename, readable);
-	init_texture(texture, filename, readable);
+	//kinc_image_init_from_file(&texture->image, filename, readable);
+	//init_texture(texture, filename, readable);
 }
 
 void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format, bool readable) {
-	kinc_image_init(&texture->image, width, height, format, readable);
+	//kinc_image_init(&texture->image, width, height, format, readable);
 	texture->impl.stage = 0;
 	texture->impl.mipmap = true;
 	texture->texWidth = width;
@@ -122,7 +122,7 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 }
 
 void kinc_g5_texture_init3d(kinc_g5_texture *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {
-	kinc_image_init3d(&texture->image, width, height, depth, format, readable);
+	//kinc_image_init3d(&texture->image, width, height, depth, format, readable);
 }
 
 void kinc_g5_internal_texture_unset(kinc_g5_texture *texture);
@@ -151,16 +151,16 @@ void kinc_g5_internal_texture_unset(kinc_g5_texture *texture) {
 }
 
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture *texture) {
-	return (uint8_t *)texture->image.data;
+	return (uint8_t *)NULL;//texture->image.data;
 }
 
 void kinc_g5_texture_unlock(kinc_g5_texture *texture) {
 	BYTE* pixel;
 	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
 	int pitch = kinc_g5_texture_stride(texture);
-	for (int y = 0; y < texture->image.height; ++y) {
-		memcpy(&pixel[y * pitch], &texture->image.data[y * texture->image.width],
-		       texture->image.format == KINC_IMAGE_FORMAT_RGBA32 ? texture->image.width * 4 : texture->image.width);
+	for (int y = 0; y < texture->texHeight; ++y) {
+		//memcpy(&pixel[y * pitch], &texture->image.data[y * texture->texWidth],
+		//       texture->format == KINC_IMAGE_FORMAT_RGBA32 ? texture->texWidth * 4 : texture->texWidth);
 	}
 	texture->impl.uploadImage->Unmap(0, nullptr);
 }
@@ -176,8 +176,8 @@ int d3d12_textureAlignment();
 #endif
 
 int kinc_g5_texture_stride(kinc_g5_texture *texture) {
-	int baseStride = texture->image.format == KINC_IMAGE_FORMAT_RGBA32 ? (texture->image.width * 4) : texture->image.width;
-	if (texture->image.format == KINC_IMAGE_FORMAT_GREY8) return texture->image.width; // please investigate further
+	int baseStride = texture->format == KINC_IMAGE_FORMAT_RGBA32 ? (texture->texWidth * 4) : texture->texWidth;
+	if (texture->format == KINC_IMAGE_FORMAT_GREY8) return texture->texWidth; // please investigate further
 	for (int i = 0;; ++i) {
 		if (d3d12_textureAlignment() * i >= baseStride) {
 			return d3d12_textureAlignment() * i;

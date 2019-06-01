@@ -9,7 +9,7 @@ extern "C" {
 typedef struct {
 	//ShaderImpl(void *data, int length, Graphics5::ShaderType type);
 	kinc_g5_shader_t _shader;
-} Kinc_G4_ShaderImpl;
+} kinc_g4_shader_impl_t;
 
 #ifdef __cplusplus
 }

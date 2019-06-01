@@ -10,11 +10,11 @@ extern "C" {
 typedef struct {
 	// PipelineStateImpl();
 	kinc_g5_pipeline_t _pipeline;
-} Kinc_G4_PipelineStateImpl;
+} kinc_g4_pipeline_impl_t;
 
 typedef struct {
 	kinc_g5_constant_location_t _location;
-} Kinc_G4_ConstantLocationImpl;
+} kinc_g4_constant_location_impl_t;
 
 typedef struct {
 	int nothing;

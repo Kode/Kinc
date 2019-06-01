@@ -13,7 +13,7 @@ typedef struct {
 	int _currentIndex;
 	int _multiple;
 	uint64_t _lastFrameNumber;
-} Kinc_G4_VertexBufferImpl;
+} kinc_g4_vertex_buffer_impl_t;
 
 #ifdef __cplusplus
 }

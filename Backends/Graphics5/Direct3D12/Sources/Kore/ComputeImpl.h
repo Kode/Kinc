@@ -6,15 +6,15 @@ extern "C" {
 
 typedef struct {
 
-} ComputeConstantLocationImpl;
+} kinc_compute_constant_location_impl_t;
 
 typedef struct {
 
-} ComputeTextureUnitImpl;
+} kinc_compute_texture_unit_impl_t;
 
 typedef struct {
 	
-} ComputeShaderImpl;
+} kinc_compute_shader_impl_t;
 
 #ifdef __cplusplus
 }

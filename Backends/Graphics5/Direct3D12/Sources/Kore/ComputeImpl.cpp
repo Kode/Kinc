@@ -33,9 +33,9 @@ void kinc_compute_set_float4(kinc_compute_constant_location_t location, float va
 
 void kinc_compute_set_floats(kinc_compute_constant_location_t location, float *values, int count) {}
 
-void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, Kinc_Matrix4x4 *value) {}
+void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, kinc_matrix4x4_t *value) {}
 
-void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, Kinc_Matrix3x3 *value) {}
+void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_matrix3x3_t *value) {}
 
 void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture_t *texture, kinc_compute_access_t access) {}
 
@@ -47,21 +47,21 @@ void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_
 
 void kinc_compute_set_sampled_depth_texture(kinc_compute_texture_unit_t unit, kinc_g4_render_target_t *target) {}
 
-void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {}
+void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {}
 
-void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {}
+void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {}
 
-void kinc_compute_set_texture_magnification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
+void kinc_compute_set_texture_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
 
-void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
+void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
 
-void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
+void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
 
-void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
+void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
 
-void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter) {}
+void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
 
-void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter) {}
+void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
 
 void kinc_compute_set_shader(kinc_compute_shader_t *shader) {}
 

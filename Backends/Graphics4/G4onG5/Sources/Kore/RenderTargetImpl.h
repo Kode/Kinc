@@ -11,7 +11,7 @@ typedef struct {
 	//	                int contextId);
 	//RenderTargetImpl(int cubeMapSize, int depthBufferBits, bool antialiasing, Graphics5::RenderTargetFormat format, int stencilBufferBits, int contextId);
 	kinc_g5_render_target_t _renderTarget;
-} Kinc_G4_RenderTargetImpl;
+} kinc_g4_render_target_impl_t;
 
 #ifdef __cplusplus
 }

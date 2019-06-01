@@ -8,7 +8,7 @@ extern "C" {
 
 typedef struct {
 	kinc_g5_index_buffer_t _buffer;
-} Kinc_G4_IndexBufferImpl;
+} kinc_g4_index_buffer_impl_t;
 
 #ifdef __cplusplus
 }

@@ -10,7 +10,7 @@ extern "C" {
 
 typedef struct {
 	kinc_g5_texture_unit_t _unit;
-} Kinc_G4_TextureUnitImpl;
+} kinc_g4_texture_unit_impl_t;
 
 typedef struct {
 	/*TextureImpl();
@@ -22,7 +22,7 @@ typedef struct {
 
 	kinc_g5_texture_t _texture;
 	bool _uploaded;
-} Kinc_G4_TextureImpl;
+} kinc_g4_texture_impl_t;
 
 #ifdef __cplusplus
 }

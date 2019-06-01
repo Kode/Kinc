@@ -88,11 +88,11 @@ void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 	kinc_g5_draw_indexed_vertices_instanced_from_to(instanceCount, start, count);
 }
 
-void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 	kinc_g5_set_texture_addressing(unit.impl._unit, (kinc_g5_texture_direction_t)dir, (kinc_g5_texture_addressing_t)addressing);
 }
 
-void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 	kinc_g4_set_texture_addressing(unit, dir, addressing);
 }
 
@@ -157,7 +157,7 @@ void kinc_g4_flush() {
 
 void kinc_g4_set_stencil_reference_value(int value) {}
 
-void kinc_g4_set_texture_operation(Kinc_G4_TextureOperation operation, Kinc_G4_TextureArgument arg1, Kinc_G4_TextureArgument arg2) {
+void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
 	kinc_g5_set_texture_operation((kinc_g5_texture_operation_t)operation, (kinc_g5_texture_argument_t)arg1, (kinc_g5_texture_argument_t)arg2);
 }
 
@@ -224,27 +224,27 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 		kinc_g5_constant_buffer_set_matrix3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
-void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	kinc_g5_set_texture_magnification_filter(texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
 }
 
-void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	kinc_g4_set_texture_magnification_filter(texunit, filter);
 }
 
-void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	kinc_g5_set_texture_minification_filter(texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
 }
 
-void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	kinc_g4_set_texture_minification_filter(texunit, filter);
 }
 
-void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_MipmapFilter filter) {
+void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
 	kinc_g5_set_texture_mipmap_filter(texunit.impl._unit, (kinc_g5_mipmap_filter_t)filter);
 }
 
-void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_MipmapFilter filter) {
+void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
 	kinc_g4_set_texture_mipmap_filter(texunit, filter);
 }
 
@@ -289,7 +289,7 @@ void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 }
 
 
-int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset) {
+int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	kinc_g4_vertex_buffer_t *buffers[1];
 	buffers[0] = buffer;
 	kinc_g4_set_vertex_buffers(buffers, 1);

@@ -4,9 +4,10 @@
 #include "IndexBuffer5Impl.h"
 #include "PipelineState5Impl.h"
 #include "VertexBuffer5Impl.h"
-#include <Kinc/Graphics5/Graphics.h>
-#include <Kinc/Graphics5/Pipeline.h>
-#include <Kinc/Math/Core.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/math/core.h>
+#include <kinc/window.h>
 #ifdef KORE_WINDOWS
 #include <dxgi1_4.h>
 #undef CreateWindow
@@ -84,19 +85,19 @@ namespace {
 	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
 		RenderEnvironment result;
 #ifdef KORE_WINDOWS
-		Kinc_Microsoft_Affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
+		kinc_microsoft_affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
 
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		Kinc_Microsoft_Affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
+		kinc_microsoft_affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
 
 		IDXGIFactory4* dxgiFactory;
-		Kinc_Microsoft_Affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
+		kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
 
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
-		Kinc_Microsoft_Affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
+		kinc_microsoft_affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
 #else
 		createSwapChain(&result, swapChainDesc);
 #endif
@@ -105,7 +106,7 @@ namespace {
 
 	void waitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
 		if (fence->GetCompletedValue() < completionValue) {
-			Kinc_Microsoft_Affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
+			kinc_microsoft_affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
 			WaitForSingleObject(waitEvent, INFINITE);
 		}
 	}
@@ -207,7 +208,7 @@ namespace {
 
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(3, parameters, textureCount, samplers, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-		Kinc_Microsoft_Affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
+		kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&rootSignature));
 	}
 
@@ -274,7 +275,7 @@ void kinc_g5_destroy(int window) {}
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 #ifdef KORE_WINDOWS
-	HWND hwnd = Kinc_Windows_WindowHandle(window);
+	HWND hwnd = kinc_windows_window_handle(window);
 #else
 	HWND hwnd = nullptr;
 #endif
@@ -373,12 +374,12 @@ extern "C" bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-extern "C" void Kinc_Internal_Resize(int window, int width, int height) {}
+extern "C" void kinc_internal_resize(int window, int width, int height) {}
 
-extern "C" void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {}
+extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
 
 bool kinc_g5_swap_buffers() {
-	Kinc_Microsoft_Affirm(swapChain->Present(1, 0));
+	kinc_microsoft_affirm(swapChain->Present(1, 0));
 	return true;
 }
 
