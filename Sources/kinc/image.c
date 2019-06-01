@@ -19,7 +19,9 @@
 
 #include <stdint.h>
 
-uint8_t buffer[4096 * 4096 * 4];
+uint8_t buffer[4096 * 2 * 4096 * 2 * 4];
+
+//STBI_MALLOC, STBI_REALLOC, and STBI_FREE
 
 static _Bool endsWith(const char *str, const char *suffix) {
 	if (str == NULL || suffix == NULL) return 0;
@@ -273,69 +275,42 @@ static bool formatIsFloatingPoint(kinc_image_format_t format) {
 	return format == KINC_IMAGE_FORMAT_RGBA128 || format == KINC_IMAGE_FORMAT_RGBA64 || format == KINC_IMAGE_FORMAT_A32 || format == KINC_IMAGE_FORMAT_A16;
 }
 
-void kinc_image_init(kinc_image_t *image, int width, int height, kinc_image_format_t format, bool readable) {
-	kinc_image_init3d(image, width, height, 1, format, readable);
+size_t kinc_image_init(kinc_image_t *image, void *memory, int width, int height, kinc_image_format_t format) {
+	return kinc_image_init3d(image, memory, width, height, 1, format);
 }
 
-void kinc_image_init3d(kinc_image_t *image, int width, int height, int depth, kinc_image_format_t format, bool readable) {
+size_t kinc_image_init3d(kinc_image_t *image, void *memory, int width, int height, int depth, kinc_image_format_t format) {
 	image->width = width;
 	image->height = height;
 	image->depth = depth;
 	image->format = format;
-	image->readable = readable;
 	image->compression = KINC_IMAGE_COMPRESSION_NONE;
-
-	if (formatIsFloatingPoint(format)) {
-		image->hdrData = (float *)malloc(width * height * depth * kinc_image_format_sizeof(format));
-		image->data = NULL;
-	}
-	else {
-		image->data = malloc(width * height * depth * kinc_image_format_sizeof(format));
-		image->hdrData = NULL;
-	}
-}
-void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int height, kinc_image_format_t format, bool readable) {
-	kinc_image_init_from_bytes3d(image, data, width, height, 1, format, readable);
+	image->data = memory;
+	return width * height * depth * kinc_image_format_sizeof(format);
 }
 
-void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format, bool readable) {
+void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int height, kinc_image_format_t format) {
+	kinc_image_init_from_bytes3d(image, data, width, height, 1, format);
+}
+
+void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format) {
 	image->compression = KINC_IMAGE_COMPRESSION_NONE;
-	if (formatIsFloatingPoint(format)) {
-		image->hdrData = (float*)data;
-	}
-	else {
-		image->data = (uint8_t*)data;
-	}
+	image->data = data;
 }
 
-void kinc_image_init_from_file(kinc_image_t *image, const char *filename, bool readable) {
-	uint8_t *imageData = NULL;
+size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename) {
 	kinc_file_reader_t reader;
 	kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET);
 	int dataSize;
-	loadImage(&reader, filename, imageData, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internalFormat);
+	loadImage(&reader, filename, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format);
 	kinc_file_reader_close(&reader);
-	if (formatIsFloatingPoint(image->format)) {
-		image->hdrData = (float*)imageData;
-		image->data = NULL;
-	}
-	else {
-		image->data = imageData;
-		image->hdrData = NULL;
-	}
+	image->data = memory;
+	return dataSize;
 }
 
 void kinc_image_destroy(kinc_image_t *image) {
-	if (image->readable) {
-		if (formatIsFloatingPoint(image->format)) {
-			free(image->hdrData);
-			image->hdrData = NULL;
-		}
-		else {
-			free(image->data);
-			image->data = NULL;
-		}
-	}
+	// user has to free the data
+	image->data = NULL;
 }
 
 int kinc_image_at(kinc_image_t *image, int x, int y) {
@@ -346,5 +321,5 @@ int kinc_image_at(kinc_image_t *image, int x, int y) {
 }
 
 uint8_t *kinc_image_get_pixels(kinc_image_t *image) {
-	return image->data != NULL ? image->data : (uint8_t*)image->hdrData;
+	return (uint8_t*)image->data;
 }

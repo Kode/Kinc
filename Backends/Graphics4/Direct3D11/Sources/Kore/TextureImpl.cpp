@@ -86,7 +86,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = isHdr(image->format) ? (void*)image->hdrData : image->data;
+	data.pSysMem = image->data;
 	data.SysMemPitch = image->width * formatByteSize(image->format);
 	data.SysMemSlicePitch = 0;
 
@@ -116,7 +116,7 @@ void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t 
 	desc.CPUAccessFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = isHdr(image->format) ? (void*)image->hdrData : image->data;
+	data.pSysMem = image->data;
 	data.SysMemPitch = image->width * formatByteSize(image->format);
 	data.SysMemSlicePitch = image->width * image->height * formatByteSize(image->format);
 
@@ -332,5 +332,5 @@ void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap
 	dstRegion.bottom = mipmap->height;
 	dstRegion.front = 0;
 	dstRegion.back = 1;
-	context->UpdateSubresource(texture->impl.texture, level, &dstRegion, isHdr(mipmap->format) ? (void*)mipmap->hdrData : mipmap->data, mipmap->width * formatByteSize(mipmap->format), 0);
+	context->UpdateSubresource(texture->impl.texture, level, &dstRegion, mipmap->data, mipmap->width * formatByteSize(mipmap->format), 0);
 }

@@ -3,6 +3,8 @@
 #include <kinc/math/core.h>
 #include <kinc/math/matrix.h>
 
+#include <memory.h>
+
 float kinc_matrix3x3_get(kinc_matrix3x3_t *matrix, int x, int y) {
 	return matrix->m[y * 3 + x];
 }
@@ -23,6 +25,7 @@ void kinc_matrix3x3_transpose(kinc_matrix3x3_t *matrix) {
 
 kinc_matrix3x3_t kinc_matrix3x3_identity(void) {
 	kinc_matrix3x3_t m;
+	memset(m.m, 0, sizeof(m.m));
 	for (unsigned x = 0; x < 3; ++x) {
 		kinc_matrix3x3_set(&m, x, x, 1.0f);
 	}

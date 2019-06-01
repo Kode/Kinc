@@ -28,19 +28,17 @@ typedef enum kinc_image_format {
 typedef struct kinc_image {
 	int width, height, depth;
 	kinc_image_format_t format;
-	bool readable;
+	unsigned internal_format;
 	kinc_image_compression_t compression;
-	uint8_t *data;
-	float *hdrData;
-	int dataSize;
-	unsigned internalFormat;
+	void *data;
+	int data_size;
 } kinc_image_t;
 
-void kinc_image_init(kinc_image_t *image, int width, int height, kinc_image_format_t format, bool readable);
-void kinc_image_init3d(kinc_image_t *image, int width, int height, int depth, kinc_image_format_t format, bool readable);
-void kinc_image_init_from_file(kinc_image_t *image, const char *filename, bool readable);
-void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int height, kinc_image_format_t format, bool readable);
-void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format, bool readable);
+size_t kinc_image_init(kinc_image_t *image, void *memory, int width, int height, kinc_image_format_t format);
+size_t kinc_image_init3d(kinc_image_t *image, void *memory, int width, int height, int depth, kinc_image_format_t format);
+size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename);
+void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int height, kinc_image_format_t format);
+void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format);
 void kinc_image_destroy(kinc_image_t *image);
 int kinc_image_at(kinc_image_t *image, int x, int y);
 uint8_t *kinc_image_get_pixels(kinc_image_t *image);
