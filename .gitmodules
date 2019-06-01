@@ -8,3 +8,7 @@
 	url = https://github.com/Kode/krafix_bin.git
 	branch = master
 	shallow = true
+[submodule "Tools/kincmake"]
+	path = Tools/kincmake
+	url = https://github.com/Kode/kincmake.git
+	branch = master
