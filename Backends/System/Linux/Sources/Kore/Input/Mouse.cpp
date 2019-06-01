@@ -16,7 +16,7 @@
 #define MAXIMUM_WINDOWS 16
 extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
 
-void Kinc_Mouse_Lock(int window) {
+void Kinc_Internal_Mouse_Lock(int window) {
     Kinc_Mouse_Hide();
     int width = Kinc_WindowWidth(window);
     int height = Kinc_WindowHeight(window);
@@ -50,7 +50,7 @@ void Kinc_Mouse_Lock(int window) {
     Kinc_Mouse_SetPosition(window, newX, newY);
 }
 
-void Kinc_Mouse_Unlock(int window) {
+void Kinc_Internal_Mouse_Unlock(int window) {
     Kinc_Mouse_Show();
 }
 

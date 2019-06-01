@@ -2,7 +2,7 @@
 
 #include "Gamepad.h"
 
-#include <Kore/Input/Gamepad.h>
+#include <kinc/input/gamepad.h>
 
 #include <fcntl.h>
 #include <linux/joystick.h>
@@ -14,14 +14,12 @@
 using namespace Kore;
 
 namespace {
-	class HIDGamepad {
-	public:
+	struct HIDGamepad {
 		HIDGamepad();
 		~HIDGamepad();
 		void init(int index);
 		void update();
 
-	private:
 		int idx;
 		char gamepad_dev_name[256];
 		char name[384];
@@ -62,8 +60,6 @@ namespace {
 			char buf[128];
 			if (ioctl(file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0) strncpy(buf, "Unknown", sizeof(buf));
 			snprintf(name, sizeof(name), "%s%s%s%s", buf, " (", gamepad_dev_name, ")");
-			Gamepad::get(idx)->vendor = "Linux gamepad";
-			Gamepad::get(idx)->productName = name;
 		}
 	}
 
@@ -86,16 +82,13 @@ namespace {
 	void HIDGamepad::processEvent(js_event e) {
 		switch (e.type) {
 		case JS_EVENT_BUTTON:
-			if (Gamepad::get(idx)->Button != nullptr) {
-				Gamepad::get(idx)->Button(e.number, e.value);
-			}
+			Kinc_Internal_Gamepad_TriggerButton(idx, e.number, e.value);
 			break;
-		case JS_EVENT_AXIS:
-			if (Gamepad::get(idx)->Axis != nullptr) {
-				float value = e.number % 2 == 0 ? e.value : -e.value;
-				Gamepad::get(idx)->Axis(e.number, value / 32767.0f);
-			}
-			break;
+		case JS_EVENT_AXIS: {
+            float value = e.number % 2 == 0 ? e.value : -e.value;
+            Kinc_Internal_Gamepad_TriggerAxis(idx, e.number, value / 32767.0f);
+            break;
+        }
 		default:
 			break;
 		}
@@ -115,4 +108,12 @@ void Kore::updateHIDGamepads() {
 	for (int i = 0; i < gamepadCount; ++i) {
 		gamepads[i].update();
 	}
+}
+
+const char *Kinc_Gamepad_Vendor(int gamepad) {
+    return "Linux gamepad";
+}
+
+const char *Kinc_Gamepad_ProductName(int gamepad) {
+    return gamepads[gamepad].name;
 }

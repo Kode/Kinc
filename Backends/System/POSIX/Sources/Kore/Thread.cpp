@@ -38,6 +38,10 @@ void Kinc_Thread_WaitAndDestroy(Kinc_Thread *thread) {
     } while (ret != 0);
 }
 
+bool Kinc_Thread_TryToDestroy(Kinc_Thread *thread) {
+    return pthread_join(thread->impl.pthread, NULL) == 0;
+}
+
 void Kinc_Threads_Init() {
 
 }

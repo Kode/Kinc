@@ -1,17 +1,15 @@
 #include "pch.h"
 
-#include <Kore/Threads/Semaphore.h>
+#include <kinc/threads/semaphore.h>
 
-using namespace Kore;
+void Kinc_Semaphore_Create(Kinc_Semaphore *semaphore, int current, int max) {}
 
-void Semaphore::create(int current, int max) {}
+void Kinc_Semaphore_Destroy(Kinc_Semaphore *semaphore) {}
 
-void Semaphore::destroy() {}
+void Kinc_Semaphore_Release(Kinc_Semaphore *semaphore, int count) {}
 
-void Semaphore::release(int count) {}
+void Kinc_Semaphore_Acquire(Kinc_Semaphore *semaphore) {}
 
-void Semaphore::acquire() {}
-
-bool Semaphore::tryToAcquire(double seconds) {
+bool Kinc_Semaphore_TryToAcquire(Kinc_Semaphore *semaphore, double seconds) {
 	return true;
 }

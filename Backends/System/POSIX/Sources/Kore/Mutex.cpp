@@ -14,6 +14,10 @@ void Kinc_Mutex_Destroy(Kinc_Mutex *mutex) {
 	pthread_mutex_destroy(&mutex->impl.mutex);
 }
 
+bool Kinc_Mutex_TryToLock(Kinc_Mutex *mutex) {
+    return pthread_mutex_trylock(&mutex->impl.mutex) == 0;
+}
+
 void Kinc_Mutex_Lock(Kinc_Mutex *mutex) {
 	pthread_mutex_lock(&mutex->impl.mutex);
 }
@@ -22,7 +26,7 @@ void Kinc_Mutex_Unlock(Kinc_Mutex *mutex) {
 	pthread_mutex_unlock(&mutex->impl.mutex);
 }
 
-bool Kinc_UberMutex_Create(Kinc_UberMutex *mutex, const wchar_t* name) {
+bool Kinc_UberMutex_Create(Kinc_UberMutex *mutex, const char* name) {
 	return false;
 }
 

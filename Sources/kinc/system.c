@@ -7,8 +7,8 @@
 #include <stdlib.h>
 
 #if !defined(KORE_HTML5) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
-double Kinc_Time() {
-	return timestamp() / frequency();
+double kinc_time() {
+	return kinc_timestamp() / kinc_frequency();
 }
 #endif
 
