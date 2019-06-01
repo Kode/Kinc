@@ -44,7 +44,7 @@ static int formatByteSize(kinc_g4_render_target_format_t format) {
 	}
 }
 
-void Kinc_G4_RenderTarget_Create(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing, kinc_g4_render_target_format_t format, int stencilBufferBits,
+void kinc_g4_render_target_create(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing, kinc_g4_render_target_format_t format, int stencilBufferBits,
                                       int contextId) {
 	renderTarget->isCubeMap = false;
 	renderTarget->isDepthAttachment = false;
@@ -169,7 +169,7 @@ void Kinc_G4_RenderTarget_Create(kinc_g4_render_target_t *renderTarget, int widt
 	}
 }
 
-void Kinc_G4_RenderTarget_CreateCube(kinc_g4_render_target_t *renderTarget, int cubeMapSize, int depthBufferBits, bool antialiasing,
+void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int cubeMapSize, int depthBufferBits, bool antialiasing,
                                      kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
 	renderTarget->width = cubeMapSize;
 	renderTarget->height = cubeMapSize;
@@ -325,7 +325,7 @@ void Kinc_G4_RenderTarget_CreateCube(kinc_g4_render_target_t *renderTarget, int 
 	}
 }
 
-void Kinc_G4_RenderTarget_Destroy(kinc_g4_render_target_t *renderTarget) {
+void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 	for (int i = 0; i < 6; i++) {
 		if (renderTarget->impl.renderTargetViewRender[i] != nullptr) renderTarget->impl.renderTargetViewRender[i]->Release();
 		if (renderTarget->impl.renderTargetViewSample[i] != nullptr && renderTarget->impl.renderTargetViewSample[i] != renderTarget->impl.renderTargetViewRender[i])
@@ -338,7 +338,7 @@ void Kinc_G4_RenderTarget_Destroy(kinc_g4_render_target_t *renderTarget) {
 	if (renderTarget->impl.textureStaging != nullptr) renderTarget->impl.textureStaging->Release();
 }
 
-void Kinc_G4_RenderTarget_UseColorAsTexture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
+void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	if (renderTarget->impl.textureSample != renderTarget->impl.textureRender) {
 		context->ResolveSubresource(renderTarget->impl.textureSample, 0, renderTarget->impl.textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -346,12 +346,12 @@ void Kinc_G4_RenderTarget_UseColorAsTexture(kinc_g4_render_target_t *renderTarge
 	context->PSSetShaderResources(unit.impl.unit, 1, renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
 }
 
-void Kinc_G4_RenderTarget_UseDepthAsTexture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
+void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	context->PSSetShaderResources(unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
 }
 
-void Kinc_G4_RenderTarget_SetDepthStencilFrom(kinc_g4_render_target_t *renderTarget, kinc_g4_render_target_t *source) {
+void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *renderTarget, kinc_g4_render_target_t *source) {
 	renderTarget->impl.depthStencil = source->impl.depthStencil;
 	for (int i = 0; i < 6; i++) {
 		renderTarget->impl.depthStencilView[i] = source->impl.depthStencilView[i];
@@ -359,7 +359,7 @@ void Kinc_G4_RenderTarget_SetDepthStencilFrom(kinc_g4_render_target_t *renderTar
 	renderTarget->impl.depthStencilSRV = source->impl.depthStencilSRV;
 }
 
-void Kinc_G4_RenderTarget_GetPixels(kinc_g4_render_target_t *renderTarget, uint8_t *data) {
+void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uint8_t *data) {
 	if (renderTarget->impl.textureStaging == nullptr) {
 		D3D11_TEXTURE2D_DESC desc;
 		desc.Width = renderTarget->texWidth;
@@ -391,4 +391,4 @@ void Kinc_G4_RenderTarget_GetPixels(kinc_g4_render_target_t *renderTarget, uint8
 	context->Unmap(renderTarget->impl.textureStaging, 0);
 }
 
-void Kinc_G4_RenderTarget_GenerateMipmaps(kinc_g4_render_target_t *renderTarget, int levels) {}
+void kinc_g4_render_target_generate_mipmaps(kinc_g4_render_target_t *renderTarget, int levels) {}
