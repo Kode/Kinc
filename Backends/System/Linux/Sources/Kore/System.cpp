@@ -963,10 +963,21 @@ kinc_ticks_t kinc_timestamp(void) {
 int kinc_init(const char* name, int width, int height, struct _Kinc_WindowOptions *win, struct _Kinc_FramebufferOptions *frame) {
 	//**Display::enumerate();
 
-	/**System::_init(name, width, height, &win, &frame);
-	int window = initWindow(win, frame);
-	return Window::get(window);*/
-	return 0;
+	//System::_init(name, width, height, &win, &frame);
+    Kinc_WindowOptions defaultWin;
+    if (win == NULL) {
+        Kinc_Internal_InitWindowOptions(&defaultWin);
+        win = &defaultWin;
+    }
+    Kinc_FramebufferOptions defaultFrame;
+    if (frame == NULL) {
+        Kinc_Internal_InitFramebufferOptions(&defaultFrame);
+        frame = &defaultFrame;
+    }
+    win->width = width;
+    win->height = height;
+	int window = Kore::System::initWindow(win, frame);
+	return window;
 }
 
 void Kinc_Internal_Shutdown() {
