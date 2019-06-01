@@ -116,7 +116,7 @@ void Kinc_WindowSetTitle(int window_index, const char *title) {
 }
 
 int Kinc_WindowCreate(Kinc_WindowOptions *win, Kinc_FramebufferOptions *frame) {
-	return nullptr;
+	return 0;
 }
 
 void Kinc_WindowSetResizeCallback(int window_index, void (*callback)(int x, int y, void *data), void *data) {
@@ -124,7 +124,7 @@ void Kinc_WindowSetResizeCallback(int window_index, void (*callback)(int x, int 
 }
 
 void Kinc_WindowSetPpiChangedCallback(int window_index, void (*callback)(int ppi, void *data), void *data) {
-	
+
 }
 
 Kinc_WindowMode Kinc_WindowGetMode(int window_index) {
