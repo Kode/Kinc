@@ -188,7 +188,7 @@ namespace {
 
 	int getMouseY(NSEvent* event) {
 		// TODO (DK) map [theEvent window] to window id instead of 0
-		return static_cast<int>(Kinc_Height() - [event locationInWindow].y);
+		return static_cast<int>(kinc_height() - [event locationInWindow].y);
 	}
 
 	bool controlKeyMouseButton = false;

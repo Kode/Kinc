@@ -575,11 +575,11 @@ void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int 
 }
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-void kinc_g4_texture_upload(uint8_t *data, int stride) {
-	glBindTexture(GL_TEXTURE_2D, texture);
+void kinc_g4_texture_upload(kinc_g4_texture_t *texture, uint8_t *data, int stride) {
+	glBindTexture(GL_TEXTURE_2D, texture->impl.texture);
 	glCheckErrors();
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), GL_UNSIGNED_BYTE, data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->tex_width, texture->tex_height, convertFormat(texture->format), GL_UNSIGNED_BYTE, data);
 	glCheckErrors();
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }

@@ -2,8 +2,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <Kinc/Display.h>
-#include <Kinc/Log.h>
+#include <kinc/display.h>
+#include <kinc/log.h>
 
 using namespace Kore;
 
@@ -34,8 +34,8 @@ int Kinc_PrimaryDisplay() {
 	return -1;
 }
 
-Kinc_DisplayMode Kinc_DisplayAvailableMode(int display, int mode) {
-	Kinc_DisplayMode dm;
+kinc_display_mode_t Kinc_DisplayAvailableMode(int display, int mode) {
+	kinc_display_mode_t dm;
 	dm.width = 800;
 	dm.height = 600;
 	dm.frequency = 60;
