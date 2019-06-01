@@ -2,28 +2,22 @@
 
 #include "RenderTarget5Impl.h"
 
-#include <Kore/Graphics5/Graphics.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/rendertarget.h>
 
 #import <Metal/Metal.h>
-
-using namespace Kore;
 
 id getMetalDevice();
 id getMetalEncoder();
 
-RenderTarget5Impl::RenderTarget5Impl() : _tex(0), _sampler(0), _depthTex(0) {
+void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
+								kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+	target->impl._tex = 0;
+	target->impl._sampler = 0;
+	target->impl._depthTex = 0;
 	
-}
-
-RenderTarget5Impl::~RenderTarget5Impl() {
-	_tex = 0;
-	_sampler = 0;
-	_depthTex = 0;
-}
-
-Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) : width(width), height(height), contextId(contextId) {
-	texWidth = width;
-	texHeight = height;
+	target->texWidth = width;
+	target->texHeight = height;
 		
 	id<MTLDevice> device = getMetalDevice();
 		
@@ -38,7 +32,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 	descriptor.resourceOptions = MTLResourceStorageModePrivate;
 	
-	_tex = [device newTextureWithDescriptor:descriptor];
+	target->impl._tex = [device newTextureWithDescriptor:descriptor];
 	
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
@@ -50,7 +44,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	desc.normalizedCoordinates = YES;
 	desc.lodMinClamp = 0.0f;
 	desc.lodMaxClamp = FLT_MAX;
-	_sampler = [device newSamplerStateWithDescriptor:desc];
+	target->impl._sampler = [device newSamplerStateWithDescriptor:desc];
 	
 	MTLTextureDescriptor* depthDescriptor = [MTLTextureDescriptor new];
 	depthDescriptor.textureType = MTLTextureType2D;
@@ -63,21 +57,28 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	depthDescriptor.usage = MTLTextureUsageRenderTarget;
 	depthDescriptor.resourceOptions = MTLResourceStorageModePrivate;
 	
-	_depthTex = [device newTextureWithDescriptor:depthDescriptor];
+	target->impl._depthTex = [device newTextureWithDescriptor:depthDescriptor];
 }
 
-Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId) {}
-
-Graphics5::RenderTarget::~RenderTarget() {
-	
+void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,
+									 kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+	target->impl._tex = 0;
+	target->impl._sampler = 0;
+	target->impl._depthTex = 0;
 }
 
-void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
+void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {
+	target->impl._tex = 0;
+	target->impl._sampler = 0;
+	target->impl._depthTex = 0;
+}
+
+void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setFragmentSamplerState:_sampler atIndex:unit.index];
-	[encoder setFragmentTexture:_tex atIndex:unit.index];
+	[encoder setFragmentSamplerState:target->impl._sampler atIndex:unit.impl.index];
+	[encoder setFragmentTexture:target->impl._tex atIndex:unit.impl.index];
 }
 
-void Graphics5::RenderTarget::useDepthAsTexture(Graphics5::TextureUnit unit) {}
+void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {}
 
-void Graphics5::RenderTarget::setDepthStencilFrom(Graphics5::RenderTarget* source) {}
+void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source) {}

@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Graphics5/Shader.h>
-#include <Kore/Math/Core.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/shader.h>
+#include <kinc/math/core.h>
 
 #include <Metal/Metal.h>
 
@@ -11,30 +11,30 @@ using namespace Kore;
 id getMetalDevice();
 id getMetalLibrary();
 
-Shader5Impl::Shader5Impl(void* source, int length) : mtlFunction(0) {
-	u8* data = (u8*)source;
-	if (length > 1 && data[0] == '>') {
-		memcpy(name, data + 1, length - 1);
-		name[length - 1] = 0;
-	}
-	else {
-		for (int i = 3; i < length; ++i) {
-			if (data[i] == '\n') {
-				name[i - 3] = 0;
-				break;
-			}
-			else {
-				name[i - 3] = data[i];
+void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {
+	shader->impl.mtlFunction = nil;
+}
+
+void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, kinc_g5_shader_type_t type) {
+	{
+		u8* data = (u8*)source;
+		if (length > 1 && data[0] == '>') {
+			memcpy(shader->impl.name, data + 1, length - 1);
+			shader->impl.name[length - 1] = 0;
+		}
+		else {
+			for (int i = 3; i < length; ++i) {
+				if (data[i] == '\n') {
+					shader->impl.name[i - 3] = 0;
+					break;
+				}
+				else {
+					shader->impl.name[i - 3] = data[i];
+				}
 			}
 		}
 	}
-}
 
-Shader5Impl::~Shader5Impl() {
-	mtlFunction = nil;
-}
-
-Graphics5::Shader::Shader(void* source, int length, ShaderType type) : Shader5Impl(source, length) {
 	char* data = (char*)source;
 	id<MTLLibrary> library = nil;
 	if (length > 1 && data[0] == '>') {
@@ -44,6 +44,6 @@ Graphics5::Shader::Shader(void* source, int length, ShaderType type) : Shader5Im
 		id<MTLDevice> device = getMetalDevice();
 		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
 	}
-	mtlFunction = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
-  assert(mtlFunction);
+	shader->impl.mtlFunction = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
+	assert(shader->impl.mtlFunction);
 }

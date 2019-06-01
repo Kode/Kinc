@@ -210,14 +210,14 @@ void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
 		kinc_g5_constant_buffer_set_bool(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
-void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, Kinc_Matrix4x4 *value) {
+void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
 	if (location.impl._location.impl.vertexOffset >= 0)
 		kinc_g5_constant_buffer_set_matrix4(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_matrix4(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
-void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, Kinc_Matrix3x3 *value) {
+void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
 	if (location.impl._location.impl.vertexOffset >= 0)
 		kinc_g5_constant_buffer_set_matrix3(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
 	if (location.impl._location.impl.fragmentOffset >= 0)
@@ -330,4 +330,4 @@ void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 	kinc_g5_command_list_set_pipeline(&commandList, &pipeline->impl._pipeline);
 }
 
-void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct _Kinc_G4_TextureArray *array) {}
+void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array) {}

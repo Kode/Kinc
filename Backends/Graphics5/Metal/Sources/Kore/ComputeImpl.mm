@@ -2,8 +2,9 @@
 
 #include "ComputeImpl.h"
 
-#include <Kore/Compute/Compute.h>
-#include <Kore/Math/Core.h>
+#include <kinc/compute/compute.h>
+#include <kinc/math/core.h>
+#include <kinc/graphics4/texture.h>
 
 #include <Metal/Metal.h>
 
@@ -67,32 +68,34 @@ void shutdownMetalCompute() {
 	commandQueue = nil;
 }
 
-ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _function(0), _pipeline(0), _reflection(0) {
-	u8* data = (u8*)source;
-	if (length > 1 && data[0] == '>') {
-		memcpy(name, data + 1, length - 1);
-		name[length - 1] = 0;
-	}
-	else {
-		for (int i = 3; i < length; ++i) {
-			if (data[i] == '\n') {
-				name[i - 3] = 0;
-				break;
-			}
-			else {
-				name[i - 3] = data[i];
+void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {
+	shader->impl._function = nil;
+	shader->impl._pipeline = nil;
+	shader->impl._reflection = nil;
+}
+
+void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int length) {
+	shader->impl._function = 0;
+	shader->impl._pipeline = 0;
+	shader->impl._reflection = 0;
+	{
+		u8* data = (u8*)_data;
+		if (length > 1 && data[0] == '>') {
+			memcpy(shader->impl.name, data + 1, length - 1);
+			shader->impl.name[length - 1] = 0;
+		}
+		else {
+			for (int i = 3; i < length; ++i) {
+				if (data[i] == '\n') {
+					shader->impl.name[i - 3] = 0;
+					break;
+				}
+				else {
+					shader->impl.name[i - 3] = data[i];
+				}
 			}
 		}
 	}
-}
-
-ComputeShaderImpl::~ComputeShaderImpl() {
-	_function = nil;
-	_pipeline = nil;
-	_reflection = nil;
-}
-
-ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {
 	char* data = (char*)_data;
 	id<MTLLibrary> library = nil;
 	if (length > 1 && data[0] == '>') {
@@ -102,23 +105,23 @@ ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data,
 		id<MTLDevice> device = getMetalDevice();
 		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
 	}
-	_function = [library newFunctionWithName:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
-	assert(_function);
+	shader->impl._function = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
+	assert(shader->impl._function);
 	
 	id<MTLDevice> device = getMetalDevice();
 	MTLComputePipelineReflection* reflection = nil;
 	NSError* error = nil;
-	_pipeline = [device newComputePipelineStateWithFunction:_function options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&error];
+	shader->impl._pipeline = [device newComputePipelineStateWithFunction:shader->impl._function options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&error];
 	if (error != nil) NSLog(@"%@", [error localizedDescription]);
-	assert(_pipeline && !error);
-	_reflection = reflection;
+	assert(shader->impl._pipeline && !error);
+	shader->impl._reflection = reflection;
 }
 
-ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
-	ComputeConstantLocation location;
-	location._offset = -1;
+kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
+	kinc_compute_constant_location_t location;
+	location.impl._offset = -1;
 	
-	MTLComputePipelineReflection* reflection = _reflection;
+	MTLComputePipelineReflection* reflection = shader->impl._reflection;
 	
 	for (MTLArgument* arg in reflection.arguments) {
 		if (arg.type == MTLArgumentTypeBuffer && [arg.name isEqualToString:@"uniforms"]) {
@@ -126,7 +129,7 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 				MTLStructType* structObj = [arg bufferStructType];
 				for (MTLStructMember* member in structObj.members) {
 					if (strcmp([[member name] UTF8String], name) == 0) {
-						location._offset = (int)[member offset];
+						location.impl._offset = (int)[member offset];
 						break;
 					}
 				}
@@ -138,79 +141,77 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 	return location;
 }
 
-ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
-	ComputeTextureUnit unit;
-	unit._index = -1;
+kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_shader_t *shader, const char *name) {
+	kinc_compute_texture_unit_t unit;
+	unit.impl._index = -1;
 	
-	MTLComputePipelineReflection* reflection = _reflection;
+	MTLComputePipelineReflection* reflection = shader->impl._reflection;
 	for (MTLArgument* arg in reflection.arguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
-			unit._index = (int)[arg index];
+			unit.impl._index = (int)[arg index];
 		}
 	}
 	
 	return unit;
 }
 
-void Compute::setBool(ComputeConstantLocation location, bool value) {}
+void kinc_compute_set_bool(kinc_compute_constant_location_t location, bool value) {}
 
-void Compute::setInt(ComputeConstantLocation location, int value) {}
+void kinc_compute_set_int(kinc_compute_constant_location_t location, int value) {}
 
-void Compute::setFloat(ComputeConstantLocation location, float value) {
-	::setFloat(constantsMemory, location._offset, 4, value);
+void kinc_compute_set_float(kinc_compute_constant_location_t location, float value) {
+	::setFloat(constantsMemory, location.impl._offset, 4, value);
 }
 
-void Compute::setFloat2(ComputeConstantLocation location, float value1, float value2) {
-	::setFloat2(constantsMemory, location._offset, 4 * 2, value1, value2);
+void kinc_compute_set_float2(kinc_compute_constant_location_t location, float value1, float value2) {
+	::setFloat2(constantsMemory, location.impl._offset, 4 * 2, value1, value2);
 }
 
-void Compute::setFloat3(ComputeConstantLocation location, float value1, float value2, float value3) {
-	::setFloat3(constantsMemory, location._offset, 4 * 3, value1, value2, value3);
+void kinc_compute_set_float3(kinc_compute_constant_location_t location, float value1, float value2, float value3) {
+	::setFloat3(constantsMemory, location.impl._offset, 4 * 3, value1, value2, value3);
 }
 
-void Compute::setFloat4(ComputeConstantLocation location, float value1, float value2, float value3, float value4) {
-	::setFloat4(constantsMemory, location._offset, 4 * 4, value1, value2, value3, value4);
+void kinc_compute_set_float4(kinc_compute_constant_location_t location, float value1, float value2, float value3, float value4) {
+	::setFloat4(constantsMemory, location.impl._offset, 4 * 4, value1, value2, value3, value4);
 }
 
-void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {}
+void kinc_compute_set_floats(kinc_compute_constant_location_t location, float *values, int count) {}
 
-void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {}
+void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, kinc_matrix4x4_t *value) {}
 
-void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {}
+void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_matrix3x3_t *value) {}
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
-	[commandEncoder setTexture:texture->_texture->_tex atIndex:unit._index];
+void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture, kinc_compute_access_t access) {
+	[commandEncoder setTexture:texture->impl._texture.impl._tex atIndex:unit.impl._index];
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {}
+void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *texture, kinc_compute_access_t access) {}
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {}
+void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture) {}
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {}
+void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {}
 
-void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {}
+void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {}
 
-void Compute::setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {}
+void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {}
 
-void Compute::setTexture3DAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {}
+void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {}
 
-void Compute::setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
+void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
 
-void Compute::setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
+void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
 
-void Compute::setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
+void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
 
-void Compute::setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
+void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter) {}
 
-void Compute::setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {}
+void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter) {}
 
-void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {}
-
-void Compute::setShader(ComputeShader* shader) {
-	[commandEncoder setComputePipelineState:shader->_pipeline];
+void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
+	[commandEncoder setComputePipelineState:shader->impl._pipeline];
 }
 
-void Compute::compute(int x, int y, int z) {
+void kinc_compute(int x, int y, int z) {
 	[commandEncoder setBuffer:buffer offset:0 atIndex:0];
 	
 	MTLSize perGrid;

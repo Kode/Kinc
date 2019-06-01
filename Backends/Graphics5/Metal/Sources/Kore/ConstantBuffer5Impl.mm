@@ -1,45 +1,36 @@
 #include "pch.h"
 
-#include <Kore/Graphics5/ConstantBuffer.h>
+#include <kinc/graphics5/constantbuffer.h>
 
 #import <Metal/Metal.h>
 
-using namespace Kore;
-
 id getMetalDevice();
 
-ConstantBuffer5Impl::ConstantBuffer5Impl() : _buffer(0) {
+void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
+	buffer->impl.mySize = size;
+	buffer->data = nullptr;
+	buffer->impl._buffer = [getMetalDevice() newBufferWithLength:size options:MTLResourceOptionCPUCacheModeDefault];
+}
+
+void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {}
+
+void kinc_g5_constant_buffer_lock_all(kinc_g5_constant_buffer_t *buffer) {
+	kinc_g5_constant_buffer_lock(buffer, 0, kinc_g5_constant_buffer_size(buffer));
+}
+
+void kinc_g5_constant_buffer_lock(kinc_g5_constant_buffer_t *buffer, int start, int count) {
+	buffer->impl.lastStart = start;
+	buffer->impl.lastCount = count;
+	uint8_t *data = (uint8_t*)[buffer->impl._buffer contents];
+	buffer->data = &data[start];
+}
+
+void kinc_g5_constant_buffer_unlock(kinc_g5_constant_buffer_t *buffer) {
 	
+	buffer->data = nullptr;
 }
 
-ConstantBuffer5Impl::~ConstantBuffer5Impl() {
-	_buffer = 0;
-}
 
-Graphics5::ConstantBuffer::ConstantBuffer(int size) {
-	mySize = size;
-	data = nullptr;
-	_buffer = [getMetalDevice() newBufferWithLength:size options:MTLResourceOptionCPUCacheModeDefault];
-}
-
-Graphics5::ConstantBuffer::~ConstantBuffer() {}
-
-void Graphics5::ConstantBuffer::lock() {
-	lock(0, size());
-}
-
-void Graphics5::ConstantBuffer::lock(int start, int count) {
-	lastStart = start;
-	lastCount = count;
-	u8* data = (u8*)[_buffer contents];
-	this->data = &data[start];
-}
-
-void Graphics5::ConstantBuffer::unlock() {
-
-	data = nullptr;
-}
-
-int Graphics5::ConstantBuffer::size() {
-	return mySize;
+int kinc_g5_constant_buffer_size(kinc_g5_constant_buffer_t *buffer) {
+	return buffer->impl.mySize;
 }

@@ -1,32 +1,26 @@
 #include "pch.h"
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Graphics4/Texture.h>
-#include <Kinc/IO/FileReader.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/io/filereader.h>
 
 #include "TextureImpl.h"
 
-void kinc_g4_texture_init_from_file(kinc_g4_texture_t *texture, const char *filename, bool readable) {
-	kinc_g5_texture_init_from_file(&texture->impl._texture, filename, readable);
-	texture->image.width = texture->impl._texture.image.width;
-	texture->image.height = texture->impl._texture.image.height;
+void kinc_g4_texture_init_from_file(kinc_g4_texture_t *texture, const char *filename) {
+	kinc_g5_texture_init_from_file(&texture->impl._texture, filename, false);
 	texture->tex_width = texture->impl._texture.texWidth;
 	texture->tex_height = texture->impl._texture.texHeight;
-	texture->image.data = texture->impl._texture.image.data;
 }
 
-void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format, bool readable) {
-	kinc_g5_texture_init(&texture->impl._texture, width, height, format, readable);
-	texture->image.width = texture->impl._texture.image.width;
-	texture->image.height = texture->impl._texture.image.height;
+void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
+	kinc_g5_texture_init(&texture->impl._texture, width, height, format, false);
 	texture->tex_width = texture->impl._texture.texWidth;
 	texture->tex_height = texture->impl._texture.texHeight;
-	texture->image.data = texture->impl._texture.image.data;
 }
 
-void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {}
+void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {}
 
-void kinc_g4_texture_init_from_bytes(kinc_g4_texture_t *texture, void *data, int size, const char *format, bool readable) {
+void kinc_g4_texture_init_from_bytes(kinc_g4_texture_t *texture, void *data, int size, const char *format) {
 	
 }
 
@@ -64,6 +58,6 @@ void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels) {
 	kinc_g5_texture_generate_mipmaps(&texture->impl._texture, levels);
 }
 
-void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_g4_texture_t *mipmap, int level) {
-	kinc_g5_texture_set_mipmap(&texture->impl._texture, &mipmap->impl._texture, level);
+void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap, int level) {
+	//kinc_g5_texture_set_mipmap(&texture->impl._texture, &mipmap->impl._texture, level);
 }

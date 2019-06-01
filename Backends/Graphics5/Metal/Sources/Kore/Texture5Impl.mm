@@ -2,73 +2,42 @@
 
 #include "Texture5Impl.h"
 
-#include <Kore/Graphics1/Image.h>
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Log.h>
+#include <kinc/image.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/texture.h>
+#include <kinc/log.h>
 
 #import <Metal/Metal.h>
-
-using namespace Kore;
 
 id getMetalDevice();
 
 namespace {
-	MTLPixelFormat convert(Graphics1::Image::Format format) {
+	MTLPixelFormat convert(kinc_image_format_t format) {
 		switch (format) {
-			case Graphics1::Image::RGBA32:
+			case KINC_IMAGE_FORMAT_RGBA32:
 				return MTLPixelFormatRGBA8Unorm;
-			case Graphics1::Image::Grey8:
+			case KINC_IMAGE_FORMAT_GREY8:
 				return MTLPixelFormatR8Unorm;
-			case Graphics1::Image::RGB24:
-			case Graphics1::Image::RGBA128:
-			case Graphics1::Image::RGBA64:
-			case Graphics1::Image::A32:
-			case Graphics1::Image::BGRA32:
-			case Graphics1::Image::A16:
+			case KINC_IMAGE_FORMAT_RGB24:
+			case KINC_IMAGE_FORMAT_RGBA128:
+			case KINC_IMAGE_FORMAT_RGBA64:
+			case KINC_IMAGE_FORMAT_A32:
+			case KINC_IMAGE_FORMAT_BGRA32:
+			case KINC_IMAGE_FORMAT_A16:
 				return MTLPixelFormatRGBA8Unorm;
 		}
 	}
 }
 
-void Graphics5::Texture::_init(const char* format, bool readable) {
-	texWidth = width;
-	texHeight = height;
-
-	create(width, height, Image::RGBA32, false);
-	lock();
-	unlock();
-}
-
-Graphics5::Texture::Texture(int width, int height, Format format, bool readable) : Image(width, height, format, readable) {
-	texWidth = width;
-	texHeight = height;
-	create(width, height, format, true);
-}
-
-Graphics5::Texture::Texture(int width, int height, int depth, Format format, bool readable) : Image(width, height, format, readable) {
-	texWidth = width;
-	texHeight = height;
-	create(width, height, format, true);
-}
-
-Texture5Impl::Texture5Impl() : _tex(0), _sampler(0) {
-
-}
-
-Texture5Impl::~Texture5Impl() {
-	_tex = 0;
-	_sampler = 0;
-}
-
-void Texture5Impl::create(int width, int height, int format, bool writable) {
+static void create(kinc_g5_texture_t *texture, int width, int height, int format, bool writable) {
 	id<MTLDevice> device = getMetalDevice();
-
-	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert((Graphics1::Image::Format)format) width:width height:height mipmapped:NO];
+	
+	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert((kinc_image_format_t)format) width:width height:height mipmapped:NO];
 	descriptor.textureType = MTLTextureType2D;
 	descriptor.width = width;
 	descriptor.height = height;
 	descriptor.depth = 1;
-	descriptor.pixelFormat = convert((Graphics1::Image::Format)format);
+	descriptor.pixelFormat = convert((kinc_image_format_t)format);
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 	//TODO: Make less textures writable
@@ -76,7 +45,7 @@ void Texture5Impl::create(int width, int height, int format, bool writable) {
 		descriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
 	}
 	
-	_tex = [device newTextureWithDescriptor:descriptor];
+	texture->impl._tex = [device newTextureWithDescriptor:descriptor];
 	
 	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
@@ -88,42 +57,62 @@ void Texture5Impl::create(int width, int height, int format, bool writable) {
 	desc.normalizedCoordinates = YES;
 	desc.lodMinClamp = 0.0f;
 	desc.lodMaxClamp = FLT_MAX;
-	_sampler = [device newSamplerStateWithDescriptor:desc];
+	texture->impl._sampler = [device newSamplerStateWithDescriptor:desc];
 }
+
+/*void Graphics5::Texture::_init(const char* format, bool readable) {
+	texWidth = width;
+	texHeight = height;
+
+	create(width, height, Image::RGBA32, false);
+	lock();
+	unlock();
+}*/
+
+void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format, bool readable) {
+	//Image(width, height, format, readable);
+	texture->impl._tex = 0;
+	texture->impl._sampler = 0;
+	texture->texWidth = width;
+	texture->texHeight = height;
+	texture->format = format;
+	create(texture, width, height, format, true);
+}
+
+void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}
 
 id getMetalDevice();
 id getMetalEncoder();
 
-void Graphics5::Texture::_set(TextureUnit unit) {
+void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setFragmentSamplerState:_sampler atIndex:unit.index];
-	[encoder setFragmentTexture:_tex atIndex:unit.index];
+	[encoder setFragmentSamplerState:texture->impl._sampler atIndex:unit];
+	[encoder setFragmentTexture:texture->impl._tex atIndex:unit];
 }
 
-int Graphics5::Texture::stride() {
-	if (format == Graphics1::Image::Grey8) {
-		return width;
+int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
+	if (texture->format == KINC_IMAGE_FORMAT_GREY8) {
+		return texture->texWidth;
 	}
 	else {
-		return width * 4;
+		return texture->texWidth * 4;
 	}
 }
-
-u8* Graphics5::Texture::lock() {
-	return (u8*)data;
+uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
+	return NULL; //**(u8*)data;
 }
 
-void Graphics5::Texture::unlock() {
-	id<MTLTexture> texture = _tex;
-	[texture replaceRegion:MTLRegionMake2D(0, 0, width, height) mipmapLevel:0 slice:0 withBytes:data bytesPerRow:stride() bytesPerImage:stride() * height];
+void kinc_g5_texture_unlock(kinc_g5_texture_t *tex) {
+	id<MTLTexture> texture = tex->impl._tex;
+	[texture replaceRegion:MTLRegionMake2D(0, 0, tex->texWidth, tex->texHeight) mipmapLevel:0 slice:0 withBytes:NULL/**data*/ bytesPerRow:kinc_g5_texture_stride(tex) bytesPerImage:kinc_g5_texture_stride(tex) * tex->texHeight];
 }
 
-void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
+void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {}
 
 #ifdef SYS_IOS
-void Graphics5::Texture::upload(u8* data) {}
+void kinc_g5_texture_upload(kinc_g5_texture_t *texture, uint8_t *data) {}
 #endif
 
-void Graphics5::Texture::generateMipmaps(int levels) {}
+void kinc_g5_texture_generate_mipmaps(kinc_g5_texture_t *texture, int levels) {}
 
-void Graphics5::Texture::setMipmap(Texture* mipmap, int level) {}
+void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_g5_texture_t *mipmap, int level) {}
