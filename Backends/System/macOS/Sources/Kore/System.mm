@@ -94,7 +94,7 @@ void endGL() {
 	[view end];
 }
 
-void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget, bool wait) {
+void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait) {
 	[view newRenderPass: renderTarget wait: wait];
 }
 

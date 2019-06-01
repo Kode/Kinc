@@ -26,6 +26,10 @@ void Kinc_WindowChangeFramebuffer(int window, Kinc_FramebufferOptions *frame) {
 	Kinc_Bridge_G4_Internal_ChangeFramebuffer(0, frame);
 }
 
+extern "C" void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {
+	Kinc_Bridge_G4_Internal_ChangeFramebuffer(0, frame);
+}
+
 void Kinc_WindowChangeFeatures(int window, int features) {
 	
 }

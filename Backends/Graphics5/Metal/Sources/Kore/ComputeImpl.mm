@@ -61,7 +61,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> queue) {
 	constantsMemory = (u8*)[buffer contents];
 }
 
-void shutdownMetalCompute() {
+extern "C" void shutdownMetalCompute() {
 	[commandEncoder endEncoding];
 	commandEncoder = nil;
 	commandBuffer = nil;

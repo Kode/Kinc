@@ -7,6 +7,4 @@ typedef struct {
 	int lastStart;
 	int lastCount;
 	int mySize;
-	//const bool transposeMat3 = true;
-	//const bool transposeMat4 = true;
 } ConstantBuffer5Impl;

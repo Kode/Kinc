@@ -3,9 +3,9 @@
 #include "Metal.h"
 #include "VertexBuffer5Impl.h"
 
-#include <Kore/Math/Core.h>
-#include <Kore/System.h>
-#include <Kore/Window.h>
+#include <kinc/math/core.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
 #import <Metal/Metal.h>
 
@@ -23,36 +23,36 @@ namespace {
 	// int originalFramebuffer;
 }
 
-void Graphics5::destroy(int windowId) {
+void kinc_g5_destroy(int window) {
 
 }
 
-void Graphics5::_resize(int window, int width, int height) {
+extern "C" void Kinc_Internal_Resize(int window, int width, int height) {
 
 }
 
-void Graphics5::init(int, int, int, bool) {
+void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	// System::createWindow();
 
 }
 
-void Graphics5::flush() {}
+void kinc_g5_flush() {}
 
 // void* Graphics::getControl() {
 //	return nullptr;
 //}
 
-void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {}
+void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
 
-void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
+void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
 void beginGL();
 
-void Graphics5::begin(RenderTarget* renderTarget, int windowId) {
+void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	beginGL();
 }
 
-void Graphics5::end(int windowId) {
+void kinc_g5_end(int window) {
 
 }
 
@@ -64,7 +64,7 @@ void swapBuffersMac(int windowId);
 void swapBuffersiOS();
 #endif
 
-bool Graphics5::swapBuffers() {
+bool kinc_g5_swap_buffers() {
 #ifdef KORE_MACOS
 	swapBuffersMac(0);
 #endif
@@ -74,46 +74,48 @@ bool Graphics5::swapBuffers() {
 	return true;
 }
 
-void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
+void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
-void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
 
-void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount);
 
-void Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
+void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
 
-void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
+void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 
-void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
+void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2) {}
 
-bool Graphics5::renderTargetsInvertedY() {
+void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
+
+bool kinc_g5_render_targets_inverted_y() {
 	return false;
 }
 
-bool Graphics5::nonPow2TexturesSupported() {
+bool kinc_g5_non_pow2_textures_qupported() {
 	return true;
 }
 
-void Graphics5::setTexture(Graphics5::TextureUnit unit, Graphics5::Texture* texture) {
-	texture->_set(unit);
+void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+	kinc_g5_internal_texture_set(texture, unit.impl.index);
 }
 
-void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {}
+void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
 
-bool Graphics5::initOcclusionQuery(uint* occlusionQuery) {
+bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery) {
 	return false;
 }
 
-void Graphics5::deleteOcclusionQuery(uint occlusionQuery) {}
+void kinc_g5_delete_occlusion_query(unsigned occlusionQuery) {}
 
-void Graphics5::renderOcclusionQuery(uint occlusionQuery, int triangles) {}
+void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int triangles) {}
 
-bool Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
+bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
 	return false;
 }
 
-void Graphics5::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
+void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {}
 
-bool Kore::Window::vSynced() {
+bool kinc_window_vsynced(int window) {
 	return true;
 }

@@ -79,6 +79,10 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	create(texture, width, height, format, true);
 }
 
+void kinc_g5_texture_init_from_file(kinc_g5_texture_t *texture, const char *filename, bool readable) {
+	
+}
+
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}
 
 id getMetalDevice();
@@ -109,10 +113,12 @@ void kinc_g5_texture_unlock(kinc_g5_texture_t *tex) {
 
 void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {}
 
-#ifdef SYS_IOS
-void kinc_g5_texture_upload(kinc_g5_texture_t *texture, uint8_t *data) {}
-#endif
-
 void kinc_g5_texture_generate_mipmaps(kinc_g5_texture_t *texture, int levels) {}
 
 void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_g5_texture_t *mipmap, int level) {}
+
+#include <kinc/graphics4/texture.h>
+
+#if defined(KORE_IOS) || defined(KORE_MACOS)
+void kinc_g4_texture_upload(kinc_g4_texture_t *texture, uint8_t *data, int stride) {}
+#endif
