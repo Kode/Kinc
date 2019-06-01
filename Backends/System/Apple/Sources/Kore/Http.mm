@@ -1,12 +1,12 @@
 #include "pch.h"
 
-#include <Kore/Network/Http.h>
+#include <kinc/network/http.h>
 
 #import <Foundation/Foundation.h>
 
 @interface Connection : NSObject <NSURLConnectionDelegate> {
 	NSMutableData* responseData;
-	Kore::HttpCallback callback;
+	Kinc_HttpCallback callback;
 	void* data;
 	int statusCode;
 }
@@ -15,7 +15,7 @@
 
 @implementation Connection
 
-- (id)initWithCallback:(Kore::HttpCallback)aCallback andData:(void*)someData {
+- (id)initWithCallback:(Kinc_HttpCallback)aCallback andData:(void*)someData {
 	if (self = [super init]) {
 		callback = aCallback;
 		data = someData;
@@ -56,7 +56,7 @@
 
 using namespace Kore;
 
-void Kore::httpRequest(const char* url, const char* path, const char* data, int port, bool secure, HttpMethod method, const char* header, HttpCallback callback,
+void Kinc_HttpRequest(const char* url, const char* path, const char* data, int port, bool secure, int method, const char* header, Kinc_HttpCallback callback,
                        void* callbackdata) {
 	NSString* urlstring = secure ? @"https://" : @"http://";
 	urlstring = [urlstring stringByAppendingString:[NSString stringWithUTF8String:url]];
@@ -70,16 +70,16 @@ void Kore::httpRequest(const char* url, const char* path, const char* data, int 
 	[request addValue:@"application/json" forHTTPHeaderField:@"Content-type"];
 
 	switch (method) {
-	case GET:
+	case KINC_HTTP_GET:
 		[request setHTTPMethod:@"GET"];
 		break;
-	case POST:
+	case KINC_HTTP_POST:
 		[request setHTTPMethod:@"POST"];
 		break;
-	case PUT:
+	case KINC_HTTP_PUT:
 		[request setHTTPMethod:@"PUT"];
 		break;
-	case DELETE:
+	case KINC_HTTP_DELETE:
 		[request setHTTPMethod:@"DELETE"];
 		break;
 	}

@@ -100,7 +100,7 @@ void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget, bool wait) {
 
 #endif
 
-bool Kinc_System_Internal_HandleMessages() {
+bool Kinc_Internal_HandleMessages() {
 	NSEvent* event =
 	    [myapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]; // distantPast: non-blocking
 	if (event != nil) {
@@ -154,7 +154,7 @@ int createWindow(Kinc_WindowOptions* options) {
 	return windowCounter++;
 }
 
-int Kinc_Window_Count() {
+int Kinc_CountWindows() {
 	return windowCounter;
 }
 
@@ -179,22 +179,34 @@ void Kinc_Window_ChangeWindowMode(int window_index, Kinc_WindowMode mode) {
 
 int kinc_init(const char* name, int width, int height, Kinc_WindowOptions* win, Kinc_FramebufferOptions* frame) {
 	//System::_init(name, width, height, &win, &frame);
+	Kinc_WindowOptions defaultWindowOptions;
+	if (win == NULL) {
+		Kinc_Internal_InitWindowOptions(&defaultWindowOptions);
+		win = &defaultWindowOptions;
+	}
+	
+	Kinc_FramebufferOptions defaultFramebufferOptions;
+	if (frame == NULL) {
+		Kinc_Internal_InitFramebufferOptions(&defaultFramebufferOptions);
+		frame = &defaultFramebufferOptions;
+	}
+	
 	int windowId = createWindow(win);
 	kinc_g4_init(windowId, frame->depth_bits, frame->stencil_bits, true);
 	return 0;
 }
 
-int Kinc_Window_Width(int window_index) {
+int Kinc_WindowWidth(int window_index) {
 	NSWindow* window = windows[window_index].handle;
 	return [[window contentView] frame].size.width;
 }
 
-int Kinc_Window_Height(int window_index) {
+int Kinc_WindowHeight(int window_index) {
 	NSWindow* window = windows[window_index].handle;
 	return [[window contentView] frame].size.height;
 }
 
-void Kinc_System_Internal_Shutdown() {
+void Kinc_Internal_Shutdown() {
 	
 }
 
@@ -220,7 +232,7 @@ namespace {
 	char** argv = nullptr;
 }
 
-const char* kinc_system_save_path() {
+const char* Kinc_Internal_SavePath() {
 	if (::savePath == nullptr) getSavePath();
 	return ::savePath;
 }
