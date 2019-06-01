@@ -1,10 +1,10 @@
 #include "pch.h"
 
 #include "PipelineStateImpl.h"
-#include <Kinc/Graphics4/Pipeline.h>
-#include <Kinc/Graphics5/Pipeline.h>
 
-#include <Kinc/Graphics4/Shader.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics4/shader.h>
 
 void kinc_g4_pipeline_init(kinc_g4_pipeline_t *pipe) {
 	kinc_g5_pipeline_init(&pipe->impl._pipeline);

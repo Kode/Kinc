@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Kinc/Graphics5/Pipeline.h>
-#include <Kinc/Graphics5/ConstantLocation.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/constantlocation.h>
 
 #ifdef __cplusplus
 extern "C" {

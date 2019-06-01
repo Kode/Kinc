@@ -4,19 +4,14 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <Kore/Graphics4/Graphics.h>
+#include <kinc/graphics4/graphics.h>
 #include <Kore/Input/HIDManager.h>
-#include <Kore/Input/Keyboard.h>
-#include <Kore/Log.h>
-#include <Kore/System.h>
+#include <kinc/input/keyboard.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
-#ifdef KORE_METAL
-namespace Kore {
-	namespace Graphics5 {
-		class RenderTarget;
-	}
-}
-#endif
+#include "WindowData.h"
 
 extern "C" {
 	bool withAutoreleasepool(bool (*f)()) {
@@ -25,8 +20,6 @@ extern "C" {
 		}
 	}
 }
-	
-using namespace Kore;
 
 extern const char* macgetresourcepath();
 
@@ -53,7 +46,7 @@ namespace {
 	NSWindow* window;
 	BasicOpenGLView* view;
 	MyAppDelegate* delegate;
-	HIDManager* hidManager;
+	Kore::HIDManager* hidManager;
 
 	/*struct KoreWindow : public KoreWindowBase {
 		NSWindow* handle;
@@ -65,7 +58,7 @@ namespace {
 		}
 	};*/
 
-	Kore::Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	Kore::WindowData windows[10] = {};
 	int windowCounter = 0;
 }
 
@@ -91,13 +84,13 @@ void endGL() {
 	[view end];
 }
 
-void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget, bool wait) {
+void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait) {
 	[view newRenderPass: renderTarget wait: wait];
 }
 
 #endif
 
-bool System::handleMessages() {
+bool Kinc_Internal_HandleMessages() {
 	NSEvent* event =
 	    [myapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]; // distantPast: non-blocking
 	if (event != nil) {
@@ -111,18 +104,18 @@ void swapBuffersMac(int windowId) {
 #ifdef KORE_METAL
 	endGL();
 #else
-	[windows[windowId]->_data.view switchBuffers];
+	[windows[windowId].view switchBuffers];
 #endif
 }
 
-int createWindow(Kore::WindowOptions* options) {
+int createWindow(Kinc_WindowOptions* options) {
 	int width = options->width;
 	int height = options->height;
 	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
-	if ((options->windowFeatures & WindowFeatureResizable) || (options->windowFeatures & WindowFeatureMaximizable)) {
+	if ((options->window_features & KINC_WINDOW_FEATURE_RESIZEABLE) || (options->window_features & KINC_WINDOW_FEATURE_MAXIMIZABLE)) {
 		styleMask |= NSResizableWindowMask;
 	}
-	if (options->windowFeatures & WindowFeatureMinimizable) {
+	if (options->window_features & KINC_WINDOW_FEATURE_MINIMIZABLE) {
 		styleMask |= NSMiniaturizableWindowMask;
 	}
 
@@ -136,67 +129,74 @@ int createWindow(Kore::WindowOptions* options) {
 	[[window contentView] addSubview:view];
 	[window center];
 	
-	windows[windowCounter] = new Kore::Window; //new KoreWindow(window, view, options->x, options->y, width, height);
-	windows[windowCounter]->_data.handle = window;
-	windows[windowCounter]->_data.view = view;
+	windows[windowCounter].handle = window;
+	windows[windowCounter].view = view;
 	::window = window;
 	::view = view;
 
 	[window makeKeyAndOrderFront:nil];
 	
-	if (options->mode == WindowModeFullscreen || options->mode == WindowModeExclusiveFullscreen) {
+	if (options->mode == KINC_WINDOW_MODE_FULLSCREEN || options->mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 		[window toggleFullScreen:nil];
-		windows[windowCounter]->_data.fullscreen = true;
+		windows[windowCounter].fullscreen = true;
 	}
 
 	return windowCounter++;
 }
 
-Window* Window::get(int window) {
-	return windows[window];
-}
-
-int Window::count() {
+int Kinc_CountWindows() {
 	return windowCounter;
 }
 
-void Window::changeWindowMode(WindowMode mode) {
+void Kinc_Window_ChangeWindowMode(int window_index, Kinc_WindowMode mode) {
 	switch (mode) {
-		case WindowModeWindow:
-			if (_data.fullscreen) {
+		case KINC_WINDOW_MODE_WINDOW:
+			if (windows[window_index].fullscreen) {
 				[window toggleFullScreen:nil];
-				_data.fullscreen = false;
+				windows[window_index].fullscreen = false;
 			}
 			break;
-		case WindowModeFullscreen:
-		case WindowModeExclusiveFullscreen:
-			if (!_data.fullscreen) {
+		case KINC_WINDOW_MODE_FULLSCREEN:
+		case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+			if (!windows[window_index].fullscreen) {
 				[window toggleFullScreen:nil];
-				_data.fullscreen = true;
+				windows[window_index].fullscreen = true;
 			}
 			break;
 	}
 	
 }
 
-Kore::Window* Kore::System::init(const char* name, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
-	System::_init(name, width, height, &win, &frame);
+int kinc_init(const char* name, int width, int height, Kinc_WindowOptions* win, Kinc_FramebufferOptions* frame) {
+	//System::_init(name, width, height, &win, &frame);
+	Kinc_WindowOptions defaultWindowOptions;
+	if (win == NULL) {
+		Kinc_Internal_InitWindowOptions(&defaultWindowOptions);
+		win = &defaultWindowOptions;
+	}
+	
+	Kinc_FramebufferOptions defaultFramebufferOptions;
+	if (frame == NULL) {
+		Kinc_Internal_InitFramebufferOptions(&defaultFramebufferOptions);
+		frame = &defaultFramebufferOptions;
+	}
+	
 	int windowId = createWindow(win);
-	Graphics4::init(windowId, frame->depthBufferBits, frame->stencilBufferBits);
-	return Kore::Window::get(windowId);
+	kinc_g4_init(windowId, frame->depth_bits, frame->stencil_bits, true);
+	return 0;
 }
 
-int Kore::Window::width() {
-	NSWindow* window = _data.handle;
+int Kinc_WindowWidth(int window_index) {
+	NSWindow* window = windows[window_index].handle;
 	return [[window contentView] frame].size.width;
 }
 
-int Kore::Window::height() {
-	NSWindow* window = _data.handle;
+int Kinc_WindowHeight(int window_index) {
+	NSWindow* window = windows[window_index].handle;
 	return [[window contentView] frame].size.height;
 }
 
-void Kore::System::_shutdown() {
+void Kinc_Internal_Shutdown() {
 	
 }
 
@@ -206,7 +206,7 @@ namespace {
 	void getSavePath() {
 		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSString* resolvedPath = [paths objectAtIndex:0];
-		NSString* appName = [NSString stringWithUTF8String:Kore::System::name()];
+		NSString* appName = [NSString stringWithUTF8String: kinc_application_name()];
 		resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
 
 		NSFileManager* fileMgr = [[NSFileManager alloc] init];
@@ -222,7 +222,7 @@ namespace {
 	char** argv = nullptr;
 }
 
-const char* System::savePath() {
+const char* Kinc_Internal_SavePath() {
 	if (::savePath == nullptr) getSavePath();
 	return ::savePath;
 }
@@ -265,7 +265,7 @@ int kore(int, char**);
 		[self finishLaunching];
 		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
 
-		hidManager = new HIDManager();
+		hidManager = new Kore::HIDManager();
 		addMenubar();
 
 		// try {
@@ -278,7 +278,7 @@ int kore(int, char**);
 }
 
 - (void)terminate:(id)sender {
-	Kore::System::stop();
+	kinc_stop();
 }
 
 @end
@@ -286,15 +286,15 @@ int kore(int, char**);
 @implementation MyAppDelegate
 
 -(void)windowWillClose:(NSNotification*)notification {
-	Kore::System::stop();
+	kinc_stop();
 }
 
 -(void)windowDidResize:(NSNotification*)notification {
 	NSWindow* window = [notification object];
 	NSSize size = [[window contentView]frame].size;
 	[view resize:size];
-	if (windows[0]->_data.resizeCallback != nullptr) {
-		windows[0]->_data.resizeCallback(size.width, size.height, windows[0]->_data.resizeCallbackData);
+	if (windows[0].resizeCallback != nullptr) {
+		windows[0].resizeCallback(size.width, size.height, windows[0].resizeCallbackData);
 	}
 }
 

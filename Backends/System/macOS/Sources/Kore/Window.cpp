@@ -2,31 +2,39 @@
 
 #include <Kore/Graphics4/Graphics.h>
 
-#include <Kinc/Bridge.h>
-#include <Kinc/Display.h>
-#include <Kinc/Window.h>
+#include <kinc/bridge.h>
+#include <kinc/display.h>
+#include <kinc/window.h>
 
-int Kinc_WindowX() {
+int Kinc_WindowX(int window) {
 	return 0;
 }
 
-int Kinc_WindowY() {
+int Kinc_WindowY(int window) {
 	return 0;
 }
 
-void Kinc_WindowResize(int width, int height) {
+void Kinc_WindowResize(int window, int width, int height) {
 	
 }
 
-void Kinc_WindowMove(int x, int y) {
+void Kinc_WindowMove(int window, int x, int y) {
 	
 }
 
-void Kinc_WindowChangeFramebuffer(Kinc_FramebufferOptions *frame) {
+void Kinc_WindowChangeFramebuffer(int window, Kinc_FramebufferOptions *frame) {
 	Kinc_Bridge_G4_Internal_ChangeFramebuffer(0, frame);
 }
 
-void Kinc_WindowChangeWindowFeatures(int window, int features) {
+extern "C" void Kinc_Internal_ChangeFramebuffer(int window, _Kinc_FramebufferOptions *frame) {
+	Kinc_Bridge_G4_Internal_ChangeFramebuffer(0, frame);
+}
+
+void Kinc_WindowChangeFeatures(int window, int features) {
+	
+}
+
+void Kinc_WindowChangeMode(int window, Kinc_WindowMode mode) {
 	
 }
 
@@ -34,15 +42,15 @@ void Kinc_WindowDestroy(int window) {
 	
 }
 
-void Kinc_WindowShow() {
+void Kinc_WindowShow(int window) {
 	
 }
 
-void Kinc_WindowHide() {
+void Kinc_WindowHide(int window) {
 	
 }
 
-void Kinc_WindowSetTitle(const char *title) {
+void Kinc_WindowSetTitle(int window, const char *title) {
 	
 }
 
@@ -59,6 +67,10 @@ void Kinc_WindowSetPpiChangedCallback(int window, void(*callback)(int ppi, void*
 	
 }
 
-Kinc_WindowMode Kinc_WindowGetMode() {
+Kinc_WindowMode Kinc_WindowGetMode(int window) {
 	return KINC_WINDOW_MODE_WINDOW;
+}
+
+int Kinc_WindowDisplay(int window) {
+	return 0;
 }

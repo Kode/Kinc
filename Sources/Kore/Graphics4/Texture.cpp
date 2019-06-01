@@ -54,3 +54,9 @@ void Graphics4::Texture::unlock() {
 int Graphics4::Texture::stride() {
 	return kinc_g4_texture_stride(&kincTexture);
 }
+
+#if defined(KORE_IOS) || defined(KORE_MACOS)
+void Graphics4::Texture::upload(u8* data, int stride) {
+	kinc_g4_texture_upload(&kincTexture, data, stride);
+}
+#endif

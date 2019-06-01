@@ -2,27 +2,18 @@
 
 #include <objc/runtime.h>
 
-namespace Kore {
-	namespace Graphics5 {
-		class Shader;
-	}
+struct kinc_g5_shader;
 
-	class PipelineState5Impl {
-	protected:
-		Graphics5::Shader* vertexShader;
-		Graphics5::Shader* fragmentShader;
-		id _pipeline;
-		id _reflection;
-		id _depthStencil;
-		PipelineState5Impl();
-		virtual ~PipelineState5Impl();
-	public:
-		void _set();
-	};
+typedef struct {
+	struct kinc_g5_shader *vertexShader;
+	struct kinc_g5_shader *fragmentShader;
+	id _pipeline;
+	id _reflection;
+	id _depthStencil;
+	//void _set();
+} PipelineState5Impl;
 
-	class ConstantLocation5Impl {
-	public:
-		int vertexOffset;
-		int fragmentOffset;
-	};
-}
+typedef struct {
+	int vertexOffset;
+	int fragmentOffset;
+} ConstantLocation5Impl;

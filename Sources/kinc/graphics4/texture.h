@@ -31,7 +31,7 @@ unsigned char *kinc_g4_texture_lock(kinc_g4_texture_t *texture);
 void kinc_g4_texture_unlock(kinc_g4_texture_t *texture);
 void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color);
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-void kinc_g4_texture_upload(uint8_t *data, int stride);
+void kinc_g4_texture_upload(kinc_g4_texture_t *texture, uint8_t *data, int stride);
 #endif
 void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels);
 void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap, int level);

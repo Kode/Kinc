@@ -1,39 +1,40 @@
 #include "pch.h"
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/System.h>
 
-using namespace Kore;
+#include <kinc/graphics4/graphics.h>
+#include <kinc/input/mouse.h>
+#include <kinc/system.h>
 
 namespace {
 	int mouseX, mouseY;
 	bool keyboardShown = false;
 }
 
-vec2i System::mousePos() {
-	return vec2i(mouseX, mouseY);
+void Kinc_Mouse_GetPosition(int window, int *x, int *y) {
+	*x = mouseX;
+	*y = mouseY;
 }
 
-void System::showKeyboard() {
+void Kinc_ShowKeyboard() {
 	keyboardShown = true;
 }
 
-void System::hideKeyboard() {
+void Kinc_HideKeyboard() {
 	keyboardShown = false;
 }
 
-bool System::showsKeyboard() {
+bool Kinc_ShowsKeyboard() {
 	return keyboardShown;
 }
 
-void System::loadURL(const char* url) {}
+void Kinc_loadURL(const char* url) {}
 
-void System::vibrate(int ms) {}
+void kinc_vibrate(int ms) {}
 
-const char* System::language() {
+const char* kinc_language() {
 	return "en";
 }
 
-const char* System::systemId() {
+const char* Kinc_SystemId() {
 	return "OSX";
 }
 
@@ -41,20 +42,20 @@ namespace {
 	const char* videoFormats[] = {"ogv", nullptr};
 }
 
-const char** Kore::System::videoFormats() {
+const char** Kinc_VideoFormats() {
 	return ::videoFormats;
 }
 
-void System::setKeepScreenOn(bool on) {}
+void Kinc_SetKeepScreenOn(bool on) {}
 
 #include <mach/mach_time.h>
 
-double System::frequency() {
+double kinc_frequency() {
 	mach_timebase_info_data_t info;
 	mach_timebase_info(&info);
 	return (double)info.denom / (double)info.numer / 1e-9;
 }
 
-System::ticks System::timestamp() {
+kinc_ticks_t kinc_timestamp() {
 	return mach_absolute_time();
 }

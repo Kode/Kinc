@@ -3,7 +3,7 @@
 #include "HIDGamepad.h"
 #include "HIDManager.h"
 
-#include <Kinc/Input/Gamepad.h>
+#include <kinc/input/gamepad.h>
 
 #include <Kore/Log.h>
 #include <Kore/Error.h>
@@ -363,3 +363,10 @@ void HIDGamepad::valueAvailableCallback(void* inContext, IOReturn inResult, void
 	} while (1);
 }
 
+const char *Kinc_Gamepad_Vendor(int gamepad) {
+	return "unknown";
+}
+
+const char *Kinc_Gamepad_ProductName(int gamepad) {
+	return "unknown";
+}

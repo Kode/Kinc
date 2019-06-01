@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <Kore/Graphics5/PipelineState.h>
-#include <Kore/Graphics5/Shader.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/shader.h>
 
 #import <Metal/Metal.h>
 
@@ -9,67 +9,67 @@
 #include <stdlib.h>
 #include <string.h>
 
-using namespace Kore;
-
 id getMetalDevice();
 id getMetalEncoder();
 
 namespace {
-	MTLBlendFactor convert(Kore::Graphics5::BlendingOperation op) {
+	MTLBlendFactor convert(kinc_g5_blending_operation_t op) {
 		switch (op) {
-			case Graphics5::BlendOne:
+			case KINC_G5_BLEND_MODE_ONE:
 				return MTLBlendFactorOne;
-			case Graphics5::BlendZero:
+			case KINC_G5_BLEND_MODE_ZERO:
 				return MTLBlendFactorZero;
-			case Graphics5::SourceAlpha:
+			case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
 				return MTLBlendFactorSourceAlpha;
-			case Graphics5::DestinationAlpha:
+			case KINC_G5_BLEND_MODE_DEST_ALPHA:
 				return MTLBlendFactorDestinationAlpha;
-			case Graphics5::InverseSourceAlpha:
+			case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
 				return MTLBlendFactorOneMinusSourceAlpha;
-			case Graphics5::InverseDestinationAlpha:
+			case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
 				return MTLBlendFactorOneMinusDestinationAlpha;
-			case Graphics5::SourceColor:
+			case KINC_G5_BLEND_MODE_SOURCE_COLOR:
 				return MTLBlendFactorSourceColor;
-			case Graphics5::DestinationColor:
+			case KINC_G5_BLEND_MODE_DEST_COLOR:
 				return MTLBlendFactorDestinationColor;
-			case Graphics5::InverseSourceColor:
+			case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
 				return MTLBlendFactorOneMinusSourceColor;
-			case Graphics5::InverseDestinationColor:
+			case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
 				return MTLBlendFactorOneMinusDestinationColor;
 		}
 	}
 	
-	MTLCompareFunction convert(Kore::Graphics5::ZCompareMode compare) {
+	MTLCompareFunction convert(kinc_g5_compare_mode_t compare) {
 		switch (compare) {
-			case Graphics5::ZCompareAlways:
+			case KINC_G5_COMPARE_MODE_ALWAYS:
 				return MTLCompareFunctionAlways;
-			case Graphics5::ZCompareNever:
+			case KINC_G5_COMPARE_MODE_NEVER:
 				return MTLCompareFunctionNever;
-			case Graphics5::ZCompareEqual:
+			case KINC_G5_COMPARE_MODE_EQUAL:
 				return MTLCompareFunctionEqual;
-			case Graphics5::ZCompareNotEqual:
+			case KINC_G5_COMPARE_MODE_NOT_EQUAL:
 				return MTLCompareFunctionNotEqual;
-			case Graphics5::ZCompareLess:
+			case KINC_G5_COMPARE_MODE_LESS:
 				return MTLCompareFunctionLess;
-			case Graphics5::ZCompareLessEqual:
+			case KINC_G5_COMPARE_MODE_LESS_EQUAL:
 				return MTLCompareFunctionLessEqual;
-			case Graphics5::ZCompareGreater:
+			case KINC_G5_COMPARE_MODE_GREATER:
 				return MTLCompareFunctionGreater;
-			case Graphics5::ZCompareGreaterEqual:
+			case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
 				return MTLCompareFunctionGreaterEqual;
 		}
 	}
 }
 
-PipelineState5Impl::PipelineState5Impl() : _pipeline(0), _reflection(0), _depthStencil(0) {
-	
+void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
+	pipeline->impl._pipeline = 0;
+	pipeline->impl._reflection = 0;
+	pipeline->impl._depthStencil = 0;
 }
 
-PipelineState5Impl::~PipelineState5Impl() {
-	_pipeline = 0;
-	_reflection = 0;
-	_depthStencil = 0;
+void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {
+	pipeline->impl._pipeline = 0;
+	pipeline->impl._reflection = 0;
+	pipeline->impl._depthStencil = 0;
 }
 
 static int findAttributeIndex(NSArray<MTLVertexAttribute*>* attributes, const char* name) {
@@ -81,46 +81,49 @@ static int findAttributeIndex(NSArray<MTLVertexAttribute*>* attributes, const ch
 	return -1;
 }
 
-void Graphics5::PipelineState::compile() {
+void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
-	renderPipelineDesc.vertexFunction = vertexShader->mtlFunction;
-	renderPipelineDesc.fragmentFunction = fragmentShader->mtlFunction;
+	renderPipelineDesc.vertexFunction = pipeline->vertexShader->impl.mtlFunction;
+	renderPipelineDesc.fragmentFunction = pipeline->fragmentShader->impl.mtlFunction;
 	renderPipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-	renderPipelineDesc.colorAttachments[0].blendingEnabled = blendSource != BlendOne || blendDestination != BlendZero || alphaBlendSource != BlendOne || alphaBlendDestination != BlendZero;
-	renderPipelineDesc.colorAttachments[0].sourceRGBBlendFactor = convert(blendSource);
-	renderPipelineDesc.colorAttachments[0].sourceAlphaBlendFactor = convert(alphaBlendSource);
-	renderPipelineDesc.colorAttachments[0].destinationRGBBlendFactor = convert(blendDestination);
-	renderPipelineDesc.colorAttachments[0].destinationAlphaBlendFactor = convert(alphaBlendDestination);
+	renderPipelineDesc.colorAttachments[0].blendingEnabled = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE
+		|| pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO
+		|| pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE
+		|| pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+	renderPipelineDesc.colorAttachments[0].sourceRGBBlendFactor = convert(pipeline->blendSource);
+	renderPipelineDesc.colorAttachments[0].sourceAlphaBlendFactor = convert(pipeline->alphaBlendSource);
+	renderPipelineDesc.colorAttachments[0].destinationRGBBlendFactor = convert(pipeline->blendDestination);
+	renderPipelineDesc.colorAttachments[0].destinationAlphaBlendFactor = convert(pipeline->alphaBlendDestination);
 	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 
 	float offset = 0;
 	MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
 
-	for (int i = 0; i < inputLayout[0]->size; ++i) {
-		int index = findAttributeIndex(renderPipelineDesc.vertexFunction.vertexAttributes, inputLayout[0]->elements[i].name);
+	for (int i = 0; i < pipeline->inputLayout[0]->size; ++i) {
+		int index = findAttributeIndex(renderPipelineDesc.vertexFunction.vertexAttributes, pipeline->inputLayout[0]->elements[i].name);
 
 		if (index < 0) {
-			fprintf(stderr, "could not find vertex attribute %s\n", inputLayout[0]->elements[i].name);
+			fprintf(stderr, "could not find vertex attribute %s\n", pipeline->inputLayout[0]->elements[i].name);
 		}
 
 		vertexDescriptor.attributes[index].bufferIndex = 0;
 		vertexDescriptor.attributes[index].offset = offset;
 
-		switch (inputLayout[0]->elements[i].data) {
-		case Graphics4::Float1VertexData:
+		switch (pipeline->inputLayout[0]->elements[i].data) {
+		case KINC_G4_VERTEX_DATA_FLOAT1:
 			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat;
 			offset += sizeof(float);
 			break;
-		case Graphics4::Float2VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT2:
 			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat2;
 			offset += 2 * sizeof(float);
 			break;
-		case Graphics4::Float3VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT3:
 			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat3;
 			offset += 3 * sizeof(float);
 			break;
-		case Graphics4::Float4VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT4:
 			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat4;
 			offset += 4 * sizeof(float);
 			break;
@@ -137,31 +140,31 @@ void Graphics5::PipelineState::compile() {
 	NSError* errors = nil;
 	MTLRenderPipelineReflection* reflection = nil;
 	id<MTLDevice> device = getMetalDevice();
-	_pipeline = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
+	pipeline->impl._pipeline = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
 	if (errors != nil) NSLog(@"%@", [errors localizedDescription]);
-	assert(_pipeline && !errors);
-	_reflection = reflection;
+	assert(pipeline->impl._pipeline && !errors);
+	pipeline->impl._reflection = reflection;
 	
 	MTLDepthStencilDescriptor* depthStencilDescriptor = [MTLDepthStencilDescriptor new];
-	depthStencilDescriptor.depthCompareFunction = convert(depthMode);
-	depthStencilDescriptor.depthWriteEnabled = depthWrite;
-	_depthStencil = [device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
+	depthStencilDescriptor.depthCompareFunction = convert(pipeline->depthMode);
+	depthStencilDescriptor.depthWriteEnabled = pipeline->depthWrite;
+	pipeline->impl._depthStencil = [device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
 }
 
-void PipelineState5Impl::_set() {
+void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setRenderPipelineState:_pipeline];
-	[encoder setDepthStencilState:_depthStencil];
+	[encoder setRenderPipelineState:pipeline->impl._pipeline];
+	[encoder setDepthStencilState:pipeline->impl._depthStencil];
 	//[encoder setFrontFacingWinding:MTLWindingCounterClockwise];
 	//[encoder setCullMode:MTLCullModeBack];
 }
 
-Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
-	ConstantLocation location;
-	location.vertexOffset = -1;
-	location.fragmentOffset = -1;
+kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipeline, const char *name) {
+	kinc_g5_constant_location_t location;
+	location.impl.vertexOffset = -1;
+	location.impl.fragmentOffset = -1;
 
-	MTLRenderPipelineReflection* reflection = _reflection;
+	MTLRenderPipelineReflection* reflection = pipeline->impl._reflection;
 
 	for (MTLArgument* arg in reflection.vertexArguments) {
 		if (arg.type == MTLArgumentTypeBuffer && [arg.name isEqualToString:@"uniforms"]) {
@@ -169,7 +172,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 				MTLStructType* structObj = [arg bufferStructType];
 				for (MTLStructMember* member in structObj.members) {
 					if (strcmp([[member name] UTF8String], name) == 0) {
-						location.vertexOffset = (int)[member offset];
+						location.impl.vertexOffset = (int)[member offset];
 						break;
 					}
 				}
@@ -184,7 +187,7 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 				MTLStructType* structObj = [arg bufferStructType];
 				for (MTLStructMember* member in structObj.members) {
 					if (strcmp([[member name] UTF8String], name) == 0) {
-						location.fragmentOffset = (int)[member offset];
+						location.impl.fragmentOffset = (int)[member offset];
 						break;
 					}
 				}
@@ -196,14 +199,14 @@ Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const 
 	return location;
 }
 
-Graphics5::TextureUnit Graphics5::PipelineState::getTextureUnit(const char* name) {
-	TextureUnit unit;
-	unit.index = -1;
+kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name) {
+	kinc_g5_texture_unit_t unit;
+	unit.impl.index = -1;
 
-	MTLRenderPipelineReflection* reflection = _reflection;
+	MTLRenderPipelineReflection* reflection = pipeline->impl._reflection;
 	for (MTLArgument* arg in reflection.fragmentArguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
-			unit.index = (int)[arg index];
+			unit.impl.index = (int)[arg index];
 		}
 	}
 

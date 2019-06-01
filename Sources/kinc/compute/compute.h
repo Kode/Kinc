@@ -8,8 +8,8 @@ extern "C" {
 #ifdef KORE_OPENGL
 #include <Kore/ShaderStorageBufferImpl.h>
 #endif
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Math/Matrix.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/math/matrix.h>
 
 struct kinc_g4_texture;
 struct kinc_g4_render_target;
@@ -54,8 +54,8 @@ void kinc_compute_set_float2(kinc_compute_constant_location_t location, float va
 void kinc_compute_set_float3(kinc_compute_constant_location_t location, float value1, float value2, float value3);
 void kinc_compute_set_float4(kinc_compute_constant_location_t location, float value1, float value2, float value3, float value4);
 void kinc_compute_set_floats(kinc_compute_constant_location_t location, float *values, int count);
-void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, Kinc_Matrix4x4 *value);
-void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, Kinc_Matrix3x3 *value);
+void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, kinc_matrix4x4_t *value);
+void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_matrix3x3_t *value);
 #ifdef KORE_OPENGL
 void kinc_compute_set_buffer(ShaderStorageBuffer *buffer, int index);
 #endif
@@ -66,7 +66,7 @@ void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, ki
 void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target);
 void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
 void kinc_compute_set_texture_magnification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter);
-void kinc_compute_set_set_texture_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter);
+void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter);
 void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter);
 void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing);
 void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter);

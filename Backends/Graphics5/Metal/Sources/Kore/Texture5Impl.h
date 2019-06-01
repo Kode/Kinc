@@ -1,26 +1,18 @@
 #pragma once
 
-#include <Kore/Graphics1/Image.h>
+#include <kinc/image.h>
 
 #include <objc/runtime.h>
 
-namespace Kore {
-	namespace Graphics5 {
-		class Texture;
-	}
+typedef struct {
+	int index;
+} TextureUnit5Impl;
 
-	class TextureUnit5Impl {
-	public:
-		int index;
-	};
+typedef struct {
+	//Texture5Impl();
+	//~Texture5Impl();
+	id _tex;
+	id _sampler;
 
-	class Texture5Impl {
-	public:
-		Texture5Impl();
-		~Texture5Impl();
-		id _tex;
-		id _sampler;
-	protected:
-		void create(int width, int height, int format, bool writable);
-	};
-}
+	//void create(int width, int height, int format, bool writable);
+} Texture5Impl;

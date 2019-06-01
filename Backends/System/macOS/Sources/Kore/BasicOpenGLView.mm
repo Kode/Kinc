@@ -2,12 +2,12 @@
 
 #import "BasicOpenGLView.h"
 
-#include <Kinc/Input/Keyboard.h>
-#include <Kinc/Input/Mouse.h>
-#include <Kinc/System.h>
+#include <kinc/input/keyboard.h>
+#include <kinc/input/mouse.h>
+#include <kinc/system.h>
 
 #ifdef KORE_METAL
-#include <Kore/Graphics5/Graphics.h>
+#include <kinc/graphics5/graphics.h>
 #endif
 
 @implementation BasicOpenGLView
@@ -188,7 +188,7 @@ namespace {
 
 	int getMouseY(NSEvent* event) {
 		// TODO (DK) map [theEvent window] to window id instead of 0
-		return static_cast<int>(Kinc_Height() - [event locationInWindow].y);
+		return static_cast<int>(kinc_height() - [event locationInWindow].y);
 	}
 
 	bool controlKeyMouseButton = false;
@@ -401,14 +401,14 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		[commandBuffer presentDrawable:drawable];
 		[commandBuffer commit];
 
-		// if (drawable != nil) {
+		//if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
 		//	[drawable present];
 		//}
 	}
 }
 
-- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait {
+- (void)newRenderPass:(struct kinc_g5_render_target*)renderTarget wait: (bool)wait {
 	@autoreleasepool {
 		[commandEncoder endEncoding];
 		[commandBuffer commit];
@@ -417,18 +417,18 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		}
 		
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->_tex;
+		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->impl._tex;
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
 		renderPassDescriptor.depthAttachment.clearDepth = 99999;
 		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
 		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-		renderPassDescriptor.depthAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->_depthTex;
+		renderPassDescriptor.depthAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->impl._depthTex;
 		renderPassDescriptor.stencilAttachment.clearStencil = 0;
 		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
 		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
-		renderPassDescriptor.stencilAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->_depthTex;
+		renderPassDescriptor.stencilAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->impl._depthTex;
 		
 		commandBuffer = [commandQueue commandBuffer];
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];

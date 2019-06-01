@@ -13,11 +13,7 @@
 
 #ifdef KORE_METAL
 
-namespace Kore {
-	namespace Graphics5 {
-		class RenderTarget;
-	}
-}
+struct kinc_g5_render_target;
 
 @interface BasicOpenGLView : MTKView {
 @private
@@ -50,7 +46,7 @@ namespace Kore {
 
 - (void)begin;
 - (void)end;
-- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait;
+- (void)newRenderPass:(struct kinc_g5_render_target*)renderTarget wait: (bool)wait;
 #else
 - (void)prepareOpenGL;
 - (void)switchBuffers;

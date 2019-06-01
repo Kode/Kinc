@@ -2,8 +2,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <Kinc/Display.h>
-#include <Kinc/Log.h>
+#include <kinc/display.h>
+#include <kinc/log.h>
 
 using namespace Kore;
 
@@ -18,12 +18,12 @@ namespace {
 	}
 }*/
 
-int Kinc_CountDisplays() {
+int kinc_count_displays() {
 	NSArray* screens = [NSScreen screens];
 	return (int)[screens count];
 }
 
-int Kinc_PrimaryDisplay() {
+int kinc_primary_display() {
 	NSArray* screens = [NSScreen screens];
 	NSScreen* mainScreen = [NSScreen mainScreen];
 	for (int i = 0; i < maxDisplays; ++i) {
@@ -34,8 +34,8 @@ int Kinc_PrimaryDisplay() {
 	return -1;
 }
 
-Kinc_DisplayMode Kinc_DisplayAvailableMode(int display, int mode) {
-	Kinc_DisplayMode dm;
+kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
+	kinc_display_mode_t dm;
 	dm.width = 800;
 	dm.height = 600;
 	dm.frequency = 60;
@@ -43,16 +43,25 @@ Kinc_DisplayMode Kinc_DisplayAvailableMode(int display, int mode) {
 	return dm;
 }
 
-int Kinc_DisplayCountAvailableModes(int display) {
+int kinc_display_count_available_modes(int display) {
 	return 1;
 }
 
-bool Kinc_DisplayAvailable(int display) {
+bool kinc_display_available(int display) {
 	return true;
 }
 
-const char *Kinc_DisplayName(int display) {
+const char *kinc_display_name(int display) {
 	return "Display";
+}
+
+kinc_display_mode_t kinc_display_current_mode(int display) {
+	kinc_display_mode_t dm;
+	dm.width = 800;
+	dm.height = 600;
+	dm.frequency = 60;
+	dm.bits_per_pixel = 32;
+	return dm;
 }
 
 //**

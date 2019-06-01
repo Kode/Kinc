@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Kinc/Graphics1/Image.h>
-#include <Kinc/Graphics5/Texture.h>
-#include <Kinc/Graphics5/TextureUnit.h>
+#include <kinc/image.h>
+#include <kinc/graphics5/texture.h>
+#include <kinc/graphics5/textureunit.h>
 
 #ifdef __cplusplus
 extern "C" {
