@@ -14,10 +14,12 @@ namespace Kore {
 	}
 
 	class ComputeConstantLocation {
+	public:
 		kinc_compute_constant_location_impl_t kincImpl;
 	};
 
 	class ComputeTextureUnit {
+	public:
 		kinc_compute_texture_unit_impl_t kincImpl;
 	};
 

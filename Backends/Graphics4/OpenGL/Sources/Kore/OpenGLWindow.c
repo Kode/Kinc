@@ -33,7 +33,7 @@ static bool glewInitialized = false;
 
 #ifdef KORE_WINDOWS
 void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits) {
-	HWND windowHandle = Kinc_Windows_WindowHandle(window);
+	HWND windowHandle = kinc_windows_window_handle(window);
 
 #ifndef VR_RIFT
 	PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
@@ -108,7 +108,8 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 	if (window != 0) {
 		wglShareLists(Kinc_Internal_windows[0].glContext, Kinc_Internal_windows[window].glContext);
 		wglMakeCurrent(Kinc_Internal_windows[0].deviceContext, Kinc_Internal_windows[0].glContext);
-		kinc_g4_render_target_init(Kinc_Internal_windows[window].renderTarget, Kinc_Windows_ManualWidth(window), Kinc_Windows_ManualHeight(window), depthBufferBits,
+		kinc_g4_render_target_init(Kinc_Internal_windows[window].renderTarget, kinc_windows_manual_width(window), kinc_windows_manual_height(window),
+		                           depthBufferBits,
 		                            false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, -1, 0);
 		if (!initialized) {
 			wglMakeCurrent(Kinc_Internal_windows[window].deviceContext, Kinc_Internal_windows[window].glContext);

@@ -23,7 +23,7 @@ typedef struct {
 #ifndef NDEBUG
 	bool initialized;
 #endif
-} Kinc_G4_VertexBufferImpl;
+} kinc_g4_vertex_buffer_impl_t;
 
 #ifdef __cplusplus
 }

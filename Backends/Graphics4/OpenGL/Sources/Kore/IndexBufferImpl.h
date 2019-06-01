@@ -13,7 +13,7 @@ typedef struct {
 	int *data;
 	int myCount;
 	unsigned bufferId;
-} Kinc_G4_IndexBufferImpl;
+} kinc_g4_index_buffer_impl_t;
 
 #ifdef __cplusplus
 }

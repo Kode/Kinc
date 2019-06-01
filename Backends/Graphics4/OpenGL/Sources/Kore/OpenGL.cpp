@@ -76,8 +76,8 @@ namespace {
 
 	int currentWindow = 0;
 
-	Kinc_G4_TextureFilter minFilters[32];
-	Kinc_G4_MipmapFilter mipFilters[32];
+	kinc_g4_texture_filter_t minFilters[32];
+	kinc_g4_mipmap_filter_t mipFilters[32];
 
 	int _width;
 	int _height;
@@ -95,9 +95,9 @@ namespace {
 	int texModesV[256];
 }
 
-extern "C" void Kinc_Internal_Resize(int window, int width, int height) {}
+extern "C" void kinc_internal_resize(int window, int width, int height) {}
 
-extern "C" void Kinc_Internal_ChangeFramebuffer(int window, Kinc_FramebufferOptions *frame) {
+extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
 #ifdef KORE_WINDOWS
 	if (window == 0) {
 #ifdef KORE_VR
@@ -116,7 +116,7 @@ void kinc_g4_destroy(int window) {
 		Kinc_Internal_windows[window].glContext = nullptr;
 	}
 
-	HWND windowHandle = Kinc_Windows_WindowHandle(window);
+	HWND windowHandle = kinc_windows_window_handle(window);
 
 	if (Kinc_Internal_windows[window].deviceContext != nullptr) {
 		ReleaseDC(windowHandle, Kinc_Internal_windows[window].deviceContext);
@@ -158,8 +158,8 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	}
 #endif
 
-	_width = Kinc_WindowWidth(0);
-	_height = Kinc_WindowHeight(0);
+	_width = kinc_window_width(0);
+	_height = kinc_window_height(0);
 	_renderTargetWidth = _width;
 	_renderTargetHeight = _height;
 	renderToBackbuffer = true;
@@ -358,7 +358,7 @@ void kinc_g4_begin(int window) {
 	beginGL();
 #endif
 
-	glViewport(0, 0, Kinc_WindowWidth(window), Kinc_WindowHeight(window));
+	glViewport(0, 0, kinc_window_width(window), kinc_window_height(window));
 
 #ifdef KORE_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared
@@ -423,12 +423,12 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **vertexBuffers, int count) {
 	int offset = 0;
 	for (int i = 0; i < count; ++i) {
-		offset += Kinc_Internal_G4_VertexBuffer_Set(vertexBuffers[i], offset);
+		offset += kinc_internal_g4_vertex_buffer_set(vertexBuffers[i], offset);
 	}
 }
 
 void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *indexBuffer) {
-	Kinc_Internal_G4_IndexBuffer_Set(indexBuffer);
+	kinc_internal_g4_index_buffer_set(indexBuffer);
 }
 
 extern "C" void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
@@ -443,7 +443,7 @@ void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *t
 }
 
 namespace {
-	void setTextureAddressingInternal(GLenum target, kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+	void setTextureAddressingInternal(GLenum target, kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 		glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 		GLenum texDir;
 		switch (dir) {
@@ -511,18 +511,18 @@ int Kinc_G4_Internal_TextureAddressingV(kinc_g4_texture_unit_t unit) {
 	return texModesV[unit.impl.unit];
 }
 
-void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 	setTextureAddressingInternal(GL_TEXTURE_2D, unit, dir, addressing);
 }
 
-void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {
+void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 #ifndef KORE_OPENGL_ES
 	setTextureAddressingInternal(GL_TEXTURE_3D, unit, dir, addressing);
 #endif
 }
 
 namespace {
-	void setTextureMagnificationFilterInternal(GLenum target, kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+	void setTextureMagnificationFilterInternal(GLenum target, kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 		glActiveTexture(GL_TEXTURE0 + texunit.impl.unit);
 		glCheckErrors();
 		switch (filter) {
@@ -538,11 +538,11 @@ namespace {
 	}
 } // namespace
 
-void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	setTextureMagnificationFilterInternal(GL_TEXTURE_2D, texunit, filter);
 }
 
-void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 #ifndef KORE_OPENGL_ES
 	setTextureMagnificationFilterInternal(GL_TEXTURE_3D, texunit, filter);
 #endif
@@ -590,24 +590,24 @@ namespace {
 	}
 } // namespace
 
-void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	minFilters[texunit.impl.unit] = filter;
 	setMinMipFilters(GL_TEXTURE_2D, texunit.impl.unit);
 }
 
-void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_TextureFilter filter) {
+void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	minFilters[texunit.impl.unit] = filter;
 #ifndef KORE_OPENGL_ES
 	setMinMipFilters(GL_TEXTURE_3D, texunit.impl.unit);
 #endif
 }
 
-void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_MipmapFilter filter) {
+void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
 	mipFilters[texunit.impl.unit] = filter;
 	setMinMipFilters(GL_TEXTURE_2D, texunit.impl.unit);
 }
 
-void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, Kinc_G4_MipmapFilter filter) {
+void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
 	mipFilters[texunit.impl.unit] = filter;
 #ifndef KORE_OPENGL_ES
 	setMinMipFilters(GL_TEXTURE_3D, texunit.impl.unit);
@@ -636,7 +636,7 @@ void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t texunit, bool enabl
 	}
 }
 
-void kinc_g4_set_texture_operation(Kinc_G4_TextureOperation operation, Kinc_G4_TextureArgument arg1, Kinc_G4_TextureArgument arg2) {
+void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
 	// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
@@ -686,8 +686,8 @@ void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) 
 void kinc_g4_restore_render_target() {
 	Kinc_Internal_setWindowRenderTarget(currentWindow);
 	glCheckErrors();
-	int w = Kinc_WindowWidth(currentWindow);
-	int h = Kinc_WindowHeight(currentWindow);
+	int w = kinc_window_width(currentWindow);
+	int h = kinc_window_height(currentWindow);
 	glViewport(0, 0, w, h);
 	_renderTargetWidth = w;
 	_renderTargetHeight = h;
@@ -743,7 +743,7 @@ void kinc_g4_flush() {
 }
 
 void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
-	Kinc_G4_Internal_SetPipeline(pipeline);
+	kinc_g4_internal_set_pipeline(pipeline);
 	lastPipeline = pipeline;
 }
 
@@ -757,7 +757,7 @@ void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, kinc_g4_texture_arra
 	Kinc_G4_Internal_TextureArraySet(array, unit);
 }
 
-int Kinc_G4_Internal_StencilFunc(Kinc_G4_CompareMode mode) {
+int Kinc_G4_Internal_StencilFunc(kinc_g4_compare_mode_t mode) {
 	switch (mode) {
 	case KINC_G4_COMPARE_ALWAYS:
 		return GL_ALWAYS;

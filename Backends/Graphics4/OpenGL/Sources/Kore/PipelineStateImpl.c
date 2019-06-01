@@ -19,7 +19,7 @@ bool Kinc_Internal_ProgramUsesTessellation = false;
 #endif
 extern bool Kinc_Internal_SupportsConservativeRaster;
 
-static GLenum convertStencilAction(Kinc_G4_StencilAction action) {
+static GLenum convertStencilAction(kinc_g4_stencil_action_t action) {
 	switch (action) {
 	default:
 	case KINC_G4_STENCIL_DECREMENT:
@@ -41,7 +41,7 @@ static GLenum convertStencilAction(Kinc_G4_StencilAction action) {
 	}
 }
 
-static GLenum convertBlendingOperation(Kinc_G4_BlendingOperation operation) {
+static GLenum convertBlendingOperation(kinc_g4_blending_operation_t operation) {
 	switch (operation) {
 	case KINC_G4_BLEND_ZERO:
 		return GL_ZERO;
@@ -201,7 +201,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 #endif
 }
 
-void Kinc_G4_Internal_SetPipeline(kinc_g4_pipeline_t *pipeline) {
+void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 #ifndef KORE_OPENGL_ES
 	Kinc_Internal_ProgramUsesTessellation = pipeline->tessellation_control_shader != NULL;
 #endif

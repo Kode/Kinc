@@ -14,7 +14,7 @@ typedef struct {
 	// unsigned _depthRenderbuffer;
 	int contextId;
 	int format;
-} Kinc_G4_RenderTargetImpl;
+} kinc_g4_render_target_impl_t;
 
 #ifdef __cplusplus
 }

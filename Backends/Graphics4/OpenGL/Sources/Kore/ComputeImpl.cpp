@@ -4,10 +4,13 @@
 
 #include "ogl.h"
 
-#include <Kore/Compute/Compute.h>
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Math/Core.h>
-#include <Kore/Log.h>
+#include <kinc/compute/compute.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/image.h>
+#include <kinc/math/core.h>
+#include <kinc/log.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -20,52 +23,52 @@ using namespace Kore;
 
 namespace {
 #ifdef HAS_COMPUTE
-	int convertInternalFormat(Graphics4::Image::Format format) {
+	int convertInternalFormat(kinc_image_format_t format) {
 		switch (format) {
-		case Graphics4::Image::RGBA128:
+		case KINC_IMAGE_FORMAT_RGBA128:
 			return GL_RGBA32F;
-		case Graphics4::Image::RGBA64:
+		case KINC_IMAGE_FORMAT_RGBA64:
 			return GL_RGBA16F;
-		case Graphics4::Image::RGBA32:
+		case KINC_IMAGE_FORMAT_RGBA32:
 		default:
 			return GL_RGBA8;
-		case Graphics4::Image::A32:
+		case KINC_IMAGE_FORMAT_A32:
 			return GL_R32F;
-		case Graphics4::Image::A16:
+		case KINC_IMAGE_FORMAT_A16:
 			return GL_R16F;
-		case Graphics4::Image::Grey8:
+		case KINC_IMAGE_FORMAT_GREY8:
 			return GL_R8;
 		}
 	}
 
-	int convertInternalFormat(Graphics4::RenderTargetFormat format) {
+	int convertInternalFormat(kinc_g4_render_target_format_t format) {
 		switch (format) {
-		case Graphics4::Target64BitFloat:
+		case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
 			return GL_RGBA16F;
-		case Graphics4::Target32BitRedFloat:
+		case KINC_G4_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
 			return GL_R32F;
-		case Graphics4::Target128BitFloat:
+		case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
 			return GL_RGBA32F;
-		case Graphics4::Target16BitDepth:
+		case KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH:
 			return GL_DEPTH_COMPONENT16;
-		case Graphics4::Target8BitRed:
+		case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
 			return GL_RED;
-		case Graphics4::Target16BitRedFloat:
+		case KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
 			return GL_R16F;
-		case Graphics4::Target32Bit:
+		case KINC_G4_RENDER_TARGET_FORMAT_32BIT:
 		default:
 			return GL_RGBA;
 		}
 	}
 
-	void setTextureAddressingInternal(GLenum target, ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
-		glActiveTexture(GL_TEXTURE0 + unit.unit);
-		GLenum texDir = dir == Graphics4::U ? GL_TEXTURE_WRAP_S : (Graphics4::V ? GL_TEXTURE_WRAP_T : GL_TEXTURE_WRAP_R);
+	void setTextureAddressingInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
+		glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+		GLenum texDir = dir == KINC_G4_TEXTURE_DIRECTION_U ? GL_TEXTURE_WRAP_S : (KINC_G4_TEXTURE_DIRECTION_V ? GL_TEXTURE_WRAP_T : GL_TEXTURE_WRAP_R);
 		switch (addressing) {
-		case Graphics4::Clamp:
+		case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
 			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
 			break;
-		case Graphics4::Repeat:
+		case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
 		default:
 			glTexParameteri(target, texDir, GL_REPEAT);
 			break;
@@ -73,14 +76,14 @@ namespace {
 		glCheckErrors();
 	}
 
-	void setTextureMagnificationFilterInternal(GLenum target, ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
-		glActiveTexture(GL_TEXTURE0 + unit.unit);
+	void setTextureMagnificationFilterInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
+		glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 		switch (filter) {
-		case Graphics4::PointFilter:
+		case KINC_G4_TEXTURE_FILTER_POINT:
 			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			break;
-		case Graphics4::LinearFilter:
-		case Graphics4::AnisotropicFilter:
+		case KINC_G4_TEXTURE_FILTER_LINEAR:
+		case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
 		default:
 			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
@@ -88,39 +91,39 @@ namespace {
 		glCheckErrors();
 	}
 
-	Graphics4::TextureFilter minFilters[32] = {Graphics4::PointFilter};
-	Graphics4::MipmapFilter mipFilters[32] = {Graphics4::NoMipFilter};
+	kinc_g4_texture_filter_t minFilters[32] = {KINC_G4_TEXTURE_FILTER_POINT};
+	kinc_g4_mipmap_filter_t mipFilters[32] = {KINC_G4_MIPMAP_FILTER_NONE};
 
 	void setMinMipFilters(GLenum target, int unit) {
 		glActiveTexture(GL_TEXTURE0 + unit);
 		switch (minFilters[unit]) {
-		case Graphics4::PointFilter:
+		case KINC_G4_TEXTURE_FILTER_POINT:
 			switch (mipFilters[unit]) {
-			case Graphics4::NoMipFilter:
+			case KINC_G4_MIPMAP_FILTER_NONE:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				break;
-			case Graphics4::PointMipFilter:
+			case KINC_G4_MIPMAP_FILTER_POINT:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 				break;
-			case Graphics4::LinearMipFilter:
+			case KINC_G4_MIPMAP_FILTER_LINEAR:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 				break;
 			}
 			break;
-		case Graphics4::LinearFilter:
-		case Graphics4::AnisotropicFilter:
+		case KINC_G4_TEXTURE_FILTER_LINEAR:
+		case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
 			switch (mipFilters[unit]) {
-			case Graphics4::NoMipFilter:
+			case KINC_G4_MIPMAP_FILTER_NONE:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				break;
-			case Graphics4::PointMipFilter:
+			case KINC_G4_MIPMAP_FILTER_POINT:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 				break;
-			case Graphics4::LinearMipFilter:
+			case KINC_G4_MIPMAP_FILTER_LINEAR:
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				break;
 			}
-			if (minFilters[unit] == Graphics4::AnisotropicFilter) {
+			if (minFilters[unit] == KINC_G4_TEXTURE_FILTER_ANISOTROPIC) {
 				float maxAniso = 0.0f;
 				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
 				glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
@@ -132,72 +135,71 @@ namespace {
 #endif
 }
 
-ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length), textureCount(0) {
-	_source = new char[length + 1];
+void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int length) {
+	shader->impl._length = length;
+	shader->impl.textureCount = 0;
+	shader->impl._source = new char[length + 1];
 	for (int i = 0; i < length; ++i) {
-		_source[i] = ((char*)source)[i];
+		shader->impl._source[i] = ((char *)source)[i];
 	}
-	_source[length] = 0;
+	shader->impl._source[length] = 0;
 
 #ifdef HAS_COMPUTE
-	_id = glCreateShader(GL_COMPUTE_SHADER);
+	shader->impl._id = glCreateShader(GL_COMPUTE_SHADER);
 	glCheckErrors();
-	glShaderSource(_id, 1, &_source, nullptr);
-	glCompileShader(_id);
+	glShaderSource(shader->impl._id, 1, &shader->impl._source, nullptr);
+	glCompileShader(shader->impl._id);
 
 	int result;
-	glGetShaderiv(_id, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(shader->impl._id, GL_COMPILE_STATUS, &result);
 	if (result != GL_TRUE) {
 		int length;
-		glGetShaderiv(_id, GL_INFO_LOG_LENGTH, &length);
+		glGetShaderiv(shader->impl._id, GL_INFO_LOG_LENGTH, &length);
 		char* errormessage = new char[length];
-		glGetShaderInfoLog(_id, length, nullptr, errormessage);
-		log(Error, "GLSL compiler error: %s\n", errormessage);
+		glGetShaderInfoLog(shader->impl._id, length, nullptr, errormessage);
+		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL compiler error: %s\n", errormessage);
 		delete[] errormessage;
 	}
 
-	_programid = glCreateProgram();
-	glAttachShader(_programid, _id);
-	glLinkProgram(_programid);
+	shader->impl._programid = glCreateProgram();
+	glAttachShader(shader->impl._programid, shader->impl._id);
+	glLinkProgram(shader->impl._programid);
 
-	glGetProgramiv(_programid, GL_LINK_STATUS, &result);
+	glGetProgramiv(shader->impl._programid, GL_LINK_STATUS, &result);
 	if (result != GL_TRUE) {
 		int length;
-		glGetProgramiv(_programid, GL_INFO_LOG_LENGTH, &length);
+		glGetProgramiv(shader->impl._programid, GL_INFO_LOG_LENGTH, &length);
 		char* errormessage = new char[length];
-		glGetProgramInfoLog(_programid, length, nullptr, errormessage);
-		log(Error, "GLSL linker error: %s\n", errormessage);
+		glGetProgramInfoLog(shader->impl._programid, length, nullptr, errormessage);
+		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL linker error: %s\n", errormessage);
 		delete[] errormessage;
 	}
 #endif
 
 	// TODO: Get rid of allocations
-	textures = new char*[16];
+	shader->impl.textures = new char *[16];
 	for (int i = 0; i < 16; ++i) {
-		textures[i] = new char[128];
-		textures[i][0] = 0;
+		shader->impl.textures[i] = new char[128];
+		shader->impl.textures[i][0] = 0;
 	}
-	textureValues = new int[16];
+	shader->impl.textureValues = new int[16];
 }
 
-ComputeShaderImpl::~ComputeShaderImpl() {
-	delete[] _source;
-	_source = nullptr;
+void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {
+	delete[] shader->impl._source;
+	shader->impl._source = nullptr;
 #ifdef HAS_COMPUTE
-	glDeleteProgram(_programid);
-	glDeleteShader(_id);
+	glDeleteProgram(shader->impl._programid);
+	glDeleteShader(shader->impl._id);
 #endif
 }
-
-ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {}
-
-ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
-	ComputeConstantLocation location;
+kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
+	kinc_compute_constant_location_t location;
 #ifdef HAS_COMPUTE
-	location.location = glGetUniformLocation(_programid, name);
-	location.type = GL_FLOAT;
+	location.impl.location = glGetUniformLocation(shader->impl._programid, name);
+	location.impl.type = GL_FLOAT;
 	GLint count = 0;
-	glGetProgramiv(_programid, GL_ACTIVE_UNIFORMS, &count);
+	glGetProgramiv(shader->impl._programid, GL_ACTIVE_UNIFORMS, &count);
 	char arrayName[1024];
 	strcpy(arrayName, name);
 	strcat(arrayName, "[0]");
@@ -206,236 +208,237 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 		char uniformName[1024];
 		GLsizei length;
 		GLint size;
-		glGetActiveUniform(_programid, i, 1024 - 1, &length, &size, &type, uniformName);
+		glGetActiveUniform(shader->impl._programid, i, 1024 - 1, &length, &size, &type, uniformName);
 		if (strcmp(uniformName, name) == 0 || strcmp(uniformName, arrayName) == 0) {
-			location.type = type;
+			location.impl.type = type;
 			break;
 		}
 	}
 	glCheckErrors();
-	if (location.location < 0) {
-		log(Warning, "Uniform %s not found.", name);
+	if (location.impl.location < 0) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
 	}
 #endif
 	return location;
 }
 
-int ComputeShaderImpl::findTexture(const char* name) {
-	for (int index = 0; index < textureCount; ++index) {
-		if (strcmp(textures[index], name) == 0) return index;
+static int findTexture(kinc_compute_shader_t *shader, const char *name) {
+	for (int index = 0; index < shader->impl.textureCount; ++index) {
+		if (strcmp(shader->impl.textures[index], name) == 0) return index;
 	}
 	return -1;
 }
 
-ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
-	int index = findTexture(name);
+kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_shader_t *shader, const char *name) {
+	int index = findTexture(shader, name);
 	if (index < 0) {
-		int location = glGetUniformLocation(_programid, name);
+		int location = glGetUniformLocation(shader->impl._programid, name);
 		glCheckErrors();
-		index = textureCount;
-		textureValues[index] = location;
-		strcpy(textures[index], name);
-		++textureCount;
+		index = shader->impl.textureCount;
+		shader->impl.textureValues[index] = location;
+		strcpy(shader->impl.textures[index], name);
+		++shader->impl.textureCount;
 	}
-	ComputeTextureUnit unit;
-	unit.unit = index;
+	kinc_compute_texture_unit_t unit;
+	unit.impl.unit = index;
 	return unit;
 }
 
-void Compute::setBool(ComputeConstantLocation location, bool value) {
+void kinc_compute_set_bool(kinc_compute_constant_location_t location, bool value) {
 #ifdef HAS_COMPUTE
-	glUniform1i(location.location, value ? 1 : 0);
+	glUniform1i(location.impl.location, value ? 1 : 0);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setInt(ComputeConstantLocation location, int value) {
+void kinc_compute_set_int(kinc_compute_constant_location_t location, int value) {
 #ifdef HAS_COMPUTE
-	glUniform1i(location.location, value);
+	glUniform1i(location.impl.location, value);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setFloat(ComputeConstantLocation location, float value) {
+void kinc_compute_set_float(kinc_compute_constant_location_t location, float value) {
 #ifdef HAS_COMPUTE
-	glUniform1f(location.location, value);
+	glUniform1f(location.impl.location, value);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setFloat2(ComputeConstantLocation location, float value1, float value2) {
+void kinc_compute_set_float2(kinc_compute_constant_location_t location, float value1, float value2) {
 #ifdef HAS_COMPUTE
-	glUniform2f(location.location, value1, value2);
+	glUniform2f(location.impl.location, value1, value2);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setFloat3(ComputeConstantLocation location, float value1, float value2, float value3) {
+void kinc_compute_set_float3(kinc_compute_constant_location_t location, float value1, float value2, float value3) {
 #ifdef HAS_COMPUTE
-	glUniform3f(location.location, value1, value2, value3);
+	glUniform3f(location.impl.location, value1, value2, value3);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setFloat4(ComputeConstantLocation location, float value1, float value2, float value3, float value4) {
+void kinc_compute_set_float4(kinc_compute_constant_location_t location, float value1, float value2, float value3, float value4) {
 #ifdef HAS_COMPUTE
-	glUniform4f(location.location, value1, value2, value3, value4);
+	glUniform4f(location.impl.location, value1, value2, value3, value4);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {
+void kinc_compute_set_floats(kinc_compute_constant_location_t location, float *values, int count) {
 #ifdef HAS_COMPUTE
-	switch (location.type) {
+	switch (location.impl.type) {
 	case GL_FLOAT_VEC2:
-		glUniform2fv(location.location, count / 2, values);
+		glUniform2fv(location.impl.location, count / 2, values);
 		break;
 	case GL_FLOAT_VEC3:
-		glUniform3fv(location.location, count / 3, values);
+		glUniform3fv(location.impl.location, count / 3, values);
 		break;
 	case GL_FLOAT_VEC4:
-		glUniform4fv(location.location, count / 4, values);
+		glUniform4fv(location.impl.location, count / 4, values);
 		break;
 	case GL_FLOAT_MAT4:
-		glUniformMatrix4fv(location.location, count / 16, false, values);
+		glUniformMatrix4fv(location.impl.location, count / 16, false, values);
 		break;
 	default:
-		glUniform1fv(location.location, count, values);
+		glUniform1fv(location.impl.location, count, values);
 		break;
 	}
 	glCheckErrors();
 #endif
 }
 
-void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {
+void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, kinc_matrix4x4_t *value) {
 #ifdef HAS_COMPUTE
-	glUniformMatrix4fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
+	glUniformMatrix4fv(location.impl.location, 1, GL_FALSE, &value->m[0]);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {
+void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_matrix3x3_t *value) {
 #ifdef HAS_COMPUTE
-	glUniformMatrix3fv(location.location, 1, GL_FALSE, &value.matrix[0][0]);
+	glUniformMatrix3fv(location.impl.location, 1, GL_FALSE, &value->m[0]);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
+void kinc_compute_set_buffer(kinc_shader_storage_buffer_t *buffer, int index) {
 #ifdef HAS_COMPUTE
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->bufferId);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->impl.bufferId);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
+void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture, kinc_compute_access_t access) {
 #ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
-	GLenum glaccess = access == Read ? GL_READ_ONLY : (access == Write ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(unit.unit, texture->kincTexture.impl.texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
+	GLenum glaccess = access == KINC_COMPUTE_ACCESS_READ ? GL_READ_ONLY : (access == KINC_COMPUTE_ACCESS_WRITE ? GL_WRITE_ONLY : GL_READ_WRITE);
+	glBindImageTexture(unit.impl.unit, texture->impl.texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
 	glCheckErrors();
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {
+void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *texture, kinc_compute_access_t access) {
 #ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
-	GLenum glaccess = access == Read ? GL_READ_ONLY : (access == Write ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(unit.unit, target->kincRenderTarget.impl._texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat((Graphics4::RenderTargetFormat)target->kincRenderTarget.impl.format));
+	GLenum glaccess = access == KINC_COMPUTE_ACCESS_READ ? GL_READ_ONLY : (access == KINC_COMPUTE_ACCESS_WRITE ? GL_WRITE_ONLY : GL_READ_WRITE);
+	glBindImageTexture(unit.impl.unit, texture->impl._texture, 0, GL_FALSE, 0, glaccess,
+	                   convertInternalFormat((kinc_g4_render_target_format_t)texture->impl.format));
 	glCheckErrors();
 #endif
 }
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
+void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture) {
 #ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
-	GLenum gltarget = texture->depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
-	glBindTexture(gltarget, texture->kincTexture.impl.texture);
+	GLenum gltarget = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	glBindTexture(gltarget, texture->impl.texture);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {
 #ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
-	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->kincRenderTarget.impl._texture);
+	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->impl._texture);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {
 #ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
-	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->kincRenderTarget.impl._depthTexture);
+	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->impl._depthTexture);
 	glCheckErrors();
 #endif
 }
 
-void Compute::setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 #ifdef HAS_COMPUTE
 	setTextureAddressingInternal(GL_TEXTURE_2D, unit, dir, addressing);
 #endif
 }
 
-void Compute::setTexture3DAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {
+void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 #ifdef HAS_COMPUTE
 	setTextureAddressingInternal(GL_TEXTURE_3D, unit, dir, addressing);
 #endif
 }
 
-void Compute::setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+void kinc_compute_set_texture_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
 #ifdef HAS_COMPUTE
 	setTextureMagnificationFilterInternal(GL_TEXTURE_2D, unit, filter);
 #endif
 }
 
-void Compute::setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
 #ifdef HAS_COMPUTE
 	setTextureMagnificationFilterInternal(GL_TEXTURE_3D, unit, filter);
 #endif
 }
 
-void Compute::setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
 #ifdef HAS_COMPUTE
-	minFilters[unit.unit] = filter;
-	setMinMipFilters(GL_TEXTURE_2D, unit.unit);
+	minFilters[unit.impl.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_2D, unit.impl.unit);
 #endif
 }
 
-void Compute::setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {
+void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
 #ifdef HAS_COMPUTE
-	minFilters[unit.unit] = filter;
-	setMinMipFilters(GL_TEXTURE_3D, unit.unit);
+	minFilters[unit.impl.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_3D, unit.impl.unit);
 #endif
 }
 
-void Compute::setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {
+void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {
 #ifdef HAS_COMPUTE
-	mipFilters[unit.unit] = filter;
-	setMinMipFilters(GL_TEXTURE_2D, unit.unit);
+	mipFilters[unit.impl.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_2D, unit.impl.unit);
 #endif
 }
 
-void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {
+ void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {
 #ifdef HAS_COMPUTE
-	mipFilters[unit.unit] = filter;
-	setMinMipFilters(GL_TEXTURE_3D, unit.unit);
+	 mipFilters[unit.impl.unit] = filter;
+	setMinMipFilters(GL_TEXTURE_3D, unit.impl.unit);
 #endif
 }
 
-void Compute::setShader(ComputeShader* shader) {
+ void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
 #ifdef HAS_COMPUTE
-	glUseProgram(shader->_programid);
+	glUseProgram(shader->impl._programid);
 	glCheckErrors();
 #endif
 }
 
-void Compute::compute(int x, int y, int z) {
+ void kinc_compute(int x, int y, int z) {
 #ifdef HAS_COMPUTE
 	glDispatchCompute(x, y, z);
 	glCheckErrors();

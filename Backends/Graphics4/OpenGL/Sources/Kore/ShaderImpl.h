@@ -12,16 +12,16 @@ typedef struct {
 	const char *source;
 	size_t length;
 	bool fromSource;
-} Kinc_G4_ShaderImpl;
+} kinc_g4_shader_impl_t;
 
 typedef struct {
 	int location;
 	unsigned type;
-} Kinc_G4_ConstantLocationImpl;
+} kinc_g4_constant_location_impl_t;
 
 typedef struct {
 	int unit;
-} Kinc_G4_TextureUnitImpl;
+} kinc_g4_texture_unit_impl_t;
 
 #ifdef __cplusplus
 }

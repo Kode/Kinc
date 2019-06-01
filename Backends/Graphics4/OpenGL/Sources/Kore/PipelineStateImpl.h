@@ -9,7 +9,7 @@ typedef struct {
 	char **textures;
 	int *textureValues;
 	int textureCount;
-} Kinc_G4_PipelineStateImpl;
+} kinc_g4_pipeline_impl_t;
 
 #ifdef __cplusplus
 }

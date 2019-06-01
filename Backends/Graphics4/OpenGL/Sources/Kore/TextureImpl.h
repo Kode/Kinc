@@ -12,7 +12,7 @@ typedef struct {
 	bool external_oes;
 #endif
 	uint8_t pixfmt;
-} Kinc_G4_TextureImpl;
+} kinc_g4_texture_impl_t;
 
 #ifdef __cplusplus
 }

@@ -52,7 +52,7 @@ void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
 	glCheckErrors();
 }
 
-void Kinc_Internal_G4_IndexBuffer_Set(kinc_g4_index_buffer_t *buffer) {
+void kinc_internal_g4_index_buffer_set(kinc_g4_index_buffer_t *buffer) {
 	Kinc_Internal_CurrentIndexBuffer = buffer;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();

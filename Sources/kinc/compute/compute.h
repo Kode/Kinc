@@ -9,6 +9,7 @@ extern "C" {
 #include <Kore/ShaderStorageBufferImpl.h>
 #endif
 #include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/vertexstructure.h>
 #include <kinc/math/matrix.h>
 
 struct kinc_g4_texture;
@@ -34,10 +35,10 @@ kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_sh
 
 #ifdef KORE_OPENGL
 typedef struct kinc_shader_storage_buffer {
-	ShaderStorageBufferImpl impl;
+	kinc_compute_shader_storage_buffer_impl_t impl;
 } kinc_shader_storage_buffer_t;
 
-void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int count, Graphics4::VertexData type);
+void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int count, kinc_g4_vertex_data_t type);
 void kinc_shader_storage_buffer_destroy(kinc_shader_storage_buffer_t *buffer);
 int *kinc_shader_storage_buffer_lock(kinc_shader_storage_buffer_t *buffer);
 void kinc_shader_storage_buffer_unlock(kinc_shader_storage_buffer_t *buffer);
@@ -57,7 +58,7 @@ void kinc_compute_set_floats(kinc_compute_constant_location_t location, float *v
 void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, kinc_matrix4x4_t *value);
 void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_matrix3x3_t *value);
 #ifdef KORE_OPENGL
-void kinc_compute_set_buffer(ShaderStorageBuffer *buffer, int index);
+void kinc_compute_set_buffer(kinc_shader_storage_buffer_t *buffer, int index);
 #endif
 void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture, kinc_compute_access_t access);
 void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *texture, kinc_compute_access_t access);

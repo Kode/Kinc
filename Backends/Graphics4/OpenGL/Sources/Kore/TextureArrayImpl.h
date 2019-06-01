@@ -6,7 +6,7 @@ extern "C" {
 
 typedef struct {
 	unsigned texture;
-} Kinc_G4_TextureArrayImpl;
+} kinc_g4_texture_array_impl_t;
 
 #ifdef __cplusplus
 }

@@ -118,11 +118,11 @@ void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 
 int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int offset);
 
-int Kinc_Internal_G4_VertexBuffer_Set(kinc_g4_vertex_buffer_t *buffer, int offset) {
+int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	assert(buffer->impl.initialized); // Vertex Buffer is used before lock/unlock was called
 	int offsetoffset = Kinc_G4_Internal_SetVertexAttributes(buffer, offset);
 	if (Kinc_Internal_CurrentIndexBuffer != NULL) {
-		Kinc_Internal_G4_IndexBuffer_Set(Kinc_Internal_CurrentIndexBuffer);
+		kinc_internal_g4_index_buffer_set(Kinc_Internal_CurrentIndexBuffer);
 	}
 	return offsetoffset;
 }
