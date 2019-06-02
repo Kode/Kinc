@@ -132,7 +132,7 @@ inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
 
 #else
 
-#include <Kore/Math/Core.h>
+#include <kinc/math/core.h>
 
 typedef struct {
 	float values[4];
@@ -162,10 +162,10 @@ inline float kinc_float32x4_get(kinc_float32x4_t t, int index) {
 
 inline kinc_float32x4_t kinc_float32x4_abs(kinc_float32x4_t t) {
 	kinc_float32x4_t value;
-	value.values[0] = Kore::abs(t.values[0]);
-	value.values[1] = Kore::abs(t.values[1]);
-	value.values[2] = Kore::abs(t.values[2]);
-	value.values[3] = Kore::abs(t.values[3]);
+	value.values[0] = kinc_abs(t.values[0]);
+	value.values[1] = kinc_abs(t.values[1]);
+	value.values[2] = kinc_abs(t.values[2]);
+	value.values[3] = kinc_abs(t.values[3]);
 	return value;
 }
 
@@ -234,10 +234,10 @@ inline kinc_float32x4_t kinc_float32x4_sub(kinc_float32x4_t a, kinc_float32x4_t 
 
 inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
 	kinc_float32x4_t value;
-	value.values[0] = Kore::sqrt(t.values[0]);
-	value.values[1] = Kore::sqrt(t.values[1]);
-	value.values[2] = Kore::sqrt(t.values[2]);
-	value.values[3] = Kore::sqrt(t.values[3]);
+	value.values[0] = kinc_sqrt(t.values[0]);
+	value.values[1] = kinc_sqrt(t.values[1]);
+	value.values[2] = kinc_sqrt(t.values[2]);
+	value.values[3] = kinc_sqrt(t.values[3]);
 	return value;
 }
 

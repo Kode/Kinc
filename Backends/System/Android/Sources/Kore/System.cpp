@@ -463,7 +463,10 @@ jclass KoreAndroid::findClass(JNIEnv* env, const char* name) {
 	return clazz;
 }
 
-/*void Kore::System::showKeyboard() {
+static bool keyboard_active = false;
+
+void kinc_keyboard_show() {
+	keyboard_active = true;
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
@@ -471,13 +474,18 @@ jclass KoreAndroid::findClass(JNIEnv* env, const char* name) {
 	activity->vm->DetachCurrentThread();
 }
 
-void Kore::System::hideKeyboard() {
+void kinc_keyboard_hide() {
+	keyboard_active = false;
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "hideKeyboard", "()V"));
 	activity->vm->DetachCurrentThread();
-}*/
+}
+
+bool kinc_keyboard_active() {
+	return keyboard_active;
+}
 
 void kinc_load_url(const char *url) {
 	JNIEnv* env;
