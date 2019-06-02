@@ -917,15 +917,19 @@ void swapLinuxBuffers(int window) {
 
 void kinc_set_keep_screen_on(bool on) {}
 
-void kinc_show_keyboard() {}
+void kinc_keyboard_show() {}
 
-void kinc_hide_keyboard() {}
+void kinc_keyboard_hide() {}
+
+bool kinc_keyboard_active() {
+	return true;
+}
 
 void kinc_load_url(const char* url) {}
 
-void kinc_system_vibrate(int ms) {}
+void kinc_vibrate(int ms) {}
 
-const char* kinc_system_language() {
+const char* kinc_language() {
 	return "en";
 }
 
