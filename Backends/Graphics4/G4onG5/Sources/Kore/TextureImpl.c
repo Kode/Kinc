@@ -2,18 +2,19 @@
 
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/texture.h>
+#include <kinc/graphics5/texture.h>
 #include <kinc/io/filereader.h>
 
 #include "TextureImpl.h"
 
-void kinc_g4_texture_init_from_file(kinc_g4_texture_t *texture, const char *filename) {
-	kinc_g5_texture_init_from_file(&texture->impl._texture, filename, false);
+void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *image) {
+	kinc_g5_texture_init_from_image(&texture->impl._texture, image);
 	texture->tex_width = texture->impl._texture.texWidth;
 	texture->tex_height = texture->impl._texture.texHeight;
 }
 
 void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
-	kinc_g5_texture_init(&texture->impl._texture, width, height, format, false);
+	kinc_g5_texture_init(&texture->impl._texture, width, height, format);
 	texture->tex_width = texture->impl._texture.texWidth;
 	texture->tex_height = texture->impl._texture.texHeight;
 }

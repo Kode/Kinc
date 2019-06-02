@@ -61,9 +61,11 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 #define MAX_SHADER_THING 32
 
 static ShaderConstant findConstant(kinc_g5_shader_t *shader, const char *name) {
-	for (int i = 0; i < MAX_SHADER_THING; ++i) {
-		if (strcmp(shader->impl.constants[i].name, name) == 0) {
-			return shader->impl.constants[i];
+	if (shader != NULL) {
+		for (int i = 0; i < MAX_SHADER_THING; ++i) {
+			if (strcmp(shader->impl.constants[i].name, name) == 0) {
+				return shader->impl.constants[i];
+			}
 		}
 	}
 

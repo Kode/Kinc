@@ -33,11 +33,11 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 	}
 }
 
-/*static void init_texture(kinc_g5_texture *texture, const char* format, bool readable) {
+void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {
 	texture->impl.stage = 0;
 	texture->impl.mipmap = true;
-	texture->texWidth = texture->image.width;
-	texture->texHeight = texture->image.height;
+	texture->texWidth = image->width;
+	texture->texHeight = image->height;
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	                                &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, texture->texWidth, texture->texHeight, 1, 1),
@@ -47,11 +47,11 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 
-	BYTE* pixel;
+	BYTE *pixel;
 	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
 	int pitch = kinc_g5_texture_stride(texture);
 	for (int y = 0; y < texture->texHeight; ++y) {
-		memcpy(&pixel[y * pitch], &texture->image.data[y * texture->texWidth * 4], texture->texWidth * 4);
+		memcpy(&pixel[y * pitch], &((uint8_t*)image->data)[y * texture->texWidth * 4], texture->texWidth * 4);
 	}
 	texture->impl.uploadImage->Unmap(0, nullptr);
 
@@ -73,19 +73,9 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
 	device->CreateShaderResourceView(texture->impl.image, &shaderResourceViewDesc, texture->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-	if (!readable) {
-		delete[] texture->image.data;
-		texture->image.data = nullptr;
-	}
-}*/
-
-void kinc_g5_texture_init_from_file(kinc_g5_texture_t *texture, const char *filename, bool readable) {
-	//kinc_image_init_from_file(&texture->image, filename, readable);
-	//init_texture(texture, filename, readable);
 }
 
-void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format, bool readable) {
+void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format) {
 	//kinc_image_init(&texture->image, width, height, format, readable);
 	texture->impl.stage = 0;
 	texture->impl.mipmap = true;
