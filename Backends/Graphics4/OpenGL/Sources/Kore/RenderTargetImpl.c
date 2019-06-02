@@ -7,9 +7,6 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
-#ifdef KORE_ANDROID
-#include <GLContext.h>
-#endif
 
 #ifndef GL_RGBA16F_EXT
 #define GL_RGBA16F_EXT 0x881A
@@ -47,20 +44,17 @@ static int getPower2(int i) {
 		if (pow(power) >= i) return pow(power);
 }
 
-static bool nonPow2RenderTargetsSupported() {
+bool kinc_opengl_internal_nonPow2RenderTargetsSupported();
+
+#ifndef KORE_ANDROID
+bool kinc_opengl_internal_nonPow2RenderTargetsSupported() {
 #ifdef KORE_OPENGL_ES
-#ifdef KORE_ANDROID
-	if (ndk_helper::GLContext::GetInstance()->GetGLVersion() >= 3.0)
-		return true;
-	else
-		return false;
-#else
 	return true;
-#endif
 #else
 	return true;
 #endif
 }
+#endif
 
 static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
@@ -105,8 +99,8 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
 		glCheckErrors();
 #ifdef KORE_OPENGL_ES
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, _depthTexture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, texType, _depthTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
 #else
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
 #endif
@@ -152,7 +146,7 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 
 	renderTarget->impl._hasDepth = false;
 
-	if (nonPow2RenderTargetsSupported()) {
+	if (kinc_opengl_internal_nonPow2RenderTargetsSupported()) {
 		renderTarget->texWidth = width;
 		renderTarget->texHeight = height;
 	}
@@ -181,14 +175,14 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 	switch (format) {
 	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
 #ifdef KORE_OPENGL_ES
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #endif
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
 #ifdef KORE_OPENGL_ES
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #endif
@@ -251,7 +245,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 
 	renderTarget->impl._hasDepth = false;
 
-	if (nonPow2RenderTargetsSupported()) {
+	if (kinc_opengl_internal_nonPow2RenderTargetsSupported()) {
 		renderTarget->texWidth = renderTarget->width;
 		renderTarget->texHeight = renderTarget->height;
 	}
@@ -280,7 +274,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 	switch (format) {
 	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
 #ifdef KORE_OPENGL_ES
-		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
+		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #else
 		for (int i = 0; i < 6; i++)
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
@@ -288,7 +282,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
 #ifdef KORE_OPENGL_ES
-		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
+		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
 		for (int i = 0; i < 6; i++)
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);

@@ -1,12 +1,11 @@
 #include "pch.h"
 
-#include <Kore/Display.h>
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Window.h>
+#include <kinc/display.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/window.h>
+#include <kinc/bridge.h>
 
-using namespace Kore;
-
-namespace {
+/*namespace {
 	Window window;
 }
 
@@ -15,84 +14,80 @@ Window* Window::get(int window) {
 		return nullptr;
 	}
 	return &::window;
-}
+}*/
 
-int Window::count() {
+int kinc_count_windows(void) {
 	return 1;
 }
 
-int Window::x() {
+int kinc_window_x(int window_index) {
 	return 0;
 }
 
-int Window::y() {
+int kinc_window_y(int window_index) {
 	return 0;
 }
 
 int glWidth();
 
-int Window::width() {
+int kinc_window_width(int window_index) {
 	return glWidth();
 }
 
 int glHeight();
 
-int Window::height() {
+int kinc_window_height(int window_index) {
 	return glHeight();
 }
 
-void Window::resize(int width, int height) {
+void kinc_window_resize(int window_index, int width, int height) {
 	
 }
 
-void Window::move(int x, int y) {
+void kinc_window_move(int window_index, int x, int y) {
 	
 }
 
-void Window::changeFramebuffer(FramebufferOptions* frame) {
-	Graphics4::_changeFramebuffer(0, frame);
+void kinc_window_change_framebuffer(int window_index, kinc_framebuffer_options_t *frame) {
+	kinc_bridge_g4_internal_change_framebuffer(0, frame);
 }
 
-void Window::changeWindowFeatures(int features) {
+void kinc_window_change_features(int window_index, int features) {
 	
 }
 
-void Window::changeWindowMode(WindowMode mode) {
+void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 	
 }
 
-void Window::destroy(Window* window) {
+void kinc_window_destroy(int window_index) {
 	
 }
 
-void Window::show() {
+void kinc_window_show(int window_index) {
 	
 }
 
-void Window::hide() {
+void kinc_window_hide(int window_index) {
 	
 }
 
-void Window::setTitle(const char* title) {
+void kinc_window_set_title(int window_index, const char *title) {
 	
 }
 
-Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame) {
-	return nullptr;
+int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	return 0;
 }
 
-WindowData::WindowData() {}
+void kinc_window_set_resize_callback(int window_index, void (*callback)(int x, int y, void *data), void *data) {
 
-Window::Window() {}
-
-void Window::setResizeCallback(void (*value)(int x, int y, void* data), void* data) {
-	
 }
 
-void Window::setPpiChangedCallback(void(*callback)(int ppi, void* data), void* data) {
-	
+void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data) {
+
 }
 
-WindowMode Window::mode() {
-	return WindowModeFullscreen;
+kinc_window_mode_t kinc_window_get_mode(int window_index) {
+	return KINC_WINDOW_MODE_FULLSCREEN;
 }

@@ -225,7 +225,7 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 	}
 
 	#ifdef KORE_OPENGL_ES
-	glColorMask(pipeline->colorWriteMaskRed[0], pipeline->colorWriteMaskGreen[0], pipeline->colorWriteMaskBlue[0], pipeline->colorWriteMaskAlpha[0]);
+	glColorMask(pipeline->color_write_mask_red[0], pipeline->color_write_mask_green[0], pipeline->color_write_mask_blue[0], pipeline->color_write_mask_alpha[0]);
 	#else
 	for (int i = 0; i < 8; ++i) glColorMaski(i, pipeline->color_write_mask_red[i], pipeline->color_write_mask_green[i], pipeline->color_write_mask_blue[i], pipeline->color_write_mask_alpha[i]);
 	#endif

@@ -3,14 +3,14 @@
 #include <EGL/egl.h>
 #include <GLContext.h>
 #include <Kore/Android.h>
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Input/Gamepad.h>
-#include <Kore/Input/Keyboard.h>
-#include <Kore/Input/Mouse.h>
-#include <Kore/Input/Sensor.h>
-#include <Kore/Input/Surface.h>
-#include <Kore/Log.h>
-#include <Kore/System.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/input/keyboard.h>
+#include <kinc/input/gamepad.h>
+#include <kinc/input/mouse.h>
+//#include <kinc/input/sensor.h>
+#include <kinc/input/surface.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
 #include <android/sensor.h>
 #include <android/window.h>
 #include <android_native_app_glue.h>
@@ -45,14 +45,14 @@ namespace {
 
 void androidSwapBuffers() {
     if (glContext->Swap() != EGL_SUCCESS) {
-        Kore::log(Kore::Warning, "GL context lost.");
+        kinc_log(KINC_LOG_LEVEL_WARNING, "GL context lost.");
     }
 }
 
 namespace {
 	void initDisplay() {
 		if (glContext->Resume(app->window) != EGL_SUCCESS) {
-			Kore::log(Kore::Warning, "GL context lost.");
+			kinc_log(KINC_LOG_LEVEL_WARNING, "GL context lost.");
 		}
 	}
 
@@ -67,10 +67,10 @@ namespace {
 		bool newStatus = displayIsInitialized && appIsForeground;
 		if (oldStatus != newStatus) {
 			if (newStatus) {
-				Kore::System::_foregroundCallback();
+				kinc_internal_foreground_callback();
 			}
 			else {
-				Kore::System::_backgroundCallback();
+				kinc_internal_background_callback();
 			}
 		}
 	}
@@ -86,9 +86,9 @@ namespace {
 			case AMOTION_EVENT_ACTION_DOWN:
 			case AMOTION_EVENT_ACTION_POINTER_DOWN:
 				if (id == 0) {
-					Kore::Mouse::the()->_press(0, 0, x, y);
+					kinc_internal_mouse_trigger_press(0, 0, x, y);
 				}
-				Kore::Surface::the()->_touchStart(id, x, y);
+				kinc_internal_surface_trigger_touch_start(id, x, y);
 				// __android_log_print(ANDROID_LOG_INFO, "GAME", "#DOWN %d %d %d %f %f", action, index, id, x, y);
 				break;
 			case AMOTION_EVENT_ACTION_MOVE: {
@@ -98,9 +98,9 @@ namespace {
 					x = AMotionEvent_getX(event, i);
 					y = AMotionEvent_getY(event, i);
 					if (id == 0) {
-						Kore::Mouse::the()->_move(0, x, y);
+						kinc_internal_mouse_trigger_move(0, x, y);
 					}
-					Kore::Surface::the()->_move(id, x, y);
+					kinc_internal_surface_trigger_move(id, x, y);
 					// __android_log_print(ANDROID_LOG_INFO, "GAME", "#MOVE %d %d %d %f %f", action, index, id, x, y);
 				}
 			} break;
@@ -108,9 +108,9 @@ namespace {
 			case AMOTION_EVENT_ACTION_CANCEL:
 			case AMOTION_EVENT_ACTION_POINTER_UP:
 				if (id == 0) {
-					Kore::Mouse::the()->_release(0, 0, x, y);
+					kinc_internal_mouse_trigger_release(0, 0, x, y);
 				}
-				Kore::Surface::the()->_touchEnd(id, x, y);
+				kinc_internal_surface_trigger_touch_end(id, x, y);
 				// __android_log_print(ANDROID_LOG_INFO, "GAME", "#UP %d %d %d %f %f", action, index, id, x, y);
 				break;
 			}
@@ -124,128 +124,128 @@ namespace {
 				case AKEYCODE_SHIFT_LEFT:
 				case AKEYCODE_SHIFT_RIGHT:
 					shift = true;
-					Kore::Keyboard::the()->_keydown(Kore::KeyShift);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_SHIFT);
 					return 1;
 				case AKEYCODE_DEL:
-					Kore::Keyboard::the()->_keydown(Kore::KeyBackspace);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACKSPACE);
 					return 1;
 				case AKEYCODE_ENTER:
 				case AKEYCODE_NUMPAD_ENTER:
-					Kore::Keyboard::the()->_keydown(Kore::KeyReturn);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_RETURN);
 					return 1;
 				case AKEYCODE_DPAD_LEFT:
-					Kore::Gamepad::get(0)->_axis(0, -1);
+					kinc_gamepad_axis_callback(0, 0, -1);
 					return 1;
 				case AKEYCODE_DPAD_RIGHT:
-					Kore::Gamepad::get(0)->_axis(0, 1);
+					kinc_gamepad_axis_callback(0, 0, 1);
 					return 1;
 				case AKEYCODE_DPAD_UP:
-					Kore::Gamepad::get(0)->_axis(1, -1);
+					kinc_gamepad_axis_callback(0, 1, -1);
 					return 1;
 				case AKEYCODE_DPAD_DOWN:
-					Kore::Gamepad::get(0)->_axis(1, 1);
+					kinc_gamepad_axis_callback(0, 1, 1);
 					return 1;
 				case AKEYCODE_DPAD_CENTER:
 				case AKEYCODE_BUTTON_B:
-					Kore::Gamepad::get(0)->_button(0, 1);
+					kinc_gamepad_button_callback(0, 0, 1);
 					return 1;
 				case AKEYCODE_BACK:
 					if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
-						Kore::Gamepad::get(0)->_button(1, 1);
+						kinc_gamepad_button_callback(0, 1, 1);
 						return 1;
 					}
 					else {
-						Kore::Keyboard::the()->_keydown(Kore::KeyBack);
+						kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK);
 						return 1;
 					}
 				case AKEYCODE_BUTTON_A:
-					Kore::Gamepad::get(0)->_button(1, 1);
+					kinc_gamepad_button_callback(0, 1, 1);
 					return 1;
 				case AKEYCODE_BUTTON_X:
-					Kore::Gamepad::get(0)->_button(2, 1);
+					kinc_gamepad_button_callback(0, 2, 1);
 					return 1;
 				case AKEYCODE_BUTTON_Y:
-					Kore::Gamepad::get(0)->_button(3, 1);
+					kinc_gamepad_button_callback(0, 3, 1);
 					return 1;
 				case AKEYCODE_STAR:
 				case AKEYCODE_NUMPAD_MULTIPLY:
-					Kore::Keyboard::the()->_keydown(Kore::KeyMultiply);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_MULTIPLY);
 					return 1;
 				// case AKEYCODE_POUND:
 				//	Kore::Keyboard::the()->_keydown((Kore::KeyCode)'&', '&');
 				//	return 1;
 				case AKEYCODE_COMMA:
 				case AKEYCODE_NUMPAD_COMMA:
-					Kore::Keyboard::the()->_keydown(Kore::KeyComma);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_COMMA);
 					return 1;
 				case AKEYCODE_PERIOD:
 				case AKEYCODE_NUMPAD_DOT:
-					Kore::Keyboard::the()->_keydown(Kore::KeyPeriod);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_PERIOD);
 					return 1;
 				case AKEYCODE_SPACE:
-					Kore::Keyboard::the()->_keydown(Kore::KeySpace);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_SPACE);
 					return 1;
 				case AKEYCODE_MINUS:
 				case AKEYCODE_NUMPAD_SUBTRACT:
-					Kore::Keyboard::the()->_keydown(Kore::KeyHyphenMinus);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_HYPHEN_MINUS);
 					return 1;
 				case AKEYCODE_EQUALS:
 				case AKEYCODE_NUMPAD_EQUALS:
-					Kore::Keyboard::the()->_keydown(Kore::KeyEquals);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_EQUALS);
 					return 1;
 				case AKEYCODE_LEFT_BRACKET:
 				case AKEYCODE_NUMPAD_LEFT_PAREN:
-					Kore::Keyboard::the()->_keydown(Kore::KeyOpenBracket);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_OPEN_BRACKET);
 					return 1;
 				case AKEYCODE_RIGHT_BRACKET:
 				case AKEYCODE_NUMPAD_RIGHT_PAREN:
-					Kore::Keyboard::the()->_keydown(Kore::KeyCloseBracket);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_CLOSE_BRACKET);
 					return 1;
 				case AKEYCODE_BACKSLASH:
-					Kore::Keyboard::the()->_keydown(Kore::KeyBackSlash);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_SLASH);
 					return 1;
 				case AKEYCODE_SEMICOLON:
-					Kore::Keyboard::the()->_keydown(Kore::KeySemicolon);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_SEMICOLON);
 					return 1;
 				// case AKEYCODE_APOSTROPHE:
 				//	return 1;
 				case AKEYCODE_SLASH:
 				case AKEYCODE_NUMPAD_DIVIDE:
-					Kore::Keyboard::the()->_keydown(Kore::KeySlash);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_SLASH);
 					return 1;
 				case AKEYCODE_AT:
-					Kore::Keyboard::the()->_keydown(Kore::KeyAt);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_AT);
 					return 1;
 				case AKEYCODE_PLUS:
 				case AKEYCODE_NUMPAD_ADD:
-					Kore::Keyboard::the()->_keydown(Kore::KeyPlus);
+					kinc_internal_keyboard_trigger_key_down(KINC_KEY_PLUS);
 					return 1;
 				// (DK) Amazon FireTV remote/controller mappings
 				// (DK) TODO handle multiple pads (up to 4 possible)
 				case AKEYCODE_MENU:
-					Kore::Gamepad::get(0)->_button(9, 1);
+					kinc_internal_gamepad_trigger_button(0, 9, 1);
 					return 1;
 				case AKEYCODE_MEDIA_REWIND:
-					Kore::Gamepad::get(0)->_button(10, 1);
+					kinc_internal_gamepad_trigger_button(0, 10, 1);
 					return 1;
 				case AKEYCODE_MEDIA_FAST_FORWARD:
-					Kore::Gamepad::get(0)->_button(11, 1);
+					kinc_internal_gamepad_trigger_button(0, 11, 1);
 					return 1;
 				case AKEYCODE_MEDIA_PLAY_PAUSE:
-					Kore::Gamepad::get(0)->_button(12, 1);
+					kinc_internal_gamepad_trigger_button(0, 12, 1);
 					return 1;
 				// (DK) /Amazon FireTV remote/controller mappings
 				default:
 					if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
-						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + Kore::KeyNumpad0 - AKEYCODE_NUMPAD_0));
+						kinc_internal_keyboard_trigger_key_down(code + KINC_KEY_NUMPAD_0 - AKEYCODE_NUMPAD_0);
 						return 1;
 					}
 					else if (code >= AKEYCODE_0 && code <= AKEYCODE_9) {
-						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + Kore::Key0 - AKEYCODE_0));
+						kinc_internal_keyboard_trigger_key_down(code + KINC_KEY_0 - AKEYCODE_0);
 						return 1;
 					}
 					else if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
-						Kore::Keyboard::the()->_keydown((Kore::KeyCode)(code + Kore::KeyA - AKEYCODE_A));
+						kinc_internal_keyboard_trigger_key_down(code + KINC_KEY_A - AKEYCODE_A);
 						return 1;
 					}
 				}
@@ -255,128 +255,128 @@ namespace {
 				case AKEYCODE_SHIFT_LEFT:
 				case AKEYCODE_SHIFT_RIGHT:
 					shift = false;
-					Kore::Keyboard::the()->_keyup(Kore::KeyShift);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_SHIFT);
 					return 1;
 				case AKEYCODE_DEL:
-					Kore::Keyboard::the()->_keyup(Kore::KeyBackspace);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_BACKSPACE);
 					return 1;
 				case AKEYCODE_ENTER:
-					Kore::Keyboard::the()->_keyup(Kore::KeyReturn);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_RETURN);
 					return 1;
 				case AKEYCODE_DPAD_LEFT:
-					Kore::Gamepad::get(0)->_axis(0, 0);
+					kinc_internal_gamepad_trigger_axis(0, 0, 0);
 					return 1;
 				case AKEYCODE_DPAD_RIGHT:
-					Kore::Gamepad::get(0)->_axis(0, 0);
+					kinc_internal_gamepad_trigger_axis(0, 0, 0);
 					return 1;
 				case AKEYCODE_DPAD_UP:
-					Kore::Gamepad::get(0)->_axis(1, 0);
+					kinc_internal_gamepad_trigger_axis(0, 1, 0);
 					return 1;
 				case AKEYCODE_DPAD_DOWN:
-					Kore::Gamepad::get(0)->_axis(1, 0);
+					kinc_internal_gamepad_trigger_axis(0, 1, 0);
 					return 1;
 				case AKEYCODE_DPAD_CENTER:
 				case AKEYCODE_BUTTON_B:
-					Kore::Gamepad::get(0)->_button(0, 0);
+					kinc_internal_gamepad_trigger_button(0, 0, 0);
 					return 1;
 				case AKEYCODE_BACK:
 					if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
-						Kore::Gamepad::get(0)->_button(1, 0);
+						kinc_internal_gamepad_trigger_button(0, 1, 0);
 						return 1;
 					}
 					else {
-						Kore::Keyboard::the()->_keyup(Kore::KeyBack);
+						kinc_internal_keyboard_trigger_key_up(KINC_KEY_BACK);
 						return 1;
 					}
 				case AKEYCODE_BUTTON_A:
-					Kore::Gamepad::get(0)->_button(1, 0);
+					kinc_internal_gamepad_trigger_button(0, 1, 0);
 					return 1;
 				case AKEYCODE_BUTTON_X:
-					Kore::Gamepad::get(0)->_button(2, 0);
+					kinc_internal_gamepad_trigger_button(0, 2, 0);
 					return 1;
 				case AKEYCODE_BUTTON_Y:
-					Kore::Gamepad::get(0)->_button(3, 0);
+					kinc_internal_gamepad_trigger_button(0, 3, 0);
 					return 1;
 				case AKEYCODE_STAR:
 				case AKEYCODE_NUMPAD_MULTIPLY:
-					Kore::Keyboard::the()->_keyup(Kore::KeyMultiply);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_MULTIPLY);
 					return 1;
 				// case AKEYCODE_POUND:
 				//	Kore::Keyboard::the()->_keyup((Kore::KeyCode)'&', '&');
 				//	return 1;
 				case AKEYCODE_COMMA:
 				case AKEYCODE_NUMPAD_COMMA:
-					Kore::Keyboard::the()->_keyup(Kore::KeyComma);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_COMMA);
 					return 1;
 				case AKEYCODE_PERIOD:
 				case AKEYCODE_NUMPAD_DOT:
-					Kore::Keyboard::the()->_keyup(Kore::KeyPeriod);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_PERIOD);
 					return 1;
 				case AKEYCODE_SPACE:
-					Kore::Keyboard::the()->_keyup(Kore::KeySpace);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_SPACE);
 					return 1;
 				case AKEYCODE_MINUS:
 				case AKEYCODE_NUMPAD_SUBTRACT:
-					Kore::Keyboard::the()->_keyup(Kore::KeyHyphenMinus);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_HYPHEN_MINUS);
 					return 1;
 				case AKEYCODE_EQUALS:
 				case AKEYCODE_NUMPAD_EQUALS:
-					Kore::Keyboard::the()->_keyup(Kore::KeyEquals);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_EQUALS);
 					return 1;
 				case AKEYCODE_LEFT_BRACKET:
 				case AKEYCODE_NUMPAD_LEFT_PAREN:
-					Kore::Keyboard::the()->_keyup(Kore::KeyOpenBracket);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_OPEN_BRACKET);
 					return 1;
 				case AKEYCODE_RIGHT_BRACKET:
 				case AKEYCODE_NUMPAD_RIGHT_PAREN:
-					Kore::Keyboard::the()->_keyup(Kore::KeyCloseBracket);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_CLOSE_BRACKET);
 					return 1;
 				case AKEYCODE_BACKSLASH:
-					Kore::Keyboard::the()->_keyup(Kore::KeyBackSlash);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_BACK_SLASH);
 					return 1;
 				case AKEYCODE_SEMICOLON:
-					Kore::Keyboard::the()->_keyup(Kore::KeySemicolon);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_SEMICOLON);
 					return 1;
 				// case AKEYCODE_APOSTROPHE:
 				//	Kore::Keyboard::the()->_keyup((Kore::KeyCode)'\'', '\'');
 				//	return 1;
 				case AKEYCODE_SLASH:
 				case AKEYCODE_NUMPAD_DIVIDE:
-					Kore::Keyboard::the()->_keyup(Kore::KeySlash);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_SLASH);
 					return 1;
 				case AKEYCODE_AT:
-					Kore::Keyboard::the()->_keyup(Kore::KeyAt);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_AT);
 					return 1;
 				case AKEYCODE_PLUS:
 				case AKEYCODE_NUMPAD_ADD:
-					Kore::Keyboard::the()->_keyup(Kore::KeyPlus);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_PLUS);
 					return 1;
 				// (DK) Amazon FireTV remote/controller mappings
 				// (DK) TODO handle multiple pads (up to 4 possible)
 				case AKEYCODE_MENU:
-					Kore::Gamepad::get(0)->_button(9, 0);
+					kinc_internal_gamepad_trigger_button(0, 9, 0);
 					return 1;
 				case AKEYCODE_MEDIA_REWIND:
-					Kore::Gamepad::get(0)->_button(10, 0);
+					kinc_internal_gamepad_trigger_button(0, 10, 0);
 					return 1;
 				case AKEYCODE_MEDIA_FAST_FORWARD:
-					Kore::Gamepad::get(0)->_button(11, 0);
+					kinc_internal_gamepad_trigger_button(0, 11, 0);
 					return 1;
 				case AKEYCODE_MEDIA_PLAY_PAUSE:
-					Kore::Gamepad::get(0)->_button(12, 0);
+					kinc_internal_gamepad_trigger_button(0, 12, 0);
 					return 1;
 				// (DK) /Amazon FireTV remote/controller mappings
 				default:
 					if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
-						Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + Kore::KeyNumpad0 - AKEYCODE_NUMPAD_0));
+						kinc_internal_keyboard_trigger_key_up(code + KINC_KEY_NUMPAD_0 - AKEYCODE_NUMPAD_0);
 						return 1;
 					}
 					else if (code >= AKEYCODE_0 && code <= AKEYCODE_9) {
-						Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + Kore::Key0 - AKEYCODE_0));
+						kinc_internal_keyboard_trigger_key_up(code + KINC_KEY_0 - AKEYCODE_0);
 						return 1;
 					}
 					else if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
-						Kore::Keyboard::the()->_keyup((Kore::KeyCode)(code + Kore::KeyA - AKEYCODE_A));
+						kinc_internal_keyboard_trigger_key_up(code + KINC_KEY_A - AKEYCODE_A);
 						return 1;
 					}
 				}
@@ -425,12 +425,12 @@ namespace {
 			updateAppForegroundStatus(displayIsInitialized, true);
 			break;
 		case APP_CMD_RESUME:
-			Kore::System::_resumeCallback();
+			kinc_internal_resume_callback();
 			resumeAudio();
 			paused = false;
 			break;
 		case APP_CMD_PAUSE:
-			Kore::System::_pauseCallback();
+			kinc_internal_pause_callback();
 			pauseAudio();
 			paused = true;
 			break;
@@ -438,7 +438,7 @@ namespace {
 			updateAppForegroundStatus(displayIsInitialized, false);
 			break;
 		case APP_CMD_DESTROY:
-			Kore::System::_shutdownCallback();
+			kinc_internal_shutdown_callback();
 			break;
 		case APP_CMD_CONFIG_CHANGED: {
 
@@ -469,7 +469,7 @@ jclass KoreAndroid::findClass(JNIEnv* env, const char* name) {
 	return clazz;
 }
 
-void Kore::System::showKeyboard() {
+/*void Kore::System::showKeyboard() {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
@@ -483,9 +483,9 @@ void Kore::System::hideKeyboard() {
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "hideKeyboard", "()V"));
 	activity->vm->DetachCurrentThread();
-}
+}*/
 
-void Kore::System::loadURL(const char* url) {
+void kinc_load_url(const char *url) {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
@@ -494,7 +494,7 @@ void Kore::System::loadURL(const char* url) {
 	activity->vm->DetachCurrentThread();
 }
 
-void Kore::System::vibrate(int ms) {
+void kinc_vibrate(int ms) {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
@@ -502,7 +502,7 @@ void Kore::System::vibrate(int ms) {
 	activity->vm->DetachCurrentThread();
 }
 
-const char* Kore::System::language() {
+const char* kinc_language() {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
@@ -522,11 +522,11 @@ int glHeight() {
 	return glContext->GetScreenHeight();
 }
 
-const char* Kore::System::savePath() {
+const char* kinc_internal_save_path() {
 	return KoreAndroid::getActivity()->internalDataPath;
 }
 
-const char* Kore::System::systemId() {
+const char* kinc_system_id() {
 	return "Android";
 }
 
@@ -534,11 +534,11 @@ namespace {
 	const char* videoFormats[] = {"ts", nullptr};
 }
 
-const char** Kore::System::videoFormats() {
+const char** kinc_video_formats() {
 	return ::videoFormats;
 }
 
-void Kore::System::setKeepScreenOn(bool on) {
+void kinc_set_keep_screen_on(bool on) {
 	if (on) {
 		ANativeActivity_setWindowFlags(activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
 	}
@@ -549,28 +549,32 @@ void Kore::System::setKeepScreenOn(bool on) {
 
 #include <sys/time.h>
 #include <time.h>
+#include <kinc/window.h>
+#include <kinc/bridge.h>
+#include <kinc/input/acceleration.h>
+#include <kinc/input/rotation.h>
 
 namespace {
 	__kernel_time_t start_sec = 0;
 }
 
-double Kore::System::frequency() {
+double kinc_frequency() {
 	return 1000000.0;
 }
 
-Kore::System::ticks Kore::System::timestamp() {
+kinc_ticks_t kinc_timestamp() {
 	timeval now;
 	gettimeofday(&now, NULL);
-	return static_cast<ticks>(now.tv_sec - start_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
+	return static_cast<kinc_ticks_t>(now.tv_sec - start_sec) * 1000000 + static_cast<kinc_ticks_t>(now.tv_usec);
 }
 
-double Kore::System::time() {
+double kinc_time() {
 	timeval now;
 	gettimeofday(&now, NULL);
 	return (double)(now.tv_sec - start_sec) + (now.tv_usec / 1000000.0);
 }
 
-bool Kore::System::handleMessages() {
+bool kinc_internal_handle_messages(void) {
 	int ident;
 	int events;
 	android_poll_source* source;
@@ -585,10 +589,14 @@ bool Kore::System::handleMessages() {
 				ASensorEvent event;
 				while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0) {
 					if (event.type == ASENSOR_TYPE_ACCELEROMETER) {
-						Kore::Sensor::_changed(Kore::SensorAccelerometer, event.acceleration.x, event.acceleration.y, event.acceleration.z);
+						if (kinc_acceleration_callback != NULL) {
+							kinc_acceleration_callback(event.acceleration.x, event.acceleration.y, event.acceleration.z);
+						}
 					}
 					else if (event.type == ASENSOR_TYPE_GYROSCOPE) {
-						Kore::Sensor::_changed(Kore::SensorGyroscope, event.vector.x, event.vector.x, event.vector.z);
+						if (kinc_rotation_callback != NULL) {
+							kinc_rotation_callback(event.vector.x, event.vector.x, event.vector.z);
+						}
 					}
 				}
 			}
@@ -596,7 +604,7 @@ bool Kore::System::handleMessages() {
 
 		if (app->destroyRequested != 0) {
 			termDisplay();
-			Kore::System::stop();
+			kinc_stop();
 			return true;
 		}
 	}
@@ -614,17 +622,21 @@ bool Kore::System::handleMessages() {
 	return true;
 }
 
-bool Kore::Mouse::canLock(int windowId) {
+bool kinc_mouse_can_lock(int window) {
 	return false;
 }
 
-void Kore::Mouse::show(bool truth){}
+void kinc_mouse_show() {}
 
-void Kore::Mouse::setPosition(int windowId, int, int) {}
+void kinc_mouse_hide() {}
 
-void Kore::Mouse::_lock(int windowId, bool) {}
+void kinc_mouse_set_position(int window, int, int) {}
 
-void Kore::Mouse::getPosition(int windowId, int& x, int& y) {
+void kinc_internal_mouse_lock(int window) {}
+
+void kinc_internal_mouse_unlock(int window) {}
+
+void kinc_mouse_get_position(int window, int* x, int* y) {
 	x = 0;
 	y = 0;
 }
@@ -659,7 +671,7 @@ extern "C" void android_main(android_app* app) {
 	jmethodID updateAll = env->GetStaticMethodID(koreMoviePlayerClass, "updateAll", "()V");
 
 	while (!started) {
-		Kore::System::handleMessages();
+		kinc_internal_handle_messages();
 		env->CallStaticVoidMethod(koreMoviePlayerClass, updateAll);
 	}
 	KoreAndroid::getActivity()->vm->DetachCurrentThread();
@@ -667,10 +679,23 @@ extern "C" void android_main(android_app* app) {
 	exit(0);
 }
 
-Kore::Window* Kore::System::init(const char* name, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
-    System::_init(name, width, height, &win, &frame);
-	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
-	return Window::get(0);
+int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
+	kinc_window_options default_win;
+	if (win == NULL) {
+		kinc_internal_init_window_options(&default_win);
+		win = &default_win;
+	}
+	win->width = width;
+	win->height = height;
+
+	struct kinc_framebuffer_options default_frame;
+	if (frame == NULL) {
+		kinc_internal_init_framebuffer_options(&default_frame);
+		frame = &default_frame;
+	}
+
+	kinc_bridge_g4_internal_init(0, frame->depth_bits, frame->stencil_bits, true);
+	return 0;
 }
 
-void Kore::System::_shutdown() {}
+void kinc_internal_shutdown() {}

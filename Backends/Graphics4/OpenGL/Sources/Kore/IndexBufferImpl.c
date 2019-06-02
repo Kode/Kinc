@@ -14,7 +14,7 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
 	glCheckErrors();
 	buffer->impl.data = (int*)malloc(count * sizeof(int));
 #if defined(KORE_ANDROID) || defined(KORE_PI)
-	shortData = (uint16_t*)malloc(count * sizeof(uint16_t));
+	buffer->impl.shortData = (uint16_t*)malloc(count * sizeof(uint16_t));
 #endif
 }
 
@@ -42,7 +42,7 @@ void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
 #if defined(KORE_ANDROID) || defined(KORE_PI)
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, myCount * 2, shortData, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 2, buffer->impl.shortData, GL_STATIC_DRAW);
 	glCheckErrors();
 #else
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 4, buffer->impl.data, GL_STATIC_DRAW);

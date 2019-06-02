@@ -38,13 +38,13 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 
 #ifdef KORE_ANDROID
 	switch (level) {
-	case KORE_LOG_LEVEL_INFO:
+	case KINC_LOG_LEVEL_INFO:
 		__android_log_vprint(ANDROID_LOG_INFO, "kore", format, args);
 		break;
-	case KORE_LOG_LEVEL_WARNING:
+	case KINC_LOG_LEVEL_WARNING:
 		__android_log_vprint(ANDROID_LOG_WARN, "kore", format, args);
 		break;
-	case KORE_LOG_LEVEL_ERROR:
+	case KINC_LOG_LEVEL_ERROR:
 		__android_log_vprint(ANDROID_LOG_ERROR, "kore", format, args);
 		break;
 	}

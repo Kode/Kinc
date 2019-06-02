@@ -26,7 +26,7 @@ bool kinc_internal_handle_messages(void);
 //**void hideKeyboard();
 //**bool showsKeyboard();
 
-void kinc_load_url(const char *title);
+void kinc_load_url(const char *url);
 
 const char *kinc_system_id();
 

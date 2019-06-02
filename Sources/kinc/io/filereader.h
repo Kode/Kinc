@@ -15,7 +15,7 @@ extern "C" {
 #ifdef KORE_ANDROID
 struct AAsset;
 struct __sFILE;
-typedef __sFILE FILE;
+typedef struct __sFILE FILE;
 #endif
 
 #define KINC_FILE_TYPE_ASSET 0
@@ -26,7 +26,7 @@ typedef struct {
 	int pos;
 	int size;
 	FILE *file;
-	AAsset *asset;
+	struct AAsset *asset;
 	int type;
 } kinc_file_reader_t;
 #else

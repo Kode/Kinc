@@ -291,7 +291,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	}
 
 #ifdef KORE_ANDROID
-	external_oes = false;
+	texture->impl.external_oes = false;
 #endif
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -434,7 +434,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 // conversionBuffer = new u8[texWidth * texHeight * 4];
 
 #ifdef KORE_ANDROID
-	external_oes = false;
+	texture->impl.external_oes = false;
 #endif
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -475,11 +475,12 @@ void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, i
 }
 
 #ifdef KORE_ANDROID
-Graphics4::Texture::Texture(unsigned texid) : Image(1023, 684, Image::RGBA32, false) {
-	texture = texid;
-	external_oes = true;
-	texWidth = 1023;
-	texHeight = 684;
+void kinc_g4_texture_init_from_id(kinc_g4_texture_t *texture, unsigned texid) {
+	texture->impl.texture = texid;
+	texture->impl.external_oes = true;
+	texture->tex_width = 1023;
+	texture->tex_height = 684;
+	texture->format = KINC_IMAGE_FORMAT_RGBA32;
 }
 #endif
 
@@ -493,12 +494,12 @@ void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_uni
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
 #ifdef KORE_ANDROID
-	if (external_oes) {
-		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
+	if (texture->impl.external_oes) {
+		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture->impl.texture);
 		glCheckErrors();
 	}
 	else {
-		glBindTexture(target, texture);
+		glBindTexture(target, texture->impl.texture);
 		glCheckErrors();
 	}
 #else

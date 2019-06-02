@@ -71,21 +71,21 @@ void initAndroidFileReader() {
 #endif
 
 #ifdef KORE_ANDROID
-bool FileReader::open(const char* filename, FileType type) {
-	data.pos = 0;
-	if (type == Save) {
+bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
+	reader->pos = 0;
+	if (type == KINC_FILE_TYPE_SAVE) {
 		char filepath[1001];
 
-		strcpy(filepath, System::savePath());
+		strcpy(filepath, kinc_internal_save_path());
 		strcat(filepath, filename);
 
-		data.file = fopen(filepath, "rb");
-		if (data.file == nullptr) {
+		reader->file = fopen(filepath, "rb");
+		if (reader->file == nullptr) {
 			return false;
 		}
-		fseek(data.file, 0, SEEK_END);
-		data.size = static_cast<int>(ftell(data.file));
-		fseek(data.file, 0, SEEK_SET);
+		fseek(reader->file, 0, SEEK_END);
+		reader->size = static_cast<int>(ftell(reader->file));
+		fseek(reader->file, 0, SEEK_SET);
 		return true;
 	}
 	else {
@@ -94,17 +94,17 @@ bool FileReader::open(const char* filename, FileType type) {
 		strcat(filepath, "/");
 		strcat(filepath, filename);
 
-		data.file = fopen(filepath, "rb");
-		if (data.file != nullptr) {
-			fseek(data.file, 0, SEEK_END);
-			data.size = static_cast<int>(ftell(data.file));
-			fseek(data.file, 0, SEEK_SET);
+		reader->file = fopen(filepath, "rb");
+		if (reader->file != nullptr) {
+			fseek(reader->file, 0, SEEK_END);
+			reader->size = static_cast<int>(ftell(reader->file));
+			fseek(reader->file, 0, SEEK_SET);
 			return true;
 		}
 		else {
-			data.asset = AAssetManager_open(KoreAndroid::getAssetManager(), filename, AASSET_MODE_RANDOM);
-			if (data.asset == nullptr) return false;
-			data.size = AAsset_getLength(data.asset);
+			reader->asset = AAssetManager_open(KoreAndroid::getAssetManager(), filename, AASSET_MODE_RANDOM);
+			if (reader->asset == nullptr) return false;
+			reader->size = AAsset_getLength(reader->asset);
 			return true;
 		}
 	}
@@ -199,12 +199,12 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 
 int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 #ifdef KORE_ANDROID
-	if (this->data.file != nullptr) {
-		return static_cast<int>(fread(data, 1, size, this->data.file));
+	if (reader->file != nullptr) {
+		return static_cast<int>(fread(data, 1, size, reader->file));
 	}
 	else {
-		int read = AAsset_read(this->data.asset, data, size);
-		this->data.pos += read;
+		int read = AAsset_read(reader->asset, data, size);
+		reader->pos += read;
 		return read;
 	}
 #else
@@ -214,12 +214,12 @@ int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 
 void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
 #ifdef KORE_ANDROID
-	if (data.file != nullptr) {
-		fseek(data.file, pos, SEEK_SET);
+	if (reader->file != nullptr) {
+		fseek(reader->file, pos, SEEK_SET);
 	}
 	else {
-		AAsset_seek(data.asset, pos, SEEK_SET);
-		data.pos = pos;
+		AAsset_seek(reader->asset, pos, SEEK_SET);
+		reader->pos = pos;
 	}
 #else
 	fseek((FILE*)reader->file, pos, SEEK_SET);
@@ -228,13 +228,13 @@ void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
 
 void kinc_file_reader_close(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
-	if (data.file != nullptr) {
-		fclose(data.file);
-		data.file = nullptr;
+	if (reader->file != nullptr) {
+		fclose(reader->file);
+		reader->file = nullptr;
 	}
-	if (data.asset != nullptr) {
-		AAsset_close(data.asset);
-		data.asset = nullptr;
+	if (reader->asset != nullptr) {
+		AAsset_close(reader->asset);
+		reader->asset = nullptr;
 	}
 #else
 	if (reader->file == nullptr) return;
@@ -245,10 +245,10 @@ void kinc_file_reader_close(kinc_file_reader_t *reader) {
 
 int kinc_file_reader_pos(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
-	if (data.file != nullptr)
-		return static_cast<int>(ftell(data.file));
+	if (reader->file != nullptr)
+		return static_cast<int>(ftell(reader->file));
 	else
-		return data.pos;
+		return reader->pos;
 #else
 	return static_cast<int>(ftell((FILE*)reader->file));
 #endif

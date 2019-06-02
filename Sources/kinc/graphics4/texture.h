@@ -23,7 +23,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t *image);
 void kinc_g4_texture_destroy(kinc_g4_texture_t *texture);
 #ifdef KORE_ANDROID
-void kinc_g4_texture_init_from_id(unsigned texid);
+void kinc_g4_texture_init_from_id(kinc_g4_texture_t *texture, unsigned texid);
 #endif
 // void _set(TextureUnit unit);
 // void _setImage(TextureUnit unit);
