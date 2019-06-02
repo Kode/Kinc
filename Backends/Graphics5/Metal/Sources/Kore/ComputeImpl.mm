@@ -193,19 +193,19 @@ void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, ki
 
 void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {}
 
-void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {}
+void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {}
 
-void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, Kinc_G4_TextureDirection dir, Kinc_G4_TextureAddressing addressing) {}
+void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {}
 
-void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
+void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
 
-void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
+void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
 
-void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, Kinc_G4_TextureFilter filter) {}
+void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
 
-void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter) {}
+void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
 
-void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, Kinc_G4_MipmapFilter filter) {}
+void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
 
 void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
 	[commandEncoder setComputePipelineState:shader->impl._pipeline];

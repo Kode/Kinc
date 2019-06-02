@@ -6,7 +6,7 @@
 
 @interface Connection : NSObject <NSURLConnectionDelegate> {
 	NSMutableData* responseData;
-	Kinc_HttpCallback callback;
+	kinc_http_callback_t callback;
 	void* data;
 	int statusCode;
 }
@@ -15,7 +15,7 @@
 
 @implementation Connection
 
-- (id)initWithCallback:(Kinc_HttpCallback)aCallback andData:(void*)someData {
+- (id)initWithCallback:(kinc_http_callback_t)aCallback andData:(void*)someData {
 	if (self = [super init]) {
 		callback = aCallback;
 		data = someData;
@@ -56,7 +56,7 @@
 
 using namespace Kore;
 
-void Kinc_HttpRequest(const char* url, const char* path, const char* data, int port, bool secure, int method, const char* header, Kinc_HttpCallback callback,
+void kinc_http_request(const char* url, const char* path, const char* data, int port, bool secure, int method, const char* header, kinc_http_callback_t callback,
                        void* callbackdata) {
 	NSString* urlstring = secure ? @"https://" : @"http://";
 	urlstring = [urlstring stringByAppendingString:[NSString stringWithUTF8String:url]];

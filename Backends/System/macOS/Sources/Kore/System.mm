@@ -90,7 +90,7 @@ void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait) {
 
 #endif
 
-bool Kinc_Internal_HandleMessages() {
+bool kinc_internal_handle_messages() {
 	NSEvent* event =
 	    [myapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]; // distantPast: non-blocking
 	if (event != nil) {
@@ -108,7 +108,7 @@ void swapBuffersMac(int windowId) {
 #endif
 }
 
-int createWindow(Kinc_WindowOptions* options) {
+int createWindow(kinc_window_options_t *options) {
 	int width = options->width;
 	int height = options->height;
 	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
@@ -144,11 +144,11 @@ int createWindow(Kinc_WindowOptions* options) {
 	return windowCounter++;
 }
 
-int Kinc_CountWindows() {
+int kinc_count_windows() {
 	return windowCounter;
 }
 
-void Kinc_Window_ChangeWindowMode(int window_index, Kinc_WindowMode mode) {
+void kinc_window_change_window_mode(int window_index, kinc_window_mode_t mode) {
 	switch (mode) {
 		case KINC_WINDOW_MODE_WINDOW:
 			if (windows[window_index].fullscreen) {
@@ -167,17 +167,17 @@ void Kinc_Window_ChangeWindowMode(int window_index, Kinc_WindowMode mode) {
 	
 }
 
-int kinc_init(const char* name, int width, int height, Kinc_WindowOptions* win, Kinc_FramebufferOptions* frame) {
+int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	//System::_init(name, width, height, &win, &frame);
-	Kinc_WindowOptions defaultWindowOptions;
+	kinc_window_options_t defaultWindowOptions;
 	if (win == NULL) {
-		Kinc_Internal_InitWindowOptions(&defaultWindowOptions);
+		kinc_internal_init_window_options(&defaultWindowOptions);
 		win = &defaultWindowOptions;
 	}
 	
-	Kinc_FramebufferOptions defaultFramebufferOptions;
+	kinc_framebuffer_options_t defaultFramebufferOptions;
 	if (frame == NULL) {
-		Kinc_Internal_InitFramebufferOptions(&defaultFramebufferOptions);
+		kinc_internal_init_framebuffer_options(&defaultFramebufferOptions);
 		frame = &defaultFramebufferOptions;
 	}
 	
@@ -186,17 +186,17 @@ int kinc_init(const char* name, int width, int height, Kinc_WindowOptions* win, 
 	return 0;
 }
 
-int Kinc_WindowWidth(int window_index) {
+int kinc_window_width(int window_index) {
 	NSWindow* window = windows[window_index].handle;
 	return [[window contentView] frame].size.width;
 }
 
-int Kinc_WindowHeight(int window_index) {
+int kinc_window_height(int window_index) {
 	NSWindow* window = windows[window_index].handle;
 	return [[window contentView] frame].size.height;
 }
 
-void Kinc_Internal_Shutdown() {
+void kinc_internal_shutdown() {
 	
 }
 
@@ -222,7 +222,7 @@ namespace {
 	char** argv = nullptr;
 }
 
-const char* Kinc_Internal_SavePath() {
+const char* kinc_internal_save_path() {
 	if (::savePath == nullptr) getSavePath();
 	return ::savePath;
 }

@@ -2,30 +2,30 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <Kinc/Input/Mouse.h>
-#include <Kinc/Window.h>
+#include <kinc/input/mouse.h>
+#include <kinc/window.h>
 
-void Kinc_Internal_Mouse_Lock(int window) {
-	Kinc_Mouse_Hide();
+void kinc_internal_mouse_lock(int window) {
+	kinc_mouse_hide();
 }
 
-void Kinc_Internal_Mouse_Unlock(int window) {
-	Kinc_Mouse_Show();
+void kinc_internal_mouse_unlock(int window) {
+	kinc_mouse_show();
 }
 
-bool Kinc_Mouse_CanLock(int window) {
+bool kinc_mouse_can_lock(int window) {
 	return true;
 }
 
-void Kinc_Mouse_Show() {
+void kinc_mouse_show() {
 	CGDisplayShowCursor(kCGDirectMainDisplay);
 }
 
-void Kinc_Mouse_Hide() {
+void kinc_mouse_hide() {
 	CGDisplayHideCursor(kCGDirectMainDisplay);
 }
 
-void Kinc_Mouse_SetPosition(int windowId, int x, int y) {
+void kinc_mouse_set_position(int windowId, int x, int y) {
 	//**
 	/*NSWindow* window = Window::get(windowId)->_data.handle;
 	NSRect rect = [[NSScreen mainScreen] frame];
@@ -39,7 +39,7 @@ void Kinc_Mouse_SetPosition(int windowId, int x, int y) {
 	CGAssociateMouseAndMouseCursorPosition(true);*/
 }
 
-void Kinc_Mouse_GetPosition(int windowId, int& x, int& y) {
+void kinc_mouse_get_position(int windowId, int* x, int* y) {
 	//**
 	/*NSWindow* window = Window::get(windowId)->_data.handle;
 	NSRect rect = [[NSScreen mainScreen] frame];
