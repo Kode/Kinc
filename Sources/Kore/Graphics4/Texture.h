@@ -20,7 +20,7 @@ namespace Kore {
 
 		class Texture : public Image {
 		public:
-			Texture(int width, int height, Format format, bool readable);
+			Texture(int width, int height, Format format, bool readable = false);
 			Texture(int width, int height, int depth, Format format, bool readable = false);
 			Texture(Kore::Reader& reader, const char* format, bool readable = false);
 			Texture(const char* filename, bool readable = false);

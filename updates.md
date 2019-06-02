@@ -1,3 +1,4 @@
+* 2019-06-01: Kore is now a C project (called Kinc, short for Kore in C) with a C++ wrapper (still called Kore). For C++ everything should still work the same (in theory) but for one detail: The start procedure is now called kickstart instead of kore.
 * 2018-07-08: Kore::Window and Kore::Display have been overhauled and Kore::System was simplified. Projects are now always initialized using Kore::System::init (see Tests/Empty/Sources/Shader.cpp), additional windows are created using Kore::Window::create.
 * 2017-02-10: createProject and addSubProject were replaced by the simpler addProject. New code looks like this:
 

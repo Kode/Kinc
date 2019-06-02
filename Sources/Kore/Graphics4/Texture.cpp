@@ -34,17 +34,21 @@ Graphics4::Texture::Texture(void* data, int width, int height, int depth, int fo
 }*/
 #endif
 
-Graphics4::Texture::Texture(const char *filename, bool readable) {}
+Graphics4::Texture::Texture(const char *filename, bool readable) : Image(filename, readable) {
+	kinc_image_t image;
+	kinc_image_init(&image, data, width, height, (kinc_image_format_t)format);
+	kinc_g4_texture_init_from_image(&kincTexture, &image);
+	kinc_image_destroy(&image);
+}
 
-Graphics4::Texture::Texture(int width, int height, Graphics4::Image::Format format, bool readable) {
+Graphics4::Texture::Texture(int width, int height, Graphics4::Image::Format format, bool readable) : Image(width, height, format, readable) {
 	kinc_g4_texture_init(&kincTexture, width, height, (kinc_image_format_t)format);
-	if (!readable) {
-		//**
-	}
 }
 
 #ifdef KORE_ANDROID
-Graphics4::Texture::Texture(unsigned texid) {}
+Graphics4::Texture::Texture(unsigned texid) {
+	kinc_g4_texture_init_from_id(&kincTexture, texid);
+}
 #endif
 
 uint8_t* Graphics4::Texture::lock() {
