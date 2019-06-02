@@ -1054,7 +1054,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 #endif
 		for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
-		ret = kore(__argc, __argv);
+		ret = kickstart(__argc, __argv);
 #ifndef _DEBUG
 	} catch (std::exception &ex) {
 		ret = 1;

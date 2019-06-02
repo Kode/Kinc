@@ -63,3 +63,8 @@ namespace Kore {
 #else
 #define KINC_LITTLE_ENDIAN
 #endif
+
+#ifdef __cplusplus
+extern "C"
+#endif
+int kickstart(int argc, char **argv);

@@ -995,14 +995,8 @@ void kinc_internal_shutdown() {
 //	return windowimpl::windows[window];
 //}
 
-extern
-#ifdef KOREC
-"C"
-#endif
-int kore(int argc, char** argv);
-
 int main(int argc, char** argv) {
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 	Kore::initHIDGamepads();
-	kore(argc, argv);
+	kickstart(argc, argv);
 }

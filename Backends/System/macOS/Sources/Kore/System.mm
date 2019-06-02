@@ -253,11 +253,6 @@ void addMenubar() {
 	[NSApp setMainMenu:menubar];
 }
 
-#ifdef KOREC
-extern "C"
-#endif
-int kore(int, char**);
-
 @implementation MyApplication
 
 - (void)run {
@@ -269,7 +264,7 @@ int kore(int, char**);
 		addMenubar();
 
 		// try {
-		kore(argc, argv);
+		kickstart(argc, argv);
 		//}
 		// catch (Kt::Exception& ex) {
 		//	printf("Exception caught");

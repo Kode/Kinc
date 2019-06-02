@@ -16,12 +16,6 @@
 #include <android_native_app_glue.h>
 #include <stdlib.h>
 
-#ifdef KOREC
-extern "C" int kore(int argc, char **argv);
-#else
-extern int kore(int argc, char **argv);
-#endif
-
 void pauseAudio();
 void resumeAudio();
 
@@ -675,7 +669,7 @@ extern "C" void android_main(android_app* app) {
 		env->CallStaticVoidMethod(koreMoviePlayerClass, updateAll);
 	}
 	KoreAndroid::getActivity()->vm->DetachCurrentThread();
-	kore(0, nullptr);
+	kickstart(0, nullptr);
 	exit(0);
 }
 
