@@ -69,7 +69,7 @@ static void create(kinc_g5_texture_t *texture, int width, int height, int format
 	unlock();
 }*/
 
-void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format, bool readable) {
+void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
 	//Image(width, height, format, readable);
 	texture->impl._tex = 0;
 	texture->impl._sampler = 0;
@@ -79,8 +79,15 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	create(texture, width, height, format, true);
 }
 
-void kinc_g5_texture_init_from_file(kinc_g5_texture_t *texture, const char *filename, bool readable) {
-	
+void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image *image) {
+	texture->impl._tex = 0;
+	texture->impl._sampler = 0;
+	texture->texWidth = image->width;
+	texture->texHeight = image->height;
+	texture->format = image->format;
+	create(texture, image->width, image->height, image->format, true);
+	id<MTLTexture> tex = texture->impl._tex;
+	[tex replaceRegion:MTLRegionMake2D(0, 0, texture->texWidth, texture->texHeight) mipmapLevel:0 slice:0 withBytes:image->data bytesPerRow:kinc_g5_texture_stride(texture) bytesPerImage:kinc_g5_texture_stride(texture) * texture->texHeight];
 }
 
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}

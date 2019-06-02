@@ -6,15 +6,15 @@
 
 typedef struct {
 	uint32_t _offset;
-} ComputeConstantLocationImpl;
+} kinc_compute_constant_location_impl_t;
 
 typedef struct {
 	uint32_t _index;
-} ComputeTextureUnitImpl;
+} kinc_compute_texture_unit_impl_t;
 
 typedef struct {
 	char name[1024];
 	id _function;
 	id _pipeline;
 	id _reflection;
-} ComputeShaderImpl;
+} kinc_compute_shader_impl_t;

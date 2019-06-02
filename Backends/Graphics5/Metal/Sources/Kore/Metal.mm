@@ -27,7 +27,7 @@ void kinc_g5_destroy(int window) {
 
 }
 
-extern "C" void Kinc_Internal_Resize(int window, int width, int height) {
+extern "C" void kinc_internal_resize(int window, int width, int height) {
 
 }
 

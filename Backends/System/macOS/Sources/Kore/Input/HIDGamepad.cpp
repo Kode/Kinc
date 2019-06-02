@@ -301,7 +301,7 @@ void HIDGamepad::buttonChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRe
 
 	// log(Info, "%f %f %f %f", rawValue, min, max, normalize);
 
-	Kinc_Internal_Gamepad_TriggerButton(padIndex, buttonIndex, normalize);
+	kinc_internal_gamepad_trigger_button(padIndex, buttonIndex, normalize);
 
 	if (debugButtonInput) logButton(buttonIndex, (normalize != 0));
 }
@@ -320,7 +320,7 @@ void HIDGamepad::axisChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef,
 
 	// log(Info, "%f %f %f %f", rawValue, min, max, normalize);
 
-	Kinc_Internal_Gamepad_TriggerAxis(padIndex, axisIndex, normalize);
+	kinc_internal_gamepad_trigger_axis(padIndex, axisIndex, normalize);
 
 	if (debugAxisInput) logAxis(axisIndex);
 }
@@ -363,10 +363,10 @@ void HIDGamepad::valueAvailableCallback(void* inContext, IOReturn inResult, void
 	} while (1);
 }
 
-const char *Kinc_Gamepad_Vendor(int gamepad) {
+const char *kinc_gamepad_vendor(int gamepad) {
 	return "unknown";
 }
 
-const char *Kinc_Gamepad_ProductName(int gamepad) {
+const char *kinc_gamepad_product_name(int gamepad) {
 	return "unknown";
 }
