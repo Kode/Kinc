@@ -72,3 +72,23 @@ kinc_display_mode_t kinc_display_available_mode(int display_index, int mode_inde
 int kinc_display_count_available_modes(int display_index) {
 	return 1;
 }
+
+kinc_display_mode_t kinc_display_current_mode(int display) {
+	kinc_display_mode_t mode;
+	mode.x = 0;
+	mode.y = 0;
+	mode.width = width();
+	mode.height = height();
+	mode.frequency = 60;
+	mode.bits_per_pixel = 32;
+	mode.pixels_per_inch = pixelsPerInch();
+	return mode;
+}
+
+const char *kinc_display_name(int display) {
+	return "Display";
+}
+
+bool kinc_display_available(int display) {
+	return display == 0;
+}

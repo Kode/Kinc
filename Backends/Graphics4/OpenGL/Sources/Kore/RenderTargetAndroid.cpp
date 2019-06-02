@@ -6,7 +6,7 @@
 
 #include <GLContext.h>
 
-bool kinc_opengl_internal_nonPow2RenderTargetsSupported() {
+extern "C" bool kinc_opengl_internal_nonPow2RenderTargetsSupported() {
 	if (ndk_helper::GLContext::GetInstance()->GetGLVersion() >= 3.0)
 		return true;
 	else

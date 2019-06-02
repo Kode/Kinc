@@ -91,3 +91,7 @@ void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int
 kinc_window_mode_t kinc_window_get_mode(int window_index) {
 	return KINC_WINDOW_MODE_FULLSCREEN;
 }
+
+int kinc_window_display(int window) {
+	return 0;
+}

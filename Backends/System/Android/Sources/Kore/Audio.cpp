@@ -1,12 +1,16 @@
 #include "pch.h"
-#include <Kore/Audio2/Audio.h>
+
+#include <kinc/audio2/audio.h>
+
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+
 #include <string.h>
 
-using namespace Kore;
-
 namespace {
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+	kinc_a2_buffer_t a2_buffer;
+
 	SLObjectItf engineObject;
 	SLEngineItf engineEngine;
 	SLObjectItf outputMixObject;
@@ -14,18 +18,18 @@ namespace {
 	SLPlayItf bqPlayerPlay = NULL;
 	SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
 	const int bufferSize = 1 * 1024;
-	s16 tempBuffer[bufferSize];
+	int16_t tempBuffer[bufferSize];
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
-		*(s16*)buffer = static_cast<s16>(value * 32767);
+		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+		a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+		*(int16_t*)buffer = static_cast<int16_t>(value * 32767);
 	}
 
 	void bqPlayerCallback(SLAndroidSimpleBufferQueueItf caller, void* context) {
-		if (Kore::Audio2::audioCallback != nullptr) {
-			Kore::Audio2::audioCallback(bufferSize);
+		if (a2_callback != nullptr) {
+			a2_callback(&a2_buffer, bufferSize);
 			for (int i = 0; i < bufferSize; i += 1) {
 				copySample(&tempBuffer[i]);
 			}
@@ -38,11 +42,12 @@ namespace {
 	}
 }
 
-void Kore::Audio2::init() {
-	buffer.readLocation = 0;
-	buffer.writeLocation = 0;
-	buffer.dataSize = 128 * 1024;
-	buffer.data = new u8[buffer.dataSize];
+void kinc_a2_init() {
+	kinc_a2_samples_per_second = 44100;
+	a2_buffer.read_location = 0;
+	a2_buffer.write_location = 0;
+	a2_buffer.data_size = 128 * 1024;
+	a2_buffer.data = new uint8_t[a2_buffer.data_size];
 
 	SLresult result;
 	result = slCreateEngine(&engineObject, 0, nullptr, 0, nullptr, nullptr);
@@ -91,9 +96,9 @@ void resumeAudio() {
 	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
 }
 
-void Kore::Audio2::update() {}
+void kinc_a2_update() {}
 
-void Kore::Audio2::shutdown() {
+void kinc_a2_shutdown() {
 	if (bqPlayerObject != nullptr) {
 		(*bqPlayerObject)->Destroy(bqPlayerObject);
 		bqPlayerObject = nullptr;
@@ -109,4 +114,8 @@ void Kore::Audio2::shutdown() {
 		engineObject = nullptr;
 		engineEngine = nullptr;
 	}
+}
+
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+	a2_callback = kinc_a2_audio_callback;
 }

@@ -699,3 +699,11 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 }
 
 void kinc_internal_shutdown() {}
+
+extern "C" const char *kinc_gamepad_vendor(int gamepad) {
+	return "Google";
+}
+
+extern "C" const char *kinc_gamepad_product_name(int gamepad) {
+	return "gamepad";
+}

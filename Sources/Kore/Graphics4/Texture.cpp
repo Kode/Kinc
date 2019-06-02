@@ -43,6 +43,10 @@ Graphics4::Texture::Texture(int width, int height, Graphics4::Image::Format form
 	}
 }
 
+#ifdef KORE_ANDROID
+Graphics4::Texture::Texture(unsigned texid) {}
+#endif
+
 uint8_t* Graphics4::Texture::lock() {
 	return kinc_g4_texture_lock(&kincTexture);
 }

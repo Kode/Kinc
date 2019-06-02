@@ -206,7 +206,7 @@ inline kinc_float32x4_t kinc_float32x4_neg(kinc_float32x4_t t) {
 }
 
 inline kinc_float32x4_t kinc_float32x4_reciprocal_approximation(kinc_float32x4_t t) {
-	kinc_float32x4_float32x4 value;
+	kinc_float32x4_t value;
 	value.values[0] = 0;
 	value.values[1] = 0;
 	value.values[2] = 0;
