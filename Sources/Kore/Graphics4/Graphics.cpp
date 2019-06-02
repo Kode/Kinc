@@ -8,6 +8,8 @@
 
 #include <kinc/graphics4/graphics.h>
 
+#include <Kore/Graphics4/TextureArray.h>
+
 #include <assert.h>
 #include <memory.h>
 
@@ -162,6 +164,34 @@ void Graphics4::setFloat4(ConstantLocation location, float value1, float value2,
 	kinc_g4_set_float4(location.kincConstant, value1, value2, value3, value4);
 }
 
+void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
+	kinc_g4_set_floats(location.kincConstant, values, count);
+}
+
+void Graphics4::setInt(ConstantLocation location, int value) {
+	kinc_g4_set_int(location.kincConstant, value);
+}
+
+void Graphics4::setBool(ConstantLocation location, bool value) {
+	kinc_g4_set_bool(location.kincConstant, value);
+}
+
+void Graphics4::flush() {
+	kinc_g4_flush();
+}
+
+void Graphics4::restoreRenderTarget() {
+	kinc_g4_restore_render_target();
+}
+
+void Graphics4::setStencilReferenceValue(int value) {
+	kinc_g4_set_stencil_reference_value(value);
+}
+
+void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
+	kinc_g4_set_texture_array(unit.kincUnit, &array->kincArray);
+}
+
 void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 	assert(count <= 16);
 	kinc_g4_vertex_buffer_t *buffers[16];
@@ -178,6 +208,35 @@ void Graphics4::setRenderTargets(RenderTarget** renderTargets, int count) {
 		targets[i] = &renderTargets[i]->kincRenderTarget;
 	}
 	kinc_g4_set_render_targets(targets, count);
+}
+
+void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
+	kinc_g4_set_image_texture(unit.kincUnit, &texture->kincTexture);
+}
+
+void Graphics4::setTextureCompareMode(TextureUnit unit, bool enabled) {
+	kinc_g4_set_texture_compare_mode(unit.kincUnit, enabled);
+}
+
+void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
+	kinc_g4_set_cubemap_compare_mode(unit.kincUnit, enabled);
+}
+
+void Graphics4::setRenderTargetFace(RenderTarget* renderTarget, int face) {
+	kinc_g4_set_render_target_face(&renderTarget->kincRenderTarget, face);
+}
+
+void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+	kinc_g4_set_texture3d_addressing(unit.kincUnit, (kinc_g4_texture_direction_t)dir, (kinc_g4_texture_addressing_t)addressing);
+}
+void Graphics4::setTexture3DMagnificationFilter(TextureUnit unit, TextureFilter filter) {
+	kinc_g4_set_texture3d_magnification_filter(unit.kincUnit, (kinc_g4_texture_filter_t)filter);
+}
+void Graphics4::setTexture3DMinificationFilter(TextureUnit unit, TextureFilter filter) {
+	kinc_g4_set_texture3d_minification_filter(unit.kincUnit, (kinc_g4_texture_filter_t)filter);
+}
+void Graphics4::setTexture3DMipmapFilter(TextureUnit unit, MipmapFilter filter) {
+	kinc_g4_set_texture3d_mipmap_filter(unit.kincUnit, (kinc_g4_mipmap_filter_t)filter);
 }
 
 extern "C" void kinc_internal_resize(int window, int width, int height);

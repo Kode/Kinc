@@ -6,6 +6,7 @@
 #include <Kore/Window.h>
 #include <Kore/Math/Random.h>
 
+#include <kinc/input/keyboard.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
@@ -194,4 +195,40 @@ void Kore::System::_shutdown() {
 
 void Kore::System::start() {
 	kinc_start();
+}
+
+void Kore::System::setKeepScreenOn(bool on) {
+	kinc_set_keep_screen_on(on);
+}
+
+const char* Kore::System::systemId() {
+	return kinc_system_id();
+}
+
+void Kore::System::vibrate(int milliseconds) {
+	kinc_vibrate(milliseconds);
+}
+
+const char* Kore::System::language() {
+	return kinc_language();
+}
+
+void Kore::System::showKeyboard() {
+	kinc_keyboard_show();
+}
+
+void Kore::System::hideKeyboard() {
+	kinc_keyboard_hide();
+}
+
+bool Kore::System::showsKeyboard() {
+	return kinc_keyboard_active();
+}
+
+void Kore::System::loadURL(const char* url) {
+	kinc_load_url(url);
+}
+
+const char** Kore::System::videoFormats() {
+	return kinc_video_formats();
 }

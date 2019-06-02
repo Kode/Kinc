@@ -992,7 +992,7 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled)
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
-void kinc_g4_set_cube_map_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
+void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
 	kinc_g4_set_texture_compare_mode(unit, enabled);
 }
 

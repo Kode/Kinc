@@ -192,6 +192,10 @@ extern "C" {
 #define KINC_KEY_PA1 253
 #define KINC_KEY_WIN_OEM_CLEAR 254
 
+void kinc_keyboard_show();
+void kinc_keyboard_hide();
+bool kinc_keyboard_active();
+
 extern void (*kinc_keyboard_key_down_callback)(int /*key_code*/);
 extern void (*kinc_keyboard_key_up_callback)(int /*key_code*/);
 extern void (*kinc_keyboard_key_press_callback)(unsigned /*character*/);

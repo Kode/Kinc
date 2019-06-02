@@ -25,8 +25,8 @@ namespace Kore {
 			Texture(Kore::Reader& reader, const char* format, bool readable = false);
 			Texture(const char* filename, bool readable = false);
 			Texture(void* data, int size, const char* format, bool readable = false);
-			Texture(void* data, int width, int height, int format, bool readable = false);
-			Texture(void* data, int width, int height, int depth, int format, bool readable = false);
+			Texture(void *data, int width, int height, Format format, bool readable = false);
+			Texture(void *data, int width, int height, int depth, Format format, bool readable = false);
 #ifdef KORE_ANDROID
 			Texture(unsigned texid);
 #endif

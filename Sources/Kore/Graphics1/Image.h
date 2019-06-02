@@ -26,8 +26,7 @@ namespace Kore {
 			Format format;
 			bool readable;
 			ImageCompression compression;
-			u8* data;
-			float* hdrData;
+			void* data;
 			int dataSize;
 			unsigned internalFormat;
 

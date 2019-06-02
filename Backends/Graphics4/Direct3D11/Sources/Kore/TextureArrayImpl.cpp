@@ -10,10 +10,10 @@
 #include <malloc.h>
 #include <stdint.h>
 
-void kinc_g4_texture_array_create(kinc_g4_texture_array_t *array, kinc_image_t **textures, int count) {
+void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *textures, int count) {
 	D3D11_TEXTURE2D_DESC desc;
-	desc.Width = textures[0]->width;
-	desc.Height = textures[0]->height;
+	desc.Width = textures[0].width;
+	desc.Height = textures[0].height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 2;
 	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -24,18 +24,22 @@ void kinc_g4_texture_array_create(kinc_g4_texture_array_t *array, kinc_image_t *
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
-	uint8_t* data = new uint8_t[textures[0]->width * textures[0]->height * 4 * count];
+	uint8_t* data = new uint8_t[textures[0].width * textures[0].height * 4 * count];
 
 	D3D11_SUBRESOURCE_DATA* resdata = (D3D11_SUBRESOURCE_DATA*)alloca(sizeof(D3D11_SUBRESOURCE_DATA) * count);
 	for (int i = 0; i < count; ++i) {
-		resdata[i].pSysMem = textures[i]->data;
-		resdata[i].SysMemPitch = textures[0]->width * 4;
+		resdata[i].pSysMem = textures[i].data;
+		resdata[i].SysMemPitch = textures[0].width * 4;
 		resdata[i].SysMemSlicePitch = 0;
 	}
 
 	array->impl.texture = nullptr;
 	kinc_microsoft_affirm(device->CreateTexture2D(&desc, resdata, &array->impl.texture));
 	kinc_microsoft_affirm(device->CreateShaderResourceView(array->impl.texture, nullptr, &array->impl.view));
+}
+
+void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array) {
+	
 }
 
 void kinc_internal_texture_array_set(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {

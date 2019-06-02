@@ -231,31 +231,13 @@ int Graphics1::Image::sizeOf(Image::Format format) {
 
 Graphics1::Image::Image(int width, int height, Format format, bool readable) : width(width), height(height), depth(1), format(format), readable(readable) {
 	compression = ImageCompressionNone;
-
-	// If format is a floating point format
-	if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
-		hdrData = reinterpret_cast<float*>(new u8[width * height * sizeOf(format)]);
-		data = nullptr;
-	}
-	else {
-		data = new u8[width * height * sizeOf(format)];
-		hdrData = nullptr;
-	}
+	data = new u8[width * height * sizeOf(format)];
 }
 
 Graphics1::Image::Image(int width, int height, int depth, Format format, bool readable)
     : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compression = ImageCompressionNone;
-
-	// If format is a floating point format
-	if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
-		hdrData = reinterpret_cast<float*>(new u8[width * height * depth * sizeOf(format)]);
-		data = nullptr;
-	}
-	else {
-		data = new u8[width * height * depth * sizeOf(format)];
-		hdrData = nullptr;
-	}
+	data = new u8[width * height * depth * sizeOf(format)];
 }
 
 Graphics1::Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
@@ -270,25 +252,13 @@ Graphics1::Image::Image(Reader& reader, const char* format, bool readable) : dep
 Graphics1::Image::Image(void* data, int width, int height, Format format, bool readable)
     : width(width), height(height), depth(1), format(format), readable(readable) {
 	compression = ImageCompressionNone;
-	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
-	if (isFloat) {
-		this->hdrData = (float*)data;
-	}
-	else {
-		this->data = (u8*)data;
-	}
+	this->data = data;
 }
 
 Graphics1::Image::Image(void* data, int width, int height, int depth, Format format, bool readable)
     : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compression = ImageCompressionNone;
-	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
-	if (isFloat) {
-		this->hdrData = (float*)data;
-	}
-	else {
-		this->data = (u8*)data;
-	}
+	this->data = data;
 }
 
 Graphics1::Image::Image() : depth(1), format(RGBA32), readable(false) {}
@@ -296,25 +266,13 @@ Graphics1::Image::Image() : depth(1), format(RGBA32), readable(false) {}
 void Graphics1::Image::init(Kore::Reader& file, const char* filename, bool readable) {
 	u8* imageData;
 	loadImage(file, filename, imageData, dataSize, width, height, compression, this->format, internalFormat);
-	bool isFloat = format == RGBA128 || format == RGBA64 || format == A32 || format == A16;
-	if (isFloat) {
-		hdrData = (float*)imageData;
-	}
-	else {
-		data = imageData;
-	}
+	data = imageData;
 }
 
 Graphics1::Image::~Image() {
 	if (readable) {
-		if (format == RGBA128 || format == RGBA64 || format == A32 || format == A16) {
-			delete[] hdrData;
-			hdrData = nullptr;
-		}
-		else {
-			delete[] data;
-			data = nullptr;
-		}
+		delete[] data;
+		data = nullptr;
 	}
 }
 
@@ -326,5 +284,5 @@ int Graphics1::Image::at(int x, int y) {
 }
 
 u8* Graphics1::Image::getPixels() {
-	return data != nullptr ? data : reinterpret_cast<u8*>(hdrData);
+	return (u8*)data;
 }

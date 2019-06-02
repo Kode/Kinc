@@ -947,17 +947,17 @@ namespace {
 	bool keyboardshown = false;
 }
 
-//**void Kore::System::showKeyboard() {
-//**	keyboardshown = true;
-//**}
+void kinc_keyboard_show() {
+	keyboardshown = true;
+}
 
-//**void Kore::System::hideKeyboard() {
-//**	keyboardshown = false;
-//**}
+void kinc_keyboard_hide() {
+	keyboardshown = false;
+}
 
-//**bool Kore::System::showsKeyboard() {
-//**	return keyboardshown;
-//**}
+bool kinc_keyboard_active() {
+	return keyboardshown;
+}
 
 void kinc_load_url(const char *url) {}
 
@@ -1014,7 +1014,7 @@ namespace {
 	LARGE_INTEGER startCount;
 }
 
-const char **finc_video_formats() {
+const char **kinc_video_formats() {
 	return ::videoFormats;
 }
 

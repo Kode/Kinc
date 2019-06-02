@@ -44,7 +44,7 @@ static int formatByteSize(kinc_g4_render_target_format_t format) {
 	}
 }
 
-void kinc_g4_render_target_create(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing, kinc_g4_render_target_format_t format, int stencilBufferBits,
+void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing, kinc_g4_render_target_format_t format, int stencilBufferBits,
                                       int contextId) {
 	renderTarget->isCubeMap = false;
 	renderTarget->isDepthAttachment = false;

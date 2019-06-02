@@ -8,8 +8,6 @@
 extern "C" {
 #endif
 
-int kore(int argc, char **argv);
-
 struct kinc_window_options;
 struct kinc_framebuffer_options;
 
@@ -21,11 +19,6 @@ int kinc_height(void);
 
 bool kinc_internal_handle_messages(void);
 
-//**vec2i mousePos();
-//**void showKeyboard();
-//**void hideKeyboard();
-//**bool showsKeyboard();
-
 void kinc_load_url(const char *url);
 
 const char *kinc_system_id();
@@ -33,6 +26,10 @@ const char *kinc_system_id();
 const char *kinc_internal_save_path();
 
 const char **kinc_video_formats();
+
+const char *kinc_language();
+
+void kinc_vibrate(int milliseconds);
 
 typedef uint64_t kinc_ticks_t;
 

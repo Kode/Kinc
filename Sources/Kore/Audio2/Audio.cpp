@@ -41,6 +41,10 @@ namespace {
 
 void Audio2::init() {
 	kinc_a2_init();
+	buffer.readLocation = 0;
+	buffer.writeLocation = 0;
+	buffer.dataSize = 128 * 1024;
+	buffer.data = new u8[buffer.dataSize];
 	Audio2::samplesPerSecond = kinc_a2_samples_per_second;
 	kinc_a2_set_callback(audio);
 }
