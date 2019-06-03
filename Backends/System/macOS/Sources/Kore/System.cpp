@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <kinc/graphics4/graphics.h>
+#include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/system.h>
 
@@ -14,19 +15,19 @@ void Kinc_Mouse_GetPosition(int window, int *x, int *y) {
 	*y = mouseY;
 }
 
-void Kinc_ShowKeyboard() {
+void kinc_keyboard_show() {
 	keyboardShown = true;
 }
 
-void Kinc_HideKeyboard() {
+void kinc_keyboard_hide() {
 	keyboardShown = false;
 }
 
-bool Kinc_ShowsKeyboard() {
+bool kinc_keyboard_active() {
 	return keyboardShown;
 }
 
-void Kinc_loadURL(const char* url) {}
+void kinc_load_url(const char* url) {}
 
 void kinc_vibrate(int ms) {}
 
@@ -34,19 +35,19 @@ const char* kinc_language() {
 	return "en";
 }
 
-const char* Kinc_SystemId() {
-	return "OSX";
+const char* kinc_system_id() {
+	return "macOS";
 }
 
 namespace {
 	const char* videoFormats[] = {"ogv", nullptr};
 }
 
-const char** Kinc_VideoFormats() {
+const char** kinc_video_formats() {
 	return ::videoFormats;
 }
 
-void Kinc_SetKeepScreenOn(bool on) {}
+void kinc_set_keep_screen_on(bool on) {}
 
 #include <mach/mach_time.h>
 
