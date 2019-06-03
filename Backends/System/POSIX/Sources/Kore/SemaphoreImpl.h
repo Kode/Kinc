@@ -1,11 +1,13 @@
 #pragma once
 
+#include <semaphore.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct {
-	int nothing;
+	sem_t semaphore;
 } kinc_semaphore_impl_t;
 
 #ifdef __cplusplus
