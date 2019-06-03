@@ -5,7 +5,10 @@
 #include <pthread.h>
 
 void kinc_mutex_init(kinc_mutex_t *mutex) {
-	pthread_mutex_init(&mutex->impl.mutex, NULL);
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&mutex->impl.mutex, &attr);
 }
 
 void kinc_mutex_destroy(kinc_mutex_t *mutex) {
