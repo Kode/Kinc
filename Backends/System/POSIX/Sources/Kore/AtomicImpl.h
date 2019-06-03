@@ -16,12 +16,12 @@
 
 // clang/gcc intrinsics
 
-#define KORE_ATOMIC_COMPARE_EXCHANGE(pointer, oldValue, newValue) (__sync_bool_compare_and_swap(pointer, oldValue, newValue))
+#define KINC_ATOMIC_COMPARE_EXCHANGE(pointer, oldValue, newValue) (__sync_bool_compare_and_swap(pointer, oldValue, newValue))
 
-#define KORE_ATOMIC_COMPARE_EXCHANGE_POINTER(pointer, oldValue, newValue) (__sync_bool_compare_and_swap(pointer, oldValue, newValue))
+#define KINC_ATOMIC_COMPARE_EXCHANGE_POINTER(pointer, oldValue, newValue) (__sync_bool_compare_and_swap(pointer, oldValue, newValue))
 
-#define KORE_ATOMIC_INCREMENT(pointer) (__sync_fetch_and_add(pointer, 1))
+#define KINC_ATOMIC_INCREMENT(pointer) (__sync_fetch_and_add(pointer, 1))
 
-#define KORE_ATOMIC_DECREMENT(pointer) (__sync_fetch_and_sub(pointer, 1))
+#define KINC_ATOMIC_DECREMENT(pointer) (__sync_fetch_and_sub(pointer, 1))
 
 #endif
