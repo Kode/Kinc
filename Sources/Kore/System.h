@@ -3,8 +3,6 @@
 #include <Kore/Math/Vector.h>
 #include <Kore/Window.h>
 
-extern "C" int kore(int argc, char **argv);
-
 namespace Kore {
 	enum Orientation { OrientationLandscapeLeft, OrientationLandscapeRight, OrientationPortrait, OrientationPortraitUpsideDown, OrientationUnknown };
 

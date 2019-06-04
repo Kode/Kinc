@@ -24,7 +24,13 @@
 #include <kinc/display.h>
 #include <kinc/window.h>
 
+#ifdef KORE_WINDOWS
 #include <Kore/Windows.h>
+#else
+int antialiasingSamples() {
+	return 1;
+}
+#endif
 
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>

@@ -1,25 +1,25 @@
 #include "pch.h"
 
-#include "../Sources/C/Kore/Display.h"
+#include <kinc/display.h>
 
-int Kore_PrimaryDisplay() {
+int kinc_primary_display() {
 	return 0;
 }
 
-int Kore_CountDisplays() {
+int kinc_count_displays() {
 	return 1;
 }
 
-bool Kore_DisplayAvailable(int display_index) {
+bool kinc_display_available(int display_index) {
 	return display_index == 0;
 }
 
-const char *Kore_DisplayName(int display_index) {
+const char *kinc_display_name(int display_index) {
 	return "Display";
 }
 
-Kore_DisplayMode Kore_DisplayCurrentMode(int display_index) {
-	Kore_DisplayMode mode;
+kinc_display_mode_t kinc_display_current_mode(int display_index) {
+	kinc_display_mode_t mode;
 	mode.x = 0;
 	mode.y = 0;
 	mode.width = 800;
@@ -30,10 +30,10 @@ Kore_DisplayMode Kore_DisplayCurrentMode(int display_index) {
 	return mode;
 }
 
-int Kore_DisplayCountAvailableModes(int display_index) {
+int kinc_display_count_available_modes(int display_index) {
 	return 1;
 }
 
-Kore_DisplayMode Kore_DisplayAvailableMode(int display_index, int mode_index) {
-	return Kore_DisplayCurrentMode(0);
+kinc_display_mode_t kinc_display_available_mode(int display_index, int mode_index) {
+	return kinc_display_current_mode(0);
 }
