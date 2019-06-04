@@ -19,19 +19,22 @@ namespace {
 		}
 		else {
 			for (int i = 0; i < samples; ++i) {
-				Audio2::buffer.data[Audio2::buffer.writeLocation++] = 0;
+				*(float*)&Audio2::buffer.data[Audio2::buffer.writeLocation] = 0.0f;
+				Audio2::buffer.writeLocation += 4;
 				if (Audio2::buffer.writeLocation >= Audio2::buffer.dataSize) {
 					Audio2::buffer.writeLocation = 0;
 				}
 			}
 		}
 		for (int i = 0; i < samples; ++i) {
-			u8 sample = Audio2::buffer.data[Audio2::buffer.readLocation++];
+			float sample = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+			Audio2::buffer.readLocation += 4;
 			if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) {
 				Audio2::buffer.readLocation = 0;
 			}
 			
-			buffer->data[buffer->write_location] = sample;
+			*(float*)&buffer->data[buffer->write_location] = sample;
+			buffer->write_location += 4;
 			if (buffer->write_location >= buffer->data_size) {
 				buffer->write_location = 0;
 			}
