@@ -2,12 +2,14 @@
 
 #import "GLView.h"
 
-#include <Kore/Input/Keyboard.h>
-#include <Kore/Input/Mouse.h>
-#include <Kore/Input/Sensor.h>
-#include <Kore/Input/Surface.h>
-#include <Kore/System.h>
-#include <Kore/Graphics5/Graphics.h>
+#include <kinc/input/acceleration.h>
+#include <kinc/input/keyboard.h>
+#include <kinc/input/mouse.h>
+#include <kinc/input/rotation.h>
+#include <kinc/input/surface.h>
+#include <kinc/system.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/rendertarget.h>
 
 #ifdef KORE_OPENGL
 #include <Kore/OpenGLWindow.h>
@@ -53,11 +55,11 @@ namespace {
 	GLint backingWidth, backingHeight;
 }
 
-int Kore::Window::width() {
+extern "C" int kinc_window_width(int window) {
 	return backingWidth;
 }
 
-int Kore::Window::height() {
+extern "C" int kinc_window_height(int window) {
 	return backingHeight;
 }
 
@@ -314,9 +316,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				Kore::Mouse::the()->_press(0, 0, x, y);
+				kinc_internal_mouse_trigger_press(0, 0, x, y);
 			}
-			Kore::Surface::the()->_touchStart(index, x, y);
+			kinc_internal_surface_trigger_touch_start(index, x, y);
 		}
 	}
 }
@@ -329,9 +331,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				Kore::Mouse::the()->_move(0, x, y);
+				kinc_internal_mouse_trigger_move(0, x, y);
 			}
-			Kore::Surface::the()->_move(index, x, y);
+			kinc_internal_surface_trigger_move(index, x, y);
 		}
 	}
 }
@@ -344,9 +346,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				Kore::Mouse::the()->_release(0, 0, x, y);
+				kinc_internal_mouse_trigger_release(0, 0, x, y);
 			}
-			Kore::Surface::the()->_touchEnd(index, x, y);
+			kinc_internal_surface_trigger_touch_end(index, x, y);
 		}
 	}
 }
@@ -359,9 +361,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				Kore::Mouse::the()->_release(0, 0, x, y);
+				kinc_internal_mouse_trigger_release(0, 0, x, y);
 			}
-			Kore::Surface::the()->_touchEnd(index, x, y);
+			kinc_internal_surface_trigger_touch_end(index, x, y);
 		}
 	}
 }
@@ -389,33 +391,33 @@ namespace {
 		unichar ch = [text characterAtIndex:[text length] - 1];
 		if (ch == 8212) ch = '_';
 		if (ch == L'\n') {
-			Kore::Keyboard::the()->_keydown(Kore::KeyReturn);
-			Kore::Keyboard::the()->_keyup(Kore::KeyReturn);
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_RETURN);
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_RETURN);
 		}
 		else if (ch >= L'a' && ch <= L'z') {
 			if (shiftDown) {
-				Kore::Keyboard::the()->_keyup(Kore::KeyShift);
+				kinc_internal_keyboard_trigger_key_up(KINC_KEY_SHIFT);
 				shiftDown = false;
 			}
-			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch + Kore::KeyA - L'a'));
-			Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch + Kore::KeyA - L'a'));
-			Kore::Keyboard::the()->_keypress(ch);
+			kinc_internal_keyboard_trigger_key_down(ch + KINC_KEY_A - L'a');
+			kinc_internal_keyboard_trigger_key_up(ch + KINC_KEY_A - L'a');
+			kinc_internal_keyboard_trigger_key_press(ch);
 		}
 		else {
 			if (!shiftDown) {
-				Kore::Keyboard::the()->_keydown(Kore::KeyShift);
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SHIFT);
 				shiftDown = true;
 			}
-			Kore::Keyboard::the()->_keydown((Kore::KeyCode)(ch + Kore::KeyA - L'A'));
-			Kore::Keyboard::the()->_keyup((Kore::KeyCode)(ch + Kore::KeyA - L'A'));
-			Kore::Keyboard::the()->_keypress(ch);
+			kinc_internal_keyboard_trigger_key_down(ch + KINC_KEY_A - L'A');
+			kinc_internal_keyboard_trigger_key_up(ch + KINC_KEY_A - L'A');
+			kinc_internal_keyboard_trigger_key_press(ch);
 		}
 	}
 }
 
 - (void)deleteBackward {
-	Kore::Keyboard::the()->_keydown(Kore::KeyBackspace);
-	Kore::Keyboard::the()->_keyup(Kore::KeyBackspace);
+	kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACKSPACE);
+	kinc_internal_keyboard_trigger_key_up(KINC_KEY_BACKSPACE);
 }
 
 - (BOOL)canBecomeFirstResponder {
@@ -423,7 +425,7 @@ namespace {
 }
 
 - (void)onKeyboardHide:(NSNotification*)notification {
-	Kore::System::hideKeyboard();
+	kinc_keyboard_hide();
 }
 
 #ifdef KORE_METAL
@@ -440,7 +442,7 @@ namespace {
 }
 
 
-- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait {
+- (void)newRenderPass:(struct kinc_g5_render_target*)renderTarget wait: (bool)wait {
 	@autoreleasepool {
 		[commandEncoder endEncoding];
 		[commandBuffer commit];
@@ -449,18 +451,18 @@ namespace {
 		}
 		
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->_tex;
+		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->impl._tex;
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
 		renderPassDescriptor.depthAttachment.clearDepth = 99999;
 		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
 		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-		renderPassDescriptor.depthAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->_depthTex;
+		renderPassDescriptor.depthAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->impl._depthTex;
 		renderPassDescriptor.stencilAttachment.clearStencil = 0;
 		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
 		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
-		renderPassDescriptor.stencilAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->_depthTex;
+		renderPassDescriptor.stencilAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->impl._depthTex;
 		
 		
 		commandBuffer = [commandQueue commandBuffer];

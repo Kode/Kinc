@@ -2,8 +2,11 @@
 
 #import "KoreAppDelegate.h"
 
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/System.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/input/keyboard.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
+
 #import <UIKit/UIKit.h>
 
 extern "C" {
@@ -14,18 +17,13 @@ extern "C" {
     }
 }
 
-using namespace Kore;
-
-namespace {
-	int mouseX, mouseY;
-	bool keyboardshown = false;
-}
+static bool keyboardshown = false;
 
 const char* iphonegetresourcepath() {
 	return [[[NSBundle mainBundle] resourcePath] cStringUsingEncoding:1];
 }
 
-bool System::handleMessages() {
+bool kinc_internal_handle_messages(void) {
 	SInt32 result;
 	do {
 		result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, TRUE);
@@ -33,38 +31,34 @@ bool System::handleMessages() {
 	return true;
 }
 
-vec2i System::mousePos() {
-	return vec2i(mouseX, mouseY);
-}
+void kinc_set_keep_screen_on(bool on) {}
 
-void System::setKeepScreenOn(bool on) {}
-
-bool System::showsKeyboard() {
+bool kinc_keyboard_available() {
 	return keyboardshown;
 }
 
 void showKeyboard();
 void hideKeyboard();
 
-void System::showKeyboard() {
+void kinc_keyboard_show() {
 	keyboardshown = true;
 	::showKeyboard();
 }
 
-void System::hideKeyboard() {
+void kinc_keyboard_hide() {
 	keyboardshown = false;
 	::hideKeyboard();
 }
 
 void loadURL(const char* url);
 
-void System::loadURL(const char* url) {
+void kinc_load_url(const char* url) {
 	::loadURL(url);
 }
 
-void System::vibrate(int ms) {};
+void kinc_vibrate(int ms) {};
 
-const char* System::language() {
+const char* kinc_language() {
 	return "en";
 }
 
@@ -79,14 +73,23 @@ void KoreUpdateKeyboard() {
 	}
 }
 
-void System::_shutdown() {
+void kinc_internal_shutdown() {
 
 }
 
-Kore::Window* Kore::System::init(const char* name, int width, int height, Kore::WindowOptions* win, Kore::FramebufferOptions* frame) {
-	System::_init(name, width, height, &win, &frame);
-	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
-	return Window::get(0);
+int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
+	kinc_window_options_t defaultWin;
+	if (win == NULL) {
+		kinc_internal_init_window_options(&defaultWin);
+		win = &defaultWin;
+	}
+	kinc_framebuffer_options_t defaultFrame;
+	if (frame == NULL) {
+		kinc_internal_init_framebuffer_options(&defaultFrame);
+		frame = &defaultFrame;
+	}
+	kinc_g4_init(0, frame->depth_bits, frame->stencil_bits, true);
+	return 0;
 }
 
 void endGL();
@@ -99,7 +102,7 @@ namespace {
 	char sysid[512];
 }
 
-const char* System::systemId() {
+const char* kinc_system_id() {
 	const char* name = [[[UIDevice currentDevice] name] UTF8String];
 	const char* vendorId = [[[[UIDevice currentDevice] identifierForVendor] UUIDString] UTF8String];
 	strcpy(sysid, name);
@@ -114,7 +117,7 @@ namespace {
 	void getSavePath() {
 		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSString* resolvedPath = [paths objectAtIndex:0];
-		NSString* appName = [NSString stringWithUTF8String:Kore::System::name()];
+		NSString* appName = [NSString stringWithUTF8String:kinc_application_name()];
 		resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
 
 		NSFileManager* fileMgr = [[NSFileManager alloc] init];
@@ -127,7 +130,7 @@ namespace {
 	}
 }
 
-const char* System::savePath() {
+const char* kinc_internal_save_path() {
 	if (::savePath == nullptr) getSavePath();
 	return ::savePath;
 }
@@ -136,20 +139,20 @@ namespace {
 	const char* videoFormats[] = {"mp4", nullptr};
 }
 
-const char** Kore::System::videoFormats() {
+const char** kinc_video_formats() {
 	return ::videoFormats;
 }
 
 #include <mach/mach_time.h>
 
-double System::frequency() {
+double kinc_frequency() {
 	mach_timebase_info_data_t info;
 	mach_timebase_info(&info);
 	return (double)info.denom / (double)info.numer / 1e-9;
 }
 
-System::ticks System::timestamp() {
-	System::ticks time = mach_absolute_time();
+kinc_ticks_t kinc_timestamp() {
+	kinc_ticks_t time = mach_absolute_time();
 	return time;
 }
 

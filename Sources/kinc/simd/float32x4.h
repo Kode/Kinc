@@ -95,8 +95,8 @@ inline kinc_float32x4_t kinc_float32x4_div(kinc_float32x4_t a, kinc_float32x4_t 
 #if defined(ARM64) || defined(KORE_SWITCH)
 	return vdivq_f32(a, b);
 #else
-	float32x4 inv = vrecpeq_f32(b);
-	float32x4 restep = vrecpsq_f32(b, inv);
+	float32x4_t inv = vrecpeq_f32(b);
+	float32x4_t restep = vrecpsq_f32(b, inv);
 	inv = vmulq_f32(restep, inv);
 	return vmulq_f32(a, inv);
 #endif

@@ -117,7 +117,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	char filepath[1001];
 #ifdef KORE_IOS
 	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
-	if (type != Save) {
+	if (type != KINC_FILE_TYPE_SAVE) {
 		strcat(filepath, "/");
 		strcat(filepath, KORE_DEBUGDIR);
 		strcat(filepath, "/");
