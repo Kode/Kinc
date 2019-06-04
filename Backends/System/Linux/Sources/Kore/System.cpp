@@ -963,15 +963,20 @@ double kinc_frequency(void) {
 	return 1000000.0;
 }
 
+static timeval start;
+
 kinc_ticks_t kinc_timestamp(void) {
 	timeval now;
 	gettimeofday(&now, NULL);
+	now.tv_sec -= start.tv_sec;
+	now.tv_usec -= start.tv_usec;
 	return static_cast<kinc_ticks_t>(now.tv_sec) * 1000000 + static_cast<kinc_ticks_t>(now.tv_usec);
 }
 
 extern "C" void enumerateDisplays();
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	gettimeofday(&start, NULL);
 	enumerateDisplays();
 
 	//System::_init(name, width, height, &win, &frame);
