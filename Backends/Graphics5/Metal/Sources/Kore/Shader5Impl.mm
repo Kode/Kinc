@@ -6,8 +6,6 @@
 
 #include <Metal/Metal.h>
 
-using namespace Kore;
-
 id getMetalDevice();
 id getMetalLibrary();
 
@@ -16,8 +14,10 @@ void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {
 }
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, kinc_g5_shader_type_t type) {
+	memset(&shader->impl, 0, sizeof(shader->impl));
+
 	{
-		u8* data = (u8*)source;
+		uint8_t *data = (uint8_t*)source;
 		if (length > 1 && data[0] == '>') {
 			memcpy(shader->impl.name, data + 1, length - 1);
 			shader->impl.name[length - 1] = 0;
