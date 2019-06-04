@@ -2,14 +2,21 @@
 
 #include <kinc/threads/event.h>
 
+#include <assert.h>
+#include <errno.h>
 #include <sys/time.h>
 
 void kinc_event_init(kinc_event_t *event) {
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&event->impl.mutex, &attr);
 	pthread_cond_init(&event->impl.condvar, NULL);
 }
 
 void kinc_event_destroy(kinc_event_t *event) {
 	pthread_cond_destroy(&event->impl.condvar);
+	pthread_mutex_destroy(&event->impl.mutex);
 }
 
 void kinc_event_signal(kinc_event_t *event) {
@@ -39,9 +46,10 @@ bool kinc_event_try_to_wait(kinc_event_t *event, double seconds) {
 	spec.tv_sec = tv.tv_sec + isec;
 	
 	pthread_mutex_lock(&event->impl.mutex);
-	pthread_cond_timedwait(&event->impl.condvar, &event->impl.mutex, &spec);
+	int result = pthread_cond_timedwait(&event->impl.condvar, &event->impl.mutex, &spec);
+	assert(result == ETIMEDOUT || result == 0);
 	pthread_mutex_unlock(&event->impl.mutex);
-	return true;
+	return result == 0;
 }
 
 void kinc_event_reset(kinc_event_t *event) {
