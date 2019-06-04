@@ -14,8 +14,8 @@ static void index_buffer_unset(kinc_g5_index_buffer_t *buffer) {
 }
 
 void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, bool gpuMemory) {
+	memset(&buffer->impl, 0, sizeof(buffer->impl));
 	buffer->impl.myCount = indexCount;
-	buffer->impl.mtlBuffer = 0;
 	buffer->impl.gpuMemory = gpuMemory;
 	id<MTLDevice> device = getMetalDevice();
 	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
