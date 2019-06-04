@@ -367,13 +367,16 @@ void kinc_internal_shutdown() {
 
 }
 
+static kinc_ticks_t start_stamp;
+
 kinc_ticks_t kinc_timestamp() {
 	kinc_ticks_t stamp;
 	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&stamp));
-	return stamp;
+	return stamp - start_stamp;
 }
 
 [Platform::MTAThread] int main(Platform::Array<Platform::String ^> ^) {
+	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER *>(&start_stamp));
 	CoreApplication::Run(ref new Win8ApplicationSource);
 	return 0;
 }

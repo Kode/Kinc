@@ -1,22 +1,20 @@
 #pragma once
 
-#include <kinc/graphics4/texture.h>
-#include <kinc/io/filereader.h>
+#include <Kore/Graphics4/Texture.h>
 
 namespace Kore {
 	class VideoSoundStream;
 
 	class Video {
 	public:
-		Video(const char* filename) {
+		Video(const char* filename) : image(100, 100, Kore::Graphics1::Image::RGBA32) {
 			duration = 1000 * 10;
 			position = 0;
 			finished = false;
 			paused = false;
-			kinc_g4_texture_init(&image, 100, 100, KINC_IMAGE_FORMAT_RGBA32);
 		}
 		~Video() {
-			kinc_g4_texture_destroy(&image);
+			
 		}
 		void play() {}
 		void pause() {}
@@ -27,7 +25,7 @@ namespace Kore {
 		int height() {
 			return 100;
 		}
-		kinc_g4_texture_t *currentImage() {
+		Kore::Graphics4::Texture *currentImage() {
 			return &image;
 		}
 		double duration; // milliseconds
@@ -37,6 +35,6 @@ namespace Kore {
 		void update(double time) {}
 
 	private:
-		kinc_g4_texture_t image;
+		Kore::Graphics4::Texture image;
 	};
 }
