@@ -15,6 +15,8 @@
 #include <memory.h>
 #endif
 
+using namespace Kore;
+
 #ifndef KORE_CONSOLE
 
 #ifdef KORE_IOS
@@ -43,8 +45,6 @@ const char* macgetresourcepath();
 #ifdef KORE_PI
 #define KORE_LINUX
 #endif
-
-using namespace Kore;
 
 namespace {
 	char* fileslocation = nullptr;
