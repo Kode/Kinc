@@ -2,18 +2,16 @@
 
 #include "Vulkan.h"
 
-#include <Kore/Graphics5/ConstantBuffer.h>
+#include <kinc/graphics5/constantbuffer.h>
 
 #include <assert.h>
 #include <memory.h>
 
-using namespace Kore;
-
 extern VkDevice device;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
-VkBuffer* Kore::Vulkan::vertexUniformBuffer = nullptr;
-VkBuffer* Kore::Vulkan::fragmentUniformBuffer = nullptr;
+VkBuffer *Kore::Vulkan::vertexUniformBuffer = nullptr;
+VkBuffer *Kore::Vulkan::fragmentUniformBuffer = nullptr;
 
 namespace {
 	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info, int size) {
@@ -48,43 +46,43 @@ namespace {
 	}
 }
 
-Graphics5::ConstantBuffer::ConstantBuffer(int size) {
-	mySize = size;
-	data = nullptr;
+void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
+	buffer->impl.mySize = size;
+	buffer->data = nullptr;
 
-	createUniformBuffer(buf, mem_alloc, mem, buffer_info, size);
+	createUniformBuffer(buffer->impl.buf, buffer->impl.mem_alloc, buffer->impl.mem, buffer->impl.buffer_info, size);
 
 	// buffer hack
-	if (Vulkan::vertexUniformBuffer == nullptr) {
-		Vulkan::vertexUniformBuffer = &buf;
+	if (Kore::Vulkan::vertexUniformBuffer == nullptr) {
+		Kore::Vulkan::vertexUniformBuffer = &buffer->impl.buf;
 	}
-	else if (Vulkan::fragmentUniformBuffer == nullptr) {
-		Vulkan::fragmentUniformBuffer = &buf;
+	else if (Kore::Vulkan::fragmentUniformBuffer == nullptr) {
+		Kore::Vulkan::fragmentUniformBuffer = &buffer->impl.buf;
 	}
 
 	void* p;
-	VkResult err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&p);
+	VkResult err = vkMapMemory(device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&p);
 	assert(!err);
-	memset(p, 0, mem_alloc.allocationSize);
-	vkUnmapMemory(device, mem);
+	memset(p, 0, buffer->impl.mem_alloc.allocationSize);
+	vkUnmapMemory(device, buffer->impl.mem);
 }
 
-Graphics5::ConstantBuffer::~ConstantBuffer() {}
+void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {}
 
-void Graphics5::ConstantBuffer::lock() {
-	lock(0, size());
+void kinc_g5_constant_buffer_lock_all(kinc_g5_constant_buffer_t *buffer) {
+	kinc_g5_constant_buffer_lock(buffer, 0, kinc_g5_constant_buffer_size(buffer));
 }
 
-void Graphics5::ConstantBuffer::lock(int start, int count) {
-	VkResult err = vkMapMemory(device, mem, start, count, 0, (void**)&data);
+void kinc_g5_constant_buffer_lock(kinc_g5_constant_buffer_t *buffer, int start, int count) {
+	VkResult err = vkMapMemory(device, buffer->impl.mem, start, count, 0, (void **)&buffer->data);
 	assert(!err);
 }
 
-void Graphics5::ConstantBuffer::unlock() {
-	vkUnmapMemory(device, mem);
-	data = nullptr;
+void kinc_g5_constant_buffer_unlock(kinc_g5_constant_buffer_t *buffer) {
+	vkUnmapMemory(device, buffer->impl.mem);
+	buffer->data = nullptr;
 }
 
-int Graphics5::ConstantBuffer::size() {
-	return mySize;
+int kinc_g5_constant_buffer_size(kinc_g5_constant_buffer_t *buffer) {
+	return buffer->impl.mySize;
 }

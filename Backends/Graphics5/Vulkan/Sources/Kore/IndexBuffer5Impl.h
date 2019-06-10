@@ -14,26 +14,16 @@
 #undef RegisterClass
 #endif
 
-namespace Kore {
-	namespace Graphics5 {
-		class IndexBuffer;
-	}
+typedef struct {
+	//void unset();
 
-	class IndexBuffer5Impl {
-	protected:
-	public:
-		IndexBuffer5Impl(int count);
-		void unset();
+	int *data;
+	int myCount;
+	unsigned bufferId;
 
-		int* data;
-		int myCount;
-		uint bufferId;
+	VkBuffer buf;
+	VkDeviceMemory mem;
+	VkMemoryAllocateInfo mem_alloc;
 
-		VkBuffer buf;
-		VkDeviceMemory mem;
-		VkMemoryAllocateInfo mem_alloc;
-
-	public:
-		static Graphics5::IndexBuffer* current;
-	};
-}
+	//static Graphics5::IndexBuffer* current;
+} IndexBuffer5Impl;

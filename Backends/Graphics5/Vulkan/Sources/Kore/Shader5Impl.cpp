@@ -1,22 +1,18 @@
 #include "pch.h"
 
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Graphics5/Shader.h>
-#include <Kore/Math/Core.h>
+#include <kinc/graphics5/shader.h>
 
-using namespace Kore;
-
-Shader5Impl::Shader5Impl(void* source, int length) : length(length), id(0) {
-	this->source = new char[length + 1];
+void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, kinc_g5_shader_type_t type) {
+	shader->impl.length = length;
+	shader->impl.id = 0;
+	shader->impl.source = new char[length + 1];
 	for (int i = 0; i < length; ++i) {
-		this->source[i] = ((char*)source)[i];
+		shader->impl.source[i] = ((char *)source)[i];
 	}
-	this->source[length] = 0;
+	shader->impl.source[length] = 0;
 }
 
-Shader5Impl::~Shader5Impl() {
-	delete[] source;
-	source = nullptr;
+void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {
+	delete[] shader->impl.source;
+	shader->impl.source = NULL;
 }
-
-Graphics5::Shader::Shader(void* source, int length, ShaderType type) : Shader5Impl(source, length) {}

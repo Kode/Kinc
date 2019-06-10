@@ -14,19 +14,15 @@
 #undef RegisterClass
 #endif
 
-namespace Kore {
-	class ConstantBuffer5Impl {
-	public:
-		VkBuffer buf;
-		VkDescriptorBufferInfo buffer_info;
-		VkMemoryAllocateInfo mem_alloc;
-		VkDeviceMemory mem;
+typedef struct {
+	VkBuffer buf;
+	VkDescriptorBufferInfo buffer_info;
+	VkMemoryAllocateInfo mem_alloc;
+	VkDeviceMemory mem;
+	int lastStart;
+	int lastCount;
+	int mySize;
+} ConstantBuffer5Impl;
 
-	protected:
-		int lastStart;
-		int lastCount;
-		int mySize;
-		const bool transposeMat3 = true;
-		const bool transposeMat4 = true;
-	};
-}
+//const bool transposeMat3 = true;
+//const bool transposeMat4 = true;
