@@ -1,16 +1,13 @@
 #pragma once
 
-namespace Kore {
-	class ComputeConstantLocationImpl {
-	public:
-	};
+typedef struct {
+	int nothing;
+} kinc_compute_constant_location_impl_t;
 
-	class ComputeTextureUnitImpl {
-	public:
-	};
+typedef struct {
+	int nothing;
+} kinc_compute_texture_unit_impl_t;
 
-	class ComputeShaderImpl {
-	public:
-		ComputeShaderImpl(void* source, int length);
-	};
-}
+typedef struct {
+	int nothing;
+} kinc_compute_shader_impl_t;

@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <Kore/ComputeImpl.h>
 #ifdef KORE_OPENGL
 #include <Kore/ShaderStorageBufferImpl.h>
@@ -11,6 +7,10 @@ extern "C" {
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/vertexstructure.h>
 #include <kinc/math/matrix.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct kinc_g4_texture;
 struct kinc_g4_render_target;
@@ -24,7 +24,6 @@ typedef struct kinc_compute_texture_unit {
 } kinc_compute_texture_unit_t;
 
 typedef struct kinc_compute_shader {
-public:
 	kinc_compute_shader_impl_t impl;
 } kinc_compute_shader_t;
 

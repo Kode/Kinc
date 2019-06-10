@@ -15,39 +15,28 @@
 #undef RegisterClass
 #endif
 
-namespace Kore {
-	struct texture_object {
-		VkSampler sampler;
+struct texture_object {
+	VkSampler sampler;
 
-		VkImage image;
-		VkImageLayout imageLayout;
+	VkImage image;
+	VkImageLayout imageLayout;
 
-		VkDeviceMemory mem;
-		VkImageView view;
-		int32_t tex_width, tex_height;
-	};
+	VkDeviceMemory mem;
+	VkImageView view;
+	int32_t tex_width, tex_height;
+};
 
-	namespace Graphics5 {
-		class Texture;
-	}
+typedef struct {
+	int binding;
+} TextureUnit5Impl;
 
-	class TextureUnit5Impl {
-	public:
-		int binding;
-	};
+typedef struct {
+	uint8_t pixfmt;
 
-	class Texture5Impl {
-	protected:
-		// static TreeMap<Image, Texture*> images;
-	public:
-		u8 pixfmt;
+	struct texture_object texture;
+	VkDeviceSize deviceSize;
 
-		texture_object texture;
-		VkDeviceSize deviceSize;
+	VkDescriptorSet desc_set;
 
-		VkDescriptorSet desc_set;
-
-		~Texture5Impl();
-		u8* conversionBuffer; // Fuer wenn Textur aus Image erstellt wird
-	};
-}
+	uint8_t *conversionBuffer;
+} Texture5Impl;

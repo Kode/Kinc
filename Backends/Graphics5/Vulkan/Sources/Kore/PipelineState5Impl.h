@@ -17,49 +17,42 @@
 #undef RegisterClass
 #endif
 
-namespace Kore {
-	namespace Graphics5 {
-		class PipelineState;
-		class Shader;
-	}
+struct kinc_g5_shader;
 
-	class PipelineState5Impl {
-	public:
-		PipelineState5Impl();
+typedef struct PipelineState5Impl_s {
+	struct kinc_g5_shader *vertexShader;
+	struct kinc_g5_shader *fragmentShader;
+	struct kinc_g5_shader *geometryShader;
+	struct kinc_g5_shader *tessEvalShader;
+	struct kinc_g5_shader *tessControlShader;
 
-		Graphics5::Shader* vertexShader;
-		Graphics5::Shader* fragmentShader;
-		Graphics5::Shader* geometryShader;
-		Graphics5::Shader* tessEvalShader;
-		Graphics5::Shader* tessControlShader;
+	const char** textures;
+	int* textureValues;
+	int textureCount;
 
-		const char** textures;
-		int* textureValues;
-		int textureCount;
+	VkPipeline pipeline;
+	VkPipelineCache pipelineCache;
+	VkShaderModule vert_shader_module;
+	VkShaderModule frag_shader_module;
 
-		VkPipeline pipeline;
-		VkPipelineCache pipelineCache;
-		VkShaderModule vert_shader_module;
-		VkShaderModule frag_shader_module;
+	std::map<std::string, uint32_t> vertexLocations;
+	std::map<std::string, uint32_t> fragmentLocations;
+	std::map<std::string, uint32_t> textureBindings;
+	std::map<std::string, uint32_t> vertexOffsets;
+	std::map<std::string, uint32_t> fragmentOffsets;
 
-		std::map<std::string, u32> vertexLocations;
-		std::map<std::string, u32> fragmentLocations;
-		std::map<std::string, u32> textureBindings;
-		std::map<std::string, u32> vertexOffsets;
-		std::map<std::string, u32> fragmentOffsets;
+	VkPipelineLayout pipeline_layout;
 
-		VkPipelineLayout pipeline_layout;
+	VkDescriptorSetLayout desc_layout;
 
-		VkDescriptorSetLayout desc_layout;
+	//static Graphics5::PipelineState* current;
+} PipelineState5Impl;
 
-		static Graphics5::PipelineState* current;
-	};
+typedef struct {
+	int vertexOffset;
+	int fragmentOffset;
+} ConstantLocation5Impl;
 
-	class ConstantLocation5Impl {
-	public:
-		int vertexOffset;
-		int fragmentOffset;
-	};
-
-	class AttributeLocation5Impl {};
-}
+typedef struct {
+	int nothing;
+} AttributeLocation5Impl;

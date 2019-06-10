@@ -2,17 +2,14 @@
 
 #include "Vulkan.h"
 
-#include "Texture5Impl.h"
+#include <kinc/image.h>
+#include <kinc/graphics5/texture.h>
+#include <kinc/log.h>
 
-#include <Kore/Graphics1/Image.h>
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Log.h>
 #include <assert.h>
 #include <string.h>
 
 #include <vulkan/vulkan.h>
-
-using namespace Kore;
 
 extern VkDevice device;
 extern VkPhysicalDevice gpu;
@@ -125,7 +122,7 @@ namespace {
 		vkCmdPipelineBarrier(setup_cmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
 	}
 
-	void demo_prepare_texture_image(u8* tex_colors, uint32_t tex_width, uint32_t tex_height, texture_object* tex_obj, VkImageTiling tiling,
+	void demo_prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint32_t tex_height, texture_object* tex_obj, VkImageTiling tiling,
 	                                VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize& deviceSize) {
 		const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
 
@@ -181,7 +178,7 @@ namespace {
 			subres.arrayLayer = 0;
 
 			VkSubresourceLayout layout;
-			u8* data;
+			uint8_t *data;
 
 			vkGetImageSubresourceLayout(device, tex_obj->image, &subres, &layout);
 
@@ -214,9 +211,9 @@ namespace {
 	}
 }
 
-void Graphics5::Texture::_init(const char* format, bool readable) {
-	texWidth = width;
-	texHeight = height;
+void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {
+	texture->texWidth = image->width;
+	texture->texHeight = image->height;
 
 	const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
 	VkFormatProperties props;
@@ -226,20 +223,21 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 
 	if ((props.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) && !use_staging_buffer) {
 		// Device can texture using linear textures
-		demo_prepare_texture_image(data, (uint32_t)width, (uint32_t)height, &texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
-		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, deviceSize);
+		demo_prepare_texture_image((uint8_t*)image->data, (uint32_t)image->width, (uint32_t)image->height, &texture->impl.texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
+		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize);
 	}
 	else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
 		// Must use staging buffer to copy linear texture to optimized
 		texture_object staging_texture;
 
 		memset(&staging_texture, 0, sizeof(staging_texture));
-		demo_prepare_texture_image(data, (uint32_t)width, (uint32_t)height, &staging_texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, deviceSize);
-		demo_prepare_texture_image(data, (uint32_t)width, (uint32_t)height, &texture, VK_IMAGE_TILING_OPTIMAL,
-		                           (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, deviceSize);
+		demo_prepare_texture_image((uint8_t*)image->data, (uint32_t)image->width, (uint32_t)image->height, &staging_texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize);
+		demo_prepare_texture_image((uint8_t*)image->data, (uint32_t)image->width, (uint32_t)image->height, &texture->impl.texture, VK_IMAGE_TILING_OPTIMAL,
+		                           (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		                           texture->impl.deviceSize);
 		demo_set_image_layout(staging_texture.image, VK_IMAGE_ASPECT_COLOR_BIT, staging_texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-		demo_set_image_layout(texture.image, VK_IMAGE_ASPECT_COLOR_BIT, texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		demo_set_image_layout(texture->impl.texture.image, VK_IMAGE_ASPECT_COLOR_BIT, texture->impl.texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 		VkImageCopy copy_region = {};
 		copy_region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
@@ -248,10 +246,11 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 		copy_region.dstOffset = {0, 0, 0};
 		copy_region.extent = {(uint32_t)staging_texture.tex_width, (uint32_t)staging_texture.tex_height, 1};
 
-		vkCmdCopyImage(setup_cmd, staging_texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, texture.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
+		vkCmdCopyImage(setup_cmd, staging_texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, texture->impl.texture.image,
+		               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
 		               &copy_region);
 
-		demo_set_image_layout(texture.image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture.imageLayout);
+		demo_set_image_layout(texture->impl.texture.image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture->impl.texture.imageLayout);
 
 		demo_flush_init_cmd();
 
@@ -291,30 +290,34 @@ void Graphics5::Texture::_init(const char* format, bool readable) {
 	view.flags = 0;
 
 	// create sampler
-	err = vkCreateSampler(device, &sampler, NULL, &texture.sampler);
+	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.sampler);
 	assert(!err);
 
 	// create image view
-	view.image = texture.image;
-	err = vkCreateImageView(device, &view, NULL, &texture.view);
+	view.image = texture->impl.texture.image;
+	err = vkCreateImageView(device, &view, NULL, &texture->impl.texture.view);
 	assert(!err);
 
-	Vulkan::createDescriptorSet(nullptr, this, nullptr, desc_set); // TODO
+	Kore::Vulkan::createDescriptorSet(nullptr, texture, nullptr, texture->impl.desc_set); // TODO
 }
 
-Graphics5::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {}
+void kinc_g5_texture_init(kinc_g5_texture_t* texture, int width, int height, kinc_image_format_t format) {
 
-Graphics5::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
-
-Texture5Impl::~Texture5Impl() {}
-
-void Graphics5::Texture::_set(TextureUnit unit) {}
-
-int Graphics5::Texture::stride() {
-	return width * 4;
 }
 
-u8* Graphics5::Texture::lock() {
+void kinc_g5_texture_init3d(kinc_g5_texture_t* texture, int width, int height, int depth, kinc_image_format_t format) {
+
+}
+
+void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}
+
+void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {}
+
+int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
+	return texture->texWidth * 4;
+}
+
+uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
 	VkImageSubresource subres = {};
 	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	subres.mipLevel = 0;
@@ -323,19 +326,20 @@ u8* Graphics5::Texture::lock() {
 	VkSubresourceLayout layout;
 	void* data;
 
-	vkGetImageSubresourceLayout(device, texture.image, &subres, &layout);
+	vkGetImageSubresourceLayout(device, texture->impl.texture.image, &subres, &layout);
 
-	VkResult err = vkMapMemory(device, texture.mem, 0, deviceSize, 0, &data);
+	VkResult err = vkMapMemory(device, texture->impl.texture.mem, 0, texture->impl.deviceSize, 0, &data);
 	assert(!err);
-	return (u8*)data;
+	//**return (u8*)data;
+	return NULL;
 }
 
-void Graphics5::Texture::unlock() {
-	vkUnmapMemory(device, texture.mem);
+void kinc_g5_texture_unlock(kinc_g5_texture_t *texture) {
+	vkUnmapMemory(device, texture->impl.texture.mem);
 }
 
-void Graphics5::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
+void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {}
 
-void Graphics5::Texture::generateMipmaps(int levels) {}
+void kinc_g5_texture_generate_mipmaps(kinc_g5_texture_t *texture, int levels) {}
 
-void Graphics5::Texture::setMipmap(Texture* mipmap, int level) {}
+void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_g5_texture_t *mipmap, int level) {}
