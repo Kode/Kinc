@@ -17,7 +17,7 @@ kinc_matrix3x3_t kinc_matrix3x_rotation_y(float alpha);
 kinc_matrix3x3_t kinc_matrix3x_rotation_z(float alpha);
 
 typedef struct kinc_matrix4x4 {
-	float m[3 * 3];
+	float m[4 * 4];
 } kinc_matrix4x4_t;
 
 float kinc_matrix4x4_get(kinc_matrix4x4_t *matrix, int x, int y);

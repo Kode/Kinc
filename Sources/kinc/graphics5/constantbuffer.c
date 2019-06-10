@@ -49,7 +49,7 @@ static void setMatrix4(uint8_t *constants, int offset, kinc_matrix4x4_t *value) 
 	float *floats = (float*)(&constants[offset]);
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
-			floats[x + y * 4] = kinc_matrix4x4_get(value, y, x);
+			floats[x + y * 4] = kinc_matrix4x4_get(value, x, y);
 		}
 	}
 }
@@ -58,7 +58,7 @@ static void setMatrix3(uint8_t *constants, int offset, kinc_matrix3x3_t *value) 
 	float *floats = (float*)(&constants[offset]);
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
-			floats[x + y * 4] = kinc_matrix3x3_get(value, y, x);
+			floats[x + y * 4] = kinc_matrix3x3_get(value, x, y);
 		}
 	}
 }
