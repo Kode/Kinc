@@ -13,6 +13,9 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 VkBuffer *Kore::Vulkan::vertexUniformBuffer = nullptr;
 VkBuffer *Kore::Vulkan::fragmentUniformBuffer = nullptr;
 
+bool kinc_g5_transposeMat3 = true;
+bool kinc_g5_transposeMat4 = true;
+
 namespace {
 	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info, int size) {
 		VkBufferCreateInfo buf_info;

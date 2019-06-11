@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Kore/Graphics1/Image.h>
 #include <vulkan/vulkan.h>
 
 #ifdef min

@@ -2,9 +2,9 @@
 
 #include "RenderTargetImpl.h"
 
-#include <Kinc/Graphics4/RenderTarget.h>
-#include <Kinc/Graphics5/CommandList.h>
-#include <Kinc/Log.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics5/commandlist.h>
+#include <kinc/log.h>
 
 extern kinc_g5_command_list_t commandList;
 

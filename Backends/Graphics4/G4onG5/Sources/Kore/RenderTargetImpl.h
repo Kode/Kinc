@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kinc/Graphics5/RenderTarget.h>
+#include <kinc/graphics5/rendertarget.h>
 
 #ifdef __cplusplus
 extern "C" {

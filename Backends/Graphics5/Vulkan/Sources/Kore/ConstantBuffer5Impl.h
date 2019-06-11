@@ -23,6 +23,3 @@ typedef struct {
 	int lastCount;
 	int mySize;
 } ConstantBuffer5Impl;
-
-//const bool transposeMat3 = true;
-//const bool transposeMat4 = true;

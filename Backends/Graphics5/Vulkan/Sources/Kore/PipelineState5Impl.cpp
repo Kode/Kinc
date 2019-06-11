@@ -6,7 +6,10 @@
 #include <kinc/graphics5/pipeline.h>
 
 #include <assert.h>
-#include <memory.h>
+#include <malloc.h>
+
+#include <map>
+#include <string>
 
 extern VkDevice device;
 extern VkRenderPass render_pass;
@@ -16,9 +19,50 @@ void createDescriptorLayout(PipelineState5Impl* pipeline);
 
 kinc_g5_pipeline_t *currentPipeline = NULL;
 
+static bool has_number(kinc_internal_named_number *named_numbers, const char *name) {
+	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static uint32_t find_number(kinc_internal_named_number *named_numbers, const char *name) {
+	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
+			return named_numbers[i].number;
+		}
+	}
+	return 0;
+}
+
+static void set_number(kinc_internal_named_number *named_numbers, const char *name, uint32_t number) {
+	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
+			named_numbers[i].number = number;
+			return;
+		}
+	}
+	
+	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
+		if (named_numbers[i].name[0] == 0) {
+			strcpy(named_numbers[i].name, name);
+			named_numbers[i].number = number;
+			return;
+		}
+	}
+
+	assert(false);
+}
+
 namespace {
-	void parseShader(kinc_g5_shader_t *shader, std::map<std::string, uint32_t>& locations, std::map<std::string, uint32_t>& textureBindings,
-		std::map<std::string, uint32_t>& uniformOffsets) {
+	void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
+		kinc_internal_named_number *uniformOffsets) {
+		memset(locations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+		memset(textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+		memset(uniformOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+
 		uint32_t *spirv = (uint32_t *)shader->impl.source;
 		int spirvsize = shader->impl.length / 4;
 		int index = 0;
@@ -88,15 +132,15 @@ namespace {
 		}
 
 		for (std::map<uint32_t, uint32_t>::iterator it = locs.begin(); it != locs.end(); ++it) {
-			locations[names[it->first]] = it->second;
+			set_number(locations, names[it->first].c_str(), it->second);
 		}
 
 		for (std::map<uint32_t, uint32_t>::iterator it = bindings.begin(); it != bindings.end(); ++it) {
-			textureBindings[names[it->first]] = it->second;
+			set_number(textureBindings, names[it->first].c_str(), it->second);
 		}
 
 		for (std::map<uint32_t, uint32_t>::iterator it = offsets.begin(); it != offsets.end(); ++it) {
-			uniformOffsets[memberNames[it->first]] = it->second;
+			set_number(uniformOffsets, memberNames[it->first].c_str(), it->second);
 		}
 	}
 
@@ -144,18 +188,18 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 	kinc_g5_constant_location_t location;
 	location.impl.vertexOffset = -1;
 	location.impl.fragmentOffset = -1;
-	if (pipeline->impl.vertexOffsets.find(name) != pipeline->impl.vertexOffsets.end()) {
-		location.impl.vertexOffset = pipeline->impl.vertexOffsets[name];
+	if (has_number(pipeline->impl.vertexOffsets, name)) {
+		location.impl.vertexOffset = find_number(pipeline->impl.vertexOffsets, name);
 	}
-	if (pipeline->impl.fragmentOffsets.find(name) != pipeline->impl.fragmentOffsets.end()) {
-		location.impl.fragmentOffset = pipeline->impl.fragmentOffsets[name];
+	if (has_number(pipeline->impl.fragmentOffsets, name)) {
+		location.impl.fragmentOffset = find_number(pipeline->impl.fragmentOffsets, name);
 	}
 	return location;
 }
 
 kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name) {
 	kinc_g5_texture_unit_t unit;
-	unit.impl.binding = pipeline->impl.textureBindings[name];
+	unit.impl.binding = find_number(pipeline->impl.textureBindings, name);
 	return unit;
 }
 
@@ -247,42 +291,42 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		switch (element.data) {
 		case KINC_G4_VERTEX_DATA_COLOR:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = pipeline->impl.vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32_UINT;
 			vi_attrs[i].offset = offset;
 			offset += 1 * 4;
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT1:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = pipeline->impl.vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 1 * 4;
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT2:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = pipeline->impl.vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32G32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 2 * 4;
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT3:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = pipeline->impl.vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32G32B32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 3 * 4;
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT4:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = pipeline->impl.vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4;
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT4X4:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = pipeline->impl.vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT; // TODO
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4 * 4;
@@ -343,12 +387,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = demo_prepare_vs(pipeline->impl.vert_shader_module, pipeline->impl.vertexShader);
+	shaderStages[0].module = demo_prepare_vs(pipeline->impl.vert_shader_module, pipeline->vertexShader);
 	shaderStages[0].pName = "main";
 
 	shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = demo_prepare_fs(pipeline->impl.frag_shader_module, pipeline->impl.fragmentShader);
+	shaderStages[1].module = demo_prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
 	shaderStages[1].pName = "main";
 
 	pipeline_info.pVertexInputState = &vi;
