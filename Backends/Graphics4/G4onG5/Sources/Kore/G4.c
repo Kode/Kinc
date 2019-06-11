@@ -46,7 +46,9 @@ void kinc_g4_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	}
 	kinc_g5_constant_buffer_init(&vertexConstantBuffer, constantBufferSize * constantBufferMultiply);
 	kinc_g5_constant_buffer_init(&fragmentConstantBuffer, constantBufferSize * constantBufferMultiply);
+#ifndef KORE_VULKAN
 	kinc_g5_command_list_begin(&commandList);
+#endif
 }
 
 static void startDraw() {
@@ -101,7 +103,9 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 }
 
 void kinc_g4_begin(int window) {
+#ifndef KORE_VULKAN
 	kinc_g5_command_list_end(&commandList);
+#endif
 
 	currentBuffer = (currentBuffer + 1) % bufferCount;
 
@@ -140,7 +144,9 @@ void kinc_g4_end(int window) {
 	// commandList = nullptr;
 	kinc_g5_end(window);
 
+#ifndef KORE_VULKAN
 	kinc_g5_command_list_begin(&commandList);
+#endif
 }
 
 /*void Graphics4::_changeFramebuffer(int window, Kore::FramebufferOptions* frame) {
