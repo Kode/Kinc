@@ -2,6 +2,8 @@
 
 #include "Compute.h"
 
+#include <string.h>
+
 using namespace Kore;
 
 ComputeShader::ComputeShader(void *source, int length) {
