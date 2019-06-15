@@ -34,7 +34,7 @@ namespace Kore {
 	};
 
 #ifdef KORE_OPENGL
-	class ShaderStorageBuffer : public ShaderStorageBufferImpl {
+	class ShaderStorageBuffer {
 	public:
 		ShaderStorageBuffer(int count, Graphics4::VertexData type);
 		virtual ~ShaderStorageBuffer();
