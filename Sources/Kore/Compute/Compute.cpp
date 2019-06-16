@@ -44,7 +44,7 @@ void ShaderStorageBuffer::unlock() {
 }
 
 int ShaderStorageBuffer::count() {
-	kinc_shader_storage_buffer_count(&kincImpl);
+	return kinc_shader_storage_buffer_count(&kincImpl);
 }
 
 void ShaderStorageBuffer::_set() {
