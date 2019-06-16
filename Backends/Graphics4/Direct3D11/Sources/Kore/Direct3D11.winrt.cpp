@@ -696,7 +696,7 @@ namespace {
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 4; ++y) {
 			for (int x = 0; x < 4; ++x) {
-				floats[x + y * 4] = value->m[x + y * 4];
+				floats[x + y * 4] = value->m[y + x * 4];
 			}
 		}
 	}
@@ -706,7 +706,7 @@ namespace {
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
 		for (int y = 0; y < 3; ++y) {
 			for (int x = 0; x < 3; ++x) {
-				floats[x + y * 4] = value->m[x + y * 3];
+				floats[x + y * 4] = value->m[y + x * 3];
 			}
 		}
 	}
