@@ -22,7 +22,7 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, size_t length, k
 			if (name[i2] == 0) break;
 		}
 		strcpy(shader->impl.attributes[i].name, name);
-		shader->impl.attributes->attribute = data[index++];
+		shader->impl.attributes[i].attribute = data[index++];
 	}
 
 	uint8_t texCount = data[index++];
