@@ -22,6 +22,7 @@ namespace Kore {
 		const char* systemId();
 		const char* savePath();
 		const char** videoFormats();
+		float safeZone();
 
 		typedef u64 ticks;
 

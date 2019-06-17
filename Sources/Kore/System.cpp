@@ -275,3 +275,9 @@ int Kore::System::windowHeight(int window) {
 	assert(window < Window::count());
 	return Window::get(window)->height();
 }
+
+#ifndef KORE_PS4
+float Kore::System::safeZone() {
+	return 1.0f;
+}
+#endif
