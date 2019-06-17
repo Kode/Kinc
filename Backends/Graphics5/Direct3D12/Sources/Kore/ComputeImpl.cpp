@@ -9,6 +9,8 @@
 
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void* source, int length) {}
 
+void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {}
+
 kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
 	kinc_compute_constant_location_t location;
 	return location;
@@ -43,9 +45,9 @@ void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_re
 
 void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture_t *texture) {}
 
-void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_render_target_t *target) {}
+void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target_t *target) {}
 
-void kinc_compute_set_sampled_depth_texture(kinc_compute_texture_unit_t unit, kinc_g4_render_target_t *target) {}
+void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target_t *target) {}
 
 void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {}
 
