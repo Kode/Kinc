@@ -13,16 +13,12 @@ typedef struct {
 } TextureUnit5Impl;
 
 typedef struct {
-	//void unmipmap();
-	//void unset();
-
 	bool mipmap;
 	int stage;
-
+	int stride;
 	struct ID3D12Resource *image;
 	struct ID3D12Resource *uploadImage;
 	struct ID3D12DescriptorHeap *srvDescriptorHeap;
-	//static void setTextures(ID3D12GraphicsCommandList *commandList);
 } Texture5Impl;
 
 struct kinc_g5_texture;

@@ -3,8 +3,10 @@
 #include "Direct3D12.h"
 #include "Texture5Impl.h"
 
-#include <Kinc/Graphics5/RenderTarget.h>
-#include <Kinc/Graphics5/Texture.h>
+#include <kinc/graphics5/rendertarget.h>
+#include <kinc/graphics5/texture.h>
+#include <kinc/math/core.h>
+
 #include <Kore/SystemMicrosoft.h>
 
 static const int textureCount = 16;
@@ -46,6 +48,8 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
+
+	texture->impl.stride = (int)kinc_ceil(uploadBufferSize / (float)image->height);
 
 	BYTE *pixel;
 	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
@@ -90,6 +94,8 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
+
+	texture->impl.stride = (int)kinc_ceil(uploadBufferSize / (float)height);
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -166,13 +172,14 @@ int d3d12_textureAlignment();
 #endif
 
 int kinc_g5_texture_stride(kinc_g5_texture *texture) {
-	int baseStride = texture->format == KINC_IMAGE_FORMAT_RGBA32 ? (texture->texWidth * 4) : texture->texWidth;
+	/*int baseStride = texture->format == KINC_IMAGE_FORMAT_RGBA32 ? (texture->texWidth * 4) : texture->texWidth;
 	if (texture->format == KINC_IMAGE_FORMAT_GREY8) return texture->texWidth; // please investigate further
 	for (int i = 0;; ++i) {
 		if (d3d12_textureAlignment() * i >= baseStride) {
 			return d3d12_textureAlignment() * i;
 		}
-	}
+	}*/
+	return texture->impl.stride;
 }
 
 void kinc_g5_texture_generate_mipmaps(kinc_g5_texture *texture, int levels) {}
