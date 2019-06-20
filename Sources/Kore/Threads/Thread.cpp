@@ -5,11 +5,11 @@
 #include <kinc/threads/thread.h>
 
 void Kore::threadsInit() {
-	kinc_threads_init();
+	
 }
 
 void Kore::threadsQuit() {
-	kinc_threads_quit();
+	
 }
 
 Kore::Thread *Kore::createAndRunThread(void(*func)(void *param), void *param) {

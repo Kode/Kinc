@@ -10,6 +10,9 @@ typedef struct {
 	void (*func)(void *param);
 } kinc_thread_impl_t;
 
+void kinc_microsoft_threads_init();
+void kinc_microsoft_threads_quit();
+
 #ifdef __cplusplus
 }
 #endif

@@ -19,6 +19,7 @@
 #include <kinc/input/pen.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
+#include <kinc/threads/thread.h>
 #include <kinc/window.h>
 
 #define DIRECTINPUT_VERSION 0x0800
@@ -1048,13 +1049,15 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);
 
+	kinc_microsoft_threads_init();
+
 	int ret = 0;
 #ifndef _DEBUG
 	try {
 #endif
 		for (int i = 0; i < 256; ++i) keyPressed[i] = false;
-
 		ret = kickstart(__argc, __argv);
+		
 #ifndef _DEBUG
 	} catch (std::exception &ex) {
 		ret = 1;
@@ -1065,6 +1068,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	}
 #endif
 
+	kinc_microsoft_threads_quit();
 	return ret;
 }
 

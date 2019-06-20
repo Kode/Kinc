@@ -6,6 +6,7 @@
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/system.h>
+#include <kinc/threads/thread.h>
 #include <kinc/window.h>
 
 #include <Kore/Hololens.winrt.h>
@@ -228,7 +229,9 @@ void Win8Application::Load(Platform::String^ entryPoint) {}
 
 void Win8Application::Run() {
 	// BasicTimer^ timer = ref new BasicTimer();
+	kinc_microsoft_threads_init();
 	kickstart(0, nullptr);
+	kinc_microsoft_threads_quit();
 	// while (!closed) {
 	// timer->Update();
 

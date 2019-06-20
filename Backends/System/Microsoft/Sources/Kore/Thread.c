@@ -14,10 +14,18 @@ static void *next_thread_param;
 static kinc_semaphore_t ready;
 
 void kinc_threads_init() {
-	kinc_semaphore_init(&ready, 1, 1);
+	
 }
 
 void kinc_threads_quit() {
+	
+}
+
+void kinc_microsoft_threads_init() {
+	kinc_semaphore_init(&ready, 1, 1);
+}
+
+void kinc_microsoft_threads_quit() {
 	kinc_semaphore_destroy(&ready);
 }
 
