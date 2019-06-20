@@ -257,6 +257,11 @@ static void convertImageToPow2(kinc_image_format_t format, uint8_t *from, int fw
 void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *image) {
 	texture->format = image->format;
 	bool toPow2;
+#ifdef KORE_IOS
+	texture->tex_width = image->width;
+	texture->tex_height = image->height;
+	toPow2 = false;
+#else
 	if (kinc_g4_non_pow2_textures_supported()) {
 		texture->tex_width = image->width;
 		texture->tex_height = image->height;
@@ -267,6 +272,8 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 		texture->tex_height = getPower2(image->height);
 		toPow2 = !(texture->tex_width == image->width && texture->tex_height == image->height);
 	}
+#endif
+	texture->tex_depth = 1;
 
 	uint8_t *conversionBuffer = NULL;
 
@@ -419,8 +426,8 @@ void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t 
 
 void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
 #ifdef KORE_IOS
-	texWidth = width;
-	texHeight = height;
+	texture->tex_width = width;
+	texture->tex_height = height;
 #else
 	if (kinc_g4_non_pow2_textures_supported()) {
 		texture->tex_width = width;
@@ -431,6 +438,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 		texture->tex_height = getPower2(height);
 	}
 #endif
+	texture->tex_depth = 1;
 // conversionBuffer = new u8[texWidth * texHeight * 4];
 
 #ifdef KORE_ANDROID
