@@ -14,13 +14,13 @@ void kinc_matrix3x3_set(kinc_matrix3x3_t* matrix, int x, int y, float value) {
 }
 
 void kinc_matrix3x3_transpose(kinc_matrix3x3_t *matrix) {
+	kinc_matrix3x3_t transposed;
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
-			float f = matrix->m[y * 3 + x];
-			matrix->m[y * 3 + x] = matrix->m[x * 3 + y];
-			matrix->m[x * 3 + y] = f;
+			transposed.m[y * 3 + x] = matrix->m[x * 3 + y];
 		}
 	}
+	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
 }
 
 kinc_matrix3x3_t kinc_matrix3x3_identity(void) {
@@ -70,11 +70,11 @@ float kinc_matrix4x4_get(kinc_matrix4x4_t *matrix, int x, int y) {
 }
 
 void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix) {
+	kinc_matrix4x4_t transposed;
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
-			float f = matrix->m[y * 4 + x];
-			matrix->m[y * 4 + x] = matrix->m[x * 4 + y];
-			matrix->m[x * 4 + y] = f;
+			transposed.m[y * 4 + x] = matrix->m[x * 4 + y];
 		}
 	}
+	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
 }
