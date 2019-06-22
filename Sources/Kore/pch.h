@@ -51,16 +51,20 @@ namespace Kore {
 
 #define Noexcept throw()
 
-#define KORE_FUNC
+#endif
 
-#else
+#include <stdint.h>
+#include <stdbool.h>
 
-#define KORE_FUNC
+#define KINC_FUNC
 
 #if defined(KORE_PPC)
-#define KORE_BIG_ENDIAN
+#define KINC_BIG_ENDIAN
 #else
-#define KORE_LITTLE_ENDIAN
+#define KINC_LITTLE_ENDIAN
 #endif
 
+#ifdef __cplusplus
+extern "C"
 #endif
+int kickstart(int argc, char **argv);

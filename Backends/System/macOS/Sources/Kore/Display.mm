@@ -2,69 +2,70 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <Kore/Display.h>
-#include <Kore/Log.h>
+#include <kinc/display.h>
+#include <kinc/log.h>
 
 using namespace Kore;
 
 namespace {
 	const int maxDisplays = 10;
-	Display displays[maxDisplays];
+	//Display displays[maxDisplays];
 }
 
-void initMacDisplays() {
+/*void initMacDisplays() {
 	for (int i = 0; i < maxDisplays; ++i) {
 		displays[i]._data.index = i;
 	}
-}
+}*/
 
-int Display::count() {
+int kinc_count_displays() {
 	NSArray* screens = [NSScreen screens];
 	return (int)[screens count];
 }
 
-Display* Display::primary() {
+int kinc_primary_display() {
 	NSArray* screens = [NSScreen screens];
 	NSScreen* mainScreen = [NSScreen mainScreen];
 	for (int i = 0; i < maxDisplays; ++i) {
 		if (mainScreen == screens[i]) {
-			return &displays[i];
+			return i;
 		}
 	}
-	return nullptr;
+	return -1;
 }
 
-Display* Display::get(int index) {
-	return &displays[index];
+kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
+	kinc_display_mode_t dm;
+	dm.width = 800;
+	dm.height = 600;
+	dm.frequency = 60;
+	dm.bits_per_pixel = 32;
+	return dm;
 }
 
-DisplayMode Display::availableMode(int index) {
-	DisplayMode mode;
-	mode.width = 800;
-	mode.height = 600;
-	mode.frequency = 60;
-	mode.bitsPerPixel = 32;
-	return mode;
-}
-
-int Display::countAvailableModes() {
+int kinc_display_count_available_modes(int display) {
 	return 1;
 }
 
-int Display::pixelsPerInch() {
-	return 96;
-}
-
-DisplayData::DisplayData() {}
-
-bool Display::available() {
+bool kinc_display_available(int display) {
 	return true;
 }
 
-const char* Display::name() {
+const char *kinc_display_name(int display) {
 	return "Display";
 }
 
+kinc_display_mode_t kinc_display_current_mode(int display) {
+	kinc_display_mode_t dm;
+	dm.width = 800;
+	dm.height = 600;
+	dm.frequency = 60;
+	dm.bits_per_pixel = 32;
+	return dm;
+}
+
+//**
+/*
 int Display::x() {
 	NSArray* screens = [NSScreen screens];
 	NSScreen* screen = screens[_data.index];
@@ -98,6 +99,7 @@ int Display::frequency() {
 	return 60;
 }
 
-Display::Display() {
-	
+int Display::pixelsPerInch() {
+	return 96;
 }
+*/

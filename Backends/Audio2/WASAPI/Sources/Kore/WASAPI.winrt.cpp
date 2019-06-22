@@ -1,6 +1,7 @@
 #include "pch.h"
 
-#include <Kore/Audio2/Audio.h>
+#include <kinc/audio2/audio.h>
+
 #include <Kore/Error.h>
 #include <Kore/Log.h>
 #include <Kore/SystemMicrosoft.h>
@@ -23,6 +24,9 @@ using namespace Windows::Storage::Streams;
 
 // based on the implementation in soloud and Microsoft sample code
 namespace {
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+	kinc_a2_buffer_t a2_buffer;
+
 	IMMDeviceEnumerator* deviceEnumerator;
 	IMMDevice* device;
 	IAudioClient* audioClient;
@@ -35,16 +39,16 @@ namespace {
 	WAVEFORMATEX* format;
 
 	void copyS16Sample(s16* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+		a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 		*buffer = (s16)(value * 32767);
 	}
 
 	void copyFloatSample(float* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+		a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 		*buffer = value;
 	}
 
@@ -54,8 +58,8 @@ namespace {
 			return;
 		}
 
-		if (Kore::Audio2::audioCallback != nullptr) {
-			Kore::Audio2::audioCallback(frames * 2);
+		if (a2_callback != nullptr) {
+			a2_callback(&a2_buffer, frames * 2);
 			memset(buffer, 0, frames * format->nBlockAlign);
 			if (format->wFormatTag == WAVE_FORMAT_PCM) {
 				for (UINT32 i = 0; i < frames; ++i) {
@@ -126,12 +130,12 @@ namespace {
 			return;
 		}
 
-		Audio2::samplesPerSecond = format->nSamplesPerSec;
+		kinc_a2_samples_per_second = format->nSamplesPerSec;
 
 		bufferFrames = 0;
-		Kore_Microsoft_affirm(audioClient->GetBufferSize(&bufferFrames));
-		Kore_Microsoft_affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient)));
-		Kore_Microsoft_affirm(audioClient->SetEventHandle(bufferEndEvent));
+		kinc_microsoft_affirm(audioClient->GetBufferSize(&bufferFrames));
+		kinc_microsoft_affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void **>(&renderClient)));
+		kinc_microsoft_affirm(audioClient->SetEventHandle(bufferEndEvent));
 
 #ifdef KORE_WINDOWS
 		createAndRunThread(audioThread, nullptr);
@@ -173,32 +177,36 @@ template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
 		(punk) = NULL;                                                                                                                                         \
 	}
 
-void Audio2::init() {
-	buffer.readLocation = 0;
-	buffer.writeLocation = 0;
-	buffer.dataSize = 128 * 1024;
-	buffer.data = new u8[buffer.dataSize];
+void kinc_a2_init() {
+	a2_buffer.read_location = 0;
+	a2_buffer.write_location = 0;
+	a2_buffer.data_size = 128 * 1024;
+	a2_buffer.data = new u8[a2_buffer.data_size];
 
 #ifdef KORE_WINDOWS
-	Kore_Microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
-	Kore_Microsoft_affirm(
+	kinc_microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
+	kinc_microsoft_affirm(
 	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&deviceEnumerator)));
-	Kore_Microsoft_affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
-	Kore_Microsoft_affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void**>(&audioClient)));
+	kinc_microsoft_affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
+	kinc_microsoft_affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void **>(&audioClient)));
 	initAudio();
 #else
 	renderer = Make<AudioRenderer>();
 
 	IActivateAudioInterfaceAsyncOperation* asyncOp;
 	Platform::String ^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
-	Kore_Microsoft_affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
+	kinc_microsoft_affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
 	SafeRelease(&asyncOp);
 #endif
 }
 
-void Audio2::update() {}
+void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+	a2_callback = kinc_a2_audio_callback;
+}
 
-void Audio2::shutdown() {
+void kinc_a2_update() {}
+
+void kinc_a2_shutdown() {
 	// Wait for last data in buffer to play before stopping.
 	// Sleep((DWORD)(hnsActualDuration/REFTIMES_PER_MILLISEC/2));
 

@@ -1,18 +1,21 @@
 #pragma once
 
-namespace Kore {
-	namespace Graphics5 {
-		class PipelineState;
-	}
-}
+#include "pch.h"
 
-class CommandList5Impl {
-public:
-	Kore::Graphics5::PipelineState* _currentPipeline;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct kinc_g5_pipeline;
+
+typedef struct {
+	struct kinc_g5_pipeline *_currentPipeline;
 	int _indexCount;
-	Kore::s64 commands[1024];
+	int64_t commands[1024];
 	int commandIndex;
-
-protected:
 	bool closed;
-};
+} CommandList5Impl;
+
+#ifdef __cplusplus
+}
+#endif

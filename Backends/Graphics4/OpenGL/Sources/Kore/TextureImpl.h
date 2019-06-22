@@ -1,28 +1,19 @@
 #pragma once
 
-#include <Kore/Graphics1/Image.h>
+#include <stdint.h>
 
-namespace Kore {
-	namespace Graphics4 {
-		class Texture;
-	}
-
-	class TextureUnitImpl {
-	public:
-		int unit;
-	};
-
-	class TextureImpl {
-	protected:
-		// static TreeMap<Image, Texture*> images;
-	public:
-		unsigned int texture;
-#ifdef KORE_ANDROID
-		bool external_oes;
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-		u8 pixfmt;
+typedef struct {
+	unsigned int texture;
+#ifdef KORE_ANDROID
+	bool external_oes;
+#endif
+	uint8_t pixfmt;
+} kinc_g4_texture_impl_t;
 
-		~TextureImpl();
-	};
+#ifdef __cplusplus
 }
+#endif

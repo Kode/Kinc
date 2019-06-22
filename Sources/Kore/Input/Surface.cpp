@@ -2,30 +2,41 @@
 
 #include "Surface.h"
 
+#include <kinc/input/surface.h>
+
 using namespace Kore;
 
 namespace {
 	Surface surface;
+	bool initialized = false;
+
+	void touchStart(int index, int x, int y) {
+		if (surface.TouchStart != nullptr) {
+			surface.TouchStart(index, x, y);
+		}
+	}
+
+	void move(int index, int x, int y) {
+		if (surface.Move != nullptr) {
+			surface.Move(index, x, y);
+		}
+	}
+
+	void touchEnd(int index, int x, int y) {
+		if (surface.TouchEnd != nullptr) {
+			surface.TouchEnd(index, x, y);
+		}
+	}
 }
 
 Surface* Surface::the() {
+	if (!initialized) {
+		kinc_surface_touch_start_callback = touchStart;
+		kinc_surface_move_callback = move;
+		kinc_surface_touch_end_callback = touchEnd;
+		initialized = true;
+	}
 	return &surface;
 }
 
-void Surface::_move(int index, int x, int y) {
-	if (Move != nullptr) {
-		Move(index, x, y);
-	}
-}
-
-void Surface::_touchStart(int index, int x, int y) {
-	if (TouchStart != nullptr) {
-		TouchStart(index, x, y);
-	}
-}
-
-void Surface::_touchEnd(int index, int x, int y) {
-	if (TouchEnd != nullptr) {
-		TouchEnd(index, x, y);
-	}
-}
+Surface::Surface() : TouchStart(nullptr), Move(nullptr), TouchEnd(nullptr) {}

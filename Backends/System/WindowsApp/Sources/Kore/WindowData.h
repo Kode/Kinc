@@ -1,5 +1,5 @@
 #pragma once
 
-struct WindowData {
-	WindowData();
-};
+typedef struct {
+	int nothing;
+} WindowData;

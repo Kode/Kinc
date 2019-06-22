@@ -2,169 +2,108 @@
 
 #include "System.h"
 
+#include <Kore/Convert.h>
 #include <Kore/Window.h>
 #include <Kore/Math/Random.h>
+
+#include <kinc/input/keyboard.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
 #include <assert.h>
 #include <limits>
 #include <string.h>
 
-#if !defined(KORE_HTML5) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
 double Kore::System::time() {
-	return timestamp() / frequency();
+	return kinc_time();
 }
-#endif
-
-namespace {
-	namespace callbacks {
-		void (*callback)() = nullptr;
-		void (*foregroundCallback)() = nullptr;
-		void (*backgroundCallback)() = nullptr;
-		void (*pauseCallback)() = nullptr;
-		void (*resumeCallback)() = nullptr;
-		void (*shutdownCallback)() = nullptr;
-		void (*orientationCallback)(Kore::Orientation) = nullptr;
-		void (*dropFilesCallback)(wchar_t*) = nullptr;
-		char* (*cutCallback)() = nullptr;
-		char* (*copyCallback)() = nullptr;
-		void (*pasteCallback)(char*) = nullptr;
-	}
-}
-
-#if defined(KORE_IOS) || defined(KORE_MACOS)
-extern "C" {
-	bool withAutoreleasepool(bool (*f)());
-}
-#endif
-
-/*void Kore::System::init(const char* name, int width, int height, int samplesPerPixel) {
-	Kore::System::setName(name);
-	Kore::System::setup();
-	Kore::WindowOptions options;
-	options.title = name;
-	options.width = width;
-	options.height = height;
-	options.x = 100;
-	options.y = 100;
-	options.targetDisplay = -1;
-	options.mode = Kore::WindowModeWindow;
-	options.rendererOptions.depthBufferBits = 16;
-	options.rendererOptions.stencilBufferBits = 8;
-	options.rendererOptions.textureFormat = 0;
-	options.rendererOptions.antialiasing = samplesPerPixel;
-	Kore::System::initWindow(options);
-}*/
 
 void Kore::System::setCallback(void (*value)()) {
-	callbacks::callback = value;
+	kinc_set_update_callback(value);
 }
 
 void Kore::System::setForegroundCallback(void (*value)()) {
-	callbacks::foregroundCallback = value;
+	kinc_set_foreground_callback(value);
 }
 
 void Kore::System::setResumeCallback(void (*value)()) {
-	callbacks::resumeCallback = value;
+	kinc_set_resume_callback(value);
 }
 
 void Kore::System::setPauseCallback(void (*value)()) {
-	callbacks::pauseCallback = value;
+	kinc_set_pause_callback(value);
 }
 
 void Kore::System::setBackgroundCallback(void (*value)()) {
-	callbacks::backgroundCallback = value;
+	kinc_set_background_callback(value);
 }
 
 void Kore::System::setShutdownCallback(void (*value)()) {
-	callbacks::shutdownCallback = value;
+	kinc_set_shutdown_callback(value);
 }
 
 void Kore::System::setOrientationCallback(void (*value)(Orientation)) {
-	callbacks::orientationCallback = value;
+	
 }
 
 void Kore::System::setDropFilesCallback(void (*value)(wchar_t*)) {
-	callbacks::dropFilesCallback = value;
+	kinc_set_drop_files_callback(value);
 }
 
 void Kore::System::setCutCallback(char* (*value)()) {
-	callbacks::cutCallback = value;
+	kinc_set_cut_callback(value);
 }
 
 void Kore::System::setCopyCallback(char* (*value)()) {
-	callbacks::copyCallback = value;
+	kinc_set_copy_callback(value);
 }
 
 void Kore::System::setPasteCallback(void (*value)(char*)) {
-	callbacks::pasteCallback = value;
+	kinc_set_paste_callback(value);
 }
 
 void Kore::System::_callback() {
-	if (callbacks::callback != nullptr) {
-		callbacks::callback();
-	}
+	kinc_internal_update_callback();
 }
 
 void Kore::System::_foregroundCallback() {
-	if (callbacks::foregroundCallback != nullptr) {
-		callbacks::foregroundCallback();
-	}
+	kinc_internal_foreground_callback();
 }
 
 void Kore::System::_resumeCallback() {
-	if (callbacks::resumeCallback != nullptr) {
-		callbacks::resumeCallback();
-	}
+	kinc_internal_resume_callback();
 }
 
 void Kore::System::_pauseCallback() {
-	if (callbacks::pauseCallback != nullptr) {
-		callbacks::pauseCallback();
-	}
+	kinc_internal_pause_callback();
 }
 
 void Kore::System::_backgroundCallback() {
-	if (callbacks::backgroundCallback != nullptr) {
-		callbacks::backgroundCallback();
-	}
+	kinc_internal_background_callback();
 }
 
 void Kore::System::_shutdownCallback() {
-	if (callbacks::shutdownCallback != nullptr) {
-		callbacks::shutdownCallback();
-	}
+	kinc_internal_shutdown_callback();
 }
 
 void Kore::System::_orientationCallback(Orientation orientation) {
-	if (callbacks::orientationCallback != nullptr) {
-		callbacks::orientationCallback(orientation);
-	}
+	
 }
 
 void Kore::System::_dropFilesCallback(wchar_t* filePath) {
-	if (callbacks::dropFilesCallback != nullptr) {
-		callbacks::dropFilesCallback(filePath);
-	}
+	kinc_internal_drop_files_callback(filePath);
 }
 
 char* Kore::System::_cutCallback() {
-	if (callbacks::cutCallback != nullptr) {
-		return callbacks::cutCallback();
-	}
-	return nullptr;
+	return kinc_internal_cut_callback();
 }
 
 char* Kore::System::_copyCallback() {
-	if (callbacks::copyCallback != nullptr) {
-		return callbacks::copyCallback();
-	}
-	return nullptr;
+	return kinc_internal_copy_callback();
 }
 
 void Kore::System::_pasteCallback(char* value) {
-	if (callbacks::pasteCallback != nullptr) {
-		callbacks::pasteCallback(value);
-	}
+	kinc_internal_paste_callback(value);
 }
 
 namespace {
@@ -188,7 +127,7 @@ void Kore::System::setName(const char* value) {
 }
 */
 const char* Kore::System::name() {
-	return ::name;
+	return kinc_application_name();
 }
 
 void Kore::System::_init(const char* name, int width, int height, WindowOptions** win, FramebufferOptions** frame) {
@@ -214,57 +153,8 @@ void shutdownMetalCompute();
 
 void Kore::System::stop() {
 	running = false;
-
-	// TODO (DK) destroy graphics + windows, but afaik Application::~Application() was never called, so it's the same behavior now as well
-
-	// for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
-	//	Graphics::destroy(windowIndex);
-	//}
-	
-#ifdef KORE_METAL
-	shutdownMetalCompute();
-#endif
+	kinc_stop();
 }
-
-bool Kore::System::frame() {
-	_callback();
-	handleMessages();
-	return running;
-}
-
-void Kore::System::start() {
-	running = true;
-
-#if !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_XBOX_ONE)
-	// if (Graphics::hasWindow()) Graphics::swapBuffers();
-
-#if defined(KORE_IOS) || defined(KORE_MACOS)
-	while (withAutoreleasepool(Kore::System::frame)) {
-#else
-	while (frame()) {
-#endif
-	}
-	_shutdown();
-#endif
-}
-
-/*
-int Kore::System::simpleSetup(int argc, char* argv[], int width, int height, int antialiasing, WindowMode mode, const char* title, bool showWindow) {
-	System::setup();
-
-	WindowOptions windowOptions;
-	windowOptions.title = "";
-	windowOptions.mode = mode;
-	windowOptions.width = width;
-	windowOptions.height = height;
-	windowOptions.rendererOptions.antialiasing = antialiasing;
-
-	Kore::Random::init(static_cast<int>(Kore::System::timestamp() % std::numeric_limits<int>::max()));
-	System::setName(title);
-	System::setShowWindowFlag(showWindow);
-	return System::initWindow(windowOptions);
-}
-*/
 
 int Kore::System::windowWidth(int window) {
 	assert(window < Window::count());
@@ -274,6 +164,73 @@ int Kore::System::windowWidth(int window) {
 int Kore::System::windowHeight(int window) {
 	assert(window < Window::count());
 	return Window::get(window)->height();
+}
+
+Kore::Window *Kore::System::init(const char *name, int width, int height, Kore::WindowOptions *win, Kore::FramebufferOptions *frame) {
+	kinc_window_options_t kwin;
+	if (win != nullptr) {
+		kwin = convert(win);
+	}
+
+	kinc_framebuffer_options_t kframe;
+	if (frame != nullptr) {
+		kframe = convert(frame);
+	}
+
+	int window = kinc_init(name, width, height, win == nullptr ? nullptr : &kwin, frame == nullptr ? nullptr : &kframe);
+	return Window::get(window);
+}
+
+const char *Kore::System::savePath() {
+	return kinc_internal_save_path();
+}
+
+bool Kore::System::handleMessages() {
+	return kinc_internal_handle_messages();
+}
+
+void Kore::System::_shutdown() {
+	kinc_internal_shutdown();
+}
+
+void Kore::System::start() {
+	kinc_start();
+}
+
+void Kore::System::setKeepScreenOn(bool on) {
+	kinc_set_keep_screen_on(on);
+}
+
+const char* Kore::System::systemId() {
+	return kinc_system_id();
+}
+
+void Kore::System::vibrate(int milliseconds) {
+	kinc_vibrate(milliseconds);
+}
+
+const char* Kore::System::language() {
+	return kinc_language();
+}
+
+void Kore::System::showKeyboard() {
+	kinc_keyboard_show();
+}
+
+void Kore::System::hideKeyboard() {
+	kinc_keyboard_hide();
+}
+
+bool Kore::System::showsKeyboard() {
+	return kinc_keyboard_active();
+}
+
+void Kore::System::loadURL(const char* url) {
+	kinc_load_url(url);
+}
+
+const char** Kore::System::videoFormats() {
+	return kinc_video_formats();
 }
 
 #ifndef KORE_PS4

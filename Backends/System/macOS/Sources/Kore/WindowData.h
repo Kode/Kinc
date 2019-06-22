@@ -9,6 +9,5 @@ namespace Kore {
 		bool fullscreen;
 		void (*resizeCallback)(int width, int height, void* data);
 		void* resizeCallbackData;
-		WindowData();
 	};
 }

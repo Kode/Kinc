@@ -2,6 +2,8 @@
 
 #include "ConstantBuffer.h"
 
+#include <kinc/graphics5/constantbuffer.h>
+
 #include <Kore/Math/Matrix.h>
 
 using namespace Kore;
@@ -110,7 +112,7 @@ void Graphics5::ConstantBuffer::setBool(int offset, bool value) {
 }
 
 void Graphics5::ConstantBuffer::setMatrix(int offset, const mat4& value) {
-	if (transposeMat4) {
+	if (kinc_g5_transposeMat4) {
 		::setMatrix(data, offset, value.Transpose());
 	}
 	else {
@@ -119,7 +121,7 @@ void Graphics5::ConstantBuffer::setMatrix(int offset, const mat4& value) {
 }
 
 void Graphics5::ConstantBuffer::setMatrix(int offset, const mat3& value) {
-	if (transposeMat3) {
+	if (kinc_g5_transposeMat3) {
 		::setMatrix(data, offset, value.Transpose());
 	}
 	else {

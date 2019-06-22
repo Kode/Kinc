@@ -1,114 +1,113 @@
 #include "pch.h"
 
 #include "Direct3D11.h"
-#include "VertexBufferImpl.h"
-#include <Kore/Graphics4/Graphics.h>
+
+#include <kinc/graphics4/vertexbuffer.h>
+
 #include <Kore/SystemMicrosoft.h>
 
-using namespace Kore;
-
-VertexBufferImpl::VertexBufferImpl(int count) : myCount(count) {}
-
-Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate) : VertexBufferImpl(count) {
-	myStride = 0;
-	for (int i = 0; i < structure.size; ++i) {
-		switch (structure.elements[i].data) {
-		case Float1VertexData:
-			myStride += 1 * 4;
+void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
+                                  int instance_data_step_rate) {
+	buffer->impl.count = count;
+	buffer->impl.stride = 0;
+	for (int i = 0; i < structure->size; ++i) {
+		switch (structure->elements[i].data) {
+		case KINC_G4_VERTEX_DATA_FLOAT1:
+			buffer->impl.stride += 1 * 4;
 			break;
-		case Float2VertexData:
-			myStride += 2 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT2:
+			buffer->impl.stride += 2 * 4;
 			break;
-		case Float3VertexData:
-			myStride += 3 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT3:
+			buffer->impl.stride += 3 * 4;
 			break;
-		case Float4VertexData:
-			myStride += 4 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT4:
+			buffer->impl.stride += 4 * 4;
 			break;
-		case ColorVertexData:
-			myStride += 1 * 4;
+		case KINC_G4_VERTEX_DATA_COLOR:
+			buffer->impl.stride += 1 * 4;
 			break;
-		case Float4x4VertexData:
-			myStride += 4 * 4 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT4X4:
+			buffer->impl.stride += 4 * 4 * 4;
 			break;
-		case Short2NormVertexData:
-			myStride += 2 * 2;
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			buffer->impl.stride += 2 * 2;
 			break;
-		case Short4NormVertexData:
-			myStride += 4 * 2;
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			buffer->impl.stride += 4 * 2;
 			break;
 		}
 	}
 
-	vertices = new float[myStride / 4 * myCount];
+	buffer->impl.vertices = new float[buffer->impl.stride / 4 * count];
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.CPUAccessFlags = 0;
 	
-	this->usage = usage;
+	buffer->impl.usage = usage;
 	switch (usage) {
-	case StaticUsage:
+	case KINC_G4_USAGE_STATIC:
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		break;
-	case DynamicUsage:
+	case KINC_G4_USAGE_DYNAMIC:
 		bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		break;
-	case ReadableUsage:
+	case KINC_G4_USAGE_READABLE:
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		break;
 	}
 	
-	bufferDesc.ByteWidth = myStride * myCount;
+	bufferDesc.ByteWidth = buffer->impl.stride * count;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	Kore_Microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &_vb));
+	kinc_microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.vb));
 }
 
-Graphics4::VertexBuffer::~VertexBuffer() {
-	_vb->Release();
-	delete[] vertices;
+void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
+	buffer->impl.vb->Release();
+	delete[] buffer->impl.vertices;
 }
 
-float* Graphics4::VertexBuffer::lock() {
-	return lock(0, count());
+float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer) {
+	return kinc_g4_vertex_buffer_lock(buffer, 0, buffer->impl.count);
 }
 
-float* Graphics4::VertexBuffer::lock(int start, int count) {
-	lockStart = start;
-	lockCount = count;
-	return &vertices[start * myStride / 4];
+float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, int count) {
+	buffer->impl.lockStart = start;
+	buffer->impl.lockCount = count;
+	return &buffer->impl.vertices[start * buffer->impl.stride / 4];
 }
 
-void Graphics4::VertexBuffer::unlock() {
-	unlock(lockCount);
+void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
+	kinc_g4_vertex_buffer_unlock(buffer, buffer->impl.lockCount);
 }
 
-void Graphics4::VertexBuffer::unlock(int count) {
-	if (usage == DynamicUsage) {
+void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
+	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-		context->Map(_vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		memcpy(mappedResource.pData, &vertices[lockStart * myStride / 4], (count * myStride / 4) * sizeof(float));
-		context->Unmap(_vb, 0);
+		context->Map(buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		memcpy(mappedResource.pData, &buffer->impl.vertices[buffer->impl.lockStart * buffer->impl.stride / 4], (count * buffer->impl.stride / 4) * sizeof(float));
+		context->Unmap(buffer->impl.vb, 0);
 	}
 	else {
-		context->UpdateSubresource(_vb, 0, nullptr, vertices, 0, 0);
+		context->UpdateSubresource(buffer->impl.vb, 0, nullptr, buffer->impl.vertices, 0, 0);
 	}
 }
 
-int Graphics4::VertexBuffer::_set(int offset) {
+int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	// UINT stride = myStride;
 	// UINT internaloffset = 0;
 	// context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
 	return 0;
 }
 
-int Graphics4::VertexBuffer::count() {
-	return myCount;
+int kinc_g4_vertex_buffer_count(kinc_g4_vertex_buffer_t *buffer) {
+	return buffer->impl.count;
 }
 
-int Graphics4::VertexBuffer::stride() {
-	return myStride;
+int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer) {
+	return buffer->impl.stride;
 }

@@ -3,7 +3,8 @@
 #include "HIDGamepad.h"
 #include "HIDManager.h"
 
-#include <Kore/Input/Gamepad.h>
+#include <kinc/input/gamepad.h>
+
 #include <Kore/Log.h>
 #include <Kore/Error.h>
 #include <Kore/Math/Core.h>
@@ -182,9 +183,10 @@ void HIDGamepad::bind(IOHIDDeviceRef inDeviceRef, int inPadIndex) {
 	}
 
 	// Initialise Kore::Gamepad for this HID Device
-	Gamepad *gamepad = Gamepad::get(padIndex);
+	//**
+	/*Gamepad *gamepad = Gamepad::get(padIndex);
 	gamepad->vendor 	 = hidDeviceVendor;
-	gamepad->productName = hidDeviceProduct;
+	gamepad->productName = hidDeviceProduct;*/
 
 	Kore::log(Info, "HIDGamepad.bind: <%p> idx:%d [0x%x:0x%x] [%s] [%s]", inDeviceRef, padIndex, hidDeviceVendorID, hidDeviceProductID, hidDeviceVendor, hidDeviceProduct);
 }
@@ -266,9 +268,10 @@ void HIDGamepad::unbind() {
 	}
 
 	if (padIndex >= 0) {
-		Gamepad *gamepad = Gamepad::get(padIndex);
+		//**
+		/*Gamepad *gamepad = Gamepad::get(padIndex);
 		gamepad->vendor 	 = nullptr;
-		gamepad->productName = nullptr;
+		gamepad->productName = nullptr;*/
 	}
 
 	reset();
@@ -298,7 +301,7 @@ void HIDGamepad::buttonChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRe
 
 	// log(Info, "%f %f %f %f", rawValue, min, max, normalize);
 
-	Gamepad::get(padIndex)->_button(buttonIndex, normalize);
+	kinc_internal_gamepad_trigger_button(padIndex, buttonIndex, normalize);
 
 	if (debugButtonInput) logButton(buttonIndex, (normalize != 0));
 }
@@ -317,7 +320,7 @@ void HIDGamepad::axisChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef,
 
 	// log(Info, "%f %f %f %f", rawValue, min, max, normalize);
 
-	Gamepad::get(padIndex)->_axis(axisIndex, normalize);
+	kinc_internal_gamepad_trigger_axis(padIndex, axisIndex, normalize);
 
 	if (debugAxisInput) logAxis(axisIndex);
 }
@@ -360,3 +363,10 @@ void HIDGamepad::valueAvailableCallback(void* inContext, IOReturn inResult, void
 	} while (1);
 }
 
+const char *kinc_gamepad_vendor(int gamepad) {
+	return "unknown";
+}
+
+const char *kinc_gamepad_product_name(int gamepad) {
+	return "unknown";
+}

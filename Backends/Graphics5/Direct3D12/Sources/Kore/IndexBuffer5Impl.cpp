@@ -3,68 +3,68 @@
 #include "Direct3D12.h"
 #include "IndexBuffer5Impl.h"
 
-#include <Kore/Graphics5/Graphics.h>
+#include <Kinc/Graphics5/IndexBuffer.h>
 #include <Kore/SystemMicrosoft.h>
 
 #include <Windows.h>
 
-using namespace Kore;
+#include <assert.h>
 
-IndexBuffer5Impl* IndexBuffer5Impl::_current = nullptr;
+kinc_g5_index_buffer_t *_current_index_buffer = nullptr;
 
-IndexBuffer5Impl::IndexBuffer5Impl(int count, bool gpuMemory) : myCount(count), _gpuMemory(gpuMemory) {}
-
-Graphics5::IndexBuffer::IndexBuffer(int count, bool gpuMemory) : IndexBuffer5Impl(count, gpuMemory) {
+void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool gpuMemory) {
+	buffer->impl.myCount = count;
+	buffer->impl._gpuMemory = gpuMemory;
 	static_assert(sizeof(D3D12IindexBufferView) == sizeof(D3D12_INDEX_BUFFER_VIEW), "Something is wrong with D3D12IindexBufferView");
 	int uploadBufferSize = sizeof(int) * count;
 
-	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&uploadBuffer));
+	assert(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
+	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&buffer->impl.uploadBuffer)) == S_OK);
 
 	if (gpuMemory) {
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+		assert(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 		                                &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
-		                                IID_GRAPHICS_PPV_ARGS(&indexBuffer));
+		                                IID_GRAPHICS_PPV_ARGS(&buffer->impl.indexBuffer)) == S_OK);
 
-		indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
+		buffer->impl.indexBufferView.BufferLocation = buffer->impl.indexBuffer->GetGPUVirtualAddress();
 	}
 	else {
-		indexBufferView.BufferLocation = uploadBuffer->GetGPUVirtualAddress();
+		buffer->impl.indexBufferView.BufferLocation = buffer->impl.uploadBuffer->GetGPUVirtualAddress();
 	}
-	indexBufferView.SizeInBytes = uploadBufferSize;
-	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	buffer->impl.indexBufferView.SizeInBytes = uploadBufferSize;
+	buffer->impl.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 }
 
-Graphics5::IndexBuffer::~IndexBuffer() {
+void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 	// ib->Release();
 	// delete[] indices;
 }
 
-int* Graphics5::IndexBuffer::lock() {
+int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
 	void* p;
-	uploadBuffer->Map(0, nullptr, &p);
+	buffer->impl.uploadBuffer->Map(0, nullptr, &p);
 	return (int*)p;
 }
 
-void Graphics5::IndexBuffer::unlock() {
-	uploadBuffer->Unmap(0, nullptr);
+void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
+	buffer->impl.uploadBuffer->Unmap(0, nullptr);
 }
 
-void IndexBuffer5Impl::_upload(ID3D12GraphicsCommandList* commandList) {
-	if (!_gpuMemory) return;
+void kinc_g5_internal_index_buffer_upload(kinc_g5_index_buffer_t *buffer, ID3D12GraphicsCommandList *commandList) {
+	if (!buffer->impl._gpuMemory) return;
 
-	commandList->CopyBufferRegion(indexBuffer, 0, uploadBuffer, 0, sizeof(int) * myCount);
+	commandList->CopyBufferRegion(buffer->impl.indexBuffer, 0, buffer->impl.uploadBuffer, 0, sizeof(int) * buffer->impl.myCount);
 
 	CD3DX12_RESOURCE_BARRIER barriers[1] = {
-	    CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER)};
+	    CD3DX12_RESOURCE_BARRIER::Transition(buffer->impl.indexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER)};
 
 	commandList->ResourceBarrier(1, barriers);
 }
 
-void Graphics5::IndexBuffer::_set() {
-	_current = this;
+void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
+	_current_index_buffer = buffer;
 }
 
-int Graphics5::IndexBuffer::count() {
-	return myCount;
+int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
+	return buffer->impl.myCount;
 }

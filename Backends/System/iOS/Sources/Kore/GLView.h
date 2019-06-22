@@ -11,11 +11,7 @@
 #import <CoreMotion/CMMotionManager.h>
 #endif
 
-namespace Kore {
-	namespace Graphics5 {
-		class RenderTarget;
-	}
-}
+struct kinc_g5_render_target;
 
 @interface GLView : UIView <UIKeyInput> {
 @private
@@ -48,7 +44,7 @@ namespace Kore {
 - (id<MTLDevice>)metalDevice;
 - (id<MTLLibrary>)metalLibrary;
 - (id<MTLRenderCommandEncoder>)metalEncoder;
-- (void)newRenderPass:(Kore::Graphics5::RenderTarget*)renderTarget wait: (bool)wait;
+- (void)newRenderPass:(struct kinc_g5_render_target*)renderTarget wait: (bool)wait;
 #endif
 
 @end

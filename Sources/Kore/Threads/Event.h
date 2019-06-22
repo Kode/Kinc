@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Kore/EventImpl.h>
+#include <kinc/threads/event.h>
 
 namespace Kore {
-	class Event : public EventImpl {
+	class Event {
 	public:
 		void create();
 		void destroy();
@@ -11,5 +11,7 @@ namespace Kore {
 		void wait();
 		bool tryToWait(double seconds);
 		void reset();
+	private:
+		kinc_event_t event;
 	};
 }

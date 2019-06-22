@@ -1,50 +1,68 @@
 #include "pch.h"
 
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/log.h>
+#include <kinc/error.h>
+
 #include "Direct3D11.h"
-#include "RenderTargetImpl.h"
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Error.h>
-#include <Kore/Log.h>
+
 #include <Kore/SystemMicrosoft.h>
 
-using namespace Kore;
+static DXGI_FORMAT convertFormat(kinc_g4_render_target_format_t format) {
+	switch (format) {
+	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return DXGI_FORMAT_R16G16B16A16_FLOAT;
+	case KINC_G4_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return DXGI_FORMAT_R32_FLOAT;
+	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return DXGI_FORMAT_R16_FLOAT;
+	case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
+		return DXGI_FORMAT_R8_UNORM;
+	case KINC_G4_RENDER_TARGET_FORMAT_32BIT:
+	default:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	}
+}
 
-Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
-                                      int contextId)
-    : isCubeMap(false), isDepthAttachment(false) {
-	this->texWidth = this->width = width;
-	this->texHeight = this->height = height;
-	this->contextId = contextId;
+static int formatByteSize(kinc_g4_render_target_format_t format) {
+	switch (format) {
+	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return 16;
+	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return 8;
+	case KINC_G4_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return 4;
+	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return 2;
+	case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
+		return 1;
+	case KINC_G4_RENDER_TARGET_FORMAT_32BIT:
+	default:
+		return 4;
+	}
+}
+
+void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing, kinc_g4_render_target_format_t format, int stencilBufferBits,
+                                      int contextId) {
+	renderTarget->isCubeMap = false;
+	renderTarget->isDepthAttachment = false;
+	renderTarget->texWidth = renderTarget->width = width;
+	renderTarget->texHeight = renderTarget->height = height;
+	renderTarget->contextId = contextId;
+	renderTarget->impl.format = format;
+	renderTarget->impl.textureStaging = nullptr;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
 	desc.Height = height;
 	desc.MipLevels = desc.ArraySize = 1;
-
-	switch (format) {
-	case Target128BitFloat:
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		break;
-	case Target64BitFloat:
-		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		break;
-	case Target32BitRedFloat:
-		desc.Format = DXGI_FORMAT_R32_FLOAT;
-		break;
-	case Target16BitRedFloat:
-		desc.Format = DXGI_FORMAT_R16_FLOAT;
-		break;
-	case Target8BitRed:
-		desc.Format = DXGI_FORMAT_R8_UNORM;
-		break;
-	case Target16BitDepth:
-		isDepthAttachment = true;
+	desc.Format = convertFormat(format);
+	if (format == KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH) {
+		renderTarget->isDepthAttachment = true;
 		depthBufferBits = 16;
 		stencilBufferBits = 0;
-		break;
-	case Target32Bit:
-	default:
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
 
 	if (antialiasing) {
@@ -60,43 +78,45 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	desc.CPUAccessFlags = 0; // D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
 
-	textureRender = nullptr;
-	textureSample = nullptr;
-	renderTargetSRV = nullptr;
+	renderTarget->impl.textureRender = nullptr;
+	renderTarget->impl.textureSample = nullptr;
+	renderTarget->impl.renderTargetSRV = nullptr;
 	for (int i = 0; i < 6; i++) {
-		renderTargetViewRender[i] = nullptr;
-		renderTargetViewSample[i] = nullptr;
+		renderTarget->impl.renderTargetViewRender[i] = nullptr;
+		renderTarget->impl.renderTargetViewSample[i] = nullptr;
 	}
-	if (!isDepthAttachment) {
-		Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &textureRender));
+	if (!renderTarget->isDepthAttachment) {
+		kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &renderTarget->impl.textureRender));
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = desc.Format;
 		renderTargetViewDesc.ViewDimension = antialiasing ? D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		Kore_Microsoft_affirm(device->CreateRenderTargetView(textureRender, &renderTargetViewDesc, &renderTargetViewRender[0]));
+		kinc_microsoft_affirm(
+		    device->CreateRenderTargetView(renderTarget->impl.textureRender, &renderTargetViewDesc, &renderTarget->impl.renderTargetViewRender[0]));
 
 		if (antialiasing) {
 			desc.SampleDesc.Count = 1;
 			desc.SampleDesc.Quality = 0;
-			Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &textureSample));
+			kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &renderTarget->impl.textureSample));
 
 			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 			renderTargetViewDesc.Format = desc.Format;
 			renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 			renderTargetViewDesc.Texture2D.MipSlice = 0;
-			Kore_Microsoft_affirm(device->CreateRenderTargetView(textureSample, &renderTargetViewDesc, &renderTargetViewSample[0]));
+			kinc_microsoft_affirm(
+			    device->CreateRenderTargetView(renderTarget->impl.textureSample, &renderTargetViewDesc, &renderTarget->impl.renderTargetViewSample[0]));
 		}
 		else {
-			textureSample = textureRender;
-			renderTargetViewSample[0] = renderTargetViewRender[0];
+			renderTarget->impl.textureSample = renderTarget->impl.textureRender;
+			renderTarget->impl.renderTargetViewSample[0] = renderTarget->impl.renderTargetViewRender[0];
 		}
 	}
 
-	depthStencil = nullptr;
-	depthStencilSRV = nullptr;
+	renderTarget->impl.depthStencil = nullptr;
+	renderTarget->impl.depthStencilSRV = nullptr;
 	for (int i = 0; i < 6; i++) {
-		depthStencilView[i] = nullptr;
+		renderTarget->impl.depthStencilView[i] = nullptr;
 	}
 	
 	DXGI_FORMAT depthFormat;
@@ -123,18 +143,18 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 			depthStencilDesc.SampleDesc.Count = 1;
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
-		Kore_Microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-		Kore_Microsoft_affirm(device->CreateDepthStencilView(
-		    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, depthViewFormat), &depthStencilView[0]));
+		kinc_microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &renderTarget->impl.depthStencil));
+		kinc_microsoft_affirm(device->CreateDepthStencilView(
+		    renderTarget->impl.depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, depthViewFormat), &renderTarget->impl.depthStencilView[0]));
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	if (!isDepthAttachment) {
+	if (!renderTarget->isDepthAttachment) {
 		shaderResourceViewDesc.Format = desc.Format;
 		shaderResourceViewDesc.ViewDimension = antialiasing ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		Kore_Microsoft_affirm(device->CreateShaderResourceView(textureSample, &shaderResourceViewDesc, &renderTargetSRV));
+		kinc_microsoft_affirm(device->CreateShaderResourceView(renderTarget->impl.textureSample, &shaderResourceViewDesc, &renderTarget->impl.renderTargetSRV));
 	}
 
 	if (depthBufferBits > 0) {
@@ -142,52 +162,38 @@ Graphics4::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		shaderResourceViewDesc.ViewDimension = antialiasing ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		Kore_Microsoft_affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
+		kinc_microsoft_affirm(device->CreateShaderResourceView(renderTarget->impl.depthStencil, &shaderResourceViewDesc, &renderTarget->impl.depthStencilSRV));
 	}
 
-	if (renderTargetViewRender[0] != nullptr) {
+	if (renderTarget->impl.renderTargetViewRender[0] != nullptr) {
 		FLOAT colors[4] = {0, 0, 0, 0};
-		context->ClearRenderTargetView(renderTargetViewRender[0], colors);
+		context->ClearRenderTargetView(renderTarget->impl.renderTargetViewRender[0], colors);
 	}
 }
 
-Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits, int contextId)
-    : width(cubeMapSize), height(cubeMapSize), isCubeMap(true), isDepthAttachment(false) {
+void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int cubeMapSize, int depthBufferBits, bool antialiasing,
+                                     kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
+	renderTarget->width = cubeMapSize;
+	renderTarget->height = cubeMapSize;
+	renderTarget->isCubeMap = true;
+	renderTarget->isDepthAttachment = false;
 
-	this->texWidth = this->width = width;
-	this->texHeight = this->height = height;
-	this->contextId = contextId;
+	renderTarget->texWidth = renderTarget->width;
+	renderTarget->texHeight = renderTarget->height;
+	renderTarget->contextId = contextId;
+	renderTarget->impl.format = format;
+	renderTarget->impl.textureStaging = nullptr;
 
 	D3D11_TEXTURE2D_DESC desc;
-	desc.Width = width;
-	desc.Height = height;
+	desc.Width = renderTarget->width;
+	desc.Height = renderTarget->height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 6;
-
-	switch (format) {
-	case Target128BitFloat:
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		break;
-	case Target64BitFloat:
-		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		break;
-	case Target32BitRedFloat:
-		desc.Format = DXGI_FORMAT_R32_FLOAT;
-		break;
-	case Target16BitRedFloat:
-		desc.Format = DXGI_FORMAT_R16_FLOAT;
-		break;
-	case Target8BitRed:
-		desc.Format = DXGI_FORMAT_R8_UNORM;
-		break;
-	case Target16BitDepth:
-		isDepthAttachment = true;
+	desc.Format = convertFormat(format);
+	if (format == KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH) {
+		renderTarget->isDepthAttachment = true;
 		depthBufferBits = 16;
 		stencilBufferBits = 0;
-		break;
-	case Target32Bit:
-	default:
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
 
 	if (antialiasing) {
@@ -203,15 +209,15 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	desc.CPUAccessFlags = 0; // D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-	textureRender = nullptr;
-	textureSample = nullptr;
-	renderTargetSRV = nullptr;
+	renderTarget->impl.textureRender = nullptr;
+	renderTarget->impl.textureSample = nullptr;
+	renderTarget->impl.renderTargetSRV = nullptr;
 	for (int i = 0; i < 6; i++) {
-		renderTargetViewRender[i] = nullptr;
-		renderTargetViewSample[i] = nullptr;
+		renderTarget->impl.renderTargetViewRender[i] = nullptr;
+		renderTarget->impl.renderTargetViewSample[i] = nullptr;
 	}
-	if (!isDepthAttachment) {
-		Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &textureRender));
+	if (!renderTarget->isDepthAttachment) {
+		kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &renderTarget->impl.textureRender));
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = desc.Format;
@@ -221,13 +227,14 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 
 		for (int i = 0; i < 6; i++) {
 			renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
-			Kore_Microsoft_affirm(device->CreateRenderTargetView(textureRender, &renderTargetViewDesc, &renderTargetViewRender[i]));
+			kinc_microsoft_affirm(
+			    device->CreateRenderTargetView(renderTarget->impl.textureRender, &renderTargetViewDesc, &renderTarget->impl.renderTargetViewRender[i]));
 		}
 
 		if (antialiasing) {
 			desc.SampleDesc.Count = 1;
 			desc.SampleDesc.Quality = 0;
-			Kore_Microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &textureSample));
+			kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &renderTarget->impl.textureSample));
 
 			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 			renderTargetViewDesc.Format = desc.Format;
@@ -236,21 +243,22 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 			renderTargetViewDesc.Texture2DArray.ArraySize = 1;
 			for (int i = 0; i < 6; i++) {
 				renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
-				Kore_Microsoft_affirm(device->CreateRenderTargetView(textureSample, &renderTargetViewDesc, &renderTargetViewSample[i]));
+				kinc_microsoft_affirm(
+				    device->CreateRenderTargetView(renderTarget->impl.textureSample, &renderTargetViewDesc, &renderTarget->impl.renderTargetViewSample[i]));
 			}
 		}
 		else {
-			textureSample = textureRender;
+			renderTarget->impl.textureSample = renderTarget->impl.textureRender;
 			for (int i = 0; i < 6; i++) {
-				renderTargetViewSample[i] = renderTargetViewRender[i];
+				renderTarget->impl.renderTargetViewSample[i] = renderTarget->impl.renderTargetViewRender[i];
 			}
 		}
 	}
 
-	depthStencil = nullptr;
-	depthStencilSRV = nullptr;
+	renderTarget->impl.depthStencil = nullptr;
+	renderTarget->impl.depthStencilSRV = nullptr;
 	for (int i = 0; i < 6; i++) {
-		depthStencilView[i] = nullptr;
+		renderTarget->impl.depthStencilView[i] = nullptr;
 	}
 	
 	DXGI_FORMAT depthFormat;
@@ -268,7 +276,8 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 	}
 
 	if (depthBufferBits > 0) {
-		CD3D11_TEXTURE2D_DESC depthStencilDesc(depthFormat, width, height, 1, 1, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
+		CD3D11_TEXTURE2D_DESC depthStencilDesc(depthFormat, renderTarget->width, renderTarget->height, 1, 1,
+		                                       D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
 		depthStencilDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 		depthStencilDesc.ArraySize = 6;
 		if (antialiasing) {
@@ -279,7 +288,7 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 			depthStencilDesc.SampleDesc.Count = 1;
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
-		Kore_Microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
+		kinc_microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &renderTarget->impl.depthStencil));
 
 		CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 		depthStencilViewDesc.Format = depthViewFormat;
@@ -289,17 +298,18 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		depthStencilViewDesc.Flags = 0;
 		for (int i = 0; i < 6; i++) {
 			depthStencilViewDesc.Texture2DArray.FirstArraySlice = i;
-			Kore_Microsoft_affirm(device->CreateDepthStencilView(depthStencil, &depthStencilViewDesc, &depthStencilView[i]));
+			kinc_microsoft_affirm(
+			    device->CreateDepthStencilView(renderTarget->impl.depthStencil, &depthStencilViewDesc, &renderTarget->impl.depthStencilView[i]));
 		}
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	if (!isDepthAttachment) {
+	if (!renderTarget->isDepthAttachment) {
 		shaderResourceViewDesc.Format = desc.Format;
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCube.MipLevels = 1;
-		Kore_Microsoft_affirm(device->CreateShaderResourceView(textureSample, &shaderResourceViewDesc, &renderTargetSRV));
+		kinc_microsoft_affirm(device->CreateShaderResourceView(renderTarget->impl.textureSample, &shaderResourceViewDesc, &renderTarget->impl.renderTargetSRV));
 	}
 
 	if (depthBufferBits > 0) {
@@ -307,49 +317,81 @@ Graphics4::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCube.MipLevels = 1;
-		Kore_Microsoft_affirm(device->CreateShaderResourceView(depthStencil, &shaderResourceViewDesc, &depthStencilSRV));
+		kinc_microsoft_affirm(device->CreateShaderResourceView(renderTarget->impl.depthStencil, &shaderResourceViewDesc, &renderTarget->impl.depthStencilSRV));
 	}
 
-	if (!isDepthAttachment) {
+	if (!renderTarget->isDepthAttachment) {
 		FLOAT colors[4] = {0, 0, 0, 0};
 		for (int i = 0; i < 6; i++) {
-			context->ClearRenderTargetView(renderTargetViewRender[i], colors);
+			context->ClearRenderTargetView(renderTarget->impl.renderTargetViewRender[i], colors);
 		}
 	}
 }
 
-Graphics4::RenderTarget::~RenderTarget() {
+void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 	for (int i = 0; i < 6; i++) {
-		if (renderTargetViewRender[i] != nullptr) renderTargetViewRender[i]->Release();
-		if (renderTargetViewSample[i] != nullptr && renderTargetViewSample[i] != renderTargetViewRender[i]) renderTargetViewSample[i]->Release();
-		if (depthStencilView[i] != nullptr) depthStencilView[i]->Release();
+		if (renderTarget->impl.renderTargetViewRender[i] != nullptr) renderTarget->impl.renderTargetViewRender[i]->Release();
+		if (renderTarget->impl.renderTargetViewSample[i] != nullptr && renderTarget->impl.renderTargetViewSample[i] != renderTarget->impl.renderTargetViewRender[i])
+			renderTarget->impl.renderTargetViewSample[i]->Release();
+		if (renderTarget->impl.depthStencilView[i] != nullptr) renderTarget->impl.depthStencilView[i]->Release();
 	}
-	if (renderTargetSRV != nullptr) renderTargetSRV->Release();
-	if (depthStencilSRV != nullptr) depthStencilSRV->Release();
-	if (textureRender != nullptr) textureRender->Release();
+	if (renderTarget->impl.renderTargetSRV != nullptr) renderTarget->impl.renderTargetSRV->Release();
+	if (renderTarget->impl.depthStencilSRV != nullptr) renderTarget->impl.depthStencilSRV->Release();
+	if (renderTarget->impl.textureRender != nullptr) renderTarget->impl.textureRender->Release();
+	if (renderTarget->impl.textureStaging != nullptr) renderTarget->impl.textureStaging->Release();
 }
 
-void Graphics4::RenderTarget::useColorAsTexture(TextureUnit unit) {
-	if (unit.unit < 0) return;
-	if (textureSample != textureRender) {
-		context->ResolveSubresource(textureSample, 0, textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
+	if (unit.impl.unit < 0) return;
+	if (renderTarget->impl.textureSample != renderTarget->impl.textureRender) {
+		context->ResolveSubresource(renderTarget->impl.textureSample, 0, renderTarget->impl.textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
-	context->PSSetShaderResources(unit.unit, 1, isDepthAttachment ? &depthStencilSRV : &renderTargetSRV);
+	context->PSSetShaderResources(unit.impl.unit, 1, renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
 }
 
-void Graphics4::RenderTarget::useDepthAsTexture(TextureUnit unit) {
-	if (unit.unit < 0) return;
-	context->PSSetShaderResources(unit.unit, 1, &depthStencilSRV);
+void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
+	if (unit.impl.unit < 0) return;
+	context->PSSetShaderResources(unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
 }
 
-void Graphics4::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
-	depthStencil = source->depthStencil;
+void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *renderTarget, kinc_g4_render_target_t *source) {
+	renderTarget->impl.depthStencil = source->impl.depthStencil;
 	for (int i = 0; i < 6; i++) {
-		depthStencilView[i] = source->depthStencilView[i];
+		renderTarget->impl.depthStencilView[i] = source->impl.depthStencilView[i];
 	}
-	depthStencilSRV = source->depthStencilSRV;
+	renderTarget->impl.depthStencilSRV = source->impl.depthStencilSRV;
 }
 
-void Graphics4::RenderTarget::getPixels(u8* data) {}
+void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uint8_t *data) {
+	if (renderTarget->impl.textureStaging == nullptr) {
+		D3D11_TEXTURE2D_DESC desc;
+		desc.Width = renderTarget->texWidth;
+		desc.Height = renderTarget->texHeight;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = convertFormat((kinc_g4_render_target_format_t)renderTarget->impl.format);
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.BindFlags = 0;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		desc.MiscFlags = 0;
+		kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &renderTarget->impl.textureStaging));
+	}
 
-void Graphics4::RenderTarget::generateMipmaps(int levels) {}
+	D3D11_BOX sourceRegion;
+	sourceRegion.left = 0;
+	sourceRegion.right = renderTarget->texWidth;
+	sourceRegion.top = 0;
+	sourceRegion.bottom = renderTarget->texHeight;
+	sourceRegion.front = 0;
+	sourceRegion.back = 1;
+	context->CopySubresourceRegion(renderTarget->impl.textureStaging, 0, 0, 0, 0, renderTarget->impl.textureRender, 0, &sourceRegion);
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	context->Map(renderTarget->impl.textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
+	memcpy(data, mappedResource.pData, renderTarget->texWidth * renderTarget->texHeight * formatByteSize((kinc_g4_render_target_format_t)renderTarget->impl.format));
+	context->Unmap(renderTarget->impl.textureStaging, 0);
+}
+
+void kinc_g4_render_target_generate_mipmaps(kinc_g4_render_target_t *renderTarget, int levels) {}

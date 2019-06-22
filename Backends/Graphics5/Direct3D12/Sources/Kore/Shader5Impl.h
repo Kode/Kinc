@@ -1,23 +1,37 @@
 #pragma once
 
-#include <map>
-#include <string>
+#include "pch.h"
 
-namespace Kore {
-	struct ShaderConstant {
-		u32 offset;
-		u32 size;
-	};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class Shader5Impl {
-	public:
-		Shader5Impl();
-		std::map<std::string, ShaderConstant> constants;
-		int constantsSize;
-		std::map<std::string, int> attributes;
-		std::map<std::string, int> textures;
-		void* shader;
-		u8* data;
-		int length;
-	};
+typedef struct {
+	char name[64];
+	uint32_t offset;
+	uint32_t size;
+} ShaderConstant;
+
+typedef struct {
+	char name[64];
+	int attribute;
+} ShaderAttribute;
+
+typedef struct {
+	char name[64];
+	int texture;
+} ShaderTexture;
+
+typedef struct {
+	ShaderConstant constants[32];
+	int constantsSize;
+	ShaderAttribute attributes[32];
+	ShaderTexture textures[32];
+	void *shader;
+	uint8_t *data;
+	int length;
+} Shader5Impl;
+
+#ifdef __cplusplus
 }
+#endif

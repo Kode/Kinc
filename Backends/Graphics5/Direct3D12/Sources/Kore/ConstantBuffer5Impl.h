@@ -1,17 +1,21 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ID3D12Resource;
 
-namespace Kore {
-	class ConstantBuffer5Impl {
-	public:
-		ID3D12Resource* _buffer;
+typedef struct {
+	struct ID3D12Resource *_buffer;
+	int lastStart;
+	int lastCount;
+	int mySize;
+} ConstantBuffer5Impl;
 
-	protected:
-		int lastStart;
-		int lastCount;
-		int mySize;
-		const bool transposeMat3 = false;
-		const bool transposeMat4 = false;
-	};
+extern bool kinc_g5_transposeMat3;
+extern bool kinc_g5_transposeMat4;
+
+#ifdef __cplusplus
 }
+#endif

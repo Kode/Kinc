@@ -1,78 +1,77 @@
-#include "ogl.h"
 #include "pch.h"
-#include <Kore/Compute/Compute.h>
 
-using namespace Kore;
+#include "ogl.h"
+
+#include <kinc/compute/compute.h>
 
 #if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_3)) || (defined(KORE_ANDROID) && defined(GL_ES_VERSION_3_1))
 #define HAS_COMPUTE
 #endif
 
-ShaderStorageBuffer* ShaderStorageBufferImpl::current = nullptr;
+kinc_shader_storage_buffer_t *currentStorageBuffer = nullptr;
 
-ShaderStorageBufferImpl::ShaderStorageBufferImpl(int count, Graphics4::VertexData type) : myCount(count) {}
+static void unset(kinc_shader_storage_buffer_t *buffer) {
+	if (currentStorageBuffer == buffer) currentStorageBuffer = nullptr;
+}
 
-ShaderStorageBuffer::ShaderStorageBuffer(int indexCount, Graphics4::VertexData type) : ShaderStorageBufferImpl(indexCount, type) {
-	myStride = 0;
+void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int indexCount, kinc_g4_vertex_data_t type) {
+	buffer->impl.myCount = indexCount;
+	buffer->impl.myStride = 0;
 	switch (type) {
-	case Graphics4::ColorVertexData:
-		myStride += 1 * 4;
+	case KINC_G4_VERTEX_DATA_COLOR:
+		buffer->impl.myStride += 1 * 4;
 		break;
-	case Graphics4::Float1VertexData:
-		myStride += 1 * 4;
+	case KINC_G4_VERTEX_DATA_FLOAT1:
+		buffer->impl.myStride += 1 * 4;
 		break;
-	case Graphics4::Float2VertexData:
-		myStride += 2 * 4;
+	case KINC_G4_VERTEX_DATA_FLOAT2:
+		buffer->impl.myStride += 2 * 4;
 		break;
-	case Graphics4::Float3VertexData:
-		myStride += 3 * 4;
+	case KINC_G4_VERTEX_DATA_FLOAT3:
+		buffer->impl.myStride += 3 * 4;
 		break;
-	case Graphics4::Float4VertexData:
-		myStride += 4 * 4;
+	case KINC_G4_VERTEX_DATA_FLOAT4:
+		buffer->impl.myStride += 4 * 4;
 		break;
-	case Graphics4::Float4x4VertexData:
-		myStride += 4 * 4 * 4;
+	case KINC_G4_VERTEX_DATA_FLOAT4X4:
+		buffer->impl.myStride += 4 * 4 * 4;
 		break;
-	case Graphics4::NoVertexData:
+	case KINC_G4_VERTEX_DATA_NONE:
 		break;
 	}
 #ifdef HAS_COMPUTE
-	glGenBuffers(1, &bufferId);
+	glGenBuffers(1, &buffer->impl.bufferId);
 	glCheckErrors();
 #endif
-	data = new int[indexCount];
+	buffer->impl.data = new int[indexCount];
 }
 
-ShaderStorageBuffer::~ShaderStorageBuffer() {
-	unset();
-	delete[] data;
+void kinc_shader_storage_buffer_destroy(kinc_shader_storage_buffer_t *buffer) {
+	unset(buffer);
+	delete[] buffer->impl.data;
 }
 
-int* ShaderStorageBuffer::lock() {
-	return data;
+int *kinc_shader_storage_buffer_lock(kinc_shader_storage_buffer_t *buffer) {
+	return buffer->impl.data;
 }
 
-void ShaderStorageBuffer::unlock() {
+void kinc_shader_storage_buffer_unlock(kinc_shader_storage_buffer_t *buffer) {
 #ifdef HAS_COMPUTE
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferId);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
-	glBufferData(GL_SHADER_STORAGE_BUFFER, myCount * myStride, data, GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, buffer->impl.myCount * buffer->impl.myStride, buffer->impl.data, GL_STATIC_DRAW);
 	glCheckErrors();
 #endif
 }
 
-void ShaderStorageBuffer::_set() {
-	current = this;
+void kinc_shader_storage_buffer_internal_set(kinc_shader_storage_buffer_t *buffer) {
+	currentStorageBuffer = buffer;
 #ifdef HAS_COMPUTE
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferId);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
 #endif
 }
 
-void ShaderStorageBufferImpl::unset() {
-	if ((void*)current == (void*)this) current = nullptr;
-}
-
-int ShaderStorageBuffer::count() {
-	return myCount;
+int kinc_shader_storage_buffer_count(kinc_shader_storage_buffer_t *buffer) {
+	return buffer->impl.myCount;
 }

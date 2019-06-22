@@ -1,22 +1,23 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ID3D12CommandAllocator;
 struct ID3D12GraphicsCommandList;
 
-namespace Kore {
-	namespace Graphics5 {
-		class PipelineState;
-	}
-}
+struct kinc_g5_pipeline;
 
-class CommandList5Impl {
-public:
-	ID3D12CommandAllocator* _commandAllocator;
-	ID3D12GraphicsCommandList* _commandList;
-	Kore::Graphics5::PipelineState* _currentPipeline;
+typedef struct {
+	struct ID3D12CommandAllocator *_commandAllocator;
+	struct ID3D12GraphicsCommandList *_commandList;
+	struct kinc_g5_pipeline *_currentPipeline;
 	int _indexCount;
-
-protected:
 	bool closed;
 	unsigned long long currentFenceValue;
-};
+} CommandList5Impl;
+
+#ifdef __cplusplus
+}
+#endif

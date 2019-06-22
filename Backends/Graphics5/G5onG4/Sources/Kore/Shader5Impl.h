@@ -1,14 +1,15 @@
 #pragma once
 
-namespace Kore {
-	namespace Graphics4 {
-		class Shader;
-	}
+#include <kinc/graphics4/shader.h>
 
-	class Shader5Impl {
-	public:
-		Shader5Impl();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-		Graphics4::Shader* shader;
-	};
+typedef struct {
+	kinc_g4_shader_t shader;
+} Shader5Impl;
+
+#ifdef __cplusplus
 }
+#endif

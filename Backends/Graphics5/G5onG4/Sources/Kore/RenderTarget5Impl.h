@@ -1,8 +1,13 @@
 #pragma once
 
-namespace Kore {
-	class RenderTarget5Impl {
-	public:
-		int stage;
-	};
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct {
+	int stage;
+} RenderTarget5Impl;
+
+#ifdef __cplusplus
 }
+#endif

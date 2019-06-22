@@ -1,5 +1,8 @@
 #pragma once
 
+#include <kinc/graphics4/constantlocation.h>
+#include <kinc/graphics4/shader.h>
+
 #include "Texture.h"
 #include "VertexStructure.h"
 #include <Kore/Math/Matrix.h>
@@ -10,28 +13,22 @@ namespace Kore {
 	namespace Graphics4 {
 		enum ShaderType { FragmentShader, VertexShader, GeometryShader, TessellationControlShader, TessellationEvaluationShader };
 
-		class Shader : public ShaderImpl {
+		class Shader {
 		public:
 			Shader(void* data, int length, ShaderType type);
 			Shader(const char* source, ShaderType type); // Beware, this is not portable
-			u32 id;
-
-		private:
-			void setId() {
-				static u32 lastId = 0;
-				id = lastId++;
-			}
-			void parse(void* data, int length, ShaderType type);
+			virtual ~Shader();
+			
+			kinc_g4_shader_t kincShader;
 		};
 
-		class ConstantLocation : public ConstantLocationImpl {
+		class ConstantLocation {
 		public:
-			u32 id;
-
 			ConstantLocation() {
-				static u32 lastId = 0;
-				id = lastId++;
+
 			}
+
+			kinc_g4_constant_location_t kincConstant;
 		};
 	}
 }

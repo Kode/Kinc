@@ -1,32 +1,30 @@
 #pragma once
 
-#include <Kore/Graphics4/VertexStructure.h>
+#include <kinc/graphics4/vertexstructure.h>
 
-namespace Kore {
-	namespace Graphics4 {
-		class VertexBuffer;
-	}
+#include <stdbool.h>
 
-	class VertexBufferImpl {
-	protected:
-		VertexBufferImpl(int count, int instanceDataStepRate);
-		void unset();
-		float* data;
-		int myCount;
-		int myStride;
-		uint bufferId;
-		uint usage;
-		int sectionStart;
-		int sectionSize;
-		//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
-		Graphics4::VertexStructure structure;
-		//#endif
-		int instanceDataStepRate;
-		int setVertexAttributes(int offset);
-#ifndef NDEBUG
-		bool initialized;
+#ifdef __cplusplus
+extern "C" {
 #endif
-	public:
-		static Graphics4::VertexBuffer* current;
-	};
+
+typedef struct {
+	float *data;
+	int myCount;
+	int myStride;
+	unsigned bufferId;
+	unsigned usage;
+	int sectionStart;
+	int sectionSize;
+	//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
+	kinc_g4_vertex_structure_t structure;
+	//#endif
+	int instanceDataStepRate;
+#ifndef NDEBUG
+	bool initialized;
+#endif
+} kinc_g4_vertex_buffer_impl_t;
+
+#ifdef __cplusplus
 }
+#endif

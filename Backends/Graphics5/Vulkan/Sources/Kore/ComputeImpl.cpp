@@ -2,69 +2,46 @@
 
 #include "ComputeImpl.h"
 
-#include <Kore/Compute/Compute.h>
-#include <Kore/Math/Core.h>
+#include <kinc/compute/compute.h>
+#include <kinc/math/core.h>
 
-using namespace Kore;
+void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int length) {}
 
-ComputeShaderImpl::ComputeShaderImpl(void* source, int length) {}
+void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {}
 
-ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {}
-
-ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
-	ComputeConstantLocation location;
+kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
+	kinc_compute_constant_location_t location;
+	location.impl.nothing = 0;
 	return location;
 }
 
-ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
-	ComputeTextureUnit unit;
+kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_shader_t *shader, const char *name) {
+	kinc_compute_texture_unit_t unit;
+	unit.impl.nothing = 0;
 	return unit;
 }
 
-void Compute::setBool(ComputeConstantLocation location, bool value) {}
-
-void Compute::setInt(ComputeConstantLocation location, int value) {}
-
-void Compute::setFloat(ComputeConstantLocation location, float value) {}
-
-void Compute::setFloat2(ComputeConstantLocation location, float value1, float value2) {}
-
-void Compute::setFloat3(ComputeConstantLocation location, float value1, float value2, float value3) {}
-
-void Compute::setFloat4(ComputeConstantLocation location, float value1, float value2, float value3, float value4) {}
-
-void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {}
-
-void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {}
-
-void Compute::setMatrix(ComputeConstantLocation location, const mat3& value) {}
-
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {}
-
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {}
-
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {}
-
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {}
-
-void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {}
-
-void Compute::setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {}
-
-void Compute::setTexture3DAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {}
-
-void Compute::setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
-
-void Compute::setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
-
-void Compute::setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
-
-void Compute::setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter) {}
-
-void Compute::setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {}
-
-void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {}
-
-void Compute::setShader(ComputeShader* shader) {}
-
-void Compute::compute(int x, int y, int z) {}
+void kinc_compute_set_bool(kinc_compute_constant_location_t location, bool value) {}
+void kinc_compute_set_int(kinc_compute_constant_location_t location, int value) {}
+void kinc_compute_set_float(kinc_compute_constant_location_t location, float value) {}
+void kinc_compute_set_float2(kinc_compute_constant_location_t location, float value1, float value2) {}
+void kinc_compute_set_float3(kinc_compute_constant_location_t location, float value1, float value2, float value3) {}
+void kinc_compute_set_float4(kinc_compute_constant_location_t location, float value1, float value2, float value3, float value4) {}
+void kinc_compute_set_floats(kinc_compute_constant_location_t location, float *values, int count) {}
+void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, kinc_matrix4x4_t *value) {}
+void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_matrix3x3_t *value) {}
+void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture, kinc_compute_access_t access) {}
+void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *texture, kinc_compute_access_t access) {}
+void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture) {}
+void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {}
+void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {}
+void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {}
+void kinc_compute_set_texture_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
+void kinc_compute_set_texture_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
+void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
+void kinc_compute_set_texture3d_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {}
+void kinc_compute_set_texture3d_magnification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
+void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {}
+void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
+void kinc_compute_set_shader(kinc_compute_shader_t *shader) {}
+void kinc_compute(int x, int y, int z) {}

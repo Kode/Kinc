@@ -1,5 +1,5 @@
 #pragma once
 
-#include <Kore/Graphics1/Image.h>
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Math/Matrix.h>
+#include <kinc/image.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/math/matrix.h>

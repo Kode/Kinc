@@ -1,34 +1,10 @@
 #pragma once
 
+#include <kinc/io/filereader.h>
+
 #include "Reader.h"
 
-#ifndef KORE_DEBUGDIR
-#define KORE_DEBUGDIR "Deployment"
-#endif
-
-#ifdef KORE_ANDROID
-struct AAsset;
-struct __sFILE;
-typedef __sFILE FILE;
-#endif
-
 namespace Kore {
-#ifdef KORE_ANDROID
-	struct FileReaderData {
-		int pos;
-		int size;
-		FILE* file;
-		AAsset* asset;
-	};
-#else
-	struct FileReaderData {
-		void* file;
-		int size;
-		int offset;
-		int mode;
-	};
-#endif
-
 	class FileReader : public Reader {
 	public:
 		enum FileType { Asset, Save };
@@ -40,15 +16,12 @@ namespace Kore {
 		void close();
 		int read(void* data, int size) override;
 		void* readAll() override;
-		int size() const override;
-		int pos() const override;
+		int size() override;
+		int pos() override;
 		void seek(int pos) override;
 
-		FileReaderData data;
+		kinc_file_reader_t reader;
 		FileType type;
 		void* readdata;
 	};
-
-	void setFilesLocation(char* dir);
-	char* getFilesLocation();
 }

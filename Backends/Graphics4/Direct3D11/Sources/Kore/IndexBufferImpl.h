@@ -2,19 +2,10 @@
 
 struct ID3D11Buffer;
 
-namespace Kore {
-	namespace Graphics4 {
-		class IndexBuffer;
-	}
+typedef struct {
+	struct ID3D11Buffer *ib;
+	int *indices;
+	int count;
+} kinc_g4_index_buffer_impl_t;
 
-	class IndexBufferImpl {
-	protected:
-		IndexBufferImpl(int count);
-		ID3D11Buffer* ib;
-		int* indices;
-		int myCount;
-
-	public:
-		static Graphics4::IndexBuffer* _current;
-	};
-}
+//**static Graphics4::IndexBuffer* _current;

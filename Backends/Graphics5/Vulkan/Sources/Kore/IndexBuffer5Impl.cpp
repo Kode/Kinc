@@ -1,23 +1,26 @@
 #include "pch.h"
 
-#include <Kore/Graphics5/Graphics.h>
+#include <kinc/graphics5/indexbuffer.h>
 
 #include <vulkan/vulkan.h>
 
 #include <assert.h>
 #include <string.h>
 
-using namespace Kore;
-
 extern VkDevice device;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
-Graphics5::IndexBuffer* IndexBuffer5Impl::current = nullptr;
+kinc_g5_index_buffer_t *currentIndexBuffer = NULL;
 
-IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count) {}
+static void unset(kinc_g5_index_buffer_t *buffer) {
+	if (currentIndexBuffer == buffer) {
+		currentIndexBuffer = NULL;
+	}
+}
 
-Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffer5Impl(indexCount) {
+void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, bool gpuMemory) {
+	buffer->impl.myCount = indexCount;
 	VkBufferCreateInfo buf_info = {};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
@@ -25,56 +28,52 @@ Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffe
 	buf_info.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 	buf_info.flags = 0;
 
-	memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
-	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	mem_alloc.pNext = NULL;
-	mem_alloc.allocationSize = 0;
-	mem_alloc.memoryTypeIndex = 0;
+	memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+	buffer->impl.mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	buffer->impl.mem_alloc.pNext = NULL;
+	buffer->impl.mem_alloc.allocationSize = 0;
+	buffer->impl.mem_alloc.memoryTypeIndex = 0;
 
-	memset(&buf, 0, sizeof(buf));
-	memset(&mem, 0, sizeof(mem));
+	memset(&buffer->impl.buf, 0, sizeof(buffer->impl.buf));
+	memset(&buffer->impl.mem, 0, sizeof(buffer->impl.mem));
 
-	VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buf);
+	VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buffer->impl.buf);
 	assert(!err);
 
 	VkMemoryRequirements mem_reqs = {};
-	vkGetBufferMemoryRequirements(device, buf, &mem_reqs);
+	vkGetBufferMemoryRequirements(device, buffer->impl.buf, &mem_reqs);
 	assert(!err);
 
-	mem_alloc.allocationSize = mem_reqs.size;
-	bool pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
+	buffer->impl.mem_alloc.allocationSize = mem_reqs.size;
+	bool pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &buffer->impl.mem_alloc.memoryTypeIndex);
 	assert(pass);
 
-	err = vkAllocateMemory(device, &mem_alloc, NULL, &mem);
+	err = vkAllocateMemory(device, &buffer->impl.mem_alloc, NULL, &buffer->impl.mem);
 	assert(!err);
 
-	err = vkBindBufferMemory(device, buf, mem, 0);
+	err = vkBindBufferMemory(device, buffer->impl.buf, buffer->impl.mem, 0);
 	assert(!err);
 }
 
-Graphics5::IndexBuffer::~IndexBuffer() {
-	unset();
-	delete[] data;
+void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
+	unset(buffer);
+	delete[] buffer->impl.data;
 }
 
-int* Graphics5::IndexBuffer::lock() {
-	VkResult err = vkMapMemory(device, mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
+int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
+	VkResult err = vkMapMemory(device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&buffer->impl.data);
 	assert(!err);
-	return data;
+	return buffer->impl.data;
 }
 
-void Graphics5::IndexBuffer::unlock() {
-	vkUnmapMemory(device, mem);
+void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
+	vkUnmapMemory(device, buffer->impl.mem);
 }
 
-void Graphics5::IndexBuffer::_set() {
-	current = this;
+void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
+	currentIndexBuffer = buffer;
 }
 
-void IndexBuffer5Impl::unset() {
-	if ((void*)current == (void*)this) current = nullptr;
-}
-
-int Graphics5::IndexBuffer::count() {
-	return myCount;
+int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
+	return buffer->impl.myCount;
 }

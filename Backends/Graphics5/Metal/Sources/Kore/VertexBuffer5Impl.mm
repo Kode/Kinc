@@ -3,46 +3,47 @@
 #include "Shader5Impl.h"
 #include "VertexBuffer5Impl.h"
 
-#include <Kore/Graphics5/Graphics.h>
-#import <Metal/Metal.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/indexbuffer.h>
+#include <kinc/graphics5/vertexbuffer.h>
 
-using namespace Kore;
+#import <Metal/Metal.h>
 
 id getMetalDevice();
 id getMetalEncoder();
 
-Graphics5::VertexBuffer* VertexBuffer5Impl::current = nullptr;
+kinc_g5_vertex_buffer_t *currentVertexBuffer = nullptr;
+extern kinc_g5_index_buffer_t *currentIndexBuffer;
 
-VertexBuffer5Impl::VertexBuffer5Impl(int count) : myCount(count), mtlBuffer(0) {}
-
-VertexBuffer5Impl::~VertexBuffer5Impl() {
-	mtlBuffer = 0;
+static void vertex_buffer_unset(kinc_g5_vertex_buffer_t *buffer) {
+	if (currentVertexBuffer == buffer) currentVertexBuffer = nullptr;
 }
 
-Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate) : VertexBuffer5Impl(count) {
-	this->gpuMemory = gpuMemory;
-	myStride = 0;
-	for (int i = 0; i < structure.size; ++i) {
-		VertexElement element = structure.elements[i];
+void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure_t *structure, bool gpuMemory, int instanceDataStepRate) {
+	memset(&buffer->impl, 0, sizeof(buffer->impl));
+	buffer->impl.myCount = count;
+	buffer->impl.gpuMemory = gpuMemory;
+	for (int i = 0; i < structure->size; ++i) {
+		kinc_g5_vertex_element_t element = structure->elements[i];
 		switch (element.data) {
-		case Graphics4::ColorVertexData:
-			myStride += 1 * 4;
+		case KINC_G4_VERTEX_DATA_COLOR:
+			buffer->impl.myStride += 1 * 4;
 			break;
-		case Graphics4::Float1VertexData:
-			myStride += 1 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT1:
+			buffer->impl.myStride += 1 * 4;
 			break;
-		case Graphics4::Float2VertexData:
-			myStride += 2 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT2:
+			buffer->impl.myStride += 2 * 4;
 			break;
-		case Graphics4::Float3VertexData:
-			myStride += 3 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT3:
+			buffer->impl.myStride += 3 * 4;
 			break;
-		case Graphics4::Float4VertexData:
-			myStride += 4 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT4:
+			buffer->impl.myStride += 4 * 4;
 			break;
-		case Graphics4::NoVertexData:
+		case KINC_G4_VERTEX_DATA_NONE:
 			break;
-		case Graphics4::Float4x4VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT4X4:
 			assert(false);
 			break;
 		}
@@ -60,71 +61,68 @@ Graphics5::VertexBuffer::VertexBuffer(int count, const VertexStructure& structur
 		options |= MTLResourceStorageModeShared;
 	}
 #endif
-	mtlBuffer = [device newBufferWithLength:count * myStride options:options];
+	buffer->impl.mtlBuffer = [device newBufferWithLength:count * buffer->impl.myStride options:options];
 }
 
-Graphics5::VertexBuffer::~VertexBuffer() {
-	unset();
+void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {
+	buffer->impl.mtlBuffer = 0;
+	vertex_buffer_unset(buffer);
 }
 
-float* Graphics5::VertexBuffer::lock() {
-	lastStart = 0;
-	lastCount = count();
-	id<MTLBuffer> buffer = mtlBuffer;
+float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buf) {
+	buf->impl.lastStart = 0;
+	buf->impl.lastCount = kinc_g5_vertex_buffer_count(buf);
+	id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 	float* floats = (float*)[buffer contents];
 	return floats;
 }
 
-float* Graphics5::VertexBuffer::lock(int start, int count) {
-	lastStart = start;
-	lastCount = count;
-	id<MTLBuffer> buffer = mtlBuffer;
+float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buf, int start, int count) {
+	buf->impl.lastStart = start;
+	buf->impl.lastCount = count;
+	id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 	float* floats = (float*)[buffer contents];
-	return &floats[start * myStride / sizeof(float)];
+	return &floats[start * buf->impl.myStride / sizeof(float)];
 }
 
-void Graphics5::VertexBuffer::unlock() {
+void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buf) {
 #ifndef KORE_IOS
-	if (gpuMemory) {
-		id<MTLBuffer> buffer = mtlBuffer;
+	if (buf->impl.gpuMemory) {
+		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 		NSRange range;
-		range.location = lastStart * myStride;
-		range.length = lastCount * myStride;
+		range.location = buf->impl.lastStart * buf->impl.myStride;
+		range.length = buf->impl.lastCount * buf->impl.myStride;
 		[buffer didModifyRange:range];
 	}
 #endif
 }
 
-void Graphics5::VertexBuffer::unlock(int count) {
+void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buf, int count) {
 #ifndef KORE_IOS
-	if (gpuMemory) {
-		id<MTLBuffer> buffer = mtlBuffer;
+	if (buf->impl.gpuMemory) {
+		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 		NSRange range;
-		range.location = lastStart * myStride;
-		range.length = count * myStride;
+		range.location = buf->impl.lastStart * buf->impl.myStride;
+		range.length = count * buf->impl.myStride;
 		[buffer didModifyRange:range];
 	}
 #endif
 }
 
-int Graphics5::VertexBuffer::_set(int offset_) {
-	current = this;
-	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
+int kinc_g5_internal_vertex_buffer_set(kinc_g5_vertex_buffer_t *buffer, int offset_) {
+	currentVertexBuffer = buffer;
+	if (currentIndexBuffer != nullptr) kinc_g5_internal_index_buffer_set(currentIndexBuffer);
 
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setVertexBuffer:mtlBuffer offset:offset_ * myStride atIndex:0];
+	[encoder setVertexBuffer:buffer->impl.mtlBuffer offset:offset_ * buffer->impl.myStride atIndex:0];
 
 	return offset_;
 }
 
-void VertexBuffer5Impl::unset() {
-	if ((void*)current == (void*)this) current = nullptr;
+int kinc_g5_vertex_buffer_count(kinc_g5_vertex_buffer_t *buffer) {
+	return buffer->impl.myCount;
 }
 
-int Graphics5::VertexBuffer::count() {
-	return myCount;
-}
-
-int Graphics5::VertexBuffer::stride() {
-	return myStride;
+int kinc_g5_vertex_buffer_stride(kinc_g5_vertex_buffer_t *buffer) {
+	return buffer->impl.myStride;
 }

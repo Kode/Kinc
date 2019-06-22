@@ -2,12 +2,17 @@
 
 #include "Vulkan.h"
 
-#include <Kore/Error.h>
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Graphics5/PipelineState.h>
-#include <Kore/Log.h>
-#include <Kore/Math/Core.h>
-#include <Kore/System.h>
+#include <kinc/error.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/log.h>
+#include <kinc/math/core.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
+
+#ifdef KORE_WINDOWS
+#include <Kore/Windows.h>
+#endif
 
 #include <assert.h>
 #include <stdio.h>
@@ -15,8 +20,6 @@
 #include <string.h>
 
 #include <vulkan/vulkan.h>
-
-using namespace Kore;
 
 #ifdef KORE_WINDOWS
 #define ERR_EXIT(err_msg, err_class)                                                                                                                           \
@@ -71,8 +74,8 @@ Kore::Vulkan::DepthBuffer Kore::Vulkan::depth;
 VkSwapchainKHR swapchain;
 uint32_t current_buffer;
 
-Graphics5::Texture* vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-Graphics5::RenderTarget* vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+kinc_g5_texture_t *vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+kinc_g5_render_target_t *vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 #ifdef KORE_LINUX
 extern xcb_connection_t* connection;
@@ -139,7 +142,7 @@ namespace {
 				}
 			}
 			if (!found) {
-				Kore::log(Kore::Warning, "Cannot find layer: %s\n", check_names[i]);
+				kinc_log(KINC_LOG_LEVEL_WARNING, "Cannot find layer: %s\n", check_names[i]);
 				return 0;
 			}
 		}
@@ -149,10 +152,10 @@ namespace {
 	VKAPI_ATTR VkBool32 VKAPI_CALL dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject, size_t location, int32_t msgCode,
 	                                       const char* pLayerPrefix, const char* pMsg, void* pUserData) {
 		if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
-			Kore::log(Kore::Error, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+			kinc_log(KINC_LOG_LEVEL_ERROR, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
 		}
 		else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-			Kore::log(Kore::Warning, "WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+			kinc_log(KINC_LOG_LEVEL_WARNING, "WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
 		}
 		return false;
 	}
@@ -209,13 +212,17 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 	return false;
 }
 
-void Graphics5::destroy(int windowId) {}
+void kinc_g5_destroy(int window) {}
 
-void Graphics5::_resize(int window, int width, int height) {
+void kinc_internal_g5_resize(int window, int width, int height) {
 
 }
 
-void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+extern "C" void kinc_internal_resize(int window, int width, int height) {}
+
+extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
+
+void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
 #ifdef VALIDATE
@@ -317,7 +324,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	VkApplicationInfo app = {};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	app.pNext = nullptr;
-	app.pApplicationName = System::name();
+	app.pApplicationName = kinc_application_name();
 	app.applicationVersion = 0;
 	app.pEngineName = "Kore";
 	app.engineVersion = 0;
@@ -483,11 +490,11 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
-	width = System::windowWidth(windowId);
-	height = System::windowHeight(windowId);
+	width = kinc_window_width(window);
+	height = kinc_window_height(window);
 
 #ifdef KORE_WINDOWS
-	windowHandle = (HWND)Window::get(windowId)->_data.handle;
+	windowHandle = (HWND)kinc_windows_window_handle(window);
 	ShowWindow(windowHandle, SW_SHOW);
 	SetForegroundWindow(windowHandle); // Slightly Higher Priority
 	SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
@@ -718,8 +725,8 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
 	assert(!err);
 
-	Vulkan::buffers = (Vulkan::SwapchainBuffers*)malloc(sizeof(Vulkan::SwapchainBuffers) * swapchainImageCount);
-	assert(Vulkan::buffers);
+	Kore::Vulkan::buffers = (Kore::Vulkan::SwapchainBuffers*)malloc(sizeof(Kore::Vulkan::SwapchainBuffers) * swapchainImageCount);
+	assert(Kore::Vulkan::buffers);
 
 	for (i = 0; i < swapchainImageCount; i++) {
 		VkImageViewCreateInfo color_attachment_view = {};
@@ -738,17 +745,18 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		color_attachment_view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		color_attachment_view.flags = 0;
 
-		Vulkan::buffers[i].image = swapchainImages[i];
+		Kore::Vulkan::buffers[i].image = swapchainImages[i];
 
 		// Render loop will expect image to have been used before and in
 		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
 		// to that state
-		Vulkan::demo_set_image_layout(Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+		                                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-		color_attachment_view.image = Vulkan::buffers[i].image;
+		color_attachment_view.image = Kore::Vulkan::buffers[i].image;
 
-		err = vkCreateImageView(device, &color_attachment_view, NULL, &Vulkan::buffers[i].view);
+		err = vkCreateImageView(device, &color_attachment_view, NULL, &Kore::Vulkan::buffers[i].view);
 		assert(!err);
 	}
 
@@ -799,11 +807,11 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	::depth_format = depth_format;
 
 	/* create image */
-	err = vkCreateImage(device, &image, NULL, &Vulkan::depth.image);
+	err = vkCreateImage(device, &image, NULL, &Kore::Vulkan::depth.image);
 	assert(!err);
 
 	/* get memory requirements for this object */
-	vkGetImageMemoryRequirements(device, Vulkan::depth.image, &mem_reqs);
+	vkGetImageMemoryRequirements(device, Kore::Vulkan::depth.image, &mem_reqs);
 
 	/* select memory size and type */
 	mem_alloc.allocationSize = mem_reqs.size;
@@ -811,18 +819,19 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	assert(pass);
 
 	/* allocate memory */
-	err = vkAllocateMemory(device, &mem_alloc, NULL, &Vulkan::depth.mem);
+	err = vkAllocateMemory(device, &mem_alloc, NULL, &Kore::Vulkan::depth.mem);
 	assert(!err);
 
 	/* bind memory */
-	err = vkBindImageMemory(device, Vulkan::depth.image, Vulkan::depth.mem, 0);
+	err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
 	assert(!err);
 
-	Vulkan::demo_set_image_layout(Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+	                              VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 	/* create image view */
-	view.image = Vulkan::depth.image;
-	err = vkCreateImageView(device, &view, NULL, &Vulkan::depth.view);
+	view.image = Kore::Vulkan::depth.image;
+	err = vkCreateImageView(device, &view, NULL, &Kore::Vulkan::depth.view);
 	assert(!err);
 
 	VkAttachmentDescription attachments[2];
@@ -881,7 +890,7 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	{
 		VkImageView attachments[2];
-		attachments[1] = Vulkan::depth.view;
+		attachments[1] = Kore::Vulkan::depth.view;
 
 		VkFramebufferCreateInfo fb_info = {};
 		fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -899,36 +908,36 @@ void Graphics5::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 		assert(framebuffers);
 
 		for (i = 0; i < swapchainImageCount; i++) {
-			attachments[0] = Vulkan::buffers[i].view;
+			attachments[0] = Kore::Vulkan::buffers[i].view;
 			err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
 			assert(!err);
 		}
 	}
 
-	Vulkan::demo_flush_init_cmd();
+	Kore::Vulkan::demo_flush_init_cmd();
 
 	began = false;
-	begin(nullptr);
+	kinc_g5_begin(nullptr, 0);
 }
 
-bool Kore::Window::vSynced() {
+bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-void Graphics5::drawIndexedVerticesInstanced(int instanceCount) {
+void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {
 	// drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
 }
 
-void Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {}
+void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
-bool Graphics5::swapBuffers() {
+bool kinc_g5_swap_buffers() {
 	return true;
 }
 
-void Graphics5::begin(RenderTarget* renderTarget, int contextId) {
+void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	if (renderTarget != nullptr) {
-		renderTarget->renderPass = render_pass;
-		renderTarget->framebuffer = framebuffers[current_buffer];
+		renderTarget->impl.renderPass = render_pass;
+		renderTarget->impl.framebuffer = framebuffers[current_buffer];
 	}
 
 	if (began) return;
@@ -965,30 +974,30 @@ void Graphics5::begin(RenderTarget* renderTarget, int contextId) {
 	began = true;
 }
 
-void Graphics5::end(int windowId) {
+void kinc_g5_end(int window) {
 	began = false;
 }
 
-void Graphics5::setTexture(TextureUnit unit, Texture* texture) {
-	vulkanTextures[unit.binding - 2] = texture;
-	vulkanRenderTargets[unit.binding - 2] = nullptr;
+void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+	vulkanTextures[unit.impl.binding - 2] = texture;
+	vulkanRenderTargets[unit.impl.binding - 2] = nullptr;
 	//** if (PipelineState5Impl::current != nullptr)
 	//**	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineState5Impl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
-void Graphics5::setImageTexture(TextureUnit unit, Texture* texture) {}
+void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
 
-void Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {}
+void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
-void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
 
-void Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {}
+void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
 
-void Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {}
+void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 
-void Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
+void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2) {}
 
-void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
+void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
 
 /*void Graphics5::restoreRenderTarget() {
     if (onBackBuffer) return;
@@ -1038,26 +1047,26 @@ void Graphics5::setRenderTargetFace(RenderTarget* texture, int face) {}
     vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
 }*/
 
-bool Graphics5::renderTargetsInvertedY() {
+bool kinc_g5_render_targets_inverted_y() {
 	return true;
 }
 
-bool Graphics5::nonPow2TexturesSupported() {
+bool kinc_g5_non_pow2_textures_qupported() {
 	return true;
 }
 
-void Graphics5::flush() {}
+void kinc_g5_flush() {}
 
-bool Graphics5::initOcclusionQuery(uint* query) {
+bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery) {
 	return false;
 }
 
-void Graphics5::deleteOcclusionQuery(uint query) {}
+void kinc_g5_delete_occlusion_query(unsigned occlusionQuery) {}
 
-void Graphics5::renderOcclusionQuery(uint query, int triangles) {}
+void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int triangles) {}
 
-bool Graphics5::isQueryResultsAvailable(uint query) {
+bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
 	return false;
 }
 
-void Graphics5::getQueryResults(uint, uint*) {}
+void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {}

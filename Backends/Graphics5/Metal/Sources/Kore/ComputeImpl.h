@@ -2,24 +2,19 @@
 
 #include <objc/runtime.h>
 
-namespace Kore {
-	class ComputeConstantLocationImpl {
-	public:
-		u32 _offset;
-	};
+#include <stdint.h>
 
-	class ComputeTextureUnitImpl {
-	public:
-		u32 _index;
-	};
+typedef struct {
+	uint32_t _offset;
+} kinc_compute_constant_location_impl_t;
 
-	class ComputeShaderImpl {
-	public:
-		ComputeShaderImpl(void* source, int length);
-		~ComputeShaderImpl();
-		char name[1024];
-		id _function;
-		id _pipeline;
-		id _reflection;
-	};
-}
+typedef struct {
+	uint32_t _index;
+} kinc_compute_texture_unit_impl_t;
+
+typedef struct {
+	char name[1024];
+	id _function;
+	id _pipeline;
+	id _reflection;
+} kinc_compute_shader_impl_t;

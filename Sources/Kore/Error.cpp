@@ -5,7 +5,7 @@
 #include "Log.h"
 #include "LogArgs.h"
 
-#include "../C/Kore/Error.h"
+#include <kinc/error.h>
 
 #include <stdlib.h>
 
@@ -35,16 +35,16 @@ void Kore::affirmArgs(bool b, const char* format, va_list args) {
 }
 
 void Kore::error() {
-	Kore_error();
+	kinc_error();
 }
 
 void Kore::error(const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	Kore_errorArgs(format, args);
+	kinc_error_args(format, args);
 	va_end(args);
 }
 
 void Kore::errorArgs(const char* format, va_list args) {
-	Kore_errorArgs(format, args);
+	kinc_error_args(format, args);
 }

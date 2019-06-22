@@ -4,7 +4,10 @@
 #import "GLView.h"
 
 #import <Foundation/Foundation.h>
-#include <Kore/Math/Core.h>
+
+#include <kinc/graphics5/rendertarget.h>
+#include <kinc/math/core.h>
+
 #include <objc/runtime.h>
 
 static GLView* glView;
@@ -18,7 +21,7 @@ void endGL() {
 }
 
 #ifdef KORE_METAL
-void newRenderPass(Kore::Graphics5::RenderTarget* renderTarget, bool wait) {
+void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait) {
 	[glView newRenderPass: renderTarget wait: wait];
 }
 #endif

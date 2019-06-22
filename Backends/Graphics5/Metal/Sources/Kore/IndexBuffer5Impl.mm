@@ -1,25 +1,22 @@
 #include "pch.h"
 
-#include <Kore/Graphics5/Graphics.h>
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/indexbuffer.h>
 
 #import <Metal/Metal.h>
 
-using namespace Kore;
-
 id getMetalDevice();
 
-Graphics5::IndexBuffer* IndexBuffer5Impl::current = nullptr;
+kinc_g5_index_buffer_t *currentIndexBuffer = nullptr;
 
-IndexBuffer5Impl::IndexBuffer5Impl(int count) : myCount(count), mtlBuffer(0) {
-	
+static void index_buffer_unset(kinc_g5_index_buffer_t *buffer) {
+	if (currentIndexBuffer == buffer) currentIndexBuffer = nullptr;
 }
 
-IndexBuffer5Impl::~IndexBuffer5Impl() {
-	mtlBuffer = 0;
-}
-
-Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffer5Impl(indexCount) {
-	this->gpuMemory = gpuMemory;
+void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, bool gpuMemory) {
+	memset(&buffer->impl, 0, sizeof(buffer->impl));
+	buffer->impl.myCount = indexCount;
+	buffer->impl.gpuMemory = gpuMemory;
 	id<MTLDevice> device = getMetalDevice();
 	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
 #ifdef KORE_IOS
@@ -32,38 +29,35 @@ Graphics5::IndexBuffer::IndexBuffer(int indexCount, bool gpuMemory) : IndexBuffe
 		options |= MTLResourceStorageModeShared;
 	}
 #endif
-	mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount options:options];
+	buffer->impl.mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount options:options];
 }
 
-Graphics5::IndexBuffer::~IndexBuffer() {
-	unset();
+void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
+	buffer->impl.mtlBuffer = 0;
+	index_buffer_unset(buffer);
 }
 
-int* Graphics5::IndexBuffer::lock() {
-	id<MTLBuffer> buffer = mtlBuffer;
+int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buf) {
+	id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 	return (int*)[buffer contents];
 }
 
-void Graphics5::IndexBuffer::unlock() {
+void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buf) {
 #ifndef KORE_IOS
-	if (gpuMemory) {
-		id<MTLBuffer> buffer = mtlBuffer;
+	if (buf->impl.gpuMemory) {
+		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 		NSRange range;
 		range.location = 0;
-		range.length = count() * 4;
+		range.length = kinc_g5_index_buffer_count(buf) * 4;
 		[buffer didModifyRange:range];
 	}
 #endif
 }
 
-void Graphics5::IndexBuffer::_set() {
-	current = this;
+void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
+	currentIndexBuffer = buffer;
 }
 
-void IndexBuffer5Impl::unset() {
-	if ((void*)current == (void*)this) current = nullptr;
-}
-
-int Graphics5::IndexBuffer::count() {
-	return myCount;
+int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
+	return buffer->impl.myCount;
 }

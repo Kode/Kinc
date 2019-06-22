@@ -1,8 +1,11 @@
 #pragma once
 
-#include <Kore/Graphics1/Image.h>
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Math/Matrix.h>
+#include <kinc/image.h>
+#include <kinc/graphics5/rendertarget.h>
+#include <kinc/graphics5/texture.h>
+#include <kinc/math/matrix.h>
+
+struct PipelineState5Impl_s;
 
 namespace Kore {
 	namespace Vulkan {
@@ -28,6 +31,6 @@ namespace Kore {
 
 		void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 		void demo_flush_init_cmd();
-		void createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set);
+		void createDescriptorSet(struct PipelineState5Impl_s *pipeline, kinc_g5_texture_t *texture, kinc_g5_render_target_t *renderTarget, VkDescriptorSet &desc_set);
 	}
 }

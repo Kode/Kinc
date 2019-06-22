@@ -1,26 +1,29 @@
 #pragma once
 
-#include <Kore/Graphics1/Image.h>
-#include <Kore/Graphics5/Graphics.h>
+#include <kinc/image.h>
+#include <kinc/graphics5/texture.h>
+#include <kinc/graphics5/textureunit.h>
 
-namespace Kore {
-	typedef Graphics1::Image Image;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class TextureUnitImpl {
-	public:
-		Kore::Graphics5::TextureUnit _unit;
-	};
+typedef struct {
+	kinc_g5_texture_unit_t _unit;
+} kinc_g4_texture_unit_impl_t;
 
-	class TextureImpl {
-	public:
-		TextureImpl();
-		TextureImpl(int width, int height, Image::Format format, bool readable);
-		TextureImpl(int width, int height, int depth, Image::Format format, bool readable);
-		~TextureImpl();
-		void unmipmap();
-		void unset();
+typedef struct {
+	/*TextureImpl();
+	TextureImpl(int width, int height, Image::Format format, bool readable);
+	TextureImpl(int width, int height, int depth, Image::Format format, bool readable);
+	~TextureImpl();
+	void unmipmap();
+	void unset();*/
 
-		Kore::Graphics5::Texture* _texture;
-		bool _uploaded;
-	};
+	kinc_g5_texture_t _texture;
+	bool _uploaded;
+} kinc_g4_texture_impl_t;
+
+#ifdef __cplusplus
 }
+#endif

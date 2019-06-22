@@ -6,7 +6,6 @@
 #include <string.h>
 
 namespace Kore {
-
 	BufferReader::BufferReader(void const* buffer, int size) : buffer((u8*)buffer), bufferSize(size), position(0), readAllBuffer(nullptr) {}
 
 	BufferReader::~BufferReader() {
@@ -29,11 +28,11 @@ namespace Kore {
 		return readAllBuffer;
 	}
 
-	int BufferReader::size() const {
+	int BufferReader::size() {
 		return bufferSize;
 	}
 
-	int BufferReader::pos() const {
+	int BufferReader::pos() {
 		return position;
 	}
 

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/vertexbuffer.h>
+
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexStructure.h"
@@ -8,14 +12,14 @@
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
 
-namespace Kore {
-	struct FramebufferOptions;
+struct kinc_framebuffer_options;
 
+namespace Kore {
 	namespace Graphics4 {
 		class PipelineState;
 		class TextureArray;
 
-		class VertexBuffer : public VertexBufferImpl {
+		class VertexBuffer {
 		public:
 			VertexBuffer(int count, const VertexStructure& structure, Usage usage = StaticUsage, int instanceDataStepRate = 0);
 			virtual ~VertexBuffer();
@@ -26,9 +30,11 @@ namespace Kore {
 			int count();
 			int stride();
 			int _set(int offset = 0); // Do not call this directly, use Graphics::setVertexBuffers
+
+			kinc_g4_vertex_buffer_t kincBuffer;
 		};
 
-		class IndexBuffer : public IndexBufferImpl {
+		class IndexBuffer {
 		public:
 			IndexBuffer(int count);
 			virtual ~IndexBuffer();
@@ -36,6 +42,8 @@ namespace Kore {
 			void unlock();
 			int count();
 			void _set();
+
+			kinc_g4_index_buffer_t kincBuffer;
 		};
 
 		enum TextureAddressing { Repeat, Mirror, Clamp, Border };
@@ -99,7 +107,7 @@ namespace Kore {
 
 		enum TextureArgument { CurrentColorArgument, TextureColorArgument };
 
-		class RenderTarget : public RenderTargetImpl {
+		class RenderTarget {
 		public:
 			RenderTarget(int width, int height, int depthBufferBits, bool antialiasing = false, RenderTargetFormat format = Target32Bit,
 			             int stencilBufferBits = -1, int contextId = 0);
@@ -118,6 +126,8 @@ namespace Kore {
 			void setDepthStencilFrom(RenderTarget* source);
 			void getPixels(u8* data);
 			void generateMipmaps(int levels);
+
+			kinc_g4_render_target_t kincRenderTarget;
 		};
 
 		void setBool(ConstantLocation location, bool value);
@@ -161,7 +171,7 @@ namespace Kore {
 		bool swapBuffers();
 
 		void _resize(int window, int width, int height);
-		void _changeFramebuffer(int window, FramebufferOptions* frame);
+		void _changeFramebuffer(int window, kinc_framebuffer_options *frame);
 
 		void viewport(int x, int y, int width, int height);
 		void scissor(int x, int y, int width, int height);

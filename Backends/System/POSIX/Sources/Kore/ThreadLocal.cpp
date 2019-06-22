@@ -1,15 +1,19 @@
 #include "pch.h"
 
-#include <Kore/Threads/ThreadLocal.h>
+#include <kinc/threads/threadlocal.h>
 
-using namespace Kore;
-
-void ThreadLocal::create() {}
-
-void ThreadLocal::destroy() {}
-
-void* ThreadLocal::get() {
-	return nullptr;
+void kinc_thread_local_init(kinc_thread_local_t *local) {
+	pthread_key_create(&local->impl.key, NULL);
 }
 
-void ThreadLocal::set(void* data) {}
+void kinc_thread_local_destroy(kinc_thread_local_t *local) {
+	pthread_key_delete(local->impl.key);
+}
+
+void* kinc_thread_local_get(kinc_thread_local_t *local) {
+	return pthread_getspecific(local->impl.key);
+}
+
+void kinc_thread_local_set(kinc_thread_local_t *local, void* data) {
+	pthread_setspecific(local->impl.key, data);
+}

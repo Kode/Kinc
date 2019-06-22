@@ -1,75 +1,34 @@
 #include "pch.h"
 
-#include <Kore/Display.h>
+#include <kinc/display.h>
+#include <kinc/log.h>
 
-using namespace Kore;
-
-namespace {
-	Display display;
+kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
+	kinc_display_mode_t dm;
+	dm.width = 800;
+	dm.height = 600;
+	dm.frequency = 60;
+	dm.bits_per_pixel = 32;
+	return dm;
 }
 
-int Display::count() {
+int kinc_display_count_available_modes(int display) {
 	return 1;
 }
 
-Display* Display::primary() {
-	return &display;
-}
-
-Display* Display::get(int index) {
-	if (index > 0) {
-		return nullptr;
-	}
-	return &display;
-}
-
-DisplayMode Display::availableMode(int index) {
-	DisplayMode mode;
-	mode.width = 800;
-	mode.height = 600;
-	mode.frequency = 60;
-	mode.bitsPerPixel = 32;
-	return mode;
-}
-
-int Display::countAvailableModes() {
-	return 1;
-}
-
-int Display::pixelsPerInch() {
-	return 96;
-}
-
-DisplayData::DisplayData() {}
-
-bool Display::available() {
+bool kinc_display_available(int display) {
 	return true;
 }
 
-const char* Display::name() {
+const char *kinc_display_name(int display) {
 	return "Display";
 }
 
-int Display::x() {
-	return 0;
-}
-
-int Display::y() {
-	return 0;
-}
-
-int Display::width() {
-	return 800;
-}
-
-int Display::height() {
-	return 600;
-}
-
-int Display::frequency() {
-	return 60;
-}
-
-Display::Display() {
-
+kinc_display_mode_t kinc_display_current_mode(int display) {
+	kinc_display_mode_t dm;
+	dm.width = 800;
+	dm.height = 600;
+	dm.frequency = 60;
+	dm.bits_per_pixel = 32;
+	return dm;
 }

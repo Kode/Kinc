@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Kore/WindowData.h>
-
 namespace Kore {
 	class Display;
 
@@ -70,7 +68,7 @@ namespace Kore {
 		void setPpiChangedCallback(void (*callback)(int ppi, void* data), void* data = nullptr);
 		bool vSynced();
 
-		WindowData _data;
+		int _index;
 		Window();
 	};
 }

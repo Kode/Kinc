@@ -1,21 +1,16 @@
 #pragma once
 
-namespace Kore {
-	namespace Graphics4 {
-		class PipelineState;
-		class Shader;
-	}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class PipelineStateImpl {
-	public:
-		uint programId;
+typedef struct {
+	unsigned programId;
+	char **textures;
+	int *textureValues;
+	int textureCount;
+} kinc_g4_pipeline_impl_t;
 
-		PipelineStateImpl();
-		virtual ~PipelineStateImpl();
-		int findTexture(const char* name);
-		char** textures;
-		int* textureValues;
-		int textureCount;
-		void set(Graphics4::PipelineState* pipeline);
-	};
+#ifdef __cplusplus
 }
+#endif

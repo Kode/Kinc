@@ -2,21 +2,20 @@
 
 #include "RenderTarget5Impl.h"
 
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Log.h>
+#include <kinc/graphics5/rendertarget.h>
+#include <kinc/graphics5/texture.h>
+#include <kinc/log.h>
 
 #include <vulkan/vulkan.h>
 
 #include <assert.h>
 
-using namespace Kore;
-
 extern VkDevice device;
 extern VkRenderPass render_pass;
 extern uint32_t swapchainImageCount;
 extern VkPhysicalDevice gpu;
-extern Graphics5::Texture* vulkanTextures[8];
-extern Graphics5::RenderTarget* vulkanRenderTargets[8];
+extern kinc_g5_texture_t *vulkanTextures[8];
+extern kinc_g5_render_target_t *vulkanRenderTargets[8];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
@@ -61,12 +60,13 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 	vkCmdPipelineBarrier(_buffer, srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 }
 
-Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
-                                      int contextId)
-    : width(width), height(height) {
-	this->contextId = contextId;
-	texWidth = width;
-	texHeight = height;
+void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
+                                    kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+	target->width = width;
+	target->height = height;
+	target->contextId = contextId;
+	target->texWidth = width;
+	target->texHeight = height;
 	/**{
 	    VkFormatProperties formatProperties;
 	    VkResult err;
@@ -204,7 +204,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 	samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
-	VkResult err = vkCreateSampler(device, &samplerInfo, nullptr, &sampler);
+	VkResult err = vkCreateSampler(device, &samplerInfo, nullptr, &target->impl.sampler);
 	assert(!err);
 
 	/*VkImageCreateInfo imageInfo = {};
@@ -316,18 +316,18 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	createDescriptorSet(nullptr, this, desc_set);*/
 }
 
-Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
-                                      int contextId) {}
+void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,
+                                     kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {}
 
-Graphics5::RenderTarget::~RenderTarget() {}
-
-void Graphics5::RenderTarget::useColorAsTexture(Graphics5::TextureUnit unit) {
-	vulkanRenderTargets[unit.binding - 2] = this;
-	vulkanTextures[unit.binding - 2] = nullptr;
+void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {}
+	 
+void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
+	vulkanRenderTargets[unit.impl.binding - 2] = target;
+	vulkanTextures[unit.impl.binding - 2] = nullptr;
 	//** if (Program5Impl::current != nullptr)
 	//**	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, Program5Impl::current->pipeline_layout, 0, 1, &desc_set, 0, nullptr);
 }
 
-void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
+ void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {}
 
-void Graphics5::RenderTarget::setDepthStencilFrom(RenderTarget* source) {}
+void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source) {}

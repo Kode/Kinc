@@ -1,15 +1,21 @@
 #pragma once
 
-namespace Kore {
-	class RenderTargetImpl {
-	public:
-		unsigned _framebuffer;
-		unsigned _texture;
-		unsigned _depthTexture;
-		bool _hasDepth;
-		// unsigned _depthRenderbuffer;
-		int contextId;
-		int format;
-		void setupDepthStencil(unsigned int texType, int depthBufferBits, int stencilBufferBits, int width, int height);
-	};
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct {
+	unsigned _framebuffer;
+	unsigned _texture;
+	unsigned _depthTexture;
+	bool _hasDepth;
+	// unsigned _depthRenderbuffer;
+	int contextId;
+	int format;
+} kinc_g4_render_target_impl_t;
+
+#ifdef __cplusplus
 }
+#endif

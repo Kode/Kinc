@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Kore/ComputeImpl.h>
+#include <kinc/compute/compute.h>
+
 #ifdef KORE_OPENGL
 #include <Kore/ShaderStorageBufferImpl.h>
 #endif
@@ -13,19 +14,27 @@ namespace Kore {
 		class RenderTarget;
 	}
 
-	class ComputeConstantLocation : public ComputeConstantLocationImpl {};
+	class ComputeConstantLocation {
+	public:
+		kinc_compute_constant_location_t kincImpl;
+	};
 
-	class ComputeTextureUnit : public ComputeTextureUnitImpl {};
+	class ComputeTextureUnit {
+	public:
+		kinc_compute_texture_unit_t kincImpl;
+	};
 
-	class ComputeShader : public ComputeShaderImpl {
+	class ComputeShader {
 	public:
 		ComputeShader(void* source, int length);
+		~ComputeShader();
 		ComputeConstantLocation getConstantLocation(const char* name);
 		ComputeTextureUnit getTextureUnit(const char* name);
+		kinc_compute_shader_t kincImpl;
 	};
 
 #ifdef KORE_OPENGL
-	class ShaderStorageBuffer : public ShaderStorageBufferImpl {
+	class ShaderStorageBuffer {
 	public:
 		ShaderStorageBuffer(int count, Graphics4::VertexData type);
 		virtual ~ShaderStorageBuffer();
@@ -33,6 +42,7 @@ namespace Kore {
 		void unlock();
 		int count();
 		void _set();
+		kinc_shader_storage_buffer_t kincImpl;
 	};
 #endif
 

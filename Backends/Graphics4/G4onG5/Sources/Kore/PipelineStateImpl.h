@@ -1,25 +1,25 @@
 #pragma once
 
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Graphics5/PipelineState.h>
-#include <Kore/Graphics5/Shader.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/constantlocation.h>
 
-namespace Kore {
-	namespace Graphics4 {
-		class Shader;
-	}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class PipelineStateImpl {
-	public:
-		PipelineStateImpl();
+typedef struct {
+	// PipelineStateImpl();
+	kinc_g5_pipeline_t _pipeline;
+} kinc_g4_pipeline_impl_t;
 
-		Graphics5::PipelineState* _pipeline;
-	};
+typedef struct {
+	kinc_g5_constant_location_t _location;
+} kinc_g4_constant_location_impl_t;
 
-	class ConstantLocationImpl {
-	public:
-		Graphics5::ConstantLocation _location;
-	};
+typedef struct {
+	int nothing;
+} Kinc_G4_AttributeLocationImpl;
 
-	class AttributeLocationImpl {};
+#ifdef __cplusplus
 }
+#endif

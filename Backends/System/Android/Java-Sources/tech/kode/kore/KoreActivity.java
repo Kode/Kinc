@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
+import android.os.Build;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -28,7 +31,7 @@ public class KoreActivity extends NativeActivity {
 	public static KoreActivity getInstance() {
 		return instance;
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle state) {
 		super.onCreate(state);
@@ -86,6 +89,20 @@ public class KoreActivity extends NativeActivity {
 		instance.startActivity(i);
 	}
 
+	public static String getLanguage() {
+		return java.util.Locale.getDefault().getLanguage();
+	}
+
+	public static void vibrate(int ms) {
+		Vibrator v = (Vibrator) instance.getSystemService(Context.VIBRATOR_SERVICE);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			v.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
+		} else {
+			// deprecated in API 26
+			v.vibrate(ms);
+		}
+	}
+
 	public static int getRotation() {
 		Context context = getInstance().getApplicationContext();
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
@@ -99,7 +116,7 @@ public class KoreActivity extends NativeActivity {
 		manager.getDefaultDisplay().getMetrics(metrics);
 		return (int)(metrics.density * android.util.DisplayMetrics.DENSITY_DEFAULT);
 	}
-	
+
 	public static int getDisplayWidth() {
 		Context context = getInstance().getApplicationContext();
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
@@ -107,7 +124,7 @@ public class KoreActivity extends NativeActivity {
 		manager.getDefaultDisplay().getRealSize(size);
 		return (int)(size.x);
 	}
-	
+
 	public static int getDisplayHeight() {
 		Context context = getInstance().getApplicationContext();
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);

@@ -1,5 +1,7 @@
 #include "pch.h"
-#include <Kore/Audio2/Audio.h>
+
+#include <kinc/audio2/audio.h>
+
 #include <alsa/asoundlib.h>
 #include <errno.h>
 #include <poll.h>
@@ -9,29 +11,30 @@
 
 // apt-get install libasound2-dev
 
-using namespace Kore;
-
 namespace {
+    void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+    kinc_a2_buffer_t a2_buffer;
+
 	pthread_t threadid;
 	bool audioRunning = false;
 	snd_pcm_t* playback_handle;
 	short buf[4096 * 4];
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+        a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 		if (value != 0) {
 			int a = 3;
 			++a;
 		}
-		*(s16*)buffer = static_cast<s16>(value * 32767);
+		*(int16_t*)buffer = static_cast<int16_t>(value * 32767);
 	}
 
 	int playback_callback(snd_pcm_sframes_t nframes) {
 		int err = 0;
-		if (Kore::Audio2::audioCallback != nullptr) {
-			Kore::Audio2::audioCallback(nframes * 2);
+		if (a2_callback != nullptr) {
+			a2_callback(&a2_buffer, nframes * 2);
 			int ni = 0;
 			while (ni < nframes) {
 				int i = 0;
@@ -182,18 +185,22 @@ namespace {
 	}
 }
 
-void Audio2::init() {
-	buffer.readLocation = 0;
-	buffer.writeLocation = 0;
-	buffer.dataSize = 128 * 1024;
-	buffer.data = new u8[buffer.dataSize];
+void kinc_a2_init() {
+	a2_buffer.read_location = 0;
+	a2_buffer.write_location = 0;
+	a2_buffer.data_size = 128 * 1024;
+	a2_buffer.data = new uint8_t[a2_buffer.data_size];
 
 	audioRunning = true;
 	pthread_create(&threadid, nullptr, &doAudio, nullptr);
 }
 
-void Audio2::update() {}
+void kinc_a2_update() {}
 
-void Audio2::shutdown() {
+void kinc_a2_shutdown() {
 	audioRunning = false;
+}
+
+void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+    a2_callback = kinc_a2_audio_callback;
 }

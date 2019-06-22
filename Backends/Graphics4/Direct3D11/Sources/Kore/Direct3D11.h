@@ -1,7 +1,9 @@
 #pragma once
 
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Math/Matrix.h>
+#include <kinc/graphics4/graphics.h>
+
+#define NOMINMAX
+
 #ifdef KORE_WINDOWSAPP
 #include <d3d11_1.h>
 #else

@@ -1,17 +1,16 @@
 #pragma once
 
-namespace Kore {
-	namespace Graphics4 {
-		class IndexBuffer;
-	}
+#include <kinc/graphics4/indexbuffer.h>
 
-	class IndexBuffer5Impl {
-	protected:
-		IndexBuffer5Impl(int count, bool gpuMemory);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	public:
-		Graphics4::IndexBuffer* buffer;
-		int myCount;
-		static IndexBuffer5Impl* _current;
-	};
+typedef struct {
+	kinc_g4_index_buffer_t buffer;
+	int myCount;
+} IndexBuffer5Impl;
+
+#ifdef __cplusplus
 }
+#endif

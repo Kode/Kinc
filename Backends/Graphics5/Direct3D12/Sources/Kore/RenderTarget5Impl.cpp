@@ -3,7 +3,8 @@
 #include "Direct3D12.h"
 #include "RenderTarget5Impl.h"
 
-#include <Kore/Graphics5/Graphics.h>
+#include <Kinc/Graphics5/RenderTarget.h>
+#include <Kinc/Graphics5/Texture.h>
 #include <Kore/Log.h>
 #include <Kore/SystemMicrosoft.h>
 
@@ -11,11 +12,9 @@
 #include <dxgi1_4.h>
 #endif
 
-using namespace Kore;
-
 static const int textureCount = 16;
-extern Graphics5::Texture* currentTextures[textureCount];
-extern Graphics5::RenderTarget* currentRenderTargets[textureCount];
+extern kinc_g5_texture_t *currentTextures[textureCount];
+extern kinc_g5_render_target_t *currentRenderTargets[textureCount];
 extern IDXGISwapChain* swapChain;
 
 namespace {
@@ -45,13 +44,14 @@ namespace {
 	}
 }
 
-Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int width, int height, int depthBufferBits, bool antialiasing,
+                                kinc_g5_render_target_format_t format, int stencilBufferBits,
                                       int contextId) {
-	stage = 0;
-	this->texWidth = this->width = width;
-	this->texHeight = this->height = height;
+	render_target->texWidth = render_target->width = width;
+	render_target->texHeight = render_target->height = height;
+	render_target->stage = 0;
 
-	resourceState = RenderTargetResourceStateUndefined;
+	render_target->impl.resourceState = RenderTargetResourceStateUndefined;
 
 #ifdef KORE_WINDOWS
 	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -60,11 +60,11 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 #endif
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, texWidth, texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-	                                D3D12_RESOURCE_STATE_COMMON, nullptr, IID_GRAPHICS_PPV_ARGS(&renderTarget));
+	    &CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, render_target->texWidth, render_target->texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
+	                                D3D12_RESOURCE_STATE_COMMON, nullptr, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
 
 	D3D12_RENDER_TARGET_VIEW_DESC view;
-	const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
+	const D3D12_RESOURCE_DESC resourceDesc = render_target->impl.renderTarget->GetDesc();
 	view.Format = dxgiFormat;
 	view.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	view.Texture2D.MipSlice = 0;
@@ -74,9 +74,10 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));
+	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetDescriptorHeap));
 
-	device->CreateRenderTargetView(renderTarget, &view, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->CreateRenderTargetView(render_target->impl.renderTarget, &view,
+	                               render_target->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -85,7 +86,7 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -95,14 +96,15 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	device->CreateShaderResourceView(renderTarget, &shaderResourceViewDesc, srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->CreateShaderResourceView(render_target->impl.renderTarget, &shaderResourceViewDesc,
+	                                 render_target->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	if (depthBufferBits > 0) {
 		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 		dsvHeapDesc.NumDescriptors = 1;
 		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&depthStencilDescriptorHeap));
+		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilDescriptorHeap));
 
 		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0, width, height, 1, 1, DXGI_FORMAT_D32_FLOAT, 1, 0,
 		                                   D3D12_TEXTURE_LAYOUT_UNKNOWN, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
@@ -113,36 +115,37 @@ Graphics5::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 		clearValue.DepthStencil.Stencil = 0;
 
 		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &depthTexture,
-		                                D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
+		                                D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilTexture));
 
-		device->CreateDepthStencilView(depthStencilTexture, nullptr, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		device->CreateDepthStencilView(render_target->impl.depthStencilTexture, nullptr,
+		                               render_target->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 	else {
-		depthStencilDescriptorHeap = nullptr;
-		depthStencilTexture = nullptr;
+		render_target->impl.depthStencilDescriptorHeap = nullptr;
+		render_target->impl.depthStencilTexture = nullptr;
 	}
 
-	scissor = {0, 0, width, height};
-	viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
+	render_target->impl.scissor = {0, 0, width, height};
+	render_target->impl.viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
 
 	if (contextId < 0) { // encoded backbuffer index
-		swapChain->GetBuffer(-contextId - 1, IID_GRAPHICS_PPV_ARGS(&renderTarget));
-		createRenderTargetView(renderTarget, renderTargetDescriptorHeap);
+		swapChain->GetBuffer(-contextId - 1, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
+		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap);
 	}
 }
 
-Graphics5::RenderTarget::RenderTarget(int cubeMapSize, int depthBufferBits, bool antialiasing, RenderTargetFormat format, int stencilBufferBits,
+void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *render_target, int cubeMapSize, int depthBufferBits, bool antialiasing, kinc_g5_render_target_format_t format, int stencilBufferBits,
                                       int contextId) {
 	stage = 0;
 }
 
-Graphics5::RenderTarget::~RenderTarget() {
-	if (currentRenderTargets[stage] == this) {
-		currentRenderTargets[stage] = nullptr;
+void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
+	if (currentRenderTargets[render_target->stage] == render_target) {
+		currentRenderTargets[render_target->stage] = NULL;
 	}
-	renderTarget->Release();
-	renderTargetDescriptorHeap->Release();
-	srvDescriptorHeap->Release();
+	render_target->impl.renderTarget->Release();
+	render_target->impl.renderTargetDescriptorHeap->Release();
+	render_target->impl.srvDescriptorHeap->Release();
 }
 
 namespace {
@@ -166,14 +169,14 @@ namespace {
 	}
 }
 
-void Graphics5::RenderTarget::useColorAsTexture(TextureUnit unit) {
-	if (unit.unit < 0) return;
+void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {
+	if (unit.impl.unit < 0) return;
 	graphicsFlushAndWait();
-	this->stage = unit.unit;
-	currentRenderTargets[stage] = this;
-	currentTextures[stage] = nullptr;
+	render_target->impl.stage = unit.impl.unit;
+	currentRenderTargets[render_target->impl.stage] = render_target;
+	currentTextures[render_target->impl.stage] = nullptr;
 }
 
-void Graphics5::RenderTarget::useDepthAsTexture(TextureUnit unit) {}
+void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {}
 
-void Graphics5::RenderTarget::setDepthStencilFrom(RenderTarget* source) {}
+void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *render_target, kinc_g5_render_target_t *source) {}

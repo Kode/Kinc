@@ -19,6 +19,8 @@ namespace Kore {
 		void hideKeyboard();
 		bool showsKeyboard();
 		void loadURL(const char* title);
+		const char* language();
+		void vibrate(int ms);
 		const char* systemId();
 		const char* savePath();
 		const char** videoFormats();
@@ -29,7 +31,7 @@ namespace Kore {
 		double frequency();
 		ticks timestamp();
 		double time();
-		
+
 		void start();
 		bool frame();
 		void stop();

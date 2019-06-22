@@ -3,8 +3,8 @@
 #include <CoreAudio/AudioHardware.h>
 #include <CoreServices/CoreServices.h>
 
-#include <Kore/Audio2/Audio.h>
-#include <Kore/Log.h>
+#include <kinc/audio2/audio.h>
+#include <kinc/log.h>
 
 #include <Kore/VideoSoundStream.h>
 
@@ -29,7 +29,7 @@ namespace {
 
 	void affirm(OSStatus err) {
 		if (err != kAudioHardwareNoError) {
-			log(Error, "Error: %i\n", err);
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Error: %i\n", err);
 		}
 	}
 
@@ -40,18 +40,21 @@ namespace {
 	AudioStreamBasicDescription deviceFormat;
 
 	AudioDeviceIOProcID theIOProcID = nullptr;
+	
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+	kinc_a2_buffer_t a2_buffer;
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+		a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 		*(float*)buffer = value;
 	}
 
 	OSStatus appIOProc(AudioDeviceID inDevice, const AudioTimeStamp* inNow, const AudioBufferList* inInputData, const AudioTimeStamp* inInputTime,
 	                   AudioBufferList* outOutputData, const AudioTimeStamp* inOutputTime, void* userdata) {
 		int numSamples = deviceBufferSize / deviceFormat.mBytesPerFrame;
-		Audio2::audioCallback(numSamples * 2);
+		a2_callback(&a2_buffer, numSamples * 2);
 		float* out = (float*)outOutputData->mBuffers[0].mData;
 		for (int i = 0; i < numSamples; ++i) {
 			copySample(out++); // left
@@ -61,11 +64,11 @@ namespace {
 	}
 }
 
-void Audio2::init() {
-	buffer.readLocation = 0;
-	buffer.writeLocation = 0;
-	buffer.dataSize = 128 * 1024;
-	buffer.data = new u8[buffer.dataSize];
+void kinc_a2_init() {
+	a2_buffer.read_location = 0;
+	a2_buffer.write_location = 0;
+	a2_buffer.data_size = 128 * 1024;
+	a2_buffer.data = new u8[a2_buffer.data_size];
 
 	device = kAudioDeviceUnknown;
 
@@ -80,7 +83,7 @@ void Audio2::init() {
 	address.mScope = kAudioDevicePropertyScopeOutput;
 	affirm(AudioObjectGetPropertyData(device, &address, 0, nullptr, &size, &deviceBufferSize));
 
-	log(Info, "deviceBufferSize = %i\n", deviceBufferSize);
+	kinc_log(KINC_LOG_LEVEL_INFO, "deviceBufferSize = %i\n", deviceBufferSize);
 
 	size = sizeof(AudioStreamBasicDescription);
 	address.mSelector = kAudioDevicePropertyStreamFormat;
@@ -89,24 +92,24 @@ void Audio2::init() {
 	affirm(AudioObjectGetPropertyData(device, &address, 0, nullptr, &size, &deviceFormat));
 
 	if (deviceFormat.mFormatID != kAudioFormatLinearPCM) {
-		log(Error, "mFormatID !=  kAudioFormatLinearPCM\n");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "mFormatID !=  kAudioFormatLinearPCM\n");
 		return;
 	}
 
 	if (!(deviceFormat.mFormatFlags & kLinearPCMFormatFlagIsFloat)) {
-		log(Error, "Only works with float format.\n");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Only works with float format.\n");
 		return;
 	}
 
 	initialized = true;
 
-	log(Info, "mSampleRate = %g\n", deviceFormat.mSampleRate);
-	log(Info, "mFormatFlags = %08X\n", (unsigned int)deviceFormat.mFormatFlags);
-	log(Info, "mBytesPerPacket = %d\n", (unsigned int)deviceFormat.mBytesPerPacket);
-	log(Info, "mFramesPerPacket = %d\n", (unsigned int)deviceFormat.mFramesPerPacket);
-	log(Info, "mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
-	log(Info, "mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
-	log(Info, "mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
+	kinc_log(KINC_LOG_LEVEL_INFO, "mSampleRate = %g\n", deviceFormat.mSampleRate);
+	kinc_log(KINC_LOG_LEVEL_INFO, "mFormatFlags = %08X\n", (unsigned int)deviceFormat.mFormatFlags);
+	kinc_log(KINC_LOG_LEVEL_INFO, "mBytesPerPacket = %d\n", (unsigned int)deviceFormat.mBytesPerPacket);
+	kinc_log(KINC_LOG_LEVEL_INFO, "mFramesPerPacket = %d\n", (unsigned int)deviceFormat.mFramesPerPacket);
+	kinc_log(KINC_LOG_LEVEL_INFO, "mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
+	kinc_log(KINC_LOG_LEVEL_INFO, "mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
+	kinc_log(KINC_LOG_LEVEL_INFO, "mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
 
 	if (soundPlaying) return;
 
@@ -116,9 +119,9 @@ void Audio2::init() {
 	soundPlaying = true;
 }
 
-void Audio2::update() {}
+void kinc_a2_update() {}
 
-void Audio2::shutdown() {
+void kinc_a2_shutdown() {
 	if (!initialized) return;
 	if (!soundPlaying) return;
 
@@ -126,4 +129,8 @@ void Audio2::shutdown() {
 	affirm(AudioDeviceDestroyIOProcID(device, theIOProcID));
 
 	soundPlaying = false;
+}
+
+void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+	a2_callback = kinc_a2_audio_callback;
 }

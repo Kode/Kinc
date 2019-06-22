@@ -2,98 +2,88 @@
 
 #include "Mouse.h"
 
-#include <Kore/Log.h>
-#include <Kore/System.h>
+#include <kinc/input/mouse.h>
 
 using namespace Kore;
 
 namespace {
 	Mouse mouse;
+	bool initialized = false;
+
+	void move(int window, int x, int y, int movementX, int movementY) {
+		if (mouse.Move != nullptr) {
+			mouse.Move(window, x, y, movementX, movementY);
+		}
+	}
+
+	void press(int window, int button, int x, int y) {
+		if (mouse.Press != nullptr) {
+			mouse.Press(window, button, x, y);
+		}
+	}
+
+	void release(int window, int button, int x, int y) {
+		if (mouse.Release != nullptr) {
+			mouse.Release(window, button, x, y);
+		}
+	}
+
+	void scroll(int window, int delta) {
+		if (mouse.Scroll != nullptr) {
+			mouse.Scroll(window, delta);
+		}
+	}
+
+	void leave(int window) {
+		if (mouse.Leave != nullptr) {
+			mouse.Leave(window);
+		}
+	}
 }
 
 Mouse* Mouse::the() {
+	if (!initialized) {
+		kinc_mouse_move_callback = move;
+		kinc_mouse_press_callback = press;
+		kinc_mouse_release_callback = release;
+		kinc_mouse_scroll_callback = scroll;
+		kinc_mouse_leave_window_callback = leave;
+		initialized = true;
+	}
 	return &mouse;
 }
 
-Mouse::Mouse() : lastX(0), lastY(0), lockX(0), lockY(0), centerX(0), centerY(0), locked(false), moved(false) {}
+Mouse::Mouse() : Move(nullptr), Press(nullptr), Release(nullptr), Scroll(nullptr), Leave(nullptr) {}
 
-void Mouse::_move(int windowId, int x, int y) {
-	int movementX = 0;
-	int movementY = 0;
-	if (isLocked(windowId)) {
-		movementX = x - centerX;
-		movementY = y - centerY;
-		if (movementX != 0 || movementY != 0) {
-			setPosition(windowId, centerX, centerY);
-			x = centerX;
-			y = centerY;
-		}
-	}
-	else if (moved) {
-		movementX = x - lastX;
-		movementY = y - lastY;
-	}
-	moved = true;
+bool Mouse::canLock(int window) {
+	return kinc_mouse_can_lock(window);
+}
 
-	lastX = x;
-	lastY = y;
-	if (Move != nullptr && (movementX != 0 || movementY != 0)) {
-		Move(windowId, x, y, movementX, movementY);
+bool Mouse::isLocked(int window) {
+	return kinc_mouse_is_locked(window);
+}
+
+void Mouse::lock(int window) {
+	kinc_mouse_lock(window);
+}
+
+void Mouse::unlock(int window) {
+	kinc_mouse_unlock(window);
+}
+
+void Mouse::show(bool truth) {
+	if (truth) {
+		kinc_mouse_show();
+	}
+	else {
+		kinc_mouse_hide();
 	}
 }
 
-void Mouse::_press(int windowId, int button, int x, int y) {
-	if (Press != nullptr) {
-		Press(windowId, button, x, y);
-	}
+void Mouse::setPosition(int window, int x, int y) {
+	kinc_mouse_set_position(window, x, y);
 }
 
-void Mouse::_release(int windowId, int button, int x, int y) {
-	if (Release != nullptr) {
-		Release(windowId, button, x, y);
-	}
-}
-
-void Mouse::_scroll(int windowId, int delta) {
-	if (Scroll != nullptr) {
-		Scroll(windowId, delta);
-	}
-}
-
-void Mouse::_activated(int windowId, bool truth) {
-	if (isLocked(windowId)) {
-		_lock(windowId, truth);
-	}
-}
-
-void Mouse::___leave(int windowId) {
-	if (Leave != nullptr) {
-		Leave(windowId);
-	}
-}
-
-bool Mouse::isLocked(int windowId) {
-	return locked;
-}
-
-void Mouse::lock(int windowId) {
-	if (!canLock(windowId)) {
-		return;
-	}
-	locked = true;
-	_lock(windowId, true);
-	getPosition(windowId, lockX, lockY);
-	centerX = Kore::System::windowWidth(windowId) / 2;
-	centerY = Kore::System::windowHeight(windowId) / 2;
-	setPosition(windowId, centerX, centerY);
-}
-
-void Mouse::unlock(int windowId) {
-	if (!canLock(windowId)) {
-		return;
-	}
-	moved = false;
-	locked = false;
-	_lock(windowId, false);
-	setPosition(windowId, lockX, lockY);
+void Mouse::getPosition(int window, int &x, int &y) {
+	kinc_mouse_get_position(window, &x, &y);
 }

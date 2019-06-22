@@ -14,20 +14,17 @@
 #undef RegisterClass
 #endif
 
-namespace Kore {
-	class RenderTarget5Impl {
-	public:
-		VkImage destImage;
-		VkDeviceMemory destMemory;
-		VkImageView destView;
+typedef struct {
+	VkImage destImage;
+	VkDeviceMemory destMemory;
+	VkImageView destView;
 
-		VkImage sourceImage;
-		VkDeviceMemory sourceMemory;
-		VkImageView sourceView;
+	VkImage sourceImage;
+	VkDeviceMemory sourceMemory;
+	VkImageView sourceView;
 
-		VkFramebuffer framebuffer;
-		VkDescriptorSet desc_set;
-		VkSampler sampler;
-		VkRenderPass renderPass;
-	};
-}
+	VkFramebuffer framebuffer;
+	VkDescriptorSet desc_set;
+	VkSampler sampler;
+	VkRenderPass renderPass;
+} RenderTarget5Impl;

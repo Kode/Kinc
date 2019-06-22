@@ -2,6 +2,8 @@
 
 #include "Writer.h"
 
+#include <kinc/io/filewriter.h>
+
 namespace Kore {
 	class FileWriter : public Writer {
 	public:
@@ -11,9 +13,7 @@ namespace Kore {
 		bool open(const char* filename);
 		void close();
 		void write(void* data, int size) override;
-
 	private:
-		const char* filename;
-		void* file;
+		kinc_file_writer_t writer;
 	};
 }

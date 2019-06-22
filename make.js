@@ -1,1 +1,1 @@
-require('./Tools/koremake/koremake.js');
+require('./Tools/kincmake/koremake.js');

@@ -2,25 +2,32 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <Kore/Input/Mouse.h>
-#include <Kore/Window.h>
+#include <kinc/input/mouse.h>
+#include <kinc/window.h>
 
-using namespace Kore;
-
-void Mouse::_lock(int windowId, bool truth) {
-	show(!truth);
+void kinc_internal_mouse_lock(int window) {
+	kinc_mouse_hide();
 }
 
-bool Mouse::canLock(int windowId) {
+void kinc_internal_mouse_unlock(int window) {
+	kinc_mouse_show();
+}
+
+bool kinc_mouse_can_lock(int window) {
 	return true;
 }
 
-void Mouse::show(bool truth) {
-	truth ? CGDisplayShowCursor(kCGDirectMainDisplay) : CGDisplayHideCursor(kCGDirectMainDisplay);
+void kinc_mouse_show() {
+	CGDisplayShowCursor(kCGDirectMainDisplay);
 }
 
-void Mouse::setPosition(int windowId, int x, int y) {
-	NSWindow* window = Window::get(windowId)->_data.handle;
+void kinc_mouse_hide() {
+	CGDisplayHideCursor(kCGDirectMainDisplay);
+}
+
+void kinc_mouse_set_position(int windowId, int x, int y) {
+	//**
+	/*NSWindow* window = Window::get(windowId)->_data.handle;
 	NSRect rect = [[NSScreen mainScreen] frame];
 	
 	// Flip y and add window offset
@@ -29,11 +36,12 @@ void Mouse::setPosition(int windowId, int x, int y) {
 	point.y = rect.size.height - (y + window.frame.origin.y);
 	
 	CGWarpMouseCursorPosition(point);
-	CGAssociateMouseAndMouseCursorPosition(true);
+	CGAssociateMouseAndMouseCursorPosition(true);*/
 }
 
-void Mouse::getPosition(int windowId, int& x, int& y) {
-	NSWindow* window = Window::get(windowId)->_data.handle;
+void kinc_mouse_get_position(int windowId, int* x, int* y) {
+	//**
+	/*NSWindow* window = Window::get(windowId)->_data.handle;
 	NSRect rect = [[NSScreen mainScreen] frame];
 	CGEventRef event = CGEventCreate(NULL);
 	CGPoint point = CGEventGetLocation(event);
@@ -41,5 +49,5 @@ void Mouse::getPosition(int windowId, int& x, int& y) {
 
 	// Flip y and remove window offset
 	x = point.x - window.frame.origin.x;
-	y = rect.size.height - (point.y + window.frame.origin.y);
+	y = rect.size.height - (point.y + window.frame.origin.y);*/
 }

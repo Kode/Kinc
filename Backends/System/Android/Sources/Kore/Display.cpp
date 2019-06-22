@@ -1,74 +1,33 @@
 #include "pch.h"
 
 #include <Kore/Android.h>
-#include <Kore/Display.h>
-#include <Kore/Log.h>
+
+#include <kinc/display.h>
+#include <kinc/log.h>
 
 #include <stdexcept>
 
-using namespace Kore;
-
 namespace {
-    Display display;
+	kinc_display_t display;
 }
 
-int Display::count() {
+int kinc_count_displays(void) {
 	return 1;
 }
 
-Display* Display::primary() {
-	return &display;
+int kinc_primary_display(void) {
+	return 0;
 }
 
-Display* Display::get(int index) {
+/*Display* Display::get(int index) {
     if (index > 0) {
         return nullptr;
     }
 	return &display;
-}
+}*/
 
-DisplayMode Display::availableMode(int index) {
-	DisplayMode mode;
-	mode.width = 800;
-	mode.height = 600;
-	mode.frequency = 60;
-	mode.bitsPerPixel = 32;
-	return mode;
-}
 
-int Display::countAvailableModes() {
-	return 1;
-}
-
-int Display::pixelsPerInch() {
-    JNIEnv* env;
-    KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-    jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
-    jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getScreenDpi", "()I");
-    int dpi = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
-    KoreAndroid::getActivity()->vm->DetachCurrentThread();
-    return dpi;
-}
-
-DisplayData::DisplayData() {}
-
-bool Display::available() {
-	return true;
-}
-
-const char* Display::name() {
-	return "Display";
-}
-
-int Display::x() {
-	return 0;
-}
-
-int Display::y() {
-	return 0;
-}
-
-int Display::width() {
+static int width() {
 	JNIEnv* env;
 	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
@@ -78,7 +37,7 @@ int Display::width() {
 	return width;
 }
 
-int Display::height() {
+static int height() {
 	JNIEnv* env;
 	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
@@ -88,10 +47,48 @@ int Display::height() {
 	return height;
 }
 
-int Display::frequency() {
-	return 60;
+static int pixelsPerInch() {
+	JNIEnv* env;
+	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
+	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getScreenDpi", "()I");
+	int dpi = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
+	KoreAndroid::getActivity()->vm->DetachCurrentThread();
+	return dpi;
 }
 
-Display::Display() {
+kinc_display_mode_t kinc_display_available_mode(int display_index, int mode_index) {
+	kinc_display_mode_t mode;
+	mode.x = 0;
+	mode.y = 0;
+	mode.width = width();
+	mode.height = height();
+	mode.frequency = 60;
+	mode.bits_per_pixel = 32;
+	mode.pixels_per_inch = pixelsPerInch();
+	return mode;
+}
 
+int kinc_display_count_available_modes(int display_index) {
+	return 1;
+}
+
+kinc_display_mode_t kinc_display_current_mode(int display) {
+	kinc_display_mode_t mode;
+	mode.x = 0;
+	mode.y = 0;
+	mode.width = width();
+	mode.height = height();
+	mode.frequency = 60;
+	mode.bits_per_pixel = 32;
+	mode.pixels_per_inch = pixelsPerInch();
+	return mode;
+}
+
+const char *kinc_display_name(int display) {
+	return "Display";
+}
+
+bool kinc_display_available(int display) {
+	return display == 0;
 }

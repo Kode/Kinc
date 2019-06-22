@@ -1,15 +1,16 @@
 #include "pch.h"
 
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Input/Keyboard.h>
-#include <Kore/Input/Mouse.h>
-#include <Kore/Input/Pen.h>
-#include <Kore/Log.h>
-#include <Kore/System.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/input/keyboard.h>
+#include <kinc/input/mouse.h>
+#include <kinc/input/pen.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
 #include "Input/Gamepad.h"
 
-#include <Kore/Display.h>
+#include <kinc/display.h>
 #include <Kore/Linux.h>
 
 #include <cstring>
@@ -23,6 +24,8 @@
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+
+#include "WindowData.h"
 
 #ifdef KORE_OPENGL
 #include <GL/gl.h>
@@ -75,14 +78,16 @@ namespace {
 	Atom wmDeleteMessage;
 }
 
+#define MAXIMUM_WINDOWS 16
+extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
+
 namespace windowimpl {
-	Kore::Window* windows[10] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	int windowCounter = -1;
 
 #ifdef KORE_OPENGL
 	int idFromWindow(Window window) {
-		for (int windowIndex = 0; windowIndex < sizeof(windows) / sizeof(windows[0]); ++windowIndex) {
-			if (windows[windowIndex]->_data.handle == window) {
+		for (int windowIndex = 0; windowIndex < MAXIMUM_WINDOWS; ++windowIndex) {
+			if (kinc_internal_windows[windowIndex].handle == window) {
 				return windowIndex;
 			}
 		}
@@ -104,12 +109,12 @@ namespace {
 }
 #endif
 
-int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, Kore::Display* targetDisplay, int depthBufferBits,
+int createWindow(const char* title, int x, int y, int width, int height, kinc_window_mode_t windowMode, int targetDisplay, int depthBufferBits,
 				 int stencilBufferBits, int antialiasingSamples) {
 
-	int nameLength = strlen(Kore::System::name());
+	int nameLength = strlen(kinc_application_name());
 	char strName[nameLength+1];
-	strcpy(strName, Kore::System::name());
+	strcpy(strName, kinc_application_name());
 	char strClass[] = "_KoreApplication";
 	char strNameClass[nameLength+17];
 	strcpy(strNameClass, strName);
@@ -198,6 +203,7 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	//  -context sharing doesn't seem to work in virtual box?
 	//      -main screen flickers
 	//      -sprite in subscreens is black
+	cx = NULL;
 	glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
 	glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddressARB((const GLubyte *)"glXCreateContextAttribsARB");
 	if (glXCreateContextAttribsARB) {
@@ -208,11 +214,15 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 			GLX_CONTEXT_PROFILE_MASK_ARB , GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 			None
 		};
-		cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, GL_TRUE, contextAttribs);
+		if (fbconfig) {
+			cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig,
+			                                wcounter == 0 ? None : kinc_internal_windows[0].context, GL_TRUE,
+			                                contextAttribs);
+		}
 	}
 
 	if (cx == NULL) {
-		cx = glXCreateContext(Kore::Linux::display, vi, wcounter == 0 ? None : windowimpl::windows[0]->_data.context, /* direct rendering if possible */ GL_TRUE);
+		cx = glXCreateContext(Kore::Linux::display, vi, wcounter == 0 ? None : kinc_internal_windows[0].context, /* direct rendering if possible */ GL_TRUE);
 	}
 
 	if (cx == NULL) {
@@ -233,8 +243,8 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 	XChangeProperty(Kore::Linux::display, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)strNameClass_ptr, nameLength+17);
 
 	switch (windowMode) {
-	case Kore::WindowModeFullscreen: // fall through
-	case Kore::WindowModeExclusiveFullscreen: {
+	case KINC_WINDOW_MODE_FULLSCREEN: // fall through
+	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN: {
 		Atom awmHints = XInternAtom(Kore::Linux::display, "_MOTIF_WM_HINTS", 0);
 		MwmHints hints;
 		hints.flags = MWM_HINTS_DECORATIONS;
@@ -246,15 +256,16 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 
 	glXMakeCurrent(Kore::Linux::display, win, cx);
 
-	Kore::Display* deviceInfo = targetDisplay == nullptr ? Kore::Display::primary() : targetDisplay;
+	int display = targetDisplay == -1 ? kinc_primary_display() : targetDisplay;
+    kinc_display_mode_t deviceInfo = kinc_display_current_mode(display);
 
-	int dstx = deviceInfo->x();
-	int dsty = deviceInfo->y();
+	int dstx = deviceInfo.x;
+	int dsty = deviceInfo.y;
 
 	switch (windowMode) {
 	default: {
-		int dw = deviceInfo->width();
-		int dh = deviceInfo->height();
+		int dw = deviceInfo.width;
+		int dh = deviceInfo.height;
 		dstx += x < 0 ? (dw - width) / 2 : x;
 		dsty += y < 0 ? (dh - height) / 2 : y;
 	} break;
@@ -303,18 +314,17 @@ int createWindow(const char* title, int x, int y, int width, int height, Kore::W
 		}
 	}
 
-	windowimpl::windows[wcounter] = new Kore::Window; //new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
-	windowimpl::windows[wcounter]->_data.width = width;
-	windowimpl::windows[wcounter]->_data.height = height;
-	windowimpl::windows[wcounter]->_data.handle = win;
-	windowimpl::windows[wcounter]->_data.context = cx;
+    kinc_internal_windows[wcounter].width = width;
+    kinc_internal_windows[wcounter].height = height;
+    kinc_internal_windows[wcounter].handle = win;
+    kinc_internal_windows[wcounter].context = cx;
 
-	if (windowMode == Kore::WindowModeFullscreen || windowMode == Kore::WindowModeExclusiveFullscreen) {
+	if (windowMode == KINC_WINDOW_MODE_FULLSCREEN || windowMode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 		Kore::Linux::fullscreen(win, true);
-		windowimpl::windows[wcounter]->_data.mode = windowMode;
+        kinc_internal_windows[wcounter].mode = windowMode;
 	}
 	else {
-		windowimpl::windows[wcounter]->_data.mode = 0;
+        kinc_internal_windows[wcounter].mode = 0;
 	}
 
 	wmDeleteMessage = XInternAtom(Kore::Linux::display, "WM_DELETE_WINDOW", False);
@@ -403,16 +413,16 @@ namespace Kore {
 		}
 #endif
 
-		int initWindow(WindowOptions* win, FramebufferOptions* frame) {
+		int initWindow(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 			char buffer[1024] = {0};
-			strcpy(buffer, name());
+			strcpy(buffer, kinc_application_name());
 			if (win->title != nullptr) {
 				strcpy(buffer, win->title);
 			}
 
-			int id = createWindow(buffer, win->x, win->y, win->width, win->height, win->mode, win->display,
-								  frame->depthBufferBits, frame->stencilBufferBits, frame->samplesPerPixel);
-			Graphics4::init(id, frame->depthBufferBits, frame->stencilBufferBits);
+			int id = createWindow(buffer, win->x, win->y, win->width, win->height, win->mode, win->display_index,
+								  frame->depth_bits, frame->stencil_bits, frame->samples_per_pixel);
+			kinc_g4_init(id, frame->depth_bits, frame->stencil_bits, true);
 			return id;
 		}
 	}
@@ -432,7 +442,7 @@ namespace Kore {
 	}
 }
 
-bool Kore::System::handleMessages() {
+bool kinc_internal_handle_messages() {
 	static bool controlDown = false;
 #ifdef KORE_OPENGL
 	while (XPending(Kore::Linux::display) > 0) {
@@ -444,13 +454,13 @@ bool Kore::System::handleMessages() {
 			int windowId = windowimpl::idFromWindow(motion->window);
 			float p = (float)motion->axis_data[2] / (float)penMaxPressure;
 			if (p > 0 && penPressureLast == 0) {
-				Pen::the()->_press(windowId, motion->x, motion->y, p);
+                kinc_internal_pen_trigger_press(windowId, motion->x, motion->y, p);
 			}
 			else if (p == 0 && penPressureLast > 0) {
-				Pen::the()->_release(windowId, motion->x, motion->y, p);
+                kinc_internal_pen_trigger_release(windowId, motion->x, motion->y, p);
 			}
 			else if (p > 0) {
-				Pen::the()->_move(windowId, motion->x, motion->y, p);
+                kinc_internal_pen_trigger_move(windowId, motion->x, motion->y, p);
 			}
 			penPressureLast = p;
 		}
@@ -463,16 +473,17 @@ bool Kore::System::handleMessages() {
 			XLookupString(key, buffer, 1, &keysym, NULL);
 
 			if (buffer[0] >= 32 && buffer[0] <= 126) {
-				Kore::Keyboard::the()->_keypress((wchar_t)buffer[0]);
+                kinc_internal_keyboard_trigger_key_press((wchar_t)buffer[0]);
 			}
 
-#define KEY(xkey, korekey)                                    \
-	case xkey:                                                \
-		if (!keyPressed[Kore::korekey]) {                     \
-			keyPressed[Kore::korekey] = true;                 \
-			Kore::Keyboard::the()->_keydown(Kore::korekey);   \
-		}                                                     \
+#define KEY(xkey, korekey)                                          \
+	case xkey:                                                      \
+		if (!keyPressed[korekey]) {                           \
+			keyPressed[korekey] = true;                       \
+			kinc_internal_keyboard_trigger_key_down(korekey);   \
+		}                                                           \
 		break;
+
 			if (keysym == XK_Control_L || keysym == XK_Control_R) {
 				controlDown = true;
 			}
@@ -484,96 +495,96 @@ bool Kore::System::handleMessages() {
 			}
 
 			switch (keysym) {
-				KEY(XK_Right, KeyRight)
-				KEY(XK_Left, KeyLeft)
-				KEY(XK_Up, KeyUp)
-				KEY(XK_Down, KeyDown)
-				KEY(XK_space, KeySpace)
-				KEY(XK_BackSpace, KeyBackspace)
-				KEY(XK_Tab, KeyTab)
-				KEY(XK_Return, KeyReturn)
-				KEY(XK_Shift_L, KeyShift)
-				KEY(XK_Shift_R, KeyShift)
-				KEY(XK_Control_L, KeyControl)
-				KEY(XK_Control_R, KeyControl)
-				KEY(XK_Alt_L, KeyAlt)
-				KEY(XK_Alt_R, KeyAlt)
-				KEY(XK_Delete, KeyDelete)
-				KEY(XK_a, KeyA)
-				KEY(XK_b, KeyB)
-				KEY(XK_c, KeyC)
-				KEY(XK_d, KeyD)
-				KEY(XK_e, KeyE)
-				KEY(XK_f, KeyF)
-				KEY(XK_g, KeyG)
-				KEY(XK_h, KeyH)
-				KEY(XK_i, KeyI)
-				KEY(XK_j, KeyJ)
-				KEY(XK_k, KeyK)
-				KEY(XK_l, KeyL)
-				KEY(XK_m, KeyM)
-				KEY(XK_n, KeyN)
-				KEY(XK_o, KeyO)
-				KEY(XK_p, KeyP)
-				KEY(XK_q, KeyQ)
-				KEY(XK_r, KeyR)
-				KEY(XK_s, KeyS)
-				KEY(XK_t, KeyT)
-				KEY(XK_u, KeyU)
-				KEY(XK_v, KeyV)
-				KEY(XK_w, KeyW)
-				KEY(XK_x, KeyX)
-				KEY(XK_y, KeyY)
-				KEY(XK_z, KeyZ)
-				KEY(XK_A, KeyA)
-				KEY(XK_B, KeyB)
-				KEY(XK_C, KeyC)
-				KEY(XK_D, KeyD)
-				KEY(XK_E, KeyE)
-				KEY(XK_F, KeyF)
-				KEY(XK_G, KeyG)
-				KEY(XK_H, KeyH)
-				KEY(XK_I, KeyI)
-				KEY(XK_J, KeyJ)
-				KEY(XK_K, KeyK)
-				KEY(XK_L, KeyL)
-				KEY(XK_M, KeyM)
-				KEY(XK_N, KeyN)
-				KEY(XK_O, KeyO)
-				KEY(XK_P, KeyP)
-				KEY(XK_Q, KeyQ)
-				KEY(XK_R, KeyR)
-				KEY(XK_S, KeyS)
-				KEY(XK_T, KeyT)
-				KEY(XK_U, KeyU)
-				KEY(XK_V, KeyV)
-				KEY(XK_W, KeyW)
-				KEY(XK_X, KeyX)
-				KEY(XK_Y, KeyY)
-				KEY(XK_Z, KeyZ)
-				KEY(XK_1, Key1)
-				KEY(XK_2, Key2)
-				KEY(XK_3, Key3)
-				KEY(XK_4, Key4)
-				KEY(XK_5, Key5)
-				KEY(XK_6, Key6)
-				KEY(XK_7, Key7)
-				KEY(XK_8, Key8)
-				KEY(XK_9, Key9)
-				KEY(XK_0, Key0)
-				KEY(XK_Escape, KeyEscape)
-				KEY(XK_F1, KeyF1)
-				KEY(XK_F2, KeyF2)
-				KEY(XK_F3, KeyF3)
-				KEY(XK_F4, KeyF4)
-				KEY(XK_F5, KeyF5)
-				KEY(XK_F6, KeyF6)
-				KEY(XK_F7, KeyF7)
-				KEY(XK_F8, KeyF8)
-				KEY(XK_F9, KeyF9)
-				KEY(XK_F10, KeyF10)
-				KEY(XK_F11, KeyF11)
-				KEY(XK_F12, KeyF12)
+				KEY(XK_Right, KINC_KEY_RIGHT)
+				KEY(XK_Left, KINC_KEY_LEFT)
+				KEY(XK_Up, KINC_KEY_UP)
+				KEY(XK_Down, KINC_KEY_DOWN)
+				KEY(XK_space, KINC_KEY_SPACE)
+				KEY(XK_BackSpace, KINC_KEY_BACKSPACE)
+				KEY(XK_Tab, KINC_KEY_TAB)
+				KEY(XK_Return, KINC_KEY_RETURN)
+				KEY(XK_Shift_L, KINC_KEY_SHIFT)
+				KEY(XK_Shift_R, KINC_KEY_SHIFT)
+				KEY(XK_Control_L, KINC_KEY_CONTROL)
+				KEY(XK_Control_R, KINC_KEY_CONTROL)
+				KEY(XK_Alt_L, KINC_KEY_ALT)
+				KEY(XK_Alt_R, KINC_KEY_ALT)
+				KEY(XK_Delete, KINC_KEY_DELETE)
+				KEY(XK_a, KINC_KEY_A)
+				KEY(XK_b, KINC_KEY_B)
+				KEY(XK_c, KINC_KEY_C)
+				KEY(XK_d, KINC_KEY_D)
+                KEY(XK_e, KINC_KEY_E)
+                KEY(XK_f, KINC_KEY_F)
+                KEY(XK_g, KINC_KEY_G)
+				KEY(XK_h, KINC_KEY_H)
+				KEY(XK_i, KINC_KEY_I)
+				KEY(XK_j, KINC_KEY_J)
+				KEY(XK_k, KINC_KEY_K)
+				KEY(XK_l, KINC_KEY_L)
+				KEY(XK_m, KINC_KEY_M)
+				KEY(XK_n, KINC_KEY_N)
+				KEY(XK_o, KINC_KEY_O)
+				KEY(XK_p, KINC_KEY_P)
+				KEY(XK_q, KINC_KEY_Q)
+				KEY(XK_r, KINC_KEY_R)
+				KEY(XK_s, KINC_KEY_S)
+				KEY(XK_t, KINC_KEY_T)
+				KEY(XK_u, KINC_KEY_U)
+				KEY(XK_v, KINC_KEY_V)
+				KEY(XK_w, KINC_KEY_W)
+				KEY(XK_x, KINC_KEY_X)
+				KEY(XK_y, KINC_KEY_Y)
+				KEY(XK_z, KINC_KEY_Z)
+				KEY(XK_A, KINC_KEY_A)
+				KEY(XK_B, KINC_KEY_B)
+				KEY(XK_C, KINC_KEY_C)
+				KEY(XK_D, KINC_KEY_D)
+				KEY(XK_E, KINC_KEY_E)
+				KEY(XK_F, KINC_KEY_F)
+				KEY(XK_G, KINC_KEY_G)
+				KEY(XK_H, KINC_KEY_H)
+				KEY(XK_I, KINC_KEY_I)
+				KEY(XK_J, KINC_KEY_J)
+				KEY(XK_K, KINC_KEY_K)
+				KEY(XK_L, KINC_KEY_L)
+				KEY(XK_M, KINC_KEY_M)
+				KEY(XK_N, KINC_KEY_N)
+				KEY(XK_O, KINC_KEY_O)
+				KEY(XK_P, KINC_KEY_P)
+				KEY(XK_Q, KINC_KEY_Q)
+				KEY(XK_R, KINC_KEY_R)
+				KEY(XK_S, KINC_KEY_S)
+				KEY(XK_T, KINC_KEY_T)
+				KEY(XK_U, KINC_KEY_U)
+				KEY(XK_V, KINC_KEY_V)
+				KEY(XK_W, KINC_KEY_W)
+				KEY(XK_X, KINC_KEY_X)
+				KEY(XK_Y, KINC_KEY_Y)
+				KEY(XK_Z, KINC_KEY_Z)
+				KEY(XK_1, KINC_KEY_1)
+				KEY(XK_2, KINC_KEY_2)
+				KEY(XK_3, KINC_KEY_3)
+				KEY(XK_4, KINC_KEY_4)
+				KEY(XK_5, KINC_KEY_5)
+				KEY(XK_6, KINC_KEY_6)
+				KEY(XK_7, KINC_KEY_7)
+				KEY(XK_8, KINC_KEY_8)
+				KEY(XK_9, KINC_KEY_9)
+				KEY(XK_0, KINC_KEY_0)
+				KEY(XK_Escape, KINC_KEY_RETURN)
+				KEY(XK_F1, KINC_KEY_F1)
+				KEY(XK_F2, KINC_KEY_F2)
+				KEY(XK_F3, KINC_KEY_F3)
+				KEY(XK_F4, KINC_KEY_F4)
+				KEY(XK_F5, KINC_KEY_F5)
+				KEY(XK_F6, KINC_KEY_F6)
+				KEY(XK_F7, KINC_KEY_F7)
+				KEY(XK_F8, KINC_KEY_F8)
+				KEY(XK_F9, KINC_KEY_F9)
+				KEY(XK_F10, KINC_KEY_F10)
+				KEY(XK_F11, KINC_KEY_F11)
+				KEY(XK_F12, KINC_KEY_F12)
 			}
 			break;
 #undef KEY
@@ -583,106 +594,108 @@ bool Kore::System::handleMessages() {
 			KeySym keysym;
 			char buffer[1];
 			XLookupString(key, buffer, 1, &keysym, NULL);
-#define KEY(xkey, korekey)                                \
-	case xkey:                                            \
-		Kore::Keyboard::the()->_keyup(Kore::korekey);     \
-		keyPressed[Kore::korekey] = false;                \
+
+#define KEY(xkey, korekey)                                      \
+	case xkey:                                                  \
+		kinc_internal_keyboard_trigger_key_up(korekey);     \
+		keyPressed[korekey] = false;                      \
 		break;
+
 			if (keysym == XK_Control_L || keysym == XK_Control_R) {
 				controlDown = false;
 			}
 
 			switch (keysym) {
-				KEY(XK_Right, KeyRight)
-				KEY(XK_Left, KeyLeft)
-				KEY(XK_Up, KeyUp)
-				KEY(XK_Down, KeyDown)
-				KEY(XK_space, KeySpace)
-				KEY(XK_BackSpace, KeyBackspace)
-				KEY(XK_Tab, KeyTab)
-				KEY(XK_Return, KeyReturn)
-				KEY(XK_Shift_L, KeyShift)
-				KEY(XK_Shift_R, KeyShift)
-				KEY(XK_Control_L, KeyControl)
-				KEY(XK_Control_R, KeyControl)
-				KEY(XK_Alt_L, KeyAlt)
-				KEY(XK_Alt_R, KeyAlt)
-				KEY(XK_Delete, KeyDelete)
-				KEY(XK_a, KeyA)
-				KEY(XK_b, KeyB)
-				KEY(XK_c, KeyC)
-				KEY(XK_d, KeyD)
-				KEY(XK_e, KeyE)
-				KEY(XK_f, KeyF)
-				KEY(XK_g, KeyG)
-				KEY(XK_h, KeyH)
-				KEY(XK_i, KeyI)
-				KEY(XK_j, KeyJ)
-				KEY(XK_k, KeyK)
-				KEY(XK_l, KeyL)
-				KEY(XK_m, KeyM)
-				KEY(XK_n, KeyN)
-				KEY(XK_o, KeyO)
-				KEY(XK_p, KeyP)
-				KEY(XK_q, KeyQ)
-				KEY(XK_r, KeyR)
-				KEY(XK_s, KeyS)
-				KEY(XK_t, KeyT)
-				KEY(XK_u, KeyU)
-				KEY(XK_v, KeyV)
-				KEY(XK_w, KeyW)
-				KEY(XK_x, KeyX)
-				KEY(XK_y, KeyY)
-				KEY(XK_z, KeyZ)
-				KEY(XK_A, KeyA)
-				KEY(XK_B, KeyB)
-				KEY(XK_C, KeyC)
-				KEY(XK_D, KeyD)
-				KEY(XK_E, KeyE)
-				KEY(XK_F, KeyF)
-				KEY(XK_G, KeyG)
-				KEY(XK_H, KeyH)
-				KEY(XK_I, KeyI)
-				KEY(XK_J, KeyJ)
-				KEY(XK_K, KeyK)
-				KEY(XK_L, KeyL)
-				KEY(XK_M, KeyM)
-				KEY(XK_N, KeyN)
-				KEY(XK_O, KeyO)
-				KEY(XK_P, KeyP)
-				KEY(XK_Q, KeyQ)
-				KEY(XK_R, KeyR)
-				KEY(XK_S, KeyS)
-				KEY(XK_T, KeyT)
-				KEY(XK_U, KeyU)
-				KEY(XK_V, KeyV)
-				KEY(XK_W, KeyW)
-				KEY(XK_X, KeyX)
-				KEY(XK_Y, KeyY)
-				KEY(XK_Z, KeyZ)
-				KEY(XK_1, Key1)
-				KEY(XK_2, Key2)
-				KEY(XK_3, Key3)
-				KEY(XK_4, Key4)
-				KEY(XK_5, Key5)
-				KEY(XK_6, Key6)
-				KEY(XK_7, Key7)
-				KEY(XK_8, Key8)
-				KEY(XK_9, Key9)
-				KEY(XK_0, Key0)
-				KEY(XK_Escape, KeyEscape)
-				KEY(XK_F1, KeyF1)
-				KEY(XK_F2, KeyF2)
-				KEY(XK_F3, KeyF3)
-				KEY(XK_F4, KeyF4)
-				KEY(XK_F5, KeyF5)
-				KEY(XK_F6, KeyF6)
-				KEY(XK_F7, KeyF7)
-				KEY(XK_F8, KeyF8)
-				KEY(XK_F9, KeyF9)
-				KEY(XK_F10, KeyF10)
-				KEY(XK_F11, KeyF11)
-				KEY(XK_F12, KeyF12)
+				KEY(XK_Right, KINC_KEY_RIGHT)
+				KEY(XK_Left, KINC_KEY_LEFT)
+				KEY(XK_Up, KINC_KEY_UP)
+				KEY(XK_Down, KINC_KEY_DOWN)
+				KEY(XK_space, KINC_KEY_SPACE)
+				KEY(XK_BackSpace, KINC_KEY_BACKSPACE)
+				KEY(XK_Tab, KINC_KEY_TAB)
+				KEY(XK_Return, KINC_KEY_RETURN)
+				KEY(XK_Shift_L, KINC_KEY_SHIFT)
+				KEY(XK_Shift_R, KINC_KEY_SHIFT)
+				KEY(XK_Control_L, KINC_KEY_CONTROL)
+				KEY(XK_Control_R, KINC_KEY_CONTROL)
+				KEY(XK_Alt_L, KINC_KEY_ALT)
+				KEY(XK_Alt_R, KINC_KEY_ALT)
+				KEY(XK_Delete, KINC_KEY_DELETE)
+				KEY(XK_a, KINC_KEY_A)
+				KEY(XK_b, KINC_KEY_B)
+				KEY(XK_c, KINC_KEY_C)
+				KEY(XK_d, KINC_KEY_D)
+				KEY(XK_e, KINC_KEY_E)
+				KEY(XK_f, KINC_KEY_F)
+				KEY(XK_g, KINC_KEY_G)
+				KEY(XK_h, KINC_KEY_H)
+				KEY(XK_i, KINC_KEY_I)
+				KEY(XK_j, KINC_KEY_J)
+				KEY(XK_k, KINC_KEY_K)
+				KEY(XK_l, KINC_KEY_L)
+				KEY(XK_m, KINC_KEY_M)
+				KEY(XK_n, KINC_KEY_N)
+				KEY(XK_o, KINC_KEY_O)
+				KEY(XK_p, KINC_KEY_P)
+				KEY(XK_q, KINC_KEY_O)
+				KEY(XK_r, KINC_KEY_R)
+				KEY(XK_s, KINC_KEY_S)
+				KEY(XK_t, KINC_KEY_T)
+				KEY(XK_u, KINC_KEY_U)
+				KEY(XK_v, KINC_KEY_V)
+				KEY(XK_w, KINC_KEY_W)
+				KEY(XK_x, KINC_KEY_X)
+				KEY(XK_y, KINC_KEY_Y)
+				KEY(XK_z, KINC_KEY_Z)
+				KEY(XK_A, KINC_KEY_A)
+				KEY(XK_B, KINC_KEY_B)
+				KEY(XK_C, KINC_KEY_C)
+				KEY(XK_D, KINC_KEY_D)
+				KEY(XK_E, KINC_KEY_E)
+				KEY(XK_F, KINC_KEY_F)
+				KEY(XK_G, KINC_KEY_G)
+				KEY(XK_H, KINC_KEY_H)
+				KEY(XK_I, KINC_KEY_I)
+				KEY(XK_J, KINC_KEY_J)
+				KEY(XK_K, KINC_KEY_K)
+				KEY(XK_L, KINC_KEY_L)
+				KEY(XK_M, KINC_KEY_M)
+				KEY(XK_N, KINC_KEY_M)
+				KEY(XK_O, KINC_KEY_O)
+				KEY(XK_P, KINC_KEY_P)
+				KEY(XK_Q, KINC_KEY_Q)
+				KEY(XK_R, KINC_KEY_R)
+				KEY(XK_S, KINC_KEY_S)
+				KEY(XK_T, KINC_KEY_T)
+				KEY(XK_U, KINC_KEY_U)
+				KEY(XK_V, KINC_KEY_V)
+				KEY(XK_W, KINC_KEY_W)
+				KEY(XK_X, KINC_KEY_X)
+				KEY(XK_Y, KINC_KEY_Y)
+				KEY(XK_Z, KINC_KEY_Z)
+				KEY(XK_1, KINC_KEY_1)
+				KEY(XK_2, KINC_KEY_2)
+				KEY(XK_3, KINC_KEY_3)
+				KEY(XK_4, KINC_KEY_4)
+				KEY(XK_5, KINC_KEY_5)
+				KEY(XK_6, KINC_KEY_6)
+				KEY(XK_7, KINC_KEY_7)
+				KEY(XK_8, KINC_KEY_8)
+				KEY(XK_9, KINC_KEY_9)
+				KEY(XK_0, KINC_KEY_0)
+				KEY(XK_Escape, KINC_KEY_ESCAPE)
+				KEY(XK_F1, KINC_KEY_F1)
+				KEY(XK_F2, KINC_KEY_F2)
+				KEY(XK_F3, KINC_KEY_F3)
+				KEY(XK_F4, KINC_KEY_F4)
+				KEY(XK_F5, KINC_KEY_F5)
+				KEY(XK_F6, KINC_KEY_F6)
+				KEY(XK_F7, KINC_KEY_F7)
+				KEY(XK_F8, KINC_KEY_F8)
+				KEY(XK_F9, KINC_KEY_F9)
+				KEY(XK_F10, KINC_KEY_F10)
+				KEY(XK_F11, KINC_KEY_F11)
+				KEY(XK_F12, KINC_KEY_F12)
 			}
 			break;
 #undef KEY
@@ -693,13 +706,13 @@ bool Kore::System::handleMessages() {
 
 			switch (button->button) {
 			case Button1:
-				Kore::Mouse::the()->_press(windowId, 0, button->x, button->y);
+                kinc_internal_mouse_trigger_press(windowId, 0, button->x, button->y);
 				break;
 			case Button2:
-				Kore::Mouse::the()->_press(windowId, 2, button->x, button->y);
+                kinc_internal_mouse_trigger_press(windowId, 2, button->x, button->y);
 				break;
 			case Button3:
-				Kore::Mouse::the()->_press(windowId, 1, button->x, button->y);
+                kinc_internal_mouse_trigger_press(windowId, 1, button->x, button->y);
 				break;
 			}
 			break;
@@ -710,20 +723,20 @@ bool Kore::System::handleMessages() {
 
 			switch (button->button) {
 			case Button1:
-				Kore::Mouse::the()->_release(windowId, 0, button->x, button->y);
+                kinc_internal_mouse_trigger_release(windowId, 0, button->x, button->y);
 				break;
 			case Button2:
-				Kore::Mouse::the()->_release(windowId, 2, button->x, button->y);
+                kinc_internal_mouse_trigger_release(windowId, 2, button->x, button->y);
 				break;
 			case Button3:
-				Kore::Mouse::the()->_release(windowId, 1, button->x, button->y);
+                kinc_internal_mouse_trigger_release(windowId, 1, button->x, button->y);
 				break;
 			// Button4 and Button5 provide mouse wheel events because why not
 			case Button4:
-				Kore::Mouse::the()->_scroll(windowId, -1);
+                kinc_internal_mouse_trigger_scroll(windowId, -1);
 				break;
 			case Button5:
-				Kore::Mouse::the()->_scroll(windowId, 1);
+                kinc_internal_mouse_trigger_scroll(windowId, 1);
 				break;
 			}
 			break;
@@ -731,13 +744,13 @@ bool Kore::System::handleMessages() {
 		case MotionNotify: {
 			XMotionEvent* motion = (XMotionEvent*)&event;
 			int windowId = windowimpl::idFromWindow(motion->window);
-			Kore::Mouse::the()->_move(windowId, motion->x, motion->y);
+            kinc_internal_mouse_trigger_move(windowId, motion->x, motion->y);
 			break;
 		}
 		case ConfigureNotify: {
 			int windowId = windowimpl::idFromWindow(event.xconfigure.window);
-			windowimpl::windows[windowId]->_data.width = event.xconfigure.width;
-			windowimpl::windows[windowId]->_data.height = event.xconfigure.height;
+			kinc_internal_windows[windowId].width = event.xconfigure.width;
+            kinc_internal_windows[windowId].height = event.xconfigure.height;
 			glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
 			break;
 		}
@@ -762,12 +775,12 @@ bool Kore::System::handleMessages() {
 				XConvertSelection(Kore::Linux::display, XdndSelection, XdndTextUriList, XdndSelection, win, event.xclient.data.l[2]);
 			}
 			else if (event.xclient.data.l[0] == wmDeleteMessage) {
-				Kore::System::stop();
+                kinc_stop();
 			}
 			break;
 		}
 		case SelectionNotify: {
-			
+
 			Atom target = event.xselection.target;
 			if (event.xselection.selection == clipboard) {
 				int a = 3;
@@ -785,7 +798,7 @@ bool Kore::System::handleMessages() {
 				mbstowcs(filePath, (char*)data, len);
 				XFree(data);
 				filePath[len] = 0;
-				Kore::System::_dropFilesCallback(filePath + 7); // Strip file://
+                kinc_internal_drop_files_callback(filePath + 7); // Strip file://
 			}
 			else if (event.xselection.property) {
 				char* result;
@@ -793,7 +806,7 @@ bool Kore::System::handleMessages() {
 				int resbits;
 				XGetWindowProperty(Kore::Linux::display, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
 								   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
-				Kore::System::_pasteCallback(result);
+                kinc_internal_paste_callback(result);
 				XFree(result);
 			}
 			break;
@@ -873,7 +886,7 @@ bool Kore::System::handleMessages() {
 	return true;
 }
 
-const char* Kore::System::systemId() {
+const char* kinc_system_id() {
 	return "Linux";
 }
 
@@ -898,27 +911,37 @@ void Kore::System::clearCurrent() {
 
 void swapLinuxBuffers(int window) {
 #ifdef KORE_OPENGL
-	glXSwapBuffers(Kore::Linux::display, windowimpl::windows[window]->_data.handle);
+	glXSwapBuffers(Kore::Linux::display, kinc_internal_windows[window].handle);
 #endif
 }
 
-void Kore::System::setKeepScreenOn(bool on) {}
+void kinc_set_keep_screen_on(bool on) {}
 
-void Kore::System::showKeyboard() {}
+void kinc_keyboard_show() {}
 
-void Kore::System::hideKeyboard() {}
+void kinc_keyboard_hide() {}
 
-void Kore::System::loadURL(const char* url) {}
+bool kinc_keyboard_active() {
+	return true;
+}
+
+void kinc_load_url(const char* url) {}
+
+void kinc_vibrate(int ms) {}
+
+const char* kinc_language() {
+	return "en";
+}
 
 namespace {
 	char save[2000];
 	bool saveInitialized = false;
 }
 
-const char* Kore::System::savePath() {
+const char* kinc_internal_save_path() {
 	if (!saveInitialized) {
 		strcpy(save, "Ķ~/.");
-		strcat(save, name());
+		strcat(save, kinc_application_name());
 		strcat(save, "/");
 		saveInitialized = true;
 	}
@@ -929,47 +952,60 @@ namespace {
 	const char* videoFormats[] = {"ogv", nullptr};
 }
 
-const char** Kore::System::videoFormats() {
+const char** kinc_video_formats() {
 	return ::videoFormats;
 }
 
 #include <sys/time.h>
 #include <time.h>
 
-double Kore::System::frequency() {
+double kinc_frequency(void) {
 	return 1000000.0;
 }
 
-Kore::System::ticks Kore::System::timestamp() {
+static timeval start;
+
+kinc_ticks_t kinc_timestamp(void) {
 	timeval now;
 	gettimeofday(&now, NULL);
-	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
+	now.tv_sec -= start.tv_sec;
+	now.tv_usec -= start.tv_usec;
+	return static_cast<kinc_ticks_t>(now.tv_sec) * 1000000 + static_cast<kinc_ticks_t>(now.tv_usec);
 }
 
-Kore::Window* Kore::System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
-	//**Display::enumerate();
+extern "C" void enumerateDisplays();
 
-	System::_init(name, width, height, &win, &frame);
-	int window = initWindow(win, frame);
-	return Window::get(window);
+int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	gettimeofday(&start, NULL);
+	enumerateDisplays();
+
+	//System::_init(name, width, height, &win, &frame);
+    kinc_window_options_t defaultWin;
+    if (win == NULL) {
+        kinc_internal_init_window_options(&defaultWin);
+        win = &defaultWin;
+    }
+    kinc_framebuffer_options_t defaultFrame;
+    if (frame == NULL) {
+        kinc_internal_init_framebuffer_options(&defaultFrame);
+        frame = &defaultFrame;
+    }
+    win->width = width;
+    win->height = height;
+	int window = Kore::System::initWindow(win, frame);
+	return window;
 }
 
-void Kore::System::_shutdown() {
+void kinc_internal_shutdown() {
 
 }
 
-Kore::Window* Kore::Window::get(int window) {
-	return windowimpl::windows[window];
-}
-
-extern
-#ifdef KOREC
-"C"
-#endif
-int kore(int argc, char** argv);
+//Kore::Window* Kore::Window::get(int window) {
+//	return windowimpl::windows[window];
+//}
 
 int main(int argc, char** argv) {
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 	Kore::initHIDGamepads();
-	kore(argc, argv);
+	kickstart(argc, argv);
 }

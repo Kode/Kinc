@@ -1,21 +1,17 @@
 #include "pch.h"
 
 #include "Direct3D11.h"
-#include "IndexBufferImpl.h"
 
-#include <Kore/Graphics4/Graphics.h>
+#include <kinc/graphics4/indexBuffer.h>
+
 #include <Kore/SystemMicrosoft.h>
+
 #include <Windows.h>
 #include <d3d11.h>
 
-using namespace Kore;
-
-Graphics4::IndexBuffer* IndexBufferImpl::_current = nullptr;
-
-IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
-
-Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
-	indices = new int[count];
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
+	buffer->impl.count = count;
+	buffer->impl.indices = new int[count];
 
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -25,27 +21,23 @@ Graphics4::IndexBuffer::IndexBuffer(int count) : IndexBufferImpl(count) {
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	Kore_Microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &ib));
+	kinc_microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.ib));
 }
 
-Graphics4::IndexBuffer::~IndexBuffer() {
-	ib->Release();
-	delete[] indices;
+void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
+	buffer->impl.ib->Release();
+	delete[] buffer->impl.indices;
+	buffer->impl.indices = NULL;
 }
 
-int* Graphics4::IndexBuffer::lock() {
-	return indices;
+int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
+	return buffer->impl.indices;
 }
 
-void Graphics4::IndexBuffer::unlock() {
-	context->UpdateSubresource(ib, 0, nullptr, indices, 0, 0);
+void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
+	context->UpdateSubresource(buffer->impl.ib, 0, nullptr, buffer->impl.indices, 0, 0);
 }
 
-void Graphics4::IndexBuffer::_set() {
-	_current = this;
-	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
-}
-
-int Graphics4::IndexBuffer::count() {
-	return myCount;
+int kinc_g4_index_buffer_count(kinc_g4_index_buffer_t *buffer) {
+	return buffer->impl.count;
 }

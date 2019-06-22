@@ -2,15 +2,14 @@
 
 #include "Vulkan.h"
 
-#include "PipelineState5Impl.h"
-
-#include <Kore/Graphics5/Shader.h>
-#include <Kore/Graphics5/PipelineState.h>
+#include <kinc/graphics5/shader.h>
+#include <kinc/graphics5/pipeline.h>
 
 #include <assert.h>
-#include <memory.h>
+#include <malloc.h>
 
-using namespace Kore;
+#include <map>
+#include <string>
 
 extern VkDevice device;
 extern VkRenderPass render_pass;
@@ -18,13 +17,54 @@ extern VkDescriptorSet desc_set;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 void createDescriptorLayout(PipelineState5Impl* pipeline);
 
-Graphics5::PipelineState* PipelineState5Impl::current;
+kinc_g5_pipeline_t *currentPipeline = NULL;
+
+static bool has_number(kinc_internal_named_number *named_numbers, const char *name) {
+	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static uint32_t find_number(kinc_internal_named_number *named_numbers, const char *name) {
+	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
+			return named_numbers[i].number;
+		}
+	}
+	return 0;
+}
+
+static void set_number(kinc_internal_named_number *named_numbers, const char *name, uint32_t number) {
+	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
+			named_numbers[i].number = number;
+			return;
+		}
+	}
+	
+	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
+		if (named_numbers[i].name[0] == 0) {
+			strcpy(named_numbers[i].name, name);
+			named_numbers[i].number = number;
+			return;
+		}
+	}
+
+	assert(false);
+}
 
 namespace {
-	void parseShader(Graphics5::Shader* shader, std::map<std::string, u32>& locations, std::map<std::string, u32>& textureBindings,
-		std::map<std::string, u32>& uniformOffsets) {
-		u32* spirv = (u32*)shader->source;
-		int spirvsize = shader->length / 4;
+	void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
+		kinc_internal_named_number *uniformOffsets) {
+		memset(locations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+		memset(textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+		memset(uniformOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+
+		uint32_t *spirv = (uint32_t *)shader->impl.source;
+		int spirvsize = shader->impl.length / 4;
 		int index = 0;
 
 		unsigned magicNumber = spirv[index++];
@@ -33,55 +73,55 @@ namespace {
 		unsigned bound = spirv[index++];
 		index++;
 
-		std::map<u32, std::string> names;
-		std::map<u32, std::string> memberNames;
-		std::map<u32, u32> locs;
-		std::map<u32, u32> bindings;
-		std::map<u32, u32> offsets;
+		std::map<uint32_t, std::string> names;
+		std::map<uint32_t, std::string> memberNames;
+		std::map<uint32_t, uint32_t> locs;
+		std::map<uint32_t, uint32_t> bindings;
+		std::map<uint32_t, uint32_t> offsets;
 
 		while (index < spirvsize) {
 			int wordCount = spirv[index] >> 16;
-			u32 opcode = spirv[index] & 0xffff;
+			uint32_t opcode = spirv[index] & 0xffff;
 
-			u32* operands = wordCount > 1 ? &spirv[index + 1] : nullptr;
-			u32 length = wordCount - 1;
+			uint32_t *operands = wordCount > 1 ? &spirv[index + 1] : nullptr;
+			uint32_t length = wordCount - 1;
 
 			switch (opcode) {
 			case 5: { // OpName
-				u32 id = operands[0];
+				uint32_t id = operands[0];
 				char* string = (char*)&operands[1];
 				names[id] = string;
 				break;
 			}
 			case 6: { // OpMemberName
-				u32 type = operands[0];
+				uint32_t type = operands[0];
 				if (names[type] == "_k_global_uniform_buffer_type") {
-					u32 member = operands[1];
+					uint32_t member = operands[1];
 					char* string = (char*)&operands[2];
 					memberNames[member] = string;
 				}
 				break;
 			}
 			case 71: { // OpDecorate
-				u32 id = operands[0];
-				u32 decoration = operands[1];
+				uint32_t id = operands[0];
+				uint32_t decoration = operands[1];
 				if (decoration == 30) { // location
-					u32 location = operands[2];
+					uint32_t location = operands[2];
 					locs[id] = location;
 				}
 				if (decoration == 33) { // binding
-					u32 binding = operands[2];
+					uint32_t binding = operands[2];
 					bindings[id] = binding;
 				}
 				break;
 			}
 			case 72: { // OpMemberDecorate
-				u32 type = operands[0];
+				uint32_t type = operands[0];
 				if (names[type] == "_k_global_uniform_buffer_type") {
-					u32 member = operands[1];
-					u32 decoration = operands[2];
+					uint32_t member = operands[1];
+					uint32_t decoration = operands[2];
 					if (decoration == 35) { // offset
-						u32 offset = operands[3];
+						uint32_t offset = operands[3];
 						offsets[member] = offset;
 					}
 				}
@@ -91,16 +131,16 @@ namespace {
 			index += wordCount;
 		}
 
-		for (std::map<u32, u32>::iterator it = locs.begin(); it != locs.end(); ++it) {
-			locations[names[it->first]] = it->second;
+		for (std::map<uint32_t, uint32_t>::iterator it = locs.begin(); it != locs.end(); ++it) {
+			set_number(locations, names[it->first].c_str(), it->second);
 		}
 
-		for (std::map<u32, u32>::iterator it = bindings.begin(); it != bindings.end(); ++it) {
-			textureBindings[names[it->first]] = it->second;
+		for (std::map<uint32_t, uint32_t>::iterator it = bindings.begin(); it != bindings.end(); ++it) {
+			set_number(textureBindings, names[it->first].c_str(), it->second);
 		}
 
-		for (std::map<u32, u32>::iterator it = offsets.begin(); it != offsets.end(); ++it) {
-			uniformOffsets[memberNames[it->first]] = it->second;
+		for (std::map<uint32_t, uint32_t>::iterator it = offsets.begin(); it != offsets.end(); ++it) {
+			set_number(uniformOffsets, memberNames[it->first].c_str(), it->second);
 		}
 	}
 
@@ -121,44 +161,51 @@ namespace {
 		return module;
 	}
 
-	VkShaderModule demo_prepare_vs(VkShaderModule& vert_shader_module, Graphics5::Shader* vertexShader) {
-		vert_shader_module = demo_prepare_shader_module(vertexShader->source, vertexShader->length);
+	VkShaderModule demo_prepare_vs(VkShaderModule& vert_shader_module, kinc_g5_shader_t *vertexShader) {
+		vert_shader_module = demo_prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
 		return vert_shader_module;
 	}
 
-	VkShaderModule demo_prepare_fs(VkShaderModule& frag_shader_module, Graphics5::Shader* fragmentShader) {
-		frag_shader_module = demo_prepare_shader_module(fragmentShader->source, fragmentShader->length);
+	VkShaderModule demo_prepare_fs(VkShaderModule& frag_shader_module, kinc_g5_shader_t *fragmentShader) {
+		frag_shader_module = demo_prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
 		return frag_shader_module;
 	}
 }
 
-PipelineState5Impl::PipelineState5Impl() : vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessEvalShader(nullptr), tessControlShader(nullptr) {
-	createDescriptorLayout(this);
-	Vulkan::createDescriptorSet(this, nullptr, nullptr, desc_set);
+void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
+	pipeline->vertexShader = nullptr;
+	pipeline->fragmentShader = nullptr;
+	pipeline->geometryShader = nullptr;
+	pipeline->tessellationEvaluationShader = nullptr;
+	pipeline->tessellationControlShader = nullptr;
+	createDescriptorLayout(&pipeline->impl);
+	Kore::Vulkan::createDescriptorSet(&pipeline->impl, nullptr, nullptr, desc_set);
 }
 
-Graphics5::ConstantLocation Graphics5::PipelineState::getConstantLocation(const char* name) {
-	ConstantLocation location;
-	location.vertexOffset = -1;
-	location.fragmentOffset = -1;
-	if (vertexOffsets.find(name) != vertexOffsets.end()) {
-		location.vertexOffset = vertexOffsets[name];
+void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {}
+
+kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipeline, const char *name) {
+	kinc_g5_constant_location_t location;
+	location.impl.vertexOffset = -1;
+	location.impl.fragmentOffset = -1;
+	if (has_number(pipeline->impl.vertexOffsets, name)) {
+		location.impl.vertexOffset = find_number(pipeline->impl.vertexOffsets, name);
 	}
-	if (fragmentOffsets.find(name) != fragmentOffsets.end()) {
-		location.fragmentOffset = fragmentOffsets[name];
+	if (has_number(pipeline->impl.fragmentOffsets, name)) {
+		location.impl.fragmentOffset = find_number(pipeline->impl.fragmentOffsets, name);
 	}
 	return location;
 }
 
-Graphics5::TextureUnit Graphics5::PipelineState::getTextureUnit(const char* name) {
-	TextureUnit unit;
-	unit.binding = textureBindings[name];
+kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name) {
+	kinc_g5_texture_unit_t unit;
+	unit.impl.binding = find_number(pipeline->impl.textureBindings, name);
 	return unit;
 }
 
-void Graphics5::PipelineState::compile() {
-	parseShader(vertexShader, vertexLocations, textureBindings, vertexOffsets);
-	parseShader(fragmentShader, fragmentLocations, textureBindings, fragmentOffsets);
+void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
+	parseShader(pipeline->vertexShader, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
+	parseShader(pipeline->fragmentShader, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
 
 	//
 
@@ -166,9 +213,9 @@ void Graphics5::PipelineState::compile() {
 	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pPipelineLayoutCreateInfo.pNext = NULL;
 	pPipelineLayoutCreateInfo.setLayoutCount = 1;
-	pPipelineLayoutCreateInfo.pSetLayouts = &desc_layout;
+	pPipelineLayoutCreateInfo.pSetLayouts = &pipeline->impl.desc_layout;
 
-	VkResult err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline_layout);
+	VkResult err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline->impl.pipeline_layout);
 	assert(!err);
 
 	//
@@ -192,28 +239,28 @@ void Graphics5::PipelineState::compile() {
 
 	memset(&pipeline_info, 0, sizeof(pipeline_info));
 	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	pipeline_info.layout = pipeline_layout;
+	pipeline_info.layout = pipeline->impl.pipeline_layout;
 
 	uint32_t stride = 0;
-	for (int i = 0; i < inputLayout[0]->size; ++i) {
-		VertexElement element = inputLayout[0]->elements[i];
+	for (int i = 0; i < pipeline->inputLayout[0]->size; ++i) {
+		kinc_g5_vertex_element_t element = pipeline->inputLayout[0]->elements[i];
 		switch (element.data) {
-		case Graphics4::ColorVertexData:
+		case KINC_G4_VERTEX_DATA_COLOR:
 			stride += 1 * 4;
 			break;
-		case Graphics4::Float1VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT1:
 			stride += 1 * 4;
 			break;
-		case Graphics4::Float2VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT2:
 			stride += 2 * 4;
 			break;
-		case Graphics4::Float3VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT3:
 			stride += 3 * 4;
 			break;
-		case Graphics4::Float4VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT4:
 			stride += 4 * 4;
 			break;
-		case Graphics4::Float4x4VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT4X4:
 			stride += 4 * 4 * 4;
 			break;
 		}
@@ -221,7 +268,7 @@ void Graphics5::PipelineState::compile() {
 
 	VkVertexInputBindingDescription vi_bindings[1];
 #ifdef KORE_WINDOWS
-	VkVertexInputAttributeDescription* vi_attrs = (VkVertexInputAttributeDescription*)alloca(sizeof(VkVertexInputAttributeDescription) * inputLayout[0]->size);
+	VkVertexInputAttributeDescription* vi_attrs = (VkVertexInputAttributeDescription*)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
 #else
 	VkVertexInputAttributeDescription vi_attrs[inputLayout[0]->size];
 #endif
@@ -231,7 +278,7 @@ void Graphics5::PipelineState::compile() {
 	vi.pNext = NULL;
 	vi.vertexBindingDescriptionCount = 1;
 	vi.pVertexBindingDescriptions = vi_bindings;
-	vi.vertexAttributeDescriptionCount = inputLayout[0]->size;
+	vi.vertexAttributeDescriptionCount = pipeline->inputLayout[0]->size;
 	vi.pVertexAttributeDescriptions = vi_attrs;
 
 	vi_bindings[0].binding = 0;
@@ -239,47 +286,47 @@ void Graphics5::PipelineState::compile() {
 	vi_bindings[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 	uint32_t offset = 0;
-	for (int i = 0; i < inputLayout[0]->size; ++i) {
-		VertexElement element = inputLayout[0]->elements[i];
+	for (int i = 0; i < pipeline->inputLayout[0]->size; ++i) {
+		kinc_g5_vertex_element_t element = pipeline->inputLayout[0]->elements[i];
 		switch (element.data) {
-		case Graphics4::ColorVertexData:
+		case KINC_G4_VERTEX_DATA_COLOR:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32_UINT;
 			vi_attrs[i].offset = offset;
 			offset += 1 * 4;
 			break;
-		case Graphics4::Float1VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT1:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 1 * 4;
 			break;
-		case Graphics4::Float2VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT2:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32G32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 2 * 4;
 			break;
-		case Graphics4::Float3VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT3:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32G32B32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 3 * 4;
 			break;
-		case Graphics4::Float4VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT4:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4;
 			break;
-		case Graphics4::Float4x4VertexData:
+		case KINC_G4_VERTEX_DATA_FLOAT4X4:
 			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = vertexLocations[element.name];
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT; // TODO
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4 * 4;
@@ -340,12 +387,12 @@ void Graphics5::PipelineState::compile() {
 
 	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = demo_prepare_vs(vert_shader_module, vertexShader);
+	shaderStages[0].module = demo_prepare_vs(pipeline->impl.vert_shader_module, pipeline->vertexShader);
 	shaderStages[0].pName = "main";
 
 	shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = demo_prepare_fs(frag_shader_module, fragmentShader);
+	shaderStages[1].module = demo_prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
 	shaderStages[1].pName = "main";
 
 	pipeline_info.pVertexInputState = &vi;
@@ -362,15 +409,15 @@ void Graphics5::PipelineState::compile() {
 	memset(&pipelineCache_info, 0, sizeof(pipelineCache_info));
 	pipelineCache_info.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-	err = vkCreatePipelineCache(device, &pipelineCache_info, nullptr, &pipelineCache);
+	err = vkCreatePipelineCache(device, &pipelineCache_info, nullptr, &pipeline->impl.pipelineCache);
 	assert(!err);
-	err = vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipeline_info, nullptr, &pipeline);
+	err = vkCreateGraphicsPipelines(device, pipeline->impl.pipelineCache, 1, &pipeline_info, nullptr, &pipeline->impl.pipeline);
 	assert(!err);
 
-	vkDestroyPipelineCache(device, pipelineCache, nullptr);
+	vkDestroyPipelineCache(device, pipeline->impl.pipelineCache, nullptr);
 
-	vkDestroyShaderModule(device, frag_shader_module, nullptr);
-	vkDestroyShaderModule(device, vert_shader_module, nullptr);
+	vkDestroyShaderModule(device, pipeline->impl.frag_shader_module, nullptr);
+	vkDestroyShaderModule(device, pipeline->impl.vert_shader_module, nullptr);
 }
 
 extern VkDescriptorPool desc_pool;
@@ -433,7 +480,8 @@ void createDescriptorLayout(PipelineState5Impl* pipeline) {
 	assert(!err);
 }
 
-void Kore::Vulkan::createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::Texture* texture, Graphics5::RenderTarget* renderTarget, VkDescriptorSet& desc_set) {
+void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, kinc_g5_texture_t *texture, kinc_g5_render_target_t *renderTarget,
+                                       VkDescriptorSet &desc_set) {
 	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
 	VkDescriptorBufferInfo buffer_descs[2];
 
@@ -464,12 +512,12 @@ void Kore::Vulkan::createDescriptorSet(PipelineState5Impl* pipeline, Graphics5::
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
 	if (texture != nullptr) {
-		tex_desc.sampler = texture->texture.sampler;
-		tex_desc.imageView = texture->texture.view;
+		tex_desc.sampler = texture->impl.texture.sampler;
+		tex_desc.imageView = texture->impl.texture.view;
 	}
 	if (renderTarget != nullptr) {
-		tex_desc.sampler = renderTarget->sampler;
-		tex_desc.imageView = renderTarget->destView;
+		tex_desc.sampler = renderTarget->impl.sampler;
+		tex_desc.imageView = renderTarget->impl.destView;
 	}
 	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 

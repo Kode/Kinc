@@ -11,10 +11,9 @@
 using namespace Kore;
 
 #if !defined(KORE_XBOX_ONE)
+FileWriter::FileWriter() {}
 
-FileWriter::FileWriter() : file(nullptr) {}
-
-FileWriter::FileWriter(const char* filepath) : file(nullptr) {
+FileWriter::FileWriter(const char* filepath) {
 	if (!open(filepath)) {
 		error("Could not open file %s.", filepath);
 	}
@@ -27,29 +26,11 @@ void unmountSaveData();
 #endif
 
 bool FileWriter::open(const char* filepath) {
-#ifdef MOUNT_SAVES
-	if (!mountSaveData(true)) {
-		return false;
-	}
-#endif
-	char path[1001];
-	strcpy(path, System::savePath());
-	strcat(path, filepath);
-	file = fopen(path, "wb");
-	if (file == nullptr) {
-		log(Warning, "Could not open file %s.", filepath);
-		return false;
-	}
-	return true;
+	return kinc_file_writer_open(&writer, filepath);
 }
 
 void FileWriter::close() {
-	if (file == nullptr) return;
-	fclose((FILE*)file);
-	file = nullptr;
-#ifdef MOUNT_SAVES
-	unmountSaveData();
-#endif
+	return kinc_file_writer_close(&writer);
 }
 
 FileWriter::~FileWriter() {
@@ -57,7 +38,7 @@ FileWriter::~FileWriter() {
 }
 
 void FileWriter::write(void* data, int size) {
-	fwrite(data, 1, size, (FILE*)file);
+	return kinc_file_writer_write(&writer, data, size);
 }
 
 #endif

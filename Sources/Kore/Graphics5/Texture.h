@@ -36,7 +36,7 @@ namespace Kore {
 			int texWidth;
 			int texHeight;
 
-			void _init(const char* format, bool readable = false);
+			//void _init(const char* format, bool readable = false);
 		};
 	}
 }

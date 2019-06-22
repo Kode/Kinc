@@ -10,6 +10,5 @@ namespace Kore {
         __GLXcontextRec* context;
 #endif
         int width, height, mode;
-        WindowData();
     };
 }

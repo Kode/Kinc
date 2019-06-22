@@ -1,51 +1,66 @@
 #pragma once
 
-#include <map>
-#include <string>
+#include <stdbool.h>
+#include <stdint.h>
 
-namespace Kore {
-	struct ShaderConstant {
-		u32 offset;
-		u32 size;
-		u8 columns;
-		u8 rows;
-	};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class ShaderImpl {
-	public:
-		ShaderImpl();
-		~ShaderImpl();
-		std::map<std::string, ShaderConstant> constants;
-		int constantsSize;
-		std::map<std::string, int> attributes;
-		std::map<std::string, int> textures;
-		void* shader;
-		u8* data;
-		int length;
-		int type;
-	};
+typedef struct {
+	uint32_t hash;
+	uint32_t offset;
+	uint32_t size;
+	uint8_t columns;
+	uint8_t rows;
+} kinc_internal_shader_constant_t;
 
-	class ConstantLocationImpl {
-	public:
-		u32 vertexOffset;
-		u32 vertexSize;
-		u32 fragmentOffset;
-		u32 fragmentSize;
-		u32 geometryOffset;
-		u32 geometrySize;
-		u32 tessEvalOffset;
-		u32 tessEvalSize;
-		u32 tessControlOffset;
-		u32 tessControlSize;
-		u8 vertexColumns;
-		u8 vertexRows;
-		u8 fragmentColumns;
-		u8 fragmentRows;
-		u8 geometryColumns;
-		u8 geometryRows;
-		u8 tessEvalColumns;
-		u8 tessEvalRows;
-		u8 tessControlColumns;
-		u8 tessControlRows;
-	};
+typedef struct {
+	uint32_t hash;
+	uint32_t index;
+} kinc_internal_hash_index_t;
+
+typedef struct {
+	kinc_internal_shader_constant_t constants[64];
+	int constantsSize;
+	kinc_internal_hash_index_t attributes[64];
+	kinc_internal_hash_index_t textures[64];
+	void *shader;
+	uint8_t *data;
+	int length;
+	int type;
+} kinc_g4_shader_impl_t;
+
+typedef struct {
+	uint32_t vertexOffset;
+	uint32_t vertexSize;
+	uint32_t fragmentOffset;
+	uint32_t fragmentSize;
+	uint32_t geometryOffset;
+	uint32_t geometrySize;
+	uint32_t tessEvalOffset;
+	uint32_t tessEvalSize;
+	uint32_t tessControlOffset;
+	uint32_t tessControlSize;
+	uint8_t vertexColumns;
+	uint8_t vertexRows;
+	uint8_t fragmentColumns;
+	uint8_t fragmentRows;
+	uint8_t geometryColumns;
+	uint8_t geometryRows;
+	uint8_t tessEvalColumns;
+	uint8_t tessEvalRows;
+	uint8_t tessControlColumns;
+	uint8_t tessControlRows;
+} kinc_g4_constant_location_impl_t;
+
+typedef struct {
+	int unit;
+	bool vertex;
+} kinc_g4_texture_unit_impl_t;
+
+uint32_t kinc_internal_hash_name(unsigned char *str);
+
+#ifdef __cplusplus
 }
+#endif

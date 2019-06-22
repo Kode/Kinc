@@ -1,17 +1,20 @@
 #pragma once
 
-namespace Kore {
-	class TextureUnit5Impl {
-	public:
-		int unit;
-	};
+#include <kinc/graphics4/texture.h>
+#include <kinc/graphics4/textureunit.h>
 
-	class Texture5Impl {
-	public:
-		void unmipmap();
-		void unset();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-		bool mipmap;
-		int stage;
-	};
+typedef struct {
+	kinc_g4_texture_unit_t unit;
+} TextureUnit5Impl;
+
+typedef struct {
+	kinc_g4_texture_t texture;
+} Texture5Impl;
+
+#ifdef __cplusplus
 }
+#endif

@@ -1,10 +1,16 @@
 #include "pch.h"
+
 #include <Kore/Direct3D11.h>
-#include <Kore/Input/Gamepad.h>
-#include <Kore/Input/Keyboard.h>
-#include <Kore/Input/Mouse.h>
-#include <Kore/System.h>
+
+#include <kinc/input/gamepad.h>
+#include <kinc/input/keyboard.h>
+#include <kinc/input/mouse.h>
+#include <kinc/system.h>
+#include <kinc/threads/thread.h>
+#include <kinc/window.h>
+
 #include <Kore/Hololens.winrt.h>
+
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -54,8 +60,6 @@ public:
 	virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
 };
 
-using namespace Kore;
-
 namespace {
 	int mouseX, mouseY;
 	float axes[12 * 6];
@@ -70,7 +74,15 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
-bool Kore::System::handleMessages() {
+const char* kinc_gamepad_vendor(int gamepad) {
+	return "Microsoft";
+}
+
+const char* kinc_gamepad_product_name(int gamepad) {
+	return "Xbox 360 Controller";
+}
+
+bool kinc_internal_handle_messages(void) {
 	CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
 #if XINPUT
@@ -81,9 +93,6 @@ bool Kore::System::handleMessages() {
 		dwResult = XInputGetState(i, &state);
 
 		if (dwResult == ERROR_SUCCESS) {
-			Kore::Gamepad::get(i)->vendor = "Microsoft";
-			Kore::Gamepad::get(i)->productName = "Xbox 360 Controller";
-
 			float newaxes[6];
 			newaxes[0] = state.Gamepad.sThumbLX / 32768.0f;
 			newaxes[1] = state.Gamepad.sThumbLY / 32768.0f;
@@ -93,7 +102,7 @@ bool Kore::System::handleMessages() {
 			newaxes[5] = state.Gamepad.bRightTrigger / 255.0f;
 			for (int i2 = 0; i2 < 6; ++i2) {
 				if (axes[i * 6 + i2] != newaxes[i2]) {
-					if (Kore::Gamepad::get(i)->Axis != nullptr) Kore::Gamepad::get(i)->Axis(i2, newaxes[i2]);
+					kinc_internal_gamepad_trigger_axis(i, i2, newaxes[i2]);
 					axes[i * 6 + i2] = newaxes[i2];
 				}
 			}
@@ -116,14 +125,10 @@ bool Kore::System::handleMessages() {
 			newbuttons[15] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? 1.0f : 0.0f;
 			for (int i2 = 0; i2 < 16; ++i2) {
 				if (buttons[i * 16 + i2] != newbuttons[i2]) {
-					if (Kore::Gamepad::get(i)->Button != nullptr) Kore::Gamepad::get(i)->Button(i2, newbuttons[i2]);
+					kinc_internal_gamepad_trigger_button(i, i2, newbuttons[i2]);
 					buttons[i * 16 + i2] = newbuttons[i2];
 				}
 			}
-		}
-		else {
-			Kore::Gamepad::get(i)->vendor = nullptr;
-			Kore::Gamepad::get(i)->productName = nullptr;
 		}
 	}
 #endif
@@ -131,39 +136,56 @@ bool Kore::System::handleMessages() {
 	return true;
 }
 
-Kore::vec2i Kore::System::mousePos() {
-	return vec2i(mouseX, mouseY);
-}
+//Kore::vec2i Kore::System::mousePos() {
+//	return vec2i(mouseX, mouseY);
+//}
 
 #undef CreateWindow
 
-Kore::Window* Kore::System::init(const char* name, int width, int height, WindowOptions* win, FramebufferOptions* frame) {
-	System::_init(name, width, height, &win, &frame);
-	Graphics4::init(0, frame->depthBufferBits, frame->stencilBufferBits);
-	return Window::get(0);
+int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
+	kinc_window_options_t defaultWin;
+	if (win == NULL) {
+		kinc_internal_init_window_options(&defaultWin);
+		win = &defaultWin;
+	}
+	win->width = width;
+	win->height = height;
+
+	kinc_framebuffer_options_t defaultFrame;
+	if (frame == NULL) {
+		kinc_internal_init_framebuffer_options(&defaultFrame);
+		frame = &defaultFrame;
+	}
+
+	kinc_g4_init(0, frame->depth_bits, frame->stencil_bits, true);
+	return 0;
 }
 
-void Kore::System::setKeepScreenOn(bool on) {}
+void kinc_set_keep_screen_on(bool on) {}
 
 namespace {
 	bool keyboardshown = false;
 }
 
-void Kore::System::showKeyboard() {
+void kinc_keyboard_show() {
 	keyboardshown = true;
 }
 
-void Kore::System::hideKeyboard() {
+void kinc_keyboard_hide() {
 	keyboardshown = false;
 }
 
-bool Kore::System::showsKeyboard() {
+bool kinc_keyboard_active() {
 	return keyboardshown;
 }
 
-void Kore::System::loadURL(const char* url) {}
+void kinc_load_url(const char *url) {}
 
-int kore(int argc, char** argv);
+void kinc_vibrate(int ms) {}
+
+const char *kinc_language() {
+	return "en";
+}
 
 extern int renderTargetWidth;
 extern int renderTargetHeight;
@@ -207,7 +229,9 @@ void Win8Application::Load(Platform::String^ entryPoint) {}
 
 void Win8Application::Run() {
 	// BasicTimer^ timer = ref new BasicTimer();
-	kore(0, nullptr);
+	kinc_microsoft_threads_init();
+	kickstart(0, nullptr);
+	kinc_microsoft_threads_quit();
 	// while (!closed) {
 	// timer->Update();
 
@@ -219,8 +243,10 @@ void Win8Application::Run() {
 
 void Win8Application::Uninitialize() {}
 
+extern "C" void kinc_internal_resize(int window, int width, int height);
+
 void Win8Application::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args) {
-	Graphics4::_resize(0, (int)args->Size.Width, (int)args->Size.Height);
+	kinc_internal_resize(0, (int)args->Size.Width, (int)args->Size.Height);
 }
 
 void Win8Application::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args) {
@@ -241,41 +267,41 @@ void Win8Application::OnResuming(Platform::Object ^ sender, Platform::Object ^ a
 void Win8Application::OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
-	Mouse::the()->_press(0, 0, mouseX, mouseY);
+	kinc_internal_mouse_trigger_press(0, 0, mouseX, mouseY);
 }
 
 void Win8Application::OnPointerReleased(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
-	Mouse::the()->_release(0, 0, mouseX, mouseY);
+	kinc_internal_mouse_trigger_release(0, 0, mouseX, mouseY);
 }
 
 void Win8Application::OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
-	Mouse::the()->_move(0, mouseX, mouseY);
+	kinc_internal_mouse_trigger_move(0, mouseX, mouseY);
 }
 
 void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args) {
 	switch (args->VirtualKey) {
 	case Windows::System::VirtualKey::Left:
-		Keyboard::the()->_keydown(Kore::KeyLeft);
+		kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
 		break;
 	case Windows::System::VirtualKey::Right:
-		Keyboard::the()->_keydown(Kore::KeyRight);
+		kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
 		break;
 	case Windows::System::VirtualKey::Up:
-		Keyboard::the()->_keydown(Kore::KeyUp);
+		kinc_internal_keyboard_trigger_key_down(KINC_KEY_UP);
 		break;
 	case Windows::System::VirtualKey::Down:
-		Keyboard::the()->_keydown(Kore::KeyDown);
+		kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOWN);
 		break;
 	default:
 		if (args->VirtualKey >= Windows::System::VirtualKey::A && args->VirtualKey <= Windows::System::VirtualKey::Z) {
-			Keyboard::the()->_keydown((Kore::KeyCode)args->VirtualKey);
+			kinc_internal_keyboard_trigger_key_down((int)args->VirtualKey);
 		}
 		else if (args->VirtualKey >= Windows::System::VirtualKey::Number0 && args->VirtualKey <= Windows::System::VirtualKey::Number9) {
-			Keyboard::the()->_keydown((Kore::KeyCode)args->VirtualKey);
+			kinc_internal_keyboard_trigger_key_down((int)args->VirtualKey);
 		}
 		break;
 	}
@@ -284,23 +310,23 @@ void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::
 void Win8Application::OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs^ args) {
 	switch (args->VirtualKey) {
 	case Windows::System::VirtualKey::Left:
-		Keyboard::the()->_keyup(Kore::KeyLeft);
+		kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
 		break;
 	case Windows::System::VirtualKey::Right:
-		Keyboard::the()->_keyup(Kore::KeyRight);
+		kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
 		break;
 	case Windows::System::VirtualKey::Up:
-		Keyboard::the()->_keyup(Kore::KeyUp);
+		kinc_internal_keyboard_trigger_key_up(KINC_KEY_UP);
 		break;
 	case Windows::System::VirtualKey::Down:
-		Keyboard::the()->_keyup(Kore::KeyDown);
+		kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOWN);
 		break;
 	default:
 		if (args->VirtualKey >= Windows::System::VirtualKey::A && args->VirtualKey <= Windows::System::VirtualKey::Z) {
-			Keyboard::the()->_keyup((Kore::KeyCode)args->VirtualKey);
+			kinc_internal_keyboard_trigger_key_up((int)args->VirtualKey);
 		}
 		else if (args->VirtualKey >= Windows::System::VirtualKey::Number0 && args->VirtualKey <= Windows::System::VirtualKey::Number9) {
-			Keyboard::the()->_keyup((Kore::KeyCode)args->VirtualKey);
+			kinc_internal_keyboard_trigger_key_up((int)args->VirtualKey);
 		}
 		break;
 	}
@@ -310,11 +336,11 @@ IFrameworkView ^ Win8ApplicationSource::CreateView() {
 	return ref new Win8Application;
 }
 
-const char* Kore::System::savePath() {
+const char *kinc_internal_save_path() {
 	return "\\";
 }
 
-const char* Kore::System::systemId() {
+const char *kinc_system_id() {
 	return "WindowsApp";
 }
 
@@ -322,35 +348,38 @@ namespace {
 	const char* videoFormats[] = {"ogv", nullptr};
 }
 
-const char** Kore::System::videoFormats() {
+const char **kinc_video_formats() {
 	return ::videoFormats;
 }
 
-int Kore::Window::width() {
+int kinc_window_width(int window_index) {
 	return renderTargetWidth;
 }
 
-int Kore::Window::height() {
+int kinc_window_height(int window_index) {
 	return renderTargetHeight;
 }
 
-double Kore::System::frequency() {
-	ticks rate;
+double kinc_frequency() {
+	kinc_ticks_t rate;
 	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&rate));
 	return (double)rate;
 }
 
-void Kore::System::_shutdown() {
+void kinc_internal_shutdown() {
 
 }
 
-Kore::System::ticks Kore::System::timestamp() {
-	ticks stamp;
+static kinc_ticks_t start_stamp;
+
+kinc_ticks_t kinc_timestamp() {
+	kinc_ticks_t stamp;
 	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&stamp));
-	return stamp;
+	return stamp - start_stamp;
 }
 
 [Platform::MTAThread] int main(Platform::Array<Platform::String ^> ^) {
+	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER *>(&start_stamp));
 	CoreApplication::Run(ref new Win8ApplicationSource);
 	return 0;
 }

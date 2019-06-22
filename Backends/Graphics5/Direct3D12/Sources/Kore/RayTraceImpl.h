@@ -3,8 +3,7 @@
 #ifdef KORE_DXR
 
 #include <d3d12.h>
-#include "D3D12RaytracingFallback.h"
-#include "D3D12RaytracingPrototypeHelpers.hpp"
+#include "D3D12RaytracingHelpers.hpp"
 
 namespace Kore {
 
@@ -12,18 +11,16 @@ namespace Kore {
 
 		class RayTracePipelineImpl {
 		public:
-			ID3D12RaytracingFallbackStateObject* fallbackState;
-			ID3D12StateObjectPrototype* dxrState;
+			ID3D12StateObject* dxrState;
 			ID3D12Resource* rayGenShaderTable;
-			ID3D12Resource* hitGroupShaderTable;
 			ID3D12Resource* missShaderTable;
+			ID3D12Resource* hitGroupShaderTable;
 		};
 
 		class AccelerationStructureImpl {
 		public:
 			ID3D12Resource* bottomLevelAccelerationStructure;
 			ID3D12Resource* topLevelAccelerationStructure;
-			WRAPPED_GPU_POINTER fallbackTopLevelAccelerationStructurePointer;
 		};
 
 		class RayTraceTargetImpl {
@@ -31,8 +28,6 @@ namespace Kore {
 			ID3D12Resource* _texture;
 			D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle;
 		};
-
-		void enableRaytracing();
 	}
 }
 

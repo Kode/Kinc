@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Kore/Graphics5/VertexStructure.h>
+#include <kinc/graphics5/vertexstructure.h>
+
 #include <vulkan/vulkan.h>
 
 #ifdef min
@@ -15,33 +16,21 @@
 #undef RegisterClass
 #endif
 
-namespace Kore {
-	struct Vertices {
-		VkBuffer buf;
-		VkDeviceMemory mem;
-	};
+struct Vertices {
+	VkBuffer buf;
+	VkDeviceMemory mem;
+};
 
-	namespace Graphics5 {
-		class VertexBuffer;
-	}
-
-	class VertexBuffer5Impl {
-	protected:
-		VertexBuffer5Impl(int count, int instanceDataStepRate);
-		void unset();
-		float* data;
-		int myCount;
-		int myStride;
-		uint bufferId;
-		Graphics5::VertexStructure structure;
-
-		VkMemoryAllocateInfo mem_alloc;
-
-		int instanceDataStepRate;
-		int setVertexAttributes(int offset);
-
-	public:
-		Vertices vertices;
-		static Graphics5::VertexBuffer* current;
-	};
-}
+typedef struct {
+//void unset();
+	float* data;
+	int myCount;
+	int myStride;
+	unsigned bufferId;
+	kinc_g5_vertex_structure_t structure;
+	VkMemoryAllocateInfo mem_alloc;
+	int instanceDataStepRate;
+	//int setVertexAttributes(int offset);
+	struct Vertices vertices;
+	//static Graphics5::VertexBuffer* current;
+} VertexBuffer5Impl;
