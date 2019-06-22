@@ -112,8 +112,8 @@ void kinc_g5_command_list_begin(kinc_g5_command_list *list) {
 void kinc_g5_command_list_end(kinc_g5_command_list *list) {
 	graphicsFlush(list, list->impl._commandAllocator, currentRenderTarget);
 
-	currentFenceValue = ++renderFenceValue;
-	commandQueue->Signal(renderFence, currentFenceValue);
+	list->impl.currentFenceValue = ++renderFenceValue;
+	commandQueue->Signal(renderFence, list->impl.currentFenceValue);
 }
 
 void kinc_g5_command_list_clear(kinc_g5_command_list *list, kinc_g5_render_target_t *renderTarget, unsigned flags, unsigned color, float depth, int stencil) {

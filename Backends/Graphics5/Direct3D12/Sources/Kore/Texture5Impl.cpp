@@ -162,9 +162,9 @@ void kinc_g5_internal_texture_unset(kinc_g5_texture *texture);
 
 void kinc_g5_texture_destroy(kinc_g5_texture *texture) {
 	kinc_g5_internal_texture_unset(texture);
-	image->Release();
-	uploadImage->Release();
-	srvDescriptorHeap->Release();
+	texture->impl.image->Release();
+	texture->impl.uploadImage->Release();
+	texture->impl.srvDescriptorHeap->Release();
 }
 
 void kinc_g5_internal_texture_unmipmap(kinc_g5_texture *texture) {

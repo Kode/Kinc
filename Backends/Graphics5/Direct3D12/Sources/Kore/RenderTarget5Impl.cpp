@@ -49,7 +49,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
                                       int contextId) {
 	render_target->texWidth = render_target->width = width;
 	render_target->texHeight = render_target->height = height;
-	render_target->stage = 0;
+	render_target->impl.stage = 0;
 
 	render_target->impl.resourceState = RenderTargetResourceStateUndefined;
 
@@ -136,12 +136,12 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 
 void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *render_target, int cubeMapSize, int depthBufferBits, bool antialiasing, kinc_g5_render_target_format_t format, int stencilBufferBits,
                                       int contextId) {
-	stage = 0;
+	render_target->impl.stage = 0;
 }
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
-	if (currentRenderTargets[render_target->stage] == render_target) {
-		currentRenderTargets[render_target->stage] = NULL;
+	if (currentRenderTargets[render_target->impl.stage] == render_target) {
+		currentRenderTargets[render_target->impl.stage] = NULL;
 	}
 	render_target->impl.renderTarget->Release();
 	render_target->impl.renderTargetDescriptorHeap->Release();
