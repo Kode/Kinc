@@ -229,9 +229,7 @@ void Win8Application::Load(Platform::String^ entryPoint) {}
 
 void Win8Application::Run() {
 	// BasicTimer^ timer = ref new BasicTimer();
-	kinc_microsoft_threads_init();
 	kickstart(0, nullptr);
-	kinc_microsoft_threads_quit();
 	// while (!closed) {
 	// timer->Update();
 
