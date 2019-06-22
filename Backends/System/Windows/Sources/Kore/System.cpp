@@ -1048,9 +1048,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);
-
-	kinc_microsoft_threads_init();
-
+		
 	int ret = 0;
 #ifndef _DEBUG
 	try {
@@ -1068,7 +1066,6 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	}
 #endif
 
-	kinc_microsoft_threads_quit();
 	return ret;
 }
 
