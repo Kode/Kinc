@@ -26,3 +26,7 @@ Graphics5::Texture::Texture(void* data, int size, const char* format, bool reada
 Graphics5::Texture::Texture(void* data, int width, int height, int format, bool readable) : Image(data, width, height, Image::Format(format), readable) {
 	//_init("", readable);
 }
+
+Graphics5::Texture::~Texture() {
+
+}

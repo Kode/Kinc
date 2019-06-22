@@ -50,10 +50,6 @@ void kinc_threads_quit() {
 
 }
 
-void Kore::threadSleep(int milliseconds) {
-    usleep(1000 * (useconds_t)milliseconds);
-}
-
 #endif
 
 void kinc_thread_sleep(int milliseconds) {
