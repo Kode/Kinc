@@ -184,3 +184,9 @@ int kinc_width() {
 int kinc_height() {
 	return kinc_window_height(0);
 }
+
+#ifndef KORE_PS4
+float kinc_safe_zone() {
+	return 1.0f;
+}
+#endif

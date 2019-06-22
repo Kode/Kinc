@@ -31,6 +31,8 @@ const char *kinc_language();
 
 void kinc_vibrate(int milliseconds);
 
+float kinc_safe_zone();
+
 typedef uint64_t kinc_ticks_t;
 
 double kinc_frequency();

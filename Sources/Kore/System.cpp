@@ -233,8 +233,6 @@ const char** Kore::System::videoFormats() {
 	return kinc_video_formats();
 }
 
-#ifndef KORE_PS4
 float Kore::System::safeZone() {
-	return 1.0f;
+	return kinc_safe_zone();
 }
-#endif
