@@ -73,6 +73,8 @@ void initAndroidFileReader() {
 #ifdef KORE_ANDROID
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
 	reader->pos = 0;
+	reader->file = NULL;
+	reader->asset = NULL;
 	if (type == KINC_FILE_TYPE_SAVE) {
 		char filepath[1001];
 
