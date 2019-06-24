@@ -439,6 +439,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 	}
 #endif
 	texture->tex_depth = 1;
+	texture->format = format;
 // conversionBuffer = new u8[texWidth * texHeight * 4];
 
 #ifdef KORE_ANDROID
@@ -466,7 +467,7 @@ void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, i
 	texture->tex_height = height;
 	texture->tex_depth = depth;
 	texture->format = format;
-	
+
 	glGenTextures(1, &texture->impl.texture);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_3D, texture->impl.texture);
