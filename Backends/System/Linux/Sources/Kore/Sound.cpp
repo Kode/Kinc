@@ -52,6 +52,28 @@ namespace {
 		return err;
 	}
 
+	bool tryToRecover( snd_pcm_t* handle, int errorCode ) {
+		switch (-errorCode) {
+			case EINTR:
+			case EPIPE:
+			case ESPIPE:
+			case ESTRPIPE: {
+				int recovered = snd_pcm_recover(playback_handle, errorCode, 1);
+
+				if (recovered != 0) {
+					fprintf(stderr, "unable to recover from ALSA error code=%i\n", errorCode);
+					return false;
+				} else {
+					fprintf(stdout, "recovered from ALSA error code=%i\n", errorCode);
+					return true;
+				}
+			}
+			default:
+				fprintf(stderr, "unhandled ALSA error code=%i\n", errorCode);
+				return false;
+		}
+	}
+
 	void* doAudio(void* arg) {
 		snd_pcm_hw_params_t* hw_params;
 		snd_pcm_sw_params_t* sw_params;
@@ -160,23 +182,20 @@ namespace {
 			/* find out how much space is available for playback data */
 
 			if ((frames_to_deliver = snd_pcm_avail_update(playback_handle)) < 0) {
-				if (frames_to_deliver == -EPIPE) {
-					fprintf(stderr, "an xrun occured\n");
-					break;
+				if (!tryToRecover(playback_handle, frames_to_deliver)) {
+					// break;
 				}
-				else {
-					fprintf(stderr, "unknown ALSA avail update return value (%i)\n", (int)frames_to_deliver);
-					break;
+			} else {
+				// frames_to_deliver = frames_to_deliver > 4096 ? 4096 : frames_to_deliver;
+
+				/* deliver the data */
+
+				int delivered = playback_callback(frames_to_deliver);
+
+				if (delivered != frames_to_deliver) {
+					fprintf(stderr, "playback callback failed (delivered %i / %i frames)\n", delivered, frames_to_deliver);
+					// break;
 				}
-			}
-
-			// frames_to_deliver = frames_to_deliver > 4096 ? 4096 : frames_to_deliver;
-
-			/* deliver the data */
-
-			if (playback_callback(frames_to_deliver) != frames_to_deliver) {
-				fprintf(stderr, "playback callback failed\n");
-				break;
 			}
 		}
 
