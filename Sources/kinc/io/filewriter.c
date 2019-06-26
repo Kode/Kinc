@@ -17,10 +17,12 @@ void unmountSaveData();
 
 bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath) {
 	writer->file = NULL;
+	writer->mounted = false;
 #ifdef MOUNT_SAVES
 	if (!mountSaveData(true)) {
 		return false;
 	}
+	writer->mounted = true;
 #endif
 	char path[1001];
 	strcpy(path, kinc_internal_save_path());
@@ -34,14 +36,16 @@ bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath) {
 }
 
 void kinc_file_writer_close(kinc_file_writer_t *writer) {
-#ifdef MOUNT_SAVES
-	unmountSaveData();
-#endif
-	if (writer->file == NULL) {
-		return;
+	if (writer->file != NULL) {
+		fclose((FILE *)writer->file);
+		writer->file = NULL;
 	}
-	fclose((FILE*)writer->file);
-	writer->file = NULL;
+#ifdef MOUNT_SAVES
+	if (writer->mounted) {
+		writer->mounted = false;
+		unmountSaveData();
+	}
+#endif
 }
 
 void kinc_file_writer_write(kinc_file_writer_t *writer, void *data, int size) {

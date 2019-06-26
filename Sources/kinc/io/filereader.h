@@ -35,6 +35,7 @@ typedef struct kinc_file_reader {
 	int size;
 	int type;
 	int mode;
+	bool mounted;
 } kinc_file_reader_t;
 #endif
 

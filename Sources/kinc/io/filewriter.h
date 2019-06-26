@@ -9,6 +9,7 @@ extern "C" {
 typedef struct {
 	void *file;
 	const char* filename;
+	bool mounted;
 } kinc_file_writer_t;
 
 bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath);
