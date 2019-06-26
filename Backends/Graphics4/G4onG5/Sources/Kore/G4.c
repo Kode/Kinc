@@ -113,7 +113,8 @@ void kinc_g4_begin(int window) {
 	// commandList = new Graphics5::CommandList;
 	kinc_g5_command_list_begin(&commandList);
 	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &framebuffers[currentBuffer]);
-	kinc_g5_command_list_set_render_targets(&commandList, &framebuffers[currentBuffer], 1);
+	kinc_g5_render_target_t *renderTargets[1] = {&framebuffers[currentBuffer]};
+	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
 
 	constantBufferIndex = 0;
 	kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
@@ -267,16 +268,17 @@ bool kinc_g4_non_pow2_textures_supported() {
 }
 
 void kinc_g4_restore_render_target() {
-	kinc_g5_command_list_set_render_targets(&commandList, &framebuffers[currentBuffer], 1);
+	kinc_g5_render_target_t *renderTargets[1] = {&framebuffers[currentBuffer]};
+	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
 }
 
 void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
-	kinc_g5_render_target_t renderTargets[16];
+	kinc_g5_render_target_t *renderTargets[16];
 	for (int i = 0; i < count; ++i) {
-		renderTargets[i] = targets[i]->impl._renderTarget;
-		kinc_g5_command_list_texture_to_render_target_barrier(&commandList, &renderTargets[i]);
+		renderTargets[i] = &targets[i]->impl._renderTarget;
+		kinc_g5_command_list_texture_to_render_target_barrier(&commandList, renderTargets[i]);
 	}
-	kinc_g5_command_list_set_render_targets(&commandList, &renderTargets[0], count);
+	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, count);
 }
 
 void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) {
