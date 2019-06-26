@@ -126,9 +126,9 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 	list->impl.commands[list->impl.commandIndex++] = (int64_t)&buffer;
 }
 
-void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target *targets, int count) {
+void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	list->impl.commands[list->impl.commandIndex++] = SetRenderTarget;
-	list->impl.commands[list->impl.commandIndex++] = (int64_t)&targets[0];
+	list->impl.commands[list->impl.commandIndex++] = (int64_t)targets[0];
 }
 
 void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer) {}

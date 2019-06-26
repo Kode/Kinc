@@ -80,14 +80,14 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 	kinc_g5_internal_index_buffer_set(buffer);
 }
 
-void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target *targets, int count) {
-	if (targets[0].contextId < 0) {
+void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
+	if (targets[0]->contextId < 0) {
 		lastRenderTarget = nullptr;
 		newRenderPass(nullptr, false);
 	}
 	else {
-		lastRenderTarget = &targets[0];
-		newRenderPass(&targets[0], false);
+		lastRenderTarget = targets[0];
+		newRenderPass(targets[0], false);
 	}
 }
 

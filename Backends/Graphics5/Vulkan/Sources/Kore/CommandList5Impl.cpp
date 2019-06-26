@@ -528,11 +528,11 @@ namespace {
 	}
 }
 
-void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target *targets, int count) {
+void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	return;
 	endPass(list->impl._buffer);
 
-	currentRenderTarget = &targets[0];
+	currentRenderTarget = targets[0];
 	onBackBuffer = false;
 
 	VkClearValue clear_values[2];
@@ -547,12 +547,12 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = nullptr;
-	rp_begin.renderPass = targets[0].impl.renderPass;
-	rp_begin.framebuffer = targets[0].impl.framebuffer;
+	rp_begin.renderPass = targets[0]->impl.renderPass;
+	rp_begin.framebuffer = targets[0]->impl.framebuffer;
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
-	rp_begin.renderArea.extent.width = targets[0].width;
-	rp_begin.renderArea.extent.height = targets[0].height;
+	rp_begin.renderArea.extent.width = targets[0]->width;
+	rp_begin.renderArea.extent.height = targets[0]->height;
 	rp_begin.clearValueCount = 2;
 	rp_begin.pClearValues = clear_values;
 
@@ -560,16 +560,16 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.width = (float)targets[0].width;
-	viewport.height = (float)targets[0].height;
+	viewport.width = (float)targets[0]->width;
+	viewport.height = (float)targets[0]->height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
 
 	VkRect2D scissor;
 	memset(&scissor, 0, sizeof(scissor));
-	scissor.extent.width = targets[0].width;
-	scissor.extent.height = targets[0].height;
+	scissor.extent.width = targets[0]->width;
+	scissor.extent.height = targets[0]->height;
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
 	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
