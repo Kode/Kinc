@@ -19,12 +19,6 @@ FileWriter::FileWriter(const char* filepath) {
 	}
 }
 
-#if defined(KORE_PS4) || defined(KORE_SWITCH)
-#define MOUNT_SAVES
-bool mountSaveData(bool);
-void unmountSaveData();
-#endif
-
 bool FileWriter::open(const char* filepath) {
 	return kinc_file_writer_open(&writer, filepath);
 }
