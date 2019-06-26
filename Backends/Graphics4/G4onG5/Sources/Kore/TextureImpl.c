@@ -29,6 +29,7 @@ void kinc_g4_texture_init_from_bytes3d(kinc_g4_texture_t *texture, void *data, i
 
 void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 	//kinc_g4_internal_texture_unset(texture);
+	kinc_g5_texture_destroy(&texture->impl._texture);
 }
 
 void kinc_g4_internal_texture_unset(kinc_g4_texture_t *texture) {
