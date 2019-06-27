@@ -300,10 +300,14 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 	case WM_ERASEBKGND:
 		return 1;
 	case WM_ACTIVATE:
-		if (LOWORD(wParam) == WA_ACTIVE)
+		if (LOWORD(wParam) == WA_ACTIVE || LOWORD(wParam) == WA_CLICKACTIVE) {
 			kinc_internal_mouse_window_activated(kinc_windows_window_index_from_hwnd(hWnd));
-		else
+			kinc_internal_foreground_callback();
+		}
+		else {
 			kinc_internal_mouse_window_deactivated(kinc_windows_window_index_from_hwnd(hWnd));
+			kinc_internal_background_callback();
+		}
 		break;
 	case WM_MOUSELEAVE:
 		windowId = kinc_windows_window_index_from_hwnd(hWnd);
