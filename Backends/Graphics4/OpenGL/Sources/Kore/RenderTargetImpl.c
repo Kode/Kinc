@@ -33,7 +33,7 @@
 #endif
 
 
-static int pow(int pow) {
+static int pow2(int pow) {
 	int ret = 1;
 	for (int i = 0; i < pow; ++i) ret *= 2;
 	return ret;
@@ -41,7 +41,7 @@ static int pow(int pow) {
 
 static int getPower2(int i) {
 	for (int power = 0;; ++power)
-		if (pow(power) >= i) return pow(power);
+		if (pow2(power) >= i) return pow2(power);
 }
 
 bool kinc_opengl_internal_nonPow2RenderTargetsSupported();
