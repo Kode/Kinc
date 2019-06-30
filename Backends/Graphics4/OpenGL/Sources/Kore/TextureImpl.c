@@ -201,7 +201,7 @@ static int astcFormat(uint8_t blockX, uint8_t blockY) {
 	return 0;
 }
 
-static int pow(int pow) {
+static int pow2(int pow) {
 	int ret = 1;
 	for (int i = 0; i < pow; ++i) ret *= 2;
 	return ret;
@@ -209,7 +209,7 @@ static int pow(int pow) {
 
 static int getPower2(int i) {
 	for (int power = 0;; ++power)
-		if (pow(power) >= i) return pow(power);
+		if (pow2(power) >= i) return pow2(power);
 }
 
 static void convertImageToPow2(kinc_image_format_t format, uint8_t *from, int fw, int fh, uint8_t *to, int tw, int th) {
