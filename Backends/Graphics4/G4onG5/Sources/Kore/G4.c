@@ -30,7 +30,7 @@ static kinc_g5_render_target_t framebuffers[bufferCount];
 static kinc_g5_constant_buffer_t vertexConstantBuffer;
 static kinc_g5_constant_buffer_t fragmentConstantBuffer;
 #define constantBufferSize 4096
-#define constantBufferMultiply 10
+#define constantBufferMultiply 100
 static int constantBufferIndex = 0;
 
 void kinc_g4_destroy(int window) {

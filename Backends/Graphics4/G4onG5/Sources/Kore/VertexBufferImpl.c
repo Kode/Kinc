@@ -5,7 +5,7 @@
 #include <Kinc/Graphics4/Graphics.h>
 #include <Kinc/Graphics4/VertexBuffer.h>
 
-#define multiple 50
+#define multiple 500
 
 extern uint64_t frameNumber;
 extern bool waitAfterNextDraw;
