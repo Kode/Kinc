@@ -52,61 +52,81 @@ namespace {
 		return err;
 	}
 
+	bool tryToRecover( snd_pcm_t* handle, int errorCode ) {
+		switch (-errorCode) {
+			case EINTR:
+			case EPIPE:
+			case ESPIPE:
+			case ESTRPIPE: {
+				int recovered = snd_pcm_recover(playback_handle, errorCode, 1);
+
+				if (recovered != 0) {
+					fprintf(stderr, "unable to recover from ALSA error code=%i\n", errorCode);
+					return false;
+				} else {
+					fprintf(stdout, "recovered from ALSA error code=%i\n", errorCode);
+					return true;
+				}
+			}
+			default:
+				fprintf(stderr, "unhandled ALSA error code=%i\n", errorCode);
+				return false;
+		}
+	}
+
 	void* doAudio(void* arg) {
 		snd_pcm_hw_params_t* hw_params;
 		snd_pcm_sw_params_t* sw_params;
 		snd_pcm_sframes_t frames_to_deliver;
-		// int nfds;
 		int err;
-		// struct pollfd *pfds;
 
 		if ((err = snd_pcm_open(&playback_handle, "default", SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
 			fprintf(stderr, "cannot open audio device default (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		if ((err = snd_pcm_hw_params_malloc(&hw_params)) < 0) {
 			fprintf(stderr, "cannot allocate hardware parameter structure (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		if ((err = snd_pcm_hw_params_any(playback_handle, hw_params)) < 0) {
 			fprintf(stderr, "cannot initialize hardware parameter structure (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		if ((err = snd_pcm_hw_params_set_access(playback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
 			fprintf(stderr, "cannot set access type (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		if ((err = snd_pcm_hw_params_set_format(playback_handle, hw_params, SND_PCM_FORMAT_S16_LE)) < 0) {
 			fprintf(stderr, "cannot set sample format (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		uint rate = 44100;
 		int dir = 0;
 		if ((err = snd_pcm_hw_params_set_rate_near(playback_handle, hw_params, &rate, &dir)) < 0) {
 			fprintf(stderr, "cannot set sample rate (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		if ((err = snd_pcm_hw_params_set_channels(playback_handle, hw_params, 2)) < 0) {
 			fprintf(stderr, "cannot set channel count (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		snd_pcm_uframes_t bufferSize = rate / 8;
 		if (((err = snd_pcm_hw_params_set_buffer_size(playback_handle, hw_params, bufferSize)) < 0 &&
 		     (snd_pcm_hw_params_set_buffer_size_near(playback_handle, hw_params, &bufferSize)) < 0)) {
 			fprintf(stderr, "cannot set buffer size (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		if ((err = snd_pcm_hw_params(playback_handle, hw_params)) < 0) {
 			fprintf(stderr, "cannot set parameters (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		snd_pcm_hw_params_free(hw_params);
@@ -118,23 +138,23 @@ namespace {
 
 		if ((err = snd_pcm_sw_params_malloc(&sw_params)) < 0) {
 			fprintf(stderr, "cannot allocate software parameters structure (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 		if ((err = snd_pcm_sw_params_current(playback_handle, sw_params)) < 0) {
 			fprintf(stderr, "cannot initialize software parameters structure (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 		if ((err = snd_pcm_sw_params_set_avail_min(playback_handle, sw_params, 4096)) < 0) {
 			fprintf(stderr, "cannot set minimum available count (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 		if ((err = snd_pcm_sw_params_set_start_threshold(playback_handle, sw_params, 0U)) < 0) {
 			fprintf(stderr, "cannot set start mode (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 		if ((err = snd_pcm_sw_params(playback_handle, sw_params)) < 0) {
 			fprintf(stderr, "cannot set software parameters (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		/* the interface will interrupt the kernel every 4096 frames, and ALSA
@@ -143,7 +163,7 @@ namespace {
 
 		if ((err = snd_pcm_prepare(playback_handle)) < 0) {
 			fprintf(stderr, "cannot prepare audio interface for use (%s)\n", snd_strerror(err));
-			exit(1);
+			return nullptr;
 		}
 
 		while (audioRunning) {
@@ -160,23 +180,20 @@ namespace {
 			/* find out how much space is available for playback data */
 
 			if ((frames_to_deliver = snd_pcm_avail_update(playback_handle)) < 0) {
-				if (frames_to_deliver == -EPIPE) {
-					fprintf(stderr, "an xrun occured\n");
-					break;
+				if (!tryToRecover(playback_handle, frames_to_deliver)) {
+					// break;
 				}
-				else {
-					fprintf(stderr, "unknown ALSA avail update return value (%i)\n", (int)frames_to_deliver);
-					break;
+			} else {
+				// frames_to_deliver = frames_to_deliver > 4096 ? 4096 : frames_to_deliver;
+
+				/* deliver the data */
+
+				int delivered = playback_callback(frames_to_deliver);
+
+				if (delivered != frames_to_deliver) {
+					fprintf(stderr, "playback callback failed (delivered %i / %i frames)\n", delivered, frames_to_deliver);
+					// break;
 				}
-			}
-
-			// frames_to_deliver = frames_to_deliver > 4096 ? 4096 : frames_to_deliver;
-
-			/* deliver the data */
-
-			if (playback_callback(frames_to_deliver) != frames_to_deliver) {
-				fprintf(stderr, "playback callback failed\n");
-				break;
 			}
 		}
 
