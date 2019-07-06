@@ -61,6 +61,5 @@ namespace Kore {
 		char* _cutCallback();
 		char* _copyCallback();
 		void _pasteCallback(char*);
-		void _init(const char* name, int width, int height, WindowOptions** win, FramebufferOptions** frame);
 	}
 }

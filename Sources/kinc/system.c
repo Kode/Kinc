@@ -131,10 +131,14 @@ void kinc_internal_paste_callback(char *value) {
 
 static bool running = false;
 static bool showWindowFlag = true;
-static char name[1024] = {"Kore Application"};
+static char application_name[1024] = {"Kinc Application"};
 
 const char *kinc_application_name() {
-	return name;
+	return application_name;
+}
+
+void kinc_set_application_name(const char* name) {
+	strcpy(application_name, name);
 }
 
 #ifdef KORE_METAL

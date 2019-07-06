@@ -14,6 +14,7 @@ struct kinc_framebuffer_options;
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame);
 
 const char *kinc_application_name(void);
+void kinc_set_application_name(const char *name);
 int kinc_width(void);
 int kinc_height(void);
 

@@ -1075,6 +1075,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	//Kore::System::_init(name, width, height, &win, &frame);
+	kinc_set_application_name(name);
 	kinc_window_options_t defaultWin;
 	if (win == nullptr) {
 		kinc_internal_init_window_options(&defaultWin);

@@ -109,7 +109,6 @@ void Kore::System::_pasteCallback(char* value) {
 namespace {
 	bool running = false;
 	bool showWindowFlag = true;
-	char name[1024] = {"KoreApplication"};
 	Kore::WindowOptions defaultWin;
 	Kore::FramebufferOptions defaultFrame;
 }
@@ -128,23 +127,6 @@ void Kore::System::setName(const char* value) {
 */
 const char* Kore::System::name() {
 	return kinc_application_name();
-}
-
-void Kore::System::_init(const char* name, int width, int height, WindowOptions** win, FramebufferOptions** frame) {
-	if (*win == nullptr) {
-		*win = &defaultWin;
-	}
-
-	strcpy(::name, name);
-	if (strcmp((*win)->title, "Kore") == 0) {
-		(*win)->title = name;
-	}
-	(*win)->width = width;
-	(*win)->height = height;
-
-	if (*frame == nullptr) {
-		*frame = &defaultFrame;
-	}
 }
 
 #ifdef KORE_METAL
