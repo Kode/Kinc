@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#ifndef KORE_PS4
+
 #include "filewriter.h"
 
 #include <kinc/error.h>
@@ -51,3 +53,5 @@ void kinc_file_writer_close(kinc_file_writer_t *writer) {
 void kinc_file_writer_write(kinc_file_writer_t *writer, void *data, int size) {
 	fwrite(data, 1, size, (FILE*)writer->file);
 }
+
+#endif

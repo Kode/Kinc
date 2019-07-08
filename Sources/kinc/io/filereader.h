@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef KORE_PS4
+#include <Kore/FileReaderImpl.h>
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -36,6 +40,9 @@ typedef struct kinc_file_reader {
 	int type;
 	int mode;
 	bool mounted;
+#ifdef KORE_PS4
+	kinc_file_reader_impl_t impl;
+#endif
 } kinc_file_reader_t;
 #endif
 
