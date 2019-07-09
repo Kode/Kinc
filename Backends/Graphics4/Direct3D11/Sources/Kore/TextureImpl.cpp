@@ -67,6 +67,7 @@ static bool isHdr(kinc_image_format_t format) {
 }
 
 void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *image) {
+	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->tex_width = image->width;
 	texture->tex_height = image->height;
@@ -90,12 +91,12 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	data.SysMemPitch = image->width * formatByteSize(image->format);
 	data.SysMemSlicePitch = 0;
 
-	texture->impl.texture = nullptr;
 	kinc_microsoft_affirm(device->CreateTexture2D(&desc, &data, &texture->impl.texture));
 	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture, nullptr, &texture->impl.view));
 }
 
 void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t *image) {
+	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->tex_width = image->width;
 	texture->tex_height = image->height;
@@ -120,12 +121,12 @@ void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t 
 	data.SysMemPitch = image->width * formatByteSize(image->format);
 	data.SysMemSlicePitch = image->width * image->height * formatByteSize(image->format);
 
-	texture->impl.texture3D = nullptr;
 	kinc_microsoft_affirm(device->CreateTexture3D(&desc, &data, &texture->impl.texture3D));
 	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
 }
 
 void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
+	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->tex_width = width;
 	texture->tex_height = height;
@@ -152,7 +153,6 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	}
 
-	texture->impl.texture = nullptr;
 	kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &texture->impl.texture));
 	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture, nullptr, &texture->impl.view));
 
@@ -166,6 +166,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 }
 
 void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {
+	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->tex_width = width;
 	texture->tex_height = height;
@@ -185,7 +186,6 @@ void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, i
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.CPUAccessFlags = 0;
 
-	texture->impl.texture3D = nullptr;
 	kinc_microsoft_affirm(device->CreateTexture3D(&desc, nullptr, &texture->impl.texture3D));
 	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
 }
@@ -201,6 +201,9 @@ void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 	}
 	if (texture->impl.texture != nullptr) {
 		texture->impl.texture->Release();
+	}
+	if (texture->impl.texture3D != NULL) {
+		texture->impl.texture3D->Release();
 	}
 	if (texture->impl.computeView != nullptr) {
 		texture->impl.computeView->Release();
