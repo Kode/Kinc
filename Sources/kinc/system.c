@@ -5,6 +5,7 @@
 #include "window.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #if !defined(KORE_HTML5) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
 double kinc_time() {
@@ -190,7 +191,19 @@ int kinc_height() {
 }
 
 #ifndef KORE_PS4
-float kinc_safe_zone() {
+float kinc_safe_zone(void) {
 	return 1.0f;
+}
+
+bool is_save_load_initialized(void) {
+	return true;
+}
+
+bool is_ps4_japanese_button_style(void) {
+	return false;
+}
+
+bool is_save_load_broken(void) {
+	return false;
 }
 #endif
