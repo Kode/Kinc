@@ -27,7 +27,9 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *render_target, int
 	                                stencilBufferBits, contextId);
 }
 
-void kinc_g4_render_target_destroy(kinc_g4_render_target_t *render_target) {}
+void kinc_g4_render_target_destroy(kinc_g4_render_target_t *render_target) {
+	kinc_g5_render_target_destroy(&render_target->impl._renderTarget);
+}
 
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
 	kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);

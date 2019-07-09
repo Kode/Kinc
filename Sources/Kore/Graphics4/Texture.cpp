@@ -109,6 +109,11 @@ Graphics4::Texture::Texture(Kore::Reader &reader, const char *format, bool reada
 	}
 }
 
+Graphics4::Texture::~Texture() {
+	Image::~Image();
+	kinc_g4_texture_destroy(&kincTexture);
+}
+
 #ifdef KORE_ANDROID
 Graphics4::Texture::Texture(unsigned texid) {
 	kinc_g4_texture_init_from_id(&kincTexture, texid);
