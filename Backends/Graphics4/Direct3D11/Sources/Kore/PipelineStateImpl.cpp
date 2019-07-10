@@ -321,7 +321,7 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline *state
 		unitName[len - 3] = 0;                     // Strip array from name
 	}
 
-	uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
+	uint32_t hash = kinc_internal_hash_name((unsigned char *)unitName);
 
 	kinc_g4_texture_unit_t unit;
 	kinc_internal_hash_index_t *vertexUnit = findTextureUnit(state->vertex_shader->impl.textures, hash);
