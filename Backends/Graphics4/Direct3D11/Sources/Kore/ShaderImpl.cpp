@@ -14,19 +14,19 @@ void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (shader->impl.shader != nullptr) {
 		switch (shader->impl.type) {
 		case KINC_G4_SHADER_TYPE_VERTEX:
-			((ID3D11VertexShader*)shader)->Release();
+			((ID3D11VertexShader*)shader->impl.shader)->Release();
 			break;
 		case KINC_G4_SHADER_TYPE_FRAGMENT:
-			((ID3D11PixelShader*)shader)->Release();
+			((ID3D11PixelShader*)shader->impl.shader)->Release();
 			break;
 		case KINC_G4_SHADER_TYPE_GEOMETRY:
-			((ID3D11GeometryShader*)shader)->Release();
+			((ID3D11GeometryShader*)shader->impl.shader)->Release();
 			break;
 		case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
-			((ID3D11HullShader*)shader)->Release();
+			((ID3D11HullShader*)shader->impl.shader)->Release();
 			break;
 		case KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION:
-			((ID3D11DomainShader*)shader)->Release();
+			((ID3D11DomainShader*)shader->impl.shader)->Release();
 			break;
 		}
 		free(shader->impl.data);

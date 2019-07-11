@@ -346,12 +346,22 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderT
 	if (renderTarget->impl.textureSample != renderTarget->impl.textureRender) {
 		context->ResolveSubresource(renderTarget->impl.textureSample, 0, renderTarget->impl.textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
-	context->PSSetShaderResources(unit.impl.unit, 1, renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
+	if (unit.impl.vertex) {
+		context->VSSetShaderResources(unit.impl.unit, 1, renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
+	}
+	else {
+		context->PSSetShaderResources(unit.impl.unit, 1, renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
+	}
 }
 
 void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
-	context->PSSetShaderResources(unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
+	if (unit.impl.vertex) {
+		context->VSSetShaderResources(unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
+	}
+	else {
+		context->PSSetShaderResources(unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
+	}
 }
 
 void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *renderTarget, kinc_g4_render_target_t *source) {

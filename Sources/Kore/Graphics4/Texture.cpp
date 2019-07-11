@@ -147,7 +147,7 @@ void Graphics4::Texture::generateMipmaps(int levels) {
 
 void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {
 	kinc_image_t image;
-	kinc_image_init(&image, data, width, height, (kinc_image_format_t)this->format);
+	kinc_image_init(&image, mipmap->data, mipmap->width, mipmap->height, (kinc_image_format_t)mipmap->format);
 	kinc_g4_texture_set_mipmap(&kincTexture, &image, level);
 	texWidth = kincTexture.tex_width;
 	texHeight = kincTexture.tex_height;
