@@ -72,7 +72,9 @@ void createSamplers() {
 	createSampler(false, D3D12_FILTER_MIN_MAG_MIP_POINT);
 	createSampler(true, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
 }
+
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {
+	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->impl.mipmap = true;
 	texture->texWidth = image->width;
@@ -118,6 +120,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 
 void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format) {
 	//kinc_image_init(&texture->image, width, height, format, readable);
+	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->impl.mipmap = true;
 	texture->texWidth = width;
