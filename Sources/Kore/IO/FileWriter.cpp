@@ -10,7 +10,6 @@
 
 using namespace Kore;
 
-#if !defined(KORE_XBOX_ONE)
 FileWriter::FileWriter() {}
 
 FileWriter::FileWriter(const char* filepath) {
@@ -34,5 +33,3 @@ FileWriter::~FileWriter() {
 void FileWriter::write(void* data, int size) {
 	return kinc_file_writer_write(&writer, data, size);
 }
-
-#endif
