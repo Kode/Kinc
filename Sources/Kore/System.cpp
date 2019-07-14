@@ -218,3 +218,11 @@ const char** Kore::System::videoFormats() {
 float Kore::System::safeZone() {
 	return kinc_safe_zone();
 }
+
+bool Kore::System::automaticSafeZone() {
+	return kinc_automatic_safe_zone();
+}
+
+void Kore::System::setSafeZone(float value) {
+	kinc_set_safe_zone(value);
+}

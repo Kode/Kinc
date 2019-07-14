@@ -191,8 +191,18 @@ int kinc_height() {
 }
 
 #ifndef KORE_PS4
+static float safe_zone = 0.9f;
+
 float kinc_safe_zone(void) {
-	return 1.0f;
+	return safe_zone;
+}
+
+bool kinc_automatic_safe_zone() {
+	return false;
+}
+
+void kinc_set_safe_zone(float value) {
+	safe_zone = value;
 }
 
 bool is_save_load_initialized(void) {

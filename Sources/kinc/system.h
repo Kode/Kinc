@@ -33,6 +33,8 @@ const char *kinc_language();
 void kinc_vibrate(int milliseconds);
 
 float kinc_safe_zone();
+bool kinc_automatic_safe_zone();
+void kinc_set_safe_zone(float value);
 
 typedef uint64_t kinc_ticks_t;
 
