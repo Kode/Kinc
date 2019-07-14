@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#ifndef KORE_PS4
+#if !defined(KORE_PS4) && !defined(KORE_XBOX_ONE)
 
 #include "filewriter.h"
 

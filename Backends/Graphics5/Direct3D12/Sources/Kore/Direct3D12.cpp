@@ -13,7 +13,9 @@
 #undef CreateWindow
 #endif
 #include <Kinc/System.h>
+#ifdef KORE_WINDOWS
 #include <Kore/Windows.h>
+#endif
 #include <Kore/SystemMicrosoft.h>
 #include <wrl.h>
 
