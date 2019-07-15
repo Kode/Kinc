@@ -132,4 +132,13 @@ public class KoreActivity extends NativeActivity {
 		manager.getDefaultDisplay().getRealSize(size);
 		return (int)(size.y);
 	}
+
+	public static void stop() {
+		instance.runOnUiThread(new Runnable() {
+		public void run() {
+				instance.finish();
+				java.lang.System.exit(0);
+			}
+		});
+	}
 }
