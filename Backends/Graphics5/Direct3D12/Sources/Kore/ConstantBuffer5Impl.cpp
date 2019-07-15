@@ -5,8 +5,8 @@
 #include "Direct3D12.h"
 #include <Kore/SystemMicrosoft.h>
 
-bool kinc_g5_transposeMat3 = false;
-bool kinc_g5_transposeMat4 = false;
+bool kinc_g5_transposeMat3 = true;
+bool kinc_g5_transposeMat4 = true;
 
 void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	buffer->impl.mySize = size;
