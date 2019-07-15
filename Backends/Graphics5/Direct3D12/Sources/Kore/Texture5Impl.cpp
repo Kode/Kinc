@@ -23,6 +23,13 @@ namespace {
 	ID3D12DescriptorHeap* samplerDescriptorHeapBilinear;
 }
 
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+int d3d12_textureAlignment() {
+	return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+}
+#else
+int d3d12_textureAlignment();
+#endif
 
 void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 	if (currentRenderTargets[0] != nullptr) {
@@ -89,6 +96,9 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 
 	texture->impl.stride = (int)kinc_ceil(uploadBufferSize / (float)image->height);
+	if (texture->impl.stride < d3d12_textureAlignment()) {
+		texture->impl.stride = d3d12_textureAlignment();
+	}
 
 	BYTE *pixel;
 	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
@@ -136,6 +146,9 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 
 	texture->impl.stride = (int)kinc_ceil(uploadBufferSize / (float)height);
+	if (texture->impl.stride < d3d12_textureAlignment()) {
+		texture->impl.stride = d3d12_textureAlignment();
+	}
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -205,14 +218,6 @@ void kinc_g5_texture_unlock(kinc_g5_texture *texture) {
 }
 
 void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {}
-
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-int d3d12_textureAlignment() {
-	return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
-}
-#else
-int d3d12_textureAlignment();
-#endif
 
 int kinc_g5_texture_stride(kinc_g5_texture *texture) {
 	/*int baseStride = texture->format == KINC_IMAGE_FORMAT_RGBA32 ? (texture->texWidth * 4) : texture->texWidth;
