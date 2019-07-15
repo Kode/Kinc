@@ -678,7 +678,12 @@ extern "C" void android_main(android_app* app) {
 	}
 	KoreAndroid::getActivity()->vm->DetachCurrentThread();
 	kickstart(0, nullptr);
-	exit(0);
+
+	activity->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
+	jmethodID FinishHim = env->GetStaticMethodID(koreActivityClass, "stop", "()V");
+	env->CallStaticVoidMethod(koreActivityClass, FinishHim);
+	activity->vm->DetachCurrentThread();
 }
 
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
