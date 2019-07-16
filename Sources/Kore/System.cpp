@@ -146,6 +146,10 @@ void Kore::System::stop() {
 	kinc_stop();
 }
 
+void Kore::System::login() {
+	kinc_login();
+}
+
 int Kore::System::windowWidth(int window) {
 	assert(window < Window::count());
 	return Window::get(window)->width();

@@ -46,6 +46,8 @@ void kinc_start();
 bool kinc_internal_frame();
 void kinc_stop();
 
+void kinc_login();
+
 void kinc_set_keep_screen_on(bool on);
 
 void kinc_set_update_callback(void (*value)());

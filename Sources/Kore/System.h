@@ -38,6 +38,10 @@ namespace Kore {
 		bool frame();
 		void stop();
 
+ 		void setKeepScreenOn(bool on);
+
+    void login();
+
 		void setCallback(void (*value)());
 		void setForegroundCallback(void (*value)());
 		void setResumeCallback(void (*value)());
@@ -51,8 +55,6 @@ namespace Kore {
 		void setPasteCallback(void (*value)(char*));
     void setLoginCallback(void (*value)());
     void setLogoutCallback(void (*value)());
-
-		void setKeepScreenOn(bool on);
 
 		void _shutdown();
 		void _callback();
