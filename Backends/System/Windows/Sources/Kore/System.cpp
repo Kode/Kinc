@@ -1023,6 +1023,10 @@ const char **kinc_video_formats() {
 	return ::videoFormats;
 }
 
+void kinc_login() {
+
+}
+
 double kinc_frequency() {
 	return (double)::frequency.QuadPart;
 }

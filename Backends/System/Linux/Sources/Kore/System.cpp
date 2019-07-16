@@ -973,6 +973,10 @@ kinc_ticks_t kinc_timestamp(void) {
 	return static_cast<kinc_ticks_t>(now.tv_sec) * 1000000 + static_cast<kinc_ticks_t>(now.tv_usec);
 }
 
+void kinc_login() {
+
+}
+
 extern "C" void enumerateDisplays();
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {

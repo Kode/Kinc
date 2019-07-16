@@ -156,6 +156,10 @@ kinc_ticks_t kinc_timestamp() {
 	return time;
 }
 
+void kinc_login() {
+
+}
+
 int main(int argc, char* argv[]) {
 	int retVal = 0;
 	@autoreleasepool {

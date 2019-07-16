@@ -643,6 +643,10 @@ void kinc_mouse_get_position(int window, int* x, int* y) {
 	y = 0;
 }
 
+void kinc_login() {
+
+}
+
 void initAndroidFileReader();
 void KoreAndroidVideoInit();
 

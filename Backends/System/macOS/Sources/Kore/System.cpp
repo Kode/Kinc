@@ -60,3 +60,7 @@ double kinc_frequency() {
 kinc_ticks_t kinc_timestamp() {
 	return mach_absolute_time();
 }
+
+void kinc_login() {
+
+}
