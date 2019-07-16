@@ -58,6 +58,7 @@ void kinc_set_drop_files_callback(void (*value)(wchar_t *));
 void kinc_set_cut_callback(char *(*value)());
 void kinc_set_copy_callback(char *(*value)());
 void kinc_set_paste_callback(void (*value)(char *));
+void kinc_set_login_callback(void (*value)());
 void kinc_set_logout_callback(void (*value)());
 
 void kinc_internal_shutdown();
@@ -71,6 +72,7 @@ void kinc_internal_drop_files_callback(wchar_t *);
 char *kinc_internal_cut_callback();
 char *kinc_internal_copy_callback();
 void kinc_internal_paste_callback(char *);
+void kinc_internal_login_callback();
 void kinc_internal_logout_callback();
 
 #ifdef __cplusplus

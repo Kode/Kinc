@@ -23,6 +23,7 @@ static void (*drop_files_callback)(wchar_t *) = NULL;
 static char *(*cut_callback)() = NULL;
 static char *(*copy_callback)() = NULL;
 static void (*paste_callback)(char *) = NULL;
+static void (*login_callback)() = NULL;
 static void (*logout_callback)() = NULL;
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
@@ -67,6 +68,10 @@ void kinc_set_copy_callback(char *(*value)()) {
 
 void kinc_set_paste_callback(void (*value)(char *)) {
 	paste_callback = value;
+}
+
+void kinc_set_login_callback(void (*value)()) {
+	login_callback = value;
 }
 
 void kinc_set_logout_callback(void(*value)()) {
@@ -132,6 +137,12 @@ char *kinc_internal_copy_callback() {
 void kinc_internal_paste_callback(char *value) {
 	if (paste_callback != NULL) {
 		paste_callback(value);
+	}
+}
+
+void kinc_internal_login_callback() {
+	if (login_callback != NULL) {
+		login_callback();
 	}
 }
 
