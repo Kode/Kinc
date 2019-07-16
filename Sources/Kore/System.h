@@ -49,6 +49,8 @@ namespace Kore {
 		void setCutCallback(char* (*value)());
 		void setCopyCallback(char* (*value)());
 		void setPasteCallback(void (*value)(char*));
+    void setLogoutCallback(void (*value)());
+
 		void setKeepScreenOn(bool on);
 
 		void _shutdown();

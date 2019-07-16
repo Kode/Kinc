@@ -62,6 +62,10 @@ void Kore::System::setPasteCallback(void (*value)(char*)) {
 	kinc_set_paste_callback(value);
 }
 
+void Kore::System::setLogoutCallback(void(*value)()) {
+	kinc_set_logout_callback(value);
+}
+
 void Kore::System::_callback() {
 	kinc_internal_update_callback();
 }
