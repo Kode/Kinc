@@ -160,6 +160,10 @@ void kinc_login() {
 
 }
 
+void kinc_unlock_achievement(int id) {
+	
+}
+
 int main(int argc, char* argv[]) {
 	int retVal = 0;
 	@autoreleasepool {

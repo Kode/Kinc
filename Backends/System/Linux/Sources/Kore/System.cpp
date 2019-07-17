@@ -977,6 +977,10 @@ void kinc_login() {
 
 }
 
+void kinc_unlock_achievement(int id) {
+	
+}
+
 extern "C" void enumerateDisplays();
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {

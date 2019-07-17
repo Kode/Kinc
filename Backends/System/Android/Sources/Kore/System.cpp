@@ -647,6 +647,10 @@ void kinc_login() {
 
 }
 
+void kinc_unlock_achievement(int id) {
+	
+}
+
 void initAndroidFileReader();
 void KoreAndroidVideoInit();
 

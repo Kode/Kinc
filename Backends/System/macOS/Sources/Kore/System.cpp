@@ -64,3 +64,7 @@ kinc_ticks_t kinc_timestamp() {
 void kinc_login() {
 
 }
+
+void kinc_unlock_achievement(int id) {
+	
+}

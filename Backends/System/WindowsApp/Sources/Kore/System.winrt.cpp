@@ -380,6 +380,10 @@ void kinc_login() {
 
 }
 
+void kinc_unlock_achievement(int id) {
+	
+}
+
 [Platform::MTAThread] int main(Platform::Array<Platform::String ^> ^) {
 	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER *>(&start_stamp));
 	CoreApplication::Run(ref new Win8ApplicationSource);

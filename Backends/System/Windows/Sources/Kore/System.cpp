@@ -1027,6 +1027,10 @@ void kinc_login() {
 
 }
 
+void kinc_unlock_achievement(int id) {
+	
+}
+
 double kinc_frequency() {
 	return (double)::frequency.QuadPart;
 }
