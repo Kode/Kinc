@@ -150,6 +150,10 @@ void Kore::System::login() {
 	kinc_login();
 }
 
+void Kore::System::unlockAchievement(int id) {
+	kinc_unlock_achievement(id);
+}
+
 int Kore::System::windowWidth(int window) {
 	assert(window < Window::count());
 	return Window::get(window)->width();

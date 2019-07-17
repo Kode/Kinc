@@ -47,6 +47,7 @@ bool kinc_internal_frame();
 void kinc_stop();
 
 void kinc_login();
+void kinc_unlock_achievement(int id);
 
 void kinc_set_keep_screen_on(bool on);
 
