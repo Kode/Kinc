@@ -3,6 +3,7 @@
 #import "KoreAppDelegate.h"
 
 #include <kinc/graphics4/graphics.h>
+#include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
@@ -162,6 +163,14 @@ void kinc_login() {
 
 void kinc_unlock_achievement(int id) {
 	
+}
+
+const char *kinc_gamepad_vendor(int gamepad) {
+	return "nobody";
+}
+
+const char *kinc_gamepad_product_name(int gamepad) {
+	return "none";
 }
 
 int main(int argc, char* argv[]) {
