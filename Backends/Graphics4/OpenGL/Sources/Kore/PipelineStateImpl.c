@@ -86,7 +86,7 @@ void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {
 	glCheckErrors();
 }
 
-void Kinc_G4_PipelineState_Destroy(kinc_g4_pipeline_t *state) {
+void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state) {
 	for (int i = 0; i < 16; ++i) {
 		free(state->impl.textures[i]);
 	}

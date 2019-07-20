@@ -46,6 +46,13 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	pipe->tessellationControlShader = nullptr;
 }
 
+void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipe) {
+	if (pipe->impl.pso != nullptr) {
+		pipe->impl.pso->Release();
+		pipe->impl.pso = nullptr;
+	}
+}
+
 // void PipelineState5Impl::set(Graphics5::PipelineState* pipeline) {
 //_current = this;
 // context->VSSetShader((ID3D11VertexShader*)vertexShader->shader, nullptr, 0);
