@@ -142,13 +142,13 @@ void kinc_a2_init() {
 
 	initialized = true;
 
-	fprintf(stderr, "mSampleRate = %g\n", deviceFormat.mSampleRate);
-	fprintf(stderr, "mFormatFlags = %08X\n", (unsigned int)deviceFormat.mFormatFlags);
-	fprintf(stderr, "mBytesPerPacket = %d\n", (unsigned int)deviceFormat.mBytesPerPacket);
-	fprintf(stderr, "mFramesPerPacket = %d\n", (unsigned int)deviceFormat.mFramesPerPacket);
-	fprintf(stderr, "mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
-	fprintf(stderr, "mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
-	fprintf(stderr, "mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
+	printf("mSampleRate = %g\n", deviceFormat.mSampleRate);
+	printf("mFormatFlags = %08X\n", (unsigned int)deviceFormat.mFormatFlags);
+	printf("mBytesPerPacket = %d\n", (unsigned int)deviceFormat.mBytesPerPacket);
+	printf("mFramesPerPacket = %d\n", (unsigned int)deviceFormat.mFramesPerPacket);
+	printf("mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
+	printf("mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
+	printf("mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
 
 	if (soundPlaying) return;
 
