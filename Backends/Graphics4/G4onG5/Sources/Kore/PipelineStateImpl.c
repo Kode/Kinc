@@ -40,6 +40,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipe) {
 	pipe->impl._pipeline.blendDestination = (kinc_g5_blending_operation_t)pipe->blend_destination;
 	pipe->impl._pipeline.alphaBlendSource = (kinc_g5_blending_operation_t)pipe->alpha_blend_source;
 	pipe->impl._pipeline.alphaBlendDestination = (kinc_g5_blending_operation_t)pipe->alpha_blend_destination;
+	pipe->impl._pipeline.cullMode = (kinc_g5_cull_mode_t)pipe->cull_mode;
 	pipe->impl._pipeline.depthMode = (kinc_g5_compare_mode_t)pipe->depth_mode;
 	pipe->impl._pipeline.depthWrite = pipe->depth_write;
 	kinc_g5_pipeline_compile(&pipe->impl._pipeline);
