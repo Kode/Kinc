@@ -10,6 +10,10 @@ namespace Kore {
 		const char* vendor;
 		const char* productName;
 
+		bool connected();
+
 		Gamepad() : Axis(nullptr), Button(nullptr), vendor(nullptr), productName(nullptr) {}
+	private:
+		int num;
 	};
 }
