@@ -651,6 +651,10 @@ void kinc_unlock_achievement(int id) {
 	
 }
 
+bool kinc_gamepad_connected(int num) {
+	return true;
+}
+
 void initAndroidFileReader();
 void KoreAndroidVideoInit();
 

@@ -981,6 +981,10 @@ void kinc_unlock_achievement(int id) {
 	
 }
 
+bool kinc_gamepad_connected(int num) {
+	return true;
+}
+
 extern "C" void enumerateDisplays();
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {

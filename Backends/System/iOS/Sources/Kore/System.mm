@@ -173,6 +173,10 @@ const char *kinc_gamepad_product_name(int gamepad) {
 	return "none";
 }
 
+bool kinc_gamepad_connected(int num) {
+	return true;
+}
+
 int main(int argc, char* argv[]) {
 	int retVal = 0;
 	@autoreleasepool {
