@@ -86,6 +86,7 @@ namespace {
 	}
 
 	kinc_g5_render_target_t *currentRenderTarget = nullptr;
+	D3D12_CPU_DESCRIPTOR_HANDLE targetDescriptors[16];
 }
 
 void kinc_g5_command_list_init(kinc_g5_command_list *list) {
@@ -279,8 +280,11 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list *list, kinc_g5_i
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list *list, kinc_g5_render_target_t **targets, int count) {
 	currentRenderTarget = targets[0];
 	graphicsFlushAndWait(list, list->impl._commandAllocator, targets[0]);
+	for (int i = 0; i < count; ++i) {
+		targetDescriptors[i] = targets[i]->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	}
 	list->impl._commandList->OMSetRenderTargets(
-	    1, &targets[0]->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
+	    count, &targetDescriptors[0], false,
 	    targets[0]->impl.depthStencilDescriptorHeap != nullptr ? &targets[0]->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
 	list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&targets[0]->impl.viewport);
 	list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&targets[0]->impl.scissor);
