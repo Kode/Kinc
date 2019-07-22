@@ -203,6 +203,28 @@ namespace {
 			return D3D12_CULL_MODE_NONE;
 		}
 	}
+
+	D3D12_COMPARISON_FUNC convert_compare_mode(kinc_g5_compare_mode_t compare) {
+		switch (compare) {
+		default:
+		case KINC_G5_COMPARE_MODE_ALWAYS:
+			return D3D12_COMPARISON_FUNC_ALWAYS;
+		case KINC_G5_COMPARE_MODE_NEVER:
+			return D3D12_COMPARISON_FUNC_NEVER;
+		case KINC_G5_COMPARE_MODE_EQUAL:
+			return D3D12_COMPARISON_FUNC_EQUAL;
+		case KINC_G5_COMPARE_MODE_NOT_EQUAL:
+			return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+		case KINC_G5_COMPARE_MODE_LESS:
+			return D3D12_COMPARISON_FUNC_LESS;
+		case KINC_G5_COMPARE_MODE_LESS_EQUAL:
+			return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		case KINC_G5_COMPARE_MODE_GREATER:
+			return D3D12_COMPARISON_FUNC_GREATER;
+		case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
+			return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+		}
+	}
 }
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
@@ -282,7 +304,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState.DepthEnable = pipe->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
 	psoDesc.DepthStencilState.DepthWriteMask = pipe->depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
-	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	psoDesc.DepthStencilState.DepthFunc = convert_compare_mode(pipe->depthMode);
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
