@@ -4,8 +4,9 @@
 
 #include "Direct3D12.h"
 
-#include <Kinc/Graphics5/Pipeline.h>
-#include <Kinc/Graphics5/Shader.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/shader.h>
+#include <kinc/graphics5/graphics.h>
 
 #include <Kore/SystemMicrosoft.h>
 
@@ -190,6 +191,18 @@ namespace {
 			return D3D12_BLEND_INV_DEST_COLOR;
 		}
 	}
+
+	D3D12_CULL_MODE convert_cull_mode(kinc_g5_cull_mode_t cullMode) {
+		switch (cullMode) {
+		case KINC_G5_CULL_MODE_CLOCKWISE:
+			return D3D12_CULL_MODE_FRONT;
+		case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
+			return D3D12_CULL_MODE_BACK;
+		case KINC_G5_CULL_MODE_NEVER:
+		default:
+			return D3D12_CULL_MODE_NONE;
+		}
+	}
 }
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
@@ -245,7 +258,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
 
 	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	psoDesc.RasterizerState.CullMode = convert_cull_mode(pipe->cullMode);
 	psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
 	psoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
 	psoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
