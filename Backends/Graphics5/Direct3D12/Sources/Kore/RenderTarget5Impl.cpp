@@ -27,20 +27,38 @@ namespace {
 		}
 	}
 
-	void createRenderTargetView(ID3D12Resource* renderTarget, ID3D12DescriptorHeap* renderTargetDescriptorHeap) {
+	void createRenderTargetView(ID3D12Resource* renderTarget, ID3D12DescriptorHeap* renderTargetDescriptorHeap, DXGI_FORMAT format) {
 		const D3D12_RESOURCE_DESC resourceDesc = renderTarget->GetDesc();
 
 		D3D12_RENDER_TARGET_VIEW_DESC viewDesc;
-#ifdef KORE_WINDOWS
-		viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-#else
-		viewDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-#endif
+		viewDesc.Format = format;
 		viewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		viewDesc.Texture2D.MipSlice = 0;
 		viewDesc.Texture2D.PlaneSlice = 0;
 
 		device->CreateRenderTargetView(renderTarget, &viewDesc, renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	}
+}
+
+static DXGI_FORMAT convertFormat(kinc_g5_render_target_format_t format) {
+	switch (format) {
+	case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return DXGI_FORMAT_R16G16B16A16_FLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return DXGI_FORMAT_R32_FLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return DXGI_FORMAT_R16_FLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
+		return DXGI_FORMAT_R8_UNORM;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
+	default:
+	#ifdef KORE_WINDOWS
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	#else
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
+	#endif
 	}
 }
 
@@ -53,11 +71,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 
 	render_target->impl.resourceState = RenderTargetResourceStateUndefined;
 
-#ifdef KORE_WINDOWS
-	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-#else
-	DXGI_FORMAT dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
-#endif
+	DXGI_FORMAT dxgiFormat = convertFormat(format);
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	    &CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, render_target->texWidth, render_target->texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
@@ -130,7 +144,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 
 	if (contextId < 0) { // encoded backbuffer index
 		swapChain->GetBuffer(-contextId - 1, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
-		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap);
+		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap, dxgiFormat);
 	}
 }
 

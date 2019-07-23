@@ -4,8 +4,9 @@
 
 #include "Direct3D12.h"
 
-#include <Kinc/Graphics5/Pipeline.h>
-#include <Kinc/Graphics5/Shader.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/shader.h>
+#include <kinc/graphics5/graphics.h>
 
 #include <Kore/SystemMicrosoft.h>
 
@@ -190,6 +191,56 @@ namespace {
 			return D3D12_BLEND_INV_DEST_COLOR;
 		}
 	}
+
+	D3D12_CULL_MODE convert_cull_mode(kinc_g5_cull_mode_t cullMode) {
+		switch (cullMode) {
+		case KINC_G5_CULL_MODE_CLOCKWISE:
+			return D3D12_CULL_MODE_FRONT;
+		case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
+			return D3D12_CULL_MODE_BACK;
+		case KINC_G5_CULL_MODE_NEVER:
+		default:
+			return D3D12_CULL_MODE_NONE;
+		}
+	}
+
+	D3D12_COMPARISON_FUNC convert_compare_mode(kinc_g5_compare_mode_t compare) {
+		switch (compare) {
+		default:
+		case KINC_G5_COMPARE_MODE_ALWAYS:
+			return D3D12_COMPARISON_FUNC_ALWAYS;
+		case KINC_G5_COMPARE_MODE_NEVER:
+			return D3D12_COMPARISON_FUNC_NEVER;
+		case KINC_G5_COMPARE_MODE_EQUAL:
+			return D3D12_COMPARISON_FUNC_EQUAL;
+		case KINC_G5_COMPARE_MODE_NOT_EQUAL:
+			return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+		case KINC_G5_COMPARE_MODE_LESS:
+			return D3D12_COMPARISON_FUNC_LESS;
+		case KINC_G5_COMPARE_MODE_LESS_EQUAL:
+			return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		case KINC_G5_COMPARE_MODE_GREATER:
+			return D3D12_COMPARISON_FUNC_GREATER;
+		case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
+			return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+		}
+	}
+
+	void set_blend_state(D3D12_BLEND_DESC *blend_desc, kinc_g5_pipeline_t *pipe, int target) {
+		blend_desc->RenderTarget[target].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
+	                                                   pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+		blend_desc->RenderTarget[target].SrcBlend = convert(pipe->blendSource);
+		blend_desc->RenderTarget[target].DestBlend = convert(pipe->blendDestination);
+		blend_desc->RenderTarget[target].BlendOp = D3D12_BLEND_OP_ADD;
+		blend_desc->RenderTarget[target].SrcBlendAlpha = convert(pipe->alphaBlendSource);
+		blend_desc->RenderTarget[target].DestBlendAlpha = convert(pipe->alphaBlendDestination);
+		blend_desc->RenderTarget[target].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		blend_desc->RenderTarget[target].RenderTargetWriteMask =
+			(((pipe->colorWriteMaskRed[target] ? D3D12_COLOR_WRITE_ENABLE_RED : 0) |
+		      (pipe->colorWriteMaskGreen[target] ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0)) |
+		      (pipe->colorWriteMaskBlue[target] ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		      (pipe->colorWriteMaskAlpha[target] ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
+	}
 }
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
@@ -245,7 +296,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
 
 	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	psoDesc.RasterizerState.CullMode = convert_cull_mode(pipe->cullMode);
 	psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
 	psoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
 	psoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
@@ -257,19 +308,27 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-	                                                 pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = convert(pipe->blendSource);
-	psoDesc.BlendState.RenderTarget[0].DestBlend = convert(pipe->blendDestination);
-	psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = convert(pipe->alphaBlendSource);
-	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = convert(pipe->alphaBlendDestination);
-	psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	bool independentBlend = false;
+	for (int i = 1; i < 8; ++i) {
+		if (pipe->colorWriteMaskRed[0] != pipe->colorWriteMaskRed[i] || pipe->colorWriteMaskGreen[0] != pipe->colorWriteMaskGreen[i] ||
+			pipe->colorWriteMaskBlue[0] != pipe->colorWriteMaskBlue[i] || pipe->colorWriteMaskAlpha[0] != pipe->colorWriteMaskAlpha[i]) {
+			independentBlend = true;
+			break;
+		}
+	}
+
+	set_blend_state(&psoDesc.BlendState, pipe, 0);
+	if (independentBlend) {
+		psoDesc.BlendState.IndependentBlendEnable = true;
+		for (int i = 1; i < 8; ++i) {
+			set_blend_state(&psoDesc.BlendState, pipe, i);
+		}
+	}
+
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState.DepthEnable = pipe->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
 	psoDesc.DepthStencilState.DepthWriteMask = pipe->depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
-	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	psoDesc.DepthStencilState.DepthFunc = convert_compare_mode(pipe->depthMode);
 	psoDesc.DepthStencilState.StencilEnable = false;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
