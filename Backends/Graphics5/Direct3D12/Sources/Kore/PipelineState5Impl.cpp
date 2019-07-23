@@ -225,6 +225,22 @@ namespace {
 			return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
 		}
 	}
+
+	void set_blend_state(D3D12_BLEND_DESC *blend_desc, kinc_g5_pipeline_t *pipe, int target) {
+		blend_desc->RenderTarget[target].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
+	                                                   pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+		blend_desc->RenderTarget[target].SrcBlend = convert(pipe->blendSource);
+		blend_desc->RenderTarget[target].DestBlend = convert(pipe->blendDestination);
+		blend_desc->RenderTarget[target].BlendOp = D3D12_BLEND_OP_ADD;
+		blend_desc->RenderTarget[target].SrcBlendAlpha = convert(pipe->alphaBlendSource);
+		blend_desc->RenderTarget[target].DestBlendAlpha = convert(pipe->alphaBlendDestination);
+		blend_desc->RenderTarget[target].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		blend_desc->RenderTarget[target].RenderTargetWriteMask =
+			(((pipe->colorWriteMaskRed[target] ? D3D12_COLOR_WRITE_ENABLE_RED : 0) |
+		      (pipe->colorWriteMaskGreen[target] ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0)) |
+		      (pipe->colorWriteMaskBlue[target] ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		      (pipe->colorWriteMaskAlpha[target] ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
+	}
 }
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
@@ -292,15 +308,23 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState.RenderTarget[0].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-	                                                 pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
-	psoDesc.BlendState.RenderTarget[0].SrcBlend = convert(pipe->blendSource);
-	psoDesc.BlendState.RenderTarget[0].DestBlend = convert(pipe->blendDestination);
-	psoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	psoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = convert(pipe->alphaBlendSource);
-	psoDesc.BlendState.RenderTarget[0].DestBlendAlpha = convert(pipe->alphaBlendDestination);
-	psoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	bool independentBlend = false;
+	for (int i = 1; i < 8; ++i) {
+		if (pipe->colorWriteMaskRed[0] != pipe->colorWriteMaskRed[i] || pipe->colorWriteMaskGreen[0] != pipe->colorWriteMaskGreen[i] ||
+			pipe->colorWriteMaskBlue[0] != pipe->colorWriteMaskBlue[i] || pipe->colorWriteMaskAlpha[0] != pipe->colorWriteMaskAlpha[i]) {
+			independentBlend = true;
+			break;
+		}
+	}
+
+	set_blend_state(&psoDesc.BlendState, pipe, 0);
+	if (independentBlend) {
+		psoDesc.BlendState.IndependentBlendEnable = true;
+		for (int i = 1; i < 8; ++i) {
+			set_blend_state(&psoDesc.BlendState, pipe, i);
+		}
+	}
+
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState.DepthEnable = pipe->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
 	psoDesc.DepthStencilState.DepthWriteMask = pipe->depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
