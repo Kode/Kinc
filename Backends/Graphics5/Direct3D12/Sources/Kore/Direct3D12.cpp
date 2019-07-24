@@ -285,12 +285,13 @@ namespace {
 
 void kinc_g5_destroy(int window) {}
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool verticalSync) {
 #ifdef KORE_WINDOWS
 	HWND hwnd = kinc_windows_window_handle(window);
 #else
 	HWND hwnd = nullptr;
 #endif
+	vsync = verticalSync;
 	renderTargetWidth = kinc_width();
 	renderTargetHeight = kinc_height();
 	initialize(renderTargetWidth, renderTargetHeight, hwnd);
@@ -394,7 +395,7 @@ void Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter
 	bilinearFiltering = filter != TextureFilter::PointFilter;
 }
 bool kinc_g5_swap_buffers() {
-	kinc_microsoft_affirm(swapChain->Present(1, 0));
+	kinc_microsoft_affirm(swapChain->Present(vsync, 0));
 	return true;
 }
 
