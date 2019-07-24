@@ -30,10 +30,12 @@ typedef struct {
 	struct ID3D12DescriptorHeap *renderTargetDescriptorHeap;
 	struct ID3D12DescriptorHeap *srvDescriptorHeap;
 	struct ID3D12DescriptorHeap *depthStencilDescriptorHeap;
+	struct ID3D12DescriptorHeap *srvDepthDescriptorHeap;
 	struct ID3D12Resource *depthStencilTexture;
 	struct D3D12Viewport viewport;
 	struct D3D12Rect scissor;
 	int stage;
+	int stage_depth;
 	enum RenderTargetResourceState resourceState;
 } RenderTarget5Impl;
 
