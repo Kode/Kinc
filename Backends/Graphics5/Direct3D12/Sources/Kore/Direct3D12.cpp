@@ -70,7 +70,7 @@ struct RenderEnvironment {
 void createSwapChain(RenderEnvironment* env, const DXGI_SWAP_CHAIN_DESC1* desc);
 #endif
 
-void createSamplers();
+void createSamplersAndHeaps();
 extern bool bilinearFiltering;
 
 namespace {
@@ -221,7 +221,7 @@ namespace {
 		kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&rootSignature));
 
-		createSamplers();
+		createSamplersAndHeaps();
 	}
 
 	void initialize(int width, int height, HWND window) {

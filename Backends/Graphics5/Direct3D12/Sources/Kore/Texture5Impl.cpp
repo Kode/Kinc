@@ -14,13 +14,17 @@ static const int textureCount = 16;
 kinc_g5_render_target_t *currentRenderTargets[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                                                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 kinc_g5_texture *currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                                                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+                                                  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 bool bilinearFiltering = false;
 
 namespace {
 	ID3D12DescriptorHeap* samplerDescriptorHeapPoint;
 	ID3D12DescriptorHeap* samplerDescriptorHeapBilinear;
+	static const int heapCount = 16;
+	static int heapIndex = 0;
+	ID3D12DescriptorHeap* srvHeap[heapCount];
+	ID3D12DescriptorHeap* samplerHeap[heapCount];
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
@@ -32,25 +36,41 @@ int d3d12_textureAlignment();
 #endif
 
 void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
-	if (currentRenderTargets[0] != nullptr) {
-		ID3D12DescriptorHeap* heaps[textureCount];
+
+	if (currentRenderTargets[0] != nullptr || currentTextures[0] != nullptr) {
+		D3D12_CPU_DESCRIPTOR_HANDLE srvHadle = srvHeap[heapIndex]->GetCPUDescriptorHandleForHeapStart();
+		D3D12_CPU_DESCRIPTOR_HANDLE samplerHadle = samplerHeap[heapIndex]->GetCPUDescriptorHandleForHeapStart();
+		ID3D12DescriptorHeap* samplerDescriptor = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
+
 		for (int i = 0; i < textureCount; ++i) {
-			heaps[i] = currentRenderTargets[i] == nullptr ? nullptr : currentRenderTargets[i]->impl.srvDescriptorHeap;
+			if (currentRenderTargets[i] != nullptr) {
+				D3D12_CPU_DESCRIPTOR_HANDLE sourceHandle = currentRenderTargets[i]->impl.stage_depth == i ?
+					currentRenderTargets[i]->impl.srvDepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart() :
+					currentRenderTargets[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				device->CopyDescriptorsSimple(1, srvHadle, sourceHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				srvHadle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+				device->CopyDescriptorsSimple(1, samplerHadle, samplerDescriptor->GetCPUDescriptorHandleForHeapStart(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				samplerHadle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+			}
+			else if (currentTextures[i] != nullptr) {
+				D3D12_CPU_DESCRIPTOR_HANDLE sourceHandle = currentTextures[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				device->CopyDescriptorsSimple(1, srvHadle, sourceHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				srvHadle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+				device->CopyDescriptorsSimple(1, samplerHadle, samplerDescriptor->GetCPUDescriptorHandleForHeapStart(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				samplerHadle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+			}
 		}
-		heaps[1] = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
+
+		ID3D12DescriptorHeap* heaps[2] = {srvHeap[heapIndex], samplerHeap[heapIndex]};
 		commandList->SetDescriptorHeaps(2, heaps);
-		commandList->SetGraphicsRootDescriptorTable(0, currentRenderTargets[0]->impl.srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		commandList->SetGraphicsRootDescriptorTable(0, heaps[0]->GetGPUDescriptorHandleForHeapStart());
 		commandList->SetGraphicsRootDescriptorTable(1, heaps[1]->GetGPUDescriptorHandleForHeapStart());
-	}
-	if (currentTextures[0] != nullptr) {
-		ID3D12DescriptorHeap* heaps[textureCount];
-		for (int i = 0; i < textureCount; ++i) {
-			heaps[i] = currentTextures[i] == nullptr ? nullptr : currentTextures[i]->impl.srvDescriptorHeap;
+		++heapIndex;
+		if (heapIndex >= heapCount) {
+			heapIndex = 0;
 		}
-		heaps[1] = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
-		commandList->SetDescriptorHeaps(2, heaps);
-		commandList->SetGraphicsRootDescriptorTable(0, currentTextures[0]->impl.srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		commandList->SetGraphicsRootDescriptorTable(1, heaps[1]->GetGPUDescriptorHandleForHeapStart());
 	}
 }
 
@@ -58,7 +78,7 @@ static void createSampler(bool bilinear, D3D12_FILTER filter) {
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapSampler = {};
 	descHeapSampler.NumDescriptors = 2;
 	descHeapSampler.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
-	descHeapSampler.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descHeapSampler.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&descHeapSampler, IID_GRAPHICS_PPV_ARGS(&(bilinear ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint)));
 
 	D3D12_SAMPLER_DESC samplerDesc;
@@ -75,9 +95,24 @@ static void createSampler(bool bilinear, D3D12_FILTER filter) {
 	device->CreateSampler(&samplerDesc, (bilinear ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint)->GetCPUDescriptorHandleForHeapStart());
 }
 
-void createSamplers() {
+void createSamplersAndHeaps() {
 	createSampler(false, D3D12_FILTER_MIN_MAG_MIP_POINT);
 	createSampler(true, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = textureCount;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+	D3D12_DESCRIPTOR_HEAP_DESC samplerHeapDesc = {};
+	samplerHeapDesc.NumDescriptors = textureCount;
+	samplerHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+	samplerHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+	for (int i = 0; i < heapCount; ++i) {
+		device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&srvHeap[i]));
+		device->CreateDescriptorHeap(&samplerHeapDesc, IID_GRAPHICS_PPV_ARGS(&samplerHeap[i]));
+	}
 }
 
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {
@@ -113,7 +148,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.NodeMask = 0;
-	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 
@@ -155,7 +190,7 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.NodeMask = 0;
-	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 
