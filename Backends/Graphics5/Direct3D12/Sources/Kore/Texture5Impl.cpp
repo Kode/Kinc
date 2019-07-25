@@ -35,6 +35,51 @@ int d3d12_textureAlignment() {
 int d3d12_textureAlignment();
 #endif
 
+static DXGI_FORMAT convertFormat(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return DXGI_FORMAT_R16G16B16A16_FLOAT;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	case KINC_IMAGE_FORMAT_A32:
+		return DXGI_FORMAT_R32_FLOAT;
+	case KINC_IMAGE_FORMAT_A16:
+		return DXGI_FORMAT_R16_FLOAT;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return DXGI_FORMAT_R8_UNORM;
+	case KINC_IMAGE_FORMAT_BGRA32:
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	default:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	}
+}
+
+static int formatByteSize(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return 16;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return 8;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return 4;
+	case KINC_IMAGE_FORMAT_A32:
+		return 4;
+	case KINC_IMAGE_FORMAT_A16:
+		return 2;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return 1;
+	case KINC_IMAGE_FORMAT_BGRA32:
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return 4;
+	default:
+		return 4;
+	}
+}
+
 void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 
 	if (currentRenderTargets[0] != nullptr || currentTextures[0] != nullptr) {
@@ -133,8 +178,11 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
 
+	DXGI_FORMAT d3dformat = convertFormat(image->format);
+	int formatSize = formatByteSize(image->format);
+
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, texture->texWidth, texture->texHeight, 1, 1),
+	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1),
 	                                D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
@@ -150,7 +198,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
 	int pitch = kinc_g5_texture_stride(texture);
 	for (int y = 0; y < texture->texHeight; ++y) {
-		memcpy(&pixel[y * pitch], &((uint8_t*)image->data)[y * texture->texWidth * 4], texture->texWidth * 4);
+		memcpy(&pixel[y * pitch], &((uint8_t*)image->data)[y * texture->texWidth * formatSize], texture->texWidth * formatSize);
 	}
 	texture->impl.uploadImage->Unmap(0, nullptr);
 
@@ -166,7 +214,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	shaderResourceViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	shaderResourceViewDesc.Format = d3dformat;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
@@ -182,7 +230,7 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 	texture->texWidth = width;
 	texture->texHeight = height;
 
-	DXGI_FORMAT d3dformat = (format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM);
+	DXGI_FORMAT d3dformat = convertFormat(format);
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
