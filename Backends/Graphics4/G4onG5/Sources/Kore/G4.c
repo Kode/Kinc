@@ -112,6 +112,7 @@ void kinc_g4_begin(int window) {
 	currentBuffer = (currentBuffer + 1) % bufferCount;
 
 	kinc_g5_begin(&framebuffers[currentBuffer], window);
+	currentRenderTargets[0] = &framebuffers[currentBuffer];
 	// commandList = new Graphics5::CommandList;
 	kinc_g5_command_list_begin(&commandList);
 	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &framebuffers[currentBuffer]);
