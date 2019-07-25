@@ -64,10 +64,11 @@ static DXGI_FORMAT convertFormat(kinc_g5_render_target_format_t format) {
 
 void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int width, int height, int depthBufferBits, bool antialiasing,
                                 kinc_g5_render_target_format_t format, int stencilBufferBits,
-                                      int contextId) {
+                                int contextId) {
 	render_target->texWidth = render_target->width = width;
 	render_target->texHeight = render_target->height = height;
 	render_target->impl.stage = 0;
+	render_target->impl.stage_depth = -1;
 
 	render_target->impl.resourceState = RenderTargetResourceStateUndefined;
 
@@ -167,8 +168,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 }
 
 void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *render_target, int cubeMapSize, int depthBufferBits, bool antialiasing, kinc_g5_render_target_format_t format, int stencilBufferBits,
-                                      int contextId) {
+                                     int contextId) {
 	render_target->impl.stage = 0;
+	render_target->impl.stage_depth = -1;
 }
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
@@ -180,30 +182,8 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
 	render_target->impl.srvDescriptorHeap->Release();
 }
 
-namespace {
-	void graphicsFlushAndWait() {
-		/*commandList->Close();
-
-		ID3D12CommandList* commandLists[] = {commandList};
-		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
-
-		const UINT64 fenceValue = currentFenceValue;
-		commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
-		fenceValues[currentBackBuffer] = fenceValue;
-		++currentFenceValue;
-
-		waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
-
-		commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
-		commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-		commandList->RSSetViewports(1, &viewport);
-		commandList->RSSetScissorRects(1, &rectScissor);*/
-	}
-}
-
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
-	graphicsFlushAndWait();
 	render_target->impl.stage = unit.impl.unit;
 	currentRenderTargets[render_target->impl.stage] = render_target;
 	currentTextures[render_target->impl.stage] = nullptr;
@@ -211,7 +191,6 @@ void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *render_
 
 void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
-	graphicsFlushAndWait();
 	render_target->impl.stage_depth = unit.impl.unit;
 	currentRenderTargets[render_target->impl.stage_depth] = render_target;
 	currentTextures[render_target->impl.stage_depth] = nullptr;
