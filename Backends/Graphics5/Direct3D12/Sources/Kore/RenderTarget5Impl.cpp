@@ -180,6 +180,11 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
 	render_target->impl.renderTarget->Release();
 	render_target->impl.renderTargetDescriptorHeap->Release();
 	render_target->impl.srvDescriptorHeap->Release();
+	if (render_target->impl.depthStencilTexture != NULL) {
+		render_target->impl.depthStencilTexture->Release();
+		render_target->impl.depthStencilDescriptorHeap->Release();
+		render_target->impl.srvDepthDescriptorHeap->Release();
+	}
 }
 
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {
