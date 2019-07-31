@@ -3,32 +3,30 @@
 #ifdef KORE_DXR
 
 #include <d3d12.h>
-#include "D3D12RaytracingHelpers.hpp"
 
-namespace Kore {
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	namespace Graphics5 {
+typedef struct {
+	ID3D12StateObject* dxr_state;
+	ID3D12Resource* raygen_shader_table;
+	ID3D12Resource* miss_shader_table;
+	ID3D12Resource* hitgroup_shader_table;
+} kinc_raytrace_pipeline_impl_t;
 
-		class RayTracePipelineImpl {
-		public:
-			ID3D12StateObject* dxrState;
-			ID3D12Resource* rayGenShaderTable;
-			ID3D12Resource* missShaderTable;
-			ID3D12Resource* hitGroupShaderTable;
-		};
+typedef struct {
+	ID3D12Resource* bottom_level_accel;
+	ID3D12Resource* top_level_accel;
+} kinc_raytrace_acceleration_structure_impl_t;
 
-		class AccelerationStructureImpl {
-		public:
-			ID3D12Resource* bottomLevelAccelerationStructure;
-			ID3D12Resource* topLevelAccelerationStructure;
-		};
+typedef struct {
+	ID3D12Resource* _texture;
+	D3D12_GPU_DESCRIPTOR_HANDLE _texture_handle;
+} kinc_raytrace_target_impl_t;
 
-		class RayTraceTargetImpl {
-		public:
-			ID3D12Resource* _texture;
-			D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle;
-		};
-	}
+#ifdef __cplusplus
 }
+#endif
 
 #endif
