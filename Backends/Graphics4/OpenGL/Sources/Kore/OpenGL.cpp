@@ -97,7 +97,7 @@ namespace {
 
 extern "C" void kinc_internal_resize(int window, int width, int height) {}
 
-extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame, bool vsync) {
+extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
 #ifdef KORE_WINDOWS
 	if (window == 0) {
 #ifdef KORE_VR
