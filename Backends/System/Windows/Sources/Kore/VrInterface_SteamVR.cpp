@@ -71,11 +71,11 @@ namespace {
 		case vr::k_EButton_Grip:
 			switch (event.eventType) {
 			case vr::VREvent_ButtonPress:
-				gamepad->_button(vr::k_EButton_Grip, 1);
+				gamepad->Button(vr::k_EButton_Grip, 1);
 				break;
 
 			case vr::VREvent_ButtonUnpress:
-				gamepad->_button(vr::k_EButton_Grip, 0);
+				gamepad->Button(vr::k_EButton_Grip, 0);
 				break;
 			}
 			break;
@@ -83,11 +83,11 @@ namespace {
 		case vr::k_EButton_SteamVR_Trigger:
 			switch (event.eventType) {
 			case vr::VREvent_ButtonPress:
-				gamepad->_button(vr::k_EButton_SteamVR_Trigger, 1);
+				gamepad->Button(vr::k_EButton_SteamVR_Trigger, 1);
 				break;
 
 			case vr::VREvent_ButtonUnpress:
-				gamepad->_button(vr::k_EButton_SteamVR_Trigger, 0);
+				gamepad->Button(vr::k_EButton_SteamVR_Trigger, 0);
 				break;
 			}
 			break;
@@ -96,11 +96,11 @@ namespace {
 			// TODO: add axis
 			switch (event.eventType) {
 			case vr::VREvent_ButtonPress:
-				gamepad->_button(vr::k_EButton_SteamVR_Touchpad, 1);
+				gamepad->Button(vr::k_EButton_SteamVR_Touchpad, 1);
 				break;
 
 			case vr::VREvent_ButtonUnpress:
-				gamepad->_button(vr::k_EButton_SteamVR_Touchpad, 0);
+				gamepad->Button(vr::k_EButton_SteamVR_Touchpad, 0);
 				break;
 
 			case vr::VREvent_ButtonTouch:
@@ -114,11 +114,11 @@ namespace {
 		case vr::k_EButton_ApplicationMenu:
 			switch (event.eventType) {
 			case vr::VREvent_ButtonPress:
-				gamepad->_button(vr::k_EButton_ApplicationMenu, 1);
+				gamepad->Button(vr::k_EButton_ApplicationMenu, 1);
 				break;
 
 			case vr::VREvent_ButtonUnpress:
-				gamepad->_button(vr::k_EButton_ApplicationMenu, 0);
+				gamepad->Button(vr::k_EButton_ApplicationMenu, 0);
 				break;
 			}
 			break;
@@ -273,14 +273,14 @@ VrPoseState VrInterface::getController(int index) {
 
 void VrInterface::warpSwap() {
 #ifdef KORE_OPENGL
-	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->kincRenderTarget.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->_texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->kincRenderTarget.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #else
-	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->kincRenderTarget.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->kincRenderTarget.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #endif
 }
