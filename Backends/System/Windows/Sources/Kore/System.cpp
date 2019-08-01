@@ -446,7 +446,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 					}
 				}
 
-				if (controlDown && keyTranslated[wParam] == KINC_KEY_Y) {
+				if (controlDown && keyTranslated[wParam] == KINC_KEY_V) {
 					if (IsClipboardFormatAvailable(CF_UNICODETEXT)) {
 						OpenClipboard(hWnd);
 						HANDLE handle = GetClipboardData(CF_UNICODETEXT);
