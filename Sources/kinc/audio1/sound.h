@@ -4,6 +4,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
 	kinc_a2_buffer_format_t format;
 	int16_t *left;
@@ -17,3 +21,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename);
 void kinc_a1_sound_destroy(kinc_a1_sound_t *sound);
 float kinc_a1_sound_volume(kinc_a1_sound_t *sound);
 void kinc_a1_sound_set_volume(kinc_a1_sound_t *sound, float value);
+
+#ifdef __cplusplus
+}
+#endif
