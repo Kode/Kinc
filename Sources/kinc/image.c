@@ -23,12 +23,97 @@ uint8_t buffer[4096 * 2 * 4096 * 2 * 4];
 
 //STBI_MALLOC, STBI_REALLOC, and STBI_FREE
 
+// fill 'data' with 'size' bytes.  return number of bytes actually read
+static int stb_read(void *user, char *data, int size) {
+	kinc_file_reader_t *reader = (kinc_file_reader_t *)user;
+	kinc_file_reader_read(reader, data, size);
+}
+
+// skip the next 'n' bytes, or 'unget' the last -n bytes if negative
+static void stb_skip(void *user, int n) {
+	kinc_file_reader_t *reader = (kinc_file_reader_t *)user;
+	kinc_file_reader_seek(reader, kinc_file_reader_pos(reader) + n);
+}
+
+// returns nonzero if we are at end of file/data
+int stb_eof(void *user) {
+	kinc_file_reader_t *reader = (kinc_file_reader_t *)user;
+	return kinc_file_reader_pos(reader) == kinc_file_reader_size(reader);
+}
+
 static _Bool endsWith(const char *str, const char *suffix) {
 	if (str == NULL || suffix == NULL) return 0;
 	size_t lenstr = strlen(str);
 	size_t lensuffix = strlen(suffix);
 	if (lensuffix > lenstr) return 0;
 	return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+}
+
+static size_t loadImageSize(kinc_file_reader_t *file, const char *filename) {
+	if (endsWith(filename, "k")) {
+		uint8_t data[4];
+		kinc_file_reader_read(file, data, 4);
+		int width = kinc_read_s32le(data);
+		kinc_file_reader_read(file, data, 4);
+		int height = kinc_read_s32le(data);
+
+		char fourcc[5];
+		kinc_file_reader_read(file, fourcc, 4);
+		fourcc[4] = 0;
+
+		int compressedSize = (int)kinc_file_reader_size(file) - 12;
+
+		if (strcmp(fourcc, "LZ4 ") == 0) {
+			return width * height * 4;
+		}
+		else if (strcmp(fourcc, "LZ4F") == 0) {
+			return width * height * 16;
+		}
+		else if (strcmp(fourcc, "ASTC") == 0) {
+			return width * height * 4; // just an upper bound
+		}
+		else if (strcmp(fourcc, "DXT5") == 0) {
+			return width * height; // just an upper bound
+		}
+		else {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown fourcc in .k file.");
+			return 0;
+		}
+	}
+	else if (endsWith(filename, "pvr")) {
+		uint8_t data[4];
+		kinc_file_reader_read(file, data, 4); // version
+		kinc_file_reader_read(file, data, 4); // flags
+		kinc_file_reader_read(file, data, 4); // pixelFormat1
+		kinc_file_reader_read(file, data, 4); // colourSpace
+		kinc_file_reader_read(file, data, 4); // channelType
+		kinc_file_reader_read(file, data, 4);
+		uint32_t hh = kinc_read_u32le(data);
+		kinc_file_reader_read(file, data, 4);
+		uint32_t ww = kinc_read_u32le(data);
+
+		return ww * hh / 2;
+	}
+	else if (endsWith(filename, "hdr")) {
+		stbi_io_callbacks callbacks;
+		callbacks.eof = stb_eof;
+		callbacks.read = stb_read;
+		callbacks.skip = stb_skip;
+
+		int x, y, comp;
+		stbi_infof_from_callbacks(&callbacks, file, &x, &y, &comp);
+		return x * y * 16;
+	}
+	else {
+		stbi_io_callbacks callbacks;
+		callbacks.eof = stb_eof;
+		callbacks.read = stb_read;
+		callbacks.skip = stb_skip;
+
+		int x, y, comp;
+		stbi_info_from_callbacks(&callbacks, file, &x, &y, &comp);
+		return x * y * 4;
+	}
 }
 
 static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *output, int *outputSize, int *width, int *height,
@@ -180,37 +265,6 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		kinc_file_reader_read(file, output, *outputSize);
 		return true;
 	}
-	else if (endsWith(filename, "png")) {
-		*compression = KINC_IMAGE_COMPRESSION_NONE;
-		*internalFormat = 0;
-		if (output == NULL) {
-			return false;
-		}
-		int size = (int)kinc_file_reader_size(file);
-		kinc_file_reader_read(file, buffer, size);
-		int comp;
-		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
-		if (uncompressed == NULL) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
-			return false;
-		}
-		for (int y = 0; y < *height; ++y) {
-			for (int x = 0; x < *width; ++x) {
-				float r = uncompressed[y * *width * 4 + x * 4 + 0] / 255.0f;
-				float g = uncompressed[y * *width * 4 + x * 4 + 1] / 255.0f;
-				float b = uncompressed[y * *width * 4 + x * 4 + 2] / 255.0f;
-				float a = uncompressed[y * *width * 4 + x * 4 + 3] / 255.0f;
-				r *= a;
-				g *= a;
-				b *= a;
-				output[y * *width * 4 + x * 4 + 0] = (uint8_t)kinc_round(r * 255.0f);
-				output[y * *width * 4 + x * 4 + 1] = (uint8_t)kinc_round(g * 255.0f);
-				output[y * *width * 4 + x * 4 + 2] = (uint8_t)kinc_round(b * 255.0f);
-			}
-		}
-		*outputSize = *width * *height * 4;
-		return true;
-	}
 	else if (endsWith(filename, "hdr")) {
 		*compression = KINC_IMAGE_COMPRESSION_NONE;
 		*internalFormat = 0;
@@ -244,8 +298,21 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
 			return false;
 		}
+		for (int y = 0; y < *height; ++y) {
+			for (int x = 0; x < *width; ++x) {
+				float r = uncompressed[y * *width * 4 + x * 4 + 0] / 255.0f;
+				float g = uncompressed[y * *width * 4 + x * 4 + 1] / 255.0f;
+				float b = uncompressed[y * *width * 4 + x * 4 + 2] / 255.0f;
+				float a = uncompressed[y * *width * 4 + x * 4 + 3] / 255.0f;
+				r *= a;
+				g *= a;
+				b *= a;
+				output[y * *width * 4 + x * 4 + 0] = (uint8_t)kinc_round(r * 255.0f);
+				output[y * *width * 4 + x * 4 + 1] = (uint8_t)kinc_round(g * 255.0f);
+				output[y * *width * 4 + x * 4 + 2] = (uint8_t)kinc_round(b * 255.0f);
+			}
+		}
 		*outputSize = *width * *height * 4;
-		memcpy(output, uncompressed, *outputSize);
 		return true;
 	}
 }
@@ -296,6 +363,14 @@ void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int 
 void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format) {
 	image->compression = KINC_IMAGE_COMPRESSION_NONE;
 	image->data = data;
+}
+
+size_t kinc_image_size_from_file(const char* filename) {
+	kinc_file_reader_t reader;
+	kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET);
+	size_t dataSize = loadImageSize(&reader, filename);
+	kinc_file_reader_close(&reader);
+	return dataSize;
 }
 
 size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename) {

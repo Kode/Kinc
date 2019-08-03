@@ -37,6 +37,7 @@ typedef struct kinc_image {
 
 size_t kinc_image_init(kinc_image_t *image, void *memory, int width, int height, kinc_image_format_t format);
 size_t kinc_image_init3d(kinc_image_t *image, void *memory, int width, int height, int depth, kinc_image_format_t format);
+size_t kinc_image_size_from_file(const char *filename);
 size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename);
 void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int height, kinc_image_format_t format);
 void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format);
