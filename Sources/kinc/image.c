@@ -26,7 +26,7 @@ uint8_t buffer[4096 * 2 * 4096 * 2 * 4];
 // fill 'data' with 'size' bytes.  return number of bytes actually read
 static int stb_read(void *user, char *data, int size) {
 	kinc_file_reader_t *reader = (kinc_file_reader_t *)user;
-	kinc_file_reader_read(reader, data, size);
+	return kinc_file_reader_read(reader, data, size);
 }
 
 // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
@@ -36,7 +36,7 @@ static void stb_skip(void *user, int n) {
 }
 
 // returns nonzero if we are at end of file/data
-int stb_eof(void *user) {
+static int stb_eof(void *user) {
 	kinc_file_reader_t *reader = (kinc_file_reader_t *)user;
 	return kinc_file_reader_pos(reader) == kinc_file_reader_size(reader);
 }
@@ -101,7 +101,7 @@ static size_t loadImageSize(kinc_file_reader_t *file, const char *filename) {
 		callbacks.skip = stb_skip;
 
 		int x, y, comp;
-		stbi_infof_from_callbacks(&callbacks, file, &x, &y, &comp);
+		stbi_info_from_callbacks(&callbacks, file, &x, &y, &comp);
 		return x * y * 16;
 	}
 	else {
