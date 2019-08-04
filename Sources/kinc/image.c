@@ -12,21 +12,36 @@
 #include <kinc/log.h>
 #include <kinc/math/core.h>
 
+#include <string.h>
+
 #define BUFFER_SIZE 4096 * 4096 * 4
 uint8_t buffer[BUFFER_SIZE];
 size_t buffer_offset = 0;
 
 static void *buffer_malloc(size_t size) {
-	void *current = &buffer[buffer_offset];
-	buffer_offset += size;
+	uint8_t *current = &buffer[buffer_offset];
+	buffer_offset += size + sizeof(size_t);
 	if (buffer_offset > BUFFER_SIZE) {
 		return NULL;
 	}
-	return current;
+	*(size_t*)current = size;
+	return current + sizeof(size_t);
 }
 
 static void *buffer_realloc(void *p, size_t size) {
-	return buffer_malloc(size);
+	if (p == NULL) {
+		return buffer_malloc(size);
+	}
+	uint8_t *old_pointer = (uint8_t *)p;
+	size_t old_size = *(size_t *)(old_pointer - sizeof(size_t));
+	if (size <= old_size) {
+		return old_pointer;
+	}
+	else {
+		uint8_t *new_pointer = (uint8_t *)buffer_malloc(size);
+		memcpy(new_pointer, old_pointer, min(old_size, size));
+		return new_pointer;
+	}
 }
 
 static void buffer_free(void *p) {}
