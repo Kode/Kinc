@@ -39,7 +39,7 @@ static void *buffer_realloc(void *p, size_t size) {
 	}
 	else {
 		uint8_t *new_pointer = (uint8_t *)buffer_malloc(size);
-		memcpy(new_pointer, old_pointer, min(old_size, size));
+		memcpy(new_pointer, old_pointer, old_size < size ? old_size : size);
 		return new_pointer;
 	}
 }
