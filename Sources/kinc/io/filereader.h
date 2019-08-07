@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef KORE_PS4
+#if defined(KORE_PS4) || defined(KORE_SWITCH)
 #include <Kore/FileReaderImpl.h>
 #endif
 
@@ -40,7 +40,7 @@ typedef struct kinc_file_reader {
 	int type;
 	int mode;
 	bool mounted;
-#ifdef KORE_PS4
+#if defined(KORE_PS4) || defined(KORE_SWITCH)
 	kinc_file_reader_impl_t impl;
 #endif
 } kinc_file_reader_t;

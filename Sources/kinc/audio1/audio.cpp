@@ -9,6 +9,8 @@
 
 #include <kinc/audio2/audio.h>
 
+#include <stdlib.h>
+
 /*#include <Kore/Audio2/Audio.h>
 #if 0
 #include <xmmintrin.h>
