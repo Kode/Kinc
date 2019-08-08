@@ -109,16 +109,17 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 	else if (depthBufferBits > 0) {
 		renderTarget->impl._hasDepth = true;
 		// Renderbuffer
-		// glGenRenderbuffers(1, &_depthRenderbuffer);
-		// glCheckErrors();
-		// glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderbuffer);
-		// glCheckErrors();
-		// glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-		// glCheckErrors();
-		// glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
-		// glCheckErrors();
+		 glGenRenderbuffers(1, &renderTarget->impl._depthTexture);
+		 glCheckErrors();
+		 glBindRenderbuffer(GL_RENDERBUFFER, renderTarget->impl._depthTexture);
+		glCheckErrors();
+		 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+		 glCheckErrors();
+		 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTarget->impl._depthTexture);
+		 glCheckErrors();
+        GL_OES_depth_texture;
 		// Texture
-		glGenTextures(1, &renderTarget->impl._depthTexture);
+		/*glGenTextures(1, &renderTarget->impl._depthTexture);
 		glCheckErrors();
 		glBindTexture(texType, renderTarget->impl._depthTexture);
 		glCheckErrors();
@@ -133,7 +134,7 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
 		glCheckErrors();
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
-		glCheckErrors();
+		glCheckErrors();*/
 	}
 }
 
