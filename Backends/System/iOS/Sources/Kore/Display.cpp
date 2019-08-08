@@ -32,3 +32,11 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	dm.bits_per_pixel = 32;
 	return dm;
 }
+
+int kinc_count_displays() {
+	return 1;
+}
+
+int kinc_primary_display() {
+	return 0;
+}

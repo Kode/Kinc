@@ -3,6 +3,7 @@
 #import "KoreAppDelegate.h"
 
 #include <kinc/graphics4/graphics.h>
+#include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
@@ -154,6 +155,26 @@ double kinc_frequency() {
 kinc_ticks_t kinc_timestamp() {
 	kinc_ticks_t time = mach_absolute_time();
 	return time;
+}
+
+void kinc_login() {
+
+}
+
+void kinc_unlock_achievement(int id) {
+	
+}
+
+const char *kinc_gamepad_vendor(int gamepad) {
+	return "nobody";
+}
+
+const char *kinc_gamepad_product_name(int gamepad) {
+	return "none";
+}
+
+bool kinc_gamepad_connected(int num) {
+	return true;
 }
 
 int main(int argc, char* argv[]) {

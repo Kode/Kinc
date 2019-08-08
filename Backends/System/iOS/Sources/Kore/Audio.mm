@@ -3,8 +3,8 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import <Foundation/Foundation.h>
 
-#include <Kore/Audio2/Audio.h>
-#include <Kore/Math/Core.h>
+#include <kinc/audio2/audio.h>
+#include <kinc/math/core.h>
 #include <Kore/VideoSoundStream.h>
 
 #include <stdio.h>
@@ -40,15 +40,18 @@ namespace {
 	AudioComponentInstance audioUnit;
 	bool isFloat = false;
 	bool isInterleaved = true;
+	
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+	kinc_a2_buffer_t a2_buffer;
 
 	void copySample(void* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+		a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 
 		if (video != nullptr) {
 			value += video->nextSample();
-			value = Kore::max(Kore::min(value, 1.0f), -1.0f);
+			value = kinc_max(kinc_min(value, 1.0f), -1.0f);
 			if (video->ended()) video = nullptr;
 		}
 
@@ -60,7 +63,7 @@ namespace {
 
 	OSStatus renderInput(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
 	                     UInt32 inNumberFrames, AudioBufferList* outOutputData) {
-		Audio2::audioCallback(inNumberFrames * 2);
+		a2_callback(&a2_buffer, inNumberFrames * 2);
 		if (isInterleaved) {
 			if (isFloat) {
 				float* out = (float*)outOutputData->mBuffers[0].mData;
@@ -99,11 +102,11 @@ namespace {
 	}
 }
 
-void Audio2::init() {
-	buffer.readLocation = 0;
-	buffer.writeLocation = 0;
-	buffer.dataSize = 128 * 1024;
-	buffer.data = new u8[buffer.dataSize];
+void kinc_a2_init() {
+	a2_buffer.read_location = 0;
+	a2_buffer.write_location = 0;
+	a2_buffer.data_size = 128 * 1024;
+	a2_buffer.data = new u8[a2_buffer.data_size];
 
 	initialized = false;
 
@@ -139,13 +142,13 @@ void Audio2::init() {
 
 	initialized = true;
 
-	fprintf(stderr, "mSampleRate = %g\n", deviceFormat.mSampleRate);
-	fprintf(stderr, "mFormatFlags = %08X\n", (unsigned int)deviceFormat.mFormatFlags);
-	fprintf(stderr, "mBytesPerPacket = %d\n", (unsigned int)deviceFormat.mBytesPerPacket);
-	fprintf(stderr, "mFramesPerPacket = %d\n", (unsigned int)deviceFormat.mFramesPerPacket);
-	fprintf(stderr, "mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
-	fprintf(stderr, "mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
-	fprintf(stderr, "mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
+	printf("mSampleRate = %g\n", deviceFormat.mSampleRate);
+	printf("mFormatFlags = %08X\n", (unsigned int)deviceFormat.mFormatFlags);
+	printf("mBytesPerPacket = %d\n", (unsigned int)deviceFormat.mBytesPerPacket);
+	printf("mFramesPerPacket = %d\n", (unsigned int)deviceFormat.mFramesPerPacket);
+	printf("mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
+	printf("mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
+	printf("mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
 
 	if (soundPlaying) return;
 
@@ -159,13 +162,17 @@ void Audio2::init() {
 	soundPlaying = true;
 }
 
-void Audio2::update() {}
+void kinc_a2_update() {}
 
-void Audio2::shutdown() {
+void kinc_a2_shutdown() {
 	if (!initialized) return;
 	if (!soundPlaying) return;
 
 	affirm(AudioOutputUnitStop(audioUnit));
 
 	soundPlaying = false;
+}
+
+void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+	a2_callback = kinc_a2_audio_callback;
 }

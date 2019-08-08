@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct stb_vorbis;
 
 typedef struct {
@@ -30,3 +34,7 @@ float kinc_a1_sound_stream_position(kinc_a1_sound_stream_t *stream);
 void kinc_a1_sound_stream_reset(kinc_a1_sound_stream_t *stream);
 float kinc_a1_sound_stream_volume(kinc_a1_sound_stream_t *stream);
 void kinc_a1_sound_stream_set_volume(kinc_a1_sound_stream_t *stream, float value);
+
+#ifdef __cplusplus
+}
+#endif

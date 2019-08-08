@@ -643,6 +643,18 @@ void kinc_mouse_get_position(int window, int* x, int* y) {
 	y = 0;
 }
 
+void kinc_login() {
+
+}
+
+void kinc_unlock_achievement(int id) {
+	
+}
+
+bool kinc_gamepad_connected(int num) {
+	return true;
+}
+
 void initAndroidFileReader();
 void KoreAndroidVideoInit();
 

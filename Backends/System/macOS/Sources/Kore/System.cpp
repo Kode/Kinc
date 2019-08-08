@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <kinc/graphics4/graphics.h>
+#include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/system.h>
@@ -59,4 +60,16 @@ double kinc_frequency() {
 
 kinc_ticks_t kinc_timestamp() {
 	return mach_absolute_time();
+}
+
+void kinc_login() {
+
+}
+
+void kinc_unlock_achievement(int id) {
+	
+}
+
+bool kinc_gamepad_connected(int num) {
+	return true;
 }

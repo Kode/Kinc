@@ -62,6 +62,14 @@ void Kore::System::setPasteCallback(void (*value)(char*)) {
 	kinc_set_paste_callback(value);
 }
 
+void Kore::System::setLoginCallback(void (*value)()) {
+	kinc_set_login_callback(value);
+}
+
+void Kore::System::setLogoutCallback(void(*value)()) {
+	kinc_set_logout_callback(value);
+}
+
 void Kore::System::_callback() {
 	kinc_internal_update_callback();
 }
@@ -136,6 +144,14 @@ void shutdownMetalCompute();
 void Kore::System::stop() {
 	running = false;
 	kinc_stop();
+}
+
+void Kore::System::login() {
+	kinc_login();
+}
+
+void Kore::System::unlockAchievement(int id) {
+	kinc_unlock_achievement(id);
 }
 
 int Kore::System::windowWidth(int window) {

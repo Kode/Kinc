@@ -12,6 +12,44 @@
 #include <kinc/log.h>
 #include <kinc/math/core.h>
 
+#include <string.h>
+
+#define BUFFER_SIZE 4096 * 4096 * 4
+uint8_t buffer[BUFFER_SIZE];
+size_t buffer_offset = 0;
+
+static void *buffer_malloc(size_t size) {
+	uint8_t *current = &buffer[buffer_offset];
+	buffer_offset += size + sizeof(size_t);
+	if (buffer_offset > BUFFER_SIZE) {
+		return NULL;
+	}
+	*(size_t*)current = size;
+	return current + sizeof(size_t);
+}
+
+static void *buffer_realloc(void *p, size_t size) {
+	if (p == NULL) {
+		return buffer_malloc(size);
+	}
+	uint8_t *old_pointer = (uint8_t *)p;
+	size_t old_size = *(size_t *)(old_pointer - sizeof(size_t));
+	if (size <= old_size) {
+		return old_pointer;
+	}
+	else {
+		uint8_t *new_pointer = (uint8_t *)buffer_malloc(size);
+		memcpy(new_pointer, old_pointer, old_size < size ? old_size : size);
+		return new_pointer;
+	}
+}
+
+static void buffer_free(void *p) {}
+
+#define STBI_MALLOC(sz) buffer_malloc(sz)
+#define STBI_REALLOC(p, newsz) buffer_realloc(p, newsz)
+#define STBI_FREE(p) buffer_free(p)
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <kinc/libs/stb_image.h>
 #include <stdio.h>
@@ -19,9 +57,23 @@
 
 #include <stdint.h>
 
-uint8_t buffer[4096 * 2 * 4096 * 2 * 4];
+// fill 'data' with 'size' bytes.  return number of bytes actually read
+static int stb_read(void *user, char *data, int size) {
+	kinc_file_reader_t *reader = (kinc_file_reader_t *)user;
+	return kinc_file_reader_read(reader, data, size);
+}
 
-//STBI_MALLOC, STBI_REALLOC, and STBI_FREE
+// skip the next 'n' bytes, or 'unget' the last -n bytes if negative
+static void stb_skip(void *user, int n) {
+	kinc_file_reader_t *reader = (kinc_file_reader_t *)user;
+	kinc_file_reader_seek(reader, kinc_file_reader_pos(reader) + n);
+}
+
+// returns nonzero if we are at end of file/data
+static int stb_eof(void *user) {
+	kinc_file_reader_t *reader = (kinc_file_reader_t *)user;
+	return kinc_file_reader_pos(reader) == kinc_file_reader_size(reader);
+}
 
 static _Bool endsWith(const char *str, const char *suffix) {
 	if (str == NULL || suffix == NULL) return 0;
@@ -29,6 +81,75 @@ static _Bool endsWith(const char *str, const char *suffix) {
 	size_t lensuffix = strlen(suffix);
 	if (lensuffix > lenstr) return 0;
 	return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+}
+
+static size_t loadImageSize(kinc_file_reader_t *file, const char *filename) {
+	if (endsWith(filename, "k")) {
+		uint8_t data[4];
+		kinc_file_reader_read(file, data, 4);
+		int width = kinc_read_s32le(data);
+		kinc_file_reader_read(file, data, 4);
+		int height = kinc_read_s32le(data);
+
+		char fourcc[5];
+		kinc_file_reader_read(file, fourcc, 4);
+		fourcc[4] = 0;
+
+		int compressedSize = (int)kinc_file_reader_size(file) - 12;
+
+		if (strcmp(fourcc, "LZ4 ") == 0) {
+			return width * height * 4;
+		}
+		else if (strcmp(fourcc, "LZ4F") == 0) {
+			return width * height * 16;
+		}
+		else if (strcmp(fourcc, "ASTC") == 0) {
+			return width * height * 4; // just an upper bound
+		}
+		else if (strcmp(fourcc, "DXT5") == 0) {
+			return width * height; // just an upper bound
+		}
+		else {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown fourcc in .k file.");
+			return 0;
+		}
+	}
+	else if (endsWith(filename, "pvr")) {
+		uint8_t data[4];
+		kinc_file_reader_read(file, data, 4); // version
+		kinc_file_reader_read(file, data, 4); // flags
+		kinc_file_reader_read(file, data, 4); // pixelFormat1
+		kinc_file_reader_read(file, data, 4); // colourSpace
+		kinc_file_reader_read(file, data, 4); // channelType
+		kinc_file_reader_read(file, data, 4);
+		uint32_t hh = kinc_read_u32le(data);
+		kinc_file_reader_read(file, data, 4);
+		uint32_t ww = kinc_read_u32le(data);
+
+		return ww * hh / 2;
+	}
+	else if (endsWith(filename, "hdr")) {
+		stbi_io_callbacks callbacks;
+		callbacks.eof = stb_eof;
+		callbacks.read = stb_read;
+		callbacks.skip = stb_skip;
+
+		int x, y, comp;
+		stbi_info_from_callbacks(&callbacks, file, &x, &y, &comp);
+		buffer_offset = 0;
+		return x * y * 16;
+	}
+	else {
+		stbi_io_callbacks callbacks;
+		callbacks.eof = stb_eof;
+		callbacks.read = stb_read;
+		callbacks.skip = stb_skip;
+
+		int x, y, comp;
+		stbi_info_from_callbacks(&callbacks, file, &x, &y, &comp);
+		buffer_offset = 0;
+		return x * y * 4;
+	}
 }
 
 static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *output, int *outputSize, int *width, int *height,
@@ -51,9 +172,6 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 			*compression = KINC_IMAGE_COMPRESSION_NONE;
 			*internalFormat = 0;
 			*outputSize = *width * *height * 4;
-			if (output == NULL) {
-				return false;
-			}
 			kinc_file_reader_read(file, buffer, compressedSize);
 			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 			return true;
@@ -62,9 +180,6 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 			*compression = KINC_IMAGE_COMPRESSION_NONE;
 			*internalFormat = 0;
 			*outputSize = *width * *height * 16;
-			if (output == NULL) {
-				return false;
-			}
 			kinc_file_reader_read(file, buffer, compressedSize);
 			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 			*format = KINC_IMAGE_FORMAT_RGBA128;
@@ -73,9 +188,6 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		else if (strcmp(fourcc, "ASTC") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_ASTC;
 			*outputSize = *width * *height * 4;
-			if (output == NULL) {
-				return false;
-			}
 			kinc_file_reader_read(file, buffer, compressedSize);
 			*outputSize = LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 
@@ -118,9 +230,6 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		else if (strcmp(fourcc, "DXT5") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_DXT5;
 			*outputSize = *width * *height;
-			if (output == NULL) {
-				return false;
-			}
 			kinc_file_reader_read(file, buffer, compressedSize);
 			*outputSize = LZ4_decompress_safe((char *)(data + 12), (char *)output, compressedSize, *outputSize);
 			*internalFormat = 0;
@@ -180,16 +289,38 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 		kinc_file_reader_read(file, output, *outputSize);
 		return true;
 	}
-	else if (endsWith(filename, "png")) {
+	else if (endsWith(filename, "hdr")) {
 		*compression = KINC_IMAGE_COMPRESSION_NONE;
 		*internalFormat = 0;
-		if (output == NULL) {
+
+		stbi_io_callbacks callbacks;
+		callbacks.eof = stb_eof;
+		callbacks.read = stb_read;
+		callbacks.skip = stb_skip;
+
+		int comp;
+		float *uncompressed = stbi_loadf_from_callbacks(&callbacks, file, width, height, &comp, 4);
+		if (uncompressed == NULL) {
+			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
 			return false;
 		}
-		int size = (int)kinc_file_reader_size(file);
-		kinc_file_reader_read(file, buffer, size);
+		*outputSize = *width * *height * 16;
+		memcpy(output, uncompressed, *outputSize);
+		*format = KINC_IMAGE_FORMAT_RGBA128;
+		buffer_offset = 0;
+		return true;
+	}
+	else {
+		*compression = KINC_IMAGE_COMPRESSION_NONE;
+		*internalFormat = 0;
+
+		stbi_io_callbacks callbacks;
+		callbacks.eof = stb_eof;
+		callbacks.read = stb_read;
+		callbacks.skip = stb_skip;
+
 		int comp;
-		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
+		uint8_t *uncompressed = stbi_load_from_callbacks(&callbacks, file, width, height, &comp, 4);
 		if (uncompressed == NULL) {
 			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
 			return false;
@@ -206,46 +337,11 @@ static bool loadImage(kinc_file_reader_t *file, const char *filename, uint8_t *o
 				output[y * *width * 4 + x * 4 + 0] = (uint8_t)kinc_round(r * 255.0f);
 				output[y * *width * 4 + x * 4 + 1] = (uint8_t)kinc_round(g * 255.0f);
 				output[y * *width * 4 + x * 4 + 2] = (uint8_t)kinc_round(b * 255.0f);
+				output[y * *width * 4 + x * 4 + 3] = (uint8_t)kinc_round(a * 255.0f);
 			}
 		}
 		*outputSize = *width * *height * 4;
-		return true;
-	}
-	else if (endsWith(filename, "hdr")) {
-		*compression = KINC_IMAGE_COMPRESSION_NONE;
-		*internalFormat = 0;
-		if (output == NULL) {
-			return false;
-		}
-		int size = (int)kinc_file_reader_size(file);
-		kinc_file_reader_read(file, buffer, size);
-		int comp;
-		float *uncompressed = stbi_loadf_from_memory(buffer, size, width, height, &comp, 4);
-		if (uncompressed == NULL) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
-			return false;
-		}
-		*outputSize = *width * *height * 16;
-		memcpy(output, uncompressed, *outputSize);
-		*format = KINC_IMAGE_FORMAT_RGBA128;
-		return true;
-	}
-	else {
-		*compression = KINC_IMAGE_COMPRESSION_NONE;
-		*internalFormat = 0;
-		if (output == NULL) {
-			return false;
-		}
-		int size = (int)kinc_file_reader_size(file);
-		kinc_file_reader_read(file, buffer, size);
-		int comp;
-		uint8_t *uncompressed = stbi_load_from_memory(buffer, size, width, height, &comp, 4);
-		if (uncompressed == NULL) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
-			return false;
-		}
-		*outputSize = *width * *height * 4;
-		memcpy(output, uncompressed, *outputSize);
+		buffer_offset = 0;
 		return true;
 	}
 }
@@ -296,6 +392,14 @@ void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int 
 void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format) {
 	image->compression = KINC_IMAGE_COMPRESSION_NONE;
 	image->data = data;
+}
+
+size_t kinc_image_size_from_file(const char* filename) {
+	kinc_file_reader_t reader;
+	kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET);
+	size_t dataSize = loadImageSize(&reader, filename);
+	kinc_file_reader_close(&reader);
+	return dataSize;
 }
 
 size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename) {

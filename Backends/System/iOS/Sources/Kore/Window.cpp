@@ -14,6 +14,10 @@ int kinc_window_y(int window) {
 	return 0;
 }
 
+int kinc_count_windows() {
+	return 1;
+}
+
 void kinc_window_resize(int window, int width, int height) {
 	
 }

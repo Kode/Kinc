@@ -71,8 +71,7 @@ static void create(kinc_g5_texture_t *texture, int width, int height, int format
 
 void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
 	//Image(width, height, format, readable);
-	texture->impl._tex = 0;
-	texture->impl._sampler = 0;
+	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->texWidth = width;
 	texture->texHeight = height;
 	texture->format = format;
@@ -80,8 +79,7 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 }
 
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image *image) {
-	texture->impl._tex = 0;
-	texture->impl._sampler = 0;
+	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
 	texture->format = image->format;
@@ -90,7 +88,10 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image *ima
 	[tex replaceRegion:MTLRegionMake2D(0, 0, texture->texWidth, texture->texHeight) mipmapLevel:0 slice:0 withBytes:image->data bytesPerRow:kinc_g5_texture_stride(texture) bytesPerImage:kinc_g5_texture_stride(texture) * texture->texHeight];
 }
 
-void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}
+void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
+	texture->impl._sampler = nil;
+	texture->impl._tex = nil;
+}
 
 id getMetalDevice();
 id getMetalEncoder();

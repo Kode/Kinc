@@ -36,7 +36,12 @@ Gamepad* Gamepad::get(int num) {
 	if (!padInitialized[num]) {
 		pads[num].vendor = kinc_gamepad_vendor(num);
 		pads[num].productName = kinc_gamepad_product_name(num);
+		pads[num].num = num;
 		padInitialized[num] = true;
 	}
 	return &pads[num];
+}
+
+bool Gamepad::connected() {
+	return kinc_gamepad_connected(num);
 }

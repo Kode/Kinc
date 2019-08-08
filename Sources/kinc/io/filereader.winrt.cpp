@@ -379,3 +379,11 @@ int16_t kinc_read_s16be(uint8_t *data) {
 	return (data[1] << 0) | (data[0] << 8);
 #endif
 }
+
+uint8_t kinc_read_u8(uint8_t *data) {
+	return *data;
+}
+
+int8_t kinc_read_s8(uint8_t *data) {
+	return *(int8_t*)data;
+}

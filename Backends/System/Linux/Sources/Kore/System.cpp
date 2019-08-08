@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <kinc/graphics4/graphics.h>
+#include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/input/pen.h>
@@ -971,6 +972,18 @@ kinc_ticks_t kinc_timestamp(void) {
 	now.tv_sec -= start.tv_sec;
 	now.tv_usec -= start.tv_usec;
 	return static_cast<kinc_ticks_t>(now.tv_sec) * 1000000 + static_cast<kinc_ticks_t>(now.tv_usec);
+}
+
+void kinc_login() {
+
+}
+
+void kinc_unlock_achievement(int id) {
+	
+}
+
+bool kinc_gamepad_connected(int num) {
+	return true;
 }
 
 extern "C" void enumerateDisplays();

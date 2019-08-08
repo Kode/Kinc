@@ -13,6 +13,7 @@
 #include <list>
 #include <vector>
 #include <atlbase.h>
+#include <string>
 
 class CD3D12_STATE_OBJECT_DESC
 {

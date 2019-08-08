@@ -314,7 +314,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	switch (image->compression) {
 	case KINC_IMAGE_COMPRESSION_PVRTC:
 #ifdef KORE_IOS
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texture->tex_width, texture->tex_height, 0, texture->tex_width * texture->tex_height / 2, image->data);
 #endif
 		break;
 	case KINC_IMAGE_COMPRESSION_ASTC: {

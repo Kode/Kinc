@@ -86,6 +86,7 @@ namespace {
 	}
 
 	kinc_g5_render_target_t *currentRenderTarget = nullptr;
+	D3D12_CPU_DESCRIPTOR_HANDLE targetDescriptors[16];
 }
 
 void kinc_g5_command_list_init(kinc_g5_command_list *list) {
@@ -117,9 +118,11 @@ void kinc_g5_command_list_end(kinc_g5_command_list *list) {
 }
 
 void kinc_g5_command_list_clear(kinc_g5_command_list *list, kinc_g5_render_target_t *renderTarget, unsigned flags, unsigned color, float depth, int stencil) {
-	float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
-	                      ((color & 0xff000000) >> 24) / 255.0f};
 	if (flags & KINC_G5_CLEAR_COLOR) {
+		float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f,
+							  ((color & 0x0000ff00) >> 8) / 255.0f,
+							   (color & 0x000000ff) / 255.0f,
+							  ((color & 0xff000000) >> 24) / 255.0f};
 		list->impl._commandList->ClearRenderTargetView(renderTarget->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
 	}
 	if ((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) {
@@ -127,12 +130,7 @@ void kinc_g5_command_list_clear(kinc_g5_command_list *list, kinc_g5_render_targe
 		                                 ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
 		                                 : (flags & KINC_G5_CLEAR_DEPTH) ? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
 		list->impl._commandList->ClearDepthStencilView(renderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth, stencil,
-		                                               0,
-		                                    nullptr);
-	}
-	if ((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) {
-		list->impl._commandList->ClearDepthStencilView(renderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-		                                    D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		                                               0, nullptr);
 	}
 }
 
@@ -279,8 +277,11 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list *list, kinc_g5_i
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list *list, kinc_g5_render_target_t **targets, int count) {
 	currentRenderTarget = targets[0];
 	graphicsFlushAndWait(list, list->impl._commandAllocator, targets[0]);
+	for (int i = 0; i < count; ++i) {
+		targetDescriptors[i] = targets[i]->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	}
 	list->impl._commandList->OMSetRenderTargets(
-	    1, &targets[0]->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true,
+	    count, &targetDescriptors[0], false,
 	    targets[0]->impl.depthStencilDescriptorHeap != nullptr ? &targets[0]->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
 	list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&targets[0]->impl.viewport);
 	list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&targets[0]->impl.scissor);

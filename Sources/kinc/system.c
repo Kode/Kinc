@@ -4,6 +4,9 @@
 
 #include "window.h"
 
+#include <kinc/io/filereader.h>
+#include <kinc/io/filewriter.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,6 +26,8 @@ static void (*drop_files_callback)(wchar_t *) = NULL;
 static char *(*cut_callback)() = NULL;
 static char *(*copy_callback)() = NULL;
 static void (*paste_callback)(char *) = NULL;
+static void (*login_callback)() = NULL;
+static void (*logout_callback)() = NULL;
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
 bool withAutoreleasepool(bool (*f)());
@@ -66,6 +71,14 @@ void kinc_set_copy_callback(char *(*value)()) {
 
 void kinc_set_paste_callback(void (*value)(char *)) {
 	paste_callback = value;
+}
+
+void kinc_set_login_callback(void (*value)()) {
+	login_callback = value;
+}
+
+void kinc_set_logout_callback(void(*value)()) {
+	logout_callback = value;
 }
 
 void kinc_internal_update_callback() {
@@ -128,6 +141,18 @@ void kinc_internal_paste_callback(char *value) {
 	if (paste_callback != NULL) {
 		paste_callback(value);
 	}
+}
+
+void kinc_internal_login_callback() {
+	if (login_callback != NULL) {
+		login_callback();
+	}
+}
+
+void kinc_internal_logout_callback() {
+	if (logout_callback != NULL) {
+		logout_callback();
+  }
 }
 
 static bool running = false;
@@ -216,4 +241,45 @@ bool is_ps4_japanese_button_style(void) {
 bool is_save_load_broken(void) {
 	return false;
 }
+#endif
+
+#if !defined(KORE_CONSOLE)
+
+static uint8_t *current_file = NULL;
+static size_t current_file_size = 0;
+
+bool kinc_save_file_loaded() {
+	return true;
+}
+
+uint8_t *kinc_get_save_file() {
+	return current_file;
+}
+
+size_t kinc_get_save_file_size() {
+	return current_file_size;
+}
+
+void kinc_load_save_file(const char *filename) {
+	free(current_file);
+	current_file = NULL;
+	current_file_size = 0;
+
+	kinc_file_reader_t reader;
+	if (kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_SAVE)) {
+		current_file_size = kinc_file_reader_size(&reader);
+		current_file = (uint8_t*)malloc(current_file_size);
+		kinc_file_reader_read(&reader, current_file, current_file_size);
+		kinc_file_reader_close(&reader);
+	}
+}
+
+void kinc_save_save_file(const char *filename, uint8_t *data, size_t size) {
+	kinc_file_writer_t writer;
+	if (kinc_file_writer_open(&writer, filename)) {
+		kinc_file_writer_write(&writer, data, size);
+		kinc_file_writer_close(&writer);
+	}
+}
+
 #endif

@@ -129,7 +129,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 
 	glGenFramebuffersOES(1, &defaultFramebuffer);
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
-	Kore::OpenGL::windows[0].framebuffer = defaultFramebuffer;
+	Kinc_Internal_windows[0].framebuffer = defaultFramebuffer;
 	
 	glGenRenderbuffersOES(1, &colorRenderbuffer);
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
@@ -224,7 +224,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 
 		if (acc.x != lastAccelerometerX || acc.y != lastAccelerometerY || acc.z != lastAccelerometerZ) {
 
-			Kore::Sensor::_changed(Kore::SensorAccelerometer, acc.x, acc.y, acc.z);
+			(*kinc_acceleration_callback)(acc.x, acc.y, acc.z);
 
 			lastAccelerometerX = acc.x;
 			lastAccelerometerY = acc.y;

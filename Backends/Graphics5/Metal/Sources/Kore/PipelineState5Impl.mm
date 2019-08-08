@@ -61,9 +61,7 @@ namespace {
 }
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
-	pipeline->impl._pipeline = 0;
-	pipeline->impl._reflection = 0;
-	pipeline->impl._depthStencil = 0;
+	memset(&pipeline->impl, 0, sizeof(pipeline->impl));
 }
 
 void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {
