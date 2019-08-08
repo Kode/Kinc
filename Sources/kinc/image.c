@@ -170,9 +170,9 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 	*format = KINC_IMAGE_FORMAT_RGBA32;
 	if (endsWith(filename, "k")) {
 		uint8_t data[4];
-		read(user_data, data, 4);
+		callbacks.read(user_data, data, 4);
 		*width = kinc_read_s32le(data);
-		read(user_data, data, 4);
+		callbacks.read(user_data, data, 4);
 		*height = kinc_read_s32le(data);
 
 		char fourcc[5];
