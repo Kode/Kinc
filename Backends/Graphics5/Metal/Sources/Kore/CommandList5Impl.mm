@@ -107,12 +107,12 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
-void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset) {
+void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setVertexBuffer:buffer->impl._buffer offset:offset atIndex:1];
 }
 
-void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset) {
+void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setFragmentBuffer:buffer->impl._buffer offset:offset atIndex:0];
 }
