@@ -62,6 +62,7 @@
 extern "C" bool Kinc_Internal_ProgramUsesTessellation;
 #endif
 extern "C" bool Kinc_Internal_SupportsConservativeRaster = false;
+extern "C" bool Kinc_Internal_SupportsDepthTexture = true;
 
 namespace {
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)
@@ -182,6 +183,10 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 			Kinc_Internal_SupportsConservativeRaster = true;
 		}
 	}
+#endif
+#ifdef KORE_OPENGL_ES
+    char *exts = (char *)glGetString(GL_EXTENSIONS);
+    Kinc_Internal_SupportsDepthTexture = strstr(exts, "GL_OES_depth_texture") != NULL;
 #endif
 
 	lastPipeline = nullptr;

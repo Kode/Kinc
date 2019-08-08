@@ -4,6 +4,8 @@
 
 #include "ogl.h"
 
+#include <Kore/OpenGL.h>
+
 #include <kinc/graphics4/graphics.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
@@ -32,6 +34,7 @@
 #define GL_RED GL_LUMINANCE
 #endif
 
+extern bool Kinc_Internal_SupportsDepthTexture;
 
 static int pow2(int pow) {
 	int ret = 1;
@@ -108,33 +111,37 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 	}
 	else if (depthBufferBits > 0) {
 		renderTarget->impl._hasDepth = true;
-		// Renderbuffer
-		 glGenRenderbuffers(1, &renderTarget->impl._depthTexture);
-		 glCheckErrors();
-		 glBindRenderbuffer(GL_RENDERBUFFER, renderTarget->impl._depthTexture);
-		glCheckErrors();
-		 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-		 glCheckErrors();
-		 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTarget->impl._depthTexture);
-		 glCheckErrors();
-        GL_OES_depth_texture;
-		// Texture
-		/*glGenTextures(1, &renderTarget->impl._depthTexture);
-		glCheckErrors();
-		glBindTexture(texType, renderTarget->impl._depthTexture);
-		glCheckErrors();
-		GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;
-		glTexImage2D(texType, 0, format, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
-		glCheckErrors();
-		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glCheckErrors();
-		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
-		glCheckErrors();
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
-		glCheckErrors();*/
+		if(!Kinc_Internal_SupportsDepthTexture) {
+		    // Renderbuffer
+			 glGenRenderbuffers(1, &renderTarget->impl._depthTexture);
+			 glCheckErrors();
+			 glBindRenderbuffer(GL_RENDERBUFFER, renderTarget->impl._depthTexture);
+			 glCheckErrors();
+			 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+			 glCheckErrors();
+			 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTarget->impl._depthTexture);
+			 glCheckErrors();
+		}
+		else {
+			// Texture
+			glGenTextures(1, &renderTarget->impl._depthTexture);
+            glCheckErrors();
+            glBindTexture(texType, renderTarget->impl._depthTexture);
+            glCheckErrors();
+            GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;
+            glTexImage2D(texType, 0, format, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+            glCheckErrors();
+            glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glCheckErrors();
+            glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
+            glCheckErrors();
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
+            glCheckErrors();
+		}
+
 	}
 }
 
