@@ -3,6 +3,9 @@
 #include "log.h"
 
 #include <stdio.h>
+#include <string.h>
+
+#include <kinc/system.h>
 
 #ifdef KORE_MICROSOFT
 #include <Kore/SystemMicrosoft.h>
@@ -30,22 +33,23 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 	DWORD written;
 	WriteConsole(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)wcslen(buffer), &written, NULL);
 #endif
-
 #else
-	vfprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, format, args);
-	fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, "\n");
+	char buffer[4096];
+	vsprintf(buffer, format, args);
+	strcat(buffer, "\n");
+	fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, "%s", buffer);
 #endif
 
 #ifdef KORE_ANDROID
 	switch (level) {
 	case KINC_LOG_LEVEL_INFO:
-		__android_log_vprint(ANDROID_LOG_INFO, "kore", format, args);
+		__android_log_vprint(ANDROID_LOG_INFO, kinc_application_name(), format, args);
 		break;
 	case KINC_LOG_LEVEL_WARNING:
-		__android_log_vprint(ANDROID_LOG_WARN, "kore", format, args);
+		__android_log_vprint(ANDROID_LOG_WARN, kinc_application_name(), format, args);
 		break;
 	case KINC_LOG_LEVEL_ERROR:
-		__android_log_vprint(ANDROID_LOG_ERROR, "kore", format, args);
+		__android_log_vprint(ANDROID_LOG_ERROR, kinc_application_name(), format, args);
 		break;
 	}
 #endif
