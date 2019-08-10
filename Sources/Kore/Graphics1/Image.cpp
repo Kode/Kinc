@@ -24,7 +24,7 @@ using namespace Kore;
 namespace {
 	static int read_callback(void *user_data, void *data, size_t size) {
 		Kore::Reader *file = (Kore::Reader *)user_data;
-		return file->read(data, size);
+		return file->read(data, (int)size);
 	}
 
 	static size_t size_callback(void *user_data) {

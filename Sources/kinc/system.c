@@ -277,7 +277,7 @@ void kinc_load_save_file(const char *filename) {
 void kinc_save_save_file(const char *filename, uint8_t *data, size_t size) {
 	kinc_file_writer_t writer;
 	if (kinc_file_writer_open(&writer, filename)) {
-		kinc_file_writer_write(&writer, data, size);
+		kinc_file_writer_write(&writer, data, (int)size);
 		kinc_file_writer_close(&writer);
 	}
 }
