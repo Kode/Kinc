@@ -6,7 +6,9 @@
 #include <errno.h>
 #include <sys/time.h>
 
-void kinc_event_init(kinc_event_t *event) {
+// TODO: auto_clear
+
+void kinc_event_init(kinc_event_t *event, bool auto_clear) {
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
