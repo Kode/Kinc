@@ -4,8 +4,8 @@
 
 using namespace Kore;
 
-void Event::create() {
-	kinc_event_init(&event);
+void Event::create(bool autoClear) {
+	kinc_event_init(&event, autoClear);
 }
 
 void Event::destroy() {

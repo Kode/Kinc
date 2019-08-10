@@ -9,7 +9,7 @@
 
 using namespace Kore;
 
-SoundStream::SoundStream(const char* filename, bool looping) : decoded(false), myLooping(looping), myVolume(1), rateDecodedHack(false), end(false) {
+SoundStream::SoundStream(const char *filename, bool looping) : myLooping(looping), myVolume(1), decoded(false), rateDecodedHack(false), end(false) {
 	FileReader file(filename);
 	buffer = new u8[file.size()];
 	u8* filecontent = (u8*)file.readAll();

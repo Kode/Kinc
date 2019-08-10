@@ -5,7 +5,7 @@
 using namespace Kore;
 
 CameraImage::CameraImage(int imageWidth, int imageHeight, int* imageBGRA8Data, mat4 cameraViewTransform, mat4 cameraProjectionTransform, Kore::vec2 focalLength)
-    : imageWidth(imageWidth), imageHeight(imageHeight), imageBGRA8Data(imageBGRA8Data), cameraViewTransform(cameraViewTransform),
+    : imageBGRA8Data(imageBGRA8Data), imageWidth(imageWidth), imageHeight(imageHeight), cameraViewTransform(cameraViewTransform),
       cameraProjectionTransform(cameraProjectionTransform), focalLength(focalLength) {}
 
 CameraImage::~CameraImage() {

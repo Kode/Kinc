@@ -9,7 +9,7 @@ public:
 	            Kore::vec2 focalLength);
 	~CameraImage();
 	int* imageBGRA8Data;
-	int imageHeight, imageWidth;
+	int imageWidth, imageHeight;
 
 	// in world (root) coordinate  system
 	Kore::mat4 cameraViewTransform;

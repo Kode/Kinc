@@ -100,8 +100,6 @@ static size_t loadImageSize(kinc_image_read_callbacks_t callbacks, void *user_da
 		callbacks.read(user_data, fourcc, 4);
 		fourcc[4] = 0;
 
-		int compressedSize = (int)callbacks.size(user_data) - 12;
-
 		if (strcmp(fourcc, "LZ4 ") == 0) {
 			return width * height * 4;
 		}
@@ -269,8 +267,7 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 		callbacks.read(user_data, data, 4);   // numFaces
 		callbacks.read(user_data, data, 4);   // mipMapCount
 		callbacks.read(user_data, data, 4);
-		uint32_t metaDataSize = kinc_read_u32le(data);
-
+		
 		callbacks.read(user_data, data, 4);
 		uint32_t meta1fourcc = kinc_read_u32le(data);
 		callbacks.read(user_data, data, 4); // meta1key
@@ -388,9 +385,9 @@ int kinc_image_format_sizeof(kinc_image_format_t format) {
 	return -1;
 }
 
-static bool formatIsFloatingPoint(kinc_image_format_t format) {
-	return format == KINC_IMAGE_FORMAT_RGBA128 || format == KINC_IMAGE_FORMAT_RGBA64 || format == KINC_IMAGE_FORMAT_A32 || format == KINC_IMAGE_FORMAT_A16;
-}
+//static bool formatIsFloatingPoint(kinc_image_format_t format) {
+//	return format == KINC_IMAGE_FORMAT_RGBA128 || format == KINC_IMAGE_FORMAT_RGBA64 || format == KINC_IMAGE_FORMAT_A32 || format == KINC_IMAGE_FORMAT_A16;
+//}
 
 size_t kinc_image_init(kinc_image_t *image, void *memory, int width, int height, kinc_image_format_t format) {
 	return kinc_image_init3d(image, memory, width, height, 1, format);

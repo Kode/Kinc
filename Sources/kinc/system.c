@@ -156,7 +156,7 @@ void kinc_internal_logout_callback() {
 }
 
 static bool running = false;
-static bool showWindowFlag = true;
+//static bool showWindowFlag = true;
 static char application_name[1024] = {"Kinc Application"};
 
 const char *kinc_application_name() {

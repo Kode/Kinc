@@ -97,7 +97,7 @@ namespace {
 	}
 }
 
-Sound::Sound(const char* filename) : myVolume(1), size(0), left(0), right(0), length(0) {
+Sound::Sound(const char *filename) : left(0), right(0), size(0), length(0), myVolume(1) {
 	size_t filenameLength = strlen(filename);
 	u8* data = nullptr;
 

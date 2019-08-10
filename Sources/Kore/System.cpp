@@ -116,7 +116,7 @@ void Kore::System::_pasteCallback(char* value) {
 
 namespace {
 	bool running = false;
-	bool showWindowFlag = true;
+	//bool showWindowFlag = true;
 	Kore::WindowOptions defaultWin;
 	Kore::FramebufferOptions defaultFrame;
 }

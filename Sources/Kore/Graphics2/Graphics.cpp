@@ -16,7 +16,8 @@ using namespace Kore;
 // ImageShaderPainter
 //==========
 Graphics2::ImageShaderPainter::ImageShaderPainter()
-    : bufferSize(1500), bufferIndex(0), vertexSize(9), bilinear(false), bilinearMipmaps(false), shaderPipeline(nullptr), lastTexture(nullptr), lastRenderTarget(nullptr), myPipeline(nullptr) {
+    : shaderPipeline(nullptr), bufferSize(1500), vertexSize(9), bufferIndex(0), lastTexture(nullptr), 
+      lastRenderTarget(nullptr), bilinear(false), bilinearMipmaps(false), myPipeline(nullptr) {
 	initShaders();
 	initBuffers();
 }
@@ -297,7 +298,7 @@ Graphics2::ImageShaderPainter::~ImageShaderPainter() {
 //==========
 
 Graphics2::ColoredShaderPainter::ColoredShaderPainter()
-    : bufferSize(100), bufferIndex(0), vertexSize(7), triangleBufferSize(100), triangleBufferIndex(0), shaderPipeline(nullptr) {
+    : shaderPipeline(nullptr), bufferSize(100), vertexSize(7), bufferIndex(0), triangleBufferSize(100), triangleBufferIndex(0) {
 	initShaders();
 	initBuffers();
 }
@@ -559,7 +560,8 @@ Graphics2::ColoredShaderPainter::~ColoredShaderPainter() {
 //==========
 // TextShaderPainter
 //==========
-Graphics2::TextShaderPainter::TextShaderPainter() : bufferSize(100), bufferIndex(0), vertexSize(9), bilinear(false), lastTexture(nullptr), shaderPipeline(nullptr) {
+Graphics2::TextShaderPainter::TextShaderPainter()
+    : shaderPipeline(nullptr), bufferSize(100), bufferIndex(0), vertexSize(9), lastTexture(nullptr), bilinear(false) {
 	initShaders();
 	initBuffers();
 }
@@ -780,15 +782,9 @@ Graphics2::TextShaderPainter::~TextShaderPainter() {
 // Graphics2
 //==========
 
-Graphics2::Graphics2::Graphics2(int width, int height, bool rTargets): 
-	screenWidth(width), 
-	screenHeight(height), 
-	renderTargets(rTargets), 
-	color(Color::White), 
-	fontColor(Color::Black), 
-	fontSize(14), 
-	lastPipeline(nullptr), 
-	videoPipeline(nullptr) {
+Graphics2::Graphics2::Graphics2(int width, int height, bool rTargets) :
+	screenWidth(width), screenHeight(height), renderTargets(rTargets), color(Color::White), 
+	fontSize(14), fontColor(Color::Black), videoPipeline(nullptr), lastPipeline(nullptr) {
 	
 	transformation = mat3::Identity();
 	opacity = 1.f;
