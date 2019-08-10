@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Kode/Kinc.svg?branch=master)](https://travis-ci.org/Kode/Kinc) [![Build status](https://ci.appveyor.com/api/projects/status/y3yxe87qj32wqcou/branch/master?svg=true)](https://ci.appveyor.com/project/RobDangerous/kinc)
+[![Build Status](https://travis-ci.org/Kode/Kinc.svg?branch=master)](https://travis-ci.org/Kode/Kinc) [![Build status](https://ci.appveyor.com/api/projects/status/y3yxe87qj32wqcou/branch/master?svg=true)](https://ci.appveyor.com/project/RobDangerous/kore)
 
 ## Kinc
 
