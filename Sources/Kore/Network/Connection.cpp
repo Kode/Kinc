@@ -19,8 +19,8 @@ namespace {
 
 Connection::Connection(int receivePort, int maxConns, double timeout, double pngInterv, double resndInterv, double congestPing, float congestShare,
                        int buffSize, int cacheCount)
-    : recPort(receivePort), maxConns(maxConns), timeout(timeout), pngInterv(pngInterv), resndInterv(resndInterv), congestPing(congestPing),
-      congestShare(congestShare), buffSize(buffSize), cacheCount(cacheCount), activeConns(0), acceptConns(false) {
+    : maxConns(maxConns), activeConns(0), acceptConns(false), /*recPort(receivePort),*/ buffSize(buffSize), cacheCount(cacheCount), congestShare(congestShare),
+      timeout(timeout), pngInterv(pngInterv), resndInterv(resndInterv), congestPing(congestPing) {
 
 	socket.init();
 	socket.open(receivePort);

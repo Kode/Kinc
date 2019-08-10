@@ -39,4 +39,4 @@ Surface* Surface::the() {
 	return &surface;
 }
 
-Surface::Surface() : TouchStart(nullptr), Move(nullptr), TouchEnd(nullptr) {}
+Surface::Surface() : Move(nullptr), TouchStart(nullptr), TouchEnd(nullptr) {}

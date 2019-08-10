@@ -12,7 +12,7 @@ typedef struct {
 	kinc_event_impl_t impl;
 } kinc_event_t;
 
-void kinc_event_init(kinc_event_t *event);
+void kinc_event_init(kinc_event_t *event, bool auto_clear);
 void kinc_event_destroy(kinc_event_t *event);
 void kinc_event_signal(kinc_event_t *event);
 void kinc_event_wait(kinc_event_t *event);

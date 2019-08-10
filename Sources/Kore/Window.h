@@ -40,8 +40,8 @@ namespace Kore {
 		WindowMode mode;
 
 		WindowOptions()
-		    : title("Kore"), display(nullptr), mode(WindowModeWindow), x(-1), y(-1), width(800), height(600), visible(true),
-		      windowFeatures(WindowFeatureResizable | WindowFeatureMinimizable | WindowFeatureMaximizable) {}
+		    : title("Kore"), x(-1), y(-1), width(800), height(600), display(nullptr), visible(true),
+		      windowFeatures(WindowFeatureResizable | WindowFeatureMinimizable | WindowFeatureMaximizable), mode(WindowModeWindow) {}
 	};
 
 	class Window {

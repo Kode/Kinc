@@ -22,17 +22,9 @@
 using namespace Kore;
 
 namespace {
-	bool endsWith(const char* str, const char* suffix) {
-		if (!str || !suffix) return 0;
-		size_t lenstr = strlen(str);
-		size_t lensuffix = strlen(suffix);
-		if (lensuffix > lenstr) return 0;
-		return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
-	}
-
 	static int read_callback(void *user_data, void *data, size_t size) {
 		Kore::Reader *file = (Kore::Reader *)user_data;
-		return file->read(data, size);
+		return file->read(data, (int)size);
 	}
 
 	static size_t size_callback(void *user_data) {
@@ -136,7 +128,7 @@ void Graphics1::Image::init(Kore::Reader& file, const char* filename, bool reada
 
 Graphics1::Image::~Image() {
 	if (readable) {
-		delete[] data;
+		free(data);
 		data = nullptr;
 	}
 }

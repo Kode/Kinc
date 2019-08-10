@@ -58,7 +58,7 @@ namespace Kore {
 		FontStyle style;
 		float size;
 
-		float mySize;
+		//float mySize;
 		std::vector<BakedChar> chars;
 		Graphics4::Texture* texture;
 		float baseline;

@@ -156,7 +156,7 @@ void kinc_internal_logout_callback() {
 }
 
 static bool running = false;
-static bool showWindowFlag = true;
+//static bool showWindowFlag = true;
 static char application_name[1024] = {"Kinc Application"};
 
 const char *kinc_application_name() {
@@ -277,7 +277,7 @@ void kinc_load_save_file(const char *filename) {
 void kinc_save_save_file(const char *filename, uint8_t *data, size_t size) {
 	kinc_file_writer_t writer;
 	if (kinc_file_writer_open(&writer, filename)) {
-		kinc_file_writer_write(&writer, data, size);
+		kinc_file_writer_write(&writer, data, (int)size);
 		kinc_file_writer_close(&writer);
 	}
 }

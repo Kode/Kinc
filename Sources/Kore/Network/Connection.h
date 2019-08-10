@@ -34,7 +34,7 @@ namespace Kore {
 		enum ControlType { Ping = 0, Pong = 1 };
 
 		bool acceptConns;
-		const int recPort;
+		//const int recPort;
 		Kore::Socket socket;
 
 		// For each connected entity

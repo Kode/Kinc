@@ -4,8 +4,8 @@
 
 #include <Windows.h>
 
-void kinc_event_init(kinc_event_t *event) {
-	event->impl.event = CreateEvent(0, 0, 0, 0);
+void kinc_event_init(kinc_event_t *event, bool auto_clear) {
+	event->impl.event = CreateEvent(0, auto_clear ? FALSE : TRUE, 0, 0);
 }
 
 void kinc_event_destroy(kinc_event_t *event) {

@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#ifdef KORE_WINDOWS
+#ifdef KORE_MICROSOFT
 #if defined(_WIN64)
 typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
 #else
@@ -17,7 +17,7 @@ typedef UINT_PTR SOCKET;
 #endif
 
 typedef struct {
-#ifdef KORE_WINDOWS
+#ifdef KORE_MICROSOFT
 	SOCKET handle;
 #else
 	int handle;

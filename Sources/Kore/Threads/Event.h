@@ -5,7 +5,7 @@
 namespace Kore {
 	class Event {
 	public:
-		void create();
+		void create(bool autoClear = true);
 		void destroy();
 		void signal();
 		void wait();

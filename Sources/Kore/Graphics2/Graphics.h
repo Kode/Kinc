@@ -35,8 +35,8 @@ namespace Kore {
 
 			Graphics4::PipelineState* myPipeline;
 
-			Graphics4::BlendingOperation sourceBlend;      // = Undefined;
-			Graphics4::BlendingOperation destinationBlend; // = Undefined;
+			//Graphics4::BlendingOperation sourceBlend;      // = Undefined;
+			//Graphics4::BlendingOperation destinationBlend; // = Undefined;
 
 			void initShaders();
 			void initBuffers();
@@ -98,8 +98,8 @@ namespace Kore {
 
 			Graphics4::PipelineState* myPipeline;
 
-			Graphics4::BlendingOperation sourceBlend;      // = Undefined;
-			Graphics4::BlendingOperation destinationBlend; // = Undefined;
+			//Graphics4::BlendingOperation sourceBlend;      // = Undefined;
+			//Graphics4::BlendingOperation destinationBlend; // = Undefined;
 
 			void initShaders();
 			void initBuffers();

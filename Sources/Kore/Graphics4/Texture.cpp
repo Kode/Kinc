@@ -17,7 +17,7 @@ Graphics4::Texture::Texture(const char *filename, bool readable) : Image(filenam
 	kinc_image_destroy(&image);
 	
 	if (!readable) {
-		delete[] data;
+		free(data);
 		data = nullptr;
 	}
 }
@@ -29,7 +29,7 @@ Graphics4::Texture::Texture(int width, int height, Graphics4::Image::Format form
 	texDepth = 1;
 
 	if (!readable) {
-		delete[] data;
+		free(data);
 		data = nullptr;
 	}
 }
@@ -41,7 +41,7 @@ Graphics4::Texture::Texture(int width, int height, int depth, Format format, boo
 	texDepth = kincTexture.tex_depth;
 
 	if (!readable) {
-		delete[] data;
+		free(data);
 		data = nullptr;
 	}
 }
@@ -56,7 +56,7 @@ Graphics4::Texture::Texture(void *data, int width, int height, Format format, bo
 	kinc_image_destroy(&image);
 
 	if (!readable) {
-		delete[] data;
+		free(data);
 		data = nullptr;
 	}
 }
@@ -71,7 +71,7 @@ Graphics4::Texture::Texture(void *data, int width, int height, int depth, Format
 	kinc_image_destroy(&image);
 
 	if (!readable) {
-		delete[] data;
+		free(data);
 		data = nullptr;
 	}
 }
@@ -89,7 +89,7 @@ Graphics4::Texture::Texture(void *data, int size, const char *format, bool reada
 	kinc_image_destroy(&image);
 
 	if (!readable) {
-		delete[] data;
+		free(data);
 		data = nullptr;
 	}
 }
@@ -104,7 +104,7 @@ Graphics4::Texture::Texture(Kore::Reader &reader, const char *format, bool reada
 	kinc_image_destroy(&image);
 
 	if (!readable) {
-		delete[] data;
+		free(data);
 		data = nullptr;
 	}
 }
