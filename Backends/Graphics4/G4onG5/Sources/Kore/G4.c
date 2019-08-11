@@ -116,9 +116,11 @@ void kinc_g4_begin(int window) {
 	kinc_g5_render_target_t *renderTargets[1] = {&framebuffers[currentBuffer]};
 	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
 
-	constantBufferIndex = 0;
-	kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
-	kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
+	// Currently we do not necessarily wait at the end of a frame so for now it's endDraw
+	//constantBufferIndex = 0;
+	//kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
+	//kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
+	endDraw();
 
 	++frameNumber;
 }
