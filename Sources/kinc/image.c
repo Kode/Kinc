@@ -434,17 +434,18 @@ size_t kinc_image_size_from_callbacks(kinc_image_read_callbacks_t callbacks, voi
 
 size_t kinc_image_size_from_file(const char* filename) {
 	kinc_file_reader_t reader;
-	kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET);
+	if (kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET)) {
+		kinc_image_read_callbacks_t callbacks;
+		callbacks.read = read_callback;
+		callbacks.size = size_callback;
+		callbacks.pos = pos_callback;
+		callbacks.seek = seek_callback;
 
-	kinc_image_read_callbacks_t callbacks;
-	callbacks.read = read_callback;
-	callbacks.size = size_callback;
-	callbacks.pos = pos_callback;
-	callbacks.seek = seek_callback;
-
-	size_t dataSize = loadImageSize(callbacks, &reader, filename);
-	kinc_file_reader_close(&reader);
-	return dataSize;
+		size_t dataSize = loadImageSize(callbacks, &reader, filename);
+		kinc_file_reader_close(&reader);
+		return dataSize;
+	}
+	return 0;
 }
 
 size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename) {
@@ -456,19 +457,20 @@ size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_im
 
 size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename) {
 	kinc_file_reader_t reader;
-	kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET);
-	
-	kinc_image_read_callbacks_t callbacks;
-	callbacks.read = read_callback;
-	callbacks.size = size_callback;
-	callbacks.pos = pos_callback;
-	callbacks.seek = seek_callback;
+	if (kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET)) {
+		kinc_image_read_callbacks_t callbacks;
+		callbacks.read = read_callback;
+		callbacks.size = size_callback;
+		callbacks.pos = pos_callback;
+		callbacks.seek = seek_callback;
 
-	int dataSize;
-	loadImage(callbacks, &reader, filename, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format);
-	kinc_file_reader_close(&reader);
-	image->data = memory;
-	return dataSize;
+		int dataSize;
+		loadImage(callbacks, &reader, filename, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format);
+		kinc_file_reader_close(&reader);
+		image->data = memory;
+		return dataSize;
+	}
+	return 0;
 }
 
 void kinc_image_destroy(kinc_image_t *image) {
