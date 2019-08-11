@@ -35,7 +35,7 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 #endif
 #else
 	char buffer[4096];
-	vsprintf(buffer, format, args);
+	vsnprintf(buffer, 4090, format, args);
 	strcat(buffer, "\n");
 	fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, "%s", buffer);
 #endif
