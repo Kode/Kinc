@@ -215,7 +215,7 @@ int kinc_height() {
 	return kinc_window_height(0);
 }
 
-#ifndef KORE_PS4
+#if !defined(KORE_PS4) && !defined(KORE_SWITCH)
 static float safe_zone = 0.9f;
 
 float kinc_safe_zone(void) {
@@ -229,7 +229,9 @@ bool kinc_automatic_safe_zone() {
 void kinc_set_safe_zone(float value) {
 	safe_zone = value;
 }
+#endif
 
+#if !defined(KORE_PS4)
 bool is_save_load_initialized(void) {
 	return true;
 }
