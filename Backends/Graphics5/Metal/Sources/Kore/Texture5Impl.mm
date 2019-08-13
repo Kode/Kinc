@@ -75,6 +75,7 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	texture->texWidth = width;
 	texture->texHeight = height;
 	texture->format = format;
+	texture->impl.data = malloc(width * height * (format == KINC_IMAGE_FORMAT_GREY8 ? 1 : 4));
 	create(texture, width, height, format, true);
 }
 
@@ -91,6 +92,10 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image *ima
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
 	texture->impl._sampler = nil;
 	texture->impl._tex = nil;
+	if (texture->impl.data != NULL) {
+		free(texture->impl.data);
+		texture->impl.data = NULL;
+	}
 }
 
 id getMetalDevice();
@@ -111,12 +116,12 @@ int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
 	}
 }
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
-	return NULL; //**(u8*)data;
+	return (uint8_t*)texture->impl.data;
 }
 
 void kinc_g5_texture_unlock(kinc_g5_texture_t *tex) {
 	id<MTLTexture> texture = tex->impl._tex;
-	[texture replaceRegion:MTLRegionMake2D(0, 0, tex->texWidth, tex->texHeight) mipmapLevel:0 slice:0 withBytes:NULL/**data*/ bytesPerRow:kinc_g5_texture_stride(tex) bytesPerImage:kinc_g5_texture_stride(tex) * tex->texHeight];
+	[texture replaceRegion:MTLRegionMake2D(0, 0, tex->texWidth, tex->texHeight) mipmapLevel:0 slice:0 withBytes:tex->impl.data bytesPerRow:kinc_g5_texture_stride(tex) bytesPerImage:kinc_g5_texture_stride(tex) * tex->texHeight];
 }
 
 void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {}
