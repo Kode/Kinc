@@ -284,4 +284,8 @@ void kinc_save_save_file(const char *filename, uint8_t *data, size_t size) {
 	}
 }
 
+bool kinc_save_is_saving() {
+	return false;
+}
+
 #endif
