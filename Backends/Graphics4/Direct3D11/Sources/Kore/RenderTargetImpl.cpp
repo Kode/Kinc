@@ -145,7 +145,7 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 		}
 		kinc_microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &renderTarget->impl.depthStencil));
 		kinc_microsoft_affirm(device->CreateDepthStencilView(
-		    renderTarget->impl.depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(D3D11_DSV_DIMENSION_TEXTURE2D, depthViewFormat), &renderTarget->impl.depthStencilView[0]));
+		    renderTarget->impl.depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasing ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D, depthViewFormat), &renderTarget->impl.depthStencilView[0]));
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
