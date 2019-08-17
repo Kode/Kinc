@@ -52,43 +52,35 @@ namespace {
 	if (shift) {
 		kinc_internal_keyboard_trigger_key_up(KINC_KEY_SHIFT);
 		shift = false;
-		NSLog(@"shift up");
 	}
 	if (ctrl) {
 		kinc_internal_keyboard_trigger_key_up(KINC_KEY_CONTROL);
 		ctrl = false;
-		NSLog(@"ctrl up");
 	}
 	if (alt) {
 		kinc_internal_keyboard_trigger_key_up(KINC_KEY_ALT);
 		alt = false;
-		NSLog(@"alt up");
 	}
 	if (cmd) {
 		kinc_internal_keyboard_trigger_key_up(KINC_KEY_META);
 		cmd = false;
-		NSLog(@"cmd up");
 	}
 	
 	if ([theEvent modifierFlags] & NSShiftKeyMask) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_SHIFT);
 		shift = true;
-		NSLog(@"shift down");
 	}
 	if ([theEvent modifierFlags] & NSControlKeyMask) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_CONTROL);
 		ctrl = true;
-		NSLog(@"ctrl down");
 	}
 	if ([theEvent modifierFlags] & NSAlternateKeyMask) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_ALT);
 		alt = true;
-		NSLog(@"alt down");
 	}
 	if ([theEvent modifierFlags] & NSCommandKeyMask) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_META);
 		cmd = true;
-		NSLog(@"cmd down");
 	}
 }
 
@@ -97,7 +89,6 @@ namespace {
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
-		NSLog(@"%i", ch);
 		switch (ch) {
 		case 59:
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_SEMICOLON);
