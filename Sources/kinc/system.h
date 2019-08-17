@@ -78,6 +78,15 @@ void kinc_internal_paste_callback(char *);
 void kinc_internal_login_callback();
 void kinc_internal_logout_callback();
 
+#if !defined(KORE_CONSOLE)
+bool is_save_load_broken(void);
+bool kinc_save_file_loaded();
+uint8_t *kinc_get_save_file();
+size_t kinc_get_save_file_size();
+void kinc_load_save_file(const char *filename);
+void kinc_save_save_file(const char *filename, uint8_t *data, size_t size);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
