@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include <Kinc/Graphics4/IndexBuffer.h>
+#include <kinc/graphics4/indexbuffer.h>
 
-#include <Kinc/Graphics5/CommandList.h>
+#include <kinc/graphics5/commandlist.h>
 
 extern kinc_g5_command_list_t commandList;
 

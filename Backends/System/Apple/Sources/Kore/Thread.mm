@@ -31,7 +31,7 @@ void kinc_thread_init(kinc_thread_t *t, void (*thread)(void* param), void* param
 	memset(&sp, 0, sizeof(sp));
 	sp.sched_priority = 0;
 	pthread_attr_setschedparam(&attr, &sp);
-	int ret = pthread_create(&t->impl.pthread, &attr, &ThreadProc, t);
+	pthread_create(&t->impl.pthread, &attr, &ThreadProc, t);
 	// Kt::affirmD(ret == 0);
 	pthread_attr_destroy(&attr);
 }

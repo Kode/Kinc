@@ -2,8 +2,8 @@
 
 #include "VertexBufferImpl.h"
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/vertexbuffer.h>
 
 #define multiple 500
 

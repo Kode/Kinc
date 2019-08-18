@@ -44,6 +44,8 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 		case KINC_G4_VERTEX_DATA_NONE:
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT4X4:
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
 			assert(false);
 			break;
 		}

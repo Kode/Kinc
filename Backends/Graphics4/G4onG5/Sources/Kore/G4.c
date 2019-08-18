@@ -5,18 +5,18 @@
 #include "IndexBufferImpl.h"
 #include "PipelineStateImpl.h"
 #include "VertexBufferImpl.h"
-#include <Kinc/Graphics4/IndexBuffer.h>
-#include <Kinc/Graphics4/Pipeline.h>
-#include <Kinc/Graphics4/RenderTarget.h>
-#include <Kinc/Graphics4/Shader.h>
-#include <Kinc/Graphics4/Texture.h>
-#include <Kinc/Graphics4/TextureArray.h>
-#include <Kinc/Graphics4/VertexBuffer.h>
-#include <Kinc/Graphics5/CommandList.h>
-#include <Kinc/Graphics5/ConstantBuffer.h>
-#include <Kinc/Math/Core.h>
-#include <Kinc/Math/Matrix.h>
-#include <Kinc/System.h>
+#include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/shader.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/graphics4/texturearray.h>
+#include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/constantbuffer.h>
+#include <kinc/math/core.h>
+#include <kinc/math/matrix.h>
+#include <kinc/system.h>
 
 kinc_g5_command_list_t commandList;
 
