@@ -76,8 +76,8 @@ Graphics4::Texture::Texture(void *data, int width, int height, int depth, Format
 	}
 }
 
-Graphics4::Texture::Texture(void *data, int size, const char *format, bool readable) {
-	BufferReader reader(data, size);
+Graphics4::Texture::Texture(void *filedata, int size, const char *format, bool readable) {
+	BufferReader reader(filedata, size);
 	Image::init(reader, format, readable);
 	
 	kinc_image_t image;
