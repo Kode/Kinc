@@ -196,6 +196,15 @@ int kinc_window_height(int window_index) {
 	return [[window contentView] frame].size.height;
 }
 
+void kinc_load_url(const char* url) {
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
+}
+
+const char* kinc_language() {
+	NSString* language = [[NSLocale preferredLanguages] objectAtIndex:0];
+	return (const char*)[language UTF8String];
+}
+
 void kinc_internal_shutdown() {
 	
 }
