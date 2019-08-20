@@ -59,9 +59,15 @@ void kinc_load_url(const char* url) {
 
 void kinc_vibrate(int ms) {};
 
+static char language[3];
+
 const char* kinc_language() {
-	NSString* language = [[NSLocale preferredLanguages] objectAtIndex:0];
-	return (const char*)[language UTF8String];
+	NSString* nsstr = [[NSLocale preferredLanguages] objectAtIndex:0];
+	const char* lang = [nsstr UTF8String];
+	language[0] = lang[0];
+	language[1] = lang[1];
+	language[2] = 0;
+	return language;
 }
 
 // called on rotation event
