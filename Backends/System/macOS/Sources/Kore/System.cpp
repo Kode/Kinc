@@ -28,13 +28,7 @@ bool kinc_keyboard_active() {
 	return keyboardShown;
 }
 
-void kinc_load_url(const char* url) {}
-
 void kinc_vibrate(int ms) {}
-
-const char* kinc_language() {
-	return "en";
-}
 
 const char* kinc_system_id() {
 	return "macOS";
