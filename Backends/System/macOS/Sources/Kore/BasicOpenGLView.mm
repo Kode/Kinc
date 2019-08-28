@@ -89,40 +89,45 @@ namespace {
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
+		switch (ch) { // keys that exist in keydown and keypress events
+			case 59:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SEMICOLON);
+				break;
+			case 91:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_OPEN_BRACKET);
+				break;
+			case 93:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_CLOSE_BRACKET);
+				break;
+			case 39:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_QUOTE);
+				break;
+			case 92:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_SLASH);
+				break;
+			case 44:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_COMMA);
+				break;
+			case 46:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_PERIOD);
+				break;
+			case 47:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SLASH);
+				break;
+			case 96:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_QUOTE);
+				break;
+			case 32:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SPACE);
+				break;
+			case 45: // we need breaks because EQUALS triggered too for some reason
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_HYPHEN_MINUS);
+				break;
+			case 61:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_EQUALS);
+				break;
+		}
 		switch (ch) {
-		case 59:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_SEMICOLON);
-			break;
-		case 91:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_OPEN_BRACKET);
-			break;
-		case 93:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_CLOSE_BRACKET);
-			break;
-		case 39:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_QUOTE);
-			break;
-		case 92:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_SLASH);
-			break;
-		case 44:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_COMMA);
-			break;
-		case 46:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_PERIOD);
-			break;
-		case 47:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_SLASH);
-			break;
-		case 96:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_QUOTE);
-			break;
-		case 45:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_HYPHEN_MINUS);
-			break;
-		case 61:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_EQUALS);
-			break;
 		case NSRightArrowFunctionKey:
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
 			break;
@@ -146,8 +151,8 @@ namespace {
 		case 0x7f:
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACKSPACE);
 			break;
-		case 32:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_SPACE);
+		case 9:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_TAB);
 			break;
 		default:
 			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
@@ -157,7 +162,6 @@ namespace {
 					[board clearContents];
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
-				break;
 			}
 			if (ch == 'c' && [theEvent modifierFlags] & NSCommandKeyMask) {
 				char* text = kinc_internal_copy_callback();
@@ -166,7 +170,6 @@ namespace {
 					[board clearContents];
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
-				break;
 			}
 			if (ch == 'v' && [theEvent modifierFlags] & NSCommandKeyMask) {
 				NSPasteboard* board = [NSPasteboard generalPasteboard];
@@ -176,7 +179,6 @@ namespace {
 					strcpy(charData, [data UTF8String]);
 					kinc_internal_paste_callback(charData);
 				}
-				break;
 			}
 			if (ch >= L'a' && ch <= L'z') {
 				kinc_internal_keyboard_trigger_key_down(ch - L'a' + KINC_KEY_A);
@@ -253,6 +255,9 @@ namespace {
 			break;
 		case 0x7f:
 			kinc_internal_keyboard_trigger_key_up(KINC_KEY_BACKSPACE);
+			break;
+		case 9:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_TAB);
 			break;
 		case 32:
 			kinc_internal_keyboard_trigger_key_up(KINC_KEY_SPACE);
