@@ -20,6 +20,11 @@
 #include <climits>
 #include <assert.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <sys/stat.h>
+
 #include <X11/Xatom.h>
 #include <X11/extensions/XInput.h>
 #include <X11/keysym.h>
@@ -941,9 +946,19 @@ namespace {
 
 const char* kinc_internal_save_path() {
 	if (!saveInitialized) {
-		strcpy(save, "Ķ~/.");
+		const char *homedir;
+
+		if ((homedir = getenv("HOME")) == NULL) {
+			homedir = getpwuid(getuid())->pw_dir;
+		}
+
+		strcpy(save, homedir);
+		strcat(save, "/.");
 		strcat(save, kinc_application_name());
 		strcat(save, "/");
+
+		int res = mkdir(save, 0700);
+
 		saveInitialized = true;
 	}
 	return save;
@@ -992,6 +1007,7 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 	gettimeofday(&start, NULL);
 	enumerateDisplays();
 
+	kinc_set_application_name(name);
 	//System::_init(name, width, height, &win, &frame);
     kinc_window_options_t defaultWin;
     if (win == NULL) {
