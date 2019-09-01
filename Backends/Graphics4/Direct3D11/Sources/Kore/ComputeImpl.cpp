@@ -168,7 +168,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	shader->impl.data = &data[index];
 	shader->impl.length = length - index;
 
-	kinc_microsoft_affirm(device->CreateComputeShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11ComputeShader **)&shader));
+	kinc_microsoft_affirm(device->CreateComputeShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11ComputeShader **)&shader->impl.shader));
 
 	kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 	                                           &shader->impl.constantBuffer));
