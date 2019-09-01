@@ -17,14 +17,17 @@
 #define BUFFER_SIZE 4096 * 4096 * 4
 uint8_t buffer[BUFFER_SIZE];
 size_t buffer_offset = 0;
+uint8_t *last_allocated_pointer = 0;
 
 static void *buffer_malloc(size_t size) {
 	uint8_t *current = &buffer[buffer_offset];
 	buffer_offset += size + sizeof(size_t);
 	if (buffer_offset > BUFFER_SIZE) {
+        kinc_log(KINC_LOG_LEVEL_ERROR, "Not enough memory on image.c Buffer.");
 		return NULL;
 	}
 	*(size_t*)current = size;
+    last_allocated_pointer = current + sizeof(size_t);
 	return current + sizeof(size_t);
 }
 
@@ -38,7 +41,16 @@ static void *buffer_realloc(void *p, size_t size) {
 		return old_pointer;
 	}
 	else {
+        if (last_allocated_pointer == old_pointer){
+            size_t last_size = &buffer[buffer_offset] - old_pointer;
+            size_t size_diff = size - last_size;
+            buffer_offset += size_diff + sizeof(size_t);
+            return old_pointer;
+        }
 		uint8_t *new_pointer = (uint8_t *)buffer_malloc(size);
+        if  (new_pointer == NULL){
+            return NULL;
+        }
 		memcpy(new_pointer, old_pointer, old_size < size ? old_size : size);
 		return new_pointer;
 	}
