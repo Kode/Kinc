@@ -337,6 +337,7 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 	}
 	if (renderTarget->impl.renderTargetSRV != nullptr) renderTarget->impl.renderTargetSRV->Release();
 	if (renderTarget->impl.depthStencilSRV != nullptr) renderTarget->impl.depthStencilSRV->Release();
+	if (renderTarget->impl.depthStencil != nullptr) renderTarget->impl.depthStencil->Release();
 	if (renderTarget->impl.textureRender != nullptr) renderTarget->impl.textureRender->Release();
 	if (renderTarget->impl.textureStaging != nullptr) renderTarget->impl.textureStaging->Release();
 }
