@@ -155,7 +155,13 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	strcat(filepath, filename);
 #endif
 #ifdef KORE_LINUX
-	strcpy(filepath, filename);
+	if (type == KINC_FILE_TYPE_SAVE) {
+		strcpy(filepath, kinc_internal_save_path());
+		strcat(filepath, filename);
+	}
+	else {
+		strcpy(filepath, filename);
+	}
 #endif
 #ifdef KORE_HTML5
 	strcpy(filepath, KORE_DEBUGDIR);
