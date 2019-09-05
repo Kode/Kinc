@@ -14,6 +14,9 @@
 
 namespace {
 	bool shift = false;
+	bool ctrl = false;
+	bool alt = false;
+	bool cmd = false;
 }
 
 #ifndef KORE_METAL
@@ -21,20 +24,21 @@ namespace {
 	// TODO (DK) pass via argument in
 	int aa = 1; // Kore::Application::the()->antialiasing();
 	if (aa > 0) {
-		NSOpenGLPixelFormatAttribute attributes[] = {NSOpenGLPFADoubleBuffer,          NSOpenGLPFADepthSize,
-		                                             (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-		                                             NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
-		                                             NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
-		                                             (NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
-		                                             (NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
-		                                             (NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
+		NSOpenGLPixelFormatAttribute attributes[] = {
+			NSOpenGLPFADoubleBuffer, NSOpenGLPFADepthSize,
+			(NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+			NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
+			NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
+			(NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
+			(NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
+			(NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
 		return [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
 	}
 	else {
 		NSOpenGLPixelFormatAttribute attributes[] = {
-		    NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-		    NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
-		    (NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
+			NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+			NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
+			(NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
 		return [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
 	}
 }
@@ -44,24 +48,84 @@ namespace {
 }
 #endif
 
+- (void)flagsChanged:(NSEvent *)theEvent {
+	if (shift) {
+		kinc_internal_keyboard_trigger_key_up(KINC_KEY_SHIFT);
+		shift = false;
+	}
+	if (ctrl) {
+		kinc_internal_keyboard_trigger_key_up(KINC_KEY_CONTROL);
+		ctrl = false;
+	}
+	if (alt) {
+		kinc_internal_keyboard_trigger_key_up(KINC_KEY_ALT);
+		alt = false;
+	}
+	if (cmd) {
+		kinc_internal_keyboard_trigger_key_up(KINC_KEY_META);
+		cmd = false;
+	}
+	
+	if ([theEvent modifierFlags] & NSShiftKeyMask) {
+		kinc_internal_keyboard_trigger_key_down(KINC_KEY_SHIFT);
+		shift = true;
+	}
+	if ([theEvent modifierFlags] & NSControlKeyMask) {
+		kinc_internal_keyboard_trigger_key_down(KINC_KEY_CONTROL);
+		ctrl = true;
+	}
+	if ([theEvent modifierFlags] & NSAlternateKeyMask) {
+		kinc_internal_keyboard_trigger_key_down(KINC_KEY_ALT);
+		alt = true;
+	}
+	if ([theEvent modifierFlags] & NSCommandKeyMask) {
+		kinc_internal_keyboard_trigger_key_down(KINC_KEY_META);
+		cmd = true;
+	}
+}
+
 - (void)keyDown:(NSEvent*)theEvent {
 	if ([theEvent isARepeat]) return;
 	NSString* characters = [theEvent characters];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
-		if (ch >= L'A' && ch <= L'Z') {
-			switch (ch) {
-			default:
-				if ([theEvent modifierFlags] & NSShiftKeyMask) {
-					if (!shift) kinc_internal_keyboard_trigger_key_down(KINC_KEY_SHIFT);
-					shift = true;
-				}
-				else {
-					if (shift) kinc_internal_keyboard_trigger_key_up(KINC_KEY_SHIFT);
-					shift = false;
-				}
+		switch (ch) { // keys that exist in keydown and keypress events
+			case 59:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SEMICOLON);
 				break;
-			}
+			case 91:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_OPEN_BRACKET);
+				break;
+			case 93:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_CLOSE_BRACKET);
+				break;
+			case 39:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_QUOTE);
+				break;
+			case 92:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_SLASH);
+				break;
+			case 44:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_COMMA);
+				break;
+			case 46:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_PERIOD);
+				break;
+			case 47:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SLASH);
+				break;
+			case 96:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_QUOTE);
+				break;
+			case 32:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SPACE);
+				break;
+			case 45: // we need breaks because EQUALS triggered too for some reason
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_HYPHEN_MINUS);
+				break;
+			case 61:
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_EQUALS);
+				break;
 		}
 		switch (ch) {
 		case NSRightArrowFunctionKey:
@@ -87,8 +151,8 @@ namespace {
 		case 0x7f:
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACKSPACE);
 			break;
-		case 32:
-			kinc_internal_keyboard_trigger_key_down(KINC_KEY_SPACE);
+		case 9:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_TAB);
 			break;
 		default:
 			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
@@ -98,7 +162,6 @@ namespace {
 					[board clearContents];
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
-				break;
 			}
 			if (ch == 'c' && [theEvent modifierFlags] & NSCommandKeyMask) {
 				char* text = kinc_internal_copy_callback();
@@ -107,7 +170,6 @@ namespace {
 					[board clearContents];
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
-				break;
 			}
 			if (ch == 'v' && [theEvent modifierFlags] & NSCommandKeyMask) {
 				NSPasteboard* board = [NSPasteboard generalPasteboard];
@@ -117,7 +179,6 @@ namespace {
 					strcpy(charData, [data UTF8String]);
 					kinc_internal_paste_callback(charData);
 				}
-				break;
 			}
 			if (ch >= L'a' && ch <= L'z') {
 				kinc_internal_keyboard_trigger_key_down(ch - L'a' + KINC_KEY_A);
@@ -139,6 +200,39 @@ namespace {
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
 		switch (ch) {
+		case 59:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_SEMICOLON);
+			break;
+		case 91:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_OPEN_BRACKET);
+			break;
+		case 93:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_CLOSE_BRACKET);
+			break;
+		case 39:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_QUOTE);
+			break;
+		case 92:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_BACK_SLASH);
+			break;
+		case 44:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_COMMA);
+			break;
+		case 46:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_PERIOD);
+			break;
+		case 47:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_SLASH);
+			break;
+		case 96:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_BACK_QUOTE);
+			break;
+		case 45:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_HYPHEN_MINUS);
+			break;
+		case 61:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_EQUALS);
+			break;
 		case NSRightArrowFunctionKey:
 			kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
 			break;
@@ -161,6 +255,9 @@ namespace {
 			break;
 		case 0x7f:
 			kinc_internal_keyboard_trigger_key_up(KINC_KEY_BACKSPACE);
+			break;
+		case 9:
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_TAB);
 			break;
 		case 32:
 			kinc_internal_keyboard_trigger_key_up(KINC_KEY_SPACE);
