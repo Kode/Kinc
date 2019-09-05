@@ -218,6 +218,39 @@ void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
 	glCheckErrors();
 }
 
+void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {
+	glUniform2i(location.impl.location, value1, value2);
+	glCheckErrors();
+}
+
+void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {
+	glUniform3i(location.impl.location, value1, value2, value3);
+	glCheckErrors();
+}
+
+void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {
+	glUniform4i(location.impl.location, value1, value2, value3, value4);
+	glCheckErrors();
+}
+
+void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
+	switch (location.impl.type) {
+	case GL_INT_VEC2:
+		glUniform2iv(location.impl.location, count / 2, values);
+		break;
+	case GL_INT_VEC3:
+		glUniform3iv(location.impl.location, count / 3, values);
+		break;
+	case GL_INT_VEC4:
+		glUniform4iv(location.impl.location, count / 4, values);
+		break;
+	default:
+		glUniform1iv(location.impl.location, count, values);
+		break;
+	}
+	glCheckErrors();
+}
+
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
 	glUniform1f(location.impl.location, value);
 	glCheckErrors();

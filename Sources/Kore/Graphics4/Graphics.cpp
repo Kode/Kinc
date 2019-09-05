@@ -39,6 +39,18 @@ void Graphics4::setFloat4(ConstantLocation position, vec4 value) {
 	setFloat4(position, value.x(), value.y(), value.z(), value.w());
 }
 
+void Graphics4::setInt2(ConstantLocation position, vec2i value) {
+	setInt2(position, value.x(), value.y());
+}
+
+void Graphics4::setInt3(ConstantLocation position, vec3i value) {
+	setInt3(position, value.x(), value.y(), value.z());
+}
+
+void Graphics4::setInt4(ConstantLocation position, vec4i value) {
+	setInt4(position, value.x(), value.y(), value.z(), value.w());
+}
+
 void Graphics4::setVertexBuffer(VertexBuffer& vertexBuffer) {
 	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
 	setVertexBuffers(vertexBuffers, 1);
@@ -170,6 +182,22 @@ void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
 
 void Graphics4::setInt(ConstantLocation location, int value) {
 	kinc_g4_set_int(location.kincConstant, value);
+}
+
+void Graphics4::setInt2(ConstantLocation location, int value1, int value2) {
+	kinc_g4_set_int2(location.kincConstant, value1, value2);
+}
+
+void Graphics4::setInt3(ConstantLocation location, int value1, int value2, int value3) {
+	kinc_g4_set_int3(location.kincConstant, value1, value2, value3);
+}
+
+void Graphics4::setInt4(ConstantLocation location, int value1, int value2, int value3, int value4) {
+	kinc_g4_set_int4(location.kincConstant, value1, value2, value3, value4);
+}
+
+void Graphics4::setInts(ConstantLocation location, int* values, int count) {
+	kinc_g4_set_ints(location.kincConstant, values, count);
 }
 
 void Graphics4::setBool(ConstantLocation location, bool value) {

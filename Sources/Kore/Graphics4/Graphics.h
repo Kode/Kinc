@@ -131,7 +131,16 @@ namespace Kore {
 		};
 
 		void setBool(ConstantLocation location, bool value);
+		
 		void setInt(ConstantLocation location, int value);
+		void setInt2(ConstantLocation location, int value1, int value2);
+		void setInt2(ConstantLocation location, vec2i value);
+		void setInt3(ConstantLocation location, int value1, int value2, int value3);
+		void setInt3(ConstantLocation location, vec3i value);
+		void setInt4(ConstantLocation location, int value1, int value2, int value3, int value4);
+		void setInt4(ConstantLocation location, vec4i value);
+		void setInts(ConstantLocation location, int* values, int count);
+
 		void setFloat(ConstantLocation location, float value);
 		void setFloat2(ConstantLocation location, float value1, float value2);
 		void setFloat2(ConstantLocation location, vec2 value);
