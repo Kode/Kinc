@@ -7,6 +7,7 @@
 #include <kinc/graphics4/shader.h>
 
 void kinc_g4_pipeline_init(kinc_g4_pipeline_t *pipe) {
+	kinc_g4_internal_pipeline_set_defaults(pipe);
 	kinc_g5_pipeline_init(&pipe->impl._pipeline);
 }
 

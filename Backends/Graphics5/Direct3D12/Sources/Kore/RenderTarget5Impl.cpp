@@ -64,10 +64,11 @@ static DXGI_FORMAT convertFormat(kinc_g5_render_target_format_t format) {
 
 void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int width, int height, int depthBufferBits, bool antialiasing,
                                 kinc_g5_render_target_format_t format, int stencilBufferBits,
-                                      int contextId) {
+                                int contextId) {
 	render_target->texWidth = render_target->width = width;
 	render_target->texHeight = render_target->height = height;
 	render_target->impl.stage = 0;
+	render_target->impl.stage_depth = -1;
 
 	render_target->impl.resourceState = RenderTargetResourceStateUndefined;
 
@@ -98,7 +99,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.NodeMask = 0;
-	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDescriptorHeap));
 
@@ -121,7 +122,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilDescriptorHeap));
 
 		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0, width, height, 1, 1, DXGI_FORMAT_D32_FLOAT, 1, 0,
-		                                   D3D12_TEXTURE_LAYOUT_UNKNOWN, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+		                                   D3D12_TEXTURE_LAYOUT_UNKNOWN, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
 		D3D12_CLEAR_VALUE clearValue;
 		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
@@ -133,10 +134,28 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 
 		device->CreateDepthStencilView(render_target->impl.depthStencilTexture, nullptr,
 		                               render_target->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+		D3D12_DESCRIPTOR_HEAP_DESC srvDepthHeapDesc = {};
+		srvDepthHeapDesc.NumDescriptors = 1;
+		srvDepthHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		srvDepthHeapDesc.NodeMask = 0;
+		srvDepthHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		device->CreateDescriptorHeap(&srvDepthHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDepthDescriptorHeap));
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDepthViewDesc = {};
+		srvDepthViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDepthViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDepthViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		srvDepthViewDesc.Texture2D.MipLevels = 1;
+		srvDepthViewDesc.Texture2D.MostDetailedMip = 0;
+		srvDepthViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+		device->CreateShaderResourceView(render_target->impl.depthStencilTexture, &srvDepthViewDesc,
+		                                 render_target->impl.srvDepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 	else {
 		render_target->impl.depthStencilDescriptorHeap = nullptr;
 		render_target->impl.depthStencilTexture = nullptr;
+		render_target->impl.srvDepthDescriptorHeap = nullptr;
 	}
 
 	render_target->impl.scissor = {0, 0, width, height};
@@ -149,8 +168,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 }
 
 void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *render_target, int cubeMapSize, int depthBufferBits, bool antialiasing, kinc_g5_render_target_format_t format, int stencilBufferBits,
-                                      int contextId) {
+                                     int contextId) {
 	render_target->impl.stage = 0;
+	render_target->impl.stage_depth = -1;
 }
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
@@ -160,37 +180,29 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
 	render_target->impl.renderTarget->Release();
 	render_target->impl.renderTargetDescriptorHeap->Release();
 	render_target->impl.srvDescriptorHeap->Release();
-}
-
-namespace {
-	void graphicsFlushAndWait() {
-		/*commandList->Close();
-
-		ID3D12CommandList* commandLists[] = {commandList};
-		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
-
-		const UINT64 fenceValue = currentFenceValue;
-		commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
-		fenceValues[currentBackBuffer] = fenceValue;
-		++currentFenceValue;
-
-		waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
-
-		commandList->Reset(commandAllocators[currentBackBuffer], nullptr);
-		commandList->OMSetRenderTargets(1, &renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-		commandList->RSSetViewports(1, &viewport);
-		commandList->RSSetScissorRects(1, &rectScissor);*/
+	if (render_target->impl.depthStencilTexture != NULL) {
+		render_target->impl.depthStencilTexture->Release();
+		render_target->impl.depthStencilDescriptorHeap->Release();
+		render_target->impl.srvDepthDescriptorHeap->Release();
 	}
 }
 
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
-	graphicsFlushAndWait();
 	render_target->impl.stage = unit.impl.unit;
 	currentRenderTargets[render_target->impl.stage] = render_target;
 	currentTextures[render_target->impl.stage] = nullptr;
 }
 
-void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {}
+void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {
+	if (unit.impl.unit < 0) return;
+	render_target->impl.stage_depth = unit.impl.unit;
+	currentRenderTargets[render_target->impl.stage_depth] = render_target;
+	currentTextures[render_target->impl.stage_depth] = nullptr;
+}
 
-void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *render_target, kinc_g5_render_target_t *source) {}
+void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *render_target, kinc_g5_render_target_t *source) {
+	render_target->impl.depthStencilDescriptorHeap = source->impl.depthStencilDescriptorHeap;
+	render_target->impl.srvDepthDescriptorHeap = source->impl.srvDepthDescriptorHeap;
+	render_target->impl.depthStencilTexture = source->impl.depthStencilTexture;
+}

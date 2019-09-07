@@ -40,11 +40,7 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_
 }
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
-	pipe->vertexShader = nullptr;
-	pipe->fragmentShader = nullptr;
-	pipe->geometryShader = nullptr;
-	pipe->tessellationEvaluationShader = nullptr;
-	pipe->tessellationControlShader = nullptr;
+	kinc_g5_internal_pipeline_init(pipe);
 }
 
 void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipe) {

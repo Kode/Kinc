@@ -14,13 +14,17 @@ static const int textureCount = 16;
 kinc_g5_render_target_t *currentRenderTargets[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                                                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 kinc_g5_texture *currentTextures[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                                                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+                                                  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 bool bilinearFiltering = false;
 
 namespace {
 	ID3D12DescriptorHeap* samplerDescriptorHeapPoint;
 	ID3D12DescriptorHeap* samplerDescriptorHeapBilinear;
+	static const int heapSize = 1024;
+	static int heapIndex = 0;
+	ID3D12DescriptorHeap* srvHeap;
+	ID3D12DescriptorHeap* samplerHeap;
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
@@ -31,26 +35,101 @@ int d3d12_textureAlignment() {
 int d3d12_textureAlignment();
 #endif
 
-void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
-	if (currentRenderTargets[0] != nullptr) {
-		ID3D12DescriptorHeap* heaps[textureCount];
-		for (int i = 0; i < textureCount; ++i) {
-			heaps[i] = currentRenderTargets[i] == nullptr ? nullptr : currentRenderTargets[i]->impl.srvDescriptorHeap;
-		}
-		heaps[1] = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
-		commandList->SetDescriptorHeaps(2, heaps);
-		commandList->SetGraphicsRootDescriptorTable(0, currentRenderTargets[0]->impl.srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		commandList->SetGraphicsRootDescriptorTable(1, heaps[1]->GetGPUDescriptorHandleForHeapStart());
+static DXGI_FORMAT convertFormat(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return DXGI_FORMAT_R16G16B16A16_FLOAT;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	case KINC_IMAGE_FORMAT_A32:
+		return DXGI_FORMAT_R32_FLOAT;
+	case KINC_IMAGE_FORMAT_A16:
+		return DXGI_FORMAT_R16_FLOAT;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return DXGI_FORMAT_R8_UNORM;
+	case KINC_IMAGE_FORMAT_BGRA32:
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	default:
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
 	}
-	if (currentTextures[0] != nullptr) {
-		ID3D12DescriptorHeap* heaps[textureCount];
-		for (int i = 0; i < textureCount; ++i) {
-			heaps[i] = currentTextures[i] == nullptr ? nullptr : currentTextures[i]->impl.srvDescriptorHeap;
+}
+
+static int formatByteSize(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return 16;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return 8;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return 4;
+	case KINC_IMAGE_FORMAT_A32:
+		return 4;
+	case KINC_IMAGE_FORMAT_A16:
+		return 2;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return 1;
+	case KINC_IMAGE_FORMAT_BGRA32:
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return 4;
+	default:
+		return 4;
+	}
+}
+
+void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
+
+	if (currentRenderTargets[0] != nullptr || currentTextures[0] != nullptr) {
+		int srvStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		int samplerStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+
+		if (heapIndex + textureCount >= heapSize) {
+			heapIndex = 0;
 		}
-		heaps[1] = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
+
+		ID3D12DescriptorHeap* samplerDescriptorHeap = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
+		D3D12_GPU_DESCRIPTOR_HANDLE srvGpu = srvHeap->GetGPUDescriptorHandleForHeapStart();
+		D3D12_GPU_DESCRIPTOR_HANDLE samplerGpu = samplerHeap->GetGPUDescriptorHandleForHeapStart();
+		srvGpu.ptr += heapIndex * srvStep;
+		samplerGpu.ptr += heapIndex * samplerStep;
+
+		for (int i = 0; i < textureCount; ++i) {
+			if (currentRenderTargets[i] != nullptr || currentTextures[i] != nullptr) {
+
+				D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = srvHeap->GetCPUDescriptorHandleForHeapStart();
+				D3D12_CPU_DESCRIPTOR_HANDLE samplerCpu = samplerHeap->GetCPUDescriptorHandleForHeapStart();
+				srvCpu.ptr += heapIndex * srvStep;
+				samplerCpu.ptr += heapIndex * samplerStep;
+				++heapIndex;
+
+				if (currentRenderTargets[i] != nullptr) {
+					bool is_depth = currentRenderTargets[i]->impl.stage_depth == i;
+					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = is_depth ?
+						currentRenderTargets[i]->impl.srvDepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart() :
+						currentRenderTargets[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+					device->CopyDescriptorsSimple(1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+
+					if (is_depth) {
+						currentRenderTargets[i]->impl.stage_depth = -1;
+						currentRenderTargets[i] = nullptr;
+					}
+				}
+				else {
+					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = currentTextures[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+					device->CopyDescriptorsSimple(1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				}
+			}
+		}
+
+		ID3D12DescriptorHeap* heaps[2] = {srvHeap, samplerHeap};
 		commandList->SetDescriptorHeaps(2, heaps);
-		commandList->SetGraphicsRootDescriptorTable(0, currentTextures[0]->impl.srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		commandList->SetGraphicsRootDescriptorTable(1, heaps[1]->GetGPUDescriptorHandleForHeapStart());
+		commandList->SetGraphicsRootDescriptorTable(0, srvGpu);
+		commandList->SetGraphicsRootDescriptorTable(1, samplerGpu);
 	}
 }
 
@@ -58,7 +137,7 @@ static void createSampler(bool bilinear, D3D12_FILTER filter) {
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapSampler = {};
 	descHeapSampler.NumDescriptors = 2;
 	descHeapSampler.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
-	descHeapSampler.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descHeapSampler.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&descHeapSampler, IID_GRAPHICS_PPV_ARGS(&(bilinear ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint)));
 
 	D3D12_SAMPLER_DESC samplerDesc;
@@ -75,9 +154,21 @@ static void createSampler(bool bilinear, D3D12_FILTER filter) {
 	device->CreateSampler(&samplerDesc, (bilinear ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint)->GetCPUDescriptorHandleForHeapStart());
 }
 
-void createSamplers() {
+void createSamplersAndHeaps() {
 	createSampler(false, D3D12_FILTER_MIN_MAG_MIP_POINT);
 	createSampler(true, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = heapSize;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&srvHeap));
+
+	D3D12_DESCRIPTOR_HEAP_DESC samplerHeapDesc = {};
+	samplerHeapDesc.NumDescriptors = heapSize;
+	samplerHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+	samplerHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	device->CreateDescriptorHeap(&samplerHeapDesc, IID_GRAPHICS_PPV_ARGS(&samplerHeap));
 }
 
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {
@@ -87,8 +178,11 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
 
+	DXGI_FORMAT d3dformat = convertFormat(image->format);
+	int formatSize = formatByteSize(image->format);
+
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, texture->texWidth, texture->texHeight, 1, 1),
+	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1),
 	                                D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
@@ -104,7 +198,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
 	int pitch = kinc_g5_texture_stride(texture);
 	for (int y = 0; y < texture->texHeight; ++y) {
-		memcpy(&pixel[y * pitch], &((uint8_t*)image->data)[y * texture->texWidth * 4], texture->texWidth * 4);
+		memcpy(&pixel[y * pitch], &((uint8_t*)image->data)[y * texture->texWidth * formatSize], texture->texWidth * formatSize);
 	}
 	texture->impl.uploadImage->Unmap(0, nullptr);
 
@@ -113,14 +207,14 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.NodeMask = 0;
-	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	shaderResourceViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	shaderResourceViewDesc.Format = d3dformat;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
@@ -136,7 +230,7 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 	texture->texWidth = width;
 	texture->texHeight = height;
 
-	DXGI_FORMAT d3dformat = (format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM);
+	DXGI_FORMAT d3dformat = convertFormat(format);
 
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
@@ -155,7 +249,7 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.NodeMask = 0;
-	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 

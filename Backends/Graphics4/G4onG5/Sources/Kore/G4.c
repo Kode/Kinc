@@ -24,8 +24,10 @@ uint64_t frameNumber = 0;
 bool waitAfterNextDraw = false;
 
 #define bufferCount 2
+#define renderTargetCount 8
 static int currentBuffer = -1;
 static kinc_g5_render_target_t framebuffers[bufferCount];
+static kinc_g5_render_target_t *currentRenderTargets[renderTargetCount];
 
 static kinc_g5_constant_buffer_t vertexConstantBuffer;
 static kinc_g5_constant_buffer_t fragmentConstantBuffer;
@@ -99,7 +101,7 @@ void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_textu
 }
 
 void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
-	kinc_g5_command_list_clear(&commandList, &framebuffers[currentBuffer], flags, color, depth, stencil);
+	kinc_g5_command_list_clear(&commandList, currentRenderTargets[0], flags, color, depth, stencil);
 }
 
 void kinc_g4_begin(int window) {
@@ -110,6 +112,7 @@ void kinc_g4_begin(int window) {
 	currentBuffer = (currentBuffer + 1) % bufferCount;
 
 	kinc_g5_begin(&framebuffers[currentBuffer], window);
+	currentRenderTargets[0] = &framebuffers[currentBuffer];
 	// commandList = new Graphics5::CommandList;
 	kinc_g5_command_list_begin(&commandList);
 	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &framebuffers[currentBuffer]);
@@ -270,17 +273,16 @@ bool kinc_g4_non_pow2_textures_supported() {
 }
 
 void kinc_g4_restore_render_target() {
-	kinc_g5_render_target_t *renderTargets[1] = {&framebuffers[currentBuffer]};
-	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
+	currentRenderTargets[0] = &framebuffers[currentBuffer];
+	kinc_g5_command_list_set_render_targets(&commandList, currentRenderTargets, 1);
 }
 
 void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
-	kinc_g5_render_target_t *renderTargets[16];
 	for (int i = 0; i < count; ++i) {
-		renderTargets[i] = &targets[i]->impl._renderTarget;
-		kinc_g5_command_list_texture_to_render_target_barrier(&commandList, renderTargets[i]);
+		currentRenderTargets[i] = &targets[i]->impl._renderTarget;
+		kinc_g5_command_list_texture_to_render_target_barrier(&commandList, currentRenderTargets[i]);
 	}
-	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, count);
+	kinc_g5_command_list_set_render_targets(&commandList, currentRenderTargets, count);
 }
 
 void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) {
