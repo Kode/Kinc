@@ -93,12 +93,19 @@ void kinc_g4_set_stencil_reference_value(int value);
 void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2);
 
 void kinc_g4_set_int(kinc_g4_constant_location_t location, int value);
+void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2);
+void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3);
+void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4);
+void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count);
+
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value);
 void kinc_g4_set_float2(kinc_g4_constant_location_t location, float value1, float value2);
 void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, float value2, float value3);
 void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, float value2, float value3, float value4);
 void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count);
+
 void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value);
+
 void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value);
 void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value);
 
