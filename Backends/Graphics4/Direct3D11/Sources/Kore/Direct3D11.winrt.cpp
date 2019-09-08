@@ -618,6 +618,67 @@ namespace {
 		ints[0] = value;
 	}
 
+	void setInt2(uint8_t* constants, uint32_t offset, uint32_t size, int value1, int value2) {
+		if (size == 0) return;
+		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		ints[0] = value1;
+		ints[1] = value2;
+	}
+
+	void setInt3(uint8_t* constants, uint32_t offset, uint32_t size, int value1, int value2, int value3) {
+		if (size == 0) return;
+		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		ints[0] = value1;
+		ints[1] = value2;
+		ints[2] = value3;
+	}
+
+	void setInt4(uint8_t* constants, uint32_t offset, uint32_t size, int value1, int value2, int value3, int value4) {
+		if (size == 0) return;
+		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		ints[0] = value1;
+		ints[1] = value2;
+		ints[2] = value3;
+		ints[3] = value4;
+	}
+
+	void setInts(uint8_t* constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, int* values, int count) {
+		if (size == 0) return;
+		int *ints = reinterpret_cast<int*>(&constants[offset]);
+		if (columns == 4 && rows == 4) {
+			for (int i = 0; i < count / 16 && i < static_cast<int>(size) / 4; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						ints[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
+					}
+				}
+			}
+		}
+		else if (columns == 3 && rows == 3) {
+			for (int i = 0; i < count / 9 && i < static_cast<int>(size) / 3; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						ints[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
+					}
+				}
+			}
+		}
+		else if (columns == 2 && rows == 2) {
+			for (int i = 0; i < count / 4 && i < static_cast<int>(size) / 2; ++i) {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						ints[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
+					}
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < count && i * 4 < static_cast<int>(size); ++i) {
+				ints[i] = values[i];
+			}
+		}
+	}
+
 	void setFloat(uint8_t* constants, uint32_t offset, uint32_t size, float value) {
 		if (size == 0) return;
 		float* floats = reinterpret_cast<float*>(&constants[offset]);
@@ -718,6 +779,44 @@ void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
 	::setInt(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
 	::setInt(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
 	::setInt(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+}
+
+void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {
+	::setInt2(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2);
+	::setInt2(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2);
+	::setInt2(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2);
+	::setInt2(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2);
+	::setInt2(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2);
+}
+
+void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {
+	::setInt3(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3);
+	::setInt3(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3);
+	::setInt3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3);
+	::setInt3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3);
+	::setInt3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3);
+}
+
+void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {
+	::setInt4(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3, value4);
+	::setInt4(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3, value4);
+	::setInt4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3, value4);
+	::setInt4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3, value4);
+	::setInt4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3, value4);
+}
+
+void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
+	::setInts(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, location.impl.vertexColumns, location.impl.vertexRows, values, count);
+	::setInts(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, location.impl.fragmentColumns, location.impl.fragmentRows, values,
+	            count);
+	::setInts(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, location.impl.geometryColumns, location.impl.geometryRows, values,
+	            count);
+	::setInts(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, location.impl.tessEvalColumns, location.impl.tessEvalRows, values,
+	            count);
+	::setInts(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
+	            location.impl.tessControlRows,
+	            values,
+	            count);
 }
 
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {

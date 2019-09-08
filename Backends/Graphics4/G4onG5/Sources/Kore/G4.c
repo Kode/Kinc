@@ -180,6 +180,22 @@ void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
 		kinc_g5_constant_buffer_set_int(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
+void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {
+
+}
+
+void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {
+
+}
+
+void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {
+
+}
+
+void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
+	
+}
+
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
 	if (location.impl._location.impl.vertexOffset >= 0)
 		kinc_g5_constant_buffer_set_float(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
