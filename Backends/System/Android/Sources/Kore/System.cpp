@@ -508,7 +508,7 @@ const char* kinc_language() {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
-	jstring s = (jstring) env->CallObjectMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "getLanguage", "()Ljava/lang/String;"));
+	jstring s = (jstring) env->CallStaticObjectMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "getLanguage", "()Ljava/lang/String;"));
 	const char* str = env->GetStringUTFChars(s, 0);
 	activity->vm->DetachCurrentThread();
 	return str;
@@ -648,7 +648,7 @@ void kinc_login() {
 }
 
 void kinc_unlock_achievement(int id) {
-	
+
 }
 
 bool kinc_gamepad_connected(int num) {
