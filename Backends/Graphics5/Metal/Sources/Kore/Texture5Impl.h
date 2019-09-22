@@ -11,5 +11,6 @@ typedef struct {
 typedef struct {
 	id _tex;
 	id _sampler;
+    id _samplerDesc;
 	void *data;
 } Texture5Impl;

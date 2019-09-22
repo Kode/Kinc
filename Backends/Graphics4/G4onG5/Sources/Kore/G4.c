@@ -14,6 +14,7 @@
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/constantbuffer.h>
+#include <kinc/graphics5/graphics.h>
 #include <kinc/math/core.h>
 #include <kinc/math/matrix.h>
 #include <kinc/system.h>
@@ -335,6 +336,18 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 	}
 	kinc_g5_set_texture(unit.impl._unit, &texture->impl._texture);
 }
+
+#if defined(KORE_IOS) || defined(KORE_MACOS)
+void kinc_g4_set_texture_descriptor(kinc_g4_texture_t *texture, kinc_g4_texture_descriptor_t descriptor) {
+    kinc_g5_texture_descriptor_t d = *((kinc_g5_texture_descriptor_t *) &descriptor);;
+    kinc_g5_set_texture_descriptor(&texture->impl._texture, (kinc_g5_texture_descriptor_t)d);
+}
+
+void kinc_g4_set_render_target_descriptor(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_descriptor_t descriptor) {
+    kinc_g5_texture_descriptor_t d = *((kinc_g5_texture_descriptor_t *) &descriptor);;
+    kinc_g5_set_render_target_descriptor(&renderTarget->impl._renderTarget, (kinc_g5_texture_descriptor_t)d);
+}
+#endif
 
 void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {}
 
