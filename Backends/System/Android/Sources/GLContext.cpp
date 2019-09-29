@@ -37,14 +37,15 @@ namespace ndk_helper
 // Ctor
 //--------------------------------------------------------------------------------
 GLContext::GLContext() :
+                window_( nullptr ),
                 display_( EGL_NO_DISPLAY ),
                 surface_( EGL_NO_SURFACE ),
                 context_( EGL_NO_CONTEXT ),
                 screen_width_( 0 ),
                 screen_height_( 0 ),
-                es3_supported_( false ),
+                gles_initialized_( false ),
                 egl_context_initialized_( false ),
-                gles_initialized_( false )
+                es3_supported_( false )
 {
 }
 
@@ -132,14 +133,6 @@ bool GLContext::InitEGLSurface()
         return false;
     }
 
-    /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
-     * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
-     * As soon as we picked a EGLConfig, we can safely reconfigure the
-     * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
-    EGLint format;
-    eglGetConfigAttrib( display_, config_, EGL_NATIVE_VISUAL_ID, &format );
-    ANativeWindow_setBuffersGeometry( window_, 0, 0, format );
-
     surface_ = eglCreateWindowSurface( display_, config_, window_, NULL );
     eglQuerySurface( display_, surface_, EGL_WIDTH, &screen_width_ );
     eglQuerySurface( display_, surface_, EGL_HEIGHT, &screen_height_ );
@@ -209,6 +202,7 @@ void GLContext::Terminate()
     display_ = EGL_NO_DISPLAY;
     context_ = EGL_NO_CONTEXT;
     surface_ = EGL_NO_SURFACE;
+    window_ = nullptr;
     context_valid_ = false;
 
 }
