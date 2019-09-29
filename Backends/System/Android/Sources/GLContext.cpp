@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------------------
 #include "GLContext.h"
 
-#include <cstring>
+#include <string.h>
 #include <unistd.h>
 
 #include "gl3stub.h"
@@ -37,15 +37,16 @@ namespace ndk_helper {
 //--------------------------------------------------------------------------------
 // Ctor
 //--------------------------------------------------------------------------------
-GLContext::GLContext() :
+GLContext::GLContext()
+    : window_(nullptr),
       display_(EGL_NO_DISPLAY),
       surface_(EGL_NO_SURFACE),
       context_(EGL_NO_CONTEXT),
       screen_width_(0),
       screen_height_(0),
-      es3_supported_(false),
+      gles_initialized_(false),
       egl_context_initialized_(false),
-      gles_initialized_(false) {}
+      es3_supported_(false) {}
 
 void GLContext::InitGLES() {
   if (gles_initialized_) return;
@@ -105,8 +106,6 @@ bool GLContext::InitEGLSurface() {
                             8,
                             EGL_DEPTH_SIZE,
                             24,
-                            EGL_STENCIL_SIZE,
-                            8,
                             EGL_NONE};
   color_size_ = 8;
   depth_size_ = 24;
@@ -128,8 +127,6 @@ bool GLContext::InitEGLSurface() {
                               8,
                               EGL_DEPTH_SIZE,
                               16,
-                              EGL_STENCIL_SIZE,
-                              8,
                               EGL_NONE};
     eglChooseConfig(display_, attribs, &config_, 1, &num_configs);
     depth_size_ = 16;
@@ -139,14 +136,6 @@ bool GLContext::InitEGLSurface() {
     LOGW("Unable to retrieve EGL config");
     return false;
   }
-
-  /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
-   * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
-   * As soon as we picked a EGLConfig, we can safely reconfigure the
-   * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
-  EGLint format;
-  eglGetConfigAttrib(display_, config_, EGL_NATIVE_VISUAL_ID, &format);
-  ANativeWindow_setBuffersGeometry(window_, 0, 0, format);
 
   surface_ = eglCreateWindowSurface(display_, config_, window_, NULL);
   eglQuerySurface(display_, surface_, EGL_WIDTH, &screen_width_);
@@ -207,9 +196,11 @@ void GLContext::Terminate() {
   display_ = EGL_NO_DISPLAY;
   context_ = EGL_NO_CONTEXT;
   surface_ = EGL_NO_SURFACE;
+  window_ = nullptr;
   context_valid_ = false;
 }
 
+// for Kore
 void GLContext::UpdateSize() {
   eglQuerySurface(display_, surface_, EGL_WIDTH, &screen_width_);
   eglQuerySurface(display_, surface_, EGL_HEIGHT, &screen_height_);
