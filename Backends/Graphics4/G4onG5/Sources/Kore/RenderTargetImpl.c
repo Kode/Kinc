@@ -44,6 +44,8 @@ void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *rende
 	kinc_g5_render_target_set_depth_stencil_from(&render_target->impl._renderTarget, &source->impl._renderTarget);
 }
 
-void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *render_target, uint8_t *data) {}
+void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *render_target, uint8_t *data) {
+	kinc_g5_command_list_get_render_target_pixels(&commandList, &render_target->impl._renderTarget, data);
+}
 
 void kinc_g4_render_target_generate_mipmaps(kinc_g4_render_target_t *render_target, int levels) {}

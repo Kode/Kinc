@@ -97,6 +97,8 @@ void kinc_g5_command_list_upload_vertex_buffer(kinc_g5_command_list_t *list, str
 
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct kinc_g5_texture *texture) {}
 
+void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {}
+
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	newRenderPass(lastRenderTarget, false);
 }

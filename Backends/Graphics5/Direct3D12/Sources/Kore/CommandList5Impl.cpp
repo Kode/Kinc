@@ -82,7 +82,22 @@ namespace {
 
 	void graphicsFlushAndWait(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator, kinc_g5_render_target_t *renderTarget) {
 		graphicsFlush(list, commandAllocator, renderTarget);
-		graphicsWait(list, commandAllocator, renderTarget);		
+		graphicsWait(list, commandAllocator, renderTarget);
+	}
+
+	int formatSize(DXGI_FORMAT format) {
+		switch (format) {
+		case DXGI_FORMAT_R32G32B32A32_FLOAT:
+			return 16;
+		case DXGI_FORMAT_R16G16B16A16_FLOAT:
+			return 8;
+		case DXGI_FORMAT_R16_FLOAT:
+			return 2;
+		case DXGI_FORMAT_R8_UNORM:
+			return 1;
+		default:
+			return 4;
+		}
 	}
 
 	kinc_g5_render_target_t *currentRenderTarget = nullptr;
@@ -304,4 +319,73 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_t
 	list->impl._commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
 	list->impl._commandList->ResourceBarrier(
 	    1, &CD3DX12_RESOURCE_BARRIER::Transition(texture->impl.image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+}
+
+void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {
+	DXGI_FORMAT dxgiFormat = render_target->impl.renderTarget->GetDesc().Format;
+	int formatByteSize = formatSize(dxgiFormat);
+
+	// Create readback buffer
+	if (render_target->impl.renderTargetReadback == nullptr) {
+		device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(render_target->texWidth * render_target->texHeight * formatByteSize),
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
+	}
+
+	// Copy render target to readback buffer
+	D3D12_RESOURCE_STATES sourceState = render_target->impl.resourceState == RenderTargetResourceStateRenderTarget ? D3D12_RESOURCE_STATE_RENDER_TARGET : D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+
+	{
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = render_target->impl.renderTarget;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = sourceState;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		list->impl._commandList->ResourceBarrier(1, &barrier);
+	}
+
+	D3D12_TEXTURE_COPY_LOCATION source;
+	source.pResource = render_target->impl.renderTarget;
+	source.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	source.SubresourceIndex = 0;
+
+	D3D12_TEXTURE_COPY_LOCATION dest;
+	dest.pResource = render_target->impl.renderTargetReadback;
+	dest.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	dest.PlacedFootprint.Offset = 0;
+	dest.PlacedFootprint.Footprint.Format = dxgiFormat;
+	dest.PlacedFootprint.Footprint.Width = render_target->texWidth;
+	dest.PlacedFootprint.Footprint.Height = render_target->texHeight;
+	dest.PlacedFootprint.Footprint.Depth = 1;
+	int rowPitch = render_target->texWidth * formatByteSize;
+	int align = rowPitch % D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+	if (align != 0) rowPitch = rowPitch + (D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - align);
+	dest.PlacedFootprint.Footprint.RowPitch = rowPitch;
+
+	list->impl._commandList->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
+
+	{
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = render_target->impl.renderTarget;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+		barrier.Transition.StateAfter = sourceState;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		list->impl._commandList->ResourceBarrier(1, &barrier);
+	}
+
+	graphicsFlushAndWait(list, list->impl._commandAllocator, currentRenderTarget);
+
+	// Read buffer
+	void* p;
+	render_target->impl.renderTargetReadback->Map(0, nullptr, &p);
+	memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
+	render_target->impl.renderTargetReadback->Unmap(0, nullptr);
 }
