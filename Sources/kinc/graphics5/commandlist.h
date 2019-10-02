@@ -20,6 +20,7 @@ struct kinc_g5_pipeline;
 struct kinc_g5_render_target;
 struct kinc_g5_texture;
 struct kinc_g5_vertex_buffer;
+struct kinc_g5_render_target;
 
 typedef struct kinc_g5_command_list {
 	CommandList5Impl impl;
@@ -53,6 +54,7 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list);
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list);
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list);
+void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, struct kinc_g5_render_target *render_target, uint8_t *data);
 
 #ifdef __cplusplus
 }

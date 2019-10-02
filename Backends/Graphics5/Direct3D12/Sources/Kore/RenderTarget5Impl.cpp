@@ -69,6 +69,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	render_target->texHeight = render_target->height = height;
 	render_target->impl.stage = 0;
 	render_target->impl.stage_depth = -1;
+	render_target->impl.renderTargetReadback = nullptr;
 
 	render_target->impl.resourceState = RenderTargetResourceStateUndefined;
 

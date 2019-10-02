@@ -27,6 +27,7 @@ enum RenderTargetResourceState { RenderTargetResourceStateUndefined, RenderTarge
 
 typedef struct {
 	struct ID3D12Resource *renderTarget;
+	struct ID3D12Resource *renderTargetReadback;
 	struct ID3D12DescriptorHeap *renderTargetDescriptorHeap;
 	struct ID3D12DescriptorHeap *srvDescriptorHeap;
 	struct ID3D12DescriptorHeap *depthStencilDescriptorHeap;
