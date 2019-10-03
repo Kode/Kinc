@@ -48,6 +48,13 @@
 
 #define APP_NAME_STR_LEN 80
 
+extern "C" {
+	int renderTargetWidth;
+	int renderTargetHeight;
+	int newRenderTargetWidth;
+	int newRenderTargetHeight;
+}
+
 VkDevice device;
 VkFormat format;
 VkFormat depth_format;
