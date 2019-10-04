@@ -23,6 +23,11 @@ kinc_g5_command_list_t commandList;
 uint64_t frameNumber = 0;
 bool waitAfterNextDraw = false;
 
+extern int renderTargetWidth;
+extern int renderTargetHeight;
+extern int newRenderTargetWidth;
+extern int newRenderTargetHeight;
+
 #define bufferCount 2
 #define renderTargetCount 8
 static int currentBuffer = -1;
@@ -111,7 +116,23 @@ void kinc_g4_begin(int window) {
 
 	currentBuffer = (currentBuffer + 1) % bufferCount;
 
+	bool resized = newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight;
+	if (resized) {
+		for (int i = 0; i < bufferCount; ++i) {
+			kinc_g5_render_target_destroy(&framebuffers[i]);
+		}
+		currentBuffer = 0;
+	}
+
 	kinc_g5_begin(&framebuffers[currentBuffer], window);
+
+	if (resized) {
+		for (int i = 0; i < bufferCount; ++i) {
+			kinc_g5_render_target_init(&framebuffers[i], kinc_width(), kinc_height(), 32, false, KINC_G5_RENDER_TARGET_FORMAT_32BIT, -1,
+			                           -i - 1 /* hack in an index for backbuffer render targets */);
+		}
+	}
+
 	currentRenderTargets[0] = &framebuffers[currentBuffer];
 	// commandList = new Graphics5::CommandList;
 	kinc_g5_command_list_begin(&commandList);
@@ -193,7 +214,7 @@ void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int valu
 }
 
 void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
-	
+
 }
 
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
