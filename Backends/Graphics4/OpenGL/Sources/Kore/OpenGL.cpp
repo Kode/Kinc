@@ -174,20 +174,21 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	glDebugMessageCallback(debugCallback, nullptr);
 #endif
 
+#ifndef KORE_OPENGL_ES
 	int extensions;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &extensions);
 	for (int i = 0; i < extensions; ++i) {
 		const char *extension = (const char *)glGetStringi(GL_EXTENSIONS, i);
-#ifdef KORE_OPENGL_ES
-		if (extension != nullptr && strcmp(extension, "GL_OES_depth_texture") == 0) {
-			Kinc_Internal_SupportsDepthTexture = true;
-		}
-#else
 		if (extension != nullptr && strcmp(extension, "GL_NV_conservative_raster") == 0) {
 			Kinc_Internal_SupportsConservativeRaster = true;
 		}
-#endif
 	}
+#endif
+
+#ifdef KORE_OPENGL_ES
+    char *exts = (char *)glGetString(GL_EXTENSIONS);
+    Kinc_Internal_SupportsDepthTexture = exts != NULL && strstr(exts, "GL_OES_depth_texture") != NULL;
+#endif
 
 	lastPipeline = nullptr;
 
