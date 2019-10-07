@@ -402,6 +402,7 @@ extern "C" bool kinc_window_vsynced(int window) {
 }
 
 extern "C" void kinc_internal_resize(int window, int width, int height) {
+	if (width == 0 || height == 0) return;
 	newRenderTargetWidth = width;
 	newRenderTargetHeight = height;
 }
