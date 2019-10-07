@@ -321,6 +321,14 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_t
 	    1, &CD3DX12_RESOURCE_BARRIER::Transition(texture->impl.image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 }
 
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+int d3d12_textureAlignment() {
+	return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+}
+#else
+int d3d12_textureAlignment();
+#endif
+
 void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {
 	DXGI_FORMAT dxgiFormat = render_target->impl.renderTarget->GetDesc().Format;
 	int formatByteSize = formatSize(dxgiFormat);
@@ -364,8 +372,8 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	dest.PlacedFootprint.Footprint.Height = render_target->texHeight;
 	dest.PlacedFootprint.Footprint.Depth = 1;
 	int rowPitch = render_target->texWidth * formatByteSize;
-	int align = rowPitch % D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
-	if (align != 0) rowPitch = rowPitch + (D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - align);
+	int align = rowPitch % d3d12_textureAlignment();
+	if (align != 0) rowPitch = rowPitch + (d3d12_textureAlignment() - align);
 	dest.PlacedFootprint.Footprint.RowPitch = rowPitch;
 
 	list->impl._commandList->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
