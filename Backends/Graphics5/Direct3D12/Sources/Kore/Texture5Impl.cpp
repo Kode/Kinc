@@ -297,17 +297,12 @@ void kinc_g5_internal_texture_unset(kinc_g5_texture *texture) {
 }
 
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture *texture) {
-	return (uint8_t *)NULL;//texture->image.data;
+	BYTE *pixel;
+	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
+	return pixel;
 }
 
 void kinc_g5_texture_unlock(kinc_g5_texture *texture) {
-	BYTE* pixel;
-	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
-	int pitch = kinc_g5_texture_stride(texture);
-	for (int y = 0; y < texture->texHeight; ++y) {
-		//memcpy(&pixel[y * pitch], &texture->image.data[y * texture->texWidth],
-		//       texture->format == KINC_IMAGE_FORMAT_RGBA32 ? texture->texWidth * 4 : texture->texWidth);
-	}
 	texture->impl.uploadImage->Unmap(0, nullptr);
 }
 
