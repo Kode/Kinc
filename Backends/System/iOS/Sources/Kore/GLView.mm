@@ -194,7 +194,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-		renderPassDescriptor.depthAttachment.clearDepth = 99999;
+		renderPassDescriptor.depthAttachment.clearDepth = 1;
 		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
 		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
 		renderPassDescriptor.depthAttachment.texture = depthTexture;
@@ -455,7 +455,7 @@ namespace {
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-		renderPassDescriptor.depthAttachment.clearDepth = 99999;
+		renderPassDescriptor.depthAttachment.clearDepth = 1;
 		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
 		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
 		renderPassDescriptor.depthAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->impl._depthTex;
