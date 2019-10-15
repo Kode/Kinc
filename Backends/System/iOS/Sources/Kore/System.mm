@@ -34,10 +34,6 @@ bool kinc_internal_handle_messages(void) {
 
 void kinc_set_keep_screen_on(bool on) {}
 
-bool kinc_keyboard_available() {
-	return keyboardshown;
-}
-
 void showKeyboard();
 void hideKeyboard();
 
@@ -49,6 +45,10 @@ void kinc_keyboard_show() {
 void kinc_keyboard_hide() {
 	keyboardshown = false;
 	::hideKeyboard();
+}
+
+bool kinc_keyboard_active() {
+	return keyboardshown;
 }
 
 void loadURL(const char* url);
