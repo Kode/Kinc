@@ -69,46 +69,74 @@ namespace {
 		}
 	}
 
+	bool isGamepadEvent(AInputEvent* event) {
+		return (
+			(AInputEvent_getSource(event) & AINPUT_SOURCE_GAMEPAD) == AINPUT_SOURCE_GAMEPAD ||
+			(AInputEvent_getSource(event) & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK ||
+			(AInputEvent_getSource(event) & AINPUT_SOURCE_DPAD) == AINPUT_SOURCE_DPAD
+		);
+	}
+
+	void touchInput(AInputEvent* event) {
+		int action = AMotionEvent_getAction(event);
+		int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+		int id = AMotionEvent_getPointerId(event, index);
+		float x = AMotionEvent_getX(event, index);
+		float y = AMotionEvent_getY(event, index);
+		switch (action & AMOTION_EVENT_ACTION_MASK) {
+		case AMOTION_EVENT_ACTION_DOWN:
+		case AMOTION_EVENT_ACTION_POINTER_DOWN:
+			if (id == 0) {
+				kinc_internal_mouse_trigger_press(0, 0, x, y);
+			}
+			kinc_internal_surface_trigger_touch_start(id, x, y);
+			// __android_log_print(ANDROID_LOG_INFO, "GAME", "#DOWN %d %d %d %f %f", action, index, id, x, y);
+			break;
+		case AMOTION_EVENT_ACTION_MOVE: {
+			size_t count = AMotionEvent_getPointerCount(event);
+			for (int i = 0; i < count; ++i) {
+				id = AMotionEvent_getPointerId(event, i);
+				x = AMotionEvent_getX(event, i);
+				y = AMotionEvent_getY(event, i);
+				if (id == 0) {
+					kinc_internal_mouse_trigger_move(0, x, y);
+				}
+				kinc_internal_surface_trigger_move(id, x, y);
+				// __android_log_print(ANDROID_LOG_INFO, "GAME", "#MOVE %d %d %d %f %f", action, index, id, x, y);
+			}
+		} break;
+		case AMOTION_EVENT_ACTION_UP:
+		case AMOTION_EVENT_ACTION_CANCEL:
+		case AMOTION_EVENT_ACTION_POINTER_UP:
+			if (id == 0) {
+				kinc_internal_mouse_trigger_release(0, 0, x, y);
+			}
+			kinc_internal_surface_trigger_touch_end(id, x, y);
+			// __android_log_print(ANDROID_LOG_INFO, "GAME", "#UP %d %d %d %f %f", action, index, id, x, y);
+			break;
+		}
+	}
+
 	int32_t input(android_app* app, AInputEvent* event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-			int action = AMotionEvent_getAction(event);
-			int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-			int id = AMotionEvent_getPointerId(event, index);
-			float x = AMotionEvent_getX(event, index);
-			float y = AMotionEvent_getY(event, index);
-			switch (action & AMOTION_EVENT_ACTION_MASK) {
-			case AMOTION_EVENT_ACTION_DOWN:
-			case AMOTION_EVENT_ACTION_POINTER_DOWN:
-				if (id == 0) {
-					kinc_internal_mouse_trigger_press(0, 0, x, y);
-				}
-				kinc_internal_surface_trigger_touch_start(id, x, y);
-				// __android_log_print(ANDROID_LOG_INFO, "GAME", "#DOWN %d %d %d %f %f", action, index, id, x, y);
-				break;
-			case AMOTION_EVENT_ACTION_MOVE: {
-				size_t count = AMotionEvent_getPointerCount(event);
-				for (int i = 0; i < count; ++i) {
-					id = AMotionEvent_getPointerId(event, i);
-					x = AMotionEvent_getX(event, i);
-					y = AMotionEvent_getY(event, i);
-					if (id == 0) {
-						kinc_internal_mouse_trigger_move(0, x, y);
-					}
-					kinc_internal_surface_trigger_move(id, x, y);
-					// __android_log_print(ANDROID_LOG_INFO, "GAME", "#MOVE %d %d %d %f %f", action, index, id, x, y);
-				}
-			} break;
-			case AMOTION_EVENT_ACTION_UP:
-			case AMOTION_EVENT_ACTION_CANCEL:
-			case AMOTION_EVENT_ACTION_POINTER_UP:
-				if (id == 0) {
-					kinc_internal_mouse_trigger_release(0, 0, x, y);
-				}
-				kinc_internal_surface_trigger_touch_end(id, x, y);
-				// __android_log_print(ANDROID_LOG_INFO, "GAME", "#UP %d %d %d %f %f", action, index, id, x, y);
-				break;
+			int source = AInputEvent_getSource(event);
+			if ((source & AINPUT_SOURCE_TOUCHSCREEN) == AINPUT_SOURCE_TOUCHSCREEN) {
+				touchInput(event);
+				return 1;
+			} else if ((source & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK) {
+				float x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
+				float y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
+				if (x < 0.01f && x > -0.01f) x = 0;
+				if (y < 0.01f && y > -0.01f) y = 0;
+				if (x > 0.99f) x = 1;
+				if (x < -0.99f) x = -1;
+				if (y > 0.99f) y = 1;
+				if (y < -0.99f) y = -1;
+				// int id = AInputEvent_getDeviceId(event);
+				kinc_internal_gamepad_trigger_axis(0, 0, x);
+				kinc_internal_gamepad_trigger_axis(0, 1, y);
+				return 1;
 			}
-			return 1;
 		}
 		else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY) {
 			int32_t code = AKeyEvent_getKeyCode(event);
@@ -128,24 +156,28 @@ namespace {
 					kinc_internal_keyboard_trigger_key_down(KINC_KEY_RETURN);
 					return 1;
 				case AKEYCODE_DPAD_LEFT:
-					kinc_gamepad_axis_callback(0, 0, -1);
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 0, -1);
+					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
 					return 1;
 				case AKEYCODE_DPAD_RIGHT:
-					kinc_gamepad_axis_callback(0, 0, 1);
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 0, 1);
+					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
 					return 1;
 				case AKEYCODE_DPAD_UP:
-					kinc_gamepad_axis_callback(0, 1, -1);
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 1, -1);
+					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_UP);
 					return 1;
 				case AKEYCODE_DPAD_DOWN:
-					kinc_gamepad_axis_callback(0, 1, 1);
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 1, 1);
+					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOWN);
 					return 1;
 				case AKEYCODE_DPAD_CENTER:
 				case AKEYCODE_BUTTON_B:
-					kinc_gamepad_button_callback(0, 0, 1);
+					kinc_internal_gamepad_trigger_button(0, 0, 1);
 					return 1;
 				case AKEYCODE_BACK:
 					if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
-						kinc_gamepad_button_callback(0, 1, 1);
+						kinc_internal_gamepad_trigger_button(0, 1, 1);
 						return 1;
 					}
 					else {
@@ -153,13 +185,40 @@ namespace {
 						return 1;
 					}
 				case AKEYCODE_BUTTON_A:
-					kinc_gamepad_button_callback(0, 1, 1);
-					return 1;
-				case AKEYCODE_BUTTON_X:
-					kinc_gamepad_button_callback(0, 2, 1);
+					kinc_internal_gamepad_trigger_button(0, 1, 1);
 					return 1;
 				case AKEYCODE_BUTTON_Y:
-					kinc_gamepad_button_callback(0, 3, 1);
+					kinc_internal_gamepad_trigger_button(0, 2, 1);
+					return 1;
+				case AKEYCODE_BUTTON_X:
+					kinc_internal_gamepad_trigger_button(0, 3, 1);
+					return 1;
+				case AKEYCODE_BUTTON_L1:
+					kinc_internal_gamepad_trigger_button(0, 4, 1);
+					return 1;
+				case AKEYCODE_BUTTON_R1:
+					kinc_internal_gamepad_trigger_button(0, 5, 1);
+					return 1;
+				case AKEYCODE_BUTTON_L2:
+					kinc_internal_gamepad_trigger_button(0, 6, 1);
+					return 1;
+				case AKEYCODE_BUTTON_R2:
+					kinc_internal_gamepad_trigger_button(0, 7, 1);
+					return 1;
+				case AKEYCODE_BUTTON_SELECT:
+					kinc_internal_gamepad_trigger_button(0, 8, 1);
+					return 1;
+				case AKEYCODE_BUTTON_START:
+					kinc_internal_gamepad_trigger_button(0, 9, 1);
+					return 1;
+				case AKEYCODE_BUTTON_THUMBL:
+					kinc_internal_gamepad_trigger_button(0, 10, 1);
+					return 1;
+				case AKEYCODE_BUTTON_THUMBR:
+					kinc_internal_gamepad_trigger_button(0, 11, 1);
+					return 1;
+				case AKEYCODE_BUTTON_MODE:
+					kinc_internal_gamepad_trigger_button(0, 16, 1);
 					return 1;
 				case AKEYCODE_STAR:
 				case AKEYCODE_NUMPAD_MULTIPLY:
@@ -258,16 +317,20 @@ namespace {
 					kinc_internal_keyboard_trigger_key_up(KINC_KEY_RETURN);
 					return 1;
 				case AKEYCODE_DPAD_LEFT:
-					kinc_internal_gamepad_trigger_axis(0, 0, 0);
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 0, 0);
+					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
 					return 1;
 				case AKEYCODE_DPAD_RIGHT:
-					kinc_internal_gamepad_trigger_axis(0, 0, 0);
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 0, 0);
+					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
 					return 1;
 				case AKEYCODE_DPAD_UP:
-					kinc_internal_gamepad_trigger_axis(0, 1, 0);
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 1, 0);
+					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_UP);
 					return 1;
 				case AKEYCODE_DPAD_DOWN:
-					kinc_internal_gamepad_trigger_axis(0, 1, 0);
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 1, 0);
+					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOWN);
 					return 1;
 				case AKEYCODE_DPAD_CENTER:
 				case AKEYCODE_BUTTON_B:
@@ -285,11 +348,38 @@ namespace {
 				case AKEYCODE_BUTTON_A:
 					kinc_internal_gamepad_trigger_button(0, 1, 0);
 					return 1;
-				case AKEYCODE_BUTTON_X:
+				case AKEYCODE_BUTTON_Y:
 					kinc_internal_gamepad_trigger_button(0, 2, 0);
 					return 1;
-				case AKEYCODE_BUTTON_Y:
+				case AKEYCODE_BUTTON_X:
 					kinc_internal_gamepad_trigger_button(0, 3, 0);
+					return 1;
+				case AKEYCODE_BUTTON_L1:
+					kinc_internal_gamepad_trigger_button(0, 4, 0);
+					return 1;
+				case AKEYCODE_BUTTON_R1:
+					kinc_internal_gamepad_trigger_button(0, 5, 0);
+					return 1;
+				case AKEYCODE_BUTTON_L2:
+					kinc_internal_gamepad_trigger_button(0, 6, 0);
+					return 1;
+				case AKEYCODE_BUTTON_R2:
+					kinc_internal_gamepad_trigger_button(0, 7, 0);
+					return 1;
+				case AKEYCODE_BUTTON_SELECT:
+					kinc_internal_gamepad_trigger_button(0, 8, 0);
+					return 1;
+				case AKEYCODE_BUTTON_START:
+					kinc_internal_gamepad_trigger_button(0, 9, 0);
+					return 1;
+				case AKEYCODE_BUTTON_THUMBL:
+					kinc_internal_gamepad_trigger_button(0, 10, 0);
+					return 1;
+				case AKEYCODE_BUTTON_THUMBR:
+					kinc_internal_gamepad_trigger_button(0, 11, 0);
+					return 1;
+				case AKEYCODE_BUTTON_MODE:
+					kinc_internal_gamepad_trigger_button(0, 16, 0);
 					return 1;
 				case AKEYCODE_STAR:
 				case AKEYCODE_NUMPAD_MULTIPLY:
