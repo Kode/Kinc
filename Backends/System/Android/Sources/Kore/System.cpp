@@ -155,22 +155,6 @@ namespace {
 				case AKEYCODE_NUMPAD_ENTER:
 					kinc_internal_keyboard_trigger_key_down(KINC_KEY_RETURN);
 					return 1;
-				case AKEYCODE_DPAD_LEFT:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 0, -1);
-					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
-					return 1;
-				case AKEYCODE_DPAD_RIGHT:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 0, 1);
-					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
-					return 1;
-				case AKEYCODE_DPAD_UP:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 1, -1);
-					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_UP);
-					return 1;
-				case AKEYCODE_DPAD_DOWN:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 1, 1);
-					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOWN);
-					return 1;
 				case AKEYCODE_DPAD_CENTER:
 				case AKEYCODE_BUTTON_B:
 					kinc_internal_gamepad_trigger_button(0, 0, 1);
@@ -216,6 +200,22 @@ namespace {
 					return 1;
 				case AKEYCODE_BUTTON_THUMBR:
 					kinc_internal_gamepad_trigger_button(0, 11, 1);
+					return 1;
+				case AKEYCODE_DPAD_UP:
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 12, 1);
+					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_UP);
+					return 1;
+				case AKEYCODE_DPAD_DOWN:
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 13, 1);
+					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOWN);
+					return 1;
+				case AKEYCODE_DPAD_LEFT:
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 14, 1);
+					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
+					return 1;
+				case AKEYCODE_DPAD_RIGHT:
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 15, 1);
+					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
 					return 1;
 				case AKEYCODE_BUTTON_MODE:
 					kinc_internal_gamepad_trigger_button(0, 16, 1);
@@ -316,22 +316,6 @@ namespace {
 				case AKEYCODE_ENTER:
 					kinc_internal_keyboard_trigger_key_up(KINC_KEY_RETURN);
 					return 1;
-				case AKEYCODE_DPAD_LEFT:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 0, 0);
-					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
-					return 1;
-				case AKEYCODE_DPAD_RIGHT:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 0, 0);
-					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
-					return 1;
-				case AKEYCODE_DPAD_UP:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 1, 0);
-					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_UP);
-					return 1;
-				case AKEYCODE_DPAD_DOWN:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_axis(0, 1, 0);
-					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOWN);
-					return 1;
 				case AKEYCODE_DPAD_CENTER:
 				case AKEYCODE_BUTTON_B:
 					kinc_internal_gamepad_trigger_button(0, 0, 0);
@@ -377,6 +361,22 @@ namespace {
 					return 1;
 				case AKEYCODE_BUTTON_THUMBR:
 					kinc_internal_gamepad_trigger_button(0, 11, 0);
+					return 1;
+				case AKEYCODE_DPAD_UP:
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 12, 0);
+					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_UP);
+					return 1;
+				case AKEYCODE_DPAD_DOWN:
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 13, 0);
+					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOWN);
+					return 1;
+				case AKEYCODE_DPAD_LEFT:
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 14, 0);
+					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
+					return 1;
+				case AKEYCODE_DPAD_RIGHT:
+					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 15, 0);
+					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
 					return 1;
 				case AKEYCODE_BUTTON_MODE:
 					kinc_internal_gamepad_trigger_button(0, 16, 0);
