@@ -126,12 +126,6 @@ namespace {
 			} else if ((source & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK) {
 				float x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
 				float y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
-				if (x < 0.01f && x > -0.01f) x = 0;
-				if (y < 0.01f && y > -0.01f) y = 0;
-				if (x > 0.99f) x = 1;
-				if (x < -0.99f) x = -1;
-				if (y > 0.99f) y = 1;
-				if (y < -0.99f) y = -1;
 				// int id = AInputEvent_getDeviceId(event);
 				kinc_internal_gamepad_trigger_axis(0, 0, x);
 				kinc_internal_gamepad_trigger_axis(0, 1, y);
