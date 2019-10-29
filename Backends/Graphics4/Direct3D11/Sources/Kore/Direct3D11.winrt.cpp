@@ -445,6 +445,10 @@ void kinc_g4_draw_indexed_vertices() {
 }
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
+	kinc_g4_draw_indexed_vertices_from_to_from(start, count, 0);
+}
+
+void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_start) {
 	if (currentPipeline->tessellation_control_shader != nullptr) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -452,7 +456,7 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	kinc_internal_set_constants();
-	context->DrawIndexed(count, start, 0);
+	context->DrawIndexed(count, start, vertex_start);
 
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
