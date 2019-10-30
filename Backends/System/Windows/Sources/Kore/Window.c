@@ -110,10 +110,16 @@ int kinc_count_windows() {
 }
 
 int kinc_window_x(int window_index) {
+	RECT rect;
+	GetWindowRect(windows[window_index].handle, &rect);
+	windows[window_index].x = rect.left;
 	return windows[window_index].x;
 }
 
 int kinc_window_y(int window_index) {
+	RECT rect;
+	GetWindowRect(windows[window_index].handle, &rect);
+	windows[window_index].y = rect.top;
 	return windows[window_index].y;
 }
 
