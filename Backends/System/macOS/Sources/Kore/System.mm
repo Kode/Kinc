@@ -216,9 +216,7 @@ void kinc_internal_shutdown() {
 }
 
 namespace {
-	const char* savePath = nullptr;
-
-	void getSavePath() {
+	const char* getSavePath() {
 		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSString* resolvedPath = [paths objectAtIndex:0];
 		NSString* appName = [NSString stringWithUTF8String: kinc_application_name()];
@@ -230,7 +228,7 @@ namespace {
 		[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
 
 		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
-		savePath = [resolvedPath cStringUsingEncoding:NSUTF8StringEncoding];
+		return [resolvedPath cStringUsingEncoding:NSUTF8StringEncoding];
 	}
 
 	int argc = 0;
@@ -238,8 +236,7 @@ namespace {
 }
 
 const char* kinc_internal_save_path() {
-	if (::savePath == nullptr) getSavePath();
-	return ::savePath;
+	return getSavePath();
 }
 
 int main(int argc, char** argv) {
