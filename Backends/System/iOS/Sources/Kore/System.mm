@@ -120,9 +120,7 @@ const char* kinc_system_id() {
 }
 
 namespace {
-	const char* savePath = nullptr;
-
-	void getSavePath() {
+	const char* getSavePath() {
 		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSString* resolvedPath = [paths objectAtIndex:0];
 		NSString* appName = [NSString stringWithUTF8String:kinc_application_name()];
@@ -134,13 +132,12 @@ namespace {
 		[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
 
 		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
-		savePath = [resolvedPath cStringUsingEncoding:1];
+		return [resolvedPath cStringUsingEncoding:1];
 	}
 }
 
 const char* kinc_internal_save_path() {
-	if (::savePath == nullptr) getSavePath();
-	return ::savePath;
+	return getSavePath();
 }
 
 namespace {
