@@ -387,20 +387,18 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	xcb_map_window(connection, window);
 	xcb_flush(connection);
 
-	windowimpl::windows[0] = new Kore::Window; //new windowimpl::KoreWindow(win, cx, dstx, dsty, width, height);
-	windowimpl::windows[0]->_data.width = width;
-	windowimpl::windows[0]->_data.height = height;
-	windowimpl::windows[0]->_data.handle = win;
+	kinc_internal_windows[0].width = width;
+    kinc_internal_windows[0].height = height;
+    kinc_internal_windows[0].handle = win;
 
-	if (windowMode == Kore::WindowModeFullscreen || windowMode == Kore::WindowModeExclusiveFullscreen) {
-		windowimpl::windows[0]->_data.mode = windowMode;
+	if (windowMode == KINC_WINDOW_MODE_FULLSCREEN || windowMode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
+		kinc_internal_windows[0].mode = windowMode;
 	}
 	else {
-		windowimpl::windows[0]->_data.mode = 0;
+		kinc_internal_windows[0].mode = 0;
 	}
 
 	windowimpl::windowCounter = 1;
-
 	return 0;
 #endif
 }
@@ -840,16 +838,16 @@ bool kinc_internal_handle_messages() {
 			const xcb_key_press_event_t* key = (const xcb_key_press_event_t*)event;
 			switch (key->detail) {
 			case 111:
-				Kore::Keyboard::the()->_keydown(Kore::KeyUp);
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_UP);
 				break;
 			case 116:
-				Kore::Keyboard::the()->_keydown(Kore::KeyDown);
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOWN);
 				break;
 			case 113:
-				Kore::Keyboard::the()->_keydown(Kore::KeyLeft);
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
 				break;
 			case 114:
-				Kore::Keyboard::the()->_keydown(Kore::KeyRight);
+				kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
 				break;
 			}
 			break;
@@ -859,16 +857,16 @@ bool kinc_internal_handle_messages() {
 			if (key->detail == 0x9) exit(0);
 			switch (key->detail) {
 			case 111:
-				Kore::Keyboard::the()->_keyup(Kore::KeyUp);
+				kinc_internal_keyboard_trigger_key_up(KINC_KEY_UP);
 				break;
 			case 116:
-				Kore::Keyboard::the()->_keyup(Kore::KeyDown);
+				kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOWN);
 				break;
 			case 113:
-				Kore::Keyboard::the()->_keyup(Kore::KeyLeft);
+				kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
 				break;
 			case 114:
-				Kore::Keyboard::the()->_keyup(Kore::KeyRight);
+				kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
 				break;
 			}
 			break;

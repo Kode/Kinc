@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <kinc/display.h>
+#include <kinc/log.h>
 
 #include <X11/Xatom.h>
 
@@ -8,7 +9,10 @@
 #include <X11/Xlib.h>
 
 #include <stdlib.h>
+
+#ifdef KORE_OPENGL
 #include <Kore/ogl.h>
+#endif
 
 void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter);
 #define MAXIMUM_DISPLAY_COUNT 10

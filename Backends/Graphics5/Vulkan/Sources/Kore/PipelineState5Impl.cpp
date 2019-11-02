@@ -10,6 +10,7 @@
 
 #include <map>
 #include <string>
+#include <string.h>
 
 extern VkDevice device;
 extern VkRenderPass render_pass;
@@ -270,7 +271,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 #ifdef KORE_WINDOWS
 	VkVertexInputAttributeDescription* vi_attrs = (VkVertexInputAttributeDescription*)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
 #else
-	VkVertexInputAttributeDescription vi_attrs[inputLayout[0]->size];
+	VkVertexInputAttributeDescription vi_attrs[pipeline->inputLayout[0]->size];
 #endif
 
 	VkPipelineVertexInputStateCreateInfo vi = {};
