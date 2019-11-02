@@ -19,15 +19,13 @@ jobs:
       run: sudo apt-get update
     - name: Apt Install
       run: sudo apt-get install make --yes --quiet
-    - name: Get Emscripten
-      run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ..
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Get Node.js
       run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
     - name: Setup Node.js
       run: nodejs_bin/copysysbin.sh
-    - name: Compile 1
+    - name: Compile (kincmake)
       run: nodejs_bin/node make.js html5 --kore . --from Tests/Empty --noshaders
-    - name: Compile 2
-      run: cd build && make
+    - name: Compile (emscripten)
+      run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../build && make
