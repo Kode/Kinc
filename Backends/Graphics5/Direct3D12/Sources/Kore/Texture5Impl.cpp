@@ -28,7 +28,7 @@ namespace {
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-int d3d12_textureAlignment() {
+static int d3d12_textureAlignment() {
 	return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
 }
 #else

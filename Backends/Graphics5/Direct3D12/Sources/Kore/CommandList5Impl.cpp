@@ -322,7 +322,7 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_t
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-int d3d12_textureAlignment() {
+static int d3d12_textureAlignment() {
 	return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
 }
 #else
