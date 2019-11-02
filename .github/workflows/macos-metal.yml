@@ -1,4 +1,4 @@
-name: iOS
+name: macOS (Metal)
 
 on:
   push:
@@ -22,4 +22,4 @@ jobs:
     - name: Setup Node.js
       run: nodejs_bin/copysysbin.sh
     - name: Compile
-      run: nodejs_bin/node make.js ios --kore . --from Tests/Empty --noshaders --nosigning --compile
+      run: nodejs_bin/node make.js -g metal --kore . --from Tests/Empty --noshaders --compile
