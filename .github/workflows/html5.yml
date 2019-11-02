@@ -15,10 +15,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: Apt Update
-      run: sudo apt-get update
-    - name: Apt Install
-      run: sudo apt-get install make --yes --quiet
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Get Node.js
