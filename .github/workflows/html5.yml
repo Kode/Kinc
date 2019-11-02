@@ -15,6 +15,10 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: Apt Update
+      run: sudo apt-get update
+    - name: Apt Install
+      run: sudo apt-get install make --yes --quiet
     - name: Get Emscripten
       run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ..
     - name: Get Submodules
