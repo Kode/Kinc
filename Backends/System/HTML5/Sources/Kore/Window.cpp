@@ -1,97 +1,87 @@
 #include "pch.h"
 
-#include <Kore/Display.h>
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Window.h>
+#include <kinc/display.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/window.h>
 
 #include <string.h>
 
-namespace {
-	Kore::Window win;
-}
+int kinc_internal_window_width = 0;
+int kinc_internal_window_height = 0;
+kinc_window_mode_t kinc_internal_window_mode = KINC_WINDOW_MODE_WINDOW;
 
-Kore::Window* Kore::Window::get(int window) {
-	if (window > 0) {
-		return nullptr;
-	}
-	return &win;
-}
-
-int Kore::Window::count() {
+int kinc_count_windows(void) {
 	return 1;
 }
 
-int Kore::Window::x() {
+int kinc_window_x(int window_index) {
 	return 0;
 }
 
-int Kore::Window::y() {
+int kinc_window_y(int window_index) {
 	return 0;
 }
 
-int Kore::Window::width() {
-    return _data.width;
+int kinc_window_width(int window_index) {
+    return kinc_internal_window_width;
 }
 
-int Kore::Window::height() {
-    return _data.height;
+int kinc_window_height(int window_index) {
+    return kinc_internal_window_height;
 }
 
-void Kore::Window::resize(int width, int height) {}
+void kinc_window_resize(int window_index, int width, int height) {}
 
-void Kore::Window::move(int x, int y) {}
+void kinc_window_move(int window_index, int x, int y) {}
 
-void Kore::Window::changeFramebuffer(FramebufferOptions* frame) {
-	Graphics4::_changeFramebuffer(0, frame);
+void kinc_window_change_framebuffer(int window_index, kinc_framebuffer_options_t *frame) {
+	//**kinc_g4_changeFramebuffer(0, frame);
 }
 
-void Kore::Window::changeWindowFeatures(int features) {}
+void kinc_window_change_features(int window_index, int features) {}
 
 //In HTML5 fullscreen is activable only from user input.
-void Kore::Window::changeWindowMode(WindowMode mode) {
-	if (mode == WindowModeFullscreen || mode == WindowModeExclusiveFullscreen) {
-		if (_data.mode == WindowModeFullscreen || _data.mode == WindowModeExclusiveFullscreen) {
-			_data.mode = mode;
+void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
+	if (mode == KINC_WINDOW_MODE_FULLSCREEN || mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
+		if (kinc_internal_window_mode == KINC_WINDOW_MODE_FULLSCREEN || kinc_internal_window_mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
+			kinc_internal_window_mode = mode;
 			return;
 		}
 		//TODO: call js Fullscreen API
-		_data.mode = mode;
+		kinc_internal_window_mode = mode;
 	}
 	else {
-		if (mode == _data.mode) {
+		if (mode == kinc_internal_window_mode) {
 			return;
 		}
 		//TODO: call js Fullscreen API
-        _data.mode = mode;
+        kinc_internal_window_mode = mode;
 	}
 }
 
-Kore::Display* Kore::Window::display() {
-	return nullptr;
+int kinc_primary_display(void) {
+	return 0;
 }
 
-void Kore::Window::destroy(Window* window) {
+void kinc_window_destroy(int window_index) {
 
 }
 
-void Kore::Window::show() {}
+void kinc_window_show(int window_index) {}
 
-void Kore::Window::hide() {}
+void kinc_window_hide(int window_index) {}
 
 //TODO: change browser title.
-void Kore::Window::setTitle(const char* title) {}
+void kinc_window_set_title(int window_index, const char *title) {}
 
-Kore::Window* Kore::Window::create(WindowOptions* win, FramebufferOptions* frame) {
-	return nullptr;
+int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	return 0;
 }
-Kore::WindowData::WindowData() : mode(0) {}
 
-Kore::Window::Window() {}
+void kinc_window_set_resize_callback(int window_index, void (*callback)(int x, int y, void *data), void *data) {}
 
-void Kore::Window::setResizeCallback(void (*value)(int x, int y, void* data), void* data) {}
+void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data) {}
 
-void Kore::Window::setPpiChangedCallback(void(*callback)(int ppi, void* data), void* data) {}
-
-Kore::WindowMode Kore::Window::mode() {
-	return (WindowMode)_data.mode;
+kinc_window_mode_t kinc_window_get_mode(int window_index) {
+	return kinc_internal_window_mode;
 }

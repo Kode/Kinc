@@ -1,36 +1,37 @@
 #include "pch.h"
-//#include <pthread.h>
 
-#include <Kore/Threads/Mutex.h>
+#include <kinc/threads/mutex.h>
 
-using namespace Kore;
-
-void Mutex::create() {
-	// pthread_mutex_init(&pthread_mutex, nullptr);
+void kinc_mutex_init(kinc_mutex_t *mutex) {
+	
 }
 
-void Mutex::destroy() {
-	// pthread_mutex_destroy(&pthread_mutex);
+void kinc_mutex_destroy(kinc_mutex_t *mutex) {
+	
 }
 
-void Mutex::lock() {
-	// pthread_mutex_lock(&pthread_mutex);
+bool kinc_mutex_try_to_lock(kinc_mutex_t *mutex) {
+    return false;
 }
 
-void Mutex::unlock() {
-	// pthread_mutex_unlock(&pthread_mutex);
+void kinc_mutex_lock(kinc_mutex_t *mutex) {
+	
 }
 
-bool UberMutex::create(const wchar_t* name) {
+void kinc_mutex_unlock(kinc_mutex_t *mutex) {
+	
+}
+
+bool kinc_uber_mutex_init(kinc_uber_mutex_t *mutex, const char* name) {
 	return false;
 }
 
-void UberMutex::destroy() {}
+void kinc_uber_mutex_destroy(kinc_uber_mutex_t *mutex) {}
 
-void UberMutex::lock() {
-	// affirm(false);
+void kinc_uber_mutex_lock(kinc_uber_mutex_t *mutex) {
+	
 }
 
-void UberMutex::unlock() {
-	// affirm(false);
+void kinc_uber_mutex_unlock(kinc_uber_mutex_t *mutex) {
+	
 }

@@ -1,24 +1,31 @@
 #include "../pch.h"
-#include <Kore/Input/Mouse.h>
 
-using namespace Kore;
+#include <kinc/input/mouse.h>
 
-void Mouse::_lock(int window, bool truth) {
-	// TODO
+void kinc_internal_mouse_lock(int window) {
+
 }
 
-bool Mouse::canLock(int window) {
-	return false; // FOR NOW
+void kinc_internal_mouse_unlock(int window) {
+
 }
 
-void Mouse::show(bool truth) {
-	// TODO
+bool kinc_mouse_can_lock(int window) {
+	return false;
 }
 
-void Mouse::setPosition(int window, int x, int y) {
-	// TODO
+void kinc_mouse_show() {
+
 }
 
-void Mouse::getPosition(int window, int& x, int& y) {
-	// TODO
+void kinc_mouse_hide() {
+
+}
+
+void kinc_mouse_set_position(int window, int x, int y) {
+
+}
+
+void kinc_mouse_get_position(int window, int *x, int *y) {
+	
 }
