@@ -1,4 +1,4 @@
-name: Windows
+name: Windows (Vulkan)
 
 on:
   push:
@@ -20,4 +20,4 @@ jobs:
     - name: Get Node.js
       run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
     - name: Compile
-      run: .\nodejs_bin\node.exe make.js --kore . --from Tests/Empty --noshaders --compile
+      run: .\nodejs_bin\node.exe make.js -g vulkan --kore . --from Tests/Empty --noshaders --compile

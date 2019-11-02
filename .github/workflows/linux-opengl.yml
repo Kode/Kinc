@@ -1,4 +1,4 @@
-name: Linux
+name: Linux (OpenGL)
 
 on:
   push:
@@ -26,4 +26,4 @@ jobs:
     - name: Setup Node.js
       run: nodejs_bin/copysysbin.sh
     - name: Compile
-      run: nodejs_bin/node make.js --kore . --from Tests/Empty --noshaders --compile
+      run: nodejs_bin/node make.js -g opengl --kore . --from Tests/Empty --noshaders --compile
