@@ -35,6 +35,7 @@ public class KoreActivity extends NativeActivity {
 	@Override
 	protected void onCreate(Bundle state) {
 		super.onCreate(state);
+		hideSystemUI();
 		instance = this;
 		inputManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         try {

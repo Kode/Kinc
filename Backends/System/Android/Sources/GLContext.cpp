@@ -165,26 +165,28 @@ bool GLContext::InitEGLContext()
 
 EGLint GLContext::Swap()
 {
-    bool b = eglSwapBuffers( display_, surface_ );
-    if( !b )
-    {
-        EGLint err = eglGetError();
-        if( err == EGL_BAD_SURFACE )
+    if (surface_ != NULL) {
+        bool b = eglSwapBuffers( display_, surface_ );
+        if( !b )
         {
-            Kore::log(Kore::Warning, "Recreating surface.");
-            //Recreate surface
-            InitEGLSurface();
-            return EGL_SUCCESS; //Still consider glContext is valid
+            EGLint err = eglGetError();
+            if( err == EGL_BAD_SURFACE )
+            {
+                Kore::log(Kore::Warning, "Recreating surface.");
+                //Recreate surface
+                InitEGLSurface();
+                return EGL_SUCCESS; //Still consider glContext is valid
+            }
+            else if( err == EGL_CONTEXT_LOST || err == EGL_BAD_CONTEXT )
+            {
+                Kore::log(Kore::Error, "Context lost.");
+                //Context has been lost!!
+                context_valid_ = false;
+                Terminate();
+                InitEGLContext();
+            }
+            return err;
         }
-        else if( err == EGL_CONTEXT_LOST || err == EGL_BAD_CONTEXT )
-        {
-            Kore::log(Kore::Error, "Context lost.");
-            //Context has been lost!!
-            context_valid_ = false;
-            Terminate();
-            InitEGLContext();
-        }
-        return err;
     }
     return EGL_SUCCESS;
 }
@@ -215,8 +217,10 @@ void GLContext::Terminate()
 
 void GLContext::UpdateSize()
 {
-    eglQuerySurface( display_, surface_, EGL_WIDTH, &screen_width_ );
-    eglQuerySurface( display_, surface_, EGL_HEIGHT, &screen_height_ );
+    if (surface_ != NULL) {
+        eglQuerySurface( display_, surface_, EGL_WIDTH, &screen_width_ );
+        eglQuerySurface( display_, surface_, EGL_HEIGHT, &screen_height_ );
+    }
 }
 
 EGLint GLContext::Resume( ANativeWindow* window )
