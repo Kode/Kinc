@@ -1,27 +1,34 @@
 #pragma once
 
-#include <map>
-#include <string>
+#include <stdint.h>
 
-namespace Kore {
-	struct ShaderRegister {
-		u8 regtype;
-		u8 regindex;
-		u8 regcount;
-	};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class ConstantLocationImpl {
-	public:
-		ShaderRegister reg;
-		int shaderType; // 0: Vertex, 1: Fragment
-	};
+struct ShaderRegister {
+	uint8_t regtype;
+	uint8_t regindex;
+	uint8_t regcount;
+};
 
-	class AttributeLocationImpl {};
+typedef struct {
+	struct ShaderRegister reg;
+	int shaderType; // 0: Vertex, 1: Fragment
+} kinc_g4_constant_location_impl_t;
 
-	class ShaderImpl {
-	public:
-		std::map<std::string, ShaderRegister> constants;
-		std::map<std::string, int> attributes;
-		void* shader;
-	};
+typedef struct {
+	int unit;
+} kinc_g4_texture_unit_impl_t;
+
+// class AttributeLocationImpl {};
+
+typedef struct {
+	// std::map<std::string, ShaderRegister> constants;
+	// std::map<std::string, int> attributes;
+	void *shader;
+} kinc_g4_shader_impl_t;
+
+#ifdef __cplusplus
 }
+#endif

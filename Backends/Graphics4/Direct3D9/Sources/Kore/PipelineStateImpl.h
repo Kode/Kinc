@@ -1,16 +1,18 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct IDirect3DVertexDeclaration9;
 
-namespace Kore {
-	namespace Graphics4 {
-		class PipelineState;
-	}
+typedef struct {
+	struct IDirect3DVertexDeclaration9 *vertexDecleration;
+	int halfPixelLocation;
+} kinc_g4_pipeline_impl_t;
 
-	class PipelineStateImpl {
-	public:
-		IDirect3DVertexDeclaration9* vertexDecleration;
-		int halfPixelLocation;
-		void set(Graphics4::PipelineState* pipeline);
-	};
+void kinc_internal_set_constants(void);
+
+#ifdef __cplusplus
 }
+#endif

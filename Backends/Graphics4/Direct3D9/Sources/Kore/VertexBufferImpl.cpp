@@ -1,92 +1,96 @@
 #include "pch.h"
 
-#include "Direct3D9.h"
-#include "VertexBufferImpl.h"
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/vertexbuffer.h>
 
-#include <Kore/Graphics4/Graphics.h>
 #include <Kore/SystemMicrosoft.h>
 
-using namespace Kore;
+#include "Direct3D9.h"
 
-Graphics4::VertexBuffer* VertexBufferImpl::_current = nullptr;
+struct kinc_g4_vertex_buffer *kinc_internal_current_vertex_buffer = NULL;
 
-VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {}
-
-Graphics4::VertexBuffer::VertexBuffer(int count, const VertexStructure& structure, Usage usage, int instanceDataStepRate) : VertexBufferImpl(count, instanceDataStepRate) {
+void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
+                                int instance_data_step_rate) {
+	buffer->impl.myCount = count;
+	buffer->impl.instanceDataStepRate = instance_data_step_rate;
 	DWORD usageFlags = D3DUSAGE_WRITEONLY;
-	if (usage == Kore::Graphics4::DynamicUsage){
+	if (usage == Kore::Graphics4::DynamicUsage) {
 		usageFlags = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
 	}
-	
-	myStride = 0;
-	for (int i = 0; i < structure.size; ++i) {
-		switch (structure.elements[i].data) {
-		case Float1VertexData:
-			myStride += 4 * 1;
+
+	buffer->impl.myStride = 0;
+	for (int i = 0; i < structure->size; ++i) {
+		switch (structure->elements[i].data) {
+		case KINC_G4_VERTEX_DATA_FLOAT1:
+			buffer->impl.myStride += 4 * 1;
 			break;
-		case Float2VertexData:
-			myStride += 4 * 2;
+		case KINC_G4_VERTEX_DATA_FLOAT2:
+			buffer->impl.myStride += 4 * 2;
 			break;
-		case Float3VertexData:
-			myStride += 4 * 3;
+		case KINC_G4_VERTEX_DATA_FLOAT3:
+			buffer->impl.myStride += 4 * 3;
 			break;
-		case Float4VertexData:
-			myStride += 4 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT4:
+			buffer->impl.myStride += 4 * 4;
 			break;
-		case ColorVertexData:
-			myStride += 4;
+		case KINC_G4_VERTEX_DATA_COLOR:
+			buffer->impl.myStride += 4;
 			break;
-		case Float4x4VertexData:
-			myStride += 4 * 4 * 4;
+		case KINC_G4_VERTEX_DATA_FLOAT4X4:
+			buffer->impl.myStride += 4 * 4 * 4;
 			break;
 		}
 	}
 
-	Microsoft::affirm(device->CreateVertexBuffer(stride() * count, usageFlags, 0, D3DPOOL_DEFAULT, &vb, 0));
+	kinc_microsoft_affirm(device->CreateVertexBuffer(kinc_g4_vertex_buffer_stride(buffer) * count, usageFlags, 0, D3DPOOL_DEFAULT, &buffer->impl.vb, 0));
 }
 
-Graphics4::VertexBuffer::~VertexBuffer() {
-	vb->Release();
+void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
+	buffer->impl.vb->Release();
 }
 
-float* Graphics4::VertexBuffer::lock() {
-	return lock(0, count());
+float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer) {
+	return kinc_g4_vertex_buffer_lock(buffer, 0, kinc_g4_vertex_buffer_count(buffer));
 }
 
-float* Graphics4::VertexBuffer::lock(int start, int count) {
-	float* vertices;
-	unset();
-	Microsoft::affirm(vb->Lock(start, count * stride(), (void**)&vertices, D3DLOCK_DISCARD));
+float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, int count) {
+	float *vertices;
+	kinc_internal_vertex_buffer_unset(buffer);
+	kinc_microsoft_affirm(buffer->impl.vb->Lock(start, count * kinc_g4_vertex_buffer_stride(buffer), (void **)&vertices, D3DLOCK_DISCARD));
 	return vertices;
 }
 
-void Graphics4::VertexBuffer::unlock() {
-	Microsoft::affirm(vb->Unlock());
+void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
+	kinc_microsoft_affirm(buffer->impl.vb->Unlock());
 }
 
-int Graphics4::VertexBuffer::_set(int offset) {
-	_offset = offset;
-	if (instanceDataStepRate == 0) {
-		_current = this;
+void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
+	kinc_microsoft_affirm(buffer->impl.vb->Unlock());
+}
+
+int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset) {
+	buffer->impl._offset = offset;
+	if (buffer->impl.instanceDataStepRate == 0) {
+		kinc_internal_current_vertex_buffer = buffer;
 	}
 	else {
-		Microsoft::affirm(device->SetStreamSourceFreq(offset, (D3DSTREAMSOURCE_INSTANCEDATA | instanceDataStepRate)));
+		kinc_microsoft_affirm(device->SetStreamSourceFreq(offset, (D3DSTREAMSOURCE_INSTANCEDATA | buffer->impl.instanceDataStepRate)));
 	}
-	Microsoft::affirm(device->SetStreamSource(offset, vb, 0, stride()));
+	kinc_microsoft_affirm(device->SetStreamSource(offset, buffer->impl.vb, 0, kinc_g4_vertex_buffer_stride(buffer)));
 	return 0;
 }
 
-void VertexBufferImpl::unset() {
-	if (_current == (Graphics4::VertexBuffer*)this) {
-		Microsoft::affirm(device->SetStreamSource(0, nullptr, 0, 0));
-		_current = nullptr;
+void kinc_internal_vertex_buffer_unset(struct kinc_g4_vertex_buffer *buffer) {
+	if (kinc_internal_current_vertex_buffer == buffer) {
+		kinc_microsoft_affirm(device->SetStreamSource(0, NULL, 0, 0));
+		kinc_internal_current_vertex_buffer = NULL;
 	}
 }
 
-int Graphics4::VertexBuffer::count() {
-	return myCount;
+int kinc_g4_vertex_buffer_count(kinc_g4_vertex_buffer_t *buffer) {
+	return buffer->impl.myCount;
 }
 
-int Graphics4::VertexBuffer::stride() {
-	return myStride;
+int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer) {
+	return buffer->impl.myStride;
 }

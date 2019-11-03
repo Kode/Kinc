@@ -11,11 +11,10 @@
 
 using namespace Kore;
 
-Graphics4::Shader::Shader(void* _data, int length, Graphics4::ShaderType type) {
-	setId();
+Graphics4::Shader::Shader(void *_data, int length, Graphics4::ShaderType type) {
 	unsigned index = 0;
 
-	u8* data = (u8*)_data;
+	u8 *data = (u8 *)_data;
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
 		char name[256];
@@ -41,12 +40,10 @@ Graphics4::Shader::Shader(void* _data, int length, Graphics4::ShaderType type) {
 	}
 	HRESULT hr;
 	if (type == VertexShader)
-		hr = device->CreateVertexShader((DWORD*)&data[index], (IDirect3DVertexShader9**)&shader);
+		hr = device->CreateVertexShader((DWORD *)&data[index], (IDirect3DVertexShader9 **)&shader);
 	else
-		hr = device->CreatePixelShader((DWORD*)&data[index], (IDirect3DPixelShader9**)&shader);
+		hr = device->CreatePixelShader((DWORD *)&data[index], (IDirect3DPixelShader9 **)&shader);
 	// if (FAILED(hr)) throw Exception("CreateShader failed");
 }
 
-Graphics4::Shader::Shader(const char* source, Graphics4::ShaderType type) {
-	setId();
-}
+Graphics4::Shader::Shader(const char *source, Graphics4::ShaderType type) {}

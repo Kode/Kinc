@@ -1,28 +1,25 @@
 #pragma once
 
-#ifdef KORE_WINDOWS
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct IDirect3DVertexBuffer9;
-struct IDirect3DVertexDeclaration9;
-#endif
 
-namespace Kore {
-	namespace Graphics4 {
-		class VertexBuffer;
-	}
+typedef struct {
+	struct IDirect3DVertexBuffer9 *vb;
+	int myCount;
+	int myStride;
+	int instanceDataStepRate;
+	int _offset;
+} kinc_g4_vertex_buffer_impl_t;
 
-	class VertexBufferImpl {
-	protected:
-#ifdef KORE_WINDOWS
-		IDirect3DVertexBuffer9* vb;
-#endif
-		int myCount;
-		int myStride;
-		int instanceDataStepRate;
-		VertexBufferImpl(int count, int instanceDataStepRate);
-		void unset();
+struct kinc_g4_vertex_buffer;
 
-	public:
-		static Graphics4::VertexBuffer* _current;
-		int _offset;
-	};
+void kinc_internal_vertex_buffer_unset(struct kinc_g4_vertex_buffer *buffer);
+
+extern struct kinc_g4_vertex_buffer *kinc_internal_current_vertex_buffer;
+
+#ifdef __cplusplus
 }
+#endif

@@ -1,113 +1,102 @@
 #include "pch.h"
 
-#include "Direct3D9.h"
-#include "TextureImpl.h"
+#include <kinc/graphics4/texture.h>
+#include <kinc/io/filereader.h>
 
-#include <Kore/IO/BufferReader.h>
 #include <Kore/SystemMicrosoft.h>
 
-using namespace Kore;
+#include "Direct3D9.h"
 
 namespace {
-	Graphics4::Texture* setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-	                                       nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	kinc_g4_texture_t *setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	                                      nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-	D3DFORMAT convert(Graphics4::Image::Format format) {
+	D3DFORMAT convert(kinc_image_format_t format) {
 		switch (format) {
-		case Graphics4::Image::RGBA32:
+		case KINC_IMAGE_FORMAT_RGBA32:
 		default:
 			return D3DFMT_A8R8G8B8;
-		case Graphics4::Image::Grey8:
+		case KINC_IMAGE_FORMAT_GREY8:
 			return D3DFMT_L8;
 		}
 	}
 }
 
-void Graphics4::Texture::init(const char* format, bool readable) {
-	setId();
-	stage = 0;
-	mipmap = true;
+void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *image) {
+	texture->impl.stage = 0;
+	texture->impl.mipmap = true;
 	DWORD usage = 0;
-	texWidth = width;
-	texHeight = height;
+	texture->tex_width = image->width;
+	texture->tex_height = image->height;
 	usage = D3DUSAGE_DYNAMIC;
-	Microsoft::affirm(device->CreateTexture(width, height, 1, usage, convert(this->format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
+	kinc_microsoft_affirm_message(
+	    device->CreateTexture(image->width, image->height, 1, usage, convert(image->format), D3DPOOL_DEFAULT, &texture->impl.texture, 0),
+	    "Texture creation failed.");
 	D3DLOCKED_RECT rect;
-	Microsoft::affirm(texture->LockRect(0, &rect, 0, 0));
-	pitch = rect.Pitch;
-	u8* from = (u8*)data;
-	u8* to = (u8*)rect.pBits;
+	kinc_microsoft_affirm(texture->impl.texture->LockRect(0, &rect, 0, 0));
+	texture->impl.pitch = rect.Pitch;
+	uint8_t *from = (uint8_t *)image->data;
+	uint8_t *to = (uint8_t *)rect.pBits;
 	// memcpy(to, from, width * height * sizeOf(format));
-	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
-			to[rect.Pitch * y + x * 4 + 0 /* blue*/] = (from[y * width * 4 + x * 4 + 2]); /// 255.0f;
-			to[rect.Pitch * y + x * 4 + 1 /*green*/] = (from[y * width * 4 + x * 4 + 1]); /// 255.0f;
-			to[rect.Pitch * y + x * 4 + 2 /*  red*/] = (from[y * width * 4 + x * 4 + 0]); /// 255.0f;
-			to[rect.Pitch * y + x * 4 + 3 /*alpha*/] = (from[y * width * 4 + x * 4 + 3]); /// 255.0f;
+	for (int y = 0; y < image->height; ++y) {
+		for (int x = 0; x < image->width; ++x) {
+			to[rect.Pitch * y + x * 4 + 0 /* blue*/] = (from[y * image->width * 4 + x * 4 + 2]); /// 255.0f;
+			to[rect.Pitch * y + x * 4 + 1 /*green*/] = (from[y * image->width * 4 + x * 4 + 1]); /// 255.0f;
+			to[rect.Pitch * y + x * 4 + 2 /*  red*/] = (from[y * image->width * 4 + x * 4 + 0]); /// 255.0f;
+			to[rect.Pitch * y + x * 4 + 3 /*alpha*/] = (from[y * image->width * 4 + x * 4 + 3]); /// 255.0f;
 		}
 	}
-	Microsoft::affirm(texture->UnlockRect(0));
-	if (!readable) {
-		delete[] data;
-		data = nullptr;
-	}
+	kinc_microsoft_affirm(texture->impl.texture->UnlockRect(0));
 }
 
-void Graphics4::Texture::init3D(bool readable) {
-	setId();
-}
+void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {}
 
-Graphics4::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
-	stage = 0;
-	mipmap = true;
+void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
+	texture->impl.stage = 0;
+	texture->impl.mipmap = true;
 	DWORD usage = 0;
-	texWidth = width;
-	texHeight = height;
+	texture->tex_width = width;
+	texture->tex_height = height;
 	usage = D3DUSAGE_DYNAMIC;
-	Microsoft::affirm(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture, 0), "Texture creation failed.");
-	if (!readable) {
-		delete[] data;
-		data = nullptr;
+	kinc_microsoft_affirm_message(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture->impl.texture, 0),
+	                              "Texture creation failed.");
+}
+
+void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
+	kinc_internal_texture_unset(texture);
+	texture->impl.texture->Release();
+}
+
+void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
+	kinc_microsoft_affirm(device->SetTexture(unit.impl.unit, texture->impl.texture));
+	texture->impl.stage = unit.impl.unit;
+	setTextures[texture->impl.stage] = texture;
+}
+
+void kinc_internal_texture_unset(struct kinc_g4_texture *texture) {
+	if (setTextures[texture->impl.stage] == texture) {
+		device->SetTexture(texture->impl.stage, nullptr);
+		setTextures[texture->impl.stage] = nullptr;
 	}
 }
 
-Graphics4::Texture::Texture(int width, int height, int depth, Image::Format format, bool readable) : Image(width, height, depth, format, readable) {}
-
-TextureImpl::~TextureImpl() {
-	unset();
-	texture->Release();
-}
-
-void Graphics4::Texture::_set(TextureUnit unit) {
-	Microsoft::affirm(device->SetTexture(unit.unit, texture));
-	this->stage = unit.unit;
-	setTextures[stage] = this;
-}
-
-void TextureImpl::unset() {
-	if (setTextures[stage] == (void*)this) {
-		device->SetTexture(stage, nullptr);
-		setTextures[stage] = nullptr;
-	}
-}
-
-u8* Graphics4::Texture::lock() {
+unsigned char *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
 	D3DLOCKED_RECT rect;
-	Microsoft::affirm(texture->LockRect(0, &rect, 0, 0));
-	pitch = rect.Pitch;
-	return (u8*)rect.pBits;
+	kinc_microsoft_affirm(texture->impl.texture->LockRect(0, &rect, 0, 0));
+	texture->impl.pitch = rect.Pitch;
+	return (uint8_t *)rect.pBits;
 }
 
-void Graphics4::Texture::unlock() {
-	Microsoft::affirm(texture->UnlockRect(0));
+void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
+	kinc_microsoft_affirm(texture->impl.texture->UnlockRect(0));
 }
 
-void Graphics4::Texture::clear(int x, int y, int z, int width, int height, int depth, uint color) {}
+void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {}
 
-int Graphics4::Texture::stride() {
-	return pitch;
+int kinc_g4_texture_stride(kinc_g4_texture_t *texture) {
+	return texture->impl.pitch;
 }
 
-void Graphics4::Texture::generateMipmaps(int levels) {}
+void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels) {}
 
-void Graphics4::Texture::setMipmap(Texture* mipmap, int level) {}
+void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap, int level) {}

@@ -1,25 +1,20 @@
 #pragma once
 
-//#include <Kore/Graphics/Graphics.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#ifdef KORE_WINDOWS
 struct IDirect3DIndexBuffer9;
-#endif
 
-namespace Kore {
-	namespace Graphics4 {
-		class IndexBuffer;
-	}
+typedef struct {
+	struct IDirect3DIndexBuffer9 *ib;
+	int myCount;
+} kinc_g4_index_buffer_impl_t;
 
-	class IndexBufferImpl {
-	protected:
-		IndexBufferImpl(int count);
-#ifdef KORE_WINDOWS
-		IDirect3DIndexBuffer9* ib;
-#endif
-		int myCount;
+struct kinc_g4_index_buffer;
 
-	public:
-		static Graphics4::IndexBuffer* _current;
-	};
+extern struct kinc_g4_index_buffer *kinc_internal_current_index_buffer;
+
+#ifdef __cplusplus
 }
+#endif

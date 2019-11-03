@@ -1,22 +1,26 @@
 #pragma once
 
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct IDirect3DTexture9;
 
-namespace Kore {
-	class TextureUnitImpl {
-	public:
-		int unit;
-	};
+typedef struct {
+	struct IDirect3DTexture9 *texture;
+	int stage;
+	bool mipmap;
+	uint8_t pixfmt;
+	int pitch;
+} kinc_g4_texture_impl_t;
 
-	class TextureImpl {
-	public:
-		IDirect3DTexture9* texture;
-		virtual ~TextureImpl();
-		void unmipmap();
-		void unset();
-		int stage;
-		bool mipmap;
-		u8 pixfmt;
-		int pitch;
-	};
+struct kinc_g4_texture;
+
+void kinc_internal_texture_unmipmap(struct kinc_g4_texture *texture);
+void kinc_internal_texture_unset(struct kinc_g4_texture *texture);
+
+#ifdef __cplusplus
 }
+#endif
