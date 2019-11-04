@@ -1,17 +1,19 @@
 #include "pch.h"
 
-#include "Direct3D9.h"
-
-#include <Kore/Graphics4/PipelineState.h>
-#include <Kore/Graphics4/Shader.h>
-#include <Kore/Math/Core.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/shader.h>
+#include <kinc/math/core.h>
 #undef CreateWindow
-#include <Kore/System.h>
+#include <kinc/system.h>
+
 #include <Kore/SystemMicrosoft.h>
 
 #include <Kore/Log.h>
 
 #include <vector>
+
+#include "Direct3D9.h"
 
 using namespace Kore;
 
@@ -44,10 +46,10 @@ namespace {
 		return result != D3DERR_DEVICELOST;
 	}
 
-	Graphics4::Shader* pixelShader = nullptr;
-	Graphics4::Shader* vertexShader = nullptr;
-	IDirect3DSurface9* backBuffer = nullptr;
-	IDirect3DSurface9* depthBuffer = nullptr;
+	Graphics4::Shader *pixelShader = nullptr;
+	Graphics4::Shader *vertexShader = nullptr;
+	IDirect3DSurface9 *backBuffer = nullptr;
+	IDirect3DSurface9 *depthBuffer = nullptr;
 
 	void initDeviceStates() {
 		D3DCAPS9 caps;
@@ -67,8 +69,8 @@ namespace {
 		device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 		device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 		device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
-		Microsoft::affirm(device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
-		Microsoft::affirm(device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+		kinc_microsoft_affirm(device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+		kinc_microsoft_affirm(device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
 #endif
 		// if (d3dpp.Windowed != TRUE) Cursor->Hide();
 
@@ -90,7 +92,7 @@ namespace {
 	}
 }
 
-void Graphics4::destroy(int windowId) {}
+void kinc_g4_destroy(int window) {}
 
 void Graphics4::changeResolution(int width, int height) {
 	if (!resizable) {
@@ -99,7 +101,7 @@ void Graphics4::changeResolution(int width, int height) {
 
 	_width = width;
 	_height = height;
-	viewport(0, 0, width, height);
+	kinc_g4_viewport(0, 0, width, height);
 	/*D3DPRESENT_PARAMETERS d3dpp;
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed = (!fullscreen) ? TRUE : FALSE;
@@ -131,7 +133,7 @@ void Graphics4::setup() {
 	// if (!d3d) throw Exception("Could not initialize Direct3D9");
 }
 
-void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	if (!hasWindow()) return;
 
 	hWnd = (HWND)System::windowHandle(windowId);
@@ -191,7 +193,7 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 
 	if (!SUCCEEDED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &device)))
 		d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
-// d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
+		// d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
 
 #ifdef KORE_WINDOWS
 	if (System::hasShowWindowFlag(/*windowId*/)) {
@@ -224,19 +226,18 @@ void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	if (test2 - test1 < (1.0 / hz) * System::frequency()) {
 		vsync = false;
 	}
-	else
+	else {
 		vsync = true;
-	
+	}
+
 	_width = System::windowWidth(windowId);
 	_height = System::windowHeight(windowId);
-
-	System::makeCurrent(windowId);
 }
 
-void Graphics4::flush() {}
+void kinc_g4_flush() {}
 
 namespace {
-	DWORD convertFilter(Graphics4::TextureFilter filter) {
+	DWORD convertFilter(kinc_g4_texture_filter_t filter) {
 		switch (filter) {
 		case Graphics4::PointFilter:
 			return D3DTEXF_POINT;
@@ -249,7 +250,7 @@ namespace {
 		}
 	}
 
-	DWORD convertMipFilter(Graphics4::MipmapFilter filter) {
+	DWORD convertMipFilter(kinc_g4_mipmap_filter_t filter) {
 		switch (filter) {
 		case Graphics4::NoMipFilter:
 			return D3DTEXF_NONE;
@@ -262,7 +263,7 @@ namespace {
 		}
 	}
 
-	_D3DTEXTUREOP convert(Graphics4::TextureOperation operation) {
+	_D3DTEXTUREOP convert(kinc_g4_texture_operation_t operation) {
 		switch (operation) {
 		case Graphics4::ModulateOperation:
 			return D3DTOP_MODULATE;
@@ -276,7 +277,7 @@ namespace {
 		}
 	}
 
-	int convert(Graphics4::TextureArgument arg) {
+	int convert(kinc_g4_texture_argument_t arg) {
 		switch (arg) {
 		case Graphics4::CurrentColorArgument:
 			return D3DTA_CURRENT;
@@ -289,70 +290,54 @@ namespace {
 	}
 }
 
-void Graphics4::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
+void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
 	device->SetTextureStageState(0, D3DTSS_COLOROP, convert(operation));
 	device->SetTextureStageState(0, D3DTSS_COLORARG1, convert(arg1));
 	device->SetTextureStageState(0, D3DTSS_COLORARG2, convert(arg2));
 }
 
-void Graphics4::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-	device->SetSamplerState(texunit.unit, D3DSAMP_MAGFILTER, convertFilter(filter));
+void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
+	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MAGFILTER, convertFilter(filter));
 }
 
-void Graphics4::setTexture3DMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-	Graphics4::setTextureMagnificationFilter(texunit, filter);
+void kinc_g4_set_texture3D_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
+	kinc_g4_set_texture_magnification_filter(texunit, filter);
 }
 
-void Graphics4::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	device->SetSamplerState(texunit.unit, D3DSAMP_MINFILTER, convertFilter(filter));
+void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
+	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MINFILTER, convertFilter(filter));
 }
 
-void Graphics4::setTexture3DMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	Graphics4::setTextureMinificationFilter(texunit, filter);
+void kinc_g4_set_texture3D_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
+	kinc_g4_set_texture_minification_filter(texunit, filter);
 }
 
-void Graphics4::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	device->SetSamplerState(texunit.unit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
+void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
+	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
 }
 
-void Graphics4::setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	Graphics4::setTextureMipmapFilter(texunit, filter);
+void kinc_g4_set_texture3D_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
+	kinc_g4_set_texture_mipmap_filter(texunit, filter);
 }
 
-void Graphics4::setTextureCompareMode(TextureUnit unit, bool enabled) {
-	
-}
+void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
 
-void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
-	
-}
+void kinc_g4_set_cube_map_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
 
-void Graphics4::makeCurrent(int contextId) {
-	// TODO (DK) implement me
-}
-
-void Graphics4::clearCurrent() {
-	// TODO (DK) implement me
-}
-
-void Graphics4::setRenderTargets(RenderTarget** targets, int count) {
+void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int count) {
 	// if (backBuffer != nullptr) backBuffer->Release();
-
-	System::makeCurrent(targets[0]->contextId);
 
 	if (backBuffer == nullptr) {
 		device->GetRenderTarget(0, &backBuffer);
 		device->GetDepthStencilSurface(&depthBuffer);
 	}
-	Microsoft::affirm(device->SetDepthStencilSurface(targets[0]->depthSurface));
+	kinc_microsoft_affirm(device->SetDepthStencilSurface(targets[0]->impl.depthSurface));
 	for (int i = 0; i < count; ++i) {
-		Microsoft::affirm(device->SetRenderTarget(i, targets[i]->colorSurface));
+		kinc_microsoft_affirm(device->SetRenderTarget(i, targets[i]->impl.colorSurface));
 	}
 }
 
-void Graphics4::setRenderTargetFace(RenderTarget* texture, int face) {
-	
-}
+void Graphics4::setRenderTargetFace(RenderTarget *texture, int face) {}
 
 // void Graphics::setDepthStencilTarget(Texture* texture) {
 //	//if (depthBuffer != nullptr) depthBuffer->Release();
@@ -373,49 +358,49 @@ void Graphics4::restoreRenderTarget() {
 	}
 }
 
-void Graphics4::drawIndexedVertices() {
+void kinc_g4_draw_indexed_vertices() {
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), 0, IndexBuffer::_current->count() / 3);
 }
 
-void Graphics4::drawIndexedVertices(int start, int count) {
+void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3);
 }
 
-void Graphics4::drawIndexedVerticesInstanced(int instanceCount) {
-	Microsoft::affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
+void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
+	kinc_microsoft_affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), 0, IndexBuffer::_current->count() / 3);
 }
 
-void Graphics4::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-	Microsoft::affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
+void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
+	kinc_microsoft_affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3);
 }
 
-void Graphics4::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 	DWORD value = 0;
 	switch (addressing) {
-	case Repeat:
+	case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
 		value = D3DTADDRESS_WRAP;
 		break;
-	case Mirror:
+	case KINC_G4_TEXTURE_ADDRESSING_MIRROR:
 		value = D3DTADDRESS_MIRROR;
 		break;
-	case Clamp:
+	case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
 		value = D3DTADDRESS_CLAMP;
 		break;
-	case Border:
+	case KINC_G4_TEXTURE_ADDRESSING_BORDER:
 		value = D3DTADDRESS_BORDER;
 		break;
 	}
-	device->SetSamplerState(unit.unit, dir == U ? D3DSAMP_ADDRESSU : D3DSAMP_ADDRESSV, value);
+	device->SetSamplerState(unit.impl.unit, dir == KINC_G4_TEXTURE_DIRECTION_U ? D3DSAMP_ADDRESSU : D3DSAMP_ADDRESSV, value);
 }
 
-void Graphics4::setTexture3DAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
-	Graphics4::setTextureAddressing(unit, dir, addressing);
+void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
+	kinc_g4_set_texture_addressing(unit, dir, addressing);
 }
 
 namespace {
-	void tod3dmatrix(mat4& matrix, D3DMATRIX& d3dm) {
+	void tod3dmatrix(mat4 &matrix, D3DMATRIX &d3dm) {
 		d3dm._11 = matrix.get(0, 0);
 		d3dm._12 = matrix.get(0, 1);
 		d3dm._13 = matrix.get(0, 2);
@@ -442,17 +427,17 @@ void Graphics4::clear(uint flags, uint color, float z, int stencil) {
 	device->Clear(0, nullptr, flags, color, z, stencil);
 }
 
-void Graphics4::begin(int windowId) {
+void kinc_g4_begin(int window) {
 	// TODO (DK) ignore secondary windows for now
-	if (windowId > 0) {
+	if (window > 0) {
 		return;
 	}
 
-	viewport(0, 0, _width, _height);
+	kinc_g4_viewport(0, 0, _width, _height);
 	device->BeginScene();
 }
 
-void Graphics4::viewport(int x, int y, int width, int height) {
+void kinc_g4_viewport(int x, int y, int width, int height) {
 	vp.X = x;
 	vp.Y = y;
 	vp.Width = width;
@@ -460,7 +445,7 @@ void Graphics4::viewport(int x, int y, int width, int height) {
 	device->SetViewport(&vp);
 }
 
-void Graphics4::scissor(int x, int y, int width, int height) {
+void kinc_g4_scissor(int x, int y, int width, int height) {
 	device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
 	RECT rc;
@@ -471,13 +456,13 @@ void Graphics4::scissor(int x, int y, int width, int height) {
 	device->SetScissorRect(&rc);
 }
 
-void Graphics4::disableScissor() {
+void kinc_g4_disable_scissor() {
 	device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
 }
 
-void Graphics4::end(int windowId) {
+void kinc_g4_end(int window) {
 	// TODO (DK) ignore secondary windows for now
-	if (windowId > 0) {
+	if (window > 0) {
 		return;
 	}
 
@@ -496,36 +481,29 @@ unsigned Graphics4::refreshRate() {
 	return hz;
 }
 
-bool Graphics4::swapBuffers(int windowId) {
-	// TODO (DK) ignore secondary windows for now
-	if (windowId > 0) {
-		return true;
-	}
-
+bool kinc_g4_swap_buffers() {
 	return ::swapBuffers();
 }
 
-void Graphics4::setStencilReferenceValue(int value) {
+void Graphics4::setStencilReferenceValue(int value) {}
 
-}
-
-void Graphics4::setBool(ConstantLocation position, bool value) {
-	if (position.shaderType == -1) return;
+void kinc_g4_set_bool(kinc_g4_constant_location_t position, bool value) {
+	if (position.impl.shaderType == -1) return;
 	BOOL bools[4];
 	bools[0] = value ? 1 : 0;
 	bools[1] = bools[0];
 	bools[2] = bools[0];
 	bools[3] = bools[0];
-	if (position.shaderType == 0)
-		device->SetVertexShaderConstantB(position.reg.regindex, &bools[0], 1);
+	if (position.impl.shaderType == 0)
+		device->SetVertexShaderConstantB(position.impl.reg.regindex, &bools[0], 1);
 	else
-		device->SetPixelShaderConstantB(position.reg.regindex, &bools[0], 1);
+		device->SetPixelShaderConstantB(position.impl.reg.regindex, &bools[0], 1);
 }
 
-void Graphics4::setInt(ConstantLocation position, int value) {
-	if (position.shaderType == -1) return;
-	if (position.reg.regtype == 'f') {
-		setFloat(position, (float)value);
+void kinc_g4_set_int(kinc_g4_constant_location_t position, int value) {
+	if (position.impl.shaderType == -1) return;
+	if (position.impl.reg.regtype == 'f') {
+		kinc_g4_set_float(position, (float)value);
 	}
 	else {
 		int ints[4];
@@ -533,142 +511,140 @@ void Graphics4::setInt(ConstantLocation position, int value) {
 		ints[1] = value;
 		ints[2] = value;
 		ints[3] = value;
-		if (position.shaderType == 0)
-			device->SetVertexShaderConstantI(position.reg.regindex, &ints[0], 1);
+		if (position.impl.shaderType == 0)
+			device->SetVertexShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
 		else
-			device->SetPixelShaderConstantI(position.reg.regindex, &ints[0], 1);
+			device->SetPixelShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
 	}
 }
 
-void Graphics4::setFloat(ConstantLocation position, float value) {
-	if (position.shaderType == -1) return;
+void kinc_g4_set_float(kinc_g4_constant_location_t position, float value) {
+	if (position.impl.shaderType == -1) return;
 	float floats[4];
 	floats[0] = value;
 	floats[1] = value;
 	floats[2] = value;
 	floats[3] = value;
-	if (position.shaderType == 0)
-		device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	if (position.impl.shaderType == 0)
+		device->SetVertexShaderConstantF(position.impl.reg.regindex, floats, 1);
 	else
-		device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+		device->SetPixelShaderConstantF(position.impl.reg.regindex, floats, 1);
 }
 
-void Graphics4::setFloat2(ConstantLocation position, float value1, float value2) {
-	if (position.shaderType == -1) return;
+void kinc_g4_set_float2(kinc_g4_constant_location_t position, float value1, float value2) {
+	if (position.impl.shaderType == -1) return;
 	float floats[4];
 	floats[0] = value1;
 	floats[1] = value2;
 	floats[2] = value1;
 	floats[3] = value2;
-	if (position.shaderType == 0)
-		device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	if (position.impl.shaderType == 0)
+		device->SetVertexShaderConstantF(position.impl.reg.regindex, floats, 1);
 	else
-		device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+		device->SetPixelShaderConstantF(position.impl.reg.regindex, floats, 1);
 }
 
-void Graphics4::setFloat3(ConstantLocation position, float value1, float value2, float value3) {
-	if (position.shaderType == -1) return;
+void kinc_g4_set_float3(kinc_g4_constant_location_t position, float value1, float value2, float value3) {
+	if (position.impl.shaderType == -1) return;
 	float floats[4];
 	floats[0] = value1;
 	floats[1] = value2;
 	floats[2] = value3;
 	floats[3] = value1;
-	if (position.shaderType == 0)
-		device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	if (position.impl.shaderType == 0)
+		device->SetVertexShaderConstantF(position.impl.reg.regindex, floats, 1);
 	else
-		device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+		device->SetPixelShaderConstantF(position.impl.reg.regindex, floats, 1);
 }
 
-void Graphics4::setFloat4(ConstantLocation position, float value1, float value2, float value3, float value4) {
-	if (position.shaderType == -1) return;
+void kinc_g4_set_float4(kinc_g4_constant_location_t position, float value1, float value2, float value3, float value4) {
+	if (position.impl.shaderType == -1) return;
 	float floats[4];
 	floats[0] = value1;
 	floats[1] = value2;
 	floats[2] = value3;
 	floats[3] = value4;
-	if (position.shaderType == 0)
-		device->SetVertexShaderConstantF(position.reg.regindex, floats, 1);
+	if (position.impl.shaderType == 0)
+		device->SetVertexShaderConstantF(position.impl.reg.regindex, floats, 1);
 	else
-		device->SetPixelShaderConstantF(position.reg.regindex, floats, 1);
+		device->SetPixelShaderConstantF(position.impl.reg.regindex, floats, 1);
 }
 
-void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
-	if (location.shaderType == -1) return;
+void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count) {
+	if (location.impl.shaderType == -1) return;
 	int registerCount = (count + 3) / 4; // round up
 	if (registerCount == count / 4) {    // round down
-		if (location.shaderType == 0)
-			device->SetVertexShaderConstantF(location.reg.regindex, values, registerCount);
+		if (location.impl.shaderType == 0)
+			device->SetVertexShaderConstantF(location.impl.reg.regindex, values, registerCount);
 		else
-			device->SetPixelShaderConstantF(location.reg.regindex, values, registerCount);
+			device->SetPixelShaderConstantF(location.impl.reg.regindex, values, registerCount);
 	}
 	else {
-		float* data = (float*)alloca(registerCount * 4 * sizeof(float));
+		float *data = (float *)alloca(registerCount * 4 * sizeof(float));
 		memcpy(data, values, count * sizeof(float));
-		if (location.shaderType == 0)
-			device->SetVertexShaderConstantF(location.reg.regindex, data, registerCount);
+		if (location.impl.shaderType == 0)
+			device->SetVertexShaderConstantF(location.impl.reg.regindex, data, registerCount);
 		else
-			device->SetPixelShaderConstantF(location.reg.regindex, data, registerCount);
+			device->SetPixelShaderConstantF(location.impl.reg.regindex, data, registerCount);
 	}
 }
 
-void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
-	if (location.shaderType == -1) return;
+void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
+	if (location.impl.shaderType == -1) return;
 	float floats[16];
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
 			floats[y * 4 + x] = value.get(y, x);
 		}
 	}
-	if (location.shaderType == 0)
-		device->SetVertexShaderConstantF(location.reg.regindex, floats, 4);
+	if (location.impl.shaderType == 0)
+		device->SetVertexShaderConstantF(location.impl.reg.regindex, floats, 4);
 	else
-		device->SetPixelShaderConstantF(location.reg.regindex, floats, 4);
+		device->SetPixelShaderConstantF(location.impl.reg.regindex, floats, 4);
 }
 
-void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
-	if (location.shaderType == -1) return;
+void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
+	if (location.impl.shaderType == -1) return;
 	float floats[12];
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
 			floats[y * 4 + x] = value.get(y, x);
 		}
 	}
-	if (location.shaderType == 0)
-		device->SetVertexShaderConstantF(location.reg.regindex, floats, 3);
+	if (location.impl.shaderType == 0)
+		device->SetVertexShaderConstantF(location.impl.reg.regindex, floats, 3);
 	else
-		device->SetPixelShaderConstantF(location.reg.regindex, floats, 3);
+		device->SetPixelShaderConstantF(location.impl.reg.regindex, floats, 3);
 }
 
-bool Graphics4::renderTargetsInvertedY() {
+bool kinc_g4_render_targets_inverted_y() {
 	return false;
 }
 
-bool Graphics4::nonPow2TexturesSupported() {
+bool kinc_g4_non_pow2_textures_supported() {
 	return true;
 }
 
-void Graphics4::setVertexBuffers(VertexBuffer** buffers, int count) {
+void Graphics4::setVertexBuffers(VertexBuffer **buffers, int count) {
 	for (int i = 0; i < count; ++i) {
 		buffers[i]->_set(i);
 	}
 }
 
-void Graphics4::setIndexBuffer(IndexBuffer& buffer) {
+void Graphics4::setIndexBuffer(IndexBuffer &buffer) {
 	buffer._set();
 }
 
-void Graphics4::setTexture(TextureUnit unit, Texture* texture) {
+void Graphics4::setTexture(TextureUnit unit, Texture *texture) {
 	texture->_set(unit);
 }
 
-void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
-	
-}
+void Graphics4::setImageTexture(TextureUnit unit, Texture *texture) {}
 
 uint queryCount = 0;
-std::vector<IDirect3DQuery9*> queryPool;
+std::vector<IDirect3DQuery9 *> queryPool;
 
-bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
+bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 	// check if the runtime supports queries
 	HRESULT result = device->CreateQuery(D3DQUERYTYPE_OCCLUSION, NULL);
 	if (FAILED(result)) {
@@ -676,7 +652,7 @@ bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
 		return false;
 	}
 
-	IDirect3DQuery9* pQuery = nullptr;
+	IDirect3DQuery9 *pQuery = nullptr;
 	device->CreateQuery(D3DQUERYTYPE_OCCLUSION, &pQuery);
 
 	queryPool.push_back(pQuery);
@@ -686,21 +662,26 @@ bool Graphics4::initOcclusionQuery(uint* occlusionQuery) {
 	return true;
 }
 
-void Graphics4::deleteOcclusionQuery(uint occlusionQuery) {
+void kinc_g4_delete_occlusion_query(unsigned occlusionQuery) {
 	if (occlusionQuery < queryPool.size()) queryPool[occlusionQuery] = nullptr;
 }
 
-void Graphics4::renderOcclusionQuery(uint occlusionQuery, int triangles) {
-	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+void kinc_g4_start_occlusion_query(unsigned occlusionQuery) {
+	IDirect3DQuery9 *pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		pQuery->Issue(D3DISSUE_BEGIN);
-		device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, triangles);
+	}
+}
+
+void kinc_g4_end_occlusion_query(unsigned occlusionQuery) {
+	IDirect3DQuery9 *pQuery = queryPool[occlusionQuery];
+	if (pQuery != nullptr) {
 		pQuery->Issue(D3DISSUE_END);
 	}
 }
 
-bool Graphics4::isQueryResultsAvailable(uint occlusionQuery) {
-	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+bool kinc_g4_are_query_results_available(unsigned occlusionQuery) {
+	IDirect3DQuery9 *pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		if (S_OK == pQuery->GetData(0, 0, 0)) {
 			return true;
@@ -708,8 +689,9 @@ bool Graphics4::isQueryResultsAvailable(uint occlusionQuery) {
 	}
 	return false;
 }
-void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
-	IDirect3DQuery9* pQuery = queryPool[occlusionQuery];
+
+void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {
+	IDirect3DQuery9 *pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		DWORD numberOfPixelsDrawn;
 		HRESULT result = pQuery->GetData(&numberOfPixelsDrawn, sizeof(DWORD), 0);
@@ -723,11 +705,8 @@ void Graphics4::getQueryResults(uint occlusionQuery, uint* pixelCount) {
 	}
 }
 
-void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
+void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array) {}
 
-}
-
-
-void Graphics4::setPipeline(PipelineState* pipeline) {
+void kinc_g4_set_pipeline(struct kinc_g4_pipeline *pipeline) {
 	pipeline->set(pipeline);
 }
