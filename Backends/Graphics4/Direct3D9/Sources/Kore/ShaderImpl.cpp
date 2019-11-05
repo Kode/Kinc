@@ -1,9 +1,10 @@
 #include "pch.h"
 
+#include <kinc/graphics4/shader.h>
+#include <kinc/math/core.h>
+
 #include "Direct3D9.h"
 
-#include <Kore/Graphics4/Shader.h>
-#include <Kore/Math/Core.h>
 #include <cstdio>
 
 #undef min
@@ -11,7 +12,7 @@
 
 using namespace Kore;
 
-Graphics4::Shader::Shader(void *_data, int length, Graphics4::ShaderType type) {
+void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, kinc_g4_shader_type_t type) {
 	unsigned index = 0;
 
 	u8 *data = (u8 *)_data;
@@ -39,11 +40,13 @@ Graphics4::Shader::Shader(void *_data, int length, Graphics4::ShaderType type) {
 		constants[name] = reg;
 	}
 	HRESULT hr;
-	if (type == VertexShader)
+	if (type == KINC_G4_SHADER_TYPE_VERTEX)
 		hr = device->CreateVertexShader((DWORD *)&data[index], (IDirect3DVertexShader9 **)&shader);
 	else
 		hr = device->CreatePixelShader((DWORD *)&data[index], (IDirect3DPixelShader9 **)&shader);
 	// if (FAILED(hr)) throw Exception("CreateShader failed");
 }
 
-Graphics4::Shader::Shader(const char *source, Graphics4::ShaderType type) {}
+void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {}
+
+void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {}

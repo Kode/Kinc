@@ -1,29 +1,31 @@
 #include "pch.h"
 
-#include "Direct3D9.h"
+#include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/pipeline.h>
+#include <kinc/graphics4/shader.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
 
-#include <Kore/Graphics4/PipelineState.h>
-#include <Kore/Graphics4/Shader.h>
-#include <Kore/Log.h>
-#include <Kore/System.h>
 #include <Kore/SystemMicrosoft.h>
 
-using namespace Kore;
+#include "Direct3D9.h"
+
+#include <malloc.h>
 
 namespace {
-	_D3DBLEND convert(Graphics4::BlendingOperation operation) {
+	_D3DBLEND convert(kinc_g4_blending_operation_t operation) {
 		switch (operation) {
-		case Graphics4::BlendOne:
+		case KINC_G4_BLEND_ONE:
 			return D3DBLEND_ONE;
-		case Graphics4::BlendZero:
+		case KINC_G4_BLEND_ZERO:
 			return D3DBLEND_ZERO;
-		case Graphics4::SourceAlpha:
+		case KINC_G4_BLEND_SOURCE_ALPHA:
 			return D3DBLEND_SRCALPHA;
-		case Graphics4::DestinationAlpha:
+		case KINC_G4_BLEND_DEST_ALPHA:
 			return D3DBLEND_DESTALPHA;
-		case Graphics4::InverseSourceAlpha:
+		case KINC_G4_BLEND_INV_SOURCE_ALPHA:
 			return D3DBLEND_INVSRCALPHA;
-		case Graphics4::InverseDestinationAlpha:
+		case KINC_G4_BLEND_INV_DEST_ALPHA:
 			return D3DBLEND_INVDESTALPHA;
 		default:
 			//	throw Exception("Unknown blending operation.");
@@ -31,30 +33,34 @@ namespace {
 		}
 	}
 
-	_D3DCMPFUNC convert(Graphics4::ZCompareMode mode) {
+	_D3DCMPFUNC convert(kinc_g4_compare_mode_t mode) {
 		switch (mode) {
 		default:
-		case Graphics4::ZCompareAlways:
+		case KINC_G4_COMPARE_ALWAYS:
 			return D3DCMP_ALWAYS;
-		case Graphics4::ZCompareNever:
+		case KINC_G4_COMPARE_NEVER:
 			return D3DCMP_NEVER;
-		case Graphics4::ZCompareEqual:
+		case KINC_G4_COMPARE_EQUAL:
 			return D3DCMP_EQUAL;
-		case Graphics4::ZCompareNotEqual:
+		case KINC_G4_COMPARE_NOT_EQUAL:
 			return D3DCMP_NOTEQUAL;
-		case Graphics4::ZCompareLess:
+		case KINC_G4_COMPARE_LESS:
 			return D3DCMP_LESS;
-		case Graphics4::ZCompareLessEqual:
+		case KINC_G4_COMPARE_LESS_EQUAL:
 			return D3DCMP_LESSEQUAL;
-		case Graphics4::ZCompareGreater:
+		case KINC_G4_COMPARE_GREATER:
 			return D3DCMP_GREATER;
-		case Graphics4::ZCompareGreaterEqual:
+		case KINC_G4_COMPARE_GREATER_EQUAL:
 			return D3DCMP_GREATEREQUAL;
 		}
 	}
 }
 
-void Graphics4::PipelineState::compile() {
+void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {}
+
+void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state) {}
+
+void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	int highestIndex = 0;
 	for (std::map<std::string, int>::iterator it = vertexShader->attributes.begin(); it != vertexShader->attributes.end(); ++it) {
 		if (it->second > highestIndex) {
@@ -63,9 +69,9 @@ void Graphics4::PipelineState::compile() {
 	}
 
 	int all = 0;
-	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
-		for (int index = 0; index < inputLayout[stream]->size; ++index) {
-			if (inputLayout[stream]->elements[index].data == Float4x4VertexData) {
+	for (int stream = 0; state->input_layout[stream] != nullptr; ++stream) {
+		for (int index = 0; index < state->input_layout[stream]->size; ++index) {
+			if (state->input_layout[stream]->elements[index].data == KINC_G4_VERTEX_DATA_FLOAT4X4) {
 				all += 4;
 			}
 			else {
@@ -74,37 +80,37 @@ void Graphics4::PipelineState::compile() {
 		}
 	}
 
-	D3DVERTEXELEMENT9* elements = (D3DVERTEXELEMENT9*)alloca(sizeof(D3DVERTEXELEMENT9) * (all + 1));
+	D3DVERTEXELEMENT9 *elements = (D3DVERTEXELEMENT9 *)_alloca(sizeof(D3DVERTEXELEMENT9) * (all + 1));
 	int i = 0;
-	for (int stream = 0; inputLayout[stream] != nullptr; ++stream) {
+	for (int stream = 0; state->input_layout[stream] != nullptr; ++stream) {
 		int stride = 0;
-		for (int index = 0; index < inputLayout[stream]->size; ++index) {
-			if (inputLayout[stream]->elements[index].data != Float4x4VertexData) {
+		for (int index = 0; index < state->input_layout[stream]->size; ++index) {
+			if (state->input_layout[stream]->elements[index].data != KINC_G4_VERTEX_DATA_FLOAT4X4) {
 				elements[i].Stream = stream;
 				elements[i].Offset = stride;
 			}
-			switch (inputLayout[stream]->elements[index].data) {
-			case Float1VertexData:
+			switch (state->input_layout[stream]->elements[index].data) {
+			case KINC_G4_VERTEX_DATA_FLOAT1:
 				elements[i].Type = D3DDECLTYPE_FLOAT1;
 				stride += 4 * 1;
 				break;
-			case Float2VertexData:
+			case KINC_G4_VERTEX_DATA_FLOAT2:
 				elements[i].Type = D3DDECLTYPE_FLOAT2;
 				stride += 4 * 2;
 				break;
-			case Float3VertexData:
+			case KINC_G4_VERTEX_DATA_FLOAT3:
 				elements[i].Type = D3DDECLTYPE_FLOAT3;
 				stride += 4 * 3;
 				break;
-			case Float4VertexData:
+			case KINC_G4_VERTEX_DATA_FLOAT4:
 				elements[i].Type = D3DDECLTYPE_FLOAT4;
 				stride += 4 * 4;
 				break;
-			case ColorVertexData:
+			case KINC_G4_VERTEX_DATA_COLOR:
 				elements[i].Type = D3DDECLTYPE_D3DCOLOR;
 				stride += 4;
 				break;
-			case Float4x4VertexData:
+			case KINC_G4_VERTEX_DATA_FLOAT4X4:
 				for (int i2 = 0; i2 < 4; ++i2) {
 					elements[i].Stream = stream;
 					elements[i].Offset = stride;
@@ -112,13 +118,13 @@ void Graphics4::PipelineState::compile() {
 					elements[i].Method = D3DDECLMETHOD_DEFAULT;
 					elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
 					char name[101];
-					strcpy(name, inputLayout[stream]->elements[index].name);
+					strcpy(name, state->input_layout[stream]->elements[index].name);
 					strcat(name, "_");
 					size_t length = strlen(name);
 					_itoa(i2, &name[length], 10);
 					name[length + 1] = 0;
 					if (vertexShader->attributes.find(name) == vertexShader->attributes.end()) {
-						log(Error, "Could not find attribute %s.", name);
+						kinc_log(KINC_LOG_LEVEL_ERROR, "Could not find attribute %s.", name);
 						elements[i].UsageIndex = ++highestIndex;
 					}
 					else {
@@ -129,15 +135,15 @@ void Graphics4::PipelineState::compile() {
 				}
 				break;
 			}
-			if (inputLayout[stream]->elements[index].data != Float4x4VertexData) {
+			if (state->input_layout[stream]->elements[index].data != KINC_G4_VERTEX_DATA_FLOAT4X4) {
 				elements[i].Method = D3DDECLMETHOD_DEFAULT;
 				elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
-				if (vertexShader->attributes.find(inputLayout[stream]->elements[index].name) == vertexShader->attributes.end()) {
-					log(Error, "Could not find attribute %s.", inputLayout[stream]->elements[index].name);
+				if (vertexShader->attributes.find(state->input_layout[stream]->elements[index].name) == vertexShader->attributes.end()) {
+					kinc_log(KINC_LOG_LEVEL_ERROR, "Could not find attribute %s.", state->input_layout[stream]->elements[index].name);
 					elements[i].UsageIndex = ++highestIndex;
 				}
 				else {
-					elements[i].UsageIndex = vertexShader->attributes[inputLayout[stream]->elements[index].name];
+					elements[i].UsageIndex = vertexShader->attributes[state->input_layout[stream]->elements[index].name];
 				}
 				++i;
 			}
@@ -150,53 +156,53 @@ void Graphics4::PipelineState::compile() {
 	elements[all].Usage = 0;
 	elements[all].UsageIndex = 0;
 
-	vertexDecleration = nullptr;
-	Microsoft::affirm(device->CreateVertexDeclaration(elements, &vertexDecleration));
+	state->impl.vertexDecleration = nullptr;
+	kinc_microsoft_affirm(device->CreateVertexDeclaration(elements, &state->impl.vertexDecleration));
 
-	halfPixelLocation = vertexShader->constants["gl_HalfPixel"].regindex;
+	state->impl.halfPixelLocation = vertexShader->constants["gl_HalfPixel"].regindex;
 }
 
-void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
-	Microsoft::affirm(device->SetVertexShader((IDirect3DVertexShader9*)pipeline->vertexShader->shader));
-	Microsoft::affirm(device->SetPixelShader((IDirect3DPixelShader9*)pipeline->fragmentShader->shader));
-	Microsoft::affirm(device->SetVertexDeclaration(vertexDecleration));
+void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
+	kinc_microsoft_affirm(device->SetVertexShader((IDirect3DVertexShader9 *)pipeline->vertex_shader->impl.shader));
+	kinc_microsoft_affirm(device->SetPixelShader((IDirect3DPixelShader9 *)pipeline->fragment_shader->impl.shader));
+	kinc_microsoft_affirm(device->SetVertexDeclaration(pipeline->impl.vertexDecleration));
 
 	// TODO (DK) System::screenWidth/Height are only main-window dimensions, what about other windows?
 	float floats[4];
-	floats[0] = 1.0f / System::windowWidth(0);
-	floats[1] = 1.0f / System::windowHeight(0);
+	floats[0] = 1.0f / kinc_width();
+	floats[1] = 1.0f / kinc_height();
 	floats[2] = floats[0];
 	floats[3] = floats[1];
-	Microsoft::affirm(device->SetVertexShaderConstantF(halfPixelLocation, floats, 1));
+	kinc_microsoft_affirm(device->SetVertexShaderConstantF(pipeline->impl.halfPixelLocation, floats, 1));
 
 	DWORD flags = 0;
-	if (pipeline->colorWriteMaskRed[0]) flags |= D3DCOLORWRITEENABLE_RED;
-	if (pipeline->colorWriteMaskGreen[0]) flags |= D3DCOLORWRITEENABLE_GREEN;
-	if (pipeline->colorWriteMaskBlue[0]) flags |= D3DCOLORWRITEENABLE_BLUE;
-	if (pipeline->colorWriteMaskAlpha[0]) flags |= D3DCOLORWRITEENABLE_ALPHA;
+	if (pipeline->color_write_mask_red[0]) flags |= D3DCOLORWRITEENABLE_RED;
+	if (pipeline->color_write_mask_green[0]) flags |= D3DCOLORWRITEENABLE_GREEN;
+	if (pipeline->color_write_mask_blue[0]) flags |= D3DCOLORWRITEENABLE_BLUE;
+	if (pipeline->color_write_mask_alpha[0]) flags |= D3DCOLORWRITEENABLE_ALPHA;
 
 	device->SetRenderState(D3DRS_COLORWRITEENABLE, flags);
 
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE,
-	                       (pipeline->blendSource != Graphics4::BlendOne || pipeline->blendDestination != Graphics4::BlendZero) ? TRUE : FALSE);
-	device->SetRenderState(D3DRS_SRCBLEND, convert(pipeline->blendSource));
-	device->SetRenderState(D3DRS_DESTBLEND, convert(pipeline->blendDestination));
+	                       (pipeline->blend_source != KINC_G4_BLEND_ONE || pipeline->blend_destination != KINC_G4_BLEND_ZERO) ? TRUE : FALSE);
+	device->SetRenderState(D3DRS_SRCBLEND, convert(pipeline->blend_source));
+	device->SetRenderState(D3DRS_DESTBLEND, convert(pipeline->blend_destination));
 
-	switch (pipeline->cullMode) {
-	case Graphics4::Clockwise:
+	switch (pipeline->cull_mode) {
+	case KINC_G4_CULL_CLOCKWISE:
 		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 		break;
-	case Graphics4::CounterClockwise:
+	case KINC_G4_CULL_COUNTER_CLOCKWISE:
 		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 		break;
-	case Graphics4::NoCulling:
+	case KINC_G4_CULL_NOTHING:
 		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 		break;
 	}
 
-	device->SetRenderState(D3DRS_ZENABLE, pipeline->depthMode != Graphics4::ZCompareAlways ? TRUE : FALSE);
-	device->SetRenderState(D3DRS_ZFUNC, convert(pipeline->depthMode));
-	device->SetRenderState(D3DRS_ZWRITEENABLE, pipeline->depthWrite ? TRUE : FALSE);
+	device->SetRenderState(D3DRS_ZENABLE, pipeline->depth_mode != KINC_G4_COMPARE_ALWAYS ? TRUE : FALSE);
+	device->SetRenderState(D3DRS_ZFUNC, convert(pipeline->depth_mode));
+	device->SetRenderState(D3DRS_ZWRITEENABLE, pipeline->depth_write ? TRUE : FALSE);
 
 	/*
 	case AlphaTestState:
@@ -209,36 +215,36 @@ void PipelineStateImpl::set(Graphics4::PipelineState* pipeline) {
 	*/
 }
 
-Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const char* name) {
-	ConstantLocation location;
+kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name) {
+	kinc_g4_constant_location_t location;
 
 	if (fragmentShader->constants.find(name) != fragmentShader->constants.end()) {
-		location.reg = fragmentShader->constants[name];
-		location.shaderType = 1;
+		location.impl.reg = fragmentShader->constants[name];
+		location.impl.shaderType = 1;
 	}
 	else if (vertexShader->constants.find(name) != vertexShader->constants.end()) {
-		location.reg = vertexShader->constants[name];
-		location.shaderType = 0;
+		location.impl.reg = vertexShader->constants[name];
+		location.impl.shaderType = 0;
 	}
 	else {
-		location.shaderType = -1;
-		log(Warning, "Could not find uniform %s.", name);
+		location.impl.shaderType = -1;
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not find uniform %s.", name);
 	}
 	return location;
 }
 
-Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
-	TextureUnit unit;
+kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name) {
+	kinc_g4_texture_unit_t unit;
 
 	if (fragmentShader->constants.find(name) != fragmentShader->constants.end()) {
-		unit.unit = fragmentShader->constants[name].regindex;
+		unit.impl.unit = fragmentShader->constants[name].regindex;
 	}
 	else if (vertexShader->constants.find(name) != vertexShader->constants.end()) {
-		unit.unit = vertexShader->constants[name].regindex;
+		unit.impl.unit = vertexShader->constants[name].regindex;
 	}
 	else {
-		unit.unit = -1;
-		log(Warning, "Could not find texture %s.", name);
+		unit.impl.unit = -1;
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not find texture %s.", name);
 	}
 	return unit;
 }
