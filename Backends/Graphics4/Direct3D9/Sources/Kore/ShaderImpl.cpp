@@ -23,8 +23,10 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		attributes[name] = data[index++];
+		strcpy(shader->impl.attributes[i].name, name);
+		shader->impl.attributes[i].index = index++;
 	}
+	shader->impl.attributes[attributesCount].name[0] = 0;
 
 	u8 constantCount = data[index++];
 	for (unsigned i = 0; i < constantCount; ++i) {
@@ -33,12 +35,13 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		ShaderRegister reg;
-		reg.regtype = data[index++];
-		reg.regindex = data[index++];
-		reg.regcount = data[index++];
-		constants[name] = reg;
+		strcpy(shader->impl.constants[i].name, name);
+		shader->impl.constants[i].regtype = data[index++];
+		shader->impl.constants[i].regindex = data[index++];
+		shader->impl.constants[i].regcount = data[index++];
 	}
+	shader->impl.constants[constantCount].name[0] = 0;
+
 	HRESULT hr;
 	if (type == KINC_G4_SHADER_TYPE_VERTEX)
 		hr = device->CreateVertexShader((DWORD *)&data[index], (IDirect3DVertexShader9 **)&shader);

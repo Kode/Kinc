@@ -60,11 +60,39 @@ void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {}
 
 void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state) {}
 
+static int find_attribute(struct ShaderAttribute *attributes, const char *name) {
+	for (int i = 0; i < KINC_INTERNAL_MAX_ATTRIBUTES; ++i) {
+		if (attributes[i].name == 0) {
+			return -1;
+		}
+		if (strcmp(attributes[i].name, name) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+static int find_constant(struct ShaderRegister *constants, const char *name) {
+	for (int i = 0; i < KINC_INTERNAL_MAX_CONSTANTS; ++i) {
+		if (constants[i].name == 0) {
+			return -1;
+		}
+		if (strcmp(constants[i].name, name) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	int highestIndex = 0;
-	for (std::map<std::string, int>::iterator it = vertexShader->attributes.begin(); it != vertexShader->attributes.end(); ++it) {
-		if (it->second > highestIndex) {
-			highestIndex = it->second;
+	for (int i = 0;; ++i) {
+		if (state->vertex_shader->impl.attributes[i].name[0] == 0) {
+			break;
+		}
+		int index = state->vertex_shader->impl.attributes[i].index;
+		if (index > highestIndex) {
+			highestIndex = index;
 		}
 	}
 
@@ -123,12 +151,13 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 					size_t length = strlen(name);
 					_itoa(i2, &name[length], 10);
 					name[length + 1] = 0;
-					if (vertexShader->attributes.find(name) == vertexShader->attributes.end()) {
+					int attribute_index = find_attribute(state->vertex_shader->impl.attributes, name);
+					if (attribute_index < 0) {
 						kinc_log(KINC_LOG_LEVEL_ERROR, "Could not find attribute %s.", name);
 						elements[i].UsageIndex = ++highestIndex;
 					}
 					else {
-						elements[i].UsageIndex = vertexShader->attributes[name];
+						elements[i].UsageIndex = state->vertex_shader->impl.attributes[attribute_index].index;
 					}
 					stride += 4 * 4;
 					++i;
@@ -138,12 +167,13 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 			if (state->input_layout[stream]->elements[index].data != KINC_G4_VERTEX_DATA_FLOAT4X4) {
 				elements[i].Method = D3DDECLMETHOD_DEFAULT;
 				elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
-				if (vertexShader->attributes.find(state->input_layout[stream]->elements[index].name) == vertexShader->attributes.end()) {
+				int attribute_index = find_attribute(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name);
+				if (attribute_index < 0) {
 					kinc_log(KINC_LOG_LEVEL_ERROR, "Could not find attribute %s.", state->input_layout[stream]->elements[index].name);
 					elements[i].UsageIndex = ++highestIndex;
 				}
 				else {
-					elements[i].UsageIndex = vertexShader->attributes[state->input_layout[stream]->elements[index].name];
+					elements[i].UsageIndex = state->vertex_shader->impl.attributes[attribute_index].index;
 				}
 				++i;
 			}
@@ -159,7 +189,8 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	state->impl.vertexDecleration = nullptr;
 	kinc_microsoft_affirm(device->CreateVertexDeclaration(elements, &state->impl.vertexDecleration));
 
-	state->impl.halfPixelLocation = vertexShader->constants["gl_HalfPixel"].regindex;
+	int constant_index = find_constant(state->vertex_shader->impl.constants, "gl_HalfPixel");
+	state->impl.halfPixelLocation = state->vertex_shader->impl.constants[constant_index].regindex;
 }
 
 void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
@@ -218,12 +249,15 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name) {
 	kinc_g4_constant_location_t location;
 
-	if (fragmentShader->constants.find(name) != fragmentShader->constants.end()) {
-		location.impl.reg = fragmentShader->constants[name];
+	int fragment_index = find_constant(state->fragment_shader->impl.constants, name);
+	int vertex_index = find_constant(state->vertex_shader->impl.constants, name);
+
+	if (fragment_index >= 0) {
+		location.impl.reg = state->fragment_shader->impl.constants[fragment_index];
 		location.impl.shaderType = 1;
 	}
-	else if (vertexShader->constants.find(name) != vertexShader->constants.end()) {
-		location.impl.reg = vertexShader->constants[name];
+	else if (vertex_index >= 0) {
+		location.impl.reg = state->vertex_shader->impl.constants[vertex_index];
 		location.impl.shaderType = 0;
 	}
 	else {
@@ -236,11 +270,14 @@ kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipel
 kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name) {
 	kinc_g4_texture_unit_t unit;
 
-	if (fragmentShader->constants.find(name) != fragmentShader->constants.end()) {
-		unit.impl.unit = fragmentShader->constants[name].regindex;
+	int fragment_index = find_constant(state->fragment_shader->impl.constants, name);
+	int vertex_index = find_constant(state->vertex_shader->impl.constants, name);
+
+	if (fragment_index >= 0) {
+		unit.impl.unit = state->fragment_shader->impl.constants[fragment_index].regindex;
 	}
-	else if (vertexShader->constants.find(name) != vertexShader->constants.end()) {
-		unit.impl.unit = vertexShader->constants[name].regindex;
+	else if (vertex_index >= 0) {
+		unit.impl.unit = state->vertex_shader->impl.constants[vertex_index].regindex;
 	}
 	else {
 		unit.impl.unit = -1;

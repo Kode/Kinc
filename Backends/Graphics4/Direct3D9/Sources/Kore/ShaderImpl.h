@@ -7,9 +7,15 @@ extern "C" {
 #endif
 
 struct ShaderRegister {
+	char name[128];
 	uint8_t regtype;
 	uint8_t regindex;
 	uint8_t regcount;
+};
+
+struct ShaderAttribute {
+	char name[128];
+	int index;
 };
 
 typedef struct {
@@ -21,11 +27,12 @@ typedef struct {
 	int unit;
 } kinc_g4_texture_unit_impl_t;
 
-// class AttributeLocationImpl {};
+#define KINC_INTERNAL_MAX_CONSTANTS 64
+#define KINC_INTERNAL_MAX_ATTRIBUTES 64
 
 typedef struct {
-	// std::map<std::string, ShaderRegister> constants;
-	// std::map<std::string, int> attributes;
+	struct ShaderRegister constants[KINC_INTERNAL_MAX_CONSTANTS];
+	struct ShaderAttribute attributes[KINC_INTERNAL_MAX_ATTRIBUTES];
 	void *shader;
 } kinc_g4_shader_impl_t;
 
