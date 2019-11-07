@@ -1,21 +1,22 @@
 #include "pch.h"
 
+#include <kinc/display.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/shader.h>
 #include <kinc/math/core.h>
 #undef CreateWindow
 #include <kinc/system.h>
+#include <kinc/window.h>
 
 #include <Kore/SystemMicrosoft.h>
+#include <Kore/Windows.h>
 
 #include <Kore/Log.h>
 
 #include <vector>
 
 #include "Direct3D9.h"
-
-using namespace Kore;
 
 LPDIRECT3D9 d3d;
 LPDIRECT3DDEVICE9 device;
@@ -46,8 +47,8 @@ namespace {
 		return result != D3DERR_DEVICELOST;
 	}
 
-	Graphics4::Shader *pixelShader = nullptr;
-	Graphics4::Shader *vertexShader = nullptr;
+	kinc_g4_shader_t *pixelShader = nullptr;
+	kinc_g4_shader_t *vertexShader = nullptr;
 	IDirect3DSurface9 *backBuffer = nullptr;
 	IDirect3DSurface9 *depthBuffer = nullptr;
 
@@ -94,7 +95,7 @@ namespace {
 
 void kinc_g4_destroy(int window) {}
 
-void Graphics4::changeResolution(int width, int height) {
+extern "C" void kinc_internal_resize(int width, int height) {
 	if (!resizable) {
 		return;
 	}
@@ -128,15 +129,14 @@ void Graphics4::changeResolution(int width, int height) {
 	initDeviceStates();*/
 }
 
-void Graphics4::setup() {
-	d3d = Direct3DCreate9(D3D_SDK_VERSION);
-	// if (!d3d) throw Exception("Could not initialize Direct3D9");
-}
+extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
 
 void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	if (!hasWindow()) return;
+	bool fullscreen = kinc_window_get_mode(windowId) == KINC_WINDOW_MODE_FULLSCREEN || kinc_window_get_mode(windowId) == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN;
 
-	hWnd = (HWND)System::windowHandle(windowId);
+	d3d = Direct3DCreate9(D3D_SDK_VERSION);
+
+	hWnd = (HWND)kinc_windows_window_handle(windowId);
 	long style = GetWindowLong(hWnd, GWL_STYLE);
 
 	resizable = false;
@@ -165,14 +165,15 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	if (resizable) {
 		d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
 		d3dpp.BackBufferCount = 1;
-		d3dpp.BackBufferWidth = Kore::System::desktopWidth();
-		d3dpp.BackBufferHeight = Kore::System::desktopHeight();
+		kinc_display_mode_t mode = kinc_display_current_mode(kinc_primary_display());
+		d3dpp.BackBufferWidth = mode.width;
+		d3dpp.BackBufferHeight = mode.height;
 	}
 	else {
 		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		d3dpp.BackBufferCount = 2;
-		d3dpp.BackBufferWidth = System::windowWidth(windowId);
-		d3dpp.BackBufferHeight = System::windowHeight(windowId);
+		d3dpp.BackBufferWidth = kinc_window_width(windowId);
+		d3dpp.BackBufferHeight = kinc_window_height(windowId);
 	}
 
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
@@ -181,8 +182,8 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 	// d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
-	if (antialiasingSamples() > 1) {
-		for (int samples = min(antialiasingSamples(), 16); samples > 1; --samples) {
+	if (kinc_g4_antialiasing_samples() > 1) {
+		for (int samples = min(kinc_g4_antialiasing_samples(), 16); samples > 1; --samples) {
 			if (SUCCEEDED(d3d->CheckDeviceMultiSampleType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_A8R8G8B8, FALSE, (D3DMULTISAMPLE_TYPE)samples, nullptr))) {
 				d3dpp.MultiSampleType = (D3DMULTISAMPLE_TYPE)samples;
 				break;
@@ -196,10 +197,10 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		// d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
 
 #ifdef KORE_WINDOWS
-	if (System::hasShowWindowFlag(/*windowId*/)) {
-		ShowWindow(hWnd, SW_SHOWDEFAULT);
-		UpdateWindow(hWnd);
-	}
+	// if (System::hasShowWindowFlag(/*windowId*/)) {
+	ShowWindow(hWnd, SW_SHOWDEFAULT);
+	UpdateWindow(hWnd);
+	//}
 #endif
 
 	initDeviceStates();
@@ -220,18 +221,20 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 
 	// vsync = d3dpp.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE;
 
-	System::ticks test1 = Kore::System::timestamp();
-	for (int i = 0; i < 3; ++i) swapBuffers(windowId);
-	System::ticks test2 = Kore::System::timestamp();
-	if (test2 - test1 < (1.0 / hz) * System::frequency()) {
+	kinc_ticks_t test1 = kinc_timestamp();
+	for (int i = 0; i < 3; ++i) {
+		kinc_g4_swap_buffers();
+	}
+	kinc_ticks_t test2 = kinc_timestamp();
+	if (test2 - test1 < (1.0 / hz) * kinc_frequency()) {
 		vsync = false;
 	}
 	else {
 		vsync = true;
 	}
 
-	_width = System::windowWidth(windowId);
-	_height = System::windowHeight(windowId);
+	_width = kinc_window_width(windowId);
+	_height = kinc_window_height(windowId);
 }
 
 void kinc_g4_flush() {}
@@ -239,11 +242,11 @@ void kinc_g4_flush() {}
 namespace {
 	DWORD convertFilter(kinc_g4_texture_filter_t filter) {
 		switch (filter) {
-		case Graphics4::PointFilter:
+		case KINC_G4_TEXTURE_FILTER_POINT:
 			return D3DTEXF_POINT;
-		case Graphics4::LinearFilter:
+		case KINC_G4_TEXTURE_FILTER_LINEAR:
 			return D3DTEXF_LINEAR;
-		case Graphics4::AnisotropicFilter:
+		case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
 			return D3DTEXF_ANISOTROPIC;
 		default:
 			return D3DTEXF_POINT;
@@ -252,11 +255,11 @@ namespace {
 
 	DWORD convertMipFilter(kinc_g4_mipmap_filter_t filter) {
 		switch (filter) {
-		case Graphics4::NoMipFilter:
+		case KINC_G4_MIPMAP_FILTER_NONE:
 			return D3DTEXF_NONE;
-		case Graphics4::PointMipFilter:
+		case KINC_G4_MIPMAP_FILTER_POINT:
 			return D3DTEXF_POINT;
-		case Graphics4::LinearMipFilter:
+		case KINC_G4_MIPMAP_FILTER_LINEAR:
 			return D3DTEXF_LINEAR;
 		default:
 			return D3DTEXF_NONE;
@@ -265,11 +268,11 @@ namespace {
 
 	_D3DTEXTUREOP convert(kinc_g4_texture_operation_t operation) {
 		switch (operation) {
-		case Graphics4::ModulateOperation:
+		case KINC_G4_TEXTURE_OPERATION_MODULATE:
 			return D3DTOP_MODULATE;
-		case Graphics4::SelectFirstOperation:
+		case KINC_G4_TEXTURE_OPERATION_SELECT_FIRST:
 			return D3DTOP_SELECTARG1;
-		case Graphics4::SelectSecondOperation:
+		case KINC_G4_TEXTURE_OPERATION_SELECT_SECOND:
 			return D3DTOP_SELECTARG2;
 		default:
 			//	throw Exception("Unknown texture operation.");
@@ -279,9 +282,9 @@ namespace {
 
 	int convert(kinc_g4_texture_argument_t arg) {
 		switch (arg) {
-		case Graphics4::CurrentColorArgument:
+		case KINC_G4_TEXTURE_ARGUMENT_CURRENT_COLOR:
 			return D3DTA_CURRENT;
-		case Graphics4::TextureColorArgument:
+		case KINC_G4_TEXTURE_ARGUMENT_TEXTURE_COLOR:
 			return D3DTA_TEXTURE;
 		default:
 			//	throw Exception("Unknown texture argument.");
@@ -300,7 +303,7 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, ki
 	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MAGFILTER, convertFilter(filter));
 }
 
-void kinc_g4_set_texture3D_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
+void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	kinc_g4_set_texture_magnification_filter(texunit, filter);
 }
 
@@ -308,7 +311,7 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kin
 	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MINFILTER, convertFilter(filter));
 }
 
-void kinc_g4_set_texture3D_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
+void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	kinc_g4_set_texture_minification_filter(texunit, filter);
 }
 
@@ -316,13 +319,13 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_m
 	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
 }
 
-void kinc_g4_set_texture3D_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
+void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
 	kinc_g4_set_texture_mipmap_filter(texunit, filter);
 }
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
 
-void kinc_g4_set_cube_map_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
+void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
 
 void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int count) {
 	// if (backBuffer != nullptr) backBuffer->Release();
@@ -337,7 +340,7 @@ void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int coun
 	}
 }
 
-void Graphics4::setRenderTargetFace(RenderTarget *texture, int face) {}
+void kinc_g4_set_render_target_face(struct kinc_g4_render_target *texture, int face) {}
 
 // void Graphics::setDepthStencilTarget(Texture* texture) {
 //	//if (depthBuffer != nullptr) depthBuffer->Release();
@@ -345,7 +348,7 @@ void Graphics4::setRenderTargetFace(RenderTarget *texture, int face) {}
 //	Microsoft::affirm(device->SetDepthStencilSurface(dcast<D3D9Texture*>(texture)->getSurface()));
 //}
 
-void Graphics4::restoreRenderTarget() {
+void kinc_g4_restore_render_target() {
 	if (backBuffer != nullptr) {
 		device->SetRenderTarget(0, backBuffer);
 		device->SetRenderTarget(1, nullptr);
@@ -354,26 +357,28 @@ void Graphics4::restoreRenderTarget() {
 		device->SetDepthStencilSurface(depthBuffer);
 		depthBuffer->Release();
 		depthBuffer = nullptr;
-		viewport(0, 0, _width, _height);
+		kinc_g4_viewport(0, 0, _width, _height);
 	}
 }
 
 void kinc_g4_draw_indexed_vertices() {
-	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), 0, IndexBuffer::_current->count() / 3);
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, kinc_g4_vertex_buffer_count(kinc_internal_current_vertex_buffer), 0,
+	                             kinc_g4_index_buffer_count(kinc_internal_current_index_buffer) / 3);
 }
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
-	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3);
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, kinc_g4_vertex_buffer_count(kinc_internal_current_vertex_buffer), start, count / 3);
 }
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
-	kinc_microsoft_affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
-	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), 0, IndexBuffer::_current->count() / 3);
+	kinc_microsoft_affirm(device->SetStreamSourceFreq(kinc_internal_current_vertex_buffer->impl._offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, kinc_g4_vertex_buffer_count(kinc_internal_current_vertex_buffer), 0,
+	                             kinc_g4_index_buffer_count(kinc_internal_current_index_buffer) / 3);
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
-	kinc_microsoft_affirm(device->SetStreamSourceFreq(VertexBuffer::_current->_offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
-	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VertexBuffer::_current->count(), start, count / 3);
+	kinc_microsoft_affirm(device->SetStreamSourceFreq(kinc_internal_current_vertex_buffer->impl._offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, kinc_g4_vertex_buffer_count(kinc_internal_current_vertex_buffer), start, count / 3);
 }
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
@@ -400,31 +405,31 @@ void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_textu
 }
 
 namespace {
-	void tod3dmatrix(mat4 &matrix, D3DMATRIX &d3dm) {
-		d3dm._11 = matrix.get(0, 0);
-		d3dm._12 = matrix.get(0, 1);
-		d3dm._13 = matrix.get(0, 2);
-		d3dm._14 = matrix.get(0, 3);
+	void tod3dmatrix(kinc_matrix4x4_t *matrix, D3DMATRIX &d3dm) {
+		d3dm._11 = kinc_matrix4x4_get(matrix, 0, 0);
+		d3dm._12 = kinc_matrix4x4_get(matrix, 0, 1);
+		d3dm._13 = kinc_matrix4x4_get(matrix, 0, 2);
+		d3dm._14 = kinc_matrix4x4_get(matrix, 0, 3);
 
-		d3dm._21 = matrix.get(1, 0);
-		d3dm._22 = matrix.get(1, 1);
-		d3dm._23 = matrix.get(1, 2);
-		d3dm._24 = matrix.get(1, 3);
+		d3dm._21 = kinc_matrix4x4_get(matrix, 1, 0);
+		d3dm._22 = kinc_matrix4x4_get(matrix, 1, 1);
+		d3dm._23 = kinc_matrix4x4_get(matrix, 1, 2);
+		d3dm._24 = kinc_matrix4x4_get(matrix, 1, 3);
 
-		d3dm._31 = matrix.get(2, 0);
-		d3dm._32 = matrix.get(2, 1);
-		d3dm._33 = matrix.get(2, 2);
-		d3dm._34 = matrix.get(2, 3);
+		d3dm._31 = kinc_matrix4x4_get(matrix, 2, 0);
+		d3dm._32 = kinc_matrix4x4_get(matrix, 2, 1);
+		d3dm._33 = kinc_matrix4x4_get(matrix, 2, 2);
+		d3dm._34 = kinc_matrix4x4_get(matrix, 2, 3);
 
-		d3dm._41 = matrix.get(3, 0);
-		d3dm._42 = matrix.get(3, 1);
-		d3dm._43 = matrix.get(3, 2);
-		d3dm._44 = matrix.get(3, 3);
+		d3dm._41 = kinc_matrix4x4_get(matrix, 3, 0);
+		d3dm._42 = kinc_matrix4x4_get(matrix, 3, 1);
+		d3dm._43 = kinc_matrix4x4_get(matrix, 3, 2);
+		d3dm._44 = kinc_matrix4x4_get(matrix, 3, 3);
 	}
 }
 
-void Graphics4::clear(uint flags, uint color, float z, int stencil) {
-	device->Clear(0, nullptr, flags, color, z, stencil);
+void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
+	device->Clear(0, nullptr, flags, color, depth, stencil);
 }
 
 void kinc_g4_begin(int window) {
@@ -473,19 +478,19 @@ void kinc_g4_end(int window) {
 	device->EndScene();
 }
 
-bool Graphics4::vsynced() {
+bool kinc_window_vsynced(int window) {
 	return vsync;
 }
 
-unsigned Graphics4::refreshRate() {
-	return hz;
-}
+// unsigned Graphics4::refreshRate() {
+//	return hz;
+//}
 
 bool kinc_g4_swap_buffers() {
 	return ::swapBuffers();
 }
 
-void Graphics4::setStencilReferenceValue(int value) {}
+void kinc_g4_set_stencil_reference_value(int value) {}
 
 void kinc_g4_set_bool(kinc_g4_constant_location_t position, bool value) {
 	if (position.impl.shaderType == -1) return;
@@ -515,6 +520,79 @@ void kinc_g4_set_int(kinc_g4_constant_location_t position, int value) {
 			device->SetVertexShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
 		else
 			device->SetPixelShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
+	}
+}
+
+void kinc_g4_set_int2(kinc_g4_constant_location_t position, int value1, int value2) {
+	if (position.impl.shaderType == -1) return;
+	if (position.impl.reg.regtype == 'f') {
+		kinc_g4_set_float2(position, (float)value1, (float)value2);
+	}
+	else {
+		int ints[4];
+		ints[0] = value1;
+		ints[1] = value2;
+		ints[2] = value1;
+		ints[3] = value2;
+		if (position.impl.shaderType == 0)
+			device->SetVertexShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
+		else
+			device->SetPixelShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
+	}
+}
+
+void kinc_g4_set_int3(kinc_g4_constant_location_t position, int value1, int value2, int value3) {
+	if (position.impl.shaderType == -1) return;
+	if (position.impl.reg.regtype == 'f') {
+		kinc_g4_set_float3(position, (float)value1, (float)value2, (float)value3);
+	}
+	else {
+		int ints[4];
+		ints[0] = value1;
+		ints[1] = value2;
+		ints[2] = value3;
+		ints[3] = value1;
+		if (position.impl.shaderType == 0)
+			device->SetVertexShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
+		else
+			device->SetPixelShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
+	}
+}
+
+void kinc_g4_set_int4(kinc_g4_constant_location_t position, int value1, int value2, int value3, int value4) {
+	if (position.impl.shaderType == -1) return;
+	if (position.impl.reg.regtype == 'f') {
+		kinc_g4_set_float4(position, (float)value1, (float)value2, (float)value3, (float)value4);
+	}
+	else {
+		int ints[4];
+		ints[0] = value1;
+		ints[1] = value2;
+		ints[2] = value3;
+		ints[3] = value4;
+		if (position.impl.shaderType == 0)
+			device->SetVertexShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
+		else
+			device->SetPixelShaderConstantI(position.impl.reg.regindex, &ints[0], 1);
+	}
+}
+
+void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
+	if (location.impl.shaderType == -1) return;
+	int registerCount = (count + 3) / 4; // round up
+	if (registerCount == count / 4) {    // round down
+		if (location.impl.shaderType == 0)
+			device->SetVertexShaderConstantI(location.impl.reg.regindex, values, registerCount);
+		else
+			device->SetPixelShaderConstantI(location.impl.reg.regindex, values, registerCount);
+	}
+	else {
+		int *data = (int *)alloca(registerCount * 4 * sizeof(int));
+		memcpy(data, values, count * sizeof(int));
+		if (location.impl.shaderType == 0)
+			device->SetVertexShaderConstantI(location.impl.reg.regindex, data, registerCount);
+		else
+			device->SetPixelShaderConstantI(location.impl.reg.regindex, data, registerCount);
 	}
 }
 
@@ -594,7 +672,7 @@ void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t 
 	float floats[16];
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
-			floats[y * 4 + x] = value.get(y, x);
+			floats[y * 4 + x] = kinc_matrix4x4_get(value, y, x);
 		}
 	}
 	if (location.impl.shaderType == 0)
@@ -608,7 +686,7 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 	float floats[12];
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
-			floats[y * 4 + x] = value.get(y, x);
+			floats[y * 4 + x] = kinc_matrix3x3_get(value, y, x);
 		}
 	}
 	if (location.impl.shaderType == 0)
@@ -625,23 +703,25 @@ bool kinc_g4_non_pow2_textures_supported() {
 	return true;
 }
 
-void Graphics4::setVertexBuffers(VertexBuffer **buffers, int count) {
+void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 	for (int i = 0; i < count; ++i) {
-		buffers[i]->_set(i);
+		kinc_internal_g4_vertex_buffer_set(buffers[i], i);
 	}
 }
 
-void Graphics4::setIndexBuffer(IndexBuffer &buffer) {
-	buffer._set();
+void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *buffer) {
+	kinc_internal_g4_index_buffer_set(buffer);
 }
 
-void Graphics4::setTexture(TextureUnit unit, Texture *texture) {
-	texture->_set(unit);
+void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
+
+void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, struct kinc_g4_texture *texture) {
+	kinc_internal_texture_set(texture, unit);
 }
 
-void Graphics4::setImageTexture(TextureUnit unit, Texture *texture) {}
+void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, struct kinc_g4_texture *texture) {}
 
-uint queryCount = 0;
+unsigned queryCount = 0;
 std::vector<IDirect3DQuery9 *> queryPool;
 
 bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
@@ -708,5 +788,5 @@ void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {
 void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array) {}
 
 void kinc_g4_set_pipeline(struct kinc_g4_pipeline *pipeline) {
-	pipeline->set(pipeline);
+	kinc_g4_internal_set_pipeline(pipeline);
 }
