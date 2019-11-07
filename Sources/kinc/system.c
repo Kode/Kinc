@@ -77,7 +77,7 @@ void kinc_set_login_callback(void (*value)()) {
 	login_callback = value;
 }
 
-void kinc_set_logout_callback(void(*value)()) {
+void kinc_set_logout_callback(void (*value)()) {
 	logout_callback = value;
 }
 
@@ -152,18 +152,18 @@ void kinc_internal_login_callback() {
 void kinc_internal_logout_callback() {
 	if (logout_callback != NULL) {
 		logout_callback();
-  }
+	}
 }
 
 static bool running = false;
-//static bool showWindowFlag = true;
+// static bool showWindowFlag = true;
 static char application_name[1024] = {"Kinc Application"};
 
 const char *kinc_application_name() {
 	return application_name;
 }
 
-void kinc_set_application_name(const char* name) {
+void kinc_set_application_name(const char *name) {
 	strcpy(application_name, name);
 }
 
@@ -201,7 +201,8 @@ void kinc_start() {
 	while (withAutoreleasepool(kinc_internal_frame)) {
 	}
 #else
-	while (kinc_internal_frame()) {}
+	while (kinc_internal_frame()) {
+	}
 #endif
 	kinc_internal_shutdown();
 #endif
@@ -247,6 +248,10 @@ bool is_save_load_broken(void) {
 
 #if !defined(KORE_CONSOLE)
 
+void kinc_disallow_user_change() {}
+
+void kinc_allow_user_change() {}
+
 static uint8_t *current_file = NULL;
 static size_t current_file_size = 0;
 
@@ -270,7 +275,7 @@ void kinc_load_save_file(const char *filename) {
 	kinc_file_reader_t reader;
 	if (kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_SAVE)) {
 		current_file_size = kinc_file_reader_size(&reader);
-		current_file = (uint8_t*)malloc(current_file_size);
+		current_file = (uint8_t *)malloc(current_file_size);
 		kinc_file_reader_read(&reader, current_file, current_file_size);
 		kinc_file_reader_close(&reader);
 	}

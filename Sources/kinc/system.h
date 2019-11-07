@@ -48,6 +48,8 @@ void kinc_stop();
 
 void kinc_login();
 void kinc_unlock_achievement(int id);
+void kinc_disallow_user_change();
+void kinc_allow_user_change();
 
 void kinc_set_keep_screen_on(bool on);
 
