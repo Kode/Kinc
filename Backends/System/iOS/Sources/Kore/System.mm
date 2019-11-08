@@ -9,6 +9,7 @@
 #include <kinc/window.h>
 
 #import <UIKit/UIKit.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 extern "C" {
     bool withAutoreleasepool(bool (*f)()) {
@@ -57,7 +58,10 @@ void kinc_load_url(const char* url) {
 	::loadURL(url);
 }
 
-void kinc_vibrate(int ms) {};
+// On iOS you can't set the length of the vibration.
+void kinc_vibrate(int ms) {
+	AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+};
 
 static char language[3];
 
