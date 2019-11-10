@@ -56,7 +56,10 @@ namespace {
 	}
 }
 
-void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {}
+void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {
+	memset(state, 0, sizeof(kinc_g4_pipeline));
+	kinc_g4_internal_pipeline_set_defaults(state);
+}
 
 void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state) {}
 
@@ -207,10 +210,18 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 	kinc_microsoft_affirm(device->SetVertexShaderConstantF(pipeline->impl.halfPixelLocation, floats, 1));
 
 	DWORD flags = 0;
-	if (pipeline->color_write_mask_red[0]) flags |= D3DCOLORWRITEENABLE_RED;
-	if (pipeline->color_write_mask_green[0]) flags |= D3DCOLORWRITEENABLE_GREEN;
-	if (pipeline->color_write_mask_blue[0]) flags |= D3DCOLORWRITEENABLE_BLUE;
-	if (pipeline->color_write_mask_alpha[0]) flags |= D3DCOLORWRITEENABLE_ALPHA;
+	if (pipeline->color_write_mask_red[0]) {
+		flags |= D3DCOLORWRITEENABLE_RED;
+	}
+	if (pipeline->color_write_mask_green[0]) {
+		flags |= D3DCOLORWRITEENABLE_GREEN;
+	}
+	if (pipeline->color_write_mask_blue[0]) {
+		flags |= D3DCOLORWRITEENABLE_BLUE;
+	}
+	if (pipeline->color_write_mask_alpha[0]) {
+		flags |= D3DCOLORWRITEENABLE_ALPHA;
+	}
 
 	device->SetRenderState(D3DRS_COLORWRITEENABLE, flags);
 

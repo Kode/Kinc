@@ -11,11 +11,8 @@ struct kinc_g4_index_buffer *kinc_internal_current_index_buffer = NULL;
 
 void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
 	buffer->impl.myCount = count;
-	DWORD usage = 0;
-#ifdef KORE_WINDOWS
-	usage = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
-#endif
-	kinc_microsoft_affirm(device->CreateIndexBuffer(sizeof(int) * count, usage, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &buffer->impl.ib, 0));
+	kinc_microsoft_affirm(
+	    device->CreateIndexBuffer(sizeof(int) * count, D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &buffer->impl.ib, 0));
 }
 
 void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
@@ -25,11 +22,7 @@ void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 	int *ints;
 	DWORD lockflags = 0;
-#ifdef KORE_WINDOWS
-	lockflags = D3DLOCK_DISCARD;
-#endif
-	int count2 = kinc_g4_index_buffer_count(buffer);
-	kinc_microsoft_affirm(buffer->impl.ib->Lock(0, count2 * 4, (void **)&ints, lockflags));
+	kinc_microsoft_affirm(buffer->impl.ib->Lock(0, sizeof(int) * kinc_g4_index_buffer_count(buffer), (void **)&ints, D3DLOCK_DISCARD));
 	return ints;
 }
 
