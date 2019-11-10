@@ -1,16 +1,16 @@
 #include "pch.h"
 
-#include <Kore/Audio2/Audio.h>
-#include <Kore/System.h>
+#include <kinc/audio2/audio.h>
+#include <kinc/system.h>
+
 #include <Kore/SystemMicrosoft.h>
+#include <Kore/Windows.h>
 
 #include <dsound.h>
 
-using namespace Kore;
-
 namespace {
-	IDirectSound8* dsound = nullptr;
-	IDirectSoundBuffer* dbuffer = nullptr;
+	IDirectSound8 *dsound = nullptr;
+	IDirectSoundBuffer *dbuffer = nullptr;
 	const DWORD dsize = 50 * 1024;
 	const int samplesPerSecond = 44100;
 	const int bitsPerSample = 16;
@@ -20,17 +20,20 @@ namespace {
 
 	const int gap = 10 * 1024;
 	DWORD writePos = gap;
+
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+	kinc_a2_buffer_t a2_buffer;
 }
 
-void Audio2::init() {
-	buffer.readLocation = 0;
-	buffer.writeLocation = 0;
-	buffer.dataSize = 128 * 1024;
-	buffer.data = new u8[buffer.dataSize];
+void kinc_a2_init() {
+	a2_buffer.read_location = 0;
+	a2_buffer.write_location = 0;
+	a2_buffer.data_size = 128 * 1024;
+	a2_buffer.data = new uint8_t[a2_buffer.data_size];
 
-	Microsoft::affirm(DirectSoundCreate8(nullptr, &dsound, nullptr));
+	kinc_microsoft_affirm(DirectSoundCreate8(nullptr, &dsound, nullptr));
 	// TODO (DK) only for the main window?
-	Microsoft::affirm(dsound->SetCooperativeLevel((HWND)System::windowHandle(0), DSSCL_PRIORITY));
+	kinc_microsoft_affirm(dsound->SetCooperativeLevel(kinc_windows_window_handle(0), DSSCL_PRIORITY));
 
 	WAVEFORMATEX waveFormat;
 	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
@@ -49,31 +52,37 @@ void Audio2::init() {
 	bufferDesc.lpwfxFormat = &waveFormat;
 	bufferDesc.guid3DAlgorithm = GUID_NULL;
 
-	Microsoft::affirm(dsound->CreateSoundBuffer(&bufferDesc, &dbuffer, nullptr));
+	kinc_microsoft_affirm(dsound->CreateSoundBuffer(&bufferDesc, &dbuffer, nullptr));
 
 	DWORD size1;
-	u8* buffer1;
-	Microsoft::affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, nullptr, nullptr, 0));
+	uint8_t *buffer1;
+	kinc_microsoft_affirm(dbuffer->Lock(writePos, gap, (void **)&buffer1, &size1, nullptr, nullptr, 0));
 	for (int i = 0; i < gap; ++i) buffer1[i] = 0;
-	Microsoft::affirm(dbuffer->Unlock(buffer1, size1, nullptr, 0));
+	kinc_microsoft_affirm(dbuffer->Unlock(buffer1, size1, nullptr, 0));
 
-	Microsoft::affirm(dbuffer->Play(0, 0, DSBPLAY_LOOPING));
+	kinc_microsoft_affirm(dbuffer->Play(0, 0, DSBPLAY_LOOPING));
+}
+
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+	a2_callback = kinc_a2_audio_callback;
 }
 
 namespace {
-	void copySample(u8* buffer, DWORD& index) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
-		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
-		*(s16*)&buffer[index] = static_cast<s16>(value * 32767);
+	void copySample(uint8_t *buffer, DWORD &index) {
+		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
+		a2_buffer.read_location += 4;
+		if (a2_buffer.read_location >= a2_buffer.data_size) {
+			a2_buffer.read_location = 0;
+		}
+		*(int16_t *)&buffer[index] = static_cast<int16_t>(value * 32767);
 		index += 2;
 	}
 }
 
-void Audio2::update() {
+void kinc_a2_update() {
 	DWORD playPosition;
 	DWORD writePosition;
-	Microsoft::affirm(dbuffer->GetCurrentPosition(&playPosition, &writePosition));
+	kinc_microsoft_affirm(dbuffer->GetCurrentPosition(&playPosition, &writePosition));
 
 	int dif;
 	if (writePos >= writePosition)
@@ -91,11 +100,11 @@ void Audio2::update() {
 		if (writePosition >= writePos && writePosition <= writePos + gap) return;
 	}
 
-	audioCallback(gap / 2);
+	a2_callback(&a2_buffer, gap / 2);
 
 	DWORD size1, size2;
-	u8 *buffer1, *buffer2;
-	Microsoft::affirm(dbuffer->Lock(writePos, gap, (void**)&buffer1, &size1, (void**)&buffer2, &size2, 0));
+	uint8_t *buffer1, *buffer2;
+	kinc_microsoft_affirm(dbuffer->Lock(writePos, gap, (void **)&buffer1, &size1, (void **)&buffer2, &size2, 0));
 
 	for (DWORD i = 0; i < size1 - (bitsPerSample / 8 - 1);) {
 		copySample(buffer1, i);
@@ -108,12 +117,12 @@ void Audio2::update() {
 		writePos = size2;
 	}
 
-	Microsoft::affirm(dbuffer->Unlock(buffer1, size1, buffer2, size2));
+	kinc_microsoft_affirm(dbuffer->Unlock(buffer1, size1, buffer2, size2));
 
 	if (writePos >= dsize) writePos -= dsize;
 }
 
-void Audio2::shutdown() {
+void kinc_a2_shutdown() {
 	if (dbuffer != nullptr) {
 		dbuffer->Release();
 		dbuffer = nullptr;

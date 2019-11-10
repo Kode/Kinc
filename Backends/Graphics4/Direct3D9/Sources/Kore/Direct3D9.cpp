@@ -136,7 +136,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);
 
-	hWnd = (HWND)kinc_windows_window_handle(windowId);
+	hWnd = kinc_windows_window_handle(windowId);
 	long style = GetWindowLong(hWnd, GWL_STYLE);
 
 	resizable = false;
