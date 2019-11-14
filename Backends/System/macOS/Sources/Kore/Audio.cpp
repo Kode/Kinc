@@ -101,6 +101,8 @@ void kinc_a2_init() {
 		return;
 	}
 
+	kinc_a2_samples_per_second = static_cast<int>(deviceFormat.mSampleRate);
+
 	initialized = true;
 
 	kinc_log(KINC_LOG_LEVEL_INFO, "mSampleRate = %g\n", deviceFormat.mSampleRate);
