@@ -11,6 +11,7 @@
 @implementation KoreAppDelegate
 
 static UIWindow* window;
+static GLViewController* glViewController;
 
 void loadURL(const char* url) {
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
@@ -44,7 +45,7 @@ void loadURL(const char* url) {
 
 	// glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::max(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width,
 	// screenBounds.size.height))];
-	GLViewController* glViewController = [[GLViewController alloc] init];
+	glViewController = [[GLViewController alloc] init];
 #ifndef KORE_TVOS
 	glViewController.view.multipleTouchEnabled = YES;
 #endif
@@ -102,6 +103,7 @@ sharedApplication].statusBarOrientation);
 }
 */
 - (void)applicationWillEnterForeground:(UIApplication*)application {
+	[glViewController setVisible:YES];
 	Kore::System::_foregroundCallback();
 }
 
@@ -117,6 +119,7 @@ sharedApplication].statusBarOrientation);
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application {
+	[glViewController setVisible:NO];
 	Kore::System::_backgroundCallback();
 }
 

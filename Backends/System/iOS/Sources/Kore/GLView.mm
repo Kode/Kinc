@@ -238,10 +238,14 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 #ifdef KORE_METAL
 - (void)end {
 	@autoreleasepool {
-		[commandEncoder endEncoding];
-		[commandBuffer presentDrawable:drawable];
-		[commandBuffer commit];
+    if (commandEncoder != nil && commandBuffer != nil) {
+      [commandEncoder endEncoding];
+      [commandBuffer presentDrawable:drawable];
+      [commandBuffer commit];
+    }
+		
 		commandBuffer = nil;
+    commandEncoder = nil;
 
 		// if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
