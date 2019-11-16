@@ -12,17 +12,31 @@
 
 static GLView* glView;
 
+static bool visible;
+
 void beginGL() {
+  #ifdef KORE_METAL
+	if (!visible) {
+		return;
+	}
+  #endif
 	[glView begin];
 }
 
 void endGL() {
+  #ifdef KORE_METAL
+	if (!visible) {
+		return;
+	}
+  #endif
 	[glView end];
 }
 
 #ifdef KORE_METAL
 void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait) {
-	[glView newRenderPass: renderTarget wait: wait];
+	if (visible) {
+		[glView newRenderPass: renderTarget wait: wait];
+	}
 }
 #endif
 
@@ -61,7 +75,12 @@ id getMetalEncoder() {
 @implementation GLViewController
 
 - (void)loadView {
+	visible = true;
 	self.view = glView = [[GLView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+}
+
+- (void)setVisible:(BOOL)value {
+	visible = value;
 }
 
 @end

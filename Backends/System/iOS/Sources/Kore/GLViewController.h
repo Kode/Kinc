@@ -12,4 +12,6 @@
 
 - (void)loadView;
 
+- (void)setVisible:(BOOL)value;
+
 @end
