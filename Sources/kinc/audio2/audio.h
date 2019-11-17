@@ -22,6 +22,7 @@ typedef struct {
 
 void kinc_a2_init();
 void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples));
+void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)());
 extern int kinc_a2_samples_per_second;
 void kinc_a2_update();
 void kinc_a2_shutdown();

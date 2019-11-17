@@ -42,6 +42,7 @@ namespace {
 	bool isInterleaved = true;
 	
 	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+	void (*a2_sample_rate_callback)() = nullptr;
 	kinc_a2_buffer_t a2_buffer;
 
 	void copySample(void* buffer) {
@@ -100,6 +101,17 @@ namespace {
 		}
 		return noErr;
 	}
+
+	void sampleRateListener(void *inRefCon, AudioUnit inUnit, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement) {
+		Float64 sampleRate;
+		UInt32 size = sizeof(sampleRate);
+		affirm(AudioUnitGetProperty(inUnit, kAudioUnitProperty_SampleRate, kAudioUnitScope_Output, 0, &sampleRate, &size));
+
+		kinc_a2_samples_per_second = static_cast<int>(sampleRate);
+		if (a2_sample_rate_callback != nullptr) {
+				a2_sample_rate_callback();
+		}
+	}
 }
 
 void kinc_a2_init() {
@@ -140,6 +152,8 @@ void kinc_a2_init() {
 		isInterleaved = false;
 	}
 
+	AudioUnitAddPropertyListener(audioUnit, kAudioUnitProperty_StreamFormat, sampleRateListener, nil);
+
 	initialized = true;
 
 	printf("mSampleRate = %g\n", deviceFormat.mSampleRate);
@@ -175,4 +189,8 @@ void kinc_a2_shutdown() {
 
 void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
 	a2_callback = kinc_a2_audio_callback;
+}
+
+void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)()) {
+	a2_sample_rate_callback = kinc_a2_sample_rate_callback;
 }
