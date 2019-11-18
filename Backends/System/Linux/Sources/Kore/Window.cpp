@@ -112,7 +112,9 @@ void kinc_window_hide(int window_index) {
 }
 
 void kinc_window_set_title(int window_index, const char *title) {
-
+#ifdef KORE_OPENGL
+	XStoreName(Kore::Linux::display, kinc_internal_windows[window_index].handle, title);
+#endif
 }
 
 int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
