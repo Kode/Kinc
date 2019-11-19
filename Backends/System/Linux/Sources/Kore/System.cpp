@@ -70,11 +70,15 @@ namespace {
 	Atom clipboard;
 	Atom utf8;
 	Atom xseldata;
+	Atom targets;
+	Atom multiple;
+	Atom textplain;
 	Window XdndSourceWindow = None;
 	uint32_t penMotionEvent;
 	uint32_t penMaxPressure = 2048;
 	float penPressureLast = 0.0;
 	bool keyPressed[256];
+	char clipboardString[4096];
 
 	void fatalError(const char* message) {
 		printf("main: %s\n", message);
@@ -293,9 +297,10 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	XdndSelection = XInternAtom(Kore::Linux::display, "XdndSelection", 0);
 	clipboard = XInternAtom(Kore::Linux::display, "CLIPBOARD", 0);
 	utf8 = XInternAtom(Kore::Linux::display, "UTF8_STRING", 0);
-	xseldata = XInternAtom(Kore::Linux::display, "XSEL_DATA", False);
-
-	//**XSetSelectionOwner(dpy, clipboard, win, CurrentTime);
+	xseldata = XInternAtom(Kore::Linux::display, "XSEL_DATA", 0);
+	targets = XInternAtom(Kore::Linux::display, "TARGETS", 0);
+	multiple = XInternAtom(Kore::Linux::display, "MULTIPLE", 0);
+	textplain = XInternAtom(Kore::Linux::display, "text/plain;charset=utf-8", 0);
 
 	int count;
 	XDeviceInfoPtr devices = (XDeviceInfoPtr)XListInputDevices(Kore::Linux::display, &count);
@@ -496,6 +501,13 @@ bool kinc_internal_handle_messages() {
 			}
 			else if (controlDown && (keysym == XK_c || keysym == XK_C)) {
 				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
+				char *text = kinc_internal_copy_callback();
+				if (text != nullptr) strcpy(clipboardString, text);
+			}
+			else if (controlDown && (keysym == XK_x || keysym == XK_X)) {
+				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
+				char *text = kinc_internal_cut_callback();
+				if (text != nullptr) strcpy(clipboardString, text);
 			}
 
 			switch (keysym) {
@@ -874,11 +886,14 @@ bool kinc_internal_handle_messages() {
 			break;
 		}
 		case SelectionNotify: {
-
-			Atom target = event.xselection.target;
 			if (event.xselection.selection == clipboard) {
-				int a = 3;
-				++a;
+				char* result;
+				unsigned long ressize, restail;
+				int resbits;
+				XGetWindowProperty(Kore::Linux::display, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
+								   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
+				kinc_internal_paste_callback(result);
+				XFree(result);
 			}
 			else if (event.xselection.property == XdndSelection) {
 				Atom type;
@@ -894,14 +909,32 @@ bool kinc_internal_handle_messages() {
 				filePath[len] = 0;
                 kinc_internal_drop_files_callback(filePath + 7); // Strip file://
 			}
-			else if (event.xselection.property) {
-				char* result;
-				unsigned long ressize, restail;
-				int resbits;
-				XGetWindowProperty(Kore::Linux::display, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
-								   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
-                kinc_internal_paste_callback(result);
-				XFree(result);
+			break;
+		}
+		case SelectionRequest: {
+			if (event.xselectionrequest.target == targets) {
+				XEvent send;
+				send.xselection.type = SelectionNotify;
+				send.xselection.requestor = event.xselectionrequest.requestor;
+				send.xselection.selection = event.xselectionrequest.selection;
+				send.xselection.target = event.xselectionrequest.target;
+				send.xselection.property = event.xselectionrequest.property;
+				send.xselection.time = event.xselectionrequest.time;
+				Atom available[] = { targets, multiple, textplain, utf8 };
+				XChangeProperty(Kore::Linux::display, send.xselection.requestor, send.xselection.property, XA_ATOM, 32, PropModeReplace, (unsigned char*)&available[0], 4);
+				XSendEvent(Kore::Linux::display, send.xselection.requestor, True, 0, &send);
+			}
+			if (event.xselectionrequest.target == textplain || event.xselectionrequest.target == utf8) {
+				XEvent send;
+				send.xselection.type = SelectionNotify;
+				send.xselection.requestor = event.xselectionrequest.requestor;
+				send.xselection.selection = event.xselectionrequest.selection;
+				send.xselection.target = event.xselectionrequest.target;
+				send.xselection.property = event.xselectionrequest.property;
+				send.xselection.time = event.xselectionrequest.time;
+				XChangeProperty(Kore::Linux::display, send.xselection.requestor, send.xselection.property, send.xselection.target, 8, PropModeReplace,
+					(const unsigned char*)clipboardString, strlen(clipboardString));
+				XSendEvent(Kore::Linux::display, send.xselection.requestor, True, 0, &send);
 			}
 			break;
 		}
