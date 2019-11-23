@@ -108,6 +108,11 @@ bool kinc_internal_handle_messages() {
 		[myapp sendEvent:event];
 		[myapp updateWindows];
 	}
+  
+  // Sleep for a frame to limit the calls when the window is not visible.
+  if (!window.visible) {
+    [NSThread sleepForTimeInterval: 1.0 / 60];
+  }
 	return true;
 }
 
