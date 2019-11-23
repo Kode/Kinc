@@ -6,6 +6,7 @@
 
 #include <kinc/graphics4/graphics.h>
 #include <Kore/Input/HIDManager.h>
+#include <Kore/System.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
@@ -37,8 +38,12 @@ const char* macgetresourcepath() {
 @end
 
 @interface MyAppDelegate : NSObject<NSWindowDelegate> {}
--(void)windowWillClose:(NSNotification*)notification;
--(void)windowDidResize:(NSNotification*)notification;
+- (void)windowWillClose:(NSNotification*)notification;
+- (void)windowDidResize:(NSNotification*)notification;
+- (void)windowWillMiniaturize:(NSNotification *)notification;
+- (void)windowDidDeminiaturize:(NSNotification *)notification;
+- (void)windowDidResignMain:(NSNotification *)notification;
+- (void)windowDidBecomeMain:(NSNotification *)notification;
 @end
 
 namespace {
@@ -77,15 +82,21 @@ id getMetalEncoder() {
 }
 
 void beginGL() {
-	[view begin];
+  if (window.visible) {
+    [view begin];
+  }
 }
 
 void endGL() {
-	[view end];
+  if (window.visible) {
+    [view end];
+  }
 }
 
 void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait) {
-	[view newRenderPass: renderTarget wait: wait];
+  if (window.visible) {
+    [view newRenderPass: renderTarget wait: wait];
+  }
 }
 
 #endif
@@ -140,7 +151,7 @@ int createWindow(kinc_window_options_t *options) {
 		[window toggleFullScreen:nil];
 		windows[windowCounter].fullscreen = true;
 	}
-
+  
 	return windowCounter++;
 }
 
@@ -292,17 +303,33 @@ void addMenubar() {
 
 @implementation MyAppDelegate
 
--(void)windowWillClose:(NSNotification*)notification {
+- (void)windowWillClose:(NSNotification*)notification {
 	kinc_stop();
 }
 
--(void)windowDidResize:(NSNotification*)notification {
+- (void)windowDidResize:(NSNotification*)notification {
 	NSWindow* window = [notification object];
 	NSSize size = [[window contentView]frame].size;
 	[view resize:size];
 	if (windows[0].resizeCallback != nullptr) {
 		windows[0].resizeCallback(size.width, size.height, windows[0].resizeCallbackData);
 	}
+}
+
+- (void)windowWillMiniaturize:(NSNotification *)notification {
+  Kore::System::_backgroundCallback();
+}
+
+- (void)windowDidDeminiaturize:(NSNotification *)notification {
+  Kore::System::_foregroundCallback();
+}
+
+- (void)windowDidResignMain:(NSNotification *)notification {
+  Kore::System::_pauseCallback();
+}
+
+- (void)windowDidBecomeMain:(NSNotification *)notification {
+  Kore::System::_resumeCallback();
 }
 
 @end

@@ -494,10 +494,14 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 
 - (void)end {
 	@autoreleasepool {
-		[commandEncoder endEncoding];
-		[commandBuffer presentDrawable:drawable];
-		[commandBuffer commit];
-
+    if (commandBuffer != nil && commandEncoder != nil) {
+      [commandEncoder endEncoding];
+      [commandBuffer presentDrawable:drawable];
+      [commandBuffer commit];
+    }
+    
+    commandBuffer = nil;
+    commandEncoder = nil;
 		//if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
 		//	[drawable present];
