@@ -526,9 +526,9 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 	case WM_DROPFILES:
 		HDROP hDrop = (HDROP)wParam;
 		unsigned count = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, NULL);
-		if (count == 1) { // Single file only for now
+		for (int i = 0; i < count; ++i) {
 			wchar_t filePath[260];
-			if (DragQueryFile(hDrop, 0, filePath, 260)) {
+			if (DragQueryFile(hDrop, i, filePath, 260)) {
 				kinc_internal_drop_files_callback(filePath);
 			}
 		}
@@ -897,7 +897,7 @@ bool kinc_internal_handle_messages() {
 
 			if (dwResult == ERROR_SUCCESS) {
 				gamepadFound = true;
-				
+
 				float newaxes[6];
 				newaxes[0] = state.Gamepad.sThumbLX / 32768.0f;
 				newaxes[1] = state.Gamepad.sThumbLY / 32768.0f;
@@ -1028,7 +1028,7 @@ void kinc_login() {
 }
 
 void kinc_unlock_achievement(int id) {
-	
+
 }
 
 bool kinc_gamepad_connected(int num) {
@@ -1064,14 +1064,14 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);
-		
+
 	int ret = 0;
 #ifndef _DEBUG
 	try {
 #endif
 		for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 		ret = kickstart(__argc, __argv);
-		
+
 #ifndef _DEBUG
 	} catch (std::exception &ex) {
 		ret = 1;
