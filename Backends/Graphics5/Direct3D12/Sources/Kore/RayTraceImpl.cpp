@@ -241,15 +241,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 	command_list->impl._commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(accel->impl.bottom_level_accel));
 	dxrCommandList->BuildRaytracingAccelerationStructure(&topLevelBuildDesc, 0, nullptr);
 
-	command_list->impl._commandList->Close();
-	ID3D12CommandList* commandLists[] = {command_list->impl._commandList};
-	commandQueue->ExecuteCommandLists(ARRAYSIZE(commandLists), commandLists);
-
-	// Wait for GPU to finish
-	// commandQueue->Signal(frameFences[currentBackBuffer], fenceValues[currentBackBuffer]);
-	// frameFences[currentBackBuffer]->SetEventOnCompletion(fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
-	// WaitForSingleObjectEx(frameFenceEvents[currentBackBuffer], INFINITE, FALSE);
-	// fenceValues[currentBackBuffer]++;
+	kinc_g5_command_list_execute_and_wait(command_list);
 }
 
 void kinc_raytrace_target_init(kinc_raytrace_target_t *target, int width, int height) {
@@ -294,7 +286,7 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	command_list->impl._commandList->SetComputeRootShaderResourceView(1, accel->impl.top_level_accel->GetGPUVirtualAddress());
 	auto cbGpuAddress = pipeline->_constant_buffer->impl._buffer->GetGPUVirtualAddress();
 	command_list->impl._commandList->SetComputeRootConstantBufferView(2, cbGpuAddress);
-	
+
 	// Since each shader table has only one shader record, the stride is same as the size.
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
 	dispatchDesc.HitGroupTable.StartAddress = pipeline->impl.hitgroup_shader_table->GetGPUVirtualAddress();
