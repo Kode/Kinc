@@ -212,24 +212,20 @@ static void initKeyTranslation() {
 	// keyTranslated[VK_LAUNCH_MEDIA_SELECT
 	// keyTranslated[VK_LAUNCH_APP1
 	// keyTranslated[VK_LAUNCH_APP2
-	keyTranslated[VK_OEM_1] = KINC_KEY_SEMICOLON; //Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ';:' key
+	keyTranslated[VK_OEM_1] = KINC_KEY_SEMICOLON; // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ';:' key
 	keyTranslated[VK_OEM_PLUS] = KINC_KEY_PLUS;
 	keyTranslated[VK_OEM_COMMA] = KINC_KEY_COMMA;
 	keyTranslated[VK_OEM_MINUS] = KINC_KEY_HYPHEN_MINUS;
 	keyTranslated[VK_OEM_PERIOD] = KINC_KEY_PERIOD;
-	keyTranslated[VK_OEM_2] = KINC_KEY_SLASH; // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '/?' key
-	keyTranslated[VK_OEM_3] = KINC_KEY_BACK_QUOTE; // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key
-	keyTranslated[VK_OEM_4] = KINC_KEY_OPEN_BRACKET; // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '[{' key
-	keyTranslated[VK_OEM_5] = KINC_KEY_BACK_SLASH;   // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '\|' key
+	keyTranslated[VK_OEM_2] = KINC_KEY_SLASH;         // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '/?' key
+	keyTranslated[VK_OEM_3] = KINC_KEY_BACK_QUOTE;    // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key
+	keyTranslated[VK_OEM_4] = KINC_KEY_OPEN_BRACKET;  // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '[{' key
+	keyTranslated[VK_OEM_5] = KINC_KEY_BACK_SLASH;    // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '\|' key
 	keyTranslated[VK_OEM_6] = KINC_KEY_CLOSE_BRACKET; // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ']}' key
-	keyTranslated[VK_OEM_7] = KINC_KEY_QUOTE; // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the 'single-quote/double-quote'
-	// key
-	// keyTranslated[VK_OEM_8 //Used for miscellaneous characters; it can vary by keyboard.
-	// keyTranslated[0xE1 //OEM specific
-	// keyTranslated[VK_OEM_102 //Either the angle bracket key or the backslash key on the RT 102-key keyboard
-	// 0xE3-E4 //OEM specific
-	// keyTranslated[VK_PROCESSKEY
-	// 0xE6 //OEM specific
+	keyTranslated[VK_OEM_7] = KINC_KEY_QUOTE;         // Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the
+	                                          // 'single-quote/double-quote' key keyTranslated[VK_OEM_8 //Used for miscellaneous characters; it can vary by
+	                                          // keyboard. keyTranslated[0xE1 //OEM specific keyTranslated[VK_OEM_102 //Either the angle bracket key or the
+	                                          // backslash key on the RT 102-key keyboard 0xE3-E4 //OEM specific keyTranslated[VK_PROCESSKEY 0xE6 //OEM specific
 	// keyTranslated[VK_PACKET //Used to pass Unicode characters as if they were keystrokes. The VK_PACKET key is the low word of a 32-bit Virtual Key value
 	// used for non-keyboard input methods.
 	// 0xE9-F5 //OEM specific
@@ -380,7 +376,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			kinc_internal_pen_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
-			                         float(penInfo.pressure) / 1024.0f);
+			                                float(penInfo.pressure) / 1024.0f);
 		}
 		break;
 	case WM_POINTERUP:
@@ -390,7 +386,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			kinc_internal_pen_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
-			                           float(penInfo.pressure) / 1024.0f);
+			                                  float(penInfo.pressure) / 1024.0f);
 		}
 		break;
 	case WM_POINTERUPDATE:
@@ -400,7 +396,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			kinc_internal_pen_trigger_move(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
-			                        float(penInfo.pressure) / 1024.0f);
+			                               float(penInfo.pressure) / 1024.0f);
 		}
 		break;
 	case WM_KEYDOWN:
@@ -525,10 +521,10 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		break;
 	case WM_DROPFILES:
 		HDROP hDrop = (HDROP)wParam;
-		unsigned count = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, NULL);
-		for (int i = 0; i < count; ++i) {
+		unsigned count = DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, NULL);
+		for (unsigned i = 0; i < count; ++i) {
 			wchar_t filePath[260];
-			if (DragQueryFile(hDrop, i, filePath, 260)) {
+			if (DragQueryFileW(hDrop, i, filePath, 260)) {
 				kinc_internal_drop_files_callback(filePath);
 			}
 		}
@@ -969,7 +965,7 @@ void kinc_load_url(const char *url) {}
 void kinc_set_keep_screen_on(bool on) {}
 void kinc_vibrate(int ms) {}
 
-const char* kinc_language() {
+const char *kinc_language() {
 	return "en";
 }
 
@@ -1023,13 +1019,9 @@ const char **kinc_video_formats() {
 	return ::videoFormats;
 }
 
-void kinc_login() {
+void kinc_login() {}
 
-}
-
-void kinc_unlock_achievement(int id) {
-
-}
+void kinc_unlock_achievement(int id) {}
 
 bool kinc_gamepad_connected(int num) {
 	return true;
@@ -1086,7 +1078,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 }
 
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
-	//Kore::System::_init(name, width, height, &win, &frame);
+	// Kore::System::_init(name, width, height, &win, &frame);
 	kinc_set_application_name(name);
 	kinc_window_options_t defaultWin;
 	if (win == nullptr) {
