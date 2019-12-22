@@ -248,6 +248,11 @@ bool is_save_load_broken(void) {
 
 #if !defined(KORE_CONSOLE)
 
+#define SAVE_RESULT_NONE 0
+#define SAVE_RESULT_SUCCESS 1
+#define SAVE_RESULT_FAILURE 2
+volatile int save_result = SAVE_RESULT_SUCCESS;
+
 void kinc_disallow_user_change() {}
 
 void kinc_allow_user_change() {}
