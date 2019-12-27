@@ -5,7 +5,12 @@
 #endif
 
 #include "image.h"
+
+#ifdef KORE_LZ4X
+int LZ4_decompress_safe(const char *source, char *dest, int compressedSize, int maxOutputSize);
+#else
 #include <kinc/io/lz4/lz4.h>
+#endif
 
 #include <kinc/graphics4/graphics.h>
 #include <kinc/io/filereader.h>
@@ -23,11 +28,11 @@ static void *buffer_malloc(size_t size) {
 	uint8_t *current = &buffer[buffer_offset];
 	buffer_offset += size + sizeof(size_t);
 	if (buffer_offset > BUFFER_SIZE) {
-        kinc_log(KINC_LOG_LEVEL_ERROR, "Not enough memory on image.c Buffer.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Not enough memory on image.c Buffer.");
 		return NULL;
 	}
-	*(size_t*)current = size;
-    last_allocated_pointer = current + sizeof(size_t);
+	*(size_t *)current = size;
+	last_allocated_pointer = current + sizeof(size_t);
 	return current + sizeof(size_t);
 }
 
@@ -41,16 +46,16 @@ static void *buffer_realloc(void *p, size_t size) {
 		return old_pointer;
 	}
 	else {
-        if (last_allocated_pointer == old_pointer){
-            size_t last_size = &buffer[buffer_offset] - old_pointer;
-            size_t size_diff = size - last_size;
-            buffer_offset += size_diff + sizeof(size_t);
-            return old_pointer;
-        }
+		if (last_allocated_pointer == old_pointer) {
+			size_t last_size = &buffer[buffer_offset] - old_pointer;
+			size_t size_diff = size - last_size;
+			buffer_offset += size_diff + sizeof(size_t);
+			return old_pointer;
+		}
 		uint8_t *new_pointer = (uint8_t *)buffer_malloc(size);
-        if  (new_pointer == NULL){
-            return NULL;
-        }
+		if (new_pointer == NULL) {
+			return NULL;
+		}
 		memcpy(new_pointer, old_pointer, old_size < size ? old_size : size);
 		return new_pointer;
 	}
@@ -131,11 +136,11 @@ static size_t loadImageSize(kinc_image_read_callbacks_t callbacks, void *user_da
 	}
 	else if (endsWith(filename, "pvr")) {
 		uint8_t data[4];
-		callbacks.read(user_data, data, 4);   // version
-		callbacks.read(user_data, data, 4);   // flags
-		callbacks.read(user_data, data, 4);   // pixelFormat1
-		callbacks.read(user_data, data, 4);   // colourSpace
-		callbacks.read(user_data, data, 4);        // channelType
+		callbacks.read(user_data, data, 4); // version
+		callbacks.read(user_data, data, 4); // flags
+		callbacks.read(user_data, data, 4); // pixelFormat1
+		callbacks.read(user_data, data, 4); // colourSpace
+		callbacks.read(user_data, data, 4); // channelType
 		callbacks.read(user_data, data, 4);
 		uint32_t hh = kinc_read_u32le(data);
 		callbacks.read(user_data, data, 4);
@@ -266,20 +271,20 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 	else if (endsWith(filename, "pvr")) {
 		uint8_t data[4];
 		callbacks.read(user_data, data, 4); // version
-		callbacks.read(user_data, data, 4);   // flags
+		callbacks.read(user_data, data, 4); // flags
 		callbacks.read(user_data, data, 4); // pixelFormat1
-		callbacks.read(user_data, data, 4);   // colourSpace
+		callbacks.read(user_data, data, 4); // colourSpace
 		callbacks.read(user_data, data, 4); // channelType
 		callbacks.read(user_data, data, 4);
 		uint32_t hh = kinc_read_u32le(data);
 		callbacks.read(user_data, data, 4);
 		uint32_t ww = kinc_read_u32le(data);
-		callbacks.read(user_data, data, 4);   // depth
-		callbacks.read(user_data, data, 4);   // numSurfaces
-		callbacks.read(user_data, data, 4);   // numFaces
-		callbacks.read(user_data, data, 4);   // mipMapCount
+		callbacks.read(user_data, data, 4); // depth
+		callbacks.read(user_data, data, 4); // numSurfaces
+		callbacks.read(user_data, data, 4); // numFaces
+		callbacks.read(user_data, data, 4); // mipMapCount
 		callbacks.read(user_data, data, 4);
-		
+
 		callbacks.read(user_data, data, 4);
 		uint32_t meta1fourcc = kinc_read_u32le(data);
 		callbacks.read(user_data, data, 4); // meta1key
@@ -397,7 +402,7 @@ int kinc_image_format_sizeof(kinc_image_format_t format) {
 	return -1;
 }
 
-//static bool formatIsFloatingPoint(kinc_image_format_t format) {
+// static bool formatIsFloatingPoint(kinc_image_format_t format) {
 //	return format == KINC_IMAGE_FORMAT_RGBA128 || format == KINC_IMAGE_FORMAT_RGBA64 || format == KINC_IMAGE_FORMAT_A32 || format == KINC_IMAGE_FORMAT_A16;
 //}
 
@@ -444,7 +449,7 @@ size_t kinc_image_size_from_callbacks(kinc_image_read_callbacks_t callbacks, voi
 	return loadImageSize(callbacks, user_data, filename);
 }
 
-size_t kinc_image_size_from_file(const char* filename) {
+size_t kinc_image_size_from_file(const char *filename) {
 	kinc_file_reader_t reader;
 	if (kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET)) {
 		kinc_image_read_callbacks_t callbacks;
@@ -498,5 +503,5 @@ int kinc_image_at(kinc_image_t *image, int x, int y) {
 }
 
 uint8_t *kinc_image_get_pixels(kinc_image_t *image) {
-	return (uint8_t*)image->data;
+	return (uint8_t *)image->data;
 }

@@ -456,7 +456,8 @@ int kread(void* dst, size_t size, const char* src, uint* offset, size_t compress
 }
 
 //int decompress()
-int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int maxOutputSize)
+#ifdef KORE_LZ4X
+extern "C" int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int maxOutputSize)
 {
   uint offset = 0;
 #ifdef LZ4_MAGIC
@@ -547,6 +548,7 @@ int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int m
 
   return 0;
 }
+#endif
 
 #if 0
 int lz4x_main(int argc, char** argv)

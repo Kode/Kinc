@@ -4,11 +4,6 @@
 #include <windows.h>
 #endif
 
-#ifdef KORE_LZ4X
-int LZ4_decompress_safe(const char* source, char* dest, int compressedSize, int maxOutputSize);
-#else
-#include <kinc/io/lz4/lz4.h>
-#endif
 #include "Image.h"
 
 #include <Kore/Graphics4/Graphics.h>
@@ -46,8 +41,8 @@ namespace {
 		file->seek(pos);
 	}
 
-	void loadImage(Kore::Reader& file, const char* filename, u8*& output, int& outputSize, int& width, int& height, Graphics1::ImageCompression& compression,
-	               Graphics1::Image::Format& format, unsigned& internalFormat) {
+	void loadImage(Kore::Reader &file, const char *filename, u8 *&output, int &outputSize, int &width, int &height, Graphics1::ImageCompression &compression,
+	               Graphics1::Image::Format &format, unsigned &internalFormat) {
 		kinc_image_read_callbacks_t callbacks;
 		callbacks.read = read_callback;
 		callbacks.size = size_callback;
@@ -101,22 +96,22 @@ Graphics1::Image::Image(int width, int height, int depth, Format format, bool re
 	data = new u8[width * height * depth * sizeOf(format)];
 }
 
-Graphics1::Image::Image(const char* filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
+Graphics1::Image::Image(const char *filename, bool readable) : depth(1), format(RGBA32), readable(readable) {
 	FileReader reader(filename);
 	init(reader, filename, readable);
 }
 
-Graphics1::Image::Image(Reader& reader, const char* format, bool readable) : depth(1), format(RGBA32), readable(readable) {
+Graphics1::Image::Image(Reader &reader, const char *format, bool readable) : depth(1), format(RGBA32), readable(readable) {
 	init(reader, format, readable);
 }
 
-Graphics1::Image::Image(void* data, int width, int height, Format format, bool readable)
+Graphics1::Image::Image(void *data, int width, int height, Format format, bool readable)
     : width(width), height(height), depth(1), format(format), readable(readable) {
 	compression = ImageCompressionNone;
 	this->data = data;
 }
 
-Graphics1::Image::Image(void* data, int width, int height, int depth, Format format, bool readable)
+Graphics1::Image::Image(void *data, int width, int height, int depth, Format format, bool readable)
     : width(width), height(height), depth(depth), format(format), readable(readable) {
 	compression = ImageCompressionNone;
 	this->data = data;
@@ -124,8 +119,8 @@ Graphics1::Image::Image(void* data, int width, int height, int depth, Format for
 
 Graphics1::Image::Image() : depth(1), format(RGBA32), readable(false) {}
 
-void Graphics1::Image::init(Kore::Reader& file, const char* filename, bool readable) {
-	u8* imageData;
+void Graphics1::Image::init(Kore::Reader &file, const char *filename, bool readable) {
+	u8 *imageData;
 	loadImage(file, filename, imageData, dataSize, width, height, compression, this->format, internalFormat);
 	data = imageData;
 }
@@ -141,9 +136,9 @@ int Graphics1::Image::at(int x, int y) {
 	if (data == nullptr)
 		return 0;
 	else
-		return *(int*)&((u8*)data)[width * sizeOf(format) * y + x * sizeOf(format)];
+		return *(int *)&((u8 *)data)[width * sizeOf(format) * y + x * sizeOf(format)];
 }
 
-u8* Graphics1::Image::getPixels() {
-	return (u8*)data;
+u8 *Graphics1::Image::getPixels() {
+	return (u8 *)data;
 }
