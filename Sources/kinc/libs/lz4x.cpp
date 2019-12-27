@@ -460,21 +460,9 @@ int kread(void* dst, size_t size, const char* src, uint* offset, size_t compress
 extern "C" int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int maxOutputSize)
 {
   uint offset = 0;
-#ifdef LZ4_MAGIC
-  uint magic;
-  kread(&magic, sizeof(magic), source, &offset, compressedSize);
-  if (magic!=LZ4_MAGIC)
-    return 2;
-#endif
-
   int bsize;
   while (kread(&bsize, sizeof(bsize), source, &offset, compressedSize) > 0)
   {
-#ifdef LZ4_MAGIC
-    if (bsize==LZ4_MAGIC)
-      continue;
-#endif
-
     if (bsize<0 || bsize>COMPRESS_BOUND
         || kread(&buf[BLOCK_SIZE], bsize, source, &offset, compressedSize)!=bsize)
       return 1;
