@@ -55,10 +55,10 @@ static U8 g_buf[BLOCK_SIZE+BLOCK_SIZE+EXCESS];
 #define MIN(a, b) (((a)<(b))?(a):(b))
 #define MAX(a, b) (((a)>(b))?(a):(b))
 
-#define LOAD_16(p) (*reinterpret_cast<const U16*>(&g_buf[p]))
-#define LOAD_32(p) (*reinterpret_cast<const U32*>(&g_buf[p]))
-#define STORE_16(p, x) (*reinterpret_cast<U16*>(&g_buf[p])=(x))
-#define COPY_32(d, s) (*reinterpret_cast<U32*>(&g_buf[d])=LOAD_32(s))
+#define LOAD_16(p) (*(const U16*)(&g_buf[p]))
+#define LOAD_32(p) (*(const U32*)(&g_buf[p]))
+#define STORE_16(p, x) (*(U16*)(&g_buf[p])=(x))
+#define COPY_32(d, s) (*(U32*)(&g_buf[d])=LOAD_32(s))
 
 #define HASH_BITS 18
 #define HASH_SIZE (1<<HASH_BITS)
@@ -66,7 +66,7 @@ static U8 g_buf[BLOCK_SIZE+BLOCK_SIZE+EXCESS];
 
 #define HASH_32(p) ((LOAD_32(p)*0x9E3779B9)>>(32-HASH_BITS))
 
-inline void wild_copy(int d, int s, int n)
+static inline void wild_copy(int d, int s, int n)
 {
   COPY_32(d, s);
   COPY_32(d+4, s+4);
@@ -444,7 +444,7 @@ static size_t kwrite(void* src, size_t size, char* dst, size_t* offset, int maxO
 
 //int decompress()
 #ifdef KORE_LZ4X
-extern "C" int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int maxOutputSize)
+int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int maxOutputSize)
 {
   size_t read_offset = 0;
   size_t write_offset = 0;
