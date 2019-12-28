@@ -31,10 +31,10 @@ const lz4x = true;
 project.addFile('Sources/**');
 if (lz4x) {
 	project.addDefine('KORE_LZ4X');
-	project.addExclude('Sources/Kore/IO/lz4/**');
+	project.addExclude('Sources/kinc/io/lz4/**');
 }
 else {
-	project.addExclude('Sources/Kore/IO/lz4x.cpp');	
+	project.addExclude('Sources/kinc/libs/lz4x.cpp');	
 }
 project.addIncludeDir('Sources');
 

@@ -35,8 +35,8 @@ typedef unsigned char U8;
 typedef unsigned short U16;
 typedef unsigned int U32;
 
-FILE* g_in;
-FILE* g_out;
+//FILE* g_in;
+//FILE* g_out;
 
 #define LZ4_MAGIC 0x184C2102
 #define BLOCK_SIZE (8<<20) // 8 MB
@@ -50,7 +50,7 @@ FILE* g_out;
 
 #define EXCESS (16+(BLOCK_SIZE/255))
 
-U8 g_buf[BLOCK_SIZE+BLOCK_SIZE+EXCESS];
+static U8 g_buf[BLOCK_SIZE+BLOCK_SIZE+EXCESS];
 
 #define MIN(a, b) (((a)<(b))?(a):(b))
 #define MAX(a, b) (((a)>(b))?(a):(b))
