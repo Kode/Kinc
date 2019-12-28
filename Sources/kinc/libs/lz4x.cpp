@@ -6,7 +6,9 @@ Written and placed in the public domain by Ilya Muravyov
 
 */
 
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 #define _CRT_DISABLE_PERFCRIT_LOCKS
 
 #include <stdio.h>
@@ -426,29 +428,31 @@ void compress_optimal()
 }
 #endif
 
-int kread(void* dst, size_t size, const char* src, size_t* offset, size_t compressedSize) {
+static size_t kread(void* dst, size_t size, const char* src, size_t* offset, size_t compressedSize) {
   size_t realSize = MIN(size, compressedSize - *offset);
   memcpy(dst, &src[*offset], realSize);
   *offset += realSize;
   return realSize;
 }
 
-int kwrite(void* src, size_t size, char* dst, size_t* offset) {
+static size_t kwrite(void* src, size_t size, char* dst, size_t* offset, int maxOutputSize) {
+  size_t realSize = MIN(size, maxOutputSize - *offset);
   memcpy(&dst[*offset], src, size);
-  return size;
+  *offset += realSize;
+  return realSize;
 }
 
 //int decompress()
 #ifdef KORE_LZ4X
 extern "C" int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int maxOutputSize)
 {
-  size_t offset = 0;
-  size_t offset2 = 0;
+  size_t read_offset = 0;
+  size_t write_offset = 0;
   int comp_len;
-  while (kread(&comp_len, sizeof(comp_len), source, &offset, compressedSize)>0)
+  while (kread(&comp_len, sizeof(comp_len), source, &read_offset, compressedSize)>0)
   {
     if (comp_len<2 || comp_len>(BLOCK_SIZE+EXCESS)
-        || kread(&g_buf[BLOCK_SIZE], comp_len, source, &offset, compressedSize)!=comp_len)
+        || kread(&g_buf[BLOCK_SIZE], comp_len, source, &read_offset, compressedSize)!=comp_len)
       return -1;
 
     int p=0;
@@ -513,7 +517,7 @@ extern "C" int LZ4_decompress_safe(const char *source, char *buf, int compressed
       }
     }
 
-    if (kwrite(g_buf, p, buf, &offset2)!=p)
+    if (kwrite(g_buf, p, buf, &write_offset, maxOutputSize)!=p)
     {
       perror("Fwrite() failed");
       exit(1);
