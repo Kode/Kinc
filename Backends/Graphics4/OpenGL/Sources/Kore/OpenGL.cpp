@@ -330,11 +330,12 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 }
 
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
-	#ifdef KORE_OPENGL_ES
+#ifdef KORE_OPENGL_ES
+	// TODO
 #if defined(KORE_ANDROID) || defined(KORE_PI)
-	glDrawElementsBaseVertex(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(GL_UNSIGNED_SHORT)), vertex_offset);
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(GL_UNSIGNED_SHORT)));
 #else
-	glDrawElementsBaseVertex(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(GL_UNSIGNED_INT)), vertex_offset);
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(GL_UNSIGNED_INT)));
 #endif
 	glCheckErrors();
 #else
