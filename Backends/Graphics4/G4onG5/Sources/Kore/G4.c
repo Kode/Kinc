@@ -89,6 +89,12 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 	endDraw();
 }
 
+void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
+	startDraw();
+	kinc_g5_command_list_draw_indexed_vertices_from_to_from(&commandList, start, count, vertex_offset);
+	endDraw();	
+}
+
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 	kinc_g5_draw_indexed_vertices_instanced(instanceCount);
 }

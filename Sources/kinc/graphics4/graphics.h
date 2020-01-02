@@ -78,7 +78,7 @@ void kinc_g4_draw_indexed_vertices();
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count);
 
-void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_start);
+void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset);
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount);
 

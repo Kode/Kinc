@@ -329,6 +329,26 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 #endif
 }
 
+void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
+	#ifdef KORE_OPENGL_ES
+#if defined(KORE_ANDROID) || defined(KORE_PI)
+	glDrawElementsBaseVertex(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(GL_UNSIGNED_SHORT)), vertex_offset);
+#else
+	glDrawElementsBaseVertex(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(GL_UNSIGNED_INT)), vertex_offset);
+#endif
+	glCheckErrors();
+#else
+	if (Kinc_Internal_ProgramUsesTessellation) {
+		glDrawElementsBaseVertex(GL_PATCHES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(GL_UNSIGNED_INT)), vertex_offset);
+		glCheckErrors();
+	}
+	else {
+		glDrawElementsBaseVertex(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(GL_UNSIGNED_INT)), vertex_offset);
+		glCheckErrors();
+	}
+#endif
+}
+
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 	kinc_g4_draw_indexed_vertices_instanced_from_to(instanceCount, 0, kinc_g4_index_buffer_count(Kinc_Internal_CurrentIndexBuffer));
 }

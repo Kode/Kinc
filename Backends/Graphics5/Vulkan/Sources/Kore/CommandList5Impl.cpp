@@ -374,6 +374,10 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *
 	vkCmdDrawIndexed(list->impl._buffer, count, 1, start, 0, 0);
 }
 
+void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_list_t *list, int start, int count, int vertex_offset) {
+	vkCmdDrawIndexed(list->impl._buffer, count, 1, start, vertex_offset, 0);
+}
+
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {}
 
 void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {}

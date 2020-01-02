@@ -20,6 +20,8 @@ void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
 
 void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
+void kinc_g5_draw_indexed_vertices_instanced_from_to_from(int instanceCount, int start, int count, int vertex_offset) {}
+
 void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {}

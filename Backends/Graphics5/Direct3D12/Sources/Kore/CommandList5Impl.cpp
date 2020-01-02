@@ -247,6 +247,11 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list *li
 	list->impl._commandList->DrawIndexedInstanced(count, 1, start, 0, 0);
 }
 
+void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_list *list, int start, int count, int vertex_offset) {
+	list->impl._commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	list->impl._commandList->DrawIndexedInstanced(count, 1, start, vertex_offset, 0);
+}
+
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list *list) {
 	graphicsFlushAndWait(list, list->impl._commandAllocator, currentRenderTarget);
 }

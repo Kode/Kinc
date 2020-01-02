@@ -53,6 +53,14 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *
 		indexBufferOffset:start];
 }
 
+void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_list_t *list, int start, int count, int vertex_offset) {
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+		indexCount:count indexType:MTLIndexTypeUInt32
+		indexBuffer:currentIndexBuffer->impl.mtlBuffer
+		indexBufferOffset:start baseVertex: vertex_offset];
+}
+
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
 	// TODO
 	// id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
