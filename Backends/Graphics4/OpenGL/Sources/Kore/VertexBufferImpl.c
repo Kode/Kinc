@@ -78,6 +78,7 @@ void Kinc_Internal_G4_VertexBuffer_Unset(kinc_g4_vertex_buffer_t *buffer);
 
 void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
 	Kinc_Internal_G4_VertexBuffer_Unset(buffer);
+	glDeleteBuffers(1, &buffer->impl.bufferId);
 	free(buffer->impl.data);
 }
 

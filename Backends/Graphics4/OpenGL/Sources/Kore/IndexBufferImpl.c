@@ -26,6 +26,7 @@ void Kinc_Internal_IndexBufferUnset(kinc_g4_index_buffer_t *buffer) {
 
 void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 	Kinc_Internal_IndexBufferUnset(buffer);
+	glDeleteBuffers(1, &buffer->impl.bufferId);
 	free(buffer->impl.data);
 }
 
