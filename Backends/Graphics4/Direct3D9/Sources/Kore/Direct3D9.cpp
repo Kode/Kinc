@@ -370,6 +370,10 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, kinc_g4_vertex_buffer_count(kinc_internal_current_vertex_buffer), start, count / 3);
 }
 
+void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
+	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, vertex_offset, 0, kinc_g4_vertex_buffer_count(kinc_internal_current_vertex_buffer), start, count / 3);
+}
+
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 	kinc_microsoft_affirm(device->SetStreamSourceFreq(kinc_internal_current_vertex_buffer->impl._offset, (D3DSTREAMSOURCE_INDEXEDDATA | instanceCount)));
 	device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, kinc_g4_vertex_buffer_count(kinc_internal_current_vertex_buffer), 0,
