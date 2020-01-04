@@ -340,6 +340,8 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 	if (renderTarget->impl.depthStencil != nullptr) renderTarget->impl.depthStencil->Release();
 	if (renderTarget->impl.textureRender != nullptr) renderTarget->impl.textureRender->Release();
 	if (renderTarget->impl.textureStaging != nullptr) renderTarget->impl.textureStaging->Release();
+	if (renderTarget->impl.textureSample != nullptr && renderTarget->impl.textureSample != renderTarget->impl.textureRender) 
+		renderTarget->impl.textureSample->Release();
 }
 
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {

@@ -43,7 +43,9 @@ Graphics4::PipelineState::PipelineState() {
 	conservativeRasterization = false;
 }
 
-Graphics4::PipelineState::~PipelineState() {}
+Graphics4::PipelineState::~PipelineState() {
+	kinc_g4_pipeline_destroy(&kincPipeline);
+}
 
 void Kore_Internal_ConvertVertexStructure(kinc_g4_vertex_structure_t *target, const Graphics4::VertexStructure *source);
 
