@@ -255,6 +255,18 @@ const char* kinc_internal_save_path() {
 	return getSavePath();
 }
 
+#ifndef KORE_NO_MAIN
+int main(int argc, char** argv) {
+	::argc = argc;
+	::argv = argv;
+	@autoreleasepool {
+		myapp = [MyApplication sharedApplication];
+		[myapp performSelectorOnMainThread:@selector(run) withObject:nil waitUntilDone:YES];
+	}
+	return 0;
+}
+#endif
+
 int main(int argc, char** argv) {
 	::argc = argc;
 	::argv = argv;
@@ -287,16 +299,17 @@ void addMenubar() {
 	@autoreleasepool {
 		[self finishLaunching];
 		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
-
+		NSApp.activationPolicy = NSApplicationActivationPolicyRegular;
+		
 		hidManager = new Kore::HIDManager();
 		addMenubar();
 
-		// try {
+#ifdef KORE_NO_MAIN
+		if (init_callback != NULL)
+			init_callback();
+#else
 		kickstart(argc, argv);
-		//}
-		// catch (Kt::Exception& ex) {
-		//	printf("Exception caught");
-		//}
+#endif
 	}
 }
 
