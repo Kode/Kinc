@@ -16,6 +16,8 @@ Written and placed in the public domain by Ilya Muravyov
 #include <string.h>
 #include <time.h>
 
+#define NO_UTIME
+
 #ifndef NO_UTIME
 #  include <sys/types.h>
 #  include <sys/stat.h>
