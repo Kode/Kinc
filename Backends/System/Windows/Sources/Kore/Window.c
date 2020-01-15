@@ -288,7 +288,6 @@ void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 	case KINC_WINDOW_MODE_WINDOW:
 		kinc_windows_restore_display(display_index);
 		kinc_window_change_features(window_index, win->features);
-		kinc_window_hide(display_index);
 		kinc_window_show(display_index);
 		break;
 	case KINC_WINDOW_MODE_FULLSCREEN: {
@@ -296,7 +295,6 @@ void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 		SetWindowLong(win->handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
 		SetWindowLong(win->handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
 		SetWindowPos(win->handle, NULL, display_mode.x, display_mode.y, display_mode.width, display_mode.height, 0);
-		kinc_window_hide(display_index);
 		kinc_window_show(display_index);
 		break;
 	}
@@ -305,7 +303,6 @@ void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 		SetWindowLong(win->handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
 		SetWindowLong(win->handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
 		SetWindowPos(win->handle, NULL, display_mode.x, display_mode.y, display_mode.width, display_mode.height, 0);
-		kinc_window_hide(display_index);
 		kinc_window_show(display_index);
 		break;
 	}
