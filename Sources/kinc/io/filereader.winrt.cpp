@@ -48,6 +48,9 @@ const char* macgetresourcepath();
 
 namespace {
 	char* fileslocation = nullptr;
+	#ifdef KORE_WINDOWS
+	wchar_t wfilepath[1001];
+	#endif
 }
 
 void kinc_internal_set_files_location(char *dir) {
@@ -194,7 +197,12 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 		strcat(filepath, filename);
 	}
 
+#ifdef KORE_WINDOWS
+	MultiByteToWideChar(CP_UTF8, 0, filepath, -1, wfilepath, 1000);
+	reader->file = _wfopen(wfilepath, L"rb");
+#else
 	reader->file = fopen(filepath, "rb");
+#endif
 	if (reader->file == nullptr) {
 		return false;
 	}
