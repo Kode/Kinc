@@ -729,6 +729,11 @@ void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
 #endif
 		glCheckErrors();
 	}
+
+	for (int i = count; i < 8; ++i) {
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, 0, 0);
+		glCheckErrors();
+	}
 }
 
 void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) {
