@@ -183,7 +183,8 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 
 #ifdef KORE_WINDOWS
-	bool isAbsolute = filename[1] == ':' && filename[2] == '\\';
+	// Drive letter or network
+	bool isAbsolute = (filename[1] == ':' && filename[2] == '\\') || (filename[0] == '\\' && filename[1] == '\\');
 #else
 	bool isAbsolute = filename[0] == '/';
 #endif
