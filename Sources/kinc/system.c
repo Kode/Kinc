@@ -216,6 +216,10 @@ int kinc_height() {
 	return kinc_window_height(0);
 }
 
+#ifndef KHA
+void kinc_memory_emergency() {}
+#endif
+
 #if !defined(KORE_PS4) && !defined(KORE_SWITCH)
 static float safe_zone = 0.9f;
 
