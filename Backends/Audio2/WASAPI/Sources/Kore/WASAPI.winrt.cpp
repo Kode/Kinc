@@ -27,33 +27,33 @@ namespace {
 	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
 	kinc_a2_buffer_t a2_buffer;
 
-	IMMDeviceEnumerator* deviceEnumerator;
-	IMMDevice* device;
-	IAudioClient* audioClient;
-	IAudioRenderClient* renderClient;
+	IMMDeviceEnumerator *deviceEnumerator;
+	IMMDevice *device;
+	IAudioClient *audioClient;
+	IAudioRenderClient *renderClient;
 	HANDLE bufferEndEvent;
 	HANDLE audioProcessingDoneEvent;
 	UINT32 bufferFrames;
 	WAVEFORMATEX requestedFormat;
-	WAVEFORMATEX* closestFormat;
-	WAVEFORMATEX* format;
+	WAVEFORMATEX *closestFormat;
+	WAVEFORMATEX *format;
 
-	void copyS16Sample(s16* buffer) {
-		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+	void copyS16Sample(s16 *buffer) {
+		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 		a2_buffer.read_location += 4;
 		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 		*buffer = (s16)(value * 32767);
 	}
 
-	void copyFloatSample(float* buffer) {
-		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+	void copyFloatSample(float *buffer) {
+		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 		a2_buffer.read_location += 4;
 		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 		*buffer = value;
 	}
 
 	void submitBuffer(unsigned frames) {
-		BYTE* buffer = nullptr;
+		BYTE *buffer = nullptr;
 		if (FAILED(renderClient->GetBuffer(frames, &buffer))) {
 			return;
 		}
@@ -63,14 +63,14 @@ namespace {
 			memset(buffer, 0, frames * format->nBlockAlign);
 			if (format->wFormatTag == WAVE_FORMAT_PCM) {
 				for (UINT32 i = 0; i < frames; ++i) {
-					copyS16Sample((s16*)&buffer[i * format->nBlockAlign]);
-					copyS16Sample((s16*)&buffer[i * format->nBlockAlign + 2]);
+					copyS16Sample((s16 *)&buffer[i * format->nBlockAlign]);
+					copyS16Sample((s16 *)&buffer[i * format->nBlockAlign + 2]);
 				}
 			}
 			else {
 				for (UINT32 i = 0; i < frames; ++i) {
-					copyFloatSample((float*)&buffer[i * format->nBlockAlign]);
-					copyFloatSample((float*)&buffer[i * format->nBlockAlign + 4]);
+					copyFloatSample((float *)&buffer[i * format->nBlockAlign]);
+					copyFloatSample((float *)&buffer[i * format->nBlockAlign + 4]);
 				}
 			}
 		}
@@ -131,6 +131,7 @@ namespace {
 		}
 
 		kinc_a2_samples_per_second = format->nSamplesPerSec;
+		a2_buffer.format.samples_per_second = kinc_a2_samples_per_second;
 
 		bufferFrames = 0;
 		kinc_microsoft_affirm(audioClient->GetBufferSize(&bufferFrames));
@@ -147,8 +148,8 @@ namespace {
 #ifndef KORE_WINDOWS
 	class AudioRenderer : public RuntimeClass<RuntimeClassFlags<ClassicCom>, FtmBase, IActivateAudioInterfaceCompletionHandler> {
 	public:
-		STDMETHOD(ActivateCompleted)(IActivateAudioInterfaceAsyncOperation* operation) {
-			IUnknown* audioInterface = nullptr;
+		STDMETHOD(ActivateCompleted)(IActivateAudioInterfaceAsyncOperation *operation) {
+			IUnknown *audioInterface = nullptr;
 			HRESULT hrActivateResult = S_OK;
 			HRESULT hr = operation->GetActivateResult(&hrActivateResult, &audioInterface);
 			if (SUCCEEDED(hr) && SUCCEEDED(hrActivateResult)) {
@@ -163,8 +164,8 @@ namespace {
 #endif
 } // namespace
 
-template <class T> void SafeRelease(__deref_inout_opt T** ppT) {
-	T* pTTemp = *ppT;
+template <class T> void SafeRelease(__deref_inout_opt T **ppT) {
+	T *pTTemp = *ppT;
 	*ppT = nullptr;
 	if (pTTemp) {
 		pTTemp->Release();
@@ -186,21 +187,21 @@ void kinc_a2_init() {
 #ifdef KORE_WINDOWS
 	kinc_microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
 	kinc_microsoft_affirm(
-	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&deviceEnumerator)));
+	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(&deviceEnumerator)));
 	kinc_microsoft_affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
 	kinc_microsoft_affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void **>(&audioClient)));
 	initAudio();
 #else
 	renderer = Make<AudioRenderer>();
 
-	IActivateAudioInterfaceAsyncOperation* asyncOp;
+	IActivateAudioInterfaceAsyncOperation *asyncOp;
 	Platform::String ^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
 	kinc_microsoft_affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
 	SafeRelease(&asyncOp);
 #endif
 }
 
-void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
 	a2_callback = kinc_a2_audio_callback;
 }
 
