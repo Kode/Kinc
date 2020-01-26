@@ -268,15 +268,27 @@ void kinc_g5_command_list_viewport(kinc_g5_command_list *list, int x, int y, int
 }
 
 void kinc_g5_command_list_scissor(kinc_g5_command_list *list, int x, int y, int width, int height) {
-	/*D3D12_RECT scissor;
+	D3D12_RECT scissor;
 	scissor.left = x;
 	scissor.top = y;
 	scissor.right = x + width;
 	scissor.bottom = y + height;
-	list->impl._commandList->RSSetScissorRects(1, &scissor);*/
+	list->impl._commandList->RSSetScissorRects(1, &scissor);
 }
 
-void kinc_g5_command_list_disable_scissor(kinc_g5_command_list *list) {}
+void kinc_g5_command_list_disable_scissor(kinc_g5_command_list *list) {
+	if (currentRenderTarget != NULL) {
+		list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&currentRenderTarget->impl.scissor);
+	}
+	else {
+		D3D12_RECT scissor;
+		scissor.left = 0;
+		scissor.top = 0;
+		scissor.right = 1920;
+		scissor.bottom = 1080;
+		list->impl._commandList->RSSetScissorRects(1, &scissor);
+	}
+}
 
 void kinc_g5_command_list_set_pipeline(kinc_g5_command_list *list, kinc_g5_pipeline_t *pipeline) {
 	list->impl._currentPipeline = pipeline;
