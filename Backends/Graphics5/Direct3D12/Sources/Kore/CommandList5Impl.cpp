@@ -1,10 +1,11 @@
 #include "pch.h"
 
-#include <Kinc/Graphics5/CommandList.h>
-#include <Kinc/Graphics5/ConstantBuffer.h>
-#include <Kinc/Graphics5/IndexBuffer.h>
-#include <Kinc/Graphics5/Pipeline.h>
-#include <Kinc/Graphics5/VertexBuffer.h>
+#include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/constantbuffer.h>
+#include <kinc/graphics5/indexbuffer.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/vertexbuffer.h>
+#include <kinc/window.h>
 
 #include "Direct3D12.h"
 
@@ -284,8 +285,8 @@ void kinc_g5_command_list_disable_scissor(kinc_g5_command_list *list) {
 		D3D12_RECT scissor;
 		scissor.left = 0;
 		scissor.top = 0;
-		scissor.right = 1920;
-		scissor.bottom = 1080;
+		scissor.right = kinc_window_width(0);
+		scissor.bottom = kinc_window_height(0);
 		list->impl._commandList->RSSetScissorRects(1, &scissor);
 	}
 }
