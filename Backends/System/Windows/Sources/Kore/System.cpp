@@ -978,7 +978,7 @@ namespace {
 	char savePath[2048] = {0};
 
 	void findSavePath() {
-		// CoInitialize(NULL);
+		CoInitialize(NULL);
 		IKnownFolderManager *folders = nullptr;
 		CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&folders));
 		IKnownFolder *folder = nullptr;
