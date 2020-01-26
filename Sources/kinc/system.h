@@ -47,6 +47,7 @@ bool kinc_internal_frame();
 void kinc_stop();
 
 void kinc_login();
+bool kinc_waiting_for_login();
 void kinc_unlock_achievement(int id);
 void kinc_disallow_user_change();
 void kinc_allow_user_change();

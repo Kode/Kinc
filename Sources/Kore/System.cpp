@@ -150,6 +150,10 @@ void Kore::System::login() {
 	kinc_login();
 }
 
+bool Kore::System::waitingForLogin() {
+	return kinc_waiting_for_login();
+}
+
 void Kore::System::unlockAchievement(int id) {
 	kinc_unlock_achievement(id);
 }

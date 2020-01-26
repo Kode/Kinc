@@ -41,6 +41,7 @@ namespace Kore {
  		void setKeepScreenOn(bool on);
 
 		void login();
+		bool waitingForLogin();
 		void unlockAchievement(int id);
 
 		void setCallback(void (*value)());

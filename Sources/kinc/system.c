@@ -302,4 +302,8 @@ bool kinc_save_is_saving() {
 	return false;
 }
 
+bool kinc_waiting_for_login() {
+	return false;
+}
+
 #endif
