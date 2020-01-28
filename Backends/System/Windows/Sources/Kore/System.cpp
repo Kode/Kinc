@@ -1087,6 +1087,9 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	}
 	win->width = width;
 	win->height = height;
+	if (win->title == NULL) {
+		win->title = name;
+	}
 	int window = kinc_window_create(win, frame);
 	loadXInput();
 	initializeDirectInput();

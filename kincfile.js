@@ -410,6 +410,12 @@ if (plugin) {
 	else if (platform === Platform.Switch) {
 		backend = 'Switch';
 	}
+	else if (platform === Platform.XboxScarlett) {
+		backend = 'XboxScarlett';
+	}
+	else if (platform === Platform.PS5) {
+		backend = 'PlayStation5'
+	}
 	await project.addProject(path.join(Project.root, 'Backends', backend));
 	resolve(project);
 }

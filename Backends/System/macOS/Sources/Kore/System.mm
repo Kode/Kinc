@@ -196,6 +196,12 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 		kinc_internal_init_framebuffer_options(&defaultFramebufferOptions);
 		frame = &defaultFramebufferOptions;
 	}
+
+	win->width = width;
+    win->height = height;
+	if (win->title == NULL) {
+		win->title = name;
+	}
 	
 	int windowId = createWindow(win);
 	kinc_g4_init(windowId, frame->depth_bits, frame->stencil_bits, true);
