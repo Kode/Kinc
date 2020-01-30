@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const project = new Project('Kore');
+const project = new Project('Kinc');
 
 const g1 = true;
 project.addDefine('KORE_G1');
@@ -168,6 +168,7 @@ if (platform === Platform.Windows) {
 else if (platform === Platform.WindowsApp) {
 	g4 = true;
 	project.addDefine('KORE_WINDOWSAPP');
+	project.addDefine('KORE_WINRT');
 	project.addDefine('KORE_MICROSOFT');
 	addBackend('System/WindowsApp');
 	addBackend('System/Microsoft');
@@ -365,14 +366,6 @@ else {
 	plugin = true;
 	g4 = true;
 	g5 = true;
-	if (platform === Platform.XboxOne) {
-		addBackend('System/Microsoft');
-		addBackend('Graphics5/Direct3D12');
-		addBackend('Audio2/WASAPI');
-		project.addDefine('KORE_MICROSOFT');
-		project.addDefine('KORE_DIRECT3D');
-		project.addDefine('KORE_DIRECT3D12');
-	}
 }
 
 if (g4) {

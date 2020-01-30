@@ -10,13 +10,15 @@
 #include <AudioClient.h>
 #include <Windows.h>
 #include <initguid.h>
+#ifdef KORE_WINRT
 #include <mfapi.h>
+#endif
 #include <mmdeviceapi.h>
 #include <wrl/implements.h>
 
 using namespace Kore;
 
-#ifndef KORE_WINDOWS
+#ifdef KORE_WINRT
 using namespace ::Microsoft::WRL;
 using namespace Windows::Media::Devices;
 using namespace Windows::Storage::Streams;
@@ -138,14 +140,14 @@ namespace {
 		kinc_microsoft_affirm(audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void **>(&renderClient)));
 		kinc_microsoft_affirm(audioClient->SetEventHandle(bufferEndEvent));
 
-#ifdef KORE_WINDOWS
-		createAndRunThread(audioThread, nullptr);
-#else
+#ifdef KORE_WINRT
 		audioThread(nullptr);
+#else
+		createAndRunThread(audioThread, nullptr);
 #endif
 	}
 
-#ifndef KORE_WINDOWS
+#ifdef KORE_WINRT
 	class AudioRenderer : public RuntimeClass<RuntimeClassFlags<ClassicCom>, FtmBase, IActivateAudioInterfaceCompletionHandler> {
 	public:
 		STDMETHOD(ActivateCompleted)(IActivateAudioInterfaceAsyncOperation *operation) {
@@ -184,7 +186,7 @@ void kinc_a2_init() {
 	a2_buffer.data_size = 128 * 1024;
 	a2_buffer.data = new u8[a2_buffer.data_size];
 
-#ifdef KORE_WINDOWS
+#ifndef KORE_WINRT
 	kinc_microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
 	kinc_microsoft_affirm(
 	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(&deviceEnumerator)));

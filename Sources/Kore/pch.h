@@ -44,7 +44,7 @@ namespace Kore {
 #endif
 
 // pseudo C++11
-#if !defined(KORE_WINDOWS) && !defined(KORE_WINDOWSAPP) && !defined(KORE_XBOX_ONE) && __cplusplus <= 199711L
+#if !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE) && __cplusplus <= 199711L
 #define nullptr 0
 #define override
 #endif
@@ -53,8 +53,8 @@ namespace Kore {
 
 #endif
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #define KINC_FUNC
 
@@ -65,6 +65,9 @@ namespace Kore {
 #endif
 
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
 int kickstart(int argc, char **argv);
+#ifdef __cplusplus
+}
+#endif
