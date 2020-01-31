@@ -27,6 +27,7 @@ typedef struct {
 	int constantsSize;
 	ShaderAttribute attributes[32];
 	ShaderTexture textures[32];
+	int texturesCount;
 	void *shader;
 	uint8_t *data;
 	int length;

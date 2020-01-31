@@ -16,6 +16,7 @@ typedef struct {
 	struct ID3D12RootSignature *rootSignature;
 	int vertexConstantsSize;
 	int fragmentConstantsSize;
+	int textures;
 #endif
 	// ID3D11InputLayout* inputLayout;
 	// ID3D11Buffer* fragmentConstantBuffer;

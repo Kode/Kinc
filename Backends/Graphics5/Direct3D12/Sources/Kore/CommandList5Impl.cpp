@@ -211,7 +211,12 @@ void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list *list) {
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset, size_t size) {
 	#ifdef KORE_DXC
 	if (list->impl._currentPipeline->impl.vertexConstantsSize > 0) {
-		list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+		if (list->impl._currentPipeline->impl.textures > 0) {
+			list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+		}
+		else {
+			list->impl._commandList->SetGraphicsRootConstantBufferView(0, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+		}
 	}
 	#else
 	list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);

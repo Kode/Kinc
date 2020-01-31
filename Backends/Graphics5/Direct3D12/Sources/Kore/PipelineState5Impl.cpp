@@ -41,7 +41,9 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_
 	commandList->SetGraphicsRootSignature(globalRootSignature);
 	#endif
 
-	kinc_g5_internal_set_textures(commandList);
+	if (pipeline->impl.textures > 0) {
+		kinc_g5_internal_set_textures(commandList);
+	}
 }
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
@@ -286,6 +288,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	}
 	pipe->impl.vertexConstantsSize = pipe->vertexShader->impl.constantsSize;
 	pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;
+	pipe->impl.textures = pipe->fragmentShader->impl.texturesCount;
 	#endif
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};

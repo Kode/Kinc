@@ -81,7 +81,6 @@ static int formatByteSize(kinc_image_format_t format) {
 }
 
 void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
-
 	if (currentRenderTargets[0] != nullptr || currentTextures[0] != nullptr) {
 		int srvStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		int samplerStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);

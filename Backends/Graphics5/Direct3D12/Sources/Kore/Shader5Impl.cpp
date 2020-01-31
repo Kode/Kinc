@@ -35,6 +35,7 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, size_t length, k
 		strcpy(shader->impl.textures[i].name, name);
 		shader->impl.textures[i].texture = data[index++];
 	}
+	shader->impl.texturesCount = texCount;
 
 	uint8_t constantCount = data[index++];
 	shader->impl.constantsSize = 0;
