@@ -44,7 +44,7 @@ namespace Kore {
 #endif
 
 // pseudo C++11
-#if !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE) && __cplusplus <= 199711L
+#if !defined(_MSC_VER) && __cplusplus <= 199711L
 #define nullptr 0
 #define override
 #endif
