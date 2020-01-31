@@ -175,6 +175,7 @@ else if (platform === Platform.WindowsApp) {
 	addBackend('Graphics4/Direct3D11');
 	addBackend('Audio2/WASAPI');
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');
+	project.vsdeploy = true;
 	
 	if (vr === VrApi.Hololens) {
 		project.addDefine('KORE_VR');

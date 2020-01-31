@@ -7,6 +7,7 @@
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
 #include <kinc/graphics5/graphics.h>
+#include <kinc/log.h>
 
 #include <Kore/SystemMicrosoft.h>
 
@@ -34,7 +35,11 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_
 	*/
 
 	commandList->SetPipelineState(pipeline->impl.pso);
-	commandList->SetGraphicsRootSignature(rootSignature);
+	#ifdef KORE_DXC
+	commandList->SetGraphicsRootSignature(pipeline->impl.rootSignature);
+	#else
+	commandList->SetGraphicsRootSignature(globalRootSignature);
+	#endif
 
 	kinc_g5_internal_set_textures(commandList);
 }
@@ -274,12 +279,25 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 		}
 	}
 
+	#ifdef KORE_DXC
+	HRESULT hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
+	if (hr != S_OK) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
+	}
+	pipe->impl.vertexConstantsSize = pipe->vertexShader->impl.constantsSize;
+	pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;
+	#endif
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.VS.BytecodeLength = pipe->vertexShader->impl.length;
 	psoDesc.VS.pShaderBytecode = pipe->vertexShader->impl.data;
 	psoDesc.PS.BytecodeLength = pipe->fragmentShader->impl.length;
 	psoDesc.PS.pShaderBytecode = pipe->fragmentShader->impl.data;
-	psoDesc.pRootSignature = rootSignature;
+	#ifdef KORE_DXC
+	psoDesc.pRootSignature = pipe->impl.rootSignature;
+	#else
+	psoDesc.pRootSignature = globalRootSignature;
+	#endif
 	psoDesc.NumRenderTargets = 1;
 #ifdef KORE_WINDOWS
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -331,5 +349,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	device->CreateGraphicsPipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipe->impl.pso));
+	hr = device->CreateGraphicsPipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipe->impl.pso));
+	if (hr != S_OK) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
+	}
 }

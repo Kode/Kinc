@@ -8,9 +8,15 @@ struct kinc_g5_shader;
 
 struct ID3D12PipelineState;
 struct ID3D12GraphicsCommandList;
+struct ID3D12RootSignature;
 
 typedef struct {
 	struct ID3D12PipelineState *pso;
+#ifdef KORE_DXC
+	struct ID3D12RootSignature *rootSignature;
+	int vertexConstantsSize;
+	int fragmentConstantsSize;
+#endif
 	// ID3D11InputLayout* inputLayout;
 	// ID3D11Buffer* fragmentConstantBuffer;
 	// ID3D11Buffer* vertexConstantBuffer;

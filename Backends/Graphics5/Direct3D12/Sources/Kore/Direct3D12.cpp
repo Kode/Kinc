@@ -44,7 +44,7 @@ ID3D12DescriptorHeap* cbvHeap;*/
 
 int currentBackBuffer = -1;
 ID3D12Device* device;
-ID3D12RootSignature* rootSignature;
+ID3D12RootSignature* globalRootSignature;
 // ID3D12GraphicsCommandList* commandList;
 ID3D12Resource* depthStencilTexture;
 ID3D12CommandQueue* commandQueue;
@@ -223,7 +223,7 @@ namespace {
 		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
 		descRootSignature.Init(4, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 		kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&rootSignature));
+		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&globalRootSignature));
 
 		createSamplersAndHeaps();
 	}
