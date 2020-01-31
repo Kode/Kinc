@@ -22,6 +22,6 @@ jobs:
     - name: Setup Node.js
       run: nodejs_bin/copysysbin.sh
     - name: Compile (kincmake)
-      run: nodejs_bin/node make.js html5 --kore . --from Tests/Empty --noshaders
+      run: nodejs_bin/node make.js html5 --kinc . --from Tests/Empty --noshaders
     - name: Compile (emscripten)
       run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../build && make

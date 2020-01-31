@@ -26,4 +26,4 @@ jobs:
     - name: Setup Node.js
       run: nodejs_bin/copysysbin.sh
     - name: Compile
-      run: nodejs_bin/node make.js -g opengl --kore . --from Tests/Empty --noshaders --compile
+      run: nodejs_bin/node make.js -g opengl --kinc . --from Tests/Empty --noshaders --compile
