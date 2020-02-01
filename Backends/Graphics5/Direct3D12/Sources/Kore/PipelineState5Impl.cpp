@@ -4,9 +4,9 @@
 
 #include "Direct3D12.h"
 
+#include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
-#include <kinc/graphics5/graphics.h>
 #include <kinc/log.h>
 
 #include <Kore/SystemMicrosoft.h>
@@ -35,11 +35,11 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_
 	*/
 
 	commandList->SetPipelineState(pipeline->impl.pso);
-	#ifdef KORE_DXC
+#ifdef KORE_DXC
 	commandList->SetGraphicsRootSignature(pipeline->impl.rootSignature);
-	#else
+#else
 	commandList->SetGraphicsRootSignature(globalRootSignature);
-	#endif
+#endif
 
 	if (pipeline->impl.textures > 0) {
 		kinc_g5_internal_set_textures(commandList);
@@ -231,7 +231,8 @@ namespace {
 
 	void set_blend_state(D3D12_BLEND_DESC *blend_desc, kinc_g5_pipeline_t *pipe, int target) {
 		blend_desc->RenderTarget[target].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-	                                                   pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+		                                               pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE ||
+		                                               pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
 		blend_desc->RenderTarget[target].SrcBlend = convert(pipe->blendSource);
 		blend_desc->RenderTarget[target].DestBlend = convert(pipe->blendDestination);
 		blend_desc->RenderTarget[target].BlendOp = D3D12_BLEND_OP_ADD;
@@ -239,10 +240,9 @@ namespace {
 		blend_desc->RenderTarget[target].DestBlendAlpha = convert(pipe->alphaBlendDestination);
 		blend_desc->RenderTarget[target].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 		blend_desc->RenderTarget[target].RenderTargetWriteMask =
-			(((pipe->colorWriteMaskRed[target] ? D3D12_COLOR_WRITE_ENABLE_RED : 0) |
-		      (pipe->colorWriteMaskGreen[target] ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0)) |
-		      (pipe->colorWriteMaskBlue[target] ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0)) |
-		      (pipe->colorWriteMaskAlpha[target] ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
+		    (((pipe->colorWriteMaskRed[target] ? D3D12_COLOR_WRITE_ENABLE_RED : 0) | (pipe->colorWriteMaskGreen[target] ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0)) |
+		     (pipe->colorWriteMaskBlue[target] ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0)) |
+		    (pipe->colorWriteMaskAlpha[target] ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
 	}
 }
 
@@ -281,26 +281,28 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 		}
 	}
 
-	#ifdef KORE_DXC
-	HRESULT hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
+	HRESULT hr;
+#ifdef KORE_DXC
+	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
 	}
 	pipe->impl.vertexConstantsSize = pipe->vertexShader->impl.constantsSize;
 	pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;
+#endif
+
 	pipe->impl.textures = pipe->fragmentShader->impl.texturesCount;
-	#endif
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.VS.BytecodeLength = pipe->vertexShader->impl.length;
 	psoDesc.VS.pShaderBytecode = pipe->vertexShader->impl.data;
 	psoDesc.PS.BytecodeLength = pipe->fragmentShader->impl.length;
 	psoDesc.PS.pShaderBytecode = pipe->fragmentShader->impl.data;
-	#ifdef KORE_DXC
+#ifdef KORE_DXC
 	psoDesc.pRootSignature = pipe->impl.rootSignature;
-	#else
+#else
 	psoDesc.pRootSignature = globalRootSignature;
-	#endif
+#endif
 	psoDesc.NumRenderTargets = 1;
 #ifdef KORE_WINDOWS
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -328,7 +330,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	bool independentBlend = false;
 	for (int i = 1; i < 8; ++i) {
 		if (pipe->colorWriteMaskRed[0] != pipe->colorWriteMaskRed[i] || pipe->colorWriteMaskGreen[0] != pipe->colorWriteMaskGreen[i] ||
-			pipe->colorWriteMaskBlue[0] != pipe->colorWriteMaskBlue[i] || pipe->colorWriteMaskAlpha[0] != pipe->colorWriteMaskAlpha[i]) {
+		    pipe->colorWriteMaskBlue[0] != pipe->colorWriteMaskBlue[i] || pipe->colorWriteMaskAlpha[0] != pipe->colorWriteMaskAlpha[i]) {
 			independentBlend = true;
 			break;
 		}

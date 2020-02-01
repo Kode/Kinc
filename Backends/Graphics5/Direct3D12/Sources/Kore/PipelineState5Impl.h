@@ -16,8 +16,8 @@ typedef struct {
 	struct ID3D12RootSignature *rootSignature;
 	int vertexConstantsSize;
 	int fragmentConstantsSize;
-	int textures;
 #endif
+	int textures;
 	// ID3D11InputLayout* inputLayout;
 	// ID3D11Buffer* fragmentConstantBuffer;
 	// ID3D11Buffer* vertexConstantBuffer;
@@ -25,7 +25,7 @@ typedef struct {
 	// ID3D11Buffer* tessEvalConstantBuffer;
 	// ID3D11Buffer* tessControlConstantBuffer;
 
-	//static void setConstants(ID3D12GraphicsCommandList *commandList, Graphics5::PipelineState *pipeline);
+	// static void setConstants(ID3D12GraphicsCommandList *commandList, Graphics5::PipelineState *pipeline);
 } PipelineState5Impl;
 
 typedef struct {
