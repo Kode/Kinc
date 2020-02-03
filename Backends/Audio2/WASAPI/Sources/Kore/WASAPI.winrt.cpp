@@ -7,6 +7,8 @@
 #include <Kore/SystemMicrosoft.h>
 #include <Kore/Threads/Thread.h>
 
+#include <kinc/log.h>
+
 #include <AudioClient.h>
 #include <Windows.h>
 #include <initguid.h>
@@ -190,9 +192,16 @@ void kinc_a2_init() {
 	kinc_microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
 	kinc_microsoft_affirm(
 	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(&deviceEnumerator)));
-	kinc_microsoft_affirm(deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device));
-	kinc_microsoft_affirm(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void **>(&audioClient)));
-	initAudio();
+	HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device);
+	if (hr == S_OK) {
+		hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, reinterpret_cast<void **>(&audioClient));
+	}
+	if (hr == S_OK) {
+		initAudio();
+	}
+	else {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize WASAPI audio.");
+	}
 #else
 	renderer = Make<AudioRenderer>();
 
