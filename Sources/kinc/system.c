@@ -220,7 +220,7 @@ int kinc_height() {
 void kinc_memory_emergency() {}
 #endif
 
-#if !defined(KORE_PS4) && !defined(KORE_SWITCH)
+#if !defined(KORE_SONY) && !defined(KORE_SWITCH)
 static float safe_zone = 0.9f;
 
 float kinc_safe_zone(void) {
@@ -236,7 +236,7 @@ void kinc_set_safe_zone(float value) {
 }
 #endif
 
-#if !defined(KORE_PS4)
+#if !defined(KORE_SONY)
 bool is_save_load_initialized(void) {
 	return true;
 }
