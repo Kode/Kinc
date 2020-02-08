@@ -485,6 +485,8 @@ size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *
 		loadImage(callbacks, &reader, filename, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format);
 		kinc_file_reader_close(&reader);
 		image->data = memory;
+		image->data_size = dataSize;
+		image->depth = 1;
 		return dataSize;
 	}
 	return 0;
