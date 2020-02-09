@@ -70,7 +70,7 @@ static GLenum convertBlendingOperation(kinc_g4_blending_operation_t operation) {
 
 void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {
 	memset(state, 0, sizeof(kinc_g4_pipeline_t));
-	
+
 	kinc_g4_internal_pipeline_set_defaults(state);
 
 	state->impl.textureCount = 0;
@@ -126,7 +126,7 @@ static void compileShader(unsigned *id, const char *source, size_t length, kinc_
 		glGetShaderiv(*id, GL_INFO_LOG_LENGTH, &length);
 		char* errormessage = (char*)malloc(length);
 		glGetShaderInfoLog(*id, length, NULL, errormessage);
-		printf("GLSL compiler error: %s\n", errormessage);
+		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL compiler error: %s", errormessage);
 		free(errormessage);
 	}
 }
@@ -187,7 +187,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 		glGetProgramiv(state->impl.programId, GL_INFO_LOG_LENGTH, &length);
 		char* errormessage = (char*)malloc(length);
 		glGetProgramInfoLog(state->impl.programId, length, NULL, errormessage);
-		printf("GLSL linker error: %s\n", errormessage);
+		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL linker error: %s", errormessage);
 		free(errormessage);
 	}
 
