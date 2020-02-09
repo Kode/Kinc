@@ -92,7 +92,7 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
 	startDraw();
 	kinc_g5_command_list_draw_indexed_vertices_from_to_from(&commandList, start, count, vertex_offset);
-	endDraw();	
+	endDraw();
 }
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
@@ -147,9 +147,9 @@ void kinc_g4_begin(int window) {
 	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
 
 	// Currently we do not necessarily wait at the end of a frame so for now it's endDraw
-	//constantBufferIndex = 0;
-	//kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
-	//kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
+	// constantBufferIndex = 0;
+	// kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
+	// kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
 	endDraw();
 
 	++frameNumber;
@@ -207,21 +207,13 @@ void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
 		kinc_g5_constant_buffer_set_int(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
-void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {
+void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {}
 
-}
+void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {}
 
-void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {
+void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {}
 
-}
-
-void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {
-
-}
-
-void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
-
-}
+void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {}
 
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
 	if (location.impl._location.impl.vertexOffset >= 0)
@@ -342,7 +334,6 @@ void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 	}
 	kinc_g5_command_list_set_vertex_buffers(&commandList, g5buffers, offsets, count);
 }
-
 
 int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	kinc_g4_vertex_buffer_t *buffers[1];
