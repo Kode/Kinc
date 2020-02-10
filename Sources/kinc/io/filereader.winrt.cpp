@@ -95,9 +95,15 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	}
 	else {
 		char filepath[1001];
-		strcpy(filepath, externalFilesDir);
-		strcat(filepath, "/");
-		strcat(filepath, filename);
+		bool isAbsolute = filename[0] == '/';
+		if (isAbsolute) {
+			strcpy(filepath, filename);
+		}
+		else {
+			strcpy(filepath, externalFilesDir);
+			strcat(filepath, "/");
+			strcat(filepath, filename);
+		}
 
 		reader->file = fopen(filepath, "rb");
 		if (reader->file != nullptr) {
