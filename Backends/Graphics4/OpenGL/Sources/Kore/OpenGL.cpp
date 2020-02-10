@@ -90,6 +90,7 @@ namespace {
 
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	void *glesDrawBuffers;
+	void *glesDrawElementsInstanced;
 #endif
 
 	int texModesU[256];
@@ -167,6 +168,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	glesDrawBuffers = (void *)eglGetProcAddress("glDrawBuffers");
+	glesDrawElementsInstanced = (void *)eglGetProcAddress("glDrawElementsInstanced");
 #endif
 
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)
@@ -355,7 +357,10 @@ void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
-#ifndef KORE_OPENGL_ES
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
+		((void (*)(GLenum, GLsizei, GLenum, void *, GLsizei))
+		glesDrawElementsInstanced)(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)), instanceCount);
+#elif !defined(KORE_OPENGL_ES)
 	if (Kinc_Internal_ProgramUsesTessellation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)), instanceCount);
 		glCheckErrors();
