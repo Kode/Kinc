@@ -280,12 +280,16 @@ namespace {
 namespace {
 	int getMouseX(NSEvent* event) {
 		// TODO (DK) map [theEvent window] to window id instead of 0
-		return static_cast<int>([event locationInWindow].x);
+		NSWindow* window = [[NSApplication sharedApplication] mainWindow];
+		float scale = [window backingScaleFactor];
+		return static_cast<int>([event locationInWindow].x * scale);
 	}
 
 	int getMouseY(NSEvent* event) {
 		// TODO (DK) map [theEvent window] to window id instead of 0
-		return static_cast<int>(kinc_height() - [event locationInWindow].y);
+		NSWindow* window = [[NSApplication sharedApplication] mainWindow];
+		float scale = [window backingScaleFactor];
+		return static_cast<int>(kinc_height() - [event locationInWindow].y * scale);
 	}
 
 	bool controlKeyMouseButton = false;
@@ -387,7 +391,7 @@ namespace {
 
 	[self prepareOpenGL];
 	[[self openGLContext] makeCurrentContext];
-	[self setWantsBestResolutionOpenGLSurface:NO];
+	[self setWantsBestResolutionOpenGLSurface:YES];
 	return self;
 }
 #else
