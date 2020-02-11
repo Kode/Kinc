@@ -291,14 +291,17 @@ namespace {
 				default:
 					if (code >= AKEYCODE_NUMPAD_0 && code <= AKEYCODE_NUMPAD_9) {
 						kinc_internal_keyboard_trigger_key_down(code + KINC_KEY_NUMPAD_0 - AKEYCODE_NUMPAD_0);
+						kinc_internal_keyboard_trigger_key_press(code + KINC_KEY_NUMPAD_0 - AKEYCODE_NUMPAD_0);
 						return 1;
 					}
 					else if (code >= AKEYCODE_0 && code <= AKEYCODE_9) {
 						kinc_internal_keyboard_trigger_key_down(code + KINC_KEY_0 - AKEYCODE_0);
+						kinc_internal_keyboard_trigger_key_press(code + KINC_KEY_0 - AKEYCODE_0);
 						return 1;
 					}
 					else if (code >= AKEYCODE_A && code <= AKEYCODE_Z) {
 						kinc_internal_keyboard_trigger_key_down(code + KINC_KEY_A - AKEYCODE_A);
+						kinc_internal_keyboard_trigger_key_press(code + (shift ? 'A' : 'a') - AKEYCODE_A);
 						return 1;
 					}
 				}
