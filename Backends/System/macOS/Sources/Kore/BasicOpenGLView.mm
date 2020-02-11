@@ -386,7 +386,8 @@ namespace {
 	self = [super initWithFrame:frameRect pixelFormat:pf];
 
 	[self prepareOpenGL];
-	//[[self openGLContext] makeCurrentContext];
+	[[self openGLContext] makeCurrentContext];
+	[self setWantsBestResolutionOpenGLSurface:NO];
 	return self;
 }
 #else
