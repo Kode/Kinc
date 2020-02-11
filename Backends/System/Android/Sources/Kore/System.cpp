@@ -90,9 +90,9 @@ namespace {
 				kinc_internal_mouse_trigger_press(0, 0, x, y);
 			}
 			kinc_internal_surface_trigger_touch_start(id, x, y);
-			// __android_log_print(ANDROID_LOG_INFO, "GAME", "#DOWN %d %d %d %f %f", action, index, id, x, y);
 			break;
-		case AMOTION_EVENT_ACTION_MOVE: {
+		case AMOTION_EVENT_ACTION_MOVE:
+		case AMOTION_EVENT_ACTION_HOVER_MOVE: {
 			size_t count = AMotionEvent_getPointerCount(event);
 			for (int i = 0; i < count; ++i) {
 				id = AMotionEvent_getPointerId(event, i);
@@ -102,7 +102,6 @@ namespace {
 					kinc_internal_mouse_trigger_move(0, x, y);
 				}
 				kinc_internal_surface_trigger_move(id, x, y);
-				// __android_log_print(ANDROID_LOG_INFO, "GAME", "#MOVE %d %d %d %f %f", action, index, id, x, y);
 			}
 		} break;
 		case AMOTION_EVENT_ACTION_UP:
@@ -112,7 +111,12 @@ namespace {
 				kinc_internal_mouse_trigger_release(0, 0, x, y);
 			}
 			kinc_internal_surface_trigger_touch_end(id, x, y);
-			// __android_log_print(ANDROID_LOG_INFO, "GAME", "#UP %d %d %d %f %f", action, index, id, x, y);
+			break;
+		case AMOTION_EVENT_ACTION_SCROLL:
+			if (id == 0) {
+				float scroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
+				kinc_internal_mouse_trigger_scroll(0, -(int)scroll);
+			}
 			break;
 		}
 	}
@@ -120,10 +124,12 @@ namespace {
 	int32_t input(android_app* app, AInputEvent* event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
 			int source = AInputEvent_getSource(event);
-			if ((source & AINPUT_SOURCE_TOUCHSCREEN) == AINPUT_SOURCE_TOUCHSCREEN) {
+			if (((source & AINPUT_SOURCE_TOUCHSCREEN) == AINPUT_SOURCE_TOUCHSCREEN) ||
+				((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE)) {
 				touchInput(event);
 				return 1;
-			} else if ((source & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK) {
+			}
+			else if ((source & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK) {
 				float x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
 				float y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
 				// int id = AInputEvent_getDeviceId(event);
