@@ -34,6 +34,10 @@
 #define GL_RED GL_LUMINANCE
 #endif
 
+#ifndef GL_R8
+#define GL_R8 GL_RED
+#endif
+
 extern bool Kinc_Internal_SupportsDepthTexture;
 
 static int pow2(int pow) {
