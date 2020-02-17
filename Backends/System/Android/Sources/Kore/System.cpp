@@ -9,6 +9,7 @@
 #include <kinc/input/mouse.h>
 //#include <kinc/input/sensor.h>
 #include <kinc/input/surface.h>
+#include <kinc/input/pen.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <android/sensor.h>
@@ -77,6 +78,10 @@ namespace {
 		);
 	}
 
+	bool isPenEvent(AInputEvent* event) {
+		return (AInputEvent_getSource(event) & AINPUT_SOURCE_STYLUS) == AINPUT_SOURCE_STYLUS;
+	}
+
 	void touchInput(AInputEvent* event) {
 		int action = AMotionEvent_getAction(event);
 		int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
@@ -88,6 +93,9 @@ namespace {
 		case AMOTION_EVENT_ACTION_POINTER_DOWN:
 			if (id == 0) {
 				kinc_internal_mouse_trigger_press(0, 0, x, y);
+			}
+			if (isPenEvent(event)) {
+				kinc_internal_pen_trigger_press(0, x, y, AMotionEvent_getPressure(event, index));
 			}
 			kinc_internal_surface_trigger_touch_start(id, x, y);
 			break;
@@ -101,6 +109,9 @@ namespace {
 				if (id == 0) {
 					kinc_internal_mouse_trigger_move(0, x, y);
 				}
+				if (isPenEvent(event)) {
+					kinc_internal_pen_trigger_move(0, x, y, AMotionEvent_getPressure(event, index));
+				}
 				kinc_internal_surface_trigger_move(id, x, y);
 			}
 		} break;
@@ -109,6 +120,9 @@ namespace {
 		case AMOTION_EVENT_ACTION_POINTER_UP:
 			if (id == 0) {
 				kinc_internal_mouse_trigger_release(0, 0, x, y);
+			}
+			if (isPenEvent(event)) {
+				kinc_internal_pen_trigger_release(0, x, y, AMotionEvent_getPressure(event, index));
 			}
 			kinc_internal_surface_trigger_touch_end(id, x, y);
 			break;
