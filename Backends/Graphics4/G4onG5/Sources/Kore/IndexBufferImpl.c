@@ -6,7 +6,7 @@
 
 extern kinc_g5_command_list_t commandList;
 
-void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format) {
 	kinc_g5_index_buffer_init(&buffer->impl._buffer, count, true);
 }
 

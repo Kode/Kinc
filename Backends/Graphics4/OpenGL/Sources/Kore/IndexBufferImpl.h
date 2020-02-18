@@ -7,9 +7,7 @@ extern "C" {
 #endif
 
 typedef struct {
-#if defined(KORE_ANDROID) || defined(KORE_PI)
 	uint16_t *shortData;
-#endif
 	int *data;
 	int myCount;
 	unsigned bufferId;

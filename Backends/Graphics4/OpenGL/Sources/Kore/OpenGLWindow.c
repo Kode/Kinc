@@ -128,7 +128,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			vertices[7] = -1.0f;
 			kinc_g4_vertex_buffer_unlock_all(&windowVertexBuffer);
 
-			kinc_g4_index_buffer_init(&windowIndexBuffer, 6);
+			kinc_g4_index_buffer_init(&windowIndexBuffer, 6, KINC_G4_INDEX_BUFFER_FORMAT_32BIT);
 			int *indices = kinc_g4_index_buffer_lock(&windowIndexBuffer);
 			indices[0] = 0;
 			indices[1] = 1;

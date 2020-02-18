@@ -8,14 +8,15 @@
 
 kinc_g4_index_buffer_t *Kinc_Internal_CurrentIndexBuffer = NULL;
 
-void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format) {
 	buffer->impl.myCount = count;
 	glGenBuffers(1, &buffer->impl.bufferId);
 	glCheckErrors();
 	buffer->impl.data = (int*)malloc(count * sizeof(int));
-#if defined(KORE_ANDROID) || defined(KORE_PI)
-	buffer->impl.shortData = (uint16_t*)malloc(count * sizeof(uint16_t));
-#endif
+	if (format == KINC_G4_INDEX_BUFFER_FORMAT_16BIT) {
+		buffer->impl.shortData = (uint16_t*)malloc(count * sizeof(uint16_t));
+	}
+	else buffer->impl.shortData = NULL;
 }
 
 void Kinc_Internal_IndexBufferUnset(kinc_g4_index_buffer_t *buffer) {
@@ -28,6 +29,9 @@ void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 	Kinc_Internal_IndexBufferUnset(buffer);
 	glDeleteBuffers(1, &buffer->impl.bufferId);
 	free(buffer->impl.data);
+	if (buffer->impl.shortData != NULL) {
+		free(buffer->impl.shortData);
+	}
 }
 
 int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
@@ -35,20 +39,21 @@ int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 }
 
 void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
-#if defined(KORE_ANDROID) || defined(KORE_PI)
-	for (int i = 0; i < buffer->impl.myCount; ++i) {
-		buffer->impl.shortData[i] = (uint16_t)buffer->impl.data[i];
+	if (buffer->impl.shortData != NULL) {
+		for (int i = 0; i < buffer->impl.myCount; ++i) {
+			buffer->impl.shortData[i] = (uint16_t)buffer->impl.data[i];
+		}
 	}
-#endif
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
-#if defined(KORE_ANDROID) || defined(KORE_PI)
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 2, buffer->impl.shortData, GL_STATIC_DRAW);
-	glCheckErrors();
-#else
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 4, buffer->impl.data, GL_STATIC_DRAW);
-	glCheckErrors();
-#endif
+	if (buffer->impl.shortData != NULL) {
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 2, buffer->impl.shortData, GL_STATIC_DRAW);
+		glCheckErrors();
+	}
+	else {
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 4, buffer->impl.data, GL_STATIC_DRAW);
+		glCheckErrors();
+	}
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glCheckErrors();
 }
