@@ -34,6 +34,10 @@
 #define GL_RED GL_LUMINANCE
 #endif
 
+#ifndef GL_R8
+#define GL_R8 GL_RED
+#endif
+
 extern bool Kinc_Internal_SupportsDepthTexture;
 
 static int pow2(int pow) {
@@ -165,7 +169,7 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 
 	renderTarget->impl.format = (int)format;
 	renderTarget->impl.contextId = contextId;
-		
+
 	glGenTextures(1, &renderTarget->impl._texture);
 	glCheckErrors();
 	glBindTexture(GL_TEXTURE_2D, renderTarget->impl._texture);
@@ -203,7 +207,11 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, renderTarget->texWidth, renderTarget->texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
+#ifdef KORE_IOS
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+#else
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+#endif
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RED, GL_HALF_FLOAT, 0);
