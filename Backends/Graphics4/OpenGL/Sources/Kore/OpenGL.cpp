@@ -313,11 +313,12 @@ void kinc_g4_draw_indexed_vertices() {
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 #ifdef KORE_OPENGL_ES
-#if defined(KORE_ANDROID) || defined(KORE_PI)
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(uint16_t)));
-#else
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)));
-#endif
+	if (Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL) {
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(uint16_t)));
+	}
+	else {
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)));
+	}
 	glCheckErrors();
 #else
 	if (Kinc_Internal_ProgramUsesTessellation) {
@@ -333,12 +334,12 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
 #ifdef KORE_OPENGL_ES
-	// TODO
-#if defined(KORE_ANDROID) || defined(KORE_PI)
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(uint16_t)));
-#else
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)));
-#endif
+	if (Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL) {
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(uint16_t)));
+	}
+	else {
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)));
+	}
 	glCheckErrors();
 #else
 	if (Kinc_Internal_ProgramUsesTessellation) {

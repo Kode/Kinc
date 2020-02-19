@@ -9,7 +9,7 @@
 
 struct kinc_g4_index_buffer *kinc_internal_current_index_buffer = NULL;
 
-void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format) {
 	buffer->impl.myCount = count;
 	kinc_microsoft_affirm(
 	    device->CreateIndexBuffer(sizeof(int) * count, D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &buffer->impl.ib, 0));

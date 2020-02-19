@@ -9,7 +9,7 @@
 #include <Windows.h>
 #include <d3d11.h>
 
-void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count) {
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format) {
 	buffer->impl.count = count;
 	buffer->impl.indices = new int[count];
 
