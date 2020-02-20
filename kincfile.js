@@ -295,13 +295,24 @@ else if (platform === Platform.Android) {
 	project.addLib('OpenMAXAL');
 }
 else if (platform === Platform.HTML5) {
-	g4 = true;
 	project.addDefine('KORE_HTML5');
 	addBackend('System/HTML5');
-	addBackend('Graphics4/OpenGL');
-	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
-	project.addDefine('KORE_OPENGL');
-	project.addDefine('KORE_OPENGL_ES');
+	if (graphics === GraphicsApi.WebGPU) {
+		g4 = true;
+		g5 = true;
+		addBackend('Graphics5/WebGPU');
+		project.addDefine('KORE_WEBGPU');
+	}
+	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
+		g4 = true;
+		addBackend('Graphics4/OpenGL');
+		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
+		project.addDefine('KORE_OPENGL');
+		project.addDefine('KORE_OPENGL_ES');
+	}
+	else {
+		throw new Error('Graphics API ' + graphics + ' is not available for HTML5.');
+	}
 }
 else if (platform === Platform.Linux) {
 	project.addDefine('KORE_LINUX');

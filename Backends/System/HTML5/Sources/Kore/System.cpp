@@ -1,13 +1,15 @@
 #include "pch.h"
 
+#ifdef KORE_OPENGL
 #include <GL/glfw.h>
+#endif
 #include <kinc/audio2/audio.h>
+#include <kinc/graphics4/graphics.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
-#include <Kore/ogl.h>
 #include <cstring>
 #include <emscripten/emscripten.h>
 #include <stdio.h>
@@ -16,14 +18,18 @@
 namespace {
 	int argc;
 	char** argv;
+	bool initialized = false;
 
 	void drawfunc() {
+		if (!initialized) return;
 		kinc_internal_update_callback();
 		kinc_a2_update();
-		// glutSwapBuffers();
+#ifdef KORE_OPENGL
 		glfwSwapBuffers();
+#endif
 	}
 
+#ifdef KORE_OPENGL
 	void onKeyPressed(int key, int action) {
 		if (action == GLFW_PRESS) {
 			switch (key) {
@@ -128,6 +134,7 @@ namespace {
 		mouseY = y;
 		kinc_internal_mouse_trigger_move(0, x, y);
 	}
+#endif
 }
 
 using namespace Kore;
@@ -140,30 +147,30 @@ extern int kinc_internal_window_width;
 extern int kinc_internal_window_height;
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
-	//**Display::enumerate();
-	printf("Init\n");
-
 	kinc_window_options_t defaultWin;
-    if (win == NULL) {
-        kinc_internal_init_window_options(&defaultWin);
-        win = &defaultWin;
-    }
-    kinc_framebuffer_options_t defaultFrame;
-    if (frame == NULL) {
-        kinc_internal_init_framebuffer_options(&defaultFrame);
-        frame = &defaultFrame;
-    }
-    win->width = width;
-    win->height = height;
+	if (win == NULL) {
+		kinc_internal_init_window_options(&defaultWin);
+		win = &defaultWin;
+	}
+	kinc_framebuffer_options_t defaultFrame;
+	if (frame == NULL) {
+		kinc_internal_init_framebuffer_options(&defaultFrame);
+		frame = &defaultFrame;
+	}
+	win->width = width;
+	win->height = height;
 
+#ifdef KORE_OPENGL
 	glfwInit();
 	glfwOpenWindow(width,  height, 8, 8, 8, 0, 0, 0, GLFW_WINDOW);
 	glfwSetWindowTitle(name);
 	glfwSetKeyCallback(onKeyPressed);
 	glfwSetMousePosCallback(onMouseMove);
 	glfwSetMouseButtonCallback(onMouseClick);
+#endif
 	kinc_internal_window_width = width;
 	kinc_internal_window_height = height;
+	kinc_g4_init(0, frame->depth_bits, frame->stencil_bits, true);
 	return 0;
 }
 
@@ -178,21 +185,46 @@ double kinc_frequency(void) {
 }
 
 kinc_ticks_t kinc_timestamp(void) {
+#ifdef KORE_OPENGL
 	return (kinc_ticks_t)(glfwGetTime() * 1000.0);
+#else
+	return (kinc_ticks_t)(0.0);
+#endif
 }
 
 double kinc_time(void) {
-	// printf("Time: %f\n", glfwGetTime());
+#ifdef KORE_OPENGL
 	return glfwGetTime();
+#else
+	return 0.0;
+#endif
 }
 
 extern int kickstart(int argc, char** argv);
 
+#ifdef KORE_WEBGPU
+extern "C" {
+	EMSCRIPTEN_KEEPALIVE void kinc_internal_webgpu_initialized() {
+		kickstart(argc, argv);
+		initialized = true;
+	}
+}
+#endif
+
 int main(int argc, char** argv) {
 	::argc = argc;
 	::argv = argv;
+#ifdef KORE_WEBGPU
+	char* code = "(async () => {\
+		const adapter = await navigator.gpu.requestAdapter();\
+		const device = await adapter.requestDevice();\
+		Module.preinitializedWebGPUDevice = device;\
+		_kinc_internal_webgpu_initialized();\
+	})();";
+	emscripten_run_script(code);
+#else
 	kickstart(argc, argv);
-	// System::createWindow();
-	// glutMainLoop();
+	initialized = true;
+#endif
 	emscripten_set_main_loop(drawfunc, 0, 1);
 }
