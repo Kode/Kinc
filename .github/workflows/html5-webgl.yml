@@ -1,4 +1,4 @@
-name: HTML5
+name: HTML5 (WebGL)
 
 on:
   push:
