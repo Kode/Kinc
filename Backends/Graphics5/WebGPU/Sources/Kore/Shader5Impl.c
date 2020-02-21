@@ -12,3 +12,5 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, 
 	smDesc.code = source;
 	shader->impl.module = wgpuDeviceCreateShaderModule(device, &smDesc);
 }
+
+void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {}
