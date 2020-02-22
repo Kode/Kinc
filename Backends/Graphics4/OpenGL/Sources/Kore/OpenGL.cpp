@@ -42,6 +42,9 @@
 #pragma comment(lib, "glu32.lib")
 #endif
 
+#ifndef GL_MAX_COLOR_ATTACHMENTS
+#define GL_MAX_COLOR_ATTACHMENTS 0x8CDF
+#endif
 #ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #endif
@@ -85,6 +88,8 @@ namespace {
 	int _renderTargetWidth;
 	int _renderTargetHeight;
 	bool renderToBackbuffer;
+
+	int maxColorAttachments;
 
 	kinc_g4_pipeline_t *lastPipeline = nullptr;
 
@@ -185,12 +190,16 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 			Kinc_Internal_SupportsConservativeRaster = true;
 		}
 	}
+	maxColorAttachments = 8;
 #endif
 
 #ifdef KORE_OPENGL_ES
     char *exts = (char *)glGetString(GL_EXTENSIONS);
     Kinc_Internal_SupportsDepthTexture = exts != NULL && strstr(exts, "GL_OES_depth_texture") != NULL;
+	maxColorAttachments = 4;
 #endif
+
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
 
 	lastPipeline = nullptr;
 
@@ -736,7 +745,7 @@ void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
 		glCheckErrors();
 	}
 
-	for (int i = count; i < 8; ++i) {
+	for (int i = count; i < maxColorAttachments; ++i) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, 0, 0);
 		glCheckErrors();
 	}
