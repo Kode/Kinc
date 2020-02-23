@@ -510,7 +510,9 @@ bool kinc_internal_handle_messages() {
 				if (text != nullptr) strcpy(clipboardString, text);
 			}
 
-			switch (keysym) {
+			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+
+			switch (ksKey) {
 				KEY(XK_Right, KINC_KEY_RIGHT)
 				KEY(XK_Left, KINC_KEY_LEFT)
 				KEY(XK_Up, KINC_KEY_UP)
@@ -597,32 +599,6 @@ bool kinc_internal_handle_messages() {
 				KEY(XK_x, KINC_KEY_X)
 				KEY(XK_y, KINC_KEY_Y)
 				KEY(XK_z, KINC_KEY_Z)
-				KEY(XK_A, KINC_KEY_A)
-				KEY(XK_B, KINC_KEY_B)
-				KEY(XK_C, KINC_KEY_C)
-				KEY(XK_D, KINC_KEY_D)
-				KEY(XK_E, KINC_KEY_E)
-				KEY(XK_F, KINC_KEY_F)
-				KEY(XK_G, KINC_KEY_G)
-				KEY(XK_H, KINC_KEY_H)
-				KEY(XK_I, KINC_KEY_I)
-				KEY(XK_J, KINC_KEY_J)
-				KEY(XK_K, KINC_KEY_K)
-				KEY(XK_L, KINC_KEY_L)
-				KEY(XK_M, KINC_KEY_M)
-				KEY(XK_N, KINC_KEY_N)
-				KEY(XK_O, KINC_KEY_O)
-				KEY(XK_P, KINC_KEY_P)
-				KEY(XK_Q, KINC_KEY_Q)
-				KEY(XK_R, KINC_KEY_R)
-				KEY(XK_S, KINC_KEY_S)
-				KEY(XK_T, KINC_KEY_T)
-				KEY(XK_U, KINC_KEY_U)
-				KEY(XK_V, KINC_KEY_V)
-				KEY(XK_W, KINC_KEY_W)
-				KEY(XK_X, KINC_KEY_X)
-				KEY(XK_Y, KINC_KEY_Y)
-				KEY(XK_Z, KINC_KEY_Z)
 				KEY(XK_1, KINC_KEY_1)
 				KEY(XK_2, KINC_KEY_2)
 				KEY(XK_3, KINC_KEY_3)
@@ -666,7 +642,9 @@ bool kinc_internal_handle_messages() {
 				controlDown = false;
 			}
 
-			switch (keysym) {
+			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+
+			switch (ksKey) {
 				KEY(XK_Right, KINC_KEY_RIGHT)
 				KEY(XK_Left, KINC_KEY_LEFT)
 				KEY(XK_Up, KINC_KEY_UP)
@@ -753,32 +731,6 @@ bool kinc_internal_handle_messages() {
 				KEY(XK_x, KINC_KEY_X)
 				KEY(XK_y, KINC_KEY_Y)
 				KEY(XK_z, KINC_KEY_Z)
-				KEY(XK_A, KINC_KEY_A)
-				KEY(XK_B, KINC_KEY_B)
-				KEY(XK_C, KINC_KEY_C)
-				KEY(XK_D, KINC_KEY_D)
-				KEY(XK_E, KINC_KEY_E)
-				KEY(XK_F, KINC_KEY_F)
-				KEY(XK_G, KINC_KEY_G)
-				KEY(XK_H, KINC_KEY_H)
-				KEY(XK_I, KINC_KEY_I)
-				KEY(XK_J, KINC_KEY_J)
-				KEY(XK_K, KINC_KEY_K)
-				KEY(XK_L, KINC_KEY_L)
-				KEY(XK_M, KINC_KEY_M)
-				KEY(XK_N, KINC_KEY_M)
-				KEY(XK_O, KINC_KEY_O)
-				KEY(XK_P, KINC_KEY_P)
-				KEY(XK_Q, KINC_KEY_Q)
-				KEY(XK_R, KINC_KEY_R)
-				KEY(XK_S, KINC_KEY_S)
-				KEY(XK_T, KINC_KEY_T)
-				KEY(XK_U, KINC_KEY_U)
-				KEY(XK_V, KINC_KEY_V)
-				KEY(XK_W, KINC_KEY_W)
-				KEY(XK_X, KINC_KEY_X)
-				KEY(XK_Y, KINC_KEY_Y)
-				KEY(XK_Z, KINC_KEY_Z)
 				KEY(XK_1, KINC_KEY_1)
 				KEY(XK_2, KINC_KEY_2)
 				KEY(XK_3, KINC_KEY_3)
