@@ -263,7 +263,7 @@ const char* kinc_internal_save_path() {
 	return getSavePath();
 }
 
-#ifndef KORE_NO_MAIN
+#ifndef KINC_NO_MAIN
 int main(int argc, char** argv) {
 	::argc = argc;
 	::argv = argv;
@@ -274,16 +274,6 @@ int main(int argc, char** argv) {
 	return 0;
 }
 #endif
-
-int main(int argc, char** argv) {
-	::argc = argc;
-	::argv = argv;
-	@autoreleasepool {
-		myapp = [MyApplication sharedApplication];
-		[myapp performSelectorOnMainThread:@selector(run) withObject:nil waitUntilDone:YES];
-	}
-	return 0;
-}
 
 void addMenubar() {
 	NSString* appName = [[NSProcessInfo processInfo] processName];
@@ -312,9 +302,10 @@ void addMenubar() {
 		hidManager = new Kore::HIDManager();
 		addMenubar();
 
-#ifdef KORE_NO_MAIN
-		if (init_callback != NULL)
+#ifdef KINC_NO_MAIN
+		if (init_callback != NULL) {
 			init_callback();
+		}
 #else
 		kickstart(argc, argv);
 #endif
