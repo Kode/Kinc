@@ -123,18 +123,6 @@ bool kinc_g5_swap_buffers();
 
 void kinc_internal_g5_resize(int window, int width, int height);
 
-#if defined(KORE_IOS) || defined(KORE_MACOS)
-typedef struct kinc_g5_texture_descriptor {
-    kinc_g5_texture_filter_t filter_minification;
-    kinc_g5_texture_filter_t filter_magnification;
-    kinc_g5_texture_addressing_t addressing_u;
-    kinc_g5_texture_addressing_t addressing_v;
-} kinc_g5_texture_descriptor_t;
-void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5_texture_descriptor_t descriptor);
-void kinc_g5_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5_texture_descriptor_t descriptor);
-void kinc_g5_set_render_target_descriptor(kinc_g5_render_target_t *renderTarget, kinc_g5_texture_descriptor_t descriptor);
-#endif
-
 void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing);
 void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter);
 void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter);

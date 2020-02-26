@@ -3,7 +3,6 @@
 #include <Kore/RenderTargetImpl.h>
 
 #include "textureunit.h"
-#include "graphics.h"
 
 #include <stdint.h>
 
@@ -46,9 +45,7 @@ void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderT
 void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *renderTarget, kinc_g4_render_target_t *source);
 void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uint8_t *data);
 void kinc_g4_render_target_generate_mipmaps(kinc_g4_render_target_t *renderTarget, int levels);
-#if defined(KORE_IOS) || defined(KORE_MACOS)
-void kinc_g4_set_render_target_descriptor(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_descriptor_t descriptor);
-#endif
+
 #ifdef __cplusplus
 }
 #endif
