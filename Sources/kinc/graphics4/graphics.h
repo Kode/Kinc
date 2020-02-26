@@ -4,6 +4,7 @@
 
 #include "constantlocation.h"
 #include "textureunit.h"
+#include "texture.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -110,6 +111,16 @@ void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value);
 
 void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value);
 void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value);
+
+#if defined(KORE_IOS) || defined(KORE_MACOS)
+typedef struct kinc_g4_texture_descriptor {
+    kinc_g4_texture_filter_t filter_minification;
+    kinc_g4_texture_filter_t filter_magnification;
+    kinc_g4_texture_addressing_t addressing_u;
+    kinc_g4_texture_addressing_t addressing_v;
+} kinc_g4_texture_descriptor_t;
+void kinc_g4_set_texture_descriptor(kinc_g4_texture_t *texture, kinc_g4_texture_descriptor_t descriptor);
+#endif
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter);
 

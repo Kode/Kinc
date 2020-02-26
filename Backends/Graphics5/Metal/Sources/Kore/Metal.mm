@@ -107,6 +107,10 @@ void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture
 	kinc_g5_internal_texture_set(texture, unit.impl.index);
 }
 
+void kinc_g5_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5_texture_descriptor_t descriptor) {
+    kinc_g5_internal_set_texture_descriptor(texture, descriptor);
+}
+
 void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
 
 bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery) {

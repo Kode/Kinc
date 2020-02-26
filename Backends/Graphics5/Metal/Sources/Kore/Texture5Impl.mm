@@ -47,7 +47,8 @@ static void create(kinc_g5_texture_t *texture, int width, int height, int format
 	
 	texture->impl._tex = [device newTextureWithDescriptor:descriptor];
 	
-	MTLSamplerDescriptor* desc = [[MTLSamplerDescriptor alloc] init];
+	texture->impl._samplerDesc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
+    MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) texture->impl._samplerDesc;
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
 	desc.magFilter = MTLSamplerMinMagFilterLinear;
 	desc.sAddressMode = MTLSamplerAddressModeRepeat;
@@ -100,6 +101,57 @@ void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
 
 id getMetalDevice();
 id getMetalEncoder();
+
+void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5_texture_descriptor_t descriptor) {
+    MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) texture->impl._samplerDesc;
+    switch(descriptor.filter_minification) {
+        case KINC_G5_TEXTURE_FILTER_POINT:
+            desc.minFilter = MTLSamplerMinMagFilterNearest;
+            break;
+        default:
+            desc.minFilter = MTLSamplerMinMagFilterLinear;
+    }
+    
+    switch(descriptor.filter_magnification) {
+        case KINC_G5_TEXTURE_FILTER_POINT:
+            desc.magFilter = MTLSamplerMinMagFilterNearest;
+            break;
+        default:
+            desc.minFilter = MTLSamplerMinMagFilterLinear;
+    }
+
+    switch(descriptor.addressing_u) {
+        case KINC_G5_TEXTURE_ADDRESSING_REPEAT:
+            desc.sAddressMode = MTLSamplerAddressModeRepeat;
+            break;
+        case KINC_G5_TEXTURE_ADDRESSING_MIRROR:
+            desc.sAddressMode = MTLSamplerAddressModeMirrorRepeat;
+            break;
+        case KINC_G5_TEXTURE_ADDRESSING_CLAMP:
+            desc.sAddressMode = MTLSamplerAddressModeClampToEdge;
+            break;
+        case KINC_G5_TEXTURE_ADDRESSING_BORDER:
+            desc.sAddressMode = MTLSamplerAddressModeClampToBorderColor;
+            break;
+    }
+    
+    switch(descriptor.addressing_v) {
+        case KINC_G5_TEXTURE_ADDRESSING_REPEAT:
+            desc.tAddressMode = MTLSamplerAddressModeRepeat;
+            break;
+        case KINC_G5_TEXTURE_ADDRESSING_MIRROR:
+            desc.tAddressMode = MTLSamplerAddressModeMirrorRepeat;
+            break;
+        case KINC_G5_TEXTURE_ADDRESSING_CLAMP:
+            desc.tAddressMode = MTLSamplerAddressModeClampToEdge;
+            break;
+        case KINC_G5_TEXTURE_ADDRESSING_BORDER:
+            desc.tAddressMode = MTLSamplerAddressModeClampToBorderColor;
+            break;
+    }
+    id<MTLDevice> device = getMetalDevice();
+    texture->impl._sampler = [device newSamplerStateWithDescriptor:desc];
+}
 
 void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
