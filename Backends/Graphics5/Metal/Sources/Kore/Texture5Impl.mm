@@ -102,6 +102,7 @@ void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
 id getMetalDevice();
 id getMetalEncoder();
 
+#if 0
 void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5_texture_descriptor_t descriptor) {
     MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) texture->impl._samplerDesc;
     switch(descriptor.filter_minification) {
@@ -152,6 +153,7 @@ void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5
     id<MTLDevice> device = getMetalDevice();
     texture->impl._sampler = [device newSamplerStateWithDescriptor:desc];
 }
+#endif
 
 void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
