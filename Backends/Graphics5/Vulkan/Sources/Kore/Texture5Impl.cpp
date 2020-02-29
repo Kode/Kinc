@@ -309,6 +309,10 @@ void kinc_g5_texture_init3d(kinc_g5_texture_t* texture, int width, int height, i
 
 }
 
+void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
+
+}
+
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}
 
 void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {}

@@ -245,7 +245,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	device->CreateShaderResourceView(texture->impl.image, &shaderResourceViewDesc, texture->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
-void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format) {
+void create_texture(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format, D3D12_RESOURCE_FLAGS flags) {
 	//kinc_image_init(&texture->image, width, height, format, readable);
 	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
@@ -256,12 +256,12 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 	DXGI_FORMAT d3dformat = convertFormat(format);
 
 	HRESULT result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1), D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1, 1, 0, flags), D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
 			result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-			                                         &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1),
+			                                         &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1, 1, 0, flags),
 			                                         D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 			if (result == S_OK) {
 				break;
@@ -309,8 +309,16 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 	device->CreateShaderResourceView(texture->impl.image, &shaderResourceViewDesc, texture->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
+void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format) {
+	create_texture(texture, width, height, format, D3D12_RESOURCE_FLAG_NONE);
+}
+
 void kinc_g5_texture_init3d(kinc_g5_texture *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {
 	//kinc_image_init3d(&texture->image, width, height, depth, format, readable);
+}
+
+void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format) {
+	create_texture(texture, width, height, format, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
 void kinc_g5_internal_texture_unset(kinc_g5_texture *texture);

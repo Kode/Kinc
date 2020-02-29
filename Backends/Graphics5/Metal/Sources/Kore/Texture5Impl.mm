@@ -31,7 +31,7 @@ namespace {
 
 static void create(kinc_g5_texture_t *texture, int width, int height, int format, bool writable) {
 	id<MTLDevice> device = getMetalDevice();
-	
+
 	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert((kinc_image_format_t)format) width:width height:height mipmapped:NO];
 	descriptor.textureType = MTLTextureType2D;
 	descriptor.width = width;
@@ -44,9 +44,9 @@ static void create(kinc_g5_texture_t *texture, int width, int height, int format
 	if (writable) {
 		descriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
 	}
-	
+
 	texture->impl._tex = [device newTextureWithDescriptor:descriptor];
-	
+
 	texture->impl._samplerDesc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
     MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) texture->impl._samplerDesc;
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
@@ -90,6 +90,8 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image *ima
 	[tex replaceRegion:MTLRegionMake2D(0, 0, texture->texWidth, texture->texHeight) mipmapLevel:0 slice:0 withBytes:image->data bytesPerRow:kinc_g5_texture_stride(texture) bytesPerImage:kinc_g5_texture_stride(texture) * texture->texHeight];
 }
 
+void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {}
+
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
 	texture->impl._sampler = nil;
 	texture->impl._tex = nil;
@@ -112,7 +114,7 @@ void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5
         default:
             desc.minFilter = MTLSamplerMinMagFilterLinear;
     }
-    
+
     switch(descriptor.filter_magnification) {
         case KINC_G5_TEXTURE_FILTER_POINT:
             desc.magFilter = MTLSamplerMinMagFilterNearest;
@@ -135,7 +137,7 @@ void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5
             desc.sAddressMode = MTLSamplerAddressModeClampToBorderColor;
             break;
     }
-    
+
     switch(descriptor.addressing_v) {
         case KINC_G5_TEXTURE_ADDRESSING_REPEAT:
             desc.tAddressMode = MTLSamplerAddressModeRepeat;
