@@ -20,11 +20,6 @@ typedef struct {
 	ID3D12Resource* top_level_accel;
 } kinc_raytrace_acceleration_structure_impl_t;
 
-typedef struct {
-	ID3D12Resource* _texture;
-	D3D12_GPU_DESCRIPTOR_HANDLE _texture_handle;
-} kinc_raytrace_target_impl_t;
-
 #ifdef __cplusplus
 }
 #endif
