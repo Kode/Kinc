@@ -25,12 +25,11 @@ const wchar_t* miss_shader_name = L"miss";
 
 ID3D12Device5* dxrDevice;
 ID3D12GraphicsCommandList4* dxrCommandList;
-ID3D12RootSignature* globalRootSignature;
+ID3D12RootSignature* dxrRootSignature;
 ID3D12DescriptorHeap* descriptorHeap;
-UINT descriptorSize;
 kinc_raytrace_acceleration_structure_t* accel;
 kinc_raytrace_pipeline_t* pipeline;
-kinc_raytrace_target_t* output;
+kinc_g5_texture_t* output = nullptr;
 
 void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_command_list *command_list, void *ray_shader, int ray_shader_size, kinc_g5_constant_buffer_t *constant_buffer) {
 	pipeline->_constant_buffer = constant_buffer;
@@ -44,7 +43,6 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descriptorHeapDesc.NodeMask = 0;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
-	descriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// Device
 	device->QueryInterface(IID_PPV_ARGS(&dxrDevice));
@@ -62,11 +60,11 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	// Constant buffer
 	rootParameters[2].InitAsConstantBufferView(0);
 
-	CD3DX12_ROOT_SIGNATURE_DESC globalRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
+	CD3DX12_ROOT_SIGNATURE_DESC dxrRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
 	ID3DBlob* blob = nullptr;
 	ID3DBlob* error = nullptr;
-	D3D12SerializeRootSignature(&globalRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error);
-	device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&globalRootSignature));
+	D3D12SerializeRootSignature(&dxrRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error);
+	device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&dxrRootSignature));
 
 	// Pipeline
 	CD3D12_STATE_OBJECT_DESC raytracingPipeline{D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE};
@@ -87,8 +85,8 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	UINT attributeSize = 2 * sizeof(float); // float2 barycentrics
 	shaderConfig->Config(payloadSize, attributeSize);
 
-	auto globalRootSignatureSubobject = raytracingPipeline.CreateSubobject<CD3D12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
-	globalRootSignatureSubobject->SetRootSignature(globalRootSignature);
+	auto dxrRootSignatureSubobject = raytracingPipeline.CreateSubobject<CD3D12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
+	dxrRootSignatureSubobject->SetRootSignature(dxrRootSignature);
 
 	auto pipelineConfig = raytracingPipeline.CreateSubobject<CD3D12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
 	UINT maxRecursionDepth = 1; // ~ primary rays only
@@ -117,7 +115,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		uint8_t* byteDest;
 		pipeline->impl.raygen_shader_table->Map(0, &CD3DX12_RANGE(0, 0), reinterpret_cast<void **>(&byteDest));
 		void* constantBufferData;
-		constant_buffer->impl._buffer->Map(0, &CD3DX12_RANGE(0, constant_buffer->impl.mySize), (void**)&constantBufferData);
+		constant_buffer->impl.constant_buffer->Map(0, &CD3DX12_RANGE(0, constant_buffer->impl.mySize), (void**)&constantBufferData);
 		memcpy(byteDest, rayGenShaderId, size);
 		memcpy(byteDest + size, constantBufferData, constant_buffer->impl.mySize);
 		pipeline->impl.raygen_shader_table->Unmap(0, nullptr);
@@ -152,6 +150,13 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	}
 }
 
+void kinc_raytrace_pipeline_destroy(kinc_raytrace_pipeline_t *pipeline) {
+	pipeline->impl.dxr_state->Release();
+	pipeline->impl.raygen_shader_table->Release();
+	pipeline->impl.miss_shader_table->Release();
+	pipeline->impl.hitgroup_shader_table->Release();
+}
+
 void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_structure_t *accel, kinc_g5_command_list_t *command_list, kinc_g5_vertex_buffer_t *vb, kinc_g5_index_buffer_t *ib) {
 	// Reset the command list for the acceleration structure construction
 	command_list->impl._commandList->Reset(command_list->impl._commandAllocator, nullptr);
@@ -169,10 +174,9 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 
 	// Get required sizes for an acceleration structure
-	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS topLevelInputs = {};
 	topLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-	topLevelInputs.Flags = buildFlags;
+	topLevelInputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
 	topLevelInputs.NumDescs = 1;
 	topLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
 
@@ -183,6 +187,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS bottomLevelInputs = topLevelInputs;
 	bottomLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 	bottomLevelInputs.pGeometryDescs = &geometryDesc;
+	bottomLevelInputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
 	dxrDevice->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 
 	ID3D12Resource* scratchResource;
@@ -244,25 +249,9 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 	kinc_g5_command_list_execute_and_wait(command_list);
 }
 
-void kinc_raytrace_target_init(kinc_raytrace_target_t *target, int width, int height) {
-	target->_width = width;
-	target->_height = height;
-
-	auto uavDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-	auto defaultHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	device->CreateCommittedResource(&defaultHeapProperties, D3D12_HEAP_FLAG_NONE, &uavDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&target->impl._texture));
-
-	D3D12_CPU_DESCRIPTOR_HANDLE uavDescriptorHandle;
-	static int descriptorsAllocated = 0;
-	uavDescriptorHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), descriptorsAllocated, descriptorSize);
-	int descriptorHeapIndex = descriptorsAllocated++;
-
-	D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
-	UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-	device->CreateUnorderedAccessView(target->impl._texture, nullptr, &UAVDesc, uavDescriptorHandle);
-
-	int descriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	target->impl._texture_handle = CD3DX12_GPU_DESCRIPTOR_HANDLE(descriptorHeap->GetGPUDescriptorHandleForHeapStart(), descriptorHeapIndex, descriptorSize);
+void kinc_raytrace_acceleration_structure_destroy(kinc_raytrace_acceleration_structure_t *accel) {
+	accel->impl.bottom_level_accel->Release();
+	accel->impl.top_level_accel->Release();
 }
 
 void kinc_raytrace_set_acceleration_structure(kinc_raytrace_acceleration_structure_t *_accel) {
@@ -273,18 +262,24 @@ void kinc_raytrace_set_pipeline(kinc_raytrace_pipeline_t *_pipeline) {
 	pipeline = _pipeline;
 }
 
-void kinc_raytrace_set_target(kinc_raytrace_target_t *_output) {
-	output = _output;
+void kinc_raytrace_set_target(kinc_g5_texture_t *_output) {
+	if (output != _output) {
+		output = _output;
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		device->CreateUnorderedAccessView(output->impl.image, nullptr, &uavDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	}
 }
 
 void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
-	command_list->impl._commandList->SetComputeRootSignature(globalRootSignature);
+	command_list->impl._commandList->SetComputeRootSignature(dxrRootSignature);
 
 	// Bind the heaps, acceleration structure and dispatch rays
 	command_list->impl._commandList->SetDescriptorHeaps(1, &descriptorHeap);
-	command_list->impl._commandList->SetComputeRootDescriptorTable(0, output->impl._texture_handle);
+	command_list->impl._commandList->SetComputeRootDescriptorTable(0, descriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	command_list->impl._commandList->SetComputeRootShaderResourceView(1, accel->impl.top_level_accel->GetGPUVirtualAddress());
-	auto cbGpuAddress = pipeline->_constant_buffer->impl._buffer->GetGPUVirtualAddress();
+	auto cbGpuAddress = pipeline->_constant_buffer->impl.constant_buffer->GetGPUVirtualAddress();
 	command_list->impl._commandList->SetComputeRootConstantBufferView(2, cbGpuAddress);
 
 	// Since each shader table has only one shader record, the stride is same as the size.
@@ -297,24 +292,24 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	dispatchDesc.MissShaderTable.StrideInBytes = dispatchDesc.MissShaderTable.SizeInBytes;
 	dispatchDesc.RayGenerationShaderRecord.StartAddress = pipeline->impl.raygen_shader_table->GetGPUVirtualAddress();
 	dispatchDesc.RayGenerationShaderRecord.SizeInBytes = pipeline->impl.raygen_shader_table->GetDesc().Width;
-	dispatchDesc.Width = output->_width;
-	dispatchDesc.Height = output->_height;
+	dispatchDesc.Width = output->texWidth;
+	dispatchDesc.Height = output->texHeight;
 	dispatchDesc.Depth = 1;
 	dxrCommandList->SetPipelineState1(pipeline->impl.dxr_state);
 	dxrCommandList->DispatchRays(&dispatchDesc);
 }
 
-void kinc_raytrace_copy_target(kinc_g5_command_list_t *command_list, kinc_g5_render_target_t* render_target, kinc_raytrace_target_t *output) {
+void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_target_t* target, kinc_g5_texture_t *source) {
 	D3D12_RESOURCE_BARRIER preCopyBarriers[2];
-	preCopyBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(render_target->impl.renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_COPY_DEST);
-	preCopyBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(output->impl._texture, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	preCopyBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(target->impl.renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_COPY_DEST);
+	preCopyBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(source->impl.image, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	command_list->impl._commandList->ResourceBarrier(ARRAYSIZE(preCopyBarriers), preCopyBarriers);
 
-	command_list->impl._commandList->CopyResource(render_target->impl.renderTarget, output->impl._texture);
+	command_list->impl._commandList->CopyResource(target->impl.renderTarget, source->impl.image);
 
 	D3D12_RESOURCE_BARRIER postCopyBarriers[2];
-	postCopyBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(render_target->impl.renderTarget, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
-	postCopyBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(output->impl._texture, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	postCopyBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(target->impl.renderTarget, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT);
+	postCopyBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(source->impl.image, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	command_list->impl._commandList->ResourceBarrier(ARRAYSIZE(postCopyBarriers), postCopyBarriers);
 }
 

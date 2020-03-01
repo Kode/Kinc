@@ -76,9 +76,11 @@ namespace {
 		waitForFence(renderFence, renderFenceValue, renderFenceEvent);
 		commandAllocator->Reset();
 		list->impl._commandList->Reset(commandAllocator, nullptr);
-		list->impl._commandList->OMSetRenderTargets(1, &renderTarget->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-		list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&renderTarget->impl.viewport);
-		list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&renderTarget->impl.scissor);
+		if (renderTarget != nullptr) {
+			list->impl._commandList->OMSetRenderTargets(1, &renderTarget->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+			list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&renderTarget->impl.viewport);
+			list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&renderTarget->impl.scissor);
+		}
 	}
 
 	void graphicsFlushAndWait(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator, kinc_g5_render_target_t *renderTarget) {
