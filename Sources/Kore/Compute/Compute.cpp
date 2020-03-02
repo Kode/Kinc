@@ -93,7 +93,7 @@ void Compute::setMatrix(ComputeConstantLocation location, const mat3 &value) {
 }
 
 #ifdef KORE_OPENGL
-void setBuffer(ShaderStorageBuffer* buffer, int index) {
+void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
 	kinc_compute_set_buffer(&buffer->kincImpl, index);
 }
 #endif
