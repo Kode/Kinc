@@ -20,7 +20,7 @@ extern PFN_vkQueuePresentKHR fpQueuePresentKHR;
 extern PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 extern VkSwapchainKHR swapchain;
 extern VkQueue queue;
-extern VkFramebuffer* framebuffers;
+extern VkFramebuffer *framebuffers;
 extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
 extern kinc_g5_texture_t *vulkanTextures[8];
@@ -31,8 +31,8 @@ namespace {
 	VkCommandBuffer setup_cmd;
 	bool began = false;
 	bool onBackBuffer = false;
-	int lastVertexConstantBufferOffset = 0;
-	int lastFragmentConstantBufferOffset = 0;
+	uint32_t lastVertexConstantBufferOffset = 0;
+	uint32_t lastFragmentConstantBufferOffset = 0;
 	kinc_g5_pipeline_t *currentPipeline = NULL;
 }
 
@@ -175,18 +175,18 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 	depthStencil = 1.0;
 	depthIncrement = -0.01f;
 
-	//begin();
+	// begin();
 }
 
 void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
-	//if (began) return;
+	// if (began) return;
 
 	// Assume the command buffer has been run on current_buffer before so
 	// we need to set the image layout back to COLOR_ATTACHMENT_OPTIMAL
-	//demo_set_image_layout(Vulkan::buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-	//demo_flush_init_cmd();
+	// demo_set_image_layout(Vulkan::buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+	// VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL); demo_flush_init_cmd();
 
 	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
 	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -240,7 +240,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	prePresentBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
 	prePresentBarrier.image = Kore::Vulkan::buffers[current_buffer].image;
-	VkImageMemoryBarrier* pmemory_barrier = &prePresentBarrier;
+	VkImageMemoryBarrier *pmemory_barrier = &prePresentBarrier;
 	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, NULL, 0, NULL, 1,
 	                     pmemory_barrier);
 
@@ -281,7 +281,7 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 	prePresentBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
 	prePresentBarrier.image = Kore::Vulkan::buffers[current_buffer].image;
-	VkImageMemoryBarrier* pmemory_barrier = &prePresentBarrier;
+	VkImageMemoryBarrier *pmemory_barrier = &prePresentBarrier;
 	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
 
 	VkResult err = vkEndCommandBuffer(list->impl._buffer);
@@ -392,12 +392,11 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 	vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline);
 
 	if (vulkanRenderTargets[0] != nullptr)
-		vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &vulkanRenderTargets[0]->impl.desc_set,
-		                        0,
-		                        nullptr);
+		vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1,
+		                        &vulkanRenderTargets[0]->impl.desc_set, 0, nullptr);
 	else if (vulkanTextures[0] != nullptr)
-		vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &vulkanTextures[0]->impl.desc_set, 0,
-		                        nullptr);
+		vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1,
+		                        &vulkanTextures[0]->impl.desc_set, 0, nullptr);
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **vertexBuffers, int *offsets_, int count) {
@@ -597,7 +596,7 @@ void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *lis
 
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	lastFragmentConstantBufferOffset = offset;
-	uint32_t offsets[2] = { lastVertexConstantBufferOffset, lastFragmentConstantBufferOffset };
+	uint32_t offsets[2] = {lastVertexConstantBufferOffset, lastFragmentConstantBufferOffset};
 	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &desc_set, 2, offsets);
 }
 
