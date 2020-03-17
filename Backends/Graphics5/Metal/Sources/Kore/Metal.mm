@@ -85,6 +85,10 @@ void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture
 
 void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
 
+int kinc_g5_max_bound_textures(void) {
+	return 16;
+}
+
 void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount);
 
 void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}

@@ -342,6 +342,10 @@ void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int coun
 
 void kinc_g4_set_render_target_face(struct kinc_g4_render_target *texture, int face) {}
 
+int kinc_g4_max_bound_textures(void) {
+	return 8;
+}
+
 // void Graphics::setDepthStencilTarget(Texture* texture) {
 //	//if (depthBuffer != nullptr) depthBuffer->Release();
 //	device->GetDepthStencilSurface(&depthBuffer);
