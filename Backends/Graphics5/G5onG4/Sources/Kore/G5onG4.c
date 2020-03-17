@@ -42,6 +42,10 @@ void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kin
 
 void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 
+int kinc_g5_max_bound_textures(void) {
+	return kinc_g4_max_bound_textures();
+}
+
 bool kinc_g5_render_targets_inverted_y() {
 	return false;
 }
