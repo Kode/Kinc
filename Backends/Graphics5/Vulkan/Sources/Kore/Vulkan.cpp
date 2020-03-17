@@ -49,10 +49,10 @@
 #define APP_NAME_STR_LEN 80
 
 extern "C" {
-	int renderTargetWidth;
-	int renderTargetHeight;
-	int newRenderTargetWidth;
-	int newRenderTargetHeight;
+int renderTargetWidth;
+int renderTargetHeight;
+int newRenderTargetWidth;
+int newRenderTargetHeight;
 }
 
 VkDevice device;
@@ -67,7 +67,7 @@ VkQueue queue;
 bool use_staging_buffer;
 VkDescriptorPool desc_pool;
 uint32_t swapchainImageCount;
-VkFramebuffer* framebuffers;
+VkFramebuffer *framebuffers;
 PFN_vkQueuePresentKHR fpQueuePresentKHR;
 PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 VkSemaphore presentCompleteSemaphore;
@@ -76,7 +76,7 @@ VkSemaphore presentCompleteSemaphore;
 #define VALIDATE
 #endif
 
-Kore::Vulkan::SwapchainBuffers* Kore::Vulkan::buffers;
+Kore::Vulkan::SwapchainBuffers *Kore::Vulkan::buffers;
 Kore::Vulkan::DepthBuffer Kore::Vulkan::depth;
 VkSwapchainKHR swapchain;
 uint32_t current_buffer;
@@ -85,10 +85,10 @@ kinc_g5_texture_t *vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, null
 kinc_g5_render_target_t *vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 #ifdef KORE_LINUX
-extern xcb_connection_t* connection;
-extern xcb_screen_t* screen;
+extern xcb_connection_t *connection;
+extern xcb_screen_t *screen;
 extern xcb_window_t window;
-extern xcb_intern_atom_reply_t* atom_wm_delete_window;
+extern xcb_intern_atom_reply_t *atom_wm_delete_window;
 #endif
 
 namespace {
@@ -107,16 +107,16 @@ namespace {
 
 	VkInstance inst;
 	VkPhysicalDeviceProperties gpu_props;
-	VkQueueFamilyProperties* queue_props;
+	VkQueueFamilyProperties *queue_props;
 	uint32_t graphics_queue_node_index;
 
 	uint32_t enabled_extension_count;
 #ifdef VALIDATE
 	uint32_t enabled_layer_count;
 #endif
-	char* extension_names[64];
+	char *extension_names[64];
 #ifdef VALIDATE
-	char* device_validation_layers[64];
+	char *device_validation_layers[64];
 #endif
 
 	int width, height;
@@ -139,7 +139,7 @@ namespace {
 	bool quit;
 	uint32_t queue_count;
 
-	VkBool32 demo_check_layers(uint32_t check_count, char** check_names, uint32_t layer_count, VkLayerProperties* layers) {
+	VkBool32 demo_check_layers(uint32_t check_count, char **check_names, uint32_t layer_count, VkLayerProperties *layers) {
 		for (uint32_t i = 0; i < check_count; ++i) {
 			VkBool32 found = 0;
 			for (uint32_t j = 0; j < layer_count; ++j) {
@@ -157,7 +157,7 @@ namespace {
 	}
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject, size_t location, int32_t msgCode,
-	                                       const char* pLayerPrefix, const char* pMsg, void* pUserData) {
+	                                       const char *pLayerPrefix, const char *pMsg, void *pUserData) {
 		if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
 			kinc_log(KINC_LOG_LEVEL_ERROR, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
 		}
@@ -167,7 +167,7 @@ namespace {
 		return false;
 	}
 
-	VKAPI_ATTR void* VKAPI_CALL myrealloc(void* pUserData, void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
+	VKAPI_ATTR void *VKAPI_CALL myrealloc(void *pUserData, void *pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
 #ifdef _MSC_VER
 		return _aligned_realloc(pOriginal, size, alignment);
 #else
@@ -175,7 +175,7 @@ namespace {
 #endif
 	}
 
-	VKAPI_ATTR void* VKAPI_CALL myalloc(void* pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
+	VKAPI_ATTR void *VKAPI_CALL myalloc(void *pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
 #ifdef _MSC_VER
 		return _aligned_malloc(size, alignment);
 #else
@@ -183,7 +183,7 @@ namespace {
 #endif
 	}
 
-	VKAPI_ATTR void VKAPI_CALL myfree(void* pUserData, void* pMemory) {
+	VKAPI_ATTR void VKAPI_CALL myfree(void *pUserData, void *pMemory) {
 #ifdef _MSC_VER
 		_aligned_free(pMemory);
 #else
@@ -203,7 +203,7 @@ namespace {
 	}
 } // namespace
 
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex) {
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
 	// Search memtypes to find first index with those properties
 	for (uint32_t i = 0; i < 32; i++) {
 		if ((typeBits & 1) == 1) {
@@ -221,9 +221,7 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 
 void kinc_g5_destroy(int window) {}
 
-void kinc_internal_g5_resize(int window, int width, int height) {
-
-}
+void kinc_internal_g5_resize(int window, int width, int height) {}
 
 extern "C" void kinc_internal_resize(int window, int width, int height) {}
 
@@ -239,7 +237,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	// demo->enabled_layer_count = 0;
 
 #ifdef VALIDATE
-	char* instance_validation_layers[] = {"VK_LAYER_LUNARG_standard_validation"};
+	char *instance_validation_layers[] = {"VK_LAYER_LUNARG_standard_validation"};
 #endif
 
 #ifdef VALIDATE
@@ -252,7 +250,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	assert(!err);
 
 	if (instance_layer_count > 0) {
-		VkLayerProperties* instance_layers = (VkLayerProperties*)malloc(sizeof(VkLayerProperties) * instance_layer_count);
+		VkLayerProperties *instance_layers = (VkLayerProperties *)malloc(sizeof(VkLayerProperties) * instance_layer_count);
 		err = vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers);
 		assert(!err);
 
@@ -272,7 +270,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	assert(!err);
 
 	if (instance_extension_count > 0) {
-		VkExtensionProperties* instance_extensions = (VkExtensionProperties*)malloc(sizeof(VkExtensionProperties) * instance_extension_count);
+		VkExtensionProperties *instance_extensions = (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * instance_extension_count);
 		err = vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions);
 		assert(!err);
 		for (uint32_t i = 0; i < instance_extension_count; i++) {
@@ -343,13 +341,13 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	info.pApplicationInfo = &app;
 #ifdef VALIDATE
 	info.enabledLayerCount = enabled_layer_count;
-	info.ppEnabledLayerNames = (const char* const*)instance_validation_layers;
+	info.ppEnabledLayerNames = (const char *const *)instance_validation_layers;
 #else
 	info.enabledLayerCount = 0;
 	info.ppEnabledLayerNames = nullptr;
 #endif
 	info.enabledExtensionCount = enabled_extension_count;
-	info.ppEnabledExtensionNames = (const char* const*)extension_names;
+	info.ppEnabledExtensionNames = (const char *const *)extension_names;
 
 	uint32_t gpu_count;
 
@@ -381,7 +379,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	assert(!err && gpu_count > 0);
 
 	if (gpu_count > 0) {
-		VkPhysicalDevice* physical_devices = (VkPhysicalDevice*)malloc(sizeof(VkPhysicalDevice) * gpu_count);
+		VkPhysicalDevice *physical_devices = (VkPhysicalDevice *)malloc(sizeof(VkPhysicalDevice) * gpu_count);
 		err = vkEnumeratePhysicalDevices(inst, &gpu_count, physical_devices);
 		assert(!err);
 		/* For tri demo we just grab the first physical device */
@@ -406,7 +404,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	assert(!err);
 
 	if (device_layer_count > 0) {
-		VkLayerProperties* device_layers = (VkLayerProperties*)malloc(sizeof(VkLayerProperties) * device_layer_count);
+		VkLayerProperties *device_layers = (VkLayerProperties *)malloc(sizeof(VkLayerProperties) * device_layer_count);
 		err = vkEnumerateDeviceLayerProperties(gpu, &device_layer_count, device_layers);
 		assert(!err);
 
@@ -428,7 +426,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	assert(!err);
 
 	if (device_extension_count > 0) {
-		VkExtensionProperties* device_extensions = (VkExtensionProperties*)malloc(sizeof(VkExtensionProperties) * device_extension_count);
+		VkExtensionProperties *device_extensions = (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * device_extension_count);
 		err = vkEnumerateDeviceExtensionProperties(gpu, NULL, &device_extension_count, device_extensions);
 		assert(!err);
 
@@ -493,7 +491,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	// Query with NULL data to get count
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, NULL);
 
-	queue_props = (VkQueueFamilyProperties*)malloc(queue_count * sizeof(VkQueueFamilyProperties));
+	queue_props = (VkQueueFamilyProperties *)malloc(queue_count * sizeof(VkQueueFamilyProperties));
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
@@ -530,7 +528,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		assert(!err);
 #endif
 		// Iterate over each queue to learn whether it supports presenting:
-		VkBool32* supportsPresent = (VkBool32*)malloc(queue_count * sizeof(VkBool32));
+		VkBool32 *supportsPresent = (VkBool32 *)malloc(queue_count * sizeof(VkBool32));
 		for (i = 0; i < queue_count; i++) {
 			fpGetPhysicalDeviceSurfaceSupportKHR(gpu, i, surface, &supportsPresent[i]);
 		}
@@ -596,13 +594,13 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 			deviceinfo.pQueueCreateInfos = &queue;
 #ifdef VALIDATE
 			deviceinfo.enabledLayerCount = enabled_layer_count;
-			deviceinfo.ppEnabledLayerNames = (const char* const*)device_validation_layers;
+			deviceinfo.ppEnabledLayerNames = (const char *const *)device_validation_layers;
 #else
 			deviceinfo.enabledLayerCount = 0;
 			deviceinfo.ppEnabledLayerNames = nullptr;
 #endif
 			deviceinfo.enabledExtensionCount = enabled_extension_count;
-			deviceinfo.ppEnabledExtensionNames = (const char* const*)extension_names;
+			deviceinfo.ppEnabledExtensionNames = (const char *const *)extension_names;
 
 			err = vkCreateDevice(gpu, &deviceinfo, nullptr, &device);
 			assert(!err);
@@ -614,7 +612,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		uint32_t formatCount;
 		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, nullptr);
 		assert(!err);
-		VkSurfaceFormatKHR* surfFormats = (VkSurfaceFormatKHR*)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
+		VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
 		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, surfFormats);
 		assert(!err);
 		// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
@@ -652,7 +650,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	uint32_t presentModeCount;
 	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, NULL);
 	assert(!err);
-	VkPresentModeKHR* presentModes = (VkPresentModeKHR*)malloc(presentModeCount * sizeof(VkPresentModeKHR));
+	VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
 	assert(presentModes);
 	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, presentModes);
 	assert(!err);
@@ -727,12 +725,12 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, NULL);
 	assert(!err);
 
-	VkImage* swapchainImages = (VkImage*)malloc(swapchainImageCount * sizeof(VkImage));
+	VkImage *swapchainImages = (VkImage *)malloc(swapchainImageCount * sizeof(VkImage));
 	assert(swapchainImages);
 	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
 	assert(!err);
 
-	Kore::Vulkan::buffers = (Kore::Vulkan::SwapchainBuffers*)malloc(sizeof(Kore::Vulkan::SwapchainBuffers) * swapchainImageCount);
+	Kore::Vulkan::buffers = (Kore::Vulkan::SwapchainBuffers *)malloc(sizeof(Kore::Vulkan::SwapchainBuffers) * swapchainImageCount);
 	assert(Kore::Vulkan::buffers);
 
 	for (i = 0; i < swapchainImageCount; i++) {
@@ -834,7 +832,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	assert(!err);
 
 	Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-	                              VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	                                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 	/* create image view */
 	view.image = Kore::Vulkan::depth.image;
@@ -911,7 +909,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 
 		uint32_t i;
 
-		framebuffers = (VkFramebuffer*)malloc(swapchainImageCount * sizeof(VkFramebuffer));
+		framebuffers = (VkFramebuffer *)malloc(swapchainImageCount * sizeof(VkFramebuffer));
 		assert(framebuffers);
 
 		for (i = 0; i < swapchainImageCount; i++) {
@@ -1005,6 +1003,12 @@ void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_m
 void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2) {}
 
 void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
+
+int kinc_g5_max_bound_textures(void) {
+	VkPhysicalDeviceProperties props;
+	vkGetPhysicalDeviceProperties(gpu, &props);
+	return props.limits.maxPerStageDescriptorSamplers;
+}
 
 /*void Graphics5::restoreRenderTarget() {
     if (onBackBuffer) return;
