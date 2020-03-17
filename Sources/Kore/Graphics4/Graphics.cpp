@@ -51,20 +51,20 @@ void Graphics4::setInt4(ConstantLocation position, vec4i value) {
 	setInt4(position, value.x(), value.y(), value.z(), value.w());
 }
 
-void Graphics4::setVertexBuffer(VertexBuffer& vertexBuffer) {
-	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
+void Graphics4::setVertexBuffer(VertexBuffer &vertexBuffer) {
+	VertexBuffer *vertexBuffers[1] = {&vertexBuffer};
 	setVertexBuffers(vertexBuffers, 1);
 }
 
-void Graphics4::setRenderTarget(RenderTarget* target) {
+void Graphics4::setRenderTarget(RenderTarget *target) {
 	setRenderTargets(&target, 1);
 }
 
-void Graphics4::setIndexBuffer(Kore::Graphics4::IndexBuffer& indexBuffer) {
+void Graphics4::setIndexBuffer(Kore::Graphics4::IndexBuffer &indexBuffer) {
 	kinc_g4_set_index_buffer(&indexBuffer.kincBuffer);
 }
 
-void Graphics4::setPipeline(Kore::Graphics4::PipelineState* pipeline) {
+void Graphics4::setPipeline(Kore::Graphics4::PipelineState *pipeline) {
 	kinc_g4_set_pipeline(&pipeline->kincPipeline);
 }
 
@@ -120,17 +120,17 @@ void Graphics4::destroy(int windowId) {
 	kinc_g4_destroy(windowId);
 }
 
-void Graphics4::setTexture(Graphics4::TextureUnit unit, Graphics4::Texture* texture) {
+void Graphics4::setTexture(Graphics4::TextureUnit unit, Graphics4::Texture *texture) {
 	kinc_g4_set_texture(unit.kincUnit, &texture->kincTexture);
 }
 
-void Graphics4::setMatrix(ConstantLocation location, const mat3& value) {
+void Graphics4::setMatrix(ConstantLocation location, const mat3 &value) {
 	kinc_matrix3x3_t matrix;
 	memcpy(&matrix.m, value.data, sizeof(float) * 3 * 3);
 	kinc_g4_set_matrix3(location.kincConstant, &matrix);
 }
 
-void Graphics4::setMatrix(ConstantLocation location, const mat4& value) {
+void Graphics4::setMatrix(ConstantLocation location, const mat4 &value) {
 	kinc_matrix4x4_t matrix;
 	memcpy(&matrix.m, value.data, sizeof(float) * 4 * 4);
 	kinc_g4_set_matrix4(location.kincConstant, &matrix);
@@ -176,7 +176,7 @@ void Graphics4::setFloat4(ConstantLocation location, float value1, float value2,
 	kinc_g4_set_float4(location.kincConstant, value1, value2, value3, value4);
 }
 
-void Graphics4::setFloats(ConstantLocation location, float* values, int count) {
+void Graphics4::setFloats(ConstantLocation location, float *values, int count) {
 	kinc_g4_set_floats(location.kincConstant, values, count);
 }
 
@@ -196,7 +196,7 @@ void Graphics4::setInt4(ConstantLocation location, int value1, int value2, int v
 	kinc_g4_set_int4(location.kincConstant, value1, value2, value3, value4);
 }
 
-void Graphics4::setInts(ConstantLocation location, int* values, int count) {
+void Graphics4::setInts(ConstantLocation location, int *values, int count) {
 	kinc_g4_set_ints(location.kincConstant, values, count);
 }
 
@@ -216,11 +216,11 @@ void Graphics4::setStencilReferenceValue(int value) {
 	kinc_g4_set_stencil_reference_value(value);
 }
 
-void Graphics4::setTextureArray(TextureUnit unit, TextureArray* array) {
+void Graphics4::setTextureArray(TextureUnit unit, TextureArray *array) {
 	kinc_g4_set_texture_array(unit.kincUnit, &array->kincArray);
 }
 
-void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
+void Graphics4::setVertexBuffers(VertexBuffer **vertexBuffers, int count) {
 	assert(count <= 16);
 	kinc_g4_vertex_buffer_t *buffers[16];
 	for (int i = 0; i < count; ++i) {
@@ -229,7 +229,7 @@ void Graphics4::setVertexBuffers(VertexBuffer** vertexBuffers, int count) {
 	kinc_g4_set_vertex_buffers(buffers, count);
 }
 
-void Graphics4::setRenderTargets(RenderTarget** renderTargets, int count) {
+void Graphics4::setRenderTargets(RenderTarget **renderTargets, int count) {
 	assert(count <= 16);
 	kinc_g4_render_target_t *targets[16];
 	for (int i = 0; i < count; ++i) {
@@ -238,7 +238,7 @@ void Graphics4::setRenderTargets(RenderTarget** renderTargets, int count) {
 	kinc_g4_set_render_targets(targets, count);
 }
 
-void Graphics4::setImageTexture(TextureUnit unit, Texture* texture) {
+void Graphics4::setImageTexture(TextureUnit unit, Texture *texture) {
 	kinc_g4_set_image_texture(unit.kincUnit, &texture->kincTexture);
 }
 
@@ -250,7 +250,7 @@ void Graphics4::setCubeMapCompareMode(TextureUnit unit, bool enabled) {
 	kinc_g4_set_cubemap_compare_mode(unit.kincUnit, enabled);
 }
 
-void Graphics4::setRenderTargetFace(RenderTarget* renderTarget, int face) {
+void Graphics4::setRenderTargetFace(RenderTarget *renderTarget, int face) {
 	kinc_g4_set_render_target_face(&renderTarget->kincRenderTarget, face);
 }
 
@@ -265,6 +265,10 @@ void Graphics4::setTexture3DMinificationFilter(TextureUnit unit, TextureFilter f
 }
 void Graphics4::setTexture3DMipmapFilter(TextureUnit unit, MipmapFilter filter) {
 	kinc_g4_set_texture3d_mipmap_filter(unit.kincUnit, (kinc_g4_mipmap_filter_t)filter);
+}
+
+int Graphics4::maxBoundTextures() {
+	return kinc_g4_max_bound_textures();
 }
 
 extern "C" void kinc_internal_resize(int window, int width, int height);

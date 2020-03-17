@@ -194,8 +194,8 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 #endif
 
 #ifdef KORE_OPENGL_ES
-    char *exts = (char *)glGetString(GL_EXTENSIONS);
-    Kinc_Internal_SupportsDepthTexture = exts != NULL && strstr(exts, "GL_OES_depth_texture") != NULL;
+	char *exts = (char *)glGetString(GL_EXTENSIONS);
+	Kinc_Internal_SupportsDepthTexture = exts != NULL && strstr(exts, "GL_OES_depth_texture") != NULL;
 	maxColorAttachments = 4;
 #endif
 
@@ -368,8 +368,8 @@ void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
-		((void (*)(GLenum, GLsizei, GLenum, void *, GLsizei))
-		glesDrawElementsInstanced)(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)), instanceCount);
+	((void (*)(GLenum, GLsizei, GLenum, void *, GLsizei))glesDrawElementsInstanced)(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)),
+	                                                                                instanceCount);
 #elif !defined(KORE_OPENGL_ES)
 	if (Kinc_Internal_ProgramUsesTessellation) {
 		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)), instanceCount);
@@ -515,6 +515,11 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 
 void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {
 	Kinc_G4_Internal_TextureImageSet(texture, unit);
+}
+
+int kinc_g4_max_bound_textures(void) {
+	int units;
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &units);
 }
 
 namespace {

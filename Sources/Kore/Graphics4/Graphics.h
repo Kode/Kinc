@@ -1,7 +1,7 @@
 #pragma once
 
-#include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/indexbuffer.h>
+#include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/vertexbuffer.h>
 
 #include "Shader.h"
@@ -21,10 +21,10 @@ namespace Kore {
 
 		class VertexBuffer {
 		public:
-			VertexBuffer(int count, const VertexStructure& structure, Usage usage = StaticUsage, int instanceDataStepRate = 0);
+			VertexBuffer(int count, const VertexStructure &structure, Usage usage = StaticUsage, int instanceDataStepRate = 0);
 			virtual ~VertexBuffer();
-			float* lock();
-			float* lock(int start, int count);
+			float *lock();
+			float *lock(int start, int count);
 			void unlock();
 			void unlock(int count);
 			int count();
@@ -38,7 +38,7 @@ namespace Kore {
 		public:
 			IndexBuffer(int count);
 			virtual ~IndexBuffer();
-			int* lock();
+			int *lock();
 			void unlock();
 			int count();
 			void _set();
@@ -123,15 +123,15 @@ namespace Kore {
 			bool isDepthAttachment;
 			void useColorAsTexture(TextureUnit unit);
 			void useDepthAsTexture(TextureUnit unit);
-			void setDepthStencilFrom(RenderTarget* source);
-			void getPixels(u8* data);
+			void setDepthStencilFrom(RenderTarget *source);
+			void getPixels(u8 *data);
 			void generateMipmaps(int levels);
 
 			kinc_g4_render_target_t kincRenderTarget;
 		};
 
 		void setBool(ConstantLocation location, bool value);
-		
+
 		void setInt(ConstantLocation location, int value);
 		void setInt2(ConstantLocation location, int value1, int value2);
 		void setInt2(ConstantLocation location, vec2i value);
@@ -139,7 +139,7 @@ namespace Kore {
 		void setInt3(ConstantLocation location, vec3i value);
 		void setInt4(ConstantLocation location, int value1, int value2, int value3, int value4);
 		void setInt4(ConstantLocation location, vec4i value);
-		void setInts(ConstantLocation location, int* values, int count);
+		void setInts(ConstantLocation location, int *values, int count);
 
 		void setFloat(ConstantLocation location, float value);
 		void setFloat2(ConstantLocation location, float value1, float value2);
@@ -148,17 +148,17 @@ namespace Kore {
 		void setFloat3(ConstantLocation location, vec3 value);
 		void setFloat4(ConstantLocation location, float value1, float value2, float value3, float value4);
 		void setFloat4(ConstantLocation location, vec4 value);
-		void setFloats(ConstantLocation location, float* values, int count);
-		void setMatrix(ConstantLocation location, const mat3& value);
-		void setMatrix(ConstantLocation location, const mat4& value);
+		void setFloats(ConstantLocation location, float *values, int count);
+		void setMatrix(ConstantLocation location, const mat3 &value);
+		void setMatrix(ConstantLocation location, const mat4 &value);
 
-		void setVertexBuffer(VertexBuffer& vertexBuffer);
-		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
-		void setIndexBuffer(IndexBuffer& indexBuffer);
-		void setTexture(TextureUnit unit, Texture* texture);
-		void setTextureArray(TextureUnit unit, TextureArray* array);
-		void setImageTexture(TextureUnit unit, Texture* texture);
-		void setPipeline(PipelineState* pipeline);
+		void setVertexBuffer(VertexBuffer &vertexBuffer);
+		void setVertexBuffers(VertexBuffer **vertexBuffers, int count);
+		void setIndexBuffer(IndexBuffer &indexBuffer);
+		void setTexture(TextureUnit unit, Texture *texture);
+		void setTextureArray(TextureUnit unit, TextureArray *array);
+		void setImageTexture(TextureUnit unit, Texture *texture);
+		void setPipeline(PipelineState *pipeline);
 		void setStencilReferenceValue(int value);
 
 		void drawIndexedVertices();
@@ -170,9 +170,9 @@ namespace Kore {
 		void setAntialiasingSamples(int samples);
 
 		bool renderTargetsInvertedY();
-		void setRenderTargets(RenderTarget** targets, int count);
-		void setRenderTarget(RenderTarget* target);
-		void setRenderTargetFace(RenderTarget* texture, int face = 0);
+		void setRenderTargets(RenderTarget **targets, int count);
+		void setRenderTarget(RenderTarget *target);
+		void setRenderTargetFace(RenderTarget *texture, int face = 0);
 		void restoreRenderTarget();
 
 		void begin(int window = 0);
@@ -197,15 +197,16 @@ namespace Kore {
 		void setTextureCompareMode(TextureUnit texunit, bool enabled);
 		void setCubeMapCompareMode(TextureUnit texunit, bool enabled);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
+		int maxBoundTextures();
 
 		bool nonPow2TexturesSupported();
 
 		// Occlusion Query
-		bool initOcclusionQuery(uint* occlusionQuery);
+		bool initOcclusionQuery(uint *occlusionQuery);
 		void deleteOcclusionQuery(uint occlusionQuery);
 		void renderOcclusionQuery(uint occlusionQuery, int triangles);
 		bool isQueryResultsAvailable(uint occlusionQuery);
-		void getQueryResults(uint occlusionQuery, uint* pixelCount);
+		void getQueryResults(uint occlusionQuery, uint *pixelCount);
 
 		const uint ClearColorFlag = 1;
 		const uint ClearDepthFlag = 2;

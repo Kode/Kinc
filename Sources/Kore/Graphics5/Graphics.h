@@ -18,10 +18,10 @@ namespace Kore {
 
 		class VertexBuffer : public VertexBuffer5Impl {
 		public:
-			VertexBuffer(int count, const VertexStructure& structure, bool gpuMemory, int instanceDataStepRate = 0);
+			VertexBuffer(int count, const VertexStructure &structure, bool gpuMemory, int instanceDataStepRate = 0);
 			virtual ~VertexBuffer();
-			float* lock();
-			float* lock(int start, int count);
+			float *lock();
+			float *lock(int start, int count);
 			void unlock();
 			void unlock(int count);
 			int count();
@@ -33,7 +33,7 @@ namespace Kore {
 		public:
 			IndexBuffer(int count, bool gpuMemory);
 			virtual ~IndexBuffer();
-			int* lock();
+			int *lock();
 			void unlock();
 			int count();
 			void _set();
@@ -115,11 +115,11 @@ namespace Kore {
 			bool isDepthAttachment;
 			void useColorAsTexture(TextureUnit unit);
 			void useDepthAsTexture(TextureUnit unit);
-			void setDepthStencilFrom(RenderTarget* source);
+			void setDepthStencilFrom(RenderTarget *source);
 		};
 
-		void setTexture(TextureUnit unit, Texture* texture);
-		void setImageTexture(TextureUnit unit, Texture* texture);
+		void setTexture(TextureUnit unit, Texture *texture);
+		void setImageTexture(TextureUnit unit, Texture *texture);
 
 		void drawIndexedVerticesInstanced(int instanceCount);
 		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
@@ -128,9 +128,9 @@ namespace Kore {
 		void setAntialiasingSamples(int samples);
 
 		bool renderTargetsInvertedY();
-		void setRenderTargetFace(RenderTarget* texture, int face = 0);
+		void setRenderTargetFace(RenderTarget *texture, int face = 0);
 
-		void begin(RenderTarget* renderTarget, int window = 0);
+		void begin(RenderTarget *renderTarget, int window = 0);
 		void end(int window = 0);
 		bool swapBuffers();
 
@@ -141,15 +141,16 @@ namespace Kore {
 		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
+		int maxBoundTextures();
 
 		bool nonPow2TexturesSupported();
 
 		// Occlusion Query
-		bool initOcclusionQuery(uint* occlusionQuery);
+		bool initOcclusionQuery(uint *occlusionQuery);
 		void deleteOcclusionQuery(uint occlusionQuery);
 		void renderOcclusionQuery(uint occlusionQuery, int triangles);
 		bool isQueryResultsAvailable(uint occlusionQuery);
-		void getQueryResults(uint occlusionQuery, uint* pixelCount);
+		void getQueryResults(uint occlusionQuery, uint *pixelCount);
 
 		const uint ClearColorFlag = 1;
 		const uint ClearDepthFlag = 2;

@@ -357,6 +357,10 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 
 void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {}
 
+int kinc_g4_max_bound_textures(void) {
+	return kinc_g5_max_bound_textures();
+}
+
 bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 	return kinc_g5_init_occlusion_query(occlusionQuery);
 }

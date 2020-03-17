@@ -5,6 +5,8 @@
 
 #include "Graphics.h"
 
+#include <kinc/graphics5/graphics.h>
+
 #include <limits>
 
 using namespace Kore;
@@ -27,6 +29,10 @@ extern "C" void kinc_internal_resize(int window, int width, int height);
 
 void Graphics5::_resize(int window, int width, int height) {
 	kinc_internal_resize(window, width, height);
+}
+
+int Graphics5::maxBoundTextures() {
+	return kinc_g5_max_bound_textures();
 }
 
 // void Graphics5::setVertexBuffer(VertexBuffer& vertexBuffer) {

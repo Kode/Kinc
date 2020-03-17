@@ -21,11 +21,7 @@ typedef enum {
 	KINC_G4_TEXTURE_ADDRESSING_BORDER
 } kinc_g4_texture_addressing_t;
 
-typedef enum {
-	KINC_G4_TEXTURE_DIRECTION_U,
-	KINC_G4_TEXTURE_DIRECTION_V,
-	KINC_G4_TEXTURE_DIRECTION_W
-} kinc_g4_texture_direction_t;
+typedef enum { KINC_G4_TEXTURE_DIRECTION_U, KINC_G4_TEXTURE_DIRECTION_V, KINC_G4_TEXTURE_DIRECTION_W } kinc_g4_texture_direction_t;
 
 typedef enum {
 	KINC_G4_TEXTURE_OPERATION_MODULATE,
@@ -33,16 +29,9 @@ typedef enum {
 	KINC_G4_TEXTURE_OPERATION_SELECT_SECOND
 } kinc_g4_texture_operation_t;
 
-typedef enum {
-	KINC_G4_TEXTURE_ARGUMENT_CURRENT_COLOR,
-	KINC_G4_TEXTURE_ARGUMENT_TEXTURE_COLOR
-} kinc_g4_texture_argument_t;
+typedef enum { KINC_G4_TEXTURE_ARGUMENT_CURRENT_COLOR, KINC_G4_TEXTURE_ARGUMENT_TEXTURE_COLOR } kinc_g4_texture_argument_t;
 
-typedef enum {
-	KINC_G4_TEXTURE_FILTER_POINT,
-	KINC_G4_TEXTURE_FILTER_LINEAR,
-	KINC_G4_TEXTURE_FILTER_ANISOTROPIC
-} kinc_g4_texture_filter_t;
+typedef enum { KINC_G4_TEXTURE_FILTER_POINT, KINC_G4_TEXTURE_FILTER_LINEAR, KINC_G4_TEXTURE_FILTER_ANISOTROPIC } kinc_g4_texture_filter_t;
 
 typedef enum {
 	KINC_G4_MIPMAP_FILTER_NONE,
@@ -62,8 +51,8 @@ void kinc_g4_end(int window);
 
 bool kinc_g4_swap_buffers();
 
-#define KINC_G4_CLEAR_COLOR   1
-#define KINC_G4_CLEAR_DEPTH   2
+#define KINC_G4_CLEAR_COLOR 1
+#define KINC_G4_CLEAR_DEPTH 2
 #define KINC_G4_CLEAR_STENCIL 4
 
 void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil);
@@ -126,6 +115,8 @@ void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled);
 
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled);
+
+int kinc_g4_max_bound_textures(void);
 
 bool kinc_g4_render_targets_inverted_y();
 

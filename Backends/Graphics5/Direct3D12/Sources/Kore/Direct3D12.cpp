@@ -43,18 +43,18 @@ ID3D12DescriptorHeap* cbvHeap;*/
 // ID3D12DepthStencilView* depthStencilView;
 
 int currentBackBuffer = -1;
-ID3D12Device* device;
-ID3D12RootSignature* globalRootSignature;
+ID3D12Device *device;
+ID3D12RootSignature *globalRootSignature;
 // ID3D12GraphicsCommandList* commandList;
-ID3D12Resource* depthStencilTexture;
-ID3D12CommandQueue* commandQueue;
-IDXGISwapChain* swapChain;
+ID3D12Resource *depthStencilTexture;
+ID3D12CommandQueue *commandQueue;
+IDXGISwapChain *swapChain;
 
 extern "C" {
-	int renderTargetWidth;
-	int renderTargetHeight;
-	int newRenderTargetWidth;
-	int newRenderTargetHeight;
+int renderTargetWidth;
+int renderTargetHeight;
+int newRenderTargetWidth;
+int newRenderTargetHeight;
 }
 
 using namespace Kore;
@@ -65,13 +65,13 @@ using namespace Kore;
 #endif
 
 struct RenderEnvironment {
-	ID3D12Device* device;
-	ID3D12CommandQueue* queue;
-	IDXGISwapChain* swapChain;
+	ID3D12Device *device;
+	ID3D12CommandQueue *queue;
+	IDXGISwapChain *swapChain;
 };
 
 #ifndef KORE_WINDOWS
-void createSwapChain(RenderEnvironment* env, const DXGI_SWAP_CHAIN_DESC1* desc);
+void createSwapChain(RenderEnvironment *env, const DXGI_SWAP_CHAIN_DESC1 *desc);
 #endif
 
 void createSamplersAndHeaps();
@@ -82,16 +82,16 @@ namespace {
 	D3D12_RECT rectScissor;
 	// ID3D12Resource* renderTarget;
 	// ID3D12DescriptorHeap* renderTargetDescriptorHeap;
-	ID3D12DescriptorHeap* depthStencilDescriptorHeap;
+	ID3D12DescriptorHeap *depthStencilDescriptorHeap;
 	UINT64 currentFenceValue;
 	UINT64 fenceValues[QUEUE_SLOT_COUNT];
 	HANDLE frameFenceEvents[QUEUE_SLOT_COUNT];
-	ID3D12Fence* frameFences[QUEUE_SLOT_COUNT];
-	ID3D12Fence* uploadFence;
-	ID3D12GraphicsCommandList* initCommandList;
-	ID3D12CommandAllocator* initCommandAllocator;
+	ID3D12Fence *frameFences[QUEUE_SLOT_COUNT];
+	ID3D12Fence *uploadFence;
+	ID3D12GraphicsCommandList *initCommandList;
+	ID3D12CommandAllocator *initCommandAllocator;
 
-	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter* adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC* swapChainDesc) {
+	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter *adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
 		RenderEnvironment result;
 #ifdef KORE_WINDOWS
 		kinc_microsoft_affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
@@ -102,7 +102,7 @@ namespace {
 
 		kinc_microsoft_affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
 
-		IDXGIFactory4* dxgiFactory;
+		IDXGIFactory4 *dxgiFactory;
 		kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
 
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
@@ -113,7 +113,7 @@ namespace {
 		return result;
 	}
 
-	void waitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
+	void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
 		if (fence->GetCompletedValue() < completionValue) {
 			kinc_microsoft_affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
 			WaitForSingleObject(waitEvent, INFINITE);
@@ -160,7 +160,7 @@ namespace {
 
 	void createDeviceAndSwapChain(int width, int height, HWND window) {
 #ifdef _DEBUG
-		ID3D12Debug* debugController = nullptr;
+		ID3D12Debug *debugController = nullptr;
 		D3D12GetDebugInterface(IID_GRAPHICS_PPV_ARGS(&debugController));
 		debugController->EnableDebugLayer();
 #endif
@@ -199,8 +199,8 @@ namespace {
 	void createRootSignature() {
 		const int textureCount = 16;
 
-		ID3DBlob* rootBlob;
-		ID3DBlob* errorBlob;
+		ID3DBlob *rootBlob;
+		ID3DBlob *errorBlob;
 
 		CD3DX12_ROOT_PARAMETER parameters[4];
 
@@ -240,7 +240,7 @@ namespace {
 
 		initCommandList->Close();
 
-		ID3D12CommandList* commandLists[] = {initCommandList};
+		ID3D12CommandList *commandLists[] = {initCommandList};
 		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
 		commandQueue->Signal(uploadFence, 1);
 
@@ -266,7 +266,7 @@ namespace {
 }
 
 namespace Kore {
-	extern PipelineState5Impl* currentProgram;
+	extern PipelineState5Impl *currentProgram;
 }
 
 namespace {
@@ -341,6 +341,10 @@ void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
 void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
 void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
+
+int kinc_g5_max_bound_textures(void) {
+	return D3D12_COMMONSHADER_SAMPLER_SLOT_COUNT;
+}
 
 // (DK) fancy macro's to generate a clickable warning message in visual studio, can be removed when setColorMask() is implemented
 #define Stringize(L) #L

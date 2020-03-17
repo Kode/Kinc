@@ -41,8 +41,8 @@ int antialiasingSamples() {
 
 #include <vector>
 
-#include <stdint.h>
 #include <malloc.h>
+#include <stdint.h>
 
 #ifdef KORE_HOLOLENS
 #include "DeviceResources.winrt.h"
@@ -90,20 +90,20 @@ namespace {
 
 	D3D_FEATURE_LEVEL featureLevel;
 #ifdef KORE_WINDOWSAPP
-	IDXGISwapChain1* swapChain = nullptr;
+	IDXGISwapChain1 *swapChain = nullptr;
 #else
-	IDXGISwapChain* swapChain = nullptr;
+	IDXGISwapChain *swapChain = nullptr;
 #endif
 	D3D11_SAMPLER_DESC lastSamplers[16];
 
 	struct Sampler {
 		D3D11_SAMPLER_DESC desc;
-		ID3D11SamplerState* state;
+		ID3D11SamplerState *state;
 	};
 
 	std::vector<Sampler> samplers;
 
-	ID3D11SamplerState* getSamplerState(const D3D11_SAMPLER_DESC& desc) {
+	ID3D11SamplerState *getSamplerState(const D3D11_SAMPLER_DESC &desc) {
 		for (unsigned i = 0; i < samplers.size(); ++i) {
 			if (memcmp(&desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
 				return samplers[i].state;
@@ -126,10 +126,10 @@ namespace {
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-		ID3D11SamplerState* state;
+		ID3D11SamplerState *state;
 		device->CreateSamplerState(&samplerDesc, &state);
 
-		ID3D11SamplerState* states[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
+		ID3D11SamplerState *states[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
 		for (int i = 0; i < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT; ++i) {
 			states[i] = state;
 		}
@@ -138,10 +138,10 @@ namespace {
 		context->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
 	}
 
-	ID3D11RenderTargetView** currentRenderTargetViews =
-	    (ID3D11RenderTargetView**)malloc(sizeof(ID3D11RenderTargetView*) * D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
+	ID3D11RenderTargetView **currentRenderTargetViews =
+	    (ID3D11RenderTargetView **)malloc(sizeof(ID3D11RenderTargetView *) * D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 	int renderTargetCount = 1;
-	ID3D11DepthStencilView* currentDepthStencilView;
+	ID3D11DepthStencilView *currentDepthStencilView;
 } // namespace
 
 void kinc_g4_destroy(int window) {}
@@ -224,17 +224,16 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	    D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0};
 
 #ifdef KORE_WINDOWSAPP
-	IDXGIAdapter3* adapter = nullptr;
+	IDXGIAdapter3 *adapter = nullptr;
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
 	kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels),
-	                                        D3D11_SDK_VERSION,
-	                                    &device, &featureLevel, &context));
+	                                        D3D11_SDK_VERSION, &device, &featureLevel, &context));
 
 #elif KORE_OCULUS
-	IDXGIFactory* dxgiFactory = nullptr;
-	Windows::affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)(&dxgiFactory)));
+	IDXGIFactory *dxgiFactory = nullptr;
+	Windows::affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void **)(&dxgiFactory)));
 
 	Windows::affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 	                                  &featureLevel, &context));
@@ -299,17 +298,17 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
 		swapChainDesc.Flags = 0;
 
-		IDXGIDevice1* dxgiDevice;
+		IDXGIDevice1 *dxgiDevice;
 		kinc_microsoft_affirm(device->QueryInterface(IID_IDXGIDevice1, (void **)&dxgiDevice));
 
-		IDXGIAdapter* dxgiAdapter;
+		IDXGIAdapter *dxgiAdapter;
 		kinc_microsoft_affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
 
-		IDXGIFactory2* dxgiFactory;
+		IDXGIFactory2 *dxgiFactory;
 		kinc_microsoft_affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)&dxgiFactory));
 
 		kinc_microsoft_affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown *>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
-		                                                            nullptr, &swapChain));
+		                                                                nullptr, &swapChain));
 		kinc_microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #endif
 
@@ -331,8 +330,8 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		Windows::affirm(dxgiFactory->CreateSwapChain(device, &scDesc, &swapChain));
 		dxgiFactory->Release();
 
-		IDXGIDevice1* dxgiDevice = nullptr;
-		Windows::affirm(device->QueryInterface(__uuidof(IDXGIDevice1), (void**)&dxgiDevice));
+		IDXGIDevice1 *dxgiDevice = nullptr;
+		Windows::affirm(device->QueryInterface(__uuidof(IDXGIDevice1), (void **)&dxgiDevice));
 		Windows::affirm(dxgiDevice->SetMaximumFrameLatency(1));
 		dxgiDevice->Release();
 #else
@@ -345,8 +344,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		                                               &swapChain, &device, nullptr, &context);
 		if (result != S_OK) {
 			kinc_microsoft_affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION,
-			                                                    &swapChainDesc,
-			                                                &swapChain, &device, nullptr, &context));
+			                                                    &swapChainDesc, &swapChain, &device, nullptr, &context));
 		}
 #endif
 	}
@@ -411,7 +409,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	blendDesc.AlphaToCoverageEnable = false;
 	blendDesc.RenderTarget[0] = rtbd;
 
-	ID3D11BlendState* blending;
+	ID3D11BlendState *blending;
 	device->CreateBlendState(&blendDesc, &blending);
 
 	kinc_microsoft_affirm(device->CreateBlendState(&blendDesc, &blending));
@@ -421,7 +419,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 void kinc_g4_flush() {}
 
 namespace {
-	ID3D11ShaderResourceView* nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
+	ID3D11ShaderResourceView *nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
 }
 
 static kinc_g4_index_buffer_t *currentIndexBuffer = NULL;
@@ -474,7 +472,7 @@ void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 	}
 	kinc_internal_set_constants();
 	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
-	
+
 	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
@@ -511,7 +509,7 @@ void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture
 		break;
 	}
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
@@ -519,8 +517,13 @@ void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_textu
 	kinc_g4_set_texture_addressing(unit, dir, addressing);
 }
 
+int kinc_g4_max_bound_textures(void) {
+	return D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT;
+}
+
 void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
-	const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f, ((color & 0xff000000) >> 24) / 255.0f};
+	const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
+	                            ((color & 0xff000000) >> 24) / 255.0f};
 	for (int i = 0; i < renderTargetCount; ++i) {
 		if (currentRenderTargetViews[i] != nullptr && flags & KINC_G4_CLEAR_COLOR) {
 			context->ClearRenderTargetView(currentRenderTargetViews[i], clearColor);
@@ -616,39 +619,39 @@ void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g
 }
 
 namespace {
-	void setInt(uint8_t* constants, uint32_t offset, uint32_t size, int value) {
+	void setInt(uint8_t *constants, uint32_t offset, uint32_t size, int value) {
 		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		int *ints = reinterpret_cast<int *>(&constants[offset]);
 		ints[0] = value;
 	}
 
-	void setInt2(uint8_t* constants, uint32_t offset, uint32_t size, int value1, int value2) {
+	void setInt2(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2) {
 		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		int *ints = reinterpret_cast<int *>(&constants[offset]);
 		ints[0] = value1;
 		ints[1] = value2;
 	}
 
-	void setInt3(uint8_t* constants, uint32_t offset, uint32_t size, int value1, int value2, int value3) {
+	void setInt3(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2, int value3) {
 		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		int *ints = reinterpret_cast<int *>(&constants[offset]);
 		ints[0] = value1;
 		ints[1] = value2;
 		ints[2] = value3;
 	}
 
-	void setInt4(uint8_t* constants, uint32_t offset, uint32_t size, int value1, int value2, int value3, int value4) {
+	void setInt4(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2, int value3, int value4) {
 		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		int *ints = reinterpret_cast<int *>(&constants[offset]);
 		ints[0] = value1;
 		ints[1] = value2;
 		ints[2] = value3;
 		ints[3] = value4;
 	}
 
-	void setInts(uint8_t* constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, int* values, int count) {
+	void setInts(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, int *values, int count) {
 		if (size == 0) return;
-		int *ints = reinterpret_cast<int*>(&constants[offset]);
+		int *ints = reinterpret_cast<int *>(&constants[offset]);
 		if (columns == 4 && rows == 4) {
 			for (int i = 0; i < count / 16 && i < static_cast<int>(size) / 4; ++i) {
 				for (int y = 0; y < 4; ++y) {
@@ -683,39 +686,39 @@ namespace {
 		}
 	}
 
-	void setFloat(uint8_t* constants, uint32_t offset, uint32_t size, float value) {
+	void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
 		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		floats[0] = value;
 	}
 
-	void setFloat2(uint8_t* constants, uint32_t offset, uint32_t size, float value1, float value2) {
+	void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
 		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		floats[0] = value1;
 		floats[1] = value2;
 	}
 
-	void setFloat3(uint8_t* constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
+	void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
 		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		floats[0] = value1;
 		floats[1] = value2;
 		floats[2] = value3;
 	}
 
-	void setFloat4(uint8_t* constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
+	void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
 		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		floats[0] = value1;
 		floats[1] = value2;
 		floats[2] = value3;
 		floats[3] = value4;
 	}
 
-	void setFloats(uint8_t* constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float* values, int count) {
+	void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float *values, int count) {
 		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		if (columns == 4 && rows == 4) {
 			for (int i = 0; i < count / 16 && i < static_cast<int>(size) / 4; ++i) {
 				for (int y = 0; y < 4; ++y) {
@@ -750,15 +753,15 @@ namespace {
 		}
 	}
 
-	void setBool(uint8_t* constants, uint32_t offset, uint32_t size, bool value) {
+	void setBool(uint8_t *constants, uint32_t offset, uint32_t size, bool value) {
 		if (size == 0) return;
-		int* ints = reinterpret_cast<int*>(&constants[offset]);
+		int *ints = reinterpret_cast<int *>(&constants[offset]);
 		ints[0] = value ? 1 : 0;
 	}
 
-	void setMatrix(uint8_t* constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
+	void setMatrix(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
 		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		for (int y = 0; y < 4; ++y) {
 			for (int x = 0; x < 4; ++x) {
 				floats[x + y * 4] = value->m[y + x * 4];
@@ -766,9 +769,9 @@ namespace {
 		}
 	}
 
-	void setMatrix(uint8_t* constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
+	void setMatrix(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
 		if (size == 0) return;
-		float* floats = reinterpret_cast<float*>(&constants[offset]);
+		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		for (int y = 0; y < 3; ++y) {
 			for (int x = 0; x < 3; ++x) {
 				floats[x + y * 4] = value->m[y + x * 3];
@@ -812,15 +815,13 @@ void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int valu
 void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
 	::setInts(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, location.impl.vertexColumns, location.impl.vertexRows, values, count);
 	::setInts(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, location.impl.fragmentColumns, location.impl.fragmentRows, values,
-	            count);
+	          count);
 	::setInts(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, location.impl.geometryColumns, location.impl.geometryRows, values,
-	            count);
+	          count);
 	::setInts(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, location.impl.tessEvalColumns, location.impl.tessEvalRows, values,
-	            count);
+	          count);
 	::setInts(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
-	            location.impl.tessControlRows,
-	            values,
-	            count);
+	          location.impl.tessControlRows, values, count);
 }
 
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
@@ -864,9 +865,7 @@ void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int
 	::setFloats(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, location.impl.tessEvalColumns, location.impl.tessEvalRows, values,
 	            count);
 	::setFloats(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
-	            location.impl.tessControlRows,
-	            values,
-	            count);
+	            location.impl.tessControlRows, values, count);
 }
 
 void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
@@ -948,7 +947,7 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_
 	lastSamplers[unit.impl.unit].Filter = d3d11filter;
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
@@ -1012,7 +1011,7 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g
 	lastSamplers[unit.impl.unit].Filter = d3d11filter;
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
@@ -1078,7 +1077,7 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipm
 	lastSamplers[unit.impl.unit].Filter = d3d11filter;
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
@@ -1097,7 +1096,7 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled)
 		lastSamplers[unit.impl.unit].ComparisonFunc = D3D11_COMPARISON_NEVER;
 	}
 
-	ID3D11SamplerState* sampler = getSamplerState(lastSamplers[unit.impl.unit]);
+	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
 	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
 }
 
@@ -1147,17 +1146,17 @@ void kinc_g4_set_render_target_face(kinc_g4_render_target *texture, int face) {
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 	kinc_internal_g4_vertex_buffer_set(buffers[0], 0);
 
-	ID3D11Buffer** d3dbuffers = (ID3D11Buffer**)alloca(count * sizeof(ID3D11Buffer*));
+	ID3D11Buffer **d3dbuffers = (ID3D11Buffer **)alloca(count * sizeof(ID3D11Buffer *));
 	for (int i = 0; i < count; ++i) {
 		d3dbuffers[i] = buffers[i]->impl.vb;
 	}
 
-	UINT* strides = (UINT*)alloca(count * sizeof(UINT));
+	UINT *strides = (UINT *)alloca(count * sizeof(UINT));
 	for (int i = 0; i < count; ++i) {
 		strides[i] = buffers[i]->impl.stride;
 	}
 
-	UINT* internaloffsets = (UINT*)alloca(count * sizeof(UINT));
+	UINT *internaloffsets = (UINT *)alloca(count * sizeof(UINT));
 	for (int i = 0; i < count; ++i) {
 		internaloffsets[i] = 0;
 	}
@@ -1182,13 +1181,13 @@ void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *t
 }
 
 static unsigned queryCount = 0;
-static std::vector<ID3D11Query*> queryPool;
+static std::vector<ID3D11Query *> queryPool;
 
 bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 	D3D11_QUERY_DESC queryDesc;
 	queryDesc.Query = D3D11_QUERY_OCCLUSION;
 	queryDesc.MiscFlags = 0;
-	ID3D11Query* pQuery = nullptr;
+	ID3D11Query *pQuery = nullptr;
 	HRESULT result = device->CreateQuery(&queryDesc, &pQuery);
 
 	if (FAILED(result)) {
@@ -1208,7 +1207,7 @@ void kinc_g4_delete_occlusion_query(unsigned occlusionQuery) {
 }
 
 void kinc_g4_start_occlusion_query(unsigned occlusionQuery) {
-	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	ID3D11Query *pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		context->Begin(pQuery);
 	}
@@ -1222,7 +1221,7 @@ void kinc_g4_end_occlusion_query(unsigned occlusionQuery) {
 }
 
 bool kinc_g4_are_query_results_available(unsigned occlusionQuery) {
-	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	ID3D11Query *pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		if (S_OK == context->GetData(pQuery, 0, 0, 0)) return true;
 	}
@@ -1230,7 +1229,7 @@ bool kinc_g4_are_query_results_available(unsigned occlusionQuery) {
 }
 
 void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {
-	ID3D11Query* pQuery = queryPool[occlusionQuery];
+	ID3D11Query *pQuery = queryPool[occlusionQuery];
 	if (pQuery != nullptr) {
 		UINT64 numberOfPixelsDrawn;
 		HRESULT result = context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
