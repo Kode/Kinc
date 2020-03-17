@@ -520,6 +520,7 @@ void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *t
 int kinc_g4_max_bound_textures(void) {
 	int units;
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &units);
+	return units;
 }
 
 namespace {
