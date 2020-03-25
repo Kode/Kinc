@@ -4,6 +4,7 @@
 
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
+#include <kinc/input/pen.h>
 #include <kinc/system.h>
 
 #ifdef KORE_METAL
@@ -305,6 +306,10 @@ namespace {
 		controlKeyMouseButton = false;
 		kinc_internal_mouse_trigger_press(0, 0, getMouseX(theEvent), getMouseY(theEvent));
 	}
+
+	if ([theEvent subtype] == NSTabletPointEventSubtype) {
+		kinc_internal_pen_trigger_press(0, getMouseX(theEvent), getMouseY(theEvent), theEvent.pressure);
+	}
 }
 
 - (void)mouseUp:(NSEvent*)theEvent {
@@ -316,6 +321,10 @@ namespace {
 		kinc_internal_mouse_trigger_release(0, 0, getMouseX(theEvent), getMouseY(theEvent));
 	}
 	controlKeyMouseButton = false;
+
+	if ([theEvent subtype] == NSTabletPointEventSubtype) {
+		kinc_internal_pen_trigger_release(0, getMouseX(theEvent), getMouseY(theEvent), theEvent.pressure);
+	}
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent {
@@ -326,6 +335,10 @@ namespace {
 - (void)mouseDragged:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
+
+	if ([theEvent subtype] == NSTabletPointEventSubtype) {
+		kinc_internal_pen_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent), theEvent.pressure);
+	}
 }
 
 - (void)rightMouseDown:(NSEvent*)theEvent {
@@ -499,14 +512,14 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 
 - (void)end {
 	@autoreleasepool {
-    if (commandBuffer != nil && commandEncoder != nil) {
-      [commandEncoder endEncoding];
-      [commandBuffer presentDrawable:drawable];
-      [commandBuffer commit];
-    }
-    
-    commandBuffer = nil;
-    commandEncoder = nil;
+	if (commandBuffer != nil && commandEncoder != nil) {
+		[commandEncoder endEncoding];
+		[commandBuffer presentDrawable:drawable];
+		[commandBuffer commit];
+	}
+
+	commandBuffer = nil;
+	commandEncoder = nil;
 		//if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
 		//	[drawable present];
