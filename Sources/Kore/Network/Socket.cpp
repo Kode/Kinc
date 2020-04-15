@@ -25,8 +25,8 @@ void Socket::init() {
 	kinc_socket_init(&sock);
 }
 
-void Socket::open(int port) {
-	kinc_socket_open(&sock, port);
+bool Socket::open(int port) {
+	return kinc_socket_open(&sock, port) != 0;
 }
 
 Socket::~Socket() {
