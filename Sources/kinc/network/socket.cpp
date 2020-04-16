@@ -52,7 +52,7 @@ void kinc_socket_init(kinc_socket_t *sock) {
 	initialized = true;
 }
 
-int kinc_socket_open(kinc_socket_t *sock, int port) {
+bool kinc_socket_open(kinc_socket_t *sock, int port) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	sock->handle = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (sock->handle <= 0) {
@@ -110,7 +110,7 @@ int kinc_socket_open(kinc_socket_t *sock, int port) {
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown error.");
 		}
 #endif
-		return 0;
+		return false;
 	}
 
 	sockaddr_in address;
@@ -119,7 +119,7 @@ int kinc_socket_open(kinc_socket_t *sock, int port) {
 	address.sin_port = htons((unsigned short)port);
 	if (bind(sock->handle, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not bind socket.");
-		return 0;
+		return false;
 	}
 #endif
 
@@ -127,17 +127,17 @@ int kinc_socket_open(kinc_socket_t *sock, int port) {
 	DWORD nonBlocking = 1;
 	if (ioctlsocket(sock->handle, FIONBIO, &nonBlocking) != 0) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
-		return 0;
+		return false;
 	}
 #elif defined(KORE_POSIX)
 	int nonBlocking = 1;
 	if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, nonBlocking) == -1) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
-		return 0;
+		return false;
 	}
 #endif
 
-	return 1;
+	return true;
 }
 
 void kinc_socket_destroy(kinc_socket_t *sock) {
