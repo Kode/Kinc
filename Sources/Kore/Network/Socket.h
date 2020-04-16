@@ -8,7 +8,7 @@ namespace Kore {
 		Socket();
 		~Socket();
 		void init();
-		void open(int port);
+		bool open(int port);
 
 		unsigned urlToInt(const char* url, int port);
 		void setBroadcastEnabled(bool enabled);
