@@ -65,7 +65,7 @@ namespace {
 	}
 
 	s16 convert8to16(u8 sample) {
-		return (sample - 127) << 8;
+		return (sample - 128) << 8;
 	}
 
 	void splitStereo8(u8* data, int size, s16* left, s16* right) {
