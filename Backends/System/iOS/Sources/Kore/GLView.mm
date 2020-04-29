@@ -7,6 +7,7 @@
 #include <kinc/input/mouse.h>
 #include <kinc/input/rotation.h>
 #include <kinc/input/surface.h>
+#include <kinc/input/pen.h>
 #include <kinc/system.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/rendertarget.h>
@@ -240,14 +241,14 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 #ifdef KORE_METAL
 - (void)end {
 	@autoreleasepool {
-    if (commandEncoder != nil && commandBuffer != nil) {
-      [commandEncoder endEncoding];
-      [commandBuffer presentDrawable:drawable];
-      [commandBuffer commit];
-    }
+	if (commandEncoder != nil && commandBuffer != nil) {
+	  [commandEncoder endEncoding];
+	  [commandBuffer presentDrawable:drawable];
+	  [commandBuffer commit];
+	}
 
 		commandBuffer = nil;
-    commandEncoder = nil;
+		commandEncoder = nil;
 
 		// if (drawable != nil) {
 		//	[commandBuffer waitUntilScheduled];
@@ -325,6 +326,10 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 				kinc_internal_mouse_trigger_press(0, 0, x, y);
 			}
 			kinc_internal_surface_trigger_touch_start(index, x, y);
+
+			if (touch.type == UITouchTypePencil) {
+				kinc_internal_pen_trigger_press(0, x, y, 0.0);
+			}
 		}
 	}
 }
@@ -344,6 +349,17 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	}
 }
 
+- (void)touchesEstimatedPropertiesUpdated:(NSSet<UITouch *> *)touches {
+	for (UITouch* touch in touches) {
+		if (touch.type == UITouchTypePencil) {
+			CGPoint point = [touch locationInView:self];
+			float x = point.x * self.contentScaleFactor;
+			float y = point.y * self.contentScaleFactor;
+			kinc_internal_pen_trigger_move(0, x, y, touch.force);
+		}
+	}
+}
+
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event {
 	for (UITouch* touch in touches) {
 		int index = removeTouch((__bridge void*)touch);
@@ -355,6 +371,10 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 				kinc_internal_mouse_trigger_release(0, 0, x, y);
 			}
 			kinc_internal_surface_trigger_touch_end(index, x, y);
+
+			if (touch.type == UITouchTypePencil) {
+				kinc_internal_pen_trigger_release(0, x, y, 0.0);
+			}
 		}
 	}
 }
@@ -370,6 +390,10 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 				kinc_internal_mouse_trigger_release(0, 0, x, y);
 			}
 			kinc_internal_surface_trigger_touch_end(index, x, y);
+
+			if (touch.type == UITouchTypePencil) {
+				kinc_internal_pen_trigger_release(0, x, y, 0.0);
+			}
 		}
 	}
 }
