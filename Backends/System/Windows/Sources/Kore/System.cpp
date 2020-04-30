@@ -799,7 +799,7 @@ static void initializeDirectInput() {
 
 bool handleDirectInputPad(int padIndex) {
 	if (di_pads[padIndex] == nullptr) {
-		return;
+		return false;
 	}
 
 	HRESULT hr = di_pads[padIndex]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[padIndex]);
