@@ -797,7 +797,7 @@ static void initializeDirectInput() {
 	}
 }
 
-void handleDirectInputPad(int padIndex) {
+bool handleDirectInputPad(int padIndex) {
 	if (di_pads[padIndex] == nullptr) {
 		return;
 	}
@@ -849,6 +849,8 @@ void handleDirectInputPad(int padIndex) {
 		break;
 	}
 	}
+
+	return hr == S_OK;
 }
 
 static bool isXInputGamepad(int gamepad) {
@@ -932,7 +934,9 @@ bool kinc_internal_handle_messages() {
 				}
 			}
 			else {
-				handleDirectInputPad(i);
+				if (handleDirectInputPad(i)) {
+					gamepadFound = true;
+				}
 			}
 		}
 	}
