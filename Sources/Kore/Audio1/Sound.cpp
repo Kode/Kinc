@@ -65,7 +65,7 @@ namespace {
 	}
 
 	s16 convert8to16(u8 sample) {
-		return (sample - 127) << 8;
+		return (sample - 128) << 8;
 	}
 
 	void splitStereo8(u8* data, int size, s16* left, s16* right) {
@@ -98,11 +98,19 @@ namespace {
 }
 
 Sound::Sound(const char *filename) : left(0), right(0), size(0), length(0), myVolume(1) {
+	FileReader file(filename);
+	load(file, filename);
+}
+
+Sound::Sound(Reader &file, const char *filename) : left(0), right(0), size(0), length(0), myVolume(1) {
+	load(file, filename);
+}
+
+void Sound::load(Reader &file, const char *filename) {
 	size_t filenameLength = strlen(filename);
 	u8* data = nullptr;
 
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
-		FileReader file(filename);
 		u8* filedata = (u8*)file.readAll();
 		int samples = stb_vorbis_decode_memory(filedata, file.size(), &format.channels, &format.samplesPerSecond, (short**)&data);
 		size = samples * 2 * format.channels;
@@ -112,7 +120,6 @@ Sound::Sound(const char *filename) : left(0), right(0), size(0), length(0), myVo
 	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
 		WaveData wave = {0};
 		{
-			FileReader file(filename);
 			u8* filedata = (u8*)file.readAll();
 			u8* data = filedata;
 
@@ -123,8 +130,6 @@ Sound::Sound(const char *filename) : left(0), right(0), size(0), length(0), myVo
 			while (data + 8 - filedata < (spint)filesize) {
 				readChunk(data, wave);
 			}
-
-			file.close();
 		}
 
 		format.bitsPerSample = wave.bitsPerSample;

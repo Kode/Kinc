@@ -26,7 +26,7 @@ typedef struct {
 
 void kinc_socket_init(kinc_socket_t *socket);
 void kinc_socket_destroy(kinc_socket_t *socket);
-void kinc_socket_open(kinc_socket_t *socket, int port);
+bool kinc_socket_open(kinc_socket_t *socket, int port);
 void kinc_socket_set_broadcast_enabled(kinc_socket_t *socket, bool enabled);
 void kinc_socket_send(kinc_socket_t *socket, unsigned address, int port, const unsigned char *data, int size);
 void kinc_socket_send_url(kinc_socket_t *socket, const char *url, int port, const unsigned char *data, int size);
