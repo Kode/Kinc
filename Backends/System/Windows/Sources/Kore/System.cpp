@@ -261,6 +261,11 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 	POINTER_INFO pointerInfo = {NULL};
 	POINTER_PEN_INFO penInfo = {NULL};
 	static bool controlDown = false;
+	static bool altDown = false;
+	static int last_window_width = -1;
+	static int last_window_height = -1;
+	static int last_window_x = -1;
+	static int last_window_y = -1;
 
 	switch (msg) {
 	case WM_NCCREATE:
@@ -407,6 +412,9 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			if (keyTranslated[wParam] == KINC_KEY_CONTROL) {
 				controlDown = true;
 			}
+			else if (keyTranslated[wParam] == KINC_KEY_ALT) {
+				altDown = true;
+			}
 			else {
 				if (controlDown && keyTranslated[wParam] == KINC_KEY_X) {
 					char *text = kinc_internal_cut_callback();
@@ -458,6 +466,25 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 						CloseClipboard();
 					}
 				}
+
+				if (altDown && keyTranslated[wParam] == KINC_KEY_RETURN) {
+					if (kinc_window_get_mode(0) == KINC_WINDOW_MODE_WINDOW) {
+						last_window_width = kinc_window_width(0);
+						last_window_height = kinc_window_height(0);
+						last_window_x = kinc_window_x(0);
+						last_window_y = kinc_window_y(0);
+						kinc_window_change_mode(0, KINC_WINDOW_MODE_FULLSCREEN);
+					}
+					else {
+						kinc_window_change_mode(0, KINC_WINDOW_MODE_WINDOW);
+						if (last_window_width > 0 && last_window_height > 0) {
+							kinc_window_resize(0, last_window_width, last_window_height);
+						}
+						if (last_window_x > 0 && last_window_y > 0) {
+							kinc_window_move(0, last_window_x, last_window_y);
+						}
+					}
+				}
 			}
 
 			kinc_internal_keyboard_trigger_key_down(keyTranslated[wParam]);
@@ -469,6 +496,9 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 
 		if (keyTranslated[wParam] == KINC_KEY_CONTROL) {
 			controlDown = false;
+		}
+		if (keyTranslated[wParam] == KINC_KEY_ALT) {
+			altDown = false;
 		}
 
 		kinc_internal_keyboard_trigger_key_up(keyTranslated[wParam]);

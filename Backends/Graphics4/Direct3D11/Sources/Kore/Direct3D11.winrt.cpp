@@ -346,6 +346,14 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 			kinc_microsoft_affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION,
 			                                                    &swapChainDesc, &swapChain, &device, nullptr, &context));
 		}
+
+		IDXGIDevice *pDXGIDevice;
+		result = device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pDXGIDevice);
+		IDXGIAdapter *pDXGIAdapter;
+		result = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&pDXGIAdapter);
+		IDXGIFactory *pIDXGIFactory;
+		pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), (void **)&pIDXGIFactory);
+		pIDXGIFactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
 #endif
 	}
 
