@@ -99,10 +99,14 @@ namespace {
 
 Sound::Sound(const char *filename) : left(0), right(0), size(0), length(0), myVolume(1) {
 	FileReader file(filename);
-	Sound(file, filename);
+	load(file, filename);
 }
 
 Sound::Sound(Reader &file, const char *filename) : left(0), right(0), size(0), length(0), myVolume(1) {
+	load(file, filename);
+}
+
+void Sound::load(Reader &file, const char *filename) {
 	size_t filenameLength = strlen(filename);
 	u8* data = nullptr;
 
