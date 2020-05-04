@@ -58,6 +58,17 @@ namespace {
 				return MTLCompareFunctionGreaterEqual;
 		}
 	}
+
+	MTLCullMode convert(kinc_g5_cull_mode_t cull) {
+		switch (cull) {
+		case KINC_G5_CULL_MODE_CLOCKWISE:
+			return MTLCullModeFront;
+		case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
+			return MTLCullModeBack;
+		case KINC_G5_CULL_MODE_NEVER:
+			return MTLCullModeNone;
+		}
+	}
 }
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
@@ -161,8 +172,8 @@ void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setRenderPipelineState:pipeline->impl._pipeline];
 	[encoder setDepthStencilState:pipeline->impl._depthStencil];
-	//[encoder setFrontFacingWinding:MTLWindingCounterClockwise];
-	//[encoder setCullMode:MTLCullModeBack];
+	[encoder setFrontFacingWinding:MTLWindingClockwise];
+	[encoder setCullMode:convert(pipeline->cullMode)];
 }
 
 kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipeline, const char *name) {
