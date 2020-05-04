@@ -37,7 +37,7 @@ namespace {
 				return MTLBlendFactorOneMinusDestinationColor;
 		}
 	}
-	
+
 	MTLCompareFunction convert(kinc_g5_compare_mode_t compare) {
 		switch (compare) {
 			case KINC_G5_COMPARE_MODE_ALWAYS:
@@ -125,6 +125,14 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat4;
 			offset += 4 * sizeof(float);
 			break;
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			vertexDescriptor.attributes[index].format = MTLVertexFormatShort2Normalized;
+			offset += 2 * sizeof(short);
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			vertexDescriptor.attributes[index].format = MTLVertexFormatShort4Normalized;
+			offset += 4 * sizeof(short);
+			break;
 		default:
 			break;
 		}
@@ -132,7 +140,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	vertexDescriptor.layouts[0].stride = offset;
 	vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-	
+
 	renderPipelineDesc.vertexDescriptor = vertexDescriptor;
 
 	NSError* errors = nil;
@@ -142,7 +150,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	if (errors != nil) NSLog(@"%@", [errors localizedDescription]);
 	assert(pipeline->impl._pipeline && !errors);
 	pipeline->impl._reflection = reflection;
-	
+
 	MTLDepthStencilDescriptor* depthStencilDescriptor = [MTLDepthStencilDescriptor new];
 	depthStencilDescriptor.depthCompareFunction = convert(pipeline->depthMode);
 	depthStencilDescriptor.depthWriteEnabled = pipeline->depthWrite;
