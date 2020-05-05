@@ -46,7 +46,7 @@ namespace {
 		floats[2] = value3;
 		floats[3] = value4;
 	}
-	
+
 	id<MTLCommandQueue> commandQueue;
 	id<MTLCommandBuffer> commandBuffer;
 	id<MTLComputeCommandEncoder> commandEncoder;
@@ -75,9 +75,7 @@ void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {
 }
 
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int length) {
-	shader->impl._function = 0;
-	shader->impl._pipeline = 0;
-	shader->impl._reflection = 0;
+	memset(&shader->impl, 0, sizeof(shader->impl));
 	{
 		u8* data = (u8*)_data;
 		if (length > 1 && data[0] == '>') {
@@ -107,7 +105,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	}
 	shader->impl._function = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
 	assert(shader->impl._function);
-	
+
 	id<MTLDevice> device = getMetalDevice();
 	MTLComputePipelineReflection* reflection = nil;
 	NSError* error = nil;
@@ -120,9 +118,9 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
 	kinc_compute_constant_location_t location;
 	location.impl._offset = -1;
-	
+
 	MTLComputePipelineReflection* reflection = shader->impl._reflection;
-	
+
 	for (MTLArgument* arg in reflection.arguments) {
 		if (arg.type == MTLArgumentTypeBuffer && [arg.name isEqualToString:@"uniforms"]) {
 			if ([arg bufferDataType] == MTLDataTypeStruct) {
@@ -137,21 +135,21 @@ kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_
 			break;
 		}
 	}
-	
+
 	return location;
 }
 
 kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_shader_t *shader, const char *name) {
 	kinc_compute_texture_unit_t unit;
 	unit.impl._index = -1;
-	
+
 	MTLComputePipelineReflection* reflection = shader->impl._reflection;
 	for (MTLArgument* arg in reflection.arguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
 			unit.impl._index = (int)[arg index];
 		}
 	}
-	
+
 	return unit;
 }
 
@@ -215,7 +213,7 @@ void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
 
 void kinc_compute(int x, int y, int z) {
 	[commandEncoder setBuffer:buffer offset:0 atIndex:0];
-	
+
 	MTLSize perGrid;
 	perGrid.width = x;
 	perGrid.height = y;
@@ -225,11 +223,11 @@ void kinc_compute(int x, int y, int z) {
 	perGroup.height = 16;
 	perGroup.depth = 1;
 	[commandEncoder dispatchThreadgroups:perGrid threadsPerThreadgroup:perGroup];
-	
+
 	[commandEncoder endEncoding];
 	[commandBuffer commit];
 	[commandBuffer waitUntilCompleted];
-	
+
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer computeCommandEncoder];
 }
