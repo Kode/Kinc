@@ -66,7 +66,7 @@ namespace {
 		kinc_internal_keyboard_trigger_key_up(KINC_KEY_META);
 		cmd = false;
 	}
-	
+
 	if ([theEvent modifierFlags] & NSShiftKeyMask) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_SHIFT);
 		shift = true;
@@ -466,7 +466,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 	@autoreleasepool {
 		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
 		drawable = [metalLayer nextDrawable];
-		
+
 		if (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height) {
 			MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 			descriptor.textureType = MTLTextureType2D;
@@ -534,21 +534,21 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		if (wait) {
 			[commandBuffer waitUntilCompleted];
 		}
-		
+
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		renderPassDescriptor.colorAttachments[0].texture = renderTarget == nullptr ? drawable.texture : renderTarget->impl._tex;
 		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
 		renderPassDescriptor.depthAttachment.clearDepth = 1;
-		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
 		renderPassDescriptor.depthAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->impl._depthTex;
 		renderPassDescriptor.stencilAttachment.clearStencil = 0;
 		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
 		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
 		renderPassDescriptor.stencilAttachment.texture = renderTarget == nullptr ? depthTexture : renderTarget->impl._depthTex;
-		
+
 		commandBuffer = [commandQueue commandBuffer];
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 	}
