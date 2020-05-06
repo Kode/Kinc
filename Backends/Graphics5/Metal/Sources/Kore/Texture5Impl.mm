@@ -19,12 +19,17 @@ namespace {
 			case KINC_IMAGE_FORMAT_GREY8:
 				return MTLPixelFormatR8Unorm;
 			case KINC_IMAGE_FORMAT_RGB24:
-			case KINC_IMAGE_FORMAT_RGBA128:
-			case KINC_IMAGE_FORMAT_RGBA64:
-			case KINC_IMAGE_FORMAT_A32:
-			case KINC_IMAGE_FORMAT_BGRA32:
-			case KINC_IMAGE_FORMAT_A16:
 				return MTLPixelFormatRGBA8Unorm;
+			case KINC_IMAGE_FORMAT_RGBA128:
+				return MTLPixelFormatRGBA32Float;
+			case KINC_IMAGE_FORMAT_RGBA64:
+				return MTLPixelFormatRGBA16Float;
+			case KINC_IMAGE_FORMAT_A32:
+				return MTLPixelFormatR32Float;
+			case KINC_IMAGE_FORMAT_BGRA32:
+				return MTLPixelFormatBGRA8Unorm;
+			case KINC_IMAGE_FORMAT_A16:
+				return MTLPixelFormatR16Float;
 		}
 	}
 }
@@ -164,13 +169,24 @@ void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
 }
 
 int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
-	if (texture->format == KINC_IMAGE_FORMAT_GREY8) {
-		return texture->texWidth;
-	}
-	else {
-		return texture->texWidth * 4;
+	switch (texture->format) {
+		case KINC_IMAGE_FORMAT_GREY8:
+			return texture->texWidth;
+		case KINC_IMAGE_FORMAT_RGBA32:
+		case KINC_IMAGE_FORMAT_BGRA32:
+		case KINC_IMAGE_FORMAT_RGB24:
+			return texture->texWidth * 4;
+		case KINC_IMAGE_FORMAT_RGBA64:
+			return texture->texWidth * 8;
+		case KINC_IMAGE_FORMAT_RGBA128:
+			return texture->texWidth * 16;
+		case KINC_IMAGE_FORMAT_A16:
+			return texture->texWidth * 2;
+		case KINC_IMAGE_FORMAT_A32:
+			return texture->texWidth * 4;
 	}
 }
+
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
 	return (uint8_t*)texture->impl.data;
 }
