@@ -44,7 +44,7 @@ struct kinc_g5_render_target;
 - (id<MTLDevice>)metalDevice;
 - (id<MTLLibrary>)metalLibrary;
 - (id<MTLRenderCommandEncoder>)metalEncoder;
-- (void)newRenderPass:(struct kinc_g5_render_target*)renderTarget wait: (bool)wait;
+- (void)newRenderPass:(struct kinc_g5_render_target**)renderTargets count: (int)count wait: (bool)wait;
 #endif
 
 @end

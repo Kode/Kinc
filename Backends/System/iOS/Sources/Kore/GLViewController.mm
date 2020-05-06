@@ -33,9 +33,9 @@ void endGL() {
 }
 
 #ifdef KORE_METAL
-void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait) {
+void newRenderPass(kinc_g5_render_target_t **renderTargets, int count, bool wait) {
 	if (visible) {
-		[glView newRenderPass: renderTarget wait: wait];
+		[glView newRenderPass: renderTargets count: count wait: wait];
 	}
 }
 #endif
