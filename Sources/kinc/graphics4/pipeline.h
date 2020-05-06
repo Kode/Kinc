@@ -2,6 +2,7 @@
 
 #include <kinc/graphics4/constantlocation.h>
 #include <kinc/graphics4/textureunit.h>
+#include <kinc/graphics4/rendertarget.h>
 
 #include <Kore/PipelineStateImpl.h>
 
@@ -86,6 +87,9 @@ typedef struct kinc_g4_pipeline {
 	bool color_write_mask_green[8];
 	bool color_write_mask_blue[8];
 	bool color_write_mask_alpha[8];
+
+	int color_attachment_count;
+	kinc_g4_render_target_format_t color_attachment[8];
 
 	bool conservative_rasterization;
 

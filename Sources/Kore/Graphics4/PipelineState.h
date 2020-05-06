@@ -15,7 +15,7 @@ namespace Kore {
 		public:
 			PipelineState();
 			~PipelineState();
-			
+
 			VertexStructure* inputLayout[16];
 			Shader* vertexShader;
 			Shader* fragmentShader;
@@ -48,6 +48,9 @@ namespace Kore {
 			bool colorWriteMaskGreen[8];
 			bool colorWriteMaskBlue[8];
 			bool colorWriteMaskAlpha[8];
+
+			int colorAttachmentCount;
+			RenderTargetFormat colorAttachment[8];
 
 			bool conservativeRasterization;
 

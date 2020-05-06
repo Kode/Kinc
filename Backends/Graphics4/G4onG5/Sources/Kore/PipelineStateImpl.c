@@ -43,11 +43,13 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipe) {
 	pipe->impl._pipeline.cullMode = (kinc_g5_cull_mode_t)pipe->cull_mode;
 	pipe->impl._pipeline.depthMode = (kinc_g5_compare_mode_t)pipe->depth_mode;
 	pipe->impl._pipeline.depthWrite = pipe->depth_write;
+	pipe->impl._pipeline.colorAttachmentCount = pipe->color_attachment_count;
 	for (int i = 0; i < 8; ++i) {
 		pipe->impl._pipeline.colorWriteMaskRed[i] = pipe->color_write_mask_red[i];
 		pipe->impl._pipeline.colorWriteMaskGreen[i] = pipe->color_write_mask_green[i];
 		pipe->impl._pipeline.colorWriteMaskBlue[i] = pipe->color_write_mask_blue[i];
 		pipe->impl._pipeline.colorWriteMaskAlpha[i] = pipe->color_write_mask_alpha[i];
+		pipe->impl._pipeline.colorAttachment[i] = pipe->color_attachment[i];
 	}
 	kinc_g5_pipeline_compile(&pipe->impl._pipeline);
 }

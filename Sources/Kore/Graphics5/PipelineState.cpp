@@ -37,6 +37,9 @@ Graphics5::PipelineState::PipelineState() {
 	for (int i = 0; i < 8; ++i) colorWriteMaskGreen[i] = true;
 	for (int i = 0; i < 8; ++i) colorWriteMaskBlue[i] = true;
 	for (int i = 0; i < 8; ++i) colorWriteMaskAlpha[i] = true;
+
+	colorAttachmentCount = 1;
+	for (int i = 0; i < 8; ++i) colorAttachment[i] = Target32Bit;
 }
 
 Graphics5::PipelineState::~PipelineState() {}

@@ -47,6 +47,9 @@ typedef struct kinc_g5_pipeline {
 	bool colorWriteMaskBlue[8];
 	bool colorWriteMaskAlpha[8];
 
+	int colorAttachmentCount;
+	kinc_g5_render_target_format_t colorAttachment[8];
+
 	bool conservativeRasterization;
 
 	PipelineState5Impl impl;

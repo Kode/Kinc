@@ -40,6 +40,9 @@ Graphics4::PipelineState::PipelineState() {
 	for (int i = 0; i < 8; ++i) colorWriteMaskBlue[i] = true;
 	for (int i = 0; i < 8; ++i) colorWriteMaskAlpha[i] = true;
 
+	colorAttachmentCount = 1;
+	for (int i = 0; i < 8; ++i) colorAttachment[i] = Target32Bit;
+
 	conservativeRasterization = false;
 }
 
@@ -87,11 +90,14 @@ void Graphics4::PipelineState::compile() {
 	kincPipeline.alpha_blend_source = (kinc_g4_blending_operation_t)alphaBlendSource;
 	kincPipeline.alpha_blend_destination = (kinc_g4_blending_operation_t)alphaBlendDestination;
 
+	kincPipeline.color_attachment_count = colorAttachmentCount;
+
 	for (int i = 0; i < 8; ++i) {
 		kincPipeline.color_write_mask_red[i] = colorWriteMaskRed[i];
 		kincPipeline.color_write_mask_green[i] = colorWriteMaskGreen[i];
 		kincPipeline.color_write_mask_blue[i] = colorWriteMaskBlue[i];
 		kincPipeline.color_write_mask_alpha[i] = colorWriteMaskAlpha[i];
+		kincPipeline.color_attachment[i] = (kinc_g4_render_target_format_t)colorAttachment[i];
 	}
 
 	kincPipeline.conservative_rasterization = conservativeRasterization;
