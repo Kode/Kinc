@@ -48,6 +48,9 @@ namespace Kore {
 			bool colorWriteMaskBlue[8];
 			bool colorWriteMaskAlpha[8];
 
+			int colorAttachmentCount;
+			RenderTargetFormat colorAttachment[8];
+
 			bool conservativeRasterization;
 
 			void compile();

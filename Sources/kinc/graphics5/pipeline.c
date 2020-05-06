@@ -34,4 +34,7 @@ void kinc_g5_internal_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	for (int i = 0; i < 8; ++i) pipe->colorWriteMaskGreen[i] = true;
 	for (int i = 0; i < 8; ++i) pipe->colorWriteMaskBlue[i] = true;
 	for (int i = 0; i < 8; ++i) pipe->colorWriteMaskAlpha[i] = true;
+
+	pipe->colorAttachmentCount = 1;
+	for (int i = 0; i < 8; ++i) pipe->colorAttachment[i] = KINC_G5_RENDER_TARGET_FORMAT_32BIT;
 }
