@@ -28,6 +28,7 @@ namespace Kore {
 		void init();
 		Channel* play(Sound* sound, bool loop = false, float pitch = 1.0f, bool unique = false);
 		void stop(Sound* sound);
+		void stop(Channel *channel);
 		void play(SoundStream* stream);
 		void stop(SoundStream* stream);
 		void play(VideoSoundStream* stream);

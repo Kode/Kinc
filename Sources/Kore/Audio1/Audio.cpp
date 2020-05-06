@@ -167,6 +167,13 @@ void Audio1::stop(Sound* sound) {
 	mutex.unlock();
 }
 
+void Audio1::stop(Channel* channel) {
+	mutex.lock();
+	channel->sound = nullptr;
+	channel->position = 0;
+	mutex.unlock();
+}
+
 void Audio1::play(SoundStream* stream) {
 	mutex.lock();
 
