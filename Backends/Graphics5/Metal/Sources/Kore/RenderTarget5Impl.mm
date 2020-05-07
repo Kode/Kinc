@@ -10,30 +10,48 @@
 id getMetalDevice();
 id getMetalEncoder();
 
+static MTLPixelFormat convert_format(kinc_g5_render_target_format_t format) {
+	switch (format) {
+	case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return MTLPixelFormatRGBA32Float;
+	case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return MTLPixelFormatRGBA16Float;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return MTLPixelFormatR32Float;
+	case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return MTLPixelFormatR16Float;
+	case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
+		return MTLPixelFormatR8Unorm;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
+	default:
+		return MTLPixelFormatBGRA8Unorm;
+	}
+}
+
 void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
 								kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
 	memset(target, 0, sizeof(kinc_g5_render_target_t));
-	
+
 	target->texWidth = width;
 	target->texHeight = height;
-	
+
 	target->contextId = contextId;
-		
+
 	id<MTLDevice> device = getMetalDevice();
-		
+
 	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 	descriptor.textureType = MTLTextureType2D;
 	descriptor.width = width;
 	descriptor.height = height;
 	descriptor.depth = 1;
-	descriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	descriptor.pixelFormat = convert_format(format);
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 	descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 	descriptor.resourceOptions = MTLResourceStorageModePrivate;
-	
+
 	target->impl._tex = [device newTextureWithDescriptor:descriptor];
-	
+
     target->impl._samplerDesc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
     MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) target->impl._samplerDesc;
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
@@ -46,7 +64,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	desc.lodMinClamp = 0.0f;
 	desc.lodMaxClamp = FLT_MAX;
 	target->impl._sampler = [device newSamplerStateWithDescriptor:desc];
-	
+
 	MTLTextureDescriptor* depthDescriptor = [MTLTextureDescriptor new];
 	depthDescriptor.textureType = MTLTextureType2D;
 	depthDescriptor.width = width;
@@ -57,7 +75,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	depthDescriptor.mipmapLevelCount = 1;
 	depthDescriptor.usage = MTLTextureUsageRenderTarget;
 	depthDescriptor.resourceOptions = MTLResourceStorageModePrivate;
-	
+
 	target->impl._depthTex = [device newTextureWithDescriptor:depthDescriptor];
 }
 
@@ -84,7 +102,7 @@ void kinc_g5_set_render_target_descriptor(kinc_g5_render_target_t *renderTarget,
         default:
             desc.minFilter = MTLSamplerMinMagFilterLinear;
     }
-    
+
     switch(descriptor.filter_magnification) {
         case KINC_G5_TEXTURE_FILTER_POINT:
             desc.magFilter = MTLSamplerMinMagFilterNearest;
@@ -92,7 +110,7 @@ void kinc_g5_set_render_target_descriptor(kinc_g5_render_target_t *renderTarget,
         default:
             desc.minFilter = MTLSamplerMinMagFilterLinear;
     }
-    
+
     switch(descriptor.addressing_u) {
         case KINC_G5_TEXTURE_ADDRESSING_REPEAT:
             desc.sAddressMode = MTLSamplerAddressModeRepeat;
@@ -107,7 +125,7 @@ void kinc_g5_set_render_target_descriptor(kinc_g5_render_target_t *renderTarget,
             desc.sAddressMode = MTLSamplerAddressModeClampToBorderColor;
             break;
     }
-    
+
     switch(descriptor.addressing_v) {
         case KINC_G5_TEXTURE_ADDRESSING_REPEAT:
             desc.tAddressMode = MTLSamplerAddressModeRepeat;

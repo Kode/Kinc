@@ -17,7 +17,7 @@ extern kinc_g5_index_buffer_t *currentIndexBuffer;
 
 id getMetalDevice();
 id getMetalEncoder();
-void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait);
+void newRenderPass(kinc_g5_render_target_t **renderTargets, int count, bool wait);
 void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline);
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
@@ -25,11 +25,11 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
 void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
 
 namespace {
-	kinc_g5_render_target_t *lastRenderTarget = nullptr;
+	kinc_g5_render_target_t *lastRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 }
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
-	lastRenderTarget = nullptr;
+	lastRenderTargets[0] = nullptr;
 }
 
 void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {}
@@ -90,12 +90,12 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	if (targets[0]->contextId < 0) {
-		lastRenderTarget = nullptr;
-		newRenderPass(nullptr, false);
+		lastRenderTargets[0] = nullptr;
+		newRenderPass(lastRenderTargets, 1, false);
 	}
 	else {
-		lastRenderTarget = targets[0];
-		newRenderPass(targets[0], false);
+		for (int i = 0; i < count; ++i) lastRenderTargets[i] = targets[i];
+		newRenderPass(targets, count, false);
 	}
 }
 
@@ -108,11 +108,11 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct ki
 void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {}
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
-	newRenderPass(lastRenderTarget, false);
+	newRenderPass(lastRenderTargets, 1, false);
 }
 
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
-	newRenderPass(lastRenderTarget, true);
+	newRenderPass(lastRenderTargets, 1, true);
 }
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}

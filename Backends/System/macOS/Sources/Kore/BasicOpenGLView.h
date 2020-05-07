@@ -46,7 +46,7 @@ struct kinc_g5_render_target;
 
 - (void)begin;
 - (void)end;
-- (void)newRenderPass:(struct kinc_g5_render_target*)renderTarget wait: (bool)wait;
+- (void)newRenderPass:(struct kinc_g5_render_target**)renderTargets count: (int)count wait: (bool)wait;
 #else
 - (void)prepareOpenGL;
 - (void)switchBuffers;

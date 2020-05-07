@@ -69,6 +69,24 @@ namespace {
 			return MTLCullModeNone;
 		}
 	}
+
+	MTLPixelFormat convert(kinc_g5_render_target_format_t format) {
+		switch (format) {
+		case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+			return MTLPixelFormatRGBA32Float;
+		case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+			return MTLPixelFormatRGBA16Float;
+		case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+			return MTLPixelFormatR32Float;
+		case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+			return MTLPixelFormatR16Float;
+		case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
+			return MTLPixelFormatR8Unorm;
+		case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
+		default:
+			return MTLPixelFormatBGRA8Unorm;
+		}
+	}
 }
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
@@ -94,15 +112,17 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
 	renderPipelineDesc.vertexFunction = pipeline->vertexShader->impl.mtlFunction;
 	renderPipelineDesc.fragmentFunction = pipeline->fragmentShader->impl.mtlFunction;
-	renderPipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-	renderPipelineDesc.colorAttachments[0].blendingEnabled = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE
-		|| pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO
-		|| pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE
-		|| pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
-	renderPipelineDesc.colorAttachments[0].sourceRGBBlendFactor = convert(pipeline->blendSource);
-	renderPipelineDesc.colorAttachments[0].sourceAlphaBlendFactor = convert(pipeline->alphaBlendSource);
-	renderPipelineDesc.colorAttachments[0].destinationRGBBlendFactor = convert(pipeline->blendDestination);
-	renderPipelineDesc.colorAttachments[0].destinationAlphaBlendFactor = convert(pipeline->alphaBlendDestination);
+	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
+		renderPipelineDesc.colorAttachments[i].pixelFormat = convert(pipeline->colorAttachment[i]);
+		renderPipelineDesc.colorAttachments[i].blendingEnabled = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE
+			|| pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO
+			|| pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE
+			|| pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+		renderPipelineDesc.colorAttachments[i].sourceRGBBlendFactor = convert(pipeline->blendSource);
+		renderPipelineDesc.colorAttachments[i].sourceAlphaBlendFactor = convert(pipeline->alphaBlendSource);
+		renderPipelineDesc.colorAttachments[i].destinationRGBBlendFactor = convert(pipeline->blendDestination);
+		renderPipelineDesc.colorAttachments[i].destinationAlphaBlendFactor = convert(pipeline->alphaBlendDestination);
+	}
 	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 

@@ -93,9 +93,9 @@ void endGL() {
   }
 }
 
-void newRenderPass(kinc_g5_render_target_t *renderTarget, bool wait) {
+void newRenderPass(kinc_g5_render_target_t **renderTargets, int count, bool wait) {
   if (window.visible) {
-    [view newRenderPass: renderTarget wait: wait];
+    [view newRenderPass: renderTargets count: count wait: wait];
   }
 }
 
@@ -108,7 +108,7 @@ bool kinc_internal_handle_messages() {
 		[myapp sendEvent:event];
 		[myapp updateWindows];
 	}
-  
+
   // Sleep for a frame to limit the calls when the window is not visible.
   if (!window.visible) {
     [NSThread sleepForTimeInterval: 1.0 / 60];
@@ -144,19 +144,19 @@ int createWindow(kinc_window_options_t *options) {
 	[window setAcceptsMouseMovedEvents:YES];
 	[[window contentView] addSubview:view];
 	[window center];
-	
+
 	windows[windowCounter].handle = window;
 	windows[windowCounter].view = view;
 	::window = window;
 	::view = view;
 
 	[window makeKeyAndOrderFront:nil];
-	
+
 	if (options->mode == KINC_WINDOW_MODE_FULLSCREEN || options->mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 		[window toggleFullScreen:nil];
 		windows[windowCounter].fullscreen = true;
 	}
-  
+
 	return windowCounter++;
 }
 
@@ -180,7 +180,7 @@ void kinc_window_change_window_mode(int window_index, kinc_window_mode_t mode) {
 			}
 			break;
 	}
-	
+
 }
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
@@ -190,7 +190,7 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 		kinc_internal_init_window_options(&defaultWindowOptions);
 		win = &defaultWindowOptions;
 	}
-	
+
 	kinc_framebuffer_options_t defaultFramebufferOptions;
 	if (frame == NULL) {
 		kinc_internal_init_framebuffer_options(&defaultFramebufferOptions);
@@ -202,7 +202,7 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 	if (win->title == NULL) {
 		win->title = name;
 	}
-	
+
 	int windowId = createWindow(win);
 	kinc_g4_init(windowId, frame->depth_bits, frame->stencil_bits, true);
 	return 0;
@@ -236,7 +236,7 @@ const char* kinc_language() {
 }
 
 void kinc_internal_shutdown() {
-	
+
 }
 
 namespace {
@@ -298,7 +298,7 @@ void addMenubar() {
 		[self finishLaunching];
 		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
 		NSApp.activationPolicy = NSApplicationActivationPolicyRegular;
-		
+
 		hidManager = new Kore::HIDManager();
 		addMenubar();
 
