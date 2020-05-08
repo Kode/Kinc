@@ -3,6 +3,7 @@
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/shader.h>
 #include <kinc/math/core.h>
+#include <kinc/log.h>
 
 #include <Metal/Metal.h>
 
@@ -42,7 +43,11 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, 
 	}
 	else {
 		id<MTLDevice> device = getMetalDevice();
-		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
+		NSError *error = nil;
+		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:&error];
+		if (library == nil) {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "%s", error.localizedDescription.UTF8String);
+		}
 	}
 	shader->impl.mtlFunction = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
 	assert(shader->impl.mtlFunction);
