@@ -229,6 +229,28 @@ namespace {
 		}
 	}
 
+	DXGI_FORMAT convert_format(kinc_g5_render_target_format_t format) {
+		switch (format) {
+		case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+			return DXGI_FORMAT_R32_FLOAT;
+		case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+			return DXGI_FORMAT_R16_FLOAT;
+		case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
+			return DXGI_FORMAT_R8_UNORM;
+		case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
+		default:
+#ifdef KORE_WINDOWS
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+#else
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
+#endif
+		}
+	}
+
 	void set_blend_state(D3D12_BLEND_DESC *blend_desc, kinc_g5_pipeline_t *pipe, int target) {
 		blend_desc->RenderTarget[target].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
 		                                               pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE ||
@@ -303,12 +325,10 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 #else
 	psoDesc.pRootSignature = globalRootSignature;
 #endif
-	psoDesc.NumRenderTargets = 1;
-#ifdef KORE_WINDOWS
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-#else
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_B8G8R8A8_UNORM;
-#endif
+	psoDesc.NumRenderTargets = pipe->colorAttachmentCount;
+	for (int i = 0; i < pipe->colorAttachmentCount; ++i) {
+		psoDesc.RTVFormats[i] = convert_format(pipe->colorAttachment[i]);
+	}
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 
 	psoDesc.InputLayout.NumElements = pipe->inputLayout[0]->size;
