@@ -122,6 +122,10 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		renderPipelineDesc.colorAttachments[i].sourceAlphaBlendFactor = convert(pipeline->alphaBlendSource);
 		renderPipelineDesc.colorAttachments[i].destinationRGBBlendFactor = convert(pipeline->blendDestination);
 		renderPipelineDesc.colorAttachments[i].destinationAlphaBlendFactor = convert(pipeline->alphaBlendDestination);
+		renderPipelineDesc.colorAttachments[i].writeMask = (pipeline->colorWriteMaskRed[i] ? MTLColorWriteMaskRed : 0)
+			| (pipeline->colorWriteMaskGreen[i] ? MTLColorWriteMaskGreen : 0)
+			| (pipeline->colorWriteMaskBlue[i] ? MTLColorWriteMaskBlue : 0)
+			| (pipeline->colorWriteMaskAlpha[i] ? MTLColorWriteMaskAlpha : 0);
 	}
 	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
