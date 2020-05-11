@@ -73,7 +73,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	depthDescriptor.pixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 	depthDescriptor.arrayLength = 1;
 	depthDescriptor.mipmapLevelCount = 1;
-	depthDescriptor.usage = MTLTextureUsageRenderTarget;
+	depthDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 	depthDescriptor.resourceOptions = MTLResourceStorageModePrivate;
 
 	target->impl._depthTex = [device newTextureWithDescriptor:depthDescriptor];
@@ -151,6 +151,12 @@ void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target,
 	[encoder setFragmentTexture:target->impl._tex atIndex:unit.impl.index];
 }
 
-void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {}
+void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	[encoder setFragmentSamplerState:target->impl._sampler atIndex:unit.impl.index];
+	[encoder setFragmentTexture:target->impl._depthTex atIndex:unit.impl.index];
+}
 
-void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source) {}
+void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source) {
+	target->impl._depthTex = source->impl._depthTex;
+}
