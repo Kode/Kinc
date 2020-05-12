@@ -243,11 +243,23 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name) {
 	kinc_g5_texture_unit_t unit;
 	unit.impl.index = -1;
+	unit.impl.vertex = false;
 
 	MTLRenderPipelineReflection* reflection = pipeline->impl._reflection;
 	for (MTLArgument* arg in reflection.fragmentArguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
 			unit.impl.index = (int)[arg index];
+			break;
+		}
+	}
+
+	if (unit.impl.index == -1) {
+		for (MTLArgument* arg in reflection.vertexArguments) {
+			if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
+				unit.impl.index = (int)[arg index];
+				unit.impl.vertex = true;
+				break;
+			}
 		}
 	}
 
