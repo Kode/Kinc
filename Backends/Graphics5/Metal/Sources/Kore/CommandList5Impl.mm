@@ -6,6 +6,7 @@
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/vertexbuffer.h>
+#include <kinc/window.h>
 
 #import <Metal/Metal.h>
 
@@ -62,19 +63,40 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_lis
 }
 
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
-	// TODO
-	// id <MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	// MTLViewport viewport;
-	// viewport.originX=x;
-	// viewport.originY=y;
-	// viewport.width=width;
-	// viewport.height=height;
-	// encoder.setViewport(viewport);
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	MTLViewport viewport;
+	viewport.originX = x;
+	viewport.originY = y;
+	viewport.width = width;
+	viewport.height = height;
+	[encoder setViewport:viewport];
 }
 
-void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {}
+void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	MTLScissorRect scissor;
+	scissor.x = x;
+	scissor.y = y;
+	scissor.width = width;
+	scissor.height = height;
+	[encoder setScissorRect:scissor];
+}
 
-void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {}
+void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	MTLScissorRect scissor;
+	scissor.x = 0;
+	scissor.y = 0;
+	if (lastRenderTargets[0] != nullptr) {
+		scissor.width = lastRenderTargets[0]->width;
+		scissor.height = lastRenderTargets[0]->height;
+	}
+	else {
+		scissor.width = kinc_window_width(0);
+		scissor.height = kinc_window_height(0);
+	}
+	[encoder setScissorRect:scissor];
+}
 
 void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc_g5_pipeline *pipeline) {
 	kinc_g5_internal_pipeline_set(pipeline);
