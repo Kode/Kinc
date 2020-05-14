@@ -467,6 +467,10 @@ namespace {
 	return library;
 }
 
+- (id<MTLCommandQueue>)metalQueue {
+	return commandQueue;
+}
+
 - (id<MTLRenderCommandEncoder>)metalEncoder {
 	return commandEncoder;
 }

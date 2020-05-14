@@ -64,6 +64,14 @@ id getMetalLibrary() {
 #endif
 }
 
+id getMetalQueue() {
+#ifdef KORE_METAL
+	return [glView metalQueue];
+#else
+	return nil;
+#endif
+}
+
 id getMetalEncoder() {
 #ifdef KORE_METAL
 	return [glView metalEncoder];
