@@ -42,6 +42,7 @@ struct kinc_g5_render_target;
 #ifdef KORE_METAL
 - (id<MTLDevice>)metalDevice;
 - (id<MTLLibrary>)metalLibrary;
+- (id<MTLCommandQueue>)metalQueue;
 - (id<MTLRenderCommandEncoder>)metalEncoder;
 
 - (void)begin;

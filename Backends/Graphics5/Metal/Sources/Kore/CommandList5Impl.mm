@@ -17,6 +17,7 @@
 extern kinc_g5_index_buffer_t *currentIndexBuffer;
 
 id getMetalDevice();
+id getMetalQueue();
 id getMetalEncoder();
 void newRenderPass(kinc_g5_render_target_t **renderTargets, int count, bool wait);
 void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline);
@@ -27,6 +28,21 @@ void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
 
 namespace {
 	kinc_g5_render_target_t *lastRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+
+	int formatSize(MTLPixelFormat format) {
+		switch (format) {
+		case MTLPixelFormatRGBA32Float:
+			return 16;
+		case MTLPixelFormatRGBA16Float:
+			return 8;
+		case MTLPixelFormatR16Float:
+			return 2;
+		case MTLPixelFormatR8Unorm:
+			return 1;
+		default:
+			return 4;
+		}
+	}
 }
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
@@ -127,7 +143,45 @@ void kinc_g5_command_list_upload_vertex_buffer(kinc_g5_command_list_t *list, str
 
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct kinc_g5_texture *texture) {}
 
-void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {}
+void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {
+	// Create readback buffer
+	if (render_target->impl._texReadback == nullptr) {
+		id<MTLDevice> device = getMetalDevice();
+		MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
+		descriptor.textureType = MTLTextureType2D;
+		descriptor.width = render_target->texWidth;
+		descriptor.height = render_target->texHeight;
+		descriptor.depth = 1;
+		descriptor.pixelFormat = [render_target->impl._tex pixelFormat];
+		descriptor.arrayLength = 1;
+		descriptor.mipmapLevelCount = 1;
+		descriptor.usage = MTLTextureUsageUnknown;
+#ifdef KORE_IOS
+		descriptor.resourceOptions = MTLResourceStorageModeShared;
+#else
+		descriptor.resourceOptions = MTLResourceStorageModeManaged;
+#endif
+		render_target->impl._texReadback = [device newTextureWithDescriptor:descriptor];
+	}
+
+	// Copy render target to readback buffer
+	id<MTLCommandQueue> commandQueue = getMetalQueue();
+	id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+	id<MTLBlitCommandEncoder> commandEncoder = [commandBuffer blitCommandEncoder];
+	[commandEncoder copyFromTexture:render_target->impl._tex sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0, 0, 0) sourceSize:MTLSizeMake(render_target->texWidth, render_target->texHeight, 1) toTexture:render_target->impl._texReadback destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0, 0, 0)];
+#ifndef KORE_IOS
+	[commandEncoder synchronizeResource:render_target->impl._texReadback];
+#endif
+	[commandEncoder endEncoding];
+	[commandBuffer commit];
+	[commandBuffer waitUntilCompleted];
+
+	// Read buffer
+	id<MTLTexture> tex = render_target->impl._texReadback;
+	int formatByteSize = formatSize([render_target->impl._tex pixelFormat]);
+	MTLRegion region = MTLRegionMake2D(0, 0, render_target->texWidth, render_target->texHeight);
+	[tex getBytes:data bytesPerRow:formatByteSize * render_target->texWidth fromRegion:region mipmapLevel:0];
+}
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	newRenderPass(lastRenderTargets, 1, false);

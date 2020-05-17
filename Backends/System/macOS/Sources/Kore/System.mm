@@ -77,6 +77,10 @@ id getMetalLibrary() {
 	return [view metalLibrary];
 }
 
+id getMetalQueue() {
+	return [view metalQueue];
+}
+
 id getMetalEncoder() {
 	return [view metalEncoder];
 }

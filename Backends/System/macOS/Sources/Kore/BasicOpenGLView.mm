@@ -458,6 +458,10 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 	return library;
 }
 
+- (id<MTLCommandQueue>)metalQueue {
+	return commandQueue;
+}
+
 - (id<MTLRenderCommandEncoder>)metalEncoder {
 	return commandEncoder;
 }

@@ -4,7 +4,8 @@
 
 typedef struct {
 	id _tex;
+	id _texReadback;
 	id _sampler;
-    id _samplerDesc;
+	id _samplerDesc;
 	id _depthTex;
 } RenderTarget5Impl;
