@@ -46,7 +46,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	scDesc.format = WGPUTextureFormat_BGRA8Unorm;
 	scDesc.width = kinc_width();
 	scDesc.height = kinc_height();
-	scDesc.presentMode = WGPUPresentMode_VSync;
+	scDesc.presentMode = WGPUPresentMode_Fifo;
 	swapChain = wgpuDeviceCreateSwapChain(device, surface, &scDesc);
 }
 
