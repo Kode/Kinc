@@ -47,7 +47,7 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
                                 int stencil) {
-	
+
 }
 
 void kinc_g5_command_list_render_target_to_framebuffer_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
@@ -60,15 +60,15 @@ void kinc_g5_command_list_draw_indexed_vertices(kinc_g5_command_list_t *list) {
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *list, int start, int count) {
-	
+
 }
 
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
-	
+
 }
 
 void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
-	
+
 }
 
 void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {}
@@ -80,16 +80,18 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count) {
-	wgpuRenderPassEncoderSetVertexBuffer(list->impl.pass, 0, buffers[0]->impl.buffer, 0);
+	uint64_t size = (kinc_g5_vertex_buffer_count(buffers[0]) - offsets[0]) * kinc_g5_vertex_buffer_stride(buffers[0]);
+	wgpuRenderPassEncoderSetVertexBuffer(list->impl.pass, 0, buffers[0]->impl.buffer, 0, size);
 }
 
 void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer) {
 	list->impl.indexCount = kinc_g5_index_buffer_count(buffer);
-	wgpuRenderPassEncoderSetIndexBuffer(list->impl.pass, buffer->impl.buffer, 0);
+	uint64_t size = kinc_g5_index_buffer_count(buffer) * sizeof(int);
+	wgpuRenderPassEncoderSetIndexBuffer(list->impl.pass, buffer->impl.buffer, 0, size);
 }
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
-	
+
 }
 
 void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer) {}
@@ -98,17 +100,17 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct ki
 void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {}
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
-	
+
 }
 
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
-	
+
 }
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
-	
+
 }
 
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
-	
+
 }

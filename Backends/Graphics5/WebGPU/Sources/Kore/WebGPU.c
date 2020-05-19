@@ -3,7 +3,7 @@
 #include <string.h>
 #include <emscripten.h>
 #include <emscripten/html5.h>
-#include <webgpu.h>
+#include <webgpu/webgpu.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/math/core.h>
@@ -28,7 +28,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	newRenderTargetHeight = renderTargetHeight = kinc_height();
 
 	device = emscripten_webgpu_get_device();
-	queue = wgpuDeviceCreateQueue(device);
+	queue = wgpuDeviceGetDefaultQueue(device);
 
 	WGPUSurfaceDescriptorFromHTMLCanvasId canvasDesc;
 	memset(&canvasDesc, 0, sizeof(canvasDesc));
@@ -46,7 +46,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	scDesc.format = WGPUTextureFormat_BGRA8Unorm;
 	scDesc.width = kinc_width();
 	scDesc.height = kinc_height();
-	scDesc.presentMode = WGPUPresentMode_VSync;
+	scDesc.presentMode = WGPUPresentMode_Fifo;
 	swapChain = wgpuDeviceCreateSwapChain(device, surface, &scDesc);
 }
 
@@ -86,7 +86,7 @@ bool kinc_g5_non_pow2_textures_qupported() {
 void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
 
 void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	
+
 }
 
 void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
