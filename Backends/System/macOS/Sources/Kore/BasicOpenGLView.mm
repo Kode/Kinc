@@ -541,7 +541,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 
 		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 		for (int i = 0; i < count; ++i) {
-			renderPassDescriptor.colorAttachments[i].texture = renderTargets[0] == nullptr ? drawable.texture : renderTargets[i]->impl._tex;
+			renderPassDescriptor.colorAttachments[i].texture = renderTargets == nullptr ? drawable.texture : renderTargets[i]->impl._tex;
 			renderPassDescriptor.colorAttachments[i].loadAction = MTLLoadActionLoad;
 			renderPassDescriptor.colorAttachments[i].storeAction = MTLStoreActionStore;
 			renderPassDescriptor.colorAttachments[i].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
@@ -549,11 +549,11 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 		renderPassDescriptor.depthAttachment.clearDepth = 1;
 		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-		renderPassDescriptor.depthAttachment.texture = renderTargets[0] == nullptr ? depthTexture : renderTargets[0]->impl._depthTex;
+		renderPassDescriptor.depthAttachment.texture = renderTargets == nullptr ? depthTexture : renderTargets[0]->impl._depthTex;
 		renderPassDescriptor.stencilAttachment.clearStencil = 0;
 		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
 		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
-		renderPassDescriptor.stencilAttachment.texture = renderTargets[0] == nullptr ? depthTexture : renderTargets[0]->impl._depthTex;
+		renderPassDescriptor.stencilAttachment.texture = renderTargets == nullptr ? depthTexture : renderTargets[0]->impl._depthTex;
 
 		commandBuffer = [commandQueue commandBuffer];
 		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
