@@ -28,6 +28,7 @@ void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
 
 namespace {
 	kinc_g5_render_target_t *lastRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	kinc_g5_pipeline_t *lastPipeline = nullptr;
 
 	int formatSize(MTLPixelFormat format) {
 		switch (format) {
@@ -116,6 +117,7 @@ void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
 
 void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc_g5_pipeline *pipeline) {
 	kinc_g5_internal_pipeline_set(pipeline);
+	lastPipeline = pipeline;
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count) {
@@ -128,11 +130,11 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	if (targets[0]->contextId < 0) {
-		lastRenderTargets[0] = nullptr;
-		newRenderPass(lastRenderTargets, 1, false);
+		newRenderPass(nullptr, 1, false);
 	}
 	else {
 		for (int i = 0; i < count; ++i) lastRenderTargets[i] = targets[i];
+		for (int i = count; i < 8; ++i) lastRenderTargets[i] = nullptr;
 		newRenderPass(targets, count, false);
 	}
 }
@@ -184,11 +186,27 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 }
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
-	newRenderPass(lastRenderTargets, 1, false);
+	if (lastRenderTargets[0] == nullptr) {
+		newRenderPass(nullptr, 1, false);
+	}
+	else {
+		int count = 1;
+		while (lastRenderTargets[count] != nullptr) count++;
+		newRenderPass(lastRenderTargets, count, false);
+	}
+	if (lastPipeline != nullptr) kinc_g5_internal_pipeline_set(lastPipeline);
 }
 
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
-	newRenderPass(lastRenderTargets, 1, true);
+	if (lastRenderTargets[0] == nullptr) {
+		newRenderPass(nullptr, 1, true);
+	}
+	else {
+		int count = 1;
+		while (lastRenderTargets[count] != nullptr) count++;
+		newRenderPass(lastRenderTargets, count, true);
+	}
+	if (lastPipeline != nullptr) kinc_g5_internal_pipeline_set(lastPipeline);
 }
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
