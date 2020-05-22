@@ -356,6 +356,18 @@ namespace {
 	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
+- (void)otherMouseDown:(NSEvent*)theEvent {
+	kinc_internal_mouse_trigger_press(0, 2, getMouseX(theEvent), getMouseY(theEvent));
+}
+
+- (void)otherMouseUp:(NSEvent*)theEvent {
+	kinc_internal_mouse_trigger_release(0, 2, getMouseX(theEvent), getMouseY(theEvent));
+}
+
+- (void)otherMouseDragged:(NSEvent*)theEvent {
+	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
+}
+
 - (void)scrollWheel:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	int delta = [theEvent deltaY];
