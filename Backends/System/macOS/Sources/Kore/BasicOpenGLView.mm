@@ -87,7 +87,7 @@ namespace {
 
 - (void)keyDown:(NSEvent*)theEvent {
 	if ([theEvent isARepeat]) return;
-	NSString* characters = [theEvent characters];
+	NSString* characters = [theEvent charactersIgnoringModifiers];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
 		switch (ch) { // keys that exist in keydown and keypress events
@@ -197,7 +197,7 @@ namespace {
 }
 
 - (void)keyUp:(NSEvent*)theEvent {
-	NSString* characters = [theEvent characters];
+	NSString* characters = [theEvent charactersIgnoringModifiers];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
 		switch (ch) {
@@ -353,6 +353,18 @@ namespace {
 
 - (void)rightMouseDragged:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
+	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
+}
+
+- (void)otherMouseDown:(NSEvent*)theEvent {
+	kinc_internal_mouse_trigger_press(0, 2, getMouseX(theEvent), getMouseY(theEvent));
+}
+
+- (void)otherMouseUp:(NSEvent*)theEvent {
+	kinc_internal_mouse_trigger_release(0, 2, getMouseX(theEvent), getMouseY(theEvent));
+}
+
+- (void)otherMouseDragged:(NSEvent*)theEvent {
 	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
