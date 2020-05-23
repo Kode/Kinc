@@ -6,7 +6,6 @@
 
 #include <kinc/graphics4/graphics.h>
 #include <Kore/Input/HIDManager.h>
-#include <Kore/System.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
@@ -338,19 +337,19 @@ void addMenubar() {
 }
 
 - (void)windowWillMiniaturize:(NSNotification *)notification {
-  Kore::System::_backgroundCallback();
+	kinc_internal_background_callback();
 }
 
 - (void)windowDidDeminiaturize:(NSNotification *)notification {
-  Kore::System::_foregroundCallback();
+	kinc_internal_foreground_callback();
 }
 
 - (void)windowDidResignMain:(NSNotification *)notification {
-  Kore::System::_pauseCallback();
+	kinc_internal_pause_callback();
 }
 
 - (void)windowDidBecomeMain:(NSNotification *)notification {
-  Kore::System::_resumeCallback();
+	kinc_internal_resume_callback();
 }
 
 @end
