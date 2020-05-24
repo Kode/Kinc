@@ -4,8 +4,7 @@
 #import "GLViewController.h"
 #import "KoreAppDelegate.h"
 
-#include <Kore/Math/Core.h>
-#include <Kore/System.h>
+#include <kinc/system.h>
 #include <wchar.h>
 
 @implementation KoreAppDelegate
@@ -104,27 +103,27 @@ sharedApplication].statusBarOrientation);
 */
 - (void)applicationWillEnterForeground:(UIApplication*)application {
 	[glViewController setVisible:YES];
-	Kore::System::_foregroundCallback();
+	kinc_internal_foreground_callback();
 }
 
 - (void)applicationDidBecomeActive:(UIApplication*)application {
-	Kore::System::_resumeCallback();
+	kinc_internal_resume_callback();
 	//[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didRotate:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)applicationWillResignActive:(UIApplication*)application {
-	Kore::System::_pauseCallback();
+	kinc_internal_pause_callback();
 	//[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application {
 	[glViewController setVisible:NO];
-	Kore::System::_backgroundCallback();
+	kinc_internal_background_callback();
 }
 
 - (void)applicationWillTerminate:(UIApplication*)application {
-	Kore::System::_shutdownCallback();
+	kinc_internal_shutdown_callback();
 }
 
 //- (void)dealloc {
