@@ -51,6 +51,9 @@ namespace Kore {
 			int colorAttachmentCount;
 			RenderTargetFormat colorAttachment[8];
 
+			int depthAttachmentBits;
+			int stencilAttachmentBits;
+
 			bool conservativeRasterization;
 
 			void compile();

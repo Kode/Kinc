@@ -38,5 +38,8 @@ void kinc_g4_internal_pipeline_set_defaults(kinc_g4_pipeline_t *state) {
 	state->color_attachment_count = 1;
 	for (int i = 0; i < 8; ++i) state->color_attachment[i] = KINC_G4_RENDER_TARGET_FORMAT_32BIT;
 
+	state->depth_attachment_bits = 0;
+	state->stencil_attachment_bits = 0;
+
 	state->conservative_rasterization = false;
 }

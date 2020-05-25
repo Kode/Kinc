@@ -51,5 +51,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipe) {
 		pipe->impl._pipeline.colorWriteMaskAlpha[i] = pipe->color_write_mask_alpha[i];
 		pipe->impl._pipeline.colorAttachment[i] = pipe->color_attachment[i];
 	}
+	pipe->impl._pipeline.depthAttachmentBits = pipe->depth_attachment_bits;
+	pipe->impl._pipeline.stencilAttachmentBits = pipe->stencil_attachment_bits;
 	kinc_g5_pipeline_compile(&pipe->impl._pipeline);
 }

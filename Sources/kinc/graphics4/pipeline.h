@@ -91,6 +91,9 @@ typedef struct kinc_g4_pipeline {
 	int color_attachment_count;
 	kinc_g4_render_target_format_t color_attachment[8];
 
+	int depth_attachment_bits;
+	int stencil_attachment_bits;
+
 	bool conservative_rasterization;
 
 	kinc_g4_pipeline_impl_t impl;

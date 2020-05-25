@@ -42,6 +42,8 @@ Graphics4::PipelineState::PipelineState() {
 
 	colorAttachmentCount = 1;
 	for (int i = 0; i < 8; ++i) colorAttachment[i] = Target32Bit;
+	depthAttachmentBits = 0;
+	stencilAttachmentBits = 0;
 
 	conservativeRasterization = false;
 }
@@ -99,6 +101,9 @@ void Graphics4::PipelineState::compile() {
 		kincPipeline.color_write_mask_alpha[i] = colorWriteMaskAlpha[i];
 		kincPipeline.color_attachment[i] = (kinc_g4_render_target_format_t)colorAttachment[i];
 	}
+
+	kincPipeline.depth_attachment_bits = depthAttachmentBits;
+	kincPipeline.stencil_attachment_bits = stencilAttachmentBits;
 
 	kincPipeline.conservative_rasterization = conservativeRasterization;
 

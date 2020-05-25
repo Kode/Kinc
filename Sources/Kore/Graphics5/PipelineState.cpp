@@ -40,6 +40,9 @@ Graphics5::PipelineState::PipelineState() {
 
 	colorAttachmentCount = 1;
 	for (int i = 0; i < 8; ++i) colorAttachment[i] = Target32Bit;
+
+	depthAttachmentBits = 0;
+	stencilAttachmentBits = 0;
 }
 
 Graphics5::PipelineState::~PipelineState() {}
