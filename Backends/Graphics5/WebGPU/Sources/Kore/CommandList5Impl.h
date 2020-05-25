@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include <webgpu.h>
+#include <webgpu/webgpu.h>
 
 #ifdef __cplusplus
 extern "C" {

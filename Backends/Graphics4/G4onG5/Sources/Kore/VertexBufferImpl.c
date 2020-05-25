@@ -5,13 +5,12 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/vertexbuffer.h>
 
-#define multiple 500
-
 extern uint64_t frameNumber;
 extern bool waitAfterNextDraw;
 
 void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
                                 int instanceDataStepRate) {
+	int multiple = usage == KINC_G4_USAGE_STATIC ? 1 : 500;
 	kinc_g5_vertex_buffer_init(&buffer->impl._buffer, count * multiple, structure, usage == KINC_G4_USAGE_STATIC, instanceDataStepRate);
 	buffer->impl._multiple = multiple;
 	buffer->impl._lastFrameNumber = 0;

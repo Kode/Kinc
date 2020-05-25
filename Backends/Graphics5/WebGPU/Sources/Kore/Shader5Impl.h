@@ -1,6 +1,6 @@
 #pragma once
 
-#include <webgpu.h>
+#include <webgpu/webgpu.h>
 
 #ifdef __cplusplus
 extern "C" {
