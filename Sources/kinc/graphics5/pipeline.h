@@ -50,6 +50,9 @@ typedef struct kinc_g5_pipeline {
 	int colorAttachmentCount;
 	kinc_g5_render_target_format_t colorAttachment[8];
 
+	int depthAttachmentBits;
+	int stencilAttachmentBits;
+
 	bool conservativeRasterization;
 
 	PipelineState5Impl impl;
