@@ -130,6 +130,7 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	if (targets[0]->contextId < 0) {
+		for (int i = 0; i < 8; ++i) lastRenderTargets[i] = nullptr;
 		newRenderPass(nullptr, 1, false);
 	}
 	else {
