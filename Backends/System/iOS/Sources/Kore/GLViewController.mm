@@ -32,14 +32,6 @@ void endGL() {
 	[glView end];
 }
 
-#ifdef KORE_METAL
-void newRenderPass(kinc_g5_render_target_t **renderTargets, int count, bool wait) {
-	if (visible) {
-		[glView newRenderPass: renderTargets count: count wait: wait];
-	}
-}
-#endif
-
 void showKeyboard() {
 	[glView showKeyboard];
 }
@@ -48,37 +40,25 @@ void hideKeyboard() {
 	[glView hideKeyboard];
 }
 
-id getMetalDevice() {
 #ifdef KORE_METAL
+
+CAMetalLayer* getMetalLayer() {
+	return [glView metalLayer];
+}
+
+id getMetalDevice() {
 	return [glView metalDevice];
-#else
-	return nil;
-#endif
 }
 
 id getMetalLibrary() {
-#ifdef KORE_METAL
 	return [glView metalLibrary];
-#else
-	return nil;
-#endif
 }
 
 id getMetalQueue() {
-#ifdef KORE_METAL
 	return [glView metalQueue];
-#else
-	return nil;
-#endif
 }
 
-id getMetalEncoder() {
-#ifdef KORE_METAL
-	return [glView metalEncoder];
-#else
-	return nil;
 #endif
-}
 
 @implementation GLViewController
 

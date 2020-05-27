@@ -19,12 +19,7 @@ struct kinc_g5_render_target;
 @private
 	id<MTLDevice> device;
 	id<MTLCommandQueue> commandQueue;
-	id<MTLCommandBuffer> commandBuffer;
-	id<MTLRenderCommandEncoder> commandEncoder;
-	id<CAMetalDrawable> drawable;
 	id<MTLLibrary> library;
-	MTLRenderPassDescriptor* renderPassDescriptor;
-	id<MTLTexture> depthTexture;
 }
 
 #else
@@ -40,14 +35,10 @@ struct kinc_g5_render_target;
 #endif
 
 #ifdef KORE_METAL
+- (CAMetalLayer*)metalLayer;
 - (id<MTLDevice>)metalDevice;
 - (id<MTLLibrary>)metalLibrary;
 - (id<MTLCommandQueue>)metalQueue;
-- (id<MTLRenderCommandEncoder>)metalEncoder;
-
-- (void)begin;
-- (void)end;
-- (void)newRenderPass:(struct kinc_g5_render_target**)renderTargets count: (int)count wait: (bool)wait;
 #else
 - (void)prepareOpenGL;
 - (void)switchBuffers;

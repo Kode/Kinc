@@ -9,6 +9,7 @@
 #include <kinc/window.h>
 
 #import <Metal/Metal.h>
+#import <MetalKit/MTKView.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +20,7 @@ extern kinc_g5_index_buffer_t *currentIndexBuffer;
 id getMetalDevice();
 id getMetalQueue();
 id getMetalEncoder();
-void newRenderPass(kinc_g5_render_target_t **renderTargets, int count, bool wait);
+void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, int count, bool wait);
 void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline);
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
@@ -131,12 +132,12 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	if (targets[0]->contextId < 0) {
 		for (int i = 0; i < 8; ++i) lastRenderTargets[i] = nullptr;
-		newRenderPass(nullptr, 1, false);
+		kinc_g5_internal_new_render_pass(nullptr, 1, false);
 	}
 	else {
 		for (int i = 0; i < count; ++i) lastRenderTargets[i] = targets[i];
 		for (int i = count; i < 8; ++i) lastRenderTargets[i] = nullptr;
-		newRenderPass(targets, count, false);
+		kinc_g5_internal_new_render_pass(targets, count, false);
 	}
 }
 
@@ -155,7 +156,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		descriptor.width = render_target->texWidth;
 		descriptor.height = render_target->texHeight;
 		descriptor.depth = 1;
-		descriptor.pixelFormat = [render_target->impl._tex pixelFormat];
+		descriptor.pixelFormat = [(id<MTLTexture>)render_target->impl._tex pixelFormat];
 		descriptor.arrayLength = 1;
 		descriptor.mipmapLevelCount = 1;
 		descriptor.usage = MTLTextureUsageUnknown;
@@ -181,31 +182,31 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 
 	// Read buffer
 	id<MTLTexture> tex = render_target->impl._texReadback;
-	int formatByteSize = formatSize([render_target->impl._tex pixelFormat]);
+	int formatByteSize = formatSize([(id<MTLTexture>)render_target->impl._tex pixelFormat]);
 	MTLRegion region = MTLRegionMake2D(0, 0, render_target->texWidth, render_target->texHeight);
 	[tex getBytes:data bytesPerRow:formatByteSize * render_target->texWidth fromRegion:region mipmapLevel:0];
 }
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	if (lastRenderTargets[0] == nullptr) {
-		newRenderPass(nullptr, 1, false);
+		kinc_g5_internal_new_render_pass(nullptr, 1, false);
 	}
 	else {
 		int count = 1;
 		while (lastRenderTargets[count] != nullptr) count++;
-		newRenderPass(lastRenderTargets, count, false);
+		kinc_g5_internal_new_render_pass(lastRenderTargets, count, false);
 	}
 	if (lastPipeline != nullptr) kinc_g5_internal_pipeline_set(lastPipeline);
 }
 
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 	if (lastRenderTargets[0] == nullptr) {
-		newRenderPass(nullptr, 1, true);
+		kinc_g5_internal_new_render_pass(nullptr, 1, true);
 	}
 	else {
 		int count = 1;
 		while (lastRenderTargets[count] != nullptr) count++;
-		newRenderPass(lastRenderTargets, count, true);
+		kinc_g5_internal_new_render_pass(lastRenderTargets, count, true);
 	}
 	if (lastPipeline != nullptr) kinc_g5_internal_pipeline_set(lastPipeline);
 }

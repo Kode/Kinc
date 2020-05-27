@@ -162,54 +162,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 
 #ifdef KORE_METAL
 - (void)begin {
-	@autoreleasepool {
-		CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
-
-		drawable = [metalLayer nextDrawable];
-
-		if (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height) {
-			MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
-			descriptor.textureType = MTLTextureType2D;
-			descriptor.width = drawable.texture.width;
-			descriptor.height = drawable.texture.height;
-			descriptor.depth = 1;
-			descriptor.pixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-			descriptor.arrayLength = 1;
-			descriptor.mipmapLevelCount = 1;
-			descriptor.resourceOptions = MTLResourceStorageModePrivate;
-			descriptor.usage = MTLTextureUsageRenderTarget;
-			depthTexture = [device newTextureWithDescriptor:descriptor];
-		}
-
-		// printf("It's %i\n", drawable == nil ? 0 : 1);
-		// if (drawable == nil) return;
-		id<MTLTexture> texture = drawable.texture;
-
-		backingWidth = (int)[texture width];
-		backingHeight = (int)[texture height];
-
-		if (renderPassDescriptor == nil) {
-			renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-		}
-		renderPassDescriptor.colorAttachments[0].texture = texture;
-		renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-		renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-		renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-		renderPassDescriptor.depthAttachment.clearDepth = 1;
-		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-		renderPassDescriptor.depthAttachment.texture = depthTexture;
-		renderPassDescriptor.stencilAttachment.clearStencil = 0;
-		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
-		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
-		renderPassDescriptor.stencilAttachment.texture = depthTexture;
-
-		// id <MTLCommandQueue> commandQueue = [device newCommandQueue];
-		commandBuffer = [commandQueue commandBuffer];
-		// if (drawable != nil) {
-		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-		//}
-	}
 }
 #else
 - (void)begin {
@@ -240,21 +192,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 
 #ifdef KORE_METAL
 - (void)end {
-	@autoreleasepool {
-	if (commandEncoder != nil && commandBuffer != nil) {
-	  [commandEncoder endEncoding];
-	  [commandBuffer presentDrawable:drawable];
-	  [commandBuffer commit];
-	}
-
-		commandBuffer = nil;
-		commandEncoder = nil;
-
-		// if (drawable != nil) {
-		//	[commandBuffer waitUntilScheduled];
-		//	[drawable present];
-		//}
-	}
 }
 #else
 - (void)end {
@@ -459,6 +396,10 @@ namespace {
 }
 
 #ifdef KORE_METAL
+- (CAMetalLayer*)metalLayer {
+	return (CAMetalLayer*)self.layer;
+}
+
 - (id<MTLDevice>)metalDevice {
 	return device;
 }
@@ -469,40 +410,6 @@ namespace {
 
 - (id<MTLCommandQueue>)metalQueue {
 	return commandQueue;
-}
-
-- (id<MTLRenderCommandEncoder>)metalEncoder {
-	return commandEncoder;
-}
-
-
-- (void)newRenderPass:(struct kinc_g5_render_target**)renderTargets count: (int)count wait: (bool)wait {
-	@autoreleasepool {
-		[commandEncoder endEncoding];
-		[commandBuffer commit];
-		if (wait) {
-			[commandBuffer waitUntilCompleted];
-		}
-
-		renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-		for (int i = 0; i < count; ++i) {
-			renderPassDescriptor.colorAttachments[i].texture = renderTargets == nullptr ? drawable.texture : renderTargets[i]->impl._tex;
-			renderPassDescriptor.colorAttachments[i].loadAction = MTLLoadActionLoad;
-			renderPassDescriptor.colorAttachments[i].storeAction = MTLStoreActionStore;
-			renderPassDescriptor.colorAttachments[i].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-		}
-		renderPassDescriptor.depthAttachment.clearDepth = 1;
-		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
-		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-		renderPassDescriptor.depthAttachment.texture = renderTargets == nullptr ? depthTexture : renderTargets[0]->impl._depthTex;
-		renderPassDescriptor.stencilAttachment.clearStencil = 0;
-		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
-		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
-		renderPassDescriptor.stencilAttachment.texture = renderTargets == nullptr ? depthTexture : renderTargets[0]->impl._depthTex;
-
-		commandBuffer = [commandQueue commandBuffer];
-		commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-	}
 }
 #endif
 
