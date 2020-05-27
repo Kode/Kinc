@@ -127,8 +127,14 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 			| (pipeline->colorWriteMaskBlue[i] ? MTLColorWriteMaskBlue : 0)
 			| (pipeline->colorWriteMaskAlpha[i] ? MTLColorWriteMaskAlpha : 0);
 	}
-	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+	if (pipeline->depthAttachmentBits > 0) {
+		renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+		renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+	}
+	else {
+		renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatInvalid;
+		renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatInvalid;
+	}
 
 	float offset = 0;
 	MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
