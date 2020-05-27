@@ -68,6 +68,10 @@ namespace {
 
 #ifdef KORE_METAL
 
+CAMetalLayer* getMetalLayer() {
+	return [view metalLayer];
+}
+
 id getMetalDevice() {
 	return [view metalDevice];
 }
@@ -78,28 +82,6 @@ id getMetalLibrary() {
 
 id getMetalQueue() {
 	return [view metalQueue];
-}
-
-id getMetalEncoder() {
-	return [view metalEncoder];
-}
-
-void beginGL() {
-  if (window.visible) {
-    [view begin];
-  }
-}
-
-void endGL() {
-  if (window.visible) {
-    [view end];
-  }
-}
-
-void newRenderPass(kinc_g5_render_target_t **renderTargets, int count, bool wait) {
-  if (window.visible) {
-    [view newRenderPass: renderTargets count: count wait: wait];
-  }
 }
 
 #endif
@@ -120,9 +102,7 @@ bool kinc_internal_handle_messages() {
 }
 
 void swapBuffersMac(int windowId) {
-#ifdef KORE_METAL
-	endGL();
-#else
+#ifndef KORE_METAL
 	[windows[windowId].view switchBuffers];
 #endif
 }
