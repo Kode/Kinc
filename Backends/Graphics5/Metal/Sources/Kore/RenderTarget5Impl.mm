@@ -52,8 +52,8 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 
 	target->impl._tex = [device newTextureWithDescriptor:descriptor];
 
-    target->impl._samplerDesc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
-    MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) target->impl._samplerDesc;
+	target->impl._samplerDesc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
+	MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) target->impl._samplerDesc;
 	desc.minFilter = MTLSamplerMinMagFilterNearest;
 	desc.magFilter = MTLSamplerMinMagFilterLinear;
 	desc.sAddressMode = MTLSamplerAddressModeRepeat;
@@ -65,18 +65,20 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	desc.lodMaxClamp = FLT_MAX;
 	target->impl._sampler = [device newSamplerStateWithDescriptor:desc];
 
-	MTLTextureDescriptor* depthDescriptor = [MTLTextureDescriptor new];
-	depthDescriptor.textureType = MTLTextureType2D;
-	depthDescriptor.width = width;
-	depthDescriptor.height = height;
-	depthDescriptor.depth = 1;
-	depthDescriptor.pixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-	depthDescriptor.arrayLength = 1;
-	depthDescriptor.mipmapLevelCount = 1;
-	depthDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-	depthDescriptor.resourceOptions = MTLResourceStorageModePrivate;
+	if (depthBufferBits > 0) {
+		MTLTextureDescriptor* depthDescriptor = [MTLTextureDescriptor new];
+		depthDescriptor.textureType = MTLTextureType2D;
+		depthDescriptor.width = width;
+		depthDescriptor.height = height;
+		depthDescriptor.depth = 1;
+		depthDescriptor.pixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+		depthDescriptor.arrayLength = 1;
+		depthDescriptor.mipmapLevelCount = 1;
+		depthDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+		depthDescriptor.resourceOptions = MTLResourceStorageModePrivate;
 
-	target->impl._depthTex = [device newTextureWithDescriptor:depthDescriptor];
+		target->impl._depthTex = [device newTextureWithDescriptor:depthDescriptor];
+	}
 }
 
 void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,

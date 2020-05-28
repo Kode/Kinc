@@ -23,6 +23,8 @@ id<CAMetalDrawable> drawable;
 id<MTLCommandBuffer> commandBuffer;
 id<MTLRenderCommandEncoder> commandEncoder;
 id<MTLTexture> depthTexture;
+int depthBits;
+int stencilBits;
 
 id getMetalEncoder() {
 	return commandEncoder;
@@ -37,7 +39,8 @@ extern "C" void kinc_internal_resize(int window, int width, int height) {
 }
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
-
+	depthBits = depthBufferBits;
+	stencilBits = stencilBufferBits;
 }
 
 void kinc_g5_flush() {}
@@ -50,7 +53,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	CAMetalLayer* metalLayer = getMetalLayer();
 	drawable = [metalLayer nextDrawable];
 
-	if (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height) {
+	if (depthBits > 0 && (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height)) {
 		MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 		descriptor.textureType = MTLTextureType2D;
 		descriptor.width = drawable.texture.width;
