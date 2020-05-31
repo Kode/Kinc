@@ -182,6 +182,8 @@ template <class T> void SafeRelease(__deref_inout_opt T **ppT) {
 		(punk) = NULL;                                                                                                                                         \
 	}
 
+void kinc_windows_co_initialize(void);
+
 void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
@@ -189,7 +191,7 @@ void kinc_a2_init() {
 	a2_buffer.data = new u8[a2_buffer.data_size];
 
 #ifndef KORE_WINRT
-	kinc_microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
+	kinc_windows_co_initialize();
 	kinc_microsoft_affirm(
 	    CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(&deviceEnumerator)));
 	HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device);

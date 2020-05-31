@@ -11,6 +11,7 @@
 #include <kinc/input/gamepad.h>
 
 #include <Kore/Display.h>
+#include <Kore/SystemMicrosoft.h>
 #include <Kore/Window.h>
 #include <Kore/Windows.h>
 
@@ -1007,12 +1008,21 @@ const char *kinc_system_id() {
 	return "Windows";
 }
 
+static bool co_initialized = false;
+
+void kinc_windows_co_initialize(void) {
+	if (!co_initialized) {
+		kinc_microsoft_affirm(CoInitializeEx(0, COINIT_MULTITHREADED));
+		co_initialized = true;
+	}
+}
+
 namespace {
 	wchar_t savePathw[2048] = {0};
 	char savePath[2048] = {0};
 
 	void findSavePath() {
-		CoInitialize(NULL);
+		kinc_windows_co_initialize();
 		IKnownFolderManager *folders = nullptr;
 		CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&folders));
 		IKnownFolder *folder = nullptr;
