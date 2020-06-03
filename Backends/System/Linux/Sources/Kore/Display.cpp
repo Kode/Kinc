@@ -60,19 +60,18 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
     mode.x = 0;
     mode.y = 0;
 #ifdef KORE_OPENGL
-    mode.width = XWidthOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
+	Display *disp = XOpenDisplay(NULL);
+	mode.width = XWidthOfScreen(XDefaultScreenOfDisplay(disp));
+	mode.height = XHeightOfScreen(XDefaultScreenOfDisplay(disp));
+	XCloseDisplay(disp);
 #else
-    mode.width = 1920;
+	mode.width = 1920;
+	mode.height = 1080;
 #endif
-#ifdef KORE_OPENGL
-    mode.height = XHeightOfScreen(XDefaultScreenOfDisplay(XOpenDisplay(NULL)));
-#else
-    mode.height = 1080;
-#endif
-    mode.frequency = 60;
-    mode.bits_per_pixel = 32;
-    mode.pixels_per_inch = 96;
-    return mode;
+	mode.frequency = 60;
+	mode.bits_per_pixel = 32;
+	mode.pixels_per_inch = 96;
+	return mode;
 }
 
 int kinc_primary_display(void) {
