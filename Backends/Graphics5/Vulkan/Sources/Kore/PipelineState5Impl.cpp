@@ -2,21 +2,21 @@
 
 #include "Vulkan.h"
 
-#include <kinc/graphics5/shader.h>
 #include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/shader.h>
 
 #include <assert.h>
 #include <malloc.h>
 
 #include <map>
-#include <string>
 #include <string.h>
+#include <string>
 
 extern VkDevice device;
 extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
-void createDescriptorLayout(PipelineState5Impl* pipeline);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
+void createDescriptorLayout(PipelineState5Impl *pipeline);
 
 kinc_g5_pipeline_t *currentPipeline = NULL;
 
@@ -45,7 +45,7 @@ static void set_number(kinc_internal_named_number *named_numbers, const char *na
 			return;
 		}
 	}
-	
+
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
 		if (named_numbers[i].name[0] == 0) {
 			strcpy(named_numbers[i].name, name);
@@ -59,7 +59,7 @@ static void set_number(kinc_internal_named_number *named_numbers, const char *na
 
 namespace {
 	void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
-		kinc_internal_named_number *uniformOffsets) {
+	                 kinc_internal_named_number *uniformOffsets) {
 		memset(locations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 		memset(textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 		memset(uniformOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
@@ -90,7 +90,7 @@ namespace {
 			switch (opcode) {
 			case 5: { // OpName
 				uint32_t id = operands[0];
-				char* string = (char*)&operands[1];
+				char *string = (char *)&operands[1];
 				names[id] = string;
 				break;
 			}
@@ -98,7 +98,7 @@ namespace {
 				uint32_t type = operands[0];
 				if (names[type] == "_k_global_uniform_buffer_type") {
 					uint32_t member = operands[1];
-					char* string = (char*)&operands[2];
+					char *string = (char *)&operands[2];
 					memberNames[member] = string;
 				}
 				break;
@@ -145,7 +145,7 @@ namespace {
 		}
 	}
 
-	VkShaderModule demo_prepare_shader_module(const void* code, size_t size) {
+	VkShaderModule demo_prepare_shader_module(const void *code, size_t size) {
 		VkShaderModuleCreateInfo moduleCreateInfo;
 		VkShaderModule module;
 		VkResult err;
@@ -154,7 +154,7 @@ namespace {
 		moduleCreateInfo.pNext = NULL;
 
 		moduleCreateInfo.codeSize = size;
-		moduleCreateInfo.pCode = (const uint32_t*)code;
+		moduleCreateInfo.pCode = (const uint32_t *)code;
 		moduleCreateInfo.flags = 0;
 		err = vkCreateShaderModule(device, &moduleCreateInfo, NULL, &module);
 		assert(!err);
@@ -162,12 +162,12 @@ namespace {
 		return module;
 	}
 
-	VkShaderModule demo_prepare_vs(VkShaderModule& vert_shader_module, kinc_g5_shader_t *vertexShader) {
+	VkShaderModule demo_prepare_vs(VkShaderModule &vert_shader_module, kinc_g5_shader_t *vertexShader) {
 		vert_shader_module = demo_prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
 		return vert_shader_module;
 	}
 
-	VkShaderModule demo_prepare_fs(VkShaderModule& frag_shader_module, kinc_g5_shader_t *fragmentShader) {
+	VkShaderModule demo_prepare_fs(VkShaderModule &frag_shader_module, kinc_g5_shader_t *fragmentShader) {
 		frag_shader_module = demo_prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
 		return frag_shader_module;
 	}
@@ -230,11 +230,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	VkPipelineDepthStencilStateCreateInfo ds = {};
 	VkPipelineViewportStateCreateInfo vp = {};
 	VkPipelineMultisampleStateCreateInfo ms = {};
-	VkDynamicState dynamicStateEnables[VK_DYNAMIC_STATE_RANGE_SIZE];
+	const int dynamicStatesCount = 2;
+	VkDynamicState dynamicStateEnables[dynamicStatesCount];
 	VkPipelineDynamicStateCreateInfo dynamicState = {};
 
-	memset(dynamicStateEnables, 0, sizeof dynamicStateEnables);
-	memset(&dynamicState, 0, sizeof dynamicState);
+	memset(dynamicStateEnables, 0, sizeof(dynamicStateEnables));
+	memset(&dynamicState, 0, sizeof(dynamicState));
 	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	dynamicState.pDynamicStates = dynamicStateEnables;
 
@@ -269,7 +270,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	VkVertexInputBindingDescription vi_bindings[1];
 #ifdef KORE_WINDOWS
-	VkVertexInputAttributeDescription* vi_attrs = (VkVertexInputAttributeDescription*)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
+	VkVertexInputAttributeDescription *vi_attrs =
+	    (VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
 #else
 	VkVertexInputAttributeDescription vi_attrs[pipeline->inputLayout[0]->size];
 #endif
@@ -423,7 +425,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 extern VkDescriptorPool desc_pool;
 
-void createDescriptorLayout(PipelineState5Impl* pipeline) {
+void createDescriptorLayout(PipelineState5Impl *pipeline) {
 	VkDescriptorSetLayoutBinding layoutBindings[8];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 
