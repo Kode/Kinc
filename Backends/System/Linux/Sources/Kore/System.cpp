@@ -807,9 +807,12 @@ bool kinc_internal_handle_messages() {
 		}
 		case ConfigureNotify: {
 			int windowId = windowimpl::idFromWindow(event.xconfigure.window);
-			kinc_internal_windows[windowId].width = event.xconfigure.width;
-            kinc_internal_windows[windowId].height = event.xconfigure.height;
-			glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
+			if (event.xconfigure.width != kinc_internal_windows[windowId].width || event.xconfigure.height != kinc_internal_windows[windowId].height) {
+				kinc_internal_windows[windowId].width = event.xconfigure.width;
+				kinc_internal_windows[windowId].height = event.xconfigure.height;
+				kinc_internal_call_resize_callback(windowId, event.xconfigure.width, event.xconfigure.height);
+				glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
+			}
 			break;
 		}
 		case ClientMessage: {
@@ -952,6 +955,11 @@ bool kinc_internal_handle_messages() {
 			//	demo->height = cfg->height;
 			//	demo_resize(demo);
 			//}
+			if (cfg->width != kinc_internal_windows[0].width || cfg->height != kinc_internal_windows[0].height) {
+				kinc_internal_windows[0].width = cfg->width;
+				kinc_internal_windows[0].height = cfg->height;
+				kinc_internal_call_resize_callback(0, cfg->width, cfg->height);
+			}
 			break;
 		}
 		default:

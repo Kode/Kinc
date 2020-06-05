@@ -10,5 +10,7 @@ namespace Kore {
         __GLXcontextRec* context;
 #endif
         int width, height, mode;
+        void (*resizeCallback)(int x, int y, void* data);
+        void* resizeCallbackData;
     };
 }

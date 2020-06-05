@@ -122,7 +122,14 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 }
 
 void kinc_window_set_resize_callback(int window_index, void (*callback)(int x, int y, void *data), void *data) {
+	kinc_internal_windows[window_index].resizeCallback = callback;
+	kinc_internal_windows[window_index].resizeCallbackData = data;
+}
 
+void kinc_internal_call_resize_callback(int window_index, int width, int height) {
+	if (kinc_internal_windows[window_index].resizeCallback != NULL) {
+		kinc_internal_windows[window_index].resizeCallback(width, height, kinc_internal_windows[window_index].resizeCallbackData);
+	}
 }
 
 void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data) {
