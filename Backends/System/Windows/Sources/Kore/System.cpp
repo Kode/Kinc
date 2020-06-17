@@ -41,6 +41,7 @@
 #include <Windows.h>
 #include <Windowsx.h>
 #include <XInput.h>
+#include <dbghelp.h>
 #include <exception>
 #include <shlobj.h>
 
@@ -1121,7 +1122,37 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 	return ret;
 }
 
+typedef BOOL(__stdcall *MiniDumpWriteDumpType)(IN HANDLE hProcess, IN DWORD ProcessId, IN HANDLE hFile, IN MINIDUMP_TYPE DumpType,
+                                               IN CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+                                               OPTIONAL IN CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+                                               OPTIONAL IN CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam OPTIONAL);
+
+static MiniDumpWriteDumpType MyMiniDumpWriteDump;
+
+static LONG __stdcall MyCrashHandlerExceptionFilter(EXCEPTION_POINTERS *pEx) {
+	HANDLE file = CreateFileA("kinc.dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (file != INVALID_HANDLE_VALUE) {
+		MINIDUMP_EXCEPTION_INFORMATION stMDEI;
+		stMDEI.ThreadId = GetCurrentThreadId();
+		stMDEI.ExceptionPointers = pEx;
+		stMDEI.ClientPointers = TRUE;
+		MyMiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, &stMDEI, NULL, NULL);
+		CloseHandle(file);
+	}
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+
+static void init_crash_handler() {
+	HMODULE dbghelp = LoadLibraryA("dbghelp.dll");
+	if (dbghelp != NULL) {
+		MyMiniDumpWriteDump = (MiniDumpWriteDumpType)GetProcAddress(dbghelp, "MiniDumpWriteDump");
+		SetUnhandledExceptionFilter(MyCrashHandlerExceptionFilter);
+	}
+}
+
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	init_crash_handler();
+
 	// Kore::System::_init(name, width, height, &win, &frame);
 	kinc_set_application_name(name);
 	kinc_window_options_t defaultWin;
