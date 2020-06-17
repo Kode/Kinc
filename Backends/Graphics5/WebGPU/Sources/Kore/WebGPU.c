@@ -3,6 +3,7 @@
 #include <string.h>
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#include <emscripten/html5_webgpu.h>
 #include <webgpu/webgpu.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
