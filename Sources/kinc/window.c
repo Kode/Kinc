@@ -2,8 +2,10 @@
 
 #include "window.h"
 
+#include <stdlib.h>
+
 void kinc_internal_init_window_options(kinc_window_options_t *win) {
-	win->title = "Kore";
+	win->title = NULL;
 	win->display_index = 0;
 	win->mode = KINC_WINDOW_MODE_WINDOW;
 	win->x = -1;

@@ -119,17 +119,13 @@ namespace {
 }
 #endif
 
+static char nameClass[256];
+static const char *nameClassAddendum = "_KincApplication";
+
 int createWindow(const char* title, int x, int y, int width, int height, kinc_window_mode_t windowMode, int targetDisplay, int depthBufferBits,
 				 int stencilBufferBits, int antialiasingSamples) {
-
-	int nameLength = strlen(kinc_application_name());
-	char strName[nameLength+1];
-	strcpy(strName, kinc_application_name());
-	char strClass[] = "_KoreApplication";
-	char strNameClass[nameLength+17];
-	strcpy(strNameClass, strName);
-	strncat(strNameClass, strClass, 16);
-	strNameClass[nameLength] = '\0';
+    strncpy(nameClass, kinc_application_name(), sizeof(nameClass) - strlen(nameClassAddendum) - 1);
+	strcat(nameClass, nameClassAddendum);
 
 #ifdef KORE_OPENGL
 	int wcounter = windowimpl::windowCounter + 1;
@@ -248,9 +244,8 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 							   CWBorderPixel | CWColormap | CWEventMask, &swa);
 	XSetStandardProperties(Kore::Linux::display, win, title, "main", None, NULL, 0, NULL);
 
-	char* strNameClass_ptr = strNameClass;
 	Atom wmClassAtom = XInternAtom(Kore::Linux::display, "WM_CLASS", 0);
-	XChangeProperty(Kore::Linux::display, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)strNameClass_ptr, nameLength+17);
+	XChangeProperty(Kore::Linux::display, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)nameClass, strlen(nameClass));
 
 	switch (windowMode) {
 	case KINC_WINDOW_MODE_FULLSCREEN: // fall through
@@ -376,7 +371,7 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	// Needs to be tested
 	xcb_intern_atom_cookie_t atom_wm_class_cookie = xcb_intern_atom(connection, 1, 8, "WM_CLASS");
 	xcb_intern_atom_reply_t* atom_wm_class_reply = xcb_intern_atom_reply(connection, atom_wm_class_cookie, 0);
-	xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*atom_wm_class_reply).atom, 31, 8, nameLength+17, strNameClass);
+	xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*atom_wm_class_reply).atom, 31, 8, nameLength+17, nameClass);
 	free(atom_wm_class_reply);
 
 	// Magic code that will send notification when window is destroyed
