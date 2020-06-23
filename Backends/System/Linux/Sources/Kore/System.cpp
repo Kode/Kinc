@@ -371,7 +371,7 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	// Needs to be tested
 	xcb_intern_atom_cookie_t atom_wm_class_cookie = xcb_intern_atom(connection, 1, 8, "WM_CLASS");
 	xcb_intern_atom_reply_t* atom_wm_class_reply = xcb_intern_atom_reply(connection, atom_wm_class_cookie, 0);
-	xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*atom_wm_class_reply).atom, 31, 8, nameLength+17, nameClass);
+	xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*atom_wm_class_reply).atom, 31, 8, strlen(nameClass), nameClass);
 	free(atom_wm_class_reply);
 
 	// Magic code that will send notification when window is destroyed
