@@ -69,7 +69,7 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 		indexCount:count indexType:MTLIndexTypeUInt32
 		indexBuffer:currentIndexBuffer->impl.mtlBuffer
-		indexBufferOffset:start];
+		indexBufferOffset:start * 4];
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_list_t *list, int start, int count, int vertex_offset) {
@@ -77,7 +77,7 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_lis
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 		indexCount:count indexType:MTLIndexTypeUInt32
 		indexBuffer:currentIndexBuffer->impl.mtlBuffer
-		indexBufferOffset:start instanceCount: 1 baseVertex: vertex_offset baseInstance: 0];
+		indexBufferOffset:start * 4 instanceCount: 1 baseVertex: vertex_offset baseInstance: 0];
 }
 
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
