@@ -53,7 +53,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	CAMetalLayer* metalLayer = getMetalLayer();
 	drawable = [metalLayer nextDrawable];
 
-	if (depthBits > 0 && (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height)) {
+	/*if (depthBits > 0 && (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height)) {
 		MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 		descriptor.textureType = MTLTextureType2D;
 		descriptor.width = drawable.texture.width;
@@ -66,7 +66,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 		descriptor.usage = MTLTextureUsageRenderTarget;
 		id<MTLDevice> device = getMetalDevice();
 		depthTexture = [device newTextureWithDescriptor:descriptor];
-	}
+	}*/
 
 	id<MTLTexture> texture = drawable.texture;
 	MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
