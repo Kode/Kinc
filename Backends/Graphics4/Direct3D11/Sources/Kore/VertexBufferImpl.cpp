@@ -7,7 +7,7 @@
 #include <Kore/SystemMicrosoft.h>
 
 void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
-                                  int instance_data_step_rate) {
+                                int instance_data_step_rate) {
 	buffer->impl.count = count;
 	buffer->impl.stride = 0;
 	for (int i = 0; i < structure->size; ++i) {
@@ -42,7 +42,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 	buffer->impl.vertices = new float[buffer->impl.stride / 4 * count];
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.CPUAccessFlags = 0;
-	
+
 	buffer->impl.usage = usage;
 	switch (usage) {
 	case KINC_G4_USAGE_STATIC:
@@ -56,7 +56,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		break;
 	}
-	
+
 	bufferDesc.ByteWidth = buffer->impl.stride * count;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.MiscFlags = 0;
@@ -89,7 +89,9 @@ void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		context->Map(buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		memcpy(mappedResource.pData, &buffer->impl.vertices[buffer->impl.lockStart * buffer->impl.stride / 4], (count * buffer->impl.stride / 4) * sizeof(float));
+		float *data = (float *)mappedResource.pData;
+		memcpy(&data[buffer->impl.lockStart * buffer->impl.stride / 4], &buffer->impl.vertices[buffer->impl.lockStart * buffer->impl.stride / 4],
+		       (count * buffer->impl.stride / 4) * sizeof(float));
 		context->Unmap(buffer->impl.vb, 0);
 	}
 	else {
