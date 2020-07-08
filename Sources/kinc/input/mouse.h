@@ -18,6 +18,8 @@ bool kinc_mouse_is_locked(int window);
 void kinc_mouse_lock(int window);
 void kinc_mouse_unlock(int window);
 
+void kinc_mouse_set_cursor(int cursor);
+
 void kinc_mouse_show();
 void kinc_mouse_hide();
 void kinc_mouse_set_position(int window, int x, int y);

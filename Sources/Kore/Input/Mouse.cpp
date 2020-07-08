@@ -72,12 +72,16 @@ void Mouse::unlock(int window) {
 }
 
 void Mouse::show(bool truth) {
-	if (truth) {
+        if (truth) {
 		kinc_mouse_show();
 	}
 	else {
 		kinc_mouse_hide();
 	}
+}
+
+void Mouse::setCursor(int cursor){
+	kinc_mouse_set_cursor(cursor);
 }
 
 void Mouse::setPosition(int window, int x, int y) {
