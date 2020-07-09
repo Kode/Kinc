@@ -310,6 +310,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		else {
 			kinc_internal_mouse_window_deactivated(kinc_windows_window_index_from_hwnd(hWnd));
 			kinc_internal_background_callback();
+			altDown = false;
 		}
 		break;
 	case WM_MOUSELEAVE:
