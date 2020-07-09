@@ -106,8 +106,8 @@ void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
 	scissor.x = 0;
 	scissor.y = 0;
 	if (lastRenderTargets[0] != nullptr) {
-		scissor.width = lastRenderTargets[0]->width;
-		scissor.height = lastRenderTargets[0]->height;
+		scissor.width = lastRenderTargets[0]->texWidth;
+		scissor.height = lastRenderTargets[0]->texHeight;
 	}
 	else {
 		scissor.width = kinc_window_width(0);
