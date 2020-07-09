@@ -365,10 +365,10 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
            		SetCursor(LoadCursor(0, IDC_SIZENESW));
 				break;
 			case 9:
-           		SetCursor(LoadCursor(0, IDC_ARROW));
+           		SetCursor(LoadCursor(0, IDC_SIZEALL));
 				break;
 			case 10:
-           		SetCursor(LoadCursor(0, IDC_ARROW));
+           		SetCursor(LoadCursor(0, IDC_SIZEALL));
 				break;
 			case 11:
            		SetCursor(LoadCursor(0, IDC_NO));
