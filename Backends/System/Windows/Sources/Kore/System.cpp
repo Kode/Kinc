@@ -66,6 +66,7 @@ static EnableNonClientDpiScalingType MyEnableNonClientDpiScaling = NULL;
 static int mouseX, mouseY;
 static bool keyPressed[256];
 int keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
+int cursor = 0;
 
 static void initKeyTranslation() {
 	for (int i = 0; i < 256; ++i) keyTranslated[i] = KINC_KEY_UNKNOWN;
@@ -332,6 +333,60 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		mouseY = GET_Y_LPARAM(lParam);
 		kinc_internal_mouse_trigger_move(windowId, mouseX, mouseY);
 		break;
+	case WM_SETCURSOR:
+		if (LOWORD(lParam) == HTCLIENT)
+        {
+			switch (cursor)
+			{
+			case 0:
+           		SetCursor(LoadCursor(0, IDC_ARROW));
+				break;
+			case 1:
+           		SetCursor(LoadCursor(0, IDC_HAND));
+				break;
+			case 2:
+           		SetCursor(LoadCursor(0, IDC_IBEAM));
+				break;
+			case 3:
+           		SetCursor(LoadCursor(0, IDC_SIZEWE));
+				break;
+			case 4:
+           		SetCursor(LoadCursor(0, IDC_SIZENS));
+				break;
+			case 5:
+           		SetCursor(LoadCursor(0, IDC_SIZENESW));
+				break;
+			case 6:
+           		SetCursor(LoadCursor(0, IDC_SIZENWSE));
+				break;
+			case 7:
+           		SetCursor(LoadCursor(0, IDC_SIZENWSE));
+				break;
+			case 8:
+           		SetCursor(LoadCursor(0, IDC_SIZENESW));
+				break;
+			case 9:
+           		SetCursor(LoadCursor(0, IDC_SIZEALL));
+				break;
+			case 10:
+           		SetCursor(LoadCursor(0, IDC_SIZEALL));
+				break;
+			case 11:
+           		SetCursor(LoadCursor(0, IDC_NO));
+				break;
+			case 12:
+           		SetCursor(LoadCursor(0, IDC_WAIT));
+				break;
+			case 13:
+           		SetCursor(LoadCursor(0, IDC_CROSS));
+				break;
+			default:
+           		SetCursor(LoadCursor(0, IDC_ARROW));
+				break;
+			}
+            return TRUE;
+        }
+        break;
 	case WM_LBUTTONDOWN:
 		if (!kinc_mouse_is_locked(kinc_windows_window_index_from_hwnd(hWnd))) SetCapture(hWnd);
 		mouseX = GET_X_LPARAM(lParam);
@@ -991,6 +1046,10 @@ void kinc_keyboard_show() {
 
 void kinc_keyboard_hide() {
 	keyboardshown = false;
+}
+
+void kinc_mouse_set_cursor(int set_cursor) {
+	cursor = set_cursor;
 }
 
 bool kinc_keyboard_active() {
