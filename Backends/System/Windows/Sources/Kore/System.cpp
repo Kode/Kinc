@@ -980,6 +980,7 @@ bool kinc_internal_handle_messages() {
 
 namespace {
 	bool keyboardshown = false;
+	char language[3] = {0};
 }
 
 void kinc_keyboard_show() {
@@ -1000,6 +1001,12 @@ void kinc_set_keep_screen_on(bool on) {}
 void kinc_vibrate(int ms) {}
 
 const char *kinc_language() {
+	wchar_t wlanguage[3] = {0};
+
+	if (GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO639LANGNAME, wlanguage, 3)) {
+		WideCharToMultiByte(CP_UTF8, 0, wlanguage, -1, language, 3, nullptr, nullptr);
+		return language;
+	}
 	return "en";
 }
 
