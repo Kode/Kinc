@@ -51,3 +51,7 @@ void kinc_mouse_get_position(int windowId, int* x, int* y) {
 	x = point.x - window.frame.origin.x;
 	y = rect.size.height - (point.y + window.frame.origin.y);*/
 }
+
+void kinc_mouse_set_cursor(int cursor_index) {
+
+}
