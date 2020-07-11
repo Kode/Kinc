@@ -21,3 +21,5 @@ void kinc_mouse_hide() {}
 void kinc_mouse_set_position(int window, int x, int y) {}
 
 void kinc_mouse_get_position(int window, int *x, int *y) {}
+
+void kinc_mouse_set_cursor(int cursor_index) {}

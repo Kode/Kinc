@@ -750,6 +750,8 @@ void kinc_mouse_get_position(int window, int* x, int* y) {
 	y = 0;
 }
 
+void kinc_mouse_set_cursor(int cursor_index) {}
+
 void kinc_login() {
 
 }
