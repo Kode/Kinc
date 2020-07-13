@@ -307,3 +307,46 @@ bool kinc_waiting_for_login() {
 }
 
 #endif
+
+#ifdef KORE_WINDOWS
+#include <Windows.h>
+
+double kinc_local_time() {
+	SYSTEMTIME system_time;
+	GetLocalTime(&system_time);
+	FILETIME file_time;
+	SystemTimeToFileTime(&system_time, &file_time);
+	ULARGE_INTEGER large_time;
+	large_time.LowPart = file_time.dwLowDateTime;
+	large_time.HighPart = file_time.dwHighDateTime;
+	unsigned long long time = large_time.QuadPart;
+	time /= 10;
+	return (double)time;
+}
+
+double kinc_hours(double time) {
+	unsigned long long utime = (unsigned long long)time;
+	utime *= 10;
+	ULARGE_INTEGER large_time;
+	large_time.QuadPart = utime;
+	FILETIME file_time;
+	file_time.dwLowDateTime = large_time.LowPart;
+	file_time.dwHighDateTime = large_time.HighPart;
+	SYSTEMTIME system_time;
+	FileTimeToSystemTime(&file_time, &system_time);
+	return (double)system_time.wHour;
+}
+
+double kinc_minutes(double time) {
+	unsigned long long utime = (unsigned long long)time;
+	utime *= 10;
+	ULARGE_INTEGER large_time;
+	large_time.QuadPart = utime;
+	FILETIME file_time;
+	file_time.dwLowDateTime = large_time.LowPart;
+	file_time.dwHighDateTime = large_time.HighPart;
+	SYSTEMTIME system_time;
+	FileTimeToSystemTime(&file_time, &system_time);
+	return (double)system_time.wMinute;
+}
+#endif
