@@ -321,18 +321,33 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
                                 int stencil) {
-	/*VkClearColorValue clearColor = {};
-	clearColor.float32[0] = 1.0f;
-	clearColor.float32[1] = 0.0f;
-	clearColor.float32[2] = 0.0f;
-	clearColor.float32[3] = 1.0f;
-	VkImageSubresourceRange range = {};
-	range.levelCount = 1;
-	range.layerCount = 1;
-	range.aspectMask = 0;
-	range.baseArrayLayer = 0;
-	range.baseMipLevel = 0;
-	vkCmdClearColorImage(draw_cmd, buffers[current_buffer].image, VK_IMAGE_LAYOUT_GENERAL, &clearColor, 1, &range);*/
+	VkClearRect clearRect = {};
+	clearRect.rect.offset.x = 0;
+	clearRect.rect.offset.y = 0;
+	clearRect.rect.extent.width = kinc_width();
+	clearRect.rect.extent.height = kinc_height();
+	clearRect.baseArrayLayer = 0;
+	clearRect.layerCount = 1;
+
+	if (flags & KINC_G5_CLEAR_COLOR) {
+		VkClearColorValue clearColor = {};
+		clearColor.float32[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
+		clearColor.float32[1] = ((color & 0x0000ff00) >> 8) / 255.0f;
+		clearColor.float32[2] = (color & 0x000000ff) / 255.0f;
+		clearColor.float32[3] = ((color & 0xff000000) >> 24) / 255.0f;
+		VkClearAttachment attachment = {};
+		attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		attachment.colorAttachment = 0;
+		attachment.clearValue.color = clearColor;
+		vkCmdClearAttachments(list->impl._buffer, 1, &attachment, 1, &clearRect);
+	}
+	if ((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) {
+		VkClearAttachment attachment = {};
+		attachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		attachment.clearValue.depthStencil.depth = depth;
+		attachment.clearValue.depthStencil.stencil = stencil;
+		vkCmdClearAttachments(list->impl._buffer, 1, &attachment, 1, &clearRect);
+	}
 }
 
 void kinc_g5_command_list_render_target_to_framebuffer_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
