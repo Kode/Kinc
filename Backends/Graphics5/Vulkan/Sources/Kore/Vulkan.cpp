@@ -119,7 +119,6 @@ namespace {
 	char *device_validation_layers[64];
 #endif
 
-	int width, height;
 	VkColorSpaceKHR color_space;
 
 	PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;
@@ -223,9 +222,294 @@ void kinc_g5_destroy(int window) {}
 
 void kinc_internal_g5_resize(int window, int width, int height) {}
 
-extern "C" void kinc_internal_resize(int window, int width, int height) {}
+extern "C" void kinc_internal_resize(int window, int width, int height) {
+	if (width == 0 || height == 0) return;
+	newRenderTargetWidth = width;
+	newRenderTargetHeight = height;
+}
 
 extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
+
+void create_swapchain() {
+	VkSwapchainKHR oldSwapchain = swapchain;
+
+	// Check the surface capabilities and formats
+	VkSurfaceCapabilitiesKHR surfCapabilities = {};
+	VkResult err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surfCapabilities);
+	assert(!err);
+
+	uint32_t presentModeCount;
+	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, NULL);
+	assert(!err);
+	VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
+	assert(presentModes);
+	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, presentModes);
+	assert(!err);
+
+	VkExtent2D swapchainExtent;
+	// width and height are either both -1, or both not -1.
+	if (surfCapabilities.currentExtent.width == (uint32_t)-1) {
+		// If the surface size is undefined, the size is set to
+		// the size of the images requested.
+		swapchainExtent.width = renderTargetWidth;
+		swapchainExtent.height = renderTargetHeight;
+	}
+	else {
+		// If the surface size is defined, the swap chain size must match
+		swapchainExtent = surfCapabilities.currentExtent;
+		renderTargetWidth = surfCapabilities.currentExtent.width;
+		renderTargetHeight = surfCapabilities.currentExtent.height;
+	}
+
+	VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+	// Determine the number of VkImage's to use in the swap chain (we desire to
+	// own only 1 image at a time, besides the images being displayed and
+	// queued for display):
+	uint32_t desiredNumberOfSwapchainImages = surfCapabilities.minImageCount + 1;
+	if ((surfCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfCapabilities.maxImageCount)) {
+		// Application must settle for fewer images than desired:
+		desiredNumberOfSwapchainImages = surfCapabilities.maxImageCount;
+	}
+
+	VkSurfaceTransformFlagBitsKHR preTransform = {};
+	if (surfCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
+		preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	}
+	else {
+		preTransform = surfCapabilities.currentTransform;
+	}
+
+	VkSwapchainCreateInfoKHR swapchain_info = {};
+	swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	swapchain_info.pNext = NULL;
+	swapchain_info.surface = surface;
+	swapchain_info.minImageCount = desiredNumberOfSwapchainImages;
+	swapchain_info.imageFormat = format;
+	swapchain_info.imageColorSpace = color_space;
+	swapchain_info.imageExtent.width = swapchainExtent.width;
+	swapchain_info.imageExtent.height = swapchainExtent.height;
+	swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	swapchain_info.preTransform = preTransform;
+	swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	swapchain_info.imageArrayLayers = 1;
+	swapchain_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	swapchain_info.queueFamilyIndexCount = 0;
+	swapchain_info.pQueueFamilyIndices = NULL;
+	swapchain_info.presentMode = swapchainPresentMode;
+	swapchain_info.oldSwapchain = oldSwapchain;
+	swapchain_info.clipped = true;
+
+	uint32_t i;
+
+	err = fpCreateSwapchainKHR(device, &swapchain_info, NULL, &swapchain);
+	assert(!err);
+
+	// If we just re-created an existing swapchain, we should destroy the old
+	// swapchain at this point.
+	// Note: destroying the swapchain also cleans up all its associated
+	// presentable images once the platform is done with them.
+	if (oldSwapchain != VK_NULL_HANDLE) {
+		fpDestroySwapchainKHR(device, oldSwapchain, NULL);
+	}
+
+	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, NULL);
+	assert(!err);
+
+	VkImage *swapchainImages = (VkImage *)malloc(swapchainImageCount * sizeof(VkImage));
+	assert(swapchainImages);
+	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
+	assert(!err);
+
+	Kore::Vulkan::buffers = (Kore::Vulkan::SwapchainBuffers *)malloc(sizeof(Kore::Vulkan::SwapchainBuffers) * swapchainImageCount);
+	assert(Kore::Vulkan::buffers);
+
+	for (i = 0; i < swapchainImageCount; i++) {
+		VkImageViewCreateInfo color_attachment_view = {};
+		color_attachment_view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		color_attachment_view.pNext = NULL;
+		color_attachment_view.format = format;
+		color_attachment_view.components.r = VK_COMPONENT_SWIZZLE_R;
+		color_attachment_view.components.g = VK_COMPONENT_SWIZZLE_G;
+		color_attachment_view.components.b = VK_COMPONENT_SWIZZLE_B;
+		color_attachment_view.components.a = VK_COMPONENT_SWIZZLE_A;
+		color_attachment_view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		color_attachment_view.subresourceRange.baseMipLevel = 0;
+		color_attachment_view.subresourceRange.levelCount = 1;
+		color_attachment_view.subresourceRange.baseArrayLayer = 0;
+		color_attachment_view.subresourceRange.layerCount = 1;
+		color_attachment_view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		color_attachment_view.flags = 0;
+
+		Kore::Vulkan::buffers[i].image = swapchainImages[i];
+
+		// Render loop will expect image to have been used before and in
+		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
+		// to that state
+		Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+		                                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+		color_attachment_view.image = Kore::Vulkan::buffers[i].image;
+
+		err = vkCreateImageView(device, &color_attachment_view, NULL, &Kore::Vulkan::buffers[i].view);
+		assert(!err);
+	}
+
+	current_buffer = 0;
+
+	if (NULL != presentModes) {
+		free(presentModes);
+	}
+
+	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
+	VkImageCreateInfo image = {};
+	image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	image.pNext = NULL;
+	image.imageType = VK_IMAGE_TYPE_2D;
+	image.format = depth_format;
+	image.extent.width = renderTargetWidth;
+	image.extent.height = renderTargetHeight;
+	image.extent.depth = 1;
+	image.mipLevels = 1;
+	image.arrayLayers = 1;
+	image.samples = VK_SAMPLE_COUNT_1_BIT;
+	image.tiling = VK_IMAGE_TILING_OPTIMAL;
+	image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	image.flags = 0;
+
+	VkMemoryAllocateInfo mem_alloc = {};
+	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	mem_alloc.pNext = NULL;
+	mem_alloc.allocationSize = 0;
+	mem_alloc.memoryTypeIndex = 0;
+
+	VkImageViewCreateInfo view = {};
+	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	view.pNext = NULL;
+	view.image = VK_NULL_HANDLE;
+	view.format = depth_format;
+	view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+	view.subresourceRange.baseMipLevel = 0;
+	view.subresourceRange.levelCount = 1;
+	view.subresourceRange.baseArrayLayer = 0;
+	view.subresourceRange.layerCount = 1;
+	view.flags = 0;
+	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+
+	VkMemoryRequirements mem_reqs = {};
+	bool pass;
+
+	::depth_format = depth_format;
+
+	/* create image */
+	err = vkCreateImage(device, &image, NULL, &Kore::Vulkan::depth.image);
+	assert(!err);
+
+	/* get memory requirements for this object */
+	vkGetImageMemoryRequirements(device, Kore::Vulkan::depth.image, &mem_reqs);
+
+	/* select memory size and type */
+	mem_alloc.allocationSize = mem_reqs.size;
+	pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, /* No requirements */ &mem_alloc.memoryTypeIndex);
+	assert(pass);
+
+	/* allocate memory */
+	err = vkAllocateMemory(device, &mem_alloc, NULL, &Kore::Vulkan::depth.mem);
+	assert(!err);
+
+	/* bind memory */
+	err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
+	assert(!err);
+
+	Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+	                                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+	/* create image view */
+	view.image = Kore::Vulkan::depth.image;
+	err = vkCreateImageView(device, &view, NULL, &Kore::Vulkan::depth.view);
+	assert(!err);
+
+	VkAttachmentDescription attachments[2];
+	attachments[0].format = format;
+	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	attachments[0].flags = 0;
+
+	attachments[1].format = depth_format;
+	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].flags = 0;
+
+	VkAttachmentReference color_reference = {};
+	color_reference.attachment = 0;
+	color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depth_reference = {};
+	depth_reference.attachment = 1;
+	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.flags = 0;
+	subpass.inputAttachmentCount = 0;
+	subpass.pInputAttachments = nullptr;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &color_reference;
+	subpass.pResolveAttachments = nullptr;
+	subpass.pDepthStencilAttachment = &depth_reference;
+	subpass.preserveAttachmentCount = 0;
+	subpass.pPreserveAttachments = nullptr;
+
+	VkRenderPassCreateInfo rp_info = {};
+	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	rp_info.pNext = nullptr;
+	rp_info.attachmentCount = 2;
+	rp_info.pAttachments = attachments;
+	rp_info.subpassCount = 1;
+	rp_info.pSubpasses = &subpass;
+	rp_info.dependencyCount = 0;
+	rp_info.pDependencies = nullptr;
+
+	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
+	assert(!err);
+
+	{
+		VkImageView attachments[2];
+		attachments[1] = Kore::Vulkan::depth.view;
+
+		VkFramebufferCreateInfo fb_info = {};
+		fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		fb_info.pNext = NULL;
+		fb_info.renderPass = render_pass;
+		fb_info.attachmentCount = 2;
+		fb_info.pAttachments = attachments;
+		fb_info.width = renderTargetWidth;
+		fb_info.height = renderTargetHeight;
+		fb_info.layers = 1;
+
+		uint32_t i;
+
+		framebuffers = (VkFramebuffer *)malloc(swapchainImageCount * sizeof(VkFramebuffer));
+		assert(framebuffers);
+
+		for (i = 0; i < swapchainImageCount; i++) {
+			attachments[0] = Kore::Vulkan::buffers[i].view;
+			err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
+			assert(!err);
+		}
+	}
+}
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	uint32_t instance_extension_count = 0;
@@ -495,8 +779,8 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
-	width = kinc_window_width(window);
-	height = kinc_window_height(window);
+	renderTargetWidth = kinc_window_width(window);
+	renderTargetHeight = kinc_window_height(window);
 
 #ifdef KORE_WINDOWS
 	windowHandle = (HWND)kinc_windows_window_handle(window);
@@ -640,284 +924,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	err = vkCreateCommandPool(device, &cmd_pool_info, NULL, &cmd_pool);
 	assert(!err);
 
-	VkSwapchainKHR oldSwapchain = swapchain;
-
-	// Check the surface capabilities and formats
-	VkSurfaceCapabilitiesKHR surfCapabilities = {};
-	err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surfCapabilities);
-	assert(!err);
-
-	uint32_t presentModeCount;
-	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, NULL);
-	assert(!err);
-	VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
-	assert(presentModes);
-	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, presentModes);
-	assert(!err);
-
-	VkExtent2D swapchainExtent;
-	// width and height are either both -1, or both not -1.
-	if (surfCapabilities.currentExtent.width == (uint32_t)-1) {
-		// If the surface size is undefined, the size is set to
-		// the size of the images requested.
-		swapchainExtent.width = width;
-		swapchainExtent.height = height;
-	}
-	else {
-		// If the surface size is defined, the swap chain size must match
-		swapchainExtent = surfCapabilities.currentExtent;
-		width = surfCapabilities.currentExtent.width;
-		height = surfCapabilities.currentExtent.height;
-	}
-
-	VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-
-	// Determine the number of VkImage's to use in the swap chain (we desire to
-	// own only 1 image at a time, besides the images being displayed and
-	// queued for display):
-	uint32_t desiredNumberOfSwapchainImages = surfCapabilities.minImageCount + 1;
-	if ((surfCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfCapabilities.maxImageCount)) {
-		// Application must settle for fewer images than desired:
-		desiredNumberOfSwapchainImages = surfCapabilities.maxImageCount;
-	}
-
-	VkSurfaceTransformFlagBitsKHR preTransform = {};
-	if (surfCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
-		preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-	}
-	else {
-		preTransform = surfCapabilities.currentTransform;
-	}
-
-	VkSwapchainCreateInfoKHR swapchain_info = {};
-	swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	swapchain_info.pNext = NULL;
-	swapchain_info.surface = surface;
-	swapchain_info.minImageCount = desiredNumberOfSwapchainImages;
-	swapchain_info.imageFormat = format;
-	swapchain_info.imageColorSpace = color_space;
-	swapchain_info.imageExtent.width = swapchainExtent.width;
-	swapchain_info.imageExtent.height = swapchainExtent.height;
-	swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	swapchain_info.preTransform = preTransform;
-	swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	swapchain_info.imageArrayLayers = 1;
-	swapchain_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	swapchain_info.queueFamilyIndexCount = 0;
-	swapchain_info.pQueueFamilyIndices = NULL;
-	swapchain_info.presentMode = swapchainPresentMode;
-	swapchain_info.oldSwapchain = oldSwapchain;
-	swapchain_info.clipped = true;
-
-	uint32_t i;
-
-	err = fpCreateSwapchainKHR(device, &swapchain_info, NULL, &swapchain);
-	assert(!err);
-
-	// If we just re-created an existing swapchain, we should destroy the old
-	// swapchain at this point.
-	// Note: destroying the swapchain also cleans up all its associated
-	// presentable images once the platform is done with them.
-	if (oldSwapchain != VK_NULL_HANDLE) {
-		fpDestroySwapchainKHR(device, oldSwapchain, NULL);
-	}
-
-	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, NULL);
-	assert(!err);
-
-	VkImage *swapchainImages = (VkImage *)malloc(swapchainImageCount * sizeof(VkImage));
-	assert(swapchainImages);
-	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
-	assert(!err);
-
-	Kore::Vulkan::buffers = (Kore::Vulkan::SwapchainBuffers *)malloc(sizeof(Kore::Vulkan::SwapchainBuffers) * swapchainImageCount);
-	assert(Kore::Vulkan::buffers);
-
-	for (i = 0; i < swapchainImageCount; i++) {
-		VkImageViewCreateInfo color_attachment_view = {};
-		color_attachment_view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		color_attachment_view.pNext = NULL;
-		color_attachment_view.format = format;
-		color_attachment_view.components.r = VK_COMPONENT_SWIZZLE_R;
-		color_attachment_view.components.g = VK_COMPONENT_SWIZZLE_G;
-		color_attachment_view.components.b = VK_COMPONENT_SWIZZLE_B;
-		color_attachment_view.components.a = VK_COMPONENT_SWIZZLE_A;
-		color_attachment_view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		color_attachment_view.subresourceRange.baseMipLevel = 0;
-		color_attachment_view.subresourceRange.levelCount = 1;
-		color_attachment_view.subresourceRange.baseArrayLayer = 0;
-		color_attachment_view.subresourceRange.layerCount = 1;
-		color_attachment_view.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		color_attachment_view.flags = 0;
-
-		Kore::Vulkan::buffers[i].image = swapchainImages[i];
-
-		// Render loop will expect image to have been used before and in
-		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
-		// to that state
-		Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-		                                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
-		color_attachment_view.image = Kore::Vulkan::buffers[i].image;
-
-		err = vkCreateImageView(device, &color_attachment_view, NULL, &Kore::Vulkan::buffers[i].view);
-		assert(!err);
-	}
-
-	current_buffer = 0;
-
-	if (NULL != presentModes) {
-		free(presentModes);
-	}
-
-	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
-	VkImageCreateInfo image = {};
-	image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	image.pNext = NULL;
-	image.imageType = VK_IMAGE_TYPE_2D;
-	image.format = depth_format;
-	image.extent.width = width;
-	image.extent.height = height;
-	image.extent.depth = 1;
-	image.mipLevels = 1;
-	image.arrayLayers = 1;
-	image.samples = VK_SAMPLE_COUNT_1_BIT;
-	image.tiling = VK_IMAGE_TILING_OPTIMAL;
-	image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-	image.flags = 0;
-
-	VkMemoryAllocateInfo mem_alloc = {};
-	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	mem_alloc.pNext = NULL;
-	mem_alloc.allocationSize = 0;
-	mem_alloc.memoryTypeIndex = 0;
-
-	VkImageViewCreateInfo view = {};
-	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	view.pNext = NULL;
-	view.image = VK_NULL_HANDLE;
-	view.format = depth_format;
-	view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-	view.subresourceRange.baseMipLevel = 0;
-	view.subresourceRange.levelCount = 1;
-	view.subresourceRange.baseArrayLayer = 0;
-	view.subresourceRange.layerCount = 1;
-	view.flags = 0;
-	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
-
-	VkMemoryRequirements mem_reqs = {};
-	bool pass;
-
-	::depth_format = depth_format;
-
-	/* create image */
-	err = vkCreateImage(device, &image, NULL, &Kore::Vulkan::depth.image);
-	assert(!err);
-
-	/* get memory requirements for this object */
-	vkGetImageMemoryRequirements(device, Kore::Vulkan::depth.image, &mem_reqs);
-
-	/* select memory size and type */
-	mem_alloc.allocationSize = mem_reqs.size;
-	pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, /* No requirements */ &mem_alloc.memoryTypeIndex);
-	assert(pass);
-
-	/* allocate memory */
-	err = vkAllocateMemory(device, &mem_alloc, NULL, &Kore::Vulkan::depth.mem);
-	assert(!err);
-
-	/* bind memory */
-	err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
-	assert(!err);
-
-	Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-	                                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-
-	/* create image view */
-	view.image = Kore::Vulkan::depth.image;
-	err = vkCreateImageView(device, &view, NULL, &Kore::Vulkan::depth.view);
-	assert(!err);
-
-	VkAttachmentDescription attachments[2];
-	attachments[0].format = format;
-	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	attachments[0].flags = 0;
-
-	attachments[1].format = depth_format;
-	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachments[1].flags = 0;
-
-	VkAttachmentReference color_reference = {};
-	color_reference.attachment = 0;
-	color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentReference depth_reference = {};
-	depth_reference.attachment = 1;
-	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.flags = 0;
-	subpass.inputAttachmentCount = 0;
-	subpass.pInputAttachments = nullptr;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &color_reference;
-	subpass.pResolveAttachments = nullptr;
-	subpass.pDepthStencilAttachment = &depth_reference;
-	subpass.preserveAttachmentCount = 0;
-	subpass.pPreserveAttachments = nullptr;
-
-	VkRenderPassCreateInfo rp_info = {};
-	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	rp_info.pNext = nullptr;
-	rp_info.attachmentCount = 2;
-	rp_info.pAttachments = attachments;
-	rp_info.subpassCount = 1;
-	rp_info.pSubpasses = &subpass;
-	rp_info.dependencyCount = 0;
-	rp_info.pDependencies = nullptr;
-
-	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
-	assert(!err);
-
-	{
-		VkImageView attachments[2];
-		attachments[1] = Kore::Vulkan::depth.view;
-
-		VkFramebufferCreateInfo fb_info = {};
-		fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		fb_info.pNext = NULL;
-		fb_info.renderPass = render_pass;
-		fb_info.attachmentCount = 2;
-		fb_info.pAttachments = attachments;
-		fb_info.width = width;
-		fb_info.height = height;
-		fb_info.layers = 1;
-
-		uint32_t i;
-
-		framebuffers = (VkFramebuffer *)malloc(swapchainImageCount * sizeof(VkFramebuffer));
-		assert(framebuffers);
-
-		for (i = 0; i < swapchainImageCount; i++) {
-			attachments[0] = Kore::Vulkan::buffers[i].view;
-			err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
-			assert(!err);
-		}
-	}
+	create_swapchain();
 
 	Kore::Vulkan::demo_flush_init_cmd();
 
@@ -947,6 +954,13 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 
 	if (began) return;
 
+	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
+		renderTargetWidth = newRenderTargetWidth;
+		renderTargetHeight = newRenderTargetHeight;
+		vkDeviceWaitIdle(device);
+		create_swapchain();
+	}
+
 	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {};
 	presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 	presentCompleteSemaphoreCreateInfo.pNext = NULL;
@@ -958,23 +972,6 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	// Get the index of the next available swapchain image:
 	err = fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
 	                            &current_buffer);
-	/*if (err == VK_ERROR_OUT_OF_DATE_KHR) {
-	// demo->swapchain is out of date (e.g. the window was resized) and
-	// must be recreated:
-	// demo_resize(demo);
-	// demo_draw(demo);
-	error("VK_ERROR_OUT_OF_DATE_KHR");
-	vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
-	return;
-	}
-	else if (err == VK_SUBOPTIMAL_KHR) {
-	// demo->swapchain is not as optimal as it could be, but the platform's
-	// presentation engine will still present the image correctly.
-	}
-	else {
-	assert(!err);
-	}*/
-	assert(!err);
 
 	began = true;
 }
@@ -1034,8 +1031,8 @@ int kinc_g5_max_bound_textures(void) {
     rp_begin.framebuffer = framebuffers[current_buffer];
     rp_begin.renderArea.offset.x = 0;
     rp_begin.renderArea.offset.y = 0;
-    rp_begin.renderArea.extent.width = width;
-    rp_begin.renderArea.extent.height = height;
+    rp_begin.renderArea.extent.width = renderTargetWidth;
+    rp_begin.renderArea.extent.height = renderTargetHeight;
     rp_begin.clearValueCount = 2;
     rp_begin.pClearValues = clear_values;
 
@@ -1043,16 +1040,16 @@ int kinc_g5_max_bound_textures(void) {
 
     VkViewport viewport;
     memset(&viewport, 0, sizeof(viewport));
-    viewport.width = (float)width;
-    viewport.height = (float)height;
+    viewport.width = (float)renderTargetWidth;
+    viewport.height = (float)renderTargetHeight;
     viewport.minDepth = (float)0.0f;
     viewport.maxDepth = (float)1.0f;
     vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
 
     VkRect2D scissor;
     memset(&scissor, 0, sizeof(scissor));
-    scissor.extent.width = width;
-    scissor.extent.height = height;
+    scissor.extent.width = renderTargetWidth;
+    scissor.extent.height = renderTargetHeight;
     scissor.offset.x = 0;
     scissor.offset.y = 0;
     vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
