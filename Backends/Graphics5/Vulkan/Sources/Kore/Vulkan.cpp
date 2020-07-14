@@ -521,11 +521,11 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	// demo->enabled_layer_count = 0;
 
 #ifdef VALIDATE
-	char *instance_validation_layers[] = {"VK_LAYER_LUNARG_standard_validation"};
+	char *instance_validation_layers[] = {"VK_LAYER_KHRONOS_validation"};
 #endif
 
 #ifdef VALIDATE
-	device_validation_layers[0] = "VK_LAYER_LUNARG_standard_validation";
+	device_validation_layers[0] = "VK_LAYER_KHRONOS_validation";
 	device_validation_layer_count = 1;
 #endif
 
