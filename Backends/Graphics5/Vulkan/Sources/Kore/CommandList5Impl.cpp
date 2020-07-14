@@ -152,11 +152,6 @@ void Kore::Vulkan::demo_flush_init_cmd() {
 	setup_cmd = VK_NULL_HANDLE;
 }
 
-namespace {
-	float depthStencil;
-	float depthIncrement;
-}
-
 extern VkSemaphore presentCompleteSemaphore;
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
@@ -171,9 +166,6 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 	assert(!err);
 
 	list->impl._indexCount = 0;
-
-	depthStencil = 1.0;
-	depthIncrement = -0.01f;
 
 	// begin();
 }
@@ -210,7 +202,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
 	clear_values[0].color.float32[3] = 1.0f;
-	clear_values[1].depthStencil.depth = depthStencil;
+	clear_values[1].depthStencil.depth = 1.0;
 	clear_values[1].depthStencil.stencil = 0;
 
 	VkRenderPassBeginInfo rp_begin = {};
@@ -310,32 +302,11 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 	present.pSwapchains = &swapchain;
 	present.pImageIndices = &current_buffer;
 
-	// TBD/TODO: SHOULD THE "present" PARAMETER BE "const" IN THE HEADER?
 	err = fpQueuePresentKHR(queue, &present);
-	/*if (err == VK_ERROR_OUT_OF_DATE_KHR) {
-	    // demo->swapchain is out of date (e.g. the window was resized) and
-	    // must be recreated:
-	    // demo_resize(demo);
-	    error("VK_ERROR_OUT_OF_DATE_KHR");
-	}
-	else if (err == VK_SUBOPTIMAL_KHR) {
-	    // demo->swapchain is not as optimal as it could be, but the platform's
-	    // presentation engine will still present the image correctly.
-	}
-	else {
-	    assert(!err);
-	}*/
-	assert(!err);
-
 	err = vkQueueWaitIdle(queue);
 	assert(err == VK_SUCCESS);
 
 	vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
-
-	if (depthStencil > 0.99f) depthIncrement = -0.001f;
-	if (depthStencil < 0.8f) depthIncrement = 0.001f;
-
-	depthStencil += depthIncrement;
 
 	vkResetCommandBuffer(list->impl._buffer, 0);
 
@@ -511,7 +482,7 @@ namespace {
 		clear_values[0].color.float32[1] = 0.0f;
 		clear_values[0].color.float32[2] = 0.0f;
 		clear_values[0].color.float32[3] = 1.0f;
-		clear_values[1].depthStencil.depth = depthStencil;
+		clear_values[1].depthStencil.depth = 1.0;
 		clear_values[1].depthStencil.stencil = 0;
 
 		VkRenderPassBeginInfo rp_begin = {};
@@ -544,7 +515,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
 	clear_values[0].color.float32[3] = 1.0f;
-	clear_values[1].depthStencil.depth = depthStencil;
+	clear_values[1].depthStencil.depth = 1.0;
 	clear_values[1].depthStencil.stencil = 0;
 
 	VkRenderPassBeginInfo rp_begin = {};
