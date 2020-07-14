@@ -719,6 +719,10 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 				swapchainExtFound = 1;
 				extension_names[enabled_extension_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 			}
+			if (!strcmp(VK_KHR_MAINTENANCE1_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				// Allows negative viewport height to flip viewport
+				extension_names[enabled_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
+			}
 			assert(enabled_extension_count < 64);
 		}
 
