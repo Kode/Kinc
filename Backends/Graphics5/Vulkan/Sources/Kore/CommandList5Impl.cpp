@@ -240,8 +240,10 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
+	viewport.x = 0;
+	viewport.y = (float)kinc_height();
 	viewport.width = (float)kinc_width();
-	viewport.height = (float)kinc_height();
+	viewport.height = -(float)kinc_height();
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
