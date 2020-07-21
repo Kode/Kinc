@@ -44,6 +44,12 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 		case KINC_G4_VERTEX_DATA_FLOAT4X4:
 			buffer->impl.myStride += 4 * 4 * 4;
 			break;
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			buffer->impl.myStride += 2 * 2;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			buffer->impl.myStride += 4 * 2;
+			break;
 		}
 	}
 	buffer->impl.structure = *structure;
