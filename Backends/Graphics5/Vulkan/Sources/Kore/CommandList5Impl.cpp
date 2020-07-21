@@ -23,9 +23,8 @@ extern VkQueue queue;
 extern VkFramebuffer *framebuffers;
 extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
-extern kinc_g5_texture_t *vulkanTextures[8];
-extern kinc_g5_render_target_t *vulkanRenderTargets[8];
 extern uint32_t current_buffer;
+extern VkDescriptorPool desc_pools[3];
 
 namespace {
 	VkCommandBuffer setup_cmd;
@@ -234,7 +233,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	prePresentBarrier.image = Kore::Vulkan::buffers[current_buffer].image;
 	VkImageMemoryBarrier *pmemory_barrier = &prePresentBarrier;
 	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, NULL, 0, NULL, 1,
-	                     pmemory_barrier);
+						 pmemory_barrier);
 
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -255,6 +254,8 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
 	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
+
+	vkResetDescriptorPool(device, desc_pools[current_buffer], 0);
 
 	began = true;
 	onBackBuffer = true;
@@ -320,7 +321,7 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 }
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
-                                int stencil) {
+								int stencil) {
 	VkClearRect clearRect = {};
 	clearRect.rect.offset.x = 0;
 	clearRect.rect.offset.y = 0;
@@ -378,13 +379,6 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 	lastFragmentConstantBufferOffset = 0;
 
 	vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline);
-
-	if (vulkanRenderTargets[0] != nullptr)
-		vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1,
-		                        &vulkanRenderTargets[0]->impl.desc_set, 0, nullptr);
-	else if (vulkanTextures[0] != nullptr)
-		vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1,
-		                        &vulkanTextures[0]->impl.desc_set, 0, nullptr);
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **vertexBuffers, int *offsets_, int count) {
@@ -423,9 +417,9 @@ namespace {
 		}
 		else {
 			setImageLayout(_buffer, currentRenderTarget->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-			               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+						   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 			setImageLayout(_buffer, currentRenderTarget->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+						   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 			VkImageBlit imgBlit;
 
@@ -450,12 +444,12 @@ namespace {
 			imgBlit.dstOffsets[1].z = 1;
 
 			vkCmdBlitImage(_buffer, currentRenderTarget->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTarget->impl.destImage,
-			               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
+						   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
 
 			setImageLayout(_buffer, currentRenderTarget->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+						   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 			setImageLayout(_buffer, currentRenderTarget->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+						   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 
 		/*VkResult err = vkEndCommandBuffer(draw_cmd);
@@ -519,10 +513,57 @@ namespace {
 	}
 }
 
-void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
-	return;
+void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct kinc_g5_render_target *target) {
+	if (onBackBuffer) return;
 	endPass(list->impl._buffer);
+	currentRenderTarget = nullptr;
+	onBackBuffer = true;
+	VkClearValue clear_values[2];
+	memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	clear_values[0].color.float32[0] = 0.0f;
+	clear_values[0].color.float32[1] = 0.0f;
+	clear_values[0].color.float32[2] = 0.0f;
+	clear_values[0].color.float32[3] = 1.0f;
+	clear_values[1].depthStencil.depth = 1.0;
+	clear_values[1].depthStencil.stencil = 0;
+	VkRenderPassBeginInfo rp_begin = {};
+	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rp_begin.pNext = nullptr;
+	rp_begin.renderPass = render_pass;
+	rp_begin.framebuffer = framebuffers[current_buffer];
+	rp_begin.renderArea.offset.x = 0;
+	rp_begin.renderArea.offset.y = 0;
+	rp_begin.renderArea.extent.width = kinc_width();
+	rp_begin.renderArea.extent.height = kinc_height();
+	rp_begin.clearValueCount = 2;
+	rp_begin.pClearValues = clear_values;
+	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+	VkViewport viewport;
+	memset(&viewport, 0, sizeof(viewport));
+	viewport.x = 0;
+	viewport.y = (float)kinc_height();
+	viewport.width = (float)kinc_width();
+	viewport.height = -(float)kinc_height();
+	viewport.minDepth = (float)0.0f;
+	viewport.maxDepth = (float)1.0f;
+	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
+	VkRect2D scissor;
+	memset(&scissor, 0, sizeof(scissor));
+	scissor.extent.width = kinc_width();
+	scissor.extent.height = kinc_height();
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
+}
 
+void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
+
+	if (targets[0]->contextId < 0) {
+		kinc_internal_restore_render_target(list, targets[0]);
+		return;
+	}
+
+	endPass(list->impl._buffer);
 	currentRenderTarget = targets[0];
 	onBackBuffer = false;
 
@@ -551,8 +592,10 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
+	viewport.x = 0;
+	viewport.y = (float)targets[0]->height;
 	viewport.width = (float)targets[0]->width;
-	viewport.height = (float)targets[0]->height;
+	viewport.height = -(float)targets[0]->height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
@@ -584,6 +627,8 @@ void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *lis
 
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	lastFragmentConstantBufferOffset = offset;
+
+	Kore::Vulkan::createDescriptorSet(&currentPipeline->impl, desc_set);
 	uint32_t offsets[2] = {lastVertexConstantBufferOffset, lastFragmentConstantBufferOffset};
 	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &desc_set, 2, offsets);
 }

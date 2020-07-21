@@ -15,8 +15,14 @@
 extern VkDevice device;
 extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
+VkDescriptorSetLayout desc_layout;
+extern kinc_g5_texture_t *vulkanTextures[8];
+extern kinc_g5_render_target_t *vulkanRenderTargets[8];
+extern uint32_t swapchainImageCount;
+extern uint32_t current_buffer;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
-void createDescriptorLayout(PipelineState5Impl *pipeline);
+
+VkDescriptorPool desc_pools[3];
 
 kinc_g5_pipeline_t *currentPipeline = NULL;
 
@@ -179,8 +185,6 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
 	pipeline->geometryShader = nullptr;
 	pipeline->tessellationEvaluationShader = nullptr;
 	pipeline->tessellationControlShader = nullptr;
-	createDescriptorLayout(&pipeline->impl);
-	Kore::Vulkan::createDescriptorSet(&pipeline->impl, nullptr, nullptr, desc_set);
 }
 
 void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {}
@@ -214,7 +218,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pPipelineLayoutCreateInfo.pNext = NULL;
 	pPipelineLayoutCreateInfo.setLayoutCount = 1;
-	pPipelineLayoutCreateInfo.pSetLayouts = &pipeline->impl.desc_layout;
+	pPipelineLayoutCreateInfo.pSetLayouts = &desc_layout;
 
 	VkResult err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline->impl.pipeline_layout);
 	assert(!err);
@@ -344,8 +348,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	memset(&rs, 0, sizeof(rs));
 	rs.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rs.polygonMode = VK_POLYGON_MODE_FILL;
-	rs.cullMode = VK_CULL_MODE_NONE;
-	rs.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rs.cullMode = VK_CULL_MODE_NONE; //VK_CULL_MODE_BACK_BIT;
+	rs.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rs.depthClampEnable = VK_FALSE;
 	rs.rasterizerDiscardEnable = VK_FALSE;
 	rs.depthBiasEnable = VK_FALSE;
@@ -369,8 +373,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	memset(&ds, 0, sizeof(ds));
 	ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	ds.depthTestEnable = VK_FALSE;
-	ds.depthWriteEnable = VK_FALSE;
+	ds.depthTestEnable = VK_FALSE;// VK_TRUE;
+	ds.depthWriteEnable = VK_FALSE;// VK_TRUE;
 	ds.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 	ds.depthBoundsTestEnable = VK_FALSE;
 	ds.back.failOp = VK_STENCIL_OP_KEEP;
@@ -423,9 +427,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	vkDestroyShaderModule(device, pipeline->impl.vert_shader_module, nullptr);
 }
 
-extern VkDescriptorPool desc_pool;
-
-void createDescriptorLayout(PipelineState5Impl *pipeline) {
+void createDescriptorLayout() {
 	VkDescriptorSetLayoutBinding layoutBindings[8];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 
@@ -455,7 +457,7 @@ void createDescriptorLayout(PipelineState5Impl *pipeline) {
 	descriptor_layout.bindingCount = 8;
 	descriptor_layout.pBindings = layoutBindings;
 
-	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &pipeline->desc_layout);
+	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
 
 	VkDescriptorPoolSize typeCounts[8];
@@ -475,25 +477,25 @@ void createDescriptorLayout(PipelineState5Impl *pipeline) {
 	VkDescriptorPoolCreateInfo descriptor_pool = {};
 	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptor_pool.pNext = NULL;
-	descriptor_pool.maxSets = 128;
+	descriptor_pool.maxSets = 1024;
 	descriptor_pool.poolSizeCount = 8;
 	descriptor_pool.pPoolSizes = typeCounts;
 
-	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
+	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[0]);
+	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[1]);
+	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[2]);
 	assert(!err);
 }
 
-void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, kinc_g5_texture_t *texture, kinc_g5_render_target_t *renderTarget,
-                                       VkDescriptorSet &desc_set) {
-	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
+void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, VkDescriptorSet &desc_set) {
 	VkDescriptorBufferInfo buffer_descs[2];
 
 	VkDescriptorSetAllocateInfo alloc_info = {};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.pNext = NULL;
-	alloc_info.descriptorPool = desc_pool;
+	alloc_info.descriptorPool = desc_pools[current_buffer];
 	alloc_info.descriptorSetCount = 1;
-	alloc_info.pSetLayouts = &pipeline->desc_layout;
+	alloc_info.pSetLayouts = &desc_layout;
 	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
@@ -511,21 +513,23 @@ void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, ki
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
 
-	VkDescriptorImageInfo tex_desc;
+	VkDescriptorImageInfo tex_desc[6];
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
-	if (texture != nullptr) {
-		tex_desc.sampler = texture->impl.texture.sampler;
-		tex_desc.imageView = texture->impl.texture.view;
+	for (int i = 0; i < 6; ++i) {
+		if (vulkanTextures[i] != nullptr) {
+			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
+			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
+		}
+		else if (vulkanRenderTargets[i] != nullptr) {
+			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
+			tex_desc[i].imageView = vulkanRenderTargets[i]->impl.destView;
+		}
+		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
-	if (renderTarget != nullptr) {
-		tex_desc.sampler = renderTarget->impl.sampler;
-		tex_desc.imageView = renderTarget->impl.destView;
-	}
-	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 	VkWriteDescriptorSet writes[8];
-	memset(writes, 0, sizeof(writes));
+	memset(&writes, 0, sizeof(writes));
 
 	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	writes[0].dstSet = desc_set;
@@ -547,10 +551,10 @@ void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, ki
 		writes[i].dstBinding = i;
 		writes[i].descriptorCount = 1;
 		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		writes[i].pImageInfo = &tex_desc;
+		writes[i].pImageInfo = &tex_desc[i - 2];
 	}
 
-	if (texture != nullptr || renderTarget != nullptr) {
+	if (vulkanTextures[0] != nullptr || vulkanRenderTargets[0] != nullptr) {
 		if (vertexUniformBuffer != nullptr && fragmentUniformBuffer != nullptr) {
 			vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
 		}

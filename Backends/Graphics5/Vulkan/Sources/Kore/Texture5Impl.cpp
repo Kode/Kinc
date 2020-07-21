@@ -114,12 +114,10 @@ namespace {
 			image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
 		}
 
-		VkImageMemoryBarrier* pmemory_barrier = &image_memory_barrier;
+		VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_HOST_BIT;
+		VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 
-		VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-
-		vkCmdPipelineBarrier(setup_cmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+		vkCmdPipelineBarrier(setup_cmd, srcStageMask, dstStageMask, 0, 0, NULL, 0, NULL, 1, &image_memory_barrier);
 	}
 
 	void demo_prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint32_t tex_height, texture_object* tex_obj, VkImageTiling tiling,
@@ -225,6 +223,8 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 		// Device can texture using linear textures
 		demo_prepare_texture_image((uint8_t*)image->data, (uint32_t)image->width, (uint32_t)image->height, &texture->impl.texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
 		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize);
+
+		demo_flush_init_cmd();
 	}
 	else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
 		// Must use staging buffer to copy linear texture to optimized
@@ -297,8 +297,6 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	view.image = texture->impl.texture.image;
 	err = vkCreateImageView(device, &view, NULL, &texture->impl.texture.view);
 	assert(!err);
-
-	Kore::Vulkan::createDescriptorSet(nullptr, texture, nullptr, texture->impl.desc_set); // TODO
 }
 
 void kinc_g5_texture_init(kinc_g5_texture_t* texture, int width, int height, kinc_image_format_t format) {

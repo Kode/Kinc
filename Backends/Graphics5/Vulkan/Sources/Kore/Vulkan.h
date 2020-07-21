@@ -31,6 +31,6 @@ namespace Kore {
 
 		void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 		void demo_flush_init_cmd();
-		void createDescriptorSet(struct PipelineState5Impl_s *pipeline, kinc_g5_texture_t *texture, kinc_g5_render_target_t *renderTarget, VkDescriptorSet &desc_set);
+		void createDescriptorSet(struct PipelineState5Impl_s *pipeline, VkDescriptorSet &desc_set);
 	}
 }

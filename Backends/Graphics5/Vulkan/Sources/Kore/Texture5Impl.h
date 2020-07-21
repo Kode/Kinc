@@ -35,7 +35,5 @@ typedef struct {
 	struct texture_object texture;
 	VkDeviceSize deviceSize;
 
-	VkDescriptorSet desc_set;
-
 	uint8_t *conversionBuffer;
 } Texture5Impl;
