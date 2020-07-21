@@ -305,6 +305,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		case KINC_G4_VERTEX_DATA_FLOAT4X4:
 			stride += 4 * 4 * 4;
 			break;
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			stride += 2 * 2;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			stride += 4 * 2;
+			break;
 		}
 	}
 
@@ -373,6 +379,20 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT; // TODO
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4 * 4;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
+			vi_attrs[i].format = VK_FORMAT_R16G16_SFLOAT;
+			vi_attrs[i].offset = offset;
+			offset += 2 * 2;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
+			vi_attrs[i].format = VK_FORMAT_R16G16B16A16_SFLOAT;
+			vi_attrs[i].offset = offset;
+			offset += 4 * 2;
 			break;
 		}
 	}
