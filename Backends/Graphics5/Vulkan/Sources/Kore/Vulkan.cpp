@@ -64,13 +64,13 @@ VkDescriptorSet desc_set;
 VkPhysicalDevice gpu;
 VkCommandPool cmd_pool;
 VkQueue queue;
-bool use_staging_buffer;
-VkDescriptorPool desc_pool;
+bool use_staging_buffer = false;
 uint32_t swapchainImageCount;
 VkFramebuffer *framebuffers;
 PFN_vkQueuePresentKHR fpQueuePresentKHR;
 PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 VkSemaphore presentCompleteSemaphore;
+void createDescriptorLayout();
 
 #ifndef NDEBUG
 #define VALIDATE
@@ -932,6 +932,8 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 
 	Kore::Vulkan::demo_flush_init_cmd();
 
+	createDescriptorLayout();
+
 	began = false;
 	kinc_g5_begin(nullptr, 0);
 }
@@ -987,8 +989,6 @@ void kinc_g5_end(int window) {
 void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
 	vulkanTextures[unit.impl.binding - 2] = texture;
 	vulkanRenderTargets[unit.impl.binding - 2] = nullptr;
-	//** if (PipelineState5Impl::current != nullptr)
-	//**	vkCmdBindDescriptorSets(draw_cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineState5Impl::current->pipeline_layout, 0, 1, &texture->desc_set, 0, NULL);
 }
 
 void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
@@ -1011,56 +1011,8 @@ int kinc_g5_max_bound_textures(void) {
 	return props.limits.maxPerStageDescriptorSamplers;
 }
 
-/*void Graphics5::restoreRenderTarget() {
-    if (onBackBuffer) return;
-
-    endPass();
-
-    currentRenderTarget = nullptr;
-    onBackBuffer = true;
-
-    VkClearValue clear_values[2];
-    memset(clear_values, 0, sizeof(VkClearValue) * 2);
-    clear_values[0].color.float32[0] = 0.0f;
-    clear_values[0].color.float32[1] = 0.0f;
-    clear_values[0].color.float32[2] = 0.0f;
-    clear_values[0].color.float32[3] = 1.0f;
-    clear_values[1].depthStencil.depth = depthStencil;
-    clear_values[1].depthStencil.stencil = 0;
-
-    VkRenderPassBeginInfo rp_begin = {};
-    rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    rp_begin.pNext = nullptr;
-    rp_begin.renderPass = render_pass;
-    rp_begin.framebuffer = framebuffers[current_buffer];
-    rp_begin.renderArea.offset.x = 0;
-    rp_begin.renderArea.offset.y = 0;
-    rp_begin.renderArea.extent.width = renderTargetWidth;
-    rp_begin.renderArea.extent.height = renderTargetHeight;
-    rp_begin.clearValueCount = 2;
-    rp_begin.pClearValues = clear_values;
-
-    vkCmdBeginRenderPass(draw_cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
-
-    VkViewport viewport;
-    memset(&viewport, 0, sizeof(viewport));
-    viewport.width = (float)renderTargetWidth;
-    viewport.height = (float)renderTargetHeight;
-    viewport.minDepth = (float)0.0f;
-    viewport.maxDepth = (float)1.0f;
-    vkCmdSetViewport(draw_cmd, 0, 1, &viewport);
-
-    VkRect2D scissor;
-    memset(&scissor, 0, sizeof(scissor));
-    scissor.extent.width = renderTargetWidth;
-    scissor.extent.height = renderTargetHeight;
-    scissor.offset.x = 0;
-    scissor.offset.y = 0;
-    vkCmdSetScissor(draw_cmd, 0, 1, &scissor);
-}*/
-
 bool kinc_g5_render_targets_inverted_y() {
-	return true;
+	return false;
 }
 
 bool kinc_g5_non_pow2_textures_qupported() {

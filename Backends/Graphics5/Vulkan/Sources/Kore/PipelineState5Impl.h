@@ -40,10 +40,6 @@ typedef struct PipelineState5Impl_s {
 	kinc_internal_named_number fragmentOffsets[KINC_INTERNAL_NAMED_NUMBER_COUNT];
 
 	VkPipelineLayout pipeline_layout;
-
-	VkDescriptorSetLayout desc_layout;
-
-	//static Graphics5::PipelineState* current;
 } PipelineState5Impl;
 
 typedef struct {
