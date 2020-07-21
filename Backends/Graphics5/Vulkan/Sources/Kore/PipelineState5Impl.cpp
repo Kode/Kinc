@@ -208,6 +208,42 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	return unit;
 }
 
+namespace {
+	VkCullModeFlagBits convert_cull_mode(kinc_g5_cull_mode_t cullMode) {
+		switch (cullMode) {
+		case KINC_G5_CULL_MODE_CLOCKWISE:
+			return VK_CULL_MODE_BACK_BIT;
+		case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
+			return VK_CULL_MODE_FRONT_BIT;
+		case KINC_G5_CULL_MODE_NEVER:
+		default:
+			return VK_CULL_MODE_NONE;
+		}
+	}
+
+	VkCompareOp convert_compare_mode(kinc_g5_compare_mode_t compare) {
+		switch (compare) {
+		default:
+		case KINC_G5_COMPARE_MODE_ALWAYS:
+			return VK_COMPARE_OP_ALWAYS;
+		case KINC_G5_COMPARE_MODE_NEVER:
+			return VK_COMPARE_OP_NEVER;
+		case KINC_G5_COMPARE_MODE_EQUAL:
+			return VK_COMPARE_OP_EQUAL;
+		case KINC_G5_COMPARE_MODE_NOT_EQUAL:
+			return VK_COMPARE_OP_NOT_EQUAL;
+		case KINC_G5_COMPARE_MODE_LESS:
+			return VK_COMPARE_OP_LESS;
+		case KINC_G5_COMPARE_MODE_LESS_EQUAL:
+			return VK_COMPARE_OP_LESS_OR_EQUAL;
+		case KINC_G5_COMPARE_MODE_GREATER:
+			return VK_COMPARE_OP_GREATER;
+		case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
+			return VK_COMPARE_OP_GREATER_OR_EQUAL;
+		}
+	}
+}
+
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	parseShader(pipeline->vertexShader, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
 	parseShader(pipeline->fragmentShader, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
@@ -348,7 +384,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	memset(&rs, 0, sizeof(rs));
 	rs.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rs.polygonMode = VK_POLYGON_MODE_FILL;
-	rs.cullMode = VK_CULL_MODE_NONE; //VK_CULL_MODE_BACK_BIT;
+	rs.cullMode = convert_cull_mode(pipeline->cullMode);
 	rs.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rs.depthClampEnable = VK_FALSE;
 	rs.rasterizerDiscardEnable = VK_FALSE;
@@ -373,9 +409,9 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	memset(&ds, 0, sizeof(ds));
 	ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	ds.depthTestEnable = VK_FALSE;// VK_TRUE;
-	ds.depthWriteEnable = VK_FALSE;// VK_TRUE;
-	ds.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+	ds.depthTestEnable = pipeline->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
+	ds.depthWriteEnable = pipeline->depthWrite;
+	ds.depthCompareOp = convert_compare_mode(pipeline->depthMode);
 	ds.depthBoundsTestEnable = VK_FALSE;
 	ds.back.failOp = VK_STENCIL_OP_KEEP;
 	ds.back.passOp = VK_STENCIL_OP_KEEP;
