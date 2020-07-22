@@ -13,7 +13,6 @@
 #include <string>
 
 extern VkDevice device;
-extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
 VkDescriptorSetLayout desc_layout;
 extern kinc_g5_texture_t *vulkanTextures[8];
@@ -409,11 +408,13 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	memset(&cb, 0, sizeof(cb));
 	cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	VkPipelineColorBlendAttachmentState att_state[1];
+	VkPipelineColorBlendAttachmentState att_state[8];
 	memset(att_state, 0, sizeof(att_state));
-	att_state[0].colorWriteMask = 0xf;
-	att_state[0].blendEnable = VK_FALSE;
-	cb.attachmentCount = 1;
+	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
+		att_state[i].colorWriteMask = 0xf;
+		att_state[i].blendEnable = VK_FALSE;
+	}
+	cb.attachmentCount = pipeline->colorAttachmentCount;
 	cb.pAttachments = att_state;
 
 	memset(&vp, 0, sizeof(vp));
@@ -453,6 +454,64 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	shaderStages[1].module = demo_prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
 	shaderStages[1].pName = "main";
+
+	VkAttachmentDescription attachments[9];
+	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
+		attachments[i].format = VK_FORMAT_B8G8R8A8_UNORM;
+		attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachments[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[i].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[i].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[i].flags = 0;
+	}
+	attachments[pipeline->colorAttachmentCount].format = VK_FORMAT_D16_UNORM;
+	attachments[pipeline->colorAttachmentCount].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[pipeline->colorAttachmentCount].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[pipeline->colorAttachmentCount].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[pipeline->colorAttachmentCount].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[pipeline->colorAttachmentCount].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[pipeline->colorAttachmentCount].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[pipeline->colorAttachmentCount].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[pipeline->colorAttachmentCount].flags = 0;
+
+	VkAttachmentReference color_references[8];
+	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
+		color_references[i].attachment = i;
+		color_references[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	}
+
+	VkAttachmentReference depth_reference = {};
+	depth_reference.attachment = pipeline->colorAttachmentCount;
+	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.flags = 0;
+	subpass.inputAttachmentCount = 0;
+	subpass.pInputAttachments = nullptr;
+	subpass.colorAttachmentCount = pipeline->colorAttachmentCount;
+	subpass.pColorAttachments = color_references;
+	subpass.pResolveAttachments = nullptr;
+	subpass.pDepthStencilAttachment = &depth_reference;
+	subpass.preserveAttachmentCount = 0;
+	subpass.pPreserveAttachments = nullptr;
+
+	VkRenderPassCreateInfo rp_info = {};
+	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	rp_info.pNext = nullptr;
+	rp_info.attachmentCount = pipeline->colorAttachmentCount + 1;
+	rp_info.pAttachments = attachments;
+	rp_info.subpassCount = 1;
+	rp_info.pSubpasses = &subpass;
+	rp_info.dependencyCount = 0;
+	rp_info.pDependencies = nullptr;
+
+	VkRenderPass render_pass;
+	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
+	assert(!err);
 
 	pipeline_info.pVertexInputState = &vi;
 	pipeline_info.pInputAssemblyState = &ia;

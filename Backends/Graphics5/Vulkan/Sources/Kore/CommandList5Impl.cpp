@@ -33,6 +33,9 @@ namespace {
 	uint32_t lastVertexConstantBufferOffset = 0;
 	uint32_t lastFragmentConstantBufferOffset = 0;
 	kinc_g5_pipeline_t *currentPipeline = NULL;
+	bool mrtFramebufferCreated = false;
+	VkFramebuffer mrtFramebuffer;
+	VkRenderPass mrtRenderPass;
 }
 
 void Kore::Vulkan::demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
@@ -325,8 +328,8 @@ void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_ren
 	VkClearRect clearRect = {};
 	clearRect.rect.offset.x = 0;
 	clearRect.rect.offset.y = 0;
-	clearRect.rect.extent.width = kinc_width();
-	clearRect.rect.extent.height = kinc_height();
+	clearRect.rect.extent.width = renderTarget->width;
+	clearRect.rect.extent.height = renderTarget->height;
 	clearRect.baseArrayLayer = 0;
 	clearRect.layerCount = 1;
 
@@ -395,12 +398,12 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 
 namespace {
-	kinc_g5_render_target_t *currentRenderTarget = nullptr;
+	kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 	void endPass(VkCommandBuffer _buffer) {
 		vkCmdEndRenderPass(_buffer);
 
-		if (currentRenderTarget == nullptr || currentRenderTarget->contextId < 0) {
+		if (currentRenderTargets[0] == nullptr || currentRenderTargets[0]->contextId < 0) {
 			/*VkImageMemoryBarrier barrier = {};
 			barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 			barrier.pNext = NULL;
@@ -416,40 +419,45 @@ namespace {
 			vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
 		}
 		else {
-			setImageLayout(_buffer, currentRenderTarget->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-						   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			setImageLayout(_buffer, currentRenderTarget->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-						   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			int i = 0;
+			while (currentRenderTargets[i] != nullptr) {
+				setImageLayout(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+							   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+				setImageLayout(_buffer, currentRenderTargets[i]->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-			VkImageBlit imgBlit;
+				VkImageBlit imgBlit;
 
-			imgBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			imgBlit.srcSubresource.mipLevel = 0;
-			imgBlit.srcSubresource.baseArrayLayer = 0;
-			imgBlit.srcSubresource.layerCount = 1;
+				imgBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				imgBlit.srcSubresource.mipLevel = 0;
+				imgBlit.srcSubresource.baseArrayLayer = 0;
+				imgBlit.srcSubresource.layerCount = 1;
 
-			imgBlit.srcOffsets[0] = {0, 0, 0};
-			imgBlit.srcOffsets[1].x = currentRenderTarget->width;
-			imgBlit.srcOffsets[1].y = currentRenderTarget->height;
-			imgBlit.srcOffsets[1].z = 1;
+				imgBlit.srcOffsets[0] = {0, 0, 0};
+				imgBlit.srcOffsets[1].x = currentRenderTargets[i]->width;
+				imgBlit.srcOffsets[1].y = currentRenderTargets[i]->height;
+				imgBlit.srcOffsets[1].z = 1;
 
-			imgBlit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			imgBlit.dstSubresource.mipLevel = 0;
-			imgBlit.dstSubresource.baseArrayLayer = 0;
-			imgBlit.dstSubresource.layerCount = 1;
+				imgBlit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				imgBlit.dstSubresource.mipLevel = 0;
+				imgBlit.dstSubresource.baseArrayLayer = 0;
+				imgBlit.dstSubresource.layerCount = 1;
 
-			imgBlit.dstOffsets[0] = {0, 0, 0};
-			imgBlit.dstOffsets[1].x = currentRenderTarget->width;
-			imgBlit.dstOffsets[1].y = currentRenderTarget->height;
-			imgBlit.dstOffsets[1].z = 1;
+				imgBlit.dstOffsets[0] = {0, 0, 0};
+				imgBlit.dstOffsets[1].x = currentRenderTargets[i]->width;
+				imgBlit.dstOffsets[1].y = currentRenderTargets[i]->height;
+				imgBlit.dstOffsets[1].z = 1;
 
-			vkCmdBlitImage(_buffer, currentRenderTarget->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTarget->impl.destImage,
-						   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
+				vkCmdBlitImage(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTargets[i]->impl.destImage,
+							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
 
-			setImageLayout(_buffer, currentRenderTarget->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-						   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			setImageLayout(_buffer, currentRenderTarget->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-						   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+				setImageLayout(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+							   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+				setImageLayout(_buffer, currentRenderTargets[i]->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+							   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+				i++;
+			}
 		}
 
 		/*VkResult err = vkEndCommandBuffer(draw_cmd);
@@ -516,7 +524,7 @@ namespace {
 void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct kinc_g5_render_target *target) {
 	if (onBackBuffer) return;
 	endPass(list->impl._buffer);
-	currentRenderTarget = nullptr;
+	currentRenderTargets[0] = nullptr;
 	onBackBuffer = true;
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);
@@ -564,29 +572,122 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	}
 
 	endPass(list->impl._buffer);
-	currentRenderTarget = targets[0];
+	for (int i = 0; i < count; ++i) {
+		currentRenderTargets[i] = targets[i];
+	}
 	onBackBuffer = false;
 
-	VkClearValue clear_values[2];
+	VkClearValue clear_values[9];
 	memset(clear_values, 0, sizeof(VkClearValue));
-	clear_values[0].color.float32[0] = 0.0f;
-	clear_values[0].color.float32[1] = 0.0f;
-	clear_values[0].color.float32[2] = 0.0f;
-	clear_values[0].color.float32[3] = 1.0f;
-	clear_values[1].depthStencil.depth = 1.0;
-	clear_values[1].depthStencil.stencil = 0;
+	for (int i = 0; i < count; ++i) {
+		clear_values[i].color.float32[0] = 0.0f;
+		clear_values[i].color.float32[1] = 0.0f;
+		clear_values[i].color.float32[2] = 0.0f;
+		clear_values[i].color.float32[3] = 1.0f;
+	}
+	clear_values[count].depthStencil.depth = 1.0;
+	clear_values[count].depthStencil.stencil = 0;
 
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = nullptr;
-	rp_begin.renderPass = targets[0]->impl.renderPass;
-	rp_begin.framebuffer = targets[0]->impl.framebuffer;
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
 	rp_begin.renderArea.extent.width = targets[0]->width;
 	rp_begin.renderArea.extent.height = targets[0]->height;
-	rp_begin.clearValueCount = 2;
+	rp_begin.clearValueCount = count + 1;
 	rp_begin.pClearValues = clear_values;
+
+	if (count == 1) {
+		rp_begin.renderPass = targets[0]->impl.renderPass;
+		rp_begin.framebuffer = targets[0]->impl.framebuffer;
+	}
+	else {
+		if (mrtFramebufferCreated) {
+			vkDestroyFramebuffer(device, mrtFramebuffer, nullptr);
+			vkDestroyRenderPass(device, mrtRenderPass, nullptr);
+		}
+
+		VkAttachmentDescription attachments[9];
+		for (int i = 0; i < count; ++i) {
+			attachments[i].format = VK_FORMAT_B8G8R8A8_UNORM;
+			attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
+			attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+			attachments[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			attachments[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			attachments[i].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachments[i].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachments[i].flags = 0;
+		}
+		attachments[count].format = VK_FORMAT_D16_UNORM;
+		attachments[count].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[count].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[count].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[count].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[count].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[count].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[count].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[count].flags = 0;
+
+		VkAttachmentReference color_references[8];
+		for (int i = 0; i < count; ++i) {
+			color_references[i].attachment = i;
+			color_references[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		}
+
+		VkAttachmentReference depth_reference = {};
+		depth_reference.attachment = count;
+		depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription subpass = {};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.flags = 0;
+		subpass.inputAttachmentCount = 0;
+		subpass.pInputAttachments = nullptr;
+		subpass.colorAttachmentCount = count;
+		subpass.pColorAttachments = color_references;
+		subpass.pResolveAttachments = nullptr;
+		subpass.pDepthStencilAttachment = &depth_reference;
+		subpass.preserveAttachmentCount = 0;
+		subpass.pPreserveAttachments = nullptr;
+
+		VkRenderPassCreateInfo rp_info = {};
+		rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		rp_info.pNext = nullptr;
+		rp_info.attachmentCount = count + 1;
+		rp_info.pAttachments = attachments;
+		rp_info.subpassCount = 1;
+		rp_info.pSubpasses = &subpass;
+		rp_info.dependencyCount = 0;
+		rp_info.pDependencies = nullptr;
+
+		VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &mrtRenderPass);
+		assert(!err);
+
+		VkImageView attachmentsViews[9];
+		for (int i = 0; i < count; ++i) {
+			attachmentsViews[i] = targets[i]->impl.sourceView;
+		}
+		attachmentsViews[count] = targets[0]->impl.depthView;
+
+		VkFramebufferCreateInfo fbufCreateInfo = {};
+		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		fbufCreateInfo.pNext = nullptr;
+		fbufCreateInfo.renderPass = mrtRenderPass;
+		fbufCreateInfo.attachmentCount = count + 1;
+		fbufCreateInfo.pAttachments = attachmentsViews;
+		fbufCreateInfo.width = targets[0]->width;
+		fbufCreateInfo.height = targets[0]->height;
+		fbufCreateInfo.layers = 1;
+
+		err = vkCreateFramebuffer(device, &fbufCreateInfo, nullptr, &mrtFramebuffer);
+		assert(!err);
+		mrtFramebufferCreated = true;
+
+		rp_begin.renderPass = mrtRenderPass;
+		rp_begin.framebuffer = mrtFramebuffer;
+	}
 
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
