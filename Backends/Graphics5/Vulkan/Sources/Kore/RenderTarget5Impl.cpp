@@ -11,7 +11,6 @@
 #include <assert.h>
 
 extern VkDevice device;
-extern VkRenderPass render_pass;
 extern uint32_t swapchainImageCount;
 extern VkPhysicalDevice gpu;
 extern kinc_g5_texture_t *vulkanTextures[8];
