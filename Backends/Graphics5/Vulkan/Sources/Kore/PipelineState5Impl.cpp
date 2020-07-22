@@ -411,7 +411,10 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	VkPipelineColorBlendAttachmentState att_state[8];
 	memset(att_state, 0, sizeof(att_state));
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
-		att_state[i].colorWriteMask = 0xf;
+		att_state[i].colorWriteMask = (pipeline->colorWriteMaskRed[i] ? VK_COLOR_COMPONENT_R_BIT  : 0)
+			| (pipeline->colorWriteMaskGreen[i] ? VK_COLOR_COMPONENT_G_BIT  : 0)
+			| (pipeline->colorWriteMaskBlue[i] ? VK_COLOR_COMPONENT_B_BIT  : 0)
+			| (pipeline->colorWriteMaskAlpha[i] ? VK_COLOR_COMPONENT_A_BIT  : 0);
 		att_state[i].blendEnable = VK_FALSE;
 	}
 	cb.attachmentCount = pipeline->colorAttachmentCount;
