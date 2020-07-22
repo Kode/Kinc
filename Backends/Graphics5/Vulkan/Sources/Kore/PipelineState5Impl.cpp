@@ -180,11 +180,7 @@ namespace {
 }
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
-	pipeline->vertexShader = nullptr;
-	pipeline->fragmentShader = nullptr;
-	pipeline->geometryShader = nullptr;
-	pipeline->tessellationEvaluationShader = nullptr;
-	pipeline->tessellationControlShader = nullptr;
+	kinc_g5_internal_pipeline_init(pipeline);
 }
 
 void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {}
@@ -537,10 +533,10 @@ void createDescriptorLayout() {
 	descriptor_pool.poolSizeCount = 8;
 	descriptor_pool.pPoolSizes = typeCounts;
 
-	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[0]);
-	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[1]);
-	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[2]);
-	assert(!err);
+	for (int i = 0; i < 3; ++i) {
+		err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[i]);
+		assert(!err);
+	}
 }
 
 void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, VkDescriptorSet &desc_set) {
