@@ -370,9 +370,27 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_lis
 	vkCmdDrawIndexed(list->impl._buffer, count, 1, start, vertex_offset, 0);
 }
 
-void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {}
+void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
+	VkViewport viewport;
+	memset(&viewport, 0, sizeof(viewport));
+	viewport.x = x;
+	viewport.y = y + height;
+	viewport.width = width;
+	viewport.height = -height;
+	viewport.minDepth = (float)0.0f;
+	viewport.maxDepth = (float)1.0f;
+	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
+}
 
-void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {}
+void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
+	VkRect2D scissor;
+	memset(&scissor, 0, sizeof(scissor));
+	scissor.extent.width = width;
+	scissor.extent.height = height;
+	scissor.offset.x = x;
+	scissor.offset.y = y;
+	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
+}
 
 void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {}
 
