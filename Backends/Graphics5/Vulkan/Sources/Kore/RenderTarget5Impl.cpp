@@ -88,6 +88,24 @@ namespace {
 	}
 }
 
+static VkFormat convert_format(kinc_g5_render_target_format_t format) {
+	switch (format) {
+	case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return VK_FORMAT_R16G16B16A16_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return VK_FORMAT_R32_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return VK_FORMAT_R16_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
+		return VK_FORMAT_R8_UNORM;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
+	default:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	}
+}
+
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
 
 	VkImageMemoryBarrier imageMemoryBarrier = {};
@@ -137,6 +155,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	target->contextId = contextId;
 	target->texWidth = width;
 	target->texHeight = height;
+	target->impl.format = convert_format(format);
 
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -165,14 +184,14 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		    VkFormatProperties formatProperties;
 		    VkResult err;
 
-		    vkGetPhysicalDeviceFormatProperties(gpu, VK_FORMAT_B8G8R8A8_UNORM, &formatProperties);
+		    vkGetPhysicalDeviceFormatProperties(gpu, target->impl.format, &formatProperties);
 		    assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT);
 
 		    VkImageCreateInfo imageCreateInfo = {};
 		    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		    imageCreateInfo.pNext = NULL;
 		    imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-		    imageCreateInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
+		    imageCreateInfo.format = target->impl.format;
 		    imageCreateInfo.extent = {(uint32_t)width, (uint32_t)height, 1};
 		    imageCreateInfo.mipLevels = 1;
 		    imageCreateInfo.arrayLayers = 1;
@@ -211,7 +230,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		    view.pNext = nullptr;
 		    view.image = VK_NULL_HANDLE;
 		    view.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		    view.format = VK_FORMAT_B8G8R8A8_UNORM;
+		    view.format = target->impl.format;
 		    view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
 		    view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 			view.image = target->impl.destImage;
@@ -223,14 +242,14 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		    VkFormatProperties formatProperties;
 		    VkResult err;
 
-		    vkGetPhysicalDeviceFormatProperties(gpu, VK_FORMAT_B8G8R8A8_UNORM, &formatProperties);
+		    vkGetPhysicalDeviceFormatProperties(gpu, target->impl.format, &formatProperties);
 		    assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT);
 
 		    VkImageCreateInfo image = {};
 		    image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		    image.pNext = nullptr;
 		    image.imageType = VK_IMAGE_TYPE_2D;
-		    image.format = VK_FORMAT_B8G8R8A8_UNORM;
+		    image.format = target->impl.format;
 		    image.extent.width = width;
 		    image.extent.height = height;
 		    image.extent.depth = 1;
@@ -245,7 +264,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		    colorImageView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		    colorImageView.pNext = nullptr;
 		    colorImageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		    colorImageView.format = VK_FORMAT_B8G8R8A8_UNORM;
+		    colorImageView.format = target->impl.format;
 		    colorImageView.flags = 0;
 		    colorImageView.subresourceRange = {};
 		    colorImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -355,7 +374,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 
 		{
 			VkAttachmentDescription attachments[2];
-			attachments[0].format = VK_FORMAT_B8G8R8A8_UNORM;
+			attachments[0].format = target->impl.format;
 			attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
 			attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
