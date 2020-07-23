@@ -36,4 +36,5 @@ typedef struct {
 	VkDeviceSize deviceSize;
 
 	uint8_t *conversionBuffer;
+	int stride;
 } Texture5Impl;
