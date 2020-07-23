@@ -267,8 +267,8 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 	static bool altDown = false;
 	static int last_window_width = -1;
 	static int last_window_height = -1;
-	static int last_window_x = -1;
-	static int last_window_y = -1;
+	static int last_window_x = INT_MIN;
+	static int last_window_y = INT_MIN;
 
 	switch (msg) {
 	case WM_NCCREATE:
@@ -334,59 +334,57 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		kinc_internal_mouse_trigger_move(windowId, mouseX, mouseY);
 		break;
 	case WM_SETCURSOR:
-		if (LOWORD(lParam) == HTCLIENT)
-        {
-			switch (cursor)
-			{
+		if (LOWORD(lParam) == HTCLIENT) {
+			switch (cursor) {
 			case 0:
-           		SetCursor(LoadCursor(0, IDC_ARROW));
+				SetCursor(LoadCursor(0, IDC_ARROW));
 				break;
 			case 1:
-           		SetCursor(LoadCursor(0, IDC_HAND));
+				SetCursor(LoadCursor(0, IDC_HAND));
 				break;
 			case 2:
-           		SetCursor(LoadCursor(0, IDC_IBEAM));
+				SetCursor(LoadCursor(0, IDC_IBEAM));
 				break;
 			case 3:
-           		SetCursor(LoadCursor(0, IDC_SIZEWE));
+				SetCursor(LoadCursor(0, IDC_SIZEWE));
 				break;
 			case 4:
-           		SetCursor(LoadCursor(0, IDC_SIZENS));
+				SetCursor(LoadCursor(0, IDC_SIZENS));
 				break;
 			case 5:
-           		SetCursor(LoadCursor(0, IDC_SIZENESW));
+				SetCursor(LoadCursor(0, IDC_SIZENESW));
 				break;
 			case 6:
-           		SetCursor(LoadCursor(0, IDC_SIZENWSE));
+				SetCursor(LoadCursor(0, IDC_SIZENWSE));
 				break;
 			case 7:
-           		SetCursor(LoadCursor(0, IDC_SIZENWSE));
+				SetCursor(LoadCursor(0, IDC_SIZENWSE));
 				break;
 			case 8:
-           		SetCursor(LoadCursor(0, IDC_SIZENESW));
+				SetCursor(LoadCursor(0, IDC_SIZENESW));
 				break;
 			case 9:
-           		SetCursor(LoadCursor(0, IDC_SIZEALL));
+				SetCursor(LoadCursor(0, IDC_SIZEALL));
 				break;
 			case 10:
-           		SetCursor(LoadCursor(0, IDC_SIZEALL));
+				SetCursor(LoadCursor(0, IDC_SIZEALL));
 				break;
 			case 11:
-           		SetCursor(LoadCursor(0, IDC_NO));
+				SetCursor(LoadCursor(0, IDC_NO));
 				break;
 			case 12:
-           		SetCursor(LoadCursor(0, IDC_WAIT));
+				SetCursor(LoadCursor(0, IDC_WAIT));
 				break;
 			case 13:
-           		SetCursor(LoadCursor(0, IDC_CROSS));
+				SetCursor(LoadCursor(0, IDC_CROSS));
 				break;
 			default:
-           		SetCursor(LoadCursor(0, IDC_ARROW));
+				SetCursor(LoadCursor(0, IDC_ARROW));
 				break;
 			}
-            return TRUE;
-        }
-        break;
+			return TRUE;
+		}
+		break;
 	case WM_LBUTTONDOWN:
 		if (!kinc_mouse_is_locked(kinc_windows_window_index_from_hwnd(hWnd))) SetCapture(hWnd);
 		mouseX = GET_X_LPARAM(lParam);
@@ -538,7 +536,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 						if (last_window_width > 0 && last_window_height > 0) {
 							kinc_window_resize(0, last_window_width, last_window_height);
 						}
-						if (last_window_x > 0 && last_window_y > 0) {
+						if (last_window_x > INT_MIN && last_window_y > INT_MIN) {
 							kinc_window_move(0, last_window_x, last_window_y);
 						}
 					}
