@@ -230,9 +230,32 @@ static VkFormat convert_format(kinc_image_format_t format) {
 	}
 }
 
+static int format_byte_size(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return 16;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return 8;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return 4;
+	case KINC_IMAGE_FORMAT_A32:
+		return 4;
+	case KINC_IMAGE_FORMAT_A16:
+		return 2;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return 1;
+	case KINC_IMAGE_FORMAT_BGRA32:
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return 4;
+	default:
+		return 4;
+	}
+}
+
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
+	texture->impl.stride = format_byte_size(image->format) * texture->texWidth;
 
 	const VkFormat tex_format = convert_format(image->format);
 	VkFormatProperties props;
@@ -323,6 +346,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 void kinc_g5_texture_init(kinc_g5_texture_t* texture, int width, int height, kinc_image_format_t format) {
 	texture->texWidth = width;
 	texture->texHeight = height;
+	texture->impl.stride = format_byte_size(format) * texture->texWidth;
 
 	const VkFormat tex_format = convert_format(format);
 	VkFormatProperties props;
@@ -387,7 +411,7 @@ void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}
 void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {}
 
 int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
-	return texture->texWidth * 4;
+	return texture->impl.stride;
 }
 
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
