@@ -178,6 +178,24 @@ namespace {
 	}
 }
 
+static VkFormat convert_format(kinc_g5_render_target_format_t format) {
+	switch (format) {
+	case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return VK_FORMAT_R16G16B16A16_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return VK_FORMAT_R32_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return VK_FORMAT_R16_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
+		return VK_FORMAT_R8_UNORM;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
+	default:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	}
+}
+
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
 	kinc_g5_internal_pipeline_init(pipeline);
 }
@@ -460,7 +478,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	VkAttachmentDescription attachments[9];
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
-		attachments[i].format = VK_FORMAT_B8G8R8A8_UNORM;
+		attachments[i].format = convert_format(pipeline->colorAttachment[i]);
 		attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;

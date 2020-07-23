@@ -121,9 +121,7 @@ namespace {
 	}
 
 	void demo_prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint32_t tex_height, texture_object* tex_obj, VkImageTiling tiling,
-	                                VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize& deviceSize) {
-		const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
-
+	                                VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize& deviceSize, VkFormat tex_format) {
 		VkResult err;
 		bool pass;
 
@@ -209,11 +207,34 @@ namespace {
 	}
 }
 
+static VkFormat convert_format(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return VK_FORMAT_R16G16B16A16_SFLOAT;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	case KINC_IMAGE_FORMAT_A32:
+		return VK_FORMAT_R32_SFLOAT;
+	case KINC_IMAGE_FORMAT_A16:
+		return VK_FORMAT_R16_SFLOAT;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return VK_FORMAT_R8_UNORM;
+	case KINC_IMAGE_FORMAT_BGRA32:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	default:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	}
+}
+
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
 
-	const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
+	const VkFormat tex_format = convert_format(image->format);
 	VkFormatProperties props;
 	VkResult err;
 
@@ -222,7 +243,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	if ((props.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) && !use_staging_buffer) {
 		// Device can texture using linear textures
 		demo_prepare_texture_image((uint8_t*)image->data, (uint32_t)image->width, (uint32_t)image->height, &texture->impl.texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
-		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize);
+		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize, tex_format);
 
 		demo_flush_init_cmd();
 	}
@@ -232,10 +253,10 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 
 		memset(&staging_texture, 0, sizeof(staging_texture));
 		demo_prepare_texture_image((uint8_t*)image->data, (uint32_t)image->width, (uint32_t)image->height, &staging_texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize);
+		                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize, tex_format);
 		demo_prepare_texture_image((uint8_t*)image->data, (uint32_t)image->width, (uint32_t)image->height, &texture->impl.texture, VK_IMAGE_TILING_OPTIMAL,
 		                           (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		                           texture->impl.deviceSize);
+		                           texture->impl.deviceSize, tex_format);
 		demo_set_image_layout(staging_texture.image, VK_IMAGE_ASPECT_COLOR_BIT, staging_texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		demo_set_image_layout(texture->impl.texture.image, VK_IMAGE_ASPECT_COLOR_BIT, texture->impl.texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 

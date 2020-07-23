@@ -610,7 +610,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 
 		VkAttachmentDescription attachments[9];
 		for (int i = 0; i < count; ++i) {
-			attachments[i].format = VK_FORMAT_B8G8R8A8_UNORM;
+			attachments[i].format = targets[i]->impl.format;
 			attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
 			attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
