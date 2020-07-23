@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include <kinc/window.h>
-#include <kinc/display.h>
 #include <kinc/bridge.h>
+#include <kinc/display.h>
+#include <kinc/window.h>
 
 #include <Kore/Windows.h>
 
@@ -25,11 +25,10 @@ typedef struct {
 	int index;
 	int x, y, mode, bpp, frequency, features;
 	int manualWidth, manualHeight;
-	DWORD dwStyle, dwExStyle;
-	void (*resizeCallback)(int x, int y, void* data);
-	void* resizeCallbackData;
-	void (*ppiCallback)(int ppi, void* data);
-	void* ppiCallbackData;
+	void (*resizeCallback)(int x, int y, void *data);
+	void *resizeCallbackData;
+	void (*ppiCallback)(int ppi, void *data);
+	void *ppiCallbackData;
 } WindowData;
 
 LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -39,24 +38,24 @@ static WindowData windows[MAXIMUM_WINDOWS] = {0};
 static int window_counter = 0;
 
 #ifdef KORE_OCULUS
-	const wchar_t *windowClassName = L"ORT";
+const wchar_t *windowClassName = L"ORT";
 #else
-	const wchar_t *windowClassName = L"KoreWindow";
+const wchar_t *windowClassName = L"KoreWindow";
 #endif
 
 static void RegisterWindowClass(HINSTANCE hInstance, const wchar_t *className) {
 	WNDCLASSEXW wc = {sizeof(WNDCLASSEXA),
-		                CS_OWNDC /*CS_CLASSDC*/,
-		                KoreWindowsMessageProcedure,
-		                0L,
-		                0L,
-		                hInstance,
-		                LoadIcon(hInstance, MAKEINTRESOURCE(107)),
-		                LoadCursor(NULL, IDC_ARROW),
-		                0,
-		                0,
-		                className,
-		                0};
+	                  CS_OWNDC /*CS_CLASSDC*/,
+	                  KoreWindowsMessageProcedure,
+	                  0L,
+	                  0L,
+	                  hInstance,
+	                  LoadIcon(hInstance, MAKEINTRESOURCE(107)),
+	                  LoadCursor(NULL, IDC_ARROW),
+	                  0,
+	                  0,
+	                  className,
+	                  0};
 	RegisterClassEx(&wc);
 }
 
@@ -135,6 +134,32 @@ int kinc_window_height(int window_index) {
 	return rect.bottom;
 }
 
+static DWORD getDwStyle(kinc_window_mode_t mode, int features) {
+	switch (mode) {
+	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN: {
+		return WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
+	}
+	case KINC_WINDOW_MODE_FULLSCREEN:
+		return WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
+	case KINC_WINDOW_MODE_WINDOW:
+	default:
+		return getStyle(features);
+	}
+}
+
+static DWORD getDwExStyle(kinc_window_mode_t mode, int features) {
+	switch (mode) {
+	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN: {
+		return WS_EX_APPWINDOW;
+	}
+	case KINC_WINDOW_MODE_FULLSCREEN:
+		return WS_EX_APPWINDOW;
+	case KINC_WINDOW_MODE_WINDOW:
+	default:
+		return getExStyle(features);
+	}
+}
+
 static int createWindow(const wchar_t *title, int x, int y, int width, int height, int bpp, int frequency, int features, kinc_window_mode_t windowMode,
                         int target_display_index) {
 	HINSTANCE inst = GetModuleHandle(NULL);
@@ -160,32 +185,17 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 
 	int display_index = target_display_index == -1 ? kinc_primary_display() : target_display_index;
 
-	DWORD dwStyle, dwExStyle;
-
 	RECT WindowRect;
 	WindowRect.left = 0;
 	WindowRect.right = width;
 	WindowRect.top = 0;
 	WindowRect.bottom = height;
 
-	switch (windowMode) {
-	case KINC_WINDOW_MODE_WINDOW:
-		dwStyle = getStyle(features);
-		dwExStyle = getExStyle(features);
-		break;
-	case KINC_WINDOW_MODE_FULLSCREEN:
-		dwStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
-		dwExStyle = WS_EX_APPWINDOW;
-		break;
-	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN: {
+	if (windowMode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 		kinc_windows_set_display_mode(display_index, width, height, bpp, frequency);
-		dwStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
-		dwExStyle = WS_EX_APPWINDOW;
-		break;
-	}
 	}
 
-	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);
+	AdjustWindowRectEx(&WindowRect, getDwStyle(windowMode, features), FALSE, getDwExStyle(windowMode, features));
 
 	kinc_display_mode_t display_mode = kinc_display_current_mode(display_index);
 
@@ -209,7 +219,8 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 		break;
 	}
 
-	HWND hwnd = CreateWindowEx(dwExStyle, windowClassName, title, dwStyle, dstx, dsty, dstw, dsth, NULL, NULL, inst, NULL);
+	HWND hwnd = CreateWindowEx(getDwExStyle(windowMode, features), windowClassName, title, getDwStyle(windowMode, features), dstx, dsty, dstw, dsth, NULL, NULL,
+	                           inst, NULL);
 
 	SetCursor(LoadCursor(0, IDC_ARROW));
 	DragAcceptFiles(hwnd, true);
@@ -218,8 +229,6 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 	windows[window_counter].handle = hwnd;
 	windows[window_counter].x = dstx;
 	windows[window_counter].y = dsty;
-	windows[window_counter].dwStyle = dwStyle;
-	windows[window_counter].dwExStyle = dwExStyle;
 	windows[window_counter].mode = windowMode;
 	windows[window_counter].display_index = display_index;
 	windows[window_counter].bpp = bpp;
@@ -243,7 +252,7 @@ void kinc_window_resize(int window_index, int width, int height) {
 		rect.top = 0;
 		rect.right = width;
 		rect.bottom = height;
-		AdjustWindowRectEx(&rect, win->dwStyle, FALSE, win->dwExStyle);
+		AdjustWindowRectEx(&rect, getDwStyle(win->mode, win->features), FALSE, getDwExStyle(win->mode, win->features));
 		SetWindowPos(win->handle, NULL, kinc_window_x(window_index), kinc_window_y(window_index), rect.right - rect.left, rect.bottom - rect.top, 0);
 		break;
 	}
@@ -266,7 +275,15 @@ void kinc_window_move(int window_index, int x, int y) {
 
 	win->x = x;
 	win->y = y;
-	SetWindowPos(win->handle, NULL, x, y, kinc_window_width(window_index), kinc_window_height(window_index), 0);
+
+	RECT rect;
+	rect.left = 0;
+	rect.top = 0;
+	rect.right = kinc_window_width(window_index);
+	rect.bottom = kinc_window_height(window_index);
+	AdjustWindowRectEx(&rect, getDwStyle(win->mode, win->features), FALSE, getDwExStyle(win->mode, win->features));
+
+	SetWindowPos(win->handle, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, 0);
 }
 
 void kinc_window_change_framebuffer(int window_index, kinc_framebuffer_options_t *frame) {
@@ -372,8 +389,8 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 	wchar_t wbuffer[1024];
 	MultiByteToWideChar(CP_UTF8, 0, win->title, -1, wbuffer, 1024);
 
-	int windowId =
-	    createWindow(wbuffer, win->x, win->y, win->width, win->height, frame->color_bits, frame->frequency, win->window_features, win->mode, win->display_index);
+	int windowId = createWindow(wbuffer, win->x, win->y, win->width, win->height, frame->color_bits, frame->frequency, win->window_features, win->mode,
+	                            win->display_index);
 
 	kinc_bridge_g4_internal_set_antialiasing_samples(frame->samples_per_pixel);
 	bool vsync = frame->vertical_sync;
