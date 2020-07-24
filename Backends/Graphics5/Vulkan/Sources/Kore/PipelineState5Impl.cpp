@@ -653,7 +653,7 @@ void createDescriptorLayout() {
 	}
 }
 
-void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, VkDescriptorSet &desc_set) {
+void createDescriptorSet(struct PipelineState5Impl_s *pipeline, VkDescriptorSet &desc_set) {
 	VkDescriptorBufferInfo buffer_descs[2];
 
 	VkDescriptorSetAllocateInfo alloc_info = {};
@@ -667,14 +667,14 @@ void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, Vk
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
-	if (vertexUniformBuffer != nullptr) {
-		buffer_descs[0].buffer = *vertexUniformBuffer;
+	if (Kore::Vulkan::vertexUniformBuffer != nullptr) {
+		buffer_descs[0].buffer = *Kore::Vulkan::vertexUniformBuffer;
 	}
 	buffer_descs[0].offset = 0;
 	buffer_descs[0].range = 256 * sizeof(float);
 
-	if (fragmentUniformBuffer != nullptr) {
-		buffer_descs[1].buffer = *fragmentUniformBuffer;
+	if (Kore::Vulkan::fragmentUniformBuffer != nullptr) {
+		buffer_descs[1].buffer = *Kore::Vulkan::fragmentUniformBuffer;
 	}
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
@@ -721,7 +721,7 @@ void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, Vk
 	}
 
 	if (vulkanTextures[0] != nullptr || vulkanRenderTargets[0] != nullptr) {
-		if (vertexUniformBuffer != nullptr && fragmentUniformBuffer != nullptr) {
+		if (Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr) {
 			vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
 		}
 		else {
@@ -729,7 +729,7 @@ void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, Vk
 		}
 	}
 	else {
-		if (vertexUniformBuffer != nullptr && fragmentUniformBuffer != nullptr) {
+		if (Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr) {
 			vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
 		}
 	}

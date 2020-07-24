@@ -57,20 +57,19 @@ int newRenderTargetHeight;
 
 VkDevice device;
 VkFormat format;
-VkFormat depth_format;
 VkRenderPass render_pass;
-// VkCommandBuffer draw_cmd;
 VkDescriptorSet desc_set;
 VkPhysicalDevice gpu;
 VkCommandPool cmd_pool;
 VkQueue queue;
-bool use_staging_buffer = false;
 uint32_t swapchainImageCount;
 VkFramebuffer *framebuffers;
 PFN_vkQueuePresentKHR fpQueuePresentKHR;
 PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 VkSemaphore presentCompleteSemaphore;
 void createDescriptorLayout();
+void demo_flush_init_cmd();
+void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 
 #ifndef NDEBUG
 #define VALIDATE
@@ -347,8 +346,8 @@ void create_swapchain() {
 		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
 		// to that state
-		Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-		                                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		demo_set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+		                      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 		color_attachment_view.image = Kore::Vulkan::buffers[i].image;
 
@@ -400,8 +399,6 @@ void create_swapchain() {
 	VkMemoryRequirements mem_reqs = {};
 	bool pass;
 
-	::depth_format = depth_format;
-
 	/* create image */
 	err = vkCreateImage(device, &image, NULL, &Kore::Vulkan::depth.image);
 	assert(!err);
@@ -422,8 +419,8 @@ void create_swapchain() {
 	err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
 	assert(!err);
 
-	Kore::Vulkan::demo_set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-	                                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	demo_set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+	                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 	/* create image view */
 	view.image = Kore::Vulkan::depth.image;
@@ -930,7 +927,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 
 	create_swapchain();
 
-	Kore::Vulkan::demo_flush_init_cmd();
+	demo_flush_init_cmd();
 
 	createDescriptorLayout();
 
