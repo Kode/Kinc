@@ -653,7 +653,7 @@ void createDescriptorLayout() {
 	}
 }
 
-void createDescriptorSet(struct PipelineState5Impl_s *pipeline, VkDescriptorSet &desc_set) {
+void createDescriptorSet(VkDescriptorSet &desc_set) {
 	VkDescriptorBufferInfo buffer_descs[2];
 
 	VkDescriptorSetAllocateInfo alloc_info = {};
