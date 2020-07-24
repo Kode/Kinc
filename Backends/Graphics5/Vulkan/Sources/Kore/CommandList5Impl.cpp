@@ -24,7 +24,7 @@ extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
 extern uint32_t current_buffer;
 extern VkDescriptorPool desc_pools[3];
-void createDescriptorSet(struct PipelineState5Impl_s *pipeline, VkDescriptorSet &desc_set);
+void createDescriptorSet(VkDescriptorSet &desc_set);
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
 
@@ -113,8 +113,8 @@ void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImage
 		image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
 	}
 
-	VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-	VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+	VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 	if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 		dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
 	}
@@ -489,65 +489,6 @@ namespace {
 				i++;
 			}
 		}
-
-		/*VkResult err = vkEndCommandBuffer(_buffer);
-		assert(!err);
-
-		VkFence nullFence = VK_NULL_HANDLE;
-		VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		VkSubmitInfo submit_info = {};
-		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submit_info.pNext = NULL;
-		submit_info.waitSemaphoreCount = 1;
-		submit_info.pWaitSemaphores = &presentCompleteSemaphore;
-		submit_info.pWaitDstStageMask = &pipe_stage_flags;
-		submit_info.commandBufferCount = 1;
-		submit_info.pCommandBuffers = &_buffer;
-		submit_info.signalSemaphoreCount = 0;
-		submit_info.pSignalSemaphores = NULL;
-
-		err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
-		assert(!err);
-
-		VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-		cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		cmd_buf_hinfo.pNext = NULL;
-		cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-		cmd_buf_hinfo.subpass = 0;
-		cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-		cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-		cmd_buf_hinfo.queryFlags = 0;
-		cmd_buf_hinfo.pipelineStatistics = 0;
-
-		VkCommandBufferBeginInfo cmd_buf_info = {};
-		cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		cmd_buf_info.pNext = NULL;
-		cmd_buf_info.flags = 0;
-		cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
-
-		VkClearValue clear_values[2];
-		memset(clear_values, 0, sizeof(VkClearValue) * 2);
-		clear_values[0].color.float32[0] = 0.0f;
-		clear_values[0].color.float32[1] = 0.0f;
-		clear_values[0].color.float32[2] = 0.0f;
-		clear_values[0].color.float32[3] = 1.0f;
-		clear_values[1].depthStencil.depth = 1.0;
-		clear_values[1].depthStencil.stencil = 0;
-
-		VkRenderPassBeginInfo rp_begin = {};
-		rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		rp_begin.pNext = NULL;
-		rp_begin.renderPass = render_pass;
-		rp_begin.framebuffer = framebuffers[current_buffer];
-		rp_begin.renderArea.offset.x = 0;
-		rp_begin.renderArea.offset.y = 0;
-		rp_begin.renderArea.extent.width = currentRenderTargets[0]->width;
-		rp_begin.renderArea.extent.height = currentRenderTargets[0]->height;
-		rp_begin.clearValueCount = 2;
-		rp_begin.pClearValues = clear_values;
-
-		err = vkBeginCommandBuffer(_buffer, &cmd_buf_info);
-		assert(!err);*/
 	}
 }
 
@@ -642,7 +583,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		for (int i = 0; i < count; ++i) {
 			attachments[i].format = targets[i]->impl.format;
 			attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
-			attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			attachments[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			attachments[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -652,7 +593,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		}
 		attachments[count].format = VK_FORMAT_D16_UNORM;
 		attachments[count].samples = VK_SAMPLE_COUNT_1_BIT;
-		attachments[count].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[count].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachments[count].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[count].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachments[count].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -759,7 +700,7 @@ void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *lis
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	lastFragmentConstantBufferOffset = offset;
 
-	createDescriptorSet(&currentPipeline->impl, desc_set);
+	createDescriptorSet(desc_set);
 	uint32_t offsets[2] = {lastVertexConstantBufferOffset, lastFragmentConstantBufferOffset};
 	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &desc_set, 2, offsets);
 }
