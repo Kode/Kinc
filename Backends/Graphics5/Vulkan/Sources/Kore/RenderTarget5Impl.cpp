@@ -17,76 +17,12 @@ extern kinc_g5_texture_t *vulkanTextures[8];
 extern kinc_g5_render_target_t *vulkanRenderTargets[8];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+void demo_setup_init_cmd();
+void demo_flush_init_cmd();
 
 extern VkCommandPool cmd_pool;
 extern VkQueue queue;
-static VkCommandBuffer setup_cmd;
-
-namespace {
-	void demo_flush_init_cmd() {
-		VkResult err;
-
-		if (setup_cmd == VK_NULL_HANDLE) return;
-
-		err = vkEndCommandBuffer(setup_cmd);
-		assert(!err);
-
-		const VkCommandBuffer cmd_bufs[] = {setup_cmd};
-		VkFence nullFence = {VK_NULL_HANDLE};
-		VkSubmitInfo submit_info = {};
-		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submit_info.pNext = NULL;
-		submit_info.waitSemaphoreCount = 0;
-		submit_info.pWaitSemaphores = NULL;
-		submit_info.pWaitDstStageMask = NULL;
-		submit_info.commandBufferCount = 1;
-		submit_info.pCommandBuffers = cmd_bufs;
-		submit_info.signalSemaphoreCount = 0;
-		submit_info.pSignalSemaphores = NULL;
-
-		err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
-		assert(!err);
-
-		err = vkQueueWaitIdle(queue);
-		assert(!err);
-
-		vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
-		setup_cmd = VK_NULL_HANDLE;
-	}
-
-	void demo_setup_init_cmd() {
-		if (setup_cmd == VK_NULL_HANDLE) {
-			VkCommandBufferAllocateInfo cmd = {};
-			cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			cmd.pNext = NULL;
-			cmd.commandPool = cmd_pool;
-			cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			cmd.commandBufferCount = 1;
-
-			VkResult err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
-			assert(!err);
-
-			VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-			cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-			cmd_buf_hinfo.pNext = NULL;
-			cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-			cmd_buf_hinfo.subpass = 0;
-			cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-			cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-			cmd_buf_hinfo.queryFlags = 0;
-			cmd_buf_hinfo.pipelineStatistics = 0;
-
-			VkCommandBufferBeginInfo cmd_buf_info = {};
-			cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			cmd_buf_info.pNext = NULL;
-			cmd_buf_info.flags = 0;
-			cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
-
-			err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
-			assert(!err);
-		}
-	}
-}
+extern VkCommandBuffer setup_cmd;
 
 static VkFormat convert_format(kinc_g5_render_target_format_t format) {
 	switch (format) {
@@ -121,12 +57,21 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 	imageMemoryBarrier.subresourceRange.levelCount = 1;
 	imageMemoryBarrier.subresourceRange.layerCount = 1;
 
-	// if (oldImageLayout == VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-	if (oldImageLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	if (oldImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-	if (oldImageLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-	if (oldImageLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	if (newImageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	if (oldImageLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	}
+	if (oldImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	}
+	if (oldImageLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	}
+	if (oldImageLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	}
+	if (newImageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	}
 	if (newImageLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
 		if (oldImageLayout != VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = imageMemoryBarrier.srcAccessMask | VK_ACCESS_TRANSFER_READ_BIT;
 		imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
@@ -135,8 +80,9 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 		imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		if (oldImageLayout != VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 	}
-	if (newImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+	if (newImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 		imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	}
 	if (newImageLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 		if (oldImageLayout != VK_IMAGE_LAYOUT_UNDEFINED) imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
 		imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;

@@ -17,7 +17,6 @@
 extern VkDevice device;
 extern VkCommandPool cmd_pool;
 extern PFN_vkQueuePresentKHR fpQueuePresentKHR;
-extern PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 extern VkSwapchainKHR swapchain;
 extern VkQueue queue;
 extern VkFramebuffer *framebuffers;
@@ -25,9 +24,11 @@ extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
 extern uint32_t current_buffer;
 extern VkDescriptorPool desc_pools[3];
+void createDescriptorSet(struct PipelineState5Impl_s *pipeline, VkDescriptorSet &desc_set);
+void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
+VkCommandBuffer setup_cmd;
 
 namespace {
-	VkCommandBuffer setup_cmd;
 	bool began = false;
 	bool onBackBuffer = false;
 	uint32_t lastVertexConstantBufferOffset = 0;
@@ -38,8 +39,9 @@ namespace {
 	VkRenderPass mrtRenderPass;
 }
 
-void Kore::Vulkan::demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
+void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
 	VkResult err;
+
 	if (setup_cmd == VK_NULL_HANDLE) {
 		VkCommandBufferAllocateInfo cmd = {};
 		cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -123,7 +125,40 @@ void Kore::Vulkan::demo_set_image_layout(VkImage image, VkImageAspectFlags aspec
 	vkCmdPipelineBarrier(setup_cmd, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
 }
 
-void Kore::Vulkan::demo_flush_init_cmd() {
+void demo_setup_init_cmd() {
+	if (setup_cmd == VK_NULL_HANDLE) {
+		VkCommandBufferAllocateInfo cmd = {};
+		cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		cmd.pNext = NULL;
+		cmd.commandPool = cmd_pool;
+		cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		cmd.commandBufferCount = 1;
+
+		VkResult err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
+		assert(!err);
+
+		VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
+		cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+		cmd_buf_hinfo.pNext = NULL;
+		cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
+		cmd_buf_hinfo.subpass = 0;
+		cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
+		cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
+		cmd_buf_hinfo.queryFlags = 0;
+		cmd_buf_hinfo.pipelineStatistics = 0;
+
+		VkCommandBufferBeginInfo cmd_buf_info = {};
+		cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		cmd_buf_info.pNext = NULL;
+		cmd_buf_info.flags = 0;
+		cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+
+		err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
+		assert(!err);
+	}
+}
+
+void demo_flush_init_cmd() {
 	VkResult err;
 
 	if (setup_cmd == VK_NULL_HANDLE) return;
@@ -168,20 +203,11 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 	assert(!err);
 
 	list->impl._indexCount = 0;
-
-	// begin();
 }
 
 void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
-	// if (began) return;
-
-	// Assume the command buffer has been run on current_buffer before so
-	// we need to set the image layout back to COLOR_ATTACHMENT_OPTIMAL
-	// demo_set_image_layout(Vulkan::buffers[current_buffer].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-	// VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL); demo_flush_init_cmd();
-
 	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
 	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 	cmd_buf_hinfo.pNext = NULL;
@@ -413,8 +439,6 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 	vkCmdBindIndexBuffer(list->impl._buffer, indexBuffer->impl.buf, 0, VK_INDEX_TYPE_UINT32);
 }
 
-void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
-
 namespace {
 	kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
@@ -422,19 +446,7 @@ namespace {
 		vkCmdEndRenderPass(_buffer);
 
 		if (currentRenderTargets[0] == nullptr || currentRenderTargets[0]->contextId < 0) {
-			/*VkImageMemoryBarrier barrier = {};
-			barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier.pNext = NULL;
-			barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-			barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-			barrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-			barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			barrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-			barrier.image = buffers[current_buffer].image;
 
-			vkCmdPipelineBarrier(draw_cmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
 		}
 		else {
 			int i = 0;
@@ -478,7 +490,7 @@ namespace {
 			}
 		}
 
-		/*VkResult err = vkEndCommandBuffer(draw_cmd);
+		/*VkResult err = vkEndCommandBuffer(_buffer);
 		assert(!err);
 
 		VkFence nullFence = VK_NULL_HANDLE;
@@ -490,7 +502,7 @@ namespace {
 		submit_info.pWaitSemaphores = &presentCompleteSemaphore;
 		submit_info.pWaitDstStageMask = &pipe_stage_flags;
 		submit_info.commandBufferCount = 1;
-		submit_info.pCommandBuffers = &draw_cmd;
+		submit_info.pCommandBuffers = &_buffer;
 		submit_info.signalSemaphoreCount = 0;
 		submit_info.pSignalSemaphores = NULL;
 
@@ -529,12 +541,12 @@ namespace {
 		rp_begin.framebuffer = framebuffers[current_buffer];
 		rp_begin.renderArea.offset.x = 0;
 		rp_begin.renderArea.offset.y = 0;
-		rp_begin.renderArea.extent.width = width;
-		rp_begin.renderArea.extent.height = height;
+		rp_begin.renderArea.extent.width = currentRenderTargets[0]->width;
+		rp_begin.renderArea.extent.height = currentRenderTargets[0]->height;
 		rp_begin.clearValueCount = 2;
 		rp_begin.pClearValues = clear_values;
 
-		err = vkBeginCommandBuffer(draw_cmd, &cmd_buf_info);
+		err = vkBeginCommandBuffer(_buffer, &cmd_buf_info);
 		assert(!err);*/
 	}
 }
@@ -747,7 +759,7 @@ void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *lis
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	lastFragmentConstantBufferOffset = offset;
 
-	Kore::Vulkan::createDescriptorSet(&currentPipeline->impl, desc_set);
+	createDescriptorSet(&currentPipeline->impl, desc_set);
 	uint32_t offsets[2] = {lastVertexConstantBufferOffset, lastFragmentConstantBufferOffset};
 	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &desc_set, 2, offsets);
 }

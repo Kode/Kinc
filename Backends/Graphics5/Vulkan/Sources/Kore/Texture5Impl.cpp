@@ -13,113 +13,16 @@
 
 extern VkDevice device;
 extern VkPhysicalDevice gpu;
-VkCommandBuffer setup_cmd;
+extern VkCommandBuffer setup_cmd;
 extern VkCommandPool cmd_pool;
 extern VkQueue queue;
-extern bool use_staging_buffer;
+bool use_staging_buffer = false;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
+void demo_flush_init_cmd();
 
 namespace {
-	void demo_flush_init_cmd() {
-		VkResult err;
-
-		if (setup_cmd == VK_NULL_HANDLE) return;
-
-		err = vkEndCommandBuffer(setup_cmd);
-		assert(!err);
-
-		const VkCommandBuffer cmd_bufs[] = {setup_cmd};
-		VkFence nullFence = {VK_NULL_HANDLE};
-		VkSubmitInfo submit_info = {};
-		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submit_info.pNext = NULL;
-		submit_info.waitSemaphoreCount = 0;
-		submit_info.pWaitSemaphores = NULL;
-		submit_info.pWaitDstStageMask = NULL;
-		submit_info.commandBufferCount = 1;
-		submit_info.pCommandBuffers = cmd_bufs;
-		submit_info.signalSemaphoreCount = 0;
-		submit_info.pSignalSemaphores = NULL;
-
-		err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
-		assert(!err);
-
-		err = vkQueueWaitIdle(queue);
-		assert(!err);
-
-		vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
-		setup_cmd = VK_NULL_HANDLE;
-	}
-
-	void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
-		VkResult err;
-
-		if (setup_cmd == VK_NULL_HANDLE) {
-			VkCommandBufferAllocateInfo cmd = {};
-			cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			cmd.pNext = NULL;
-			cmd.commandPool = cmd_pool;
-			cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			cmd.commandBufferCount = 1;
-
-			err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
-			assert(!err);
-
-			VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-			cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-			cmd_buf_hinfo.pNext = NULL;
-			cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-			cmd_buf_hinfo.subpass = 0;
-			cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-			cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-			cmd_buf_hinfo.queryFlags = 0;
-			cmd_buf_hinfo.pipelineStatistics = 0;
-
-			VkCommandBufferBeginInfo cmd_buf_info = {};
-			cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			cmd_buf_info.pNext = NULL;
-			cmd_buf_info.flags = 0;
-			cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
-
-			err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
-			assert(!err);
-		}
-
-		VkImageMemoryBarrier image_memory_barrier = {};
-		image_memory_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		image_memory_barrier.pNext = NULL;
-		image_memory_barrier.srcAccessMask = 0;
-		image_memory_barrier.dstAccessMask = 0;
-		image_memory_barrier.oldLayout = old_image_layout;
-		image_memory_barrier.newLayout = new_image_layout;
-		image_memory_barrier.image = image;
-		image_memory_barrier.subresourceRange = {aspectMask, 0, 1, 0, 1};
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			/* Make sure anything that was copying from this image has completed */
-			image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-		}
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-			image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		}
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-			image_memory_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		}
-
-		if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-			// Make sure any Copy or CPU writes to image are flushed
-			image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-		}
-
-		VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_HOST_BIT;
-		VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-
-		vkCmdPipelineBarrier(setup_cmd, srcStageMask, dstStageMask, 0, 0, NULL, 0, NULL, 1, &image_memory_barrier);
-	}
-
 	void demo_prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint32_t tex_height, texture_object* tex_obj, VkImageTiling tiling,
 	                                VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize& deviceSize, VkFormat tex_format) {
 		VkResult err;
@@ -301,7 +204,6 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 		demo_destroy_texture_image(&staging_texture);
 	}
 	else {
-		// Can't support VK_FORMAT_B8G8R8A8_UNORM !?
 		assert(!"No support for B8G8R8A8_UNORM as texture image format");
 	}
 
