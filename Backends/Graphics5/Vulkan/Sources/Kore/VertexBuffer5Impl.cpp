@@ -88,8 +88,6 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 
 	err = vkBindBufferMemory(device, buffer->impl.vertices.buf, buffer->impl.vertices.mem, 0);
 	assert(!err);
-
-	// createVertexInfo(structure, vertices.info);
 }
 
 static void unset(kinc_g5_vertex_buffer_t *buffer) {
@@ -126,10 +124,6 @@ static int setVertexAttributes(int offset) {
 
 int kinc_g5_internal_vertex_buffer_set(kinc_g5_vertex_buffer_t *buffer, int offset) {
 	int offsetoffset = setVertexAttributes(offset);
-	//if (currentIndexBuffer != NULL) {
-	//	IndexBuffer::current->_set();
-	//}
-
 	return offsetoffset;
 }
 

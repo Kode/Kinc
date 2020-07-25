@@ -39,7 +39,7 @@ namespace {
 	VkRenderPass mrtRenderPass;
 }
 
-void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
+void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
 	VkResult err;
 
 	if (setup_cmd == VK_NULL_HANDLE) {
@@ -125,7 +125,7 @@ void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImage
 	vkCmdPipelineBarrier(setup_cmd, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, 1, &image_memory_barrier);
 }
 
-void demo_setup_init_cmd() {
+void setup_init_cmd() {
 	if (setup_cmd == VK_NULL_HANDLE) {
 		VkCommandBufferAllocateInfo cmd = {};
 		cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -158,7 +158,7 @@ void demo_setup_init_cmd() {
 	}
 }
 
-void demo_flush_init_cmd() {
+void flush_init_cmd() {
 	VkResult err;
 
 	if (setup_cmd == VK_NULL_HANDLE) return;

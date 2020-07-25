@@ -17,8 +17,8 @@ extern kinc_g5_texture_t *vulkanTextures[8];
 extern kinc_g5_render_target_t *vulkanRenderTargets[8];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
-void demo_setup_init_cmd();
-void demo_flush_init_cmd();
+void setup_init_cmd();
+void flush_init_cmd();
 
 extern VkCommandPool cmd_pool;
 extern VkQueue queue;
@@ -167,9 +167,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			err = vkBindImageMemory(device, target->impl.destImage, target->impl.destMemory, 0);
 		    assert(!err);
 
-		    demo_setup_init_cmd();
+		    setup_init_cmd();
 		    setImageLayout(setup_cmd, target->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		    demo_flush_init_cmd();
+		    flush_init_cmd();
 
 		    VkImageViewCreateInfo view = {};
 		    view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -241,9 +241,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		    err = vkBindImageMemory(device, target->impl.sourceImage, target->impl.sourceMemory, 0);
 		    assert(!err);
 
-		    demo_setup_init_cmd();
+		    setup_init_cmd();
 			setImageLayout(setup_cmd, target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			demo_flush_init_cmd();
+			flush_init_cmd();
 
 		    colorImageView.image = target->impl.sourceImage;
 			err = vkCreateImageView(device, &colorImageView, nullptr, &target->impl.sourceView);
@@ -309,9 +309,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			err = vkBindImageMemory(device, target->impl.depthImage, target->impl.depthMemory, 0);
 			assert(!err);
 
-			demo_setup_init_cmd();
+			setup_init_cmd();
 			setImageLayout(setup_cmd, target->impl.depthImage, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-			demo_flush_init_cmd();
+			flush_init_cmd();
 
 			/* create image view */
 			err = vkCreateImageView(device, &view, NULL, &target->impl.depthView);

@@ -22,7 +22,6 @@ struct Vertices {
 };
 
 typedef struct {
-//void unset();
 	float* data;
 	int myCount;
 	int myStride;
@@ -30,7 +29,5 @@ typedef struct {
 	kinc_g5_vertex_structure_t structure;
 	VkMemoryAllocateInfo mem_alloc;
 	int instanceDataStepRate;
-	//int setVertexAttributes(int offset);
 	struct Vertices vertices;
-	//static Graphics5::VertexBuffer* current;
 } VertexBuffer5Impl;
