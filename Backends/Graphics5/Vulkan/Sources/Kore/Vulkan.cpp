@@ -68,8 +68,7 @@ PFN_vkQueuePresentKHR fpQueuePresentKHR;
 PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 VkSemaphore presentCompleteSemaphore;
 void createDescriptorLayout();
-void demo_flush_init_cmd();
-void demo_set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
+void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 
 #ifndef NDEBUG
 #define VALIDATE
@@ -137,7 +136,7 @@ namespace {
 	bool quit;
 	uint32_t queue_count;
 
-	VkBool32 demo_check_layers(uint32_t check_count, char **check_names, uint32_t layer_count, VkLayerProperties *layers) {
+	VkBool32 check_layers(uint32_t check_count, char **check_names, uint32_t layer_count, VkLayerProperties *layers) {
 		for (uint32_t i = 0; i < check_count; ++i) {
 			VkBool32 found = 0;
 			for (uint32_t j = 0; j < layer_count; ++j) {
@@ -346,7 +345,7 @@ void create_swapchain() {
 		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
 		// to that state
-		demo_set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+		set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
 		                      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 		color_attachment_view.image = Kore::Vulkan::buffers[i].image;
@@ -419,7 +418,7 @@ void create_swapchain() {
 	err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
 	assert(!err);
 
-	demo_set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+	set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
 	                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 	/* create image view */
@@ -514,8 +513,6 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 #ifdef VALIDATE
 	uint32_t device_validation_layer_count = 0;
 #endif
-	// demo->enabled_extension_count = 0;
-	// demo->enabled_layer_count = 0;
 
 #ifdef VALIDATE
 	char *instance_validation_layers[] = {"VK_LAYER_KHRONOS_validation"};
@@ -536,7 +533,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		assert(!err);
 
 #ifdef VALIDATE
-		validation_found = demo_check_layers(ARRAY_SIZE(instance_validation_layers), instance_validation_layers, instance_layer_count, instance_layers);
+		validation_found = check_layers(ARRAY_SIZE(instance_validation_layers), instance_validation_layers, instance_layer_count, instance_layers);
 		enabled_layer_count = ARRAY_SIZE(instance_validation_layers);
 #endif
 		free(instance_layers);
@@ -690,7 +687,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		assert(!err);
 
 #ifdef VALIDATE
-		validation_found = demo_check_layers(device_validation_layer_count, device_validation_layers, device_layer_count, device_layers);
+		validation_found = check_layers(device_validation_layer_count, device_validation_layers, device_layer_count, device_layers);
 		enabled_layer_count = device_validation_layer_count;
 #endif
 

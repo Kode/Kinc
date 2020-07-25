@@ -23,8 +23,6 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 
 VkDescriptorPool desc_pools[3];
 
-kinc_g5_pipeline_t *currentPipeline = NULL;
-
 static bool has_number(kinc_internal_named_number *named_numbers, const char *name) {
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
 		if (strcmp(named_numbers[i].name, name) == 0) {
@@ -150,7 +148,7 @@ namespace {
 		}
 	}
 
-	VkShaderModule demo_prepare_shader_module(const void *code, size_t size) {
+	VkShaderModule prepare_shader_module(const void *code, size_t size) {
 		VkShaderModuleCreateInfo moduleCreateInfo;
 		VkShaderModule module;
 		VkResult err;
@@ -167,13 +165,13 @@ namespace {
 		return module;
 	}
 
-	VkShaderModule demo_prepare_vs(VkShaderModule &vert_shader_module, kinc_g5_shader_t *vertexShader) {
-		vert_shader_module = demo_prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
+	VkShaderModule prepare_vs(VkShaderModule &vert_shader_module, kinc_g5_shader_t *vertexShader) {
+		vert_shader_module = prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
 		return vert_shader_module;
 	}
 
-	VkShaderModule demo_prepare_fs(VkShaderModule &frag_shader_module, kinc_g5_shader_t *fragmentShader) {
-		frag_shader_module = demo_prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
+	VkShaderModule prepare_fs(VkShaderModule &frag_shader_module, kinc_g5_shader_t *fragmentShader) {
+		frag_shader_module = prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
 		return frag_shader_module;
 	}
 }
@@ -287,8 +285,6 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	parseShader(pipeline->vertexShader, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
 	parseShader(pipeline->fragmentShader, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
 
-	//
-
 	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
 	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pPipelineLayoutCreateInfo.pNext = NULL;
@@ -297,8 +293,6 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	VkResult err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline->impl.pipeline_layout);
 	assert(!err);
-
-	//
 
 	VkGraphicsPipelineCreateInfo pipeline_info = {};
 	VkPipelineCacheCreateInfo pipelineCache_info = {};
@@ -502,12 +496,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = demo_prepare_vs(pipeline->impl.vert_shader_module, pipeline->vertexShader);
+	shaderStages[0].module = prepare_vs(pipeline->impl.vert_shader_module, pipeline->vertexShader);
 	shaderStages[0].pName = "main";
 
 	shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = demo_prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
+	shaderStages[1].module = prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
 	shaderStages[1].pName = "main";
 
 	VkAttachmentDescription attachments[9];
@@ -588,7 +582,6 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	assert(!err);
 
 	vkDestroyPipelineCache(device, pipeline->impl.pipelineCache, nullptr);
-
 	vkDestroyShaderModule(device, pipeline->impl.frag_shader_module, nullptr);
 	vkDestroyShaderModule(device, pipeline->impl.vert_shader_module, nullptr);
 }
