@@ -103,6 +103,8 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	target->texHeight = height;
 	target->impl.format = convert_format(format);
 	target->impl.depthBufferBits = depthBufferBits;
+	target->impl.stage = 0;
+	target->impl.stage_depth = -1;
 
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -405,11 +407,16 @@ void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMa
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {}
 
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
+	target->impl.stage = unit.impl.binding - 2;
 	vulkanRenderTargets[unit.impl.binding - 2] = target;
 	vulkanTextures[unit.impl.binding - 2] = nullptr;
 }
 
-void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {}
+void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
+	target->impl.stage_depth = unit.impl.binding - 2;
+	vulkanRenderTargets[unit.impl.binding - 2] = target;
+	vulkanTextures[unit.impl.binding - 2] = nullptr;
+}
 
 void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source) {
 	target->impl.depthImage = source->impl.depthImage;
