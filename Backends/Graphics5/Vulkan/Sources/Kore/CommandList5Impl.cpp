@@ -24,6 +24,7 @@ extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
 extern uint32_t current_buffer;
 extern VkDescriptorPool desc_pools[3];
+extern int depthBits;
 void createDescriptorSet(VkDescriptorSet &desc_set);
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
@@ -230,8 +231,10 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
 	clear_values[0].color.float32[3] = 1.0f;
-	clear_values[1].depthStencil.depth = 1.0;
-	clear_values[1].depthStencil.stencil = 0;
+	if (depthBits > 0) {
+		clear_values[1].depthStencil.depth = 1.0;
+		clear_values[1].depthStencil.stencil = 0;
+	}
 
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -242,7 +245,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	rp_begin.renderArea.offset.y = 0;
 	rp_begin.renderArea.extent.width = kinc_width();
 	rp_begin.renderArea.extent.height = kinc_height();
-	rp_begin.clearValueCount = 2;
+	rp_begin.clearValueCount = depthBits > 0 ? 2 : 1;
 	rp_begin.pClearValues = clear_values;
 
 	VkResult err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
@@ -359,25 +362,26 @@ void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_ren
 	clearRect.baseArrayLayer = 0;
 	clearRect.layerCount = 1;
 
+	int count = 0;
+	VkClearAttachment attachments[2];
 	if (flags & KINC_G5_CLEAR_COLOR) {
 		VkClearColorValue clearColor = {};
 		clearColor.float32[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
 		clearColor.float32[1] = ((color & 0x0000ff00) >> 8) / 255.0f;
 		clearColor.float32[2] = (color & 0x000000ff) / 255.0f;
 		clearColor.float32[3] = ((color & 0xff000000) >> 24) / 255.0f;
-		VkClearAttachment attachment = {};
-		attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		attachment.colorAttachment = 0;
-		attachment.clearValue.color = clearColor;
-		vkCmdClearAttachments(list->impl._buffer, 1, &attachment, 1, &clearRect);
+		attachments[count].aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		attachments[count].colorAttachment = 0;
+		attachments[count].clearValue.color = clearColor;
+		count++;
 	}
 	if ((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) {
-		VkClearAttachment attachment = {};
-		attachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-		attachment.clearValue.depthStencil.depth = depth;
-		attachment.clearValue.depthStencil.stencil = stencil;
-		vkCmdClearAttachments(list->impl._buffer, 1, &attachment, 1, &clearRect);
+		attachments[count].aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		attachments[count].clearValue.depthStencil.depth = depth;
+		attachments[count].clearValue.depthStencil.stencil = stencil;
+		count++;
 	}
+	vkCmdClearAttachments(list->impl._buffer, count, attachments, 1, &clearRect);
 }
 
 void kinc_g5_command_list_render_target_to_framebuffer_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
