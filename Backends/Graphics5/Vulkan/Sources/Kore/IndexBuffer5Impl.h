@@ -15,8 +15,6 @@
 #endif
 
 typedef struct {
-	//void unset();
-
 	int *data;
 	int myCount;
 	unsigned bufferId;
@@ -24,6 +22,4 @@ typedef struct {
 	VkBuffer buf;
 	VkDeviceMemory mem;
 	VkMemoryAllocateInfo mem_alloc;
-
-	//static Graphics5::IndexBuffer* current;
 } IndexBuffer5Impl;

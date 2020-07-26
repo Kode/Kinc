@@ -23,8 +23,17 @@ typedef struct {
 	VkDeviceMemory sourceMemory;
 	VkImageView sourceView;
 
+	VkImage depthImage;
+	VkDeviceMemory depthMemory;
+	VkImageView depthView;
+	int depthBufferBits;
+
 	VkFramebuffer framebuffer;
-	VkDescriptorSet desc_set;
 	VkSampler sampler;
 	VkRenderPass renderPass;
+
+	VkFormat format;
+
+	int stage;
+	int stage_depth;
 } RenderTarget5Impl;

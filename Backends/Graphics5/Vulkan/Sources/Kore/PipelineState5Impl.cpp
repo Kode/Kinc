@@ -13,12 +13,15 @@
 #include <string>
 
 extern VkDevice device;
-extern VkRenderPass render_pass;
 extern VkDescriptorSet desc_set;
+VkDescriptorSetLayout desc_layout;
+extern kinc_g5_texture_t *vulkanTextures[8];
+extern kinc_g5_render_target_t *vulkanRenderTargets[8];
+extern uint32_t swapchainImageCount;
+extern uint32_t current_buffer;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
-void createDescriptorLayout(PipelineState5Impl *pipeline);
 
-kinc_g5_pipeline_t *currentPipeline = NULL;
+VkDescriptorPool desc_pools[3];
 
 static bool has_number(kinc_internal_named_number *named_numbers, const char *name) {
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
@@ -59,7 +62,7 @@ static void set_number(kinc_internal_named_number *named_numbers, const char *na
 
 namespace {
 	void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
-	                 kinc_internal_named_number *uniformOffsets) {
+					 kinc_internal_named_number *uniformOffsets) {
 		memset(locations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 		memset(textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 		memset(uniformOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
@@ -145,7 +148,7 @@ namespace {
 		}
 	}
 
-	VkShaderModule demo_prepare_shader_module(const void *code, size_t size) {
+	VkShaderModule prepare_shader_module(const void *code, size_t size) {
 		VkShaderModuleCreateInfo moduleCreateInfo;
 		VkShaderModule module;
 		VkResult err;
@@ -162,25 +165,37 @@ namespace {
 		return module;
 	}
 
-	VkShaderModule demo_prepare_vs(VkShaderModule &vert_shader_module, kinc_g5_shader_t *vertexShader) {
-		vert_shader_module = demo_prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
+	VkShaderModule prepare_vs(VkShaderModule &vert_shader_module, kinc_g5_shader_t *vertexShader) {
+		vert_shader_module = prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
 		return vert_shader_module;
 	}
 
-	VkShaderModule demo_prepare_fs(VkShaderModule &frag_shader_module, kinc_g5_shader_t *fragmentShader) {
-		frag_shader_module = demo_prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
+	VkShaderModule prepare_fs(VkShaderModule &frag_shader_module, kinc_g5_shader_t *fragmentShader) {
+		frag_shader_module = prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
 		return frag_shader_module;
 	}
 }
 
+static VkFormat convert_format(kinc_g5_render_target_format_t format) {
+	switch (format) {
+	case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return VK_FORMAT_R16G16B16A16_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return VK_FORMAT_R32_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return VK_FORMAT_R16_SFLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
+		return VK_FORMAT_R8_UNORM;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
+	default:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	}
+}
+
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
-	pipeline->vertexShader = nullptr;
-	pipeline->fragmentShader = nullptr;
-	pipeline->geometryShader = nullptr;
-	pipeline->tessellationEvaluationShader = nullptr;
-	pipeline->tessellationControlShader = nullptr;
-	createDescriptorLayout(&pipeline->impl);
-	Kore::Vulkan::createDescriptorSet(&pipeline->impl, nullptr, nullptr, desc_set);
+	kinc_g5_internal_pipeline_init(pipeline);
 }
 
 void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {}
@@ -204,22 +219,80 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	return unit;
 }
 
+namespace {
+	VkCullModeFlagBits convert_cull_mode(kinc_g5_cull_mode_t cullMode) {
+		switch (cullMode) {
+		case KINC_G5_CULL_MODE_CLOCKWISE:
+			return VK_CULL_MODE_BACK_BIT;
+		case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
+			return VK_CULL_MODE_FRONT_BIT;
+		case KINC_G5_CULL_MODE_NEVER:
+		default:
+			return VK_CULL_MODE_NONE;
+		}
+	}
+
+	VkCompareOp convert_compare_mode(kinc_g5_compare_mode_t compare) {
+		switch (compare) {
+		default:
+		case KINC_G5_COMPARE_MODE_ALWAYS:
+			return VK_COMPARE_OP_ALWAYS;
+		case KINC_G5_COMPARE_MODE_NEVER:
+			return VK_COMPARE_OP_NEVER;
+		case KINC_G5_COMPARE_MODE_EQUAL:
+			return VK_COMPARE_OP_EQUAL;
+		case KINC_G5_COMPARE_MODE_NOT_EQUAL:
+			return VK_COMPARE_OP_NOT_EQUAL;
+		case KINC_G5_COMPARE_MODE_LESS:
+			return VK_COMPARE_OP_LESS;
+		case KINC_G5_COMPARE_MODE_LESS_EQUAL:
+			return VK_COMPARE_OP_LESS_OR_EQUAL;
+		case KINC_G5_COMPARE_MODE_GREATER:
+			return VK_COMPARE_OP_GREATER;
+		case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
+			return VK_COMPARE_OP_GREATER_OR_EQUAL;
+		}
+	}
+
+	VkBlendFactor convert_blend_mode(kinc_g5_blending_operation_t op) {
+		switch (op) {
+		default:
+		case KINC_G5_BLEND_MODE_ONE:
+			return VK_BLEND_FACTOR_ONE;
+		case KINC_G5_BLEND_MODE_ZERO:
+			return VK_BLEND_FACTOR_ZERO;
+		case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
+			return VK_BLEND_FACTOR_SRC_ALPHA;
+		case KINC_G5_BLEND_MODE_DEST_ALPHA:
+			return VK_BLEND_FACTOR_DST_ALPHA;
+		case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
+			return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
+			return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+		case KINC_G5_BLEND_MODE_SOURCE_COLOR:
+			return VK_BLEND_FACTOR_SRC_COLOR;
+		case KINC_G5_BLEND_MODE_DEST_COLOR:
+			return VK_BLEND_FACTOR_DST_COLOR;
+		case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
+			return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+		case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
+			return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+		}
+	}
+}
+
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	parseShader(pipeline->vertexShader, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
 	parseShader(pipeline->fragmentShader, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
-
-	//
 
 	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
 	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pPipelineLayoutCreateInfo.pNext = NULL;
 	pPipelineLayoutCreateInfo.setLayoutCount = 1;
-	pPipelineLayoutCreateInfo.pSetLayouts = &pipeline->impl.desc_layout;
+	pPipelineLayoutCreateInfo.pSetLayouts = &desc_layout;
 
 	VkResult err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline->impl.pipeline_layout);
 	assert(!err);
-
-	//
 
 	VkGraphicsPipelineCreateInfo pipeline_info = {};
 	VkPipelineCacheCreateInfo pipelineCache_info = {};
@@ -265,13 +338,19 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		case KINC_G4_VERTEX_DATA_FLOAT4X4:
 			stride += 4 * 4 * 4;
 			break;
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			stride += 2 * 2;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			stride += 4 * 2;
+			break;
 		}
 	}
 
 	VkVertexInputBindingDescription vi_bindings[1];
 #ifdef KORE_WINDOWS
 	VkVertexInputAttributeDescription *vi_attrs =
-	    (VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
+		(VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
 #else
 	VkVertexInputAttributeDescription vi_attrs[pipeline->inputLayout[0]->size];
 #endif
@@ -334,6 +413,20 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 			vi_attrs[i].offset = offset;
 			offset += 4 * 4 * 4;
 			break;
+		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
+			vi_attrs[i].format = VK_FORMAT_R16G16_SNORM;
+			vi_attrs[i].offset = offset;
+			offset += 2 * 2;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			vi_attrs[i].binding = 0;
+			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
+			vi_attrs[i].format = VK_FORMAT_R16G16B16A16_SNORM;
+			vi_attrs[i].offset = offset;
+			offset += 4 * 2;
+			break;
 		}
 	}
 
@@ -344,8 +437,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	memset(&rs, 0, sizeof(rs));
 	rs.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rs.polygonMode = VK_POLYGON_MODE_FILL;
-	rs.cullMode = VK_CULL_MODE_NONE;
-	rs.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rs.cullMode = convert_cull_mode(pipeline->cullMode);
+	rs.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rs.depthClampEnable = VK_FALSE;
 	rs.rasterizerDiscardEnable = VK_FALSE;
 	rs.depthBiasEnable = VK_FALSE;
@@ -353,11 +446,24 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	memset(&cb, 0, sizeof(cb));
 	cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	VkPipelineColorBlendAttachmentState att_state[1];
+	VkPipelineColorBlendAttachmentState att_state[8];
 	memset(att_state, 0, sizeof(att_state));
-	att_state[0].colorWriteMask = 0xf;
-	att_state[0].blendEnable = VK_FALSE;
-	cb.attachmentCount = 1;
+	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
+		att_state[i].colorWriteMask = (pipeline->colorWriteMaskRed[i] ? VK_COLOR_COMPONENT_R_BIT  : 0)
+			| (pipeline->colorWriteMaskGreen[i] ? VK_COLOR_COMPONENT_G_BIT  : 0)
+			| (pipeline->colorWriteMaskBlue[i] ? VK_COLOR_COMPONENT_B_BIT  : 0)
+			| (pipeline->colorWriteMaskAlpha[i] ? VK_COLOR_COMPONENT_A_BIT  : 0);
+		att_state[i].blendEnable = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE || pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
+								   pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE ||
+								   pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+		att_state[i].srcColorBlendFactor = convert_blend_mode(pipeline->blendSource);
+		att_state[i].dstColorBlendFactor = convert_blend_mode(pipeline->blendDestination);
+		att_state[i].colorBlendOp = VK_BLEND_OP_ADD;
+		att_state[i].srcAlphaBlendFactor = convert_blend_mode(pipeline->alphaBlendSource);
+		att_state[i].dstAlphaBlendFactor = convert_blend_mode(pipeline->alphaBlendDestination);
+		att_state[i].alphaBlendOp = VK_BLEND_OP_ADD;
+	}
+	cb.attachmentCount = pipeline->colorAttachmentCount;
 	cb.pAttachments = att_state;
 
 	memset(&vp, 0, sizeof(vp));
@@ -369,9 +475,9 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	memset(&ds, 0, sizeof(ds));
 	ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	ds.depthTestEnable = VK_FALSE;
-	ds.depthWriteEnable = VK_FALSE;
-	ds.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+	ds.depthTestEnable = pipeline->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
+	ds.depthWriteEnable = pipeline->depthWrite;
+	ds.depthCompareOp = convert_compare_mode(pipeline->depthMode);
 	ds.depthBoundsTestEnable = VK_FALSE;
 	ds.back.failOp = VK_STENCIL_OP_KEEP;
 	ds.back.passOp = VK_STENCIL_OP_KEEP;
@@ -390,13 +496,74 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = demo_prepare_vs(pipeline->impl.vert_shader_module, pipeline->vertexShader);
+	shaderStages[0].module = prepare_vs(pipeline->impl.vert_shader_module, pipeline->vertexShader);
 	shaderStages[0].pName = "main";
 
 	shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = demo_prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
+	shaderStages[1].module = prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
 	shaderStages[1].pName = "main";
+
+	VkAttachmentDescription attachments[9];
+	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
+		attachments[i].format = convert_format(pipeline->colorAttachment[i]);
+		attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachments[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[i].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[i].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[i].flags = 0;
+	}
+
+	if (pipeline->depthAttachmentBits > 0) {
+		attachments[pipeline->colorAttachmentCount].format = VK_FORMAT_D16_UNORM;
+		attachments[pipeline->colorAttachmentCount].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[pipeline->colorAttachmentCount].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[pipeline->colorAttachmentCount].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[pipeline->colorAttachmentCount].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[pipeline->colorAttachmentCount].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[pipeline->colorAttachmentCount].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[pipeline->colorAttachmentCount].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[pipeline->colorAttachmentCount].flags = 0;
+	}
+
+	VkAttachmentReference color_references[8];
+	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
+		color_references[i].attachment = i;
+		color_references[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	}
+
+	VkAttachmentReference depth_reference = {};
+	depth_reference.attachment = pipeline->colorAttachmentCount;
+	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.flags = 0;
+	subpass.inputAttachmentCount = 0;
+	subpass.pInputAttachments = nullptr;
+	subpass.colorAttachmentCount = pipeline->colorAttachmentCount;
+	subpass.pColorAttachments = color_references;
+	subpass.pResolveAttachments = nullptr;
+	subpass.pDepthStencilAttachment = pipeline->depthAttachmentBits > 0 ? &depth_reference : nullptr;
+	subpass.preserveAttachmentCount = 0;
+	subpass.pPreserveAttachments = nullptr;
+
+	VkRenderPassCreateInfo rp_info = {};
+	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	rp_info.pNext = nullptr;
+	rp_info.attachmentCount = pipeline->depthAttachmentBits > 0 ? pipeline->colorAttachmentCount + 1 : pipeline->colorAttachmentCount;
+	rp_info.pAttachments = attachments;
+	rp_info.subpassCount = 1;
+	rp_info.pSubpasses = &subpass;
+	rp_info.dependencyCount = 0;
+	rp_info.pDependencies = nullptr;
+
+	VkRenderPass render_pass;
+	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
+	assert(!err);
 
 	pipeline_info.pVertexInputState = &vi;
 	pipeline_info.pInputAssemblyState = &ia;
@@ -418,14 +585,11 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	assert(!err);
 
 	vkDestroyPipelineCache(device, pipeline->impl.pipelineCache, nullptr);
-
 	vkDestroyShaderModule(device, pipeline->impl.frag_shader_module, nullptr);
 	vkDestroyShaderModule(device, pipeline->impl.vert_shader_module, nullptr);
 }
 
-extern VkDescriptorPool desc_pool;
-
-void createDescriptorLayout(PipelineState5Impl *pipeline) {
+void createDescriptorLayout() {
 	VkDescriptorSetLayoutBinding layoutBindings[8];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 
@@ -455,7 +619,7 @@ void createDescriptorLayout(PipelineState5Impl *pipeline) {
 	descriptor_layout.bindingCount = 8;
 	descriptor_layout.pBindings = layoutBindings;
 
-	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &pipeline->desc_layout);
+	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
 
 	VkDescriptorPoolSize typeCounts[8];
@@ -475,57 +639,66 @@ void createDescriptorLayout(PipelineState5Impl *pipeline) {
 	VkDescriptorPoolCreateInfo descriptor_pool = {};
 	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptor_pool.pNext = NULL;
-	descriptor_pool.maxSets = 128;
+	descriptor_pool.maxSets = 1024;
 	descriptor_pool.poolSizeCount = 8;
 	descriptor_pool.pPoolSizes = typeCounts;
 
-	err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pool);
-	assert(!err);
+	for (int i = 0; i < 3; ++i) {
+		err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[i]);
+		assert(!err);
+	}
 }
 
-void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, kinc_g5_texture_t *texture, kinc_g5_render_target_t *renderTarget,
-                                       VkDescriptorSet &desc_set) {
-	// VkDescriptorImageInfo tex_descs[DEMO_TEXTURE_COUNT];
+void createDescriptorSet(VkDescriptorSet &desc_set) {
 	VkDescriptorBufferInfo buffer_descs[2];
 
 	VkDescriptorSetAllocateInfo alloc_info = {};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.pNext = NULL;
-	alloc_info.descriptorPool = desc_pool;
+	alloc_info.descriptorPool = desc_pools[current_buffer];
 	alloc_info.descriptorSetCount = 1;
-	alloc_info.pSetLayouts = &pipeline->desc_layout;
+	alloc_info.pSetLayouts = &desc_layout;
 	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
 	assert(!err);
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
-	if (vertexUniformBuffer != nullptr) {
-		buffer_descs[0].buffer = *vertexUniformBuffer;
+	if (Kore::Vulkan::vertexUniformBuffer != nullptr) {
+		buffer_descs[0].buffer = *Kore::Vulkan::vertexUniformBuffer;
 	}
 	buffer_descs[0].offset = 0;
 	buffer_descs[0].range = 256 * sizeof(float);
 
-	if (fragmentUniformBuffer != nullptr) {
-		buffer_descs[1].buffer = *fragmentUniformBuffer;
+	if (Kore::Vulkan::fragmentUniformBuffer != nullptr) {
+		buffer_descs[1].buffer = *Kore::Vulkan::fragmentUniformBuffer;
 	}
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
 
-	VkDescriptorImageInfo tex_desc;
+	VkDescriptorImageInfo tex_desc[6];
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
-	if (texture != nullptr) {
-		tex_desc.sampler = texture->impl.texture.sampler;
-		tex_desc.imageView = texture->impl.texture.view;
+	for (int i = 0; i < 6; ++i) {
+		if (vulkanTextures[i] != nullptr) {
+			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
+			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
+		}
+		else if (vulkanRenderTargets[i] != nullptr) {
+			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
+				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
+				vulkanRenderTargets[i]->impl.stage_depth = -1;
+				vulkanRenderTargets[i] = nullptr;
+			}
+			else {
+				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.destView;
+			}
+			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
+		}
+		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
-	if (renderTarget != nullptr) {
-		tex_desc.sampler = renderTarget->impl.sampler;
-		tex_desc.imageView = renderTarget->impl.destView;
-	}
-	tex_desc.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 	VkWriteDescriptorSet writes[8];
-	memset(writes, 0, sizeof(writes));
+	memset(&writes, 0, sizeof(writes));
 
 	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	writes[0].dstSet = desc_set;
@@ -547,11 +720,11 @@ void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, ki
 		writes[i].dstBinding = i;
 		writes[i].descriptorCount = 1;
 		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		writes[i].pImageInfo = &tex_desc;
+		writes[i].pImageInfo = &tex_desc[i - 2];
 	}
 
-	if (texture != nullptr || renderTarget != nullptr) {
-		if (vertexUniformBuffer != nullptr && fragmentUniformBuffer != nullptr) {
+	if (vulkanTextures[0] != nullptr || vulkanRenderTargets[0] != nullptr) {
+		if (Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr) {
 			vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
 		}
 		else {
@@ -559,7 +732,7 @@ void Kore::Vulkan::createDescriptorSet(struct PipelineState5Impl_s *pipeline, ki
 		}
 	}
 	else {
-		if (vertexUniformBuffer != nullptr && fragmentUniformBuffer != nullptr) {
+		if (Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr) {
 			vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
 		}
 	}
