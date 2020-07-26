@@ -28,6 +28,7 @@ extern int depthBits;
 void createDescriptorSet(VkDescriptorSet &desc_set);
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
+kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 namespace {
 	bool began = false;
@@ -38,6 +39,55 @@ namespace {
 	bool mrtFramebufferCreated = false;
 	VkFramebuffer mrtFramebuffer;
 	VkRenderPass mrtRenderPass;
+
+	void endPass(VkCommandBuffer _buffer) {
+		vkCmdEndRenderPass(_buffer);
+
+		if (currentRenderTargets[0] == nullptr || currentRenderTargets[0]->contextId < 0) {
+
+		}
+		else {
+			int i = 0;
+			while (currentRenderTargets[i] != nullptr) {
+				setImageLayout(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+							   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+				setImageLayout(_buffer, currentRenderTargets[i]->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+				VkImageBlit imgBlit;
+
+				imgBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				imgBlit.srcSubresource.mipLevel = 0;
+				imgBlit.srcSubresource.baseArrayLayer = 0;
+				imgBlit.srcSubresource.layerCount = 1;
+
+				imgBlit.srcOffsets[0] = {0, 0, 0};
+				imgBlit.srcOffsets[1].x = currentRenderTargets[i]->width;
+				imgBlit.srcOffsets[1].y = currentRenderTargets[i]->height;
+				imgBlit.srcOffsets[1].z = 1;
+
+				imgBlit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				imgBlit.dstSubresource.mipLevel = 0;
+				imgBlit.dstSubresource.baseArrayLayer = 0;
+				imgBlit.dstSubresource.layerCount = 1;
+
+				imgBlit.dstOffsets[0] = {0, 0, 0};
+				imgBlit.dstOffsets[1].x = currentRenderTargets[i]->width;
+				imgBlit.dstOffsets[1].y = currentRenderTargets[i]->height;
+				imgBlit.dstOffsets[1].z = 1;
+
+				vkCmdBlitImage(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTargets[i]->impl.destImage,
+							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
+
+				setImageLayout(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+							   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+				setImageLayout(_buffer, currentRenderTargets[i]->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+							   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+				i++;
+			}
+		}
+	}
 }
 
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
@@ -422,7 +472,19 @@ void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, in
 	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
 }
 
-void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {}
+void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
+	VkRect2D scissor;
+	memset(&scissor, 0, sizeof(scissor));
+	if (currentRenderTargets[0] == nullptr || currentRenderTargets[0]->contextId < 0) {
+		scissor.extent.width = kinc_width();
+		scissor.extent.height = kinc_height();
+	}
+	else {
+		scissor.extent.width = currentRenderTargets[0]->width;
+		scissor.extent.height = currentRenderTargets[0]->height;
+	}
+	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
+}
 
 void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc_g5_pipeline *pipeline) {
 	currentPipeline = pipeline;
@@ -441,59 +503,6 @@ void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struc
 void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *indexBuffer) {
 	list->impl._indexCount = kinc_g5_index_buffer_count(indexBuffer);
 	vkCmdBindIndexBuffer(list->impl._buffer, indexBuffer->impl.buf, 0, VK_INDEX_TYPE_UINT32);
-}
-
-namespace {
-	kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-
-	void endPass(VkCommandBuffer _buffer) {
-		vkCmdEndRenderPass(_buffer);
-
-		if (currentRenderTargets[0] == nullptr || currentRenderTargets[0]->contextId < 0) {
-
-		}
-		else {
-			int i = 0;
-			while (currentRenderTargets[i] != nullptr) {
-				setImageLayout(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-							   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-				setImageLayout(_buffer, currentRenderTargets[i]->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-				VkImageBlit imgBlit;
-
-				imgBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imgBlit.srcSubresource.mipLevel = 0;
-				imgBlit.srcSubresource.baseArrayLayer = 0;
-				imgBlit.srcSubresource.layerCount = 1;
-
-				imgBlit.srcOffsets[0] = {0, 0, 0};
-				imgBlit.srcOffsets[1].x = currentRenderTargets[i]->width;
-				imgBlit.srcOffsets[1].y = currentRenderTargets[i]->height;
-				imgBlit.srcOffsets[1].z = 1;
-
-				imgBlit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imgBlit.dstSubresource.mipLevel = 0;
-				imgBlit.dstSubresource.baseArrayLayer = 0;
-				imgBlit.dstSubresource.layerCount = 1;
-
-				imgBlit.dstOffsets[0] = {0, 0, 0};
-				imgBlit.dstOffsets[1].x = currentRenderTargets[i]->width;
-				imgBlit.dstOffsets[1].y = currentRenderTargets[i]->height;
-				imgBlit.dstOffsets[1].z = 1;
-
-				vkCmdBlitImage(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTargets[i]->impl.destImage,
-							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
-
-				setImageLayout(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-							   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-				setImageLayout(_buffer, currentRenderTargets[i]->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-							   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-				i++;
-			}
-		}
-	}
 }
 
 void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct kinc_g5_render_target *target) {
