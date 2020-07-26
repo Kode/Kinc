@@ -33,4 +33,7 @@ typedef struct {
 	VkRenderPass renderPass;
 
 	VkFormat format;
+
+	int stage;
+	int stage_depth;
 } RenderTarget5Impl;
