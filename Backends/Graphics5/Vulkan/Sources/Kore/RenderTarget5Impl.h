@@ -26,6 +26,7 @@ typedef struct {
 	VkImage depthImage;
 	VkDeviceMemory depthMemory;
 	VkImageView depthView;
+	int depthBufferBits;
 
 	VkFramebuffer framebuffer;
 	VkSampler sampler;

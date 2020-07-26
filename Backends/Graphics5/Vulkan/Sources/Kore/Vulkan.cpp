@@ -78,6 +78,8 @@ Kore::Vulkan::SwapchainBuffers *Kore::Vulkan::buffers;
 Kore::Vulkan::DepthBuffer Kore::Vulkan::depth;
 VkSwapchainKHR swapchain;
 uint32_t current_buffer;
+int depthBits;
+int stencilBits;
 
 kinc_g5_texture_t *vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 kinc_g5_render_target_t *vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -361,70 +363,73 @@ void create_swapchain() {
 	}
 
 	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
-	VkImageCreateInfo image = {};
-	image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	image.pNext = NULL;
-	image.imageType = VK_IMAGE_TYPE_2D;
-	image.format = depth_format;
-	image.extent.width = renderTargetWidth;
-	image.extent.height = renderTargetHeight;
-	image.extent.depth = 1;
-	image.mipLevels = 1;
-	image.arrayLayers = 1;
-	image.samples = VK_SAMPLE_COUNT_1_BIT;
-	image.tiling = VK_IMAGE_TILING_OPTIMAL;
-	image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-	image.flags = 0;
 
-	VkMemoryAllocateInfo mem_alloc = {};
-	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	mem_alloc.pNext = NULL;
-	mem_alloc.allocationSize = 0;
-	mem_alloc.memoryTypeIndex = 0;
+	if (depthBits > 0) {
+		VkImageCreateInfo image = {};
+		image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		image.pNext = NULL;
+		image.imageType = VK_IMAGE_TYPE_2D;
+		image.format = depth_format;
+		image.extent.width = renderTargetWidth;
+		image.extent.height = renderTargetHeight;
+		image.extent.depth = 1;
+		image.mipLevels = 1;
+		image.arrayLayers = 1;
+		image.samples = VK_SAMPLE_COUNT_1_BIT;
+		image.tiling = VK_IMAGE_TILING_OPTIMAL;
+		image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		image.flags = 0;
 
-	VkImageViewCreateInfo view = {};
-	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	view.pNext = NULL;
-	view.image = VK_NULL_HANDLE;
-	view.format = depth_format;
-	view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-	view.subresourceRange.baseMipLevel = 0;
-	view.subresourceRange.levelCount = 1;
-	view.subresourceRange.baseArrayLayer = 0;
-	view.subresourceRange.layerCount = 1;
-	view.flags = 0;
-	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		VkMemoryAllocateInfo mem_alloc = {};
+		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		mem_alloc.pNext = NULL;
+		mem_alloc.allocationSize = 0;
+		mem_alloc.memoryTypeIndex = 0;
 
-	VkMemoryRequirements mem_reqs = {};
-	bool pass;
+		VkImageViewCreateInfo view = {};
+		view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		view.pNext = NULL;
+		view.image = VK_NULL_HANDLE;
+		view.format = depth_format;
+		view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+		view.subresourceRange.baseMipLevel = 0;
+		view.subresourceRange.levelCount = 1;
+		view.subresourceRange.baseArrayLayer = 0;
+		view.subresourceRange.layerCount = 1;
+		view.flags = 0;
+		view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 
-	/* create image */
-	err = vkCreateImage(device, &image, NULL, &Kore::Vulkan::depth.image);
-	assert(!err);
+		VkMemoryRequirements mem_reqs = {};
+		bool pass;
 
-	/* get memory requirements for this object */
-	vkGetImageMemoryRequirements(device, Kore::Vulkan::depth.image, &mem_reqs);
+		/* create image */
+		err = vkCreateImage(device, &image, NULL, &Kore::Vulkan::depth.image);
+		assert(!err);
 
-	/* select memory size and type */
-	mem_alloc.allocationSize = mem_reqs.size;
-	pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, /* No requirements */ &mem_alloc.memoryTypeIndex);
-	assert(pass);
+		/* get memory requirements for this object */
+		vkGetImageMemoryRequirements(device, Kore::Vulkan::depth.image, &mem_reqs);
 
-	/* allocate memory */
-	err = vkAllocateMemory(device, &mem_alloc, NULL, &Kore::Vulkan::depth.mem);
-	assert(!err);
+		/* select memory size and type */
+		mem_alloc.allocationSize = mem_reqs.size;
+		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, /* No requirements */ &mem_alloc.memoryTypeIndex);
+		assert(pass);
 
-	/* bind memory */
-	err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
-	assert(!err);
+		/* allocate memory */
+		err = vkAllocateMemory(device, &mem_alloc, NULL, &Kore::Vulkan::depth.mem);
+		assert(!err);
 
-	set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-	                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		/* bind memory */
+		err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
+		assert(!err);
 
-	/* create image view */
-	view.image = Kore::Vulkan::depth.image;
-	err = vkCreateImageView(device, &view, NULL, &Kore::Vulkan::depth.view);
-	assert(!err);
+		set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+		                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+		/* create image view */
+		view.image = Kore::Vulkan::depth.image;
+		err = vkCreateImageView(device, &view, NULL, &Kore::Vulkan::depth.view);
+		assert(!err);
+	}
 
 	VkAttachmentDescription attachments[2];
 	attachments[0].format = format;
@@ -437,15 +442,17 @@ void create_swapchain() {
 	attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	attachments[0].flags = 0;
 
-	attachments[1].format = depth_format;
-	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachments[1].flags = 0;
+	if (depthBits > 0) {
+		attachments[1].format = depth_format;
+		attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].flags = 0;
+	}
 
 	VkAttachmentReference color_reference = {};
 	color_reference.attachment = 0;
@@ -463,14 +470,14 @@ void create_swapchain() {
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &color_reference;
 	subpass.pResolveAttachments = nullptr;
-	subpass.pDepthStencilAttachment = &depth_reference;
+	subpass.pDepthStencilAttachment = depthBits > 0 ? &depth_reference : nullptr;
 	subpass.preserveAttachmentCount = 0;
 	subpass.pPreserveAttachments = nullptr;
 
 	VkRenderPassCreateInfo rp_info = {};
 	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	rp_info.pNext = nullptr;
-	rp_info.attachmentCount = 2;
+	rp_info.attachmentCount = depthBits > 0 ? 2 : 1;
 	rp_info.pAttachments = attachments;
 	rp_info.subpassCount = 1;
 	rp_info.pSubpasses = &subpass;
@@ -480,34 +487,35 @@ void create_swapchain() {
 	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
 	assert(!err);
 
-	{
-		VkImageView attachments[2];
-		attachments[1] = Kore::Vulkan::depth.view;
+	VkImageView attachmentViews[2];
 
-		VkFramebufferCreateInfo fb_info = {};
-		fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		fb_info.pNext = NULL;
-		fb_info.renderPass = render_pass;
-		fb_info.attachmentCount = 2;
-		fb_info.pAttachments = attachments;
-		fb_info.width = renderTargetWidth;
-		fb_info.height = renderTargetHeight;
-		fb_info.layers = 1;
+	if (depthBits > 0) {
+		attachmentViews[1] = Kore::Vulkan::depth.view;
+	}
 
-		uint32_t i;
+	VkFramebufferCreateInfo fb_info = {};
+	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	fb_info.pNext = NULL;
+	fb_info.renderPass = render_pass;
+	fb_info.attachmentCount = depthBits > 0 ? 2 : 1;
+	fb_info.pAttachments = attachmentViews;
+	fb_info.width = renderTargetWidth;
+	fb_info.height = renderTargetHeight;
+	fb_info.layers = 1;
 
-		framebuffers = (VkFramebuffer *)malloc(swapchainImageCount * sizeof(VkFramebuffer));
-		assert(framebuffers);
+	framebuffers = (VkFramebuffer *)malloc(swapchainImageCount * sizeof(VkFramebuffer));
+	assert(framebuffers);
 
-		for (i = 0; i < swapchainImageCount; i++) {
-			attachments[0] = Kore::Vulkan::buffers[i].view;
-			err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
-			assert(!err);
-		}
+	for (uint32_t i = 0; i < swapchainImageCount; i++) {
+		attachmentViews[0] = Kore::Vulkan::buffers[i].view;
+		err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
+		assert(!err);
 	}
 }
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+	depthBits = depthBufferBits;
+	stencilBits = stencilBufferBits;
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
 #ifdef VALIDATE
