@@ -516,15 +516,18 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		attachments[i].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[i].flags = 0;
 	}
-	attachments[pipeline->colorAttachmentCount].format = VK_FORMAT_D16_UNORM;
-	attachments[pipeline->colorAttachmentCount].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[pipeline->colorAttachmentCount].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[pipeline->colorAttachmentCount].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[pipeline->colorAttachmentCount].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachments[pipeline->colorAttachmentCount].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[pipeline->colorAttachmentCount].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachments[pipeline->colorAttachmentCount].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	attachments[pipeline->colorAttachmentCount].flags = 0;
+
+	if (pipeline->depthAttachmentBits > 0) {
+		attachments[pipeline->colorAttachmentCount].format = VK_FORMAT_D16_UNORM;
+		attachments[pipeline->colorAttachmentCount].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[pipeline->colorAttachmentCount].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[pipeline->colorAttachmentCount].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[pipeline->colorAttachmentCount].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[pipeline->colorAttachmentCount].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[pipeline->colorAttachmentCount].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[pipeline->colorAttachmentCount].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[pipeline->colorAttachmentCount].flags = 0;
+	}
 
 	VkAttachmentReference color_references[8];
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
@@ -544,14 +547,14 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	subpass.colorAttachmentCount = pipeline->colorAttachmentCount;
 	subpass.pColorAttachments = color_references;
 	subpass.pResolveAttachments = nullptr;
-	subpass.pDepthStencilAttachment = &depth_reference;
+	subpass.pDepthStencilAttachment = pipeline->depthAttachmentBits > 0 ? &depth_reference : nullptr;
 	subpass.preserveAttachmentCount = 0;
 	subpass.pPreserveAttachments = nullptr;
 
 	VkRenderPassCreateInfo rp_info = {};
 	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	rp_info.pNext = nullptr;
-	rp_info.attachmentCount = pipeline->colorAttachmentCount + 1;
+	rp_info.attachmentCount = pipeline->depthAttachmentBits > 0 ? pipeline->colorAttachmentCount + 1 : pipeline->colorAttachmentCount;
 	rp_info.pAttachments = attachments;
 	rp_info.subpassCount = 1;
 	rp_info.pSubpasses = &subpass;

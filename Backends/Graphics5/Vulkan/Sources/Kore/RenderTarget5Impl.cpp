@@ -102,6 +102,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	target->texWidth = width;
 	target->texHeight = height;
 	target->impl.format = convert_format(format);
+	target->impl.depthBufferBits = depthBufferBits;
 
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -250,7 +251,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		    assert(!err);
 		}
 
-		{
+		if (depthBufferBits > 0) {
 			const VkFormat depth_format = VK_FORMAT_D16_UNORM;
 			VkImageCreateInfo image = {};
 			image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -330,15 +331,17 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			attachments[0].flags = 0;
 
-			attachments[1].format = VK_FORMAT_D16_UNORM;
-			attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-			attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-			attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-			attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			attachments[1].flags = 0;
+			if (depthBufferBits > 0) {
+				attachments[1].format = VK_FORMAT_D16_UNORM;
+				attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+				attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+				attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+				attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+				attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+				attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+				attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+				attachments[1].flags = 0;
+			}
 
 			VkAttachmentReference color_reference = {};
 			color_reference.attachment = 0;
@@ -356,14 +359,14 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			subpass.colorAttachmentCount = 1;
 			subpass.pColorAttachments = &color_reference;
 			subpass.pResolveAttachments = nullptr;
-			subpass.pDepthStencilAttachment = &depth_reference;
+			subpass.pDepthStencilAttachment = depthBufferBits > 0 ? &depth_reference : nullptr;
 			subpass.preserveAttachmentCount = 0;
 			subpass.pPreserveAttachments = nullptr;
 
 			VkRenderPassCreateInfo rp_info = {};
 			rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 			rp_info.pNext = nullptr;
-			rp_info.attachmentCount = 2;
+			rp_info.attachmentCount = depthBufferBits > 0 ? 2 : 1;
 			rp_info.pAttachments = attachments;
 			rp_info.subpassCount = 1;
 			rp_info.pSubpasses = &subpass;
@@ -376,13 +379,16 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 
 		VkImageView attachments[2];
 		attachments[0] = target->impl.sourceView;
-		attachments[1] = target->impl.depthView;
+
+		if (depthBufferBits > 0) {
+			attachments[1] = target->impl.depthView;
+		}
 
 		VkFramebufferCreateInfo fbufCreateInfo = {};
 		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		fbufCreateInfo.pNext = nullptr;
 		fbufCreateInfo.renderPass = target->impl.renderPass;
-		fbufCreateInfo.attachmentCount = 2;
+		fbufCreateInfo.attachmentCount = depthBufferBits > 0 ? 2 : 1;
 		fbufCreateInfo.pAttachments = attachments;
 		fbufCreateInfo.width = width;
 		fbufCreateInfo.height = height;
