@@ -80,6 +80,7 @@ VkSwapchainKHR swapchain;
 uint32_t current_buffer;
 int depthBits;
 int stencilBits;
+bool vsynced;
 
 kinc_g5_texture_t *vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 kinc_g5_render_target_t *vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -261,7 +262,7 @@ void create_swapchain() {
 		renderTargetHeight = surfCapabilities.currentExtent.height;
 	}
 
-	VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+	VkPresentModeKHR swapchainPresentMode = vsynced ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_MAILBOX_KHR;
 
 	// Determine the number of VkImage's to use in the swap chain (we desire to
 	// own only 1 image at a time, besides the images being displayed and
@@ -517,6 +518,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	// depthBits = depthBufferBits;
 	depthBits = 0;
 	stencilBits = stencilBufferBits;
+	vsynced = vsync;
 	uint32_t instance_extension_count = 0;
 	uint32_t instance_layer_count = 0;
 #ifdef VALIDATE
