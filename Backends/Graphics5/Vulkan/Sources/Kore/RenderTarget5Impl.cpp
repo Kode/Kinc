@@ -411,4 +411,9 @@ void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target,
 
 void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {}
 
-void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source) {}
+void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source) {
+	target->impl.depthImage = source->impl.depthImage;
+	target->impl.depthMemory = source->impl.depthMemory;
+	target->impl.depthView = source->impl.depthView;
+	target->impl.depthBufferBits = source->impl.depthBufferBits;
+}
