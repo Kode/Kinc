@@ -584,6 +584,11 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 				extension_names[enabled_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
 #endif
 			}
+#ifdef KORE_VKRT
+			if (!strcmp(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, instance_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
+			}
+#endif
 			assert(enabled_extension_count < 64);
 		}
 
@@ -728,6 +733,29 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 				// Allows negative viewport height to flip viewport
 				extension_names[enabled_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
 			}
+#ifdef KORE_VKRT
+			if (!strcmp(VK_KHR_RAY_TRACING_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_RAY_TRACING_EXTENSION_NAME;
+			}
+			if (!strcmp(VK_KHR_MAINTENANCE3_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_MAINTENANCE3_EXTENSION_NAME;
+			}
+			if (!strcmp(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME;
+			}
+			if (!strcmp(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME;
+			}
+			if (!strcmp(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME;
+			}
+			if (!strcmp(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME;
+			}
+			if (!strcmp(VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME;
+			}
+#endif
 			assert(enabled_extension_count < 64);
 		}
 
