@@ -923,6 +923,24 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 			deviceinfo.enabledExtensionCount = enabled_extension_count;
 			deviceinfo.ppEnabledExtensionNames = (const char *const *)extension_names;
 
+#ifdef KORE_VKRT
+			VkPhysicalDeviceRayTracingFeaturesKHR rayTracingExt = {};
+			rayTracingExt.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR;
+			rayTracingExt.pNext = nullptr;
+			rayTracingExt.rayTracing = VK_TRUE;
+
+			VkPhysicalDeviceBufferDeviceAddressFeatures bufferDeviceAddressExt = {};
+			bufferDeviceAddressExt.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
+			bufferDeviceAddressExt.pNext = &rayTracingExt;
+			bufferDeviceAddressExt.bufferDeviceAddress = VK_TRUE;
+
+			VkPhysicalDeviceFeatures2KHR physical_device_features = {};
+			physical_device_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
+			physical_device_features.pNext = &bufferDeviceAddressExt;
+
+			deviceinfo.pNext = &physical_device_features;
+#endif
+
 			err = vkCreateDevice(gpu, &deviceinfo, nullptr, &device);
 			assert(!err);
 		}

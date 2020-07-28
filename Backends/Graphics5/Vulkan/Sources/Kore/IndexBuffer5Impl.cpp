@@ -26,6 +26,9 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, b
 	buf_info.pNext = NULL;
 	buf_info.size = indexCount * sizeof(int);
 	buf_info.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+#ifdef KORE_VKRT
+	buf_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+#endif
 	buf_info.flags = 0;
 
 	memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
@@ -47,6 +50,13 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, b
 	buffer->impl.mem_alloc.allocationSize = mem_reqs.size;
 	bool pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &buffer->impl.mem_alloc.memoryTypeIndex);
 	assert(pass);
+
+#ifdef KORE_VKRT
+	VkMemoryAllocateFlagsInfo memory_allocate_flags_info = {};
+	memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+	memory_allocate_flags_info.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
+	buffer->impl.mem_alloc.pNext = &memory_allocate_flags_info;
+#endif
 
 	err = vkAllocateMemory(device, &buffer->impl.mem_alloc, NULL, &buffer->impl.mem);
 	assert(!err);
