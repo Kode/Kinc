@@ -627,7 +627,11 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	app.applicationVersion = 0;
 	app.pEngineName = "Kore";
 	app.engineVersion = 0;
+#ifdef KORE_VKRT
+	app.apiVersion = VK_API_VERSION_1_2;
+#else
 	app.apiVersion = VK_API_VERSION_1_0;
+#endif
 
 	VkInstanceCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
