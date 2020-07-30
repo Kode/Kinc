@@ -28,6 +28,7 @@ extern int depthBits;
 void createDescriptorSet(VkDescriptorSet &desc_set);
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
+VkRenderPassBeginInfo currentRenderPassBeginInfo;
 kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 namespace {
@@ -318,6 +319,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 						 pmemory_barrier);
 
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+	currentRenderPassBeginInfo = rp_begin;
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
@@ -530,6 +532,7 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	rp_begin.clearValueCount = 2;
 	rp_begin.pClearValues = clear_values;
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+	currentRenderPassBeginInfo = rp_begin;
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
 	viewport.x = 0;
@@ -679,6 +682,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	}
 
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+	currentRenderPassBeginInfo = rp_begin;
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));

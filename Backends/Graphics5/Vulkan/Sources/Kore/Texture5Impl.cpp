@@ -98,7 +98,12 @@ namespace {
 			vkUnmapMemory(device, tex_obj->mem);
 		}
 
-		tex_obj->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		if (usage & VK_IMAGE_USAGE_STORAGE_BIT) {
+			tex_obj->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		}
+		else {
+			tex_obj->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		}
 		set_image_layout(tex_obj->image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, tex_obj->imageLayout);
 		// setting the image layout does not reference the actual memory so no need to add a mem ref
 	}
@@ -305,7 +310,58 @@ void kinc_g5_texture_init3d(kinc_g5_texture_t* texture, int width, int height, i
 }
 
 void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
+	texture->texWidth = width;
+	texture->texHeight = height;
+	texture->impl.stride = format_byte_size(format) * texture->texWidth;
 
+	const VkFormat tex_format = convert_format(format);
+	VkFormatProperties props;
+	VkResult err;
+
+	vkGetPhysicalDeviceFormatProperties(gpu, tex_format, &props);
+
+	// Device can texture using linear textures
+	prepare_texture_image(nullptr, (uint32_t)width, (uint32_t)height, &texture->impl.texture, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+	                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture->impl.deviceSize, tex_format);
+
+	flush_init_cmd();
+
+	VkSamplerCreateInfo sampler = {};
+	sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	sampler.pNext = NULL;
+	sampler.magFilter = VK_FILTER_LINEAR;
+	sampler.minFilter = VK_FILTER_LINEAR;
+	sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+	sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	sampler.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	sampler.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	sampler.mipLodBias = 0.0f;
+	sampler.anisotropyEnable = VK_FALSE;
+	sampler.maxAnisotropy = 1;
+	sampler.compareOp = VK_COMPARE_OP_NEVER;
+	sampler.minLod = 0.0f;
+	sampler.maxLod = 0.0f;
+	sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+	sampler.unnormalizedCoordinates = VK_FALSE;
+
+	VkImageViewCreateInfo view = {};
+	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	view.pNext = NULL;
+	view.image = VK_NULL_HANDLE;
+	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	view.format = tex_format;
+	view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
+	view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+	view.flags = 0;
+
+	// create sampler
+	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.sampler);
+	assert(!err);
+
+	// create image view
+	view.image = texture->impl.texture.image;
+	err = vkCreateImageView(device, &view, NULL, &texture->impl.texture.view);
+	assert(!err);
 }
 
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}
