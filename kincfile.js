@@ -34,7 +34,7 @@ if (lz4x) {
 	project.addExclude('Sources/kinc/io/lz4/**');
 }
 else {
-	project.addExclude('Sources/kinc/libs/lz4x.cpp');	
+	project.addExclude('Sources/kinc/libs/lz4x.cpp');
 }
 project.addIncludeDir('Sources');
 
@@ -117,6 +117,10 @@ if (platform === Platform.Windows) {
 			}
 		}
 		project.addIncludeDir(path.join(process.env.VULKAN_SDK, 'Include'));
+		if (raytrace === RayTraceApi.VKRT) {
+			project.addDefine('KORE_VKRT');
+			project.addDefine('VK_ENABLE_BETA_EXTENSIONS');
+		}
 	}
 	else if (graphics === GraphicsApi.Direct3D9) {
 		g4 = true;
@@ -176,7 +180,7 @@ else if (platform === Platform.WindowsApp) {
 	addBackend('Audio2/WASAPI');
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');
 	project.vsdeploy = true;
-	
+
 	if (vr === VrApi.Hololens) {
 		project.addDefine('KORE_VR');
 		project.addDefine('KORE_HOLOLENS');
@@ -328,6 +332,10 @@ else if (platform === Platform.Linux) {
 		project.addLib('xcb');
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_XCB_KHR');
+		if (raytrace === RayTraceApi.VKRT) {
+			project.addDefine('KORE_VKRT');
+			project.addDefine('VK_ENABLE_BETA_EXTENSIONS');
+		}
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
@@ -362,7 +370,7 @@ else if (platform === Platform.Pi) {
 	project.addLib('EGL');
 	project.addLib('bcm_host');
 	project.addLib('asound');
-	project.addLib('X11');		
+	project.addLib('X11');
 }
 else if (platform === Platform.Tizen) {
 	g4 = true;
