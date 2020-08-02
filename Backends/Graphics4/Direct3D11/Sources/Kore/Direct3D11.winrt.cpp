@@ -233,9 +233,9 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 
 #elif KORE_OCULUS
 	IDXGIFactory *dxgiFactory = nullptr;
-	Windows::affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void **)(&dxgiFactory)));
+	kinc_microsoft_affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void **)(&dxgiFactory)));
 
-	Windows::affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
+	kinc_microsoft_affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
 	                                  &featureLevel, &context));
 #endif
 	// affirm(device0.As(&device));
@@ -315,24 +315,24 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 #elif KORE_OCULUS
 		DXGI_SWAP_CHAIN_DESC scDesc = {0};
 		scDesc.BufferCount = 2;
-		scDesc.BufferDesc.Width = System::windowWidth(windowId);
-		scDesc.BufferDesc.Height = System::windowHeight(windowId);
+		scDesc.BufferDesc.Width = kinc_window_width(windowId);
+		scDesc.BufferDesc.Height = kinc_window_height(windowId);
 		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		scDesc.BufferDesc.RefreshRate.Denominator = 1;
 		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scDesc.OutputWindow = (HWND)System::windowHandle(windowId);
+		scDesc.OutputWindow = (HWND)kinc_windows_window_handle(windowId);
 		;
-		scDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
-		scDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
+		scDesc.SampleDesc.Count = kinc_g4_antialiasing_samples() > 1 ? kinc_g4_antialiasing_samples() : 1;
+		scDesc.SampleDesc.Quality = kinc_g4_antialiasing_samples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 		scDesc.Windowed = true;
 		scDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
 
-		Windows::affirm(dxgiFactory->CreateSwapChain(device, &scDesc, &swapChain));
+		kinc_microsoft_affirm(dxgiFactory->CreateSwapChain(device, &scDesc, &swapChain));
 		dxgiFactory->Release();
 
 		IDXGIDevice1 *dxgiDevice = nullptr;
-		Windows::affirm(device->QueryInterface(__uuidof(IDXGIDevice1), (void **)&dxgiDevice));
-		Windows::affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		kinc_microsoft_affirm(device->QueryInterface(__uuidof(IDXGIDevice1), (void **)&dxgiDevice));
+		kinc_microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
 		dxgiDevice->Release();
 #else
 		UINT flags = 0;
