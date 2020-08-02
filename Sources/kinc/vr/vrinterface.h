@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef KORE_VR
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,4 +69,6 @@ void kinc_vr_interface_ovr_shutdown();
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
