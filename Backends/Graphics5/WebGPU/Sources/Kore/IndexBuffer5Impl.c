@@ -25,7 +25,7 @@ int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
 	bDesc.usage = WGPUBufferUsage_Index | WGPUBufferUsage_CopyDst;
 	bDesc.mappedAtCreation = true;
 	buffer->impl.buffer = wgpuDeviceCreateBuffer(device, &bDesc);
-	return wgpuBufferGetMappedRange(buffer->impl.buffer);
+	return wgpuBufferGetMappedRange(buffer->impl.buffer, 0, bDesc.size);
 }
 
 void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {

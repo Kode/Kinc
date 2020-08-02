@@ -50,7 +50,7 @@ float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {
 	bDesc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
 	bDesc.mappedAtCreation = true;
 	buffer->impl.buffer = wgpuDeviceCreateBuffer(device, &bDesc);
-	return wgpuBufferGetMappedRange(buffer->impl.buffer);
+	return wgpuBufferGetMappedRange(buffer->impl.buffer, 0, bDesc.size);
 }
 
 float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, int count) {
