@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#ifdef KORE_VR
+
 #include "VrInterface.h"
 
 #include <string.h>
@@ -77,3 +79,5 @@ void VrInterface::resetHmdPose() {
 void VrInterface::ovrShutdown() {
 	kinc_vr_interface_ovr_shutdown();
 }
+
+#endif
