@@ -15,7 +15,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool g
 }
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
-	
+
 }
 
 int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
@@ -23,9 +23,9 @@ int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
 	memset(&bDesc, 0, sizeof(bDesc));
 	bDesc.size = buffer->impl.count * sizeof(int);
 	bDesc.usage = WGPUBufferUsage_Index | WGPUBufferUsage_CopyDst;
-	WGPUCreateBufferMappedResult mapped = wgpuDeviceCreateBufferMapped(device, &bDesc);
-	buffer->impl.buffer = mapped.buffer;
-	return mapped.data;
+	bDesc.mappedAtCreation = true;
+	buffer->impl.buffer = wgpuDeviceCreateBuffer(device, &bDesc);
+	return wgpuBufferGetMappedRange(buffer->impl.buffer, 0, bDesc.size);
 }
 
 void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
@@ -33,7 +33,7 @@ void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
 }
 
 void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
-	
+
 }
 
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {

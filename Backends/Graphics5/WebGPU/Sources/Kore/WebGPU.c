@@ -31,9 +31,9 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	device = emscripten_webgpu_get_device();
 	queue = wgpuDeviceGetDefaultQueue(device);
 
-	WGPUSurfaceDescriptorFromHTMLCanvasId canvasDesc;
+	WGPUSurfaceDescriptorFromCanvasHTMLSelector canvasDesc;
 	memset(&canvasDesc, 0, sizeof(canvasDesc));
-	canvasDesc.id = "canvas";
+	canvasDesc.selector = "canvas";
 
 	WGPUSurfaceDescriptor surfDesc;
 	memset(&surfDesc, 0, sizeof(surfDesc));
