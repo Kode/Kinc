@@ -21,6 +21,7 @@ typedef struct {
 	float x;
 	float y;
 	float z;
+	float w;
 } kinc_vector4_t;
 
 #ifdef __cplusplus
