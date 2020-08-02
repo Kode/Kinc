@@ -1,10 +1,10 @@
 #include "pch.h"
 
 #ifdef KORE_OCULUS
-#include <Kore/Vr/VrInterface.h>
+#include <Kinc/vr/vrinterface.h>
 
-#include <Kore/Graphics3/Graphics.h>
-#include <Kore/Graphics4/Graphics.h>
+#include <Kinc/graphics4/graphics.h>
+#include <Kinc/graphics4/rendertarget.h>
 #include <Kore/Log.h>
 
 #include "Extras/OVR_Math.h"
@@ -15,7 +15,7 @@
 using namespace Kore;
 
 namespace {
-	SensorState sensorStates[2];
+	kinc_vr_sensor_state_t sensorStates[2];
 }
 
 struct TextureBuffer {
@@ -23,10 +23,11 @@ struct TextureBuffer {
 	ovrTextureSwapChain TextureChain;
 	OVR::Sizei texSize;
 
-	Graphics4::RenderTarget* OVRRenderTarget;
+	kinc_g4_render_target_t OVRRenderTarget;
+	bool render_target_initialized;
 
 	TextureBuffer(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char* data, int sampleCount)
-	    : Session(session), TextureChain(nullptr), texSize(size), OVRRenderTarget(nullptr) {
+	    : Session(session), TextureChain(nullptr), texSize(size), render_target_initialized(false) {
 		UNREFERENCED_PARAMETER(sampleCount);
 
 		assert(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
@@ -57,8 +58,8 @@ struct TextureBuffer {
 					GLuint chainTexId;
 					ovr_GetTextureSwapChainBufferGL(Session, TextureChain, i, &chainTexId);
 					glBindTexture(GL_TEXTURE_2D, chainTexId);
-
-					OVRRenderTarget = new Graphics4::RenderTarget(texSize.w, texSize.h, 1);
+					kinc_g4_render_target_init(&OVRRenderTarget, texSize.w, texSize.h, 0, false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, 0, 0);
+					render_target_initialized = true;
 				}
 			}
 		}
@@ -73,9 +74,8 @@ struct TextureBuffer {
 			ovr_DestroyTextureSwapChain(Session, TextureChain);
 			TextureChain = nullptr;
 		}
-		if (OVRRenderTarget) {
-			delete OVRRenderTarget;
-			OVRRenderTarget = nullptr;
+		if (render_target_initialized) {
+			kinc_g4_render_target_destroy(&OVRRenderTarget);
 		}
 	}
 
@@ -89,16 +89,19 @@ struct TextureBuffer {
 		ovr_GetTextureSwapChainCurrentIndex(Session, TextureChain, &curIndex);
 		ovr_GetTextureSwapChainBufferGL(Session, TextureChain, curIndex, &curTexId);
 
-		if (OVRRenderTarget) Graphics4::setRenderTarget(OVRRenderTarget);
+		if (render_target_initialized) {
+			kinc_g4_render_target_t *renderTargets[1] = {&OVRRenderTarget};
+			kinc_g4_set_render_targets(renderTargets, 1);
+		}
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, OVRRenderTarget->_depthTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, OVRRenderTarget.impl._depthTexture, 0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// glEnable(GL_FRAMEBUFFER_SRGB); // TODO: too bright
 	}
 
 	void UnsetRenderSurface() {
-		glBindFramebuffer(GL_FRAMEBUFFER, OVRRenderTarget->_framebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, OVRRenderTarget.impl._framebuffer);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 	}
@@ -346,7 +349,7 @@ namespace {
 	}
 }
 
-void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
+void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName) {
 	ovrInitParams initParams = {ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0};
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
@@ -383,7 +386,7 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 	return Platform.Window;
 }
 
-void VrInterface::begin() {
+void kinc_vr_interface_begin() {
 	// Call ovr_GetRenderDesc each frame to get the ovrEyeRenderDesc, as the returned values (e.g. HmdToEyeOffset) may change at runtime.
 	ovrEyeRenderDesc eyeRenderDesc[2];
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
@@ -395,13 +398,13 @@ void VrInterface::begin() {
 	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyePose, EyeRenderPose, &sensorSampleTime);
 }
 
-void VrInterface::beginRender(int eye) {
+void kinc_vr_interface_begin_render(int eye) {
 	if (eyeRenderTexture[0] == nullptr || eyeRenderTexture[1] == nullptr) createOculusTexture();
 	// Switch to eye render target
 	eyeRenderTexture[eye]->SetAndClearRenderSurface();
 }
 
-void VrInterface::endRender(int eye) {
+void kinc_vr_interface_end_render(int eye) {
 	// Avoids an error when calling SetAndClearRenderSurface during next iteration.
 	eyeRenderTexture[eye]->UnsetRenderSurface();
 	// Commit changes to the textures so they get picked up frame
@@ -410,37 +413,37 @@ void VrInterface::endRender(int eye) {
 
 namespace {
 
-	mat4 convert(OVR::Matrix4f& m) {
-		mat4 mat;
-		mat.Set(0, 0, m.M[0][0]);
-		mat.Set(0, 1, m.M[0][1]);
-		mat.Set(0, 2, m.M[0][2]);
-		mat.Set(0, 3, m.M[0][3]);
-		mat.Set(1, 0, m.M[1][0]);
-		mat.Set(1, 1, m.M[1][1]);
-		mat.Set(1, 2, m.M[1][2]);
-		mat.Set(1, 3, m.M[1][3]);
-		mat.Set(2, 0, m.M[2][0]);
-		mat.Set(2, 1, m.M[2][1]);
-		mat.Set(2, 2, m.M[2][2]);
-		mat.Set(2, 3, m.M[2][3]);
-		mat.Set(3, 0, m.M[3][0]);
-		mat.Set(3, 1, m.M[3][1]);
-		mat.Set(3, 2, m.M[3][2]);
-		mat.Set(3, 3, m.M[3][3]);
+	kinc_matrix4x4_t convert(OVR::Matrix4f& m) {
+		kinc_matrix4x4_t mat;
+		kinc_matrix4x4_set(&mat, 0, 0, m.M[0][0]);
+		kinc_matrix4x4_set(&mat, 0, 1, m.M[0][1]);
+		kinc_matrix4x4_set(&mat, 0, 2, m.M[0][2]);
+		kinc_matrix4x4_set(&mat, 0, 3, m.M[0][3]);
+		kinc_matrix4x4_set(&mat, 1, 0, m.M[1][0]);
+		kinc_matrix4x4_set(&mat, 1, 1, m.M[1][1]);
+		kinc_matrix4x4_set(&mat, 1, 2, m.M[1][2]);
+		kinc_matrix4x4_set(&mat, 1, 3, m.M[1][3]);
+		kinc_matrix4x4_set(&mat, 2, 0, m.M[2][0]);
+		kinc_matrix4x4_set(&mat, 2, 1, m.M[2][1]);
+		kinc_matrix4x4_set(&mat, 2, 2, m.M[2][2]);
+		kinc_matrix4x4_set(&mat, 2, 3, m.M[2][3]);
+		kinc_matrix4x4_set(&mat, 3, 0, m.M[3][0]);
+		kinc_matrix4x4_set(&mat, 3, 1, m.M[3][1]);
+		kinc_matrix4x4_set(&mat, 3, 2, m.M[3][2]);
+		kinc_matrix4x4_set(&mat, 3, 3, m.M[3][3]);
 		return mat;
 	}
 
-	Vector<float, 3> vectorConvert(const OVR::Vector3f& v) {
-		return { v.x, v.y, v.z };
-	}
+	// Vector<float, 3> vectorConvert(const OVR::Vector3f& v) {
+	// 	return { v.x, v.y, v.z };
+	// }
 
-	OVR::Vector3f vectorConvert(const Vector<float, 3>& v) {
-		return { v.x(), v.y(), v.z() };
-	}
+	// OVR::Vector3f vectorConvert(const Vector<float, 3>& v) {
+	// 	return { v.x(), v.y(), v.z() };
+	// }
 }
 
-SensorState VrInterface::getSensorState(int eye, Kore::Vector<float, 3>& headPosition) {
+/*SensorState VrInterface::getSensorState(int eye, Kore::Vector<float, 3>& headPosition) {
 	VrPoseState poseState;
 
 	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
@@ -459,9 +462,9 @@ SensorState VrInterface::getSensorState(int eye, Kore::Vector<float, 3>& headPos
 	OVR::Matrix4f finalRollPitchYaw = OVR::Matrix4f(EyeRenderPose[eye].Orientation);
 	OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
 	OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
-	
+
 	Kore::Vector<float, 3> right = vectorConvert(finalForward).cross(vectorConvert(finalUp)).normalize() * 0.01f;
-	
+
 	OVR::Vector3f shiftedEyePos;
 
 	if (eye == 0) {
@@ -469,8 +472,8 @@ SensorState VrInterface::getSensorState(int eye, Kore::Vector<float, 3>& headPos
 	} else {
 		shiftedEyePos = vectorConvert(headPosition + right);
 	}
-	
-	
+
+
 	OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
 	OVR::Matrix4f proj = ovrMatrix4f_Projection(hmdDesc.MaxEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);
 
@@ -495,16 +498,21 @@ SensorState VrInterface::getSensorState(int eye, Kore::Vector<float, 3>& headPos
 	sensorStates[eye].pose = poseState;
 
 	return sensorStates[eye];
-}
+}*/
 
-SensorState VrInterface::getSensorState(int eye) {
-	VrPoseState poseState;
+kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye) {
+	kinc_vr_pose_state_t poseState;
 
 	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
-	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
+	poseState.vrPose.orientation.x = orientation.x;
+	poseState.vrPose.orientation.y = orientation.y;
+	poseState.vrPose.orientation.z = orientation.z;
+	poseState.vrPose.orientation.w = orientation.w;
 
 	ovrVector3f pos = EyeRenderPose[eye].Position;
-	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
+	poseState.vrPose.position.x = pos.x;
+	poseState.vrPose.position.y = pos.y;
+	poseState.vrPose.position.z = pos.z;
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
 	poseState.vrPose.left = fov.LeftTan;
@@ -556,7 +564,12 @@ SensorState VrInterface::getSensorState(int eye) {
 	return sensorStates[eye];
 }
 
-void VrInterface::warpSwap() {
+kinc_vr_pose_state_t kinc_vr_interface_get_controller(int index) {
+	kinc_vr_pose_state_t todo;
+	return todo;
+}
+
+void kinc_vr_interface_warp_swap() {
 	// Initialize our single full screen Fov layer.
 	ovrLayerEyeFov ld;
 	ld.Header.Type = ovrLayerType_EyeFov;
@@ -592,12 +605,12 @@ void VrInterface::warpSwap() {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
 
-void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {
+void kinc_vr_interface_update_tracking_origin(kinc_tracking_origin_t origin) {
 	switch (origin) {
-	case Stand:
+	case KINC_TRACKING_ORIGIN_STAND:
 		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 		break;
-	case Sit:
+	case KINC_TRACKING_ORIGIN_SIT:
 		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_EyeLevel);
 		break;
 	default:
@@ -606,11 +619,11 @@ void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {
 	}
 }
 
-void VrInterface::resetHmdPose() {
+void kinc_vr_interface_reset_hmd_pose() {
 	ovr_RecenterTrackingOrigin(session);
 }
 
-void VrInterface::ovrShutdown() {
+void kinc_vr_interface_ovr_shutdown() {
 	ovr_Shutdown();
 }
 
