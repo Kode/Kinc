@@ -40,7 +40,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 }
 
 void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {
-	
+
 }
 
 float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {
@@ -48,9 +48,9 @@ float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {
 	memset(&bDesc, 0, sizeof(bDesc));
 	bDesc.size = buffer->impl.count * buffer->impl.stride * sizeof(float);
 	bDesc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
-	WGPUCreateBufferMappedResult mapped = wgpuDeviceCreateBufferMapped(device, &bDesc);
-	buffer->impl.buffer = mapped.buffer;
-	return mapped.data;
+	bDesc.mappedAtCreation = true;
+	buffer->impl.buffer = wgpuDeviceCreateBuffer(device, &bDesc);
+	return wgpuBufferGetMappedRange(buffer->impl.buffer);
 }
 
 float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, int count) {
@@ -62,7 +62,7 @@ void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buffer) {
 }
 
 void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t* buffer, int count) {
-	
+
 }
 
 int kinc_g5_vertex_buffer_count(kinc_g5_vertex_buffer_t *buffer) {
