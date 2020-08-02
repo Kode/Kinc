@@ -7,7 +7,7 @@ Content     :   General kernel initialization/cleanup, including that
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -164,6 +164,9 @@ class System {
   // Initializes System core.  Users can override memory implementation by passing
   // a different Allocator here.
   static void OVR_CDECL Init();
+
+  // Halt all system threads (call before Destroy).
+  static void OVR_CDECL Stop();
 
   // De-initializes System more, finalizing the threading system and destroying
   // the global memory allocator.

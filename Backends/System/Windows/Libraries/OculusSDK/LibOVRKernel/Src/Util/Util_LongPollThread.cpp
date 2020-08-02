@@ -6,7 +6,7 @@ risk
 Created     :   June 30, 2013
 Authors     :   Chris Taylor
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -81,5 +81,6 @@ void LongPollThread::Run() {
     WakeEvent.ResetEvent();
   } while (!Terminated.load(std::memory_order_acquire));
 }
+
 } // namespace Util
 } // namespace OVR

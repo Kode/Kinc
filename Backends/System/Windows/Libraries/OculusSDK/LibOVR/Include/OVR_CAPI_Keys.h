@@ -1,7 +1,7 @@
 /********************************************************************************/ /**
  \file      OVR_CAPI.h
- \brief     Keys for CAPI proprty function calls
- \copyright Copyright 2015 Oculus VR, LLC All Rights reserved.
+ \brief     Keys for CAPI property function calls
+ \copyright Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
  ************************************************************************************/
 
 #ifndef OVR_CAPI_Keys_h
@@ -44,5 +44,6 @@
 #define OVR_DEBUG_HUD_STEREO_GUIDE_POSITION "DebugHudStereoGuidePosition3f" // float[3]
 #define OVR_DEBUG_HUD_STEREO_GUIDE_YAWPITCHROLL "DebugHudStereoGuideYawPitchRoll3f" // float[3]
 #define OVR_DEBUG_HUD_STEREO_GUIDE_COLOR "DebugHudStereoGuideColor4f" // float[4]
+
 
 #endif // OVR_CAPI_Keys_h

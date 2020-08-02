@@ -33,7 +33,6 @@ limitations under the License.
 #include <dwrite.h>
 #endif
 
-#include "Kernel/OVR_Hash.h"
 #include "Kernel/OVR_Array.h"
 #include "Kernel/OVR_Threads.h"
 #include "Kernel/OVR_Deque.h"

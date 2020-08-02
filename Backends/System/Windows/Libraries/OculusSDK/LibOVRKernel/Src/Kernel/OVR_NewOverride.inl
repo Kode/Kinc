@@ -50,9 +50,17 @@ limitations under the License.
 
 
 #if defined(_MSC_VER)
-    #define OVR_THROW_SPEC_NEW(X)        __pragma(warning(push)) __pragma(warning(disable: 4987)) _THROWS(X) __pragma(warning(pop))
-    #define OVR_THROW_SPEC_NEW_NONE()    _THROW0()
-    #define OVR_THROW_SPEC_DELETE_NONE() _THROW0()
+
+#if (_MSC_VER <= 1900)
+    #define OVR_THROW_SPEC_NEW(X)        __pragma(warning(push)) __pragma(warning(disable: 4290 4987)) _THROW(,X) __pragma(warning(pop))
+    #define OVR_THROW_SPEC_NEW_NONE()    _THROW(,)
+    #define OVR_THROW_SPEC_DELETE_NONE() _THROW(,)
+#else
+	#define OVR_THROW_SPEC_NEW(x)        __pragma(warning(push)) __pragma(warning(disable: 4290 4987)) noexcept(false) __pragma(warning(pop))
+	#define OVR_THROW_SPEC_NEW_NONE()    noexcept
+	#define OVR_THROW_SPEC_DELETE_NONE() noexcept
+#endif
+
 #else
     #define OVR_THROW_SPEC_NEW(x)        throw(x)
     #define OVR_THROW_SPEC_NEW_NONE()    throw()
@@ -179,13 +187,15 @@ OVR_NEW_OVERRIDE_INLINE void* operator new[](size_t n, int /*debug*/, const char
     return ::operator new[](n);
 }
 
-OVR_NEW_OVERRIDE_INLINE void operator delete(void* p, int /*debug*/, const char* /*fileName*/, int /*line*/)
-{
+OVR_NEW_OVERRIDE_INLINE void __CRTDECL
+operator delete(void* p, int /*debug*/, const char* /*fileName*/, int /*line*/)
+    OVR_THROW_SPEC_DELETE_NONE() {
     ::operator delete(p);
 }
 
-OVR_NEW_OVERRIDE_INLINE void operator delete[](void* p, int /*debug*/, const char* /*fileName*/, int /*line*/)
-{
+OVR_NEW_OVERRIDE_INLINE void __CRTDECL
+operator delete[](void* p, int /*debug*/, const char* /*fileName*/, int /*line*/)
+    OVR_THROW_SPEC_DELETE_NONE() {
     ::operator delete[](p);
 }
 

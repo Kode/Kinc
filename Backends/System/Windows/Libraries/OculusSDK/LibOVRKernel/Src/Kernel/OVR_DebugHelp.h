@@ -122,7 +122,18 @@ bool OVRIsDebuggerPresent();
 OVR_NORETURN void ExitProcess(intptr_t processReturnValue);
 
 // Returns the instruction pointer of the caller for the position right after the call.
-OVR_NO_INLINE void GetInstructionPointer(void*& pInstruction);
+OVR_NO_INLINE void* GetInstructionAddress();
+
+// Returns the instruction pointer of the call to the caller of this function.
+// This is a macro defined as with the following C declaration:
+//    void* GetInstructionAddress();
+#ifndef OVRGetReturnAddress
+#if defined(_MSC_VER)
+#define OVRGetReturnAddress() _ReturnAddress()
+#else // GCC, clang
+#define OVRGetReturnAddress() __builtin_return_address(0)
+#endif
+#endif
 
 // Returns the stack base and limit addresses for the given thread, or for the current thread if the
 // threadHandle is default.
@@ -306,11 +317,12 @@ static const uint64_t kMIBaseAddressUnspecified = 0xffffffffffffffffull;
 
 struct ModuleInfo {
   ModuleHandle handle;
-  uint64_t baseAddress; // The actual runtime base address of the module. May be different from the
-  // base address specified in the debug symbol file.
+  uint64_t baseAddress; // The actual runtime base address of the module. May be different from
+  // the base address specified in the debug symbol file, because the module may be placed at a
+  // different address on startup.
   uint64_t size;
-  char filePath[OVR_MAX_PATH];
-  char name[32];
+  char filePath[OVR_MAX_PATH]; // UTF8 encoded
+  char name[32]; // UTF8 encoded
   char type[8]; // Unix-specific. e.g. __TEXT
   char permissions[8]; // Unix specific. e.g. "drwxr-xr-x"
 
@@ -347,7 +359,7 @@ struct SymbolInfo {
 class SymbolLookup {
  public:
   SymbolLookup();
-  ~SymbolLookup();
+  ~SymbolLookup() = default;
 
   // Every successful call to Initialize must be eventually matched by a call to Shutdown.
   // Shutdown should be called if and only if Initialize returns true.
@@ -373,7 +385,7 @@ class SymbolLookup {
   // For Apple platforms the platformThreadContext is x86_thread_state_t* or arm_thread_state_t*.
   // If threadSysIdHelp is non-zero, it may be used by the implementation to help produce a better
   // backtrace.
-  size_t GetBacktrace(
+  static size_t GetBacktrace(
       void* addressArray[],
       size_t addressArrayCapacity,
       size_t skipCount = 0,
@@ -382,7 +394,7 @@ class SymbolLookup {
 
   // Retrieves the backtrace for the given ThreadHandle.
   // Returns the number written, which will be <= addressArrayCapacity.
-  size_t GetBacktraceFromThreadHandle(
+  static size_t GetBacktraceFromThreadHandle(
       void* addressArray[],
       size_t addressArrayCapacity,
       size_t skipCount = 0,
@@ -390,30 +402,35 @@ class SymbolLookup {
 
   // Retrieves the backtrace for the given ThreadSysId.
   // Returns the number written, which will be <= addressArrayCapacity.
-  size_t GetBacktraceFromThreadSysId(
+  static size_t GetBacktraceFromThreadSysId(
       void* addressArray[],
       size_t addressArrayCapacity,
       size_t skipCount = 0,
       OVR::ThreadSysId threadSysId = OVR_THREADSYSID_INVALID);
 
+  enum ModuleSort { ModuleSortNone = 0, ModuleSortByAddress, ModuleSortByName };
+
   // Gets a list of the modules (e.g. DLLs) present in the current process.
   // Writes as many ModuleInfos as possible to pModuleInfoArray.
   // Returns the required count of ModuleInfos, which will be > moduleInfoArrayCapacity if the
   // capacity needs to be larger.
-  size_t GetModuleInfoArray(ModuleInfo* pModuleInfoArray, size_t moduleInfoArrayCapacity);
+  static size_t GetModuleInfoArray(
+      ModuleInfo* pModuleInfoArray,
+      size_t moduleInfoArrayCapacity,
+      ModuleSort moduleSort = ModuleSortNone);
 
   // Retrieves a list of the current threads. Unless the process is paused the list is volatile.
   // Returns the required capacity, which may be larger than threadArrayCapacity.
   // Either array can be NULL to specify that it's not written to.
   // For Windows the caller needs to CloseHandle the returned ThreadHandles. This can be done by
   // calling DoneThreadList.
-  size_t GetThreadList(
+  static size_t GetThreadList(
       ThreadHandle* threadHandleArray,
       ThreadSysId* threadSysIdArray,
       size_t threadArrayCapacity);
 
   // Frees any references to thread handles or ids returned by GetThreadList;
-  void DoneThreadList(
+  static void DoneThreadList(
       ThreadHandle* threadHandleArray,
       ThreadSysId* threadSysIdArray,
       size_t threadArrayCount);
@@ -437,20 +454,31 @@ class SymbolLookup {
   bool LookupSymbol(uint64_t address, SymbolInfo& symbolInfo);
   bool LookupSymbols(uint64_t* addressArray, SymbolInfo* pSymbolInfoArray, size_t arraySize);
 
-  const ModuleInfo* GetModuleInfoForAddress(
-      uint64_t address); // The returned ModuleInfo points to an internal structure.
+  // The returned ModuleInfo points to an internal structure. This function assumes that the
+  // internal cached ModuleInfo array is valid. If modules are dynamically added or removed
+  // during runtime then the array may be partially out of date.
+  // May return NULL if there was no found module for the address.
+  const ModuleInfo* GetModuleInfoForAddress(uint64_t address);
+
+  const ModuleInfo& GetModuleInfoForCurrentModule();
 
  protected:
   bool RefreshModuleList();
 
  protected:
-  bool AllowMemoryAllocation; // True by default. If true then we allow allocating memory (and as a
+  // True by default. If true then we allow allocating memory (and as a
   // result provide less information). This is useful for when in an
   // exception handler.
+  bool AllowMemoryAllocation;
   bool ModuleListUpdated;
-  ModuleInfo ModuleInfoArray[256]; // Cached list of modules we use. This is a fixed size because we
-  // need to use it during application exceptions.
+
+  // Cached list of modules we use. This is a fixed size because
+  // we need to use it during application exceptions.
+  ModuleInfo ModuleInfoArray[256];
   size_t ModuleInfoArraySize;
+
+  // The ModuleInfo for the current module, which is often needed and so we make a member for it.
+  ModuleInfo currentModuleInfo;
 };
 
 // ExceptionInfo

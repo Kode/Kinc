@@ -6,7 +6,7 @@ Content     :   String UTF8 string implementation with copy-on-write semantics
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -35,18 +35,15 @@ limitations under the License.
 #include "OVR_Std.h"
 #include "OVR_Alg.h"
 #include <string>
+#include <stdarg.h>
 
 namespace OVR {
 
-// Special/default null-terminated length argument
-const size_t StringIsNullTerminated = size_t(-1);
-// Input index out of bounds error condition
-const size_t StringIndexOutOfBounds = size_t(-1);
-
-// ***** Classes
-
 class String;
 class StringBuffer;
+
+// Special/default null-terminated length argument
+const size_t StringIsNullTerminated = size_t(-1);
 
 //-----------------------------------------------------------------------------------
 // ***** String Class
@@ -54,233 +51,220 @@ class StringBuffer;
 // String is UTF8 based string class with copy-on-write implementation
 // for assignment.
 
-class String {
- protected:
-  enum FlagConstants {
-    // Flag_GetLength      = 0x7FFFFFFF,
-    // This flag is set if GetLength() == GetSize() for a string.
-    // Avoid extra scanning is Substring and indexing logic.
-    Flag_LengthIsSizeShift = (sizeof(size_t) * 8 - 1)
-  };
-
-  // Internal structure to hold string data
-  struct DataDesc {
-    // Number of bytes. Will be the same as the number of chars if the characters
-    // are ascii, may not be equal to number of chars in case string data is UTF8.
-    size_t Size;
-    std::atomic<int32_t> RefCount;
-    // Note: Data[] must be the last data element, and the [1] accounts for
-    // null-termination in allocations
-    char Data[1];
-
-    void AddRef() {
-      RefCount.fetch_add(1, std::memory_order_relaxed);
-    }
-    // Decrement ref count. This needs to be thread-safe, since
-    // a different thread could have also decremented the ref count.
-    // For example, if u start off with a ref count = 2. Now if u
-    // decrement the ref count and check against 0 in different
-    // statements, a different thread can also decrement the ref count
-    // in between our decrement and checking against 0 and will find
-    // the ref count = 0 and delete the object. This will lead to a crash
-    // when context switches to our thread and we'll be trying to delete
-    // an already deleted object. Hence decrementing the ref count and
-    // checking against 0 needs to made an atomic operation.
-    void Release() {
-      if (RefCount.fetch_add(-1, std::memory_order_relaxed) - 1 == 0)
-        OVR_FREE(this);
-    }
-
-    static size_t GetLengthFlagBit() {
-      return size_t(1) << Flag_LengthIsSizeShift;
-    }
-    size_t GetSize() const {
-      return Size & ~GetLengthFlagBit();
-    }
-    size_t GetLengthFlag() const {
-      return Size & GetLengthFlagBit();
-    }
-    bool LengthIsSize() const {
-      return GetLengthFlag() != 0;
-    }
-  };
-
-  // Heap type of the string is encoded in the lower bits.
-  enum HeapType {
-    HT_Global = 0, // Heap is global.
-    HT_Local = 1, // SF::String_loc: Heap is determined based on string's address.
-    HT_Dynamic = 2, // SF::String_temp: Heap is stored as a part of the class.
-    HT_Mask = 3
-  };
-
-  union {
-    DataDesc* pData;
-    size_t HeapTypeBits;
-  };
-  typedef union {
-    DataDesc* pData;
-    size_t HeapTypeBits;
-  } DataDescUnion;
-
-  inline HeapType GetHeapType() const {
-    return (HeapType)(HeapTypeBits & HT_Mask);
-  }
-
-  inline DataDesc* GetData() const {
-    DataDescUnion u;
-    u.pData = pData;
-    u.HeapTypeBits = (u.HeapTypeBits & ~(size_t)HT_Mask);
-    return u.pData;
-  }
-
-  inline void SetData(DataDesc* pdesc) {
-    HeapType ht = GetHeapType();
-    pData = pdesc;
-    OVR_ASSERT((HeapTypeBits & HT_Mask) == 0);
-    HeapTypeBits |= ht;
-  }
-
-  DataDesc* AllocData(size_t size, size_t lengthIsSize);
-  DataDesc* AllocDataCopy1(size_t size, size_t lengthIsSize, const char* pdata, size_t copySize);
-  DataDesc* AllocDataCopy2(
-      size_t size,
-      size_t lengthIsSize,
-      const char* pdata1,
-      size_t copySize1,
-      const char* pdata2,
-      size_t copySize2);
-
-  // Special constructor to avoid data initalization when used in derived class.
-  struct NoConstructor {};
-  String(const NoConstructor&) {}
-
+class String : public std::string {
  public:
-  // For initializing string with dynamic buffer
-  struct InitStruct {
-    virtual ~InitStruct() {}
-    virtual void InitString(char* pbuffer, size_t size) const = 0;
-  };
+  typedef std::string inherited;
 
   // Constructors / Destructors.
-  String();
-  String(const char* data);
-  String(const char* data1, const char* pdata2, const char* pdata3 = 0);
-  String(const char* data, size_t buflen);
-  String(const String& src);
-  String(const StringBuffer& src);
-  String(const InitStruct& src, size_t size);
-  explicit String(const wchar_t* data);
+  String() {}
 
-  // Destructor (Captain Obvious guarantees!)
-  ~String() {
-    GetData()->Release();
+  String(const char* data) {
+    if (data)
+      inherited::assign(data);
   }
 
-  // Declaration of NullString
-  static DataDesc NullData;
+  String(const char* data1, const char* pdata2, const char* pdata3 = nullptr) {
+    if (data1)
+      inherited::append(data1);
+    if (pdata2)
+      inherited::append(pdata2);
+    if (pdata3)
+      inherited::append(pdata3);
+  }
 
-  // *** General Functions
+  String(const char* data, size_t buflen) {
+    if (data)
+      inherited::assign(data, buflen);
+  }
 
-  void Clear();
+  String(const String& src) {
+    inherited::assign(src.data(), src.length());
+  }
 
-  // For casting to a pointer to char.
+  String(const std::string& src) {
+    inherited::assign(src.data(), src.length());
+  }
+
+  explicit String(const wchar_t* data) {
+    if (data)
+      String::operator=(data); // Need to do UCS2->UTF8 conversion
+  }
+
+  void Clear() {
+    inherited::clear();
+  }
+
   operator const char*() const {
-    return GetData()->Data;
+    return inherited::c_str();
   }
-  // Pointer to raw buffer.
+
   const char* ToCStr() const {
-    return GetData()->Data;
+    return inherited::c_str();
   }
 
-  // Returns number of bytes
+  // Byte length.
   size_t GetSize() const {
-    return GetData()->GetSize();
+    return inherited::size();
   }
-  // Tells whether or not the string is empty
+
   bool IsEmpty() const {
-    return GetSize() == 0;
+    return inherited::empty();
   }
 
-  // Returns  number of characters
-  size_t GetLength() const;
+  // Returns number of Unicode codepoints (not byte length).
+  size_t GetLength() const {
+    return (size_t)UTF8Util::GetLength(inherited::data(), inherited::size());
+  }
+
+  // Return Unicode codepoint count.
   int GetLengthI() const {
-    return (int)GetLength();
+    return (int)UTF8Util::GetLength(inherited::data(), inherited::size());
   }
 
-  // Returns  character at the specified index
-  uint32_t GetCharAt(size_t index) const;
-  uint32_t GetFirstCharAt(size_t index, const char** offset) const;
-  uint32_t GetNextChar(const char** offset) const;
-  uint32_t Front() const {
-    return GetCharAt(0);
+  // Return Unicode codepoint at the specified codepoint index.
+  uint32_t GetCharAt(size_t index) const {
+    return UTF8Util::GetCharAt(index, inherited::data(), inherited::size());
   }
+
+  // Get first Unicode codepoint.
+  uint32_t Front() const {
+    return UTF8Util::GetCharAt(0, inherited::data(), inherited::size());
+  }
+
+  // Get last Unicode codepoint.
   uint32_t Back() const {
+    OVR_ASSERT(!inherited::empty());
     return GetCharAt(GetSize() - 1);
   }
 
-  // Appends a character
-  void AppendChar(uint32_t ch);
+  // Append a Unicode codepoint.
+  void AppendChar(uint32_t ch) {
+    char buff[8]; // Max possible UTF8 sequence is 6 bytes.
+    intptr_t encodeSize = 0;
+    UTF8Util::EncodeChar(buff, &encodeSize, ch);
+    inherited::append(buff, encodeSize);
+  }
 
-  // Append a string
-  void AppendString(const wchar_t* pstr, size_t len = StringIsNullTerminated);
-  void AppendString(const char* putf8str, size_t utf8StrSz = StringIsNullTerminated);
+  // Append Unicode codepoints
+  void AppendString(const wchar_t* pstr, size_t len = StringIsNullTerminated) {
+    if (pstr) {
+      if (len == StringIsNullTerminated)
+        len = wcslen(pstr);
 
-  // Assigned a string with dynamic data (copied through initializer).
-  void AssignString(const InitStruct& src, size_t size);
-  // Assigns string with known size.
-  void AssignString(const char* putf8str, size_t size);
+      while (len-- > 0)
+        AppendChar(*pstr++);
+    }
+  }
 
-  //  Resize the string to the new size
-  //  void        Resize(size_t _size);
+  // Append UTF8 stirng of a given byte size.
+  void AppendString(const char* putf8str, size_t utf8StrSz = StringIsNullTerminated) {
+    if (putf8str) {
+      if (utf8StrSz == StringIsNullTerminated)
+        inherited::append(putf8str);
+      else
+        inherited::append(putf8str, utf8StrSz);
+    }
+  }
 
-  // Removes the character(s) at posAt
-  void Remove(size_t posAt, size_t len = 1);
+  // Assigns string with known byte size.
+  void AssignString(const char* putf8str, size_t size) {
+    if (putf8str || (size == 0))
+      inherited::assign(putf8str, size);
+  }
 
-  // Removes the last character.
+  // Remove 'removeLength' Unicode codepoints starting at the 'posAt' Unicode codepoint.
+  void Remove(size_t posAt, size_t removeLength = 1) {
+    size_t length = GetLength(); // Unicode size.
+
+    if (posAt < length) {
+      size_t oldSize = inherited::size(); // Byte size.
+
+      if ((posAt + removeLength) > length)
+        removeLength = (length - posAt);
+
+      intptr_t bytePos = UTF8Util::GetByteIndex(posAt, inherited::data(), oldSize);
+
+      intptr_t removeSize =
+          UTF8Util::GetByteIndex(removeLength, inherited::data() + bytePos, oldSize - bytePos);
+
+      inherited::erase(bytePos, removeSize);
+    }
+  }
+
+  // Removes the last Unicode codepoint.
   void PopBack() {
-    Remove(GetLength() - 1, 1);
+    if (!inherited::empty())
+      Remove(GetLength() - 1, 1);
   }
 
   // Returns a String that's a substring of this.
-  //  -start is the index of the first UTF8 character you want to include.
-  //  -end is the index one past the last UTF8 character you want to include.
-  String Substring(size_t start, size_t end) const;
+  //  start is the index of the first Unicode codepoint you want to include.
+  //  end is the index one past the last Unicode codepoint you want to include.
+  String Substring(size_t start, size_t end) const {
+    size_t length = GetLength();
 
-  // Case-conversion
-  String ToUpper() const;
-  String ToLower() const;
+    if ((start >= length) || (start >= end))
+      return String();
 
-  // Inserts substr at posAt
-  String& Insert(const char* substr, size_t posAt, size_t len = StringIsNullTerminated);
+    if (end > length)
+      end = length;
 
-  // Inserts character at posAt
-  size_t InsertCharAt(uint32_t c, size_t posAt);
+    // Get position of starting character and size
+    intptr_t byteStart = UTF8Util::GetByteIndex(start, inherited::data(), inherited::size());
+    intptr_t byteSize = UTF8Util::GetByteIndex(
+        end - start, inherited::data() + byteStart, inherited::size() - byteStart);
 
-  // Get Byte index of the character at position = index, returns StringIndexOutOfBounds on index
-  // out of bounds
-  size_t GetByteIndex(size_t index) const {
-    return (size_t)UTF8Util::GetByteIndex(index, GetData()->Data);
+    return String(inherited::data() + byteStart, (size_t)byteSize);
   }
 
-  // Utility: case-insensitive string compare.  stricmp() & strnicmp() are not
-  // ANSI or POSIX, do not seem to appear in Linux.
-  static int OVR_STDCALL CompareNoCase(const char* a, const char* b) {
+  // Insert a UTF8 string at the Unicode codepoint posAt.
+  String& Insert(const char* substr, size_t posAt, size_t strSize = StringIsNullTerminated) {
+    if (substr) {
+      if (strSize == StringIsNullTerminated)
+        strSize = strlen(substr);
+
+      size_t byteIndex = UTF8Util::GetByteIndex(posAt, inherited::c_str(), inherited::size());
+
+      if (byteIndex > inherited::size())
+        byteIndex = inherited::size();
+
+      inherited::insert(byteIndex, substr, strSize);
+    }
+
+    return *this;
+  }
+
+  // UTF8 compare
+  static int CompareNoCase(const char* a, const char* b) {
     return OVR_stricmp(a, b);
   }
-  static int OVR_STDCALL CompareNoCase(const char* a, const char* b, size_t len) {
-    return OVR_strnicmp(a, b, len);
+
+  // UTF8 compare
+  static int CompareNoCase(const char* a, const char* b, size_t byteSize) {
+    return OVR_strnicmp(a, b, byteSize);
   }
 
   // Hash function, case-insensitive
-  static size_t OVR_STDCALL
-  BernsteinHashFunctionCIS(const void* pdataIn, size_t size, size_t seed = 5381);
+  static size_t BernsteinHashFunctionCIS(const void* pdataIn, size_t size, size_t seed = 5381) {
+    const uint8_t* pdata = (const uint8_t*)pdataIn;
+    size_t h = seed;
+    while (size > 0) {
+      size--;
+      h = ((h << 5) + h) ^ OVR_tolower(pdata[size]);
+    }
+    return h;
+  }
 
   // Hash function, case-sensitive
-  static size_t OVR_STDCALL
-  BernsteinHashFunction(const void* pdataIn, size_t size, size_t seed = 5381);
-
-  // ***** File path parsing helper functions.
-  // Implemented in OVR_String_FilePath.cpp.
+  static size_t BernsteinHashFunction(const void* pdataIn, size_t size, size_t seed = 5381) {
+    const uint8_t* pdata = (const uint8_t*)pdataIn;
+    size_t h = seed;
+    while (size > 0) {
+      size--;
+      h = ((h << 5) + h) ^ (unsigned)pdata[size];
+    }
+    return h;
+  }
 
   // Absolute paths can star with:
   //  - protocols:        'file://', 'http://'
@@ -288,51 +272,89 @@ class String {
   //  - UNC share name:   '\\share'
   //  - unix root         '/'
   static bool HasAbsolutePath(const char* path);
+
   static bool HasExtension(const char* path);
+
   static bool HasProtocol(const char* path);
 
   bool HasAbsolutePath() const {
-    return HasAbsolutePath(ToCStr());
+    return HasAbsolutePath(inherited::c_str());
   }
+
   bool HasExtension() const {
-    return HasExtension(ToCStr());
+    return HasExtension(inherited::c_str());
   }
+
   bool HasProtocol() const {
-    return HasProtocol(ToCStr());
+    return HasProtocol(inherited::c_str());
   }
 
   String GetProtocol() const; // Returns protocol, if any, with trailing '://'.
+
   String GetPath() const; // Returns path with trailing '/'.
+
   String GetFilename() const; // Returns filename, including extension.
+
   String GetExtension() const; // Returns extension with a dot.
 
   void StripProtocol(); // Strips front protocol, if any, from the string.
+
   void StripExtension(); // Strips off trailing extension.
 
-  // Operators
-  // Assignment
-  void operator=(const char* str);
-  void operator=(const wchar_t* str);
-  void operator=(const String& src);
-  void operator=(const StringBuffer& src);
+  void operator=(const char* str) {
+    if (str)
+      inherited::assign(str);
+    else
+      inherited::clear();
+  }
 
-  // Addition
-  void operator+=(const String& src);
+  void operator=(const wchar_t* str) {
+    inherited::clear();
+
+    while (str && *str)
+      AppendChar(*str++);
+  }
+
+  void operator=(const String& src) {
+    inherited::assign(src.data(), src.size());
+  }
+
+  void operator+=(const String& src) {
+    inherited::append(src.data(), src.size());
+  }
+
   void operator+=(const char* psrc) {
-    AppendString(psrc);
+    if (psrc)
+      inherited::append(psrc);
   }
+
   void operator+=(const wchar_t* psrc) {
-    AppendString(psrc);
+    if (psrc)
+      AppendString(psrc);
   }
+
+  // Append a Unicode codepoint.
+  // Note that this function seems amiss by taking char as an argument instead of uint32_t or
+  // wchar_t.
   void operator+=(char ch) {
     AppendChar(ch);
   }
-  String operator+(const char* str) const;
-  String operator+(const String& src) const;
 
-  // Comparison
+  String operator+(const char* str) const {
+    String temp(*this);
+    if (str)
+      temp += str;
+    return temp;
+  }
+
+  String operator+(const String& src) const {
+    String temp(*this);
+    temp += src;
+    return temp;
+  }
+
   bool operator==(const String& str) const {
-    return (OVR_strcmp(GetData()->Data, str.GetData()->Data) == 0);
+    return (OVR_strcmp(inherited::c_str(), str.c_str()) == 0);
   }
 
   bool operator!=(const String& str) const {
@@ -340,7 +362,7 @@ class String {
   }
 
   bool operator==(const char* str) const {
-    return OVR_strcmp(GetData()->Data, str) == 0;
+    return OVR_strcmp(inherited::c_str(), (str ? str : "")) == 0;
   }
 
   bool operator!=(const char* str) const {
@@ -348,43 +370,47 @@ class String {
   }
 
   bool operator<(const char* pstr) const {
-    return OVR_strcmp(GetData()->Data, pstr) < 0;
+    return OVR_strcmp(inherited::c_str(), (pstr ? pstr : "")) < 0;
   }
 
   bool operator<(const String& str) const {
-    return *this < str.GetData()->Data;
+    return *this < str.c_str();
   }
 
   bool operator>(const char* pstr) const {
-    return OVR_strcmp(GetData()->Data, pstr) > 0;
+    return OVR_strcmp(inherited::c_str(), (pstr ? pstr : "")) > 0;
   }
 
   bool operator>(const String& str) const {
-    return *this > str.GetData()->Data;
+    return *this > str.c_str();
   }
 
   int CompareNoCase(const char* pstr) const {
-    return CompareNoCase(GetData()->Data, pstr);
+    return CompareNoCase(inherited::c_str(), (pstr ? pstr : ""));
   }
+
   int CompareNoCase(const String& str) const {
-    return CompareNoCase(GetData()->Data, str.ToCStr());
+    return CompareNoCase(inherited::c_str(), str.c_str());
   }
+
   int CompareNoCaseStartsWith(const String& str) const {
-    return CompareNoCase(GetData()->Data, str.ToCStr(), str.GetLength());
+    // Problem: the original version of this used GetLength, which seems like a bug because
+    // CompareNoCase takes a byte length. Need to look back in the OVR_String.h history to see if
+    // the bug has always been there.
+    return CompareNoCase(inherited::c_str(), str.c_str(), str.size());
   }
 
   // Accesses raw bytes
   const char& operator[](int index) const {
-    OVR_ASSERT(index >= 0 && (size_t)index < GetSize());
-    return GetData()->Data[index];
-  }
-  const char& operator[](size_t index) const {
-    OVR_ASSERT(index < GetSize());
-    return GetData()->Data[index];
+    OVR_ASSERT(index >= 0 && (size_t)index < inherited::size());
+    return inherited::operator[](index);
   }
 
-  // Case insensitive keys are used to look up insensitive string in hash tables
-  // for SWF files with version before SWF 7.
+  const char& operator[](size_t index) const {
+    OVR_ASSERT(index < inherited::size());
+    return inherited::operator[](index);
+  }
+
   struct NoCaseKey {
     const String* pStr;
     NoCaseKey(const String& str) : pStr(&str){};
@@ -393,27 +419,26 @@ class String {
   bool operator==(const NoCaseKey& strKey) const {
     return (CompareNoCase(ToCStr(), strKey.pStr->ToCStr()) == 0);
   }
+
   bool operator!=(const NoCaseKey& strKey) const {
     return !(CompareNoCase(ToCStr(), strKey.pStr->ToCStr()) == 0);
   }
 
   // Hash functor used for strings.
   struct HashFunctor {
-    size_t operator()(const String& data) const {
-      size_t size = data.GetSize();
-      return String::BernsteinHashFunction((const char*)data, size);
+    size_t operator()(const String& str) const {
+      return String::BernsteinHashFunction(str.data(), str.size());
     }
   };
+
   // Case-insensitive hash functor used for strings. Supports additional
   // lookup based on NoCaseKey.
   struct NoCaseHashFunctor {
-    size_t operator()(const String& data) const {
-      size_t size = data.GetSize();
-      return String::BernsteinHashFunctionCIS((const char*)data, size);
+    size_t operator()(const String& str) const {
+      return String::BernsteinHashFunctionCIS(str.data(), str.size());
     }
-    size_t operator()(const NoCaseKey& data) const {
-      size_t size = data.pStr->GetSize();
-      return String::BernsteinHashFunctionCIS((const char*)data.pStr->ToCStr(), size);
+    size_t operator()(const NoCaseKey& key) const {
+      return String::BernsteinHashFunctionCIS(key.pStr->c_str(), key.pStr->size());
     }
   };
 };
@@ -536,138 +561,17 @@ class StringBuffer {
   }
 };
 
-//
-// Wrapper for string data. The data must have a guaranteed
-// lifespan throughout the usage of the wrapper. Not intended for
-// cached usage. Not thread safe.
-//
-class StringDataPtr {
- public:
-  StringDataPtr() : pStr(NULL), Size(0) {}
-  StringDataPtr(const StringDataPtr& p) : pStr(p.pStr), Size(p.Size) {}
-  StringDataPtr(const char* pstr, size_t sz) : pStr(pstr), Size(sz) {}
-  StringDataPtr(const char* pstr) : pStr(pstr), Size((pstr != NULL) ? OVR_strlen(pstr) : 0) {}
-  explicit StringDataPtr(const String& str) : pStr(str.ToCStr()), Size(str.GetSize()) {}
-  template <typename T, int N>
-  StringDataPtr(const T (&v)[N]) : pStr(v), Size(N) {}
+// Returns a std::string that was initialized via printf-style formatting.
+// The behavior is undefined if the specified format or arguments are invalid.
+// Example usage:
+//     std::string s = StringVsprintf("Hello %s", "world");
+std::string StringVsprintf(const char* format, va_list args);
 
- public:
-  const char* ToCStr() const {
-    return pStr;
-  }
-  size_t GetSize() const {
-    return Size;
-  }
-  bool IsEmpty() const {
-    return GetSize() == 0;
-  }
-
-  // value is a prefix of this string
-  // Character's values are not compared.
-  bool IsPrefix(const StringDataPtr& value) const {
-    return ToCStr() == value.ToCStr() && GetSize() >= value.GetSize();
-  }
-  // value is a suffix of this string
-  // Character's values are not compared.
-  bool IsSuffix(const StringDataPtr& value) const {
-    return ToCStr() <= value.ToCStr() && (End()) == (value.End());
-  }
-
-  // Find first character.
-  // init_ind - initial index.
-  intptr_t FindChar(char c, size_t init_ind = 0) const {
-    for (size_t i = init_ind; i < GetSize(); ++i)
-      if (pStr[i] == c)
-        return static_cast<intptr_t>(i);
-
-    return -1;
-  }
-
-  // Find last character.
-  // init_ind - initial index.
-  intptr_t FindLastChar(char c, size_t init_ind = ~0) const {
-    if (init_ind == (size_t)~0 || init_ind > GetSize())
-      init_ind = GetSize();
-    else
-      ++init_ind;
-
-    for (size_t i = init_ind; i > 0; --i)
-      if (pStr[i - 1] == c)
-        return static_cast<intptr_t>(i - 1);
-
-    return -1;
-  }
-
-  // Create new object and trim size bytes from the left.
-  StringDataPtr GetTrimLeft(size_t size) const {
-    // Limit trim size to the size of the string.
-    size = Alg::PMin(GetSize(), size);
-
-    return StringDataPtr(ToCStr() + size, GetSize() - size);
-  }
-  // Create new object and trim size bytes from the right.
-  StringDataPtr GetTrimRight(size_t size) const {
-    // Limit trim to the size of the string.
-    size = Alg::PMin(GetSize(), size);
-
-    return StringDataPtr(ToCStr(), GetSize() - size);
-  }
-
-  // Create new object, which contains next token.
-  // Useful for parsing.
-  StringDataPtr GetNextToken(char separator = ':') const {
-    size_t cur_pos = 0;
-    const char* cur_str = ToCStr();
-
-    for (; cur_pos < GetSize() && cur_str[cur_pos]; ++cur_pos) {
-      if (cur_str[cur_pos] == separator) {
-        break;
-      }
-    }
-
-    return StringDataPtr(ToCStr(), cur_pos);
-  }
-
-  // Trim size bytes from the left.
-  StringDataPtr& TrimLeft(size_t size) {
-    // Limit trim size to the size of the string.
-    size = Alg::PMin(GetSize(), size);
-    pStr += size;
-    Size -= size;
-
-    return *this;
-  }
-  // Trim size bytes from the right.
-  StringDataPtr& TrimRight(size_t size) {
-    // Limit trim to the size of the string.
-    size = Alg::PMin(GetSize(), size);
-    Size -= size;
-
-    return *this;
-  }
-
-  const char* Begin() const {
-    return ToCStr();
-  }
-  const char* End() const {
-    return ToCStr() + GetSize();
-  }
-
-  // Hash functor used string data pointers
-  struct HashFunctor {
-    size_t operator()(const StringDataPtr& data) const {
-      return String::BernsteinHashFunction(data.ToCStr(), data.GetSize());
-    }
-  };
-
-  bool operator==(const StringDataPtr& data) const {
-    return (OVR_strncmp(pStr, data.pStr, data.Size) == 0);
-  }
-
- protected:
-  const char* pStr;
-  size_t Size;
-};
+// Returns a std::string that was appended to via printf-style formatting.
+// The behavior is undefined if the specified format or arguments are invalid.
+// Example usage:
+//     AppendSprintf(s, "appended %s", "hello world");
+std::string& AppendSprintf(std::string& s, const char* format, ...);
 
 // Convert a UTF8 String object to a wchar_t UCS (Unicode) std::basic_string object.
 // The C++11 Standard Library has similar functionality, but it's not supported by earlier

@@ -5,7 +5,7 @@ Content     :   Provides static functions for precise timing
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -379,6 +379,10 @@ uint64_t Timer::GetTicksNanos() {
 // Windows version also provides the performance frequency inverse.
 double Timer::GetPerfFrequencyInverse() {
   return Win32_PerfTimer.GetFrequencyInverse();
+}
+
+double Timer::GetPerfFrequency() {
+  return double(Win32_PerfTimer.getFrequency());
 }
 
 void Timer::initializeTimerSystem() {

@@ -1,7 +1,7 @@
 /********************************************************************************/ /**
  \file      OVR_Math.h
  \brief     Implementation of 3D primitives such as vectors, matrices.
- \copyright Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+ \copyright Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
  *************************************************************************************/
 
 #ifndef OVR_Math_h
@@ -352,6 +352,9 @@ class Math {
 #define MATH_DOUBLE_SINGULARITYRADIUS \
   1e-12 // about 1-cos(.0001 degree), for gimbal lock numerical problems
 
+#define MATH_DOUBLE_HUGENUMBER 1.3407807929942596e+154
+#define MATH_DOUBLE_SMALLESTNONDENORMAL 2.2250738585072014e-308
+
 //------------------------------------------------------------------------------------//
 // ***** float constants
 #define MATH_FLOAT_PI float(MATH_DOUBLE_PI)
@@ -376,6 +379,9 @@ class Math {
 #define MATH_FLOAT_SINGULARITYRADIUS \
   1e-7f // about 1-cos(.025 degree), for gimbal lock numerical problems
 
+#define MATH_FLOAT_HUGENUMBER 1.8446742974197924e+019f
+#define MATH_FLOAT_SMALLESTNONDENORMAL 1.1754943508222875e-038f
+
 // Single-precision Math constants class.
 template <>
 class Math<float> {
@@ -391,6 +397,12 @@ class Math<float> {
   static inline float SingularityRadius() {
     return MATH_FLOAT_SINGULARITYRADIUS;
   }; // for gimbal lock numerical problems
+  static inline float HugeNumber() {
+    return MATH_FLOAT_HUGENUMBER;
+  }
+  static inline float SmallestNonDenormal() {
+    return MATH_FLOAT_SMALLESTNONDENORMAL;
+  }
 };
 
 // Double-precision Math constants class
@@ -405,6 +417,12 @@ class Math<double> {
   static inline double SingularityRadius() {
     return MATH_DOUBLE_SINGULARITYRADIUS;
   }; // for gimbal lock numerical problems
+  static inline double HugeNumber() {
+    return MATH_DOUBLE_HUGENUMBER;
+  }
+  static inline double SmallestNonDenormal() {
+    return MATH_DOUBLE_SMALLESTNONDENORMAL;
+  }
 };
 
 typedef Math<float> Mathf;
@@ -431,6 +449,15 @@ template <class T>
 inline T Sqr(T x) {
   return x * x;
 }
+
+// MERGE_MOBILE_SDK
+// Safe reciprocal square root.
+template <class T>
+T RcpSqrt(const T f) {
+  return (f >= Math<T>::SmallestNonDenormal()) ? static_cast<T>(1.0 / sqrt(f))
+                                               : Math<T>::HugeNumber();
+}
+// MERGE_MOBILE_SDK
 
 // Sign: returns 0 if x == 0, -1 if x < 0, and 1 if x > 0
 template <class T>
@@ -1305,6 +1332,120 @@ typedef Size<unsigned> Sizeu;
 typedef Size<float> Sizef;
 typedef Size<double> Sized;
 
+//-------------------------------------------------------------------------------------
+// ***** Size3
+
+// Size3 class represents 3D size with Width, Height, Depth components.
+// Used to describe distentions of render targets, etc.
+
+template <class T>
+class Size3 {
+ public:
+  T w, h, d;
+
+  Size3() : w(0), h(0), d(0) {}
+  Size3(T w_, T h_, T d_) : w(w_), h(h_), d(d_) {}
+  explicit Size3(T s) : w(s), h(s), d(s) {}
+  explicit Size3(const Size<typename Math<T>::OtherFloatType>& src)
+      : w((T)src.w), h((T)src.h), d((T)1) {}
+  explicit Size3(const Size3<typename Math<T>::OtherFloatType>& src)
+      : w((T)src.w), h((T)src.h), d((T)src.d) {}
+
+  // C-interop support.
+  typedef typename CompatibleTypes<Size3<T>>::Type CompatibleType;
+
+  Size3(const CompatibleType& s) : w(s.w), h(s.h), d(s.d) {}
+
+  operator const CompatibleType&() const {
+    OVR_MATH_STATIC_ASSERT(sizeof(Size3<T>) == sizeof(CompatibleType), "sizeof(Size3<T>) failure");
+    return reinterpret_cast<const CompatibleType&>(*this);
+  }
+
+  bool operator==(const Size3& b) const {
+    return w == b.w && h == b.h && d == b.d;
+  }
+  bool operator!=(const Size3& b) const {
+    return w != b.w || h != b.h || d != b.d;
+  }
+
+  Size3 operator+(const Size3& b) const {
+    return Size3(w + b.w, h + b.h, d + b.d);
+  }
+  Size3& operator+=(const Size3& b) {
+    w += b.w;
+    h += b.h;
+    d += b.d;
+    return *this;
+  }
+  Size3 operator-(const Size3& b) const {
+    return Size3(w - b.w, h - b.h, d - b.d);
+  }
+  Size3& operator-=(const Size3& b) {
+    w -= b.w;
+    h -= b.h;
+    d -= b.d;
+    return *this;
+  }
+  Size3 operator-() const {
+    return Size3(-w, -h, -d);
+  }
+  Size3 operator*(const Size3& b) const {
+    return Size3(w * b.w, h * b.h, d * b.d);
+  }
+  Size3& operator*=(const Size3& b) {
+    w *= b.w;
+    h *= b.h;
+    d *= b.d;
+    return *this;
+  }
+  Size3 operator/(const Size3& b) const {
+    return Size3(w / b.w, h / b.h, d / b.d);
+  }
+  Size3& operator/=(const Size3& b) {
+    w /= b.w;
+    h /= b.h;
+    d /= b.d;
+    return *this;
+  }
+
+  // Scalar multiplication/division scales both components.
+  Size3 operator*(T s) const {
+    return Size3(w * s, h * s, d * s);
+  }
+  Size3& operator*=(T s) {
+    w *= s;
+    h *= s;
+    d *= s;
+    return *this;
+  }
+  Size3 operator/(T s) const {
+    return Size3(w / s, h / s, d / s);
+  }
+  Size3& operator/=(T s) {
+    w /= s;
+    h /= s;
+    d /= s;
+    return *this;
+  }
+
+  static Size3 Min(const Size3& a, const Size3& b) {
+    return Size3((a.w < b.w) ? a.w : b.w, (a.h < b.h) ? a.h : b.h, (a.d < b.d) ? a.d : b.d);
+  }
+  static Size3 Max(const Size3& a, const Size3& b) {
+    return Size3((a.w > b.w) ? a.w : b.w, (a.h > b.h) ? a.h : b.h, (a.d > b.d) ? a.d : b.d);
+  }
+
+  T Volume() const {
+    return w * h * d;
+  }
+
+  inline Vector3<T> ToVector() const {
+    return Vector3<T>(w, h, d);
+  }
+};
+
+typedef Size3<unsigned> Size3u;
+
 //-----------------------------------------------------------------------------------
 // ***** Rect
 
@@ -1609,6 +1750,42 @@ class Quat {
     OVR_MATH_ASSERT(IsNormalized()); // Ensure input matrix is orthogonal
   }
 
+  // MERGE_MOBILE_SDK
+  // Constructs a quaternion that rotates 'from' to line up with 'to'.
+  explicit Quat(const Vector3<T>& from, const Vector3<T>& to) {
+    const T cx = from.y * to.z - from.z * to.y;
+    const T cy = from.z * to.x - from.x * to.z;
+    const T cz = from.x * to.y - from.y * to.x;
+    const T dot = from.x * to.x + from.y * to.y + from.z * to.z;
+    const T crossLengthSq = cx * cx + cy * cy + cz * cz;
+    const T magnitude = static_cast<T>(sqrt(crossLengthSq + dot * dot));
+    const T cw = dot + magnitude;
+    if (cw < Math<T>::SmallestNonDenormal()) {
+      const T sx = to.y * to.y + to.z * to.z;
+      const T sz = to.x * to.x + to.y * to.y;
+      if (sx > sz) {
+        const T rcpLength = RcpSqrt(sx);
+        x = T(0);
+        y = to.z * rcpLength;
+        z = -to.y * rcpLength;
+        w = T(0);
+      } else {
+        const T rcpLength = RcpSqrt(sz);
+        x = to.y * rcpLength;
+        y = -to.x * rcpLength;
+        z = T(0);
+        w = T(0);
+      }
+      return;
+    }
+    const T rcpLength = RcpSqrt(crossLengthSq + cw * cw);
+    x = cx * rcpLength;
+    y = cy * rcpLength;
+    z = cz * rcpLength;
+    w = cw * rcpLength;
+  }
+  // MERGE_MOBILE_SDK
+
   bool operator==(const Quat& b) const {
     return x == b.x && y == b.y && z == b.z && w == b.w;
   }
@@ -1659,6 +1836,12 @@ class Quat {
     z *= rcp;
     return *this;
   }
+
+  // MERGE_MOBILE_SDK
+  Vector3<T> operator*(const Vector3<T>& v) const {
+    return Rotate(v);
+  }
+  // MERGE_MOBILE_SDK
 
   // Compare two quats for equality within tolerance. Returns true if quats match within tolerance.
   bool IsEqual(const Quat& b, T tolerance = Math<T>::Tolerance()) const {
@@ -1845,6 +2028,15 @@ class Quat {
     Vector3<T> delta = (b * this->Inverted()).FastToRotationVector();
     return (FastFromRotationVector(delta * s, false) * *this).Normalized();
   }
+
+  // MERGE_MOBILE_SDK
+  // FIXME: This is opposite of Lerp for some reason.  It goes from 1 to 0 instead of 0 to 1.
+  // Leaving it as a gift for future generations to deal with.
+  Quat Nlerp(const Quat& other, T a) const {
+    T sign = (Dot(other) >= 0.0f) ? 1.0f : -1.0f;
+    return (*this * sign * a + other * (1 - a)).Normalized();
+  }
+  // MERGE_MOBILE_SDK
 
   // Rotate transforms vector in a manner that matches Matrix rotations (counter-clockwise,
   // assuming negative direction of the axis). Standard formula: q(t) * V * q(t)^-1.
@@ -2575,6 +2767,17 @@ class Matrix4 {
       for (int j = 0; j < 4; j++)
         M[i][j] /= s;
     return *this;
+  }
+
+  T operator()(int i, int j) const {
+    return M[i][j];
+  }
+  T& operator()(int i, int j) {
+    return M[i][j];
+  }
+
+  Vector4<T> operator*(const Vector4<T>& b) const {
+    return Transform(b);
   }
 
   Vector3<T> Transform(const Vector3<T>& v) const {
@@ -4067,15 +4270,55 @@ typedef Plane<float> Planef;
 typedef Plane<double> Planed;
 
 //-----------------------------------------------------------------------------------
-// ***** ScaleAndOffset2D
+// ***** ScaleAndOffset
 
-struct ScaleAndOffset2D {
-  Vector2f Scale;
-  Vector2f Offset;
+template <class T>
+struct ScaleAndOffset {
+  T Scale;
+  T Offset;
 
-  ScaleAndOffset2D(float sx = 0.0f, float sy = 0.0f, float ox = 0.0f, float oy = 0.0f)
+  ScaleAndOffset(float sx = 0.0f, float sy = 0.0f, float ox = 0.0f, float oy = 0.0f)
       : Scale(sx, sy), Offset(ox, oy) {}
+
+  T ApplyTo(const T& input) const {
+    return input * Scale + Offset;
+  }
+
+  ScaleAndOffset Invert() const {
+    ScaleAndOffset inverted;
+    inverted.Scale = T(1.0f) / this->Scale;
+    inverted.Offset = -(this->Offset) * inverted.Scale;
+    return inverted;
+  }
+
+  // nextSO is the other scale-offset operation that would have normally followed this scale-offset.
+  // Result is a single scale-offset operation that can be applied to an input instead of
+  // two or more separate scale-offset applications on a given Vector2f input.
+  //
+  // So this:
+  //  ScaleAndOffset2D so1, so2, so3; // initialized to some values
+  //  Vector2f input = Vector2f(2.0f, -1.0f);
+  //  input = so1.ApplyTo(input);
+  //  input = so2.ApplyTo(input);
+  //  input = so3.ApplyTo(input);
+  //
+  // equals this:
+  //  ScaleAndOffset2D so1, so2, so3; // initialized to some values
+  //  so1 = so1.Combine(so2);
+  //  so1 = so1.Combine(so3);
+  //  Vector2f input = Vector2f(2.0f, -1.0f);
+  //  input = so1.ApplyTo(input);
+  //
+  ScaleAndOffset Combine(const ScaleAndOffset& nextSO) const {
+    ScaleAndOffset retValSO;
+    retValSO.Offset = this->Offset * nextSO.Scale + nextSO.Offset;
+    retValSO.Scale = nextSO.Scale * this->Scale;
+    return retValSO;
+  }
 };
+
+typedef ScaleAndOffset<Vector2f> ScaleAndOffset2D;
+typedef ScaleAndOffset<Vector3f> ScaleAndOffset3D;
 
 //-----------------------------------------------------------------------------------
 // ***** FovPort
@@ -4193,10 +4436,10 @@ struct FovPort {
     FovPort uncantedFov = cantedFov;
 
     // make 3D vectors from the FovPorts projected to z=1 plane
-    Vector3f leftUp = Vector3f(cantedFov.LeftTan, cantedFov.UpTan, 1.0f);
-    Vector3f rightUp = Vector3f(-cantedFov.RightTan, cantedFov.UpTan, 1.0f);
-    Vector3f leftDown = Vector3f(cantedFov.LeftTan, -cantedFov.DownTan, 1.0f);
-    Vector3f rightDown = Vector3f(-cantedFov.RightTan, -cantedFov.DownTan, 1.0f);
+    Vector3f leftUp = Vector3f(cantedFov.LeftTan, -cantedFov.UpTan, 1.0f);
+    Vector3f rightUp = Vector3f(-cantedFov.RightTan, -cantedFov.UpTan, 1.0f);
+    Vector3f leftDown = Vector3f(cantedFov.LeftTan, cantedFov.DownTan, 1.0f);
+    Vector3f rightDown = Vector3f(-cantedFov.RightTan, cantedFov.DownTan, 1.0f);
 
     // rotate these vectors using the canting specified
     leftUp = canting.Rotate(leftUp);
@@ -4215,14 +4458,50 @@ struct FovPort {
     rightDown /= OVRMath_Max(rightDown.z, kMinValidZ);
 
     // generate new FovTans as "bounding box" values
-    uncantedFov.UpTan = OVRMath_Max(leftUp.y, rightUp.y);
-    uncantedFov.DownTan = OVRMath_Max(-leftDown.y, -rightDown.y);
+    uncantedFov.UpTan = OVRMath_Max(-leftUp.y, -rightUp.y);
+    uncantedFov.DownTan = OVRMath_Max(leftDown.y, rightDown.y);
     uncantedFov.LeftTan = OVRMath_Max(leftUp.x, leftDown.x);
     uncantedFov.RightTan = OVRMath_Max(-rightDown.x, -rightUp.x);
 
     return uncantedFov;
   }
+
+  // Widens a given FovPort by specified angle in each direction
+  static FovPort Expand(const FovPort& inFov, float expandAngle) {
+    auto ClampedExpand = [expandAngle](float t) -> float {
+      // We don't want gigantic values coming out of this function, so we limit resulting FOV.
+      // Limit before calling tanf() to avoid wrap around to negative values.
+      const float limitFov = atanf(10.0f);
+      return tanf(OVRMath_Min(OVRMath_Max(atanf(t) + expandAngle, -limitFov), limitFov));
+    };
+
+    FovPort modFov = FovPort(
+        ClampedExpand(inFov.UpTan),
+        ClampedExpand(inFov.DownTan),
+        ClampedExpand(inFov.LeftTan),
+        ClampedExpand(inFov.RightTan));
+
+    return modFov;
+  }
+
+  template <class T>
+  static FovPort ScaleFovPort(const FovPort& fov, OVR::Vector2<T> scaleFactors) {
+    FovPort retFov = FovPort(fov);
+    retFov.LeftTan *= ((scaleFactors.x != 0.0) ? scaleFactors.x : 1.0f);
+    retFov.RightTan *= ((scaleFactors.x != 0.0) ? scaleFactors.x : 1.0f);
+    retFov.UpTan *= ((scaleFactors.y != 0.0) ? scaleFactors.y : 1.0f);
+    retFov.DownTan *= ((scaleFactors.y != 0.0) ? scaleFactors.y : 1.0f);
+    return retFov;
+  }
 };
+
+inline bool isNan(const Vector3d& v) {
+  return v.IsNan();
+}
+
+inline bool isNan(const Vector3f& v) {
+  return v.IsNan();
+}
 
 } // Namespace OVR
 

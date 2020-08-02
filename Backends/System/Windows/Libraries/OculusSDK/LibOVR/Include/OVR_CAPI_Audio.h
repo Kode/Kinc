@@ -1,7 +1,7 @@
 /********************************************************************************/ /**
  \file      OVR_CAPI_Audio.h
  \brief     CAPI audio functions.
- \copyright Copyright 2015 Oculus VR, LLC. All Rights reserved.
+ \copyright Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
  ************************************************************************************/
 
 #ifndef OVR_CAPI_Audio_h

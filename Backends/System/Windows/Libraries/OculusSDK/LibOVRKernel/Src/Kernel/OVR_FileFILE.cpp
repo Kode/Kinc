@@ -6,7 +6,7 @@ Content     :   File wrapper class implementation (Win32)
 Created     :   April 5, 1999
 Authors     :   Michael Antonov
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -562,8 +562,7 @@ bool SysFile::GetFileStat(FileStat* pfileStat, const String& path) {
   if (ret)
     return false;
 #else
-  struct stat fileStat {
-  };
+  struct stat fileStat {};
   // Stat returns 0 for success.
   if (stat(path, &fileStat) != 0)
     return false;

@@ -427,7 +427,7 @@ EXTERN_C __declspec(selectany) const EVENT_DESCRIPTOR
 // padding.
 //
 // Strings: There are several cases that can be described in the manifest. For array of variable
-// length  strings, the generated code will take the count of characters for the whole array as an
+// length strings, the generated code will take the count of characters for the whole array as an
 // input parameter.
 //
 // SID No support for array of SIDs, the macro will take a pointer to the SID and use appropriate
@@ -1142,6 +1142,8 @@ Remarks:
 #define EventWriteHmdDisplay(                                 \
     Extended,                                                 \
     DeviceTypeGuess,                                          \
+    EdidVendorId,                                             \
+    EdidModelNumber,                                          \
     DisplayID,                                                \
     ModelName,                                                \
     EdidSerialNumber,                                         \
@@ -1154,11 +1156,13 @@ Remarks:
     DeviceNumber,                                             \
     Rotation,                                                 \
     ApplicationExclusive)                                     \
-  EventEnabledHmdDisplay() ? Template_tqsssddddddxqt(         \
+  EventEnabledHmdDisplay() ? Template_tqhhsssddddddxqt(       \
                                  OVR_SDK_LibOVRHandle,        \
                                  &HmdDisplay,                 \
                                  Extended,                    \
                                  DeviceTypeGuess,             \
+                                 EdidVendorId,                \
+                                 EdidModelNumber,             \
                                  DisplayID,                   \
                                  ModelName,                   \
                                  EdidSerialNumber,            \
@@ -2400,53 +2404,55 @@ Template_f(_In_ REGHANDLE RegHandle, _In_ PCEVENT_DESCRIPTOR Descriptor, _In_ co
 //
 // Template from manifest : HmdDisplay
 //
-#ifndef Template_tqsssddddddxqt_def
-#define Template_tqsssddddddxqt_def
+#ifndef Template_tqhhsssddddddxqt_def
+#define Template_tqhhsssddddddxqt_def
 ETW_INLINE
 ULONG
-Template_tqsssddddddxqt(
+Template_tqhhsssddddddxqt(
     _In_ REGHANDLE RegHandle,
     _In_ PCEVENT_DESCRIPTOR Descriptor,
     _In_ const BOOL _Arg0,
     _In_ const unsigned int _Arg1,
-    _In_opt_ LPCSTR _Arg2,
-    _In_opt_ LPCSTR _Arg3,
+    _In_ const unsigned short _Arg2,
+    _In_ const unsigned short _Arg3,
     _In_opt_ LPCSTR _Arg4,
-    _In_ const signed int _Arg5,
-    _In_ const signed int _Arg6,
+    _In_opt_ LPCSTR _Arg5,
+    _In_opt_ LPCSTR _Arg6,
     _In_ const signed int _Arg7,
     _In_ const signed int _Arg8,
     _In_ const signed int _Arg9,
     _In_ const signed int _Arg10,
-    _In_ unsigned __int64 _Arg11,
-    _In_ const unsigned int _Arg12,
-    _In_ const BOOL _Arg13) {
-#define ARGUMENT_COUNT_tqsssddddddxqt 14
+    _In_ const signed int _Arg11,
+    _In_ const signed int _Arg12,
+    _In_ unsigned __int64 _Arg13,
+    _In_ const unsigned int _Arg14,
+    _In_ const BOOL _Arg15) {
+#define ARGUMENT_COUNT_tqhhsssddddddxqt 16
 
-  EVENT_DATA_DESCRIPTOR EventData[ARGUMENT_COUNT_tqsssddddddxqt];
+  EVENT_DATA_DESCRIPTOR EventData[ARGUMENT_COUNT_tqhhsssddddddxqt];
 
   EventDataDescCreate(&EventData[0], &_Arg0, sizeof(const BOOL));
 
   EventDataDescCreate(&EventData[1], &_Arg1, sizeof(const unsigned int));
 
-  EventDataDescCreate(
-      &EventData[2],
-      (_Arg2 != NULL) ? _Arg2 : "NULL",
-      (_Arg2 != NULL) ? (ULONG)((strlen(_Arg2) + 1) * sizeof(CHAR)) : (ULONG)sizeof("NULL"));
+  EventDataDescCreate(&EventData[2], &_Arg2, sizeof(const unsigned short));
 
-  EventDataDescCreate(
-      &EventData[3],
-      (_Arg3 != NULL) ? _Arg3 : "NULL",
-      (_Arg3 != NULL) ? (ULONG)((strlen(_Arg3) + 1) * sizeof(CHAR)) : (ULONG)sizeof("NULL"));
+  EventDataDescCreate(&EventData[3], &_Arg3, sizeof(const unsigned short));
 
   EventDataDescCreate(
       &EventData[4],
       (_Arg4 != NULL) ? _Arg4 : "NULL",
       (_Arg4 != NULL) ? (ULONG)((strlen(_Arg4) + 1) * sizeof(CHAR)) : (ULONG)sizeof("NULL"));
 
-  EventDataDescCreate(&EventData[5], &_Arg5, sizeof(const signed int));
+  EventDataDescCreate(
+      &EventData[5],
+      (_Arg5 != NULL) ? _Arg5 : "NULL",
+      (_Arg5 != NULL) ? (ULONG)((strlen(_Arg5) + 1) * sizeof(CHAR)) : (ULONG)sizeof("NULL"));
 
-  EventDataDescCreate(&EventData[6], &_Arg6, sizeof(const signed int));
+  EventDataDescCreate(
+      &EventData[6],
+      (_Arg6 != NULL) ? _Arg6 : "NULL",
+      (_Arg6 != NULL) ? (ULONG)((strlen(_Arg6) + 1) * sizeof(CHAR)) : (ULONG)sizeof("NULL"));
 
   EventDataDescCreate(&EventData[7], &_Arg7, sizeof(const signed int));
 
@@ -2456,13 +2462,17 @@ Template_tqsssddddddxqt(
 
   EventDataDescCreate(&EventData[10], &_Arg10, sizeof(const signed int));
 
-  EventDataDescCreate(&EventData[11], &_Arg11, sizeof(unsigned __int64));
+  EventDataDescCreate(&EventData[11], &_Arg11, sizeof(const signed int));
 
-  EventDataDescCreate(&EventData[12], &_Arg12, sizeof(const unsigned int));
+  EventDataDescCreate(&EventData[12], &_Arg12, sizeof(const signed int));
 
-  EventDataDescCreate(&EventData[13], &_Arg13, sizeof(const BOOL));
+  EventDataDescCreate(&EventData[13], &_Arg13, sizeof(unsigned __int64));
 
-  return EventWrite(RegHandle, Descriptor, ARGUMENT_COUNT_tqsssddddddxqt, EventData);
+  EventDataDescCreate(&EventData[14], &_Arg14, sizeof(const unsigned int));
+
+  EventDataDescCreate(&EventData[15], &_Arg15, sizeof(const BOOL));
+
+  return EventWrite(RegHandle, Descriptor, ARGUMENT_COUNT_tqhhsssddddddxqt, EventData);
 }
 #endif
 

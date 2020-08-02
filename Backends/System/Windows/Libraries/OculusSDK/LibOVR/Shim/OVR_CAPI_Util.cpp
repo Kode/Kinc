@@ -1,7 +1,7 @@
 /************************************************************************************
 
 PublicHeader:   OVR_CAPI_Util.c
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -23,9 +23,7 @@ limitations under the License.
 #include <Extras/OVR_CAPI_Util.h>
 #include <Extras/OVR_StereoProjection.h>
 
-#include <algorithm>
 #include <limits.h>
-#include <memory>
 
 #if !defined(_WIN32)
 #include <assert.h>
@@ -44,13 +42,23 @@ limitations under the License.
 #endif
 
 #if defined(_WIN32)
-// Prevents <Windows.h> from defining min() and max() macro symbols.
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
 #include <windows.h>
 #endif
+
+#if defined(OVR_DLL_BUILD) && defined(OVR_OPENXR_SUPPORT_ENABLED)
+
+// This forces transitive export of the symbols marked for export in OVR_OpenXR_Impl.cpp:
+__pragma(comment(linker, "/INCLUDE:" OVR_ON32("_") "exported_openxr_version"))
+#endif // defined(OVR_DLL_BUILD) && defined(OVR_OPENXR_SUPPORT_ENABLED)
+
+    template <typename T>
+    T ovrMax(T a, T b) {
+  return a > b ? a : b;
+}
+template <typename T>
+T ovrMin(T a, T b) {
+  return a < b ? a : b;
+}
 
 // Used to generate projection from ovrEyeDesc::Fov
 OVR_PUBLIC_FUNCTION(ovrMatrix4f)
@@ -230,7 +238,7 @@ OVR_PUBLIC_FUNCTION(ovrDetectResult) ovr_Detect(int timeoutMilliseconds) {
   result.IsOculusHMDConnected = ovrFalse;
   result.IsOculusServiceRunning = ovrFalse;
 
-#if !defined(OSX_UNIMPLEMENTED)
+#if defined(_WIN32)
   // Attempt to open the named event.
   HANDLE hServiceEvent = ::OpenEventW(SYNCHRONIZE, FALSE, OVR_HMD_CONNECTED_EVENT_NAME);
 
@@ -252,7 +260,9 @@ OVR_PUBLIC_FUNCTION(ovrDetectResult) ovr_Detect(int timeoutMilliseconds) {
   }
 #else
   (void)timeoutMilliseconds;
-  fprintf(stderr, __FILE__ "::[%s] Not implemented.\n", __func__);
+  fprintf(stderr, __FILE__ "::[%s] Not implemented. Assuming single-process.\n", __func__);
+  result.IsOculusServiceRunning = ovrTrue;
+  result.IsOculusHMDConnected = ovrTrue;
 #endif // OSX_UNIMPLEMENTED
 
 
@@ -292,7 +302,7 @@ static float wavPcmBytesToFloat(const void* data, int32_t sizeInBits, bool swapB
   else if (sizeInBits == 32)
     result = *((int32_t*)data) / (float)INT_MAX;
 
-  return std::max(-1.0f, result);
+  return ovrMax(-1.0f, result);
 }
 
 OVR_PUBLIC_FUNCTION(ovrResult)
@@ -316,7 +326,7 @@ ovr_GenHapticsFromAudioData(
   for (int32_t i = 0; i < hapticsSampleCount; ++i) {
     float sample = audioChannel->Samples[(int32_t)(i * samplesPerStep)];
     uint8_t hapticSample =
-        (uint8_t)std::min(UCHAR_MAX, (int)round(fabs(sample) * kHapticsMaxAmplitude));
+        (uint8_t)ovrMin(UCHAR_MAX, (int)round(fabs(sample) * kHapticsMaxAmplitude));
     hapticsSamples[i] = hapticSample;
   }
 

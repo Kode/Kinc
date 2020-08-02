@@ -1,7 +1,7 @@
 /********************************************************************************/ /**
  \file      OVR_CAPI_GL.h
  \brief     OpenGL-specific structures used by the CAPI interface.
- \copyright Copyright 2015 Oculus VR, LLC. All Rights reserved.
+ \copyright Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
  ************************************************************************************/
 
 #ifndef OVR_CAPI_GL_h

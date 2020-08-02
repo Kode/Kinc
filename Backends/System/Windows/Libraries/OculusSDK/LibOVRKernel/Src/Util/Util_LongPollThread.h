@@ -4,7 +4,7 @@ Filename    :   Util_LongPollThread.h
 Content     :   Allows us to do all long polling tasks from a single thread to minimize deadlock
 risk Created     :   June 30, 2013 Authors     :   Chris Taylor
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -55,6 +55,9 @@ class LongPollThread : public SystemSingletonBase<LongPollThread> {
   void AddPollFunc(CallbackListener<PollFunc>* func);
 
   void Wake();
+
+  // debug method for assertion to maintain initialization order for this singleton
+  static bool IsInitialized();
 
  protected:
   CallbackEmitter<PollFunc> PollSubject;

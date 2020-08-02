@@ -6,7 +6,7 @@ Content     :   Windows specific thread-related (safe) functionality
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -26,7 +26,6 @@ limitations under the License.
 ************************************************************************************/
 
 #include "OVR_Threads.h"
-#include "OVR_Hash.h"
 #include "OVR_Log.h"
 #include "OVR_Timer.h"
 
@@ -34,6 +33,57 @@ limitations under the License.
 
 // For _beginthreadex / _endtheadex
 #include <process.h>
+
+#ifdef _WIN32
+#include "OVR_DLLHelper.h"
+#include <processthreadsapi.h>
+#include <sdkddkver.h>
+
+#if !defined(NTDDI_WIN10_RS1) // RS1 SDK introduced these functions.
+WINBASEAPI HRESULT WINAPI SetThreadDescription(HANDLE hThread, PCWSTR lpThreadDescription);
+WINBASEAPI HRESULT WINAPI GetThreadDescription(HANDLE hThread, PWSTR* ppszThreadDescription);
+#endif
+
+// Example usage:
+//     Kernel32API kernel32API;
+//
+//     if (kernel32API.getThreadDescription) {
+//         wchar_t* pStr;
+//
+//         if (SUCCEEDED(getThreadDescription(hThread, &pStr)) {
+//           <use pStr>
+//           Localfree(pStr);
+//         }
+//     }
+//
+//     if (kernel32API.setThreadDescription) {
+//         HRESULT hr = setThreadDescription(GetCurrentThread(), L"thread name");
+//         ...
+//     }
+//
+class Kernel32API {
+ public:
+  Kernel32API()
+      : dllHelper{"Kernel32.dll"},
+        getThreadDescription(dllHelper.Load("GetThreadDescription")),
+        setThreadDescription(dllHelper.Load("SetThreadDescription")) {}
+
+ protected:
+  OVR::DllHelper dllHelper; // Declared first because the members below depend on the ctor order.
+
+ public:
+  // Recognition of GetThreadDescription requires the Windows 10 SDK v10.14393 (a.k.a build 1607,
+  // a.k.a. Anniversary Update, a.k.a. RS1, a.k.a. Redstone 1) or later.
+  // GetThreadDescription requires thread to have at least THREAD_QUERY_LIMITED_INFORMATION access.
+  decltype(GetThreadDescription)* getThreadDescription;
+
+  // Required THREAD_SET_LIMITED_INFORMATION access.
+  decltype(SetThreadDescription)* setThreadDescription;
+};
+
+Kernel32API kernel32API;
+
+#endif // _WIN32
 
 namespace OVR {
 
@@ -195,9 +245,9 @@ bool Thread::MSleep(unsigned msecs) {
 
 static OVR_THREAD_LOCAL char ThreadLocaThreadlName[32] = {};
 
-void Thread::SetCurrentThreadName(const char* name) {
-  OVR_strlcpy(ThreadLocaThreadlName, name, sizeof(ThreadLocaThreadlName));
-
+// Older method of informing the debugger about thread names.
+// This needs to be in its own function body due to the use of __try.
+static void SetCurrentThreadNameViaException(const char* name) {
 #if !defined(OVR_BUILD_SHIPPING) || defined(OVR_BUILD_PROFILING)
 // http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 #pragma pack(push, 8)
@@ -213,7 +263,7 @@ void Thread::SetCurrentThreadName(const char* name) {
   };
 #pragma pack(pop)
 
-  TNIUnion tniUnion = {0x1000, name, ::GetCurrentThreadId(), 0};
+  TNIUnion tniUnion = {{0x1000, name, ::GetCurrentThreadId(), 0}};
 
   __try {
     RaiseException(0x406D1388, 0, OVR_ARRAY_COUNT(tniUnion.upArray), tniUnion.upArray);
@@ -224,14 +274,44 @@ void Thread::SetCurrentThreadName(const char* name) {
 #endif // OVR_BUILD_SHIPPING
 }
 
+void Thread::SetCurrentThreadName(const char* name) {
+  OVR_strlcpy(ThreadLocaThreadlName, name, sizeof(ThreadLocaThreadlName));
+
+  // https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-setthreaddescription
+  if (kernel32API.setThreadDescription) {
+    std::wstring strW = OVR::UTF8StringToUCSString(name);
+    kernel32API.setThreadDescription(GetCurrentThread(), strW.c_str());
+  } else {
+    SetCurrentThreadNameViaException(name);
+  }
+}
+
 void Thread::GetCurrentThreadName(char* name, size_t nameCapacity) {
+  if (kernel32API.getThreadDescription) {
+    wchar_t* pStrW;
+
+    if (SUCCEEDED(kernel32API.getThreadDescription(GetCurrentThread(), &pStrW))) {
+      std::string str = OVR::UCSStringToUTF8String(pStrW);
+      LocalFree(pStrW);
+      OVR_strlcpy(name, str.c_str(), nameCapacity);
+
+      return;
+    }
+  }
+
+  // Fall back to seeing if we set it above in SetCurrentThreadName.
   OVR_strlcpy(name, ThreadLocaThreadlName, nameCapacity);
 }
 
 // Returns the unique Id of a thread it is called on, intended for
 // comparison purposes.
 ThreadId GetCurrentThreadId() {
-  return (ThreadId)::GetCurrentThreadId();
+  union {
+    intptr_t id;
+    ThreadId threadId;
+  };
+  id = ::GetCurrentThreadId();
+  return threadId;
 }
 
 } // namespace OVR

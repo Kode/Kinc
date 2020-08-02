@@ -1,7 +1,7 @@
 /********************************************************************************/ /**
  \file      OVR_CAPI_Prototypes.h
  \brief     Internal CAPI prototype listing macros
- \copyright Copyright 2016 Oculus VR, LLC. All Rights reserved.
+ \copyright Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
  ************************************************************************************/
 
 #ifndef OVR_CAPI_Prototypes_h
@@ -19,6 +19,9 @@
 // The tuple passed to either macro is (ReturnType, FunctionName, OptionalVersion, ParameterList)
 //
 
+
+struct ovrViewportStencilDesc_;
+typedef struct ovrViewportStencilDesc_ ovrViewportStencilDesc;
 
 // clang-format off
 
@@ -42,10 +45,13 @@ _(ovrResult, ovr_RecenterTrackingOrigin, , (ovrSession session)) \
 _(ovrResult, ovr_SpecifyTrackingOrigin, , (ovrSession session, ovrPosef originPose)) \
 _(void, ovr_ClearShouldRecenterFlag, , (ovrSession session)) \
 _(ovrTrackingState, ovr_GetTrackingState, , (ovrSession session, double absTime, ovrBool latencyMarker)) \
+_(ovrResult, ovr_GetDevicePoses, , (ovrSession session, ovrTrackedDeviceType* deviceTypes, int deviceCount, double absTime, ovrPoseStatef* outDevicePoses)) \
 _(ovrTrackerPose, ovr_GetTrackerPose, , (ovrSession session, unsigned int index)) \
 _(ovrResult, ovr_GetInputState, , (ovrSession session, ovrControllerType controllerType, ovrInputState*)) \
 _(unsigned int, ovr_GetConnectedControllerTypes, , (ovrSession session)) \
 _(ovrSizei, ovr_GetFovTextureSize, , (ovrSession session, ovrEyeType eye, ovrFovPort fov, float pixelsPerDisplayPixel)) \
+X(ovrResult, ovr_GetViewportStencil, , (ovrSession session, const ovrViewportStencilDesc* viewportStencilDesc, ovrFovStencilMeshBuffer* meshBuffer)) \
+_(ovrResult, ovr_GetFovStencil, , (ovrSession session, const ovrFovStencilDesc* fovStencilDesc, ovrFovStencilMeshBuffer* meshBuffer)) \
 _(ovrResult, ovr_WaitToBeginFrame, , (ovrSession session, long long frameIndex)) \
 _(ovrResult, ovr_BeginFrame, , (ovrSession session, long long frameIndex)) \
 _(ovrResult, ovr_EndFrame, , (ovrSession session, long long frameIndex, const ovrViewScaleDesc* viewScaleDesc, ovrLayerHeader const * const * layerPtrList, unsigned int layerCount)) \
@@ -72,14 +78,6 @@ _(ovrResult, ovr_CreateMirrorTextureGL, , (ovrSession session, const ovrMirrorTe
 _(ovrResult, ovr_CreateMirrorTextureWithOptionsGL, , (ovrSession session, const ovrMirrorTextureDesc* desc, ovrMirrorTexture* outMirrorTexture)) \
 _(ovrResult, ovr_GetTextureSwapChainBufferGL, , (ovrSession session, ovrTextureSwapChain chain, int index, unsigned int* texId)) \
 _(ovrResult, ovr_GetMirrorTextureBufferGL, , (ovrSession session, ovrMirrorTexture mirror, unsigned int* texId)) \
-_(ovrResult, ovr_GetInstanceExtensionsVk, , (ovrGraphicsLuid luid, char* extensionNames, uint32_t* inoutExtensionNamesSize)) \
-_(ovrResult, ovr_GetDeviceExtensionsVk, , (ovrGraphicsLuid luid, char* extensionNames, uint32_t* inoutExtensionNamesSize)) \
-_(ovrResult, ovr_GetSessionPhysicalDeviceVk, , (ovrSession session, ovrGraphicsLuid luid, VkInstance instance, VkPhysicalDevice* out_physicalDevice)) \
-_(ovrResult, ovr_SetSynchonizationQueueVk, , (ovrSession session, VkQueue queue)) \
-_(ovrResult, ovr_CreateTextureSwapChainVk, , (ovrSession session, VkDevice device, const ovrTextureSwapChainDesc* desc, ovrTextureSwapChain* out_TextureSwapChain)) \
-_(ovrResult, ovr_GetTextureSwapChainBufferVk, , (ovrSession session, ovrTextureSwapChain chain, int index, VkImage* out_Image)) \
-_(ovrResult, ovr_CreateMirrorTextureWithOptionsVk, , (ovrSession session, VkDevice device, const ovrMirrorTextureDesc* desc, ovrMirrorTexture* out_MirrorTexture)) \
-_(ovrResult, ovr_GetMirrorTextureBufferVk, , (ovrSession session, ovrMirrorTexture mirrorTexture, VkImage* out_Image)) \
 _(ovrResult, ovr_GetTextureSwapChainLength, , (ovrSession session, ovrTextureSwapChain chain, int* length)) \
 _(ovrResult, ovr_GetTextureSwapChainCurrentIndex, , (ovrSession session, ovrTextureSwapChain chain, int* currentIndex)) \
 _(ovrResult, ovr_GetTextureSwapChainDesc, , (ovrSession session, ovrTextureSwapChain chain, ovrTextureSwapChainDesc* desc)) \
@@ -117,7 +115,16 @@ _(ovrResult, ovr_SetExternalCameraProperties, , (ovrSession session, const char*
     _(ovrResult, ovr_GetAudioDeviceOutGuidStr, , (WCHAR* deviceOutStrBuffer)) \
     _(ovrResult, ovr_GetAudioDeviceOutGuid, , (GUID* deviceOutGuid)) \
     _(ovrResult, ovr_GetAudioDeviceInGuidStr, , (WCHAR* deviceInStrBuffer)) \
-    _(ovrResult, ovr_GetAudioDeviceInGuid, , (GUID* deviceInGuid))
+    _(ovrResult, ovr_GetAudioDeviceInGuid, , (GUID* deviceInGuid)) \
+    _(ovrResult, ovr_GetInstanceExtensionsVk, , (ovrGraphicsLuid luid, char* extensionNames, uint32_t* inoutExtensionNamesSize)) \
+    _(ovrResult, ovr_GetDeviceExtensionsVk, , (ovrGraphicsLuid luid, char* extensionNames, uint32_t* inoutExtensionNamesSize)) \
+    _(ovrResult, ovr_GetSessionPhysicalDeviceVk, , (ovrSession session, ovrGraphicsLuid luid, VkInstance instance, VkPhysicalDevice* out_physicalDevice)) \
+    X(ovrResult, ovr_SetSynchonizationQueueVk, , (ovrSession session, VkQueue queue)) \
+    _(ovrResult, ovr_SetSynchronizationQueueVk, , (ovrSession session, VkQueue queue)) \
+    _(ovrResult, ovr_CreateTextureSwapChainVk, , (ovrSession session, VkDevice device, const ovrTextureSwapChainDesc* desc, ovrTextureSwapChain* out_TextureSwapChain)) \
+    _(ovrResult, ovr_GetTextureSwapChainBufferVk, , (ovrSession session, ovrTextureSwapChain chain, int index, VkImage* out_Image)) \
+    _(ovrResult, ovr_CreateMirrorTextureWithOptionsVk, , (ovrSession session, VkDevice device, const ovrMirrorTextureDesc* desc, ovrMirrorTexture* out_MirrorTexture)) \
+    _(ovrResult, ovr_GetMirrorTextureBufferVk, , (ovrSession session, ovrMirrorTexture mirrorTexture, VkImage* out_Image))
 #else
 #define OVR_LIST_WIN32_APIS(_,X)
 #endif
@@ -128,9 +135,24 @@ _(ovrResult, ovr_SetExternalCameraProperties, , (ovrSession session, const char*
 struct ovrSensorData_;
 typedef struct ovrSensorData_ ovrSensorData;
 
-#define OVR_LIST_PRIVATE_APIS(_,X) \
-_(ovrTrackingState, ovr_GetTrackingStateWithSensorData, , (ovrSession session, double absTime, ovrBool latencyMarker, ovrSensorData* sensorData)) \
-_(ovrResult, ovr_GetDevicePoses, , (ovrSession session, ovrTrackedDeviceType* deviceTypes, int deviceCount, double absTime, ovrPoseStatef* outDevicePoses))
+// Hybrid Apps API forward declaration which won't be in a public OVR_CAPI.h header for now.
+// --------------------------------------------------------------------------
+struct ovrDesktopWindowDesc_;
+typedef struct ovrDesktopWindowDesc_ ovrDesktopWindowDesc;
+
+struct ovrKeyboardDesc_;
+typedef struct ovrKeyboardDesc_ ovrKeyboardDesc;
+
+enum ovrHybridInputFocusType_ ;
+typedef enum ovrHybridInputFocusType_ ovrHybridInputFocusType;
+
+struct ovrHybridInputFocusState_;
+typedef struct ovrHybridInputFocusState_ ovrHybridInputFocusState;
+
+typedef uint32_t ovrDesktopWindowHandle;
+// --------------------------------------------------------------------------
+
+#define OVR_LIST_PRIVATE_APIS(_,X)
 
 // clang-format on
 

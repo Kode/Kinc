@@ -5,7 +5,7 @@ Content     :   Deadlock reaction
 Created     :   June 27, 2013
 Authors     :   Kevin Jenkins, Chris Taylor
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -25,6 +25,9 @@ limitations under the License.
 *************************************************************************************/
 
 #include "Util_Watchdog.h"
+
+#include <Logging/Logging_Library.h>
+
 #include "Kernel/OVR_DebugHelp.h"
 #include "Kernel/OVR_Win32_IncludeWindows.h"
 
@@ -94,6 +97,7 @@ WatchDogObserver::~WatchDogObserver() {
 }
 
 void WatchDogObserver::OnThreadDestroy() {
+  Logger.LogDebug("Setting TerminationEvent for watchdog thread.");
   TerminationEvent.SetEvent();
 
   WatchdogThreadHandle->join();
@@ -116,9 +120,9 @@ void WatchDogObserver::OnDeadlock(const String& deadlockedThreadName) {
 
       Logger.LogWarning(
           "---DEADLOCK STATE---\n\n",
-          threadListOutput.ToCStr(),
+          threadListOutput.c_str(),
           "\n\n",
-          moduleListOutput.ToCStr(),
+          moduleListOutput.c_str(),
           "\n---END OF DEADLOCK STATE---");
     }
 
@@ -130,7 +134,7 @@ void WatchDogObserver::OnDeadlock(const String& deadlockedThreadName) {
       OVR_ASSERT(AddBreakpadInfoClient != nullptr);
       AddBreakpadInfoClient("is_deadlock_minidump", "true");
       // deadlockedThreadName might contain special characters
-      std::string threadName = SanitizeString(deadlockedThreadName.ToCStr());
+      std::string threadName = SanitizeString(deadlockedThreadName.c_str());
       AddBreakpadInfoClient("deadlock_thread_name", threadName.c_str());
       WriteMiniDump(nullptr);
     } else {
@@ -144,13 +148,19 @@ void WatchDogObserver::OnDeadlock(const String& deadlockedThreadName) {
 
   DeadlockSeen = true;
 
-  Logger.LogError("Deadlock detected in thread '", deadlockedThreadName.ToCStr(), "'");
+  Logger.LogError(
+      "WatchDogObserver::OnDeadlock: Deadlock detected in thread '",
+      deadlockedThreadName.c_str(),
+      "'");
 
   if (OVRIsDebuggerPresent()) {
     Logger.LogWarning(
-        "Aborting termination since debugger is present. Normally the app would terminate itself here");
+        "WatchDogObserver::OnDeadlock: Aborting termination since debugger is present. Normally the app would terminate itself here");
   } else if (AutoTerminateOnDeadlock) {
-    Logger.LogError("Waiting ", TerminationDelayMsec, " msec until deadlock termination");
+    Logger.LogError(
+        "WatchDogObserver::OnDeadlock: Waiting ",
+        TerminationDelayMsec,
+        " msec until deadlock termination");
 
     if (!TerminationEvent.Wait(TerminationDelayMsec)) {
 #if defined(_WIN32) // To do: Implement a generic OVR library terminate self API. With a clean
@@ -161,14 +171,15 @@ void WatchDogObserver::OnDeadlock(const String& deadlockedThreadName) {
 #endif
     }
 
-    Logger.LogError("Deadlock termination aborted - Graceful shutdown");
+    Logger.LogError(
+        "WatchDogObserver::OnDeadlock: Deadlock termination aborted - Graceful shutdown");
   }
 }
 
 int WatchDogObserver::Run() {
   Thread::SetCurrentThreadName("WatchDog");
 
-  Logger.LogDebug("Starting watchdog thread");
+  Logger.LogDebug("WatchDogObserver::Run: Starting watchdog thread");
 
   // Milliseconds between checks
   static const int kWakeupIntervalMsec = 4000; // 4 seconds
@@ -193,7 +204,7 @@ int WatchDogObserver::Run() {
 
       const int count = DogList.GetSizeI();
       for (int i = 0; i < count; ++i) {
-        WatchDog* dog = DogList[i];
+        const WatchDog* dog = DogList[i];
 
         const int threshold = dog->ThreshholdMilliseconds;
         const uint32_t t0 = dog->WhenLastFedMilliseconds;
@@ -207,12 +218,12 @@ int WatchDogObserver::Run() {
 
           deadlockedThreadName = dog->ThreadName;
           Logger.LogWarning(
-              "Long cycle detected ",
+              "WatchDogObserver::Run: Long cycle detected ",
               ConsecutiveLongCycles + 1,
               "x (max=",
               kMaxConsecutiveLongCycles,
               ") in thread '",
-              deadlockedThreadName,
+              deadlockedThreadName.c_str(),
               "'");
         }
       }
@@ -224,7 +235,7 @@ int WatchDogObserver::Run() {
         // Reset log cycle count
         ConsecutiveLongCycles = 0;
 
-        Logger.LogWarning("Recovered from long cycles");
+        Logger.LogWarning("WatchDogObserver::Run: Recovered from long cycles");
       }
 
       // Reset deadlock seen flag
@@ -236,7 +247,7 @@ int WatchDogObserver::Run() {
     }
   }
 
-  Logger.LogDebug("Terminating watchdog thread");
+  Logger.LogDebug("WatchDogObserver::Run: Terminating watchdog thread");
 
   return 0;
 }
@@ -245,26 +256,38 @@ void WatchDogObserver::Add(WatchDog* dog) {
   Lock::Locker locker(&ListLock);
 
   if (!dog->Listed) {
+    Logger.LogDebugF("WatchDogObserver::Add Watchdog: %s", dog->GetThreadName().c_str());
     DogList.PushBack(dog);
     dog->Listed = true;
-  }
+  } else
+    Logger.LogDebugF(
+        "WatchDogObserver::Add Watchdog: %s already added.", dog->GetThreadName().c_str());
 }
 
 void WatchDogObserver::Remove(WatchDog* dog) {
   Lock::Locker locker(&ListLock);
+  bool removed = false;
+
+  Logger.LogDebugF("WatchDogObserver::Remove Watchdog: %s", dog->GetThreadName().c_str());
 
   if (dog->Listed) {
     for (int i = 0; i < DogList.GetSizeI(); ++i) {
       if (DogList[i] == dog) {
         DogList.RemoveAt(i--);
+        removed = true;
+        break;
       }
     }
 
     dog->Listed = false;
   }
+
+  if (!removed)
+    Logger.LogDebugF(
+        "WatchDogObserver::Remove Watchdog: %s already removed.", dog->GetThreadName().c_str());
 }
 
-void WatchDogObserver::EnableReporting(const String organization, const String application) {
+void WatchDogObserver::EnableReporting(const String& organization, const String& application) {
   OrganizationName = organization;
   ApplicationName = application;
   IsReporting = true;
@@ -280,10 +303,16 @@ void WatchDogObserver::DisableReporting() {
 WatchDog::WatchDog(const String& threadName)
     : ThreshholdMilliseconds(DefaultThreshholdMsec), ThreadName(threadName), Listed(false) {
   WhenLastFedMilliseconds = GetFastMsTime();
+
+  OVR_ASSERT(!ThreadName.empty());
 }
 
 WatchDog::~WatchDog() {
   Disable();
+}
+
+String WatchDog::GetThreadName() const {
+  return ThreadName;
 }
 
 void WatchDog::Disable() {

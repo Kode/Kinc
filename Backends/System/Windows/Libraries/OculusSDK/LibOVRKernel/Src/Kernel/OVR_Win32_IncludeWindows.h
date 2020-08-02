@@ -35,7 +35,9 @@ limitations under the License.
 // It is common practice to define WIN32_LEAN_AND_MEAN to reduce compile times.
 // However this then requires us to define our own NTSTATUS data type and other
 // irritations throughout our code-base.
-//#define WIN32_LEAN_AND_MEAN
+#ifdef WIN32_LEAN_AND_MEAN
+#undef WIN32_LEAN_AND_MEAN
+#endif
 
 // Prevents <Windows.h> from #including <Winsock.h>, as we use <Winsock2.h> instead.
 #ifndef _WINSOCKAPI_
@@ -49,7 +51,11 @@ limitations under the License.
 #endif
 
 OVR_DISABLE_ALL_MSVC_WARNINGS()
+// d3dkmthk.h requires an NTSTATUS type, but WIN32_LEAN_AND_MEAN will prevent.
+#define WIN32_NO_STATUS
 #include <Windows.h>
+#undef WIN32_NO_STATUS
+#include <ntstatus.h>
 OVR_RESTORE_ALL_MSVC_WARNINGS()
 
 #ifdef DID_DEFINE_WINSOCKAPI
@@ -104,7 +110,7 @@ class ScopedHANDLE {
     return hAttachedHandle != Traits::InvalidValue();
   }
 
-#if !OVR_CPP_NO_EXPLICIT_CONVERSION_OPERATORS
+#if !(defined(OVR_CPP_NO_EXPLICIT_CONVERSION_OPERATORS) && OVR_CPP_NO_EXPLICIT_CONVERSION_OPERATORS)
   operator bool() const {
     return IsValid();
   }

@@ -24,9 +24,9 @@ limitations under the License.
 #include "OVR_Types.h"
 #include "OVR_UTF8Util.h"
 #include "OVR_Atomic.h"
-#include "OVR_SysFile.h"
 #include "OVR_Log.h"
 #include "OVR_Std.h"
+#include "OVR_SysFile.h"
 #include "Util/Util_SystemGUI.h"
 
 #include <stdlib.h>
@@ -36,6 +36,7 @@ limitations under the License.
 #pragma warning(push, 0)
 OVR_DISABLE_MSVC_WARNING(4091) // 'keyword' : ignored on left of 'type' when no variable is declared
 #include "OVR_Win32_IncludeWindows.h"
+#include <atlbase.h>
 #include <ShlObj.h>
 #include <WinNT.h>
 #include <DbgHelp.h>
@@ -209,11 +210,11 @@ void* MachHandlerThreadFunctionStatic(void* pExceptionHandlerVoid) {
 
 namespace OVR {
 
-void GetInstructionPointer(void*& pInstruction) {
+void* GetInstructionAddress() {
 #if defined(OVR_CC_MSVC)
-  pInstruction = _ReturnAddress();
+  return _ReturnAddress();
 #else // GCC, clang
-  pInstruction = __builtin_return_address(0);
+  return __builtin_return_address(0);
 #endif
 }
 
@@ -222,7 +223,10 @@ static size_t SprintfAddress(char* addressStr, size_t addressStrCapacity, const 
 #if defined(OVR_CC_MSVC)
 #if (OVR_PTR_SIZE >= 8)
   return snprintf(
-      addressStr, addressStrCapacity, "0x%016I64x", pAddress); // e.g. 0x0123456789abcdef
+      addressStr,
+      addressStrCapacity,
+      "0x%016I64x",
+      reinterpret_cast<unsigned long long>(pAddress)); // e.g. 0x0123456789abcdef
 #else
   return snprintf(addressStr, addressStrCapacity, "0x%08x", pAddress); // e.g. 0x89abcdef
 #endif
@@ -1557,9 +1561,8 @@ SymbolLookup::SymbolLookup()
     : AllowMemoryAllocation(true),
       ModuleListUpdated(false),
       ModuleInfoArray(),
-      ModuleInfoArraySize(0) {}
-
-SymbolLookup::~SymbolLookup() {}
+      ModuleInfoArraySize(0),
+      currentModuleInfo{} {}
 
 void SymbolLookup::AddSourceCodeDirectory(const char* pDirectory) {
   OVR_UNUSED(pDirectory);
@@ -1768,7 +1771,7 @@ size_t SymbolLookup::GetBacktrace(
   } else // Else get the current values...
   {
     pStackFrame = (StackFrame*)__builtin_frame_address(0);
-    GetInstructionPointer(pInstruction);
+    pInstruction = GetInstructionAddress();
   }
 
   pthread_t threadSelf = pthread_self();
@@ -1970,12 +1973,15 @@ size_t SymbolLookup::GetBacktraceFromThreadSysId(
 // We need to return the required moduleInfoArrayCapacity.
 size_t SymbolLookup::GetModuleInfoArray(
     ModuleInfo* pModuleInfoArray,
-    size_t moduleInfoArrayCapacity) {
+    size_t moduleInfoArrayCapacity,
+    ModuleSort moduleSort) {
+  // The count we would copy to pModuleInfoArray if moduleInfoArrayCapacity was enough.
+  size_t moduleCountRequired = 0;
+
+  // The count we actually copy to pModuleInfoArray. Will be <= moduleInfoArrayCapacity.
+  size_t moduleCount = 0;
+
 #if defined(OVR_OS_MS)
-  size_t moduleCountRequired =
-      0; // The count we would copy to pModuleInfoArray if moduleInfoArrayCapacity was enough.
-  size_t moduleCount =
-      0; // The count we actually copy to pModuleInfoArray. Will be <= moduleInfoArrayCapacity.
   HANDLE hProcess = GetCurrentProcess();
   HMODULE hModuleArray[200];
   DWORD cbNeeded = 0;
@@ -2023,12 +2029,7 @@ size_t SymbolLookup::GetModuleInfoArray(
     }
   }
 
-  return moduleCountRequired;
-
 #elif defined(OVR_OS_MAC)
-  size_t moduleCountRequired = 0;
-  size_t moduleCount = 0;
-
   struct MacModuleInfo // This struct exists solely so we can have a local function within this
   // function..
   {
@@ -2140,13 +2141,33 @@ size_t SymbolLookup::GetModuleInfoArray(
   // can't tell us the list of modules.
   OVR_UNUSED(pModuleInfoArray);
   OVR_UNUSED(moduleInfoArrayCapacity);
-  return 0;
+  moduleCountRequired = 0;
+  moduleCount = 0;
 
 #else
   OVR_UNUSED(pModuleInfoArray);
   OVR_UNUSED(moduleInfoArrayCapacity);
-  return 0;
+  moduleCountRequired = 0;
+  moduleCount = 0;
 #endif
+
+  if (moduleSort == ModuleSortByAddress) {
+    std::sort(
+        pModuleInfoArray,
+        pModuleInfoArray + moduleCount,
+        [](const ModuleInfo& mi1, const ModuleInfo& mi2) -> bool {
+          return mi1.baseAddress < mi2.baseAddress;
+        });
+  } else if (moduleSort == ModuleSortByName) {
+    std::sort(
+        pModuleInfoArray,
+        pModuleInfoArray + moduleCount,
+        [](const ModuleInfo& mi1, const ModuleInfo& mi2) -> bool {
+          return (stricmp(mi1.name, mi2.name) < 0);
+        });
+  }
+
+  return moduleCountRequired;
 }
 
 size_t SymbolLookup::GetThreadList(
@@ -2393,11 +2414,9 @@ bool SymbolLookup::RefreshModuleList() {
     // We can't rely on SymRefreshModuleList because it's present in DbgHelp 6.5,
     // which doesn't distribute with Windows 7.
 
-    // Currently we support only refreshing the list once ever. With a little effort we could revise
-    // this code to
-    // support re-refreshing the list at runtime to account for the possibility that modules have
-    // recently been
-    // added or removed.
+    // Currently we support only refreshing the list once ever. With a little effort
+    // we could revise this code to support re-refreshing the list at runtime to account
+    // for the possibility that modules have recently been added or removed.
     if (pSymLoadModule64) {
       const size_t requiredCount =
           GetModuleInfoArray(ModuleInfoArray, OVR_ARRAY_COUNT(ModuleInfoArray));
@@ -2636,6 +2655,17 @@ const ModuleInfo* SymbolLookup::GetModuleInfoForAddress(uint64_t address) {
   return nullptr;
 }
 
+const ModuleInfo& SymbolLookup::GetModuleInfoForCurrentModule() {
+  OVR_ASSERT(ModuleInfoArraySize > 0); // We expect that the modules have been iterated previously.
+  if (currentModuleInfo.baseAddress == 0) { // If the current module hasn't been identified yet...
+    const ModuleInfo* mi = GetModuleInfoForAddress((uintptr_t)GetInstructionAddress);
+    if (mi)
+      currentModuleInfo = *mi; // This will set currentModuleInfo.baseAddress to a non-zero value.
+  }
+
+  return currentModuleInfo;
+}
+
 ExceptionInfo::ExceptionInfo()
     : time(),
       timeVal(0),
@@ -2852,6 +2882,16 @@ LONG ExceptionHandler::ExceptionFilter(LPEXCEPTION_POINTERS pExceptionPointersAr
   if (pExceptionPointersArg->ExceptionRecord->ExceptionCode == 0xe06d7363)
     return EXCEPTION_CONTINUE_SEARCH;
 
+  // folly causes this when it closes some socket handles, not really a crash
+  if (static_cast<signed long>(pExceptionPointersArg->ExceptionRecord->ExceptionCode) ==
+      STATUS_HANDLE_NOT_CLOSABLE)
+    return EXCEPTION_CONTINUE_SEARCH;
+
+  // winrt hwnd capture throws this on the first call but the
+  // exception is benign
+  if (pExceptionPointersArg->ExceptionRecord->ExceptionCode == 0x8001010D)
+    return EXCEPTION_CONTINUE_SEARCH;
+
   unsigned int tmp_zero = 0;
   // If we can successfully change it from 0 to 1.
   if (handlingBusy.compare_exchange_strong(tmp_zero, 1, std::memory_order_acquire)) {
@@ -2899,10 +2939,13 @@ LONG ExceptionHandler::ExceptionFilter(LPEXCEPTION_POINTERS pExceptionPointersAr
     exceptionInfo.cpuContext = *pExceptionPointersArg->ContextRecord;
     exceptionInfo.exceptionRecord = *pExceptionPointersArg->ExceptionRecord;
     exceptionInfo.pExceptionInstructionAddress = exceptionInfo.exceptionRecord.ExceptionAddress;
-    if ((exceptionInfo.exceptionRecord.ExceptionCode == EXCEPTION_ACCESS_VIOLATION) ||
-        (exceptionInfo.exceptionRecord.ExceptionCode == EXCEPTION_IN_PAGE_ERROR))
+    if ((exceptionInfo.exceptionRecord.ExceptionCode ==
+         static_cast<unsigned long>(EXCEPTION_ACCESS_VIOLATION)) ||
+        (exceptionInfo.exceptionRecord.ExceptionCode ==
+         static_cast<unsigned long>(EXCEPTION_IN_PAGE_ERROR))) {
       exceptionInfo.pExceptionMemoryAddress =
           (void*)exceptionInfo.exceptionRecord.ExceptionInformation[1]; // ExceptionInformation[0]
+    }
     // indicates if it was a
     // read (0), write (1), or
     // data execution attempt
@@ -2913,7 +2956,8 @@ LONG ExceptionHandler::ExceptionFilter(LPEXCEPTION_POINTERS pExceptionPointersAr
 
     WriteExceptionDescription();
 
-    if (pExceptionPointersArg->ExceptionRecord->ExceptionCode == EXCEPTION_STACK_OVERFLOW) {
+    if (pExceptionPointersArg->ExceptionRecord->ExceptionCode ==
+        static_cast<unsigned long>(EXCEPTION_STACK_OVERFLOW)) {
       unsigned int IdValue;
 
       void* ThreadHandle = (HANDLE)_beginthreadex(
@@ -3391,7 +3435,8 @@ void ExceptionHandler::EnableReportPrivacy(bool enable) {
 void ExceptionHandler::WriteExceptionDescription() {
 #if defined(OVR_OS_MS)
   // There is some extra information available for AV exception.
-  if (exceptionInfo.exceptionRecord.ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
+  if (static_cast<signed long>(exceptionInfo.exceptionRecord.ExceptionCode) ==
+      EXCEPTION_ACCESS_VIOLATION) {
     const char* error = (exceptionInfo.exceptionRecord.ExceptionInformation[0] == 0)
         ? "reading"
         : ((exceptionInfo.exceptionRecord.ExceptionInformation[0] == 1) ? "writing" : "executing");
@@ -3409,7 +3454,7 @@ void ExceptionHandler::WriteExceptionDescription() {
 
 // Process "standard" exceptions, other than 'access violation'
 #define FORMAT_EXCEPTION(x)                                   \
-  case EXCEPTION_##x:                                         \
+  case static_cast<DWORD>(EXCEPTION_##x):                     \
     OVR::OVR_strlcpy(                                         \
         exceptionInfo.exceptionDescription,                   \
         #x,                                                   \
@@ -3476,7 +3521,7 @@ void ExceptionHandler::WriteExceptionDescription() {
             exceptionInfo.exceptionDescription,
             OVR_ARRAY_COUNT(exceptionInfo.exceptionDescription),
             "Unknown exception 0x%08x at instruction %s",
-            exceptionInfo.exceptionRecord.ExceptionCode,
+            static_cast<unsigned int>(exceptionInfo.exceptionRecord.ExceptionCode),
             addressStr);
     }
   }
@@ -3980,7 +4025,14 @@ void ExceptionHandler::WriteReport(const char* reportType) {
           VS_FIXEDFILEINFO* pFFI;
           UINT size;
 
-          if (VerQueryValueW(pVersionData, L"\\", (void**)&pFFI, &size)) {
+          static HMODULE library;
+          static std::once_flag once;
+          std::call_once(once, [&]() { library = LoadLibraryW(L"version.dll"); });
+
+          decltype(&::VerQueryValueW) const call = reinterpret_cast<decltype(&::VerQueryValueW)>(
+              GetProcAddress(library, "VerQueryValueW"));
+
+          if (call(pVersionData, L"\\", (void**)&pFFI, &size)) {
             // This is the convention used by RelEng to encode the CL # for releases.
             // This greatly simplifies figuring out which version of the Oculus Runtime
             // this file came from, though it may not apply to some users of DebugHelp.
@@ -4150,7 +4202,7 @@ void ExceptionHandler::WriteReport(const char* reportType) {
       {
         if ((var.vt == VT_BSTR) && var.bstrVal)
           return var.bstrVal;
-        return L"";
+        return CComBSTR(L"");
       }
 
       uint32_t getLVal() const // return a value or default 0

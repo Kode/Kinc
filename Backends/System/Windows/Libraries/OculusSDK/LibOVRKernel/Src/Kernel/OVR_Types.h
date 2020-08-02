@@ -5,7 +5,7 @@ Content     :   Standard library defines and simple types
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -327,7 +327,7 @@ typedef uint64_t UInt64;
 
 // osx PID is a signed int32 (already defined to pid_t in OSX framework)
 // linux PID is a signed int32 (already defined)
-// win32 PID is an unsigned int64
+// win32 PID is an unsigned int32
 #ifdef OVR_OS_WIN32
 // process ID representation
 typedef unsigned long pid_t;
@@ -493,8 +493,8 @@ struct OVR_GUID {
 #define OVR_CONST_FLOAT extern const __declspec(selectany) float
 #define OVR_CONST_DOUBLE extern const __declspec(selectany) double
 #else
-#define OVR_CONST_FLOAT __attribute__(weak) extern const float
-#define OVR_CONST_DOUBLE __attribute__(weak) extern const double
+#define OVR_CONST_FLOAT __attribute__((weak)) extern const float
+#define OVR_CONST_DOUBLE __attribute__((weak)) extern const double
 #endif
 
 // ------------------------------------------------------------------------
@@ -598,7 +598,7 @@ struct OVR_GUID {
 #endif
 
 //-----------------------------------------------------------------------------------
-// ***** OVR_DEBUG_BREAK, OVR_DEBUG_CODE,
+// ***** OVR_DEBUG_BREAK,
 //       OVR_ASSERT, OVR_ASSERT_M, OVR_ASSERT_AND_UNUSED
 //
 // Macros have effect only in debug builds.
@@ -606,10 +606,6 @@ struct OVR_GUID {
 // Example OVR_DEBUG_BREAK usage (note the lack of parentheses):
 //     #define MY_ASSERT(expression) do { if (!(expression)) { OVR_DEBUG_BREAK; } } while(0)
 //
-// Example OVR_DEBUG_CODE usage:
-//     OVR_DEBUG_CODE(printf("debug test\n");)
-//       or
-//     OVR_DEBUG_CODE(printf("debug test\n"));
 //
 // Example OVR_ASSERT usage:
 //     OVR_ASSERT(count < 100);
@@ -638,9 +634,6 @@ struct OVR_GUID {
     *((int*)0) = 1;     \
   } while (0)
 #endif
-
-// The expression is defined only in debug builds. It is defined away in release builds.
-#define OVR_DEBUG_CODE(c) c
 
 // In debug builds this tests the given expression; if false then executes OVR_DEBUG_BREAK,
 // if true then no action. Has no effect in release builds.
@@ -689,6 +682,7 @@ struct OVR_GUID {
 // Using OVR_DEBUG_BREAK will cause the test to bail out and kill the current process.
 // abort() will fail the test and let subsequent tests run.
 #ifndef OVR_FAIL_M
+#define OVR_FAIL_M_ENABLED // Indicates that OVR_FAIL_M is enabled.
 #define OVR_FAIL_M(message)                                                                        \
   {                                                                                                \
     intptr_t ovrAssertUserParam;                                                                   \
@@ -705,6 +699,7 @@ struct OVR_GUID {
 #endif
 
 #ifndef OVR_FAIL
+#define OVR_FAIL_ENABLED // Indicates that OVR_FAIL is enabled.
 #define OVR_FAIL() OVR_FAIL_M("Assertion failure")
 #endif
 
@@ -712,6 +707,7 @@ struct OVR_GUID {
 // Note: The expression below is expanded into all usage of this assertion macro.
 // We should try to minimize the size of the expanded code to the extent possible.
 #ifndef OVR_ASSERT_M
+#define OVR_ASSERT_M_ENABLED // Indicates that OVR_ASSERT_M is enabled.
 #define OVR_ASSERT_M(p, message) \
   do {                           \
     if (!(p))                    \
@@ -721,6 +717,7 @@ struct OVR_GUID {
 
 // void OVR_ASSERT(bool expression);
 #ifndef OVR_ASSERT
+#define OVR_ASSERT_ENABLED // Indicates that OVR_ASSERT is enabled.
 #define OVR_ASSERT(p) OVR_ASSERT_M((p), (#p))
 #endif
 #endif
@@ -733,12 +730,7 @@ struct OVR_GUID {
   OVR_UNUSED(value)
 #endif
 
-#else
-
-// The expression is defined only in debug builds. It is defined away in release builds.
-#ifndef OVR_DEBUG_CODE
-#define OVR_DEBUG_CODE(c)
-#endif
+#else // non-debug builds
 
 // Causes a debugger breakpoint in debug builds. Has no effect in release builds.
 #ifndef OVR_DEBUG_BREAK
@@ -771,8 +763,7 @@ struct OVR_GUID {
 // The user of this library can override the default assertion handler and provide their own.
 namespace OVR {
 // The return value meaning is reserved for future definition and currently has no effect.
-typedef intptr_t (
-    *OVRAssertionHandler)(intptr_t userParameter, const char* title, const char* message);
+typedef intptr_t (*OVRAssertionHandler)(intptr_t userParam, const char* title, const char* msg);
 
 // Returns the current assertion handler.
 OVRAssertionHandler GetAssertionHandler(intptr_t* userParameter = NULL);
@@ -784,6 +775,7 @@ OVRAssertionHandler GetAssertionHandler(intptr_t* userParameter = NULL);
 //     message)) {
 //         MessageBox(title, message);
 //         OVR_DEBUG_BREAK;
+//         return 0;
 //     }
 void SetAssertionHandler(OVRAssertionHandler assertionHandler, intptr_t userParameter = 0);
 
