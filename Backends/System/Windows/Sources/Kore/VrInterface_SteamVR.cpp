@@ -2,9 +2,11 @@
 
 #ifdef KORE_STEAMVR
 
-#include <Kore/Vr/VrInterface.h>
-
-#include <Kore/Graphics4/Graphics.h>
+#include <Kinc/vr/vrinterface.h>
+#include <Kinc/graphics4/graphics.h>
+#include <Kinc/graphics4/rendertarget.h>
+#include <Kinc/math/vector.h>
+#include <Kinc/math/quaternion.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Log.h>
 //#include "Direct3D11.h"
@@ -18,50 +20,50 @@ using namespace Kore;
 
 namespace {
 	vr::IVRSystem* hmd;
-	Graphics4::RenderTarget* leftTexture;
-	Graphics4::RenderTarget* rightTexture;
-	SensorState sensorStates[2];
-	VrPoseState controller[vr::k_unMaxTrackedDeviceCount];
+	kinc_g4_render_target_t leftTexture;
+	kinc_g4_render_target_t rightTexture;
+	kinc_vr_sensor_state_t sensorStates[2];
+	kinc_vr_pose_state_t controller[vr::k_unMaxTrackedDeviceCount];
 
-	mat4 convert(vr::HmdMatrix34_t& m) {
-		mat4 mat;
-		mat.Set(0, 0, m.m[0][0]);
-		mat.Set(0, 1, m.m[0][1]);
-		mat.Set(0, 2, m.m[0][2]);
-		mat.Set(0, 3, m.m[0][3]);
-		mat.Set(1, 0, m.m[1][0]);
-		mat.Set(1, 1, m.m[1][1]);
-		mat.Set(1, 2, m.m[1][2]);
-		mat.Set(1, 3, m.m[1][3]);
-		mat.Set(2, 0, m.m[2][0]);
-		mat.Set(2, 1, m.m[2][1]);
-		mat.Set(2, 2, m.m[2][2]);
-		mat.Set(2, 3, m.m[2][3]);
-		mat.Set(3, 0, 0);
-		mat.Set(3, 1, 0);
-		mat.Set(3, 2, 0);
-		mat.Set(3, 3, 1);
+	kinc_matrix4x4_t convert3x4(vr::HmdMatrix34_t& m) {
+		kinc_matrix4x4_t mat;
+		kinc_matrix4x4_set(&mat, 0, 0, m.m[0][0]);
+		kinc_matrix4x4_set(&mat, 0, 1, m.m[0][1]);
+		kinc_matrix4x4_set(&mat, 0, 2, m.m[0][2]);
+		kinc_matrix4x4_set(&mat, 0, 3, m.m[0][3]);
+		kinc_matrix4x4_set(&mat, 1, 0, m.m[1][0]);
+		kinc_matrix4x4_set(&mat, 1, 1, m.m[1][1]);
+		kinc_matrix4x4_set(&mat, 1, 2, m.m[1][2]);
+		kinc_matrix4x4_set(&mat, 1, 3, m.m[1][3]);
+		kinc_matrix4x4_set(&mat, 2, 0, m.m[2][0]);
+		kinc_matrix4x4_set(&mat, 2, 1, m.m[2][1]);
+		kinc_matrix4x4_set(&mat, 2, 2, m.m[2][2]);
+		kinc_matrix4x4_set(&mat, 2, 3, m.m[2][3]);
+		kinc_matrix4x4_set(&mat, 3, 0, 0);
+		kinc_matrix4x4_set(&mat, 3, 1, 0);
+		kinc_matrix4x4_set(&mat, 3, 2, 0);
+		kinc_matrix4x4_set(&mat, 3, 3, 1);
 		return mat;
 	}
 
-	mat4 convert(vr::HmdMatrix44_t& m) {
-		mat4 mat;
-		mat.Set(0, 0, m.m[0][0]);
-		mat.Set(0, 1, m.m[0][1]);
-		mat.Set(0, 2, m.m[0][2]);
-		mat.Set(0, 3, m.m[0][3]);
-		mat.Set(1, 0, m.m[1][0]);
-		mat.Set(1, 1, m.m[1][1]);
-		mat.Set(1, 2, m.m[1][2]);
-		mat.Set(1, 3, m.m[1][3]);
-		mat.Set(2, 0, m.m[2][0]);
-		mat.Set(2, 1, m.m[2][1]);
-		mat.Set(2, 2, m.m[2][2]);
-		mat.Set(2, 3, m.m[2][3]);
-		mat.Set(3, 0, m.m[3][0]);
-		mat.Set(3, 1, m.m[3][1]);
-		mat.Set(3, 2, m.m[3][2]);
-		mat.Set(3, 3, m.m[3][3]);
+	kinc_matrix4x4_t convert4x4(vr::HmdMatrix44_t& m) {
+		kinc_matrix4x4_t mat;
+		kinc_matrix4x4_set(&mat, 0, 0, m.m[0][0]);
+		kinc_matrix4x4_set(&mat, 0, 1, m.m[0][1]);
+		kinc_matrix4x4_set(&mat, 0, 2, m.m[0][2]);
+		kinc_matrix4x4_set(&mat, 0, 3, m.m[0][3]);
+		kinc_matrix4x4_set(&mat, 1, 0, m.m[1][0]);
+		kinc_matrix4x4_set(&mat, 1, 1, m.m[1][1]);
+		kinc_matrix4x4_set(&mat, 1, 2, m.m[1][2]);
+		kinc_matrix4x4_set(&mat, 1, 3, m.m[1][3]);
+		kinc_matrix4x4_set(&mat, 2, 0, m.m[2][0]);
+		kinc_matrix4x4_set(&mat, 2, 1, m.m[2][1]);
+		kinc_matrix4x4_set(&mat, 2, 2, m.m[2][2]);
+		kinc_matrix4x4_set(&mat, 2, 3, m.m[2][3]);
+		kinc_matrix4x4_set(&mat, 3, 0, m.m[3][0]);
+		kinc_matrix4x4_set(&mat, 3, 1, m.m[3][1]);
+		kinc_matrix4x4_set(&mat, 3, 2, m.m[3][2]);
+		kinc_matrix4x4_set(&mat, 3, 3, m.m[3][3]);
 		return mat;
 	}
 
@@ -124,7 +126,7 @@ namespace {
 			break;
 		}
 	}
-	
+
 	void processVREvent(const vr::VREvent_t& event) {
 		switch (event.eventType) {
 		case vr::VREvent_None:
@@ -147,13 +149,13 @@ namespace {
 		getButtonEvent(event);
 	}
 
-	void getPosition(const vr::HmdMatrix34_t* m, vec3* position) {
-		position->x() = m->m[0][3];
-		position->y() = m->m[1][3];
-		position->z() = m->m[2][3];
+	void getPosition(const vr::HmdMatrix34_t* m, kinc_vector3_t* position) {
+		position->x = m->m[0][3];
+		position->y = m->m[1][3];
+		position->z = m->m[2][3];
 	}
 
-	void getOrientation(const vr::HmdMatrix34_t* m, Quaternion* orientation) {
+	void getOrientation(const vr::HmdMatrix34_t* m, kinc_quaternion_t* orientation) {
 		orientation->w = sqrt(fmax(0, 1 + m->m[0][0] + m->m[1][1] + m->m[2][2])) / 2;
 		orientation->x = sqrt(fmax(0, 1 + m->m[0][0] - m->m[1][1] - m->m[2][2])) / 2;
 		orientation->y = sqrt(fmax(0, 1 - m->m[0][0] + m->m[1][1] - m->m[2][2])) / 2;
@@ -171,10 +173,13 @@ namespace {
 		for (int device = 0; device < vr::k_unMaxTrackedDeviceCount; ++device) {
 			if (poses[device].bPoseIsValid) {
 				if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_HMD) {
-					VrPoseState poseState;
-					poseState.linearVelocity = vec3(poses[device].vVelocity.v[0], poses[device].vVelocity.v[1], poses[device].vVelocity.v[2]);
-					poseState.angularVelocity =
-					    vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
+					kinc_vr_pose_state_t poseState;
+					poseState.linearVelocity.x = poses[device].vVelocity.v[0];
+					poseState.linearVelocity.y = poses[device].vVelocity.v[1];
+					poseState.linearVelocity.z = poses[device].vVelocity.v[2];
+					poseState.angularVelocity.x = poses[device].vAngularVelocity.v[0];
+					poseState.angularVelocity.y = poses[device].vAngularVelocity.v[1];
+					poseState.angularVelocity.z = poses[device].vAngularVelocity.v[2];
 
 					vr::HmdMatrix34_t m = poses[device].mDeviceToAbsoluteTracking;
 					// log(Info, "x: %f y: %f z: %f", m.m[0][3], m.m[1][3], m.m[2][3]);
@@ -187,20 +192,23 @@ namespace {
 
 					vr::HmdMatrix34_t leftEyeMatrix = hmd->GetEyeToHeadTransform(vr::Eye_Left);
 					vr::HmdMatrix34_t rightEyeMatrix = hmd->GetEyeToHeadTransform(vr::Eye_Right);
-					sensorStates[0].pose.vrPose.eye = convert(leftEyeMatrix).Invert() * convert(m).Invert();
-					sensorStates[1].pose.vrPose.eye = convert(rightEyeMatrix).Invert() * convert(m).Invert();
+					sensorStates[0].pose.vrPose.eye = convert3x4(leftEyeMatrix).Invert() * convert3x4(m).Invert();
+					sensorStates[1].pose.vrPose.eye = convert3x4(rightEyeMatrix).Invert() * convert3x4(m).Invert();
 
 					vr::HmdMatrix44_t leftProj = hmd->GetProjectionMatrix(vr::Eye_Left, 0.1f, 100.0f);
 					vr::HmdMatrix44_t rightProj = hmd->GetProjectionMatrix(vr::Eye_Right, 0.1f, 100.0f);
-					sensorStates[0].pose.vrPose.projection = convert(leftProj);
-					sensorStates[1].pose.vrPose.projection = convert(rightProj);
+					sensorStates[0].pose.vrPose.projection = convert4x4(leftProj);
+					sensorStates[1].pose.vrPose.projection = convert4x4(rightProj);
 				}
 				else if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_Controller ||
 				         hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_GenericTracker) {
-					VrPoseState poseState;
-					poseState.linearVelocity = vec3(poses[device].vVelocity.v[0], poses[device].vVelocity.v[1], poses[device].vVelocity.v[2]);
-					poseState.angularVelocity =
-					    vec3(poses[device].vAngularVelocity.v[0], poses[device].vAngularVelocity.v[1], poses[device].vAngularVelocity.v[2]);
+					kinc_vr_pose_state_t poseState;
+					poseState.linearVelocity.x = poses[device].vVelocity.v[0];
+					poseState.linearVelocity.x = poses[device].vVelocity.v[1];
+					poseState.linearVelocity.x = poses[device].vVelocity.v[2];
+					poseState.angularVelocity.x = poses[device].vAngularVelocity.v[0];
+					poseState.angularVelocity.y = poses[device].vAngularVelocity.v[1];
+					poseState.angularVelocity.z = poses[device].vAngularVelocity.v[2];
 
 					vr::HmdMatrix34_t m = poses[device].mDeviceToAbsoluteTracking;
 
@@ -211,9 +219,9 @@ namespace {
 					// poseState.vrPose.position.z());
 
 					if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_Controller)
-						poseState.trackedDevice = Controller;
+						poseState.trackedDevice = KINC_TRACKED_DEVICE_CONTROLLER;
 					else if (hmd->GetTrackedDeviceClass(device) == vr::TrackedDeviceClass_GenericTracker)
-						poseState.trackedDevice = ViveTracker;
+						poseState.trackedDevice = KINC_TRACKED_DEVICE_VIVE_TRACKER;
 					controller[device] = poseState;
 				}
 			}
@@ -221,7 +229,7 @@ namespace {
 	}
 }
 
-void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
+void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName) {
 	vr::HmdError error;
 	hmd = vr::VR_Init(&error, vr::VRApplication_Scene);
 	// vr::IVRRenderModels* renderModels = (vr::IVRRenderModels*)vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &error);
@@ -230,13 +238,13 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 	uint32_t width, height;
 	hmd->GetRecommendedRenderTargetSize(&width, &height);
 
-	leftTexture = new Graphics4::RenderTarget(width, height, 16);
-	rightTexture = new Graphics4::RenderTarget(width, height, 16);
+	kinc_g4_render_target_init(&leftTexture, width, height, 0, false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, 0, 0);
+	kinc_g4_render_target_init(&rightTexture, width, height, 0, false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, 0, 0);
 
 	return nullptr;
 }
 
-void VrInterface::begin() {
+void kinc_vr_interface_begin() {
 	vr::VREvent_t event;
 	while (hmd->PollNextEvent(&event, sizeof(event))) {
 		processVREvent(event);
@@ -252,44 +260,46 @@ void VrInterface::begin() {
 	readSensorStates();
 }
 
-void VrInterface::beginRender(int eye) {
+void kinc_vr_interface_begin_render(int eye) {
 	if (eye == 0) {
-		Kore::Graphics4::setRenderTarget(leftTexture);
+		kinc_g4_render_target_t *renderTargets[1] = {&leftTexture};
+		kinc_g4_set_render_targets(renderTargets, 1);
 	}
 	else {
-		Kore::Graphics4::setRenderTarget(rightTexture);
+		kinc_g4_render_target_t *renderTargets[1] = {&rightTexture};
+		kinc_g4_set_render_targets(renderTargets, 1);
 	}
 }
 
-void VrInterface::endRender(int eye) {}
+void kinc_vr_interface_end_render(int eye) {}
 
-SensorState VrInterface::getSensorState(int eye) {
+kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye) {
 	return sensorStates[eye];
 }
 
-VrPoseState VrInterface::getController(int index) {
+kinc_vr_pose_state_t kinc_vr_interface_get_controller(int index) {
 	return controller[index];
 }
 
-void VrInterface::warpSwap() {
+void kinc_vr_interface_warp_swap() {
 #ifdef KORE_OPENGL
-	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->kincRenderTarget.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->kincRenderTarget.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #else
-	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture->kincRenderTarget.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture->kincRenderTarget.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #endif
 }
 
-void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {}
+void kinc_vr_interface_update_tracking_origin(kinc_tracking_origin_t origin) {}
 
-void VrInterface::resetHmdPose() {}
+void kinc_vr_interface_reset_hmd_pose() {}
 
-void VrInterface::ovrShutdown() {
+void kinc_vr_interface_ovr_shutdown() {
 	vr::VR_Shutdown();
 }
 

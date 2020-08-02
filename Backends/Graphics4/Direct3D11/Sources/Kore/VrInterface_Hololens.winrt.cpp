@@ -3,7 +3,7 @@
 #ifdef KORE_HOLOLENS
 
 #include "Hololens.winrt.h"
-#include <Kore/Vr/VrInterface.h>
+#include <Kinc/vr/vrinterface.h>
 
 using namespace Kore;
 using namespace Windows::Foundation;
@@ -13,55 +13,44 @@ using namespace Windows::Media::Capture;
 using namespace Windows::Media::Capture::Frames;
 using namespace Windows::Media::MediaProperties;
 
-void* VrInterface::init(void* hinst, const char* title, const char* windowClassName)
-{
+void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName) {
 	return nullptr;
 }
 
-void VrInterface::begin() {
+void kinc_vr_interface_begin() {
 	holographicFrameController->begin();
 }
-	
-void VrInterface::beginRender(int eye)
-{
+
+void kinc_vr_interface_begin_render(int eye) {
 	holographicFrameController->beginRender(eye);
 }
 
-SensorState VrInterface::getSensorState(int eye)
-{
+kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye) {
 	return holographicFrameController->getSensorState(eye);
 }
 
-void VrInterface::endRender(int eye)
-{
+void kinc_vr_interface_end_render(int eye) {
 	holographicFrameController->endRender(eye);
 }
 
-void VrInterface::warpSwap()
-{
+void kinc_vr_interface_warp_swap() {
 	holographicFrameController->warpSwap();
 }
 
-
-
-void VrInterface::ovrShutdown()
-{
+void kinc_vr_interface_ovr_shutdown() {
 	holographicFrameController.reset();
 	videoFrameProcessor.reset();
 }
 
-void VrInterface::resetHmdPose()
-{
+void kinc_vr_interface_reset_hmd_pose() {
 	//not supported for hololens
 }
 
-void VrInterface::updateTrackingOrigin(TrackingOrigin origin)
-{
+void kinc_vr_interface_update_tracking_origin(TrackingOrigin origin) {
 	//could be implemented by setting up the tracking coordinate system with an offset
 }
 
-CameraImage* VrInterface::getCurrentCameraImage()
-{
+CameraImage* VrInterface::getCurrentCameraImage() {
 	if (videoFrameProcessor == nullptr) {
 		return nullptr;
 	}

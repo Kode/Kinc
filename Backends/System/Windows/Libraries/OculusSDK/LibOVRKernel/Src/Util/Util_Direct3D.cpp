@@ -5,7 +5,7 @@ Content     :   Shared code for Direct3D
 Created     :   Oct 14, 2014
 Authors     :   Chris Taylor
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -64,7 +64,7 @@ String GetWindowsErrorString(HRESULT hr) {
       nullptr); // arguments - see note
 
   char formatStr[512];
-  snprintf(formatStr, sizeof(formatStr), "[Code=%x = %d]", hr, hr);
+  snprintf(formatStr, sizeof(formatStr), "[Code=%lx = %ld]", hr, hr);
 
   String retStr = formatStr;
 

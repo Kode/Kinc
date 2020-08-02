@@ -1,7 +1,7 @@
 /*************************************************************************************
  \file      OVR_Version.h
  \brief     This header provides LibOVR version identification.
- \copyright Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+ \copyright Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
  *************************************************************************************/
 
 #ifndef OVR_Version_h
@@ -18,7 +18,7 @@
 #define OVR_PRODUCT_VERSION 1 // Product version doesn't participate in semantic versioning.
 #define OVR_MAJOR_VERSION 1 // If you change these values then you need to also make sure to change
 // LibOVR/Projects/Windows/LibOVR.props in parallel.
-#define OVR_MINOR_VERSION 20 //
+#define OVR_MINOR_VERSION 43 //
 #define OVR_PATCH_VERSION 0
 #define OVR_BUILD_NUMBER 0
 

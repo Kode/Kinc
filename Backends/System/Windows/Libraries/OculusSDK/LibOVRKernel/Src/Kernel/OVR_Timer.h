@@ -6,7 +6,7 @@ Content     :   Provides static functions for precise timing
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -66,6 +66,8 @@ class Timer {
 
 #ifdef OVR_OS_MS
   static double OVR_STDCALL GetPerfFrequencyInverse();
+
+  static double OVR_STDCALL GetPerfFrequency();
 #endif
 
   // Kept for compatibility.
@@ -131,5 +133,11 @@ struct CountdownTimer {
 };
 
 } // namespace OVR
+
+// This version of ovr_GetTimeInSeconds should be called internally with Oculus service,
+// as public APIs are not available.
+inline double ovr_GetTimeInSeconds_Internal() {
+  return OVR::Timer::GetSeconds();
+}
 
 #endif

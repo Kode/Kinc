@@ -5,7 +5,7 @@ Content     :   Installable memory allocator implementation
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -102,9 +102,8 @@ OVR_DISABLE_MSVC_WARNING(4351) // elements of array will be default initialized
 //
 #ifndef OVR_ALLOCATOR_DEBUG_PAGE_HEAP_ENABLED
 #if defined(OVR_BUILD_DEBUG)
-#define OVR_ALLOCATOR_DEBUG_PAGE_HEAP_ENABLED \
-  0 // Disabled while we are working on getting our VS2015 build working. Currently OAF usage of
-// this feature makes the app slow.
+// Disabled because currently the Oculus OAF module usage of this feature makes the app slow.
+#define OVR_ALLOCATOR_DEBUG_PAGE_HEAP_ENABLED 0
 #else
 #define OVR_ALLOCATOR_DEBUG_PAGE_HEAP_ENABLED 0
 #endif
@@ -116,11 +115,13 @@ OVR_DISABLE_MSVC_WARNING(4351) // elements of array will be default initialized
 // Defined as 0 or 1.
 // If enabled then memory is tracked by default and reports on it can be done at runtime.
 // However, even if this is disabled it can still be enabled at runtime by manually
-// setting the appropriate environment variable/registry key.
+// setting the appropriate environment variable/registry key:
+// HKEY_LOCAL_MACHINE\SOFTWARE\Oculus\HeapTrackingEnabled
 //
 #ifndef OVR_ALLOCATOR_TRACKING_ENABLED
 #if defined(OVR_BUILD_DEBUG)
-#define OVR_ALLOCATOR_TRACKING_ENABLED 1
+// Disabled because currently Microsoft iterator debugging makes the app slow.
+#define OVR_ALLOCATOR_TRACKING_ENABLED 0
 #else
 #define OVR_ALLOCATOR_TRACKING_ENABLED 0
 #endif
@@ -174,13 +175,6 @@ extern "C" HANDLE __cdecl __acrt_get_msvcrt_heap_handle() {
 #endif
 #endif
 
-static const uint8_t no_mans_land_fill = 0xFD;
-static const uint8_t clean_land_fill = 0xCD;
-static const size_t no_mans_land_size = 4;
-static const size_t align_gap_size = sizeof(void*);
-static const long request_number_for_ignore_blocks = 0;
-static const int line_number_for_ignore_blocks = static_cast<int>(0xFEDCBABC);
-
 inline HANDLE GetCRTHeapHandle() {
 #if OVR_STATIC_CRT_PRESENT
 #if (_MSC_VER < 1900) // If VS2013 or earlier...
@@ -224,6 +218,12 @@ static const CrtMemBlockHeader* header_from_block(const void* block) {
 
 // Clone of _malloc_dbg
 #if (_MSC_VER >= 1900)
+static const uint8_t no_mans_land_fill = 0xFD;
+static const uint8_t clean_land_fill = 0xCD;
+static const size_t no_mans_land_size = 4;
+static const long request_number_for_ignore_blocks = 0;
+static const int line_number_for_ignore_blocks = static_cast<int>(0xFEDCBABC);
+
 static void* block_from_header(void* header) {
   return (static_cast<CrtMemBlockHeader*>(header) + 1);
 }
@@ -288,8 +288,19 @@ extern "C" void* crt_malloc_dbg(size_t size, int blockUse, const char* file, int
 extern "C" void* __cdecl _aligned_malloc_base(size_t size, size_t align);
 extern "C" void __cdecl _free_base(void* p);
 // extern "C" void* __cdecl _realloc_base(void* p, size_t newsize);
+#if defined(WINDOWS_SDK_VERSION) && WINDOWS_SDK_VERSION >= 17763
+// These functions aren't available in the 10.0.17763.0 Windows SDK.
+extern "C" void __cdecl _aligned_free_base(void* /*p*/) {
+  OVR_FAIL();
+}
+extern "C" void* __cdecl _aligned_realloc_base(void* /*p*/, size_t /*newSize*/, size_t /*align*/) {
+  OVR_FAIL();
+  return nullptr;
+}
+#else
 extern "C" void __cdecl _aligned_free_base(void* p);
 extern "C" void* __cdecl _aligned_realloc_base(void* p, size_t newSize, size_t align);
+#endif
 #else
 extern "C" _ACRTIMP void __cdecl _free_base(void* p);
 extern "C" void __cdecl _aligned_free_base(void* /*p*/) {
@@ -724,6 +735,10 @@ InterceptCRTMalloc::~InterceptCRTMalloc() {
   // Default behavior is to not RestoreCRTMalloc().
 }
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmicrosoft-cast"
+#endif
 bool InterceptCRTMalloc::ReplaceCRTMalloc(
     InterceptCRTMalloc::MallocFunctionPointers& mallocFunctionPointers) {
   // Malloc calls are made by seemingly one of three means:
@@ -944,6 +959,9 @@ bool InterceptCRTMalloc::RestoreCRTMalloc() {
 
   return true;
 }
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 void* ovr_malloc(size_t size) {
   return OVR::Allocator::GetInstance()->Alloc(size, nullptr);
@@ -1260,11 +1278,12 @@ bool Allocator::Init() {
 #if OVR_REDIRECT_CRT_MALLOC
       MallocRedirectEnabled = true;
 #elif defined(_WIN32)
-      MallocRedirectEnabled = OVR::Util::GetRegistryBoolW(
-          L"Software\\Oculus",
-          L"MallocRedirectEnabled",
-          false); // "HKEY_LOCAL_MACHINE\SOFTWARE\Oculus\MallocRedirectEnabled", REG_DWORD of 0 or
-// 1.
+      // "HKEY_LOCAL_MACHINE\SOFTWARE\Oculus\MallocRedirectEnabled"
+      // This code uses the registry API instead of OVR::Util::SettingsManager, because this code
+      // is allocator code which is special in that it needs to execute before all else is
+      // initialized.
+      MallocRedirectEnabled =
+          OVR::Util::GetRegistryBoolW(L"Software\\Oculus", L"MallocRedirectEnabled", false);
 #else
       MallocRedirectEnabled = false;
 #endif
@@ -1326,15 +1345,20 @@ bool Allocator::Init() {
 #if OVR_ALLOCATOR_DEBUG_PAGE_HEAP_ENABLED // If we should try to enable the debug heap...
       DebugPageHeapEnabled = true;
 #elif defined(_MSC_VER)
+      // "HKEY_LOCAL_MACHINE\SOFTWARE\Oculus\DebugPageHeapEnabled"
+      // This code uses the registry API instead of OVR::Util::SettingsManager, because this code
+      // is allocator code which is special in that it needs to execute before all else is
+      // initialized.
       DebugPageHeapEnabled = OVR::Util::GetRegistryBoolW(
-          L"Software\\Oculus",
-          L"DebugPageHeapEnabled",
-          DebugPageHeapEnabled); // "HKEY_LOCAL_MACHINE\SOFTWARE\Oculus\DebugPageHeapEnabled",
-// REG_DWORD of 0 or 1.
+          L"Software\\Oculus", L"DebugPageHeapEnabled", DebugPageHeapEnabled);
 #else
       DebugPageHeapEnabled = false;
 #endif
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmicrosoft-cast"
+#endif
 #if defined(OVR_BUILD_DEBUG) && defined(_MSC_VER)
       if (DebugPageHeapEnabled) {
         // Make _CrtIsValidHeapPointer always return true. The VC++ concurrency library has a bug in
@@ -1349,6 +1373,9 @@ bool Allocator::Init() {
             _CrtIsValidHeapPointer,
             true); // If we can successfully kill _CrtIsValidHeapPointer, enable our debug heap.
       }
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 #endif
 #endif
     }
@@ -2101,6 +2128,8 @@ bool Allocator::EnableMallocRedirect() {
 bool Allocator::IsHeapTrackingRegKeyEnabled(bool defaultValue) {
 #if defined(_WIN32)
   // "HKEY_LOCAL_MACHINE\SOFTWARE\Oculus\HeapTrackingEnabled", REG_DWORD of 0 or 1.
+  // This code uses the registry API instead of OVR::Util::SettingsManager, because this code
+  // is allocator code which is special in that it needs to execute before all else is initialized.
   return OVR::Util::GetRegistryBoolW(L"Software\\Oculus", L"HeapTrackingEnabled", defaultValue);
 #else
   return defaultValue;
@@ -2645,7 +2674,7 @@ bool HeapIterationFilterRPN::Evaluate(const AllocMetadata* amd) {
       data[0] = value;
       size += 1;
     }
-  } stack{{true, 1}}; // By default the state is true. An empty instruction set evaluates as true.
+  } stack{{true}, 1}; // By default the state is true. An empty instruction set evaluates as true.
 
   for (size_t i = 0; (i < OVR_ARRAY_COUNT(Instructions)) &&
        ((Instructions[i].operation != OpNone) || (Instructions[i].operand.comparison != CmpNone));
@@ -3371,7 +3400,7 @@ void* DebugPageHeap::AllocCommittedPageMemory(size_t blockSize) {
           reportedError,
           OVR_ARRAY_COUNT(reportedError),
           "DebugPageHeap: VirtualAlloc failed with error: %d.",
-          dwLastError);
+          (int)dwLastError);
     }
 
     // LogError("%s", reportedError); Disabled because this call turns around and allocates memory,

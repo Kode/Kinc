@@ -2,7 +2,7 @@
 
 #ifdef KORE_OCULUS
 
-#include <Kore/Vr/VrInterface.h>
+#include <kinc/vr/vrinterface.h>
 
 #include "Direct3D11.h"
 #include <Kore/Graphics4/Graphics.h>
@@ -26,7 +26,7 @@ using namespace DirectX;
 using namespace Kore;
 
 namespace {
-	SensorState sensorStates[2];
+	kinc_vr_sensor_state_t sensorStates[2];
 }
 
 //------------------------------------------------------------
@@ -281,7 +281,7 @@ namespace {
 	}
 }
 
-void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
+void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName) {
 	// Initializes LibOVR, and the Rift
 	ovrInitParams initParams = {ovrInit_RequestVersion | ovrInit_FocusAware, OVR_MINOR_VERSION, NULL, 0, 0};
 	ovrResult result = ovr_Initialize(&initParams);
@@ -319,7 +319,7 @@ void* VrInterface::init(void* hinst, const char* title, const char* windowClassN
 	return Platform.Window;
 }
 
-void VrInterface::begin() {
+void kinc_vr_interface_begin() {
 	// Call ovr_GetRenderDesc each frame to get the ovrEyeRenderDesc, as the returned values (e.g. HmdToEyeOffset) may change at runtime.
 	ovrEyeRenderDesc eyeRenderDesc[2];
 	eyeRenderDesc[0] = ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]);
@@ -331,7 +331,7 @@ void VrInterface::begin() {
 	ovr_GetEyePoses(session, frameIndex, ovrTrue, HmdToEyePose, EyeRenderPose, &sensorSampleTime);
 }
 
-void VrInterface::beginRender(int eye) {
+void kinc_vr_interface_begin_render(int eye) {
 	if (pEyeRenderTexture[0] == nullptr || pEyeRenderTexture[1] == nullptr) createOculusTexture();
 
 	// Clear and set up rendertarget
@@ -340,46 +340,51 @@ void VrInterface::beginRender(int eye) {
 	                     (float)eyeRenderViewport[eye].Size.h);
 }
 
-void VrInterface::endRender(int eye) {
+void kinc_vr_interface_end_render(int eye) {
 	// Commit rendering to the swap chain
 	pEyeRenderTexture[eye]->Commit();
 }
 
 namespace {
 
-	mat4 convert(XMMATRIX& m) {
+	kinc_matrix4x4_t convert(XMMATRIX& m) {
 		XMFLOAT4X4 fView;
 		XMStoreFloat4x4(&fView, m);
 
-		mat4 mat;
-		mat.Set(0, 0, fView._11);
-		mat.Set(0, 1, fView._12);
-		mat.Set(0, 2, fView._13);
-		mat.Set(0, 3, fView._14);
-		mat.Set(1, 0, fView._21);
-		mat.Set(1, 1, fView._22);
-		mat.Set(1, 2, fView._23);
-		mat.Set(1, 3, fView._24);
-		mat.Set(2, 0, fView._31);
-		mat.Set(2, 1, fView._32);
-		mat.Set(2, 2, fView._33);
-		mat.Set(2, 3, fView._34);
-		mat.Set(3, 0, fView._41);
-		mat.Set(3, 1, fView._42);
-		mat.Set(3, 2, fView._43);
-		mat.Set(3, 3, fView._44);
+		kinc_matrix4x4_t mat;
+		kinc_matrix4x4_set(&mat, 0, 0, fView._11);
+		kinc_matrix4x4_set(&mat, 0, 1, fView._12);
+		kinc_matrix4x4_set(&mat, 0, 2, fView._13);
+		kinc_matrix4x4_set(&mat, 0, 3, fView._14);
+		kinc_matrix4x4_set(&mat, 1, 0, fView._21);
+		kinc_matrix4x4_set(&mat, 1, 1, fView._22);
+		kinc_matrix4x4_set(&mat, 1, 2, fView._23);
+		kinc_matrix4x4_set(&mat, 1, 3, fView._24);
+		kinc_matrix4x4_set(&mat, 2, 0, fView._31);
+		kinc_matrix4x4_set(&mat, 2, 1, fView._32);
+		kinc_matrix4x4_set(&mat, 2, 2, fView._33);
+		kinc_matrix4x4_set(&mat, 2, 3, fView._34);
+		kinc_matrix4x4_set(&mat, 3, 0, fView._41);
+		kinc_matrix4x4_set(&mat, 3, 1, fView._42);
+		kinc_matrix4x4_set(&mat, 3, 2, fView._43);
+		kinc_matrix4x4_set(&mat, 3, 3, fView._44);
 		return mat;
 	}
 }
 
-SensorState VrInterface::getSensorState(int eye) {
-	VrPoseState poseState;
+kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye) {
+	kinc_vr_pose_state_t poseState;
 
 	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
-	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
+	poseState.vrPose.orientation.x = orientation.x;
+	poseState.vrPose.orientation.y = orientation.y;
+	poseState.vrPose.orientation.z = orientation.z;
+	poseState.vrPose.orientation.w = orientation.w;
 
 	ovrVector3f pos = EyeRenderPose[eye].Position;
-	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
+	poseState.vrPose.position.x = pos.x;
+	poseState.vrPose.position.x = pos.y;
+	poseState.vrPose.position.x = pos.z;
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
 	poseState.vrPose.left = fov.LeftTan;
@@ -398,8 +403,10 @@ SensorState VrInterface::getSensorState(int eye) {
 	XMMATRIX proj = XMMatrixSet(p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0], p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1], p.M[0][2], p.M[1][2], p.M[2][2],
 	                            p.M[3][2], p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3]);
 
-	poseState.vrPose.eye = convert(view).Transpose();
-	poseState.vrPose.projection = convert(proj).Transpose();
+	poseState.vrPose.eye = convert(view);
+	kinc_matrix4x4_transpose(&poseState.vrPose.eye);
+	poseState.vrPose.projection = convert(proj);
+	kinc_matrix4x4_transpose(&poseState.vrPose.projection);
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
@@ -433,11 +440,12 @@ SensorState VrInterface::getSensorState(int eye) {
 	return sensorStates[eye];
 }
 
-/*VrPoseState VrInterface::getController(int index) {
-    return -1;
-}*/
+kinc_vr_pose_state_t kinc_vr_interface_get_controller(int index) {
+	kinc_vr_pose_state_t todo;
+	return todo;
+}
 
-void VrInterface::warpSwap() {
+void kinc_vr_interface_warp_swap() {
 	// Initialize our single full screen Fov layer.
 	ovrLayerEyeFov ld = {};
 	ld.Header.Type = ovrLayerType_EyeFov;
@@ -472,12 +480,12 @@ void VrInterface::warpSwap() {
 	tex->Release();
 }
 
-void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {
+void kinc_vr_interface_update_tracking_origin(kinc_tracking_origin_t origin) {
 	switch (origin) {
-	case Stand:
+	case KINC_TRACKING_ORIGIN_STAND:
 		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 		break;
-	case Sit:
+	case KINC_TRACKING_ORIGIN_SIT:
 		ovr_SetTrackingOriginType(session, ovrTrackingOrigin_EyeLevel);
 		break;
 	default:
@@ -486,11 +494,11 @@ void VrInterface::updateTrackingOrigin(TrackingOrigin origin) {
 	}
 }
 
-void VrInterface::resetHmdPose() {
+void kinc_vr_interface_reset_hmd_pose() {
 	ovr_RecenterTrackingOrigin(session);
 }
 
-void VrInterface::ovrShutdown() {
+void kinc_vr_interface_ovr_shutdown() {
 	ovr_Shutdown();
 }
 

@@ -21,7 +21,9 @@ typedef struct kinc_matrix4x4 {
 } kinc_matrix4x4_t;
 
 float kinc_matrix4x4_get(kinc_matrix4x4_t *matrix, int x, int y);
+void kinc_matrix4x4_set(kinc_matrix4x4_t *matrix, int x, int y, float value);
 void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix);
+kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_matrix4x4_t *b);
 
 #ifdef __cplusplus
 }

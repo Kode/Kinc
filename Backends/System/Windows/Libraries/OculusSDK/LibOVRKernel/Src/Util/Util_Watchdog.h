@@ -5,7 +5,7 @@ Content     :   Deadlock reaction
 Created     :   June 27, 2013
 Authors     :   Kevin Jenkins, Chris Taylor
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -33,7 +33,6 @@ limitations under the License.
 #include "Kernel/OVR_String.h"
 #include "Kernel/OVR_System.h"
 #include "Kernel/OVR_Threads.h"
-#include "Logging_Library.h"
 #include <thread>
 
 namespace OVR {
@@ -48,6 +47,8 @@ class WatchDog : public NewOverrideBase {
  public:
   WatchDog(const String& threadName);
   ~WatchDog();
+
+  String GetThreadName() const;
 
   void Disable();
   void Enable();
@@ -76,7 +77,7 @@ class WatchDogObserver : public SystemSingletonBase<WatchDogObserver> {
 
  public:
   // Uses the exception logger to write deadlock reports
-  void EnableReporting(const String organization = String(), const String application = String());
+  void EnableReporting(const String& organization = String(), const String& application = String());
 
   // Disables deadlock reports
   void DisableReporting();

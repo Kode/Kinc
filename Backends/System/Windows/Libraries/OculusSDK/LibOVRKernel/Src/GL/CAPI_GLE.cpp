@@ -3,7 +3,7 @@
 Filename    :   CAPI_GLE.cpp
 Content     :   OpenGL Extensions support. Implements a stripped down glew-like
                 interface with some additional functionality.
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -85,12 +85,21 @@ GLAPI const GLubyte* GLAPIENTRY glGetString(GLenum name);
 }
 #endif
 
+// Suppress function pointer to object pointer cast error
+// when compiling with clang.
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmicrosoft-cast"
+#endif
 // Generic OpenGL GetProcAddress function interface. Maps to platform-specific functionality
 // internally. On Windows this is equivalent to wglGetProcAddress as opposed to global
 // GetProcAddress.
 void* OVR::GLEGetProcAddress(const char* name) {
 #if defined(_WIN32)
   return wglGetProcAddress(name);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 #elif defined(__APPLE__)
   // Requires the OS 10.3 SDK or later.
@@ -143,7 +152,8 @@ OVR::GLEContext::GLEContext()
 }
 
 OVR::GLEContext::~GLEContext() {
-  // Currently empty
+  if (GetCurrentContext() == this)
+    SetCurrentContext(NULL);
 }
 
 void OVR::GLEContext::Init() {

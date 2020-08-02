@@ -12,6 +12,9 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <Windowsx.h>
+#ifdef KORE_VR
+#include <kinc/vr/vrinterface.h>
+#endif
 
 #undef CreateWindow
 
@@ -163,20 +166,23 @@ static DWORD getDwExStyle(kinc_window_mode_t mode, int features) {
 static int createWindow(const wchar_t *title, int x, int y, int width, int height, int bpp, int frequency, int features, kinc_window_mode_t windowMode,
                         int target_display_index) {
 	HINSTANCE inst = GetModuleHandle(NULL);
-#ifdef KORE_OCULUS
-	if (windowCounter == 0) {
+#ifdef KORE_VR
+	if (window_counter == 0) {
 		RegisterWindowClass(inst, windowClassName);
 	}
+
+	int display_index = target_display_index == -1 ? kinc_primary_display() : target_display_index;
+
 	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
 	int dstx = 0;
 	int dsty = 0;
 
 	char titleutf8[1024];
 	char classNameutf8[1024];
-	WideCharToMultiByte(CP_UTF8, 0, title, -1, titleutf8, 1024 - 1, nullptr, nullptr);
-	WideCharToMultiByte(CP_UTF8, 0, windowClassName, -1, classNameutf8, 1024 - 1, nullptr, nullptr);
+	WideCharToMultiByte(CP_UTF8, 0, title, -1, titleutf8, 1024 - 1, NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, windowClassName, -1, classNameutf8, 1024 - 1, NULL, NULL);
 
-	HWND hwnd = (HWND)VrInterface::init(inst, titleutf8, classNameutf8);
+	HWND hwnd = (HWND)kinc_vr_interface_init(inst, titleutf8, classNameutf8);
 #else
 
 	if (window_counter == 0) {

@@ -32,10 +32,6 @@
 #include <stdio.h>
 #include <wbemidl.h>
 
-#ifdef KORE_OCULUS
-#include "Kore/Vr/VrInterface.h"
-#endif
-
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>

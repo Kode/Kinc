@@ -69,6 +69,10 @@ float kinc_matrix4x4_get(kinc_matrix4x4_t *matrix, int x, int y) {
 	return matrix->m[y * 4 + x];
 }
 
+void kinc_matrix4x4_set(kinc_matrix4x4_t* matrix, int x, int y, float value) {
+	matrix->m[y * 4 + x] = value;
+}
+
 void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix) {
 	kinc_matrix4x4_t transposed;
 	for (int y = 0; y < 4; ++y) {
@@ -77,4 +81,15 @@ void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix) {
 		}
 	}
 	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
+}
+
+kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_matrix4x4_t *b) {
+	kinc_matrix4x4_t result;
+	for (unsigned x = 0; x < 4; ++x)
+		for (unsigned y = 0; y < 4; ++y) {
+			float t = kinc_matrix4x4_get(a, 0, y) * kinc_matrix4x4_get(b, x, 0);
+			for (unsigned i = 1; i < 4; ++i) t += kinc_matrix4x4_get(a, i, y) * kinc_matrix4x4_get(b, x, i);
+			kinc_matrix4x4_set(&result, x, y, t);
+		}
+	return result;
 }

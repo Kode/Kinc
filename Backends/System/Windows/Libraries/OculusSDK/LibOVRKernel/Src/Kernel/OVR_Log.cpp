@@ -4,7 +4,7 @@ Filename    :   OVR_Log.cpp
 Content     :   Logging support
 Created     :   September 19, 2012
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -28,6 +28,7 @@ limitations under the License.
 #include "OVR_String.h"
 #include "OVR_DebugHelp.h"
 #include "Util/Util_SystemGUI.h"
+#include <fstream>
 
 namespace OVR {
 
@@ -94,6 +95,37 @@ DefaultAssertionHandler(intptr_t /*userParameter*/, const char* title, const cha
 #else
     OVR::Util::DisplayMessageBox(title, message);
 #endif
+  }
+
+  return 0;
+}
+
+// This currently has no multi-thread safety.
+intptr_t AssertHandlerDiskFile(intptr_t userParameter, const char* title, const char* message) {
+  // We don't have a means to keep state, so we need to have a little state machine here to
+  // help us direct how this works.
+
+  static std::ofstream file;
+  static std::string filePath;
+  const char* userFilePath = (userParameter ? reinterpret_cast<const char*>(userParameter) : "");
+
+  // See if we need to change the file state.
+  if (filePath != userFilePath) { // If a file change is occurring...
+    file.close(); // Possibly close any existing open file. OK if the file wasn't open.
+
+    filePath = userFilePath;
+
+    if (!filePath.empty()) // If there is a file to open...
+      file.open(filePath.c_str(), std::ios::out | std::ios::trunc); // If this fails, we won't know.
+  }
+
+  // Write the message if there is a file to write to.
+  if (file.is_open()) {
+    file.write("Assertion failure\n", strlen("Assertion failure\n"));
+    file.write(title, strlen(title));
+    file.write("\n", 1);
+    file.write(message, strlen(message));
+    file.write("\n\n", 1);
   }
 
   return 0;

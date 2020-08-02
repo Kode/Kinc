@@ -5,7 +5,7 @@ Content     :   Standard C function interface
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -240,7 +240,11 @@ inline char* OVR_CDECL OVR_strrchr(char* pString, int c) {
   return (char*)OVR_strrchr((const char*)pString, c);
 }
 
+// Supports ASCII strings only, by calling tolower on each element.
 char* OVR_CDECL OVR_stristr(const char* s1, const char* s2);
+
+// Converts each element via towlower.
+wchar_t* OVR_CDECL OVR_stristr(const wchar_t* s1, const wchar_t* s2);
 
 inline const uint8_t* OVR_CDECL OVR_memrchr(const uint8_t* str, size_t size, uint8_t c) {
   for (intptr_t i = (intptr_t)size - 1; i >= 0; i--) {

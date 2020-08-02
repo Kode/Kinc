@@ -5,7 +5,7 @@ Content     :   D3D11 implementation for blitting, supporting scaling
 Created     :   February 24, 2015
 Authors     :   Reza Nourai
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -49,7 +49,7 @@ class Blitter : public RefCountBase<Blitter> {
   Blitter(const Ptr<ID3D11Device>& device);
   ~Blitter();
 
-  bool Initialize();
+  bool Initialize(bool single_channel = false);
 
   bool Blt(ID3D11RenderTargetView* dest, ID3D11ShaderResourceView* source);
   bool Blt(
@@ -61,18 +61,20 @@ class Blitter : public RefCountBase<Blitter> {
       uint32_t height);
 
  private:
+  enum PixelShaders { OneMSAA = 0, TwoOrMoreMSAA = 1, Grayscale = 2, ShaderCount = 3 };
+
   Ptr<ID3D11Device1> Device;
   Ptr<ID3D11DeviceContext1> Context1;
   Ptr<ID3DDeviceContextState> BltState;
   Ptr<ID3D11InputLayout> IL;
   Ptr<ID3D11Buffer> VB;
   Ptr<ID3D11VertexShader> VS;
-  Ptr<ID3D11PixelShader> PS;
-  Ptr<ID3D11PixelShader> PS_MS2;
-  Ptr<ID3D11PixelShader> PS_MS4;
+
+  std::array<Ptr<ID3D11PixelShader>, PixelShaders::ShaderCount> PS;
   Ptr<ID3D11SamplerState> Sampler;
   Ptr<ID3D11DepthStencilState> DepthState;
   bool AlreadyInitialized;
+  bool SingleChannel;
 
   struct BltVertex {
     float x, y;

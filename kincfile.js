@@ -146,9 +146,8 @@ if (platform === Platform.Windows) {
 	if (vr === VrApi.Oculus) {
 		project.addDefine('KORE_VR');
 		project.addDefine('KORE_OCULUS');
-		project.addLibFor('x64', 'Backends/System/Windows/Libraries/OculusSDK/Lib/x64/LibOVR');
-		project.addLibFor('Win32', 'Backends/System/Windows/Libraries/OculusSDK/Lib/Win32/LibOVR');
-		//project.addFile('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src');
+		project.addLibFor('x64', 'Backends/System/Windows/Libraries/OculusSDK/LibOVR/Lib/Windows/x64/Release/VS2017/LibOVR');
+		project.addLibFor('Win32', 'Backends/System/Windows/Libraries/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2017/LibOVR');
 		project.addFile('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src/GL/**');
 		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVR/Include/');
 		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src/');

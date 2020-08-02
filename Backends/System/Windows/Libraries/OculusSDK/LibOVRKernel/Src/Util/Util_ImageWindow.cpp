@@ -5,7 +5,7 @@ Content     :   An output object for windows that can display raw images for tes
 Created     :   March 13, 2014
 Authors     :   Dean Beeler
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -36,7 +36,6 @@ OVR_DISABLE_ALL_MSVC_WARNINGS()
 #include "Kernel/OVR_String.h"
 #include "Kernel/OVR_Array.h"
 #include "Kernel/OVR_Timer.h"
-#include "Kernel/OVR_SysFile.h"
 
 #include "Util_ImageWindow.h"
 
@@ -237,7 +236,7 @@ void ImageWindow::AssociateSurface(void* surface) {
       hr = pD2DFactory->CreateDxgiSurfaceRenderTarget(pDxgiSurface, &props, &tmpTarget);
 
       if (hr == S_OK) {
-        DXGI_SURFACE_DESC desc = {0};
+        DXGI_SURFACE_DESC desc{};
         pDxgiSurface->GetDesc(&desc);
         int width = desc.Width;
         int height = desc.Height;

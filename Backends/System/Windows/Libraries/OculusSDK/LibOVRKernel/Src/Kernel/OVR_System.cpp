@@ -6,7 +6,7 @@ Content     :   General kernel initialization/cleanup, including that
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -140,11 +140,12 @@ void System::Init() {
   if (++System_Init_Count == 1) {
     Timer::initializeTimerSystem();
   } else {
-    OVR_DEBUG_LOG(("[System] Init recursively called; depth = %d", System_Init_Count));
+    Logger.LogError("Init recursively called; depth = ", System_Init_Count);
+    // XXX Should this just exit?
   }
 }
 
-void System::Destroy() {
+void System::Stop() {
   GetSSILock().DoLock();
   ShuttingDown = true;
   GetSSILock().Unlock();
@@ -157,14 +158,24 @@ void System::Destroy() {
          listener = listener->NextShutdownSingleton) {
       listener->OnThreadDestroy();
     }
+  } else {
+    Logger.LogError("Stop recursively called; depth = ", System_Init_Count);
+  }
+}
 
+void System::Destroy() {
+  if (!ShuttingDown) {
+    Logger.LogWarning("Destroy called before Stop");
+    System::Stop();
+  }
+
+  if (System_Init_Count == 0) {
     Logger.LogInfo("Graceful shutdown: OnSystemDestroy");
 
     // Invoke all of the post-finish callbacks (normal case)
     for (SystemSingletonInternal *next, *listener = SystemShutdownListenerList; listener;
          listener = next) {
       next = listener->NextShutdownSingleton;
-
       listener->OnSystemDestroy();
     }
 
@@ -172,7 +183,7 @@ void System::Destroy() {
 
     Timer::shutdownTimerSystem();
   } else {
-    Logger.LogDebug("Destroy recursively called; depth = ", System_Init_Count);
+    Logger.LogError("Destroy recursively called; depth = ", System_Init_Count);
   }
 
   GetSSILock().DoLock();

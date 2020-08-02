@@ -6,7 +6,7 @@ Content     :   Performance tracing
 Created     :   December 4, 2014
 Author      :   Ed Hutchins
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -121,8 +121,10 @@ limitations under the License.
 #define TraceHmdDisplay(dpy)             \
   EventWriteHmdDisplay(                  \
       (0),                               \
-      (dpy).DeviceTypeGuess,             \
-      (dpy).DisplayID.ToCStr(),          \
+      (0),                               \
+      (dpy).Edid.VendorID,               \
+      (dpy).Edid.ModelNumber,            \
+      (dpy).DisplayIdentifier.ToCStr(),  \
       (dpy).ModelName.ToCStr(),          \
       (dpy).EdidSerialNumber.ToCStr(),   \
       (dpy).LogicalResolutionInPixels.w, \

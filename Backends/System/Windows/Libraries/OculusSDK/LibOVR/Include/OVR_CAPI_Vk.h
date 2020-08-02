@@ -1,7 +1,7 @@
 /********************************************************************************/ /**
  \file      OVR_CAPI_Vk.h
  \brief     Vulkan specific structures used by the CAPI interface.
- \copyright Copyright 2014-2017 Oculus VR, LLC All Rights reserved.
+ \copyright Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
  ************************************************************************************/
 
 #ifndef OVR_CAPI_Vk_h
@@ -9,7 +9,6 @@
 
 #include "OVR_CAPI.h"
 #include "OVR_Version.h"
-
 
 #if !defined(OVR_EXPORTING_CAPI)
 
@@ -120,12 +119,18 @@ ovr_GetSessionPhysicalDeviceVk(
 ///         ovr_GetLastErrorInfo to get more information.
 ///
 /// \note The queue may be changed at any time but only the value at the time ovr_SubmitFrame
-/// is called will be used. ovr_SetSynchonizationQueueVk must be called with a valid VkQueue
+/// is called will be used. ovr_SetSynchronizationQueueVk must be called with a valid VkQueue
 /// created on the same VkDevice the texture sets were created on prior to the first call to
 /// ovr_SubmitFrame. An internally created VkFence object will be signalled by the completion
 /// of operations on queue and waited on to synchronize the VR compositor.
 ///
-OVR_PUBLIC_FUNCTION(ovrResult) ovr_SetSynchonizationQueueVk(ovrSession session, VkQueue queue);
+OVR_PUBLIC_FUNCTION(ovrResult) ovr_SetSynchronizationQueueVk(ovrSession session, VkQueue queue);
+// Backwards compatibility for the original typoed version
+#define ovr_SetSynchonizationQueueVk ovr_SetSynchronizationQueueVk
+// Define OVR_PREVIEW_DEPRECATION to generate warnings for upcoming API deprecations
+#if defined(OVR_PREVIEW_DEPRECATION)
+#pragma deprecated("ovr_SetSynchonizationQueueVk")
+#endif
 
 /// Create Texture Swap Chain suitable for use with Vulkan
 ///

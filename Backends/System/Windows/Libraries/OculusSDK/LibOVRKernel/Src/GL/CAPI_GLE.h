@@ -3,7 +3,7 @@
 Filename    :   CAPI_GLE.h
 Content     :   OpenGL extensions support. Implements a stripped down glew-like
                 interface with some additional functionality.
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

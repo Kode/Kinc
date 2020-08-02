@@ -1,4 +1,4 @@
-Texture2DMS<float, 2>  Input;
+Texture2DMS<float>  Input;
 sampler Sampler;
 
 float4 main(float4 pos : SV_POSITION,

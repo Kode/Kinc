@@ -4,7 +4,7 @@ Filename    :   OVR_Log.h
 Content     :   Logging support
 Created     :   September 19, 2012
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -64,7 +64,7 @@ struct Channel {
 #include "OVR_Std.h"
 #include "OVR_String.h"
 
-#include "Logging_Library.h"
+#include "Logging/Logging_Library.h"
 
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
@@ -89,7 +89,10 @@ template <typename... Args>
 inline void LogText(Args&&... args) {
   if (DefaultChannel.Active(ovrlog::Level::Info)) {
     char buffer[512];
+#pragma warning(push)
+#pragma warning(disable : 4840)
     int written = snprintf(buffer, sizeof(buffer), args...);
+#pragma warning(pop)
     if (written <= 0 || written >= (int)sizeof(buffer)) {
       OVR_ASSERT(false); // This call should be converted to the new log system.
       return;
@@ -108,7 +111,10 @@ template <typename... Args>
 inline void LogError(Args&&... args) {
   if (DefaultChannel.Active(ovrlog::Level::Error)) {
     char buffer[512];
+#pragma warning(push)
+#pragma warning(disable : 4840)
     int written = snprintf(buffer, sizeof(buffer), args...);
+#pragma warning(pop)
     if (written <= 0 || written >= (int)sizeof(buffer)) {
       OVR_ASSERT(false); // This call should be converted to the new log system.
       return;
@@ -141,6 +147,19 @@ inline void LogDebug(Args&&... args) {
     DefaultChannel.LogDebug(buffer);
   }
 }
+
+// This acts as a replacement for the assertion dialog box, primarily for the purpose of assisting
+// in testing and automation. Instead of presenting a dialong box, this will write assertions to
+// a disk file. userParameter is a pointer to a file path to use, or 0 to drop assertion failures.
+// This handler creates the file if not found, and initially clears the file if found.
+// Calling SetAssertionHandler to set a file with a path, then later calling SetAssertionHandler
+// with another path or 0 causes the closing of the initial file.
+//
+// Example usage:
+//     SetAssertionHandler(AssertHandlerDiskFile, (intptr_t)"C:\\SomeDir\SomeFile.txt");
+//     SetAssertionHandler(AssertHandlerDiskFile, 0); // Write assertions to nowhere.
+//
+intptr_t AssertHandlerDiskFile(intptr_t userParameter, const char* title, const char* message);
 
 #define OVR_DEBUG_LOG(args) \
   do {                      \

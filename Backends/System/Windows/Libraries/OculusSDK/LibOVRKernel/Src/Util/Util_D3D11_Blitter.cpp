@@ -5,7 +5,7 @@ Content     :   D3D11 implementation for blitting, supporting scaling & rotation
 Created     :   February 24, 2015
 Authors     :   Reza Nourai
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -32,8 +32,17 @@ limitations under the License.
 #include "Shaders/Blt_vs.h"
 #include "Shaders/Blt_ps.h"
 #include "Shaders/Blt_ps_ms2.h"
-#include "Shaders/Blt_ps_ms4.h"
+#include "Shaders/GrayBlt_ps.h"
 #include <io.h>
+
+struct MSAAShader {
+  const BYTE* Data;
+  SIZE_T Size;
+};
+
+static MSAAShader PixelShaderList[] = {{Blt_ps, sizeof(Blt_ps)},
+                                       {Blt_ps_ms2, sizeof(Blt_ps_ms2)},
+                                       {GrayBlt_ps, sizeof(GrayBlt_ps)}};
 
 namespace OVR {
 namespace D3DUtil {
@@ -51,11 +60,10 @@ Blitter::Blitter(const Ptr<ID3D11Device>& device)
       VB(),
       VS(),
       PS(),
-      PS_MS2(),
-      PS_MS4(),
       Sampler(),
       DepthState(),
-      AlreadyInitialized(false) {
+      AlreadyInitialized(false),
+      SingleChannel(false) {
   device->QueryInterface(IID_PPV_ARGS(&Device.GetRawRef()));
   OVR_ASSERT(Device);
 
@@ -65,7 +73,8 @@ Blitter::Blitter(const Ptr<ID3D11Device>& device)
 
 Blitter::~Blitter() {}
 
-bool Blitter::Initialize() {
+bool Blitter::Initialize(bool single_channel) {
+  SingleChannel = single_channel;
   if (!Device) {
     OVR_ASSERT(false);
     return false;
@@ -75,6 +84,8 @@ bool Blitter::Initialize() {
   if (AlreadyInitialized) {
     return false;
   }
+
+  OVR_ASSERT(_countof(PixelShaderList) == PixelShaders::ShaderCount);
 
   UINT deviceFlags = Device->GetCreationFlags();
   D3D_FEATURE_LEVEL featureLevel = Device->GetFeatureLevel();
@@ -106,23 +117,14 @@ bool Blitter::Initialize() {
   OVR_D3D_CHECK_RET_FALSE(hr);
   OVR_D3D_TAG_OBJECT(VS);
 
-  OVR_ASSERT(!PS); // Expected to be null on the way in.
-  PS = nullptr; // Prevents a potential leak on the next line.
-  hr = Device->CreatePixelShader(Blt_ps, sizeof(Blt_ps), nullptr, &PS.GetRawRef());
-  OVR_D3D_CHECK_RET_FALSE(hr);
-  OVR_D3D_TAG_OBJECT(PS);
-
-  OVR_ASSERT(!PS_MS2); // Expected to be null on the way in.
-  PS_MS2 = nullptr; // Prevents a potential leak on the next line.
-  hr = Device->CreatePixelShader(Blt_ps_ms2, sizeof(Blt_ps_ms2), nullptr, &PS_MS2.GetRawRef());
-  OVR_D3D_CHECK_RET_FALSE(hr);
-  OVR_D3D_TAG_OBJECT(PS_MS2);
-
-  OVR_ASSERT(!PS_MS4); // Expected to be null on the way in.
-  PS_MS4 = nullptr; // Prevents a potential leak on the next line.
-  hr = Device->CreatePixelShader(Blt_ps_ms4, sizeof(Blt_ps_ms4), nullptr, &PS_MS4.GetRawRef());
-  OVR_D3D_CHECK_RET_FALSE(hr);
-  OVR_D3D_TAG_OBJECT(PS_MS4);
+  for (int i = 0; i < ShaderCount; ++i) {
+    Ptr<ID3D11PixelShader> ps;
+    hr = Device->CreatePixelShader(
+        PixelShaderList[i].Data, PixelShaderList[i].Size, nullptr, &ps.GetRawRef());
+    OVR_D3D_CHECK_RET_FALSE(hr);
+    OVR_D3D_TAG_OBJECT(ps);
+    PS[i] = ps;
+  }
 
   D3D11_INPUT_ELEMENT_DESC elems[2] = {};
   elems[0].Format = DXGI_FORMAT_R32G32_FLOAT;
@@ -254,19 +256,12 @@ bool Blitter::Blt(
   D3D11_TEXTURE2D_DESC texDesc;
   tmpTexture->GetDesc(&texDesc);
 
-  switch (texDesc.SampleDesc.Count) {
-    case 1:
-      Context1->PSSetShader(PS, nullptr, 0);
-      break;
-    case 2:
-      Context1->PSSetShader(PS_MS2, nullptr, 0);
-      break;
-    case 4:
-      Context1->PSSetShader(PS_MS4, nullptr, 0);
-      break;
-    default:
-      // Need to include additional sample levels
-      OVR_ASSERT(false);
+  if (SingleChannel) {
+    Context1->PSSetShader(PS[PixelShaders::Grayscale], nullptr, 0);
+  } else if (texDesc.SampleDesc.Count == 1) {
+    Context1->PSSetShader(PS[PixelShaders::OneMSAA], nullptr, 0);
+  } else {
+    Context1->PSSetShader(PS[PixelShaders::TwoOrMoreMSAA], nullptr, 0);
   }
 
   static const uint32_t stride = sizeof(BltVertex);
@@ -551,7 +546,6 @@ D3DTextureWriter::Result D3DTextureWriter::GrabPixels(
         uint32_t r = (uint32_t)(255.0f - linearDepth);
 
         r = std::min(r, 255u);
-        r = std::max(r, 0u);
 
         uint32_t bgra = 0xff << 24 | r << 16 | r << 8 | r;
 
@@ -587,11 +581,10 @@ D3DTextureWriter::Result D3DTextureWriter::GrabPixels(
   } else {
     // DXGI_FORMAT_NV12, DXGI_FORMAT_R8_UNORM, DXGI_FORMAT_R8_UINT, possibly others.
     uint32_t inputPitchInBytes = mapped.RowPitch;
-    uint32_t pixelWidthInBytes = mapped.DepthPitch;
 
     for (uint32_t y = 0; y < textureDesc.Height; ++y) {
       for (uint32_t x = 0; x < textureDesc.Width; ++x) {
-        uint8_t c = ((uint8_t*)mapped.pData)[(y * inputPitchInBytes) + x * pixelWidthInBytes];
+        uint8_t c = ((uint8_t*)mapped.pData)[(y * inputPitchInBytes) + x];
         uint32_t bgra = (0xff << 24) | (c << 16) | (c << 8) | c; // Write as an RGB-based gray.
 
         pixels[(y * textureDesc.Width) + x] = bgra;

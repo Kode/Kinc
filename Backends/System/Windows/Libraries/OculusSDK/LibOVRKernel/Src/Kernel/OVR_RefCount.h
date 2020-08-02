@@ -6,7 +6,7 @@ Content     :   Reference counting implementation headers
 Created     :   September 19, 2012
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -86,8 +86,7 @@ class RefCountImplCore {
       reportInvalidDelete(pmem);
   }
 #else
-  inline static void checkInvalidDelete(RefCountImplCore*) {
-  }
+  inline static void checkInvalidDelete(RefCountImplCore*) {}
 #endif
 
   // Base class ref-count content should not be copied.
@@ -123,8 +122,7 @@ class RefCountNTSImplCore {
       reportInvalidDelete(pmem);
   }
 #else
-  OVR_FORCE_INLINE static void checkInvalidDelete(RefCountNTSImplCore*) {
-  }
+  OVR_FORCE_INLINE static void checkInvalidDelete(RefCountNTSImplCore*) {}
 #endif
 
   // Base class ref-count content should not be copied.

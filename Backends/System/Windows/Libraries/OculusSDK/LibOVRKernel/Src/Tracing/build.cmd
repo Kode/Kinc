@@ -11,5 +11,6 @@ if not "%PROCESSOR_ARCHITECTURE%"=="x86" set OSTYPE=x64
 if not "%PROCESSOR_ARCHITEW6432%"=="" set OSTYPE=x64
 
 set MC="%XPERF_PATH%..\bin\%OSTYPE%\mc.exe"
+echo Using Manifest Compiler: %MC%
 
 %MC% -v -a -A -n -um .\LibOVREvents.man -h . -z LibOVREvents

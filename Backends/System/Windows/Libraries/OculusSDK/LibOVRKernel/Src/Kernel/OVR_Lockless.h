@@ -5,7 +5,7 @@ Content     :   Lock-less classes for producer/consumer communication
 Created     :   November 9, 2013
 Authors     :   John Carmack
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -125,6 +125,75 @@ struct LocklessPadding {
   }
 };
 OVR_RESTORE_MSVC_WARNING()
+
+#pragma pack(pop)
+
+// FIXME: Move this somewhere else
+
+// ***** LocklessBuffer
+
+// FIXME: update these comments
+// For single producer cases where you only care about the most recent update, not
+// necessarily getting every one that happens (vsync timing, SensorFusion updates, external camera
+// frames).
+//
+// The writer writes an incrementing generation # for each write start, and write end
+// The reader reads the last written generation number, saves it, does its operations, then
+// reads the latest value of the last written generation number.  If they match, there was no
+// collision, and the work is done.  If not, the reader has to loop until it gets a matching
+// Last written generation number
+//
+// This is to update & read a dynamically sized object in shared memory.
+// Initial use case is for frame buffers for cameras, which are an unknown size until runtime
+
+#pragma pack(push, 1)
+
+class LocklessBuffer {
+ public:
+  LocklessBuffer() {
+    ;
+  }
+
+  void Initialize(unsigned bufferSize) {
+    BufferSize = bufferSize;
+    LastWrittenGeneration = 0;
+  }
+
+  char* StartWrite(unsigned offset) {
+    ++LastWrittenGeneration;
+    return GetDataForWrite(offset);
+  }
+
+  unsigned GetBufferSize() const {
+    return BufferSize;
+  }
+
+  int EndWrite() {
+    return ++LastWrittenGeneration;
+  }
+
+  int GetLastWrittenGeneration() const {
+    return LastWrittenGeneration;
+  }
+
+  const char* GetDataForRead(unsigned offset = 0) const {
+    return &(Data[offset]);
+  }
+  char* GetDataForWrite(unsigned offset = 0) {
+    return &(Data[offset]);
+  }
+
+  bool DidReadCollide(int lastReadGeneration) const {
+    return lastReadGeneration != LastWrittenGeneration;
+  }
+
+ private:
+  unsigned BufferSize = 0;
+  std::atomic<int> LastWrittenGeneration;
+
+  // Data starts here...
+  char Data[1];
+};
 
 #pragma pack(pop)
 

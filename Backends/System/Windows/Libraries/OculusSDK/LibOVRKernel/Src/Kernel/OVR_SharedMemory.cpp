@@ -5,7 +5,7 @@ Content     :   Inter-process shared memory subsystem
 Created     :   June 1, 2014
 Notes       :
 
-Copyright   :   Copyright 2014-2016 Oculus VR, LLC All Rights reserved.
+Copyright   :   Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
 Licensed under the Oculus VR Rift SDK License Version 3.3 (the "License");
 you may not use the Oculus VR Rift SDK except in compliance with the License,
@@ -150,6 +150,7 @@ class FakeMemoryManager : public NewOverrideBase, public SystemSingletonBase<Fak
 };
 
 FakeMemoryManager::FakeMemoryManager() {
+  // Must be at end of function
   PushDestroyCallbacks();
 }
 
@@ -617,8 +618,10 @@ void SharedMemory::Close() {
 Ptr<SharedMemory> SharedMemoryFactory::Open(const SharedMemory::OpenParameters& params) {
   Ptr<SharedMemory> retval;
 
-  // If no name specified or no size requested,
-  if (!params.globalName || (params.minSizeBytes <= 0)) {
+  // Return if no name specified or invalid size requested
+  // 0 is a valid option, it means 'map the whole region'
+  // In this case, the client must know the valid size of the region
+  if (!params.globalName || (params.minSizeBytes < 0)) {
     Logger.LogDebug("FAILURE: Invalid parameters to Create()");
     return NULL;
   }
@@ -669,6 +672,7 @@ SharedMemoryFactory::SharedMemoryFactory() {
   FakeMemoryManager::GetInstance(); // Make sure the fake memory manager is destroyed at the right
   // time
 
+  // Must be at end of function
   PushDestroyCallbacks();
 }
 
