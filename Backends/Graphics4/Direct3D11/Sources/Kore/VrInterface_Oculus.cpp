@@ -440,9 +440,10 @@ kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye) {
 	return sensorStates[eye];
 }
 
-/*VrPoseState VrInterface::getController(int index) {
-    return -1;
-}*/
+kinc_vr_pose_state_t kinc_vr_interface_get_controller(int index) {
+	kinc_vr_pose_state_t todo;
+	return todo;
+}
 
 void kinc_vr_interface_warp_swap() {
 	// Initialize our single full screen Fov layer.

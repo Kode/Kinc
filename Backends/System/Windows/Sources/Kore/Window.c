@@ -166,7 +166,7 @@ static DWORD getDwExStyle(kinc_window_mode_t mode, int features) {
 static int createWindow(const wchar_t *title, int x, int y, int width, int height, int bpp, int frequency, int features, kinc_window_mode_t windowMode,
                         int target_display_index) {
 	HINSTANCE inst = GetModuleHandle(NULL);
-#ifdef KORE_OCULUS
+#ifdef KORE_VR
 	if (window_counter == 0) {
 		RegisterWindowClass(inst, windowClassName);
 	}

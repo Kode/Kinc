@@ -62,6 +62,7 @@ void kinc_vr_interface_begin();
 void kinc_vr_interface_begin_render(int eye);
 void kinc_vr_interface_end_render(int eye);
 kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye);
+kinc_vr_pose_state_t kinc_vr_interface_get_controller(int index);
 void kinc_vr_interface_warp_swap();
 void kinc_vr_interface_update_tracking_origin(kinc_tracking_origin_t origin);
 void kinc_vr_interface_reset_hmd_pose();

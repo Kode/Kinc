@@ -108,7 +108,7 @@ extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_op
 #ifdef KORE_WINDOWS
 	if (window == 0) {
 #ifdef KORE_VR
-		vsync = false;
+		frame->vertical_sync = false;
 #endif
 		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(frame->vertical_sync);
 	}

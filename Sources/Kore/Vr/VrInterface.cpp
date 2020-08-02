@@ -12,7 +12,7 @@ using namespace Kore;
 SensorState sensorState;
 
 void* VrInterface::init(void* hinst, const char* title, const char* windowClassName) {
-	kinc_vr_interface_init(hinst, title, windowClassName);
+	return kinc_vr_interface_init(hinst, title, windowClassName);
 }
 
 void VrInterface::begin() {
@@ -62,6 +62,44 @@ SensorState VrInterface::getSensorState(int eye) {
 	sensorState.pose.shouldQuit = sensor_state.pose.shouldQuit;
 	sensorState.pose.shouldRecenter = sensor_state.pose.shouldRecenter;
 	return sensorState;
+}
+
+VrPoseState VrInterface::getController(int index) {
+	kinc_vr_pose_state_t pose_state = kinc_vr_interface_get_controller(index);
+	VrPoseState poseState;
+	poseState.vrPose.left = pose_state.vrPose.left;
+	poseState.vrPose.right = pose_state.vrPose.right;
+	poseState.vrPose.bottom = pose_state.vrPose.bottom;
+	poseState.vrPose.top = pose_state.vrPose.top;
+	poseState.vrPose.orientation.x = pose_state.vrPose.orientation.x;
+	poseState.vrPose.orientation.y = pose_state.vrPose.orientation.y;
+	poseState.vrPose.orientation.z = pose_state.vrPose.orientation.z;
+	poseState.vrPose.orientation.w = pose_state.vrPose.orientation.w;
+	poseState.vrPose.position.set(pose_state.vrPose.position.x,
+								  pose_state.vrPose.position.y,
+								  pose_state.vrPose.position.z);
+	memcpy(poseState.vrPose.eye.data, pose_state.vrPose.eye.m, sizeof(pose_state.vrPose.eye.m));
+	memcpy(poseState.vrPose.projection.data, pose_state.vrPose.projection.m, sizeof(pose_state.vrPose.projection.m));
+	poseState.angularVelocity.set(pose_state.angularVelocity.x,
+								  pose_state.angularVelocity.y,
+								  pose_state.angularVelocity.z);
+	poseState.linearVelocity.set(pose_state.linearVelocity.x,
+								 pose_state.linearVelocity.y,
+								 pose_state.linearVelocity.z);
+	poseState.angularAcceleration.set(pose_state.angularAcceleration.x,
+									  pose_state.angularAcceleration.y,
+									  pose_state.angularAcceleration.z);
+	poseState.linearAcceleration.set(pose_state.linearAcceleration.x,
+									 pose_state.linearAcceleration.y,
+									 pose_state.linearAcceleration.z);
+	poseState.trackedDevice = (TrackedDevice)pose_state.trackedDevice;
+	poseState.isVisible = pose_state.isVisible;
+	poseState.hmdPresenting = pose_state.hmdPresenting;
+	poseState.hmdMounted = pose_state.hmdMounted;
+	poseState.displayLost = pose_state.displayLost;
+	poseState.shouldQuit = pose_state.shouldQuit;
+	poseState.shouldRecenter = pose_state.shouldRecenter;
+	return poseState;
 }
 
 void VrInterface::warpSwap() {
