@@ -684,6 +684,7 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
 		}
 		else if (vulkanRenderTargets[i] != nullptr) {
+			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
 			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
 				vulkanRenderTargets[i]->impl.stage_depth = -1;
@@ -692,7 +693,6 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 			else {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.destView;
 			}
-			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
 		}
 		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
