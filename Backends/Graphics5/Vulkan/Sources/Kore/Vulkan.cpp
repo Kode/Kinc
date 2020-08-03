@@ -82,8 +82,8 @@ int depthBits;
 int stencilBits;
 bool vsynced;
 
-kinc_g5_texture_t *vulkanTextures[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-kinc_g5_render_target_t *vulkanRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+kinc_g5_texture_t *vulkanTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+kinc_g5_render_target_t *vulkanRenderTargets[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 #ifdef KORE_LINUX
 extern xcb_connection_t *connection;
