@@ -37,9 +37,9 @@ namespace {
 	uint32_t lastVertexConstantBufferOffset = 0;
 	uint32_t lastFragmentConstantBufferOffset = 0;
 	kinc_g5_pipeline_t *currentPipeline = NULL;
-	bool mrtFramebufferCreated = false;
-	VkFramebuffer mrtFramebuffer;
-	VkRenderPass mrtRenderPass;
+	int mrtIndex = 0;
+	VkFramebuffer mrtFramebuffer[16];
+	VkRenderPass mrtRenderPass[16];
 
 	void endPass(VkCommandBuffer _buffer) {
 		vkCmdEndRenderPass(_buffer);
@@ -343,6 +343,12 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 
 	began = true;
 	onBackBuffer = true;
+
+	for (int i = 0; i < mrtIndex; ++i) {
+		vkDestroyFramebuffer(device, mrtFramebuffer[i], nullptr);
+		vkDestroyRenderPass(device, mrtRenderPass[i], nullptr);
+	}
+	mrtIndex = 0;
 }
 
 void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
@@ -590,11 +596,6 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		rp_begin.framebuffer = targets[0]->impl.framebuffer;
 	}
 	else {
-		if (mrtFramebufferCreated) {
-			vkDestroyFramebuffer(device, mrtFramebuffer, nullptr);
-			vkDestroyRenderPass(device, mrtRenderPass, nullptr);
-		}
-
 		VkAttachmentDescription attachments[9];
 		for (int i = 0; i < count; ++i) {
 			attachments[i].format = targets[i]->impl.format;
@@ -652,7 +653,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		rp_info.dependencyCount = 0;
 		rp_info.pDependencies = nullptr;
 
-		VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &mrtRenderPass);
+		VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &mrtRenderPass[mrtIndex]);
 		assert(!err);
 
 		VkImageView attachmentsViews[9];
@@ -666,19 +667,19 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		VkFramebufferCreateInfo fbufCreateInfo = {};
 		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		fbufCreateInfo.pNext = nullptr;
-		fbufCreateInfo.renderPass = mrtRenderPass;
-		fbufCreateInfo.attachmentCount = count + 1;
+		fbufCreateInfo.renderPass = mrtRenderPass[mrtIndex];
+		fbufCreateInfo.attachmentCount = targets[0]->impl.depthBufferBits > 0 ? count + 1 : count;
 		fbufCreateInfo.pAttachments = attachmentsViews;
 		fbufCreateInfo.width = targets[0]->width;
 		fbufCreateInfo.height = targets[0]->height;
 		fbufCreateInfo.layers = 1;
 
-		err = vkCreateFramebuffer(device, &fbufCreateInfo, nullptr, &mrtFramebuffer);
+		err = vkCreateFramebuffer(device, &fbufCreateInfo, nullptr, &mrtFramebuffer[mrtIndex]);
 		assert(!err);
-		mrtFramebufferCreated = true;
 
-		rp_begin.renderPass = mrtRenderPass;
-		rp_begin.framebuffer = mrtFramebuffer;
+		rp_begin.renderPass = mrtRenderPass[mrtIndex];
+		rp_begin.framebuffer = mrtFramebuffer[mrtIndex];
+		mrtIndex++;
 	}
 
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
