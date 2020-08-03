@@ -84,14 +84,23 @@ namespace {
 			err = vkMapMemory(device, tex_obj->mem, 0, mem_alloc.allocationSize, 0, (void**)&data);
 			assert(!err);
 
-			for (uint32_t y = 0; y < tex_height; y++) {
-				// uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);
-				for (uint32_t x = 0; x < tex_width; x++) {
-					data[y * layout.rowPitch + x * 4 + 0] = tex_colors[y * tex_width * 4 + x * 4 + 2];
-					data[y * layout.rowPitch + x * 4 + 1] = tex_colors[y * tex_width * 4 + x * 4 + 1];
-					data[y * layout.rowPitch + x * 4 + 2] = tex_colors[y * tex_width * 4 + x * 4 + 0];
-					data[y * layout.rowPitch + x * 4 + 3] = tex_colors[y * tex_width * 4 + x * 4 + 3];
-					// row[x] = tex_colors[(x & 1) ^ (y & 1)];
+			if (tex_format == VK_FORMAT_R8_UNORM) {
+				for (uint32_t y = 0; y < tex_height; y++) {
+					for (uint32_t x = 0; x < tex_width; x++) {
+						data[y * layout.rowPitch + x] = tex_colors[y * tex_width + x];
+					}
+				}
+			}
+			else {
+				for (uint32_t y = 0; y < tex_height; y++) {
+					// uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);
+					for (uint32_t x = 0; x < tex_width; x++) {
+						data[y * layout.rowPitch + x * 4 + 0] = tex_colors[y * tex_width * 4 + x * 4 + 2];
+						data[y * layout.rowPitch + x * 4 + 1] = tex_colors[y * tex_width * 4 + x * 4 + 1];
+						data[y * layout.rowPitch + x * 4 + 2] = tex_colors[y * tex_width * 4 + x * 4 + 0];
+						data[y * layout.rowPitch + x * 4 + 3] = tex_colors[y * tex_width * 4 + x * 4 + 3];
+						// row[x] = tex_colors[(x & 1) ^ (y & 1)];
+					}
 				}
 			}
 
