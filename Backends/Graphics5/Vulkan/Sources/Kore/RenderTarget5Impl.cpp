@@ -13,8 +13,8 @@
 extern VkDevice device;
 extern uint32_t swapchainImageCount;
 extern VkPhysicalDevice gpu;
-extern kinc_g5_texture_t *vulkanTextures[8];
-extern kinc_g5_render_target_t *vulkanRenderTargets[8];
+extern kinc_g5_texture_t *vulkanTextures[16];
+extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 void setup_init_cmd();
