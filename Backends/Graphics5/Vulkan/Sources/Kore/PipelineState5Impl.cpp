@@ -15,8 +15,8 @@
 extern VkDevice device;
 extern VkDescriptorSet desc_set;
 VkDescriptorSetLayout desc_layout;
-extern kinc_g5_texture_t *vulkanTextures[8];
-extern kinc_g5_render_target_t *vulkanRenderTargets[8];
+extern kinc_g5_texture_t *vulkanTextures[16];
+extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 extern uint32_t swapchainImageCount;
 extern uint32_t current_buffer;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
@@ -590,7 +590,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 }
 
 void createDescriptorLayout() {
-	VkDescriptorSetLayoutBinding layoutBindings[8];
+	VkDescriptorSetLayoutBinding layoutBindings[18];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 
 	layoutBindings[0].binding = 0;
@@ -605,7 +605,7 @@ void createDescriptorLayout() {
 	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	layoutBindings[1].pImmutableSamplers = nullptr;
 
-	for (int i = 2; i < 8; ++i) {
+	for (int i = 2; i < 18; ++i) {
 		layoutBindings[i].binding = i;
 		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		layoutBindings[i].descriptorCount = 1;
@@ -616,13 +616,13 @@ void createDescriptorLayout() {
 	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
 	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descriptor_layout.pNext = NULL;
-	descriptor_layout.bindingCount = 8;
+	descriptor_layout.bindingCount = 18;
 	descriptor_layout.pBindings = layoutBindings;
 
 	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
 
-	VkDescriptorPoolSize typeCounts[8];
+	VkDescriptorPoolSize typeCounts[18];
 	memset(typeCounts, 0, sizeof(typeCounts));
 
 	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
@@ -631,7 +631,7 @@ void createDescriptorLayout() {
 	typeCounts[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	typeCounts[1].descriptorCount = 1;
 
-	for (int i = 2; i < 8; ++i) {
+	for (int i = 2; i < 18; ++i) {
 		typeCounts[i].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		typeCounts[i].descriptorCount = 1;
 	}
@@ -640,7 +640,7 @@ void createDescriptorLayout() {
 	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptor_pool.pNext = NULL;
 	descriptor_pool.maxSets = 1024;
-	descriptor_pool.poolSizeCount = 8;
+	descriptor_pool.poolSizeCount = 18;
 	descriptor_pool.pPoolSizes = typeCounts;
 
 	for (int i = 0; i < 3; ++i) {
@@ -675,15 +675,16 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
 
-	VkDescriptorImageInfo tex_desc[6];
+	VkDescriptorImageInfo tex_desc[16];
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 16; ++i) {
 		if (vulkanTextures[i] != nullptr) {
 			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
 		}
 		else if (vulkanRenderTargets[i] != nullptr) {
+			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
 			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
 				vulkanRenderTargets[i]->impl.stage_depth = -1;
@@ -692,12 +693,11 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 			else {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.destView;
 			}
-			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
 		}
 		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
 
-	VkWriteDescriptorSet writes[8];
+	VkWriteDescriptorSet writes[18];
 	memset(&writes, 0, sizeof(writes));
 
 	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -714,7 +714,7 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	writes[1].pBufferInfo = &buffer_descs[1];
 
-	for (int i = 2; i < 8; ++i) {
+	for (int i = 2; i < 18; ++i) {
 		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		writes[i].dstSet = desc_set;
 		writes[i].dstBinding = i;
