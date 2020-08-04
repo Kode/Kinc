@@ -781,4 +781,51 @@ void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {}
 
-void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {}
+void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
+	vkCmdEndRenderPass(list->impl._buffer);
+
+	VkResult err = vkEndCommandBuffer(list->impl._buffer);
+	assert(!err);
+
+	VkFence nullFence = {VK_NULL_HANDLE};
+	VkSubmitInfo submit_info = {};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.pNext = NULL;
+	submit_info.waitSemaphoreCount = 0;
+	submit_info.pWaitSemaphores = NULL;
+	submit_info.pWaitDstStageMask = NULL;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &list->impl._buffer;
+	submit_info.signalSemaphoreCount = 0;
+	submit_info.pSignalSemaphores = NULL;
+
+	err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+	assert(!err);
+
+	err = vkQueueWaitIdle(queue);
+	assert(!err);
+
+	vkResetCommandBuffer(list->impl._buffer, 0);
+
+	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
+	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+	cmd_buf_hinfo.pNext = NULL;
+	cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
+	cmd_buf_hinfo.subpass = 0;
+	cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
+	cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
+	cmd_buf_hinfo.queryFlags = 0;
+	cmd_buf_hinfo.pipelineStatistics = 0;
+
+	VkCommandBufferBeginInfo cmd_buf_info = {};
+	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	cmd_buf_info.pNext = NULL;
+	cmd_buf_info.flags = 0;
+	cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+
+	err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
+
+	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	set_viewport_and_scissor(list);
+}
