@@ -15,10 +15,6 @@
 #endif
 
 typedef struct {
-	VkImage destImage;
-	VkDeviceMemory destMemory;
-	VkImageView destView;
-
 	VkImage sourceImage;
 	VkDeviceMemory sourceMemory;
 	VkImageView sourceView;
