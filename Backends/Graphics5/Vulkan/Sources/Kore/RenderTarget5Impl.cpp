@@ -9,6 +9,7 @@
 #include <vulkan/vulkan.h>
 
 #include <assert.h>
+#include <string.h>
 
 extern VkDevice device;
 extern uint32_t swapchainImageCount;
