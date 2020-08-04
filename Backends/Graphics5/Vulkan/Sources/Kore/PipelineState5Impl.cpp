@@ -678,10 +678,12 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 	VkDescriptorImageInfo tex_desc[16];
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
+	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
 		if (vulkanTextures[i] != nullptr) {
 			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
+			texture_count++;
 		}
 		else if (vulkanRenderTargets[i] != nullptr) {
 			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
@@ -693,6 +695,7 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 			else {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.sourceView;
 			}
+			texture_count++;
 		}
 		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
@@ -725,10 +728,10 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 
 	if (vulkanTextures[0] != nullptr || vulkanRenderTargets[0] != nullptr) {
 		if (Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr) {
-			vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
+			vkUpdateDescriptorSets(device, 2 + texture_count, writes, 0, nullptr);
 		}
 		else {
-			vkUpdateDescriptorSets(device, 1, writes + 2, 0, nullptr);
+			vkUpdateDescriptorSets(device, texture_count, writes + 2, 0, nullptr);
 		}
 	}
 	else {
