@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef KORE_DXR
+#ifdef KORE_RAYTRACE
 
 #include <Kore/RayTraceImpl.h>
 
