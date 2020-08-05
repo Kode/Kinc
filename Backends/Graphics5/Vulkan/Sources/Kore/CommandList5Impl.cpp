@@ -828,4 +828,8 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	set_viewport_and_scissor(list);
+
+	if (currentPipeline != nullptr) {
+		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline);
+	}
 }
