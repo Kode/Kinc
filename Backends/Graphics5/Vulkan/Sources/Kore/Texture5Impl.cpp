@@ -91,6 +91,48 @@ namespace {
 					}
 				}
 			}
+			else if (tex_format == VK_FORMAT_R32_SFLOAT) {
+				uint32_t *data32 = (uint32_t *)data;
+				uint32_t *tex_colors32 = (uint32_t *)tex_colors;
+				for (uint32_t y = 0; y < tex_height; y++) {
+					for (uint32_t x = 0; x < tex_width; x++) {
+						data32[y * (layout.rowPitch / 4) + x] = tex_colors32[y * tex_width + x];
+					}
+				}
+			}
+			else if (tex_format == VK_FORMAT_R16_SFLOAT) {
+				uint16_t *data16 = (uint16_t *)data;
+				uint16_t *tex_colors16 = (uint16_t *)tex_colors;
+				for (uint32_t y = 0; y < tex_height; y++) {
+					for (uint32_t x = 0; x < tex_width; x++) {
+						data16[y * (layout.rowPitch / 4) + x] = tex_colors16[y * tex_width + x];
+					}
+				}
+			}
+			else if (tex_format == VK_FORMAT_R32G32B32A32_SFLOAT) {
+				uint32_t *data32 = (uint32_t *)data;
+				uint32_t *tex_colors32 = (uint32_t *)tex_colors;
+				for (uint32_t y = 0; y < tex_height; y++) {
+					for (uint32_t x = 0; x < tex_width; x++) {
+						data32[y * (layout.rowPitch / 4) + x * 4 + 0] = tex_colors32[y * tex_width * 4 + x * 4 + 0];
+						data32[y * (layout.rowPitch / 4) + x * 4 + 1] = tex_colors32[y * tex_width * 4 + x * 4 + 1];
+						data32[y * (layout.rowPitch / 4) + x * 4 + 2] = tex_colors32[y * tex_width * 4 + x * 4 + 2];
+						data32[y * (layout.rowPitch / 4) + x * 4 + 3] = tex_colors32[y * tex_width * 4 + x * 4 + 3];
+					}
+				}
+			}
+			else if (tex_format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+				uint16_t *data16 = (uint16_t *)data;
+				uint16_t *tex_colors16 = (uint16_t *)tex_colors;
+				for (uint32_t y = 0; y < tex_height; y++) {
+					for (uint32_t x = 0; x < tex_width; x++) {
+						data16[y * (layout.rowPitch / 4) + x * 4 + 0] = tex_colors16[y * tex_width * 4 + x * 4 + 0];
+						data16[y * (layout.rowPitch / 4) + x * 4 + 1] = tex_colors16[y * tex_width * 4 + x * 4 + 1];
+						data16[y * (layout.rowPitch / 4) + x * 4 + 2] = tex_colors16[y * tex_width * 4 + x * 4 + 2];
+						data16[y * (layout.rowPitch / 4) + x * 4 + 3] = tex_colors16[y * tex_width * 4 + x * 4 + 3];
+					}
+				}
+			}
 			else {
 				for (uint32_t y = 0; y < tex_height; y++) {
 					// uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);

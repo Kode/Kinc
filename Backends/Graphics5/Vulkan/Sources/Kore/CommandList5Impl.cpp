@@ -25,8 +25,10 @@ extern VkDescriptorSet desc_set;
 extern uint32_t current_buffer;
 extern VkDescriptorPool desc_pools[3];
 extern int depthBits;
+extern VkSemaphore presentCompleteSemaphore;
+extern kinc_g5_texture_t *vulkanTextures[16];
+extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 void createDescriptorSet(VkDescriptorSet &desc_set);
-void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
 VkRenderPassBeginInfo currentRenderPassBeginInfo;
 kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -41,52 +43,19 @@ namespace {
 	VkFramebuffer mrtFramebuffer[16];
 	VkRenderPass mrtRenderPass[16];
 
-	void endPass(VkCommandBuffer _buffer) {
-		vkCmdEndRenderPass(_buffer);
-
-		if (currentRenderTargets[0] == nullptr || currentRenderTargets[0]->contextId < 0) {
-
-		}
-		else {
+	void endPass(kinc_g5_command_list_t *list) {
+		vkCmdEndRenderPass(list->impl._buffer);
+		if (currentRenderTargets[0] != nullptr && currentRenderTargets[0]->contextId >= 0) {
 			int i = 0;
 			while (currentRenderTargets[i] != nullptr) {
-				setImageLayout(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-							   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-				setImageLayout(_buffer, currentRenderTargets[i]->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-				VkImageBlit imgBlit;
-
-				imgBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imgBlit.srcSubresource.mipLevel = 0;
-				imgBlit.srcSubresource.baseArrayLayer = 0;
-				imgBlit.srcSubresource.layerCount = 1;
-
-				imgBlit.srcOffsets[0] = {0, 0, 0};
-				imgBlit.srcOffsets[1].x = currentRenderTargets[i]->width;
-				imgBlit.srcOffsets[1].y = currentRenderTargets[i]->height;
-				imgBlit.srcOffsets[1].z = 1;
-
-				imgBlit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imgBlit.dstSubresource.mipLevel = 0;
-				imgBlit.dstSubresource.baseArrayLayer = 0;
-				imgBlit.dstSubresource.layerCount = 1;
-
-				imgBlit.dstOffsets[0] = {0, 0, 0};
-				imgBlit.dstOffsets[1].x = currentRenderTargets[i]->width;
-				imgBlit.dstOffsets[1].y = currentRenderTargets[i]->height;
-				imgBlit.dstOffsets[1].z = 1;
-
-				vkCmdBlitImage(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currentRenderTargets[i]->impl.destImage,
-							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgBlit, VK_FILTER_LINEAR);
-
-				setImageLayout(_buffer, currentRenderTargets[i]->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-							   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-				setImageLayout(_buffer, currentRenderTargets[i]->impl.destImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-							   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
+				kinc_g5_command_list_render_target_to_texture_barrier(list, currentRenderTargets[i]);
 				i++;
 			}
+		}
+
+		for (int i = 0; i < 16; ++i) {
+			vulkanTextures[i] = nullptr;
+			vulkanRenderTargets[i] = nullptr;
 		}
 	}
 }
@@ -241,7 +210,40 @@ void flush_init_cmd() {
 	setup_cmd = VK_NULL_HANDLE;
 }
 
-extern VkSemaphore presentCompleteSemaphore;
+void set_viewport_and_scissor(kinc_g5_command_list_t *list) {
+	VkViewport viewport;
+	memset(&viewport, 0, sizeof(viewport));
+	VkRect2D scissor;
+	memset(&scissor, 0, sizeof(scissor));
+
+	if (currentRenderTargets[0] == nullptr || currentRenderTargets[0]->contextId < 0) {
+		viewport.x = 0;
+		viewport.y = (float)kinc_height();
+		viewport.width = (float)kinc_width();
+		viewport.height = -(float)kinc_height();
+		viewport.minDepth = (float)0.0f;
+		viewport.maxDepth = (float)1.0f;
+		scissor.extent.width = kinc_width();
+		scissor.extent.height = kinc_height();
+		scissor.offset.x = 0;
+		scissor.offset.y = 0;
+	}
+	else {
+		viewport.x = 0;
+		viewport.y = (float)currentRenderTargets[0]->height;
+		viewport.width = (float)currentRenderTargets[0]->width;
+		viewport.height = -(float)currentRenderTargets[0]->height;
+		viewport.minDepth = (float)0.0f;
+		viewport.maxDepth = (float)1.0f;
+		scissor.extent.width = currentRenderTargets[0]->width;
+		scissor.extent.height = currentRenderTargets[0]->height;
+		scissor.offset.x = 0;
+		scissor.offset.y = 0;
+	}
+
+	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
+	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
+}
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 	VkCommandBufferAllocateInfo cmd = {};
@@ -321,23 +323,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 	currentRenderPassBeginInfo = rp_begin;
 
-	VkViewport viewport;
-	memset(&viewport, 0, sizeof(viewport));
-	viewport.x = 0;
-	viewport.y = (float)kinc_height();
-	viewport.width = (float)kinc_width();
-	viewport.height = -(float)kinc_height();
-	viewport.minDepth = (float)0.0f;
-	viewport.maxDepth = (float)1.0f;
-	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
-
-	VkRect2D scissor;
-	memset(&scissor, 0, sizeof(scissor));
-	scissor.extent.width = kinc_width();
-	scissor.extent.height = kinc_height();
-	scissor.offset.x = 0;
-	scissor.offset.y = 0;
-	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
+	set_viewport_and_scissor(list);
 
 	vkResetDescriptorPool(device, desc_pools[current_buffer], 0);
 
@@ -514,10 +500,32 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 }
 
 void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct kinc_g5_render_target *target) {
-	if (onBackBuffer) return;
-	endPass(list->impl._buffer);
+	VkViewport viewport;
+	memset(&viewport, 0, sizeof(viewport));
+	viewport.x = 0;
+	viewport.y = (float)kinc_height();
+	viewport.width = (float)kinc_width();
+	viewport.height = -(float)kinc_height();
+	viewport.minDepth = (float)0.0f;
+	viewport.maxDepth = (float)1.0f;
+	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
+	VkRect2D scissor;
+	memset(&scissor, 0, sizeof(scissor));
+	scissor.extent.width = kinc_width();
+	scissor.extent.height = kinc_height();
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
+
+	if (onBackBuffer) {
+		return;
+	}
+
+	endPass(list);
+
 	currentRenderTargets[0] = nullptr;
 	onBackBuffer = true;
+
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);
 	clear_values[0].color.float32[0] = 0.0f;
@@ -539,22 +547,6 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	rp_begin.pClearValues = clear_values;
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 	currentRenderPassBeginInfo = rp_begin;
-	VkViewport viewport;
-	memset(&viewport, 0, sizeof(viewport));
-	viewport.x = 0;
-	viewport.y = (float)kinc_height();
-	viewport.width = (float)kinc_width();
-	viewport.height = -(float)kinc_height();
-	viewport.minDepth = (float)0.0f;
-	viewport.maxDepth = (float)1.0f;
-	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
-	VkRect2D scissor;
-	memset(&scissor, 0, sizeof(scissor));
-	scissor.extent.width = kinc_width();
-	scissor.extent.height = kinc_height();
-	scissor.offset.x = 0;
-	scissor.offset.y = 0;
-	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
 }
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
@@ -564,9 +556,13 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		return;
 	}
 
-	endPass(list->impl._buffer);
+	endPass(list);
+
 	for (int i = 0; i < count; ++i) {
 		currentRenderTargets[i] = targets[i];
+	}
+	for (int i = count; i < 8; ++i) {
+		currentRenderTargets[i] = nullptr;
 	}
 	onBackBuffer = false;
 
@@ -613,7 +609,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 			attachments[count].format = VK_FORMAT_D16_UNORM;
 			attachments[count].samples = VK_SAMPLE_COUNT_1_BIT;
 			attachments[count].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-			attachments[count].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			attachments[count].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			attachments[count].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			attachments[count].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			attachments[count].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -643,6 +639,25 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		subpass.preserveAttachmentCount = 0;
 		subpass.pPreserveAttachments = nullptr;
 
+		VkSubpassDependency dependencies[2];
+		memset(&dependencies, 0, sizeof(dependencies));
+
+		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependencies[0].dstSubpass = 0;
+		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+		dependencies[1].srcSubpass = 0;
+		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
 		VkRenderPassCreateInfo rp_info = {};
 		rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		rp_info.pNext = nullptr;
@@ -650,8 +665,8 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		rp_info.pAttachments = attachments;
 		rp_info.subpassCount = 1;
 		rp_info.pSubpasses = &subpass;
-		rp_info.dependencyCount = 0;
-		rp_info.pDependencies = nullptr;
+		rp_info.dependencyCount = 2;
+		rp_info.pDependencies = dependencies;
 
 		VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &mrtRenderPass[mrtIndex]);
 		assert(!err);
@@ -712,9 +727,43 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct ki
 
 void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {}
 
-void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
+void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
+	/*VkImageMemoryBarrier barrier = {0};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.pNext = nullptr;
+	barrier.srcAccessMask = 0;
+	barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	barrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = renderTarget->impl.sourceImage;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);*/
+}
 
-void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
+void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
+	/*VkImageMemoryBarrier barrier = {0};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.pNext = nullptr;
+	barrier.srcAccessMask = 0;
+	barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = renderTarget->impl.sourceImage;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);*/
+}
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	lastVertexConstantBufferOffset = offset;
@@ -732,4 +781,55 @@ void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {}
 
-void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {}
+void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
+	vkCmdEndRenderPass(list->impl._buffer);
+
+	VkResult err = vkEndCommandBuffer(list->impl._buffer);
+	assert(!err);
+
+	VkFence nullFence = {VK_NULL_HANDLE};
+	VkSubmitInfo submit_info = {};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.pNext = NULL;
+	submit_info.waitSemaphoreCount = 0;
+	submit_info.pWaitSemaphores = NULL;
+	submit_info.pWaitDstStageMask = NULL;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &list->impl._buffer;
+	submit_info.signalSemaphoreCount = 0;
+	submit_info.pSignalSemaphores = NULL;
+
+	err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+	assert(!err);
+
+	err = vkQueueWaitIdle(queue);
+	assert(!err);
+
+	vkResetCommandBuffer(list->impl._buffer, 0);
+
+	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
+	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+	cmd_buf_hinfo.pNext = NULL;
+	cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
+	cmd_buf_hinfo.subpass = 0;
+	cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
+	cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
+	cmd_buf_hinfo.queryFlags = 0;
+	cmd_buf_hinfo.pipelineStatistics = 0;
+
+	VkCommandBufferBeginInfo cmd_buf_info = {};
+	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	cmd_buf_info.pNext = NULL;
+	cmd_buf_info.flags = 0;
+	cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+
+	err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
+
+	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	set_viewport_and_scissor(list);
+
+	if (currentPipeline != nullptr) {
+		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline);
+	}
+}

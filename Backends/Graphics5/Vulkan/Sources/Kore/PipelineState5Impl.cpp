@@ -508,7 +508,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
 		attachments[i].format = convert_format(pipeline->colorAttachment[i]);
 		attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
-		attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		attachments[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachments[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -520,8 +520,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	if (pipeline->depthAttachmentBits > 0) {
 		attachments[pipeline->colorAttachmentCount].format = VK_FORMAT_D16_UNORM;
 		attachments[pipeline->colorAttachmentCount].samples = VK_SAMPLE_COUNT_1_BIT;
-		attachments[pipeline->colorAttachmentCount].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		attachments[pipeline->colorAttachmentCount].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[pipeline->colorAttachmentCount].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachments[pipeline->colorAttachmentCount].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		attachments[pipeline->colorAttachmentCount].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachments[pipeline->colorAttachmentCount].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[pipeline->colorAttachmentCount].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -678,10 +678,12 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 	VkDescriptorImageInfo tex_desc[16];
 	memset(&tex_desc, 0, sizeof(tex_desc));
 
+	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
 		if (vulkanTextures[i] != nullptr) {
 			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
+			texture_count++;
 		}
 		else if (vulkanRenderTargets[i] != nullptr) {
 			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
@@ -691,8 +693,9 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 				vulkanRenderTargets[i] = nullptr;
 			}
 			else {
-				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.destView;
+				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.sourceView;
 			}
+			texture_count++;
 		}
 		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
@@ -725,10 +728,10 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 
 	if (vulkanTextures[0] != nullptr || vulkanRenderTargets[0] != nullptr) {
 		if (Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr) {
-			vkUpdateDescriptorSets(device, 3, writes, 0, nullptr);
+			vkUpdateDescriptorSets(device, 2 + texture_count, writes, 0, nullptr);
 		}
 		else {
-			vkUpdateDescriptorSets(device, 1, writes + 2, 0, nullptr);
+			vkUpdateDescriptorSets(device, texture_count, writes + 2, 0, nullptr);
 		}
 	}
 	else {
