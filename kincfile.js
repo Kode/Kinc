@@ -92,6 +92,7 @@ if (platform === Platform.Windows) {
 		project.addLib('d3d12');
 
 		if (raytrace === RayTraceApi.DXR) {
+			project.addDefine('KORE_RAYTRACE');
 			project.addDefine('KORE_DXR');
 			project.addIncludeDir('Backends/Graphics5/Direct3D12/Libraries/D3D12Raytracing/Include/');
 		}
@@ -118,6 +119,7 @@ if (platform === Platform.Windows) {
 		}
 		project.addIncludeDir(path.join(process.env.VULKAN_SDK, 'Include'));
 		if (raytrace === RayTraceApi.VKRT) {
+			project.addDefine('KORE_RAYTRACE');
 			project.addDefine('KORE_VKRT');
 			project.addDefine('VK_ENABLE_BETA_EXTENSIONS');
 		}
@@ -332,6 +334,7 @@ else if (platform === Platform.Linux) {
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_XCB_KHR');
 		if (raytrace === RayTraceApi.VKRT) {
+			project.addDefine('KORE_RAYTRACE');
 			project.addDefine('KORE_VKRT');
 			project.addDefine('VK_ENABLE_BETA_EXTENSIONS');
 		}
