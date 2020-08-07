@@ -166,14 +166,14 @@ static DWORD getDwExStyle(kinc_window_mode_t mode, int features) {
 static int createWindow(const wchar_t *title, int x, int y, int width, int height, int bpp, int frequency, int features, kinc_window_mode_t windowMode,
                         int target_display_index) {
 	HINSTANCE inst = GetModuleHandle(NULL);
-#ifdef KORE_VR
+
 	if (window_counter == 0) {
 		RegisterWindowClass(inst, windowClassName);
 	}
 
 	int display_index = target_display_index == -1 ? kinc_primary_display() : target_display_index;
 
-	//::windows[0] = new W32KoreWindow((HWND)VrInterface::Init(inst));
+#ifdef KORE_VR
 	int dstx = 0;
 	int dsty = 0;
 
@@ -184,13 +184,6 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 
 	HWND hwnd = (HWND)kinc_vr_interface_init(inst, titleutf8, classNameutf8);
 #else
-
-	if (window_counter == 0) {
-		RegisterWindowClass(inst, windowClassName);
-	}
-
-	int display_index = target_display_index == -1 ? kinc_primary_display() : target_display_index;
-
 	RECT WindowRect;
 	WindowRect.left = 0;
 	WindowRect.right = width;
@@ -227,10 +220,10 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 
 	HWND hwnd = CreateWindowEx(getDwExStyle(windowMode, features), windowClassName, title, getDwStyle(windowMode, features), dstx, dsty, dstw, dsth, NULL, NULL,
 	                           inst, NULL);
+#endif
 
 	SetCursor(LoadCursor(0, IDC_ARROW));
 	DragAcceptFiles(hwnd, true);
-#endif
 
 	windows[window_counter].handle = hwnd;
 	windows[window_counter].x = dstx;
