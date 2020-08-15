@@ -164,7 +164,7 @@ void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5
 
 void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setFragmentSamplerState:texture->impl._sampler atIndex:unit];
+	if (unit < 16) [encoder setFragmentSamplerState:texture->impl._sampler atIndex:unit];
 	[encoder setFragmentTexture:texture->impl._tex atIndex:unit];
 }
 
