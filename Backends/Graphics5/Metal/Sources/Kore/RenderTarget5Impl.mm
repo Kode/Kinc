@@ -150,11 +150,11 @@ void kinc_g5_set_render_target_descriptor(kinc_g5_render_target_t *renderTarget,
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	if (unit.impl.vertex) {
-		[encoder setVertexSamplerState:target->impl._sampler atIndex:unit.impl.index];
+		if (unit.impl.index < 16) [encoder setVertexSamplerState:target->impl._sampler atIndex:unit.impl.index];
 		[encoder setVertexTexture:target->impl._tex atIndex:unit.impl.index];
 	}
 	else {
-		[encoder setFragmentSamplerState:target->impl._sampler atIndex:unit.impl.index];
+		if (unit.impl.index < 16) [encoder setFragmentSamplerState:target->impl._sampler atIndex:unit.impl.index];
 		[encoder setFragmentTexture:target->impl._tex atIndex:unit.impl.index];
 	}
 }
@@ -162,11 +162,11 @@ void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target,
 void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	if (unit.impl.vertex) {
-		[encoder setVertexSamplerState:target->impl._sampler atIndex:unit.impl.index];
+		if (unit.impl.index < 16) [encoder setVertexSamplerState:target->impl._sampler atIndex:unit.impl.index];
 		[encoder setVertexTexture:target->impl._depthTex atIndex:unit.impl.index];
 	}
 	else {
-		[encoder setFragmentSamplerState:target->impl._sampler atIndex:unit.impl.index];
+		if (unit.impl.index < 16) [encoder setFragmentSamplerState:target->impl._sampler atIndex:unit.impl.index];
 		[encoder setFragmentTexture:target->impl._depthTex atIndex:unit.impl.index];
 	}
 }
