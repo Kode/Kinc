@@ -383,8 +383,8 @@ kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye) {
 
 	ovrVector3f pos = EyeRenderPose[eye].Position;
 	poseState.vrPose.position.x = pos.x;
-	poseState.vrPose.position.x = pos.y;
-	poseState.vrPose.position.x = pos.z;
+	poseState.vrPose.position.y = pos.y;
+	poseState.vrPose.position.z = pos.z;
 
 	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
 	poseState.vrPose.left = fov.LeftTan;
@@ -410,30 +410,12 @@ kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye) {
 
 	ovrSessionStatus sessionStatus;
 	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible)
-		poseState.isVisible = true;
-	else
-		poseState.isVisible = false;
-	if (sessionStatus.HmdPresent)
-		poseState.hmdPresenting = true;
-	else
-		poseState.hmdPresenting = false;
-	if (sessionStatus.HmdMounted)
-		poseState.hmdMounted = true;
-	else
-		poseState.hmdMounted = false;
-	if (sessionStatus.DisplayLost)
-		poseState.displayLost = true;
-	else
-		poseState.displayLost = false;
-	if (sessionStatus.ShouldQuit)
-		poseState.shouldQuit = true;
-	else
-		poseState.shouldQuit = false;
-	if (sessionStatus.ShouldRecenter)
-		poseState.shouldRecenter = true;
-	else
-		poseState.shouldRecenter = false;
+	poseState.isVisible = sessionStatus.IsVisible;
+	poseState.hmdPresenting = sessionStatus.HmdPresent;
+	poseState.hmdMounted = sessionStatus.HmdMounted;
+	poseState.displayLost = sessionStatus.DisplayLost;
+	poseState.shouldQuit = sessionStatus.ShouldQuit;
+	poseState.shouldRecenter = sessionStatus.ShouldRecenter;
 
 	sensorStates[eye].pose = poseState;
 
