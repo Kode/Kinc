@@ -12,6 +12,9 @@
 #include <type_traits>
 
 extern ID3D12CommandQueue* commandQueue;
+static const int textureCount = 16;
+extern kinc_g5_texture_t *currentTextures[textureCount];
+extern kinc_g5_render_target_t *currentRenderTargets[textureCount];
 
 namespace {
 	/*const int constantBufferMultiply = 1024;
@@ -313,6 +316,10 @@ void kinc_g5_command_list_disable_scissor(kinc_g5_command_list *list) {
 void kinc_g5_command_list_set_pipeline(kinc_g5_command_list *list, kinc_g5_pipeline_t *pipeline) {
 	list->impl._currentPipeline = pipeline;
 	list->impl._commandList->SetPipelineState(pipeline->impl.pso);
+	for (int i = 0; i < textureCount; ++i) {
+		currentRenderTargets[i] = nullptr;
+		currentTextures[i] = nullptr;
+	}
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list *list, kinc_g5_vertex_buffer_t **buffers, int *offsets, int count) {
