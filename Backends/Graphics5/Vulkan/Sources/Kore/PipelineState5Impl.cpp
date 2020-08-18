@@ -690,7 +690,6 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
 				vulkanRenderTargets[i]->impl.stage_depth = -1;
-				vulkanRenderTargets[i] = nullptr;
 			}
 			else {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.sourceView;
