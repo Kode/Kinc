@@ -210,7 +210,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			image.arrayLayers = 1;
 			image.samples = VK_SAMPLE_COUNT_1_BIT;
 			image.tiling = VK_IMAGE_TILING_OPTIMAL;
-			image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 			image.flags = 0;
 
 			/* create image */
