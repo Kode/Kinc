@@ -106,6 +106,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	target->impl.depthBufferBits = depthBufferBits;
 	target->impl.stage = 0;
 	target->impl.stage_depth = -1;
+	target->impl.readbackBufferCreated = false;
 
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -149,7 +150,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			image.arrayLayers = 1;
 			image.samples = VK_SAMPLE_COUNT_1_BIT;
 			image.tiling = VK_IMAGE_TILING_OPTIMAL;
-			image.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+			image.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 			image.flags = 0;
 
 			VkImageViewCreateInfo colorImageView = {};
@@ -175,8 +176,6 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			allocationInfo.pNext = nullptr;
 			allocationInfo.memoryTypeIndex = 0;
-
-			vkGetImageMemoryRequirements(device, target->impl.sourceImage, &memoryRequirements);
 			allocationInfo.allocationSize = memoryRequirements.size;
 			bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
 			assert(pass);
