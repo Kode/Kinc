@@ -29,6 +29,8 @@ extern VkSemaphore presentCompleteSemaphore;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 void createDescriptorSet(VkDescriptorSet &desc_set);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
 VkRenderPassBeginInfo currentRenderPassBeginInfo;
 kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -56,6 +58,21 @@ namespace {
 		for (int i = 0; i < 16; ++i) {
 			vulkanTextures[i] = nullptr;
 			vulkanRenderTargets[i] = nullptr;
+		}
+	}
+
+	int formatSize(VkFormat format) {
+		switch (format) {
+		case VK_FORMAT_R32G32B32A32_SFLOAT:
+			return 16;
+		case VK_FORMAT_R16G16B16A16_SFLOAT:
+			return 8;
+		case VK_FORMAT_R16_SFLOAT:
+			return 2;
+		case VK_FORMAT_R8_UNORM:
+			return 1;
+		default:
+			return 4;
 		}
 	}
 }
@@ -725,7 +742,62 @@ void kinc_g5_command_list_upload_vertex_buffer(kinc_g5_command_list_t *list, str
 
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct kinc_g5_texture *texture) {}
 
-void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {}
+void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {
+	VkFormat format = render_target->impl.format;
+	int formatByteSize = formatSize(format);
+
+	// Create readback buffer
+	if (!render_target->impl.readbackBufferCreated) {
+		VkBufferCreateInfo buf_info = {};
+		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		buf_info.pNext = NULL;
+		buf_info.size = render_target->width * render_target->height * formatByteSize;
+		buf_info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		buf_info.flags = 0;
+		vkCreateBuffer(device, &buf_info, NULL, &render_target->impl.readbackBuffer);
+
+		VkMemoryRequirements mem_reqs = {};
+		vkGetBufferMemoryRequirements(device, render_target->impl.readbackBuffer, &mem_reqs);
+
+		VkMemoryAllocateInfo mem_alloc;
+		memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		mem_alloc.pNext = NULL;
+		mem_alloc.allocationSize = 0;
+		mem_alloc.memoryTypeIndex = 0;
+		mem_alloc.allocationSize = mem_reqs.size;
+		memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
+		vkAllocateMemory(device, &mem_alloc, NULL, &render_target->impl.readbackMemory);
+		vkBindBufferMemory(device, render_target->impl.readbackBuffer, render_target->impl.readbackMemory, 0);
+
+		render_target->impl.readbackBufferCreated = true;
+	}
+
+	vkCmdEndRenderPass(list->impl._buffer);
+	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+
+	VkBufferImageCopy region;
+	region.bufferOffset = 0;
+	region.bufferRowLength = render_target->width;
+	region.bufferImageHeight = render_target->height;
+	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.imageSubresource.baseArrayLayer = 0;
+	region.imageSubresource.layerCount = 1;
+	region.imageSubresource.mipLevel = 0;
+	region.imageOffset = { 0, 0, 0 };
+	region.imageExtent = { (uint32_t)render_target->width, (uint32_t)render_target->height, 1 };
+	vkCmdCopyImageToBuffer(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, render_target->impl.readbackBuffer, 1, &region);
+
+	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	kinc_g5_command_list_execute_and_wait(list);
+
+	// Read buffer
+	void* p;
+	vkMapMemory(device, render_target->impl.readbackMemory, 0, VK_WHOLE_SIZE, 0, (void **)&p);
+	memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
+	vkUnmapMemory(device, render_target->impl.readbackMemory);
+}
 
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
 	/*VkImageMemoryBarrier barrier = {0};

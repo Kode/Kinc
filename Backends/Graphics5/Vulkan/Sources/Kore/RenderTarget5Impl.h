@@ -30,6 +30,10 @@ typedef struct {
 
 	VkFormat format;
 
+	VkBuffer readbackBuffer;
+	VkDeviceMemory readbackMemory;
+	bool readbackBufferCreated;
+
 	int stage;
 	int stage_depth;
 } RenderTarget5Impl;
