@@ -5,6 +5,7 @@
 #ifdef KORE_VKRT
 
 #include "Vulkan.h"
+#include <string.h>
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/vertexbuffer.h>
