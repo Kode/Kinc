@@ -52,7 +52,6 @@ void kinc_window_change_features(int window_index, int features) {
 }
 
 void Kore::Linux::fullscreen(XID window, bool value) {
-#ifdef KORE_OPENGL
 	Atom wm_state = XInternAtom(Kore::Linux::display, "_NET_WM_STATE", False);
 	Atom fullscreen = XInternAtom(Kore::Linux::display, "_NET_WM_STATE_FULLSCREEN", False);
 
@@ -72,7 +71,6 @@ void Kore::Linux::fullscreen(XID window, bool value) {
 			   SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 
 	XFlush(Kore::Linux::display);
-#endif
 }
 
 void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
@@ -112,9 +110,7 @@ void kinc_window_hide(int window_index) {
 }
 
 void kinc_window_set_title(int window_index, const char *title) {
-#ifdef KORE_OPENGL
 	XStoreName(Kore::Linux::display, kinc_internal_windows[window_index].handle, title);
-#endif
 }
 
 int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {

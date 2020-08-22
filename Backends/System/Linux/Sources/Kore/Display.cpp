@@ -10,10 +10,6 @@
 
 #include <stdlib.h>
 
-#ifdef KORE_OPENGL
-#include <Kore/ogl.h>
-#endif
-
 void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter);
 #define MAXIMUM_DISPLAY_COUNT 10
 static kinc_display_t displays[MAXIMUM_DISPLAY_COUNT];
@@ -26,9 +22,7 @@ extern "C" void enumerateDisplays() {
     }
 
     initialized = true;
-#ifdef KORE_OPENGL
     enumDisplayMonitors(displays, displayCounter);
-#endif
 }
 
 kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
@@ -59,15 +53,10 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
     kinc_display_mode_t mode;
     mode.x = 0;
     mode.y = 0;
-#ifdef KORE_OPENGL
 	Display *disp = XOpenDisplay(NULL);
 	mode.width = XWidthOfScreen(XDefaultScreenOfDisplay(disp));
 	mode.height = XHeightOfScreen(XDefaultScreenOfDisplay(disp));
 	XCloseDisplay(disp);
-#else
-	mode.width = 1920;
-	mode.height = 1080;
-#endif
 	mode.frequency = 60;
 	mode.bits_per_pixel = 32;
 	mode.pixels_per_inch = 96;

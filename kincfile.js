@@ -325,14 +325,17 @@ else if (platform === Platform.Linux) {
 	addBackend('System/POSIX');
 	project.addLib('asound');
 	project.addLib('dl');
+	project.addLib('X11');
+	project.addLib('Xcursor');
+	project.addLib('Xinerama');
+	project.addLib('Xi');
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Vulkan');
 		project.addLib('vulkan');
-		project.addLib('xcb');
 		project.addDefine('KORE_VULKAN');
-		project.addDefine('VK_USE_PLATFORM_XCB_KHR');
+		project.addDefine('VK_USE_PLATFORM_XLIB_KHR');
 		if (raytrace === RayTraceApi.VKRT) {
 			project.addDefine('KORE_RAYTRACE');
 			project.addDefine('KORE_VKRT');
@@ -343,10 +346,6 @@ else if (platform === Platform.Linux) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addLib('GL');
-		project.addLib('X11');
-		project.addLib('Xcursor');
-		project.addLib('Xinerama');
-		project.addLib('Xi');
 		project.addDefine('KORE_OPENGL');
 	}
 	else {

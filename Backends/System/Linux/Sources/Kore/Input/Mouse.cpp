@@ -1,14 +1,12 @@
 #include "../pch.h"
 
+#include <Kore/Linux.h>
 #include <kinc/input/mouse.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
 #include "../WindowData.h"
-
-#include <GL/gl.h>
-#include <GL/glx.h>
 
 #include <X11/X.h>
 #include <X11/keysym.h>
@@ -62,25 +60,18 @@ bool kinc_mouse_can_lock(int window) {
 bool _mouseHidden = false;
 
 void kinc_mouse_show() {
-#ifdef KORE_OPENGL
-	::Display* dpy = glXGetCurrentDisplay();
+	::Display* dpy = Kore::Linux::display;
 	::Window win = (XID)kinc_internal_windows[0].handle;
-	if (_mouseHidden)
-    {
-		//log(LogLevel::Info, "show mouse\n");
+	if (_mouseHidden) {
         XUndefineCursor(dpy, win);
 		_mouseHidden = false;
     }
-#endif
 }
 
 void kinc_mouse_hide() {
-#ifdef KORE_OPENGL
-    ::Display* dpy = glXGetCurrentDisplay();
+    ::Display* dpy = Kore::Linux::display;
     ::Window win = (XID)kinc_internal_windows[0].handle;
-    if (!_mouseHidden)
-    {
-        //log(LogLevel::Info, "hide mouse\n");
+    if (!_mouseHidden) {
         XColor col = XColor{0, 0, 0, 0, DoRed | DoGreen | DoBlue, 0};
         char data[1] = {'\0'};
         Pixmap blank = XCreateBitmapFromData(dpy, win, data, 1, 1);
@@ -89,17 +80,14 @@ void kinc_mouse_hide() {
         XFreePixmap(dpy, blank);
         _mouseHidden = true;
     }
-#endif
 }
 
 void kinc_mouse_set_cursor(int cursorIndex) {
-#ifdef KORE_OPENGL
-    ::Display* dpy = glXGetCurrentDisplay();
+    ::Display* dpy = Kore::Linux::display;
     ::Window win = (XID)kinc_internal_windows[0].handle;
-    if (!_mouseHidden)
-    {
+    if (!_mouseHidden) {
         Cursor cursor;
-        switch(cursorIndex){
+        switch(cursorIndex) {
             case 0: {
                 cursor = XcursorLibraryLoadCursor(dpy, "arrow");
                 break;
@@ -163,11 +151,9 @@ void kinc_mouse_set_cursor(int cursorIndex) {
         }
         XDefineCursor(dpy, win, cursor);
     }   
-#endif
 }
 
 void kinc_mouse_set_position(int window, int x, int y) {
-#ifdef KORE_OPENGL
 	::Display* dpy = XOpenDisplay(0);
 	::Window win = (XID)kinc_internal_windows[0].handle;
 
@@ -175,11 +161,9 @@ void kinc_mouse_set_position(int window, int x, int y) {
 	XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position.
 
 	XCloseDisplay(dpy);
-#endif
 }
 
 void kinc_mouse_get_position(int window, int *x, int *y) {
-#ifdef KORE_OPENGL
 	::Display* dpy = XOpenDisplay(NULL);
 	::Window win = (XID)kinc_internal_windows[0].handle;
 
@@ -191,5 +175,4 @@ void kinc_mouse_get_position(int window, int *x, int *y) {
 	XQueryPointer(dpy, win, &inwin, &inchildwin, &rootx, &rooty, x, y, &mask);
 
 	XCloseDisplay(dpy);
-#endif
 }
