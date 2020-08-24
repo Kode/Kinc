@@ -2,19 +2,7 @@
 
 #include <kinc/graphics5/vertexstructure.h>
 
-#include <vulkan/vulkan.h>
-
-#ifdef min
-#undef min
-#endif
-
-#ifdef max
-#undef max
-#endif
-
-#ifdef RegisterClass
-#undef RegisterClass
-#endif
+#include "MiniVulkan.h"
 
 struct Vertices {
 	VkBuffer buf;
@@ -22,7 +10,7 @@ struct Vertices {
 };
 
 typedef struct {
-	float* data;
+	float *data;
 	int myCount;
 	int myStride;
 	unsigned bufferId;

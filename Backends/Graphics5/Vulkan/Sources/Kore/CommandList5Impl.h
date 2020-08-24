@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include "MiniVulkan.h"
 
 typedef struct {
 	int _indexCount;
