@@ -4,23 +4,12 @@
 
 #include <stdlib.h>
 
-//#define KORE_LINUX_DISPLAY_XINERAMA 1
-
-//#if defined(KORE_LINUX_DISPLAY_XINERAMA)
-
 #include <Kore/Display.h>
 #include <Kore/Log.h>
 
-#ifdef KORE_OPENGL
 #include <X11/X.h>
 #include <X11/extensions/Xinerama.h>
-#else
-#include <vulkan/vulkan.h>
-#endif
 
-// apt-get install libxinerama-dev
-
-#ifdef KORE_OPENGL
 void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter) {
     ::Display* dpy = XOpenDisplay(NULL);
 
@@ -79,5 +68,3 @@ void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter) {
         di.number = 0;
     }
 }
-#endif
-//#endif // #if defined(KORE_LINUX_DISPLAY_XINERAMA)

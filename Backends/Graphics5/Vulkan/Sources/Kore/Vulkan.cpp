@@ -36,6 +36,13 @@
 	} while (0)
 #endif
 
+#ifdef KORE_LINUX
+#include "Kore/Linux.h"
+#include "Kore/WindowData.h"
+#define MAXIMUM_WINDOWS 16
+extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
+#endif
+
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                                                               \
 	{                                                                                                                                                          \
 		fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(inst, "vk" #entrypoint);                                                                    \
@@ -70,7 +77,7 @@ VkSemaphore presentCompleteSemaphore;
 void createDescriptorLayout();
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 
-#ifndef NDEBUG
+#ifdef _DEBUG
 #define VALIDATE
 #endif
 
@@ -84,13 +91,6 @@ bool vsynced;
 
 kinc_g5_texture_t *vulkanTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 kinc_g5_render_target_t *vulkanRenderTargets[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-
-#ifdef KORE_LINUX
-extern xcb_connection_t *connection;
-extern xcb_screen_t *screen;
-extern xcb_window_t window;
-extern xcb_intern_atom_reply_t *atom_wm_delete_window;
-#endif
 
 namespace {
 	bool began = false;
@@ -573,9 +573,9 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 				extension_names[enabled_extension_count++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 			}
 #else
-			if (!strcmp(VK_KHR_XCB_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
+			if (!strcmp(VK_KHR_XLIB_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
 				platformSurfaceExtFound = 1;
-				extension_names[enabled_extension_count++] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
+				extension_names[enabled_extension_count++] = VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
 			}
 #endif
 
@@ -613,7 +613,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		         "vkCreateInstance Failure");
 #else
 		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
-		         "the " VK_KHR_XCB_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
+		         "the " VK_KHR_XLIB_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
 		         "Vulkan installable client driver (ICD) installed?\nPlease "
 		         "look at the Getting Started guide for additional "
 		         "information.\n",
@@ -843,13 +843,13 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		err = vkCreateWin32SurfaceKHR(inst, &createInfo, NULL, &surface);
 		assert(!err);
 #else
-		VkXcbSurfaceCreateInfoKHR createInfo;
-		createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+		VkXlibSurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
 		createInfo.pNext = nullptr;
 		createInfo.flags = 0;
-		createInfo.connection = connection;
-		createInfo.window = window;
-		err = vkCreateXcbSurfaceKHR(inst, &createInfo, nullptr, &surface);
+		createInfo.dpy = Kore::Linux::display;
+		createInfo.window = (XID)kinc_internal_windows[0].handle;
+		err = vkCreateXlibSurfaceKHR(inst, &createInfo, nullptr, &surface);
 		assert(!err);
 #endif
 		// Iterate over each queue to learn whether it supports presenting:

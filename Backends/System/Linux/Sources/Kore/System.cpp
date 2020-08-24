@@ -30,6 +30,7 @@
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+#include <X11/Xutil.h>
 
 #include "WindowData.h"
 
@@ -39,15 +40,9 @@
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 #endif
 
-// apt-get install mesa-common-dev
-// apt-get install libgl-dev
-
 _XDisplay* Kore::Linux::display = nullptr;
 
 namespace {
-// static int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, None};
-// static int dblBuf[]  = {GLX_RGBA, GLX_DEPTH_SIZE, 16, GLX_STENCIL_SIZE, 8, GLX_DOUBLEBUFFER, None};
-#ifdef KORE_OPENGL
 	struct MwmHints {
 		// These correspond to XmRInt resources. (VendorSE.c)
 		int flags;
@@ -56,8 +51,8 @@ namespace {
 		int input_mode;
 		int status;
 	};
-
 #define MWM_HINTS_DECORATIONS (1L << 1)
+#ifdef KORE_OPENGL
 	GLboolean doubleBuffer = GL_TRUE;
 #endif
 	Window win;
@@ -94,7 +89,6 @@ extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
 namespace windowimpl {
 	int windowCounter = -1;
 
-#ifdef KORE_OPENGL
 	int idFromWindow(Window window) {
 		for (int windowIndex = 0; windowIndex < MAXIMUM_WINDOWS; ++windowIndex) {
 			if (kinc_internal_windows[windowIndex].handle == window) {
@@ -104,40 +98,17 @@ namespace windowimpl {
 
 		return -1;
 	}
-#endif
 }
-
-#ifndef KORE_OPENGL
-xcb_connection_t* connection;
-xcb_screen_t* screen;
-xcb_window_t window;
-xcb_intern_atom_reply_t* atom_wm_delete_window;
-
-namespace {
-	int windowWidth;
-	int windowHeight;
-}
-#endif
 
 static char nameClass[256];
 static const char *nameClassAddendum = "_KincApplication";
 
 int createWindow(const char* title, int x, int y, int width, int height, kinc_window_mode_t windowMode, int targetDisplay, int depthBufferBits,
 				 int stencilBufferBits, int antialiasingSamples) {
-    strncpy(nameClass, kinc_application_name(), sizeof(nameClass) - strlen(nameClassAddendum) - 1);
+	strncpy(nameClass, kinc_application_name(), sizeof(nameClass) - strlen(nameClassAddendum) - 1);
 	strcat(nameClass, nameClassAddendum);
 
-#ifdef KORE_OPENGL
 	int wcounter = windowimpl::windowCounter + 1;
-
-	XVisualInfo* vi;
-	Colormap cmap;
-	XSetWindowAttributes swa;
-	GLXContext cx;
-	// XEvent               event;
-	// GLboolean            needRedraw = GL_FALSE;
-	// GLboolean            recalcModelView = GL_TRUE;
-	int dummy;
 
 	if (Kore::Linux::display == nullptr) {
 		Kore::Linux::display = XOpenDisplay(nullptr);
@@ -147,11 +118,19 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 		fatalError("could not open display");
 	}
 
+	XkbSetDetectableAutoRepeat(Kore::Linux::display, True, NULL);
+
+	XSetWindowAttributes swa;
+	Colormap cmap;
+
+#ifdef KORE_OPENGL
+	XVisualInfo* vi;
+	GLXContext cx;
+	int dummy;
+
 	if (!glXQueryExtension(Kore::Linux::display, &dummy, &dummy)) {
 		fatalError("X server has no OpenGL GLX extension");
 	}
-
-	XkbSetDetectableAutoRepeat(Kore::Linux::display, True, NULL);
 
 	int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, None};
 	int dblBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
@@ -242,6 +221,18 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 
 	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
 							   CWBorderPixel | CWColormap | CWEventMask, &swa);
+#else
+    int screen = DefaultScreen(Kore::Linux::display);
+    Visual* visual = DefaultVisual(Kore::Linux::display, screen);
+    int depth  = DefaultDepth(Kore::Linux::display, screen);
+    cmap = XCreateColormap(Kore::Linux::display, RootWindow(Kore::Linux::display, screen), visual, AllocNone);
+	swa.colormap = cmap;
+	swa.border_pixel = 0;
+	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
+	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, DefaultScreen(Kore::Linux::display)), 0, 0, width, height, 0, depth, InputOutput, visual,
+						CWBorderPixel | CWColormap | CWEventMask, &swa);
+#endif
+
 	XSetStandardProperties(Kore::Linux::display, win, title, "main", None, NULL, 0, NULL);
 
 	Atom wmClassAtom = XInternAtom(Kore::Linux::display, "WM_CLASS", 0);
@@ -259,7 +250,9 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	}
 	}
 
+#ifdef KORE_OPENGL
 	glXMakeCurrent(Kore::Linux::display, win, cx);
+#endif
 
 	int display = targetDisplay == -1 ? kinc_primary_display() : targetDisplay;
     kinc_display_mode_t deviceInfo = kinc_display_current_mode(display);
@@ -323,7 +316,9 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
     kinc_internal_windows[wcounter].width = width;
     kinc_internal_windows[wcounter].height = height;
     kinc_internal_windows[wcounter].handle = win;
+#ifdef KORE_OPENGL
     kinc_internal_windows[wcounter].context = cx;
+#endif
 
 	if (windowMode == KINC_WINDOW_MODE_FULLSCREEN || windowMode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 		Kore::Linux::fullscreen(win, true);
@@ -337,86 +332,10 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	XSetWMProtocols(Kore::Linux::display, win, &wmDeleteMessage, 1);
 
 	return windowimpl::windowCounter = wcounter;
-#else
-	::windowWidth = width;
-	::windowHeight = height;
-
-	const xcb_setup_t* setup;
-	xcb_screen_iterator_t iter;
-	int scr;
-
-	connection = xcb_connect(NULL, &scr);
-	if (connection == nullptr) {
-		printf("Cannot find a compatible Vulkan installable client driver (ICD).\nExiting ...\n");
-		fflush(stdout);
-		exit(1);
-	}
-
-	setup = xcb_get_setup(connection);
-	iter = xcb_setup_roots_iterator(setup);
-	while (scr-- > 0) xcb_screen_next(&iter);
-
-	screen = iter.data;
-
-	window = xcb_generate_id(connection);
-
-	uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-	uint32_t value_list[32];
-	value_list[0] = screen->black_pixel;
-	value_list[1] = XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
-
-	xcb_create_window(connection, XCB_COPY_FROM_PARENT, window, screen->root, 0, 0, width, height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual,
-					  value_mask, value_list);
-
-	// Needs to be tested
-	xcb_intern_atom_cookie_t atom_wm_class_cookie = xcb_intern_atom(connection, 1, 8, "WM_CLASS");
-	xcb_intern_atom_reply_t* atom_wm_class_reply = xcb_intern_atom_reply(connection, atom_wm_class_cookie, 0);
-	xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*atom_wm_class_reply).atom, 31, 8, strlen(nameClass), nameClass);
-	free(atom_wm_class_reply);
-
-	// Magic code that will send notification when window is destroyed
-	xcb_intern_atom_cookie_t cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
-	xcb_intern_atom_reply_t* reply = xcb_intern_atom_reply(connection, cookie, 0);
-
-	xcb_intern_atom_cookie_t cookie2 = xcb_intern_atom(connection, 0, 16, "WM_DELETE_WINDOW");
-	atom_wm_delete_window = xcb_intern_atom_reply(connection, cookie2, 0);
-
-	xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*reply).atom, 4, 32, 1, &(*atom_wm_delete_window).atom);
-	free(reply);
-
-	xcb_map_window(connection, window);
-	xcb_flush(connection);
-
-	kinc_internal_windows[0].width = width;
-    kinc_internal_windows[0].height = height;
-    kinc_internal_windows[0].handle = win;
-
-	if (windowMode == KINC_WINDOW_MODE_FULLSCREEN || windowMode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
-		kinc_internal_windows[0].mode = windowMode;
-	}
-	else {
-		kinc_internal_windows[0].mode = 0;
-	}
-
-	windowimpl::windowCounter = 1;
-	return 0;
-#endif
 }
 
 namespace Kore {
 	namespace System {
-#ifdef KORE_OPENGL
-
-#else
-		int windowCount() {
-			return 1;
-		}
-
-		void* windowHandle(int id) {
-			return nullptr;
-		}
-#endif
-
 		int initWindow(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 			char buffer[1024] = {0};
 			strcpy(buffer, kinc_application_name());
@@ -429,11 +348,7 @@ namespace Kore {
 			kinc_g4_init(id, frame->depth_bits, frame->stencil_bits, true);
 			return id;
 		}
-	}
-}
 
-namespace Kore {
-	namespace System {
 		int currentDeviceId = -1;
 
 		int currentDevice() {
@@ -448,7 +363,6 @@ namespace Kore {
 
 bool kinc_internal_handle_messages() {
 	static bool controlDown = false;
-#ifdef KORE_OPENGL
 	while (XPending(Kore::Linux::display) > 0) {
 		XEvent event;
 		XNextEvent(Kore::Linux::display, &event);
@@ -806,7 +720,9 @@ bool kinc_internal_handle_messages() {
 				kinc_internal_windows[windowId].width = event.xconfigure.width;
 				kinc_internal_windows[windowId].height = event.xconfigure.height;
 				kinc_internal_call_resize_callback(windowId, event.xconfigure.width, event.xconfigure.height);
+#ifdef KORE_OPENGL
 				glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
+#endif
 			}
 			break;
 		}
@@ -892,78 +808,6 @@ bool kinc_internal_handle_messages() {
 			break;
 		}
 	}
-#else
-	xcb_generic_event_t* event = xcb_poll_for_event(connection);
-	while (event != nullptr) {
-		switch (event->response_type & 0x7f) {
-		case XCB_EXPOSE:
-			break;
-		case XCB_CLIENT_MESSAGE:
-			if ((*(xcb_client_message_event_t*)event).data.data32[0] == (*atom_wm_delete_window).atom) {
-				exit(0);
-			}
-			break;
-		case XCB_KEY_PRESS: {
-			const xcb_key_press_event_t* key = (const xcb_key_press_event_t*)event;
-			switch (key->detail) {
-			case 111:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_UP);
-				break;
-			case 116:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOWN);
-				break;
-			case 113:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
-				break;
-			case 114:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
-				break;
-			}
-			break;
-		}
-		case XCB_KEY_RELEASE: {
-			const xcb_key_release_event_t* key = (const xcb_key_release_event_t*)event;
-			if (key->detail == 0x9) exit(0);
-			switch (key->detail) {
-			case 111:
-				kinc_internal_keyboard_trigger_key_up(KINC_KEY_UP);
-				break;
-			case 116:
-				kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOWN);
-				break;
-			case 113:
-				kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
-				break;
-			case 114:
-				kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
-				break;
-			}
-			break;
-		}
-		case XCB_DESTROY_NOTIFY:
-			exit(0);
-			break;
-		case XCB_CONFIGURE_NOTIFY: {
-			const xcb_configure_notify_event_t* cfg = (const xcb_configure_notify_event_t*)event;
-			// if ((demo->width != cfg->width) || (demo->height != cfg->height)) {
-			//	demo->width = cfg->width;
-			//	demo->height = cfg->height;
-			//	demo_resize(demo);
-			//}
-			if (cfg->width != kinc_internal_windows[0].width || cfg->height != kinc_internal_windows[0].height) {
-				kinc_internal_windows[0].width = cfg->width;
-				kinc_internal_windows[0].height = cfg->height;
-				kinc_internal_call_resize_callback(0, cfg->width, cfg->height);
-			}
-			break;
-		}
-		default:
-			break;
-		}
-		free(event);
-		event = xcb_poll_for_event(connection);
-	}
-#endif
 	Kore::updateHIDGamepads();
 	return true;
 }
@@ -971,25 +815,6 @@ bool kinc_internal_handle_messages() {
 const char* kinc_system_id() {
 	return "Linux";
 }
-
-/*void Kore::System::makeCurrent(int contextId) {
-	if (currentDeviceId == contextId) {
-		return;
-	}
-	currentDeviceId = contextId;
-#ifdef KORE_OPENGL
-	glXMakeCurrent(dpy, windowimpl::windows[contextId]->handle, windowimpl::windows[contextId]->context);
-#endif
-}
-
-#ifdef KORE_OPENGL
-void Kore::Graphics4::clearCurrent() {}
-#endif
-
-void Kore::System::clearCurrent() {
-	currentDeviceId = -1;
-	Graphics4::clearCurrent();
-}*/
 
 void swapLinuxBuffers(int window) {
 #ifdef KORE_OPENGL
@@ -1107,10 +932,6 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 void kinc_internal_shutdown() {
 
 }
-
-//Kore::Window* Kore::Window::get(int window) {
-//	return windowimpl::windows[window];
-//}
 
 int main(int argc, char** argv) {
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
