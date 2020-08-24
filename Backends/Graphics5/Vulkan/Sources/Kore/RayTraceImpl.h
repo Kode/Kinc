@@ -2,7 +2,7 @@
 
 #ifdef KORE_VKRT
 
-#include <vulkan/vulkan.h>
+#include "MiniVulkan.h"
 
 #ifdef __cplusplus
 extern "C" {

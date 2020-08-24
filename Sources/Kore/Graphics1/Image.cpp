@@ -1,9 +1,5 @@
 #include "pch.h"
 
-#if defined(KORE_WINDOWS) && defined(KORE_VULKAN)
-#include <windows.h>
-#endif
-
 #include "Image.h"
 
 #include <Kore/Graphics4/Graphics.h>

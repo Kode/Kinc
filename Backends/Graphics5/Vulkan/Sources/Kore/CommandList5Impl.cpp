@@ -29,7 +29,7 @@ extern VkSemaphore presentCompleteSemaphore;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 void createDescriptorSet(VkDescriptorSet &desc_set);
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
 VkRenderPassBeginInfo currentRenderPassBeginInfo;
@@ -335,7 +335,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	prePresentBarrier.image = Kore::Vulkan::buffers[current_buffer].image;
 	VkImageMemoryBarrier *pmemory_barrier = &prePresentBarrier;
 	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, NULL, 0, NULL, 1,
-						 pmemory_barrier);
+	                     pmemory_barrier);
 
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 	currentRenderPassBeginInfo = rp_begin;
@@ -414,7 +414,7 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 }
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
-								int stencil) {
+                                int stencil) {
 	VkClearRect clearRect = {};
 	clearRect.rect.offset.x = 0;
 	clearRect.rect.offset.y = 0;
@@ -464,10 +464,10 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_lis
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
-	viewport.x = x;
-	viewport.y = y + height;
-	viewport.width = width;
-	viewport.height = -height;
+	viewport.x = (float)x;
+	viewport.y = y + (float)height;
+	viewport.width = (float)width;
+	viewport.height = (float)-height;
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
@@ -774,7 +774,8 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	}
 
 	vkCmdEndRenderPass(list->impl._buffer);
-	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+	               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
 	VkBufferImageCopy region;
 	region.bufferOffset = 0;
@@ -784,16 +785,18 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	region.imageSubresource.baseArrayLayer = 0;
 	region.imageSubresource.layerCount = 1;
 	region.imageSubresource.mipLevel = 0;
-	region.imageOffset = { 0, 0, 0 };
-	region.imageExtent = { (uint32_t)render_target->width, (uint32_t)render_target->height, 1 };
-	vkCmdCopyImageToBuffer(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, render_target->impl.readbackBuffer, 1, &region);
+	region.imageOffset = {0, 0, 0};
+	region.imageExtent = {(uint32_t)render_target->width, (uint32_t)render_target->height, 1};
+	vkCmdCopyImageToBuffer(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, render_target->impl.readbackBuffer, 1,
+	                       &region);
 
-	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+	               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	kinc_g5_command_list_execute_and_wait(list);
 
 	// Read buffer
-	void* p;
+	void *p;
 	vkMapMemory(device, render_target->impl.readbackMemory, 0, VK_WHOLE_SIZE, 0, (void **)&p);
 	memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
 	vkUnmapMemory(device, render_target->impl.readbackMemory);

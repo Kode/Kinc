@@ -1,18 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-
-#ifdef min
-#undef min
-#endif
-
-#ifdef max
-#undef max
-#endif
-
-#ifdef RegisterClass
-#undef RegisterClass
-#endif
+#include "MiniVulkan.h"
 
 struct kinc_g5_shader;
 
@@ -24,8 +12,8 @@ typedef struct {
 } kinc_internal_named_number;
 
 typedef struct PipelineState5Impl_s {
-	const char** textures;
-	int* textureValues;
+	const char **textures;
+	int *textureValues;
 	int textureCount;
 
 	VkPipeline pipeline;
