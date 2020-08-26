@@ -54,17 +54,17 @@ void kinc_internal_mouse_unlock(int window) {
 }
 
 bool kinc_mouse_can_lock(int window) {
-	return true;
+    return true;
 }
 
 bool _mouseHidden = false;
 
 void kinc_mouse_show() {
-	::Display* dpy = Kore::Linux::display;
-	::Window win = (XID)kinc_internal_windows[0].handle;
-	if (_mouseHidden) {
+    ::Display* dpy = Kore::Linux::display;
+    ::Window win = (XID)kinc_internal_windows[0].handle;
+    if (_mouseHidden) {
         XUndefineCursor(dpy, win);
-		_mouseHidden = false;
+        _mouseHidden = false;
     }
 }
 
@@ -93,35 +93,35 @@ void kinc_mouse_set_cursor(int cursorIndex) {
                 break;
             }
             case 1: {
-                cursor = XcursorLibraryLoadCursor(dpy, "pointer");
+                cursor = XcursorLibraryLoadCursor(dpy, "hand1");
                 break;
             }
             case 2: {
-                cursor = XcursorLibraryLoadCursor(dpy, "text");
+                cursor = XcursorLibraryLoadCursor(dpy, "xterm");
                 break;
             }
             case 3: {
-                cursor = XcursorLibraryLoadCursor(dpy, "ew-resize");
+                cursor = XcursorLibraryLoadCursor(dpy, "sb_h_double_arrow");
                 break;
             }
             case 4: {
-                cursor = XcursorLibraryLoadCursor(dpy, "ns-resize");
+                cursor = XcursorLibraryLoadCursor(dpy, "sb_v_double_arrow");
                 break;
             }
             case 5: {
-                cursor = XcursorLibraryLoadCursor(dpy, "ne-resize");
+                cursor = XcursorLibraryLoadCursor(dpy, "top_right_corner");
                 break;
             }
             case 6: {
-                cursor = XcursorLibraryLoadCursor(dpy, "se-resize");
+                cursor = XcursorLibraryLoadCursor(dpy, "bottom_right_corner");
                 break;
             }
             case 7: {
-                cursor = XcursorLibraryLoadCursor(dpy, "nw-resize");
+                cursor = XcursorLibraryLoadCursor(dpy, "top_left_corner");
                 break;
             }
             case 8: {
-                cursor = XcursorLibraryLoadCursor(dpy, "sw-resize");
+                cursor = XcursorLibraryLoadCursor(dpy, "bottom_left_corner");
                 break;
             }
             case 9: {
@@ -137,7 +137,7 @@ void kinc_mouse_set_cursor(int cursorIndex) {
                 break;
             }
             case 12: {
-                cursor = XcursorLibraryLoadCursor(dpy, "wait");
+                cursor = XcursorLibraryLoadCursor(dpy, "watch");
                 break;
             }
             case 13: {
@@ -150,29 +150,29 @@ void kinc_mouse_set_cursor(int cursorIndex) {
             }
         }
         XDefineCursor(dpy, win, cursor);
-    }   
+    }
 }
 
 void kinc_mouse_set_position(int window, int x, int y) {
-	::Display* dpy = XOpenDisplay(0);
-	::Window win = (XID)kinc_internal_windows[0].handle;
+    ::Display* dpy = XOpenDisplay(0);
+    ::Window win = (XID)kinc_internal_windows[0].handle;
 
-	XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
-	XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position.
+    XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
+    XFlush(dpy); // Flushes the output buffer, therefore updates the cursor's position.
 
-	XCloseDisplay(dpy);
+    XCloseDisplay(dpy);
 }
 
 void kinc_mouse_get_position(int window, int *x, int *y) {
-	::Display* dpy = XOpenDisplay(NULL);
-	::Window win = (XID)kinc_internal_windows[0].handle;
+    ::Display* dpy = XOpenDisplay(NULL);
+    ::Window win = (XID)kinc_internal_windows[0].handle;
 
-	::Window inwin;
-	::Window inchildwin;
-	int rootx, rooty;
-	unsigned int mask;
+    ::Window inwin;
+    ::Window inchildwin;
+    int rootx, rooty;
+    unsigned int mask;
 
-	XQueryPointer(dpy, win, &inwin, &inchildwin, &rootx, &rooty, x, y, &mask);
+    XQueryPointer(dpy, win, &inwin, &inchildwin, &rootx, &rooty, x, y, &mask);
 
-	XCloseDisplay(dpy);
+    XCloseDisplay(dpy);
 }
