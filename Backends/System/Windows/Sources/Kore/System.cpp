@@ -1149,27 +1149,13 @@ double kinc_time(void) {
 	return double(stamp.QuadPart - startCount.QuadPart) / (double)::frequency.QuadPart;
 }
 
+#ifndef KINC_NO_MAIN
 int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nCmdShow*/) {
-	// Pen functions are only in Windows 8 and later, so load them dynamically
-	HMODULE user32 = LoadLibraryA("user32.dll");
-	MyGetPointerInfo = (GetPointerInfoType)GetProcAddress(user32, "GetPointerInfo");
-	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo");
-	MyEnableNonClientDpiScaling = (EnableNonClientDpiScalingType)GetProcAddress(user32, "EnableNonClientDpiScaling");
-	initKeyTranslation();
-	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
-
-	kinc_windows_init_displays();
-
-	QueryPerformanceCounter(&startCount);
-	QueryPerformanceFrequency(&::frequency);
-
 	int ret = 0;
 #ifndef _DEBUG
 	try {
 #endif
-		for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 		ret = kickstart(__argc, __argv);
-
 #ifndef _DEBUG
 	} catch (std::exception &ex) {
 		ret = 1;
@@ -1182,6 +1168,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR l
 
 	return ret;
 }
+#endif
 
 typedef BOOL(__stdcall *MiniDumpWriteDumpType)(IN HANDLE hProcess, IN DWORD ProcessId, IN HANDLE hFile, IN MINIDUMP_TYPE DumpType,
                                                IN CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
@@ -1213,6 +1200,21 @@ static void init_crash_handler() {
 
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	init_crash_handler();
+
+	// Pen functions are only in Windows 8 and later, so load them dynamically
+	HMODULE user32 = LoadLibraryA("user32.dll");
+	MyGetPointerInfo = (GetPointerInfoType)GetProcAddress(user32, "GetPointerInfo");
+	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo");
+	MyEnableNonClientDpiScaling = (EnableNonClientDpiScalingType)GetProcAddress(user32, "EnableNonClientDpiScaling");
+	initKeyTranslation();
+	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
+
+	kinc_windows_init_displays();
+
+	QueryPerformanceCounter(&startCount);
+	QueryPerformanceFrequency(&::frequency);
+
+	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
 	// Kore::System::_init(name, width, height, &win, &frame);
 	kinc_set_application_name(name);
