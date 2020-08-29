@@ -24,14 +24,14 @@ typedef struct {
 #endif
 } kinc_socket_t;
 
-void kinc_socket_init(kinc_socket_t *socket);
-void kinc_socket_destroy(kinc_socket_t *socket);
-bool kinc_socket_open(kinc_socket_t *socket, int port);
-void kinc_socket_set_broadcast_enabled(kinc_socket_t *socket, bool enabled);
-void kinc_socket_send(kinc_socket_t *socket, unsigned address, int port, const unsigned char *data, int size);
-void kinc_socket_send_url(kinc_socket_t *socket, const char *url, int port, const unsigned char *data, int size);
-int kinc_socket_receive(kinc_socket_t *socket, unsigned char *data, int maxSize, unsigned *fromAddress, unsigned *fromPort);
-unsigned kinc_url_to_int(const char *url, int port);
+KINC_FUNC void kinc_socket_init(kinc_socket_t *socket);
+KINC_FUNC void kinc_socket_destroy(kinc_socket_t *socket);
+KINC_FUNC bool kinc_socket_open(kinc_socket_t *socket, int port);
+KINC_FUNC void kinc_socket_set_broadcast_enabled(kinc_socket_t *socket, bool enabled);
+KINC_FUNC void kinc_socket_send(kinc_socket_t *socket, unsigned address, int port, const unsigned char *data, int size);
+KINC_FUNC void kinc_socket_send_url(kinc_socket_t *socket, const char *url, int port, const unsigned char *data, int size);
+KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, unsigned char *data, int maxSize, unsigned *fromAddress, unsigned *fromPort);
+KINC_FUNC unsigned kinc_url_to_int(const char *url, int port);
 
 #ifdef __cplusplus
 }

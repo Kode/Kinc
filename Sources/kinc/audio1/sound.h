@@ -17,10 +17,10 @@ typedef struct {
 	float my_volume;
 } kinc_a1_sound_t;
 
-kinc_a1_sound_t *kinc_a1_sound_create(const char *filename);
-void kinc_a1_sound_destroy(kinc_a1_sound_t *sound);
-float kinc_a1_sound_volume(kinc_a1_sound_t *sound);
-void kinc_a1_sound_set_volume(kinc_a1_sound_t *sound, float value);
+KINC_FUNC kinc_a1_sound_t *kinc_a1_sound_create(const char *filename);
+KINC_FUNC void kinc_a1_sound_destroy(kinc_a1_sound_t *sound);
+KINC_FUNC float kinc_a1_sound_volume(kinc_a1_sound_t *sound);
+KINC_FUNC void kinc_a1_sound_set_volume(kinc_a1_sound_t *sound, float value);
 
 #ifdef __cplusplus
 }

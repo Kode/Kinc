@@ -42,19 +42,20 @@ typedef struct kinc_image_read_callbacks {
 	size_t (*size)(void *user_data);
 } kinc_image_read_callbacks_t;
 
-size_t kinc_image_init(kinc_image_t *image, void *memory, int width, int height, kinc_image_format_t format);
-size_t kinc_image_init3d(kinc_image_t *image, void *memory, int width, int height, int depth, kinc_image_format_t format);
-size_t kinc_image_size_from_file(const char *filename);
-size_t kinc_image_size_from_callbacks(kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename);
-size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename);
-size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename);
-void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int height, kinc_image_format_t format);
-void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format);
-void kinc_image_destroy(kinc_image_t *image);
-int kinc_image_at(kinc_image_t *image, int x, int y);
-uint8_t *kinc_image_get_pixels(kinc_image_t *image);
+KINC_FUNC size_t kinc_image_init(kinc_image_t *image, void *memory, int width, int height, kinc_image_format_t format);
+KINC_FUNC size_t kinc_image_init3d(kinc_image_t *image, void *memory, int width, int height, int depth, kinc_image_format_t format);
+KINC_FUNC size_t kinc_image_size_from_file(const char *filename);
+KINC_FUNC size_t kinc_image_size_from_callbacks(kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename);
+KINC_FUNC size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename);
+KINC_FUNC size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data,
+                                                const char *filename);
+KINC_FUNC void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int height, kinc_image_format_t format);
+KINC_FUNC void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format);
+KINC_FUNC void kinc_image_destroy(kinc_image_t *image);
+KINC_FUNC int kinc_image_at(kinc_image_t *image, int x, int y);
+KINC_FUNC uint8_t *kinc_image_get_pixels(kinc_image_t *image);
 
-int kinc_image_format_sizeof(kinc_image_format_t format);
+KINC_FUNC int kinc_image_format_sizeof(kinc_image_format_t format);
 
 #ifdef __cplusplus
 }

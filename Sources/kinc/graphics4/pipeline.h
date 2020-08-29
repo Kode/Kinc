@@ -1,8 +1,8 @@
 #pragma once
 
 #include <kinc/graphics4/constantlocation.h>
-#include <kinc/graphics4/textureunit.h>
 #include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/textureunit.h>
 
 #include <Kore/PipelineStateImpl.h>
 
@@ -37,11 +37,7 @@ typedef enum {
 	KINC_G4_COMPARE_GREATER_EQUAL
 } kinc_g4_compare_mode_t;
 
-typedef enum {
-	KINC_G4_CULL_CLOCKWISE,
-	KINC_G4_CULL_COUNTER_CLOCKWISE,
-	KINC_G4_CULL_NOTHING
-} kinc_g4_cull_mode_t;
+typedef enum { KINC_G4_CULL_CLOCKWISE, KINC_G4_CULL_COUNTER_CLOCKWISE, KINC_G4_CULL_NOTHING } kinc_g4_cull_mode_t;
 
 typedef enum {
 	KINC_G4_STENCIL_KEEP,
@@ -99,11 +95,11 @@ typedef struct kinc_g4_pipeline {
 	kinc_g4_pipeline_impl_t impl;
 } kinc_g4_pipeline_t;
 
-void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state);
-void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state);
-void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state);
-kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name);
-kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name);
+KINC_FUNC void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state);
+KINC_FUNC void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state);
+KINC_FUNC void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state);
+KINC_FUNC kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name);
+KINC_FUNC kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name);
 
 void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline);
 void kinc_g4_internal_pipeline_set_defaults(kinc_g4_pipeline_t *pipeline);

@@ -20,9 +20,9 @@ typedef struct kinc_g4_shader {
 	kinc_g4_shader_impl_t impl;
 } kinc_g4_shader_t;
 
-void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t length, kinc_g4_shader_type_t type);
-void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type); // Beware, this is not portable
-void kinc_g4_shader_destroy(kinc_g4_shader_t *shader);
+KINC_FUNC void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t length, kinc_g4_shader_type_t type);
+KINC_FUNC void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type); // Beware, this is not portable
+KINC_FUNC void kinc_g4_shader_destroy(kinc_g4_shader_t *shader);
 
 #ifdef __cplusplus
 }

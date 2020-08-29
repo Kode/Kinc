@@ -23,7 +23,7 @@ typedef struct kinc_g4_vertex_element {
 	kinc_g4_vertex_data_t data;
 } kinc_g4_vertex_element_t;
 
-void kinc_g4_vertex_element_init(kinc_g4_vertex_element_t *element, const char *name, kinc_g4_vertex_data_t data);
+KINC_FUNC void kinc_g4_vertex_element_init(kinc_g4_vertex_element_t *element, const char *name, kinc_g4_vertex_data_t data);
 
 #define KINC_G4_MAX_VERTEX_ELEMENTS 16
 
@@ -33,9 +33,9 @@ typedef struct kinc_g4_vertex_structure {
 	bool instanced;
 } kinc_g4_vertex_structure_t;
 
-void kinc_g4_vertex_structure_init(kinc_g4_vertex_structure_t *structure);
+KINC_FUNC void kinc_g4_vertex_structure_init(kinc_g4_vertex_structure_t *structure);
 
-void kinc_g4_vertex_structure_add(kinc_g4_vertex_structure_t *structure, const char *name, kinc_g4_vertex_data_t data);
+KINC_FUNC void kinc_g4_vertex_structure_add(kinc_g4_vertex_structure_t *structure, const char *name, kinc_g4_vertex_data_t data);
 
 #ifdef __cplusplus
 }

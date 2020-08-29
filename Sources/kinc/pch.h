@@ -56,7 +56,17 @@ namespace Kore {
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef KORE_WINDOWS
+#if defined(KINC_DYNAMIC)
+#define KINC_FUNC __declspec(dllimport)
+#elif defined(KINC_DYNAMIC_COMPILE)
+#define KINC_FUNC __declspec(dllexport)
+#else
 #define KINC_FUNC
+#endif
+#else
+#define KINC_FUNC
+#endif
 
 #if defined(KORE_PPC)
 #define KINC_BIG_ENDIAN

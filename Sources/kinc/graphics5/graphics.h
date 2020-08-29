@@ -97,45 +97,45 @@ typedef enum kinc_g5_texture_argument { KINC_G5_TEXTURE_ARGUMENT_CURRENT_COLOR, 
 #define KINC_G5_CLEAR_DEPTH 2
 #define KINC_G5_CLEAR_STENCIL 4
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync);
-void kinc_g5_destroy(int window);
+KINC_FUNC void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync);
+KINC_FUNC void kinc_g5_destroy(int window);
 
-extern bool kinc_g5_fullscreen;
+KINC_FUNC extern bool kinc_g5_fullscreen;
 
-void kinc_g5_flush();
+KINC_FUNC void kinc_g5_flush();
 
-void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
-void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
+KINC_FUNC void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
+KINC_FUNC void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
 
-void kinc_g5_draw_indexed_vertices_instanced(int instanceCount);
-void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count);
+KINC_FUNC void kinc_g5_draw_indexed_vertices_instanced(int instanceCount);
+KINC_FUNC void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count);
 
-int kinc_g5_antialiasing_samples();
-void kinc_g5_set_antialiasing_samples(int samples);
+KINC_FUNC int kinc_g5_antialiasing_samples();
+KINC_FUNC void kinc_g5_set_antialiasing_samples(int samples);
 
-bool kinc_g5_non_pow2_textures_qupported();
-bool kinc_g5_render_targets_inverted_y();
-void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face);
+KINC_FUNC bool kinc_g5_non_pow2_textures_qupported();
+KINC_FUNC bool kinc_g5_render_targets_inverted_y();
+KINC_FUNC void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face);
 
-void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window);
-void kinc_g5_end(int window);
-bool kinc_g5_swap_buffers();
+KINC_FUNC void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window);
+KINC_FUNC void kinc_g5_end(int window);
+KINC_FUNC bool kinc_g5_swap_buffers();
 
 void kinc_internal_g5_resize(int window, int width, int height);
 
-void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing);
-void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter);
-void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter);
-void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter);
-void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2);
-int kinc_g5_max_bound_textures(void);
+KINC_FUNC void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing);
+KINC_FUNC void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter);
+KINC_FUNC void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter);
+KINC_FUNC void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter);
+KINC_FUNC void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2);
+KINC_FUNC int kinc_g5_max_bound_textures(void);
 
 // Occlusion Query
-bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery);
-void kinc_g5_delete_occlusion_query(unsigned occlusionQuery);
-void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int triangles);
-bool kinc_g5_are_query_results_available(unsigned occlusionQuery);
-void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount);
+KINC_FUNC bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery);
+KINC_FUNC void kinc_g5_delete_occlusion_query(unsigned occlusionQuery);
+KINC_FUNC void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int triangles);
+KINC_FUNC bool kinc_g5_are_query_results_available(unsigned occlusionQuery);
+KINC_FUNC void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount);
 
 #ifdef __cplusplus
 }

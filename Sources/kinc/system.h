@@ -11,63 +11,63 @@ extern "C" {
 struct kinc_window_options;
 struct kinc_framebuffer_options;
 
-int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame);
+KINC_FUNC int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame);
 
-const char *kinc_application_name(void);
-void kinc_set_application_name(const char *name);
-int kinc_width(void);
-int kinc_height(void);
+KINC_FUNC const char *kinc_application_name(void);
+KINC_FUNC void kinc_set_application_name(const char *name);
+KINC_FUNC int kinc_width(void);
+KINC_FUNC int kinc_height(void);
 
-bool kinc_internal_handle_messages(void);
+KINC_FUNC bool kinc_internal_handle_messages(void);
 
-void kinc_load_url(const char *url);
+KINC_FUNC void kinc_load_url(const char *url);
 
-const char *kinc_system_id();
+KINC_FUNC const char *kinc_system_id();
 
-const char *kinc_internal_save_path();
+KINC_FUNC const char *kinc_internal_save_path();
 
-const char **kinc_video_formats();
+KINC_FUNC const char **kinc_video_formats();
 
-const char *kinc_language();
+KINC_FUNC const char *kinc_language();
 
-void kinc_vibrate(int milliseconds);
+KINC_FUNC void kinc_vibrate(int milliseconds);
 
-float kinc_safe_zone();
-bool kinc_automatic_safe_zone();
-void kinc_set_safe_zone(float value);
+KINC_FUNC float kinc_safe_zone();
+KINC_FUNC bool kinc_automatic_safe_zone();
+KINC_FUNC void kinc_set_safe_zone(float value);
 
 typedef uint64_t kinc_ticks_t;
 
-double kinc_frequency();
-kinc_ticks_t kinc_timestamp();
-double kinc_time();
+KINC_FUNC double kinc_frequency();
+KINC_FUNC kinc_ticks_t kinc_timestamp();
+KINC_FUNC double kinc_time();
 
-void kinc_run(void (*value)());
+KINC_FUNC void kinc_run(void (*value)());
 
-void kinc_start();
+KINC_FUNC void kinc_start();
 bool kinc_internal_frame();
-void kinc_stop();
+KINC_FUNC void kinc_stop();
 
-void kinc_login();
-bool kinc_waiting_for_login();
-void kinc_unlock_achievement(int id);
-void kinc_disallow_user_change();
-void kinc_allow_user_change();
+KINC_FUNC void kinc_login();
+KINC_FUNC bool kinc_waiting_for_login();
+KINC_FUNC void kinc_unlock_achievement(int id);
+KINC_FUNC void kinc_disallow_user_change();
+KINC_FUNC void kinc_allow_user_change();
 
-void kinc_set_keep_screen_on(bool on);
+KINC_FUNC void kinc_set_keep_screen_on(bool on);
 
-void kinc_set_update_callback(void (*value)());
-void kinc_set_foreground_callback(void (*value)());
-void kinc_set_resume_callback(void (*value)());
-void kinc_set_pause_callback(void (*value)());
-void kinc_set_background_callback(void (*value)());
-void kinc_set_shutdown_callback(void (*value)());
-void kinc_set_drop_files_callback(void (*value)(wchar_t *));
-void kinc_set_cut_callback(char *(*value)());
-void kinc_set_copy_callback(char *(*value)());
-void kinc_set_paste_callback(void (*value)(char *));
-void kinc_set_login_callback(void (*value)());
-void kinc_set_logout_callback(void (*value)());
+KINC_FUNC void kinc_set_update_callback(void (*value)());
+KINC_FUNC void kinc_set_foreground_callback(void (*value)());
+KINC_FUNC void kinc_set_resume_callback(void (*value)());
+KINC_FUNC void kinc_set_pause_callback(void (*value)());
+KINC_FUNC void kinc_set_background_callback(void (*value)());
+KINC_FUNC void kinc_set_shutdown_callback(void (*value)());
+KINC_FUNC void kinc_set_drop_files_callback(void (*value)(wchar_t *));
+KINC_FUNC void kinc_set_cut_callback(char *(*value)());
+KINC_FUNC void kinc_set_copy_callback(char *(*value)());
+KINC_FUNC void kinc_set_paste_callback(void (*value)(char *));
+KINC_FUNC void kinc_set_login_callback(void (*value)());
+KINC_FUNC void kinc_set_logout_callback(void (*value)());
 
 void kinc_internal_shutdown();
 void kinc_internal_update_callback();
