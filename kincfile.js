@@ -414,6 +414,9 @@ if (!a3) {
 	addBackend('Audio3/A3onA2');
 }
 
+project.setDebugDir('Deployment');
+project.kincProcessed = true;
+
 if (plugin) {
 	let backend = 'Unknown';
 	if (platform === Platform.PS4) {
