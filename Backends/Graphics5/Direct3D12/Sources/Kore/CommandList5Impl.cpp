@@ -376,13 +376,16 @@ int d3d12_textureAlignment();
 void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {
 	DXGI_FORMAT dxgiFormat = render_target->impl.renderTarget->GetDesc().Format;
 	int formatByteSize = formatSize(dxgiFormat);
+	int rowPitch = render_target->texWidth * formatByteSize;
+	int align = rowPitch % d3d12_textureAlignment();
+	if (align != 0) rowPitch = rowPitch + (d3d12_textureAlignment() - align);
 
 	// Create readback buffer
 	if (render_target->impl.renderTargetReadback == nullptr) {
 		device->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(render_target->texWidth * render_target->texHeight * formatByteSize),
+			&CD3DX12_RESOURCE_DESC::Buffer(rowPitch * render_target->texHeight),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
 			IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
@@ -415,9 +418,6 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	dest.PlacedFootprint.Footprint.Width = render_target->texWidth;
 	dest.PlacedFootprint.Footprint.Height = render_target->texHeight;
 	dest.PlacedFootprint.Footprint.Depth = 1;
-	int rowPitch = render_target->texWidth * formatByteSize;
-	int align = rowPitch % d3d12_textureAlignment();
-	if (align != 0) rowPitch = rowPitch + (d3d12_textureAlignment() - align);
 	dest.PlacedFootprint.Footprint.RowPitch = rowPitch;
 
 	list->impl._commandList->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
