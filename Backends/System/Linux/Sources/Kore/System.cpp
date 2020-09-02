@@ -905,6 +905,9 @@ bool kinc_gamepad_connected(int num) {
 extern "C" void enumerateDisplays();
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
+	Kore::initHIDGamepads();
+
 	gettimeofday(&start, NULL);
 	enumerateDisplays();
 
@@ -933,8 +936,8 @@ void kinc_internal_shutdown() {
 
 }
 
+#ifndef KINC_NO_MAIN
 int main(int argc, char** argv) {
-	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
-	Kore::initHIDGamepads();
 	kickstart(argc, argv);
 }
+#endif
