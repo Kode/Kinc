@@ -25,7 +25,7 @@ kinc_window_options_t Kore::convert(WindowOptions *win) {
 	kwin.y = win->y;
 	kwin.width = win->width;
 	kwin.height = win->height;
-	kwin.display_index = win->display == nullptr ? -1 : win->display->_index;
+	kwin.display_index = win->displayIndex;
 	kwin.visible = win->visible;
 	kwin.window_features = win->windowFeatures;
 	kwin.mode = convert(win->mode);

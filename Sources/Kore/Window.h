@@ -27,45 +27,45 @@ namespace Kore {
 	const int WindowFeatureOnTop = 16;
 
 	struct WindowOptions {
-		const char* title;
+		const char *title;
 
 		int x;
 		int y;
 		int width;
 		int height;
-		Display* display;
+		int displayIndex;
 
 		bool visible;
 		int windowFeatures;
 		WindowMode mode;
 
 		WindowOptions()
-		    : title("Kore"), x(-1), y(-1), width(800), height(600), display(nullptr), visible(true),
+		    : title("Kore"), x(-1), y(-1), width(800), height(600), displayIndex(-1), visible(true),
 		      windowFeatures(WindowFeatureResizable | WindowFeatureMinimizable | WindowFeatureMaximizable), mode(WindowModeWindow) {}
 	};
 
 	class Window {
 	public:
-		static Window* create(WindowOptions* win = nullptr, FramebufferOptions* frame = nullptr);
-		static void destroy(Window* window);
-		static Window* get(int index);
+		static Window *create(WindowOptions *win = nullptr, FramebufferOptions *frame = nullptr);
+		static void destroy(Window *window);
+		static Window *get(int index);
 		static int count();
 		void resize(int width, int height);
 		void move(int x, int y);
 		void changeWindowMode(WindowMode mode);
 		void changeWindowFeatures(int features);
-		void changeFramebuffer(FramebufferOptions* frame);
+		void changeFramebuffer(FramebufferOptions *frame);
 		int x();
 		int y();
 		int width();
 		int height();
-		Display* display();
+		Display *display();
 		WindowMode mode();
 		void show();
 		void hide();
-		void setTitle(const char* title);
-		void setResizeCallback(void (*callback)(int x, int y, void* data), void* data = nullptr);
-		void setPpiChangedCallback(void (*callback)(int ppi, void* data), void* data = nullptr);
+		void setTitle(const char *title);
+		void setResizeCallback(void (*callback)(int x, int y, void *data), void *data = nullptr);
+		void setPpiChangedCallback(void (*callback)(int ppi, void *data), void *data = nullptr);
 		bool vSynced();
 
 		int _index;
