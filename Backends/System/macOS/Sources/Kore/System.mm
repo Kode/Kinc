@@ -285,13 +285,7 @@ void addMenubar() {
 		hidManager = new Kore::HIDManager();
 		addMenubar();
 
-#ifdef KINC_NO_MAIN
-		if (init_callback != NULL) {
-			init_callback();
-		}
-#else
 		kickstart(argc, argv);
-#endif
 	}
 }
 
