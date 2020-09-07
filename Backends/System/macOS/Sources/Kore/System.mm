@@ -167,6 +167,11 @@ void kinc_window_change_window_mode(int window_index, kinc_window_mode_t mode) {
 }
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	@autoreleasepool {
+		myapp = [MyApplication sharedApplication];
+		[myapp performSelectorOnMainThread:@selector(run) withObject:nil waitUntilDone:YES];
+	}
+
 	//System::_init(name, width, height, &win, &frame);
 	kinc_window_options_t defaultWindowOptions;
 	if (win == NULL) {
@@ -237,9 +242,6 @@ namespace {
 		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
 		return [resolvedPath cStringUsingEncoding:NSUTF8StringEncoding];
 	}
-
-	int argc = 0;
-	char** argv = nullptr;
 }
 
 const char* kinc_internal_save_path() {
@@ -248,13 +250,7 @@ const char* kinc_internal_save_path() {
 
 #ifndef KINC_NO_MAIN
 int main(int argc, char** argv) {
-	::argc = argc;
-	::argv = argv;
-	@autoreleasepool {
-		myapp = [MyApplication sharedApplication];
-		[myapp performSelectorOnMainThread:@selector(run) withObject:nil waitUntilDone:YES];
-	}
-	return 0;
+	return kickstart(argc, argv);
 }
 #endif
 
@@ -284,8 +280,6 @@ void addMenubar() {
 
 		hidManager = new Kore::HIDManager();
 		addMenubar();
-
-		kickstart(argc, argv);
 	}
 }
 
