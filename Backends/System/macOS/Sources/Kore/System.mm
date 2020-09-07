@@ -27,16 +27,11 @@ const char* macgetresourcepath() {
 	return [[[NSBundle mainBundle] resourcePath] cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
-@interface MyApplication : NSApplication {
-	bool shouldKeepRunning;
-}
-
-- (void)run;
+@interface KincApplication : NSApplication {}
 - (void)terminate:(id)sender;
-
 @end
 
-@interface MyAppDelegate : NSObject<NSWindowDelegate> {}
+@interface KincAppDelegate : NSObject<NSWindowDelegate> {}
 - (void)windowWillClose:(NSNotification*)notification;
 - (void)windowDidResize:(NSNotification*)notification;
 - (void)windowWillMiniaturize:(NSNotification *)notification;
@@ -49,7 +44,7 @@ namespace {
 	NSApplication* myapp;
 	NSWindow* window;
 	BasicOpenGLView* view;
-	MyAppDelegate* delegate;
+	KincAppDelegate* delegate;
 	Kore::HIDManager* hidManager;
 
 	/*struct KoreWindow : public KoreWindowBase {
@@ -107,7 +102,7 @@ void swapBuffersMac(int windowId) {
 #endif
 }
 
-int createWindow(kinc_window_options_t *options) {
+static int createWindow(kinc_window_options_t *options) {
 	int width = options->width / [[NSScreen mainScreen] backingScaleFactor];
 	int height = options->height / [[NSScreen mainScreen] backingScaleFactor];
 	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
@@ -121,7 +116,7 @@ int createWindow(kinc_window_options_t *options) {
 	BasicOpenGLView* view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
 	[view registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, nil]];
 	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:styleMask backing:NSBackingStoreBuffered defer:TRUE];
-	delegate = [MyAppDelegate alloc];
+	delegate = [KincAppDelegate alloc];
 	[window setDelegate:delegate];
 	[window setTitle:[NSString stringWithCString:options->title encoding:NSUTF8StringEncoding]];
 	[window setAcceptsMouseMovedEvents:YES];
@@ -166,10 +161,31 @@ void kinc_window_change_window_mode(int window_index, kinc_window_mode_t mode) {
 
 }
 
+static void addMenubar() {
+	NSString* appName = [[NSProcessInfo processInfo] processName];
+
+	NSMenu* appMenu = [NSMenu new];
+	NSString* quitTitle = [@"Quit " stringByAppendingString:appName];
+	NSMenuItem* quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"];
+	[appMenu addItem:quitMenuItem];
+
+	NSMenuItem* appMenuItem = [NSMenuItem new];
+	[appMenuItem setSubmenu:appMenu];
+
+	NSMenu* menubar = [NSMenu new];
+	[menubar addItem:appMenuItem];
+	[NSApp setMainMenu:menubar];
+}
+
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	@autoreleasepool {
-		myapp = [MyApplication sharedApplication];
-		[myapp performSelectorOnMainThread:@selector(run) withObject:nil waitUntilDone:YES];
+		myapp = [KincApplication sharedApplication];
+		[myapp finishLaunching];
+		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
+		NSApp.activationPolicy = NSApplicationActivationPolicyRegular;
+
+		hidManager = new Kore::HIDManager();
+		addMenubar();
 	}
 
 	//System::_init(name, width, height, &win, &frame);
@@ -254,34 +270,7 @@ int main(int argc, char** argv) {
 }
 #endif
 
-void addMenubar() {
-	NSString* appName = [[NSProcessInfo processInfo] processName];
-
-	NSMenu* appMenu = [NSMenu new];
-	NSString* quitTitle = [@"Quit " stringByAppendingString:appName];
-	NSMenuItem* quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"];
-	[appMenu addItem:quitMenuItem];
-
-	NSMenuItem* appMenuItem = [NSMenuItem new];
-	[appMenuItem setSubmenu:appMenu];
-
-	NSMenu* menubar = [NSMenu new];
-	[menubar addItem:appMenuItem];
-	[NSApp setMainMenu:menubar];
-}
-
-@implementation MyApplication
-
-- (void)run {
-	@autoreleasepool {
-		[self finishLaunching];
-		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
-		NSApp.activationPolicy = NSApplicationActivationPolicyRegular;
-
-		hidManager = new Kore::HIDManager();
-		addMenubar();
-	}
-}
+@implementation KincApplication
 
 - (void)terminate:(id)sender {
 	kinc_stop();
@@ -289,7 +278,7 @@ void addMenubar() {
 
 @end
 
-@implementation MyAppDelegate
+@implementation KincAppDelegate
 
 - (void)windowWillClose:(NSNotification*)notification {
 	kinc_stop();
