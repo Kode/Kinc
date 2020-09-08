@@ -27,10 +27,15 @@ typedef struct {
 } kinc_display_mode_t;
 
 /// <summary>
+/// Allows to retrieve display values prior to the kinc_init call
+/// </summary>
+KINC_FUNC void kinc_display_init(void);
+
+/// <summary>
 /// Retrieves the index of the primary display
 /// </summary>
 /// <remarks>
-/// The primary is defined by the 
+/// The primary is defined by the
 /// </remarks>
 /// <returns>The index of the primary display</returns>
 KINC_FUNC int kinc_primary_display(void);

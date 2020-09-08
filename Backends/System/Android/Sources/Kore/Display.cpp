@@ -57,6 +57,10 @@ static int pixelsPerInch() {
 	return dpi;
 }
 
+void kinc_display_init() {
+
+}
+
 kinc_display_mode_t kinc_display_available_mode(int display_index, int mode_index) {
 	kinc_display_mode_t mode;
 	mode.x = 0;

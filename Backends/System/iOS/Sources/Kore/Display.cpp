@@ -3,6 +3,10 @@
 #include <kinc/display.h>
 #include <kinc/log.h>
 
+void kinc_display_init() {
+
+}
+
 kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
 	kinc_display_mode_t dm;
 	dm.width = 800;
