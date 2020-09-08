@@ -14,15 +14,14 @@ void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter);
 #define MAXIMUM_DISPLAY_COUNT 10
 static kinc_display_t displays[MAXIMUM_DISPLAY_COUNT];
 static int displayCounter = -1;
-static bool initialized = false;
+static bool display_initialized = false;
 
-extern "C" void enumerateDisplays() {
-    if (initialized) {
+void kinc_display_init() {
+    if (display_initialized) {
         return;
     }
-
-    initialized = true;
     enumDisplayMonitors(displays, displayCounter);
+    display_initialized = true;
 }
 
 kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
