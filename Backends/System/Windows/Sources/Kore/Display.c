@@ -26,6 +26,7 @@ typedef struct {
 static DisplayData displays[MAXIMUM_DISPLAYS];
 static DEVMODEA original_modes[MAXIMUM_DISPLAYS];
 static int screen_counter = 0;
+static bool display_initialized = false;
 
 typedef enum { MDT_EFFECTIVE_DPI = 0, MDT_ANGULAR_DPI = 1, MDT_RAW_DPI = 2, MDT_DEFAULT = MDT_EFFECTIVE_DPI } MONITOR_DPI_TYPE;
 typedef HRESULT(WINAPI *GetDpiForMonitorType)(HMONITOR hmonitor, MONITOR_DPI_TYPE dpiType, UINT *dpiX, UINT *dpiY);
@@ -35,7 +36,7 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 	MONITORINFOEXA info;
 	memset(&info, 0, sizeof(MONITORINFOEXA));
 	info.cbSize = sizeof(MONITORINFOEXA);
-	
+
 	if (GetMonitorInfoA(monitor, (MONITORINFO*)&info) == FALSE) {
 		return FALSE;
 	}
@@ -61,7 +62,7 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 	display->y = info.rcMonitor.top;
 	display->width = info.rcMonitor.right - info.rcMonitor.left;
 	display->height = info.rcMonitor.bottom - info.rcMonitor.top;
-		
+
 	HDC hdc = CreateDCA(NULL, display->name, NULL, NULL);
 	display->ppi = GetDeviceCaps(hdc, LOGPIXELSX);
 	int scale = GetDeviceCaps(hdc, SCALINGFACTORX);
@@ -83,13 +84,17 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 	return TRUE;
 }
 
-void kinc_windows_init_displays() {
+void kinc_display_init() {
+	if (display_initialized) {
+		return;
+	}
 	HMODULE shcore = LoadLibraryA("Shcore.dll");
 	if (shcore != NULL) {
 		MyGetDpiForMonitor = (GetDpiForMonitorType)GetProcAddress(shcore, "GetDpiForMonitor");
 	}
 	memset(displays, 0, sizeof(DisplayData) * MAXIMUM_DISPLAYS);
 	EnumDisplayMonitors(NULL, NULL, EnumerationCallback, 0);
+	display_initialized = true;
 }
 
 int kinc_windows_get_display_for_monitor(struct HMONITOR__ *monitor) {
@@ -155,7 +160,7 @@ bool kinc_windows_set_display_mode(int display_index, int width, int height, int
 	mode.dmBitsPerPel = bpp;
 	mode.dmDisplayFrequency = frequency;
 	mode.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
-	
+
 	return ChangeDisplaySettingsA(&mode, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
 }
 
@@ -167,7 +172,7 @@ void kinc_windows_restore_display(int display) {
 
 void kinc_windows_restore_displays() {
 	for (int i = 0; i < MAXIMUM_DISPLAYS; ++i) {
-		kinc_windows_restore_display(i);	
+		kinc_windows_restore_display(i);
 	}
 }
 
