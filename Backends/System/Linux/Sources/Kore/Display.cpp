@@ -7,6 +7,7 @@
 
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
+#include <X11/extensions/Xrandr.h>
 
 #include <stdlib.h>
 
@@ -55,8 +56,24 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	Display *disp = XOpenDisplay(NULL);
 	mode.width = XWidthOfScreen(XDefaultScreenOfDisplay(disp));
 	mode.height = XHeightOfScreen(XDefaultScreenOfDisplay(disp));
-	XCloseDisplay(disp);
 	mode.frequency = 60;
+	Window win = RootWindow(disp, DefaultScreen(disp));
+	XRRScreenResources *res = XRRGetScreenResourcesCurrent(disp, win);
+	XRROutputInfo *out = XRRGetOutputInfo(disp, res, XRRGetOutputPrimary(disp, win));
+	XRRCrtcInfo *crtc = XRRGetCrtcInfo(disp, res, out->crtc);
+	for (int j = 0; j < res->nmode; ++j) {
+		XRRModeInfo *mode_info = &res->modes[j];
+		if (crtc->mode == mode_info->id) {
+			if (mode_info->hTotal && mode_info->vTotal) {
+				mode.frequency = (mode_info->dotClock / (mode_info->hTotal * mode_info->vTotal));
+			}
+			break;
+		}
+	}
+	XRRFreeCrtcInfo(crtc);
+	XRRFreeOutputInfo(out);
+	XRRFreeScreenResources(res);
+	XCloseDisplay(disp);
 	mode.bits_per_pixel = 32;
 	mode.pixels_per_inch = 96;
 	return mode;
