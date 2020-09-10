@@ -1008,10 +1008,19 @@ const char *kinc_system_id() {
 }
 
 namespace {
+#if !defined(KINC_SAVE_IN_DOCUMENTS)
 	wchar_t savePathw[2048] = {0};
+#endif
 	char savePath[2048] = {0};
 
 	void findSavePath() {
+#if defined(KINC_SAVE_IN_DOCUMENTS)
+		strcpy(savePath, getenv("USERPROFILE"));
+		strcat(savePath, "\\Documents\\");
+		strcat(savePath, kinc_application_name());
+		strcat(savePath, "\\");
+		SHCreateDirectoryExA(nullptr, savePath, nullptr);
+#else
 		CoInitialize(NULL);
 		IKnownFolderManager *folders = nullptr;
 		CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&folders));
@@ -1034,7 +1043,8 @@ namespace {
 		CoTaskMemFree(path);
 		folder->Release();
 		folders->Release();
-		// CoUninitialize();
+// CoUninitialize();
+#endif
 	}
 }
 
