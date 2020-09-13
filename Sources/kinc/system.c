@@ -6,6 +6,7 @@
 
 #include <kinc/io/filereader.h>
 #include <kinc/io/filewriter.h>
+#include <kinc/log.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -290,11 +291,18 @@ void kinc_load_save_file(const char *filename) {
 	}
 }
 
+static void commit_save(const char *old_filename, const char *new_filename);
+
 void kinc_save_save_file(const char *filename, uint8_t *data, size_t size) {
+	char temp_filename[1001];
+	strcpy(temp_filename, filename);
+	strcat(temp_filename, ".kinctemp");
+
 	kinc_file_writer_t writer;
-	if (kinc_file_writer_open(&writer, filename)) {
+	if (kinc_file_writer_open(&writer, temp_filename)) {
 		kinc_file_writer_write(&writer, data, (int)size);
 		kinc_file_writer_close(&writer);
+		commit_save(temp_filename, filename);
 	}
 }
 
@@ -310,6 +318,20 @@ bool kinc_waiting_for_login() {
 
 #ifdef KORE_WINDOWS
 #include <Windows.h>
+
+static void commit_save(const char *old_filename, const char *new_filename) {
+	char old_path[1001];
+	strcpy(old_path, kinc_internal_save_path());
+	strcat(old_path, old_filename);
+
+	char new_path[1001];
+	strcpy(new_path, kinc_internal_save_path());
+	strcat(new_path, new_filename);
+
+	if (!MoveFileExA(old_path, new_path, MOVEFILE_REPLACE_EXISTING)) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not save (error code %d)", GetLastError());
+	}
+}
 
 double kinc_local_time() {
 	SYSTEMTIME system_time;
