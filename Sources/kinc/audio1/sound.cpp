@@ -7,7 +7,7 @@
 
 #include <kinc/audio2/audio.h>
 #include <kinc/error.h>
-#include <Kore/IO/FileReader.h>
+#include <kinc/io/filereader.h>
 
 #include <assert.h>
 #include <string.h>
@@ -22,17 +22,17 @@ namespace {
 		u32 bytesPerSecond;
 		u16 bitsPerSample;
 		u32 dataSize;
-		u8* data;
+		u8 *data;
 	};
 
-	void checkFOURCC(u8*& data, const char* fourcc) {
+	void checkFOURCC(u8 *&data, const char *fourcc) {
 		for (int i = 0; i < 4; ++i) {
 			kinc_affirm(*data == fourcc[i]);
 			++data;
 		}
 	}
 
-	void readFOURCC(u8*& data, char* fourcc) {
+	void readFOURCC(u8 *&data, char *fourcc) {
 		for (int i = 0; i < 4; ++i) {
 			fourcc[i] = *data;
 			++data;
@@ -40,17 +40,17 @@ namespace {
 		fourcc[4] = 0;
 	}
 
-	void readChunk(u8*& data, WaveData& wave) {
+	void readChunk(u8 *&data, WaveData &wave) {
 		char fourcc[5];
 		readFOURCC(data, fourcc);
-		u32 chunksize = Reader::readU32LE(data);
+		u32 chunksize = kinc_read_u32le(data);
 		data += 4;
 		if (strcmp(fourcc, "fmt ") == 0) {
-			wave.audioFormat = Reader::readU16LE(data + 0);
-			wave.numChannels = Reader::readU16LE(data + 2);
-			wave.sampleRate = Reader::readU32LE(data + 4);
-			wave.bytesPerSecond = Reader::readU32LE(data + 8);
-			wave.bitsPerSample = Reader::readU16LE(data + 14);
+			wave.audioFormat = kinc_read_u16le(data + 0);
+			wave.numChannels = kinc_read_u16le(data + 2);
+			wave.sampleRate = kinc_read_u32le(data + 4);
+			wave.bytesPerSecond = kinc_read_u32le(data + 8);
+			wave.bitsPerSample = kinc_read_u16le(data + 14);
 			data += chunksize;
 		}
 		else if (strcmp(fourcc, "data") == 0) {
@@ -69,28 +69,28 @@ namespace {
 		return (sample - 127) << 8;
 	}
 
-	void splitStereo8(u8* data, int size, s16* left, s16* right) {
+	void splitStereo8(u8 *data, int size, s16 *left, s16 *right) {
 		for (int i = 0; i < size; ++i) {
 			left[i] = convert8to16(data[i * 2 + 0]);
 			right[i] = convert8to16(data[i * 2 + 1]);
 		}
 	}
 
-	void splitStereo16(s16* data, int size, s16* left, s16* right) {
+	void splitStereo16(s16 *data, int size, s16 *left, s16 *right) {
 		for (int i = 0; i < size; ++i) {
 			left[i] = data[i * 2 + 0];
 			right[i] = data[i * 2 + 1];
 		}
 	}
 
-	void splitMono8(u8* data, int size, s16* left, s16* right) {
+	void splitMono8(u8 *data, int size, s16 *left, s16 *right) {
 		for (int i = 0; i < size; ++i) {
 			left[i] = convert8to16(data[i]);
 			right[i] = convert8to16(data[i]);
 		}
 	}
 
-	void splitMono16(s16* data, int size, s16* left, s16* right) {
+	void splitMono16(s16 *data, int size, s16 *left, s16 *right) {
 		for (int i = 0; i < size; ++i) {
 			left[i] = data[i];
 			right[i] = data[i];
@@ -110,31 +110,40 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 	sound->left = NULL;
 	sound->right = NULL;
 	size_t filenameLength = strlen(filename);
-	u8* data = nullptr;
+	u8 *data = nullptr;
 
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
-		FileReader file(filename);
-		u8* filedata = (u8*)file.readAll();
-		int samples = stb_vorbis_decode_memory(filedata, file.size(), &sound->format.channels, &sound->format.samples_per_second, (short**)&data);
+		kinc_file_reader_t file;
+		kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
+		u8 *filedata = (u8 *)malloc(kinc_file_reader_size(&file));
+		kinc_file_reader_read(&file, filedata, kinc_file_reader_size(&file));
+		kinc_file_reader_close(&file);
+
+		int samples =
+		    stb_vorbis_decode_memory(filedata, (int)kinc_file_reader_size(&file), &sound->format.channels, &sound->format.samples_per_second, (short **)&data);
 		sound->size = samples * 2 * sound->format.channels;
 		sound->format.bits_per_sample = 16;
+		free(filedata);
 	}
 	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
 		WaveData wave = {0};
 		{
-			FileReader file(filename);
-			u8* filedata = (u8*)file.readAll();
-			u8* data = filedata;
+			kinc_file_reader_t file;
+			kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
+			u8 *filedata = (u8 *)malloc(kinc_file_reader_size(&file));
+			kinc_file_reader_read(&file, filedata, kinc_file_reader_size(&file));
+			kinc_file_reader_close(&file);
+			u8 *data = filedata;
 
 			checkFOURCC(data, "RIFF");
-			u32 filesize = Reader::readU32LE(data);
+			u32 filesize = kinc_read_u32le(data);
 			data += 4;
 			checkFOURCC(data, "WAVE");
 			while (data + 8 - filedata < (spint)filesize) {
 				readChunk(data, wave);
 			}
 
-			file.close();
+			free(filedata);
 		}
 
 		sound->format.bits_per_sample = wave.bitsPerSample;
@@ -157,7 +166,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 			sound->size /= 2;
 			sound->left = new s16[sound->size];
 			sound->right = new s16[sound->size];
-			splitMono16((s16*)data, sound->size, sound->left, sound->right);
+			splitMono16((s16 *)data, sound->size, sound->left, sound->right);
 		}
 		else {
 			kinc_affirm(false);
@@ -175,7 +184,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 			sound->size /= 4;
 			sound->left = new s16[sound->size];
 			sound->right = new s16[sound->size];
-			splitStereo16((s16*)data, sound->size, sound->left, sound->right);
+			splitStereo16((s16 *)data, sound->size, sound->left, sound->right);
 		}
 		else {
 			kinc_affirm(false);

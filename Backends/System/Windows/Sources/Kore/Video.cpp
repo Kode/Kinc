@@ -7,36 +7,36 @@
 using namespace Kore;
 
 namespace {
-	IGraphBuilder* graphBuilder;
-	IMediaControl* mediaControl;
-	IMediaPosition* mediaPosition;
-	IMediaEvent* mediaEvent;
+	IGraphBuilder *graphBuilder;
+	IMediaControl *mediaControl;
+	IMediaPosition *mediaPosition;
+	IMediaEvent *mediaEvent;
 
 	struct __declspec(uuid("{71771540-2017-11cf-ae24-0020afd79767}")) CLSID_TextureRenderer;
 }
 
 class CTextureRenderer : public CBaseVideoRenderer {
 public:
-	CTextureRenderer(LPUNKNOWN pUnk, HRESULT* phr);
+	CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr);
 	~CTextureRenderer();
 
 public:
-	HRESULT CheckMediaType(const CMediaType* pmt);      // Format acceptable?
-	HRESULT SetMediaType(const CMediaType* pmt);        // Video format notification
-	HRESULT DoRenderSample(IMediaSample* pMediaSample); // New video sample
+	HRESULT CheckMediaType(const CMediaType *pmt);      // Format acceptable?
+	HRESULT SetMediaType(const CMediaType *pmt);        // Video format notification
+	HRESULT DoRenderSample(IMediaSample *pMediaSample); // New video sample
 
 	// BOOL m_bUseDynamicTextures;
 	// LONG m_lVidWidth;   // Video width
 	// LONG m_lVidHeight;  // Video Height
 	// LONG m_lVidPitch;   // Video Pitch
 
-	Graphics4::Texture* image;
+	kinc_g4_texture_t image;
 	int width;
 	int height;
-	u8* pixels;
+	u8 *pixels;
 };
 
-CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT* phr) : CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer), TEXT("Texture Renderer"), pUnk, phr) {
+CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr) : CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer), TEXT("Texture Renderer"), pUnk, phr) {
 	// Store and AddRef the texture for our use.
 	ASSERT(phr);
 	if (phr) *phr = S_OK;
@@ -46,9 +46,9 @@ CTextureRenderer::~CTextureRenderer() {
 	// Do nothing
 }
 
-HRESULT CTextureRenderer::CheckMediaType(const CMediaType* pmt) {
+HRESULT CTextureRenderer::CheckMediaType(const CMediaType *pmt) {
 	HRESULT hr = E_FAIL;
-	VIDEOINFO* pvi = 0;
+	VIDEOINFO *pvi = 0;
 
 	CheckPointer(pmt, E_POINTER);
 
@@ -58,7 +58,7 @@ HRESULT CTextureRenderer::CheckMediaType(const CMediaType* pmt) {
 	}
 
 	// Only accept RGB24 video
-	pvi = (VIDEOINFO*)pmt->Format();
+	pvi = (VIDEOINFO *)pmt->Format();
 
 	if (IsEqualGUID(*pmt->Type(), MEDIATYPE_Video) && IsEqualGUID(*pmt->Subtype(), MEDIASUBTYPE_RGB24)) {
 		hr = S_OK;
@@ -67,12 +67,12 @@ HRESULT CTextureRenderer::CheckMediaType(const CMediaType* pmt) {
 	return hr;
 }
 
-HRESULT CTextureRenderer::SetMediaType(const CMediaType* pmt) {
-	VIDEOINFO* info = (VIDEOINFO*)pmt->Format();
+HRESULT CTextureRenderer::SetMediaType(const CMediaType *pmt) {
+	VIDEOINFO *info = (VIDEOINFO *)pmt->Format();
 	width = info->bmiHeader.biWidth;
 	height = abs(info->bmiHeader.biHeight);
-	image = new Graphics4::Texture(width, height, Graphics4::Image::RGBA32, false);
-	pixels = (u8*)malloc(width * height * 3);
+	kinc_g4_texture_init(&image, width, height, KINC_IMAGE_FORMAT_RGBA32);
+	pixels = (u8 *)malloc(width * height * 3);
 
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
@@ -85,8 +85,8 @@ HRESULT CTextureRenderer::SetMediaType(const CMediaType* pmt) {
 	return S_OK;
 }
 
-HRESULT CTextureRenderer::DoRenderSample(IMediaSample* sample) {
-	BYTE* videoPixels;
+HRESULT CTextureRenderer::DoRenderSample(IMediaSample *sample) {
+	BYTE *videoPixels;
 	sample->GetPointer(&videoPixels);
 	int videoPitch = (width * 3 + 3) & ~(3);
 	for (int y = 0; y < height; ++y) {
@@ -99,7 +99,7 @@ HRESULT CTextureRenderer::DoRenderSample(IMediaSample* sample) {
 	return S_OK;
 }
 
-Video::Video(const char* filename) {
+Video::Video(const char *filename) {
 	duration = 1000 * 10;
 	position = 0;
 	finished = false;
@@ -107,10 +107,10 @@ Video::Video(const char* filename) {
 	// image = new Graphics4::Texture(100, 100, Graphics4::Image::RGBA32, false);
 
 	HRESULT hr = S_OK;
-	IBaseFilter* pFSrc; // Source Filter
-	IPin* pFSrcPinOut;  // Source Filter Output Pin
+	IBaseFilter *pFSrc; // Source Filter
+	IPin *pFSrcPinOut;  // Source Filter Output Pin
 
-	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC, __uuidof(IGraphBuilder), (void**)&graphBuilder);
+	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC, __uuidof(IGraphBuilder), (void **)&graphBuilder);
 	renderer = new CTextureRenderer(NULL, &hr);
 	hr = graphBuilder->AddFilter(renderer, L"TEXTURERENDERER");
 	wchar_t wideFilename[2048];
@@ -127,9 +127,9 @@ Video::Video(const char* filename) {
 	this->position = 0;
 }
 
-Graphics4::Texture* Video::currentImage() {
-	u8* pixels = renderer->image->lock();
-	int stride = renderer->image->stride();
+kinc_g4_texture_t *Video::currentImage() {
+	u8 *pixels = kinc_g4_texture_lock(&renderer->image);
+	int stride = kinc_g4_texture_stride(&renderer->image);
 	for (int y = 0; y < renderer->height; ++y) {
 		for (int x = 0; x < renderer->width; ++x) {
 			pixels[y * stride + x * 4 + 0] = renderer->pixels[y * renderer->width * 3 + x * 3 + 0];
@@ -138,11 +138,11 @@ Graphics4::Texture* Video::currentImage() {
 			pixels[y * stride + x * 4 + 3] = 255;
 		}
 	}
-	renderer->image->unlock();
+	kinc_g4_texture_unlock(&renderer->image);
 
 	mediaPosition->get_CurrentPosition(&position);
 
-	return renderer->image;
+	return &renderer->image;
 }
 
 int Video::width() {

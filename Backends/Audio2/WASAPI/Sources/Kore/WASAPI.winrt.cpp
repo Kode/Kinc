@@ -2,12 +2,11 @@
 
 #include <kinc/audio2/audio.h>
 
-#include <Kore/Error.h>
-#include <Kore/Log.h>
 #include <Kore/SystemMicrosoft.h>
-#include <Kore/Threads/Thread.h>
 
+#include <kinc/error.h>
 #include <kinc/log.h>
+#include <kinc/threads/thread.h>
 
 #include <AudioClient.h>
 #include <Windows.h>
@@ -28,6 +27,7 @@ using namespace Windows::Storage::Streams;
 
 // based on the implementation in soloud and Microsoft sample code
 namespace {
+	kinc_thread_t thread;
 	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
 	kinc_a2_buffer_t a2_buffer;
 
@@ -103,10 +103,10 @@ namespace {
 		const int sampleRate = 48000;
 
 		bufferEndEvent = CreateEvent(0, FALSE, FALSE, 0);
-		affirm(bufferEndEvent != 0);
+		kinc_affirm(bufferEndEvent != 0);
 
 		audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
-		affirm(audioProcessingDoneEvent != 0);
+		kinc_affirm(audioProcessingDoneEvent != 0);
 
 		format = &requestedFormat;
 		ZeroMemory(&requestedFormat, sizeof(WAVEFORMATEX));
@@ -120,7 +120,7 @@ namespace {
 
 		HRESULT supported = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closestFormat);
 		if (supported == S_FALSE) {
-			log(Warning, "Falling back to the system's preferred WASAPI mix format.", supported);
+			kinc_log(KINC_LOG_LEVEL_WARNING, "Falling back to the system's preferred WASAPI mix format.", supported);
 			if (closestFormat != nullptr) {
 				format = closestFormat;
 			}
@@ -130,7 +130,7 @@ namespace {
 		}
 		HRESULT result = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 40 * 1000 * 10, 0, format, 0);
 		if (result != S_OK) {
-			log(Warning, "Could not initialize WASAPI audio, going silent (error code 0x%x).", result);
+			kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize WASAPI audio, going silent (error code 0x%x).", result);
 			return;
 		}
 
@@ -145,7 +145,7 @@ namespace {
 #ifdef KORE_WINRT
 		audioThread(nullptr);
 #else
-		createAndRunThread(audioThread, nullptr);
+		kinc_thread_init(&thread, audioThread, NULL);
 #endif
 	}
 

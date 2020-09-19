@@ -1,5 +1,7 @@
-#include <Kore/Graphics4/Texture.h>
-#include <Kore/IO/FileReader.h>
+#pragma once
+
+#include <kinc/graphics4/texture.h>
+#include <kinc/io/filereader.h>
 
 class CTextureRenderer;
 
@@ -8,7 +10,7 @@ namespace Kore {
 
 	class Video {
 	public:
-		Video(const char* filename);
+		Video(const char *filename);
 		~Video() {
 			// delete image;
 		}
@@ -17,7 +19,7 @@ namespace Kore {
 		void stop();
 		int width();
 		int height();
-		Graphics4::Texture* currentImage();
+		kinc_g4_texture_t *currentImage();
 		double duration;
 		double position;
 		bool finished;
@@ -26,6 +28,6 @@ namespace Kore {
 
 	private:
 		// Graphics4::Texture* image;
-		CTextureRenderer* renderer;
+		CTextureRenderer *renderer;
 	};
 }

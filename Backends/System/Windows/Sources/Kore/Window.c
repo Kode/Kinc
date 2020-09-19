@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include <kinc/bridge.h>
 #include <kinc/display.h>
+#include <kinc/graphics4/graphics.h>
 #include <kinc/window.h>
 
 #include <Kore/Windows.h>
@@ -285,8 +285,10 @@ void kinc_window_move(int window_index, int x, int y) {
 	SetWindowPos(win->handle, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, 0);
 }
 
-void kinc_window_change_framebuffer(int window_index, kinc_framebuffer_options_t *frame) {
-	kinc_bridge_g4_internal_change_framebuffer(window_index, frame);
+void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
+
+void kinc_window_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
+	kinc_internal_change_framebuffer(window, frame);
 }
 
 void kinc_window_change_features(int window_index, int features) {
@@ -391,12 +393,12 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 	int windowId = createWindow(wbuffer, win->x, win->y, win->width, win->height, frame->color_bits, frame->frequency, win->window_features, win->mode,
 	                            win->display_index);
 
-	kinc_bridge_g4_internal_set_antialiasing_samples(frame->samples_per_pixel);
+	kinc_g4_set_antialiasing_samples(frame->samples_per_pixel);
 	bool vsync = frame->vertical_sync;
 #ifdef KORE_OCULUS
 	vsync = false;
 #endif
-	kinc_bridge_g4_internal_init(windowId, frame->depth_bits, frame->stencil_bits, vsync);
+	kinc_g4_init(windowId, frame->depth_bits, frame->stencil_bits, vsync);
 
 	if (win->visible) {
 		kinc_window_show(windowId);

@@ -289,7 +289,6 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (window >= 0) {
 			int width = LOWORD(lParam);
 			int height = HIWORD(lParam);
-			Kore::Graphics::_resize(window, width, height);
 			kinc_internal_call_resize_callback(window, width, height);
 		}
 		break;

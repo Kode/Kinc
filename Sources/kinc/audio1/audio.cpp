@@ -4,10 +4,9 @@
 
 #include <stdint.h>
 
-#include <Kore/Threads/Mutex.h>
-#include <Kore/Math/Core.h>
-
 #include <kinc/audio2/audio.h>
+#include <kinc/math/core.h>
+#include <kinc/threads/mutex.h>
 
 #include <stdlib.h>
 
@@ -17,7 +16,7 @@
 #endif
 #include <Kore/VideoSoundStream.h>*/
 
-static Kore::Mutex mutex;
+static kinc_mutex_t mutex;
 
 #define CHANNEL_COUNT 16
 static kinc_a1_channel_t channels[CHANNEL_COUNT];
@@ -34,19 +33,19 @@ float sampleLinear(int16_t *data, float position) {
 }
 
 /*float sampleHermite4pt3oX(s16* data, float position) {
-	float s0 = data[(int)(position - 1)] / 32767.0f;
-	float s1 = data[(int)(position + 0)] / 32767.0f;
-	float s2 = data[(int)(position + 1)] / 32767.0f;
-	float s3 = data[(int)(position + 2)] / 32767.0f;
+    float s0 = data[(int)(position - 1)] / 32767.0f;
+    float s1 = data[(int)(position + 0)] / 32767.0f;
+    float s2 = data[(int)(position + 1)] / 32767.0f;
+    float s3 = data[(int)(position + 2)] / 32767.0f;
 
-	float x = position - (int)(position);
+    float x = position - (int)(position);
 
-	// 4-point, 3rd-order Hermite (x-form)
-	float c0 = s1;
-	float c1 = 0.5f * (s2 - s0);
-	float c2 = s0 - 2.5f * s1 + 2 * s2 - 0.5f * s3;
-	float c3 = 0.5f * (s3 - s0) + 1.5f * (s1 - s2);
-	return ((c3 * x + c2) * x + c1) * x + c0;
+    // 4-point, 3rd-order Hermite (x-form)
+    float c0 = s1;
+    float c1 = 0.5f * (s2 - s0);
+    float c2 = s0 - 2.5f * s1 + 2 * s2 - 0.5f * s3;
+    float c3 = 0.5f * (s3 - s0) + 1.5f * (s1 - s2);
+    return ((c3 * x + c2) * x + c1) * x + c0;
 }*/
 
 void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
@@ -75,7 +74,7 @@ void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 		value = c.m128_f32[0] + c.m128_f32[1] + c.m128_f32[2] + c.m128_f32[3];
 		value = max(min(value, 1.0f), -1.0f);
 #else
-		mutex.lock();
+		kinc_mutex_lock(&mutex);
 		for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (channels[i].sound != NULL) {
 				// value += *(s16*)&channels[i].sound->data[(int)channels[i].position] / 32767.0f * channels[i].sound->volume();
@@ -83,7 +82,7 @@ void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 					value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].volume * channels[i].volume;
 				else
 					value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].volume * channels[i].volume;
-				value = Kore::max(Kore::min(value, 1.0f), -1.0f);
+				value = kinc_max(kinc_min(value, 1.0f), -1.0f);
 				if (!left) channels[i].position += channels[i].pitch / channels[i].sound->sample_rate_pos;
 				// channels[i].position += 2;
 				if (channels[i].position + 1 >= channels[i].sound->size) {
@@ -99,21 +98,21 @@ void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 		for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (streams[i].stream != NULL) {
 				value += kinc_a1_sound_stream_next_sample(streams[i].stream) * kinc_a1_sound_stream_volume(streams[i].stream);
-				value = Kore::max(Kore::min(value, 1.0f), -1.0f);
+				value = kinc_max(kinc_min(value, 1.0f), -1.0f);
 				if (kinc_a1_sound_stream_ended(streams[i].stream)) streams[i].stream = NULL;
 			}
 		}
 		//**
 		/*for (int i = 0; i < CHANNEL_COUNT; ++i) {
-			if (videos[i].stream != NULL) {
-				value += videos[i].stream->nextSample();
-				value = Kore::max(Kore::min(value, 1.0f), -1.0f);
-				if (videos[i].stream->ended()) videos[i].stream = NULL;
-			}
+		    if (videos[i].stream != NULL) {
+		        value += videos[i].stream->nextSample();
+		        value = Kore::max(Kore::min(value, 1.0f), -1.0f);
+		        if (videos[i].stream->ended()) videos[i].stream = NULL;
+		    }
 		}*/
-		mutex.unlock();
+		kinc_mutex_unlock(&mutex);
 #endif
-		*(float*)&buffer->data[buffer->write_location] = value;
+		*(float *)&buffer->data[buffer->write_location] = value;
 		buffer->write_location += 4;
 		if (buffer->write_location >= buffer->data_size) buffer->write_location = 0;
 	}
@@ -128,13 +127,13 @@ void kinc_a1_init() {
 		streams[i].stream = NULL;
 		streams[i].position = 0;
 	}
-	mutex.create();
+	kinc_mutex_init(&mutex);
 	kinc_a2_set_callback(kinc_internal_a1_mix);
 }
 
 kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float pitch, bool unique) {
 	kinc_a1_channel_t *channel = NULL;
-	mutex.lock();
+	kinc_mutex_lock(&mutex);
 	bool found = false;
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		if (channels[i].sound == sound) {
@@ -155,12 +154,12 @@ kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float p
 			}
 		}
 	}
-	mutex.unlock();
+	kinc_mutex_unlock(&mutex);
 	return channel;
 }
 
 void kinc_a1_stop_sound(kinc_a1_sound_t *sound) {
-	mutex.lock();
+	kinc_mutex_lock(&mutex);
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		if (channels[i].sound == sound) {
 			channels[i].sound = NULL;
@@ -168,11 +167,11 @@ void kinc_a1_stop_sound(kinc_a1_sound_t *sound) {
 			break;
 		}
 	}
-	mutex.unlock();
+	kinc_mutex_unlock(&mutex);
 }
 
 void kinc_a1_play_sound_stream(kinc_a1_sound_stream_t *stream) {
-	mutex.lock();
+	kinc_mutex_lock(&mutex);
 
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		if (streams[i].stream == stream) {
@@ -190,11 +189,11 @@ void kinc_a1_play_sound_stream(kinc_a1_sound_stream_t *stream) {
 		}
 	}
 
-	mutex.unlock();
+	kinc_mutex_unlock(&mutex);
 }
 
 void kinc_a1_stop_sound_stream(kinc_a1_sound_stream_t *stream) {
-	mutex.lock();
+	kinc_mutex_lock(&mutex);
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		if (streams[i].stream == stream) {
 			streams[i].stream = NULL;
@@ -202,11 +201,11 @@ void kinc_a1_stop_sound_stream(kinc_a1_sound_stream_t *stream) {
 			break;
 		}
 	}
-	mutex.unlock();
+	kinc_mutex_unlock(&mutex);
 }
 
 void kinc_a1_play_video_sound_stream(struct kinc_a1_video_sound_stream *stream) {
-	mutex.lock();
+	kinc_mutex_lock(&mutex);
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		if (videos[i].stream == NULL) {
 			videos[i].stream = stream;
@@ -214,11 +213,11 @@ void kinc_a1_play_video_sound_stream(struct kinc_a1_video_sound_stream *stream) 
 			break;
 		}
 	}
-	mutex.unlock();
+	kinc_mutex_unlock(&mutex);
 }
 
 void kinc_a1_stop_video_sound_stream(struct kinc_a1_video_sound_stream *stream) {
-	mutex.lock();
+	kinc_mutex_lock(&mutex);
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		if (videos[i].stream == stream) {
 			videos[i].stream = NULL;
@@ -226,5 +225,5 @@ void kinc_a1_stop_video_sound_stream(struct kinc_a1_video_sound_stream *stream) 
 			break;
 		}
 	}
-	mutex.unlock();
+	kinc_mutex_unlock(&mutex);
 }
