@@ -3,10 +3,10 @@
 #include "Video.h"
 
 #include <Kore/Audio1/Audio.h>
-#include <Kore/Graphics4/Texture.h>
+#include <kinc/graphics4/texture.h>
 #include <Kore/IO/FileReader.h>
-#include <Kore/Log.h>
-#include <Kore/System.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
 #include <Kore/VideoSoundStream.h>
 #include <android_native_app_glue.h>
 #include <stdio.h>
@@ -111,10 +111,10 @@ namespace {
 			return false;
 		}
 		if ((bytesRead % MPEG2_TS_PACKET_SIZE) != 0) {
-			Kore::log(Kore::Info, "Dropping last packet because it is not whole");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Dropping last packet because it is not whole");
 		}
 		size_t packetsRead = bytesRead / MPEG2_TS_PACKET_SIZE;
-		Kore::log(Kore::Info, "Initially queueing %zu packets", packetsRead);
+		kinc_log(KINC_LOG_LEVEL_INFO, "Initially queueing %zu packets", packetsRead);
 
 		// Enqueue the content of our cache before starting to play,
 		// we don't want to starve the player
@@ -192,7 +192,7 @@ namespace {
 		if ((pBufferData == NULL) && (pBufferContext != NULL)) {
 			const int processedCommand = *(int*)pBufferContext;
 			if (kEosBufferCntxt == processedCommand) {
-				Kore::log(Kore::Info, "EOS was processed");
+				kinc_log(KINC_LOG_LEVEL_INFO, "EOS was processed");
 				// our buffer with the EOS message has been consumed
 				assert(0 == dataSize);
 				goto exit;
@@ -216,7 +216,7 @@ namespace {
 		bytesRead = AAsset_read(self->file, pBufferData, BUFFER_SIZE);
 		if (bytesRead > 0) {
 			if ((bytesRead % MPEG2_TS_PACKET_SIZE) != 0) {
-				Kore::log(Kore::Info, "Dropping last packet because it is not whole");
+				kinc_log(KINC_LOG_LEVEL_INFO, "Dropping last packet because it is not whole");
 			}
 			size_t packetsRead = bytesRead / MPEG2_TS_PACKET_SIZE;
 			size_t bufferSize = packetsRead * MPEG2_TS_PACKET_SIZE;
@@ -243,7 +243,7 @@ namespace {
 	}
 
 	void StreamChangeCallback(XAStreamInformationItf caller, XAuint32 eventId, XAuint32 streamIndex, void* pEventData, void* pContext) {
-		Kore::log(Kore::Info, "StreamChangeCallback called for stream %u", streamIndex);
+		kinc_log(KINC_LOG_LEVEL_INFO, "StreamChangeCallback called for stream %u", streamIndex);
 		AndroidVideo* self = (AndroidVideo*)pContext;
 		// pContext was specified as NULL at RegisterStreamChangeCallback and is unused here
 		// assert(NULL == pContext);
@@ -264,16 +264,16 @@ namespace {
 				XAVideoStreamInformation videoInfo;
 				res = (*caller)->QueryStreamInformation(caller, streamIndex, &videoInfo);
 				assert(XA_RESULT_SUCCESS == res);
-				Kore::log(Kore::Info, "Found video size %u x %u, codec ID=%u, frameRate=%u, bitRate=%u, duration=%u ms", videoInfo.width, videoInfo.height,
+				kinc_log(KINC_LOG_LEVEL_INFO, "Found video size %u x %u, codec ID=%u, frameRate=%u, bitRate=%u, duration=%u ms", videoInfo.width, videoInfo.height,
 				          videoInfo.codecId, videoInfo.frameRate, videoInfo.bitRate, videoInfo.duration);
 			} break;
 			default:
-				Kore::log(Kore::Error, "Unexpected domain %u\n", domain);
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Unexpected domain %u\n", domain);
 				break;
 			}
 		} break;
 		default:
-			Kore::log(Kore::Error, "Unexpected stream event ID %u\n", eventId);
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Unexpected stream event ID %u\n", eventId);
 			break;
 		}
 	}
@@ -304,7 +304,7 @@ namespace {
 		// open the file to play
 		file = AAssetManager_open(KoreAndroid::getAssetManager(), filename, AASSET_MODE_STREAMING);
 		if (file == NULL) {
-			Kore::log(Kore::Info, "Could not find video file.");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Could not find video file.");
 			return false;
 		}
 
@@ -372,7 +372,7 @@ namespace {
 
 		// enqueue the initial buffers
 		if (!enqueueInitialBuffers(false)) {
-			Kore::log(Kore::Info, "Could not enqueue initial buffers for video decoding.");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Could not enqueue initial buffers for video decoding.");
 			return false;
 		}
 
@@ -388,7 +388,7 @@ namespace {
 		res = (*playerPlayItf)->SetPlayState(playerPlayItf, XA_PLAYSTATE_PLAYING);
 		assert(XA_RESULT_SUCCESS == res);
 
-		Kore::log(Kore::Info, "Successfully loaded video.");
+		kinc_log(KINC_LOG_LEVEL_INFO, "Successfully loaded video.");
 
 		return true;
 	}
@@ -468,7 +468,7 @@ void KoreAndroidVideoInit() {
 
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
 #if KORE_ANDROID_API >= 15
-	Kore::log(Kore::Info, "Opening video %s.", filename);
+	kinc_log(KINC_LOG_LEVEL_INFO, "Opening video %s.", filename);
 	myWidth = 1023;
 	myHeight = 684;
 
@@ -499,7 +499,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 
 	KoreAndroid::getActivity()->vm->DetachCurrentThread();
 
-	image = new Graphics4::Texture(texid);
+	kinc_g4_texture_init_from_id(&image, texid);
 #endif
 }
 
@@ -520,7 +520,7 @@ Video::~Video() {
 void Video::play() {
 #if KORE_ANDROID_API >= 15
 	playing = true;
-	start = System::time();
+	start = kinc_time();
 #endif
 }
 
@@ -556,9 +556,9 @@ int Video::height() {
 #endif
 }
 
-Graphics4::Texture* Video::currentImage() {
+kinc_g4_texture_t *Video::currentImage() {
 #if KORE_ANDROID_API >= 15
-	return image;
+	return &image;
 #else
 	return nullptr;
 #endif

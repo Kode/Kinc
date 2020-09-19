@@ -659,7 +659,6 @@ void kinc_set_keep_screen_on(bool on) {
 #include <sys/time.h>
 #include <time.h>
 #include <kinc/window.h>
-#include <kinc/bridge.h>
 #include <kinc/input/acceleration.h>
 #include <kinc/input/rotation.h>
 
@@ -822,7 +821,7 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 		frame = &default_frame;
 	}
 
-	kinc_bridge_g4_internal_init(0, frame->depth_bits, frame->stencil_bits, true);
+	kinc_g4_init(0, frame->depth_bits, frame->stencil_bits, true);
 	return 0;
 }
 
