@@ -22,6 +22,7 @@
 #include <kinc/system.h>
 #include <kinc/threads/thread.h>
 #include <kinc/window.h>
+#include <kinc/display.h>
 
 #define DIRECTINPUT_VERSION 0x0800
 #ifdef WIN32_LEAN_AND_MEAN
@@ -1208,7 +1209,7 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
-	kinc_windows_init_displays();
+	kinc_display_init();
 
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&::frequency);

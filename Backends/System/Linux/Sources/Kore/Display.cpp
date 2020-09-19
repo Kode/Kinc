@@ -7,6 +7,7 @@
 
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
+#include <X11/extensions/Xrandr.h>
 
 #include <stdlib.h>
 
@@ -14,15 +15,14 @@ void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter);
 #define MAXIMUM_DISPLAY_COUNT 10
 static kinc_display_t displays[MAXIMUM_DISPLAY_COUNT];
 static int displayCounter = -1;
-static bool initialized = false;
+static bool display_initialized = false;
 
-extern "C" void enumerateDisplays() {
-    if (initialized) {
+void kinc_display_init() {
+    if (display_initialized) {
         return;
     }
-
-    initialized = true;
     enumDisplayMonitors(displays, displayCounter);
+    display_initialized = true;
 }
 
 kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
@@ -56,8 +56,24 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	Display *disp = XOpenDisplay(NULL);
 	mode.width = XWidthOfScreen(XDefaultScreenOfDisplay(disp));
 	mode.height = XHeightOfScreen(XDefaultScreenOfDisplay(disp));
-	XCloseDisplay(disp);
 	mode.frequency = 60;
+	Window win = RootWindow(disp, DefaultScreen(disp));
+	XRRScreenResources *res = XRRGetScreenResourcesCurrent(disp, win);
+	XRROutputInfo *out = XRRGetOutputInfo(disp, res, XRRGetOutputPrimary(disp, win));
+	XRRCrtcInfo *crtc = XRRGetCrtcInfo(disp, res, out->crtc);
+	for (int j = 0; j < res->nmode; ++j) {
+		XRRModeInfo *mode_info = &res->modes[j];
+		if (crtc->mode == mode_info->id) {
+			if (mode_info->hTotal && mode_info->vTotal) {
+				mode.frequency = (mode_info->dotClock / (mode_info->hTotal * mode_info->vTotal));
+			}
+			break;
+		}
+	}
+	XRRFreeCrtcInfo(crtc);
+	XRRFreeOutputInfo(out);
+	XRRFreeScreenResources(res);
+	XCloseDisplay(disp);
 	mode.bits_per_pixel = 32;
 	mode.pixels_per_inch = 96;
 	return mode;

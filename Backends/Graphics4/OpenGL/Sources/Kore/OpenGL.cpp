@@ -64,8 +64,10 @@
 #if !defined(KORE_IOS) && !defined(KORE_ANDROID)
 extern "C" bool Kinc_Internal_ProgramUsesTessellation;
 #endif
-extern "C" bool Kinc_Internal_SupportsConservativeRaster = false;
-extern "C" bool Kinc_Internal_SupportsDepthTexture = true;
+extern "C" bool Kinc_Internal_SupportsConservativeRaster;
+bool Kinc_Internal_SupportsConservativeRaster = false;
+extern "C" bool Kinc_Internal_SupportsDepthTexture;
+bool Kinc_Internal_SupportsDepthTexture = true;
 
 namespace {
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)
