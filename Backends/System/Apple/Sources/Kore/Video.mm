@@ -3,11 +3,10 @@
 #include "Video.h"
 
 #import <AVFoundation/AVFoundation.h>
-#include <Kore/Audio1/Audio.h>
-#include <Kore/Graphics4/Texture.h>
-#include <Kore/IO/FileReader.h>
-#include <Kore/Log.h>
-#include <Kore/System.h>
+#include <kinc/audio1/audio.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/log.h>
+#include <kinc/system.h>
 #include <Kore/VideoSoundStream.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,7 +57,7 @@ struct Video::Impl {
 	id url;
 };
 
-Video::Video(const char* filename) : playing(false), sound(nullptr), impl(new Impl) {
+Video::Video(const char* filename) : playing(false), sound(nullptr), impl(new Impl), image_initialized(false) {
 	char name[2048];
 #ifdef KORE_IOS
 	strcpy(name, iphonegetresourcepath());
@@ -70,7 +69,6 @@ Video::Video(const char* filename) : playing(false), sound(nullptr), impl(new Im
 	strcat(name, "/");
 	strcat(name, filename);
 	impl->url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
-	image = nullptr;
 	myWidth = -1;
 	myHeight = -1;
 	load(0);
@@ -152,7 +150,7 @@ void Video::play() {
 #endif
 
 	playing = true;
-	start = System::time() - videoStart;
+	start = kinc_time() - videoStart;
 }
 
 void Video::pause() {
@@ -194,11 +192,12 @@ void Video::updateImage() {
 
 		CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(buffer);
 
-		if (image == nullptr) {
+		if (!image_initialized) {
 			CGSize size = CVImageBufferGetDisplaySize(pixelBuffer);
 			myWidth = size.width;
 			myHeight = size.height;
-			image = new Graphics4::Texture(width(), height(), Graphics4::Image::BGRA32, false);
+			kinc_g4_texture_init(&image, width(), height(), KINC_IMAGE_FORMAT_BGRA32);
+			image_initialized = true;
 		}
 
 		if (pixelBuffer != NULL) {
@@ -252,7 +251,7 @@ int Video::height() {
 	return myHeight;
 }
 
-Graphics4::Texture* Video::currentImage() {
-	update(System::time());
-	return image;
+kinc_g4_texture_t *Video::currentImage() {
+	update(kinc_time());
+	return &image;
 }

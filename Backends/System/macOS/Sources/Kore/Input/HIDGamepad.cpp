@@ -4,75 +4,72 @@
 #include "HIDManager.h"
 
 #include <kinc/input/gamepad.h>
-
-#include <Kore/Log.h>
-#include <Kore/Error.h>
-#include <Kore/Math/Core.h>
-
-using namespace Kore;
+#include <kinc/error.h>
+#include <kinc/log.h>
+#include <kinc/math/core.h>
 
 namespace {
 	bool debugButtonInput = false;
 	void logButton(int buttonIndex, bool pressed) {
 		switch (buttonIndex) {
 		case 0:
-			log(Info, "A Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "A Pressed %i", pressed);
 			break;
 
 		case 1:
-			log(Info, "B Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "B Pressed %i", pressed);
 			break;
 
 		case 2:
-			log(Info, "X Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "X Pressed %i", pressed);
 			break;
 
 		case 3:
-			log(Info, "Y Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Y Pressed %i", pressed);
 			break;
 
 		case 4:
-			log(Info, "Lb Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Lb Pressed %i", pressed);
 			break;
 
 		case 5:
-			log(Info, "Rb Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Rb Pressed %i", pressed);
 			break;
 
 		case 6:
-			log(Info, "Left Stick Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Left Stick Pressed %i", pressed);
 			break;
 
 		case 7:
-			log(Info, "Right Stick Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Right Stick Pressed %i", pressed);
 			break;
 
 		case 8:
-			log(Info, "Start Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Start Pressed %i", pressed);
 			break;
 
 		case 9:
-			log(Info, "Back Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Back Pressed %i", pressed);
 			break;
 
 		case 10:
-			log(Info, "Home Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Home Pressed %i", pressed);
 			break;
 
 		case 11:
-			log(Info, "Up Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Up Pressed %i", pressed);
 			break;
 
 		case 12:
-			log(Info, "Down Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Down Pressed %i", pressed);
 			break;
 
 		case 13:
-			log(Info, "Left Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Left Pressed %i", pressed);
 			break;
 
 		case 14:
-			log(Info, "Right Pressed %i", pressed);
+			kinc_log(KINC_LOG_LEVEL_INFO, "Right Pressed %i", pressed);
 			break;
 
 		default:
@@ -84,27 +81,27 @@ namespace {
 	void logAxis(int axisIndex) {
 		switch (axisIndex) {
 		case 0:
-			log(Info, "Left stick X");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Left stick X");
 			break;
 
 		case 1:
-			log(Info, "Left stick Y");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Left stick Y");
 			break;
 
 		case 2:
-			log(Info, "Right stick X");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Right stick X");
 			break;
 
 		case 3:
-			log(Info, "Right stick Y");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Right stick Y");
 			break;
 
 		case 4:
-			log(Info, "Left trigger");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Left trigger");
 			break;
 
 		case 5:
-			log(Info, "Right trigger");
+			kinc_log(KINC_LOG_LEVEL_INFO, "Right trigger");
 			break;
 
 		default:
@@ -122,26 +119,26 @@ static void cstringFromCFStringRef(CFStringRef string, char *cstr, size_t clen) 
 	if (string != NULL) {
 		char temp[256];
 		if (CFStringGetCString(string, temp, 256, kCFStringEncodingUTF8)) {
-			temp[Kore::min(255, (int)(clen-1))] = '\0';
+			temp[kinc_mini(255, (int)(clen-1))] = '\0';
 			strncpy(cstr, temp, clen);
 		}
 	}
 }
 
-HIDGamepad::HIDGamepad() {
+Kore::HIDGamepad::HIDGamepad() {
 	reset();
 }
 
-HIDGamepad::~HIDGamepad() {
+Kore::HIDGamepad::~HIDGamepad() {
 	unbind();
 }
 
-void HIDGamepad::bind(IOHIDDeviceRef inDeviceRef, int inPadIndex) {
-	Kore::affirm(inDeviceRef != nullptr);
-	Kore::affirm(inPadIndex >= 0);
-	Kore::affirm(hidDeviceRef == nullptr);
-	Kore::affirm(hidQueueRef  == nullptr);
-	Kore::affirm(padIndex     == -1);
+void Kore::HIDGamepad::bind(IOHIDDeviceRef inDeviceRef, int inPadIndex) {
+	kinc_affirm(inDeviceRef != nullptr);
+	kinc_affirm(inPadIndex >= 0);
+	kinc_affirm(hidDeviceRef == nullptr);
+	kinc_affirm(hidQueueRef  == nullptr);
+	kinc_affirm(padIndex     == -1);
 
 	// Set device and device index
 	hidDeviceRef = inDeviceRef;
@@ -188,11 +185,11 @@ void HIDGamepad::bind(IOHIDDeviceRef inDeviceRef, int inPadIndex) {
 	gamepad->vendor 	 = hidDeviceVendor;
 	gamepad->productName = hidDeviceProduct;*/
 
-	Kore::log(Info, "HIDGamepad.bind: <%p> idx:%d [0x%x:0x%x] [%s] [%s]", inDeviceRef, padIndex, hidDeviceVendorID, hidDeviceProductID, hidDeviceVendor, hidDeviceProduct);
+	kinc_log(KINC_LOG_LEVEL_INFO, "HIDGamepad.bind: <%p> idx:%d [0x%x:0x%x] [%s] [%s]", inDeviceRef, padIndex, hidDeviceVendorID, hidDeviceProductID, hidDeviceVendor, hidDeviceProduct);
 }
 
-void HIDGamepad::initDeviceElements(CFArrayRef elements) {
-	Kore::affirm(elements != nullptr);
+void Kore::HIDGamepad::initDeviceElements(CFArrayRef elements) {
+	kinc_affirm(elements != nullptr);
 
 	for (CFIndex i = 0, count = CFArrayGetCount(elements); i < count; ++i) {
 		IOHIDElementRef elementRef = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, i);
@@ -254,8 +251,8 @@ void HIDGamepad::initDeviceElements(CFArrayRef elements) {
 	}
 }
 
-void HIDGamepad::unbind() {
-	Kore::log(Info, "HIDGamepad.unbind: idx:%d [0x%x:0x%x] [%s] [%s]", padIndex, hidDeviceVendorID, hidDeviceProductID, hidDeviceVendor, hidDeviceProduct);
+void Kore::HIDGamepad::unbind() {
+	kinc_log(KINC_LOG_LEVEL_INFO, "HIDGamepad.unbind: idx:%d [0x%x:0x%x] [%s] [%s]", padIndex, hidDeviceVendorID, hidDeviceProductID, hidDeviceVendor, hidDeviceProduct);
 
 	if (hidQueueRef) {
 		IOHIDQueueStop(hidQueueRef);
@@ -277,7 +274,7 @@ void HIDGamepad::unbind() {
 	reset();
 }
 
-void HIDGamepad::reset() {
+void Kore::HIDGamepad::reset() {
 	padIndex			= -1;
 	hidDeviceRef		= NULL;
 	hidQueueRef 		= NULL;
@@ -290,7 +287,7 @@ void HIDGamepad::reset() {
 	memset(buttons, 0, sizeof(buttons));
 }
 
-void HIDGamepad::buttonChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef, int buttonIndex) {
+void Kore::HIDGamepad::buttonChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef, int buttonIndex) {
 	// double rawValue = IOHIDValueGetIntegerValue(valueRef);
 	double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
 
@@ -306,7 +303,7 @@ void HIDGamepad::buttonChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRe
 	if (debugButtonInput) logButton(buttonIndex, (normalize != 0));
 }
 
-void HIDGamepad::axisChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef, int axisIndex) {
+void Kore::HIDGamepad::axisChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef, int axisIndex) {
 	// double rawValue = IOHIDValueGetIntegerValue(valueRef);
 	double rawValue = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
 
@@ -325,9 +322,9 @@ void HIDGamepad::axisChanged(IOHIDElementRef elementRef, IOHIDValueRef valueRef,
 	if (debugAxisInput) logAxis(axisIndex);
 }
 
-void HIDGamepad::inputValueCallback(void* inContext, IOReturn inResult, void* inSender, IOHIDValueRef inIOHIDValueRef) {}
+void Kore::HIDGamepad::inputValueCallback(void* inContext, IOReturn inResult, void* inSender, IOHIDValueRef inIOHIDValueRef) {}
 
-void HIDGamepad::valueAvailableCallback(void* inContext, IOReturn inResult, void* inSender) {
+void Kore::HIDGamepad::valueAvailableCallback(void* inContext, IOReturn inResult, void* inSender) {
 	HIDGamepad* pad = (HIDGamepad*)inContext;
 	do {
 		IOHIDValueRef valueRef = IOHIDQueueCopyNextValueWithTimeout((IOHIDQueueRef)inSender, 0.);

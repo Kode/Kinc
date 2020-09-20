@@ -2,22 +2,20 @@
 
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/HIDManager.h>
-#include <Kore/Log.h>
+#include <kinc/log.h>
 
-using namespace Kore;
-
-HIDManager::HIDManager() : managerRef(0x0) {
+Kore::HIDManager::HIDManager() : managerRef(0x0) {
 	initHIDManager();
 }
 
-HIDManager::~HIDManager() {
+Kore::HIDManager::~HIDManager() {
 	if (managerRef) {
 		IOHIDManagerUnscheduleFromRunLoop(managerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 		IOHIDManagerClose(managerRef, kIOHIDOptionsTypeNone);
 	}
 }
 
-int HIDManager::initHIDManager() {
+int Kore::HIDManager::initHIDManager() {
 	// Initialize the IOHIDManager
 	managerRef = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
 	if (CFGetTypeID(managerRef) == IOHIDManagerGetTypeID()) {
@@ -34,7 +32,7 @@ int HIDManager::initHIDManager() {
 			addMatchingArray(matchingCFArrayRef, matchingCFDictRef);
 		}
 		else {
-			Kore::log(Error, "%s: CFArrayCreateMutable failed.", __PRETTY_FUNCTION__);
+			kinc_log(KINC_LOG_LEVEL_ERROR, "%s: CFArrayCreateMutable failed.", __PRETTY_FUNCTION__);
 			return -1;
 		}
 
@@ -56,7 +54,7 @@ int HIDManager::initHIDManager() {
 	return -1;
 }
 
-bool HIDManager::addMatchingArray(CFMutableArrayRef matchingCFArrayRef, CFDictionaryRef matchingCFDictRef) {
+bool Kore::HIDManager::addMatchingArray(CFMutableArrayRef matchingCFArrayRef, CFDictionaryRef matchingCFDictRef) {
 	if (matchingCFDictRef) {
 		// Add it to the matching array
 		CFArrayAppendValue(matchingCFArrayRef, matchingCFDictRef);
@@ -66,7 +64,7 @@ bool HIDManager::addMatchingArray(CFMutableArrayRef matchingCFArrayRef, CFDictio
 	return false;
 }
 
-CFMutableDictionaryRef HIDManager::createDeviceMatchingDictionary(u32 inUsagePage, u32 inUsage) {
+CFMutableDictionaryRef Kore::HIDManager::createDeviceMatchingDictionary(u32 inUsagePage, u32 inUsage) {
 	// Create a dictionary to add usage page/usages to
 	CFMutableDictionaryRef result = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 	if (result) {
@@ -85,23 +83,23 @@ CFMutableDictionaryRef HIDManager::createDeviceMatchingDictionary(u32 inUsagePag
 						CFRelease(usageCFNumberRef);
 					}
 					else {
-						log(Error, "%s: CFNumberCreate(usage) failed.", __PRETTY_FUNCTION__);
+						kinc_log(KINC_LOG_LEVEL_ERROR, "%s: CFNumberCreate(usage) failed.", __PRETTY_FUNCTION__);
 					}
 				}
 			}
 			else {
-				log(Error, "%s: CFNumberCreate(usage page) failed.", __PRETTY_FUNCTION__);
+				kinc_log(KINC_LOG_LEVEL_ERROR, "%s: CFNumberCreate(usage page) failed.", __PRETTY_FUNCTION__);
 			}
 		}
 	}
 	else {
-		log(Error, "%s: CFDictionaryCreateMutable failed.", __PRETTY_FUNCTION__);
+		kinc_log(KINC_LOG_LEVEL_ERROR, "%s: CFDictionaryCreateMutable failed.", __PRETTY_FUNCTION__);
 	}
 	return result;
 }
 
 // HID device plugged callback
-void HIDManager::deviceConnected(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
+void Kore::HIDManager::deviceConnected(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
 	// Reference manager
 	HIDManager *manager = (HIDManager*) inContext;
 
@@ -119,7 +117,7 @@ void HIDManager::deviceConnected(void* inContext, IOReturn inResult, void* inSen
 }
 
 // HID device unplugged callback
-void HIDManager::deviceRemoved(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
+void Kore::HIDManager::deviceRemoved(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
 	// Reference manager
 	HIDManager *manager = (HIDManager*) inContext;
 
