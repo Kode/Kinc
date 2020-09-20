@@ -203,7 +203,7 @@ void Video::updateImage() {
 		if (pixelBuffer != NULL) {
 			CVPixelBufferLockBaseAddress(pixelBuffer, 0);
 #ifdef KORE_OPENGL
-			image->upload((u8*)CVPixelBufferGetBaseAddress(pixelBuffer), static_cast<int>(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
+			kinc_g4_texture_upload(&image, (u8*)CVPixelBufferGetBaseAddress(pixelBuffer), static_cast<int>(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
 #endif
 			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 		}
