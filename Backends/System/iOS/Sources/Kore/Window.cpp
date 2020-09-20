@@ -1,8 +1,6 @@
 #include "pch.h"
 
-#include <Kore/Graphics4/Graphics.h>
-
-#include <kinc/bridge.h>
+#include <kinc/graphics4/graphics.h>
 #include <kinc/display.h>
 #include <kinc/window.h>
 
@@ -26,8 +24,10 @@ void kinc_window_move(int window, int x, int y) {
 	
 }
 
+extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
+
 void kinc_window_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {
-	kinc_bridge_g4_internal_change_framebuffer(0, frame);
+	kinc_internal_change_framebuffer(0, frame);
 }
 
 #ifdef KORE_METAL
