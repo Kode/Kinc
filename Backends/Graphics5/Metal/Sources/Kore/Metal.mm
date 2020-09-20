@@ -49,11 +49,19 @@ void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
 
 void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
+static bool has_depth = false;
+
+extern "C" bool kinc_internal_current_render_target_has_depth() {
+	return has_depth;
+}
+
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	CAMetalLayer* metalLayer = getMetalLayer();
 	drawable = [metalLayer nextDrawable];
+	
+	has_depth = renderTarget->impl._depthTex != nil;
 
-	/*if (depthBits > 0 && (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height)) {
+	if (depthBits > 0 && (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height)) {
 		MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
 		descriptor.textureType = MTLTextureType2D;
 		descriptor.width = drawable.texture.width;
@@ -66,7 +74,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 		descriptor.usage = MTLTextureUsageRenderTarget;
 		id<MTLDevice> device = getMetalDevice();
 		depthTexture = [device newTextureWithDescriptor:descriptor];
-	}*/
+	}
 
 	id<MTLTexture> texture = drawable.texture;
 	MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];

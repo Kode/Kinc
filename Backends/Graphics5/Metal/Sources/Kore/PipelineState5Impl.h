@@ -8,8 +8,10 @@ typedef struct {
 	struct kinc_g5_shader *vertexShader;
 	struct kinc_g5_shader *fragmentShader;
 	id _pipeline;
+	id _pipelineDepth;
 	id _reflection;
 	id _depthStencil;
+	id _depthStencilNone;
 	//void _set();
 } PipelineState5Impl;
 
