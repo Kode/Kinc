@@ -2,6 +2,7 @@
 
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
+#include <kinc/log.h>
 
 #import <Metal/Metal.h>
 
@@ -143,35 +144,49 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		int index = findAttributeIndex(renderPipelineDesc.vertexFunction.vertexAttributes, pipeline->inputLayout[0]->elements[i].name);
 
 		if (index < 0) {
-			fprintf(stderr, "could not find vertex attribute %s\n", pipeline->inputLayout[0]->elements[i].name);
+			kinc_log(KINC_LOG_LEVEL_WARNING, "Could not find vertex attribute %s\n", pipeline->inputLayout[0]->elements[i].name);
 		}
 
-		vertexDescriptor.attributes[index].bufferIndex = 0;
-		vertexDescriptor.attributes[index].offset = offset;
-
+		if (index >= 0) {
+			vertexDescriptor.attributes[index].bufferIndex = 0;
+			vertexDescriptor.attributes[index].offset = offset;
+		}
+		
 		switch (pipeline->inputLayout[0]->elements[i].data) {
 		case KINC_G4_VERTEX_DATA_FLOAT1:
-			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat;
+			if (index >= 0) {
+				vertexDescriptor.attributes[index].format = MTLVertexFormatFloat;
+			}
 			offset += sizeof(float);
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT2:
-			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat2;
+			if (index >= 0) {
+				vertexDescriptor.attributes[index].format = MTLVertexFormatFloat2;
+			}
 			offset += 2 * sizeof(float);
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT3:
-			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat3;
+			if (index >= 0) {
+				vertexDescriptor.attributes[index].format = MTLVertexFormatFloat3;
+			}
 			offset += 3 * sizeof(float);
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT4:
-			vertexDescriptor.attributes[index].format = MTLVertexFormatFloat4;
+			if (index >= 0) {
+				vertexDescriptor.attributes[index].format = MTLVertexFormatFloat4;
+			}
 			offset += 4 * sizeof(float);
 			break;
 		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-			vertexDescriptor.attributes[index].format = MTLVertexFormatShort2Normalized;
+			if (index >= 0) {
+				vertexDescriptor.attributes[index].format = MTLVertexFormatShort2Normalized;
+			}
 			offset += 2 * sizeof(short);
 			break;
 		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-			vertexDescriptor.attributes[index].format = MTLVertexFormatShort4Normalized;
+			if (index >= 0) {
+				vertexDescriptor.attributes[index].format = MTLVertexFormatShort4Normalized;
+			}
 			offset += 4 * sizeof(short);
 			break;
 		default:
