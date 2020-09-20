@@ -7,6 +7,15 @@
 
 using namespace Kore;
 
+Graphics4::Texture::Texture(kinc_g4_texture_t texture) : Image(texture.tex_width, texture.tex_height, texture.tex_depth, (Format)texture.format, false) {
+	texWidth = kincTexture.tex_width;
+	texHeight = kincTexture.tex_height;
+	texDepth = kincTexture.tex_depth;
+
+	free(data);
+	data = nullptr;
+}
+
 Graphics4::Texture::Texture(const char *filename, bool readable) : Image(filename, readable) {
 	kinc_image_t image;
 	kinc_image_init(&image, data, width, height, (kinc_image_format_t)format);
