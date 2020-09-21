@@ -121,6 +121,8 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	XkbSetDetectableAutoRepeat(Kore::Linux::display, True, NULL);
 
 	XSetWindowAttributes swa;
+	swa.border_pixel = 0;
+	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask | FocusChangeMask;
 	Colormap cmap;
 
 #ifdef KORE_OPENGL
@@ -216,9 +218,6 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 
 	cmap = XCreateColormap(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), vi->visual, AllocNone);
 	swa.colormap = cmap;
-	swa.border_pixel = 0;
-	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
-
 	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
 							   CWBorderPixel | CWColormap | CWEventMask, &swa);
 #else
@@ -227,8 +226,6 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
     int depth  = DefaultDepth(Kore::Linux::display, screen);
     cmap = XCreateColormap(Kore::Linux::display, RootWindow(Kore::Linux::display, screen), visual, AllocNone);
 	swa.colormap = cmap;
-	swa.border_pixel = 0;
-	swa.event_mask = KeyPressMask | KeyReleaseMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
 	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, DefaultScreen(Kore::Linux::display)), 0, 0, width, height, 0, depth, InputOutput, visual,
 						CWBorderPixel | CWColormap | CWEventMask, &swa);
 #endif
@@ -806,6 +803,14 @@ bool kinc_internal_handle_messages() {
 		}
 		case Expose:
 			break;
+		case FocusIn: {
+			kinc_internal_foreground_callback();
+			break;
+		}
+		case FocusOut: {
+			kinc_internal_background_callback();
+			break;
+		}
 		}
 	}
 	Kore::updateHIDGamepads();
