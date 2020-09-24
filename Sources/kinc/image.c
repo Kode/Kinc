@@ -425,6 +425,10 @@ void kinc_image_init_from_bytes(kinc_image_t *image, void *data, int width, int 
 }
 
 void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int width, int height, int depth, kinc_image_format_t format) {
+	image->width = width;
+	image->height = height;
+	image->depth = depth;
+	image->format = format;
 	image->compression = KINC_IMAGE_COMPRESSION_NONE;
 	image->data = data;
 }
