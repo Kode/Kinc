@@ -52,6 +52,7 @@
 
 extern "C" __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 extern "C" __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+extern "C" void kinc_internal_resize(int window, int width, int height);
 
 typedef BOOL(WINAPI *GetPointerInfoType)(UINT32 pointerId, POINTER_INFO *pointerInfo);
 static GetPointerInfoType MyGetPointerInfo = NULL;
@@ -290,6 +291,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		if (window >= 0) {
 			int width = LOWORD(lParam);
 			int height = HIWORD(lParam);
+			kinc_internal_resize(window, width, height);
 			kinc_internal_call_resize_callback(window, width, height);
 		}
 		break;
