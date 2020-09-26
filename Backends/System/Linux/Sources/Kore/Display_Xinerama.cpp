@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include <Kore/Display.h>
-#include <Kore/Log.h>
+#include <kinc/log.h>
 
 #include <X11/X.h>
 #include <X11/extensions/Xinerama.h>
@@ -14,7 +14,7 @@ void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter) {
     ::Display* dpy = XOpenDisplay(NULL);
 
     if (dpy == NULL) {
-        log(Kore::Error, "Could not open display");
+        kinc_log(KINC_LOG_LEVEL_ERROR, "Could not open display");
         exit(1);
         return;
     }
@@ -30,7 +30,6 @@ void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter) {
             for (int head = 0; head < heads; ++head) {
                 ++displayCounter;
                 XineramaScreenInfo& info = queried[head];
-                // log(Info, "Head %i: %ix%i @%i;%i", head + 1, info.width, info.height, info.x_org, info.y_org);
 	            kinc_display_t& di = displays[displayCounter];
                 di.available = true;
                 di.x = info.x_org;
@@ -53,11 +52,11 @@ void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter) {
             XFree(queried);
         }
         else {
-            log(Kore::Warning, "Xinerama is not active");
+            kinc_log(KINC_LOG_LEVEL_WARNING, "Xinerama is not active");
         }
     }
     else {
-        log(Kore::Warning, "Xinerama extension is not installed");
+        kinc_log(KINC_LOG_LEVEL_WARNING, "Xinerama extension is not installed");
 	    kinc_display_t &di = displays[0];
         di.available = true;
         di.x = 0;

@@ -1,7 +1,6 @@
 #if defined(KORE_LINUX_SYSTEM_SCREENS_XRANDR)
 
 #include "pch.h"
-#include <Kore/Log.h>
 
 #include <X11/extensions/Xrandr.h>
 
