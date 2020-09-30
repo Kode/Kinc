@@ -28,6 +28,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	DWORD usage = 0;
 	texture->tex_width = image->width;
 	texture->tex_height = image->height;
+	texture->tex_depth = 1;
 	usage = D3DUSAGE_DYNAMIC;
 	kinc_microsoft_affirm_message(
 	    device->CreateTexture(image->width, image->height, 1, usage, convert(image->format), D3DPOOL_DEFAULT, &texture->impl.texture, 0),
@@ -57,6 +58,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 	DWORD usage = 0;
 	texture->tex_width = width;
 	texture->tex_height = height;
+	texture->tex_depth = 1;
 	usage = D3DUSAGE_DYNAMIC;
 	kinc_microsoft_affirm_message(device->CreateTexture(width, height, 1, usage, convert(format), D3DPOOL_DEFAULT, &texture->impl.texture, 0),
 	                              "Texture creation failed.");

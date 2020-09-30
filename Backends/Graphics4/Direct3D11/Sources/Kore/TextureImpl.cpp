@@ -71,6 +71,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	texture->impl.stage = 0;
 	texture->tex_width = image->width;
 	texture->tex_height = image->height;
+	texture->tex_depth = 1;
 	texture->format = image->format;
 	texture->impl.rowPitch = 0;
 
@@ -130,6 +131,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 	texture->impl.stage = 0;
 	texture->tex_width = width;
 	texture->tex_height = height;
+	texture->tex_depth = 1;
 	texture->format = format;
 
 	D3D11_TEXTURE2D_DESC desc;
@@ -260,7 +262,7 @@ void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
 
 void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, uint color) {
 	if (texture->impl.renderView == nullptr) {
-		texture->tex_depth > 1 ? 
+		texture->tex_depth > 1 ?
 			kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture3D, 0, &texture->impl.renderView))
 		                       : kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture, 0, &texture->impl.renderView));
 	}
