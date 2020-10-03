@@ -15,7 +15,11 @@
 static const int textureCount = 16;
 extern kinc_g5_texture_t *currentTextures[textureCount];
 extern kinc_g5_render_target_t *currentRenderTargets[textureCount];
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+extern ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
+#else
 extern IDXGISwapChain *swapChain;
+#endif
 
 namespace {
 	ID3D12Fence *renderFence;
@@ -99,7 +103,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 			}
 		}
 	}
-	
+
 	D3D12_RENDER_TARGET_VIEW_DESC view;
 	const D3D12_RESOURCE_DESC resourceDesc = render_target->impl.renderTarget->GetDesc();
 	view.Format = dxgiFormat;
@@ -151,8 +155,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 		clearValue.DepthStencil.Depth = 1.0f;
 		clearValue.DepthStencil.Stencil = 0;
 
-		HRESULT result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &depthTexture,
-		                                D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilTexture));
+		HRESULT result =
+		    device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &depthTexture,
+		                                    D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilTexture));
 		if (result != S_OK) {
 			for (int i = 0; i < 10; ++i) {
 				kinc_memory_emergency();
@@ -196,7 +201,11 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	render_target->impl.viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
 
 	if (contextId < 0) { // encoded backbuffer index
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+		render_target->impl.renderTarget = swapChainRenderTargets[-contextId - 1];
+#else
 		swapChain->GetBuffer(-contextId - 1, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
+#endif
 		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap, dxgiFormat);
 	}
 }
