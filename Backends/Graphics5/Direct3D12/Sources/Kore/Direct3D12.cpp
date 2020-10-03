@@ -48,7 +48,11 @@ ID3D12RootSignature *globalRootSignature;
 // ID3D12GraphicsCommandList* commandList;
 ID3D12Resource *depthStencilTexture;
 ID3D12CommandQueue *commandQueue;
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
+#else
 IDXGISwapChain *swapChain;
+#endif
 
 extern "C" {
 int renderTargetWidth;
@@ -67,11 +71,19 @@ using namespace Kore;
 struct RenderEnvironment {
 	ID3D12Device *device;
 	ID3D12CommandQueue *queue;
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+	ID3D12Resource *renderTargets[QUEUE_SLOT_COUNT];
+#else
 	IDXGISwapChain *swapChain;
+#endif
 };
 
 #ifndef KORE_WINDOWS
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+void createSwapChain(RenderEnvironment *env, int bufferCount);
+#else
 void createSwapChain(RenderEnvironment *env, const DXGI_SWAP_CHAIN_DESC1 *desc);
+#endif
 #endif
 
 void createSamplersAndHeaps();
@@ -108,7 +120,11 @@ namespace {
 		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
 		kinc_microsoft_affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
 #else
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+		createSwapChain(&result, QUEUE_SLOT_COUNT);
+#else
 		createSwapChain(&result, swapChainDesc);
+#endif
 #endif
 		return result;
 	}
@@ -186,7 +202,13 @@ namespace {
 
 		device = renderEnv.device;
 		commandQueue = renderEnv.queue;
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
+			swapChainRenderTargets[i] = renderEnv.renderTargets[i];
+		}
+#else
 		swapChain = renderEnv.swapChain;
+#endif
 
 		setupSwapChain();
 	}
@@ -365,7 +387,9 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
 		depthStencilDescriptorHeap->Release();
 		depthStencilTexture->Release();
+#ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 		kinc_microsoft_affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+#endif
 		setupSwapChain();
 		renderTargetWidth = newRenderTargetWidth;
 		renderTargetHeight = newRenderTargetHeight;
@@ -413,10 +437,12 @@ extern "C" void kinc_internal_resize(int window, int width, int height) {
 
 extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
 
+#ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 bool kinc_g5_swap_buffers() {
 	kinc_microsoft_affirm(swapChain->Present(vsync, 0));
 	return true;
 }
+#endif
 
 void kinc_g5_flush() {}
 
