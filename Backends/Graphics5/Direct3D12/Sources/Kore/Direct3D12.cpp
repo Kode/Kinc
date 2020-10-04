@@ -378,6 +378,10 @@ namespace {
 	bool began = false;
 }
 
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+extern "C" void kinc_internal_wait_for_frame();
+#endif
+
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	if (began) return;
 	began = true;
@@ -406,6 +410,10 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 #endif
 
 	waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
+
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+	kinc_internal_wait_for_frame();
+#endif
 
 	// static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
