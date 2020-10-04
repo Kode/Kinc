@@ -35,7 +35,7 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_
 	*/
 
 	commandList->SetPipelineState(pipeline->impl.pso);
-#ifdef KORE_DXC
+#ifdef KORE_DXC_DISABLED
 	commandList->SetGraphicsRootSignature(pipeline->impl.rootSignature);
 #else
 	commandList->SetGraphicsRootSignature(globalRootSignature);
@@ -244,9 +244,9 @@ namespace {
 		case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
 		default:
 #ifdef KORE_WINDOWS
-		return DXGI_FORMAT_R8G8B8A8_UNORM;
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
 #else
-		return DXGI_FORMAT_B8G8R8A8_UNORM;
+			return DXGI_FORMAT_B8G8R8A8_UNORM;
 #endif
 		}
 	}
@@ -304,7 +304,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	}
 
 	HRESULT hr;
-#ifdef KORE_DXC
+#ifdef KORE_DXC_DISABLED
 	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
@@ -320,7 +320,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.VS.pShaderBytecode = pipe->vertexShader->impl.data;
 	psoDesc.PS.BytecodeLength = pipe->fragmentShader->impl.length;
 	psoDesc.PS.pShaderBytecode = pipe->fragmentShader->impl.data;
-#ifdef KORE_DXC
+#ifdef KORE_DXC_DISABLED
 	psoDesc.pRootSignature = pipe->impl.rootSignature;
 #else
 	psoDesc.pRootSignature = globalRootSignature;
