@@ -12,6 +12,7 @@
 #include <kinc/input/pen.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
+#include <kinc/window.h>
 #include <android/sensor.h>
 #include <android/window.h>
 #include <android_native_app_glue.h>
@@ -36,6 +37,7 @@ namespace {
     bool paused = true;
     bool displayIsInitialized = false;
     bool appIsForeground = false;
+    bool activityJustResized = false;
 }
 
 void androidSwapBuffers() {
@@ -547,6 +549,10 @@ namespace {
 		}
 		}
 	}
+
+	void resize(ANativeActivity *activity, ANativeWindow *window) {
+		activityJustResized = true;
+	}
 }
 
 ANativeActivity* KoreAndroid::getActivity() {
@@ -717,6 +723,13 @@ bool kinc_internal_handle_messages(void) {
 		}
 	}
 
+	if (activityJustResized && app->window != NULL) {
+		activityJustResized = false;
+		int32_t width = ANativeWindow_getWidth(app->window);
+		int32_t height = ANativeWindow_getHeight(app->window);
+		kinc_internal_call_resize_callback(0, width, height);
+	}
+
 	// Get screen rotation
 	/*
 	JNIEnv* env;
@@ -779,6 +792,7 @@ extern "C" void android_main(android_app* app) {
 	KoreAndroidVideoInit();
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
+	activity->callbacks->onNativeWindowResized = resize;
 
 	glContext = ndk_helper::GLContext::GetInstance();
 	sensorManager = ASensorManager_getInstance();
