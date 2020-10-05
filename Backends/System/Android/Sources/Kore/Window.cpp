@@ -15,6 +15,11 @@ Window* Window::get(int window) {
 	return &::window;
 }*/
 
+namespace {
+	void (*resizeCallback)(int x, int y, void* data);
+	void* resizeCallbackData;
+}
+
 int kinc_count_windows(void) {
 	return 1;
 }
@@ -82,7 +87,14 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 }
 
 void kinc_window_set_resize_callback(int window_index, void (*callback)(int x, int y, void *data), void *data) {
+	resizeCallback = callback;
+	resizeCallbackData = data;
+}
 
+void kinc_internal_call_resize_callback(int window_index, int width, int height) {
+	if (resizeCallback != NULL) {
+		resizeCallback(width, height, resizeCallbackData);
+	}
 }
 
 void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data) {
