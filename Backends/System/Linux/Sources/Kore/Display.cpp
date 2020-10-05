@@ -60,18 +60,20 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	Window win = RootWindow(disp, DefaultScreen(disp));
 	XRRScreenResources *res = XRRGetScreenResourcesCurrent(disp, win);
 	XRROutputInfo *out = XRRGetOutputInfo(disp, res, XRRGetOutputPrimary(disp, win));
-	XRRCrtcInfo *crtc = XRRGetCrtcInfo(disp, res, out->crtc);
-	for (int j = 0; j < res->nmode; ++j) {
-		XRRModeInfo *mode_info = &res->modes[j];
-		if (crtc->mode == mode_info->id) {
-			if (mode_info->hTotal && mode_info->vTotal) {
-				mode.frequency = (mode_info->dotClock / (mode_info->hTotal * mode_info->vTotal));
+	if (out != NULL) {
+		XRRCrtcInfo *crtc = XRRGetCrtcInfo(disp, res, out->crtc);
+		for (int j = 0; j < res->nmode; ++j) {
+			XRRModeInfo *mode_info = &res->modes[j];
+			if (crtc->mode == mode_info->id) {
+				if (mode_info->hTotal && mode_info->vTotal) {
+					mode.frequency = (mode_info->dotClock / (mode_info->hTotal * mode_info->vTotal));
+				}
+				break;
 			}
-			break;
 		}
+		XRRFreeCrtcInfo(crtc);
+		XRRFreeOutputInfo(out);
 	}
-	XRRFreeCrtcInfo(crtc);
-	XRRFreeOutputInfo(out);
 	XRRFreeScreenResources(res);
 	XCloseDisplay(disp);
 	mode.bits_per_pixel = 32;
