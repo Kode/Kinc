@@ -59,12 +59,11 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	mode.frequency = 60;
 	Window win = RootWindow(disp, DefaultScreen(disp));
 	XRRScreenResources *res = XRRGetScreenResourcesCurrent(disp, win);
-	RROutput output = XRRGetOutputPrimary(disp, win);
-	bool skip_frequency_check = false;
+	RROutput primary = XRRGetOutputPrimary(disp, win);
 	XRROutputInfo *output_info = NULL;
 
 	// a primary output might not always be active, so pick the first available in this case
-	if (output == 0) {
+	if (primary == 0) {
 		// kinc_log(KINC_LOG_LEVEL_WARNING, "No primary output detected");
 		for (int i = 0; i < res->noutput; ++i) {
 			// kinc_log(KINC_LOG_LEVEL_INFO, "Checking output %i", i);
@@ -77,6 +76,8 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 				break;
 			}
 		}
+	} else {
+		output_info = XRRGetOutputInfo(disp, res, primary);
 	}
 
 	if (output_info != NULL) {
