@@ -59,9 +59,33 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	mode.frequency = 60;
 	Window win = RootWindow(disp, DefaultScreen(disp));
 	XRRScreenResources *res = XRRGetScreenResourcesCurrent(disp, win);
-	XRROutputInfo *out = XRRGetOutputInfo(disp, res, XRRGetOutputPrimary(disp, win));
-	if (out != NULL) {
-		XRRCrtcInfo *crtc = XRRGetCrtcInfo(disp, res, out->crtc);
+	RROutput primary = XRRGetOutputPrimary(disp, win);
+	XRROutputInfo *output_info = NULL;
+
+	if (primary != 0) {
+		output_info = XRRGetOutputInfo(disp, res, primary);
+
+		if (output_info->connection != RR_Connected || output_info->crtc == 0) {
+			XRRFreeOutputInfo(output_info);
+			output_info = NULL;
+		}
+	}
+
+	if (output_info == NULL) {
+		for (int i = 0; i < res->noutput; ++i) {
+			output_info = XRRGetOutputInfo(disp, res, res->outputs[i]);
+
+			if (output_info->connection != RR_Connected || output_info->crtc == 0) {
+				XRRFreeOutputInfo(output_info);
+				output_info = NULL;
+			} else {
+				break;
+			}
+		}
+	}
+
+	if (output_info != NULL) {
+		XRRCrtcInfo *crtc = XRRGetCrtcInfo(disp, res, output_info->crtc);
 		for (int j = 0; j < res->nmode; ++j) {
 			XRRModeInfo *mode_info = &res->modes[j];
 			if (crtc->mode == mode_info->id) {
@@ -72,8 +96,9 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 			}
 		}
 		XRRFreeCrtcInfo(crtc);
-		XRRFreeOutputInfo(out);
+		XRRFreeOutputInfo(output_info);
 	}
+
 	XRRFreeScreenResources(res);
 	XCloseDisplay(disp);
 	mode.bits_per_pixel = 32;
@@ -125,7 +150,6 @@ const kinc_display_t *primaryScreen() {
 
 	if (!displays[0].available) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "No display attached?");
-		// TODO (DK) throw exception?
 		return nullptr;
 	}
 
@@ -144,7 +168,6 @@ const kinc_display_t *screenById(int id) {
 
 	if (!displays[0].available) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "No display available");
-		// TODO (DK) throw exception?
 		return nullptr;
 	}
 
