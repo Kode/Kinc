@@ -62,22 +62,26 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	RROutput primary = XRRGetOutputPrimary(disp, win);
 	XRROutputInfo *output_info = NULL;
 
-	// a primary output might not always be active, so pick the first available in this case
-	if (primary == 0) {
-		// kinc_log(KINC_LOG_LEVEL_WARNING, "No primary output detected");
+	if (primary != 0) {
+		output_info = XRRGetOutputInfo(disp, res, primary);
+
+		if (output_info->connection != RR_Connected || output_info->crtc == 0) {
+			XRRFreeOutputInfo(output_info);
+			output_info = NULL;
+		}
+	}
+
+	if (output_info == NULL) {
 		for (int i = 0; i < res->noutput; ++i) {
-			// kinc_log(KINC_LOG_LEVEL_INFO, "Checking output %i", i);
 			output_info = XRRGetOutputInfo(disp, res, res->outputs[i]);
+
 			if (output_info->connection != RR_Connected || output_info->crtc == 0) {
 				XRRFreeOutputInfo(output_info);
 				output_info = NULL;
 			} else {
-				// kinc_log(KINC_LOG_LEVEL_INFO, "Output %i (%s) is available", i, output_info->name);
 				break;
 			}
 		}
-	} else {
-		output_info = XRRGetOutputInfo(disp, res, primary);
 	}
 
 	if (output_info != NULL) {
@@ -93,8 +97,6 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 		}
 		XRRFreeCrtcInfo(crtc);
 		XRRFreeOutputInfo(output_info);
-	} else {
-		// kinc_log(KINC_LOG_LEVEL_WARNING, "No output detected");
 	}
 
 	XRRFreeScreenResources(res);
