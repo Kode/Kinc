@@ -200,9 +200,9 @@ KINC_FUNC extern void (*kinc_keyboard_key_down_callback)(int /*key_code*/);
 KINC_FUNC extern void (*kinc_keyboard_key_up_callback)(int /*key_code*/);
 KINC_FUNC extern void (*kinc_keyboard_key_press_callback)(unsigned /*character*/);
 
-KINC_FUNC void kinc_internal_keyboard_trigger_key_down(int key_code);
-KINC_FUNC void kinc_internal_keyboard_trigger_key_up(int key_code);
-KINC_FUNC void kinc_internal_keyboard_trigger_key_press(unsigned character);
+void kinc_internal_keyboard_trigger_key_down(int key_code);
+void kinc_internal_keyboard_trigger_key_up(int key_code);
+void kinc_internal_keyboard_trigger_key_press(unsigned character);
 
 #ifdef __cplusplus
 }
