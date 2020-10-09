@@ -13,8 +13,8 @@ typedef struct {
 	int mySize;
 } ConstantBuffer5Impl;
 
-extern bool kinc_g5_transposeMat3;
-extern bool kinc_g5_transposeMat4;
+KINC_FUNC extern bool kinc_g5_transposeMat3;
+KINC_FUNC extern bool kinc_g5_transposeMat4;
 
 #ifdef __cplusplus
 }
