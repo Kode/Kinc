@@ -23,9 +23,9 @@ jobs:
     - name: Get Kinc_bin
       run: git clone https://github.com/Kode-Community/Kinc_bin
     - name: Copy binary
-      run: copy build\x64\Release\Kinc.dll Kinc_bin\Kinc_D3D11.dll
+      run: copy build\x64\Release\Kinc.dll Kinc_bin\D3D11\dll\Kinc.dll
     - name: Copy binary
-      run: copy build\x64\Release\Kinc.lib Kinc_bin\Kinc_D3D11.lib
+      run: copy build\x64\Release\Kinc.lib Kinc_bin\D3D11\dll\Kinc.lib
     - name: Set name
       run: git config --global user.name "foundbot"
     - name: Set email
