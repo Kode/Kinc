@@ -236,6 +236,8 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	XChangeProperty(Kore::Linux::display, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)nameClass, strlen(nameClass));
 
 	switch (windowMode) {
+	case KINC_WINDOW_MODE_WINDOW:
+		break;
 	case KINC_WINDOW_MODE_FULLSCREEN: // fall through
 	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN: {
 		Atom awmHints = XInternAtom(Kore::Linux::display, "_MOTIF_WM_HINTS", 0);
