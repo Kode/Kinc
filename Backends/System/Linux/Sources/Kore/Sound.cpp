@@ -191,7 +191,7 @@ namespace {
 				int delivered = playback_callback(frames_to_deliver);
 
 				if (delivered != frames_to_deliver) {
-					fprintf(stderr, "playback callback failed (delivered %i / %i frames)\n", delivered, frames_to_deliver);
+					fprintf(stderr, "playback callback failed (delivered %i / %ld frames)\n", delivered, frames_to_deliver);
 					// break;
 				}
 			}
