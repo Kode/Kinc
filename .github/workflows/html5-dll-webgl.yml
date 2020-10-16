@@ -1,11 +1,12 @@
 name: HTML5Library(WebGL)
 
 on:
-  workflow_run:
-    workflows: ["WindowsLib(Direct3D 12)"]
-    branches: [weipull]
-    types: 
-      - completed
+  push:
+    branches:
+    - weipull
+  pull_request:
+    branches:
+    - weipull
 jobs:
   build:
 

@@ -1,12 +1,11 @@
 name: WindowsDLL(Direct3D 11)
 
 on:
-  push:
-    branches:
-    - weipull
-  pull_request:
-    branches:
-    - weipull
+  workflow_run:
+    workflows: ["Linux.so(Vulkan)"]
+    branches: [weipull]
+    types: 
+      - completed
 
 jobs:
   build:
