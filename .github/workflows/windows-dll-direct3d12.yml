@@ -1,0 +1,39 @@
+name: WindowsDLL(Direct3D 12)
+
+on:
+  workflow_run:
+    workflows: ["WindowsDLL(Direct3D 11)"]
+    branches: [master]
+    types:
+      - completed
+jobs:
+  build:
+
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Get Submodules
+      run: git submodule update --init --recursive
+    - name: Get Node.js
+      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
+    - name: Compile
+      run: .\nodejs_bin\node.exe make.js -g direct3d12 --kinc . --dynlib --compile --noshaders
+    - name: Get Kinc_bin
+      run: git clone https://github.com/Kode-Community/Kinc_bin
+    - name: Copy binary
+      run: copy build\x64\Release\Kinc.dll Kinc_bin\Kinc_D3D12.dll
+    - name: Set name
+      run: git config --global user.name "foundbot"
+    - name: Set email
+      run: git config --global user.email "foundry2dbot@gmail.com"
+    - name: Commit binary
+      run: git -C Kinc_bin commit -a -m "Update Windows D3D12 binary to ${env:GITHUB_SHA}."
+    - name: Tag binary
+      run: git -C Kinc_bin tag windows_D3D12_${env:GITHUB_SHA}
+    - name: Pull before push
+      run: git -C Kinc_bin pull
+    - name: Push binary
+      run: git -C Kinc_bin push https://foundbot:${env:FOUNDBOT_PASS}@github.com/Kode-Community/Kinc_bin.git master --tags
+      env:
+        FOUNDBOT_PASS: ${{ secrets.FOUNDBOT_PASS }}

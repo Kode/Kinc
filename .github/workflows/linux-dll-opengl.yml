@@ -1,0 +1,47 @@
+name: Linux.so(OpenGL)
+
+on:
+  workflow_run:
+    workflows: ["HTML5Library(WebGL)"]
+    branches: [master]
+    types: 
+      - completed
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Apt Update
+      run: sudo apt-get update
+    - name: Apt Install
+      run: sudo apt-get install libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libvulkan-dev --yes --quiet
+    - name: Get Submodules
+      run: git submodule update --init --recursive
+    - name: Get Node.js
+      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
+    - name: Setup Node.js
+      run: nodejs_bin/copysysbin.sh
+    - name: Compile
+      run: nodejs_bin/node make.js -g opengl --kinc . --noshaders --dynlib --compile
+    - name: Set name
+      run: git config --global user.name "foundbot"
+    - name: Set email
+      run: git config --global user.email "foundry2dbot@gmail.com"
+    - name: Sleep 30
+      run: sleep 30      
+    - name: Get Kinc_bin
+      run: git clone https://github.com/Kode-Community/Kinc_bin
+    - name: Copy binary
+      run:  cp build/Release/Kinc.so Kinc_bin/Kinc_opengl.so
+    - name: Commit binary
+      run: git -C Kinc_bin commit -a -m "Update Linux Opengl binary to $GITHUB_SHA."
+    - name: Tag binary
+      run: git -C Kinc_bin tag linux_opengl_$GITHUB_SHA
+    - name: Pull before push
+      run: git -C Kinc_bin pull
+    - name: Push binary
+      run: git -C Kinc_bin push https://foundbot:$FOUNDBOT_PASS@github.com/Kode-Community/Kinc_bin.git master --tags
+      env:
+        FOUNDBOT_PASS: ${{ secrets.FOUNDBOT_PASS }}

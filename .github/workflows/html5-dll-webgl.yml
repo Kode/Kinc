@@ -1,0 +1,45 @@
+name: HTML5Library(WebGL)
+
+on:
+  workflow_run:
+    workflows: ["WindowsLib(Direct3D 12)"]
+    branches: [master]
+    types: 
+      - completed
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Get Submodules
+      run: git submodule update --init --recursive
+    - name: Get Node.js
+      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
+    - name: Setup Node.js 
+      run: nodejs_bin/copysysbin.sh
+    - name: Compile (kincmake)
+      run: nodejs_bin/node make.js html5 --kinc . --from Tests/html5 --noshaders
+    - name: Compile (emscripten)
+      run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../build && make
+    - name: Get Kinc_bin
+      run: git clone https://github.com/Kode-Community/Kinc_bin
+    - name: Copy wasm binary
+      run:  cp ./build/kore.wasm Kinc_bin/Kinc_webgl.wasm
+    - name: Copy js binary
+      run:  cp ./build/kore.js Kinc_bin/Kinc_webgl.js
+    - name: Set name
+      run: git config --global user.name "foundbot"
+    - name: Set email
+      run: git config --global user.email "foundry2dbot@gmail.com"
+    - name: Commit binary
+      run: git -C Kinc_bin commit -a -m "Update HTML5 Webgl binary to $GITHUB_SHA."
+    - name: Tag binary
+      run: git -C Kinc_bin tag html5_webgl_$GITHUB_SHA
+    - name: Pull before push
+      run: git -C Kinc_bin pull
+    - name: Push binary
+      run: git -C Kinc_bin push https://foundbot:$FOUNDBOT_PASS@github.com/Kode-Community/Kinc_bin.git master --tags
+      env:
+        FOUNDBOT_PASS: ${{ secrets.FOUNDBOT_PASS }}

@@ -1,0 +1,45 @@
+name: Linux.so(Vulkan)
+
+on:
+  workflow_run:
+    workflows: ["Linux.so(OpenGL)"]
+    branches: [master]
+    types: 
+      - completed
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Apt Update
+      run: sudo apt-get update
+    - name: Apt Install
+      run: sudo apt-get install libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libvulkan-dev --yes --quiet
+    - name: Get Submodules
+      run: git submodule update --init --recursive
+    - name: Get Node.js
+      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
+    - name: Setup Node.js
+      run: nodejs_bin/copysysbin.sh
+    - name: Compile
+      run: nodejs_bin/node make.js -g vulkan --kinc . --noshaders --dynlib --compile
+    - name: Get Kinc_bin
+      run: git clone https://github.com/Kode-Community/Kinc_bin
+    - name: Copy binary
+      run:  cp build/Release/Kinc.so Kinc_bin/Kinc_vulkan.so
+    - name: Set name
+      run: git config --global user.name "foundbot"
+    - name: Set email
+      run: git config --global user.email "foundry2dbot@gmail.com"
+    - name: Commit binary
+      run: git -C Kinc_bin commit -a -m "Update Linux Vulkan binary to $GITHUB_SHA."
+    - name: Tag binary
+      run: git -C Kinc_bin tag linux_vulkan_$GITHUB_SHA
+    - name: Pull before push
+      run: git -C Kinc_bin pull
+    - name: Push binary
+      run: git -C Kinc_bin push https://foundbot:$FOUNDBOT_PASS@github.com/Kode-Community/Kinc_bin.git master --tags
+      env:
+        FOUNDBOT_PASS: ${{ secrets.FOUNDBOT_PASS }}
