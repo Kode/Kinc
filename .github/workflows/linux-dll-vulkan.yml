@@ -3,7 +3,7 @@ name: Linux.so(Vulkan)
 on:
   workflow_run:
     workflows: ["Linux.so(OpenGL)"]
-    branches: [master]
+    branches: [weipull]
     types: 
       - completed
 jobs:

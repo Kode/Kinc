@@ -3,7 +3,7 @@ name: WindowsLib(Direct3D 12)
 on:
   workflow_run:
     workflows: ["WindowsLib(Direct3D 11)"]
-    branches: [master]
+    branches: [weipull]
     types:
       - completed
 jobs:

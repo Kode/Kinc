@@ -3,7 +3,7 @@ name: Linux.so(OpenGL)
 on:
   workflow_run:
     workflows: ["HTML5Library(WebGL)"]
-    branches: [master]
+    branches: [weipull]
     types: 
       - completed
 jobs:

@@ -3,10 +3,10 @@ name: WindowsDLL(Direct3D 11)
 on:
   push:
     branches:
-    - master
+    - weipull
   pull_request:
     branches:
-    - master
+    - weipull
 
 jobs:
   build:
