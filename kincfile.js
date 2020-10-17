@@ -351,6 +351,7 @@ else if (platform === Platform.Linux) {
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
+		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/glew.c');
 		project.addLib('GL');
 		project.addDefine('KORE_OPENGL');
 	}

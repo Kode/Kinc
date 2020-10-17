@@ -36,6 +36,12 @@ void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int i
 	case KINC_G4_VERTEX_DATA_FLOAT4X4:
 		buffer->impl.myStride += 4 * 4 * 4;
 		break;
+	case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+		buffer->impl.myStride += 2 * 2;
+		break;
+	case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+		buffer->impl.myStride += 2 * 4;
+		break;
 	case KINC_G4_VERTEX_DATA_NONE:
 		break;
 	}
