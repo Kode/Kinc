@@ -42,8 +42,6 @@ KINC_FUNC double kinc_frequency();
 KINC_FUNC kinc_ticks_t kinc_timestamp();
 KINC_FUNC double kinc_time();
 
-KINC_FUNC void kinc_run(void (*value)());
-
 KINC_FUNC void kinc_start();
 bool kinc_internal_frame();
 KINC_FUNC void kinc_stop();
