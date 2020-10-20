@@ -15,6 +15,7 @@ typedef struct {
 	int size;
 	float sample_rate_pos;
 	float my_volume;
+	bool in_use;
 } kinc_a1_sound_t;
 
 KINC_FUNC kinc_a1_sound_t *kinc_a1_sound_create(const char *filename);

@@ -98,13 +98,22 @@ namespace {
 	}
 }
 
-#define MAXIMUM_SOUNDS 256
-static kinc_a1_sound_t sounds[MAXIMUM_SOUNDS];
-static int nextSoundIndex = 0;
+#define MAXIMUM_SOUNDS 4096
+static kinc_a1_sound_t sounds[MAXIMUM_SOUNDS] = {0};
+
+static kinc_a1_sound_t *find_sound() {
+	for (int i = 0; i < MAXIMUM_SOUNDS; ++i) {
+		if (!sounds[i].in_use) {
+			return &sounds[i];
+		}
+	}
+	return NULL;
+}
 
 kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
-	assert(nextSoundIndex < MAXIMUM_SOUNDS);
-	kinc_a1_sound_t *sound = &sounds[nextSoundIndex++];
+	kinc_a1_sound_t *sound = find_sound();
+	assert(sound != NULL);
+	sound->in_use = true;
 	sound->my_volume = 1;
 	sound->size = 0;
 	sound->left = NULL;
@@ -201,6 +210,7 @@ void kinc_a1_sound_destroy(kinc_a1_sound_t *sound) {
 	delete[] sound->right;
 	sound->left = NULL;
 	sound->right = NULL;
+	sound->in_use = false;
 }
 
 float kinc_a1_sound_volume(kinc_a1_sound_t *sound) {
