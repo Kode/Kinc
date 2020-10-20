@@ -359,6 +359,7 @@ else if (platform === Platform.Linux) {
 		throw new Error('Graphics API ' + graphics + ' is not available for Linux.');
 	}
 	project.addDefine('KORE_POSIX');
+	project.addDefine('_POSIX_C_SOURCE=200112L');
 }
 else if (platform === Platform.Pi) {
 	g4 = true;
