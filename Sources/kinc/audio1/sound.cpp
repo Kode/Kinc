@@ -104,7 +104,7 @@ static int nextSoundIndex = 0;
 
 kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 	assert(nextSoundIndex < MAXIMUM_SOUNDS);
-	kinc_a1_sound_t *sound = &sounds[nextSoundIndex];
+	kinc_a1_sound_t *sound = &sounds[nextSoundIndex++];
 	sound->my_volume = 1;
 	sound->size = 0;
 	sound->left = NULL;
