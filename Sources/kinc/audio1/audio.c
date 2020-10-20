@@ -23,7 +23,7 @@ static kinc_a1_channel_t channels[CHANNEL_COUNT];
 static kinc_a1_stream_channel_t streams[CHANNEL_COUNT];
 static kinc_a1_video_channel_t videos[CHANNEL_COUNT];
 
-float sampleLinear(int16_t *data, float position) {
+static float sampleLinear(int16_t *data, float position) {
 	int pos1 = (int)position;
 	int pos2 = (int)(position + 1);
 	float sample1 = data[pos1] / 32767.0f;
