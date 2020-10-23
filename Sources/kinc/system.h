@@ -81,6 +81,8 @@ void kinc_internal_paste_callback(char *);
 void kinc_internal_login_callback();
 void kinc_internal_logout_callback();
 
+KINC_FUNC void kinc_copy_to_clipboard(const char *);
+
 #ifdef __cplusplus
 }
 #endif

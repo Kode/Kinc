@@ -15,6 +15,7 @@
 #include <Kore/Window.h>
 #include <Kore/Windows.h>
 
+#include <kinc/display.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/input/pen.h>
@@ -22,7 +23,6 @@
 #include <kinc/system.h>
 #include <kinc/threads/thread.h>
 #include <kinc/window.h>
-#include <kinc/display.h>
 
 #define DIRECTINPUT_VERSION 0x0800
 #ifdef WIN32_LEAN_AND_MEAN
@@ -1241,4 +1241,18 @@ void kinc_internal_shutdown() {
 	kinc_internal_shutdown_callback();
 	kinc_windows_destroy_windows();
 	kinc_windows_restore_displays();
+}
+
+void kinc_copy_to_clipboard(const char *text) {
+	wchar_t wtext[4096];
+	MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
+	OpenClipboard(kinc_windows_window_handle(0));
+	EmptyClipboard();
+	size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+	HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
+	void *data = GlobalLock(handle);
+	memcpy(data, wtext, size);
+	GlobalUnlock(handle);
+	SetClipboardData(CF_UNICODETEXT, handle);
+	CloseClipboard();
 }

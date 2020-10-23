@@ -3,8 +3,8 @@
 #include "System.h"
 
 #include <Kore/Convert.h>
-#include <Kore/Window.h>
 #include <Kore/Math/Random.h>
+#include <Kore/Window.h>
 
 #include <kinc/input/keyboard.h>
 #include <kinc/system.h>
@@ -42,23 +42,21 @@ void Kore::System::setShutdownCallback(void (*value)()) {
 	kinc_set_shutdown_callback(value);
 }
 
-void Kore::System::setOrientationCallback(void (*value)(Orientation)) {
-	
-}
+void Kore::System::setOrientationCallback(void (*value)(Orientation)) {}
 
-void Kore::System::setDropFilesCallback(void (*value)(wchar_t*)) {
+void Kore::System::setDropFilesCallback(void (*value)(wchar_t *)) {
 	kinc_set_drop_files_callback(value);
 }
 
-void Kore::System::setCutCallback(char* (*value)()) {
+void Kore::System::setCutCallback(char *(*value)()) {
 	kinc_set_cut_callback(value);
 }
 
-void Kore::System::setCopyCallback(char* (*value)()) {
+void Kore::System::setCopyCallback(char *(*value)()) {
 	kinc_set_copy_callback(value);
 }
 
-void Kore::System::setPasteCallback(void (*value)(char*)) {
+void Kore::System::setPasteCallback(void (*value)(char *)) {
 	kinc_set_paste_callback(value);
 }
 
@@ -66,7 +64,7 @@ void Kore::System::setLoginCallback(void (*value)()) {
 	kinc_set_login_callback(value);
 }
 
-void Kore::System::setLogoutCallback(void(*value)()) {
+void Kore::System::setLogoutCallback(void (*value)()) {
 	kinc_set_logout_callback(value);
 }
 
@@ -94,46 +92,44 @@ void Kore::System::_shutdownCallback() {
 	kinc_internal_shutdown_callback();
 }
 
-void Kore::System::_orientationCallback(Orientation orientation) {
-	
-}
+void Kore::System::_orientationCallback(Orientation orientation) {}
 
-void Kore::System::_dropFilesCallback(wchar_t* filePath) {
+void Kore::System::_dropFilesCallback(wchar_t *filePath) {
 	kinc_internal_drop_files_callback(filePath);
 }
 
-char* Kore::System::_cutCallback() {
+char *Kore::System::_cutCallback() {
 	return kinc_internal_cut_callback();
 }
 
-char* Kore::System::_copyCallback() {
+char *Kore::System::_copyCallback() {
 	return kinc_internal_copy_callback();
 }
 
-void Kore::System::_pasteCallback(char* value) {
+void Kore::System::_pasteCallback(char *value) {
 	kinc_internal_paste_callback(value);
 }
 
 namespace {
 	bool running = false;
-	//bool showWindowFlag = true;
+	// bool showWindowFlag = true;
 	Kore::WindowOptions defaultWin;
 	Kore::FramebufferOptions defaultFrame;
 }
 /*
 void Kore::System::setShowWindowFlag(bool value) {
-	appstate::showWindowFlag = value;
+    appstate::showWindowFlag = value;
 }
 
 bool Kore::System::hasShowWindowFlag() {
-	return appstate::showWindowFlag;
+    return appstate::showWindowFlag;
 }
 
 void Kore::System::setName(const char* value) {
-	strcpy(appstate::name, value);
+    strcpy(appstate::name, value);
 }
 */
-const char* Kore::System::name() {
+const char *Kore::System::name() {
 	return kinc_application_name();
 }
 
@@ -203,7 +199,7 @@ void Kore::System::setKeepScreenOn(bool on) {
 	kinc_set_keep_screen_on(on);
 }
 
-const char* Kore::System::systemId() {
+const char *Kore::System::systemId() {
 	return kinc_system_id();
 }
 
@@ -211,7 +207,7 @@ void Kore::System::vibrate(int milliseconds) {
 	kinc_vibrate(milliseconds);
 }
 
-const char* Kore::System::language() {
+const char *Kore::System::language() {
 	return kinc_language();
 }
 
@@ -227,11 +223,11 @@ bool Kore::System::showsKeyboard() {
 	return kinc_keyboard_active();
 }
 
-void Kore::System::loadURL(const char* url) {
+void Kore::System::loadURL(const char *url) {
 	kinc_load_url(url);
 }
 
-const char** Kore::System::videoFormats() {
+const char **Kore::System::videoFormats() {
 	return kinc_video_formats();
 }
 
@@ -245,4 +241,8 @@ bool Kore::System::automaticSafeZone() {
 
 void Kore::System::setSafeZone(float value) {
 	kinc_set_safe_zone(value);
+}
+
+void Kore::System::copyToClipboard(const char *text) {
+	kinc_copy_to_clipboard(text);
 }

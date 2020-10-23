@@ -306,4 +306,8 @@ bool kinc_waiting_for_login() {
 	return false;
 }
 
+#ifndef KORE_WINDOWS
+void kinc_copy_to_clipboard(const char *) {}
+#endif
+
 #endif

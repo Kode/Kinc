@@ -7,9 +7,9 @@ namespace Kore {
 	enum Orientation { OrientationLandscapeLeft, OrientationLandscapeRight, OrientationPortrait, OrientationPortraitUpsideDown, OrientationUnknown };
 
 	namespace System {
-		Window* init(const char* name, int width, int height, WindowOptions* win = nullptr, FramebufferOptions* frame = nullptr);
+		Window *init(const char *name, int width, int height, WindowOptions *win = nullptr, FramebufferOptions *frame = nullptr);
 
-		const char* name();
+		const char *name();
 		int windowWidth(int id = 0);
 		int windowHeight(int id = 0);
 
@@ -18,12 +18,12 @@ namespace Kore {
 		void showKeyboard();
 		void hideKeyboard();
 		bool showsKeyboard();
-		void loadURL(const char* title);
-		const char* language();
+		void loadURL(const char *title);
+		const char *language();
 		void vibrate(int ms);
-		const char* systemId();
-		const char* savePath();
-		const char** videoFormats();
+		const char *systemId();
+		const char *savePath();
+		const char **videoFormats();
 		float safeZone();
 		bool automaticSafeZone();
 		void setSafeZone(float value);
@@ -38,7 +38,7 @@ namespace Kore {
 		bool frame();
 		void stop();
 
- 		void setKeepScreenOn(bool on);
+		void setKeepScreenOn(bool on);
 
 		void login();
 		bool waitingForLogin();
@@ -51,10 +51,10 @@ namespace Kore {
 		void setBackgroundCallback(void (*value)());
 		void setShutdownCallback(void (*value)());
 		void setOrientationCallback(void (*value)(Orientation));
-		void setDropFilesCallback(void (*value)(wchar_t*));
-		void setCutCallback(char* (*value)());
-		void setCopyCallback(char* (*value)());
-		void setPasteCallback(void (*value)(char*));
+		void setDropFilesCallback(void (*value)(wchar_t *));
+		void setCutCallback(char *(*value)());
+		void setCopyCallback(char *(*value)());
+		void setPasteCallback(void (*value)(char *));
 		void setLoginCallback(void (*value)());
 		void setLogoutCallback(void (*value)());
 
@@ -66,9 +66,11 @@ namespace Kore {
 		void _backgroundCallback();
 		void _shutdownCallback();
 		void _orientationCallback(Orientation);
-		void _dropFilesCallback(wchar_t*);
-		char* _cutCallback();
-		char* _copyCallback();
-		void _pasteCallback(char*);
+		void _dropFilesCallback(wchar_t *);
+		char *_cutCallback();
+		char *_copyCallback();
+		void _pasteCallback(char *);
+
+		void copyToClipboard(const char *);
 	}
 }
