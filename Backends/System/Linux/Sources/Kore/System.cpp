@@ -946,3 +946,7 @@ int main(int argc, char** argv) {
 	kickstart(argc, argv);
 }
 #endif
+
+void kinc_copy_to_clipboard(const char* text) {
+	strcpy(clipboardString, text);
+}
