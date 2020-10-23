@@ -480,3 +480,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 #endif
 
 @end
+
+void kinc_copy_to_clipboard(const char* text) {
+	NSPasteboard* board = [NSPasteboard generalPasteboard];
+	[board clearContents];
+	[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
+}

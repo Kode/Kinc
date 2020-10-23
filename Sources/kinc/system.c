@@ -306,8 +306,8 @@ bool kinc_waiting_for_login() {
 	return false;
 }
 
-#if !defined(KORE_WINDOWS) && !defined(KORE_LINUX)
-void kinc_copy_to_clipboard(const char *) {}
+#if !defined(KORE_WINDOWS) && !defined(KORE_LINUX) && !defined(KORE_MACOS)
+void kinc_copy_to_clipboard(const char *text) {}
 #endif
 
 #endif
