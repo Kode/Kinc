@@ -515,7 +515,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 				setVertexDesc(vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced);
-				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
+				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_FLOAT4X4:
