@@ -24,4 +24,4 @@ jobs:
     - name: Compile (kincmake)
       run: nodejs_bin/node make.js html5 -g webgpu --kinc . --from Tests/Empty --noshaders
     - name: Compile (emscripten)
-      run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../build && make
+      run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../Release/build && make
