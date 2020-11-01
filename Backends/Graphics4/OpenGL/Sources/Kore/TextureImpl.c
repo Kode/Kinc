@@ -118,7 +118,7 @@ static int convertInternalFormat(kinc_image_format_t format) {
 // #ifdef GL_BGRA
 		// return GL_BGRA;
 // #else
-		return GL_RGBA8;
+		return GL_RGBA;
 // #endif
 #endif
 	case KINC_IMAGE_FORMAT_RGB24:
