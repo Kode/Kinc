@@ -235,8 +235,8 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	IDXGIFactory *dxgiFactory = nullptr;
 	kinc_microsoft_affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void **)(&dxgiFactory)));
 
-	kinc_microsoft_affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device,
-	                                  &featureLevel, &context));
+	kinc_microsoft_affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	                                        &device, &featureLevel, &context));
 #endif
 	// affirm(device0.As(&device));
 	// affirm(context0.As(&context));
@@ -1262,7 +1262,10 @@ extern "C" void kinc_internal_resize(int window, int width, int height) {
 	newRenderTargetHeight = height;
 }
 
-extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
+extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
+	kinc_g4_set_antialiasing_samples(frame->samples_per_pixel);
+	vsync = frame->vertical_sync;
+}
 
 extern "C" bool kinc_window_vsynced(int window_index) {
 	return vsync;
