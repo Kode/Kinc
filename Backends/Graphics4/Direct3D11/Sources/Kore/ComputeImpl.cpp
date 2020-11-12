@@ -4,8 +4,9 @@
 #include "Direct3D11.h"
 
 #include <kinc/compute/compute.h>
-#include <kinc/math/core.h>
 #include <kinc/graphics4/texture.h>
+#include <kinc/log.h>
+#include <kinc/math/core.h>
 
 #include <Kore/SystemMicrosoft.h>
 
@@ -168,7 +169,12 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	shader->impl.data = &data[index];
 	shader->impl.length = length - index;
 
-	kinc_microsoft_affirm(device->CreateComputeShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11ComputeShader **)&shader->impl.shader));
+	HRESULT hr = device->CreateComputeShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11ComputeShader **)&shader->impl.shader);
+
+	if (hr != S_OK) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
+		return;
+	}
 
 	kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
 	                                           &shader->impl.constantBuffer));
