@@ -4617,6 +4617,10 @@ static int go_to_page_before(stb_vorbis *f, unsigned int limit_offset)
    return 0;
 }
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#endif
+
 // implements the search logic for finding a page and starting decoding. if
 // the function succeeds, current_loc_valid will be true and current_loc will
 // be less than or equal to the provided sample number (the closer the
