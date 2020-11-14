@@ -709,7 +709,7 @@ bool kinc_internal_handle_messages(void) {
 					}
 					else if (event.type == ASENSOR_TYPE_GYROSCOPE) {
 						if (kinc_rotation_callback != NULL) {
-							kinc_rotation_callback(event.vector.x, event.vector.x, event.vector.z);
+							kinc_rotation_callback(event.vector.x, event.vector.y, event.vector.z);
 						}
 					}
 				}
