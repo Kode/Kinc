@@ -454,6 +454,8 @@ namespace Kore {
 
 	public:
 		Matrix<Y, X, T> Invert() {
+			const float epsilon = 0.0005f;
+
 			// StaticAssert(X == Y);
 			// if (Determinant() == 0) throw Exception(L"No Inverse");
 			// m: Matrix, nz: Anzahl der Zeilen
@@ -464,7 +466,7 @@ namespace Kore {
 			for (unsigned j = 0; j < X; ++j) {
 				// Normalized diagonals
 				q = clone.matrix[j][j];
-				if (q == 0) {
+				if (q < epsilon && q > -epsilon) {
 					// Make sure that there is no 0 at the diagonals
 					for (unsigned i = j + 1; i < X; ++i) {
 						// Find row with field <> 0 and add to it
@@ -478,7 +480,7 @@ namespace Kore {
 						}
 					}
 				}
-				if (q != 0) {
+				if (q > epsilon || q < -epsilon) {
 					// Bring diagonals to 1
 					for (unsigned k = 0; k < X; ++k) {
 						clone.matrix[k][j] = clone.matrix[k][j] / q;
