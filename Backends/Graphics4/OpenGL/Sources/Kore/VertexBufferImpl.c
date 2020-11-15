@@ -13,6 +13,10 @@
 extern kinc_g4_index_buffer_t *Kinc_Internal_CurrentIndexBuffer;
 static kinc_g4_vertex_buffer_t *currentVertexBuffer = NULL;
 
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
+void *glesVertexAttribDivisor;
+#endif
+
 void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int vertexCount, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
                                  int instanceDataStepRate) {
 	buffer->impl.myCount = vertexCount;
@@ -142,7 +146,7 @@ int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer) {
 	return buffer->impl.myStride;
 }
 
-#ifndef KORE_OPENGL_ES
+#if !defined(KORE_OPENGL_ES) || (defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
 static bool attribDivisorUsed = false;
 #endif
 
@@ -202,6 +206,13 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 					glCheckErrors();
 				}
 #endif
+#if (defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
+				if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
+					attribDivisorUsed = true;
+					((void (*)(GLuint, GLuint))glesVertexAttribDivisor)(offset + actualIndex, buffer->impl.instanceDataStepRate);
+					glCheckErrors();
+				}
+#endif
 				subsize -= 4;
 				addonOffset += 4 * 4;
 				++actualIndex;
@@ -216,6 +227,13 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 			if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
 				attribDivisorUsed = true;
 				glVertexAttribDivisor(offset + actualIndex, buffer->impl.instanceDataStepRate);
+				glCheckErrors();
+			}
+#endif
+#if (defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
+			if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
+				attribDivisorUsed = true;
+				((void (*)(GLuint, GLuint))glesVertexAttribDivisor)(offset + actualIndex, buffer->impl.instanceDataStepRate);
 				glCheckErrors();
 			}
 #endif

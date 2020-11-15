@@ -69,6 +69,10 @@ bool Kinc_Internal_SupportsConservativeRaster = false;
 extern "C" bool Kinc_Internal_SupportsDepthTexture;
 bool Kinc_Internal_SupportsDepthTexture = true;
 
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
+extern "C" void *glesVertexAttribDivisor;
+#endif
+
 namespace {
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)
 	void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
@@ -176,6 +180,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	glesDrawBuffers = (void *)eglGetProcAddress("glDrawBuffers");
 	glesDrawElementsInstanced = (void *)eglGetProcAddress("glDrawElementsInstanced");
+	glesVertexAttribDivisor = (void *)eglGetProcAddress("glVertexAttribDivisor");
 #endif
 
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)
