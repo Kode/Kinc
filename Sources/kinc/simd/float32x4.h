@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1 || defined(KORE_WINDOWS) || defined(KORE_MACOS)
+#if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1 || defined(KORE_WINDOWS) || (defined(KORE_MACOS) && __x86_64)
 
 #include <xmmintrin.h>
 
@@ -65,7 +65,7 @@ inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
 	return _mm_sqrt_ps(t);
 }
 
-#elif defined(KORE_IOS) || defined(KORE_SWITCH)
+#elif defined(KORE_IOS) || defined(KORE_SWITCH) || (defined(KORE_MACOS) && __arm64)
 
 #include <arm_neon.h>
 
@@ -92,7 +92,7 @@ inline kinc_float32x4_t kinc_float32x4_add(kinc_float32x4_t a, kinc_float32x4_t 
 }
 
 inline kinc_float32x4_t kinc_float32x4_div(kinc_float32x4_t a, kinc_float32x4_t b) {
-#if defined(ARM64) || defined(KORE_SWITCH)
+#if defined(ARM64) || defined(KORE_SWITCH) || __arm64
 	return vdivq_f32(a, b);
 #else
 	float32x4_t inv = vrecpeq_f32(b);
@@ -123,7 +123,7 @@ inline kinc_float32x4_t kinc_float32x4_sub(kinc_float32x4_t a, kinc_float32x4_t 
 }
 
 inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
-#if defined(ARM64) || defined(KORE_SWITCH)
+#if defined(ARM64) || defined(KORE_SWITCH) || __arm64
 	return vsqrtq_f32(t);
 #else
 	return vmulq_f32(t, vrsqrteq_f32(t));
