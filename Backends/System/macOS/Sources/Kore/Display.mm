@@ -60,9 +60,12 @@ const char *kinc_display_name(int display) {
 }
 
 kinc_display_mode_t kinc_display_current_mode(int display) {
+	NSArray* screens = [NSScreen screens];
+	NSScreen* screen = screens[display];
+	NSRect screenRect = [screen frame];
 	kinc_display_mode_t dm;
-	dm.width = 800;
-	dm.height = 600;
+	dm.width = screenRect.size.width;
+	dm.height = screenRect.size.height;
 	dm.frequency = 60;
 	dm.bits_per_pixel = 32;
 	return dm;
