@@ -41,7 +41,7 @@ namespace {
 		}
 	}
 
-#ifdef KORE_IOS
+#if defined(KORE_IOS) || defined(KORE_MACOS)
 	void sample_rate_changed() {
 		Audio2::samplesPerSecond = kinc_a2_samples_per_second;
 	}
@@ -56,7 +56,7 @@ void Audio2::init() {
 	buffer.data = new u8[buffer.dataSize];
 	Audio2::samplesPerSecond = kinc_a2_samples_per_second;
 	kinc_a2_set_callback(audio);
-#ifdef KORE_IOS
+#if defined(KORE_IOS) || defined(KORE_MACOS)
 	kinc_a2_set_sample_rate_callback(sample_rate_changed);
 #endif
 }
