@@ -10,6 +10,16 @@
 #include <X11/X.h>
 #include <X11/extensions/Xinerama.h>
 
+typedef struct {
+    bool available;
+    int x;
+    int y;
+    int width;
+    int height;
+    bool primary;
+    int number;
+} kinc_display_t;
+
 void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter) {
     ::Display* dpy = XOpenDisplay(NULL);
 
