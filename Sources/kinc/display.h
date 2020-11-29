@@ -7,16 +7,6 @@ extern "C" {
 #endif
 
 typedef struct {
-	bool available;
-	int x;
-	int y;
-	int width;
-	int height;
-	bool primary;
-	int number;
-} kinc_display_t;
-
-typedef struct {
 	int x;
 	int y;
 	int width;
