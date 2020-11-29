@@ -7,6 +7,16 @@
 
 #include <stdexcept>
 
+typedef struct {
+	bool available;
+	int x;
+	int y;
+	int width;
+	int height;
+	bool primary;
+	int number;
+} kinc_display_t;
+
 namespace {
 	kinc_display_t display;
 }

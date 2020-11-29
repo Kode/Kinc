@@ -11,6 +11,16 @@
 
 #include <stdlib.h>
 
+typedef struct {
+	bool available;
+	int x;
+	int y;
+	int width;
+	int height;
+	bool primary;
+	int number;
+} kinc_display_t;
+
 void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter);
 #define MAXIMUM_DISPLAY_COUNT 10
 static kinc_display_t displays[MAXIMUM_DISPLAY_COUNT];
