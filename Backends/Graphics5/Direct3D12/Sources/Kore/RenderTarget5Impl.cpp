@@ -87,17 +87,23 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	clearValue.Color[2] = 0.0f;
 	clearValue.Color[3] = 1.0f;
 
-	HRESULT result = device->CreateCommittedResource(
-	    &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	    &CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, render_target->texWidth, render_target->texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-	    D3D12_RESOURCE_STATE_COMMON, &clearValue, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
+	HRESULT result;
+	{
+		auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		auto resourceDesc =
+		    CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, render_target->texWidth, render_target->texHeight, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+		result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, &clearValue,
+		                                         IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
+	}
+
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
-			result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-			                                         &CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, render_target->texWidth, render_target->texHeight, 1, 1, 1, 0,
-			                                                                       D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-			                                         D3D12_RESOURCE_STATE_COMMON, &clearValue, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
+			auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+			auto resourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat, render_target->texWidth, render_target->texHeight, 1, 1, 1, 0,
+			                                                 D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+			result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, &clearValue,
+			                                         IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
 			if (result == S_OK) {
 				break;
 			}
@@ -155,14 +161,18 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 		clearValue.DepthStencil.Depth = 1.0f;
 		clearValue.DepthStencil.Stencil = 0;
 
-		HRESULT result =
-		    device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &depthTexture,
-		                                    D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilTexture));
+		HRESULT result;
+		{
+			auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+			result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+			                                         IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilTexture));
+		}
+
 		if (result != S_OK) {
 			for (int i = 0; i < 10; ++i) {
 				kinc_memory_emergency();
-				result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &depthTexture,
-				                                         D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+				auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+				result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
 				                                         IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilTexture));
 				if (result == S_OK) {
 					break;

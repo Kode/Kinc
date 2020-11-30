@@ -77,7 +77,8 @@ namespace {
 		commandAllocator->Reset();
 		list->impl._commandList->Reset(commandAllocator, nullptr);
 		if (renderTarget != nullptr) {
-			list->impl._commandList->OMSetRenderTargets(1, &renderTarget->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
+			auto descriptorHandle = renderTarget->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			list->impl._commandList->OMSetRenderTargets(1, &descriptorHandle, true, nullptr);
 			list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&renderTarget->impl.viewport);
 			list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&renderTarget->impl.scissor);
 		}
@@ -331,9 +332,13 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list *list, kinc_g5
 	for (int i = 0; i < count; ++i) {
 		targetDescriptors[i] = targets[i]->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	}
-	list->impl._commandList->OMSetRenderTargets(
-	    count, &targetDescriptors[0], false,
-	    targets[0]->impl.depthStencilDescriptorHeap != nullptr ? &targets[0]->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
+	D3D12_CPU_DESCRIPTOR_HANDLE handle;
+	D3D12_CPU_DESCRIPTOR_HANDLE *handlePtr = nullptr;
+	if (targets[0]->impl.depthStencilDescriptorHeap != nullptr) {
+		handle = targets[0]->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		handlePtr = &handle;
+	}
+	list->impl._commandList->OMSetRenderTargets(count, &targetDescriptors[0], false, handlePtr);
 	list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&targets[0]->impl.viewport);
 	list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&targets[0]->impl.scissor);
 }
@@ -353,8 +358,8 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_t
 	CD3DX12_TEXTURE_COPY_LOCATION source(texture->impl.uploadImage, footprint);
 	CD3DX12_TEXTURE_COPY_LOCATION destination(texture->impl.image, 0);
 	list->impl._commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
-	list->impl._commandList->ResourceBarrier(
-	    1, &CD3DX12_RESOURCE_BARRIER::Transition(texture->impl.image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	auto transition = CD3DX12_RESOURCE_BARRIER::Transition(texture->impl.image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	list->impl._commandList->ResourceBarrier(1, &transition);
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
@@ -371,9 +376,10 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 
 	// Create readback buffer
 	if (render_target->impl.renderTargetReadback == nullptr) {
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK), D3D12_HEAP_FLAG_NONE,
-		                                &CD3DX12_RESOURCE_DESC::Buffer(render_target->texWidth * render_target->texHeight * formatByteSize),
-		                                D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
+		auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK);
+		auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(render_target->texWidth * render_target->texHeight * formatByteSize);
+		device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+		                                IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
 	}
 
 	// Copy render target to readback buffer

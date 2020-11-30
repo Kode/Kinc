@@ -157,8 +157,9 @@ namespace {
 		clearValue.DepthStencil.Depth = 1.0f;
 		clearValue.DepthStencil.Stencil = 0;
 
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &depthTexture,
-		                                D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
+		auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+		                                IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
 
 		device->CreateDepthStencilView(depthStencilTexture, nullptr, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
