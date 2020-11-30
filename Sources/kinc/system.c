@@ -371,4 +371,17 @@ double kinc_minutes(double time) {
 	FileTimeToSystemTime(&file_time, &system_time);
 	return (double)system_time.wMinute;
 }
+
+double kinc_month(double time) {
+	unsigned long long utime = (unsigned long long)time;
+	utime *= 10;
+	ULARGE_INTEGER large_time;
+	large_time.QuadPart = utime;
+	FILETIME file_time;
+	file_time.dwLowDateTime = large_time.LowPart;
+	file_time.dwHighDateTime = large_time.HighPart;
+	SYSTEMTIME system_time;
+	FileTimeToSystemTime(&file_time, &system_time);
+	return (double)(system_time.wMonth - 1);
+}
 #endif
