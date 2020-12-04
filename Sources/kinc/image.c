@@ -449,6 +449,34 @@ static void seek_callback(void *user_data, int pos) {
 	kinc_file_reader_seek((kinc_file_reader_t *)user_data, pos);
 }
 
+struct kinc_internal_image_memory {
+	uint8_t *data;
+	size_t size;
+	size_t offset;
+};
+
+static int memory_read_callback(void *user_data, void *data, size_t size) {
+	struct kinc_internal_image_memory *memory = (struct kinc_internal_image_memory *)user_data;
+	size_t read_size = min(memory->size - memory->offset, size);
+	memcpy(data, &memory->data[memory->offset], read_size);
+	return read_size;
+}
+
+static size_t memory_size_callback(void *user_data) {
+	struct kinc_internal_image_memory *memory = (struct kinc_internal_image_memory *)user_data;
+	return memory->size;
+}
+
+static int memory_pos_callback(void *user_data) {
+	struct kinc_internal_image_memory *memory = (struct kinc_internal_image_memory *)user_data;
+	return memory->offset;
+}
+
+static void memory_seek_callback(void *user_data, int pos) {
+	struct kinc_internal_image_memory *memory = (struct kinc_internal_image_memory *)user_data;
+	memory->offset = (size_t)pos;
+}
+
 size_t kinc_image_size_from_callbacks(kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename) {
 	return loadImageSize(callbacks, user_data, filename);
 }
@@ -467,6 +495,21 @@ size_t kinc_image_size_from_file(const char *filename) {
 		return dataSize;
 	}
 	return 0;
+}
+
+size_t kinc_image_size_from_encoded_bytes(kinc_image_t *image, void *data, size_t data_size, const char *format) {
+	kinc_image_read_callbacks_t callbacks;
+	callbacks.read = memory_read_callback;
+	callbacks.size = memory_size_callback;
+	callbacks.pos = memory_pos_callback;
+	callbacks.seek = memory_seek_callback;
+
+	struct kinc_internal_image_memory image_memory;
+	image_memory.data = (uint8_t *)data;
+	image_memory.size = data_size;
+	image_memory.offset = 0;
+
+	return loadImageSize(callbacks, &image_memory, format);
 }
 
 size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename) {
@@ -494,6 +537,26 @@ size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *
 		return dataSize;
 	}
 	return 0;
+}
+
+void kinc_image_init_from_encoded_bytes(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format) {
+	kinc_image_read_callbacks_t callbacks;
+	callbacks.read = memory_read_callback;
+	callbacks.size = memory_size_callback;
+	callbacks.pos = memory_pos_callback;
+	callbacks.seek = memory_seek_callback;
+
+	struct kinc_internal_image_memory image_memory;
+	image_memory.data = (uint8_t *)data;
+	image_memory.size = data_size;
+	image_memory.offset = 0;
+
+	int dataSize;
+	loadImage(callbacks, &image_memory, format, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format);
+	image->data = memory;
+	image->data_size = dataSize;
+	image->depth = 1;
+	return dataSize;
 }
 
 void kinc_image_destroy(kinc_image_t *image) {
