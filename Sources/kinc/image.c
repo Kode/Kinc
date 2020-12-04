@@ -539,7 +539,7 @@ size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *
 	return 0;
 }
 
-void kinc_image_init_from_encoded_bytes(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format) {
+size_t kinc_image_init_from_encoded_bytes(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format) {
 	kinc_image_read_callbacks_t callbacks;
 	callbacks.read = memory_read_callback;
 	callbacks.size = memory_size_callback;
