@@ -10,6 +10,8 @@
 
 #include <Kore/SystemMicrosoft.h>
 
+#include <assert.h>
+
 using namespace Kore;
 
 namespace {
@@ -125,49 +127,58 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	unsigned index = 0;
 	u8 *data = (u8 *)_data;
 
+	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
-		char name[256];
+		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		shader->impl.attributes[name] = data[index++];
+		shader->impl.attributes[i].hash = kinc_internal_hash_name(name);
+		shader->impl.attributes[i].index = data[index++];
 	}
 
-	u8 texCount = data[index++];
+	memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
+	uint8_t texCount = data[index++];
 	for (unsigned i = 0; i < texCount; ++i) {
-		char name[256];
+		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
-		shader->impl.textures[name] = data[index++];
+		shader->impl.textures[i].hash = kinc_internal_hash_name(name);
+		shader->impl.textures[i].index = data[index++];
 	}
 
-	u8 constantCount = data[index++];
+	memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
+	uint8_t constantCount = data[index++];
 	shader->impl.constantsSize = 0;
 	for (unsigned i = 0; i < constantCount; ++i) {
-		char name[256];
+		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
 			if (name[i2] == 0) break;
 		}
 		kinc_compute_internal_shader_constant_t constant;
-		constant.offset = data[index];
+		constant.hash = kinc_internal_hash_name(name);
+		constant.offset = *(uint32_t *)&data[index];
 		index += 4;
-		constant.size = data[index];
+		constant.size = *(uint32_t *)&data[index];
 		index += 4;
 		constant.columns = data[index];
 		index += 1;
 		constant.rows = data[index];
 		index += 1;
-		shader->impl.constants[name] = constant;
+
+		shader->impl.constants[i] = constant;
 		shader->impl.constantsSize = constant.offset + constant.size;
 	}
 
-	shader->impl.data = &data[index];
-	shader->impl.length = length - index;
+	shader->impl.length = (int)(length - index);
+	shader->impl.data = (uint8_t *)malloc(shader->impl.length);
+	assert(shader->impl.data != NULL);
+	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
 	HRESULT hr = device->CreateComputeShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11ComputeShader **)&shader->impl.shader);
 
@@ -182,15 +193,47 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 
 void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {}
 
+static kinc_compute_internal_shader_constant_t *findConstant(kinc_compute_internal_shader_constant_t *constants, uint32_t hash) {
+	for (int i = 0; i < 64; ++i) {
+		if (constants[i].hash == hash) {
+			return &constants[i];
+		}
+	}
+	return NULL;
+}
+
+static kinc_internal_hash_index_t *findTextureUnit(kinc_internal_hash_index_t *units, uint32_t hash) {
+	for (int i = 0; i < 64; ++i) {
+		if (units[i].hash == hash) {
+			return &units[i];
+		}
+	}
+	return NULL;
+}
+
 kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
 	kinc_compute_constant_location_t location;
-	if (shader->impl.constants.find(name) != shader->impl.constants.end()) {
-		kinc_compute_internal_shader_constant_t constant = shader->impl.constants[name];
-		location.impl.offset = constant.offset;
-		location.impl.size = constant.size;
-		location.impl.columns = constant.columns;
-		location.impl.rows = constant.rows;
+
+	uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
+
+	kinc_compute_internal_shader_constant_t *constant = findConstant(shader->impl.constants, hash);
+	if (constant == NULL) {
+		location.impl.offset = 0;
+		location.impl.size = 0;
+		location.impl.columns = 0;
+		location.impl.rows = 0;
 	}
+	else {
+		location.impl.offset = constant->offset;
+		location.impl.size = constant->size;
+		location.impl.columns = constant->columns;
+		location.impl.rows = constant->rows;
+	}
+
+	if (location.impl.size == 0) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
+	}
+
 	return location;
 }
 
@@ -205,8 +248,27 @@ kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_sh
 		unitName[len - 3] = 0;                     // Strip array from name
 	}
 
+	uint32_t hash = kinc_internal_hash_name((unsigned char *)unitName);
+
 	kinc_compute_texture_unit_t unit;
-	unit.impl.unit = shader->impl.textures[unitName] + unitOffset;
+	kinc_internal_hash_index_t *vertexUnit = findTextureUnit(shader->impl.textures, hash);
+	if (vertexUnit == NULL) {
+		unit.impl.unit = -1;
+#ifndef NDEBUG
+		static int notFoundCount = 0;
+		if (notFoundCount < 10) {
+			kinc_log(KINC_LOG_LEVEL_WARNING, "Sampler %s not found.", unitName);
+			++notFoundCount;
+		}
+		else if (notFoundCount == 10) {
+			kinc_log(KINC_LOG_LEVEL_WARNING, "Giving up on sampler not found messages.", unitName);
+			++notFoundCount;
+		}
+#endif
+	}
+	else {
+		unit.impl.unit = vertexUnit->index + unitOffset;
+	}
 	return unit;
 }
 

@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <Kore/ShaderHash.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -14,11 +16,6 @@ typedef struct {
 	uint8_t columns;
 	uint8_t rows;
 } kinc_internal_shader_constant_t;
-
-typedef struct {
-	uint32_t hash;
-	uint32_t index;
-} kinc_internal_hash_index_t;
 
 typedef struct {
 	kinc_internal_shader_constant_t constants[64];
@@ -58,8 +55,6 @@ typedef struct {
 	int unit;
 	bool vertex;
 } kinc_g4_texture_unit_impl_t;
-
-uint32_t kinc_internal_hash_name(unsigned char *str);
 
 #ifdef __cplusplus
 }

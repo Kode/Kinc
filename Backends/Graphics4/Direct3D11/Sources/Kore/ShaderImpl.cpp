@@ -14,38 +14,28 @@ void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (shader->impl.shader != nullptr) {
 		switch (shader->impl.type) {
 		case KINC_G4_SHADER_TYPE_VERTEX:
-			((ID3D11VertexShader*)shader->impl.shader)->Release();
+			((ID3D11VertexShader *)shader->impl.shader)->Release();
 			break;
 		case KINC_G4_SHADER_TYPE_FRAGMENT:
-			((ID3D11PixelShader*)shader->impl.shader)->Release();
+			((ID3D11PixelShader *)shader->impl.shader)->Release();
 			break;
 		case KINC_G4_SHADER_TYPE_GEOMETRY:
-			((ID3D11GeometryShader*)shader->impl.shader)->Release();
+			((ID3D11GeometryShader *)shader->impl.shader)->Release();
 			break;
 		case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
-			((ID3D11HullShader*)shader->impl.shader)->Release();
+			((ID3D11HullShader *)shader->impl.shader)->Release();
 			break;
 		case KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION:
-			((ID3D11DomainShader*)shader->impl.shader)->Release();
+			((ID3D11DomainShader *)shader->impl.shader)->Release();
 			break;
 		}
 		free(shader->impl.data);
 	}
 }
 
-// djb2
-uint32_t kinc_internal_hash_name(unsigned char *str) {
-	unsigned long hash = 5381;
-	int c;
-	while (c = *str++) {
-		hash = hash * 33 ^ c;
-	}
-	return hash;
-}
-
 void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, kinc_g4_shader_type_t type) {
 	unsigned index = 0;
-	uint8_t *data = (uint8_t*)_data;
+	uint8_t *data = (uint8_t *)_data;
 	shader->impl.type = (int)type;
 
 	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
@@ -83,9 +73,9 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		}
 		kinc_internal_shader_constant_t constant;
 		constant.hash = kinc_internal_hash_name(name);
-		constant.offset = *(uint32_t*)&data[index];
+		constant.offset = *(uint32_t *)&data[index];
 		index += 4;
-		constant.size = *(uint32_t*)&data[index];
+		constant.size = *(uint32_t *)&data[index];
 		index += 4;
 		constant.columns = data[index];
 		index += 1;
@@ -97,7 +87,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 	}
 
 	shader->impl.length = (int)(length - index);
-	shader->impl.data = (uint8_t*)malloc(shader->impl.length);
+	shader->impl.data = (uint8_t *)malloc(shader->impl.length);
 	assert(shader->impl.data != NULL);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
@@ -121,12 +111,12 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 }
 
 #ifdef KRAFIX_LIBRARY
-extern void krafix_compile(const char* source, char* output, int* length, const char* targetlang, const char* system, const char* shadertype);
+extern void krafix_compile(const char *source, char *output, int *length, const char *targetlang, const char *system, const char *shadertype);
 #endif
 
 void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {
 #ifdef KRAFIX_LIBRARY
-	char* output = new char[1024 * 1024];
+	char *output = new char[1024 * 1024];
 	int length;
 	krafix_compile(source, output, &length, "d3d11", "windows", type == Graphics4::FragmentShader ? "frag" : "vert");
 	parse(output, length, type);

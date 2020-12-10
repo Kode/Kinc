@@ -1,7 +1,10 @@
 #pragma once
 
-#include <map>
-#include <string>
+#include <Kore/ShaderHash.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct ID3D11Buffer;
 
@@ -17,6 +20,7 @@ typedef struct {
 } kinc_compute_texture_unit_impl_t;
 
 typedef struct {
+	uint32_t hash;
 	uint32_t offset;
 	uint32_t size;
 	uint8_t columns;
@@ -24,12 +28,16 @@ typedef struct {
 } kinc_compute_internal_shader_constant_t;
 
 typedef struct {
-	std::map<std::string, kinc_compute_internal_shader_constant_t> constants;
+	kinc_compute_internal_shader_constant_t constants[64];
 	int constantsSize;
-	std::map<std::string, int> attributes;
-	std::map<std::string, int> textures;
-	void* shader;
+	kinc_internal_hash_index_t attributes[64];
+	kinc_internal_hash_index_t textures[64];
+	void *shader;
 	uint8_t *data;
 	int length;
-	ID3D11Buffer* constantBuffer;
+	struct ID3D11Buffer *constantBuffer;
 } kinc_compute_shader_impl_t;
+
+#ifdef __cplusplus
+}
+#endif
