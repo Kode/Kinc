@@ -30,6 +30,8 @@ const char **kinc_video_formats();
 
 const char *kinc_language();
 
+const char *kinc_language_ex();
+
 void kinc_vibrate(int milliseconds);
 
 float kinc_safe_zone();

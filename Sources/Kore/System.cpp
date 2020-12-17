@@ -215,6 +215,10 @@ const char* Kore::System::language() {
 	return kinc_language();
 }
 
+const char *Kore::System::languageEx() {
+	return kinc_language_ex();
+}
+
 void Kore::System::showKeyboard() {
 	kinc_keyboard_show();
 }

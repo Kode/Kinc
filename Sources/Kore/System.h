@@ -20,6 +20,7 @@ namespace Kore {
 		bool showsKeyboard();
 		void loadURL(const char* title);
 		const char* language();
+		const char *languageEx();
 		void vibrate(int ms);
 		const char* systemId();
 		const char* savePath();

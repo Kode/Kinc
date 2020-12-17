@@ -981,6 +981,7 @@ bool kinc_internal_handle_messages() {
 namespace {
 	bool keyboardshown = false;
 	char language[3] = {0};
+	char language_ex[6] = {0};
 }
 
 void kinc_keyboard_show() {
@@ -1008,6 +1009,24 @@ const char *kinc_language() {
 		return language;
 	}
 	return "en";
+}
+
+const char *kinc_language_ex() {
+	wchar_t wlanguage[3] = {0};
+	wchar_t wcountry[3] = {0};
+	char language[3] = {0};
+	char country[3] = {0};
+
+	if (GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO639LANGNAME, wlanguage, 3) &&
+	    GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, wcountry, 3)) {
+		WideCharToMultiByte(CP_UTF8, 0, wlanguage, -1, language, 3, nullptr, nullptr);
+		WideCharToMultiByte(CP_UTF8, 0, wcountry, -1, country, 3, nullptr, nullptr);
+		strcpy(language_ex, language);
+		strcat(language_ex, "_");
+		strcat(language_ex, country);
+		return language_ex;
+	}
+	return "en_US";
 }
 
 const char *kinc_system_id() {
