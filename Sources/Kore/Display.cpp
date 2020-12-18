@@ -11,12 +11,16 @@ namespace {
 	Display displays[MAXIMUM_DISPLAYS];
 }
 
-Display* Display::primary() {
+void Display::init() {
+	kinc_display_init();
+}
+
+Display *Display::primary() {
 	displays[kinc_primary_display()]._index = kinc_primary_display();
 	return &displays[kinc_primary_display()];
 }
 
-Display* Display::get(int index) {
+Display *Display::get(int index) {
 	displays[index]._index = index;
 	return &displays[index];
 }
@@ -29,7 +33,7 @@ bool Display::available() {
 	return kinc_display_available(_index);
 }
 
-const char* Display::name() {
+const char *Display::name() {
 	return kinc_display_name(_index);
 }
 

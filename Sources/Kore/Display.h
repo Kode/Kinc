@@ -10,19 +10,20 @@ namespace Kore {
 
 	class Display {
 	public:
-		static Display* primary();
-		static Display* get(int index);
+		static void init();
+		static Display *primary();
+		static Display *get(int index);
 		static int count();
 
-	    bool available();
-	    const char* name();
-	    int x();
-	    int y();
-	    int width();
-	    int height();
+		bool available();
+		const char *name();
+		int x();
+		int y();
+		int width();
+		int height();
 		int frequency();
 		int pixelsPerInch();
-		
+
 		DisplayMode availableMode(int index);
 		int countAvailableModes();
 
