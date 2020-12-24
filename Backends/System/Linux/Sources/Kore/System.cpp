@@ -72,6 +72,11 @@ namespace {
 	uint32_t penMotionEvent;
 	uint32_t penMaxPressure = 2048;
 	float penPressureLast = 0.0;
+	XID penDevice;
+	uint32_t eraserMotionEvent;
+	uint32_t eraserMaxPressure = 2048;
+	float eraserPressureLast = 0.0;
+	XID eraserDevice;
 	bool keyPressed[256];
 	char clipboardString[4096];
 
@@ -294,6 +299,7 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	for (int i = 0; i < count; i++) {
 		if (strstr(devices[i].name, "stylus")) {
 			XDevice* device = XOpenDevice(Kore::Linux::display, devices[i].id);
+			penDevice = devices[i].id;
 			XAnyClassPtr c = devices[i].inputclassinfo;
 			for (int j = 0; j < devices[i].num_classes; j++) {
 				if (c->c_class == ValuatorClass) {
@@ -308,7 +314,24 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 				}
 				c = (XAnyClassPtr)((uint8_t*)c + c->length);
 			}
-			break;
+		}
+		if (strstr(devices[i].name, "eraser")) {
+			XDevice* device = XOpenDevice(Kore::Linux::display, devices[i].id);
+			eraserDevice = devices[i].id;
+			XAnyClassPtr c = devices[i].inputclassinfo;
+			for (int j = 0; j < devices[i].num_classes; j++) {
+				if (c->c_class == ValuatorClass) {
+					XValuatorInfo* info = (XValuatorInfo*)c;
+					if (info->num_axes > 2) {
+						eraserMaxPressure = info->axes[2].max_value;
+					}
+					XEventClass eventClass;
+					DeviceMotionNotify(device, eraserMotionEvent, eventClass);
+					XSelectExtensionEvent(Kore::Linux::display, win, &eventClass, 1);
+					break;
+				}
+				c = (XAnyClassPtr)((uint8_t*)c + c->length);
+			}
 		}
 	}
 
@@ -359,7 +382,6 @@ namespace Kore {
 		}
 	}
 }
-
 bool kinc_internal_handle_messages() {
 	static bool controlDown = false;
 	while (XPending(Kore::Linux::display) > 0) {
@@ -368,18 +390,37 @@ bool kinc_internal_handle_messages() {
 
 		if (event.type == penMotionEvent) {
 			XDeviceMotionEvent* motion = (XDeviceMotionEvent*)(&event);
-			int windowId = windowimpl::idFromWindow(motion->window);
-			float p = (float)motion->axis_data[2] / (float)penMaxPressure;
-			if (p > 0 && penPressureLast == 0) {
-                kinc_internal_pen_trigger_press(windowId, motion->x, motion->y, p);
+			if (motion->deviceid == penDevice) {
+				int windowId = windowimpl::idFromWindow(motion->window);
+				float p = (float)motion->axis_data[2] / (float)penMaxPressure;
+				if (p > 0 && penPressureLast == 0) {
+					kinc_internal_pen_trigger_press(windowId, motion->x, motion->y, p);
+				}
+				else if (p == 0 && penPressureLast > 0) {
+					kinc_internal_pen_trigger_release(windowId, motion->x, motion->y, p);
+				}
+				else if (p > 0) {
+					kinc_internal_pen_trigger_move(windowId, motion->x, motion->y, p);
+				}
+				penPressureLast = p;
 			}
-			else if (p == 0 && penPressureLast > 0) {
-                kinc_internal_pen_trigger_release(windowId, motion->x, motion->y, p);
+		}
+		if (event.type == eraserMotionEvent) {
+			XDeviceMotionEvent* motion = (XDeviceMotionEvent*)(&event);
+			if (motion->deviceid == eraserDevice) {
+				int windowId = windowimpl::idFromWindow(motion->window);
+				float p = (float)motion->axis_data[2] / (float)eraserMaxPressure;
+				if (p > 0 && eraserPressureLast == 0) {
+					kinc_internal_eraser_trigger_press(windowId, motion->x, motion->y, p);
+				}
+				else if (p == 0 && eraserPressureLast > 0) {
+					kinc_internal_eraser_trigger_release(windowId, motion->x, motion->y, p);
+				}
+				else if (p > 0) {
+					kinc_internal_eraser_trigger_move(windowId, motion->x, motion->y, p);
+				}
+				eraserPressureLast = p;
 			}
-			else if (p > 0) {
-                kinc_internal_pen_trigger_move(windowId, motion->x, motion->y, p);
-			}
-			penPressureLast = p;
 		}
 
 		switch (event.type) {
