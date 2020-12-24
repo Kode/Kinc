@@ -944,6 +944,14 @@ static bool isXInputGamepad(int gamepad) {
 	return dwResult == ERROR_SUCCESS;
 }
 
+static bool isDirectInputGamepad(int gamepad) {
+	if (di_pads[gamepad] == nullptr) {
+		return false;
+	}
+	HRESULT hr = di_pads[gamepad]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[gamepad]);
+	return hr == S_OK;
+}
+
 const char *kinc_gamepad_vendor(int gamepad) {
 	if (isXInputGamepad(gamepad)) {
 		return "Microsoft";
@@ -1132,7 +1140,7 @@ void kinc_login() {}
 void kinc_unlock_achievement(int id) {}
 
 bool kinc_gamepad_connected(int num) {
-	return true;
+	return isXInputGamepad(num) || isDirectInputGamepad(num);
 }
 
 double kinc_frequency() {
