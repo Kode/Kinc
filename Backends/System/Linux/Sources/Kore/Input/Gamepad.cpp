@@ -24,7 +24,7 @@ namespace {
 		char gamepad_dev_name[256];
 		char name[384];
 		int file_descriptor;
-		int connected;
+		bool connected;
 		js_event gamepadEvent;
 
 		void open();
@@ -36,7 +36,7 @@ namespace {
 
 	void HIDGamepad::init(int index) {
 		file_descriptor = -1;
-		connected = -1;
+		connected = false;
 		gamepad_dev_name[0] = 0;
 		if (index >= 0 && index < 12) {
 			idx = index;
@@ -52,10 +52,10 @@ namespace {
 	void HIDGamepad::open() {
 		file_descriptor = ::open(gamepad_dev_name, O_RDONLY | O_NONBLOCK);
 		if (file_descriptor < 0) {
-			connected = -1;
+			connected = false;
 		}
 		else {
-			connected = 0;
+			connected = true;
 
 			char buf[128];
 			if (ioctl(file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0) strncpy(buf, "Unknown", sizeof(buf));
@@ -64,15 +64,15 @@ namespace {
 	}
 
 	void HIDGamepad::close() {
-		if (connected == 0) {
+		if (connected) {
 			::close(file_descriptor);
 			file_descriptor = -1;
-			connected = -1;
+			connected = false;
 		}
 	}
 
 	void HIDGamepad::update() {
-		if (connected == 0) {
+		if (connected) {
 			while (read(file_descriptor, &gamepadEvent, sizeof(gamepadEvent)) > 0) {
 				processEvent(gamepadEvent);
 			}
@@ -116,4 +116,8 @@ const char *kinc_gamepad_vendor(int gamepad) {
 
 const char *kinc_gamepad_product_name(int gamepad) {
     return gamepads[gamepad].name;
+}
+
+bool kinc_gamepad_connected(int num) {
+	return gamepads[gamepad].connected;
 }
