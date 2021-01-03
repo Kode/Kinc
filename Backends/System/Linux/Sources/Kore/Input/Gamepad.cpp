@@ -118,6 +118,6 @@ const char *kinc_gamepad_product_name(int gamepad) {
     return gamepads[gamepad].name;
 }
 
-bool kinc_gamepad_connected(int num) {
+bool kinc_gamepad_connected(int gamepad) {
 	return gamepads[gamepad].connected;
 }
