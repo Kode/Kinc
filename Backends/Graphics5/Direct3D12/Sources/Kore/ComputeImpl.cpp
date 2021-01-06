@@ -2,22 +2,24 @@
 
 #include "ComputeImpl.h"
 
-#include <Kinc/Graphics4/RenderTarget.h>
-#include <Kinc/Graphics4/Texture.h>
-#include <Kinc/Compute/Compute.h>
-#include <Kinc/Math/Core.h>
+#include <kinc/compute/compute.h>
+#include <kinc/graphics4/rendertarget.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/math/core.h>
 
-void kinc_compute_shader_init(kinc_compute_shader_t *shader, void* source, int length) {}
+void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int length) {}
 
 void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {}
 
 kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
 	kinc_compute_constant_location_t location;
+	location.impl.a = 0;
 	return location;
 }
 
 kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_shader_t *shader, const char *name) {
 	kinc_compute_texture_unit_t unit;
+	unit.impl.a = 0;
 	return unit;
 }
 
