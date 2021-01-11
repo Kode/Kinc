@@ -57,6 +57,8 @@ KINC_FUNC void kinc_g5_command_list_execute(kinc_g5_command_list_t *list);
 KINC_FUNC void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list);
 KINC_FUNC void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, struct kinc_g5_render_target *render_target, uint8_t *data);
 
+KINC_FUNC void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z);
+
 #ifdef __cplusplus
 }
 #endif

@@ -20,6 +20,7 @@ typedef struct kinc_g5_pipeline {
 	struct kinc_g5_shader *geometryShader;
 	struct kinc_g5_shader *tessellationControlShader;
 	struct kinc_g5_shader *tessellationEvaluationShader;
+	struct kinc_g5_shader *compute_shader;
 
 	kinc_g5_cull_mode_t cullMode;
 
