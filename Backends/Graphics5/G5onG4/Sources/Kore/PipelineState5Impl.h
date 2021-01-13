@@ -11,6 +11,10 @@ typedef struct {
 } PipelineState5Impl;
 
 typedef struct {
+	int a;
+} ComputePipelineState5Impl;
+
+typedef struct {
 	kinc_g4_constant_location_t location;
 } ConstantLocation5Impl;
 
