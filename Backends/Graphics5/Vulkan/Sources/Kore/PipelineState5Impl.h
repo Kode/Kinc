@@ -30,6 +30,10 @@ typedef struct PipelineState5Impl_s {
 	VkPipelineLayout pipeline_layout;
 } PipelineState5Impl;
 
+typedef struct ComputePipelineState5Impl_t {
+	int a;
+} ComputePipelineState5Impl;
+
 typedef struct {
 	int vertexOffset;
 	int fragmentOffset;

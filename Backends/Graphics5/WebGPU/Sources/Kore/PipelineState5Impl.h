@@ -11,6 +11,10 @@ typedef struct {
 } PipelineState5Impl;
 
 typedef struct {
+	int a;
+} ComputePipelineState5Impl;
+
+typedef struct {
 	int vertexOffset;
 	int fragmentOffset;
 } ConstantLocation5Impl;
