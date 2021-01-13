@@ -128,6 +128,9 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 		location.impl.fragmentSize = constant.size;
 	}
 
+	location.impl.computeOffset = 0;
+	location.impl.computeSize = 0;
+
 	{
 		ShaderConstant constant = findConstant(pipe->geometryShader, name);
 		location.impl.geometryOffset = constant.offset;
@@ -244,9 +247,9 @@ namespace {
 		case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
 		default:
 #ifdef KORE_WINDOWS
-		return DXGI_FORMAT_R8G8B8A8_UNORM;
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
 #else
-		return DXGI_FORMAT_B8G8R8A8_UNORM;
+			return DXGI_FORMAT_B8G8R8A8_UNORM;
 #endif
 		}
 	}
@@ -378,4 +381,67 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}
+}
+
+void kinc_g5_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline) {
+	kinc_g5_internal_compute_pipeline_init(pipeline);
+	pipeline->impl.pso = NULL;
+}
+
+void kinc_g5_compute_pipeline_destroy(kinc_g5_compute_pipeline_t *pipeline) {
+	if (pipeline->impl.pso != NULL) {
+		pipeline->impl.pso->Release();
+		pipeline->impl.pso = NULL;
+	}
+}
+
+void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline) {
+	HRESULT hr;
+#ifdef KORE_DXC
+	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
+	if (hr != S_OK) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
+	}
+	pipe->impl.vertexConstantsSize = pipe->vertexShader->impl.constantsSize;
+	pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;
+#endif
+
+	D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {};
+	psoDesc.CS.BytecodeLength = pipeline->compute_shader->impl.length;
+	psoDesc.CS.pShaderBytecode = pipeline->compute_shader->impl.data;
+#ifdef KORE_DXC
+	psoDesc.pRootSignature = pipe->impl.rootSignature;
+#else
+	psoDesc.pRootSignature = globalComputeRootSignature;
+#endif
+
+	hr = device->CreateComputePipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipeline->impl.pso));
+	if (hr != S_OK) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
+	}
+}
+
+kinc_g5_constant_location_t kinc_g5_compute_pipeline_get_constant_location(kinc_g5_compute_pipeline_t *pipeline, const char *name) {
+	kinc_g5_constant_location_t location = {0};
+
+	{
+		ShaderConstant constant = findConstant(pipeline->compute_shader, name);
+		location.impl.computeOffset = constant.offset;
+		location.impl.computeSize = constant.size;
+	}
+
+	return location;
+}
+
+kinc_g5_texture_unit_t kinc_g5_compute_pipeline_get_texture_unit(kinc_g5_compute_pipeline_t *pipeline, const char *name) {
+	kinc_g5_texture_unit_t unit;
+	ShaderTexture vertexTexture = findTexture(pipeline->compute_shader, name);
+	if (vertexTexture.texture != -1) {
+		unit.impl.unit = vertexTexture.texture;
+	}
+	else {
+		ShaderTexture fragmentTexture = findTexture(pipeline->compute_shader, name);
+		unit.impl.unit = fragmentTexture.texture;
+	}
+	return unit;
 }

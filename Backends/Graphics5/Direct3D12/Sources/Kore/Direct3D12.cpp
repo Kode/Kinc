@@ -45,6 +45,7 @@ ID3D12DescriptorHeap* cbvHeap;*/
 int currentBackBuffer = -1;
 ID3D12Device *device;
 ID3D12RootSignature *globalRootSignature;
+ID3D12RootSignature *globalComputeRootSignature;
 // ID3D12GraphicsCommandList* commandList;
 ID3D12Resource *depthStencilTexture;
 ID3D12CommandQueue *commandQueue;
@@ -250,10 +251,42 @@ namespace {
 		createSamplersAndHeaps();
 	}
 
+	void createComputeRootSignature() {
+		const int textureCount = 16;
+
+		ID3DBlob *rootBlob;
+		ID3DBlob *errorBlob;
+
+		CD3DX12_ROOT_PARAMETER parameters[3];
+
+		CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
+		parameters[0].InitAsDescriptorTable(1, &range);
+		CD3DX12_DESCRIPTOR_RANGE range2{D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, (UINT)textureCount, 0};
+		parameters[1].InitAsDescriptorTable(1, &range2);
+
+		parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
+
+		CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
+		for (int i = 0; i < textureCount; ++i) {
+			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
+		}
+		for (int i = textureCount; i < textureCount * 2; ++i) {
+			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+		}
+
+		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
+		descRootSignature.Init(3, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
+		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&globalComputeRootSignature));
+
+		// createSamplersAndHeaps();
+	}
+
 	void initialize(int width, int height, HWND window) {
 		createDeviceAndSwapChain(width, height, window);
 		createViewportScissor(width, height);
 		createRootSignature();
+		createComputeRootSignature();
 
 		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&uploadFence));
 

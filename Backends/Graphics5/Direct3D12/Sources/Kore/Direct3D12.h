@@ -13,6 +13,7 @@
 
 static const int QUEUE_SLOT_COUNT = 2;
 extern int currentBackBuffer;
-extern ID3D12Device* device;
-extern ID3D12RootSignature* globalRootSignature;
+extern ID3D12Device *device;
+extern ID3D12RootSignature *globalRootSignature;
+extern ID3D12RootSignature *globalComputeRootSignature;
 // extern ID3D12GraphicsCommandList* commandList;

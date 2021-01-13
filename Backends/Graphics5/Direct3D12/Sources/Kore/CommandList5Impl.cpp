@@ -11,7 +11,7 @@
 
 #include <type_traits>
 
-extern ID3D12CommandQueue* commandQueue;
+extern ID3D12CommandQueue *commandQueue;
 static const int textureCount = 16;
 extern kinc_g5_texture_t *currentTextures[textureCount];
 extern kinc_g5_render_target_t *currentRenderTargets[textureCount];
@@ -46,7 +46,7 @@ namespace {
 	}*/
 
 	UINT64 renderFenceValue = 0;
-	ID3D12Fence* renderFence;
+	ID3D12Fence *renderFence;
 	HANDLE renderFenceEvent;
 
 	void init() {
@@ -58,7 +58,7 @@ namespace {
 		}
 	}
 
-	void waitForFence(ID3D12Fence* fence, UINT64 completionValue, HANDLE waitEvent) {
+	void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
 		if (fence->GetCompletedValue() < completionValue) {
 			fence->SetEventOnCompletion(completionValue, waitEvent);
 			WaitForSingleObject(waitEvent, INFINITE);
@@ -140,18 +140,17 @@ void kinc_g5_command_list_end(kinc_g5_command_list *list) {
 
 void kinc_g5_command_list_clear(kinc_g5_command_list *list, kinc_g5_render_target_t *renderTarget, unsigned flags, unsigned color, float depth, int stencil) {
 	if (flags & KINC_G5_CLEAR_COLOR) {
-		float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f,
-							  ((color & 0x0000ff00) >> 8) / 255.0f,
-							   (color & 0x000000ff) / 255.0f,
-							  ((color & 0xff000000) >> 24) / 255.0f};
-		list->impl._commandList->ClearRenderTargetView(renderTarget->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
+		float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
+		                      ((color & 0xff000000) >> 24) / 255.0f};
+		list->impl._commandList->ClearRenderTargetView(renderTarget->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0,
+		                                               nullptr);
 	}
 	if ((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) {
 		D3D12_CLEAR_FLAGS d3dflags = (flags & KINC_G5_CLEAR_DEPTH) && (flags & KINC_G5_CLEAR_STENCIL)
 		                                 ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
 		                                 : (flags & KINC_G5_CLEAR_DEPTH) ? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
-		list->impl._commandList->ClearDepthStencilView(renderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth, stencil,
-		                                               0, nullptr);
+		list->impl._commandList->ClearDepthStencilView(renderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth,
+		                                               stencil, 0, nullptr);
 	}
 }
 
@@ -214,7 +213,7 @@ void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list *list) {
 }
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset, size_t size) {
-	#ifdef KORE_DXC
+#ifdef KORE_DXC
 	if (list->impl._currentPipeline->impl.vertexConstantsSize > 0) {
 		if (list->impl._currentPipeline->impl.textures > 0) {
 			list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
@@ -223,19 +222,19 @@ void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list *list,
 			list->impl._commandList->SetGraphicsRootConstantBufferView(0, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 		}
 	}
-	#else
+#else
 	list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
-	#endif
+#endif
 }
 
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset, size_t size) {
-	#ifdef KORE_DXC
+#ifdef KORE_DXC
 	if (list->impl._currentPipeline->impl.fragmentConstantsSize > 0) {
-		//list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+		// list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 	}
-	#else
+#else
 	list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
-	#endif
+#endif
 }
 
 void kinc_g5_command_list_draw_indexed_vertices(kinc_g5_command_list *list) {
@@ -352,7 +351,7 @@ void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, kinc
 
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_texture_t *texture) {
 	D3D12_RESOURCE_DESC Desc = texture->impl.image->GetDesc();
-	ID3D12Device* device;
+	ID3D12Device *device;
 	texture->impl.image->GetDevice(IID_GRAPHICS_PPV_ARGS(&device));
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	device->GetCopyableFootprints(&Desc, 0, 1, 0, &footprint, nullptr, nullptr, nullptr);
@@ -382,17 +381,14 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 
 	// Create readback buffer
 	if (render_target->impl.renderTargetReadback == nullptr) {
-		device->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(rowPitch * render_target->texHeight),
-			D3D12_RESOURCE_STATE_COPY_DEST,
-			nullptr,
-			IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK), D3D12_HEAP_FLAG_NONE,
+		                                &CD3DX12_RESOURCE_DESC::Buffer(rowPitch * render_target->texHeight), D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+		                                IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
 	}
 
 	// Copy render target to readback buffer
-	D3D12_RESOURCE_STATES sourceState = render_target->impl.resourceState == RenderTargetResourceStateRenderTarget ? D3D12_RESOURCE_STATE_RENDER_TARGET : D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	D3D12_RESOURCE_STATES sourceState = render_target->impl.resourceState == RenderTargetResourceStateRenderTarget ? D3D12_RESOURCE_STATE_RENDER_TARGET
+	                                                                                                               : D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
 	{
 		D3D12_RESOURCE_BARRIER barrier;
@@ -436,8 +432,12 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	graphicsFlushAndWait(list, list->impl._commandAllocator, currentRenderTarget);
 
 	// Read buffer
-	void* p;
+	void *p;
 	render_target->impl.renderTargetReadback->Map(0, nullptr, &p);
 	memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
 	render_target->impl.renderTargetReadback->Unmap(0, nullptr);
+}
+
+void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {
+	list->impl._commandList->Dispatch(x, y, z);
 }

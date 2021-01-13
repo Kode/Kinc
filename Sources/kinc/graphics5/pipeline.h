@@ -20,7 +20,6 @@ typedef struct kinc_g5_pipeline {
 	struct kinc_g5_shader *geometryShader;
 	struct kinc_g5_shader *tessellationControlShader;
 	struct kinc_g5_shader *tessellationEvaluationShader;
-	struct kinc_g5_shader *compute_shader;
 
 	kinc_g5_cull_mode_t cullMode;
 
@@ -59,12 +58,25 @@ typedef struct kinc_g5_pipeline {
 	PipelineState5Impl impl;
 } kinc_g5_pipeline_t;
 
+typedef struct kinc_g5_compute_pipeline {
+	struct kinc_g5_shader *compute_shader;
+
+	ComputePipelineState5Impl impl;
+} kinc_g5_compute_pipeline_t;
+
 KINC_FUNC void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline);
 void kinc_g5_internal_pipeline_init(kinc_g5_pipeline_t *pipeline);
 KINC_FUNC void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline);
 KINC_FUNC void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline);
 KINC_FUNC kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipeline, const char *name);
 KINC_FUNC kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name);
+
+KINC_FUNC void kinc_g5_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline);
+void kinc_g5_internal_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline);
+KINC_FUNC void kinc_g5_compute_pipeline_destroy(kinc_g5_compute_pipeline_t *pipeline);
+KINC_FUNC void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline);
+KINC_FUNC kinc_g5_constant_location_t kinc_g5_compute_pipeline_get_constant_location(kinc_g5_compute_pipeline_t *pipeline, const char *name);
+KINC_FUNC kinc_g5_texture_unit_t kinc_g5_compute_pipeline_get_texture_unit(kinc_g5_compute_pipeline_t *pipeline, const char *name);
 
 #ifdef __cplusplus
 }
