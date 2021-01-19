@@ -29,7 +29,7 @@ static int returnDataSize = 0;
 void kinc_http_request(const char *url, const char *path, const char *data, int port, bool secure, int method, const char *header, kinc_http_callback_t callback,
                       void *callbackdata) {
 	// based on https://docs.microsoft.com/en-us/windows/desktop/winhttp/winhttp-sessions-overview
-	
+
 	HINTERNET hSession = WinHttpOpen(L"WinHTTP via Kore/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
 
 	HINTERNET hConnect = NULL;
@@ -87,6 +87,10 @@ void kinc_http_request(const char *url, const char *path, const char *data, int 
 			}
 			returnDataIndex += dwSize;
 		} while (dwSize > 0);
+	}
+	else {
+		callback(1, 404, NULL, callbackdata);
+		return;
 	}
 
 	returnData[returnDataIndex] = 0;
