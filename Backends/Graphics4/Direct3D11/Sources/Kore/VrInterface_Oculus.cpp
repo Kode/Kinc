@@ -6,7 +6,7 @@
 
 #include "Direct3D11.h"
 #include <Kore/Graphics4/Graphics.h>
-#include <Kore/Log.h>
+#include <kinc/log.h>
 
 #include "OVR_CAPI_D3D.h"
 
@@ -261,7 +261,7 @@ namespace {
 		mirrorDesc.MirrorOptions = ovrMirrorOption_Default;
 		HRESULT result = ovr_CreateMirrorTextureWithOptionsDX(session, device, &mirrorDesc, &mirrorTexture);
 		if (!OVR_SUCCESS(result)) {
-			log(Error, "Failed to create mirror texture.");
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to create mirror texture.");
 			done();
 		}
 
@@ -274,7 +274,7 @@ namespace {
 			eyeRenderViewport[eye].Pos.y = 0;
 			eyeRenderViewport[eye].Size = idealSize;
 			if (!pEyeRenderTexture[eye]->TextureChain) {
-				log(Error, "Failed to create texture.");
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to create texture.");
 				done();
 			}
 		}
@@ -286,19 +286,19 @@ void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowC
 	ovrInitParams initParams = {ovrInit_RequestVersion | ovrInit_FocusAware, OVR_MINOR_VERSION, NULL, 0, 0};
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
-		log(Error, "Failed to initialize libOVR.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to initialize libOVR.");
 		return (0);
 	}
 
 	if (!Platform.InitWindow((HINSTANCE)hinst, title, windowClassName)) {
-		log(Error, "Failed to open window.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to open window.");
 		return (0);
 	}
 
 	ovrGraphicsLuid luid;
 	result = ovr_Create(&session, &luid);
 	if (!OVR_SUCCESS(result)) {
-		log(Error, "HMD not connected.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "HMD not connected.");
 		return false; // TODO: retry
 	}
 
@@ -308,7 +308,7 @@ void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowC
 	// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
 	windowSize = {hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2};
 	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
-		log(Error, "Failed to init device.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to init device.");
 		done();
 	}
 
