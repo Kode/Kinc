@@ -102,7 +102,7 @@ KINC_FUNC void kinc_g5_destroy(int window);
 
 KINC_FUNC extern bool kinc_g5_fullscreen;
 
-KINC_FUNC void kinc_g5_flush();
+KINC_FUNC void kinc_g5_flush(void);
 
 KINC_FUNC void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
 KINC_FUNC void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
@@ -110,16 +110,16 @@ KINC_FUNC void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_te
 KINC_FUNC void kinc_g5_draw_indexed_vertices_instanced(int instanceCount);
 KINC_FUNC void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count);
 
-KINC_FUNC int kinc_g5_antialiasing_samples();
+KINC_FUNC int kinc_g5_antialiasing_samples(void);
 KINC_FUNC void kinc_g5_set_antialiasing_samples(int samples);
 
-KINC_FUNC bool kinc_g5_non_pow2_textures_qupported();
-KINC_FUNC bool kinc_g5_render_targets_inverted_y();
+KINC_FUNC bool kinc_g5_non_pow2_textures_qupported(void);
+KINC_FUNC bool kinc_g5_render_targets_inverted_y(void);
 KINC_FUNC void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face);
 
 KINC_FUNC void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window);
 KINC_FUNC void kinc_g5_end(int window);
-KINC_FUNC bool kinc_g5_swap_buffers();
+KINC_FUNC bool kinc_g5_swap_buffers(void);
 
 void kinc_internal_g5_resize(int window, int width, int height);
 

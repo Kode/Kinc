@@ -74,6 +74,10 @@
 #include <stdio.h>
 #endif
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wcomma"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

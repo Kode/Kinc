@@ -29,7 +29,7 @@ typedef struct {
 	int position;
 } kinc_a1_video_channel_t;
 
-KINC_FUNC void kinc_a1_init();
+KINC_FUNC void kinc_a1_init(void);
 KINC_FUNC kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float pitch,
                                                 bool unique); //(kinc_a1_sound_t *sound, bool loop = false, float pitch = 1.0f, bool unique = false);
 KINC_FUNC void kinc_a1_stop_sound(kinc_a1_sound_t *sound);

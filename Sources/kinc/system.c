@@ -16,44 +16,44 @@ double kinc_time() {
 }
 #endif
 
-static void (*update_callback)() = NULL;
-static void (*foreground_callback)() = NULL;
-static void (*background_callback)() = NULL;
-static void (*pause_callback)() = NULL;
-static void (*resume_callback)() = NULL;
-static void (*shutdown_callback)() = NULL;
+static void (*update_callback)(void) = NULL;
+static void (*foreground_callback)(void) = NULL;
+static void (*background_callback)(void) = NULL;
+static void (*pause_callback)(void) = NULL;
+static void (*resume_callback)(void) = NULL;
+static void (*shutdown_callback)(void) = NULL;
 static void (*drop_files_callback)(wchar_t *) = NULL;
-static char *(*cut_callback)() = NULL;
-static char *(*copy_callback)() = NULL;
+static char *(*cut_callback)(void) = NULL;
+static char *(*copy_callback)(void) = NULL;
 static void (*paste_callback)(char *) = NULL;
-static void (*login_callback)() = NULL;
-static void (*logout_callback)() = NULL;
+static void (*login_callback)(void) = NULL;
+static void (*logout_callback)(void) = NULL;
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-bool withAutoreleasepool(bool (*f)());
+bool withAutoreleasepool(bool (*f)(void));
 #endif
 
-void kinc_set_update_callback(void (*value)()) {
+void kinc_set_update_callback(void (*value)(void)) {
 	update_callback = value;
 }
 
-void kinc_set_foreground_callback(void (*value)()) {
+void kinc_set_foreground_callback(void (*value)(void)) {
 	foreground_callback = value;
 }
 
-void kinc_set_resume_callback(void (*value)()) {
+void kinc_set_resume_callback(void (*value)(void)) {
 	resume_callback = value;
 }
 
-void kinc_set_pause_callback(void (*value)()) {
+void kinc_set_pause_callback(void (*value)(void)) {
 	pause_callback = value;
 }
 
-void kinc_set_background_callback(void (*value)()) {
+void kinc_set_background_callback(void (*value)(void)) {
 	background_callback = value;
 }
 
-void kinc_set_shutdown_callback(void (*value)()) {
+void kinc_set_shutdown_callback(void (*value)(void)) {
 	shutdown_callback = value;
 }
 
@@ -61,11 +61,11 @@ void kinc_set_drop_files_callback(void (*value)(wchar_t *)) {
 	drop_files_callback = value;
 }
 
-void kinc_set_cut_callback(char *(*value)()) {
+void kinc_set_cut_callback(char *(*value)(void)) {
 	cut_callback = value;
 }
 
-void kinc_set_copy_callback(char *(*value)()) {
+void kinc_set_copy_callback(char *(*value)(void)) {
 	copy_callback = value;
 }
 
@@ -73,11 +73,11 @@ void kinc_set_paste_callback(void (*value)(char *)) {
 	paste_callback = value;
 }
 
-void kinc_set_login_callback(void (*value)()) {
+void kinc_set_login_callback(void (*value)(void)) {
 	login_callback = value;
 }
 
-void kinc_set_logout_callback(void (*value)()) {
+void kinc_set_logout_callback(void (*value)(void)) {
 	logout_callback = value;
 }
 
@@ -168,7 +168,7 @@ void kinc_set_application_name(const char *name) {
 }
 
 #ifdef KORE_METAL
-void shutdownMetalCompute();
+void shutdownMetalCompute(void);
 #endif
 
 void kinc_stop() {

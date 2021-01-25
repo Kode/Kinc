@@ -71,7 +71,7 @@ KINC_FUNC uint8_t kinc_read_u8(uint8_t *data);
 KINC_FUNC int8_t kinc_read_s8(uint8_t *data);
 
 void kinc_internal_set_files_location(char *dir);
-char *kinc_internal_get_files_location();
+char *kinc_internal_get_files_location(void);
 
 #ifdef __cplusplus
 }

@@ -43,13 +43,13 @@ KINC_FUNC void kinc_g4_init(int window, int depthBufferBits, int stencilBufferBi
 
 KINC_FUNC void kinc_g4_destroy(int window);
 
-KINC_FUNC void kinc_g4_flush();
+KINC_FUNC void kinc_g4_flush(void);
 
 KINC_FUNC void kinc_g4_begin(int window);
 
 KINC_FUNC void kinc_g4_end(int window);
 
-KINC_FUNC bool kinc_g4_swap_buffers();
+KINC_FUNC bool kinc_g4_swap_buffers(void);
 
 #define KINC_G4_CLEAR_COLOR 1
 #define KINC_G4_CLEAR_DEPTH 2
@@ -61,9 +61,9 @@ KINC_FUNC void kinc_g4_viewport(int x, int y, int width, int height);
 
 KINC_FUNC void kinc_g4_scissor(int x, int y, int width, int height);
 
-KINC_FUNC void kinc_g4_disable_scissor();
+KINC_FUNC void kinc_g4_disable_scissor(void);
 
-KINC_FUNC void kinc_g4_draw_indexed_vertices();
+KINC_FUNC void kinc_g4_draw_indexed_vertices(void);
 
 KINC_FUNC void kinc_g4_draw_indexed_vertices_from_to(int start, int count);
 
@@ -118,11 +118,11 @@ KINC_FUNC void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, boo
 
 KINC_FUNC int kinc_g4_max_bound_textures(void);
 
-KINC_FUNC bool kinc_g4_render_targets_inverted_y();
+KINC_FUNC bool kinc_g4_render_targets_inverted_y(void);
 
-KINC_FUNC bool kinc_g4_non_pow2_textures_supported();
+KINC_FUNC bool kinc_g4_non_pow2_textures_supported(void);
 
-KINC_FUNC void kinc_g4_restore_render_target();
+KINC_FUNC void kinc_g4_restore_render_target(void);
 
 KINC_FUNC void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int count);
 
@@ -146,7 +146,7 @@ KINC_FUNC void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixe
 
 KINC_FUNC void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array);
 
-KINC_FUNC int kinc_g4_antialiasing_samples();
+KINC_FUNC int kinc_g4_antialiasing_samples(void);
 
 KINC_FUNC void kinc_g4_set_antialiasing_samples(int samples);
 

@@ -20,8 +20,8 @@ KINC_FUNC void kinc_mouse_unlock(int window);
 
 KINC_FUNC void kinc_mouse_set_cursor(int cursor);
 
-KINC_FUNC void kinc_mouse_show();
-KINC_FUNC void kinc_mouse_hide();
+KINC_FUNC void kinc_mouse_show(void);
+KINC_FUNC void kinc_mouse_hide(void);
 KINC_FUNC void kinc_mouse_set_position(int window, int x, int y);
 KINC_FUNC void kinc_mouse_get_position(int window, int *x, int *y);
 
