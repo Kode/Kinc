@@ -20,7 +20,8 @@ extern kinc_g5_index_buffer_t *currentIndexBuffer;
 id getMetalDevice();
 id getMetalQueue();
 id getMetalEncoder();
-void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, int count, bool wait);
+void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, int count, bool wait, unsigned clear_flags, unsigned color, float depth,
+                                      int stencil);
 void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline);
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
@@ -54,7 +55,14 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
-								int stencil) {}
+								int stencil) {
+    if (renderTarget->contextId < 0) {
+        kinc_g5_internal_new_render_pass(nullptr, 1, false, flags, color, depth, stencil);
+    }
+    else {
+        kinc_g5_internal_new_render_pass(&renderTarget, 1, false, flags, color, depth, stencil);
+    }
+}
 
 void kinc_g5_command_list_render_target_to_framebuffer_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
 
@@ -132,12 +140,12 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	if (targets[0]->contextId < 0) {
 		for (int i = 0; i < 8; ++i) lastRenderTargets[i] = nullptr;
-		kinc_g5_internal_new_render_pass(nullptr, 1, false);
+		kinc_g5_internal_new_render_pass(nullptr, 1, false, 0, 0, 0.0f, 0);
 	}
 	else {
 		for (int i = 0; i < count; ++i) lastRenderTargets[i] = targets[i];
 		for (int i = count; i < 8; ++i) lastRenderTargets[i] = nullptr;
-		kinc_g5_internal_new_render_pass(targets, count, false);
+		kinc_g5_internal_new_render_pass(targets, count, false, 0, 0, 0.0f, 0);
 	}
 }
 
@@ -189,24 +197,24 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	if (lastRenderTargets[0] == nullptr) {
-		kinc_g5_internal_new_render_pass(nullptr, 1, false);
+		kinc_g5_internal_new_render_pass(nullptr, 1, false, 0, 0, 0.0f, 0);
 	}
 	else {
 		int count = 1;
 		while (lastRenderTargets[count] != nullptr) count++;
-		kinc_g5_internal_new_render_pass(lastRenderTargets, count, false);
+		kinc_g5_internal_new_render_pass(lastRenderTargets, count, false, 0, 0, 0.0f, 0);
 	}
 	if (lastPipeline != nullptr) kinc_g5_internal_pipeline_set(lastPipeline);
 }
 
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 	if (lastRenderTargets[0] == nullptr) {
-		kinc_g5_internal_new_render_pass(nullptr, 1, true);
+		kinc_g5_internal_new_render_pass(nullptr, 1, true, 0, 0, 0.0f, 0);
 	}
 	else {
 		int count = 1;
 		while (lastRenderTargets[count] != nullptr) count++;
-		kinc_g5_internal_new_render_pass(lastRenderTargets, count, true);
+		kinc_g5_internal_new_render_pass(lastRenderTargets, count, true, 0, 0, 0.0f, 0);
 	}
 	if (lastPipeline != nullptr) kinc_g5_internal_pipeline_set(lastPipeline);
 }
