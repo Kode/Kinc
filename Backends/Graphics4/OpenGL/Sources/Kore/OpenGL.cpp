@@ -210,6 +210,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 
 	lastPipeline = nullptr;
 
+#ifndef KORE_OPENGL_ES
 	int major = -1, minor = -1;
 	glGetIntegerv(GL_MAJOR_VERSION, &major);
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
@@ -224,6 +225,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		minor = 0;
 	}
 	int gl_version = major * 100 + minor * 10;
+#endif
 
 #if defined(KORE_LINUX) || defined(KORE_MACOS)
 	if (gl_version >= 300) {
