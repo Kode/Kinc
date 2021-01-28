@@ -210,12 +210,29 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 
 	lastPipeline = nullptr;
 
+	int major = -1, minor = -1;
+	glGetIntegerv(GL_MAJOR_VERSION, &major);
+	glGetIntegerv(GL_MINOR_VERSION, &minor);
+	if (major < 0 || minor < 0) {
+		const GLubyte *version = glGetString(GL_VERSION);
+		if (version != NULL) {
+			major = version[0] - '0';
+		}
+		else {
+			major = 2;
+		}
+		minor = 0;
+	}
+	int gl_version = major * 100 + minor * 10;
+
 #if defined(KORE_LINUX) || defined(KORE_MACOS)
-	unsigned vertexArray;
-	glGenVertexArrays(1, &vertexArray);
-	glCheckErrors();
-	glBindVertexArray(vertexArray);
-	glCheckErrors();
+	if (gl_version >= 300) {
+		unsigned vertexArray;
+		glGenVertexArrays(1, &vertexArray);
+		glCheckErrors();
+		glBindVertexArray(vertexArray);
+		glCheckErrors();
+	}
 #endif
 }
 
