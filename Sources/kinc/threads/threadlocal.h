@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/ThreadLocalImpl.h>
+#include <kinc/backend/threadlocal.h>
 
 #ifdef __cplusplus
 extern "C" {

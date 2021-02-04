@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/SemaphoreImpl.h>
+#include <kinc/backend/semaphore.h>
 
 #include <stdbool.h>
 

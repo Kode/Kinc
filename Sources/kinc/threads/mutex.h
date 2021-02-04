@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/MutexImpl.h>
+#include <kinc/backend/mutex.h>
 
 #include <stdbool.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/EventImpl.h>
+#include <kinc/backend/event.h>
 
 #include <stdbool.h>
 
