@@ -1,7 +1,5 @@
 #include "pch.h"
 
-#include "ComputeImpl.h"
-
 #include <Kinc/Compute/Compute.h>
 #include <Kinc/Graphics4/RenderTarget.h>
 #include <Kinc/Graphics4/Texture.h>

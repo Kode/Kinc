@@ -12,7 +12,7 @@
 #include <Kore/SystemMicrosoft.h>
 #include <Kore/Windows.h>
 
-#include <Kore/Log.h>
+#include <kinc/log.h>
 
 #include <vector>
 
@@ -736,7 +736,7 @@ bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 	// check if the runtime supports queries
 	HRESULT result = device->CreateQuery(D3DQUERYTYPE_OCCLUSION, NULL);
 	if (FAILED(result)) {
-		Kore::log(Kore::LogLevel::Warning, "Internal query creation failed, result: 0x%X.", result);
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Internal query creation failed, result: 0x%X.", result);
 		return false;
 	}
 
@@ -787,7 +787,7 @@ void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {
 			*pixelCount = numberOfPixelsDrawn;
 		}
 		else {
-			Kore::log(Kore::LogLevel::Warning, "Check first if results are available");
+			kinc_log(KINC_LOG_LEVEL_WARNING, "Check first if results are available");
 			*pixelCount = 0;
 		}
 	}
