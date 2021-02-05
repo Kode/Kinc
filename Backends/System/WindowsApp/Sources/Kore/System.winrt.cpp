@@ -9,7 +9,7 @@
 #include <kinc/threads/thread.h>
 #include <kinc/window.h>
 
-#include <Kore/Hololens.winrt.h>
+#include <kinc/backend/Hololens.winrt.h>
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
