@@ -3,7 +3,7 @@
 #include <kinc/compute/compute.h>
 
 #ifdef KORE_OPENGL
-#include <Kore/ShaderStorageBufferImpl.h>
+#include <kinc/backend/ShaderStorageBufferImpl.h>
 #endif
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Math/Matrix.h>

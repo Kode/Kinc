@@ -4,7 +4,6 @@
 #include <kinc/graphics4/texture.h>
 
 #include <Kore/Graphics1/Image.h>
-#include <Kore/TextureImpl.h>
 
 namespace Kore {
 	namespace Graphics3 {
