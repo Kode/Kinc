@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/RenderTargetImpl.h>
+#include <kinc/backend/rendertarget.h>
 
 #include "textureunit.h"
 

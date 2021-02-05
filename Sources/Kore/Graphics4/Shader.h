@@ -6,8 +6,8 @@
 #include "Texture.h"
 #include "VertexStructure.h"
 #include <Kore/Math/Matrix.h>
-#include <Kore/PipelineStateImpl.h>
-#include <Kore/ShaderImpl.h>
+#include <kinc/backend/pipeline.h>
+#include <kinc/backend/shader.h>
 
 namespace Kore {
 	namespace Graphics4 {
@@ -15,18 +15,16 @@ namespace Kore {
 
 		class Shader {
 		public:
-			Shader(void* data, int length, ShaderType type);
-			Shader(const char* source, ShaderType type); // Beware, this is not portable
+			Shader(void *data, int length, ShaderType type);
+			Shader(const char *source, ShaderType type); // Beware, this is not portable
 			virtual ~Shader();
-			
+
 			kinc_g4_shader_t kincShader;
 		};
 
 		class ConstantLocation {
 		public:
-			ConstantLocation() {
-
-			}
+			ConstantLocation() {}
 
 			kinc_g4_constant_location_t kincConstant;
 		};

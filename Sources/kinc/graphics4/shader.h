@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include <Kore/ShaderImpl.h>
+#include <kinc/backend/shader.h>
 
 #ifdef __cplusplus
 extern "C" {

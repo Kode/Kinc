@@ -2,7 +2,7 @@
 
 #include "texture.h"
 
-#include <Kore/TextureArrayImpl.h>
+#include <kinc/backend/texturearray.h>
 
 #ifdef __cplusplus
 extern "C" {

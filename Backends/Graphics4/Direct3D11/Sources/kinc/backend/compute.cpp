@@ -1,6 +1,5 @@
 #include "pch.h"
 
-#include "ComputeImpl.h"
 #include "Direct3D11.h"
 
 #include <kinc/compute/compute.h>

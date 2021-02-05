@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/ShaderHash.h>
+#include <kinc/backend/ShaderHash.h>
 
 #ifdef __cplusplus
 extern "C" {

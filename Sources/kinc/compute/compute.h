@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/ComputeImpl.h>
+#include <kinc/backend/compute.h>
 #ifdef KORE_OPENGL
 #include <Kore/ShaderStorageBufferImpl.h>
 #endif

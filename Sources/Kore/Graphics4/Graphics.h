@@ -8,7 +8,6 @@
 #include "Texture.h"
 #include "VertexStructure.h"
 #include <Kore/Graphics1/Image.h>
-#include <Kore/GraphicsImpl.h>
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
 

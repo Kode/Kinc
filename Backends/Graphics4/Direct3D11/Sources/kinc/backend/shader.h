@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <Kore/ShaderHash.h>
+#include <kinc/backend/ShaderHash.h>
 
 #ifdef __cplusplus
 extern "C" {

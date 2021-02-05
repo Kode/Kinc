@@ -2,7 +2,7 @@
 
 #include "vertexstructure.h"
 
-#include <Kore/VertexBufferImpl.h>
+#include <kinc/backend/vertexbuffer.h>
 
 #include <stdbool.h>
 

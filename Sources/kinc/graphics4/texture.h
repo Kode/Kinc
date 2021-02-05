@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/TextureImpl.h>
+#include <kinc/backend/texture.h>
 #include <kinc/image.h>
 
 #ifdef __cplusplus
