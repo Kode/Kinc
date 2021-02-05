@@ -2,8 +2,6 @@
 
 #include <kinc/graphics4/pipeline.h>
 
-#include <Kore/PipelineStateImpl.h>
-
 #include "Graphics.h"
 
 namespace Kore {
