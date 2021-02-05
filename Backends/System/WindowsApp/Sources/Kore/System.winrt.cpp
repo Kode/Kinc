@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <Kore/Direct3D11.h>
+#include <kinc/backend/Direct3D11.h>
 
 #include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
