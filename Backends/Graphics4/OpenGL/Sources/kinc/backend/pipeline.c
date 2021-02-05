@@ -8,7 +8,7 @@
 #include <kinc/graphics4/vertexstructure.h>
 #include <kinc/log.h>
 
-#include <Kore/OpenGL.h>
+#include <kinc/backend/OpenGL.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,12 +75,12 @@ void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {
 
 	state->impl.textureCount = 0;
 	// TODO: Get rid of allocations
-	state->impl.textures = (char**)malloc(sizeof(char*) * 16);
+	state->impl.textures = (char **)malloc(sizeof(char *) * 16);
 	for (int i = 0; i < 16; ++i) {
-		state->impl.textures[i] = (char*)malloc(sizeof(char) * 128);
+		state->impl.textures[i] = (char *)malloc(sizeof(char) * 128);
 		state->impl.textures[i][0] = 0;
 	}
-	state->impl.textureValues = (int*)malloc(sizeof(int) * 16);
+	state->impl.textureValues = (int *)malloc(sizeof(int) * 16);
 
 	state->impl.programId = glCreateProgram();
 	glCheckErrors();
@@ -116,7 +116,7 @@ static int toGlShader(kinc_g4_shader_type_t type) {
 static void compileShader(unsigned *id, const char *source, size_t length, kinc_g4_shader_type_t type) {
 	*id = glCreateShader(toGlShader(type));
 	glCheckErrors();
-	glShaderSource(*id, 1, (const GLchar**)&source, 0);
+	glShaderSource(*id, 1, (const GLchar **)&source, 0);
 	glCompileShader(*id);
 
 	int result;
@@ -124,7 +124,7 @@ static void compileShader(unsigned *id, const char *source, size_t length, kinc_
 	if (result != GL_TRUE) {
 		int length;
 		glGetShaderiv(*id, GL_INFO_LOG_LENGTH, &length);
-		char* errormessage = (char*)malloc(length);
+		char *errormessage = (char *)malloc(length);
 		glGetShaderInfoLog(*id, length, NULL, errormessage);
 		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL compiler error: %s", errormessage);
 		free(errormessage);
@@ -185,7 +185,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	if (result != GL_TRUE) {
 		int length;
 		glGetProgramiv(state->impl.programId, GL_INFO_LOG_LENGTH, &length);
-		char* errormessage = (char*)malloc(length);
+		char *errormessage = (char *)malloc(length);
 		glGetProgramInfoLog(state->impl.programId, length, NULL, errormessage);
 		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL linker error: %s", errormessage);
 		free(errormessage);
@@ -220,15 +220,19 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 		glEnable(GL_STENCIL_TEST);
 		int stencilFunc = Kinc_G4_Internal_StencilFunc(pipeline->stencil_mode);
 		glStencilMask(pipeline->stencil_write_mask);
-		glStencilOp(convertStencilAction(pipeline->stencil_fail), convertStencilAction(pipeline->stencil_depth_fail), convertStencilAction(pipeline->stencil_both_pass));
+		glStencilOp(convertStencilAction(pipeline->stencil_fail), convertStencilAction(pipeline->stencil_depth_fail),
+		            convertStencilAction(pipeline->stencil_both_pass));
 		glStencilFunc(stencilFunc, pipeline->stencil_reference_value, pipeline->stencil_read_mask);
 	}
 
-	#ifdef KORE_OPENGL_ES
-	glColorMask(pipeline->color_write_mask_red[0], pipeline->color_write_mask_green[0], pipeline->color_write_mask_blue[0], pipeline->color_write_mask_alpha[0]);
-	#else
-	for (int i = 0; i < 8; ++i) glColorMaski(i, pipeline->color_write_mask_red[i], pipeline->color_write_mask_green[i], pipeline->color_write_mask_blue[i], pipeline->color_write_mask_alpha[i]);
-	#endif
+#ifdef KORE_OPENGL_ES
+	glColorMask(pipeline->color_write_mask_red[0], pipeline->color_write_mask_green[0], pipeline->color_write_mask_blue[0],
+	            pipeline->color_write_mask_alpha[0]);
+#else
+	for (int i = 0; i < 8; ++i)
+		glColorMaski(i, pipeline->color_write_mask_red[i], pipeline->color_write_mask_green[i], pipeline->color_write_mask_blue[i],
+		             pipeline->color_write_mask_alpha[i]);
+#endif
 
 	if (Kinc_Internal_SupportsConservativeRaster) {
 		if (pipeline->conservative_rasterization) {

@@ -1,7 +1,5 @@
 #include "pch.h"
 
-#include "ComputeImpl.h"
-
 #include "ogl.h"
 
 #include <kinc/compute/compute.h>
@@ -9,8 +7,8 @@
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/texture.h>
 #include <kinc/image.h>
-#include <kinc/math/core.h>
 #include <kinc/log.h>
+#include <kinc/math/core.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -61,7 +59,8 @@ namespace {
 		}
 	}
 
-	void setTextureAddressingInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
+	void setTextureAddressingInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir,
+	                                  kinc_g4_texture_addressing_t addressing) {
 		glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 		GLenum texDir = dir == KINC_G4_TEXTURE_DIRECTION_U ? GL_TEXTURE_WRAP_S : (KINC_G4_TEXTURE_DIRECTION_V ? GL_TEXTURE_WRAP_T : GL_TEXTURE_WRAP_R);
 		switch (addressing) {
@@ -155,7 +154,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int l
 	if (result != GL_TRUE) {
 		int length;
 		glGetShaderiv(shader->impl._id, GL_INFO_LOG_LENGTH, &length);
-		char* errormessage = new char[length];
+		char *errormessage = new char[length];
 		glGetShaderInfoLog(shader->impl._id, length, nullptr, errormessage);
 		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL compiler error: %s\n", errormessage);
 		delete[] errormessage;
@@ -169,7 +168,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int l
 	if (result != GL_TRUE) {
 		int length;
 		glGetProgramiv(shader->impl._programid, GL_INFO_LOG_LENGTH, &length);
-		char* errormessage = new char[length];
+		char *errormessage = new char[length];
 		glGetProgramInfoLog(shader->impl._programid, length, nullptr, errormessage);
 		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL linker error: %s\n", errormessage);
 		delete[] errormessage;
@@ -424,21 +423,21 @@ void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, ki
 #endif
 }
 
- void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {
+void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {
 #ifdef HAS_COMPUTE
-	 mipFilters[unit.impl.unit] = filter;
+	mipFilters[unit.impl.unit] = filter;
 	setMinMipFilters(GL_TEXTURE_3D, unit.impl.unit);
 #endif
 }
 
- void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
+void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
 #ifdef HAS_COMPUTE
 	glUseProgram(shader->impl._programid);
 	glCheckErrors();
 #endif
 }
 
- void kinc_compute(int x, int y, int z) {
+void kinc_compute(int x, int y, int z) {
 #ifdef HAS_COMPUTE
 	glDispatchCompute(x, y, z);
 	glCheckErrors();

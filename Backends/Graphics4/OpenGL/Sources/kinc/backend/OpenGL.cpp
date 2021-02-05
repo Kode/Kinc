@@ -1,8 +1,8 @@
 #include "pch.h"
 
 #include "OpenGL.h"
-#include "VertexBufferImpl.h"
 #include "ogl.h"
+#include <kinc/backend/vertexbuffer.h>
 
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/pipeline.h>

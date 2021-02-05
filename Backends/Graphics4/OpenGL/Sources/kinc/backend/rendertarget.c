@@ -4,7 +4,7 @@
 
 #include "ogl.h"
 
-#include <Kore/OpenGL.h>
+#include <kinc/backend/OpenGL.h>
 
 #include <kinc/graphics4/graphics.h>
 #include <kinc/log.h>
@@ -115,42 +115,41 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 	}
 	else if (depthBufferBits > 0) {
 		renderTarget->impl._hasDepth = true;
-		if(!Kinc_Internal_SupportsDepthTexture) {
-		    // Renderbuffer
-			 glGenRenderbuffers(1, &renderTarget->impl._depthTexture);
-			 glCheckErrors();
-			 glBindRenderbuffer(GL_RENDERBUFFER, renderTarget->impl._depthTexture);
-			 glCheckErrors();
-			 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-			 glCheckErrors();
-			 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTarget->impl._depthTexture);
-			 glCheckErrors();
+		if (!Kinc_Internal_SupportsDepthTexture) {
+			// Renderbuffer
+			glGenRenderbuffers(1, &renderTarget->impl._depthTexture);
+			glCheckErrors();
+			glBindRenderbuffer(GL_RENDERBUFFER, renderTarget->impl._depthTexture);
+			glCheckErrors();
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+			glCheckErrors();
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTarget->impl._depthTexture);
+			glCheckErrors();
 		}
 		else {
 			// Texture
 			glGenTextures(1, &renderTarget->impl._depthTexture);
-            glCheckErrors();
-            glBindTexture(texType, renderTarget->impl._depthTexture);
-            glCheckErrors();
-            GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;
-            glTexImage2D(texType, 0, format, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
-            glCheckErrors();
-            glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glCheckErrors();
-            glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
-            glCheckErrors();
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
-            glCheckErrors();
+			glCheckErrors();
+			glBindTexture(texType, renderTarget->impl._depthTexture);
+			glCheckErrors();
+			GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;
+			glTexImage2D(texType, 0, format, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
+			glCheckErrors();
+			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glCheckErrors();
+			glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
+			glCheckErrors();
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
+			glCheckErrors();
 		}
-
 	}
 }
 
 void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing,
-                                 kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
+                                kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
 	renderTarget->width = width;
 	renderTarget->height = height;
 	renderTarget->isCubeMap = false;
@@ -290,7 +289,8 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 	switch (format) {
 	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
 #ifdef KORE_OPENGL_ES
-		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
+		for (int i = 0; i < 6; i++)
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #else
 		for (int i = 0; i < 6; i++)
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
@@ -298,7 +298,8 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
 #ifdef KORE_OPENGL_ES
-		for (int i = 0; i < 6; i++) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
+		for (int i = 0; i < 6; i++)
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
 		for (int i = 0; i < 6; i++)
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
@@ -311,8 +312,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 #endif
 		for (int i = 0; i < 6; i++)
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT16, renderTarget->texWidth, renderTarget->texHeight, 0, GL_DEPTH_COMPONENT,
-			             GL_UNSIGNED_INT,
-			             0);
+			             GL_UNSIGNED_INT, 0);
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_32BIT:
 	default:
@@ -373,7 +373,8 @@ void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderT
 void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *renderTarget, kinc_g4_render_target_t *source) {
 	renderTarget->impl._depthTexture = source->impl._depthTexture;
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, renderTarget->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, renderTarget->impl._depthTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, renderTarget->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, renderTarget->impl._depthTexture,
+	                       0);
 }
 
 void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uint8_t *data) {

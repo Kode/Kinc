@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "ShaderImpl.h"
-#include "VertexBufferImpl.h"
 #include "ogl.h"
+#include <kinc/backend/shader.h>
+#include <kinc/backend/vertexbuffer.h>
 
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/vertexbuffer.h>
@@ -18,7 +18,7 @@ void *glesVertexAttribDivisor;
 #endif
 
 void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int vertexCount, kinc_g4_vertex_structure_t *structure, kinc_g4_usage_t usage,
-                                 int instanceDataStepRate) {
+                                int instanceDataStepRate) {
 	buffer->impl.myCount = vertexCount;
 	buffer->impl.instanceDataStepRate = instanceDataStepRate;
 #ifndef NDEBUG
@@ -58,15 +58,15 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int vertexCount
 	}
 	buffer->impl.structure = *structure;
 	switch (usage) {
-		case KINC_G4_USAGE_STATIC:
-			buffer->impl.usage = GL_STATIC_DRAW;
-			break;
-	    case KINC_G4_USAGE_DYNAMIC:
-		    buffer->impl.usage = GL_DYNAMIC_DRAW;
-			break;
-	    case KINC_G4_USAGE_READABLE:
-		    buffer->impl.usage = GL_DYNAMIC_DRAW;
-			break;
+	case KINC_G4_USAGE_STATIC:
+		buffer->impl.usage = GL_STATIC_DRAW;
+		break;
+	case KINC_G4_USAGE_DYNAMIC:
+		buffer->impl.usage = GL_DYNAMIC_DRAW;
+		break;
+	case KINC_G4_USAGE_READABLE:
+		buffer->impl.usage = GL_DYNAMIC_DRAW;
+		break;
 	}
 
 	glGenBuffers(1, &buffer->impl.bufferId);
@@ -75,7 +75,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int vertexCount
 	glCheckErrors();
 	glBufferData(GL_ARRAY_BUFFER, buffer->impl.myStride * buffer->impl.myCount, NULL, buffer->impl.usage);
 	glCheckErrors();
-	buffer->impl.data = (float*)malloc(vertexCount * buffer->impl.myStride);
+	buffer->impl.data = (float *)malloc(vertexCount * buffer->impl.myStride);
 }
 
 void Kinc_Internal_G4_VertexBuffer_Unset(kinc_g4_vertex_buffer_t *buffer);
@@ -95,14 +95,14 @@ float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer) {
 float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, int count) {
 	buffer->impl.sectionStart = start * buffer->impl.myStride;
 	buffer->impl.sectionSize = count * buffer->impl.myStride;
-	uint8_t *u8data = (uint8_t*)buffer->impl.data;
-	return (float*)&u8data[buffer->impl.sectionStart];
+	uint8_t *u8data = (uint8_t *)buffer->impl.data;
+	return (float *)&u8data[buffer->impl.sectionStart];
 }
 
 void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
-	uint8_t *u8data = (uint8_t*)buffer->impl.data;
+	uint8_t *u8data = (uint8_t *)buffer->impl.data;
 	glBufferSubData(GL_ARRAY_BUFFER, buffer->impl.sectionStart, buffer->impl.sectionSize, u8data + buffer->impl.sectionStart);
 	glCheckErrors();
 #ifndef NDEBUG
@@ -113,7 +113,7 @@ void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
 void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
-	uint8_t *u8data = (uint8_t*)buffer->impl.data;
+	uint8_t *u8data = (uint8_t *)buffer->impl.data;
 	glBufferSubData(GL_ARRAY_BUFFER, buffer->impl.sectionStart, count * buffer->impl.myStride, u8data + buffer->impl.sectionStart);
 	glCheckErrors();
 #ifndef NDEBUG
@@ -197,7 +197,7 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 			while (subsize > 0) {
 				glEnableVertexAttribArray(offset + actualIndex);
 				glCheckErrors();
-				glVertexAttribPointer(offset + actualIndex, 4, type, false, buffer->impl.myStride, (void*)(int64_t)(internaloffset + addonOffset));
+				glVertexAttribPointer(offset + actualIndex, 4, type, false, buffer->impl.myStride, (void *)(int64_t)(internaloffset + addonOffset));
 				glCheckErrors();
 #ifndef KORE_OPENGL_ES
 				if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
@@ -221,7 +221,7 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 		else {
 			glEnableVertexAttribArray(offset + actualIndex);
 			glCheckErrors();
-			glVertexAttribPointer(offset + actualIndex, size, type, type == GL_FLOAT ? false : true, buffer->impl.myStride, (void*)(int64_t)internaloffset);
+			glVertexAttribPointer(offset + actualIndex, size, type, type == GL_FLOAT ? false : true, buffer->impl.myStride, (void *)(int64_t)internaloffset);
 			glCheckErrors();
 #ifndef KORE_OPENGL_ES
 			if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
