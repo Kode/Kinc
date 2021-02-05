@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "VertexBufferImpl.h"
+#include <kinc/backend/vertexbuffer.h>
 
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/vertexbuffer.h>

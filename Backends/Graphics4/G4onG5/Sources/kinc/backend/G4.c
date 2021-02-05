@@ -2,9 +2,9 @@
 
 #include "G4.h"
 
-#include "IndexBufferImpl.h"
-#include "PipelineStateImpl.h"
-#include "VertexBufferImpl.h"
+#include <kinc/backend/indexbuffer.h>
+#include <kinc/backend/pipeline.h>
+#include <kinc/backend/vertexbuffer.h>
 #include <kinc/color.h>
 #include <kinc/compute/compute.h>
 #include <kinc/graphics4/indexbuffer.h>

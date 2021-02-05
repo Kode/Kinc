@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "PipelineStateImpl.h"
+#include <kinc/backend/pipeline.h>
 
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics5/pipeline.h>
