@@ -1,7 +1,5 @@
 #include "pch.h"
 
-#include "ComputeImpl.h"
-
 #include <kinc/compute/compute.h>
 #include <kinc/math/core.h>
 
