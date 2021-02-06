@@ -1,18 +1,18 @@
 #include "pch.h"
 
-#include "RayTraceImpl.h"
+#include "raytrace.h"
 
 #ifdef KORE_VKRT
 
 #include "Vulkan.h"
-#include <vulkan/vulkan.h>
-#include <string.h>
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/constantbuffer.h>
-#include <kinc/graphics5/vertexbuffer.h>
-#include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/raytrace.h>
+#include <kinc/graphics5/vertexbuffer.h>
+#include <string.h>
+#include <vulkan/vulkan.h>
 
 extern VkDevice device;
 extern VkQueue queue;
@@ -21,21 +21,22 @@ extern VkPhysicalDevice gpu;
 extern VkRenderPassBeginInfo currentRenderPassBeginInfo;
 extern VkFramebuffer *framebuffers;
 extern uint32_t current_buffer;
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
 const int INDEX_RAYGEN = 0;
 const int INDEX_CLOSEST_HIT = 1;
 const int INDEX_MISS = 2;
-const char* raygen_shader_name = "raygeneration";
-const char* closesthit_shader_name = "closesthit";
-const char* miss_shader_name = "miss";
+const char *raygen_shader_name = "raygeneration";
+const char *closesthit_shader_name = "closesthit";
+const char *miss_shader_name = "miss";
 
 VkDescriptorPool descriptor_pool;
-kinc_raytrace_acceleration_structure_t* accel;
-kinc_raytrace_pipeline_t* pipeline;
-kinc_g5_texture_t* output = nullptr;
+kinc_raytrace_acceleration_structure_t *accel;
+kinc_raytrace_pipeline_t *pipeline;
+kinc_g5_texture_t *output = nullptr;
 
-void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_command_list *command_list, void *ray_shader, int ray_shader_size, kinc_g5_constant_buffer_t *constant_buffer) {
+void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_command_list *command_list, void *ray_shader, int ray_shader_size,
+                                 kinc_g5_constant_buffer_t *constant_buffer) {
 	pipeline->_constant_buffer = constant_buffer;
 
 	{
@@ -57,7 +58,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		uniform_buffer_binding.descriptorCount = 1;
 		uniform_buffer_binding.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
 
-		VkDescriptorSetLayoutBinding bindings[3] = { acceleration_structure_layout_binding, result_image_layout_binding, uniform_buffer_binding };
+		VkDescriptorSetLayoutBinding bindings[3] = {acceleration_structure_layout_binding, result_image_layout_binding, uniform_buffer_binding};
 
 		VkDescriptorSetLayoutCreateInfo layout_info{};
 		layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -190,9 +191,10 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		vkAllocateMemory(device, &mem_alloc, NULL, &mem);
 
 		vkBindBufferMemory(device, pipeline->impl.shader_binding_table, mem, 0);
-		void* data;
+		void *data;
 		vkMapMemory(device, mem, 0, shader_binding_table_size, 0, (void **)&data);
-		auto vkGetRayTracingShaderGroupHandlesKHR = PFN_vkGetRayTracingShaderGroupHandlesKHR(vkGetDeviceProcAddr(device, "vkGetRayTracingShaderGroupHandlesKHR"));
+		auto vkGetRayTracingShaderGroupHandlesKHR =
+		    PFN_vkGetRayTracingShaderGroupHandlesKHR(vkGetDeviceProcAddr(device, "vkGetRayTracingShaderGroupHandlesKHR"));
 		vkGetRayTracingShaderGroupHandlesKHR(device, pipeline->impl.pipeline, 0, 3, shader_binding_table_size, data);
 		vkUnmapMemory(device, mem);
 	}
@@ -243,12 +245,15 @@ uint64_t get_buffer_device_address(VkBuffer buffer) {
 	return vkGetBufferDeviceAddressKHR(device, &buffer_device_address_info);
 }
 
-void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_structure_t *accel, kinc_g5_command_list_t *command_list, kinc_g5_vertex_buffer_t *vb, kinc_g5_index_buffer_t *ib) {
+void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_structure_t *accel, kinc_g5_command_list_t *command_list, kinc_g5_vertex_buffer_t *vb,
+                                               kinc_g5_index_buffer_t *ib) {
 
-	auto vkGetAccelerationStructureMemoryRequirementsKHR = PFN_vkGetAccelerationStructureMemoryRequirementsKHR(vkGetDeviceProcAddr(device, "vkGetAccelerationStructureMemoryRequirementsKHR"));
+	auto vkGetAccelerationStructureMemoryRequirementsKHR =
+	    PFN_vkGetAccelerationStructureMemoryRequirementsKHR(vkGetDeviceProcAddr(device, "vkGetAccelerationStructureMemoryRequirementsKHR"));
 	auto vkCreateAccelerationStructureKHR = PFN_vkCreateAccelerationStructureKHR(vkGetDeviceProcAddr(device, "vkCreateAccelerationStructureKHR"));
 	auto vkBindAccelerationStructureMemoryKHR = PFN_vkBindAccelerationStructureMemoryKHR(vkGetDeviceProcAddr(device, "vkBindAccelerationStructureMemoryKHR"));
-	auto vkGetAccelerationStructureDeviceAddressKHR = PFN_vkGetAccelerationStructureDeviceAddressKHR(vkGetDeviceProcAddr(device, "vkGetAccelerationStructureDeviceAddressKHR"));
+	auto vkGetAccelerationStructureDeviceAddressKHR =
+	    PFN_vkGetAccelerationStructureDeviceAddressKHR(vkGetDeviceProcAddr(device, "vkGetAccelerationStructureDeviceAddressKHR"));
 	auto vkGetBufferDeviceAddressKHR = PFN_vkGetBufferDeviceAddressKHR(vkGetDeviceProcAddr(device, "vkGetBufferDeviceAddressKHR"));
 
 	{
@@ -356,7 +361,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		acceleration_build_geometry_info.geometryArrayOfPointers = VK_FALSE;
 		acceleration_build_geometry_info.geometryCount = 1;
 
-		VkAccelerationStructureGeometryKHR * const acceleration_geometries[1] = { &acceleration_geometry };
+		VkAccelerationStructureGeometryKHR *const acceleration_geometries[1] = {&acceleration_geometry};
 		acceleration_build_geometry_info.ppGeometries = &acceleration_geometries[0];
 		acceleration_build_geometry_info.scratchData.deviceAddress = scratch_buffer_device_address;
 
@@ -457,10 +462,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		bind_acceleration_memory_info.memory = memory;
 		vkBindAccelerationStructureMemoryKHR(device, 1, &bind_acceleration_memory_info);
 
-		VkTransformMatrixKHR transform_matrix = {
-			1.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f};
+		VkTransformMatrixKHR transform_matrix = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f};
 
 		VkAccelerationStructureInstanceKHR instance{};
 		instance.transform = transform_matrix;
@@ -504,7 +506,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		vkAllocateMemory(device, &mem_alloc, NULL, &mem);
 
 		vkBindBufferMemory(device, instances_buffer, mem, 0);
-		void* data;
+		void *data;
 		vkMapMemory(device, mem, 0, sizeof(VkAccelerationStructureInstanceKHR), 0, (void **)&data);
 		memcpy(data, &instance, sizeof(VkAccelerationStructureInstanceKHR));
 		vkUnmapMemory(device, mem);
@@ -520,7 +522,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		acceleration_geometry.geometry.instances.arrayOfPointers = VK_FALSE;
 		acceleration_geometry.geometry.instances.data.deviceAddress = instance_data_device_address.deviceAddress;
 
-		VkAccelerationStructureGeometryKHR * const acceleration_geometries[1] = { &acceleration_geometry };
+		VkAccelerationStructureGeometryKHR *const acceleration_geometries[1] = {&acceleration_geometry};
 
 		VkBuffer scratch_buffer = VK_NULL_HANDLE;
 		VkDeviceMemory scratch_memory = VK_NULL_HANDLE;
@@ -683,7 +685,7 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	uniform_buffer_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	uniform_buffer_write.pBufferInfo = &buffer_descriptor;
 
-	VkWriteDescriptorSet write_descriptor_sets[3] = { acceleration_structure_write, result_image_write, uniform_buffer_write };
+	VkWriteDescriptorSet write_descriptor_sets[3] = {acceleration_structure_write, result_image_write, uniform_buffer_write};
 	vkUpdateDescriptorSets(device, 3, write_descriptor_sets, 0, VK_NULL_HANDLE);
 
 	VkPhysicalDeviceRayTracingPropertiesKHR ray_tracing_properties;
@@ -716,15 +718,17 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 
 	// Dispatch the ray tracing commands
 	vkCmdBindPipeline(command_list->impl._buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline->impl.pipeline);
-	vkCmdBindDescriptorSets(command_list->impl._buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline->impl.pipeline_layout, 0, 1, &pipeline->impl.descriptor_set, 0, 0);
+	vkCmdBindDescriptorSets(command_list->impl._buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline->impl.pipeline_layout, 0, 1,
+	                        &pipeline->impl.descriptor_set, 0, 0);
 
 	auto vkCmdTraceRaysKHR = PFN_vkCmdTraceRaysKHR(vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR"));
-	vkCmdTraceRaysKHR(command_list->impl._buffer, &raygen_shader_sbt_entry, &miss_shader_sbt_entry, &hit_shader_sbt_entry, &callable_shader_sbt_entry, output->texWidth, output->texHeight, 1);
+	vkCmdTraceRaysKHR(command_list->impl._buffer, &raygen_shader_sbt_entry, &miss_shader_sbt_entry, &hit_shader_sbt_entry, &callable_shader_sbt_entry,
+	                  output->texWidth, output->texHeight, 1);
 
 	vkCmdBeginRenderPass(command_list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_target_t* target, kinc_g5_texture_t *source) {
+void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_target_t *target, kinc_g5_texture_t *source) {
 
 	vkCmdEndRenderPass(command_list->impl._buffer);
 
@@ -737,11 +741,11 @@ void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_tar
 
 	if (target->contextId < 0) {
 		vkCmdCopyImage(command_list->impl._buffer, output->impl.texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-					   Kore::Vulkan::buffers[current_buffer].image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
+		               Kore::Vulkan::buffers[current_buffer].image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
 	}
 	else {
-		vkCmdCopyImage(command_list->impl._buffer, output->impl.texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-					   target->impl.sourceImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
+		vkCmdCopyImage(command_list->impl._buffer, output->impl.texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, target->impl.sourceImage,
+		               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
 	}
 
 	vkCmdBeginRenderPass(command_list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);

@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "RenderTarget5Impl.h"
+#include "rendertarget.h"
 
 #include <kinc/graphics5/rendertarget.h>
 #include <kinc/graphics5/texture.h>
@@ -17,7 +17,7 @@ extern VkPhysicalDevice gpu;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 void setup_init_cmd();
 void flush_init_cmd();
 
@@ -96,7 +96,7 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 }
 
 void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
-									kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+                                kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
 	target->width = width;
 	target->height = height;
 	target->contextId = contextId;
@@ -255,7 +255,8 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			assert(!err);
 
 			setup_init_cmd();
-			setImageLayout(setup_cmd, target->impl.depthImage, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+			setImageLayout(setup_cmd, target->impl.depthImage, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+			               VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 			flush_init_cmd();
 
 			/* create image view */
@@ -363,7 +364,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 }
 
 void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,
-									 kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {}
+                                     kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {}
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {}
 

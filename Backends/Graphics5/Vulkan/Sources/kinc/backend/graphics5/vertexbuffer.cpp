@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "Shader5Impl.h"
-#include "VertexBuffer5Impl.h"
+#include "shader.h"
+#include "vertexbuffer.h"
 
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/vertexbuffer.h>
@@ -14,12 +14,13 @@
 
 extern VkDevice device;
 
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
 kinc_g5_vertex_buffer_t *currentVertexBuffer = NULL;
 extern kinc_g5_index_buffer_t *currentIndexBuffer;
 
-void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount, kinc_g5_vertex_structure_t *structure, bool gpuMemory, int instanceDataStepRate) {
+void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount, kinc_g5_vertex_structure_t *structure, bool gpuMemory,
+                                int instanceDataStepRate) {
 	buffer->impl.myCount = vertexCount;
 	instanceDataStepRate = instanceDataStepRate;
 	buffer->impl.myStride = 0;
