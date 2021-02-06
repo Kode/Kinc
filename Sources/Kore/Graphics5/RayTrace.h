@@ -2,7 +2,7 @@
 
 #ifdef KORE_DXR
 
-#include <Kore/RayTraceImpl.h>
+#include <kinc/graphics5/raytrace.h>
 
 namespace Kore {
 	namespace Graphics5 {

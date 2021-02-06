@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/CommandList5Impl.h>
+#include <kinc/graphics5/commandlist.h>
 
 namespace Kore {
 	namespace Graphics5 {

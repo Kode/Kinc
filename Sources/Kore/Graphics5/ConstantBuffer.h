@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/ConstantBuffer5Impl.h>
+#include <kinc/graphics5/constantbuffer.h>
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
 
