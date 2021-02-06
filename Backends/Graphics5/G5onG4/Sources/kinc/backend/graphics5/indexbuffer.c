@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "IndexBuffer5Impl.h"
+#include "indexbuffer.h"
 
 #include <kinc/graphics5/indexbuffer.h>
 
