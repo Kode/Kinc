@@ -44,13 +44,7 @@ static kinc_g5_constant_buffer_t fragmentConstantBuffer;
 #define constantBufferMultiply 100
 static int constantBufferIndex = 0;
 
-static bool has_clear_shader = false;
-static kinc_compute_shader_t clear_shader;
-static kinc_compute_constant_location_t clear_color;
-static kinc_compute_texture_unit_t clear_target;
-
 void kinc_g4_destroy(int window) {
-	kinc_compute_shader_destroy(&clear_shader);
 	kinc_g5_destroy(window);
 }
 
@@ -63,22 +57,6 @@ void kinc_g4_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	}
 	kinc_g5_constant_buffer_init(&vertexConstantBuffer, constantBufferSize * constantBufferMultiply);
 	kinc_g5_constant_buffer_init(&fragmentConstantBuffer, constantBufferSize * constantBufferMultiply);
-
-	kinc_file_reader_t reader;
-	if (kinc_file_reader_open(&reader, "clear.comp", KINC_FILE_TYPE_ASSET)) {
-		has_clear_shader = true;
-
-		size_t size = kinc_file_reader_size(&reader);
-
-		void *data = malloc(size); // TODO: Add some internal scratch memory somewhere and use it here
-		kinc_file_reader_read(&reader, data, size);
-		kinc_file_reader_close(&reader);
-		kinc_compute_shader_init(&clear_shader, data, (int)size);
-		free(data);
-
-		clear_color = kinc_compute_shader_get_constant_location(&clear_shader, "color");
-		clear_target = kinc_compute_shader_get_texture_unit(&clear_shader, "dest");
-	}
 
 #ifndef KORE_VULKAN
 	kinc_g5_command_list_begin(&commandList);
