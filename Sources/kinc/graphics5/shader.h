@@ -5,8 +5,8 @@
 
 #include <kinc/math/matrix.h>
 
-#include <Kore/PipelineState5Impl.h>
-#include <Kore/Shader5Impl.h>
+#include <kinc/backend/graphics5/pipeline.h>
+#include <kinc/backend/graphics5/shader.h>
 
 #ifdef __cplusplus
 extern "C" {

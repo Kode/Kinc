@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "VertexBuffer5Impl.h"
+#include "vertexbuffer.h"
 
 #include <Kinc/Graphics5/VertexBuffer.h>
 
@@ -70,14 +70,14 @@ float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {
 float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, int count) {
 	buffer->impl.lastStart = start;
 	buffer->impl.lastCount = count;
-	void* p;
+	void *p;
 	D3D12_RANGE range;
 	range.Begin = start * buffer->impl.myStride;
 	range.End = range.Begin + count * buffer->impl.myStride;
 	buffer->impl.uploadBuffer->Map(0, &range, &p);
-	byte* bytes = (byte*)p;
+	byte *bytes = (byte *)p;
 	bytes += start * buffer->impl.myStride;
-	return (float*)bytes;
+	return (float *)bytes;
 }
 
 void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buffer) {

@@ -6,9 +6,9 @@
 #include "Texture.h"
 #include "VertexStructure.h"
 
-#include <Kore/Graphics5Impl.h>
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
+#include <kinc/backend/graphics5/graphics.h>
 
 namespace Kore {
 	namespace Graphics5 {

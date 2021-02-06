@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "Texture5Impl.h"
+#include "texture.h"
 
 #include <kinc/graphics5/rendertarget.h>
 #include <kinc/graphics5/texture.h>
@@ -19,12 +19,12 @@ kinc_g5_texture *currentTextures[textureCount] = {nullptr, nullptr, nullptr, nul
 bool bilinearFiltering = false;
 
 namespace {
-	ID3D12DescriptorHeap* samplerDescriptorHeapPoint;
-	ID3D12DescriptorHeap* samplerDescriptorHeapBilinear;
+	ID3D12DescriptorHeap *samplerDescriptorHeapPoint;
+	ID3D12DescriptorHeap *samplerDescriptorHeapBilinear;
 	static const int heapSize = 1024;
 	static int heapIndex = 0;
-	ID3D12DescriptorHeap* srvHeap;
-	ID3D12DescriptorHeap* samplerHeap;
+	ID3D12DescriptorHeap *srvHeap;
+	ID3D12DescriptorHeap *samplerHeap;
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
@@ -80,7 +80,7 @@ static int formatByteSize(kinc_image_format_t format) {
 	}
 }
 
-void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
+void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 	if (currentRenderTargets[0] != nullptr || currentTextures[0] != nullptr) {
 		int srvStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		int samplerStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
@@ -89,7 +89,7 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 			heapIndex = 0;
 		}
 
-		ID3D12DescriptorHeap* samplerDescriptorHeap = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
+		ID3D12DescriptorHeap *samplerDescriptorHeap = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvGpu = srvHeap->GetGPUDescriptorHandleForHeapStart();
 		D3D12_GPU_DESCRIPTOR_HANDLE samplerGpu = samplerHeap->GetGPUDescriptorHandleForHeapStart();
 		srvGpu.ptr += heapIndex * srvStep;
@@ -106,11 +106,12 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 
 				if (currentRenderTargets[i] != nullptr) {
 					bool is_depth = currentRenderTargets[i]->impl.stage_depth == i;
-					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = is_depth ?
-						currentRenderTargets[i]->impl.srvDepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart() :
-						currentRenderTargets[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = is_depth
+					                                            ? currentRenderTargets[i]->impl.srvDepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
+					                                            : currentRenderTargets[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 					device->CopyDescriptorsSimple(1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+					                              D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 
 					if (is_depth) {
 						currentRenderTargets[i]->impl.stage_depth = -1;
@@ -120,12 +121,13 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList* commandList) {
 				else {
 					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = currentTextures[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 					device->CopyDescriptorsSimple(1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+					                              D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 				}
 			}
 		}
 
-		ID3D12DescriptorHeap* heaps[2] = {srvHeap, samplerHeap};
+		ID3D12DescriptorHeap *heaps[2] = {srvHeap, samplerHeap};
 		commandList->SetDescriptorHeaps(2, heaps);
 		commandList->SetGraphicsRootDescriptorTable(0, srvGpu);
 		commandList->SetGraphicsRootDescriptorTable(1, samplerGpu);
@@ -183,8 +185,8 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	int formatSize = formatByteSize(image->format);
 
 	HRESULT result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1),
-	                                D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+	                                                 &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1),
+	                                                 D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
@@ -198,8 +200,9 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	}
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
-	result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
+	result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+	                                         &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+	                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
@@ -221,7 +224,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	texture->impl.uploadImage->Map(0, nullptr, reinterpret_cast<void **>(&pixel));
 	int pitch = kinc_g5_texture_stride(texture);
 	for (int y = 0; y < texture->texHeight; ++y) {
-		memcpy(&pixel[y * pitch], &((uint8_t*)image->data)[y * texture->texWidth * formatSize], texture->texWidth * formatSize);
+		memcpy(&pixel[y * pitch], &((uint8_t *)image->data)[y * texture->texWidth * formatSize], texture->texWidth * formatSize);
 	}
 	texture->impl.uploadImage->Unmap(0, nullptr);
 
@@ -246,7 +249,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 }
 
 void create_texture(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format, D3D12_RESOURCE_FLAGS flags) {
-	//kinc_image_init(&texture->image, width, height, format, readable);
+	// kinc_image_init(&texture->image, width, height, format, readable);
 	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->impl.mipmap = true;
@@ -256,7 +259,8 @@ void create_texture(kinc_g5_texture *texture, int width, int height, kinc_image_
 	DXGI_FORMAT d3dformat = convertFormat(format);
 
 	HRESULT result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1, 1, 0, flags), D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+	                                                 &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1, 1, 0, flags),
+	                                                 D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
@@ -270,8 +274,9 @@ void create_texture(kinc_g5_texture *texture, int width, int height, kinc_image_
 	}
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
-	result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
+	result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+	                                         &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+	                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
@@ -314,7 +319,7 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 }
 
 void kinc_g5_texture_init3d(kinc_g5_texture *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {
-	//kinc_image_init3d(&texture->image, width, height, depth, format, readable);
+	// kinc_image_init3d(&texture->image, width, height, depth, format, readable);
 }
 
 void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture *texture, int width, int height, kinc_image_format_t format) {
@@ -365,9 +370,9 @@ int kinc_g5_texture_stride(kinc_g5_texture *texture) {
 	/*int baseStride = texture->format == KINC_IMAGE_FORMAT_RGBA32 ? (texture->texWidth * 4) : texture->texWidth;
 	if (texture->format == KINC_IMAGE_FORMAT_GREY8) return texture->texWidth; // please investigate further
 	for (int i = 0;; ++i) {
-		if (d3d12_textureAlignment() * i >= baseStride) {
-			return d3d12_textureAlignment() * i;
-		}
+	    if (d3d12_textureAlignment() * i >= baseStride) {
+	        return d3d12_textureAlignment() * i;
+	    }
 	}*/
 	return texture->impl.stride;
 }

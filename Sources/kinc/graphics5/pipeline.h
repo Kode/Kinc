@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/PipelineState5Impl.h>
+#include <kinc/backend/graphics5/pipeline.h>
 
 #include <kinc/graphics5/vertexstructure.h>
 

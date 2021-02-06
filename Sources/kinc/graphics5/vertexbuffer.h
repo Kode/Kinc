@@ -4,7 +4,7 @@
 
 #include "vertexstructure.h"
 
-#include <Kore/VertexBuffer5Impl.h>
+#include <kinc/backend/graphics5/vertexbuffer.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <kinc/backend/compute.h>
-#include <Kore/Direct3D12.h>
+#include <kinc/backend/graphics5/Direct3D12.h>
 
 #include <kinc/compute/compute.h>
 #include <kinc/graphics4/texture.h>

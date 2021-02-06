@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "RenderTarget5Impl.h"
+#include "rendertarget.h"
 
 #include <Kinc/Graphics5/RenderTarget.h>
 #include <Kinc/Graphics5/Texture.h>

@@ -4,7 +4,7 @@
 
 #include "textureunit.h"
 
-#include <Kore/RenderTarget5Impl.h>
+#include <kinc/backend/graphics5/rendertarget.h>
 
 #ifdef __cplusplus
 extern "C" {

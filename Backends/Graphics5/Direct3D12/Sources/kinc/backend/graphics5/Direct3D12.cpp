@@ -1,9 +1,9 @@
 #include "pch.h"
 
 #include "Direct3D12.h"
-#include "IndexBuffer5Impl.h"
-#include "PipelineState5Impl.h"
-#include "VertexBuffer5Impl.h"
+#include "indexbuffer.h"
+#include "pipeline.h"
+#include "vertexbuffer.h"
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/math/core.h>

@@ -3,8 +3,8 @@
 #include "Texture.h"
 #include "VertexStructure.h"
 #include <Kore/Math/Matrix.h>
-#include <Kore/PipelineState5Impl.h>
-#include <Kore/Shader5Impl.h>
+#include <kinc/graphics5/pipeline.h>
+#include <kinc/graphics5/shader.h>
 
 namespace Kore {
 	namespace Graphics5 {
@@ -12,7 +12,7 @@ namespace Kore {
 
 		class Shader : public Shader5Impl {
 		public:
-			Shader(void* source, int length, ShaderType type);
+			Shader(void *source, int length, ShaderType type);
 		};
 
 		class ConstantLocation : public ConstantLocation5Impl {};

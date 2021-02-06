@@ -8,7 +8,7 @@
 #include "textureunit.h"
 #include "vertexstructure.h"
 
-#include <Kore/Graphics5Impl.h>
+#include <kinc/backend/graphics5/graphics.h>
 
 #include <kinc/math/matrix.h>
 #include <kinc/math/vector.h>

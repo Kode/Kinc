@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include <Kore/Texture5Impl.h>
+#include <kinc/backend/graphics5/texture.h>
 
 #ifdef __cplusplus
 extern "C" {

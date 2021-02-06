@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include <Kore/IndexBuffer5Impl.h>
+#include <kinc/backend/graphics5/indexbuffer.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include <Kore/ConstantBuffer5Impl.h>
+#include <kinc/backend/graphics5/constantbuffer.h>
 
 #include <kinc/math/matrix.h>
 #include <kinc/math/vector.h>
