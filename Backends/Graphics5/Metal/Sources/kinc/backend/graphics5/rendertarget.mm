@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "RenderTarget5Impl.h"
+#include <kinc/graphics5/rendertarget.h>
 
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/rendertarget.h>

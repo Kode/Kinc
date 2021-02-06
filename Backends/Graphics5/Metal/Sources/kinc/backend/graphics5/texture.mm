@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Texture5Impl.h"
+#include <kinc/graphics5/texture.h>
 
 #include <kinc/image.h>
 #include <kinc/graphics5/graphics.h>

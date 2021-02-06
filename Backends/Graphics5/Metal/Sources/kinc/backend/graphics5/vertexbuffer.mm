@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "Shader5Impl.h"
-#include "VertexBuffer5Impl.h"
+#include <kinc/graphics5/shader.h>
+#include <kinc/graphics5/vertexbuffer.h>
 
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/indexbuffer.h>
