@@ -1,4 +1,4 @@
-package tech.kode.kore;
+package tech.kinc;
 
 import android.app.NativeActivity;
 import android.content.Context;
@@ -17,8 +17,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-public class KoreActivity extends NativeActivity {
-	private static KoreActivity instance;
+public class KincActivity extends NativeActivity {
+	private static KincActivity instance;
 	private InputMethodManager inputManager;
 	private boolean isDisabledStickyImmersiveMode;
 
@@ -28,7 +28,7 @@ public class KoreActivity extends NativeActivity {
         }
     };
 
-	public static KoreActivity getInstance() {
+	public static KincActivity getInstance() {
 		return instance;
 	}
 

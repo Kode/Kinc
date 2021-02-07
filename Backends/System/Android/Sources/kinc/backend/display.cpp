@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include <Kore/Android.h>
+#include <kinc/backend/Android.h>
 
 #include <kinc/display.h>
 #include <kinc/log.h>
@@ -39,31 +39,31 @@ int kinc_primary_display(void) {
 
 static int width() {
 	JNIEnv* env;
-	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
+	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
 	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getDisplayWidth", "()I");
 	int width = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
-	KoreAndroid::getActivity()->vm->DetachCurrentThread();
+	KincAndroid::getActivity()->vm->DetachCurrentThread();
 	return width;
 }
 
 static int height() {
 	JNIEnv* env;
-	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
+	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
 	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getDisplayHeight", "()I");
 	int height = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
-	KoreAndroid::getActivity()->vm->DetachCurrentThread();
+	KincAndroid::getActivity()->vm->DetachCurrentThread();
 	return height;
 }
 
 static int pixelsPerInch() {
 	JNIEnv* env;
-	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreActivity");
+	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
 	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getScreenDpi", "()I");
 	int dpi = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
-	KoreAndroid::getActivity()->vm->DetachCurrentThread();
+	KincAndroid::getActivity()->vm->DetachCurrentThread();
 	return dpi;
 }
 

@@ -1,29 +1,29 @@
-package tech.kode.kore;
+package tech.kinc;
 
 import java.util.List;
 
 import android.view.Surface;
 
-public class KoreMoviePlayer {
-	public static List<KoreMoviePlayer> players = new java.util.ArrayList<KoreMoviePlayer>();
-	private KoreMovieTexture movieTexture;
+public class KincMoviePlayer {
+	public static List<KincMoviePlayer> players = new java.util.ArrayList<KincMoviePlayer>();
+	private KincMovieTexture movieTexture;
 	private int id;
 	private String path;
 
-	public KoreMoviePlayer(String path) {
+	public KincMoviePlayer(String path) {
 		this.path = path;
 		id = players.size();
 		players.add(this);
 	}
 	
 	public void init() {
-		movieTexture = new KoreMovieTexture();
+		movieTexture = new KincMovieTexture();
 		Surface surface = new Surface(movieTexture.surfaceTexture);
 		nativeCreate(path, surface, id);
 		surface.release();
 	}
 
-	public KoreMovieTexture getMovieTexture() {
+	public KincMovieTexture getMovieTexture() {
 		return movieTexture;
 	}
 
@@ -32,7 +32,7 @@ public class KoreMoviePlayer {
 	}
 
 	public static void updateAll() {
-		for (KoreMoviePlayer player : KoreMoviePlayer.players) {
+		for (KincMoviePlayer player : KincMoviePlayer.players) {
 			player.update();
 		}
 	}

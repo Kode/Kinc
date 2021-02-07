@@ -1,5 +1,4 @@
-#include <Kore/Graphics4/Texture.h>
-#include <Kore/IO/FileReader.h>
+#pragma once
 
 namespace Kore {
 	class VideoSoundStream {

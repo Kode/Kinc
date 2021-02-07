@@ -1,17 +1,17 @@
-package tech.kode.kore;
+package tech.kinc;
 
 import android.graphics.SurfaceTexture;
 import android.graphics.SurfaceTexture.OnFrameAvailableListener;
 import android.opengl.GLES20;
 
-public class KoreMovieTexture implements OnFrameAvailableListener {
+public class KincMovieTexture implements OnFrameAvailableListener {
 	public int textureId;
 	public SurfaceTexture surfaceTexture;
 	private boolean updateTexture;
 
 	private static final int GL_TEXTURE_EXTERNAL_OES = 0x8D65;
 
-	public KoreMovieTexture() {
+	public KincMovieTexture() {
 		int[] textures = new int[1];
 		GLES20.glGenTextures(1, textures, 0);
 		textureId = textures[0];

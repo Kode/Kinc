@@ -1,13 +1,13 @@
 #include "pch.h"
 
-#include "Video.h"
+#include "video.h"
 
 #include <Kore/Audio1/Audio.h>
 #include <kinc/graphics4/texture.h>
 #include <Kore/IO/FileReader.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
-#include <Kore/VideoSoundStream.h>
+#include <kinc/backend/VideoSoundStream.h>
 #include <android_native_app_glue.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +16,7 @@
 #include <OMXAL/OpenMAXAL.h>
 #include <OMXAL/OpenMAXAL_Android.h>
 #endif
-#include <Kore/Android.h>
+#include <kinc/backend/Android.h>
 #include <assert.h>
 #include <jni.h>
 #include <pthread.h>
@@ -302,7 +302,7 @@ namespace {
 		assert(XA_RESULT_SUCCESS == res);
 
 		// open the file to play
-		file = AAssetManager_open(KoreAndroid::getAssetManager(), filename, AASSET_MODE_STREAMING);
+		file = AAssetManager_open(KincAndroid::getAssetManager(), filename, AASSET_MODE_STREAMING);
 		if (file == NULL) {
 			kinc_log(KINC_LOG_LEVEL_INFO, "Could not find video file.");
 			return false;
@@ -451,9 +451,9 @@ extern "C" JNIEXPORT void JNICALL Java_tech_kode_kore_KoreMoviePlayer_nativeCrea
 
 void KoreAndroidVideoInit() {
 	JNIEnv* env;
-	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
 
-	jclass clazz = KoreAndroid::findClass(env, "tech.kode.kore.KoreMoviePlayer");
+	jclass clazz = KincAndroid::findClass(env, "tech.kinc.KincMoviePlayer");
 
 	// String path, Surface surface, int id
 	JNINativeMethod methodTable[] = {
@@ -463,7 +463,7 @@ void KoreAndroidVideoInit() {
 
 	env->RegisterNatives(clazz, methodTable, methodTableSize);
 
-	KoreAndroid::getActivity()->vm->DetachCurrentThread();
+	KincAndroid::getActivity()->vm->DetachCurrentThread();
 }
 
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
@@ -476,8 +476,8 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	audioTime = 0;
 
 	JNIEnv* env = nullptr;
-	KoreAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreMoviePlayerClass = KoreAndroid::findClass(env, "tech.kode.kore.KoreMoviePlayer");
+	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreMoviePlayerClass = KincAndroid::findClass(env, "tech.kinc.KoreMoviePlayer");
 	jmethodID constructor = env->GetMethodID(koreMoviePlayerClass, "<init>", "(Ljava/lang/String;)V");
 	jobject object = env->NewObject(koreMoviePlayerClass, constructor, env->NewStringUTF(filename));
 
@@ -497,7 +497,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 	jmethodID getTextureId = env->GetMethodID(koreMoviePlayerClass, "getTextureId", "()I");
 	int texid = env->CallIntMethod(object, getTextureId);
 
-	KoreAndroid::getActivity()->vm->DetachCurrentThread();
+	KincAndroid::getActivity()->vm->DetachCurrentThread();
 
 	kinc_g4_texture_init_from_id(&image, texid);
 #endif
