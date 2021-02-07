@@ -32,7 +32,7 @@
 #include <X11/XKBlib.h>
 #include <X11/Xutil.h>
 
-#include "WindowData.h"
+#include "windowdata.h"
 
 #ifdef KORE_OPENGL
 #include <GL/gl.h>

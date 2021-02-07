@@ -3,14 +3,14 @@
 #include <kinc/display.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/window.h>
-#include <Kore/Linux.h>
+#include <kinc/backend/Linux.h>
 
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 
 #include <string.h>
 
-#include "WindowData.h"
+#include "windowdata.h"
 
 #define MAXIMUM_WINDOWS 16
 Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS] = {0};
