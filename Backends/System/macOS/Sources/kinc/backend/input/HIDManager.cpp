@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <Kore/Input/Gamepad.h>
-#include <Kore/Input/HIDManager.h>
+#include <kinc/backend/input/HIDManager.h>
 #include <kinc/log.h>
 
 Kore::HIDManager::HIDManager() : managerRef(0x0) {

@@ -1,12 +1,12 @@
 #include "../pch.h"
 
-#include <Kore/Linux.h>
+#include <kinc/backend/Linux.h>
 #include <kinc/input/mouse.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
-#include "../WindowData.h"
+#include "../windowdata.h"
 
 #include <X11/X.h>
 #include <X11/keysym.h>
