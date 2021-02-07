@@ -6,7 +6,7 @@
 #include <kinc/audio2/audio.h>
 #include <kinc/log.h>
 
-#include <Kore/VideoSoundStream.h>
+#include <kinc/backend/VideoSoundStream.h>
 
 #include <stdio.h>
 

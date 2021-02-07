@@ -1,6 +1,6 @@
 #include "../pch.h"
 
-#include "Gamepad.h"
+#include "gamepad.h"
 
 #include <kinc/input/gamepad.h>
 
