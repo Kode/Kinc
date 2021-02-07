@@ -3,7 +3,7 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/vertexbuffer.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include "Direct3D9.h"
 

@@ -3,7 +3,7 @@
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/log.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include "Direct3D9.h"
 

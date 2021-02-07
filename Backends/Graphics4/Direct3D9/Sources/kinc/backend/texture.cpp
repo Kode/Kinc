@@ -3,7 +3,7 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/io/filereader.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include "Direct3D9.h"
 

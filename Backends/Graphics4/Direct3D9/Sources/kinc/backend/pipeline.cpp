@@ -6,7 +6,7 @@
 #include <kinc/log.h>
 #include <kinc/system.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include "Direct3D9.h"
 

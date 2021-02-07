@@ -9,10 +9,10 @@
 #include <kinc/system.h>
 #include <kinc/window.h>
 
-#include "Input/Gamepad.h"
+#include "input/gamepad.h"
 
 #include <kinc/display.h>
-#include <Kore/Linux.h>
+#include <kinc/backend/Linux.h>
 
 #include <cstring>
 #include <stdio.h>

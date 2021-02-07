@@ -3,8 +3,8 @@
 #include <kinc/audio2/audio.h>
 #include <kinc/system.h>
 
-#include <Kore/SystemMicrosoft.h>
-#include <Kore/Windows.h>
+#include <kinc/backend/SystemMicrosoft.h>
+#include <kinc/backend/Windows.h>
 
 #include <dsound.h>
 

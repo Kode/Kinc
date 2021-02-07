@@ -9,8 +9,8 @@
 #include <kinc/system.h>
 #include <kinc/window.h>
 
-#include <Kore/SystemMicrosoft.h>
-#include <Kore/Windows.h>
+#include <kinc/backend/SystemMicrosoft.h>
+#include <kinc/backend/Windows.h>
 
 #include <kinc/log.h>
 

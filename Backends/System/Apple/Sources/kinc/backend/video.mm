@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Video.h"
+#include "video.h"
 
 #import <AVFoundation/AVFoundation.h>
 #include <kinc/audio1/audio.h>

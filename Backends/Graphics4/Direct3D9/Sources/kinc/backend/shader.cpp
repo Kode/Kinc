@@ -3,7 +3,7 @@
 #include <kinc/graphics4/shader.h>
 #include <kinc/math/core.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include "Direct3D9.h"
 
