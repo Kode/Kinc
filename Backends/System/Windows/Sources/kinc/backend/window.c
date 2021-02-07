@@ -4,7 +4,7 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/window.h>
 
-#include <Kore/Windows.h>
+#include <kinc/backend/Windows.h>
 
 #ifdef WIN32_LEAN_AND_MEAN
 #undef WIN32_LEAN_AND_MEAN

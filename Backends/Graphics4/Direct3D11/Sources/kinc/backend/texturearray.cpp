@@ -3,7 +3,7 @@
 #include <kinc/graphics4/texturearray.h>
 #include <kinc/graphics4/textureunit.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include "Direct3D11.h"
 
@@ -24,9 +24,9 @@ void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *te
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
-	uint8_t* data = new uint8_t[textures[0].width * textures[0].height * 4 * count];
+	uint8_t *data = new uint8_t[textures[0].width * textures[0].height * 4 * count];
 
-	D3D11_SUBRESOURCE_DATA* resdata = (D3D11_SUBRESOURCE_DATA*)alloca(sizeof(D3D11_SUBRESOURCE_DATA) * count);
+	D3D11_SUBRESOURCE_DATA *resdata = (D3D11_SUBRESOURCE_DATA *)alloca(sizeof(D3D11_SUBRESOURCE_DATA) * count);
 	for (int i = 0; i < count; ++i) {
 		resdata[i].pSysMem = textures[i].data;
 		resdata[i].SysMemPitch = textures[0].width * 4;
@@ -38,9 +38,7 @@ void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *te
 	kinc_microsoft_affirm(device->CreateShaderResourceView(array->impl.texture, nullptr, &array->impl.view));
 }
 
-void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array) {
-	
-}
+void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array) {}
 
 void kinc_internal_texture_array_set(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;

@@ -1,10 +1,10 @@
 #include "pch.h"
 
-#include <Kore/Windows.h>
+#include <kinc/backend/Windows.h>
 
 #include <kinc/display.h>
-#include <kinc/log.h>
 #include <kinc/error.h>
+#include <kinc/log.h>
 
 #include <stdio.h>
 
@@ -37,7 +37,7 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 	memset(&info, 0, sizeof(MONITORINFOEXA));
 	info.cbSize = sizeof(MONITORINFOEXA);
 
-	if (GetMonitorInfoA(monitor, (MONITORINFO*)&info) == FALSE) {
+	if (GetMonitorInfoA(monitor, (MONITORINFO *)&info) == FALSE) {
 		return FALSE;
 	}
 
@@ -154,7 +154,7 @@ bool kinc_windows_set_display_mode(int display_index, int width, int height, int
 	display->mode_changed = true;
 	DEVMODEA mode = {0};
 	mode.dmSize = sizeof(mode);
-	strcpy((char*)mode.dmDeviceName, display->name);
+	strcpy((char *)mode.dmDeviceName, display->name);
 	mode.dmPelsWidth = width;
 	mode.dmPelsHeight = height;
 	mode.dmBitsPerPel = bpp;

@@ -11,9 +11,9 @@
 #include <kinc/input/gamepad.h>
 
 #include <Kore/Display.h>
-#include <Kore/SystemMicrosoft.h>
 #include <Kore/Window.h>
-#include <Kore/Windows.h>
+#include <kinc/backend/SystemMicrosoft.h>
+#include <kinc/backend/Windows.h>
 
 #include <kinc/display.h>
 #include <kinc/input/keyboard.h>

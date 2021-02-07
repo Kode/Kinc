@@ -4,7 +4,7 @@
 
 #include <kinc/graphics4/indexBuffer.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include <Windows.h>
 #include <d3d11.h>

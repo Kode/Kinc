@@ -6,14 +6,14 @@
 #include <kinc/graphics4/textureunit.h>
 
 #include <Kore/Math/Random.h>
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include <assert.h>
 
 using namespace Kore;
 
 static kinc_g4_texture_t *setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-	                                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+                                             nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 static DXGI_FORMAT convertFormat(kinc_image_format_t format) {
 	switch (format) {
@@ -192,7 +192,7 @@ void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, i
 	kinc_microsoft_affirm(device->CreateShaderResourceView(texture->impl.texture3D, nullptr, &texture->impl.view));
 }
 
-//TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
+// TextureImpl::TextureImpl() : hasMipmaps(false), renderView(nullptr), computeView(nullptr) {}
 
 void kinc_internal_texture_unset(kinc_g4_texture_t *texture);
 
@@ -253,7 +253,7 @@ u8 *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	context->Map(texture->impl.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	texture->impl.rowPitch = mappedResource.RowPitch;
-	return (u8*)mappedResource.pData;
+	return (u8 *)mappedResource.pData;
 }
 
 void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
@@ -262,8 +262,7 @@ void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
 
 void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, uint color) {
 	if (texture->impl.renderView == nullptr) {
-		texture->tex_depth > 1 ?
-			kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture3D, 0, &texture->impl.renderView))
+		texture->tex_depth > 1 ? kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture3D, 0, &texture->impl.renderView))
 		                       : kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture, 0, &texture->impl.renderView));
 	}
 	static float clearColor[4];
@@ -292,8 +291,8 @@ static void enableMipmaps(kinc_g4_texture_t *texture, int texWidth, int texHeigh
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-	ID3D11Texture2D* mipMappedTexture;
-	ID3D11ShaderResourceView* mipMappedView;
+	ID3D11Texture2D *mipMappedTexture;
+	ID3D11ShaderResourceView *mipMappedView;
 	kinc_microsoft_affirm(device->CreateTexture2D(&desc, nullptr, &mipMappedTexture));
 	kinc_microsoft_affirm(device->CreateShaderResourceView(mipMappedTexture, nullptr, &mipMappedView));
 

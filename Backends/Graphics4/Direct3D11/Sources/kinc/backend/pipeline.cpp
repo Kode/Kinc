@@ -5,10 +5,9 @@
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/vertexbuffer.h>
-#include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/log.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include <assert.h>
 #include <malloc.h>
@@ -204,8 +203,9 @@ void kinc_internal_set_pipeline(kinc_g4_pipeline *pipeline, bool scissoring) {
 	context->GSSetShader(pipeline->geometry_shader != nullptr ? (ID3D11GeometryShader *)pipeline->geometry_shader->impl.shader : nullptr, nullptr, 0);
 	context->HSSetShader(pipeline->tessellation_control_shader != nullptr ? (ID3D11HullShader *)pipeline->tessellation_control_shader->impl.shader : nullptr,
 	                     nullptr, 0);
-	context->DSSetShader(
-	    pipeline->tessellation_evaluation_shader != nullptr ? (ID3D11DomainShader *)pipeline->tessellation_evaluation_shader->impl.shader : nullptr, nullptr, 0);
+	context->DSSetShader(pipeline->tessellation_evaluation_shader != nullptr ? (ID3D11DomainShader *)pipeline->tessellation_evaluation_shader->impl.shader
+	                                                                         : nullptr,
+	                     nullptr, 0);
 
 	context->IASetInputLayout(pipeline->impl.d3d11inputLayout);
 }
@@ -303,7 +303,8 @@ kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipel
 		location.impl.tessEvalRows = constant->rows;
 	}
 
-	if (location.impl.vertexSize == 0 && location.impl.fragmentSize == 0 && location.impl.geometrySize == 0 && location.impl.tessControlSize && location.impl.tessEvalSize == 0) {
+	if (location.impl.vertexSize == 0 && location.impl.fragmentSize == 0 && location.impl.geometrySize == 0 && location.impl.tessControlSize &&
+	    location.impl.tessEvalSize == 0) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
 	}
 
@@ -398,14 +399,14 @@ namespace {
 				return attributes[i].index;
 			}
 		}
-		
+
 		for (int i = 0; i < usedCount; ++i) {
 			if (!used[i]) {
 				used[i] = true;
 				return i;
 			}
 		}
-	
+
 		return 0;
 	}
 
@@ -427,24 +428,22 @@ namespace {
 
 void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 	if (state->vertex_shader->impl.constantsSize > 0)
-		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->vertex_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-		                                           &state->impl.vertexConstantBuffer));
+		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->vertex_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		                                           nullptr, &state->impl.vertexConstantBuffer));
 	if (state->fragment_shader->impl.constantsSize > 0)
 		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->fragment_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                                           nullptr,
-		                                           &state->impl.fragmentConstantBuffer));
+		                                           nullptr, &state->impl.fragmentConstantBuffer));
 	if (state->geometry_shader != NULL && state->geometry_shader->impl.constantsSize > 0)
 		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->geometry_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                                           nullptr,
-		                                           &state->impl.geometryConstantBuffer));
+		                                           nullptr, &state->impl.geometryConstantBuffer));
 	if (state->tessellation_control_shader != NULL && state->tessellation_control_shader->impl.constantsSize > 0)
 		kinc_microsoft_affirm(
 		    device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->tessellation_control_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                                           nullptr, &state->impl.tessControlConstantBuffer));
+		                         nullptr, &state->impl.tessControlConstantBuffer));
 	if (state->tessellation_evaluation_shader != NULL && state->tessellation_evaluation_shader->impl.constantsSize > 0)
 		kinc_microsoft_affirm(
-		    device->CreateBuffer(
-		    &CD3D11_BUFFER_DESC(getMultipleOf16(state->tessellation_evaluation_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr, &state->impl.tessEvalConstantBuffer));
+		    device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->tessellation_evaluation_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
+		                         nullptr, &state->impl.tessEvalConstantBuffer));
 
 	int all = 0;
 	for (int stream = 0; state->input_layout[stream] != NULL; ++stream) {

@@ -19,13 +19,13 @@
 #undef CreateWindow
 
 #include <Kore/System.h>
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include <kinc/display.h>
 #include <kinc/window.h>
 
 #ifdef KORE_WINDOWS
-#include <Kore/Windows.h>
+#include <kinc/backend/Windows.h>
 #else
 int antialiasingSamples() {
 	return 1;

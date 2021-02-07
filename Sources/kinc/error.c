@@ -8,7 +8,7 @@
 #ifdef KORE_WINDOWS
 #include <Windows.h>
 
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 #endif
 
 void kinc_affirm(bool condition) {
@@ -17,7 +17,7 @@ void kinc_affirm(bool condition) {
 	}
 }
 
-void kinc_affirm_message(bool condition, const char* format, ...) {
+void kinc_affirm_message(bool condition, const char *format, ...) {
 	if (!condition) {
 		va_list args;
 		va_start(args, format);
@@ -26,7 +26,7 @@ void kinc_affirm_message(bool condition, const char* format, ...) {
 	}
 }
 
-void kinc_affirm_args(bool condition, const char* format, va_list args) {
+void kinc_affirm_args(bool condition, const char *format, va_list args) {
 	if (!condition) {
 		kinc_error_args(format, args);
 	}
@@ -36,7 +36,7 @@ void kinc_error(void) {
 	kinc_error_message("Unknown error");
 }
 
-void kinc_error_message(const char* format, ...) {
+void kinc_error_message(const char *format, ...) {
 	{
 		va_list args;
 		va_start(args, format);
@@ -58,7 +58,7 @@ void kinc_error_message(const char* format, ...) {
 	exit(EXIT_FAILURE);
 }
 
-void kinc_error_args(const char* format, va_list args) {
+void kinc_error_args(const char *format, va_list args) {
 	kinc_log_args(KINC_LOG_LEVEL_ERROR, format, args);
 
 #ifdef KORE_WINDOWS

@@ -8,8 +8,8 @@
 #include <kinc/system.h>
 
 #ifdef KORE_MICROSOFT
-#include <Kore/SystemMicrosoft.h>
 #include <Windows.h>
+#include <kinc/backend/SystemMicrosoft.h>
 #endif
 
 #ifdef KORE_ANDROID

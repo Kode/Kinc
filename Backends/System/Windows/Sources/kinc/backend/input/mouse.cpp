@@ -2,7 +2,7 @@
 
 #include <Kore/System.h>
 #include <Kore/Window.h>
-#include <Kore/Windows.h>
+#include <kinc/backend/Windows.h>
 
 #include <kinc/input/mouse.h>
 
@@ -31,12 +31,14 @@ bool kinc_mouse_can_lock(int window) {
 
 void kinc_mouse_show() {
 	// Work around the internal counter of ShowCursor
-	while (ShowCursor(true) < 0) {}
+	while (ShowCursor(true) < 0) {
+	}
 }
 
 void kinc_mouse_hide() {
 	// Work around the internal counter of ShowCursor
-	while (ShowCursor(false) >= 0) {}
+	while (ShowCursor(false) >= 0) {
+	}
 }
 
 void kinc_mouse_set_position(int window, int x, int y) {
