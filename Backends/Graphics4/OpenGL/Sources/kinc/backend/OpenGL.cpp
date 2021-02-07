@@ -20,7 +20,7 @@
 #include "OpenGLWindow.h"
 
 #ifdef KORE_WINDOWS
-#include <Kore/Windows.h>
+#include <kinc/backend/Windows.h>
 #endif
 
 #include <assert.h>

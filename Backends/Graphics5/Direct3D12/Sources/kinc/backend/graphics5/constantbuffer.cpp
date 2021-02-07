@@ -3,7 +3,7 @@
 #include <Kinc/Graphics5/ConstantBuffer.h>
 
 #include "Direct3D12.h"
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 bool kinc_g5_transposeMat3 = true;
 bool kinc_g5_transposeMat4 = true;

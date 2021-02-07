@@ -7,7 +7,7 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
-#include <Kore/VideoSoundStream.h>
+#include <kinc/backend/VideoSoundStream.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

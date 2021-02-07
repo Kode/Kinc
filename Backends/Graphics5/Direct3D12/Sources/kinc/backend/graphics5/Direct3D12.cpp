@@ -12,11 +12,11 @@
 #include <dxgi1_4.h>
 #undef CreateWindow
 #endif
-#include <Kinc/System.h>
+#include <kinc/system.h>
 #ifdef KORE_WINDOWS
-#include <Kore/Windows.h>
+#include <kinc/backend/Windows.h>
 #endif
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 #include <wrl.h>
 
 #include <type_traits>
