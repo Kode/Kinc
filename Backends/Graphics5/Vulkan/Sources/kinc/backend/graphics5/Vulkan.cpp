@@ -11,7 +11,7 @@
 #include <kinc/window.h>
 
 #ifdef KORE_WINDOWS
-#include <Kore/Windows.h>
+#include <kinc/backend/Windows.h>
 #endif
 
 #include <assert.h>
@@ -37,8 +37,8 @@
 #endif
 
 #ifdef KORE_LINUX
-#include "Kore/Linux.h"
-#include "Kore/WindowData.h"
+#include <kinc/backend/Linux.h>
+#include <kinc/backend/windowdata.h>
 #define MAXIMUM_WINDOWS 16
 extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
 #endif

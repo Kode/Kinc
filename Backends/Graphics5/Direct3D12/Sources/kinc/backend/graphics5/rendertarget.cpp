@@ -5,8 +5,7 @@
 
 #include <Kinc/Graphics5/RenderTarget.h>
 #include <Kinc/Graphics5/Texture.h>
-#include <Kore/Log.h>
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #ifdef KORE_WINDOWS
 #include <dxgi1_4.h>

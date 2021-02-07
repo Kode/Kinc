@@ -2,9 +2,9 @@
 
 #include "Direct3D12.h"
 
-#include <Kinc/Graphics5/Shader.h>
-#include <Kinc/Math/Core.h>
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/graphics5/shader.h>
+#include <kinc/math/core.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, size_t length, kinc_g5_shader_type_t type) {
 	memset(shader->impl.constants, 0, sizeof(shader->impl.constants));
