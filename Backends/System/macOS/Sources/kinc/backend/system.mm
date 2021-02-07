@@ -5,7 +5,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include <kinc/graphics4/graphics.h>
-#include <Kore/Input/HIDManager.h>
+#include <kinc/backend/input/HIDManager.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/log.h>
 #include <kinc/system.h>

@@ -8,7 +8,7 @@
 #if 0
 #include <xmmintrin.h>
 #endif
-#include <Kore/VideoSoundStream.h>
+#include <kinc/backend/VideoSoundStream.h>
 
 using namespace Kore;
 

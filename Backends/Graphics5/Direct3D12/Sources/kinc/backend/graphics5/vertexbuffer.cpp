@@ -3,10 +3,10 @@
 #include "Direct3D12.h"
 #include "vertexbuffer.h"
 
-#include <Kinc/Graphics5/VertexBuffer.h>
+#include <kinc/graphics5/vertexbuffer.h>
 
-#include <Kinc/Graphics4/Graphics.h>
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 kinc_g5_vertex_buffer_t *_current_vertex_buffer = nullptr;
 

@@ -3,8 +3,8 @@
 #include "Direct3D12.h"
 #include "indexbuffer.h"
 
-#include <Kinc/Graphics5/IndexBuffer.h>
-#include <Kore/SystemMicrosoft.h>
+#include <kinc/graphics5/indexbuffer.h>
+#include <kinc/backend/SystemMicrosoft.h>
 
 #include <Windows.h>
 
