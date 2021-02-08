@@ -13,7 +13,7 @@
 #include <kinc/graphics5/rendertarget.h>
 
 #ifdef KORE_OPENGL
-#include <kinc/backend/OpenGLWindow.h>
+#include <kinc/backend/graphics4/OpenGLWindow.h>
 #endif
 
 namespace {
