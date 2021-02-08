@@ -5,7 +5,7 @@
 #include <kinc/graphics5/texture.h>
 #include <kinc/io/filereader.h>
 
-#include <kinc/backend/texture.h>
+#include <kinc/backend/graphics4/texture.h>
 
 void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *image) {
 	texture->impl._uploaded = false;
