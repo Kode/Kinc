@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "ogl.h"
+#include <kinc/backend/graphics4/ogl.h>
 
 #include <kinc/compute/compute.h>
 #include <kinc/graphics4/graphics.h>
