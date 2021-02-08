@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kinc/backend/texture.h>
+#include <kinc/backend/graphics4/texture.h>
 #include <kinc/image.h>
 
 #ifdef __cplusplus

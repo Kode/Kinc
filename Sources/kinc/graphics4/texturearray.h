@@ -2,7 +2,7 @@
 
 #include "texture.h"
 
-#include <kinc/backend/texturearray.h>
+#include <kinc/backend/graphics4/texturearray.h>
 
 #ifdef __cplusplus
 extern "C" {

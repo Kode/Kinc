@@ -2,7 +2,7 @@
 
 #include "vertexstructure.h"
 
-#include <kinc/backend/vertexbuffer.h>
+#include <kinc/backend/graphics4/vertexbuffer.h>
 
 #include <stdbool.h>
 

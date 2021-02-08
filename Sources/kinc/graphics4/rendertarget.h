@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kinc/backend/rendertarget.h>
+#include <kinc/backend/graphics4/rendertarget.h>
 
 #include "textureunit.h"
 

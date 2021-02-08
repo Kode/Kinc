@@ -6,8 +6,8 @@
 #include "Texture.h"
 #include "VertexStructure.h"
 #include <Kore/Math/Matrix.h>
-#include <kinc/backend/pipeline.h>
-#include <kinc/backend/shader.h>
+#include <kinc/backend/graphics4/pipeline.h>
+#include <kinc/backend/graphics4/shader.h>
 
 namespace Kore {
 	namespace Graphics4 {

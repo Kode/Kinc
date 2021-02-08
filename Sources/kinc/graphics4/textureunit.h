@@ -1,7 +1,7 @@
 #pragma once
 
-#include <kinc/backend/shader.h>
-#include <kinc/backend/texture.h>
+#include <kinc/backend/graphics4/shader.h>
+#include <kinc/backend/graphics4/texture.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kinc/backend/indexbuffer.h>
+#include <kinc/backend/graphics4/indexbuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
