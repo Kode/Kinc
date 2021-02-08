@@ -3,7 +3,7 @@
 #include <kinc/graphics4/texturearray.h>
 #include <kinc/graphics4/textureunit.h>
 
-#include <kinc/backend/ogl.h>
+#include <kinc/backend/graphics4/ogl.h>
 
 void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *textures, int count) {
 #ifdef GL_VERSION_4_2

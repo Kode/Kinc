@@ -4,7 +4,7 @@
 
 #include "ogl.h"
 
-#include <kinc/backend/OpenGL.h>
+#include <kinc/backend/graphics4/OpenGL.h>
 
 #include <kinc/graphics4/graphics.h>
 #include <kinc/log.h>
