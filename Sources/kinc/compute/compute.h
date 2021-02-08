@@ -2,7 +2,7 @@
 
 #include <kinc/backend/compute.h>
 #ifdef KORE_OPENGL
-#include <kinc/backend/ShaderStorageBufferImpl.h>
+#include <kinc/backend/graphics4/ShaderStorageBufferImpl.h>
 #endif
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/vertexstructure.h>
