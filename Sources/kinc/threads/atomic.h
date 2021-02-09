@@ -1,3 +1,3 @@
 #pragma once
 
-#include <Kore/AtomicImpl.h>
+#include <kinc/backend/atomic.h>
