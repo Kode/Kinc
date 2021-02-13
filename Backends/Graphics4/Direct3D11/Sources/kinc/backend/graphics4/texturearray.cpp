@@ -24,8 +24,6 @@ void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *te
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
-	uint8_t *data = new uint8_t[textures[0].width * textures[0].height * 4 * count];
-
 	D3D11_SUBRESOURCE_DATA *resdata = (D3D11_SUBRESOURCE_DATA *)alloca(sizeof(D3D11_SUBRESOURCE_DATA) * count);
 	for (int i = 0; i < count; ++i) {
 		resdata[i].pSysMem = textures[i].data;
