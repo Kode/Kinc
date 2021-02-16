@@ -5,7 +5,6 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/textureunit.h>
 
-#include <Kore/Math/Random.h>
 #include <kinc/backend/SystemMicrosoft.h>
 
 #include <assert.h>

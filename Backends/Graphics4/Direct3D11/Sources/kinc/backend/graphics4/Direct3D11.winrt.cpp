@@ -18,8 +18,8 @@
 
 #undef CreateWindow
 
-#include <Kore/System.h>
 #include <kinc/backend/SystemMicrosoft.h>
+#include <kinc/system.h>
 
 #include <kinc/display.h>
 #include <kinc/window.h>
