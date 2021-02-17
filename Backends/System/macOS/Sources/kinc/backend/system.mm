@@ -11,7 +11,7 @@
 #include <kinc/system.h>
 #include <kinc/window.h>
 
-#include "WindowData.h"
+#include "windowdata.h"
 
 extern "C" {
 	bool withAutoreleasepool(bool (*f)()) {
