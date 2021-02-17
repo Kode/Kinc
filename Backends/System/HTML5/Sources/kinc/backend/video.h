@@ -1,40 +1,15 @@
-#include <Kore/Graphics/Texture.h>
-#include <Kore/IO/FileReader.h>
+#pragma once
 
-namespace Kore {
-	class VideoSoundStream;
+#include <kinc/graphics4/texture.h>
 
-	class Video {
-	public:
-		Video(const char* filename) {
-			duration = 1000 * 10;
-			position = 0;
-			finished = false;
-			paused = false;
-			image = new Texture(100, 100, Image::RGBA32, false);
-		}
-		~Video() {
-			delete image;
-		}
-		void play() {}
-		void pause() {}
-		void stop() {}
-		int width() {
-			return 100;
-		}
-		int height() {
-			return 100;
-		}
-		Texture* currentImage() {
-			return image;
-		}
-		double duration; // milliseconds
-		double position; // milliseconds
-		bool finished;
-		bool paused;
-		void update(double time) {}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	private:
-		Texture* image;
-	};
+typedef struct {
+	int nothing;
+} kinc_video_impl_t;
+
+#ifdef __cplusplus
 }
+#endif
