@@ -389,7 +389,7 @@ void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t 
 	glCheckErrors();
 
 	int convertedType = convertType(image->format);
-	bool isHdr = convertedType == GL_FLOAT;
+	//bool isHdr = convertedType == GL_FLOAT;
 
 	void* texdata = image->data;
 	glTexImage3D(GL_TEXTURE_3D, 0, convertInternalFormat(image->format), texture->tex_width, texture->tex_height, texture->tex_depth, 0,
@@ -608,7 +608,7 @@ void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels) {
 
 void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap, int level) {
 	int convertedType = convertType(mipmap->format);
-	bool isHdr = convertedType == GL_FLOAT;
+	//bool isHdr = convertedType == GL_FLOAT;
 	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glBindTexture(target, texture->impl.texture);
 	glCheckErrors();

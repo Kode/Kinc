@@ -400,6 +400,7 @@ namespace {
 - (void)prepareOpenGL {
 	const GLint swapInt = 1;
 	[[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
+    [super prepareOpenGL];
 }
 #endif
 

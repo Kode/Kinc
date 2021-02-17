@@ -23,13 +23,15 @@
 
 Kinc_Internal_OpenGLWindow Kinc_Internal_windows[10] = {0};
 
-static bool initialized = false;
 static kinc_g4_vertex_buffer_t windowVertexBuffer;
 static kinc_g4_index_buffer_t windowIndexBuffer;
 static kinc_g4_pipeline_t windowPipeline;
+#ifdef KORE_WINDOWS
+static bool initialized = false;
 static kinc_g4_shader_t windowVertexShader;
 static kinc_g4_shader_t windowFragmentShader;
 static bool glewInitialized = false;
+#endif
 
 #ifdef KORE_WINDOWS
 void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits) {

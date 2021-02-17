@@ -51,7 +51,7 @@ static int getPower2(int i) {
 		if (pow2(power) >= i) return pow2(power);
 }
 
-bool kinc_opengl_internal_nonPow2RenderTargetsSupported();
+bool kinc_opengl_internal_nonPow2RenderTargetsSupported(void);
 
 #ifndef KORE_ANDROID
 bool kinc_opengl_internal_nonPow2RenderTargetsSupported() {
