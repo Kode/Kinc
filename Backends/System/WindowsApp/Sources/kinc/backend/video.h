@@ -1,40 +1,41 @@
 #pragma once
 
-#include <Kore/Graphics4/Texture.h>
+#include <kinc/graphics4/texture.h>
 
-namespace Kore {
-	class VideoSoundStream;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	class Video {
-	public:
-		Video(const char* filename) : image(100, 100, Kore::Graphics1::Image::RGBA32) {
-			duration = 1000 * 10;
-			position = 0;
-			finished = false;
-			paused = false;
-		}
-		~Video() {
-			
-		}
-		void play() {}
-		void pause() {}
-		void stop() {}
-		int width() {
-			return 100;
-		}
-		int height() {
-			return 100;
-		}
-		Kore::Graphics4::Texture *currentImage() {
-			return &image;
-		}
-		double duration; // milliseconds
-		double position; // milliseconds
-		bool finished;
-		bool paused;
-		void update(double time) {}
+typedef struct {
+	int nothing;
+} kinc_video_impl_t;
 
-	private:
-		Kore::Graphics4::Texture image;
-	};
+void kinc_video_init(kinc_video_t *video, const char *filename) {}
+
+void kinc_video_destroy(kinc_video_t *video) {}
+
+void kinc_video_play(kinc_video_t *video) {}
+
+void kinc_video_pause(kinc_video_t *video) {}
+
+void kinc_video_stop(kinc_video_t *video) {}
+
+int kinc_video_width(kinc_video_t *video) { return 256; }
+
+int kinc_video_height(kinc_video_t *video) { return 256; }
+
+kinc_g4_texture_t *kinc_video_current_image(kinc_video_t *video) { return NULL; }
+
+double kinc_video_duration(kinc_video_t *video) { return 0.0; }
+
+double kinc_video_position(kinc_video_t *video) { return 0.0; }
+
+bool kinc_video_finished(kinc_video_t *video) { return false; }
+
+bool kinc_video_paused(kinc_video_t *video) { return false; }
+
+void kinc_video_update(kinc_video_t *video, double time) {}
+
+#ifdef __cplusplus
 }
+#endif
