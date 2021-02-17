@@ -1,8 +1,5 @@
 #pragma once
 
-#include <kinc/graphics4/texture.h>
-#include <kinc/io/filereader.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
