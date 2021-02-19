@@ -7,21 +7,16 @@
 #include <kinc/audio2/audio.h>
 #include <kinc/math/core.h>
 #include <kinc/threads/mutex.h>
+#include <kinc/video.h>
 
 #include <stdlib.h>
-
-/*#include <Kore/Audio2/Audio.h>
-#if 0
-#include <xmmintrin.h>
-#endif
-#include <Kore/VideoSoundStream.h>*/
 
 static kinc_mutex_t mutex;
 
 #define CHANNEL_COUNT 16
 static kinc_a1_channel_t channels[CHANNEL_COUNT];
 static kinc_a1_stream_channel_t streams[CHANNEL_COUNT];
-static kinc_a1_video_channel_t videos[CHANNEL_COUNT];
+static kinc_internal_video_channel_t videos[CHANNEL_COUNT];
 
 static float sampleLinear(int16_t *data, float position) {
 	int pos1 = (int)position;
@@ -102,14 +97,17 @@ void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 				if (kinc_a1_sound_stream_ended(streams[i].stream)) streams[i].stream = NULL;
 			}
 		}
-		//**
-		/*for (int i = 0; i < CHANNEL_COUNT; ++i) {
-		    if (videos[i].stream != NULL) {
-		        value += videos[i].stream->nextSample();
-		        value = Kore::max(Kore::min(value, 1.0f), -1.0f);
-		        if (videos[i].stream->ended()) videos[i].stream = NULL;
-		    }
-		}*/
+
+		for (int i = 0; i < CHANNEL_COUNT; ++i) {
+			if (videos[i].stream != NULL) {
+				value += kinc_video_sound_stream_impl_next_sample(videos[i].stream);
+				value = kinc_max(kinc_min(value, 1.0f), -1.0f);
+				if (kinc_video_sound_stream_impl_ended(videos[i].stream)) {
+					videos[i].stream = NULL;
+				}
+			}
+		}
+
 		kinc_mutex_unlock(&mutex);
 #endif
 		*(float *)&buffer->data[buffer->write_location] = value;
@@ -204,7 +202,7 @@ void kinc_a1_stop_sound_stream(kinc_a1_sound_stream_t *stream) {
 	kinc_mutex_unlock(&mutex);
 }
 
-void kinc_a1_play_video_sound_stream(struct kinc_a1_video_sound_stream *stream) {
+void kinc_internal_play_video_sound_stream(struct kinc_internal_video_sound_stream *stream) {
 	kinc_mutex_lock(&mutex);
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		if (videos[i].stream == NULL) {
@@ -216,7 +214,7 @@ void kinc_a1_play_video_sound_stream(struct kinc_a1_video_sound_stream *stream) 
 	kinc_mutex_unlock(&mutex);
 }
 
-void kinc_a1_stop_video_sound_stream(struct kinc_a1_video_sound_stream *stream) {
+void kinc_internal_stop_video_sound_stream(struct kinc_internal_video_sound_stream *stream) {
 	kinc_mutex_lock(&mutex);
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		if (videos[i].stream == stream) {

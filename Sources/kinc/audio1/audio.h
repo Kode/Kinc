@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-struct kinc_a1_video_sound_stream;
+struct kinc_internal_video_sound_stream;
 
 typedef struct {
 	kinc_a1_sound_t *sound;
@@ -25,9 +25,9 @@ typedef struct {
 } kinc_a1_stream_channel_t;
 
 typedef struct {
-	struct kinc_a1_video_sound_stream *stream;
+	struct kinc_internal_video_sound_stream *stream;
 	int position;
-} kinc_a1_video_channel_t;
+} kinc_internal_video_channel_t;
 
 KINC_FUNC void kinc_a1_init(void);
 KINC_FUNC kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float pitch,
@@ -35,8 +35,9 @@ KINC_FUNC kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loo
 KINC_FUNC void kinc_a1_stop_sound(kinc_a1_sound_t *sound);
 KINC_FUNC void kinc_a1_play_sound_stream(kinc_a1_sound_stream_t *stream);
 KINC_FUNC void kinc_a1_stop_sound_stream(kinc_a1_sound_stream_t *stream);
-KINC_FUNC void kinc_a1_play_video_sound_stream(struct kinc_a1_video_sound_stream *stream);
-KINC_FUNC void kinc_a1_stop_video_sound_stream(struct kinc_a1_video_sound_stream *stream);
+
+void kinc_internal_play_video_sound_stream(struct kinc_internal_video_sound_stream *stream);
+void kinc_internal_stop_video_sound_stream(struct kinc_internal_video_sound_stream *stream);
 void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples);
 
 #ifdef __cplusplus

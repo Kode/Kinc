@@ -4,8 +4,6 @@
 
 #include <streams.h>
 
-using namespace Kore;
-
 namespace {
 	IGraphBuilder *graphBuilder;
 	IMediaControl *mediaControl;
@@ -33,7 +31,7 @@ public:
 	kinc_g4_texture_t image;
 	int width;
 	int height;
-	u8 *pixels;
+	uint8_t *pixels;
 };
 
 CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr) : CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer), TEXT("Texture Renderer"), pUnk, phr) {
@@ -72,7 +70,7 @@ HRESULT CTextureRenderer::SetMediaType(const CMediaType *pmt) {
 	width = info->bmiHeader.biWidth;
 	height = abs(info->bmiHeader.biHeight);
 	kinc_g4_texture_init(&image, width, height, KINC_IMAGE_FORMAT_RGBA32);
-	pixels = (u8 *)malloc(width * height * 3);
+	pixels = (uint8_t *)malloc(width * height * 3);
 
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
@@ -131,7 +129,7 @@ void kinc_video_destroy(kinc_video_t *video) {}
 
 kinc_g4_texture_t *kinc_video_current_image(kinc_video_t *video) {
 	CTextureRenderer *renderer = (CTextureRenderer *)video->impl.renderer;
-	u8 *pixels = kinc_g4_texture_lock(&renderer->image);
+	uint8_t *pixels = kinc_g4_texture_lock(&renderer->image);
 	int stride = kinc_g4_texture_stride(&renderer->image);
 	for (int y = 0; y < renderer->height; ++y) {
 		for (int x = 0; x < renderer->width; ++x) {
@@ -188,4 +186,18 @@ bool kinc_video_finished(kinc_video_t *video) {
 
 bool kinc_video_paused(kinc_video_t *video) {
 	return video->impl.paused;
+}
+
+void kinc_video_sound_stream_impl_init(kinc_internal_video_sound_stream_t *stream, int channel_count, int frequency) {}
+
+void kinc_video_sound_stream_impl_destroy(kinc_internal_video_sound_stream_t *stream) {}
+
+void kinc_video_sound_stream_impl_insert_data(kinc_internal_video_sound_stream_t *stream, float *data, int sample_count) {}
+
+float kinc_video_sound_stream_impl_next_sample(kinc_internal_video_sound_stream_t *stream) {
+	return 0.0f;
+}
+
+bool kinc_video_sound_stream_impl_ended(kinc_internal_video_sound_stream_t *stream) {
+	return true;
 }
