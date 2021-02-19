@@ -113,7 +113,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 			return true;
 		}
 		else {
-			reader->asset = AAssetManager_open(KincAndroid::getAssetManager(), filename, AASSET_MODE_RANDOM);
+			reader->asset = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
 			if (reader->asset == nullptr) return false;
 			reader->size = AAsset_getLength(reader->asset);
 			return true;

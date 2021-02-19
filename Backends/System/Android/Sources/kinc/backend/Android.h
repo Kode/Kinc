@@ -2,11 +2,17 @@
 
 #include <android_native_app_glue.h>
 
-namespace KincAndroid {
-	// name in usual Java syntax (points, no slashes)
-	jclass findClass(JNIEnv* env, const char* name);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	ANativeActivity* getActivity();
+// name in usual Java syntax (points, no slashes)
+jclass kinc_android_find_class(JNIEnv *env, const char *name);
 
-	AAssetManager* getAssetManager();
+ANativeActivity *kinc_android_get_activity(void);
+
+AAssetManager *kinc_android_get_asset_manager(void);
+
+#ifdef __cplusplus
 }
+#endif

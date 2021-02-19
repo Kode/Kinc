@@ -15,10 +15,8 @@ Window* Window::get(int window) {
 	return &::window;
 }*/
 
-namespace {
-	void (*resizeCallback)(int x, int y, void* data);
-	void* resizeCallbackData;
-}
+static void (*resizeCallback)(int x, int y, void *data);
+static void *resizeCallbackData;
 
 int kinc_count_windows(void) {
 	return 1;
@@ -52,7 +50,7 @@ void kinc_window_move(int window_index, int x, int y) {
 	
 }
 
-extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
+void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
 
 void kinc_window_change_framebuffer(int window_index, kinc_framebuffer_options_t *frame) {
     kinc_internal_change_framebuffer(0, frame);

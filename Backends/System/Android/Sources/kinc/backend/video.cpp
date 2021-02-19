@@ -308,7 +308,7 @@ namespace {
 		assert(XA_RESULT_SUCCESS == res);
 
 		// open the file to play
-		file = AAssetManager_open(KincAndroid::getAssetManager(), filename, AASSET_MODE_STREAMING);
+		file = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_STREAMING);
 		if (file == NULL) {
 			kinc_log(KINC_LOG_LEVEL_INFO, "Could not find video file.");
 			return false;
@@ -457,9 +457,9 @@ extern "C" JNIEXPORT void JNICALL Java_tech_kode_kinc_KincMoviePlayer_nativeCrea
 
 void KoreAndroidVideoInit() {
 	JNIEnv* env;
-	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	kinc_android_get_activity()->vm->AttachCurrentThread(&env, nullptr);
 
-	jclass clazz = KincAndroid::findClass(env, "tech.kinc.KincMoviePlayer");
+	jclass clazz = kinc_android_find_class(env, "tech.kinc.KincMoviePlayer");
 
 	// String path, Surface surface, int id
 	JNINativeMethod methodTable[] = {
@@ -469,7 +469,7 @@ void KoreAndroidVideoInit() {
 
 	env->RegisterNatives(clazz, methodTable, methodTableSize);
 
-	KincAndroid::getActivity()->vm->DetachCurrentThread();
+	kinc_android_get_activity()->vm->DetachCurrentThread();
 }
 
 void kinc_video_init(kinc_video_t* video, const char* filename) {
@@ -484,8 +484,8 @@ void kinc_video_init(kinc_video_t* video, const char* filename) {
 	video->impl.audioTime = 0;
 
 	JNIEnv* env = nullptr;
-	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreMoviePlayerClass = KincAndroid::findClass(env, "tech.kinc.KoreMoviePlayer");
+	kinc_android_get_activity()->vm->AttachCurrentThread(&env, nullptr);
+	jclass koreMoviePlayerClass = kinc_android_find_class(env, "tech.kinc.KoreMoviePlayer");
 	jmethodID constructor = env->GetMethodID(koreMoviePlayerClass, "<init>", "(Ljava/lang/String;)V");
 	jobject object = env->NewObject(koreMoviePlayerClass, constructor, env->NewStringUTF(filename));
 
@@ -505,7 +505,7 @@ void kinc_video_init(kinc_video_t* video, const char* filename) {
 	jmethodID getTextureId = env->GetMethodID(koreMoviePlayerClass, "getTextureId", "()I");
 	int texid = env->CallIntMethod(object, getTextureId);
 
-	KincAndroid::getActivity()->vm->DetachCurrentThread();
+	kinc_android_get_activity()->vm->DetachCurrentThread();
 
 	kinc_g4_texture_init_from_id(&video->impl.image, texid);
 #endif

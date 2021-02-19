@@ -5,8 +5,6 @@
 #include <kinc/display.h>
 #include <kinc/log.h>
 
-#include <stdexcept>
-
 typedef struct {
 	bool available;
 	int x;
@@ -17,9 +15,7 @@ typedef struct {
 	int number;
 } kinc_display_t;
 
-namespace {
-	kinc_display_t display;
-}
+static kinc_display_t display;
 
 int kinc_count_displays(void) {
 	return 1;
@@ -38,32 +34,35 @@ int kinc_primary_display(void) {
 
 
 static int width() {
-	JNIEnv* env;
-	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
-	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getDisplayWidth", "()I");
-	int width = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
-	KincAndroid::getActivity()->vm->DetachCurrentThread();
+	JNIEnv *env;
+	JavaVM *vm = kinc_android_get_activity()->vm;
+    (*vm)->AttachCurrentThread(vm, &env, NULL);
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
+	jmethodID koreActivityGetScreenDpi = (*env)->GetStaticMethodID(env, koreActivityClass, "getDisplayWidth", "()I");
+	int width = (*env)->CallStaticIntMethod(env, koreActivityClass, koreActivityGetScreenDpi);
+    (*vm)->DetachCurrentThread(vm);
 	return width;
 }
 
 static int height() {
 	JNIEnv* env;
-	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
-	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getDisplayHeight", "()I");
-	int height = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
-	KincAndroid::getActivity()->vm->DetachCurrentThread();
+    JavaVM *vm = kinc_android_get_activity()->vm;
+    (*vm)->AttachCurrentThread(vm, &env, NULL);
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
+	jmethodID koreActivityGetScreenDpi = (*env)->GetStaticMethodID(env, koreActivityClass, "getDisplayHeight", "()I");
+	int height = (*env)->CallStaticIntMethod(env, koreActivityClass, koreActivityGetScreenDpi);
+    (*vm)->DetachCurrentThread(vm);
 	return height;
 }
 
 static int pixelsPerInch() {
 	JNIEnv* env;
-	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
-	jmethodID koreActivityGetScreenDpi = env->GetStaticMethodID(koreActivityClass, "getScreenDpi", "()I");
-	int dpi = env->CallStaticIntMethod(koreActivityClass, koreActivityGetScreenDpi);
-	KincAndroid::getActivity()->vm->DetachCurrentThread();
+    JavaVM *vm = kinc_android_get_activity()->vm;
+    (*vm)->AttachCurrentThread(vm, &env, NULL);
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
+	jmethodID koreActivityGetScreenDpi = (*env)->GetStaticMethodID(env, koreActivityClass, "getScreenDpi", "()I");
+	int dpi = (*env)->CallStaticIntMethod(env, koreActivityClass, koreActivityGetScreenDpi);
+    (*vm)->DetachCurrentThread(vm);
 	return dpi;
 }
 

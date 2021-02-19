@@ -704,15 +704,15 @@ namespace {
 	}
 }
 
-ANativeActivity* KincAndroid::getActivity() {
+extern "C" ANativeActivity* kinc_android_get_activity(void) {
 	return activity;
 }
 
-AAssetManager* KincAndroid::getAssetManager() {
+extern "C" AAssetManager* kinc_android_get_asset_manager(void) {
 	return activity->assetManager;
 }
 
-jclass KincAndroid::findClass(JNIEnv* env, const char* name) {
+extern "C" jclass kinc_android_find_class(JNIEnv* env, const char* name) {
 	jobject nativeActivity = activity->clazz;
 	jclass acl = env->GetObjectClass(nativeActivity);
 	jmethodID getClassLoader = env->GetMethodID(acl, "getClassLoader", "()Ljava/lang/ClassLoader;");
@@ -731,7 +731,7 @@ void kinc_keyboard_show() {
 	keyboard_active = true;
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "showKeyboard", "()V"));
 	activity->vm->DetachCurrentThread();
 }
@@ -740,7 +740,7 @@ void kinc_keyboard_hide() {
 	keyboard_active = false;
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "hideKeyboard", "()V"));
 	activity->vm->DetachCurrentThread();
 }
@@ -752,7 +752,7 @@ bool kinc_keyboard_active() {
 void kinc_load_url(const char *url) {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	jstring jurl = env->NewStringUTF(url);
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "loadURL", "(Ljava/lang/String;)V"), jurl);
 	activity->vm->DetachCurrentThread();
@@ -761,7 +761,7 @@ void kinc_load_url(const char *url) {
 void kinc_vibrate(int ms) {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "vibrate", "(I)V"), ms);
 	activity->vm->DetachCurrentThread();
 }
@@ -769,25 +769,25 @@ void kinc_vibrate(int ms) {
 const char* kinc_language() {
 	JNIEnv* env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	jstring s = (jstring) env->CallStaticObjectMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "getLanguage", "()Ljava/lang/String;"));
 	const char* str = env->GetStringUTFChars(s, 0);
 	activity->vm->DetachCurrentThread();
 	return str;
 }
 
-int glWidth() {
+extern "C" int glWidth() {
 	glContext->UpdateSize();
 	return glContext->GetScreenWidth();
 }
 
-int glHeight() {
+extern "C" int glHeight() {
 	glContext->UpdateSize();
 	return glContext->GetScreenHeight();
 }
 
 const char* kinc_internal_save_path() {
-	return KincAndroid::getActivity()->internalDataPath;
+	return kinc_android_get_activity()->internalDataPath;
 }
 
 const char* kinc_system_id() {
@@ -950,20 +950,20 @@ extern "C" void android_main(android_app* app) {
 	sensorEventQueue = ASensorManager_createEventQueue(sensorManager, app->looper, LOOPER_ID_USER, NULL, NULL);
 
 	JNIEnv* env = nullptr;
-	KincAndroid::getActivity()->vm->AttachCurrentThread(&env, nullptr);
+	kinc_android_get_activity()->vm->AttachCurrentThread(&env, nullptr);
 
-	jclass koreMoviePlayerClass = KincAndroid::findClass(env, "tech.kinc.KincMoviePlayer");
+	jclass koreMoviePlayerClass = kinc_android_find_class(env, "tech.kinc.KincMoviePlayer");
 	jmethodID updateAll = env->GetStaticMethodID(koreMoviePlayerClass, "updateAll", "()V");
 
 	while (!started) {
 		kinc_internal_handle_messages();
 		env->CallStaticVoidMethod(koreMoviePlayerClass, updateAll);
 	}
-	KincAndroid::getActivity()->vm->DetachCurrentThread();
+	kinc_android_get_activity()->vm->DetachCurrentThread();
 	kickstart(0, nullptr);
 
 	activity->vm->AttachCurrentThread(&env, nullptr);
-	jclass koreActivityClass = KincAndroid::findClass(env, "tech.kinc.KincActivity");
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	jmethodID FinishHim = env->GetStaticMethodID(koreActivityClass, "stop", "()V");
 	env->CallStaticVoidMethod(koreActivityClass, FinishHim);
 	activity->vm->DetachCurrentThread();
