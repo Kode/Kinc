@@ -7,9 +7,9 @@
 #ifdef KORE_ANDROID
 #include <kinc/backend/Android.h>
 #endif
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #ifdef KORE_WINDOWS
 #include <malloc.h>
 #include <memory.h>
@@ -20,11 +20,11 @@ using namespace Kore;
 #ifndef KORE_CONSOLE
 
 #ifdef KORE_IOS
-const char* iphonegetresourcepath();
+const char *iphonegetresourcepath();
 #endif
 
 #ifdef KORE_MACOS
-const char* macgetresourcepath();
+const char *macgetresourcepath();
 #endif
 
 #ifdef KORE_ANDROID
@@ -47,10 +47,10 @@ const char* macgetresourcepath();
 #endif
 
 namespace {
-	char* fileslocation = nullptr;
-	#ifdef KORE_WINDOWS
+	char *fileslocation = nullptr;
+#ifdef KORE_WINDOWS
 	wchar_t wfilepath[1001];
-	#endif
+#endif
 }
 
 void kinc_internal_set_files_location(char *dir) {
@@ -63,7 +63,7 @@ char *kinc_internal_get_files_location() {
 
 #ifdef KORE_ANDROID
 namespace {
-	char* externalFilesDir;
+	char *externalFilesDir;
 }
 
 void initAndroidFileReader() {
@@ -158,7 +158,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
 #ifdef KORE_WINDOWSAPP
-	Platform::String^ locationString = Windows::ApplicationModel::Package::Current->InstalledLocation->Path;
+	Platform::String ^ locationString = Windows::ApplicationModel::Package::Current->InstalledLocation->Path;
 	WideCharToMultiByte(CP_UTF8, 0, locationString->Begin(), -1, filepath, 1000, nullptr, nullptr);
 	strcat(filepath, "\\");
 	strcat(filepath, filename);
@@ -213,9 +213,9 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	if (reader->file == nullptr) {
 		return false;
 	}
-	fseek((FILE*)reader->file, 0, SEEK_END);
-	reader->size = static_cast<int>(ftell((FILE*)reader->file));
-	fseek((FILE*)reader->file, 0, SEEK_SET);
+	fseek((FILE *)reader->file, 0, SEEK_END);
+	reader->size = static_cast<int>(ftell((FILE *)reader->file));
+	fseek((FILE *)reader->file, 0, SEEK_SET);
 	return true;
 }
 #endif
@@ -231,7 +231,7 @@ int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 		return read;
 	}
 #else
-	return static_cast<int>(fread(data, 1, size, (FILE*)reader->file));
+	return static_cast<int>(fread(data, 1, size, (FILE *)reader->file));
 #endif
 }
 
@@ -245,7 +245,7 @@ void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
 		reader->pos = pos;
 	}
 #else
-	fseek((FILE*)reader->file, pos, SEEK_SET);
+	fseek((FILE *)reader->file, pos, SEEK_SET);
 #endif
 }
 
@@ -261,7 +261,7 @@ void kinc_file_reader_close(kinc_file_reader_t *reader) {
 	}
 #else
 	if (reader->file == nullptr) return;
-	fclose((FILE*)reader->file);
+	fclose((FILE *)reader->file);
 	reader->file = nullptr;
 #endif
 }
@@ -273,7 +273,7 @@ int kinc_file_reader_pos(kinc_file_reader_t *reader) {
 	else
 		return reader->pos;
 #else
-	return static_cast<int>(ftell((FILE*)reader->file));
+	return static_cast<int>(ftell((FILE *)reader->file));
 #endif
 }
 
@@ -406,5 +406,5 @@ uint8_t kinc_read_u8(uint8_t *data) {
 }
 
 int8_t kinc_read_s8(uint8_t *data) {
-	return *(int8_t*)data;
+	return *(int8_t *)data;
 }

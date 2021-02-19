@@ -3,30 +3,30 @@
 #include "constantbuffer.h"
 
 static void setInt(uint8_t *constants, int offset, int value) {
-	int *ints = (int*)(&constants[offset]);
+	int *ints = (int *)(&constants[offset]);
 	ints[0] = value;
 }
 
 static void setFloat(uint8_t *constants, int offset, float value) {
-	float *floats = (float*)(&constants[offset]);
+	float *floats = (float *)(&constants[offset]);
 	floats[0] = value;
 }
 
 static void setFloat2(uint8_t *constants, int offset, float value1, float value2) {
-	float *floats = (float*)(&constants[offset]);
+	float *floats = (float *)(&constants[offset]);
 	floats[0] = value1;
 	floats[1] = value2;
 }
 
 static void setFloat3(uint8_t *constants, int offset, float value1, float value2, float value3) {
-	float *floats = (float*)(&constants[offset]);
+	float *floats = (float *)(&constants[offset]);
 	floats[0] = value1;
 	floats[1] = value2;
 	floats[2] = value3;
 }
 
 static void setFloat4(uint8_t *constants, int offset, float value1, float value2, float value3, float value4) {
-	float *floats = (float*)(&constants[offset]);
+	float *floats = (float *)(&constants[offset]);
 	floats[0] = value1;
 	floats[1] = value2;
 	floats[2] = value3;
@@ -34,19 +34,19 @@ static void setFloat4(uint8_t *constants, int offset, float value1, float value2
 }
 
 static void setFloats(uint8_t *constants, int offset, float *values, int count) {
-	float *floats = (float*)(&constants[offset]);
+	float *floats = (float *)(&constants[offset]);
 	for (int i = 0; i < count; ++i) {
 		floats[i] = values[i];
 	}
 }
 
 static void setBool(uint8_t *constants, int offset, bool value) {
-	int *ints = (int*)(&constants[offset]);
+	int *ints = (int *)(&constants[offset]);
 	ints[0] = value ? 1 : 0;
 }
 
 static void setMatrix4(uint8_t *constants, int offset, kinc_matrix4x4_t *value) {
-	float *floats = (float*)(&constants[offset]);
+	float *floats = (float *)(&constants[offset]);
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
 			floats[x + y * 4] = kinc_matrix4x4_get(value, x, y);
@@ -55,7 +55,7 @@ static void setMatrix4(uint8_t *constants, int offset, kinc_matrix4x4_t *value) 
 }
 
 static void setMatrix3(uint8_t *constants, int offset, kinc_matrix3x3_t *value) {
-	float *floats = (float*)(&constants[offset]);
+	float *floats = (float *)(&constants[offset]);
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
 			floats[x + y * 4] = kinc_matrix3x3_get(value, x, y);

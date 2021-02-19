@@ -9,7 +9,7 @@ float kinc_matrix3x3_get(kinc_matrix3x3_t *matrix, int x, int y) {
 	return matrix->m[y * 3 + x];
 }
 
-void kinc_matrix3x3_set(kinc_matrix3x3_t* matrix, int x, int y, float value) {
+void kinc_matrix3x3_set(kinc_matrix3x3_t *matrix, int x, int y, float value) {
 	matrix->m[y * 3 + x] = value;
 }
 
@@ -36,10 +36,10 @@ kinc_matrix3x3_t kinc_matrix3x_rotation_x(float alpha) {
 	kinc_matrix3x3_t m = kinc_matrix3x3_identity();
 	float ca = kinc_cos(alpha);
 	float sa = kinc_sin(alpha);
-	kinc_matrix3x3_set(&m, 1, 1,  ca);
+	kinc_matrix3x3_set(&m, 1, 1, ca);
 	kinc_matrix3x3_set(&m, 1, 2, -sa);
-	kinc_matrix3x3_set(&m, 2, 1,  sa);
-	kinc_matrix3x3_set(&m, 2, 2,  ca);
+	kinc_matrix3x3_set(&m, 2, 1, sa);
+	kinc_matrix3x3_set(&m, 2, 2, ca);
 	return m;
 }
 
@@ -47,10 +47,10 @@ kinc_matrix3x3_t kinc_matrix3x_rotation_y(float alpha) {
 	kinc_matrix3x3_t m = kinc_matrix3x3_identity();
 	float ca = kinc_cos(alpha);
 	float sa = kinc_sin(alpha);
-	kinc_matrix3x3_set(&m, 0, 0,  ca);
-	kinc_matrix3x3_set(&m, 0, 2,  sa);
+	kinc_matrix3x3_set(&m, 0, 0, ca);
+	kinc_matrix3x3_set(&m, 0, 2, sa);
 	kinc_matrix3x3_set(&m, 2, 0, -sa);
-	kinc_matrix3x3_set(&m, 2, 2,  ca);
+	kinc_matrix3x3_set(&m, 2, 2, ca);
 	return m;
 }
 
@@ -58,10 +58,10 @@ kinc_matrix3x3_t kinc_matrix3x_rotation_z(float alpha) {
 	kinc_matrix3x3_t m = kinc_matrix3x3_identity();
 	float ca = kinc_cos(alpha);
 	float sa = kinc_sin(alpha);
-	kinc_matrix3x3_set(&m, 0, 0,  ca);
+	kinc_matrix3x3_set(&m, 0, 0, ca);
 	kinc_matrix3x3_set(&m, 0, 1, -sa);
-	kinc_matrix3x3_set(&m, 1, 0,  sa);
-	kinc_matrix3x3_set(&m, 1, 1,  ca);
+	kinc_matrix3x3_set(&m, 1, 0, sa);
+	kinc_matrix3x3_set(&m, 1, 1, ca);
 	return m;
 }
 
@@ -69,7 +69,7 @@ float kinc_matrix4x4_get(kinc_matrix4x4_t *matrix, int x, int y) {
 	return matrix->m[y * 4 + x];
 }
 
-void kinc_matrix4x4_set(kinc_matrix4x4_t* matrix, int x, int y, float value) {
+void kinc_matrix4x4_set(kinc_matrix4x4_t *matrix, int x, int y, float value) {
 	matrix->m[y * 4 + x] = value;
 }
 

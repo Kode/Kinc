@@ -5,7 +5,7 @@
 /// case of an error and create a user-visible error message
 /// </summary>
 /// <remarks>
-///The affirm and error functions print an error message and
+/// The affirm and error functions print an error message and
 /// then exit the program. Error messages can be made visible to
 /// the user (unless a console window is active this is only
 /// implemented for Windows).

@@ -7,19 +7,12 @@ extern "C" {
 #endif
 
 #include <kinc/math/matrix.h>
-#include <kinc/math/vector.h>
 #include <kinc/math/quaternion.h>
+#include <kinc/math/vector.h>
 
-typedef enum {
-	KINC_TRACKING_ORIGIN_STAND,
-	KINC_TRACKING_ORIGIN_SIT
-} kinc_tracking_origin_t;
+typedef enum { KINC_TRACKING_ORIGIN_STAND, KINC_TRACKING_ORIGIN_SIT } kinc_tracking_origin_t;
 
-typedef enum {
-	KINC_TRACKED_DEVICE_HMD,
-	KINC_TRACKED_DEVICE_CONTROLLER,
-	KINC_TRACKED_DEVICE_VIVE_TRACKER
-} kinc_tracked_device_t;
+typedef enum { KINC_TRACKED_DEVICE_HMD, KINC_TRACKED_DEVICE_CONTROLLER, KINC_TRACKED_DEVICE_VIVE_TRACKER } kinc_tracked_device_t;
 
 typedef struct kinc_vr_pose {
 	kinc_quaternion_t orientation;
@@ -37,10 +30,10 @@ typedef struct kinc_vr_pose {
 
 typedef struct kinc_vr_pose_state {
 	kinc_vr_pose_t vrPose;
-	kinc_vector3_t angularVelocity; // Angular velocity in radians per second
-	kinc_vector3_t linearVelocity; // Velocity in meters per second
+	kinc_vector3_t angularVelocity;     // Angular velocity in radians per second
+	kinc_vector3_t linearVelocity;      // Velocity in meters per second
 	kinc_vector3_t angularAcceleration; // Angular acceleration in radians per second per second
-	kinc_vector3_t linearAcceleration; // Acceleration in meters per second per second
+	kinc_vector3_t linearAcceleration;  // Acceleration in meters per second per second
 
 	kinc_tracked_device_t trackedDevice;
 
@@ -57,7 +50,7 @@ typedef struct kinc_vr_sensor_state {
 	kinc_vr_pose_state_t pose;
 } kinc_vr_sensor_state_t;
 
-void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName);
+void *kinc_vr_interface_init(void *hinst, const char *title, const char *windowClassName);
 void kinc_vr_interface_begin();
 void kinc_vr_interface_begin_render(int eye);
 void kinc_vr_interface_end_render(int eye);

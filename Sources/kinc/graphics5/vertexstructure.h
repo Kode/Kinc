@@ -8,7 +8,7 @@ extern "C" {
 
 typedef kinc_g4_vertex_data_t kinc_g5_vertex_data_t;
 
-//typedef kinc_g4_vertex_attribute_t kinc_g5_vertex_attribute_t;
+// typedef kinc_g4_vertex_attribute_t kinc_g5_vertex_attribute_t;
 
 typedef kinc_g4_vertex_element_t kinc_g5_vertex_element_t;
 

@@ -23,11 +23,7 @@ extern "C" {
 /// When used on Android the log level is converted to the equivalent
 /// Android logging level. It is currently ignored on all other targets.
 /// </remarks>
-typedef enum {
-	KINC_LOG_LEVEL_INFO,
-	KINC_LOG_LEVEL_WARNING,
-	KINC_LOG_LEVEL_ERROR
-} kinc_log_level_t;
+typedef enum { KINC_LOG_LEVEL_INFO, KINC_LOG_LEVEL_WARNING, KINC_LOG_LEVEL_ERROR } kinc_log_level_t;
 
 /// <summary>
 /// Logging function similar to printf including some system-specific bonuses
@@ -46,7 +42,7 @@ typedef enum {
 /// <param name="...">The parameter is equivalent to the second printf parameter.</param>
 KINC_FUNC void kinc_log(kinc_log_level_t log_level, const char *format, ...);
 
- /// <summary>
+/// <summary>
 /// Equivalent to kinc_log but uses a va_list parameter
 /// </summary>
 /// <remarks>
