@@ -13,131 +13,127 @@
 #include <stdio.h>
 #include <string.h>
 
-using namespace Kore;
-
 #if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_3)) || (defined(KORE_ANDROID) && defined(GL_ES_VERSION_3_1))
 #define HAS_COMPUTE
 #endif
 
-namespace {
 #ifdef HAS_COMPUTE
-	int convertInternalFormat(kinc_image_format_t format) {
-		switch (format) {
-		case KINC_IMAGE_FORMAT_RGBA128:
-			return GL_RGBA32F;
-		case KINC_IMAGE_FORMAT_RGBA64:
-			return GL_RGBA16F;
-		case KINC_IMAGE_FORMAT_RGBA32:
-		default:
-			return GL_RGBA8;
-		case KINC_IMAGE_FORMAT_A32:
-			return GL_R32F;
-		case KINC_IMAGE_FORMAT_A16:
-			return GL_R16F;
-		case KINC_IMAGE_FORMAT_GREY8:
-			return GL_R8;
-		}
+static int convertInternalFormat(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return GL_RGBA32F;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return GL_RGBA16F;
+	case KINC_IMAGE_FORMAT_RGBA32:
+	default:
+		return GL_RGBA8;
+	case KINC_IMAGE_FORMAT_A32:
+		return GL_R32F;
+	case KINC_IMAGE_FORMAT_A16:
+		return GL_R16F;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return GL_R8;
 	}
-
-	int convertInternalFormat(kinc_g4_render_target_format_t format) {
-		switch (format) {
-		case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
-			return GL_RGBA16F;
-		case KINC_G4_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
-			return GL_R32F;
-		case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
-			return GL_RGBA32F;
-		case KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH:
-			return GL_DEPTH_COMPONENT16;
-		case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
-			return GL_RED;
-		case KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
-			return GL_R16F;
-		case KINC_G4_RENDER_TARGET_FORMAT_32BIT:
-		default:
-			return GL_RGBA;
-		}
-	}
-
-	void setTextureAddressingInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir,
-	                                  kinc_g4_texture_addressing_t addressing) {
-		glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-		GLenum texDir = dir == KINC_G4_TEXTURE_DIRECTION_U ? GL_TEXTURE_WRAP_S : (KINC_G4_TEXTURE_DIRECTION_V ? GL_TEXTURE_WRAP_T : GL_TEXTURE_WRAP_R);
-		switch (addressing) {
-		case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
-			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
-			break;
-		case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
-		default:
-			glTexParameteri(target, texDir, GL_REPEAT);
-			break;
-		}
-		glCheckErrors();
-	}
-
-	void setTextureMagnificationFilterInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
-		glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-		switch (filter) {
-		case KINC_G4_TEXTURE_FILTER_POINT:
-			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			break;
-		case KINC_G4_TEXTURE_FILTER_LINEAR:
-		case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
-		default:
-			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			break;
-		}
-		glCheckErrors();
-	}
-
-	kinc_g4_texture_filter_t minFilters[32] = {KINC_G4_TEXTURE_FILTER_POINT};
-	kinc_g4_mipmap_filter_t mipFilters[32] = {KINC_G4_MIPMAP_FILTER_NONE};
-
-	void setMinMipFilters(GLenum target, int unit) {
-		glActiveTexture(GL_TEXTURE0 + unit);
-		switch (minFilters[unit]) {
-		case KINC_G4_TEXTURE_FILTER_POINT:
-			switch (mipFilters[unit]) {
-			case KINC_G4_MIPMAP_FILTER_NONE:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				break;
-			case KINC_G4_MIPMAP_FILTER_POINT:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-				break;
-			case KINC_G4_MIPMAP_FILTER_LINEAR:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-				break;
-			}
-			break;
-		case KINC_G4_TEXTURE_FILTER_LINEAR:
-		case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
-			switch (mipFilters[unit]) {
-			case KINC_G4_MIPMAP_FILTER_NONE:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				break;
-			case KINC_G4_MIPMAP_FILTER_POINT:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case KINC_G4_MIPMAP_FILTER_LINEAR:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-				break;
-			}
-			if (minFilters[unit] == KINC_G4_TEXTURE_FILTER_ANISOTROPIC) {
-				float maxAniso = 0.0f;
-				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
-				glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
-			}
-			break;
-		}
-		glCheckErrors();
-	}
-#endif
 }
+
+static int convertInternalFormat(kinc_g4_render_target_format_t format) {
+	switch (format) {
+	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return GL_RGBA16F;
+	case KINC_G4_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return GL_R32F;
+	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return GL_RGBA32F;
+	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH:
+		return GL_DEPTH_COMPONENT16;
+	case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
+		return GL_RED;
+	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return GL_R16F;
+	case KINC_G4_RENDER_TARGET_FORMAT_32BIT:
+	default:
+		return GL_RGBA;
+	}
+}
+
+static void setTextureAddressingInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir,
+								  kinc_g4_texture_addressing_t addressing) {
+	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+	GLenum texDir = dir == KINC_G4_TEXTURE_DIRECTION_U ? GL_TEXTURE_WRAP_S : (KINC_G4_TEXTURE_DIRECTION_V ? GL_TEXTURE_WRAP_T : GL_TEXTURE_WRAP_R);
+	switch (addressing) {
+	case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
+		glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+		break;
+	case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
+	default:
+		glTexParameteri(target, texDir, GL_REPEAT);
+		break;
+	}
+	glCheckErrors();
+}
+
+static void setTextureMagnificationFilterInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
+	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+	switch (filter) {
+	case KINC_G4_TEXTURE_FILTER_POINT:
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		break;
+	case KINC_G4_TEXTURE_FILTER_LINEAR:
+	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
+	default:
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		break;
+	}
+	glCheckErrors();
+}
+
+static kinc_g4_texture_filter_t minFilters[32] = {KINC_G4_TEXTURE_FILTER_POINT};
+static kinc_g4_mipmap_filter_t mipFilters[32] = {KINC_G4_MIPMAP_FILTER_NONE};
+
+static void setMinMipFilters(GLenum target, int unit) {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	switch (minFilters[unit]) {
+	case KINC_G4_TEXTURE_FILTER_POINT:
+		switch (mipFilters[unit]) {
+		case KINC_G4_MIPMAP_FILTER_NONE:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			break;
+		case KINC_G4_MIPMAP_FILTER_POINT:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+			break;
+		case KINC_G4_MIPMAP_FILTER_LINEAR:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+			break;
+		}
+		break;
+	case KINC_G4_TEXTURE_FILTER_LINEAR:
+	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
+		switch (mipFilters[unit]) {
+		case KINC_G4_MIPMAP_FILTER_NONE:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			break;
+		case KINC_G4_MIPMAP_FILTER_POINT:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+			break;
+		case KINC_G4_MIPMAP_FILTER_LINEAR:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			break;
+		}
+		if (minFilters[unit] == KINC_G4_TEXTURE_FILTER_ANISOTROPIC) {
+			float maxAniso = 0.0f;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+			glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+		}
+		break;
+	}
+	glCheckErrors();
+}
+#endif
 
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int length) {
 	shader->impl._length = length;
 	shader->impl.textureCount = 0;
-	shader->impl._source = new char[length + 1];
+	shader->impl._source = (char*)malloc(sizeof(char) * (length + 1));
 	for (int i = 0; i < length; ++i) {
 		shader->impl._source[i] = ((char *)source)[i];
 	}
@@ -176,17 +172,17 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int l
 #endif
 
 	// TODO: Get rid of allocations
-	shader->impl.textures = new char *[16];
+	shader->impl.textures = (char**)malloc(sizeof(char*) * 16);
 	for (int i = 0; i < 16; ++i) {
-		shader->impl.textures[i] = new char[128];
+		shader->impl.textures[i] = (char*)malloc(sizeof(char) * 128);
 		shader->impl.textures[i][0] = 0;
 	}
-	shader->impl.textureValues = new int[16];
+	shader->impl.textureValues = (int*)malloc(sizeof(int) * 16);
 }
 
 void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {
-	delete[] shader->impl._source;
-	shader->impl._source = nullptr;
+	free(shader->impl._source);
+	shader->impl._source = NULL;
 #ifdef HAS_COMPUTE
 	glDeleteProgram(shader->impl._programid);
 	glDeleteShader(shader->impl._id);
@@ -329,7 +325,7 @@ void kinc_compute_set_buffer(kinc_shader_storage_buffer_t *buffer, int index) {
 #endif
 }
 
-void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture, kinc_compute_access_t access) {
+void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture_t *texture, kinc_compute_access_t access) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
@@ -339,7 +335,7 @@ void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture 
 #endif
 }
 
-void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *texture, kinc_compute_access_t access) {
+void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target_t *texture, kinc_compute_access_t access) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
@@ -350,7 +346,7 @@ void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_re
 #endif
 }
 
-void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture) {
+void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture_t *texture) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
@@ -360,7 +356,7 @@ void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_
 #endif
 }
 
-void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {
+void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target_t *target) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
@@ -369,7 +365,7 @@ void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, ki
 #endif
 }
 
-void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {
+void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target_t *target) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();

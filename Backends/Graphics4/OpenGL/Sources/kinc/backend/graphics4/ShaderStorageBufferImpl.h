@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Kore/Graphics4/VertexStructure.h>
-
 typedef struct {
 	//ShaderStorageBufferImpl(int count, Graphics4::VertexData type);
 	//void unset();

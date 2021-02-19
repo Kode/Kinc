@@ -8,10 +8,10 @@
 #define HAS_COMPUTE
 #endif
 
-kinc_shader_storage_buffer_t *currentStorageBuffer = nullptr;
+kinc_shader_storage_buffer_t *currentStorageBuffer = NULL;
 
 static void unset(kinc_shader_storage_buffer_t *buffer) {
-	if (currentStorageBuffer == buffer) currentStorageBuffer = nullptr;
+	if (currentStorageBuffer == buffer) currentStorageBuffer = NULL;
 }
 
 void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int indexCount, kinc_g4_vertex_data_t type) {
@@ -49,12 +49,12 @@ void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int i
 	glGenBuffers(1, &buffer->impl.bufferId);
 	glCheckErrors();
 #endif
-	buffer->impl.data = new int[indexCount];
+	buffer->impl.data = (int*)malloc(sizeof(int) * indexCount);
 }
 
 void kinc_shader_storage_buffer_destroy(kinc_shader_storage_buffer_t *buffer) {
 	unset(buffer);
-	delete[] buffer->impl.data;
+	free(buffer->impl.data);
 }
 
 int *kinc_shader_storage_buffer_lock(kinc_shader_storage_buffer_t *buffer) {
