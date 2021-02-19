@@ -1,14 +1,12 @@
-#include "../pch.h"
+#include "pch.h"
 
-#include <Kore/System.h>
-#include <Kore/Window.h>
 #include <kinc/backend/Windows.h>
+#include <kinc/system.h>
+#include <kinc/window.h>
 
 #include <kinc/input/mouse.h>
 
 #include <Windows.h>
-
-using namespace Kore;
 
 void kinc_internal_mouse_lock(int window) {
 	kinc_mouse_hide();
@@ -22,7 +20,7 @@ void kinc_internal_mouse_lock(int window) {
 void kinc_internal_mouse_unlock(int window) {
 	kinc_mouse_show();
 	ReleaseCapture();
-	ClipCursor(nullptr);
+	ClipCursor(NULL);
 }
 
 bool kinc_mouse_can_lock(int window) {
