@@ -100,9 +100,9 @@ void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 
 		for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (videos[i].stream != NULL) {
-				value += kinc_video_sound_stream_impl_next_sample(videos[i].stream);
+				value += kinc_internal_video_sound_stream_next_sample(videos[i].stream);
 				value = kinc_max(kinc_min(value, 1.0f), -1.0f);
-				if (kinc_video_sound_stream_impl_ended(videos[i].stream)) {
+				if (kinc_internal_video_sound_stream_ended(videos[i].stream)) {
 					videos[i].stream = NULL;
 				}
 			}

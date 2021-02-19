@@ -2,12 +2,12 @@
 
 #include <kinc/video.h>
 
-#include <Kore/Audio1/Audio.h>
+#include <kinc/audio1/audio.h>
 #include <kinc/graphics4/texture.h>
-#include <Kore/IO/FileReader.h>
+#include <kinc/io/filereader.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
-#include <kinc/backend/VideoSoundStream.h>
+
 #include <android_native_app_glue.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,18 +26,24 @@
 #include <android/native_window_jni.h>
 #endif
 
-using namespace Kore;
-
-VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {}
-
-void VideoSoundStream::insertData(float* data, int nSamples) {}
-
-float VideoSoundStream::nextSample() {
-	return 0;
+void kinc_video_sound_stream_impl_init(kinc_internal_video_sound_stream_t *stream, int channel_count, int frequency) {
+    stream->bufferSize = 1;
+    stream->bufferReadPosition = 0;
+    stream->bufferWritePosition = 0;
+    stream->read = 0;
+    stream->written = 0;
 }
 
-bool VideoSoundStream::ended() {
-	return false;
+void kinc_video_sound_stream_impl_destroy(kinc_internal_video_sound_stream_t *stream) {}
+
+void kinc_video_sound_stream_impl_insert_data(kinc_internal_video_sound_stream_t *stream, float *data, int sample_count) {}
+
+float kinc_internal_video_sound_stream_next_sample(kinc_internal_video_sound_stream_t *stream) {
+    return 0;
+}
+
+bool kinc_internal_video_sound_stream_ended(kinc_internal_video_sound_stream_t *stream) {
+    return false;
 }
 
 #if KORE_ANDROID_API >= 15
