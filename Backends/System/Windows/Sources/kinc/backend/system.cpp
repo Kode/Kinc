@@ -623,7 +623,9 @@ namespace {
 	float buttons[12 * 16];
 
 	typedef DWORD(WINAPI *XInputGetStateType)(DWORD dwUserIndex, XINPUT_STATE *pState);
+	typedef DWORD(WINAPI *XInputSetStateType)(DWORD dwUserIndex, XINPUT_VIBRATION *pVibration);
 	XInputGetStateType InputGetState = nullptr;
+	XInputSetStateType InputSetState = nullptr;
 }
 
 void loadXInput() {
@@ -637,6 +639,7 @@ void loadXInput() {
 
 	if (lib != nullptr) {
 		InputGetState = (XInputGetStateType)GetProcAddress(lib, "XInputGetState");
+		InputSetState = (XInputSetStateType)GetProcAddress(lib, "XInputSetState");
 	}
 }
 
@@ -1141,6 +1144,16 @@ void kinc_unlock_achievement(int id) {}
 
 bool kinc_gamepad_connected(int num) {
 	return isXInputGamepad(num) || isDirectInputGamepad(num);
+}
+
+void kinc_gamepad_rumble(int gamepad, float left, float right) {
+	if (isXInputGamepad(gamepad)) {
+		XINPUT_VIBRATION vibration;
+		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+		vibration.wLeftMotorSpeed = WORD(65535.f * left);
+		vibration.wRightMotorSpeed = WORD(65535.f * right);
+		InputSetState(gamepad, &vibration);
+	}
 }
 
 double kinc_frequency() {

@@ -925,6 +925,10 @@ bool kinc_gamepad_connected(int num) {
 	return true;
 }
 
+void kinc_gamepad_rumble(int gamepad, float left, float right) {
+	
+}
+
 void initAndroidFileReader();
 void KoreAndroidVideoInit();
 
