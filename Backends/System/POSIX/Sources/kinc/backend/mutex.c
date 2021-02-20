@@ -3,7 +3,6 @@
 #include <kinc/threads/mutex.h>
 
 #include <assert.h>
-#include <pthread.h>
 
 void kinc_mutex_init(kinc_mutex_t *mutex) {
 	pthread_mutexattr_t attr;

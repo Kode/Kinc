@@ -360,6 +360,7 @@ else if (platform === Platform.Linux) {
 	}
 	project.addDefine('KORE_POSIX');
 	project.addDefine('_POSIX_C_SOURCE=200112L');
+	project.addDefine('_XOPEN_SOURCE=600');
 }
 else if (platform === Platform.Pi) {
 	g4 = true;
@@ -371,6 +372,8 @@ else if (platform === Platform.Pi) {
 	project.addDefine('KORE_OPENGL');
 	project.addDefine('KORE_OPENGL_ES');
 	project.addDefine('KORE_POSIX');
+	project.addDefine('_POSIX_C_SOURCE=200112L');
+	project.addDefine('_XOPEN_SOURCE=600');
 	project.addIncludeDir('/opt/vc/include');
 	project.addIncludeDir('/opt/vc/include/interface/vcos/pthreads');
 	project.addIncludeDir('/opt/vc/include/interface/vmcs_host/linux');
