@@ -3,12 +3,12 @@
 #include "Sound.h"
 #include "SoundStream.h"
 
-namespace Kore {
-	class VideoSoundStream;
+struct kinc_internal_video_sound_stream;
 
+namespace Kore {
 	namespace Audio1 {
 		struct Channel {
-			Sound* sound;
+			Sound *sound;
 			float position;
 			bool loop;
 			float volume;
@@ -16,23 +16,23 @@ namespace Kore {
 		};
 
 		struct StreamChannel {
-			SoundStream* stream;
+			SoundStream *stream;
 			int position;
 		};
 
 		struct VideoChannel {
-			VideoSoundStream* stream;
+			kinc_internal_video_sound_stream *stream;
 			int position;
 		};
 
 		void init();
-		Channel* play(Sound* sound, bool loop = false, float pitch = 1.0f, bool unique = false);
-		void stop(Sound* sound);
+		Channel *play(Sound *sound, bool loop = false, float pitch = 1.0f, bool unique = false);
+		void stop(Sound *sound);
 		void stop(Channel *channel);
-		void play(SoundStream* stream);
-		void stop(SoundStream* stream);
-		void play(VideoSoundStream* stream);
-		void stop(VideoSoundStream* stream);
+		void play(SoundStream *stream);
+		void stop(SoundStream *stream);
+		void play(kinc_internal_video_sound_stream *stream);
+		void stop(kinc_internal_video_sound_stream *stream);
 		void mix(int samples);
 	}
 }

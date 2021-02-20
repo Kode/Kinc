@@ -8,7 +8,7 @@
 #if 0
 #include <xmmintrin.h>
 #endif
-#include <kinc/backend/VideoSoundStream.h>
+#include <kinc/backend/video.h>
 
 using namespace Kore;
 
@@ -20,7 +20,7 @@ namespace {
 	Audio1::StreamChannel streams[channelCount];
 	Audio1::VideoChannel videos[channelCount];
 
-	float sampleLinear(s16* data, float position) {
+	float sampleLinear(s16 *data, float position) {
 		int pos1 = (int)position;
 		int pos2 = (int)(position + 1);
 		float sample1 = data[pos1] / 32767.0f;
@@ -102,14 +102,16 @@ void Audio1::mix(int samples) {
 		}
 		for (int i = 0; i < channelCount; ++i) {
 			if (videos[i].stream != nullptr) {
-				value += videos[i].stream->nextSample();
+				value += kinc_internal_video_sound_stream_next_sample(videos[i].stream);
 				value = max(min(value, 1.0f), -1.0f);
-				if (videos[i].stream->ended()) videos[i].stream = nullptr;
+				if (kinc_internal_video_sound_stream_ended(videos[i].stream)) {
+					videos[i].stream = nullptr;
+				}
 			}
 		}
 		mutex.unlock();
 #endif
-		*(float*)&Audio2::buffer.data[Audio2::buffer.writeLocation] = value;
+		*(float *)&Audio2::buffer.data[Audio2::buffer.writeLocation] = value;
 		Audio2::buffer.writeLocation += 4;
 		if (Audio2::buffer.writeLocation >= Audio2::buffer.dataSize) Audio2::buffer.writeLocation = 0;
 	}
@@ -128,8 +130,8 @@ void Audio1::init() {
 	Audio2::audioCallback = mix;
 }
 
-Audio1::Channel* Audio1::play(Sound* sound, bool loop, float pitch, bool unique) {
-	Channel* channel = nullptr;
+Audio1::Channel *Audio1::play(Sound *sound, bool loop, float pitch, bool unique) {
+	Channel *channel = nullptr;
 	mutex.lock();
 	bool found = false;
 	for (int i = 0; i < channelCount; ++i) {
@@ -155,7 +157,7 @@ Audio1::Channel* Audio1::play(Sound* sound, bool loop, float pitch, bool unique)
 	return channel;
 }
 
-void Audio1::stop(Sound* sound) {
+void Audio1::stop(Sound *sound) {
 	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (channels[i].sound == sound) {
@@ -167,14 +169,14 @@ void Audio1::stop(Sound* sound) {
 	mutex.unlock();
 }
 
-void Audio1::stop(Channel* channel) {
+void Audio1::stop(Channel *channel) {
 	mutex.lock();
 	channel->sound = nullptr;
 	channel->position = 0;
 	mutex.unlock();
 }
 
-void Audio1::play(SoundStream* stream) {
+void Audio1::play(SoundStream *stream) {
 	mutex.lock();
 
 	for (int i = 0; i < channelCount; ++i) {
@@ -196,7 +198,7 @@ void Audio1::play(SoundStream* stream) {
 	mutex.unlock();
 }
 
-void Audio1::stop(SoundStream* stream) {
+void Audio1::stop(SoundStream *stream) {
 	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (streams[i].stream == stream) {
@@ -208,7 +210,7 @@ void Audio1::stop(SoundStream* stream) {
 	mutex.unlock();
 }
 
-void Audio1::play(VideoSoundStream* stream) {
+void Audio1::play(kinc_internal_video_sound_stream *stream) {
 	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (videos[i].stream == nullptr) {
@@ -220,7 +222,7 @@ void Audio1::play(VideoSoundStream* stream) {
 	mutex.unlock();
 }
 
-void Audio1::stop(VideoSoundStream* stream) {
+void Audio1::stop(kinc_internal_video_sound_stream *stream) {
 	mutex.lock();
 	for (int i = 0; i < channelCount; ++i) {
 		if (videos[i].stream == stream) {
