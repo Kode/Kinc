@@ -5,7 +5,7 @@
 
 #include <kinc/audio2/audio.h>
 #include <kinc/math/core.h>
-#include <kinc/backend/VideoSoundStream.h>
+#include <kinc/backend/video.h>
 
 #include <stdio.h>
 
@@ -14,10 +14,10 @@ using namespace Kore;
 #define kOutputBus 0
 
 namespace {
-	VideoSoundStream* video = nullptr;
+	kinc_internal_video_sound_stream_t *video = nullptr;
 }
 
-void iosPlayVideoSoundStream(VideoSoundStream* video) {
+void iosPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video) {
 	::video = video;
 }
 
@@ -51,10 +51,12 @@ namespace {
 		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 
 		if (video != nullptr) {
-			value += video->nextSample();
+            value += kinc_internal_video_sound_stream_next_sample(video);
 			value = kinc_max(kinc_min(value, 1.0f), -1.0f);
-			if (video->ended()) video = nullptr;
-		}
+            if (kinc_internal_video_sound_stream_ended(video)) {
+                video = nullptr;
+            }
+        }
 
 		if (isFloat)
 			*(float*)buffer = value;
