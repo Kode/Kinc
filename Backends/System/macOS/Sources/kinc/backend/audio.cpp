@@ -5,18 +5,17 @@
 
 #include <kinc/audio2/audio.h>
 #include <kinc/log.h>
-
-#include <kinc/backend/VideoSoundStream.h>
+#include <kinc/backend/video.h>
 
 #include <stdio.h>
 
 using namespace Kore;
 
 namespace {
-	VideoSoundStream* video = nullptr;
+    kinc_internal_video_sound_stream_t *video = nullptr;
 }
 
-void macPlayVideoSoundStream(VideoSoundStream* video) {
+void macPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video) {
 	::video = video;
 }
 

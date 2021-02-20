@@ -29,6 +29,25 @@ typedef struct {
     id url;
 } kinc_video_impl_t;
 
+typedef struct kinc_internal_video_sound_stream {
+    float *buffer;
+    int bufferSize;
+    int bufferWritePosition;
+    int bufferReadPosition;
+    uint64_t read;
+    uint64_t written;
+} kinc_internal_video_sound_stream_t;
+
+void kinc_internal_video_sound_stream_init(kinc_internal_video_sound_stream_t *stream, int channel_count, int frequency);
+
+void kinc_internal_video_sound_stream_destroy(kinc_internal_video_sound_stream_t *stream);
+
+void kinc_internal_video_sound_stream_insert_data(kinc_internal_video_sound_stream_t *stream, float *data, int sample_count);
+
+float kinc_internal_video_sound_stream_next_sample(kinc_internal_video_sound_stream_t *stream);
+
+bool kinc_internal_video_sound_stream_ended(kinc_internal_video_sound_stream_t *stream);
+
 #ifdef __cplusplus
 }
 #endif

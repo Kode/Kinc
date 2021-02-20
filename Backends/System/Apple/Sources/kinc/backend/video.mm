@@ -7,7 +7,7 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
-#include <kinc/backend/VideoSoundStream.h>
+#include <kinc/io/filereader.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,36 +15,45 @@
 extern const char* iphonegetresourcepath();
 extern const char* macgetresourcepath();
 
-Kore::VideoSoundStream::VideoSoundStream(int nChannels, int freq) : bufferSize(1024 * 100), bufferReadPosition(0), bufferWritePosition(0), read(0), written(0) {
-	buffer = new float[bufferSize];
+void kinc_internal_video_sound_stream_init(kinc_internal_video_sound_stream_t *stream, int channel_count, int frequency) {
+    stream->bufferSize = 1024 * 100;
+    stream->bufferReadPosition = 0;
+    stream->bufferWritePosition = 0;
+    stream->read = 0;
+    stream->written = 0;
+    stream->buffer = new float[stream->bufferSize];
 }
 
-void Kore::VideoSoundStream::insertData(float* data, int nSamples) {
-	for (int i = 0; i < nSamples; ++i) {
-		float value = data[i]; // / 32767.0;
-		buffer[bufferWritePosition++] = value;
-		++written;
-		if (bufferWritePosition >= bufferSize) {
-			bufferWritePosition = 0;
-		}
-	}
+void kinc_internal_video_sound_stream_destroy(kinc_internal_video_sound_stream_t *stream) {
+    delete[] stream->buffer;
 }
 
-float Kore::VideoSoundStream::nextSample() {
-	++read;
-	if (written <= read) {
-		printf("Out of audio\n");
-		return 0;
-	}
-	if (bufferReadPosition >= bufferSize) {
-		bufferReadPosition = 0;
-		printf("buffer read back - %i\n", (int)(written - read));
-	}
-	return buffer[bufferReadPosition++];
+void kinc_internal_video_sound_stream_insert_data(kinc_internal_video_sound_stream_t *stream, float *data, int sample_count) {
+    for (int i = 0; i < sample_count; ++i) {
+        float value = data[i]; // / 32767.0;
+        stream->buffer[stream->bufferWritePosition++] = value;
+        ++stream->written;
+        if (stream->bufferWritePosition >= stream->bufferSize) {
+            stream->bufferWritePosition = 0;
+        }
+    }
 }
 
-bool Kore::VideoSoundStream::ended() {
-	return false;
+float kinc_internal_video_sound_stream_next_sample(kinc_internal_video_sound_stream_t *stream) {
+    ++stream->read;
+    if (stream->written <= stream->read) {
+        kinc_log(KINC_LOG_LEVEL_WARNING, "Out of audio\n");
+        return 0;
+    }
+    if (stream->bufferReadPosition >= stream->bufferSize) {
+        stream->bufferReadPosition = 0;
+        kinc_log(KINC_LOG_LEVEL_INFO, "buffer read back - %i\n", (int)(stream->written - stream->read));
+    }
+    return stream->buffer[stream->bufferReadPosition++];
+}
+
+bool kinc_internal_video_sound_stream_ended(kinc_internal_video_sound_stream_t *stream) {
+    return false;
 }
 
 static void load(kinc_video_t *video, double startTime) {
@@ -122,10 +131,10 @@ void kinc_video_destroy(kinc_video_t *video) {
 }
 
 #ifdef KORE_IOS
-void iosPlayVideoSoundStream(Kore::VideoSoundStream* video);
+void iosPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video);
 void iosStopVideoSoundStream();
 #else
-void macPlayVideoSoundStream(Kore::VideoSoundStream* video);
+void macPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video);
 void macStopVideoSoundStream();
 #endif
 
@@ -133,12 +142,14 @@ void kinc_video_play(kinc_video_t *video) {
 	AVAssetReader* reader = video->impl.assetReader;
 	[reader startReading];
 
-	video->impl.sound = new Kore::VideoSoundStream(2, 44100);
+    kinc_internal_video_sound_stream_t *stream = (kinc_internal_video_sound_stream_t *)malloc(sizeof(kinc_internal_video_sound_stream_t));
+    kinc_internal_video_sound_stream_init(stream, 2, 44100);
+	video->impl.sound = stream;
 // Mixer::play(sound);
 #ifdef KORE_IOS
-	iosPlayVideoSoundStream((Kore::VideoSoundStream*)video->impl.sound);
+	iosPlayVideoSoundStream((kinc_internal_video_sound_stream_t *)video->impl.sound);
 #else
-	macPlayVideoSoundStream((Kore::VideoSoundStream*)video->impl.sound);
+	macPlayVideoSoundStream((kinc_internal_video_sound_stream_t *)video->impl.sound);
 #endif
 
 	video->impl.playing = true;
@@ -154,8 +165,8 @@ void kinc_video_pause(kinc_video_t *video) {
 #else
 		macStopVideoSoundStream();
 #endif
-        Kore::VideoSoundStream* sound = (Kore::VideoSoundStream*)video->impl.sound;
-		delete sound;
+        kinc_internal_video_sound_stream_destroy((kinc_internal_video_sound_stream_t *)video->impl.sound);
+		free(video->impl.sound);
 		video->impl.sound = nullptr;
 	}
 }
@@ -215,13 +226,13 @@ static void updateImage(kinc_video_t *video) {
 			                                                        kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &blockBufferOut);
 			for (int bufferCount = 0; bufferCount < audioBufferList.mNumberBuffers; ++bufferCount) {
 				float* samples = (float*)audioBufferList.mBuffers[bufferCount].mData;
-                Kore::VideoSoundStream* sound = (Kore::VideoSoundStream*)video->impl.sound;
+                kinc_internal_video_sound_stream_t *sound = (kinc_internal_video_sound_stream_t *)video->impl.sound;
 				if (video->impl.audioTime / 44100.0 > video->impl.next - 0.1) {
-					sound->insertData(samples, (int)numSamplesInBuffer * 2);
+					kinc_internal_video_sound_stream_insert_data(sound, samples, (int)numSamplesInBuffer * 2);
 				}
 				else {
 					// Send some data anyway because the buffers are huge
-					sound->insertData(samples, (int)numSamplesInBuffer);
+					kinc_internal_video_sound_stream_insert_data(sound, samples, (int)numSamplesInBuffer);
 				}
 				video->impl.audioTime += numSamplesInBuffer;
 			}
