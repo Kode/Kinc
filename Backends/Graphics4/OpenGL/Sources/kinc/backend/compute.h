@@ -16,6 +16,6 @@ typedef struct {
 	int textureCount;
 	unsigned _id;
 	unsigned _programid;
-	char* _source;
+	const char* _source;
 	int _length;
 } kinc_compute_shader_impl_t;

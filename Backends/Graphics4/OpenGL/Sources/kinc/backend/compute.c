@@ -18,7 +18,7 @@
 #endif
 
 #ifdef HAS_COMPUTE
-static int convertInternalFormat(kinc_image_format_t format) {
+static int convertInternalImageFormat(kinc_image_format_t format) {
 	switch (format) {
 	case KINC_IMAGE_FORMAT_RGBA128:
 		return GL_RGBA32F;
@@ -36,7 +36,7 @@ static int convertInternalFormat(kinc_image_format_t format) {
 	}
 }
 
-static int convertInternalFormat(kinc_g4_render_target_format_t format) {
+static int convertInternalRTFormat(kinc_g4_render_target_format_t format) {
 	switch (format) {
 	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
 		return GL_RGBA16F;
@@ -142,7 +142,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int l
 #ifdef HAS_COMPUTE
 	shader->impl._id = glCreateShader(GL_COMPUTE_SHADER);
 	glCheckErrors();
-	glShaderSource(shader->impl._id, 1, &shader->impl._source, nullptr);
+	glShaderSource(shader->impl._id, 1, shader->impl._source, NULL);
 	glCompileShader(shader->impl._id);
 
 	int result;
@@ -150,10 +150,10 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int l
 	if (result != GL_TRUE) {
 		int length;
 		glGetShaderiv(shader->impl._id, GL_INFO_LOG_LENGTH, &length);
-		char *errormessage = new char[length];
-		glGetShaderInfoLog(shader->impl._id, length, nullptr, errormessage);
+		char *errormessage = (char *)malloc(sizeof(char) * length);
+		glGetShaderInfoLog(shader->impl._id, length, NULL, errormessage);
 		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL compiler error: %s\n", errormessage);
-		delete[] errormessage;
+		free(errormessage);
 	}
 
 	shader->impl._programid = glCreateProgram();
@@ -164,10 +164,10 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int l
 	if (result != GL_TRUE) {
 		int length;
 		glGetProgramiv(shader->impl._programid, GL_INFO_LOG_LENGTH, &length);
-		char *errormessage = new char[length];
-		glGetProgramInfoLog(shader->impl._programid, length, nullptr, errormessage);
+		char *errormessage = (char *)malloc(sizeof(char) * length);
+		glGetProgramInfoLog(shader->impl._programid, length, NULL, errormessage);
 		kinc_log(KINC_LOG_LEVEL_ERROR, "GLSL linker error: %s\n", errormessage);
-		delete[] errormessage;
+		free(errormessage);
 	}
 #endif
 
@@ -330,7 +330,7 @@ void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture_
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	glCheckErrors();
 	GLenum glaccess = access == KINC_COMPUTE_ACCESS_READ ? GL_READ_ONLY : (access == KINC_COMPUTE_ACCESS_WRITE ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(unit.impl.unit, texture->impl.texture, 0, GL_FALSE, 0, glaccess, convertInternalFormat(texture->format));
+	glBindImageTexture(unit.impl.unit, texture->impl.texture, 0, GL_FALSE, 0, glaccess, convertInternalImageFormat(texture->format));
 	glCheckErrors();
 #endif
 }
@@ -341,7 +341,7 @@ void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_re
 	glCheckErrors();
 	GLenum glaccess = access == KINC_COMPUTE_ACCESS_READ ? GL_READ_ONLY : (access == KINC_COMPUTE_ACCESS_WRITE ? GL_WRITE_ONLY : GL_READ_WRITE);
 	glBindImageTexture(unit.impl.unit, texture->impl._texture, 0, GL_FALSE, 0, glaccess,
-	                   convertInternalFormat((kinc_g4_render_target_format_t)texture->impl.format));
+	                   convertInternalRTFormat((kinc_g4_render_target_format_t)texture->impl.format));
 	glCheckErrors();
 #endif
 }
