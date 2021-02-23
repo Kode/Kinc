@@ -45,3 +45,7 @@ Gamepad* Gamepad::get(int num) {
 bool Gamepad::connected() {
 	return kinc_gamepad_connected(num);
 }
+
+void Gamepad::rumble(float left, float right) {
+	return kinc_gamepad_rumble(num, left, right);
+}

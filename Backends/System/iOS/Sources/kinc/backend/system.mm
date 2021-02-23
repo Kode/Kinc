@@ -185,6 +185,10 @@ bool kinc_gamepad_connected(int num) {
 	return true;
 }
 
+void kinc_gamepad_rumble(int gamepad, float left, float right) {
+	
+}
+
 int main(int argc, char* argv[]) {
 	int retVal = 0;
 	@autoreleasepool {

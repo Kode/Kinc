@@ -121,3 +121,7 @@ const char *kinc_gamepad_product_name(int gamepad) {
 bool kinc_gamepad_connected(int gamepad) {
 	return gamepads[gamepad].connected;
 }
+
+void kinc_gamepad_rumble(int gamepad, float left, float right) {
+	
+}

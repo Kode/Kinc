@@ -11,6 +11,7 @@ namespace Kore {
 		const char* productName;
 
 		bool connected();
+		void rumble(float left, float right);
 
 		Gamepad() : Axis(nullptr), Button(nullptr), vendor(nullptr), productName(nullptr) {}
 	private:
