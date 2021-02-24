@@ -49,6 +49,10 @@ namespace {
 	ID3D12Fence *renderFence;
 	HANDLE renderFenceEvent;
 
+	kinc_g5_render_target_t *currentRenderTarget = nullptr;
+	int currentRenderTargetCount = 0;
+	D3D12_CPU_DESCRIPTOR_HANDLE targetDescriptors[16];
+
 	void init() {
 		static bool initialized = false;
 		if (!initialized) {
@@ -65,7 +69,7 @@ namespace {
 		}
 	}
 
-	void graphicsFlush(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator, kinc_g5_render_target_t *renderTarget) {
+	void graphicsFlush(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator) {
 		list->impl._commandList->Close();
 		list->impl.closed = true;
 
@@ -75,20 +79,22 @@ namespace {
 		commandQueue->Signal(renderFence, ++renderFenceValue);
 	}
 
-	void graphicsWait(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator, kinc_g5_render_target_t *renderTarget) {
+	void graphicsWait(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator) {
 		waitForFence(renderFence, renderFenceValue, renderFenceEvent);
 		commandAllocator->Reset();
 		list->impl._commandList->Reset(commandAllocator, nullptr);
-		if (renderTarget != nullptr) {
-			list->impl._commandList->OMSetRenderTargets(1, &renderTarget->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), true, nullptr);
-			list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&renderTarget->impl.viewport);
-			list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&renderTarget->impl.scissor);
+		if (currentRenderTarget != nullptr) {
+			list->impl._commandList->OMSetRenderTargets(
+			    currentRenderTargetCount, &targetDescriptors[0], false,
+			    currentRenderTarget->impl.depthStencilDescriptorHeap != nullptr ? &currentRenderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
+			list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&currentRenderTarget->impl.viewport);
+			list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&currentRenderTarget->impl.scissor);
 		}
 	}
 
-	void graphicsFlushAndWait(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator, kinc_g5_render_target_t *renderTarget) {
-		graphicsFlush(list, commandAllocator, renderTarget);
-		graphicsWait(list, commandAllocator, renderTarget);
+	void graphicsFlushAndWait(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator) {
+		graphicsFlush(list, commandAllocator);
+		graphicsWait(list, commandAllocator);
 	}
 
 	int formatSize(DXGI_FORMAT format) {
@@ -105,9 +111,6 @@ namespace {
 			return 4;
 		}
 	}
-
-	kinc_g5_render_target_t *currentRenderTarget = nullptr;
-	D3D12_CPU_DESCRIPTOR_HANDLE targetDescriptors[16];
 }
 
 void kinc_g5_command_list_init(kinc_g5_command_list *list) {
@@ -132,7 +135,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list *list) {
 }
 
 void kinc_g5_command_list_end(kinc_g5_command_list *list) {
-	graphicsFlush(list, list->impl._commandAllocator, currentRenderTarget);
+	graphicsFlush(list, list->impl._commandAllocator);
 
 	list->impl.currentFenceValue = ++renderFenceValue;
 	commandQueue->Signal(renderFence, list->impl.currentFenceValue);
@@ -275,7 +278,7 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_lis
 }
 
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list *list) {
-	graphicsFlushAndWait(list, list->impl._commandAllocator, currentRenderTarget);
+	graphicsFlushAndWait(list, list->impl._commandAllocator);
 }
 
 void kinc_g5_command_list_viewport(kinc_g5_command_list *list, int x, int y, int width, int height) {
@@ -334,15 +337,11 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list *list, kinc_g5_i
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list *list, kinc_g5_render_target_t **targets, int count) {
 	currentRenderTarget = targets[0];
-	graphicsFlushAndWait(list, list->impl._commandAllocator, targets[0]);
+	currentRenderTargetCount = count;
 	for (int i = 0; i < count; ++i) {
 		targetDescriptors[i] = targets[i]->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	}
-	list->impl._commandList->OMSetRenderTargets(
-	    count, &targetDescriptors[0], false,
-	    targets[0]->impl.depthStencilDescriptorHeap != nullptr ? &targets[0]->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
-	list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&targets[0]->impl.viewport);
-	list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&targets[0]->impl.scissor);
+	graphicsFlushAndWait(list, list->impl._commandAllocator);
 }
 
 void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, kinc_g5_index_buffer_t *buffer) {
@@ -429,7 +428,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		list->impl._commandList->ResourceBarrier(1, &barrier);
 	}
 
-	graphicsFlushAndWait(list, list->impl._commandAllocator, currentRenderTarget);
+	graphicsFlushAndWait(list, list->impl._commandAllocator);
 
 	// Read buffer
 	void *p;
