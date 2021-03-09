@@ -78,7 +78,8 @@ namespace {
 	float eraserPressureLast = 0.0;
 	XID eraserDevice;
 	bool keyPressed[256];
-	char clipboardString[4096];
+	size_t clipboardStringSize = 1024;
+	char *clipboardString;
 
 	void fatalError(const char* message) {
 		printf("main: %s\n", message);
@@ -451,12 +452,12 @@ bool kinc_internal_handle_messages() {
 			else if (controlDown && (keysym == XK_c || keysym == XK_C)) {
 				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_copy_callback();
-				if (text != nullptr) strcpy(clipboardString, text);
+				if (text != nullptr) kinc_copy_to_clipboard(text);
 			}
 			else if (controlDown && (keysym == XK_x || keysym == XK_X)) {
 				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_cut_callback();
-				if (text != nullptr) strcpy(clipboardString, text);
+				if (text != nullptr) kinc_copy_to_clipboard(text);
 			}
 
 			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
@@ -947,6 +948,7 @@ void kinc_unlock_achievement(int id) {
 }
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	clipboardString = (char *) malloc(clipboardStringSize);
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 	Kore::initHIDGamepads();
 
@@ -975,7 +977,7 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 }
 
 void kinc_internal_shutdown() {
-
+	free(clipboardString);
 }
 
 #ifndef KINC_NO_MAIN
@@ -985,5 +987,11 @@ int main(int argc, char** argv) {
 #endif
 
 void kinc_copy_to_clipboard(const char* text) {
+	size_t textLength = strlen(text);
+	if (textLength >= clipboardStringSize) {
+		free(clipboardString);
+		clipboardStringSize = textLength + 1;
+		clipboardString = (char *) malloc(clipboardStringSize);
+	}
 	strcpy(clipboardString, text);
 }
