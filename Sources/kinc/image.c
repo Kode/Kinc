@@ -459,6 +459,7 @@ static int memory_read_callback(void *user_data, void *data, size_t size) {
 	struct kinc_internal_image_memory *memory = (struct kinc_internal_image_memory *)user_data;
 	size_t read_size = memory->size - memory->offset < size ? memory->size - memory->offset : size;
 	memcpy(data, &memory->data[memory->offset], read_size);
+	memory->offset += read_size;
 	return (int)read_size;
 }
 
