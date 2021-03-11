@@ -232,6 +232,10 @@ void Kore::updateHIDGamepads() {
 	}
 }
 
+void Kore::closeHIDGamepads() {
+	udev_helper.close();
+}
+
 const char *kinc_gamepad_vendor(int gamepad) {
     return "Linux gamepad";
 }
