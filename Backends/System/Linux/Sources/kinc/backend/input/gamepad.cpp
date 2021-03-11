@@ -5,6 +5,7 @@
 #include <kinc/input/gamepad.h>
 
 #include <fcntl.h>
+#include <libudev.h>
 #include <linux/joystick.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,6 +15,7 @@
 using namespace Kore;
 
 namespace {
+
 	struct HIDGamepad {
 		HIDGamepad();
 		~HIDGamepad();
@@ -94,17 +96,139 @@ namespace {
 		}
 	}
 
+
+	struct HIDGamepadUdevHelper {
+
+	private:
+
+		struct udev* udevPtr;
+		struct udev_monitor* udevMonitorPtr;
+		int udevMonitorFD;
+
+		void openOrCloseGamepad(struct udev_device* dev);
+		void processDevice(struct udev_device* dev);
+
+	public:
+
+		void init();
+		void update();
+		void close();
+
+	};
+
+	void HIDGamepadUdevHelper::processDevice(struct udev_device* dev) {
+
+	    if (dev) {
+
+		    if (udev_device_get_devnode(dev))
+		        HIDGamepadUdevHelper::openOrCloseGamepad(dev);
+
+		    udev_device_unref(dev);
+
+		}
+
+	}
+
+	void HIDGamepadUdevHelper::init() {
+
+	    struct udev* udevPtrNew = udev_new();
+
+	    //enumerate
+	    struct udev_enumerate* enumerate = udev_enumerate_new(udevPtrNew);
+
+	    udev_enumerate_add_match_subsystem(enumerate, "input");
+	    udev_enumerate_scan_devices(enumerate);
+
+	    struct udev_list_entry* devices = udev_enumerate_get_list_entry(enumerate);
+	    struct udev_list_entry* entry;
+
+	    udev_list_entry_foreach(entry, devices) {
+	        const char* path = udev_list_entry_get_name(entry);
+	        struct udev_device* dev = udev_device_new_from_syspath(udevPtrNew, path);
+	        processDevice(dev);
+	    }
+
+	    udev_enumerate_unref(enumerate);
+
+	    //setup mon
+	    udevMonitorPtr = udev_monitor_new_from_netlink(udevPtrNew, "udev");
+
+	    udev_monitor_filter_add_match_subsystem_devtype(udevMonitorPtr, "input", NULL);
+	    udev_monitor_enable_receiving(udevMonitorPtr);
+
+	    udevMonitorFD = udev_monitor_get_fd(udevMonitorPtr);
+
+		udevPtr = udevPtrNew;
+
+	}
+
+	void HIDGamepadUdevHelper::update() {
+
+	    fd_set fds;
+	    FD_ZERO(&fds);
+	    FD_SET(udevMonitorFD, &fds);
+
+	    // int ret = select(fd+1, &fds, NULL, NULL, NULL);
+	    // if (ret <= 0)
+		// 	return;
+
+	    if (FD_ISSET(udevMonitorFD, &fds)) {
+	        struct udev_device* dev = udev_monitor_receive_device(udevMonitorPtr);
+	        processDevice(dev);
+	    }
+
+
+	}
+
+	void HIDGamepadUdevHelper::close() {
+
+	    udev_unref(udevPtr);
+
+	}
+
+	HIDGamepadUdevHelper udev_helper;
+
 	const int gamepadCount = 12;
 	HIDGamepad gamepads[gamepadCount];
+
+	void HIDGamepadUdevHelper::openOrCloseGamepad(struct udev_device* dev) {
+
+		const char* action = udev_device_get_action(dev);
+		if (!action) action = "add";
+
+		const char* joystickDevnodeName = strstr(udev_device_get_devnode(dev), "js");
+
+		if (joystickDevnodeName) {
+
+
+		    int joystickDevnodeIndex;
+		    sscanf(joystickDevnodeName, "js%d", &joystickDevnodeIndex);
+
+			printf("%s, %s\n", joystickDevnodeName, action);
+
+		    if (!strcmp(action, "add"))
+	            gamepads[joystickDevnodeIndex].open();
+
+			if (!strcmp(action, "remove"))
+			    gamepads[joystickDevnodeIndex].close();
+
+	    }
+
+	}
+
 }
+
+
 
 void Kore::initHIDGamepads() {
 	for (int i = 0; i < gamepadCount; ++i) {
 		gamepads[i].init(i);
 	}
+	udev_helper.init();
 }
 
 void Kore::updateHIDGamepads() {
+	udev_helper.update();
 	for (int i = 0; i < gamepadCount; ++i) {
 		gamepads[i].update();
 	}
