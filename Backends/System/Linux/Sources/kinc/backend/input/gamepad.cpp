@@ -204,8 +204,6 @@ namespace {
 		    int joystickDevnodeIndex;
 		    sscanf(joystickDevnodeName, "js%d", &joystickDevnodeIndex);
 
-			printf("%s, %s\n", joystickDevnodeName, action);
-
 		    if (!strcmp(action, "add"))
 	            gamepads[joystickDevnodeIndex].open();
 
