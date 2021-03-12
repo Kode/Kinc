@@ -168,15 +168,10 @@ namespace {
 	    FD_ZERO(&fds);
 	    FD_SET(udevMonitorFD, &fds);
 
-	    // int ret = select(fd+1, &fds, NULL, NULL, NULL);
-	    // if (ret <= 0)
-		// 	return;
-
 	    if (FD_ISSET(udevMonitorFD, &fds)) {
 	        struct udev_device* dev = udev_monitor_receive_device(udevMonitorPtr);
 	        processDevice(dev);
 	    }
-
 
 	}
 
