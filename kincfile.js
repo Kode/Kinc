@@ -338,6 +338,7 @@ else if (platform === Platform.Linux) {
 	project.addLib('Xinerama');
 	project.addLib('Xrandr');
 	project.addLib('Xi');
+	project.addLib('udev');
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;

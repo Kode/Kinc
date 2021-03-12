@@ -975,7 +975,7 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 }
 
 void kinc_internal_shutdown() {
-
+	Kore::closeHIDGamepads();
 }
 
 #ifndef KINC_NO_MAIN
