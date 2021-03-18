@@ -237,8 +237,10 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 
 	XSetStandardProperties(Kore::Linux::display, win, title, "main", None, NULL, 0, NULL);
 
-	Atom wmClassAtom = XInternAtom(Kore::Linux::display, "WM_CLASS", 0);
-	XChangeProperty(Kore::Linux::display, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)nameClass, strlen(nameClass));
+	char resNameBuffer[256];
+	strncpy(resNameBuffer, kinc_application_name(), 256);
+	XClassHint classHint = { .res_name = resNameBuffer, .res_class = nameClass };
+	XSetClassHint(Kore::Linux::display, win, &classHint);
 
 	switch (windowMode) {
 	case KINC_WINDOW_MODE_WINDOW:
