@@ -41,6 +41,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 #endif
 
 _XDisplay* Kore::Linux::display = nullptr;
+XIC xInputContext;
 
 namespace {
 	struct MwmHints {
@@ -122,6 +123,11 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	if (Kore::Linux::display == nullptr) {
 		fatalError("could not open display");
 	}
+
+	XSetLocaleModifiers("@im=none");
+	XIM xInputMethod = XOpenIM(Kore::Linux::display, nullptr, nullptr, nullptr);
+	xInputContext = XCreateIC(xInputMethod, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, win, nullptr);
+	XSetICFocus(xInputContext);
 
 	XkbSetDetectableAutoRepeat(Kore::Linux::display, True, NULL);
 
@@ -424,15 +430,23 @@ bool kinc_internal_handle_messages() {
 		}
 
 		switch (event.type) {
+		case MappingNotify: {
+			XRefreshKeyboardMapping(&event.xmapping);
+		}
+		break;
 		case KeyPress: {
 			XKeyEvent* key = (XKeyEvent*)&event;
-			KeySym keysym;
-			char buffer[1];
-			XLookupString(key, buffer, 1, &keysym, NULL);
+			KeySym keysym = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
 
-			if (buffer[0] >= 32 && buffer[0] <= 126) {
-                kinc_internal_keyboard_trigger_key_press((wchar_t)buffer[0]);
-			}
+			bool isIgnoredKeySym = keysym == XK_Escape || keysym == XK_BackSpace;
+			if (!controlDown && !XFilterEvent(&event, win) && !isIgnoredKeySym) {
+
+				wchar_t wchar;
+
+				if (XwcLookupString(xInputContext, key, &wchar, 1, &keysym, nullptr)) {
+					kinc_internal_keyboard_trigger_key_press(wchar);
+				}
+			} 
 
 #define KEY(xkey, korekey)                                          \
 	case xkey:                                                      \
