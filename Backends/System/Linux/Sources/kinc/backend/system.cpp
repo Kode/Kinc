@@ -438,7 +438,7 @@ bool kinc_internal_handle_messages() {
 			XKeyEvent* key = (XKeyEvent*)&event;
 			KeySym keysym = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
 
-			bool isIgnoredKeySym = keysym == XK_Escape || keysym == XK_BackSpace;
+			bool isIgnoredKeySym = keysym == XK_Escape || keysym == XK_BackSpace || keysym == XK_Delete;
 			if (!controlDown && !XFilterEvent(&event, win) && !isIgnoredKeySym) {
 
 				wchar_t wchar;
