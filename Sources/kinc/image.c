@@ -68,6 +68,7 @@ static void buffer_free(void *p) {}
 #define STBI_FREE(p) buffer_free(p)
 
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC
 #include <kinc/libs/stb_image.h>
 #include <stdio.h>
 #include <string.h>
