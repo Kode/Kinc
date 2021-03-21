@@ -327,7 +327,7 @@ else if (platform === Platform.HTML5) {
 		throw new Error('Graphics API ' + graphics + ' is not available for HTML5.');
 	}
 }
-else if (platform === Platform.Linux) {
+else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	project.addDefine('KORE_LINUX');
 	addBackend('System/Linux');
 	addBackend('System/POSIX');
