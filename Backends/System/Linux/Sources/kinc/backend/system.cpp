@@ -438,14 +438,15 @@ bool kinc_internal_handle_messages() {
 		break;
 		case KeyPress: {
 			XKeyEvent* key = (XKeyEvent*)&event;
-			KeySym keysym = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+			KeySym keysym;
+
+			wchar_t wchar;
+			bool wcConverted = XwcLookupString(xInputContext, key, &wchar, 1, &keysym, nullptr);
 
 			bool isIgnoredKeySym = keysym == XK_Escape || keysym == XK_BackSpace || keysym == XK_Delete;
 			if (!controlDown && !XFilterEvent(&event, win) && !isIgnoredKeySym) {
 
-				wchar_t wchar;
-
-				if (XwcLookupString(xInputContext, key, &wchar, 1, &keysym, nullptr)) {
+				if (wcConverted) {
 					kinc_internal_keyboard_trigger_key_press(wchar);
 				}
 			} 
@@ -454,18 +455,20 @@ bool kinc_internal_handle_messages() {
 	case xkey: kinc_internal_keyboard_trigger_key_down(korekey); \
 	break;
 
-			if (keysym == XK_Control_L || keysym == XK_Control_R) {
+			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+
+			if (ksKey == XK_Control_L || ksKey == XK_Control_R) {
 				controlDown = true;
 			}
-			else if (controlDown && (keysym == XK_v || keysym == XK_V)) {
+			else if (controlDown && (ksKey == XK_v || ksKey == XK_V)) {
 				XConvertSelection(Kore::Linux::display, clipboard, utf8, xseldata, win, CurrentTime);
 			}
-			else if (controlDown && (keysym == XK_c || keysym == XK_C)) {
+			else if (controlDown && (ksKey == XK_c || ksKey == XK_C)) {
 				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_copy_callback();
 				if (text != nullptr) strcpy(clipboardString, text);
 			}
-			else if (controlDown && (keysym == XK_x || keysym == XK_X)) {
+			else if (controlDown && (ksKey == XK_x || ksKey == XK_X)) {
 				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_cut_callback();
 				if (text != nullptr) strcpy(clipboardString, text);
@@ -477,8 +480,6 @@ bool kinc_internal_handle_messages() {
 			else {
 				ignoreKeycode = event.xkey.keycode;
 			}
-
-			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
 
 			if (ksKey < 97 || ksKey > 122) {
 				ksKey = keysym;
@@ -621,22 +622,24 @@ bool kinc_internal_handle_messages() {
 		case KeyRelease: {
 			XKeyEvent* key = (XKeyEvent*)&event;
 			KeySym keysym;
-			char buffer[1];
-			XLookupString(key, buffer, 1, &keysym, NULL);
+
+			wchar_t wchar;
+			XwcLookupString(xInputContext, key, &wchar, 1, &keysym, nullptr);
+
 
 #define KEY(xkey, korekey) \
 	case xkey: kinc_internal_keyboard_trigger_key_up(korekey); \
 	break;
 
-			if (keysym == XK_Control_L || keysym == XK_Control_R) {
+			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+
+			if (ksKey == XK_Control_L || ksKey == XK_Control_R) {
 				controlDown = false;
 			}
 
 			if (event.xkey.keycode == ignoreKeycode) {
 				ignoreKeycode = 0;
 			}
-
-			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
 
 			if (ksKey < 97 || ksKey > 122) {
 				ksKey = keysym;
