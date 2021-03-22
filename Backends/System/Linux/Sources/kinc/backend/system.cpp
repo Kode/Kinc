@@ -78,7 +78,7 @@ namespace {
 	uint32_t eraserMaxPressure = 2048;
 	float eraserPressureLast = 0.0;
 	XID eraserDevice;
-	bool keyPressed[256];
+	unsigned int ignoreKeycode = 0;
 	char clipboardString[4096];
 
 	void fatalError(const char* message) {
@@ -450,13 +450,9 @@ bool kinc_internal_handle_messages() {
 				}
 			} 
 
-#define KEY(xkey, korekey)                                          \
-	case xkey:                                                      \
-		if (!keyPressed[korekey]) {                           \
-			keyPressed[korekey] = true;                       \
-			kinc_internal_keyboard_trigger_key_down(korekey);   \
-		}                                                           \
-		break;
+#define KEY(xkey, korekey) \
+	case xkey: kinc_internal_keyboard_trigger_key_down(korekey); \
+	break;
 
 			if (keysym == XK_Control_L || keysym == XK_Control_R) {
 				controlDown = true;
@@ -473,6 +469,13 @@ bool kinc_internal_handle_messages() {
 				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_cut_callback();
 				if (text != nullptr) strcpy(clipboardString, text);
+			}
+
+			if (event.xkey.keycode == ignoreKeycode) {
+				break;
+			}
+			else {
+				ignoreKeycode = event.xkey.keycode;
 			}
 
 			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
@@ -597,14 +600,16 @@ bool kinc_internal_handle_messages() {
 			char buffer[1];
 			XLookupString(key, buffer, 1, &keysym, NULL);
 
-#define KEY(xkey, korekey)                                      \
-	case xkey:                                                  \
-		kinc_internal_keyboard_trigger_key_up(korekey);     \
-		keyPressed[korekey] = false;                      \
-		break;
+#define KEY(xkey, korekey) \
+	case xkey: kinc_internal_keyboard_trigger_key_up(korekey); \
+	break;
 
 			if (keysym == XK_Control_L || keysym == XK_Control_R) {
 				controlDown = false;
+			}
+
+			if (event.xkey.keycode == ignoreKeycode) {
+				ignoreKeycode = 0;
 			}
 
 			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
@@ -977,7 +982,6 @@ void kinc_unlock_achievement(int id) {
 }
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
-	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 	Kore::initHIDGamepads();
 
 	gettimeofday(&start, NULL);
