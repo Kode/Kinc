@@ -480,6 +480,10 @@ bool kinc_internal_handle_messages() {
 
 			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
 
+			if (ksKey < 97 || ksKey > 122) {
+				ksKey = keysym;
+			}
+
 			switch (ksKey) {
 				KEY(XK_Right, KINC_KEY_RIGHT)
 				KEY(XK_Left, KINC_KEY_LEFT)
@@ -613,6 +617,10 @@ bool kinc_internal_handle_messages() {
 			}
 
 			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+
+			if (ksKey < 97 || ksKey > 122) {
+				ksKey = keysym;
+			}
 
 			switch (ksKey) {
 				KEY(XK_Right, KINC_KEY_RIGHT)
