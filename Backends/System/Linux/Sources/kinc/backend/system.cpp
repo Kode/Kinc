@@ -872,6 +872,8 @@ bool kinc_internal_handle_messages() {
 			break;
 		}
 		case FocusOut: {
+			controlDown = false;
+			ignoreKeycode = 0;
 			kinc_internal_background_callback();
 			break;
 		}
