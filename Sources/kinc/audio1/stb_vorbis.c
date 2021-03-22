@@ -598,6 +598,13 @@ enum STBVorbisError
    #endif
 #endif
 
+#ifdef __FreeBSD__
+   #ifdef alloca
+   #undef alloca
+   #endif
+   #define alloca allocm
+#endif
+
 #if STB_VORBIS_MAX_CHANNELS > 256
 #error "Value of STB_VORBIS_MAX_CHANNELS outside of allowed range"
 #endif
