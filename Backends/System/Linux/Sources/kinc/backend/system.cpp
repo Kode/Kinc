@@ -623,6 +623,11 @@ bool kinc_internal_handle_messages() {
 		case KeyRelease: {
 			XKeyEvent* key = (XKeyEvent*)&event;
 
+			KeySym keysym;
+
+			char c;
+			XLookupString(key, &c, 1, &keysym, nullptr);
+
 #define KEY(xkey, korekey) \
 	case xkey: kinc_internal_keyboard_trigger_key_up(korekey); \
 	break;
@@ -635,6 +640,10 @@ bool kinc_internal_handle_messages() {
 
 			if (event.xkey.keycode == ignoreKeycode) {
 				ignoreKeycode = 0;
+			}
+
+			if (ksKey < 97 || ksKey > 122) {
+				ksKey = keysym;
 			}
 
 			switch (ksKey) {
