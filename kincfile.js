@@ -338,7 +338,14 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	project.addLib('Xinerama');
 	project.addLib('Xrandr');
 	project.addLib('Xi');
-	project.addLib('udev');
+	if (platform === Platform.Linux) {
+		project.addLib('udev');
+	}
+	else if (platform === Platform.FreeBSD) {
+		addBackend('System/FreeBSD');
+		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.cpp');
+		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.h');
+	}
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
