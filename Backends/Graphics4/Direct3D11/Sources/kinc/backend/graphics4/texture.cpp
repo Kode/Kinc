@@ -250,7 +250,7 @@ void kinc_internal_texture_unset(kinc_g4_texture_t *texture) {
 
 u8 *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	context->Map(texture->impl.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	kinc_microsoft_affirm(context->Map(texture->impl.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 	texture->impl.rowPitch = mappedResource.RowPitch;
 	return (u8 *)mappedResource.pData;
 }
