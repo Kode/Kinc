@@ -148,7 +148,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 		desc.CPUAccessFlags = 0;
 	}
 	else {
-		desc.Format = format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+		desc.Format = convertFormat(format);
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
