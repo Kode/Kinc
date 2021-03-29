@@ -1113,6 +1113,10 @@ double kinc_time(void) {
 	return double(stamp.QuadPart - startCount.QuadPart) / (double)::frequency.QuadPart;
 }
 
+extern "C" bool kinc_is_activity_start(void) {
+	return false;
+}
+
 int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nCmdShow*/) {
 	// Pen functions are only in Windows 8 and later, so load them dynamically
 	HMODULE user32 = LoadLibraryA("user32.dll");
