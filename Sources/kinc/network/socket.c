@@ -52,9 +52,20 @@ void kinc_socket_init(kinc_socket_t *sock) {
 	initialized = true;
 }
 
-bool kinc_socket_open(kinc_socket_t *sock, int port) {
+bool kinc_socket_open(kinc_socket_t *sock, kinc_socket_protocol_t protocol, int port, bool blocking) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
-	sock->handle = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	switch (protocol) {
+	case KINC_SOCKET_PROTOCOL_UDP:
+		sock->handle = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		break;
+	case KINC_SOCKET_PROTOCOL_TCP:
+		sock->handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		break;
+	default:
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Unsupported socket protocol.");
+		return false;
+	}
+
 	if (sock->handle <= 0) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not create socket.");
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
@@ -123,19 +134,21 @@ bool kinc_socket_open(kinc_socket_t *sock, int port) {
 	}
 #endif
 
+	if (!blocking) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-	DWORD nonBlocking = 1;
-	if (ioctlsocket(sock->handle, FIONBIO, &nonBlocking) != 0) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
-		return false;
-	}
+		DWORD nonBlocking = 1;
+		if (ioctlsocket(sock->handle, FIONBIO, &nonBlocking) != 0) {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
+			return false;
+		}
 #elif defined(KORE_POSIX)
-	int nonBlocking = 1;
-	if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, nonBlocking) == -1) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
-		return false;
-	}
+		int nonBlocking = 1;
+		if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, nonBlocking) == -1) {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
+			return false;
+		}
 #endif
+	}
 
 	return true;
 }
@@ -166,6 +179,47 @@ unsigned kinc_url_to_int(const char *url, int port) {
 #else
 	return 0;
 #endif
+}
+
+bool kinc_socket_listen(kinc_socket_t *socket, int backlog) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+	int res = listen(socket->handle, backlog);
+	return (res == 0);
+#endif
+	return false;
+}
+
+bool kinc_socket_accept(kinc_socket_t *socket, kinc_socket_t *newSocket, unsigned *remoteAddress, unsigned *remotePort) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+	typedef int socklen_t;
+#endif
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+	struct sockaddr_in addr;
+	socklen_t addrLength = sizeof(addr);
+	newSocket->handle = accept(socket->handle, (struct sockaddr *)&addr, &addrLength);
+	if (newSocket->handle <= 0) {
+		return false;
+	}
+
+	*remoteAddress = ntohl(addr.sin_addr.s_addr);
+	*remotePort = ntohs(addr.sin_port);
+	return true;
+#else
+	return false;
+#endif
+}
+
+bool kinc_socket_connect(kinc_socket_t *socket, unsigned address, int port) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(address);
+	addr.sin_port = htons(port);
+
+	int res = connect(socket->handle, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+	return (res == 0);
+#endif
+	return false;
 }
 
 void kinc_socket_send(kinc_socket_t *sock, unsigned address, int port, const unsigned char *data, int size) {
@@ -199,6 +253,15 @@ void kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const 
 #endif
 }
 
+void kinc_socket_send_connected(kinc_socket_t *sock, const unsigned char *data, int size) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+	size_t sent = send(sock->handle, (const char *)data, size, 0);
+	if (sent != size) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
+	}
+#endif
+}
+
 void kinc_socket_set_broadcast_enabled(kinc_socket_t *sock, bool enabled) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	char broadcast = enabled ? 1 : 0;
@@ -223,6 +286,18 @@ int kinc_socket_receive(kinc_socket_t *sock, unsigned char *data, int maxSize, u
 	}
 	*fromAddress = ntohl(from.sin_addr.s_addr);
 	*fromPort = ntohs(from.sin_port);
+	return (int)bytes;
+#else
+	return 0;
+#endif
+}
+
+int kinc_socket_receive_connected(kinc_socket_t *sock, unsigned char *data, int maxSize) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+	typedef int ssize_t;
+#endif
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+	ssize_t bytes = recv(sock->handle, (char *)data, maxSize, 0);
 	return (int)bytes;
 #else
 	return 0;
