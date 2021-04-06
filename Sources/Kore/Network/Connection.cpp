@@ -23,7 +23,7 @@ Connection::Connection(int receivePort, int maxConns, double timeout, double png
       timeout(timeout), pngInterv(pngInterv), resndInterv(resndInterv), congestPing(congestPing) {
 
 	socket.init();
-	socket.open(receivePort);
+	socket.open(KINC_SOCKET_PROTOCOL_UDP, receivePort, false);
 
 	sndBuff = new u8[buffSize];
 	sndCache = new u8[(buffSize + 12) * cacheCount];
