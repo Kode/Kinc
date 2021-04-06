@@ -69,6 +69,9 @@ static void buffer_free(void *p) {}
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
 #include <kinc/libs/stb_image.h>
 #include <stdio.h>
 #include <string.h>
