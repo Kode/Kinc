@@ -40,7 +40,7 @@ Socket::~Socket() {
 	kinc_socket_destroy(&sock);
 }
 
-unsigned Socket::urlToInt(const char* url, int port) {
+unsigned Socket::urlToInt(const char *url, int port) {
 	return kinc_url_to_int(url, port);
 }
 
@@ -48,7 +48,7 @@ bool Socket::listen(int backlog) {
 	return kinc_socket_listen(&sock, backlog);
 }
 
-bool Socket::accept(Socket* newSocket, unsigned* remoteAddress, unsigned* remotePort) {
+bool Socket::accept(Socket *newSocket, unsigned *remoteAddress, unsigned *remotePort) {
 	return kinc_socket_accept(&sock, &(newSocket->sock), remoteAddress, remotePort);
 }
 
@@ -56,22 +56,22 @@ bool Socket::connect(unsigned address, int port) {
 	return kinc_socket_connect(&sock, address, port);
 }
 
-void Socket::send(unsigned address, int port, const u8 *data, int size) {
+void Socket::send(unsigned address, int port, const uint8_t *data, int size) {
 	kinc_socket_send(&sock, address, port, data, size);
 }
 
-void Socket::send(const char *url, int port, const u8 *data, int size) {
+void Socket::send(const char *url, int port, const uint8_t *data, int size) {
 	kinc_socket_send_url(&sock, url, port, data, size);
 }
 
-void Socket::send(const u8 *data, int size) {
+void Socket::send(const uint8_t *data, int size) {
 	kinc_socket_send_connected(&sock, data, size);
 }
 
-int Socket::receive(u8* data, int maxSize, unsigned& fromAddress, unsigned& fromPort) {
+int Socket::receive(uint8_t *data, int maxSize, unsigned &fromAddress, unsigned &fromPort) {
 	return kinc_socket_receive(&sock, data, maxSize, &fromAddress, &fromPort);
 }
 
-int Socket::receive(u8* data, int maxSize) {
+int Socket::receive(uint8_t *data, int maxSize) {
 	return kinc_socket_receive_connected(&sock, data, maxSize);
 }
