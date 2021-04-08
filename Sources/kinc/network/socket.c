@@ -168,8 +168,8 @@ bool kinc_socket_open(kinc_socket_t *sock, kinc_socket_protocol_t protocol, int 
 			if (setsockopt(sock->handle, IPPROTO_TCP, TCP_NODELAY, (const char *)&value, sizeof(value)) != 0) {
 				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set no-delay mode.");
 				return false;
-#endif
 			}
+#endif
 		}
 	}
 
