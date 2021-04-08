@@ -25,8 +25,15 @@ void Socket::init() {
 	kinc_socket_init(&sock);
 }
 
-bool Socket::open(kinc_socket_protocol_t protocol, int port, bool blocking) {
-	return kinc_socket_open(&sock, protocol, port, blocking);
+bool Socket::open(kinc_socket_protocol_t protocol, int port, Kore::SocketOptions *options) {
+	kinc_socket_options_t koptions;
+	if (options != nullptr) {
+		koptions.non_blocking = options->nonBlocking;
+		koptions.broadcast = options->broadcast;
+		koptions.tcp_no_delay = options->tcpNoDelay;
+	}
+
+	return kinc_socket_open(&sock, protocol, port, options == nullptr ? nullptr : &koptions);
 }
 
 Socket::~Socket() {
@@ -51,11 +58,6 @@ bool Socket::connect(unsigned address, int port) {
 
 void Socket::send(unsigned address, int port, const u8 *data, int size) {
 	kinc_socket_send(&sock, address, port, data, size);
-
-}
-
-void Socket::setBroadcastEnabled(bool enabled) {
-	kinc_socket_set_broadcast_enabled(&sock, enabled);
 }
 
 void Socket::send(const char *url, int port, const u8 *data, int size) {

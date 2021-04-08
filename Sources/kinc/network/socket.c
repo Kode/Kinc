@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
@@ -52,7 +53,7 @@ void kinc_socket_init(kinc_socket_t *sock) {
 	initialized = true;
 }
 
-bool kinc_socket_open(kinc_socket_t *sock, kinc_socket_protocol_t protocol, int port, bool blocking) {
+bool kinc_socket_open(kinc_socket_t *sock, kinc_socket_protocol_t protocol, int port, struct kinc_socket_options *options) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	switch (protocol) {
 	case KINC_SOCKET_PROTOCOL_UDP:
@@ -134,20 +135,42 @@ bool kinc_socket_open(kinc_socket_t *sock, kinc_socket_protocol_t protocol, int 
 	}
 #endif
 
-	if (!blocking) {
+	if (options) {
+		if (options->non_blocking) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-		DWORD nonBlocking = 1;
-		if (ioctlsocket(sock->handle, FIONBIO, &nonBlocking) != 0) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
-			return false;
-		}
+			DWORD value = 1;
+			if (ioctlsocket(sock->handle, FIONBIO, &value) != 0) {
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
+				return false;
+			}
 #elif defined(KORE_POSIX)
-		int nonBlocking = 1;
-		if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, nonBlocking) == -1) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
-			return false;
-		}
+			int value = 1;
+			if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, value) == -1) {
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set non-blocking mode.");
+				return false;
+			}
 #endif
+		}
+
+		if (options->broadcast) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+			char value = 1;
+			if (setsockopt(sock->handle, SOL_SOCKET, SO_BROADCAST, &value, sizeof(value)) < 0) {
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set broadcast mode.");
+				return false;
+			}
+#endif
+		}
+
+		if (options->tcp_no_delay) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+			int value = 1;
+			if (setsockopt(sock->handle, IPPROTO_TCP, TCP_NODELAY, (const char *)&value, sizeof(value)) != 0) {
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set no-delay mode.");
+				return false;
+#endif
+			}
+		}
 	}
 
 	return true;
@@ -258,16 +281,6 @@ void kinc_socket_send_connected(kinc_socket_t *sock, const unsigned char *data, 
 	size_t sent = send(sock->handle, (const char *)data, size, 0);
 	if (sent != size) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
-	}
-#endif
-}
-
-void kinc_socket_set_broadcast_enabled(kinc_socket_t *sock, bool enabled) {
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
-	char broadcast = enabled ? 1 : 0;
-	if (setsockopt(sock->handle, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast)) < 0) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set broadcast mode.");
-		return;
 	}
 #endif
 }
