@@ -26,10 +26,15 @@ typedef struct {
 #endif
 } kinc_socket_t;
 
+typedef struct kinc_socket_options {
+	bool non_blocking;
+	bool broadcast;
+	bool tcp_no_delay;
+} kinc_socket_options_t;
+
 KINC_FUNC void kinc_socket_init(kinc_socket_t *socket);
 KINC_FUNC void kinc_socket_destroy(kinc_socket_t *socket);
-KINC_FUNC bool kinc_socket_open(kinc_socket_t *socket, kinc_socket_protocol_t protocol, int port, bool blocking);
-KINC_FUNC void kinc_socket_set_broadcast_enabled(kinc_socket_t *socket, bool enabled);
+KINC_FUNC bool kinc_socket_open(kinc_socket_t *socket, kinc_socket_protocol_t protocol, int port, struct kinc_socket_options *options);
 KINC_FUNC bool kinc_socket_listen(kinc_socket_t *socket, int backlog);
 KINC_FUNC bool kinc_socket_accept(kinc_socket_t *socket, kinc_socket_t *newSocket, unsigned *remoteAddress, unsigned *remotePort);
 KINC_FUNC bool kinc_socket_connect(kinc_socket_t *socket, unsigned address, int port);
