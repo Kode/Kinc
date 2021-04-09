@@ -42,6 +42,12 @@ static int resolveAddress(const char *url, int port, struct addrinfo **result) {
 }
 #endif
 
+KINC_FUNC void kinc_socket_options_set_defaults(kinc_socket_options_t *options) {
+	options->non_blocking = true;
+	options->broadcast = false;
+	options->tcp_no_delay = false;
+}
+
 void kinc_socket_init(kinc_socket_t *sock) {
 	if (initialized) return;
 

@@ -32,6 +32,7 @@ typedef struct kinc_socket_options {
 	bool tcp_no_delay;
 } kinc_socket_options_t;
 
+KINC_FUNC void kinc_socket_options_set_defaults(kinc_socket_options_t *options);
 KINC_FUNC void kinc_socket_init(kinc_socket_t *socket);
 KINC_FUNC void kinc_socket_destroy(kinc_socket_t *socket);
 KINC_FUNC bool kinc_socket_open(kinc_socket_t *socket, kinc_socket_protocol_t protocol, int port, struct kinc_socket_options *options);
