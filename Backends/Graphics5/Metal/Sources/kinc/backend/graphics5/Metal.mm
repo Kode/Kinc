@@ -39,9 +39,12 @@ extern "C" void kinc_internal_resize(int window, int width, int height) {
 
 }
 
+extern void kinc_internal_init_samplers(void);
+
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	depthBits = depthBufferBits;
 	stencilBits = stencilBufferBits;
+	kinc_internal_init_samplers();
 }
 
 void kinc_g5_flush() {}
@@ -113,9 +116,13 @@ bool kinc_g5_swap_buffers() {
 	return true;
 }
 
+extern bool kinc_internal_bilinear_filtering;
+
 void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
-void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
+void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
+	kinc_internal_bilinear_filtering = filter != KINC_G5_TEXTURE_FILTER_POINT;
+}
 
 int kinc_g5_max_bound_textures(void) {
 	return 16;
@@ -123,7 +130,9 @@ int kinc_g5_max_bound_textures(void) {
 
 void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount);
 
-void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
+void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
+	kinc_internal_bilinear_filtering = filter != KINC_G5_TEXTURE_FILTER_POINT;
+}
 
 void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 

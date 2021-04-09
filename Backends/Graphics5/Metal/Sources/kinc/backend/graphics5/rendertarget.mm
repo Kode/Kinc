@@ -52,19 +52,6 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 
 	target->impl._tex = [device newTextureWithDescriptor:descriptor];
 
-	target->impl._samplerDesc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
-	MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) target->impl._samplerDesc;
-	desc.minFilter = MTLSamplerMinMagFilterNearest;
-	desc.magFilter = MTLSamplerMinMagFilterLinear;
-	desc.sAddressMode = MTLSamplerAddressModeRepeat;
-	desc.tAddressMode = MTLSamplerAddressModeRepeat;
-	desc.mipFilter = MTLSamplerMipFilterNotMipmapped;
-	desc.maxAnisotropy = 1U;
-	desc.normalizedCoordinates = YES;
-	desc.lodMinClamp = 0.0f;
-	desc.lodMaxClamp = FLT_MAX;
-	target->impl._sampler = [device newSamplerStateWithDescriptor:desc];
-
 	if (depthBufferBits > 0) {
 		MTLTextureDescriptor* depthDescriptor = [MTLTextureDescriptor new];
 		depthDescriptor.textureType = MTLTextureType2D;
@@ -83,15 +70,13 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 
 void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,
 									 kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
-	target->impl._tex = 0;
-	target->impl._sampler = 0;
-	target->impl._depthTex = 0;
+	target->impl._tex = nil;
+	target->impl._depthTex = nil;
 }
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {
-	target->impl._tex = 0;
-	target->impl._sampler = 0;
-	target->impl._depthTex = 0;
+	target->impl._tex = nil;
+	target->impl._depthTex = nil;
 }
 
 #if 0
@@ -147,14 +132,21 @@ void kinc_g5_set_render_target_descriptor(kinc_g5_render_target_t *renderTarget,
 }
 #endif
 
+extern void kinc_internal_set_vertex_sampler(id encoder, int unit);
+extern void kinc_internal_set_fragment_sampler(id encoder, int unit);
+
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	if (unit.impl.vertex) {
-		if (unit.impl.index < 16) [encoder setVertexSamplerState:target->impl._sampler atIndex:unit.impl.index];
+		if (unit.impl.index < 16) {
+			kinc_internal_set_vertex_sampler(encoder, unit.impl.index);
+		}
 		[encoder setVertexTexture:target->impl._tex atIndex:unit.impl.index];
 	}
 	else {
-		if (unit.impl.index < 16) [encoder setFragmentSamplerState:target->impl._sampler atIndex:unit.impl.index];
+		if (unit.impl.index < 16) {
+			kinc_internal_set_fragment_sampler(encoder, unit.impl.index);
+		}
 		[encoder setFragmentTexture:target->impl._tex atIndex:unit.impl.index];
 	}
 }
@@ -162,11 +154,15 @@ void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target,
 void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	if (unit.impl.vertex) {
-		if (unit.impl.index < 16) [encoder setVertexSamplerState:target->impl._sampler atIndex:unit.impl.index];
+		if (unit.impl.index < 16) {
+			kinc_internal_set_vertex_sampler(encoder, unit.impl.index);
+		}
 		[encoder setVertexTexture:target->impl._depthTex atIndex:unit.impl.index];
 	}
 	else {
-		if (unit.impl.index < 16) [encoder setFragmentSamplerState:target->impl._sampler atIndex:unit.impl.index];
+		if (unit.impl.index < 16) {
+			kinc_internal_set_fragment_sampler(encoder, unit.impl.index);
+		}
 		[encoder setFragmentTexture:target->impl._depthTex atIndex:unit.impl.index];
 	}
 }
