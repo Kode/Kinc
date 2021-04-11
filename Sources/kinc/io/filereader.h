@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(KORE_SONY) || defined(KORE_SWITCH)
-#include <Kore/FileReaderImpl.h>
+#include <kinc/backend/FileReaderImpl.h>
 #endif
 
 #include <stdbool.h>
