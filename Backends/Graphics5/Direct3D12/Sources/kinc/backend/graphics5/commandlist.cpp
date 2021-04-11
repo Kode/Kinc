@@ -7,7 +7,7 @@
 #include <kinc/graphics5/vertexbuffer.h>
 #include <kinc/window.h>
 
-#include "Direct3D12.h"
+#include <kinc/backend/graphics5/Direct3D12.h>
 
 #include <type_traits>
 
@@ -84,9 +84,9 @@ namespace {
 		commandAllocator->Reset();
 		list->impl._commandList->Reset(commandAllocator, nullptr);
 		if (currentRenderTarget != nullptr) {
-			list->impl._commandList->OMSetRenderTargets(
-			    currentRenderTargetCount, &targetDescriptors[0], false,
-			    currentRenderTarget->impl.depthStencilDescriptorHeap != nullptr ? &currentRenderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr);
+			D3D12_CPU_DESCRIPTOR_HANDLE heapStart = currentRenderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			list->impl._commandList->OMSetRenderTargets(currentRenderTargetCount, &targetDescriptors[0], false,
+			                                            currentRenderTarget->impl.depthStencilDescriptorHeap != nullptr ? &heapStart : nullptr);
 			list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&currentRenderTarget->impl.viewport);
 			list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&currentRenderTarget->impl.scissor);
 		}
@@ -149,9 +149,9 @@ void kinc_g5_command_list_clear(kinc_g5_command_list *list, kinc_g5_render_targe
 		                                               nullptr);
 	}
 	if ((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) {
-		D3D12_CLEAR_FLAGS d3dflags = (flags & KINC_G5_CLEAR_DEPTH) && (flags & KINC_G5_CLEAR_STENCIL)
-		                                 ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
-		                                 : (flags & KINC_G5_CLEAR_DEPTH) ? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
+		D3D12_CLEAR_FLAGS d3dflags = (flags & KINC_G5_CLEAR_DEPTH) && (flags & KINC_G5_CLEAR_STENCIL) ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
+		                             : (flags & KINC_G5_CLEAR_DEPTH)                                  ? D3D12_CLEAR_FLAG_DEPTH
+		                                                                                              : D3D12_CLEAR_FLAG_STENCIL;
 		list->impl._commandList->ClearDepthStencilView(renderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth,
 		                                               stencil, 0, nullptr);
 	}
@@ -359,8 +359,9 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_t
 	CD3DX12_TEXTURE_COPY_LOCATION source(texture->impl.uploadImage, footprint);
 	CD3DX12_TEXTURE_COPY_LOCATION destination(texture->impl.image, 0);
 	list->impl._commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
-	list->impl._commandList->ResourceBarrier(
-	    1, &CD3DX12_RESOURCE_BARRIER::Transition(texture->impl.image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	CD3DX12_RESOURCE_BARRIER transition =
+	    CD3DX12_RESOURCE_BARRIER::Transition(texture->impl.image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	list->impl._commandList->ResourceBarrier(1, &transition);
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
@@ -380,8 +381,9 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 
 	// Create readback buffer
 	if (render_target->impl.renderTargetReadback == nullptr) {
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK), D3D12_HEAP_FLAG_NONE,
-		                                &CD3DX12_RESOURCE_DESC::Buffer(rowPitch * render_target->texHeight), D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_READBACK);
+		CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(rowPitch * render_target->texHeight);
+		device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
 		                                IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
 	}
 

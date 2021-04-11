@@ -5,8 +5,8 @@
 
 #include <kinc/graphics5/vertexbuffer.h>
 
-#include <kinc/graphics4/graphics.h>
 #include <kinc/backend/SystemMicrosoft.h>
+#include <kinc/graphics4/graphics.h>
 
 kinc_g5_vertex_buffer_t *_current_vertex_buffer = nullptr;
 
@@ -46,8 +46,10 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 
 	int uploadBufferSize = buffer->impl.myStride * buffer->impl.myCount;
 
-	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-	                                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_GRAPHICS_PPV_ARGS(&buffer->impl.uploadBuffer));
+	CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
+	CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+	device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+	                                IID_GRAPHICS_PPV_ARGS(&buffer->impl.uploadBuffer));
 
 	// device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	// &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),

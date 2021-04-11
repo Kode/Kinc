@@ -2,7 +2,7 @@
 
 #include "pipeline.h"
 
-#include "Direct3D12.h"
+#include <kinc/backend/graphics5/Direct3D12.h>
 
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
@@ -398,19 +398,19 @@ void kinc_g5_compute_pipeline_destroy(kinc_g5_compute_pipeline_t *pipeline) {
 void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline) {
 	HRESULT hr;
 #ifdef KORE_DXC
-	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
+	/*hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
 	if (hr != S_OK) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
+	    kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
 	}
 	pipe->impl.vertexConstantsSize = pipe->vertexShader->impl.constantsSize;
-	pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;
+	pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;*/
 #endif
 
 	D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.CS.BytecodeLength = pipeline->compute_shader->impl.length;
 	psoDesc.CS.pShaderBytecode = pipeline->compute_shader->impl.data;
 #ifdef KORE_DXC
-	psoDesc.pRootSignature = pipe->impl.rootSignature;
+	// psoDesc.pRootSignature = pipe->impl.rootSignature;
 #else
 	psoDesc.pRootSignature = globalComputeRootSignature;
 #endif

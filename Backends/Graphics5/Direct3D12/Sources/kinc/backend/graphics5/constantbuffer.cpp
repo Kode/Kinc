@@ -2,8 +2,8 @@
 
 #include <Kinc/Graphics5/ConstantBuffer.h>
 
-#include "Direct3D12.h"
 #include <kinc/backend/SystemMicrosoft.h>
+#include <kinc/backend/graphics5/Direct3D12.h>
 
 bool kinc_g5_transposeMat3 = true;
 bool kinc_g5_transposeMat4 = true;
@@ -12,11 +12,12 @@ void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	buffer->impl.mySize = size;
 	buffer->data = nullptr;
 
-	kinc_microsoft_affirm(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-	                                                  &CD3DX12_RESOURCE_DESC::Buffer(size), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+	CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
+	CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+	kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 	                                                      IID_GRAPHICS_PPV_ARGS(&buffer->impl.constant_buffer)));
 
-	void* p;
+	void *p;
 	buffer->impl.constant_buffer->Map(0, nullptr, &p);
 	ZeroMemory(p, size);
 	buffer->impl.constant_buffer->Unmap(0, nullptr);
