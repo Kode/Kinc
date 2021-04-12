@@ -63,10 +63,16 @@ typedef struct kinc_g4_pipeline {
 	bool depth_write;
 	kinc_g4_compare_mode_t depth_mode;
 
-	kinc_g4_compare_mode_t stencil_mode;
-	kinc_g4_stencil_action_t stencil_both_pass;
-	kinc_g4_stencil_action_t stencil_depth_fail;
-	kinc_g4_stencil_action_t stencil_fail;
+	kinc_g4_compare_mode_t stencil_front_mode;
+	kinc_g4_stencil_action_t stencil_front_both_pass;
+	kinc_g4_stencil_action_t stencil_front_depth_fail;
+	kinc_g4_stencil_action_t stencil_front_fail;
+
+	kinc_g4_compare_mode_t stencil_back_mode;
+	kinc_g4_stencil_action_t stencil_back_both_pass;
+	kinc_g4_stencil_action_t stencil_back_depth_fail;
+	kinc_g4_stencil_action_t stencil_back_fail;
+
 	int stencil_reference_value;
 	int stencil_read_mask;
 	int stencil_write_mask;
