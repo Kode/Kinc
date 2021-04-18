@@ -19,13 +19,7 @@
 #include <unistd.h>
 #endif
 
-static bool initialized = false;
-
-static void destroy() {
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-	WSACleanup();
-#endif
-}
+static int counter = 0;
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 // Important: Must be cleaned with freeaddrinfo(address) later if the result is 0 in order to prevent memory leaks
@@ -49,14 +43,15 @@ KINC_FUNC void kinc_socket_options_set_defaults(kinc_socket_options_t *options) 
 }
 
 void kinc_socket_init(kinc_socket_t *sock) {
-	if (initialized) return;
-
 	sock->handle = 0;
+
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-	WSADATA WsaData;
-	WSAStartup(MAKEWORD(2, 2), &WsaData);
+	if (counter == 0) {
+		WSADATA WsaData;
+		WSAStartup(MAKEWORD(2, 2), &WsaData);
+	}
 #endif
-	initialized = true;
+	++counter;
 }
 
 bool kinc_socket_open(kinc_socket_t *sock, kinc_socket_protocol_t protocol, int port, struct kinc_socket_options *options) {
@@ -188,8 +183,13 @@ void kinc_socket_destroy(kinc_socket_t *sock) {
 #elif defined(KORE_POSIX)
 	close(sock->handle);
 #endif
-	destroy();
-	initialized = false;
+
+	--counter;
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+	if (counter == 0) {
+		WSACleanup();
+	}
+#endif
 }
 
 unsigned kinc_url_to_int(const char *url, int port) {
