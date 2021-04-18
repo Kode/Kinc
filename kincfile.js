@@ -129,7 +129,6 @@ if (platform === Platform.Windows) {
 		if (raytrace === RayTraceApi.VKRT) {
 			project.addDefine('KORE_RAYTRACE');
 			project.addDefine('KORE_VKRT');
-			project.addDefine('VK_ENABLE_BETA_EXTENSIONS');
 		}
 	}
 	else if (graphics === GraphicsApi.Direct3D9) {
@@ -356,7 +355,6 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		if (raytrace === RayTraceApi.VKRT) {
 			project.addDefine('KORE_RAYTRACE');
 			project.addDefine('KORE_VKRT');
-			project.addDefine('VK_ENABLE_BETA_EXTENSIONS');
 		}
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
