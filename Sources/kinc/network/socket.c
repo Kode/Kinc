@@ -214,8 +214,9 @@ bool kinc_socket_listen(kinc_socket_t *socket, int backlog) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	int res = listen(socket->handle, backlog);
 	return (res == 0);
-#endif
+#else
 	return false;
+#endif
 }
 
 bool kinc_socket_accept(kinc_socket_t *socket, kinc_socket_t *newSocket, unsigned *remoteAddress, unsigned *remotePort) {
@@ -247,8 +248,9 @@ bool kinc_socket_connect(kinc_socket_t *socket, unsigned address, int port) {
 
 	int res = connect(socket->handle, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
 	return (res == 0);
-#endif
+#else
 	return false;
+#endif
 }
 
 int kinc_socket_send(kinc_socket_t *sock, unsigned address, int port, const unsigned char *data, int size) {
@@ -263,8 +265,9 @@ int kinc_socket_send(kinc_socket_t *sock, unsigned address, int port, const unsi
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
 	}
 	return (int)sent;
-#endif
+#else
 	return 0;
+#endif
 }
 
 int kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const unsigned char *data, int size) {
@@ -282,8 +285,9 @@ int kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const u
 	}
 	freeaddrinfo(address);
 	return (int)sent;
-#endif
+#else
 	return 0;
+#endif
 }
 
 int kinc_socket_send_connected(kinc_socket_t *sock, const unsigned char *data, int size) {
@@ -293,8 +297,9 @@ int kinc_socket_send_connected(kinc_socket_t *sock, const unsigned char *data, i
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
 	}
 	return (int)sent;
-#endif
+#else
 	return 0;
+#endif
 }
 
 int kinc_socket_receive(kinc_socket_t *sock, unsigned char *data, int maxSize, unsigned *fromAddress, unsigned *fromPort) {
