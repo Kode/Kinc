@@ -251,7 +251,7 @@ bool kinc_socket_connect(kinc_socket_t *socket, unsigned address, int port) {
 	return false;
 }
 
-void kinc_socket_send(kinc_socket_t *sock, unsigned address, int port, const unsigned char *data, int size) {
+int kinc_socket_send(kinc_socket_t *sock, unsigned address, int port, const unsigned char *data, int size) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
@@ -262,16 +262,18 @@ void kinc_socket_send(kinc_socket_t *sock, unsigned address, int port, const uns
 	if (sent != size) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
 	}
+	return (int)sent;
 #endif
+	return 0;
 }
 
-void kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const unsigned char *data, int size) {
+int kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const unsigned char *data, int size) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	struct addrinfo *address = NULL;
 	int res = resolveAddress(url, port, &address);
 	if (res != 0) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not resolve address.");
-		return;
+		return 0;
 	}
 
 	size_t sent = sendto(sock->handle, (const char *)data, size, 0, address->ai_addr, sizeof(struct sockaddr_in));
@@ -279,16 +281,20 @@ void kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const 
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
 	}
 	freeaddrinfo(address);
+	return (int)sent;
 #endif
+	return 0;
 }
 
-void kinc_socket_send_connected(kinc_socket_t *sock, const unsigned char *data, int size) {
+int kinc_socket_send_connected(kinc_socket_t *sock, const unsigned char *data, int size) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	size_t sent = send(sock->handle, (const char *)data, size, 0);
 	if (sent != size) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
 	}
+	return (int)sent;
 #endif
+	return 0;
 }
 
 int kinc_socket_receive(kinc_socket_t *sock, unsigned char *data, int maxSize, unsigned *fromAddress, unsigned *fromPort) {
