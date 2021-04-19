@@ -22,9 +22,9 @@ namespace Kore {
 		bool listen(int backlog);
 		bool accept(Socket *newSocket, unsigned *remoteAddress, unsigned *remotePort);
 		bool connect(unsigned address, int port);
-		void send(unsigned address, int port, const uint8_t *data, int size);
-		void send(const char *url, int port, const uint8_t *data, int size);
-		void send(const uint8_t *data, int size);
+		int send(unsigned address, int port, const uint8_t *data, int size);
+		int send(const char *url, int port, const uint8_t *data, int size);
+		int send(const uint8_t *data, int size);
 		int receive(uint8_t *data, int maxSize, unsigned &fromAddress, unsigned &fromPort);
 		int receive(uint8_t *data, int maxSize);
 
