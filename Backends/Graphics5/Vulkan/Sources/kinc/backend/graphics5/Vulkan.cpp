@@ -584,11 +584,6 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 				extension_names[enabled_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
 #endif
 			}
-#ifdef KORE_VKRT
-			if (!strcmp(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, instance_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
-			}
-#endif
 			assert(enabled_extension_count < 64);
 		}
 
@@ -738,14 +733,8 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 				extension_names[enabled_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
 			}
 #ifdef KORE_VKRT
-			if (!strcmp(VK_KHR_RAY_TRACING_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_RAY_TRACING_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_KHR_MAINTENANCE3_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_MAINTENANCE3_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME;
+			if (!strcmp(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME;
 			}
 			if (!strcmp(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME, device_extensions[i].extensionName)) {
 				extension_names[enabled_extension_count++] = VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME;
@@ -756,8 +745,14 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 			if (!strcmp(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME, device_extensions[i].extensionName)) {
 				extension_names[enabled_extension_count++] = VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME;
 			}
-			if (!strcmp(VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME;
+			if (!strcmp(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME;
+			}
+			if (!strcmp(VK_KHR_SPIRV_1_4_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_SPIRV_1_4_EXTENSION_NAME;
+			}
+			if (!strcmp(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME, device_extensions[i].extensionName)) {
+				extension_names[enabled_extension_count++] = VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME;
 			}
 #endif
 			assert(enabled_extension_count < 64);
@@ -928,21 +923,22 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 			deviceinfo.ppEnabledExtensionNames = (const char *const *)extension_names;
 
 #ifdef KORE_VKRT
-			VkPhysicalDeviceRayTracingFeaturesKHR rayTracingExt = {};
-			rayTracingExt.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR;
-			rayTracingExt.pNext = nullptr;
-			rayTracingExt.rayTracing = VK_TRUE;
+			VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineExt = {};
+			rayTracingPipelineExt.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
+			rayTracingPipelineExt.pNext = nullptr;
+			rayTracingPipelineExt.rayTracingPipeline = VK_TRUE;
+
+			VkPhysicalDeviceAccelerationStructureFeaturesKHR rayTracingAccelerationStructureExt = {};
+			rayTracingAccelerationStructureExt.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
+			rayTracingAccelerationStructureExt.pNext = &rayTracingPipelineExt;
+			rayTracingAccelerationStructureExt.accelerationStructure = VK_TRUE;
 
 			VkPhysicalDeviceBufferDeviceAddressFeatures bufferDeviceAddressExt = {};
 			bufferDeviceAddressExt.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
-			bufferDeviceAddressExt.pNext = &rayTracingExt;
+			bufferDeviceAddressExt.pNext = &rayTracingAccelerationStructureExt;
 			bufferDeviceAddressExt.bufferDeviceAddress = VK_TRUE;
 
-			VkPhysicalDeviceFeatures2KHR physical_device_features = {};
-			physical_device_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
-			physical_device_features.pNext = &bufferDeviceAddressExt;
-
-			deviceinfo.pNext = &physical_device_features;
+			deviceinfo.pNext = &bufferDeviceAddressExt;
 #endif
 
 			err = vkCreateDevice(gpu, &deviceinfo, nullptr, &device);
