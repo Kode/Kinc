@@ -168,7 +168,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		descriptor.arrayLength = 1;
 		descriptor.mipmapLevelCount = 1;
 		descriptor.usage = MTLTextureUsageUnknown;
-#ifdef KORE_IOS
+#ifdef __ARM_ARCH_ISA_A64
 		descriptor.resourceOptions = MTLResourceStorageModeShared;
 #else
 		descriptor.resourceOptions = MTLResourceStorageModeManaged;
@@ -181,7 +181,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
 	id<MTLBlitCommandEncoder> commandEncoder = [commandBuffer blitCommandEncoder];
 	[commandEncoder copyFromTexture:render_target->impl._tex sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0, 0, 0) sourceSize:MTLSizeMake(render_target->texWidth, render_target->texHeight, 1) toTexture:render_target->impl._texReadback destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0, 0, 0)];
-#ifndef KORE_IOS
+#ifndef __ARM_ARCH_ISA_A64
 	[commandEncoder synchronizeResource:render_target->impl._texReadback];
 #endif
 	[commandEncoder endEncoding];
@@ -232,7 +232,7 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 }
 
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
-#ifndef KORE_IOS
+#ifndef __ARM_ARCH_ISA_A64
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder textureBarrier];
 #endif
