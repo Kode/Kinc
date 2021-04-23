@@ -68,11 +68,12 @@ void kinc_g1_init(int width, int height) {
 		void *data = malloc(kinc_file_reader_size(&file));
 		kinc_file_reader_read(&file, data, kinc_file_reader_size(&file));
 		kinc_file_reader_close(&file);
-		kinc_g4_shader_init(&vertexShader, data, kinc_file_reader_size(&file), KINC_G4_SHADER_TYPE_FRAGMENT);
+		kinc_g4_shader_init(&fragmentShader, data, kinc_file_reader_size(&file), KINC_G4_SHADER_TYPE_FRAGMENT);
 		free(data);
 	}
 
 	kinc_g4_vertex_structure_t structure;
+	kinc_g4_vertex_structure_init(&structure);
 	kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_FLOAT3);
 	kinc_g4_vertex_structure_add(&structure, "tex", KINC_G4_VERTEX_DATA_FLOAT2);
 	kinc_g4_pipeline_init(&pipeline);
