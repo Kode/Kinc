@@ -7,13 +7,12 @@
 extern "C" {
 #endif
 
-// void pushRotation(float angle, float centerx, float centery);
-
 void kinc_g2_init(void);
 void kinc_g2_begin(void);
 void kinc_g2_end(void);
 void kinc_g2_draw_image(kinc_g4_texture_t *img, float x, float y);
 // void drawScaledSubImage(Graphics4::Texture *img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);
+void kinc_g2_set_rotation(float angle, float centerx, float centery);
 
 #ifdef __cplusplus
 }

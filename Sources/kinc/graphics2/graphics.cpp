@@ -31,3 +31,7 @@ void kinc_g2_draw_image(kinc_g4_texture_t *img, float x, float y) {
 	tex->texHeight = img->tex_height;
 	kinc_kore_g2->drawImage(tex, x, y);
 }
+
+void kinc_g2_set_rotation(float angle, float centerx, float centery) {
+	kinc_kore_g2->transformation = (Kore::mat3::Translation(centerx, centery) * Kore::mat3::RotationZ(angle)) * Kore::mat3::Translation(-centerx, -centery);
+}
