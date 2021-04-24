@@ -20,7 +20,7 @@ KINC_FUNC int kinc_g1_height(void);
 
 // implementation moved to the header to allow easy inlining
 
-extern int *kinc_internal_g1_image;
+extern uint32_t *kinc_internal_g1_image;
 extern int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 
 static void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
