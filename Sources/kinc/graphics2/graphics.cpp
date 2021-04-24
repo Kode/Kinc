@@ -10,9 +10,9 @@ static kinc_matrix3x3_t transformation;
 
 static Kore::Graphics4::Texture *tex;
 
-void kinc_g2_init(void) {
+void kinc_g2_init(int screen_width, int screen_height) {
 	tex = new Kore::Graphics4::Texture(32, 32, Kore::Graphics1::Image::RGBA32);
-	kinc_kore_g2 = new Kore::Graphics2::Graphics2(1024, 768);
+	kinc_kore_g2 = new Kore::Graphics2::Graphics2(screen_width, screen_height);
 }
 
 void kinc_g2_begin(void) {

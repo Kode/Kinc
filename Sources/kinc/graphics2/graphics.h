@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-void kinc_g2_init(void);
+void kinc_g2_init(int screen_width, int screen_height);
 void kinc_g2_begin(void);
 void kinc_g2_end(void);
 void kinc_g2_draw_image(kinc_g4_texture_t *img, float x, float y);
