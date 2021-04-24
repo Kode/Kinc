@@ -17,20 +17,13 @@ static kinc_g4_texture_unit_t tex;
 static kinc_g4_vertex_buffer_t vb;
 static kinc_g4_index_buffer_t ib;
 static kinc_g4_texture_t texture;
-static int *image;
-static int w, h;
+
+int *kinc_internal_g1_image;
+int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 
 void kinc_g1_begin() {
 	kinc_g4_begin(0);
-	image = (int *)kinc_g4_texture_lock(&texture);
-}
-
-void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
-	if (x < 0 || x >= w || y < 0 || y >= h) return;
-	int r = (int)(red * 255);
-	int g = (int)(green * 255);
-	int b = (int)(blue * 255);
-	image[y * texture.tex_width + x] = 0xff << 24 | b << 16 | g << 8 | r;
+	kinc_internal_g1_image = (int *)kinc_g4_texture_lock(&texture);
 }
 
 void kinc_g1_end() {
@@ -49,8 +42,8 @@ void kinc_g1_end() {
 }
 
 void kinc_g1_init(int width, int height) {
-	w = width;
-	h = height;
+	kinc_internal_g1_w = width;
+	kinc_internal_g1_h = height;
 
 	{
 		kinc_file_reader_t file;
@@ -86,10 +79,12 @@ void kinc_g1_init(int width, int height) {
 	tex = kinc_g4_pipeline_get_texture_unit(&pipeline, "tex");
 
 	kinc_g4_texture_init(&texture, width, height, KINC_IMAGE_FORMAT_RGBA32);
-	image = (int *)kinc_g4_texture_lock(&texture);
+	kinc_internal_g1_tex_width = texture.tex_width;
+
+	kinc_internal_g1_image = (int *)kinc_g4_texture_lock(&texture);
 	for (int y = 0; y < texture.tex_height; ++y) {
 		for (int x = 0; x < texture.tex_width; ++x) {
-			image[y * texture.tex_width + x] = 0;
+			kinc_internal_g1_image[y * texture.tex_width + x] = 0;
 		}
 	}
 	kinc_g4_texture_unlock(&texture);
@@ -139,10 +134,22 @@ void kinc_g1_init(int width, int height) {
 	kinc_g4_index_buffer_unlock(&ib);
 }
 
+#if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC)
+
+void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
+	if (x < 0 || x >= kinc_internal_g1_w || y < 0 || y >= kinc_internal_g1_h) return;
+	int r = (int)(red * 255);
+	int g = (int)(green * 255);
+	int b = (int)(blue * 255);
+	kinc_internal_g1_image[y * kinc_internal_g1_tex_width + x] = 0xff << 24 | b << 16 | g << 8 | r;
+}
+
 int kinc_g1_width() {
-	return w;
+	return kinc_internal_g1_w;
 }
 
 int kinc_g1_height() {
-	return h;
+	return kinc_internal_g1_h;
 }
+
+#endif
