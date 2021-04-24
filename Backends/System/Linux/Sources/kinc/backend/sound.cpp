@@ -57,7 +57,10 @@ namespace {
 			case EINTR:
 			case EPIPE:
 			case ESPIPE:
-			case ESTRPIPE: {
+			#if !defined(__FreeBSD__)
+			case ESTRPIPE:
+			#endif
+			{
 				int recovered = snd_pcm_recover(playback_handle, errorCode, 1);
 
 				if (recovered != 0) {
@@ -105,7 +108,7 @@ namespace {
 			return nullptr;
 		}
 
-		uint rate = 44100;
+		unsigned int rate = 44100;
 		int dir = 0;
 		if ((err = snd_pcm_hw_params_set_rate_near(playback_handle, hw_params, &rate, &dir)) < 0) {
 			fprintf(stderr, "cannot set sample rate (%s)\n", snd_strerror(err));

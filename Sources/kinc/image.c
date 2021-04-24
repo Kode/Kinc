@@ -20,9 +20,9 @@ int LZ4_decompress_safe(const char *source, char *dest, int compressedSize, int 
 #include <string.h>
 
 #define BUFFER_SIZE 4096 * 4096 * 4
-uint8_t buffer[BUFFER_SIZE];
-size_t buffer_offset = 0;
-uint8_t *last_allocated_pointer = 0;
+static uint8_t buffer[BUFFER_SIZE];
+static size_t buffer_offset = 0;
+static uint8_t *last_allocated_pointer = 0;
 
 static void *buffer_malloc(size_t size) {
 	uint8_t *current = &buffer[buffer_offset];
@@ -68,6 +68,10 @@ static void buffer_free(void *p) {}
 #define STBI_FREE(p) buffer_free(p)
 
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
 #include <kinc/libs/stb_image.h>
 #include <stdio.h>
 #include <string.h>
@@ -459,6 +463,7 @@ static int memory_read_callback(void *user_data, void *data, size_t size) {
 	struct kinc_internal_image_memory *memory = (struct kinc_internal_image_memory *)user_data;
 	size_t read_size = memory->size - memory->offset < size ? memory->size - memory->offset : size;
 	memcpy(data, &memory->data[memory->offset], read_size);
+	memory->offset += read_size;
 	return (int)read_size;
 }
 

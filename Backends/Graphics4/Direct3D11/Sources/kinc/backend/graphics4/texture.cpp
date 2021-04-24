@@ -148,7 +148,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 		desc.CPUAccessFlags = 0;
 	}
 	else {
-		desc.Format = format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
+		desc.Format = convertFormat(format);
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -250,7 +250,7 @@ void kinc_internal_texture_unset(kinc_g4_texture_t *texture) {
 
 u8 *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	context->Map(texture->impl.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	kinc_microsoft_affirm(context->Map(texture->impl.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 	texture->impl.rowPitch = mappedResource.RowPitch;
 	return (u8 *)mappedResource.pData;
 }

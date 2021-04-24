@@ -22,8 +22,11 @@ Connection::Connection(int receivePort, int maxConns, double timeout, double png
     : maxConns(maxConns), activeConns(0), acceptConns(false), /*recPort(receivePort),*/ buffSize(buffSize), cacheCount(cacheCount), congestShare(congestShare),
       timeout(timeout), pngInterv(pngInterv), resndInterv(resndInterv), congestPing(congestPing) {
 
+	Kore::SocketOptions options;
+	options.nonBlocking = true;
+
 	socket.init();
-	socket.open(receivePort);
+	socket.open(KINC_SOCKET_PROTOCOL_UDP, receivePort, &options);
 
 	sndBuff = new u8[buffSize];
 	sndCache = new u8[(buffSize + 12) * cacheCount];

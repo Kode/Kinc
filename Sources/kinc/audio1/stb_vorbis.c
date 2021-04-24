@@ -598,6 +598,13 @@ enum STBVorbisError
    #endif
 #endif
 
+#if defined(__FreeBSD__) && !defined(KORE_PS4) && !defined(KORE_PS5)
+   #ifdef alloca
+   #undef alloca
+   #endif
+   #define alloca allocm
+#endif
+
 #if STB_VORBIS_MAX_CHANNELS > 256
 #error "Value of STB_VORBIS_MAX_CHANNELS outside of allowed range"
 #endif

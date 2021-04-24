@@ -34,6 +34,31 @@ namespace {
 	}
 }
 
+bool kinc_internal_bilinear_filtering = false;
+
+static id pointSampler;
+static id bilinearSampler;
+
+void kinc_internal_init_samplers(void) {
+    id<MTLDevice> device = getMetalDevice();
+    
+    MTLSamplerDescriptor *desc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
+    desc.minFilter = MTLSamplerMinMagFilterNearest;
+    desc.magFilter = MTLSamplerMinMagFilterNearest;
+    desc.sAddressMode = MTLSamplerAddressModeRepeat;
+    desc.tAddressMode = MTLSamplerAddressModeRepeat;
+    desc.mipFilter = MTLSamplerMipFilterNotMipmapped;
+    desc.maxAnisotropy = 1U;
+    desc.normalizedCoordinates = YES;
+    desc.lodMinClamp = 0.0f;
+    desc.lodMaxClamp = FLT_MAX;
+    pointSampler = [device newSamplerStateWithDescriptor:desc];
+    
+    desc.minFilter = MTLSamplerMinMagFilterLinear;
+    desc.magFilter = MTLSamplerMinMagFilterLinear;
+    bilinearSampler = [device newSamplerStateWithDescriptor:desc];
+}
+
 static void create(kinc_g5_texture_t *texture, int width, int height, int format, bool writable) {
 	id<MTLDevice> device = getMetalDevice();
 
@@ -51,19 +76,6 @@ static void create(kinc_g5_texture_t *texture, int width, int height, int format
 	}
 
 	texture->impl._tex = [device newTextureWithDescriptor:descriptor];
-
-	texture->impl._samplerDesc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
-    MTLSamplerDescriptor* desc = (MTLSamplerDescriptor*) texture->impl._samplerDesc;
-	desc.minFilter = MTLSamplerMinMagFilterNearest;
-	desc.magFilter = MTLSamplerMinMagFilterLinear;
-	desc.sAddressMode = MTLSamplerAddressModeRepeat;
-	desc.tAddressMode = MTLSamplerAddressModeRepeat;
-	desc.mipFilter = MTLSamplerMipFilterNotMipmapped;
-	desc.maxAnisotropy = 1U;
-	desc.normalizedCoordinates = YES;
-	desc.lodMinClamp = 0.0f;
-	desc.lodMaxClamp = FLT_MAX;
-	texture->impl._sampler = [device newSamplerStateWithDescriptor:desc];
 }
 
 /*void Graphics5::Texture::_init(const char* format, bool readable) {
@@ -98,7 +110,6 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image *ima
 void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {}
 
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
-	texture->impl._sampler = nil;
 	texture->impl._tex = nil;
 	if (texture->impl.data != NULL) {
 		free(texture->impl.data);
@@ -162,9 +173,29 @@ void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5
 }
 #endif
 
+void kinc_internal_set_vertex_sampler(id encoder, int unit) {
+	if (kinc_internal_bilinear_filtering) {
+		[encoder setVertexSamplerState:bilinearSampler atIndex:unit];
+	}
+	else {
+		[encoder setVertexSamplerState:pointSampler atIndex:unit];
+	}
+}
+
+void kinc_internal_set_fragment_sampler(id encoder, int unit) {
+	if (kinc_internal_bilinear_filtering) {
+		[encoder setFragmentSamplerState:bilinearSampler atIndex:unit];
+	}
+	else {
+		[encoder setFragmentSamplerState:pointSampler atIndex:unit];
+	}
+}
+
 void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	if (unit < 16) [encoder setFragmentSamplerState:texture->impl._sampler atIndex:unit];
+    if (unit < 16) {
+		kinc_internal_set_fragment_sampler(encoder, unit);
+    }
 	[encoder setFragmentTexture:texture->impl._tex atIndex:unit];
 }
 

@@ -39,7 +39,13 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 		}
 	}
 
-	buffer->impl.vertices = new float[buffer->impl.stride / 4 * count];
+	if (usage == KINC_G4_USAGE_DYNAMIC) {
+		buffer->impl.vertices = NULL;
+	}
+	else {
+		buffer->impl.vertices = new float[buffer->impl.stride / 4 * count];
+	}
+
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.CPUAccessFlags = 0;
 
@@ -68,6 +74,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
 	buffer->impl.vb->Release();
 	delete[] buffer->impl.vertices;
+	buffer->impl.vertices = NULL;
 }
 
 float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer) {
@@ -77,7 +84,17 @@ float *kinc_g4_vertex_buffer_lock_all(kinc_g4_vertex_buffer_t *buffer) {
 float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, int count) {
 	buffer->impl.lockStart = start;
 	buffer->impl.lockCount = count;
-	return &buffer->impl.vertices[start * buffer->impl.stride / 4];
+
+	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+		context->Map(buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		float *data = (float *)mappedResource.pData;
+		return &data[start * buffer->impl.stride / 4];
+	}
+	else {
+		return &buffer->impl.vertices[start * buffer->impl.stride / 4];
+	}
 }
 
 void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
@@ -86,12 +103,6 @@ void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
 
 void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-		context->Map(buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		float *data = (float *)mappedResource.pData;
-		memcpy(&data[buffer->impl.lockStart * buffer->impl.stride / 4], &buffer->impl.vertices[buffer->impl.lockStart * buffer->impl.stride / 4],
-		       (count * buffer->impl.stride / 4) * sizeof(float));
 		context->Unmap(buffer->impl.vb, 0);
 	}
 	else {

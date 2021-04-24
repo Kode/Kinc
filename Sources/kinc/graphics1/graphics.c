@@ -2,85 +2,99 @@
 
 #include "graphics.h"
 
-#if 0
-
 #include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/shader.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/io/filereader.h>
 
-static Graphics4::Shader* vertexShader;
-static Graphics4::Shader *fragmentShader;
-static Graphics4::PipelineState *pipeline;
-static Graphics4::TextureUnit tex;
-static Graphics4::VertexBuffer *vb;
-static Graphics4::IndexBuffer *ib;
-static Graphics4::Texture *texture;
-static int *image;
-static int w, h;
+static kinc_g4_shader_t vertexShader;
+static kinc_g4_shader_t fragmentShader;
+static kinc_g4_pipeline_t pipeline;
+static kinc_g4_texture_unit_t tex;
+static kinc_g4_vertex_buffer_t vb;
+static kinc_g4_index_buffer_t ib;
+static kinc_g4_texture_t texture;
+
+int *kinc_internal_g1_image;
+int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 
 void kinc_g1_begin() {
-	Graphics4::begin();
-	image = (int*)texture->lock();
-}
-
-void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
-	if (x < 0 || x >= w || y < 0 || y >= h) return;
-	int r = (int)(red * 255);
-	int g = (int)(green * 255);
-	int b = (int)(blue * 255);
-	image[y * texture->texWidth + x] = 0xff << 24 | b << 16 | g << 8 | r;
+	kinc_g4_begin(0);
+	kinc_internal_g1_image = (int *)kinc_g4_texture_lock(&texture);
 }
 
 void kinc_g1_end() {
-	texture->unlock();
+	kinc_g4_texture_unlock(&texture);
 
-	Graphics4::clear(Graphics4::ClearColorFlag, 0xff000000);
+	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xff000000, 0.0f, 0);
 
-	Graphics4::setPipeline(pipeline);
-	Graphics4::setTexture(tex, texture);
-	Graphics4::setVertexBuffer(*vb);
-	Graphics4::setIndexBuffer(*ib);
-	Graphics4::drawIndexedVertices();
+	kinc_g4_set_pipeline(&pipeline);
+	kinc_g4_set_texture(tex, &texture);
+	kinc_g4_set_vertex_buffer(&vb);
+	kinc_g4_set_index_buffer(&ib);
+	kinc_g4_draw_indexed_vertices();
 
-	Graphics4::end();
-	Graphics4::swapBuffers();
+	kinc_g4_end(0);
+	kinc_g4_swap_buffers();
 }
 
 void kinc_g1_init(int width, int height) {
-	w = width;
-	h = height;
-	FileReader vs("g1.vert");
-	FileReader fs("g1.frag");
-	vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
-	fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
-	Graphics4::VertexStructure structure;
-	structure.add("pos", Graphics4::Float3VertexData);
-	structure.add("tex", Graphics4::Float2VertexData);
-	pipeline = new Graphics4::PipelineState;
-	pipeline->inputLayout[0] = &structure;
-	pipeline->inputLayout[1] = nullptr;
-	pipeline->vertexShader = vertexShader;
-	pipeline->fragmentShader = fragmentShader;
-	pipeline->compile();
+	kinc_internal_g1_w = width;
+	kinc_internal_g1_h = height;
 
-	tex = pipeline->getTextureUnit("tex");
+	{
+		kinc_file_reader_t file;
+		kinc_file_reader_open(&file, "g1.vert", KINC_FILE_TYPE_ASSET);
+		void *data = malloc(kinc_file_reader_size(&file));
+		kinc_file_reader_read(&file, data, kinc_file_reader_size(&file));
+		kinc_file_reader_close(&file);
+		kinc_g4_shader_init(&vertexShader, data, kinc_file_reader_size(&file), KINC_G4_SHADER_TYPE_VERTEX);
+		free(data);
+	}
 
-	texture = new Graphics4::Texture(width, height, Image::RGBA32, false);
-	image = (int*)texture->lock();
-	for (int y = 0; y < texture->texHeight; ++y) {
-		for (int x = 0; x < texture->texWidth; ++x) {
-			image[y * texture->texWidth + x] = 0;
+	{
+		kinc_file_reader_t file;
+		kinc_file_reader_open(&file, "g1.frag", KINC_FILE_TYPE_ASSET);
+		void *data = malloc(kinc_file_reader_size(&file));
+		kinc_file_reader_read(&file, data, kinc_file_reader_size(&file));
+		kinc_file_reader_close(&file);
+		kinc_g4_shader_init(&fragmentShader, data, kinc_file_reader_size(&file), KINC_G4_SHADER_TYPE_FRAGMENT);
+		free(data);
+	}
+
+	kinc_g4_vertex_structure_t structure;
+	kinc_g4_vertex_structure_init(&structure);
+	kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_FLOAT3);
+	kinc_g4_vertex_structure_add(&structure, "tex", KINC_G4_VERTEX_DATA_FLOAT2);
+	kinc_g4_pipeline_init(&pipeline);
+	pipeline.input_layout[0] = &structure;
+	pipeline.input_layout[1] = NULL;
+	pipeline.vertex_shader = &vertexShader;
+	pipeline.fragment_shader = &fragmentShader;
+	kinc_g4_pipeline_compile(&pipeline);
+
+	tex = kinc_g4_pipeline_get_texture_unit(&pipeline, "tex");
+
+	kinc_g4_texture_init(&texture, width, height, KINC_IMAGE_FORMAT_RGBA32);
+	kinc_internal_g1_tex_width = texture.tex_width;
+
+	kinc_internal_g1_image = (int *)kinc_g4_texture_lock(&texture);
+	for (int y = 0; y < texture.tex_height; ++y) {
+		for (int x = 0; x < texture.tex_width; ++x) {
+			kinc_internal_g1_image[y * texture.tex_width + x] = 0;
 		}
 	}
-	texture->unlock();
+	kinc_g4_texture_unlock(&texture);
 
 	// Correct for the difference between the texture's desired size and the actual power of 2 size
-	float xAspect = (float)texture->width / texture->texWidth;
-	float yAspect = (float)texture->height / texture->texHeight;
+	float xAspect = (float)width / texture.tex_width;
+	float yAspect = (float)height / texture.tex_height;
 
-	vb = new Graphics4::VertexBuffer(4, structure, Kore::Graphics4::StaticUsage, 0);
-	float* v = vb->lock();
+	kinc_g4_vertex_buffer_init(&vb, 4, &structure, KINC_G4_USAGE_STATIC, 0);
+	float *v = kinc_g4_vertex_buffer_lock_all(&vb);
 	{
 		int i = 0;
 		v[i++] = -1;
@@ -104,10 +118,10 @@ void kinc_g1_init(int width, int height) {
 		v[i++] = 0;
 		v[i++] = yAspect;
 	}
-	vb->unlock();
+	kinc_g4_vertex_buffer_unlock_all(&vb);
 
-	ib = new Graphics4::IndexBuffer(6);
-	int* ii = ib->lock();
+	kinc_g4_index_buffer_init(&ib, 6, KINC_G4_INDEX_BUFFER_FORMAT_32BIT);
+	int *ii = kinc_g4_index_buffer_lock(&ib);
 	{
 		int i = 0;
 		ii[i++] = 0;
@@ -117,15 +131,25 @@ void kinc_g1_init(int width, int height) {
 		ii[i++] = 2;
 		ii[i++] = 3;
 	}
-	ib->unlock();
+	kinc_g4_index_buffer_unlock(&ib);
+}
+
+#if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC)
+
+void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
+	if (x < 0 || x >= kinc_internal_g1_w || y < 0 || y >= kinc_internal_g1_h) return;
+	int r = (int)(red * 255);
+	int g = (int)(green * 255);
+	int b = (int)(blue * 255);
+	kinc_internal_g1_image[y * kinc_internal_g1_tex_width + x] = 0xff << 24 | b << 16 | g << 8 | r;
 }
 
 int kinc_g1_width() {
-	return w;
+	return kinc_internal_g1_w;
 }
 
 int kinc_g1_height() {
-	return h;
+	return kinc_internal_g1_h;
 }
 
 #endif

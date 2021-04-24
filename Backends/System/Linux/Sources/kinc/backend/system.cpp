@@ -41,6 +41,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 #endif
 
 _XDisplay* Kore::Linux::display = nullptr;
+XIC xInputContext;
 
 namespace {
 	struct MwmHints {
@@ -77,7 +78,7 @@ namespace {
 	uint32_t eraserMaxPressure = 2048;
 	float eraserPressureLast = 0.0;
 	XID eraserDevice;
-	bool keyPressed[256];
+	unsigned int ignoreKeycode = 0;
 	char clipboardString[4096];
 
 	void fatalError(const char* message) {
@@ -122,6 +123,11 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	if (Kore::Linux::display == nullptr) {
 		fatalError("could not open display");
 	}
+
+	XSetLocaleModifiers("@im=none");
+	XIM xInputMethod = XOpenIM(Kore::Linux::display, nullptr, nullptr, nullptr);
+	xInputContext = XCreateIC(xInputMethod, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, win, nullptr);
+	XSetICFocus(xInputContext);
 
 	XkbSetDetectableAutoRepeat(Kore::Linux::display, True, NULL);
 
@@ -237,8 +243,10 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 
 	XSetStandardProperties(Kore::Linux::display, win, title, "main", None, NULL, 0, NULL);
 
-	Atom wmClassAtom = XInternAtom(Kore::Linux::display, "WM_CLASS", 0);
-	XChangeProperty(Kore::Linux::display, win, wmClassAtom, XA_STRING, 8, PropModeReplace, (unsigned char*)nameClass, strlen(nameClass));
+	char resNameBuffer[256];
+	strncpy(resNameBuffer, kinc_application_name(), 256);
+	XClassHint classHint = { .res_name = resNameBuffer, .res_class = nameClass };
+	XSetClassHint(Kore::Linux::display, win, &classHint);
 
 	switch (windowMode) {
 	case KINC_WINDOW_MODE_WINDOW:
@@ -424,42 +432,58 @@ bool kinc_internal_handle_messages() {
 		}
 
 		switch (event.type) {
+		case MappingNotify: {
+			XRefreshKeyboardMapping(&event.xmapping);
+		}
+		break;
 		case KeyPress: {
 			XKeyEvent* key = (XKeyEvent*)&event;
 			KeySym keysym;
-			char buffer[1];
-			XLookupString(key, buffer, 1, &keysym, NULL);
 
-			if (buffer[0] >= 32 && buffer[0] <= 126) {
-                kinc_internal_keyboard_trigger_key_press((wchar_t)buffer[0]);
-			}
+			wchar_t wchar;
+			bool wcConverted = XwcLookupString(xInputContext, key, &wchar, 1, &keysym, nullptr);
 
-#define KEY(xkey, korekey)                                          \
-	case xkey:                                                      \
-		if (!keyPressed[korekey]) {                           \
-			keyPressed[korekey] = true;                       \
-			kinc_internal_keyboard_trigger_key_down(korekey);   \
-		}                                                           \
-		break;
+			bool isIgnoredKeySym = keysym == XK_Escape || keysym == XK_BackSpace || keysym == XK_Delete;
+			if (!controlDown && !XFilterEvent(&event, win) && !isIgnoredKeySym) {
 
-			if (keysym == XK_Control_L || keysym == XK_Control_R) {
+				if (wcConverted) {
+					kinc_internal_keyboard_trigger_key_press(wchar);
+				}
+			} 
+
+#define KEY(xkey, korekey) \
+	case xkey: kinc_internal_keyboard_trigger_key_down(korekey); \
+	break;
+
+			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+
+			if (ksKey == XK_Control_L || ksKey == XK_Control_R) {
 				controlDown = true;
 			}
-			else if (controlDown && (keysym == XK_v || keysym == XK_V)) {
+			else if (controlDown && (ksKey == XK_v || ksKey == XK_V)) {
 				XConvertSelection(Kore::Linux::display, clipboard, utf8, xseldata, win, CurrentTime);
 			}
-			else if (controlDown && (keysym == XK_c || keysym == XK_C)) {
+			else if (controlDown && (ksKey == XK_c || ksKey == XK_C)) {
 				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_copy_callback();
 				if (text != nullptr) strcpy(clipboardString, text);
 			}
-			else if (controlDown && (keysym == XK_x || keysym == XK_X)) {
+			else if (controlDown && (ksKey == XK_x || ksKey == XK_X)) {
 				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_cut_callback();
 				if (text != nullptr) strcpy(clipboardString, text);
 			}
 
-			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+			if (event.xkey.keycode == ignoreKeycode) {
+				break;
+			}
+			else {
+				ignoreKeycode = event.xkey.keycode;
+			}
+
+			if (ksKey < 97 || ksKey > 122) {
+				ksKey = keysym;
+			}
 
 			switch (ksKey) {
 				KEY(XK_Right, KINC_KEY_RIGHT)
@@ -481,18 +505,39 @@ bool kinc_internal_handle_messages() {
 				KEY(XK_period, KINC_KEY_PERIOD)
 				KEY(XK_bracketleft, KINC_KEY_OPEN_BRACKET)
 				KEY(XK_bracketright, KINC_KEY_CLOSE_BRACKET)
+				KEY(XK_braceleft, KINC_KEY_OPEN_CURLY_BRACKET)
+				KEY(XK_braceright, KINC_KEY_CLOSE_CURLY_BRACKET)
+				KEY(XK_parenleft, KINC_KEY_OPEN_PAREN)
+				KEY(XK_parenright, KINC_KEY_CLOSE_PAREN)
 				KEY(XK_backslash, KINC_KEY_BACK_SLASH)
 				KEY(XK_apostrophe, KINC_KEY_QUOTE)
+				KEY(XK_colon, KINC_KEY_COLON)
 				KEY(XK_semicolon, KINC_KEY_SEMICOLON)
 				KEY(XK_minus, KINC_KEY_HYPHEN_MINUS)
+				KEY(XK_underscore, KINC_KEY_UNDERSCORE)
 				KEY(XK_slash, KINC_KEY_SLASH)
+				KEY(XK_bar, KINC_KEY_PIPE)
+				KEY(XK_question, KINC_KEY_QUESTIONMARK)
 				KEY(XK_less, KINC_KEY_LESS_THAN)
+				KEY(XK_greater, KINC_KEY_GREATER_THAN)
+				KEY(XK_asterisk, KINC_KEY_ASTERISK)
+				KEY(XK_ampersand, KINC_KEY_AMPERSAND)
+				KEY(XK_asciicircum, KINC_KEY_CIRCUMFLEX)
+				KEY(XK_percent, KINC_KEY_PERCENT)
+				KEY(XK_dollar, KINC_KEY_DOLLAR)
+				KEY(XK_numbersign, KINC_KEY_HASH)
+				KEY(XK_at, KINC_KEY_AT)
+				KEY(XK_exclam, KINC_KEY_EXCLAMATION)
 				KEY(XK_equal, KINC_KEY_EQUALS)
+				KEY(XK_plus, KINC_KEY_ADD)
 				KEY(XK_quoteleft, KINC_KEY_BACK_QUOTE)
+				KEY(XK_quotedbl, KINC_KEY_DOUBLE_QUOTE)
+				KEY(XK_asciitilde, KINC_KEY_TILDE)
 				KEY(XK_Pause, KINC_KEY_PAUSE)
 				KEY(XK_Scroll_Lock, KINC_KEY_SCROLL_LOCK)
 				KEY(XK_Home, KINC_KEY_HOME)
 				KEY(XK_Page_Up, KINC_KEY_PAGE_UP)
+				KEY(XK_Page_Down, KINC_KEY_PAGE_DOWN)
 				KEY(XK_End, KINC_KEY_END)
 				KEY(XK_Insert, KINC_KEY_INSERT)
 				KEY(XK_KP_Enter, KINC_KEY_RETURN)
@@ -501,16 +546,16 @@ bool kinc_internal_handle_messages() {
 				KEY(XK_KP_Subtract, KINC_KEY_SUBTRACT)
 				KEY(XK_KP_Decimal, KINC_KEY_DECIMAL)
 				KEY(XK_KP_Divide, KINC_KEY_DIVIDE)
-				KEY(XK_KP_0, KINC_KEY_0)
-				KEY(XK_KP_1, KINC_KEY_1)
-				KEY(XK_KP_2, KINC_KEY_2)
-				KEY(XK_KP_3, KINC_KEY_3)
-				KEY(XK_KP_4, KINC_KEY_4)
-				KEY(XK_KP_5, KINC_KEY_5)
-				KEY(XK_KP_6, KINC_KEY_6)
-				KEY(XK_KP_7, KINC_KEY_7)
-				KEY(XK_KP_8, KINC_KEY_8)
-				KEY(XK_KP_9, KINC_KEY_9)
+				KEY(XK_KP_0, KINC_KEY_NUMPAD_0)
+				KEY(XK_KP_1, KINC_KEY_NUMPAD_1)
+				KEY(XK_KP_2, KINC_KEY_NUMPAD_2)
+				KEY(XK_KP_3, KINC_KEY_NUMPAD_3)
+				KEY(XK_KP_4, KINC_KEY_NUMPAD_4)
+				KEY(XK_KP_5, KINC_KEY_NUMPAD_5)
+				KEY(XK_KP_6, KINC_KEY_NUMPAD_6)
+				KEY(XK_KP_7, KINC_KEY_NUMPAD_7)
+				KEY(XK_KP_8, KINC_KEY_NUMPAD_8)
+				KEY(XK_KP_9, KINC_KEY_NUMPAD_9)
 				KEY(XK_KP_Insert, KINC_KEY_INSERT)
 				KEY(XK_KP_Delete, KINC_KEY_DELETE)
 				KEY(XK_KP_End, KINC_KEY_END)
@@ -577,21 +622,29 @@ bool kinc_internal_handle_messages() {
 		}
 		case KeyRelease: {
 			XKeyEvent* key = (XKeyEvent*)&event;
+
 			KeySym keysym;
-			char buffer[1];
-			XLookupString(key, buffer, 1, &keysym, NULL);
 
-#define KEY(xkey, korekey)                                      \
-	case xkey:                                                  \
-		kinc_internal_keyboard_trigger_key_up(korekey);     \
-		keyPressed[korekey] = false;                      \
-		break;
+			char c;
+			XLookupString(key, &c, 1, &keysym, nullptr);
 
-			if (keysym == XK_Control_L || keysym == XK_Control_R) {
+#define KEY(xkey, korekey) \
+	case xkey: kinc_internal_keyboard_trigger_key_up(korekey); \
+	break;
+
+			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+
+			if (ksKey == XK_Control_L || ksKey == XK_Control_R) {
 				controlDown = false;
 			}
 
-			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+			if (event.xkey.keycode == ignoreKeycode) {
+				ignoreKeycode = 0;
+			}
+
+			if (ksKey < 97 || ksKey > 122) {
+				ksKey = keysym;
+			}
 
 			switch (ksKey) {
 				KEY(XK_Right, KINC_KEY_RIGHT)
@@ -613,18 +666,39 @@ bool kinc_internal_handle_messages() {
 				KEY(XK_period, KINC_KEY_PERIOD)
 				KEY(XK_bracketleft, KINC_KEY_OPEN_BRACKET)
 				KEY(XK_bracketright, KINC_KEY_CLOSE_BRACKET)
+				KEY(XK_braceleft, KINC_KEY_OPEN_CURLY_BRACKET)
+				KEY(XK_braceright, KINC_KEY_CLOSE_CURLY_BRACKET)
+				KEY(XK_parenleft, KINC_KEY_OPEN_PAREN)
+				KEY(XK_parenright, KINC_KEY_CLOSE_PAREN)
 				KEY(XK_backslash, KINC_KEY_BACK_SLASH)
 				KEY(XK_apostrophe, KINC_KEY_QUOTE)
+				KEY(XK_colon, KINC_KEY_COLON)
 				KEY(XK_semicolon, KINC_KEY_SEMICOLON)
 				KEY(XK_minus, KINC_KEY_HYPHEN_MINUS)
+				KEY(XK_underscore, KINC_KEY_UNDERSCORE)
 				KEY(XK_slash, KINC_KEY_SLASH)
+				KEY(XK_bar, KINC_KEY_PIPE)
+				KEY(XK_question, KINC_KEY_QUESTIONMARK)
 				KEY(XK_less, KINC_KEY_LESS_THAN)
+				KEY(XK_greater, KINC_KEY_GREATER_THAN)
+				KEY(XK_asterisk, KINC_KEY_ASTERISK)
+				KEY(XK_ampersand, KINC_KEY_AMPERSAND)
+				KEY(XK_asciicircum, KINC_KEY_CIRCUMFLEX)
+				KEY(XK_percent, KINC_KEY_PERCENT)
+				KEY(XK_dollar, KINC_KEY_DOLLAR)
+				KEY(XK_numbersign, KINC_KEY_HASH)
+				KEY(XK_at, KINC_KEY_AT)
+				KEY(XK_exclam, KINC_KEY_EXCLAMATION)
 				KEY(XK_equal, KINC_KEY_EQUALS)
+				KEY(XK_plus, KINC_KEY_ADD)
 				KEY(XK_quoteleft, KINC_KEY_BACK_QUOTE)
+				KEY(XK_quotedbl, KINC_KEY_DOUBLE_QUOTE)
+				KEY(XK_asciitilde, KINC_KEY_TILDE)
 				KEY(XK_Pause, KINC_KEY_PAUSE)
 				KEY(XK_Scroll_Lock, KINC_KEY_SCROLL_LOCK)
 				KEY(XK_Home, KINC_KEY_HOME)
 				KEY(XK_Page_Up, KINC_KEY_PAGE_UP)
+				KEY(XK_Page_Down, KINC_KEY_PAGE_DOWN)
 				KEY(XK_End, KINC_KEY_END)
 				KEY(XK_Insert, KINC_KEY_INSERT)
 				KEY(XK_KP_Enter, KINC_KEY_RETURN)
@@ -633,16 +707,16 @@ bool kinc_internal_handle_messages() {
 				KEY(XK_KP_Subtract, KINC_KEY_SUBTRACT)
 				KEY(XK_KP_Decimal, KINC_KEY_DECIMAL)
 				KEY(XK_KP_Divide, KINC_KEY_DIVIDE)
-				KEY(XK_KP_0, KINC_KEY_0)
-				KEY(XK_KP_1, KINC_KEY_1)
-				KEY(XK_KP_2, KINC_KEY_2)
-				KEY(XK_KP_3, KINC_KEY_3)
-				KEY(XK_KP_4, KINC_KEY_4)
-				KEY(XK_KP_5, KINC_KEY_5)
-				KEY(XK_KP_6, KINC_KEY_6)
-				KEY(XK_KP_7, KINC_KEY_7)
-				KEY(XK_KP_8, KINC_KEY_8)
-				KEY(XK_KP_9, KINC_KEY_9)
+				KEY(XK_KP_0, KINC_KEY_NUMPAD_0)
+				KEY(XK_KP_1, KINC_KEY_NUMPAD_1)
+				KEY(XK_KP_2, KINC_KEY_NUMPAD_2)
+				KEY(XK_KP_3, KINC_KEY_NUMPAD_3)
+				KEY(XK_KP_4, KINC_KEY_NUMPAD_4)
+				KEY(XK_KP_5, KINC_KEY_NUMPAD_5)
+				KEY(XK_KP_6, KINC_KEY_NUMPAD_6)
+				KEY(XK_KP_7, KINC_KEY_NUMPAD_7)
+				KEY(XK_KP_8, KINC_KEY_NUMPAD_8)
+				KEY(XK_KP_9, KINC_KEY_NUMPAD_9)
 				KEY(XK_KP_Insert, KINC_KEY_INSERT)
 				KEY(XK_KP_Delete, KINC_KEY_DELETE)
 				KEY(XK_KP_End, KINC_KEY_END)
@@ -851,6 +925,8 @@ bool kinc_internal_handle_messages() {
 			break;
 		}
 		case FocusOut: {
+			controlDown = false;
+			ignoreKeycode = 0;
 			kinc_internal_background_callback();
 			break;
 		}
@@ -880,7 +956,21 @@ bool kinc_keyboard_active() {
 	return true;
 }
 
-void kinc_load_url(const char* url) {}
+void kinc_load_url(const char* url) {
+
+	#define MAX_COMMAND_BUFFER_SIZE 256
+
+	if (strstr(url, "http://") || strstr(url, "https://")) {
+
+		char openUrlCommand[MAX_COMMAND_BUFFER_SIZE];
+		snprintf(openUrlCommand, MAX_COMMAND_BUFFER_SIZE, "xdg-open %s", url);
+		system(openUrlCommand);
+
+	}
+
+	#undef MAX_COMMAND_BUFFER_SIZE
+
+}
 
 void kinc_vibrate(int ms) {}
 
@@ -947,7 +1037,6 @@ void kinc_unlock_achievement(int id) {
 }
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
-	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 	Kore::initHIDGamepads();
 
 	gettimeofday(&start, NULL);
@@ -975,7 +1064,8 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 }
 
 void kinc_internal_shutdown() {
-
+	Kore::closeHIDGamepads();
+	kinc_internal_shutdown_callback();
 }
 
 #ifndef KINC_NO_MAIN

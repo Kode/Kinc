@@ -184,31 +184,31 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	DXGI_FORMAT d3dformat = convertFormat(image->format);
 	int formatSize = formatByteSize(image->format);
 
-	HRESULT result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                                 &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1),
-	                                                 D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+	CD3DX12_HEAP_PROPERTIES heapPropertiesDefault(D3D12_HEAP_TYPE_DEFAULT);
+	CD3DX12_RESOURCE_DESC resourceDescTex = CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1);
+	HRESULT result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+	                                                 IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
-			result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-			                                         &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1),
-			                                         D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+			result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 			if (result == S_OK) {
 				break;
 			}
 		}
 	}
 
+	CD3DX12_HEAP_PROPERTIES heapPropertiesUpload(D3D12_HEAP_TYPE_UPLOAD);
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
-	result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-	                                         &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+	CD3DX12_RESOURCE_DESC resourceDescBuffer = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+	result = device->CreateCommittedResource(&heapPropertiesUpload, D3D12_HEAP_FLAG_NONE, &resourceDescBuffer, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 	                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
-			result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-			                                         &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
+			result = device->CreateCommittedResource(&heapPropertiesUpload, D3D12_HEAP_FLAG_NONE, &resourceDescBuffer, D3D12_RESOURCE_STATE_GENERIC_READ,
+			                                         nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 			if (result == S_OK) {
 				break;
 			}
@@ -258,31 +258,31 @@ void create_texture(kinc_g5_texture *texture, int width, int height, kinc_image_
 
 	DXGI_FORMAT d3dformat = convertFormat(format);
 
-	HRESULT result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-	                                                 &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1, 1, 0, flags),
-	                                                 D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+	CD3DX12_HEAP_PROPERTIES heapPropertiesDefault(D3D12_HEAP_TYPE_DEFAULT);
+	CD3DX12_RESOURCE_DESC resourceDescTex = CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1, 1, 0, flags);
+	HRESULT result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+	                                                 IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
-			result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-			                                         &CD3DX12_RESOURCE_DESC::Tex2D(d3dformat, texture->texWidth, texture->texHeight, 1, 1, 1, 0, flags),
-			                                         D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+			result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 			if (result == S_OK) {
 				break;
 			}
 		}
 	}
 
+	CD3DX12_HEAP_PROPERTIES heapPropertiesUpload(D3D12_HEAP_TYPE_UPLOAD);
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(texture->impl.image, 0, 1);
-	result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-	                                         &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+	CD3DX12_RESOURCE_DESC resourceDescBuffer = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+	result = device->CreateCommittedResource(&heapPropertiesUpload, D3D12_HEAP_FLAG_NONE, &resourceDescBuffer, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 	                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
-			result = device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-			                                         &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
+			result = device->CreateCommittedResource(&heapPropertiesUpload, D3D12_HEAP_FLAG_NONE, &resourceDescBuffer, D3D12_RESOURCE_STATE_GENERIC_READ,
+			                                         nullptr, IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 			if (result == S_OK) {
 				break;
 			}

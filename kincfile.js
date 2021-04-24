@@ -129,7 +129,6 @@ if (platform === Platform.Windows) {
 		if (raytrace === RayTraceApi.VKRT) {
 			project.addDefine('KORE_RAYTRACE');
 			project.addDefine('KORE_VKRT');
-			project.addDefine('VK_ENABLE_BETA_EXTENSIONS');
 		}
 	}
 	else if (graphics === GraphicsApi.Direct3D9) {
@@ -327,7 +326,7 @@ else if (platform === Platform.HTML5) {
 		throw new Error('Graphics API ' + graphics + ' is not available for HTML5.');
 	}
 }
-else if (platform === Platform.Linux) {
+else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	project.addDefine('KORE_LINUX');
 	addBackend('System/Linux');
 	addBackend('System/POSIX');
@@ -338,6 +337,14 @@ else if (platform === Platform.Linux) {
 	project.addLib('Xinerama');
 	project.addLib('Xrandr');
 	project.addLib('Xi');
+	if (platform === Platform.Linux) {
+		project.addLib('udev');
+	}
+	else if (platform === Platform.FreeBSD) {
+		addBackend('System/FreeBSD');
+		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.cpp');
+		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.h');
+	}
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
@@ -348,7 +355,6 @@ else if (platform === Platform.Linux) {
 		if (raytrace === RayTraceApi.VKRT) {
 			project.addDefine('KORE_RAYTRACE');
 			project.addDefine('KORE_VKRT');
-			project.addDefine('VK_ENABLE_BETA_EXTENSIONS');
 		}
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
