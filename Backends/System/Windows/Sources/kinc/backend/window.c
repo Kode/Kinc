@@ -378,12 +378,12 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 	kinc_framebuffer_options_t defaultFrame;
 
 	if (win == NULL) {
-		kinc_internal_init_window_options(&defaultWin);
+		kinc_window_options_set_defaults(&defaultWin);
 		win = &defaultWin;
 	}
 
 	if (frame == NULL) {
-		kinc_internal_init_framebuffer_options(&defaultFrame);
+		kinc_framebuffer_options_set_defaults(&defaultFrame);
 		frame = &defaultFrame;
 	}
 

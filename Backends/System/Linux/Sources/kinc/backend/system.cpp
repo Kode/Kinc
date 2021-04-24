@@ -1046,12 +1046,12 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 	//System::_init(name, width, height, &win, &frame);
     kinc_window_options_t defaultWin;
     if (win == NULL) {
-        kinc_internal_init_window_options(&defaultWin);
+        kinc_window_options_set_defaults(&defaultWin);
         win = &defaultWin;
     }
     kinc_framebuffer_options_t defaultFrame;
     if (frame == NULL) {
-        kinc_internal_init_framebuffer_options(&defaultFrame);
+        kinc_framebuffer_options_set_defaults(&defaultFrame);
         frame = &defaultFrame;
     }
     win->width = width;

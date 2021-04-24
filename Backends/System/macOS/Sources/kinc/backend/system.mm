@@ -191,13 +191,13 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 	//System::_init(name, width, height, &win, &frame);
 	kinc_window_options_t defaultWindowOptions;
 	if (win == NULL) {
-		kinc_internal_init_window_options(&defaultWindowOptions);
+		kinc_window_options_set_defaults(&defaultWindowOptions);
 		win = &defaultWindowOptions;
 	}
 
 	kinc_framebuffer_options_t defaultFramebufferOptions;
 	if (frame == NULL) {
-		kinc_internal_init_framebuffer_options(&defaultFramebufferOptions);
+		kinc_framebuffer_options_set_defaults(&defaultFramebufferOptions);
 		frame = &defaultFramebufferOptions;
 	}
 

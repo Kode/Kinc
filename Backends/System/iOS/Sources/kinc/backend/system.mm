@@ -92,12 +92,12 @@ void kinc_internal_shutdown() {
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
 	kinc_window_options_t defaultWin;
 	if (win == NULL) {
-		kinc_internal_init_window_options(&defaultWin);
+		kinc_window_options_set_defaults(&defaultWin);
 		win = &defaultWin;
 	}
 	kinc_framebuffer_options_t defaultFrame;
 	if (frame == NULL) {
-		kinc_internal_init_framebuffer_options(&defaultFrame);
+		kinc_framebuffer_options_set_defaults(&defaultFrame);
 		frame = &defaultFrame;
 	}
 	kinc_g4_init(0, frame->depth_bits, frame->stencil_bits, true);

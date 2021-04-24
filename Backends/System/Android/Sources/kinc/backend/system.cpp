@@ -976,7 +976,7 @@ extern "C" void android_main(android_app* app) {
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
 	kinc_window_options default_win;
 	if (win == NULL) {
-		kinc_internal_init_window_options(&default_win);
+		kinc_window_options_set_defaults(&default_win);
 		win = &default_win;
 	}
 	win->width = width;
@@ -984,7 +984,7 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 
 	struct kinc_framebuffer_options default_frame;
 	if (frame == NULL) {
-		kinc_internal_init_framebuffer_options(&default_frame);
+		kinc_framebuffer_options_set_defaults(&default_frame);
 		frame = &default_frame;
 	}
 

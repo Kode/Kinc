@@ -43,6 +43,8 @@ typedef struct kinc_window_options {
 
 KINC_FUNC int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame);
 KINC_FUNC void kinc_window_destroy(int window_index);
+KINC_FUNC void kinc_window_options_set_defaults(kinc_window_options_t *win);
+KINC_FUNC void kinc_framebuffer_options_set_defaults(kinc_framebuffer_options_t *frame);
 KINC_FUNC int kinc_count_windows(void);
 KINC_FUNC void kinc_window_resize(int window_index, int width, int height);
 KINC_FUNC void kinc_window_move(int window_index, int x, int y);
@@ -62,8 +64,6 @@ KINC_FUNC void kinc_window_set_resize_callback(int window_index, void (*callback
 KINC_FUNC void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data);
 KINC_FUNC bool kinc_window_vsynced(int window_index);
 
-void kinc_internal_init_window_options(kinc_window_options_t *win);
-void kinc_internal_init_framebuffer_options(kinc_framebuffer_options_t *frame);
 void kinc_internal_call_resize_callback(int window_index, int width, int height);
 void kinc_internal_call_ppi_changed_callback(int window_index, int ppi);
 
