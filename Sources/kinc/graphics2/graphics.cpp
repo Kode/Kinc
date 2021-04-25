@@ -2,9 +2,9 @@
 
 #include "graphics.h"
 
-#include <Kore/Math/Matrix.h>
 #include <kinc/graphics1/graphics.h>
 #include <kinc/math/core.h>
+#include <kinc/math/matrix.h>
 
 #include <stdint.h>
 #include <string.h>
@@ -184,30 +184,47 @@ void drawQuad(kinc_image_t *img, Point2D v0, Point2D v1, Point2D v2, Point2D v3)
 	}
 }
 
-static Kore::mat3 transform;
+static kinc_matrix3x3_t transform;
 
 void kinc_g2_draw_image(kinc_image_t *img, float x, float y) {
-	Kore::vec3 _0(x, y, 1.0f);
-	Kore::vec3 _1(x + img->width, y, 1.0f);
-	Kore::vec3 _2(x + img->width, y + img->height, 1.0f);
-	Kore::vec3 _3(x, y + img->height, 1.0f);
-	_0 = transform * _0;
-	_1 = transform * _1;
-	_2 = transform * _2;
-	_3 = transform * _3;
+	kinc_vector3_t _0;
+	_0.x = x;
+	_0.y = y;
+	_0.z = 1.0f;
+	kinc_vector3_t _1;
+	_1.x = x + img->width;
+	_1.y = y;
+	_1.z = 1.0f;
+	kinc_vector3_t _2;
+	_2.x = x + img->width;
+	_2.y = y + img->height;
+	_2.z = 1.0f;
+	kinc_vector3_t _3;
+	_3.x = x;
+	_3.y = y + img->height;
+	_3.z = 1.0f;
+
+	_0 = kinc_matrix3x3_multiply_vector(&transform, _0);
+	_1 = kinc_matrix3x3_multiply_vector(&transform, _1);
+	_2 = kinc_matrix3x3_multiply_vector(&transform, _2);
+	_3 = kinc_matrix3x3_multiply_vector(&transform, _3);
 
 	Point2D v0, v1, v2, v3;
-	v0.x = (int)kinc_round(_0.x());
-	v0.y = (int)kinc_round(_0.y());
-	v1.x = (int)kinc_round(_1.x());
-	v1.y = (int)kinc_round(_1.y());
-	v2.x = (int)kinc_round(_2.x());
-	v2.y = (int)kinc_round(_2.y());
-	v3.x = (int)kinc_round(_3.x());
-	v3.y = (int)kinc_round(_3.y());
+	v0.x = (int)kinc_round(_0.x);
+	v0.y = (int)kinc_round(_0.y);
+	v1.x = (int)kinc_round(_1.x);
+	v1.y = (int)kinc_round(_1.y);
+	v2.x = (int)kinc_round(_2.x);
+	v2.y = (int)kinc_round(_2.y);
+	v3.x = (int)kinc_round(_3.x);
+	v3.y = (int)kinc_round(_3.y);
 	drawQuad(img, v0, v1, v2, v3);
 }
 
 void kinc_g2_set_rotation(float angle, float centerx, float centery) {
-	transform = Kore::mat3::Translation(centerx, centery) * Kore::mat3::RotationZ(angle) * Kore::mat3::Translation(-centerx, -centery);
+	kinc_matrix3x3_t translation1 = kinc_matrix3x3_translation(centerx, centery);
+	kinc_matrix3x3_t rotation = kinc_matrix3x3_rotation_z(angle);
+	kinc_matrix3x3_t translation2 = kinc_matrix3x3_translation(-centerx, -centery);
+	kinc_matrix3x3_t transformation1 = kinc_matrix3x3_multiply(&translation1, &rotation);
+	transform = kinc_matrix3x3_multiply(&transformation1, &translation2);
 }
