@@ -9,42 +9,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#if 0
-#include <Kore/Graphics2/Graphics.h>
-
-static Kore::Graphics2::Graphics2 *kinc_kore_g2;
-
-static kinc_matrix3x3_t transformation;
-
-static Kore::Graphics4::Texture *tex;
-
-void kinc_g2_init(int screen_width, int screen_height) {
-	tex = new Kore::Graphics4::Texture(32, 32, Kore::Graphics1::Image::RGBA32);
-	kinc_kore_g2 = new Kore::Graphics2::Graphics2(screen_width, screen_height);
-}
-
-void kinc_g2_begin(void) {
-	kinc_kore_g2->begin();
-}
-
-void kinc_g2_end(void) {
-	kinc_kore_g2->end();
-}
-
-void kinc_g2_draw_image(kinc_g4_texture_t *img, float x, float y) {
-	tex->kincTexture = *img;
-	tex->width = img->tex_width;
-	tex->height = img->tex_height;
-	tex->texWidth = img->tex_width;
-	tex->texHeight = img->tex_height;
-	kinc_kore_g2->drawImage(tex, x, y);
-}
-
-void kinc_g2_set_rotation(float angle, float centerx, float centery) {
-	kinc_kore_g2->transformation = (Kore::mat3::Translation(centerx, centery) * Kore::mat3::RotationZ(angle)) * Kore::mat3::Translation(-centerx, -centery);
-}
-#endif
-
 void kinc_g2_init(int screen_width, int screen_height) {
 	kinc_g1_init(screen_width, screen_height);
 }
@@ -132,11 +96,11 @@ static void draw_pixel(kinc_image_t *img, int frame_x, int frame_y, float u, flo
 	}
 }
 
-struct Point2D {
+typedef struct Point2D {
 	int x, y;
-};
+} Point2D_t;
 
-int orient2d(const Point2D &a, const Point2D &b, const Point2D &c) {
+static int orient2d(Point2D_t a, Point2D_t b, Point2D_t c) {
 	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
@@ -148,7 +112,7 @@ static int max4(int a, int b, int c, int d) {
 	return kinc_maxi(kinc_maxi(a, b), kinc_maxi(c, d));
 }
 
-void drawQuad(kinc_image_t *img, Point2D v0, Point2D v1, Point2D v2, Point2D v3) {
+static void drawQuad(kinc_image_t *img, Point2D_t v0, Point2D_t v1, Point2D_t v2, Point2D_t v3) {
 	// Compute triangle bounding box
 	int minX = min4(v0.x, v1.x, v2.x, v3.x);
 	int minY = min4(v0.y, v1.y, v2.y, v3.y);
@@ -162,7 +126,7 @@ void drawQuad(kinc_image_t *img, Point2D v0, Point2D v1, Point2D v2, Point2D v3)
 	maxY = kinc_mini(maxY, kinc_internal_g1_h - 1);
 
 	// Rasterize
-	Point2D p;
+	Point2D_t p;
 	for (p.y = minY; p.y <= maxY; p.y++) {
 		for (p.x = minX; p.x <= maxX; p.x++) {
 			// Determine barycentric coordinates
@@ -209,7 +173,7 @@ void kinc_g2_draw_image(kinc_image_t *img, float x, float y) {
 	_2 = kinc_matrix3x3_multiply_vector(&transform, _2);
 	_3 = kinc_matrix3x3_multiply_vector(&transform, _3);
 
-	Point2D v0, v1, v2, v3;
+	Point2D_t v0, v1, v2, v3;
 	v0.x = (int)kinc_round(_0.x);
 	v0.y = (int)kinc_round(_0.y);
 	v1.x = (int)kinc_round(_1.x);
