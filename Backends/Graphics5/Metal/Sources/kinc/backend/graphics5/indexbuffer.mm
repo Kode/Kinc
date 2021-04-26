@@ -19,7 +19,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, b
 	buffer->impl.gpuMemory = gpuMemory;
 	id<MTLDevice> device = getMetalDevice();
 	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
-#ifdef KORE_IOS
+#ifdef __ARM_ARCH_ISA_A64
 	options |= MTLResourceStorageModeShared;
 #else
 	if (gpuMemory) {
@@ -43,7 +43,7 @@ int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buf) {
 }
 
 void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buf) {
-#ifndef KORE_IOS
+#ifndef __ARM_ARCH_ISA_A64
 	if (buf->impl.gpuMemory) {
 		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 		NSRange range;
