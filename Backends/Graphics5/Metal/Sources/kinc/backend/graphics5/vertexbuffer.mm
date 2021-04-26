@@ -57,7 +57,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 
 	id<MTLDevice> device = getMetalDevice();
 	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
-#ifdef __ARM_ARCH_ISA_A64
+#ifdef KINC_APPLE_SOC
 	options |= MTLResourceStorageModeShared;
 #else
 	if (gpuMemory) {
@@ -92,7 +92,7 @@ float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buf, int start, int c
 }
 
 void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buf) {
-#ifndef __ARM_ARCH_ISA_A64
+#ifndef KINC_APPLE_SOC
 	if (buf->impl.gpuMemory) {
 		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 		NSRange range;
@@ -104,7 +104,7 @@ void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buf) {
 }
 
 void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buf, int count) {
-#ifndef __ARM_ARCH_ISA_A64
+#ifndef KINC_APPLE_SOC
 	if (buf->impl.gpuMemory) {
 		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
 		NSRange range;
