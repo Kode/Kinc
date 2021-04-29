@@ -84,9 +84,8 @@ namespace {
 		commandAllocator->Reset();
 		list->impl._commandList->Reset(commandAllocator, nullptr);
 		if (currentRenderTarget != nullptr) {
-			D3D12_CPU_DESCRIPTOR_HANDLE heapStart = currentRenderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-			list->impl._commandList->OMSetRenderTargets(currentRenderTargetCount, &targetDescriptors[0], false,
-			                                            currentRenderTarget->impl.depthStencilDescriptorHeap != nullptr ? &heapStart : nullptr);
+			D3D12_CPU_DESCRIPTOR_HANDLE *heapStart = currentRenderTarget->impl.depthStencilDescriptorHeap != nullptr ? &currentRenderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr;
+			list->impl._commandList->OMSetRenderTargets(currentRenderTargetCount, &targetDescriptors[0], false, heapStart);
 			list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&currentRenderTarget->impl.viewport);
 			list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&currentRenderTarget->impl.scissor);
 		}
