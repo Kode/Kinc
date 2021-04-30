@@ -6,8 +6,8 @@
 
 id getMetalDevice();
 
-bool kinc_g5_transposeMat3 = false;
-bool kinc_g5_transposeMat4 = false;
+bool kinc_g5_transposeMat3 = true;
+bool kinc_g5_transposeMat4 = true;
 
 void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	buffer->impl.mySize = size;
@@ -29,7 +29,7 @@ void kinc_g5_constant_buffer_lock(kinc_g5_constant_buffer_t *buffer, int start, 
 }
 
 void kinc_g5_constant_buffer_unlock(kinc_g5_constant_buffer_t *buffer) {
-	
+
 	buffer->data = nullptr;
 }
 
