@@ -20,9 +20,9 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	memset(&ceDesc, 0, sizeof(ceDesc));
 	list->impl.encoder = wgpuDeviceCreateCommandEncoder(device, &ceDesc);
 
-	WGPURenderPassColorAttachmentDescriptor attachment;
+	WGPURenderPassColorAttachment attachment;
 	memset(&attachment, 0, sizeof(attachment));
-	attachment.attachment = wgpuSwapChainGetCurrentTextureView(swapChain);;
+	attachment.view = wgpuSwapChainGetCurrentTextureView(swapChain);;
 	attachment.loadOp = WGPULoadOp_Clear;
 	attachment.storeOp = WGPUStoreOp_Store;
 	WGPUColor color = {0, 0, 0, 1};
