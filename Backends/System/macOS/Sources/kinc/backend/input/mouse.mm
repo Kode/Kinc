@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import <Cocoa/Cocoa.h>
 
 #include <kinc/input/mouse.h>

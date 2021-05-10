@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Graphics/Shader.h>
 #include <Kore/IndexBufferImpl.h>
 #include <Kore/Log.h>

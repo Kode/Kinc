@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "G4.h"
 
 #include <kinc/backend/graphics4/indexbuffer.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/threads/thread.h>
 
 void kinc_thread_init(kinc_thread_t *t, void (*thread)(void* param), void* param) {

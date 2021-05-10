@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Input/Mouse.h>
 #include <Kore/System.h>
 

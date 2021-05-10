@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #ifdef KORE_ANDROID
 
 #include "ogl.h"

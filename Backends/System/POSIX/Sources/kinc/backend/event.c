@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/threads/event.h>
 
 #include <assert.h>

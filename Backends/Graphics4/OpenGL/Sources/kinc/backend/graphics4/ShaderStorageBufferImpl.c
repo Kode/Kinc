@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "ogl.h"
 
 #include <kinc/compute/compute.h>

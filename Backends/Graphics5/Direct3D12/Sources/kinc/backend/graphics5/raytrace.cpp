@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/backend/graphics5/raytrace.h>
 
 #ifdef KORE_DXR

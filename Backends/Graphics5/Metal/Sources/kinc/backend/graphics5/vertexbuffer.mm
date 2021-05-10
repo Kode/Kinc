@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics5/shader.h>
 #include <kinc/graphics5/vertexbuffer.h>
 

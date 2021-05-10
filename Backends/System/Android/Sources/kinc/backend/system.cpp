@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <EGL/egl.h>
 #include <GLContext.h>
 #include <kinc/backend/Android.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import "BasicOpenGLView.h"
 
 #import <Cocoa/Cocoa.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <kinc/audio2/audio.h>

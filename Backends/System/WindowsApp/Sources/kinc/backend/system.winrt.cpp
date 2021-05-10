@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/backend/graphics4/Direct3D11.h>
 
 #include <kinc/input/gamepad.h>

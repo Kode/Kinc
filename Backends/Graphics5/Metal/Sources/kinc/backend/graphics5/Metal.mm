@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Metal.h"
 
 #include <kinc/color.h>

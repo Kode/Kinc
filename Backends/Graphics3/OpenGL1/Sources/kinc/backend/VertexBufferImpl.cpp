@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "VertexBufferImpl.h"
 
 #include <Kore/Graphics3/Graphics.h>

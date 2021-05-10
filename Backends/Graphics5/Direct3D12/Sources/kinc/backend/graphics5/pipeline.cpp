@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "pipeline.h"
 
 #include <kinc/backend/graphics5/Direct3D12.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/video.h>
 
 void kinc_video_init(kinc_video_t *video, const char *filename) {}

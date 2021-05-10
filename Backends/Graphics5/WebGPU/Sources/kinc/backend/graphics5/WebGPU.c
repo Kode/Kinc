@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <string.h>
 #include <emscripten.h>
 #include <emscripten/html5.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import "motion.h"
 
 @implementation Motion

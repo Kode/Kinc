@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/display.h>
 #include <kinc/log.h>
 

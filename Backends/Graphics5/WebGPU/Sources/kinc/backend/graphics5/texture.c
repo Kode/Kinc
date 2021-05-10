@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics5/texture.h>
 
 void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {

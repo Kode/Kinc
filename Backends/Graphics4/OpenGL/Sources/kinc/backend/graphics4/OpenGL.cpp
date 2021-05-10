@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "OpenGL.h"
 #include "ogl.h"
 #include <kinc/backend/graphics4/vertexbuffer.h>

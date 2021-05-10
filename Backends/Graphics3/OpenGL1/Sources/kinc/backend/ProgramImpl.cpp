@@ -1,5 +1,5 @@
 #include "ogl.h"
-#include "pch.h"
+
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Log.h>

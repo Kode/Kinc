@@ -1,4 +1,3 @@
-#include "pch.h"
 #include <Kore/Audio2/Audio.h>
 #include <alsa/asoundlib.h>
 #include <errno.h>

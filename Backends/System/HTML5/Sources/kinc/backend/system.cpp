@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #ifdef KORE_OPENGL
 #include <GL/glfw.h>
 #endif

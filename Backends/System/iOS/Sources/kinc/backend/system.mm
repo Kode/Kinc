@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import "KoreAppDelegate.h"
 
 #include <kinc/graphics4/graphics.h>

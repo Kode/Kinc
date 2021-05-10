@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "RenderTargetImpl.h"
 
 #include <Kore/Log.h>

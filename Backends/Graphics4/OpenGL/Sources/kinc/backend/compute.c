@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/backend/graphics4/ogl.h>
 
 #include <kinc/compute/compute.h>

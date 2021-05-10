@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/backend/graphics4/pipeline.h>
 
 #include <kinc/graphics4/pipeline.h>

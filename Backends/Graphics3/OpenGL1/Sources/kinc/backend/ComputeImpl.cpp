@@ -1,6 +1,5 @@
 #include "ComputeImpl.h"
 #include "ogl.h"
-#include "pch.h"
 #include <Kore/Compute/Compute.h>
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Math/Core.h>

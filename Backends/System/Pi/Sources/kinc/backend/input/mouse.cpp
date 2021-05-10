@@ -1,4 +1,3 @@
-#include "../pch.h"
 #include <Kore/Input/Mouse.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>

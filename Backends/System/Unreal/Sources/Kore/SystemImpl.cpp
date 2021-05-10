@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Input/Keyboard.h>

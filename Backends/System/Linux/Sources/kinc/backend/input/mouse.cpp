@@ -1,5 +1,3 @@
-#include "../pch.h"
-
 #include <kinc/backend/Linux.h>
 #include <kinc/input/mouse.h>
 #include <kinc/log.h>

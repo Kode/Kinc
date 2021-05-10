@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/compute/compute.h>
 #include <kinc/math/core.h>
 #include <kinc/graphics4/texture.h>

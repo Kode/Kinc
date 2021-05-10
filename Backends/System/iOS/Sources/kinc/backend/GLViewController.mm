@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import "GLViewController.h"
 #import "GLView.h"
 

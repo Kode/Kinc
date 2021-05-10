@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/input/mouse.h>
 
 void kinc_internal_mouse_lock(int window) {

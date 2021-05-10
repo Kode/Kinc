@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <string.h>
 #include <kinc/graphics5/shader.h>
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/hid/IOHIDManager.h>
