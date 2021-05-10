@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/backend/video.h>
 #include <kinc/graphics4/texture.h>
 

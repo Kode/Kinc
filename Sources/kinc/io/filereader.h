@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #if defined(KORE_SONY) || defined(KORE_SWITCH)
 #include <kinc/backend/FileReaderImpl.h>
 #endif

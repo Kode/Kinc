@@ -1,7 +1,5 @@
 #ifndef OPENGL_1_X
 
-#include "pch.h"
-
 #include "graphics.h"
 
 static int samples = 1;

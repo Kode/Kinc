@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/threads/mutex.h>
 
 #include <Windows.h>
@@ -29,7 +27,7 @@ void kinc_mutex_unlock(kinc_mutex_t *mutex) {
 
 bool kinc_uber_mutex_init(kinc_uber_mutex_t *mutex, const char *name) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-	mutex->impl.id = (void*)CreateMutexA(NULL, FALSE, name);
+	mutex->impl.id = (void *)CreateMutexA(NULL, FALSE, name);
 	HRESULT res = GetLastError();
 	if (res && res != ERROR_ALREADY_EXISTS) {
 		mutex->impl.id = NULL;

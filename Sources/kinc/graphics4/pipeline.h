@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/graphics4/constantlocation.h>
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/textureunit.h>

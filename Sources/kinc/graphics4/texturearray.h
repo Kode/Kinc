@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include "texture.h"
 
 #include <kinc/backend/graphics4/texturearray.h>

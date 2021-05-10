@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/backend/event.h>
 
 #include <stdbool.h>

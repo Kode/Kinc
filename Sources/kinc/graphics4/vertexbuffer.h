@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include "vertexstructure.h"
 
 #include <kinc/backend/graphics4/vertexbuffer.h>

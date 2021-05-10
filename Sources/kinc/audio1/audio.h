@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include "sound.h"
 #include "soundstream.h"
 

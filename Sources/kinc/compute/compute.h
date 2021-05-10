@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/backend/compute.h>
 #ifdef KORE_OPENGL
 #include <kinc/backend/graphics4/ShaderStorageBufferImpl.h>

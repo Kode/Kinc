@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/math/matrix.h>
 
 #include "constantlocation.h"

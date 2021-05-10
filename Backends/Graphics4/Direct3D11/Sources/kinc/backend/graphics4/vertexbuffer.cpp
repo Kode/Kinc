@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Direct3D11.h"
 
 #include <kinc/graphics4/vertexbuffer.h>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/backend/graphics4/pipeline.h>
 #include <kinc/backend/graphics4/shader.h>
 

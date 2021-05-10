@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "constantbuffer.h"
 
 static void setInt(uint8_t *constants, int offset, int value) {

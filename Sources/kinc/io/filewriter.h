@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <stdbool.h>
 
 #ifdef __cplusplus

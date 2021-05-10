@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "socket.h"
 
 #include <kinc/log.h>

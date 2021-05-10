@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "sound.h"
 
 #define STB_VORBIS_HEADER_ONLY

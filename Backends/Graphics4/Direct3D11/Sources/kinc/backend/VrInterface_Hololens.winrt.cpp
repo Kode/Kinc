@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #ifdef KORE_HOLOLENS
 
 #include "Hololens.winrt.h"
@@ -13,7 +11,7 @@ using namespace Windows::Media::Capture;
 using namespace Windows::Media::Capture::Frames;
 using namespace Windows::Media::MediaProperties;
 
-void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName) {
+void *kinc_vr_interface_init(void *hinst, const char *title, const char *windowClassName) {
 	return nullptr;
 }
 
@@ -43,14 +41,14 @@ void kinc_vr_interface_ovr_shutdown() {
 }
 
 void kinc_vr_interface_reset_hmd_pose() {
-	//not supported for hololens
+	// not supported for hololens
 }
 
 void kinc_vr_interface_update_tracking_origin(TrackingOrigin origin) {
-	//could be implemented by setting up the tracking coordinate system with an offset
+	// could be implemented by setting up the tracking coordinate system with an offset
 }
 
-CameraImage* VrInterface::getCurrentCameraImage() {
+CameraImage *VrInterface::getCurrentCameraImage() {
 	if (videoFrameProcessor == nullptr) {
 		return nullptr;
 	}

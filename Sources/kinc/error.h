@@ -1,7 +1,11 @@
 #pragma once
 
+#include <kinc/global.h>
+
+#include <stdarg.h>
+
 /// <summary>
-/// File containing functionality to stop the program in
+/// Contains functionality to stop the program in
 /// case of an error and create a user-visible error message
 /// </summary>
 /// <remarks>
@@ -10,10 +14,6 @@
 /// the user (unless a console window is active this is only
 /// implemented for Windows).
 /// </remarks>
-
-#include "pch.h"
-
-#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {

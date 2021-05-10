@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "pipeline.h"
 
 void kinc_g5_internal_pipeline_init(kinc_g5_pipeline_t *pipe) {

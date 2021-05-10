@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "vertexbuffer.h"
 
 void kinc_g4_vertex_element_init(kinc_g4_vertex_element_t *element, const char *name, kinc_g4_vertex_data_t data) {

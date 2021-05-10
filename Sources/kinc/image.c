@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #if defined(KORE_WINDOWS) && defined(KORE_VULKAN)
 #include <windows.h>
 #endif

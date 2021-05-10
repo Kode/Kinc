@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #if !defined(KORE_CONSOLE)
 
 #include "filewriter.h"

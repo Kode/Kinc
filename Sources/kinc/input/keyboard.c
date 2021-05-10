@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "keyboard.h"
 
 #include <memory.h>

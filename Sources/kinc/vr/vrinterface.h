@@ -1,14 +1,16 @@
 #pragma once
 
+#include <kinc/global.h>
+
+#include <kinc/math/matrix.h>
+#include <kinc/math/quaternion.h>
+#include <kinc/math/vector.h>
+
 #ifdef KORE_VR
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <kinc/math/matrix.h>
-#include <kinc/math/quaternion.h>
-#include <kinc/math/vector.h>
 
 typedef enum { KINC_TRACKING_ORIGIN_STAND, KINC_TRACKING_ORIGIN_SIT } kinc_tracking_origin_t;
 

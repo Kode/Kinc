@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/backend/threadlocal.h>
 
 #ifdef __cplusplus

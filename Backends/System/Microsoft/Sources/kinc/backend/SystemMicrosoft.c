@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "SystemMicrosoft.h"
 
 #include <kinc/error.h>
@@ -59,7 +57,7 @@ void kinc_microsoft_format(const char *format, va_list args, wchar_t *buffer) {
 			switch (formatw[i]) {
 			case L's':
 			case L'S': {
-				char* arg = va_arg(args, char*);
+				char *arg = va_arg(args, char *);
 				wchar_t argw[1024];
 				MultiByteToWideChar(CP_UTF8, 0, arg, -1, argw, 1024);
 				wcscat(buffer, argw);
@@ -102,7 +100,7 @@ void kinc_microsoft_format(const char *format, va_list args, wchar_t *buffer) {
 			}
 			case 'p':
 			case 'n': {
-				void* arg = va_arg(args, void*);
+				void *arg = va_arg(args, void *);
 				wchar_t argformat[3];
 				argformat[0] = L'%';
 				argformat[1] = formatw[i];

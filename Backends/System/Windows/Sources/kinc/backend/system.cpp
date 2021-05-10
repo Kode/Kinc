@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #ifdef KORE_G4ONG5
 #include <Kore/Graphics5/Graphics.h>
 #elif KORE_G4

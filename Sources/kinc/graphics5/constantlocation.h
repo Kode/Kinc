@@ -1,8 +1,8 @@
 #pragma once
 
-#include "pch.h"
+#include <kinc/global.h>
 
-#include <kinc/backend/graphics5/shader.h>
+#include <kinc/backend/graphics5/pipeline.h>
 
 #ifdef __cplusplus
 extern "C" {

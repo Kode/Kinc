@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/audio2/audio.h>
 
 #include <stdint.h>

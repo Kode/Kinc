@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

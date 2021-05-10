@@ -1,12 +1,10 @@
-#include "pch.h"
-
 #ifdef KORE_STEAMVR
 
-#include <Kinc/vr/vrinterface.h>
 #include <Kinc/graphics4/graphics.h>
 #include <Kinc/graphics4/rendertarget.h>
-#include <Kinc/math/vector.h>
 #include <Kinc/math/quaternion.h>
+#include <Kinc/math/vector.h>
+#include <Kinc/vr/vrinterface.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Log.h>
 //#include "Direct3D11.h"
@@ -19,13 +17,13 @@
 using namespace Kore;
 
 namespace {
-	vr::IVRSystem* hmd;
+	vr::IVRSystem *hmd;
 	kinc_g4_render_target_t leftTexture;
 	kinc_g4_render_target_t rightTexture;
 	kinc_vr_sensor_state_t sensorStates[2];
 	kinc_vr_pose_state_t controller[vr::k_unMaxTrackedDeviceCount];
 
-	kinc_matrix4x4_t convert3x4(vr::HmdMatrix34_t& m) {
+	kinc_matrix4x4_t convert3x4(vr::HmdMatrix34_t &m) {
 		kinc_matrix4x4_t mat;
 		kinc_matrix4x4_set(&mat, 0, 0, m.m[0][0]);
 		kinc_matrix4x4_set(&mat, 0, 1, m.m[0][1]);
@@ -46,7 +44,7 @@ namespace {
 		return mat;
 	}
 
-	kinc_matrix4x4_t convert4x4(vr::HmdMatrix44_t& m) {
+	kinc_matrix4x4_t convert4x4(vr::HmdMatrix44_t &m) {
 		kinc_matrix4x4_t mat;
 		kinc_matrix4x4_set(&mat, 0, 0, m.m[0][0]);
 		kinc_matrix4x4_set(&mat, 0, 1, m.m[0][1]);
@@ -67,8 +65,8 @@ namespace {
 		return mat;
 	}
 
-	void getButtonEvent(const vr::VREvent_t& event) {
-		Gamepad* gamepad = Gamepad::get(event.trackedDeviceIndex);
+	void getButtonEvent(const vr::VREvent_t &event) {
+		Gamepad *gamepad = Gamepad::get(event.trackedDeviceIndex);
 		switch (event.data.controller.button) {
 		case vr::k_EButton_Grip:
 			switch (event.eventType) {
@@ -127,10 +125,10 @@ namespace {
 		}
 	}
 
-	void processVREvent(const vr::VREvent_t& event) {
+	void processVREvent(const vr::VREvent_t &event) {
 		switch (event.eventType) {
 		case vr::VREvent_None:
-			//log(Info, "The event is invalid.");
+			// log(Info, "The event is invalid.");
 			break;
 		case vr::VREvent_TrackedDeviceActivated:
 			// SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
@@ -149,13 +147,13 @@ namespace {
 		getButtonEvent(event);
 	}
 
-	void getPosition(const vr::HmdMatrix34_t* m, kinc_vector3_t* position) {
+	void getPosition(const vr::HmdMatrix34_t *m, kinc_vector3_t *position) {
 		position->x = m->m[0][3];
 		position->y = m->m[1][3];
 		position->z = m->m[2][3];
 	}
 
-	void getOrientation(const vr::HmdMatrix34_t* m, kinc_quaternion_t* orientation) {
+	void getOrientation(const vr::HmdMatrix34_t *m, kinc_quaternion_t *orientation) {
 		orientation->w = sqrt(fmax(0, 1 + m->m[0][0] + m->m[1][1] + m->m[2][2])) / 2;
 		orientation->x = sqrt(fmax(0, 1 + m->m[0][0] - m->m[1][1] - m->m[2][2])) / 2;
 		orientation->y = sqrt(fmax(0, 1 - m->m[0][0] + m->m[1][1] - m->m[2][2])) / 2;
@@ -229,7 +227,7 @@ namespace {
 	}
 }
 
-void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName) {
+void *kinc_vr_interface_init(void *hinst, const char *title, const char *windowClassName) {
 	vr::HmdError error;
 	hmd = vr::VR_Init(&error, vr::VRApplication_Scene);
 	// vr::IVRRenderModels* renderModels = (vr::IVRRenderModels*)vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &error);
@@ -283,14 +281,14 @@ kinc_vr_pose_state_t kinc_vr_interface_get_controller(int index) {
 
 void kinc_vr_interface_warp_swap() {
 #ifdef KORE_OPENGL
-	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+	vr::Texture_t leftEyeTexture = {(void *)(uintptr_t)leftTexture.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+	vr::Texture_t rightEyeTexture = {(void *)(uintptr_t)rightTexture.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #else
-	vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftTexture.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t leftEyeTexture = {(void *)(uintptr_t)leftTexture.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightTexture.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
+	vr::Texture_t rightEyeTexture = {(void *)(uintptr_t)rightTexture.impl.textureRender, vr::TextureType_DirectX, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 #endif
 }

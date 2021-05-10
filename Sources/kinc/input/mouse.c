@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "mouse.h"
 
 #include <kinc/window.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/backend/Windows.h>
 
 #include <kinc/display.h>

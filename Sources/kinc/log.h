@@ -1,16 +1,16 @@
 #pragma once
 
+#include <kinc/global.h>
+
+#include <stdarg.h>
+
 /// <summary>
-/// File containing basic logging functionality
+/// Contains basic logging functionality
 /// </summary>
 /// <remarks>
 /// Logging functionality is similar to plain printf but provides
 /// some system-specific bonuses.
 /// </remarks>
-
-#include <stdarg.h>
-
-#include "pch.h"
 
 #ifdef __cplusplus
 extern "C" {
