@@ -74,6 +74,12 @@ namespace Kore {
 #define KINC_LITTLE_ENDIAN
 #endif
 
+#ifdef _MSC_VER
+#define KINC_INLINE __forceinline
+#else
+#define KINC_INLINE __attribute__((always_inline))
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
