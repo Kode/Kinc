@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Pen.h"
 
 #include <kinc/input/pen.h>
@@ -29,7 +27,7 @@ namespace {
 	}
 }
 
-Pen* Pen::the() {
+Pen *Pen::the() {
 	if (!initialized) {
 		kinc_pen_press_callback = pressCallback;
 		kinc_pen_move_callback = moveCallback;

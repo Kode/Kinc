@@ -1,8 +1,6 @@
-#include "pch.h"
-
 #include <Kore/Graphics4/TextureArray.h>
 
-Kore::Graphics4::TextureArray::TextureArray(Image** textures, int count) {
+Kore::Graphics4::TextureArray::TextureArray(Image **textures, int count) {
 	kinc_image_t images[16];
 	for (int i = 0; i < count; ++i) {
 		kinc_image_init(&images[i], textures[i]->data, textures[i]->width, textures[i]->height, (kinc_image_format_t)textures[i]->format);

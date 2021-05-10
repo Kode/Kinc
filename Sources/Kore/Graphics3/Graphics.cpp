@@ -1,10 +1,10 @@
 #include "Graphics.h"
-#include "pch.h"
+
 #include <limits>
 
-using namespace Kore;
-
 #ifndef KORE_G4
+
+using namespace Kore;
 
 namespace {
 	int samples = 1;
@@ -33,8 +33,8 @@ void Graphics3::setWindow(bool value) {
 
 bool Graphics3::fullscreen = false;
 
-void Graphics3::setVertexBuffer(VertexBuffer& vertexBuffer) {
-	VertexBuffer* vertexBuffers[1] = {&vertexBuffer};
+void Graphics3::setVertexBuffer(VertexBuffer &vertexBuffer) {
+	VertexBuffer *vertexBuffers[1] = {&vertexBuffer};
 	setVertexBuffers(vertexBuffers, 1);
 }
 

@@ -1,7 +1,5 @@
-#include "pch.h"
-
-#include "Core.h"
 #include "Quaternion.h"
+#include "Core.h"
 
 using namespace Kore;
 
@@ -9,7 +7,7 @@ Quaternion::Quaternion() : x(0), y(0), z(0), w(0) {}
 
 Quaternion::Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
-Quaternion::Quaternion(const vec3& axis, float radians) {
+Quaternion::Quaternion(const vec3 &axis, float radians) {
 	w = cos(radians / 2);
 	x = y = z = sin(radians / 2);
 	x *= axis.x();
@@ -17,7 +15,7 @@ Quaternion::Quaternion(const vec3& axis, float radians) {
 	z *= axis.z();
 }
 
-Quaternion Quaternion::slerp(float t, const Quaternion& v1) const {
+Quaternion Quaternion::slerp(float t, const Quaternion &v1) const {
 	const float epsilon = 0.0005f;
 	float dot = Quaternion::dot(v1);
 
@@ -41,7 +39,7 @@ Quaternion Quaternion::slerp(float t, const Quaternion& v1) const {
 	return q;
 }
 
-Quaternion Quaternion::rotated(const Quaternion& b) const {
+Quaternion Quaternion::rotated(const Quaternion &b) const {
 	Quaternion q;
 	q.w = w * b.w - x * b.x - y * b.y - z * b.z;
 	q.x = w * b.x + x * b.w + y * b.z - z * b.y;
@@ -55,7 +53,7 @@ Quaternion Quaternion::scaled(float scale) const {
 	return Quaternion(x * scale, y * scale, z * scale, w * scale);
 }
 
-float Quaternion::dot(const Quaternion& q) const {
+float Quaternion::dot(const Quaternion &q) const {
 	return x * q.x + y * q.y + z * q.z + w * q.w;
 }
 
@@ -86,15 +84,15 @@ mat4 Quaternion::matrix() const {
 	return m;
 }
 
-Quaternion Quaternion::operator-(const Quaternion& q) const {
+Quaternion Quaternion::operator-(const Quaternion &q) const {
 	return Quaternion(x - q.x, y - q.y, z - q.z, w - q.w);
 }
 
-Quaternion Quaternion::operator+(const Quaternion& q) const {
+Quaternion Quaternion::operator+(const Quaternion &q) const {
 	return Quaternion(x + q.x, y + q.y, z + q.z, w + q.w);
 }
 
-Quaternion Quaternion::operator+(const vec3& v) const {
+Quaternion Quaternion::operator+(const vec3 &v) const {
 	Quaternion result(x, y, z, w);
 	Quaternion q1(0, v.x(), v.y(), v.z());
 	q1 = q1 * result;
@@ -105,7 +103,7 @@ Quaternion Quaternion::operator+(const vec3& v) const {
 	return result;
 }
 
-void Quaternion::operator+=(const vec3& v) {
+void Quaternion::operator+=(const vec3 &v) {
 	Quaternion q(0, v.x(), v.y(), v.z());
 	rotate(q);
 	x += q.x * 0.5f;
@@ -114,7 +112,7 @@ void Quaternion::operator+=(const vec3& v) {
 	w += q.w * 0.5f;
 }
 
-Quaternion Quaternion::operator*(const Quaternion& r) const {
+Quaternion Quaternion::operator*(const Quaternion &r) const {
 	Quaternion q;
 	q.x = x * r.x - y * r.y - z * r.z - w * r.w;
 	q.y = x * r.y + y * r.x - z * r.w + w * r.z;
@@ -123,11 +121,11 @@ Quaternion Quaternion::operator*(const Quaternion& r) const {
 	return q;
 }
 
-bool Quaternion::operator==(const Quaternion& q) const {
+bool Quaternion::operator==(const Quaternion &q) const {
 	return x == q.x && y == q.y && z == q.z && w == q.w;
 }
 
-bool Quaternion::operator!=(const Quaternion& q) const {
+bool Quaternion::operator!=(const Quaternion &q) const {
 	return !(*this == q);
 }
 
@@ -135,9 +133,9 @@ void Quaternion::normalize() {
 	*this = scaled(1 / sqrt(dot(*this)));
 }
 
-void Quaternion::rotate(const Quaternion& q2) {
+void Quaternion::rotate(const Quaternion &q2) {
 	Quaternion q;
-	Quaternion& q1 = *this;
+	Quaternion &q1 = *this;
 
 	q.w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
 	q.x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;

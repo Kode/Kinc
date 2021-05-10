@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Gamepad.h"
 
 #include <kinc/input/gamepad.h>
@@ -25,7 +23,7 @@ namespace {
 	}
 }
 
-Gamepad* Gamepad::get(int num) {
+Gamepad *Gamepad::get(int num) {
 	if (num >= maxGamepads) {
 		return nullptr;
 	}

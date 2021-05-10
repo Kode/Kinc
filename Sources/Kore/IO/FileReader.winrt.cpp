@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "FileReader.h"
 
 #include <Kore/Error.h>
@@ -11,25 +9,23 @@
 
 using namespace Kore;
 
-FileReader::FileReader() : readdata(nullptr) {
+FileReader::FileReader() : readdata(nullptr) {}
 
-}
-
-FileReader::FileReader(const char* filename, FileType type) : readdata(nullptr) {
+FileReader::FileReader(const char *filename, FileType type) : readdata(nullptr) {
 	if (!open(filename, type)) {
 		error("Could not open file %s.", filename);
 	}
 }
 
-bool FileReader::open(const char* filename, FileType type) {
+bool FileReader::open(const char *filename, FileType type) {
 	return kinc_file_reader_open(&reader, filename, (int)type);
 }
 
-int FileReader::read(void* data, int size) {
+int FileReader::read(void *data, int size) {
 	return kinc_file_reader_read(&reader, data, size);
 }
 
-void* FileReader::readAll() {
+void *FileReader::readAll() {
 	kinc_file_reader_seek(&reader, 0);
 	free(readdata);
 	int size = (int)kinc_file_reader_size(&reader);

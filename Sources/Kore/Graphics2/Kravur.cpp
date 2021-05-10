@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Kravur.h"
 
 #include <Kore/IO/FileReader.h>
@@ -12,9 +10,9 @@ using namespace Kore;
 #ifdef KORE_G4
 
 namespace {
-	std::map<std::string, Kravur*> fontCache;
+	std::map<std::string, Kravur *> fontCache;
 
-	std::string createKey(const char* name, FontStyle style, float size) {
+	std::string createKey(const char *name, FontStyle style, float size) {
 		std::stringstream key;
 		key << name;
 		if (style.bold) {
@@ -29,9 +27,9 @@ namespace {
 	}
 }
 
-Kravur* Kravur::load(const char* name, FontStyle style, float size) {
+Kravur *Kravur::load(const char *name, FontStyle style, float size) {
 	std::string key = createKey(name, style, size);
-	Kravur* kravur = fontCache[key];
+	Kravur *kravur = fontCache[key];
 	if (kravur == nullptr) {
 		FileReader reader(key.c_str());
 		kravur = new Kravur(&reader);
@@ -48,7 +46,7 @@ Kravur* Kravur::load(const char* name, FontStyle style, float size) {
 	}
 }
 
-Kravur::Kravur(Reader* reader) {
+Kravur::Kravur(Reader *reader) {
 	reader->readS32LE(); // size
 	int ascent = reader->readS32LE();
 	reader->readS32LE(); // descent
@@ -75,13 +73,13 @@ Kravur::Kravur(Reader* reader) {
 		h = h / 2;
 	}
 	texture = new Graphics4::Texture(w, h, Graphics4::Image::Grey8, true);
-	u8* bytes = texture->lock();
+	u8 *bytes = texture->lock();
 	reader->read(bytes, w * h);
 	texture->unlock();
 	reader->seek(0);
 }
 
-Graphics4::Texture* Kravur::getTexture() {
+Graphics4::Texture *Kravur::getTexture() {
 	return texture;
 }
 
@@ -124,11 +122,11 @@ float Kravur::charWidth(char ch) {
 	return getCharWidth(ch);
 }
 
-float Kravur::charsWidth(const char* ch, int offset, int length) {
+float Kravur::charsWidth(const char *ch, int offset, int length) {
 	return stringWidth(&ch[offset], length);
 }
 
-float Kravur::stringWidth(const char* string, int length) {
+float Kravur::stringWidth(const char *string, int length) {
 	float width = 0;
 	if (length < 0) length = (int)strlen(string);
 	for (int c = 0; c < length; ++c) {

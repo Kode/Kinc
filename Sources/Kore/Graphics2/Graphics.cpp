@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Graphics.h"
 
 #include <Kore/Graphics3/Graphics.h>
@@ -16,17 +14,17 @@ using namespace Kore;
 // ImageShaderPainter
 //==========
 Graphics2::ImageShaderPainter::ImageShaderPainter()
-    : shaderPipeline(nullptr), bufferSize(1500), vertexSize(9), bufferIndex(0), lastTexture(nullptr), 
-      lastRenderTarget(nullptr), bilinear(false), bilinearMipmaps(false), myPipeline(nullptr) {
+    : shaderPipeline(nullptr), bufferSize(1500), vertexSize(9), bufferIndex(0), lastTexture(nullptr), lastRenderTarget(nullptr), bilinear(false),
+      bilinearMipmaps(false), myPipeline(nullptr) {
 	initShaders();
 	initBuffers();
 }
 
-Graphics4::PipelineState* Graphics2::ImageShaderPainter::get_pipeline() const {
+Graphics4::PipelineState *Graphics2::ImageShaderPainter::get_pipeline() const {
 	return myPipeline;
 }
 
-void Graphics2::ImageShaderPainter::set_pipeline(Graphics4::PipelineState* pipe) {
+void Graphics2::ImageShaderPainter::set_pipeline(Graphics4::PipelineState *pipe) {
 	if (pipe == nullptr) {
 		projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 		textureLocation = shaderPipeline->getTextureUnit("tex");
@@ -52,8 +50,8 @@ void Graphics2::ImageShaderPainter::initShaders() {
 
 	FileReader fs("painter-image.frag");
 	FileReader vs("painter-image.vert");
-	Graphics4::Shader* fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
-	Graphics4::Shader* vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
+	Graphics4::Shader *fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
+	Graphics4::Shader *vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
 
 	shaderPipeline = new Graphics4::PipelineState;
 	shaderPipeline->fragmentShader = fragmentShader;
@@ -81,7 +79,7 @@ void Graphics2::ImageShaderPainter::initBuffers() {
 	rectVertices = rectVertexBuffer->lock();
 
 	indexBuffer = new Graphics4::IndexBuffer(bufferSize * 3 * 2);
-	int* indices = indexBuffer->lock();
+	int *indices = indexBuffer->lock();
 	for (int i = 0; i < bufferSize; ++i) {
 		indices[i * 3 * 2 + 0] = i * 4 + 0;
 		indices[i * 3 * 2 + 1] = i * 4 + 1;
@@ -94,7 +92,7 @@ void Graphics2::ImageShaderPainter::initBuffers() {
 }
 
 void Graphics2::ImageShaderPainter::setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty,
-                                         float bottomrightx, float bottomrighty) {
+                                                    float bottomrightx, float bottomrighty) {
 	int baseIndex = bufferIndex * vertexSize * 4;
 	rectVertices[baseIndex + 0] = bottomleftx;
 	rectVertices[baseIndex + 1] = bottomlefty;
@@ -156,21 +154,23 @@ void Graphics2::ImageShaderPainter::drawBuffer() {
 	Graphics4::setPipeline(myPipeline);
 	Graphics4::setVertexBuffer(*rectVertexBuffer);
 	Graphics4::setIndexBuffer(*indexBuffer);
-	if (lastRenderTarget != nullptr) lastRenderTarget->useColorAsTexture(textureLocation);
-	else Graphics4::setTexture(textureLocation, lastTexture);
+	if (lastRenderTarget != nullptr)
+		lastRenderTarget->useColorAsTexture(textureLocation);
+	else
+		Graphics4::setTexture(textureLocation, lastTexture);
 	Graphics4::setTextureAddressing(textureLocation, Graphics4::U, Graphics4::Clamp);
 	Graphics4::setTextureAddressing(textureLocation, Graphics4::V, Graphics4::Clamp);
 	Graphics4::setTextureMinificationFilter(textureLocation, bilinear ? Graphics4::LinearFilter : Graphics4::PointFilter);
 	Graphics4::setTextureMagnificationFilter(textureLocation, bilinear ? Graphics4::LinearFilter : Graphics4::PointFilter);
 	Graphics4::setTextureMipmapFilter(textureLocation, Graphics4::NoMipFilter);
 
-    #ifndef KORE_G4
-    // Set fixed-function projection matrix
-    Graphics3::setProjectionMatrix(projectionMatrix);
-    #else
-    // Set shader matrix uniform
+#ifndef KORE_G4
+	// Set fixed-function projection matrix
+	Graphics3::setProjectionMatrix(projectionMatrix);
+#else
+	// Set shader matrix uniform
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
-    #endif
+#endif
 
 	Graphics4::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
@@ -189,9 +189,9 @@ void Graphics2::ImageShaderPainter::setBilinearMipmapFilter(bool bilinear) {
 	this->bilinearMipmaps = bilinear;
 }
 
-inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::Texture* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx,
-                                          float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color) {
-	Graphics4::Texture* tex = img;
+inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::Texture *img, float bottomleftx, float bottomlefty, float topleftx, float toplefty,
+                                                     float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color) {
+	Graphics4::Texture *tex = img;
 	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture) || lastRenderTarget != nullptr) drawBuffer();
 
 	Color c = Color(color);
@@ -204,10 +204,10 @@ inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::Texture* img, fl
 	lastRenderTarget = nullptr;
 }
 
-inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx,
-                                           float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity,
-                                           uint color) {
-	Graphics4::Texture* tex = img;
+inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::Texture *img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty,
+                                                      float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty,
+                                                      float opacity, uint color) {
+	Graphics4::Texture *tex = img;
 	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture) || lastRenderTarget != nullptr) drawBuffer();
 
 	Color c = Color(color);
@@ -220,9 +220,9 @@ inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::Texture* img, f
 	lastRenderTarget = nullptr;
 }
 
-inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom,
-	float opacity, uint color) {
-	Graphics4::Texture* tex = img;
+inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::Texture *img, float sx, float sy, float sw, float sh, float left, float top, float right,
+                                                          float bottom, float opacity, uint color) {
+	Graphics4::Texture *tex = img;
 	if (bufferIndex + 1 >= bufferSize || (lastTexture != nullptr && tex != lastTexture) || lastRenderTarget != nullptr) drawBuffer();
 
 	Color c = Color(color);
@@ -235,9 +235,9 @@ inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::Texture* im
 	lastRenderTarget = nullptr;
 }
 
-inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::RenderTarget* img, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx,
-	float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color) {
-	Graphics4::RenderTarget* tex = img;
+inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::RenderTarget *img, float bottomleftx, float bottomlefty, float topleftx, float toplefty,
+                                                     float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity, uint color) {
+	Graphics4::RenderTarget *tex = img;
 	if (bufferIndex + 1 >= bufferSize || (lastRenderTarget != nullptr && tex != lastRenderTarget) || lastTexture != nullptr) drawBuffer();
 
 	Color c = Color(color);
@@ -250,10 +250,10 @@ inline void Graphics2::ImageShaderPainter::drawImage(Graphics4::RenderTarget* im
 	lastTexture = nullptr;
 }
 
-inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float bottomleftx, float bottomlefty, float topleftx,
-	float toplefty, float toprightx, float toprighty, float bottomrightx, float bottomrighty, float opacity,
-	uint color) {
-	Graphics4::RenderTarget* tex = img;
+inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::RenderTarget *img, float sx, float sy, float sw, float sh, float bottomleftx,
+                                                      float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty, float bottomrightx,
+                                                      float bottomrighty, float opacity, uint color) {
+	Graphics4::RenderTarget *tex = img;
 	if (bufferIndex + 1 >= bufferSize || (lastRenderTarget != nullptr && tex != lastRenderTarget) || lastTexture != nullptr) drawBuffer();
 
 	Color c = Color(color);
@@ -266,9 +266,9 @@ inline void Graphics2::ImageShaderPainter::drawImage2(Graphics4::RenderTarget* i
 	lastTexture = nullptr;
 }
 
-inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float left, float top, float right, float bottom,
-                                               float opacity, uint color) {
-	Graphics4::RenderTarget* tex = img;
+inline void Graphics2::ImageShaderPainter::drawImageScale(Graphics4::RenderTarget *img, float sx, float sy, float sw, float sh, float left, float top,
+                                                          float right, float bottom, float opacity, uint color) {
+	Graphics4::RenderTarget *tex = img;
 	if (bufferIndex + 1 >= bufferSize || (lastRenderTarget != nullptr && tex != lastRenderTarget) || lastTexture != nullptr) drawBuffer();
 
 	Color c = Color(color);
@@ -303,11 +303,11 @@ Graphics2::ColoredShaderPainter::ColoredShaderPainter()
 	initBuffers();
 }
 
-Graphics4::PipelineState* Graphics2::ColoredShaderPainter::get_pipeline() const {
+Graphics4::PipelineState *Graphics2::ColoredShaderPainter::get_pipeline() const {
 	return myPipeline;
 }
 
-void Graphics2::ColoredShaderPainter::set_pipeline(Graphics4::PipelineState* pipe) {
+void Graphics2::ColoredShaderPainter::set_pipeline(Graphics4::PipelineState *pipe) {
 	if (pipe == nullptr) {
 		projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 		myPipeline = shaderPipeline;
@@ -330,8 +330,8 @@ void Graphics2::ColoredShaderPainter::initShaders() {
 
 	FileReader fs("painter-colored.frag");
 	FileReader vs("painter-colored.vert");
-	Graphics4::Shader* fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
-	Graphics4::Shader* vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
+	Graphics4::Shader *fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
+	Graphics4::Shader *vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
 
 	shaderPipeline = new Graphics4::PipelineState();
 	shaderPipeline->fragmentShader = fragmentShader;
@@ -357,7 +357,7 @@ void Graphics2::ColoredShaderPainter::initBuffers() {
 	rectVertices = rectVertexBuffer->lock();
 
 	indexBuffer = new Graphics4::IndexBuffer(bufferSize * 3 * 2);
-	int* indices = indexBuffer->lock();
+	int *indices = indexBuffer->lock();
 	for (int i = 0; i < bufferSize; ++i) {
 		indices[i * 3 * 2 + 0] = i * 4 + 0;
 		indices[i * 3 * 2 + 1] = i * 4 + 1;
@@ -372,7 +372,7 @@ void Graphics2::ColoredShaderPainter::initBuffers() {
 	triangleVertices = triangleVertexBuffer->lock();
 
 	triangleIndexBuffer = new Graphics4::IndexBuffer(triangleBufferSize * 3);
-	int* triIndices = triangleIndexBuffer->lock();
+	int *triIndices = triangleIndexBuffer->lock();
 	for (int i = 0; i < bufferSize; ++i) {
 		triIndices[i * 3 + 0] = i * 3 + 0;
 		triIndices[i * 3 + 1] = i * 3 + 1;
@@ -382,7 +382,7 @@ void Graphics2::ColoredShaderPainter::initBuffers() {
 }
 
 void Graphics2::ColoredShaderPainter::setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty,
-                                           float bottomrightx, float bottomrighty) {
+                                                      float bottomrightx, float bottomrighty) {
 	int baseIndex = bufferIndex * vertexSize * 4;
 	rectVertices[baseIndex + 0] = bottomleftx;
 	rectVertices[baseIndex + 1] = bottomlefty;
@@ -478,13 +478,13 @@ void Graphics2::ColoredShaderPainter::drawBuffer(bool trisDone) {
 	Graphics4::setVertexBuffer(*rectVertexBuffer);
 	Graphics4::setIndexBuffer(*indexBuffer);
 
-    #ifndef KORE_G4
-    // Set fixed-function projection matrix
-    Graphics3::setProjectionMatrix(projectionMatrix);
-    #else
-    // Set shader matrix uniform
+#ifndef KORE_G4
+	// Set fixed-function projection matrix
+	Graphics3::setProjectionMatrix(projectionMatrix);
+#else
+	// Set shader matrix uniform
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
-    #endif
+#endif
 
 	Graphics4::drawIndexedVertices(0, bufferIndex * 2 * 3);
 
@@ -501,13 +501,13 @@ void Graphics2::ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
 	Graphics4::setVertexBuffer(*triangleVertexBuffer);
 	Graphics4::setIndexBuffer(*triangleIndexBuffer);
 
-    #ifndef KORE_G4
-    // Set fixed-function projection matrix
-    Graphics3::setProjectionMatrix(projectionMatrix);
-    #else
-    // Set shader matrix uniform
+#ifndef KORE_G4
+	// Set fixed-function projection matrix
+	Graphics3::setProjectionMatrix(projectionMatrix);
+#else
+	// Set shader matrix uniform
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
-    #endif
+#endif
 
 	Graphics4::drawIndexedVertices(0, triangleBufferIndex * 3);
 
@@ -516,7 +516,7 @@ void Graphics2::ColoredShaderPainter::drawTriBuffer(bool rectsDone) {
 }
 
 void Graphics2::ColoredShaderPainter::fillRect(float opacity, uint color, float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx,
-                                    float toprighty, float bottomrightx, float bottomrighty) {
+                                               float toprighty, float bottomrightx, float bottomrighty) {
 	if (triangleBufferIndex > 0) drawTriBuffer(true); // Flush other buffer for right render order
 
 	if (bufferIndex + 1 >= bufferSize) drawBuffer(false);
@@ -566,11 +566,11 @@ Graphics2::TextShaderPainter::TextShaderPainter()
 	initBuffers();
 }
 
-Graphics4::PipelineState* Graphics2::TextShaderPainter::get_pipeline() const {
+Graphics4::PipelineState *Graphics2::TextShaderPainter::get_pipeline() const {
 	return myPipeline;
 }
 
-void Graphics2::TextShaderPainter::set_pipeline(Graphics4::PipelineState* pipe) {
+void Graphics2::TextShaderPainter::set_pipeline(Graphics4::PipelineState *pipe) {
 	if (pipe == nullptr) {
 		projectionLocation = shaderPipeline->getConstantLocation("projectionMatrix");
 		textureLocation = shaderPipeline->getTextureUnit("tex");
@@ -595,8 +595,8 @@ void Graphics2::TextShaderPainter::initShaders() {
 
 	FileReader fs("painter-text.frag");
 	FileReader vs("painter-text.vert");
-	Graphics4::Shader* fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
-	Graphics4::Shader* vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
+	Graphics4::Shader *fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
+	Graphics4::Shader *vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
 
 	shaderPipeline = new Graphics4::PipelineState();
 	shaderPipeline->fragmentShader = fragmentShader;
@@ -620,7 +620,7 @@ void Graphics2::TextShaderPainter::initBuffers() {
 	rectVertices = rectVertexBuffer->lock();
 
 	indexBuffer = new Graphics4::IndexBuffer(bufferSize * 3 * 2);
-	int* indices = indexBuffer->lock();
+	int *indices = indexBuffer->lock();
 	for (int i = 0; i < bufferSize; ++i) {
 		indices[i * 3 * 2 + 0] = i * 4 + 0;
 		indices[i * 3 * 2 + 1] = i * 4 + 1;
@@ -633,7 +633,7 @@ void Graphics2::TextShaderPainter::initBuffers() {
 }
 
 void Graphics2::TextShaderPainter::setRectVertices(float bottomleftx, float bottomlefty, float topleftx, float toplefty, float toprightx, float toprighty,
-                                        float bottomrightx, float bottomrighty) {
+                                                   float bottomrightx, float bottomrighty) {
 	int baseIndex = bufferIndex * vertexSize * 4;
 	rectVertices[baseIndex + 0] = bottomleftx;
 	rectVertices[baseIndex + 1] = bottomlefty;
@@ -703,13 +703,13 @@ void Graphics2::TextShaderPainter::drawBuffer() {
 	Graphics4::setIndexBuffer(*indexBuffer);
 	Graphics4::setTexture(textureLocation, lastTexture);
 
-    #ifndef KORE_G4
-    // Set fixed-function projection matrix
-    Graphics3::setProjectionMatrix(projectionMatrix);
-    #else
-    // Set shader matrix uniform
+#ifndef KORE_G4
+	// Set fixed-function projection matrix
+	Graphics3::setProjectionMatrix(projectionMatrix);
+#else
+	// Set shader matrix uniform
 	Graphics4::setMatrix(projectionLocation, projectionMatrix);
-    #endif
+#endif
 
 	Graphics4::setTextureAddressing(textureLocation, Graphics4::U, Graphics4::Clamp);
 	Graphics4::setTextureAddressing(textureLocation, Graphics4::V, Graphics4::Clamp);
@@ -728,22 +728,23 @@ void Graphics2::TextShaderPainter::setBilinearFilter(bool bilinear) {
 	this->bilinear = bilinear;
 }
 
-void Graphics2::TextShaderPainter::setFont(Kravur* font) {
+void Graphics2::TextShaderPainter::setFont(Kravur *font) {
 	this->font = font;
 }
 
 // int TextShaderPainter::charCodeAt(int position) {}
 
 // TODO: Make this fast
-int Graphics2::TextShaderPainter::findIndex(int charcode, int* fontGlyphs, int glyphCount) {
+int Graphics2::TextShaderPainter::findIndex(int charcode, int *fontGlyphs, int glyphCount) {
 	for (int index = 0; index < glyphCount; ++index) {
 		if (fontGlyphs[index] == charcode) return index;
 	}
 	return -1;
 }
 
-void Graphics2::TextShaderPainter::drawString(const char* text, int start, int length, float opacity, uint color, float x, float y, const mat3& transformation, int* fontGlyphs) {
-	Graphics4::Texture* tex = font->getTexture();
+void Graphics2::TextShaderPainter::drawString(const char *text, int start, int length, float opacity, uint color, float x, float y, const mat3 &transformation,
+                                              int *fontGlyphs) {
+	Graphics4::Texture *tex = font->getTexture();
 	if (lastTexture != nullptr && tex != lastTexture) drawBuffer();
 	lastTexture = tex;
 
@@ -782,10 +783,10 @@ Graphics2::TextShaderPainter::~TextShaderPainter() {
 // Graphics2
 //==========
 
-Graphics2::Graphics2::Graphics2(int width, int height, bool rTargets) :
-	screenWidth(width), screenHeight(height), renderTargets(rTargets), color(Color::White), 
-	fontSize(14), fontColor(Color::Black), videoPipeline(nullptr), lastPipeline(nullptr) {
-	
+Graphics2::Graphics2::Graphics2(int width, int height, bool rTargets)
+    : screenWidth(width), screenHeight(height), renderTargets(rTargets), color(Color::White), fontSize(14), fontColor(Color::Black), videoPipeline(nullptr),
+      lastPipeline(nullptr) {
+
 	transformation = mat3::Identity();
 	opacity = 1.f;
 
@@ -812,8 +813,8 @@ void Graphics2::Graphics2::initShaders() {
 
 	FileReader fs("painter-video.frag");
 	FileReader vs("painter-video.vert");
-	Graphics4::Shader* fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
-	Graphics4::Shader* vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
+	Graphics4::Shader *fragmentShader = new Graphics4::Shader(fs.readAll(), fs.size(), Graphics4::FragmentShader);
+	Graphics4::Shader *vertexShader = new Graphics4::Shader(vs.readAll(), vs.size(), Graphics4::VertexShader);
 
 	videoPipeline = new Graphics4::PipelineState();
 	videoPipeline->fragmentShader = fragmentShader;
@@ -869,7 +870,7 @@ void Graphics2::Graphics2::pushRotation(float angle, float centerx, float center
 	transformation = rotation(angle, centerx, centery);
 }
 
-void Graphics2::Graphics2::drawImage(Graphics4::Texture* img, float x, float y) {
+void Graphics2::Graphics2::drawImage(Graphics4::Texture *img, float x, float y) {
 	coloredPainter->end();
 	textPainter->end();
 
@@ -897,7 +898,7 @@ void Graphics2::Graphics2::drawImage(Graphics4::Texture* img, float x, float y) 
 	imagePainter->drawImage(img, get(px, 0), get(py, 0), get(px, 1), get(py, 1), get(px, 2), get(py, 2), get(px, 3), get(py, 3), opacity, color);
 }
 
-void Graphics2::Graphics2::drawScaledSubImage(Graphics4::Texture* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
+void Graphics2::Graphics2::drawScaledSubImage(Graphics4::Texture *img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
 	coloredPainter->end();
 	textPainter->end();
 	vec2 p1 = transformation * vec3(dx, dy + dh, 1.0f);
@@ -908,7 +909,7 @@ void Graphics2::Graphics2::drawScaledSubImage(Graphics4::Texture* img, float sx,
 	imagePainter->drawImage2(img, sx, sy, sw, sh, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y(), opacity, color);
 }
 
-void Graphics2::Graphics2::drawImage(Graphics4::RenderTarget* img, float x, float y) {
+void Graphics2::Graphics2::drawImage(Graphics4::RenderTarget *img, float x, float y) {
 	coloredPainter->end();
 	textPainter->end();
 
@@ -936,7 +937,7 @@ void Graphics2::Graphics2::drawImage(Graphics4::RenderTarget* img, float x, floa
 	imagePainter->drawImage(img, get(px, 0), get(py, 0), get(px, 1), get(py, 1), get(px, 2), get(py, 2), get(px, 3), get(py, 3), opacity, color);
 }
 
-void Graphics2::Graphics2::drawScaledSubImage(Graphics4::RenderTarget* img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
+void Graphics2::Graphics2::drawScaledSubImage(Graphics4::RenderTarget *img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
 	coloredPainter->end();
 	textPainter->end();
 	vec2 p1 = transformation * vec3(dx, dy + dh, 1.0f);
@@ -987,16 +988,15 @@ void Graphics2::Graphics2::fillRect(float x, float y, float width, float height)
 	coloredPainter->fillRect(opacity, color, p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y());
 }
 
-void Graphics2::Graphics2::drawString(const char* text, float x, float y) {
+void Graphics2::Graphics2::drawString(const char *text, float x, float y) {
 	drawString(text, 0, (int)strlen(text), x, y);
 }
 
-
-void Graphics2::Graphics2::drawString(const char* text, int length, float x, float y) {
+void Graphics2::Graphics2::drawString(const char *text, int length, float x, float y) {
 	drawString(text, 0, length, x, y);
 }
 
-void Graphics2::Graphics2::drawString(const char* text, int start, int length, float x, float y) {
+void Graphics2::Graphics2::drawString(const char *text, int start, int length, float x, float y) {
 	imagePainter->end();
 	coloredPainter->end();
 
@@ -1057,7 +1057,7 @@ void Graphics2::Graphics2::setMipmapScaleQuality(Kore::Graphics2::ImageScaleQual
 	myMipmapScaleQuality = value;
 }
 
-void Graphics2::Graphics2::setPipeline(Graphics4::PipelineState* pipeline) {
+void Graphics2::Graphics2::setPipeline(Graphics4::PipelineState *pipeline) {
 	if (pipeline != lastPipeline) {
 		flush();
 		imagePainter->set_pipeline(pipeline);
@@ -1127,11 +1127,11 @@ void Graphics2::Graphics2::setOpacity(float opacity) {
 	this->opacity = opacity;
 }
 
-Kravur* Graphics2::Graphics2::getFont() const {
+Kravur *Graphics2::Graphics2::getFont() const {
 	return font;
 }
 
-void Graphics2::Graphics2::setFont(Kravur* font) {
+void Graphics2::Graphics2::setFont(Kravur *font) {
 	textPainter->setFont(font);
 	this->font = font;
 }

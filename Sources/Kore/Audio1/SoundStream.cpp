@@ -1,10 +1,8 @@
-#include "pch.h"
-
 #include "SoundStream.h"
 
 #define STB_VORBIS_HEADER_ONLY
-#include <kinc/audio1/stb_vorbis.c>
 #include <Kore/IO/FileReader.h>
+#include <kinc/audio1/stb_vorbis.c>
 #include <string.h>
 
 using namespace Kore;
@@ -12,7 +10,7 @@ using namespace Kore;
 SoundStream::SoundStream(const char *filename, bool looping) : myLooping(looping), myVolume(1), decoded(false), rateDecodedHack(false), end(false) {
 	FileReader file(filename);
 	buffer = new u8[file.size()];
-	u8* filecontent = (u8*)file.readAll();
+	u8 *filecontent = (u8 *)file.readAll();
 	memcpy(buffer, filecontent, file.size());
 	vorbis = stb_vorbis_open_memory(buffer, file.size(), nullptr, nullptr);
 	if (vorbis != nullptr) {

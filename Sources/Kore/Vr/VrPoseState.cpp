@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "VrPoseState.h"
 
 VrPoseState::VrPoseState()

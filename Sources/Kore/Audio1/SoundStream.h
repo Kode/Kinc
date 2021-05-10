@@ -1,11 +1,13 @@
 #pragma once
 
+#include <Kore/global.h>
+
 struct stb_vorbis;
 
 namespace Kore {
 	class SoundStream {
 	public:
-		SoundStream(const char* filename, bool looping);
+		SoundStream(const char *filename, bool looping);
 		float nextSample();
 		int channels();
 		int sampleRate();
@@ -19,7 +21,7 @@ namespace Kore {
 		void setVolume(float value);
 
 	private:
-		stb_vorbis* vorbis;
+		stb_vorbis *vorbis;
 		int chans;
 		int rate;
 		bool myLooping;
@@ -28,6 +30,6 @@ namespace Kore {
 		bool rateDecodedHack;
 		bool end;
 		float samples[2];
-		u8* buffer;
+		u8 *buffer;
 	};
 }

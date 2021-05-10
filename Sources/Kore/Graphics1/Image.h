@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kore/global.h>
+
 namespace Kore {
 	class Reader;
 
@@ -14,25 +16,25 @@ namespace Kore {
 
 			Image(int width, int height, Format format, bool readable);
 			Image(int width, int height, int depth, Format format, bool readable);
-			Image(const char* filename, bool readable);
-			Image(Kore::Reader& reader, const char* format, bool readable);
-			Image(void* data, int width, int height, Format format, bool readable);
-			Image(void* data, int width, int height, int depth, Format format, bool readable);
+			Image(const char *filename, bool readable);
+			Image(Kore::Reader &reader, const char *format, bool readable);
+			Image(void *data, int width, int height, Format format, bool readable);
+			Image(void *data, int width, int height, int depth, Format format, bool readable);
 			virtual ~Image();
 			int at(int x, int y);
-			u8* getPixels();
+			u8 *getPixels();
 
 			int width, height, depth;
 			Format format;
 			bool readable;
 			ImageCompression compression;
-			void* data;
+			void *data;
 			int dataSize;
 			unsigned internalFormat;
 
 		protected:
 			Image();
-			void init(Kore::Reader& reader, const char* format, bool readable);
+			void init(Kore::Reader &reader, const char *format, bool readable);
 		};
 	}
 }

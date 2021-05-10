@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "System.h"
 
 #include <Kore/Convert.h>

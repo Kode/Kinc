@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Socket.h"
 
 #include <Kore/Log.h>

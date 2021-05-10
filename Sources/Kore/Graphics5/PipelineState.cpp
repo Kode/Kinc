@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "PipelineState.h"
 #include <Kore/Graphics5/Graphics.h>
 

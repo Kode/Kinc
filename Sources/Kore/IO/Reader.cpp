@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Reader.h"
 
 #include <Kore/Math/Core.h>
@@ -10,130 +8,130 @@
 
 using namespace Kore;
 
-float Reader::readF32LE(u8* data) {
+float Reader::readF32LE(u8 *data) {
 #ifdef KORE_LITTLE_ENDIAN // speed optimization
-	return *(float*)data;
+	return *(float *)data;
 #else // works on all architectures
 	int i = (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
-	return *(float*)&i;
+	return *(float *)&i;
 #endif
 }
 
-float Reader::readF32BE(u8* data) {
+float Reader::readF32BE(u8 *data) {
 #ifdef KORE_BIG_ENDIAN // speed optimization
-	return *(float*)data;
+	return *(float *)data;
 #else // works on all architectures
 	int i = (data[3] << 0) | (data[2] << 8) | (data[1] << 16) | (data[0] << 24);
-	return *(float*)&i;
+	return *(float *)&i;
 #endif
 }
 
-u64 Reader::readU64LE(u8* data) {
+u64 Reader::readU64LE(u8 *data) {
 #ifdef KORE_LITTLE_ENDIAN
-	return *(u64*)data;
+	return *(u64 *)data;
 #else
 	return ((u64)data[0] << 0) | ((u64)data[1] << 8) | ((u64)data[2] << 16) | ((u64)data[3] << 24) | ((u64)data[4] << 32) | ((u64)data[5] << 40) |
 	       ((u64)data[6] << 48) | ((u64)data[7] << 56);
 #endif
 }
 
-u64 Reader::readU64BE(u8* data) {
+u64 Reader::readU64BE(u8 *data) {
 #ifdef KORE_BIG_ENDIAN
-	return *(u64*)data;
+	return *(u64 *)data;
 #else
 	return ((u64)data[7] << 0) | ((u64)data[6] << 8) | ((u64)data[5] << 16) | ((u64)data[4] << 24) | ((u64)data[3] << 32) | ((u64)data[2] << 40) |
 	       ((u64)data[1] << 48) | ((u64)data[0] << 56);
 #endif
 }
 
-s64 Reader::readS64LE(u8* data) {
+s64 Reader::readS64LE(u8 *data) {
 #ifdef KORE_LITTLE_ENDIAN
-	return *(s64*)data;
+	return *(s64 *)data;
 #else
 	return ((s64)data[0] << 0) | ((s64)data[1] << 8) | ((s64)data[2] << 16) | ((s64)data[3] << 24) | ((s64)data[4] << 32) | ((s64)data[5] << 40) |
 	       ((s64)data[6] << 48) | ((s64)data[7] << 56);
 #endif
 }
 
-s64 Reader::readS64BE(u8* data) {
+s64 Reader::readS64BE(u8 *data) {
 #ifdef KORE_BIG_ENDIAN
-	return *(s64*)data;
+	return *(s64 *)data;
 #else
 	return ((s64)data[7] << 0) | ((s64)data[6] << 8) | ((s64)data[5] << 16) | ((s64)data[4] << 24) | ((s64)data[3] << 32) | ((s64)data[2] << 40) |
 	       ((s64)data[1] << 48) | ((s64)data[0] << 56);
 #endif
 }
 
-u32 Reader::readU32LE(u8* data) {
+u32 Reader::readU32LE(u8 *data) {
 #ifdef KORE_LITTLE_ENDIAN
-	return *(u32*)data;
+	return *(u32 *)data;
 #else
 	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
 #endif
 }
 
-u32 Reader::readU32BE(u8* data) {
+u32 Reader::readU32BE(u8 *data) {
 #ifdef KORE_BIG_ENDIAN
-	return *(u32*)data;
+	return *(u32 *)data;
 #else
 	return (data[3] << 0) | (data[2] << 8) | (data[1] << 16) | (data[0] << 24);
 #endif
 }
 
-s32 Reader::readS32LE(u8* data) {
+s32 Reader::readS32LE(u8 *data) {
 #ifdef KORE_LITTLE_ENDIAN
-	return *(s32*)data;
+	return *(s32 *)data;
 #else
 	return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
 #endif
 }
 
-s32 Reader::readS32BE(u8* data) {
+s32 Reader::readS32BE(u8 *data) {
 #ifdef KORE_BIG_ENDIAN
-	return *(s32*)data;
+	return *(s32 *)data;
 #else
 	return (data[3] << 0) | (data[2] << 8) | (data[1] << 16) | (data[0] << 24);
 #endif
 }
 
-u16 Reader::readU16LE(u8* data) {
+u16 Reader::readU16LE(u8 *data) {
 #ifdef KORE_LITTLE_ENDIAN
-	return *(u16*)data;
+	return *(u16 *)data;
 #else
 	return (data[0] << 0) | (data[1] << 8);
 #endif
 }
 
-u16 Reader::readU16BE(u8* data) {
+u16 Reader::readU16BE(u8 *data) {
 #ifdef KORE_BIG_ENDIAN
-	return *(u16*)data;
+	return *(u16 *)data;
 #else
 	return (data[1] << 0) | (data[0] << 8);
 #endif
 }
 
-s16 Reader::readS16LE(u8* data) {
+s16 Reader::readS16LE(u8 *data) {
 #ifdef KORE_LITTLE_ENDIAN
-	return *(s16*)data;
+	return *(s16 *)data;
 #else
 	return (data[0] << 0) | (data[1] << 8);
 #endif
 }
 
-s16 Reader::readS16BE(u8* data) {
+s16 Reader::readS16BE(u8 *data) {
 #ifdef KORE_BIG_ENDIAN
-	return *(s16*)data;
+	return *(s16 *)data;
 #else
 	return (data[1] << 0) | (data[0] << 8);
 #endif
 }
 
-u8 Reader::readU8(u8* data) {
+u8 Reader::readU8(u8 *data) {
 	return *data;
 }
 
-s8 Reader::readS8(u8* data) {
-	return *(s8*)data;
+s8 Reader::readS8(u8 *data) {
+	return *(s8 *)data;
 }
 
 float Reader::readF32LE() {

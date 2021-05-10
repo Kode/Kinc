@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Semaphore.h"
 
 using namespace Kore;

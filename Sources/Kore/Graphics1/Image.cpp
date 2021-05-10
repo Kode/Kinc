@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Image.h"
 
 #include <Kore/Graphics4/Graphics.h>

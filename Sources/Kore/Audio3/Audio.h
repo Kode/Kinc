@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kore/global.h>
+
 #include <Kore/Math/Vector.h>
 
 namespace Kore {
@@ -12,7 +14,7 @@ namespace Kore {
 
 		struct Buffer {
 			BufferFormat format;
-			u8* data;
+			u8 *data;
 			int dataSize;
 			int readLocation;
 			int writeLocation;
@@ -31,7 +33,7 @@ namespace Kore {
 		void update();
 		void shutdown();
 
-		Channel* createChannel(vec3 origin, AudioCallback callback);
-		void destroyChannel(Channel* channel);
+		Channel *createChannel(vec3 origin, AudioCallback callback);
+		void destroyChannel(Channel *channel);
 	}
 }

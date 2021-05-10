@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Random.h"
 
 #include <kinc/math/random.h>

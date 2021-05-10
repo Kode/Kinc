@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Mutex.h"
 
 using namespace Kore;
