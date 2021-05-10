@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kore/global.h>
+
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/hid/IOHIDManager.h>
