@@ -1,10 +1,11 @@
 #include "window.h"
+#include "display.h"
 
 #include <stdlib.h>
 
 void kinc_internal_init_window_options(kinc_window_options_t *win) {
 	win->title = NULL;
-	win->display_index = 0;
+	win->display_index = kinc_primary_display();
 	win->mode = KINC_WINDOW_MODE_WINDOW;
 	win->x = -1;
 	win->y = -1;
