@@ -1,5 +1,9 @@
 #pragma once
 
+/// <summary>
+/// Basic functionality that's used all over the place.
+/// </summary>
+
 #ifdef __cplusplus
 
 namespace Kore {

@@ -4,10 +4,17 @@
 
 #include <stdint.h>
 
+/// <summary>
+/// Provides some utility functionality for handling 32 bit ARGB color values.
+/// </summary>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/// <summary>
+/// Splits up an 32 bit ARGB color value into its components.
+/// </summary>
 KINC_FUNC void kinc_color_components(uint32_t color, float *red, float *green, float *blue, float *alpha);
 
 #define KINC_COLOR_BLACK 0xff000000

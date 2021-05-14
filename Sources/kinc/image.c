@@ -567,11 +567,11 @@ void kinc_image_destroy(kinc_image_t *image) {
 	image->data = NULL;
 }
 
-int kinc_image_at(kinc_image_t *image, int x, int y) {
+uint32_t kinc_image_at(kinc_image_t *image, int x, int y) {
 	if (image->data == NULL)
 		return 0;
 	else
-		return *(int *)&((uint8_t *)image->data)[image->width * kinc_image_format_sizeof(image->format) * y + x * kinc_image_format_sizeof(image->format)];
+		return *(uint32_t *)&((uint8_t *)image->data)[image->width * kinc_image_format_sizeof(image->format) * y + x * kinc_image_format_sizeof(image->format)];
 }
 
 uint8_t *kinc_image_get_pixels(kinc_image_t *image) {
