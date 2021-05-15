@@ -21,7 +21,7 @@ var searchData=
   ['kinc_5fdisplay_5fcurrent_5fmode_22',['kinc_display_current_mode',['../display_8h.html#a99438c4f18b72addc1a828391551568f',1,'display.h']]],
   ['kinc_5fdisplay_5finit_23',['kinc_display_init',['../display_8h.html#a5e152044362942c03daa51235092c6d2',1,'display.h']]],
   ['kinc_5fdisplay_5fmode_5ft_24',['kinc_display_mode_t',['../structkinc__display__mode__t.html',1,'']]],
-  ['kinc_5fdisplay_5fname_25',['kinc_display_name',['../display_8h.html#abdfd87bc1ce0da5a7f307da9e3d1be2e',1,'display.h']]],
+  ['kinc_5fdisplay_5fname_25',['kinc_display_name',['../display_8h.html#a8f37a01d0170166b7950ffade7395687',1,'display.h']]],
   ['kinc_5ferror_26',['kinc_error',['../error_8h.html#a11272e48b9340a1a69a763dad5fb9e84',1,'error.h']]],
   ['kinc_5ferror_5fargs_27',['kinc_error_args',['../error_8h.html#abcd361a1455a4042c59c4593d66b14d7',1,'error.h']]],
   ['kinc_5ferror_5fmessage_28',['kinc_error_message',['../error_8h.html#a79404d19af95fae2b603271938081537',1,'error.h']]],
