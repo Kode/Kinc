@@ -21,3 +21,17 @@ jobs:
       run: sudo apt-get install doxygen --yes --quiet
     - name: Create documentation
       run: doxygen Doxyfile
+    - name: Clone website
+      run: git clone -b gh-pages git@github.com:Kode/Kinc.git Kinc-pages
+    - name: Remove old documentation
+      run: rm -r Kinc-pages/api
+    - name: Copy new documentation
+      run: cp -R Docs/html Kinc-pages/api
+    - name: Add documentation
+      run: git -C Kinc-pages add .
+    - name: Commit documentation
+      run: git -C Kinc-pages commit -m "Update documentation to $GITHUB_SHA."
+    - name: Push documentation
+      run: git -C Kinc-pages push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc.git gh-pages
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
