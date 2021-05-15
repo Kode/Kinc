@@ -1,0 +1,23 @@
+name: Doxygen
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Apt Update
+      run: sudo apt-get update
+    - name: Apt Install
+      run: sudo apt-get install doxygen --yes --quiet
+    - name: Create documentation
+      run: doxygen Doxyfile
