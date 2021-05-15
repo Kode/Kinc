@@ -22,7 +22,7 @@ jobs:
     - name: Create documentation
       run: doxygen Doxyfile
     - name: Clone website
-      run: git clone -b gh-pages git@github.com:Kode/Kinc.git Kinc-pages
+      run: git clone -b gh-pages https://github.com/Kode/Kinc.git Kinc-pages
     - name: Remove old documentation
       run: rm -r Kinc-pages/api
     - name: Copy new documentation
