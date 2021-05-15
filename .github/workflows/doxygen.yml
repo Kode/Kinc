@@ -27,6 +27,10 @@ jobs:
       run: rm -r Kinc-pages/api
     - name: Copy new documentation
       run: cp -R Docs/html Kinc-pages/api
+    - name: Set name
+      run: git config --global user.name "Robbot"
+    - name: Set email
+      run: git config --global user.email "robbot2019@robdangero.us"
     - name: Add documentation
       run: git -C Kinc-pages add .
     - name: Commit documentation
