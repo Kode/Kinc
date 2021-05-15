@@ -1,0 +1,103 @@
+---
+title: "Kha"
+---
+<!DOCTYPE html>
+<html>
+
+{% include head.html %}
+
+<body>
+
+<!-- Following Menu -->
+<div class="ui large inverted fixed hidden menu">
+
+    <a class="toc item">
+        <i class="sidebar icon"></i>
+    </a>
+
+    {% include menu-list.html %}
+
+    <div class="right menu">
+
+        <a class="item" href="/getstarted"><i class="ellipsis vertical icon"></i>Get Started</a>
+        <a class="item" href="/download"><i class="download icon"></i>Download</a>
+
+    </div>
+</div>
+<!-- End Following -->
+
+<!-- Sidebar Menu -->
+<div class="ui vertical inverted sidebar menu">
+{% include menu-list.html %}
+</div>
+<!-- End Sidebar -->
+
+<div class="pusher">
+
+    <!-- Header Segment -->
+    {% include menu-default.html %}
+    {% include header.html %}
+    <!-- End Header -->
+
+    <!-- Features Segment -->
+    <div class="ui vertical stripe segment main">
+        <div class="ui aligned grid container">
+            <div class="row under700">
+
+                <div class="ten wide column">
+
+                    <h3 class="ui header">True Cross-Platform</h3>
+                    <p>Kha can cross-compile your code and optimize your assets for
+                      even the most obscure systems. Build your applications natively to desktops, tablets, phones and consoles.
+                      Implement once, run everywhere.</p>
+
+                </div>
+
+                <div class="one wide column"></div>
+
+                <div class="five wide column">
+                    <div class="platforms under700"><img class="ui large image" src="assets/images/platforms.png"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui aligned grid container">
+            <div class="row under700">
+
+                <div class="seven wide column">
+
+                    <div class="kodestudio under700"><img class="ui large image" src="assets/images/kodestudio0.png"></div>
+
+                </div>
+
+                <div class="one wide column"></div>
+
+                <div class="eight wide column">
+
+                    <h3 class="ui header">Kode Studio</h3>
+                    <p>Kha has its own powerful, <a href="https://github.com/Microsoft/vscode">vscode</a>-based IDE. Available for Windows, macOS and Linux, one easy download gets you a complete, ready-to-use development environment.</p>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="ui aligned grid container">
+            <div class="row under700">
+
+                <div class="sixteen wide column">
+
+                    <h3 class="ui header">Fast and Open Source</h3>
+                    <p>Great performance on each platform and all the <b class="kha"><a href="https://github.com/Kode/Kha">source code</a></b>, all the time - no black boxes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Features -->
+
+</div>
+
+{% include footer.html %}
+
+</body>
+</html>
