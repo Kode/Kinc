@@ -4,13 +4,11 @@
 
 #include <stdarg.h>
 
-/// <summary>
-/// Contains basic logging functionality
-/// </summary>
-/// <remarks>
-/// Logging functionality is similar to plain printf but provides
-/// some system-specific bonuses.
-/// </remarks>
+/*! \file log.h
+    \brief Contains basic logging functionality.
+
+    Logging functionality is similar to plain printf but provides some system-specific bonuses.
+*/
 
 #ifdef __cplusplus
 extern "C" {

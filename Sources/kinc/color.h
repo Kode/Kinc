@@ -4,9 +4,9 @@
 
 #include <stdint.h>
 
-/// <summary>
-/// Provides some utility functionality for handling 32 bit ARGB color values.
-/// </summary>
+/*! \file color.h
+    \brief Provides some utility functionality for handling 32 bit ARGB color values.
+*/
 
 #ifdef __cplusplus
 extern "C" {

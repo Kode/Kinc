@@ -4,6 +4,10 @@
 
 #include <stdbool.h>
 
+/*! \file display.h
+    \brief Provides information for the active displays.
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif

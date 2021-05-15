@@ -6,10 +6,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/// <summary>
-/// Functionality for creating and loading images. Image loading supports PNG, JPEG and the custom K format. K files can contain image data that uses
-/// texture-compression (see kinc_image_compression).
-/// </summary>
+/*! \file image.h
+    \brief Functionality for creating and loading images. Image loading supports PNG, JPEG and the custom K format. K files can contain image data that uses
+   texture-compression (see kinc_image_compression).
+*/
 
 #ifdef __cplusplus
 extern "C" {

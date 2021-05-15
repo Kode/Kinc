@@ -4,9 +4,9 @@
 
 #include <stdbool.h>
 
-/// <summary>
-/// Provides functionality for creating and handling windows
-/// </summary>
+/*! \file window.h
+    \brief Provides functionality for creating and handling windows.
+*/
 
 #ifdef __cplusplus
 extern "C" {
