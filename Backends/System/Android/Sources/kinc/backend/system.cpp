@@ -10,6 +10,7 @@
 #include <kinc/input/pen.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 #include <android/sensor.h>
 #include <android/window.h>

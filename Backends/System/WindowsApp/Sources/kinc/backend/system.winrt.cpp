@@ -5,6 +5,7 @@
 #include <kinc/input/mouse.h>
 #include <kinc/system.h>
 #include <kinc/threads/thread.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 
 #include <kinc/backend/Hololens.winrt.h>
