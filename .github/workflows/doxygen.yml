@@ -34,8 +34,12 @@ jobs:
     - name: Add documentation
       run: git -C Kinc-pages add .
     - name: Commit documentation
+      id: commit
+      continue-on-error: true
       run: git -C Kinc-pages commit -m "Update documentation to $GITHUB_SHA."
     - name: Push documentation
+      if: steps.commit.outcome == 'success'
+      continue-on-error: true
       run: git -C Kinc-pages push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc.git gh-pages
       env:
         ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
