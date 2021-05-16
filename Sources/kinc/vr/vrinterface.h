@@ -6,6 +6,10 @@
 #include <kinc/math/quaternion.h>
 #include <kinc/math/vector.h>
 
+/*! \file vrinterface.h
+    \brief The C-API for VR is currently deactivated and needs some work. Please use the Kore/C++-API in the meantime or send pull-requests.
+*/
+
 #ifdef KORE_VR
 
 #ifdef __cplusplus
