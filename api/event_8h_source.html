@@ -69,7 +69,7 @@ $(function() {
 <div class="title">event.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
+<a href="event_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;kinc/global.h&gt;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
@@ -77,26 +77,37 @@ $(function() {
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="structkinc__event__t.html">   13</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    kinc_event_impl_t impl;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;} <a class="code" href="structkinc__event__t.html">kinc_event_t</a>;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_event_init(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event, <span class="keywordtype">bool</span> auto_clear);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_event_destroy(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_event_signal(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_event_wait(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;KINC_FUNC <span class="keywordtype">bool</span> kinc_event_try_to_wait(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event, <span class="keywordtype">double</span> seconds);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_event_reset(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;}</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="structkinc__event__t.html">   17</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    kinc_event_impl_t impl;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;} <a class="code" href="structkinc__event__t.html">kinc_event_t</a>;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="event_8h.html#a2332b3ca953afbc4cd760aa1e98806e8">kinc_event_init</a>(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event, <span class="keywordtype">bool</span> auto_clear);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="event_8h.html#afcbd82167cbbf80437ffa7e369d5a10e">kinc_event_destroy</a>(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="event_8h.html#a2ee105913ee0afffd857da827664798a">kinc_event_signal</a>(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="event_8h.html#a52fe4ef5170b815a9bfff6a7f953bba0">kinc_event_wait</a>(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;KINC_FUNC <span class="keywordtype">bool</span> <a class="code" href="event_8h.html#a80b43c58cbfe99a9374143cf44ca377b">kinc_event_try_to_wait</a>(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event, <span class="keywordtype">double</span> timeout);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="event_8h.html#afae0be0ecee6b6d2987db5376017cb89">kinc_event_reset</a>(<a class="code" href="structkinc__event__t.html">kinc_event_t</a> *event);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;}</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="astructkinc__event__t_html"><div class="ttname"><a href="structkinc__event__t.html">kinc_event_t</a></div><div class="ttdef"><b>Definition:</b> event.h:13</div></div>
+<div class="ttc" id="aevent_8h_html_afae0be0ecee6b6d2987db5376017cb89"><div class="ttname"><a href="event_8h.html#afae0be0ecee6b6d2987db5376017cb89">kinc_event_reset</a></div><div class="ttdeci">KINC_FUNC void kinc_event_reset(kinc_event_t *event)</div><div class="ttdoc">Resets an event to an unsignaled state.</div></div>
+<div class="ttc" id="aevent_8h_html_a80b43c58cbfe99a9374143cf44ca377b"><div class="ttname"><a href="event_8h.html#a80b43c58cbfe99a9374143cf44ca377b">kinc_event_try_to_wait</a></div><div class="ttdeci">KINC_FUNC bool kinc_event_try_to_wait(kinc_event_t *event, double timeout)</div><div class="ttdoc">Waits for an event to be signaled or the provided timeout to run out - whatever happens first.</div></div>
+<div class="ttc" id="aevent_8h_html_afcbd82167cbbf80437ffa7e369d5a10e"><div class="ttname"><a href="event_8h.html#afcbd82167cbbf80437ffa7e369d5a10e">kinc_event_destroy</a></div><div class="ttdeci">KINC_FUNC void kinc_event_destroy(kinc_event_t *event)</div><div class="ttdoc">Destroys an event-object.</div></div>
+<div class="ttc" id="aevent_8h_html_a2332b3ca953afbc4cd760aa1e98806e8"><div class="ttname"><a href="event_8h.html#a2332b3ca953afbc4cd760aa1e98806e8">kinc_event_init</a></div><div class="ttdeci">KINC_FUNC void kinc_event_init(kinc_event_t *event, bool auto_clear)</div><div class="ttdoc">Initializes an event-object.</div></div>
+<div class="ttc" id="astructkinc__event__t_html"><div class="ttname"><a href="structkinc__event__t.html">kinc_event_t</a></div><div class="ttdef"><b>Definition:</b> event.h:17</div></div>
+<div class="ttc" id="aevent_8h_html_a52fe4ef5170b815a9bfff6a7f953bba0"><div class="ttname"><a href="event_8h.html#a52fe4ef5170b815a9bfff6a7f953bba0">kinc_event_wait</a></div><div class="ttdeci">KINC_FUNC void kinc_event_wait(kinc_event_t *event)</div><div class="ttdoc">Waits for an event to be signaled.</div></div>
+<div class="ttc" id="aevent_8h_html_a2ee105913ee0afffd857da827664798a"><div class="ttname"><a href="event_8h.html#a2ee105913ee0afffd857da827664798a">kinc_event_signal</a></div><div class="ttdeci">KINC_FUNC void kinc_event_signal(kinc_event_t *event)</div><div class="ttdoc">Signals an event which allows threads which are waiting for the event to continue.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
