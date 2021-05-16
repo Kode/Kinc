@@ -64,7 +64,9 @@ bool kinc_event_try_to_wait(kinc_event_t *event, double seconds) {
 		}
 	}
 	bool result = event->impl.set;
-	event->impl.set = false;
+	if (event->impl.auto_reset) {
+		event->impl.set = false;
+	}
 	pthread_mutex_unlock(&event->impl.mutex);
 	return result;
 }
