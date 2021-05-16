@@ -2,6 +2,10 @@
 
 #include <kinc/global.h>
 
+/*! \file float32x4.h
+    \brief Provides 128bit four-element floating point SIMD operations which are mapped to equivalent SSE or Neon operations.
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif

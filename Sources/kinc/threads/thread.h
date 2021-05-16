@@ -5,7 +5,7 @@
 #include <kinc/backend/thread.h>
 
 /*! \file thread.h
-    \brief A semaphore is a fancier version of an event that includes a counter to control how many threads are allowed to work on a task.
+    \brief Supports the creation and destruction of threads.
 */
 
 #ifdef __cplusplus
