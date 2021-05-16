@@ -6,6 +6,7 @@
 
 #include <kinc/input/keyboard.h>
 #include <kinc/system.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 
 #include <assert.h>
