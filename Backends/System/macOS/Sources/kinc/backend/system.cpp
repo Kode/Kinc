@@ -3,6 +3,7 @@
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/system.h>
+#include <kinc/video.h>
 
 namespace {
 	int mouseX, mouseY;

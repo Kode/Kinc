@@ -5,6 +5,7 @@
 #include <kinc/input/pen.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 
 #include "input/gamepad.h"
