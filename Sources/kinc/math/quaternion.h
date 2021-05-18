@@ -2,6 +2,10 @@
 
 #include "core.h"
 
+/*! \file quaternion.h
+    \brief Provides a basic quaternion type.
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif

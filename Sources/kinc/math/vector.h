@@ -2,6 +2,10 @@
 
 #include "core.h"
 
+/*! \file vector.h
+    \brief Provides basic vector types.
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
