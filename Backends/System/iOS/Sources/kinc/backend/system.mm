@@ -4,6 +4,7 @@
 #include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/system.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 
 #import <UIKit/UIKit.h>
