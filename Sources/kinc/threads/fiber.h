@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_fiber {
 	kinc_fiber_impl_t impl;
 } kinc_fiber_t;
 

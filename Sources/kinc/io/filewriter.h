@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_file_writer {
 	void *file;
 	const char *filename;
 	bool mounted;

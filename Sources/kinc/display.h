@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_display_mode {
 	int x;
 	int y;
 	int width;

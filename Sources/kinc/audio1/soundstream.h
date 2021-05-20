@@ -15,7 +15,7 @@ extern "C" {
 
 struct stb_vorbis;
 
-typedef struct {
+typedef struct kinc_a1_sound_stream {
 	struct stb_vorbis *vorbis;
 	int chans;
 	int rate;

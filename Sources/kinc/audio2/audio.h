@@ -12,13 +12,13 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_a2_buffer_format {
 	int channels;
 	int samples_per_second;
 	int bits_per_sample;
 } kinc_a2_buffer_format_t;
 
-typedef struct {
+typedef struct kinc_a2_buffer {
 	kinc_a2_buffer_format_t format;
 	uint8_t *data;
 	int data_size;

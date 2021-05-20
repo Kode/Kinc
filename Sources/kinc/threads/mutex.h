@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_mutex {
 	kinc_mutex_impl_t impl;
 } kinc_mutex_t;
 
@@ -50,7 +50,7 @@ KINC_FUNC bool kinc_mutex_try_to_lock(kinc_mutex_t *mutex);
 /// <param name="mutex">The mutex to unlock</param>
 KINC_FUNC void kinc_mutex_unlock(kinc_mutex_t *mutex);
 
-typedef struct {
+typedef struct kinc_uber_mutex {
 	kinc_uber_mutex_impl_t impl;
 } kinc_uber_mutex_t;
 
