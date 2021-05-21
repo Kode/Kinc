@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Kinc: kinc_a2_buffer_format_t Struct Reference</title>
+<title>Kinc: kinc_a2_buffer Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -64,21 +64,27 @@ $(function() {
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">kinc_a2_buffer_format_t Struct Reference</div>  </div>
+<div class="title">kinc_a2_buffer Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:aaf0c9b4611518ff8688d6243d6959f48"><td class="memItemLeft" align="right" valign="top"><a id="aaf0c9b4611518ff8688d6243d6959f48"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>channels</b></td></tr>
-<tr class="separator:aaf0c9b4611518ff8688d6243d6959f48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34732e2ab75b95a1c2898d75951e2fc4"><td class="memItemLeft" align="right" valign="top"><a id="a34732e2ab75b95a1c2898d75951e2fc4"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>samples_per_second</b></td></tr>
-<tr class="separator:a34732e2ab75b95a1c2898d75951e2fc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24241f198415efc6fdeb16ad9e39d11c"><td class="memItemLeft" align="right" valign="top"><a id="a24241f198415efc6fdeb16ad9e39d11c"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>bits_per_sample</b></td></tr>
-<tr class="separator:a24241f198415efc6fdeb16ad9e39d11c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb29dd3356874930806d3be7068c515a"><td class="memItemLeft" align="right" valign="top"><a id="acb29dd3356874930806d3be7068c515a"></a>
+<a class="el" href="structkinc__a2__buffer__format.html">kinc_a2_buffer_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>format</b></td></tr>
+<tr class="separator:acb29dd3356874930806d3be7068c515a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9731b62b27b35b20a2b20c869e8c2d6d"><td class="memItemLeft" align="right" valign="top"><a id="a9731b62b27b35b20a2b20c869e8c2d6d"></a>
+uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><b>data</b></td></tr>
+<tr class="separator:a9731b62b27b35b20a2b20c869e8c2d6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fffee3cdeea8a242ac6ba59776f0cc1"><td class="memItemLeft" align="right" valign="top"><a id="a6fffee3cdeea8a242ac6ba59776f0cc1"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>data_size</b></td></tr>
+<tr class="separator:a6fffee3cdeea8a242ac6ba59776f0cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa84030e8c6b948653563c22d97b23e1d"><td class="memItemLeft" align="right" valign="top"><a id="aa84030e8c6b948653563c22d97b23e1d"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>read_location</b></td></tr>
+<tr class="separator:aa84030e8c6b948653563c22d97b23e1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a8370385e1dd25be7d826ce56e0961d"><td class="memItemLeft" align="right" valign="top"><a id="a4a8370385e1dd25be7d826ce56e0961d"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>write_location</b></td></tr>
+<tr class="separator:a4a8370385e1dd25be7d826ce56e0961d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li>Sources/kinc/audio2/<a class="el" href="audio2_2audio_8h_source.html">audio.h</a></li>

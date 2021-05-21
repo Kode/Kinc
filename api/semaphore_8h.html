@@ -67,6 +67,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">semaphore.h File Reference</div>  </div>
@@ -83,24 +84,30 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__semaphore.html">kinc_semaphore</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:afe1a0423b42d56270922fbb00756ac8d"><td class="memItemLeft" align="right" valign="top"><a id="afe1a0423b42d56270922fbb00756ac8d"></a>
+typedef struct <a class="el" href="structkinc__semaphore.html">kinc_semaphore</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_semaphore_t</b></td></tr>
+<tr class="separator:afe1a0423b42d56270922fbb00756ac8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:add4102a6f41f4a7c57799fb622df75d8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#add4102a6f41f4a7c57799fb622df75d8">kinc_semaphore_init</a> (<a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *semaphore, int current, int max)</td></tr>
+<tr class="memitem:add4102a6f41f4a7c57799fb622df75d8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#add4102a6f41f4a7c57799fb622df75d8">kinc_semaphore_init</a> (<a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *semaphore, int current, int max)</td></tr>
 <tr class="memdesc:add4102a6f41f4a7c57799fb622df75d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a semaphore.  <a href="semaphore_8h.html#add4102a6f41f4a7c57799fb622df75d8">More...</a><br /></td></tr>
 <tr class="separator:add4102a6f41f4a7c57799fb622df75d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e3bfc846cfa0d080f8be548011fb3aa"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#a7e3bfc846cfa0d080f8be548011fb3aa">kinc_semaphore_destroy</a> (<a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *semaphore)</td></tr>
+<tr class="memitem:a7e3bfc846cfa0d080f8be548011fb3aa"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#a7e3bfc846cfa0d080f8be548011fb3aa">kinc_semaphore_destroy</a> (<a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *semaphore)</td></tr>
 <tr class="memdesc:a7e3bfc846cfa0d080f8be548011fb3aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a semaphore.  <a href="semaphore_8h.html#a7e3bfc846cfa0d080f8be548011fb3aa">More...</a><br /></td></tr>
 <tr class="separator:a7e3bfc846cfa0d080f8be548011fb3aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a204b740cfe55cd778c3afcd75d8cb799"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#a204b740cfe55cd778c3afcd75d8cb799">kinc_semaphore_release</a> (<a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *semaphore, int count)</td></tr>
+<tr class="memitem:a204b740cfe55cd778c3afcd75d8cb799"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#a204b740cfe55cd778c3afcd75d8cb799">kinc_semaphore_release</a> (<a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *semaphore, int count)</td></tr>
 <tr class="memdesc:a204b740cfe55cd778c3afcd75d8cb799"><td class="mdescLeft">&#160;</td><td class="mdescRight">Increases the current count of the semaphore, therefore allowing more acquires to succeed.  <a href="semaphore_8h.html#a204b740cfe55cd778c3afcd75d8cb799">More...</a><br /></td></tr>
 <tr class="separator:a204b740cfe55cd778c3afcd75d8cb799"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38de876bcb9d494e05b66846d3032681"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#a38de876bcb9d494e05b66846d3032681">kinc_semaphore_acquire</a> (<a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *semaphore)</td></tr>
+<tr class="memitem:a38de876bcb9d494e05b66846d3032681"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#a38de876bcb9d494e05b66846d3032681">kinc_semaphore_acquire</a> (<a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *semaphore)</td></tr>
 <tr class="memdesc:a38de876bcb9d494e05b66846d3032681"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decreases the count of the semaphore by one. Blocks until it is possible to decrease the count if it already reached zero.  <a href="semaphore_8h.html#a38de876bcb9d494e05b66846d3032681">More...</a><br /></td></tr>
 <tr class="separator:a38de876bcb9d494e05b66846d3032681"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afe8137788dbfa45f43c00daa1bc6a6a0"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#afe8137788dbfa45f43c00daa1bc6a6a0">kinc_semaphore_try_to_acquire</a> (<a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *semaphore, double timeout)</td></tr>
+<tr class="memitem:afe8137788dbfa45f43c00daa1bc6a6a0"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="semaphore_8h.html#afe8137788dbfa45f43c00daa1bc6a6a0">kinc_semaphore_try_to_acquire</a> (<a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *semaphore, double timeout)</td></tr>
 <tr class="memdesc:afe8137788dbfa45f43c00daa1bc6a6a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to decrease the count of the semaphore by one.  <a href="semaphore_8h.html#afe8137788dbfa45f43c00daa1bc6a6a0">More...</a><br /></td></tr>
 <tr class="separator:afe8137788dbfa45f43c00daa1bc6a6a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -116,7 +123,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_semaphore_acquire </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *&#160;</td>
           <td class="paramname"><em>semaphore</em></td><td>)</td>
           <td></td>
         </tr>
@@ -142,7 +149,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_semaphore_destroy </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *&#160;</td>
           <td class="paramname"><em>semaphore</em></td><td>)</td>
           <td></td>
         </tr>
@@ -168,7 +175,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_semaphore_init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *&#160;</td>
           <td class="paramname"><em>semaphore</em>, </td>
         </tr>
         <tr>
@@ -212,7 +219,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_semaphore_release </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *&#160;</td>
           <td class="paramname"><em>semaphore</em>, </td>
         </tr>
         <tr>
@@ -249,7 +256,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC bool kinc_semaphore_try_to_acquire </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__semaphore__t.html">kinc_semaphore_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__semaphore.html">kinc_semaphore_t</a> *&#160;</td>
           <td class="paramname"><em>semaphore</em>, </td>
         </tr>
         <tr>

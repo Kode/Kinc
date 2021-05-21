@@ -67,6 +67,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">fiber.h File Reference</div>  </div>
@@ -82,21 +83,27 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__fiber.html">kinc_fiber</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a82b8c01a0b82d2ad244ae3a3468d7011"><td class="memItemLeft" align="right" valign="top"><a id="a82b8c01a0b82d2ad244ae3a3468d7011"></a>
+typedef struct <a class="el" href="structkinc__fiber.html">kinc_fiber</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_fiber_t</b></td></tr>
+<tr class="separator:a82b8c01a0b82d2ad244ae3a3468d7011"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a8b8f53d8499ec80b7b0297b83c3753e3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fiber_8h.html#a8b8f53d8499ec80b7b0297b83c3753e3">kinc_fiber_init_current_thread</a> (<a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a> *fiber)</td></tr>
+<tr class="memitem:a8b8f53d8499ec80b7b0297b83c3753e3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fiber_8h.html#a8b8f53d8499ec80b7b0297b83c3753e3">kinc_fiber_init_current_thread</a> (<a class="el" href="structkinc__fiber.html">kinc_fiber_t</a> *fiber)</td></tr>
 <tr class="memdesc:a8b8f53d8499ec80b7b0297b83c3753e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the current thread as a fiber.  <a href="fiber_8h.html#a8b8f53d8499ec80b7b0297b83c3753e3">More...</a><br /></td></tr>
 <tr class="separator:a8b8f53d8499ec80b7b0297b83c3753e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b11b61bd7d3f47b498dd5cddfa1f1c9"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fiber_8h.html#a5b11b61bd7d3f47b498dd5cddfa1f1c9">kinc_fiber_init</a> (<a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a> *fiber, void(*func)(void *param), void *param)</td></tr>
+<tr class="memitem:a5b11b61bd7d3f47b498dd5cddfa1f1c9"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fiber_8h.html#a5b11b61bd7d3f47b498dd5cddfa1f1c9">kinc_fiber_init</a> (<a class="el" href="structkinc__fiber.html">kinc_fiber_t</a> *fiber, void(*func)(void *param), void *param)</td></tr>
 <tr class="memdesc:a5b11b61bd7d3f47b498dd5cddfa1f1c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a fiber.  <a href="fiber_8h.html#a5b11b61bd7d3f47b498dd5cddfa1f1c9">More...</a><br /></td></tr>
 <tr class="separator:a5b11b61bd7d3f47b498dd5cddfa1f1c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae00a1da2424b07a625abbc314c35c1ed"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fiber_8h.html#ae00a1da2424b07a625abbc314c35c1ed">kinc_fiber_destroy</a> (<a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a> *fiber)</td></tr>
+<tr class="memitem:ae00a1da2424b07a625abbc314c35c1ed"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fiber_8h.html#ae00a1da2424b07a625abbc314c35c1ed">kinc_fiber_destroy</a> (<a class="el" href="structkinc__fiber.html">kinc_fiber_t</a> *fiber)</td></tr>
 <tr class="memdesc:ae00a1da2424b07a625abbc314c35c1ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a fiber.  <a href="fiber_8h.html#ae00a1da2424b07a625abbc314c35c1ed">More...</a><br /></td></tr>
 <tr class="separator:ae00a1da2424b07a625abbc314c35c1ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a090af461971f979091a22d8ca5e0b120"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fiber_8h.html#a090af461971f979091a22d8ca5e0b120">kinc_fiber_switch</a> (<a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a> *fiber)</td></tr>
+<tr class="memitem:a090af461971f979091a22d8ca5e0b120"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fiber_8h.html#a090af461971f979091a22d8ca5e0b120">kinc_fiber_switch</a> (<a class="el" href="structkinc__fiber.html">kinc_fiber_t</a> *fiber)</td></tr>
 <tr class="memdesc:a090af461971f979091a22d8ca5e0b120"><td class="mdescLeft">&#160;</td><td class="mdescRight">Switch the current thread to a different fiber.  <a href="fiber_8h.html#a090af461971f979091a22d8ca5e0b120">More...</a><br /></td></tr>
 <tr class="separator:a090af461971f979091a22d8ca5e0b120"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -112,7 +119,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_fiber_destroy </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__fiber.html">kinc_fiber_t</a> *&#160;</td>
           <td class="paramname"><em>fiber</em></td><td>)</td>
           <td></td>
         </tr>
@@ -138,7 +145,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_fiber_init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__fiber.html">kinc_fiber_t</a> *&#160;</td>
           <td class="paramname"><em>fiber</em>, </td>
         </tr>
         <tr>
@@ -182,7 +189,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_fiber_init_current_thread </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__fiber.html">kinc_fiber_t</a> *&#160;</td>
           <td class="paramname"><em>fiber</em></td><td>)</td>
           <td></td>
         </tr>
@@ -208,7 +215,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_fiber_switch </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__fiber__t.html">kinc_fiber_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__fiber.html">kinc_fiber_t</a> *&#160;</td>
           <td class="paramname"><em>fiber</em></td><td>)</td>
           <td></td>
         </tr>

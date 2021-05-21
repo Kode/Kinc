@@ -67,6 +67,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">threadlocal.h File Reference</div>  </div>
@@ -82,21 +83,27 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__thread__local.html">kinc_thread_local</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:aa32b7aaf1c35157a71c7b2a995627bfd"><td class="memItemLeft" align="right" valign="top"><a id="aa32b7aaf1c35157a71c7b2a995627bfd"></a>
+typedef struct <a class="el" href="structkinc__thread__local.html">kinc_thread_local</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_thread_local_t</b></td></tr>
+<tr class="separator:aa32b7aaf1c35157a71c7b2a995627bfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:acdeeef56a237f3013745ebb6837b37a2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="threadlocal_8h.html#acdeeef56a237f3013745ebb6837b37a2">kinc_thread_local_init</a> (<a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *local)</td></tr>
+<tr class="memitem:acdeeef56a237f3013745ebb6837b37a2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="threadlocal_8h.html#acdeeef56a237f3013745ebb6837b37a2">kinc_thread_local_init</a> (<a class="el" href="structkinc__thread__local.html">kinc_thread_local_t</a> *local)</td></tr>
 <tr class="memdesc:acdeeef56a237f3013745ebb6837b37a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a thread-specific storage-slot.  <a href="threadlocal_8h.html#acdeeef56a237f3013745ebb6837b37a2">More...</a><br /></td></tr>
 <tr class="separator:acdeeef56a237f3013745ebb6837b37a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c3b6291c9b927bf420534ccfdc51897"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="threadlocal_8h.html#a6c3b6291c9b927bf420534ccfdc51897">kinc_thread_local_destroy</a> (<a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *local)</td></tr>
+<tr class="memitem:a6c3b6291c9b927bf420534ccfdc51897"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="threadlocal_8h.html#a6c3b6291c9b927bf420534ccfdc51897">kinc_thread_local_destroy</a> (<a class="el" href="structkinc__thread__local.html">kinc_thread_local_t</a> *local)</td></tr>
 <tr class="memdesc:a6c3b6291c9b927bf420534ccfdc51897"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a storage-slot.  <a href="threadlocal_8h.html#a6c3b6291c9b927bf420534ccfdc51897">More...</a><br /></td></tr>
 <tr class="separator:a6c3b6291c9b927bf420534ccfdc51897"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb4e5fda8f5c2173e6ae00dbdc0537ee"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="threadlocal_8h.html#acb4e5fda8f5c2173e6ae00dbdc0537ee">kinc_thread_local_get</a> (<a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *local)</td></tr>
+<tr class="memitem:acb4e5fda8f5c2173e6ae00dbdc0537ee"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="threadlocal_8h.html#acb4e5fda8f5c2173e6ae00dbdc0537ee">kinc_thread_local_get</a> (<a class="el" href="structkinc__thread__local.html">kinc_thread_local_t</a> *local)</td></tr>
 <tr class="memdesc:acb4e5fda8f5c2173e6ae00dbdc0537ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the data in the storage-slot.  <a href="threadlocal_8h.html#acb4e5fda8f5c2173e6ae00dbdc0537ee">More...</a><br /></td></tr>
 <tr class="separator:acb4e5fda8f5c2173e6ae00dbdc0537ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41f256fe8d9f70d0756d73938e670662"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="threadlocal_8h.html#a41f256fe8d9f70d0756d73938e670662">kinc_thread_local_set</a> (<a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *local, void *data)</td></tr>
+<tr class="memitem:a41f256fe8d9f70d0756d73938e670662"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="threadlocal_8h.html#a41f256fe8d9f70d0756d73938e670662">kinc_thread_local_set</a> (<a class="el" href="structkinc__thread__local.html">kinc_thread_local_t</a> *local, void *data)</td></tr>
 <tr class="memdesc:a41f256fe8d9f70d0756d73938e670662"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the data in the storage-slot.  <a href="threadlocal_8h.html#a41f256fe8d9f70d0756d73938e670662">More...</a><br /></td></tr>
 <tr class="separator:a41f256fe8d9f70d0756d73938e670662"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -112,7 +119,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_thread_local_destroy </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__thread__local.html">kinc_thread_local_t</a> *&#160;</td>
           <td class="paramname"><em>local</em></td><td>)</td>
           <td></td>
         </tr>
@@ -138,7 +145,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void* kinc_thread_local_get </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__thread__local.html">kinc_thread_local_t</a> *&#160;</td>
           <td class="paramname"><em>local</em></td><td>)</td>
           <td></td>
         </tr>
@@ -164,7 +171,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_thread_local_init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__thread__local.html">kinc_thread_local_t</a> *&#160;</td>
           <td class="paramname"><em>local</em></td><td>)</td>
           <td></td>
         </tr>
@@ -190,7 +197,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_thread_local_set </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__thread__local.html">kinc_thread_local_t</a> *&#160;</td>
           <td class="paramname"><em>local</em>, </td>
         </tr>
         <tr>

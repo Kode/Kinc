@@ -67,6 +67,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">event.h File Reference</div>  </div>
@@ -83,27 +84,33 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__event__t.html">kinc_event_t</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__event.html">kinc_event</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a9601cfc7fb5735188cdb8354df541f63"><td class="memItemLeft" align="right" valign="top"><a id="a9601cfc7fb5735188cdb8354df541f63"></a>
+typedef struct <a class="el" href="structkinc__event.html">kinc_event</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_event_t</b></td></tr>
+<tr class="separator:a9601cfc7fb5735188cdb8354df541f63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a2332b3ca953afbc4cd760aa1e98806e8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a2332b3ca953afbc4cd760aa1e98806e8">kinc_event_init</a> (<a class="el" href="structkinc__event__t.html">kinc_event_t</a> *event, bool auto_clear)</td></tr>
+<tr class="memitem:a2332b3ca953afbc4cd760aa1e98806e8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a2332b3ca953afbc4cd760aa1e98806e8">kinc_event_init</a> (<a class="el" href="structkinc__event.html">kinc_event_t</a> *event, bool auto_clear)</td></tr>
 <tr class="memdesc:a2332b3ca953afbc4cd760aa1e98806e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an event-object.  <a href="event_8h.html#a2332b3ca953afbc4cd760aa1e98806e8">More...</a><br /></td></tr>
 <tr class="separator:a2332b3ca953afbc4cd760aa1e98806e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afcbd82167cbbf80437ffa7e369d5a10e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#afcbd82167cbbf80437ffa7e369d5a10e">kinc_event_destroy</a> (<a class="el" href="structkinc__event__t.html">kinc_event_t</a> *event)</td></tr>
+<tr class="memitem:afcbd82167cbbf80437ffa7e369d5a10e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#afcbd82167cbbf80437ffa7e369d5a10e">kinc_event_destroy</a> (<a class="el" href="structkinc__event.html">kinc_event_t</a> *event)</td></tr>
 <tr class="memdesc:afcbd82167cbbf80437ffa7e369d5a10e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys an event-object.  <a href="event_8h.html#afcbd82167cbbf80437ffa7e369d5a10e">More...</a><br /></td></tr>
 <tr class="separator:afcbd82167cbbf80437ffa7e369d5a10e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ee105913ee0afffd857da827664798a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a2ee105913ee0afffd857da827664798a">kinc_event_signal</a> (<a class="el" href="structkinc__event__t.html">kinc_event_t</a> *event)</td></tr>
+<tr class="memitem:a2ee105913ee0afffd857da827664798a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a2ee105913ee0afffd857da827664798a">kinc_event_signal</a> (<a class="el" href="structkinc__event.html">kinc_event_t</a> *event)</td></tr>
 <tr class="memdesc:a2ee105913ee0afffd857da827664798a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signals an event which allows threads which are waiting for the event to continue.  <a href="event_8h.html#a2ee105913ee0afffd857da827664798a">More...</a><br /></td></tr>
 <tr class="separator:a2ee105913ee0afffd857da827664798a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52fe4ef5170b815a9bfff6a7f953bba0"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a52fe4ef5170b815a9bfff6a7f953bba0">kinc_event_wait</a> (<a class="el" href="structkinc__event__t.html">kinc_event_t</a> *event)</td></tr>
+<tr class="memitem:a52fe4ef5170b815a9bfff6a7f953bba0"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a52fe4ef5170b815a9bfff6a7f953bba0">kinc_event_wait</a> (<a class="el" href="structkinc__event.html">kinc_event_t</a> *event)</td></tr>
 <tr class="memdesc:a52fe4ef5170b815a9bfff6a7f953bba0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits for an event to be signaled.  <a href="event_8h.html#a52fe4ef5170b815a9bfff6a7f953bba0">More...</a><br /></td></tr>
 <tr class="separator:a52fe4ef5170b815a9bfff6a7f953bba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a80b43c58cbfe99a9374143cf44ca377b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a80b43c58cbfe99a9374143cf44ca377b">kinc_event_try_to_wait</a> (<a class="el" href="structkinc__event__t.html">kinc_event_t</a> *event, double timeout)</td></tr>
+<tr class="memitem:a80b43c58cbfe99a9374143cf44ca377b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a80b43c58cbfe99a9374143cf44ca377b">kinc_event_try_to_wait</a> (<a class="el" href="structkinc__event.html">kinc_event_t</a> *event, double timeout)</td></tr>
 <tr class="memdesc:a80b43c58cbfe99a9374143cf44ca377b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits for an event to be signaled or the provided timeout to run out - whatever happens first.  <a href="event_8h.html#a80b43c58cbfe99a9374143cf44ca377b">More...</a><br /></td></tr>
 <tr class="separator:a80b43c58cbfe99a9374143cf44ca377b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afae0be0ecee6b6d2987db5376017cb89"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#afae0be0ecee6b6d2987db5376017cb89">kinc_event_reset</a> (<a class="el" href="structkinc__event__t.html">kinc_event_t</a> *event)</td></tr>
+<tr class="memitem:afae0be0ecee6b6d2987db5376017cb89"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#afae0be0ecee6b6d2987db5376017cb89">kinc_event_reset</a> (<a class="el" href="structkinc__event.html">kinc_event_t</a> *event)</td></tr>
 <tr class="memdesc:afae0be0ecee6b6d2987db5376017cb89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets an event to an unsignaled state.  <a href="event_8h.html#afae0be0ecee6b6d2987db5376017cb89">More...</a><br /></td></tr>
 <tr class="separator:afae0be0ecee6b6d2987db5376017cb89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -119,7 +126,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_event_destroy </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__event__t.html">kinc_event_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__event.html">kinc_event_t</a> *&#160;</td>
           <td class="paramname"><em>event</em></td><td>)</td>
           <td></td>
         </tr>
@@ -145,7 +152,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_event_init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__event__t.html">kinc_event_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__event.html">kinc_event_t</a> *&#160;</td>
           <td class="paramname"><em>event</em>, </td>
         </tr>
         <tr>
@@ -182,7 +189,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_event_reset </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__event__t.html">kinc_event_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__event.html">kinc_event_t</a> *&#160;</td>
           <td class="paramname"><em>event</em></td><td>)</td>
           <td></td>
         </tr>
@@ -208,7 +215,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_event_signal </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__event__t.html">kinc_event_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__event.html">kinc_event_t</a> *&#160;</td>
           <td class="paramname"><em>event</em></td><td>)</td>
           <td></td>
         </tr>
@@ -234,7 +241,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC bool kinc_event_try_to_wait </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__event__t.html">kinc_event_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__event.html">kinc_event_t</a> *&#160;</td>
           <td class="paramname"><em>event</em>, </td>
         </tr>
         <tr>
@@ -272,7 +279,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_event_wait </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__event__t.html">kinc_event_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__event.html">kinc_event_t</a> *&#160;</td>
           <td class="paramname"><em>event</em></td><td>)</td>
           <td></td>
         </tr>

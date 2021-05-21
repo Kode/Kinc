@@ -79,7 +79,7 @@ $(function() {
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="structkinc__display__mode__t.html">   15</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="structkinc__display__mode.html">   15</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__display__mode.html">kinc_display_mode</a> {</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keywordtype">int</span> x;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keywordtype">int</span> y;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">int</span> width;</div>
@@ -87,7 +87,7 @@ $(function() {
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">int</span> pixels_per_inch;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">int</span> frequency;</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordtype">int</span> bits_per_pixel;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;} <a class="code" href="structkinc__display__mode__t.html">kinc_display_mode_t</a>;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;} <a class="code" href="structkinc__display__mode.html">kinc_display_mode_t</a>;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="display_8h.html#a5e152044362942c03daa51235092c6d2">kinc_display_init</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
@@ -99,11 +99,11 @@ $(function() {
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;KINC_FUNC <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="display_8h.html#a8f37a01d0170166b7950ffade7395687">kinc_display_name</a>(<span class="keywordtype">int</span> display_index);</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;KINC_FUNC <a class="code" href="structkinc__display__mode__t.html">kinc_display_mode_t</a> <a class="code" href="display_8h.html#a99438c4f18b72addc1a828391551568f">kinc_display_current_mode</a>(<span class="keywordtype">int</span> display_index);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;KINC_FUNC <a class="code" href="structkinc__display__mode.html">kinc_display_mode_t</a> <a class="code" href="display_8h.html#a99438c4f18b72addc1a828391551568f">kinc_display_current_mode</a>(<span class="keywordtype">int</span> display_index);</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="display_8h.html#a724caa331a063ff59010a82f147f808f">kinc_display_count_available_modes</a>(<span class="keywordtype">int</span> display_index);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;KINC_FUNC <a class="code" href="structkinc__display__mode__t.html">kinc_display_mode_t</a> <a class="code" href="display_8h.html#a0d329a98be9171fd9c31af52636a67ae">kinc_display_available_mode</a>(<span class="keywordtype">int</span> display_index, <span class="keywordtype">int</span> mode_index);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;KINC_FUNC <a class="code" href="structkinc__display__mode.html">kinc_display_mode_t</a> <a class="code" href="display_8h.html#a0d329a98be9171fd9c31af52636a67ae">kinc_display_available_mode</a>(<span class="keywordtype">int</span> display_index, <span class="keywordtype">int</span> mode_index);</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;}</div>
@@ -113,7 +113,7 @@ $(function() {
 <div class="ttc" id="adisplay_8h_html_a724caa331a063ff59010a82f147f808f"><div class="ttname"><a href="display_8h.html#a724caa331a063ff59010a82f147f808f">kinc_display_count_available_modes</a></div><div class="ttdeci">KINC_FUNC int kinc_display_count_available_modes(int display_index)</div><div class="ttdoc">Retrieves the number of available modes of a display.</div></div>
 <div class="ttc" id="adisplay_8h_html_a6f60e4e3aa46dfecce582221b01590cb"><div class="ttname"><a href="display_8h.html#a6f60e4e3aa46dfecce582221b01590cb">kinc_count_displays</a></div><div class="ttdeci">KINC_FUNC int kinc_count_displays(void)</div><div class="ttdoc">Retrieves the number of displays connected to the system.</div></div>
 <div class="ttc" id="adisplay_8h_html_a00f1fc3895508128d33ff4619327ccf2"><div class="ttname"><a href="display_8h.html#a00f1fc3895508128d33ff4619327ccf2">kinc_primary_display</a></div><div class="ttdeci">KINC_FUNC int kinc_primary_display(void)</div><div class="ttdoc">Retrieves the index of the primary display.</div></div>
-<div class="ttc" id="astructkinc__display__mode__t_html"><div class="ttname"><a href="structkinc__display__mode__t.html">kinc_display_mode_t</a></div><div class="ttdef"><b>Definition:</b> display.h:15</div></div>
+<div class="ttc" id="astructkinc__display__mode_html"><div class="ttname"><a href="structkinc__display__mode.html">kinc_display_mode</a></div><div class="ttdef"><b>Definition:</b> display.h:15</div></div>
 <div class="ttc" id="adisplay_8h_html_a0d329a98be9171fd9c31af52636a67ae"><div class="ttname"><a href="display_8h.html#a0d329a98be9171fd9c31af52636a67ae">kinc_display_available_mode</a></div><div class="ttdeci">KINC_FUNC kinc_display_mode_t kinc_display_available_mode(int display_index, int mode_index)</div><div class="ttdoc">Retrieves a specific mode of a display.</div></div>
 <div class="ttc" id="adisplay_8h_html_a8f37a01d0170166b7950ffade7395687"><div class="ttname"><a href="display_8h.html#a8f37a01d0170166b7950ffade7395687">kinc_display_name</a></div><div class="ttdeci">const KINC_FUNC char * kinc_display_name(int display_index)</div><div class="ttdoc">Retrieves the system name of a display.</div></div>
 <div class="ttc" id="adisplay_8h_html_a99438c4f18b72addc1a828391551568f"><div class="ttname"><a href="display_8h.html#a99438c4f18b72addc1a828391551568f">kinc_display_current_mode</a></div><div class="ttdeci">KINC_FUNC kinc_display_mode_t kinc_display_current_mode(int display_index)</div><div class="ttdoc">Retrieves the current mode of a display.</div></div>

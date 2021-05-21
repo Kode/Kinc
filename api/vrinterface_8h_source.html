@@ -88,8 +88,8 @@ $(function() {
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> { KINC_TRACKED_DEVICE_HMD, KINC_TRACKED_DEVICE_CONTROLLER, KINC_TRACKED_DEVICE_VIVE_TRACKER } kinc_tracked_device_t;</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>kinc_vr_pose {</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="structkinc__quaternion__t.html">kinc_quaternion_t</a> orientation;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="structkinc__vector3__t.html">kinc_vector3_t</a> position;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="structkinc__quaternion.html">kinc_quaternion_t</a> orientation;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="structkinc__vector3.html">kinc_vector3_t</a> position;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <a class="code" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a> eye;</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a> projection;</div>
@@ -103,10 +103,10 @@ $(function() {
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>kinc_vr_pose_state {</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    kinc_vr_pose_t vrPose;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="structkinc__vector3__t.html">kinc_vector3_t</a> angularVelocity;     <span class="comment">// Angular velocity in radians per second</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <a class="code" href="structkinc__vector3__t.html">kinc_vector3_t</a> linearVelocity;      <span class="comment">// Velocity in meters per second</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <a class="code" href="structkinc__vector3__t.html">kinc_vector3_t</a> angularAcceleration; <span class="comment">// Angular acceleration in radians per second per second</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="structkinc__vector3__t.html">kinc_vector3_t</a> linearAcceleration;  <span class="comment">// Acceleration in meters per second per second</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="structkinc__vector3.html">kinc_vector3_t</a> angularVelocity;     <span class="comment">// Angular velocity in radians per second</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <a class="code" href="structkinc__vector3.html">kinc_vector3_t</a> linearVelocity;      <span class="comment">// Velocity in meters per second</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <a class="code" href="structkinc__vector3.html">kinc_vector3_t</a> angularAcceleration; <span class="comment">// Angular acceleration in radians per second per second</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="structkinc__vector3.html">kinc_vector3_t</a> linearAcceleration;  <span class="comment">// Acceleration in meters per second per second</span></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    kinc_tracked_device_t trackedDevice;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
@@ -140,11 +140,11 @@ $(function() {
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="astructkinc__vector3_html"><div class="ttname"><a href="structkinc__vector3.html">kinc_vector3</a></div><div class="ttdef"><b>Definition:</b> vector.h:18</div></div>
 <div class="ttc" id="aquaternion_8h_html"><div class="ttname"><a href="quaternion_8h.html">quaternion.h</a></div><div class="ttdoc">Provides a basic quaternion type.</div></div>
+<div class="ttc" id="astructkinc__quaternion_html"><div class="ttname"><a href="structkinc__quaternion.html">kinc_quaternion</a></div><div class="ttdef"><b>Definition:</b> quaternion.h:13</div></div>
 <div class="ttc" id="amatrix_8h_html"><div class="ttname"><a href="matrix_8h.html">matrix.h</a></div><div class="ttdoc">Provides basic matrix types and a few function which create transformation-matrices....</div></div>
-<div class="ttc" id="astructkinc__vector3__t_html"><div class="ttname"><a href="structkinc__vector3__t.html">kinc_vector3_t</a></div><div class="ttdef"><b>Definition:</b> vector.h:18</div></div>
 <div class="ttc" id="avector_8h_html"><div class="ttname"><a href="vector_8h.html">vector.h</a></div><div class="ttdoc">Provides basic vector types.</div></div>
-<div class="ttc" id="astructkinc__quaternion__t_html"><div class="ttname"><a href="structkinc__quaternion__t.html">kinc_quaternion_t</a></div><div class="ttdef"><b>Definition:</b> quaternion.h:13</div></div>
 <div class="ttc" id="astructkinc__matrix4x4_html"><div class="ttname"><a href="structkinc__matrix4x4.html">kinc_matrix4x4</a></div><div class="ttdef"><b>Definition:</b> matrix.h:30</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

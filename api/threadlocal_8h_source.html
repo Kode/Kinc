@@ -79,27 +79,27 @@ $(function() {
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="structkinc__thread__local__t.html">   15</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="structkinc__thread__local.html">   15</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__thread__local.html">kinc_thread_local</a> {</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    kinc_thread_local_impl_t impl;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;} <a class="code" href="structkinc__thread__local__t.html">kinc_thread_local_t</a>;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;} <a class="code" href="structkinc__thread__local.html">kinc_thread_local_t</a>;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="threadlocal_8h.html#acdeeef56a237f3013745ebb6837b37a2">kinc_thread_local_init</a>(<a class="code" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *local);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="threadlocal_8h.html#acdeeef56a237f3013745ebb6837b37a2">kinc_thread_local_init</a>(<a class="code" href="structkinc__thread__local.html">kinc_thread_local_t</a> *local);</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="threadlocal_8h.html#a6c3b6291c9b927bf420534ccfdc51897">kinc_thread_local_destroy</a>(<a class="code" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *local);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="threadlocal_8h.html#a6c3b6291c9b927bf420534ccfdc51897">kinc_thread_local_destroy</a>(<a class="code" href="structkinc__thread__local.html">kinc_thread_local_t</a> *local);</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;KINC_FUNC <span class="keywordtype">void</span> *<a class="code" href="threadlocal_8h.html#acb4e5fda8f5c2173e6ae00dbdc0537ee">kinc_thread_local_get</a>(<a class="code" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *local);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;KINC_FUNC <span class="keywordtype">void</span> *<a class="code" href="threadlocal_8h.html#acb4e5fda8f5c2173e6ae00dbdc0537ee">kinc_thread_local_get</a>(<a class="code" href="structkinc__thread__local.html">kinc_thread_local_t</a> *local);</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="threadlocal_8h.html#a41f256fe8d9f70d0756d73938e670662">kinc_thread_local_set</a>(<a class="code" href="structkinc__thread__local__t.html">kinc_thread_local_t</a> *local, <span class="keywordtype">void</span> *data);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="threadlocal_8h.html#a41f256fe8d9f70d0756d73938e670662">kinc_thread_local_set</a>(<a class="code" href="structkinc__thread__local.html">kinc_thread_local_t</a> *local, <span class="keywordtype">void</span> *data);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;}</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="astructkinc__thread__local_html"><div class="ttname"><a href="structkinc__thread__local.html">kinc_thread_local</a></div><div class="ttdef"><b>Definition:</b> threadlocal.h:15</div></div>
 <div class="ttc" id="athreadlocal_8h_html_a41f256fe8d9f70d0756d73938e670662"><div class="ttname"><a href="threadlocal_8h.html#a41f256fe8d9f70d0756d73938e670662">kinc_thread_local_set</a></div><div class="ttdeci">KINC_FUNC void kinc_thread_local_set(kinc_thread_local_t *local, void *data)</div><div class="ttdoc">Sets the data in the storage-slot.</div></div>
 <div class="ttc" id="athreadlocal_8h_html_acb4e5fda8f5c2173e6ae00dbdc0537ee"><div class="ttname"><a href="threadlocal_8h.html#acb4e5fda8f5c2173e6ae00dbdc0537ee">kinc_thread_local_get</a></div><div class="ttdeci">KINC_FUNC void * kinc_thread_local_get(kinc_thread_local_t *local)</div><div class="ttdoc">Gets the data in the storage-slot.</div></div>
 <div class="ttc" id="athreadlocal_8h_html_a6c3b6291c9b927bf420534ccfdc51897"><div class="ttname"><a href="threadlocal_8h.html#a6c3b6291c9b927bf420534ccfdc51897">kinc_thread_local_destroy</a></div><div class="ttdeci">KINC_FUNC void kinc_thread_local_destroy(kinc_thread_local_t *local)</div><div class="ttdoc">Destroys a storage-slot.</div></div>
 <div class="ttc" id="athreadlocal_8h_html_acdeeef56a237f3013745ebb6837b37a2"><div class="ttname"><a href="threadlocal_8h.html#acdeeef56a237f3013745ebb6837b37a2">kinc_thread_local_init</a></div><div class="ttdeci">KINC_FUNC void kinc_thread_local_init(kinc_thread_local_t *local)</div><div class="ttdoc">Initializes a thread-specific storage-slot.</div></div>
-<div class="ttc" id="astructkinc__thread__local__t_html"><div class="ttname"><a href="structkinc__thread__local__t.html">kinc_thread_local_t</a></div><div class="ttdef"><b>Definition:</b> threadlocal.h:15</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

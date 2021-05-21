@@ -67,6 +67,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">video.h File Reference</div>  </div>
@@ -83,51 +84,57 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__video__t.html">kinc_video_t</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__video.html">kinc_video</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:aafb02b1a22d3067c67040eb291815de8"><td class="memItemLeft" align="right" valign="top"><a id="aafb02b1a22d3067c67040eb291815de8"></a>
+typedef struct <a class="el" href="structkinc__video.html">kinc_video</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_video_t</b></td></tr>
+<tr class="separator:aafb02b1a22d3067c67040eb291815de8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:af32c76a470c84389b92dee3c39ef69f9"><td class="memItemLeft" align="right" valign="top">const KINC_FUNC char **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#af32c76a470c84389b92dee3c39ef69f9">kinc_video_formats</a> (void)</td></tr>
 <tr class="memdesc:af32c76a470c84389b92dee3c39ef69f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the list of video formats which are supported on the current system.  <a href="video_8h.html#af32c76a470c84389b92dee3c39ef69f9">More...</a><br /></td></tr>
 <tr class="separator:af32c76a470c84389b92dee3c39ef69f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0d5b51acb188b04bd72bc2952de6e9f"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ad0d5b51acb188b04bd72bc2952de6e9f">kinc_video_init</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video, const char *filename)</td></tr>
+<tr class="memitem:ad0d5b51acb188b04bd72bc2952de6e9f"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ad0d5b51acb188b04bd72bc2952de6e9f">kinc_video_init</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video, const char *filename)</td></tr>
 <tr class="memdesc:ad0d5b51acb188b04bd72bc2952de6e9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepares a video object based on an encoded video-file.  <a href="video_8h.html#ad0d5b51acb188b04bd72bc2952de6e9f">More...</a><br /></td></tr>
 <tr class="separator:ad0d5b51acb188b04bd72bc2952de6e9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a010fd41cafe9efb6c7ec12b74306a65a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a010fd41cafe9efb6c7ec12b74306a65a">kinc_video_destroy</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:a010fd41cafe9efb6c7ec12b74306a65a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a010fd41cafe9efb6c7ec12b74306a65a">kinc_video_destroy</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:a010fd41cafe9efb6c7ec12b74306a65a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a video object.  <a href="video_8h.html#a010fd41cafe9efb6c7ec12b74306a65a">More...</a><br /></td></tr>
 <tr class="separator:a010fd41cafe9efb6c7ec12b74306a65a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a765d0c28d82778b6571c0e75a88d59"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a8a765d0c28d82778b6571c0e75a88d59">kinc_video_play</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:a8a765d0c28d82778b6571c0e75a88d59"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a8a765d0c28d82778b6571c0e75a88d59">kinc_video_play</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:a8a765d0c28d82778b6571c0e75a88d59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts playing a video.  <a href="video_8h.html#a8a765d0c28d82778b6571c0e75a88d59">More...</a><br /></td></tr>
 <tr class="separator:a8a765d0c28d82778b6571c0e75a88d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a179ee718316aba212743c0dfd56b790d"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a179ee718316aba212743c0dfd56b790d">kinc_video_pause</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:a179ee718316aba212743c0dfd56b790d"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a179ee718316aba212743c0dfd56b790d">kinc_video_pause</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:a179ee718316aba212743c0dfd56b790d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pauses a video.  <a href="video_8h.html#a179ee718316aba212743c0dfd56b790d">More...</a><br /></td></tr>
 <tr class="separator:a179ee718316aba212743c0dfd56b790d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac3be01018f7e40190287481798251157"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ac3be01018f7e40190287481798251157">kinc_video_stop</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:ac3be01018f7e40190287481798251157"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ac3be01018f7e40190287481798251157">kinc_video_stop</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:ac3be01018f7e40190287481798251157"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops a video which is equivalent to pausing it and setting the position to 0.  <a href="video_8h.html#ac3be01018f7e40190287481798251157">More...</a><br /></td></tr>
 <tr class="separator:ac3be01018f7e40190287481798251157"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae92d7ab79e683a6205d6abd2480377e2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ae92d7ab79e683a6205d6abd2480377e2">kinc_video_width</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:ae92d7ab79e683a6205d6abd2480377e2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ae92d7ab79e683a6205d6abd2480377e2">kinc_video_width</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:ae92d7ab79e683a6205d6abd2480377e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the width of the video in pixels.  <a href="video_8h.html#ae92d7ab79e683a6205d6abd2480377e2">More...</a><br /></td></tr>
 <tr class="separator:ae92d7ab79e683a6205d6abd2480377e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a712db0650c7b8877a855e04b27d1b4eb"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a712db0650c7b8877a855e04b27d1b4eb">kinc_video_height</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:a712db0650c7b8877a855e04b27d1b4eb"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a712db0650c7b8877a855e04b27d1b4eb">kinc_video_height</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:a712db0650c7b8877a855e04b27d1b4eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the height of the video in pixels.  <a href="video_8h.html#a712db0650c7b8877a855e04b27d1b4eb">More...</a><br /></td></tr>
 <tr class="separator:a712db0650c7b8877a855e04b27d1b4eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa403bb195f87462e93e53b16b070deff"><td class="memItemLeft" align="right" valign="top">KINC_FUNC <a class="el" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#aa403bb195f87462e93e53b16b070deff">kinc_video_current_image</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:aa403bb195f87462e93e53b16b070deff"><td class="memItemLeft" align="right" valign="top">KINC_FUNC <a class="el" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#aa403bb195f87462e93e53b16b070deff">kinc_video_current_image</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:aa403bb195f87462e93e53b16b070deff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current image of a playing video which can be rendered using any of Kinc's graphics APIs.  <a href="video_8h.html#aa403bb195f87462e93e53b16b070deff">More...</a><br /></td></tr>
 <tr class="separator:aa403bb195f87462e93e53b16b070deff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f9e5e52220499443edbb1015003008c"><td class="memItemLeft" align="right" valign="top">KINC_FUNC double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a4f9e5e52220499443edbb1015003008c">kinc_video_duration</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:a4f9e5e52220499443edbb1015003008c"><td class="memItemLeft" align="right" valign="top">KINC_FUNC double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a4f9e5e52220499443edbb1015003008c">kinc_video_duration</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:a4f9e5e52220499443edbb1015003008c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the duration of the video in seconds.  <a href="video_8h.html#a4f9e5e52220499443edbb1015003008c">More...</a><br /></td></tr>
 <tr class="separator:a4f9e5e52220499443edbb1015003008c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9ba551f76b60c800c758c1aaf41aab4"><td class="memItemLeft" align="right" valign="top">KINC_FUNC double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ae9ba551f76b60c800c758c1aaf41aab4">kinc_video_position</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:ae9ba551f76b60c800c758c1aaf41aab4"><td class="memItemLeft" align="right" valign="top">KINC_FUNC double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ae9ba551f76b60c800c758c1aaf41aab4">kinc_video_position</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:ae9ba551f76b60c800c758c1aaf41aab4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current playback-position of the video in seconds.  <a href="video_8h.html#ae9ba551f76b60c800c758c1aaf41aab4">More...</a><br /></td></tr>
 <tr class="separator:ae9ba551f76b60c800c758c1aaf41aab4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aadf2df5f312cbf081d700344150b46eb"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#aadf2df5f312cbf081d700344150b46eb">kinc_video_finished</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:aadf2df5f312cbf081d700344150b46eb"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#aadf2df5f312cbf081d700344150b46eb">kinc_video_finished</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:aadf2df5f312cbf081d700344150b46eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether the video reached its end.  <a href="video_8h.html#aadf2df5f312cbf081d700344150b46eb">More...</a><br /></td></tr>
 <tr class="separator:aadf2df5f312cbf081d700344150b46eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a804b23f40a1dd352e9cc4b164803e743"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a804b23f40a1dd352e9cc4b164803e743">kinc_video_paused</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video)</td></tr>
+<tr class="memitem:a804b23f40a1dd352e9cc4b164803e743"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#a804b23f40a1dd352e9cc4b164803e743">kinc_video_paused</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video)</td></tr>
 <tr class="memdesc:a804b23f40a1dd352e9cc4b164803e743"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether the video is currently paused.  <a href="video_8h.html#a804b23f40a1dd352e9cc4b164803e743">More...</a><br /></td></tr>
 <tr class="separator:a804b23f40a1dd352e9cc4b164803e743"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada307549b30cb957ea27a41d5e1db710"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ada307549b30cb957ea27a41d5e1db710">kinc_video_update</a> (<a class="el" href="structkinc__video__t.html">kinc_video_t</a> *video, double time)</td></tr>
+<tr class="memitem:ada307549b30cb957ea27a41d5e1db710"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="video_8h.html#ada307549b30cb957ea27a41d5e1db710">kinc_video_update</a> (<a class="el" href="structkinc__video.html">kinc_video_t</a> *video, double time)</td></tr>
 <tr class="memdesc:ada307549b30cb957ea27a41d5e1db710"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call this every frame to update the video. This is not required on all targets but where it's not required the function just does nothing - so please call it.  <a href="video_8h.html#ada307549b30cb957ea27a41d5e1db710">More...</a><br /></td></tr>
 <tr class="separator:ada307549b30cb957ea27a41d5e1db710"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -143,7 +150,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC <a class="el" href="structkinc__g4__texture.html">kinc_g4_texture_t</a>* kinc_video_current_image </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -164,7 +171,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_video_destroy </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -184,7 +191,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC double kinc_video_duration </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -205,7 +212,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC bool kinc_video_finished </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -247,7 +254,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC int kinc_video_height </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -268,7 +275,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_video_init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em>, </td>
         </tr>
         <tr>
@@ -298,7 +305,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_video_pause </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -318,7 +325,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC bool kinc_video_paused </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -339,7 +346,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_video_play </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -359,7 +366,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC double kinc_video_position </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -380,7 +387,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_video_stop </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
@@ -400,7 +407,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_video_update </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em>, </td>
         </tr>
         <tr>
@@ -430,7 +437,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC int kinc_video_width </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__video__t.html">kinc_video_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__video.html">kinc_video_t</a> *&#160;</td>
           <td class="paramname"><em>video</em></td><td>)</td>
           <td></td>
         </tr>
