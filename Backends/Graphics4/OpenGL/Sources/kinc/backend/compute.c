@@ -55,7 +55,7 @@ static int convertInternalRTFormat(kinc_g4_render_target_format_t format) {
 }
 
 static void setTextureAddressingInternal(GLenum target, kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir,
-								  kinc_g4_texture_addressing_t addressing) {
+                                         kinc_g4_texture_addressing_t addressing) {
 	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
 	GLenum texDir = dir == KINC_G4_TEXTURE_DIRECTION_U ? GL_TEXTURE_WRAP_S : (KINC_G4_TEXTURE_DIRECTION_V ? GL_TEXTURE_WRAP_T : GL_TEXTURE_WRAP_R);
 	switch (addressing) {
@@ -131,7 +131,7 @@ static void setMinMipFilters(GLenum target, int unit) {
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int length) {
 	shader->impl._length = length;
 	shader->impl.textureCount = 0;
-	shader->impl._source = (char*)malloc(sizeof(char) * (length + 1));
+	shader->impl._source = (char *)malloc(sizeof(char) * (length + 1));
 	for (int i = 0; i < length; ++i) {
 		shader->impl._source[i] = ((char *)source)[i];
 	}
@@ -140,7 +140,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int l
 #ifdef HAS_COMPUTE
 	shader->impl._id = glCreateShader(GL_COMPUTE_SHADER);
 	glCheckErrors();
-	glShaderSource(shader->impl._id, 1, shader->impl._source, NULL);
+	glShaderSource(shader->impl._id, 1, (const GLchar **)&shader->impl._source, NULL);
 	glCompileShader(shader->impl._id);
 
 	int result;
@@ -170,12 +170,12 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int l
 #endif
 
 	// TODO: Get rid of allocations
-	shader->impl.textures = (char**)malloc(sizeof(char*) * 16);
+	shader->impl.textures = (char **)malloc(sizeof(char *) * 16);
 	for (int i = 0; i < 16; ++i) {
-		shader->impl.textures[i] = (char*)malloc(sizeof(char) * 128);
+		shader->impl.textures[i] = (char *)malloc(sizeof(char) * 128);
 		shader->impl.textures[i][0] = 0;
 	}
-	shader->impl.textureValues = (int*)malloc(sizeof(int) * 16);
+	shader->impl.textureValues = (int *)malloc(sizeof(int) * 16);
 }
 
 void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {
