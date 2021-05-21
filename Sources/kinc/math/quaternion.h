@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_quaternion {
 	float x;
 	float y;
 	float z;

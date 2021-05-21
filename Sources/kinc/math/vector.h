@@ -10,18 +10,18 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_vector2 {
 	float x;
 	float y;
 } kinc_vector2_t;
 
-typedef struct {
+typedef struct kinc_vector3 {
 	float x;
 	float y;
 	float z;
 } kinc_vector3_t;
 
-typedef struct {
+typedef struct kinc_vector4 {
 	float x;
 	float y;
 	float z;

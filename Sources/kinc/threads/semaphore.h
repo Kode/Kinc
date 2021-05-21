@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_semaphore {
 	kinc_semaphore_impl_t impl;
 } kinc_semaphore_t;
 

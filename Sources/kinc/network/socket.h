@@ -24,7 +24,7 @@ typedef _W64 unsigned int UINT_PTR, *PUINT_PTR;
 typedef UINT_PTR SOCKET;
 #endif
 
-typedef struct {
+typedef struct kinc_socket {
 #ifdef KORE_MICROSOFT
 	SOCKET handle;
 #else

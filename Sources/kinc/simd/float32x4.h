@@ -140,7 +140,7 @@ inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
 
 #include <kinc/math/core.h>
 
-typedef struct {
+typedef struct kinc_float32x4 {
 	float values[4];
 } kinc_float32x4_t;
 

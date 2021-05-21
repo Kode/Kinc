@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_event {
 	kinc_event_impl_t impl;
 } kinc_event_t;
 

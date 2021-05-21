@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_video {
 	kinc_video_impl_t impl;
 } kinc_video_t;
 

@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_thread {
 	kinc_thread_impl_t impl;
 } kinc_thread_t;
 

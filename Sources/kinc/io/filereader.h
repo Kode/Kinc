@@ -28,7 +28,7 @@ typedef struct __sFILE FILE;
 #define KINC_FILE_TYPE_SAVE 1
 
 #ifdef KORE_ANDROID
-typedef struct {
+typedef struct kinc_file_reader {
 	int pos;
 	int size;
 	FILE *file;

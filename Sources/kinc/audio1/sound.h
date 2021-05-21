@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct kinc_a1_sound {
 	kinc_a2_buffer_format_t format;
 	int16_t *left;
 	int16_t *right;
