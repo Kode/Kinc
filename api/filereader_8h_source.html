@@ -69,7 +69,7 @@ $(function() {
 <div class="title">filereader.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
+<a href="filereader_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;kinc/global.h&gt;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
@@ -81,76 +81,118 @@ $(function() {
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#ifndef KORE_DEBUGDIR</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#define KORE_DEBUGDIR &quot;Deployment&quot;</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">struct </span>AAsset;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">struct </span>__sFILE;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>__sFILE FILE;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#define KINC_FILE_TYPE_ASSET 0</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#define KINC_FILE_TYPE_SAVE 1</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__file__reader.html">kinc_file_reader</a> {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">int</span> pos;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">int</span> size;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    FILE *file;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keyword">struct </span>AAsset *asset;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">int</span> type;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;} <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a>;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="structkinc__file__reader.html">   39</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__file__reader.html">kinc_file_reader</a> {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">void</span> *file;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">int</span> size;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">int</span> type;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">int</span> mode;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> mounted;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#if defined(KORE_SONY) || defined(KORE_SWITCH)</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    kinc_file_reader_impl_t impl;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;} <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a>;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;KINC_FUNC <span class="keywordtype">bool</span> kinc_file_reader_open(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, <span class="keyword">const</span> <span class="keywordtype">char</span> *filename, <span class="keywordtype">int</span> type);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_file_reader_close(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_file_reader_read(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;KINC_FUNC <span class="keywordtype">size_t</span> kinc_file_reader_size(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_file_reader_pos(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_file_reader_seek(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, <span class="keywordtype">int</span> pos);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_read_f32le(uint8_t *data);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_read_f32be(uint8_t *data);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;KINC_FUNC uint64_t kinc_read_u64le(uint8_t *data);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;KINC_FUNC uint64_t kinc_read_u64be(uint8_t *data);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;KINC_FUNC int64_t kinc_read_s64le(uint8_t *data);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;KINC_FUNC int64_t kinc_read_s64be(uint8_t *data);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;KINC_FUNC uint32_t kinc_read_u32le(uint8_t *data);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;KINC_FUNC uint32_t kinc_read_u32be(uint8_t *data);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;KINC_FUNC int32_t kinc_read_s32le(uint8_t *data);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;KINC_FUNC int32_t kinc_read_s32be(uint8_t *data);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;KINC_FUNC uint16_t kinc_read_u16le(uint8_t *data);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;KINC_FUNC uint16_t kinc_read_u16be(uint8_t *data);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;KINC_FUNC int16_t kinc_read_s16le(uint8_t *data);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;KINC_FUNC int16_t kinc_read_s16be(uint8_t *data);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;KINC_FUNC uint8_t kinc_read_u8(uint8_t *data);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;KINC_FUNC int8_t kinc_read_s8(uint8_t *data);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keywordtype">void</span> kinc_internal_set_files_location(<span class="keywordtype">char</span> *dir);</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keywordtype">char</span> *kinc_internal_get_files_location(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#ifndef KORE_DEBUGDIR</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#define KORE_DEBUGDIR &quot;Deployment&quot;</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">struct </span>AAsset;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">struct </span>__sFILE;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>__sFILE FILE;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#define KINC_FILE_TYPE_ASSET 0</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#define KINC_FILE_TYPE_SAVE 1</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__file__reader.html">kinc_file_reader</a> {</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">int</span> pos;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">int</span> size;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    FILE *file;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keyword">struct </span>AAsset *asset;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">int</span> type;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;} <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a>;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="structkinc__file__reader.html">   43</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__file__reader.html">kinc_file_reader</a> {</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">void</span> *file;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">int</span> size;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">int</span> type;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">int</span> mode;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">bool</span> mounted;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#if defined(KORE_SONY) || defined(KORE_SWITCH)</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    kinc_file_reader_impl_t impl;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;} <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a>;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;KINC_FUNC <span class="keywordtype">bool</span> <a class="code" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, <span class="keyword">const</span> <span class="keywordtype">char</span> *filepath, <span class="keywordtype">int</span> type);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a>(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">kinc_file_reader_read</a>(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;KINC_FUNC <span class="keywordtype">size_t</span> <a class="code" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="filereader_8h.html#aa3665a1499c3f5ab3236d0e2061b6119">kinc_file_reader_pos</a>(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="filereader_8h.html#a2a5a04f800ea57ef64e7a6cfb58ec4aa">kinc_file_reader_seek</a>(<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, <span class="keywordtype">int</span> pos);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;KINC_FUNC <span class="keywordtype">float</span> <a class="code" href="filereader_8h.html#a21a5b2e5d600132d5ac7d94a49b1e256">kinc_read_f32le</a>(uint8_t *data);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;KINC_FUNC <span class="keywordtype">float</span> <a class="code" href="filereader_8h.html#ad553789182907a36894ebcbed1df34eb">kinc_read_f32be</a>(uint8_t *data);</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160; </div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;KINC_FUNC uint64_t <a class="code" href="filereader_8h.html#a74b3a6a8751b322a3eaf9acec6e3aa9f">kinc_read_u64le</a>(uint8_t *data);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;KINC_FUNC uint64_t <a class="code" href="filereader_8h.html#accd58113dae8b30969283f9d9742064a">kinc_read_u64be</a>(uint8_t *data);</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;KINC_FUNC int64_t <a class="code" href="filereader_8h.html#aab38f6a96b8d462380b153a68d3ebd30">kinc_read_s64le</a>(uint8_t *data);</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160; </div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;KINC_FUNC int64_t <a class="code" href="filereader_8h.html#a6b4f486eb822e51307644cebb4350859">kinc_read_s64be</a>(uint8_t *data);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;KINC_FUNC uint32_t <a class="code" href="filereader_8h.html#aa9a6763373fb7385d3808ff17a8dda6d">kinc_read_u32le</a>(uint8_t *data);</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160; </div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;KINC_FUNC uint32_t <a class="code" href="filereader_8h.html#a810e933f3e3bc39325eb1a8ce6f1f195">kinc_read_u32be</a>(uint8_t *data);</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160; </div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;KINC_FUNC int32_t <a class="code" href="filereader_8h.html#abd027f544baab4bfae17f5f19eac63d4">kinc_read_s32le</a>(uint8_t *data);</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160; </div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;KINC_FUNC int32_t <a class="code" href="filereader_8h.html#aceec1fa4af3f7a5d99891d9e79506433">kinc_read_s32be</a>(uint8_t *data);</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160; </div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;KINC_FUNC uint16_t <a class="code" href="filereader_8h.html#a392265ef5b1de3afd91fe00624e8110f">kinc_read_u16le</a>(uint8_t *data);</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160; </div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;KINC_FUNC uint16_t <a class="code" href="filereader_8h.html#afa2aaa760db19b032e16090241751b93">kinc_read_u16be</a>(uint8_t *data);</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160; </div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;KINC_FUNC int16_t <a class="code" href="filereader_8h.html#a3eaca5ed8f97b93aab2050b8af00dc2e">kinc_read_s16le</a>(uint8_t *data);</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160; </div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;KINC_FUNC int16_t <a class="code" href="filereader_8h.html#a2003ab92a2f1fe1f96940741a929d856">kinc_read_s16be</a>(uint8_t *data);</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160; </div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;KINC_FUNC uint8_t <a class="code" href="filereader_8h.html#aab3297b70247fd8ec1806d595487bfbf">kinc_read_u8</a>(uint8_t *data);</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160; </div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;KINC_FUNC int8_t <a class="code" href="filereader_8h.html#ad2beb9cb23d6e7ed3b5de39507076680">kinc_read_s8</a>(uint8_t *data);</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160; </div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="keywordtype">void</span> kinc_internal_set_files_location(<span class="keywordtype">char</span> *dir);</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="keywordtype">char</span> *kinc_internal_get_files_location(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160; </div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;}</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="astructkinc__file__reader_html"><div class="ttname"><a href="structkinc__file__reader.html">kinc_file_reader</a></div><div class="ttdef"><b>Definition:</b> filereader.h:39</div></div>
+<div class="ttc" id="afilereader_8h_html_a74b3a6a8751b322a3eaf9acec6e3aa9f"><div class="ttname"><a href="filereader_8h.html#a74b3a6a8751b322a3eaf9acec6e3aa9f">kinc_read_u64le</a></div><div class="ttdeci">KINC_FUNC uint64_t kinc_read_u64le(uint8_t *data)</div><div class="ttdoc">Interprets eight bytes starting at the provided pointer as a little-endian uint64.</div></div>
+<div class="ttc" id="afilereader_8h_html_aa9a6763373fb7385d3808ff17a8dda6d"><div class="ttname"><a href="filereader_8h.html#aa9a6763373fb7385d3808ff17a8dda6d">kinc_read_u32le</a></div><div class="ttdeci">KINC_FUNC uint32_t kinc_read_u32le(uint8_t *data)</div><div class="ttdoc">Interprets four bytes starting at the provided pointer as a little-endian uint32.</div></div>
+<div class="ttc" id="astructkinc__file__reader_html"><div class="ttname"><a href="structkinc__file__reader.html">kinc_file_reader</a></div><div class="ttdef"><b>Definition:</b> filereader.h:43</div></div>
+<div class="ttc" id="afilereader_8h_html_a2003ab92a2f1fe1f96940741a929d856"><div class="ttname"><a href="filereader_8h.html#a2003ab92a2f1fe1f96940741a929d856">kinc_read_s16be</a></div><div class="ttdeci">KINC_FUNC int16_t kinc_read_s16be(uint8_t *data)</div><div class="ttdoc">Interprets two bytes starting at the provided pointer as a big-endian int16.</div></div>
+<div class="ttc" id="afilereader_8h_html_a72da9b6963f48433a7e89cf73e1c6f45"><div class="ttname"><a href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a></div><div class="ttdeci">KINC_FUNC size_t kinc_file_reader_size(kinc_file_reader_t *reader)</div><div class="ttdoc">Figures out the size of a file.</div></div>
+<div class="ttc" id="afilereader_8h_html_a4e30e4610f0e57dc244b8fb7a0271681"><div class="ttname"><a href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a></div><div class="ttdeci">KINC_FUNC bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filepath, int type)</div><div class="ttdoc">Opens a file for reading.</div></div>
+<div class="ttc" id="afilereader_8h_html_a2a5a04f800ea57ef64e7a6cfb58ec4aa"><div class="ttname"><a href="filereader_8h.html#a2a5a04f800ea57ef64e7a6cfb58ec4aa">kinc_file_reader_seek</a></div><div class="ttdeci">KINC_FUNC void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos)</div><div class="ttdoc">Sets the reading-position manually.</div></div>
+<div class="ttc" id="afilereader_8h_html_ad2beb9cb23d6e7ed3b5de39507076680"><div class="ttname"><a href="filereader_8h.html#ad2beb9cb23d6e7ed3b5de39507076680">kinc_read_s8</a></div><div class="ttdeci">KINC_FUNC int8_t kinc_read_s8(uint8_t *data)</div><div class="ttdoc">Interprets one byte starting at the provided pointer as an int8.</div></div>
+<div class="ttc" id="afilereader_8h_html_a6b4f486eb822e51307644cebb4350859"><div class="ttname"><a href="filereader_8h.html#a6b4f486eb822e51307644cebb4350859">kinc_read_s64be</a></div><div class="ttdeci">KINC_FUNC int64_t kinc_read_s64be(uint8_t *data)</div><div class="ttdoc">Interprets eight bytes starting at the provided pointer as a big-endian int64.</div></div>
+<div class="ttc" id="afilereader_8h_html_a810e933f3e3bc39325eb1a8ce6f1f195"><div class="ttname"><a href="filereader_8h.html#a810e933f3e3bc39325eb1a8ce6f1f195">kinc_read_u32be</a></div><div class="ttdeci">KINC_FUNC uint32_t kinc_read_u32be(uint8_t *data)</div><div class="ttdoc">Interprets four bytes starting at the provided pointer as a big-endian uint32.</div></div>
+<div class="ttc" id="afilereader_8h_html_abd027f544baab4bfae17f5f19eac63d4"><div class="ttname"><a href="filereader_8h.html#abd027f544baab4bfae17f5f19eac63d4">kinc_read_s32le</a></div><div class="ttdeci">KINC_FUNC int32_t kinc_read_s32le(uint8_t *data)</div><div class="ttdoc">Interprets four bytes starting at the provided pointer as a little-endian int32.</div></div>
+<div class="ttc" id="afilereader_8h_html_aa3665a1499c3f5ab3236d0e2061b6119"><div class="ttname"><a href="filereader_8h.html#aa3665a1499c3f5ab3236d0e2061b6119">kinc_file_reader_pos</a></div><div class="ttdeci">KINC_FUNC int kinc_file_reader_pos(kinc_file_reader_t *reader)</div><div class="ttdoc">Figures out the current reading-position in the file.</div></div>
+<div class="ttc" id="afilereader_8h_html_a21a5b2e5d600132d5ac7d94a49b1e256"><div class="ttname"><a href="filereader_8h.html#a21a5b2e5d600132d5ac7d94a49b1e256">kinc_read_f32le</a></div><div class="ttdeci">KINC_FUNC float kinc_read_f32le(uint8_t *data)</div><div class="ttdoc">Interprets four bytes starting at the provided pointer as a little-endian float.</div></div>
+<div class="ttc" id="afilereader_8h_html_afa2aaa760db19b032e16090241751b93"><div class="ttname"><a href="filereader_8h.html#afa2aaa760db19b032e16090241751b93">kinc_read_u16be</a></div><div class="ttdeci">KINC_FUNC uint16_t kinc_read_u16be(uint8_t *data)</div><div class="ttdoc">Interprets two bytes starting at the provided pointer as a big-endian uint16.</div></div>
+<div class="ttc" id="afilereader_8h_html_a7aee8850df39f8d713e951dcee055011"><div class="ttname"><a href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a></div><div class="ttdeci">KINC_FUNC void kinc_file_reader_close(kinc_file_reader_t *reader)</div><div class="ttdoc">Closes a file.</div></div>
+<div class="ttc" id="afilereader_8h_html_aab3297b70247fd8ec1806d595487bfbf"><div class="ttname"><a href="filereader_8h.html#aab3297b70247fd8ec1806d595487bfbf">kinc_read_u8</a></div><div class="ttdeci">KINC_FUNC uint8_t kinc_read_u8(uint8_t *data)</div><div class="ttdoc">Interprets one byte starting at the provided pointer as a uint8.</div></div>
+<div class="ttc" id="afilereader_8h_html_aab38f6a96b8d462380b153a68d3ebd30"><div class="ttname"><a href="filereader_8h.html#aab38f6a96b8d462380b153a68d3ebd30">kinc_read_s64le</a></div><div class="ttdeci">KINC_FUNC int64_t kinc_read_s64le(uint8_t *data)</div><div class="ttdoc">Interprets eight bytes starting at the provided pointer as a little-endian int64.</div></div>
+<div class="ttc" id="afilereader_8h_html_a392265ef5b1de3afd91fe00624e8110f"><div class="ttname"><a href="filereader_8h.html#a392265ef5b1de3afd91fe00624e8110f">kinc_read_u16le</a></div><div class="ttdeci">KINC_FUNC uint16_t kinc_read_u16le(uint8_t *data)</div><div class="ttdoc">Interprets two bytes starting at the provided pointer as a little-endian uint16.</div></div>
+<div class="ttc" id="afilereader_8h_html_a3eaca5ed8f97b93aab2050b8af00dc2e"><div class="ttname"><a href="filereader_8h.html#a3eaca5ed8f97b93aab2050b8af00dc2e">kinc_read_s16le</a></div><div class="ttdeci">KINC_FUNC int16_t kinc_read_s16le(uint8_t *data)</div><div class="ttdoc">Interprets two bytes starting at the provided pointer as a little-endian int16.</div></div>
+<div class="ttc" id="afilereader_8h_html_accd58113dae8b30969283f9d9742064a"><div class="ttname"><a href="filereader_8h.html#accd58113dae8b30969283f9d9742064a">kinc_read_u64be</a></div><div class="ttdeci">KINC_FUNC uint64_t kinc_read_u64be(uint8_t *data)</div><div class="ttdoc">Interprets eight bytes starting at the provided pointer as a big-endian uint64.</div></div>
+<div class="ttc" id="afilereader_8h_html_a8bd239fe960ab538e08af9f56077c196"><div class="ttname"><a href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">kinc_file_reader_read</a></div><div class="ttdeci">KINC_FUNC int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size)</div><div class="ttdoc">Reads data from a file starting from the current reading-position and increases the reading-position ...</div></div>
+<div class="ttc" id="afilereader_8h_html_ad553789182907a36894ebcbed1df34eb"><div class="ttname"><a href="filereader_8h.html#ad553789182907a36894ebcbed1df34eb">kinc_read_f32be</a></div><div class="ttdeci">KINC_FUNC float kinc_read_f32be(uint8_t *data)</div><div class="ttdoc">Interprets four bytes starting at the provided pointer as a big-endian float.</div></div>
+<div class="ttc" id="afilereader_8h_html_aceec1fa4af3f7a5d99891d9e79506433"><div class="ttname"><a href="filereader_8h.html#aceec1fa4af3f7a5d99891d9e79506433">kinc_read_s32be</a></div><div class="ttdeci">KINC_FUNC int32_t kinc_read_s32be(uint8_t *data)</div><div class="ttdoc">Interprets four bytes starting at the provided pointer as a big-endian int32.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
