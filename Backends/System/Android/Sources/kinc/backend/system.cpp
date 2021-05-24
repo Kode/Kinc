@@ -903,7 +903,7 @@ void kinc_mouse_set_position(int window, int, int) {}
 
 void kinc_internal_mouse_lock(int window) {}
 
-void kinc_internal_mouse_unlock(int window) {}
+void kinc_internal_mouse_unlock(void) {}
 
 void kinc_mouse_get_position(int window, int* x, int* y) {
 	x = 0;
