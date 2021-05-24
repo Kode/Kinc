@@ -69,26 +69,31 @@ $(function() {
 <div class="title">surface.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
+<a href="surface_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;kinc/global.h&gt;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;KINC_FUNC <span class="keyword">extern</span> void (*kinc_surface_touch_start_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>);</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;KINC_FUNC <span class="keyword">extern</span> void (*kinc_surface_move_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>);</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;KINC_FUNC <span class="keyword">extern</span> void (*kinc_surface_touch_end_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>);</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_touch_start(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_move(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_touch_end(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;KINC_FUNC <span class="keyword">extern</span> void (*<a class="code" href="surface_8h.html#acae082b8acf7ee8d24a35a910adeeed1">kinc_surface_touch_start_callback</a>)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>);</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;KINC_FUNC <span class="keyword">extern</span> void (*<a class="code" href="surface_8h.html#a75f0dad3a2e3d55bdb31e09b48479b55">kinc_surface_move_callback</a>)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;KINC_FUNC <span class="keyword">extern</span> void (*<a class="code" href="surface_8h.html#aec3d5eeb6171bb25940ee20ed056aa6c">kinc_surface_touch_end_callback</a>)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_touch_start(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_move(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_touch_end(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;}</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="asurface_8h_html_acae082b8acf7ee8d24a35a910adeeed1"><div class="ttname"><a href="surface_8h.html#acae082b8acf7ee8d24a35a910adeeed1">kinc_surface_touch_start_callback</a></div><div class="ttdeci">KINC_FUNC void(* kinc_surface_touch_start_callback)(int, int, int)</div><div class="ttdoc">Called when a finger-touch is detected.</div></div>
+<div class="ttc" id="asurface_8h_html_a75f0dad3a2e3d55bdb31e09b48479b55"><div class="ttname"><a href="surface_8h.html#a75f0dad3a2e3d55bdb31e09b48479b55">kinc_surface_move_callback</a></div><div class="ttdeci">KINC_FUNC void(* kinc_surface_move_callback)(int, int, int)</div><div class="ttdoc">Called when a finger is moving around.</div></div>
+<div class="ttc" id="asurface_8h_html_aec3d5eeb6171bb25940ee20ed056aa6c"><div class="ttname"><a href="surface_8h.html#aec3d5eeb6171bb25940ee20ed056aa6c">kinc_surface_touch_end_callback</a></div><div class="ttdeci">KINC_FUNC void(* kinc_surface_touch_end_callback)(int, int, int)</div><div class="ttdoc">Called when a finger disappears. This is usually not a medical emergency.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

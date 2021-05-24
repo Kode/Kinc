@@ -1,4 +1,9 @@
 var searchData=
 [
-  ['window_2eh_367',['window.h',['../window_8h.html',1,'']]]
+  ['semaphore_2eh_408',['semaphore.h',['../semaphore_8h.html',1,'']]],
+  ['socket_2eh_409',['socket.h',['../socket_8h.html',1,'']]],
+  ['sound_2eh_410',['sound.h',['../sound_8h.html',1,'']]],
+  ['soundstream_2eh_411',['soundstream.h',['../soundstream_8h.html',1,'']]],
+  ['surface_2eh_412',['surface.h',['../surface_8h.html',1,'']]],
+  ['system_2eh_413',['system.h',['../system_8h.html',1,'']]]
 ];
