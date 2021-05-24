@@ -891,7 +891,7 @@ bool kinc_internal_handle_messages(void) {
 	return true;
 }
 
-bool kinc_mouse_can_lock(int window) {
+bool kinc_mouse_can_lock(void) {
 	return false;
 }
 

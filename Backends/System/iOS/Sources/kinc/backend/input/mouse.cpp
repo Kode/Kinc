@@ -4,11 +4,11 @@ void kinc_internal_mouse_lock(int window) {
 	
 }
 
-void kinc_internal_mouse_unlock(int window) {
+void kinc_internal_mouse_unlock(void) {
 	
 }
 
-bool kinc_mouse_can_lock(int window) {
+bool kinc_mouse_can_lock(void) {
 	return false;
 }
 
