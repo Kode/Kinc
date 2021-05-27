@@ -219,6 +219,17 @@ const char *Kore::System::languageEx() {
 	return kinc_language_ex();
 }
 
+extern "C" int kinc_count_dlcs(void);
+extern "C" const char *kinc_get_dlc(int index);
+
+int Kore::System::dlcCount() {
+	return kinc_count_dlcs();
+}
+
+const char *Kore::System::dlc(int index) {
+	return kinc_get_dlc(index);
+}
+
 void Kore::System::showKeyboard() {
 	kinc_keyboard_show();
 }

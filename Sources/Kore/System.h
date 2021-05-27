@@ -21,6 +21,8 @@ namespace Kore {
 		void loadURL(const char* title);
 		const char* language();
 		const char *languageEx();
+		int dlcCount();
+		const char *dlc(int index);
 		void vibrate(int ms);
 		const char* systemId();
 		const char* savePath();
