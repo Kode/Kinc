@@ -1113,6 +1113,14 @@ double kinc_time(void) {
 	return double(stamp.QuadPart - startCount.QuadPart) / (double)::frequency.QuadPart;
 }
 
+extern "C" int kinc_count_dlcs(void) {
+	return 0;
+}
+
+extern "C" const char *kinc_get_dlc(int index) {
+	return "";
+}
+
 extern "C" bool kinc_is_activity_start(void) {
 	return false;
 }
