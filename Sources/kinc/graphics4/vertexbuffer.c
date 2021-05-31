@@ -1,6 +1,6 @@
 #include "vertexbuffer.h"
 
-void kinc_g4_vertex_element_init(kinc_g4_vertex_element_t *element, const char *name, kinc_g4_vertex_data_t data) {
+static void init_vertex_element(kinc_g4_vertex_element_t *element, const char *name, kinc_g4_vertex_data_t data) {
 	element->name = name;
 	element->data = data;
 }
@@ -11,7 +11,7 @@ void kinc_g4_vertex_structure_init(kinc_g4_vertex_structure_t *structure) {
 }
 
 void kinc_g4_vertex_structure_add(kinc_g4_vertex_structure_t *structure, const char *name, kinc_g4_vertex_data_t data) {
-	kinc_g4_vertex_element_init(&structure->elements[structure->size++], name, data);
+	init_vertex_element(&structure->elements[structure->size++], name, data);
 }
 
 void kinc_g4_set_vertex_buffer(kinc_g4_vertex_buffer_t *buffer) {
