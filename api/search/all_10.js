@@ -1,6 +1,8 @@
 var searchData=
 [
-  ['vector_2eh_368',['vector.h',['../vector_8h.html',1,'']]],
-  ['video_2eh_369',['video.h',['../video_8h.html',1,'']]],
-  ['vrinterface_2eh_370',['vrinterface.h',['../vrinterface_8h.html',1,'']]]
+  ['vector_2eh_380',['vector.h',['../vector_8h.html',1,'']]],
+  ['vertexbuffer_2eh_381',['vertexbuffer.h',['../graphics4_2vertexbuffer_8h.html',1,'']]],
+  ['vertexstructure_2eh_382',['vertexstructure.h',['../graphics4_2vertexstructure_8h.html',1,'']]],
+  ['video_2eh_383',['video.h',['../video_8h.html',1,'']]],
+  ['vrinterface_2eh_384',['vrinterface.h',['../vrinterface_8h.html',1,'']]]
 ];
