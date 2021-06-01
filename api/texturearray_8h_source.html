@@ -69,7 +69,7 @@ $(function() {
 <div class="title">texturearray.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
+<a href="texturearray_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;kinc/global.h&gt;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
@@ -77,23 +77,26 @@ $(function() {
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/graphics4/texturearray.h&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="structkinc__g4__texture__array.html">   13</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__g4__texture__array.html">kinc_g4_texture_array</a> {</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    kinc_g4_texture_array_impl_t impl;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;} <a class="code" href="structkinc__g4__texture__array.html">kinc_g4_texture_array_t</a>;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_array_init(<a class="code" href="structkinc__g4__texture__array.html">kinc_g4_texture_array_t</a> *array, <a class="code" href="structkinc__image.html">kinc_image_t</a> *textures, <span class="keywordtype">int</span> count);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_array_destroy(<a class="code" href="structkinc__g4__texture__array.html">kinc_g4_texture_array_t</a> *array);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;}</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="structkinc__g4__texture__array.html">   17</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__g4__texture__array.html">kinc_g4_texture_array</a> {</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    kinc_g4_texture_array_impl_t impl;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;} <a class="code" href="structkinc__g4__texture__array.html">kinc_g4_texture_array_t</a>;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="texturearray_8h.html#a329be25259d32ba3ef202930b6b6b08b">kinc_g4_texture_array_init</a>(<a class="code" href="structkinc__g4__texture__array.html">kinc_g4_texture_array_t</a> *array, <a class="code" href="structkinc__image.html">kinc_image_t</a> *images, <span class="keywordtype">int</span> count);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="texturearray_8h.html#a6a08cab7a453e0a400f0d4dac7127167">kinc_g4_texture_array_destroy</a>(<a class="code" href="structkinc__g4__texture__array.html">kinc_g4_texture_array_t</a> *array);</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;}</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="astructkinc__image_html"><div class="ttname"><a href="structkinc__image.html">kinc_image</a></div><div class="ttdef"><b>Definition:</b> image.h:36</div></div>
-<div class="ttc" id="astructkinc__g4__texture__array_html"><div class="ttname"><a href="structkinc__g4__texture__array.html">kinc_g4_texture_array</a></div><div class="ttdef"><b>Definition:</b> texturearray.h:13</div></div>
+<div class="ttc" id="atexturearray_8h_html_a329be25259d32ba3ef202930b6b6b08b"><div class="ttname"><a href="texturearray_8h.html#a329be25259d32ba3ef202930b6b6b08b">kinc_g4_texture_array_init</a></div><div class="ttdeci">KINC_FUNC void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *images, int count)</div><div class="ttdoc">Allocates and initializes a texture-array based on an array of images.</div></div>
+<div class="ttc" id="atexturearray_8h_html_a6a08cab7a453e0a400f0d4dac7127167"><div class="ttname"><a href="texturearray_8h.html#a6a08cab7a453e0a400f0d4dac7127167">kinc_g4_texture_array_destroy</a></div><div class="ttdeci">KINC_FUNC void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array)</div><div class="ttdoc">Deallocates and destroys a texture-array</div></div>
+<div class="ttc" id="astructkinc__g4__texture__array_html"><div class="ttname"><a href="structkinc__g4__texture__array.html">kinc_g4_texture_array</a></div><div class="ttdef"><b>Definition:</b> texturearray.h:17</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
