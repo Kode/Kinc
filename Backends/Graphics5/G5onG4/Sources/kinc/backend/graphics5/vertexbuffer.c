@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics5/vertexbuffer.h>
 
 #include <stdlib.h>
@@ -28,7 +26,7 @@ void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buffer) {
 	kinc_g4_vertex_buffer_unlock_all(&buffer->impl.buffer);
 }
 
-void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t* buffer, int count) {
+void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buffer, int count) {
 	kinc_g4_vertex_buffer_unlock(&buffer->impl.buffer, count);
 }
 

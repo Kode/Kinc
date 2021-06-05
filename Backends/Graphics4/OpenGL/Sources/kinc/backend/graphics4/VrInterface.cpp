@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #ifdef KORE_OCULUS
 #include <Kinc/vr/vrinterface.h>
 

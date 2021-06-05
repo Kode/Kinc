@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <CoreAudio/AudioHardware.h>
 #include <CoreServices/CoreServices.h>
 

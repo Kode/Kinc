@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/threads/event.h>
 
 void kinc_event_init(kinc_event_t *event, bool auto_reset) {

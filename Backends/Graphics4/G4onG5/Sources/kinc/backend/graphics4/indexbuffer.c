@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics4/indexbuffer.h>
 
 #include <kinc/graphics5/commandlist.h>

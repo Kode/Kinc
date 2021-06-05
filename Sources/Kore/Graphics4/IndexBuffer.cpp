@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Graphics.h"
 
 using namespace Kore;
@@ -17,7 +15,7 @@ IndexBuffer::~IndexBuffer() {
 	kinc_g4_index_buffer_destroy(&kincBuffer);
 }
 
-int* IndexBuffer::lock() {
+int *IndexBuffer::lock() {
 	return kinc_g4_index_buffer_lock(&kincBuffer);
 }
 
@@ -29,4 +27,4 @@ int IndexBuffer::count() {
 	return kinc_g4_index_buffer_count(&kincBuffer);
 }
 
-//void IndexBuffer::_set() {}
+// void IndexBuffer::_set() {}

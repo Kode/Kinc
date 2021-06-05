@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "IndexBufferImpl.h"
 
 #include <Kore/Graphics/Graphics.h>

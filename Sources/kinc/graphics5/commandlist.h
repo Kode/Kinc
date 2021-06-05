@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pch.h"
+#include <kinc/global.h>
 
 #include <kinc/backend/graphics5/commandlist.h>
 

@@ -1,8 +1,6 @@
 
 #ifndef OPENGL_1_X
 
-#include "pch.h"
-
 #include "Graphics.h"
 
 #include <kinc/graphics5/graphics.h>

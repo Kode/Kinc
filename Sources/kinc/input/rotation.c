@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "rotation.h"
 
 #include <memory.h>

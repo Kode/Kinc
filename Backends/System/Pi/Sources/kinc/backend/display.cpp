@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Log.h>
 
 #include "Display.h"

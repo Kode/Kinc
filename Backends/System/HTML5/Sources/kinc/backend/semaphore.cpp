@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/threads/semaphore.h>
 
 void kinc_semaphore_init(kinc_semaphore_t *semaphore, int current, int max) {

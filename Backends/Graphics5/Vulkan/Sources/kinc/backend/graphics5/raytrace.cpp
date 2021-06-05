@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "raytrace.h"
 
 #ifdef KORE_VKRT

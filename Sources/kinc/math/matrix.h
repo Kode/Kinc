@@ -2,6 +2,12 @@
 
 #include "vector.h"
 
+/*! \file matrix.h
+    \brief Provides basic matrix types and a few function which create transformation-matrices. This only provides functionality which is needed elsewhere in
+   Kinc - if you need more, look up how transformation-matrices work and add some functions to your own project. Alternatively the Kore/C++-API also provides a
+   more complete matrix-API.
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif

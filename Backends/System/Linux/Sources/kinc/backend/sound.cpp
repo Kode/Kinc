@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/audio2/audio.h>
 
 #include <alsa/asoundlib.h>

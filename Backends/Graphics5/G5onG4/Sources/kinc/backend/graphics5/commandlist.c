@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
@@ -31,12 +29,12 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 			break;
 		case SetViewport:
 			kinc_g4_viewport((int)list->impl.commands[index + 1], (int)list->impl.commands[index + 2], (int)list->impl.commands[index + 3],
-			                    (int)list->impl.commands[index + 4]);
+			                 (int)list->impl.commands[index + 4]);
 			index += 5;
 			break;
 		case SetScissor:
 			kinc_g4_scissor((int)list->impl.commands[index + 1], (int)list->impl.commands[index + 2], (int)list->impl.commands[index + 3],
-			                   (int)list->impl.commands[index + 4]);
+			                (int)list->impl.commands[index + 4]);
 			index += 5;
 			break;
 		case SetPipeline: {

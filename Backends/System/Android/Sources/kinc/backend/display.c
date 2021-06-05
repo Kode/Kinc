@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/backend/Android.h>
 
 #include <kinc/display.h>

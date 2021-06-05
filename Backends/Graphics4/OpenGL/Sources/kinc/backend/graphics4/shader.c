@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "ogl.h"
 
 #include <kinc/graphics4/shader.h>

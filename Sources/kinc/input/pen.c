@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "pen.h"
 
 #include <memory.h>

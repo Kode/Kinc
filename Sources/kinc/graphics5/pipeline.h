@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/backend/graphics5/pipeline.h>
 
 #include <kinc/graphics5/vertexstructure.h>

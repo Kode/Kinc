@@ -1,16 +1,14 @@
 #pragma once
 
-/// <summary>
-/// File containing basic logging functionality
-/// </summary>
-/// <remarks>
-/// Logging functionality is similar to plain printf but provides
-/// some system-specific bonuses.
-/// </remarks>
+#include <kinc/global.h>
 
 #include <stdarg.h>
 
-#include "pch.h"
+/*! \file log.h
+    \brief Contains basic logging functionality.
+
+    Logging functionality is similar to plain printf but provides some system-specific bonuses.
+*/
 
 #ifdef __cplusplus
 extern "C" {

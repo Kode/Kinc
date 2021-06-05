@@ -2,6 +2,8 @@
 
 #ifdef KORE_RAYTRACE
 
+#include <kinc/global.h>
+
 #include <kinc/backend/graphics5/raytrace.h>
 
 #ifdef __cplusplus

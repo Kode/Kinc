@@ -1,6 +1,6 @@
 #include "RenderTargetImpl.h"
 #include "ogl.h"
-#include "pch.h"
+
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Error.h"
 #include "ErrorArgs.h"
 #include "Log.h"
@@ -17,7 +15,7 @@ void Kore::affirm(bool b) {
 #endif
 }
 
-void Kore::affirm(bool b, const char* format, ...) {
+void Kore::affirm(bool b, const char *format, ...) {
 #ifndef NDEBUG
 	if (!b) {
 		va_list args;
@@ -28,7 +26,7 @@ void Kore::affirm(bool b, const char* format, ...) {
 #endif
 }
 
-void Kore::affirmArgs(bool b, const char* format, va_list args) {
+void Kore::affirmArgs(bool b, const char *format, va_list args) {
 	if (!b) {
 		errorArgs(format, args);
 	}
@@ -38,13 +36,13 @@ void Kore::error() {
 	kinc_error();
 }
 
-void Kore::error(const char* format, ...) {
+void Kore::error(const char *format, ...) {
 	va_list args;
 	va_start(args, format);
 	kinc_error_args(format, args);
 	va_end(args);
 }
 
-void Kore::errorArgs(const char* format, va_list args) {
+void Kore::errorArgs(const char *format, va_list args) {
 	kinc_error_args(format, args);
 }

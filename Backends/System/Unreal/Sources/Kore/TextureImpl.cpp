@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "TextureImpl.h"
 
 #include <Kore/IO/BufferReader.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "http.h"
 
 #if !defined KORE_MACOS && !defined KORE_IOS && !defined KORE_WINDOWS

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "system.h"
 
 #include "window.h"
@@ -194,7 +192,7 @@ bool kinc_internal_frame() {
 void kinc_start() {
 	running = true;
 
-#if !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_XBOX_ONE)
+#if !defined(KORE_HTML5) && !defined(KORE_TIZEN)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)

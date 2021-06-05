@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #ifdef KORE_G4ONG5
 #include <Kore/Graphics5/Graphics.h>
 #elif KORE_G4
@@ -22,6 +20,7 @@
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/threads/thread.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 
 #define DIRECTINPUT_VERSION 0x0800
@@ -384,13 +383,13 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		}
 		break;
 	case WM_LBUTTONDOWN:
-		if (!kinc_mouse_is_locked(kinc_windows_window_index_from_hwnd(hWnd))) SetCapture(hWnd);
+		if (!kinc_mouse_is_locked()) SetCapture(hWnd);
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
 		kinc_internal_mouse_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_LBUTTONUP:
-		if (!kinc_mouse_is_locked(kinc_windows_window_index_from_hwnd(hWnd))) ReleaseCapture();
+		if (!kinc_mouse_is_locked()) ReleaseCapture();
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
 		kinc_internal_mouse_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), 0, mouseX, mouseY);

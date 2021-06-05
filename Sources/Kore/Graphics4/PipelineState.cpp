@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "PipelineState.h"
 #include <Kore/Graphics4/Graphics.h>
 
@@ -116,7 +114,7 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 	return location;
 }
 
-Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
+Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char *name) {
 	Graphics4::TextureUnit unit;
 	unit.kincUnit = kinc_g4_pipeline_get_texture_unit(&kincPipeline, name);
 	return unit;

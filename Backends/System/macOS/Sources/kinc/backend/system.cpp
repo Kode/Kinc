@@ -1,10 +1,9 @@
-#include "pch.h"
-
 #include <kinc/graphics4/graphics.h>
 #include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/system.h>
+#include <kinc/video.h>
 
 namespace {
 	int mouseX, mouseY;

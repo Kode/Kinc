@@ -1,5 +1,11 @@
 #pragma once
 
+#include <kinc/global.h>
+
+/*! \file float32x4.h
+    \brief Provides 128bit four-element floating point SIMD operations which are mapped to equivalent SSE or Neon operations.
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -134,7 +140,7 @@ inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
 
 #include <kinc/math/core.h>
 
-typedef struct {
+typedef struct kinc_float32x4 {
 	float values[4];
 } kinc_float32x4_t;
 

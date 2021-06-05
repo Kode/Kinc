@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import "GLView.h"
 #import "GLViewController.h"
 #import "KoreAppDelegate.h"

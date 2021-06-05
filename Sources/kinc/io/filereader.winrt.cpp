@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "filereader.h"
 
 #include <kinc/system.h>

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pch.h"
 #include <webgpu/webgpu.h>
 
 #ifdef __cplusplus

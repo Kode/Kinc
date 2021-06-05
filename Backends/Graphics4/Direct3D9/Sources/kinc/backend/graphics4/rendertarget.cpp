@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/log.h>
 

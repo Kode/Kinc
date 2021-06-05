@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "shader.h"
 #include "vertexbuffer.h"
 

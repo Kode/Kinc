@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import <Cocoa/Cocoa.h>
 
 #include <kinc/input/mouse.h>
@@ -9,11 +7,11 @@ void kinc_internal_mouse_lock(int window) {
 	kinc_mouse_hide();
 }
 
-void kinc_internal_mouse_unlock(int window) {
+void kinc_internal_mouse_unlock(void) {
 	kinc_mouse_show();
 }
 
-bool kinc_mouse_can_lock(int window) {
+bool kinc_mouse_can_lock(void) {
 	return true;
 }
 

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics4/shader.h>
 
 void kinc_g4_shader_init(kinc_g4_shader_t *shader, void* _data, size_t length, kinc_g4_shader_type_t type) {

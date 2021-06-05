@@ -1,8 +1,6 @@
 
 #ifdef KORE_G4
 
-#include "pch.h"
-
 #include "Graphics.h"
 #include "PipelineState.h"
 

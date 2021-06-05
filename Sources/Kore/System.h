@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kore/global.h>
+
 #include <Kore/Math/Vector.h>
 #include <Kore/Window.h>
 

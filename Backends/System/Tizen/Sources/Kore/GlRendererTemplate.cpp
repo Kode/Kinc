@@ -1,5 +1,5 @@
 #include "GlRendererTemplate.h"
-#include "pch.h"
+
 #include <Kore/Application.h>
 
 GlRendererTemplate::GlRendererTemplate(void) : __controlWidth(0), __controlHeight(0), __angle(0) {}

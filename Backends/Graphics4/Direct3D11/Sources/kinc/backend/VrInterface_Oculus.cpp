@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #ifdef KORE_OCULUS
 
 #include <kinc/vr/vrinterface.h>
@@ -31,9 +29,9 @@ namespace {
 
 //------------------------------------------------------------
 struct DepthBuffer {
-	ID3D11DepthStencilView* TexDsv;
+	ID3D11DepthStencilView *TexDsv;
 
-	DepthBuffer(ID3D11Device* Device, int sizeW, int sizeH, int sampleCount = 1) {
+	DepthBuffer(ID3D11Device *Device, int sizeW, int sizeH, int sampleCount = 1) {
 		DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT;
 		D3D11_TEXTURE2D_DESC dsDesc;
 		dsDesc.Width = sizeW;
@@ -47,7 +45,7 @@ struct DepthBuffer {
 		dsDesc.CPUAccessFlags = 0;
 		dsDesc.MiscFlags = 0;
 		dsDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		ID3D11Texture2D* Tex;
+		ID3D11Texture2D *Tex;
 		Device->CreateTexture2D(&dsDesc, nullptr, &Tex);
 		Device->CreateDepthStencilView(Tex, nullptr, &TexDsv);
 		Tex->Release();
@@ -63,19 +61,19 @@ struct Camera {
 	XMVECTOR Pos;
 	XMVECTOR Rot;
 	Camera(){};
-	Camera(XMVECTOR* pos, XMVECTOR* rot) : Pos(*pos), Rot(*rot){};
-	Camera(const XMVECTOR& pos, const XMVECTOR& rot) : Pos(pos), Rot(rot){};
+	Camera(XMVECTOR *pos, XMVECTOR *rot) : Pos(*pos), Rot(*rot){};
+	Camera(const XMVECTOR &pos, const XMVECTOR &rot) : Pos(pos), Rot(rot){};
 	XMMATRIX GetViewMatrix() {
 		XMVECTOR forward = XMVector3Rotate(XMVectorSet(0, 0, -1, 0), Rot);
 		return (XMMatrixLookAtRH(Pos, XMVectorAdd(Pos, forward), XMVector3Rotate(XMVectorSet(0, 1, 0, 0), Rot)));
 	}
 
-	static void* operator new(std::size_t size) {
+	static void *operator new(std::size_t size) {
 		UNREFERENCED_PARAMETER(size);
 		return _aligned_malloc(sizeof(Camera), __alignof(Camera));
 	}
 
-	static void operator delete(void* p) {
+	static void operator delete(void *p) {
 		_aligned_free(p);
 	}
 };
@@ -96,7 +94,7 @@ struct DirectX11 {
 		CloseWindow();
 	}
 
-	bool InitWindow(HINSTANCE hinst, const char* title, const char* windowClassName) {
+	bool InitWindow(HINSTANCE hinst, const char *title, const char *windowClassName) {
 		hInstance = hinst;
 		Running = true;
 
@@ -119,7 +117,7 @@ struct DirectX11 {
 		}
 	}
 
-	bool InitDevice(int vpW, int vpH, const LUID* pLuid, bool windowed = true, int scale = 1) {
+	bool InitDevice(int vpW, int vpH, const LUID *pLuid, bool windowed = true, int scale = 1) {
 		WinSizeW = vpW;
 		WinSizeH = vpH;
 
@@ -133,7 +131,7 @@ struct DirectX11 {
 		return true;
 	}
 
-	void SetAndClearRenderTarget(ID3D11RenderTargetView* rendertarget, DepthBuffer* depthbuffer, float R = 0, float G = 0, float B = 0, float A = 0) {
+	void SetAndClearRenderTarget(ID3D11RenderTargetView *rendertarget, DepthBuffer *depthbuffer, float R = 0, float G = 0, float B = 0, float A = 0) {
 		float black[] = {R, G, B, A}; // Important that alpha=0, if want pixels to be transparent, for manual layers
 		context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr));
 		context->ClearRenderTargetView(rendertarget, black);
@@ -162,7 +160,7 @@ static DirectX11 Platform;
 struct OculusTexture {
 	ovrSession Session;
 	ovrTextureSwapChain TextureChain;
-	std::vector<ID3D11RenderTargetView*> TexRtv;
+	std::vector<ID3D11RenderTargetView *> TexRtv;
 
 	OculusTexture(ovrSession session, int sizeW, int sizeH, int sampleCount = 1) : Session(session), TextureChain(nullptr) {
 		ovrTextureSwapChainDesc desc = {};
@@ -183,12 +181,12 @@ struct OculusTexture {
 		ovr_GetTextureSwapChainLength(Session, TextureChain, &textureCount);
 		if (OVR_SUCCESS(result)) {
 			for (int i = 0; i < textureCount; ++i) {
-				ID3D11Texture2D* tex = nullptr;
+				ID3D11Texture2D *tex = nullptr;
 				ovr_GetTextureSwapChainBufferDX(Session, TextureChain, i, IID_PPV_ARGS(&tex));
 				D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
 				rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				rtvd.ViewDimension = (sampleCount > 1) ? D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
-				ID3D11RenderTargetView* rtv;
+				ID3D11RenderTargetView *rtv;
 				device->CreateRenderTargetView(tex, &rtvd, &rtv);
 				TexRtv.push_back(rtv);
 				tex->Release();
@@ -207,7 +205,7 @@ struct OculusTexture {
 		}
 	}
 
-	ID3D11RenderTargetView* GetRTV() {
+	ID3D11RenderTargetView *GetRTV() {
 		int index = 0;
 		ovr_GetTextureSwapChainCurrentIndex(Session, TextureChain, &index);
 		return TexRtv[index];
@@ -222,8 +220,8 @@ struct OculusTexture {
 namespace {
 	// Initialize these to nullptr here to handle device lost failures cleanly
 	ovrMirrorTexture mirrorTexture = nullptr;
-	OculusTexture* pEyeRenderTexture[2] = {nullptr, nullptr};
-	DepthBuffer* pEyeDepthBuffer[2] = {nullptr, nullptr};
+	OculusTexture *pEyeRenderTexture[2] = {nullptr, nullptr};
+	DepthBuffer *pEyeDepthBuffer[2] = {nullptr, nullptr};
 
 	ovrSizei windowSize;
 
@@ -281,7 +279,7 @@ namespace {
 	}
 }
 
-void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName) {
+void *kinc_vr_interface_init(void *hinst, const char *title, const char *windowClassName) {
 	// Initializes LibOVR, and the Rift
 	ovrInitParams initParams = {ovrInit_RequestVersion | ovrInit_FocusAware, OVR_MINOR_VERSION, NULL, 0, 0};
 	ovrResult result = ovr_Initialize(&initParams);
@@ -307,7 +305,7 @@ void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowC
 	// Setup Window and Graphics
 	// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
 	windowSize = {hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2};
-	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
+	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID *>(&luid))) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to init device.");
 		done();
 	}
@@ -347,7 +345,7 @@ void kinc_vr_interface_end_render(int eye) {
 
 namespace {
 
-	kinc_matrix4x4_t convert(XMMATRIX& m) {
+	kinc_matrix4x4_t convert(XMMATRIX &m) {
 		XMFLOAT4X4 fView;
 		XMStoreFloat4x4(&fView, m);
 
@@ -443,7 +441,7 @@ void kinc_vr_interface_warp_swap() {
 		}
 	}
 
-	ovrLayerHeader* layers = &ld.Header;
+	ovrLayerHeader *layers = &ld.Header;
 	ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
 	if (!OVR_SUCCESS(result)) {
 		isVisible = false;
@@ -455,7 +453,7 @@ void kinc_vr_interface_warp_swap() {
 	frameIndex++;
 
 	// Render mirror
-	ID3D11Texture2D* tex = nullptr;
+	ID3D11Texture2D *tex = nullptr;
 	ovr_GetMirrorTextureBufferDX(session, mirrorTexture, IID_PPV_ARGS(&tex));
 
 	context->CopyResource(backBuffer, tex);

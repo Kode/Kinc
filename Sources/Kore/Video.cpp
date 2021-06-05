@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Video.h>
 
 using namespace Kore;

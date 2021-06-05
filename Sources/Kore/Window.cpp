@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Window.h"
 
 #include "Convert.h"
@@ -19,7 +17,7 @@ Window *Window::create(WindowOptions *win, FramebufferOptions *frame) {
 	if (win != nullptr) {
 		kwin = convert(win);
 	}
-	
+
 	kinc_framebuffer_options_t kframe;
 	if (frame != nullptr) {
 		kframe = convert(frame);
@@ -107,11 +105,11 @@ void Window::setTitle(const char *title) {
 	kinc_window_set_title(_index, title);
 }
 
-void Window::setResizeCallback(void(*callback)(int x, int y, void *data), void *data) {
+void Window::setResizeCallback(void (*callback)(int x, int y, void *data), void *data) {
 	kinc_window_set_resize_callback(_index, callback, data);
 }
 
-void Window::setPpiChangedCallback(void(*callback)(int ppi, void *data), void *data) {
+void Window::setPpiChangedCallback(void (*callback)(int ppi, void *data), void *data) {
 	kinc_window_set_ppi_changed_callback(_index, callback, data);
 }
 
@@ -119,6 +117,4 @@ bool Window::vSynced() {
 	return kinc_window_vsynced(_index);
 }
 
-Window::Window() {
-
-}
+Window::Window() {}

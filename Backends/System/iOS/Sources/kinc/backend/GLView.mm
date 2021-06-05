@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import "GLView.h"
 
 #include <kinc/input/acceleration.h>

@@ -1,12 +1,10 @@
-#include "pch.h"
-
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/math/core.h>
 
-//extern kinc_g5_pipeline_t *currentProgram;
+// extern kinc_g5_pipeline_t *currentProgram;
 
 void kinc_g5_destroy(int windowId) {}
 

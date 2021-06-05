@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Graphics.h"
 
 #include <Kore/Graphics3/Graphics.h>

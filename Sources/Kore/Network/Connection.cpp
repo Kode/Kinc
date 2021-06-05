@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Connection.h"
 #include "Socket.h"
 
@@ -112,21 +110,21 @@ int Connection::connect(unsigned address, int port) {
 	return -1;
 }
 
-int Connection::connect(const char* url, int port) {
+int Connection::connect(const char *url, int port) {
 	return connect(socket.urlToInt(url, port), port);
 }
 
-void Connection::send(const u8* data, int size, int connId, bool reliable) {
+void Connection::send(const u8 *data, int size, int connId, bool reliable) {
 	sendPacket(data, size, connId, reliable, false);
 }
 
-void Connection::sendPacket(const u8* data, int size, int connId, bool reliable, bool control) {
+void Connection::sendPacket(const u8 *data, int size, int connId, bool reliable, bool control) {
 	assert(size + HEADER_SIZE <= buffSize);
 
 	memcpy(sndBuff + HEADER_SIZE, data, size);
 
 	// Identifier
-	*((u32*)(sndBuff)) = (PROTOCOL_ID & 0xFFFFFFF0) + reliable + 2 * control;
+	*((u32 *)(sndBuff)) = (PROTOCOL_ID & 0xFFFFFFF0) + reliable + 2 * control;
 
 	if (connId >= 0) {
 		sendPreparedBuffer(size, reliable, connId);
@@ -142,17 +140,17 @@ void Connection::sendPacket(const u8* data, int size, int connId, bool reliable,
 
 void Connection::sendPreparedBuffer(int size, bool reliable, int id) {
 	// Reliable ack
-	*((u32*)(sndBuff + 4)) = lastRecNrsRel[id];
+	*((u32 *)(sndBuff + 4)) = lastRecNrsRel[id];
 	// Reliability via sequence numbers (wrap around via overflow)
 	if (reliable) {
-		*((u32*)(sndBuff + 8)) = ++lastSndNrsRel[id];
+		*((u32 *)(sndBuff + 8)) = ++lastSndNrsRel[id];
 		// Cache message for potential resend
-		*((double*)(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize)) = System::time();
-		*((int*)(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize + 8)) = HEADER_SIZE + size;
+		*((double *)(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize)) = System::time();
+		*((int *)(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize + 8)) = HEADER_SIZE + size;
 		memcpy(sndCache + (lastSndNrsRel[id] % cacheCount) * buffSize + 12, sndBuff, HEADER_SIZE + size);
 	}
 	else {
-		*((u32*)(sndBuff + 8)) = ++lastSndNrsURel[id];
+		*((u32 *)(sndBuff + 8)) = ++lastSndNrsURel[id];
 	}
 
 	// DEBUG ONLY: Introduce packet drop
@@ -161,7 +159,7 @@ void Connection::sendPreparedBuffer(int size, bool reliable, int id) {
 }
 
 // Must be called regularily as it also keeps the connection alive
-int Connection::receive(u8* data, int& id) {
+int Connection::receive(u8 *data, int &id) {
 	unsigned int recAddr;
 	unsigned int recPort;
 
@@ -170,7 +168,7 @@ int Connection::receive(u8* data, int& id) {
 		if ((System::time() - lastPng) > pngInterv) {
 			u8 data[9];
 			data[0] = Ping;
-			*((double*)(data + 1)) = System::time();
+			*((double *)(data + 1)) = System::time();
 			sendPacket(data, 9, -1, false, true);
 
 			lastPng = System::time();
@@ -192,7 +190,7 @@ int Connection::receive(u8* data, int& id) {
 					continue;
 			}
 
-			u32 header = *((u32*)(recBuff));
+			u32 header = *((u32 *)(recBuff));
 			// Check for prefix (stray packets)
 			if ((header & 0xFFFFFFF0) != (PROTOCOL_ID & 0xFFFFFFF0)) continue;
 
@@ -202,13 +200,13 @@ int Connection::receive(u8* data, int& id) {
 			bool reliable = (header & 1) != 0;
 			bool control = (header & 2) != 0;
 
-			u32 ackNrRel = *((u32*)(recBuff + 4));
+			u32 ackNrRel = *((u32 *)(recBuff + 4));
 			if (checkSeqNr(ackNrRel, lastAckNrsRel[id])) { // Usage of range function is intentional as multiple packets can be acknowledged at the same time,
 				                                           // stepwise increment handled by client
 				lastAckNrsRel[id] = ackNrRel;
 			}
 
-			u32 recNr = *((u32*)(recBuff + 8));
+			u32 recNr = *((u32 *)(recBuff + 8));
 			if (reliable) {
 				if (recNr == lastRecNrsRel[id] + 1) { // Wrap around handled by overflow
 					lastRecNrsRel[id] = recNr;
@@ -255,10 +253,10 @@ int Connection::receive(u8* data, int& id) {
 			}
 			// Trigger resend if last paket is overdue
 			else if (lastSndNrsRel[id] != lastAckNrsRel[id]) {
-				u8* cachedPacket = sndCache + ((lastAckNrsRel[id] + 1) % cacheCount) * buffSize;
-				double* sndTime = ((double*)cachedPacket);
+				u8 *cachedPacket = sndCache + ((lastAckNrsRel[id] + 1) % cacheCount) * buffSize;
+				double *sndTime = ((double *)cachedPacket);
 				if (System::time() - *sndTime > resndInterv) {
-					int size = *((int*)(cachedPacket + 8));
+					int size = *((int *)(cachedPacket + 8));
 					memcpy(sndBuff, cachedPacket + 12, size);
 					socket.send(connAdds[id], connPorts[id], sndBuff, size);
 					*sndTime += resndInterv;
@@ -277,14 +275,14 @@ void Connection::processControlMessage(int id) {
 		// Send back as pong
 		u8 data[9];
 		data[0] = Pong;
-		*((double*)(data + 1)) = *((double*)(recBuff + HEADER_SIZE + 1));
+		*((double *)(data + 1)) = *((double *)(recBuff + HEADER_SIZE + 1));
 
 		sendPacket(data, 9, id, false, true);
 		break;
 	}
 	case Pong:
 		// Measure ping
-		double recPing = System::time() - *((double*)(recBuff + HEADER_SIZE + 1));
+		double recPing = System::time() - *((double *)(recBuff + HEADER_SIZE + 1));
 		// Don't smooth first ping
 		if (pings[id] == -1)
 			pings[id] = recPing;
@@ -308,7 +306,7 @@ void Connection::processControlMessage(int id) {
 	}
 }
 
-int Connection::processMessage(int size, u8* returnBuffer) {
+int Connection::processMessage(int size, u8 *returnBuffer) {
 	// Prepare output
 	int msgSize = size - HEADER_SIZE;
 	memcpy(returnBuffer, recBuff + HEADER_SIZE, msgSize);

@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.h"
 #include <Kore/Graphics4/Graphics.h>
 
 using namespace Windows::Foundation::Numerics;

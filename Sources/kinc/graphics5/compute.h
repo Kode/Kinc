@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <Kore/ComputeImpl.h>
 
 #include <kinc/graphics5/constantlocation.h>

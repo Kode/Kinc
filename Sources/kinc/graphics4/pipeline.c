@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "pipeline.h"
 
 void kinc_g4_internal_pipeline_set_defaults(kinc_g4_pipeline_t *state) {

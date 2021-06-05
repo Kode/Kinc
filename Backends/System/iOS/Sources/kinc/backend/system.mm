@@ -1,11 +1,10 @@
-#include "pch.h"
-
 #import "KoreAppDelegate.h"
 
 #include <kinc/graphics4/graphics.h>
 #include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/system.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 
 #import <UIKit/UIKit.h>

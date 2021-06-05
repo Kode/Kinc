@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "OpenGLWindow.h"
 
 #include <kinc/graphics4/graphics.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pch.h"
+#include <kinc/global.h>
 
 #include "vertexstructure.h"
 

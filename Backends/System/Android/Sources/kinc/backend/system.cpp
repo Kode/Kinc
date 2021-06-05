@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <EGL/egl.h>
 #include <GLContext.h>
 #include <kinc/backend/Android.h>
@@ -12,6 +10,7 @@
 #include <kinc/input/pen.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 #include <android/sensor.h>
 #include <android/window.h>
@@ -892,7 +891,7 @@ bool kinc_internal_handle_messages(void) {
 	return true;
 }
 
-bool kinc_mouse_can_lock(int window) {
+bool kinc_mouse_can_lock(void) {
 	return false;
 }
 
@@ -904,7 +903,7 @@ void kinc_mouse_set_position(int window, int, int) {}
 
 void kinc_internal_mouse_lock(int window) {}
 
-void kinc_internal_mouse_unlock(int window) {}
+void kinc_internal_mouse_unlock(void) {}
 
 void kinc_mouse_get_position(int window, int* x, int* y) {
 	x = 0;

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <string.h>
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -29,7 +27,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	newRenderTargetHeight = renderTargetHeight = kinc_height();
 
 	device = emscripten_webgpu_get_device();
-	queue = wgpuDeviceGetDefaultQueue(device);
+	queue = wgpuDeviceGetQueue(device);
 
 	WGPUSurfaceDescriptorFromCanvasHTMLSelector canvasDesc;
 	memset(&canvasDesc, 0, sizeof(canvasDesc));

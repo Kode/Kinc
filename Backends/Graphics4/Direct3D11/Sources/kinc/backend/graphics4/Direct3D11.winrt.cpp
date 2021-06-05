@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #define NOMINMAX
 
 #include <kinc/log.h>

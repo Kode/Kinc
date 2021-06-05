@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "rendertarget.h"
 
 #include <kinc/graphics5/rendertarget.h>

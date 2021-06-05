@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kore/global.h>
+
 namespace Kore {
 	namespace Audio2 {
 		void init();
@@ -18,7 +20,7 @@ namespace Kore {
 
 		struct Buffer {
 			BufferFormat format;
-			u8* data;
+			u8 *data;
 			int dataSize;
 			int readLocation;
 			int writeLocation;

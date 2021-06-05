@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics5/constantbuffer.h>
 
 #include <stdlib.h>

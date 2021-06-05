@@ -1,5 +1,3 @@
-#include <Kore/pch.h>
-
 #import "BasicOpenGLView.h"
 
 #include <kinc/input/keyboard.h>

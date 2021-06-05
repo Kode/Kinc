@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "ThreadLocal.h"
 
 #include <kinc/threads/threadlocal.h>

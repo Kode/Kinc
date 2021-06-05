@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "random.h"
 
 // MT19937

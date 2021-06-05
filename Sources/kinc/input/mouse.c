@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "mouse.h"
 
 #include <kinc/window.h>
@@ -38,19 +36,20 @@ void kinc_internal_mouse_trigger_leave_window(int window) {
 }
 
 void kinc_internal_mouse_window_activated(int window) {
-	if (kinc_mouse_is_locked(window)) {
+	if (kinc_mouse_is_locked()) {
 		kinc_internal_mouse_lock(window);
 	}
 }
 void kinc_internal_mouse_window_deactivated(int window) {
-	if (kinc_mouse_is_locked(window)) {
-		kinc_internal_mouse_unlock(window);
+	if (kinc_mouse_is_locked()) {
+		kinc_internal_mouse_unlock();
 	}
 }
 
 // TODO: handle state per window
 static bool moved = false;
 static bool locked = false;
+static int preLockWindow = 0;
 static int preLockX = 0;
 static int preLockY = 0;
 static int centerX = 0;
@@ -69,7 +68,7 @@ void kinc_internal_mouse_trigger_press(int window, int button, int x, int y) {
 void kinc_internal_mouse_trigger_move(int window, int x, int y) {
 	int movementX = 0;
 	int movementY = 0;
-	if (kinc_mouse_is_locked(window)) {
+	if (kinc_mouse_is_locked()) {
 		movementX = x - centerX;
 		movementY = y - centerY;
 		if (movementX != 0 || movementY != 0) {
@@ -91,12 +90,12 @@ void kinc_internal_mouse_trigger_move(int window, int x, int y) {
 	}
 }
 
-bool kinc_mouse_is_locked(int window) {
+bool kinc_mouse_is_locked(void) {
 	return locked;
 }
 
 void kinc_mouse_lock(int window) {
-	if (!kinc_mouse_can_lock(window)) {
+	if (!kinc_mouse_can_lock()) {
 		return;
 	}
 	locked = true;
@@ -107,12 +106,12 @@ void kinc_mouse_lock(int window) {
 	kinc_mouse_set_position(window, centerX, centerY);
 }
 
-void kinc_mouse_unlock(int window) {
-	if (!kinc_mouse_can_lock(window)) {
+void kinc_mouse_unlock(void) {
+	if (!kinc_mouse_can_lock()) {
 		return;
 	}
 	moved = false;
 	locked = false;
-	kinc_internal_mouse_unlock(window);
-	kinc_mouse_set_position(window, preLockX, preLockY);
+	kinc_internal_mouse_unlock();
+	kinc_mouse_set_position(preLockWindow, preLockX, preLockY);
 }

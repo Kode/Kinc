@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "OpenGL.h"
 #include "ogl.h"
 #include <kinc/backend/graphics4/vertexbuffer.h>
@@ -472,7 +470,10 @@ void kinc_g4_viewport(int x, int y, int width, int height) {
 	glViewport(x, _renderTargetHeight - y - height, width, height);
 }
 
+static bool scissor_on = false;
+
 void kinc_g4_scissor(int x, int y, int width, int height) {
+	scissor_on = true;
 	glEnable(GL_SCISSOR_TEST);
 	if (renderToBackbuffer) {
 		glScissor(x, _renderTargetHeight - y - height, width, height);
@@ -483,6 +484,7 @@ void kinc_g4_scissor(int x, int y, int width, int height) {
 }
 
 void kinc_g4_disable_scissor() {
+	scissor_on = false;
 	glDisable(GL_SCISSOR_TEST);
 }
 
@@ -514,8 +516,18 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 	glCheckErrors();
 	GLbitfield oglflags = ((flags & KINC_G4_CLEAR_COLOR) ? GL_COLOR_BUFFER_BIT : 0) | ((flags & KINC_G4_CLEAR_DEPTH) ? GL_DEPTH_BUFFER_BIT : 0) |
 	                      ((flags & KINC_G4_CLEAR_STENCIL) ? GL_STENCIL_BUFFER_BIT : 0);
+
+	if (scissor_on) {
+		glDisable(GL_SCISSOR_TEST);
+	}
+
 	glClear(oglflags);
 	glCheckErrors();
+
+	if (scissor_on) {
+		glEnable(GL_SCISSOR_TEST);
+	}
+
 	if (lastPipeline != nullptr) {
 		kinc_g4_set_pipeline(lastPipeline);
 	}

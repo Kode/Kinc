@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "color.h"
 
 void kinc_color_components(uint32_t color, float *red, float *green, float *blue, float *alpha) {

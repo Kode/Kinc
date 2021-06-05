@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics5/texture.h>
 
 #include <kinc/image.h>

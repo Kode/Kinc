@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Error.h>
 #include <Kore/Threads/Mutex.h>
 

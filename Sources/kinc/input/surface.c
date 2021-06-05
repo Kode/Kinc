@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "surface.h"
 
 #include <memory.h>

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/threads/semaphore.h>
 #include <kinc/system.h>
 

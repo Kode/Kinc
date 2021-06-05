@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics4/texture.h>
 
 #include "ogl.h"

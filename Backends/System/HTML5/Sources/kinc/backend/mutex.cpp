@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/threads/mutex.h>
 
 void kinc_mutex_init(kinc_mutex_t *mutex) {

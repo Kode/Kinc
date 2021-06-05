@@ -1,4 +1,3 @@
-#include "pch.h"
 #include <Kore/Application.h>
 #include <Kore/Audio/Audio.h>
 #include <Kore/IO/FileReader.h>

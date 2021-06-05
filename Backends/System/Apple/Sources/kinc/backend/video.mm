@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/video.h>
 
 #import <AVFoundation/AVFoundation.h>

@@ -1,5 +1,3 @@
-#include "../pch.h"
-
 #include <kinc/backend/Linux.h>
 #include <kinc/input/mouse.h>
 #include <kinc/log.h>
@@ -49,11 +47,11 @@ void kinc_internal_mouse_lock(int window) {
     kinc_mouse_set_position(window, newX, newY);
 }
 
-void kinc_internal_mouse_unlock(int window) {
+void kinc_internal_mouse_unlock(void) {
     kinc_mouse_show();
 }
 
-bool kinc_mouse_can_lock(int window) {
+bool kinc_mouse_can_lock(void) {
     return true;
 }
 

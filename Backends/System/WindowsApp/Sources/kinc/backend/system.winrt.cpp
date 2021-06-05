@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/backend/graphics4/Direct3D11.h>
 
 #include <kinc/input/gamepad.h>
@@ -7,6 +5,7 @@
 #include <kinc/input/mouse.h>
 #include <kinc/system.h>
 #include <kinc/threads/thread.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
 
 #include <kinc/backend/Hololens.winrt.h>

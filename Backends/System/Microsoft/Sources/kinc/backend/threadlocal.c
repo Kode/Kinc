@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/threads/threadlocal.h>
 
 #include <Windows.h>

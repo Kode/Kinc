@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Vulkan.h"
 
 #include <kinc/error.h>

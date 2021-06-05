@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "acceleration.h"
 
 #include <memory.h>

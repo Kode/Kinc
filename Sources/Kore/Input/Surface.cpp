@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Surface.h"
 
 #include <kinc/input/surface.h>
@@ -29,7 +27,7 @@ namespace {
 	}
 }
 
-Surface* Surface::the() {
+Surface *Surface::the() {
 	if (!initialized) {
 		kinc_surface_touch_start_callback = touchStart;
 		kinc_surface_move_callback = move;

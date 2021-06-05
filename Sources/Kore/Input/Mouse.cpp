@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Mouse.h"
 
 #include <kinc/input/mouse.h>
@@ -41,7 +39,7 @@ namespace {
 	}
 }
 
-Mouse* Mouse::the() {
+Mouse *Mouse::the() {
 	if (!initialized) {
 		kinc_mouse_move_callback = move;
 		kinc_mouse_press_callback = press;
@@ -55,24 +53,24 @@ Mouse* Mouse::the() {
 
 Mouse::Mouse() : Move(nullptr), Press(nullptr), Release(nullptr), Scroll(nullptr), Leave(nullptr) {}
 
-bool Mouse::canLock(int window) {
-	return kinc_mouse_can_lock(window);
+bool Mouse::canLock() {
+	return kinc_mouse_can_lock();
 }
 
-bool Mouse::isLocked(int window) {
-	return kinc_mouse_is_locked(window);
+bool Mouse::isLocked() {
+	return kinc_mouse_is_locked();
 }
 
 void Mouse::lock(int window) {
 	kinc_mouse_lock(window);
 }
 
-void Mouse::unlock(int window) {
-	kinc_mouse_unlock(window);
+void Mouse::unlock() {
+	kinc_mouse_unlock();
 }
 
 void Mouse::show(bool truth) {
-        if (truth) {
+	if (truth) {
 		kinc_mouse_show();
 	}
 	else {
@@ -80,7 +78,7 @@ void Mouse::show(bool truth) {
 	}
 }
 
-void Mouse::setCursor(int cursor){
+void Mouse::setCursor(int cursor) {
 	kinc_mouse_set_cursor(cursor);
 }
 

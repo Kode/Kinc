@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/math/core.h>
 #include <kinc/math/matrix.h>
 

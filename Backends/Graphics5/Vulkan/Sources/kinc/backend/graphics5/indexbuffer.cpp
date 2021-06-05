@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/graphics5/indexbuffer.h>
 
 #include <vulkan/vulkan.h>

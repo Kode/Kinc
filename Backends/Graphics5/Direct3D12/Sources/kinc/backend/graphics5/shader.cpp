@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Direct3D12.h"
 
 #include <kinc/graphics5/shader.h>

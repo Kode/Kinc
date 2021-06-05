@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pch.h"
+#include <Kore/global.h>
 
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hid/IOHIDKeys.h>

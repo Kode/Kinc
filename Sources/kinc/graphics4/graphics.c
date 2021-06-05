@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "graphics.h"
 
 static int antialiasing_samples;

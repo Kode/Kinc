@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Kore/global.h>
+
 namespace Kore {
 	namespace Random {
 		void init(int seed);

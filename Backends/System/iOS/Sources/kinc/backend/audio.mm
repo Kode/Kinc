@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #import <AudioToolbox/AudioToolbox.h>
 #import <Foundation/Foundation.h>
 

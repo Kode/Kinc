@@ -11,10 +11,10 @@ namespace Kore {
 		void (*Scroll)(int windowId, int delta);
 		void (*Leave)(int windowId);
 
-		bool canLock(int windowId);
-		bool isLocked(int windowId);
-		void lock(int windowId);
-		void unlock(int windowId);
+		bool canLock();
+		bool isLocked();
+		void lock(int window);
+		void unlock();
 
 		void show(bool truth);
 		void setCursor(int cursor);

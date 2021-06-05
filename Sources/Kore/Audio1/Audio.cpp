@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Audio.h"
 
 #include <Kore/Audio2/Audio.h>
