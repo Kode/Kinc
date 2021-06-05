@@ -4,6 +4,8 @@
 
 #include <kinc/color.h>
 
+#include <assert.h>
+
 /*! \file graphics.h
     \brief Supports a very basic pixel-setting API.
 */
@@ -51,7 +53,7 @@ extern int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 /// <param name="green">The green-component between 0 and 1</param>
 /// <param name="blue">The blue-component between 0 and 1</param>
 inline void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
-	if (x < 0 || x >= kinc_internal_g1_w || y < 0 || y >= kinc_internal_g1_h) return;
+	assert(x >= 0 || x < kinc_internal_g1_w || y >= 0 || y < kinc_internal_g1_h);
 	int r = (int)(red * 255);
 	int g = (int)(green * 255);
 	int b = (int)(blue * 255);
