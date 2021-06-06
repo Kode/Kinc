@@ -151,21 +151,109 @@ KINC_FUNC void kinc_g4_set_stencil_reference_value(int value);
 
 KINC_FUNC void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2);
 
+/// <summary>
+/// Assigns an integer to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the value to</param>
+/// <param name="value">The value to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_int(kinc_g4_constant_location_t location, int value);
+
+/// <summary>
+/// Assigns two integers to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value1">The value to assign to the first component of the constant/uniform</param>
+/// <param name="value2">The value to assign to the second component of the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2);
+
+/// <summary>
+/// Assigns three integers to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value1">The value to assign to the first component of the constant/uniform</param>
+/// <param name="value2">The value to assign to the second component of the constant/uniform</param>
+/// <param name="value3">The value to assign to the third component of the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3);
+
+/// <summary>
+/// Assigns four integers to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value1">The value to assign to the first component of the constant/uniform</param>
+/// <param name="value2">The value to assign to the second component of the constant/uniform</param>
+/// <param name="value3">The value to assign to the third component of the constant/uniform</param>
+/// <param name="value4">The value to assign to the fourth component of the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4);
+
+/// <summary>
+/// Assigns a bunch of integers to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value">The values to assign to the constant/uniform</param>
+/// <param name="value">The number of values to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count);
 
+/// <summary>
+/// Assigns a float to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the value to</param>
+/// <param name="value">The value to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_float(kinc_g4_constant_location_t location, float value);
+
+/// <summary>
+/// Assigns two floats to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value1">The value to assign to the first constant/uniform</param>
+/// <param name="value2">The value to assign to the second constant/uniform</param>
 KINC_FUNC void kinc_g4_set_float2(kinc_g4_constant_location_t location, float value1, float value2);
+
+/// <summary>
+/// Assigns three floats to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value1">The value to assign to the first constant/uniform</param>
+/// <param name="value2">The value to assign to the second constant/uniform</param>
+/// <param name="value3">The value to assign to the third constant/uniform</param>
 KINC_FUNC void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, float value2, float value3);
+
+/// <summary>
+/// Assigns four floats to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value1">The value to assign to the first constant/uniform</param>
+/// <param name="value2">The value to assign to the second constant/uniform</param>
+/// <param name="value3">The value to assign to the third constant/uniform</param>
+/// <param name="value4">The value to assign to the fourth constant/uniform</param>
 KINC_FUNC void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, float value2, float value3, float value4);
+
+/// <summary>
+/// Assigns a bunch of floats to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value">The values to assign to the constant/uniform</param>
+/// <param name="value">The number of values to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count);
 
+/// <summary>
+/// Assigns a bool to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the value to</param>
+/// <param name="value">The value to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value);
 
+/// <summary>
+/// Assigns a 3x3-matrix to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the value to</param>
+/// <param name="value">The value to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value);
+
+/// <summary>
+/// Assigns a 4x4-matrix to a constant/uniform in the currently set pipeline.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the value to</param>
+/// <param name="value">The value to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value);
 
 KINC_FUNC void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter);
@@ -184,6 +272,10 @@ KINC_FUNC void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, boo
 
 KINC_FUNC void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled);
 
+/// <summary>
+/// Returns how many textures can be used at the same time in a fragment-shader.
+/// </summary>
+/// <returns>The number of textures</returns>
 KINC_FUNC int kinc_g4_max_bound_textures(void);
 
 KINC_FUNC bool kinc_g4_render_targets_inverted_y(void);
@@ -204,8 +296,18 @@ KINC_FUNC void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets
 
 KINC_FUNC void kinc_g4_set_render_target_face(struct kinc_g4_render_target *texture, int face);
 
+/// <summary>
+/// Assigns a texture to a texture-unit for sampled access.
+/// </summary>
+/// <param name="unit">The unit to assign this texture to</param>
+/// <param name="texture">The texture to assign to the unit</param>
 KINC_FUNC void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, struct kinc_g4_texture *texture);
 
+/// <summary>
+/// Assigns a texture to a texture-unit for direct access.
+/// </summary>
+/// <param name="unit">The unit to assign this texture to</param>
+/// <param name="texture">The texture to assign to the unit</param>
 KINC_FUNC void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, struct kinc_g4_texture *texture);
 
 KINC_FUNC bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery);
