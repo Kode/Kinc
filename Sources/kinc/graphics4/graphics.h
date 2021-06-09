@@ -256,16 +256,47 @@ KINC_FUNC void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_ma
 /// <param name="value">The value to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value);
 
+/// <summary>
+/// Set the texture-sampling-mode for upscaled textures.
+/// </summary>
+/// <param name="unit">The texture-unit to set the texture-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
 KINC_FUNC void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter);
 
+/// <summary>
+/// Set the texture-sampling-mode for upscaled 3D-textures.
+/// </summary>
+/// <param name="unit">The texture-unit to set the texture-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
 KINC_FUNC void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter);
 
+/// <summary>
+/// Set the texture-sampling-mode for downscaled textures.
+/// </summary>
+/// <param name="unit">The texture-unit to set the texture-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
 KINC_FUNC void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter);
 
+/// <summary>
+/// Set the texture-sampling-mode for downscaled 3D-textures.
+/// </summary>
+/// <param name="unit">The texture-unit to set the texture-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
 KINC_FUNC void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter);
 
+/// <summary>
+/// Sets the mipmap-sampling-mode which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly interoplated.
+/// </summary>
+/// <param name="unit">The texture-unit to set the mipmap-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
 KINC_FUNC void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipmap_filter_t filter);
 
+/// <summary>
+/// Sets the mipmap-sampling-mode for a 3D-texture which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly
+/// interoplated.
+/// </summary>
+/// <param name="unit">The texture-unit to set the mipmap-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
 KINC_FUNC void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter);
 
 KINC_FUNC void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled);
@@ -322,10 +353,24 @@ KINC_FUNC bool kinc_g4_are_query_results_available(unsigned occlusionQuery);
 
 KINC_FUNC void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount);
 
+/// <summary>
+/// Assigns a texture-array to a texture-unit.
+/// </summary>
+/// <param name="unit">The unit to assign the texture-array to</param>
+/// <param name="array">The texture-array to assign to the texture-unit</param>
 KINC_FUNC void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array);
 
+/// <summary>
+/// Returns the currently used number of samples for hardware-antialiasing.
+/// </summary>
+/// <returns>The number of samples</returns>
 KINC_FUNC int kinc_g4_antialiasing_samples(void);
 
+/// <summary>
+/// Sets the number of samples used for hardware-antialiasing. This typically uses multisampling and typically only works with a few specific numbers of
+/// sample-counts - 2 and 4 are pretty save bets. It also might do nothing at all.
+/// </summary>
+/// <param name="samples">The number of samples</param>
 KINC_FUNC void kinc_g4_set_antialiasing_samples(int samples);
 
 #ifdef __cplusplus
