@@ -2,6 +2,11 @@
 
 #include <kinc/global.h>
 
+/*! \file core.h
+    \brief Provides some basic math functions. This is mostly just functionality that also exists in math.h but hey, maybe we can one day run programs without
+   the C-lib.
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif

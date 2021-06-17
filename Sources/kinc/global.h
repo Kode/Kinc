@@ -1,8 +1,8 @@
 #pragma once
 
-/// <summary>
-/// Basic functionality that's used all over the place.
-/// </summary>
+/*! \file pch.h
+    \brief Provides basic functionality that's used all over the place. There's usually no need to manually include this.
+*/
 
 #ifdef __cplusplus
 
