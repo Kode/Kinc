@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Kinc: Sources/kinc/pch.h File Reference</title>
+<title>Kinc: Sources/kinc/global.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -65,17 +65,41 @@ $(function() {
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">pch.h File Reference</div>  </div>
+<div class="title">global.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>This header is deprecated, please ignore.  
+<p>Provides basic functionality that's used all over the place. There's usually no need to manually include this.  
 <a href="#details">More...</a></p>
-
-<p><a href="pch_8h_source.html">Go to the source code of this file.</a></p>
+<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+</div>
+<p><a href="global_8h_source.html">Go to the source code of this file.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ab02092acd02d689b0d361c2e7c97fb5f"><td class="memItemLeft" align="right" valign="top"><a id="ab02092acd02d689b0d361c2e7c97fb5f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_FUNC</b></td></tr>
+<tr class="separator:ab02092acd02d689b0d361c2e7c97fb5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2f460e76e5b087df2eb97ad7cad50c5"><td class="memItemLeft" align="right" valign="top"><a id="ab2f460e76e5b087df2eb97ad7cad50c5"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_LITTLE_ENDIAN</b></td></tr>
+<tr class="separator:ab2f460e76e5b087df2eb97ad7cad50c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a267323056fcf171d6f713c5b3a6b6048"><td class="memItemLeft" align="right" valign="top"><a id="a267323056fcf171d6f713c5b3a6b6048"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_INLINE</b>&#160;&#160;&#160;__attribute__((always_inline))</td></tr>
+<tr class="separator:a267323056fcf171d6f713c5b3a6b6048"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a3d70458a0c1dee0ad7fad321891ad460"><td class="memItemLeft" align="right" valign="top"><a id="a3d70458a0c1dee0ad7fad321891ad460"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>kickstart</b> (int argc, char **argv)</td></tr>
+<tr class="separator:a3d70458a0c1dee0ad7fad321891ad460"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This header is deprecated, please ignore. </p>
+<div class="textblock"><p>Provides basic functionality that's used all over the place. There's usually no need to manually include this. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
