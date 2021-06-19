@@ -1,6 +1,6 @@
 #pragma once
 
-/*! \file pch.h
+/*! \file global.h
     \brief Provides basic functionality that's used all over the place. There's usually no need to manually include this.
 */
 
