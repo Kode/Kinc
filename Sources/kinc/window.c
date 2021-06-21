@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-void kinc_internal_init_window_options(kinc_window_options_t *win) {
+void kinc_window_options_set_defaults(kinc_window_options_t *win) {
 	win->title = NULL;
 	win->display_index = kinc_primary_display();
 	win->mode = KINC_WINDOW_MODE_WINDOW;
@@ -15,7 +15,7 @@ void kinc_internal_init_window_options(kinc_window_options_t *win) {
 	win->window_features = KINC_WINDOW_FEATURE_RESIZEABLE | KINC_WINDOW_FEATURE_MINIMIZABLE | KINC_WINDOW_FEATURE_MAXIMIZABLE;
 }
 
-void kinc_internal_init_framebuffer_options(kinc_framebuffer_options_t *frame) {
+void kinc_framebuffer_options_set_defaults(kinc_framebuffer_options_t *frame) {
 	frame->frequency = 60;
 	frame->vertical_sync = true;
 	frame->color_bits = 32;

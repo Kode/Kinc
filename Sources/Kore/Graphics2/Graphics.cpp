@@ -75,7 +75,7 @@ void Graphics2::ImageShaderPainter::initShaders() {
 }
 
 void Graphics2::ImageShaderPainter::initBuffers() {
-	rectVertexBuffer = new Graphics4::VertexBuffer(bufferSize * 4, structure);
+	rectVertexBuffer = new Graphics4::VertexBuffer(bufferSize * 4, structure, Graphics4::DynamicUsage);
 	rectVertices = rectVertexBuffer->lock();
 
 	indexBuffer = new Graphics4::IndexBuffer(bufferSize * 3 * 2);

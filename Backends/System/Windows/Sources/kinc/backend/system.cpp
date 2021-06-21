@@ -1242,7 +1242,7 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	kinc_set_application_name(name);
 	kinc_window_options_t defaultWin;
 	if (win == nullptr) {
-		kinc_internal_init_window_options(&defaultWin);
+		kinc_window_options_set_defaults(&defaultWin);
 		win = &defaultWin;
 	}
 	win->width = width;

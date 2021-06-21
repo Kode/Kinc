@@ -16,12 +16,12 @@ static kinc_g4_vertex_buffer_t vb;
 static kinc_g4_index_buffer_t ib;
 static kinc_g4_texture_t texture;
 
-int *kinc_internal_g1_image;
+uint32_t *kinc_internal_g1_image;
 int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 
 void kinc_g1_begin() {
 	kinc_g4_begin(0);
-	kinc_internal_g1_image = (int *)kinc_g4_texture_lock(&texture);
+	kinc_internal_g1_image = (uint32_t *)kinc_g4_texture_lock(&texture);
 }
 
 void kinc_g1_end() {
