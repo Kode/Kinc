@@ -75,57 +75,59 @@ $(function() {
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="color_8h.html">kinc/color.h</a>&gt;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#a776344976c2efa0c19385bf3cbb4a634">kinc_g1_init</a>(<span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#a7185556015e4f52c606e77f21a7a35f7">kinc_g1_begin</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#a5f9f0420a93a0e66240b14caf883576d">kinc_g1_end</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC)</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;assert.h&gt;</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#a776344976c2efa0c19385bf3cbb4a634">kinc_g1_init</a>(<span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#a7185556015e4f52c606e77f21a7a35f7">kinc_g1_begin</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#a5f9f0420a93a0e66240b14caf883576d">kinc_g1_end</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#ad2c9d2568e0a2d1d82680fc20e850561">kinc_g1_set_pixel</a>(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">float</span> red, <span class="keywordtype">float</span> green, <span class="keywordtype">float</span> blue);</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="graphics1_2graphics_8h.html#a02eada9be951d00ed33e3db291f81de2">kinc_g1_width</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="graphics1_2graphics_8h.html#a84f858c719c1743a571cf06130455733">kinc_g1_height</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC)</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#ad2c9d2568e0a2d1d82680fc20e850561">kinc_g1_set_pixel</a>(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">float</span> red, <span class="keywordtype">float</span> green, <span class="keywordtype">float</span> blue);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="graphics1_2graphics_8h.html#a02eada9be951d00ed33e3db291f81de2">kinc_g1_width</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="graphics1_2graphics_8h.html#a84f858c719c1743a571cf06130455733">kinc_g1_height</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">// implementation moved to the header to allow easy inlining</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">int</span> *kinc_internal_g1_image;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">int</span> kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
-<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="graphics1_2graphics_8h.html#ad2c9d2568e0a2d1d82680fc20e850561">   53</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#ad2c9d2568e0a2d1d82680fc20e850561">kinc_g1_set_pixel</a>(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">float</span> red, <span class="keywordtype">float</span> green, <span class="keywordtype">float</span> blue) {</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordflow">if</span> (x &lt; 0 || x &gt;= kinc_internal_g1_w || y &lt; 0 || y &gt;= kinc_internal_g1_h) <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">int</span> r = (int)(red * 255);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">int</span> g = (int)(green * 255);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">int</span> b = (int)(blue * 255);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    kinc_internal_g1_image[y * kinc_internal_g1_tex_width + x] = 0xff &lt;&lt; 24 | b &lt;&lt; 16 | g &lt;&lt; 8 | r;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;}</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="graphics1_2graphics_8h.html#a02eada9be951d00ed33e3db291f81de2">   65</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">int</span> <a class="code" href="graphics1_2graphics_8h.html#a02eada9be951d00ed33e3db291f81de2">kinc_g1_width</a>() {</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordflow">return</span> kinc_internal_g1_w;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;}</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00073"></a><span class="lineno"><a class="line" href="graphics1_2graphics_8h.html#a84f858c719c1743a571cf06130455733">   73</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">int</span> <a class="code" href="graphics1_2graphics_8h.html#a84f858c719c1743a571cf06130455733">kinc_g1_height</a>() {</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordflow">return</span> kinc_internal_g1_h;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;}</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">// implementation moved to the header to allow easy inlining</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">extern</span> uint32_t *kinc_internal_g1_image;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">int</span> kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
+<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="graphics1_2graphics_8h.html#ad2c9d2568e0a2d1d82680fc20e850561">   55</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#ad2c9d2568e0a2d1d82680fc20e850561">kinc_g1_set_pixel</a>(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">float</span> red, <span class="keywordtype">float</span> green, <span class="keywordtype">float</span> blue) {</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    assert(x &gt;= 0 &amp;&amp; x &lt; kinc_internal_g1_w &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; kinc_internal_g1_h);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">int</span> r = (int)(red * 255);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">int</span> g = (int)(green * 255);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">int</span> b = (int)(blue * 255);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    kinc_internal_g1_image[y * kinc_internal_g1_tex_width + x] = 0xff &lt;&lt; 24 | b &lt;&lt; 16 | g &lt;&lt; 8 | r;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;}</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="graphics1_2graphics_8h.html#a02eada9be951d00ed33e3db291f81de2">   67</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">int</span> <a class="code" href="graphics1_2graphics_8h.html#a02eada9be951d00ed33e3db291f81de2">kinc_g1_width</a>() {</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordflow">return</span> kinc_internal_g1_w;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno"><a class="line" href="graphics1_2graphics_8h.html#a84f858c719c1743a571cf06130455733">   75</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">int</span> <a class="code" href="graphics1_2graphics_8h.html#a84f858c719c1743a571cf06130455733">kinc_g1_height</a>() {</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordflow">return</span> kinc_internal_g1_h;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;}</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;}</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;}</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="agraphics1_2graphics_8h_html_a5f9f0420a93a0e66240b14caf883576d"><div class="ttname"><a href="graphics1_2graphics_8h.html#a5f9f0420a93a0e66240b14caf883576d">kinc_g1_end</a></div><div class="ttdeci">KINC_FUNC void kinc_g1_end(void)</div><div class="ttdoc">Typically called once per frame after all G1-drawing is finished.</div></div>
-<div class="ttc" id="agraphics1_2graphics_8h_html_ad2c9d2568e0a2d1d82680fc20e850561"><div class="ttname"><a href="graphics1_2graphics_8h.html#ad2c9d2568e0a2d1d82680fc20e850561">kinc_g1_set_pixel</a></div><div class="ttdeci">void kinc_g1_set_pixel(int x, int y, float red, float green, float blue)</div><div class="ttdoc">Sets a single pixel to a color.</div><div class="ttdef"><b>Definition:</b> graphics.h:53</div></div>
-<div class="ttc" id="agraphics1_2graphics_8h_html_a02eada9be951d00ed33e3db291f81de2"><div class="ttname"><a href="graphics1_2graphics_8h.html#a02eada9be951d00ed33e3db291f81de2">kinc_g1_width</a></div><div class="ttdeci">int kinc_g1_width()</div><div class="ttdoc">Returns the width used by G1.</div><div class="ttdef"><b>Definition:</b> graphics.h:65</div></div>
+<div class="ttc" id="agraphics1_2graphics_8h_html_ad2c9d2568e0a2d1d82680fc20e850561"><div class="ttname"><a href="graphics1_2graphics_8h.html#ad2c9d2568e0a2d1d82680fc20e850561">kinc_g1_set_pixel</a></div><div class="ttdeci">void kinc_g1_set_pixel(int x, int y, float red, float green, float blue)</div><div class="ttdoc">Sets a single pixel to a color.</div><div class="ttdef"><b>Definition:</b> graphics.h:55</div></div>
+<div class="ttc" id="agraphics1_2graphics_8h_html_a02eada9be951d00ed33e3db291f81de2"><div class="ttname"><a href="graphics1_2graphics_8h.html#a02eada9be951d00ed33e3db291f81de2">kinc_g1_width</a></div><div class="ttdeci">int kinc_g1_width()</div><div class="ttdoc">Returns the width used by G1.</div><div class="ttdef"><b>Definition:</b> graphics.h:67</div></div>
 <div class="ttc" id="agraphics1_2graphics_8h_html_a776344976c2efa0c19385bf3cbb4a634"><div class="ttname"><a href="graphics1_2graphics_8h.html#a776344976c2efa0c19385bf3cbb4a634">kinc_g1_init</a></div><div class="ttdeci">KINC_FUNC void kinc_g1_init(int width, int height)</div><div class="ttdoc">Initializes the G1-API.</div></div>
-<div class="ttc" id="agraphics1_2graphics_8h_html_a84f858c719c1743a571cf06130455733"><div class="ttname"><a href="graphics1_2graphics_8h.html#a84f858c719c1743a571cf06130455733">kinc_g1_height</a></div><div class="ttdeci">int kinc_g1_height()</div><div class="ttdoc">Returns the height used by G1.</div><div class="ttdef"><b>Definition:</b> graphics.h:73</div></div>
+<div class="ttc" id="agraphics1_2graphics_8h_html_a84f858c719c1743a571cf06130455733"><div class="ttname"><a href="graphics1_2graphics_8h.html#a84f858c719c1743a571cf06130455733">kinc_g1_height</a></div><div class="ttdeci">int kinc_g1_height()</div><div class="ttdoc">Returns the height used by G1.</div><div class="ttdef"><b>Definition:</b> graphics.h:75</div></div>
 <div class="ttc" id="agraphics1_2graphics_8h_html_a7185556015e4f52c606e77f21a7a35f7"><div class="ttname"><a href="graphics1_2graphics_8h.html#a7185556015e4f52c606e77f21a7a35f7">kinc_g1_begin</a></div><div class="ttdeci">KINC_FUNC void kinc_g1_begin(void)</div><div class="ttdoc">Typically called once per frame before other G1-functions are called.</div></div>
 <div class="ttc" id="acolor_8h_html"><div class="ttname"><a href="color_8h.html">color.h</a></div><div class="ttdoc">Provides some utility functionality for handling 32 bit ARGB color values.</div></div>
 <!-- start footer part -->
