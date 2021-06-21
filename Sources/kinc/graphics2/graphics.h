@@ -3,6 +3,10 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/math/matrix.h>
 
+/*! \file graphics.h
+    \brief This is still in progress, please don't use it.
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
