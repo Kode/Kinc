@@ -7,8 +7,11 @@
 #include <stdint.h>
 #include <string.h>
 
+static kinc_matrix3x3_t transform;
+
 void kinc_g2_init(int screen_width, int screen_height) {
 	kinc_g1_init(screen_width, screen_height);
+	transform = kinc_matrix3x3_identity();
 }
 
 void kinc_g2_begin(void) {
@@ -235,8 +238,6 @@ static void drawQuad(kinc_image_t *img, Point2D_t v0, Point2D_t v1, Point2D_t v2
 		}
 	}
 }
-
-static kinc_matrix3x3_t transform;
 
 void kinc_g2_draw_image(kinc_image_t *img, float x, float y) {
 	kinc_vector3_t _0;
