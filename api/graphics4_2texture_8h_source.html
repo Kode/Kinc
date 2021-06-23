@@ -101,27 +101,28 @@ $(function() {
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics4_2texture_8h.html#aadcf9434ec53569ec191e7d744f4d958">kinc_g4_texture_destroy</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture);</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;KINC_FUNC <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *kinc_g4_texture_lock(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_unlock(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics4_2texture_8h.html#a69ed6d030fdd65548e7404147ce46ecd">kinc_g4_texture_clear</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">int</span> z, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> depth, <span class="keywordtype">unsigned</span> color);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics4_2texture_8h.html#a545015c1e1ab71c3c3d32c20f9dea5e7">kinc_g4_texture_generate_mipmaps</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <span class="keywordtype">int</span> levels);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics4_2texture_8h.html#a38c94fb8dc8d1ff2cd7496ae95f5cd7b">kinc_g4_texture_set_mipmap</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <a class="code" href="structkinc__image.html">kinc_image_t</a> *mipmap, <span class="keywordtype">int</span> level);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="graphics4_2texture_8h.html#a9a076c0dd1dd85c20f752bf70d22e2e7">kinc_g4_texture_stride</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture);</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_init_from_id(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <span class="keywordtype">unsigned</span> texid);</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_upload(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, uint8_t *data, <span class="keywordtype">int</span> stride);</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;}</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_unlock(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics4_2texture_8h.html#a69ed6d030fdd65548e7404147ce46ecd">kinc_g4_texture_clear</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">int</span> z, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> depth, <span class="keywordtype">unsigned</span> color);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics4_2texture_8h.html#a545015c1e1ab71c3c3d32c20f9dea5e7">kinc_g4_texture_generate_mipmaps</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <span class="keywordtype">int</span> levels);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics4_2texture_8h.html#a38c94fb8dc8d1ff2cd7496ae95f5cd7b">kinc_g4_texture_set_mipmap</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <a class="code" href="structkinc__image.html">kinc_image_t</a> *mipmap, <span class="keywordtype">int</span> level);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="graphics4_2texture_8h.html#a9a076c0dd1dd85c20f752bf70d22e2e7">kinc_g4_texture_stride</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture);</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_init_from_id(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <span class="keywordtype">unsigned</span> texid);</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_upload(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, uint8_t *data, <span class="keywordtype">int</span> stride);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;}</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="agraphics4_2texture_8h_html_a38c94fb8dc8d1ff2cd7496ae95f5cd7b"><div class="ttname"><a href="graphics4_2texture_8h.html#a38c94fb8dc8d1ff2cd7496ae95f5cd7b">kinc_g4_texture_set_mipmap</a></div><div class="ttdeci">KINC_FUNC void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap, int level)</div><div class="ttdoc">Sets the mipmap for one level of a texture.</div></div>
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Kinc: Sources/kinc/graphics5/textureunit.h Source File</title>
+<title>Kinc: Sources/kinc/graphics5/textureunit.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -65,30 +65,35 @@ $(function() {
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle">
-<div class="title">textureunit.h</div>  </div>
+<div class="title">textureunit.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="graphics5_2textureunit_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="global_8h.html">kinc/global.h</a>&gt;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/graphics5/texture.h&gt;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="structkinc__g5__texture__unit.html">   15</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit</a> {</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    TextureUnit5Impl impl;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;} <a class="code" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a>;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;}</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#endif</span></div>
-</div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
-<div class="ttc" id="astructkinc__g5__texture__unit_html"><div class="ttname"><a href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit</a></div><div class="ttdef"><b>Definition:</b> textureunit.h:15</div></div>
+
+<p>Provides a texture-unit-struct which is used for setting textures in a shader.  
+<a href="#details">More...</a></p>
+<div class="textblock"><code>#include &lt;<a class="el" href="global_8h_source.html">kinc/global.h</a>&gt;</code><br />
+<code>#include &lt;kinc/backend/graphics5/texture.h&gt;</code><br />
+</div>
+<p><a href="graphics5_2textureunit_8h_source.html">Go to the source code of this file.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a3260ba110d9ccdb59535c7777cffbf50"><td class="memItemLeft" align="right" valign="top"><a id="a3260ba110d9ccdb59535c7777cffbf50"></a>
+typedef struct <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_unit_t</b></td></tr>
+<tr class="separator:a3260ba110d9ccdb59535c7777cffbf50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Provides a texture-unit-struct which is used for setting textures in a shader. </p>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

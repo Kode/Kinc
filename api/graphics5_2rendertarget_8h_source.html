@@ -69,55 +69,67 @@ $(function() {
 <div class="title">rendertarget.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
+<a href="graphics5_2rendertarget_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="global_8h.html">kinc/global.h</a>&gt;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;textureunit.h&quot;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="graphics5_2textureunit_8h.html">textureunit.h</a>&quot;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/graphics5/rendertarget.h&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> kinc_g5_render_target_format {</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_32BIT,</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT,</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT,</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT,</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_16BIT_DEPTH,</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED,</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;} kinc_g5_render_target_format_t;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="structkinc__g5__render__target.html">   23</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target</a> {</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordtype">int</span> width;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">int</span> height;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordtype">int</span> texWidth;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordtype">int</span> texHeight;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">int</span> contextId;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">bool</span> isCubeMap;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">bool</span> isDepthAttachment;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    RenderTarget5Impl impl;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;} <a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a>;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g5_render_target_init(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> depthBufferBits, <span class="keywordtype">bool</span> antialiasing,</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;                                          kinc_g5_render_target_format_t format, <span class="keywordtype">int</span> stencilBufferBits, <span class="keywordtype">int</span> contextId);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g5_render_target_init_cube(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <span class="keywordtype">int</span> cubeMapSize, <span class="keywordtype">int</span> depthBufferBits, <span class="keywordtype">bool</span> antialiasing,</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;                                               kinc_g5_render_target_format_t format, <span class="keywordtype">int</span> stencilBufferBits, <span class="keywordtype">int</span> contextId);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g5_render_target_destroy(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g5_render_target_use_color_as_texture(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="code" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g5_render_target_use_depth_as_texture(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="code" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g5_render_target_set_depth_stencil_from(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *source);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;}</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> kinc_g5_render_target_format {</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_32BIT,</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT,</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT,</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT,</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_16BIT_DEPTH,</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED,</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;} kinc_g5_render_target_format_t;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="structkinc__g5__render__target.html">   27</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target</a> {</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">int</span> width;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">int</span> height;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">int</span> texWidth;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">int</span> texHeight;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">int</span> contextId;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">bool</span> isCubeMap;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">bool</span> isDepthAttachment;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    RenderTarget5Impl impl;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;} <a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a>;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics5_2rendertarget_8h.html#a68456c2ebf1b5f1e675dfdc7176aa023">kinc_g5_render_target_init</a>(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> depthBufferBits, <span class="keywordtype">bool</span> antialiasing,</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                                          kinc_g5_render_target_format_t format, <span class="keywordtype">int</span> stencilBufferBits, <span class="keywordtype">int</span> contextId);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics5_2rendertarget_8h.html#a1ae2d1d87f6f26583bfbc15987939564">kinc_g5_render_target_init_cube</a>(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <span class="keywordtype">int</span> cubeMapSize, <span class="keywordtype">int</span> depthBufferBits, <span class="keywordtype">bool</span> antialiasing,</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                                               kinc_g5_render_target_format_t format, <span class="keywordtype">int</span> stencilBufferBits, <span class="keywordtype">int</span> contextId);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics5_2rendertarget_8h.html#a1b0015de885979bf1e9f00ab0b9f700f">kinc_g5_render_target_destroy</a>(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics5_2rendertarget_8h.html#a94688f03b680ce597ba59585085eb845">kinc_g5_render_target_use_color_as_texture</a>(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="code" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics5_2rendertarget_8h.html#a2c310471feda533cad7fc3cd07f4188e">kinc_g5_render_target_use_depth_as_texture</a>(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="code" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics5_2rendertarget_8h.html#abe9f17ead1f0b402cf2ec1f1e06cb70b">kinc_g5_render_target_set_depth_stencil_from</a>(<a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *source);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;}</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
-<div class="ttc" id="astructkinc__g5__texture__unit_html"><div class="ttname"><a href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit</a></div><div class="ttdef"><b>Definition:</b> textureunit.h:11</div></div>
-<div class="ttc" id="astructkinc__g5__render__target_html"><div class="ttname"><a href="structkinc__g5__render__target.html">kinc_g5_render_target</a></div><div class="ttdef"><b>Definition:</b> rendertarget.h:23</div></div>
+<div class="ttc" id="astructkinc__g5__texture__unit_html"><div class="ttname"><a href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit</a></div><div class="ttdef"><b>Definition:</b> textureunit.h:15</div></div>
+<div class="ttc" id="agraphics5_2rendertarget_8h_html_a68456c2ebf1b5f1e675dfdc7176aa023"><div class="ttname"><a href="graphics5_2rendertarget_8h.html#a68456c2ebf1b5f1e675dfdc7176aa023">kinc_g5_render_target_init</a></div><div class="ttdeci">KINC_FUNC void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing, kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId)</div><div class="ttdoc">Allocates and initializes a regular render-target.</div></div>
+<div class="ttc" id="astructkinc__g5__render__target_html"><div class="ttname"><a href="structkinc__g5__render__target.html">kinc_g5_render_target</a></div><div class="ttdef"><b>Definition:</b> rendertarget.h:27</div></div>
+<div class="ttc" id="agraphics5_2rendertarget_8h_html_abe9f17ead1f0b402cf2ec1f1e06cb70b"><div class="ttname"><a href="graphics5_2rendertarget_8h.html#abe9f17ead1f0b402cf2ec1f1e06cb70b">kinc_g5_render_target_set_depth_stencil_from</a></div><div class="ttdeci">KINC_FUNC void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source)</div><div class="ttdoc">Copies the depth and stencil-components of one render-target into another one.</div></div>
+<div class="ttc" id="agraphics5_2textureunit_8h_html"><div class="ttname"><a href="graphics5_2textureunit_8h.html">textureunit.h</a></div><div class="ttdoc">Provides a texture-unit-struct which is used for setting textures in a shader.</div></div>
+<div class="ttc" id="agraphics5_2rendertarget_8h_html_a94688f03b680ce597ba59585085eb845"><div class="ttname"><a href="graphics5_2rendertarget_8h.html#a94688f03b680ce597ba59585085eb845">kinc_g5_render_target_use_color_as_texture</a></div><div class="ttdeci">KINC_FUNC void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit)</div><div class="ttdoc">Uses the color-component of a render-target as a texture.</div></div>
+<div class="ttc" id="agraphics5_2rendertarget_8h_html_a1ae2d1d87f6f26583bfbc15987939564"><div class="ttname"><a href="graphics5_2rendertarget_8h.html#a1ae2d1d87f6f26583bfbc15987939564">kinc_g5_render_target_init_cube</a></div><div class="ttdeci">KINC_FUNC void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing, kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId)</div><div class="ttdoc">Allocates and initializes a render-target-cube-map.</div></div>
+<div class="ttc" id="agraphics5_2rendertarget_8h_html_a2c310471feda533cad7fc3cd07f4188e"><div class="ttname"><a href="graphics5_2rendertarget_8h.html#a2c310471feda533cad7fc3cd07f4188e">kinc_g5_render_target_use_depth_as_texture</a></div><div class="ttdeci">KINC_FUNC void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit)</div><div class="ttdoc">Uses the depth-component of a render-target as a texture.</div></div>
+<div class="ttc" id="agraphics5_2rendertarget_8h_html_a1b0015de885979bf1e9f00ab0b9f700f"><div class="ttname"><a href="graphics5_2rendertarget_8h.html#a1b0015de885979bf1e9f00ab0b9f700f">kinc_g5_render_target_destroy</a></div><div class="ttdeci">KINC_FUNC void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target)</div><div class="ttdoc">Deallocates and destroys a render-target.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
