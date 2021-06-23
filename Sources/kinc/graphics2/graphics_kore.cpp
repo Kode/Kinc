@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "graphics.h"
 
 #include <kinc/graphics1/graphics.h>

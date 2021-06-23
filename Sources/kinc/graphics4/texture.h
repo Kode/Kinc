@@ -63,6 +63,7 @@ KINC_FUNC void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kin
 KINC_FUNC void kinc_g4_texture_destroy(kinc_g4_texture_t *texture);
 
 KINC_FUNC unsigned char *kinc_g4_texture_lock(kinc_g4_texture_t *texture);
+
 KINC_FUNC void kinc_g4_texture_unlock(kinc_g4_texture_t *texture);
 
 /// <summary>
