@@ -49,10 +49,10 @@ typedef enum {
 /// Initializes the G4-API and is usually called at the start of a program.
 /// </summary>
 /// <param name="window">The window to initialize G4 for</param>
-/// <param name="depthBufferBits">The number of bits for the depth buffer - 16 and 24 are typical values</param>
-/// <param name="stencilBufferBits">The number of bits for the stencil-buffer - typically 8</param>
-/// <param name="vSync">Whether or not to enable vertical-sync</param>
-KINC_FUNC void kinc_g4_init(int window, int depthBufferBits, int stencilBufferBits, bool vSync);
+/// <param name="depth_buffer_bits">The number of bits for the depth buffer - 16 and 24 are typical values</param>
+/// <param name="stencil_buffer_bits">The number of bits for the stencil-buffer - typically 8</param>
+/// <param name="vsync">Whether or not to enable vertical-sync</param>
+KINC_FUNC void kinc_g4_init(int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync);
 
 /// <summary>
 /// Destroy the G4-API for a window.
