@@ -119,8 +119,6 @@ KINC_FUNC void kinc_g4_scissor(int x, int y, int width, int height);
 /// <summary>
 /// Disables the scissor-rect.
 /// </summary>
-/// <param name=""></param>
-/// <returns></returns>
 KINC_FUNC void kinc_g4_disable_scissor(void);
 
 /// <summary>

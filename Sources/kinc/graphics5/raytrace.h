@@ -1,5 +1,9 @@
 #pragma once
 
+/*! \file raytrace.h
+    \brief I still do not own a raytracing-GPU for my PC :(
+*/
+
 #ifdef KORE_RAYTRACE
 
 #include <kinc/global.h>
