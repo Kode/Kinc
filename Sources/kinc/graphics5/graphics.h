@@ -157,8 +157,14 @@ KINC_FUNC int kinc_g5_antialiasing_samples(void);
 /// <param name="samples">The number of samples</param>
 KINC_FUNC void kinc_g5_set_antialiasing_samples(int samples);
 
+/// <summary>
+/// Returns whether textures are supported which have widths/heights which are not powers of two - which is always the case.
+/// </summary>
+/// <returns>True, always</returns>
 KINC_FUNC bool kinc_g5_non_pow2_textures_qupported(void);
+
 KINC_FUNC bool kinc_g5_render_targets_inverted_y(void);
+
 KINC_FUNC void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face);
 
 /// <summary>

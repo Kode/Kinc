@@ -117,22 +117,63 @@ KINC_FUNC void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list
 /// <param name="pipeline">The pipeline to set</param>
 KINC_FUNC void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc_g5_pipeline *pipeline);
 
+/// <summary>
+/// Writes a command which sets vertex-buffers for the next draw-call.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="buffers">The buffers to set</param>
+/// <param name="offsets">The offset to use for every buffer in number of vertices</param>
+/// <param name="count">The number of buffers to set</param>
 KINC_FUNC void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count);
 
+/// <summary>
+/// Writes a command to set an index-buffer to be used for the next draw-command.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="buffer">The buffer to use</param>
 KINC_FUNC void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer);
 
 // void restoreRenderTarget();
 
 KINC_FUNC void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count);
 
+/// <summary>
+/// Writes a command to upload an index-buffer that's in main-memory to gpu-memory. Does nothing on unified-memory-systems.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="buffer">The buffer to upload</param>
 KINC_FUNC void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer);
 
+/// <summary>
+/// Writes a command to upload a vertex-buffer that's in main-memory to gpu-memory. Does nothing on unified-memory-systems.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="buffer">The buffer to upload</param>
 KINC_FUNC void kinc_g5_command_list_upload_vertex_buffer(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer *buffer);
 
+/// <summary>
+/// Writes a command to upload a texture that's in main-memory to gpu-memory. Does nothing on unified-memory-systems.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="buffer">The texture to upload</param>
 KINC_FUNC void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct kinc_g5_texture *texture);
 
+/// <summary>
+/// Writes a command that sets a constant-buffer for the vertex-shader-stage.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="buffer">The buffer to set</param>
+/// <param name="offset">The offset into the buffer in bytes to use as the start</param>
+/// <param name="size">The size of the buffer to use in bytes starting at the offset</param>
 KINC_FUNC void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size);
 
+/// <summary>
+/// Writes a command that sets a constant-buffer for the fragment-shader-stage.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="buffer">The buffer to set</param>
+/// <param name="offset">The offset into the buffer in bytes to use as the start</param>
+/// <param name="size">The size of the buffer to use in bytes starting at the offset</param>
 KINC_FUNC void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size);
 
 KINC_FUNC void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list);
