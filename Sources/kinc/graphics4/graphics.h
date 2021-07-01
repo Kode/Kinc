@@ -127,8 +127,21 @@ KINC_FUNC void kinc_g4_disable_scissor(void);
 /// </summary>
 KINC_FUNC void kinc_g4_draw_indexed_vertices(void);
 
+/// <summary>
+/// Draws a part of the content of the currently set index-buffer and vertex-buffer. G4 can only draw triangle-lists using vertex-indices as this is what GPUs
+/// tend to be optimized for.
+/// </summary>
+/// <param name="start">The offset into the index-buffer</param>
+/// <param name="count">The number of indices to use</param>
 KINC_FUNC void kinc_g4_draw_indexed_vertices_from_to(int start, int count);
 
+/// <summary>
+/// Draws a part of the content of the currently set index-buffer and vertex-buffer and additionally applies a general offset into the vertex-buffer. G4 can
+/// only draw triangle-lists using vertex-indices as this is what GPUs tend to be optimized for.
+/// </summary>
+/// <param name="start">The offset into the index-buffer</param>
+/// <param name="count">The number of indices to use</param>
+/// <param name="vertex_offset">The offset into the vertex-buffer which is added to each index read from the index-buffer</param>
 KINC_FUNC void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset);
 
 KINC_FUNC void kinc_g4_draw_indexed_vertices_instanced(int instanceCount);
