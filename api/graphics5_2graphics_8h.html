@@ -245,8 +245,8 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_dra
 <tr class="memitem:ac203afe2fc3fe38f83ce0baecdb5fcb3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2graphics_8h.html#ac203afe2fc3fe38f83ce0baecdb5fcb3">kinc_g5_set_antialiasing_samples</a> (int samples)</td></tr>
 <tr class="memdesc:ac203afe2fc3fe38f83ce0baecdb5fcb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the number of samples used for hardware-antialiasing. This typically uses multisampling and typically only works with a few specific numbers of sample-counts - 2 and 4 are pretty save bets. It also might do nothing at all.  <a href="graphics5_2graphics_8h.html#ac203afe2fc3fe38f83ce0baecdb5fcb3">More...</a><br /></td></tr>
 <tr class="separator:ac203afe2fc3fe38f83ce0baecdb5fcb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a638325d6416f7ad19006a0bd593eb8"><td class="memItemLeft" align="right" valign="top"><a id="a8a638325d6416f7ad19006a0bd593eb8"></a>
-KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_non_pow2_textures_qupported</b> (void)</td></tr>
+<tr class="memitem:a8a638325d6416f7ad19006a0bd593eb8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2graphics_8h.html#a8a638325d6416f7ad19006a0bd593eb8">kinc_g5_non_pow2_textures_qupported</a> (void)</td></tr>
+<tr class="memdesc:a8a638325d6416f7ad19006a0bd593eb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether textures are supported which have widths/heights which are not powers of two - which is always the case.  <a href="graphics5_2graphics_8h.html#a8a638325d6416f7ad19006a0bd593eb8">More...</a><br /></td></tr>
 <tr class="separator:a8a638325d6416f7ad19006a0bd593eb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff2798dd979a10e809e7114b17eeba6e"><td class="memItemLeft" align="right" valign="top"><a id="aff2798dd979a10e809e7114b17eeba6e"></a>
 KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_render_targets_inverted_y</b> (void)</td></tr>
@@ -506,6 +506,27 @@ KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_ful
 
 <p>Returns how many textures can be used at the same time in a fragment-shader. </p>
 <dl class="section return"><dt>Returns</dt><dd>The number of textures</dd></dl>
+
+</div>
+</div>
+<a id="a8a638325d6416f7ad19006a0bd593eb8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a638325d6416f7ad19006a0bd593eb8">&#9670;&nbsp;</a></span>kinc_g5_non_pow2_textures_qupported()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC bool kinc_g5_non_pow2_textures_qupported </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns whether textures are supported which have widths/heights which are not powers of two - which is always the case. </p>
+<dl class="section return"><dt>Returns</dt><dd>True, always</dd></dl>
 
 </div>
 </div>
