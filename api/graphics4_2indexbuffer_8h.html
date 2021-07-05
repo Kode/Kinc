@@ -78,6 +78,7 @@ $(function() {
 <p>Provides functions for setting up and using index-buffers.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;<a class="el" href="global_8h_source.html">kinc/global.h</a>&gt;</code><br />
+<code>#include &quot;<a class="el" href="usage_8h_source.html">usage.h</a>&quot;</code><br />
 <code>#include &lt;kinc/backend/graphics4/indexbuffer.h&gt;</code><br />
 </div>
 <p><a href="graphics4_2indexbuffer_8h_source.html">Go to the source code of this file.</a></p>
@@ -105,9 +106,9 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a117976c20c7fa83d1c82e946e6e53e80"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2indexbuffer_8h.html#a117976c20c7fa83d1c82e946e6e53e80">kinc_g4_index_buffer_init</a> (<a class="el" href="structkinc__g4__index__buffer.html">kinc_g4_index_buffer_t</a> *buffer, int count, kinc_g4_index_buffer_format_t format)</td></tr>
-<tr class="memdesc:a117976c20c7fa83d1c82e946e6e53e80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an index-buffer.  <a href="graphics4_2indexbuffer_8h.html#a117976c20c7fa83d1c82e946e6e53e80">More...</a><br /></td></tr>
-<tr class="separator:a117976c20c7fa83d1c82e946e6e53e80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaccfcfe32af0ad4fd74ed0152e659258"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2indexbuffer_8h.html#aaccfcfe32af0ad4fd74ed0152e659258">kinc_g4_index_buffer_init</a> (<a class="el" href="structkinc__g4__index__buffer.html">kinc_g4_index_buffer_t</a> *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage)</td></tr>
+<tr class="memdesc:aaccfcfe32af0ad4fd74ed0152e659258"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an index-buffer.  <a href="graphics4_2indexbuffer_8h.html#aaccfcfe32af0ad4fd74ed0152e659258">More...</a><br /></td></tr>
+<tr class="separator:aaccfcfe32af0ad4fd74ed0152e659258"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4b66ba158d8b0bb43f4a7c20b10b49a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2indexbuffer_8h.html#ae4b66ba158d8b0bb43f4a7c20b10b49a">kinc_g4_index_buffer_destroy</a> (<a class="el" href="structkinc__g4__index__buffer.html">kinc_g4_index_buffer_t</a> *buffer)</td></tr>
 <tr class="memdesc:ae4b66ba158d8b0bb43f4a7c20b10b49a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys an index-buffer.  <a href="graphics4_2indexbuffer_8h.html#ae4b66ba158d8b0bb43f4a7c20b10b49a">More...</a><br /></td></tr>
 <tr class="separator:ae4b66ba158d8b0bb43f4a7c20b10b49a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -180,8 +181,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a117976c20c7fa83d1c82e946e6e53e80"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a117976c20c7fa83d1c82e946e6e53e80">&#9670;&nbsp;</a></span>kinc_g4_index_buffer_init()</h2>
+<a id="aaccfcfe32af0ad4fd74ed0152e659258"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaccfcfe32af0ad4fd74ed0152e659258">&#9670;&nbsp;</a></span>kinc_g4_index_buffer_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -202,7 +203,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">kinc_g4_index_buffer_format_t&#160;</td>
-          <td class="paramname"><em>format</em>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">kinc_g4_usage_t&#160;</td>
+          <td class="paramname"><em>usage</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -218,6 +225,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">buffer</td><td>The buffer to initialize</td></tr>
     <tr><td class="paramname">count</td><td>The number of indices to allocate for the buffer</td></tr>
     <tr><td class="paramname">format</td><td>The integer-format of the buffer</td></tr>
+    <tr><td class="paramname">usage</td><td>A hint for how the buffer will be used</td></tr>
   </table>
   </dd>
 </dl>
