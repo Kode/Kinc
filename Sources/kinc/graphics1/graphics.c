@@ -118,7 +118,7 @@ void kinc_g1_init(int width, int height) {
 	}
 	kinc_g4_vertex_buffer_unlock_all(&vb);
 
-	kinc_g4_index_buffer_init(&ib, 6, KINC_G4_INDEX_BUFFER_FORMAT_32BIT);
+	kinc_g4_index_buffer_init(&ib, 6, KINC_G4_INDEX_BUFFER_FORMAT_32BIT, KINC_G4_USAGE_STATIC);
 	int *ii = kinc_g4_index_buffer_lock(&ib);
 	{
 		int i = 0;

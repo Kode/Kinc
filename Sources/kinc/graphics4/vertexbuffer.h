@@ -2,6 +2,7 @@
 
 #include <kinc/global.h>
 
+#include "usage.h"
 #include "vertexstructure.h"
 
 #include <kinc/backend/graphics4/vertexbuffer.h>
@@ -19,8 +20,6 @@ extern "C" {
 typedef struct kinc_g4_vertex_buffer {
 	kinc_g4_vertex_buffer_impl_t impl;
 } kinc_g4_vertex_buffer_t;
-
-typedef enum kinc_g4_usage { KINC_G4_USAGE_STATIC, KINC_G4_USAGE_DYNAMIC, KINC_G4_USAGE_READABLE } kinc_g4_usage_t;
 
 /// <summary>
 /// Allocate and initialize a vertex-buffer.

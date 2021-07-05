@@ -6,15 +6,28 @@
 
 kinc_g4_index_buffer_t *Kinc_Internal_CurrentIndexBuffer = NULL;
 
-void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format) {
+void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage) {
 	buffer->impl.myCount = count;
 	glGenBuffers(1, &buffer->impl.bufferId);
 	glCheckErrors();
-	buffer->impl.data = (int*)malloc(count * sizeof(int));
+	buffer->impl.data = (int *)malloc(count * sizeof(int));
 	if (format == KINC_G4_INDEX_BUFFER_FORMAT_16BIT) {
-		buffer->impl.shortData = (uint16_t*)malloc(count * sizeof(uint16_t));
+		buffer->impl.shortData = (uint16_t *)malloc(count * sizeof(uint16_t));
 	}
-	else buffer->impl.shortData = NULL;
+	else
+		buffer->impl.shortData = NULL;
+
+	switch (usage) {
+	case KINC_G4_USAGE_STATIC:
+		buffer->impl.usage = GL_STATIC_DRAW;
+		break;
+	case KINC_G4_USAGE_DYNAMIC:
+		buffer->impl.usage = GL_DYNAMIC_DRAW;
+		break;
+	case KINC_G4_USAGE_READABLE:
+		buffer->impl.usage = GL_DYNAMIC_DRAW;
+		break;
+	}
 }
 
 void Kinc_Internal_IndexBufferUnset(kinc_g4_index_buffer_t *buffer) {
@@ -45,11 +58,11 @@ void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
 	if (buffer->impl.shortData != NULL) {
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 2, buffer->impl.shortData, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 2, buffer->impl.shortData, buffer->impl.usage);
 		glCheckErrors();
 	}
 	else {
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 4, buffer->impl.data, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.myCount * 4, buffer->impl.data, buffer->impl.usage);
 		glCheckErrors();
 	}
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

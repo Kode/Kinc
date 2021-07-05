@@ -2,6 +2,8 @@
 
 #include <kinc/global.h>
 
+#include "usage.h"
+
 #include <kinc/backend/graphics4/indexbuffer.h>
 
 /*! \file indexbuffer.h
@@ -24,7 +26,8 @@ typedef struct kinc_g4_index_buffer {
 /// <param name="buffer">The buffer to initialize</param>
 /// <param name="count">The number of indices to allocate for the buffer</param>
 /// <param name="format">The integer-format of the buffer</param>
-KINC_FUNC void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format);
+/// <param name="usage">A hint for how the buffer will be used</param>
+KINC_FUNC void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage);
 
 /// <summary>
 /// Destroys an index-buffer.

@@ -55,15 +55,18 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int vertexCount
 		}
 	}
 	buffer->impl.structure = *structure;
+
+	unsigned gl_usage;
 	switch (usage) {
 	case KINC_G4_USAGE_STATIC:
-		buffer->impl.usage = GL_STATIC_DRAW;
+	default:
+		gl_usage = GL_STATIC_DRAW;
 		break;
 	case KINC_G4_USAGE_DYNAMIC:
-		buffer->impl.usage = GL_DYNAMIC_DRAW;
+		gl_usage = GL_DYNAMIC_DRAW;
 		break;
 	case KINC_G4_USAGE_READABLE:
-		buffer->impl.usage = GL_DYNAMIC_DRAW;
+		gl_usage = GL_DYNAMIC_DRAW;
 		break;
 	}
 
@@ -71,7 +74,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int vertexCount
 	glCheckErrors();
 	glBindBuffer(GL_ARRAY_BUFFER, buffer->impl.bufferId);
 	glCheckErrors();
-	glBufferData(GL_ARRAY_BUFFER, buffer->impl.myStride * buffer->impl.myCount, NULL, buffer->impl.usage);
+	glBufferData(GL_ARRAY_BUFFER, buffer->impl.myStride * buffer->impl.myCount, NULL, gl_usage);
 	glCheckErrors();
 	buffer->impl.data = (float *)malloc(vertexCount * buffer->impl.myStride);
 }

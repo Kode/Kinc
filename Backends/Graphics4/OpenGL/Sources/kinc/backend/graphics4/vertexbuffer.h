@@ -13,7 +13,6 @@ typedef struct {
 	int myCount;
 	int myStride;
 	unsigned bufferId;
-	unsigned usage;
 	int sectionStart;
 	int sectionSize;
 	//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
