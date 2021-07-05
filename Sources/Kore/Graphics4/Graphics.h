@@ -35,7 +35,7 @@ namespace Kore {
 
 		class IndexBuffer {
 		public:
-			IndexBuffer(int count);
+			IndexBuffer(int count, Usage usage = StaticUsage);
 			virtual ~IndexBuffer();
 			int *lock();
 			void unlock();
