@@ -52,7 +52,7 @@ extern int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 /// <param name="red">The red-component between 0 and 1</param>
 /// <param name="green">The green-component between 0 and 1</param>
 /// <param name="blue">The blue-component between 0 and 1</param>
-inline void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
+static inline void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
 	assert(x >= 0 && x < kinc_internal_g1_w && y >= 0 && y < kinc_internal_g1_h);
 	int r = (int)(red * 255);
 	int g = (int)(green * 255);
@@ -64,7 +64,7 @@ inline void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) 
 /// Returns the width used by G1.
 /// </summary>
 /// <returns>The width</returns>
-inline int kinc_g1_width() {
+static inline int kinc_g1_width() {
 	return kinc_internal_g1_w;
 }
 
@@ -72,7 +72,7 @@ inline int kinc_g1_width() {
 /// Returns the height used by G1.
 /// </summary>
 /// <returns>The height</returns>
-inline int kinc_g1_height() {
+static inline int kinc_g1_height() {
 	return kinc_internal_g1_h;
 }
 
