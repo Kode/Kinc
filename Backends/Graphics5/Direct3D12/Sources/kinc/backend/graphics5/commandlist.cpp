@@ -82,7 +82,9 @@ namespace {
 		commandAllocator->Reset();
 		list->impl._commandList->Reset(commandAllocator, nullptr);
 		if (currentRenderTarget != nullptr) {
-			D3D12_CPU_DESCRIPTOR_HANDLE *heapStart = currentRenderTarget->impl.depthStencilDescriptorHeap != nullptr ? &currentRenderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart() : nullptr;
+			D3D12_CPU_DESCRIPTOR_HANDLE *heapStart = currentRenderTarget->impl.depthStencilDescriptorHeap != nullptr
+			                                             ? &currentRenderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
+			                                             : nullptr;
 			list->impl._commandList->OMSetRenderTargets(currentRenderTargetCount, &targetDescriptors[0], false, heapStart);
 			list->impl._commandList->RSSetViewports(1, (D3D12_VIEWPORT *)&currentRenderTarget->impl.viewport);
 			list->impl._commandList->RSSetScissorRects(1, (D3D12_RECT *)&currentRenderTarget->impl.scissor);
@@ -278,6 +280,14 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list *list) {
 	graphicsFlushAndWait(list, list->impl._commandAllocator);
 }
 
+void kinc_g5_command_list_execute(kinc_g5_command_list *list) {
+	graphicsFlush(list, list->impl._commandAllocator);
+}
+
+bool kinc_g5_non_pow2_textures_qupported(void) {
+	return true;
+}
+
 void kinc_g5_command_list_viewport(kinc_g5_command_list *list, int x, int y, int width, int height) {
 	D3D12_VIEWPORT viewport;
 	viewport.TopLeftX = static_cast<float>(x);
@@ -340,6 +350,8 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list *list, kinc_g5
 	}
 	graphicsFlushAndWait(list, list->impl._commandAllocator);
 }
+
+void kinc_g5_command_list_upload_vertex_buffer(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer *buffer) {}
 
 void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, kinc_g5_index_buffer_t *buffer) {
 	kinc_g5_internal_index_buffer_upload(buffer, list->impl._commandList);

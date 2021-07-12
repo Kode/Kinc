@@ -65,5 +65,5 @@ void kinc_g4_texture_generate_mipmaps(kinc_g4_texture_t *texture, int levels) {
 }
 
 void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap, int level) {
-	// kinc_g5_texture_set_mipmap(&texture->impl._texture, &mipmap->impl._texture, level);
+	kinc_g5_texture_set_mipmap(&texture->impl._texture, mipmap, level);
 }

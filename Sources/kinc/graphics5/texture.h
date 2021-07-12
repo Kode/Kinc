@@ -84,7 +84,7 @@ KINC_FUNC void kinc_g5_texture_upload(kinc_g5_texture_t *texture, uint8_t *data)
 /// <param name="levels">The number of mipmap-levels to generate</param>
 KINC_FUNC void kinc_g5_texture_generate_mipmaps(kinc_g5_texture_t *texture, int levels);
 
-KINC_FUNC void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_g5_texture_t *mipmap, int level);
+KINC_FUNC void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_image_t *mipmap, int level);
 
 /// <summary>
 /// Returns the stride of the first mipmap-layer of the texture in bytes.

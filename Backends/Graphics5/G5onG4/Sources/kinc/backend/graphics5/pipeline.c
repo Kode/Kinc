@@ -5,6 +5,10 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	kinc_g4_pipeline_init(&pipe->impl.pipe);
 }
 
+void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipe) {
+	kinc_g4_pipeline_destroy(&pipe->impl.pipe);
+}
+
 kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipe, const char *name) {
 	kinc_g5_constant_location_t location;
 	location.impl.location = kinc_g4_pipeline_get_constant_location(&pipe->impl.pipe, name);
