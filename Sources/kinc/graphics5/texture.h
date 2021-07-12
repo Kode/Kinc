@@ -73,7 +73,7 @@ KINC_FUNC void kinc_g5_texture_unlock(kinc_g5_texture_t *texture);
 /// </summary>
 KINC_FUNC void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color);
 
-#ifdef KORE_IOS
+#if defined(KORE_IOS) || defined(KORE_MACOS)
 KINC_FUNC void kinc_g5_texture_upload(kinc_g5_texture_t *texture, uint8_t *data);
 #endif
 
