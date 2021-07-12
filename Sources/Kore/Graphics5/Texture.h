@@ -31,7 +31,7 @@ namespace Kore {
 			void unlock();
 			void clear(int x, int y, int z, int width, int height, int depth, uint color);
 #if defined(KORE_IOS) || defined(KORE_MACOS)
-			void upload(u8 *data);
+			void upload(u8 *data, int stride);
 #endif
 			void generateMipmaps(int levels);
 			void setMipmap(Texture *mipmap, int level);
