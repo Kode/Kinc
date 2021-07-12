@@ -123,8 +123,10 @@ Texture::~Texture() {
 }
 
 #ifdef KORE_ANDROID
+KINC_FUNC void kinc_g4_texture_init_from_id(kinc_g4_texture_t *texture, unsigned texid);
+
 Texture::Texture(unsigned texid) {
-	kinc_g4_texture_init_from_id(&kincTexture, texid);
+	kinc_g4_texture_init_from_id(&kincTexture.impl.texture, texid);
 }
 #endif
 
