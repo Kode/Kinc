@@ -1,3 +1,5 @@
+#import <UIKit/UIKit.h>
+
 #include <kinc/display.h>
 #include <kinc/log.h>
 
@@ -30,7 +32,7 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	kinc_display_mode_t dm;
 	dm.width = 800;
 	dm.height = 600;
-	dm.frequency = 60;
+	dm.frequency = (int)[[UIScreen mainScreen] maximumFramesPerSecond];
 	dm.bits_per_pixel = 32;
 	return dm;
 }
