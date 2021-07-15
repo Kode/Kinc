@@ -165,3 +165,11 @@ void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, stru
 void kinc_g5_command_list_upload_vertex_buffer(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer *buffer) {}
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct kinc_g5_texture *texture) {}
 void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {}
+
+void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {}
+
+void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {}
+
+void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {}
+
+void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {}

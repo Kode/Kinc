@@ -95,6 +95,10 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	create(texture, width, height, format, true);
 }
 
+void kinc_g5_texture_init3d(kinc_g5_texture_t* texture, int width, int height, int depth, kinc_image_format_t format) {
+
+}
+
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image *image) {
 	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->texWidth = image->width;
@@ -229,7 +233,7 @@ void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int 
 
 void kinc_g5_texture_generate_mipmaps(kinc_g5_texture_t *texture, int levels) {}
 
-void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_g5_texture_t *mipmap, int level) {}
+void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_image_t *mipmap, int level) {}
 
 #include <kinc/graphics4/texture.h>
 

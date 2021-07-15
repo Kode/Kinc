@@ -1,5 +1,5 @@
-#include "Direct3D12.h"
 #include "texture.h"
+#include "Direct3D12.h"
 
 #include <kinc/graphics5/rendertarget.h>
 #include <kinc/graphics5/texture.h>
@@ -316,7 +316,7 @@ void kinc_g5_texture_init(kinc_g5_texture *texture, int width, int height, kinc_
 	create_texture(texture, width, height, format, D3D12_RESOURCE_FLAG_NONE);
 }
 
-void kinc_g5_texture_init3d(kinc_g5_texture *texture, int width, int height, int depth, kinc_image_format_t format, bool readable) {
+void kinc_g5_texture_init3d(kinc_g5_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {
 	// kinc_image_init3d(&texture->image, width, height, depth, format, readable);
 }
 
@@ -377,4 +377,4 @@ int kinc_g5_texture_stride(kinc_g5_texture *texture) {
 
 void kinc_g5_texture_generate_mipmaps(kinc_g5_texture *texture, int levels) {}
 
-void kinc_g5_texture_set_mipmap(kinc_g5_texture *texture, kinc_g5_texture *mipmap, int level) {}
+void kinc_g5_texture_set_mipmap(kinc_g5_texture *texture, kinc_image_t *mipmap, int level) {}

@@ -10,11 +10,17 @@ namespace Kore {
 	namespace Graphics5 {
 		enum ShaderType { FragmentShader, VertexShader, GeometryShader, TessellationControlShader, TessellationEvaluationShader };
 
-		class Shader : public Shader5Impl {
+		class Shader {
 		public:
 			Shader(void *source, int length, ShaderType type);
+			~Shader();
+
+			kinc_g5_shader_t kincShader;
 		};
 
-		class ConstantLocation : public ConstantLocation5Impl {};
+		class ConstantLocation {
+		public:
+			kinc_g5_constant_location_t kincConstantLocation;
+		};
 	}
 }

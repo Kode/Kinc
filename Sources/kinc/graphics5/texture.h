@@ -73,7 +73,7 @@ KINC_FUNC void kinc_g5_texture_unlock(kinc_g5_texture_t *texture);
 /// </summary>
 KINC_FUNC void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color);
 
-#ifdef KORE_IOS
+#if defined(KORE_IOS) || defined(KORE_MACOS)
 KINC_FUNC void kinc_g5_texture_upload(kinc_g5_texture_t *texture, uint8_t *data);
 #endif
 
@@ -84,7 +84,7 @@ KINC_FUNC void kinc_g5_texture_upload(kinc_g5_texture_t *texture, uint8_t *data)
 /// <param name="levels">The number of mipmap-levels to generate</param>
 KINC_FUNC void kinc_g5_texture_generate_mipmaps(kinc_g5_texture_t *texture, int levels);
 
-KINC_FUNC void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_g5_texture_t *mipmap, int level);
+KINC_FUNC void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_image_t *mipmap, int level);
 
 /// <summary>
 /// Returns the stride of the first mipmap-layer of the texture in bytes.
