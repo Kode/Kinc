@@ -8,6 +8,7 @@
 #include <kinc/backend/graphics5/Direct3D12.h>
 
 #include <type_traits>
+#include <malloc.h>
 
 extern ID3D12CommandQueue *commandQueue;
 static const int textureCount = 16;
@@ -274,6 +275,14 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_lis
 	list->impl._commandList->DrawIndexedInstanced(count, 1, start, vertex_offset, 0);
 }
 
+void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t *list, int instanceCount) {
+	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(list, instanceCount, 0, list->impl._indexCount);
+}
+void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
+	list->impl._commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	list->impl._commandList->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
+}
+
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list *list) {
 	graphicsFlushAndWait(list, list->impl._commandAllocator);
 }
@@ -322,9 +331,14 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list *list, kinc_g5_pipel
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list *list, kinc_g5_vertex_buffer_t **buffers, int *offsets, int count) {
-	buffers[0]->impl.view.BufferLocation = buffers[0]->impl.uploadBuffer->GetGPUVirtualAddress() + offsets[0] * kinc_g5_vertex_buffer_stride(buffers[0]);
-	buffers[0]->impl.view.SizeInBytes = (kinc_g5_vertex_buffer_count(buffers[0]) - offsets[0]) * kinc_g5_vertex_buffer_stride(buffers[0]);
-	list->impl._commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW *)&buffers[0]->impl.view);
+	D3D12_VERTEX_BUFFER_VIEW *views = (D3D12_VERTEX_BUFFER_VIEW *)alloca(sizeof(D3D12_VERTEX_BUFFER_VIEW) * count);
+	ZeroMemory(views, sizeof(D3D12_VERTEX_BUFFER_VIEW) * count);
+	for (int i = 0; i < count; ++i) {
+		views[i].BufferLocation = buffers[i]->impl.uploadBuffer->GetGPUVirtualAddress() + offsets[i] * kinc_g5_vertex_buffer_stride(buffers[i]);
+		views[i].SizeInBytes = (kinc_g5_vertex_buffer_count(buffers[i]) - offsets[i]) * kinc_g5_vertex_buffer_stride(buffers[i]);
+		views[i].StrideInBytes = kinc_g5_vertex_buffer_stride(buffers[i]) * kinc_g5_vertex_buffer_count(buffers[i]);
+	}
+	list->impl._commandList->IASetVertexBuffers(0, count, views);
 }
 
 void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list *list, kinc_g5_index_buffer_t *buffer) {

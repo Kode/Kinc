@@ -99,11 +99,11 @@ void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex
 }
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
-	kinc_g5_draw_indexed_vertices_instanced(instanceCount);
+	kinc_g5_command_list_draw_indexed_vertices_instanced(&commandList,instanceCount);
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
-	kinc_g5_draw_indexed_vertices_instanced_from_to(instanceCount, start, count);
+	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(&commandList,instanceCount, start, count);
 }
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {

@@ -989,11 +989,11 @@ bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {
-	// drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
-}
+// void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {
+// 	// drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
+// }
 
-void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
+// void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
 bool kinc_g5_swap_buffers() {
 	return true;

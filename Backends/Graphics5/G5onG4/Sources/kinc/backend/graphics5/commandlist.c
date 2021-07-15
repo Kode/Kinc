@@ -4,8 +4,9 @@
 #include <kinc/graphics5/vertexbuffer.h>
 
 #include <kinc/graphics4/graphics.h>
+#include <malloc.h>
 
-enum Commands { Clear, Draw, SetViewport, SetScissor, SetPipeline, SetVertexBuffer, SetIndexBuffer, SetRenderTarget };
+enum Commands { Clear, Draw, SetViewport, SetScissor, SetPipeline, SetVertexBuffer, SetIndexBuffer, SetRenderTarget, DrawInstanced};
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
 
@@ -45,8 +46,17 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 		}
 		case SetVertexBuffer: {
 			kinc_g5_vertex_buffer_t *vb = (kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1];
-			kinc_g4_set_vertex_buffer(&vb->impl.buffer);
-			index += 2;
+			int count = (int)list->impl.commands[index + 1];
+			#ifdef KORE_WINDOWS
+			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t *)alloca(sizeof(kinc_g4_vertex_buffer_t*) * count);
+			#else
+			kinc_g4_vertex_buffer_t *buffers[count];
+			#endif
+			for(int i = 0; i < count; ++i) {
+				buffers[i] = &((kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1 + i])->impl.buffer;
+			}
+			kinc_g4_set_vertex_buffers(buffers, count);
+			index += (2 + count);
 			break;
 		}
 		case SetIndexBuffer: {
@@ -58,6 +68,11 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 		case SetRenderTarget:
 
 			index += 2;
+			break;
+		case DrawInstanced:
+			kinc_g4_draw_indexed_vertices_instanced_from_to((int)list->impl.commands[index + 1], (int)list->impl.commands[index + 2],
+			                                                (int)list->impl.commands[index + 3]);
+			index += 4;
 			break;
 		default:
 			return;
@@ -89,6 +104,19 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *
 	list->impl.commands[list->impl.commandIndex++] = count;
 }
 
+void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t *list, int instanceCount) {
+	list->impl.commands[list->impl.commandIndex++] = DrawInstanced;
+	list->impl.commands[list->impl.commandIndex++] = instanceCount;
+	list->impl.commands[list->impl.commandIndex++] = 0;
+	list->impl.commands[list->impl.commandIndex++] = list->impl._indexCount;
+}
+void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
+	list->impl.commands[list->impl.commandIndex++] = DrawInstanced;
+	list->impl.commands[list->impl.commandIndex++] = instanceCount;
+	list->impl.commands[list->impl.commandIndex++] = start;
+	list->impl.commands[list->impl.commandIndex++] = count;
+}
+
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
 	list->impl.commands[list->impl.commandIndex++] = SetViewport;
 	list->impl.commands[list->impl.commandIndex++] = x;
@@ -116,7 +144,11 @@ void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count) {
 	list->impl.commands[list->impl.commandIndex++] = SetVertexBuffer;
-	list->impl.commands[list->impl.commandIndex++] = (int64_t)buffers[0];
+	list->impl.commands[list->impl.commandIndex++] = count;
+	for(int i = 0; i < count; ++i) {
+		list->impl.commands[list->impl.commandIndex++] = (int64_t)buffers[i];
+		//list->impl.commands[list->impl.commandIndex++] = (int64_t)offsets[i];
+	}
 }
 
 void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer) {
