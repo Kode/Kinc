@@ -24,6 +24,8 @@ namespace Kore {
 			void renderTargetToTextureBarrier(RenderTarget *renderTarget);
 			void drawIndexedVertices();
 			void drawIndexedVertices(int start, int count);
+			void drawIndexedVerticesInstanced(int instanceCount);
+			void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
 			void viewport(int x, int y, int width, int height);
 			void scissor(int x, int y, int width, int height);
 			void disableScissor();

@@ -131,9 +131,6 @@ namespace Kore {
 		void setTexture(TextureUnit unit, Texture *texture);
 		void setImageTexture(TextureUnit unit, Texture *texture);
 
-		void drawIndexedVerticesInstanced(int instanceCount);
-		void drawIndexedVerticesInstanced(int instanceCount, int start, int count);
-
 		int antialiasingSamples();
 		void setAntialiasingSamples(int samples);
 

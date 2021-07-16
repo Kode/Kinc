@@ -140,10 +140,6 @@ KINC_FUNC void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_
 /// <param name="texture">The texture to assign to the unit</param>
 KINC_FUNC void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
 
-// KINC_FUNC void kinc_g5_draw_indexed_vertices_instanced(int instanceCount);
-
-// KINC_FUNC void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count);
-
 /// <summary>
 /// Returns the currently used number of samples for hardware-antialiasing.
 /// </summary>

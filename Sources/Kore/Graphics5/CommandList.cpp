@@ -52,6 +52,14 @@ void CommandList::drawIndexedVertices(int start, int count) {
 	kinc_g5_command_list_draw_indexed_vertices_from_to(&kincCommandList, start, count);
 }
 
+void CommandList::drawIndexedVerticesInstanced(int instanceCount) {
+	kinc_g5_command_list_draw_indexed_vertices_instanced(&kincCommandList, instanceCount);
+}
+
+void CommandList::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
+	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(&kincCommandList, instanceCount, start, count);
+}
+
 void CommandList::viewport(int x, int y, int width, int height) {
 	kinc_g5_command_list_viewport(&kincCommandList, x, y, width, height);
 }

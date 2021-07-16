@@ -95,14 +95,6 @@ void Kore::Graphics5::setImageTexture(TextureUnit unit, Texture *texture) {
 	kinc_g5_set_image_texture(unit.kincTextureUnit, &texture->kincTexture);
 }
 
-void Kore::Graphics5::drawIndexedVerticesInstanced(int instanceCount) {
-	kinc_g5_draw_indexed_vertices_instanced(instanceCount);
-}
-
-void Kore::Graphics5::drawIndexedVerticesInstanced(int instanceCount, int start, int count) {
-	kinc_g5_draw_indexed_vertices_instanced_from_to(instanceCount, start, count);
-}
-
 int Kore::Graphics5::antialiasingSamples() {
 	return kinc_g5_antialiasing_samples();
 }
