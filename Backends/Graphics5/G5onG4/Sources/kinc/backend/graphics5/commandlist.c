@@ -4,7 +4,10 @@
 #include <kinc/graphics5/vertexbuffer.h>
 
 #include <kinc/graphics4/graphics.h>
+
+#ifdef KORE_MICROSOFT
 #include <malloc.h>
+#endif
 
 enum Commands { Clear, Draw, SetViewport, SetScissor, SetPipeline, SetVertexBuffer, SetIndexBuffer, SetRenderTarget, DrawInstanced};
 
