@@ -47,7 +47,7 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 		case SetVertexBuffer: {
 			//kinc_g5_vertex_buffer_t *vb = (kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1];
 			int count = (int)list->impl.commands[index + 1];
-			#ifdef KORE_WINDOWS
+			#ifdef KORE_MICROSOFT
 			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t **)alloca(sizeof(kinc_g4_vertex_buffer_t*) * count);
 			#else
 			kinc_g4_vertex_buffer_t *buffers[count];
