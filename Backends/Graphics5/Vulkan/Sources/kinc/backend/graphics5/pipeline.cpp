@@ -315,119 +315,118 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipeline_info.layout = pipeline->impl.pipeline_layout;
 
-	uint32_t stride = 0;
-	for (int i = 0; i < pipeline->inputLayout[0]->size; ++i) {
-		kinc_g5_vertex_element_t element = pipeline->inputLayout[0]->elements[i];
-		switch (element.data) {
-		case KINC_G4_VERTEX_DATA_COLOR:
-			stride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			stride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			stride += 2 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			stride += 3 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			stride += 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4X4:
-			stride += 4 * 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-			stride += 2 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-			stride += 4 * 2;
+	int vertexAttributeCount = 0;
+	int vertexBindingCount = 0;
+	for(int i = 0; i < 16; ++i) {
+		if (pipeline->inputLayout[i] == NULL) {
 			break;
 		}
+		vertexAttributeCount += pipeline->inputLayout[i]->size;
+		vertexBindingCount++;
 	}
 
-	VkVertexInputBindingDescription vi_bindings[1];
+#ifdef KORE_WINDOWS
+	VkVertexInputBindingDescription *vi_bindings =
+	    (VkVertexInputBindingDescription *)alloca(sizeof(VkVertexInputBindingDescription) * vertexBindingCount);
+#else
+	VkVertexInputBindingDescription vi_bindings[vertexBindingCount];
+#endif
 #ifdef KORE_WINDOWS
 	VkVertexInputAttributeDescription *vi_attrs =
-		(VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
+		(VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * vertexAttributeCount);
 #else
-	VkVertexInputAttributeDescription vi_attrs[pipeline->inputLayout[0]->size];
+	VkVertexInputAttributeDescription vi_attrs[vertexAttributeCount];
 #endif
-
 	VkPipelineVertexInputStateCreateInfo vi = {};
+	memset(&vi, 0, sizeof(vi));
 	vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vi.pNext = NULL;
-	vi.vertexBindingDescriptionCount = 1;
+	vi.vertexBindingDescriptionCount = vertexBindingCount;
 	vi.pVertexBindingDescriptions = vi_bindings;
-	vi.vertexAttributeDescriptionCount = pipeline->inputLayout[0]->size;
+	vi.vertexAttributeDescriptionCount = vertexAttributeCount;
 	vi.pVertexAttributeDescriptions = vi_attrs;
 
-	vi_bindings[0].binding = 0;
-	vi_bindings[0].stride = stride;
-	vi_bindings[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
 	uint32_t offset = 0;
-	for (int i = 0; i < pipeline->inputLayout[0]->size; ++i) {
-		kinc_g5_vertex_element_t element = pipeline->inputLayout[0]->elements[i];
-		switch (element.data) {
-		case KINC_G4_VERTEX_DATA_COLOR:
-			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
-			vi_attrs[i].format = VK_FORMAT_R32_UINT;
-			vi_attrs[i].offset = offset;
-			offset += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
-			vi_attrs[i].format = VK_FORMAT_R32_SFLOAT;
-			vi_attrs[i].offset = offset;
-			offset += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
-			vi_attrs[i].format = VK_FORMAT_R32G32_SFLOAT;
-			vi_attrs[i].offset = offset;
-			offset += 2 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
-			vi_attrs[i].format = VK_FORMAT_R32G32B32_SFLOAT;
-			vi_attrs[i].offset = offset;
-			offset += 3 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
-			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-			vi_attrs[i].offset = offset;
-			offset += 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4X4:
-			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
-			vi_attrs[i].format = VK_FORMAT_R32G32B32A32_SFLOAT; // TODO
-			vi_attrs[i].offset = offset;
-			offset += 4 * 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
-			vi_attrs[i].format = VK_FORMAT_R16G16_SNORM;
-			vi_attrs[i].offset = offset;
-			offset += 2 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-			vi_attrs[i].binding = 0;
-			vi_attrs[i].location = find_number(pipeline->impl.vertexLocations, element.name);
-			vi_attrs[i].format = VK_FORMAT_R16G16B16A16_SNORM;
-			vi_attrs[i].offset = offset;
-			offset += 4 * 2;
-			break;
+	uint32_t attr = 0;
+	for(int binding = 0; binding < vertexBindingCount; ++binding) {
+		int stride = 0;
+		for (int i = 0; i < pipeline->inputLayout[binding]->size; ++i) {
+			kinc_g5_vertex_element_t element = pipeline->inputLayout[binding]->elements[i];
+			switch (element.data) {
+			case KINC_G4_VERTEX_DATA_COLOR:
+				vi_attrs[attr].binding = binding;
+				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+				vi_attrs[attr].format = VK_FORMAT_R32_UINT;
+				vi_attrs[attr].offset = offset;
+				offset += 1 * 4;
+				stride += 1 * 4;
+				break;
+			case KINC_G4_VERTEX_DATA_FLOAT1:
+				vi_attrs[attr].binding = binding;
+				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+				vi_attrs[attr].format = VK_FORMAT_R32_SFLOAT;
+				vi_attrs[attr].offset = offset;
+				offset += 1 * 4;
+				stride += 1 * 4;
+				break;
+			case KINC_G4_VERTEX_DATA_FLOAT2:
+				vi_attrs[attr].binding = binding;
+				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+				vi_attrs[attr].format = VK_FORMAT_R32G32_SFLOAT;
+				vi_attrs[attr].offset = offset;
+				offset += 2 * 4;
+				stride += 2 * 4;
+				break;
+			case KINC_G4_VERTEX_DATA_FLOAT3:
+				vi_attrs[attr].binding = binding;
+				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+				vi_attrs[attr].format = VK_FORMAT_R32G32B32_SFLOAT;
+				vi_attrs[attr].offset = offset;
+				offset += 3 * 4;
+				stride += 3 * 4;
+				break;
+			case KINC_G4_VERTEX_DATA_FLOAT4:
+				vi_attrs[attr].binding = binding;
+				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+				vi_attrs[attr].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+				vi_attrs[attr].offset = offset;
+				offset += 4 * 4;
+				stride += 4 * 4;
+				break;
+			case KINC_G4_VERTEX_DATA_FLOAT4X4:
+				// TODO
+				vi_attrs[attr].binding = binding;
+				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+				vi_attrs[attr].format = VK_FORMAT_R32G32B32A32_SFLOAT; 
+				vi_attrs[attr].offset = offset;
+				offset += 4 * 4 * 4;
+				stride += 4 * 4 * 4;
+				break;
+			case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+				vi_attrs[attr].binding = binding;
+				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+				vi_attrs[attr].format = VK_FORMAT_R16G16_SNORM;
+				vi_attrs[attr].offset = offset;
+				offset += 2 * 2;
+				stride += 2 * 2;
+				break;
+			case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+				vi_attrs[attr].binding = binding;
+				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+				vi_attrs[attr].format = VK_FORMAT_R16G16B16A16_SNORM;
+				vi_attrs[attr].offset = offset;
+				offset += 4 * 2;
+				stride += 4 * 2;
+				break;
+			}
+		attr++;
 		}
+		vi_bindings[binding].binding = binding;
+		vi_bindings[binding].stride = stride;
+		vi_bindings[binding].inputRate = pipeline->inputLayout[binding]->instanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
 	}
+	
+	
 
 	memset(&ia, 0, sizeof(ia));
 	ia.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

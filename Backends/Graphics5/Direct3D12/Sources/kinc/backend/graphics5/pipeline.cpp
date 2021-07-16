@@ -8,6 +8,7 @@
 #include <kinc/log.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
+#include <malloc.h>
 
 void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_g5_pipeline_t *pipeline) {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
@@ -270,40 +271,54 @@ namespace {
 }
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
-	D3D12_INPUT_ELEMENT_DESC vertexDesc[10];
-	for (int i = 0; i < pipe->inputLayout[0]->size; ++i) {
-		vertexDesc[i].SemanticName = "TEXCOORD";
-		vertexDesc[i].SemanticIndex = findAttribute(pipe->vertexShader, pipe->inputLayout[0]->elements[i].name).attribute;
-		vertexDesc[i].InputSlot = 0;
-		vertexDesc[i].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
-		vertexDesc[i].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-		vertexDesc[i].InstanceDataStepRate = 0;
-
-		switch (pipe->inputLayout[0]->elements[i].data) {
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			break;
-		case KINC_G4_VERTEX_DATA_COLOR:
-			vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-			vertexDesc[i].Format = DXGI_FORMAT_R16G16_SNORM;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-			vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
+	// TODO FLOAT4x4
+	int vertexAttributeCount = 0;
+	for(int i = 0; i < 16; ++i) {
+		if(pipe->inputLayout[i] == NULL) {
 			break;
 		}
+		vertexAttributeCount += pipe->inputLayout[i]->size;
 	}
+	D3D12_INPUT_ELEMENT_DESC *vertexDesc = (D3D12_INPUT_ELEMENT_DESC *)alloca(sizeof(D3D12_INPUT_ELEMENT_DESC) * vertexAttributeCount);
+	ZeroMemory(vertexDesc, sizeof(D3D12_INPUT_ELEMENT_DESC) * vertexAttributeCount);
+	int curAttr = 0;
+	for (int stream = 0; pipe->inputLayout[stream] != NULL; ++stream) {
+		for (int i = 0; i < pipe->inputLayout[stream]->size; ++i) {
+			vertexDesc[curAttr].SemanticName = "TEXCOORD";
+			vertexDesc[curAttr].SemanticIndex = findAttribute(pipe->vertexShader, pipe->inputLayout[stream]->elements[i].name).attribute;
+			vertexDesc[curAttr].InputSlot = stream;
+			vertexDesc[curAttr].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
+			vertexDesc[curAttr].InputSlotClass =
+			    pipe->inputLayout[stream]->instanced ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+			vertexDesc[curAttr].InstanceDataStepRate = pipe->inputLayout[stream]->instanced ? 1 : 0;
 
+			switch (pipe->inputLayout[stream]->elements[i].data) {
+			case KINC_G4_VERTEX_DATA_FLOAT1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32_FLOAT;
+				break;
+			case KINC_G4_VERTEX_DATA_FLOAT2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32_FLOAT;
+				break;
+			case KINC_G4_VERTEX_DATA_FLOAT3:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+				break;
+			case KINC_G4_VERTEX_DATA_FLOAT4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				break;
+			case KINC_G4_VERTEX_DATA_COLOR:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
+				break;
+			}
+			curAttr++;
+		}
+	}
+	
 	HRESULT hr;
 #ifdef KORE_DXC
 	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
@@ -332,7 +347,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	}
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 
-	psoDesc.InputLayout.NumElements = pipe->inputLayout[0]->size;
+	psoDesc.InputLayout.NumElements = vertexAttributeCount;
 	psoDesc.InputLayout.pInputElementDescs = vertexDesc;
 
 	psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;

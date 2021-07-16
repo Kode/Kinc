@@ -122,6 +122,9 @@ KINC_FUNC void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_comman
 /// <param name="vertex_offset">The offset into the vertex-buffer which is added to each index read from the index-buffer</param>
 KINC_FUNC void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_list_t *list, int start, int count, int vertex_offset);
 
+KINC_FUNC void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t *list, int instanceCount);
+KINC_FUNC void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count);
+
 /// <summary>
 /// Writes a command that sets the viewport which defines the portion of the framebuffer or render-target things are rendered into. By default the viewport is
 /// equivalent to the full size of the current render-target or framebuffer.
