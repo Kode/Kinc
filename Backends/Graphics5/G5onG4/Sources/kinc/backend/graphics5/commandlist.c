@@ -45,15 +45,15 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 			break;
 		}
 		case SetVertexBuffer: {
-			kinc_g5_vertex_buffer_t *vb = (kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1];
+			//kinc_g5_vertex_buffer_t *vb = (kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1];
 			int count = (int)list->impl.commands[index + 1];
 			#ifdef KORE_WINDOWS
-			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t *)alloca(sizeof(kinc_g4_vertex_buffer_t*) * count);
+			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t **)alloca(sizeof(kinc_g4_vertex_buffer_t*) * count);
 			#else
 			kinc_g4_vertex_buffer_t *buffers[count];
 			#endif
 			for(int i = 0; i < count; ++i) {
-				buffers[i] = &((kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1 + i])->impl.buffer;
+				buffers[i] = &(((kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1 + i])->impl.buffer);
 			}
 			kinc_g4_set_vertex_buffers(buffers, count);
 			index += (2 + count);

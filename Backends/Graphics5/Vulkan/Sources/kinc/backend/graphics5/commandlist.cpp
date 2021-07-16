@@ -464,7 +464,7 @@ void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t* list,int instanceCount,int start, int count) {
-	vkCmdDrawIndexed(list->impl._buffer, count, start, instanceCount, 0, 0);
+	vkCmdDrawIndexed(list->impl._buffer, count, instanceCount, start, 0, 0);
 }
 
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {

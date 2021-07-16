@@ -346,7 +346,7 @@ void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list *list, kinc_g5
 	for (int i = 0; i < count; ++i) {
 		views[i].BufferLocation = buffers[i]->impl.uploadBuffer->GetGPUVirtualAddress() + offsets[i] * kinc_g5_vertex_buffer_stride(buffers[i]);
 		views[i].SizeInBytes = (kinc_g5_vertex_buffer_count(buffers[i]) - offsets[i]) * kinc_g5_vertex_buffer_stride(buffers[i]);
-		views[i].StrideInBytes = kinc_g5_vertex_buffer_stride(buffers[i]) * kinc_g5_vertex_buffer_count(buffers[i]);
+		views[i].StrideInBytes = kinc_g5_vertex_buffer_stride(buffers[i]);// * kinc_g5_vertex_buffer_count(buffers[i]);
 	}
 	list->impl._commandList->IASetVertexBuffers(0, count, views);
 }

@@ -337,8 +337,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 #else
 	VkVertexInputAttributeDescription vi_attrs[vertexAttributeCount];
 #endif
-
 	VkPipelineVertexInputStateCreateInfo vi = {};
+	memset(&vi, 0, sizeof(vi));
 	vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vi.pNext = NULL;
 	vi.vertexBindingDescriptionCount = vertexBindingCount;
