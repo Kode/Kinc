@@ -87,7 +87,7 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_lis
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t *list, int instanceCount) {
-	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(list, 0, kinc_g5_index_buffer_count(currentIndexBuffer));
+	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(list, instanceCount, 0, kinc_g5_index_buffer_count(currentIndexBuffer));
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
