@@ -31,6 +31,9 @@ KINC_FUNC void kinc_g1_begin(void);
 /// </summary>
 KINC_FUNC void kinc_g1_end(void);
 
+extern uint32_t *kinc_internal_g1_image;
+extern int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
+	
 #if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC)
 
 KINC_FUNC void kinc_g1_set_pixel(int x, int y, float red, float green, float blue);
@@ -40,9 +43,6 @@ KINC_FUNC int kinc_g1_height(void);
 #else
 
 // implementation moved to the header to allow easy inlining
-
-extern uint32_t *kinc_internal_g1_image;
-extern int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 
 /// <summary>
 /// Sets a single pixel to a color.
