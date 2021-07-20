@@ -87,18 +87,18 @@ $(function() {
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics1_2graphics_8h.html#a5f9f0420a93a0e66240b14caf883576d">kinc_g1_end</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC)</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g1_set_pixel(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">float</span> red, <span class="keywordtype">float</span> green, <span class="keywordtype">float</span> blue);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_g1_width(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_g1_height(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">// implementation moved to the header to allow easy inlining</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">extern</span> uint32_t *kinc_internal_g1_image;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">int</span> kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">extern</span> uint32_t *kinc_internal_g1_image;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">int</span> kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC)</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g1_set_pixel(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">float</span> red, <span class="keywordtype">float</span> green, <span class="keywordtype">float</span> blue);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_g1_width(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_g1_height(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">// implementation moved to the header to allow easy inlining</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span> kinc_g1_set_pixel(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">float</span> red, <span class="keywordtype">float</span> green, <span class="keywordtype">float</span> blue) {</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    assert(x &gt;= 0 &amp;&amp; x &lt; kinc_internal_g1_w &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; kinc_internal_g1_h);</div>
