@@ -62,7 +62,12 @@ int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 }
 
 void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
-	context->UpdateSubresource(buffer->impl.ib, 0, nullptr, buffer->impl.indices, 0, 0);
+	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
+		context->Unmap(buffer->impl.ib, 0);
+	}
+	else {
+		context->UpdateSubresource(buffer->impl.ib, 0, nullptr, buffer->impl.indices, 0, 0);
+	}
 }
 
 int kinc_g4_index_buffer_count(kinc_g4_index_buffer_t *buffer) {
