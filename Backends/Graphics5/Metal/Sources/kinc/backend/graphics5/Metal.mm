@@ -51,17 +51,17 @@ void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
 
 void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
-static bool has_depth = false;
+bool kinc_internal_metal_has_depth = false;
 
 extern "C" bool kinc_internal_current_render_target_has_depth() {
-	return has_depth;
+	return kinc_internal_metal_has_depth;
 }
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	CAMetalLayer* metalLayer = getMetalLayer();
 	drawable = [metalLayer nextDrawable];
 	
-	has_depth = renderTarget->impl._depthTex != nil;
+	kinc_internal_metal_has_depth = renderTarget->impl._depthTex != nil;
 
 	if (depthBits > 0 && (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height)) {
 		MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
