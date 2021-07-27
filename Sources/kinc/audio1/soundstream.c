@@ -10,12 +10,8 @@
 
 static kinc_a1_sound_stream_t streams[256];
 static int nextStream = 0;
-static uint8_t *buffer;
+static uint8_t buffer[1024 * 10];
 static int bufferIndex;
-
-void initSoundStreams() {
-	buffer = (uint8_t *)malloc(1024 * 10);
-}
 
 kinc_a1_sound_stream_t *kinc_a1_sound_stream_create(const char *filename, bool looping) {
 	kinc_a1_sound_stream_t *stream = &streams[nextStream];

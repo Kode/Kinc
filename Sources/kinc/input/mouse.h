@@ -106,7 +106,7 @@ void kinc_internal_mouse_trigger_scroll(int window, int delta);
 void kinc_internal_mouse_trigger_enter_window(int window);
 void kinc_internal_mouse_trigger_leave_window(int window);
 void kinc_internal_mouse_lock(int window);
-void kinc_internal_mouse_unlock();
+void kinc_internal_mouse_unlock(void);
 void kinc_internal_mouse_window_activated(int window);
 void kinc_internal_mouse_window_deactivated(int window);
 

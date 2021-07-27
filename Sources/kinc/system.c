@@ -9,7 +9,7 @@
 #include <string.h>
 
 #if !defined(KORE_HTML5) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
-double kinc_time() {
+double kinc_time(void) {
 	return kinc_timestamp() / kinc_frequency();
 }
 #endif
@@ -79,37 +79,37 @@ void kinc_set_logout_callback(void (*value)(void)) {
 	logout_callback = value;
 }
 
-void kinc_internal_update_callback() {
+void kinc_internal_update_callback(void) {
 	if (update_callback != NULL) {
 		update_callback();
 	}
 }
 
-void kinc_internal_foreground_callback() {
+void kinc_internal_foreground_callback(void) {
 	if (foreground_callback != NULL) {
 		foreground_callback();
 	}
 }
 
-void kinc_internal_resume_callback() {
+void kinc_internal_resume_callback(void) {
 	if (resume_callback != NULL) {
 		resume_callback();
 	}
 }
 
-void kinc_internal_pause_callback() {
+void kinc_internal_pause_callback(void) {
 	if (pause_callback != NULL) {
 		pause_callback();
 	}
 }
 
-void kinc_internal_background_callback() {
+void kinc_internal_background_callback(void) {
 	if (background_callback != NULL) {
 		background_callback();
 	}
 }
 
-void kinc_internal_shutdown_callback() {
+void kinc_internal_shutdown_callback(void) {
 	if (shutdown_callback != NULL) {
 		shutdown_callback();
 	}
@@ -121,14 +121,14 @@ void kinc_internal_drop_files_callback(wchar_t *filePath) {
 	}
 }
 
-char *kinc_internal_cut_callback() {
+char *kinc_internal_cut_callback(void) {
 	if (cut_callback != NULL) {
 		return cut_callback();
 	}
 	return NULL;
 }
 
-char *kinc_internal_copy_callback() {
+char *kinc_internal_copy_callback(void) {
 	if (copy_callback != NULL) {
 		return copy_callback();
 	}
@@ -141,13 +141,13 @@ void kinc_internal_paste_callback(char *value) {
 	}
 }
 
-void kinc_internal_login_callback() {
+void kinc_internal_login_callback(void) {
 	if (login_callback != NULL) {
 		login_callback();
 	}
 }
 
-void kinc_internal_logout_callback() {
+void kinc_internal_logout_callback(void) {
 	if (logout_callback != NULL) {
 		logout_callback();
 	}
@@ -157,7 +157,7 @@ static bool running = false;
 // static bool showWindowFlag = true;
 static char application_name[1024] = {"Kinc Application"};
 
-const char *kinc_application_name() {
+const char *kinc_application_name(void) {
 	return application_name;
 }
 
@@ -169,7 +169,7 @@ void kinc_set_application_name(const char *name) {
 void shutdownMetalCompute(void);
 #endif
 
-void kinc_stop() {
+void kinc_stop(void) {
 	running = false;
 
 	// TODO (DK) destroy graphics + windows, but afaik Application::~Application() was never called, so it's the same behavior now as well
@@ -183,13 +183,13 @@ void kinc_stop() {
 #endif
 }
 
-bool kinc_internal_frame() {
+bool kinc_internal_frame(void) {
 	kinc_internal_update_callback();
 	kinc_internal_handle_messages();
 	return running;
 }
 
-void kinc_start() {
+void kinc_start(void) {
 	running = true;
 
 #if !defined(KORE_HTML5) && !defined(KORE_TIZEN)
@@ -206,16 +206,16 @@ void kinc_start() {
 #endif
 }
 
-int kinc_width() {
+int kinc_width(void) {
 	return kinc_window_width(0);
 }
 
-int kinc_height() {
+int kinc_height(void) {
 	return kinc_window_height(0);
 }
 
 #ifndef KHA
-void kinc_memory_emergency() {}
+void kinc_memory_emergency(void) {}
 #endif
 
 #if !defined(KORE_SONY) && !defined(KORE_SWITCH)
@@ -255,22 +255,22 @@ bool is_save_load_broken(void) {
 #define SAVE_RESULT_FAILURE 2
 volatile int save_result = SAVE_RESULT_SUCCESS;
 
-void kinc_disallow_user_change() {}
+void kinc_disallow_user_change(void) {}
 
-void kinc_allow_user_change() {}
+void kinc_allow_user_change(void) {}
 
 static uint8_t *current_file = NULL;
 static size_t current_file_size = 0;
 
-bool kinc_save_file_loaded() {
+bool kinc_save_file_loaded(void) {
 	return true;
 }
 
-uint8_t *kinc_get_save_file() {
+uint8_t *kinc_get_save_file(void) {
 	return current_file;
 }
 
-size_t kinc_get_save_file_size() {
+size_t kinc_get_save_file_size(void) {
 	return current_file_size;
 }
 
@@ -296,11 +296,11 @@ void kinc_save_save_file(const char *filename, uint8_t *data, size_t size) {
 	}
 }
 
-bool kinc_save_is_saving() {
+bool kinc_save_is_saving(void) {
 	return false;
 }
 
-bool kinc_waiting_for_login() {
+bool kinc_waiting_for_login(void) {
 	return false;
 }
 
