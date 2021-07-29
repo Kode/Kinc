@@ -134,6 +134,10 @@ void kinc_a2_init() {
 	UInt32 flag = 1;
 	affirm(AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, kOutputBus, &flag, sizeof(UInt32)));
 
+	if (soundPlaying) return;
+
+	affirm(AudioOutputUnitStart(audioUnit));
+	
 	UInt32 size = sizeof(AudioStreamBasicDescription);
 	affirm(AudioUnitGetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, &deviceFormat, &size));
 
@@ -166,15 +170,11 @@ void kinc_a2_init() {
 	a2_buffer.format.samples_per_second = kinc_a2_samples_per_second;
 	a2_buffer.format.bits_per_sample = 32;
 	a2_buffer.format.channels = 2;
-
-	if (soundPlaying) return;
-
+	
 	AURenderCallbackStruct callbackStruct;
 	callbackStruct.inputProc = renderInput;
 	callbackStruct.inputProcRefCon = nullptr;
 	affirm(AudioUnitSetProperty(audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Global, kOutputBus, &callbackStruct, sizeof(callbackStruct)));
-
-	affirm(AudioOutputUnitStart(audioUnit));
 
 	soundPlaying = true;
 }
