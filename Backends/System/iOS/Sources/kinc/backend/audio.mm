@@ -24,8 +24,6 @@ void iosStopVideoSoundStream() {
 }
 
 namespace {
-	// const int samplesPerSecond = 44100;
-
 	void affirm(OSStatus err) {
 		if (err) {
 			fprintf(stderr, "Error: %i\n", (int)err);
@@ -163,6 +161,11 @@ void kinc_a2_init() {
 	printf("mChannelsPerFrame = %d\n", (unsigned int)deviceFormat.mChannelsPerFrame);
 	printf("mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
 	printf("mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
+	
+	kinc_a2_samples_per_second = deviceFormat.mSampleRate;
+	a2_buffer.format.samples_per_second = kinc_a2_samples_per_second;
+	a2_buffer.format.bits_per_sample = 32;
+	a2_buffer.format.channels = 2;
 
 	if (soundPlaying) return;
 
