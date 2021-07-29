@@ -109,7 +109,10 @@ void kinc_a2_init() {
 	}
 
 	kinc_a2_samples_per_second = static_cast<int>(deviceFormat.mSampleRate);
-
+	a2_buffer.format.samples_per_second = kinc_a2_samples_per_second;
+	a2_buffer.format.bits_per_sample = 32;
+	a2_buffer.format.channels = 2;
+	
 	initialized = true;
 
 	kinc_log(KINC_LOG_LEVEL_INFO, "mSampleRate = %g\n", deviceFormat.mSampleRate);
