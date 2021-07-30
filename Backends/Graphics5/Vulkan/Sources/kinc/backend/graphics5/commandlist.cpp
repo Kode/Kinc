@@ -522,7 +522,7 @@ void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struc
 	VkDeviceSize offsets[count];
 	#endif
 	for(int i = 0; i < count; ++i) {
-		buffers[i] = vertexBuffers[0]->impl.vertices.buf;
+		buffers[i] = vertexBuffers[i]->impl.vertices.buf;
 		offsets[i] = (VkDeviceSize)(offsets_[i] * kinc_g5_vertex_buffer_stride(vertexBuffers[i]));
 	}
 	vkCmdBindVertexBuffers(list->impl._buffer, 0, count, buffers, offsets);
