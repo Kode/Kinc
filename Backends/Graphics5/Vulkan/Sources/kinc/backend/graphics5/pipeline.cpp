@@ -346,10 +346,10 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	vi.vertexAttributeDescriptionCount = vertexAttributeCount;
 	vi.pVertexAttributeDescriptions = vi_attrs;
 
-	uint32_t offset = 0;
 	uint32_t attr = 0;
 	for(int binding = 0; binding < vertexBindingCount; ++binding) {
-		int stride = 0;
+		uint32_t offset = 0;
+		uint32_t stride = 0;
 		for (int i = 0; i < pipeline->inputLayout[binding]->size; ++i) {
 			kinc_g5_vertex_element_t element = pipeline->inputLayout[binding]->elements[i];
 			switch (element.data) {
