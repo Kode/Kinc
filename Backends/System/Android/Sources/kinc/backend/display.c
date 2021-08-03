@@ -64,6 +64,17 @@ static int pixelsPerInch() {
 	return dpi;
 }
 
+static int refreshRate() {
+	JNIEnv* env;
+    JavaVM *vm = kinc_android_get_activity()->vm;
+    (*vm)->AttachCurrentThread(vm, &env, NULL);
+	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
+	jmethodID koreActivityGetScreenDpi = (*env)->GetStaticMethodID(env, koreActivityClass, "getRefreshRate", "()I");
+	int dpi = (*env)->CallStaticIntMethod(env, koreActivityClass, koreActivityGetScreenDpi);
+    (*vm)->DetachCurrentThread(vm);
+	return dpi;
+}
+
 void kinc_display_init() {
 
 }
