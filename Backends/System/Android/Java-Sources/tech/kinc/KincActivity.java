@@ -118,6 +118,12 @@ public class KincActivity extends NativeActivity {
 		return (int)(metrics.xdpi);
 	}
 
+	public static int getRefreshRate() {
+		Context context = getInstance().getApplicationContext();
+		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+		return (int)(manager.getDefaultDisplay().getRefreshRate());
+	}
+	
 	public static int getDisplayWidth() {
 		Context context = getInstance().getApplicationContext();
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
