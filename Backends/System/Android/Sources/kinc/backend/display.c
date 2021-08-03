@@ -74,7 +74,7 @@ kinc_display_mode_t kinc_display_available_mode(int display_index, int mode_inde
 	mode.y = 0;
 	mode.width = width();
 	mode.height = height();
-	mode.frequency = 60;
+	mode.frequency = refreshRate();
 	mode.bits_per_pixel = 32;
 	mode.pixels_per_inch = pixelsPerInch();
 	return mode;
@@ -90,7 +90,7 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	mode.y = 0;
 	mode.width = width();
 	mode.height = height();
-	mode.frequency = 60;
+	mode.frequency = refreshRate();
 	mode.bits_per_pixel = 32;
 	mode.pixels_per_inch = pixelsPerInch();
 	return mode;
