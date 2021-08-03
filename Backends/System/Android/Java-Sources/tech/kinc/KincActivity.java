@@ -115,7 +115,7 @@ public class KincActivity extends NativeActivity {
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
 		android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
 		manager.getDefaultDisplay().getMetrics(metrics);
-		return (int)(metrics.density * android.util.DisplayMetrics.DENSITY_DEFAULT);
+		return (int)(metrics.xdpi);
 	}
 
 	public static int getDisplayWidth() {
