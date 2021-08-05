@@ -11,6 +11,8 @@
 
 #include "windowdata.h"
 
+#include <kinc/backend/windowdata.h>
+
 extern "C" {
 	bool withAutoreleasepool(bool (*f)()) {
 		@autoreleasepool {
@@ -220,6 +222,10 @@ int kinc_window_height(int window_index) {
 	NSWindow* window = windows[window_index].handle;
 	float scale = [window backingScaleFactor];
 	return [[window contentView] frame].size.height * scale;
+}
+
+NSWindow* kinc_get_mac_window_handle(int window_index){
+    return windows[window_index].handle;
 }
 
 void kinc_load_url(const char* url) {

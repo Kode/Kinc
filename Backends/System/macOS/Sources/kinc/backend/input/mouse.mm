@@ -2,6 +2,7 @@
 
 #include <kinc/input/mouse.h>
 #include <kinc/window.h>
+#include <kinc/backend/windowdata.h>
 
 void kinc_internal_mouse_lock(int window) {
 	kinc_mouse_hide();
@@ -24,30 +25,26 @@ void kinc_mouse_hide() {
 }
 
 void kinc_mouse_set_position(int windowId, int x, int y) {
-	//**
-	/*NSWindow* window = Window::get(windowId)->_data.handle;
+
+    NSWindow* window = kinc_get_mac_window_handle(windowId);
+    float scale = [window backingScaleFactor];
 	NSRect rect = [[NSScreen mainScreen] frame];
-	
-	// Flip y and add window offset
+
 	CGPoint point;
-	point.x = x + window.frame.origin.x;
-	point.y = rect.size.height - (y + window.frame.origin.y);
-	
-	CGWarpMouseCursorPosition(point);
-	CGAssociateMouseAndMouseCursorPosition(true);*/
+	point.x = window.frame.origin.x + (x/scale);
+	point.y = rect.size.height - (window.frame.origin.y + (y/scale));
+
+	CGDisplayMoveCursorToPoint(windowId, point);
+    CGAssociateMouseAndMouseCursorPosition(true);
 }
 
 void kinc_mouse_get_position(int windowId, int* x, int* y) {
-	//**
-	/*NSWindow* window = Window::get(windowId)->_data.handle;
-	NSRect rect = [[NSScreen mainScreen] frame];
-	CGEventRef event = CGEventCreate(NULL);
-	CGPoint point = CGEventGetLocation(event);
-	CFRelease(event);
 
-	// Flip y and remove window offset
-	x = point.x - window.frame.origin.x;
-	y = rect.size.height - (point.y + window.frame.origin.y);*/
+    NSWindow* window = kinc_get_mac_window_handle(windowId);
+    NSPoint point = [window mouseLocationOutsideOfEventStream];
+    *x = (int)point.x;
+    *y = (int)point.y;
+
 }
 
 void kinc_mouse_set_cursor(int cursor_index) {

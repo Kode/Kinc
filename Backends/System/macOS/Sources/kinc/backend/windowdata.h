@@ -11,3 +11,5 @@ namespace Kore {
 		void* resizeCallbackData;
 	};
 }
+
+NSWindow* kinc_get_mac_window_handle(int window_index);
