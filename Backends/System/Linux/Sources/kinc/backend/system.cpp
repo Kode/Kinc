@@ -123,11 +123,6 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 		fatalError("could not open display");
 	}
 
-	XSetLocaleModifiers("@im=none");
-	XIM xInputMethod = XOpenIM(Kore::Linux::display, nullptr, nullptr, nullptr);
-	xInputContext = XCreateIC(xInputMethod, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, win, nullptr);
-	XSetICFocus(xInputContext);
-
 	XkbSetDetectableAutoRepeat(Kore::Linux::display, True, NULL);
 
 	XSetWindowAttributes swa;
@@ -246,6 +241,11 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	strncpy(resNameBuffer, kinc_application_name(), 256);
 	XClassHint classHint = { .res_name = resNameBuffer, .res_class = nameClass };
 	XSetClassHint(Kore::Linux::display, win, &classHint);
+
+	XSetLocaleModifiers("@im=none");
+	XIM xInputMethod = XOpenIM(Kore::Linux::display, nullptr, nullptr, nullptr);
+	xInputContext = XCreateIC(xInputMethod, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, win, nullptr);
+	XSetICFocus(xInputContext);
 
 	switch (windowMode) {
 	case KINC_WINDOW_MODE_WINDOW:
