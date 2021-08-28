@@ -287,6 +287,8 @@ else if (platform === Platform.Android) {
 		g5 = true;
 		addBackend('Graphics5/Vulkan');
 		project.addDefine('KORE_VULKAN');
+		project.addDefine('VK_USE_PLATFORM_ANDROID_KHR');
+		project.addLib("vulkan");
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;

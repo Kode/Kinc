@@ -13,6 +13,19 @@
 #define MAXIMUM_WINDOWS 16
 Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS] = {0};
 
+#ifdef KORE_VULKAN
+#include <vulkan/vulkan.h>
+extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
+	VkXlibSurfaceCreateInfoKHR createInfo;
+	createInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
+	createInfo.pNext = nullptr;
+	createInfo.flags = 0;
+	createInfo.dpy = Kore::Linux::display;
+	createInfo.window = (XID)kinc_internal_windows[window_index].handle;
+	return vkCreateXlibSurfaceKHR(instance, &createInfo, nullptr, surface);
+}
+#endif
+
 int kinc_count_windows(void) {
 	return 1;
 }

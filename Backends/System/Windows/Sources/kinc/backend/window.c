@@ -44,6 +44,20 @@ const wchar_t *windowClassName = L"ORT";
 const wchar_t *windowClassName = L"KoreWindow";
 #endif
 
+#ifdef KORE_VULKAN
+#include <vulkan/vulkan.h>
+
+VkResult kinc_vulkan_create_surface(VkInstance instance,int window_index,VkSurfaceKHR *surface) {
+			VkWin32SurfaceCreateInfoKHR createInfo = {0};
+			createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+			createInfo.pNext = NULL;
+			createInfo.flags = 0;
+			createInfo.hinstance = GetModuleHandle(NULL);
+			createInfo.hwnd = windows[window_index].handle;
+			return vkCreateWin32SurfaceKHR(instance, &createInfo, NULL, surface);
+}
+#endif
+
 static void RegisterWindowClass(HINSTANCE hInstance, const wchar_t *className) {
 	WNDCLASSEXW wc = {sizeof(WNDCLASSEXA),
 	                  CS_OWNDC /*CS_CLASSDC*/,

@@ -8,10 +8,6 @@
 #include <kinc/system.h>
 #include <kinc/window.h>
 
-#ifdef KORE_WINDOWS
-#include <kinc/backend/Windows.h>
-#endif
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,12 +30,16 @@
 	} while (0)
 #endif
 
-#ifdef KORE_LINUX
-#include <kinc/backend/Linux.h>
-#include <kinc/backend/windowdata.h>
-#define MAXIMUM_WINDOWS 16
-extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#define KINC_SURFACE_EXT_NAME VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #endif
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+#define KINC_SURFACE_EXT_NAME VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+#endif
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+#define KINC_SURFACE_EXT_NAME VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
+#endif
+extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance,int window_index,VkSurfaceKHR *surface);
 
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                                                               \
 	{                                                                                                                                                          \
@@ -101,9 +101,9 @@ namespace {
 #endif
 	VkSurfaceKHR surface;
 	bool prepared;
-
+#ifndef KORE_ANDROID
 	VkAllocationCallbacks allocator;
-
+#endif
 	VkInstance inst;
 	VkPhysicalDeviceProperties gpu_props;
 	VkQueueFamilyProperties *queue_props;
@@ -164,7 +164,7 @@ namespace {
 		}
 		return false;
 	}
-
+#ifndef KORE_ANDROID
 	VKAPI_ATTR void *VKAPI_CALL myrealloc(void *pUserData, void *pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
 #ifdef _MSC_VER
 		return _aligned_realloc(pOriginal, size, alignment);
@@ -188,7 +188,7 @@ namespace {
 		free(pMemory);
 #endif
 	}
-
+#endif
 	int pow(int pow) {
 		int ret = 1;
 		for (int i = 0; i < pow; ++i) ret *= 2;
@@ -565,18 +565,10 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 				surfaceExtFound = 1;
 				extension_names[enabled_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
 			}
-#ifdef KORE_WINDOWS
-			if (!strcmp(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
+			if (!strcmp(KINC_SURFACE_EXT_NAME, instance_extensions[i].extensionName)) {
 				platformSurfaceExtFound = 1;
-				extension_names[enabled_extension_count++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
+				extension_names[enabled_extension_count++] = KINC_SURFACE_EXT_NAME;
 			}
-#else
-			if (!strcmp(VK_KHR_XLIB_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
-				platformSurfaceExtFound = 1;
-				extension_names[enabled_extension_count++] = VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
-			}
-#endif
-
 			if (!strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName)) {
 #ifdef VALIDATE
 				extension_names[enabled_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
@@ -597,21 +589,12 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		         "vkCreateInstance Failure");
 	}
 	if (!platformSurfaceExtFound) {
-#ifdef KORE_WINDOWS
 		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
-		         "the " VK_KHR_WIN32_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
+		         "the " KINC_SURFACE_EXT_NAME " extension.\n\nDo you have a compatible "
 		         "Vulkan installable client driver (ICD) installed?\nPlease "
 		         "look at the Getting Started guide for additional "
 		         "information.\n",
 		         "vkCreateInstance Failure");
-#else
-		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
-		         "the " VK_KHR_XLIB_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
-		         "Vulkan installable client driver (ICD) installed?\nPlease "
-		         "look at the Getting Started guide for additional "
-		         "information.\n",
-		         "vkCreateInstance Failure");
-#endif
 	}
 	VkApplicationInfo app = {};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -642,11 +625,15 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 
 	uint32_t gpu_count;
 
+
+#ifndef KORE_ANDROID
 	allocator.pfnAllocation = myalloc;
 	allocator.pfnFree = myfree;
 	allocator.pfnReallocation = myrealloc;
-
 	err = vkCreateInstance(&info, &allocator, &inst);
+#else
+	err = vkCreateInstance(&info, NULL, &inst);
+#endif
 	if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
 		ERR_EXIT("Cannot find a compatible Vulkan installable client driver "
 		         "(ICD).\n\nPlease look at the Getting Started guide for "
@@ -816,35 +803,12 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	renderTargetWidth = kinc_window_width(window);
 	renderTargetHeight = kinc_window_height(window);
 
-#ifdef KORE_WINDOWS
-	windowHandle = (HWND)kinc_windows_window_handle(window);
-	ShowWindow(windowHandle, SW_SHOW);
-	SetForegroundWindow(windowHandle); // Slightly Higher Priority
-	SetFocus(windowHandle);            // Sets Keyboard Focus To The Window
-#endif
-
 	{
 		VkResult err;
 		uint32_t i;
-#ifdef KORE_WINDOWS
-		VkWin32SurfaceCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-		createInfo.pNext = NULL;
-		createInfo.flags = 0;
-		createInfo.hinstance = connection;
-		createInfo.hwnd = windowHandle;
-		err = vkCreateWin32SurfaceKHR(inst, &createInfo, NULL, &surface);
+		err = kinc_vulkan_create_surface(inst, window, &surface);
 		assert(!err);
-#else
-		VkXlibSurfaceCreateInfoKHR createInfo;
-		createInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
-		createInfo.pNext = nullptr;
-		createInfo.flags = 0;
-		createInfo.dpy = Kore::Linux::display;
-		createInfo.window = (XID)kinc_internal_windows[0].handle;
-		err = vkCreateXlibSurfaceKHR(inst, &createInfo, nullptr, &surface);
-		assert(!err);
-#endif
+
 		// Iterate over each queue to learn whether it supports presenting:
 		VkBool32 *supportsPresent = (VkBool32 *)malloc(queue_count * sizeof(VkBool32));
 		for (i = 0; i < queue_count; i++) {
