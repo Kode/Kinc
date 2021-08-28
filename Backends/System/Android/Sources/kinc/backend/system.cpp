@@ -2,57 +2,79 @@
 #include <GLContext.h>
 #include <kinc/backend/Android.h>
 #include <kinc/graphics4/graphics.h>
-#include <kinc/input/keyboard.h>
 #include <kinc/input/gamepad.h>
+#include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 //#include <kinc/input/sensor.h>
-#include <kinc/input/surface.h>
+#include <android/sensor.h>
+#include <android/window.h>
+#include <android_native_app_glue.h>
 #include <kinc/input/pen.h>
+#include <kinc/input/surface.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/video.h>
 #include <kinc/window.h>
-#include <android/sensor.h>
-#include <android/window.h>
-#include <android_native_app_glue.h>
 #include <stdlib.h>
 
 void pauseAudio();
 void resumeAudio();
 
 namespace {
-    android_app *app = nullptr;
-    ANativeActivity *activity = nullptr;
-    ASensorManager *sensorManager = nullptr;
-    const ASensor *accelerometerSensor = nullptr;
-    const ASensor *gyroSensor = nullptr;
-    ASensorEventQueue *sensorEventQueue = nullptr;
-    // int screenRotation = 0;
+	android_app *app = nullptr;
+	ANativeActivity *activity = nullptr;
+	ASensorManager *sensorManager = nullptr;
+	const ASensor *accelerometerSensor = nullptr;
+	const ASensor *gyroSensor = nullptr;
+	ASensorEventQueue *sensorEventQueue = nullptr;
+	// int screenRotation = 0;
 
-    ndk_helper::GLContext *glContext = nullptr;
+	ndk_helper::GLContext *glContext = nullptr;
 
-    bool started = false;
-    bool paused = true;
-    bool displayIsInitialized = false;
-    bool appIsForeground = false;
-    bool activityJustResized = false;
+	bool started = false;
+	bool paused = true;
+	bool displayIsInitialized = false;
+	bool appIsForeground = false;
+	bool activityJustResized = false;
 }
 
+#include <assert.h>
+#include <kinc/log.h>
+
+#ifdef KORE_VULKAN
+#include <vulkan/vulkan.h>
+extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
+	assert(app->window != NULL);
+	VkAndroidSurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+	createInfo.pNext = NULL;
+	createInfo.flags = 0;
+	createInfo.window = app->window;
+	return vkCreateAndroidSurfaceKHR(instance, &createInfo, NULL, surface);
+}
+#endif
+
 void androidSwapBuffers() {
-    if (glContext->Swap() != EGL_SUCCESS) {
-        kinc_log(KINC_LOG_LEVEL_WARNING, "GL context lost.");
-    }
+#ifndef KORE_VULKAN
+	if (glContext->Swap() != EGL_SUCCESS) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "GL context lost.");
+	}
+#endif
 }
 
 namespace {
 	void initDisplay() {
+#ifndef KORE_VULKAN
 		if (glContext->Resume(app->window) != EGL_SUCCESS) {
 			kinc_log(KINC_LOG_LEVEL_WARNING, "GL context lost.");
 		}
+#endif
 	}
 
 	void termDisplay() {
+#ifndef KORE_VULKAN
 		glContext->Suspend();
+#endif
 	}
 
 	void updateAppForegroundStatus(bool displayIsInitializedValue, bool appIsForegroundValue) {
@@ -70,19 +92,17 @@ namespace {
 		}
 	}
 
-	bool isGamepadEvent(AInputEvent* event) {
-		return (
-			(AInputEvent_getSource(event) & AINPUT_SOURCE_GAMEPAD) == AINPUT_SOURCE_GAMEPAD ||
-			(AInputEvent_getSource(event) & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK ||
-			(AInputEvent_getSource(event) & AINPUT_SOURCE_DPAD) == AINPUT_SOURCE_DPAD
-		);
+	bool isGamepadEvent(AInputEvent *event) {
+		return ((AInputEvent_getSource(event) & AINPUT_SOURCE_GAMEPAD) == AINPUT_SOURCE_GAMEPAD ||
+		        (AInputEvent_getSource(event) & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK ||
+		        (AInputEvent_getSource(event) & AINPUT_SOURCE_DPAD) == AINPUT_SOURCE_DPAD);
 	}
 
-	bool isPenEvent(AInputEvent* event) {
+	bool isPenEvent(AInputEvent *event) {
 		return (AInputEvent_getSource(event) & AINPUT_SOURCE_STYLUS) == AINPUT_SOURCE_STYLUS;
 	}
 
-	void touchInput(AInputEvent* event) {
+	void touchInput(AInputEvent *event) {
 		int action = AMotionEvent_getAction(event);
 		int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
 		int id = AMotionEvent_getPointerId(event, index);
@@ -135,11 +155,10 @@ namespace {
 		}
 	}
 
-	int32_t input(android_app* app, AInputEvent* event) {
+	int32_t input(android_app *app, AInputEvent *event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
 			int source = AInputEvent_getSource(event);
-			if (((source & AINPUT_SOURCE_TOUCHSCREEN) == AINPUT_SOURCE_TOUCHSCREEN) ||
-				((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE)) {
+			if (((source & AINPUT_SOURCE_TOUCHSCREEN) == AINPUT_SOURCE_TOUCHSCREEN) || ((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE)) {
 				touchInput(event);
 				return 1;
 			}
@@ -288,20 +307,28 @@ namespace {
 					kinc_internal_gamepad_trigger_button(0, 11, 1);
 					return 1;
 				case AKEYCODE_DPAD_UP:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 12, 1);
-					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_UP);
+					if (isGamepadEvent(event))
+						kinc_internal_gamepad_trigger_button(0, 12, 1);
+					else
+						kinc_internal_keyboard_trigger_key_down(KINC_KEY_UP);
 					return 1;
 				case AKEYCODE_DPAD_DOWN:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 13, 1);
-					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOWN);
+					if (isGamepadEvent(event))
+						kinc_internal_gamepad_trigger_button(0, 13, 1);
+					else
+						kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOWN);
 					return 1;
 				case AKEYCODE_DPAD_LEFT:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 14, 1);
-					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
+					if (isGamepadEvent(event))
+						kinc_internal_gamepad_trigger_button(0, 14, 1);
+					else
+						kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
 					return 1;
 				case AKEYCODE_DPAD_RIGHT:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 15, 1);
-					else kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
+					if (isGamepadEvent(event))
+						kinc_internal_gamepad_trigger_button(0, 15, 1);
+					else
+						kinc_internal_keyboard_trigger_key_down(KINC_KEY_RIGHT);
 					return 1;
 				case AKEYCODE_BUTTON_MODE:
 					kinc_internal_gamepad_trigger_button(0, 16, 1);
@@ -527,20 +554,28 @@ namespace {
 					kinc_internal_gamepad_trigger_button(0, 11, 0);
 					return 1;
 				case AKEYCODE_DPAD_UP:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 12, 0);
-					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_UP);
+					if (isGamepadEvent(event))
+						kinc_internal_gamepad_trigger_button(0, 12, 0);
+					else
+						kinc_internal_keyboard_trigger_key_up(KINC_KEY_UP);
 					return 1;
 				case AKEYCODE_DPAD_DOWN:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 13, 0);
-					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOWN);
+					if (isGamepadEvent(event))
+						kinc_internal_gamepad_trigger_button(0, 13, 0);
+					else
+						kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOWN);
 					return 1;
 				case AKEYCODE_DPAD_LEFT:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 14, 0);
-					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
+					if (isGamepadEvent(event))
+						kinc_internal_gamepad_trigger_button(0, 14, 0);
+					else
+						kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
 					return 1;
 				case AKEYCODE_DPAD_RIGHT:
-					if (isGamepadEvent(event)) kinc_internal_gamepad_trigger_button(0, 15, 0);
-					else kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
+					if (isGamepadEvent(event))
+						kinc_internal_gamepad_trigger_button(0, 15, 0);
+					else
+						kinc_internal_keyboard_trigger_key_up(KINC_KEY_RIGHT);
 					return 1;
 				case AKEYCODE_BUTTON_MODE:
 					kinc_internal_gamepad_trigger_button(0, 16, 0);
@@ -550,7 +585,7 @@ namespace {
 					kinc_internal_keyboard_trigger_key_up(KINC_KEY_MULTIPLY);
 					return 1;
 				case AKEYCODE_POUND:
-				  kinc_internal_keyboard_trigger_key_up(KINC_KEY_HASH);
+					kinc_internal_keyboard_trigger_key_up(KINC_KEY_HASH);
 					return 1;
 				case AKEYCODE_COMMA:
 				case AKEYCODE_NUMPAD_COMMA:
@@ -636,7 +671,7 @@ namespace {
 		return 0;
 	}
 
-	void cmd(android_app* app, int32_t cmd) {
+	void cmd(android_app *app, int32_t cmd) {
 		switch (cmd) {
 		case APP_CMD_SAVE_STATE:
 			break;
@@ -703,15 +738,15 @@ namespace {
 	}
 }
 
-extern "C" ANativeActivity* kinc_android_get_activity(void) {
+extern "C" ANativeActivity *kinc_android_get_activity(void) {
 	return activity;
 }
 
-extern "C" AAssetManager* kinc_android_get_asset_manager(void) {
+extern "C" AAssetManager *kinc_android_get_asset_manager(void) {
 	return activity->assetManager;
 }
 
-extern "C" jclass kinc_android_find_class(JNIEnv* env, const char* name) {
+extern "C" jclass kinc_android_find_class(JNIEnv *env, const char *name) {
 	jobject nativeActivity = activity->clazz;
 	jclass acl = env->GetObjectClass(nativeActivity);
 	jmethodID getClassLoader = env->GetMethodID(acl, "getClassLoader", "()Ljava/lang/ClassLoader;");
@@ -728,7 +763,7 @@ static bool keyboard_active = false;
 
 void kinc_keyboard_show() {
 	keyboard_active = true;
-	JNIEnv* env;
+	JNIEnv *env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "showKeyboard", "()V"));
@@ -737,7 +772,7 @@ void kinc_keyboard_show() {
 
 void kinc_keyboard_hide() {
 	keyboard_active = false;
-	JNIEnv* env;
+	JNIEnv *env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "hideKeyboard", "()V"));
@@ -749,7 +784,7 @@ bool kinc_keyboard_active() {
 }
 
 void kinc_load_url(const char *url) {
-	JNIEnv* env;
+	JNIEnv *env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	jstring jurl = env->NewStringUTF(url);
@@ -758,46 +793,54 @@ void kinc_load_url(const char *url) {
 }
 
 void kinc_vibrate(int ms) {
-	JNIEnv* env;
+	JNIEnv *env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
 	env->CallStaticVoidMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "vibrate", "(I)V"), ms);
 	activity->vm->DetachCurrentThread();
 }
 
-const char* kinc_language() {
-	JNIEnv* env;
+const char *kinc_language() {
+	JNIEnv *env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreActivityClass = kinc_android_find_class(env, "tech.kinc.KincActivity");
-	jstring s = (jstring) env->CallStaticObjectMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "getLanguage", "()Ljava/lang/String;"));
-	const char* str = env->GetStringUTFChars(s, 0);
+	jstring s = (jstring)env->CallStaticObjectMethod(koreActivityClass, env->GetStaticMethodID(koreActivityClass, "getLanguage", "()Ljava/lang/String;"));
+	const char *str = env->GetStringUTFChars(s, 0);
 	activity->vm->DetachCurrentThread();
 	return str;
 }
 
 extern "C" int glWidth() {
+#ifndef KORE_VULKAN
 	glContext->UpdateSize();
 	return glContext->GetScreenWidth();
+#else
+	return ANativeWindow_getWidth(app->window);
+#endif
 }
 
 extern "C" int glHeight() {
+#ifndef KORE_VULKAN
 	glContext->UpdateSize();
 	return glContext->GetScreenHeight();
+#else
+	return ANativeWindow_getHeight(app->window);
+#endif
 }
 
-const char* kinc_internal_save_path() {
+const char *kinc_internal_save_path() {
 	return kinc_android_get_activity()->internalDataPath;
 }
 
-const char* kinc_system_id() {
+const char *kinc_system_id() {
 	return "Android";
 }
 
 namespace {
-	const char* videoFormats[] = {"ts", nullptr};
+	const char *videoFormats[] = {"ts", nullptr};
 }
 
-const char** kinc_video_formats() {
+const char **kinc_video_formats() {
 	return ::videoFormats;
 }
 
@@ -810,11 +853,11 @@ void kinc_set_keep_screen_on(bool on) {
 	}
 }
 
-#include <sys/time.h>
-#include <time.h>
-#include <kinc/window.h>
 #include <kinc/input/acceleration.h>
 #include <kinc/input/rotation.h>
+#include <kinc/window.h>
+#include <sys/time.h>
+#include <time.h>
 
 namespace {
 	__kernel_time_t start_sec = 0;
@@ -839,9 +882,9 @@ double kinc_time() {
 bool kinc_internal_handle_messages(void) {
 	int ident;
 	int events;
-	android_poll_source* source;
+	android_poll_source *source;
 
-	while ((ident = ALooper_pollAll(paused ? -1 : 0, NULL, &events, (void**)&source)) >= 0) {
+	while ((ident = ALooper_pollAll(paused ? -1 : 0, NULL, &events, (void **)&source)) >= 0) {
 		if (source != NULL) {
 			source->process(app, source);
 		}
@@ -905,33 +948,27 @@ void kinc_internal_mouse_lock(int window) {}
 
 void kinc_internal_mouse_unlock(void) {}
 
-void kinc_mouse_get_position(int window, int* x, int* y) {
+void kinc_mouse_get_position(int window, int *x, int *y) {
 	x = 0;
 	y = 0;
 }
 
 void kinc_mouse_set_cursor(int cursor_index) {}
 
-void kinc_login() {
+void kinc_login() {}
 
-}
-
-void kinc_unlock_achievement(int id) {
-
-}
+void kinc_unlock_achievement(int id) {}
 
 bool kinc_gamepad_connected(int num) {
 	return true;
 }
 
-void kinc_gamepad_rumble(int gamepad, float left, float right) {
-	
-}
+void kinc_gamepad_rumble(int gamepad, float left, float right) {}
 
 void initAndroidFileReader();
 void KoreAndroidVideoInit();
 
-extern "C" void android_main(android_app* app) {
+extern "C" void android_main(android_app *app) {
 	app_dummy();
 
 	timeval now;
@@ -945,14 +982,15 @@ extern "C" void android_main(android_app* app) {
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
 	activity->callbacks->onNativeWindowResized = resize;
-
+#ifndef KORE_VULKAN
 	glContext = ndk_helper::GLContext::GetInstance();
+#endif
 	sensorManager = ASensorManager_getInstance();
 	accelerometerSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_ACCELEROMETER);
 	gyroSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_GYROSCOPE);
 	sensorEventQueue = ASensorManager_createEventQueue(sensorManager, app->looper, LOOPER_ID_USER, NULL, NULL);
 
-	JNIEnv* env = nullptr;
+	JNIEnv *env = nullptr;
 	kinc_android_get_activity()->vm->AttachCurrentThread(&env, nullptr);
 
 	jclass koreMoviePlayerClass = kinc_android_find_class(env, "tech.kinc.KincMoviePlayer");
