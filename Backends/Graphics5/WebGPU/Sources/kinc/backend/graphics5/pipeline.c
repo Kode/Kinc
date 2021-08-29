@@ -109,12 +109,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	multisample.mask = 0xffffffff;
 	multisample.alphaToCoverageEnabled = false;
 
-	WGPURenderPipelineDescriptor2 rpDesc;
+	WGPURenderPipelineDescriptor rpDesc;
 	memset(&rpDesc, 0, sizeof(rpDesc));
 	rpDesc.layout = wgpuDeviceCreatePipelineLayout(device, &plDesc);
 	rpDesc.fragment = &fragmentDest;
 	rpDesc.vertex = vsDest;
 	rpDesc.multisample = multisample;
 	rpDesc.primitive = rsDesc;
-	pipe->impl.pipeline = wgpuDeviceCreateRenderPipeline2(device, &rpDesc);
+	pipe->impl.pipeline = wgpuDeviceCreateRenderPipeline(device, &rpDesc);
 }
