@@ -47,7 +47,7 @@ const wchar_t *windowClassName = L"KoreWindow";
 #ifdef KORE_VULKAN
 #include <vulkan/vulkan.h>
 
-VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
+extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
 	VkWin32SurfaceCreateInfoKHR createInfo = {0};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.pNext = NULL;
