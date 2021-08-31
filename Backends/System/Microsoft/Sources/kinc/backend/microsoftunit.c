@@ -1,0 +1,7 @@
+#include "SystemMicrosoft.c.h"
+#include "event.c.h"
+#include "fiber.c.h"
+#include "mutex.c.h"
+#include "semaphore.c.h"
+#include "thread.c.h"
+#include "threadlocal.c.h"

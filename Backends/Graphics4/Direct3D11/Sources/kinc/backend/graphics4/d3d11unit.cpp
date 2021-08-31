@@ -1,0 +1,8 @@
+#include "ShaderHash.c.h"
+#include "indexbuffer.cpp.h"
+#include "pipeline.cpp.h"
+#include "rendertarget.cpp.h"
+#include "shader.cpp.h"
+#include "texture.cpp.h"
+#include "texturearray.cpp.h"
+#include "vertexbuffer.cpp.h"

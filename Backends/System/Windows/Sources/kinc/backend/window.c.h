@@ -47,14 +47,14 @@ const wchar_t *windowClassName = L"KoreWindow";
 #ifdef KORE_VULKAN
 #include <vulkan/vulkan.h>
 
-VkResult kinc_vulkan_create_surface(VkInstance instance,int window_index,VkSurfaceKHR *surface) {
-			VkWin32SurfaceCreateInfoKHR createInfo = {0};
-			createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-			createInfo.pNext = NULL;
-			createInfo.flags = 0;
-			createInfo.hinstance = GetModuleHandle(NULL);
-			createInfo.hwnd = windows[window_index].handle;
-			return vkCreateWin32SurfaceKHR(instance, &createInfo, NULL, surface);
+VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
+	VkWin32SurfaceCreateInfoKHR createInfo = {0};
+	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	createInfo.pNext = NULL;
+	createInfo.flags = 0;
+	createInfo.hinstance = GetModuleHandle(NULL);
+	createInfo.hwnd = windows[window_index].handle;
+	return vkCreateWin32SurfaceKHR(instance, &createInfo, NULL, surface);
 }
 #endif
 
@@ -263,7 +263,7 @@ void kinc_window_resize(int window_index, int width, int height) {
 		rect.top = 0;
 		rect.right = width;
 		rect.bottom = height;
-		AdjustWindowRectEx(&rect, getDwStyle(win->mode, win->features), FALSE, getDwExStyle(win->mode, win->features));
+		AdjustWindowRectEx(&rect, getDwStyle((kinc_window_mode_t)win->mode, win->features), FALSE, getDwExStyle((kinc_window_mode_t)win->mode, win->features));
 		SetWindowPos(win->handle, NULL, kinc_window_x(window_index), kinc_window_y(window_index), rect.right - rect.left, rect.bottom - rect.top, 0);
 		break;
 	}
@@ -292,12 +292,12 @@ void kinc_window_move(int window_index, int x, int y) {
 	rect.top = 0;
 	rect.right = kinc_window_width(window_index);
 	rect.bottom = kinc_window_height(window_index);
-	AdjustWindowRectEx(&rect, getDwStyle(win->mode, win->features), FALSE, getDwExStyle(win->mode, win->features));
+	AdjustWindowRectEx(&rect, getDwStyle((kinc_window_mode_t)win->mode, win->features), FALSE, getDwExStyle((kinc_window_mode_t)win->mode, win->features));
 
 	SetWindowPos(win->handle, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, 0);
 }
 
-void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
+extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
 
 void kinc_window_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
 	kinc_internal_change_framebuffer(window, frame);

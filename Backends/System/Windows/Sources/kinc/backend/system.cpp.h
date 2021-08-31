@@ -40,6 +40,7 @@
 #include <XInput.h>
 #include <dbghelp.h>
 #include <exception>
+#include <shellapi.h>
 #include <shlobj.h>
 
 #ifdef KORE_G4ONG5
@@ -75,8 +76,8 @@ static bool keyPressed[256];
 int keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
 int cursor = 0;
 
-static int GetTouchIndex(int dwID) {	
-	for (int i=0; i < MAX_TOUCH_POINTS; i++) {
+static int GetTouchIndex(int dwID) {
+	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
 		if (touchPoints[i].sysID == dwID) {
 			return i;
 		}
@@ -84,23 +85,23 @@ static int GetTouchIndex(int dwID) {
 	return -1;
 }
 
-static int GetAddTouchIndex(int dwID) {	
-	for (int i=0; i < MAX_TOUCH_POINTS; i++) {
+static int GetAddTouchIndex(int dwID) {
+	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
 		if (touchPoints[i].sysID == dwID) {
 			return i;
 		}
 	}
-	for (int i=0; i < MAX_TOUCH_POINTS; i++) {
+	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
 		if (touchPoints[i].sysID == -1) {
-				touchPoints[i].sysID = dwID;
-				return i;
+			touchPoints[i].sysID = dwID;
+			return i;
 		}
-	}	
+	}
 	return -1;
 }
 
 static void ReleaseTouchIndex(int dwID) {
-	for (int i=0; i < MAX_TOUCH_POINTS; i++) {
+	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
 		if (touchPoints[i].sysID == dwID) {
 			touchPoints[i].sysID = -1;
 			touchPoints[i].x = -1;
@@ -502,62 +503,60 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			                               float(penInfo.pressure) / 1024.0f);
 		}
 		break;
-	case WM_TOUCH:
-		{
-			BOOL bHandled = FALSE;
-			UINT cInputs = LOWORD(wParam);
-			PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
-			POINT ptInput;
-			int tindex;
-			if (pInputs) {
-				if (GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT))) {
-					for (int i=0; i < static_cast<int>(cInputs); i++) {
-						TOUCHINPUT ti = pInputs[i];
-						if (ti.dwID != 0) {
-							ptInput.x = TOUCH_COORD_TO_PIXEL(ti.x);
-							ptInput.y = TOUCH_COORD_TO_PIXEL(ti.y);
-							ScreenToClient(hWnd, &ptInput);
+	case WM_TOUCH: {
+		BOOL bHandled = FALSE;
+		UINT cInputs = LOWORD(wParam);
+		PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
+		POINT ptInput;
+		int tindex;
+		if (pInputs) {
+			if (GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT))) {
+				for (int i = 0; i < static_cast<int>(cInputs); i++) {
+					TOUCHINPUT ti = pInputs[i];
+					if (ti.dwID != 0) {
+						ptInput.x = TOUCH_COORD_TO_PIXEL(ti.x);
+						ptInput.y = TOUCH_COORD_TO_PIXEL(ti.y);
+						ScreenToClient(hWnd, &ptInput);
 
-							if (ti.dwFlags & TOUCHEVENTF_UP) {
-								tindex = GetTouchIndex(ti.dwID);
-								ReleaseTouchIndex(ti.dwID);
-								kinc_internal_surface_trigger_touch_end(tindex,ptInput.x,ptInput.y);												
-							}
-							else {
-								bool touchExisits = GetTouchIndex(ti.dwID)!=-1;
-								tindex = GetAddTouchIndex(ti.dwID);
-								if (tindex>=0) {
-									if (touchExisits) {
-										if (touchPoints[tindex].x != ptInput.x || touchPoints[tindex].y != ptInput.y) {
-											touchPoints[tindex].x = ptInput.x;
-											touchPoints[tindex].y = ptInput.y;
-											kinc_internal_surface_trigger_move(tindex,ptInput.x,ptInput.y);												
-										}
-									}
-									else {
+						if (ti.dwFlags & TOUCHEVENTF_UP) {
+							tindex = GetTouchIndex(ti.dwID);
+							ReleaseTouchIndex(ti.dwID);
+							kinc_internal_surface_trigger_touch_end(tindex, ptInput.x, ptInput.y);
+						}
+						else {
+							bool touchExisits = GetTouchIndex(ti.dwID) != -1;
+							tindex = GetAddTouchIndex(ti.dwID);
+							if (tindex >= 0) {
+								if (touchExisits) {
+									if (touchPoints[tindex].x != ptInput.x || touchPoints[tindex].y != ptInput.y) {
 										touchPoints[tindex].x = ptInput.x;
 										touchPoints[tindex].y = ptInput.y;
-										kinc_internal_surface_trigger_touch_start(tindex,ptInput.x,ptInput.y);												
+										kinc_internal_surface_trigger_move(tindex, ptInput.x, ptInput.y);
 									}
+								}
+								else {
+									touchPoints[tindex].x = ptInput.x;
+									touchPoints[tindex].y = ptInput.y;
+									kinc_internal_surface_trigger_touch_start(tindex, ptInput.x, ptInput.y);
 								}
 							}
 						}
-						bHandled = TRUE;
+					}
+					bHandled = TRUE;
 
-						if (!CloseTouchInputHandle((HTOUCHINPUT)lParam)) {
-						}
+					if (!CloseTouchInputHandle((HTOUCHINPUT)lParam)) {
 					}
 				}
-				delete [] pInputs;
 			}
-   			if (bHandled)
-        		CloseTouchInputHandle((HTOUCHINPUT)lParam);
-			else
-				DefWindowProc(hWnd, WM_TOUCH, wParam, lParam);
-		
-			InvalidateRect(hWnd, NULL, FALSE);
+			delete[] pInputs;
 		}
-		break;
+		if (bHandled)
+			CloseTouchInputHandle((HTOUCHINPUT)lParam);
+		else
+			DefWindowProc(hWnd, WM_TOUCH, wParam, lParam);
+
+		InvalidateRect(hWnd, NULL, FALSE);
+	} break;
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
 		if (!keyPressed[wParam]) {
@@ -1332,11 +1331,11 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	initKeyTranslation();
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
-	for (int i=0; i < MAX_TOUCH_POINTS; i++) {
+	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
 		touchPoints[i].sysID = -1;
 		touchPoints[i].x = -1;
 		touchPoints[i].y = -1;
-   	}
+	}
 
 	kinc_display_init();
 
