@@ -13,7 +13,7 @@ static kinc_mutex_t mutex;
 
 #define CHANNEL_COUNT 16
 static kinc_a1_channel_t channels[CHANNEL_COUNT];
-static kinc_a1_stream_channel_t streams[CHANNEL_COUNT];
+static kinc_a1_stream_channel_t streamchannels[CHANNEL_COUNT];
 static kinc_internal_video_channel_t videos[CHANNEL_COUNT];
 
 static float sampleLinear(int16_t *data, float position) {
@@ -89,10 +89,10 @@ void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 			}
 		}
 		for (int i = 0; i < CHANNEL_COUNT; ++i) {
-			if (streams[i].stream != NULL) {
-				value += kinc_a1_sound_stream_next_sample(streams[i].stream) * kinc_a1_sound_stream_volume(streams[i].stream);
+			if (streamchannels[i].stream != NULL) {
+				value += kinc_a1_sound_stream_next_sample(streamchannels[i].stream) * kinc_a1_sound_stream_volume(streamchannels[i].stream);
 				value = kinc_max(kinc_min(value, 1.0f), -1.0f);
-				if (kinc_a1_sound_stream_ended(streams[i].stream)) streams[i].stream = NULL;
+				if (kinc_a1_sound_stream_ended(streamchannels[i].stream)) streamchannels[i].stream = NULL;
 			}
 		}
 
@@ -120,8 +120,8 @@ void kinc_a1_init() {
 		channels[i].position = 0;
 	}
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
-		streams[i].stream = NULL;
-		streams[i].position = 0;
+		streamchannels[i].stream = NULL;
+		streamchannels[i].position = 0;
 	}
 	kinc_mutex_init(&mutex);
 	kinc_a2_set_callback(kinc_internal_a1_mix);
@@ -170,17 +170,17 @@ void kinc_a1_play_sound_stream(kinc_a1_sound_stream_t *stream) {
 	kinc_mutex_lock(&mutex);
 
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
-		if (streams[i].stream == stream) {
-			streams[i].stream = NULL;
-			streams[i].position = 0;
+		if (streamchannels[i].stream == stream) {
+			streamchannels[i].stream = NULL;
+			streamchannels[i].position = 0;
 			break;
 		}
 	}
 
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
-		if (streams[i].stream == NULL) {
-			streams[i].stream = stream;
-			streams[i].position = 0;
+		if (streamchannels[i].stream == NULL) {
+			streamchannels[i].stream = stream;
+			streamchannels[i].position = 0;
 			break;
 		}
 	}
@@ -191,9 +191,9 @@ void kinc_a1_play_sound_stream(kinc_a1_sound_stream_t *stream) {
 void kinc_a1_stop_sound_stream(kinc_a1_sound_stream_t *stream) {
 	kinc_mutex_lock(&mutex);
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
-		if (streams[i].stream == stream) {
-			streams[i].stream = NULL;
-			streams[i].position = 0;
+		if (streamchannels[i].stream == stream) {
+			streamchannels[i].stream = NULL;
+			streamchannels[i].position = 0;
 			break;
 		}
 	}
