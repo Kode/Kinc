@@ -3,7 +3,7 @@
 // MT19937
 
 static int MT[624];
-static int index = 0;
+static int mermeme_index = 0;
 
 static void generateNumbers() {
 	for (int i = 0; i < 624; ++i) {
@@ -19,15 +19,15 @@ void kinc_random_init(int seed) {
 }
 
 int kinc_random_get() {
-	if (index == 0) generateNumbers();
+	if (mermeme_index == 0) generateNumbers();
 
-	int y = MT[index];
+	int y = MT[mermeme_index];
 	y = y ^ (y >> 11);
 	y = y ^ ((y << 7) & (0x9d2c5680));
 	y = y ^ ((y << 15) & (0xefc60000));
 	y = y ^ (y >> 18);
 
-	index = (index + 1) % 624;
+	mermeme_index = (mermeme_index + 1) % 624;
 	return y;
 }
 
