@@ -9,7 +9,7 @@
 #include <dxgi1_4.h>
 #endif
 
-static const int textureCount = 16;
+// static const int textureCount = 16;
 extern kinc_g5_texture_t *currentTextures[textureCount];
 extern kinc_g5_render_target_t *currentRenderTargets[textureCount];
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
@@ -19,8 +19,6 @@ extern IDXGISwapChain *swapChain;
 #endif
 
 namespace {
-	ID3D12Fence *renderFence;
-
 	void WaitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
 		if (fence->GetCompletedValue() < completionValue) {
 			fence->SetEventOnCompletion(completionValue, waitEvent);

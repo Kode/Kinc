@@ -1,5 +1,5 @@
-#include "texture.h"
 #include "Direct3D12.h"
+#include "texture.h"
 
 #include <kinc/graphics5/rendertarget.h>
 #include <kinc/graphics5/texture.h>
@@ -7,7 +7,7 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
-static const int textureCount = 16;
+// static const int textureCount = 16;
 
 kinc_g5_render_target_t *currentRenderTargets[textureCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                                                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -26,9 +26,9 @@ namespace {
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-static int d3d12_textureAlignment() {
-	return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
-}
+/*static int d3d12_textureAlignment() {
+    return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+}*/
 #else
 int d3d12_textureAlignment();
 #endif

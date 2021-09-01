@@ -7,8 +7,8 @@
 
 #include <kinc/backend/graphics5/Direct3D12.h>
 
-#include <type_traits>
 #include <malloc.h>
+#include <type_traits>
 
 extern ID3D12CommandQueue *commandQueue;
 static const int textureCount = 16;
@@ -61,12 +61,12 @@ namespace {
 		}
 	}
 
-	void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
-		if (fence->GetCompletedValue() < completionValue) {
-			fence->SetEventOnCompletion(completionValue, waitEvent);
-			WaitForSingleObject(waitEvent, INFINITE);
-		}
-	}
+	/*void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
+	    if (fence->GetCompletedValue() < completionValue) {
+	        fence->SetEventOnCompletion(completionValue, waitEvent);
+	        WaitForSingleObject(waitEvent, INFINITE);
+	    }
+	}*/
 
 	void graphicsFlush(kinc_g5_command_list *list, ID3D12CommandAllocator *commandAllocator) {
 		list->impl._commandList->Close();
@@ -346,7 +346,7 @@ void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list *list, kinc_g5
 	for (int i = 0; i < count; ++i) {
 		views[i].BufferLocation = buffers[i]->impl.uploadBuffer->GetGPUVirtualAddress() + offsets[i] * kinc_g5_vertex_buffer_stride(buffers[i]);
 		views[i].SizeInBytes = (kinc_g5_vertex_buffer_count(buffers[i]) - offsets[i]) * kinc_g5_vertex_buffer_stride(buffers[i]);
-		views[i].StrideInBytes = kinc_g5_vertex_buffer_stride(buffers[i]);// * kinc_g5_vertex_buffer_count(buffers[i]);
+		views[i].StrideInBytes = kinc_g5_vertex_buffer_stride(buffers[i]); // * kinc_g5_vertex_buffer_count(buffers[i]);
 	}
 	list->impl._commandList->IASetVertexBuffers(0, count, views);
 }
