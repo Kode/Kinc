@@ -8,8 +8,8 @@
 #include <kinc/system.h>
 
 #include <assert.h>
-#include <memory.h>
 #include <malloc.h>
+#include <memory.h>
 #include <vulkan/vulkan.h>
 
 extern VkDevice device;
@@ -34,7 +34,6 @@ VkRenderPassBeginInfo currentRenderPassBeginInfo;
 kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 namespace {
-	bool began = false;
 	bool onBackBuffer = false;
 	uint32_t lastVertexConstantBufferOffset = 0;
 	uint32_t lastFragmentConstantBufferOffset = 0;
@@ -342,7 +341,6 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 
 	vkResetDescriptorPool(device, desc_pools[current_buffer], 0);
 
-	began = true;
 	onBackBuffer = true;
 
 	for (int i = 0; i < mrtIndex; ++i) {
@@ -407,8 +405,6 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 #ifndef KORE_WINDOWS
 	vkDeviceWaitIdle(device);
 #endif
-
-	began = false;
 }
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
@@ -463,7 +459,7 @@ void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t
 	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(list, instanceCount, 0, list->impl._indexCount);
 }
 
-void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t* list,int instanceCount,int start, int count) {
+void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
 	vkCmdDrawIndexed(list->impl._buffer, count, instanceCount, start, 0, 0);
 }
 
@@ -512,16 +508,16 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **vertexBuffers, int *offsets_, int count) {
-	// this seems to be a no-op function?
-	//kinc_g5_internal_vertex_buffer_set(vertexBuffers[0], 0);
-	#ifdef KORE_WINDOWS
-	VkBuffer *buffers = (VkBuffer*)alloca(sizeof(VkBuffer) * count);
+// this seems to be a no-op function?
+// kinc_g5_internal_vertex_buffer_set(vertexBuffers[0], 0);
+#ifdef KORE_WINDOWS
+	VkBuffer *buffers = (VkBuffer *)alloca(sizeof(VkBuffer) * count);
 	VkDeviceSize *offsets = (VkDeviceSize *)alloca(sizeof(VkDeviceSize) * count);
-	#else
+#else
 	VkBuffer buffers[count];
 	VkDeviceSize offsets[count];
-	#endif
-	for(int i = 0; i < count; ++i) {
+#endif
+	for (int i = 0; i < count; ++i) {
 		buffers[i] = vertexBuffers[i]->impl.vertices.buf;
 		offsets[i] = (VkDeviceSize)(offsets_[i] * kinc_g5_vertex_buffer_stride(vertexBuffers[i]));
 	}
