@@ -415,11 +415,11 @@ void swapLinuxBuffers(int window);
 #endif
 
 #ifdef KORE_MACOS
-void swapBuffersMac(int window);
+extern "C" void swapBuffersMac(int window);
 #endif
 
 #ifdef KORE_IOS
-void swapBuffersiOS();
+extern "C" void swapBuffersiOS();
 #endif
 
 bool kinc_g4_swap_buffers() {
