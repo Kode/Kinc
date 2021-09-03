@@ -446,7 +446,7 @@ bool kinc_g4_swap_buffers() {
 }
 
 #ifdef KORE_IOS
-void beginGL();
+extern "C" void beginGL();
 #endif
 
 void kinc_g4_begin(int window) {
