@@ -7,60 +7,55 @@
 
 #include <stdio.h>
 
-using namespace Kore;
-
 #define kOutputBus 0
 
-namespace {
-	kinc_internal_video_sound_stream_t *video = nullptr;
+static kinc_internal_video_sound_stream_t *video = NULL;
+
+void iosPlayVideoSoundStream(kinc_internal_video_sound_stream_t *v) {
+	video = v;
 }
 
-void iosPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video) {
-	::video = video;
+void iosStopVideoSoundStream(void) {
+	video = NULL;
 }
 
-void iosStopVideoSoundStream() {
-	video = nullptr;
-}
-
-namespace {
-	void affirm(OSStatus err) {
+	static void affirm(OSStatus err) {
 		if (err) {
 			fprintf(stderr, "Error: %i\n", (int)err);
 		}
 	}
 
-	bool initialized;
-	bool soundPlaying;
-	AudioStreamBasicDescription deviceFormat;
-	AudioComponentInstance audioUnit;
-	bool isFloat = false;
-	bool isInterleaved = true;
+	static bool initialized;
+	static bool soundPlaying;
+	static AudioStreamBasicDescription deviceFormat;
+	static AudioComponentInstance audioUnit;
+	static bool isFloat = false;
+	static bool isInterleaved = true;
 	
-	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
-	void (*a2_sample_rate_callback)() = nullptr;
-	kinc_a2_buffer_t a2_buffer;
+	static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
+	static void (*a2_sample_rate_callback)(void) = NULL;
+	static kinc_a2_buffer_t a2_buffer;
 
-	void copySample(void* buffer) {
+	static void copySample(void* buffer) {
 		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
 		a2_buffer.read_location += 4;
 		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 
-		if (video != nullptr) {
+		if (video != NULL) {
             value += kinc_internal_video_sound_stream_next_sample(video);
 			value = kinc_max(kinc_min(value, 1.0f), -1.0f);
             if (kinc_internal_video_sound_stream_ended(video)) {
-                video = nullptr;
+                video = NULL;
             }
         }
 
 		if (isFloat)
 			*(float*)buffer = value;
 		else
-			*(s16*)buffer = static_cast<s16>(value * 32767);
+			*(int16_t*)buffer = (int16_t)(value * 32767);
 	}
 
-	OSStatus renderInput(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
+	static OSStatus renderInput(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
 	                     UInt32 inNumberFrames, AudioBufferList* outOutputData) {
 		a2_callback(&a2_buffer, inNumberFrames * 2);
 		if (isInterleaved) {
@@ -72,7 +67,7 @@ namespace {
 				}
 			}
 			else {
-				s16* out = (s16*)outOutputData->mBuffers[0].mData;
+				int16_t* out = (int16_t*)outOutputData->mBuffers[0].mData;
 				for (int i = 0; i < inNumberFrames; ++i) {
 					copySample(out++); // left
 					copySample(out++); // right
@@ -89,8 +84,8 @@ namespace {
 				}
 			}
 			else {
-				s16* out1 = (s16*)outOutputData->mBuffers[0].mData;
-				s16* out2 = (s16*)outOutputData->mBuffers[1].mData;
+				int16_t* out1 = (int16_t*)outOutputData->mBuffers[0].mData;
+				int16_t* out2 = (int16_t*)outOutputData->mBuffers[1].mData;
 				for (int i = 0; i < inNumberFrames; ++i) {
 					copySample(out1++); // left
 					copySample(out2++); // right
@@ -100,23 +95,22 @@ namespace {
 		return noErr;
 	}
 
-	void sampleRateListener(void *inRefCon, AudioUnit inUnit, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement) {
+	static void sampleRateListener(void *inRefCon, AudioUnit inUnit, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement) {
 		Float64 sampleRate;
 		UInt32 size = sizeof(sampleRate);
 		affirm(AudioUnitGetProperty(inUnit, kAudioUnitProperty_SampleRate, kAudioUnitScope_Output, 0, &sampleRate, &size));
 
-		kinc_a2_samples_per_second = static_cast<int>(sampleRate);
-		if (a2_sample_rate_callback != nullptr) {
+		kinc_a2_samples_per_second = (int)sampleRate;
+		if (a2_sample_rate_callback != NULL) {
 				a2_sample_rate_callback();
 		}
 	}
-}
 
 void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = new u8[a2_buffer.data_size];
+	a2_buffer.data = (uint8_t*)malloc(a2_buffer.data_size);
 
 	initialized = false;
 
@@ -127,7 +121,7 @@ void kinc_a2_init() {
 	desc.componentFlagsMask = 0;
 	desc.componentManufacturer = kAudioUnitManufacturer_Apple;
 
-	AudioComponent comp = AudioComponentFindNext(nullptr, &desc);
+	AudioComponent comp = AudioComponentFindNext(NULL, &desc);
 
 	// Get audio units
 	affirm(AudioComponentInstanceNew(comp, &audioUnit));
@@ -173,7 +167,7 @@ void kinc_a2_init() {
 	
 	AURenderCallbackStruct callbackStruct;
 	callbackStruct.inputProc = renderInput;
-	callbackStruct.inputProcRefCon = nullptr;
+	callbackStruct.inputProcRefCon = NULL;
 	affirm(AudioUnitSetProperty(audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Global, kOutputBus, &callbackStruct, sizeof(callbackStruct)));
 
 	soundPlaying = true;
@@ -194,6 +188,6 @@ void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer
 	a2_callback = kinc_a2_audio_callback;
 }
 
-void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)()) {
+void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void)) {
 	a2_sample_rate_callback = kinc_a2_sample_rate_callback;
 }

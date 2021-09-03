@@ -19,7 +19,7 @@ void loadURL(const char* url) {
 
 	// try {
 	@autoreleasepool {
-		kickstart(0, nullptr);
+		kickstart(0, NULL);
 	}
 	//}
 	// catch (Kt::Exception& ex) {
@@ -89,7 +89,7 @@ void loadURL(const char* url) {
 //}
 #endif
 
-void KoreUpdateKeyboard();
+void KoreUpdateKeyboard(void);
 /*
 - (void)didRotate:(NSNotification*)notification {
     if (Kore::Application::the() != nullptr && Kore::Application::the()->orientationCallback != nullptr)

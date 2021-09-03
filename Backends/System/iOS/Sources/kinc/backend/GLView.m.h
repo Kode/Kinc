@@ -14,26 +14,26 @@
 #include <kinc/backend/graphics4/OpenGLWindow.h>
 #endif
 
-namespace {
-	const int touchmaxcount = 20;
-	void* touches[touchmaxcount];
 
-	void initTouches() {
+	static const int touchmaxcount = 20;
+	static void* touches[touchmaxcount];
+
+	static void initTouches() {
 		for (int i = 0; i < touchmaxcount; ++i) {
-			touches[i] = nullptr;
+			touches[i] = NULL;
 		}
 	}
 
-	int getTouchIndex(void* touch) {
+	static int getTouchIndex(void* touch) {
 		for (int i = 0; i < touchmaxcount; ++i) {
 			if (touches[i] == touch) return i;
 		}
 		return -1;
 	}
 
-	int addTouch(void* touch) {
+	static int addTouch(void* touch) {
 		for (int i = 0; i < touchmaxcount; ++i) {
-			if (touches[i] == nullptr) {
+			if (touches[i] == NULL) {
 				touches[i] = touch;
 				return i;
 			}
@@ -41,24 +41,23 @@ namespace {
 		return -1;
 	}
 
-	int removeTouch(void* touch) {
+	static int removeTouch(void* touch) {
 		for (int i = 0; i < touchmaxcount; ++i) {
 			if (touches[i] == touch) {
-				touches[i] = nullptr;
+				touches[i] = NULL;
 				return i;
 			}
 		}
 		return -1;
 	}
 
-	GLint backingWidth, backingHeight;
-}
+	static GLint backingWidth, backingHeight;
 
-extern "C" int kinc_window_width(int window) {
+int kinc_window_width(int window) {
 	return backingWidth;
 }
 
-extern "C" int kinc_window_height(int window) {
+int kinc_window_height(int window) {
 	return backingHeight;
 }
 
@@ -333,11 +332,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	}
 }
 
-namespace {
-	NSString* keyboardstring;
-	UITextField* myTextField = nullptr;
-	bool shiftDown = false;
-}
+static NSString* keyboardstring;
+static UITextField* myTextField = NULL;
+static bool shiftDown = false;
 
 - (void)showKeyboard {
 	[self becomeFirstResponder];

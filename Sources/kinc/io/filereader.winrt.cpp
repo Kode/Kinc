@@ -18,7 +18,7 @@ using namespace Kore;
 #ifndef KORE_CONSOLE
 
 #ifdef KORE_IOS
-const char *iphonegetresourcepath();
+extern "C" const char *iphonegetresourcepath();
 #endif
 
 #ifdef KORE_MACOS

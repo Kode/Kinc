@@ -22,14 +22,14 @@ void kinc_window_move(int window, int x, int y) {
 	
 }
 
-extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
+void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
 
 void kinc_window_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {
 	kinc_internal_change_framebuffer(0, frame);
 }
 
 #ifdef KORE_METAL
-extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {
+void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {
 	
 }
 #endif

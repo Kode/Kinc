@@ -10,17 +10,15 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-extern "C" {
-    bool withAutoreleasepool(bool (*f)()) {
-        @autoreleasepool {
-            return f();
-        }
+bool withAutoreleasepool(bool (*f)(void)) {
+    @autoreleasepool {
+        return f();
     }
 }
 
 static bool keyboardshown = false;
 
-const char* iphonegetresourcepath() {
+const char* iphonegetresourcepath(void) {
 	return [[[NSBundle mainBundle] resourcePath] cStringUsingEncoding:1];
 }
 
@@ -34,17 +32,17 @@ bool kinc_internal_handle_messages(void) {
 
 void kinc_set_keep_screen_on(bool on) {}
 
-void showKeyboard();
-void hideKeyboard();
+void showKeyboard(void);
+void hideKeyboard(void);
 
 void kinc_keyboard_show() {
 	keyboardshown = true;
-	::showKeyboard();
+	showKeyboard();
 }
 
 void kinc_keyboard_hide() {
 	keyboardshown = false;
-	::hideKeyboard();
+	hideKeyboard();
 }
 
 bool kinc_keyboard_active() {
@@ -54,7 +52,7 @@ bool kinc_keyboard_active() {
 void loadURL(const char* url);
 
 void kinc_load_url(const char* url) {
-	::loadURL(url);
+	loadURL(url);
 }
 
 // On iOS you can't set the length of the vibration.
@@ -76,11 +74,11 @@ const char* kinc_language() {
 // called on rotation event
 void KoreUpdateKeyboard() {
 	if (keyboardshown) {
-		::hideKeyboard();
-		::showKeyboard();
+		hideKeyboard();
+		showKeyboard();
 	}
 	else {
-		::hideKeyboard();
+		hideKeyboard();
 	}
 }
 
@@ -103,15 +101,13 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 	return 0;
 }
 
-void endGL();
+void endGL(void);
 
-void swapBuffersiOS() {
+void swapBuffersiOS(void) {
 	endGL();
 }
 
-namespace {
-	char sysid[512];
-}
+static char sysid[512];
 
 const char* kinc_system_id() {
 	const char* name = [[[UIDevice currentDevice] name] UTF8String];
@@ -122,33 +118,29 @@ const char* kinc_system_id() {
 	return sysid;
 }
 
-namespace {
-	const char* getSavePath() {
-		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-		NSString* resolvedPath = [paths objectAtIndex:0];
-		NSString* appName = [NSString stringWithUTF8String:kinc_application_name()];
-		resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
+static const char* getSavePath(void) {
+	NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+	NSString* resolvedPath = [paths objectAtIndex:0];
+	NSString* appName = [NSString stringWithUTF8String:kinc_application_name()];
+	resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
 
-		NSFileManager* fileMgr = [[NSFileManager alloc] init];
+	NSFileManager* fileMgr = [[NSFileManager alloc] init];
 
-		NSError* error;
-		[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
+	NSError* error;
+	[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
 
-		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
-		return [resolvedPath cStringUsingEncoding:1];
-	}
+	resolvedPath = [resolvedPath stringByAppendingString:@"/"];
+	return [resolvedPath cStringUsingEncoding:1];
 }
 
 const char* kinc_internal_save_path() {
 	return getSavePath();
 }
 
-namespace {
-	const char* videoFormats[] = {"mp4", nullptr};
-}
+static const char* videoFormats[] = {"mp4", NULL};
 
 const char** kinc_video_formats() {
-	return ::videoFormats;
+	return videoFormats;
 }
 
 #include <mach/mach_time.h>
