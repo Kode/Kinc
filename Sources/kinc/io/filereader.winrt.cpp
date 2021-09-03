@@ -22,7 +22,7 @@ const char *iphonegetresourcepath();
 #endif
 
 #ifdef KORE_MACOS
-const char *macgetresourcepath();
+extern "C" const char *macgetresourcepath();
 #endif
 
 #ifdef KORE_ANDROID

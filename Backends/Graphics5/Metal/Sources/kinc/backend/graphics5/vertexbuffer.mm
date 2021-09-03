@@ -7,8 +7,8 @@
 
 #import <Metal/Metal.h>
 
-id getMetalDevice();
-id getMetalEncoder();
+extern "C" id getMetalDevice();
+extern "C" id getMetalEncoder();
 
 kinc_g5_vertex_buffer_t *currentVertexBuffer = nullptr;
 extern kinc_g5_index_buffer_t *currentIndexBuffer;

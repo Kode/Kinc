@@ -70,6 +70,10 @@ kinc_matrix3x3_t kinc_matrix3x3_translation(float x, float y) {
 	return m;
 }
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#endif
+
 kinc_matrix3x3_t kinc_matrix3x3_multiply(kinc_matrix3x3_t *a, kinc_matrix3x3_t *b) {
 	kinc_matrix3x3_t result;
 	for (unsigned x = 0; x < 3; ++x) {
@@ -123,10 +127,6 @@ void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix) {
 	}
 	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
 }
-
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wconditional-uninitialized"
-#endif
 
 kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_matrix4x4_t *b) {
 	kinc_matrix4x4_t result;

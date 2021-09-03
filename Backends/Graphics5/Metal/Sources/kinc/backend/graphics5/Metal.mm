@@ -7,11 +7,11 @@
 #import <Metal/Metal.h>
 #import <MetalKit/MTKView.h>
 
-id getMetalLayer();
-id getMetalDevice();
-id getMetalQueue();
-
 extern "C" {
+	id getMetalLayer();
+	id getMetalDevice();
+	id getMetalQueue();
+
 	int renderTargetWidth;
 	int renderTargetHeight;
 	int newRenderTargetWidth;
@@ -25,7 +25,7 @@ id<MTLTexture> depthTexture;
 int depthBits;
 int stencilBits;
 
-id getMetalEncoder() {
+extern "C" id getMetalEncoder() {
 	return commandEncoder;
 }
 

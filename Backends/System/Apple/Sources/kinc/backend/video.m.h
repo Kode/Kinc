@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern const char* iphonegetresourcepath();
-extern const char* macgetresourcepath();
+extern const char* iphonegetresourcepath(void);
+extern const char* macgetresourcepath(void);
 
 void kinc_internal_video_sound_stream_init(kinc_internal_video_sound_stream_t *stream, int channel_count, int frequency) {
     stream->bufferSize = 1024 * 100;
@@ -19,11 +19,11 @@ void kinc_internal_video_sound_stream_init(kinc_internal_video_sound_stream_t *s
     stream->bufferWritePosition = 0;
     stream->read = 0;
     stream->written = 0;
-    stream->buffer = new float[stream->bufferSize];
+    stream->buffer = (float*)malloc(stream->bufferSize * sizeof(float));
 }
 
 void kinc_internal_video_sound_stream_destroy(kinc_internal_video_sound_stream_t *stream) {
-    delete[] stream->buffer;
+    free(stream->buffer);
 }
 
 void kinc_internal_video_sound_stream_insert_data(kinc_internal_video_sound_stream_t *stream, float *data, int sample_count) {
@@ -65,7 +65,7 @@ static void load(kinc_video_t *video, double startTime) {
     AVAssetReaderTrackOutput* videoOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoOutputSettings];
 
     bool hasAudio = [[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0;
-    AVAssetReaderAudioMixOutput* audioOutput = nullptr;
+    AVAssetReaderAudioMixOutput* audioOutput = NULL;
     if (hasAudio) {
         AVAssetTrack* audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
         NSDictionary* audioOutputSettings = [NSDictionary
@@ -93,7 +93,7 @@ static void load(kinc_video_t *video, double startTime) {
         video->impl.audioTrackOutput = audioOutput;
     }
     else {
-        video->impl.audioTrackOutput = nullptr;
+        video->impl.audioTrackOutput = NULL;
     }
 
     if (video->impl.myWidth < 0) video->impl.myWidth = [videoTrack naturalSize].width;
@@ -106,7 +106,7 @@ static void load(kinc_video_t *video, double startTime) {
 
 void kinc_video_init(kinc_video_t *video, const char *filename) {
     video->impl.playing = false;
-    video->impl.sound = nullptr;
+    video->impl.sound = NULL;
     video->impl.image_initialized = false;
 	char name[2048];
 #ifdef KORE_IOS
@@ -130,10 +130,10 @@ void kinc_video_destroy(kinc_video_t *video) {
 
 #ifdef KORE_IOS
 void iosPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video);
-void iosStopVideoSoundStream();
+void iosStopVideoSoundStream(void);
 #else
 void macPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video);
-void macStopVideoSoundStream();
+void macStopVideoSoundStream(void);
 #endif
 
 void kinc_video_play(kinc_video_t *video) {
@@ -156,7 +156,7 @@ void kinc_video_play(kinc_video_t *video) {
 
 void kinc_video_pause(kinc_video_t *video) {
 	video->impl.playing = false;
-	if (video->impl.sound != nullptr) {
+	if (video->impl.sound != NULL) {
 // Mixer::stop(sound);
 #ifdef KORE_IOS
 		iosStopVideoSoundStream();
@@ -165,7 +165,7 @@ void kinc_video_pause(kinc_video_t *video) {
 #endif
         kinc_internal_video_sound_stream_destroy((kinc_internal_video_sound_stream_t *)video->impl.sound);
 		free(video->impl.sound);
-		video->impl.sound = nullptr;
+		video->impl.sound = NULL;
 	}
 }
 
@@ -212,7 +212,7 @@ static void updateImage(kinc_video_t *video) {
 		CFRelease(buffer);
 	}
 
-	if (video->impl.audioTrackOutput != nullptr) {
+	if (video->impl.audioTrackOutput != NULL) {
 		AVAssetReaderAudioMixOutput* audioOutput = video->impl.audioTrackOutput;
 		while (video->impl.audioTime / 44100.0 < video->impl.next + 0.1) {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];

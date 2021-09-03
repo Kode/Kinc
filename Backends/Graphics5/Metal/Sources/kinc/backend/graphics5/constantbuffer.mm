@@ -2,7 +2,7 @@
 
 #import <Metal/Metal.h>
 
-id getMetalDevice();
+extern "C" id getMetalDevice();
 
 bool kinc_g5_transposeMat3 = true;
 bool kinc_g5_transposeMat4 = true;

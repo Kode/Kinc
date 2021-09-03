@@ -3,12 +3,8 @@
 #include <kinc/display.h>
 #include <kinc/log.h>
 
-using namespace Kore;
-
-namespace {
-	const int maxDisplays = 10;
-	//Display displays[maxDisplays];
-}
+#define maxDisplays 10
+//Display displays[maxDisplays];
 
 /*void initMacDisplays() {
 	for (int i = 0; i < maxDisplays; ++i) {
@@ -16,12 +12,12 @@ namespace {
 	}
 }*/
 
-int kinc_count_displays() {
+int kinc_count_displays(void) {
 	NSArray* screens = [NSScreen screens];
 	return (int)[screens count];
 }
 
-int kinc_primary_display() {
+int kinc_primary_display(void) {
 	NSArray* screens = [NSScreen screens];
 	NSScreen* mainScreen = [NSScreen mainScreen];
 	for (int i = 0; i < maxDisplays; ++i) {
@@ -32,7 +28,7 @@ int kinc_primary_display() {
 	return -1;
 }
 
-void kinc_display_init() {
+void kinc_display_init(void) {
 
 }
 

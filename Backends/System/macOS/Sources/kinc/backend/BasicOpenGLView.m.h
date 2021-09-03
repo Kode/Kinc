@@ -11,12 +11,10 @@
 
 @implementation BasicOpenGLView
 
-namespace {
-	bool shift = false;
-	bool ctrl = false;
-	bool alt = false;
-	bool cmd = false;
-}
+static bool shift = false;
+static bool ctrl = false;
+static bool alt = false;
+static bool cmd = false;
 
 #ifndef KORE_METAL
 + (NSOpenGLPixelFormat*)basicPixelFormat {
@@ -156,7 +154,7 @@ namespace {
 		default:
 			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
 				char* text = kinc_internal_cut_callback();
-				if (text != nullptr) {
+				if (text != NULL) {
 					NSPasteboard* board = [NSPasteboard generalPasteboard];
 					[board clearContents];
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
@@ -164,7 +162,7 @@ namespace {
 			}
 			if (ch == 'c' && [theEvent modifierFlags] & NSCommandKeyMask) {
 				char* text = kinc_internal_copy_callback();
-				if (text != nullptr) {
+				if (text != NULL) {
 					NSPasteboard* board = [NSPasteboard generalPasteboard];
 					[board clearContents];
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
@@ -276,23 +274,21 @@ namespace {
 	}
 }
 
-namespace {
-	int getMouseX(NSEvent* event) {
+	static int getMouseX(NSEvent* event) {
 		// TODO (DK) map [theEvent window] to window id instead of 0
 		NSWindow* window = [[NSApplication sharedApplication] mainWindow];
 		float scale = [window backingScaleFactor];
-		return static_cast<int>([event locationInWindow].x * scale);
+		return (int)([event locationInWindow].x * scale);
 	}
 
-	int getMouseY(NSEvent* event) {
+	static int getMouseY(NSEvent* event) {
 		// TODO (DK) map [theEvent window] to window id instead of 0
 		NSWindow* window = [[NSApplication sharedApplication] mainWindow];
 		float scale = [window backingScaleFactor];
-		return static_cast<int>(kinc_height() - [event locationInWindow].y * scale);
+		return (int)(kinc_height() - [event locationInWindow].y * scale);
 	}
 
-	bool controlKeyMouseButton = false;
-}
+	static bool controlKeyMouseButton = false;
 
 - (void)mouseDown:(NSEvent*)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0

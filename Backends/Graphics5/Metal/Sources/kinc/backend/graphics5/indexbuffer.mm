@@ -3,7 +3,7 @@
 
 #import <Metal/Metal.h>
 
-id getMetalDevice();
+extern "C" id getMetalDevice();
 
 kinc_g5_index_buffer_t *currentIndexBuffer = nullptr;
 

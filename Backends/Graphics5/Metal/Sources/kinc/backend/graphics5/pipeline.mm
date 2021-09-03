@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-id getMetalDevice();
-id getMetalEncoder();
+extern "C" id getMetalDevice();
+extern "C" id getMetalEncoder();
 
 namespace {
 	MTLBlendFactor convert(kinc_g5_blending_operation_t op) {

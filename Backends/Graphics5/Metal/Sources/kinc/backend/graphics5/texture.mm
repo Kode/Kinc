@@ -7,7 +7,7 @@
 
 #import <Metal/Metal.h>
 
-id getMetalDevice();
+extern "C" id getMetalDevice();
 
 namespace {
 	MTLPixelFormat convert(kinc_image_format_t format) {
@@ -119,8 +119,8 @@ void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
 	}
 }
 
-id getMetalDevice();
-id getMetalEncoder();
+extern "C" id getMetalDevice();
+extern "C" id getMetalEncoder();
 
 #if 0
 void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5_texture_descriptor_t descriptor) {

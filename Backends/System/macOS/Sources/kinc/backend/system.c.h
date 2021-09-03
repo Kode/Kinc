@@ -5,10 +5,8 @@
 #include <kinc/system.h>
 #include <kinc/video.h>
 
-namespace {
-	int mouseX, mouseY;
-	bool keyboardShown = false;
-}
+static int mouseX, mouseY;
+static bool keyboardShown = false;
 
 void Kinc_Mouse_GetPosition(int window, int *x, int *y) {
 	*x = mouseX;
@@ -33,12 +31,10 @@ const char* kinc_system_id() {
 	return "macOS";
 }
 
-namespace {
-	const char* videoFormats[] = {"ogv", nullptr};
-}
+static const char* videoFormats[] = {"ogv", NULL};
 
 const char** kinc_video_formats() {
-	return ::videoFormats;
+	return videoFormats;
 }
 
 void kinc_set_keep_screen_on(bool on) {}

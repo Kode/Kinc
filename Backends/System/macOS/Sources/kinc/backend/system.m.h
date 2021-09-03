@@ -3,7 +3,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include <kinc/graphics4/graphics.h>
-#include <kinc/backend/input/HIDManager.h>
+#include <kinc/backend/HIDManager.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
@@ -13,17 +13,15 @@
 
 #include <kinc/backend/windowdata.h>
 
-extern "C" {
-	bool withAutoreleasepool(bool (*f)()) {
-		@autoreleasepool {
-			return f();
-		}
+bool withAutoreleasepool(bool (*f)(void)) {
+	@autoreleasepool {
+		return f();
 	}
 }
 
-extern const char* macgetresourcepath();
+extern const char* macgetresourcepath(void);
 
-const char* macgetresourcepath() {
+const char* macgetresourcepath(void) {
 	return [[[NSBundle mainBundle] resourcePath] cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
@@ -40,12 +38,11 @@ const char* macgetresourcepath() {
 - (void)windowDidBecomeMain:(NSNotification *)notification;
 @end
 
-namespace {
-	NSApplication* myapp;
-	NSWindow* window;
-	BasicOpenGLView* view;
-	KincAppDelegate* delegate;
-	Kore::HIDManager* hidManager;
+static NSApplication* myapp;
+static NSWindow* window;
+static BasicOpenGLView* view;
+static KincAppDelegate* delegate;
+static struct HIDManager* hidManager;
 
 	/*struct KoreWindow : public KoreWindowBase {
 		NSWindow* handle;
@@ -57,28 +54,25 @@ namespace {
 		}
 	};*/
 
-	Kore::WindowData windows[10] = {};
-	int windowCounter = 0;
-}
+static struct WindowData windows[10] = {};
+static int windowCounter = 0;
 
 #ifdef KORE_METAL
-
-CAMetalLayer* getMetalLayer() {
+CAMetalLayer* getMetalLayer(void) {
 	return [view metalLayer];
 }
 
-id getMetalDevice() {
+id getMetalDevice(void) {
 	return [view metalDevice];
 }
 
-id getMetalLibrary() {
+id getMetalLibrary(void) {
 	return [view metalLibrary];
 }
 
-id getMetalQueue() {
+id getMetalQueue(void) {
 	return [view metalQueue];
 }
-
 #endif
 
 bool kinc_internal_handle_messages() {
@@ -113,9 +107,9 @@ static int createWindow(kinc_window_options_t *options) {
 		styleMask |= NSMiniaturizableWindowMask;
 	}
 
-	BasicOpenGLView* view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
+	view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
 	[view registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, nil]];
-	NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:styleMask backing:NSBackingStoreBuffered defer:TRUE];
+	window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height) styleMask:styleMask backing:NSBackingStoreBuffered defer:TRUE];
 	delegate = [KincAppDelegate alloc];
 	[window setDelegate:delegate];
 	[window setTitle:[NSString stringWithCString:options->title encoding:NSUTF8StringEncoding]];
@@ -125,9 +119,7 @@ static int createWindow(kinc_window_options_t *options) {
 
 	windows[windowCounter].handle = window;
 	windows[windowCounter].view = view;
-	::window = window;
-	::view = view;
-
+	
 	[window makeKeyAndOrderFront:nil];
 
 	if (options->mode == KINC_WINDOW_MODE_FULLSCREEN || options->mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
@@ -184,7 +176,8 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
 		NSApp.activationPolicy = NSApplicationActivationPolicyRegular;
 
-		hidManager = new Kore::HIDManager();
+		hidManager = (struct HIDManager *)malloc(sizeof(struct HIDManager));
+		HIDManager_init(hidManager);
 		addMenubar();
 	}
 
@@ -247,8 +240,7 @@ void kinc_internal_shutdown() {
 
 }
 
-namespace {
-	const char* getSavePath() {
+	static const char* getSavePath(void) {
 		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSString* resolvedPath = [paths objectAtIndex:0];
 		NSString* appName = [NSString stringWithUTF8String: kinc_application_name()];
@@ -262,7 +254,6 @@ namespace {
 		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
 		return [resolvedPath cStringUsingEncoding:NSUTF8StringEncoding];
 	}
-}
 
 const char* kinc_internal_save_path() {
 	return getSavePath();
@@ -292,7 +283,7 @@ int main(int argc, char** argv) {
 	NSWindow* window = [notification object];
 	NSSize size = [[window contentView]frame].size;
 	[view resize:size];
-	if (windows[0].resizeCallback != nullptr) {
+	if (windows[0].resizeCallback != NULL) {
 		windows[0].resizeCallback(size.width, size.height, windows[0].resizeCallbackData);
 	}
 }

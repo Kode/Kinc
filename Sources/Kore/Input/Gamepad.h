@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Kore {
+/*namespace Kore {
 	class Gamepad {
 	public:
 		static Gamepad* get(int num);
@@ -17,4 +17,4 @@ namespace Kore {
 	private:
 		int num;
 	};
-}
+}*/

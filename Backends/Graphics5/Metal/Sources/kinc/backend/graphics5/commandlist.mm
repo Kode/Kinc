@@ -15,9 +15,12 @@
 
 extern kinc_g5_index_buffer_t *currentIndexBuffer;
 
-id getMetalDevice();
-id getMetalQueue();
-id getMetalEncoder();
+extern "C" {
+	id getMetalDevice();
+	id getMetalQueue();
+	id getMetalEncoder();
+}
+
 void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, int count, bool wait, unsigned clear_flags, unsigned color, float depth,
                                       int stencil);
 void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline);

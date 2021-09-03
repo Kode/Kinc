@@ -5,8 +5,8 @@
 
 #include <Metal/Metal.h>
 
-id getMetalDevice();
-id getMetalLibrary();
+extern "C" id getMetalDevice();
+extern "C" id getMetalLibrary();
 
 void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {
 	shader->impl.mtlFunction = nil;

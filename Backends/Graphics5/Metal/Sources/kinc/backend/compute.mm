@@ -6,8 +6,8 @@
 
 using namespace Kore;
 
-id getMetalDevice();
-id getMetalLibrary();
+extern "C" id getMetalDevice();
+extern "C" id getMetalLibrary();
 
 namespace {
 	const int constantsSize = 1024 * 4;
@@ -49,7 +49,7 @@ namespace {
 	id<MTLBuffer> buffer;
 }
 
-void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> queue) {
+extern "C" void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> queue) {
 	commandQueue = queue;
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer computeCommandEncoder];

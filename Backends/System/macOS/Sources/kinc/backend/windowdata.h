@@ -2,7 +2,6 @@
 
 #include <objc/runtime.h>
 
-namespace Kore {
 	struct WindowData {
 		id handle;
 		id view;
@@ -10,6 +9,5 @@ namespace Kore {
 		void (*resizeCallback)(int width, int height, void* data);
 		void* resizeCallbackData;
 	};
-}
 
 NSWindow* kinc_get_mac_window_handle(int window_index);
