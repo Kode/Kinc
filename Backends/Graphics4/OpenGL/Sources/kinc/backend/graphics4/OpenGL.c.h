@@ -60,61 +60,57 @@
 #endif
 
 #if !defined(KORE_IOS) && !defined(KORE_ANDROID)
-extern "C" bool Kinc_Internal_ProgramUsesTessellation;
+bool Kinc_Internal_ProgramUsesTessellation;
 #endif
-extern "C" bool Kinc_Internal_SupportsConservativeRaster;
 bool Kinc_Internal_SupportsConservativeRaster = false;
-extern "C" bool Kinc_Internal_SupportsDepthTexture;
 bool Kinc_Internal_SupportsDepthTexture = true;
 
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 extern "C" void *glesVertexAttribDivisor;
 #endif
 
-namespace {
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)
-	void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
-		kinc_log(KINC_LOG_LEVEL_INFO, "OpenGL: %s", message);
-	}
+static void __stdcall debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+	kinc_log(KINC_LOG_LEVEL_INFO, "OpenGL: %s", message);
+}
 #endif
 
 #ifdef KORE_WINDOWS
-	HINSTANCE instance = 0;
+static HINSTANCE instance = 0;
 #endif
 
-	int currentWindow = 0;
+static int currentWindow = 0;
 
-	kinc_g4_texture_filter_t minFilters[32];
-	kinc_g4_mipmap_filter_t mipFilters[32];
+static kinc_g4_texture_filter_t minFilters[32];
+static kinc_g4_mipmap_filter_t mipFilters[32];
 
-	int _width;
-	int _height;
-	int _renderTargetWidth;
-	int _renderTargetHeight;
-	bool renderToBackbuffer;
+static int _width;
+static int _height;
+static int _renderTargetWidth;
+static int _renderTargetHeight;
+static bool renderToBackbuffer;
 
-	int maxColorAttachments;
+static int maxColorAttachments;
 
-	kinc_g4_pipeline_t *lastPipeline = nullptr;
+static kinc_g4_pipeline_t *lastPipeline = NULL;
 
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
-	void *glesDrawBuffers;
-	void *glesDrawElementsInstanced;
+static void *glesDrawBuffers;
+static void *glesDrawElementsInstanced;
 #endif
 
-	int texModesU[256];
-	int texModesV[256];
-}
+static int texModesU[256];
+static int texModesV[256];
 
-extern "C" void kinc_internal_resize(int window, int width, int height) {}
+void kinc_internal_resize(int window, int width, int height) {}
 
-extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
+void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
 #ifdef KORE_WINDOWS
 	if (window == 0) {
 #ifdef KORE_VR
 		frame->vertical_sync = false;
 #endif
-		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(frame->vertical_sync);
+		if (wglSwapIntervalEXT != NULL) wglSwapIntervalEXT(frame->vertical_sync);
 	}
 #endif
 }
@@ -122,16 +118,16 @@ extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_op
 void kinc_g4_destroy(int window) {
 #ifdef KORE_WINDOWS
 	if (Kinc_Internal_windows[window].glContext) {
-		assert(wglMakeCurrent(nullptr, nullptr));
+		assert(wglMakeCurrent(NULL, NULL));
 		assert(wglDeleteContext(Kinc_Internal_windows[window].glContext));
-		Kinc_Internal_windows[window].glContext = nullptr;
+		Kinc_Internal_windows[window].glContext = NULL;
 	}
 
 	HWND windowHandle = kinc_windows_window_handle(window);
 
-	if (Kinc_Internal_windows[window].deviceContext != nullptr) {
+	if (Kinc_Internal_windows[window].deviceContext != NULL) {
 		ReleaseDC(windowHandle, Kinc_Internal_windows[window].deviceContext);
-		Kinc_Internal_windows[window].deviceContext = nullptr;
+		Kinc_Internal_windows[window].deviceContext = NULL;
 	}
 #endif
 }
@@ -165,7 +161,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 #ifdef KORE_VR
 		vsync = false;
 #endif
-		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(vsync);
+		if (wglSwapIntervalEXT != NULL) wglSwapIntervalEXT(vsync);
 	}
 #endif
 
@@ -183,7 +179,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)
 	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(debugCallback, nullptr);
+	glDebugMessageCallback(debugCallback, NULL);
 #endif
 
 #ifndef KORE_OPENGL_ES
@@ -191,7 +187,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	glGetIntegerv(GL_NUM_EXTENSIONS, &extensions);
 	for (int i = 0; i < extensions; ++i) {
 		const char *extension = (const char *)glGetStringi(GL_EXTENSIONS, i);
-		if (extension != nullptr && strcmp(extension, "GL_NV_conservative_raster") == 0) {
+		if (extension != NULL && strcmp(extension, "GL_NV_conservative_raster") == 0) {
 			Kinc_Internal_SupportsConservativeRaster = true;
 		}
 	}
@@ -206,7 +202,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
 
-	lastPipeline = nullptr;
+	lastPipeline = NULL;
 
 #ifndef KORE_OPENGL_ES
 	int major = -1, minor = -1;
@@ -338,7 +334,7 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 	glCheckErrors();
 }
 
-extern "C" kinc_g4_index_buffer_t *Kinc_Internal_CurrentIndexBuffer;
+kinc_g4_index_buffer_t *Kinc_Internal_CurrentIndexBuffer;
 
 void kinc_g4_draw_indexed_vertices() {
 	kinc_g4_draw_indexed_vertices_from_to(0, kinc_g4_index_buffer_count(Kinc_Internal_CurrentIndexBuffer));
@@ -415,22 +411,22 @@ void swapLinuxBuffers(int window);
 #endif
 
 #ifdef KORE_MACOS
-extern "C" void swapBuffersMac(int window);
+void swapBuffersMac(int window);
 #endif
 
 #ifdef KORE_IOS
-extern "C" void swapBuffersiOS();
+void swapBuffersiOS();
 #endif
 
 bool kinc_g4_swap_buffers() {
 #ifdef KORE_WINDOWS
 	for (int i = 9; i >= 0; --i) {
-		if (Kinc_Internal_windows[i].deviceContext != nullptr) {
+		if (Kinc_Internal_windows[i].deviceContext != NULL) {
 			wglMakeCurrent(Kinc_Internal_windows[i].deviceContext, Kinc_Internal_windows[i].glContext);
 			if (i != 0) {
 				Kinc_Internal_blitWindowContent(i);
 			}
-			::SwapBuffers(Kinc_Internal_windows[i].deviceContext);
+			SwapBuffers(Kinc_Internal_windows[i].deviceContext);
 		}
 	}
 #elif defined(KORE_ANDROID)
@@ -446,7 +442,7 @@ bool kinc_g4_swap_buffers() {
 }
 
 #ifdef KORE_IOS
-extern "C" void beginGL();
+void beginGL();
 #endif
 
 void kinc_g4_begin(int window) {
@@ -528,7 +524,7 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 		glEnable(GL_SCISSOR_TEST);
 	}
 
-	if (lastPipeline != nullptr) {
+	if (lastPipeline != NULL) {
 		kinc_g4_set_pipeline(lastPipeline);
 	}
 }
@@ -544,8 +540,8 @@ void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *indexBuffer) {
 	kinc_internal_g4_index_buffer_set(indexBuffer);
 }
 
-extern "C" void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
-extern "C" void Kinc_G4_Internal_TextureImageSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
+void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
+void Kinc_G4_Internal_TextureImageSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
 
 void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {
 	Kinc_G4_Internal_TextureSet(texture, unit);
@@ -561,65 +557,63 @@ int kinc_g4_max_bound_textures(void) {
 	return units;
 }
 
-namespace {
-	void setTextureAddressingInternal(GLenum target, kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-		glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-		GLenum texDir;
-		switch (dir) {
-		case KINC_G4_TEXTURE_DIRECTION_U:
-			texDir = GL_TEXTURE_WRAP_S;
-			break;
-		case KINC_G4_TEXTURE_DIRECTION_V:
-			texDir = GL_TEXTURE_WRAP_T;
-			break;
-		case KINC_G4_TEXTURE_DIRECTION_W:
+static void setTextureAddressingInternal(GLenum target, kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
+	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+	GLenum texDir;
+	switch (dir) {
+	case KINC_G4_TEXTURE_DIRECTION_U:
+		texDir = GL_TEXTURE_WRAP_S;
+		break;
+	case KINC_G4_TEXTURE_DIRECTION_V:
+		texDir = GL_TEXTURE_WRAP_T;
+		break;
+	case KINC_G4_TEXTURE_DIRECTION_W:
 #ifndef KORE_OPENGL_ES
-			texDir = GL_TEXTURE_WRAP_R;
+		texDir = GL_TEXTURE_WRAP_R;
 #endif
-			break;
-		}
-		switch (addressing) {
-		case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
-			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
-			if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-				texModesU[unit.impl.unit] = GL_CLAMP_TO_EDGE;
-			}
-			else {
-				texModesV[unit.impl.unit] = GL_CLAMP_TO_EDGE;
-			}
-			break;
-		case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
-			glTexParameteri(target, texDir, GL_REPEAT);
-			if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-				texModesU[unit.impl.unit] = GL_REPEAT;
-			}
-			else {
-				texModesV[unit.impl.unit] = GL_REPEAT;
-			}
-			break;
-		case KINC_G4_TEXTURE_ADDRESSING_BORDER:
-			// unsupported
-			glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
-			if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-				texModesU[unit.impl.unit] = GL_CLAMP_TO_EDGE;
-			}
-			else {
-				texModesV[unit.impl.unit] = GL_CLAMP_TO_EDGE;
-			}
-			break;
-		case KINC_G4_TEXTURE_ADDRESSING_MIRROR:
-			// unsupported
-			glTexParameteri(target, texDir, GL_REPEAT);
-			if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-				texModesU[unit.impl.unit] = GL_REPEAT;
-			}
-			else {
-				texModesV[unit.impl.unit] = GL_REPEAT;
-			}
-			break;
-		}
-		glCheckErrors();
+		break;
 	}
+	switch (addressing) {
+	case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
+		glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+		if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
+			texModesU[unit.impl.unit] = GL_CLAMP_TO_EDGE;
+		}
+		else {
+			texModesV[unit.impl.unit] = GL_CLAMP_TO_EDGE;
+		}
+		break;
+	case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
+		glTexParameteri(target, texDir, GL_REPEAT);
+		if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
+			texModesU[unit.impl.unit] = GL_REPEAT;
+		}
+		else {
+			texModesV[unit.impl.unit] = GL_REPEAT;
+		}
+		break;
+	case KINC_G4_TEXTURE_ADDRESSING_BORDER:
+		// unsupported
+		glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
+		if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
+			texModesU[unit.impl.unit] = GL_CLAMP_TO_EDGE;
+		}
+		else {
+			texModesV[unit.impl.unit] = GL_CLAMP_TO_EDGE;
+		}
+		break;
+	case KINC_G4_TEXTURE_ADDRESSING_MIRROR:
+		// unsupported
+		glTexParameteri(target, texDir, GL_REPEAT);
+		if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
+			texModesU[unit.impl.unit] = GL_REPEAT;
+		}
+		else {
+			texModesV[unit.impl.unit] = GL_REPEAT;
+		}
+		break;
+	}
+	glCheckErrors();
 }
 
 int Kinc_G4_Internal_TextureAddressingU(kinc_g4_texture_unit_t unit) {
@@ -640,22 +634,20 @@ void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_textu
 #endif
 }
 
-namespace {
-	void setTextureMagnificationFilterInternal(GLenum target, kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-		glActiveTexture(GL_TEXTURE0 + texunit.impl.unit);
-		glCheckErrors();
-		switch (filter) {
-		case KINC_G4_TEXTURE_FILTER_POINT:
-			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			break;
-		case KINC_G4_TEXTURE_FILTER_LINEAR:
-		case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
-			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			break;
-		}
-		glCheckErrors();
+static void setTextureMagnificationFilterInternal(GLenum target, kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
+	glActiveTexture(GL_TEXTURE0 + texunit.impl.unit);
+	glCheckErrors();
+	switch (filter) {
+	case KINC_G4_TEXTURE_FILTER_POINT:
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		break;
+	case KINC_G4_TEXTURE_FILTER_LINEAR:
+	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		break;
 	}
-} // namespace
+	glCheckErrors();
+}
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	setTextureMagnificationFilterInternal(GL_TEXTURE_2D, texunit, filter);
@@ -667,47 +659,45 @@ void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, 
 #endif
 }
 
-namespace {
-	void setMinMipFilters(GLenum target, int unit) {
-		glActiveTexture(GL_TEXTURE0 + unit);
-		glCheckErrors();
-		switch (minFilters[unit]) {
-		case KINC_G4_TEXTURE_FILTER_POINT:
-			switch (mipFilters[unit]) {
-			case KINC_G4_MIPMAP_FILTER_NONE:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				break;
-			case KINC_G4_MIPMAP_FILTER_POINT:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-				break;
-			case KINC_G4_MIPMAP_FILTER_LINEAR:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-				break;
-			}
+static void setMinMipFilters(GLenum target, int unit) {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glCheckErrors();
+	switch (minFilters[unit]) {
+	case KINC_G4_TEXTURE_FILTER_POINT:
+		switch (mipFilters[unit]) {
+		case KINC_G4_MIPMAP_FILTER_NONE:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			break;
-		case KINC_G4_TEXTURE_FILTER_LINEAR:
-		case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
-			switch (mipFilters[unit]) {
-			case KINC_G4_MIPMAP_FILTER_NONE:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				break;
-			case KINC_G4_MIPMAP_FILTER_POINT:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case KINC_G4_MIPMAP_FILTER_LINEAR:
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-				break;
-			}
-			if (minFilters[unit] == KINC_G4_TEXTURE_FILTER_ANISOTROPIC) {
-				float maxAniso = 0.0f;
-				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
-				glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
-			}
+		case KINC_G4_MIPMAP_FILTER_POINT:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+			break;
+		case KINC_G4_MIPMAP_FILTER_LINEAR:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 			break;
 		}
-		glCheckErrors();
+		break;
+	case KINC_G4_TEXTURE_FILTER_LINEAR:
+	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
+		switch (mipFilters[unit]) {
+		case KINC_G4_MIPMAP_FILTER_NONE:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			break;
+		case KINC_G4_MIPMAP_FILTER_POINT:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+			break;
+		case KINC_G4_MIPMAP_FILTER_LINEAR:
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			break;
+		}
+		if (minFilters[unit] == KINC_G4_TEXTURE_FILTER_ANISOTROPIC) {
+			float maxAniso = 0.0f;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+			glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+		}
+		break;
 	}
-} // namespace
+	glCheckErrors();
+}
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	minFilters[texunit.impl.unit] = filter;
@@ -875,7 +865,7 @@ void kinc_g4_set_stencil_reference_value(int value) {
 	glStencilFunc(Kinc_G4_Internal_StencilFunc(lastPipeline->stencil_mode), value, lastPipeline->stencil_read_mask);
 }
 
-extern "C" void Kinc_G4_Internal_TextureArraySet(kinc_g4_texture_array *array, kinc_g4_texture_unit_t unit);
+void Kinc_G4_Internal_TextureArraySet(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit);
 
 void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, kinc_g4_texture_array_t *array) {
 	Kinc_G4_Internal_TextureArraySet(array, unit);
