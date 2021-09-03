@@ -1,4 +1,3 @@
-#include <Kore/Input/Gamepad.h>
 #include <kinc/backend/HIDManager.h>
 #include <kinc/log.h>
 
