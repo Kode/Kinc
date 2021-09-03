@@ -66,7 +66,7 @@ bool Kinc_Internal_SupportsConservativeRaster = false;
 bool Kinc_Internal_SupportsDepthTexture = true;
 
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
-extern "C" void *glesVertexAttribDivisor;
+void *glesVertexAttribDivisor;
 #endif
 
 #if defined(KORE_WINDOWS) && !defined(NDEBUG)

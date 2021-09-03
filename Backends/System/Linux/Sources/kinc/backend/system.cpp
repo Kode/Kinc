@@ -939,7 +939,7 @@ const char* kinc_system_id() {
 	return "Linux";
 }
 
-void swapLinuxBuffers(int window) {
+extern "C" void swapLinuxBuffers(int window) {
 #ifdef KORE_OPENGL
 	glXSwapBuffers(Kore::Linux::display, kinc_internal_windows[window].handle);
 #endif
