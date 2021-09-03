@@ -54,7 +54,7 @@ extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_i
 }
 #endif
 
-void androidSwapBuffers() {
+extern "C" void androidSwapBuffers() {
 #ifndef KORE_VULKAN
 	if (glContext->Swap() != EGL_SUCCESS) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "GL context lost.");
