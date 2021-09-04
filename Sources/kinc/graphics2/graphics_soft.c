@@ -97,6 +97,7 @@ static void draw_pixel_point(kinc_image_t *img, int frame_x, int frame_y, float 
 	}
 }
 
+#if 0
 static void draw_pixel_bilinear(kinc_image_t *img, int frame_x, int frame_y, float u, float v) {
 	// int xi = (int)kinc_round(x);
 	// int yi = (int)kinc_round(y);
@@ -171,6 +172,7 @@ static void draw_pixel_bilinear(kinc_image_t *img, int frame_x, int frame_y, flo
 		kinc_g1_set_pixel(frame_x, frame_y, rf * a + oldred * (1.0f - a), gf * a + oldgreen * (1.0f - a), bf * a + oldblue * (1.0f - a));
 	}
 }
+#endif
 
 static void draw_pixel(kinc_image_t *img, int frame_x, int frame_y, float u, float v) {
 	draw_pixel_point(img, frame_x, frame_y, u, v);
