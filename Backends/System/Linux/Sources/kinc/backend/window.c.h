@@ -19,11 +19,11 @@ struct KincWindowData kinc_internal_windows[MAXIMUM_WINDOWS] = {0};
 VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
 	VkXlibSurfaceCreateInfoKHR createInfo;
 	createInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
-	createInfo.pNext = nullptr;
+	createInfo.pNext = NULL;
 	createInfo.flags = 0;
-	createInfo.dpy = Kore::Linux::display;
+	createInfo.dpy = kinc_linux_display;
 	createInfo.window = (XID)kinc_internal_windows[window_index].handle;
-	return vkCreateXlibSurfaceKHR(instance, &createInfo, nullptr, surface);
+	return vkCreateXlibSurfaceKHR(instance, &createInfo, NULL, surface);
 }
 #endif
 
