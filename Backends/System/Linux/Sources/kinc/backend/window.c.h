@@ -15,7 +15,8 @@ struct KincWindowData kinc_internal_windows[MAXIMUM_WINDOWS] = {0};
 
 #ifdef KORE_VULKAN
 #include <vulkan/vulkan.h>
-extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
+
+VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
 	VkXlibSurfaceCreateInfoKHR createInfo;
 	createInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
 	createInfo.pNext = nullptr;
