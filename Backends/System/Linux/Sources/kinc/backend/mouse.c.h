@@ -58,16 +58,14 @@ bool kinc_mouse_can_lock(void) {
 bool _mouseHidden = false;
 
 void kinc_mouse_show() {
-    struct Display* dpy = kinc_linux_display;
     Window win = (XID)kinc_internal_windows[0].handle;
     if (_mouseHidden) {
-        XUndefineCursor(dpy, win);
+        XUndefineCursor(kinc_linux_display, win);
         _mouseHidden = false;
     }
 }
 
 void kinc_mouse_hide() {
-    struct Display* dpy = kinc_linux_display;
     Window win = (XID)kinc_internal_windows[0].handle;
     if (!_mouseHidden) {
         XColor col;
@@ -78,82 +76,81 @@ void kinc_mouse_hide() {
         col.flags = DoRed | DoGreen | DoBlue;
         col.pad = 0;
         char data[1] = {'\0'};
-        Pixmap blank = XCreateBitmapFromData(dpy, win, data, 1, 1);
-        Cursor cursor = XCreatePixmapCursor(dpy, blank, blank, &col, &col, 0, 0);
-        XDefineCursor(dpy, win, cursor);
-        XFreePixmap(dpy, blank);
+        Pixmap blank = XCreateBitmapFromData(kinc_linux_display, win, data, 1, 1);
+        Cursor cursor = XCreatePixmapCursor(kinc_linux_display, blank, blank, &col, &col, 0, 0);
+        XDefineCursor(kinc_linux_display, win, cursor);
+        XFreePixmap(kinc_linux_display, blank);
         _mouseHidden = true;
     }
 }
 
 void kinc_mouse_set_cursor(int cursorIndex) {
-    struct Display* dpy = kinc_linux_display;
     Window win = (XID)kinc_internal_windows[0].handle;
     if (!_mouseHidden) {
         Cursor cursor;
         switch(cursorIndex) {
             case 0: {
-                cursor = XcursorLibraryLoadCursor(dpy, "arrow");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "arrow");
                 break;
             }
             case 1: {
-                cursor = XcursorLibraryLoadCursor(dpy, "hand1");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "hand1");
                 break;
             }
             case 2: {
-                cursor = XcursorLibraryLoadCursor(dpy, "xterm");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "xterm");
                 break;
             }
             case 3: {
-                cursor = XcursorLibraryLoadCursor(dpy, "sb_h_double_arrow");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "sb_h_double_arrow");
                 break;
             }
             case 4: {
-                cursor = XcursorLibraryLoadCursor(dpy, "sb_v_double_arrow");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "sb_v_double_arrow");
                 break;
             }
             case 5: {
-                cursor = XcursorLibraryLoadCursor(dpy, "top_right_corner");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "top_right_corner");
                 break;
             }
             case 6: {
-                cursor = XcursorLibraryLoadCursor(dpy, "bottom_right_corner");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "bottom_right_corner");
                 break;
             }
             case 7: {
-                cursor = XcursorLibraryLoadCursor(dpy, "top_left_corner");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "top_left_corner");
                 break;
             }
             case 8: {
-                cursor = XcursorLibraryLoadCursor(dpy, "bottom_left_corner");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "bottom_left_corner");
                 break;
             }
             case 9: {
-                cursor = XcursorLibraryLoadCursor(dpy, "grab");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "grab");
                 break;
             }
             case 10: {
-                cursor = XcursorLibraryLoadCursor(dpy, "grabbing");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "grabbing");
                 break;
             }
             case 11: {
-                cursor = XcursorLibraryLoadCursor(dpy, "not-allowed");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "not-allowed");
                 break;
             }
             case 12: {
-                cursor = XcursorLibraryLoadCursor(dpy, "watch");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "watch");
                 break;
             }
             case 13: {
-                cursor = XcursorLibraryLoadCursor(dpy, "crosshair");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "crosshair");
                 break;
             }
             default: {
-                cursor = XcursorLibraryLoadCursor(dpy, "arrow");
+                cursor = XcursorLibraryLoadCursor(kinc_linux_display, "arrow");
                 break;
             }
         }
-        XDefineCursor(dpy, win, cursor);
+        XDefineCursor(kinc_linux_display, win, cursor);
     }
 }
 

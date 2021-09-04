@@ -949,19 +949,18 @@ bool kinc_keyboard_active() {
 }
 
 void kinc_load_url(const char* url) {
-
 	#define MAX_COMMAND_BUFFER_SIZE 256
 
 	if (strstr(url, "http://") || strstr(url, "https://")) {
-
 		char openUrlCommand[MAX_COMMAND_BUFFER_SIZE];
 		snprintf(openUrlCommand, MAX_COMMAND_BUFFER_SIZE, "xdg-open %s", url);
-		system(openUrlCommand);
-
+		int err = system(openUrlCommand);
+		if (err != 0) {
+			kinc_log(KINC_LOG_LEVEL_WARNING, "Error opening url %s", url);
+		}
 	}
 
 	#undef MAX_COMMAND_BUFFER_SIZE
-
 }
 
 void kinc_vibrate(int ms) {}

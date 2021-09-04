@@ -13,7 +13,7 @@
 	struct HIDGamepad {
 		int idx;
 		char gamepad_dev_name[256];
-		char name[384];
+		char name[385];
 		int file_descriptor;
 		bool connected;
 		struct js_event gamepadEvent;
@@ -28,8 +28,10 @@
 			pad->connected = true;
 
 			char buf[128];
-			if (ioctl(pad->file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0) strncpy(buf, "Unknown", sizeof(buf));
-			snprintf(pad->name, sizeof(pad->name), "%s%s%s%s", buf, " (", pad->gamepad_dev_name, ")");
+			if (ioctl(pad->file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0) {
+				strncpy(buf, "Unknown", sizeof(buf));
+			}
+			snprintf(pad->name, sizeof(pad->name), "%s(%s)", buf, pad->gamepad_dev_name);
 		}
 	}
 
