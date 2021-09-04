@@ -5,15 +5,16 @@
 
 #include <Metal/Metal.h>
 
-extern "C" id getMetalDevice();
-extern "C" id getMetalLibrary();
+id getMetalDevice(void);
+id getMetalLibrary(void);
 
 void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {
 	shader->impl.mtlFunction = nil;
 }
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, kinc_g5_shader_type_t type) {
-	memset(&shader->impl, 0, sizeof(shader->impl));
+	shader->impl.name[0] = 0;
+	shader->impl.mtlFunction = nil;
 
 	{
 		uint8_t *data = (uint8_t*)source;

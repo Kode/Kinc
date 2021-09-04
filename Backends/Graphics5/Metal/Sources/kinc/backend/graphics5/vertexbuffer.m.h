@@ -7,14 +7,14 @@
 
 #import <Metal/Metal.h>
 
-extern "C" id getMetalDevice();
-extern "C" id getMetalEncoder();
+id getMetalDevice(void);
+id getMetalEncoder(void);
 
-kinc_g5_vertex_buffer_t *currentVertexBuffer = nullptr;
+kinc_g5_vertex_buffer_t *currentVertexBuffer = NULL;
 extern kinc_g5_index_buffer_t *currentIndexBuffer;
 
 static void vertex_buffer_unset(kinc_g5_vertex_buffer_t *buffer) {
-	if (currentVertexBuffer == buffer) currentVertexBuffer = nullptr;
+	if (currentVertexBuffer == buffer) currentVertexBuffer = NULL;
 }
 
 void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure_t *structure, bool gpuMemory, int instanceDataStepRate) {
@@ -115,7 +115,7 @@ void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buf, int count) {
 
 int kinc_g5_internal_vertex_buffer_set(kinc_g5_vertex_buffer_t *buffer, int offset_) {
 	currentVertexBuffer = buffer;
-	if (currentIndexBuffer != nullptr) kinc_g5_internal_index_buffer_set(currentIndexBuffer);
+	if (currentIndexBuffer != NULL) kinc_g5_internal_index_buffer_set(currentIndexBuffer);
 
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder setVertexBuffer:buffer->impl.mtlBuffer offset:offset_ * buffer->impl.myStride atIndex:0];

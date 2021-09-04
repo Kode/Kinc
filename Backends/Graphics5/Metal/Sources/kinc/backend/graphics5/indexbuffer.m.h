@@ -3,16 +3,16 @@
 
 #import <Metal/Metal.h>
 
-extern "C" id getMetalDevice();
+id getMetalDevice(void);
 
-kinc_g5_index_buffer_t *currentIndexBuffer = nullptr;
+kinc_g5_index_buffer_t *currentIndexBuffer = NULL;
 
 static void index_buffer_unset(kinc_g5_index_buffer_t *buffer) {
-	if (currentIndexBuffer == buffer) currentIndexBuffer = nullptr;
+	if (currentIndexBuffer == buffer) currentIndexBuffer = NULL;
 }
 
 void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, bool gpuMemory) {
-	memset(&buffer->impl, 0, sizeof(buffer->impl));
+	buffer->impl.mtlBuffer = nil;
 	buffer->impl.myCount = indexCount;
 	buffer->impl.gpuMemory = gpuMemory;
 	id<MTLDevice> device = getMetalDevice();

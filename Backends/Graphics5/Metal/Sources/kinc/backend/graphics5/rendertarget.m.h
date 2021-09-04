@@ -5,8 +5,8 @@
 
 #import <Metal/Metal.h>
 
-extern "C" id getMetalDevice();
-extern "C" id getMetalEncoder();
+id getMetalDevice(void);
+id getMetalEncoder(void);
 
 static MTLPixelFormat convert_format(kinc_g5_render_target_format_t format) {
 	switch (format) {

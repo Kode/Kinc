@@ -8,11 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern "C" id getMetalDevice();
-extern "C" id getMetalEncoder();
+id getMetalDevice(void);
+id getMetalEncoder(void);
 
-namespace {
-	MTLBlendFactor convert(kinc_g5_blending_operation_t op) {
+	static MTLBlendFactor convert_blending_operation(kinc_g5_blending_operation_t op) {
 		switch (op) {
 			case KINC_G5_BLEND_MODE_ONE:
 				return MTLBlendFactorOne;
@@ -37,7 +36,7 @@ namespace {
 		}
 	}
 
-	MTLCompareFunction convert(kinc_g5_compare_mode_t compare) {
+	static MTLCompareFunction convert_compare_mode(kinc_g5_compare_mode_t compare) {
 		switch (compare) {
 			case KINC_G5_COMPARE_MODE_ALWAYS:
 				return MTLCompareFunctionAlways;
@@ -58,7 +57,7 @@ namespace {
 		}
 	}
 
-	MTLCullMode convert(kinc_g5_cull_mode_t cull) {
+	static MTLCullMode convert_cull_mode(kinc_g5_cull_mode_t cull) {
 		switch (cull) {
 		case KINC_G5_CULL_MODE_CLOCKWISE:
 			return MTLCullModeFront;
@@ -69,7 +68,7 @@ namespace {
 		}
 	}
 
-	MTLPixelFormat convert(kinc_g5_render_target_format_t format) {
+	static MTLPixelFormat convert_render_target_format(kinc_g5_render_target_format_t format) {
 		switch (format) {
 		case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
 			return MTLPixelFormatRGBA32Float;
@@ -86,7 +85,6 @@ namespace {
 			return MTLPixelFormatBGRA8Unorm;
 		}
 	}
-}
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
 	memset(&pipeline->impl, 0, sizeof(pipeline->impl));
@@ -112,15 +110,15 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	renderPipelineDesc.vertexFunction = pipeline->vertexShader->impl.mtlFunction;
 	renderPipelineDesc.fragmentFunction = pipeline->fragmentShader->impl.mtlFunction;
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
-		renderPipelineDesc.colorAttachments[i].pixelFormat = convert(pipeline->colorAttachment[i]);
+		renderPipelineDesc.colorAttachments[i].pixelFormat = convert_render_target_format(pipeline->colorAttachment[i]);
 		renderPipelineDesc.colorAttachments[i].blendingEnabled = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE
 			|| pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO
 			|| pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE
 			|| pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
-		renderPipelineDesc.colorAttachments[i].sourceRGBBlendFactor = convert(pipeline->blendSource);
-		renderPipelineDesc.colorAttachments[i].sourceAlphaBlendFactor = convert(pipeline->alphaBlendSource);
-		renderPipelineDesc.colorAttachments[i].destinationRGBBlendFactor = convert(pipeline->blendDestination);
-		renderPipelineDesc.colorAttachments[i].destinationAlphaBlendFactor = convert(pipeline->alphaBlendDestination);
+		renderPipelineDesc.colorAttachments[i].sourceRGBBlendFactor = convert_blending_operation(pipeline->blendSource);
+		renderPipelineDesc.colorAttachments[i].sourceAlphaBlendFactor = convert_blending_operation(pipeline->alphaBlendSource);
+		renderPipelineDesc.colorAttachments[i].destinationRGBBlendFactor = convert_blending_operation(pipeline->blendDestination);
+		renderPipelineDesc.colorAttachments[i].destinationAlphaBlendFactor = convert_blending_operation(pipeline->alphaBlendDestination);
 		renderPipelineDesc.colorAttachments[i].writeMask = (pipeline->colorWriteMaskRed[i] ? MTLColorWriteMaskRed : 0)
 			| (pipeline->colorWriteMaskGreen[i] ? MTLColorWriteMaskGreen : 0)
 			| (pipeline->colorWriteMaskBlue[i] ? MTLColorWriteMaskBlue : 0)
@@ -208,7 +206,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	pipeline->impl._reflection = reflection;
 
 	MTLDepthStencilDescriptor* depthStencilDescriptor = [MTLDepthStencilDescriptor new];
-	depthStencilDescriptor.depthCompareFunction = convert(pipeline->depthMode);
+	depthStencilDescriptor.depthCompareFunction = convert_compare_mode(pipeline->depthMode);
 	depthStencilDescriptor.depthWriteEnabled = pipeline->depthWrite;
 	pipeline->impl._depthStencil = [device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
 	
@@ -217,7 +215,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	pipeline->impl._depthStencilNone = [device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
 }
 
-extern "C" bool kinc_internal_current_render_target_has_depth();
+bool kinc_internal_current_render_target_has_depth(void);
 
 void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
@@ -230,7 +228,7 @@ void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline) {
 		[encoder setDepthStencilState:pipeline->impl._depthStencilNone];
 	}
 	[encoder setFrontFacingWinding:MTLWindingClockwise];
-	[encoder setCullMode:convert(pipeline->cullMode)];
+	[encoder setCullMode:convert_cull_mode(pipeline->cullMode)];
 }
 
 kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipeline, const char *name) {

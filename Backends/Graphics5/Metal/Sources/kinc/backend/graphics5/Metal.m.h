@@ -7,16 +7,14 @@
 #import <Metal/Metal.h>
 #import <MetalKit/MTKView.h>
 
-extern "C" {
-	id getMetalLayer();
-	id getMetalDevice();
-	id getMetalQueue();
+id getMetalLayer(void);
+id getMetalDevice(void);
+id getMetalQueue(void);
 
-	int renderTargetWidth;
-	int renderTargetHeight;
-	int newRenderTargetWidth;
-	int newRenderTargetHeight;
-}
+int renderTargetWidth;
+int renderTargetHeight;
+int newRenderTargetWidth;
+int newRenderTargetHeight;
 
 id<CAMetalDrawable> drawable;
 id<MTLCommandBuffer> commandBuffer;
@@ -25,7 +23,7 @@ id<MTLTexture> depthTexture;
 int depthBits;
 int stencilBits;
 
-extern "C" id getMetalEncoder() {
+id getMetalEncoder(void) {
 	return commandEncoder;
 }
 
@@ -33,7 +31,7 @@ void kinc_g5_destroy(int window) {
 
 }
 
-extern "C" void kinc_internal_resize(int window, int width, int height) {
+void kinc_internal_resize(int window, int width, int height) {
 
 }
 
@@ -53,7 +51,7 @@ void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 
 bool kinc_internal_metal_has_depth = false;
 
-extern "C" bool kinc_internal_current_render_target_has_depth() {
+bool kinc_internal_current_render_target_has_depth(void) {
 	return kinc_internal_metal_has_depth;
 }
 
@@ -180,7 +178,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 
 	MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 	for (int i = 0; i < count; ++i) {
-		renderPassDescriptor.colorAttachments[i].texture = renderTargets == nullptr ? drawable.texture : renderTargets[i]->impl._tex;
+		renderPassDescriptor.colorAttachments[i].texture = renderTargets == NULL ? drawable.texture : renderTargets[i]->impl._tex;
         if (clear_flags & KINC_G5_CLEAR_COLOR) {
             float red, green, blue, alpha;
             kinc_color_components(color, &red, &green, &blue, &alpha);
@@ -205,7 +203,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
         renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
         renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
     }
-	renderPassDescriptor.depthAttachment.texture = renderTargets == nullptr ? depthTexture : renderTargets[0]->impl._depthTex;
+	renderPassDescriptor.depthAttachment.texture = renderTargets == NULL ? depthTexture : renderTargets[0]->impl._depthTex;
     
     if (clear_flags & KINC_G5_CLEAR_STENCIL) {
         renderPassDescriptor.stencilAttachment.clearStencil = stencil;
@@ -217,7 +215,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
         renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
         renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
     }
-	renderPassDescriptor.stencilAttachment.texture = renderTargets == nullptr ? depthTexture : renderTargets[0]->impl._depthTex;
+	renderPassDescriptor.stencilAttachment.texture = renderTargets == NULL ? depthTexture : renderTargets[0]->impl._depthTex;
 
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	commandBuffer = [commandQueue commandBuffer];

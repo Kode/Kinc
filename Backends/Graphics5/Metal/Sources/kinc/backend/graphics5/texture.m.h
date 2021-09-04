@@ -7,10 +7,9 @@
 
 #import <Metal/Metal.h>
 
-extern "C" id getMetalDevice();
+id getMetalDevice(void);
 
-namespace {
-	MTLPixelFormat convert(kinc_image_format_t format) {
+	static MTLPixelFormat convert_image_format(kinc_image_format_t format) {
 		switch (format) {
 			case KINC_IMAGE_FORMAT_RGBA32:
 				return MTLPixelFormatRGBA8Unorm;
@@ -30,7 +29,6 @@ namespace {
 				return MTLPixelFormatR16Float;
 		}
 	}
-}
 
 bool kinc_internal_bilinear_filtering = false;
 
@@ -60,12 +58,12 @@ void kinc_internal_init_samplers(void) {
 static void create(kinc_g5_texture_t *texture, int width, int height, int format, bool writable) {
 	id<MTLDevice> device = getMetalDevice();
 
-	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert((kinc_image_format_t)format) width:width height:height mipmapped:NO];
+	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert_image_format((kinc_image_format_t)format) width:width height:height mipmapped:NO];
 	descriptor.textureType = MTLTextureType2D;
 	descriptor.width = width;
 	descriptor.height = height;
 	descriptor.depth = 1;
-	descriptor.pixelFormat = convert((kinc_image_format_t)format);
+	descriptor.pixelFormat = convert_image_format((kinc_image_format_t)format);
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
 	//TODO: Make less textures writable
@@ -99,7 +97,7 @@ void kinc_g5_texture_init3d(kinc_g5_texture_t* texture, int width, int height, i
 
 }
 
-void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image *image) {
+void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, struct kinc_image *image) {
 	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
@@ -119,8 +117,8 @@ void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
 	}
 }
 
-extern "C" id getMetalDevice();
-extern "C" id getMetalEncoder();
+id getMetalDevice(void);
+id getMetalEncoder(void);
 
 #if 0
 void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5_texture_descriptor_t descriptor) {

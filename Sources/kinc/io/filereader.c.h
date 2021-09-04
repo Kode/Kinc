@@ -16,11 +16,11 @@
 #ifndef KORE_CONSOLE
 
 #ifdef KORE_IOS
-const char *iphonegetresourcepath();
+const char *iphonegetresourcepath(void);
 #endif
 
 #ifdef KORE_MACOS
-const char *macgetresourcepath();
+const char *macgetresourcepath(void);
 #endif
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
