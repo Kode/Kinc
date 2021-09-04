@@ -18,7 +18,7 @@ static struct thread_start starts[THREAD_STARTS];
 static int thread_start_index = 0;
 
 static void* ThreadProc(void* arg) {
-	int start_index = (int)arg;
+	intptr_t start_index = (intptr_t)arg;
 	starts[start_index].thread(starts[start_index].param);
 	pthread_exit(NULL);
 	return NULL;
@@ -34,7 +34,7 @@ void kinc_thread_init(kinc_thread_t *t, void (*thread)(void* param), void* param
 	memset(&sp, 0, sizeof(sp));
 	sp.sched_priority = 0;
 	pthread_attr_setschedparam(&attr, &sp);
-	int start_index = thread_start_index++;
+	intptr_t start_index = thread_start_index++;
 	if (thread_start_index >= THREAD_STARTS) {
 		thread_start_index = 0;
 	}

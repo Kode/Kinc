@@ -23,12 +23,6 @@ extern "C" const char *iphonegetresourcepath();
 extern "C" const char *macgetresourcepath();
 #endif
 
-#ifdef KORE_ANDROID
-#include <android/asset_manager.h>
-
-#include <JNIHelper.h>
-#endif
-
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 #define NOMINMAX
 #include <Windows.h>
@@ -54,67 +48,6 @@ void kinc_internal_set_files_location(char *dir) {
 char *kinc_internal_get_files_location() {
 	return fileslocation;
 }
-
-#ifdef KORE_ANDROID
-namespace {
-	char *externalFilesDir;
-}
-
-void initAndroidFileReader() {
-	std::string dir = ndk_helper::JNIHelper::GetInstance()->GetExternalFilesDir();
-	externalFilesDir = new char[dir.size() + 1];
-	strcpy(externalFilesDir, dir.c_str());
-}
-#endif
-
-#ifdef KORE_ANDROID
-bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
-	reader->pos = 0;
-	reader->file = NULL;
-	reader->asset = NULL;
-	if (type == KINC_FILE_TYPE_SAVE) {
-		char filepath[1001];
-
-		strcpy(filepath, kinc_internal_save_path());
-		strcat(filepath, filename);
-
-		reader->file = fopen(filepath, "rb");
-		if (reader->file == nullptr) {
-			return false;
-		}
-		fseek(reader->file, 0, SEEK_END);
-		reader->size = static_cast<int>(ftell(reader->file));
-		fseek(reader->file, 0, SEEK_SET);
-		return true;
-	}
-	else {
-		char filepath[1001];
-		bool isAbsolute = filename[0] == '/';
-		if (isAbsolute) {
-			strcpy(filepath, filename);
-		}
-		else {
-			strcpy(filepath, externalFilesDir);
-			strcat(filepath, "/");
-			strcat(filepath, filename);
-		}
-
-		reader->file = fopen(filepath, "rb");
-		if (reader->file != nullptr) {
-			fseek(reader->file, 0, SEEK_END);
-			reader->size = static_cast<int>(ftell(reader->file));
-			fseek(reader->file, 0, SEEK_SET);
-			return true;
-		}
-		else {
-			reader->asset = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
-			if (reader->asset == nullptr) return false;
-			reader->size = AAsset_getLength(reader->asset);
-			return true;
-		}
-	}
-}
-#endif
 
 #ifdef KORE_WINDOWSAPP
 extern "C" void kinc_internal_uwp_installed_location_path(char *path);
@@ -219,8 +152,8 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 
 int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 #ifdef KORE_ANDROID
-	if (reader->file != nullptr) {
-		return static_cast<int>(fread(data, 1, size, reader->file));
+	if (reader->file != NULL) {
+		return (int)fread(data, 1, size, reader->file);
 	}
 	else {
 		int read = AAsset_read(reader->asset, data, size);
@@ -234,7 +167,7 @@ int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 
 void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
 #ifdef KORE_ANDROID
-	if (reader->file != nullptr) {
+	if (reader->file != NULL) {
 		fseek(reader->file, pos, SEEK_SET);
 	}
 	else {
@@ -248,13 +181,13 @@ void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
 
 void kinc_file_reader_close(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
-	if (reader->file != nullptr) {
+	if (reader->file != NULL) {
 		fclose(reader->file);
-		reader->file = nullptr;
+		reader->file = NULL;
 	}
-	if (reader->asset != nullptr) {
+	if (reader->asset != NULL) {
 		AAsset_close(reader->asset);
-		reader->asset = nullptr;
+		reader->asset = NULL;
 	}
 #else
 	if (reader->file == NULL) {
@@ -267,7 +200,7 @@ void kinc_file_reader_close(kinc_file_reader_t *reader) {
 
 int kinc_file_reader_pos(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
-	if (reader->file != nullptr)
+	if (reader->file != NULL)
 		return (int)ftell(reader->file);
 	else
 		return reader->pos;

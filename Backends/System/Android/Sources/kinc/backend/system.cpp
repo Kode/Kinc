@@ -1038,3 +1038,60 @@ extern "C" const char *kinc_gamepad_vendor(int gamepad) {
 extern "C" const char *kinc_gamepad_product_name(int gamepad) {
 	return "gamepad";
 }
+
+#include <kinc/io/filereader.h>
+
+static char *externalFilesDir;
+
+void initAndroidFileReader() {
+	std::string dir = ndk_helper::JNIHelper::GetInstance()->GetExternalFilesDir();
+	externalFilesDir = new char[dir.size() + 1];
+	strcpy(externalFilesDir, dir.c_str());
+}
+
+bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
+	reader->pos = 0;
+	reader->file = NULL;
+	reader->asset = NULL;
+	if (type == KINC_FILE_TYPE_SAVE) {
+		char filepath[1001];
+
+		strcpy(filepath, kinc_internal_save_path());
+		strcat(filepath, filename);
+
+		reader->file = fopen(filepath, "rb");
+		if (reader->file == nullptr) {
+			return false;
+		}
+		fseek(reader->file, 0, SEEK_END);
+		reader->size = static_cast<int>(ftell(reader->file));
+		fseek(reader->file, 0, SEEK_SET);
+		return true;
+	}
+	else {
+		char filepath[1001];
+		bool isAbsolute = filename[0] == '/';
+		if (isAbsolute) {
+			strcpy(filepath, filename);
+		}
+		else {
+			strcpy(filepath, externalFilesDir);
+			strcat(filepath, "/");
+			strcat(filepath, filename);
+		}
+
+		reader->file = fopen(filepath, "rb");
+		if (reader->file != nullptr) {
+			fseek(reader->file, 0, SEEK_END);
+			reader->size = static_cast<int>(ftell(reader->file));
+			fseek(reader->file, 0, SEEK_SET);
+			return true;
+		}
+		else {
+			reader->asset = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
+			if (reader->asset == nullptr) return false;
+			reader->size = AAsset_getLength(reader->asset);
+			return true;
+		}
+	}
+}
