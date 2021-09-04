@@ -50,7 +50,7 @@ char *kinc_internal_get_files_location() {
 }
 
 #ifdef KORE_WINDOWSAPP
-extern "C" void kinc_internal_uwp_installed_location_path(char *path);
+void kinc_internal_uwp_installed_location_path(char *path);
 #endif
 
 #ifndef KORE_ANDROID
