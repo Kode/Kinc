@@ -41,12 +41,6 @@ namespace Kore {
 #endif
 }
 
-#if defined(KORE_PPC)
-#define KORE_BIG_ENDIAN
-#else
-#define KORE_LITTLE_ENDIAN
-#endif
-
 // pseudo C++11
 #if !defined(_MSC_VER) && __cplusplus <= 199711L
 #define nullptr 0
@@ -59,6 +53,12 @@ namespace Kore {
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#if defined(KORE_PPC)
+#define KORE_BIG_ENDIAN
+#else
+#define KORE_LITTLE_ENDIAN
+#endif
 
 #ifdef KORE_WINDOWS
 #if defined(KINC_DYNAMIC)
