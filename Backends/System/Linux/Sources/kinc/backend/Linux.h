@@ -3,9 +3,5 @@
 struct _XDisplay;
 typedef unsigned long XID;
 
-namespace Kore {
-    namespace Linux {
-        extern _XDisplay* display;
-        void fullscreen(XID window, bool value);
-    }
-}
+extern struct _XDisplay* kinc_linux_display;
+void kinc_linux_fullscreen(XID window, bool value);

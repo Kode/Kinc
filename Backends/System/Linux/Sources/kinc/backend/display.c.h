@@ -19,7 +19,7 @@ typedef struct {
 	int number;
 } kinc_display_t;
 
-void enumDisplayMonitors(kinc_display_t *displays, int& displayCounter);
+void enumDisplayMonitors(kinc_display_t *displays, int* displayCounter);
 #define MAXIMUM_DISPLAY_COUNT 10
 static kinc_display_t displays[MAXIMUM_DISPLAY_COUNT];
 static int displayCounter = -1;
@@ -29,7 +29,7 @@ void kinc_display_init() {
     if (display_initialized) {
         return;
     }
-    enumDisplayMonitors(displays, displayCounter);
+    enumDisplayMonitors(displays, &displayCounter);
     display_initialized = true;
 }
 
@@ -149,16 +149,16 @@ bool isPrimary(int index) {
 
 const kinc_display_t *primaryScreen() {
 	for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {
-		const kinc_display_t& info = displays[index];
+		kinc_display_t *info = &displays[index];
 
-		if (info.available && info.primary) {
-			return &info;
+		if (info->available && info->primary) {
+			return info;
 		}
 	}
 
 	if (!displays[0].available) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "No display attached?");
-		return nullptr;
+		return NULL;
 	}
 
 	kinc_log(KINC_LOG_LEVEL_WARNING, "No primary display defined, returning first display");
@@ -167,16 +167,16 @@ const kinc_display_t *primaryScreen() {
 
 const kinc_display_t *screenById(int id) {
 	for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {
-		const kinc_display_t& info = displays[index];
+		kinc_display_t *info = &displays[index];
 
-		if (info.number == id) {
-			return &info;
+		if (info->number == id) {
+			return info;
 		}
 	}
 
 	if (!displays[0].available) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "No display available");
-		return nullptr;
+		return NULL;
 	}
 
 	kinc_log(KINC_LOG_LEVEL_WARNING, "No display with id \"%i\" found, returning first display", id);

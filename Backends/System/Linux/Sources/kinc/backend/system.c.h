@@ -8,15 +8,15 @@
 #include <kinc/video.h>
 #include <kinc/window.h>
 
-#include "input/gamepad.h"
+#include "gamepad.h"
 
 #include <kinc/display.h>
 #include <kinc/backend/Linux.h>
 
-#include <cstring>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <climits>
+#include <limits.h>
 #include <assert.h>
 
 #include <sys/types.h>
@@ -39,70 +39,66 @@
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 #endif
 
-_XDisplay* Kore::Linux::display = nullptr;
+struct _XDisplay* kinc_linux_display = NULL;
 XIC xInputContext;
 
-namespace {
-	struct MwmHints {
-		// These correspond to XmRInt resources. (VendorSE.c)
-		int flags;
-		int functions;
-		int decorations;
-		int input_mode;
-		int status;
-	};
+struct MwmHints {
+	// These correspond to XmRInt resources. (VendorSE.c)
+	int flags;
+	int functions;
+	int decorations;
+	int input_mode;
+	int status;
+};
 #define MWM_HINTS_DECORATIONS (1L << 1)
 #ifdef KORE_OPENGL
-	GLboolean doubleBuffer = GL_TRUE;
+static GLboolean doubleBuffer = GL_TRUE;
 #endif
-	Window win;
-	Atom XdndDrop;
-	Atom XdndEnter;
-	Atom XdndTextUriList;
-	Atom XdndStatus;
-	Atom XdndActionCopy;
-	Atom XdndSelection;
-	Atom clipboard;
-	Atom utf8;
-	Atom xseldata;
-	Atom targets;
-	Atom multiple;
-	Atom textplain;
-	Window XdndSourceWindow = None;
-	uint32_t penMotionEvent;
-	uint32_t penMaxPressure = 2048;
-	float penPressureLast = 0.0;
-	XID penDevice;
-	uint32_t eraserMotionEvent;
-	uint32_t eraserMaxPressure = 2048;
-	float eraserPressureLast = 0.0;
-	XID eraserDevice;
-	unsigned int ignoreKeycode = 0;
-	char clipboardString[4096];
+static Window win;
+static Atom XdndDrop;
+static Atom XdndEnter;
+static Atom XdndTextUriList;
+static Atom XdndStatus;
+static Atom XdndActionCopy;
+static Atom XdndSelection;
+static Atom clipboard;
+static Atom utf8;
+static Atom xseldata;
+static Atom targets;
+static Atom multiple;
+static Atom textplain;
+static Window XdndSourceWindow = None;
+static uint32_t penMotionEvent;
+static uint32_t penMaxPressure = 2048;
+static float penPressureLast = 0.0;
+static XID penDevice;
+static uint32_t eraserMotionEvent;
+static uint32_t eraserMaxPressure = 2048;
+static float eraserPressureLast = 0.0;
+static XID eraserDevice;
+static unsigned int ignoreKeycode = 0;
+static char clipboardString[4096];
 
-	void fatalError(const char* message) {
-		printf("main: %s\n", message);
-		exit(1);
-	}
-
-	Atom wmDeleteMessage;
+static void fatalError(const char* message) {
+	printf("main: %s\n", message);
+	exit(1);
 }
 
+Atom wmDeleteMessage;
+
 #define MAXIMUM_WINDOWS 16
-extern Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS];
+extern struct KincWindowData kinc_internal_windows[MAXIMUM_WINDOWS];
 
-namespace windowimpl {
-	int windowCounter = -1;
+static int windowCounter = -1;
 
-	int idFromWindow(Window window) {
-		for (int windowIndex = 0; windowIndex < MAXIMUM_WINDOWS; ++windowIndex) {
-			if (kinc_internal_windows[windowIndex].handle == window) {
-				return windowIndex;
-			}
+static int idFromWindow(Window window) {
+	for (int windowIndex = 0; windowIndex < MAXIMUM_WINDOWS; ++windowIndex) {
+		if (kinc_internal_windows[windowIndex].handle == window) {
+			return windowIndex;
 		}
-
-		return -1;
 	}
+
+	return -1;
 }
 
 static char nameClass[256];
@@ -113,17 +109,17 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	strncpy(nameClass, kinc_application_name(), sizeof(nameClass) - strlen(nameClassAddendum) - 1);
 	strcat(nameClass, nameClassAddendum);
 
-	int wcounter = windowimpl::windowCounter + 1;
+	int wcounter = windowCounter + 1;
 
-	if (Kore::Linux::display == nullptr) {
-		Kore::Linux::display = XOpenDisplay(nullptr);
+	if (kinc_linux_display == NULL) {
+		kinc_linux_display = XOpenDisplay(NULL);
 	}
 
-	if (Kore::Linux::display == nullptr) {
+	if (kinc_linux_display == NULL) {
 		fatalError("could not open display");
 	}
 
-	XkbSetDetectableAutoRepeat(Kore::Linux::display, True, NULL);
+	XkbSetDetectableAutoRepeat(kinc_linux_display, True, NULL);
 
 	XSetWindowAttributes swa;
 	swa.border_pixel = 0;
@@ -135,14 +131,14 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	GLXContext cx;
 	int dummy;
 
-	if (!glXQueryExtension(Kore::Linux::display, &dummy, &dummy)) {
+	if (!glXQueryExtension(kinc_linux_display, &dummy, &dummy)) {
 		fatalError("X server has no OpenGL GLX extension");
 	}
 
 	int snglBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, None};
 	int dblBuf[] = {GLX_RGBA, GLX_DEPTH_SIZE, depthBufferBits, GLX_STENCIL_SIZE, stencilBufferBits, GLX_DOUBLEBUFFER, None};
 
-	vi = nullptr;
+	vi = NULL;
 
 	int attribs[] = {
 		GLX_X_RENDERABLE    , True,
@@ -163,7 +159,7 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 
 	GLXFBConfig fbconfig = 0;
 	int fbcount;
-	GLXFBConfig* fbc = glXChooseFBConfig(Kore::Linux::display, DefaultScreen(Kore::Linux::display), attribs, &fbcount);
+	GLXFBConfig* fbc = glXChooseFBConfig(kinc_linux_display, DefaultScreen(kinc_linux_display), attribs, &fbcount);
 	if (fbc) {
 		if (fbcount >= 1) {
 			fbconfig = fbc[0];
@@ -172,17 +168,17 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	}
 
 	if (fbconfig) {
-		vi = glXGetVisualFromFBConfig(Kore::Linux::display, fbconfig);
+		vi = glXGetVisualFromFBConfig(kinc_linux_display, fbconfig);
 	}
 
-	if (vi == nullptr) {
-		vi = glXChooseVisual(Kore::Linux::display, DefaultScreen(Kore::Linux::display), dblBuf);
+	if (vi == NULL) {
+		vi = glXChooseVisual(kinc_linux_display, DefaultScreen(kinc_linux_display), dblBuf);
 	}
 
-	if (vi == nullptr) {
-		vi = glXChooseVisual(Kore::Linux::display, DefaultScreen(Kore::Linux::display), snglBuf);
+	if (vi == NULL) {
+		vi = glXChooseVisual(kinc_linux_display, DefaultScreen(kinc_linux_display), snglBuf);
 
-		if (vi == nullptr) {
+		if (vi == NULL) {
 			fatalError("no RGB visual with valid depth/stencil buffer");
 		}
 
@@ -207,44 +203,44 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 			None
 		};
 		if (fbconfig) {
-			cx = glXCreateContextAttribsARB(Kore::Linux::display, fbconfig,
+			cx = glXCreateContextAttribsARB(kinc_linux_display, fbconfig,
 			                                wcounter == 0 ? None : kinc_internal_windows[0].context, GL_TRUE,
 			                                contextAttribs);
 		}
 	}
 
 	if (cx == NULL) {
-		cx = glXCreateContext(Kore::Linux::display, vi, wcounter == 0 ? None : kinc_internal_windows[0].context, /* direct rendering if possible */ GL_TRUE);
+		cx = glXCreateContext(kinc_linux_display, vi, wcounter == 0 ? None : kinc_internal_windows[0].context, /* direct rendering if possible */ GL_TRUE);
 	}
 
 	if (cx == NULL) {
 		fatalError("could not create rendering context");
 	}
 
-	cmap = XCreateColormap(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), vi->visual, AllocNone);
+	cmap = XCreateColormap(kinc_linux_display, RootWindow(kinc_linux_display, vi->screen), vi->visual, AllocNone);
 	swa.colormap = cmap;
-	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
+	win = XCreateWindow(kinc_linux_display, RootWindow(kinc_linux_display, vi->screen), 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
 							   CWBorderPixel | CWColormap | CWEventMask, &swa);
 #else
-    int screen = DefaultScreen(Kore::Linux::display);
-    Visual* visual = DefaultVisual(Kore::Linux::display, screen);
-    int depth  = DefaultDepth(Kore::Linux::display, screen);
-    cmap = XCreateColormap(Kore::Linux::display, RootWindow(Kore::Linux::display, screen), visual, AllocNone);
+    int screen = DefaultScreen(kinc_linux_display);
+    Visual* visual = DefaultVisual(kinc_linux_display, screen);
+    int depth  = DefaultDepth(kinc_linux_display, screen);
+    cmap = XCreateColormap(kinc_linux_display, RootWindow(kinc_linux_display, screen), visual, AllocNone);
 	swa.colormap = cmap;
-	win = XCreateWindow(Kore::Linux::display, RootWindow(Kore::Linux::display, DefaultScreen(Kore::Linux::display)), 0, 0, width, height, 0, depth, InputOutput, visual,
+	win = XCreateWindow(kinc_linux_display, RootWindow(kinc_linux_display, DefaultScreen(kinc_linux_display)), 0, 0, width, height, 0, depth, InputOutput, visual,
 						CWBorderPixel | CWColormap | CWEventMask, &swa);
 #endif
 
-	XSetStandardProperties(Kore::Linux::display, win, title, "main", None, NULL, 0, NULL);
+	XSetStandardProperties(kinc_linux_display, win, title, "main", None, NULL, 0, NULL);
 
 	char resNameBuffer[256];
 	strncpy(resNameBuffer, kinc_application_name(), 256);
 	XClassHint classHint = { .res_name = resNameBuffer, .res_class = nameClass };
-	XSetClassHint(Kore::Linux::display, win, &classHint);
+	XSetClassHint(kinc_linux_display, win, &classHint);
 
 	XSetLocaleModifiers("@im=none");
-	XIM xInputMethod = XOpenIM(Kore::Linux::display, nullptr, nullptr, nullptr);
-	xInputContext = XCreateIC(xInputMethod, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, win, nullptr);
+	XIM xInputMethod = XOpenIM(kinc_linux_display, NULL, NULL, NULL);
+	xInputContext = XCreateIC(xInputMethod, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, win, NULL);
 	XSetICFocus(xInputContext);
 
 	switch (windowMode) {
@@ -252,17 +248,17 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 		break;
 	case KINC_WINDOW_MODE_FULLSCREEN: // fall through
 	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN: {
-		Atom awmHints = XInternAtom(Kore::Linux::display, "_MOTIF_WM_HINTS", 0);
-		MwmHints hints;
+		Atom awmHints = XInternAtom(kinc_linux_display, "_MOTIF_WM_HINTS", 0);
+		struct MwmHints hints;
 		hints.flags = MWM_HINTS_DECORATIONS;
 		hints.decorations = 0;
 
-		XChangeProperty(Kore::Linux::display, win, awmHints, awmHints, 32, PropModeReplace, (unsigned char*)&hints, 5);
+		XChangeProperty(kinc_linux_display, win, awmHints, awmHints, 32, PropModeReplace, (unsigned char*)&hints, 5);
 	}
 	}
 
 #ifdef KORE_OPENGL
-	glXMakeCurrent(Kore::Linux::display, win, cx);
+	glXMakeCurrent(kinc_linux_display, win, cx);
 #endif
 
 	int display = targetDisplay == -1 ? kinc_primary_display() : targetDisplay;
@@ -280,61 +276,61 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 	} break;
 	}
 
-	XMapWindow(Kore::Linux::display, win);
-	XMoveWindow(Kore::Linux::display, win, dstx, dsty);
+	XMapWindow(kinc_linux_display, win);
+	XMoveWindow(kinc_linux_display, win, dstx, dsty);
 	// Scheduler::addFrameTask(HandleMessages, 1001);
 
 	// Drag and drop
-	Atom XdndAware = XInternAtom(Kore::Linux::display, "XdndAware", 0);
+	Atom XdndAware = XInternAtom(kinc_linux_display, "XdndAware", 0);
 	Atom XdndVersion = 5;
-	XChangeProperty(Kore::Linux::display, win, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&XdndVersion, 1);
-	XdndDrop = XInternAtom(Kore::Linux::display, "XdndDrop", 0);
-	XdndEnter = XInternAtom(Kore::Linux::display, "XdndEnter", 0);
-	XdndTextUriList = XInternAtom(Kore::Linux::display, "text/uri-list", 0);
-	XdndStatus = XInternAtom(Kore::Linux::display, "XdndStatus", 0);
-	XdndActionCopy = XInternAtom(Kore::Linux::display, "XdndActionCopy", 0);
-	XdndSelection = XInternAtom(Kore::Linux::display, "XdndSelection", 0);
-	clipboard = XInternAtom(Kore::Linux::display, "CLIPBOARD", 0);
-	utf8 = XInternAtom(Kore::Linux::display, "UTF8_STRING", 0);
-	xseldata = XInternAtom(Kore::Linux::display, "XSEL_DATA", 0);
-	targets = XInternAtom(Kore::Linux::display, "TARGETS", 0);
-	multiple = XInternAtom(Kore::Linux::display, "MULTIPLE", 0);
-	textplain = XInternAtom(Kore::Linux::display, "text/plain;charset=utf-8", 0);
+	XChangeProperty(kinc_linux_display, win, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&XdndVersion, 1);
+	XdndDrop = XInternAtom(kinc_linux_display, "XdndDrop", 0);
+	XdndEnter = XInternAtom(kinc_linux_display, "XdndEnter", 0);
+	XdndTextUriList = XInternAtom(kinc_linux_display, "text/uri-list", 0);
+	XdndStatus = XInternAtom(kinc_linux_display, "XdndStatus", 0);
+	XdndActionCopy = XInternAtom(kinc_linux_display, "XdndActionCopy", 0);
+	XdndSelection = XInternAtom(kinc_linux_display, "XdndSelection", 0);
+	clipboard = XInternAtom(kinc_linux_display, "CLIPBOARD", 0);
+	utf8 = XInternAtom(kinc_linux_display, "UTF8_STRING", 0);
+	xseldata = XInternAtom(kinc_linux_display, "XSEL_DATA", 0);
+	targets = XInternAtom(kinc_linux_display, "TARGETS", 0);
+	multiple = XInternAtom(kinc_linux_display, "MULTIPLE", 0);
+	textplain = XInternAtom(kinc_linux_display, "text/plain;charset=utf-8", 0);
 
 	int count;
-	XDeviceInfoPtr devices = (XDeviceInfoPtr)XListInputDevices(Kore::Linux::display, &count);
+	XDeviceInfoPtr devices = (XDeviceInfoPtr)XListInputDevices(kinc_linux_display, &count);
 	for (int i = 0; i < count; i++) {
 		if (strstr(devices[i].name, "stylus")) {
-			XDevice* device = XOpenDevice(Kore::Linux::display, devices[i].id);
+			XDevice* device = XOpenDevice(kinc_linux_display, devices[i].id);
 			penDevice = devices[i].id;
 			XAnyClassPtr c = devices[i].inputclassinfo;
 			for (int j = 0; j < devices[i].num_classes; j++) {
-				if (c->c_class == ValuatorClass) {
+				if (c->class == ValuatorClass) {
 					XValuatorInfo* info = (XValuatorInfo*)c;
 					if (info->num_axes > 2) {
 						penMaxPressure = info->axes[2].max_value;
 					}
 					XEventClass eventClass;
 					DeviceMotionNotify(device, penMotionEvent, eventClass);
-					XSelectExtensionEvent(Kore::Linux::display, win, &eventClass, 1);
+					XSelectExtensionEvent(kinc_linux_display, win, &eventClass, 1);
 					break;
 				}
 				c = (XAnyClassPtr)((uint8_t*)c + c->length);
 			}
 		}
 		if (strstr(devices[i].name, "eraser")) {
-			XDevice* device = XOpenDevice(Kore::Linux::display, devices[i].id);
+			XDevice* device = XOpenDevice(kinc_linux_display, devices[i].id);
 			eraserDevice = devices[i].id;
 			XAnyClassPtr c = devices[i].inputclassinfo;
 			for (int j = 0; j < devices[i].num_classes; j++) {
-				if (c->c_class == ValuatorClass) {
+				if (c->class == ValuatorClass) {
 					XValuatorInfo* info = (XValuatorInfo*)c;
 					if (info->num_axes > 2) {
 						eraserMaxPressure = info->axes[2].max_value;
 					}
 					XEventClass eventClass;
 					DeviceMotionNotify(device, eraserMotionEvent, eventClass);
-					XSelectExtensionEvent(Kore::Linux::display, win, &eventClass, 1);
+					XSelectExtensionEvent(kinc_linux_display, win, &eventClass, 1);
 					break;
 				}
 				c = (XAnyClassPtr)((uint8_t*)c + c->length);
@@ -350,55 +346,52 @@ int createWindow(const char* title, int x, int y, int width, int height, kinc_wi
 #endif
 
 	if (windowMode == KINC_WINDOW_MODE_FULLSCREEN || windowMode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
-		Kore::Linux::fullscreen(win, true);
+		kinc_linux_fullscreen(win, true);
         kinc_internal_windows[wcounter].mode = windowMode;
 	}
 	else {
         kinc_internal_windows[wcounter].mode = 0;
 	}
 
-	wmDeleteMessage = XInternAtom(Kore::Linux::display, "WM_DELETE_WINDOW", False);
-	XSetWMProtocols(Kore::Linux::display, win, &wmDeleteMessage, 1);
+	wmDeleteMessage = XInternAtom(kinc_linux_display, "WM_DELETE_WINDOW", False);
+	XSetWMProtocols(kinc_linux_display, win, &wmDeleteMessage, 1);
 
-	return windowimpl::windowCounter = wcounter;
+	return windowCounter = wcounter;
 }
 
-namespace Kore {
-	namespace System {
-		int initWindow(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
-			char buffer[1024] = {0};
-			strcpy(buffer, kinc_application_name());
-			if (win->title != nullptr) {
-				strcpy(buffer, win->title);
-			}
-
-			int id = createWindow(buffer, win->x, win->y, win->width, win->height, win->mode, win->display_index,
-								  frame->depth_bits, frame->stencil_bits, frame->samples_per_pixel);
-			kinc_g4_init(id, frame->depth_bits, frame->stencil_bits, true);
-			return id;
-		}
-
-		int currentDeviceId = -1;
-
-		int currentDevice() {
-			return currentDeviceId;
-		}
-
-		void setCurrentDevice(int id) {
-			currentDeviceId = id;
-		}
+static int initWindow(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	char buffer[1024] = {0};
+	strcpy(buffer, kinc_application_name());
+	if (win->title != NULL) {
+		strcpy(buffer, win->title);
 	}
+
+	int id = createWindow(buffer, win->x, win->y, win->width, win->height, win->mode, win->display_index,
+							frame->depth_bits, frame->stencil_bits, frame->samples_per_pixel);
+	kinc_g4_init(id, frame->depth_bits, frame->stencil_bits, true);
+	return id;
 }
+
+static int currentDeviceId = -1;
+
+static int currentDevice() {
+	return currentDeviceId;
+}
+
+static void setCurrentDevice(int id) {
+	currentDeviceId = id;
+}
+
 bool kinc_internal_handle_messages() {
 	static bool controlDown = false;
-	while (XPending(Kore::Linux::display) > 0) {
+	while (XPending(kinc_linux_display) > 0) {
 		XEvent event;
-		XNextEvent(Kore::Linux::display, &event);
+		XNextEvent(kinc_linux_display, &event);
 
 		if (event.type == penMotionEvent) {
 			XDeviceMotionEvent* motion = (XDeviceMotionEvent*)(&event);
 			if (motion->deviceid == penDevice) {
-				int windowId = windowimpl::idFromWindow(motion->window);
+				int windowId = idFromWindow(motion->window);
 				float p = (float)motion->axis_data[2] / (float)penMaxPressure;
 				if (p > 0 && penPressureLast == 0) {
 					kinc_internal_pen_trigger_press(windowId, motion->x, motion->y, p);
@@ -415,7 +408,7 @@ bool kinc_internal_handle_messages() {
 		if (event.type == eraserMotionEvent) {
 			XDeviceMotionEvent* motion = (XDeviceMotionEvent*)(&event);
 			if (motion->deviceid == eraserDevice) {
-				int windowId = windowimpl::idFromWindow(motion->window);
+				int windowId = idFromWindow(motion->window);
 				float p = (float)motion->axis_data[2] / (float)eraserMaxPressure;
 				if (p > 0 && eraserPressureLast == 0) {
 					kinc_internal_eraser_trigger_press(windowId, motion->x, motion->y, p);
@@ -440,7 +433,7 @@ bool kinc_internal_handle_messages() {
 			KeySym keysym;
 
 			wchar_t wchar;
-			bool wcConverted = XwcLookupString(xInputContext, key, &wchar, 1, &keysym, nullptr);
+			bool wcConverted = XwcLookupString(xInputContext, key, &wchar, 1, &keysym, NULL);
 
 			bool isIgnoredKeySym = keysym == XK_Escape || keysym == XK_BackSpace || keysym == XK_Delete;
 			if (!controlDown && !XFilterEvent(&event, win) && !isIgnoredKeySym) {
@@ -454,23 +447,23 @@ bool kinc_internal_handle_messages() {
 	case xkey: kinc_internal_keyboard_trigger_key_down(korekey); \
 	break;
 
-			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+			KeySym ksKey = XkbKeycodeToKeysym(kinc_linux_display, event.xkey.keycode, 0, 0);
 
 			if (ksKey == XK_Control_L || ksKey == XK_Control_R) {
 				controlDown = true;
 			}
 			else if (controlDown && (ksKey == XK_v || ksKey == XK_V)) {
-				XConvertSelection(Kore::Linux::display, clipboard, utf8, xseldata, win, CurrentTime);
+				XConvertSelection(kinc_linux_display, clipboard, utf8, xseldata, win, CurrentTime);
 			}
 			else if (controlDown && (ksKey == XK_c || ksKey == XK_C)) {
-				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
+				XSetSelectionOwner(kinc_linux_display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_copy_callback();
-				if (text != nullptr) strcpy(clipboardString, text);
+				if (text != NULL) strcpy(clipboardString, text);
 			}
 			else if (controlDown && (ksKey == XK_x || ksKey == XK_X)) {
-				XSetSelectionOwner(Kore::Linux::display, clipboard, win, CurrentTime);
+				XSetSelectionOwner(kinc_linux_display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_cut_callback();
-				if (text != nullptr) strcpy(clipboardString, text);
+				if (text != NULL) strcpy(clipboardString, text);
 			}
 
 			if (event.xkey.keycode == ignoreKeycode) {
@@ -625,13 +618,13 @@ bool kinc_internal_handle_messages() {
 			KeySym keysym;
 
 			char c;
-			XLookupString(key, &c, 1, &keysym, nullptr);
+			XLookupString(key, &c, 1, &keysym, NULL);
 
 #define KEY(xkey, korekey) \
 	case xkey: kinc_internal_keyboard_trigger_key_up(korekey); \
 	break;
 
-			KeySym ksKey = XkbKeycodeToKeysym(Kore::Linux::display, event.xkey.keycode, 0, 0);
+			KeySym ksKey = XkbKeycodeToKeysym(kinc_linux_display, event.xkey.keycode, 0, 0);
 
 			if (ksKey == XK_Control_L || ksKey == XK_Control_R) {
 				controlDown = false;
@@ -782,7 +775,7 @@ bool kinc_internal_handle_messages() {
 		}
 		case ButtonPress: {
 			XButtonEvent* button = (XButtonEvent*)&event;
-			int windowId = windowimpl::idFromWindow(button->window);
+			int windowId = idFromWindow(button->window);
 
 			switch (button->button) {
 			case Button1:
@@ -799,7 +792,7 @@ bool kinc_internal_handle_messages() {
 		}
 		case ButtonRelease: {
 			XButtonEvent* button = (XButtonEvent*)&event;
-			int windowId = windowimpl::idFromWindow(button->window);
+			int windowId = idFromWindow(button->window);
 
 			switch (button->button) {
 			case Button1:
@@ -823,12 +816,12 @@ bool kinc_internal_handle_messages() {
 		}
 		case MotionNotify: {
 			XMotionEvent* motion = (XMotionEvent*)&event;
-			int windowId = windowimpl::idFromWindow(motion->window);
+			int windowId = idFromWindow(motion->window);
             kinc_internal_mouse_trigger_move(windowId, motion->x, motion->y);
 			break;
 		}
 		case ConfigureNotify: {
-			int windowId = windowimpl::idFromWindow(event.xconfigure.window);
+			int windowId = idFromWindow(event.xconfigure.window);
 			if (event.xconfigure.width != kinc_internal_windows[windowId].width || event.xconfigure.height != kinc_internal_windows[windowId].height) {
 				kinc_internal_windows[windowId].width = event.xconfigure.width;
 				kinc_internal_windows[windowId].height = event.xconfigure.height;
@@ -853,11 +846,11 @@ bool kinc_internal_handle_messages() {
 				m.xclient.data.l[3] = 0;
 				m.xclient.data.l[1] = 1;
 				m.xclient.data.l[4] = XdndActionCopy;
-				XSendEvent(Kore::Linux::display, XdndSourceWindow, false, NoEventMask, (XEvent*)&m);
-				XFlush(Kore::Linux::display);
+				XSendEvent(kinc_linux_display, XdndSourceWindow, false, NoEventMask, (XEvent*)&m);
+				XFlush(kinc_linux_display);
 			}
 			else if (event.xclient.message_type == XdndDrop) {
-				XConvertSelection(Kore::Linux::display, XdndSelection, XdndTextUriList, XdndSelection, win, event.xclient.data.l[2]);
+				XConvertSelection(kinc_linux_display, XdndSelection, XdndTextUriList, XdndSelection, win, event.xclient.data.l[2]);
 			}
 			else if (event.xclient.data.l[0] == wmDeleteMessage) {
                 kinc_stop();
@@ -869,7 +862,7 @@ bool kinc_internal_handle_messages() {
 				char* result;
 				unsigned long ressize, restail;
 				int resbits;
-				XGetWindowProperty(Kore::Linux::display, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
+				XGetWindowProperty(kinc_linux_display, win, xseldata, 0, LONG_MAX / 4, False, AnyPropertyType,
 								   &utf8, &resbits, &ressize, &restail, (unsigned char**)&result);
 				kinc_internal_paste_callback(result);
 				XFree(result);
@@ -880,7 +873,7 @@ bool kinc_internal_handle_messages() {
 				unsigned long numItems;
 				unsigned long bytesAfter = 1;
 				unsigned char* data = 0;
-				XGetWindowProperty(Kore::Linux::display, event.xselection.requestor, event.xselection.property, 0, LONG_MAX, False, event.xselection.target, &type, &format, &numItems, &bytesAfter, &data);
+				XGetWindowProperty(kinc_linux_display, event.xselection.requestor, event.xselection.property, 0, LONG_MAX, False, event.xselection.target, &type, &format, &numItems, &bytesAfter, &data);
 				size_t len = numItems * format / 8 - 1; // Strip new line at the end
 				wchar_t filePath[len + 1];
 				mbstowcs(filePath, (char*)data, len);
@@ -900,8 +893,8 @@ bool kinc_internal_handle_messages() {
 				send.xselection.property = event.xselectionrequest.property;
 				send.xselection.time = event.xselectionrequest.time;
 				Atom available[] = { targets, multiple, textplain, utf8 };
-				XChangeProperty(Kore::Linux::display, send.xselection.requestor, send.xselection.property, XA_ATOM, 32, PropModeReplace, (unsigned char*)&available[0], 4);
-				XSendEvent(Kore::Linux::display, send.xselection.requestor, True, 0, &send);
+				XChangeProperty(kinc_linux_display, send.xselection.requestor, send.xselection.property, XA_ATOM, 32, PropModeReplace, (unsigned char*)&available[0], 4);
+				XSendEvent(kinc_linux_display, send.xselection.requestor, True, 0, &send);
 			}
 			if (event.xselectionrequest.target == textplain || event.xselectionrequest.target == utf8) {
 				XEvent send;
@@ -911,9 +904,9 @@ bool kinc_internal_handle_messages() {
 				send.xselection.target = event.xselectionrequest.target;
 				send.xselection.property = event.xselectionrequest.property;
 				send.xselection.time = event.xselectionrequest.time;
-				XChangeProperty(Kore::Linux::display, send.xselection.requestor, send.xselection.property, send.xselection.target, 8, PropModeReplace,
+				XChangeProperty(kinc_linux_display, send.xselection.requestor, send.xselection.property, send.xselection.target, 8, PropModeReplace,
 					(const unsigned char*)clipboardString, strlen(clipboardString));
-				XSendEvent(Kore::Linux::display, send.xselection.requestor, True, 0, &send);
+				XSendEvent(kinc_linux_display, send.xselection.requestor, True, 0, &send);
 			}
 			break;
 		}
@@ -931,7 +924,7 @@ bool kinc_internal_handle_messages() {
 		}
 		}
 	}
-	Kore::updateHIDGamepads();
+	kinc_linux_updateHIDGamepads();
 	return true;
 }
 
@@ -939,9 +932,9 @@ const char* kinc_system_id() {
 	return "Linux";
 }
 
-extern "C" void swapLinuxBuffers(int window) {
+void swapLinuxBuffers(int window) {
 #ifdef KORE_OPENGL
-	glXSwapBuffers(Kore::Linux::display, kinc_internal_windows[window].handle);
+	glXSwapBuffers(kinc_linux_display, kinc_internal_windows[window].handle);
 #endif
 }
 
@@ -977,10 +970,8 @@ const char* kinc_language() {
 	return "en";
 }
 
-namespace {
-	char save[2000];
-	bool saveInitialized = false;
-}
+static char save[2000];
+static bool saveInitialized = false;
 
 const char* kinc_internal_save_path() {
 	if (!saveInitialized) {
@@ -1002,12 +993,10 @@ const char* kinc_internal_save_path() {
 	return save;
 }
 
-namespace {
-	const char* videoFormats[] = {"ogv", nullptr};
-}
+static const char* videoFormats[] = {"ogv", NULL};
 
 const char** kinc_video_formats() {
-	return ::videoFormats;
+	return videoFormats;
 }
 
 #include <sys/time.h>
@@ -1017,14 +1006,14 @@ double kinc_frequency(void) {
 	return 1000000.0;
 }
 
-static timeval start;
+static struct timeval start;
 
 kinc_ticks_t kinc_timestamp(void) {
-	timeval now;
+	struct timeval now;
 	gettimeofday(&now, NULL);
 	now.tv_sec -= start.tv_sec;
 	now.tv_usec -= start.tv_usec;
-	return static_cast<kinc_ticks_t>(now.tv_sec) * 1000000 + static_cast<kinc_ticks_t>(now.tv_usec);
+	return (kinc_ticks_t)now.tv_sec * 1000000 + (kinc_ticks_t)now.tv_usec;
 }
 
 void kinc_login() {
@@ -1036,7 +1025,7 @@ void kinc_unlock_achievement(int id) {
 }
 
 int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
-	Kore::initHIDGamepads();
+	kinc_linux_initHIDGamepads();
 
 	gettimeofday(&start, NULL);
 	kinc_display_init();
@@ -1058,12 +1047,12 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
     if (win->title == NULL) {
 		win->title = name;
 	}
-	int window = Kore::System::initWindow(win, frame);
+	int window = initWindow(win, frame);
 	return window;
 }
 
 void kinc_internal_shutdown() {
-	Kore::closeHIDGamepads();
+	kinc_linux_closeHIDGamepads();
 	kinc_internal_shutdown_callback();
 }
 

@@ -11,7 +11,7 @@
 #include "windowdata.h"
 
 #define MAXIMUM_WINDOWS 16
-Kore::WindowData kinc_internal_windows[MAXIMUM_WINDOWS] = {0};
+struct KincWindowData kinc_internal_windows[MAXIMUM_WINDOWS] = {0};
 
 #ifdef KORE_VULKAN
 #include <vulkan/vulkan.h>
@@ -62,9 +62,9 @@ void kinc_window_change_features(int window_index, int features) {
 
 }
 
-void Kore::Linux::fullscreen(XID window, bool value) {
-	Atom wm_state = XInternAtom(Kore::Linux::display, "_NET_WM_STATE", False);
-	Atom fullscreen = XInternAtom(Kore::Linux::display, "_NET_WM_STATE_FULLSCREEN", False);
+void kinc_linux_fullscreen(XID window, bool value) {
+	Atom wm_state = XInternAtom(kinc_linux_display, "_NET_WM_STATE", False);
+	Atom fullscreen = XInternAtom(kinc_linux_display, "_NET_WM_STATE_FULLSCREEN", False);
 
 	XEvent xev;
 	memset(&xev, 0, sizeof(xev));
@@ -76,12 +76,12 @@ void Kore::Linux::fullscreen(XID window, bool value) {
 	xev.xclient.data.l[1] = fullscreen;
 	xev.xclient.data.l[2] = 0;
 
-	XMapWindow(Kore::Linux::display, window);
+	XMapWindow(kinc_linux_display, window);
 
-	XSendEvent(Kore::Linux::display, DefaultRootWindow(Kore::Linux::display), False,
+	XSendEvent(kinc_linux_display, DefaultRootWindow(kinc_linux_display), False,
 			   SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 
-	XFlush(Kore::Linux::display);
+	XFlush(kinc_linux_display);
 }
 
 void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
@@ -91,7 +91,7 @@ void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 			return;
 		}
 
-		Kore::Linux::fullscreen(kinc_internal_windows[window_index].handle, true);
+		kinc_linux_fullscreen(kinc_internal_windows[window_index].handle, true);
         kinc_internal_windows[window_index].mode = mode;
 	}
 	else {
@@ -99,7 +99,7 @@ void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 			return;
 		}
 
-		Kore::Linux::fullscreen(kinc_internal_windows[window_index].handle, false);
+		kinc_linux_fullscreen(kinc_internal_windows[window_index].handle, false);
         kinc_internal_windows[window_index].mode = mode;
 	}
 }
@@ -121,7 +121,7 @@ void kinc_window_hide(int window_index) {
 }
 
 void kinc_window_set_title(int window_index, const char *title) {
-	XStoreName(Kore::Linux::display, kinc_internal_windows[window_index].handle, title);
+	XStoreName(kinc_linux_display, kinc_internal_windows[window_index].handle, title);
 }
 
 int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
