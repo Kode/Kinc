@@ -1,7 +1,5 @@
 #pragma once
 
-#include <objc/runtime.h>
-
 #include <stdint.h>
 
 typedef struct {
@@ -14,7 +12,7 @@ typedef struct {
 
 typedef struct {
 	char name[1024];
-	id _function;
-	id _pipeline;
-	id _reflection;
+	void *_function;
+	void *_pipeline;
+	void *_reflection;
 } kinc_compute_shader_impl_t;

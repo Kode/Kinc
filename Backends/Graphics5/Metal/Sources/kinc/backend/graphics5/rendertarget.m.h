@@ -28,8 +28,6 @@ static MTLPixelFormat convert_format(kinc_g5_render_target_format_t format) {
 
 void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
 								kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
-	memset(target, 0, sizeof(kinc_g5_render_target_t));
-
 	target->texWidth = width;
 	target->texHeight = height;
 
@@ -48,7 +46,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 	descriptor.resourceOptions = MTLResourceStorageModePrivate;
 
-	target->impl._tex = [device newTextureWithDescriptor:descriptor];
+	target->impl._tex = (__bridge_retained void*)[device newTextureWithDescriptor:descriptor];
 
 	if (depthBufferBits > 0) {
 		MTLTextureDescriptor* depthDescriptor = [MTLTextureDescriptor new];
@@ -62,19 +60,31 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		depthDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 		depthDescriptor.resourceOptions = MTLResourceStorageModePrivate;
 
-		target->impl._depthTex = [device newTextureWithDescriptor:depthDescriptor];
+		target->impl._depthTex = (__bridge_retained void*)[device newTextureWithDescriptor:depthDescriptor];
 	}
+	
+	target->impl._texReadback = NULL;
 }
 
 void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,
 									 kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
-	target->impl._tex = nil;
-	target->impl._depthTex = nil;
+	target->impl._tex = NULL;
+	target->impl._depthTex = NULL;
+	target->impl._texReadback = NULL;
 }
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {
-	target->impl._tex = nil;
-	target->impl._depthTex = nil;
+	id<MTLTexture> tex = (__bridge_transfer id<MTLTexture>)target->impl._tex;
+	tex = nil;
+	target->impl._tex = NULL;
+	
+	id<MTLTexture> depthTex = (__bridge_transfer id<MTLTexture>)target->impl._depthTex;
+	depthTex = nil;
+	target->impl._depthTex = NULL;
+	
+	id<MTLTexture> texReadback = (__bridge_transfer id<MTLTexture>)target->impl._texReadback;
+	texReadback = nil;
+	target->impl._texReadback = NULL;
 }
 
 #if 0
@@ -135,33 +145,35 @@ extern void kinc_internal_set_fragment_sampler(id encoder, int unit);
 
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLTexture> tex = (__bridge id<MTLTexture>)target->impl._tex;
 	if (unit.impl.vertex) {
 		if (unit.impl.index < 16) {
 			kinc_internal_set_vertex_sampler(encoder, unit.impl.index);
 		}
-		[encoder setVertexTexture:target->impl._tex atIndex:unit.impl.index];
+		[encoder setVertexTexture:tex atIndex:unit.impl.index];
 	}
 	else {
 		if (unit.impl.index < 16) {
 			kinc_internal_set_fragment_sampler(encoder, unit.impl.index);
 		}
-		[encoder setFragmentTexture:target->impl._tex atIndex:unit.impl.index];
+		[encoder setFragmentTexture:tex atIndex:unit.impl.index];
 	}
 }
 
 void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLTexture> depth_tex = (__bridge id<MTLTexture>)target->impl._depthTex;
 	if (unit.impl.vertex) {
 		if (unit.impl.index < 16) {
 			kinc_internal_set_vertex_sampler(encoder, unit.impl.index);
 		}
-		[encoder setVertexTexture:target->impl._depthTex atIndex:unit.impl.index];
+		[encoder setVertexTexture:depth_tex atIndex:unit.impl.index];
 	}
 	else {
 		if (unit.impl.index < 16) {
 			kinc_internal_set_fragment_sampler(encoder, unit.impl.index);
 		}
-		[encoder setFragmentTexture:target->impl._depthTex atIndex:unit.impl.index];
+		[encoder setFragmentTexture:depth_tex atIndex:unit.impl.index];
 	}
 }
 

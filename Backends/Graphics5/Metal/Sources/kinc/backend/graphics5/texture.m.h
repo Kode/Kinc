@@ -71,7 +71,7 @@ static void create(kinc_g5_texture_t *texture, int width, int height, int format
 		descriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
 	}
 
-	texture->impl._tex = [device newTextureWithDescriptor:descriptor];
+	texture->impl._tex = (__bridge_retained void*)[device newTextureWithDescriptor:descriptor];
 }
 
 /*void Graphics5::Texture::_init(const char* format, bool readable) {
@@ -85,7 +85,6 @@ static void create(kinc_g5_texture_t *texture, int width, int height, int format
 
 void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
 	//Image(width, height, format, readable);
-	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->texWidth = width;
 	texture->texHeight = height;
 	texture->format = format;
@@ -98,19 +97,21 @@ void kinc_g5_texture_init3d(kinc_g5_texture_t* texture, int width, int height, i
 }
 
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, struct kinc_image *image) {
-	memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
 	texture->format = image->format;
 	create(texture, image->width, image->height, image->format, true);
-	id<MTLTexture> tex = texture->impl._tex;
+	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._tex;
 	[tex replaceRegion:MTLRegionMake2D(0, 0, texture->texWidth, texture->texHeight) mipmapLevel:0 slice:0 withBytes:image->data bytesPerRow:kinc_g5_texture_stride(texture) bytesPerImage:kinc_g5_texture_stride(texture) * texture->texHeight];
 }
 
 void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {}
 
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
-	texture->impl._tex = nil;
+	id<MTLTexture> tex = (__bridge_transfer id<MTLTexture>)texture->impl._tex;
+	tex = nil;
+	texture->impl._tex = NULL;
+
 	if (texture->impl.data != NULL) {
 		free(texture->impl.data);
 		texture->impl.data = NULL;
@@ -196,7 +197,7 @@ void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
     if (unit < 16) {
 		kinc_internal_set_fragment_sampler(encoder, unit);
     }
-	[encoder setFragmentTexture:texture->impl._tex atIndex:unit];
+	[encoder setFragmentTexture:(__bridge id<MTLTexture>)texture->impl._tex atIndex:unit];
 }
 
 int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
@@ -223,7 +224,7 @@ uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
 }
 
 void kinc_g5_texture_unlock(kinc_g5_texture_t *tex) {
-	id<MTLTexture> texture = tex->impl._tex;
+	id<MTLTexture> texture = (__bridge id<MTLTexture>)tex->impl._tex;
 	[texture replaceRegion:MTLRegionMake2D(0, 0, tex->texWidth, tex->texHeight) mipmapLevel:0 slice:0 withBytes:tex->impl.data bytesPerRow:kinc_g5_texture_stride(tex) bytesPerImage:kinc_g5_texture_stride(tex) * tex->texHeight];
 }
 

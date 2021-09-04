@@ -8,7 +8,9 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g
 	kinc_g5_index_buffer_init(&buffer->impl._buffer, count, usage == KINC_G4_USAGE_STATIC);
 }
 
-void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {}
+void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
+	kinc_g5_index_buffer_destroy(&buffer->impl._buffer);
+}
 
 int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 	return kinc_g5_index_buffer_lock(&buffer->impl._buffer);

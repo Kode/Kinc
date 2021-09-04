@@ -18,7 +18,6 @@ static void vertex_buffer_unset(kinc_g5_vertex_buffer_t *buffer) {
 }
 
 void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure_t *structure, bool gpuMemory, int instanceDataStepRate) {
-	memset(&buffer->impl, 0, sizeof(buffer->impl));
 	buffer->impl.myCount = count;
 	buffer->impl.gpuMemory = gpuMemory;
 	for (int i = 0; i < structure->size; ++i) {
@@ -54,7 +53,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 	}
 
 	id<MTLDevice> device = getMetalDevice();
-	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
+	MTLResourceOptions options = MTLResourceCPUCacheModeWriteCombined;
 #ifdef KINC_APPLE_SOC
 	options |= MTLResourceStorageModeShared;
 #else
@@ -65,18 +64,24 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 		options |= MTLResourceStorageModeShared;
 	}
 #endif
-	buffer->impl.mtlBuffer = [device newBufferWithLength:count * buffer->impl.myStride options:options];
+	id<MTLBuffer> buf = [device newBufferWithLength:count * buffer->impl.myStride options:options];
+	buffer->impl.mtlBuffer = (__bridge_retained void*)buf;
+	
+	buffer->impl.lastStart = 0;
+	buffer->impl.lastCount = 0;
 }
 
-void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {
-	buffer->impl.mtlBuffer = 0;
-	vertex_buffer_unset(buffer);
+void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buf) {
+	id<MTLBuffer> buffer = (__bridge_transfer id<MTLBuffer>)buf->impl.mtlBuffer;
+	buffer = nil;
+	buf->impl.mtlBuffer = NULL;
+	vertex_buffer_unset(buf);
 }
 
 float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buf) {
 	buf->impl.lastStart = 0;
 	buf->impl.lastCount = kinc_g5_vertex_buffer_count(buf);
-	id<MTLBuffer> buffer = buf->impl.mtlBuffer;
+	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
 	float* floats = (float*)[buffer contents];
 	return floats;
 }
@@ -84,7 +89,7 @@ float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buf) {
 float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buf, int start, int count) {
 	buf->impl.lastStart = start;
 	buf->impl.lastCount = count;
-	id<MTLBuffer> buffer = buf->impl.mtlBuffer;
+	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
 	float* floats = (float*)[buffer contents];
 	return &floats[start * buf->impl.myStride / sizeof(float)];
 }
@@ -113,12 +118,13 @@ void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buf, int count) {
 #endif
 }
 
-int kinc_g5_internal_vertex_buffer_set(kinc_g5_vertex_buffer_t *buffer, int offset_) {
-	currentVertexBuffer = buffer;
+int kinc_g5_internal_vertex_buffer_set(kinc_g5_vertex_buffer_t *buf, int offset_) {
+	currentVertexBuffer = buf;
 	if (currentIndexBuffer != NULL) kinc_g5_internal_index_buffer_set(currentIndexBuffer);
 
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setVertexBuffer:buffer->impl.mtlBuffer offset:offset_ * buffer->impl.myStride atIndex:0];
+	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
+	[encoder setVertexBuffer:buffer offset:offset_ * buf->impl.myStride atIndex:0];
 
 	return offset_;
 }

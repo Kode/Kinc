@@ -12,11 +12,10 @@ static void index_buffer_unset(kinc_g5_index_buffer_t *buffer) {
 }
 
 void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, bool gpuMemory) {
-	buffer->impl.mtlBuffer = nil;
 	buffer->impl.myCount = indexCount;
 	buffer->impl.gpuMemory = gpuMemory;
 	id<MTLDevice> device = getMetalDevice();
-	MTLResourceOptions options = MTLCPUCacheModeWriteCombined;
+	MTLResourceOptions options = MTLResourceCPUCacheModeWriteCombined;
 #ifdef KINC_APPLE_SOC
 	options |= MTLResourceStorageModeShared;
 #else
@@ -27,23 +26,25 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, b
 		options |= MTLResourceStorageModeShared;
 	}
 #endif
-	buffer->impl.mtlBuffer = [device newBufferWithLength:sizeof(int) * indexCount options:options];
+	buffer->impl.mtlBuffer = (__bridge_retained void*)[device newBufferWithLength:sizeof(int) * indexCount options:options];
 }
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
-	buffer->impl.mtlBuffer = 0;
+	id<MTLBuffer> buf = (__bridge_transfer id<MTLBuffer>)buffer->impl.mtlBuffer;
+	buf = nil;
+	buffer->impl.mtlBuffer = NULL;
 	index_buffer_unset(buffer);
 }
 
 int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buf) {
-	id<MTLBuffer> buffer = buf->impl.mtlBuffer;
+	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
 	return (int*)[buffer contents];
 }
 
 void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buf) {
 #ifndef KINC_APPLE_SOC
 	if (buf->impl.gpuMemory) {
-		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
+		id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
 		NSRange range;
 		range.location = 0;
 		range.length = kinc_g5_index_buffer_count(buf) * 4;

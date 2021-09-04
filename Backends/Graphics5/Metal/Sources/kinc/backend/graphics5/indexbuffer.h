@@ -1,10 +1,8 @@
 #pragma once
 
-#include <objc/runtime.h>
-
 typedef struct {
 	//void unset();
-	id mtlBuffer;
+	void *mtlBuffer;
 	int myCount;
 	bool gpuMemory;
 	//static Graphics5::IndexBuffer* current;

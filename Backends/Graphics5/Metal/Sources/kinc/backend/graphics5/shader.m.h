@@ -9,12 +9,13 @@ id getMetalDevice(void);
 id getMetalLibrary(void);
 
 void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {
-	shader->impl.mtlFunction = nil;
+	id<MTLFunction> function = (__bridge_transfer id<MTLFunction>)shader->impl.mtlFunction;
+	function = nil;
+	shader->impl.mtlFunction = NULL;
 }
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, kinc_g5_shader_type_t type) {
 	shader->impl.name[0] = 0;
-	shader->impl.mtlFunction = nil;
 
 	{
 		uint8_t *data = (uint8_t*)source;
@@ -48,6 +49,6 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, 
 			kinc_log(KINC_LOG_LEVEL_ERROR, "%s", error.localizedDescription.UTF8String);
 		}
 	}
-	shader->impl.mtlFunction = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
+	shader->impl.mtlFunction = (__bridge_retained void*)[library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
 	assert(shader->impl.mtlFunction);
 }

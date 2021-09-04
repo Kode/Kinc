@@ -1,9 +1,7 @@
 #pragma once
 
-#include <objc/runtime.h>
-
 typedef struct {
-	id _tex;
-	id _texReadback;
-	id _depthTex;
+	void *_tex;
+	void *_texReadback;
+	void *_depthTex;
 } RenderTarget5Impl;

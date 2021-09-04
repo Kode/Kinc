@@ -1,8 +1,6 @@
 #pragma once
 
-#include <objc/runtime.h>
-
 typedef struct {
 	char name[1024];
-	id mtlFunction;
+	void *mtlFunction;
 } Shader5Impl;

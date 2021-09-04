@@ -70,18 +70,20 @@ void kinc_g5_command_list_draw_indexed_vertices(kinc_g5_command_list_t *list) {
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *list, int start, int count) {
+	id<MTLBuffer> indexBuffer = (__bridge id<MTLBuffer>)currentIndexBuffer->impl.mtlBuffer;
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 		indexCount:count indexType:MTLIndexTypeUInt32
-		indexBuffer:currentIndexBuffer->impl.mtlBuffer
+		indexBuffer:indexBuffer
 		indexBufferOffset:start * 4];
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_list_t *list, int start, int count, int vertex_offset) {
+	id<MTLBuffer> indexBuffer = (__bridge id<MTLBuffer>)currentIndexBuffer->impl.mtlBuffer;
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 		indexCount:count indexType:MTLIndexTypeUInt32
-		indexBuffer:currentIndexBuffer->impl.mtlBuffer
+		indexBuffer:indexBuffer
 		indexBufferOffset:start * 4 instanceCount: 1 baseVertex: vertex_offset baseInstance: 0];
 }
 
@@ -90,10 +92,11 @@ void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
+	id<MTLBuffer> indexBuffer = (__bridge id<MTLBuffer>)currentIndexBuffer->impl.mtlBuffer;
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 		indexCount:count indexType:MTLIndexTypeUInt32
-		indexBuffer:currentIndexBuffer->impl.mtlBuffer
+		indexBuffer:indexBuffer
 		indexBufferOffset:start * 4 instanceCount: instanceCount baseVertex: 0 baseInstance: 0];
 }
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
@@ -176,7 +179,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		descriptor.width = render_target->texWidth;
 		descriptor.height = render_target->texHeight;
 		descriptor.depth = 1;
-		descriptor.pixelFormat = [(id<MTLTexture>)render_target->impl._tex pixelFormat];
+		descriptor.pixelFormat = [(__bridge id<MTLTexture>)render_target->impl._tex pixelFormat];
 		descriptor.arrayLength = 1;
 		descriptor.mipmapLevelCount = 1;
 		descriptor.usage = MTLTextureUsageUnknown;
@@ -185,14 +188,14 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 #else
 		descriptor.resourceOptions = MTLResourceStorageModeManaged;
 #endif
-		render_target->impl._texReadback = [device newTextureWithDescriptor:descriptor];
+		render_target->impl._texReadback = (__bridge_retained void*)[device newTextureWithDescriptor:descriptor];
 	}
 
 	// Copy render target to readback buffer
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
 	id<MTLBlitCommandEncoder> commandEncoder = [commandBuffer blitCommandEncoder];
-	[commandEncoder copyFromTexture:render_target->impl._tex sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0, 0, 0) sourceSize:MTLSizeMake(render_target->texWidth, render_target->texHeight, 1) toTexture:render_target->impl._texReadback destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0, 0, 0)];
+	[commandEncoder copyFromTexture:(__bridge id<MTLTexture>)render_target->impl._tex sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0, 0, 0) sourceSize:MTLSizeMake(render_target->texWidth, render_target->texHeight, 1) toTexture:(__bridge id<MTLTexture>)render_target->impl._texReadback destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0, 0, 0)];
 #ifndef KINC_APPLE_SOC
 	[commandEncoder synchronizeResource:render_target->impl._texReadback];
 #endif
@@ -201,8 +204,8 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	[commandBuffer waitUntilCompleted];
 
 	// Read buffer
-	id<MTLTexture> tex = render_target->impl._texReadback;
-	int formatByteSize = formatSize([(id<MTLTexture>)render_target->impl._tex pixelFormat]);
+	id<MTLTexture> tex = (__bridge id<MTLTexture>)render_target->impl._texReadback;
+	int formatByteSize = formatSize([(__bridge id<MTLTexture>)render_target->impl._tex pixelFormat]);
 	MTLRegion region = MTLRegionMake2D(0, 0, render_target->texWidth, render_target->texHeight);
 	[tex getBytes:data bytesPerRow:formatByteSize * render_target->texWidth fromRegion:region mipmapLevel:0];
 }
@@ -234,13 +237,15 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+	id<MTLBuffer> buf = (__bridge id<MTLBuffer>)buffer->impl._buffer;
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setVertexBuffer:buffer->impl._buffer offset:offset atIndex:1];
+	[encoder setVertexBuffer:buf offset:offset atIndex:1];
 }
 
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+	id<MTLBuffer> buf = (__bridge id<MTLBuffer>)buffer->impl._buffer;
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setFragmentBuffer:buffer->impl._buffer offset:offset atIndex:0];
+	[encoder setFragmentBuffer:buf offset:offset atIndex:0];
 }
 
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {

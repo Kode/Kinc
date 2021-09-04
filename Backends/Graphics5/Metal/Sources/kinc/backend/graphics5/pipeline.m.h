@@ -91,9 +91,28 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
 }
 
 void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {
-	pipeline->impl._pipeline = 0;
-	pipeline->impl._reflection = 0;
-	pipeline->impl._depthStencil = 0;
+	pipeline->impl._reflection = NULL;
+	pipeline->impl._depthStencil = NULL;
+	
+	id<MTLRenderPipelineState> pipe = (__bridge_transfer id<MTLRenderPipelineState>)pipeline->impl._pipeline;
+	pipe = nil;
+	pipeline->impl._pipeline = NULL;
+	
+	MTLRenderPipelineReflection* reflection = (__bridge_transfer MTLRenderPipelineReflection*)pipeline->impl._reflection;
+	reflection = nil;
+	pipeline->impl._reflection = NULL;
+	
+	id<MTLRenderPipelineState> pipeDepth = (__bridge_transfer id<MTLRenderPipelineState>)pipeline->impl._pipelineDepth;
+	pipeDepth = nil;
+	pipeline->impl._pipelineDepth = NULL;
+	
+	id<MTLDepthStencilState> depthStencil = (__bridge_transfer id<MTLDepthStencilState>)pipeline->impl._depthStencil;
+	depthStencil = nil;
+	pipeline->impl._depthStencil = NULL;
+	
+	id<MTLDepthStencilState> depthStencilNone = (__bridge_transfer id<MTLDepthStencilState>)pipeline->impl._depthStencilNone;
+	depthStencilNone = nil;
+	pipeline->impl._depthStencilNone = NULL;
 }
 
 static int findAttributeIndex(NSArray<MTLVertexAttribute*>* attributes, const char* name) {
@@ -107,8 +126,8 @@ static int findAttributeIndex(NSArray<MTLVertexAttribute*>* attributes, const ch
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	MTLRenderPipelineDescriptor* renderPipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
-	renderPipelineDesc.vertexFunction = pipeline->vertexShader->impl.mtlFunction;
-	renderPipelineDesc.fragmentFunction = pipeline->fragmentShader->impl.mtlFunction;
+	renderPipelineDesc.vertexFunction = (__bridge id<MTLFunction>)pipeline->vertexShader->impl.mtlFunction;
+	renderPipelineDesc.fragmentFunction = (__bridge id<MTLFunction>)pipeline->fragmentShader->impl.mtlFunction;
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
 		renderPipelineDesc.colorAttachments[i].pixelFormat = convert_render_target_format(pipeline->colorAttachment[i]);
 		renderPipelineDesc.colorAttachments[i].blendingEnabled = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE
@@ -193,26 +212,26 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	MTLRenderPipelineReflection* reflection = nil;
 	id<MTLDevice> device = getMetalDevice();
 	
-	pipeline->impl._pipeline = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
+	pipeline->impl._pipeline = (__bridge_retained void*)[device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
 	if (errors != nil) NSLog(@"%@", [errors localizedDescription]);
 	assert(pipeline->impl._pipeline && !errors);
 	
 	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
 	renderPipelineDesc.stencilAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-	pipeline->impl._pipelineDepth = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
+	pipeline->impl._pipelineDepth = (__bridge_retained void*)[device newRenderPipelineStateWithDescriptor:renderPipelineDesc options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&errors];
 	if (errors != nil) NSLog(@"%@", [errors localizedDescription]);
 	assert(pipeline->impl._pipelineDepth && !errors);
 	
-	pipeline->impl._reflection = reflection;
+	pipeline->impl._reflection = (__bridge_retained void*)reflection;
 
 	MTLDepthStencilDescriptor* depthStencilDescriptor = [MTLDepthStencilDescriptor new];
 	depthStencilDescriptor.depthCompareFunction = convert_compare_mode(pipeline->depthMode);
 	depthStencilDescriptor.depthWriteEnabled = pipeline->depthWrite;
-	pipeline->impl._depthStencil = [device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
+	pipeline->impl._depthStencil = (__bridge_retained void*)[device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
 	
 	depthStencilDescriptor.depthCompareFunction = MTLCompareFunctionAlways;
 	depthStencilDescriptor.depthWriteEnabled = false;
-	pipeline->impl._depthStencilNone = [device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
+	pipeline->impl._depthStencilNone = (__bridge_retained void*)[device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
 }
 
 bool kinc_internal_current_render_target_has_depth(void);
@@ -220,12 +239,16 @@ bool kinc_internal_current_render_target_has_depth(void);
 void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	if (kinc_internal_current_render_target_has_depth()) {
-		[encoder setRenderPipelineState:pipeline->impl._pipelineDepth];
-		[encoder setDepthStencilState:pipeline->impl._depthStencil];
+		id<MTLRenderPipelineState> pipe = (__bridge id<MTLRenderPipelineState>)pipeline->impl._pipelineDepth;
+		[encoder setRenderPipelineState:pipe];
+		id<MTLDepthStencilState> depthStencil = (__bridge id<MTLDepthStencilState>)pipeline->impl._depthStencil;
+		[encoder setDepthStencilState:depthStencil];
 	}
 	else {
-		[encoder setRenderPipelineState:pipeline->impl._pipeline];
-		[encoder setDepthStencilState:pipeline->impl._depthStencilNone];
+		id<MTLRenderPipelineState> pipe = (__bridge id<MTLRenderPipelineState>)pipeline->impl._pipeline;
+		[encoder setRenderPipelineState:pipe];
+		id<MTLDepthStencilState> depthStencil = (__bridge id<MTLDepthStencilState>)pipeline->impl._depthStencilNone;
+		[encoder setDepthStencilState:depthStencil];
 	}
 	[encoder setFrontFacingWinding:MTLWindingClockwise];
 	[encoder setCullMode:convert_cull_mode(pipeline->cullMode)];
@@ -236,7 +259,7 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 	location.impl.vertexOffset = -1;
 	location.impl.fragmentOffset = -1;
 
-	MTLRenderPipelineReflection* reflection = pipeline->impl._reflection;
+	MTLRenderPipelineReflection* reflection = (__bridge MTLRenderPipelineReflection*)pipeline->impl._reflection;
 
 	for (MTLArgument* arg in reflection.vertexArguments) {
 		if (arg.type == MTLArgumentTypeBuffer && [arg.name isEqualToString:@"uniforms"]) {
@@ -276,7 +299,7 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	unit.impl.index = -1;
 	unit.impl.vertex = false;
 
-	MTLRenderPipelineReflection* reflection = pipeline->impl._reflection;
+	MTLRenderPipelineReflection* reflection = (__bridge MTLRenderPipelineReflection*)pipeline->impl._reflection;
 	for (MTLArgument* arg in reflection.fragmentArguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
 			unit.impl.index = (int)[arg index];

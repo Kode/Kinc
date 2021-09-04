@@ -1,9 +1,7 @@
 #pragma once
 
-#include <objc/runtime.h>
-
 typedef struct {
-	id _buffer;
+	void *_buffer;
 	int lastStart;
 	int lastCount;
 	int mySize;

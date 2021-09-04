@@ -61,16 +61,21 @@ void shutdownMetalCompute(void) {
 }
 
 void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {
-	shader->impl._function = nil;
-	shader->impl._pipeline = nil;
-	shader->impl._reflection = nil;
+	id<MTLFunction> function = (__bridge_transfer id<MTLFunction>)shader->impl._function;
+	function = nil;
+	shader->impl._function = NULL;
+
+	id<MTLComputePipelineState> pipeline = (__bridge_transfer id<MTLComputePipelineState>)shader->impl._pipeline;
+	pipeline = nil;
+	shader->impl._pipeline = NULL;
+
+	MTLComputePipelineReflection* reflection = (__bridge_transfer MTLComputePipelineReflection*)shader->impl._reflection;
+	reflection = nil;
+	shader->impl._reflection = NULL;
 }
 
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int length) {
 	shader->impl.name[0] = 0;
-	shader->impl._function = nil;
-	shader->impl._pipeline = nil;
-	shader->impl._reflection = nil;
 	
 	{
 		uint8_t *data = (uint8_t *)_data;
@@ -100,23 +105,24 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 		id<MTLDevice> device = getMetalDevice();
 		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
 	}
-	shader->impl._function = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
-	assert(shader->impl._function);
+	id<MTLFunction> function = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
+	assert(shader->impl._function != nil);
+	shader->impl._function = (__bridge_retained void*)function;
 
 	id<MTLDevice> device = getMetalDevice();
 	MTLComputePipelineReflection* reflection = nil;
 	NSError* error = nil;
-	shader->impl._pipeline = [device newComputePipelineStateWithFunction:shader->impl._function options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&error];
+	shader->impl._pipeline = (__bridge_retained void*)[device newComputePipelineStateWithFunction:function options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&error];
 	if (error != nil) NSLog(@"%@", [error localizedDescription]);
-	assert(shader->impl._pipeline && !error);
-	shader->impl._reflection = reflection;
+	assert(shader->impl._pipeline != NULL && !error);
+	shader->impl._reflection = (__bridge_retained void*)reflection;
 }
 
 kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
 	kinc_compute_constant_location_t location;
 	location.impl._offset = -1;
 
-	MTLComputePipelineReflection* reflection = shader->impl._reflection;
+	MTLComputePipelineReflection* reflection = (__bridge MTLComputePipelineReflection*)shader->impl._reflection;
 
 	for (MTLArgument* arg in reflection.arguments) {
 		if (arg.type == MTLArgumentTypeBuffer && [arg.name isEqualToString:@"uniforms"]) {
@@ -140,7 +146,7 @@ kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_sh
 	kinc_compute_texture_unit_t unit;
 	unit.impl._index = -1;
 
-	MTLComputePipelineReflection* reflection = shader->impl._reflection;
+	MTLComputePipelineReflection* reflection = (__bridge MTLComputePipelineReflection*)shader->impl._reflection;
 	for (MTLArgument* arg in reflection.arguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
 			unit.impl._index = (int)[arg index];
@@ -177,7 +183,8 @@ void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, kinc_ma
 void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_matrix3x3_t *value) {}
 
 void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, struct kinc_g4_texture *texture, kinc_compute_access_t access) {
-	[commandEncoder setTexture:texture->impl._texture.impl._tex atIndex:unit.impl._index];
+	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._texture.impl._tex;
+	[commandEncoder setTexture:tex atIndex:unit.impl._index];
 }
 
 void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, struct kinc_g4_render_target *texture, kinc_compute_access_t access) {}
@@ -205,7 +212,8 @@ void kinc_compute_set_texture_mipmap_filter(kinc_compute_texture_unit_t unit, ki
 void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
 
 void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
-	[commandEncoder setComputePipelineState:shader->impl._pipeline];
+	id<MTLComputePipelineState> pipeline = (__bridge id<MTLComputePipelineState>)shader->impl._pipeline;
+	[commandEncoder setComputePipelineState:pipeline];
 }
 
 void kinc_compute(int x, int y, int z) {

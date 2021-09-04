@@ -178,7 +178,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 
 	MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 	for (int i = 0; i < count; ++i) {
-		renderPassDescriptor.colorAttachments[i].texture = renderTargets == NULL ? drawable.texture : renderTargets[i]->impl._tex;
+		renderPassDescriptor.colorAttachments[i].texture = renderTargets == NULL ? drawable.texture : (__bridge id<MTLTexture>)renderTargets[i]->impl._tex;
         if (clear_flags & KINC_G5_CLEAR_COLOR) {
             float red, green, blue, alpha;
             kinc_color_components(color, &red, &green, &blue, &alpha);
@@ -203,7 +203,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
         renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
         renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
     }
-	renderPassDescriptor.depthAttachment.texture = renderTargets == NULL ? depthTexture : renderTargets[0]->impl._depthTex;
+	renderPassDescriptor.depthAttachment.texture = renderTargets == NULL ? depthTexture : (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
     
     if (clear_flags & KINC_G5_CLEAR_STENCIL) {
         renderPassDescriptor.stencilAttachment.clearStencil = stencil;
@@ -215,7 +215,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
         renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
         renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
     }
-	renderPassDescriptor.stencilAttachment.texture = renderTargets == NULL ? depthTexture : renderTargets[0]->impl._depthTex;
+	renderPassDescriptor.stencilAttachment.texture = renderTargets == NULL ? depthTexture : (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
 
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	commandBuffer = [commandQueue commandBuffer];

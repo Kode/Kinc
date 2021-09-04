@@ -16,7 +16,9 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 	buffer->impl.myCount = count;
 }
 
-void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {}
+void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
+	kinc_g5_vertex_buffer_destroy(&buffer->impl._buffer);
+}
 
 static void prepareLock(kinc_g4_vertex_buffer_t *buffer) {
 	/*if (frameNumber > _lastFrameNumber) {
