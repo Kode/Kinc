@@ -120,6 +120,10 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 }
 #endif
 
+#ifdef KORE_WINDOWSAPP
+extern "C" void kinc_internal_uwp_installed_location_path(char *path);
+#endif
+
 #ifndef KORE_ANDROID
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
 	memset(reader, 0, sizeof(kinc_file_reader_t));
@@ -156,8 +160,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
 #ifdef KORE_WINDOWSAPP
-	Platform::String ^ locationString = Windows::ApplicationModel::Package::Current->InstalledLocation->Path;
-	WideCharToMultiByte(CP_UTF8, 0, locationString->Begin(), -1, filepath, 1000, nullptr, nullptr);
+	kinc_internal_uwp_installed_location_path(filepath);
 	strcat(filepath, "\\");
 	strcat(filepath, filename);
 #endif
