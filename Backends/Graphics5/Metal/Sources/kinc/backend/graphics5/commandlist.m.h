@@ -197,7 +197,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	id<MTLBlitCommandEncoder> commandEncoder = [commandBuffer blitCommandEncoder];
 	[commandEncoder copyFromTexture:(__bridge id<MTLTexture>)render_target->impl._tex sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0, 0, 0) sourceSize:MTLSizeMake(render_target->texWidth, render_target->texHeight, 1) toTexture:(__bridge id<MTLTexture>)render_target->impl._texReadback destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0, 0, 0)];
 #ifndef KINC_APPLE_SOC
-	[commandEncoder synchronizeResource:render_target->impl._texReadback];
+	[commandEncoder synchronizeResource:(__bridge id<MTLTexture>)render_target->impl._texReadback];
 #endif
 	[commandEncoder endEncoding];
 	[commandBuffer commit];

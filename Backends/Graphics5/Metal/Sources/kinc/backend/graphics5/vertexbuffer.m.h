@@ -97,7 +97,7 @@ float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buf, int start, int c
 void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buf) {
 #ifndef KINC_APPLE_SOC
 	if (buf->impl.gpuMemory) {
-		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
+		id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
 		NSRange range;
 		range.location = buf->impl.lastStart * buf->impl.myStride;
 		range.length = buf->impl.lastCount * buf->impl.myStride;
@@ -109,7 +109,7 @@ void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buf) {
 void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buf, int count) {
 #ifndef KINC_APPLE_SOC
 	if (buf->impl.gpuMemory) {
-		id<MTLBuffer> buffer = buf->impl.mtlBuffer;
+		id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
 		NSRange range;
 		range.location = buf->impl.lastStart * buf->impl.myStride;
 		range.length = count * buf->impl.myStride;
