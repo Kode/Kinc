@@ -273,8 +273,8 @@ namespace {
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	// TODO FLOAT4x4
 	int vertexAttributeCount = 0;
-	for(int i = 0; i < 16; ++i) {
-		if(pipe->inputLayout[i] == NULL) {
+	for (int i = 0; i < 16; ++i) {
+		if (pipe->inputLayout[i] == NULL) {
 			break;
 		}
 		vertexAttributeCount += pipe->inputLayout[i]->size;
@@ -318,7 +318,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 			curAttr++;
 		}
 	}
-	
+
 	HRESULT hr;
 #ifdef KORE_DXC
 	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));

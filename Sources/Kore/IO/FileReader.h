@@ -10,18 +10,18 @@ namespace Kore {
 		enum FileType { Asset, Save };
 
 		FileReader();
-		FileReader(const char* filename, FileType type = Asset);
+		FileReader(const char *filename, FileType type = Asset);
 		~FileReader();
-		bool open(const char* filename, FileType type = Asset);
+		bool open(const char *filename, FileType type = Asset);
 		void close();
-		int read(void* data, int size) override;
-		void* readAll() override;
+		int read(void *data, int size) override;
+		void *readAll() override;
 		int size() override;
 		int pos() override;
 		void seek(int pos) override;
 
 		kinc_file_reader_t reader;
 		FileType type;
-		void* readdata;
+		void *readdata;
 	};
 }

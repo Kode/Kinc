@@ -6,7 +6,7 @@ GlRendererTemplate::GlRendererTemplate(void) : __controlWidth(0), __controlHeigh
 
 GlRendererTemplate::~GlRendererTemplate(void) {}
 
-extern int kore(int argc, char** argv);
+extern int kore(int argc, char **argv);
 
 bool GlRendererTemplate::InitializeGl(void) {
 	kore(0, nullptr);

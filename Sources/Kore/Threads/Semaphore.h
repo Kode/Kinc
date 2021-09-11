@@ -10,6 +10,7 @@ namespace Kore {
 		void release(int count = 1);
 		void acquire();
 		bool tryToAcquire(double seconds);
+
 	private:
 		kinc_semaphore_t semaphore;
 	};

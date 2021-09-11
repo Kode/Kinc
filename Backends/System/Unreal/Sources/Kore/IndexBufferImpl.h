@@ -12,7 +12,7 @@ namespace Kore {
 		int myCount;
 
 	public:
-		static IndexBuffer* _current;
+		static IndexBuffer *_current;
 		FIndexBufferRHIRef indexBuffer;
 	};
 }

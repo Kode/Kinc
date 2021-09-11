@@ -16,9 +16,9 @@ namespace Kore {
 		int activeConns;
 
 		// For each connected entity
-		State* states;
-		double* pings;
-		bool* congests;
+		State *states;
+		double *pings;
+		bool *congests;
 
 		Connection(int receivePort, int maxConns, double timeout = 10, double pngInterv = 1, double resndInterv = 0.2, double congestPing = 0.2,
 		           float congestShare = 0.5, int buffSize = 256, int cacheCount = 20);
@@ -26,34 +26,34 @@ namespace Kore {
 
 		void listen();
 		int connect(unsigned address, int port);
-		int connect(const char* url, int port);
-		void send(const u8* data, int size, int connId = -1, bool reliable = true);
-		int receive(u8* data, int& fromId);
+		int connect(const char *url, int port);
+		void send(const u8 *data, int size, int connId = -1, bool reliable = true);
+		int receive(u8 *data, int &fromId);
 
 	private:
 		enum ControlType { Ping = 0, Pong = 1 };
 
 		bool acceptConns;
-		//const int recPort;
+		// const int recPort;
 		Kore::Socket socket;
 
 		// For each connected entity
-		unsigned* connAdds;
-		int* connPorts;
-		double* lastRecs;
-		u32* lastSndNrsRel;
-		u32* lastSndNrsURel;
-		u32* lastAckNrsRel;
-		u32* lastRecNrsRel;
-		u32* lastRecNrsURel;
-		u32* congestBits;
-		u8* recCaches;
+		unsigned *connAdds;
+		int *connPorts;
+		double *lastRecs;
+		u32 *lastSndNrsRel;
+		u32 *lastSndNrsURel;
+		u32 *lastAckNrsRel;
+		u32 *lastRecNrsRel;
+		u32 *lastRecNrsURel;
+		u32 *congestBits;
+		u8 *recCaches;
 
 		int buffSize;
 		int cacheCount;
-		u8* recBuff;
-		u8* sndBuff;
-		u8* sndCache;
+		u8 *recBuff;
+		u8 *sndBuff;
+		u8 *sndCache;
 
 		float congestShare;
 		double timeout;
@@ -63,11 +63,11 @@ namespace Kore {
 		double lastPng;
 
 		int getID(unsigned int recAddr, unsigned int recPort);
-		void sendPacket(const u8* data, int size, int connId, bool reliable, bool control);
+		void sendPacket(const u8 *data, int size, int connId, bool reliable, bool control);
 		void sendPreparedBuffer(int size, bool reliable, int id);
 		bool checkSeqNr(u32 next, u32 last);
 		void processControlMessage(int id);
-		int processMessage(int size, u8* returnBuffer);
+		int processMessage(int size, u8 *returnBuffer);
 		void reset(int id, bool decCount);
 	};
 }

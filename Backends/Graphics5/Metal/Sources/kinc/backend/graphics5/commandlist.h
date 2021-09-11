@@ -1,3 +1,4 @@
 #pragma once
 
-typedef struct {} CommandList5Impl;
+typedef struct {
+} CommandList5Impl;

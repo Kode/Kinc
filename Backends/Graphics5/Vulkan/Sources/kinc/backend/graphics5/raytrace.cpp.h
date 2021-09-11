@@ -162,7 +162,9 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		auto vkGetRayTracingShaderGroupHandlesKHR =
 		    PFN_vkGetRayTracingShaderGroupHandlesKHR(vkGetDeviceProcAddr(device, "vkGetRayTracingShaderGroupHandlesKHR"));
 		uint32_t handle_size = ray_tracing_pipeline_properties.shaderGroupHandleSize;
-		uint32_t handle_size_aligned = (ray_tracing_pipeline_properties.shaderGroupHandleSize + ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1) & ~(ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1);
+		uint32_t handle_size_aligned =
+		    (ray_tracing_pipeline_properties.shaderGroupHandleSize + ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1) &
+		    ~(ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1);
 
 		VkBufferCreateInfo buf_info = {};
 		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -189,7 +191,8 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		VkMemoryRequirements mem_reqs = {};
 		vkGetBufferMemoryRequirements(device, pipeline->impl.raygen_shader_binding_table, &mem_reqs);
 		memory_allocate_info.allocationSize = mem_reqs.size;
-		memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memory_allocate_info.memoryTypeIndex);
+		memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+		                            &memory_allocate_info.memoryTypeIndex);
 
 		VkDeviceMemory mem;
 		void *data;
@@ -274,7 +277,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 	auto vkGetAccelerationStructureDeviceAddressKHR =
 	    PFN_vkGetAccelerationStructureDeviceAddressKHR(vkGetDeviceProcAddr(device, "vkGetAccelerationStructureDeviceAddressKHR"));
 	auto vkGetAccelerationStructureBuildSizesKHR =
-		PFN_vkGetAccelerationStructureBuildSizesKHR(vkGetDeviceProcAddr(device, "vkGetAccelerationStructureBuildSizesKHR"));
+	    PFN_vkGetAccelerationStructureBuildSizesKHR(vkGetDeviceProcAddr(device, "vkGetAccelerationStructureBuildSizesKHR"));
 
 	{
 		VkDeviceOrHostAddressConstKHR vertex_data_device_address{};
@@ -304,7 +307,8 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		VkAccelerationStructureBuildSizesInfoKHR acceleration_build_sizes_info{};
 		acceleration_build_sizes_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
 		const uint32_t primitive_count = 1;
-		vkGetAccelerationStructureBuildSizesKHR(device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, &acceleration_structure_build_geometry_info, &primitive_count, &acceleration_build_sizes_info);
+		vkGetAccelerationStructureBuildSizesKHR(device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, &acceleration_structure_build_geometry_info,
+		                                        &primitive_count, &acceleration_build_sizes_info);
 
 		VkBufferCreateInfo buffer_create_info{};
 		buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -397,7 +401,8 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 			command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			vkBeginCommandBuffer(command_buffer, &command_buffer_info);
 
-			auto vkCmdBuildAccelerationStructuresKHR = PFN_vkCmdBuildAccelerationStructuresKHR(vkGetDeviceProcAddr(device, "vkCmdBuildAccelerationStructuresKHR"));
+			auto vkCmdBuildAccelerationStructuresKHR =
+			    PFN_vkCmdBuildAccelerationStructuresKHR(vkGetDeviceProcAddr(device, "vkCmdBuildAccelerationStructuresKHR"));
 			vkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &acceleration_build_geometry_info, &acceleration_build_infos[0]);
 
 			vkEndCommandBuffer(command_buffer);
@@ -499,7 +504,8 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		VkAccelerationStructureBuildSizesInfoKHR acceleration_build_sizes_info{};
 		acceleration_build_sizes_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
 		const uint32_t primitive_count = 1;
-		vkGetAccelerationStructureBuildSizesKHR(device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, &acceleration_structure_build_geometry_info, &primitive_count, &acceleration_build_sizes_info);
+		vkGetAccelerationStructureBuildSizesKHR(device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, &acceleration_structure_build_geometry_info,
+		                                        &primitive_count, &acceleration_build_sizes_info);
 
 		VkBufferCreateInfo buffer_create_info{};
 		buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -590,7 +596,8 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 			command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			vkBeginCommandBuffer(command_buffer, &command_buffer_info);
 
-			auto vkCmdBuildAccelerationStructuresKHR = PFN_vkCmdBuildAccelerationStructuresKHR(vkGetDeviceProcAddr(device, "vkCmdBuildAccelerationStructuresKHR"));
+			auto vkCmdBuildAccelerationStructuresKHR =
+			    PFN_vkCmdBuildAccelerationStructuresKHR(vkGetDeviceProcAddr(device, "vkCmdBuildAccelerationStructuresKHR"));
 			vkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &acceleration_build_geometry_info, &acceleration_build_infos[0]);
 
 			vkEndCommandBuffer(command_buffer);
@@ -696,7 +703,9 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	vkGetPhysicalDeviceProperties2(gpu, &device_properties);
 
 	// Setup the strided buffer regions pointing to the shaders in our shader binding table
-	const uint32_t handle_size_aligned = (ray_tracing_pipeline_properties.shaderGroupHandleSize + ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1) & ~(ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1);
+	const uint32_t handle_size_aligned =
+	    (ray_tracing_pipeline_properties.shaderGroupHandleSize + ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1) &
+	    ~(ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1);
 
 	VkStridedDeviceAddressRegionKHR raygen_shader_sbt_entry{};
 	raygen_shader_sbt_entry.deviceAddress = get_buffer_device_address(pipeline->impl.raygen_shader_binding_table);

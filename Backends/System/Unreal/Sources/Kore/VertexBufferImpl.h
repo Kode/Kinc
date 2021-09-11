@@ -16,7 +16,7 @@ namespace Kore {
 		FVertexBufferRHIRef vertexBuffer;
 
 	public:
-		static VertexBuffer* _current;
+		static VertexBuffer *_current;
 		int _offset;
 	};
 }

@@ -9,7 +9,7 @@
 #include <malloc.h>
 #endif
 
-enum Commands { Clear, Draw, SetViewport, SetScissor, SetPipeline, SetVertexBuffer, SetIndexBuffer, SetRenderTarget, DrawInstanced};
+enum Commands { Clear, Draw, SetViewport, SetScissor, SetPipeline, SetVertexBuffer, SetIndexBuffer, SetRenderTarget, DrawInstanced };
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
 
@@ -48,14 +48,14 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 			break;
 		}
 		case SetVertexBuffer: {
-			//kinc_g5_vertex_buffer_t *vb = (kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1];
+			// kinc_g5_vertex_buffer_t *vb = (kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1];
 			int count = (int)list->impl.commands[index + 1];
-			#ifdef KORE_MICROSOFT
-			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t **)alloca(sizeof(kinc_g4_vertex_buffer_t*) * count);
-			#else
+#ifdef KORE_MICROSOFT
+			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t **)alloca(sizeof(kinc_g4_vertex_buffer_t *) * count);
+#else
 			kinc_g4_vertex_buffer_t *buffers[count];
-			#endif
-			for(int i = 0; i < count; ++i) {
+#endif
+			for (int i = 0; i < count; ++i) {
 				buffers[i] = &(((kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1 + i])->impl.buffer);
 			}
 			kinc_g4_set_vertex_buffers(buffers, count);
@@ -148,9 +148,9 @@ void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count) {
 	list->impl.commands[list->impl.commandIndex++] = SetVertexBuffer;
 	list->impl.commands[list->impl.commandIndex++] = count;
-	for(int i = 0; i < count; ++i) {
+	for (int i = 0; i < count; ++i) {
 		list->impl.commands[list->impl.commandIndex++] = (int64_t)buffers[i];
-		//list->impl.commands[list->impl.commandIndex++] = (int64_t)offsets[i];
+		// list->impl.commands[list->impl.commandIndex++] = (int64_t)offsets[i];
 	}
 }
 

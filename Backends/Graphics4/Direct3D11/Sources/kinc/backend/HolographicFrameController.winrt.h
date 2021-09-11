@@ -68,7 +68,7 @@ private:
 	Windows::Graphics::Holographic::HolographicFramePrediction ^ m_currentPrediction;
 	Windows::Perception::Spatial::SpatialCoordinateSystem ^ m_currentCoordinateSystem;
 	Windows::Graphics::Holographic::HolographicCameraPose ^ m_currentCamPose;
-	DX::CameraResources* m_currentCameraResources;
+	DX::CameraResources *m_currentCameraResources;
 
 	// SpatialLocator that is attached to the primary camera.
 	Windows::Perception::Spatial::SpatialLocator ^ m_spatialLocator;

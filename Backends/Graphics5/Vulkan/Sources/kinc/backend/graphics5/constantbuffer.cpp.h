@@ -6,7 +6,7 @@
 #include <memory.h>
 
 extern VkDevice device;
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
 VkBuffer *Kore::Vulkan::vertexUniformBuffer = nullptr;
 VkBuffer *Kore::Vulkan::fragmentUniformBuffer = nullptr;
@@ -15,7 +15,7 @@ bool kinc_g5_transposeMat3 = true;
 bool kinc_g5_transposeMat4 = true;
 
 namespace {
-	void createUniformBuffer(VkBuffer& buf, VkMemoryAllocateInfo& mem_alloc, VkDeviceMemory& mem, VkDescriptorBufferInfo& buffer_info, int size) {
+	void createUniformBuffer(VkBuffer &buf, VkMemoryAllocateInfo &mem_alloc, VkDeviceMemory &mem, VkDescriptorBufferInfo &buffer_info, int size) {
 		VkBufferCreateInfo buf_info;
 		memset(&buf_info, 0, sizeof(buf_info));
 		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -61,7 +61,7 @@ void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 		Kore::Vulkan::fragmentUniformBuffer = &buffer->impl.buf;
 	}
 
-	void* p;
+	void *p;
 	VkResult err = vkMapMemory(device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&p);
 	assert(!err);
 	memset(p, 0, buffer->impl.mem_alloc.allocationSize);

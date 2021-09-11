@@ -29,7 +29,7 @@ namespace Kore {
 		}
 
 		// construct new vector omitting last value
-		Vector(const Vector<Type, count + 1>& other) {
+		Vector(const Vector<Type, count + 1> &other) {
 			for (unsigned i = 0; i < count; ++i) values[i] = other[i];
 		}
 
@@ -76,42 +76,42 @@ namespace Kore {
 			values[3] = w;
 		}
 
-		Type& x() {
+		Type &x() {
 			// StaticAssert(count > 0);
 			return values[0];
 		}
 
-		Type& y() {
+		Type &y() {
 			// StaticAssert(count > 1);
 			return values[1];
 		}
 
-		Type& z() {
+		Type &z() {
 			// StaticAssert(count > 2);
 			return values[2];
 		}
 
-		Type& w() {
+		Type &w() {
 			// StaticAssert(count > 3);
 			return values[3];
 		}
 
-		const Type& x() const {
+		const Type &x() const {
 			// StaticAssert(count > 0);
 			return values[0];
 		}
 
-		const Type& y() const {
+		const Type &y() const {
 			// StaticAssert(count > 1);
 			return values[1];
 		}
 
-		const Type& z() const {
+		const Type &z() const {
 			// StaticAssert(count > 2);
 			return values[2];
 		}
 
-		const Type& w() const {
+		const Type &w() const {
 			// StaticAssert(count > 3);
 			return values[3];
 		}
@@ -148,13 +148,13 @@ namespace Kore {
 			for (unsigned i = 0; i < count; ++i) values[i] *= value;
 		}
 
-		Vector<Type, count> componentProduct(const Vector<Type, count>& vector) const {
+		Vector<Type, count> componentProduct(const Vector<Type, count> &vector) const {
 			Vector<Type, count> ret(*this);
 			ret.componentProductUpdate(vector);
 			return ret;
 		}
 
-		void componentProductUpdate(const Vector<Type, count>& vector) {
+		void componentProductUpdate(const Vector<Type, count> &vector) {
 			for (unsigned i = 0; i < count; ++i) values[i] *= vector.values[i];
 		}
 
@@ -197,7 +197,7 @@ namespace Kore {
 			for (unsigned i = 0; i < count; ++i) values[i] *= mul;
 		}
 
-		Vector<Type, count>& normalize() {
+		Vector<Type, count> &normalize() {
 			setLength(1);
 			return *this;
 		}
@@ -208,15 +208,15 @@ namespace Kore {
 			return ret;
 		}
 
-		Type& operator[](int index) {
+		Type &operator[](int index) {
 			return values[index];
 		}
 
-		const Type& operator[](int index) const {
+		const Type &operator[](int index) const {
 			return values[index];
 		}
 
-		void multiplyComponents(const Vector<Type, count>& v) {
+		void multiplyComponents(const Vector<Type, count> &v) {
 			for (unsigned i = 0; i < count; ++i) values[i] = values[i] * v.values[i];
 		}
 

@@ -6,11 +6,11 @@ struct ID3D11ShaderResourceView;
 struct ID3D11UnorderedAccessView;
 struct ID3D11RenderTargetView;
 
-//TextureImpl();
+// TextureImpl();
 //~TextureImpl();
-//void enableMipmaps(int texWidth, int texHeight, int format);
-//void unmipmap();
-//void unset();
+// void enableMipmaps(int texWidth, int texHeight, int format);
+// void unmipmap();
+// void unset();
 
 typedef struct {
 	bool hasMipmaps;

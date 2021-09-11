@@ -1,5 +1,5 @@
-#include <kinc/threads/semaphore.h>
 #include <kinc/system.h>
+#include <kinc/threads/semaphore.h>
 
 #ifdef __APPLE__
 
@@ -49,8 +49,7 @@ bool kinc_semaphore_try_to_acquire(kinc_semaphore_t *semaphore, double seconds) 
 		if (sem_trywait(&semaphore->impl.semaphore) == 0) {
 			return true;
 		}
-	}
-	while (kinc_time() < now + seconds);
+	} while (kinc_time() < now + seconds);
 	return false;
 }
 

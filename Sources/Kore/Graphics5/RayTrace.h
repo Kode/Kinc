@@ -15,13 +15,13 @@ namespace Kore {
 
 		class RayTracePipeline : public RayTracePipelineImpl {
 		public:
-			RayTracePipeline(CommandList* commandList, void* rayTraceShader, int rayTraceShaderSize, ConstantBuffer* constantBuffer);
-			ConstantBuffer* _constantBuffer;
+			RayTracePipeline(CommandList *commandList, void *rayTraceShader, int rayTraceShaderSize, ConstantBuffer *constantBuffer);
+			ConstantBuffer *_constantBuffer;
 		};
 
 		class AccelerationStructure : public AccelerationStructureImpl {
 		public:
-			AccelerationStructure(CommandList* commandList, VertexBuffer* vb, IndexBuffer* ib);
+			AccelerationStructure(CommandList *commandList, VertexBuffer *vb, IndexBuffer *ib);
 		};
 
 		class RayTraceTarget : public RayTraceTargetImpl {
@@ -31,11 +31,11 @@ namespace Kore {
 			int _height;
 		};
 
-		void setAccelerationStructure(AccelerationStructure* accel);
-		void setRayTracePipeline(RayTracePipeline* pipeline);
-		void setRayTraceTarget(RayTraceTarget* output);
-		void dispatchRays(CommandList* commandList);
-		void copyRayTraceTarget(CommandList* commandList, RenderTarget* renderTarget, RayTraceTarget* output);
+		void setAccelerationStructure(AccelerationStructure *accel);
+		void setRayTracePipeline(RayTracePipeline *pipeline);
+		void setRayTraceTarget(RayTraceTarget *output);
+		void dispatchRays(CommandList *commandList);
+		void copyRayTraceTarget(CommandList *commandList, RenderTarget *renderTarget, RayTraceTarget *output);
 	}
 }
 

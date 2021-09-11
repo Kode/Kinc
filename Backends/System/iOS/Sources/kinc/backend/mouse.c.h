@@ -1,12 +1,8 @@
 #include <kinc/input/mouse.h>
 
-void kinc_internal_mouse_lock(int window) {
-	
-}
+void kinc_internal_mouse_lock(int window) {}
 
-void kinc_internal_mouse_unlock(void) {
-	
-}
+void kinc_internal_mouse_unlock(void) {}
 
 bool kinc_mouse_can_lock(void) {
 	return false;

@@ -5,7 +5,7 @@ namespace Kore {
 	class VideoSoundStream {
 	public:
 		VideoSoundStream(int nChannels, int freq) {}
-		void insertData(float* data, int nSamples) {}
+		void insertData(float *data, int nSamples) {}
 		float nextSample() {
 			return 0;
 		}

@@ -11,10 +11,10 @@ using namespace Kore;
 #define HAS_COMPUTE
 #endif
 
-ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length) {
+ComputeShaderImpl::ComputeShaderImpl(void *source, int length) : _length(length) {
 	_source = new char[length + 1];
 	for (int i = 0; i < length; ++i) {
-		_source[i] = ((char*)source)[i];
+		_source[i] = ((char *)source)[i];
 	}
 	_source[length] = 0;
 
@@ -29,7 +29,7 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 	if (result != GL_TRUE) {
 		int length;
 		glGetShaderiv(_id, GL_INFO_LOG_LENGTH, &length);
-		char* errormessage = new char[length];
+		char *errormessage = new char[length];
 		glGetShaderInfoLog(_id, length, nullptr, errormessage);
 		log(Error, "GLSL compiler error: %s\n", errormessage);
 		delete[] errormessage;
@@ -43,7 +43,7 @@ ComputeShaderImpl::ComputeShaderImpl(void* source, int length) : _length(length)
 	if (result != GL_TRUE) {
 		int length;
 		glGetProgramiv(_programid, GL_INFO_LOG_LENGTH, &length);
-		char* errormessage = new char[length];
+		char *errormessage = new char[length];
 		glGetProgramInfoLog(_programid, length, nullptr, errormessage);
 		log(Error, "GLSL linker error: %s\n", errormessage);
 		delete[] errormessage;
@@ -60,9 +60,9 @@ ComputeShaderImpl::~ComputeShaderImpl() {
 #endif
 }
 
-ComputeShader::ComputeShader(void* _data, int length) : ComputeShaderImpl(_data, length) {}
+ComputeShader::ComputeShader(void *_data, int length) : ComputeShaderImpl(_data, length) {}
 
-ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
+ComputeConstantLocation ComputeShader::getConstantLocation(const char *name) {
 	ComputeConstantLocation location;
 #ifdef HAS_COMPUTE
 	location.location = glGetUniformLocation(_programid, name);
@@ -74,7 +74,7 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char* name) {
 	return location;
 }
 
-ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
+ComputeTextureUnit ComputeShader::getTextureUnit(const char *name) {
 	ComputeTextureUnit unit;
 	unit.unit = 0;
 	return unit;
@@ -87,14 +87,14 @@ void Compute::setFloat(ComputeConstantLocation location, float value) {
 #endif
 }
 
-void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
+void Compute::setBuffer(ShaderStorageBuffer *buffer, int index) {
 #ifdef HAS_COMPUTE
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->bufferId);
 	glCheckErrors2();
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture *texture, Access access) {
 #ifdef HAS_COMPUTE
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors2();
@@ -104,13 +104,13 @@ void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, A
 #endif
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target, Access access) {}
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *target, Access access) {}
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {}
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture *texture) {}
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {}
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *target) {}
 
-void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {}
+void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *target) {}
 
 void Compute::setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing) {}
 
@@ -128,7 +128,7 @@ void Compute::setTextureMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapF
 
 void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter) {}
 
-void Compute::setShader(ComputeShader* shader) {
+void Compute::setShader(ComputeShader *shader) {
 #ifdef HAS_COMPUTE
 	glUseProgram(shader->_programid);
 	glCheckErrors2();

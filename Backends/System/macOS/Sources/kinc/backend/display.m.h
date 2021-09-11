@@ -4,22 +4,22 @@
 #include <kinc/log.h>
 
 #define maxDisplays 10
-//Display displays[maxDisplays];
+// Display displays[maxDisplays];
 
 /*void initMacDisplays() {
-	for (int i = 0; i < maxDisplays; ++i) {
-		displays[i]._data.index = i;
-	}
+    for (int i = 0; i < maxDisplays; ++i) {
+        displays[i]._data.index = i;
+    }
 }*/
 
 int kinc_count_displays(void) {
-	NSArray* screens = [NSScreen screens];
+	NSArray *screens = [NSScreen screens];
 	return (int)[screens count];
 }
 
 int kinc_primary_display(void) {
-	NSArray* screens = [NSScreen screens];
-	NSScreen* mainScreen = [NSScreen mainScreen];
+	NSArray *screens = [NSScreen screens];
+	NSScreen *mainScreen = [NSScreen mainScreen];
 	for (int i = 0; i < maxDisplays; ++i) {
 		if (mainScreen == screens[i]) {
 			return i;
@@ -28,9 +28,7 @@ int kinc_primary_display(void) {
 	return -1;
 }
 
-void kinc_display_init(void) {
-
-}
+void kinc_display_init(void) {}
 
 kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
 	kinc_display_mode_t dm;
@@ -54,8 +52,8 @@ const char *kinc_display_name(int display) {
 }
 
 kinc_display_mode_t kinc_display_current_mode(int display) {
-	NSArray* screens = [NSScreen screens];
-	NSScreen* screen = screens[display];
+	NSArray *screens = [NSScreen screens];
+	NSScreen *screen = screens[display];
 	NSRect screenRect = [screen frame];
 	kinc_display_mode_t dm;
 	dm.width = screenRect.size.width;
@@ -68,39 +66,39 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 //**
 /*
 int Display::x() {
-	NSArray* screens = [NSScreen screens];
-	NSScreen* screen = screens[_data.index];
-	NSRect rect = [screen frame];
-	return rect.origin.x;
+    NSArray* screens = [NSScreen screens];
+    NSScreen* screen = screens[_data.index];
+    NSRect rect = [screen frame];
+    return rect.origin.x;
 }
 
 int Display::y() {
-	NSArray* screens = [NSScreen screens];
-	NSScreen* screen = screens[_data.index];
-	NSRect rect = [screen frame];
-	return rect.origin.y;
+    NSArray* screens = [NSScreen screens];
+    NSScreen* screen = screens[_data.index];
+    NSRect rect = [screen frame];
+    return rect.origin.y;
 }
 
 int Display::width() {
-	NSArray* screenArray = [NSScreen screens];
-	NSScreen* screen = [screenArray objectAtIndex:_data.index];
-	NSRect screenRect = [screen visibleFrame];
-	return screenRect.size.width;
+    NSArray* screenArray = [NSScreen screens];
+    NSScreen* screen = [screenArray objectAtIndex:_data.index];
+    NSRect screenRect = [screen visibleFrame];
+    return screenRect.size.width;
 }
 
 int Display::height() {
-	NSArray* screenArray = [NSScreen screens];
-	// unsigned screenCount = [screenArray count];
-	NSScreen* screen = [screenArray objectAtIndex:_data.index];
-	NSRect screenRect = [screen visibleFrame];
-	return screenRect.size.height;
+    NSArray* screenArray = [NSScreen screens];
+    // unsigned screenCount = [screenArray count];
+    NSScreen* screen = [screenArray objectAtIndex:_data.index];
+    NSRect screenRect = [screen visibleFrame];
+    return screenRect.size.height;
 }
 
 int Display::frequency() {
-	return 60;
+    return 60;
 }
 
 int Display::pixelsPerInch() {
-	return 96;
+    return 96;
 }
 */

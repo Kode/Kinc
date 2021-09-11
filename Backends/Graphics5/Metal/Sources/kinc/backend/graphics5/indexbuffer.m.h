@@ -26,7 +26,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, b
 		options |= MTLResourceStorageModeShared;
 	}
 #endif
-	buffer->impl.mtlBuffer = (__bridge_retained void*)[device newBufferWithLength:sizeof(int) * indexCount options:options];
+	buffer->impl.mtlBuffer = (__bridge_retained void *)[device newBufferWithLength:sizeof(int) * indexCount options:options];
 }
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
@@ -38,7 +38,7 @@ void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 
 int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buf) {
 	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
-	return (int*)[buffer contents];
+	return (int *)[buffer contents];
 }
 
 void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buf) {

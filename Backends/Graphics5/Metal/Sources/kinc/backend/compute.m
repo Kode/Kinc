@@ -1,6 +1,6 @@
 #include <kinc/compute/compute.h>
-#include <kinc/math/core.h>
 #include <kinc/graphics4/texture.h>
+#include <kinc/math/core.h>
 
 #include <Metal/Metal.h>
 
@@ -10,47 +10,47 @@ id getMetalLibrary(void);
 #define constantsSize 1024 * 4
 static uint8_t *constantsMemory;
 
-	static void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
-		if (size == 0) return;
-		float* floats = (float*)&constants[offset];
-		floats[0] = value;
-	}
+static void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value;
+}
 
-	static void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
-		if (size == 0) return;
-		float* floats = (float*)&constants[offset];
-		floats[0] = value1;
-		floats[1] = value2;
-	}
+static void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+}
 
-	static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
-		if (size == 0) return;
-		float* floats = (float*)&constants[offset];
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-	}
+static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+}
 
-	static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
-		if (size == 0) return;
-		float* floats = (float*)&constants[offset];
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-		floats[3] = value4;
-	}
+static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+	floats[3] = value4;
+}
 
-	static id<MTLCommandQueue> commandQueue;
-	static id<MTLCommandBuffer> commandBuffer;
-	static id<MTLComputeCommandEncoder> commandEncoder;
-	static id<MTLBuffer> buffer;
+static id<MTLCommandQueue> commandQueue;
+static id<MTLCommandBuffer> commandBuffer;
+static id<MTLComputeCommandEncoder> commandEncoder;
+static id<MTLBuffer> buffer;
 
 void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> queue) {
 	commandQueue = queue;
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer computeCommandEncoder];
 	buffer = [device newBufferWithLength:constantsSize options:MTLResourceOptionCPUCacheModeDefault];
-	constantsMemory = (uint8_t*)[buffer contents];
+	constantsMemory = (uint8_t *)[buffer contents];
 }
 
 void shutdownMetalCompute(void) {
@@ -69,14 +69,14 @@ void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {
 	pipeline = nil;
 	shader->impl._pipeline = NULL;
 
-	MTLComputePipelineReflection* reflection = (__bridge_transfer MTLComputePipelineReflection*)shader->impl._reflection;
+	MTLComputePipelineReflection *reflection = (__bridge_transfer MTLComputePipelineReflection *)shader->impl._reflection;
 	reflection = nil;
 	shader->impl._reflection = NULL;
 }
 
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int length) {
 	shader->impl.name[0] = 0;
-	
+
 	{
 		uint8_t *data = (uint8_t *)_data;
 		if (length > 1 && data[0] == '>') {
@@ -95,8 +95,8 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 			}
 		}
 	}
-	
-	char* data = (char*)_data;
+
+	char *data = (char *)_data;
 	id<MTLLibrary> library = nil;
 	if (length > 1 && data[0] == '>') {
 		library = getMetalLibrary();
@@ -107,28 +107,31 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	}
 	id<MTLFunction> function = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
 	assert(shader->impl._function != nil);
-	shader->impl._function = (__bridge_retained void*)function;
+	shader->impl._function = (__bridge_retained void *)function;
 
 	id<MTLDevice> device = getMetalDevice();
-	MTLComputePipelineReflection* reflection = nil;
-	NSError* error = nil;
-	shader->impl._pipeline = (__bridge_retained void*)[device newComputePipelineStateWithFunction:function options:MTLPipelineOptionBufferTypeInfo reflection:&reflection error:&error];
+	MTLComputePipelineReflection *reflection = nil;
+	NSError *error = nil;
+	shader->impl._pipeline = (__bridge_retained void *)[device newComputePipelineStateWithFunction:function
+	                                                                                       options:MTLPipelineOptionBufferTypeInfo
+	                                                                                    reflection:&reflection
+	                                                                                         error:&error];
 	if (error != nil) NSLog(@"%@", [error localizedDescription]);
 	assert(shader->impl._pipeline != NULL && !error);
-	shader->impl._reflection = (__bridge_retained void*)reflection;
+	shader->impl._reflection = (__bridge_retained void *)reflection;
 }
 
 kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_compute_shader_t *shader, const char *name) {
 	kinc_compute_constant_location_t location;
 	location.impl._offset = -1;
 
-	MTLComputePipelineReflection* reflection = (__bridge MTLComputePipelineReflection*)shader->impl._reflection;
+	MTLComputePipelineReflection *reflection = (__bridge MTLComputePipelineReflection *)shader->impl._reflection;
 
-	for (MTLArgument* arg in reflection.arguments) {
+	for (MTLArgument *arg in reflection.arguments) {
 		if (arg.type == MTLArgumentTypeBuffer && [arg.name isEqualToString:@"uniforms"]) {
 			if ([arg bufferDataType] == MTLDataTypeStruct) {
-				MTLStructType* structObj = [arg bufferStructType];
-				for (MTLStructMember* member in structObj.members) {
+				MTLStructType *structObj = [arg bufferStructType];
+				for (MTLStructMember *member in structObj.members) {
 					if (strcmp([[member name] UTF8String], name) == 0) {
 						location.impl._offset = (int)[member offset];
 						break;
@@ -146,8 +149,8 @@ kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_sh
 	kinc_compute_texture_unit_t unit;
 	unit.impl._index = -1;
 
-	MTLComputePipelineReflection* reflection = (__bridge MTLComputePipelineReflection*)shader->impl._reflection;
-	for (MTLArgument* arg in reflection.arguments) {
+	MTLComputePipelineReflection *reflection = (__bridge MTLComputePipelineReflection *)shader->impl._reflection;
+	for (MTLArgument *arg in reflection.arguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
 			unit.impl._index = (int)[arg index];
 		}

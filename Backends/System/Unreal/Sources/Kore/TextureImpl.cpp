@@ -11,7 +11,7 @@
 
 using namespace Kore;
 
-void Texture::init(const char* format, bool readable) {
+void Texture::init(const char *format, bool readable) {
 	Kore::Random::init(0);
 
 	stage = 0;
@@ -19,15 +19,15 @@ void Texture::init(const char* format, bool readable) {
 	texWidth = width;
 	texHeight = height;
 
-	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
+	FRHICommandListImmediate &commandList = GRHICommandList.GetImmediateCommandList();
 	FRHIResourceCreateInfo createInfo;
 	_tex = commandList.CreateTexture2D(width, height, PF_B8G8R8A8, 1, 1, 0, createInfo);
 
 	uint32 stride;
-	u8* to = (u8*)commandList.LockTexture2D(_tex, 0, RLM_WriteOnly, stride, false);
+	u8 *to = (u8 *)commandList.LockTexture2D(_tex, 0, RLM_WriteOnly, stride, false);
 
 	pitch = stride;
-	u8* from = (u8*)this->data;
+	u8 *from = (u8 *)this->data;
 
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
@@ -53,7 +53,7 @@ Texture::Texture(int width, int height, int depth, Image::Format format, bool re
 TextureImpl::~TextureImpl() {}
 
 void Texture::_set(TextureUnit unit) {
-	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
+	FRHICommandListImmediate &commandList = GRHICommandList.GetImmediateCommandList();
 	TShaderMapRef<FPixelShaderDeclaration> pixelShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
 	SetTextureParameter(commandList, pixelShader->GetPixelShader(), unit.parameter, _tex);
 
@@ -63,7 +63,7 @@ void Texture::_set(TextureUnit unit) {
 
 void TextureImpl::unset() {}
 
-u8* Texture::lock() {
+u8 *Texture::lock() {
 	return nullptr;
 }
 
@@ -77,4 +77,4 @@ int Texture::stride() {
 
 void Texture::generateMipmaps(int levels) {}
 
-void Texture::setMipmap(Texture* mipmap, int level) {}
+void Texture::setMipmap(Texture *mipmap, int level) {}

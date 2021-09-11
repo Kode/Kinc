@@ -11,7 +11,7 @@ void Mutex::lock() {}
 
 void Mutex::unlock() {}
 
-bool UberMutex::create(const wchar_t* name) {
+bool UberMutex::create(const wchar_t *name) {
 	return false;
 }
 

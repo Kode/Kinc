@@ -22,15 +22,15 @@ struct kinc_g5_render_target;
 	id<MTLRenderCommandEncoder> commandEncoder;
 	id<CAMetalDrawable> drawable;
 	id<MTLLibrary> library;
-	MTLRenderPassDescriptor* renderPassDescriptor;
+	MTLRenderPassDescriptor *renderPassDescriptor;
 	id<MTLTexture> depthTexture;
 #else
-	EAGLContext* context;
+	EAGLContext *context;
 	GLuint defaultFramebuffer, colorRenderbuffer, depthStencilRenderbuffer;
 #endif
 
 #ifndef KORE_TVOS
-	CMMotionManager* motionManager;
+	CMMotionManager *motionManager;
 #endif
 	bool hasAccelerometer;
 	float lastAccelerometerX, lastAccelerometerY, lastAccelerometerZ;
@@ -41,7 +41,7 @@ struct kinc_g5_render_target;
 - (void)showKeyboard;
 - (void)hideKeyboard;
 #ifdef KORE_METAL
-- (CAMetalLayer*)metalLayer;
+- (CAMetalLayer *)metalLayer;
 - (id<MTLDevice>)metalDevice;
 - (id<MTLLibrary>)metalLibrary;
 - (id<MTLCommandQueue>)metalQueue;

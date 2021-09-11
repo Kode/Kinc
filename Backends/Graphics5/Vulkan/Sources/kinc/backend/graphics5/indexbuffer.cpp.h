@@ -7,7 +7,7 @@
 
 extern VkDevice device;
 
-bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
 kinc_g5_index_buffer_t *currentIndexBuffer = NULL;
 

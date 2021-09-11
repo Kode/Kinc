@@ -37,7 +37,7 @@ public:
 	VideoFrameProcessor(Platform::Agile<Windows::Media::Capture::MediaCapture> mediaCapture, Windows::Media::Capture::Frames::MediaFrameReader ^ reader,
 	                    Windows::Media::Capture::Frames::MediaFrameSource ^ source);
 
-	CameraImage* VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem ^ worldCoordSystem);
+	CameraImage *VideoFrameProcessor::getCurrentCameraImage(SpatialCoordinateSystem ^ worldCoordSystem);
 
 protected:
 	void onFrameArrived(Windows::Media::Capture::Frames::MediaFrameReader ^ sender, Windows::Media::Capture::Frames::MediaFrameArrivedEventArgs ^ args);
@@ -52,5 +52,5 @@ protected:
 private:
 	Windows::Media::Capture::Frames::MediaFrameReference ^ getAndResetLatestFrame(void);
 	Windows::Media::Capture::Frames::VideoMediaFrameFormat ^ getCurrentFormat(void) const;
-	bool copyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame ^ source, CameraImage* image);
+	bool copyFromVideoMediaFrame(Windows::Media::Capture::Frames::VideoMediaFrame ^ source, CameraImage *image);
 };

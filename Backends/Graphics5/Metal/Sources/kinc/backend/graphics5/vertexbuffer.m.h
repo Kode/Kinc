@@ -65,8 +65,8 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 	}
 #endif
 	id<MTLBuffer> buf = [device newBufferWithLength:count * buffer->impl.myStride options:options];
-	buffer->impl.mtlBuffer = (__bridge_retained void*)buf;
-	
+	buffer->impl.mtlBuffer = (__bridge_retained void *)buf;
+
 	buffer->impl.lastStart = 0;
 	buffer->impl.lastCount = 0;
 }
@@ -82,7 +82,7 @@ float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buf) {
 	buf->impl.lastStart = 0;
 	buf->impl.lastCount = kinc_g5_vertex_buffer_count(buf);
 	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
-	float* floats = (float*)[buffer contents];
+	float *floats = (float *)[buffer contents];
 	return floats;
 }
 
@@ -90,7 +90,7 @@ float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buf, int start, int c
 	buf->impl.lastStart = start;
 	buf->impl.lastCount = count;
 	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;
-	float* floats = (float*)[buffer contents];
+	float *floats = (float *)[buffer contents];
 	return &floats[start * buf->impl.myStride / sizeof(float)];
 }
 

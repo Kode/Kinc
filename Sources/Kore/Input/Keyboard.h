@@ -195,7 +195,7 @@ namespace Kore {
 
 	class Keyboard {
 	public:
-		static Keyboard* the();
+		static Keyboard *the();
 		void (*KeyDown)(KeyCode code);
 		void (*KeyUp)(KeyCode code);
 		void (*KeyPress)(wchar_t character);

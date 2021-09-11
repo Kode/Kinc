@@ -12,6 +12,6 @@ namespace Kore {
 
 	class ShaderImpl {
 	public:
-		void* shader;
+		void *shader;
 	};
 }

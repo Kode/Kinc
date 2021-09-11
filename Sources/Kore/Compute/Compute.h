@@ -26,10 +26,10 @@ namespace Kore {
 
 	class ComputeShader {
 	public:
-		ComputeShader(void* source, int length);
+		ComputeShader(void *source, int length);
 		~ComputeShader();
-		ComputeConstantLocation getConstantLocation(const char* name);
-		ComputeTextureUnit getTextureUnit(const char* name);
+		ComputeConstantLocation getConstantLocation(const char *name);
+		ComputeTextureUnit getTextureUnit(const char *name);
 		kinc_compute_shader_t kincImpl;
 	};
 
@@ -38,7 +38,7 @@ namespace Kore {
 	public:
 		ShaderStorageBuffer(int count, Graphics4::VertexData type);
 		virtual ~ShaderStorageBuffer();
-		int* lock();
+		int *lock();
 		void unlock();
 		int count();
 		void _set();
@@ -55,17 +55,17 @@ namespace Kore {
 		void setFloat2(ComputeConstantLocation location, float value1, float value2);
 		void setFloat3(ComputeConstantLocation location, float value1, float value2, float value3);
 		void setFloat4(ComputeConstantLocation location, float value1, float value2, float value3, float value4);
-		void setFloats(ComputeConstantLocation location, float* values, int count);
-		void setMatrix(ComputeConstantLocation location, const mat4& value);
-		void setMatrix(ComputeConstantLocation location, const mat3& value);
+		void setFloats(ComputeConstantLocation location, float *values, int count);
+		void setMatrix(ComputeConstantLocation location, const mat4 &value);
+		void setMatrix(ComputeConstantLocation location, const mat3 &value);
 #ifdef KORE_OPENGL
-		void setBuffer(ShaderStorageBuffer* buffer, int index);
+		void setBuffer(ShaderStorageBuffer *buffer, int index);
 #endif
-		void setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Access access);
-		void setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* texture, Access access);
-		void setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture);
-		void setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target);
-		void setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target);
+		void setTexture(ComputeTextureUnit unit, Graphics4::Texture *texture, Access access);
+		void setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *texture, Access access);
+		void setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture *texture);
+		void setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *target);
+		void setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *target);
 		void setTextureAddressing(ComputeTextureUnit unit, Graphics4::TexDir dir, Graphics4::TextureAddressing addressing);
 		void setTextureMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter);
 		void setTextureMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter);
@@ -74,7 +74,7 @@ namespace Kore {
 		void setTexture3DMagnificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter);
 		void setTexture3DMinificationFilter(ComputeTextureUnit unit, Graphics4::TextureFilter filter);
 		void setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::MipmapFilter filter);
-		void setShader(ComputeShader* shader);
+		void setShader(ComputeShader *shader);
 		void compute(int x, int y, int z);
 	};
 }

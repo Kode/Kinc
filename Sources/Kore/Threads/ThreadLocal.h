@@ -7,8 +7,9 @@ namespace Kore {
 	public:
 		void create();
 		void destroy();
-		void* get();
-		void set(void*);
+		void *get();
+		void set(void *);
+
 	private:
 		kinc_thread_local_t local;
 	};

@@ -19,23 +19,23 @@ namespace DX {
 	public:
 		CameraResources(Windows::Graphics::Holographic::HolographicCamera ^ holographicCamera);
 
-		void createResourcesForBackBuffer(DX::DeviceResources* pDeviceResources,
+		void createResourcesForBackBuffer(DX::DeviceResources *pDeviceResources,
 		                                  Windows::Graphics::Holographic::HolographicCameraRenderingParameters ^ cameraParameters);
-		void releaseResourcesForBackBuffer(DX::DeviceResources* pDeviceResources);
+		void releaseResourcesForBackBuffer(DX::DeviceResources *pDeviceResources);
 
 		// Direct3D device resources.
 		// ID3D11RenderTargetView* GetBackBufferRenderTargetView()     const { return m_d3dRenderTargetView.Get();     }
-		ID3D11RenderTargetView* getBackBufferRenderTargetViewLeft() const {
+		ID3D11RenderTargetView *getBackBufferRenderTargetViewLeft() const {
 			return m_d3dRenderTargetViewLeft.Get();
 		}
-		ID3D11RenderTargetView* getBackBufferRenderTargetViewRight() const {
+		ID3D11RenderTargetView *getBackBufferRenderTargetViewRight() const {
 			return m_d3dRenderTargetViewRight.Get();
 		}
 		// ID3D11DepthStencilView* GetDepthStencilView()               const { return m_d3dDepthStencilView.Get();     }
-		ID3D11DepthStencilView* getDepthStencilViewLeft() const {
+		ID3D11DepthStencilView *getDepthStencilViewLeft() const {
 			return m_d3dDepthStencilViewLeft.Get();
 		}
-		ID3D11DepthStencilView* getDepthStencilViewRight() const {
+		ID3D11DepthStencilView *getDepthStencilViewRight() const {
 			return m_d3dDepthStencilViewRight.Get();
 		}
 

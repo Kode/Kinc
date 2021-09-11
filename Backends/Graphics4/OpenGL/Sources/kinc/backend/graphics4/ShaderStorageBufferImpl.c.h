@@ -47,7 +47,7 @@ void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int i
 	glGenBuffers(1, &buffer->impl.bufferId);
 	glCheckErrors();
 #endif
-	buffer->impl.data = (int*)malloc(sizeof(int) * indexCount);
+	buffer->impl.data = (int *)malloc(sizeof(int) * indexCount);
 }
 
 void kinc_shader_storage_buffer_destroy(kinc_shader_storage_buffer_t *buffer) {

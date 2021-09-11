@@ -1,8 +1,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <kinc/audio2/audio.h>
 #include <assert.h>
 #include <emscripten.h>
+#include <kinc/audio2/audio.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,10 +10,10 @@ using namespace Kore;
 
 namespace {
 	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
-    kinc_a2_buffer_t a2_buffer;
+	kinc_a2_buffer_t a2_buffer;
 
-	ALCdevice* device = NULL;
-	ALCcontext* context = NULL;
+	ALCdevice *device = NULL;
+	ALCcontext *context = NULL;
 	unsigned int channels = 0;
 	unsigned int bits = 0;
 	ALenum format = 0;
@@ -24,13 +24,13 @@ namespace {
 	short buf[bufsize];
 #define NUM_BUFFERS 3
 
-	void copySample(void* buffer) {
-		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+	void copySample(void *buffer) {
+		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 		a2_buffer.read_location += 4;
 		if (a2_buffer.read_location >= a2_buffer.data_size) {
 			a2_buffer.read_location = 0;
 		}
-		*(s16*)buffer = static_cast<s16>(value * 32767);
+		*(s16 *)buffer = static_cast<s16>(value * 32767);
 	}
 
 	void streamBuffer(ALuint buffer) {
@@ -100,6 +100,6 @@ void kinc_a2_shutdown() {
 	audioRunning = false;
 }
 
-void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
 	a2_callback = kinc_a2_audio_callback;
 }

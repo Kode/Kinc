@@ -7,8 +7,8 @@ namespace Kore {
 
 	class ProgramImpl {
 	public:
-		Shader* vertexShader;
-		Shader* fragmentShader;
+		Shader *vertexShader;
+		Shader *fragmentShader;
 
 		FVertexDeclarationRHIRef _vertexDeclaration;
 	};

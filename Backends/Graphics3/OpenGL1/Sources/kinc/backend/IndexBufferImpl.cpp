@@ -4,7 +4,7 @@
 
 using namespace Kore;
 
-Graphics3::IndexBuffer* IndexBufferImpl::current = nullptr;
+Graphics3::IndexBuffer *IndexBufferImpl::current = nullptr;
 
 IndexBufferImpl::IndexBufferImpl(int count) : myCount(count) {}
 
@@ -22,7 +22,7 @@ Graphics3::IndexBuffer::~IndexBuffer() {
 	delete[] data;
 }
 
-int* Graphics3::IndexBuffer::lock() {
+int *Graphics3::IndexBuffer::lock() {
 	return data;
 }
 
@@ -48,7 +48,7 @@ void Graphics3::IndexBuffer::_set() {
 }
 
 void IndexBufferImpl::unset() {
-	if ((void*)current == (void*)this) current = nullptr;
+	if ((void *)current == (void *)this) current = nullptr;
 }
 
 int Graphics3::IndexBuffer::count() {

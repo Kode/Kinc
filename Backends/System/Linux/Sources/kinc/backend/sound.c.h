@@ -14,18 +14,18 @@ kinc_a2_buffer_t a2_buffer;
 
 pthread_t threadid;
 bool audioRunning = false;
-snd_pcm_t* playback_handle;
+snd_pcm_t *playback_handle;
 short buf[4096 * 4];
 
-void copySample(void* buffer) {
-	float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+void copySample(void *buffer) {
+	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 	a2_buffer.read_location += 4;
 	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
 	if (value != 0) {
 		int a = 3;
 		++a;
 	}
-	*(int16_t*)buffer = (int16_t)(value * 32767);
+	*(int16_t *)buffer = (int16_t)(value * 32767);
 }
 
 int playback_callback(snd_pcm_sframes_t nframes) {
@@ -49,34 +49,35 @@ int playback_callback(snd_pcm_sframes_t nframes) {
 	return err;
 }
 
-bool tryToRecover( snd_pcm_t* handle, int errorCode ) {
+bool tryToRecover(snd_pcm_t *handle, int errorCode) {
 	switch (-errorCode) {
-		case EINTR:
-		case EPIPE:
-		case ESPIPE:
-		#if !defined(__FreeBSD__)
-		case ESTRPIPE:
-		#endif
-		{
-			int recovered = snd_pcm_recover(playback_handle, errorCode, 1);
+	case EINTR:
+	case EPIPE:
+	case ESPIPE:
+#if !defined(__FreeBSD__)
+	case ESTRPIPE:
+#endif
+	{
+		int recovered = snd_pcm_recover(playback_handle, errorCode, 1);
 
-			if (recovered != 0) {
-				fprintf(stderr, "unable to recover from ALSA error code=%i\n", errorCode);
-				return false;
-			} else {
-				fprintf(stdout, "recovered from ALSA error code=%i\n", errorCode);
-				return true;
-			}
-		}
-		default:
-			fprintf(stderr, "unhandled ALSA error code=%i\n", errorCode);
+		if (recovered != 0) {
+			fprintf(stderr, "unable to recover from ALSA error code=%i\n", errorCode);
 			return false;
+		}
+		else {
+			fprintf(stdout, "recovered from ALSA error code=%i\n", errorCode);
+			return true;
+		}
+	}
+	default:
+		fprintf(stderr, "unhandled ALSA error code=%i\n", errorCode);
+		return false;
 	}
 }
 
-void* doAudio(void* arg) {
-	snd_pcm_hw_params_t* hw_params;
-	snd_pcm_sw_params_t* sw_params;
+void *doAudio(void *arg) {
+	snd_pcm_hw_params_t *hw_params;
+	snd_pcm_sw_params_t *sw_params;
 	snd_pcm_sframes_t frames_to_deliver;
 	int err;
 
@@ -119,7 +120,7 @@ void* doAudio(void* arg) {
 
 	snd_pcm_uframes_t bufferSize = rate / 8;
 	if (((err = snd_pcm_hw_params_set_buffer_size(playback_handle, hw_params, bufferSize)) < 0 &&
-			(snd_pcm_hw_params_set_buffer_size_near(playback_handle, hw_params, &bufferSize)) < 0)) {
+	     (snd_pcm_hw_params_set_buffer_size_near(playback_handle, hw_params, &bufferSize)) < 0)) {
 		fprintf(stderr, "cannot set buffer size (%s)\n", snd_strerror(err));
 		return NULL;
 	}
@@ -132,8 +133,8 @@ void* doAudio(void* arg) {
 	snd_pcm_hw_params_free(hw_params);
 
 	/* tell ALSA to wake us up whenever 4096 or more frames
-		of playback data can be delivered. Also, tell
-		ALSA that we'll start the device ourselves.
+	    of playback data can be delivered. Also, tell
+	    ALSA that we'll start the device ourselves.
 	*/
 
 	if ((err = snd_pcm_sw_params_malloc(&sw_params)) < 0) {
@@ -158,7 +159,7 @@ void* doAudio(void* arg) {
 	}
 
 	/* the interface will interrupt the kernel every 4096 frames, and ALSA
-		will wake up this program very soon after that.
+	    will wake up this program very soon after that.
 	*/
 
 	if ((err = snd_pcm_prepare(playback_handle)) < 0) {
@@ -169,7 +170,7 @@ void* doAudio(void* arg) {
 	while (audioRunning) {
 
 		/* wait till the interface is ready for data, or 1 second
-			has elapsed.
+		    has elapsed.
 		*/
 
 		if ((err = snd_pcm_wait(playback_handle, 1000)) < 0) {
@@ -183,7 +184,8 @@ void* doAudio(void* arg) {
 			if (!tryToRecover(playback_handle, frames_to_deliver)) {
 				// break;
 			}
-		} else {
+		}
+		else {
 			// frames_to_deliver = frames_to_deliver > 4096 ? 4096 : frames_to_deliver;
 
 			/* deliver the data */
@@ -217,6 +219,6 @@ void kinc_a2_shutdown() {
 	audioRunning = false;
 }
 
-void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
-    a2_callback = kinc_a2_audio_callback;
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+	a2_callback = kinc_a2_audio_callback;
 }

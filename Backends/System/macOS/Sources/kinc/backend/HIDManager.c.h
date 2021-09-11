@@ -5,8 +5,8 @@ static int initHIDManager(struct HIDManager *manager);
 static bool addMatchingArray(struct HIDManager *manager, CFMutableArrayRef matchingCFArrayRef, CFDictionaryRef matchingCFDictRef);
 static CFMutableDictionaryRef createDeviceMatchingDictionary(struct HIDManager *manager, uint32_t inUsagePage, uint32_t inUsage);
 
-static void deviceConnected(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef);
-static void deviceRemoved(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef);
+static void deviceConnected(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
+static void deviceRemoved(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
 
 void HIDManager_init(struct HIDManager *manager) {
 	manager->managerRef = 0x0;
@@ -104,17 +104,17 @@ CFMutableDictionaryRef createDeviceMatchingDictionary(struct HIDManager *manager
 }
 
 // HID device plugged callback
-void deviceConnected(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
+void deviceConnected(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
 	// Reference manager
-	struct HIDManager *manager = (struct HIDManager*) inContext;
+	struct HIDManager *manager = (struct HIDManager *)inContext;
 
 	// Find an empty slot in the devices list and add the new device there
 	// TODO: does this need to be made thread safe?
 	struct HIDManagerDeviceRecord *device = &manager->devices[0];
 	for (int i = 0; i < KINC_MAX_HID_DEVICES; ++i, ++device) {
 		if (!device->connected) {
-			device->connected	= true;
-			device->device 		= inIOHIDDeviceRef;
+			device->connected = true;
+			device->device = inIOHIDDeviceRef;
 			HIDGamepad_bind(&device->pad, inIOHIDDeviceRef, i);
 			break;
 		}
@@ -122,17 +122,17 @@ void deviceConnected(void* inContext, IOReturn inResult, void* inSender, IOHIDDe
 }
 
 // HID device unplugged callback
-void deviceRemoved(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
+void deviceRemoved(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
 	// Reference manager
-	struct HIDManager *manager = (struct HIDManager*) inContext;
+	struct HIDManager *manager = (struct HIDManager *)inContext;
 
 	// TODO: does this need to be made thread safe?
 	struct HIDManagerDeviceRecord *device = &manager->devices[0];
 	for (int i = 0; i < KINC_MAX_HID_DEVICES; ++i, ++device) {
 		// TODO: is comparing IOHIDDeviceRef to match devices safe? Is there a better way?
 		if (device->connected && device->device == inIOHIDDeviceRef) {
-			device->connected	= false;
-			device->device 		= NULL;
+			device->connected = false;
+			device->device = NULL;
 			HIDGamepad_unbind(&device->pad);
 			break;
 		}

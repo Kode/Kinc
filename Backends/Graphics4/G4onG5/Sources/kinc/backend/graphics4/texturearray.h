@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 typedef struct {
-	//void set(Kore::Graphics4::TextureUnit unit);
+	// void set(Kore::Graphics4::TextureUnit unit);
 	int nothing;
 } kinc_g4_texture_array_impl_t;
 
