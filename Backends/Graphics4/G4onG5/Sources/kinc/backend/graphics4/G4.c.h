@@ -220,10 +220,10 @@ void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g
 }
 
 void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_int(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_int(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_int(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_int(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
 void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {}
@@ -235,59 +235,59 @@ void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int valu
 void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {}
 
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_float(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_float(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_float(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_float(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
 void kinc_g4_set_float2(kinc_g4_constant_location_t location, float value1, float value2) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_float2(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_float2(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_float2(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_float2(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2);
 }
 
 void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, float value2, float value3) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_float3(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2, value3);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_float3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2, value3);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_float3(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2, value3);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_float3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2, value3);
 }
 
 void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, float value2, float value3, float value4) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_float4(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2, value3, value4);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_float4(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2, value3, value4);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_float4(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2, value3, value4);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_float4(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2, value3, value4);
 }
 
 void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_floats(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, values, count);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_floats(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, values, count);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_floats(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, values, count);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_floats(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, values, count);
 }
 
 void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_bool(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_bool(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_bool(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_bool(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
 void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_matrix4(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_matrix4(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_matrix4(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_matrix4(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
 void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
-	if (location.impl._location.impl.vertexOffset >= 0)
-		kinc_g5_constant_buffer_set_matrix3(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
-	if (location.impl._location.impl.fragmentOffset >= 0)
-		kinc_g5_constant_buffer_set_matrix3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	// if (location.impl._location.impl.vertexOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_matrix3(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
+	// if (location.impl._location.impl.fragmentOffset >= 0)
+	// 	kinc_g5_constant_buffer_set_matrix3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {

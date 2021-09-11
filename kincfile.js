@@ -16,6 +16,8 @@ let g4 = false;
 
 let g5 = false;
 
+let g6 = false;
+
 const a1 = true;
 project.addDefine('KORE_A1');
 
@@ -102,7 +104,9 @@ if (platform === Platform.Windows) {
 	else if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
-		addBackend('Graphics5/Vulkan');
+		g6 = true;
+		// addBackend('Graphics5/Vulkan');
+		addBackend('Graphics6/Vulkan');
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
 		if (!process.env.VULKAN_SDK) {
@@ -282,7 +286,9 @@ else if (platform === Platform.Android) {
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
-		addBackend('Graphics5/Vulkan');
+		g6 = true;
+		// addBackend('Graphics5/Vulkan');
+		addBackend('Graphics6/Vulkan');
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_ANDROID_KHR');
 		project.addLib("vulkan");
@@ -347,7 +353,9 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
-		addBackend('Graphics5/Vulkan');
+		g6 = true;
+		// addBackend('Graphics5/Vulkan');
+		addBackend('Graphics6/Vulkan');
 		project.addLib('vulkan');
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_XLIB_KHR');
@@ -426,6 +434,16 @@ else {
 	project.addDefine('KORE_G5');
 	project.addDefine('KORE_G5ONG4');
 	addBackend('Graphics5/G5onG4');
+}
+
+if(g6) {
+	project.addDefine('KORE_G6');
+	project.addDefine('KORE_G5ONG6');
+	addBackend('Graphics5/G5onG6');
+} else {
+	project.addDefine('KORE_G6');
+	project.addDefine('KORE_G6ONG5');
+	// addBackend('Graphics6/G6onG5');
 }
 
 if (!a3) {
